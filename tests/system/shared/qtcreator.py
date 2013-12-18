@@ -281,7 +281,7 @@ elif platform.system() == 'Darwin':
     origSettingsDir = os.path.join(origSettingsDir, "mac")
 else:
     origSettingsDir = os.path.join(origSettingsDir, "unix")
-srcPath = os.getenv("SYSTEST_SRCPATH", sdkPath + "/src")
+srcPath = os.getenv("SYSTEST_SRCPATH", os.path.join(sdkPath, "src"))
 
 overrideStartApplication()
 

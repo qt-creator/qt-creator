@@ -74,6 +74,8 @@ public:
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
     virtual QFuture<void> updateProjectInfo(const ProjectInfo &newProjectInfo);
 
+    /// \return The project part with the given project file
+    virtual ProjectPart::Ptr projectPartForProjectFile(const QString &projectFile) const;
     /// \return All project parts that mention the given file name as one of the sources/headers.
     virtual QList<ProjectPart::Ptr> projectPart(const QString &fileName) const;
     /// This is a fall-back function: find all files that includes the file directly or indirectly,
@@ -198,6 +200,7 @@ private:
     mutable QMutex m_projectMutex;
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projectToProjectsInfo;
     QMap<QString, QList<CppTools::ProjectPart::Ptr> > m_fileToProjectParts;
+    QMap<QString, CppTools::ProjectPart::Ptr> m_projectFileToProjectPart;
     // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
     QStringList m_projectFiles;

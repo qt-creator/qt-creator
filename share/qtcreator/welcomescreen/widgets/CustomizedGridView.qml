@@ -38,22 +38,30 @@ GridView {
     cellWidth: 216
     property int columns:  Math.max(Math.floor(width / cellWidth), 1)
 
-    delegate: Delegate {
-        id: delegate
+    delegate: Loader {
+        property int delegateOffset: cellHeight * Math.floor(index / columns) + 100
+        property bool isVisible: delegateOffset > scrollView.flickableItem.contentY - cellHeight
+                                 && delegateOffset < scrollView.flickableItem.contentY + scrollView.flickableItem.height
+        onIsVisibleChanged: active = true
+        visible: isVisible
+        active: false
+        sourceComponent: Delegate {
+            id: delegate
 
-        property bool isHelpImage: model.imageUrl.search(/qthelp/)  != -1
-        property string sourcePrefix: isHelpImage ? "image://helpimage/" : ""
+            property bool isHelpImage: model.imageUrl.search(/qthelp/)  != -1
+            property string sourcePrefix: isHelpImage ? "image://helpimage/" : ""
 
-        property string mockupSource: model.imageSource
-        property string helpSource: model.imageUrl !== "" ? sourcePrefix + encodeURI(model.imageUrl) : ""
+            property string mockupSource: model.imageSource
+            property string helpSource: model.imageUrl !== "" ? sourcePrefix + encodeURI(model.imageUrl) : ""
 
-        imageSource: isVideo ? "" : (model.imageSource === undefined ? helpSource : mockupSource)
-        videoSource: isVideo ? (model.imageSource === undefined ? model.imageUrl : mockupSource) : ""
+            imageSource: isVideo ? "" : (model.imageSource === undefined ? helpSource : mockupSource)
+            videoSource: isVideo ? (model.imageSource === undefined ? model.imageUrl : mockupSource) : ""
 
-        caption: model.name;
-        description: model.description
-        isVideo: model.isVideo === true
-        videoLength: model.videoLength !== undefined ? model.videoLength : ""
-        tags: model.tags
+            caption: model.name;
+            description: model.description
+            isVideo: model.isVideo === true
+            videoLength: model.videoLength !== undefined ? model.videoLength : ""
+            tags: model.tags
+        }
     }
 }

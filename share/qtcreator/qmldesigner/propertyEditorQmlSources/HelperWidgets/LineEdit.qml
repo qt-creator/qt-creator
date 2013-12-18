@@ -35,9 +35,9 @@ import QtQuick.Controls.Styles 1.0
 Controls.TextField {
 
     Controls.Action {
-           //Workaround to avoid that "Delete" deletes the item.
-           shortcut: "Delete"
-       }
+        //Workaround to avoid that "Delete" deletes the item.
+        shortcut: "Delete"
+    }
 
     id: lineEdit
     property variant backendValue
@@ -62,19 +62,22 @@ Controls.TextField {
         }
     }
 
-     onEditingFinished: {
-        if (backendValue.value !== text)
-            backendValue.value = text;
-    }
-
-
-    onFocusChanged: {
-        if (focus) {
-            transaction.start();
+    onEditingFinished: {
+        if (backendValue.isTranslated) {
+            backendValue.expression = "qsTr(\"" + trCheckbox.escapeString(text) + "\")"
         } else {
-            transaction.end();
+            if (lineEdit.backendValue.value !== text)
+                lineEdit.backendValue.value = text;
         }
     }
+
+    //    onFocusChanged: {
+    //        if (focus) {
+    //            transaction.start();
+    //        } else {
+    //            transaction.end();
+    //        }
+    //    }
 
     style: TextFieldStyle {
         selectionColor: lineEdit.textColor
@@ -112,12 +115,24 @@ Controls.TextField {
         anchors.verticalCenter: parent.verticalCenter
         id: trCheckbox
 
-        checked: backendValue.isTranslated
+
+        property bool isTranslated: colorLogic.backendValue.isTranslated
+        property bool backendValueValue: colorLogic.backendValue.value
+
+        onIsTranslatedChanged: {
+            checked = lineEdit.backendValue.isTranslated
+        }
+
+        onBackendValueValueChanged: {
+            checked = lineEdit.backendValue.isTranslated
+        }
+
         onClicked: {
             if (trCheckbox.checked) {
-                backendValue.expression = "qsTr(\"" + escapeString(lineEdit.text) + "\")"
+                lineEdit.backendValue.expression = "qsTr(\"" + escapeString(lineEdit.text) + "\")"
             } else {
-                backendValue.value = lineEdit.text
+                var textValue = lineEdit.text
+                lineEdit.backendValue.value = textValue
             }
             colorLogic.evaluate();
         }
@@ -137,7 +152,6 @@ Controls.TextField {
 
         style: CheckBoxStyle {
             spacing: 8
-            label: Controls.Label { text: control.text ; color: checkBox.textColor }
             indicator:  Item {
                 implicitWidth: 16
                 implicitHeight: 16

@@ -52,19 +52,28 @@ def verifyChecked(objectName):
     return object
 
 def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
-    object = waitForObject(objectName, timeout)
-    # synchronize to avoid false positives
-    waitFor('object.checked == shouldBeChecked', 1000)
-    if object.checked ^ shouldBeChecked:
-        clickButton(object)
     if shouldBeChecked:
+        targetState = Qt.Checked
         state = "checked"
     else:
+        targetState = Qt.Unchecked
         state = "unchecked"
+    widget = waitForObject(objectName, timeout)
+    try:
+        # needed for transition Qt::PartiallyChecked -> Qt::Checked -> Qt::Unchecked
+        clicked = 0
+        while not waitFor('widget.checkState() == targetState', 1000) and clicked < 2:
+            clickButton(widget)
+            clicked += 1
+        test.verify(waitFor("widget.checkState() == targetState", 1000))
+    except:
+        # widgets not derived from QCheckbox don't have checkState()
+        if not waitFor('widget.checked == shouldBeChecked', 1000):
+            clickButton(widget)
+        test.verify(waitFor("widget.checked == shouldBeChecked", 1000))
     test.log("New state for QCheckBox: %s" % state,
              str(objectName))
-    test.verify(waitFor("object.checked == shouldBeChecked", 1000))
-    return object
+    return widget
 
 # verify that an object is in an expected enable state. Returns the object.
 # param objectSpec  specifies the object to check. It can either be a string determining an object
@@ -228,6 +237,14 @@ def invokeMenuItem(menu, item, *subItems):
             waitForObject(":Qt Creator.QtCreator.MenuBar_QMenuBar", 2000)
         except:
             nativeMouseClick(waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000), 20, 20, 0, Qt.LeftButton)
+    # HACK to avoid squish crash using Qt5.2 on Squish 5.0.1 - remove asap
+    if platform.system() == "Darwin" and not isQt4Build:
+        if menu == "Tools" and item == "Options...":
+            nativeType("<Command+,>")
+            return
+        if menu == "File" and item == "Exit":
+            nativeType("<Command+q>")
+            return
     menuObject = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar", menu)
     waitFor("menuObject.visible", 1000)
     activateItem(menuObject)
@@ -707,3 +724,11 @@ def getQModelIndexStr(property, container):
     if (container.startswith(":")):
         container = "'%s'" % container
     return ("{column='0' container=%s %s type='QModelIndex'}" % (container, property))
+
+def verifyItemOrder(items, text):
+    text = str(text)
+    lastIndex = 0
+    for item in items:
+        index = text.find(item)
+        test.verify(index > lastIndex, "'" + item + "' found at index " + str(index))
+        lastIndex = index

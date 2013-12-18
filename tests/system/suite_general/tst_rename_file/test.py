@@ -50,7 +50,7 @@ def main():
                                ["Resources", "musicbrowser.qrc"],
                                ["QML", "musicbrowser.qml"]]:
         filenames = ["ABCD" + filename.upper(), "abcd" + filename.lower(), "test", "TEST", filename]
-        if platform.system() == 'Darwin':
+        if isQt4Build and platform.system() == 'Darwin':
             # avoid QTCREATORBUG-9197
             filtered = [filenames[0]]
             for i in range(1, len(filenames)):
@@ -61,6 +61,13 @@ def main():
             tempFiletype = filetype
             if filetype == "QML" and filenames[i - 1][-4:] != ".qml":
                 tempFiletype = "Other files"
+            # following is necessary due to QTCREATORBUG-10179
+            # will be fixed when Qt5's MIME type database can be used
+            if ((filenames[-1] in ("main.cpp", "utility.cpp") and filenames[i - 1][-4:] != ".cpp")
+                or (filenames[-1] == "utility.h" and filenames[i - 1][-2:].lower() != ".h")
+                or (filetype == "Resources" and filenames[i - 1][-4:] != ".qrc")):
+                tempFiletype = "Other files"
+            # end of handling QTCREATORBUG-10179
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
                        filenames[i - 1], filenames[i])
     invokeMenuItem("File", "Exit")
@@ -71,8 +78,6 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
     oldFileText = readFile(oldFilePath)
     itemText = branch + "." + oldname.replace(".", "\\.")
     treeview = waitForObject(":Qt Creator_Utils::NavigationTreeView")
-    if platform.system() == 'Darwin':
-        JIRA.performWorkaroundForBug(8735, JIRA.Bug.CREATOR, treeview)
     try:
         openItemContextMenu(treeview, itemText, 5, 5, 0)
     except:

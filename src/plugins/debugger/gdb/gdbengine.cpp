@@ -441,6 +441,11 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     // We get multiple *running after thread creation and in Windows terminals.
                     showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
                                 arg(QLatin1String(DebuggerEngine::stateName(state()))));
+                } else if (Utils::HostOsInfo::isWindowsHost() && (state() == InferiorStopRequested
+                               || state() == InferiorShutdownRequested)) {
+                    // FIXME: Breakpoints on Windows are exceptions which are thrown in newly
+                    // created threads so we have to filter out the running threads messages when
+                    // we request a stop.
                 } else {
                     notifyInferiorRunOk();
                 }
@@ -4997,9 +5002,10 @@ void GdbEngine::tryLoadPythonDumpers()
     const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()
             + "/data-directory/python";
 
-   postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", ConsoleCommand);
-   postCommand("python sys.path.append('" + uninstalledData + "')", ConsoleCommand);
-   postCommand("python from gdbbridge import *", ConsoleCommand, CB(handlePythonSetup));
+    const GdbCommandFlags flags = ConsoleCommand | Immediate;
+    postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", flags);
+    postCommand("python sys.path.append('" + uninstalledData + "')", flags);
+    postCommand("python from gdbbridge import *", flags, CB(handlePythonSetup));
 }
 
 void GdbEngine::reloadDebuggingHelpers()

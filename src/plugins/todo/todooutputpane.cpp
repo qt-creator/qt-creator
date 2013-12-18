@@ -123,12 +123,18 @@ bool TodoOutputPane::canPrevious() const
 
 void TodoOutputPane::goToNext()
 {
-    m_todoTreeView->selectionModel()->select(nextModelIndex(), QItemSelectionModel::SelectCurrent);
+    const QModelIndex nextIndex = nextModelIndex();
+    m_todoTreeView->selectionModel()->setCurrentIndex(nextIndex, QItemSelectionModel::SelectCurrent
+                                                      | QItemSelectionModel::Rows);
+    todoTreeViewClicked(nextIndex);
 }
 
 void TodoOutputPane::goToPrev()
 {
-    m_todoTreeView->selectionModel()->select(previousModelIndex(), QItemSelectionModel::SelectCurrent);
+    const QModelIndex prevIndex = previousModelIndex();
+    m_todoTreeView->selectionModel()->setCurrentIndex(prevIndex, QItemSelectionModel::SelectCurrent
+                                                      | QItemSelectionModel::Rows);
+    todoTreeViewClicked(prevIndex);
 }
 
 void TodoOutputPane::setScanningScope(ScanningScope scanningScope)

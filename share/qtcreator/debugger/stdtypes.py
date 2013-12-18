@@ -132,9 +132,9 @@ def qdump__std__list(d, value):
         qdump__std__list__QNX(d, value)
         return
 
-    head = d.dereferenceValue(value)
     impl = value["_M_impl"]
     node = impl["_M_node"]
+    head = d.addressOf(node)
     size = 0
     pp = d.dereference(head)
     while head != pp and size <= 1001:

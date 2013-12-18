@@ -1264,9 +1264,9 @@ bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QS
               << keystorePasswd;
     QProcess proc;
     proc.start(AndroidConfigurations::instance().keytoolPath().toString(), arguments);
-    if (!proc.waitForStarted(500))
+    if (!proc.waitForStarted(4000))
         return false;
-    if (!proc.waitForFinished(500)) {
+    if (!proc.waitForFinished(4000)) {
         proc.kill();
         proc.waitForFinished();
         return false;
@@ -1293,9 +1293,9 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
 
     QProcess proc;
     proc.start(AndroidConfigurations::instance().keytoolPath().toString(), arguments);
-    if (!proc.waitForStarted(500))
+    if (!proc.waitForStarted(4000))
         return false;
-    if (!proc.waitForFinished(500)) {
+    if (!proc.waitForFinished(4000)) {
         proc.kill();
         proc.waitForFinished();
         return false;

@@ -703,12 +703,14 @@ private:
 /// Make sure that m_projectMutex is locked when calling this.
 void CppModelManager::recalculateFileToProjectParts()
 {
+    m_projectFileToProjectPart.clear();
     m_fileToProjectParts.clear();
     foreach (const ProjectInfo &projectInfo, m_projectToProjectsInfo) {
         foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
-            foreach (const ProjectFile &cxxFile, projectPart->files) {
+            m_projectFileToProjectPart[projectPart->projectFile] = projectPart;
+            foreach (const ProjectFile &cxxFile, projectPart->files)
                 m_fileToProjectParts[cxxFile.path].append(projectPart);
-            }
+
         }
     }
 }
@@ -786,6 +788,11 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
 
     // Trigger reindexing
     return updateSourceFiles(filesToReindex, ForcedProgressNotification);
+}
+
+ProjectPart::Ptr CppModelManager::projectPartForProjectFile(const QString &projectFile) const
+{
+    return m_projectFileToProjectPart.value(projectFile);
 }
 
 QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const

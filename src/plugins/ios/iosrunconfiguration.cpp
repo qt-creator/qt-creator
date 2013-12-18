@@ -201,7 +201,9 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
 
     updateValues();
     connect(m_ui->argumentsLineEdit, SIGNAL(editingFinished()),
-            this, SLOT(argumentsLineEditTextEdited()));
+            SLOT(argumentsLineEditTextEdited()));
+    connect(runConfiguration->target(), SIGNAL(buildDirectoryChanged()),
+            SLOT(updateValues()));
 }
 
 IosRunConfigurationWidget::~IosRunConfigurationWidget()

@@ -292,12 +292,12 @@ int GraphicalNodeInstance::penWidth() const
 }
 
 
-QList<ServerNodeInstance> GraphicalNodeInstance::childItemsForChild(QQuickItem *childItem) const
+QList<ServerNodeInstance> GraphicalNodeInstance::childItemsForChild(QQuickItem *item) const
 {
     QList<ServerNodeInstance> instanceList;
 
-    if (childItem) {
-        foreach (QQuickItem *childItem, childItem->childItems())
+    if (item) {
+        foreach (QQuickItem *childItem, item->childItems())
         {
             if (childItem && nodeInstanceServer()->hasInstanceForObject(childItem)) {
                 instanceList.append(nodeInstanceServer()->instanceForObject(childItem));

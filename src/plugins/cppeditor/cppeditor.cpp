@@ -715,6 +715,7 @@ void CPPEditorWidget::setMimeType(const QString &mt)
 
     QSharedPointer<SnapshotUpdater> updater
             = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
+    updater->setProjectPart(m_modelManager->projectPartForProjectFile(projectFile));
     updater->setEditorDefines(additionalDirectives);
 
     m_preprocessorButton->setProperty("highlightWidget", !additionalDirectives.trimmed().isEmpty());
@@ -1997,6 +1998,7 @@ void CPPEditorWidget::showPreProcessorWidget()
         QSharedPointer<SnapshotUpdater> updater
                 = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
         const QString &additionals = preProcessorDialog.additionalPreProcessorDirectives();
+        updater->setProjectPart(preProcessorDialog.projectPart());
         updater->setEditorDefines(additionals.toUtf8());
         updater->update(m_modelManager->workingCopy());
 

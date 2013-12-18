@@ -177,7 +177,7 @@ void Target::changeRunConfigurationEnabled()
 void Target::onBuildDirectoryChanged()
 {
     BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(sender());
-    if (bc)
+    if (bc && activeBuildConfiguration() == bc)
         emit buildDirectoryChanged();
 }
 
@@ -238,6 +238,8 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
             SLOT(changeEnvironment()));
     connect(configuration, SIGNAL(enabledChanged()),
             this, SLOT(changeBuildConfigurationEnabled()));
+    connect(configuration, SIGNAL(buildDirectoryChanged()),
+            SLOT(onBuildDirectoryChanged()));
 
     if (!activeBuildConfiguration())
         setActiveBuildConfiguration(configuration);

@@ -49,6 +49,8 @@ def main():
         selectFromCombo(":Send to Codepaster.protocolBox_QComboBox", protocol)
         pasteEditor = waitForObject(":stackedWidget.plainTextEdit_QPlainTextEdit")
         test.compare(pasteEditor.plainText, sourceText, "Verify that dialog shows text from the editor")
+        description = "Description %s" % datetime.utcnow()
+        type(waitForObject(":uiDescription_QLineEdit"), description)
         typeLines(pasteEditor, "// tst_codepasting %s" % datetime.utcnow())
         pastedText = pasteEditor.plainText
         clickButton(waitForObject(":Send to Codepaster.Paste_QPushButton"))
@@ -72,6 +74,9 @@ def main():
             test.fail("Could not find id '%s' in list of pastes from %s" % (pasteId, protocol))
             clickButton(waitForObject(":CodePaster__Internal__PasteSelectDialog.Cancel_QPushButton"))
             continue
+        if protocol == "Pastebin.Com":
+            test.verify(description in pasteLine, "Verify that line in list of pastes contains the description")
+        pasteLine = pasteLine.replace(".", "\\.")
         waitForObjectItem(":CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget", pasteLine)
         clickItem(":CodePaster__Internal__PasteSelectDialog.listWidget_QListWidget", pasteLine, 5, 5, 0, Qt.LeftButton)
         clickButton(waitForObject(":CodePaster__Internal__PasteSelectDialog.OK_QPushButton"))

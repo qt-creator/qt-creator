@@ -63,9 +63,6 @@ def main():
 #    - Press F2 or select from the menu: Tools / C++ / Follow Symbol under Cursor
 #    Creator will show you the declaration of the variable.
 
-    if platform.system() == "Darwin":
-        JIRA.performWorkaroundForBug(8735, JIRA.Bug.CREATOR, cppwindow)
-
     type(cppwindow, "<Ctrl+F>")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "    xi")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")

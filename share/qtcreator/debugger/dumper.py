@@ -339,6 +339,10 @@ class DumperBase:
     def putByteArrayValue(self, value):
         return self.putValue(self.encodeByteArray(value), Hex2EncodedLatin1)
 
+    def putByteArrayValueByAddress(self, addr):
+        self.putValue(self.encodeByteArrayHelper(self.dereference(addr)),
+            Hex2EncodedLatin1)
+
     def putStringValueByAddress(self, addr):
         self.putValue(self.encodeStringHelper(self.dereference(addr)),
             Hex4EncodedLittleEndian)

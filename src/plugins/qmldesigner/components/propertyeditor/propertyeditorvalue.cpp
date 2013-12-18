@@ -34,6 +34,7 @@
 #include <nodeproperty.h>
 #include <nodemetainfo.h>
 #include <qmlobjectnode.h>
+#include <bindingproperty.h>
 
 //using namespace QmlDesigner;
 
@@ -159,7 +160,6 @@ QString PropertyEditorValue::enumeration() const
 
 QString PropertyEditorValue::expression() const
 {
-
     return m_expression;
 }
 
@@ -224,17 +224,22 @@ void PropertyEditorValue::setIsValid(bool valid)
 
 bool PropertyEditorValue::isTranslated() const
 {
-    if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
+    if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name())) {
         if (modelNode().metaInfo().propertyTypeName(name()) == "QString" || modelNode().metaInfo().propertyTypeName(name()) == "string") {
             const QmlDesigner::QmlObjectNode objectNode(modelNode());
             if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
-                //qsTr()
                 QRegExp rx("qsTr(\"*\")");
+                //qsTr()
                 rx.setPatternSyntax(QRegExp::Wildcard);
-                return rx.exactMatch(expression());
+                if (objectNode.propertyAffectedByCurrentState(name())) {
+                    return rx.exactMatch(expression());
+                } else {
+                    return rx.exactMatch(modelNode().bindingProperty(name()).expression());
+                }
             }
             return false;
         }
+    }
     return false;
 }
 

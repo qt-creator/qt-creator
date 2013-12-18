@@ -124,6 +124,7 @@ public:
         document->setUtf8Source(preprocessedSource);
         QVERIFY(document->parse(parseMode));
         document->check();
+        QVERIFY(document->diagnosticMessages().isEmpty());
         snapshot.insert(document);
     }
 
@@ -263,12 +264,14 @@ void tst_CheckSymbols::test_checksymbols_EnumerationUse()
 {
     const QByteArray source =
         "enum E { Red, Green, Blue };\n"
-        "E e = Red\n";
+        "E e = Red;\n";
     const QList<Use> expectedUses = QList<Use>()
         << Use(1, 6, 1, CppHighlightingSupport::TypeUse)
         << Use(1, 10, 3, CppHighlightingSupport::EnumerationUse)
         << Use(1, 15, 5, CppHighlightingSupport::EnumerationUse)
         << Use(1, 22, 4, CppHighlightingSupport::EnumerationUse)
+        << Use(2, 1, 1, CppHighlightingSupport::TypeUse)
+        << Use(2, 7, 3, CppHighlightingSupport::EnumerationUse)
            ;
 
     TestData::check(source, expectedUses);
@@ -313,7 +316,7 @@ void tst_CheckSymbols::test_checksymbols_MacroUse()
 {
     const QByteArray source =
         "#define FOO 1+1\n"
-        "int f() { FOO }\n";
+        "int f() { FOO; }\n";
     const QList<Use> macroUses = QList<Use>()
         << Use(1, 9, 3, CppHighlightingSupport::MacroUse)
         << Use(2, 11, 3, CppHighlightingSupport::MacroUse);
@@ -877,7 +880,7 @@ void tst_CheckSymbols::test_checksymbols_QTCREATORBUG8974_danglingPointer()
         "    Singleton<INIManager>::instance().bar();\n"
         "    Singleton<INIManager>::instance().bar();\n"
         "    Singleton<INIManager>::instance().bar();\n"
-        "};\n"
+        "}\n"
         ;
 
     const QList<Use> expectedUses = QList<Use>()
@@ -1477,7 +1480,7 @@ void tst_CheckSymbols::test_checksymbols_QTCREATORBUG9098()
             "    {\n"
             "        b.c;\n"
             "    }\n"
-            "}\n"
+            "};\n"
             ;
 
     const QList<Use> expectedUses = QList<Use>()

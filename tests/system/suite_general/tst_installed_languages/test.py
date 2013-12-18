@@ -52,7 +52,16 @@ def main():
         overrideStartApplication()
         startApplication("qtcreator" + SettingsPath)
         try:
-            invokeMenuItem(testData.field(lang, "File"), testData.field(lang, "Exit"))
+            if platform.system() == 'Darwin':
+                # temporary hack for handling wrong menus when using Squish 5.0.1 with Qt5.2
+                fileMenu = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar",
+                                             testData.field(lang, "File"))
+                activateItem(fileMenu)
+                waitForObject("{type='QMenu' visible='1'}")
+                activateItem(fileMenu)
+                nativeType("<Command+q>")
+            else:
+                invokeMenuItem(testData.field(lang, "File"), testData.field(lang, "Exit"))
             test.passes("Creator was running in %s translation." % languageName)
         except:
             test.fail("Creator seems to be missing %s translation" % languageName)

@@ -50,6 +50,8 @@ public:
     ~CppPreProcessorDialog();
 
     int exec();
+
+    CppTools::ProjectPart::Ptr projectPart() const;
     QString additionalPreProcessorDirectives() const;
 
 private slots:

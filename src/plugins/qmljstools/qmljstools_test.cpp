@@ -42,7 +42,6 @@ using namespace QmlJSTools;
 
 void QmlJSTools::Internal::QmlJSToolsPlugin::test_basic()
 {
-    return;
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
     const QString welcomescreenRootPath = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");
@@ -57,7 +56,7 @@ void QmlJSTools::Internal::QmlJSToolsPlugin::test_basic()
     QVERIFY(context);
 
     const CppComponentValue *rectangleValue = context->valueOwner()->cppQmlTypes().objectByQualifiedName(
-                QLatin1String("QtQuick"), QLatin1String("QDeclarative1Rectangle"), LanguageUtils::ComponentVersion(1, 0));
+                QLatin1String("QtQuick"), QLatin1String("QDeclarativeRectangle"), LanguageUtils::ComponentVersion(2, 1));
     QVERIFY(rectangleValue);
     QVERIFY(!rectangleValue->isWritable(QLatin1String("border")));
     QVERIFY(rectangleValue->hasProperty(QLatin1String("border")));

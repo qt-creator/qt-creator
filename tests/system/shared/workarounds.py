@@ -216,7 +216,6 @@ class JIRA:
         def __initBugDict__(self):
             self.__bugs__= {
                             'QTCREATORBUG-6853':self._workaroundCreator6853_,
-                            'QTCREATORBUG-8735':self._workaroundCreator_MacEditorFocus_
                             }
         # helper function - will be called if no workaround for the requested bug is deposited
         def _exitFatal_(self, bugType, number):
@@ -227,7 +226,3 @@ class JIRA:
         def _workaroundCreator6853_(self, *args):
             if "Release" in args[0] and platform.system() == "Linux":
                 snooze(2)
-
-        def _workaroundCreator_MacEditorFocus_(self, *args):
-            editor = args[0]
-            nativeMouseClick(editor.mapToGlobal(QPoint(50, 50)).x, editor.mapToGlobal(QPoint(50, 50)).y, Qt.LeftButton)

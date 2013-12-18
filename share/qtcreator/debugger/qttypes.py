@@ -231,6 +231,17 @@ def qdump__QTime(d, value):
         d.putNumChild(0)
 
 
+def qdump__QTimeZone(d, value):
+    base = d.dereferenceValue(value)
+    if d.isNull(base):
+        d.putValue("(null)")
+        d.putNumChild(0)
+        return
+    idAddr = base + 2 * d.ptrSize() # [QSharedData] + [vptr]
+    d.putByteArrayValueByAddress(idAddr)
+    d.putPlainChildren(value["d"])
+
+
 def qdump__QDateTime(d, value):
     qtVersion = d.qtVersion()
     isValid = False
@@ -1626,8 +1637,7 @@ def qdump__QSharedDataPointer(d, value):
             d.putPlainChildren(value)
             return
         d.putBetterType(d.currentType)
-        d.putItem(gdb.Value(d_ptr.cast(innerType.pointer())).dereference())
-        # d.putItem(value.dereference())
+        d.putItem(d_ptr.cast(innerType.pointer()).dereference())
 
 
 def qdump__QSharedPointer(d, value):

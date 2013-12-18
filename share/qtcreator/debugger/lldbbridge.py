@@ -315,7 +315,8 @@ class Dumper(DumperBase):
             if item.name is None:
                 self.anonNumber += 1
                 item.name = "#%d" % self.anonNumber
-        item.iname = "%s.%s" % (self.currentIName, item.name)
+        if not item.iname:
+            item.iname = "%s.%s" % (self.currentIName, item.name)
         self.put('{')
         #if not item.name is None:
         if isinstance(item.name, str):

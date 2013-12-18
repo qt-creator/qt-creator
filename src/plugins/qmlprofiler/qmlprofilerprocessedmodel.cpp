@@ -114,9 +114,10 @@ QmlProfilerProcessedModel::~QmlProfilerProcessedModel()
 void QmlProfilerProcessedModel::clear()
 {
     m_detailsRewriter->clearRequests();
+
+    // This call emits changed(). Don't emit it again here.
     QmlProfilerSimpleModel::clear();
 
-    emit changed();
     m_emitChanged = false;
 }
 
@@ -155,8 +156,9 @@ void QmlProfilerProcessedModel::complete()
 
     m_detailsRewriter->reloadDocuments();
 
+    // This call emits changed(). Don't emit it again here.
     QmlProfilerSimpleModel::complete();
-    emit changed();
+
     m_emitChanged = false;
 }
 

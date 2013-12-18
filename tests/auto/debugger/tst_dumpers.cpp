@@ -1298,6 +1298,21 @@ void tst_Dumpers::dumper_data()
                % Check("c", "'x' (120)", "@QChar").setForCdbOnly()
                % Check("c", "120", "@QChar").setEngines(DumpTestGdbEngine | DumpTestLldbEngine);
 
+    QTest::newRow("QTimeZone0")
+            << Data("#include <QTimeZone>\n",
+                    "QTimeZone tz;\n"
+                    "unused(&tz);\n")
+               % CoreProfile()
+               % Check("tz", "(null)", "@QTimeZone");
+
+    QTest::newRow("QTimeZone1")
+            << Data("#include <QTimeZone>\n",
+                    "QTimeZone tz(\"UTC+05:00\");\n"
+                    "unused(&tz);\n")
+               % CoreProfile()
+               % Check("tz", "\"UTC+05:00\"", "@QTimeZone")
+               % Check("tz.d.m_name", "\"UTC+05:00\"", "@QString");
+
     QTest::newRow("QDate0")
             << Data("#include <QDate>\n",
                     "QDate date;\n"
@@ -5078,6 +5093,17 @@ void tst_Dumpers::dumper_data()
                % Check("s16", "67", "int16_t")
                % Check("u32", "68", "uint32_t")
                % Check("s32", "69", "int32_t");
+
+    QTest::newRow("stdlist2")
+            << Data("#include <list>\n"
+                    "struct Base { virtual ~Base() {} };\n"
+                    "template<class T>\n"
+                    "struct Derived : public std::list<T>, Base {};\n",
+                    "Derived<int> l;\n"
+                    "l.push_back(1);\n"
+                    "l.push_back(2);\n")
+               % Check("l.@1.0", "[0]", "1", "int")
+               % Check("l.@1.1", "[1]", "2", "int");
 
 }
 

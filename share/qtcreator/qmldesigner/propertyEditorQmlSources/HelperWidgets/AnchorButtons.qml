@@ -42,6 +42,7 @@ import QtQuick 2.1
 import HelperWidgets 2.0
 
 ButtonRow {
+    enabled: anchorBackend.hasParent
     id: buttonRow
 
     ButtonRowButton {
