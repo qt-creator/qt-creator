@@ -493,8 +493,6 @@ BaseTextEditor *BaseTextEditorWidget::editor() const
         d->m_codeAssistant->configure(d->m_editor);
         connect(this, SIGNAL(textChanged()),
                 d->m_editor, SIGNAL(contentsChanged()));
-        connect(baseTextDocument(),SIGNAL(mimeTypeChanged()),
-                d->m_codeAssistant.data(), SLOT(reconfigure()));
     }
     return d->m_editor;
 }
