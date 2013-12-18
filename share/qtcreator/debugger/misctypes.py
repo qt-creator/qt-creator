@@ -35,18 +35,17 @@ from dumper import *
 #
 #######################################################################
 
-def qform____m128():
-    return "As Floats,As Doubles"
-
 def qdump____m128(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
-        format = d.currentItemFormat()
-        if format == 2: # As Double
-            d.putArrayData(d.lookupType("double"), value.address, 2)
-        else: # Default, As float
-            d.putArrayData(d.lookupType("float"), value.address, 4)
+        d.putArrayData(d.lookupType("float"), value.address, 4)
+
+def qdump____m128d(d, value):
+    d.putEmptyValue()
+    d.putNumChild(1)
+    if d.isExpanded():
+        d.putArrayData(d.lookupType("double"), value.address, 2)
 
 def qdump____m128i(d, value):
     data = d.readMemory(value.address, 16)
