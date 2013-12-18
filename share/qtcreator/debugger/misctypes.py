@@ -48,6 +48,30 @@ def qdump____m128(d, value):
         else: # Default, As float
             d.putArrayData(d.lookupType("float"), value.address, 4)
 
+def qdump____m128i(d, value):
+    data = d.readMemory(value.address, 16)
+    d.putValue(':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4)))
+    d.putNumChild(4)
+    if d.isExpanded():
+        # fake 4 children as arrays
+        with Children(d):
+            with SubItem(d, "uint8x16"):
+                d.putEmptyValue()
+                d.putType("unsigned char [16]")
+                d.putArrayData(d.lookupType("unsigned char"), value.address, 16)
+                d.putAddress(value.address)
+            with SubItem(d, "uint16x8"):
+                d.putEmptyValue()
+                d.putType("unsigned short [8]")
+                d.putArrayData(d.lookupType("unsigned short"), value.address, 8)
+            with SubItem(d, "uint32x4"):
+                d.putEmptyValue()
+                d.putType("unsigned int [4]")
+                d.putArrayData(d.lookupType("unsigned int"), value.address, 4)
+            with SubItem(d, "uint64x2"):
+                d.putEmptyValue()
+                d.putType("unsigned long long [2]")
+                d.putArrayData(d.lookupType("unsigned long long"), value.address, 2)
 
 #######################################################################
 #
