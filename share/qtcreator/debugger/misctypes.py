@@ -41,11 +41,23 @@ def qdump____m128(d, value):
     if d.isExpanded():
         d.putArrayData(d.lookupType("float"), value.address, 4)
 
+def qdump____m256(d, value):
+    d.putEmptyValue()
+    d.putNumChild(1)
+    if d.isExpanded():
+        d.putArrayData(d.lookupType("float"), value.address, 8)
+
 def qdump____m128d(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
     if d.isExpanded():
         d.putArrayData(d.lookupType("double"), value.address, 2)
+
+def qdump____m256d(d, value):
+    d.putEmptyValue()
+    d.putNumChild(1)
+    if d.isExpanded():
+        d.putArrayData(d.lookupType("double"), value.address, 4)
 
 def qdump____m128i(d, value):
     data = d.readMemory(value.address, 16)
@@ -71,6 +83,31 @@ def qdump____m128i(d, value):
                 d.putEmptyValue()
                 d.putType("unsigned long long [2]")
                 d.putArrayData(d.lookupType("unsigned long long"), value.address, 2)
+
+def qdump____m256i(d, value):
+    data = d.readMemory(value.address, 32)
+    d.putValue(':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(0, 64, 4)))
+    d.putNumChild(4)
+    if d.isExpanded():
+        # fake 4 children as arrays
+        with Children(d):
+            with SubItem(d, "uint8x32"):
+                d.putEmptyValue()
+                d.putType("unsigned char [32]")
+                d.putArrayData(d.lookupType("unsigned char"), value.address, 32)
+                d.putAddress(value.address)
+            with SubItem(d, "uint16x8"):
+                d.putEmptyValue()
+                d.putType("unsigned short [16]")
+                d.putArrayData(d.lookupType("unsigned short"), value.address, 16)
+            with SubItem(d, "uint32x8"):
+                d.putEmptyValue()
+                d.putType("unsigned int [8]")
+                d.putArrayData(d.lookupType("unsigned int"), value.address, 8)
+            with SubItem(d, "uint64x4"):
+                d.putEmptyValue()
+                d.putType("unsigned long long [4]")
+                d.putArrayData(d.lookupType("unsigned long long"), value.address, 4)
 
 #######################################################################
 #
