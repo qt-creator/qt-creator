@@ -34,11 +34,6 @@ import re
 def main():
     global tmpSettingsDir
     quickCombinations = [[1,False], [2,False], [2,True]]
-    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/text/textselection")
-    qmlFile = os.path.join("qml", "textselection.qml")
-    if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
-        return
-    templateDir = prepareTemplate(sourceExample)
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
