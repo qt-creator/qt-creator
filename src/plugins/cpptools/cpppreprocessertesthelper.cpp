@@ -32,7 +32,8 @@
 
 #include <QDir>
 
-using namespace CppTools;
+namespace CppTools {
+namespace Tests {
 
 QString TestIncludePaths::includeBaseDirectory()
 {
@@ -54,3 +55,11 @@ QString TestIncludePaths::directoryOfTestFile()
 {
     return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/local"));
 }
+
+QString TestIncludePaths::testFilePath(const QString &fileName)
+{
+    return Tests::TestIncludePaths::directoryOfTestFile() + QLatin1Char('/') + fileName;
+}
+
+} // namespace Tests
+} // namespace CppTools

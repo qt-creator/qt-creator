@@ -49,11 +49,14 @@ using namespace CppTools;
 using namespace CppTools::Internal;
 
 using Utils::ChangeSet;
-typedef Utils::ChangeSet::Range Range;
 
 Q_DECLARE_METATYPE(Overview)
 
-static QString stripCursor(const QString &source)
+namespace {
+
+typedef Utils::ChangeSet::Range Range;
+
+QString stripCursor(const QString &source)
 {
     QString copy(source);
     const int pos = copy.indexOf(QLatin1Char('@'));
@@ -64,19 +67,10 @@ static QString stripCursor(const QString &source)
     return copy;
 }
 
-class TestEnvironment : public CppTools::Tests::TestCase
+class PointerDeclarationFormatterTestCase : public CppTools::Tests::TestCase
 {
 public:
-    QByteArray source;
-    Snapshot snapshot;
-    CppRefactoringFilePtr cppRefactoringFile;
-    TextEditor::BaseTextEditorWidget *editor;
-    Document::Ptr document;
-    QTextDocument *textDocument;
-    TranslationUnit *translationUnit;
-    Environment env;
-
-    TestEnvironment(const QByteArray &source, Document::ParseMode parseMode)
+    PointerDeclarationFormatterTestCase(const QByteArray &source, Document::ParseMode parseMode)
     {
         // Find cursor position and remove cursor marker '@'
         int cursorPosition = 0;
@@ -89,29 +83,29 @@ public:
 
         // Write source to temprorary file
         const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
-        document = Document::create(filePath);
-        QVERIFY(writeFile(document->fileName(), sourceWithoutCursorMarker.toLatin1()));
+        m_document = Document::create(filePath);
+        QVERIFY(writeFile(m_document->fileName(), sourceWithoutCursorMarker.toLatin1()));
 
         // Preprocess source
-        Preprocessor preprocess(0, &env);
+        Preprocessor preprocess(0, &m_env);
         const QByteArray preprocessedSource = preprocess.run(filePath, sourceWithoutCursorMarker);
 
-        document->setUtf8Source(preprocessedSource);
-        document->parse(parseMode);
-        document->check();
-        translationUnit = document->translationUnit();
-        snapshot.insert(document);
-        editor = new TextEditor::PlainTextEditorWidget(0);
+        m_document->setUtf8Source(preprocessedSource);
+        m_document->parse(parseMode);
+        m_document->check();
+        m_translationUnit = m_document->translationUnit();
+        m_snapshot.insert(m_document);
+        m_editor = new TextEditor::PlainTextEditorWidget(0);
         QString error;
-        editor->open(&error, document->fileName(), document->fileName());
+        m_editor->open(&error, m_document->fileName(), m_document->fileName());
 
         // Set cursor position
-        QTextCursor cursor = editor->textCursor();
+        QTextCursor cursor = m_editor->textCursor();
         cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, cursorPosition);
-        editor->setTextCursor(cursor);
+        m_editor->setTextCursor(cursor);
 
-        textDocument = editor->document();
-        cppRefactoringFile = CppRefactoringChanges::file(editor, document);
+        m_textDocument = m_editor->document();
+        m_cppRefactoringFile = CppRefactoringChanges::file(m_editor, m_document);
     }
 
     void applyFormatting(AST *ast, PointerDeclarationFormatter::CursorHandling cursorHandling)
@@ -122,27 +116,41 @@ public:
         overview.starBindFlags = Overview::StarBindFlags(0);
 
         // Run the formatter
-        PointerDeclarationFormatter formatter(cppRefactoringFile, overview, cursorHandling);
+        PointerDeclarationFormatter formatter(m_cppRefactoringFile, overview, cursorHandling);
         ChangeSet change = formatter.format(ast); // ChangeSet may be empty.
 
         // Apply change
-        QTextCursor cursor(textDocument);
+        QTextCursor cursor(m_textDocument);
         change.apply(&cursor);
     }
+
+public:
+    QTextDocument *m_textDocument;
+    TranslationUnit *m_translationUnit;
+
+private:
+    QByteArray m_source;
+    Snapshot m_snapshot;
+    CppRefactoringFilePtr m_cppRefactoringFile;
+    TextEditor::BaseTextEditorWidget *m_editor;
+    Document::Ptr m_document;
+    Environment m_env;
 };
+
+} // anonymous namespace
 
 void CppToolsPlugin::test_format_pointerdeclaration_in_simpledeclarations()
 {
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    TestEnvironment env(source.toLatin1(), Document::ParseDeclaration);
-    AST *ast = env.translationUnit->ast();
+    PointerDeclarationFormatterTestCase test(source.toLatin1(), Document::ParseDeclaration);
+    AST *ast = test.m_translationUnit->ast();
     QVERIFY(ast);
 
-    env.applyFormatting(ast, PointerDeclarationFormatter::RespectCursor);
+    test.applyFormatting(ast, PointerDeclarationFormatter::RespectCursor);
 
-    QCOMPARE(env.textDocument->toPlainText(), reformattedSource);
+    QCOMPARE(test.m_textDocument->toPlainText(), reformattedSource);
 }
 
 void CppToolsPlugin::test_format_pointerdeclaration_in_simpledeclarations_data()
@@ -363,13 +371,13 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_controlflowstatements()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    TestEnvironment env(source.toLatin1(), Document::ParseStatement);
-    AST *ast = env.translationUnit->ast();
+    PointerDeclarationFormatterTestCase test(source.toLatin1(), Document::ParseStatement);
+    AST *ast = test.m_translationUnit->ast();
     QVERIFY(ast);
 
-    env.applyFormatting(ast, PointerDeclarationFormatter::RespectCursor);
+    test.applyFormatting(ast, PointerDeclarationFormatter::RespectCursor);
 
-    QCOMPARE(env.textDocument->toPlainText(), reformattedSource);
+    QCOMPARE(test.m_textDocument->toPlainText(), reformattedSource);
 }
 
 void CppToolsPlugin::test_format_pointerdeclaration_in_controlflowstatements_data()
@@ -441,13 +449,13 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_declarators()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    TestEnvironment env(source.toLatin1(), Document::ParseDeclaration);
-    AST *ast = env.translationUnit->ast();
+    PointerDeclarationFormatterTestCase test(source.toLatin1(), Document::ParseDeclaration);
+    AST *ast = test.m_translationUnit->ast();
     QVERIFY(ast);
 
-    env.applyFormatting(ast, PointerDeclarationFormatter::RespectCursor);
+    test.applyFormatting(ast, PointerDeclarationFormatter::RespectCursor);
 
-    QCOMPARE(env.textDocument->toPlainText(), reformattedSource);
+    QCOMPARE(test.m_textDocument->toPlainText(), reformattedSource);
 }
 
 void CppToolsPlugin::test_format_pointerdeclaration_multiple_declarators_data()
@@ -499,13 +507,13 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_matches()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    TestEnvironment env(source.toLatin1(), Document::ParseTranlationUnit);
-    AST *ast = env.translationUnit->ast();
+    PointerDeclarationFormatterTestCase test(source.toLatin1(), Document::ParseTranlationUnit);
+    AST *ast = test.m_translationUnit->ast();
     QVERIFY(ast);
 
-    env.applyFormatting(ast, PointerDeclarationFormatter::IgnoreCursor);
+    test.applyFormatting(ast, PointerDeclarationFormatter::IgnoreCursor);
 
-    QCOMPARE(env.textDocument->toPlainText(), reformattedSource);
+    QCOMPARE(test.m_textDocument->toPlainText(), reformattedSource);
 }
 
 void CppToolsPlugin::test_format_pointerdeclaration_multiple_matches_data()
@@ -585,13 +593,13 @@ void CppToolsPlugin::test_format_pointerdeclaration_macros()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    TestEnvironment env(source.toLatin1(), Document::ParseTranlationUnit);
-    AST *ast = env.translationUnit->ast();
+    PointerDeclarationFormatterTestCase test(source.toLatin1(), Document::ParseTranlationUnit);
+    AST *ast = test.m_translationUnit->ast();
     QVERIFY(ast);
 
-    env.applyFormatting(ast, PointerDeclarationFormatter::RespectCursor);
+    test.applyFormatting(ast, PointerDeclarationFormatter::RespectCursor);
 
-    QCOMPARE(env.textDocument->toPlainText(), reformattedSource);
+    QCOMPARE(test.m_textDocument->toPlainText(), reformattedSource);
 }
 
 void CppToolsPlugin::test_format_pointerdeclaration_macros_data()

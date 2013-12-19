@@ -43,6 +43,7 @@
 
 using namespace CPlusPlus;
 using namespace CppTools;
+using namespace CppTools::Tests;
 using namespace CppTools::Internal;
 
 typedef Document::Include Include;
@@ -58,12 +59,11 @@ public:
 
     Document::Ptr run(const QByteArray &source)
     {
-        const QString fileName = TestIncludePaths::directoryOfTestFile()
-                + QLatin1String("/file.cpp");
+        const QString fileName = TestIncludePaths::testFilePath();
         if (QFileInfo(fileName).exists())
             return Document::Ptr(); // Test file was not removed.
 
-        CppTools::Tests::TestCase::writeFile(fileName, source);
+        TestCase::writeFile(fileName, source);
 
         CppPreprocessor pp((QPointer<CppModelManager>(m_cmm)));
         pp.setIncludePaths(QStringList(TestIncludePaths::directoryOfTestFile()));
@@ -107,7 +107,7 @@ void CppToolsPlugin::test_cpppreprocessor_includes()
     QVERIFY(resolvedIncludes.at(0).type() == Client::IncludeLocal);
     QCOMPARE(resolvedIncludes.at(0).unresolvedFileName(), QLatin1String("header.h"));
     const QString expectedResolvedFileName
-        = TestIncludePaths::directoryOfTestFile() + QLatin1String("/header.h");
+            = TestIncludePaths::testFilePath(QLatin1String("header.h"));
     QCOMPARE(resolvedIncludes.at(0).resolvedFileName(), expectedResolvedFileName);
 
     const QList<Document::Include> unresolvedIncludes = document->unresolvedIncludes();

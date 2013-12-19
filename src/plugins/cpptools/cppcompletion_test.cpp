@@ -53,37 +53,39 @@ using namespace CppTools::Internal;
 using namespace TextEditor;
 using namespace Core;
 
-namespace { typedef QByteArray _; }
+namespace {
+
+typedef QByteArray _;
 
 class CompletionTestCase : public CppTools::Tests::TestCase
 {
 public:
     CompletionTestCase(const QByteArray &sourceText, const QByteArray &textToInsert = QByteArray())
-        : position(-1), editorWidget(0), textDocument(0), editor(0)
+        : m_position(-1), m_editorWidget(0), m_textDocument(0), m_editor(0)
     {
-        source = sourceText;
-        position = source.indexOf('@');
-        QVERIFY(position != -1);
-        source[position] = ' ';
+        m_source = sourceText;
+        m_position = m_source.indexOf('@');
+        QVERIFY(m_position != -1);
+        m_source[m_position] = ' ';
 
         // Write source to file
         const QString fileName = QDir::tempPath() + QLatin1String("/file.h");
-        QVERIFY(writeFile(fileName, source));
+        QVERIFY(writeFile(fileName, m_source));
 
         // Open in editor
-        editor = EditorManager::openEditor(fileName);
-        QVERIFY(editor);
-        closeEditorAtEndOfTestCase(editor);
-        editorWidget = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
-        QVERIFY(editorWidget);
+        m_editor = EditorManager::openEditor(fileName);
+        QVERIFY(m_editor);
+        closeEditorAtEndOfTestCase(m_editor);
+        m_editorWidget = qobject_cast<TextEditor::BaseTextEditorWidget *>(m_editor->widget());
+        QVERIFY(m_editorWidget);
 
-        textDocument = editorWidget->document();
+        m_textDocument = m_editorWidget->document();
 
         // Get Document
         waitForFileInGlobalSnapshot(fileName);
         const Document::Ptr document = globalSnapshot().document(fileName);
 
-        snapshot.insert(document);
+        m_snapshot.insert(document);
 
         if (!textToInsert.isEmpty())
             insertText(textToInsert);
@@ -93,9 +95,9 @@ public:
     {
         QStringList completions;
         CppCompletionAssistInterface *ai
-            = new CppCompletionAssistInterface(editorWidget->document(), position,
-                                               editorWidget->baseTextDocument()->filePath(),
-                                               ExplicitlyInvoked, snapshot,
+            = new CppCompletionAssistInterface(m_editorWidget->document(), m_position,
+                                               m_editorWidget->baseTextDocument()->filePath(),
+                                               ExplicitlyInvoked, m_snapshot,
                                                QStringList(), QStringList());
         CppCompletionAssistProcessor processor;
         IAssistProposal *proposal = processor.perform(ai);
@@ -109,8 +111,9 @@ public:
             return completions;
 
         const int pos = proposal->basePosition();
-        const int length = position - pos;
-        const QString prefix = Convenience::textAt(QTextCursor(editorWidget->document()), pos, length);
+        const int length = m_position - pos;
+        const QString prefix = Convenience::textAt(QTextCursor(m_editorWidget->document()), pos,
+                                                   length);
         if (!prefix.isEmpty())
             listmodel->filter(prefix);
         if (listmodel->isSortable(prefix))
@@ -128,20 +131,22 @@ public:
     void insertText(const QByteArray &text)
     {
         Utils::ChangeSet change;
-        change.insert(position, QLatin1String(text));
-        QTextCursor cursor(textDocument);
+        change.insert(m_position, QLatin1String(text));
+        QTextCursor cursor(m_textDocument);
         change.apply(&cursor);
-        position += text.length();
+        m_position += text.length();
     }
 
 private:
-    QByteArray source;
-    int position;
-    Snapshot snapshot;
-    BaseTextEditorWidget *editorWidget;
-    QTextDocument *textDocument;
-    IEditor *editor;
+    QByteArray m_source;
+    int m_position;
+    Snapshot m_snapshot;
+    BaseTextEditorWidget *m_editorWidget;
+    QTextDocument *m_textDocument;
+    IEditor *m_editor;
 };
+
+} // anonymous namespace
 
 void CppToolsPlugin::test_completion_basic_1()
 {

@@ -50,7 +50,7 @@
 #include <QtTest>
 
 using namespace Core;
-using namespace Core::Internal::Tests;
+using namespace Core::Tests;
 using namespace CppTools;
 using namespace CPlusPlus;
 using namespace Designer;
@@ -150,10 +150,10 @@ bool documentContainsMemberFunctionDeclaration(const Document::Ptr &document,
     return DocumentContainsDeclaration()(document->globalNamespace(), declaration);
 }
 
-class GoToSlotTest : public CppTools::Tests::TestCase
+class GoToSlotTestCase : public CppTools::Tests::TestCase
 {
 public:
-    GoToSlotTest(const QStringList &files)
+    GoToSlotTestCase(const QStringList &files)
         : m_files(files)
     {
         QCOMPARE(files.size(), 3);
@@ -221,7 +221,7 @@ void Designer::Internal::FormEditorPlugin::test_gotoslot()
 #if QT_VERSION >= 0x050000
     QFETCH(QStringList, files);
 
-    GoToSlotTest test(files);
+    GoToSlotTestCase test(files);
     test.run();
 #else
     QSKIP("Available only with >= Qt5", SkipSingle);

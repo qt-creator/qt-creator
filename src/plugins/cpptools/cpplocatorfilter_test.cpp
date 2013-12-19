@@ -47,12 +47,11 @@
 #include <QtTest>
 
 using namespace Core;
-using namespace Core::Internal::Tests;
+using namespace Core::Tests;
 using namespace CppTools::Internal;
 using namespace ExtensionSystem;
 using namespace Locator;
-using namespace Locator::Internal;
-using namespace Locator::Internal::Tests;
+using namespace Locator::Tests;
 using namespace Utils;
 
 Q_DECLARE_METATYPE(ILocatorFilter *)
@@ -63,12 +62,12 @@ QTC_DECLARE_MYTESTDATADIR("../../../tests/cpplocators/")
 
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
-} // anonymous namespace
-
-class CppLocatorFilterTest : public BasicLocatorFilterTest, public CppTools::Tests::TestCase
+class CppLocatorFilterTestCase
+    : public BasicLocatorFilterTest
+    , public CppTools::Tests::TestCase
 {
 public:
-    CppLocatorFilterTest(ILocatorFilter *filter, const QString &fileName)
+    CppLocatorFilterTestCase(ILocatorFilter *filter, const QString &fileName)
         : BasicLocatorFilterTest(filter)
         , m_fileName(fileName)
     {
@@ -77,18 +76,19 @@ public:
     }
 
 private:
-    virtual void doBeforeLocatorRun() { QVERIFY(parseFiles(m_fileName)); }
-    virtual void doAfterLocatorRun() { QVERIFY(garbageCollectGlobalSnapshot()); }
+    void doBeforeLocatorRun() { QVERIFY(parseFiles(m_fileName)); }
+    void doAfterLocatorRun() { QVERIFY(garbageCollectGlobalSnapshot()); }
 
+private:
     const QString m_fileName;
 };
 
-class CppCurrentDocumentFilterTest
+class CppCurrentDocumentFilterTestCase
     : public BasicLocatorFilterTest
     , public CppTools::Tests::TestCase
 {
 public:
-    CppCurrentDocumentFilterTest(const QString &fileName)
+    CppCurrentDocumentFilterTestCase(const QString &fileName)
         : BasicLocatorFilterTest(PluginManager::getObject<CppCurrentDocumentFilter>())
         , m_editor(0)
         , m_fileName(fileName)
@@ -97,7 +97,7 @@ public:
     }
 
 private:
-    virtual void doBeforeLocatorRun()
+    void doBeforeLocatorRun()
     {
         QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
@@ -108,7 +108,7 @@ private:
         waitForFileInGlobalSnapshot(m_fileName);
     }
 
-    virtual void doAfterLocatorRun()
+    void doAfterLocatorRun()
     {
         EditorManager::closeEditor(m_editor, /*askAboutModifiedEditors=*/ false);
         QCoreApplication::processEvents();
@@ -116,9 +116,12 @@ private:
         QVERIFY(garbageCollectGlobalSnapshot());
     }
 
+private:
     IEditor *m_editor;
     const QString m_fileName;
 };
+
+} // anonymous namespace
 
 void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter()
 {
@@ -127,7 +130,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter()
     QFETCH(QString, searchText);
     QFETCH(ResultDataList, expectedResults);
 
-    CppLocatorFilterTest test(filter, testFile);
+    CppLocatorFilterTestCase test(filter, testFile);
     ResultDataList results = ResultData::fromFilterEntryList(test.matchesFor(searchText));
 //    ResultData::printFilterEntries(results);
     QVERIFY(!results.isEmpty());
@@ -152,15 +155,18 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
     QTest::newRow("CppFunctionsFilter")
         << testFile
         << cppFunctionsFilter
-        << QString::fromLatin1("function")
+        << _("function")
         << (QList<ResultData>()
             << ResultData(_("functionDefinedInClass(bool, int)"), _("MyClass"))
             << ResultData(_("functionDefinedInClass(bool, int)"), _("MyNamespace::MyClass"))
-            << ResultData(_("functionDefinedInClass(bool, int)"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedInClass(bool, int)"),
+                          _("<anonymous namespace>::MyClass"))
             << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass"))
             << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
-            << ResultData(_("functionDefinedOutSideClass(char)"), _("<anonymous namespace>::MyClass"))
-            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"),
+                          _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
+                          _("MyNamespace::MyClass"))
             << ResultData(_("myFunction(bool, int)"), testFileShort)
             << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
             << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
@@ -174,7 +180,8 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
             << ResultData(_("MyClass()"), _("MyNamespace::MyClass"))
             << ResultData(_("functionDefinedInClass(bool, int)"), _("MyNamespace::MyClass"))
             << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
-            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
+                          _("MyNamespace::MyClass"))
             << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
            );
 
@@ -204,7 +211,8 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
         << (QList<ResultData>()
             << ResultData(_("<anonymous namespace>::MyClass"), testFileShort)
             << ResultData(_("<anonymous namespace>::MyClass::MyClass"), _("()"))
-            << ResultData(_("<anonymous namespace>::MyClass::functionDefinedOutSideClass"), _("(char)"))
+            << ResultData(_("<anonymous namespace>::MyClass::functionDefinedOutSideClass"),
+                          _("(char)"))
             << ResultData(_("<anonymous namespace>::MyEnum"), testFileShort)
             << ResultData(_("<anonymous namespace>::myFunction"), _("(bool, int)"))
             << ResultData(_("MyClass"), testFileShort)
@@ -213,8 +221,10 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
             << ResultData(_("MyEnum"), testFileShort)
             << ResultData(_("MyNamespace::MyClass"), testFileShort)
             << ResultData(_("MyNamespace::MyClass::MyClass"), _("()"))
-            << ResultData(_("MyNamespace::MyClass::functionDefinedOutSideClass"), _("(char)"))
-            << ResultData(_("MyNamespace::MyClass::functionDefinedOutSideClassAndNamespace"), _("(float)"))
+            << ResultData(_("MyNamespace::MyClass::functionDefinedOutSideClass"),
+                          _("(char)"))
+            << ResultData(_("MyNamespace::MyClass::functionDefinedOutSideClassAndNamespace"),
+                          _("(float)"))
             << ResultData(_("MyNamespace::MyEnum"), testFileShort)
             << ResultData(_("MyNamespace::myFunction"), _("(bool, int)"))
             << ResultData(_("myFunction"), _("(bool, int)"))
@@ -248,9 +258,11 @@ void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
         << ResultData(_("functionDeclaredOnly()"), _("MyNamespace::MyClass"))
         << ResultData(_("functionDefinedInClass(bool, int)"), _("MyNamespace::MyClass"))
         << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
-        << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"), _("MyNamespace::MyClass"))
+        << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
+                      _("MyNamespace::MyClass"))
         << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
-        << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"), _("MyNamespace::MyClass"))
+        << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
+                      _("MyNamespace::MyClass"))
         << ResultData(_("int myVariable"), _("<anonymous namespace>"))
         << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
         << ResultData(_("MyEnum"), _("<anonymous namespace>"))
@@ -265,7 +277,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
         << ResultData(_("main()"), _(""))
         ;
 
-    CppCurrentDocumentFilterTest test(testFile);
+    CppCurrentDocumentFilterTestCase test(testFile);
     ResultDataList results = ResultData::fromFilterEntryList(test.matchesFor());
 //    ResultData::printFilterEntries(results);
     QVERIFY(!results.isEmpty());

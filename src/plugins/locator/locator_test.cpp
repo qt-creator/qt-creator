@@ -40,7 +40,7 @@
 #include <QTextStream>
 #include <QtTest>
 
-using namespace Locator::Internal::Tests;
+using namespace Locator::Tests;
 
 namespace {
 

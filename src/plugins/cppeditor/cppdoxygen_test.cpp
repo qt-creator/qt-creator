@@ -59,18 +59,18 @@ typedef QByteArray _;
  * Encapsulates the whole process of setting up an editor,
  * pressing ENTER and checking the result.
  */
-class TestCase : public CppEditor::Internal::Tests::TestCase
+class DoxygenTestCase : public CppEditor::Internal::Tests::TestCase
 {
 public:
-    TestCase(const QByteArray &input);
-    void run(const QByteArray &expected, int undoCount = 1);
+    DoxygenTestCase(const QByteArray &input);
+    void run(const QByteArray &expected);
 
 private:
     CppEditor::Internal::Tests::TestDocument testDocument;
 };
 
 /// The '|' in the input denotes the cursor position.
-TestCase::TestCase(const QByteArray &input)
+DoxygenTestCase::DoxygenTestCase(const QByteArray &input)
     : testDocument("file.cpp", input, '|')
 {
     QVERIFY(testDocument.hasCursorMarker());
@@ -97,7 +97,7 @@ TestCase::TestCase(const QByteArray &input)
     waitForRehighlightedSemanticDocument(testDocument.m_editorWidget);
 }
 
-void TestCase::run(const QByteArray &expected, int undoCount)
+void DoxygenTestCase::run(const QByteArray &expected)
 {
     // Send 'ENTER' key press
     QKeyEvent event(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
@@ -106,12 +106,12 @@ void TestCase::run(const QByteArray &expected, int undoCount)
 
     QCOMPARE(QLatin1String(result), QLatin1String(expected));
 
-    for (int i = 0; i < undoCount; ++i)
-        testDocument.m_editorWidget->undo();
+    testDocument.m_editorWidget->undo();
     const QByteArray contentsAfterUndo
         = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
     QCOMPARE(contentsAfterUndo, testDocument.m_source);
 }
+
 } // anonymous namespace
 
 void CppEditorPlugin::test_doxygen_comments_data()
@@ -257,6 +257,6 @@ void CppEditorPlugin::test_doxygen_comments()
 {
     QFETCH(QByteArray, given);
     QFETCH(QByteArray, expected);
-    TestCase data(given);
-    data.run(expected);
+    DoxygenTestCase test(given);
+    test.run(expected);
 }

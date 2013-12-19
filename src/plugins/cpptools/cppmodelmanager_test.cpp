@@ -63,7 +63,7 @@ namespace {
 
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
-class MyTestDataDir : public Core::Internal::Tests::TestDataDir
+class MyTestDataDir : public Core::Tests::TestDataDir
 {
 public:
     MyTestDataDir(const QString &dir)

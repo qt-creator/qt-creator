@@ -39,8 +39,7 @@
 #include <QTextStream>
 
 using namespace Locator;
-using namespace Locator::Internal;
-using namespace Locator::Internal::Tests;
+using namespace Locator::Tests;
 
 BasicLocatorFilterTest::BasicLocatorFilterTest(ILocatorFilter *filter) : m_filter(filter)
 {

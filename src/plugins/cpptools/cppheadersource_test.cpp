@@ -46,8 +46,8 @@ void CppToolsPlugin::test_headersource()
     QFETCH(QString, headerFileName);
 
     bool wasHeader;
-    Core::Internal::Tests::TestDataDir dataDir(
-                _(SRCDIR "/../../../tests/cppheadersource/") + _(QTest::currentDataTag()));
+    Core::Tests::TestDataDir dataDir(_(SRCDIR "/../../../tests/cppheadersource/")
+        + _(QTest::currentDataTag()));
 
     const QString sourcePath = dataDir.file(sourceFileName);
     const QString headerPath = dataDir.file(headerFileName);

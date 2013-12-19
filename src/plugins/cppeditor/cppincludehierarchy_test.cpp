@@ -45,10 +45,11 @@ using namespace CppEditor::Internal;
 using namespace CppTools;
 
 namespace {
-class TestCase : public CppEditor::Internal::Tests::TestCase
+
+class IncludeHierarchyTestCase: public CppEditor::Internal::Tests::TestCase
 {
 public:
-    TestCase(const QList<QByteArray> &sourceList)
+    IncludeHierarchyTestCase(const QList<QByteArray> &sourceList)
     {
         QStringList filePaths;
         const int sourceListSize = sourceList.size();
@@ -81,7 +82,8 @@ public:
         QCOMPARE(model.rowCount(model.index(1, 0)), includedByCount);
     }
 };
-}
+
+} // anonymous namespace
 
 void CppEditorPlugin::test_includeHierarchyModel_simpleIncludes()
 {
@@ -89,7 +91,7 @@ void CppEditorPlugin::test_includeHierarchyModel_simpleIncludes()
     sourceList.append(QByteArray("#include \"file2.h\"\n"));
     sourceList.append(QByteArray());
 
-    TestCase testCase(sourceList);
+    IncludeHierarchyTestCase testCase(sourceList);
     testCase.run(1, 0);
 }
 
@@ -99,18 +101,17 @@ void CppEditorPlugin::test_includeHierarchyModel_simpleIncludedBy()
     sourceList.append(QByteArray());
     sourceList.append(QByteArray("#include \"file1.h\"\n"));
 
-    TestCase testCase(sourceList);
+    IncludeHierarchyTestCase testCase(sourceList);
     testCase.run(0, 1);
 }
 
 void CppEditorPlugin::test_includeHierarchyModel_simpleIncludesAndIncludedBy()
 {
     QList<QByteArray> sourceList;
-    QByteArray source;
     sourceList.append(QByteArray("#include \"file2.h\"\n"));
     sourceList.append(QByteArray());
     sourceList.append(QByteArray("#include \"file1.h\"\n"));
 
-    TestCase testCase(sourceList);
+    IncludeHierarchyTestCase testCase(sourceList);
     testCase.run(1, 1);
 }

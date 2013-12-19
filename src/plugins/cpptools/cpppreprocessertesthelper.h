@@ -34,20 +34,26 @@
 #include "cpptools_global.h"
 
 #include <QtGlobal>
+#include <QString>
 
 QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace CppTools {
+namespace Tests {
 
 class CPPTOOLS_EXPORT TestIncludePaths
 {
+    Q_DISABLE_COPY(TestIncludePaths)
+
 public:
     static QString includeBaseDirectory();
     static QString globalQtCoreIncludePath();
     static QString globalIncludePath();
     static QString directoryOfTestFile();
+    static QString testFilePath(const QString &fileName = QLatin1String("file.cpp"));
 };
 
+} // namespace Tests
 } // namespace CppTools
 
 #endif // CPPPREPROCESSERTESTHELPER_H

@@ -46,6 +46,8 @@ namespace {
 
 QTC_DECLARE_MYTESTDATADIR("../../../tests/cppsymbolsearcher/")
 
+inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
+
 class ResultData
 {
 public:
@@ -78,17 +80,18 @@ public:
         }
     }
 
+public:
     QString m_symbolName;
     QString m_scope;
 };
 
 typedef ResultData::ResultDataList ResultDataList;
 
-class SymbolSearcherTest : public CppTools::Tests::TestCase
+class SymbolSearcherTestCase : public CppTools::Tests::TestCase
 {
 public:
     /// Takes no ownership of indexingSupportToUse
-    SymbolSearcherTest(const QString &testFile, CppIndexingSupport *indexingSupportToUse)
+    SymbolSearcherTestCase(const QString &testFile, CppIndexingSupport *indexingSupportToUse)
         : m_indexingSupportToUse(indexingSupportToUse)
         , m_testFile(testFile)
     {
@@ -101,8 +104,8 @@ public:
     ResultDataList run(const SymbolSearcher::Parameters &searchParameters) const
     {
         CppIndexingSupport *indexingSupport = m_modelManager->indexingSupport();
-        SymbolSearcher *symbolSearcher
-            = indexingSupport->createSymbolSearcher(searchParameters, QSet<QString>() << m_testFile);
+        SymbolSearcher *symbolSearcher = indexingSupport->createSymbolSearcher(searchParameters,
+            QSet<QString>() << m_testFile);
         QFuture<Find::SearchResultItem> search
             = QtConcurrent::run(&SymbolSearcher::runSearch, symbolSearcher);
         search.waitForFinished();
@@ -110,7 +113,7 @@ public:
         return results;
     }
 
-    ~SymbolSearcherTest()
+    ~SymbolSearcherTestCase()
     {
         m_modelManager->setIndexingSupport(m_indexingSupportToRestore);
     }
@@ -120,8 +123,6 @@ private:
     CppIndexingSupport *m_indexingSupportToUse;
     const QString m_testFile;
 };
-
-inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
 } // anonymous namespace
 
@@ -148,7 +149,7 @@ void CppToolsPlugin::test_builtinsymbolsearcher()
 
     QScopedPointer<CppIndexingSupport> builtinIndexingSupport(new BuiltinIndexingSupport);
 
-    SymbolSearcherTest test(testFile, builtinIndexingSupport.data());
+    SymbolSearcherTestCase test(testFile, builtinIndexingSupport.data());
     const ResultDataList results = test.run(searchParameters);
     QCOMPARE(results, expectedResults);
 }
@@ -197,9 +198,11 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
             << ResultData(_("functionDeclaredOnly()"), _("MyNamespace::MyClass"))
             << ResultData(_("functionDefinedInClass(bool, int)"), _("MyNamespace::MyClass"))
             << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
-            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
+                          _("MyNamespace::MyClass"))
             << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
-            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
+                          _("MyNamespace::MyClass"))
             << ResultData(_("int myVariable"), _("<anonymous namespace>"))
             << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
             << ResultData(_("MyEnum"), _("<anonymous namespace>"))
@@ -208,9 +211,12 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
             << ResultData(_("MyClass"), _("<anonymous namespace>"))
             << ResultData(_("MyClass()"), _("<anonymous namespace>::MyClass"))
             << ResultData(_("functionDeclaredOnly()"), _("<anonymous namespace>::MyClass"))
-            << ResultData(_("functionDefinedInClass(bool, int)"), _("<anonymous namespace>::MyClass"))
-            << ResultData(_("functionDefinedOutSideClass(char)"), _("<anonymous namespace>::MyClass"))
-            << ResultData(_("functionDefinedOutSideClass(char)"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedInClass(bool, int)"),
+                          _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"),
+                          _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"),
+                          _("<anonymous namespace>::MyClass"))
             << ResultData(_("main()"), _(""))
 
         );
@@ -246,10 +252,13 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
             << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
             << ResultData(_("functionDefinedInClass(bool, int)"), _("MyNamespace::MyClass"))
             << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
-            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
+                          _("MyNamespace::MyClass"))
             << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
-            << ResultData(_("functionDefinedInClass(bool, int)"), _("<anonymous namespace>::MyClass"))
-            << ResultData(_("functionDefinedOutSideClass(char)"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedInClass(bool, int)"),
+                          _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"),
+                          _("<anonymous namespace>::MyClass"))
         );
 
     // Check Enums

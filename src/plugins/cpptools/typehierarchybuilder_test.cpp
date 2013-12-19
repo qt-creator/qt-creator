@@ -44,6 +44,8 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
 
+Q_DECLARE_METATYPE(QList<Tests::TestDocument>)
+
 namespace {
 
 bool hierarchySorter(const TypeHierarchy &h1, const TypeHierarchy &h2)
@@ -90,14 +92,17 @@ private:
         return true;
     }
 
+private:
     Class *m_clazz;
 };
 
-class TestCase : public CppTools::Tests::TestCase
+class TypeHierarchyBuilderTestCase : public CppTools::Tests::TestCase
 {
 public:
-    TestCase(const QList<Tests::TestDocument> &documents, const QString &expectedHierarchy)
-        : m_documents(documents), m_expectedHierarchy(expectedHierarchy)
+    TypeHierarchyBuilderTestCase(const QList<Tests::TestDocument> &documents,
+                                 const QString &expectedHierarchy)
+        : m_documents(documents),
+          m_expectedHierarchy(expectedHierarchy)
     {}
 
     void run()
@@ -134,8 +139,6 @@ private:
 };
 
 } // anonymous namespace
-
-Q_DECLARE_METATYPE(QList<Tests::TestDocument>)
 
 void CppToolsPlugin::test_typehierarchy_data()
 {
@@ -189,6 +192,6 @@ void CppToolsPlugin::test_typehierarchy()
     QFETCH(QList<Tests::TestDocument>, documents);
     QFETCH(QString, expectedHierarchy);
 
-    TestCase testCase(documents, expectedHierarchy);
+    TypeHierarchyBuilderTestCase testCase(documents, expectedHierarchy);
     testCase.run();
 }

@@ -36,7 +36,7 @@
 #include <QString>
 
 #define QTC_DECLARE_MYTESTDATADIR(PATH)                                          \
-    class MyTestDataDir : public Core::Internal::Tests::TestDataDir              \
+    class MyTestDataDir : public Core::Tests::TestDataDir                        \
     {                                                                            \
     public:                                                                      \
         MyTestDataDir(const QString &testDataDirectory = QString())              \
@@ -44,7 +44,6 @@
     };
 
 namespace Core {
-namespace Internal {
 namespace Tests {
 
 class CORE_EXPORT TestDataDir
@@ -61,7 +60,6 @@ private:
 };
 
 } // namespace Tests
-} // namespace Internal
 } // namespace Core
 
 #endif // TESTDATADIR_H

@@ -44,7 +44,6 @@
 #include <QDir>
 #include <QtTest>
 
-
 /*!
     Tests for Follow Symbol Under Cursor and Switch Between Function Declaration/Definition
 
@@ -55,6 +54,7 @@
 
     You can find potential test code for Follow Symbol Under Cursor on the bottom of this file.
  */
+
 using namespace CPlusPlus;
 using namespace CppEditor;
 using namespace CppEditor::Internal;
@@ -211,7 +211,7 @@ public:
  * executing Follow Symbol Under Cursor or Switch Between Function Declaration/Definition
  * and checking the result.
  */
-class TestCase : public CppEditor::Internal::Tests::TestCase
+class F2TestCase : public CppEditor::Internal::Tests::TestCase
 {
 public:
     enum CppEditorAction {
@@ -219,17 +219,14 @@ public:
         SwitchBetweenMethodDeclarationDefinitionAction
     };
 
-    TestCase(CppEditorAction action, const QByteArray &source,
-             const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
-    TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestFiles,
-             const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
+    F2TestCase(CppEditorAction action, const QByteArray &source,
+               const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
+    F2TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestFiles,
+               const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
 
     void run();
 
 private:
-    TestCase(const TestCase &);
-    TestCase &operator=(const TestCase &);
-
     void init();
 
     TestDocumentPtr testFileWithInitialCursorMarker();
@@ -243,8 +240,9 @@ private:
 
 /// Convenience function for creating a TestDocument.
 /// See TestDocument.
-TestCase::TestCase(CppEditorAction action, const QByteArray &source,
-                   const OverrideItemList &expectedVirtualFunctionProposal)
+F2TestCase::F2TestCase(CppEditorAction action,
+                       const QByteArray &source,
+                       const OverrideItemList &expectedVirtualFunctionProposal)
     : m_action(action)
     , m_expectedVirtualFunctionProposal(expectedVirtualFunctionProposal)
 {
@@ -256,8 +254,9 @@ TestCase::TestCase(CppEditorAction action, const QByteArray &source,
 /// Exactly one test document must be provided that contains '@', the initial position marker.
 /// Exactly one test document must be provided that contains '$', the target position marker.
 /// It can be the same document.
-TestCase::TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestFiles,
-                   const OverrideItemList &expectedVirtualFunctionProposal)
+F2TestCase::F2TestCase(CppEditorAction action,
+                       const QList<TestDocumentPtr> theTestFiles,
+                       const OverrideItemList &expectedVirtualFunctionProposal)
     : m_action(action)
     , m_testFiles(theTestFiles)
     , m_expectedVirtualFunctionProposal(expectedVirtualFunctionProposal)
@@ -265,7 +264,7 @@ TestCase::TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestF
     init();
 }
 
-void TestCase::init()
+void F2TestCase::init()
 {
     // Check if there are initial and target position markers
     QVERIFY2(testFileWithInitialCursorMarker(),
@@ -303,7 +302,7 @@ void TestCase::init()
     }
 }
 
-TestDocumentPtr TestCase::testFileWithInitialCursorMarker()
+TestDocumentPtr F2TestCase::testFileWithInitialCursorMarker()
 {
     foreach (const TestDocumentPtr testFile, m_testFiles) {
         if (testFile->hasCursorMarker())
@@ -312,7 +311,7 @@ TestDocumentPtr TestCase::testFileWithInitialCursorMarker()
     return TestDocumentPtr();
 }
 
-TestDocumentPtr TestCase::testFileWithTargetCursorMarker()
+TestDocumentPtr F2TestCase::testFileWithTargetCursorMarker()
 {
     foreach (const TestDocumentPtr testFile, m_testFiles) {
         if (testFile->hasTargetCursorMarker())
@@ -321,7 +320,7 @@ TestDocumentPtr TestCase::testFileWithTargetCursorMarker()
     return TestDocumentPtr();
 }
 
-void TestCase::run()
+void F2TestCase::run()
 {
     TestDocumentPtr initialTestFile = testFileWithInitialCursorMarker();
     QVERIFY(initialTestFile);
@@ -489,11 +488,11 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition()
     QFETCH(QByteArray, header);
     QFETCH(QByteArray, source);
 
-    QList<TestDocumentPtr> testFiles;
-    testFiles << TestDocument::create(header, "file.h");
-    testFiles << TestDocument::create(source, "file.cpp");
+    const QList<TestDocumentPtr> testFiles = QList<TestDocumentPtr>()
+        << TestDocument::create(header, "file.h")
+        << TestDocument::create(source, "file.cpp");
 
-    TestCase test(TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
+    F2TestCase test(F2TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
     test.run();
 }
 
@@ -765,8 +764,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
     );
 
     // 3.3.10 Name hiding (par 2.), from text
-    // A class name (9.1) or enumeration name (7.2) can be hidden by the name of a variable, data member,
-    // function, or enumerator declared in the same scope.
+    // A class name (9.1) or enumeration name (7.2) can be hidden by the name of a variable,
+    // data member, function, or enumerator declared in the same scope.
     QTest::newRow("funLocalVarHidesOuterClass") << _(
         "struct C {};\n"
         "\n"
@@ -854,7 +853,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
 void CppEditorPlugin::test_FollowSymbolUnderCursor()
 {
     QFETCH(QByteArray, source);
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
+    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source);
     test.run();
 }
 
@@ -883,7 +882,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments()
 {
     QFETCH(QList<TestDocumentPtr>, documents);
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, documents);
+    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, documents);
     test.run();
 }
 
@@ -973,7 +972,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect()
         return;
     }
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
+    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source);
     test.run();
 }
 
@@ -997,7 +996,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_onOperatorToken
             "}\n";
     if (toDeclaration)
         source.replace('@', '#').replace('$', '@').replace('#', '$');
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
+    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source);
     test.run();
 }
 
@@ -1023,7 +1022,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator()
     else
         source.replace("@2", QByteArray()).replace("$2", QByteArray())
                 .replace("@1", "@").replace("$1", "$");
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
+    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source);
     test.run();
 }
 
@@ -1049,7 +1048,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_inOp()
     else
         source.replace("@2", QByteArray()).replace("$2", QByteArray())
                 .replace("@1", "@").replace("$1", "$");
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
+    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source);
     test.run();
 }
 
@@ -1109,7 +1108,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             << OverrideItem(QLatin1String("CD1::virt"), 11)
             << OverrideItem(QLatin1String("CD2::virt"), 14));
 
-    /// Check: Virtual function call in member of class hierarchy, only possible overrides are presented.
+    /// Check: Virtual function call in member of class hierarchy,
+    ///        only possible overrides are presented.
     QTest::newRow("possibleOverrides2") << _(
             "struct A { virtual void virt(); };\n"
             "void A::virt() {}\n"
@@ -1302,7 +1302,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall()
     QFETCH(QByteArray, source);
     QFETCH(OverrideItemList, results);
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, results);
+    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source, results);
     test.run();
 }
 
@@ -1324,7 +1324,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_multipleD
             << OverrideItem(QLatin1String("A::virt"), 1)
             << OverrideItem(QLatin1String("B::virt"), 2);
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, testFiles, finalResults);
+    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, testFiles, finalResults);
     test.run();
 }
 

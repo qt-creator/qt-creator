@@ -35,7 +35,7 @@
 #include <QString>
 #include <QTest>
 
-using namespace Core::Internal::Tests;
+using namespace Core::Tests;
 
 static void maybeAppendSlash(QString *string)
 {
