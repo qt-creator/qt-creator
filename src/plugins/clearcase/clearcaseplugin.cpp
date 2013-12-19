@@ -1530,9 +1530,8 @@ IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString
         e->setSource(source);
     if (codec)
         e->setCodec(codec);
-    IEditor *ie = e->editor();
-    EditorManager::activateEditor(ie);
-    return ie;
+    EditorManager::activateEditor(editor);
+    return editor;
 }
 
 const ClearCaseSettings &ClearCasePlugin::settings() const

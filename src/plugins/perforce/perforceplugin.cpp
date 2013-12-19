@@ -1185,9 +1185,8 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
     e->setSuggestedFileName(s);
     if (codec)
         e->setCodec(codec);
-    Core::IEditor *ie = e->editor();
-    Core::EditorManager::activateEditor(ie);
-    return ie;
+    Core::EditorManager::activateEditor(editor);
+    return editor;
 }
 
 void PerforcePlugin::slotSubmitDiff(const QStringList &files)
