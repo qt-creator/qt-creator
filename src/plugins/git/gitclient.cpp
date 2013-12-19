@@ -362,7 +362,7 @@ void GitDiffHandler::collectShowDescription(const QString &id)
         return;
     m_editor->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
-    command->setCodec(m_editor->editorWidget()->codec());
+    command->setCodec(m_editor->codec());
     connect(command, SIGNAL(output(QString)), this, SLOT(slotShowDescriptionReceived(QString)));
     QStringList arguments;
     arguments << QLatin1String("show") << QLatin1String("-s")
@@ -392,7 +392,7 @@ void GitDiffHandler::collectFilesList(const QStringList &additionalArguments)
         return;
     m_editor->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
-    command->setCodec(m_editor->editorWidget()->codec());
+    command->setCodec(m_editor->codec());
     connect(command, SIGNAL(output(QString)), this, SLOT(slotFileListReceived(QString)));
     QStringList arguments;
     arguments << QLatin1String("diff") << QLatin1String("--name-only") << additionalArguments;
@@ -461,7 +461,7 @@ void GitDiffHandler::collectFilesContents()
 
                 VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
                 if (m_editor)
-                    command->setCodec(m_editor->editorWidget()->codec());
+                    command->setCodec(m_editor->codec());
                 connect(command, SIGNAL(output(QString)), this, SLOT(slotFileContentsReceived(QString)));
 
                 QString revisionArgument = (revision.type == Other)
@@ -547,7 +547,7 @@ QString GitDiffHandler::workingTreeContents(const QString &fileName) const
 
     QFile file(absoluteFileName);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return m_editor->editorWidget()->codec()->toUnicode(file.readAll());
+        return m_editor->codec()->toUnicode(file.readAll());
     return QString();
 }
 

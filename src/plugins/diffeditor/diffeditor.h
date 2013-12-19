@@ -63,7 +63,7 @@ public:
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document();
     Core::Id id() const;
-    DiffEditorWidget *editorWidget() const { return m_editorWidget; }
+    QTextCodec *codec() const;
 
     QWidget *toolBar();
 

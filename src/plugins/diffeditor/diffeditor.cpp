@@ -85,6 +85,11 @@ Core::Id DiffEditor::id() const
     return Constants::DIFF_EDITOR_ID;
 }
 
+QTextCodec *DiffEditor::codec() const
+{
+    return m_editorWidget->codec();
+}
+
 static QToolBar *createToolBar(const QWidget *someWidget)
 {
     // Create
