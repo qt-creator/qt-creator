@@ -38,14 +38,12 @@ namespace CppEditor {
 namespace Internal {
 namespace Ui { class CppPreProcessorDialog; }
 
-class CPPEditorWidget;
-
 class CppPreProcessorDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit CppPreProcessorDialog(CPPEditorWidget *editorWidget,
+    explicit CppPreProcessorDialog(QWidget *parent, const QString &filePath,
                                    const QList<CppTools::ProjectPart::Ptr> &projectParts);
     ~CppPreProcessorDialog();
 

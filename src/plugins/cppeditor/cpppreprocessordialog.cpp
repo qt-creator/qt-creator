@@ -30,7 +30,6 @@
 #include "cpppreprocessordialog.h"
 #include "ui_cpppreprocessordialog.h"
 
-#include "cppeditor.h"
 #include "cppeditorconstants.h"
 #include "cppsnippetprovider.h"
 
@@ -44,11 +43,11 @@ static bool projectPartLessThan(const CppTools::ProjectPart::Ptr &projectPart1,
     return projectPart1->displayName < projectPart2->displayName;
 }
 
-CppPreProcessorDialog::CppPreProcessorDialog(CPPEditorWidget *editorWidget,
+CppPreProcessorDialog::CppPreProcessorDialog(QWidget *parent, const QString &filePath,
                                              const QList<CppTools::ProjectPart::Ptr> &projectParts)
-    : QDialog(editorWidget)
+    : QDialog(parent)
     , m_ui(new Ui::CppPreProcessorDialog())
-    , m_filePath(editorWidget->editor()->document()->filePath())
+    , m_filePath(filePath)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 

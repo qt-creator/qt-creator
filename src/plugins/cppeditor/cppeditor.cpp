@@ -1995,7 +1995,7 @@ void CPPEditorWidget::showPreProcessorWidget()
     if (projectParts.isEmpty())
         projectParts << m_modelManager->fallbackProjectPart();
 
-    CppPreProcessorDialog preProcessorDialog(this, projectParts);
+    CppPreProcessorDialog preProcessorDialog(this, baseTextDocument()->filePath(), projectParts);
     if (preProcessorDialog.exec() == QDialog::Accepted) {
         QSharedPointer<SnapshotUpdater> updater
                 = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
