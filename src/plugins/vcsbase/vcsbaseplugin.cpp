@@ -241,8 +241,7 @@ void StateListener::slotStateChanged()
             const QList<Core::IEditor *> editors =
                     Core::EditorManager::documentModel()->editorsForDocument(currentDocument);
             if (!editors.isEmpty()) {
-                if (QWidget *editorWidget = editors.first()->widget())
-                    state.currentFile = editorWidget->property("source").toString();
+                state.currentFile = VcsBasePlugin::source(editors.first());
             }
         }
     }
@@ -747,6 +746,18 @@ QString VcsBasePlugin::sshPrompt()
 bool VcsBasePlugin::isSshPromptConfigured()
 {
     return !sshPrompt().isEmpty();
+}
+
+static const char SOURCE_PROPERTY[] = "qtcreator_source";
+
+void VcsBasePlugin::setSource(Core::IEditor *editor, const QString &source)
+{
+    editor->setProperty(SOURCE_PROPERTY, source);
+}
+
+QString VcsBasePlugin::source(Core::IEditor *editor)
+{
+    return editor->property(SOURCE_PROPERTY).toString();
 }
 
 void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,

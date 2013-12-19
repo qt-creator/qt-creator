@@ -1045,7 +1045,7 @@ DiffEditor::DiffEditor *GitClient::createDiffEditor(const char *registerDynamicP
                 Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait.toUtf8()));
     QTC_ASSERT(diffEditor, return 0);
     diffEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
-    diffEditor->editorWidget()->setSource(source);
+    VcsBasePlugin::setSource(diffEditor, source);
 
     Core::EditorManager::activateEditor(diffEditor);
     return diffEditor;

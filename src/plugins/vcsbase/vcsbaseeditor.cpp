@@ -562,7 +562,6 @@ public:
 
     const VcsBaseEditorParameters *m_parameters;
 
-    QString m_source;
     QString m_workingDirectory;
 
     QRegExp m_diffFilePattern;
@@ -738,12 +737,12 @@ void VcsBaseEditorWidget::setForceReadOnly(bool b)
 
 QString VcsBaseEditorWidget::source() const
 {
-    return d->m_source;
+    return VcsBasePlugin::source(editor());
 }
 
 void VcsBaseEditorWidget::setSource(const  QString &source)
 {
-    d->m_source = source;
+    VcsBasePlugin::setSource(editor(), source);
 }
 
 QString VcsBaseEditorWidget::annotateRevisionTextFormat() const
