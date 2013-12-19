@@ -47,7 +47,7 @@ class ToolChain;
 namespace QmakeProjectManager {
 
 namespace Internal {
-class ProFileEditorWidget;
+class ProFileEditor;
 class QmakeProjectManagerPlugin;
 } // namespace Internal
 
@@ -99,7 +99,7 @@ private:
                                  ProjectExplorer::Project *contextProject,
                                  ProjectExplorer::Node *contextNode,
                                  ProjectExplorer::FileNode *contextFile);
-    void addLibrary(const QString &fileName, Internal::ProFileEditorWidget *editor = 0);
+    void addLibrary(const QString &fileName, Internal::ProFileEditor *editor = 0);
     void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 
     Internal::QmakeProjectManagerPlugin *m_plugin;

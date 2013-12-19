@@ -140,10 +140,10 @@ void QmakeManager::setContextFile(ProjectExplorer::FileNode *file)
 
 void QmakeManager::addLibrary()
 {
-    ProFileEditorWidget *editor =
-        qobject_cast<ProFileEditorWidget*>(Core::EditorManager::currentEditor()->widget());
+    ProFileEditor *editor =
+        qobject_cast<ProFileEditor*>(Core::EditorManager::currentEditor());
     if (editor)
-        addLibrary(editor->baseTextDocument()->filePath(), editor);
+        addLibrary(editor->document()->filePath(), editor);
 }
 
 void QmakeManager::addLibraryContextMenu()
@@ -153,34 +153,29 @@ void QmakeManager::addLibraryContextMenu()
         addLibrary(node->path());
 }
 
-void QmakeManager::addLibrary(const QString &fileName, ProFileEditorWidget *editor)
+void QmakeManager::addLibrary(const QString &fileName, ProFileEditor *editor)
 {
     AddLibraryWizard wizard(fileName, Core::EditorManager::instance());
     if (wizard.exec() != QDialog::Accepted)
         return;
 
-    TextEditor::BaseTextEditor *editable = 0;
-    if (editor) {
-        editable = editor->editor();
-    } else {
-        editable = qobject_cast<TextEditor::BaseTextEditor *>
-                (Core::EditorManager::openEditor(fileName, QmakeProjectManager::Constants::PROFILE_EDITOR_ID,
-                                                 Core::EditorManager::DoNotMakeVisible));
-    }
-    if (!editable)
+    if (!editor)
+        editor = qobject_cast<ProFileEditor *> (Core::EditorManager::openEditor(fileName,
+            QmakeProjectManager::Constants::PROFILE_EDITOR_ID, Core::EditorManager::DoNotMakeVisible));
+    if (!editor)
         return;
 
-    const int endOfDoc = editable->position(TextEditor::ITextEditor::EndOfDoc);
-    editable->setCursorPosition(endOfDoc);
+    const int endOfDoc = editor->position(TextEditor::ITextEditor::EndOfDoc);
+    editor->setCursorPosition(endOfDoc);
     QString snippet = wizard.snippet();
 
     // add extra \n in case the last line is not empty
     int line, column;
-    editable->convertPosition(endOfDoc, &line, &column);
-    if (!editable->textDocument()->textAt(endOfDoc - column, column).simplified().isEmpty())
+    editor->convertPosition(endOfDoc, &line, &column);
+    if (!editor->textDocument()->textAt(endOfDoc - column, column).simplified().isEmpty())
         snippet = QLatin1Char('\n') + snippet;
 
-    editable->insert(snippet);
+    editor->insert(snippet);
 }
 
 
