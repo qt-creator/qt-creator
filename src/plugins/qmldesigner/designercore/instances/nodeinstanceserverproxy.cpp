@@ -154,11 +154,6 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
       m_runModus(runModus),
       m_synchronizeId(-1)
 {
-   QString socketToken(QUuid::createUuid().toString());
-
-   m_localServer->listen(socketToken);
-   m_localServer->setMaxPendingConnections(3);
-
    QString applicationPath =  pathToQt + QLatin1String("/bin");
    if (runModus == TestModus) {
        applicationPath = QCoreApplication::applicationDirPath()
@@ -190,6 +185,10 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
    if (QFileInfo(applicationPath).exists()) {
        if (checkPuppetVersion(applicationPath)) {
+           QString socketToken(QUuid::createUuid().toString());
+           m_localServer->listen(socketToken);
+           m_localServer->setMaxPendingConnections(3);
+
            m_qmlPuppetEditorProcess = new QProcess;
            m_qmlPuppetEditorProcess->setProcessEnvironment(environment);
            m_qmlPuppetEditorProcess->setObjectName("EditorProcess");
@@ -269,6 +268,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            }
 
            m_localServer->close();
+
        } else {
            QMessageBox::warning(0, tr("Wrong QML Puppet Executable Version"), tr("The QML Puppet version is incompatible with the Qt Creator version."));
        }
