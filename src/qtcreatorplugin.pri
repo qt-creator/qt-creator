@@ -105,7 +105,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     pluginspec2json.input = PLUGINSPEC
     pluginspec2json.variable_out = GENERATED_FILES
     pluginspec2json.output = $${TARGET}.json
-    pluginspec2json.commands = $$XMLPATTERNS -no-format -output $$pluginspec2json.output $$PWD/pluginjsonmetadata.xsl $$PLUGINSPEC
+    pluginspec2json.commands = $$XMLPATTERNS -no-format -output $$pluginspec2json.output $$PWD/qtcreatorplugin2json.xsl $$PLUGINSPEC
     pluginspec2json.CONFIG += no_link
     moc_header.depends += $$pluginspec2json.output
     QMAKE_EXTRA_COMPILERS += pluginspec2json
