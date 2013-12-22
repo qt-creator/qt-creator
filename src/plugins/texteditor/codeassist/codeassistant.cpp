@@ -44,11 +44,11 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QObject>
-#include <QList>
-#include <QTimer>
-#include <QDebug>
 #include <QKeyEvent>
+#include <QList>
+#include <QObject>
+#include <QScopedPointer>
+#include <QTimer>
 
 using namespace TextEditor;
 using namespace Internal;
