@@ -41,6 +41,7 @@ class QLabel;
 class QLineEdit;
 class QPlainTextEdit;
 class QProcess;
+class QStringListModel;
 QT_END_NAMESPACE
 
 namespace Git {
@@ -72,7 +73,9 @@ private slots:
     void chooseWorkingDirectory();
     void selectCommitFromRecentHistory();
     void setDetails(int exitCode);
+    void recalculateCompletion();
     void recalculateDetails();
+    void changeTextChanged(const QString &text);
     void acceptCheckout();
     void acceptCherryPick();
     void acceptRevert();
@@ -87,6 +90,8 @@ private:
     QString m_gitBinaryPath;
     QProcessEnvironment m_gitEnvironment;
     ChangeCommand m_command;
+    QStringListModel *m_changeModel;
+    QString m_oldWorkingDir;
 };
 
 } // namespace Internal

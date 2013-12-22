@@ -42,6 +42,9 @@
 #include <QPlainTextEdit>
 #include <QDir>
 #include <QFileDialog>
+#include <QCompleter>
+#include <QStringListModel>
+#include <QTimer>
 
 namespace Git {
 namespace Internal {
@@ -60,8 +63,9 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     m_ui->changeNumberEdit->setFocus();
     m_ui->changeNumberEdit->selectAll();
 
-    connect(m_ui->changeNumberEdit, SIGNAL(textChanged(QString)), this, SLOT(recalculateDetails()));
+    connect(m_ui->changeNumberEdit, SIGNAL(textChanged(QString)), this, SLOT(changeTextChanged(QString)));
     connect(m_ui->workingDirectoryEdit, SIGNAL(textChanged(QString)), this, SLOT(recalculateDetails()));
+    connect(m_ui->workingDirectoryEdit, SIGNAL(textChanged(QString)), this, SLOT(recalculateCompletion()));
     connect(m_ui->selectDirectoryButton, SIGNAL(clicked()), this, SLOT(chooseWorkingDirectory()));
     connect(m_ui->selectFromHistoryButton, SIGNAL(clicked()), this, SLOT(selectCommitFromRecentHistory()));
     connect(m_ui->showButton, SIGNAL(clicked()), this, SLOT(acceptShow()));
@@ -77,7 +81,13 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
         m_ui->checkoutButton->setDefault(true);
     else
         m_ui->showButton->setDefault(true);
+    m_changeModel = new QStringListModel(this);
+    QCompleter *changeCompleter = new QCompleter(m_changeModel, this);
+    m_ui->changeNumberEdit->setCompleter(changeCompleter);
+    changeCompleter->setCaseSensitivity(Qt::CaseInsensitive);
+
     recalculateDetails();
+    recalculateCompletion();
 }
 
 ChangeSelectionDialog::~ChangeSelectionDialog()
@@ -188,6 +198,26 @@ void ChangeSelectionDialog::enableButtons(bool b)
     m_ui->checkoutButton->setEnabled(b);
 }
 
+void ChangeSelectionDialog::recalculateCompletion()
+{
+    const QString workingDir = workingDirectory();
+    if (workingDir == m_oldWorkingDir)
+        return;
+    m_oldWorkingDir = workingDir;
+
+    if (!workingDir.isEmpty()) {
+        GitClient *client = GitPlugin::instance()->gitClient();
+        QStringList args;
+        args << QLatin1String("--format=%(refname:short)");
+        QString output;
+        if (client->synchronousForEachRefCmd(workingDir, args, &output)) {
+            m_changeModel->setStringList(output.split(QLatin1Char('\n')));
+            return;
+        }
+    }
+    m_changeModel->setStringList(QStringList());
+}
+
 void ChangeSelectionDialog::recalculateDetails()
 {
     if (m_process) {
@@ -225,6 +255,17 @@ void ChangeSelectionDialog::recalculateDetails()
         m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));
     else
         m_ui->detailsText->setPlainText(tr("Fetching commit data..."));
+}
+
+void ChangeSelectionDialog::changeTextChanged(const QString &text)
+{
+    if (QCompleter *comp = m_ui->changeNumberEdit->completer()) {
+        if (text.isEmpty() && !comp->popup()->isVisible()) {
+            comp->setCompletionPrefix(text);
+            QTimer::singleShot(0, comp, SLOT(complete()));
+        }
+    }
+    recalculateDetails();
 }
 
 } // Internal

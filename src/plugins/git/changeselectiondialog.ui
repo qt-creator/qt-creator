@@ -39,7 +39,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="changeNumberEdit">
+    <widget class="Utils::CompletingLineEdit" name="changeNumberEdit">
      <property name="text">
       <string>HEAD</string>
      </property>
@@ -119,6 +119,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::CompletingLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/completinglineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
