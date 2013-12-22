@@ -1362,17 +1362,14 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
 
     for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
         if (scope->isBlock()) {
-            for (unsigned i = 0; i < scope->memberCount(); ++i) {
+            for (unsigned i = 0; i < scope->memberCount(); ++i)
                 addCompletionItem(scope->memberAt(i), FunctionLocalsOrder);
-            }
         } else if (Function *fun = scope->asFunction()) {
-            for (unsigned i = 0, argc = fun->argumentCount(); i < argc; ++i) {
+            for (unsigned i = 0, argc = fun->argumentCount(); i < argc; ++i)
                 addCompletionItem(fun->argumentAt(i), FunctionArgumentsOrder);
-            }
         } else if (Template *templ = scope->asTemplate()) {
-            for (unsigned i = 0, argc = templ->templateParameterCount(); i < argc; ++i) {
+            for (unsigned i = 0, argc = templ->templateParameterCount(); i < argc; ++i)
                 addCompletionItem(templ->templateParameterAt(i), FunctionArgumentsOrder);
-            }
             break;
         }
     }
@@ -1511,9 +1508,8 @@ void CppCompletionAssistProcessor::completeNamespace(CPlusPlus::ClassOrNamespace
                 scopesToVisit.append(scope);
         }
 
-        foreach (Enum *e, binding->unscopedEnums()) {
+        foreach (Enum *e, binding->unscopedEnums())
             scopesToVisit.append(e);
-        }
 
         while (!scopesToVisit.isEmpty()) {
             Scope *scope = scopesToVisit.takeFirst();
@@ -1727,9 +1723,8 @@ void CppCompletionAssistProcessor::addMacros_helper(const CPlusPlus::Snapshot &s
 
     processed->insert(doc->fileName());
 
-    foreach (const Document::Include &i, doc->resolvedIncludes()) {
+    foreach (const Document::Include &i, doc->resolvedIncludes())
         addMacros_helper(snapshot, i.resolvedFileName(), processed, definedMacros);
-    }
 
     foreach (const Macro &macro, doc->definedMacros()) {
         const QString macroName = QString::fromUtf8(macro.name().constData(), macro.name().length());
