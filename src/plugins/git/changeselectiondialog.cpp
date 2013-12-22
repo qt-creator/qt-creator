@@ -210,8 +210,14 @@ void ChangeSelectionDialog::recalculateDetails()
         m_ui->workingDirectoryEdit->setPalette(palette);
     }
 
+    const QString change = m_ui->changeNumberEdit->text();
+    if (change.isEmpty()) {
+        m_ui->detailsText->setPlainText(QString());
+        return;
+    }
+
     QStringList args;
-    args << QLatin1String("log") << QLatin1String("-n1") << m_ui->changeNumberEdit->text();
+    args << QLatin1String("log") << QLatin1String("-n1") << change;
 
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(workingDir);
