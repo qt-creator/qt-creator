@@ -1365,13 +1365,11 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
             for (unsigned i = 0; i < scope->memberCount(); ++i) {
                 addCompletionItem(scope->memberAt(i), FunctionLocalsOrder);
             }
-        } else if (scope->isFunction()) {
-            Function *fun = scope->asFunction();
+        } else if (Function *fun = scope->asFunction()) {
             for (unsigned i = 0, argc = fun->argumentCount(); i < argc; ++i) {
                 addCompletionItem(fun->argumentAt(i), FunctionArgumentsOrder);
             }
-        } else if (scope->isTemplate()) {
-            Template *templ = scope->asTemplate();
+        } else if (Template *templ = scope->asTemplate()) {
             for (unsigned i = 0, argc = templ->templateParameterCount(); i < argc; ++i) {
                 addCompletionItem(templ->templateParameterAt(i), FunctionArgumentsOrder);
             }
