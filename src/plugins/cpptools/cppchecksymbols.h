@@ -50,7 +50,7 @@ namespace CppTools {
 // instantiate this template (since the declaration of template doesn't have any explicit
 // export/import attribute) which will eventually collide with the already defined symbol.
 // The line below simply tells the compiler to import the template instead of instantiating.
-template class Q_DECL_IMPORT QFutureInterface<CppEditor::Internal::SemanticInfo::Use>;
+template class Q_DECL_IMPORT QFutureInterface<SemanticInfo::Use>;
 #endif
 
 class CPPTOOLS_EXPORT CheckSymbols:
