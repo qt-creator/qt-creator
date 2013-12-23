@@ -1598,24 +1598,27 @@ QString QmakeProject::executableFor(const QmakeProFileNode *node)
         return QString();
 
     TargetInformation ti = node->targetInformation();
+    QString target;
 
     switch (toolchain->targetAbi().os()) {
     case ProjectExplorer::Abi::MacOS:
-        if (node->variableValue(ConfigVar).contains(QLatin1String("app_bundle")))
-            return QDir::cleanPath(destDirFor(ti) + QLatin1Char('/') + ti.target
-                                   + QLatin1String(".app/Contents/MacOS/") + ti.target);
+        if (node->variableValue(ConfigVar).contains(QLatin1String("app_bundle"))) {
+            target = ti.target + QLatin1String(".app/Contents/MacOS/") + ti.target;
+            break;
+        }
         // else fall through
     case ProjectExplorer::Abi::WindowsOS:
     case ProjectExplorer::Abi::LinuxOS:
     case ProjectExplorer::Abi::BsdOS:
     case ProjectExplorer::Abi::UnixOS: {
         QString extension = node->singleVariableValue(TargetExtVar);
-        QString executable = QDir::cleanPath(destDirFor(ti) + QLatin1Char('/') + ti.target + extension);
-        return executable;
+        target = ti.target + extension;
+        break;
     }
     default:
         return QString();
     }
+    return QDir(destDirFor(ti)).absoluteFilePath(target);
 }
 
 void QmakeProject::emitBuildDirectoryInitialized()
