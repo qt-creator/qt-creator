@@ -48,19 +48,13 @@ BarDescriptorEditorPermissionsWidget::BarDescriptorEditorPermissionsWidget(QWidg
 
     connect(m_ui->selectAllPermissions, SIGNAL(clicked()), m_permissionsModel, SLOT(checkAll()));
     connect(m_ui->deselectAllPermissions, SIGNAL(clicked()), m_permissionsModel, SLOT(uncheckAll()));
-    connect(m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
+
+    addSignalMapping(BarDescriptorDocument::action, m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
 }
 
 BarDescriptorEditorPermissionsWidget::~BarDescriptorEditorPermissionsWidget()
 {
     delete m_ui;
-}
-
-void BarDescriptorEditorPermissionsWidget::clear()
-{
-    disconnect(m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
-    m_permissionsModel->uncheckAll();
-    connect(m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
 }
 
 QStringList BarDescriptorEditorPermissionsWidget::checkedPermissions() const
@@ -70,7 +64,29 @@ QStringList BarDescriptorEditorPermissionsWidget::checkedPermissions() const
 
 void BarDescriptorEditorPermissionsWidget::checkPermission(const QString &identifier)
 {
-    disconnect(m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
+    blockSignalMapping(BarDescriptorDocument::action);
     m_permissionsModel->checkPermission(identifier);
-    connect(m_permissionsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
+    unblockSignalMapping(BarDescriptorDocument::action);
+}
+
+void BarDescriptorEditorPermissionsWidget::updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value)
+{
+    if (tag != BarDescriptorDocument::action) {
+        BarDescriptorEditorAbstractPanelWidget::updateWidgetValue(tag, value);
+        return;
+    }
+
+    QStringList permissions = value.toStringList();
+    Q_FOREACH (const QString &permission, permissions)
+        checkPermission(permission);
+}
+
+void BarDescriptorEditorPermissionsWidget::emitChanged(BarDescriptorDocument::Tag tag)
+{
+    if (tag != BarDescriptorDocument::action) {
+        BarDescriptorEditorAbstractPanelWidget::emitChanged(tag);
+        return;
+    }
+
+    emit changed(tag, checkedPermissions());
 }

@@ -34,6 +34,8 @@
 
 #include <QWidget>
 
+#include "bardescriptordocument.h"
+
 namespace Utils {
 class PathChooser;
 }
@@ -42,6 +44,8 @@ QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QComboBox;
 class QLineEdit;
+class QSignalMapper;
+class QStringListModel;
 class QTextEdit;
 QT_END_NAMESPACE
 
@@ -54,17 +58,26 @@ class BarDescriptorEditorAbstractPanelWidget : public QWidget
 public:
     explicit BarDescriptorEditorAbstractPanelWidget(QWidget *parent = 0);
 
-    virtual void clear() = 0;
+public slots:
+    void setValue(BarDescriptorDocument::Tag tag, const QVariant &value);
 
 signals:
-    void changed();
+    void changed(BarDescriptorDocument::Tag tag, const QVariant &value);
 
 protected:
-    void setComboBoxBlocked(QComboBox *comboBox, int index);
-    void setCheckBoxBlocked(QCheckBox *checkBox, bool checked);
-    void setLineEditBlocked(QLineEdit *lineEdit, const QString &text);
-    void setTextEditBlocked(QTextEdit *textEdit, const QString &text);
-    void setPathChooserBlocked(Utils::PathChooser *pathChooser, const QString &path);
+    virtual void updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value);
+    virtual void emitChanged(BarDescriptorDocument::Tag tag);
+
+    void addSignalMapping(BarDescriptorDocument::Tag tag, QObject *object, const char *signal);
+    void blockSignalMapping(BarDescriptorDocument::Tag tag);
+    void unblockSignalMapping(BarDescriptorDocument::Tag tag);
+
+private slots:
+    void handleSignalMapped(int id);
+
+private:
+    QSignalMapper *m_signalMapper;
+    QList<BarDescriptorDocument::Tag> m_blockedSignals;
 };
 
 } // namespace Internal

@@ -45,55 +45,12 @@ BarDescriptorEditorPackageInformationWidget::BarDescriptorEditorPackageInformati
     QRegExpValidator *versionNumberValidator = new QRegExpValidator(versionNumberRegExp, this);
     m_ui->packageVersion->setValidator(versionNumberValidator);
 
-    connect(m_ui->packageId, SIGNAL(textChanged(QString)), this, SIGNAL(changed()));
-    connect(m_ui->packageVersion, SIGNAL(textChanged(QString)), this, SIGNAL(changed()));
-    connect(m_ui->packageBuildId, SIGNAL(textChanged(QString)), this, SIGNAL(changed()));
+    addSignalMapping(BarDescriptorDocument::id, m_ui->packageId, SIGNAL(textChanged(QString)));
+    addSignalMapping(BarDescriptorDocument::versionNumber, m_ui->packageVersion, SIGNAL(textChanged(QString)));
+    addSignalMapping(BarDescriptorDocument::buildId, m_ui->packageBuildId, SIGNAL(textChanged(QString)));
 }
 
 BarDescriptorEditorPackageInformationWidget::~BarDescriptorEditorPackageInformationWidget()
 {
     delete m_ui;
-}
-
-void BarDescriptorEditorPackageInformationWidget::clear()
-{
-    setLineEditBlocked(m_ui->packageId, QString());
-    setLineEditBlocked(m_ui->packageVersion, QString());
-    setLineEditBlocked(m_ui->packageBuildId, QString());
-}
-
-QString BarDescriptorEditorPackageInformationWidget::packageId() const
-{
-    return m_ui->packageId->text();
-}
-
-void BarDescriptorEditorPackageInformationWidget::setPackageId(const QString &packageId)
-{
-    setLineEditBlocked(m_ui->packageId, packageId);
-}
-
-QString BarDescriptorEditorPackageInformationWidget::packageVersion() const
-{
-    QString version = m_ui->packageVersion->text();
-    int pos = 0;
-    if (m_ui->packageVersion->validator()->validate(version, pos) == QValidator::Intermediate) {
-        if (version.endsWith(QLatin1Char('.')))
-            version = version.left(version.size() - 1);
-    }
-    return version;
-}
-
-void BarDescriptorEditorPackageInformationWidget::setPackageVersion(const QString &packageVersion)
-{
-    setLineEditBlocked(m_ui->packageVersion, packageVersion);
-}
-
-QString BarDescriptorEditorPackageInformationWidget::packageBuildId() const
-{
-    return m_ui->packageBuildId->text();
-}
-
-void BarDescriptorEditorPackageInformationWidget::setPackageBuildId(const QString &packageBuildId)
-{
-    setLineEditBlocked(m_ui->packageBuildId, packageBuildId);
 }

@@ -68,34 +68,20 @@ class BarDescriptorEditorWidget : public QStackedWidget
 public:
     explicit BarDescriptorEditorWidget(BarDescriptorEditor *editor, QWidget *parent = 0);
 
-    Core::IEditor *editor() const;
-
-    BarDescriptorEditorEntryPointWidget *entryPointWidget() const;
-    BarDescriptorEditorPackageInformationWidget *packageInformationWidget() const;
-    BarDescriptorEditorAuthorInformationWidget *authorInformationWidget() const;
-
-    BarDescriptorEditorGeneralWidget *generalWidget() const;
-    BarDescriptorEditorPermissionsWidget *permissionsWidget() const;
-    BarDescriptorEditorEnvironmentWidget *environmentWidget() const;
-
-    BarDescriptorEditorAssetsWidget *assetsWidget() const;
-
     TextEditor::BaseTextEditorWidget *sourceWidget() const;
 
     void setFilePath(const QString &filePath);
-    QString xmlSource() const;
-    void setXmlSource(const QString &xmlSource);
-
-    bool isDirty() const;
-    void clear();
-
-public slots:
-    void setDirty(bool dirty = true);
 
 signals:
-    void changed();
+    void changed(BarDescriptorDocument::Tag tag, const QVariant &value);
+
+private slots:
+    void updateDocumentContent();
+    void updateSourceView();
 
 private:
+    BarDescriptorDocument *barDescriptorDocument() const;
+
     void initGeneralPage();
     void initApplicationPage();
     void initAssetsPage();
@@ -103,8 +89,6 @@ private:
     void initPanelSize(ProjectExplorer::PanelsWidget *panelsWidget);
 
     Core::IEditor *m_editor;
-
-    bool m_dirty;
 
     // New UI
     BarDescriptorEditorEntryPointWidget *m_entryPointWidget;

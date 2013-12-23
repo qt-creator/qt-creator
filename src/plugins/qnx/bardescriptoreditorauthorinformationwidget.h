@@ -49,13 +49,8 @@ public:
     explicit BarDescriptorEditorAuthorInformationWidget(QWidget *parent = 0);
     ~BarDescriptorEditorAuthorInformationWidget();
 
-    void clear();
-
-    QString author() const;
-    void setAuthor(const QString &author);
-
-    QString authorId() const;
-    void setAuthorId(const QString &authorId);
+protected:
+    void updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value);
 
 private slots:
     void setAuthorFromDebugToken();

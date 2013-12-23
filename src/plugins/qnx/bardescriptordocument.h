@@ -33,8 +33,10 @@
 #define QNX_INTERNAL_BARDESCRIPTORDOCUMENT_H
 
 #include <coreplugin/textdocument.h>
+#include <utils/environment.h>
 
-#include <QDomNode>
+#include <QDomDocument>
+#include <QMetaType>
 
 namespace Qnx {
 namespace Internal {
@@ -44,16 +46,44 @@ public:
     QString source;
     QString destination;
     bool entry;
+
+    bool operator==(const BarDescriptorAsset &asset) const
+    {
+        return source == asset.source && destination == asset.destination;
+    }
 };
 
-class BarDescriptorEditorWidget;
-class BarDescriptorDocumentAbstractNodeHandler;
+typedef QList<BarDescriptorAsset> BarDescriptorAssetList;
 
 class BarDescriptorDocument : public Core::TextDocument
 {
     Q_OBJECT
+
+    Q_ENUMS(Tag)
+
 public:
-    explicit BarDescriptorDocument(BarDescriptorEditorWidget *editorWidget);
+    enum Tag {
+        id = 0,
+        versionNumber,
+        buildId,
+        name,
+        description,
+        icon,
+        splashScreens,
+        asset,
+        aspectRatio,
+        autoOrients,
+        systemChrome,
+        transparent,
+        arg,
+        action,
+        env,
+        author,
+        publisher,
+        authorId
+    };
+
+    explicit BarDescriptorDocument(QObject *parent = 0);
     ~BarDescriptorDocument();
 
     bool open(QString *errorString, const QString &fileName);
@@ -71,19 +101,43 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
     QString xmlSource() const;
-    bool loadContent(const QString &xmlSource, QString *errorMessage = 0, int *errorLine = 0);
+    bool loadContent(const QString &xmlCode, bool setDirty, QString *errorMessage = 0, int *errorLine = 0);
+
+    QVariant value(Tag tag) const;
+
+signals:
+    void changed(BarDescriptorDocument::Tag tag, const QVariant &value);
+
+public slots:
+    void setValue(BarDescriptorDocument::Tag tag, const QVariant &value);
 
 private:
-    void registerNodeHandler(BarDescriptorDocumentAbstractNodeHandler *nodeHandler);
-    BarDescriptorDocumentAbstractNodeHandler *nodeHandlerForDomNode(const QDomNode &node);
-    void removeUnknownNodeHandlers();
+    QString stringValue(const QString &tagName) const;
+    void setStringValue(const QString &tagName, const QString &value);
 
-    QList<BarDescriptorDocumentAbstractNodeHandler *> m_nodeHandlers;
+    QStringList childStringListValue(const QString &tagName, const QString &childTagName) const;
+    void setChildStringListValue(const QString &tagName, const QString &childTagName, const QStringList &stringList);
 
-    BarDescriptorEditorWidget *m_editorWidget;
+    QStringList stringListValue(const QString &tagName) const;
+    void setStringListValue(const QString &tagName, const QStringList &stringList);
+
+    BarDescriptorAssetList assets() const;
+    void setAssets(const BarDescriptorAssetList &assets);
+
+    QList<Utils::EnvironmentItem> environment() const;
+    void setEnvironment(const QList<Utils::EnvironmentItem> &environment);
+
+    void emitAllChanged();
+
+    bool m_dirty;
+    QDomDocument m_barDocument;
 };
 
 } // namespace Internal
 } // namespace Qnx
+
+Q_DECLARE_METATYPE(Qnx::Internal::BarDescriptorAssetList)
+Q_DECLARE_METATYPE(QList<Utils::EnvironmentItem>)
+Q_DECLARE_METATYPE(Qnx::Internal::BarDescriptorDocument::Tag)
 
 #endif // QNX_INTERNAL_BARDESCRIPTORDOCUMENT_H

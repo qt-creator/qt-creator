@@ -43,7 +43,7 @@ BarDescriptorEditorEnvironmentWidget::BarDescriptorEditorEnvironmentWidget(QWidg
 
     m_ui->environmentWidget->setBaseEnvironmentText(tr("Device Environment"));
 
-    connect(m_ui->environmentWidget, SIGNAL(userChangesChanged()), this, SIGNAL(changed()));
+    addSignalMapping(BarDescriptorDocument::env, m_ui->environmentWidget, SIGNAL(userChangesChanged()));
 }
 
 BarDescriptorEditorEnvironmentWidget::~BarDescriptorEditorEnvironmentWidget()
@@ -51,23 +51,24 @@ BarDescriptorEditorEnvironmentWidget::~BarDescriptorEditorEnvironmentWidget()
     delete m_ui;
 }
 
-void BarDescriptorEditorEnvironmentWidget::clear()
+void BarDescriptorEditorEnvironmentWidget::updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value)
 {
-    disconnect(m_ui->environmentWidget, SIGNAL(userChangesChanged()), this, SIGNAL(changed()));
-    m_ui->environmentWidget->setUserChanges(QList<Utils::EnvironmentItem>());
-    connect(m_ui->environmentWidget, SIGNAL(userChangesChanged()), this, SIGNAL(changed()));
+    if (tag != BarDescriptorDocument::env) {
+        BarDescriptorEditorAbstractPanelWidget::updateWidgetValue(tag, value);
+        return;
+    }
+
+    m_ui->environmentWidget->setUserChanges(value.value<QList<Utils::EnvironmentItem> >());
 }
 
-QList<Utils::EnvironmentItem> BarDescriptorEditorEnvironmentWidget::environment() const
+void BarDescriptorEditorEnvironmentWidget::emitChanged(BarDescriptorDocument::Tag tag)
 {
-    return m_ui->environmentWidget->userChanges();
-}
+    if (tag != BarDescriptorDocument::env) {
+        BarDescriptorEditorAbstractPanelWidget::emitChanged(tag);
+        return;
+    }
 
-void BarDescriptorEditorEnvironmentWidget::appendEnvironmentItem(const Utils::EnvironmentItem &envItem)
-{
-    disconnect(m_ui->environmentWidget, SIGNAL(userChangesChanged()), this, SIGNAL(changed()));
-    QList<Utils::EnvironmentItem> items = m_ui->environmentWidget->userChanges();
-    items.append(envItem);
-    m_ui->environmentWidget->setUserChanges(items);
-    connect(m_ui->environmentWidget, SIGNAL(userChangesChanged()), this, SIGNAL(changed()));
+    QVariant var;
+    var.setValue(m_ui->environmentWidget->userChanges());
+    emit changed(tag, var);
 }

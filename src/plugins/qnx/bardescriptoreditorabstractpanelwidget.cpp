@@ -32,10 +32,12 @@
 #include "bardescriptoreditorabstractpanelwidget.h"
 
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLineEdit>
+#include <QSignalMapper>
 #include <QTextEdit>
 
 using namespace Qnx;
@@ -44,40 +46,86 @@ using namespace Qnx::Internal;
 BarDescriptorEditorAbstractPanelWidget::BarDescriptorEditorAbstractPanelWidget(QWidget *parent) :
     QWidget(parent)
 {
+    m_signalMapper = new QSignalMapper(this);
+    connect(m_signalMapper, SIGNAL(mapped(int)), this, SLOT(handleSignalMapped(int)));
 }
 
-
-void BarDescriptorEditorAbstractPanelWidget::setComboBoxBlocked(QComboBox *comboBox, int index)
+void BarDescriptorEditorAbstractPanelWidget::setValue(BarDescriptorDocument::Tag tag, const QVariant &value)
 {
-    bool blocked = comboBox->blockSignals(true);
-    comboBox->setCurrentIndex(index);
-    comboBox->blockSignals(blocked);
+    if (m_blockedSignals.contains(tag))
+        return;
+
+    blockSignalMapping(tag);
+    updateWidgetValue(tag, value);
+    unblockSignalMapping(tag);
 }
 
-void BarDescriptorEditorAbstractPanelWidget::setCheckBoxBlocked(QCheckBox *checkBox, bool checked)
+void BarDescriptorEditorAbstractPanelWidget::addSignalMapping(BarDescriptorDocument::Tag tag, QObject *object, const char *signal)
 {
-    bool blocked = checkBox->blockSignals(true);
-    checkBox->setChecked(checked);
-    checkBox->blockSignals(blocked);
+    m_signalMapper->setMapping(object, tag);
+    connect(object, signal, m_signalMapper, SLOT(map()));
 }
 
-void BarDescriptorEditorAbstractPanelWidget::setLineEditBlocked(QLineEdit *lineEdit, const QString &text)
+void BarDescriptorEditorAbstractPanelWidget::blockSignalMapping(BarDescriptorDocument::Tag tag)
 {
-    bool blocked = lineEdit->blockSignals(true);
-    lineEdit->setText(text);
-    lineEdit->blockSignals(blocked);
+    m_blockedSignals.prepend(tag);
 }
 
-void BarDescriptorEditorAbstractPanelWidget::setTextEditBlocked(QTextEdit *textEdit, const QString &text)
+void BarDescriptorEditorAbstractPanelWidget::unblockSignalMapping(BarDescriptorDocument::Tag tag)
 {
-    bool blocked = textEdit->blockSignals(true);
-    textEdit->setPlainText(text);
-    textEdit->blockSignals(blocked);
+    BarDescriptorDocument::Tag removedTag = m_blockedSignals.takeFirst();
+    QTC_CHECK(removedTag == tag);
 }
 
-void BarDescriptorEditorAbstractPanelWidget::setPathChooserBlocked(Utils::PathChooser *pathChooser, const QString &path)
+void BarDescriptorEditorAbstractPanelWidget::updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value)
 {
-    bool blocked = pathChooser->blockSignals(true);
-    pathChooser->setPath(path);
-    pathChooser->blockSignals(blocked);
+    QObject *object = m_signalMapper->mapping(static_cast<int>(tag));
+    if (!object)
+        return;
+
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(object))
+        lineEdit->setText(value.toString());
+    else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(object))
+        textEdit->setPlainText(value.toString());
+    else if (Utils::PathChooser *pathChooser = qobject_cast<Utils::PathChooser *>(object))
+        pathChooser->setPath(value.toString());
+    else if (QComboBox *comboBox = qobject_cast<QComboBox *>(object))
+        comboBox->setCurrentIndex(comboBox->findData(value.toString()));
+    else if (QCheckBox *checkBox = qobject_cast<QCheckBox *>(object))
+        checkBox->setChecked(value.toBool());
+    else
+        QTC_CHECK(false);
+}
+
+void BarDescriptorEditorAbstractPanelWidget::emitChanged(BarDescriptorDocument::Tag tag)
+{
+    QObject *sender = m_signalMapper->mapping(tag);
+
+    if (!sender)
+        return;
+
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(sender))
+        emit changed(tag, lineEdit->text());
+    else if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(sender))
+        emit changed(tag, textEdit->toPlainText());
+    else if (Utils::PathChooser *pathChooser = qobject_cast<Utils::PathChooser *>(sender))
+        emit changed(tag, pathChooser->path());
+    else if (QComboBox *comboBox = qobject_cast<QComboBox *>(sender))
+        emit changed(tag, comboBox->itemData(comboBox->currentIndex()));
+    else if (QCheckBox *checkBox = qobject_cast<QCheckBox *>(sender))
+        emit changed(tag, checkBox->isChecked());
+    else
+        QTC_CHECK(false);
+}
+
+void BarDescriptorEditorAbstractPanelWidget::handleSignalMapped(int id)
+{
+    BarDescriptorDocument::Tag tag = static_cast<BarDescriptorDocument::Tag>(id);
+
+    if (m_blockedSignals.contains(tag))
+        return;
+
+    blockSignalMapping(tag);
+    emitChanged(tag);
+    unblockSignalMapping(tag);
 }

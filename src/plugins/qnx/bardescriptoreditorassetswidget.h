@@ -56,16 +56,15 @@ public:
     explicit BarDescriptorEditorAssetsWidget(QWidget *parent = 0);
     ~BarDescriptorEditorAssetsWidget();
 
-    void clear();
-
-    void addAsset(const BarDescriptorAsset &asset);
-    QList<BarDescriptorAsset> assets() const;
-
     QStandardItemModel *assetsModel() const;
 
 public slots:
     void addAsset(const QString &fullPath);
     void removeAsset(const QString &fullPath);
+
+protected:
+    void updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value);
+    void emitChanged(BarDescriptorDocument::Tag tag);
 
 private slots:
     void addNewAsset();
@@ -73,10 +72,8 @@ private slots:
     void updateEntryCheckState(QStandardItem *item);
 
 private:
-    void connectAssetsModel();
-    void disconnectAssetsModel();
-
-    void addAssetInternal(const BarDescriptorAsset &asset);
+    void clear();
+    void addAsset(const BarDescriptorAsset &asset);
     bool hasAsset(const BarDescriptorAsset &asset);
 
     Ui::BarDescriptorEditorAssetsWidget *m_ui;

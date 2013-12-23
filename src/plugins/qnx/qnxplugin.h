@@ -49,6 +49,12 @@ public:
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
+
+#ifdef WITH_TESTS
+private slots:
+    void testBarDescriptorDocumentSetValue_data();
+    void testBarDescriptorDocumentSetValue();
+#endif
 };
 
 } // namespace Internal

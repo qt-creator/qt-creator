@@ -136,4 +136,201 @@ ExtensionSystem::IPlugin::ShutdownFlag QNXPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
+#ifdef WITH_TESTS
+#include <QTest>
+
+#include "bardescriptordocument.h"
+
+void QNXPlugin::testBarDescriptorDocumentSetValue_data()
+{
+    QTest::addColumn<BarDescriptorDocument::Tag>("tag");
+    QTest::addColumn<QVariant>("value");
+    QTest::addColumn<QString>("baseXml");
+    QTest::addColumn<QString>("xml");
+    QTest::addColumn<bool>("compareResultValue");
+
+    QTest::newRow("new-id") << BarDescriptorDocument::id
+                            << QVariant(QString::fromLatin1("my-application-id"))
+                            << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                   "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\"/>\n")
+                            << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                   "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                   "    <id>my-application-id</id>\n"
+                                                   "</qnx>\n")
+                            << true;
+
+    QTest::newRow("changed-id") << BarDescriptorDocument::id
+                                << QVariant(QString::fromLatin1("my-application-id"))
+                                << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                       "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                       "    <id>some-application-id</id>\n"
+                                                       "</qnx>\n")
+                                << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                       "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                       "    <id>my-application-id</id>\n"
+                                                       "</qnx>\n")
+                                << true;
+
+
+    QTest::newRow("removed-id") << BarDescriptorDocument::id
+                                << QVariant(QString::fromLatin1(""))
+                                << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                       "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                       "    <id>some-application-id</id>\n"
+                                                       "</qnx>\n")
+                                << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                       "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\"/>\n")
+                                << true;
+
+    QStringList splashScreens;
+    splashScreens << QLatin1String("image1.png")
+                  << QLatin1String("image2.png");
+    QTest::newRow("new-splashScreens") << BarDescriptorDocument::splashScreens
+                                       << QVariant(splashScreens)
+                                       << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                              "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\"/>\n")
+                                       << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                              "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                              "    <splashScreens>\n"
+                                                              "        <image>image1.png</image>\n"
+                                                              "        <image>image2.png</image>\n"
+                                                              "    </splashScreens>\n"
+                                                              "</qnx>\n")
+                                       << true;
+
+    QTest::newRow("changed-splashScreens") << BarDescriptorDocument::splashScreens
+                                           << QVariant(splashScreens)
+                                           << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                                  "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                                  "    <splashScreens>\n"
+                                                                  "        <image>image3.png</image>\n"
+                                                                  "        <image>image4.png</image>\n"
+                                                                  "    </splashScreens>\n"
+                                                                  "</qnx>\n")
+                                           << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                                  "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                                  "    <splashScreens>\n"
+                                                                  "        <image>image1.png</image>\n"
+                                                                  "        <image>image2.png</image>\n"
+                                                                  "    </splashScreens>\n"
+                                                                  "</qnx>\n")
+                                           << true;
+
+    QTest::newRow("removed-splashScreens") << BarDescriptorDocument::splashScreens
+                                           << QVariant(QStringList())
+                                           << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                                  "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                                  "    <splashScreens>\n"
+                                                                  "        <image>image1.png</image>\n"
+                                                                  "        <image>image2.png</image>\n"
+                                                                  "    </splashScreens>\n"
+                                                                  "</qnx>\n")
+                                           << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                                  "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\"/>\n")
+                                           << true;
+
+    BarDescriptorAsset asset1;
+    asset1.source = QLatin1String("/path/to/file");
+    asset1.destination = QLatin1String("file");
+    asset1.entry = false;
+
+    BarDescriptorAsset asset2;
+    asset2.source = QLatin1String("/path/to/file2");
+    asset2.destination = QLatin1String("file2");
+    asset2.entry = false; // Cannot test "true", as "type" and "entry" attributes show up in seemingly arbitrary order
+
+    BarDescriptorAssetList assetList1;
+    assetList1 << asset1 << asset2;
+
+    QVariant assets;
+    assets.setValue(assetList1);
+
+    QTest::newRow("new-assets") << BarDescriptorDocument::asset
+                                << assets
+                                << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                       "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\"/>\n")
+                                << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                       "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                       "    <asset path=\"/path/to/file\">file</asset>\n"
+                                                       "    <asset path=\"/path/to/file2\">file2</asset>\n"
+                                                       "</qnx>\n")
+                                << false;
+
+    asset2.destination = QLatin1String("file3");
+    BarDescriptorAssetList assetList2;
+    assetList2 << asset1 << asset2;
+    assets.setValue(assetList2);
+
+    QTest::newRow("changed-assets") << BarDescriptorDocument::asset
+                                    << assets
+                                    << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                           "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                           "    <asset path=\"/path/to/file\">file</asset>\n"
+                                                           "    <asset path=\"/path/to/file2\">file2</asset>\n"
+                                                           "</qnx>\n")
+                                    << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                           "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                           "    <asset path=\"/path/to/file\">file</asset>\n"
+                                                           "    <asset path=\"/path/to/file2\">file3</asset>\n"
+                                                           "</qnx>\n")
+                                    << false;
+
+    QTest::newRow("maintain-position") << BarDescriptorDocument::id
+                                       << QVariant(QString::fromLatin1("my-application-id"))
+                                       << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                              "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                              "    <asset path=\"/path/to/file\">file</asset>\n"
+                                                              "    <asset path=\"/path/to/file2\">file2</asset>\n"
+                                                              "    <id>some-application-id</id>\n"
+                                                              "    <splashScreens>\n"
+                                                              "        <image>image1.png</image>\n"
+                                                              "        <image>image2.png</image>\n"
+                                                              "    </splashScreens>\n"
+                                                              "</qnx>\n")
+                                       << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                              "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                              "    <asset path=\"/path/to/file\">file</asset>\n"
+                                                              "    <asset path=\"/path/to/file2\">file2</asset>\n"
+                                                              "    <id>my-application-id</id>\n"
+                                                              "    <splashScreens>\n"
+                                                              "        <image>image1.png</image>\n"
+                                                              "        <image>image2.png</image>\n"
+                                                              "    </splashScreens>\n"
+                                                              "</qnx>\n")
+                                       << true;
+
+    QTest::newRow("removed-icon") << BarDescriptorDocument::icon
+                                  << QVariant(QString())
+                                  << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                         "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\">\n"
+                                                         "    <icon>\n"
+                                                         "        <image>icon1.png</image>\n"
+                                                         "    </icon>\n"
+                                                         "</qnx>\n")
+                                  << QString::fromLatin1("<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+                                                         "<qnx xmlns=\"http://www.qnx.com/schemas/application/1.0\"/>\n")
+                                  << true;
+}
+
+void QNXPlugin::testBarDescriptorDocumentSetValue()
+{
+    QFETCH(BarDescriptorDocument::Tag, tag);
+    QFETCH(QVariant, value);
+    QFETCH(QString, baseXml);
+    QFETCH(QString, xml);
+    QFETCH(bool, compareResultValue);
+
+    BarDescriptorDocument doc;
+    doc.loadContent(baseXml, false);
+    QCOMPARE(doc.xmlSource(), baseXml);
+
+    doc.setValue(tag, value);
+    QCOMPARE(doc.xmlSource(), xml);
+    QCOMPARE(doc.isModified(), true);
+    if (compareResultValue)
+        QCOMPARE(doc.value(tag), value);
+}
+
+#endif
+
 Q_EXPORT_PLUGIN2(QNX, QNXPlugin)

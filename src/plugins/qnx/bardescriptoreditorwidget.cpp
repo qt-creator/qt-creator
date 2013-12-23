@@ -44,9 +44,12 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/iprojectproperties.h>
 #include <projectexplorer/projectwindow.h>
+#include <projectexplorer/task.h>
+#include <projectexplorer/taskhub.h>
 #include <texteditor/plaintexteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/qtcassert.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -54,7 +57,6 @@ using namespace Qnx::Internal;
 BarDescriptorEditorWidget::BarDescriptorEditorWidget(BarDescriptorEditor *editor, QWidget *parent)
     : QStackedWidget(parent)
     , m_editor(editor)
-    , m_dirty(false)
 {
     Core::IContext *myContext = new Core::IContext(this);
     myContext->setWidget(this);
@@ -67,6 +69,25 @@ BarDescriptorEditorWidget::BarDescriptorEditorWidget(BarDescriptorEditor *editor
     initSourcePage();
 
     setCurrentIndex(0);
+
+    connect(m_entryPointWidget,         SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), barDescriptorDocument(), SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(m_packageInformationWidget, SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), barDescriptorDocument(), SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(m_authorInformationWidget,  SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), barDescriptorDocument(), SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(m_generalWidget,            SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), barDescriptorDocument(), SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(m_permissionsWidget,        SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), barDescriptorDocument(), SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(m_environmentWidget,        SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), barDescriptorDocument(), SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(m_assetsWidget,             SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), barDescriptorDocument(), SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+
+    connect(barDescriptorDocument(), SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), m_entryPointWidget,         SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(barDescriptorDocument(), SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), m_packageInformationWidget, SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(barDescriptorDocument(), SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), m_authorInformationWidget,  SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(barDescriptorDocument(), SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), m_generalWidget,            SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(barDescriptorDocument(), SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), m_permissionsWidget,        SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(barDescriptorDocument(), SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), m_environmentWidget,        SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+    connect(barDescriptorDocument(), SIGNAL(changed(BarDescriptorDocument::Tag,QVariant)), m_assetsWidget,             SLOT(setValue(BarDescriptorDocument::Tag,QVariant)));
+
+    connect(m_xmlSourceWidget, SIGNAL(textChanged()), this, SLOT(updateDocumentContent()));
+    connect(barDescriptorDocument(), SIGNAL(changed()), this, SLOT(updateSourceView()));
 }
 
 void BarDescriptorEditorWidget::initGeneralPage()
@@ -95,10 +116,6 @@ void BarDescriptorEditorWidget::initGeneralPage()
     authorInformationPanel->setDisplayName(tr("Author Information"));
     authorInformationPanel->setWidget(m_authorInformationWidget);
     generalPanel->addPropertiesPanel(authorInformationPanel);
-
-    connect(m_entryPointWidget, SIGNAL(changed()), this, SLOT(setDirty()));
-    connect(m_packageInformationWidget, SIGNAL(changed()), this, SLOT(setDirty()));
-    connect(m_authorInformationWidget, SIGNAL(changed()), this, SLOT(setDirty()));
 }
 
 void BarDescriptorEditorWidget::initApplicationPage()
@@ -127,10 +144,6 @@ void BarDescriptorEditorWidget::initApplicationPage()
     environmentPanel->setDisplayName(tr("Environment"));
     environmentPanel->setWidget(m_environmentWidget);
     applicationPanel->addPropertiesPanel(environmentPanel);
-
-    connect(m_generalWidget, SIGNAL(changed()), this, SLOT(setDirty()));
-    connect(m_permissionsWidget, SIGNAL(changed()), this, SLOT(setDirty()));
-    connect(m_environmentWidget, SIGNAL(changed()), this, SLOT(setDirty()));
 }
 
 void BarDescriptorEditorWidget::initAssetsPage()
@@ -145,8 +158,6 @@ void BarDescriptorEditorWidget::initAssetsPage()
     assetsPropertiesPanel->setWidget(m_assetsWidget);
     assetsPanel->addPropertiesPanel(assetsPropertiesPanel);
 
-    connect(m_assetsWidget, SIGNAL(changed()), this, SLOT(setDirty()));
-
     m_entryPointWidget->setAssetsModel(m_assetsWidget->assetsModel());
     connect(m_entryPointWidget, SIGNAL(imageAdded(QString)), m_assetsWidget, SLOT(addAsset(QString)));
     connect(m_entryPointWidget, SIGNAL(imageRemoved(QString)), m_assetsWidget, SLOT(removeAsset(QString)));
@@ -159,53 +170,12 @@ void BarDescriptorEditorWidget::initSourcePage()
 
     TextEditor::TextEditorSettings::initializeEditor(m_xmlSourceWidget);
     m_xmlSourceWidget->configure(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
-    connect(m_xmlSourceWidget, SIGNAL(textChanged()), this, SLOT(setDirty()));
 }
 
 void BarDescriptorEditorWidget::initPanelSize(ProjectExplorer::PanelsWidget *panelsWidget)
 {
     panelsWidget->widget()->setMaximumWidth(900);
     panelsWidget->widget()->setMinimumWidth(0);
-}
-
-Core::IEditor *BarDescriptorEditorWidget::editor() const
-{
-    return m_editor;
-}
-
-BarDescriptorEditorPackageInformationWidget *BarDescriptorEditorWidget::packageInformationWidget() const
-{
-    return m_packageInformationWidget;
-}
-
-BarDescriptorEditorAuthorInformationWidget *BarDescriptorEditorWidget::authorInformationWidget() const
-{
-    return m_authorInformationWidget;
-}
-
-BarDescriptorEditorEntryPointWidget *BarDescriptorEditorWidget::entryPointWidget() const
-{
-    return m_entryPointWidget;
-}
-
-BarDescriptorEditorGeneralWidget *BarDescriptorEditorWidget::generalWidget() const
-{
-    return m_generalWidget;
-}
-
-BarDescriptorEditorPermissionsWidget *BarDescriptorEditorWidget::permissionsWidget() const
-{
-    return m_permissionsWidget;
-}
-
-BarDescriptorEditorEnvironmentWidget *BarDescriptorEditorWidget::environmentWidget() const
-{
-    return m_environmentWidget;
-}
-
-BarDescriptorEditorAssetsWidget *BarDescriptorEditorWidget::assetsWidget() const
-{
-    return m_assetsWidget;
 }
 
 TextEditor::BaseTextEditorWidget *BarDescriptorEditorWidget::sourceWidget() const
@@ -216,51 +186,44 @@ TextEditor::BaseTextEditorWidget *BarDescriptorEditorWidget::sourceWidget() cons
 void BarDescriptorEditorWidget::setFilePath(const QString &filePath)
 {
     Core::IDocument *doc = m_xmlSourceWidget->baseTextDocument();
-    if (doc) {
+    if (doc)
         doc->setFilePath(filePath);
-        // setFilePath() call leads to a textChanged() signal emitted
-        // and therefore having this editor-widget to become dirty
-        // therefore we have to explicitly unset the dirty flag
-        setDirty(false);
+}
+
+void BarDescriptorEditorWidget::updateDocumentContent()
+{
+    ProjectExplorer::TaskHub::clearTasks(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR);
+    QString errorMsg;
+    int errorLine;
+
+    disconnect(barDescriptorDocument(), SIGNAL(changed()), this, SLOT(updateSourceView()));
+    bool result = barDescriptorDocument()->loadContent(m_xmlSourceWidget->toPlainText(), true, &errorMsg, &errorLine);
+    connect(barDescriptorDocument(), SIGNAL(changed()), this, SLOT(updateSourceView()));
+
+    if (!result) {
+        ProjectExplorer::TaskHub::addTask(ProjectExplorer::Task::Error, errorMsg, Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR,
+                                          Utils::FileName::fromString(barDescriptorDocument()->filePath()), errorLine);
+        ProjectExplorer::TaskHub::requestPopup();
     }
 }
 
-QString BarDescriptorEditorWidget::xmlSource() const
-{
-    return m_xmlSourceWidget->toPlainText();
-}
-
-void BarDescriptorEditorWidget::setXmlSource(const QString &xmlSource)
+void BarDescriptorEditorWidget::updateSourceView()
 {
     bool blocked = m_xmlSourceWidget->blockSignals(true);
-    m_xmlSourceWidget->setPlainText(xmlSource);
+
+    int line;
+    int column;
+    int position = m_xmlSourceWidget->position();
+    m_xmlSourceWidget->convertPosition(position, &line, &column);
+
+    m_xmlSourceWidget->setPlainText(barDescriptorDocument()->xmlSource());
+
+    m_xmlSourceWidget->gotoLine(line, column);
+
     m_xmlSourceWidget->blockSignals(blocked);
 }
 
-bool BarDescriptorEditorWidget::isDirty() const
+BarDescriptorDocument *BarDescriptorEditorWidget::barDescriptorDocument() const
 {
-    return m_dirty;
-}
-
-void BarDescriptorEditorWidget::clear()
-{
-    m_entryPointWidget->clear();
-    m_packageInformationWidget->clear();
-    m_authorInformationWidget->clear();
-
-    m_generalWidget->clear();
-    m_permissionsWidget->clear();
-    m_environmentWidget->clear();
-
-    m_assetsWidget->clear();
-
-    bool blocked = m_xmlSourceWidget->blockSignals(true);
-    m_xmlSourceWidget->clear();
-    m_xmlSourceWidget->blockSignals(blocked);
-}
-
-void BarDescriptorEditorWidget::setDirty(bool dirty)
-{
-    m_dirty = dirty;
-    emit changed();
+    return qobject_cast<BarDescriptorDocument*>(m_editor->document());
 }

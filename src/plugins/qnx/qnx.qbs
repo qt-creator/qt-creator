@@ -20,8 +20,6 @@ QtcPlugin {
     files: [
         "bardescriptordocument.cpp",
         "bardescriptordocument.h",
-        "bardescriptordocumentnodehandlers.cpp",
-        "bardescriptordocumentnodehandlers.h",
         "bardescriptoreditor.cpp",
         "bardescriptoreditor.h",
         "bardescriptoreditorabstractpanelwidget.cpp",

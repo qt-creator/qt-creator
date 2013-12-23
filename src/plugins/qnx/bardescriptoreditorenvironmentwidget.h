@@ -51,10 +51,9 @@ public:
     explicit BarDescriptorEditorEnvironmentWidget(QWidget *parent = 0);
     ~BarDescriptorEditorEnvironmentWidget();
 
-    void clear();
-
-    QList<Utils::EnvironmentItem> environment() const;
-    void appendEnvironmentItem(const Utils::EnvironmentItem &envItem);
+protected:
+    void updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value);
+    void emitChanged(BarDescriptorDocument::Tag tag);
 
 private:
     Ui::BarDescriptorEditorEnvironmentWidget *m_ui;

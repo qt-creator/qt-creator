@@ -53,8 +53,8 @@ BarDescriptorEditorAuthorInformationWidget::BarDescriptorEditorAuthorInformation
 
     m_ui->setFromDebugToken->setVisible(BlackBerryDebugTokenReader::isSupported());
 
-    connect(m_ui->author, SIGNAL(textChanged(QString)), this, SIGNAL(changed()));
-    connect(m_ui->authorId, SIGNAL(textChanged(QString)), this, SIGNAL(changed()));
+    addSignalMapping(BarDescriptorDocument::author, m_ui->author, SIGNAL(textChanged(QString)));
+    addSignalMapping(BarDescriptorDocument::authorId, m_ui->authorId, SIGNAL(textChanged(QString)));
     connect(m_ui->setFromDebugToken, SIGNAL(clicked()), this, SLOT(setAuthorFromDebugToken()));
 }
 
@@ -63,30 +63,13 @@ BarDescriptorEditorAuthorInformationWidget::~BarDescriptorEditorAuthorInformatio
     delete m_ui;
 }
 
-void BarDescriptorEditorAuthorInformationWidget::clear()
+void BarDescriptorEditorAuthorInformationWidget::updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value)
 {
-    setLineEditBlocked(m_ui->author, QString());
-    setLineEditBlocked(m_ui->authorId, QString());
-}
-
-QString BarDescriptorEditorAuthorInformationWidget::author() const
-{
-    return m_ui->author->text();
-}
-
-void BarDescriptorEditorAuthorInformationWidget::setAuthor(const QString &author)
-{
-    setLineEditBlocked(m_ui->author, author);
-}
-
-QString BarDescriptorEditorAuthorInformationWidget::authorId() const
-{
-    return m_ui->authorId->text();
-}
-
-void BarDescriptorEditorAuthorInformationWidget::setAuthorId(const QString &authorId)
-{
-    setLineEditBlocked(m_ui->authorId, authorId);
+    if (tag == BarDescriptorDocument::publisher && !value.toString().isEmpty())
+        // <publisher> is deprecated and hence not connected to the author field as we only want to read it from the XML
+        m_ui->author->setText(value.toString());
+    else
+        BarDescriptorEditorAbstractPanelWidget::updateWidgetValue(tag, value);
 }
 
 void BarDescriptorEditorAuthorInformationWidget::setAuthorFromDebugToken()

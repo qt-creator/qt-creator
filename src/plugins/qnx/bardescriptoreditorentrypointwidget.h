@@ -57,25 +57,15 @@ public:
     explicit BarDescriptorEditorEntryPointWidget(QWidget *parent = 0);
     ~BarDescriptorEditorEntryPointWidget();
 
-    void clear();
-
-    QString applicationName() const;
-    void setApplicationName(const QString &applicationName);
-
-    QString applicationDescription() const;
-    void setApplicationDescription(const QString &applicationDescription);
-
-    QString applicationIconFileName() const;
-    void setApplicationIcon(const QString &iconPath);
-
-    QStringList splashScreens() const;
-    void appendSplashScreen(const QString &splashScreenPath);
-
     void setAssetsModel(QStandardItemModel *assetsModel);
 
 signals:
     void imageAdded(const QString &path);
     void imageRemoved(const QString &path);
+
+protected:
+    void updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value);
+    void emitChanged(BarDescriptorDocument::Tag tag);
 
 private slots:
     void setApplicationIconDelayed(const QString &iconPath);

@@ -51,12 +51,14 @@ public:
     explicit BarDescriptorEditorPermissionsWidget(QWidget *parent = 0);
     ~BarDescriptorEditorPermissionsWidget();
 
-    void clear();
+protected:
+    void updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value);
+    void emitChanged(BarDescriptorDocument::Tag tag);
 
+private:
     QStringList checkedPermissions() const;
     void checkPermission(const QString &identifier);
 
-private:
     Ui::BarDescriptorEditorPermissionsWidget *m_ui;
 
     BarDescriptorPermissionsModel *m_permissionsModel;

@@ -65,9 +65,6 @@ BarDescriptorEditorEntryPointWidget::BarDescriptorEditorEntryPointWidget(QWidget
     m_ui->splashScreenWarningLabel->setVisible(false);
     m_ui->splashScreenWarningPixmap->setVisible(false);
 
-    connect(m_ui->applicationName, SIGNAL(textChanged(QString)), this, SIGNAL(changed()));
-    connect(m_ui->applicationDescription, SIGNAL(textChanged()), this, SIGNAL(changed()));
-
     connect(m_ui->iconFilePath, SIGNAL(changed(QString)), this, SLOT(handleIconChanged(QString)));
     connect(m_ui->iconClearButton, SIGNAL(clicked()), this, SLOT(clearIcon()));
 
@@ -75,8 +72,14 @@ BarDescriptorEditorEntryPointWidget::BarDescriptorEditorEntryPointWidget(QWidget
     m_ui->splashScreensView->setModel(m_splashScreenModel);
     connect(m_ui->addSplashScreen, SIGNAL(clicked()), this, SLOT(browseForSplashScreen()));
     connect(m_ui->removeSplashScreen, SIGNAL(clicked()), this, SLOT(removeSelectedSplashScreen()));
-    connect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
     connect(m_ui->splashScreensView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(handleSplashScreenSelectionChanged(QItemSelection,QItemSelection)));
+
+    addSignalMapping(BarDescriptorDocument::name, m_ui->applicationName, SIGNAL(textChanged(QString)));
+    addSignalMapping(BarDescriptorDocument::description, m_ui->applicationDescription, SIGNAL(textChanged()));
+    addSignalMapping(BarDescriptorDocument::icon, m_ui->iconFilePath, SIGNAL(changed(QString)));
+    addSignalMapping(BarDescriptorDocument::splashScreens, m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
+    addSignalMapping(BarDescriptorDocument::splashScreens, m_splashScreenModel, SIGNAL(rowsRemoved(QModelIndex,int,int)));
+    addSignalMapping(BarDescriptorDocument::splashScreens, m_splashScreenModel, SIGNAL(rowsInserted(QModelIndex,int,int)));
 }
 
 BarDescriptorEditorEntryPointWidget::~BarDescriptorEditorEntryPointWidget()
@@ -84,66 +87,38 @@ BarDescriptorEditorEntryPointWidget::~BarDescriptorEditorEntryPointWidget()
     delete m_ui;
 }
 
-void BarDescriptorEditorEntryPointWidget::clear()
-{
-    setPathChooserBlocked(m_ui->iconFilePath, QString());
-    setApplicationIconPreview(QString());
-
-    disconnect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
-    m_splashScreenModel->setStringList(QStringList());
-    connect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
-    setImagePreview(m_ui->splashScreenPreviewLabel, QString());
-}
-
-QString BarDescriptorEditorEntryPointWidget::applicationName() const
-{
-    return m_ui->applicationName->text();
-}
-
-void BarDescriptorEditorEntryPointWidget::setApplicationName(const QString &applicationName)
-{
-    setLineEditBlocked(m_ui->applicationName, applicationName);
-}
-
-QString BarDescriptorEditorEntryPointWidget::applicationDescription() const
-{
-    return m_ui->applicationDescription->toPlainText();
-}
-
-void BarDescriptorEditorEntryPointWidget::setApplicationDescription(const QString &applicationDescription)
-{
-    setTextEditBlocked(m_ui->applicationDescription, applicationDescription);
-}
-
-QString BarDescriptorEditorEntryPointWidget::applicationIconFileName() const
-{
-    return QFileInfo(m_ui->iconFilePath->path()).fileName();
-}
-
-void BarDescriptorEditorEntryPointWidget::setApplicationIcon(const QString &iconPath)
-{
-    // During file loading, the assets might not have been read yet
-    QMetaObject::invokeMethod(this, "setApplicationIconDelayed", Qt::QueuedConnection, Q_ARG(QString, iconPath));
-}
-
-QStringList BarDescriptorEditorEntryPointWidget::splashScreens() const
-{
-    QStringList result;
-
-    foreach (const QString &splashScreen, m_splashScreenModel->stringList())
-        result << QFileInfo(splashScreen).fileName();
-
-    return result;
-}
-
-void BarDescriptorEditorEntryPointWidget::appendSplashScreen(const QString &splashScreenPath)
-{
-    QMetaObject::invokeMethod(this, "appendSplashScreenDelayed", Qt::QueuedConnection, Q_ARG(QString, splashScreenPath));
-}
-
 void BarDescriptorEditorEntryPointWidget::setAssetsModel(QStandardItemModel *assetsModel)
 {
     m_assetsModel = QWeakPointer<QStandardItemModel>(assetsModel);
+}
+
+void BarDescriptorEditorEntryPointWidget::updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value)
+{
+    // During file loading, the assets might not have been read yet
+    if (tag == BarDescriptorDocument::icon) {
+        QMetaObject::invokeMethod(this, "setApplicationIconDelayed", Qt::QueuedConnection, Q_ARG(QString, value.toString()));
+    } else if (tag == BarDescriptorDocument::splashScreens) {
+        QStringList splashScreens = value.toStringList();
+        foreach (const QString &splashScreen, splashScreens)
+            QMetaObject::invokeMethod(this, "appendSplashScreenDelayed", Qt::QueuedConnection, Q_ARG(QString, splashScreen));
+    } else {
+        BarDescriptorEditorAbstractPanelWidget::updateWidgetValue(tag, value);
+    }
+}
+
+void BarDescriptorEditorEntryPointWidget::emitChanged(BarDescriptorDocument::Tag tag)
+{
+    if (tag == BarDescriptorDocument::icon) {
+        emit changed(tag, QFileInfo(m_ui->iconFilePath->path()).fileName());
+    } else if (tag == BarDescriptorDocument::splashScreens) {
+        QStringList list;
+        foreach (const QString &splashScreen, m_splashScreenModel->stringList())
+            list << QFileInfo(splashScreen).fileName();
+
+        emit changed(tag, list);
+    } else {
+        BarDescriptorEditorAbstractPanelWidget::emitChanged(tag);
+    }
 }
 
 void BarDescriptorEditorEntryPointWidget::setApplicationIconPreview(const QString &path)
@@ -164,8 +139,8 @@ void BarDescriptorEditorEntryPointWidget::handleIconChanged(const QString &path)
     setApplicationIconPreview(path);
     validateIconSize(path);
 
-    emit changed();
-    emit imageRemoved(m_prevIconPath);
+    if (!m_splashScreenModel->stringList().contains(m_prevIconPath))
+        emit imageRemoved(m_prevIconPath);
 
     m_prevIconPath = path;
     if (QFileInfo(path).exists())
@@ -200,7 +175,8 @@ void BarDescriptorEditorEntryPointWidget::removeSelectedSplashScreen()
 
     foreach (const QModelIndex &index, selectedIndexes) {
         QString path = m_splashScreenModel->data(index, Qt::DisplayRole).toString();
-        emit imageRemoved(path);
+        if (path != m_ui->iconFilePath->path())
+            emit imageRemoved(path);
 
         m_splashScreenModel->removeRow(index.row());
     }
@@ -230,11 +206,11 @@ void BarDescriptorEditorEntryPointWidget::appendSplashScreenDelayed(const QStrin
     if (fullSplashScreenPath.isEmpty())
         return;
 
-    disconnect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
+    blockSignalMapping(BarDescriptorDocument::splashScreens);
     int rowCount = m_splashScreenModel->rowCount();
     m_splashScreenModel->insertRow(rowCount);
     m_splashScreenModel->setData(m_splashScreenModel->index(rowCount), fullSplashScreenPath);
-    connect(m_splashScreenModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
+    unblockSignalMapping(BarDescriptorDocument::splashScreens);
 }
 
 void BarDescriptorEditorEntryPointWidget::setImagePreview(QLabel *previewLabel, const QString &path)
@@ -309,9 +285,11 @@ void BarDescriptorEditorEntryPointWidget::setApplicationIconDelayed(const QStrin
     if (fullIconPath.isEmpty())
         return;
 
-    setPathChooserBlocked(m_ui->iconFilePath, fullIconPath);
+    blockSignalMapping(BarDescriptorDocument::icon);
+    m_ui->iconFilePath->setPath(fullIconPath);
     setApplicationIconPreview(fullIconPath);
     validateIconSize(fullIconPath);
+    unblockSignalMapping(BarDescriptorDocument::icon);
 }
 
 QString BarDescriptorEditorEntryPointWidget::localAssetPathFromDestination(const QString &destination)

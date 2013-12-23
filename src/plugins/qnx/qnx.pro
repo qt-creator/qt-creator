@@ -57,7 +57,6 @@ SOURCES += qnxplugin.cpp \
     bardescriptoreditor.cpp \
     bardescriptoreditorwidget.cpp \
     bardescriptordocument.cpp \
-    bardescriptordocumentnodehandlers.cpp \
     bardescriptorpermissionsmodel.cpp \
     blackberrykeyswidget.cpp \
     blackberrykeyspage.cpp \
@@ -156,7 +155,6 @@ HEADERS += qnxplugin.h\
     bardescriptoreditor.h \
     bardescriptoreditorwidget.h \
     bardescriptordocument.h \
-    bardescriptordocumentnodehandlers.h \
     bardescriptorpermissionsmodel.h \
     blackberrykeyswidget.h \
     blackberrykeyspage.h \

@@ -51,10 +51,10 @@ BarDescriptorEditorGeneralWidget::BarDescriptorEditorGeneralWidget(QWidget *pare
     m_ui->chrome->addItem(tr("Standard"), QLatin1String("standard"));
     m_ui->chrome->addItem(tr("None"), QLatin1String("none"));
 
-    connect(m_ui->orientation, SIGNAL(currentIndexChanged(int)), this, SIGNAL(changed()));
-    connect(m_ui->chrome, SIGNAL(currentIndexChanged(int)), this, SIGNAL(changed()));
-    connect(m_ui->transparentMainWindow, SIGNAL(toggled(bool)), this, SIGNAL(changed()));
-    connect(m_ui->applicationArguments, SIGNAL(textChanged(QString)), this, SIGNAL(changed()));
+    addSignalMapping(BarDescriptorDocument::aspectRatio, m_ui->orientation, SIGNAL(currentIndexChanged(int)));
+    addSignalMapping(BarDescriptorDocument::systemChrome, m_ui->chrome, SIGNAL(currentIndexChanged(int)));
+    addSignalMapping(BarDescriptorDocument::transparent, m_ui->transparentMainWindow, SIGNAL(toggled(bool)));
+    addSignalMapping(BarDescriptorDocument::arg, m_ui->applicationArguments, SIGNAL(textChanged(QString)));
 }
 
 BarDescriptorEditorGeneralWidget::~BarDescriptorEditorGeneralWidget()
@@ -62,62 +62,41 @@ BarDescriptorEditorGeneralWidget::~BarDescriptorEditorGeneralWidget()
     delete m_ui;
 }
 
-void BarDescriptorEditorGeneralWidget::clear()
+void BarDescriptorEditorGeneralWidget::updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value)
 {
-    setComboBoxBlocked(m_ui->orientation, m_ui->orientation->findData(QLatin1String("")));
-    setComboBoxBlocked(m_ui->chrome, m_ui->chrome->findData(QLatin1String("none")));
-    setCheckBoxBlocked(m_ui->transparentMainWindow, false);
-    setLineEditBlocked(m_ui->applicationArguments, QString());
+    if (tag == BarDescriptorDocument::aspectRatio) {
+        m_ui->orientation->setCurrentIndex(m_ui->orientation->findData(value));
+    } else if (tag == BarDescriptorDocument::autoOrients) {
+        if (value.toString() == QLatin1String("true")) {
+            blockSignalMapping(BarDescriptorDocument::aspectRatio);
+            m_ui->orientation->setCurrentIndex(m_ui->orientation->findData(QLatin1String("auto-orient")));
+            unblockSignalMapping(BarDescriptorDocument::aspectRatio);
+        }
+    } else if (tag == BarDescriptorDocument::arg) {
+        m_ui->applicationArguments->setText(value.toStringList().join(QLatin1String(" ")));
+    } else {
+        BarDescriptorEditorAbstractPanelWidget::updateWidgetValue(tag, value);
+    }
 }
 
-QString BarDescriptorEditorGeneralWidget::orientation() const
+void BarDescriptorEditorGeneralWidget::emitChanged(BarDescriptorDocument::Tag tag)
 {
-    return m_ui->orientation->itemData(m_ui->orientation->currentIndex()).toString();
-}
-
-void BarDescriptorEditorGeneralWidget::setOrientation(const QString &orientation)
-{
-    int index = m_ui->orientation->findData(orientation);
-    QTC_ASSERT(index >= 0, return);
-
-    setComboBoxBlocked(m_ui->orientation, index);
-}
-
-QString BarDescriptorEditorGeneralWidget::chrome() const
-{
-    return m_ui->chrome->itemData(m_ui->chrome->currentIndex()).toString();
-}
-
-void BarDescriptorEditorGeneralWidget::setChrome(const QString &chrome)
-{
-    int index = m_ui->chrome->findData(chrome);
-    QTC_ASSERT(index >= 0, return);
-
-    setComboBoxBlocked(m_ui->chrome, index);
-}
-
-bool BarDescriptorEditorGeneralWidget::transparent() const
-{
-    return m_ui->transparentMainWindow->isChecked();
-}
-
-void BarDescriptorEditorGeneralWidget::setTransparent(bool transparent)
-{
-    setCheckBoxBlocked(m_ui->transparentMainWindow, transparent);
-}
-
-void BarDescriptorEditorGeneralWidget::appendApplicationArgument(const QString &argument)
-{
-    QString completeArguments = m_ui->applicationArguments->text();
-    if (!completeArguments.isEmpty())
-        completeArguments.append(QLatin1Char(' '));
-    completeArguments.append(argument);
-
-    setLineEditBlocked(m_ui->applicationArguments, completeArguments);
-}
-
-QStringList BarDescriptorEditorGeneralWidget::applicationArguments() const
-{
-    // TODO: Should probably handle "argument with spaces within quotes"
-    return m_ui->applicationArguments->text().split(QLatin1Char(' '));
+    if (tag == BarDescriptorDocument::aspectRatio) {
+        QString value = m_ui->orientation->itemData(m_ui->orientation->currentIndex()).toString();
+        if (value == QLatin1String("auto-orient")) {
+            emit changed(BarDescriptorDocument::aspectRatio, QLatin1String(""));
+            emit changed(BarDescriptorDocument::autoOrients, QLatin1String("true"));
+            return;
+        } else if (!value.isEmpty()) {
+            emit changed(BarDescriptorDocument::aspectRatio, value);
+            emit changed(BarDescriptorDocument::autoOrients, QLatin1String("false"));
+        } else {
+            emit changed(BarDescriptorDocument::aspectRatio, value);
+            emit changed(BarDescriptorDocument::autoOrients, QLatin1String(""));
+        }
+    } else if (tag == BarDescriptorDocument::arg) {
+        emit changed(tag, m_ui->applicationArguments->text().split(QLatin1Char(' ')));
+    } else {
+        BarDescriptorEditorAbstractPanelWidget::emitChanged(tag);
+    }
 }

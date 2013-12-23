@@ -49,17 +49,6 @@ public:
     explicit BarDescriptorEditorPackageInformationWidget(QWidget *parent = 0);
     ~BarDescriptorEditorPackageInformationWidget();
 
-    void clear();
-
-    QString packageId() const;
-    void setPackageId(const QString &packageId);
-
-    QString packageVersion() const;
-    void setPackageVersion(const QString &packageVersion);
-
-    QString packageBuildId() const;
-    void setPackageBuildId(const QString &packageBuildId);
-
 private:
     Ui::BarDescriptorEditorPackageInformationWidget *m_ui;
 };

@@ -56,10 +56,10 @@ namespace Internal {
 
 BarDescriptorEditor::BarDescriptorEditor()
 {
+    m_file = new BarDescriptorDocument(this);
+
     BarDescriptorEditorWidget *editorWidget = new BarDescriptorEditorWidget(this);
     setWidget(editorWidget);
-    m_file = new BarDescriptorDocument(editorWidget);
-    connect(editorWidget, SIGNAL(changed()), m_file, SIGNAL(changed()));
 
     m_toolBar = new QToolBar(editorWidget);
 
@@ -106,7 +106,15 @@ BarDescriptorEditor::BarDescriptorEditor()
 bool BarDescriptorEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     QTC_ASSERT(fileName == realFileName, return false);
-    return m_file->open(errorString, fileName);
+
+    bool result = m_file->open(errorString, fileName);
+    if (result) {
+        BarDescriptorEditorWidget *editorWidget = qobject_cast<BarDescriptorEditorWidget *>(widget());
+        QTC_ASSERT(editorWidget, return false);
+        editorWidget->setFilePath(fileName);
+    }
+
+    return result;
 }
 
 Core::IDocument *BarDescriptorEditor::document()
@@ -141,31 +149,6 @@ void BarDescriptorEditor::setActivePage(BarDescriptorEditor::EditorPage page)
 {
     BarDescriptorEditorWidget *editorWidget = qobject_cast<BarDescriptorEditorWidget *>(widget());
     QTC_ASSERT(editorWidget, return);
-
-    int prevPage = editorWidget->currentIndex();
-
-    if (prevPage == page)
-        return;
-
-    if (page == Source) {
-        editorWidget->setXmlSource(m_file->xmlSource());
-        updateCursorPosition();
-    } else if (prevPage == Source) {
-        TaskHub::clearTasks(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR);
-        QString errorMsg;
-        int errorLine;
-        if (!m_file->loadContent(editorWidget->xmlSource(), &errorMsg, &errorLine)) {
-            TaskHub::addTask(Task::Error, errorMsg, Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR,
-                             Utils::FileName::fromString(m_file->filePath()), errorLine);
-            TaskHub::requestPopup();
-
-            foreach (QAction *action, m_actionGroup->actions())
-                if (action->data().toInt() == Source)
-                    action->setChecked(true);
-
-            return;
-        }
-    }
 
     m_cursorPositionAction->setVisible(page == Source);
     editorWidget->setCurrentIndex(page);

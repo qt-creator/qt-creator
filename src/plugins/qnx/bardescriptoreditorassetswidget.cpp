@@ -57,7 +57,10 @@ BarDescriptorEditorAssetsWidget::BarDescriptorEditorAssetsWidget(QWidget *parent
     connect(m_ui->addAsset, SIGNAL(clicked()), this, SLOT(addNewAsset()));
     connect(m_ui->removeAsset, SIGNAL(clicked()), this, SLOT(removeSelectedAsset()));
     connect(m_assetsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(updateEntryCheckState(QStandardItem*)));
-    connectAssetsModel();
+
+    addSignalMapping(BarDescriptorDocument::asset, m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
+    addSignalMapping(BarDescriptorDocument::asset, m_assetsModel, SIGNAL(rowsInserted(QModelIndex,int,int)));
+    addSignalMapping(BarDescriptorDocument::asset, m_assetsModel, SIGNAL(rowsRemoved(QModelIndex,int,int)));
 }
 
 BarDescriptorEditorAssetsWidget::~BarDescriptorEditorAssetsWidget()
@@ -67,37 +70,27 @@ BarDescriptorEditorAssetsWidget::~BarDescriptorEditorAssetsWidget()
 
 void BarDescriptorEditorAssetsWidget::clear()
 {
-    // We can't just block signals, as the view depends on them
-    disconnectAssetsModel();
+    blockSignalMapping(BarDescriptorDocument::asset);
     m_assetsModel->removeRows(0, m_assetsModel->rowCount());
-    connectAssetsModel();
-}
-
-void BarDescriptorEditorAssetsWidget::addAsset(const BarDescriptorAsset &asset)
-{
-    disconnectAssetsModel();
-    addAssetInternal(asset);
-    connectAssetsModel();
-}
-
-QList<BarDescriptorAsset> BarDescriptorEditorAssetsWidget::assets() const
-{
-    QList<BarDescriptorAsset> result;
-
-    for (int i = 0; i < m_assetsModel->rowCount(); ++i) {
-        BarDescriptorAsset asset;
-        asset.source = m_assetsModel->item(i, 0)->text();
-        asset.destination = m_assetsModel->item(i, 1)->text();
-        asset.entry = m_assetsModel->item(i, 2)->checkState() == Qt::Checked;
-        result << asset;
-    }
-
-    return result;
+    unblockSignalMapping(BarDescriptorDocument::asset);
 }
 
 QStandardItemModel *BarDescriptorEditorAssetsWidget::assetsModel() const
 {
     return m_assetsModel;
+}
+
+void BarDescriptorEditorAssetsWidget::updateWidgetValue(BarDescriptorDocument::Tag tag, const QVariant &value)
+{
+    if (tag != BarDescriptorDocument::asset) {
+        BarDescriptorEditorAbstractPanelWidget::updateWidgetValue(tag, value);
+        return;
+    }
+
+    clear();
+    BarDescriptorAssetList assets = value.value<BarDescriptorAssetList>();
+    foreach (const BarDescriptorAsset asset, assets)
+        addAsset(asset);
 }
 
 void BarDescriptorEditorAssetsWidget::addAsset(const QString &fullPath)
@@ -109,7 +102,7 @@ void BarDescriptorEditorAssetsWidget::addAsset(const QString &fullPath)
     asset.source = fullPath;
     asset.destination = QFileInfo(fullPath).fileName();
     asset.entry = false;
-    addAssetInternal(asset);
+    addAsset(asset);
 }
 
 void BarDescriptorEditorAssetsWidget::removeAsset(const QString &fullPath)
@@ -157,21 +150,28 @@ void BarDescriptorEditorAssetsWidget::updateEntryCheckState(QStandardItem *item)
     connect(m_assetsModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(updateEntryCheckState(QStandardItem*)));
 }
 
-void BarDescriptorEditorAssetsWidget::connectAssetsModel()
+void BarDescriptorEditorAssetsWidget::emitChanged(BarDescriptorDocument::Tag tag)
 {
-    connect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
-    connect(m_assetsModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(changed()));
-    connect(m_assetsModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(changed()));
+    if (tag != BarDescriptorDocument::asset) {
+        BarDescriptorEditorAbstractPanelWidget::emitChanged(tag);
+        return;
+    }
+
+    BarDescriptorAssetList result;
+    for (int i = 0; i < m_assetsModel->rowCount(); ++i) {
+        BarDescriptorAsset asset;
+        asset.source = m_assetsModel->item(i, 0)->text();
+        asset.destination = m_assetsModel->item(i, 1)->text();
+        asset.entry = m_assetsModel->item(i, 2)->checkState() == Qt::Checked;
+        result.append(asset);
+    }
+
+    QVariant var;
+    var.setValue(result);
+    emit changed(tag, var);
 }
 
-void BarDescriptorEditorAssetsWidget::disconnectAssetsModel()
-{
-    disconnect(m_assetsModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(changed()));
-    disconnect(m_assetsModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(changed()));
-    disconnect(m_assetsModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(changed()));
-}
-
-void BarDescriptorEditorAssetsWidget::addAssetInternal(const BarDescriptorAsset &asset)
+void BarDescriptorEditorAssetsWidget::addAsset(const BarDescriptorAsset &asset)
 {
     const QString path = asset.source;
     const QString dest = asset.destination;
