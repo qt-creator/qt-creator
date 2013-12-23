@@ -1206,9 +1206,9 @@ void GitPlugin::continueOrAbortCommand()
     else if (action == m_continueRebaseAction)
         m_gitClient->rebase(state.topLevel(), QLatin1String("--continue"));
     else if (action == m_continueCherryPickAction)
-        m_gitClient->synchronousCherryPick(state.topLevel(), QLatin1String("--continue"));
+        m_gitClient->cherryPick(state.topLevel(), QLatin1String("--continue"));
     else if (action == m_continueRevertAction)
-        m_gitClient->synchronousRevert(state.topLevel(), QLatin1String("--continue"));
+        m_gitClient->revert(state.topLevel(), QLatin1String("--continue"));
 
     updateContinueAndAbortCommands();
 }

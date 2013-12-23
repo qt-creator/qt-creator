@@ -254,7 +254,11 @@ public:
     bool synchronousMerge(const QString &workingDirectory, const QString &branch,
                           bool allowFastForward = true);
     bool canRebase(const QString &workingDirectory) const;
-    void rebase(const QString &workingDirectory, const QString &baseBranch);
+    void rebase(const QString &workingDirectory, const QString &argument);
+    void cherryPick(const QString &workingDirectory, const QString &argument);
+    void revert(const QString &workingDirectory, const QString &argument);
+    void asyncCommand(const QString &workingDirectory, const QStringList &arguments,
+                      bool hasProgress = false);
     bool synchronousRevert(const QString &workingDirectory, const QString &commit);
     bool synchronousCherryPick(const QString &workingDirectory, const QString &commit);
     void interactiveRebase(const QString &workingDirectory, const QString &commit, bool fixup);

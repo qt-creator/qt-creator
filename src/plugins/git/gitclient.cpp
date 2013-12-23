@@ -3521,21 +3521,39 @@ bool GitClient::canRebase(const QString &workingDirectory) const
     return true;
 }
 
-void GitClient::rebase(const QString &workingDirectory, const QString &baseBranch)
+void GitClient::rebase(const QString &workingDirectory, const QString &argument)
+{
+    asyncCommand(workingDirectory, QStringList() << QLatin1String("rebase") << argument, true);
+}
+
+void GitClient::cherryPick(const QString &workingDirectory, const QString &argument)
+{
+    asyncCommand(workingDirectory, QStringList() << QLatin1String("cherry-pick") << argument);
+}
+
+void GitClient::revert(const QString &workingDirectory, const QString &argument)
+{
+    asyncCommand(workingDirectory, QStringList() << QLatin1String("revert") << argument);
+}
+
+// Executes a command asynchronously. Work tree is expected to be clean.
+// Stashing is handled prior to this call.
+void GitClient::asyncCommand(const QString &workingDirectory, const QStringList &arguments,
+                             bool hasProgress)
 {
     // Git might request an editor, so this must be done asynchronously
     // and without timeout
-    QString gitCommand = QLatin1String("rebase");
-    QStringList arguments;
-    arguments << gitCommand << baseBranch;
+    QString gitCommand = arguments.first();
     outputWindow()->appendCommand(workingDirectory,
                                   settings()->stringValue(GitSettings::binaryPathKey),
                                   arguments);
     VcsBase::Command *command = createCommand(workingDirectory, 0, true);
     new ConflictHandler(command, workingDirectory, gitCommand);
-    command->setProgressParser(new ProgressParser);
+    if (hasProgress)
+        command->setProgressParser(new ProgressParser);
     command->addJob(arguments, -1);
     command->execute();
+    command->setCookie(workingDirectory);
 }
 
 bool GitClient::synchronousRevert(const QString &workingDirectory, const QString &commit)
@@ -3577,12 +3595,7 @@ void GitClient::interactiveRebase(const QString &workingDirectory, const QString
     outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
     if (fixup)
         m_disableEditor = true;
-    VcsBase::Command *command = createCommand(workingDirectory, 0, true);
-    new ConflictHandler(command, workingDirectory, QLatin1String("rebase"));
-    command->setProgressParser(new ProgressParser);
-    command->addJob(arguments, -1);
-    command->execute();
-    command->setCookie(workingDirectory);
+    asyncCommand(workingDirectory, arguments, true);
     if (fixup)
         m_disableEditor = false;
 }
