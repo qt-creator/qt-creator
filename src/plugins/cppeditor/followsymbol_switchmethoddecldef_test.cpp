@@ -1364,6 +1364,35 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
         << (OverrideItemList()
             << OverrideItem(QLatin1String("Base::virt"), 1)
             << OverrideItem(QLatin1String("Derived::virt"), 2));
+
+    QTest::newRow("static_call") << _(
+            "struct Base { virtual void virt() {} };\n"
+            "struct Derived : Base { void virt() {} };\n"
+            "struct Foo {\n"
+            "    static Base *base();\n"
+            "};\n"
+            "void client() { Foo::base()->$@virt(); }\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("Base::virt"), 1)
+            << OverrideItem(QLatin1String("Derived::virt"), 2));
+
+    QTest::newRow("double_call") << _(
+            "struct Base { virtual void virt() {} };\n"
+            "struct Derived : Base { void virt() {} };\n"
+            "struct Foo { Base *base(); };\n"
+            "Foo *instance();\n"
+            "void client() { instance()->base()->$@virt(); }\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("Base::virt"), 1)
+            << OverrideItem(QLatin1String("Derived::virt"), 2));
+
+    QTest::newRow("casting") << _(
+            "struct Base { virtual void virt() {} };\n"
+            "struct Derived : Base { void virt() {} };\n"
+            "void client() { static_cast<Base *>(0)->$@virt(); }\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("Base::virt"), 1)
+            << OverrideItem(QLatin1String("Derived::virt"), 2));
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall()
