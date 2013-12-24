@@ -1261,6 +1261,7 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
 
 void EditorManager::activateEditor(Core::IEditor *editor, OpenEditorFlags flags)
 {
+    QTC_ASSERT(editor, return);
     EditorView *view = viewForEditor(editor);
     // an IEditor doesn't have to belong to a view, it might be kept in storage by the editor model
     if (!view)
