@@ -79,7 +79,6 @@ private:
 
 private:
     // Provided
-    const QSharedPointer<TypeOfExpression> m_typeOfExpression;
     const Document::Ptr m_expressionDocument;
     Scope *m_scope;
     const Document::Ptr &m_document;
