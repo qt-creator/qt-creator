@@ -684,7 +684,7 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("Final")
             << QLatin1String("Global"));
 
-    QTest::newRow("use_global_identifier_as_base_class: derived is inside namespace, "
+    QTest::newRow("use_global_identifier_as_base_class: derived is inside namespace. "
                   "base as global") << _(
             "struct Global\n"
             "{\n"
@@ -708,7 +708,7 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("Global"));
 
     // This test does not work due to the bug QTCREATORBUG-7912
-//    QTest::newRow("use_global_identifier_as_base_class: derived is enclosed by template, "
+//    QTest::newRow("use_global_identifier_as_base_class: derived is enclosed by template. "
 //                  "base as global") << _(
 //            "struct Global\n"
 //            "{\n"
@@ -955,7 +955,7 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("B")
             << QLatin1String("_b_t"));
 
-    QTest::newRow("cyclic_inheritance: direct cyclic inheritance with templates, "
+    QTest::newRow("cyclic_inheritance: direct cyclic inheritance with templates. "
                   "more complex situation") << _(
            "namespace NS\n"
            "{\n"
