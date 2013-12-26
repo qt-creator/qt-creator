@@ -1691,6 +1691,80 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("e2")
             << QLatin1String("e3"));
 
+    QTest::newRow("enum_inside_class") << _(
+            "struct Foo\n"
+            "{\n"
+            "   enum E { val1, val2, val3 };\n"
+            "   @\n"
+            "};\n"
+            "@\n"
+        ) << _("Foo::v") << (QStringList()
+            << QLatin1String("val1")
+            << QLatin1String("val2")
+            << QLatin1String("val3"));
+
+    QTest::newRow("enum_inside_class_cxx11") << _(
+            "struct Foo\n"
+            "{\n"
+            "   enum E { val1, val2, val3 };\n"
+            "   @\n"
+            "};\n"
+            "@\n"
+        ) << _("Foo::E::") << (QStringList()
+            << QLatin1String("E")
+            << QLatin1String("val1")
+            << QLatin1String("val2")
+            << QLatin1String("val3"));
+
+    QTest::newRow("anon_enum_inside_class") << _(
+            "struct Foo\n"
+            "{\n"
+            "   enum { val1, val2, val3 };\n"
+            "   @\n"
+            "};\n"
+            "@\n"
+        ) << _("Foo::v") << (QStringList()
+            << QLatin1String("val1")
+            << QLatin1String("val2")
+            << QLatin1String("val3"));
+
+    QTest::newRow("enum_inside_namespace") << _(
+            "namespace Ns\n"
+            "{\n"
+            "   enum E { val1, val2, val3 };\n"
+            "   @\n"
+            "};\n"
+            "@\n"
+        ) << _("Ns::v") << (QStringList()
+            << QLatin1String("val1")
+            << QLatin1String("val2")
+            << QLatin1String("val3"));
+
+    QTest::newRow("enum_inside_namespace_cxx11") << _(
+            "namespace Ns\n"
+            "{\n"
+            "   enum E { val1, val2, val3 };\n"
+            "   @\n"
+            "};\n"
+            "@\n"
+        ) << _("Ns::E::") << (QStringList()
+            << QLatin1String("E")
+            << QLatin1String("val1")
+            << QLatin1String("val2")
+            << QLatin1String("val3"));
+
+    QTest::newRow("anon_enum_inside_namespace") << _(
+            "namespace Ns\n"
+            "{\n"
+            "   enum { val1, val2, val3 };\n"
+            "   @\n"
+            "};\n"
+            "@\n"
+        ) << _("Ns::v") << (QStringList()
+            << QLatin1String("val1")
+            << QLatin1String("val2")
+            << QLatin1String("val3"));
+
     QTest::newRow("lambdaCalls_1") << _(
             "struct S { int bar; };\n"
             "void foo()\n"
