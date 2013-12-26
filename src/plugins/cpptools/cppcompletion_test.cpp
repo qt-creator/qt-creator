@@ -707,30 +707,29 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("Final")
             << QLatin1String("Global"));
 
-    // This test does not work due to the bug QTCREATORBUG-7912
-//    QTest::newRow("use_global_identifier_as_base_class: derived is enclosed by template. "
-//                  "base as global") << _(
-//            "struct Global\n"
-//            "{\n"
-//            "    int int_global;\n"
-//            "};\n"
-//            "\n"
-//            "template <typename T>\n"
-//            "struct Enclosing\n"
-//            "{\n"
-//            "struct Final : ::Global\n"
-//            "{\n"
-//            "   int int_final;\n"
-//            "};\n"
-//            "}\n"
-//            "\n"
-//            "Enclosing<int>::Final c;\n"
-//            "@\n"
-//        ) << _("c.") << (QStringList()
-//            << QLatin1String("int_global")
-//            << QLatin1String("int_final")
-//            << QLatin1String("Final")
-//            << QLatin1String("Global"));
+    QTest::newRow("use_global_identifier_as_base_class: derived is enclosed by template. "
+                  "base as global") << _(
+            "struct Global\n"
+            "{\n"
+            "    int int_global;\n"
+            "};\n"
+            "\n"
+            "template <typename T>\n"
+            "struct Enclosing\n"
+            "{\n"
+            "struct Final : ::Global\n"
+            "{\n"
+            "   int int_final;\n"
+            "};\n"
+            "};\n"
+            "\n"
+            "Enclosing<int>::Final c;\n"
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("int_global")
+            << QLatin1String("int_final")
+            << QLatin1String("Final")
+            << QLatin1String("Global"));
 
     QTest::newRow("base_class_has_name_the_same_as_derived: base class is derived class") << _(
             "struct A : A\n"
