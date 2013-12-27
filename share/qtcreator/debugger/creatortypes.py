@@ -118,7 +118,6 @@ def qdump__CPlusPlus__Token(d, value):
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Internal__PPToken(d, value):
-    k = value["f"]["kind"];
     data, size, alloc = d.byteArrayData(value["m_src"])
     length = int(value["f"]["length"])
     offset = int(value["offset"])
@@ -127,5 +126,3 @@ def qdump__CPlusPlus__Internal__PPToken(d, value):
     d.putValue(d.readMemory(data + offset, min(100, length)),
         Hex2EncodedLatin1)
     d.putPlainChildren(value)
-
-
