@@ -104,17 +104,16 @@ def qdump__Utils__ElfSection(d, value):
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Token(d, value):
-    k = int(value["f"]["kind"])
+    k = value["f"]["kind"]
     if int(k) == 6:
         d.putValue("T_IDENTIFIER. offset: %d, len: %d"
             % (value["offset"], value["f"]["length"]))
     elif int(k) == 7:
         d.putValue("T_NUMERIC_LITERAL. offset: %d, value: %d"
             % (value["offset"], value["f"]["length"]))
-    elif int(k) == 60:
-        d.putValue("T_RPAREN")
     else:
-        d.putValue("Type: %s" % k)
+        val = str(k.cast(d.lookupType("CPlusPlus::Kind")))
+        d.putValue(val[11:]) # Strip "CPlusPlus::"
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Internal__PPToken(d, value):
