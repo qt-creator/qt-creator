@@ -303,6 +303,7 @@ void CppToolsPlugin::test_completion()
     actualCompletions.sort();
     expectedCompletions.sort();
 
+    QEXPECT_FAIL("enum_in_function_in_struct_in_function", "doesn't work", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 
@@ -1677,6 +1678,44 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("e1")
             << QLatin1String("e2")
             << QLatin1String("e3"));
+
+    QTest::newRow("enum_inside_function") << _(
+            "void foo()\n"
+            "{\n"
+            "   enum E { val1, val2, val3 };\n"
+            "   @\n"
+            "}\n"
+        ) << _("val") << (QStringList()
+            << QLatin1String("val1")
+            << QLatin1String("val2")
+            << QLatin1String("val3"));
+
+    QTest::newRow("anon_enum_inside_function") << _(
+            "void foo()\n"
+            "{\n"
+            "   enum { val1, val2, val3 };\n"
+            "   @\n"
+            "}\n"
+        ) << _("val") << (QStringList()
+            << QLatin1String("val1")
+            << QLatin1String("val2")
+            << QLatin1String("val3"));
+
+    QTest::newRow("enum_in_function_in_struct_in_function") << _(
+            "void foo()\n"
+            "{\n"
+            "    struct S {\n"
+            "        void fun()\n"
+            "        {\n"
+            "            enum E { val1, val2, val3 };\n"
+            "            @\n"
+            "        }\n"
+            "    };\n"
+            "}\n"
+        ) << _("val") << (QStringList()
+            << QLatin1String("val1")
+            << QLatin1String("val2")
+            << QLatin1String("val3"));
 
     QTest::newRow("enum_inside_function_cxx11_QTCREATORBUG5456") << _(
             "void foo()\n"
