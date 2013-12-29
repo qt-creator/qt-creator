@@ -2603,6 +2603,7 @@ void FakeVimPlugin::test_map()
     data.setText("abc" N "def");
     data.doCommand(QString::fromUtf8("no \xc3\xb8 l|no l k|no k j|no j h"));
     KEYS(QString::fromUtf8("\xc3\xb8"), "a" X "bc" N "def");
+    data.doCommand(QString::fromUtf8("unmap \xc3\xb8|unmap l|unmap k|unmap j"));
 
     // Don't handle mapping in sub-modes that are not followed by movement command.
     data.setText("abc" N "def");
@@ -2627,6 +2628,16 @@ void FakeVimPlugin::test_map()
     data.doCommand("onoremap iwwX 3iwX Y");
     KEYS("ciwwX Z<esc>", "X Y " X "Z" N "ghi jkl");
     data.doCommand("unmap <SPACE>X");
+
+    // use mapping for <ESC> in insert
+    data.setText("ab" X "c def" N "ghi jkl");
+    data.doCommand("inoremap jk <ESC>");
+    KEYS("<C-V>jll" "I__jk", "ab" X "__c def" N "gh__i jkl");
+    INTEGRITY(false);
+    data.doCommand("unmap jk"); // shouldn't unmap for insert mode
+    KEYS("ijk", "a" X "b__c def" N "gh__i jkl");
+    data.doCommand("iunmap jk");
+    KEYS("ijk<ESC>", "aj" X "kb__c def" N "gh__i jkl");
 }
 
 void FakeVimPlugin::test_vim_command_cc()

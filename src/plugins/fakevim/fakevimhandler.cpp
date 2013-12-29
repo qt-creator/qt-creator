@@ -1495,11 +1495,12 @@ private:
 // state of current mapping
 struct MappingState {
     MappingState()
-        : noremap(false), silent(false) {}
-    MappingState(bool noremap, bool silent)
-        : noremap(noremap), silent(silent) {}
+        : noremap(false), silent(false), editBlock(false) {}
+    MappingState(bool noremap, bool silent, bool editBlock)
+        : noremap(noremap), silent(silent), editBlock(editBlock) {}
     bool noremap;
     bool silent;
+    bool editBlock;
 };
 
 class FakeVimHandler::Private : public QObject
@@ -2683,9 +2684,13 @@ void FakeVimHandler::Private::prependMapping(const Inputs &inputs)
     ++g.mapDepth;
     g.pendingInput.prepend(Input());
     prependInputs(inputs);
-    g.mapStates << MappingState(inputs.noremap(), inputs.silent());
     g.commandBuffer.setHistoryAutoSave(false);
-    beginLargeEditBlock();
+
+    // start new edit block (undo/redo) only if necessary
+    bool editBlock = m_editBlockLevel == 0 && !(isInsertMode() && isInsertStateValid());
+    if (editBlock)
+        beginLargeEditBlock();
+    g.mapStates << MappingState(inputs.noremap(), inputs.silent(), editBlock);
 }
 
 bool FakeVimHandler::Private::expandCompleteMapping()
@@ -2715,8 +2720,9 @@ void FakeVimHandler::Private::endMapping()
         --g.mapDepth;
     if (g.mapStates.isEmpty())
         return;
+    if (g.mapStates.last().editBlock)
+        endEditBlock();
     g.mapStates.pop_back();
-    endEditBlock();
     if (g.mapStates.isEmpty())
         g.commandBuffer.setHistoryAutoSave(true);
     updateMiniBuffer();
