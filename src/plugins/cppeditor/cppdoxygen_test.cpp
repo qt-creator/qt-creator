@@ -62,55 +62,48 @@ typedef QByteArray _;
 class DoxygenTestCase : public CppEditor::Internal::Tests::TestCase
 {
 public:
-    DoxygenTestCase(const QByteArray &input);
-    void run(const QByteArray &expected);
+    /// The '|' in the input denotes the cursor position.
+    DoxygenTestCase(const QByteArray &original, const QByteArray &expected)
+    {
+        QVERIFY(succeededSoFar());
 
-private:
-    CppEditor::Internal::Tests::TestDocument testDocument;
+        CppEditor::Internal::Tests::TestDocument testDocument("file.cpp", original, '|');
+        QVERIFY(testDocument.hasCursorMarker());
+        testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
+        QVERIFY(testDocument.writeToDisk());
+
+        // Update Code Model
+        QVERIFY(parseFiles(testDocument.filePath()));
+
+        // Open Editor
+        QVERIFY(openCppEditor(testDocument.filePath(), &testDocument.m_editor,
+                              &testDocument.m_editorWidget));
+        closeEditorAtEndOfTestCase(testDocument.m_editor);
+
+        // We want to test documents that start with a comment. By default, the
+        // editor will fold the very first comment it encounters, assuming
+        // it is a license header. Currently unfoldAll() does not work as
+        // expected (some blocks are still hidden in some test cases, so the
+        // cursor movements are not as expected). For the time being, we just
+        // prepend a declaration before the initial test comment.
+        //    testDocument.m_editorWidget->unfoldAll();
+        testDocument.m_editor->setCursorPosition(testDocument.m_cursorPosition);
+
+        waitForRehighlightedSemanticDocument(testDocument.m_editorWidget);
+
+        // Send 'ENTER' key press
+        QKeyEvent event(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
+        QCoreApplication::sendEvent(testDocument.m_editorWidget, &event);
+        const QByteArray result = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
+
+        QCOMPARE(QLatin1String(result), QLatin1String(expected));
+
+        testDocument.m_editorWidget->undo();
+        const QByteArray contentsAfterUndo
+                = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
+        QCOMPARE(contentsAfterUndo, testDocument.m_source);
+    }
 };
-
-/// The '|' in the input denotes the cursor position.
-DoxygenTestCase::DoxygenTestCase(const QByteArray &input)
-    : testDocument("file.cpp", input, '|')
-{
-    QVERIFY(testDocument.hasCursorMarker());
-    testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
-    QVERIFY(testDocument.writeToDisk());
-
-    // Update Code Model
-    QVERIFY(parseFiles(testDocument.filePath()));
-
-    // Open Editor
-    QVERIFY(openCppEditor(testDocument.filePath(), &testDocument.m_editor,
-                          &testDocument.m_editorWidget));
-    closeEditorAtEndOfTestCase(testDocument.m_editor);
-
-    // We want to test documents that start with a comment. By default, the
-    // editor will fold the very first comment it encounters, assuming
-    // it is a license header. Currently unfoldAll() does not work as
-    // expected (some blocks are still hidden in some test cases, so the
-    // cursor movements are not as expected). For the time being, we just
-    // prepend a declaration before the initial test comment.
-//    testDocument.m_editorWidget->unfoldAll();
-    testDocument.m_editor->setCursorPosition(testDocument.m_cursorPosition);
-
-    waitForRehighlightedSemanticDocument(testDocument.m_editorWidget);
-}
-
-void DoxygenTestCase::run(const QByteArray &expected)
-{
-    // Send 'ENTER' key press
-    QKeyEvent event(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
-    QCoreApplication::sendEvent(testDocument.m_editorWidget, &event);
-    const QByteArray result = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
-
-    QCOMPARE(QLatin1String(result), QLatin1String(expected));
-
-    testDocument.m_editorWidget->undo();
-    const QByteArray contentsAfterUndo
-        = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
-    QCOMPARE(contentsAfterUndo, testDocument.m_source);
-}
 
 } // anonymous namespace
 
@@ -257,6 +250,5 @@ void CppEditorPlugin::test_doxygen_comments()
 {
     QFETCH(QByteArray, given);
     QFETCH(QByteArray, expected);
-    DoxygenTestCase test(given);
-    test.run(expected);
+    DoxygenTestCase(given, expected);
 }

@@ -67,12 +67,21 @@ class CppLocatorFilterTestCase
     , public CppTools::Tests::TestCase
 {
 public:
-    CppLocatorFilterTestCase(ILocatorFilter *filter, const QString &fileName)
+    CppLocatorFilterTestCase(ILocatorFilter *filter,
+                             const QString &fileName,
+                             const QString &searchText,
+                             const ResultDataList &expectedResults)
         : BasicLocatorFilterTest(filter)
         , m_fileName(fileName)
     {
+        QVERIFY(succeededSoFar());
         QVERIFY(!m_fileName.isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
+
+        ResultDataList results = ResultData::fromFilterEntryList(matchesFor(searchText));
+//        ResultData::printFilterEntries(results);
+        QVERIFY(!results.isEmpty());
+        QCOMPARE(results, expectedResults);
     }
 
 private:
@@ -88,12 +97,19 @@ class CppCurrentDocumentFilterTestCase
     , public CppTools::Tests::TestCase
 {
 public:
-    CppCurrentDocumentFilterTestCase(const QString &fileName)
+    CppCurrentDocumentFilterTestCase(const QString &fileName,
+                                     const ResultDataList &expectedResults)
         : BasicLocatorFilterTest(PluginManager::getObject<CppCurrentDocumentFilter>())
         , m_editor(0)
         , m_fileName(fileName)
     {
+        QVERIFY(succeededSoFar());
         QVERIFY(!m_fileName.isEmpty());
+
+        ResultDataList results = ResultData::fromFilterEntryList(matchesFor());
+//        ResultData::printFilterEntries(results);
+        QVERIFY(!results.isEmpty());
+        QCOMPARE(results, expectedResults);
     }
 
 private:
@@ -130,11 +146,7 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter()
     QFETCH(QString, searchText);
     QFETCH(ResultDataList, expectedResults);
 
-    CppLocatorFilterTestCase test(filter, testFile);
-    ResultDataList results = ResultData::fromFilterEntryList(test.matchesFor(searchText));
-//    ResultData::printFilterEntries(results);
-    QVERIFY(!results.isEmpty());
-    QCOMPARE(results, expectedResults);
+    CppLocatorFilterTestCase(filter, testFile, searchText, expectedResults);
 }
 
 void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
@@ -277,9 +289,5 @@ void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
         << ResultData(_("main()"), _(""))
         ;
 
-    CppCurrentDocumentFilterTestCase test(testFile);
-    ResultDataList results = ResultData::fromFilterEntryList(test.matchesFor());
-//    ResultData::printFilterEntries(results);
-    QVERIFY(!results.isEmpty());
-    QCOMPARE(expectedResults, results);
+    CppCurrentDocumentFilterTestCase(testFile, expectedResults);
 }

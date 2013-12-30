@@ -206,6 +206,11 @@ public:
     int m_targetCursorPosition;
 };
 
+QList<TestDocumentPtr> singleDocument(const QByteArray &source)
+{
+    return QList<TestDocumentPtr>() << TestDocument::create(source, "file.cpp");
+}
+
 /**
  * Encapsulates the whole process of setting up several editors, positioning the cursor,
  * executing Follow Symbol Under Cursor or Switch Between Function Declaration/Definition
@@ -219,71 +224,45 @@ public:
         SwitchBetweenMethodDeclarationDefinitionAction
     };
 
-    F2TestCase(CppEditorAction action, const QByteArray &source,
+    F2TestCase(CppEditorAction action,
+               const QList<TestDocumentPtr> testFiles,
                const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
-    F2TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestFiles,
-               const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
-
-    void run();
 
 private:
-    void init();
-
-    TestDocumentPtr testFileWithInitialCursorMarker();
-    TestDocumentPtr testFileWithTargetCursorMarker();
-
-private:
-    CppEditorAction m_action;
-    QList<TestDocumentPtr> m_testFiles;
-    OverrideItemList m_expectedVirtualFunctionProposal;
+    static TestDocumentPtr testFileWithInitialCursorMarker(const QList<TestDocumentPtr> &testFiles);
+    static TestDocumentPtr testFileWithTargetCursorMarker(const QList<TestDocumentPtr> &testFiles);
 };
-
-/// Convenience function for creating a TestDocument.
-/// See TestDocument.
-F2TestCase::F2TestCase(CppEditorAction action,
-                       const QByteArray &source,
-                       const OverrideItemList &expectedVirtualFunctionProposal)
-    : m_action(action)
-    , m_expectedVirtualFunctionProposal(expectedVirtualFunctionProposal)
-{
-    m_testFiles << TestDocument::create(source, "file.cpp");
-    init();
-}
 
 /// Creates a test case with multiple test files.
 /// Exactly one test document must be provided that contains '@', the initial position marker.
 /// Exactly one test document must be provided that contains '$', the target position marker.
 /// It can be the same document.
 F2TestCase::F2TestCase(CppEditorAction action,
-                       const QList<TestDocumentPtr> theTestFiles,
+                       const QList<TestDocumentPtr> testFiles,
                        const OverrideItemList &expectedVirtualFunctionProposal)
-    : m_action(action)
-    , m_testFiles(theTestFiles)
-    , m_expectedVirtualFunctionProposal(expectedVirtualFunctionProposal)
 {
-    init();
-}
+    QVERIFY(succeededSoFar());
 
-void F2TestCase::init()
-{
     // Check if there are initial and target position markers
-    QVERIFY2(testFileWithInitialCursorMarker(),
+    TestDocumentPtr initialTestFile = testFileWithInitialCursorMarker(testFiles);
+    QVERIFY2(initialTestFile,
         "No test file with initial cursor marker is provided.");
-    QVERIFY2(testFileWithTargetCursorMarker(),
+    TestDocumentPtr targetTestFile = testFileWithTargetCursorMarker(testFiles);
+    QVERIFY2(targetTestFile,
         "No test file with target cursor marker is provided.");
 
     // Write files to disk
-    foreach (TestDocumentPtr testFile, m_testFiles)
+    foreach (TestDocumentPtr testFile, testFiles)
         QVERIFY(testFile->writeToDisk());
 
     // Update Code Model
     QStringList filePaths;
-    foreach (const TestDocumentPtr &testFile, m_testFiles)
+    foreach (const TestDocumentPtr &testFile, testFiles)
         filePaths << testFile->filePath();
     QVERIFY(parseFiles(filePaths));
 
     // Open Files
-    foreach (TestDocumentPtr testFile, m_testFiles) {
+    foreach (TestDocumentPtr testFile, testFiles) {
         QVERIFY(openCppEditor(testFile->filePath(), &testFile->m_editor,
                               &testFile->m_editorWidget));
         closeEditorAtEndOfTestCase(testFile->m_editor);
@@ -300,32 +279,6 @@ void F2TestCase::init()
         // Rehighlight
         waitForRehighlightedSemanticDocument(testFile->m_editorWidget);
     }
-}
-
-TestDocumentPtr F2TestCase::testFileWithInitialCursorMarker()
-{
-    foreach (const TestDocumentPtr testFile, m_testFiles) {
-        if (testFile->hasCursorMarker())
-            return testFile;
-    }
-    return TestDocumentPtr();
-}
-
-TestDocumentPtr F2TestCase::testFileWithTargetCursorMarker()
-{
-    foreach (const TestDocumentPtr testFile, m_testFiles) {
-        if (testFile->hasTargetCursorMarker())
-            return testFile;
-    }
-    return TestDocumentPtr();
-}
-
-void F2TestCase::run()
-{
-    TestDocumentPtr initialTestFile = testFileWithInitialCursorMarker();
-    QVERIFY(initialTestFile);
-    TestDocumentPtr targetTestFile = testFileWithTargetCursorMarker();
-    QVERIFY(targetTestFile);
 
     // Activate editor of initial test file
     EditorManager::activateEditor(initialTestFile->m_editor);
@@ -338,7 +291,7 @@ void F2TestCase::run()
     OverrideItemList finalVirtualSymbolResults;
 
     // Trigger the action
-    switch (m_action) {
+    switch (action) {
     case FollowSymbolUnderCursorAction: {
         CPPEditorWidget *widget = initialTestFile->m_editorWidget;
         FollowSymbolUnderCursor *delegate = widget->followSymbolUnderCursorDelegate();
@@ -385,12 +338,30 @@ void F2TestCase::run()
 //    qDebug() << immediateVirtualSymbolResults;
 //    qDebug() << finalVirtualSymbolResults;
     OverrideItemList expectedImmediate;
-    if (!m_expectedVirtualFunctionProposal.isEmpty()) {
-        expectedImmediate << m_expectedVirtualFunctionProposal.first();
+    if (!expectedVirtualFunctionProposal.isEmpty()) {
+        expectedImmediate << expectedVirtualFunctionProposal.first();
         expectedImmediate << OverrideItem(QLatin1String("...searching overrides"));
     }
     QCOMPARE(immediateVirtualSymbolResults, expectedImmediate);
-    QCOMPARE(finalVirtualSymbolResults, m_expectedVirtualFunctionProposal);
+    QCOMPARE(finalVirtualSymbolResults, expectedVirtualFunctionProposal);
+}
+
+TestDocumentPtr F2TestCase::testFileWithInitialCursorMarker(const QList<TestDocumentPtr> &testFiles)
+{
+    foreach (const TestDocumentPtr testFile, testFiles) {
+        if (testFile->hasCursorMarker())
+            return testFile;
+    }
+    return TestDocumentPtr();
+}
+
+TestDocumentPtr F2TestCase::testFileWithTargetCursorMarker(const QList<TestDocumentPtr> &testFiles)
+{
+    foreach (const TestDocumentPtr testFile, testFiles) {
+        if (testFile->hasTargetCursorMarker())
+            return testFile;
+    }
+    return TestDocumentPtr();
 }
 
 } // anonymous namespace
@@ -492,8 +463,7 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition()
         << TestDocument::create(header, "file.h")
         << TestDocument::create(source, "file.cpp");
 
-    F2TestCase test(F2TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
-    test.run();
+    F2TestCase(F2TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
@@ -853,8 +823,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
 void CppEditorPlugin::test_FollowSymbolUnderCursor()
 {
     QFETCH(QByteArray, source);
-    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
@@ -881,9 +850,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
 void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments()
 {
     QFETCH(QList<TestDocumentPtr>, documents);
-
-    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, documents);
-    test.run();
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, documents);
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect_data()
@@ -972,8 +939,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect()
         return;
     }
 
-    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_onOperatorToken_data()
@@ -996,8 +962,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_onOperatorToken
             "}\n";
     if (toDeclaration)
         source.replace('@', '#').replace('$', '@').replace('#', '$');
-    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_data()
@@ -1022,8 +987,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator()
     else
         source.replace("@2", QByteArray()).replace("$2", QByteArray())
                 .replace("@1", "@").replace("$1", "$");
-    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_inOp_data()
@@ -1048,8 +1012,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_inOp()
     else
         source.replace("@2", QByteArray()).replace("$2", QByteArray())
                 .replace("@1", "@").replace("$1", "$");
-    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source));
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
@@ -1302,8 +1265,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall()
     QFETCH(QByteArray, source);
     QFETCH(OverrideItemList, results);
 
-    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, source, results);
-    test.run();
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, singleDocument(source), results);
 }
 
 /// Check: Base classes can be found although these might be defined in distinct documents.
@@ -1324,8 +1286,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_multipleD
             << OverrideItem(QLatin1String("A::virt"), 1)
             << OverrideItem(QLatin1String("B::virt"), 2);
 
-    F2TestCase test(F2TestCase::FollowSymbolUnderCursorAction, testFiles, finalResults);
-    test.run();
+    F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, testFiles, finalResults);
 }
 
 /*

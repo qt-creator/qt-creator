@@ -154,15 +154,12 @@ class GoToSlotTestCase : public CppTools::Tests::TestCase
 {
 public:
     GoToSlotTestCase(const QStringList &files)
-        : m_files(files)
     {
+        QVERIFY(succeededSoFar());
         QCOMPARE(files.size(), 3);
-    }
 
-    void run()
-    {
         QList<TextEditor::BaseTextEditor *> editors;
-        foreach (const QString &file, m_files) {
+        foreach (const QString &file, files) {
             IEditor *editor = EditorManager::openEditor(file);
             TextEditor::BaseTextEditor *e = qobject_cast<TextEditor::BaseTextEditor *>(editor);
             QVERIFY(e);
@@ -172,10 +169,10 @@ public:
         TextEditor::BaseTextEditor *cppFileEditor = editors.at(0);
         TextEditor::BaseTextEditor *hFileEditor = editors.at(1);
 
-        const QString cppFile = m_files.at(0);
-        const QString hFile = m_files.at(1);
+        const QString cppFile = files.at(0);
+        const QString hFile = files.at(1);
 
-        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), m_files.size());
+        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), files.size());
         waitForFilesInGlobalSnapshot(QStringList() << cppFile << hFile);
 
         // Execute "Go To Slot"
@@ -206,9 +203,6 @@ public:
         QVERIFY(documentContainsMemberFunctionDeclaration(hDocument,
             QLatin1String("Form::on_pushButton_clicked")));
     }
-
-private:
-    QStringList m_files;
 };
 
 } // anonymous namespace
@@ -220,9 +214,7 @@ void Designer::Internal::FormEditorPlugin::test_gotoslot()
 {
 #if QT_VERSION >= 0x050000
     QFETCH(QStringList, files);
-
-    GoToSlotTestCase test(files);
-    test.run();
+    (GoToSlotTestCase(files));
 #else
     QSKIP("Available only with >= Qt5", SkipSingle);
 #endif

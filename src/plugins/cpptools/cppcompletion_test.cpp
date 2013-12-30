@@ -63,6 +63,9 @@ public:
     CompletionTestCase(const QByteArray &sourceText, const QByteArray &textToInsert = QByteArray())
         : m_position(-1), m_editorWidget(0), m_textDocument(0), m_editor(0)
     {
+        QVERIFY(succeededSoFar());
+        m_succeededSoFar = false;
+
         m_source = sourceText;
         m_position = m_source.indexOf('@');
         QVERIFY(m_position != -1);
@@ -89,6 +92,8 @@ public:
 
         if (!textToInsert.isEmpty())
             insertText(textToInsert);
+
+        m_succeededSoFar = true;
     }
 
     QStringList getCompletions(bool *replaceAccessOperator = 0) const
@@ -162,6 +167,7 @@ void CppToolsPlugin::test_completion_basic_1()
             "    @\n"
             "}";
     CompletionTestCase test(source);
+    QVERIFY(test.succeededSoFar());
 
     QStringList basicCompletions = test.getCompletions();
     QVERIFY(!basicCompletions.contains(QLatin1String("foo")));
@@ -189,6 +195,7 @@ void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_8737()
             "}\n"
             ;
     CompletionTestCase test(source, "a_c");
+    QVERIFY(test.succeededSoFar());
 
     QStringList completions = test.getCompletions();
 
@@ -214,9 +221,9 @@ void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_9236()
             "};\n"
             ;
     CompletionTestCase test(source, "ret");
+    QVERIFY(test.succeededSoFar());
 
     QStringList completions = test.getCompletions();
-
     QVERIFY(completions.size() >= 2);
     QCOMPARE(completions.at(0), QLatin1String("return"));
     QCOMPARE(completions.at(1), QLatin1String("rETUCASE"));
@@ -233,9 +240,9 @@ void CppToolsPlugin::test_completion_template_function()
     QFETCH(QStringList, expectedCompletions);
 
     CompletionTestCase test(code);
+    QVERIFY(test.succeededSoFar());
 
     QStringList actualCompletions = test.getCompletions();
-
     QString errorPattern(QLatin1String("Completion not found: %1"));
     foreach (const QString &completion, expectedCompletions) {
         QByteArray errorMessage = errorPattern.arg(completion).toUtf8();
@@ -290,6 +297,7 @@ void CppToolsPlugin::test_completion()
     QFETCH(QStringList, expectedCompletions);
 
     CompletionTestCase test(code, prefix);
+    QVERIFY(test.succeededSoFar());
 
     QStringList actualCompletions = test.getCompletions();
     actualCompletions.sort();
@@ -2092,6 +2100,7 @@ void CppToolsPlugin::test_completion_member_access_operator()
     QFETCH(bool, expectedReplaceAccessOperator);
 
     CompletionTestCase test(code, prefix);
+    QVERIFY(test.succeededSoFar());
 
     bool replaceAccessOperator = false;
     QStringList completions = test.getCompletions(&replaceAccessOperator);

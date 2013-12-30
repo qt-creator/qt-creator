@@ -49,8 +49,12 @@ namespace {
 class IncludeHierarchyTestCase: public CppEditor::Internal::Tests::TestCase
 {
 public:
-    IncludeHierarchyTestCase(const QList<QByteArray> &sourceList)
+    IncludeHierarchyTestCase(const QList<QByteArray> &sourceList,
+                             int includesCount,
+                             int includedByCount)
     {
+        QVERIFY(succeededSoFar());
+
         QStringList filePaths;
         const int sourceListSize = sourceList.size();
         for (int i = 0; i < sourceListSize; ++i) {
@@ -66,16 +70,14 @@ public:
 
         // Update Code Model
         QVERIFY(parseFiles(filePaths));
-    }
 
-    void run(int includesCount, int includedByCount)
-    {
+        // Open Editor
         const QString fileName = QDir::tempPath() + QLatin1String("/file1.h");
-
         CPPEditor *editor;
         QVERIFY(openCppEditor(fileName, &editor));
         closeEditorAtEndOfTestCase(editor);
 
+        // Test model
         CppIncludeHierarchyModel model(0);
         model.buildHierarchy(editor, fileName);
         QCOMPARE(model.rowCount(model.index(0, 0)), includesCount);
@@ -91,8 +93,7 @@ void CppEditorPlugin::test_includeHierarchyModel_simpleIncludes()
     sourceList.append(QByteArray("#include \"file2.h\"\n"));
     sourceList.append(QByteArray());
 
-    IncludeHierarchyTestCase testCase(sourceList);
-    testCase.run(1, 0);
+    IncludeHierarchyTestCase(sourceList, 1, 0);
 }
 
 void CppEditorPlugin::test_includeHierarchyModel_simpleIncludedBy()
@@ -101,8 +102,7 @@ void CppEditorPlugin::test_includeHierarchyModel_simpleIncludedBy()
     sourceList.append(QByteArray());
     sourceList.append(QByteArray("#include \"file1.h\"\n"));
 
-    IncludeHierarchyTestCase testCase(sourceList);
-    testCase.run(0, 1);
+    IncludeHierarchyTestCase(sourceList, 0, 1);
 }
 
 void CppEditorPlugin::test_includeHierarchyModel_simpleIncludesAndIncludedBy()
@@ -112,6 +112,5 @@ void CppEditorPlugin::test_includeHierarchyModel_simpleIncludesAndIncludedBy()
     sourceList.append(QByteArray());
     sourceList.append(QByteArray("#include \"file1.h\"\n"));
 
-    IncludeHierarchyTestCase testCase(sourceList);
-    testCase.run(1, 1);
+    IncludeHierarchyTestCase(sourceList, 1, 1);
 }

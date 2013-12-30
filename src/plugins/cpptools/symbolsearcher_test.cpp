@@ -91,37 +91,39 @@ class SymbolSearcherTestCase : public CppTools::Tests::TestCase
 {
 public:
     /// Takes no ownership of indexingSupportToUse
-    SymbolSearcherTestCase(const QString &testFile, CppIndexingSupport *indexingSupportToUse)
-        : m_indexingSupportToUse(indexingSupportToUse)
-        , m_testFile(testFile)
+    SymbolSearcherTestCase(const QString &testFile,
+                           CppIndexingSupport *indexingSupportToUse,
+                           const SymbolSearcher::Parameters &searchParameters,
+                           const ResultDataList &expectedResults)
+        : m_indexingSupportToRestore(0)
+        , m_indexingSupportToUse(indexingSupportToUse)
     {
+        QVERIFY(succeededSoFar());
+
         QVERIFY(m_indexingSupportToUse);
-        QVERIFY(parseFiles(m_testFile));
+        QVERIFY(parseFiles(testFile));
         m_indexingSupportToRestore = m_modelManager->indexingSupport();
         m_modelManager->setIndexingSupport(m_indexingSupportToUse);
-    }
 
-    ResultDataList run(const SymbolSearcher::Parameters &searchParameters) const
-    {
         CppIndexingSupport *indexingSupport = m_modelManager->indexingSupport();
         SymbolSearcher *symbolSearcher = indexingSupport->createSymbolSearcher(searchParameters,
-            QSet<QString>() << m_testFile);
+            QSet<QString>() << testFile);
         QFuture<Find::SearchResultItem> search
             = QtConcurrent::run(&SymbolSearcher::runSearch, symbolSearcher);
         search.waitForFinished();
         ResultDataList results = ResultData::fromSearchResultList(search.results());
-        return results;
+        QCOMPARE(results, expectedResults);
     }
 
     ~SymbolSearcherTestCase()
     {
-        m_modelManager->setIndexingSupport(m_indexingSupportToRestore);
+        if (m_indexingSupportToRestore)
+            m_modelManager->setIndexingSupport(m_indexingSupportToRestore);
     }
 
 private:
     CppIndexingSupport *m_indexingSupportToRestore;
     CppIndexingSupport *m_indexingSupportToUse;
-    const QString m_testFile;
 };
 
 } // anonymous namespace
@@ -148,10 +150,10 @@ void CppToolsPlugin::test_builtinsymbolsearcher()
     QFETCH(ResultDataList, expectedResults);
 
     QScopedPointer<CppIndexingSupport> builtinIndexingSupport(new BuiltinIndexingSupport);
-
-    SymbolSearcherTestCase test(testFile, builtinIndexingSupport.data());
-    const ResultDataList results = test.run(searchParameters);
-    QCOMPARE(results, expectedResults);
+    SymbolSearcherTestCase(testFile,
+                           builtinIndexingSupport.data(),
+                           searchParameters,
+                           expectedResults);
 }
 
 void CppToolsPlugin::test_builtinsymbolsearcher_data()

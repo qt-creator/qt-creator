@@ -97,12 +97,10 @@ public:
     typedef QList<ActionPointer> Actions;
 
 public:
-    TestActionsTestCase();
-
     /// Run the given fileActions for each file and the given tokenActions for each token.
     /// The cursor is positioned on the very first character of each token.
-    void run(const Actions &tokenActions = Actions(),
-             const Actions &fileActions = Actions());
+    TestActionsTestCase(const Actions &tokenActions = Actions(),
+                        const Actions &fileActions = Actions());
 
     /// Simulate pressing ESC, which will close popups, search results pane, etc...
     /// This works only if the Qt Creator window is active.
@@ -136,13 +134,16 @@ bool TestActionsTestCase::allProjectsConfigured = false;
 typedef TestActionsTestCase::Actions Actions;
 typedef TestActionsTestCase::ActionPointer ActionPointer;
 
-TestActionsTestCase::TestActionsTestCase()
-    : CppEditor::Internal::Tests::TestCase(/*runGarbageCollector=*/false)
+Actions singleAction(const ActionPointer &action)
 {
+    return Actions() << action;
 }
 
-void TestActionsTestCase::run(const Actions &tokenActions, const Actions &fileActions)
+TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Actions &fileActions)
+    : CppEditor::Internal::Tests::TestCase(/*runGarbageCollector=*/false)
 {
+    QVERIFY(succeededSoFar());
+
     // Collect files to process
     QStringList filesToOpen;
     QList<QPointer<ProjectExplorer::Project> > projects;
@@ -516,88 +517,51 @@ void SwitchHeaderSourceFileAction::run(CPPEditorWidget *)
 
 void CppEditorPlugin::test_openEachFile()
 {
-    TestActionsTestCase test;
-    test.run();
+    TestActionsTestCase();
 }
 
 void CppEditorPlugin::test_switchHeaderSourceOnEachFile()
 {
-    Actions fileActions;
-    fileActions << ActionPointer(new SwitchHeaderSourceFileAction);
-
-    TestActionsTestCase test;
-    test.run(Actions(), fileActions);
+    TestActionsTestCase(Actions(), singleAction(ActionPointer(new SwitchHeaderSourceFileAction)));
 }
 
 void CppEditorPlugin::test_moveTokenWiseThroughEveryFile()
 {
-    Actions tokenActions;
-    tokenActions << ActionPointer(new NoOpTokenAction());
-
-    TestActionsTestCase test;
-    test.run(tokenActions);
+    TestActionsTestCase(singleAction(ActionPointer(new NoOpTokenAction)));
 }
 
 /// May block if file does not exists (e.g. a not generated ui_* file).
 void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndFollowSymbol()
 {
-    Actions tokenActions;
-    tokenActions << ActionPointer(new FollowSymbolUnderCursorTokenAction());
-
-    TestActionsTestCase test;
-    test.run(tokenActions);
+    TestActionsTestCase(singleAction(ActionPointer(new FollowSymbolUnderCursorTokenAction)));
 }
 
 void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndSwitchDeclarationDefinition()
 {
-    Actions tokenActions;
-    tokenActions << ActionPointer(new SwitchDeclarationDefinitionTokenAction());
-
-    TestActionsTestCase test;
-    test.run(tokenActions);
+    TestActionsTestCase(singleAction(ActionPointer(new SwitchDeclarationDefinitionTokenAction)));
 }
 
 void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndFindUsages()
 {
-    Actions tokenActions;
-    tokenActions << ActionPointer(new FindUsagesTokenAction());
-
-    TestActionsTestCase test;
-    test.run(tokenActions);
+    TestActionsTestCase(singleAction(ActionPointer(new FindUsagesTokenAction)));
 }
 
 void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndRenameUsages()
 {
-    Actions tokenActions;
-    tokenActions << ActionPointer(new RenameSymbolUnderCursorTokenAction());
-
-    TestActionsTestCase test;
-    test.run(tokenActions);
+    TestActionsTestCase(singleAction(ActionPointer(new RenameSymbolUnderCursorTokenAction)));
 }
 
 void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndOpenTypeHierarchy()
 {
-    Actions tokenActions;
-    tokenActions << ActionPointer(new OpenTypeHierarchyTokenAction());
-
-    TestActionsTestCase test;
-    test.run(tokenActions);
+    TestActionsTestCase(singleAction(ActionPointer(new OpenTypeHierarchyTokenAction)));
 }
 
 void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndInvokeCompletion()
 {
-    Actions tokenActions;
-    tokenActions << ActionPointer(new InvokeCompletionTokenAction());
-
-    TestActionsTestCase test;
-    test.run(tokenActions);
+    TestActionsTestCase(singleAction(ActionPointer(new InvokeCompletionTokenAction)));
 }
 
 void CppEditorPlugin::test_moveTokenWiseThroughEveryFileAndTriggerQuickFixes()
 {
-    Actions tokenActions;
-    tokenActions << ActionPointer(new RunAllQuickFixesTokenAction());
-
-    TestActionsTestCase test;
-    test.run(tokenActions);
+    TestActionsTestCase(singleAction(ActionPointer(new RunAllQuickFixesTokenAction)));
 }

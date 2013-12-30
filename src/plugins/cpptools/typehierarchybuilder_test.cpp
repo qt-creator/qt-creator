@@ -101,15 +101,12 @@ class TypeHierarchyBuilderTestCase : public CppTools::Tests::TestCase
 public:
     TypeHierarchyBuilderTestCase(const QList<Tests::TestDocument> &documents,
                                  const QString &expectedHierarchy)
-        : m_documents(documents),
-          m_expectedHierarchy(expectedHierarchy)
-    {}
-
-    void run()
     {
+        QVERIFY(succeededSoFar());
+
         // Write files
         QStringList filePaths;
-        foreach (const Tests::TestDocument &document, m_documents) {
+        foreach (const Tests::TestDocument &document, documents) {
             QVERIFY(document.writeToDisk());
             filePaths << document.filePath();
         }
@@ -130,12 +127,8 @@ public:
         const QString actualHierarchy = toString(hierarchy);
 //        Uncomment for updating/generating reference data:
 //        qDebug() << actualHierarchy;
-        QCOMPARE(actualHierarchy, m_expectedHierarchy);
+        QCOMPARE(actualHierarchy, expectedHierarchy);
     }
-
-private:
-    QList<Tests::TestDocument> m_documents;
-    QString m_expectedHierarchy;
 };
 
 } // anonymous namespace
@@ -192,6 +185,5 @@ void CppToolsPlugin::test_typehierarchy()
     QFETCH(QList<Tests::TestDocument>, documents);
     QFETCH(QString, expectedHierarchy);
 
-    TypeHierarchyBuilderTestCase testCase(documents, expectedHierarchy);
-    testCase.run();
+    TypeHierarchyBuilderTestCase(documents, expectedHierarchy);
 }

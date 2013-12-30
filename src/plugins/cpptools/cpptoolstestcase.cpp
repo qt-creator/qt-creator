@@ -70,10 +70,12 @@ bool TestDocument::writeToDisk() const
 
 TestCase::TestCase(bool runGarbageCollector)
     : m_modelManager(CppModelManagerInterface::instance())
+    , m_succeededSoFar(false)
     , m_runGarbageCollector(runGarbageCollector)
 {
     if (m_runGarbageCollector)
         QVERIFY(garbageCollectGlobalSnapshot());
+    m_succeededSoFar = true;
 }
 
 TestCase::~TestCase()
@@ -83,6 +85,11 @@ TestCase::~TestCase()
 
     if (m_runGarbageCollector)
         QVERIFY(garbageCollectGlobalSnapshot());
+}
+
+bool TestCase::succeededSoFar() const
+{
+    return m_succeededSoFar;
 }
 
 CPlusPlus::Snapshot TestCase::globalSnapshot()

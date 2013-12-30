@@ -70,6 +70,7 @@ public:
     TestCase(bool runGarbageCollector = true);
     ~TestCase();
 
+    bool succeededSoFar() const;
     void closeEditorAtEndOfTestCase(Core::IEditor *editor);
 
     static bool parseFiles(const QString &filePath);
@@ -86,6 +87,7 @@ public:
 
 protected:
     CppModelManagerInterface *m_modelManager;
+    bool m_succeededSoFar;
 
 private:
     QList<Core::IEditor *> m_editorsToClose;
