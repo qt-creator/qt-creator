@@ -97,6 +97,7 @@ void DragTool::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Escape) {
         abort();
         event->accept();
+        commitTransaction();
         view()->changeToSelectionTool();
     }
 }
@@ -264,10 +265,15 @@ void DragTool::abort()
         m_dragNode.destroy();
 
     QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
+}
 
-    if (m_rewriterTransaction.isValid())
+void DragTool::commitTransaction()
+{
+    try {
         m_rewriterTransaction.commit();
-
+    } catch (RewritingException &e) {
+        QMessageBox::warning(0, "Error", e.description());
+    }
 }
 
 void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
@@ -277,11 +283,8 @@ void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
         event->accept();
         end(generateUseSnapping(event->modifiers()));
 
-        try {
-            m_rewriterTransaction.commit();
-        } catch (RewritingException &e) {
-            QMessageBox::warning(0, "Error", e.description());
-        }
+        commitTransaction();
+
         if (m_dragNode.isValid()) {
             QList<QmlItemNode> nodeList;
             nodeList.append(m_dragNode);
@@ -337,11 +340,7 @@ void DragTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
         m_moveManipulator.end();
         clear();
 
-        try {
-            m_rewriterTransaction.commit();
-        } catch (RewritingException &e) {
-            QMessageBox::warning(0, "Error", e.description());
-        }
+        commitTransaction();
 
         QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::show();
         QList<QmlItemNode> nodeList;
