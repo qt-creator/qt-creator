@@ -289,17 +289,12 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const QString &fileName,
     Utils::TextFileFormat format = Utils::TextFileFormat::detect(data);
     if (!format.codec)
         format.codec = defaultCodec ? defaultCodec : QTextCodec::codecForLocale();
-    if (format.codec->name() == "UTF-8") {
+    QString target;
+    if (format.codec->name() == "UTF-8" || !format.decode(data, &target)) {
         if (format.hasUtf8Bom)
             data.remove(0, 3);
         *plainText = data;
         return Utils::TextFileFormat::ReadSuccess;
-    }
-
-    QString target;
-    if (!format.decode(data, &target)) {
-        *errorString = QCoreApplication::translate("Utils::TextFileFormat", "An encoding error was encountered.");
-        return Utils::TextFileFormat::ReadEncodingError;
     }
     *plainText = target.toUtf8();
     return Utils::TextFileFormat::ReadSuccess;
