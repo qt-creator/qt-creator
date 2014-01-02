@@ -172,6 +172,8 @@ void BlackBerrySetupWizardKeysPage::initUi()
             this, SLOT(showKeysMessage(QString)));
     connect(m_ui->legacyLabel, SIGNAL(linkActivated(QString)),
             this, SLOT(showKeysMessage(QString)));
+    connect(m_ui->helpLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(showKeysMessage(QString)));
 }
 
 void BlackBerrySetupWizardKeysPage::setComplete(bool complete)
