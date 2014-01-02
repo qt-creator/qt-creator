@@ -63,14 +63,6 @@ Controls.SpinBox {
             backendValue.value = value;
     }
 
-    onFocusChanged: {
-        if (focus) {
-            transaction.start();
-        } else {
-            transaction.end();
-        }
-    }
-
     Controls.Slider {
         id: slider
 

@@ -66,13 +66,6 @@ Controls.CheckBox {
             backendValue.value = checkBox.checked;
     }
 
-    onFocusChanged: {
-        if (focus) {
-            transaction.start();
-        } else {
-            transaction.end();
-        }
-    }
     style: CheckBoxStyle {
         spacing: 8
         label: Controls.Label { text: control.text ; color: checkBox.textColor }
