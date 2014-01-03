@@ -9,6 +9,17 @@ defineReplace(findLLVMConfig) {
         llvm-config llvm-config-3.2 llvm-config-3.3 llvm-config-3.4 \
         llvm-config-3.5 llvm-config-3.6 llvm-config-4.0 llvm-config-4.1
 
+    # Prefer llvm-config* from LLVM_INSTALL_DIR
+    !isEmpty(LLVM_INSTALL_DIR) {
+        for (variant, LLVM_CONFIG_VARIANTS) {
+            variant=$$LLVM_INSTALL_DIR/bin/$$variant
+            exists($$variant) {
+                return($$variant)
+            }
+        }
+    }
+
+    # Find llvm-config* in PATH
     ENV_PATH = $$(PATH)
     win32 {
         ENV_PATH = $$split($$ENV_PATH, ;)
@@ -16,20 +27,15 @@ defineReplace(findLLVMConfig) {
         ENV_PATH = $$split($$ENV_PATH, :)
     }
     for (variant, LLVM_CONFIG_VARIANTS) {
-        !isEmpty(LLVM_INSTALL_DIR) {
-            variant=$$LLVM_INSTALL_DIR/bin/$$variant
-            exists($$variant) {
-                return($$variant)
-            }
-        } else {
-            for (path, ENV_PATH) {
-                subvariant = $$path/$$variant
-                exists($$subvariant) {
-                    return($$subvariant)
-                }
+        for (path, ENV_PATH) {
+            subvariant = $$path/$$variant
+            exists($$subvariant) {
+                return($$subvariant)
             }
         }
     }
+
+    # Fallback
     return(llvm-config)
 }
 
