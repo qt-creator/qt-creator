@@ -106,7 +106,7 @@ IEditor *CppEditorFactory::createEditor(QWidget *parent)
 CppEditorPlugin *CppEditorPlugin::m_instance = 0;
 
 CppEditorPlugin::CppEditorPlugin() :
-    m_sortedOutline(false),
+    m_sortedOutline(true),
     m_renameSymbolUnderCursorAction(0),
     m_findUsagesAction(0),
     m_reparseExternallyChangedFiles(0),
@@ -313,7 +313,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
 void CppEditorPlugin::readSettings()
 {
-    m_sortedOutline = ICore::settings()->value(QLatin1String("CppTools/SortedMethodOverview"), false).toBool();
+    m_sortedOutline = ICore::settings()->value(QLatin1String("CppTools/SortedMethodOverview"), true).toBool();
 }
 
 void CppEditorPlugin::writeSettings()
