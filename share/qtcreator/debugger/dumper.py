@@ -779,6 +779,46 @@ class DumperBase:
             format = self.typeformats.get(needle)
         return format
 
+    def putPlotData(self, type, base, n, plotFormat = 2):
+        if self.isExpanded():
+            self.putArrayData(type, base, n)
+        if not hasPlot():
+            return
+        if not self.isSimpleType(type):
+            #self.putValue(self.currentValue + " (not plottable)")
+            self.putValue(self.currentValue)
+            self.putField("plottable", "0")
+            return
+        global gnuplotPipe
+        global gnuplotPid
+        format = self.currentItemFormat()
+        iname = self.currentIName
+        if format != plotFormat:
+            if iname in gnuplotPipe:
+                os.kill(gnuplotPid[iname], 9)
+                del gnuplotPid[iname]
+                gnuplotPipe[iname].terminate()
+                del gnuplotPipe[iname]
+            return
+        base = self.createPointerValue(base, type)
+        if not iname in gnuplotPipe:
+            gnuplotPipe[iname] = subprocess.Popen(["gnuplot"],
+                    stdin=subprocess.PIPE)
+            gnuplotPid[iname] = gnuplotPipe[iname].pid
+        f = gnuplotPipe[iname].stdin;
+        # On Ubuntu install gnuplot-x11
+        f.write("set term wxt noraise\n")
+        f.write("set title 'Data fields'\n")
+        f.write("set xlabel 'Index'\n")
+        f.write("set ylabel 'Value'\n")
+        f.write("set grid\n")
+        f.write("set style data lines;\n")
+        f.write("plot  '-' title '%s'\n" % iname)
+        for i in range(0, n):
+            f.write(" %s\n" % base.dereference())
+            base += 1
+        f.write("e\n")
+
 def cleanAddress(addr):
     if addr is None:
         return "<no address>"

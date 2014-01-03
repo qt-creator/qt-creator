@@ -1160,48 +1160,6 @@ class Dumper(DumperBase):
     def isStructType(self, typeobj):
         return typeobj.code == gdb.TYPE_CODE_STRUCT
 
-    def putPlotData(self, type, base, n, plotFormat):
-        if self.isExpanded():
-            self.putArrayData(type, base, n)
-        if not hasPlot():
-            return
-        if not self.isSimpleType(type):
-            #self.putValue(self.currentValue + " (not plottable)")
-            self.putValue(self.currentValue)
-            self.putField("plottable", "0")
-            return
-        global gnuplotPipe
-        global gnuplotPid
-        format = self.currentItemFormat()
-        iname = self.currentIName
-        #if False:
-        if format != plotFormat:
-            if iname in gnuplotPipe:
-                os.kill(gnuplotPid[iname], 9)
-                del gnuplotPid[iname]
-                gnuplotPipe[iname].terminate()
-                del gnuplotPipe[iname]
-            return
-        base = base.cast(type.pointer())
-        if not iname in gnuplotPipe:
-            gnuplotPipe[iname] = subprocess.Popen(["gnuplot"],
-                    stdin=subprocess.PIPE)
-            gnuplotPid[iname] = gnuplotPipe[iname].pid
-        f = gnuplotPipe[iname].stdin;
-        # On Ubuntu install gnuplot-x11
-        f.write("set term wxt noraise\n")
-        f.write("set title 'Data fields'\n")
-        f.write("set xlabel 'Index'\n")
-        f.write("set ylabel 'Value'\n")
-        f.write("set grid\n")
-        f.write("set style data lines;\n")
-        f.write("plot  '-' title '%s'\n" % iname)
-        for i in range(0, n):
-            f.write(" %s\n" % base.dereference())
-            base += 1
-        f.write("e\n")
-
-
     def putArrayData(self, type, base, n,
             childNumChild = None, maxNumChild = 10000):
         if not self.tryPutArrayContents(type, base, n):

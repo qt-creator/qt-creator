@@ -29,14 +29,20 @@
 
 from dumper import *
 
+def qform__std__array():
+    return arrayForms()
+
 def qdump__std__array(d, value):
     size = d.numericTemplateArgument(value.type, 1)
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
         innerType = d.templateArgument(value.type, 0)
-        d.putArrayData(innerType, d.addressOf(value), size)
+        d.putPlotData(innerType, d.addressOf(value), size)
 
+
+def qform__std____1__array():
+    return arrayForms()
 
 def qdump__std____1__array(d, value):
     qdump__std__array(d, value)
@@ -660,6 +666,9 @@ def qdump__std____debug__unordered_set(d, value):
     qdump__std__unordered_set(d, value)
 
 
+def qform__std__vector():
+    return arrayForms()
+
 def qedit__std__vector(d, value, data):
     import gdb
     values = data.split(',')
@@ -713,7 +722,7 @@ def qdump__std__vector(d, value):
                     d.putBoolItem(str(i),
                         (int(d.dereference(q)) >> (i % 8)) & 1)
         else:
-            d.putArrayData(type, start, size)
+            d.putPlotData(type, start, size)
 
 def qdump__std__vector__QNX(d, value):
     type = d.templateArgument(value.type, 0)
@@ -764,11 +773,15 @@ def qdump__std____1__vector(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        d.putArrayData(innerType, begin, size)
+        d.putPlotData(innerType, begin, size)
 
+
+def qform__std____debug__vector():
+    return arrayForms()
 
 def qdump__std____debug__vector(d, value):
     qdump__std__vector(d, value)
+
 
 def qedit__std__string(d, value, data):
     d.call(value, "assign", '"%s"' % data.replace('"', '\\"'))

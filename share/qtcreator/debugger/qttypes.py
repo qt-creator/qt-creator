@@ -472,6 +472,9 @@ def qdump__QFixed(d, value):
     d.putNumChild(0)
 
 
+def qform__QFiniteStack():
+    return arrayForms()
+
 def qdump__QFiniteStack(d, value):
     alloc = int(value["_alloc"])
     size = int(value["_size"])
@@ -480,7 +483,7 @@ def qdump__QFiniteStack(d, value):
     d.putNumChild(size)
     if d.isExpanded():
         innerType = d.templateArgument(value.type, 0)
-        d.putArrayData(innerType, value["_array"], size)
+        d.putPlotData(innerType, value["_array"], size)
 
 # Stock gdb 7.2 seems to have a problem with types here:
 #
@@ -1657,6 +1660,9 @@ def qdump__QSizeF(d, value):
     d.putPlainChildren(value)
 
 
+def qform__QStack():
+    return arrayForms()
+
 def qdump__QStack(d, value):
     qdump__QVector(d, value)
 
@@ -2036,7 +2042,7 @@ def qdump__QVector(d, value):
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
-    d.putPlotData(innerType, p, size, 2)
+    d.putPlotData(innerType, p, size)
 
 
 def qdump__QWeakPointer(d, value):

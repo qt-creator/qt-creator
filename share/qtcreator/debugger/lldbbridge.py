@@ -536,13 +536,6 @@ class Dumper(DumperBase):
         self.put('",')
         return True
 
-    def putPlotData(self, type, base, n, plotFormat):
-        #warn("PLOTDATA: %s %s" % (type, n))
-        if self.isExpanded():
-            self.putArrayData(type, base, n)
-        self.putValue(self.currentValue)
-        self.putField("plottable", "0")
-
     def putArrayData(self, type, base, n,
             childNumChild = None, maxNumChild = 10000):
         if not self.tryPutArrayContents(type, base, n):
