@@ -35,10 +35,19 @@ defineReplace(findLLVMConfig) {
 
 win32 {
     LLVM_INCLUDEPATH = $$LLVM_INSTALL_DIR/include
-    LLVM_LIBS = -L$$LLVM_INSTALL_DIR/bin \
+    exists ($${LLVM_INSTALL_DIR}/lib/clang.*) {
+        CLANG_LIB = clang
+    } else {
+        exists ($${LLVM_INSTALL_DIR}/lib/libclang.*) {
+            CLANG_LIB = libclang
+        } else {
+            error("Cannot find Clang shared library!")
+        }
+    }
+    LLVM_LIBS = \
+        -L$$LLVM_INSTALL_DIR/bin \
         -L$$LLVM_INSTALL_DIR/lib \
-        -lclang
-
+        -l$${CLANG_LIB}
     LLVM_LIBS += -ladvapi32 -lshell32
 }
 

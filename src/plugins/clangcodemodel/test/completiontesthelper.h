@@ -32,11 +32,12 @@
 
 #ifdef WITH_TESTS
 
+#include "../clangcompleter.h"
+
 #include <QObject>
 #include <QTextDocument>
 #include <texteditor/basetexteditor.h>
 #include <cplusplus/CppDocument.h>
-#include <clangcompleter.h>
 
 namespace TextEditor { class IAssistProposal; }
 
