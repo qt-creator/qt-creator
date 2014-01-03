@@ -965,7 +965,8 @@ void DocumentManager::checkForReload()
                     success = document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents);
                 } else {
                     // Ask about content change
-                    previousReloadAnswer = Utils::reloadPrompt(document->filePath(), document->isModified(), QApplication::activeWindow());
+                    previousReloadAnswer = Utils::reloadPrompt(document->filePath(), document->isModified(),
+                                                               ICore::dialogParent());
                     switch (previousReloadAnswer) {
                     case Utils::ReloadAll:
                     case Utils::ReloadCurrent:
