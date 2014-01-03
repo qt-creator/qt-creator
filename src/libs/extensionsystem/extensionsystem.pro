@@ -33,7 +33,7 @@ SOURCES += pluginerrorview.cpp \
     optionsparser.cpp \
     plugincollection.cpp \
     pluginerroroverview.cpp
-FORMS += pluginview.ui \
+FORMS += \
     pluginerrorview.ui \
     plugindetailsview.ui \
     pluginerroroverview.ui

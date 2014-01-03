@@ -41,7 +41,6 @@ QtcLibrary {
         "pluginview.cpp",
         "pluginview.h",
         "pluginview.qrc",
-        "pluginview.ui",
         "images/error.png",
         "images/notloaded.png",
         "images/ok.png",

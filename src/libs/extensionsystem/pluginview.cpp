@@ -31,14 +31,13 @@
 #include "pluginmanager.h"
 #include "pluginspec.h"
 #include "plugincollection.h"
-#include "ui_pluginview.h"
-
-#include <QDir>
-#include <QHeaderView>
-#include <QTreeWidgetItem>
-#include <QPalette>
 
 #include <QDebug>
+#include <QDir>
+#include <QGridLayout>
+#include <QHeaderView>
+#include <QPalette>
+#include <QTreeWidgetItem>
 
 /*!
     \class ExtensionSystem::PluginView
@@ -76,12 +75,30 @@ Q_DECLARE_METATYPE(ExtensionSystem::PluginCollection*)
 */
 PluginView::PluginView(QWidget *parent)
     : QWidget(parent),
-      m_ui(new Internal::Ui::PluginView),
       m_allowCheckStateUpdate(true),
       C_LOAD(1)
 {
-    m_ui->setupUi(this);
-    QHeaderView *header = m_ui->categoryWidget->header();
+    m_categoryWidget = new QTreeWidget(this);
+    m_categoryWidget->setAlternatingRowColors(true);
+    m_categoryWidget->setIndentation(20);
+    m_categoryWidget->setUniformRowHeights(true);
+    m_categoryWidget->setSortingEnabled(true);
+    m_categoryWidget->setColumnCount(4);
+    m_categoryWidget->setColumnWidth(C_LOAD, 40);
+    m_categoryWidget->header()->setDefaultSectionSize(120);
+    m_categoryWidget->header()->setMinimumSectionSize(35);
+
+    QTreeWidgetItem *headerItem = m_categoryWidget->headerItem();
+    headerItem->setText(0, tr("Name"));
+    headerItem->setText(1, tr("Load"));
+    headerItem->setText(2, tr("Version"));
+    headerItem->setText(3, tr("Vendor"));
+
+    QGridLayout *gridLayout = new QGridLayout(this);
+    gridLayout->setContentsMargins(2, 2, 2, 2);
+    gridLayout->addWidget(m_categoryWidget, 1, 0, 1, 1);
+
+    QHeaderView *header = m_categoryWidget->header();
     header->setResizeMode(0, QHeaderView::ResizeToContents);
     header->setResizeMode(2, QHeaderView::ResizeToContents);
 
@@ -89,16 +106,14 @@ PluginView::PluginView(QWidget *parent)
     m_errorIcon = QIcon(QLatin1String(":/extensionsystem/images/error.png"));
     m_notLoadedIcon = QIcon(QLatin1String(":/extensionsystem/images/notloaded.png"));
 
-    m_ui->categoryWidget->setColumnWidth(C_LOAD, 40);
-
     // cannot disable these
     m_whitelist << QString::fromLatin1("Core") << QString::fromLatin1("Locator")
                 << QString::fromLatin1("Find") << QString::fromLatin1("TextEditor");
 
     connect(PluginManager::instance(), SIGNAL(pluginsChanged()), this, SLOT(updateList()));
-    connect(m_ui->categoryWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+    connect(m_categoryWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
             this, SLOT(selectPlugin(QTreeWidgetItem*)));
-    connect(m_ui->categoryWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
+    connect(m_categoryWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
             this, SLOT(activatePlugin(QTreeWidgetItem*)));
 
     updateList();
@@ -109,7 +124,6 @@ PluginView::PluginView(QWidget *parent)
 */
 PluginView::~PluginView()
 {
-    delete m_ui;
 }
 
 /*!
@@ -117,16 +131,16 @@ PluginView::~PluginView()
 */
 PluginSpec *PluginView::currentPlugin() const
 {
-    if (!m_ui->categoryWidget->currentItem())
+    if (!m_categoryWidget->currentItem())
         return 0;
-    if (!m_ui->categoryWidget->currentItem()->data(0, Qt::UserRole).isNull())
-        return m_ui->categoryWidget->currentItem()->data(0, Qt::UserRole).value<PluginSpec *>();
+    if (!m_categoryWidget->currentItem()->data(0, Qt::UserRole).isNull())
+        return m_categoryWidget->currentItem()->data(0, Qt::UserRole).value<PluginSpec *>();
     return 0;
 }
 
 void PluginView::updateList()
 {
-    connect(m_ui->categoryWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
+    connect(m_categoryWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
             this, SLOT(updatePluginSettings(QTreeWidgetItem*,int)));
 
     PluginCollection *defaultCollection = 0;
@@ -176,15 +190,15 @@ void PluginView::updateList()
 
     updatePluginDependencies();
 
-    m_ui->categoryWidget->clear();
+    m_categoryWidget->clear();
     if (!m_items.isEmpty()) {
-        m_ui->categoryWidget->addTopLevelItems(m_items);
-        m_ui->categoryWidget->expandAll();
+        m_categoryWidget->addTopLevelItems(m_items);
+        m_categoryWidget->expandAll();
     }
 
-    m_ui->categoryWidget->sortItems(0, Qt::AscendingOrder);
-    if (m_ui->categoryWidget->topLevelItemCount())
-        m_ui->categoryWidget->setCurrentItem(m_ui->categoryWidget->topLevelItem(0));
+    m_categoryWidget->sortItems(0, Qt::AscendingOrder);
+    if (m_categoryWidget->topLevelItemCount())
+        m_categoryWidget->setCurrentItem(m_categoryWidget->topLevelItem(0));
 }
 
 int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins)
