@@ -85,7 +85,7 @@ bool BlackBerrySigningUtils::hasDefaultCertificate()
 QString BlackBerrySigningUtils::cskPassword(QWidget *passwordPromptParent, bool *ok)
 {
     if (m_cskPassword.isEmpty())
-        m_cskPassword = promptPassword(tr("Please provide your bbidtoken.csk PIN."), passwordPromptParent, ok);
+        m_cskPassword = promptPassword(tr("Please provide your BlackBerry ID Token PIN."), passwordPromptParent, ok);
     else if (ok)
         *ok = true;
 
