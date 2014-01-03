@@ -1178,7 +1178,7 @@ class Dumper(DumperBase):
         f.write("set grid\n")
         f.write("set style data lines;\n")
         f.write("plot  '-' title '%s'\n" % iname)
-        for i in range(1, n):
+        for i in range(0, n):
             f.write(" %s\n" % base.dereference())
             base += 1
         f.write("e\n")
