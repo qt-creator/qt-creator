@@ -433,27 +433,22 @@ LogWindow::LogWindow(QWidget *parent)
 void LogWindow::executeLine()
 {
     m_ignoreNextInputEcho = true;
-    debuggerCore()->executeDebuggerCommand(m_inputText->textCursor().block().text(),
-                                           CppLanguage);
+    debuggerCore()->currentEngine()->
+        executeDebuggerCommand(m_inputText->textCursor().block().text(), CppLanguage);
 }
 
 void LogWindow::repeatLastCommand()
 {
-    QTextCursor tc = m_inputText->textCursor();
-    QRegExp re = QRegExp(QLatin1String("^\\d+(bb options:)(.*)$"));
-    for (QTextBlock block = tc.block(); block.isValid(); block = block.previous()) {
-        QString line = block.text();
-        if (re.exactMatch(line)) {
-            QString cmd = re.cap(1) + QLatin1String("pe,") + re.cap(2);
-            debuggerCore()->executeDebuggerCommand(cmd, CppLanguage);
-            return;
-        }
-    }
+    debuggerCore()->currentEngine()->debugLastCommand();
 }
 
 void LogWindow::sendCommand()
 {
-    debuggerCore()->executeDebuggerCommand(m_commandEdit->text(), CppLanguage);
+    DebuggerEngine *engine = debuggerCore()->currentEngine();
+    if (engine->acceptsDebuggerCommands())
+        engine->executeDebuggerCommand(m_commandEdit->text(), CppLanguage);
+    else
+        showOutput(LogError, tr("User commands are not accepted in the current state."));
 }
 
 void LogWindow::showOutput(int channel, const QString &output)

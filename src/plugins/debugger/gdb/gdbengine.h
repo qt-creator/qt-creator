@@ -714,6 +714,9 @@ protected:
     static QString msgConnectRemoteServerFailed(const QString &why);
     static QByteArray dotEscape(QByteArray str);
 
+    void debugLastCommand();
+    QByteArray m_lastDebuggableCommand;
+
 protected:
     enum DumperHandling
     {

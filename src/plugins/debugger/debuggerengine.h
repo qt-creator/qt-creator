@@ -189,6 +189,7 @@ public:
     virtual void setRegisterValue(int regnr, const QString &value);
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;
     virtual bool hasCapability(unsigned cap) const = 0;
+    virtual void debugLastCommand() {}
 
     virtual bool isSynchronous() const;
     virtual QByteArray qtNamespace() const;
@@ -205,6 +206,8 @@ public:
     virtual void changeBreakpoint(BreakpointModelId id);  // FIXME: make pure
 
     virtual bool acceptsDebuggerCommands() const { return true; }
+    virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
+
     virtual void assignValueInDebugger(const Internal::WatchData *data,
         const QString &expr, const QVariant &value);
     virtual void selectThread(Internal::ThreadId threadId) = 0;
@@ -347,7 +350,6 @@ protected:
     virtual void executeRunToLine(const Internal::ContextData &data);
     virtual void executeRunToFunction(const QString &functionName);
     virtual void executeJumpToLine(const Internal::ContextData &data);
-    virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
 
     virtual void frameUp();
     virtual void frameDown();

@@ -130,9 +130,15 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
     if (!m_resultVarName.isEmpty())
         resultVar = "resultvarname:" + m_resultVarName + ' ';
 
-    postCommand("bb options:" + options + " vars:" + params.varList + ' '
-            + resultVar + expanded + " watchers:" + watchers.toHex() + cutOff,
-        Discardable, CB(handleStackFramePython), QVariant(params.tryPartial));
+    QByteArray cmd =
+        "bb options:" + options + " vars:" + params.varList + ' '
+            + resultVar + expanded + " watchers:" + watchers.toHex() + cutOff;
+
+    m_lastDebuggableCommand =
+        "bb options:pe," + options + " vars:" + params.varList + ' '
+            + resultVar + expanded + " watchers:" + watchers.toHex() + cutOff;
+
+    postCommand(cmd, Discardable, CB(handleStackFramePython), QVariant(params.tryPartial));
 }
 
 void GdbEngine::handleStackFramePython(const GdbResponse &response)

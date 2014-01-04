@@ -931,7 +931,6 @@ public slots:
     void aboutToUnloadSession();
     void aboutToSaveSession();
 
-    void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
     void coreShutdown();
 
 #ifdef WITH_TESTS
@@ -2447,14 +2446,6 @@ void DebuggerPluginPrivate::aboutToSaveSession()
     dummyEngine()->watchHandler()->saveSessionData();
     m_toolTipManager->saveSessionData();
     m_breakHandler->saveSessionData();
-}
-
-void DebuggerPluginPrivate::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
-{
-    if (currentEngine()->acceptsDebuggerCommands())
-        currentEngine()->executeDebuggerCommand(command, languages);
-    else
-        showStatusMessage(tr("User commands are not accepted in the current state."));
 }
 
 void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)

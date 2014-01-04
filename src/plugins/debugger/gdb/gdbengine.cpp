@@ -5484,6 +5484,11 @@ QByteArray GdbEngine::dotEscape(QByteArray str)
     return str;
 }
 
+void GdbEngine::debugLastCommand()
+{
+    postCommand(m_lastDebuggableCommand, Discardable);
+}
+
 //
 // Factory
 //
