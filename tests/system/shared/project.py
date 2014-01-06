@@ -30,12 +30,7 @@
 import __builtin__
 import re
 
-processStarted = False
 processExited = False
-
-def __handleProcessStarted__(*args):
-    global processStarted
-    processStarted = True
 
 def __handleProcessExited__(*args):
     global processExited
@@ -388,6 +383,16 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
                     test.warning("Target '%s' is not set up correctly." % Targets.getStringForTarget(current))
     return checkedTargets
 
+def waitForProcessStarted():
+    outputButton = waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
+    if not waitFor("outputButton.checked", 10000):
+        ensureChecked(outputButton)
+    waitFor("object.exists(':Qt Creator.ReRun_QToolButton')", 20000)
+    reRunButton = findObject(":Qt Creator.ReRun_QToolButton")
+    waitFor("object.exists(':Qt Creator.Stop_QToolButton')", 20000)
+    stopButton = findObject(":Qt Creator.Stop_QToolButton")
+    return waitFor("not reRunButton.enabled and stopButton.enabled", 10000)
+
 # run and close an application
 # withHookInto - if set to True the function tries to attach to the sub-process instead of simply pressing Stop inside Creator
 # executable - must be defined when using hook-into
@@ -399,22 +404,21 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
 # by yourself (or use the function parameter)
 # ATTENTION! Make sure this function won't fail and the sub-process will end when the function returns
 def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None, sType=None, userDefinedType=None):
-    global processStarted, processExited
-    processStarted = processExited = False
+    global processExited
+    processExited = False
     overrideInstallLazySignalHandler()
-    installLazySignalHandler("{type='QProcess'}", "started()", "__handleProcessStarted__")
     installLazySignalHandler("{type='QProcess'}", "finished(int,QProcess::ExitStatus)", "__handleProcessExited__")
     runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
     if sType != SubprocessType.QT_QUICK_UI:
         waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
         buildSucceeded = checkLastBuild()
+        ensureChecked(waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton"))
         if not buildSucceeded:
             test.fatal("Build inside run wasn't successful - leaving test")
             invokeMenuItem("File", "Exit")
             return False
-    waitFor("processStarted==True", 10000)
-    if not processStarted:
+    if not waitForProcessStarted():
         test.fatal("Couldn't start application - leaving test")
         invokeMenuItem("File", "Exit")
         return False
@@ -489,11 +493,9 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
                                           "unnamed='1' visible='1'} type='QComboBox' unnamed='1' "
                                           "visible='1'}"), selectConfig)
             switchViewTo(ViewConstants.EDIT)
-            global processStarted
-            processStarted = False
             runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
             clickButton(runButton)
-            if not waitFor("processStarted == True", 10000):
+            if not waitForProcessStarted():
                 test.fatal("Something seems to be really wrong.", "Application output:"
                            % str(output.plainText))
                 return False
