@@ -11,6 +11,7 @@ Project {
         "bazaar/bazaar.qbs",
         "bineditor/bineditor.qbs",
         "bookmarks/bookmarks.qbs",
+        "clangcodemodel/clangcodemodel.qbs",
         "classview/classview.qbs",
         "clearcase/clearcase.qbs",
         "cmakeprojectmanager/cmakeprojectmanager.qbs",
