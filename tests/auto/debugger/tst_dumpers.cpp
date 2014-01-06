@@ -2905,7 +2905,9 @@ void tst_Dumpers::dumper_data()
                % Cxx11Profile()
                % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::unique_ptr<int, std::default_delete<int> >")
-               % Check("pf", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >");
+               % Check("pi.data", "32", "int")
+               % Check("pf", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >")
+               % CheckType("pf.data", "Foo");
 
     QTest::newRow("StdSharedPtr")
             << Data("#include <memory>\n" + fooData,
@@ -2915,7 +2917,11 @@ void tst_Dumpers::dumper_data()
                % Cxx11Profile()
                % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::shared_ptr<int>")
-               % Check("pf", Pointer(), "std::shared_ptr<Foo>");
+               % Check("pi.data", "32", "int").setForGdbOnly()
+               % Check("pi.data", "32", "std::shared_ptr<int>::element_type").setForLldbOnly()
+               % Check("pf", Pointer(), "std::shared_ptr<Foo>")
+               % CheckType("pf.data", "Foo").setForGdbOnly()
+               % CheckType("pf.data", "std::shared_ptr<Foo>::element_type").setForLldbOnly();
 
     QTest::newRow("StdSetInt")
             << Data("#include <set>\n",
