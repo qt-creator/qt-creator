@@ -510,7 +510,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
     try {
         TypeName propertyQmlType = qmlTypeInQtContainer(parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name()));
 
-        RewriterTransaction transaction = m_view->beginRewriterTransaction();
+        RewriterTransaction transaction = m_view->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel::moveNodesInteractive"));
         foreach (const ModelNode &node, modelNodes) {
             if (!node.isValid())
                 continue;

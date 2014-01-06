@@ -35,13 +35,29 @@
 namespace QmlDesigner {
 
 
+
+QList<QByteArray> RewriterTransaction::m_identifierList;
+bool RewriterTransaction::m_activeIdentifier = !qgetenv("QML_DESIGNER_TRACE_REWRITER_TRANSACTION").isEmpty();
+
 RewriterTransaction::RewriterTransaction() : m_valid(false)
 {
 }
 
-RewriterTransaction::RewriterTransaction(AbstractView *_view) : m_view(_view), m_valid(true)
+RewriterTransaction::RewriterTransaction(AbstractView *_view, const QByteArray &identifier)
+    : m_view(_view),
+      m_identifier(identifier),
+      m_valid(true)
 {
     Q_ASSERT(view());
+
+    static int identifierNumber = 0;
+    m_identifierNumber = identifierNumber++;
+
+    if (m_activeIdentifier) {
+        qDebug() << "Begin RewriterTransaction:" << m_identifier << m_identifierNumber;
+        m_identifierList.append(m_identifier + QByteArrayLiteral("-") + QByteArray::number(m_identifierNumber));
+    }
+
     view()->emitRewriterBeginTransaction();
 }
 
@@ -60,6 +76,12 @@ void RewriterTransaction::commit()
     if (m_valid) {
         m_valid = false;
         view()->emitRewriterEndTransaction();
+
+        if (m_activeIdentifier) {
+            qDebug() << "Commit RewriterTransaction:" << m_identifier << m_identifierNumber;
+            bool success = m_identifierList.removeOne(m_identifier + QByteArrayLiteral("-") + QByteArray::number(m_identifierNumber));
+            Q_ASSERT(success);
+        }
     }
 }
 
@@ -70,6 +92,11 @@ void RewriterTransaction::rollback()
         m_valid = false;
         view()->emitRewriterEndTransaction();
         QmlDesignerPlugin::instance()->currentDesignDocument()->undo();
+
+        if (m_activeIdentifier) {
+            qDebug() << "Rollback RewriterTransaction:" << m_identifier << m_identifierNumber;
+            m_identifierList.removeOne(m_identifier + QByteArrayLiteral("-") + QByteArray::number(m_identifierNumber));
+       }
     }
 }
 
@@ -84,6 +111,8 @@ RewriterTransaction::RewriterTransaction(const RewriterTransaction &other)
     if (&other != this) {
         m_valid = other.m_valid;
         m_view = other.m_view;
+        m_identifier = other.m_identifier;
+        m_identifierNumber = other.m_identifierNumber;
         other.m_valid = false;
     }
 }
@@ -93,6 +122,8 @@ RewriterTransaction& RewriterTransaction::operator=(const RewriterTransaction &o
     if (!m_valid && (&other != this)) {
         m_valid = other.m_valid;
         m_view = other.m_view;
+        m_identifier = other.m_identifier;
+        m_identifierNumber = other.m_identifierNumber;
         other.m_valid = false;
     }
 

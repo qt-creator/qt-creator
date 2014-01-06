@@ -203,7 +203,7 @@ void RewriterView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &pro
 
     foreach (const AbstractProperty &property, propertyList) {
         if (property.isDefaultProperty() && property.isNodeListProperty()) {
-            m_removeDefaultPropertyTransaction = beginRewriterTransaction();
+            m_removeDefaultPropertyTransaction = beginRewriterTransaction(QByteArrayLiteral("RewriterView::propertiesAboutToBeRemoved"));
 
             foreach (const ModelNode &node, property.toNodeListProperty().toModelNodeList()) {
                 modelToTextMerger()->nodeRemoved(node, property.toNodeAbstractProperty(), AbstractView::NoAdditionalChanges);

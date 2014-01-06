@@ -72,7 +72,7 @@ bool QmlModelStateOperation::isValidQmlModelStateOperation(const ModelNode &mode
 
 void QmlPropertyChanges::removeProperty(const PropertyName &name)
 {
-    RewriterTransaction transaction(view()->beginRewriterTransaction());
+    RewriterTransaction transaction(view()->beginRewriterTransaction(QByteArrayLiteral("QmlPropertyChanges::removeProperty")));
     if (name == "name")
         return;
     modelNode().removeProperty(name);

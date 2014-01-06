@@ -143,7 +143,7 @@ void GradientModel::addGradient()
         if (!color.isValid())
             color = QColor(Qt::white);
 
-        QmlDesigner::RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
+        QmlDesigner::RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("GradientModel::addGradient"));
 
         QmlDesigner::ModelNode gradientNode =
                 m_itemNode.modelNode().view()->createModelNode("QtQuick.Gradient",
@@ -227,7 +227,7 @@ qreal GradientModel::getPosition(int index) const
 void GradientModel::removeStop(int index)
 {
     if (index < rowCount() - 1 && index != 0) {
-        QmlDesigner::RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
+        QmlDesigner::RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("GradientModel::removeStop"));
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
         QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
         if (stop.isValid()) {
@@ -251,7 +251,7 @@ void GradientModel::deleteGradient()
 
     if (m_itemNode.isInBaseState()) {
         if (modelNode.hasProperty(gradientPropertyName().toUtf8())) {
-            QmlDesigner::RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
+            QmlDesigner::RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("GradientModel::deleteGradient"));
             QmlDesigner::ModelNode gradientNode = modelNode.nodeProperty(gradientPropertyName().toUtf8()).modelNode();
             if (QmlDesigner::QmlObjectNode(gradientNode).isValid())
                 QmlDesigner::QmlObjectNode(gradientNode).destroy();

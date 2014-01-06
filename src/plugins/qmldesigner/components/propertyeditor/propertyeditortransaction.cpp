@@ -44,7 +44,7 @@ void PropertyEditorTransaction::start()
         return;
     if (m_rewriterTransaction.isValid())
         m_rewriterTransaction.commit();
-    m_rewriterTransaction = m_propertyEditor->beginRewriterTransaction();
+    m_rewriterTransaction = m_propertyEditor->beginRewriterTransaction(QByteArrayLiteral("PropertyEditorTransaction::start"));
     m_timerId = startTimer(4000);
 }
 

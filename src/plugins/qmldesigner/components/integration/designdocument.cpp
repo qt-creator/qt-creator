@@ -356,7 +356,7 @@ void DesignDocument::deleteSelected()
         return;
 
     try {
-        RewriterTransaction transaction(rewriterView());
+        RewriterTransaction transaction(rewriterView(), QByteArrayLiteral("DesignDocument::deleteSelected"));
         QList<ModelNode> toDelete = view()->selectedModelNodes();
         foreach (ModelNode node, toDelete) {
             if (node.isValid() && !node.isRootNode() && QmlObjectNode::isValidQmlObjectNode(node))
@@ -511,7 +511,7 @@ void DesignDocument::paste()
         QList<ModelNode> pastedNodeList;
 
         try {
-            RewriterTransaction transaction(rewriterView());
+            RewriterTransaction transaction(rewriterView(), QByteArrayLiteral("DesignDocument::paste1"));
 
             int offset = double(qrand()) / RAND_MAX * 20 - 10;
 
@@ -529,7 +529,7 @@ void DesignDocument::paste()
         }
     } else {
         try {
-            RewriterTransaction transaction(rewriterView());
+            RewriterTransaction transaction(rewriterView(), QByteArrayLiteral("DesignDocument::paste2"));
 
             pasteModel->detachView(&view);
             currentModel()->attachView(&view);

@@ -131,7 +131,7 @@ void GradientLineQmlAdaptor::writeGradient()
             ModelNode gradientNode= modelNode.view()->createModelNode("QtQuick.Gradient", modelNode.view()->majorQtQuickVersion(), 0);
             modelNode.nodeProperty(gradientName().toUtf8()).reparentHere(gradientNode);
 
-            RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
+            RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("GradientLineQmlAdaptor::writeGradient"));
 
             if (!oldId.isNull())
                 gradientNode.setId(oldId);
@@ -173,7 +173,7 @@ void GradientLineQmlAdaptor::deleteGradient()
 
     if (m_itemNode.isInBaseState()) {
         if (modelNode.hasProperty(gradientName().toUtf8())) {
-            RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
+            RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("GradientLineQmlAdaptor::deleteGradient"));
             ModelNode gradientNode = modelNode.nodeProperty(gradientName().toUtf8()).modelNode();
             if (QmlObjectNode(gradientNode).isValid())
                 QmlObjectNode(gradientNode).destroy();

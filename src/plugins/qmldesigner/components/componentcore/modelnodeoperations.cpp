@@ -32,6 +32,7 @@
 
 #include <cmath>
 #include <QMessageBox>
+#include <QByteArray>
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
 #include <modelnode.h>
@@ -211,7 +212,7 @@ void raise(const SelectionContext &selectionState)
         return;
 
     try {
-        RewriterTransaction transaction(selectionState.view());
+        RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|raise"));
         foreach (ModelNode modelNode, selectionState.selectedModelNodes()) {
             QmlItemNode node = modelNode;
             if (node.isValid()) {
@@ -232,7 +233,7 @@ void lower(const SelectionContext &selectionState)
         return;
 
     try {
-        RewriterTransaction transaction(selectionState.view());
+        RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|lower"));
         foreach (ModelNode modelNode, selectionState.selectedModelNodes()) {
             QmlItemNode node = modelNode;
             if (node.isValid()) {
@@ -302,7 +303,7 @@ void resetSize(const SelectionContext &selectionState)
         return;
 
     try {
-        RewriterTransaction transaction(selectionState.view());
+        RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|resetSize"));
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
             node.removeProperty("width");
             node.removeProperty("height");
@@ -318,7 +319,7 @@ void resetPosition(const SelectionContext &selectionState)
         return;
 
     try {
-        RewriterTransaction transaction(selectionState.view());
+        RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|resetPosition"));
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
             node.removeProperty("x");
             node.removeProperty("y");
@@ -342,7 +343,7 @@ void resetZ(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    RewriterTransaction transaction(selectionState.view());
+    RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|resetZ"));
     foreach (ModelNode node, selectionState.selectedModelNodes()) {
         node.removeProperty("z");
     }
@@ -373,7 +374,7 @@ void anchorsFill(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    RewriterTransaction transaction(selectionState.view());
+    RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|anchorsFill"));
 
     ModelNode modelNode = selectionState.currentSingleSelectedNode();
 
@@ -392,7 +393,7 @@ void anchorsReset(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    RewriterTransaction transaction(selectionState.view());
+    RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|anchorsReset"));
 
     ModelNode modelNode = selectionState.currentSingleSelectedNode();
 
@@ -458,7 +459,7 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
 
             ModelNode layoutNode;
             {
-                RewriterTransaction transaction(selectionContext.view());
+                RewriterTransaction transaction(selectionContext.view(), QByteArrayLiteral("DesignerActionManager|layoutHelperFunction1"));
 
                 QmlItemNode parentNode = qmlItemNode.instanceParentItem();
 
@@ -470,7 +471,7 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
             }
 
             {
-                RewriterTransaction transaction(selectionContext.view());
+                RewriterTransaction transaction(selectionContext.view(), QByteArrayLiteral("DesignerActionManager|layoutHelperFunction2"));
 
                 QList<ModelNode> sortedSelectedNodes =  selectionContext.selectedModelNodes();
                 qSort(sortedSelectedNodes.begin(), sortedSelectedNodes.end(), lessThan);

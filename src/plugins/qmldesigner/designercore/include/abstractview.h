@@ -132,7 +132,7 @@ public:
     Model* model() const;
     bool isAttached() const;
 
-    RewriterTransaction beginRewriterTransaction();
+    RewriterTransaction beginRewriterTransaction(const QByteArray &identifier);
 
     ModelNode createModelNode(const TypeName &typeName,
                          int majorVersion,

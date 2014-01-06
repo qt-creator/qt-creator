@@ -100,7 +100,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
     QmlItemNode newQmlItemNode;
 
     try {
-        RewriterTransaction transaction = view->beginRewriterTransaction();
+        RewriterTransaction transaction = view->beginRewriterTransaction(QByteArrayLiteral("QmlItemNode::createQmlItemNode"));
 
         NodeMetaInfo metaInfo = view->model()->metaInfo(itemLibraryEntry.typeName());
 
@@ -208,7 +208,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
         parentQmlItemNode = QmlItemNode(view->rootModelNode());
 
     if (parentQmlItemNode.isValid()) {
-        RewriterTransaction transaction = view->beginRewriterTransaction();
+        RewriterTransaction transaction = view->beginRewriterTransaction(QByteArrayLiteral("QmlItemNode::createQmlItemNodeFromImage"));
 
         checkImageImport(view);
 

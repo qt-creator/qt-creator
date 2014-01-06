@@ -159,7 +159,7 @@ void MoveManipulator::begin(const QPointF &beginPoint)
 
 //    setOpacityForAllElements(0.62);
 
-    m_rewriterTransaction = m_view->beginRewriterTransaction();
+    m_rewriterTransaction = m_view->beginRewriterTransaction(QByteArrayLiteral("MoveManipulator::begin"));
 }
 
 
@@ -421,7 +421,7 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
 
 void MoveManipulator::beginRewriterTransaction()
 {
-    m_rewriterTransaction = m_view->beginRewriterTransaction();
+    m_rewriterTransaction = m_view->beginRewriterTransaction(QByteArrayLiteral("MoveManipulator::beginRewriterTransaction"));
 }
 
 void MoveManipulator::endRewriterTransaction()

@@ -81,7 +81,7 @@ void ResizeManipulator::begin(const QPointF &/*beginPoint*/)
         m_beginFromSceneToContentItemTransform = m_beginFromContentItemToSceneTransform.inverted();
         m_beginFromItemToSceneTransform = m_resizeController.formEditorItem()->qmlItemNode().instanceSceneTransform();
         m_beginToParentTransform = m_resizeController.formEditorItem()->qmlItemNode().instanceTransform();
-        m_rewriterTransaction = m_view->beginRewriterTransaction();
+        m_rewriterTransaction = m_view->beginRewriterTransaction(QByteArrayLiteral("ResizeManipulator::begin"));
         m_snapper.updateSnappingLines(m_resizeController.formEditorItem());
         m_beginBottomRightPoint = m_beginToParentTransform.map(m_resizeController.formEditorItem()->qmlItemNode().instanceBoundingRect().bottomRight());
 

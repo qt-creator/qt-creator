@@ -71,9 +71,9 @@ void AbstractView::setModel(Model *model)
     m_model = model;
 }
 
-RewriterTransaction AbstractView::beginRewriterTransaction()
+RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &identifier)
 {
-    return RewriterTransaction(this);
+    return RewriterTransaction(this, identifier);
 }
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName,

@@ -240,7 +240,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     if (m_locked)
         return;
 
-    RewriterTransaction transaction = beginRewriterTransaction();
+    RewriterTransaction transaction = beginRewriterTransaction(QByteArrayLiteral("PropertyEditorView::changeExpression"));
 
     try {
         PropertyName underscoreName(name);
