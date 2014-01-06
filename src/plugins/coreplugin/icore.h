@@ -94,6 +94,7 @@ public:
     static QString buildCompatibilityString();
 
     static QWidget *mainWindow();
+    static QWidget *dialogParent();
     static QStatusBar *statusBar();
     /* Raises and activates the window for the widget. This contains workarounds for X11. */
     static void raiseWindow(QWidget *widget);
