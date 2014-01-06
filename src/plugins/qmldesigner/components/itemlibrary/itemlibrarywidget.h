@@ -94,7 +94,8 @@ public slots:
 
     void setResourcePath(const QString &resourcePath);
 
-    void startDragAndDrop(int itemLibId);
+    void startDragAndDropDelayed(int itemLibId);
+    void startDragAndDrop();
     void showItemInfo(int itemLibId);
 
     void setModel(Model *model);
@@ -137,6 +138,7 @@ private:
 
     QWeakPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;
+    int m_itemLibraryId;
 };
 
 }
