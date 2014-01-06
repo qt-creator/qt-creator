@@ -190,7 +190,6 @@ void MoveTool::keyReleaseEvent(QKeyEvent *keyEvent)
     }
 
     if (!keyEvent->isAutoRepeat()) {
-        m_moveManipulator.beginRewriterTransaction();
         m_moveManipulator.clear();
 //        m_selectionIndicator.show();
         m_resizeIndicator.show();
