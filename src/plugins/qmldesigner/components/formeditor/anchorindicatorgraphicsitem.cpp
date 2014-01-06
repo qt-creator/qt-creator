@@ -211,24 +211,26 @@ static void updateAnchorLinePoints(QPointF *firstPoint, QPointF *secondPoint, co
 
 void AnchorIndicatorGraphicsItem::updateAnchorIndicator(const AnchorLine &sourceAnchorLine, const AnchorLine targetAnchorLine)
 {
-    m_sourceAnchorLineType = sourceAnchorLine.type();
-    m_targetAnchorLineType = targetAnchorLine.type();
+    if (sourceAnchorLine.qmlItemNode().isValid() && targetAnchorLine.qmlItemNode().isValid()) {
+        m_sourceAnchorLineType = sourceAnchorLine.type();
+        m_targetAnchorLineType = targetAnchorLine.type();
 
-    m_startPoint = createAnchorPoint(sourceAnchorLine.qmlItemNode(), sourceAnchorLine.type());
+        m_startPoint = createAnchorPoint(sourceAnchorLine.qmlItemNode(), sourceAnchorLine.type());
 
-    if (targetAnchorLine.qmlItemNode() == sourceAnchorLine.qmlItemNode().instanceParentItem())
-        m_endPoint = createParentAnchorPoint(targetAnchorLine.qmlItemNode(), targetAnchorLine.type(), sourceAnchorLine.qmlItemNode());
-    else
-        m_endPoint = createAnchorPoint(targetAnchorLine.qmlItemNode(), targetAnchorLine.type());
+        if (targetAnchorLine.qmlItemNode() == sourceAnchorLine.qmlItemNode().instanceParentItem())
+            m_endPoint = createParentAnchorPoint(targetAnchorLine.qmlItemNode(), targetAnchorLine.type(), sourceAnchorLine.qmlItemNode());
+        else
+            m_endPoint = createAnchorPoint(targetAnchorLine.qmlItemNode(), targetAnchorLine.type());
 
-    m_firstControlPoint = createControlPoint(m_startPoint, sourceAnchorLine.type(), m_endPoint);
-    m_secondControlPoint = createControlPoint(m_endPoint, targetAnchorLine.type(), m_startPoint);
+        m_firstControlPoint = createControlPoint(m_startPoint, sourceAnchorLine.type(), m_endPoint);
+        m_secondControlPoint = createControlPoint(m_endPoint, targetAnchorLine.type(), m_startPoint);
 
-    updateAnchorLinePoints(&m_sourceAnchorLineFirstPoint, &m_sourceAnchorLineSecondPoint, sourceAnchorLine);
-    updateAnchorLinePoints(&m_targetAnchorLineFirstPoint, &m_targetAnchorLineSecondPoint, targetAnchorLine);
+        updateAnchorLinePoints(&m_sourceAnchorLineFirstPoint, &m_sourceAnchorLineSecondPoint, sourceAnchorLine);
+        updateAnchorLinePoints(&m_targetAnchorLineFirstPoint, &m_targetAnchorLineSecondPoint, targetAnchorLine);
 
-    updateBoundingRect();
-    update();
+        updateBoundingRect();
+        update();
+    }
 }
 
 void AnchorIndicatorGraphicsItem::updateBoundingRect()
