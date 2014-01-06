@@ -135,7 +135,7 @@ struct FileState
 
 struct DocumentManagerPrivate
 {
-    explicit DocumentManagerPrivate(QMainWindow *mw);
+    DocumentManagerPrivate();
     QFileSystemWatcher *fileWatcher();
     QFileSystemWatcher *linkWatcher();
 
@@ -150,7 +150,6 @@ struct DocumentManagerPrivate
 
     QString m_currentFile;
 
-    QMainWindow *m_mainWindow;
     QFileSystemWatcher *m_fileWatcher; // Delayed creation.
     QFileSystemWatcher *m_linkWatcher; // Delayed creation (only UNIX/if a link is seen).
     bool m_blockActivated;
@@ -193,8 +192,7 @@ QFileSystemWatcher *DocumentManagerPrivate::linkWatcher()
     return fileWatcher();
 }
 
-DocumentManagerPrivate::DocumentManagerPrivate(QMainWindow *mw) :
-    m_mainWindow(mw),
+DocumentManagerPrivate::DocumentManagerPrivate() :
     m_fileWatcher(0),
     m_linkWatcher(0),
     m_blockActivated(false),
@@ -213,10 +211,10 @@ namespace Core {
 
 using namespace Internal;
 
-DocumentManager::DocumentManager(QMainWindow *mw)
-  : QObject(mw)
+DocumentManager::DocumentManager(QObject *parent)
+  : QObject(parent)
 {
-    d = new DocumentManagerPrivate(mw);
+    d = new DocumentManagerPrivate;
     m_instance = this;
     connect(ICore::instance(), SIGNAL(contextChanged(QList<Core::IContext*>,Core::Context)),
         this, SLOT(syncWithEditor(QList<Core::IContext*>)));
@@ -619,7 +617,7 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
         if (silently) {
             documentsToSave = modifiedDocuments;
         } else {
-            SaveItemsDialog dia(d->m_mainWindow, modifiedDocuments);
+            SaveItemsDialog dia(ICore::dialogParent(), modifiedDocuments);
             if (!message.isEmpty())
                 dia.setMessage(message);
             if (!alwaysSaveMessage.isNull())
@@ -643,7 +641,7 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
                 roDocuments << document;
         }
         if (!roDocuments.isEmpty()) {
-            Core::Internal::ReadOnlyFilesDialog roDialog(roDocuments, d->m_mainWindow);
+            ReadOnlyFilesDialog roDialog(roDocuments, ICore::dialogParent());
             roDialog.setShowFailWarning(true, DocumentManager::tr(
                                             "Could not save the files.",
                                             "error message"));
@@ -683,7 +681,7 @@ bool DocumentManager::saveDocument(IDocument *document, const QString &fileName,
             }
             *isReadOnly = false;
         }
-        QMessageBox::critical(d->m_mainWindow, tr("File Error"),
+        QMessageBox::critical(ICore::dialogParent(), tr("File Error"),
                               tr("Error while saving file: %1").arg(errorString));
       out:
         ret = false;
@@ -703,7 +701,7 @@ QString DocumentManager::getSaveFileName(const QString &title, const QString &pa
     do {
         repeat = false;
         fileName = QFileDialog::getSaveFileName(
-            d->m_mainWindow, title, path, filter, selectedFilter, QFileDialog::DontConfirmOverwrite);
+            ICore::dialogParent(), title, path, filter, selectedFilter, QFileDialog::DontConfirmOverwrite);
         if (!fileName.isEmpty()) {
             // If the selected filter is All Files (*) we leave the name exactly as the user
             // specified. Otherwise the suffix must be one available in the selected filter. If
@@ -727,7 +725,7 @@ QString DocumentManager::getSaveFileName(const QString &title, const QString &pa
                 }
             }
             if (QFile::exists(fileName)) {
-                if (QMessageBox::warning(d->m_mainWindow, tr("Overwrite?"),
+                if (QMessageBox::warning(ICore::dialogParent(), tr("Overwrite?"),
                     tr("An item named '%1' already exists at this location. "
                        "Do you want to overwrite it?").arg(fileName),
                     QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
@@ -800,7 +798,7 @@ QStringList DocumentManager::getOpenFileNames(const QString &filters,
         if (path.isEmpty() && useProjectsDirectory())
             path = projectsDirectory();
     }
-    const QStringList files = QFileDialog::getOpenFileNames(d->m_mainWindow,
+    const QStringList files = QFileDialog::getOpenFileNames(ICore::dialogParent(),
                                                       tr("Open File"),
                                                       path, filters,
                                                       selectedFilter);
@@ -1029,7 +1027,7 @@ void DocumentManager::checkForReload()
         d->m_blockedIDocument = 0;
     }
     if (!errorStrings.isEmpty())
-        QMessageBox::critical(d->m_mainWindow, tr("File Error"),
+        QMessageBox::critical(ICore::dialogParent(), tr("File Error"),
                               errorStrings.join(QLatin1String("\n")));
 
     // handle deleted files

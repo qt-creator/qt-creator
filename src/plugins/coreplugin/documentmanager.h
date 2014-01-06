@@ -153,7 +153,7 @@ private slots:
     void syncWithEditor(const QList<Core::IContext *> &context);
 
 private:
-    explicit DocumentManager(QMainWindow *ew);
+    explicit DocumentManager(QObject *parent);
     ~DocumentManager();
 
     friend class Core::Internal::MainWindow;
