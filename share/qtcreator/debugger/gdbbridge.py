@@ -1187,7 +1187,7 @@ class Dumper(DumperBase):
     def putArrayData(self, type, base, n,
             childNumChild = None, maxNumChild = 10000):
         if not self.tryPutArrayContents(type, base, n):
-            base = base.cast(type.pointer())
+            base = self.createPointerValue(base, type)
             with Children(self, n, type, childNumChild, maxNumChild,
                     base, type.sizeof):
                 for i in self.childRange():

@@ -2595,7 +2595,9 @@ void tst_Dumpers::dumper_data()
                % Cxx11Profile()
                % MacLibCppProfile()
                % Check("a", "<4 items>", Pattern("std::array<int, 4.*>"))
-               % Check("b", "<4 items>", Pattern("std::array<@QString, 4.*>"));
+               % Check("a.0", "[0]", "1", "int")
+               % Check("b", "<4 items>", Pattern("std::array<@QString, 4.*>"))
+               % Check("b.0", "[0]", "\"1\"", "@QString");
 
     QTest::newRow("StdComplex")
             << Data("#include <complex>\n",
