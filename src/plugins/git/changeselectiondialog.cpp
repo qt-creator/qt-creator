@@ -88,7 +88,7 @@ ChangeSelectionDialog::~ChangeSelectionDialog()
 
 QString ChangeSelectionDialog::change() const
 {
-    return m_ui->changeNumberEdit->text();
+    return m_ui->changeNumberEdit->text().trimmed();
 }
 
 void ChangeSelectionDialog::selectCommitFromRecentHistory()
@@ -210,14 +210,14 @@ void ChangeSelectionDialog::recalculateDetails()
         m_ui->workingDirectoryEdit->setPalette(palette);
     }
 
-    const QString change = m_ui->changeNumberEdit->text();
-    if (change.isEmpty()) {
+    const QString ref = change();
+    if (ref.isEmpty()) {
         m_ui->detailsText->setPlainText(QString());
         return;
     }
 
     QStringList args;
-    args << QLatin1String("log") << QLatin1String("-n1") << change;
+    args << QLatin1String("log") << QLatin1String("-n1") << ref;
 
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(workingDir);
