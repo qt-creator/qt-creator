@@ -481,6 +481,12 @@
         \row
             \li \gui Merge
             \li Join the development histories in two branches together.
+
+                If the commit you are merging can be reached by following the
+                first commit's history, there is no divergent work to merge
+                together. To allow Git to move the branch pointer forward,
+                select \gui {Fast-Forward}. If you do not want to fast-forward
+                the branch, select \gui {No Fast-Forward}.
         \row
             \li \gui Rebase
             \li Copy local commits to the updated upstream head.
