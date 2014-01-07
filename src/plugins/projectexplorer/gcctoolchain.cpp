@@ -403,7 +403,9 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
                 || a.startsWith(QLatin1String("-specs="))
                 || a == QLatin1String("-ansi") || a == QLatin1String("-undef")
                 || a.startsWith(QLatin1String("-D")) || a.startsWith(QLatin1String("-U"))
-                || a == QLatin1String("-fopenmp") || a == QLatin1String("-Wno-deprecated"))
+                || a == QLatin1String("-fopenmp") || a == QLatin1String("-Wno-deprecated")
+                || a == QLatin1String("-fPIC") || a == QLatin1String("-fpic")
+                || a == QLatin1String("-fPIE") || a == QLatin1String("-fpie"))
             arguments << a;
     }
     macros = gccPredefinedMacros(m_compilerCommand, reinterpretOptions(arguments),
