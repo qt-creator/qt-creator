@@ -806,6 +806,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     Project *project = helper.createProject(_("test_modelmanager_defines_per_project"));
 
     ProjectPart::Ptr part1(new ProjectPart);
+    part1->projectFile = QLatin1String("project1.projectfile");
     part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
     part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part1->cxxVersion = ProjectPart::CXX11;
@@ -814,6 +815,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     part1->includePaths = QStringList() << testDataDirectory.includeDir(false);
 
     ProjectPart::Ptr part2(new ProjectPart);
+    part2->projectFile = QLatin1String("project1.projectfile");
     part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
     part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part2->cxxVersion = ProjectPart::CXX11;
@@ -878,6 +880,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
     Project *project = helper.createProject(_("test_modelmanager_defines_per_project_pch"));
 
     ProjectPart::Ptr part1(new ProjectPart);
+    part1->projectFile = QLatin1String("project1.projectfile");
     part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
     part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part1->cxxVersion = ProjectPart::CXX11;
@@ -886,6 +889,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
     part1->includePaths = QStringList() << testDataDirectory.includeDir(false);
 
     ProjectPart::Ptr part2(new ProjectPart);
+    part2->projectFile = QLatin1String("project2.projectfile");
     part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
     part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part2->cxxVersion = ProjectPart::CXX11;
