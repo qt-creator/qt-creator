@@ -71,7 +71,7 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
 
 Core::IEditor *CMakeEditorFactory::createEditor()
 {
-    CMakeEditorWidget *rc = new CMakeEditorWidget(this);
+    CMakeEditorWidget *rc = new CMakeEditorWidget();
     TextEditor::TextEditorSettings::initializeEditor(rc);
     return rc->editor();
 }

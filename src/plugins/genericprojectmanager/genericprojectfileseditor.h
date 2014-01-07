@@ -41,7 +41,6 @@ namespace Internal {
 class Manager;
 class ProjectFilesEditor;
 class ProjectFilesEditorWidget;
-class ProjectFilesFactory;
 
 class ProjectFilesFactory: public Core::IEditorFactory
 {
@@ -70,13 +69,9 @@ class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    ProjectFilesEditorWidget(ProjectFilesFactory *factory, QWidget *parent = 0);
+    ProjectFilesEditorWidget(QWidget *parent = 0);
 
-    ProjectFilesFactory *factory() const;
     TextEditor::BaseTextEditor *createEditor();
-
-private:
-    ProjectFilesFactory *m_factory;
 };
 
 } // namespace Internal

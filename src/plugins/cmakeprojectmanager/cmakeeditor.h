@@ -30,8 +30,6 @@
 #ifndef CMAKEEDITOR_H
 #define CMAKEEDITOR_H
 
-#include "cmakeeditorfactory.h"
-
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/codeassist/completionassistprovider.h>
@@ -71,11 +69,9 @@ class CMakeEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    CMakeEditorWidget(CMakeEditorFactory *factory, QWidget *parent = 0);
+    CMakeEditorWidget(QWidget *parent = 0);
 
     bool save(const QString &fileName = QString());
-
-    CMakeEditorFactory *factory() { return m_factory; }
 
     Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false);
 
@@ -87,7 +83,6 @@ public slots:
     void unCommentSelection();
 
 private:
-    CMakeEditorFactory *m_factory;
     Utils::CommentDefinition m_commentDefinition;
 };
 

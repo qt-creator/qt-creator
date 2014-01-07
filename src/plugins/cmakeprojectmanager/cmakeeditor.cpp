@@ -31,7 +31,6 @@
 
 #include "cmakefilecompletionassist.h"
 #include "cmakehighlighter.h"
-#include "cmakeeditorfactory.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 
@@ -68,7 +67,7 @@ CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
 Core::IEditor *CMakeEditor::duplicate()
 {
     CMakeEditorWidget *w = qobject_cast<CMakeEditorWidget*>(widget());
-    CMakeEditorWidget *ret = new CMakeEditorWidget(w->factory());
+    CMakeEditorWidget *ret = new CMakeEditorWidget();
     ret->duplicateFrom(w);
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
@@ -116,8 +115,8 @@ void CMakeEditor::build()
 // CMakeEditor
 //
 
-CMakeEditorWidget::CMakeEditorWidget(CMakeEditorFactory *factory, QWidget *parent)
-    : BaseTextEditorWidget(parent), m_factory(factory)
+CMakeEditorWidget::CMakeEditorWidget(QWidget *parent)
+    : BaseTextEditorWidget(parent)
 {
     QSharedPointer<CMakeDocument> doc(new CMakeDocument);
     doc->setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));

@@ -64,7 +64,7 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager)
 
 Core::IEditor *ProjectFilesFactory::createEditor()
 {
-    ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget(this);
+    ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget();
     TextEditorSettings::initializeEditor(ed);
     return ed->editor();
 }
@@ -94,7 +94,7 @@ bool ProjectFilesEditor::duplicateSupported() const
 Core::IEditor *ProjectFilesEditor::duplicate()
 {
     ProjectFilesEditorWidget *parentEditor = qobject_cast<ProjectFilesEditorWidget *>(editorWidget());
-    ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget(parentEditor->factory());
+    ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget();
     editor->duplicateFrom(parentEditor);
     TextEditorSettings::initializeEditor(editor);
     return editor->editor();
@@ -106,17 +106,11 @@ Core::IEditor *ProjectFilesEditor::duplicate()
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesEditorWidget::ProjectFilesEditorWidget(ProjectFilesFactory *factory, QWidget *parent)
-    : BaseTextEditorWidget(parent),
-      m_factory(factory)
+ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent)
+    : BaseTextEditorWidget(parent)
 {
     QSharedPointer<BaseTextDocument> doc(new BaseTextDocument());
     setBaseTextDocument(doc);
-}
-
-ProjectFilesFactory *ProjectFilesEditorWidget::factory() const
-{
-    return m_factory;
 }
 
 BaseTextEditor *ProjectFilesEditorWidget::createEditor()
