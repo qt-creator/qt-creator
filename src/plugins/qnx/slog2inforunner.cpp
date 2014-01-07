@@ -142,7 +142,7 @@ void Slog2InfoRunner::processLogLine(const QString &line)
     // how many spaces represent separators and how many are a part of the messages, so resulting
     // messages has all whitespaces at the beginning of the message trimmed.
     static QRegExp regexp(QLatin1String(
-        "^[a-zA-Z]+\\s+([0-9]+ [0-9]+:[0-9]+:[0-9]+.[0-9]+)\\s+(\\S+)(\\s+(\\S+))?\\s+([0-9]+)\\s+(\\b.*)?$"));
+        "^[a-zA-Z]+\\s+([0-9]+ [0-9]+:[0-9]+:[0-9]+.[0-9]+)\\s+(\\S+)(\\s+(\\S+))?\\s+([0-9]+)\\s+(.*)?$"));
 
     if (!regexp.exactMatch(line) || regexp.captureCount() != 6)
         return;
@@ -169,7 +169,7 @@ void Slog2InfoRunner::processLogLine(const QString &line)
     if (bufferName == QLatin1String("default") && bufferId == 8900)
         return;
 
-    emit output(regexp.cap(6) + QLatin1Char('\n'), Utils::StdOutFormat);
+    emit output(regexp.cap(6).trimmed() + QLatin1Char('\n'), Utils::StdOutFormat);
 }
 
 void Slog2InfoRunner::readLogStandardError()
