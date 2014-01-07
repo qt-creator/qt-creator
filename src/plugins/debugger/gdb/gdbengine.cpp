@@ -5004,6 +5004,10 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
     if (!m_resultVarName.isEmpty())
         resultVar = "resultvarname:" + m_resultVarName + ' ';
 
+    m_lastDebuggableCommand =
+           "bb options:pe," + options + " vars:" + params.varList + ' '
+               + expanded + " watchers:" + watchers.toHex() + cutOff;
+
     postCommand("bb options:" + options + " vars:" + params.varList + ' '
             + resultVar + expanded + " watchers:" + watchers.toHex() + cutOff,
         Discardable, CB(handleStackFramePython), QVariant(params.tryPartial));
