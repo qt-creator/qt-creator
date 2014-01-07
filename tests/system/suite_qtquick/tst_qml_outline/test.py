@@ -75,7 +75,7 @@ def processChildren(model, startIndex, level):
     return children
 
 def testModify():
-    global qmlEditor, outline
+    global qmlEditor
     if not openDocument("focus.QML.qml.focus\\.qml"):
         test.fatal("Failed to open file focus.qml")
         return

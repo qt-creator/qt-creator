@@ -43,7 +43,6 @@ def init():
         endShortCut = "<Ctrl+End>"
 
 def main():
-    global cppEditorStr
     folder = prepareTemplate(originalSources)
     if folder == None:
         test.fatal("Could not prepare test files - leaving test")

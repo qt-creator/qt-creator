@@ -35,10 +35,6 @@ installedSignalHandlers = {}
 overridenInstallLazySignalHandlers = False
 # flag to indicate whether a tasks file should be created when building ends with errors
 createTasksFileOnError = True
-# currently used directory for tasks files
-tasksFileDir = None
-# counter for written tasks files
-tasksFileCount = 0
 
 # call this function to override installLazySignalHandler()
 def overrideInstallLazySignalHandler():
@@ -117,9 +113,14 @@ def dumpBuildIssues(listModel):
                               range(Qt.UserRole, Qt.UserRole + 6))])
     return issueDump
 
+# counter for written tasks files
+tasksFileCount = 0
+
 # helper method that writes a tasks file
 def createTasksFile(buildIssues):
-    global tasksFileDir, tasksFileCount
+    # currently used directory for tasks files
+    tasksFileDir = None
+    global tasksFileCount
     if tasksFileDir == None:
             tasksFileDir = os.getcwd() + "/tasks"
             tasksFileDir = os.path.abspath(tasksFileDir)
