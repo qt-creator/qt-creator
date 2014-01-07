@@ -58,14 +58,6 @@ class WatchData;
 class DisassemblerAgentCookie;
 class DisassemblerLines;
 
-enum DebuggingHelperState
-{
-    DebuggingHelperUninitialized,
-    DebuggingHelperLoadTried,
-    DebuggingHelperAvailable,
-    DebuggingHelperUnavailable
-};
-
 class GdbEngine : public Debugger::DebuggerEngine
 {
     Q_OBJECT
@@ -449,7 +441,6 @@ protected:
     void showToolTip();
 
     void insertData(const WatchData &data);
-    void sendWatchParameters(const QByteArray &params0);
 
     void handleVarAssign(const GdbResponse &response);
     void handleDetach(const GdbResponse &response);
@@ -480,7 +471,6 @@ protected:
     //
     void reloadDebuggingHelpers();
 
-    DebuggingHelperState m_debuggingHelperState;
     QByteArray m_qtNamespace;
     QString m_gdb;
 

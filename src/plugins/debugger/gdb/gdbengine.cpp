@@ -206,7 +206,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     setObjectName(_("GdbEngine"));
 
     m_busy = false;
-    m_debuggingHelperState = DebuggingHelperUninitialized;
     m_gdbVersion = 100;
     m_isQnxGdb = false;
     m_registerNamesListed = false;
@@ -3667,38 +3666,6 @@ void GdbEngine::rebuildWatchModel()
     showMessage(_("<Rebuild Watchmodel %1>").arg(count), LogMiscInput);
     showStatusMessage(tr("Finished retrieving data"), 400);
     showToolTip();
-}
-
-static QByteArray arrayFillCommand(const char *array, const QByteArray &params)
-{
-    QString buf;
-    buf.sprintf("set {char[%d]} &%s = {", params.size(), array);
-    QByteArray encoded;
-    encoded.append(buf.toLocal8Bit());
-    const int size = params.size();
-    for (int i = 0; i != size; ++i) {
-        buf.sprintf("%d,", int(params[i]));
-        encoded.append(buf.toLocal8Bit());
-    }
-    encoded[encoded.size() - 1] = '}';
-    return encoded;
-}
-
-void GdbEngine::sendWatchParameters(const QByteArray &params0)
-{
-    QByteArray params = params0;
-    params.append('\0');
-    const QByteArray inBufferCmd = arrayFillCommand("qDumpInBuffer", params);
-
-    params.replace('\0','!');
-    showMessage(QString::fromUtf8(params), LogMiscInput);
-
-    params.clear();
-    params.append('\0');
-    const QByteArray outBufferCmd = arrayFillCommand("qDumpOutBuffer", params);
-
-    postCommand(inBufferCmd);
-    postCommand(outBufferCmd);
 }
 
 void GdbEngine::handleVarAssign(const GdbResponse &)

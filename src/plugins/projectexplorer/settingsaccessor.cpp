@@ -1233,8 +1233,6 @@ QVariantMap Version0Handler::convertRunConfigurations(Project *project, const QV
                 result.insert(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DeviceId"), i.value());
             else if (i.key() == QLatin1String("LastDeployed"))
                 result.insert(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.LastDeployed"), i.value());
-            else if (i.key() == QLatin1String("DebuggingHelpersLastDeployed"))
-                result.insert(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DebuggingHelpersLastDeployed"), i.value());
             else
                 qWarning() << "Unknown MaemoRunConfiguration key found:" << i.key() << i.value();
         } else if (QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration") == id) {
