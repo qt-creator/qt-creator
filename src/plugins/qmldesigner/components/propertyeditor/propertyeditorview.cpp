@@ -314,11 +314,13 @@ void PropertyEditorView::updateSize()
 
 void PropertyEditorView::setupPanes()
 {
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    setupPane("QtQuick.Item");
-    resetView();
-    m_setupCompleted = true;
-    QApplication::restoreOverrideCursor();
+    if (isAttached()) {
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        setupPane("QtQuick.Item");
+        resetView();
+        m_setupCompleted = true;
+        QApplication::restoreOverrideCursor();
+    }
 }
 
 void PropertyEditorView::setQmlDir(const QString &qmlDir)

@@ -48,7 +48,7 @@
 #include <utils/hostosinfo.h>
 
 #include <QAction>
-
+#include <QTimer>
 #include <QCoreApplication>
 #include <qplugin.h>
 #include <QDebug>
@@ -373,6 +373,11 @@ Internal::DesignModeWidget *QmlDesignerPlugin::mainWidget() const
     return m_mainWidget;
 }
 
+void QmlDesignerPlugin::switchToTextModeDeferred()
+{
+    QTimer::singleShot(0, this, SLOT(switschToTextMode()));
+}
+
 void QmlDesignerPlugin::onTextEditorsClosed(QList<Core::IEditor*> editors)
 {
     if (m_documentManager.hasCurrentDesignDocument()
@@ -438,6 +443,11 @@ void QmlDesignerPlugin::switchTextDesign()
     } else if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_DESIGN) {
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
+}
+
+void QmlDesignerPlugin::switschToTextMode()
+{
+    Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 }
 
 DesignerSettings QmlDesignerPlugin::settings()

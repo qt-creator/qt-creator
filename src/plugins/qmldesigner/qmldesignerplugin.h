@@ -92,8 +92,11 @@ public:
     DesignDocument *currentDesignDocument() const;
     Internal::DesignModeWidget *mainWidget() const;
 
+    void switchToTextModeDeferred();
+
 private slots:
     void switchTextDesign();
+    void switschToTextMode();
     void onTextEditorsClosed(QList<Core::IEditor *> editors);
     void onCurrentEditorChanged(Core::IEditor *editor);
     void onCurrentModeChanged(Core::IMode *mode, Core::IMode *oldMode);

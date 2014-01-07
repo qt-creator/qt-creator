@@ -71,6 +71,8 @@
 
 #include "import.h"
 
+#include "qmldesignerplugin.h"
+
 #include <utils/hostosinfo.h>
 
 #include <QMessageBox>
@@ -265,15 +267,19 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
                                        "Please check your installation. "
                                        "QML Puppet is a process which runs in the background to render the items.").
                                     arg(applicationPath));
+
+               QmlDesignerPlugin::instance()->switchToTextModeDeferred();
            }
 
            m_localServer->close();
 
        } else {
            QMessageBox::warning(0, tr("Wrong QML Puppet Executable Version"), tr("The QML Puppet version is incompatible with the Qt Creator version."));
+           QmlDesignerPlugin::instance()->switchToTextModeDeferred();
        }
    } else {
            QMessageBox::warning(0, tr("Cannot Find QML Puppet Executable"), missingQmlPuppetErrorMessage(applicationPath));
+           QmlDesignerPlugin::instance()->switchToTextModeDeferred();
    }
 
    int indexOfCapturePuppetStream = QCoreApplication::arguments().indexOf("-capture-puppet-stream");
