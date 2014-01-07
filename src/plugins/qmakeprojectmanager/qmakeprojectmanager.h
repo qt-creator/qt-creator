@@ -76,9 +76,6 @@ public:
     ProjectExplorer::FileNode *contextFile() const;
     void setContextFile(ProjectExplorer::FileNode *file);
 
-    // Return the id string of a file
-    static QString fileTypeId(ProjectExplorer::FileType type);
-
     enum Action { BUILD, REBUILD, CLEAN };
 
 public slots:

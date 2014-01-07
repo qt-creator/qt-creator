@@ -55,14 +55,6 @@ using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 
-// Known file types of a Qt 4 project
-static const char *qmakeFileTypes[] = {
-    "CppHeaderFiles",
-    "CppSourceFiles",
-    "Qt4FormFiles",
-    "Qt4ResourceFiles"
-};
-
 QmakeManager::QmakeManager(QmakeProjectManagerPlugin *plugin)
   : m_plugin(plugin),
     m_contextNode(0),
@@ -305,22 +297,3 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
     bc->setSubNodeBuild(0);
     bc->setFileNodeBuild(0);
 }
-
-QString QmakeManager::fileTypeId(ProjectExplorer::FileType type)
-{
-    switch (type) {
-    case HeaderType:
-        return QLatin1String(qmakeFileTypes[0]);
-    case SourceType:
-        return QLatin1String(qmakeFileTypes[1]);
-    case FormType:
-        return QLatin1String(qmakeFileTypes[2]);
-    case ResourceType:
-        return QLatin1String(qmakeFileTypes[3]);
-    case UnknownFileType:
-    default:
-        break;
-    }
-    return QString();
-}
-
