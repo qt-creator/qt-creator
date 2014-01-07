@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Axonian LLC.
+** Copyright (C) 2014 Axonian LLC.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.

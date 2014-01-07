@@ -1,6 +1,6 @@
 <plugin name=\"BareMetal\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_COMPAT_VERSION\" experimental=\"true\">
     <vendor>Tim Sander</vendor>
-    <copyright>Copyright (C) 2013 Tim Sander</copyright>
+    <copyright>Copyright (C) 2014 Tim Sander</copyright>
     <license>
     Commercial Usage
 

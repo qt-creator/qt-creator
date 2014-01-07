@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Petar Perisin.
+** Copyright (C) 2014 Petar Perisin.
 ** Contact: petar.perisin@gmail.com
 **
 ** This file is part of Qt Creator.

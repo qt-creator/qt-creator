@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Kläralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
+** Copyright (C) 2014 Kläralvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.

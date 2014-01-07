@@ -1,6 +1,6 @@
 <plugin name=\"Qnx\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_COMPAT_VERSION\">
     <vendor>BlackBerry</vendor>
-    <copyright>(C) 2013 BlackBerry</copyright>
+    <copyright>(C) 2014 BlackBerry</copyright>
     <license>
 Commercial Usage
 
