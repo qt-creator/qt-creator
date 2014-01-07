@@ -95,6 +95,7 @@ Core::IEditor *ProjectFilesEditor::duplicate()
 {
     ProjectFilesEditorWidget *parentEditor = qobject_cast<ProjectFilesEditorWidget *>(editorWidget());
     ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget(parentEditor->factory());
+    editor->duplicateFrom(parentEditor);
     TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }
