@@ -59,7 +59,7 @@ CompletionSettingsPage::~CompletionSettingsPage()
 QWidget *CompletionSettingsPage::widget()
 {
     if (!m_widget) {
-        QWidget *m_widget = new QWidget;
+        m_widget = new QWidget;
         m_page = new Ui::CompletionSettingsPage;
         m_page->setupUi(m_widget);
 
