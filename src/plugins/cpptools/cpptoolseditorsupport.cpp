@@ -510,7 +510,7 @@ SemanticInfo::Source CppEditorSupport::currentSource(bool force)
     int line = 0, column = 0;
     m_textEditor->convertPosition(m_textEditor->editorWidget()->position(), &line, &column);
 
-    const Snapshot snapshot = m_snapshotUpdater->snapshot();
+    const Snapshot snapshot = snapshotUpdater()->snapshot();
 
     QByteArray code;
     if (force || m_lastSemanticInfo.revision != editorRevision())
