@@ -99,7 +99,7 @@ void CheckoutProgressWizardPage::slotFinished(bool ok, int exitCode, const QVari
             m_state = Succeeded;
             QApplication::restoreOverrideCursor();
             ui->statusLabel->setText(tr("Succeeded."));
-            QPalette palette = ui->statusLabel->palette();
+            QPalette palette;
             palette.setColor(QPalette::Active, QPalette::Text, Qt::green);
             ui->statusLabel->setPalette(palette);
             emit completeChanged();
@@ -111,7 +111,7 @@ void CheckoutProgressWizardPage::slotFinished(bool ok, int exitCode, const QVari
             m_state = Failed;
             QApplication::restoreOverrideCursor();
             ui->statusLabel->setText(tr("Failed."));
-            QPalette palette = ui->statusLabel->palette();
+            QPalette palette;
             palette.setColor(QPalette::Active, QPalette::Text, Qt::red);
             ui->statusLabel->setPalette(palette);
             emit terminated(false);

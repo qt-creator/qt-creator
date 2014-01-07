@@ -177,7 +177,7 @@ void ChangeSelectionDialog::acceptShow()
 //! Set commit message in details
 void ChangeSelectionDialog::setDetails(int exitCode)
 {
-    QPalette palette = m_ui->changeNumberEdit->palette();
+    QPalette palette;
     if (exitCode == 0) {
         m_ui->detailsText->setPlainText(QString::fromUtf8(m_process->readAllStandardOutput()));
         palette.setColor(QPalette::Text, Qt::black);

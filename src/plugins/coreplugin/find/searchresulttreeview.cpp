@@ -62,7 +62,7 @@ void SearchResultTreeView::setTextEditorFont(const QFont &font, const SearchResu
 {
     m_model->setTextEditorFont(font, color);
 
-    QPalette p = palette();
+    QPalette p;
     p.setColor(QPalette::Base, color.textBackground);
     setPalette(p);
 }

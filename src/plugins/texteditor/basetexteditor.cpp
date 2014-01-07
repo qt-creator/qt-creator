@@ -5394,7 +5394,7 @@ void BaseTextEditorWidget::applyFontSettings()
     updateTabStops(); // update tab stops, they depend on the font
 
     // Line numbers
-    QPalette ep = d->m_extraArea->palette();
+    QPalette ep;
     ep.setColor(QPalette::Dark, lineNumberFormat.foreground().color());
     ep.setColor(QPalette::Background, lineNumberFormat.background().style() != Qt::NoBrush ?
                 lineNumberFormat.background().color() : background);

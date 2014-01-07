@@ -68,7 +68,7 @@ QueryValidatingLineEdit::QueryValidatingLineEdit(QWidget *parent)
 
 void QueryValidatingLineEdit::setTextColor(const QColor &c)
 {
-    QPalette pal = palette();
+    QPalette pal;
     pal.setColor(QPalette::Active, QPalette::Text, c);
     setPalette(pal);
 }

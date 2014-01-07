@@ -451,11 +451,9 @@ void FancyTabWidget::removeTab(int index)
 
 void FancyTabWidget::setBackgroundBrush(const QBrush &brush)
 {
-    QPalette pal = m_tabBar->palette();
+    QPalette pal;
     pal.setBrush(QPalette::Mid, brush);
     m_tabBar->setPalette(pal);
-    pal = m_cornerWidgetContainer->palette();
-    pal.setBrush(QPalette::Mid, brush);
     m_cornerWidgetContainer->setPalette(pal);
 }
 

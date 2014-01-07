@@ -69,7 +69,7 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
     connect(m_targetSelector, SIGNAL(menuShown(int)),
             this, SIGNAL(menuShown(int)));
 
-    QPalette shadowPal = palette();
+    QPalette shadowPal;
     QLinearGradient grad(0, 0, 0, 2);
     grad.setColorAt(0, QColor(0, 0, 0, 60));
     grad.setColorAt(1, Qt::transparent);

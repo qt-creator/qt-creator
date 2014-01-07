@@ -123,7 +123,7 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     m_root->setMaximumWidth(900);
     m_root->setContentsMargins(0, 0, 40, 0);
 
-    QPalette pal = m_root->palette();
+    QPalette pal;
     QColor background = Utils::StyleHelper::mergedColors(
                 palette().window().color(), Qt::white, 85);
     pal.setColor(QPalette::All, QPalette::Window, background.darker(102));

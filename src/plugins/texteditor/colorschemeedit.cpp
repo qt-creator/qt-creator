@@ -329,7 +329,7 @@ void ColorSchemeEdit::checkCheckBoxes()
 
 void ColorSchemeEdit::setItemListBackground(const QColor &color)
 {
-    QPalette pal = m_ui->itemList->palette();
+    QPalette pal;
     pal.setColor(QPalette::Base, color);
     m_ui->itemList->setPalette(pal);
 }

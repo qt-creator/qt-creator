@@ -648,7 +648,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_runConfiguration(0),
     m_hideOnRelease(false)
 {
-    QPalette p = palette();
+    QPalette p;
     p.setColor(QPalette::Text, QColor(255, 255, 255, 160));
     setPalette(p);
     setProperty("panelwidget", true);

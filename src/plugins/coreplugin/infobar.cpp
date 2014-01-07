@@ -207,7 +207,7 @@ void InfoBarDisplay::update()
     foreach (const InfoBarEntry &info, m_infoBar->m_infoBarEntries) {
         QFrame *infoWidget = new QFrame;
 
-        QPalette pal = infoWidget->palette();
+        QPalette pal;
         pal.setColor(QPalette::Window, QColor(255, 255, 225));
         pal.setColor(QPalette::WindowText, Qt::black);
 

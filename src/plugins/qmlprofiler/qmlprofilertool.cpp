@@ -267,7 +267,7 @@ QWidget *QmlProfilerTool::createWidgets()
     layout->addWidget(d->m_clearButton);
 
     d->m_timeLabel = new QLabel();
-    QPalette palette = d->m_timeLabel->palette();
+    QPalette palette;
     palette.setColor(QPalette::WindowText, Qt::white);
     d->m_timeLabel->setPalette(palette);
     d->m_timeLabel->setIndent(10);

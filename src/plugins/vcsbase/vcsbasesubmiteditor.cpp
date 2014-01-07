@@ -191,7 +191,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     const QTextCharFormat tf = fs.toTextCharFormat(TextEditor::C_TEXT);
     descriptionEdit->setFont(tf.font());
     const QTextCharFormat selectionFormat = fs.toTextCharFormat(TextEditor::C_SELECTION);
-    QPalette pal = descriptionEdit->palette();
+    QPalette pal;
     pal.setColor(QPalette::Base, tf.background().color());
     pal.setColor(QPalette::Text, tf.foreground().color());
     pal.setColor(QPalette::Foreground, tf.foreground().color());

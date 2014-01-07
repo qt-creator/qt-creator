@@ -90,7 +90,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     setLayout(layout);
 
     QFrame *topWidget = new QFrame;
-    QPalette pal = topWidget->palette();
+    QPalette pal;
     pal.setColor(QPalette::Window, QColor(255, 255, 225));
     pal.setColor(QPalette::WindowText, Qt::black);
     topWidget->setPalette(pal);
@@ -103,7 +103,6 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     layout->addWidget(topWidget);
 
     m_messageWidget = new QFrame;
-    pal.setColor(QPalette::Window, QColor(255, 255, 225));
     pal.setColor(QPalette::WindowText, Qt::red);
     m_messageWidget->setPalette(pal);
     m_messageWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
