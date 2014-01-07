@@ -62,9 +62,9 @@ QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
 
 }
 
-Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *QmlJSEditorFactory::createEditor()
 {
-    QmlJSTextEditorWidget *rc = new QmlJSTextEditorWidget(parent);
+    QmlJSTextEditorWidget *rc = new QmlJSTextEditorWidget();
     TextEditor::TextEditorSettings::initializeEditor(rc);
     return rc->editor();
 }

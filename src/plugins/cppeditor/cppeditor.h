@@ -78,7 +78,7 @@ public:
     CPPEditor(CPPEditorWidget *);
 
     bool duplicateSupported() const { return true; }
-    Core::IEditor *duplicate(QWidget *parent);
+    Core::IEditor *duplicate();
     Core::Id id() const;
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
@@ -97,7 +97,7 @@ class CPPEditorWidget : public TextEditor::BaseTextEditorWidget
 public:
     typedef TextEditor::TabSettings TabSettings;
 
-    CPPEditorWidget(QWidget *parent);
+    CPPEditorWidget(QWidget *parent = 0);
     ~CPPEditorWidget();
     void unCommentSelection();
 

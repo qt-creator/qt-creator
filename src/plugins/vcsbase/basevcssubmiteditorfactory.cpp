@@ -44,9 +44,9 @@ BaseVcsSubmitEditorFactory::~BaseVcsSubmitEditorFactory()
 {
 }
 
-Core::IEditor *BaseVcsSubmitEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *BaseVcsSubmitEditorFactory::createEditor()
 {
-    return createBaseSubmitEditor(m_parameters, parent);
+    return createBaseSubmitEditor(m_parameters);
 }
 
 } // namespace VcsBase

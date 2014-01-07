@@ -255,7 +255,7 @@ class CppEditorFactory : public Core::IEditorFactory
 public:
     CppEditorFactory(CppEditorPlugin *owner);
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
 private:
     CppEditorPlugin *m_owner;

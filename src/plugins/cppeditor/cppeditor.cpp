@@ -1499,9 +1499,9 @@ void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
     finishRename();
 }
 
-Core::IEditor *CPPEditor::duplicate(QWidget *parent)
+Core::IEditor *CPPEditor::duplicate()
 {
-    CPPEditorWidget *newEditor = new CPPEditorWidget(parent);
+    CPPEditorWidget *newEditor = new CPPEditorWidget();
     newEditor->duplicateFrom(editorWidget());
     // A new QTextDocument was set, so update our signal/slot connection to the new document
     newEditor->updateContentsChangedSignal();

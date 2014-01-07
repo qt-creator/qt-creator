@@ -62,9 +62,9 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager)
 
 }
 
-Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
+Core::IEditor *ProjectFilesFactory::createEditor()
 {
-    ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget(parent, this);
+    ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget(this);
     TextEditorSettings::initializeEditor(ed);
     return ed->editor();
 }
@@ -91,11 +91,10 @@ bool ProjectFilesEditor::duplicateSupported() const
     return true;
 }
 
-Core::IEditor *ProjectFilesEditor::duplicate(QWidget *parent)
+Core::IEditor *ProjectFilesEditor::duplicate()
 {
     ProjectFilesEditorWidget *parentEditor = qobject_cast<ProjectFilesEditorWidget *>(editorWidget());
-    ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget(parent,
-                                                        parentEditor->factory());
+    ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget(parentEditor->factory());
     TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }
@@ -106,7 +105,7 @@ Core::IEditor *ProjectFilesEditor::duplicate(QWidget *parent)
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent, ProjectFilesFactory *factory)
+ProjectFilesEditorWidget::ProjectFilesEditorWidget(ProjectFilesFactory *factory, QWidget *parent)
     : BaseTextEditorWidget(parent),
       m_factory(factory)
 {

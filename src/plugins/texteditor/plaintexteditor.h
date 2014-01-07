@@ -50,7 +50,7 @@ public:
     PlainTextEditor(PlainTextEditorWidget *);
 
     bool duplicateSupported() const { return true; }
-    Core::IEditor *duplicate(QWidget *parent);
+    Core::IEditor *duplicate();
     Core::Id id() const;
 };
 
@@ -59,7 +59,7 @@ class TEXTEDITOR_EXPORT PlainTextEditorWidget : public BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    PlainTextEditorWidget(QWidget *parent);
+    PlainTextEditorWidget(QWidget *parent = 0);
 
     void configure(const QString& mimeType);
     void configure(const Core::MimeType &mimeType);

@@ -55,9 +55,9 @@ EditorFactory::EditorFactory(QObject *parent)
                               | TextEditor::TextEditorActionHandler::UnCollapseAll);
 }
 
-Core::IEditor *EditorFactory::createEditor(QWidget *parent)
+Core::IEditor *EditorFactory::createEditor()
 {
-    EditorWidget *widget = new EditorWidget(parent);
+    EditorWidget *widget = new EditorWidget();
     TextEditor::TextEditorSettings::initializeEditor(widget);
 
     return widget->editor();

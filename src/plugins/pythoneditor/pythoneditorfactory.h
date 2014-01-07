@@ -45,7 +45,7 @@ public:
     /**
       Creates and initializes new editor widget
       */
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 };
 
 } // namespace Internal

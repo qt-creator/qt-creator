@@ -85,9 +85,9 @@ ImageViewerFactory::~ImageViewerFactory()
     delete d;
 }
 
-Core::IEditor *ImageViewerFactory::createEditor(QWidget *parent)
+Core::IEditor *ImageViewerFactory::createEditor()
 {
-    return new ImageViewer(parent);
+    return new ImageViewer();
 }
 
 void ImageViewerFactory::extensionsInitialized()

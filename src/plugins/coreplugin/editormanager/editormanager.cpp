@@ -1416,7 +1416,7 @@ IEditor *EditorManager::createEditor(const Id &editorId, const QString &fileName
         return 0;
     }
 
-    IEditor *editor = factories.front()->createEditor(m_instance);
+    IEditor *editor = factories.front()->createEditor();
     if (editor)
         connect(editor->document(), SIGNAL(changed()), m_instance, SLOT(handleDocumentStateChange()));
     if (editor)
@@ -2410,7 +2410,7 @@ Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)
     if (!editor->duplicateSupported())
         return 0;
 
-    IEditor *duplicate = editor->duplicate(0);
+    IEditor *duplicate = editor->duplicate();
     duplicate->restoreState(editor->saveState());
     emit m_instance->editorCreated(duplicate, duplicate->document()->filePath());
     addEditor(duplicate);

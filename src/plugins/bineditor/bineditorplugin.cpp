@@ -409,9 +409,9 @@ BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
     addMimeType(Constants::C_BINEDITOR_MIMETYPE);
 }
 
-Core::IEditor *BinEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *BinEditorFactory::createEditor()
 {
-    BinEditorWidget *widget = new BinEditorWidget(parent);
+    BinEditorWidget *widget = new BinEditorWidget();
     BinEditor *editor = new BinEditor(widget);
 
     m_owner->initializeEditor(widget);

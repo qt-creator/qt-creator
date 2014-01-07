@@ -49,7 +49,7 @@ public:
     SnippetEditor(SnippetEditorWidget *editorWidget);
 
     bool duplicateSupported() const { return false; }
-    Core::IEditor *duplicate(QWidget * /* parent */ ) { return 0; }
+    Core::IEditor *duplicate() { return 0; }
     Core::Id id() const;
 };
 

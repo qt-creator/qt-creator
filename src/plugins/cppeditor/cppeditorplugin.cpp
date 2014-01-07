@@ -93,9 +93,9 @@ CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
     }
 }
 
-IEditor *CppEditorFactory::createEditor(QWidget *parent)
+IEditor *CppEditorFactory::createEditor()
 {
-    CPPEditorWidget *editor = new CPPEditorWidget(parent);
+    CPPEditorWidget *editor = new CPPEditorWidget();
     editor->setRevisionsVisible(true);
     m_owner->initializeEditor(editor);
     return editor->editor();

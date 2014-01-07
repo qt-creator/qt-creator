@@ -84,7 +84,7 @@ public:
         Source
     };
 
-    explicit AndroidManifestEditorWidget(QWidget *parent);
+    explicit AndroidManifestEditorWidget(QWidget *parent = 0);
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 

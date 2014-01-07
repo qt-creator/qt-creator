@@ -75,9 +75,9 @@ PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
     connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configure()));
 }
 
-IEditor *PlainTextEditor::duplicate(QWidget *parent)
+IEditor *PlainTextEditor::duplicate()
 {
-    PlainTextEditorWidget *newWidget = new PlainTextEditorWidget(parent);
+    PlainTextEditorWidget *newWidget = new PlainTextEditorWidget();
     newWidget->duplicateFrom(editorWidget());
     TextEditorSettings::initializeEditor(newWidget);
     return newWidget->editor();

@@ -48,13 +48,13 @@ public:
     explicit BaseVcsEditorFactory(const VcsBaseEditorParameters *type);
     ~BaseVcsEditorFactory();
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
 private:
     // Implement to create and initialize (call init()) a
     // VcsBaseEditor subclass
     virtual VcsBaseEditorWidget *createVcsBaseEditor(const VcsBaseEditorParameters *type,
-                                               QWidget *parent) = 0;
+                                               QWidget *parent = 0) = 0;
 
     Internal::BaseVcsEditorFactoryPrivate *const d;
 };
@@ -70,7 +70,7 @@ public:
 
 private:
     VcsBaseEditorWidget *createVcsBaseEditor(const VcsBaseEditorParameters *type,
-                                             QWidget *parent);
+                                             QWidget *parent = 0);
     QObject *m_describeReceiver;
     const char *m_describeSlot;
 };

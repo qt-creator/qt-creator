@@ -47,7 +47,7 @@ class ResourceEditorFactory : public Core::IEditorFactory
 public:
     explicit ResourceEditorFactory(ResourceEditorPlugin *plugin);
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
 private:
     ResourceEditorPlugin *m_plugin;

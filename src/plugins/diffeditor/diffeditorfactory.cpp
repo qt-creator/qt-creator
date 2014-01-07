@@ -46,9 +46,9 @@ DiffEditorFactory::DiffEditorFactory(QObject *parent)
     addMimeType(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
 }
 
-Core::IEditor *DiffEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *DiffEditorFactory::createEditor()
 {
-    DiffEditorWidget *editorWidget = new DiffEditorWidget(parent);
+    DiffEditorWidget *editorWidget = new DiffEditorWidget();
     DiffEditor *editor = new DiffEditor(editorWidget);
     return editor;
 }

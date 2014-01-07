@@ -42,7 +42,7 @@ class AndroidManifestEditorFactory : public Core::IEditorFactory
 public:
     explicit AndroidManifestEditorFactory(QObject *parent = 0);
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 };
 
 } // namespace Internal

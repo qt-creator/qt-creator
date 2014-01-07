@@ -50,12 +50,12 @@ protected:
     ~BaseVcsSubmitEditorFactory();
 
 public:
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
 private:
     virtual VcsBaseSubmitEditor
         *createBaseSubmitEditor(const VcsBaseSubmitEditorParameters *parameters,
-                                QWidget *parent) = 0;
+                                QWidget *parent = 0) = 0;
 
     const VcsBaseSubmitEditorParameters *const m_parameters; // Not owned.
 };
@@ -74,7 +74,7 @@ public:
 
 private:
     VcsBaseSubmitEditor *createBaseSubmitEditor
-        (const VcsBaseSubmitEditorParameters *parameters, QWidget *parent)
+        (const VcsBaseSubmitEditorParameters *parameters, QWidget *parent = 0)
     {
         return new Editor(parameters, parent);
     }

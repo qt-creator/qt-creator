@@ -6302,7 +6302,7 @@ void BaseTextEditor::setFileEncodingLabelText(const QString &text)
 QString BaseTextEditor::contextHelpId() const
 {
     if (m_contextHelpId.isEmpty())
-        emit const_cast<BaseTextEditor*>(this)->contextHelpIdRequested(m_editorWidget->editor(),
+        emit const_cast<BaseTextEditor*>(this)->contextHelpIdRequested(const_cast<BaseTextEditor*>(this),
                                                                        m_editorWidget->textCursor().position());
     return m_contextHelpId;
 }

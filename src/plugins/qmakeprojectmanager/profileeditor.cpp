@@ -59,9 +59,10 @@ ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
               TextEditor::Constants::C_TEXTEDITOR));
 }
 
-Core::IEditor *ProFileEditor::duplicate(QWidget *parent)
+Core::IEditor *ProFileEditor::duplicate()
 {
-    ProFileEditorWidget *ret = new ProFileEditorWidget(parent, qobject_cast<ProFileEditorWidget*>(editorWidget())->factory());
+    ProFileEditorWidget *ret = new ProFileEditorWidget(
+                qobject_cast<ProFileEditorWidget*>(editorWidget())->factory());
     ret->duplicateFrom(editorWidget());
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
@@ -81,7 +82,7 @@ TextEditor::CompletionAssistProvider *ProFileEditor::completionAssistProvider()
 // ProFileEditorWidget
 //
 
-ProFileEditorWidget::ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory)
+ProFileEditorWidget::ProFileEditorWidget(ProFileEditorFactory *factory, QWidget *parent)
     : BaseTextEditorWidget(parent), m_factory(factory)
 {
     QSharedPointer<ProFileDocument> doc(new ProFileDocument());

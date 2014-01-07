@@ -48,7 +48,7 @@ public:
     ProFileEditor(ProFileEditorWidget *);
 
     bool duplicateSupported() const { return true; }
-    Core::IEditor *duplicate(QWidget *parent);
+    Core::IEditor *duplicate();
     Core::Id id() const;
     TextEditor::CompletionAssistProvider *completionAssistProvider();
 };
@@ -58,7 +58,7 @@ class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory);
+    ProFileEditorWidget(ProFileEditorFactory *factory, QWidget *parent = 0);
 
     ProFileEditorFactory *factory() { return m_factory; }
 

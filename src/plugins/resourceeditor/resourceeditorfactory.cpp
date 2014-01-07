@@ -53,8 +53,8 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
     Core::FileIconProvider::registerIconOverlayForSuffix(":/resourceeditor/images/qt_qrc.png", "qrc");
 }
 
-Core::IEditor *ResourceEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *ResourceEditorFactory::createEditor()
 {
     Core::Context context(ResourceEditor::Constants::C_RESOURCEEDITOR);
-    return new ResourceEditorW(context, m_plugin, parent);
+    return new ResourceEditorW(context, m_plugin);
 }

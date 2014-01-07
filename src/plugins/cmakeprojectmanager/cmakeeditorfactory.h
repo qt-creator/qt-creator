@@ -43,7 +43,7 @@ class CMakeEditorFactory : public Core::IEditorFactory
 
 public:
     CMakeEditorFactory(CMakeManager *parent);
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
 private:
     const QStringList m_mimeTypes;

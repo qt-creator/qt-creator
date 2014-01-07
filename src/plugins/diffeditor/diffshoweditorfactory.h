@@ -47,7 +47,7 @@ class DiffShowEditorFactory : public Core::IEditorFactory
 public:
     explicit DiffShowEditorFactory(QObject *parent);
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 };
 
 } // namespace Internal

@@ -44,7 +44,7 @@ class BarDescriptorEditorFactory : public Core::IEditorFactory
 public:
     explicit BarDescriptorEditorFactory(QObject *parent = 0);
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 };
 
 } // namespace Internal

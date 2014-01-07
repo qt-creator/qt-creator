@@ -42,7 +42,7 @@ class FormEditorFactory : public Core::IEditorFactory
 public:
     FormEditorFactory();
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
 private slots:
     void designerModeClicked();

@@ -45,7 +45,7 @@ public:
     PlainTextEditorFactory(QObject *parent = 0);
 
     using Core::IEditorFactory::addMimeType;
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
 private slots:
     void updateEditorInfoBar(Core::IEditor *editor);

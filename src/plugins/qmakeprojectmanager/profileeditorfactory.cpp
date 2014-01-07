@@ -60,9 +60,9 @@ ProFileEditorFactory::ProFileEditorFactory(QmakeManager *manager) :
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "prf");
 }
 
-Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *ProFileEditorFactory::createEditor()
 {
-    ProFileEditorWidget *editor = new ProFileEditorWidget(parent, this);
+    ProFileEditorWidget *editor = new ProFileEditorWidget(this);
     TextEditor::TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }

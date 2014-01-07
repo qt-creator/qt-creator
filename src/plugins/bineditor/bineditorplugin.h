@@ -102,7 +102,7 @@ class BinEditorFactory : public Core::IEditorFactory
 public:
     explicit BinEditorFactory(BinEditorPlugin *owner);
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
 private:
     BinEditorPlugin *m_owner;

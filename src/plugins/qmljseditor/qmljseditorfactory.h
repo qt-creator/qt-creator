@@ -42,7 +42,7 @@ class QmlJSEditorFactory : public Core::IEditorFactory
 public:
     QmlJSEditorFactory(QObject *parent);
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 };
 
 } // namespace Internal

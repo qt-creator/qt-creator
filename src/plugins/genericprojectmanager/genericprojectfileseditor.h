@@ -50,7 +50,7 @@ class ProjectFilesFactory: public Core::IEditorFactory
 public:
     ProjectFilesFactory(Manager *manager);
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 };
 
 class ProjectFilesEditor : public TextEditor::BaseTextEditor
@@ -62,7 +62,7 @@ public:
 
     Core::Id id() const;
     bool duplicateSupported() const;
-    Core::IEditor *duplicate(QWidget *parent);
+    Core::IEditor *duplicate();
 };
 
 class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget
@@ -70,7 +70,7 @@ class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    ProjectFilesEditorWidget(QWidget *parent, ProjectFilesFactory *factory);
+    ProjectFilesEditorWidget(ProjectFilesFactory *factory, QWidget *parent = 0);
 
     ProjectFilesFactory *factory() const;
     TextEditor::BaseTextEditor *createEditor();

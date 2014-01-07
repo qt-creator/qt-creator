@@ -49,9 +49,9 @@ AndroidManifestEditorFactory::AndroidManifestEditorFactory(QObject *parent)
     new TextEditor::TextEditorActionHandler(this, Constants::ANDROID_MANIFEST_EDITOR_CONTEXT);
 }
 
-Core::IEditor *AndroidManifestEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *AndroidManifestEditorFactory::createEditor()
 {
-    AndroidManifestEditorWidget *editor = new AndroidManifestEditorWidget(parent);
+    AndroidManifestEditorWidget *editor = new AndroidManifestEditorWidget();
     TextEditor::TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }

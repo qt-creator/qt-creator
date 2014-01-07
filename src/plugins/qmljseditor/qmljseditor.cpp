@@ -581,9 +581,9 @@ QModelIndex QmlJSTextEditorWidget::outlineModelIndex()
     return m_outlineModelIndex;
 }
 
-IEditor *QmlJSEditor::duplicate(QWidget *parent)
+IEditor *QmlJSEditor::duplicate()
 {
-    QmlJSTextEditorWidget *newEditor = new QmlJSTextEditorWidget(parent);
+    QmlJSTextEditorWidget *newEditor = new QmlJSTextEditorWidget();
     newEditor->duplicateFrom(editorWidget());
     TextEditor::TextEditorSettings::initializeEditor(newEditor);
     return newEditor->editor();

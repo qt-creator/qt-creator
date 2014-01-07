@@ -52,7 +52,7 @@ public:
     virtual Core::Id id() const = 0;
 
     virtual bool duplicateSupported() const { return false; }
-    virtual IEditor *duplicate(QWidget * /*parent*/) { return 0; }
+    virtual IEditor *duplicate() { return 0; }
 
     virtual QByteArray saveState() const { return QByteArray(); }
     virtual bool restoreState(const QByteArray &/*state*/) { return true; }

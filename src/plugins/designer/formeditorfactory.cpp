@@ -57,9 +57,9 @@ FormEditorFactory::FormEditorFactory()
     Core::FileIconProvider::registerIconOverlayForSuffix(":/formeditor/images/qt_ui.png", "ui");
 }
 
-Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *FormEditorFactory::createEditor()
 {
-    const EditorData data = FormEditorW::instance()->createEditor(parent);
+    const EditorData data = FormEditorW::instance()->createEditor();
     if (data.formWindowEditor) {
         Core::InfoBarEntry info(Core::Id(Constants::INFO_READ_ONLY),
                                 tr("This file can only be edited in <b>Design</b> mode."));

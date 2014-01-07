@@ -45,7 +45,7 @@ public:
     explicit ImageViewerFactory(QObject *parent = 0);
     ~ImageViewerFactory();
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
     void extensionsInitialized();
 

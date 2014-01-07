@@ -187,9 +187,9 @@ bool GLSLTextEditorWidget::isOutdated() const
     return false;
 }
 
-Core::IEditor *GLSLEditorEditable::duplicate(QWidget *parent)
+Core::IEditor *GLSLEditorEditable::duplicate()
 {
-    GLSLTextEditorWidget *newEditor = new GLSLTextEditorWidget(parent);
+    GLSLTextEditorWidget *newEditor = new GLSLTextEditorWidget();
     newEditor->duplicateFrom(editorWidget());
     TextEditor::TextEditorSettings::initializeEditor(newEditor);
     return newEditor->editor();

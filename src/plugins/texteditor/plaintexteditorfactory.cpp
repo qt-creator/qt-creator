@@ -58,9 +58,9 @@ PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
         TextEditorActionHandler::UnCollapseAll);
 }
 
-Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *PlainTextEditorFactory::createEditor()
 {
-    PlainTextEditorWidget *rc = new PlainTextEditorWidget(parent);
+    PlainTextEditorWidget *rc = new PlainTextEditorWidget();
     TextEditorSettings::initializeEditor(rc);
     connect(rc, SIGNAL(configured(Core::IEditor*)),
             this, SLOT(updateEditorInfoBar(Core::IEditor*)));

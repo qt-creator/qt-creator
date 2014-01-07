@@ -42,7 +42,7 @@ class GLSLEditorFactory : public Core::IEditorFactory
 public:
     GLSLEditorFactory(QObject *parent);
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
 private slots:
     void updateEditorInfoBar(Core::IEditor *editor);

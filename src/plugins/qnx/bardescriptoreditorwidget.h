@@ -66,7 +66,7 @@ class BarDescriptorEditorWidget : public QStackedWidget
     Q_OBJECT
 
 public:
-    explicit BarDescriptorEditorWidget(QWidget *parent);
+    explicit BarDescriptorEditorWidget(QWidget *parent = 0);
 
     Core::IEditor *editor() const;
 

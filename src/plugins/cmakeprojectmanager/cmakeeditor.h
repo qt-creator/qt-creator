@@ -57,7 +57,7 @@ public:
     CMakeEditor(CMakeEditorWidget *);
 
     bool duplicateSupported() const { return true; }
-    Core::IEditor *duplicate(QWidget *parent);
+    Core::IEditor *duplicate();
     Core::Id id() const;
     TextEditor::CompletionAssistProvider *completionAssistProvider();
 
@@ -71,7 +71,7 @@ class CMakeEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factory);
+    CMakeEditorWidget(CMakeEditorFactory *factory, QWidget *parent = 0);
 
     bool save(const QString &fileName = QString());
 

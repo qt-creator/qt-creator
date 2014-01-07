@@ -45,7 +45,7 @@ class ProFileEditorFactory : public Core::IEditorFactory
 public:
     ProFileEditorFactory(QmakeManager *parent);
 
-    Core::IEditor *createEditor(QWidget *parent);
+    Core::IEditor *createEditor();
 
     QmakeManager *qmakeProjectManager() const { return m_manager; }
 

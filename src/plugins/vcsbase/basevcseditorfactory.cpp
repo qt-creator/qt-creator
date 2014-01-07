@@ -77,9 +77,9 @@ BaseVcsEditorFactory::~BaseVcsEditorFactory()
     delete d;
 }
 
-Core::IEditor *BaseVcsEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *BaseVcsEditorFactory::createEditor()
 {
-    VcsBaseEditorWidget *vcsEditor = createVcsBaseEditor(d->m_type, parent);
+    VcsBaseEditorWidget *vcsEditor = createVcsBaseEditor(d->m_type);
 
     vcsEditor->setMimeType(mimeTypes().front());
 

@@ -65,10 +65,10 @@ CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
     connect(document(), SIGNAL(changed()), this, SLOT(markAsChanged()));
 }
 
-Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
+Core::IEditor *CMakeEditor::duplicate()
 {
     CMakeEditorWidget *w = qobject_cast<CMakeEditorWidget*>(widget());
-    CMakeEditorWidget *ret = new CMakeEditorWidget(parent, w->factory());
+    CMakeEditorWidget *ret = new CMakeEditorWidget(w->factory());
     ret->duplicateFrom(w);
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
@@ -116,7 +116,7 @@ void CMakeEditor::build()
 // CMakeEditor
 //
 
-CMakeEditorWidget::CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factory)
+CMakeEditorWidget::CMakeEditorWidget(CMakeEditorFactory *factory, QWidget *parent)
     : BaseTextEditorWidget(parent), m_factory(factory)
 {
     QSharedPointer<CMakeDocument> doc(new CMakeDocument);

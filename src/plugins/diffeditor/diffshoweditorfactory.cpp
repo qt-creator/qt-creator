@@ -46,9 +46,9 @@ DiffShowEditorFactory::DiffShowEditorFactory(QObject *parent)
     setMimeTypes(QStringList() << QLatin1String(Constants::DIFF_EDITOR_MIMETYPE));
 }
 
-Core::IEditor *DiffShowEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *DiffShowEditorFactory::createEditor()
 {
-    DiffEditorWidget *editorWidget = new DiffEditorWidget(parent);
+    DiffEditorWidget *editorWidget = new DiffEditorWidget();
     DiffShowEditor *editor = new DiffShowEditor(editorWidget);
     return editor;
 }
