@@ -13,7 +13,6 @@ Project {
         "misc/misc.qbs",
         "preprocessor/preprocessor.qbs",
         "semantic/semantic.qbs",
-        "simplifytypes/simplifytypes.qbs",
         "typeprettyprinter/typeprettyprinter.qbs"
     ]
 }

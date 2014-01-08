@@ -9,7 +9,6 @@ SUBDIRS = \
     preprocessor \
     semantic \
     typeprettyprinter \
-    simplifytypes \
     misc \
     cxx11 \
     checksymbols \

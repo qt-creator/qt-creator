@@ -42,9 +42,8 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <cplusplus/CppRewriter.h>
-
 #include <QDebug>
+#include <QFile>
 #include <QProcess>
 #include <QtAlgorithms>
 #include <QTabWidget>
@@ -478,7 +477,7 @@ static QString niceTypeHelper(const QByteArray &typeIn)
     const Cache::const_iterator it = cache.constFind(typeIn);
     if (it != cache.constEnd())
         return it.value();
-    const QString simplified = CPlusPlus::simplifySTLType(QLatin1String(typeIn));
+    const QString simplified = simplifySTLType(QLatin1String(typeIn));
     cache.insert(typeIn, simplified); // For simplicity, also cache unmodified types
     return simplified;
 }

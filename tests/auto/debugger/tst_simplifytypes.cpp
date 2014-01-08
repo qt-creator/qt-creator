@@ -27,10 +27,13 @@
 **
 ****************************************************************************/
 
-#include <cplusplus/CppRewriter.h>
+#include "debuggerprotocol.h"
 
 #include <QString>
 #include <QtTest>
+
+using namespace Debugger;
+using namespace Internal;
 
 const char *description[] =
 {
@@ -129,7 +132,7 @@ void SimplifyTypesTest::testCase1()
 {
     QFETCH(QString, input);
     QFETCH(QString, expected);
-    const QString output = CPlusPlus::simplifySTLType(input);
+    const QString output = simplifySTLType(input);
     QCOMPARE(output, expected);
 }
 
@@ -145,4 +148,4 @@ void SimplifyTypesTest::testCase1_data()
 
 QTEST_APPLESS_MAIN(SimplifyTypesTest);
 
-#include "tst_simplifytypestest.moc"
+#include "tst_simplifytypes.moc"

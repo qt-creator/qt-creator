@@ -318,7 +318,7 @@ struct Type
             }
         }
         QByteArray actualType =
-            CPlusPlus::simplifySTLType(QString::fromLatin1(actualType0)).toLatin1();
+            simplifySTLType(QString::fromLatin1(actualType0)).toLatin1();
         actualType.replace(' ', "");
         actualType.replace("const", "");
         QByteArray expectedType = type;

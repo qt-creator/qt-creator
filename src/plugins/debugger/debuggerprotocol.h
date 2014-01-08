@@ -221,6 +221,11 @@ enum DebuggerDisplay {
 // Decode string data as returned by the dumper helpers.
 QString decodeData(const QByteArray &baIn, int encoding);
 
+// Simplify complicated STL template types, such as
+// 'std::basic_string<char,std::char_traits<char>,std::allocator<char> > '->
+// 'std::string'.
+QString simplifySTLType(const QString &typeIn);
+
 } // namespace Internal
 } // namespace Debugger
 
