@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -183,7 +183,7 @@ Class *VirtualFunctionHelper::staticClassOfFunctionCallExpression_internal() con
         typeOfExpression.init(m_document, m_snapshot);
         typeOfExpression.setExpandTemplates(true);
         const QList<LookupItem> items = typeOfExpression(memberAccessAST->base_expression,
-                                                         m_document, m_scope);
+                                                         m_expressionDocument, m_scope);
         ResolveExpression resolveExpression(typeOfExpression.context());
         ClassOrNamespace *binding = resolveExpression.baseExpression(items, m_accessTokenKind);
         if (binding) {

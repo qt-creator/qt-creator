@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -48,6 +48,7 @@
 #include <QWheelEvent>
 #include <QMenu>
 #include <QApplication>
+#include <QTimer>
 
 #include <QQuickItem>
 
@@ -64,7 +65,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_resIconSize(24, 24),
     m_itemsView(new QQuickView()),
     m_resourcesView(new Internal::ItemLibraryTreeView(this)),
-    m_filterFlag(QtBasic)
+    m_filterFlag(QtBasic),
+    m_itemLibraryId(-1)
 {
     Internal::registerQmlTypes();
 
@@ -91,7 +93,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
 
     QQuickItem *rootItem = qobject_cast<QQuickItem*>(m_itemsView->rootObject());
     connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
-    connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDrop(int)));
+    connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDropDelayed(int)));
     connect(this, SIGNAL(scrollItemsView(QVariant)), rootItem, SLOT(scrollView(QVariant)));
     connect(this, SIGNAL(resetItemsView()), rootItem, SLOT(resetView()));
 
@@ -363,12 +365,18 @@ void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
     updateSearch();
 }
 
-void ItemLibraryWidget::startDragAndDrop(int itemLibId)
+void ItemLibraryWidget::startDragAndDropDelayed(int itemLibraryId)
 {
-    QMimeData *mimeData = m_itemLibraryModel->getMimeData(itemLibId);
+    m_itemLibraryId = itemLibraryId;
+    QTimer::singleShot(0, this, SLOT(startDragAndDrop()));
+}
+
+void ItemLibraryWidget::startDragAndDrop()
+{
+    QMimeData *mimeData = m_itemLibraryModel->getMimeData(m_itemLibraryId);
     QDrag *drag = new QDrag(this);
 
-    drag->setPixmap(m_itemLibraryModel->getIcon(itemLibId).pixmap(32, 32));
+    drag->setPixmap(m_itemLibraryModel->getIcon(m_itemLibraryId).pixmap(32, 32));
     drag->setMimeData(mimeData);
 
     drag->exec();

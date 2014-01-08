@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Petar Perisin.
+** Copyright (C) 2014 Petar Perisin.
 ** Contact: petar.perisin@gmail.com
 **
 ** This file is part of Qt Creator.
@@ -257,7 +257,7 @@ QString GerritPushDialog::selectedRemoteBranchName() const
 
 QString GerritPushDialog::selectedPushType() const
 {
-    return m_ui->draftCheckBox->isChecked() ? QLatin1String("draft") : QLatin1String("for");
+    return m_ui->draftCheckBox->isChecked() ? QLatin1String("drafts") : QLatin1String("for");
 }
 
 QString GerritPushDialog::selectedTopic() const

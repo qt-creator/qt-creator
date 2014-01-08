@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -155,10 +155,6 @@ static QString toHex(const QString &str)
     }
     return encoded;
 }
-
-
-struct GdbOnly {};
-struct LldbOnly {};
 
 struct Context
 {
@@ -518,15 +514,14 @@ struct DataBase
 {
     DataBase()
       : useQt(false), useQHash(false),
-        forceC(false), gdbOnly(false), lldbOnly(false),
+        forceC(false), engines(DumpTestGdbEngine | DumpTestCdbEngine | DumpTestLldbEngine),
         glibcxxDebug(false)
     {}
 
     mutable bool useQt;
     mutable bool useQHash;
     mutable bool forceC;
-    mutable bool gdbOnly;
-    mutable bool lldbOnly;
+    mutable int engines;
     mutable bool glibcxxDebug;
     mutable GdbVersion neededGdbVersion;
     mutable LldbVersion neededLldbVersion;
@@ -566,15 +561,9 @@ public:
         return *this;
     }
 
-    const Data &operator%(const LldbOnly &) const
+    const Data &operator%(const DebuggerEngine &enginesForTest) const
     {
-        lldbOnly = true;
-        return *this;
-    }
-
-    const Data &operator%(const GdbOnly &) const
-    {
-        gdbOnly = true;
+        engines = enginesForTest;
         return *this;
     }
 
@@ -787,6 +776,9 @@ void tst_Dumpers::dumper()
 {
     QFETCH(Data, data);
 
+    if (!(data.engines & m_debuggerEngine))
+        MSKIP_SINGLE("The test is excluded for this debugger engine.");
+
     if (m_debuggerEngine == DumpTestGdbEngine) {
         if (data.neededGdbVersion.min > m_gdbVersion)
             MSKIP_SINGLE("Need minimum GDB version "
@@ -794,9 +786,6 @@ void tst_Dumpers::dumper()
         if (data.neededGdbVersion.max < m_gdbVersion)
             MSKIP_SINGLE("Need maximum GDB version "
                 + QByteArray::number(data.neededGdbVersion.max));
-    } else {
-        if (data.gdbOnly)
-            MSKIP_SINGLE("Test is GDB specific");
     }
 
     if (m_debuggerEngine == DumpTestLldbEngine) {
@@ -806,9 +795,6 @@ void tst_Dumpers::dumper()
         if (data.neededLldbVersion.max < m_gdbVersion)
             MSKIP_SINGLE("Need maximum LLDB version "
                 + QByteArray::number(data.neededLldbVersion.max));
-    } else {
-        if (data.lldbOnly)
-            MSKIP_SINGLE("Test is LLDB specific");
     }
 
     QString cmd;
@@ -836,9 +822,16 @@ void tst_Dumpers::dumper()
 
     QFile source(t->buildPath + QLatin1Char('/') + QLatin1String(mainFile));
     QVERIFY(source.open(QIODevice::ReadWrite));
-    QByteArray fullCode =
+    QByteArray fullCode = QByteArray() +
             "\n\nvoid unused(const void *first,...) { (void) first; }"
-            "\n\nvoid breakHere() {}"
+            "\n\n#if defined(_MSC_VER)" + (data.useQt ?
+                "\n#include <qt_windows.h>" :
+                "\n#include <Windows.h>") +
+            "\n#define BREAK DebugBreak();"
+            "\n#else"
+            "\n#define BREAK asm(\"int $3\");"
+            "\n#endif"
+            "\n"
             "\n\n" + data.includes +
             "\n\n" + (data.useQHash ?
                 "\n#include <QByteArray>"
@@ -861,7 +854,7 @@ void tst_Dumpers::dumper()
                 "\n#endif\n" : "") +
             "\n    unused(&argc, &argv, &qtversion, &gccversion);\n"
             "\n" + data.code +
-            "\n    breakHere();"
+            "\n    BREAK;"
             "\n    return 0;"
             "\n}\n";
     source.write(fullCode);
@@ -937,7 +930,6 @@ void tst_Dumpers::dumper()
 
         cmds = "set confirm off\n"
                 "file doit\n"
-                "break breakHere\n"
                 "set print object on\n"
                 "set auto-load python-scripts no\n";
 
@@ -946,7 +938,6 @@ void tst_Dumpers::dumper()
                     "python sys.path.append('" + uninstalledData + "')\n"
                     "python from gdbbridge import *\n"
                     "run " + nograb + "\n"
-                    "up\n"
                     "python print('@%sS@%s@' % ('N', theDumper.qtNamespace()))\n"
                     "bb options:fancy,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
         } else {
@@ -970,7 +961,6 @@ void tst_Dumpers::dumper()
              << QLatin1String("debug\\doit.exe");
         cmds = "l+t\n"
                "l+s\n"
-               "bu `doit!" + source.fileName().toLatin1() + ":5`\n"
                "sxi 0x4000001f\n"
                "g\n"
                "gu\n"
@@ -1207,7 +1197,7 @@ void tst_Dumpers::dumper_data()
                     "     struct { float f; };\n"
                     "     double d;\n"
                     " } a = { { 42, 43 } };\n (void)a;")
-               % GdbOnly()
+               % DumpTestGdbEngine
                % CheckType("a", "a", "union {...}")
                % Check("a.b", "43", "int")
                % Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
@@ -1222,7 +1212,7 @@ void tst_Dumpers::dumper_data()
                     "     double d;\n"
                     " } a = { { 42, 43 } };\n (void)a;")
                //% CheckType("a", "a", "union {...}")
-               % LldbOnly()
+               % DumpTestLldbEngine
                % Check("a.#1.b", "43", "int")
                % Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
                % Check("a.#2.f", FloatValue("5.88545355e-44"), "float")
@@ -2582,7 +2572,6 @@ void tst_Dumpers::dumper_data()
                % CoreProfile()
                % Profile("QT += xml\n")
                % Check("atts", "", "@QXmlAttributes")
-               % CheckType("atts.[vptr]", "")
                % Check("atts.attList", "<3 items>", "@QXmlAttributes::AttributeList")
                % Check("atts.attList.0", "[0]", "", "@QXmlAttributes::Attribute")
                % Check("atts.attList.0.localname", "\"localPart1\"", "@QString")
@@ -2610,7 +2599,9 @@ void tst_Dumpers::dumper_data()
                % Cxx11Profile()
                % MacLibCppProfile()
                % Check("a", "<4 items>", Pattern("std::array<int, 4.*>"))
-               % Check("b", "<4 items>", Pattern("std::array<@QString, 4.*>"));
+               % Check("a.0", "[0]", "1", "int")
+               % Check("b", "<4 items>", Pattern("std::array<@QString, 4.*>"))
+               % Check("b.0", "[0]", "\"1\"", "@QString");
 
     QTest::newRow("StdComplex")
             << Data("#include <complex>\n",
@@ -2683,7 +2674,7 @@ void tst_Dumpers::dumper_data()
                     "h.insert(194);\n"
                     "h.insert(2);\n"
                     "h.insert(3);\n")
-               % GdbOnly()
+               % DumpTestGdbEngine
                % Profile("QMAKE_CXXFLAGS += -Wno-deprecated")
                % Check("h", "<4 items>", "__gnu__cxx::hash_set<int>")
                % Check("h.0", "[0]", "194", "int")
@@ -2918,7 +2909,9 @@ void tst_Dumpers::dumper_data()
                % Cxx11Profile()
                % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::unique_ptr<int, std::default_delete<int> >")
-               % Check("pf", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >");
+               % Check("pi.data", "32", "int")
+               % Check("pf", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >")
+               % CheckType("pf.data", "Foo");
 
     QTest::newRow("StdSharedPtr")
             << Data("#include <memory>\n" + fooData,
@@ -2928,7 +2921,11 @@ void tst_Dumpers::dumper_data()
                % Cxx11Profile()
                % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::shared_ptr<int>")
-               % Check("pf", Pointer(), "std::shared_ptr<Foo>");
+               % Check("pi.data", "32", "int").setForGdbOnly()
+               % Check("pi.data", "32", "std::shared_ptr<int>::element_type").setForLldbOnly()
+               % Check("pf", Pointer(), "std::shared_ptr<Foo>")
+               % CheckType("pf.data", "Foo").setForGdbOnly()
+               % CheckType("pf.data", "std::shared_ptr<Foo>::element_type").setForLldbOnly();
 
     QTest::newRow("StdSetInt")
             << Data("#include <set>\n",
@@ -3411,7 +3408,7 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QString3")
             << Data("#include <QString>\n"
-                    "void stringRefTest(const QString &refstring) { breakHere(); unused(&refstring); }\n",
+                    "void stringRefTest(const QString &refstring) { BREAK; unused(&refstring); }\n",
                     "stringRefTest(QString(\"Ref String Test\"));\n")
                % CoreProfile()
                % Check("refstring", "\"Ref String Test\"", "@QString &");
@@ -3521,7 +3518,7 @@ void tst_Dumpers::dumper_data()
                     "    void run()\n"
                     "    {\n"
                     "        if (m_id == 3)\n"
-                    "            breakHere();\n"
+                    "            BREAK;\n"
                     "    }\n"
                     "    int m_id;\n"
                     "};\n",
@@ -3666,7 +3663,7 @@ void tst_Dumpers::dumper_data()
                     "var.setValue(my);\n"
                     "int t = QMetaType::type(\"MyType\");\n"
                     "const char *s = QMetaType::typeName(t);\n"
-                    "breakHere();\n"
+                    "BREAK;\n"
                     "unused(&var, &t, &s);\n")
                % CoreProfile()
                % Check("my", "<2 items>", "MyType")
@@ -4409,7 +4406,7 @@ void tst_Dumpers::dumper_data()
                     "    QString n = \"2\";\n"
                     "    {\n"
                     "        double n = 3.5;\n"
-                    "        breakHere();\n"
+                    "        BREAK;\n"
                     "        unused(&n);\n"
                     "    }\n"
                     "    unused(&n);\n"
@@ -4812,7 +4809,7 @@ void tst_Dumpers::dumper_data()
 //    "void g(int c, int d)\n"
 //    "{\n"
 //        "qDebug() << c << d;\n"
-//        "breakHere()"\n"
+//        "BREAK"\n"
 //\n"
 //    "void f(int a, int b)\n"
 //    "{\n"
@@ -4922,18 +4919,18 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("valist")
             << Data("#include <stdarg.h>\n"
-                    "void breakHere();\n"
                     "void test(const char *format, ...)\n"
                     "{\n"
                     "    va_list arg;\n"
                     "    va_start(arg, format);\n"
                     "    int i = va_arg(arg, int);\n"
                     "    double f = va_arg(arg, double);\n"
-                    "    unused(&i, &f);\n"
                     "    va_end(arg);\n"
-                    "    breakHere();\n"
+                    "    BREAK;\n"
+                    "    unused(&i, &f);\n"
                     "}\n",
                     "test(\"abc\", 1, 2.0);\n")
+               % Check("format", "\"abc\"", "char *")
                % Check("i", "1", "int")
                % Check("f", "2", "double");
 
@@ -4999,7 +4996,7 @@ void tst_Dumpers::dumper_data()
                    "int sharedPtr = 1;\n"
                    "#endif\n"
                    "unused(&ptrConst, &ref, &refConst, &ptrToPtr, &sharedPtr);\n")
-               % GdbOnly()
+               % DumpTestGdbEngine
                % GdbVersion(70500)
                % BoostProfile()
                % Check("d", "", "Derived")
@@ -5038,7 +5035,7 @@ void tst_Dumpers::dumper_data()
                     "    struct { int c; float d; };\n"
                     "} v = {{1, 2}, {3, 4}};\n"
                     "unused(&v);\n")
-               % GdbOnly()
+               % DumpTestGdbEngine
                % Check("v", "", "Test")
                % Check("v.a", "1", "int");
 
@@ -5048,7 +5045,7 @@ void tst_Dumpers::dumper_data()
                     "    struct { int c; float d; };\n"
                     "} v = {{1, 2}, {3, 4}};\n"
                     "unused(&v);\n")
-               % LldbOnly()
+               % DumpTestLldbEngine
                % Check("v", "", "Test")
                % Check("v.#1.a", "1", "int");
 
@@ -5056,7 +5053,7 @@ void tst_Dumpers::dumper_data()
             << Data("struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};\n"
                     "struct S { int x, y; } n = {10, 20};\n"
                     "unused(&v, &n);\n")
-               % GdbOnly()
+               % DumpTestGdbEngine
                % Check("v", "", "{...}")
                % Check("n", "", "S")
                % Check("v.a", "2", "int")
@@ -5069,7 +5066,7 @@ void tst_Dumpers::dumper_data()
             << Data("struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};\n"
                     "struct S { int x, y; } n = {10, 20};\n"
                     "unused(&v, &n);\n")
-               % LldbOnly()
+               % DumpTestLldbEngine
                % Check("v", "", "<anonymous class>")
                % Check("n", "", "S")
                % Check("v.#1.a", "2", "int")

@@ -10,6 +10,7 @@ lessThan(QT_MAJOR_VERSION, 5) {
 } else:linux-* {
     !isEmpty(QT.x11extras.name) {
         QT += x11extras
+        CONFIG += x11
         DEFINES += QTC_USE_QX11INFO
     } else {
         warning("x11extras module not found, raising the main window might not work. " \

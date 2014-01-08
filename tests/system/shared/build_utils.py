@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is part of Qt Creator.
@@ -35,10 +35,6 @@ installedSignalHandlers = {}
 overridenInstallLazySignalHandlers = False
 # flag to indicate whether a tasks file should be created when building ends with errors
 createTasksFileOnError = True
-# currently used directory for tasks files
-tasksFileDir = None
-# counter for written tasks files
-tasksFileCount = 0
 
 # call this function to override installLazySignalHandler()
 def overrideInstallLazySignalHandler():
@@ -117,9 +113,14 @@ def dumpBuildIssues(listModel):
                               range(Qt.UserRole, Qt.UserRole + 6))])
     return issueDump
 
+# counter for written tasks files
+tasksFileCount = 0
+
 # helper method that writes a tasks file
 def createTasksFile(buildIssues):
-    global tasksFileDir, tasksFileCount
+    # currently used directory for tasks files
+    tasksFileDir = None
+    global tasksFileCount
     if tasksFileDir == None:
             tasksFileDir = os.getcwd() + "/tasks"
             tasksFileDir = os.path.abspath(tasksFileDir)
@@ -184,8 +185,8 @@ def iterateBuildConfigs(kitCount, filter = ""):
 def selectBuildConfig(targetCount, currentTarget, configName):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
-    if selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName):
-        progressBarWait(30000)
+    selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName)
+    progressBarWait(30000)
     return getQtInformationForBuildSettings(targetCount, True, ViewConstants.EDIT)
 
 # This will not trigger a rebuild. If needed, caller has to do this.

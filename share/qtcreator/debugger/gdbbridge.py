@@ -307,7 +307,7 @@ class PlainDumper:
         self.printer = printer
 
     def __call__(self, d, value):
-        printer = self.printer.gen_printer(value)
+        printer = self.printer.invoke(value)
         lister = getattr(printer, "children", None)
         children = [] if lister is None else list(lister())
         d.putType(self.printer.name)
@@ -1196,7 +1196,7 @@ class Dumper(DumperBase):
         f.write("set grid\n")
         f.write("set style data lines;\n")
         f.write("plot  '-' title '%s'\n" % iname)
-        for i in range(1, n):
+        for i in range(0, n):
             f.write(" %s\n" % base.dereference())
             base += 1
         f.write("e\n")
@@ -1205,7 +1205,7 @@ class Dumper(DumperBase):
     def putArrayData(self, type, base, n,
             childNumChild = None, maxNumChild = 10000):
         if not self.tryPutArrayContents(type, base, n):
-            base = base.cast(type.pointer())
+            base = self.createPointerValue(base, type)
             with Children(self, n, type, childNumChild, maxNumChild,
                     base, type.sizeof):
                 for i in self.childRange():

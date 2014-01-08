@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -152,10 +152,6 @@ void dummyStatement(...) {}
 #include <QSharedPointer>
 #endif
 
-#if USE_TIMEZONE
-#include <QTimeZone>
-#endif
-
 #if USE_GUILIB
 #include <QAction>
 #include <QApplication> // QWidgets: Separate module as of Qt 5
@@ -168,7 +164,9 @@ void dummyStatement(...) {}
 #include <QStandardItemModel>
 #include <QTextCursor>
 #include <QTextDocument>
+#if USE_TIMEZONE
 #include <QTimeZone>
+#endif
 #endif
 
 #if USE_SCRIPTLIB
@@ -711,10 +709,12 @@ namespace qdatetime {
 
     void testQTimeZone()
     {
+#if USE_TIMEZONE
         QTimeZone zz;
         QTimeZone tz("UTC+05:00");
         BREAK_HERE;
         dummyStatement(&zz, &tz);
+#endif
     }
 
     void testQDate()

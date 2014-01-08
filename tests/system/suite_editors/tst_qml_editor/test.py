@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is part of Qt Creator.
@@ -29,11 +29,9 @@
 
 source("../../shared/qtcreator.py")
 
-templateDir = None
 searchFinished = False
 
 def main():
-    global templateDir
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/keyinteraction/focus")
     proFile = "focus.pro"
     if not neededFilePresent(os.path.join(sourceExample, proFile)):

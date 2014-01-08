@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Andre Hartmann.
+** Copyright (C) 2014 Andre Hartmann.
 ** Contact: aha_1980@gmx.de
 **
 ** This file is part of Qt Creator.

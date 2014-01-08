@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is part of Qt Creator.
@@ -65,10 +65,18 @@ def __checkBuildAndRun__():
     foundCompilers = []
     foundCompilerNames = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Compilers")
-    compilerTV = waitForObject(":Kits_Or_Compilers_QTreeView")
+    compilerTV = waitForObject(":BuildAndRun_QTreeView")
     __iterateTree__(compilerTV, __compFunc__, foundCompilers, foundCompilerNames)
     test.verify(__compareCompilers__(foundCompilers, expectedCompilers),
                 "Verifying found and expected compilers are equal.")
+    # check debugger
+    expectedDebuggers = __getExpectedDebuggers__()
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Debuggers")
+    foundDebugger = []
+    debuggerTV = waitForObject(":BuildAndRun_QTreeView")
+    __iterateTree__(debuggerTV, __dbgFunc__, foundDebugger)
+    test.verify(__compareDebuggers__(foundDebugger, expectedDebuggers),
+                "Verifying found and expected debuggers are equal.")
     # check Qt versions
     qmakePath = which("qmake")
     foundQt = []
@@ -79,7 +87,7 @@ def __checkBuildAndRun__():
         foundQt = foundQt[0]
     # check kits
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
-    kitsTV = waitForObject(":Kits_Or_Compilers_QTreeView")
+    kitsTV = waitForObject(":BuildAndRun_QTreeView")
     __iterateTree__(kitsTV, __kitFunc__, foundQt, foundCompilerNames)
 
 def __iterateTree__(treeObj, additionalFunc, *additionalParameters):
@@ -104,8 +112,8 @@ def __iterateTree__(treeObj, additionalFunc, *additionalParameters):
 
 def __compFunc__(it, foundComp, foundCompNames):
     try:
-        waitFor("object.exists(':CompilerPath.Utils_BaseValidatingLineEdit')", 1000)
-        pathLineEdit = findObject(":CompilerPath.Utils_BaseValidatingLineEdit")
+        waitFor("object.exists(':Path.Utils_BaseValidatingLineEdit')", 1000)
+        pathLineEdit = findObject(":Path.Utils_BaseValidatingLineEdit")
         foundComp.append(str(pathLineEdit.text))
     except:
         label = findObject("{buddy={container=':qt_tabwidget_stackedwidget_QWidget' "
@@ -113,6 +121,11 @@ def __compFunc__(it, foundComp, foundCompNames):
                            "type='QLabel' unnamed='1' visible='1'}")
         foundComp.append({it:str(label.text)})
     foundCompNames.append(it)
+
+def __dbgFunc__(it, foundDbg):
+    waitFor("object.exists(':Path.Utils_BaseValidatingLineEdit')", 1000)
+    pathLineEdit = findObject(":Path.Utils_BaseValidatingLineEdit")
+    foundDbg.append(str(pathLineEdit.text))
 
 def __qtFunc__(it, foundQt, qmakePath):
     foundQt.append(it)
@@ -197,6 +210,26 @@ def __getWinEnvVars__():
     os.remove(tmpFPath)
     return result
 
+def __getExpectedDebuggers__():
+    result = []
+    if platform.system() in ('Microsoft', 'Windows'):
+        result.extend(__getCDB__())
+    debuggers = ["gdb", "lldb"]
+    result.extend(filter(None, map(which, debuggers)))
+    return result
+
+def __getCDB__():
+    result = []
+    possibleLocations = ["C:\\Program Files\\Debugging Tools for Windows (x64)",
+                         "C:\\Program Files (x86)\\Windows Kits\\8.0\\Debuggers\\x86",
+                         "C:\\Program Files\\Windows Kits\\8.0\\Debuggers\\x86",
+                         "C:\\Program Files (x86)\\Windows Kits\\8.1\\Debuggers\\x86",
+                         "C:\\Program Files\\Windows Kits\\8.1\\Debuggers\\x86"]
+    for cdbPath in possibleLocations:
+        cdb = os.path.join(cdbPath, "cdb.exe")
+        if os.path.exists(cdb):
+            result.append(cdb)
+    return result
 
 def __compareCompilers__(foundCompilers, expectedCompilers):
     equal = True
@@ -232,6 +265,24 @@ def __compareCompilers__(foundCompilers, expectedCompilers):
             break
     return equal
 
+def __compareDebuggers__(foundDebuggers, expectedDebuggers):
+    if not len(foundDebuggers) == len(expectedDebuggers):
+        test.log("Number of found and expected debuggers do not match.",
+                 "Found: %s\nExpected: %s" % (str(foundDebuggers), str(expectedDebuggers)))
+        return False
+    if platform.system() in ('Microsoft', 'Windows'):
+        foundSet = set(__lowerStrs__(foundDebuggers))
+        expectedSet = set(__lowerStrs__(expectedDebuggers))
+    else:
+        foundSet = set(foundDebuggers)
+        expectedSet = set(expectedDebuggers)
+    if not (test.verify(not foundSet.symmetric_difference(expectedSet),
+                        "Verifying expected and found debuggers match.")):
+        test.log("Found debuggers: %s" % foundDebuggers,
+                 "Expected debuggers: %s" % expectedDebuggers)
+        return False
+    return True
+
 def __lowerStrs__(iterable):
     for it in iterable:
         if isinstance(it, (str, unicode)):
@@ -246,7 +297,8 @@ def __checkCreatedSettings__(settingsFolder):
     files = [{os.path.join(qtProj, "QtCreator.db"):0},
              {os.path.join(qtProj, "QtCreator.ini"):30}]
     folders.append(os.path.join(qtProj, "qtcreator"))
-    files.extend([{os.path.join(folders[0], "devices.xml"):0},
+    files.extend([{os.path.join(folders[0], "debuggers.xml"):0},
+                  {os.path.join(folders[0], "devices.xml"):0},
                   {os.path.join(folders[0], "helpcollection.qhc"):0},
                   {os.path.join(folders[0], "profiles.xml"):0},
                   {os.path.join(folders[0], "qtversion.xml"):0},

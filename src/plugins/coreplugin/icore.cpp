@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -33,6 +33,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <QSysInfo>
+#include <QApplication>
 
 /*!
     \namespace Core
@@ -170,8 +171,14 @@
 
     Returns the main application window.
 
-    For use as dialog parent, and so on.
+    For dialog parents use \c dialogParent().
 */
+
+/*!
+    \fn QWidget *ICore::dialogParent()
+
+    Returns a widget pointer suitable to use as parent for QDialogs.
+ */
 
 /*!
     \fn IContext *ICore::currentContextObject()
@@ -449,6 +456,12 @@ IContext *ICore::currentContextObject()
 QWidget *ICore::mainWindow()
 {
     return m_mainwindow;
+}
+
+QWidget *ICore::dialogParent()
+{
+    QWidget *active = QApplication::activeModalWidget();
+    return active ? active : m_mainwindow;
 }
 
 QStatusBar *ICore::statusBar()

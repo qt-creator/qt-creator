@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is part of Qt Creator.
@@ -31,23 +31,16 @@ source("../../shared/qtcreator.py")
 
 project = "untitled"
 
-def __handlerunControlFinished__(object, runControlP):
-    global runControlFinished
-    runControlFinished = True
-
 def main():
     if platform.system() == "Darwin" and JIRA.isBugStillOpen(6853, JIRA.Bug.CREATOR):
         test.xverify(False, "This test is unstable on Mac, see QTCREATORBUG-6853.")
         return
-    global runControlFinished
     outputQDebug = "Output from qDebug()."
     outputStdOut = "Output from std::cout."
     outputStdErr = "Output from std::cerr."
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    installLazySignalHandler("{type='ProjectExplorer::Internal::ProjectExplorerPlugin' unnamed='1'}",
-                             "runControlFinished(ProjectExplorer::RunControl*)", "__handlerunControlFinished__")
     checkedTargets = createProject_Qt_Console(tempDir(), project)
 
     mainEditor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
@@ -73,16 +66,15 @@ def main():
         test.log("Testing build configuration: " + config)
 
         test.log("Running application")
-        progressBarWait(15000)
         setRunInTerminal(len(checkedTargets), kit, False)
-        runControlFinished = False
         clickButton(waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton"))
-        waitFor("runControlFinished==True", 20000)
-        if not runControlFinished:
-            test.warning("Waiting for runControlFinished timed out")
-        ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
+        outputButton = waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
+        waitFor("outputButton.checked", 20000) # Not ensureChecked(), avoid race condition
+        outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
+        waitFor("'exited with code' in str(outputWindow.plainText) or \
+                'The program has unexpectedly finished' in str(outputWindow.plainText)", 20000)
         try:
-            appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}").plainText)
+            appOutput = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
             verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
             verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
             verifyOutput(appOutput, outputQDebug, "qDebug()", "Application Output")
@@ -93,13 +85,12 @@ def main():
 
         test.log("Debugging application")
         isMsvc = isMsvcConfig(len(checkedTargets), kit)
-        runControlFinished = False
         invokeMenuItem("Debug", "Start Debugging", "Start Debugging")
         JIRA.performWorkaroundForBug(6853, JIRA.Bug.CREATOR, config)
         handleDebuggerWarnings(config, isMsvc)
-        waitFor("runControlFinished==True", 20000)
-        if not runControlFinished:
-            test.warning("Waiting for runControlFinished timed out")
+        ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
+        outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
+        waitFor("'Debugging has finished' in str(outputWindow.plainText)", 20000)
         try:
             debuggerLog = takeDebuggerLog()
             if not isMsvc:
@@ -118,7 +109,7 @@ def main():
         switchViewTo(ViewConstants.EDIT)
         ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
         try:
-            appOutput = str(waitForObject("{type='Core::OutputWindow' unnamed='1' visible='1'}").plainText)
+            appOutput = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
             if not isMsvc:
                 verifyOutput(appOutput, outputStdOut, "std::cout", "Application Output")
                 verifyOutput(appOutput, outputStdErr, "std::cerr", "Application Output")
@@ -127,5 +118,6 @@ def main():
         except:
             test.fatal("Could not find Application Output Window",
                        "Did the application run at all?")
+        progressBarWait(10000, False)   # wait for "Build" progressbar to disappear
 
     invokeMenuItem("File", "Exit")

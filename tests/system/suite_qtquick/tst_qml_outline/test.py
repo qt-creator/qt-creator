@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is part of Qt Creator.
@@ -75,7 +75,7 @@ def processChildren(model, startIndex, level):
     return children
 
 def testModify():
-    global qmlEditor, outline
+    global qmlEditor
     if not openDocument("focus.QML.qml.focus\\.qml"):
         test.fatal("Failed to open file focus.qml")
         return

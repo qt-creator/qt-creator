@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -66,13 +66,6 @@ Controls.CheckBox {
             backendValue.value = checkBox.checked;
     }
 
-    onFocusChanged: {
-        if (focus) {
-            transaction.start();
-        } else {
-            transaction.end();
-        }
-    }
     style: CheckBoxStyle {
         spacing: 8
         label: Controls.Label { text: control.text ; color: checkBox.textColor }

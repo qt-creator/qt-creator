@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -54,6 +54,10 @@ void setupFileFilterItem(QmlProjectManager::FileFilterBaseItem *fileFilterItem, 
     const QVariant pathsProperty = node->property(QLatin1String("paths"));
     if (pathsProperty.isValid())
         fileFilterItem->setPathsProperty(pathsProperty.toStringList());
+
+    const QVariant filterProperty = node->property(QLatin1String("filter"));
+    if (filterProperty.isValid())
+        fileFilterItem->setFilter(filterProperty.toString());
 
     if (debug)
         qDebug() << "directory:" << directoryProperty << "recursive" << recursiveProperty << "paths" << pathsProperty;
@@ -117,6 +121,12 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const QString &fileName, 
                 CssFileFilterItem *cssFileFilterItem = new CssFileFilterItem(projectItem);
                 setupFileFilterItem(cssFileFilterItem, childNode);
                 projectItem->appendContent(cssFileFilterItem);
+            } else if (childNode->name() == QLatin1String("Files")) {
+                if (debug)
+                    qDebug() << "Files";
+                OtherFileFilterItem *otherFileFilterItem = new OtherFileFilterItem(projectItem);
+                setupFileFilterItem(otherFileFilterItem, childNode);
+                projectItem->appendContent(otherFileFilterItem);
             } else {
                 qWarning() << "Unknown type:" << childNode->name();
             }

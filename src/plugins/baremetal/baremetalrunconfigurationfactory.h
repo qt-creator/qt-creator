@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Tim Sander <tim@krieglstein.org>
+** Copyright (C) 2014 Tim Sander <tim@krieglstein.org>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.

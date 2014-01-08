@@ -1,6 +1,6 @@
 <plugin name=\"Todo\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_COMPAT_VERSION\" experimental=\"true\">
   <vendor>Dmitry Savchenko</vendor>
-  <copyright>(C) 2013 Dmitry Savchenko, (C) 2013 Vasiliy Sorokin</copyright>
+  <copyright>(C) 2014 Dmitry Savchenko, (C) 2014 Vasiliy Sorokin</copyright>
   <license>
 Commercial Usage
 

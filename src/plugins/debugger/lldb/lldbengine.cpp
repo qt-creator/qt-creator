@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -198,7 +198,9 @@ void LldbEngine::setupInferior()
     cmd.arg("startMode", sp.startMode); // directly relying on this is brittle wrt. insertions, so check it here
     cmd.arg("processArgs", sp.processArgs);
 
-    QTC_CHECK(!sp.attachPID || (sp.startMode == AttachCrashedExternal
+    // it is better not to check the start mode on the python sid (as we would have to duplicate the
+    // enum values), and thus we assume that if the sp.attachPID is valid we really have to attach
+    QTC_CHECK(sp.attachPID <= 0 || (sp.startMode == AttachCrashedExternal
                                 || sp.startMode == AttachExternal));
     cmd.arg("attachPid", sp.attachPID);
     cmd.arg("sysRoot", sp.sysRoot);

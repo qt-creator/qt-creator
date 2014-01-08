@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -100,7 +100,7 @@ qint64 QmlProfilerSimpleModel::lastTimeMark() const
 
 void QmlProfilerSimpleModel::complete()
 {
-    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
+    m_modelManager->modelProxyCountUpdated(m_modelId, isEmpty() ? 0 : 1, 1);
     emit changed();
 }
 

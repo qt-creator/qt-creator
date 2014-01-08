@@ -1,6 +1,6 @@
 #############################################################################
 ##
-## Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+## Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ## Contact: http://www.qt-project.org/legal
 ##
 ## This file is part of Qt Creator.
@@ -69,7 +69,6 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
     for kit, config in availableConfigs:
         qtVersion = selectBuildConfig(targetCount, kit, config)[0]
         test.log("Selected kit using Qt %s" % qtVersion)
-        progressBarWait() # progress bars move buttons
         verifyBuildConfig(targetCount, kit, True, enableQmlDebug=True)
         if disableOptimizer:
             batchEditRunEnvironment(targetCount, kit, ["QML_DISABLE_OPTIMIZER=1"])
@@ -131,6 +130,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
                     test.compare(model.index(row, colMedian).data(), model.index(row, colLongest).data(),
                                  "For two calls, median and longest time must be the same.")
         deleteAppFromWinFW(workingDir, projectName, False)
+        progressBarWait(15000, False)   # wait for "Build" progressbar to disappear
 
 def compareEventsTab(model, file):
     significantColumns = [0, 1, 4, 9]

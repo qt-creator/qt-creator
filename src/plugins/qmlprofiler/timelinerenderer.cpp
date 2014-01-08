@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -233,7 +233,7 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
             int shadowoffset = 2;
             if ((yfrom + radius + shadowoffset < 0 && yto + radius + shadowoffset < 0) ||
                     (yfrom - radius >= height() && yto - radius >= height()))
-                return;
+                break;
 
             // shadow
             p->setPen(shadowPen);

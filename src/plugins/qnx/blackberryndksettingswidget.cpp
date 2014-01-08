@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
+** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
 **
 ** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
@@ -122,7 +122,7 @@ void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
             return;
     }
 
-    BlackBerrySetupWizard wizard;
+    BlackBerrySetupWizard wizard(Core::ICore::mainWindow());
     connect(&wizard, SIGNAL(ndkTargetsUpdated()), this, SLOT(updateNdkList()));
     wizard.exec();
 }
