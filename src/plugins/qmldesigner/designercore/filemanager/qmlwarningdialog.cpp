@@ -30,10 +30,6 @@ QmlWarningDialog::QmlWarningDialog(QWidget *parent, const QStringList &warnings)
     foreach (const QString &string, warnings)
         warningText += QLatin1String(" ") + string + QLatin1String("\n");
     ui->warnings->setText(warningText);
-
-    ui->warnings->setForegroundRole(QPalette::ToolTipText);
-    ui->warnings->setBackgroundRole(QPalette::ToolTipBase);
-    ui->warnings->setAutoFillBackground(true);
 }
 
 QmlWarningDialog::~QmlWarningDialog()
