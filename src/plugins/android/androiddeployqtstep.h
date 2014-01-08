@@ -104,8 +104,8 @@ public:
     bool verboseOutput() const;
     void setVerboseOutput(bool verbose);
 
-    QString inputFile() const;
-    void setInputFile(const QString &file);
+    QString proFilePathForInputFile() const;
+    void setProFilePathForInputFile(const QString &path);
 
     bool runInGuiThread() const;
 
@@ -150,7 +150,7 @@ private:
     QString m_avdName;
     QString m_apkPath;
     QString m_targetArch;
-    QString m_inputFile;
+    QString m_proFilePathForInputFile;
     int m_deviceAPILevel;
 
     static const Core::Id Id;

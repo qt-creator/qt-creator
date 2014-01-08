@@ -187,12 +187,10 @@ void AndroidDeployQtWidget::updateInputFileUi()
         m_ui->inputFileComboBox->setVisible(true);
 
         m_ui->inputFileComboBox->clear();
-        foreach (QmakeProjectManager::QmakeProFileNode *node, nodes) {
-            QString file = node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
-            m_ui->inputFileComboBox->addItem(node->displayName(), file);
-        }
+        foreach (QmakeProjectManager::QmakeProFileNode *node, nodes)
+            m_ui->inputFileComboBox->addItem(node->displayName(), node->path());
 
-        int index = m_ui->inputFileComboBox->findData(m_step->inputFile());
+        int index = m_ui->inputFileComboBox->findData(m_step->proFilePathForInputFile());
         m_ui->inputFileComboBox->setCurrentIndex(index);
         m_ignoreChange = false;
     }
@@ -202,8 +200,8 @@ void AndroidDeployQtWidget::inputFileComboBoxIndexChanged()
 {
     if (m_ignoreChange)
         return;
-    QString text = m_ui->inputFileComboBox->itemData(m_ui->inputFileComboBox->currentIndex()).toString();
-    m_step->setInputFile(text);
+    QString proFilePath = m_ui->inputFileComboBox->itemData(m_ui->inputFileComboBox->currentIndex()).toString();
+    m_step->setProFilePathForInputFile(proFilePath);
 }
 
 QString AndroidDeployQtWidget::displayName() const

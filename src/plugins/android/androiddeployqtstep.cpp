@@ -61,6 +61,7 @@ const QLatin1String SignPackageKey("SignPackage");
 const QLatin1String BuildTargetSdkKey("BuildTargetSdk");
 const QLatin1String VerboseOutputKey("VerboseOutput");
 const QLatin1String InputFile("InputFile");
+const QLatin1String ProFilePathForInputFile("ProFilePathForInputFile");
 const Core::Id AndroidDeployQtStep::Id("Qt4ProjectManager.AndroidDeployQtStep");
 
 //////////////////
@@ -213,9 +214,9 @@ bool AndroidDeployQtStep::init()
     if (!version)
         return false;
 
-    ProjectExplorer::Project *project = target()->project();
+    QmakeProjectManager::QmakeProject *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
     JavaParser *parser = new JavaParser;
-    parser->setProjectFileList(project->files(ProjectExplorer::Project::AllFiles));
+    parser->setProjectFileList(pro->files(ProjectExplorer::Project::AllFiles));
     setOutputParser(parser);
 
     QString command = version->qmakeProperty("QT_HOST_BINS");
@@ -234,10 +235,21 @@ bool AndroidDeployQtStep::init()
         deploymentMethod = QLatin1String("bundled");
 
     QString outputDir = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
+    const QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePathForInputFile);
+    if (!node) { // should never happen
+        emit addOutput(tr("Internal Error: Could not find .pro file."), BuildStep::ErrorMessageOutput);
+        return false;
+    }
+
+    QString inputFile = node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
+    if (inputFile.isEmpty()) { // should never happen
+        emit addOutput(tr("Internal Error: Unknown android deployment json file location"), BuildStep::ErrorMessageOutput);
+        return false;
+    }
 
     QStringList arguments;
     arguments << QLatin1String("--input")
-              << m_inputFile
+              << inputFile
               << QLatin1String("--output")
               << outputDir
               << QLatin1String("--deployment")
@@ -249,6 +261,9 @@ bool AndroidDeployQtStep::init()
               << m_buildTargetSdk
               << QLatin1String("--jdk")
               << AndroidConfigurations::instance().openJDKPath().toString();
+
+    parser->setSourceDirectory(Utils::FileName::fromString(node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir)));
+    parser->setBuildDirectory(Utils::FileName::fromString(outputDir));
 
     if (m_verbose)
         arguments << QLatin1String("--verbose");
@@ -347,17 +362,12 @@ void AndroidDeployQtStep::updateInputFile()
     QmakeProjectManager::QmakeProject *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
     QList<QmakeProjectManager::QmakeProFileNode *> nodes = pro->applicationProFiles();
 
-    QStringList inputFiles;
-    foreach (QmakeProjectManager::QmakeProFileNode *node, nodes)
-        inputFiles << node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
-
-    if (!inputFiles.contains(m_inputFile))
-        m_inputFile.clear();
-
-    if (m_inputFile.isEmpty()) {
-        // not yet selected one or no longer exists
-        if (!inputFiles.isEmpty())
-            m_inputFile = inputFiles.first();
+    const QmakeProjectManager::QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePathForInputFile);
+    if (!nodes.contains(const_cast<QmakeProjectManager::QmakeProFileNode *>(node))) {
+        if (!nodes.isEmpty())
+            m_proFilePathForInputFile = nodes.first()->path();
+        else
+            m_proFilePathForInputFile.clear();
     }
 
     emit inputFileChanged();
@@ -388,7 +398,7 @@ bool AndroidDeployQtStep::fromMap(const QVariantMap &map)
     m_signPackage = false; // don't restore this
     m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();
     m_verbose = map.value(VerboseOutputKey).toBool();
-    m_inputFile = map.value(InputFile).toString();
+    m_proFilePathForInputFile = map.value(ProFilePathForInputFile).toString();
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
@@ -400,7 +410,7 @@ QVariantMap AndroidDeployQtStep::toMap() const
     map.insert(SignPackageKey, m_signPackage);
     map.insert(BuildTargetSdkKey, m_buildTargetSdk);
     map.insert(VerboseOutputKey, m_verbose);
-    map.insert(InputFile, m_inputFile);
+    map.insert(ProFilePathForInputFile, m_proFilePathForInputFile);
     return map;
 }
 
@@ -481,14 +491,14 @@ void AndroidDeployQtStep::setVerboseOutput(bool verbose)
     m_verbose = verbose;
 }
 
-QString AndroidDeployQtStep::inputFile() const
+QString AndroidDeployQtStep::proFilePathForInputFile() const
 {
-    return m_inputFile;
+    return m_proFilePathForInputFile;
 }
 
-void AndroidDeployQtStep::setInputFile(const QString &file)
+void AndroidDeployQtStep::setProFilePathForInputFile(const QString &path)
 {
-    m_inputFile = file;
+    m_proFilePathForInputFile = path;
 }
 
 bool AndroidDeployQtStep::runInGuiThread() const

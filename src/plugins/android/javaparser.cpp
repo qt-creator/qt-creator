@@ -31,6 +31,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
+#include <QFileInfo>
 
 using namespace Android::Internal;
 using namespace ProjectExplorer;
@@ -56,6 +57,16 @@ void JavaParser::setProjectFileList(const QStringList &fileList)
     m_fileList = fileList;
 }
 
+void JavaParser::setBuildDirectory(const Utils::FileName &buildDirectory)
+{
+    m_buildDirectory = buildDirectory;
+}
+
+void JavaParser::setSourceDirectory(const Utils::FileName &sourceDirectory)
+{
+    m_sourceDirectory = sourceDirectory;
+}
+
 void JavaParser::parse(const QString &line)
 {
     if (m_javaRegExp.indexIn(line) > -1) {
@@ -63,16 +74,24 @@ void JavaParser::parse(const QString &line)
         int lineno = m_javaRegExp.cap(3).toInt(&ok);
         if (!ok)
             lineno = -1;
-        QString file = m_javaRegExp.cap(2);
-        for (int i = 0; i < m_fileList.size(); i++)
-            if (m_fileList[i].endsWith(file)) {
-                file = m_fileList[i];
-                break;
-            }
+        Utils::FileName file = Utils::FileName::fromUserInput(m_javaRegExp.cap(2));
+        if (file.isChildOf(m_buildDirectory)) {
+            Utils::FileName relativePath = file.relativeChildPath(m_buildDirectory);
+            file = m_sourceDirectory;
+            file.appendPath(relativePath.toString());
+        }
+
+        if (file.toFileInfo().isRelative()) {
+            for (int i = 0; i < m_fileList.size(); i++)
+                if (m_fileList[i].endsWith(file.toString())) {
+                    file = Utils::FileName::fromString(m_fileList[i]);
+                    break;
+                }
+        }
 
         Task task(Task::Error,
                   m_javaRegExp.cap(4).trimmed(),
-                  Utils::FileName::fromString(file) /* filename */,
+                  file /* filename */,
                   lineno,
                   Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task);

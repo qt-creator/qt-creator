@@ -31,6 +31,7 @@
 #define JAVAPARSER_H
 
 #include <projectexplorer/ioutputparser.h>
+#include <utils/fileutils.h>
 
 namespace Android {
 namespace Internal {
@@ -45,11 +46,16 @@ public:
     void stdError(const QString &line);
     void setProjectFileList(const QStringList &fileList);
 
+    void setBuildDirectory(const Utils::FileName &buildDirectory);
+    void setSourceDirectory(const Utils::FileName &sourceDirectory);
+
 private:
     void parse(const QString &line);
 
     QRegExp m_javaRegExp;
     QStringList m_fileList;
+    Utils::FileName m_sourceDirectory;
+    Utils::FileName m_buildDirectory;
 };
 
 } // namespace Internal
