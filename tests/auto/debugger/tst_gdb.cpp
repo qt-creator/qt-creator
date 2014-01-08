@@ -269,11 +269,7 @@ void tst_gdb::niceType_data()
         << "std::map<const char*, Foo>";
 }
 
-int main(int argc, char *argv[])
-{
-    tst_gdb test;
-    return QTest::qExec(&test, argc, argv);
-}
+QTEST_APPLESS_MAIN(tst_gdb);
 
 #include "tst_gdb.moc"
 
