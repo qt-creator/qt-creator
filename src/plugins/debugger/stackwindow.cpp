@@ -40,11 +40,16 @@
 #include <utils/savedaction.h>
 
 #include <QDebug>
+#include <QTextStream>
+#include <QFile>
+#include <QDir>
 
 #include <QApplication>
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QInputDialog>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QMenu>
 
 namespace Debugger {
@@ -115,6 +120,31 @@ static inline StackFrame inputFunctionForDisassembly()
     return frame;
 }
 
+// Write stack frames as task file for displaying it in the build issues pane.
+void saveTaskFile(QWidget *parent, const StackHandler *sh)
+{
+    QFile file;
+    QFileDialog fileDialog(parent);
+    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+    fileDialog.selectFile(QDir::currentPath() + QLatin1String("/stack.tasks"));
+    while (!file.isOpen()) {
+        if (fileDialog.exec() != QDialog::Accepted)
+            return;
+        const QString fileName = fileDialog.selectedFiles().front();
+        file.setFileName(fileName);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QMessageBox::warning(parent, StackTreeView::tr("Cannot Open Task File"),
+                                 StackTreeView::tr("Cannot open \"%1\": %2").arg(QDir::toNativeSeparators(fileName), file.errorString()));
+        }
+    }
+
+    QTextStream str(&file);
+    foreach (const StackFrame &frame, sh->frames()) {
+        if (frame.isUsable())
+            str << frame.file << '\t' << frame.line << "\tstack\tFrame #" << frame.level << '\n';
+    }
+}
+
 void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     DebuggerEngine *engine = currentEngine();
@@ -131,6 +161,9 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *actCopyContents = menu.addAction(tr("Copy Contents to Clipboard"));
     actCopyContents->setEnabled(model() != 0);
+
+    QAction *actSaveTaskFile = menu.addAction(tr("Save as Task File..."));
+    actSaveTaskFile->setEnabled(model() != 0);
 
     if (engine->hasCapability(CreateFullBacktraceCapability))
         menu.addAction(debuggerCore()->action(CreateFullBacktrace));
@@ -207,6 +240,8 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
         engine->openDisassemblerView(frame);
     else if (act == actLoadSymbols)
         engine->loadSymbolsForStack();
+    else if (act == actSaveTaskFile)
+        saveTaskFile(this, handler);
     else
         handleBaseContextAction(act);
 }
