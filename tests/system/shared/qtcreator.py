@@ -60,15 +60,19 @@ source("../../shared/workarounds.py")
 # function must be called BEFORE any call except the first (which is done always automatically)
 def overrideStartApplication():
     global startApplication, __origStartApplication__
-    if (platform.system() != "Darwin"):
+    if (platform.system() == "Linux"):
         return
     if (__origStartApplication__ == None):
         __origStartApplication__ = startApplication
     def startApplication(*args):
         args = list(args)
         if str(args[0]).startswith('qtcreator'):
-            args[0] = args[0].replace('qtcreator', '"Qt Creator"', 1)
-            test.log("Using workaround for MacOS (different AUT name)")
+            if platform.system() == 'Darwin':
+                args[0] = args[0].replace('qtcreator', '"Qt Creator"', 1)
+                test.log("Using workaround for MacOS (different AUT name)")
+            elif not isQt4Build:
+                args[0] = args[0] + ' -platform windows:dialogs=none'
+                test.log("Using workaround for Windows (failing to hook into native FileDialog)")
         return __origStartApplication__(*args)
 
 def startedWithoutPluginError():
