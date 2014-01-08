@@ -31,10 +31,12 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
+#ifdef Q_CC_MSVC
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/fileutils.h>
 #include <utils/synchronousprocess.h>
+#endif // Q_CC_MSVC
 
 #include "temporarydir.h"
 
@@ -48,11 +50,11 @@
 #endif
 
 using namespace Debugger;
-using namespace Utils;
 using namespace Internal;
 
-// Copied from abstractmsvctoolchain.cpp to avoid plugin dependency.
+#ifdef Q_CC_MSVC
 
+// Copied from abstractmsvctoolchain.cpp to avoid plugin dependency.
 static bool generateEnvironmentSettings(Utils::Environment &env,
                                         const QString &batchFile,
                                         const QString &batchArgs,
@@ -142,6 +144,30 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
 
     return true;
 }
+
+static void setupCdb(QString *makeBinary, QProcessEnvironment *environment)
+{
+    QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
+    QMap <QString, QString> envPairs;
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
+    for (QMap<QString,QString>::const_iterator envIt = envPairs.begin(); envIt != envPairs.end(); ++envIt)
+            env.set(envIt.key(), envIt.value());
+    const QByteArray cdbextPath = QByteArray(CDBEXT_PATH) + QByteArray("\\qtcreatorcdbext64");
+    QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
+    env.appendOrSet(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
+                         QString::fromLatin1(cdbextPath),
+                         QLatin1String(";"));
+    *makeBinary = env.searchInPath(QLatin1String("nmake.exe"));
+    *environment = env.toProcessEnvironment();
+}
+
+#else
+
+static void setupCdb(QString *, QProcessEnvironment *) {}
+
+#endif // Q_CC_MSVC
+
 
 static QByteArray noValue = "\001";
 
@@ -659,9 +685,10 @@ private:
     TempStuff *t;
     QByteArray m_debuggerBinary;
     QByteArray m_qmakeBinary;
-    Environment m_env;
+    QProcessEnvironment m_env;
     bool m_usePython;
     DebuggerEngine m_debuggerEngine;
+    QString m_makeBinary;
     bool m_keepTemp;
     bool m_forceKeepTemp;
     int m_gdbVersion; // 7.5.1 -> 70501
@@ -697,8 +724,6 @@ void tst_Dumpers::initTestCase()
     m_forceKeepTemp = qgetenv("QTC_KEEP_TEMP_FOR_TEST").toInt();
     qDebug() << "Force keep temp    : " << m_forceKeepTemp;
 
-    m_env = Environment::systemEnvironment();
-
     if (m_debuggerEngine == DumpTestGdbEngine) {
         QProcess debugger;
         debugger.start(QString::fromLatin1(m_debuggerBinary)
@@ -723,18 +748,11 @@ void tst_Dumpers::initTestCase()
         version = version.mid(pos1, pos2 - pos1);
         extractGdbVersion(version, &m_gdbVersion,
             &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
+        m_env = QProcessEnvironment::systemEnvironment();
+        m_makeBinary = QLatin1String("make");
         qDebug() << "Gdb version        : " << m_gdbVersion;
     } else if (m_debuggerEngine == DumpTestCdbEngine) {
-        QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
-        QMap <QString, QString> envPairs;
-        QVERIFY(generateEnvironmentSettings(m_env, QString::fromLatin1(envBat), QString(), envPairs));
-        for (QMap<QString,QString>::const_iterator envIt = envPairs.begin(); envIt!=envPairs.end(); ++envIt)
-                m_env.set(envIt.key(), envIt.value());
-        const QByteArray cdbextPath = QByteArray(CDBEXT_PATH) + QByteArray("\\qtcreatorcdbext64");
-        QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
-        m_env.appendOrSet(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
-                             QString::fromLatin1(cdbextPath),
-                             QLatin1String(";"));
+        setupCdb(&m_makeBinary, &m_env);
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
         m_usePython = true;
         QProcess debugger;
@@ -751,6 +769,8 @@ void tst_Dumpers::initTestCase()
         if (pos >= 0)
             ba = ba.left(pos);
         m_lldbVersion = ba.toInt();
+        m_env = QProcessEnvironment::systemEnvironment();
+        m_makeBinary = QLatin1String("make");
         qDebug() << "Lldb version       :" << output << ba << m_lldbVersion;
         QVERIFY(m_lldbVersion);
     }
@@ -872,12 +892,9 @@ void tst_Dumpers::dumper()
 
     QProcess make;
     make.setWorkingDirectory(t->buildPath);
-    make.setProcessEnvironment(m_env.toProcessEnvironment());
+    make.setProcessEnvironment(m_env);
 
-    cmd = m_debuggerEngine == DumpTestCdbEngine ? m_env.searchInPath(QLatin1String("nmake.exe"))
-                                                : QLatin1String("make");
-
-    make.start(cmd, QStringList());
+    make.start(m_makeBinary, QStringList());
     QVERIFY(make.waitForFinished());
     output = make.readAllStandardOutput();
     error = make.readAllStandardError();
@@ -985,7 +1002,7 @@ void tst_Dumpers::dumper()
     t->input = cmds;
 
     QProcess debugger;
-    debugger.setProcessEnvironment(m_env.toProcessEnvironment());
+    debugger.setProcessEnvironment(m_env);
     debugger.setWorkingDirectory(t->buildPath);
     debugger.start(QString::fromLatin1(exe), args);
     QVERIFY(debugger.waitForStarted());
