@@ -3,9 +3,7 @@ import "../autotest.qbs" as Autotest
 
 Autotest {
     name: "Debugger dumpers autotest"
-    Depends { name: "CPlusPlus" }
     Depends { name: "Utils" }
-    Depends { name: "Qt.widgets" } // For QTextDocument
     Depends { name: "Qt.network" } // For QHostAddress
     Group {
         name: "Sources from Debugger plugin"

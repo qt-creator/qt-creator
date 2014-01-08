@@ -31,7 +31,6 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
-#include <cplusplus/CppRewriter.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/fileutils.h>
