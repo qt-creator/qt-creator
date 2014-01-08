@@ -44,9 +44,9 @@
 #include <math.h>
 
 #if  QT_VERSION >= 0x050000
-#define MSKIP_SINGLE(x) QSKIP(x)
+#define MSKIP_SINGLE(x) do { disarm(); QSKIP(x); } while (0)
 #else
-#define MSKIP_SINGLE(x) QSKIP(x, SkipSingle)
+#define MSKIP_SINGLE(x) do { disarm(); QSKIP(x, SkipSingle); } while (0)
 #endif
 
 using namespace Debugger;
@@ -523,6 +523,13 @@ struct QtVersion : VersionBase
     {}
 };
 
+struct GccVersion : VersionBase
+{
+    GccVersion(int minimum = 0, int maximum = 0)
+        : VersionBase(minimum, maximum)
+    {}
+};
+
 struct GdbVersion : VersionBase
 {
     GdbVersion(int minimum = 0, int maximum = 0)
@@ -559,6 +566,7 @@ struct DataBase
     mutable GdbVersion neededGdbVersion;
     mutable LldbVersion neededLldbVersion;
     mutable QtVersion neededQtVersion;
+    mutable GccVersion neededGccVersion;
 };
 
 class Data : public DataBase
@@ -586,6 +594,12 @@ public:
     const Data &operator%(const QtVersion &qtVersion) const
     {
         neededQtVersion = qtVersion;
+        return *this;
+    }
+
+    const Data &operator%(const GccVersion &gccVersion) const
+    {
+        neededGccVersion = gccVersion;
         return *this;
     }
 
@@ -684,6 +698,7 @@ public:
         m_gdbBuildVersion = 0;
         m_lldbVersion = 0;
         m_qtVersion = 0;
+        m_gccVersion = 0;
         m_isMacGdb = false;
         m_isQnxGdb = false;
         m_useGLibCxxDebug = false;
@@ -697,6 +712,7 @@ private slots:
     void cleanup();
 
 private:
+    void disarm() { t->buildTemp.setAutoRemove(!keepTemp()); }
     bool keepTemp() const { return m_keepTemp || m_forceKeepTemp; }
     TempStuff *t;
     QByteArray m_debuggerBinary;
@@ -711,6 +727,7 @@ private:
     int m_gdbBuildVersion;
     int m_lldbVersion;
     int m_qtVersion; // 5.2.0 -> 50200
+    int m_gccVersion;
     bool m_isMacGdb;
     bool m_isQnxGdb;
     bool m_useGLibCxxDebug;
@@ -866,6 +883,36 @@ void tst_Dumpers::dumper()
         if (data.neededQtVersion.max < m_qtVersion)
             MSKIP_SINGLE("Need maximum Qt version "
                 + QByteArray::number(data.neededQtVersion.max));
+    }
+
+    if (data.neededGccVersion.isRestricted) {
+        QProcess gcc;
+        gcc.setWorkingDirectory(t->buildPath);
+        cmd = QLatin1String("gcc");
+        gcc.start(cmd, QStringList(QLatin1String("--version")));
+        QVERIFY(gcc.waitForFinished());
+        output = gcc.readAllStandardOutput();
+        error = gcc.readAllStandardError();
+        int pos = output.indexOf('\n');
+        if (pos != -1)
+            output = output.left(pos);
+        qDebug() << "Extracting GCC version from: " << output;
+        pos = output.lastIndexOf(' ');
+        output = output.mid(pos + 1);
+        int pos1 = output.indexOf('.');
+        int major = output.left(pos1++).toInt();
+        int pos2 = output.indexOf('.', pos1 + 1);
+        int minor = output.mid(pos1, pos2++ - pos1).toInt();
+        int patch = output.mid(pos2).toInt();
+        m_gccVersion = 10000 * major + 100 * minor + patch;
+        qDebug() << "GCC version: " << m_gccVersion;
+
+        if (data.neededGccVersion.min > m_gccVersion)
+            MSKIP_SINGLE("Need minimum GCC version "
+                + QByteArray::number(data.neededGccVersion.min));
+        if (data.neededGccVersion.max < m_gccVersion)
+            MSKIP_SINGLE("Need maximum GCC version "
+                + QByteArray::number(data.neededGccVersion.max));
     }
 
     const char *mainFile = data.forceC ? "main.c" : "main.cpp";
@@ -1206,7 +1253,7 @@ void tst_Dumpers::dumper()
         qDebug() << "BUILD DIR    : " << qPrintable(t->buildPath);
     }
     QVERIFY(ok);
-    t->buildTemp.setAutoRemove(!keepTemp());
+    disarm();
 }
 
 void tst_Dumpers::dumper_data()
@@ -4501,14 +4548,20 @@ void tst_Dumpers::dumper_data()
                % Check("y2", "", "X")
                % Check("y3", "", "X");
 
-    QTest::newRow("RValueReference")
+    QTest::newRow("RValueReferenceLldb")
             << Data(rvalueData)
-               % Check("x1", "", "X &").setForGdbOnly()
-               % Check("x2", "", "X &").setForGdbOnly()
-               % Check("x3", "", "X &").setForGdbOnly()
-               % Check("x1", "", "X &&").setForLldbOnly()
-               % Check("x2", "", "X &&").setForLldbOnly()
-               % Check("x3", "", "X &&").setForLldbOnly();
+               % DumpTestLldbEngine
+               % Check("x1", "", "X &&")
+               % Check("x2", "", "X &&")
+               % Check("x3", "", "X &&");
+
+    QTest::newRow("RValueReferenceGdb")
+            << Data(rvalueData)
+               % DumpTestGdbEngine
+               % GccVersion(0, 40704)
+               % Check("x1", "", "X &")
+               % Check("x2", "", "X &")
+               % Check("x3", "", "X &");
 
     QTest::newRow("SSE")
             << Data("#include <xmmintrin.h>\n"
