@@ -118,9 +118,7 @@ void CMakeEditor::build()
 CMakeEditorWidget::CMakeEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(parent)
 {
-    QSharedPointer<CMakeDocument> doc(new CMakeDocument);
-    doc->setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
-    setBaseTextDocument(doc);
+    setBaseTextDocument(QSharedPointer<CMakeDocument>(new CMakeDocument));
 
     baseTextDocument()->setSyntaxHighlighter(new CMakeHighlighter);
 
@@ -227,6 +225,7 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 CMakeDocument::CMakeDocument()
     : TextEditor::BaseTextDocument()
 {
+    setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
 }
 
 QString CMakeDocument::defaultPath() const

@@ -44,6 +44,7 @@ AndroidManifestDocument::AndroidManifestDocument(AndroidManifestEditorWidget *ed
     : TextEditor::BaseTextDocument(),
       m_editorWidget(editorWidget)
 {
+    setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
 }
 
 bool AndroidManifestDocument::save(QString *errorString, const QString &fileName, bool autoSave)

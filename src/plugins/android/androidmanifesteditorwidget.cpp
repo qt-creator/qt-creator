@@ -102,9 +102,7 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget(QWidget *parent)
       m_setAppName(false),
       m_appNameInStringsXml(false)
 {
-    QSharedPointer<AndroidManifestDocument> doc(new AndroidManifestDocument(this));
-    doc->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
-    setBaseTextDocument(doc);
+    setBaseTextDocument(QSharedPointer<AndroidManifestDocument>(new AndroidManifestDocument(this)));
 
     configure(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
 

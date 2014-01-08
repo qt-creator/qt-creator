@@ -86,7 +86,6 @@ ProFileEditorWidget::ProFileEditorWidget(ProFileEditorFactory *factory, QWidget 
     : BaseTextEditorWidget(parent), m_factory(factory)
 {
     QSharedPointer<ProFileDocument> doc(new ProFileDocument());
-    doc->setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
     setBaseTextDocument(doc);
 
     baseTextDocument()->setSyntaxHighlighter(new ProFileHighlighter);
@@ -204,6 +203,7 @@ void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 ProFileDocument::ProFileDocument()
         : TextEditor::BaseTextDocument()
 {
+    setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
 }
 
 QString ProFileDocument::defaultPath() const
