@@ -495,11 +495,13 @@ struct MacLibCppProfile : public Profile
     {}
 };
 
-struct GdbVersion
+struct VersionBase
 {
     // Minimum and maximum are inclusive.
-    GdbVersion(int minimum = 0, int maximum = 0)
+    VersionBase(int minimum = 0, int maximum = 0)
     {
+        isRestricted = minimum || maximum;
+
         if (minimum && !maximum)
             maximum = minimum;
         if (maximum == 0)
@@ -508,25 +510,31 @@ struct GdbVersion
         max = maximum;
         min = minimum;
     }
+
+    bool isRestricted;
     int min;
     int max;
 };
 
-struct LldbVersion
+struct QtVersion : VersionBase
 {
-    // Minimum and maximum are inclusive.
-    LldbVersion(int minimum = 0, int maximum = 0)
-    {
-        if (minimum && !maximum)
-            maximum = minimum;
-        if (maximum == 0)
-            maximum = INT_MAX;
+    QtVersion(int minimum = 0, int maximum = 0)
+        : VersionBase(minimum, maximum)
+    {}
+};
 
-        max = maximum;
-        min = minimum;
-    }
-    int min;
-    int max;
+struct GdbVersion : VersionBase
+{
+    GdbVersion(int minimum = 0, int maximum = 0)
+        : VersionBase(minimum, maximum)
+    {}
+};
+
+struct LldbVersion : VersionBase
+{
+    LldbVersion(int minimum = 0, int maximum = 0)
+        : VersionBase(minimum, maximum)
+    {}
 };
 
 struct ForceC {};
@@ -550,6 +558,7 @@ struct DataBase
     mutable bool glibcxxDebug;
     mutable GdbVersion neededGdbVersion;
     mutable LldbVersion neededLldbVersion;
+    mutable QtVersion neededQtVersion;
 };
 
 class Data : public DataBase
@@ -571,6 +580,12 @@ public:
     const Data &operator%(const Profile &profile) const
     {
         profileExtra += profile.contents;
+        return *this;
+    }
+
+    const Data &operator%(const QtVersion &qtVersion) const
+    {
+        neededQtVersion = qtVersion;
         return *this;
     }
 
@@ -668,6 +683,7 @@ public:
         m_gdbVersion = 0;
         m_gdbBuildVersion = 0;
         m_lldbVersion = 0;
+        m_qtVersion = 0;
         m_isMacGdb = false;
         m_isQnxGdb = false;
         m_useGLibCxxDebug = false;
@@ -694,6 +710,7 @@ private:
     int m_gdbVersion; // 7.5.1 -> 70501
     int m_gdbBuildVersion;
     int m_lldbVersion;
+    int m_qtVersion; // 5.2.0 -> 50200
     bool m_isMacGdb;
     bool m_isQnxGdb;
     bool m_useGLibCxxDebug;
@@ -808,10 +825,10 @@ void tst_Dumpers::dumper()
     }
 
     if (m_debuggerEngine == DumpTestLldbEngine) {
-        if (data.neededLldbVersion.min > m_gdbVersion)
+        if (data.neededLldbVersion.min > m_lldbVersion)
             MSKIP_SINGLE("Need minimum LLDB version "
                 + QByteArray::number(data.neededLldbVersion.min));
-        if (data.neededLldbVersion.max < m_gdbVersion)
+        if (data.neededLldbVersion.max < m_lldbVersion)
             MSKIP_SINGLE("Need maximum LLDB version "
                 + QByteArray::number(data.neededLldbVersion.max));
     }
@@ -819,6 +836,37 @@ void tst_Dumpers::dumper()
     QString cmd;
     QByteArray output;
     QByteArray error;
+
+    if (data.neededQtVersion.isRestricted) {
+        QProcess qmake;
+        qmake.setWorkingDirectory(t->buildPath);
+        cmd = QString::fromLatin1(m_qmakeBinary);
+        qmake.start(cmd, QStringList(QLatin1String("--version")));
+        QVERIFY(qmake.waitForFinished());
+        output = qmake.readAllStandardOutput();
+        error = qmake.readAllStandardError();
+        int pos0 = output.indexOf("Qt version");
+        if (pos0 == -1) {
+            qDebug() << "Output: " << output;
+            qDebug() << "Error: " << error;
+            QVERIFY(false);
+        }
+        pos0 += 11;
+        int pos1 = output.indexOf('.', pos0 + 1);
+        int major = output.mid(pos0, pos1++ - pos0).toInt();
+        int pos2 = output.indexOf('.', pos1 + 1);
+        int minor = output.mid(pos1, pos2++ - pos1).toInt();
+        int pos3 = output.indexOf(' ', pos2 + 1);
+        int patch = output.mid(pos2, pos3++ - pos2).toInt();
+        m_qtVersion = 10000 * major + 100 * minor + patch;
+
+        if (data.neededQtVersion.min > m_qtVersion)
+            MSKIP_SINGLE("Need minimum Qt version "
+                + QByteArray::number(data.neededQtVersion.min));
+        if (data.neededQtVersion.max < m_qtVersion)
+            MSKIP_SINGLE("Need maximum Qt version "
+                + QByteArray::number(data.neededQtVersion.max));
+    }
 
     const char *mainFile = data.forceC ? "main.c" : "main.cpp";
 
@@ -1309,6 +1357,7 @@ void tst_Dumpers::dumper_data()
                     "QTimeZone tz;\n"
                     "unused(&tz);\n")
                % CoreProfile()
+               % QtVersion(50200)
                % Check("tz", "(null)", "@QTimeZone");
 
     QTest::newRow("QTimeZone1")
@@ -1316,6 +1365,7 @@ void tst_Dumpers::dumper_data()
                     "QTimeZone tz(\"UTC+05:00\");\n"
                     "unused(&tz);\n")
                % CoreProfile()
+               % QtVersion(50200)
                % Check("tz", "\"UTC+05:00\"", "@QTimeZone")
                % Check("tz.d.m_name", "\"UTC+05:00\"", "@QString");
 
