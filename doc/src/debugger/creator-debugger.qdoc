@@ -62,9 +62,7 @@
             \QC is able to show complex data types in a customized,
             user-extensible manner. For this purpose, it takes advantage of
             two technologies, collectively referred to as \e {debugging
-            helpers}. Using the debugging helpers is not essential for
-            debugging with \QC, but they provide you with a powerful
-            tool to quickly examine complex data.
+            helpers}.
 
         \li \l{Debugging Qt Quick Projects}
 
@@ -846,75 +844,33 @@
     accessible through either sub-structures or pointers.
 
     To give the user simple access also to these items, \QC employs
-    so-called Debugging Helpers. Debugging Helpers come in two varieties,
-    compiled, and Python based, depending on the selected
-    \l{glossary-buildandrun-kit}{kit}.
+    so-called \e{debugging helpers}. Debugging helpers come in two varieties,
+    a compiled one, for use with the CDB backend, and a set of Python
+    scripts for use with the GDB and LLDB backends.
 
-    By default, Debugging Helpers are automatically and transparently used.
-    To disable them, select \gui Tools > \gui Options > \gui Debugger >
-    \gui {Locals & Expressions}, and deselect the \gui{Use Debugging Helper}
-    check box.
+    Debugging helpers are always automatically used. To force a plain
+    C-like display of structures, select \gui Tools > \gui Options >
+    \gui Debugger > \gui {Locals & Expressions}, and then select the
+    \gui{Force Raw Structure Display} check box. For GDB
+    and LLDB this will still use the Python scripts, but generate
+    more basic output. To force plain display for a single object
+    or for all objects of a given type, select the corresponding
+    option from the context menu.
 
-    \QC ships with Debugging Helpers for about 80 of the most
+    \QC ships with debugging helpers for more than 130 of the most
     popular Qt classes, Standard C++ containers and smart pointers,
     covering the usual needs of a C++ application developer out-of-the-box.
 
-    The following sections describe how to extend the debugging helpers
-    to your own data types.
+    \section1 Extending GDB and LLDB Debugging Helpers
 
+    When using either GDB or LLDB as the debugging backend, \QC uses Python
+    scripts to display information in the \gui {Locals and Expressions} view.
 
-    There are two approaches to displaying complex data types. The first and
-    original one is to use debugging helpers based on C++. While it has been
-    superseded on most  platforms by the more robust and more flexible second
-    approch that uses Python scripting, it is the only feasible one on
-    Windows/MSVC, Mac OS, and old Linux distributions. Moreover, this approach
-    is automatically chosen as fallback if the Python based approach fails.
-
-    \section1 Debugging Helpers Based on C++
-
-    During debugging with the C++ based debugging helpers,
-    \QC dynamically loads a helper library in form of a DLL or a
-    shared object into the debugged process.
-    The \QSDK package already contains a prebuilt debugging helper
-    library. To create your own debugging helper library, select \gui{Tools >
-    Options > Build & Run > Qt Versions}. As the internal data
-    structures of Qt can change between versions, the debugging helper
-    library is built for each Qt version.
-
-
-    \section1 Debugging Helpers Based on Python
-
-    \QC uses GDB builds that enable Python scripting to display
-    information in the \gui {Locals and Expressions} view. When Python scripting
-    is used, code (Debugging helpers) does not need to be injected into the
-    debugged process to nicely display QStringList or \c std::map contents, for
-    example.
-
-    The code injection caused problems and put an extra stress on the debugged
-    process. You can now easily extend the debugging helpers to other types. No
-    compilation is required, just adding a few lines of Python.
-
-    Python scripting vastly reduces the communication overhead compared
-    with the previous solution. However, there are some obstacles:
-
-    \list
-
-        \li There is no Python-enabled GDB for Mac OS. Mac OS continues
-            injection with C++ based debugging helpers.
-
-        \li There is no GDB to communicate with MSVC compiled applications on
-            Windows. So information can be displayed nicely only in a limited
-            fashion by using a CDB extension DLL.
-
-    \endlist
-
-    \section2 Extending the Python Based Debugging Helpers
-
-    On platforms featuring a Python-enabled version of the GDB debugger,
-    the data extraction is done by a Python script. This is more robust
-    as the script execution is separated from the debugged process. It
-    is also easier to extend as the script is less dependent on the
-    actual Qt version and does not need compilation.
+    You can easily extend these scripts to cover your own types,
+    using the same code for both the GDB and the LLDB backend.
+    No compilation is required, just adding a few lines of Python.
+    The scripts can address multiple versions of Qt, or of your own
+    library, at the same time.
 
     To extend the shipped Python based debugging helpers for custom
     types, add debugging helper implementations to the GDB startup file
@@ -934,45 +890,44 @@
 
     \list
 
-       \li \c d of type \c Dumper
+       \li \c d of type \c Dumper, an object containing current
+           settings and providing facilities to build up an object
+           representing part of the Locals and Expressions view,
 
-       \li \c value of type \c gdb.Value
+       \li \c value of type \c Value, wrapping either a
+           \l{https://sourceware.org/gdb/onlinedocs/gdb/Values-From-Inferior.html}{gdb.Value}
+           or an
+           \l{http://lldb.llvm.org/cpp_reference/html/classlldb_1_1SBValue.html}{lldb.SBValue}.
 
     \endlist
 
-    The function has to feed the Dumper object with certain information
-    which is used to build up the object and its children's display in the
-    \gui{Locals and Expressions} view.
+    The \c{qdump__*} function has to feed the Dumper object with certain
+    information which is used to build up the object and its children's
+    display in the \gui{Locals and Expressions} view.
 
     Example:
 
     \code
-    def qdump__QVector(d, value):
-        d_ptr = value["d"]
-        p_ptr = value["p"]
-        alloc = d_ptr["alloc"]
-        size = d_ptr["size"]
-
-        innerType = templateArgument(value.type, 0)
+    def qdump__QFiniteStack(d, value):
+        alloc = int(value["_alloc"])
+        size = int(value["_size"])
         d.putItemCount(size)
         d.putNumChild(size)
         if d.isExpanded():
-            p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
-            charPtr = lookupType("char").pointer()
-            d.putField("size", size)
-            with Children(d, size, maxNumChild=2000, childType=innerType, addrBase=p,
-                    addrStep=(p+1).cast(charPtr) - p.cast(charPtr)):
-                for i in d.childRange():
-                    d.putSubItem(i, p.dereference())
-                    p += 1
+            innerType = d.templateArgument(value.type, 0)
+            d.putArrayData(innerType, value["_array"], size)
     \endcode
+
+    \note To create dumper functions usable with both LLDB and GDB
+    backends, avoid direct access to the \c gdb.* and \c lldb.* namespaces
+    and use functions of the \c Dumper class instead.
 
     \section2 Dumper Class
 
     For each line in the \gui{Locals and Expressions} view, a string like the
     following needs to be created and channeled to the debugger plugin.
     \code
-    "{iname='some internal name',           # optional
+     {iname='some internal name',           # optional
       addr='object address in memory',      # optional
       name='contents of the name column',   # optional
       value='contents of the value column',
@@ -986,7 +941,7 @@
          {iname='internal name of second child',
            },
 
-      ]}"
+      ]}
     \endcode
 
     The value of the \c iname field is the internal name of the object,
@@ -999,7 +954,7 @@
     of the view. If it is not specified, a simple number in brackets
     is used instead.
 
-    While in theory, you can build up the entire string above manually, it is
+    While in theory you can build up the entire string above manually, it is
     easier to employ the Dumper Python class for that purpose. The Dumper
     Python class contains a complete framework to take care of the \c iname and
     \c addr fields, to handle children of simple types, references, pointers,
@@ -1023,11 +978,6 @@
 
         \li \c{putItemCount(self, count)} - Appends a field
             \c {value='<%d items'} to the output.
-
-        \li \c{putEllipsis(self)} - Appends fields
-            \c {'{name="<incomplete>",value="",type="",numchild="0"}'}. This is
-            automatically done by \c endChildren if the number of children to
-            print is smaller than the number of actual children.
 
         \li \c{putName(self, name)} - Appends a \c {name=''} field.
 
@@ -1109,6 +1059,10 @@
             when inspecting a core file, they are expensive to execute
             and have the potential to change the state of the debugged
             program.
+
+        \li \c{putArrayData(self, type, address, size)} - Creates \c size
+            children of type \c type of an array-like object located at
+            \c address.
 
         \li \c{putItem(self, value)} - The "master function", handling
             basic types, references, pointers and enums directly, iterates
@@ -1215,7 +1169,7 @@
 
     \list 1
 
-        \li Make sure you use at least \QC 2.1.
+        \li Make sure you use at least \QC 3.0.1
 
         \li Make sure the debugger is set up properly. For more information,
             see \l{Setting Up Debugger}.
@@ -1255,16 +1209,6 @@
     all breakpoints need to be inserted and removed again for each step)
     and the evaluation of expressions after each step. We recommend that
     you minimize the number of breakpoints and watched expressions.
-
-    \section1 Debugger Displays <not in scope> Message
-
-    The message is created by the debugging helpers. \QC posts an
-    expression to the GDB command line to invoke the debugging helpers.
-    The expression includes the address of the object to examine. This
-    address might be modified by GDB before the helper function is called. It
-    is unclear why and when this happens, but if it happens, the debugging
-    helpers operate on wrong data and come to wrong conclusions. Most likely,
-    they find garbage and declare the variable to be <not in scope>.
 
     \section1 Application Crashes when Debugging on Mac OS X Snow Leopard
 
