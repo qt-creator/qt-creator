@@ -47,7 +47,9 @@ const char *description[] =
     "g++_wstringvector",
     "g++_unordered_set",
     "g++_unordered_map",
+
     "libc++_stringvector",
+
     "msvc_stdstring",
     "msvc_stdwstring",
     "msvc_stringmap",
@@ -56,6 +58,8 @@ const char *description[] =
     "msvc_stringset",
     "msvc_stringvector",
     "msvc_wstringvector",
+
+    "boost_shared_ptr",
 };
 
 const char *input[] =
@@ -83,7 +87,9 @@ const char *input[] =
 "class std::list<std::basic_string<char,std::char_traits<char>,std::allocator<char> >,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char> > > >",
 "class std::set<std::basic_string<char,std::char_traits<char>,std::allocator<char> >,std::less<std::basic_string<char,std::char_traits<char>,std::allocator<char> > >,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char> > > >",
 "class std::vector<std::basic_string<char,std::char_traits<char>,std::allocator<char> >,std::allocator<std::basic_string<char,std::char_traits<char>,std::allocator<char> > > >",
-"class std::vector<std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >,std::allocator<std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> > > >"
+"class std::vector<std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >,std::allocator<std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> > > >",
+// boost
+"boost::shared_ptr<int>::element_type",
 };
 
 const char *output[] =
@@ -110,6 +116,8 @@ const char *output[] =
     "std::set<std::string>",
     "std::vector<std::string>",
     "std::vector<std::wstring>",
+    // boost
+    "int",
 };
 
 class SimplifyTypesTest : public QObject

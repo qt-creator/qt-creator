@@ -813,6 +813,11 @@ QString simplifySTLType(const QString &typeIn)
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
 
     for (int i = 0; i < 10; ++i) {
+        // boost::shared_ptr<...>::element_type
+        if (type.startsWith(QLatin1String("boost::shared_ptr<"))
+                && type.endsWith(QLatin1String(">::element_type")))
+            type = type.mid(18, type.size() - 33);
+
         // std::ifstream
         QRegExp ifstreamRE(QLatin1String("std::basic_ifstream<char,\\s*std::char_traits<char>\\s*>"));
         ifstreamRE.setMinimal(true);

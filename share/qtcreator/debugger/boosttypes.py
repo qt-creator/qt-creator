@@ -75,7 +75,12 @@ def qdump__boost__shared_ptr(d, value):
     d.check(usecount <= 10*1000*1000)
 
     val = value["px"].dereference()
-    if d.isSimpleType(val.type):
+    type = val.type
+    # handle boost::shared_ptr<int>::element_type as int
+    if str(type).endswith(">::element_type"):
+        type = type.strip_typedefs()
+
+    if d.isSimpleType(type):
         d.putNumChild(3)
         d.putItem(val)
         d.putBetterType(value.type)
