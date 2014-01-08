@@ -86,8 +86,10 @@
 #include <QFileDialog>
 #include <QtPlugin>
 #include <QObject>
+#include <QPainter>
 #include <QPointer>
 #include <QSettings>
+#include <QScrollBar>
 #include <QStackedWidget>
 #include <QTextStream>
 
@@ -231,6 +233,127 @@ private:
     int m_lastMessageLevel;
 };
 
+class RelativeNumbersColumn : public QWidget
+{
+    Q_OBJECT
+
+public:
+    RelativeNumbersColumn(BaseTextEditorWidget *baseTextEditor)
+        : QWidget(baseTextEditor)
+        , m_currentPos(0)
+        , m_lineSpacing(0)
+        , m_editor(baseTextEditor)
+    {
+        setAttribute(Qt::WA_TransparentForMouseEvents, true);
+
+        m_timerUpdate.setSingleShot(true);
+        m_timerUpdate.setInterval(0);
+        connect(&m_timerUpdate, SIGNAL(timeout()), SLOT(followEditorLayout()));
+        updateOnSignal(m_editor, SIGNAL(cursorPositionChanged()));
+        updateOnSignal(m_editor->verticalScrollBar(), SIGNAL(valueChanged(int)));
+        updateOnSignal(m_editor->document(), SIGNAL(contentsChanged()));
+        updateOnSignal(TextEditorSettings::instance(),
+                       SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)));
+
+        m_editor->installEventFilter(this);
+
+        followEditorLayout();
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event)
+    {
+        QTextCursor firstVisibleCursor = m_editor->cursorForPosition(QPoint(0, 0));
+        QTextBlock firstVisibleBlock = firstVisibleCursor.block();
+        if (firstVisibleCursor.positionInBlock() > 0) {
+            firstVisibleBlock = firstVisibleBlock.next();
+            firstVisibleCursor.setPosition(firstVisibleBlock.position());
+        }
+
+        // Find relative number for the first visible line.
+        QTextBlock block = m_editor->textCursor().block();
+        bool forward = firstVisibleBlock.blockNumber() > block.blockNumber();
+        int n = 0;
+        while (block.isValid() && block != firstVisibleBlock) {
+            block = forward ? block.next() : block.previous();
+            if (block.isVisible())
+                n += forward ? 1 : -1;
+        }
+
+        // Copy colors from extra area palette.
+        QPainter p(this);
+        QPalette pal = m_editor->extraArea()->palette();
+        const QColor fg = pal.color(QPalette::Dark);
+        const QColor bg = pal.color(QPalette::Background);
+        p.setPen(fg);
+
+        // Draw relative line numbers.
+        QRect rect(0, m_editor->cursorRect(firstVisibleCursor).y(), width(), m_lineSpacing);
+        bool hideLineNumbers = m_editor->lineNumbersVisible();
+        while (block.isValid()) {
+            if (block.isVisible()) {
+                if (n != 0 && rect.intersects(event->rect())) {
+                    const int line = qAbs(n);
+                    const QString number = QString::number(line);
+                    if (hideLineNumbers)
+                        p.fillRect(rect, bg);
+                    if (hideLineNumbers || line < 100)
+                        p.drawText(rect, Qt::AlignRight | Qt::AlignVCenter, number);
+                }
+
+                rect.translate(0, m_lineSpacing * block.lineCount());
+                if (rect.y() > height())
+                    break;
+
+                ++n;
+            }
+
+            block = block.next();
+        }
+    }
+
+    bool eventFilter(QObject *, QEvent *event)
+    {
+        if (event->type() == QEvent::Resize || event->type() == QEvent::Move)
+            m_timerUpdate.start();
+        return false;
+    }
+
+private slots:
+    void followEditorLayout()
+    {
+        QTextCursor tc = m_editor->textCursor();
+        m_currentPos = tc.position();
+        m_lineSpacing = m_editor->cursorRect(tc).height();
+        setFont(m_editor->extraArea()->font());
+
+        // Follow geometry of normal line numbers if visible,
+        // otherwise follow geometry of marks (breakpoints etc.).
+        QRect rect = m_editor->extraArea()->geometry().adjusted(0, 0, -3, 0);
+        bool marksVisible = m_editor->marksVisible();
+        bool lineNumbersVisible = m_editor->lineNumbersVisible();
+        bool foldMarksVisible = m_editor->codeFoldingVisible();
+        if (marksVisible && lineNumbersVisible)
+            rect.setLeft(m_lineSpacing);
+        if (foldMarksVisible && (marksVisible || lineNumbersVisible))
+            rect.setRight(rect.right() - (m_lineSpacing + m_lineSpacing % 2));
+        setGeometry(rect);
+
+        update();
+    }
+
+    void updateOnSignal(QObject *object, const char *signal)
+    {
+        connect(object, signal, &m_timerUpdate, SLOT(start()));
+    }
+
+private:
+    int m_currentPos;
+    int m_lineSpacing;
+    BaseTextEditorWidget *m_editor;
+    QTimer m_timerUpdate;
+};
+
 ///////////////////////////////////////////////////////////////////////
 //
 // FakeVimOptionPage
@@ -333,6 +456,9 @@ QWidget *FakeVimOptionPage::widget()
 
         m_group.insert(theFakeVimSetting(ConfigShowCmd),
                        m_ui.checkBoxShowCmd);
+
+        m_group.insert(theFakeVimSetting(ConfigRelativeNumber),
+                       m_ui.checkBoxRelativeNumber);
 
         connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
                 SLOT(copyTextEditorSettings()));
@@ -901,6 +1027,7 @@ private slots:
     void maybeReadVimRc();
     void setBlockSelection(bool);
     void hasBlockSelection(bool*);
+    void setShowRelativeLineNumbers(const QVariant &value);
 
     void resetCommandBuffer();
     void showCommandBuffer(const QString &contents, int cursorPos, int anchorPos,
@@ -922,6 +1049,8 @@ private slots:
 
     void switchToFile(int n);
     int currentFile() const;
+
+    void createRelativeNumberWidget(IEditor *editor);
 
 signals:
     void delayedQuitRequested(bool forced, Core::IEditor *editor);
@@ -1104,6 +1233,8 @@ bool FakeVimPluginPrivate::initialize()
         this, SLOT(maybeReadVimRc()));
     connect(theFakeVimSetting(ConfigVimRcPath), SIGNAL(valueChanged(QVariant)),
         this, SLOT(maybeReadVimRc()));
+    connect(theFakeVimSetting(ConfigRelativeNumber), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(setShowRelativeLineNumbers(QVariant)));
 
     // Delayed operations.
     connect(this, SIGNAL(delayedQuitRequested(bool,Core::IEditor*)),
@@ -1143,6 +1274,15 @@ void FakeVimPluginPrivate::userActionTriggered()
     }
 }
 
+void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
+{
+    if (BaseTextEditorWidget *textEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
+        RelativeNumbersColumn *relativeNumbers = new RelativeNumbersColumn(textEditor);
+        connect(theFakeVimSetting(ConfigRelativeNumber), SIGNAL(valueChanged(QVariant)),
+                relativeNumbers, SLOT(deleteLater()));
+        relativeNumbers->show();
+    }
+}
 
 const char exCommandMapGroup[] = "FakeVimExCommand";
 const char userCommandMapGroup[] = "FakeVimUserCommand";
@@ -1673,6 +1813,9 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
        resetCommandBuffer();
        handler->setupWidget();
     }
+
+    if (theFakeVimSetting(ConfigRelativeNumber)->value().toBool())
+        createRelativeNumberWidget(editor);
 }
 
 void FakeVimPluginPrivate::editorAboutToClose(IEditor *editor)
@@ -1744,6 +1887,14 @@ void FakeVimPluginPrivate::hasBlockSelection(bool *on)
         return;
     if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
         *on = bt->hasBlockSelection();
+}
+
+void FakeVimPluginPrivate::setShowRelativeLineNumbers(const QVariant &value)
+{
+    if (value.toBool()) {
+        foreach (IEditor *editor, m_editorToHandler.keys())
+            createRelativeNumberWidget(editor);
+    }
 }
 
 void FakeVimPluginPrivate::checkForElectricCharacter(bool *result, QChar c)

@@ -137,6 +137,16 @@
           </property>
          </widget>
         </item>
+        <item row="7" column="1">
+         <widget class="QCheckBox" name="checkBoxRelativeNumber">
+          <property name="toolTip">
+           <string>Display line numbers relative to the line containing text cursor.</string>
+          </property>
+          <property name="text">
+           <string>Show line numbers relative to cursor</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
@@ -372,6 +382,7 @@
   <tabstop>checkBoxWrapScan</tabstop>
   <tabstop>checkBoxShowMarks</tabstop>
   <tabstop>checkBoxPassControlKey</tabstop>
+  <tabstop>checkBoxRelativeNumber</tabstop>
   <tabstop>spinBoxShiftWidth</tabstop>
   <tabstop>spinBoxTabStop</tabstop>
   <tabstop>spinBoxScrollOff</tabstop>

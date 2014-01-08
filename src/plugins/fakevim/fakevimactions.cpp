@@ -198,6 +198,7 @@ FakeVimSettings *theFakeVimSettings()
     createAction(s, ConfigWrapScan,       true,  _("WrapScan"),      _("ws"));
     createAction(s, ConfigTildeOp,        false, _("TildeOp"),       _("top"));
     createAction(s, ConfigShowCmd,        true,  _("ShowCmd"),       _("sc"));
+    createAction(s, ConfigRelativeNumber, false, _("RelativeNumber"),_("rnu"));
     createAction(s, ConfigScrollOff,      0,     _("ScrollOff"),     _("so"));
     createAction(s, ConfigBackspace,      _("indent,eol,start"), _("ConfigBackspace"), _("bs"));
     createAction(s, ConfigIsKeyword,      _("@,48-57,_,192-255,a-z,A-Z"), _("IsKeyword"), _("isk"));
