@@ -1147,12 +1147,14 @@ void tst_Dumpers::dumper()
         output = output.mid(pos);
         contents = output;
 
-        //int posNameSpaceStart = output.indexOf("@NS@");
-        //QVERIFY(posNameSpaceStart != -1);
-        //posNameSpaceStart += sizeof("@NS@") - 1;
-        //int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
-        //QVERIFY(posNameSpaceEnd != -1);
-        //context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
+        int posNameSpaceStart = output.indexOf("@NS@");
+        if (posNameSpaceStart == -1)
+            qDebug() << "OUTPUT: " << output;
+        QVERIFY(posNameSpaceStart != -1);
+        posNameSpaceStart += sizeof("@NS@") - 1;
+        int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
+        QVERIFY(posNameSpaceEnd != -1);
+        context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
         //qDebug() << "FOUND NS: " << context.nameSpace;
         if (context.nameSpace == "::")
             context.nameSpace.clear();

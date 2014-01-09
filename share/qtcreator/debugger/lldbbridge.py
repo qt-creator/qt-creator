@@ -432,14 +432,26 @@ class Dumper(DumperBase):
         coreExpression = re.compile(r"(lib)?Qt5?Core")
         for n in range(0, self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(n)
-            if coreExpression.match(module.GetFileSpec().GetFilename()):
+            fileName = module.GetFileSpec().GetFilename()
+            if coreExpression.match(fileName):
                 # Extract version.
                 reverseVersion = module.GetVersion()
-                reverseVersion.reverse()
-                shift = 0
-                for v in reverseVersion:
-                    self.cachedQtVersion += v << shift
-                    shift += 8
+                if len(reverseVersion):
+                    # Mac, Clang?
+                    reverseVersion.reverse()
+                    shift = 0
+                    for v in reverseVersion:
+                        self.cachedQtVersion += v << shift
+                        shift += 8
+                else:
+                    # Linux, gcc?
+                    if fileName.endswith(".5"):
+                        self.cachedQtVersion = 0x50000
+                    elif fileName.endswith(".4"):
+                        self.cachedQtVersion = 0x40800
+                    else:
+                        warn("CANNOT GUESS QT VERSION")
+
 
                 # Look for some Qt symbol to extract namespace.
                 for symbol in module.symbols:
@@ -461,7 +473,7 @@ class Dumper(DumperBase):
         return self.cachedQtNamespace
 
     def qtVersion(self):
-        self.extraceqtVersionAndNamespace()
+        self.qtVersionAndNamespace()
         return self.cachedQtVersion
 
     def intSize(self):
@@ -840,7 +852,7 @@ class Dumper(DumperBase):
 
     def putItem(self, value, tryDynamic=True):
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
-        typeName = value.GetTypeName()
+        typeName = value.GetType().GetUnqualifiedType().GetName()
         value.SetPreferDynamicValue(tryDynamic)
         typeClass = value.GetType().GetTypeClass()
 
@@ -1509,7 +1521,9 @@ def testit():
         None, None, 0, False, error)
 
     db.report = savedReport
+    ns = db.qtNamespace()
     db.reportVariables()
+    db.report("@NS@%s@" % ns)
     #db.report("DUMPER=%s" % qqDumpers)
 
 if __name__ == "__main__":
