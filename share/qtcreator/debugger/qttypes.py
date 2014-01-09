@@ -898,9 +898,13 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         # QMapPayloadNode is QMapNode except for the 'forward' member, so
         # its size is most likely the offset of the 'forward' member therein.
         # Or possibly 2 * sizeof(void *)
-        nodeType = d.lookupType(d.qtNamespace() + "QMapNode<%s,%s>" % (keyType, valueType))
+        # Note: Keeping the spacing in the type lookup
+        # below is important for LLDB.
+        needle = str(value.type).replace("QMap", "QMapNode", 1)
+        nodeType = d.lookupType(needle)
         nodePointerType = nodeType.pointer()
-        if d.isArmArchitecture() and d.isQnxTarget() and str(valueType) == 'QVariant': # symbols reports payload size at wrong size 24
+        # symbols reports payload size at wrong size 24
+        if d.isArmArchitecture() and d.isQnxTarget() and str(valueType) == 'QVariant':
             payloadSize = 28
         else:
             payloadSize = nodeType.sizeof - 2 * nodePointerType.sizeof
