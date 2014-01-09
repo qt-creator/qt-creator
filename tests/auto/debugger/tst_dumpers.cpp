@@ -4312,23 +4312,24 @@ void tst_Dumpers::dumper_data()
 //        // Manual: of "Locals and Expressions" view");
 //        // Manual: Check that order of displayed members changes");
 
-//    QTest::newRow("Typedef")
-//                  << Data(
-//    "namespace ns {\n"
-//    "    typedef unsigned long long vl;\n"
-//    "    typedef vl verylong;\n"
-//    "}\n"
-
-//    "typedef quint32 myType1;\n"
-//    "typedef unsigned int myType2;\n"
-//    "myType1 t1 = 0;\n"
-//    "myType2 t2 = 0;\n"
-//    "ns::vl j = 1000;\n"
-//    "ns::verylong k = 1000;\n"
-//         % Check("j", "1000", "basic::ns::vl");
-//         % Check("k", "1000", "basic::ns::verylong");
-//         % Check("t1", "0", "basic::myType1");
-//         % Check("t2", "0", "basic::myType2");
+    QTest::newRow("Typedef")
+            << Data("#include <QtGlobal>\n"
+                    "namespace ns {\n"
+                    "    typedef unsigned long long vl;\n"
+                    "    typedef vl verylong;\n"
+                    "}\n"
+                    "typedef quint32 myType1;\n"
+                    "typedef unsigned int myType2;\n",
+                    "myType1 t1 = 0;\n"
+                    "myType2 t2 = 0;\n"
+                    "ns::vl j = 1000;\n"
+                    "ns::verylong k = 1000;\n"
+                    "unused(&t1, &t2, &j, &k);\n")
+                % CoreProfile()
+                % Check("j", "1000", "ns::vl")
+                % Check("k", "1000", "ns::verylong")
+                % Check("t1", "0", "myType1")
+                % Check("t2", "0", "myType2");
 
     QTest::newRow("Struct")
             << Data(fooData, "Foo f(3);\n"
