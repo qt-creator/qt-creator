@@ -192,6 +192,8 @@ private:
         QList<WatchData> *list);
 
     void runCommand(const Command &cmd);
+    void debugLastCommand();
+    Command m_lastDebuggableCommand;
 
     QByteArray m_inbuffer;
     QString m_scriptFileName;

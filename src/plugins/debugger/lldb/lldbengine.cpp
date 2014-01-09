@@ -120,6 +120,11 @@ void LldbEngine::runCommand(const Command &command)
     m_lldbProc.write(cmd);
 }
 
+void LldbEngine::debugLastCommand()
+{
+    runCommand(m_lastDebuggableCommand);
+}
+
 void LldbEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
@@ -828,6 +833,9 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     cmd.endList();
 
     //cmd.arg("resultvarname", m_resultVarName);
+
+    m_lastDebuggableCommand = cmd;
+    m_lastDebuggableCommand.args.replace("\"passexceptions\":0", "\"passexceptions\":1");
 
     runCommand(cmd);
 
