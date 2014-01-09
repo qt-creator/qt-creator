@@ -498,15 +498,9 @@ struct MacLibCppProfile : public Profile
 struct VersionBase
 {
     // Minimum and maximum are inclusive.
-    VersionBase(int minimum = 0, int maximum = 0)
+    VersionBase(int minimum = 0, int maximum = INT_MAX)
     {
-        isRestricted = minimum || maximum;
-
-        if (minimum && !maximum)
-            maximum = minimum;
-        if (maximum == 0)
-            maximum = INT_MAX;
-
+        isRestricted = minimum != 0 || maximum != INT_MAX;
         max = maximum;
         min = minimum;
     }
@@ -518,28 +512,28 @@ struct VersionBase
 
 struct QtVersion : VersionBase
 {
-    QtVersion(int minimum = 0, int maximum = 0)
+    QtVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
 
 struct GccVersion : VersionBase
 {
-    GccVersion(int minimum = 0, int maximum = 0)
+    GccVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
 
 struct GdbVersion : VersionBase
 {
-    GdbVersion(int minimum = 0, int maximum = 0)
+    GdbVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
 
 struct LldbVersion : VersionBase
 {
-    LldbVersion(int minimum = 0, int maximum = 0)
+    LldbVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
 };
@@ -844,7 +838,7 @@ void tst_Dumpers::dumper()
     if (!(data.engines & m_debuggerEngine))
         MSKIP_SINGLE("The test is excluded for this debugger engine.");
 
-    if (m_debuggerEngine == DumpTestGdbEngine) {
+    if (data.neededGdbVersion.isRestricted && m_debuggerEngine == DumpTestGdbEngine) {
         if (data.neededGdbVersion.min > m_gdbVersion)
             MSKIP_SINGLE("Need minimum GDB version "
                 + QByteArray::number(data.neededGdbVersion.min));
@@ -853,7 +847,7 @@ void tst_Dumpers::dumper()
                 + QByteArray::number(data.neededGdbVersion.max));
     }
 
-    if (m_debuggerEngine == DumpTestLldbEngine) {
+    if (data.neededLldbVersion.isRestricted && m_debuggerEngine == DumpTestLldbEngine) {
         if (data.neededLldbVersion.min > m_lldbVersion)
             MSKIP_SINGLE("Need minimum LLDB version "
                 + QByteArray::number(data.neededLldbVersion.min));
