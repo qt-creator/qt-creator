@@ -539,6 +539,7 @@ struct LldbVersion : VersionBase
 };
 
 struct ForceC {};
+struct EigenProfile {};
 
 struct CoreProfile {};
 struct CorePrivateProfile {};
@@ -612,6 +613,15 @@ public:
     const Data &operator%(const DebuggerEngine &enginesForTest) const
     {
         engines = enginesForTest;
+        return *this;
+    }
+
+    const Data &operator%(const EigenProfile &) const
+    {
+        profileExtra +=
+            "INCLUDEPATH += /usr/include/eigen2\n"
+            "INCLUDEPATH += /usr/include/eigen3\n";
+
         return *this;
     }
 
@@ -4722,39 +4732,41 @@ void tst_Dumpers::dumper_data()
 //         % Check("ptr2.type KRBase::TYPE_B (1) KRBase::Type");
 
 
+#if 0
+    QTest::newRow("Eigen")
+         << Data("#include <Eigen/Core>",
+                "using namespace Eigen;\n"
+                "Vector3d test = Vector3d::Zero();\n"
+                "Matrix3d myMatrix = Matrix3d::Constant(5);\n"
+                "MatrixXd myDynamicMatrix(30, 10);\n"
 
-//    QTest::newRow("Eigen")
-//             << Data(
-//        "using namespace Eigen;\n"
+                "myDynamicMatrix(0, 0) = 0;\n"
+                "myDynamicMatrix(1, 0) = 1;\n"
+                "myDynamicMatrix(2, 0) = 2;\n"
 
-//        "Vector3d test = Vector3d::Zero();\n"
+                "Matrix<double, 12, 15, ColMajor> colMajorMatrix;\n"
+                "Matrix<double, 12, 15, RowMajor> rowMajorMatrix;\n"
 
-//        "Matrix3d myMatrix = Matrix3d::Constant(5);\n"
-//        "MatrixXd myDynamicMatrix(30, 10);\n"
-
-//        "myDynamicMatrix(0, 0) = 0;\n"
-//        "myDynamicMatrix(1, 0) = 1;\n"
-//        "myDynamicMatrix(2, 0) = 2;\n"
-
-//        "Matrix<double, 12, 15, ColMajor> colMajorMatrix;\n"
-//        "Matrix<double, 12, 15, RowMajor> rowMajorMatrix;\n"
-
-//        "int k = 0;\n"
-//        "for (int i = 0; i != 12; ++i) {\n"
-//        "    for (int j = 0; j != 15; ++j) {\n"
-//        "        colMajorMatrix(i, j) = k;\n"
-//        "        rowMajorMatrix(i, j) = k;\n"
-//        "        ++k;\n"
-//        "    }\n"
-//        "}\n"
+                "int k = 0;\n"
+                "for (int i = 0; i != 12; ++i) {\n"
+                "    for (int j = 0; j != 15; ++j) {\n"
+                "        colMajorMatrix(i, j) = k;\n"
+                "        rowMajorMatrix(i, j) = k;\n"
+                "        ++k;\n"
+                "    }\n"
+                "}\n")
+            % EigenProfile()
+            % CheckType("myMatrix", "Eigen::Matrix3d");
+#endif
 
 
 
-//    QTest::newRow("https://bugreports.qt-project.org/browse/QTCREATORBUG-3611")
-//        "typedef unsigned char byte;\n"
-//        "byte f = '2';\n"
-//        "int *x = (int*)&f;\n"
-//         % Check("f 50 '2' bug3611::byte");
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-3611
+    QTest::newRow("Bug3611")
+        << Data("typedef unsigned char byte;\n"
+                "byte f = '2';\n"
+                "int *x = (int*)&f;\n")
+         % Check("f", "50 '2'", "byte");
 
 
 
