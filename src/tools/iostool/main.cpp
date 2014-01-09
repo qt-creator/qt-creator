@@ -65,6 +65,7 @@ public:
     void writeMsg(const char *msg);
     void writeMsg(const QString &msg);
     void stopXml(int errorCode);
+    void writeTextInElement(const QString &output);
 private slots:
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
                            const QString &info);
@@ -338,13 +339,15 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
 
 void IosTool::writeMsg(const char *msg)
 {
-    out.writeTextElement(QLatin1String("msg"), QLatin1String(msg));
-    outFile.flush();
+    writeMsg(QString::fromLatin1(msg));
 }
 
 void IosTool::writeMsg(const QString &msg)
 {
-    out.writeTextElement(QLatin1String("msg"), msg);
+    out.writeStartElement(QLatin1String("msg"));
+    writeTextInElement(msg);
+    out.writeCharacters(QLatin1String("\n"));
+    out.writeEndElement();
     outFile.flush();
 }
 
@@ -366,18 +369,35 @@ void IosTool::deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::D
     doExit();
 }
 
+void IosTool::writeTextInElement(const QString &output)
+{
+    QRegExp controlCharRe(QLatin1String("[\x01-\x08]|\x0B|\x0C|[\x0E-\x1F]|\\0000"));
+    int pos = 0;
+    int oldPos = 0;
+
+    while ((pos = controlCharRe.indexIn(output, pos)) != -1) {
+        out.writeCharacters(output.mid(oldPos, pos - oldPos));
+        out.writeEmptyElement(QLatin1String("control_char"));
+        out.writeAttribute(QLatin1String("code"), QString::number(output.at(pos).toLatin1()));
+        pos += 1;
+        oldPos = pos;
+    }
+    out.writeCharacters(output.mid(oldPos, output.length() - oldPos));
+}
+
 void IosTool::appOutput(const QString &output)
 {
-    if (inAppOutput)
-        out.writeCharacters(output);
-    else
-        out.writeTextElement(QLatin1String("app_output"), output);
+    if (!inAppOutput)
+        out.writeStartElement(QLatin1String("app_output"));
+    writeTextInElement(output);
+    if (!inAppOutput)
+        out.writeEndElement();
     outFile.flush();
 }
 
 void IosTool::errorMsg(const QString &msg)
 {
-    writeMsg(msg + QLatin1Char('\n'));
+    writeMsg(msg);
 }
 
 void IosTool::handleNewConnection()

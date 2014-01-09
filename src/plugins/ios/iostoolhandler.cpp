@@ -62,6 +62,7 @@ struct ParserState {
         Value,
         QueryResult,
         AppOutput,
+        ControlChar,
         AppStarted,
         InferiorPid,
         GdbServerPort,
@@ -87,9 +88,10 @@ struct ParserState {
         case Status:
         case InferiorPid:
         case GdbServerPort:
+        case AppOutput:
             return true;
         case QueryResult:
-        case AppOutput:
+        case ControlChar:
         case AppStarted:
         case AppTransfer:
         case Item:
@@ -398,6 +400,13 @@ void IosToolHandlerPrivate::processXml()
                 stack.append(ParserState(ParserState::QueryResult));
             } else if (elName == QLatin1String("app_output")) {
                 stack.append(ParserState(ParserState::AppOutput));
+            } else if (elName == QLatin1String("control_char")) {
+                QXmlStreamAttributes attributes = outputParser.attributes();
+                QChar c[1] = { QChar::fromLatin1(static_cast<char>(attributes.value(QLatin1String("code")).toString().toInt())) };
+                if (stack.size() > 0 && stack.last().collectChars())
+                    stack.last().chars.append(c[0]);
+                stack.append(ParserState(ParserState::ControlChar));
+                break;
             } else if (elName == QLatin1String("item")) {
                 stack.append(ParserState(ParserState::Item));
             } else if (elName == QLatin1String("status")) {
@@ -466,6 +475,9 @@ void IosToolHandlerPrivate::processXml()
                 stop(0);
                 return;
             case ParserState::AppOutput:
+                appOutput(p.chars);
+                break;
+            case ParserState::ControlChar:
                 break;
             case ParserState::AppStarted:
                 break;
@@ -494,9 +506,7 @@ void IosToolHandlerPrivate::processXml()
             // isCDATA() returns true.
             if (stack.isEmpty())
                 break;
-            if (stack.last().kind == ParserState::AppOutput)
-                emit appOutput(outputParser.text().toString());
-            else if (stack.last().collectChars())
+            if (stack.last().collectChars())
                 stack.last().chars.append(outputParser.text());
             break;
         case QXmlStreamReader::Comment:

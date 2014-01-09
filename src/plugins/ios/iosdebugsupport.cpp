@@ -222,9 +222,9 @@ void IosDebugSupport::handleRemoteErrorOutput(const QString &output)
 {
     if (m_runControl) {
         if (m_runControl->engine())
-            m_runControl->engine()->showMessage(output + QLatin1Char('\n'), AppError);
+            m_runControl->engine()->showMessage(output, AppError);
         else
-            m_runControl->showMessage(output + QLatin1Char('\n'), AppError);
+            m_runControl->showMessage(output, AppError);
     }
 }
 
