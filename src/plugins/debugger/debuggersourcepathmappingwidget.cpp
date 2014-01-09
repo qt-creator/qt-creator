@@ -49,8 +49,7 @@ using namespace Utils;
 #if defined(Q_OS_WIN)
 static const char* qtBuildPaths[] = {
     "Q:/qt5_workdir/w/s",
-    "C:/iwmake/build_mingw_opensource",
-    "C:/ndk_buildrepos/qt-desktop/src"};
+    "C:/work/build/qt5_workdir/w/s"};
 #elif defined(Q_OS_MAC)
 static const char* qtBuildPaths[] = {};
 #else
