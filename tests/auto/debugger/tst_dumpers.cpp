@@ -3034,11 +3034,9 @@ void tst_Dumpers::dumper_data()
                % Cxx11Profile()
                % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::shared_ptr<int>")
-               % Check("pi.data", "32", "int").setForGdbOnly()
-               % Check("pi.data", "32", "std::shared_ptr<int>::element_type").setForLldbOnly()
+               % Check("pi.data", "32", "int")
                % Check("pf", Pointer(), "std::shared_ptr<Foo>")
-               % CheckType("pf.data", "Foo").setForGdbOnly()
-               % CheckType("pf.data", "std::shared_ptr<Foo>::element_type").setForLldbOnly();
+               % CheckType("pf.data", "Foo");
 
     QTest::newRow("StdSetInt")
             << Data("#include <set>\n",

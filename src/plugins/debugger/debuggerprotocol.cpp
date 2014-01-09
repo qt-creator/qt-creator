@@ -818,6 +818,11 @@ QString simplifySTLType(const QString &typeIn)
                 && type.endsWith(QLatin1String(">::element_type")))
             type = type.mid(18, type.size() - 33);
 
+        // std::shared_ptr<...>::element_type
+        if (type.startsWith(QLatin1String("std::shared_ptr<"))
+                && type.endsWith(QLatin1String(">::element_type")))
+            type = type.mid(16, type.size() - 31);
+
         // std::ifstream
         QRegExp ifstreamRE(QLatin1String("std::basic_ifstream<char,\\s*std::char_traits<char>\\s*>"));
         ifstreamRE.setMinimal(true);

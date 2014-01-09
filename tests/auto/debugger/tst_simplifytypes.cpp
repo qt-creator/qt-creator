@@ -60,6 +60,7 @@ const char *description[] =
     "msvc_wstringvector",
 
     "boost_shared_ptr",
+    "std_shared_ptr",
 };
 
 const char *input[] =
@@ -90,6 +91,8 @@ const char *input[] =
 "class std::vector<std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >,std::allocator<std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> > > >",
 // boost
 "boost::shared_ptr<int>::element_type",
+// std
+"std::shared_ptr<int>::element_type",
 };
 
 const char *output[] =
@@ -117,6 +120,8 @@ const char *output[] =
     "std::vector<std::string>",
     "std::vector<std::wstring>",
     // boost
+    "int",
+    // std
     "int",
 };
 
