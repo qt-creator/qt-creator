@@ -158,12 +158,12 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
                         return ModulesHandler::tr(
                         "This module contains debug information.\nStepping "
                         "into the module or setting breakpoints by file and "
-                        "is expected to work.");
+                        "line is expected to work.");
                     case FastSymbols:
                         return ModulesHandler::tr(
                         "This module contains debug information.\nStepping "
                         "into the module or setting breakpoints by file and "
-                        "is expected to work.");
+                        "line is expected to work.");
                     case LinkedSymbols:
                     case BuildIdSymbols:
                         return ModulesHandler::tr(
