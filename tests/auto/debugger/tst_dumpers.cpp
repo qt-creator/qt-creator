@@ -5192,7 +5192,7 @@ void tst_Dumpers::dumper_data()
                     "struct S { int x, y; } n = {10, 20};\n"
                     "unused(&v, &n);\n")
                % DumpTestLldbEngine
-               % Check("v", "", "<anonymous class>")
+               % Check("v", "", Pattern("<anonymous .*>"))
                % Check("n", "", "S")
                % Check("v.#1.a", "2", "int")
                % Check("v.#2.b", "3", "int")
