@@ -233,7 +233,7 @@ def qdump__QTime(d, value):
 
 def qdump__QTimeZone(d, value):
     base = d.dereferenceValue(value)
-    if d.isNull(base):
+    if base == 0:
         d.putValue("(null)")
         d.putNumChild(0)
         return
@@ -901,6 +901,7 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         # Note: Keeping the spacing in the type lookup
         # below is important for LLDB.
         needle = str(value.type).replace("QMap", "QMapNode", 1)
+        needle = d.qtNamespace() + "QMapNode<%s,%s>" % (keyType, valueType)
         nodeType = d.lookupType(needle)
         nodePointerType = nodeType.pointer()
         # symbols reports payload size at wrong size 24
