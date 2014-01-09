@@ -96,14 +96,12 @@ Project *androidProject(const QString &file)
 } // anonymous namespace
 
 AndroidManifestEditorWidget::AndroidManifestEditorWidget(QWidget *parent)
-    : TextEditor::PlainTextEditorWidget(parent),
+    : TextEditor::PlainTextEditorWidget(new AndroidManifestDocument(this), parent),
       m_dirty(false),
       m_stayClean(false),
       m_setAppName(false),
       m_appNameInStringsXml(false)
 {
-    setBaseTextDocument(QSharedPointer<AndroidManifestDocument>(new AndroidManifestDocument(this)));
-
     configure(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
 
     initializePage();
@@ -125,7 +123,6 @@ TextEditor::BaseTextEditor *AndroidManifestEditorWidget::createEditor()
 {
     return new AndroidManifestEditor(this);
 }
-
 
 void AndroidManifestEditorWidget::initializePage()
 {

@@ -39,13 +39,11 @@ namespace Internal {
 
 DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *form,
                                                  QWidget *parent) :
-    TextEditor::PlainTextEditorWidget(parent),
-    m_file(new FormWindowFile(form, this)),
+    TextEditor::PlainTextEditorWidget(new FormWindowFile(form, this), parent),
     m_designerEditor(new FormWindowEditor(this))
 {
-    setBaseTextDocument(m_file);
     setReadOnly(true);
-    configure(m_file->mimeType());
+    configure(baseTextDocument()->mimeType());
 }
 
 TextEditor::BaseTextEditor *DesignerXmlEditorWidget::createEditor()
@@ -62,7 +60,7 @@ FormWindowEditor *DesignerXmlEditorWidget::designerEditor() const
 
 Internal::FormWindowFile *DesignerXmlEditorWidget::formWindowFile() const
 {
-    return m_file.data();
+    return qobject_cast<FormWindowFile *>(baseTextDocument());
 }
 
 } // namespace Internal

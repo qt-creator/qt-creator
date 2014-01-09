@@ -130,7 +130,8 @@ class TEXTEDITOR_EXPORT BaseTextEditorWidget : public QPlainTextEdit
     Q_PROPERTY(int verticalBlockSelectionLastColumn READ verticalBlockSelectionLastColumn)
 
 public:
-    BaseTextEditorWidget(QWidget *parent);
+    BaseTextEditorWidget(QWidget *parent = 0);
+    BaseTextEditorWidget(BaseTextDocument *doc, QWidget *parent = 0);
     ~BaseTextEditorWidget();
 
     const Utils::ChangeSet &changeSet() const;
@@ -359,8 +360,6 @@ public:
     void duplicateFrom(BaseTextEditorWidget *editor);
 
 protected:
-    void setBaseTextDocument(const QSharedPointer<BaseTextDocument> &doc);
-
     void setDefaultPath(const QString &defaultPath);
 
     virtual BaseTextEditor *createEditor() = 0;
@@ -538,6 +537,7 @@ signals:
     void requestBlockUpdate(const QTextBlock &);
 
 private:
+    void ctor(const QSharedPointer<BaseTextDocument> &doc);
     void indentOrUnindent(bool doIndent);
     void handleHomeKey(bool anchor);
     void handleBackspaceKey();

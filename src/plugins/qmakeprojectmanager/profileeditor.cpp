@@ -83,11 +83,8 @@ TextEditor::CompletionAssistProvider *ProFileEditor::completionAssistProvider()
 //
 
 ProFileEditorWidget::ProFileEditorWidget(ProFileEditorFactory *factory, QWidget *parent)
-    : BaseTextEditorWidget(parent), m_factory(factory)
+    : BaseTextEditorWidget(new ProFileDocument(), parent), m_factory(factory)
 {
-    QSharedPointer<ProFileDocument> doc(new ProFileDocument());
-    setBaseTextDocument(doc);
-
     baseTextDocument()->setSyntaxHighlighter(new ProFileHighlighter);
     m_commentDefinition.clearCommentStyles();
     m_commentDefinition.singleLine = QLatin1Char('#');

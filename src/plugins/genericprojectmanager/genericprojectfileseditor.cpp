@@ -109,8 +109,6 @@ Core::IEditor *ProjectFilesEditor::duplicate()
 ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(parent)
 {
-    QSharedPointer<BaseTextDocument> doc(new BaseTextDocument());
-    setBaseTextDocument(doc);
 }
 
 BaseTextEditor *ProjectFilesEditorWidget::createEditor()

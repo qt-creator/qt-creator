@@ -188,9 +188,19 @@ QString BaseTextEditorWidget::convertToPlainText(const QString &txt)
 static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";
 static const char kVerticalTextBlockMimeType[] = "application/vnd.qtcreator.vblocktext";
 
-
 BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     : QPlainTextEdit(parent)
+{
+    ctor(QSharedPointer<BaseTextDocument>(new BaseTextDocument));
+}
+
+BaseTextEditorWidget::BaseTextEditorWidget(BaseTextDocument *doc, QWidget *parent)
+    : QPlainTextEdit(parent)
+{
+    ctor(QSharedPointer<BaseTextDocument>(doc));
+}
+
+void BaseTextEditorWidget::ctor(const QSharedPointer<BaseTextDocument> &doc)
 {
     d = new BaseTextEditorWidgetPrivate;
     d->q = this;
@@ -203,6 +213,7 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     d->m_searchResultOverlay = new TextEditorOverlay(this);
     d->m_refactorOverlay = new RefactorOverlay(this);
 
+    d->m_document = doc;
     d->setupDocumentSignals(d->m_document);
 
     d->m_lastScrollPos = -1;
@@ -2079,14 +2090,6 @@ void BaseTextEditorWidget::duplicateFrom(BaseTextEditorWidget *widget)
     d->m_document = widget->d->m_document;
 }
 
-void BaseTextEditorWidget::setBaseTextDocument(const QSharedPointer<BaseTextDocument> &doc)
-{
-    if (!doc.isNull()) {
-        d->setupDocumentSignals(doc);
-        d->m_document = doc;
-    }
-}
-
 void BaseTextEditorWidget::documentAboutToBeReloaded()
 {
     //memorize cursor position
@@ -2405,7 +2408,6 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate()
     q(0),
     m_contentsChanged(false),
     m_lastCursorChangeWasInteresting(false),
-    m_document(new BaseTextDocument),
     m_parenthesesMatchingEnabled(false),
     m_updateTimer(0),
     m_formatRange(false),

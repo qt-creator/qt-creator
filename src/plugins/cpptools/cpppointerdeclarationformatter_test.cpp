@@ -104,7 +104,7 @@ public:
 
         // Open file
         QScopedPointer<TextEditor::BaseTextEditorWidget> editorWidget(
-            new TextEditor::PlainTextEditorWidget(0));
+            new TextEditor::PlainTextEditorWidget);
         QString error;
         editorWidget->open(&error, document->fileName(), document->fileName());
         QVERIFY(error.isEmpty());

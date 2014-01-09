@@ -67,7 +67,6 @@ protected:
     virtual TextEditor::BaseTextEditor *createEditor();
 
 private:
-    QSharedPointer<Internal::FormWindowFile> m_file;
     FormWindowEditor *m_designerEditor;
 };
 

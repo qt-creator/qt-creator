@@ -60,6 +60,7 @@ class TEXTEDITOR_EXPORT PlainTextEditorWidget : public BaseTextEditorWidget
 
 public:
     PlainTextEditorWidget(QWidget *parent = 0);
+    PlainTextEditorWidget(BaseTextDocument *doc, QWidget *parent = 0);
 
     void configure(const QString& mimeType);
     void configure(const Core::MimeType &mimeType);
@@ -80,6 +81,8 @@ protected:
     virtual BaseTextEditor *createEditor() { return new PlainTextEditor(this); }
 
 private:
+    void ctor();
+
     bool m_isMissingSyntaxDefinition;
     Utils::CommentDefinition m_commentDefinition;
 };

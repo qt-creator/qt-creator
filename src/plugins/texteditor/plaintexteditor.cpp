@@ -58,9 +58,20 @@ PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
 }
 
 PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
-  : BaseTextEditorWidget(parent),
-  m_isMissingSyntaxDefinition(false)
+  : BaseTextEditorWidget(parent)
 {
+    ctor();
+}
+
+PlainTextEditorWidget::PlainTextEditorWidget(BaseTextDocument *doc, QWidget *parent)
+    : BaseTextEditorWidget(doc, parent)
+{
+    ctor();
+}
+
+void PlainTextEditorWidget::ctor()
+{
+    m_isMissingSyntaxDefinition = false;
     setRevisionsVisible(true);
     setMarksVisible(true);
     setLineSeparatorsAllowed(true);

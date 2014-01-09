@@ -116,10 +116,8 @@ void CMakeEditor::build()
 //
 
 CMakeEditorWidget::CMakeEditorWidget(QWidget *parent)
-    : BaseTextEditorWidget(parent)
+    : BaseTextEditorWidget(new CMakeDocument(), parent)
 {
-    setBaseTextDocument(QSharedPointer<CMakeDocument>(new CMakeDocument));
-
     baseTextDocument()->setSyntaxHighlighter(new CMakeHighlighter);
 
     m_commentDefinition.clearCommentStyles();
