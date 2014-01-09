@@ -58,9 +58,7 @@ class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    ProFileEditorWidget(ProFileEditorFactory *factory, QWidget *parent = 0);
-
-    ProFileEditorFactory *factory() { return m_factory; }
+    ProFileEditorWidget(QWidget *parent = 0);
 
     void unCommentSelection();
 
@@ -71,7 +69,6 @@ protected:
     void contextMenuEvent(QContextMenuEvent *);
 
 private:
-    ProFileEditorFactory *m_factory;
     Utils::CommentDefinition m_commentDefinition;
 };
 
