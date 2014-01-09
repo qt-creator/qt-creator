@@ -893,10 +893,10 @@ class Dumper(DumperBase):
                 return
             realType = value.GetType()
             if hasattr(realType, 'GetCanonicalType'):
-                realType = realType.GetCanonicalType()
-                value = value.Cast(realType.unqualified())
-                self.putItem(value)
-                self.putBetterType(typeName)
+                baseType = realType.GetCanonicalType()
+                baseValue = value.Cast(baseType.unqualified())
+                self.putItem(baseValue)
+                self.putBetterType(realType)
                 return
 
         # Our turf now.
