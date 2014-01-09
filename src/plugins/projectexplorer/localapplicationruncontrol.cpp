@@ -101,7 +101,7 @@ void LocalApplicationRunControl::start()
         appendMessage(tr("No executable specified.") + QLatin1Char('\n'), Utils::ErrorMessageFormat);
         emit finished();
     }  else if (!QFileInfo(m_executable).exists()){
-        appendMessage(tr("Executable %1 does not exist.").arg(m_executable) + QLatin1Char('\n'),
+        appendMessage(tr("Executable %1 does not exist.").arg(QDir::toNativeSeparators(m_executable)) + QLatin1Char('\n'),
                       Utils::ErrorMessageFormat);
         emit finished();
     } else {
