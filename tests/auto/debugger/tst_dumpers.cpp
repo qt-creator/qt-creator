@@ -718,7 +718,6 @@ private:
     QByteArray m_debuggerBinary;
     QByteArray m_qmakeBinary;
     QProcessEnvironment m_env;
-    bool m_usePython;
     DebuggerEngine m_debuggerEngine;
     QString m_makeBinary;
     bool m_keepTemp;
@@ -769,9 +768,10 @@ void tst_Dumpers::initTestCase()
         QVERIFY(ok);
         QByteArray output = debugger.readAllStandardOutput();
         //qDebug() << "stdout: " << output;
-        m_usePython = !output.contains("Python scripting is not supported in this copy of GDB");
-        qDebug() << "Python             : " << (m_usePython ? "ok" : "*** not ok ***");
+        bool usePython = !output.contains("Python scripting is not supported in this copy of GDB");
+        qDebug() << "Python             : " << (usePython ? "ok" : "*** not ok ***");
         qDebug() << "Dumper dir         : " << DUMPERDIR;
+        QVERIFY(usePython);
 
         QString version = QString::fromLocal8Bit(output);
         int pos1 = version.indexOf(QLatin1String("&\"show version\\n"));
@@ -789,7 +789,6 @@ void tst_Dumpers::initTestCase()
     } else if (m_debuggerEngine == DumpTestCdbEngine) {
         setupCdb(&m_makeBinary, &m_env);
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
-        m_usePython = true;
         QProcess debugger;
         QString cmd = QString::fromUtf8(m_debuggerBinary + " -v");
         debugger.start(cmd);
@@ -1057,22 +1056,13 @@ void tst_Dumpers::dumper()
                 "set print object on\n"
                 "set auto-load python-scripts no\n";
 
-        if (m_usePython) {
-            cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
-                    "python sys.path.append('" + uninstalledData + "')\n"
-                    "python from gdbbridge import *\n"
-                    "run " + nograb + "\n"
-                    "python print('@%sS@%s@' % ('N', theDumper.qtNamespace()))\n"
-                    "bb options:fancy,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
-        } else {
-            cmds += "run\n";
-            foreach (const Check &check, data.checks) {
-                QByteArray iname = check.iname;
-                //qDebug() << "INAME: " << iname;
-                cmds += "-var-create " + iname + " * "
-                        + check.expectedName.name + "\n";
-            }
-        }
+        cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
+                "python sys.path.append('" + uninstalledData + "')\n"
+                "python from gdbbridge import *\n"
+                "run " + nograb + "\n"
+                "python print('@%sS@%s@' % ('N', theDumper.qtNamespace()))\n"
+                "bb options:fancy,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
+
         cmds += "quit\n";
 
     } else if (m_debuggerEngine == DumpTestCdbEngine) {
