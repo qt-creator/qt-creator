@@ -425,22 +425,43 @@ class Dumper(DumperBase):
     def isStructType(self, typeobj):
         return typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass)
 
-    def qtVersion(self):
+    def qtVersionAndNamespace(self):
+        self.cachedQtNamespace = ""
         self.cachedQtVersion = 0x0
+
         coreExpression = re.compile(r"(lib)?Qt5?Core")
         for n in range(0, self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(n)
             if coreExpression.match(module.GetFileSpec().GetFilename()):
+                # Extract version.
                 reverseVersion = module.GetVersion()
                 reverseVersion.reverse()
                 shift = 0
                 for v in reverseVersion:
                     self.cachedQtVersion += v << shift
                     shift += 8
+
+                # Look for some Qt symbol to extract namespace.
+                for symbol in module.symbols:
+                    name = symbol.GetName()
+                    pos = name.find("QString")
+                    if pos >= 0:
+                        name = name[:pos]
+                        if name.endswith("::"):
+                            self.cachedQtNamespace = re.sub('^.*[^\w]([\w]+)::$', '\\1', name) + '::'
+                        break
                 break
 
         # Memoize good results.
+        self.qtNamespace = lambda: self.cachedQtNamespace
         self.qtVersion = lambda: self.cachedQtVersion
+
+    def qtNamespace(self):
+        self.qtVersionAndNamespace()
+        return self.cachedQtNamespace
+
+    def qtVersion(self):
+        self.extraceqtVersionAndNamespace()
         return self.cachedQtVersion
 
     def intSize(self):
@@ -782,16 +803,12 @@ class Dumper(DumperBase):
         except:
             return False
 
-    def qtNamespace(self):
-        # FIXME
-        return ""
-
     def stripNamespaceFromType(self, typeName):
         #type = stripClassTag(typeName)
         type = typeName
-        #ns = qtNamespace()
-        #if len(ns) > 0 and type.startswith(ns):
-        #    type = type[len(ns):]
+        ns = self.qtNamespace()
+        if len(ns) > 0 and type.startswith(ns):
+            type = type[len(ns):]
         pos = type.find("<")
         # FIXME: make it recognize  foo<A>::bar<B>::iterator?
         while pos != -1:
