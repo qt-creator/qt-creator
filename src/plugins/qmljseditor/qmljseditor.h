@@ -100,6 +100,7 @@ class QMLJSEDITOR_EXPORT QmlJSTextEditorWidget : public TextEditor::BaseTextEdit
 
 public:
     QmlJSTextEditorWidget(QWidget *parent = 0);
+    QmlJSTextEditorWidget(QmlJSTextEditorWidget *other);
     ~QmlJSTextEditorWidget();
 
     virtual void unCommentSelection();
@@ -166,6 +167,8 @@ protected:
     QString foldReplacementText(const QTextBlock &block) const;
 
 private:
+    QmlJSTextEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
+    void ctor();
     bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
 
     void setSelectedElements();

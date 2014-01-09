@@ -513,15 +513,27 @@ Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
 
 CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     : TextEditor::BaseTextEditorWidget(parent)
-    , m_currentRenameSelection(NoCurrentRenameSelection)
-    , m_inRename(false)
-    , m_inRenameChanged(false)
-    , m_firstRenameChange(false)
-    , m_objcEnabled(false)
-    , m_commentsSettings(CppTools::CppToolsSettings::instance()->commentsSettings())
-    , m_followSymbolUnderCursor(new FollowSymbolUnderCursor(this))
-    , m_preprocessorButton(0)
 {
+    ctor();
+}
+
+CPPEditorWidget::CPPEditorWidget(CPPEditorWidget *other)
+    : TextEditor::BaseTextEditorWidget(other)
+{
+    ctor();
+}
+
+void CPPEditorWidget::ctor()
+{
+    m_currentRenameSelection = NoCurrentRenameSelection;
+    m_inRename = false;
+    m_inRenameChanged = false;
+    m_firstRenameChange = false;
+    m_objcEnabled = false;
+    m_commentsSettings = CppTools::CppToolsSettings::instance()->commentsSettings();
+    m_followSymbolUnderCursor.reset(new FollowSymbolUnderCursor(this));
+    m_preprocessorButton = 0;
+
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
 
     setParenthesesMatchingEnabled(true);
@@ -640,7 +652,8 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     connect(m_outlineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateOutlineToolTip()));
 
     // set up slots to document changes
-    updateContentsChangedSignal();
+    connect(document(), SIGNAL(contentsChange(int,int,int)),
+            this, SLOT(onContentsChanged(int,int,int)));
 
     // set up function declaration - definition link
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateFunctionDeclDefLink()));
@@ -1501,10 +1514,8 @@ void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
 
 Core::IEditor *CPPEditor::duplicate()
 {
-    CPPEditorWidget *newEditor = new CPPEditorWidget();
-    newEditor->duplicateFrom(editorWidget());
-    // A new QTextDocument was set, so update our signal/slot connection to the new document
-    newEditor->updateContentsChangedSignal();
+    CPPEditorWidget *newEditor = new CPPEditorWidget(
+                qobject_cast<CPPEditorWidget *>(editorWidget()));
     CppEditorPlugin::instance()->initializeEditor(newEditor);
     return newEditor->editor();
 }
@@ -1858,12 +1869,6 @@ void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
     m_declDefLink->apply(this, jumpToMatch);
     abortDeclDefLink();
     updateFunctionDeclDefLink();
-}
-
-void CPPEditorWidget::updateContentsChangedSignal()
-{
-    connect(document(), SIGNAL(contentsChange(int,int,int)),
-            this, SLOT(onContentsChanged(int,int,int)));
 }
 
 FollowSymbolUnderCursor *CPPEditorWidget::followSymbolUnderCursorDelegate()

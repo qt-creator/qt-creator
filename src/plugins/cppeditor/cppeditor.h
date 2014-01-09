@@ -98,6 +98,7 @@ public:
     typedef TextEditor::TabSettings TabSettings;
 
     CPPEditorWidget(QWidget *parent = 0);
+    CPPEditorWidget(CPPEditorWidget *other);
     ~CPPEditorWidget();
     void unCommentSelection();
 
@@ -129,8 +130,6 @@ public:
 
     QSharedPointer<FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
-
-    void updateContentsChangedSignal();
 
     FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
 
@@ -191,6 +190,8 @@ private Q_SLOTS:
     void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
 
 private:
+    CPPEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
+    void ctor();
     void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);
     bool sortedOutline() const;
 

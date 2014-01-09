@@ -132,6 +132,7 @@ class TEXTEDITOR_EXPORT BaseTextEditorWidget : public QPlainTextEdit
 public:
     BaseTextEditorWidget(QWidget *parent = 0);
     BaseTextEditorWidget(BaseTextDocument *doc, QWidget *parent = 0);
+    BaseTextEditorWidget(BaseTextEditorWidget *other);
     ~BaseTextEditorWidget();
 
     const Utils::ChangeSet &changeSet() const;
@@ -355,9 +356,6 @@ private:
     void maybeSelectLine();
     void updateCannotDecodeInfo();
     void collectToCircularClipboard();
-
-public:
-    void duplicateFrom(BaseTextEditorWidget *editor);
 
 protected:
     void setDefaultPath(const QString &defaultPath);

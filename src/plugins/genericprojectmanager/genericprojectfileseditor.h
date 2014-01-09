@@ -70,8 +70,12 @@ class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget
 
 public:
     ProjectFilesEditorWidget(QWidget *parent = 0);
+    ProjectFilesEditorWidget(ProjectFilesEditorWidget *other);
 
     TextEditor::BaseTextEditor *createEditor();
+
+private:
+    ProjectFilesEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
 };
 
 } // namespace Internal

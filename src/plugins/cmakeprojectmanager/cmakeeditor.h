@@ -70,6 +70,7 @@ class CMakeEditorWidget : public TextEditor::BaseTextEditorWidget
 
 public:
     CMakeEditorWidget(QWidget *parent = 0);
+    CMakeEditorWidget(CMakeEditorWidget *other);
 
     bool save(const QString &fileName = QString());
 
@@ -83,6 +84,8 @@ public slots:
     void unCommentSelection();
 
 private:
+    CMakeEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
+    void ctor();
     Utils::CommentDefinition m_commentDefinition;
 };
 

@@ -60,10 +60,8 @@ PythonEditor::~PythonEditor()
 
 Core::IEditor *PythonEditor::duplicate()
 {
-    EditorWidget *widget = new EditorWidget();
-    widget->duplicateFrom(editorWidget());
+    EditorWidget *widget = new EditorWidget(qobject_cast<EditorWidget *>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(widget);
-
     return widget->editor();
 }
 

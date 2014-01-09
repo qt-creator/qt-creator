@@ -102,7 +102,7 @@ public:
     BaseTextEditorWidgetPrivate();
     ~BaseTextEditorWidgetPrivate();
 
-    void setupDocumentSignals(const QSharedPointer<BaseTextDocument> &document);
+    void setupDocumentSignals();
     void updateLineSelectionColor();
 
     void print(QPrinter *printer);

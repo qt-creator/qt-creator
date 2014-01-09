@@ -93,9 +93,8 @@ bool ProjectFilesEditor::duplicateSupported() const
 
 Core::IEditor *ProjectFilesEditor::duplicate()
 {
-    ProjectFilesEditorWidget *parentEditor = qobject_cast<ProjectFilesEditorWidget *>(editorWidget());
-    ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget();
-    editor->duplicateFrom(parentEditor);
+    ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget(
+                qobject_cast<ProjectFilesEditorWidget *>(editorWidget()));
     TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }
@@ -108,6 +107,11 @@ Core::IEditor *ProjectFilesEditor::duplicate()
 
 ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(parent)
+{
+}
+
+ProjectFilesEditorWidget::ProjectFilesEditorWidget(ProjectFilesEditorWidget *other)
+    : BaseTextEditorWidget(other)
 {
 }
 

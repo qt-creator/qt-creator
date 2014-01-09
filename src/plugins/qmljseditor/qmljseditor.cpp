@@ -450,15 +450,26 @@ protected:
 
 
 QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
-    TextEditor::BaseTextEditorWidget(parent),
-    m_outlineCombo(0),
-    m_outlineModel(new QmlOutlineModel(this)),
-    m_modelManager(0),
-    m_futureSemanticInfoRevision(0),
-    m_contextPane(0),
-    m_findReferences(new FindReferences(this)),
-    m_semanticHighlighter(new SemanticHighlighter(this))
+    TextEditor::BaseTextEditorWidget(parent)
 {
+    ctor();
+}
+
+QmlJSTextEditorWidget::QmlJSTextEditorWidget(QmlJSTextEditorWidget *other)
+    : TextEditor::BaseTextEditorWidget(other)
+{
+    ctor();
+}
+
+void QmlJSTextEditorWidget::ctor()
+{
+    m_outlineCombo = 0;
+    m_outlineModel = new QmlOutlineModel(this);
+    m_futureSemanticInfoRevision = 0;
+    m_contextPane = 0;
+    m_findReferences = new FindReferences(this);
+    m_semanticHighlighter = new SemanticHighlighter(this);
+
     m_semanticInfoUpdater = new SemanticInfoUpdater(this);
     m_semanticInfoUpdater->start();
 
@@ -583,8 +594,8 @@ QModelIndex QmlJSTextEditorWidget::outlineModelIndex()
 
 IEditor *QmlJSEditor::duplicate()
 {
-    QmlJSTextEditorWidget *newEditor = new QmlJSTextEditorWidget();
-    newEditor->duplicateFrom(editorWidget());
+    QmlJSTextEditorWidget *newEditor = new QmlJSTextEditorWidget(
+                qobject_cast<QmlJSTextEditorWidget *>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(newEditor);
     return newEditor->editor();
 }

@@ -66,9 +66,8 @@ CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
 
 Core::IEditor *CMakeEditor::duplicate()
 {
-    CMakeEditorWidget *w = qobject_cast<CMakeEditorWidget*>(widget());
-    CMakeEditorWidget *ret = new CMakeEditorWidget();
-    ret->duplicateFrom(w);
+    CMakeEditorWidget *ret = new CMakeEditorWidget(
+                qobject_cast<CMakeEditorWidget *>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
 }
@@ -118,8 +117,18 @@ void CMakeEditor::build()
 CMakeEditorWidget::CMakeEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(new CMakeDocument(), parent)
 {
-    baseTextDocument()->setSyntaxHighlighter(new CMakeHighlighter);
+    ctor();
+}
 
+CMakeEditorWidget::CMakeEditorWidget(CMakeEditorWidget *other)
+    : BaseTextEditorWidget(other)
+{
+    ctor();
+}
+
+void CMakeEditorWidget::ctor()
+{
+    baseTextDocument()->setSyntaxHighlighter(new CMakeHighlighter);
     m_commentDefinition.clearCommentStyles();
     m_commentDefinition.singleLine = QLatin1Char('#');
 }

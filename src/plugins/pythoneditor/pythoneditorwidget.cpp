@@ -48,7 +48,18 @@ namespace PythonEditor {
 namespace Internal {
 
 EditorWidget::EditorWidget(QWidget *parent)
-    :TextEditor::BaseTextEditorWidget(parent)
+    : TextEditor::BaseTextEditorWidget(parent)
+{
+    ctor();
+}
+
+EditorWidget::EditorWidget(EditorWidget *other)
+    : TextEditor::BaseTextEditorWidget(other)
+{
+    ctor();
+}
+
+void EditorWidget::ctor()
 {
     m_commentDefinition.multiLineStart.clear();
     m_commentDefinition.multiLineEnd.clear();

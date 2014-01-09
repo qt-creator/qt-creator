@@ -87,6 +87,7 @@ class GLSLTextEditorWidget : public TextEditor::BaseTextEditorWidget
 
 public:
     GLSLTextEditorWidget(QWidget *parent = 0);
+    GLSLTextEditorWidget(GLSLTextEditorWidget *other);
     ~GLSLTextEditorWidget();
 
     virtual void unCommentSelection();
@@ -110,6 +111,8 @@ protected:
     void createToolBar(Internal::GLSLEditorEditable *editable);
 
 private:
+    GLSLTextEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
+    void ctor();
     void setSelectedElements();
     QString wordUnderCursor() const;
 

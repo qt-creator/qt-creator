@@ -69,6 +69,12 @@ PlainTextEditorWidget::PlainTextEditorWidget(BaseTextDocument *doc, QWidget *par
     ctor();
 }
 
+PlainTextEditorWidget::PlainTextEditorWidget(PlainTextEditorWidget *other)
+    : BaseTextEditorWidget(other)
+{
+    ctor();
+}
+
 void PlainTextEditorWidget::ctor()
 {
     m_isMissingSyntaxDefinition = false;
@@ -88,8 +94,8 @@ void PlainTextEditorWidget::ctor()
 
 IEditor *PlainTextEditor::duplicate()
 {
-    PlainTextEditorWidget *newWidget = new PlainTextEditorWidget();
-    newWidget->duplicateFrom(editorWidget());
+    PlainTextEditorWidget *newWidget = new PlainTextEditorWidget(
+                qobject_cast<PlainTextEditorWidget *>(editorWidget()));
     TextEditorSettings::initializeEditor(newWidget);
     return newWidget->editor();
 }

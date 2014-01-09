@@ -200,6 +200,12 @@ BaseTextEditorWidget::BaseTextEditorWidget(BaseTextDocument *doc, QWidget *paren
     ctor(QSharedPointer<BaseTextDocument>(doc));
 }
 
+BaseTextEditorWidget::BaseTextEditorWidget(BaseTextEditorWidget *other)
+{
+    ctor(other->d->m_document);
+    d->m_revisionsVisible = other->d->m_revisionsVisible;
+}
+
 void BaseTextEditorWidget::ctor(const QSharedPointer<BaseTextDocument> &doc)
 {
     d = new BaseTextEditorWidgetPrivate;
@@ -214,7 +220,7 @@ void BaseTextEditorWidget::ctor(const QSharedPointer<BaseTextDocument> &doc)
     d->m_refactorOverlay = new RefactorOverlay(this);
 
     d->m_document = doc;
-    d->setupDocumentSignals(d->m_document);
+    d->setupDocumentSignals();
 
     d->m_lastScrollPos = -1;
 
@@ -2079,17 +2085,6 @@ bool BaseTextEditorWidget::event(QEvent *e)
     return QPlainTextEdit::event(e);
 }
 
-void BaseTextEditorWidget::duplicateFrom(BaseTextEditorWidget *widget)
-{
-    if (this == widget)
-        return;
-    d->m_revisionsVisible = widget->d->m_revisionsVisible;
-    if (d->m_document == widget->d->m_document)
-        return;
-    d->setupDocumentSignals(widget->d->m_document);
-    d->m_document = widget->d->m_document;
-}
-
 void BaseTextEditorWidget::documentAboutToBeReloaded()
 {
     //memorize cursor position
@@ -2456,16 +2451,9 @@ BaseTextEditorWidgetPrivate::~BaseTextEditorWidgetPrivate()
 {
 }
 
-void BaseTextEditorWidgetPrivate::setupDocumentSignals(const QSharedPointer<BaseTextDocument> &document)
+void BaseTextEditorWidgetPrivate::setupDocumentSignals()
 {
-    BaseTextDocument *oldDocument = q->baseTextDocument();
-    if (oldDocument) {
-        q->disconnect(oldDocument->document(), 0, q, 0);
-        q->disconnect(oldDocument, 0, q, 0);
-        q->disconnect(q, 0, oldDocument, 0);
-    }
-
-    QTextDocument *doc = document->document();
+    QTextDocument *doc = m_document->document();
     q->setDocument(doc);
     q->setCursorWidth(2); // Applies to the document layout
 
@@ -2477,8 +2465,8 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals(const QSharedPointer<Base
     QObject::connect(doc, SIGNAL(modificationChanged(bool)), q, SIGNAL(changed()));
     QObject::connect(doc, SIGNAL(contentsChange(int,int,int)), q,
         SLOT(editorContentsChange(int,int,int)), Qt::DirectConnection);
-    QObject::connect(document.data(), SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
-    QObject::connect(document.data(), SIGNAL(reloadFinished(bool)), q, SLOT(documentReloadFinished(bool)));
+    QObject::connect(m_document.data(), SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
+    QObject::connect(m_document.data(), SIGNAL(reloadFinished(bool)), q, SLOT(documentReloadFinished(bool)));
     q->slotUpdateExtraAreaWidth();
 }
 
