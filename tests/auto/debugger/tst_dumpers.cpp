@@ -744,7 +744,8 @@ void tst_Dumpers::initTestCase()
     if (m_debuggerBinary.endsWith("cdb.exe"))
         m_debuggerEngine = DumpTestCdbEngine;
 
-    if (m_debuggerBinary.endsWith("lldb"))
+    QString base = QFileInfo(QString::fromLatin1(m_debuggerBinary)).baseName();
+    if (base.startsWith(QLatin1String("lldb")))
         m_debuggerEngine = DumpTestLldbEngine;
 
     m_qmakeBinary = qgetenv("QTC_QMAKE_PATH_FOR_TEST");
@@ -797,16 +798,28 @@ void tst_Dumpers::initTestCase()
         QByteArray output = debugger.readAllStandardOutput();
         output += debugger.readAllStandardError();
         output = output.trimmed();
-        // Should be something like LLDB-178
+        // Should be something like "LLDB-178" (Mac OS X 10.8)
+        // or "lldb version 3.5 ( revision )" (Ubuntu 13.10)
         QByteArray ba = output.mid(output.indexOf('-') + 1);
         int pos = ba.indexOf('.');
         if (pos >= 0)
             ba = ba.left(pos);
         m_lldbVersion = ba.toInt();
-        m_env = QProcessEnvironment::systemEnvironment();
-        m_makeBinary = QLatin1String("make");
+        if (!m_lldbVersion) {
+            if (output.startsWith("lldb version")) {
+                int pos1 = output.indexOf('.', 13);
+                int major = output.mid(13, pos1++ - 13).toInt();
+                int pos2 = output.indexOf(' ', pos1);
+                int minor = output.mid(pos1, pos2++ - pos1).toInt();
+                m_lldbVersion = 100 * major + 10 * minor;
+            }
+        }
+
         qDebug() << "Lldb version       :" << output << ba << m_lldbVersion;
         QVERIFY(m_lldbVersion);
+
+        m_env = QProcessEnvironment::systemEnvironment();
+        m_makeBinary = QLatin1String("make");
     }
 }
 
@@ -1106,7 +1119,8 @@ void tst_Dumpers::dumper()
     output = debugger.readAllStandardOutput();
     //qDebug() << "stdout: " << output;
     error = debugger.readAllStandardError();
-    if (!error.isEmpty()) { qDebug() << error; }
+    if (!error.isEmpty())
+        qDebug() << error;
 
     if (keepTemp()) {
         QFile logger(t->buildPath + QLatin1String("/output.txt"));
