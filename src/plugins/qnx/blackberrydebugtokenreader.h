@@ -51,6 +51,8 @@ public:
 
     QString author() const;
     QString authorId() const;
+    QString expiry() const;
+    QString pins() const;
 
     static bool isSupported();
 

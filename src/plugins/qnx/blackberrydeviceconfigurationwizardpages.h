@@ -52,6 +52,7 @@ class BlackBerryDeviceConfigurationWizardConfigPage;
 }
 class BlackBerrySshKeysGenerator;
 class BlackBerryDeviceInformation;
+class BlackBerrySigningUtils;
 
 struct BlackBerryDeviceConfigurationWizardHolder {
     QString devicePin;
@@ -149,6 +150,7 @@ private slots:
 private:
     Ui::BlackBerryDeviceConfigurationWizardConfigPage *m_ui;
     BlackBerryDeviceConfigurationWizardHolder &m_holder;
+    BlackBerrySigningUtils &m_utils;
 };
 
 class BlackBerryDeviceConfigurationWizardFinalPage : public QWizardPage

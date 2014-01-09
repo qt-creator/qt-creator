@@ -29,13 +29,10 @@
 **
 ****************************************************************************/
 
-#ifndef BLACKBERRYKEYSWIDGET_H_H
-#define BLACKBERRYKEYSWIDGET_H_H
+#ifndef BLACKBERRYDEBUGTOKENSDIALOG_H
+#define BLACKBERRYDEBUGTOKENSDIALOG_H
 
-#include "blackberryconfiguration.h"
-
-#include <QWidget>
-#include <QString>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
@@ -44,51 +41,38 @@ QT_END_NAMESPACE
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryCertificate;
-class BlackBerrySigningUtils;
-class BlackBerryDebugTokenRequester;
-class Ui_BlackBerryKeysWidget;
+class Ui_BlackBerryDebugTokenPinsDialog;
 
-class BlackBerryKeysWidget : public QWidget
+class BlackBerryDebugTokenPinsDialog : public QDialog
 {
     Q_OBJECT
+
 public:
-    explicit BlackBerryKeysWidget(QWidget *parent = 0);
-    void saveSettings();
+    explicit BlackBerryDebugTokenPinsDialog(const QString &debugToken, QWidget *parent = 0);
+    ~BlackBerryDebugTokenPinsDialog();
 
 private slots:
-    void certificateLoaded(int status);
-    void createCertificate();
-    void clearCertificate();
-    void loadDefaultCertificate();
-    void updateDebugTokenList();
+    void addPin();
+    void editPin();
+    void removePin();
+    void updateUi(const QModelIndex& index);
 
-    void requestDebugToken();
-    void importDebugToken();
-    void editDebugToken();
-    void removeDebugToken();
-    void updateDebugToken(const QStringList &pins);
-    void requestFinished(int status);
-    void updateUi(const QModelIndex &index);
+    void emitUpdatedPins();
+    QString promptPIN(const QString& defaultValue, bool *ok = 0);
 
-protected:
-    void showEvent(QShowEvent *event);
+signals:
+    void pinsUpdated(const QStringList &pins);
 
 private:
-    void updateKeysSection();
-    void updateCertificateSection();
-    void setCertificateError(const QString &error);
-    void setCreateCertificateVisible(bool show);
-    void initModel();
+    Ui_BlackBerryDebugTokenPinsDialog *ui;
+    QStandardItemModel *m_model;
 
-    BlackBerrySigningUtils &m_utils;
+    QPushButton *m_okButton;
 
-    Ui_BlackBerryKeysWidget *m_ui;
-    QStandardItemModel *m_dtModel;
-    BlackBerryDebugTokenRequester *m_requester;
+    QString m_debugTokenPath;
+    bool m_updated;
 };
 
-} // namespace Internal
-} // namespeace Qnx
-
-#endif // BLACKBERRYKEYSWIDGET_H_H
+} // Internal
+} // Qnx
+#endif // BLACKBERRYDEBUGTOKENSDIALOG_H

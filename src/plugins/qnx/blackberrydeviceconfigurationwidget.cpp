@@ -35,6 +35,7 @@
 #include "ui_blackberrydeviceconfigurationwidget.h"
 #include "blackberryconfiguration.h"
 #include "blackberrydeviceconnectionmanager.h"
+#include "blackberrysigningutils.h"
 #include "qnxconstants.h"
 #include "qnxutils.h"
 
@@ -57,20 +58,22 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     IDeviceWidget(device, parent),
     ui(new Ui::BlackBerryDeviceConfigurationWidget),
     progressDialog(new QProgressDialog(this)),
-    uploader(new BlackBerryDebugTokenUploader(this))
+    uploader(new BlackBerryDebugTokenUploader(this)),
+    m_utils(BlackBerrySigningUtils::instance())
 {
     ui->setupUi(this);
 
     ui->connectionLog->setFont(TextEditor::TextEditorSettings::fontSettings().font());
+
+    populateDebugTokenCombo(deviceConfiguration()->debugToken());
 
     connect(ui->hostLineEdit, SIGNAL(editingFinished()), this, SLOT(hostNameEditingFinished()));
     connect(ui->pwdLineEdit, SIGNAL(editingFinished()), this, SLOT(passwordEditingFinished()));
     connect(ui->keyFileLineEdit, SIGNAL(editingFinished()), this, SLOT(keyFileEditingFinished()));
     connect(ui->keyFileLineEdit, SIGNAL(browsingFinished()), this, SLOT(keyFileEditingFinished()));
     connect(ui->showPasswordCheckBox, SIGNAL(toggled(bool)), this, SLOT(showPassword(bool)));
-    connect(ui->debugToken, SIGNAL(changed(QString)), this, SLOT(updateUploadButton()));
-    connect(ui->debugToken, SIGNAL(editingFinished()), this, SLOT(debugTokenEditingFinished()));
-    connect(ui->debugToken, SIGNAL(browsingFinished()), this, SLOT(debugTokenEditingFinished()));
+    connect(ui->debugToken, SIGNAL(currentTextChanged(QString)), this, SLOT(updateUploadButton()));
+    connect(ui->debugToken, SIGNAL(currentTextChanged(QString)), this, SLOT(debugTokenEditingFinished()));
     connect(uploader, SIGNAL(finished(int)), this, SLOT(uploadFinished(int)));
 
     connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id,QString)),
@@ -81,16 +84,14 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     connect(ui->requestButton, SIGNAL(clicked()), this, SLOT(requestDebugToken()));
     connect(ui->uploadButton, SIGNAL(clicked()), this, SLOT(uploadDebugToken()));
 
-    QString debugTokenBrowsePath = QnxUtils::dataDirPath();
-    if (!QFileInfo(debugTokenBrowsePath).exists())
-        debugTokenBrowsePath = QDir::homePath();
-    ui->debugToken->setInitialBrowsePathBackup(debugTokenBrowsePath);
+    connect(&m_utils, SIGNAL(debugTokenListChanged()), this, SLOT(updateDebugTokenCombo()));
 
     initGui();
 }
 
 BlackBerryDeviceConfigurationWidget::~BlackBerryDeviceConfigurationWidget()
 {
+    m_utils.saveDebugTokens();
     delete ui;
 }
 
@@ -123,7 +124,7 @@ void BlackBerryDeviceConfigurationWidget::showPassword(bool showClearText)
 
 void BlackBerryDeviceConfigurationWidget::debugTokenEditingFinished()
 {
-    deviceConfiguration()->setDebugToken(ui->debugToken->path());
+    deviceConfiguration()->setDebugToken(ui->debugToken->currentText());
 }
 
 void BlackBerryDeviceConfigurationWidget::requestDebugToken()
@@ -138,27 +139,29 @@ void BlackBerryDeviceConfigurationWidget::requestDebugToken()
     if (result != QDialog::Accepted)
         return;
 
-    ui->debugToken->setPath(dialog.debugToken());
+    m_utils.addDebugToken(dialog.debugToken());
+    populateDebugTokenCombo(dialog.debugToken());
     debugTokenEditingFinished();
 }
 
 void BlackBerryDeviceConfigurationWidget::uploadDebugToken()
 {
     // check the debug token path before even laucnhing the uploader process
-    if (!QFileInfo(ui->debugToken->fileName().toString()).exists()) {
+    if (!QFileInfo(ui->debugToken->currentText()).exists()) {
         QMessageBox::critical(this, tr("Error"), tr("Invalid debug token path."));
         return;
     }
 
     progressDialog->show();
 
-    uploader->uploadDebugToken(ui->debugToken->path(),
+    uploader->uploadDebugToken(ui->debugToken->currentText(),
             ui->hostLineEdit->text(), ui->pwdLineEdit->text());
 }
 
 void BlackBerryDeviceConfigurationWidget::updateUploadButton()
 {
-    ui->uploadButton->setEnabled(!ui->debugToken->path().isEmpty());
+    const QString path = ui->debugToken->currentText();
+    ui->uploadButton->setEnabled(QFileInfo(path).exists());
 }
 
 void BlackBerryDeviceConfigurationWidget::uploadFinished(int status)
@@ -213,6 +216,20 @@ void BlackBerryDeviceConfigurationWidget::clearConnectionLog(Core::Id deviceId)
         ui->connectionLog->clear();
 }
 
+void BlackBerryDeviceConfigurationWidget::populateDebugTokenCombo(const QString& current)
+{
+    ui->debugToken->clear();
+    ui->debugToken->addItems(m_utils.debugTokens());
+    const int index = ui->debugToken->findText(current);
+    if (index != -1)
+        ui->debugToken->setCurrentIndex(index);
+}
+
+void BlackBerryDeviceConfigurationWidget::updateDebugTokenCombo()
+{
+    populateDebugTokenCombo(ui->debugToken->currentText());
+}
+
 void BlackBerryDeviceConfigurationWidget::updateDeviceFromUi()
 {
     hostNameEditingFinished();
@@ -223,9 +240,6 @@ void BlackBerryDeviceConfigurationWidget::updateDeviceFromUi()
 
 void BlackBerryDeviceConfigurationWidget::initGui()
 {
-    ui->debugToken->setExpectedKind(Utils::PathChooser::File);
-    ui->debugToken->setPromptDialogFilter(QLatin1String("*.bar"));
-
     ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     ui->keyFileLineEdit->lineEdit()->setMinimumWidth(0);
 
@@ -237,8 +251,6 @@ void BlackBerryDeviceConfigurationWidget::initGui()
     ui->pwdLineEdit->setText(sshParams.password);
     ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
     ui->showPasswordCheckBox->setChecked(false);
-    ui->debugToken->setPath(deviceConfiguration()->debugToken());
-
     if (deviceConfiguration()->machineType() == IDevice::Emulator) {
         ui->debugToken->setEnabled(false);
         ui->requestButton->setEnabled(false);

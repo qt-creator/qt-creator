@@ -33,6 +33,9 @@
 #include "blackberrycertificate.h"
 #include "blackberryconfiguration.h"
 #include "blackberryconfigurationmanager.h"
+#include "blackberrydebugtokenreader.h"
+
+#include <coreplugin/icore.h>
 
 #include <QFileInfo>
 #include <QString>
@@ -41,6 +44,11 @@
 #include <QInputDialog>
 
 using namespace Qnx::Internal;
+
+namespace {
+const QLatin1String DebugTokensGroup("DebugTokens");
+const QLatin1String DebugTokensPath("DebugTokenPath");
+}
 
 BlackBerrySigningUtils & BlackBerrySigningUtils::instance()
 {
@@ -53,6 +61,7 @@ BlackBerrySigningUtils::BlackBerrySigningUtils(QObject *parent) :
     QObject(parent),
     m_defaultCertificate(0)
 {
+    loadDebugTokens();
 }
 
 bool BlackBerrySigningUtils::hasRegisteredKeys()
@@ -163,6 +172,26 @@ void BlackBerrySigningUtils::deleteDefaultCertificate()
     QFile::remove(configuration.defaultKeystorePath());
 }
 
+QStringList BlackBerrySigningUtils::debugTokens() const
+{
+    return m_debugTokens;
+}
+
+void BlackBerrySigningUtils::addDebugToken(const QString &dt)
+{
+    if (m_debugTokens.contains(dt) || !QFileInfo(dt).exists())
+        return;
+
+    m_debugTokens << dt;
+    emit debugTokenListChanged();
+}
+
+void BlackBerrySigningUtils::removeDebugToken(const QString &dt)
+{
+    m_debugTokens.removeOne(dt);
+    emit debugTokenListChanged();
+}
+
 void BlackBerrySigningUtils::certificateLoaded(int status)
 {
     if (status != BlackBerryCertificate::Success) {
@@ -174,6 +203,38 @@ void BlackBerrySigningUtils::certificateLoaded(int status)
     }
 
     emit defaultCertificateLoaded(status);
+}
+
+void BlackBerrySigningUtils::saveDebugTokens()
+{
+    if (m_debugTokens.isEmpty())
+        return;
+
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(DebugTokensGroup);
+
+    int count = 0;
+    foreach (QString dt, m_debugTokens) {
+        settings->beginGroup(QString::fromLatin1("debugToken_%1").arg(++count));
+        settings->setValue(DebugTokensPath, dt);
+        settings->endGroup();
+    }
+
+    settings->endGroup();
+}
+
+void BlackBerrySigningUtils::loadDebugTokens()
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(DebugTokensGroup);
+
+    foreach (const QString &dt, settings->childGroups()) {
+        settings->beginGroup(dt);
+        m_debugTokens << settings->value(DebugTokensPath).toString();
+        settings->endGroup();
+    }
+
+    settings->endGroup();
 }
 
 QString BlackBerrySigningUtils::promptPassword(const QString &message,

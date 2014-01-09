@@ -56,8 +56,8 @@ BlackBerryDebugTokenRequester::BlackBerryDebugTokenRequester(QObject *parent) :
 }
 
 void BlackBerryDebugTokenRequester::requestDebugToken(const QString &path,
-        const QString &cskPassword, const QString &keyStore,
-        const QString &keyStorePassword, const QString &devicePin)
+                                                      const QString &cskPassword, const QString &keyStore,
+                                                      const QString &keyStorePassword, const QString &devicePin)
 {
     QStringList arguments;
 
@@ -66,10 +66,14 @@ void BlackBerryDebugTokenRequester::requestDebugToken(const QString &path,
               << QLatin1String("-storepass")
               << keyStorePassword
               << QLatin1String("-cskpass")
-              << cskPassword
-              << QLatin1String("-devicepin")
-              << devicePin
-              << path;
+              << cskPassword;
+
+    // devicePin may contain multiple pins
+    QStringList pins = devicePin.split(QLatin1Char(','));
+    foreach (const QString &pin, pins)
+        arguments << QLatin1String("-devicepin") << pin;
+
+    arguments << path;
 
     start(arguments);
 

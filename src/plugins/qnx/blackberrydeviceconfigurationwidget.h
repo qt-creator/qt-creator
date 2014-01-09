@@ -45,6 +45,7 @@ namespace Qnx {
 namespace Internal {
 
 class BlackBerryDebugTokenUploader;
+class BlackBerrySigningUtils;
 
 namespace Ui {
 class BlackBerryDeviceConfigurationWidget;
@@ -71,6 +72,8 @@ private slots:
     void uploadFinished(int status);
     void appendConnectionLog(Core::Id deviceId, const QString &line);
     void clearConnectionLog(Core::Id deviceId);
+    void populateDebugTokenCombo(const QString &current);
+    void updateDebugTokenCombo();
 
 private:
     void updateDeviceFromUi();
@@ -84,6 +87,7 @@ private:
     QProgressDialog *progressDialog;
 
     BlackBerryDebugTokenUploader *uploader;
+    BlackBerrySigningUtils &m_utils;
 };
 
 

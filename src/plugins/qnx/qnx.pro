@@ -98,7 +98,8 @@ SOURCES += qnxplugin.cpp \
     qnxdeviceprocesslist.cpp \
     qnxtoolchain.cpp \
     slog2inforunner.cpp \
-    blackberryversionnumber.cpp
+    blackberryversionnumber.cpp \
+    blackberrydebugtokenpinsdialog.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -196,7 +197,8 @@ HEADERS += qnxplugin.h\
     qnxdeviceprocesslist.h \
     qnxtoolchain.h \
     slog2inforunner.h \
-    blackberryversionnumber.h
+    blackberryversionnumber.h \
+    blackberrydebugtokenpinsdialog.h
 
 
 FORMS += \
@@ -228,7 +230,8 @@ FORMS += \
     blackberryinstallwizardtargetpage.ui \
     blackberryinstallwizardndkpage.ui \
     blackberryinstallwizardprocesspage.ui \
-    blackberryinstallwizardoptionpage.ui
+    blackberryinstallwizardoptionpage.ui \
+    blackberrydebugtokenpinsdialog.ui
 
 include(../../private_headers.pri)
 include(./cascadesimport/cascadesimport.pri)

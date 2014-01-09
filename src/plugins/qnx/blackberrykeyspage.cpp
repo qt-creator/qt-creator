@@ -60,6 +60,7 @@ QWidget *BlackBerryKeysPage::widget()
 
 void BlackBerryKeysPage::apply()
 {
+    m_widget->saveSettings();
 }
 
 void BlackBerryKeysPage::finish()

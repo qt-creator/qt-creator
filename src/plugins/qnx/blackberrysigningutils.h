@@ -34,6 +34,7 @@
 
 #include <QtGlobal>
 #include <QObject>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QString;
@@ -65,12 +66,21 @@ public:
     void clearCskPassword();
     void clearCertificatePassword();
     void deleteDefaultCertificate();
+    void addDebugToken(const QString &dt);
+    void removeDebugToken(const QString &dt);
+
+    QStringList debugTokens() const;
 
 signals:
     void defaultCertificateLoaded(int status);
+    void debugTokenListChanged();
+
+public slots:
+    void saveDebugTokens();
 
 private slots:
     void certificateLoaded(int status);
+    void loadDebugTokens();
 
 private:
     Q_DISABLE_COPY(BlackBerrySigningUtils)
@@ -83,6 +93,8 @@ private:
 
     QString m_cskPassword;
     QString m_certificatePassword;
+
+    QStringList m_debugTokens;
 };
 
 } // namespace Internal

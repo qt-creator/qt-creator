@@ -34,10 +34,18 @@
 #include "blackberrycertificate.h"
 #include "blackberrysigningutils.h"
 #include "blackberrycreatecertificatedialog.h"
+#include "blackberrydebugtokenreader.h"
+#include "blackberrydebugtokenpinsdialog.h"
+#include "blackberrydebugtokenrequester.h"
+#include "blackberrydebugtokenrequestdialog.h"
 #include "ui_blackberrykeyswidget.h"
 
 #include <QInputDialog>
+#include <QFileDialog>
 #include <QMessageBox>
+
+#include <QStandardItemModel>
+#include <QTreeWidgetItem>
 
 namespace Qnx {
 namespace Internal {
@@ -45,13 +53,20 @@ namespace Internal {
 BlackBerryKeysWidget::BlackBerryKeysWidget(QWidget *parent) :
     QWidget(parent),
     m_utils(BlackBerrySigningUtils::instance()),
-    m_ui(new Ui_BlackBerryKeysWidget)
+    m_ui(new Ui_BlackBerryKeysWidget),
+    m_dtModel(new QStandardItemModel(this)),
+    m_requester(new BlackBerryDebugTokenRequester(this))
 {
     m_ui->setupUi(this);
     m_ui->keyStatus->setTextFormat(Qt::RichText);
     m_ui->keyStatus->setTextInteractionFlags(Qt::TextBrowserInteraction);
     m_ui->keyStatus->setOpenExternalLinks(true);
     m_ui->openCertificateButton->setVisible(false);
+    m_ui->editDbTkButton->setEnabled(false);
+    m_ui->removeDbTkButton->setEnabled(false);
+    m_ui->debugTokens->setModel(m_dtModel);
+
+    updateDebugTokenList();
 
     connect(m_ui->createCertificateButton, SIGNAL(clicked()),
             this, SLOT(createCertificate()));
@@ -59,6 +74,33 @@ BlackBerryKeysWidget::BlackBerryKeysWidget(QWidget *parent) :
             this, SLOT(clearCertificate()));
     connect(m_ui->openCertificateButton, SIGNAL(clicked()),
             this, SLOT(loadDefaultCertificate()));
+    connect(m_ui->requestDbTkButton, SIGNAL(clicked()),
+            this, SLOT(requestDebugToken()));
+    connect(m_ui->importDbTkButton, SIGNAL(clicked()),
+            this, SLOT(importDebugToken()));
+    connect(m_ui->editDbTkButton, SIGNAL(clicked()),
+            this, SLOT(editDebugToken()));
+    connect(m_ui->removeDbTkButton, SIGNAL(clicked()),
+            this, SLOT(removeDebugToken()));
+    connect(m_requester, SIGNAL(finished(int)),
+            this, SLOT(requestFinished(int)));
+    connect(m_ui->debugTokens, SIGNAL(pressed(QModelIndex)),
+            this, SLOT(updateUi(QModelIndex)));
+    connect(&m_utils, SIGNAL(debugTokenListChanged()),
+            this, SLOT(updateDebugTokenList()));
+}
+
+void BlackBerryKeysWidget::saveSettings()
+{
+    m_utils.saveDebugTokens();
+}
+
+void BlackBerryKeysWidget::initModel()
+{
+    m_dtModel->clear();
+    QStringList headers;
+    headers << tr("Path") << tr("Author") << tr("PINs") << tr("Expiry");
+    m_dtModel->setHorizontalHeaderLabels(headers);
 }
 
 void BlackBerryKeysWidget::certificateLoaded(int status)
@@ -93,7 +135,7 @@ void BlackBerryKeysWidget::certificateLoaded(int status)
 
 void BlackBerryKeysWidget::createCertificate()
 {
-    BlackBerryCreateCertificateDialog dialog;
+    BlackBerryCreateCertificateDialog dialog(this);
 
     const int result = dialog.exec();
 
@@ -170,6 +212,153 @@ void BlackBerryKeysWidget::loadDefaultCertificate()
 {
     connect(&m_utils, SIGNAL(defaultCertificateLoaded(int)), this, SLOT(certificateLoaded(int)));
     m_utils.openDefaultCertificate(this);
+}
+
+void BlackBerryKeysWidget::updateDebugTokenList()
+{
+    initModel();
+    foreach (const QString &dt, m_utils.debugTokens()) {
+        QList<QStandardItem*> row;
+        BlackBerryDebugTokenReader debugTokenReader(dt);
+        if (!debugTokenReader.isValid())
+            continue;
+
+        row << new QStandardItem(dt);
+        row << new QStandardItem(debugTokenReader.author());
+        row << new QStandardItem(debugTokenReader.pins());
+        row << new QStandardItem(debugTokenReader.expiry());
+        m_dtModel->appendRow(row);
+    }
+
+    m_ui->debugTokens->header()->resizeSections(QHeaderView::ResizeToContents);
+}
+
+void BlackBerryKeysWidget::requestDebugToken()
+{
+    BlackBerryDebugTokenRequestDialog dialog(this);
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+
+    m_utils.addDebugToken(dialog.debugToken());
+}
+
+void BlackBerryKeysWidget::importDebugToken()
+{
+    const QString debugToken = QFileDialog::getOpenFileName(this, tr("Select Debug Token"),
+                                                            QString(), tr("Bar file (*.bar)"));
+    if (debugToken.isEmpty())
+        return;
+
+    BlackBerryDebugTokenReader debugTokenReader(debugToken);
+    if (!debugTokenReader.isValid()) {
+        QMessageBox::warning(this, tr("Invalid Debug Token"),
+                             tr("Debug token file %1 cannot be read.").arg(debugToken));
+        return;
+    }
+
+    m_utils.addDebugToken(debugToken);
+}
+
+void BlackBerryKeysWidget::editDebugToken()
+{
+    const QModelIndex index = m_ui->debugTokens->currentIndex();
+    if (!index.isValid())
+        return;
+
+    QString pins = m_dtModel->item(index.row(), 0)->text();
+
+    BlackBerryDebugTokenPinsDialog dialog(pins, this);
+    connect(&dialog, SIGNAL(pinsUpdated(QStringList)), this, SLOT(updateDebugToken(QStringList)));
+    dialog.exec();
+}
+
+void BlackBerryKeysWidget::removeDebugToken()
+{
+    const QModelIndex index = m_ui->debugTokens->currentIndex();
+    if (!index.isValid())
+        return;
+
+    const QString dt = m_dtModel->item(index.row(), 0)->text();
+    const int result = QMessageBox::question(this, tr("Confirmation"),
+            tr("Are you sure you want to remove %1?")
+            .arg(dt), QMessageBox::Yes | QMessageBox::No);
+
+    if (result == QMessageBox::Yes)
+        m_utils.removeDebugToken(dt);
+}
+
+void BlackBerryKeysWidget::updateDebugToken(const QStringList &pins)
+{
+    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
+
+    bool ok;
+    const QString cskPassword = m_utils.cskPassword(this, &ok);
+    if (!ok)
+        return;
+
+    const QString certificatePassword = m_utils.certificatePassword(this, &ok);
+    if (!ok)
+        return;
+
+    const QString debugTokenPath = m_dtModel->item(m_ui->debugTokens->currentIndex().row(), 0)->text();
+    m_requester->requestDebugToken(debugTokenPath,
+                                   cskPassword, configuration.defaultKeystorePath(),
+                                   certificatePassword, pins.join(QLatin1Char(',')));
+}
+
+void BlackBerryKeysWidget::requestFinished(int status)
+{
+    QString errorString = tr("Failed to request debug token:") + QLatin1Char(' ');
+
+    switch (status) {
+    case BlackBerryDebugTokenRequester::Success:
+        updateDebugTokenList();
+        return;
+    case BlackBerryDebugTokenRequester::WrongCskPassword:
+        m_utils.clearCskPassword();
+        errorString += tr("Wrong CSK password.");
+        break;
+    case BlackBerryDebugTokenRequester::WrongKeystorePassword:
+        m_utils.clearCertificatePassword();
+        errorString += tr("Wrong keystore password.");
+        break;
+    case BlackBerryDebugTokenRequester::NetworkUnreachable:
+        errorString += tr("Network unreachable.");
+        break;
+    case BlackBerryDebugTokenRequester::IllegalPin:
+        errorString += tr("Illegal device PIN.");
+        break;
+    case BlackBerryDebugTokenRequester::FailedToStartInferiorProcess:
+        errorString += tr("Failed to start inferior process.");
+        break;
+    case BlackBerryDebugTokenRequester::InferiorProcessTimedOut:
+        errorString += tr("Inferior processes timed out.");
+        break;
+    case BlackBerryDebugTokenRequester::InferiorProcessCrashed:
+        errorString += tr("Inferior process has crashed.");
+        break;
+    case BlackBerryDebugTokenRequester::InferiorProcessReadError:
+    case BlackBerryDebugTokenRequester::InferiorProcessWriteError:
+        errorString += tr("Failed to communicate with the inferior process.");
+        break;
+    case BlackBerryDebugTokenRequester::NotYetRegistered:
+        errorString += tr("Not yet registered to request debug tokens.");
+        break;
+    case BlackBerryDebugTokenRequester::UnknownError:
+    default:
+        m_utils.clearCertificatePassword();
+        m_utils.clearCskPassword();
+        errorString += tr("An unknwon error has occurred.");
+        break;
+    }
+
+    QMessageBox::critical(this, tr("Error"), errorString);
+}
+
+void BlackBerryKeysWidget::updateUi(const QModelIndex &index)
+{
+    m_ui->editDbTkButton->setEnabled(index.isValid());
+    m_ui->removeDbTkButton->setEnabled(index.isValid());
 }
 
 void BlackBerryKeysWidget::setCertificateError(const QString &error)

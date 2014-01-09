@@ -35,12 +35,15 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="Utils::PathChooser" name="debugTokenField" native="true">
+       <widget class="QComboBox" name="debugTokenCombo">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -139,18 +142,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
-   <container>1</container>
-   <slots>
-    <signal>editingFinished()</signal>
-    <signal>browsingFinished()</signal>
-   </slots>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>generateButton</tabstop>
  </tabstops>

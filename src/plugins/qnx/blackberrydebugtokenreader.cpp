@@ -31,6 +31,8 @@
 
 #include "blackberrydebugtokenreader.h"
 
+#include <QStringList>
+
 #ifdef QNX_ZIP_FILE_SUPPORT
 #include <private/qzipreader_p.h>
 #endif
@@ -43,6 +45,8 @@ const char MANIFEST_FILENAME[] = "META-INF/MANIFEST.MF";
 
 const char MANIFEST_AUTHOR_KEY[]    = "Package-Author: ";
 const char MANIFEST_AUTHOR_ID_KEY[] = "Package-Author-Id: ";
+const char MANIFEST_EXPIRY[]        = "Debug-Token-Expiry-Date: ";
+const char MANIFEST_PINS[]          = "Debug-Token-Device-Id: ";
 }
 
 BlackBerryDebugTokenReader::BlackBerryDebugTokenReader(const QString &filePath)
@@ -81,6 +85,24 @@ QString BlackBerryDebugTokenReader::author() const
 QString BlackBerryDebugTokenReader::authorId() const
 {
     return manifestValue(MANIFEST_AUTHOR_ID_KEY);
+}
+
+QString BlackBerryDebugTokenReader::expiry() const
+{
+    return manifestValue(MANIFEST_EXPIRY);
+}
+
+QString BlackBerryDebugTokenReader::pins() const
+{
+    const QString value = manifestValue(MANIFEST_PINS);
+    QStringList pins = value.split(QLatin1Char(','));
+    QStringList pinsHexa;
+    foreach (const QString &pin, pins) {
+        QString hexa;
+        pinsHexa << hexa.setNum(pin.toUInt(), 16);
+    }
+
+    return pinsHexa.join(QLatin1Char(','));
 }
 
 bool BlackBerryDebugTokenReader::isSupported()

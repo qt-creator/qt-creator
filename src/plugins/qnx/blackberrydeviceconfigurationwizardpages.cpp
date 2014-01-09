@@ -39,6 +39,7 @@
 #include "ui_blackberrydeviceconfigurationwizardconfigpage.h"
 #include "blackberryconfiguration.h"
 #include "blackberrydeviceconnectionmanager.h"
+#include "blackberrysigningutils.h"
 #include "qnxutils.h"
 
 #include <coreplugin/icore.h>
@@ -353,24 +354,19 @@ BlackBerryDeviceConfigurationWizardConfigPage::BlackBerryDeviceConfigurationWiza
     : QWizardPage(parent)
     , m_ui(new Ui::BlackBerryDeviceConfigurationWizardConfigPage)
     , m_holder(holder)
+    , m_utils(BlackBerrySigningUtils::instance())
 {
     m_ui->setupUi(this);
     setTitle(tr("Configuration"));
 
-    m_ui->debugTokenField->setExpectedKind(Utils::PathChooser::File);
-    m_ui->debugTokenField->setPromptDialogFilter(QLatin1String("*.bar"));
-
-    QString debugTokenBrowsePath = QnxUtils::dataDirPath();
-    if (!QFileInfo(debugTokenBrowsePath).exists())
-        debugTokenBrowsePath = QDir::homePath();
-    m_ui->debugTokenField->setInitialBrowsePathBackup(debugTokenBrowsePath);
+    m_ui->debugTokenCombo->addItems(m_utils.debugTokens());
 
     connect(m_ui->configurationNameField, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
-    connect(m_ui->debugTokenField, SIGNAL(changed(QString)), this, SIGNAL(completeChanged()));
+    connect(m_ui->debugTokenCombo, SIGNAL(currentTextChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->generateButton, SIGNAL(clicked()), this, SLOT(generateDebugToken()));
 
     registerField(QLatin1String(CONFIGURATIONNAME_FIELD_ID), m_ui->configurationNameField);
-    registerField(QLatin1String(DEBUGTOKENPATH_FIELD_ID), m_ui->debugTokenField);
+    registerField(QLatin1String(DEBUGTOKENPATH_FIELD_ID), m_ui->debugTokenCombo);
 }
 
 BlackBerryDeviceConfigurationWizardConfigPage::~BlackBerryDeviceConfigurationWizardConfigPage()
@@ -385,16 +381,16 @@ void BlackBerryDeviceConfigurationWizardConfigPage::initializePage()
     m_ui->configurationNameField->setText(m_holder.deviceName);
     m_ui->deviceHostNameField->setText(deviceHostName);
     m_ui->deviceTypeField->setText(QLatin1String (m_holder.isSimulator ? "Simulator" : "Device"));
-    m_ui->debugTokenField->setEnabled(!m_holder.isSimulator);
+    m_ui->debugTokenCombo->setEnabled(!m_holder.isSimulator);
     m_ui->generateButton->setEnabled(!m_holder.isSimulator);
 }
 
 bool BlackBerryDeviceConfigurationWizardConfigPage::isComplete() const
 {
     bool configurationNameComplete = !m_ui->configurationNameField->text().isEmpty();
-    Utils::FileName fileName = m_ui->debugTokenField->fileName();
+    Utils::FileName fileName = Utils::FileName::fromString(m_ui->debugTokenCombo->currentText());
     bool debugTokenComplete = m_holder.isSimulator || !m_holder.isProductionDevice
-            || (!fileName.isEmpty() && QFileInfo(fileName.toString()).exists());
+            || (!fileName.isEmpty() && fileName.toFileInfo().exists());
 
     return configurationNameComplete  &&  debugTokenComplete;
 }
@@ -409,7 +405,8 @@ void BlackBerryDeviceConfigurationWizardConfigPage::generateDebugToken()
     if (result != QDialog::Accepted)
         return;
 
-    m_ui->debugTokenField->setPath(dialog.debugToken());
+    m_utils.addDebugToken(dialog.debugToken());
+    m_ui->debugTokenCombo->addItem(dialog.debugToken());
 }
 
 QString BlackBerryDeviceConfigurationWizardConfigPage::configurationName() const
@@ -419,7 +416,7 @@ QString BlackBerryDeviceConfigurationWizardConfigPage::configurationName() const
 
 QString BlackBerryDeviceConfigurationWizardConfigPage::debugToken() const
 {
-    return m_ui->debugTokenField->fileName().toString();
+    return m_ui->debugTokenCombo->currentText();
 }
 
 // ----------------------------------------------------------------------------
