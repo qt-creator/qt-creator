@@ -33,6 +33,7 @@
 #include "basetexteditor.h"
 #include "behaviorsettings.h"
 #include "displaysettings.h"
+#include "marginsettings.h"
 #include "fontsettings.h"
 #include "refactoroverlay.h"
 
@@ -138,6 +139,7 @@ public:
     Core::Id m_tabSettingsId;
     ICodeStylePreferences *m_codeStylePreferences;
     DisplaySettings m_displaySettings;
+    MarginSettings m_marginSettings;
     FontSettings m_fontSettings;
     BehaviorSettings m_behaviorSettings;
 

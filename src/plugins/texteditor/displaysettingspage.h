@@ -37,6 +37,7 @@
 namespace TextEditor {
 
 class DisplaySettings;
+class MarginSettings;
 
 class DisplaySettingsPageParameters
 {
@@ -60,14 +61,16 @@ public:
     void finish();
 
     const DisplaySettings &displaySettings() const;
+    const MarginSettings &marginSettings() const;
 
 signals:
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
+    void marginSettingsChanged(const TextEditor::MarginSettings &);
 
 private:
-    void settingsFromUI(DisplaySettings &displaySettings) const;
+    void settingsFromUI(DisplaySettings &displaySettings, MarginSettings &marginSettings) const;
     void settingsToUI();
-    void setDisplaySettings(const DisplaySettings &);
+    void setDisplaySettings(const DisplaySettings &, const MarginSettings &newMarginSettings);
 
     struct DisplaySettingsPagePrivate;
     DisplaySettingsPagePrivate *d;

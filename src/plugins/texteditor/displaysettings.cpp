@@ -34,8 +34,6 @@
 
 static const char displayLineNumbersKey[] = "DisplayLineNumbers";
 static const char textWrappingKey[] = "TextWrapping";
-static const char showWrapColumnKey[] = "ShowWrapColumn";
-static const char wrapColumnKey[] = "WrapColumn";
 static const char visualizeWhitespaceKey[] = "VisualizeWhitespace";
 static const char displayFoldingMarkersKey[] = "DisplayFoldingMarkers";
 static const char highlightCurrentLineKey[] = "HighlightCurrentLine2Key";
@@ -54,8 +52,6 @@ namespace TextEditor {
 DisplaySettings::DisplaySettings() :
     m_displayLineNumbers(true),
     m_textWrapping(false),
-    m_showWrapColumn(false),
-    m_wrapColumn(80),
     m_visualizeWhitespace(false),
     m_displayFoldingMarkers(true),
     m_highlightCurrentLine(false),
@@ -79,8 +75,6 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->beginGroup(group);
     s->setValue(QLatin1String(displayLineNumbersKey), m_displayLineNumbers);
     s->setValue(QLatin1String(textWrappingKey), m_textWrapping);
-    s->setValue(QLatin1String(showWrapColumnKey), m_showWrapColumn);
-    s->setValue(QLatin1String(wrapColumnKey), m_wrapColumn);
     s->setValue(QLatin1String(visualizeWhitespaceKey), m_visualizeWhitespace);
     s->setValue(QLatin1String(displayFoldingMarkersKey), m_displayFoldingMarkers);
     s->setValue(QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine);
@@ -106,8 +100,6 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
 
     m_displayLineNumbers = s->value(group + QLatin1String(displayLineNumbersKey), m_displayLineNumbers).toBool();
     m_textWrapping = s->value(group + QLatin1String(textWrappingKey), m_textWrapping).toBool();
-    m_showWrapColumn = s->value(group + QLatin1String(showWrapColumnKey), m_showWrapColumn).toBool();
-    m_wrapColumn = s->value(group + QLatin1String(wrapColumnKey), m_wrapColumn).toInt();
     m_visualizeWhitespace = s->value(group + QLatin1String(visualizeWhitespaceKey), m_visualizeWhitespace).toBool();
     m_displayFoldingMarkers = s->value(group + QLatin1String(displayFoldingMarkersKey), m_displayFoldingMarkers).toBool();
     m_highlightCurrentLine = s->value(group + QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine).toBool();
@@ -125,8 +117,6 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
 {
     return m_displayLineNumbers == ds.m_displayLineNumbers
         && m_textWrapping == ds.m_textWrapping
-        && m_showWrapColumn == ds.m_showWrapColumn
-        && m_wrapColumn == ds.m_wrapColumn
         && m_visualizeWhitespace == ds.m_visualizeWhitespace
         && m_displayFoldingMarkers == ds.m_displayFoldingMarkers
         && m_highlightCurrentLine == ds.m_highlightCurrentLine

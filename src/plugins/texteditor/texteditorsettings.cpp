@@ -33,6 +33,7 @@
 #include "behaviorsettings.h"
 #include "behaviorsettingspage.h"
 #include "completionsettings.h"
+#include "marginsettings.h"
 #include "displaysettings.h"
 #include "displaysettingspage.h"
 #include "fontsettingspage.h"
@@ -299,6 +300,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
             this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)));
     connect(d->m_behaviorSettingsPage, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
             this, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)));
+    connect(d->m_displaySettingsPage, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)),
+            this, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)));
     connect(d->m_displaySettingsPage, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)));
 
@@ -339,6 +342,8 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
             editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
     connect(m_instance, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
             editor, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
+    connect(m_instance, SIGNAL(marginSettingsChanged(const TextEditor::MarginSettings &)),
+            editor, SLOT(setMarginSettings(TextEditor::MarginSettings)));
     connect(m_instance, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
     connect(m_instance, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
@@ -357,6 +362,7 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
     editor->setTypingSettings(typingSettings());
     editor->setStorageSettings(storageSettings());
     editor->setBehaviorSettings(behaviorSettings());
+    editor->setMarginSettings(marginSettings());
     editor->setDisplaySettings(displaySettings());
     editor->setCompletionSettings(completionSettings());
     editor->setExtraEncodingSettings(extraEncodingSettings());
@@ -381,6 +387,11 @@ const StorageSettings &TextEditorSettings::storageSettings()
 const BehaviorSettings &TextEditorSettings::behaviorSettings()
 {
     return d->m_behaviorSettingsPage->behaviorSettings();
+}
+
+const MarginSettings &TextEditorSettings::marginSettings()
+{
+    return d->m_displaySettingsPage->marginSettings();
 }
 
 const DisplaySettings &TextEditorSettings::displaySettings()

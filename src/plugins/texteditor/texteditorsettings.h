@@ -49,6 +49,7 @@ class TabSettings;
 class TypingSettings;
 class StorageSettings;
 class BehaviorSettings;
+class MarginSettings;
 class DisplaySettings;
 class CompletionSettings;
 class HighlighterSettings;
@@ -78,6 +79,7 @@ public:
     static const TypingSettings &typingSettings();
     static const StorageSettings &storageSettings();
     static const BehaviorSettings &behaviorSettings();
+    static const MarginSettings &marginSettings();
     static const DisplaySettings &displaySettings();
     static const CompletionSettings &completionSettings();
     static const HighlighterSettings &highlighterSettings();
@@ -109,6 +111,7 @@ signals:
     void typingSettingsChanged(const TextEditor::TypingSettings &);
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
+    void marginSettingsChanged(const TextEditor::MarginSettings &);
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
     void completionSettingsChanged(const TextEditor::CompletionSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);

@@ -4532,6 +4532,10 @@ const DisplaySettings &BaseTextEditorWidget::displaySettings() const
     return d->m_displaySettings;
 }
 
+const MarginSettings &BaseTextEditorWidget::marginSettings() const
+{
+    return d->m_marginSettings;
+}
 
 void BaseTextEditorWidget::indentOrUnindent(bool doIndent)
 {
@@ -5389,7 +5393,7 @@ void BaseTextEditorWidget::format()
 
 void BaseTextEditorWidget::rewrapParagraph()
 {
-    const int paragraphWidth = displaySettings().m_wrapColumn;
+    const int paragraphWidth = marginSettings().m_marginColumn;
     const QRegExp anyLettersOrNumbers = QRegExp(QLatin1String("\\w"));
     const int tabSize = tabSettings().m_tabSize;
 
@@ -5612,7 +5616,6 @@ void BaseTextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 {
     setLineWrapMode(ds.m_textWrapping ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
     setLineNumbersVisible(ds.m_displayLineNumbers);
-    setVisibleWrapColumn(ds.m_showWrapColumn ? ds.m_wrapColumn : 0);
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
     setRevisionsVisible(ds.m_markTextChanges);
     setCenterOnScroll(ds.m_centerCursorOnScroll);
@@ -5638,6 +5641,15 @@ void BaseTextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
     updateCodeFoldingVisible();
     updateHighlights();
+    viewport()->update();
+    extraArea()->update();
+}
+
+void BaseTextEditorWidget::setMarginSettings(const MarginSettings &ms)
+{
+    setVisibleWrapColumn(ms.m_showMargin ? ms.m_marginColumn : 0);
+    d->m_marginSettings = ms;
+
     viewport()->update();
     extraArea()->update();
 }

@@ -75,6 +75,7 @@ class FontSettings;
 class BehaviorSettings;
 class CompletionSettings;
 class DisplaySettings;
+class MarginSettings;
 class TypingSettings;
 class StorageSettings;
 class Indenter;
@@ -396,6 +397,7 @@ public:
     void setCodeStyle(ICodeStylePreferences *settings);
 
     const DisplaySettings &displaySettings() const;
+    const MarginSettings &marginSettings() const;
 
     void markBlocksAsChanged(QList<int> blockNumbers);
 
@@ -436,6 +438,7 @@ public slots:
     void setFontSettingsIfVisible(const TextEditor::FontSettings &);
     virtual void setTabSettings(const TextEditor::TabSettings &);
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
+    virtual void setMarginSettings(const TextEditor::MarginSettings &);
     virtual void setBehaviorSettings(const TextEditor::BehaviorSettings &);
     virtual void setTypingSettings(const TextEditor::TypingSettings &);
     virtual void setStorageSettings(const TextEditor::StorageSettings &);

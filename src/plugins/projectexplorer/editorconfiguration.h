@@ -46,6 +46,7 @@ class TypingSettings;
 class StorageSettings;
 class BehaviorSettings;
 class ExtraEncodingSettings;
+class MarginSettings;
 }
 
 namespace ProjectExplorer {
@@ -72,6 +73,7 @@ public:
     const TextEditor::StorageSettings &storageSettings() const;
     const TextEditor::BehaviorSettings &behaviorSettings() const;
     const TextEditor::ExtraEncodingSettings &extraEncodingSettings() const;
+    const TextEditor::MarginSettings &marginSettings() const;
 
     TextEditor::ICodeStylePreferences *codeStyle() const;
     TextEditor::ICodeStylePreferences *codeStyle(Core::Id languageId) const;
@@ -88,6 +90,7 @@ signals:
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
+    void marginSettingsChanged(const TextEditor::MarginSettings &);
 
 private slots:
 
@@ -95,6 +98,10 @@ private slots:
     void setStorageSettings(const TextEditor::StorageSettings &settings);
     void setBehaviorSettings(const TextEditor::BehaviorSettings &settings);
     void setExtraEncodingSettings(const TextEditor::ExtraEncodingSettings &settings);
+    void setMarginSettings(const TextEditor::MarginSettings &settings);
+
+    void setShowWrapColumn(bool onoff);
+    void setWrapColumn(int column);
 
     void setTextCodec(QTextCodec *textCodec);
 

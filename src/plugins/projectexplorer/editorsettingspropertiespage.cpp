@@ -30,6 +30,7 @@
 #include "editorsettingspropertiespage.h"
 #include "editorconfiguration.h"
 #include "project.h"
+#include <texteditor/marginsettings.h>
 
 #include <QTextCodec>
 
@@ -78,6 +79,10 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_proj
     connect(m_ui.globalSelector, SIGNAL(activated(int)),
             this, SLOT(globalSettingsActivated(int)));
     connect(m_ui.restoreButton, SIGNAL(clicked()), this, SLOT(restoreDefaultValues()));
+
+    connect(m_ui.showWrapColumn, SIGNAL(toggled(bool)), config, SLOT(setShowWrapColumn(bool)));
+    connect(m_ui.wrapColumn, SIGNAL(valueChanged(int)), config, SLOT(setWrapColumn(int)));
+
     connect(m_ui.behaviorSettingsWidget, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
             config, SLOT(setTypingSettings(TextEditor::TypingSettings)));
     connect(m_ui.behaviorSettingsWidget, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
@@ -92,6 +97,8 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_proj
 
 void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 {
+    m_ui.showWrapColumn->setChecked(config->marginSettings().m_showMargin);
+    m_ui.wrapColumn->setValue(config->marginSettings().m_marginColumn);
     m_ui.behaviorSettingsWidget->setCodeStyle(config->codeStyle());
     m_ui.globalSelector->setCurrentIndex(config->useGlobalSettings() ? 0 : 1);
     m_ui.behaviorSettingsWidget->setAssignedCodec(config->textCodec());
@@ -104,6 +111,7 @@ void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 void EditorSettingsWidget::globalSettingsActivated(int index)
 {
     const bool useGlobal = !index;
+    m_ui.displaySettings->setEnabled(!useGlobal);
     m_ui.behaviorSettingsWidget->setActive(!useGlobal);
     m_ui.restoreButton->setEnabled(!useGlobal);
     EditorConfiguration *config = m_project->editorConfiguration();

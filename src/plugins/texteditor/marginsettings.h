@@ -27,10 +27,12 @@
 **
 ****************************************************************************/
 
-#ifndef DISPLAYSETTINGS_H
-#define DISPLAYSETTINGS_H
+#ifndef TEXTEDITOR_MARGINSETTINGS_H
+#define TEXTEDITOR_MARGINSETTINGS_H
 
 #include "texteditor_global.h"
+
+#include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -38,35 +40,28 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class TEXTEDITOR_EXPORT DisplaySettings
+class TEXTEDITOR_EXPORT MarginSettings
 {
 public:
-    DisplaySettings();
+    MarginSettings();
 
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);
 
-    bool m_displayLineNumbers;
-    bool m_textWrapping;
-    bool m_visualizeWhitespace;
-    bool m_displayFoldingMarkers;
-    bool m_highlightCurrentLine;
-    bool m_highlightBlocks;
-    bool m_animateMatchingParentheses;
-    bool m_highlightMatchingParentheses;
-    bool m_markTextChanges;
-    bool m_autoFoldFirstComment;
-    bool m_centerCursorOnScroll;
-    bool m_openLinksInNextSplit;
-    bool m_forceOpenLinksInNextSplit;
-    bool m_displayFileEncoding;
+    void toMap(const QString &prefix, QVariantMap *map) const;
+    void fromMap(const QString &prefix, const QVariantMap &map);
 
-    bool equals(const DisplaySettings &ds) const;
+    bool equals(const MarginSettings &other) const;
+
+    bool m_showMargin;
+    int m_marginColumn;
 };
 
-inline bool operator==(const DisplaySettings &t1, const DisplaySettings &t2) { return t1.equals(t2); }
-inline bool operator!=(const DisplaySettings &t1, const DisplaySettings &t2) { return !t1.equals(t2); }
+inline bool operator==(const MarginSettings &one, const MarginSettings &two)
+{ return one.equals(two); }
+inline bool operator!=(const MarginSettings &one, const MarginSettings &two)
+{ return !one.equals(two); }
 
 } // namespace TextEditor
 
-#endif // DISPLAYSETTINGS_H
+#endif // TEXTEDITOR_MARGINSETTINGS_H
