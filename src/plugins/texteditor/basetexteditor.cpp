@@ -1805,7 +1805,8 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-    if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
+    if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()
+            || (e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) == Qt::ControlModifier) {
         if (!cursorMoveKeyEvent(e)) {
             QTextCursor cursor = textCursor();
             bool cursorWithinSnippet = false;
@@ -1823,7 +1824,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
                 d->m_snippetOverlay->updateEquivalentSelections(textCursor());
             }
         }
-    } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
+    } else {
         QTextCursor cursor = textCursor();
         QString text = e->text();
         const QString &autoText = d->m_autoCompleter->autoComplete(cursor, text);
