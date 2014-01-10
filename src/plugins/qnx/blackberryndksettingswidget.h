@@ -61,7 +61,7 @@ public:
    QList<BlackBerryConfiguration *> activatedTargets();
    QList<BlackBerryConfiguration *> deactivatedTargets();
 
-   BlackBerryConfiguration *defaultApiLevel() const;
+   BlackBerryConfiguration *defaultConfiguration() const;
 
 signals:
     void targetsUpdated();
@@ -79,8 +79,7 @@ public slots:
     void handleInstallationFinished();
     void handleUninstallationFinished();
     void updateUi(QTreeWidgetItem* item, BlackBerryConfiguration* config);
-    void setDefaultApiLevel(int index);
-    void updateDefaultApiLevel();
+    void populateDefaultConfigurationCombo();
 
 private:
     void launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::Mode mode,
@@ -88,7 +87,6 @@ private:
 
     Ui_BlackBerryNDKSettingsWidget *m_ui;
     BlackBerryConfigurationManager *m_bbConfigManager;
-    BlackBerryConfiguration *m_defaultApiLevel;
 
     QTreeWidgetItem *m_autoDetectedNdks;
     QTreeWidgetItem *m_manualNdks;

@@ -72,7 +72,9 @@ void BlackBerryNDKSettingsPage::apply()
             config->deactivate();
     }
 
-    BlackBerryConfigurationManager::instance().setDefaultApiLevel(m_widget->defaultApiLevel());
+    BlackBerryConfigurationManager &manager = BlackBerryConfigurationManager::instance();
+
+    manager.setDefaultConfiguration(m_widget->defaultConfiguration());
 }
 
 void BlackBerryNDKSettingsPage::finish()

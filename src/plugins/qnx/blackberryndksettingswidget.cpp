@@ -56,11 +56,10 @@ static QIcon invalidConfigIcon(QLatin1String(":/projectexplorer/images/compile_e
 BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     QWidget(parent),
     m_ui(new Ui_BlackBerryNDKSettingsWidget),
-    m_defaultApiLevel(0),
+    m_bbConfigManager(&BlackBerryConfigurationManager::instance()),
     m_autoDetectedNdks(0),
     m_manualNdks(0)
 {
-    m_bbConfigManager = &BlackBerryConfigurationManager::instance();
     m_ui->setupUi(this);
 
     updateInfoTable(0);
@@ -90,10 +89,10 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     connect(m_ui->deactivateNdkTargetButton, SIGNAL(clicked()), this, SLOT(deactivateNdkTarget()));
     connect(m_ui->cleanUpButton, SIGNAL(clicked()), this, SLOT(cleanUp()));
     connect(m_ui->ndksTreeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(updateInfoTable(QTreeWidgetItem*)));
-    connect(m_ui->apiLevelCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setDefaultApiLevel(int)));
+    connect(this, SIGNAL(targetsUpdated()), this, SLOT(populateDefaultConfigurationCombo()));
 
     updateNdkList();
-    updateDefaultApiLevel();
+    populateDefaultConfigurationCombo();
 }
 
 void BlackBerryNDKSettingsWidget::setWizardMessageVisible(bool visible)
@@ -117,9 +116,12 @@ QList<BlackBerryConfiguration *> BlackBerryNDKSettingsWidget::deactivatedTargets
     return m_deactivatedTargets;
 }
 
-BlackBerryConfiguration *BlackBerryNDKSettingsWidget::defaultApiLevel() const
+BlackBerryConfiguration *BlackBerryNDKSettingsWidget::defaultConfiguration() const
 {
-    return m_defaultApiLevel;
+    const int currentIndex = m_ui->apiLevelCombo->currentIndex();
+
+    return static_cast<BlackBerryConfiguration*>(
+            m_ui->apiLevelCombo->itemData(currentIndex).value<void*>());
 }
 
 void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
@@ -235,7 +237,6 @@ void BlackBerryNDKSettingsWidget::removeNdkTarget()
         m_deactivatedTargets.removeOne(config);
         m_bbConfigManager->removeConfiguration(config);
         m_manualNdks->removeChild(m_ui->ndksTreeWidget->currentItem());
-        updateDefaultApiLevel();
         emit targetsUpdated();
     }
 }
@@ -323,7 +324,6 @@ void BlackBerryNDKSettingsWidget::cleanUp()
 void BlackBerryNDKSettingsWidget::handleInstallationFinished()
 {
     m_bbConfigManager->loadAutoDetectedConfigurations();
-    updateDefaultApiLevel();
     updateNdkList();
 }
 
@@ -348,50 +348,36 @@ void BlackBerryNDKSettingsWidget::handleUninstallationFinished()
 
     m_bbConfigManager->removeConfiguration(config);
 
-    updateDefaultApiLevel();
     updateNdkList();
 }
 
-void BlackBerryNDKSettingsWidget::setDefaultApiLevel(int index)
+void BlackBerryNDKSettingsWidget::populateDefaultConfigurationCombo()
 {
-    if (index < 0)
-        return;
-
-    const QString ndkEnvFile = m_ui->apiLevelCombo->itemData(index).toString();
-
-    foreach (BlackBerryConfiguration *config, m_bbConfigManager->configurations()) {
-        if (config->ndkEnvFile().toString() == ndkEnvFile) {
-            m_defaultApiLevel = config;
-            return;
-        }
-    }
-
-    m_defaultApiLevel = 0;
-
-    qWarning("Cannot set default API level");
-}
-
-void BlackBerryNDKSettingsWidget::updateDefaultApiLevel()
-{
+    // prevent QComboBox::currentIndexChanged() from being emitted
     m_ui->apiLevelCombo->clear();
 
-    if (m_bbConfigManager->configurations().isEmpty())
+    QList<BlackBerryConfiguration*> configurations = m_bbConfigManager->configurations();
+
+    m_ui->apiLevelCombo->addItem(tr("Newest version"),
+            QVariant::fromValue(static_cast<void*>(0)));
+
+    if (configurations.isEmpty())
         return;
 
-    foreach (BlackBerryConfiguration *config, m_bbConfigManager->configurations())
-        m_ui->apiLevelCombo->addItem(config->displayName(), config->ndkEnvFile().toString());
+    int configIndex = 0;
 
-    BlackBerryConfiguration *conf = m_bbConfigManager->defaultApiLevel();
+    BlackBerryConfiguration *defaultConfig = m_bbConfigManager->defaultConfiguration();
 
-    if (!conf) {
-        m_ui->apiLevelCombo->setCurrentIndex(-1);
-        m_defaultApiLevel = 0;
-        return;
+    foreach (BlackBerryConfiguration *config, configurations) {
+        m_ui->apiLevelCombo->addItem(config->displayName(),
+                QVariant::fromValue(static_cast<void*>(config)));
+
+        if (config == defaultConfig)
+            configIndex = m_ui->apiLevelCombo->count() - 1;
     }
 
-    m_defaultApiLevel = conf;
+    const int currentIndex = (m_bbConfigManager->newestConfigurationEnabled()) ? 0 : configIndex;
 
-    const int currentIndex = m_ui->apiLevelCombo->findData(conf->ndkEnvFile().toString());
     m_ui->apiLevelCombo->setCurrentIndex(currentIndex);
 }
 

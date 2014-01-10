@@ -66,7 +66,8 @@ const QLatin1String NDKLocationKey("NDKLocation"); // For 10.1 NDK support (< QT
 const QLatin1String NDKEnvFileKey("NDKEnvFile");
 const QLatin1String ManualNDKsGroup("ManualNDKs");
 const QLatin1String ActiveNDKsGroup("ActiveNDKs");
-const QLatin1String DefaultApiLevelKey("DefaultApiLevel");
+const QLatin1String DefaultConfigurationKey("DefaultConfiguration");
+const QLatin1String NewestConfigurationValue("Newest");
 const QLatin1String BBConfigsFileVersionKey("Version");
 const QLatin1String BBConfigDataKey("BBConfiguration.");
 const QLatin1String BBConfigCountKey("BBConfiguration.Count");
@@ -85,7 +86,7 @@ static bool sortConfigurationsByVersion(const BlackBerryConfiguration *a, const 
 
 BlackBerryConfigurationManager::BlackBerryConfigurationManager(QObject *parent)
     : QObject(parent),
-    m_defaultApiLevel(0)
+    m_defaultConfiguration(0)
 {
     m_writer = new Utils::PersistentSettingsWriter(bbConfigSettingsFileName(),
                                                    QLatin1String("BlackBerryConfigurations"));
@@ -108,6 +109,13 @@ void BlackBerryConfigurationManager::saveConfigurations()
     }
 
     data.insert(QLatin1String(BBConfigCountKey), count);
+
+    const QString newestConfig = (newestConfigurationEnabled())
+        ? NewestConfigurationValue : defaultConfiguration()->ndkEnvFile().toString();
+
+    //save default configuration
+    data.insert(QLatin1String(DefaultConfigurationKey), newestConfig);
+
     m_writer->save(data, Core::ICore::mainWindow());
 }
 
@@ -118,14 +126,29 @@ void BlackBerryConfigurationManager::restoreConfigurations()
         return;
 
     QVariantMap data = reader.restoreValues();
+
+    // load default configuration
+    const QString ndkEnvFile = data.value(DefaultConfigurationKey).toString();
+
+    // use newest API level
+    const bool useNewestConfiguration = (ndkEnvFile == NewestConfigurationValue);
+
     int count = data.value(BBConfigCountKey, 0).toInt();
+
     for (int i = 0; i < count; ++i) {
         const QString key = BBConfigDataKey + QString::number(i);
+
         if (!data.contains(key))
             continue;
 
         const QVariantMap dMap = data.value(key).toMap();
-        insertByVersion(new BlackBerryConfiguration(dMap));
+
+        BlackBerryConfiguration *config = new BlackBerryConfiguration(dMap);
+
+        insertByVersion(config);
+
+        if (!useNewestConfiguration && (config->ndkEnvFile().toString() == ndkEnvFile))
+            setDefaultConfiguration(config);
     }
 }
 
@@ -161,36 +184,6 @@ void BlackBerryConfigurationManager::loadManualConfigurations()
     settings->endGroup();
 }
 
-void BlackBerryConfigurationManager::loadDefaultApiLevel()
-{
-    if (m_configs.isEmpty())
-        return;
-
-    QSettings *settings = Core::ICore::settings();
-
-    settings->beginGroup(SettingsGroup);
-
-    const QString ndkEnvFile = settings->value(DefaultApiLevelKey).toString();
-
-    BlackBerryConfiguration *defaultApiLevel = 0;
-
-    // now check whether there is a cached value available to override it
-    foreach (BlackBerryConfiguration *config, m_configs) {
-        if (config->ndkEnvFile().toString() == ndkEnvFile) {
-            defaultApiLevel = config;
-            break;
-        }
-    }
-
-    if (defaultApiLevel)
-        setDefaultApiLevel(defaultApiLevel);
-    else
-        setDefaultApiLevel(m_configs.first());
-
-
-    settings->endGroup();
-}
-
 void BlackBerryConfigurationManager::loadAutoDetectedConfigurations()
 {
     foreach (const NdkInstallInformation &ndkInfo, QnxUtils::installedNdks()) {
@@ -202,27 +195,21 @@ void BlackBerryConfigurationManager::loadAutoDetectedConfigurations()
     }
 }
 
-void BlackBerryConfigurationManager::setDefaultApiLevel(BlackBerryConfiguration *config)
+void BlackBerryConfigurationManager::setDefaultConfiguration(BlackBerryConfiguration *config)
 {
     if (config && !m_configs.contains(config)) {
-        qWarning() << "BlackBerryConfigurationManager::setDefaultApiLevel -"
+        qWarning() << "BlackBerryConfigurationManager::setDefaultConfiguration -"
                       " configuration does not belong to this instance: "
                    << config->ndkEnvFile().toString();
         return;
     }
 
-    m_defaultApiLevel = config;
+    m_defaultConfiguration = config;
 }
 
-void BlackBerryConfigurationManager::saveDefaultApiLevel()
+bool BlackBerryConfigurationManager::newestConfigurationEnabled() const
 {
-    if (!m_defaultApiLevel)
-        return;
-
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(SettingsGroup);
-    settings->setValue(DefaultApiLevelKey, m_defaultApiLevel->ndkEnvFile().toString());
-    settings->endGroup();
+    return !m_defaultConfiguration;
 }
 
 void BlackBerryConfigurationManager::setKitsAutoDetectionSource()
@@ -296,14 +283,8 @@ void BlackBerryConfigurationManager::removeConfiguration(BlackBerryConfiguration
 
     m_configs.removeAt(m_configs.indexOf(config));
 
-    if (m_defaultApiLevel == config) {
-        if (m_configs.isEmpty())
-            setDefaultApiLevel(0);
-        else
-            setDefaultApiLevel(m_configs.first());
-
-        saveDefaultApiLevel();
-    }
+    if (defaultConfiguration() == config)
+        setDefaultConfiguration(0);
 
     delete config;
 }
@@ -348,17 +329,26 @@ BlackBerryConfiguration *BlackBerryConfigurationManager::configurationFromEnvFil
     return 0;
 }
 
-BlackBerryConfiguration *BlackBerryConfigurationManager::defaultApiLevel() const
+BlackBerryConfiguration *BlackBerryConfigurationManager::defaultConfiguration() const
 {
-    return m_defaultApiLevel;
+    if (m_configs.isEmpty())
+        return 0;
+
+    // !m_defaultConfiguration means use newest configuration
+    if (!m_defaultConfiguration)
+        return m_configs.first();
+
+    return m_defaultConfiguration;
 }
 
-QList<Utils::EnvironmentItem> BlackBerryConfigurationManager::defaultApiLevelEnv() const
+QList<Utils::EnvironmentItem> BlackBerryConfigurationManager::defaultConfigurationEnv() const
 {
-    if (!m_defaultApiLevel)
-        return QList<Utils::EnvironmentItem>();
+    const BlackBerryConfiguration *config = defaultConfiguration();
 
-    return m_defaultApiLevel->qnxEnv();
+    if (config)
+        return config->qnxEnv();
+
+    return QList<Utils::EnvironmentItem>();
 }
 
 void BlackBerryConfigurationManager::loadSettings()
@@ -371,7 +361,6 @@ void BlackBerryConfigurationManager::loadSettings()
     // For backward compatibility
     loadManualConfigurations();
     loadAutoDetectedConfigurations();
-    loadDefaultApiLevel();
     checkToolChainConfiguration();
 
     // If no target was/is activated, activate one since it's needed by
@@ -385,7 +374,6 @@ void BlackBerryConfigurationManager::loadSettings()
 void BlackBerryConfigurationManager::saveSettings()
 {
     saveConfigurations();
-    saveDefaultApiLevel();
 }
 
 BlackBerryConfigurationManager &BlackBerryConfigurationManager::instance()

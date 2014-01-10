@@ -57,7 +57,7 @@ public:
     QList<BlackBerryConfiguration*> manualConfigurations() const;
     QList<BlackBerryConfiguration *> activeConfigurations() const;
     BlackBerryConfiguration *configurationFromEnvFile(const Utils::FileName &envFile) const;
-    BlackBerryConfiguration *defaultApiLevel() const;
+    BlackBerryConfiguration *defaultConfiguration() const;
 
     QString barsignerCskPath() const;
     QString idTokenPath() const;
@@ -67,10 +67,12 @@ public:
     void clearConfigurationSettings(BlackBerryConfiguration *config);
 
     // returns the environment for the default API level
-    QList<Utils::EnvironmentItem> defaultApiLevelEnv() const;
+    QList<Utils::EnvironmentItem> defaultConfigurationEnv() const;
 
     void loadAutoDetectedConfigurations();
-    void setDefaultApiLevel(BlackBerryConfiguration *config);
+    void setDefaultConfiguration(BlackBerryConfiguration *config);
+
+    bool newestConfigurationEnabled() const;
 
 public slots:
     void loadSettings();
@@ -84,10 +86,7 @@ private:
     BlackBerryConfigurationManager(QObject *parent = 0);
     QList<BlackBerryConfiguration*> m_configs;
 
-    BlackBerryConfiguration *m_defaultApiLevel;
-
-    void loadDefaultApiLevel();
-    void saveDefaultApiLevel();
+    BlackBerryConfiguration *m_defaultConfiguration;
 
     Utils::PersistentSettingsWriter *m_writer;
 
