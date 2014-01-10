@@ -311,14 +311,12 @@ void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
         newTextEditor = qobject_cast<QmlJSTextEditorWidget *>(editor->widget());
 
     if (m_currentEditor) {
-        disconnect(m_currentEditor.data(), SIGNAL(contentsChanged()),
-                   this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
-        disconnect(m_currentEditor.data(), SIGNAL(semanticInfoUpdated()),
-                   this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
+        m_currentEditor->baseTextDocument()->disconnect(this);
+        m_currentEditor->disconnect(this);
     }
     m_currentEditor = newTextEditor;
     if (newTextEditor) {
-        connect(newTextEditor, SIGNAL(contentsChanged()),
+        connect(newTextEditor->baseTextDocument(), SIGNAL(contentsChanged()),
                 this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
         connect(newTextEditor, SIGNAL(semanticInfoUpdated()),
                 this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));

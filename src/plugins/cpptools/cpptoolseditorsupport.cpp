@@ -142,7 +142,7 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     connect(m_updateEditorTimer, SIGNAL(timeout()),
             this, SLOT(updateEditorNow()));
 
-    connect(m_textEditor, SIGNAL(contentsChanged()), this, SLOT(updateDocument()));
+    connect(m_textEditor->document(), SIGNAL(contentsChanged()), this, SLOT(updateDocument()));
     connect(this, SIGNAL(diagnosticsChanged()), this, SLOT(onDiagnosticsChanged()));
 
     connect(m_textEditor->document(), SIGNAL(mimeTypeChanged()),

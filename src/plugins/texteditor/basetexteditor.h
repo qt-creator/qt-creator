@@ -326,9 +326,6 @@ signals:
     void assistFinished();
     void readOnlyChanged();
 
-    // ITextEditor
-    void contentsChanged();
-
 protected:
     bool event(QEvent *e);
     void keyPressEvent(QKeyEvent *e);

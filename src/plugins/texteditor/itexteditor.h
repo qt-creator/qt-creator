@@ -86,6 +86,9 @@ public:
     virtual QChar characterAt(int pos) const = 0;
 
     virtual ITextMarkable *markableInterface() const = 0;
+
+signals:
+    void contentsChanged();
 };
 
 class TEXTEDITOR_EXPORT ITextEditor : public Core::IEditor
@@ -140,7 +143,6 @@ public:
     };
 
 signals:
-    void contentsChanged();
     void markRequested(TextEditor::ITextEditor *editor, int line, TextEditor::ITextEditor::MarkRequestKind kind);
     void markContextMenuRequested(TextEditor::ITextEditor *editor, int line, QMenu *menu);
     void tooltipOverrideRequested(TextEditor::ITextEditor *editor, const QPoint &globalPos, int position, bool *handled);

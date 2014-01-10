@@ -509,8 +509,6 @@ BaseTextEditor *BaseTextEditorWidget::editor() const
     if (!d->m_editor) {
         d->m_editor = const_cast<BaseTextEditorWidget *>(this)->createEditor();
         d->m_codeAssistant->configure(d->m_editor);
-        connect(this, SIGNAL(textChanged()),
-                d->m_editor, SIGNAL(contentsChanged()));
     }
     return d->m_editor;
 }

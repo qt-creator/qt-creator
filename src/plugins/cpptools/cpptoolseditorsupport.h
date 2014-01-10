@@ -59,7 +59,7 @@ class CppCompletionAssistProvider;
  *        its document.
  *
  * The following steps are taken:
- * 1. the text editor fires a contentsChanged() signal that triggers updateDocument
+ * 1. the text editor document fires a contentsChanged() signal that triggers updateDocument
  * 2. update document will start a timer, or reset the timer if it was already running. This way
  *    subsequent updates (e.g. keypresses) get bunched together instead of running the subsequent
  *    actions for every key press

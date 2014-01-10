@@ -84,6 +84,7 @@ BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
 BaseTextDocument::BaseTextDocument() : d(new BaseTextDocumentPrivate(this))
 {
     connect(d->m_document, SIGNAL(modificationChanged(bool)), this, SIGNAL(changed()));
+    connect(d->m_document, SIGNAL(contentsChanged()), this, SIGNAL(contentsChanged()));
 
     // set new document layout
     QTextOption opt = d->m_document->defaultTextOption();
