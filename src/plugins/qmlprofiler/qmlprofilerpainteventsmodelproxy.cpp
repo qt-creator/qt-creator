@@ -62,6 +62,7 @@ public:
     int minAnimationCount;
     int maxAnimationCount;
     bool expanded;
+    bool seenForeignPaintEvent;
 
     PaintEventsModelProxy *q;
 };
@@ -100,6 +101,7 @@ void PaintEventsModelProxy::clear()
     d->minAnimationCount = 1;
     d->maxAnimationCount = 1;
     d->expanded = false;
+    d->seenForeignPaintEvent = false;
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
@@ -122,8 +124,11 @@ void PaintEventsModelProxy::loadData()
     qint64 minNextStartTime = 0;
 
     foreach (const QmlProfilerSimpleModel::QmlEventData &event, referenceList) {
-        if (!eventAccepted(event))
+        if (!eventAccepted(event)) {
+            if (event.eventType == QmlDebug::Painting)
+                d->seenForeignPaintEvent = true;
             continue;
+        }
 
         // initial estimation of the event duration: 1/framerate
         qint64 estimatedDuration = event.numericData1 > 0 ? 1e9/event.numericData1 : 1;
@@ -190,7 +195,7 @@ int PaintEventsModelProxy::categoryDepth(int categoryIndex) const
 {
     Q_UNUSED(categoryIndex);
     if (isEmpty())
-        return 0;
+        return d->seenForeignPaintEvent ? 0 : 1;
     else
         return 2;
 }

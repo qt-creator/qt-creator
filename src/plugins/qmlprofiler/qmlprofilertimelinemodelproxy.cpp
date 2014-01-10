@@ -49,7 +49,6 @@ struct CategorySpan {
     int expandedRows;
     int contractedRows;
     int rowStart;
-    bool empty;
 };
 
 class BasicTimelineModel::BasicTimelineModelPrivate : public SortedTimelineModel<BasicTimelineModel::QmlRangeEventStartInstance>
@@ -70,6 +69,7 @@ public:
     QVector <BasicTimelineModel::QmlRangeEventData> eventDict;
     QVector <QString> eventHashes;
     QVector <CategorySpan> categorySpan;
+    bool seenPaintEvent;
 
     BasicTimelineModel *q;
 };
@@ -108,6 +108,7 @@ void BasicTimelineModel::clear()
     d->eventDict.clear();
     d->eventHashes.clear();
     d->categorySpan.clear();
+    d->seenPaintEvent = false;
 
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
@@ -116,7 +117,7 @@ void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
 {
     categorySpan.clear();
     for (int i = 0; i < QmlDebug::MaximumQmlEventType; i++) {
-        CategorySpan newCategory = {false, 1, 1, i, true};
+        CategorySpan newCategory = {false, 1, 1, i};
         categorySpan << newCategory;
     }
 }
@@ -125,7 +126,7 @@ bool BasicTimelineModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventDat
 {
     // only accept Qt4.x Painting events
     if (event.eventType == QmlDebug::Painting)
-        return event.bindingType == QmlDebug::QPainterEvent;
+        return (event.bindingType == QmlDebug::QPainterEvent);
 
     return (event.eventType <= QmlDebug::HandlingSignal);
 }
@@ -146,6 +147,8 @@ void BasicTimelineModel::loadData()
     foreach (const QmlProfilerSimpleModel::QmlEventData &event, eventList) {
         if (!eventAccepted(event))
             continue;
+        if (event.eventType == QmlDebug::Painting)
+            d->seenPaintEvent = true;
 
         QString eventHash = QmlProfilerSimpleModel::getHashString(event);
 
@@ -231,7 +234,6 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeNestingContracted()
     // nestingdepth
     for (i = 0; i < eventCount; i++) {
         int eventType = q->getEventType(i);
-        categorySpan[eventType].empty = false;
         if (categorySpan[eventType].contractedRows <= ranges[i].displayRowCollapsed)
             categorySpan[eventType].contractedRows = ranges[i].displayRowCollapsed + 1;
     }
@@ -245,7 +247,6 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeExpandedLevels()
         int eventId = ranges[i].eventId;
         int eventType = eventDict[eventId].eventType;
         if (!eventRow.contains(eventId)) {
-            categorySpan[eventType].empty = false;
             eventRow[eventId] = categorySpan[eventType].expandedRows++;
         }
         ranges[i].displayRowExpanded = eventRow[eventId];
@@ -340,11 +341,11 @@ void BasicTimelineModel::setExpanded(int category, bool expanded)
 
 int BasicTimelineModel::categoryDepth(int categoryIndex) const
 {
+    // special for paint events: show only when empty model or there's actual events
+    if (categoryIndex == QmlDebug::Painting && !d->seenPaintEvent)
+        return 0;
     if (d->categorySpan.count() <= categoryIndex)
         return 1;
-    // special for paint events: show only when empty model or there's actual events
-    if (categoryIndex == QmlDebug::Painting && d->categorySpan[categoryIndex].empty && !isEmpty())
-        return 0;
     if (d->categorySpan[categoryIndex].expanded)
         return d->categorySpan[categoryIndex].expandedRows;
     else
@@ -393,7 +394,7 @@ int BasicTimelineModel::getEventCategory(int index) const
 {
     int evTy = getEventType(index);
     // special: paint events shown?
-    if (d->categorySpan[0].empty && !isEmpty())
+    if (!d->seenPaintEvent)
         return evTy - 1;
     return evTy;
 }
