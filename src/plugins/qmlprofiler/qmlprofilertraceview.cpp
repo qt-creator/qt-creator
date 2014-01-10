@@ -117,6 +117,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     d->m_mainView = new QQuickView();
     d->m_mainView->setResizeMode(QQuickView::SizeRootObjectToView);
     QWidget *mainViewContainer = QWidget::createWindowContainer(d->m_mainView);
+    mainViewContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QHBoxLayout *toolsLayout = new QHBoxLayout;
 
@@ -130,7 +131,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     d->m_overview->setResizeMode(QQuickView::SizeRootObjectToView);
     QWidget *overviewContainer = QWidget::createWindowContainer(d->m_overview);
     overviewContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    overviewContainer->setMaximumHeight(50);
+    overviewContainer->setFixedHeight(50);
 
     toolsLayout->addWidget(createToolbar());
     toolsLayout->addWidget(timeBarContainer);
@@ -400,12 +401,6 @@ void QmlProfilerTraceView::updateToolTip(const QString &text)
 void QmlProfilerTraceView::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (rootObject) {
-        rootObject->setProperty("width", QVariant(event->size().width()));
-        int newHeight = event->size().height() - d->m_timebar->height() - d->m_overview->height();
-        rootObject->setProperty("candidateHeight", QVariant(newHeight));
-    }
     emit resized();
 }
 
