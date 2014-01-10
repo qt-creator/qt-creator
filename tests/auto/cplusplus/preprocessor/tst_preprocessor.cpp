@@ -1357,7 +1357,7 @@ void tst_Preprocessor::comments_within_data()
             "}\n"
         ) << _(
             "# 1 \"<stdin>\"\n"
-            "\n"
+            "              //comment\n"
             "\n"
             "void foo() {\n"
             "    if (\n"
@@ -1367,6 +1367,75 @@ void tst_Preprocessor::comments_within_data()
             "# 4 \"<stdin>\"\n"
             "           ) {}\n"
             "}\n"
+    );
+    QTest::newRow("case 8") << _(
+            "#define FOO /* comment */ 0\n"
+            "FOO\n"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "# expansion begin 28,3 ~1\n"
+            "0\n"
+            "# expansion end\n"
+            "# 3 \"<stdin>\"\n"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "            /* comment */\n"
+            "# expansion begin 28,3 ~1\n"
+            "0\n"
+            "# expansion end\n"
+            "# 3 \"<stdin>\"\n"
+    );
+
+    QTest::newRow("case 9") << _(
+            "#define FOO /* comment1 */ /* comment2 */ 0\n"
+            "FOO\n"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "# expansion begin 44,3 ~1\n"
+            "0\n"
+            "# expansion end\n"
+            "# 3 \"<stdin>\"\n"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "            /* comment1 */ /* comment2 */\n"
+            "# expansion begin 44,3 ~1\n"
+            "0\n"
+            "# expansion end\n"
+            "# 3 \"<stdin>\"\n"
+    );
+
+    QTest::newRow("case 10") << _(
+            "#define FOO /* comment1 */   /* comment2 */ 0 /* comment3\n"
+            "comment4 */\n"
+            "FOO\n"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "# expansion begin 70,3 ~1\n"
+            "0\n"
+            "# expansion end\n"
+            "# 4 \"<stdin>\"\n"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "            /* comment1 */ /* comment2 */ /* comment3\n"
+            "comment4 */\n"
+            "# expansion begin 70,3 ~1\n"
+            "0\n"
+            "# expansion end\n"
+            "# 4 \"<stdin>\"\n"
+    );
+
+    QTest::newRow("case 11") << _(
+            "#include <foo.h> // comment\n"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "\n"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "                 // comment\n"
     );
 
     QTest::newRow("joined") << _(

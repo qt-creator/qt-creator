@@ -898,6 +898,11 @@ void Preprocessor::skipPreprocesorDirective(PPToken *tk)
     ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
 
     while (isContinuationToken(*tk)) {
+        if (tk->isComment()) {
+            synchronizeOutputLines(*tk);
+            enforceSpacing(*tk, true);
+            currentOutputBuffer().append(tk->tokenStart(), tk->length());
+        }
         lex(tk);
     }
 }
@@ -1703,8 +1708,13 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         previousLine = tk->lineno;
 
         // Discard comments in macro definitions (keep comments flag doesn't apply here).
-        if (!tk->isComment())
+        if (tk->isComment()) {
+            synchronizeOutputLines(*tk);
+            enforceSpacing(*tk, true);
+            currentOutputBuffer().append(tk->tokenStart(), tk->length());
+        } else {
             bodyTokens.push_back(*tk);
+        }
 
         lex(tk);
     }
