@@ -1,0 +1,85 @@
+Qt Creator version 3.1 contains bug fixes and new features.
+
+There is a total of about X changes by N individual contributors.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline origin/3.0..origin/master
+
+General
+
+Editing
+
+Managing and Building Projects
+
+Compilers
+
+Devices
+
+QMake Projects
+   * Added context menu item "Add Existing Directory" that adds all
+     files from a directory (QTCREATORBUG-9081)
+
+CMake Projects
+
+Qbs Projects
+   * Added option for building with --check-timestamps
+
+Generic Projects
+   * Added context menu item "Add Existing Directory" that adds all
+     files from a directory (QTCREATORBUG-9081)
+   * Made importing files follow directory symlinks (QTCREATORBUG-8897)
+
+Debugging
+   * GDB
+   * CDB
+   * LLDB
+   * QML
+
+Analyzer
+
+C++ Support
+   * Fixed parsing of ??< ??> ??( ??) trigraphs (QTCREATORBUG-2474)
+
+Python Support
+
+GLSL Support
+
+Diff Viewer
+
+Version Control Systems
+   * Git
+      * Added visual indicator for affected commits when resetting and rebasing
+      * Enabled option to push commit directly after fixup
+   * ClearCase
+      * Improved performance of indexing dynamic views
+      * Added warning when editing Derived Objects
+
+FakeVim
+   * Made dot command work for letter case commands in visual mode
+
+Platform Specific
+
+Linux
+
+Qt Support
+
+QNX
+   * Added support for Python based pretty printers when debugging on devices
+   * Added better error messages for common deployment errors
+     (QTCREATORBUG-9673, QTCREATORBUG-9001)
+   * Fixed several issues with certificate password dialog in BlackBerry
+     options (QTCREATORBUG-10948)
+
+Android
+   * Made it possible to cancel waiting for an AVD to boot up
+
+Remote Linux
+
+Bare Metal
+
+Credits for these changes go to:
+
