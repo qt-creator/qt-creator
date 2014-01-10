@@ -30,7 +30,7 @@
 #ifndef LOCATORWIDGET_H
 #define LOCATORWIDGET_H
 
-#include "locatorplugin.h"
+#include "locator.h"
 
 #include <QWidget>
 
@@ -58,7 +58,7 @@ class LocatorWidget
     Q_OBJECT
 
 public:
-    explicit LocatorWidget(LocatorPlugin *qop);
+    explicit LocatorWidget(Locator *qop);
 
     void updateFilterList();
 
@@ -85,7 +85,7 @@ private:
     void updateCompletionList(const QString &text);
     QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);
 
-    LocatorPlugin *m_locatorPlugin;
+    Locator *m_locatorPlugin;
     LocatorModel *m_locatorModel;
 
     CompletionList *m_completionList;

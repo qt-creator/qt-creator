@@ -49,13 +49,13 @@ class OpenDocumentsFilter;
 class FileSystemFilter;
 class SettingsPage;
 
-class LocatorPlugin : public QObject
+class Locator : public QObject
 {
     Q_OBJECT
 
 public:
-    LocatorPlugin();
-    ~LocatorPlugin();
+    Locator();
+    ~Locator();
 
     void initialize(CorePlugin *corePlugin, const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
@@ -102,7 +102,7 @@ private:
 };
 
 template <typename S>
-void LocatorPlugin::loadSettingsHelper(S *settings)
+void Locator::loadSettingsHelper(S *settings)
 {
     settings->beginGroup(QLatin1String("QuickOpen"));
     m_refreshTimer.setInterval(settings->value(QLatin1String("RefreshInterval"), 60).toInt() * 60000);

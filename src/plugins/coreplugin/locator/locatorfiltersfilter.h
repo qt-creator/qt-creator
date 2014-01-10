@@ -37,7 +37,7 @@
 namespace Core {
 namespace Internal {
 
-class LocatorPlugin;
+class Locator;
 class LocatorWidget;
 
 /*!
@@ -49,7 +49,7 @@ class LocatorFiltersFilter : public ILocatorFilter
     Q_OBJECT
 
 public:
-    LocatorFiltersFilter(LocatorPlugin *plugin,
+    LocatorFiltersFilter(Locator *plugin,
                          LocatorWidget *locatorWidget);
 
     // ILocatorFilter
@@ -58,7 +58,7 @@ public:
     void refresh(QFutureInterface<void> &future);
 
 private:
-    LocatorPlugin *m_plugin;
+    Locator *m_plugin;
     LocatorWidget *m_locatorWidget;
     QIcon m_icon;
 };

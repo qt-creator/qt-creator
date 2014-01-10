@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
+#include "locator.h"
 #include "locatorwidget.h"
-#include "locatorplugin.h"
 #include "locatorconstants.h"
 #include "locatorsearchutils.h"
 #include "ilocatorfilter.h"
@@ -217,7 +217,7 @@ void CompletionList::updatePreferredSize()
 
 // =========== LocatorWidget ===========
 
-LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
+LocatorWidget::LocatorWidget(Locator *qop) :
     m_locatorPlugin(qop),
     m_locatorModel(new LocatorModel(this)),
     m_completionList(new CompletionList(this)),

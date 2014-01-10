@@ -39,7 +39,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
-#include <coreplugin/locator/locatorplugin.h>
+#include <coreplugin/locator/locator.h>
 
 #include <utils/savefile.h>
 
@@ -55,13 +55,13 @@ CorePlugin::CorePlugin() : m_editMode(0), m_designMode(0)
     qRegisterMetaType<Core::Id>();
     m_mainWindow = new MainWindow;
     m_findPlugin = new FindPlugin;
-    m_locatorPlugin = new LocatorPlugin;
+    m_locator = new Locator;
 }
 
 CorePlugin::~CorePlugin()
 {
     delete m_findPlugin;
-    delete m_locatorPlugin;
+    delete m_locator;
 
     if (m_editMode) {
         removeObject(m_editMode);
@@ -107,7 +107,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Utils::SaveFile::initializeUmask();
 
     m_findPlugin->initialize(arguments, errorMessage);
-    m_locatorPlugin->initialize(this, arguments, errorMessage);
+    m_locator->initialize(this, arguments, errorMessage);
 
     return success;
 }
@@ -119,13 +119,13 @@ void CorePlugin::extensionsInitialized()
         addObject(m_designMode);
     m_mainWindow->extensionsInitialized();
     m_findPlugin->extensionsInitialized();
-    m_locatorPlugin->extensionsInitialized();
+    m_locator->extensionsInitialized();
 }
 
 bool CorePlugin::delayedInitialize()
 {
     HelpManager::setupHelpManager();
-    m_locatorPlugin->delayedInitialize();
+    m_locator->delayedInitialize();
     return true;
 }
 

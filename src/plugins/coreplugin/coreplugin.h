@@ -41,7 +41,7 @@ namespace Internal {
 
 class EditMode;
 class MainWindow;
-class LocatorPlugin;
+class Locator;
 
 class CorePlugin : public ExtensionSystem::IPlugin
 {
@@ -74,7 +74,7 @@ private:
     EditMode *m_editMode;
     DesignMode *m_designMode;
     FindPlugin *m_findPlugin;
-    LocatorPlugin *m_locatorPlugin;
+    Locator *m_locator;
 };
 
 } // namespace Internal

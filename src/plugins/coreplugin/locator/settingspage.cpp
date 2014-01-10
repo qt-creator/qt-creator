@@ -30,7 +30,7 @@
 #include "settingspage.h"
 #include "locatorconstants.h"
 
-#include "locatorplugin.h"
+#include "locator.h"
 #include "ilocatorfilter.h"
 #include "directoryfilter.h"
 
@@ -44,7 +44,7 @@ Q_DECLARE_METATYPE(Core::ILocatorFilter*)
 using namespace Core;
 using namespace Core::Internal;
 
-SettingsPage::SettingsPage(LocatorPlugin *plugin)
+SettingsPage::SettingsPage(Locator *plugin)
     : m_plugin(plugin), m_widget(0)
 {
     setId(Constants::FILTER_OPTIONS_PAGE);

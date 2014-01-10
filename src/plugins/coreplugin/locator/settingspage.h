@@ -47,14 +47,14 @@ class ILocatorFilter;
 
 namespace Internal {
 
-class LocatorPlugin;
+class Locator;
 
 class SettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit SettingsPage(LocatorPlugin *plugin);
+    explicit SettingsPage(Locator *plugin);
 
     QWidget *widget();
     void apply();
@@ -73,7 +73,7 @@ private:
     void requestRefresh();
 
     Ui::LocatorSettingsWidget m_ui;
-    LocatorPlugin *m_plugin;
+    Locator *m_plugin;
     QPointer<QWidget> m_widget;
     QList<ILocatorFilter *> m_filters;
     QList<ILocatorFilter *> m_addedFilters;

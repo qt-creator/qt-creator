@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
+#include "locator.h"
 #include "locatorfiltersfilter.h"
-#include "locatorplugin.h"
 #include "locatorwidget.h"
 
 #include <coreplugin/coreconstants.h>
@@ -38,7 +38,7 @@ using namespace Core::Internal;
 
 Q_DECLARE_METATYPE(ILocatorFilter*)
 
-LocatorFiltersFilter::LocatorFiltersFilter(LocatorPlugin *plugin,
+LocatorFiltersFilter::LocatorFiltersFilter(Locator *plugin,
                                                LocatorWidget *locatorWidget):
     m_plugin(plugin),
     m_locatorWidget(locatorWidget),

@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 
-#include "locatorplugin.h"
+#include "locator.h"
 
 #include "basefilefilter.h"
 #include "locatorfiltertest.h"
@@ -80,7 +80,7 @@ public:
 Q_DECLARE_METATYPE(ReferenceData)
 Q_DECLARE_METATYPE(QList<ReferenceData>)
 
-void Core::Internal::LocatorPlugin::test_basefilefilter()
+void Core::Internal::Locator::test_basefilefilter()
 {
     QFETCH(QStringList, testFiles);
     QFETCH(QList<ReferenceData>, referenceDataList);
@@ -97,7 +97,7 @@ void Core::Internal::LocatorPlugin::test_basefilefilter()
     }
 }
 
-void Core::Internal::LocatorPlugin::test_basefilefilter_data()
+void Core::Internal::Locator::test_basefilefilter_data()
 {
     QTest::addColumn<QStringList>("testFiles");
     QTest::addColumn<QList<ReferenceData> >("referenceDataList");

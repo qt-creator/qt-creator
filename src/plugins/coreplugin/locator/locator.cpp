@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "locatorplugin.h"
+#include "locator.h"
 #include "locatorconstants.h"
 #include "locatorfiltersfilter.h"
 #include "locatormanager.h"
@@ -68,7 +68,7 @@ namespace {
     }
 }
 
-LocatorPlugin::LocatorPlugin()
+Locator::Locator()
     : m_settingsInitialized(false)
 {
     m_corePlugin = 0;
@@ -76,7 +76,7 @@ LocatorPlugin::LocatorPlugin()
     connect(&m_refreshTimer, SIGNAL(timeout()), this, SLOT(refresh()));
 }
 
-LocatorPlugin::~LocatorPlugin()
+Locator::~Locator()
 {
     m_corePlugin->removeObject(m_openDocumentsFilter);
     m_corePlugin->removeObject(m_fileSystemFilter);
@@ -89,7 +89,7 @@ LocatorPlugin::~LocatorPlugin()
     qDeleteAll(m_customFilters);
 }
 
-void LocatorPlugin::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
+void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
 {
     m_corePlugin = corePlugin;
 
@@ -129,7 +129,7 @@ void LocatorPlugin::initialize(CorePlugin *corePlugin, const QStringList &, QStr
     m_corePlugin->addAutoReleasedObject(new LocatorFiltersFilter(this, m_locatorWidget));
 }
 
-void LocatorPlugin::updatePlaceholderText(Command *command)
+void Locator::updatePlaceholderText(Command *command)
 {
     if (!command)
         command = qobject_cast<Command *>(sender());
@@ -141,25 +141,25 @@ void LocatorPlugin::updatePlaceholderText(Command *command)
                                                 command->keySequence().toString(QKeySequence::NativeText)));
 }
 
-void LocatorPlugin::openLocator()
+void Locator::openLocator()
 {
     m_locatorWidget->show(QString());
 }
 
-void LocatorPlugin::extensionsInitialized()
+void Locator::extensionsInitialized()
 {
     m_filters = ExtensionSystem::PluginManager::getObjects<ILocatorFilter>();
     qSort(m_filters.begin(), m_filters.end(), filterLessThan);
     setFilters(m_filters);
 }
 
-bool LocatorPlugin::delayedInitialize()
+bool Locator::delayedInitialize()
 {
     loadSettings();
     return true;
 }
 
-void LocatorPlugin::loadSettings()
+void Locator::loadSettings()
 {
     QSettings *qs = ICore::settings();
 
@@ -180,7 +180,7 @@ void LocatorPlugin::loadSettings()
     m_settingsInitialized = true;
 }
 
-void LocatorPlugin::saveSettings()
+void Locator::saveSettings()
 {
     if (m_settingsInitialized) {
         SettingsDatabase *s = ICore::settingsDatabase();
@@ -206,7 +206,7 @@ void LocatorPlugin::saveSettings()
 /*!
     Return all filters, including the ones created by the user.
 */
-QList<ILocatorFilter *> LocatorPlugin::filters()
+QList<ILocatorFilter *> Locator::filters()
 {
     return m_filters;
 }
@@ -215,28 +215,28 @@ QList<ILocatorFilter *> LocatorPlugin::filters()
     This returns a subset of all the filters, that contains only the filters that
     have been created by the user at some point (maybe in a previous session).
  */
-QList<ILocatorFilter *> LocatorPlugin::customFilters()
+QList<ILocatorFilter *> Locator::customFilters()
 {
     return m_customFilters;
 }
 
-void LocatorPlugin::setFilters(QList<ILocatorFilter *> f)
+void Locator::setFilters(QList<ILocatorFilter *> f)
 {
     m_filters = f;
     m_locatorWidget->updateFilterList();
 }
 
-void LocatorPlugin::setCustomFilters(QList<ILocatorFilter *> filters)
+void Locator::setCustomFilters(QList<ILocatorFilter *> filters)
 {
     m_customFilters = filters;
 }
 
-int LocatorPlugin::refreshInterval()
+int Locator::refreshInterval()
 {
     return m_refreshTimer.interval() / 60000;
 }
 
-void LocatorPlugin::setRefreshInterval(int interval)
+void Locator::setRefreshInterval(int interval)
 {
     if (interval < 1) {
         m_refreshTimer.stop();
@@ -247,7 +247,7 @@ void LocatorPlugin::setRefreshInterval(int interval)
     m_refreshTimer.start();
 }
 
-void LocatorPlugin::refresh(QList<ILocatorFilter *> filters)
+void Locator::refresh(QList<ILocatorFilter *> filters)
 {
     if (filters.isEmpty())
         filters = m_filters;

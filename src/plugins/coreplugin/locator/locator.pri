@@ -1,5 +1,5 @@
 HEADERS += \
-    $$PWD/locatorplugin.h \
+    $$PWD/locator.h \
     $$PWD/commandlocator.h \
     $$PWD/locatorwidget.h \
     $$PWD/locatorfiltersfilter.h \
@@ -15,7 +15,7 @@ HEADERS += \
     $$PWD/locatorsearchutils.h
 
 SOURCES += \
-    $$PWD/locatorplugin.cpp \
+    $$PWD/locator.cpp \
     $$PWD/commandlocator.cpp \
     $$PWD/locatorwidget.cpp \
     $$PWD/locatorfiltersfilter.cpp \
