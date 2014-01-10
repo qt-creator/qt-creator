@@ -52,7 +52,7 @@ PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
     addMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
     new TextEditorActionHandler(this,
-        TextEditor::Constants::C_TEXTEDITOR,
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
         TextEditorActionHandler::Format |
         TextEditorActionHandler::UnCommentSelection |
         TextEditorActionHandler::UnCollapseAll);
