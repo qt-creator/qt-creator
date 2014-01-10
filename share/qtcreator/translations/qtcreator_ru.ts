@@ -147,41 +147,6 @@
     </message>
 </context>
 <context>
-    <name>AnchorButtons</name>
-    <message>
-        <source>Set top anchor</source>
-        <translation>Установить верхнюю привязку</translation>
-    </message>
-    <message>
-        <source>Setting anchors in states is not supported.</source>
-        <translation>Установка привязок на состояния не поддерживается.</translation>
-    </message>
-    <message>
-        <source>Set bottom anchor</source>
-        <translation>Установить нижнюю привязку</translation>
-    </message>
-    <message>
-        <source>Set left anchor</source>
-        <translation>Установить левую привязку</translation>
-    </message>
-    <message>
-        <source>Set right anchor</source>
-        <translation>Установить правую привязку</translation>
-    </message>
-    <message>
-        <source>Fill to parent</source>
-        <translation>Заполнить предка</translation>
-    </message>
-    <message>
-        <source>Set vertical anchor</source>
-        <translation>Установить вертикальную привязку</translation>
-    </message>
-    <message>
-        <source>Set horizontal anchor</source>
-        <translation>Установить горизонтальную привязку</translation>
-    </message>
-</context>
-<context>
     <name>Android</name>
     <message>
         <source>Android</source>
@@ -2956,28 +2921,8 @@ Local pulls are not applied to the master branch.</source>
 <context>
     <name>BorderImageSpecifics</name>
     <message>
-        <source>BorderImage</source>
-        <translation>Изображение рамки</translation>
-    </message>
-    <message>
         <source>Source</source>
         <translation>Источник</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Слева</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Справа</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>Сверху</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>Снизу</translation>
     </message>
     <message>
         <source>Border Image</source>
@@ -4307,63 +4252,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Code Style</source>
         <translation>Стиль кода</translation>
-    </message>
-</context>
-<context>
-    <name>ColorGroupBox</name>
-    <message>
-        <source>Color editor</source>
-        <translation>Редактор цвета</translation>
-    </message>
-    <message>
-        <source>Hue</source>
-        <translation>Тон</translation>
-    </message>
-    <message>
-        <source>Saturation</source>
-        <translation>Насыщенность</translation>
-    </message>
-    <message>
-        <source>Brightness</source>
-        <translation>Яркость</translation>
-    </message>
-    <message>
-        <source>Alpha</source>
-        <translation>Альфа</translation>
-    </message>
-</context>
-<context>
-    <name>ColorLineEdit</name>
-    <message>
-        <source>Translate this string</source>
-        <translation>Перевести эту строку</translation>
-    </message>
-</context>
-<context>
-    <name>ColorTypeButtons</name>
-    <message>
-        <source>Solid color</source>
-        <translation>Сплошной цвет</translation>
-    </message>
-    <message>
-        <source>Solid color (only editable in base state)</source>
-        <translation>Сплошной цвет (меняется только в исходном состоянии)</translation>
-    </message>
-    <message>
-        <source>Gradient</source>
-        <translation>Градиент</translation>
-    </message>
-    <message>
-        <source>Gradient (only editable in base state)</source>
-        <translation>Градиент (меняется только в исходном состоянии)</translation>
-    </message>
-    <message>
-        <source>Transparent</source>
-        <translation>Прозрачность</translation>
-    </message>
-    <message>
-        <source>Transparent (only editable in base state)</source>
-        <translation>Прозрачность (меняется только в исходном состоянии)</translation>
     </message>
 </context>
 <context>
@@ -12908,14 +12796,6 @@ Rebuilding the project might help.</source>
 <context>
     <name>EditorManager</name>
     <message>
-        <source>Next Open Document in History</source>
-        <translation>Следующий открытый документ в истории</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation>Предыдущий открытый документ в истории</translation>
-    </message>
-    <message>
         <source>Go Back</source>
         <translation>Перейти назад</translation>
     </message>
@@ -12952,47 +12832,6 @@ Rebuilding the project might help.</source>
     <message>
         <source>Editor</source>
         <translation>Редактор</translation>
-    </message>
-</context>
-<context>
-    <name>ExpressionEditor</name>
-    <message>
-        <source>Expression</source>
-        <translation>Выражение</translation>
-    </message>
-</context>
-<context>
-    <name>Extended</name>
-    <message>
-        <source>Effect</source>
-        <translation>Эффект</translation>
-    </message>
-    <message>
-        <source>Blur Radius:</source>
-        <translation>Радиус размытия:</translation>
-    </message>
-    <message>
-        <source>Pixel Size:</source>
-        <translation>Размер пикселя:</translation>
-    </message>
-    <message>
-        <source>x Offset:     </source>
-        <translation>Смещение по x: </translation>
-    </message>
-    <message>
-        <source>y Offset:     </source>
-        <translation>Смещение по y: </translation>
-    </message>
-</context>
-<context>
-    <name>ExtendedFunctionButton</name>
-    <message>
-        <source>Reset</source>
-        <translation>Сбросить</translation>
-    </message>
-    <message>
-        <source>Set Expression</source>
-        <translation>Присвоить выражение</translation>
     </message>
 </context>
 <context>
@@ -13942,53 +13781,6 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>FlickableGroupBox</name>
-    <message>
-        <source>Flickable</source>
-        <translation>Толкаемо</translation>
-    </message>
-    <message>
-        <source>Content size</source>
-        <translation>Размер содержимого</translation>
-    </message>
-    <message>
-        <source>Flick direction</source>
-        <translation>Направление толкания</translation>
-    </message>
-    <message>
-        <source>Flickable direction</source>
-        <translation>Направление толкания</translation>
-    </message>
-    <message>
-        <source>Bounds behavior</source>
-        <translation>Поведение границ</translation>
-    </message>
-    <message>
-        <source>Max. velocity</source>
-        <translation>Макс. скорость</translation>
-    </message>
-    <message>
-        <source>Maximum flick velocity</source>
-        <translation>Максимальная скорость толкания</translation>
-    </message>
-    <message>
-        <source>Flick deceleration</source>
-        <translation>Замедление толкания</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Поведение</translation>
-    </message>
-    <message>
-        <source>Interactive</source>
-        <translation>Интерактивность</translation>
-    </message>
-    <message>
-        <source>Deceleration</source>
-        <translation>Замедление</translation>
-    </message>
-</context>
-<context>
     <name>FlickableSection</name>
     <message>
         <source>Flickable</source>
@@ -14045,35 +13837,12 @@ Reason: %3</source>
         <translation>Перетекание</translation>
     </message>
     <message>
-        <source>Layout direction</source>
-        <translation>Направление компоновки</translation>
-    </message>
-    <message>
         <source>Spacing</source>
         <translation>Отступ</translation>
     </message>
     <message>
         <source>Layout Direction</source>
         <translation>Направление компоновки</translation>
-    </message>
-</context>
-<context>
-    <name>FontGroupBox</name>
-    <message>
-        <source>Font</source>
-        <translation>Шрифт</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Размер</translation>
-    </message>
-    <message>
-        <source>Font style</source>
-        <translation>Начертание</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>Стиль</translation>
     </message>
 </context>
 <context>
@@ -14335,33 +14104,6 @@ These files are preserved.</source>
             <numerusform>Не отображено %n файлов, находящиеся вне базового каталога.
 Неотображённые файлы будут сохранены.</numerusform>
         </translation>
-    </message>
-</context>
-<context>
-    <name>Geometry</name>
-    <message>
-        <source>Geometry</source>
-        <translation>Геометрия</translation>
-    </message>
-    <message>
-        <source>Position</source>
-        <translation>Положение</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation>Размер</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Ширина</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Высота</translation>
-    </message>
-    <message>
-        <source>Lock aspect ratio</source>
-        <translation>Зафиксировать соотношение сторон</translation>
     </message>
 </context>
 <context>
@@ -16651,10 +16393,6 @@ You can choose between stashing the changes or discarding them.</source>
         <translation>Перетекание</translation>
     </message>
     <message>
-        <source>Layout direction</source>
-        <translation>Направление компоновки</translation>
-    </message>
-    <message>
         <source>Spacing</source>
         <translation>Отступ</translation>
     </message>
@@ -16676,14 +16414,6 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Cache buffer</source>
         <translation>Буфер кэша</translation>
-    </message>
-    <message>
-        <source>Cell height</source>
-        <translation>Высота ячейки</translation>
-    </message>
-    <message>
-        <source>Cell width</source>
-        <translation>Ширина ячейки</translation>
     </message>
     <message>
         <source>Determines whether the grid wraps key navigation.</source>
@@ -17613,6 +17343,10 @@ Ids must begin with a lowercase letter.</source>
 <context>
     <name>Ios::Internal::IosDebugSupport</name>
     <message>
+        <source>Could not find device specific debug symbols at %1. Debugging initialization will be slow until you open the Organizer window of Xcode with the device connected to have the symbols generated.</source>
+        <translation>Не удалось найти отладочные символы для устройства в %1. Инициализация отладки займёт много времени. Для её ускорения необходимо подключить устройство и открыть окно органайзера Xcode для генерации символов.</translation>
+    </message>
+    <message>
         <source>Could not get debug server file descriptor.</source>
         <translation>Не удалось получить дескриптор файла сервера отладки.</translation>
     </message>
@@ -17717,6 +17451,10 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>unknown</source>
         <translation>неизвестно</translation>
+    </message>
+    <message>
+        <source>OS version</source>
+        <translation>Версия ОС</translation>
     </message>
     <message>
         <source>An iOS device in user mode has been detected.</source>
@@ -17896,33 +17634,6 @@ QML.</translation>
     </message>
 </context>
 <context>
-    <name>Layout</name>
-    <message>
-        <source>Layout</source>
-        <translation>Компоновка</translation>
-    </message>
-    <message>
-        <source>Anchors</source>
-        <translation>Привязки</translation>
-    </message>
-    <message>
-        <source>Set anchors</source>
-        <translation>Установить привязки</translation>
-    </message>
-    <message>
-        <source>Setting anchors in states is not supported.</source>
-        <translation>Установка привязок на состояния не поддерживается.</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Цель</translation>
-    </message>
-    <message>
-        <source>Margin</source>
-        <translation>Отступ</translation>
-    </message>
-</context>
-<context>
     <name>LayoutSection</name>
     <message>
         <source>Layout</source>
@@ -17939,13 +17650,6 @@ QML.</translation>
     <message>
         <source>Margin</source>
         <translation>Отступ</translation>
-    </message>
-</context>
-<context>
-    <name>LineEdit</name>
-    <message>
-        <source>Translate this string</source>
-        <translation>Перевести эту строку</translation>
     </message>
 </context>
 <context>
@@ -18020,14 +17724,6 @@ QML.</translation>
     <message>
         <source>Resize animation duration of the highlight delegate.</source>
         <translation>Продолжительность анимации изменения размера делегата подсветки.</translation>
-    </message>
-    <message>
-        <source>Resize speed</source>
-        <translation>Скорость изменения размера</translation>
-    </message>
-    <message>
-        <source>Resize animation speed of the highlight delegate.</source>
-        <translation>Скорость анимации изменения размера делегата подсветки.</translation>
     </message>
     <message>
         <source>Preferred begin</source>
@@ -19172,26 +18868,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Modifiers</name>
-    <message>
-        <source>Manipulation</source>
-        <translation>Управление</translation>
-    </message>
-    <message>
-        <source>Rotation</source>
-        <translation>Вращение</translation>
-    </message>
-    <message>
-        <source>z</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>MouseAreaSpecifics</name>
-    <message>
-        <source>MouseArea</source>
-        <translation></translation>
-    </message>
     <message>
         <source>Enabled</source>
         <translation>Включено</translation>
@@ -25160,9 +24837,21 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>Выпуск</translation>
     </message>
     <message>
+        <source>Release</source>
+        <comment>Shadow build directory suffix</comment>
+        <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
+        <translation>Release</translation>
+    </message>
+    <message>
         <source>Debug</source>
         <extracomment>The name of the debug build configuration created by default for a qmake project.</extracomment>
         <translation>Отладка</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <comment>Shadow build directory suffix</comment>
+        <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
+        <translation>Debug</translation>
     </message>
     <message>
         <source>Build</source>
@@ -29160,12 +28849,12 @@ Do you want Qt Creator to generate it for your project?</source>
  %1</translation>
     </message>
     <message>
-        <source>Target is being added.</source>
-        <translation>Цель была добавлена.</translation>
+        <source>Target %1 is being added.</source>
+        <translation>Добавляется цель %1.</translation>
     </message>
     <message>
-        <source>Target is already added.</source>
-        <translation>Цель уже добавлена.</translation>
+        <source>Target %1 is already added.</source>
+        <translation>Цель %1 уже добавлена.</translation>
     </message>
     <message>
         <source>Finished uninstalling target:
@@ -30770,42 +30459,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RectangleColorGroupBox</name>
-    <message>
-        <source>Colors</source>
-        <translation>Цвета</translation>
-    </message>
-    <message>
-        <source>Stops</source>
-        <translation>Опорные точки</translation>
-    </message>
-    <message>
-        <source>Gradient stops</source>
-        <translation>Опорные точки градиента</translation>
-    </message>
-    <message>
-        <source>Rectangle</source>
-        <translation>Прямоугольник</translation>
-    </message>
-    <message>
-        <source>Border</source>
-        <translation>Рамка</translation>
-    </message>
-</context>
-<context>
     <name>RectangleSpecifics</name>
-    <message>
-        <source>Rectangle</source>
-        <translation>Прямоугольник</translation>
-    </message>
-    <message>
-        <source>Border width</source>
-        <translation>Ширина рамки</translation>
-    </message>
-    <message>
-        <source>Border has to be solid to change width</source>
-        <translation>Для изменения ширины необходимо, чтобы рамка была сплошной</translation>
-    </message>
     <message>
         <source>Radius</source>
         <translation>Радиус</translation>
@@ -31768,10 +31422,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation>Строка</translation>
     </message>
     <message>
-        <source>Layout direction</source>
-        <translation>Направление компоновки</translation>
-    </message>
-    <message>
         <source>Spacing</source>
         <translation>Отступ</translation>
     </message>
@@ -31901,45 +31551,10 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>StandardTextColorGroupBox</name>
-    <message>
-        <source>Color</source>
-        <translation>Цвет</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>Style</source>
-        <translation>Стиль</translation>
-    </message>
-    <message>
-        <source>Selection</source>
-        <translation>Выделение</translation>
-    </message>
-    <message>
-        <source>Selected</source>
-        <translation>Выделено</translation>
-    </message>
-</context>
-<context>
     <name>StandardTextGroupBox</name>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
-    </message>
-    <message>
-        <source>Wrap mode</source>
-        <translation>Режим переноса</translation>
-    </message>
     <message>
         <source></source>
         <translation></translation>
-    </message>
-    <message>
-        <source>Alignment</source>
-        <translation>Выравнивание</translation>
     </message>
 </context>
 <context>
@@ -32289,25 +31904,6 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>Switches</name>
-    <message>
-        <source>Special properties</source>
-        <translation>Специальные свойства</translation>
-    </message>
-    <message>
-        <source>Layout</source>
-        <translation>Компоновка</translation>
-    </message>
-    <message>
-        <source>Advanced properties</source>
-        <translation>Дополнительные свойства</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>Дополнительно</translation>
-    </message>
-</context>
-<context>
     <name>TabViewToolAction</name>
     <message>
         <source>Add Tab...</source>
@@ -32437,10 +32033,6 @@ with a password, which you can enter below.</source>
 <context>
     <name>TextEditSpecifics</name>
     <message>
-        <source>Text Edit</source>
-        <translation>Текстовый редактор</translation>
-    </message>
-    <message>
         <source>Format</source>
         <translation>Формат</translation>
     </message>
@@ -32462,10 +32054,6 @@ with a password, which you can enter below.</source>
     <message>
         <source>Text Editor</source>
         <translation>Текстовый редактор</translation>
-    </message>
-    <message>
-        <source>Translate this string</source>
-        <translation>Перевести эту строку</translation>
     </message>
 </context>
 <context>
@@ -34518,49 +34106,6 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TextInputGroupBox</name>
-    <message>
-        <source>Text Input</source>
-        <translation>Текстовый ввод</translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation>Маска ввода</translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation>Режим эха</translation>
-    </message>
-    <message>
-        <source>Pass. char</source>
-        <translation>Символ пароля</translation>
-    </message>
-    <message>
-        <source>Character displayed when users enter passwords.</source>
-        <translation>Символ отображаемый при вводе пользователем паролей.</translation>
-    </message>
-    <message>
-        <source>Read only</source>
-        <translation>Только для чтения</translation>
-    </message>
-    <message>
-        <source>Cursor visible</source>
-        <translation>Курсор виден</translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation>Активировать фокус при нажатии</translation>
-    </message>
-    <message>
-        <source>Auto scroll</source>
-        <translation>Прокручивать автоматически</translation>
-    </message>
-    <message>
-        <source>Flags</source>
-        <translation>Флаги</translation>
-    </message>
-</context>
-<context>
     <name>TextInputSection</name>
     <message>
         <source>Text Input</source>
@@ -34761,72 +34306,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>&amp;Close</source>
         <translation>&amp;Закрыть</translation>
-    </message>
-</context>
-<context>
-    <name>Transformation</name>
-    <message>
-        <source>Transformation</source>
-        <translation>Преобразование</translation>
-    </message>
-    <message>
-        <source>Origin</source>
-        <translation>Начало</translation>
-    </message>
-    <message>
-        <source>Top</source>
-        <translation>Верхний</translation>
-    </message>
-    <message>
-        <source>Top left</source>
-        <translation>Верхний левый</translation>
-    </message>
-    <message>
-        <source>Top right</source>
-        <translation>Верхний правый</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation>Левый</translation>
-    </message>
-    <message>
-        <source>Center</source>
-        <translation>Центральный</translation>
-    </message>
-    <message>
-        <source>Right</source>
-        <translation>Правый</translation>
-    </message>
-    <message>
-        <source>Bottom left</source>
-        <translation>Нижний левый</translation>
-    </message>
-    <message>
-        <source>Bottom right</source>
-        <translation>Нижний правый</translation>
-    </message>
-    <message>
-        <source>Bottom</source>
-        <translation>Нижний</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Масштаб</translation>
-    </message>
-    <message>
-        <source>Rotation</source>
-        <translation>Вращение</translation>
-    </message>
-</context>
-<context>
-    <name>Type</name>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
-    <message>
-        <source>Id</source>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -37175,68 +36654,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Visibility</name>
-    <message>
-        <source>Visibility</source>
-        <translation>Видимость</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation>Виден</translation>
-    </message>
-    <message>
-        <source>isVisible</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Smooth</source>
-        <translation>Сглаживание</translation>
-    </message>
-    <message>
-        <source>Clip</source>
-        <translation>Обрезка</translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation>Непрозрачность</translation>
-    </message>
-</context>
-<context>
-    <name>WebViewSpecifics</name>
-    <message>
-        <source>WebView</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-    <message>
-        <source>Pref Width</source>
-        <translation>Желаемая ширина</translation>
-    </message>
-    <message>
-        <source>Preferred Width</source>
-        <translation>Оптимальная ширина</translation>
-    </message>
-    <message>
-        <source>Pref Height</source>
-        <translation>Желаемая высота</translation>
-    </message>
-    <message>
-        <source>Preferred Height</source>
-        <translation>Желаемая высота</translation>
-    </message>
-    <message>
-        <source>Scale</source>
-        <translation>Масштаб</translation>
-    </message>
-    <message>
-        <source>Contents Scale</source>
-        <translation>Масштаб содержимого</translation>
-    </message>
-</context>
-<context>
     <name>Welcome::Internal::CommunityWelcomePage</name>
     <message>
         <source>News &amp;&amp; Support</source>
@@ -37271,17 +36688,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>File &apos;%1&apos; is not a QmlDesigner plugin.</source>
         <translation>Файл «%1» не является модулем QmlDesigner.</translation>
-    </message>
-</context>
-<context>
-    <name>WindowPane</name>
-    <message>
-        <source>Window</source>
-        <translation>Окно</translation>
-    </message>
-    <message>
-        <source>Title</source>
-        <translation>Заголовок</translation>
     </message>
 </context>
 <context>
