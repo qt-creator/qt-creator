@@ -192,6 +192,7 @@
                 \li \l{Pasting and Fetching Code Snippets}
                 \li \l{Using Text Editing Macros}
                 \li \l{Comparing Files}
+                \li \l{Parsing C++ Files}
             \endlist
             \li \l{Finding}
             \list

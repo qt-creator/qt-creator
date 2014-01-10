@@ -78,6 +78,14 @@
             You can use a diff editor to compare two versions of a file and
             view the differences side-by-side in the \gui Edit mode.
 
+        \li \l{Parsing C++ Files}
+
+            An experimental Clang code model plugin enables you to replace the
+            built-in \QC code model with the Clang code model. Clang is a C
+            language family front end for LLVM. Clang provides you with more
+            accurate information than the built-in code model but can be slower
+            to use for large projects.
+
     \endlist
 
 */

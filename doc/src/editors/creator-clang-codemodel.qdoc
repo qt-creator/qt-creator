@@ -1,0 +1,183 @@
+/****************************************************************************
+**
+** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-diff-editor.html
+    \page creator-clang-codemodel.html
+    \nextpage creator-finding-overview.html
+
+    \title Parsing C++ Files
+
+    The \e {code model} is the part of an IDE that understands the language you
+    are using to write your application. It is the framework that allows \QC
+    to provide the following services:
+
+    \list
+
+        \li Code completion
+
+        \li Syntactic and semantic highlighting
+
+        \li Navigating in the code by using the locator, following symbols, and
+            so on
+
+        \li Inspecting code by using the class browser, the outline, and so on
+
+        \li Diagnostics and tooltips
+
+        \li Finding and renaming symbols
+
+        \li Refactoring actions
+
+    \endlist
+
+    An IDE needs a parser for the language and the semantic
+    analyzes. The only difference between a code model and a compiler is that a
+    code model does not generate an executable.
+
+    As \l{http://clang.llvm.org/}{Clang} is a compiler, as well as a code model,
+    it provides accurate information. The feedback you get through warning and
+    error markers is the same as the compiler will give you, not an incomplete
+    set or a close approximation, as when using the built-in \QC code model.
+    Clang focuses on detailed information for diagnostics, which is really
+    useful if the code contains typos, for example.
+
+    Also, Clang already supports C++98/03, C89 and C99, Objective-C
+    (and Objective-C++), and C++11 support is in active development.
+
+    On the downside, for large projects using Clang as code model is slower than
+    using the built-in code model. Clang does not need to generate object files,
+    but it still needs to parse and analyze the source files. For small projects
+    that only use STL, this is relatively fast. But for larger projects that
+    include several files, processing a single file and all the included files
+    can take a while.
+
+    To make parsing faster, pre-compiled headers are ignored by default. You can
+    specify that Clang processes them in \gui {Code Model} options.
+
+    The following services are currently implemented in the experimental Clang
+    code model plugin:
+
+    \list
+
+        \li Highlighting
+        \li Code completion
+
+    \endlist
+
+    To use the plugin, you must build it and configure it in \QC.
+
+    \section1 Building Clang Code Model Plugin
+
+    \list 1
+
+        \li To build the Clang code model plugin, you must acquire Clang and
+            LLVM in one of the following ways:
+
+            \list
+
+                \li Build optimized versions of LLVM and Clang, as instructed in
+                    \l{http://clang.llvm.org/get_started.html}
+                    {Getting Started: Building and Running Clang}.
+
+                    The instructions describe how to build debug versions. To
+                    build optimized versions, enter the following command
+                    instead of just \c make:
+
+                    \c{make ENABLE_OPTIMIZED=1}
+
+                    For information about Git mirrors, see
+                    \l{http://llvm.org/docs/GettingStarted.html#git-mirror}
+                    {Git Mirror}.
+
+                    Install the built versions by entering the following
+                    command:
+
+                    \c{make install}
+
+                \li Download and install LLVM from the
+                    \l{http://llvm.org/releases/}{LLVM Download Page} or
+                    \l{http://llvm.org/builds/}{LLVM Snapshot Builds}.
+
+                \li Use the package manager of your system.
+
+            \endlist
+
+        \li Set LLVM_INSTALL_DIR to point to the installation directory
+            of LLVM either as part of the build environment or pass it directly
+            to qmake when you build \QC.
+
+            The following are examples of the LLVM_INSTALL_DIR values to use
+            depending on the installation method:
+
+            \list
+
+                \li Installed via package manager on Linux:
+
+                    \c {LLVM_INSTALL_DIR=/usr/lib/llvm-3.4}
+
+                \li Manually built on Unix in release mode:
+
+                    \c {LLVM_INSTALL_DIR=$HOME/llvm-build/Release+Asserts}
+
+                \li Installed from a snapshot on Windows:
+
+                    \c {LLVM_INSTALL_DIR=C:\llvm}
+
+            \endlist
+
+            The following messages indicate that the Clang code model plugin is
+            built:
+
+            \list
+
+                \li \c {Project MESSAGE: Building ClangCodeModel plugin with Clang from /usr/lib/llvm-3.4}
+                \li \c {Project MESSAGE: INCLUDEPATH += /usr/lib/llvm-3.4/include}
+                \li \c {Project MESSAGE: LIBS += -L/usr/lib/llvm-3.4/lib -lclang}
+
+            \endlist
+
+    \li Rebuild \QC.
+
+    \endlist
+
+    \section1 Configuring Clang Code Model Plugin
+
+    \list 1
+
+        \li Select \gui Help > \gui {About Plugins} > \gui {C++} >
+            \gui ClangCodeModel to enable the plugin.
+
+        \li Restart \QC to be able to use the plugin.
+
+        \li Select \gui Tools > \gui Options > \gui {C++} > \gui {Code Model},
+            and select the parser to use for files of each type.
+
+        \li To process pre-compiled headers before processing any project files,
+            deselect the \gui {Ignore pre-compiled headers} check box.
+
+    \endlist
+
+*/
