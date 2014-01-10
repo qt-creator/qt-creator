@@ -36,10 +36,11 @@
 #include <QList>
 #include <QFutureInterface>
 
+namespace Core {
+class IEditor;
+}
+
 namespace TextEditor {
-
-class ITextEditor;
-
 namespace Internal {
 
 class LineNumberFilter : public Core::ILocatorFilter
@@ -52,9 +53,6 @@ public:
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
     void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &) {}
-
-private:
-    ITextEditor *currentTextEditor() const;
 };
 
 } // namespace Internal

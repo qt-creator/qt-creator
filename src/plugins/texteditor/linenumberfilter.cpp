@@ -70,7 +70,7 @@ QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Core::Lo
         column = lineAndColumn.at(1).toInt(&ok);
     if (!ok)
         return value;
-    if (currentTextEditor() && (line > 0 || column > 0)) {
+    if (EditorManager::currentEditor() && (line > 0 || column > 0)) {
         LineColumn data;
         data.first = line;
         data.second = column - 1;  // column API is 0-based
@@ -88,21 +88,13 @@ QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Core::Lo
 
 void LineNumberFilter::accept(LocatorFilterEntry selection) const
 {
-    ITextEditor *editor = currentTextEditor();
+    IEditor *editor = EditorManager::currentEditor();
     if (editor) {
         EditorManager::addCurrentPositionToNavigationHistory();
         LineColumn data = selection.internalData.value<LineColumn>();
-        if (data.first < 1) { // jump to column in same line
-            int currLine, currColumn;
-            editor->convertPosition(editor->position(), &currLine, &currColumn);
-            data.first = currLine;
-        }
+        if (data.first < 1)  // jump to column in same line
+            data.first = editor->currentLine();
         editor->gotoLine(data.first, data.second);
         EditorManager::activateEditor(editor);
     }
-}
-
-ITextEditor *LineNumberFilter::currentTextEditor() const
-{
-    return qobject_cast<TextEditor::ITextEditor *>(EditorManager::currentEditor());
 }

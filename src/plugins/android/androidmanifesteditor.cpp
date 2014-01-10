@@ -36,6 +36,7 @@
 
 #include <QActionGroup>
 #include <QToolBar>
+#include <QTextBlock>
 
 using namespace Android;
 using namespace Internal;
@@ -91,6 +92,17 @@ Core::IDocument *AndroidManifestEditor::document()
 TextEditor::BaseTextEditorWidget *AndroidManifestEditor::textEditor() const
 {
     return widget()->textEditorWidget();
+}
+
+int AndroidManifestEditor::currentLine() const
+{
+    return textEditor()->textCursor().blockNumber() + 1;
+}
+
+int AndroidManifestEditor::currentColumn() const
+{
+    QTextCursor cursor = textEditor()->textCursor();
+    return cursor.position() - cursor.block().position() + 1;
 }
 
 void AndroidManifestEditor::changeEditorPage(QAction *action)
