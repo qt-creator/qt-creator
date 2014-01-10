@@ -378,8 +378,8 @@ bool BlackBerryConfiguration::activate()
 
     deactivate(); // cleaning-up artifacts autodetected by old QtCreator versions
 
-    QString armVersionName = tr("BlackBerry Device - %1").arg(m_targetName);
-    QString x86VersionName = tr("BlackBerry Simulator - %1").arg(m_targetName);
+    QString armVersionName = tr("BlackBerry %1 Device").arg(m_version.toString());
+    QString x86VersionName = tr("BlackBerry %1 Simulator").arg(m_version.toString());
 
     // create versions
     QnxAbstractQtVersion *qt4ArmVersion = 0;
