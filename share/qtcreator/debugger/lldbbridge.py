@@ -185,6 +185,13 @@ def impl_SBValue__getitem__(value, index):
         return value.GetChildAtIndex(index)
     return value.GetChildMemberWithName(index)
 
+def impl_SBValue__deref(value):
+    result = value.Dereference()
+    if result.IsValid():
+        return result
+    result = value.CreateValueFromExpression(None, '*' + value.get_expr_path())
+    return result
+
 lldb.SBValue.__add__ = impl_SBValue__add__
 lldb.SBValue.__sub__ = impl_SBValue__sub__
 lldb.SBValue.__le__ = impl_SBValue__le__
@@ -196,7 +203,7 @@ lldb.SBValue.__long__ = lambda self: long(self.GetValue(), 0)
 
 lldb.SBValue.code = lambda self: self.GetTypeClass()
 lldb.SBValue.cast = lambda self, typeObj: self.Cast(typeObj)
-lldb.SBValue.dereference = lambda self: self.Dereference()
+lldb.SBValue.dereference = impl_SBValue__deref
 lldb.SBValue.address = property(lambda self: self.GetAddress())
 
 lldb.SBType.pointer = lambda self: self.GetPointerType()
