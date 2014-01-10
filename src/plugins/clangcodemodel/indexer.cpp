@@ -86,11 +86,12 @@ struct IndexingResult
     typedef CppTools::ProjectPart ProjectPart;
 
     IndexingResult()
+        : m_unit(Unit::create())
     {}
 
     IndexingResult(const QVector<Symbol> &symbol,
                    const QSet<QString> &processedFiles,
-                   const Unit &unit,
+                   const Unit::Ptr &unit,
                    const ProjectPart::Ptr &projectPart)
         : m_symbolsInfo(symbol)
         , m_processedFiles(processedFiles)
@@ -100,7 +101,7 @@ struct IndexingResult
 
     QVector<Symbol> m_symbolsInfo;
     QSet<QString> m_processedFiles;
-    Unit m_unit;
+    Unit::Ptr m_unit;
     ProjectPart::Ptr m_projectPart;
 };
 
@@ -259,7 +260,7 @@ protected:
             foreach (const QString &fn, m_allFiles.keys()) {
                 QVector<ClangCodeModel::Symbol> symbols; unfoldSymbols(symbols, fn);
                 QSet<QString> processedFiles = QSet<QString>::fromList(m_allFiles.keys());
-                Unit unit(fn);
+                Unit::Ptr unit = Unit::create(fn);
                 IndexingResult indexingResult(symbols, processedFiles, unit, projectPart);
                 indexingResults.append(indexingResult);
 
@@ -714,10 +715,14 @@ void IndexerPrivate::runCore(const QHash<QString, FileData> & /*headers*/,
     typedef QHash<QString, FileData>::const_iterator FileContIt;
     QHash<ProjectPart::Ptr, QList<IndexerPrivate::FileData> > parts;
     typedef QHash<ProjectPart::Ptr, QList<IndexerPrivate::FileData> >::Iterator PartIter;
-    LiveUnitsManager *lum = LiveUnitsManager::instance();
+
+    QList<Core::IDocument *> docs = Core::EditorManager::documentModel()->openedDocuments();
+    QSet<QString> openDocs;
+    foreach (Core::IDocument *doc, docs)
+        openDocs.insert(doc->filePath());
 
     for (FileContIt tit = impls.begin(), eit = impls.end(); tit != eit; ++tit) {
-        if (!tit->m_upToDate && !lum->isTracking(tit.key())) {
+        if (!tit->m_upToDate && openDocs.contains(tit.key())) {
             const IndexerPrivate::FileData &fd = tit.value();
             parts[fd.m_projectPart].append(fd);
         }
@@ -1278,7 +1283,7 @@ void Indexer::match(ClangSymbolSearcher *searcher) const
     m_d->match(searcher);
 }
 
-void Indexer::runQuickIndexing(const Unit &unit, const CppTools::ProjectPart::Ptr &part)
+void Indexer::runQuickIndexing(Unit::Ptr unit, const CppTools::ProjectPart::Ptr &part)
 {
     m_d->runQuickIndexing(unit, part);
 }

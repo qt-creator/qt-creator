@@ -58,11 +58,6 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
 
     ClangCodeModel::Internal::initializeClang();
 
-    connect(Core::EditorManager::instance(), SIGNAL(editorAboutToClose(Core::IEditor*)),
-            &m_liveUnitsManager, SLOT(editorAboutToClose(Core::IEditor*)));
-    connect(Core::EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
-            &m_liveUnitsManager, SLOT(editorOpened(Core::IEditor*)));
-
     PCHManager *pchManager = new PCHManager(this);
     FastIndexer *fastIndexer = 0;
 

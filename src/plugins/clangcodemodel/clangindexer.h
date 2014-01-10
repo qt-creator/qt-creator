@@ -72,7 +72,7 @@ public:
 
     void match(ClangSymbolSearcher *searcher) const;
 
-    void indexNow(const Unit &unit);
+    void indexNow(Unit::Ptr unit);
 
 public slots:
     void onAboutToLoadSession(const QString &sessionName);

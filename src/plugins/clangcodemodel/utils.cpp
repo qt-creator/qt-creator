@@ -48,16 +48,16 @@ QPair<bool, QStringList> precompile(const PchInfo::Ptr &pchInfo)
 
     bool ok = false;
 
-    Internal::Unit unit(pchInfo->inputFileName());
-    unit.setCompilationOptions(pchInfo->options());
+    Internal::Unit::Ptr unit = Internal::Unit::create(pchInfo->inputFileName());
+    unit->setCompilationOptions(pchInfo->options());
 
     unsigned parseOpts = CXTranslationUnit_ForSerialization
             | CXTranslationUnit_Incomplete;
-    unit.setManagementOptions(parseOpts);
+    unit->setManagementOptions(parseOpts);
 
-    unit.parse();
-    if (unit.isLoaded())
-        ok = CXSaveError_None == unit.save(pchInfo->fileName());
+    unit->parse();
+    if (unit->isLoaded())
+        ok = CXSaveError_None == unit->save(pchInfo->fileName());
 
     return qMakePair(ok, Internal::formattedDiagnostics(unit));
 }

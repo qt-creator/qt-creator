@@ -87,7 +87,7 @@ public:
 
     void match(Internal::ClangSymbolSearcher *searcher) const;
 
-    void runQuickIndexing(const Internal::Unit &unit, const ProjectPart::Ptr &part);
+    void runQuickIndexing(Internal::Unit::Ptr unit, const ProjectPart::Ptr &part);
 
 signals:
     void indexingStarted(QFuture<void> future);

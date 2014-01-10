@@ -46,10 +46,6 @@
 
 namespace ClangCodeModel {
 
-namespace Internal {
-class Unit;
-}
-
 class CLANG_EXPORT SemanticMarker
 {
     Q_DISABLE_COPY(SemanticMarker)
@@ -78,11 +74,11 @@ public:
     QList<SourceMarker> sourceMarkersInRange(unsigned firstLine,
                                              unsigned lastLine);
 
-    Internal::Unit unit() const;
+    Internal::Unit::Ptr unit() const;
 
 private:
     mutable QMutex m_mutex;
-    QScopedPointer<Internal::Unit> m_unit;
+    Internal::Unit::Ptr m_unit;
 };
 
 } // namespace ClangCodeModel

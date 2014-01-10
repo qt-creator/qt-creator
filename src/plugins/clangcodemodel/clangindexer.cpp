@@ -147,11 +147,11 @@ void ClangIndexer::onAboutToSaveSession()
     m_clangIndexer->finalize();
 }
 
-void ClangIndexer::indexNow(const ClangCodeModel::Internal::Unit &unit)
+void ClangIndexer::indexNow(Unit::Ptr unit)
 {
     typedef CppTools::ProjectPart ProjectPart;
 
-    QString file = unit.fileName();
+    QString file = unit->fileName();
     CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
     const QList<ProjectPart::Ptr> &parts = mmi->projectPart(file);
     ProjectPart::Ptr part;

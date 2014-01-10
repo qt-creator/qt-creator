@@ -35,7 +35,6 @@ SOURCES += \
     $$PWD/unit.cpp \
     $$PWD/utils.cpp \
     $$PWD/utils_p.cpp \
-    $$PWD/liveunitsmanager.cpp \
     $$PWD/semanticmarker.cpp \
     $$PWD/diagnostic.cpp \
     $$PWD/unsavedfiledata.cpp \
@@ -58,7 +57,6 @@ HEADERS += \
     $$PWD/unit.h \
     $$PWD/utils.h \
     $$PWD/utils_p.h \
-    $$PWD/liveunitsmanager.h \
     $$PWD/semanticmarker.h \
     $$PWD/diagnostic.h \
     $$PWD/unsavedfiledata.h \

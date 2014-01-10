@@ -40,7 +40,7 @@ class FastIndexer
 public:
     virtual ~FastIndexer() = 0;
 
-    virtual void indexNow(const Unit &unit) = 0;
+    virtual void indexNow(Unit::Ptr unit) = 0;
 };
 
 } // Internal namespace

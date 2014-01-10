@@ -30,14 +30,12 @@
 #include "unit.h"
 #include "unsavedfiledata.h"
 #include "utils_p.h"
-#include "raii/scopedclangoptions.h"
 
 #include <clang-c/Index.h>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QVector>
 #include <QtCore/QSharedData>
-#include <QtCore/QDateTime>
 #include <QtAlgorithms>
 
 #ifdef DEBUG_UNIT_COUNT
@@ -46,76 +44,119 @@
 static QBasicAtomicInt unitDataCount = Q_BASIC_ATOMIC_INITIALIZER(0);
 #endif // DEBUG_UNIT_COUNT
 
-namespace ClangCodeModel {
-namespace Internal {
-
-class UnitData : public QSharedData
-{
-public:
-    UnitData();
-    UnitData(const QString &fileName);
-    ~UnitData();
-
-    void swap(UnitData *unitData);
-
-    void unload();
-    bool isLoaded() const;
-
-    void updateTimeStamp();
-
-    CXIndex m_index;
-    CXTranslationUnit m_tu;
-    QByteArray m_fileName;
-    QStringList m_compOptions;
-    SharedClangOptions m_sharedCompOptions;
-    unsigned m_managementOptions;
-    UnsavedFiles m_unsaved;
-    QDateTime m_timeStamp;
-};
-
-} // Internal
-} // Clang
-
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 
-UnitData::UnitData()
+static const int DisplayDiagnostics = qgetenv("QTC_CLANG_VERBOSE").isEmpty() ? 0 : 1;
+
+Unit::Unit()
     : m_index(0)
     , m_tu(0)
     , m_managementOptions(0)
-{
-}
+{}
 
-static const int DisplayDiagnostics = qgetenv("QTC_CLANG_VERBOSE").isEmpty() ? 0 : 1;
-
-UnitData::UnitData(const QString &fileName)
+Unit::Unit(const QString &fileName)
     : m_index(clang_createIndex(/*excludeDeclsFromPCH*/ 1, DisplayDiagnostics))
     , m_tu(0)
     , m_fileName(fileName.toUtf8())
     , m_managementOptions(0)
-{
-}
+{}
 
-UnitData::~UnitData()
+Unit::~Unit()
 {
     unload();
     clang_disposeIndex(m_index);
     m_index = 0;
 }
 
-void UnitData::swap(UnitData *other)
+Unit::Ptr Unit::create()
 {
-    qSwap(m_index, other->m_index);
-    qSwap(m_tu, other->m_tu);
-    qSwap(m_fileName, other->m_fileName);
-    qSwap(m_compOptions, other->m_compOptions);
-    qSwap(m_sharedCompOptions, other->m_sharedCompOptions);
-    qSwap(m_managementOptions, other->m_managementOptions);
-    qSwap(m_unsaved, other->m_unsaved);
-    qSwap(m_timeStamp, other->m_timeStamp);
+    return Unit::Ptr(new Unit);
 }
 
-void UnitData::unload()
+Unit::Ptr Unit::create(const QString &fileName)
+{
+    return Unit::Ptr(new Unit(fileName));
+}
+
+const QString Unit::fileName() const
+{
+    return QString::fromUtf8(m_fileName.data(), m_fileName.size());
+}
+
+bool Unit::isLoaded() const
+{
+    return m_tu && m_index;
+}
+
+const QDateTime &Unit::timeStamp() const
+{
+    return m_timeStamp;
+}
+
+QStringList Unit::compilationOptions() const
+{
+    return m_compOptions;
+}
+
+void Unit::setCompilationOptions(const QStringList &compOptions)
+{
+    m_compOptions = compOptions;
+    m_sharedCompOptions.reloadOptions(compOptions);
+}
+
+UnsavedFiles Unit::unsavedFiles() const
+{
+    return m_unsaved;
+}
+
+void Unit::setUnsavedFiles(const UnsavedFiles &unsavedFiles)
+{
+    m_unsaved = unsavedFiles;
+}
+
+unsigned Unit::managementOptions() const
+{
+    return m_managementOptions;
+}
+
+void Unit::setManagementOptions(unsigned managementOptions)
+{
+    m_managementOptions = managementOptions;
+}
+
+void Unit::parse()
+{
+    unload();
+
+    updateTimeStamp();
+
+    UnsavedFileData unsaved(m_unsaved);
+    m_tu = clang_parseTranslationUnit(m_index, m_fileName.constData(),
+                                      m_sharedCompOptions.data(), m_sharedCompOptions.size(),
+                                      unsaved.files(), unsaved.count(),
+                                      m_managementOptions);
+}
+
+void Unit::reparse()
+{
+    Q_ASSERT(isLoaded());
+
+    UnsavedFileData unsaved(m_unsaved);
+    const unsigned opts = clang_defaultReparseOptions(m_tu);
+    if (clang_reparseTranslationUnit(m_tu, unsaved.count(), unsaved.files(), opts) != 0)
+        unload();
+}
+
+int Unit::save(const QString &unitFileName)
+{
+    Q_ASSERT(isLoaded());
+
+    return clang_saveTranslationUnit(m_tu, unitFileName.toUtf8().constData(),
+                                     clang_defaultSaveOptions(m_tu));
+}
+
+void Unit::unload()
 {
     if (m_tu) {
         clang_disposeTranslationUnit(m_tu);
@@ -127,170 +168,25 @@ void UnitData::unload()
     }
 }
 
-bool UnitData::isLoaded() const
-{
-    return m_tu && m_index;
-}
-
-void UnitData::updateTimeStamp()
-{
-    m_timeStamp = QDateTime::currentDateTime();
-}
-
-Unit::Unit()
-    : m_data(new UnitData)
-{}
-
-Unit::Unit(const QString &fileName)
-    : m_data(new UnitData(fileName))
-{}
-
-Unit::Unit(const Unit &unit)
-    : m_data(unit.m_data)
-{}
-
-Unit &Unit::operator =(const Unit &unit)
-{
-    if (this != &unit)
-        m_data = unit.m_data;
-    return *this;
-}
-
-Unit::~Unit()
-{}
-
-const QString Unit::fileName() const
-{
-    const QByteArray &name = m_data->m_fileName;
-    return QString::fromUtf8(name.data(), name.size());
-}
-
-bool Unit::isLoaded() const
-{
-    return m_data->isLoaded();
-}
-
-const QDateTime &Unit::timeStamp() const
-{
-    return m_data->m_timeStamp;
-}
-
-QStringList Unit::compilationOptions() const
-{
-    return m_data->m_compOptions;
-}
-
-void Unit::setCompilationOptions(const QStringList &compOptions)
-{
-    m_data->m_compOptions = compOptions;
-    m_data->m_sharedCompOptions.reloadOptions(compOptions);
-}
-
-UnsavedFiles Unit::unsavedFiles() const
-{
-    return m_data->m_unsaved;
-}
-
-void Unit::setUnsavedFiles(const UnsavedFiles &unsavedFiles)
-{
-    m_data->m_unsaved = unsavedFiles;
-}
-
-unsigned Unit::managementOptions() const
-{
-    return m_data->m_managementOptions;
-}
-
-void Unit::setManagementOptions(unsigned managementOptions)
-{
-    m_data->m_managementOptions = managementOptions;
-}
-
-bool Unit::isUnique() const
-{
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    return m_data->ref.load() == 1;
-#else
-    return m_data->ref == 1;
-#endif
-}
-
-void Unit::makeUnique()
-{
-    UnitData *uniqueData = new UnitData;
-    m_data->swap(uniqueData); // Notice we swap the data itself and not the shared pointer.
-    m_data = QExplicitlySharedDataPointer<UnitData>(uniqueData);
-}
-
-void Unit::parse()
-{
-    m_data->unload();
-
-    m_data->updateTimeStamp();
-
-    UnsavedFileData unsaved(m_data->m_unsaved);
-    m_data->m_tu = clang_parseTranslationUnit(m_data->m_index,
-                                              m_data->m_fileName.constData(),
-                                              m_data->m_sharedCompOptions.data(),
-                                              m_data->m_sharedCompOptions.size(),
-                                              unsaved.files(),
-                                              unsaved.count(),
-                                              m_data->m_managementOptions);
-}
-
-void Unit::reparse()
-{
-    Q_ASSERT(isLoaded());
-
-    UnsavedFileData unsaved(m_data->m_unsaved);
-    const unsigned opts = clang_defaultReparseOptions(m_data->m_tu);
-    if (clang_reparseTranslationUnit(m_data->m_tu, unsaved.count(), unsaved.files(), opts) != 0)
-        m_data->unload();
-}
-
-void Unit::create()
-{
-    // @TODO
-}
-
-void Unit::createFromSourceFile()
-{
-    // @TODO
-}
-
-int Unit::save(const QString &unitFileName)
-{
-    Q_ASSERT(isLoaded());
-
-    return clang_saveTranslationUnit(m_data->m_tu,
-                                     unitFileName.toUtf8().constData(),
-                                     clang_defaultSaveOptions(m_data->m_tu));
-}
-
-void Unit::unload()
-{
-    m_data->unload();
-}
-
 CXFile Unit::getFile() const
 {
     Q_ASSERT(isLoaded());
 
-    return clang_getFile(m_data->m_tu, m_data->m_fileName.constData());
+    return clang_getFile(m_tu, m_fileName.constData());
 }
 
 CXCursor Unit::getCursor(const CXSourceLocation &location) const
 {
     Q_ASSERT(isLoaded());
 
-    return clang_getCursor(m_data->m_tu, location);
+    return clang_getCursor(m_tu, location);
 }
 
 CXSourceLocation Unit::getLocation(const CXFile &file, unsigned line, unsigned column) const
 {
     Q_ASSERT(isLoaded());
 
-    return clang_getLocation(m_data->m_tu, file, line, column);
+    return clang_getLocation(m_tu, file, line, column);
 }
 
 void Unit::codeCompleteAt(unsigned line, unsigned column, ScopedCXCodeCompleteResults &results)
@@ -300,10 +196,11 @@ void Unit::codeCompleteAt(unsigned line, unsigned column, ScopedCXCodeCompleteRe
     flags |= CXCodeComplete_IncludeBriefComments;
 #endif
 
-    UnsavedFileData unsaved(m_data->m_unsaved);
-    results.reset(clang_codeCompleteAt(m_data->m_tu, m_data->m_fileName.constData(),
+    UnsavedFileData unsaved(m_unsaved);
+    results.reset(clang_codeCompleteAt(m_tu, m_fileName.constData(),
                                        line, column,
-                                       unsaved.files(), unsaved.count(), flags));
+                                       unsaved.files(), unsaved.count(),
+                                       flags));
 }
 
 void Unit::tokenize(CXSourceRange range, CXToken **tokens, unsigned *tokenCount) const
@@ -313,21 +210,21 @@ void Unit::tokenize(CXSourceRange range, CXToken **tokens, unsigned *tokenCount)
     Q_ASSERT(tokenCount);
     Q_ASSERT(!clang_Range_isNull(range));
 
-    clang_tokenize(m_data->m_tu, range, tokens, tokenCount);
+    clang_tokenize(m_tu, range, tokens, tokenCount);
 }
 
 void Unit::disposeTokens(CXToken *tokens, unsigned tokenCount) const
 {
     Q_ASSERT(isLoaded());
 
-    clang_disposeTokens(m_data->m_tu, tokens, tokenCount);
+    clang_disposeTokens(m_tu, tokens, tokenCount);
 }
 
 CXSourceRange Unit::getTokenExtent(const CXToken &token) const
 {
     Q_ASSERT(isLoaded());
 
-    return clang_getTokenExtent(m_data->m_tu, token);
+    return clang_getTokenExtent(m_tu, token);
 }
 
 void Unit::annotateTokens(CXToken *tokens, unsigned tokenCount, CXCursor *cursors) const
@@ -336,63 +233,68 @@ void Unit::annotateTokens(CXToken *tokens, unsigned tokenCount, CXCursor *cursor
     Q_ASSERT(tokens);
     Q_ASSERT(cursors);
 
-    clang_annotateTokens(m_data->m_tu, tokens, tokenCount, cursors);
+    clang_annotateTokens(m_tu, tokens, tokenCount, cursors);
 }
 
 CXTranslationUnit Unit::clangTranslationUnit() const
 {
     Q_ASSERT(isLoaded());
 
-    return m_data->m_tu;
+    return m_tu;
 }
 
 CXIndex Unit::clangIndex() const
 {
     Q_ASSERT(isLoaded());
 
-    return m_data->m_index;
+    return m_index;
 }
 
 QString Unit::getTokenSpelling(const CXToken &tok) const
 {
     Q_ASSERT(isLoaded());
 
-    return getQString(clang_getTokenSpelling(m_data->m_tu, tok));
+    return getQString(clang_getTokenSpelling(m_tu, tok));
 }
 
 CXCursor Unit::getTranslationUnitCursor() const
 {
     Q_ASSERT(isLoaded());
 
-    return clang_getTranslationUnitCursor(m_data->m_tu);
+    return clang_getTranslationUnitCursor(m_tu);
 }
 
 CXString Unit::getTranslationUnitSpelling() const
 {
     Q_ASSERT(isLoaded());
 
-    return clang_getTranslationUnitSpelling(m_data->m_tu);
+    return clang_getTranslationUnitSpelling(m_tu);
 }
 
 void Unit::getInclusions(CXInclusionVisitor visitor, CXClientData clientData) const
 {
     Q_ASSERT(isLoaded());
 
-    clang_getInclusions(m_data->m_tu, visitor, clientData);
+    clang_getInclusions(m_tu, visitor, clientData);
 }
 
 unsigned Unit::getNumDiagnostics() const
 {
     Q_ASSERT(isLoaded());
 
-    return clang_getNumDiagnostics(m_data->m_tu);
+    return clang_getNumDiagnostics(m_tu);
 }
 
 CXDiagnostic Unit::getDiagnostic(unsigned index) const
 {
     Q_ASSERT(isLoaded());
 
-    return clang_getDiagnostic(m_data->m_tu, index);
+    return clang_getDiagnostic(m_tu, index);
+}
+
+void Unit::updateTimeStamp()
+{
+    m_timeStamp = QDateTime::currentDateTime();
 }
 
 IdentifierTokens::IdentifierTokens(const Unit &unit, unsigned firstLine, unsigned lastLine)

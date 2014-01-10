@@ -50,6 +50,7 @@ class ClangCodeModel::ClangCompleter::PrivateData
 public:
     PrivateData()
         : m_mutex(QMutex::Recursive)
+        , m_unit(Internal::Unit::create())
         , m_isSignalSlotCompletion(false)
     {
     }
@@ -60,8 +61,8 @@ public:
 
     bool parseFromFile(const Internal::UnsavedFiles &unsavedFiles)
     {
-        Q_ASSERT(!m_unit.isLoaded());
-        if (m_unit.fileName().isEmpty())
+        Q_ASSERT(!m_unit->isLoaded());
+        if (m_unit->fileName().isEmpty())
             return false;
 
         unsigned opts = clang_defaultEditingTranslationUnitOptions();
@@ -69,16 +70,16 @@ public:
         opts |= CXTranslationUnit_CacheCompletionResults;
         opts |= CXTranslationUnit_IncludeBriefCommentsInCodeCompletion;
 #endif
-        m_unit.setManagementOptions(opts);
+        m_unit->setManagementOptions(opts);
 
-        m_unit.setUnsavedFiles(unsavedFiles);
-        m_unit.parse();
-        return m_unit.isLoaded();
+        m_unit->setUnsavedFiles(unsavedFiles);
+        m_unit->parse();
+        return m_unit->isLoaded();
     }
 
 public:
     QMutex m_mutex;
-    Internal::Unit m_unit;
+    Internal::Unit::Ptr m_unit;
     bool m_isSignalSlotCompletion;
 };
 
@@ -119,26 +120,26 @@ ClangCompleter::~ClangCompleter()
 
 QString ClangCompleter::fileName() const
 {
-    return d->m_unit.fileName();
+    return d->m_unit->fileName();
 }
 
 void ClangCompleter::setFileName(const QString &fileName)
 {
-    if (d->m_unit.fileName() != fileName) {
-        d->m_unit = Internal::Unit(fileName);
+    if (d->m_unit->fileName() != fileName) {
+        d->m_unit = Internal::Unit::create(fileName);
     }
 }
 
 QStringList ClangCompleter::options() const
 {
-    return d->m_unit.compilationOptions();
+    return d->m_unit->compilationOptions();
 }
 
 void ClangCompleter::setOptions(const QStringList &options) const
 {
-    if (d->m_unit.compilationOptions() != options) {
-        d->m_unit.setCompilationOptions(options);
-        d->m_unit.unload();
+    if (d->m_unit->compilationOptions() != options) {
+        d->m_unit->setCompilationOptions(options);
+        d->m_unit->unload();
     }
 }
 
@@ -154,12 +155,12 @@ void ClangCompleter::setSignalSlotCompletion(bool isSignalSlot)
 
 bool ClangCompleter::reparse(const UnsavedFiles &unsavedFiles)
 {
-    if (!d->m_unit.isLoaded())
+    if (!d->m_unit->isLoaded())
         return d->parseFromFile(unsavedFiles);
 
-    d->m_unit.setUnsavedFiles(unsavedFiles);
-    d->m_unit.reparse();
-    return d->m_unit.isLoaded();
+    d->m_unit->setUnsavedFiles(unsavedFiles);
+    d->m_unit->reparse();
+    return d->m_unit->isLoaded();
 }
 
 QList<CodeCompletionResult> ClangCompleter::codeCompleteAt(unsigned line,
@@ -170,13 +171,13 @@ QList<CodeCompletionResult> ClangCompleter::codeCompleteAt(unsigned line,
     QTime t;t.start();
 #endif // TIME_COMPLETION
 
-    if (!d->m_unit.isLoaded())
+    if (!d->m_unit->isLoaded())
         if (!d->parseFromFile(unsavedFiles))
             return QList<CodeCompletionResult>();
 
     ScopedCXCodeCompleteResults results;
-    d->m_unit.setUnsavedFiles(unsavedFiles);
-    d->m_unit.codeCompleteAt(line, column, results);
+    d->m_unit->setUnsavedFiles(unsavedFiles);
+    d->m_unit->codeCompleteAt(line, column, results);
 
     QList<CodeCompletionResult> completions;
     if (results) {
@@ -198,7 +199,7 @@ bool ClangCompleter::objcEnabled() const
     static const QString objcppOption = QLatin1String("-ObjC++");
     static const QString objcOption = QLatin1String("-ObjC");
 
-    QStringList options = d->m_unit.compilationOptions();
+    QStringList options = d->m_unit->compilationOptions();
     return options.contains(objcOption) || options.contains(objcppOption);
 }
 

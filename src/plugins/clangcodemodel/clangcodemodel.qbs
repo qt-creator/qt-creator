@@ -163,8 +163,6 @@ QtcPlugin {
         "diagnostic.h",
         "fastindexer.cpp",
         "fastindexer.h",
-        "liveunitsmanager.cpp",
-        "liveunitsmanager.h",
         "pchinfo.cpp",
         "pchinfo.h",
         "pchmanager.cpp",

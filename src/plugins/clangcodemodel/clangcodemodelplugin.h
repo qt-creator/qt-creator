@@ -31,7 +31,6 @@
 #define CLANGPLUGIN_H
 
 #include "clangmodelmanagersupport.h"
-#include "liveunitsmanager.h"
 
 #ifdef CLANG_INDEXING
 #  include "clangindexer.h"
@@ -53,7 +52,6 @@ public:
     void extensionsInitialized();
 
 private:
-    LiveUnitsManager m_liveUnitsManager;
     QScopedPointer<ModelManagerSupport> m_modelManagerSupport;
 #ifdef CLANG_INDEXING
     QScopedPointer<ClangIndexer> m_indexer;

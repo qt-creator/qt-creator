@@ -31,6 +31,7 @@
 #define CLANG_REUSE_H
 
 #include "sourcelocation.h"
+#include "unit.h"
 
 #include <clang-c/Index.h>
 
@@ -42,8 +43,6 @@ QT_END_NAMESPACE
 
 namespace ClangCodeModel {
 namespace Internal {
-
-class Unit;
 
 QString getQString(const CXString &cxString, bool disposeCXString = true);
 
@@ -58,7 +57,7 @@ SourceLocation getExpansionLocation(const CXSourceLocation &loc);
 QString normalizeFileName(const QString &fileName);
 QString normalizeFileName(const QFileInfo &fileInfo);
 
-QStringList formattedDiagnostics(const Unit &unit);
+QStringList formattedDiagnostics(const Unit::Ptr &unit);
 
 } // Internal
 } // ClangCodeModel

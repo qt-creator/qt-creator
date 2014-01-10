@@ -96,15 +96,15 @@ QString normalizeFileName(const QFileInfo &fileInfo)
     return QDir::cleanPath(fileInfo.absoluteFilePath());
 }
 
-QStringList formattedDiagnostics(const Unit &unit)
+QStringList formattedDiagnostics(const Unit::Ptr &unit)
 {
     QStringList diags;
-    if (!unit.isLoaded())
+    if (!unit->isLoaded())
         return diags;
 
-    const unsigned count = unit.getNumDiagnostics();
+    const unsigned count = unit->getNumDiagnostics();
     for (unsigned i = 0; i < count; ++i) {
-        CXDiagnostic diag = unit.getDiagnostic(i);
+        CXDiagnostic diag = unit->getDiagnostic(i);
 
         unsigned opt = CXDiagnostic_DisplaySourceLocation
                 | CXDiagnostic_DisplayColumn

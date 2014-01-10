@@ -31,10 +31,11 @@
 #define UNIT_H
 
 #include "utils.h"
-
+#include "raii/scopedclangoptions.h"
 #include "cxraii.h"
 
-#include <QExplicitlySharedDataPointer>
+#include <QtCore/QDateTime>
+#include <QSharedPointer>
 #include <QMetaType>
 #include <QString>
 #include <QStringList>
@@ -63,8 +64,6 @@ class UnitData;
  *  - This class is not thread-safe.
  *  - It's responsibility of the client to make sure that the wrapped translation
  *    unit is consistent with the other data such as cursor and locations being used.
- *  - The data of the TU is shared.
- *
  *
  * @TODO: This is similar but not exactly the same as the current ClangWrapper class.
  * That class is now tuned to specific features, so it's not generic enough to be used
@@ -74,12 +73,17 @@ class UnitData;
  */
 class Unit
 {
-public:
+    Q_DISABLE_COPY(Unit)
+
     Unit();
     explicit Unit(const QString &fileName);
-    Unit(const Unit &unit);
-    Unit &operator=(const Unit &unit);
+
+public:
     ~Unit();
+
+    typedef QSharedPointer<Unit> Ptr;
+    static Ptr create();
+    static Ptr create(const QString &fileName);
 
     bool isLoaded() const;
 
@@ -96,20 +100,11 @@ public:
     unsigned managementOptions() const;
     void setManagementOptions(unsigned managementOptions);
 
-    // Sharing control facilities
-    //   Method isUnique is just like an "isDetached", however makeUnique is mostly some kind
-    //   of "detach" but which actually moves the data to this particular instance, invalidating
-    //   then all the other shares.
-    bool isUnique() const;
-    void makeUnique();
-
     // Methods for generating the TU. Name mappings are direct, for example:
     //   - parse corresponds to clang_parseTranslationUnit
     //   - createFromSourceFile corresponds to clang_createTranslationUnitFromSourceFile
     void parse();
     void reparse();
-    void create();
-    void createFromSourceFile();
     int save(const QString &unitFileName);
     void unload();
 
@@ -152,7 +147,16 @@ public:
     QString getTokenSpelling(const CXToken &tok) const;
 
 private:
-    QExplicitlySharedDataPointer<UnitData> m_data;
+    void updateTimeStamp();
+
+    CXIndex m_index;
+    CXTranslationUnit m_tu;
+    QByteArray m_fileName;
+    QStringList m_compOptions;
+    SharedClangOptions m_sharedCompOptions;
+    unsigned m_managementOptions;
+    UnsavedFiles m_unsaved;
+    QDateTime m_timeStamp;
 };
 
 class IdentifierTokens
@@ -190,6 +194,6 @@ private:
 } // Internal
 } // Clang
 
-Q_DECLARE_METATYPE(ClangCodeModel::Internal::Unit)
+Q_DECLARE_METATYPE(ClangCodeModel::Internal::Unit::Ptr)
 
 #endif // UNIT_H

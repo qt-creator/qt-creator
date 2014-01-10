@@ -61,7 +61,7 @@ void SemanticMarker::setFileName(const QString &fileName)
     QStringList oldOptions;
     if (m_unit)
         oldOptions = m_unit->compilationOptions();
-    m_unit.reset(new Unit(fileName));
+    m_unit = Unit::create(fileName);
     if (!oldOptions.isEmpty())
         m_unit->setCompilationOptions(oldOptions);
 
@@ -499,7 +499,7 @@ QList<SourceMarker> SemanticMarker::sourceMarkersInRange(unsigned firstLine,
     return result;
 }
 
-Unit SemanticMarker::unit() const
+Unit::Ptr SemanticMarker::unit() const
 {
-    return *m_unit;
+    return m_unit;
 }
