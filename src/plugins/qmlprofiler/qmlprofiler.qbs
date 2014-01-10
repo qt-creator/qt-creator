@@ -71,6 +71,8 @@ QtcPlugin {
             "SelectionRangeDetails.qml",
             "TimeDisplay.qml",
             "TimeMarks.qml",
+            "HorizontalGradientBorder.qml",
+            "VerticalGradientBorder.qml",
             "qmlprofiler.qrc",
         ]
     }

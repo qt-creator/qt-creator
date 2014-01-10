@@ -435,22 +435,12 @@ Rectangle {
         }
 
         // Gradient borders
-        Item {
+        VerticalGradientBorder {
             anchors.left: labels.right
             anchors.top: labels.top
             anchors.bottom: labelsTail.bottom
-            width: 6
-            Rectangle {
-                x: parent.width
-                transformOrigin: Item.TopLeft
-                rotation: 90
-                width: parent.height
-                height: parent.width
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: "#00000000"; }
-                    GradientStop { position: 1.0; color: "#86000000"; }
-                }
-            }
+            leftColor: "#00000000"
+            rightColor: "#86000000"
         }
     }
 
@@ -526,32 +516,19 @@ Rectangle {
         }
     }
 
-    Item {
+    VerticalGradientBorder {
         anchors.right: root.right
-        width: 6
         anchors.top: root.top
         anchors.bottom: root.bottom
-        Rectangle {
-            x: parent.width
-            transformOrigin: Item.TopLeft
-            rotation: 90
-            width: parent.height
-            height: parent.width
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "#86000000"; }
-                GradientStop { position: 1.0; color: "#00000000"; }
-            }
-        }
+        rightColor: "#00000000"
+        leftColor: "#86000000"
     }
 
-    Rectangle {
-        y: root.height - height
-        height: 6
-        width: root.width
-        x: 0
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "#00000000"; }
-            GradientStop { position: 1.0; color: "#86000000"; }
-        }
+    HorizontalGradientBorder {
+        anchors.bottom: root.bottom
+        anchors.left: root.left
+        anchors.right: root.right
+        bottomColor: "#00000000"
+        topColor: "#86000000"
     }
 }
