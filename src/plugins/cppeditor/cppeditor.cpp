@@ -576,6 +576,13 @@ void CPPEditorWidget::ctor()
             SIGNAL(commentsSettingsChanged(CppTools::CommentsSettings)),
             this,
             SLOT(onCommentsSettingsChanged(CppTools::CommentsSettings)));
+
+    connect(baseTextDocument(), SIGNAL(filePathChanged(QString,QString)),
+            this, SLOT(onFilePathChanged()));
+    connect(baseTextDocument(), SIGNAL(mimeTypeChanged()),
+            this, SLOT(onMimeTypeChanged()));
+    onFilePathChanged();
+    onMimeTypeChanged();
 }
 
 CPPEditorWidget::~CPPEditorWidget()
@@ -716,27 +723,6 @@ void CPPEditorWidget::selectAll()
     }
 
     BaseTextEditorWidget::selectAll();
-}
-
-void CPPEditorWidget::setMimeType(const QString &mt)
-{
-    const QString &filePath = editor()->document()->filePath();
-    const QString &projectFile = ProjectExplorer::SessionManager::value(
-                QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + filePath).toString();
-    const QByteArray &additionalDirectives = ProjectExplorer::SessionManager::value(
-                projectFile + QLatin1Char(',') + filePath).toString().toUtf8();
-
-    QSharedPointer<SnapshotUpdater> updater
-            = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
-    updater->setProjectPart(m_modelManager->projectPartForProjectFile(projectFile));
-    updater->setEditorDefines(additionalDirectives);
-
-    m_preprocessorButton->setProperty("highlightWidget", !additionalDirectives.trimmed().isEmpty());
-    m_preprocessorButton->update();
-
-    BaseTextEditorWidget::setMimeType(mt);
-    setObjCEnabled(mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-                   || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
 
 void CPPEditorWidget::setObjCEnabled(bool onoff)
@@ -1860,6 +1846,33 @@ void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
                     this, SLOT(abortDeclDefLink()));
     }
 
+}
+
+void CPPEditorWidget::onFilePathChanged()
+{
+    QTC_ASSERT(m_modelManager, return);
+    QByteArray additionalDirectives;
+    const QString &filePath = baseTextDocument()->filePath();
+    if (!filePath.isEmpty()) {
+        const QString &projectFile = ProjectExplorer::SessionManager::value(
+                    QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + filePath).toString();
+        additionalDirectives = ProjectExplorer::SessionManager::value(
+                    projectFile + QLatin1Char(',') + filePath).toString().toUtf8();
+
+        QSharedPointer<SnapshotUpdater> updater
+                = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
+        updater->setProjectPart(m_modelManager->projectPartForProjectFile(projectFile));
+        updater->setEditorDefines(additionalDirectives);
+    }
+    m_preprocessorButton->setProperty("highlightWidget", !additionalDirectives.trimmed().isEmpty());
+    m_preprocessorButton->update();
+}
+
+void CPPEditorWidget::onMimeTypeChanged()
+{
+    const QString &mt = baseTextDocument()->mimeType();
+    setObjCEnabled(mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+                   || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
 
 void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)

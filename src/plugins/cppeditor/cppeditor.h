@@ -113,8 +113,6 @@ public:
     virtual void cut(); // reimplemented from BaseTextEditorWidget
     virtual void selectAll(); // reimplemented from BaseTextEditorWidget
 
-    virtual void setMimeType(const QString &mt);
-
     void setObjCEnabled(bool onoff);
     bool isObjCEnabled() const;
 
@@ -173,6 +171,8 @@ private Q_SLOTS:
     void updateFunctionDeclDefLink();
     void updateFunctionDeclDefLinkNow();
     void onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link);
+    void onFilePathChanged();
+    void onMimeTypeChanged();
     void onDocumentUpdated();
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
     void updatePreprocessorButtonTooltip();
