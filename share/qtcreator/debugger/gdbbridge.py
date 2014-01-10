@@ -1721,6 +1721,9 @@ class Dumper(DumperBase):
         self.typesReported[typename] = True
         self.typesToReport[typename] = type
 
+    def enumExpression(self, enumType, enumValue):
+        return self.qtNamespace() + "Qt::" + enumValue
+
     def lookupType(self, typestring):
         type = self.typeCache.get(typestring)
         #warn("LOOKUP 1: %s -> %s" % (typestring, type))

@@ -350,7 +350,7 @@ class Dumper(DumperBase):
                 self.put('value="<not accessible>",numchild="0",')
             else:
                 if not self.currentValueEncoding is None:
-                    self.put('valueencoded="%d",' % self.currentValueEncoding)
+                    self.put('valueencoded="%s",' % self.currentValueEncoding)
                 self.put('value="%s",' % self.currentValue)
         except:
             pass
@@ -378,6 +378,11 @@ class Dumper(DumperBase):
 
     def pointerValue(self, value):
         return value.GetValueAsUnsigned()
+
+    def enumExpression(self, enumType, enumValue):
+        ns = self.qtNamespace()
+        return ns + "Qt::" + enumType + "(" \
+            + ns + "Qt::" + enumType + "::" + enumValue + ")"
 
     def call2(self, value, func, args):
         # args is a tuple.

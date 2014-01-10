@@ -189,20 +189,20 @@ def qdump__QModelIndex(d, value):
 
 def qdump__QDate(d, value):
     jd = int(value["jd"])
-    if int(jd):
+    if jd:
         d.putValue(jd, JulianDate)
         d.putNumChild(1)
         if d.isExpanded():
-            qt = d.qtNamespace() + "Qt::"
-            if d.isLldb:
-                qt += "DateFormat::" # FIXME: Bug?...
             # FIXME: This improperly uses complex return values.
             with Children(d):
-                d.putCallItem("toString", value, "toString", qt + "TextDate")
-                d.putCallItem("(ISO)", value, "toString", qt + "ISODate")
+                d.putCallItem("toString", value, "toString",
+                    d.enumExpression("DateFormat", "TextDate"))
+                d.putCallItem("(ISO)", value, "toString",
+                    d.enumExpression("DateFormat", "ISODate"))
                 d.putCallItem("(SystemLocale)", value, "toString",
-                    qt + "SystemLocaleDate")
-                d.putCallItem("(Locale)", value, "toString", qt + "LocaleDate")
+                    d.enumExpression("DateFormat", "SystemLocaleDate"))
+                d.putCallItem("(Locale)", value, "toString",
+                    d.enumExpression("DateFormat", "LocaleDate"))
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -214,18 +214,16 @@ def qdump__QTime(d, value):
         d.putValue(mds, MillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
-            ns = d.qtNamespace()
-            qtdate = ns + "Qt::"
-            qttime = ns + "Qt::"
-            if d.isLldb:
-                qtdate += "DateFormat::" # FIXME: Bug?...
             # FIXME: This improperly uses complex return values.
             with Children(d):
-                d.putCallItem("toString", value, "toString", qtdate + "TextDate")
-                d.putCallItem("(ISO)", value, "toString", qtdate + "ISODate")
+                d.putCallItem("toString", value, "toString",
+                    d.enumExpression("DateFormat", "TextDate"))
+                d.putCallItem("(ISO)", value, "toString",
+                    d.enumExpression("DateFormat", "ISODate"))
                 d.putCallItem("(SystemLocale)", value, "toString",
-                     qtdate + "SystemLocaleDate")
-                d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
+                    d.enumExpression("DateFormat", "SystemLocaleDate"))
+                d.putCallItem("(Locale)", value, "toString",
+                    d.enumExpression("DateFormat", "LocaleDate"))
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -256,7 +254,7 @@ def qdump__QDateTime(d, value):
         # QTimeZone m_timeZone // only #ifndef QT_BOOTSTRAPPED
         # StatusFlags m_status
         status = d.extractInt(dateBase + 16 + d.ptrSize())
-        if int(status & 0x10): # ValidDateTime
+        if int(status & 0x0c == 0x0c): # ValidDate and ValidTime
             isValid = True
             msecs = d.extractInt64(dateBase)
             spec = d.extractInt(dateBase + 8)
@@ -294,18 +292,19 @@ def qdump__QDateTime(d, value):
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
             with Children(d):
-                qtdate = d.qtNamespace() + "Qt::"
-                qttime = qtdate
-                if d.isLldb:
-                    qtdate += "DateFormat::" # FIXME: Bug?...
-                    qttime += "TimeSpec::" # FIXME: Bug?...
                 d.putCallItem("toTime_t", value, "toTime_t")
-                d.putCallItem("toString", value, "toString", qtdate + "TextDate")
-                d.putCallItem("(ISO)", value, "toString", qtdate + "ISODate")
-                d.putCallItem("(SystemLocale)", value, "toString", qtdate + "SystemLocaleDate")
-                d.putCallItem("(Locale)", value, "toString", qtdate + "LocaleDate")
-                d.putCallItem("toUTC", value, "toTimeSpec", qttime + "UTC")
-                d.putCallItem("toLocalTime", value, "toTimeSpec", qttime + "LocalTime")
+                d.putCallItem("toString", value, "toString",
+                    d.enumExpression("DateFormat", "TextDate"))
+                d.putCallItem("(ISO)", value, "toString",
+                    d.enumExpression("DateFormat", "ISODate"))
+                d.putCallItem("(SystemLocale)", value, "toString",
+                    d.enumExpression("DateFormat", "SystemLocaleDate"))
+                d.putCallItem("(Locale)", value, "toString",
+                    d.enumExpression("DateFormat", "LocaleDate"))
+                d.putCallItem("toUTC", value, "toTimeSpec",
+                    d.enumExpression("TimeSpec", "UTC"))
+                d.putCallItem("toLocalTime", value, "toTimeSpec",
+                    d.enumExpression("TimeSpec", "LocalTime"))
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
