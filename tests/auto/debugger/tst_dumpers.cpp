@@ -1407,14 +1407,25 @@ void tst_Dumpers::dumper_data()
                % QtVersion(50200)
                % Check("tz", "(null)", "@QTimeZone");
 
-    QTest::newRow("QTimeZone1")
+    QTest::newRow("QTimeZone1Gdb")
             << Data("#include <QTimeZone>\n",
                     "QTimeZone tz(\"UTC+05:00\");\n"
                     "unused(&tz);\n")
+               % DumpTestGdbEngine
                % CoreProfile()
                % QtVersion(50200)
                % Check("tz", "\"UTC+05:00\"", "@QTimeZone")
                % Check("tz.d.m_name", "\"UTC+05:00\"", "@QString");
+
+    QTest::newRow("QTimeZone1Lldb")
+            << Data("#include <QTimeZone>\n",
+                    "QTimeZone tz(\"UTC+05:00\");\n"
+                    "unused(&tz);\n")
+               % DumpTestLldbEngine
+               % CoreProfile()
+               % QtVersion(50200)
+               % Check("tz", "\"UTC+05:00\"", "@QTimeZone")
+               % Check("tz.d.m_id", "\"UTC+05:00\"", "@QByteArray");
 
     QTest::newRow("QDate0")
             << Data("#include <QDate>\n",
