@@ -73,7 +73,6 @@ QNXPlugin::QNXPlugin()
 QNXPlugin::~QNXPlugin()
 {
     delete BlackBerryDeviceConnectionManager::instance();
-    delete &BlackBerryConfigurationManager::instance();
 }
 
 bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)

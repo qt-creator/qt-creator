@@ -80,7 +80,6 @@ signals:
 
 private:
     BlackBerryConfigurationManager(QObject *parent = 0);
-    static BlackBerryConfigurationManager *m_instance;
     QList<BlackBerryConfiguration*> m_configs;
     BlackBerryConfiguration *m_defaultApiLevel;
 

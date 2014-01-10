@@ -447,10 +447,9 @@ void BlackBerryConfigurationManager::saveSettings()
 
 BlackBerryConfigurationManager &BlackBerryConfigurationManager::instance()
 {
-    if (m_instance == 0)
-        m_instance = new BlackBerryConfigurationManager();
+    static BlackBerryConfigurationManager instance;
 
-    return *m_instance;
+    return instance;
 }
 
 BlackBerryConfigurationManager::~BlackBerryConfigurationManager()
@@ -482,8 +481,6 @@ QString BlackBerryConfigurationManager::defaultDebugTokenPath() const
 {
     return QnxUtils::dataDirPath() + QLatin1String("/debugtoken.bar");
 }
-
-BlackBerryConfigurationManager* BlackBerryConfigurationManager::m_instance = 0;
 
 } // namespace Internal
 } // namespace Qnx
