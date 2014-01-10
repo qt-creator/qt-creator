@@ -833,6 +833,29 @@
     Use unique variable names within a snippet, because all instances of a
     variable are renamed when you specify a value for it.
 
+    To determine the case of values you enter in snippets, use the following
+    modifiers:
+
+    \list
+
+        \li \c {:c} converts the initial letter of the string to upper case
+
+        \li \c {:l} converts the string to lower case
+
+        \li \c {:u} converts the string to upper case
+
+    \endlist
+
+    For example, add the following line to the \c class snippet to specify that
+    the function name is converted to all lower case characters regardless of
+    how you specify the value of the \c{$name$} variable:
+
+    \code
+        void $name:l$() {}
+    \endcode
+
+    \image qtcreator-snippet-modifiers.png
+
     The snippet editor does not check the syntax of the snippets that you edit
     or add. However, when you use the snippets, the code editor marks any
     errors by underlining them in red.
