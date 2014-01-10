@@ -7,9 +7,6 @@ win32-msvc* {
     CDBEXT_PATH = $$IDE_BUILD_TREE\\$$IDE_LIBRARY_BASENAME
     # replace '\' with '\\'
     DEFINES += CDBEXT_PATH=\"\\\"$$replace(CDBEXT_PATH, \\\\, \\\\)\\\"\"
-} else {
-    # empty string
-    DEFINES += CDBEXT_PATH=\"\\\"\\\"\"
 }
 
 QT = core network

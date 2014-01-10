@@ -145,6 +145,11 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     return true;
 }
 
+
+#ifndef CDBEXT_PATH
+#define CDBEXT_PATH ""
+#endif
+
 static void setupCdb(QString *makeBinary, QProcessEnvironment *environment)
 {
     QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
@@ -153,7 +158,7 @@ static void setupCdb(QString *makeBinary, QProcessEnvironment *environment)
     QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
     for (QMap<QString,QString>::const_iterator envIt = envPairs.begin(); envIt != envPairs.end(); ++envIt)
             env.set(envIt.key(), envIt.value());
-    const QByteArray cdbextPath = QByteArray(CDBEXT_PATH) + QByteArray("\\qtcreatorcdbext64");
+    const QByteArray cdbextPath = CDBEXT_PATH "\\qtcreatorcdbext64";
     QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
     env.appendOrSet(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
                          QString::fromLatin1(cdbextPath),
