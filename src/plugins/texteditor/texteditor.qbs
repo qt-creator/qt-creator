@@ -96,6 +96,8 @@ QtcPlugin {
         "itextmark.h",
         "linenumberfilter.cpp",
         "linenumberfilter.h",
+        "marginsettings.cpp",
+        "marginsettings.h",
         "normalindenter.cpp",
         "normalindenter.h",
         "outlinefactory.cpp",
