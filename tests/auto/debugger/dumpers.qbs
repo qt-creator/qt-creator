@@ -5,6 +5,7 @@ Autotest {
     name: "Debugger dumpers autotest"
     Depends { name: "Utils" }
     Depends { name: "Qt.network" } // For QHostAddress
+    Depends { name: "Qt.widgets" }
     Group {
         name: "Sources from Debugger plugin"
         prefix: project.debuggerDir

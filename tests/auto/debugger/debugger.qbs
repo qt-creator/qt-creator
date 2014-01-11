@@ -6,7 +6,7 @@ Project {
     references: [
         "dumpers.qbs",
         "gdb.qbs",
-        "namedemangler.qbs"
+        "namedemangler.qbs",
         "simplifytypes.qbs"
     ]
 }
