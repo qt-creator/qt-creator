@@ -1077,9 +1077,8 @@ void MainWindow::readSettings()
                                   QColor(Utils::StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
 
-    if (!restoreGeometry(m_settings->value(QLatin1String(windowGeometryKey)).toByteArray()))
-        resize(1008, 700); // size without window decoration
-    restoreState(m_settings->value(QLatin1String(windowStateKey)).toByteArray());
+    // Delay restoreWindowState, since it is overridden by LayoutRequest event
+    QTimer::singleShot(0, this, SLOT(restoreWindowState()));
 
     bool modeSelectorVisible = m_settings->value(QLatin1String(modeSelectorVisibleKey), true).toBool();
     ModeManager::setModeSelectorVisible(modeSelectorVisible);
@@ -1261,4 +1260,13 @@ bool MainWindow::showWarningWithOptions(const QString &title,
     if (settingsButton && msgBox.clickedButton() == settingsButton)
         return showOptionsDialog(settingsCategory, settingsId);
     return false;
+}
+
+void MainWindow::restoreWindowState()
+{
+    m_settings->beginGroup(QLatin1String(settingsGroup));
+    if (!restoreGeometry(m_settings->value(QLatin1String(windowGeometryKey)).toByteArray()))
+        resize(1008, 700); // size without window decoration
+    restoreState(m_settings->value(QLatin1String(windowStateKey)).toByteArray());
+    m_settings->endGroup();
 }
