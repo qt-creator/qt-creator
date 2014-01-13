@@ -342,7 +342,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         layout->setSpacing(0);
         FindToolBarPlaceHolder *fth = new FindToolBarPlaceHolder(m_centralWidget);
         fth->setObjectName(QLatin1String("HelpFindToolBarPlaceHolder"));
-        layout->addWidget(fth);
+        mainWidgetLayout->addWidget(fth);
     }
 
     HelpIndexFilter *helpIndexFilter = new HelpIndexFilter();
