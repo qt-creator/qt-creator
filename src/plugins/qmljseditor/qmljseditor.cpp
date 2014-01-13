@@ -476,7 +476,6 @@ void QmlJSTextEditorWidget::ctor()
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setIndenter(new Indenter);
     setAutoCompleter(new AutoCompleter);
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 

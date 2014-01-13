@@ -50,6 +50,7 @@ namespace Internal {
 EditorWidget::EditorWidget(QWidget *parent)
     : TextEditor::BaseTextEditorWidget(parent)
 {
+    baseTextDocument()->setIndenter(new PythonIndenter());
     ctor();
 }
 
@@ -69,7 +70,6 @@ void EditorWidget::ctor()
     setMarksVisible(true);
     setCodeFoldingSupported(true);
 
-    setIndenter(new PythonIndenter());
     new PythonHighlighter(baseTextDocument());
 }
 

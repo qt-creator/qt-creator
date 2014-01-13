@@ -65,6 +65,6 @@ QString QmlJSSnippetProvider::displayName() const
 void QmlJSSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *editor) const
 {
     editor->setSyntaxHighlighter(new Highlighter);
-    editor->setIndenter(new Indenter);
+    editor->baseTextDocument()->setIndenter(new Indenter);
     editor->setAutoCompleter(new AutoCompleter);
 }

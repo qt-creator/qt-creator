@@ -1832,7 +1832,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         QChar electricChar;
         if (d->m_document->typingSettings().m_autoIndent) {
             foreach (QChar c, text) {
-                if (d->m_indenter->isElectricCharacter(c)) {
+                if (d->m_document->indenter()->isElectricCharacter(c)) {
                     electricChar = c;
                     break;
                 }
@@ -2311,22 +2311,6 @@ int BaseTextEditorWidget::visibleWrapColumn() const
     return d->m_visibleWrapColumn;
 }
 
-void BaseTextEditorWidget::setIndenter(Indenter *indenter)
-{
-    // clear out existing code formatter data
-    for (QTextBlock it = document()->begin(); it.isValid(); it = it.next()) {
-        TextEditor::TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(it);
-        if (userData)
-            userData->setCodeFormatterData(0);
-    }
-    d->m_indenter.reset(indenter);
-}
-
-Indenter *BaseTextEditorWidget::indenter() const
-{
-    return d->m_indenter.data();
-}
-
 void BaseTextEditorWidget::setAutoCompleter(AutoCompleter *autoCompleter)
 {
     d->m_autoCompleter.reset(autoCompleter);
@@ -2385,7 +2369,6 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate()
     m_cursorBlockNumber(-1),
     m_markDragging(false),
     m_autoCompleter(new AutoCompleter),
-    m_indenter(new Indenter),
     m_clipboardAssistProvider(new Internal::ClipboardAssistProvider)
 {
 }
@@ -4446,7 +4429,7 @@ Core::Id BaseTextEditorWidget::languageSettingsId() const
 
 void BaseTextEditorWidget::setCodeStyle(ICodeStylePreferences *preferences)
 {
-    indenter()->setCodeStylePreferences(preferences);
+    baseTextDocument()->indenter()->setCodeStylePreferences(preferences);
     if (d->m_codeStylePreferences) {
         disconnect(d->m_codeStylePreferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
                 this, SLOT(setTabSettings(TextEditor::TabSettings)));
@@ -4696,13 +4679,13 @@ void BaseTextEditorWidget::indentInsertedText(const QTextCursor &tc)
 void BaseTextEditorWidget::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
 {
     maybeClearSomeExtraSelections(cursor);
-    d->m_indenter->indent(doc, cursor, typedChar, tabSettings());
+    d->m_document->indenter()->indent(doc, cursor, typedChar, tabSettings());
 }
 
 void BaseTextEditorWidget::reindent(QTextDocument *doc, const QTextCursor &cursor)
 {
     maybeClearSomeExtraSelections(cursor);
-    d->m_indenter->reindent(doc, cursor, tabSettings());
+    d->m_document->indenter()->reindent(doc, cursor, tabSettings());
 }
 
 BaseTextEditorWidget::Link BaseTextEditorWidget::findLinkAt(const QTextCursor &, bool, bool)

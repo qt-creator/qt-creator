@@ -139,8 +139,8 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
     QTextCursor tc = m_ui->previewTextEdit->textCursor();
     tc.beginEditBlock();
     while (block.isValid()) {
-        m_ui->previewTextEdit->indenter()->indentBlock(doc, block, QChar::Null, ts);
-
+        m_ui->previewTextEdit->baseTextDocument()->indenter()
+                ->indentBlock(doc, block, QChar::Null, ts);
         block = block.next();
     }
     tc.endEditBlock();

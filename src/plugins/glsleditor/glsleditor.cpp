@@ -143,6 +143,7 @@ void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
 GLSLTextEditorWidget::GLSLTextEditorWidget(QWidget *parent)
     : TextEditor::BaseTextEditorWidget(parent)
 {
+    baseTextDocument()->setIndenter(new GLSLIndenter());
     ctor();
 }
 
@@ -158,7 +159,6 @@ void GLSLTextEditorWidget::ctor()
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setIndenter(new GLSLIndenter());
     setAutoCompleter(new GLSLCompleter());
 
     m_updateDocumentTimer = new QTimer(this);

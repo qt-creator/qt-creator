@@ -64,6 +64,6 @@ QString CppSnippetProvider::displayName() const
 void CppSnippetProvider::decorateEditor(TextEditor::SnippetEditorWidget *editor) const
 {
     editor->setSyntaxHighlighter(new CppHighlighter);
-    editor->setIndenter(new CppTools::CppQtStyleIndenter);
+    editor->baseTextDocument()->setIndenter(new CppTools::CppQtStyleIndenter);
     editor->setAutoCompleter(new CppAutoCompleter);
 }

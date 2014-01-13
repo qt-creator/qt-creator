@@ -227,7 +227,6 @@ public:
     bool m_markDragging;
 
     QScopedPointer<AutoCompleter> m_autoCompleter;
-    QScopedPointer<Indenter> m_indenter;
 
     QScopedPointer<Internal::ClipboardAssistProvider> m_clipboardAssistProvider;
 };

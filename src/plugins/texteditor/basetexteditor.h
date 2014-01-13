@@ -216,9 +216,6 @@ public:
 
     QRegion translatedLineRegion(int lineStart, int lineEnd) const;
 
-    void setIndenter(Indenter *indenter);
-    Indenter *indenter() const;
-
     void setAutoCompleter(AutoCompleter *autoCompleter);
     AutoCompleter *autoCompleter() const;
 

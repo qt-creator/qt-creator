@@ -93,14 +93,14 @@ void CodeStyleEditor::updatePreview()
 {
     QTextDocument *doc = m_preview->document();
 
-    m_preview->indenter()->invalidateCache(doc);
+    m_preview->baseTextDocument()->indenter()->invalidateCache(doc);
 
     QTextBlock block = doc->firstBlock();
     QTextCursor tc = m_preview->textCursor();
     tc.beginEditBlock();
     while (block.isValid()) {
-        m_preview->indenter()->indentBlock(doc, block, QChar::Null, m_codeStyle->currentTabSettings());
-
+        m_preview->baseTextDocument()->indenter()
+                ->indentBlock(doc, block, QChar::Null, m_codeStyle->currentTabSettings());
         block = block.next();
     }
     tc.endEditBlock();

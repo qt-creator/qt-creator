@@ -32,12 +32,13 @@
 #include "basetextdocumentlayout.h"
 #include "basetexteditor.h"
 #include "convenience.h"
-#include "typingsettings.h"
-#include "storagesettings.h"
-#include "tabsettings.h"
 #include "extraencodingsettings.h"
+#include "indenter.h"
+#include "storagesettings.h"
 #include "syntaxhighlighter.h"
+#include "tabsettings.h"
 #include "texteditorconstants.h"
+#include "typingsettings.h"
 
 #include <QApplication>
 #include <QDir>
@@ -68,6 +69,7 @@ public:
     ExtraEncodingSettings m_extraEncodingSettings;
     QTextDocument *m_document;
     SyntaxHighlighter *m_highlighter;
+    QScopedPointer<Indenter> m_indenter;
 
     bool m_fileIsReadOnly;
     int m_autoSaveRevision;
@@ -76,6 +78,7 @@ public:
 BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
     m_document(new QTextDocument(q)),
     m_highlighter(0),
+    m_indenter(new Indenter),
     m_fileIsReadOnly(false),
     m_autoSaveRevision(-1)
 {
@@ -170,6 +173,22 @@ void BaseTextDocument::setExtraEncodingSettings(const ExtraEncodingSettings &ext
 const ExtraEncodingSettings &BaseTextDocument::extraEncodingSettings() const
 {
     return d->m_extraEncodingSettings;
+}
+
+void BaseTextDocument::setIndenter(Indenter *indenter)
+{
+    // clear out existing code formatter data
+    for (QTextBlock it = document()->begin(); it.isValid(); it = it.next()) {
+        TextEditor::TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(it);
+        if (userData)
+            userData->setCodeFormatterData(0);
+    }
+    d->m_indenter.reset(indenter);
+}
+
+Indenter *BaseTextDocument::indenter() const
+{
+    return d->m_indenter.data();
 }
 
 bool BaseTextDocument::isSaveAsAllowed() const

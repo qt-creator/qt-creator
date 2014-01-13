@@ -514,6 +514,7 @@ Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
 CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     : TextEditor::BaseTextEditorWidget(parent)
 {
+    baseTextDocument()->setIndenter(new CppTools::CppQtStyleIndenter);
     ctor();
 }
 
@@ -539,7 +540,6 @@ void CPPEditorWidget::ctor()
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
-    setIndenter(new CppTools::CppQtStyleIndenter);
     setAutoCompleter(new CppAutoCompleter);
 
     baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);

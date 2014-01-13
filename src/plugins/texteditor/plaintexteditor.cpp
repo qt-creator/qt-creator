@@ -60,6 +60,8 @@ PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
 PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
   : BaseTextEditorWidget(parent)
 {
+    // Currently only "normal" indentation is supported.
+    baseTextDocument()->setIndenter(new NormalIndenter);
     ctor();
 }
 
@@ -81,7 +83,6 @@ void PlainTextEditorWidget::ctor()
     setRevisionsVisible(true);
     setMarksVisible(true);
     setLineSeparatorsAllowed(true);
-    setIndenter(new NormalIndenter); // Currently only "normal" indentation is supported.
 
     baseTextDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 

@@ -41,13 +41,14 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-class ITextMarkable;
-class TypingSettings;
-class StorageSettings;
-class TabSettings;
-class ExtraEncodingSettings;
-class SyntaxHighlighter;
 class BaseTextDocumentPrivate;
+class ExtraEncodingSettings;
+class ITextMarkable;
+class Indenter;
+class StorageSettings;
+class SyntaxHighlighter;
+class TabSettings;
+class TypingSettings;
 
 class TEXTEDITOR_EXPORT BaseTextDocument : public ITextEditorDocument
 {
@@ -71,6 +72,9 @@ public:
     const StorageSettings &storageSettings() const;
     const TabSettings &tabSettings() const;
     const ExtraEncodingSettings &extraEncodingSettings() const;
+
+    void setIndenter(Indenter *indenter);
+    Indenter *indenter() const;
 
     ITextMarkable *markableInterface() const;
 
