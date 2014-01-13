@@ -1,6 +1,12 @@
+QT = core network
 
 win32-msvc* {
     QTC_LIB_DEPENDS += utils
+}
+
+include(../qttest.pri)
+
+win32-msvc* {
     LIBS += -L$$IDE_PLUGIN_PATH/QtProject
     DEFINES += Q_PLUGIN_PATH=\"\\\"$$IDE_PLUGIN_PATH/QtProject\\\"\"
 
@@ -8,10 +14,6 @@ win32-msvc* {
     # replace '\' with '\\'
     DEFINES += CDBEXT_PATH=\"\\\"$$replace(CDBEXT_PATH, \\\\, \\\\)\\\"\"
 }
-
-QT = core network
-
-include(../qttest.pri)
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
 DUMPERDIR   = $$IDE_SOURCE_TREE/share/qtcreator/debugger
