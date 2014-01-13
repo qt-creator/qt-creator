@@ -4262,15 +4262,12 @@ void tst_Dumpers::dumper_data()
                     "unused(&s);\n")
                % Check("s", "", "S")
                % Check("s.b", "false", "bool")
-               % Check("s.c", "false", "bool:1").setForLldbOnly()
-               % Check("s.c", "false", "bool").setForGdbOnly()
+               % Check("s.c", "false", "bool")
                % Check("s.d", "0", "double")
                % Check("s.f", "0", "float")
                % Check("s.i", "0", "int")
-               % Check("s.x", "0", "unsigned int:1").setForLldbOnly()
-               % Check("s.x", "0", "unsigned int").setForGdbOnly()
-               % Check("s.y", "0", "unsigned int:1").setForLldbOnly()
-               % Check("s.y", "0", "unsigned int").setForGdbOnly();
+               % Check("s.x", "0", "unsigned int")
+               % Check("s.y", "0", "unsigned int");
 
 
     QTest::newRow("Function")
