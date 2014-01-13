@@ -30,14 +30,14 @@
 #ifndef ALLPROJECTSFILTER_H
 #define ALLPROJECTSFILTER_H
 
-#include <locator/basefilefilter.h>
+#include <coreplugin/locator/basefilefilter.h>
 
 #include <QFutureInterface>
 
 namespace ProjectExplorer {
 namespace Internal {
 
-class AllProjectsFilter : public Locator::BaseFileFilter
+class AllProjectsFilter : public Core::BaseFileFilter
 {
     Q_OBJECT
 

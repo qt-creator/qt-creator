@@ -32,7 +32,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Find {
+namespace Core {
 class SearchResultWindow;
 }
 
@@ -85,7 +85,7 @@ private:
     TextEditorSettings *m_settings;
     PlainTextEditorFactory *m_editorFactory;
     LineNumberFilter *m_lineNumberFilter;
-    Find::SearchResultWindow *m_searchResultWindow;
+    Core::SearchResultWindow *m_searchResultWindow;
     OutlineFactory *m_outlineFactory;
     BaseTextMarkRegistry *m_baseTextMarkRegistry;
 };

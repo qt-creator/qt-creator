@@ -35,8 +35,11 @@
 #include "mimedatabase.h"
 #include "modemanager.h"
 #include "infobar.h"
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/findplugin.h>
+#include <coreplugin/locator/locatorplugin.h>
 
 #include <utils/savefile.h>
 
@@ -51,10 +54,15 @@ CorePlugin::CorePlugin() : m_editMode(0), m_designMode(0)
 {
     qRegisterMetaType<Core::Id>();
     m_mainWindow = new MainWindow;
+    m_findPlugin = new FindPlugin;
+    m_locatorPlugin = new LocatorPlugin;
 }
 
 CorePlugin::~CorePlugin()
 {
+    delete m_findPlugin;
+    delete m_locatorPlugin;
+
     if (m_editMode) {
         removeObject(m_editMode);
         delete m_editMode;
@@ -98,6 +106,9 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     // Make sure we respect the process's umask when creating new files
     Utils::SaveFile::initializeUmask();
 
+    m_findPlugin->initialize(arguments, errorMessage);
+    m_locatorPlugin->initialize(this, arguments, errorMessage);
+
     return success;
 }
 
@@ -107,11 +118,14 @@ void CorePlugin::extensionsInitialized()
     if (m_designMode->designModeIsRequired())
         addObject(m_designMode);
     m_mainWindow->extensionsInitialized();
+    m_findPlugin->extensionsInitialized();
+    m_locatorPlugin->extensionsInitialized();
 }
 
 bool CorePlugin::delayedInitialize()
 {
     HelpManager::setupHelpManager();
+    m_locatorPlugin->delayedInitialize();
     return true;
 }
 

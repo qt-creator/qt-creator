@@ -43,7 +43,6 @@ typedef QPair<int,int> LineColumn;
 Q_DECLARE_METATYPE(LineColumn)
 
 using namespace Core;
-using namespace Locator;
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
@@ -57,9 +56,9 @@ LineNumberFilter::LineNumberFilter(QObject *parent)
     setIncludedByDefault(true);
 }
 
-QList<FilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &, const QString &entry)
+QList<LocatorFilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &, const QString &entry)
 {
-    QList<FilterEntry> value;
+    QList<LocatorFilterEntry> value;
     QStringList lineAndColumn = entry.split(QLatin1Char(':'));
     int sectionCount = lineAndColumn.size();
     int line = 0;
@@ -82,12 +81,12 @@ QList<FilterEntry> LineNumberFilter::matchesFor(QFutureInterface<Locator::Filter
             text = tr("Line %1").arg(line);
         else
             text = tr("Column %1").arg(column);
-        value.append(FilterEntry(this, text, QVariant::fromValue(data)));
+        value.append(LocatorFilterEntry(this, text, QVariant::fromValue(data)));
     }
     return value;
 }
 
-void LineNumberFilter::accept(FilterEntry selection) const
+void LineNumberFilter::accept(LocatorFilterEntry selection) const
 {
     ITextEditor *editor = currentTextEditor();
     if (editor) {

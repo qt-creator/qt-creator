@@ -49,7 +49,7 @@ QList<QList<CppTools::ModelItemInfo> > CppFunctionsFilter::itemsToMatchUserInput
     return QList<QList<CppTools::ModelItemInfo> >() << m_data->functions();
 }
 
-Locator::FilterEntry CppFunctionsFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
+Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
 {
     const QVariant id = qVariantFromValue(info);
 
@@ -59,7 +59,7 @@ Locator::FilterEntry CppFunctionsFilter::filterEntryFromModelItemInfo(const CppT
     if (extraInfo.isEmpty())
         extraInfo = info.shortNativeFilePath();
 
-    Locator::FilterEntry filterEntry(this, name + info.symbolType, id, info.icon);
+    Core::LocatorFilterEntry filterEntry(this, name + info.symbolType, id, info.icon);
     filterEntry.extraInfo = extraInfo;
 
     return filterEntry;

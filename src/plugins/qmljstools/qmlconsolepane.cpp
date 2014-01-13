@@ -36,7 +36,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <utils/savedaction.h>
 #include <aggregation/aggregate.h>
-#include <find/treeviewfind.h>
+#include <coreplugin/find/treeviewfind.h>
 
 #include <QToolButton>
 #include <QLabel>
@@ -95,7 +95,7 @@ QmlConsolePane::QmlConsolePane(QObject *parent)
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate();
     aggregate->add(m_consoleView);
-    aggregate->add(new Find::TreeViewFind(m_consoleView));
+    aggregate->add(new Core::TreeViewFind(m_consoleView));
 
     vbox->addWidget(m_consoleView);
     vbox->addWidget(new Core::FindToolBarPlaceHolder(m_consoleWidget));

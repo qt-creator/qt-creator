@@ -210,7 +210,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
 void TextEditorPlugin::extensionsInitialized()
 {
-    m_searchResultWindow = Find::SearchResultWindow::instance();
+    m_searchResultWindow = Core::SearchResultWindow::instance();
 
     m_outlineFactory->setWidgetFactories(ExtensionSystem::PluginManager::getObjects<TextEditor::IOutlineWidgetFactory>());
 

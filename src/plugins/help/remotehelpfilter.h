@@ -32,14 +32,14 @@
 
 #include "ui_remotehelpfilter.h"
 
-#include <locator/ilocatorfilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 #include <QIcon>
 
 namespace Help {
     namespace Internal {
 
-class RemoteHelpFilter : public Locator::ILocatorFilter
+class RemoteHelpFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 public:
@@ -47,8 +47,8 @@ public:
     ~RemoteHelpFilter();
 
     // ILocatorFilter
-    QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
-    void accept(Locator::FilterEntry selection) const;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
+    void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);

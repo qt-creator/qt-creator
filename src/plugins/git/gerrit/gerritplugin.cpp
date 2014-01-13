@@ -51,7 +51,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <locator/commandlocator.h>
+#include <coreplugin/locator/commandlocator.h>
 
 #include <vcsbase/vcsbaseoutputwindow.h>
 
@@ -302,7 +302,7 @@ void GerritPlugin::updateActions(bool hasTopLevel)
     m_pushToGerritPair.first->setEnabled(hasTopLevel);
 }
 
-void GerritPlugin::addToLocator(Locator::CommandLocator *locator)
+void GerritPlugin::addToLocator(Core::CommandLocator *locator)
 {
     locator->appendCommand(m_gerritCommand);
     locator->appendCommand(m_pushToGerritPair.second);

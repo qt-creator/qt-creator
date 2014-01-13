@@ -68,7 +68,7 @@ void ClangSymbolSearcher::search(const QLinkedList<Symbol> &allSymbols)
                                  ? Qt::CaseSensitive : Qt::CaseInsensitive));
 
     const int chunkSize = 10;
-    QVector<Find::SearchResultItem> resultItems;
+    QVector<Core::SearchResultItem> resultItems;
     resultItems.reserve(100);
 
     m_future->setProgressRange(0, allSymbols.size() % chunkSize);
@@ -138,7 +138,7 @@ void ClangSymbolSearcher::search(const QLinkedList<Symbol> &allSymbols)
         info.line = s.m_location.line();
         info.column = s.m_location.column() - 1;
 
-        Find::SearchResultItem item;
+        Core::SearchResultItem item;
         item.path << s.m_qualification;
         item.text = s.m_name;
         item.icon = info.icon;

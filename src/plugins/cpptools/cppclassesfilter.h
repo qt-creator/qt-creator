@@ -46,7 +46,7 @@ public:
 
 private:
     QList<QList<CppTools::ModelItemInfo> > itemsToMatchUserInputAgainst() const;
-    Locator::FilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
+    Core::LocatorFilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
 };
 
 } // namespace CppTools

@@ -30,50 +30,50 @@
 #ifndef MACROSPLUGIN_MACROTEXTFIND_H
 #define MACROSPLUGIN_MACROTEXTFIND_H
 
-#include <find/ifindsupport.h>
+#include <coreplugin/find/ifindsupport.h>
 
 #include <QPointer>
 
 namespace Macros {
 namespace Internal {
 
-class MacroTextFind : public Find::IFindSupport
+class MacroTextFind : public Core::IFindSupport
 {
     Q_OBJECT
 
 public:
-    MacroTextFind(Find::IFindSupport *currentFind);
+    MacroTextFind(Core::IFindSupport *currentFind);
 
     bool supportsReplace() const;
-    Find::FindFlags supportedFindFlags() const;
+    Core::FindFlags supportedFindFlags() const;
     void resetIncrementalSearch();
     void clearResults();
     QString currentFindString() const;
     QString completedFindString() const;
 
-    void highlightAll(const QString &txt, Find::FindFlags findFlags);
-    Find::IFindSupport::Result findIncremental(const QString &txt, Find::FindFlags findFlags);
-    Find::IFindSupport::Result findStep(const QString &txt, Find::FindFlags findFlags);
-    void replace(const QString &before, const QString &after, Find::FindFlags findFlags);
-    bool replaceStep(const QString &before, const QString &after, Find::FindFlags findFlags);
-    int replaceAll(const QString &before, const QString &after, Find::FindFlags findFlags);
+    void highlightAll(const QString &txt, Core::FindFlags findFlags);
+    Core::IFindSupport::Result findIncremental(const QString &txt, Core::FindFlags findFlags);
+    Core::IFindSupport::Result findStep(const QString &txt, Core::FindFlags findFlags);
+    void replace(const QString &before, const QString &after, Core::FindFlags findFlags);
+    bool replaceStep(const QString &before, const QString &after, Core::FindFlags findFlags);
+    int replaceAll(const QString &before, const QString &after, Core::FindFlags findFlags);
 
     void defineFindScope();
     void clearFindScope();
 
 signals:
     void incrementalSearchReseted();
-    void incrementalFound(const QString &txt, Find::FindFlags findFlags);
-    void stepFound(const QString &txt, Find::FindFlags findFlags);
+    void incrementalFound(const QString &txt, Core::FindFlags findFlags);
+    void stepFound(const QString &txt, Core::FindFlags findFlags);
     void replaced(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
+        Core::FindFlags findFlags);
     void stepReplaced(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
+        Core::FindFlags findFlags);
     void allReplaced(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
+        Core::FindFlags findFlags);
 
 private:
-    QPointer<Find::IFindSupport> m_currentFind;
+    QPointer<Core::IFindSupport> m_currentFind;
 };
 
 } // namespace Internal

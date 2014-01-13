@@ -47,10 +47,10 @@ CppLocatorFilter::~CppLocatorFilter()
 {
 }
 
-Locator::FilterEntry CppLocatorFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
+Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
 {
     const QVariant id = qVariantFromValue(info);
-    Locator::FilterEntry filterEntry(this, info.scopedSymbolName(), id, info.icon);
+    Core::LocatorFilterEntry filterEntry(this, info.scopedSymbolName(), id, info.icon);
     filterEntry.extraInfo = info.type == ModelItemInfo::Class || info.type == ModelItemInfo::Enum
         ? info.shortNativeFilePath()
         : info.symbolType;
@@ -71,17 +71,17 @@ QList<QList<CppTools::ModelItemInfo> > CppLocatorFilter::itemsToMatchUserInputAg
         << m_data->enums();
 }
 
-static bool compareLexigraphically(const Locator::FilterEntry &a,
-                                   const Locator::FilterEntry &b)
+static bool compareLexigraphically(const Core::LocatorFilterEntry &a,
+                                   const Core::LocatorFilterEntry &b)
 {
     return a.displayName < b.displayName;
 }
 
-QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &origEntry)
+QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &origEntry)
 {
     QString entry = trimWildcards(origEntry);
-    QList<Locator::FilterEntry> goodEntries;
-    QList<Locator::FilterEntry> betterEntries;
+    QList<Core::LocatorFilterEntry> goodEntries;
+    QList<Core::LocatorFilterEntry> betterEntries;
     const QChar asterisk = QLatin1Char('*');
     QStringMatcher matcher(entry, Qt::CaseInsensitive);
     QRegExp regexp(asterisk + entry+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
@@ -99,7 +99,7 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locato
             const QString matchString = hasColonColon ? info.scopedSymbolName() : info.symbolName;
             if ((hasWildcard && regexp.exactMatch(matchString))
                 || (!hasWildcard && matcher.indexIn(matchString) != -1)) {
-                const Locator::FilterEntry filterEntry = filterEntryFromModelItemInfo(info);
+                const Core::LocatorFilterEntry filterEntry = filterEntryFromModelItemInfo(info);
                 if (matchString.startsWith(entry, caseSensitivityForPrefix))
                     betterEntries.append(filterEntry);
                 else
@@ -117,7 +117,7 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Locato
     return betterEntries;
 }
 
-void CppLocatorFilter::accept(Locator::FilterEntry selection) const
+void CppLocatorFilter::accept(Core::LocatorFilterEntry selection) const
 {
     ModelItemInfo info = qvariant_cast<CppTools::ModelItemInfo>(selection.internalData);
     Core::EditorManager::openEditorAt(info.fileName, info.line, info.column);

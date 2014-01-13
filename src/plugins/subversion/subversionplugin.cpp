@@ -59,7 +59,7 @@
 #include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <locator/commandlocator.h>
+#include <coreplugin/locator/commandlocator.h>
 
 #include <utils/qtcassert.h>
 
@@ -267,7 +267,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     addAutoReleasedObject(new CheckoutWizard);
 
     const QString prefix = QLatin1String("svn");
-    m_commandLocator = new Locator::CommandLocator("Subversion", prefix, prefix);
+    m_commandLocator = new Core::CommandLocator("Subversion", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     //register actions

@@ -3,7 +3,7 @@ import "../autotest.qbs" as Autotest
 
 Autotest {
     name: "TreeViewFind autotest"
-    Depends { name: "Find" }
+    Depends { name: "Core" }
     Depends { name: "Qt.widgets" } // For QTextDocument
     files: "tst_treeviewfind.cpp"
 }

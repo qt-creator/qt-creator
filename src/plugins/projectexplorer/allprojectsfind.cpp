@@ -43,7 +43,6 @@
 #include <QGridLayout>
 #include <QLabel>
 
-using namespace Find;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace TextEditor;

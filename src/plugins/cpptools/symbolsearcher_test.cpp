@@ -62,10 +62,10 @@ public:
         return m_symbolName == other.m_symbolName && m_scope == other.m_scope;
     }
 
-    static ResultDataList fromSearchResultList(const QList<Find::SearchResultItem> &entries)
+    static ResultDataList fromSearchResultList(const QList<Core::SearchResultItem> &entries)
     {
         ResultDataList result;
-        foreach (const Find::SearchResultItem &entry, entries)
+        foreach (const Core::SearchResultItem &entry, entries)
             result << ResultData(entry.text, entry.path.join(QLatin1String("::")));
         return result;
     }
@@ -108,7 +108,7 @@ public:
         CppIndexingSupport *indexingSupport = m_modelManager->indexingSupport();
         SymbolSearcher *symbolSearcher = indexingSupport->createSymbolSearcher(searchParameters,
             QSet<QString>() << testFile);
-        QFuture<Find::SearchResultItem> search
+        QFuture<Core::SearchResultItem> search
             = QtConcurrent::run(&SymbolSearcher::runSearch, symbolSearcher);
         search.waitForFinished();
         ResultDataList results = ResultData::fromSearchResultList(search.results());

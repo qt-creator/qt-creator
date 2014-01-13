@@ -42,6 +42,9 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/find/findplugin.h>
+#include <coreplugin/find/textfindconstants.h>
+#include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -67,10 +70,6 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
-
-#include <find/findplugin.h>
-#include <find/textfindconstants.h>
-#include <find/ifindsupport.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -1401,20 +1400,20 @@ void FakeVimPluginPrivate::keepOnlyWindow()
 
 void FakeVimPluginPrivate::find(bool reverse)
 {
-    if (Find::FindPlugin *plugin = Find::FindPlugin::instance()) {
+    if (FindPlugin *plugin = FindPlugin::instance()) {
         plugin->setUseFakeVim(true);
         plugin->openFindToolBar(reverse
-                ? Find::FindPlugin::FindBackwardDirection
-                : Find::FindPlugin::FindForwardDirection);
+                ? FindPlugin::FindBackwardDirection
+                : FindPlugin::FindForwardDirection);
     }
 }
 
 void FakeVimPluginPrivate::findNext(bool reverse)
 {
     if (reverse)
-        triggerAction(Find::Constants::FIND_PREVIOUS);
+        triggerAction(Core::Constants::FIND_PREVIOUS);
     else
-        triggerAction(Find::Constants::FIND_NEXT);
+        triggerAction(Core::Constants::FIND_NEXT);
 }
 
 void FakeVimPluginPrivate::foldToggle(int depth)
@@ -1686,8 +1685,8 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
 {
     //qDebug() << "SET USE FAKEVIM" << value;
     bool on = value.toBool();
-    if (Find::FindPlugin::instance())
-        Find::FindPlugin::instance()->setUseFakeVim(on);
+    if (Core::FindPlugin::instance())
+        Core::FindPlugin::instance()->setUseFakeVim(on);
     setUseFakeVimInternal(on);
 }
 
@@ -1821,10 +1820,10 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             showSettingsDialog();
         } else if (cmd.args == _("ic") || cmd.args == _("ignorecase")) {
             // :set nc
-            setActionChecked(Find::Constants::CASE_SENSITIVE, false);
+            setActionChecked(Core::Constants::CASE_SENSITIVE, false);
         } else if (cmd.args == _("noic") || cmd.args == _("noignorecase")) {
             // :set noic
-            setActionChecked(Find::Constants::CASE_SENSITIVE, true);
+            setActionChecked(Core::Constants::CASE_SENSITIVE, true);
         }
         *handled = false; // Let the handler see it as well.
     } else if (cmd.matches(_("n"), _("next"))) {
@@ -1990,9 +1989,9 @@ void FakeVimPluginPrivate::highlightMatches(const QString &needle)
 {
     foreach (IEditor *editor, EditorManager::visibleEditors()) {
         QWidget *w = editor->widget();
-        Find::IFindSupport *find = Aggregation::query<Find::IFindSupport>(w);
+        Core::IFindSupport *find = Aggregation::query<Core::IFindSupport>(w);
         if (find != 0)
-            find->highlightAll(needle, Find::FindRegularExpression | Find::FindCaseSensitively);
+            find->highlightAll(needle, FindRegularExpression | FindCaseSensitively);
     }
 }
 

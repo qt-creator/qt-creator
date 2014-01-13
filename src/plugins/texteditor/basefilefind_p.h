@@ -30,7 +30,7 @@
 #ifndef BASEFILEFIND_P_H
 #define BASEFILEFIND_P_H
 
-#include <find/ifindfilter.h>
+#include <coreplugin/find/ifindfilter.h>
 
 #include <QVariant>
 #include <QLabel>
@@ -52,7 +52,7 @@ class FileFindParameters
 {
 public:
     QString text;
-    Find::FindFlags flags;
+    Core::FindFlags flags;
     QStringList nameFilters;
     QVariant additionalParameters;
 };

@@ -57,7 +57,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/infobar.h>
 #include <coreplugin/manhattanstyle.h>
-#include <find/basetextfind.h>
+#include <coreplugin/find/basetextfind.h>
 #include <utils/linecolumnlabel.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -104,6 +104,7 @@
     \internal
 */
 
+using namespace Core;
 using namespace Utils;
 
 namespace TextEditor {
@@ -2670,7 +2671,7 @@ void BaseTextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block
         l = m_searchExpr.matchedLength();
         if (l == 0)
             break;
-        if ((m_findFlags & Find::FindWholeWords)
+        if ((m_findFlags & Core::FindWholeWords)
             && ((idx && text.at(idx-1).isLetterOrNumber())
                 || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
             continue;
@@ -4847,19 +4848,19 @@ void BaseTextEditorWidget::markBlocksAsChanged(QList<int> blockNumbers)
 }
 
 
-void BaseTextEditorWidget::highlightSearchResults(const QString &txt, Find::FindFlags findFlags)
+void BaseTextEditorWidget::highlightSearchResults(const QString &txt, Core::FindFlags findFlags)
 {
     QString pattern = txt;
     // highlighting single characters only if you're searching for whole words
-    if (pattern.size() < 2 && !(findFlags & Find::FindWholeWords))
+    if (pattern.size() < 2 && !(findFlags & FindWholeWords))
         pattern.clear();
 
     if (d->m_searchExpr.pattern() == pattern)
         return;
     d->m_searchExpr.setPattern(pattern);
-    d->m_searchExpr.setPatternSyntax((findFlags & Find::FindRegularExpression) ?
+    d->m_searchExpr.setPatternSyntax((findFlags & FindRegularExpression) ?
                                      QRegExp::RegExp : QRegExp::FixedString);
-    d->m_searchExpr.setCaseSensitivity((findFlags & Find::FindCaseSensitively) ?
+    d->m_searchExpr.setCaseSensitivity((findFlags & FindCaseSensitively) ?
                                        Qt::CaseSensitive : Qt::CaseInsensitive);
     d->m_findFlags = findFlags;
 
@@ -6128,11 +6129,10 @@ BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
   : m_editorWidget(editor)
 {
     setWidget(m_editorWidget);
-    using namespace Find;
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(editor);
-    connect(baseTextFind, SIGNAL(highlightAll(QString,Find::FindFlags)),
-            editor, SLOT(highlightSearchResults(QString,Find::FindFlags)));
+    connect(baseTextFind, SIGNAL(highlightAll(QString,Core::FindFlags)),
+            editor, SLOT(highlightSearchResults(QString,Core::FindFlags)));
     connect(baseTextFind, SIGNAL(findScopeChanged(QTextCursor,QTextCursor,int,int)),
             editor, SLOT(setFindScope(QTextCursor,QTextCursor,int,int)));
     aggregate->add(baseTextFind);

@@ -47,7 +47,7 @@ class ClangSymbolSearcher: public CppTools::SymbolSearcher
     Q_OBJECT
 
     typedef CppTools::SymbolSearcher::Parameters Parameters;
-    typedef Find::SearchResultItem SearchResultItem;
+    typedef Core::SearchResultItem SearchResultItem;
 
 public:
     ClangSymbolSearcher(ClangIndexer *indexer, const Parameters &parameters, QSet<QString> fileNames, QObject *parent = 0);

@@ -46,7 +46,7 @@
 #include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <find/basetextfind.h>
+#include <coreplugin/find/basetextfind.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -241,7 +241,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
             this, SLOT(slotRefreshCommitData()), Qt::QueuedConnection);
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
-    aggregate->add(new Find::BaseTextFind(descriptionEdit));
+    aggregate->add(new Core::BaseTextFind(descriptionEdit));
     aggregate->add(this);
 }
 

@@ -30,7 +30,7 @@
 #ifndef CURRENTPROJECTFILTER_H
 #define CURRENTPROJECTFILTER_H
 
-#include <locator/basefilefilter.h>
+#include <coreplugin/locator/basefilefilter.h>
 
 #include <QFutureInterface>
 
@@ -40,7 +40,7 @@ class Project;
 
 namespace Internal {
 
-class CurrentProjectFilter : public Locator::BaseFileFilter
+class CurrentProjectFilter : public Core::BaseFileFilter
 {
     Q_OBJECT
 

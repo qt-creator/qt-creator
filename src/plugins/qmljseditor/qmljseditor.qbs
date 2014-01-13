@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "QmlJSTools" }
     Depends { name: "QmlJS" }
     Depends { name: "LanguageUtils" }
-    Depends { name: "Find" }
     Depends { name: "QmlEditorWidgets" }
     Depends { name: "CPlusPlus" }
 

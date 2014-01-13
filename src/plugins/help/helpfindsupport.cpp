@@ -32,6 +32,7 @@
 
 #include <utils/qtcassert.h>
 
+using namespace Core;
 using namespace Help::Internal;
 
 HelpFindSupport::HelpFindSupport(CentralWidget *centralWidget)
@@ -43,9 +44,9 @@ HelpFindSupport::~HelpFindSupport()
 {
 }
 
-Find::FindFlags HelpFindSupport::supportedFindFlags() const
+Core::FindFlags HelpFindSupport::supportedFindFlags() const
 {
-    return Find::FindBackward | Find::FindCaseSensitively;
+    return FindBackward | FindCaseSensitively;
 }
 
 QString HelpFindSupport::currentFindString() const
@@ -62,20 +63,20 @@ QString HelpFindSupport::completedFindString() const
     return QString();
 }
 
-Find::IFindSupport::Result HelpFindSupport::findIncremental(const QString &txt,
-    Find::FindFlags findFlags)
+Core::IFindSupport::Result HelpFindSupport::findIncremental(const QString &txt,
+    Core::FindFlags findFlags)
 {
-    findFlags &= ~Find::FindBackward;
+    findFlags &= ~FindBackward;
     return find(txt, findFlags, true) ? Found : NotFound;
 }
 
-Find::IFindSupport::Result HelpFindSupport::findStep(const QString &txt,
-    Find::FindFlags findFlags)
+Core::IFindSupport::Result HelpFindSupport::findStep(const QString &txt,
+    Core::FindFlags findFlags)
 {
     return find(txt, findFlags, false) ? Found : NotFound;
 }
 
-bool HelpFindSupport::find(const QString &txt, Find::FindFlags findFlags, bool incremental)
+bool HelpFindSupport::find(const QString &txt, Core::FindFlags findFlags, bool incremental)
 {
     QTC_ASSERT(m_centralWidget, return false);
     bool wrapped = false;
@@ -92,9 +93,9 @@ HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
 {
 }
 
-Find::FindFlags HelpViewerFindSupport::supportedFindFlags() const
+Core::FindFlags HelpViewerFindSupport::supportedFindFlags() const
 {
-    return Find::FindBackward | Find::FindCaseSensitively;
+    return FindBackward | FindCaseSensitively;
 }
 
 QString HelpViewerFindSupport::currentFindString() const
@@ -103,23 +104,23 @@ QString HelpViewerFindSupport::currentFindString() const
     return m_viewer->selectedText();
 }
 
-Find::IFindSupport::Result HelpViewerFindSupport::findIncremental(const QString &txt,
-    Find::FindFlags findFlags)
+Core::IFindSupport::Result HelpViewerFindSupport::findIncremental(const QString &txt,
+    Core::FindFlags findFlags)
 {
     QTC_ASSERT(m_viewer, return NotFound);
-    findFlags &= ~Find::FindBackward;
+    findFlags &= ~FindBackward;
     return find(txt, findFlags, true) ? Found : NotFound;
 }
 
-Find::IFindSupport::Result HelpViewerFindSupport::findStep(const QString &txt,
-    Find::FindFlags findFlags)
+Core::IFindSupport::Result HelpViewerFindSupport::findStep(const QString &txt,
+    Core::FindFlags findFlags)
 {
     QTC_ASSERT(m_viewer, return NotFound);
     return find(txt, findFlags, false) ? Found : NotFound;
 }
 
 bool HelpViewerFindSupport::find(const QString &txt,
-    Find::FindFlags findFlags, bool incremental)
+    Core::FindFlags findFlags, bool incremental)
 {
     QTC_ASSERT(m_viewer, return false);
     bool wrapped = false;

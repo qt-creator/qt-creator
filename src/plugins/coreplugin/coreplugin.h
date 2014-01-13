@@ -33,11 +33,15 @@
 #include <extensionsystem/iplugin.h>
 
 namespace Core {
+
 class DesignMode;
+class FindPlugin;
+
 namespace Internal {
 
 class EditMode;
 class MainWindow;
+class LocatorPlugin;
 
 class CorePlugin : public ExtensionSystem::IPlugin
 {
@@ -69,6 +73,8 @@ private:
     MainWindow *m_mainWindow;
     EditMode *m_editMode;
     DesignMode *m_designMode;
+    FindPlugin *m_findPlugin;
+    LocatorPlugin *m_locatorPlugin;
 };
 
 } // namespace Internal

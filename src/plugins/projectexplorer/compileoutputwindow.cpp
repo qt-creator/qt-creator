@@ -36,7 +36,7 @@
 #include "taskhub.h"
 
 #include <coreplugin/outputwindow.h>
-#include <find/basetextfind.h>
+#include <coreplugin/find/basetextfind.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
@@ -127,7 +127,7 @@ CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/, QAction *cancelB
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_outputWindow);
-    agg->add(new Find::BaseTextFind(m_outputWindow));
+    agg->add(new Core::BaseTextFind(m_outputWindow));
 
     qRegisterMetaType<QTextCharFormat>("QTextCharFormat");
 

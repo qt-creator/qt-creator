@@ -1,4 +1,5 @@
 import qbs.base 1.0
+import qbs.FileInfo
 import QtcPlugin
 
 QtcPlugin {
@@ -183,6 +184,92 @@ QtcPlugin {
         files: [
             "testdatadir.cpp",
             "testdatadir.h",
+            "locator/locatorfiltertest.cpp",
+            "locator/locatorfiltertest.h",
+            "locator/locator_test.cpp"
+        ]
+
+        cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
+    }
+
+    Group {
+        name: "Find"
+        prefix: "find/"
+        files: [
+            "basetextfind.cpp",
+            "basetextfind.h",
+            "currentdocumentfind.cpp",
+            "currentdocumentfind.h",
+            "find.qrc",
+            "finddialog.ui",
+            "findplugin.cpp",
+            "findplugin.h",
+            "findtoolbar.cpp",
+            "findtoolbar.h",
+            "findtoolwindow.cpp",
+            "findtoolwindow.h",
+            "findwidget.ui",
+            "ifindfilter.cpp",
+            "ifindfilter.h",
+            "ifindsupport.cpp",
+            "ifindsupport.h",
+            "searchresultcolor.h",
+            "searchresulttreeitemdelegate.cpp",
+            "searchresulttreeitemdelegate.h",
+            "searchresulttreeitemroles.h",
+            "searchresulttreeitems.cpp",
+            "searchresulttreeitems.h",
+            "searchresulttreemodel.cpp",
+            "searchresulttreemodel.h",
+            "searchresulttreeview.cpp",
+            "searchresulttreeview.h",
+            "searchresultwidget.cpp",
+            "searchresultwidget.h",
+            "searchresultwindow.cpp",
+            "searchresultwindow.h",
+            "textfindconstants.h",
+            "treeviewfind.cpp",
+            "treeviewfind.h",
+        ]
+    }
+
+    Group {
+        name: "Locator"
+        prefix: "locator/"
+        files: [
+            "basefilefilter.cpp",
+            "basefilefilter.h",
+            "commandlocator.cpp",
+            "commandlocator.h",
+            "directoryfilter.cpp",
+            "directoryfilter.h",
+            "directoryfilter.ui",
+            "executefilter.cpp",
+            "executefilter.h",
+            "filesystemfilter.cpp",
+            "filesystemfilter.h",
+            "filesystemfilter.ui",
+            "ilocatorfilter.cpp",
+            "ilocatorfilter.h",
+            "locator.qrc",
+            "locatorconstants.h",
+            "locatorfiltersfilter.cpp",
+            "locatorfiltersfilter.h",
+            "locatormanager.cpp",
+            "locatormanager.h",
+            "locatorplugin.cpp",
+            "locatorplugin.h",
+            "locatorsearchutils.cpp",
+            "locatorsearchutils.h",
+            "locatorwidget.cpp",
+            "locatorwidget.h",
+            "opendocumentsfilter.cpp",
+            "opendocumentsfilter.h",
+            "settingspage.cpp",
+            "settingspage.h",
+            "settingspage.ui",
+            "images/locator.png",
+            "images/reload.png",
         ]
     }
 

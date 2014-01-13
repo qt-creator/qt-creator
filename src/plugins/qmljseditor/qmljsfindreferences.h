@@ -40,10 +40,10 @@
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
-namespace Find {
+namespace Core {
 class SearchResultItem;
 class SearchResult;
-} // namespace Find
+} // namespace Core
 
 namespace QmlJSEditor {
 
@@ -85,11 +85,11 @@ private Q_SLOTS:
     void searchFinished();
     void cancel();
     void setPaused(bool paused);
-    void openEditor(const Find::SearchResultItem &item);
-    void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items, bool preserveCase);
+    void openEditor(const Core::SearchResultItem &item);
+    void onReplaceButtonClicked(const QString &text, const QList<Core::SearchResultItem> &items, bool preserveCase);
 
 private:
-    QPointer<Find::SearchResult> m_currentSearch;
+    QPointer<Core::SearchResult> m_currentSearch;
     QFutureWatcher<Usage> m_watcher;
 };
 

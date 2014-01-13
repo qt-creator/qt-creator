@@ -11,8 +11,6 @@ QtcPlugin {
     Depends { name: "CppTools" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "Find" }
-    Depends { name: "Locator" }
     Depends { name: "QtSupport" }
 
     files: [

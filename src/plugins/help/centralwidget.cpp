@@ -152,7 +152,7 @@ void CentralWidget::setCurrentPage(HelpViewer *page)
     m_stackedWidget->setCurrentWidget(page);
 }
 
-bool CentralWidget::find(const QString &txt, Find::FindFlags flags,
+bool CentralWidget::find(const QString &txt, Core::FindFlags flags,
     bool incremental, bool *wrapped)
 {
     return currentHelpViewer()->findText(txt, flags, incremental, false, wrapped);

@@ -49,7 +49,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <locator/commandlocator.h>
+#include <coreplugin/locator/commandlocator.h>
 
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
@@ -152,7 +152,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     addAutoReleasedObject(new CloneWizard);
 
     const QString prefix = QLatin1String("hg");
-    m_commandLocator = new Locator::CommandLocator("Mercurial", prefix, prefix);
+    m_commandLocator = new Core::CommandLocator("Mercurial", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     createMenu();

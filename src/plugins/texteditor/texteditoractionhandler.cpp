@@ -35,7 +35,7 @@
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 
-#include <locator/locatormanager.h>
+#include <coreplugin/locator/locatormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -425,7 +425,7 @@ void TextEditorActionHandler::gotoAction()
     locatorString += QLatin1Char(' ');
     const int selectionStart = locatorString.size();
     locatorString += tr("<line>:<column>");
-    Locator::LocatorManager::show(locatorString, selectionStart, locatorString.size() - selectionStart);
+    Core::LocatorManager::show(locatorString, selectionStart, locatorString.size() - selectionStart);
 }
 
 void TextEditorActionHandler::printAction()

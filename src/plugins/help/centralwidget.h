@@ -30,7 +30,7 @@
 #ifndef CENTRALWIDGET_H
 #define CENTRALWIDGET_H
 
-#include <find/ifindsupport.h>
+#include <coreplugin/find/ifindsupport.h>
 
 #include <QWidget>
 
@@ -68,7 +68,7 @@ public:
     int currentIndex() const;
     void setCurrentPage(HelpViewer *page);
 
-    bool find(const QString &txt, Find::FindFlags findFlags,
+    bool find(const QString &txt, Core::FindFlags findFlags,
         bool incremental, bool *wrapped = 0);
 
 public slots:

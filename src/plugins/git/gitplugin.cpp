@@ -71,7 +71,7 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/cleandialog.h>
-#include <locator/commandlocator.h>
+#include <coreplugin/locator/commandlocator.h>
 
 #include <QDebug>
 #include <QDir>
@@ -298,7 +298,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new Gitorious::Internal::GitoriousCloneWizard);
 
     const QString prefix = QLatin1String("git");
-    m_commandLocator = new Locator::CommandLocator("Git", prefix, prefix);
+    m_commandLocator = new Core::CommandLocator("Git", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     //register actions

@@ -42,6 +42,7 @@ QT_END_NAMESPACE
 namespace Core {
 class ActionManager;
 class ActionContainer;
+class CommandLocator;
 class Id;
 class IVersionControl;
 class IEditorFactory;
@@ -54,10 +55,6 @@ class ParameterAction;
 
 namespace VcsBase {
 class VcsBaseSubmitEditor;
-}
-
-namespace Locator {
-class CommandLocator;
 }
 
 namespace Bazaar {
@@ -132,7 +129,7 @@ private:
     OptionsPage *m_optionsPage;
     BazaarClient *m_client;
 
-    Locator::CommandLocator *m_commandLocator;
+    Core::CommandLocator *m_commandLocator;
     Core::ActionContainer *m_bazaarContainer;
 
     QList<QAction *> m_repositoryActionList;

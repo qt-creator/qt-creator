@@ -41,10 +41,10 @@
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
-namespace Find {
+namespace Core {
 class SearchResultItem;
 class SearchResult;
-} // namespace Find
+} // namespace Core
 
 namespace CppTools {
 class CppModelManagerInterface;
@@ -86,8 +86,8 @@ private slots:
     void searchFinished();
     void cancel();
     void setPaused(bool paused);
-    void openEditor(const Find::SearchResultItem &item);
-    void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items, bool preserveCase);
+    void openEditor(const Core::SearchResultItem &item);
+    void onReplaceButtonClicked(const QString &text, const QList<Core::SearchResultItem> &items, bool preserveCase);
     void searchAgain();
 
 private:
@@ -95,17 +95,17 @@ private:
                     const QString &replacement, bool replace);
     void findMacroUses(const CPlusPlus::Macro &macro, const QString &replacement,
                        bool replace);
-    void findAll_helper(Find::SearchResult *search, CPlusPlus::Symbol *symbol,
+    void findAll_helper(Core::SearchResult *search, CPlusPlus::Symbol *symbol,
                         const CPlusPlus::LookupContext &context);
     CPlusPlus::DependencyTable dependencyTable() const;
     void setDependencyTable(const CPlusPlus::DependencyTable &newTable);
-    void createWatcher(const QFuture<CPlusPlus::Usage> &future, Find::SearchResult *search);
+    void createWatcher(const QFuture<CPlusPlus::Usage> &future, Core::SearchResult *search);
     CPlusPlus::Symbol *findSymbol(const CppFindReferencesParameters &parameters,
                     const CPlusPlus::Snapshot &snapshot, CPlusPlus::LookupContext *context);
 
 private:
     QPointer<CppModelManagerInterface> m_modelManager;
-    QMap<QFutureWatcher<CPlusPlus::Usage> *, QPointer<Find::SearchResult> > m_watchers;
+    QMap<QFutureWatcher<CPlusPlus::Usage> *, QPointer<Core::SearchResult> > m_watchers;
 
     mutable QMutex m_depsLock;
     CPlusPlus::DependencyTable m_deps;

@@ -42,9 +42,8 @@ QT_END_NAMESPACE
 namespace Core {
 class ActionContainer;
 class Command;
+class CommandLocator;
 }
-
-namespace Locator { class CommandLocator; }
 
 namespace Gerrit {
 namespace Internal {
@@ -66,7 +65,7 @@ public:
 
     static QString gitBinary();
     static QString branch(const QString &repository);
-    void addToLocator(Locator::CommandLocator *locator);
+    void addToLocator(Core::CommandLocator *locator);
     void push(const QString &topLevel);
 
 public slots:

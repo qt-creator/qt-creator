@@ -65,7 +65,7 @@
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
 #include <extensionsystem/pluginmanager.h>
-#include <find/findplugin.h>
+#include <coreplugin/find/findplugin.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
@@ -1227,8 +1227,8 @@ void HelpPlugin::slotReportBug()
 
 void HelpPlugin::openFindToolBar()
 {
-    if (Find::FindPlugin::instance())
-        Find::FindPlugin::instance()->openFindToolBar(Find::FindPlugin::FindForwardDirection);
+    if (FindPlugin::instance())
+        FindPlugin::instance()->openFindToolBar(FindPlugin::FindForwardDirection);
 }
 
 void  HelpPlugin::onSideBarVisibilityChanged()

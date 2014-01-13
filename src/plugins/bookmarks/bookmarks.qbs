@@ -9,8 +9,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
-    Depends { name: "Find" }
-    Depends { name: "Locator" }
 
     files: [
         "bookmark.cpp",

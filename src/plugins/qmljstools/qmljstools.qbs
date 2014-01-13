@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "QmlJS" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
-    Depends { name: "Locator" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
 

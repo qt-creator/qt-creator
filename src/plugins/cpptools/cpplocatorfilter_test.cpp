@@ -39,7 +39,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/testdatadir.h>
 #include <extensionsystem/pluginmanager.h>
-#include <locator/locatorfiltertest.h>
+#include <coreplugin/locator/locatorfiltertest.h>
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -50,8 +50,6 @@ using namespace Core;
 using namespace Core::Tests;
 using namespace CppTools::Internal;
 using namespace ExtensionSystem;
-using namespace Locator;
-using namespace Locator::Tests;
 using namespace Utils;
 
 Q_DECLARE_METATYPE(ILocatorFilter *)

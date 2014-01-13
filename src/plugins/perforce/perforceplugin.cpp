@@ -48,7 +48,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
-#include <locator/commandlocator.h>
+#include <coreplugin/locator/commandlocator.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
@@ -226,7 +226,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
         addAutoReleasedObject(new PerforceEditorFactory(editorParameters + i, this, describeSlot));
 
     const QString prefix = QLatin1String("p4");
-    m_commandLocator = new Locator::CommandLocator("Perforce", prefix, prefix);
+    m_commandLocator = new Core::CommandLocator("Perforce", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     Core::ActionContainer *mtools =

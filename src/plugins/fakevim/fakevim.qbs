@@ -7,7 +7,6 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
-    Depends { name: "Find" }
     Depends { name: "Qt.widgets" }
 
     files: [

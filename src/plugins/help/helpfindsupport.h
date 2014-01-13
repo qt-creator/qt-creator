@@ -32,14 +32,14 @@
 
 #include "centralwidget.h"
 
-#include <find/ifindsupport.h>
+#include <coreplugin/find/ifindsupport.h>
 
 namespace Help {
 namespace Internal {
 
 class HelpViewer;
 
-class HelpFindSupport : public Find::IFindSupport
+class HelpFindSupport : public Core::IFindSupport
 {
     Q_OBJECT
 
@@ -48,40 +48,40 @@ public:
     ~HelpFindSupport();
 
     bool supportsReplace() const { return false; }
-    Find::FindFlags supportedFindFlags() const;
+    Core::FindFlags supportedFindFlags() const;
 
     void resetIncrementalSearch() {}
     void clearResults() {}
     QString currentFindString() const;
     QString completedFindString() const;
 
-    Result findIncremental(const QString &txt, Find::FindFlags findFlags);
-    Result findStep(const QString &txt, Find::FindFlags findFlags);
+    Result findIncremental(const QString &txt, Core::FindFlags findFlags);
+    Result findStep(const QString &txt, Core::FindFlags findFlags);
 
 private:
-    bool find(const QString &ttf, Find::FindFlags findFlags, bool incremental);
+    bool find(const QString &ttf, Core::FindFlags findFlags, bool incremental);
 
     CentralWidget *m_centralWidget;
 };
 
-class HelpViewerFindSupport : public Find::IFindSupport
+class HelpViewerFindSupport : public Core::IFindSupport
 {
     Q_OBJECT
 public:
     HelpViewerFindSupport(HelpViewer *viewer);
 
     bool supportsReplace() const { return false; }
-    Find::FindFlags supportedFindFlags() const;
+    Core::FindFlags supportedFindFlags() const;
     void resetIncrementalSearch() {}
     void clearResults() {}
     QString currentFindString() const;
     QString completedFindString() const { return QString(); }
 
-    Result findIncremental(const QString &txt, Find::FindFlags findFlags);
-    Result findStep(const QString &txt, Find::FindFlags findFlags);
+    Result findIncremental(const QString &txt, Core::FindFlags findFlags);
+    Result findStep(const QString &txt, Core::FindFlags findFlags);
 
 private:
-    bool find(const QString &ttf, Find::FindFlags findFlags, bool incremental);
+    bool find(const QString &ttf, Core::FindFlags findFlags, bool incremental);
     HelpViewer *m_viewer;
 };
 

@@ -7,8 +7,6 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script", "printsupport"] }
     Depends { name: "Core" }
-    Depends { name: "Find" }
-    Depends { name: "Locator" }
 
     cpp.includePaths: base.concat([path]) // Needed for the highlighterengine autotest.
 
@@ -266,10 +264,5 @@ QtcPlugin {
             "snippetssettingspage.h",
             "snippetssettingspage.ui",
         ]
-    }
-
-    Export {
-        Depends { name: "Find" }
-        Depends { name: "Locator" }
     }
 }

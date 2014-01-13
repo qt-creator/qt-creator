@@ -30,7 +30,7 @@
 #ifndef LINENUMBERFILTER_H
 #define LINENUMBERFILTER_H
 
-#include <locator/ilocatorfilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 #include <QString>
 #include <QList>
@@ -42,15 +42,15 @@ class ITextEditor;
 
 namespace Internal {
 
-class LineNumberFilter : public Locator::ILocatorFilter
+class LineNumberFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 
 public:
     explicit LineNumberFilter(QObject *parent = 0);
 
-    QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
-    void accept(Locator::FilterEntry selection) const;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
+    void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &) {}
 
 private:

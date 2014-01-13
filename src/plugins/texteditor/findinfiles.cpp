@@ -30,7 +30,7 @@
 #include "findinfiles.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <find/findplugin.h>
+#include <coreplugin/find/findplugin.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -44,7 +44,7 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 
-using namespace Find;
+using namespace Core;
 using namespace TextEditor;
 
 static FindInFiles *m_instance = 0;
@@ -72,7 +72,7 @@ QString FindInFiles::displayName() const
     return tr("Files on File System");
 }
 
-void FindInFiles::findAll(const QString &txt, Find::FindFlags findFlags)
+void FindInFiles::findAll(const QString &txt, Core::FindFlags findFlags)
 {
     updateComboEntries(m_directory, true);
     BaseFileFind::findAll(txt, findFlags);
@@ -195,5 +195,5 @@ void FindInFiles::findOnFileSystem(const QString &path)
     const QFileInfo fi(path);
     const QString folder = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
     m_instance->setDirectory(folder);
-    Find::FindPlugin::instance()->openFindDialog(m_instance);
+    FindPlugin::instance()->openFindDialog(m_instance);
 }

@@ -30,14 +30,14 @@
 #ifndef HELPINDEXFILTER_H
 #define HELPINDEXFILTER_H
 
-#include <locator/ilocatorfilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 #include <QIcon>
 
 namespace Help {
 namespace Internal {
 
-class HelpIndexFilter : public Locator::ILocatorFilter
+class HelpIndexFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 
@@ -46,8 +46,8 @@ public:
     ~HelpIndexFilter();
 
     // ILocatorFilter
-    QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
-    void accept(Locator::FilterEntry selection) const;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
+    void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 signals:

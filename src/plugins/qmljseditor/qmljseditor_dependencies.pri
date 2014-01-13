@@ -4,7 +4,6 @@ QTC_LIB_DEPENDS += \
     qmleditorwidgets
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
-    find \
     texteditor \
     projectexplorer \
     qmljstools

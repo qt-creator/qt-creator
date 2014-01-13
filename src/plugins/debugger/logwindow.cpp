@@ -48,7 +48,7 @@
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/minisplitter.h>
-#include <find/basetextfind.h>
+#include <coreplugin/find/basetextfind.h>
 
 #include <utils/savedaction.h>
 #include <utils/fancylineedit.h>
@@ -408,11 +408,11 @@ LogWindow::LogWindow(QWidget *parent)
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     aggregate->add(m_combinedText);
-    aggregate->add(new Find::BaseTextFind(m_combinedText));
+    aggregate->add(new Core::BaseTextFind(m_combinedText));
 
     aggregate = new Aggregation::Aggregate;
     aggregate->add(m_inputText);
-    aggregate->add(new Find::BaseTextFind(m_inputText));
+    aggregate->add(new Core::BaseTextFind(m_inputText));
 
     connect(m_inputText, SIGNAL(statusMessageRequested(QString,int)),
         SIGNAL(statusMessageRequested(QString,int)));

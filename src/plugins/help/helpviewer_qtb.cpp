@@ -45,7 +45,6 @@
 
 #include <QHelpEngine>
 
-using namespace Find;
 using namespace Help;
 using namespace Help::Internal;
 
@@ -194,7 +193,7 @@ bool HelpViewer::isBackwardAvailable() const
     return QTextBrowser::isBackwardAvailable();
 }
 
-bool HelpViewer::findText(const QString &text, Find::FindFlags flags,
+bool HelpViewer::findText(const QString &text, Core::FindFlags flags,
     bool incremental, bool fromSearch, bool *wrapped)
 {
     if (wrapped)
@@ -208,10 +207,10 @@ bool HelpViewer::findText(const QString &text, Find::FindFlags flags,
     if (incremental)
         cursor.setPosition(position);
 
-    QTextDocument::FindFlags f = Find::textDocumentFlagsForFindFlags(flags);
+    QTextDocument::FindFlags f = Core::textDocumentFlagsForFindFlags(flags);
     QTextCursor found = doc->find(text, cursor, f);
     if (found.isNull()) {
-        if ((flags & Find::FindBackward) == 0)
+        if ((flags & Core::FindBackward) == 0)
             cursor.movePosition(QTextCursor::Start);
         else
             cursor.movePosition(QTextCursor::End);

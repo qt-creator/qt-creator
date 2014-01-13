@@ -5,8 +5,6 @@ QTC_LIB_DEPENDS += \
     qmljs
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
-    find \
-    locator \
     projectexplorer \
     qtsupport \
     texteditor \

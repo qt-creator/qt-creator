@@ -50,7 +50,7 @@ public:
 
     QString id() const;
     QString displayName() const;
-    void findAll(const QString &txt, Find::FindFlags findFlags);
+    void findAll(const QString &txt, Core::FindFlags findFlags);
     QWidget *createConfigWidget();
     void writeSettings(QSettings *settings);
     void readSettings(QSettings *settings);

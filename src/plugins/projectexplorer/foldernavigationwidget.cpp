@@ -38,8 +38,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileutils.h>
+#include <coreplugin/find/findplugin.h>
 
-#include <find/findplugin.h>
 #include <texteditor/findinfiles.h>
 
 #include <utils/hostosinfo.h>

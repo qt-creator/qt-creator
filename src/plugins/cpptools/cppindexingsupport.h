@@ -34,8 +34,8 @@
 
 #include "cppmodelmanagerinterface.h"
 
-#include <find/searchresultwindow.h>
-#include <find/textfindconstants.h>
+#include <coreplugin/find/searchresultwindow.h>
+#include <coreplugin/find/textfindconstants.h>
 
 #include <QFuture>
 #include <QStringList>
@@ -64,7 +64,7 @@ public:
     struct Parameters
     {
         QString text;
-        Find::FindFlags flags;
+        Core::FindFlags flags;
         SymbolTypes types;
         SearchScope scope;
     };
@@ -73,7 +73,7 @@ public:
 public:
     SymbolSearcher(QObject *parent = 0);
     virtual ~SymbolSearcher() = 0;
-    virtual void runSearch(QFutureInterface<Find::SearchResultItem> &future) = 0;
+    virtual void runSearch(QFutureInterface<Core::SearchResultItem> &future) = 0;
 };
 
 

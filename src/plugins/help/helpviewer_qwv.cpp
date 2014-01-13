@@ -58,7 +58,7 @@
 
 #include <cstring>
 
-using namespace Find;
+using namespace Core;
 using namespace Help;
 using namespace Help::Internal;
 
@@ -412,7 +412,7 @@ bool HelpViewer::isBackwardAvailable() const
     return pageAction(QWebPage::Back)->isEnabled();
 }
 
-bool HelpViewer::findText(const QString &text, Find::FindFlags flags,
+bool HelpViewer::findText(const QString &text, Core::FindFlags flags,
     bool incremental, bool fromSearch, bool *wrapped)
 {
     Q_UNUSED(incremental);
@@ -420,9 +420,9 @@ bool HelpViewer::findText(const QString &text, Find::FindFlags flags,
     if (wrapped)
         *wrapped = false;
     QWebPage::FindFlags options;
-    if (flags & Find::FindBackward)
+    if (flags & Core::FindBackward)
         options |= QWebPage::FindBackward;
-    if (flags & Find::FindCaseSensitively)
+    if (flags & Core::FindCaseSensitively)
         options |= QWebPage::FindCaseSensitively;
 
     bool found = QWebView::findText(text, options);

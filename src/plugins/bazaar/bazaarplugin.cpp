@@ -48,8 +48,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-
-#include <locator/commandlocator.h>
+#include <coreplugin/locator/commandlocator.h>
 
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
@@ -149,7 +148,7 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     addAutoReleasedObject(new CloneWizard);
 
     const QString prefix = QLatin1String("bzr");
-    m_commandLocator = new Locator::CommandLocator("Bazaar", prefix, prefix);
+    m_commandLocator = new Core::CommandLocator("Bazaar", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     createMenu();

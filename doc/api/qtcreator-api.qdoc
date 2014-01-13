@@ -209,13 +209,13 @@
     \row
     \li Add a find filter to the \gui Find dialog.
     \li Implement any kind of search term based search.
-    \li \l{Find::IFindFilter}, \l{Find::SearchResultWindow}
+    \li \l{Find::IFindFilter}, \l{Core::SearchResultWindow}
 
     \row
     \li Add support for the find tool bar to a widget.
     \li The widget that has focus is asked whether it supports text search. You can
         add support for widgets under your control.
-    \li \l{Find::IFindSupport}, \l{Find::BaseTextFind}
+    \li \l{Core::IFindSupport}, \l{Find::BaseTextFind}
 
     \row
     \li Add a completely new project type.
@@ -231,7 +231,7 @@
     \li Add a new filter to the locator.
     \li For a text typed in by the user you provide a list of things to show in the popup.
         When the user selects an entry you are requested to do whatever you want.
-    \li \l{Locator::ILocatorFilter}, \l{Locator::FilterEntry}, \l{Locator::BaseFileFilter}
+    \li \l{Core::ILocatorFilter}, \l{Core::LocatorFilterEntry}, \l{Locator::BaseFileFilter}
 
     \row
     \li Show a progress indicator for a concurrently running task.

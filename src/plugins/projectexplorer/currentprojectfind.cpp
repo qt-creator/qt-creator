@@ -39,7 +39,6 @@
 #include <QDebug>
 #include <QSettings>
 
-using namespace Find;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
@@ -103,7 +102,7 @@ void CurrentProjectFind::handleProjectChanged()
 
 void CurrentProjectFind::recheckEnabled()
 {
-    SearchResult *search = qobject_cast<SearchResult *>(sender());
+    Core::SearchResult *search = qobject_cast<Core::SearchResult *>(sender());
     if (!search)
         return;
     QString projectFile = getAdditionalParameters(search).toString();

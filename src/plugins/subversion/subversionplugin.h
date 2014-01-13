@@ -42,6 +42,7 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Core {
+    class CommandLocator;
     class IVersionControl;
     class IEditor;
 }
@@ -51,10 +52,6 @@ namespace Utils {
 
 namespace VcsBase {
     class VcsBaseSubmitEditor;
-}
-
-namespace Locator {
-    class CommandLocator;
 }
 
 namespace Subversion {
@@ -170,7 +167,7 @@ private:
     QString m_commitMessageFileName;
     QString m_commitRepository;
 
-    Locator::CommandLocator *m_commandLocator;
+    Core::CommandLocator *m_commandLocator;
     Utils::ParameterAction *m_addAction;
     Utils::ParameterAction *m_deleteAction;
     Utils::ParameterAction *m_revertAction;

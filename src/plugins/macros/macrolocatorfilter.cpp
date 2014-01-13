@@ -52,11 +52,11 @@ MacroLocatorFilter::~MacroLocatorFilter()
 {
 }
 
-QList<Locator::FilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
+QList<Core::LocatorFilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
     Q_UNUSED(future)
-    QList<Locator::FilterEntry> goodEntries;
-    QList<Locator::FilterEntry> betterEntries;
+    QList<Core::LocatorFilterEntry> goodEntries;
+    QList<Core::LocatorFilterEntry> betterEntries;
 
     const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entry);
 
@@ -67,7 +67,7 @@ QList<Locator::FilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Loca
         it.next();
         QString name = it.key();
 
-        QList<Locator::FilterEntry> *category = 0;
+        QList<Core::LocatorFilterEntry> *category = 0;
         if (name.startsWith(entry, caseSensitivity_))
             category = &betterEntries;
         else if (name.contains(entry, caseSensitivity_))
@@ -75,7 +75,7 @@ QList<Locator::FilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Loca
 
         if (category) {
             QVariant id;
-            Locator::FilterEntry entry(this, it.key(), id, m_icon);
+            Core::LocatorFilterEntry entry(this, it.key(), id, m_icon);
             entry.extraInfo = it.value()->description();
             category->append(entry);
         }
@@ -84,7 +84,7 @@ QList<Locator::FilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<Loca
     return betterEntries;
 }
 
-void MacroLocatorFilter::accept(Locator::FilterEntry selection) const
+void MacroLocatorFilter::accept(Core::LocatorFilterEntry selection) const
 {
     // Give the focus back to the editor
     Core::IEditor *editor = Core::EditorManager::currentEditor();

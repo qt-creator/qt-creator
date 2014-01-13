@@ -1934,10 +1934,10 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     }
 
     // find a include file through the locator
-    QFutureInterface<Locator::FilterEntry> dummyInterface;
-    QList<Locator::FilterEntry> matches = classesFilter->matchesFor(dummyInterface, className);
+    QFutureInterface<Core::LocatorFilterEntry> dummyInterface;
+    QList<Core::LocatorFilterEntry> matches = classesFilter->matchesFor(dummyInterface, className);
     bool classExists = false;
-    foreach (const Locator::FilterEntry &entry, matches) {
+    foreach (const Core::LocatorFilterEntry &entry, matches) {
         const ModelItemInfo info = entry.internalData.value<ModelItemInfo>();
         if (info.symbolName != className)
             continue;

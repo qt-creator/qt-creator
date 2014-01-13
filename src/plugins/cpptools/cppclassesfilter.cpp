@@ -50,10 +50,10 @@ QList<QList<CppTools::ModelItemInfo> > CppClassesFilter::itemsToMatchUserInputAg
     return QList<QList<CppTools::ModelItemInfo> >() << m_data->classes();
 }
 
-Locator::FilterEntry CppClassesFilter::filterEntryFromModelItemInfo(const ModelItemInfo &info)
+Core::LocatorFilterEntry CppClassesFilter::filterEntryFromModelItemInfo(const ModelItemInfo &info)
 {
     const QVariant id = qVariantFromValue(info);
-    Locator::FilterEntry filterEntry(this, info.symbolName, id, info.icon);
+    Core::LocatorFilterEntry filterEntry(this, info.symbolName, id, info.icon);
     filterEntry.extraInfo = info.symbolScope.isEmpty()
         ? info.shortNativeFilePath()
         : info.symbolScope;

@@ -41,7 +41,6 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
-#include <locator/commandlocator.h>
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
@@ -56,6 +55,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/id.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/stringutils.h>
 #include <utils/fileutils.h>
@@ -251,7 +251,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new CheckoutWizard);
 
     const QString prefix = QLatin1String("cvs");
-    m_commandLocator = new Locator::CommandLocator("CVS", prefix, prefix);
+    m_commandLocator = new Core::CommandLocator("CVS", prefix, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     // Register actions

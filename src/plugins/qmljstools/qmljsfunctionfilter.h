@@ -30,14 +30,14 @@
 #ifndef QMLJSFUNCTIONFILTER_H
 #define QMLJSFUNCTIONFILTER_H
 
-#include <locator/ilocatorfilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 namespace QmlJSTools {
 namespace Internal {
 
 class LocatorData;
 
-class FunctionFilter : public Locator::ILocatorFilter
+class FunctionFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 
@@ -45,8 +45,8 @@ public:
     explicit FunctionFilter(LocatorData *data, QObject *parent = 0);
     ~FunctionFilter();
 
-    QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
-    void accept(Locator::FilterEntry selection) const;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
+    void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 private:

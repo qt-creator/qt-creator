@@ -12,9 +12,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "Find" }
     Depends { name: "VcsBase" }
-    Depends { name: "Locator" }
 
     files: [
         "activityselector.cpp",

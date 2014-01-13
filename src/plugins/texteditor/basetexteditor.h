@@ -35,7 +35,7 @@
 #include "codeassist/assistenums.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <find/ifindsupport.h>
+#include <coreplugin/find/ifindsupport.h>
 
 #include <QPlainTextEdit>
 #include <QSharedPointer>
@@ -366,7 +366,7 @@ private slots:
     void editorContentsChange(int position, int charsRemoved, int charsAdded);
     void documentAboutToBeReloaded();
     void documentReloadFinished(bool success);
-    void highlightSearchResults(const QString &txt, Find::FindFlags findFlags);
+    void highlightSearchResults(const QString &txt, Core::FindFlags findFlags);
     void setFindScope(const QTextCursor &start, const QTextCursor &end, int, int);
     bool inFindScope(const QTextCursor &cursor);
     bool inFindScope(int selectionStart, int selectionEnd);

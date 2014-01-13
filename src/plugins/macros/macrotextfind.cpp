@@ -34,8 +34,8 @@
 using namespace Macros;
 using namespace Macros::Internal;
 
-MacroTextFind::MacroTextFind(Find::IFindSupport *currentFind):
-    Find::IFindSupport(),
+MacroTextFind::MacroTextFind(Core::IFindSupport *currentFind):
+    Core::IFindSupport(),
     m_currentFind(currentFind)
 {
 }
@@ -46,7 +46,7 @@ bool MacroTextFind::supportsReplace() const
     return m_currentFind->supportsReplace();
 }
 
-Find::FindFlags MacroTextFind::supportedFindFlags() const
+Core::FindFlags MacroTextFind::supportedFindFlags() const
 {
     QTC_ASSERT(m_currentFind, return 0);
     return m_currentFind->supportedFindFlags();
@@ -77,38 +77,38 @@ QString MacroTextFind::completedFindString() const
     return m_currentFind->completedFindString();
 }
 
-void MacroTextFind::highlightAll(const QString &txt, Find::FindFlags findFlags)
+void MacroTextFind::highlightAll(const QString &txt, Core::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return);
     m_currentFind->highlightAll(txt, findFlags);
 }
 
-Find::IFindSupport::Result MacroTextFind::findIncremental(const QString &txt, Find::FindFlags findFlags)
+Core::IFindSupport::Result MacroTextFind::findIncremental(const QString &txt, Core::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return IFindSupport::NotFound);
-    Find::IFindSupport::Result result = m_currentFind->findIncremental(txt, findFlags);
+    Core::IFindSupport::Result result = m_currentFind->findIncremental(txt, findFlags);
     if (result == Found)
         emit incrementalFound(txt, findFlags);
     return result;
 }
 
-Find::IFindSupport::Result MacroTextFind::findStep(const QString &txt, Find::FindFlags findFlags)
+Core::IFindSupport::Result MacroTextFind::findStep(const QString &txt, Core::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return IFindSupport::NotFound);
-    Find::IFindSupport::Result result = m_currentFind->findStep(txt, findFlags);
+    Core::IFindSupport::Result result = m_currentFind->findStep(txt, findFlags);
     if (result == Found)
         emit stepFound(txt, findFlags);
     return result;
 }
 
-void MacroTextFind::replace(const QString &before, const QString &after, Find::FindFlags findFlags)
+void MacroTextFind::replace(const QString &before, const QString &after, Core::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return);
     m_currentFind->replace(before, after, findFlags);
     emit replaced(before, after, findFlags);
 }
 
-bool MacroTextFind::replaceStep(const QString &before, const QString &after, Find::FindFlags findFlags)
+bool MacroTextFind::replaceStep(const QString &before, const QString &after, Core::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return false);
     bool result = m_currentFind->replaceStep(before, after, findFlags);
@@ -116,7 +116,7 @@ bool MacroTextFind::replaceStep(const QString &before, const QString &after, Fin
     return result;
 }
 
-int MacroTextFind::replaceAll(const QString &before, const QString &after, Find::FindFlags findFlags)
+int MacroTextFind::replaceAll(const QString &before, const QString &after, Core::FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return 0);
     int result = m_currentFind->replaceAll(before, after, findFlags);

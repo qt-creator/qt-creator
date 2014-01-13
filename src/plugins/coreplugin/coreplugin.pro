@@ -206,10 +206,13 @@ FORMS += dialogs/newdialog.ui \
     mimetypesettingspage.ui \
     mimetypemagicdialog.ui \
     removefiledialog.ui \
-    dialogs/addtovcsdialog.ui
+   dialogs/addtovcsdialog.ui
 
 RESOURCES += core.qrc \
     fancyactionbar.qrc
+
+include(find/find.pri)
+include(locator/locator.pri)
 
 win32 {
     SOURCES += progressmanager/progressmanager_win.cpp

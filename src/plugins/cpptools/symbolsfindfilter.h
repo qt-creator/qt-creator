@@ -32,7 +32,7 @@
 
 #include "searchsymbols.h"
 
-#include <find/ifindfilter.h>
+#include <coreplugin/find/ifindfilter.h>
 
 #include <QFutureWatcher>
 #include <QPointer>
@@ -45,7 +45,7 @@ namespace Internal {
 
 class CppModelManager;
 
-class SymbolsFindFilter : public Find::IFindFilter
+class SymbolsFindFilter : public Core::IFindFilter
 {
     Q_OBJECT
 
@@ -58,9 +58,9 @@ public:
     QString id() const;
     QString displayName() const;
     bool isEnabled() const;
-    Find::FindFlags supportedFindFlags() const;
+    Core::FindFlags supportedFindFlags() const;
 
-    void findAll(const QString &txt, Find::FindFlags findFlags);
+    void findAll(const QString &txt, Core::FindFlags findFlags);
 
     QWidget *createConfigWidget();
     void writeSettings(QSettings *settings);
@@ -76,7 +76,7 @@ signals:
     void symbolsToSearchChanged();
 
 private slots:
-    void openEditor(const Find::SearchResultItem &item);
+    void openEditor(const Core::SearchResultItem &item);
 
     void addResults(int begin, int end);
     void finish();
@@ -88,13 +88,13 @@ private slots:
 
 private:
     QString label() const;
-    QString toolTip(Find::FindFlags findFlags) const;
-    void startSearch(Find::SearchResult *search);
+    QString toolTip(Core::FindFlags findFlags) const;
+    void startSearch(Core::SearchResult *search);
 
     CppModelManager *m_manager;
     bool m_enabled;
-    QMap<QFutureWatcher<Find::SearchResultItem> *, QPointer<Find::SearchResult> > m_watchers;
-    QPointer<Find::SearchResult> m_currentSearch;
+    QMap<QFutureWatcher<Core::SearchResultItem> *, QPointer<Core::SearchResult> > m_watchers;
+    QPointer<Core::SearchResult> m_currentSearch;
     SearchSymbols::SymbolTypes m_symbolsToSearch;
     SearchScope m_scope;
 };

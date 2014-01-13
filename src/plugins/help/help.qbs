@@ -12,8 +12,6 @@ QtcPlugin {
     }
 
     Depends { name: "Core" }
-    Depends { name: "Find" }
-    Depends { name: "Locator" }
     Depends { name: "app_version_header" }
 
     cpp.defines: base.concat(["QT_CLUCENE_SUPPORT"])

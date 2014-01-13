@@ -52,7 +52,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <locator/commandlocator.h>
+#include <coreplugin/locator/commandlocator.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/iprojectmanager.h>
@@ -471,7 +471,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     const QString description = QLatin1String("ClearCase");
     const QString prefix = QLatin1String("cc");
     // register cc prefix in Locator
-    m_commandLocator = new Locator::CommandLocator("cc", description, prefix);
+    m_commandLocator = new Core::CommandLocator("cc", description, prefix);
     addAutoReleasedObject(m_commandLocator);
 
     //register actions

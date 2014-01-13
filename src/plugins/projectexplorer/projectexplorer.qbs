@@ -9,8 +9,6 @@ QtcPlugin {
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script"] }
     Depends { name: "Qt.quick"; condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1"); }
     Depends { name: "Core" }
-    Depends { name: "Locator" }
-    Depends { name: "Find" }
     Depends { name: "TextEditor" }
     Depends { name: "QtcSsh" }
 

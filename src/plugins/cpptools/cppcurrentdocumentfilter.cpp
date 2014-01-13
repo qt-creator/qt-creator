@@ -57,11 +57,11 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
             this,          SLOT(onEditorAboutToClose(Core::IEditor*)));
 }
 
-QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString & origEntry)
+QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString & origEntry)
 {
     QString entry = trimWildcards(origEntry);
-    QList<Locator::FilterEntry> goodEntries;
-    QList<Locator::FilterEntry> betterEntries;
+    QList<Core::LocatorFilterEntry> goodEntries;
+    QList<Core::LocatorFilterEntry> betterEntries;
     QStringMatcher matcher(entry, Qt::CaseInsensitive);
     const QChar asterisk = QLatin1Char('*');
     QRegExp regexp(asterisk + entry + asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
@@ -102,7 +102,7 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterfac
                 if (info.unqualifiedNameAndScope(matchString, &name, &extraInfo))
                     name += info.symbolType;
             }
-            Locator::FilterEntry filterEntry(this, name, id, info.icon);
+            Core::LocatorFilterEntry filterEntry(this, name, id, info.icon);
             filterEntry.extraInfo = extraInfo;
 
             if (matchString.startsWith(entry, caseSensitivityForPrefix))
@@ -118,7 +118,7 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterfac
     return betterEntries;
 }
 
-void CppCurrentDocumentFilter::accept(Locator::FilterEntry selection) const
+void CppCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection) const
 {
     ModelItemInfo info = qvariant_cast<CppTools::ModelItemInfo>(selection.internalData);
     Core::EditorManager::openEditorAt(info.fileName, info.line, info.column);

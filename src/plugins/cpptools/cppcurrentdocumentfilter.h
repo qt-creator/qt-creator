@@ -31,7 +31,7 @@
 
 #include "searchsymbols.h"
 
-#include <locator/ilocatorfilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 namespace Core { class IEditor; }
 
@@ -40,7 +40,7 @@ namespace Internal {
 
 class CppModelManager;
 
-class CppCurrentDocumentFilter : public  Locator::ILocatorFilter
+class CppCurrentDocumentFilter : public  Core::ILocatorFilter
 {
     Q_OBJECT
 
@@ -48,8 +48,8 @@ public:
     explicit CppCurrentDocumentFilter(CppModelManager *manager);
     ~CppCurrentDocumentFilter() {}
 
-    QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
-    void accept(Locator::FilterEntry selection) const;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
+    void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 private slots:

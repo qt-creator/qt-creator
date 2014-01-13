@@ -30,14 +30,14 @@
 #ifndef CMAKELOCATORFILTER_H
 #define CMAKELOCATORFILTER_H
 
-#include <locator/ilocatorfilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 #include <QIcon>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeLocatorFilter : public Locator::ILocatorFilter
+class CMakeLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 
@@ -45,8 +45,8 @@ public:
     CMakeLocatorFilter();
     ~CMakeLocatorFilter();
 
-    QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
-    void accept(Locator::FilterEntry selection) const;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
+    void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 private slots:

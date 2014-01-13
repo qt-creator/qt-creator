@@ -8,10 +8,8 @@ QtcPlugin {
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
-    Depends { name: "Find" }
     Depends { name: "VcsBase" }
     Depends { name: "DiffEditor" }
-    Depends { name: "Locator" }
 
     files: [
         "annotationhighlighter.cpp",

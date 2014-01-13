@@ -36,7 +36,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/outputwindow.h>
-#include <find/basetextfind.h>
+#include <coreplugin/find/basetextfind.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <extensionsystem/pluginmanager.h>
@@ -331,7 +331,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setMaxLineCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputLines);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(ow);
-    agg->add(new Find::BaseTextFind(ow));
+    agg->add(new Core::BaseTextFind(ow));
     m_runControlTabs.push_back(RunControlTab(rc, ow));
     m_tabWidget->addTab(ow, rc->displayName());
     if (debug)

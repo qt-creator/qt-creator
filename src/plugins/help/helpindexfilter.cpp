@@ -39,7 +39,7 @@
 
 #include <QIcon>
 
-using namespace Locator;
+using namespace Core;
 using namespace Help;
 using namespace Help::Internal;
 
@@ -59,7 +59,7 @@ HelpIndexFilter::~HelpIndexFilter()
 {
 }
 
-QList<FilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
+QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry)
 {
     QStringList keywords;
     if (entry.length() < 2)
@@ -67,17 +67,17 @@ QList<FilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<Locator::FilterE
     else
         keywords = Core::HelpManager::findKeywords(entry, caseSensitivity(entry));
 
-    QList<FilterEntry> entries;
+    QList<LocatorFilterEntry> entries;
     foreach (const QString &keyword, keywords) {
         if (future.isCanceled())
             break;
-        entries.append(FilterEntry(this, keyword, QVariant(), m_icon));
+        entries.append(LocatorFilterEntry(this, keyword, QVariant(), m_icon));
     }
 
     return entries;
 }
 
-void HelpIndexFilter::accept(FilterEntry selection) const
+void HelpIndexFilter::accept(LocatorFilterEntry selection) const
 {
     const QString &key = selection.displayName;
     const QMap<QString, QUrl> &links = Core::HelpManager::linksForKeyword(key);

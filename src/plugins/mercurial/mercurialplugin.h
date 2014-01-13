@@ -43,6 +43,7 @@ QT_END_NAMESPACE
 namespace Core {
 class ActionContainer;
 class ActionManager;
+class CommandLocator;
 class ICore;
 class Id;
 class IEditor;
@@ -50,7 +51,6 @@ class IEditor;
 
 namespace Utils { class ParameterAction; }
 namespace VcsBase { class VcsBaseSubmitEditor; }
-namespace Locator { class CommandLocator; }
 
 namespace Mercurial {
 namespace Internal {
@@ -143,7 +143,7 @@ private:
     MercurialClient *m_client;
 
     Core::ICore *core;
-    Locator::CommandLocator *m_commandLocator;
+    Core::CommandLocator *m_commandLocator;
     Core::ActionContainer *mercurialContainer;
 
     QList<QAction *> m_repositoryActionList;

@@ -32,8 +32,8 @@
 
 #include "texteditor_global.h"
 
-#include <find/ifindfilter.h>
-#include <find/searchresultwindow.h>
+#include <coreplugin/find/ifindfilter.h>
+#include <coreplugin/find/searchresultwindow.h>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -41,18 +41,18 @@ class QComboBox;
 QT_END_NAMESPACE
 
 namespace Utils { class FileIterator; }
-namespace Find {
+namespace Core {
 class SearchResult;
 class SearchResultItem;
 class IFindSupport;
-} // namespace Find
+} // namespace Core
 
 namespace TextEditor {
 namespace Internal {
 class BaseFileFindPrivate;
 } // namespace Internal
 
-class TEXTEDITOR_EXPORT BaseFileFind : public Find::IFindFilter
+class TEXTEDITOR_EXPORT BaseFileFind : public Core::IFindFilter
 {
     Q_OBJECT
 
@@ -62,21 +62,21 @@ public:
 
     bool isEnabled() const;
     bool isReplaceSupported() const { return true; }
-    void findAll(const QString &txt, Find::FindFlags findFlags);
-    void replaceAll(const QString &txt, Find::FindFlags findFlags);
+    void findAll(const QString &txt, Core::FindFlags findFlags);
+    void replaceAll(const QString &txt, Core::FindFlags findFlags);
 
     /* returns the list of unique files that were passed in items */
     static QStringList replaceAll(const QString &txt,
-                                  const QList<Find::SearchResultItem> &items,
+                                  const QList<Core::SearchResultItem> &items,
                                   bool preserveCase = false);
 
 protected:
     virtual Utils::FileIterator *files(const QStringList &nameFilters,
                                        const QVariant &additionalParameters) const = 0;
     virtual QVariant additionalParameters() const = 0;
-    QVariant getAdditionalParameters(Find::SearchResult *search);
-    virtual QString label() const = 0; // see Find::SearchResultWindow::startNewSearch
-    virtual QString toolTip() const = 0; // see Find::SearchResultWindow::startNewSearch,
+    QVariant getAdditionalParameters(Core::SearchResult *search);
+    virtual QString label() const = 0; // see Core::SearchResultWindow::startNewSearch
+    virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
 
     void writeCommonSettings(QSettings *settings);
@@ -91,18 +91,18 @@ private slots:
     void searchFinished();
     void cancel();
     void setPaused(bool paused);
-    void openEditor(const Find::SearchResultItem &item);
+    void openEditor(const Core::SearchResultItem &item);
     void doReplace(const QString &txt,
-                   const QList<Find::SearchResultItem> &items,
+                   const QList<Core::SearchResultItem> &items,
                    bool preserveCase);
     void hideHighlightAll(bool visible);
     void searchAgain();
     void recheckEnabled();
 
 private:
-    void runNewSearch(const QString &txt, Find::FindFlags findFlags,
-                      Find::SearchResultWindow::SearchMode searchMode);
-    void runSearch(Find::SearchResult *search);
+    void runNewSearch(const QString &txt, Core::FindFlags findFlags,
+                      Core::SearchResultWindow::SearchMode searchMode);
+    void runSearch(Core::SearchResult *search);
 
     Internal::BaseFileFindPrivate *d;
 };

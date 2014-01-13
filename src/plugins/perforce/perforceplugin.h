@@ -53,7 +53,7 @@ namespace Utils {
     class TempFileSaver;
 }
 
-namespace Locator {
+namespace Core {
     class CommandLocator;
 }
 
@@ -203,7 +203,7 @@ private:
 
     static PerforceVersionControl *perforceVersionControl();
 
-    Locator::CommandLocator *m_commandLocator;
+    Core::CommandLocator *m_commandLocator;
     Utils::ParameterAction *m_editAction;
     Utils::ParameterAction *m_addAction;
     Utils::ParameterAction *m_deleteAction;

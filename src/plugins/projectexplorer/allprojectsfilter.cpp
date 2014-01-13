@@ -33,7 +33,6 @@
 #include "project.h"
 
 using namespace Core;
-using namespace Locator;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 

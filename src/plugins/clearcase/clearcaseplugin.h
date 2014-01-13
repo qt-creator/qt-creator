@@ -54,13 +54,13 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Core {
+class CommandLocator;
 class IVersionControl;
 class IEditor;
 } // namespace Core
 
 namespace Utils { class ParameterAction; }
 namespace VcsBase { class VcsBaseSubmitEditor; }
-namespace Locator { class CommandLocator; }
 namespace ProjectExplorer { class Project; }
 
 namespace ClearCase {
@@ -277,7 +277,7 @@ private:
     QString m_activity;
     QString m_diffPrefix;
 
-    Locator::CommandLocator *m_commandLocator;
+    Core::CommandLocator *m_commandLocator;
     Utils::ParameterAction *m_checkOutAction;
     Utils::ParameterAction *m_checkInCurrentAction;
     Utils::ParameterAction *m_undoCheckOutAction;

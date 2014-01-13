@@ -3,5 +3,4 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     texteditor \
     projectexplorer \
-    find \
     cpptools

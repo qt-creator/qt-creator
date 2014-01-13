@@ -33,14 +33,14 @@
 #include "cpplocatordata.h"
 #include "searchsymbols.h"
 
-#include <locator/ilocatorfilter.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 namespace CppTools {
 namespace Internal {
 
 class CppModelManager;
 
-class CppLocatorFilter : public Locator::ILocatorFilter
+class CppLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 
@@ -48,13 +48,13 @@ public:
     CppLocatorFilter(CppLocatorData *locatorData);
     ~CppLocatorFilter();
 
-    QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
-    void accept(Locator::FilterEntry selection) const;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
+    void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
 private:
     virtual QList<QList<ModelItemInfo> > itemsToMatchUserInputAgainst() const;
-    virtual Locator::FilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
+    virtual Core::LocatorFilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
 
 protected:
     CppLocatorData *m_data;

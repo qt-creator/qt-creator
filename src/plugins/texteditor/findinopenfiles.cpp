@@ -37,7 +37,6 @@
 
 #include <QSettings>
 
-using namespace Find;
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 

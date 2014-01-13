@@ -129,7 +129,7 @@ using namespace Core::Internal;
     \c QFuture object. This is what you want to give the
     ProgressManager in the addTask() function.
 
-    Have a look at e.g Locator::ILocatorFilter. Locator filters implement
+    Have a look at e.g Core::ILocatorFilter. Locator filters implement
     a function \c refresh which takes a \c QFutureInterface object
     as a parameter. These functions look something like:
     \code
