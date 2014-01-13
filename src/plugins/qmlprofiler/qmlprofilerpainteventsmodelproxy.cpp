@@ -119,43 +119,35 @@ void PaintEventsModelProxy::loadData()
     const QVector<QmlProfilerSimpleModel::QmlEventData> referenceList = simpleModel->getEvents();
 
     QmlPaintEventData lastEvent;
-    qint64 lastStartTime = -1;
-    qint64 lastDuration = -1;
+    qint64 minNextStartTime = 0;
 
     foreach (const QmlProfilerSimpleModel::QmlEventData &event, referenceList) {
         if (!eventAccepted(event))
             continue;
 
-        qint64 estimatedDuration = 0;
         // initial estimation of the event duration: 1/framerate
-        if (event.numericData1 > 0)
-            estimatedDuration = 1e9/event.numericData1;
+        qint64 estimatedDuration = event.numericData1 > 0 ? 1e9/event.numericData1 : 1;
 
         // the profiler registers the animation events at the end of them
-        qint64 realStartTime = event.startTime - estimatedDuration;
+        qint64 realEndTime = event.startTime;
 
-        // the duration of the events is estimated from the framerate
-        // we need to correct it before appending a new event
-        if (lastStartTime != -1) {
-            if (lastStartTime + lastDuration >= realStartTime) {
-                // 1 nanosecond less to prevent overlap
-                lastDuration = realStartTime - lastStartTime - 1;
-                lastEvent.framerate = 1e9 / lastDuration;
-            }
-        }
+        // ranges should not overlap. If they do, our estimate wasn't accurate enough
+        qint64 realStartTime = qMax(event.startTime - estimatedDuration, minNextStartTime);
 
-        d->insert(lastStartTime, lastDuration, lastEvent);
+        // Sometimes our estimate is far off or the server has miscalculated the frame rate
+        if (realStartTime >= realEndTime)
+            realEndTime = realStartTime + 1;
 
+        // Don't "fix" the framerate even if we've fixed the duration.
+        // The server should know better after all and if it doesn't we want to see that.
         lastEvent.framerate = (int)event.numericData1;
         lastEvent.animationcount = (int)event.numericData2;
-        lastStartTime = realStartTime;
-        lastDuration = estimatedDuration;
+        d->insert(realStartTime, realEndTime - realStartTime, lastEvent);
+
+        minNextStartTime = event.startTime + 1;
 
         m_modelManager->modelProxyCountUpdated(m_modelId, d->count(), referenceList.count());
     }
-
-    if (lastStartTime != -1)
-        d->insert(lastStartTime, lastDuration, lastEvent);
 
     d->computeAnimationCountLimit();
     d->computeNesting();
