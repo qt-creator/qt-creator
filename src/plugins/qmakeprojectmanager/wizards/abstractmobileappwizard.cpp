@@ -71,7 +71,6 @@ void AbstractMobileAppWizardDialog::addKitsPage()
 void AbstractMobileAppWizardDialog::updateKitsPage()
 {
     if (m_kitsPage) {
-        m_kitsPage->setProjectImporter(new Internal::QmakeProjectImporter(path()));
         QString platform = selectedPlatform();
         if (platform.isEmpty()) {
             m_kitsPage->setPreferredKitMatcher(
