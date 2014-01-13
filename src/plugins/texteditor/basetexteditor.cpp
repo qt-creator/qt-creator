@@ -599,43 +599,6 @@ void BaseTextEditorWidgetPrivate::foldLicenseHeader()
     }
 }
 
-const Utils::ChangeSet &BaseTextEditorWidget::changeSet() const
-{
-    return d->m_changeSet;
-}
-
-void BaseTextEditorWidget::setChangeSet(const Utils::ChangeSet &changeSet)
-{
-    d->m_changeSet = changeSet;
-
-    foreach (const ChangeSet::EditOp &op, changeSet.operationList()) {
-        // ### TODO: process the edit operation
-
-        switch (op.type) {
-        case ChangeSet::EditOp::Replace:
-            break;
-
-        case ChangeSet::EditOp::Move:
-            break;
-
-        case ChangeSet::EditOp::Insert:
-            break;
-
-        case ChangeSet::EditOp::Remove:
-            break;
-
-        case ChangeSet::EditOp::Flip:
-            break;
-
-        case ChangeSet::EditOp::Copy:
-            break;
-
-        default:
-            break;
-        } // switch
-    }
-}
-
 BaseTextDocument *BaseTextEditorWidget::baseTextDocument() const
 {
     return d->m_document.data();

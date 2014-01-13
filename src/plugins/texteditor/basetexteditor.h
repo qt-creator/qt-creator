@@ -135,9 +135,6 @@ public:
     BaseTextEditorWidget(BaseTextEditorWidget *other);
     ~BaseTextEditorWidget();
 
-    const Utils::ChangeSet &changeSet() const;
-    void setChangeSet(const Utils::ChangeSet &changeSet);
-
     BaseTextDocument *baseTextDocument() const;
 
     // IEditor
@@ -145,7 +142,6 @@ public:
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     void gotoLine(int line, int column = 0);
-
     int position(ITextEditor::PositionOperation posOp = ITextEditor::Current,
          int at = -1) const;
     void convertPosition(int pos, int *line, int *column) const;

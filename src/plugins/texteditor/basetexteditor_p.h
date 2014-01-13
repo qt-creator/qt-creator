@@ -125,8 +125,6 @@ public:
     bool m_parenthesesMatchingEnabled;
     QTimer *m_updateTimer;
 
-    Utils::ChangeSet m_changeSet;
-
     // parentheses matcher
     bool m_formatRange;
     QTextCharFormat m_matchFormat;
