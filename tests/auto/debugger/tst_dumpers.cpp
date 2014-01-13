@@ -5097,11 +5097,28 @@ void tst_Dumpers::dumper_data()
                     "c.S1::v = 44;\n"
                     "c.S2::v = 45;\n"
                     "unused(&c.S2::v);\n")
+                % DebuggerEngine(~DumpTestLldbEngine)
                 % Check("c.c", "1", "int")
                 % Check("c.@1.@2.a", "42", "int")
                 % Check("c.@1.@4.v", "45", "int")
                 % Check("c.@2.@2.a", "43", "int")
                 % Check("c.@2.@4.v", "45", "int");
+
+    // FIXME: Virtual inheritance doesn't work with LLDB 300
+    QTest::newRow("inheritanceLldb")
+            << Data(inheritanceData,
+                    "Combined c;\n"
+                    "c.S1::a = 42;\n"
+                    "c.S2::a = 43;\n"
+                    "c.S1::v = 44;\n"
+                    "c.S2::v = 45;\n"
+                    "unused(&c.S2::v);\n")
+                % DumpTestLldbEngine
+                % Check("c.c", "1", "int")
+                % Check("c.@1.@1.a", "42", "int")
+                //% Check("c.@1.@4.v", "45", "int")
+                % Check("c.@2.@1.a", "43", "int");
+                //% Check("c.@2.@4.v", "45", "int");
 
 
     QTest::newRow("gdb13393")
