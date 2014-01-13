@@ -56,7 +56,7 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
     m_testPage(new TestWizardPage),
     m_testPageId(-1), m_modulesPageId(-1)
 {
-    setIntroDescription(tr("This wizard generates a Qt unit test "
+    setIntroDescription(tr("This wizard generates a Qt Unit Test "
                            "consisting of a single source file with a test class."));
     setWindowIcon(icon);
     setWindowTitle(templateName);

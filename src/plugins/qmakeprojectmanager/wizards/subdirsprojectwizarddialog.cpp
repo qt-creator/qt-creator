@@ -42,7 +42,7 @@ SubdirsProjectWizardDialog::SubdirsProjectWizardDialog(const QString &templateNa
     setWindowIcon(icon);
     setWindowTitle(templateName);
 
-    setIntroDescription(tr("This wizard generates a Qt subdirs project. "
+    setIntroDescription(tr("This wizard generates a Qt Subdirs project. "
                            "Add subprojects to it later on by using the other wizards."));
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))

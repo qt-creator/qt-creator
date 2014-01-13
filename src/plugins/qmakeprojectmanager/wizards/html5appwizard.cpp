@@ -63,7 +63,7 @@ Html5AppWizardDialog::Html5AppWizardDialog(QWidget *parent,
       m_htmlOptionsPage(0)
 {
     setWindowTitle(tr("New HTML5 Application"));
-    setIntroDescription(tr("This wizard generates a HTML5 application project."));
+    setIntroDescription(tr("This wizard generates a HTML5 Application project."));
 
     m_htmlOptionsPage = new Html5AppWizardOptionsPage;
     addPageWithTitle(m_htmlOptionsPage, tr("HTML Options"));

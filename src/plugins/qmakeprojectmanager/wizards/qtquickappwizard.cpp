@@ -65,7 +65,7 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
                                     QtSupport::QtVersionNumber(5, INT_MAX, INT_MAX), parameters)
 {
     setWindowTitle(tr("New Qt Quick Application"));
-    setIntroDescription(tr("This wizard generates a Qt Quick application project."));
+    setIntroDescription(tr("This wizard generates a Qt Quick Application project."));
 
     m_componentSetPage = new Internal::QtQuickComponentSetPage;
     addPageWithTitle(m_componentSetPage, tr("Component Set"));

@@ -144,7 +144,7 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
 
     // Note that QWizard::currentIdChanged() is emitted at strange times.
     // Use the intro page instead, set up initially
-    setIntroDescription(tr("This wizard generates a C++ library project."));
+    setIntroDescription(tr("This wizard generates a C++ Library project."));
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         m_targetPageId = addTargetSetupPage();
