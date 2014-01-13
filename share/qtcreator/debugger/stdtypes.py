@@ -659,8 +659,28 @@ def qdump__std____1__unordered_map(d, value):
     n = toInteger(value["__table_"]["__p2_"]["__first_"])
     d.putItemCount(n)
     if d.isExpanded():
-        with Children(d, 1):
-            d.putFields(value)
+        node = value["__table_"]["__p1_"]["__first_"]["__next_"]
+        #pos = toInteger(value["__table_"]["__p2_"]["__first_"])
+        #with Children(d, 1):
+        #    d.putFields(value)
+        keyType = d.templateArgument(value.type, 0)
+        valueType = d.templateArgument(value.type, 1)
+        isCompact = d.isMapCompact(keyType, valueType)
+        with Children(d, n, maxNumChild=1000, childType=valueType):
+            for i in xrange(n):
+                pair = node["__value_"]
+                #d.putSubItem(i, pair)
+                with SubItem(d, i):
+                    if isCompact:
+                        d.putMapName(pair["first"], i)
+                        d.putItem(pair["second"])
+                    else:
+                        d.putEmptyValue()
+                        if d.isExpanded():
+                            with Children(d, 2):
+                                d.putSubItem("first", pair["first"])
+                                d.putSubItem("second", pair["second"])
+                node = node["__next_"]
 
 def qdump__std____debug__unordered_set(d, value):
     qdump__std__unordered_set(d, value)

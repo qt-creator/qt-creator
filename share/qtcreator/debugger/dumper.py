@@ -409,7 +409,7 @@ class DumperBase:
             self.putNumChild(0)
 
 
-    def putMapName(self, value):
+    def putMapName(self, value, index = -1):
         ns = self.qtNamespace()
         if str(value.type) == ns + "QString":
             self.put('key="%s",' % self.encodeString(value))
@@ -418,10 +418,11 @@ class DumperBase:
             self.put('key="%s",' % self.encodeByteArray(value))
             self.put('keyencoded="%s",' % Hex2EncodedLatin1)
         else:
-            if self.isLldb:
-                self.put('name="%s",' % value.GetValue())
+            val = str(value.GetValue()) if self.isLldb else str(value)
+            if index == -1:
+                self.put('name="%s",' % val)
             else:
-                self.put('name="%s",' % value)
+                self.put('key="[%d] %s",' % (index, val))
 
     def isMapCompact(self, keyType, valueType):
         format = self.currentItemFormat()
