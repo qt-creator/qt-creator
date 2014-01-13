@@ -4190,6 +4190,15 @@ void BaseTextEditorWidget::dragEnterEvent(QDragEnterEvent *e)
     QPlainTextEdit::dragEnterEvent(e);
 }
 
+static void appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContextId)
+{
+    Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(menuContextId);
+    QMenu *contextMenu = mcontext->menu();
+
+    foreach (QAction *action, contextMenu->actions())
+        menu->addAction(action);
+}
+
 void BaseTextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, const Core::Id menuContextId)
 {
     QMenu menu;
@@ -6025,15 +6034,6 @@ QColor BaseTextEditorWidget::replacementPenColor(int blockNumber) const
 {
     Q_UNUSED(blockNumber)
     return QColor();
-}
-
-void BaseTextEditorWidget::appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContextId)
-{
-    Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(menuContextId);
-    QMenu *contextMenu = mcontext->menu();
-
-    foreach (QAction *action, contextMenu->actions())
-        menu->addAction(action);
 }
 
 void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)

@@ -150,7 +150,6 @@ public:
 
     void print(QPrinter *);
 
-    void appendMenuActionsFromContext(QMenu *menu, Core::Id menuContextId);
     void appendStandardContextMenuActions(QMenu *menu);
 
     // Works only in conjunction with a syntax highlighter that puts
