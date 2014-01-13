@@ -181,6 +181,34 @@ class Children:
         self.d.put('],')
         return True
 
+class PairedChildrenData:
+    def __init__(self, d, pairType):
+        self.pairType = pairType
+        self.keyType = d.templateArgument(pairType, 0).unqualified()
+        self.valueType = d.templateArgument(pairType, 1)
+        self.isCompact = d.isMapCompact(self.keyType, self.valueType)
+        self.childNumChild = None if self.isCompact else 2
+        self.childType = self.valueType if self.isCompact else self.pairType
+        ns = d.qtNamespace()
+        self.keyIsQString = str(self.keyType) == ns + "QString"
+        self.keyIsQByteArray = str(self.keyType) == ns + "QByteArray"
+
+class PairedChildren:
+    def __init__(self, d, numChild, pairType, maxNumChild = None):
+        self.d = d
+        d.pairData = PairedChildrenData(d, pairType)
+        Children.__init__(self, d, numChild,
+            d.pairData.childType, d.pairData.childNumChild,
+            maxNumChild, addrBase = None, addrStep = None)
+
+    def __enter__(self):
+        self.savedPairData = self.d.pairData if hasattr(self.d, "pairData") else None
+        Children.__enter__(self)
+
+    def __exit__(self, exType, exValue, exTraceBack):
+        Children.__exit__(self, exType, exValue, exTraceBack)
+        self.d.pairData = self.savedPairData if self.savedPairData else None
+
 
 class SubItem:
     def __init__(self, d, component):
@@ -423,6 +451,30 @@ class DumperBase:
                 self.put('name="%s",' % val)
             else:
                 self.put('key="[%d] %s",' % (index, val))
+
+    def putPair(self, pair, index = -1):
+        key = pair["first"]
+        value = pair["second"]
+        if self.pairData.isCompact:
+            if self.pairData.keyIsQString:
+                self.put('key="%s",' % self.encodeString(key))
+                self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
+            elif self.pairData.keyIsQByteArray:
+                self.put('key="%s",' % self.encodeByteArray(key))
+                self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+            else:
+                name = str(key.GetValue()) if self.isLldb else str(key)
+                if index == -1:
+                    self.put('name="%s",' % name)
+                else:
+                    self.put('key="[%d] %s",' % (index, name))
+            self.putItem(value)
+        else:
+            self.putEmptyValue()
+            if self.isExpanded():
+                with Children(self, 2):
+                    self.putSubItem("first", key)
+                    self.putSubItem("second", value)
 
     def isMapCompact(self, keyType, valueType):
         format = self.currentItemFormat()

@@ -192,42 +192,14 @@ def qdump__std__map(d, value):
     d.putNumChild(size)
 
     if d.isExpanded():
-        keyType = d.templateArgument(value.type, 0)
-        valueType = d.templateArgument(value.type, 1)
-        try:
-            # Does not work on gcc 4.4, the allocator type (fourth template
-            # argument) seems not to be available.
-            pairType = d.templateArgument(d.templateArgument(value.type, 3), 0)
-            pairPointer = pairType.pointer()
-        except:
-            # So use this as workaround:
-            pairType = d.templateArgument(impl.type, 1)
-            pairPointer = pairType.pointer()
-        isCompact = d.isMapCompact(keyType, valueType)
-        innerType = pairType
-        if isCompact:
-            innerType = valueType
-        node = impl["_M_header"]["_M_left"]
-        childType = innerType
-        if size == 0:
-            childType = pairType
-        childNumChild = 2
-        if isCompact:
-            childNumChild = None
-        with Children(d, size, maxNumChild=1000,
-                childType=childType, childNumChild=childNumChild):
+        pairType = d.templateArgument(d.templateArgument(value.type, 3), 0)
+        pairPointer = pairType.pointer()
+        with PairedChildren(d, size, pairType, maxNumChild=1000):
+            node = impl["_M_header"]["_M_left"]
             for i in d.childRange():
                 with SubItem(d, i):
                     pair = (node + 1).cast(pairPointer).dereference()
-                    if isCompact:
-                        d.putMapName(pair["first"])
-                        d.putItem(pair["second"])
-                    else:
-                        d.putEmptyValue()
-                        if d.isExpanded():
-                            with Children(d, 2):
-                                d.putSubItem("first", pair["first"])
-                                d.putSubItem("second", pair["second"])
+                    d.putPair(pair)
                 if d.isNull(node["_M_right"]):
                     parent = node["_M_parent"]
                     while node == parent["_M_right"]:
