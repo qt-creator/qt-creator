@@ -53,9 +53,11 @@ def verifyCloneLog(targetDir, canceled):
                     "Searching for clone directory in clone log")
         result = "The process terminated with exit code 0."
         summary = "Succeeded."
+    # cloneLog.plainText holds escape as character which makes QDom fail while printing the result
+    # removing these for letting Jenkins continue execute the test suite
     test.xverify((result in str(cloneLog.plainText)),
                  "Searching for result (%s) in clone log:\n%s"
-                % (result, str(cloneLog.plainText)))
+                % (result, str(cloneLog.plainText).replace(unicode("\x1b"), "")))
     test.compare(waitForObject(":Git Repository Clone.Result._QLabel").text, summary)
 
 def verifyFiles(targetDir):
