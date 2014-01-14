@@ -87,6 +87,9 @@ public:
 
     virtual ITextMarkable *markableInterface() const = 0;
 
+    static QMap<QString, QString> openedTextDocumentContents();
+    static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
+
 signals:
     void contentsChanged();
 };
@@ -132,9 +135,6 @@ public:
     virtual void select(int toPos) = 0;
 
     virtual const Utils::CommentDefinition* commentDefinition() const = 0;
-
-    static QMap<QString, QString> openedTextDocumentContents();
-    static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
 
     enum MarkRequestKind {
         BreakpointRequest,

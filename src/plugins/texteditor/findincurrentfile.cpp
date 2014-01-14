@@ -63,7 +63,8 @@ Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
 {
     Q_UNUSED(nameFilters)
     QString fileName = additionalParameters.toString();
-    QMap<QString, QTextCodec *> openEditorEncodings = ITextEditor::openedTextDocumentEncodings();
+    QMap<QString, QTextCodec *> openEditorEncodings
+            = ITextEditorDocument::openedTextDocumentEncodings();
     QTextCodec *codec = openEditorEncodings.value(fileName);
     if (!codec)
         codec = Core::EditorManager::defaultTextCodec();
