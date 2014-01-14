@@ -37,7 +37,14 @@ perl -p -0777 -i -e 's/#include \<private\/qhashedstring_p.h\>//' qmldirparser_p
 perl -p -0777 -i -e 's/QHashedStringRef/QString/g' qmldirparser_p.h qmldirparser.cpp
 # don't use the new QVarLengthArray::length()
 sed -i -e 's/chars.length()/chars.size()/' $me/qmljslexer.cpp
+sed -i -e 's/DiagnosticMessage::Error/Severity::Error/g' $me/qmljsparser.cpp
+sed -i -e 's/DiagnosticMessage::Warning/Severity::Warning/g' $me/qmljsparser.cpp
+sed -i -e 's/DiagnosticMessage::Warning/Severity::Warning/g' $me/qmljsparser_p.h
+sed -i -e 's|#include <private/qv4errorobject_p.h>||g' $me/qmlerror.cpp
+sed -i -e 's|#include <QtCore/qstring.h>|#include <QString>|g' $me/qmljsengine_p.h
+sed -i -e 's|#include <QtCore/qset.h>|#include <QSet>|g' $me/qmljsengine_p.h
+perl -p -0777 -i -e 's/QT_QML_BEGIN_NAMESPACE/#include <qmljs\/qmljsconstants.h>\nQT_QML_BEGIN_NAMESPACE/' qmljsengine_p.h
 
 ./changeLicense.py $me/../qmljs_global.h qml*.{cpp,h}
 
-patch -p5 < parser.patch
+#patch -R -p5 < parser.patch

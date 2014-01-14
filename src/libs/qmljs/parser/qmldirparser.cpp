@@ -130,7 +130,7 @@ bool QmlDirParser::parse(const QString &source)
 
         if (invalidLine) {
             reportError(lineNumber, 0,
-                        QString::fromUtf8("invalid qmldir directive contains too many tokens"));
+                        QString::fromLatin1("invalid qmldir directive contains too many tokens"));
             continue;
         } else if (sectionCount == 0) {
             continue; // no sections, no party.
@@ -138,17 +138,17 @@ bool QmlDirParser::parse(const QString &source)
         } else if (sections[0] == QLatin1String("module")) {
             if (sectionCount != 2) {
                 reportError(lineNumber, 0,
-                            QString::fromUtf8("module identifier directive requires one argument, but %1 were provided").arg(sectionCount - 1));
+                            QString::fromLatin1("module identifier directive requires one argument, but %1 were provided").arg(sectionCount - 1));
                 continue;
             }
             if (!_typeNamespace.isEmpty()) {
                 reportError(lineNumber, 0,
-                            QString::fromUtf8("only one module identifier directive may be defined in a qmldir file"));
+                            QString::fromLatin1("only one module identifier directive may be defined in a qmldir file"));
                 continue;
             }
             if (!firstLine) {
                 reportError(lineNumber, 0,
-                            QString::fromUtf8("module identifier directive must be the first directive in a qmldir file"));
+                            QString::fromLatin1("module identifier directive must be the first directive in a qmldir file"));
                 continue;
             }
 
@@ -157,7 +157,7 @@ bool QmlDirParser::parse(const QString &source)
         } else if (sections[0] == QLatin1String("plugin")) {
             if (sectionCount < 2 || sectionCount > 3) {
                 reportError(lineNumber, 0,
-                            QString::fromUtf8("plugin directive requires one or two arguments, but %1 were provided").arg(sectionCount - 1));
+                            QString::fromLatin1("plugin directive requires one or two arguments, but %1 were provided").arg(sectionCount - 1));
 
                 continue;
             }
@@ -169,7 +169,7 @@ bool QmlDirParser::parse(const QString &source)
         } else if (sections[0] == QLatin1String("internal")) {
             if (sectionCount != 3) {
                 reportError(lineNumber, 0,
-                            QString::fromUtf8("internal types require 2 arguments, but %1 were provided").arg(sectionCount - 1));
+                            QString::fromLatin1("internal types require 2 arguments, but %1 were provided").arg(sectionCount - 1));
                 continue;
             }
             Component entry(sections[1], sections[2], -1, -1);
@@ -178,7 +178,7 @@ bool QmlDirParser::parse(const QString &source)
         } else if (sections[0] == QLatin1String("singleton")) {
             if (sectionCount < 3 || sectionCount > 4) {
                 reportError(lineNumber, 0,
-                            QString::fromUtf8("singleton types require 2 or 3 arguments, but %1 were provided").arg(sectionCount - 1));
+                            QString::fromLatin1("singleton types require 2 or 3 arguments, but %1 were provided").arg(sectionCount - 1));
                 continue;
             } else if (sectionCount == 3) {
                 // handle qmldir directory listing case where singleton is defined in the following pattern:
@@ -215,7 +215,7 @@ bool QmlDirParser::parse(const QString &source)
         } else if (sections[0] == QLatin1String("typeinfo")) {
             if (sectionCount != 2) {
                 reportError(lineNumber, 0,
-                            QString::fromUtf8("typeinfo requires 1 argument, but %1 were provided").arg(sectionCount - 1));
+                            QString::fromLatin1("typeinfo requires 1 argument, but %1 were provided").arg(sectionCount - 1));
                 continue;
             }
 #ifdef QT_CREATOR
@@ -258,7 +258,7 @@ bool QmlDirParser::parse(const QString &source)
             }
         } else {
             reportError(lineNumber, 0,
-                        QString::fromUtf8("a component declaration requires two or three arguments, but %1 were provided").arg(sectionCount));
+                        QString::fromLatin1("a component declaration requires two or three arguments, but %1 were provided").arg(sectionCount));
         }
 
         firstLine = false;

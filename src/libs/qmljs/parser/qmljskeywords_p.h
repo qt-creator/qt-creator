@@ -47,12 +47,6 @@ QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 
-// Note on the int() casts in the following code:
-// they casts values from Lexer's anonymous enum (aliasing some of the inherited
-// QmlJSGrammar::VariousConstants) to int when used with inherited values of the
-// enum QmlJSGrammar::VariousConstants in a ?: expression to suppress gcc
-// "enumeral mismatch" warning
-
 static inline int classify2(const QChar *s, bool qmlMode) {
   if (s[0].unicode() == 'a') {
     if (s[1].unicode() == 's') {
