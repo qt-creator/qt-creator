@@ -53,6 +53,7 @@ class PropertyEditorContextObject : public QObject
 
     Q_PROPERTY(int majorVersion READ majorVersion WRITE setMajorVersion NOTIFY majorVersionChanged)
     Q_PROPERTY(int minorVersion READ minorVersion WRITE setMinorVersion NOTIFY minorVersionChanged)
+    Q_PROPERTY(int majorQtQuickVersion READ majorQtQuickVersion WRITE setMajorQtQuickVersion NOTIFY majorQtQuickVersionChanged)
 
     Q_PROPERTY(QQmlPropertyMap* backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
@@ -74,7 +75,9 @@ public:
     Q_INVOKABLE QString convertColorToString(const QColor &color) { return color.name(); }
 
     int majorVersion() const;
+    int majorQtQuickVersion() const;
     void setMajorVersion(int majorVersion);
+    void setMajorQtQuickVersion(int majorVersion);
     int minorVersion() const;
     void setMinorVersion(int minorVersion);
 
@@ -91,6 +94,7 @@ signals:
     void backendValuesChanged();
     void majorVersionChanged();
     void minorVersionChanged();
+    void majorQtQuickVersionChanged();
     void specificQmlComponentChanged();
 
 public slots:
@@ -124,6 +128,7 @@ private:
 
     int m_majorVersion;
     int m_minorVersion;
+    int m_majorQtQuickVersion;
     QQmlComponent *m_qmlComponent;
     QQmlContext *m_qmlContext;
 };

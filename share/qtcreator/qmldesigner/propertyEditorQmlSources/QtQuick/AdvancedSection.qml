@@ -92,5 +92,48 @@ Section {
             ExpandingSpacer {
             }
         }
+
+        Label {
+            visible: majorQtQuickVersion > 1
+            text: qsTr("Enabled")
+        }
+        SecondColumnLayout {
+            visible: majorQtQuickVersion > 1
+            CheckBox {
+                backendValue: backendValues.enabled
+                text: qsTr("Accept mouse and keyboard events")
+            }
+            ExpandingSpacer {
+            }
+        }
+
+        Label {
+            visible: majorQtQuickVersion > 1
+            text: qsTr("Smooth")
+        }
+        SecondColumnLayout {
+            visible: majorQtQuickVersion > 1
+            CheckBox {
+                backendValue: backendValues.smooth
+                text: qsTr("Smooth sampling active")
+            }
+            ExpandingSpacer {
+            }
+        }
+
+        Label {
+            visible: majorQtQuickVersion > 1
+            text: qsTr("Antialiasing")
+        }
+        SecondColumnLayout {
+            visible: majorQtQuickVersion > 1
+            CheckBox {
+                backendValue: backendValues.antialiasing
+                text: qsTr("Anti-aliasing active")
+            }
+            ExpandingSpacer {
+            }
+        }
+
     }
 }

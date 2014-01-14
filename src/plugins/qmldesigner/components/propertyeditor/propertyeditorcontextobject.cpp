@@ -40,6 +40,7 @@ PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
     m_backendValues(0),
     m_majorVersion(-1),
     m_minorVersion(-1),
+    m_majorQtQuickVersion(-1),
     m_qmlComponent(0),
     m_qmlContext(0)
 {
@@ -52,6 +53,11 @@ int PropertyEditorContextObject::majorVersion() const
 
 }
 
+int PropertyEditorContextObject::majorQtQuickVersion() const
+{
+      return m_majorQtQuickVersion;
+}
+
 void PropertyEditorContextObject::setMajorVersion(int majorVersion)
 {
     if (m_majorVersion == majorVersion)
@@ -60,6 +66,17 @@ void PropertyEditorContextObject::setMajorVersion(int majorVersion)
     m_majorVersion = majorVersion;
 
     emit majorVersionChanged();
+}
+
+void PropertyEditorContextObject::setMajorQtQuickVersion(int majorVersion)
+{
+    if (m_majorQtQuickVersion == majorVersion)
+        return;
+
+    m_majorQtQuickVersion = majorVersion;
+
+    emit majorQtQuickVersionChanged();
+
 }
 
 int PropertyEditorContextObject::minorVersion() const
