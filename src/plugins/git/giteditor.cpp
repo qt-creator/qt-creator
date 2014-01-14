@@ -37,6 +37,7 @@
 #include "gitconstants.h"
 #include "githighlighters.h"
 
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <texteditor/basetextdocument.h>
@@ -212,6 +213,32 @@ void GitEditor::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v
     }
 }
 
+void GitEditor::checkoutChange()
+{
+    const QFileInfo fi(source());
+    const QString workingDirectory = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+    GitPlugin::instance()->gitClient()->stashAndCheckout(workingDirectory, m_currentChange);
+}
+
+void GitEditor::resetChange()
+{
+    const QFileInfo fi(source());
+    const QString workingDir = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+
+    GitClient *client = GitPlugin::instance()->gitClient();
+    if (client->gitStatus(workingDir, StatusMode(NoUntracked | NoSubmodules))
+            != GitClient::StatusUnchanged) {
+        if (QMessageBox::question(
+                    Core::ICore::mainWindow(), tr("Reset"),
+                    tr("All changes in working directory will be discarded. Are you sure?"),
+                    QMessageBox::Yes | QMessageBox::No,
+                    QMessageBox::No) == QMessageBox::No) {
+            return;
+        }
+    }
+    client->reset(workingDir, QLatin1String("--hard"), m_currentChange);
+}
+
 void GitEditor::cherryPickChange()
 {
     const QFileInfo fi(source());
@@ -344,6 +371,8 @@ void GitEditor::addChangeActions(QMenu *menu, const QString &change)
     if (contentType() != VcsBase::OtherContent) {
         menu->addAction(tr("Cherry-Pick Change %1").arg(change), this, SLOT(cherryPickChange()));
         menu->addAction(tr("Revert Change %1").arg(change), this, SLOT(revertChange()));
+        menu->addAction(tr("Checkout Change %1").arg(change), this, SLOT(checkoutChange()));
+        menu->addAction(tr("Hard Reset to Change %1").arg(change), this, SLOT(resetChange()));
     }
 }
 

@@ -55,6 +55,8 @@ public slots:
     void commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v);
 
 private slots:
+    void checkoutChange();
+    void resetChange();
     void cherryPickChange();
     void revertChange();
     void stageDiffChunk();
