@@ -315,7 +315,16 @@ def qdump__QDir(d, value):
     privAddress = d.dereferenceValue(value)
     bit32 = d.is32bit()
     qt5 = d.qtVersion() >= 0x050000
-    qt3support = d.isQt3Support()
+
+    # Change 9fc0965 reorders members again.
+    #  bool fileListsInitialized;\n"
+    #  QStringList files;\n"
+    #  QFileInfoList fileInfos;\n"
+    #  QStringList nameFilters;\n"
+    #  QDir::SortFlags sort;\n"
+    #  QDir::Filters filters;\n"
+
+    # Before 9fc0965:
     # QDirPrivate:
     # QAtomicInt ref
     # QStringList nameFilters;
@@ -331,10 +340,7 @@ def qdump__QDir(d, value):
     # QFileInfoList fileInfos;
     # QFileSystemEntry dirEntry;
     # QFileSystemEntry absoluteDirEntry;
-    qt3SupportAddition = d.ptrSize() if qt3support else 0
-    filesOffset = (24 if bit32 else 40) + qt3SupportAddition
-    fileInfosOffset = filesOffset + d.ptrSize()
-    dirEntryOffset = fileInfosOffset + d.ptrSize()
+
     # QFileSystemEntry:
     # QString m_filePath
     # QByteArray m_nativeFilePath
@@ -343,7 +349,30 @@ def qdump__QDir(d, value):
     # qint16 m_lastDotInFileName
     # + 2 byte padding
     fileSystemEntrySize = 2 * d.ptrSize() + 8
-    absoluteDirEntryOffset = dirEntryOffset + fileSystemEntrySize
+
+    # Try to distinguish bool vs QStringList at the beginning:
+    firstValue = d.extractInt(privAddress)
+    if firstValue == 0 or firstValue == 1:
+        # Looks like a bool. Assume this is after 9fc0965.
+        if bit32:
+            filesOffset = 4
+            fileInfosOffset = 8
+            dirEntryOffset = 0x20
+            absoluteDirEntryOffset = 0x30
+        else:
+            filesOffset = 0x08
+            fileInfosOffset = 0x10
+            dirEntryOffset = 0x30
+            absoluteDirEntryOffset = 0x48
+    else:
+        # Assume this is before 9fc0965.
+        qt3support = d.isQt3Support()
+        qt3SupportAddition = d.ptrSize() if qt3support else 0
+        filesOffset = (24 if bit32 else 40) + qt3SupportAddition
+        fileInfosOffset = filesOffset + d.ptrSize()
+        dirEntryOffset = fileInfosOffset + d.ptrSize()
+        absoluteDirEntryOffset = dirEntryOffset + fileSystemEntrySize
+
     d.putStringValueByAddress(privAddress + dirEntryOffset)
     if d.isExpanded():
         with Children(d):
