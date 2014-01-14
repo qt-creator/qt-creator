@@ -67,15 +67,16 @@ void LinuxIccParser::stdError(const QString &line)
 {
     if (m_expectFirstLine  && m_firstLine.indexIn(line) != -1) {
         // Clear out old task
-        m_temporary = ProjectExplorer::Task(Task::Unknown, m_firstLine.cap(6).trimmed(),
+        Task::TaskType type = Task::Unknown;
+        QString category = m_firstLine.cap(4);
+        if (category == QLatin1String("error"))
+            type = Task::Error;
+        else if (category == QLatin1String("warning"))
+            type = Task::Warning;
+        m_temporary = ProjectExplorer::Task(type, m_firstLine.cap(6).trimmed(),
                                             Utils::FileName::fromUserInput(m_firstLine.cap(1)),
                                             m_firstLine.cap(2).toInt(),
                                             Constants::TASK_CATEGORY_COMPILE);
-        QString category = m_firstLine.cap(4);
-        if (category == QLatin1String("error"))
-            m_temporary.type = Task::Error;
-        else if (category == QLatin1String("warning"))
-            m_temporary.type = Task::Warning;
 
         m_expectFirstLine = false;
     } else if (!m_expectFirstLine && m_caretLine.indexIn(line) != -1) {

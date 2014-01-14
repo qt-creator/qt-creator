@@ -87,38 +87,34 @@ void GccParser::stdError(const QString &line)
         return;
     } else if (m_regExpGccNames.indexIn(lne) > -1) {
         QString description = lne.mid(m_regExpGccNames.matchedLength());
-        Task task(Task::Error,
-                  description,
-                  Utils::FileName(), /* filename */
-                  -1, /* line */
-                  Constants::TASK_CATEGORY_COMPILE);
+        Task::TaskType type = Task::Error;
         if (description.startsWith(QLatin1String("warning: "))) {
-            task.type = Task::Warning;
-            task.description = description.mid(9);
+            type = Task::Warning;
+            description = description.mid(9);
         } else if (description.startsWith(QLatin1String("fatal: ")))  {
-            task.description = description.mid(7);
+            description = description.mid(7);
         }
+        Task task(type, description, Utils::FileName(), /* filename */
+                  -1, /* line */ Constants::TASK_CATEGORY_COMPILE);
         newTask(task);
         return;
     } else if (m_regExp.indexIn(lne) > -1) {
         Utils::FileName filename = Utils::FileName::fromUserInput(m_regExp.cap(1));
         int lineno = m_regExp.cap(3).toInt();
-        Task task(Task::Unknown,
-                  m_regExp.cap(8) /* description */,
-                  filename, lineno,
-                  Constants::TASK_CATEGORY_COMPILE);
+        Task::TaskType type = Task::Unknown;
+        QString description = m_regExp.cap(8);
         if (m_regExp.cap(7) == QLatin1String("warning"))
-            task.type = Task::Warning;
+            type = Task::Warning;
         else if (m_regExp.cap(7) == QLatin1String("error") ||
-                 task.description.startsWith(QLatin1String("undefined reference to")) ||
-                 task.description.startsWith(QLatin1String("multiple definition of")))
-            task.type = Task::Error;
-
+                 description.startsWith(QLatin1String("undefined reference to")) ||
+                 description.startsWith(QLatin1String("multiple definition of")))
+            type = Task::Error;
         // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
         // We want those to show how the warning was triggered
         if (m_regExp.cap(5).startsWith(QLatin1Char('#')))
-            task.description = m_regExp.cap(5) + task.description;
+            description = m_regExp.cap(5) + description;
 
+        Task task(type, description, filename, lineno, Constants::TASK_CATEGORY_COMPILE);
         newTask(task);
         return;
     } else if (m_regExpIncluded.indexIn(lne) > -1) {

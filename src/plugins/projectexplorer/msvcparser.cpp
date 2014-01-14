@@ -157,15 +157,15 @@ bool MsvcParser::processCompileLine(const QString &line)
 
     if (m_compileRegExp.indexIn(line) > -1) {
         QPair<Utils::FileName, int> position = parseFileName( m_compileRegExp.cap(1));
-        m_lastTask = Task(Task::Unknown,
-                          m_compileRegExp.cap(4).trimmed() /* description */,
+        Task::TaskType type = Task::Unknown;
+        const QString category = m_compileRegExp.cap(3);
+        if (category == QLatin1String("warning"))
+            type = Task::Warning;
+        else if (category == QLatin1String("error"))
+            type = Task::Error;
+        m_lastTask = Task(type, m_compileRegExp.cap(4).trimmed() /* description */,
                           position.first, position.second,
                           Constants::TASK_CATEGORY_COMPILE);
-        if (m_compileRegExp.cap(3) == QLatin1String("warning"))
-            m_lastTask.type = Task::Warning;
-        else if (m_compileRegExp.cap(3) == QLatin1String("error"))
-            m_lastTask.type = Task::Error;
-
         return true;
     }
     return false;

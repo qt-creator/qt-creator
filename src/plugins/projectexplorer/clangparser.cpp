@@ -33,6 +33,15 @@
 
 using namespace ProjectExplorer;
 
+static Task::TaskType taskType(const QString &capture)
+{
+    if (capture == QLatin1String("warning"))
+        return Task::Warning;
+    else if (capture == QLatin1String("note"))
+        return Task::Unknown;
+    return Task::Error;
+}
+
 // opt. drive letter + filename: (2 brackets)
 static const char * const FILE_PATTERN = "(<command line>|([A-Za-z]:)?[^:]+\\.[^:]+)";
 
@@ -60,15 +69,11 @@ void ClangParser::stdError(const QString &line)
 
     if (m_commandRegExp.indexIn(lne) > -1) {
         m_expectSnippet = true;
-        Task task(Task::Error,
+        Task task(taskType(m_commandRegExp.cap(3)),
                   m_commandRegExp.cap(4),
                   Utils::FileName(), /* filename */
                   -1, /* line */
                   Constants::TASK_CATEGORY_COMPILE);
-        if (m_commandRegExp.cap(3) == QLatin1String("warning"))
-            task.type = Task::Warning;
-        else if (m_commandRegExp.cap(3) == QLatin1String("note"))
-            task.type = Task::Unknown;
         newTask(task);
         return;
     }
@@ -89,15 +94,11 @@ void ClangParser::stdError(const QString &line)
         int lineNo = m_messageRegExp.cap(4).toInt(&ok);
         if (!ok)
             lineNo = m_messageRegExp.cap(5).toInt(&ok);
-        Task task(Task::Error,
+        Task task(taskType(m_messageRegExp.cap(7)),
                   m_messageRegExp.cap(8),
                   Utils::FileName::fromUserInput(m_messageRegExp.cap(1)), /* filename */
                   lineNo,
                   Core::Id(Constants::TASK_CATEGORY_COMPILE));
-        if (m_messageRegExp.cap(7) == QLatin1String("warning"))
-            task.type = Task::Warning;
-        else if (m_messageRegExp.cap(7) == QLatin1String("note"))
-            task.type = Task::Unknown;
         newTask(task);
         return;
     }

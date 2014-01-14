@@ -55,13 +55,13 @@ void QtParser::stdError(const QString &line)
         int lineno = m_mocRegExp.cap(3).toInt(&ok);
         if (!ok)
             lineno = -1;
-        Task task(Task::Error,
-                  m_mocRegExp.cap(5).trimmed(),
+        Task::TaskType type = Task::Error;
+        if (m_mocRegExp.cap(4).compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
+            type = Task::Warning;
+        Task task(type, m_mocRegExp.cap(5).trimmed() /* description */,
                   Utils::FileName::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
                   lineno,
                   ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
-        if (m_mocRegExp.cap(4).compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
-            task.type = Task::Warning;
         emit addTask(task);
         return;
     }

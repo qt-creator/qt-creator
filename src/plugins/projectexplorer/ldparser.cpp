@@ -78,17 +78,15 @@ void LdParser::stdError(const QString &line)
         return;
     } else if (m_regExpGccNames.indexIn(lne) > -1) {
         QString description = lne.mid(m_regExpGccNames.matchedLength());
-        Task task(Task::Error,
-                  description,
-                  Utils::FileName(), /* filename */
-                  -1, /* line */
-                  Constants::TASK_CATEGORY_COMPILE);
+        Task::TaskType type = Task::Error;
         if (description.startsWith(QLatin1String("warning: "))) {
-            task.type = Task::Warning;
-            task.description = description.mid(9);
+            type = Task::Warning;
+            description = description.mid(9);
         } else if (description.startsWith(QLatin1String("fatal: ")))  {
-            task.description = description.mid(7);
+            description = description.mid(7);
         }
+        Task task(type, description, Utils::FileName() /* filename */, -1 /* line */,
+                  Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task);
         return;
     } else if (m_regExpLinker.indexIn(lne) > -1) {
@@ -104,20 +102,18 @@ void LdParser::stdError(const QString &line)
             filename = Utils::FileName::fromUserInput(sourceFileName);
         }
         QString description = m_regExpLinker.cap(8).trimmed();
-        Task task(Task::Error, description, filename, lineno,
-                  Constants::TASK_CATEGORY_COMPILE);
+        Task::TaskType type = Task::Error;
         if (description.startsWith(QLatin1String("At global scope")) ||
             description.startsWith(QLatin1String("At top level")) ||
             description.startsWith(QLatin1String("instantiated from ")) ||
             description.startsWith(QLatin1String("In ")) ||
             description.startsWith(QLatin1String("first defined here"))) {
-            task.type = Task::Unknown;
+            type = Task::Unknown;
+        } else if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {
+            type = Task::Warning;
+            description = description.mid(9);
         }
-        if (description.startsWith(QLatin1String("warning: "), Qt::CaseInsensitive)) {
-            task.type = Task::Warning;
-            task.description = description.mid(9);
-        }
-
+        Task task(type, description, filename, lineno, Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task);
         return;
     }
