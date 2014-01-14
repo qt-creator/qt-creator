@@ -1,4 +1,4 @@
-QTC_PLUGIN_DEPENDS += core
+QTC_PLUGIN_DEPENDS += coreplugin
 include(../qttest.pri)
 
 LIBS *= -L$$IDE_PLUGIN_PATH/QtProject
