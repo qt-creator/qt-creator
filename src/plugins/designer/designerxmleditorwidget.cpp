@@ -39,7 +39,7 @@ namespace Internal {
 
 DesignerXmlEditorWidget::DesignerXmlEditorWidget(QDesignerFormWindowInterface *form,
                                                  QWidget *parent) :
-    TextEditor::PlainTextEditorWidget(new FormWindowFile(form, this), parent),
+    TextEditor::PlainTextEditorWidget(new FormWindowFile(form), parent),
     m_designerEditor(new FormWindowEditor(this))
 {
     setReadOnly(true);
