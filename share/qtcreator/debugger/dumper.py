@@ -193,7 +193,7 @@ class PairedChildrenData:
         self.keyIsQString = str(self.keyType) == ns + "QString"
         self.keyIsQByteArray = str(self.keyType) == ns + "QByteArray"
 
-class PairedChildren:
+class PairedChildren(Children):
     def __init__(self, d, numChild, pairType, maxNumChild = None):
         self.d = d
         d.pairData = PairedChildrenData(d, pairType)

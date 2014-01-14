@@ -451,21 +451,33 @@ def qdump_stringHelper(d, data, size, charSize):
 
 
 def qdump__std____1__string(d, value):
-    inner = d.childAt(d.childAt(value["__r_"]["__first_"], 0), 0)
-    size = int(inner["__size_"])
-    alloc = int(inner["__cap_"])
-    data = d.pointerValue(inner["__data_"])
+    base = d.addressOf(value)
+    firstByte = d.extractByte(base)
+    if firstByte & 1:
+        # Long/external.
+        data = d.dereference(base + 2 * d.ptrSize())
+        size = d.extractInt(base + d.ptrSize())
+    else:
+        # Short/internal.
+        size = firstByte / 2
+        data = base + 1
     qdump_stringHelper(d, data, size, 1)
     d.putType("std::string")
 
 
 def qdump__std____1__wstring(d, value):
-    inner = d.childAt(d.childAt(value["__r_"]["__first_"], 0), 0)
-    size = int(inner["__size_"]) * 4
-    alloc = int(inner["__cap_"])
-    data = d.pointerValue(inner["__data_"])
-    qdump_stringHelper(d, data, size, 4)
-    d.putType("std::wstring")
+    base = d.addressOf(value)
+    firstByte = d.extractByte(base)
+    if firstByte & 1:
+        # Long/external.
+        data = d.dereference(base + 2 * d.ptrSize())
+        size = d.extractInt(base + d.ptrSize())
+    else:
+        # Short/internal.
+        size = firstByte / 2
+        data = base + 4
+    qdump_stringHelper(d, data, size * 4, 4)
+    d.putType("std::xxwstring")
 
 
 def qdump__std__shared_ptr(d, value):
@@ -628,30 +640,16 @@ def qform__std____1__unordered_map():
     return mapForms()
 
 def qdump__std____1__unordered_map(d, value):
-    n = toInteger(value["__table_"]["__p2_"]["__first_"])
+    n = int(value["__table_"]["__p2_"]["__first_"])
     d.putItemCount(n)
     if d.isExpanded():
         node = value["__table_"]["__p1_"]["__first_"]["__next_"]
-        #pos = toInteger(value["__table_"]["__p2_"]["__first_"])
-        #with Children(d, 1):
-        #    d.putFields(value)
-        keyType = d.templateArgument(value.type, 0)
-        valueType = d.templateArgument(value.type, 1)
-        isCompact = d.isMapCompact(keyType, valueType)
-        with Children(d, n, maxNumChild=1000, childType=valueType):
-            for i in xrange(n):
-                pair = node["__value_"]
-                #d.putSubItem(i, pair)
+        pairType = node["__value_"].type
+        with PairedChildren(d, n, pairType, maxNumChild=1000):
+            for i in d.childRange():
                 with SubItem(d, i):
-                    if isCompact:
-                        d.putMapName(pair["first"], i)
-                        d.putItem(pair["second"])
-                    else:
-                        d.putEmptyValue()
-                        if d.isExpanded():
-                            with Children(d, 2):
-                                d.putSubItem("first", pair["first"])
-                                d.putSubItem("second", pair["second"])
+                    pair = node["__value_"]
+                    d.putPair(pair)
                 node = node["__next_"]
 
 def qdump__std____debug__unordered_set(d, value):
@@ -791,6 +789,15 @@ def qdump__std__wstring(d, value):
 def qdump__std__basic_string(d, value):
     innerType = d.templateArgument(value.type, 0)
     qdump__std__stringHelper1(d, value, innerType.sizeof)
+
+def qdump__std____1__basic_string(d, value):
+    innerType = str(d.templateArgument(value.type, 0))
+    if innerType == "char":
+        qdump__std____1__string(d, value)
+    elif innerType == "wchar_t":
+        qdump__std____1__wstring(d, value)
+    else:
+        warn("UNKNOWN INNER TYPE %s" % innerType)
 
 def qdump__wstring(d, value):
     qdump__std__wstring(d, value)
