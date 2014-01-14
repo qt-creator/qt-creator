@@ -56,7 +56,7 @@ static QIcon invalidConfigIcon(QLatin1String(":/projectexplorer/images/compile_e
 BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     QWidget(parent),
     m_ui(new Ui_BlackBerryNDKSettingsWidget),
-    m_bbConfigManager(&BlackBerryConfigurationManager::instance()),
+    m_bbConfigManager(BlackBerryConfigurationManager::instance()),
     m_autoDetectedNdks(0),
     m_manualNdks(0)
 {
@@ -64,7 +64,7 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
 
     updateInfoTable(0);
 
-    m_activatedTargets << m_bbConfigManager->activeConfigurations();
+    m_activatedTargets << m_bbConfigManager.activeConfigurations();
 
     m_ui->ndksTreeWidget->header()->setResizeMode(QHeaderView::Stretch);
     m_ui->ndksTreeWidget->header()->setStretchLastSection(false);
@@ -103,7 +103,7 @@ void BlackBerryNDKSettingsWidget::setWizardMessageVisible(bool visible)
 
 bool BlackBerryNDKSettingsWidget::hasActiveNdk() const
 {
-    return !m_bbConfigManager->configurations().isEmpty();
+    return !m_bbConfigManager.configurations().isEmpty();
 }
 
 QList<BlackBerryConfiguration *> BlackBerryNDKSettingsWidget::activatedTargets()
@@ -142,7 +142,7 @@ void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
 
 void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentItem)
 {
-    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(
+    BlackBerryConfiguration *config = m_bbConfigManager.configurationFromEnvFile(
             Utils::FileName::fromString(currentItem ? currentItem->text(1) : QString()));
     updateUi(currentItem, config);
 
@@ -161,7 +161,7 @@ void BlackBerryNDKSettingsWidget::updateNdkList()
     qDeleteAll(m_manualNdks->takeChildren());
 
     bool enableCleanUp = false;
-    foreach (BlackBerryConfiguration *config, m_bbConfigManager->configurations()) {
+    foreach (BlackBerryConfiguration *config, m_bbConfigManager.configurations()) {
         QTreeWidgetItem *parent = config->isAutoDetected() ? m_autoDetectedNdks : m_manualNdks;
         QTreeWidgetItem *item = new QTreeWidgetItem(parent);
         item->setText(0, config->displayName());
@@ -216,7 +216,7 @@ void BlackBerryNDKSettingsWidget::removeNdkTarget()
     QString ndk = m_ui->ndksTreeWidget->currentItem()->text(0);
     QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
 
-    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
+    BlackBerryConfiguration *config = m_bbConfigManager.configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
     if (!config)
         return;
 
@@ -235,7 +235,7 @@ void BlackBerryNDKSettingsWidget::removeNdkTarget()
     if (button == QMessageBox::Yes) {
         m_activatedTargets.removeOne(config);
         m_deactivatedTargets.removeOne(config);
-        m_bbConfigManager->removeConfiguration(config);
+        m_bbConfigManager.removeConfiguration(config);
         m_manualNdks->removeChild(m_ui->ndksTreeWidget->currentItem());
         emit targetsUpdated();
     }
@@ -248,7 +248,7 @@ void BlackBerryNDKSettingsWidget::activateNdkTarget()
 
     QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
 
-    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
+    BlackBerryConfiguration *config = m_bbConfigManager.configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
     if (config && !m_activatedTargets.contains(config)) {
         m_activatedTargets << config;
         if (m_deactivatedTargets.contains(config))
@@ -266,7 +266,7 @@ void BlackBerryNDKSettingsWidget::deactivateNdkTarget()
 
     QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
 
-    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
+    BlackBerryConfiguration *config = m_bbConfigManager.configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
     if (config && m_activatedTargets.contains(config)) {
         m_deactivatedTargets << config;
         m_activatedTargets.removeAt(m_activatedTargets.indexOf(config));
@@ -310,11 +310,11 @@ void BlackBerryNDKSettingsWidget::uninstallNdkTarget()
 
 void BlackBerryNDKSettingsWidget::cleanUp()
 {
-    foreach (BlackBerryConfiguration *config, m_bbConfigManager->configurations()) {
+    foreach (BlackBerryConfiguration *config, m_bbConfigManager.configurations()) {
         if (!config->isValid()) {
             m_activatedTargets.removeOne(config);
             m_deactivatedTargets.removeOne(config);
-            m_bbConfigManager->removeConfiguration(config);
+            m_bbConfigManager.removeConfiguration(config);
         }
     }
 
@@ -323,7 +323,7 @@ void BlackBerryNDKSettingsWidget::cleanUp()
 
 void BlackBerryNDKSettingsWidget::handleInstallationFinished()
 {
-    m_bbConfigManager->loadAutoDetectedConfigurations();
+    m_bbConfigManager.loadAutoDetectedConfigurations();
     updateNdkList();
 }
 
@@ -340,13 +340,13 @@ void BlackBerryNDKSettingsWidget::handleUninstallationFinished()
             return;
     }
 
-    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
+    BlackBerryConfiguration *config = m_bbConfigManager.configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
     if (m_activatedTargets.contains(config))
         m_activatedTargets.removeAt(m_activatedTargets.indexOf(config));
     else if (m_deactivatedTargets.contains(config))
         m_deactivatedTargets.removeAt(m_deactivatedTargets.indexOf(config));
 
-    m_bbConfigManager->removeConfiguration(config);
+    m_bbConfigManager.removeConfiguration(config);
 
     updateNdkList();
 }
@@ -356,7 +356,7 @@ void BlackBerryNDKSettingsWidget::populateDefaultConfigurationCombo()
     // prevent QComboBox::currentIndexChanged() from being emitted
     m_ui->apiLevelCombo->clear();
 
-    QList<BlackBerryConfiguration*> configurations = m_bbConfigManager->configurations();
+    QList<BlackBerryConfiguration*> configurations = m_bbConfigManager.configurations();
 
     m_ui->apiLevelCombo->addItem(tr("Newest version"),
             QVariant::fromValue(static_cast<void*>(0)));
@@ -366,7 +366,7 @@ void BlackBerryNDKSettingsWidget::populateDefaultConfigurationCombo()
 
     int configIndex = 0;
 
-    BlackBerryConfiguration *defaultConfig = m_bbConfigManager->defaultConfiguration();
+    BlackBerryConfiguration *defaultConfig = m_bbConfigManager.defaultConfiguration();
 
     foreach (BlackBerryConfiguration *config, configurations) {
         m_ui->apiLevelCombo->addItem(config->displayName(),
@@ -376,7 +376,7 @@ void BlackBerryNDKSettingsWidget::populateDefaultConfigurationCombo()
             configIndex = m_ui->apiLevelCombo->count() - 1;
     }
 
-    const int currentIndex = (m_bbConfigManager->newestConfigurationEnabled()) ? 0 : configIndex;
+    const int currentIndex = (m_bbConfigManager.newestConfigurationEnabled()) ? 0 : configIndex;
 
     m_ui->apiLevelCombo->setCurrentIndex(currentIndex);
 }
