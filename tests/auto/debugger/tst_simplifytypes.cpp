@@ -49,6 +49,7 @@ const char *description[] =
     "g++_unordered_map",
 
     "libc++_stringvector",
+    "libc++_unordered_map",
 
     "msvc_stdstring",
     "msvc_stdwstring",
@@ -80,6 +81,8 @@ const char *input[] =
 
 // libc++
 "std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > > >",
+"std::__1::unordered_map<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, float, std::__1::hash<char, std::__1::char_traits<char>, std::__1::allocator<char> >, std::__1::equal_to<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >, std::__1::allocator<std::__1::pair<const std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, float> > >",
+
 // MSVC
 "class std::basic_string<char,std::char_traits<char>,std::allocator<char> >",
 "class std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >",
@@ -110,6 +113,7 @@ const char *output[] =
     "std::unordered_map<int, int>",
     // libc++
     "std::vector<std::string>",
+    "std::unordered_map<std::string, float>",
     // MSVC
     "std::string",
     "std::wstring",

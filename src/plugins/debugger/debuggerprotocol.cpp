@@ -808,6 +808,7 @@ QString simplifySTLType(const QString &typeIn)
     if (type.startsWith(QLatin1String("struct ")))
         type.remove(0, 7);
 
+    const bool isLibCpp = type.contains(QLatin1String("std::__1"));
     type.replace(QLatin1String("std::__1::"), QLatin1String("std::"));
     type.replace(QLatin1String("std::__debug::"), QLatin1String("std::"));
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
@@ -849,6 +850,7 @@ QString simplifySTLType(const QString &typeIn)
         }
         const QString alloc = fixNestedTemplates(type.mid(start, pos + 1 - start).trimmed());
         const QString inner = fixNestedTemplates(alloc.mid(15, alloc.size() - 16).trimmed());
+
         const QString allocEsc = QRegExp::escape(alloc);
         const QString innerEsc = QRegExp::escape(inner);
         if (inner == QLatin1String("char")) { // std::string
@@ -870,6 +872,13 @@ QString simplifySTLType(const QString &typeIn)
         QTC_ASSERT(stackRE.isValid(), return typeIn);
         if (stackRE.indexIn(type) != -1)
             type.replace(stackRE.cap(0), QString::fromLatin1("stack<%1>").arg(inner));
+
+        // std::hash<char>
+        QRegExp hashCharRE(QString::fromLatin1("hash<char, std::char_traits<char>, ?%1\\s*>").arg(allocEsc));
+        hashCharRE.setMinimal(true);
+        QTC_ASSERT(hashCharRE.isValid(), return typeIn);
+        if (hashCharRE.indexIn(type) != -1)
+            type.replace(hashCharRE.cap(0), QString::fromLatin1("hash<char>"));
 
         // std::set
         QRegExp setRE(QString::fromLatin1("set<%1, ?std::less<%2>, ?%3\\s*>").arg(innerEsc, innerEsc, allocEsc));
@@ -949,6 +958,15 @@ QString simplifySTLType(const QString &typeIn)
             QTC_ASSERT(mapRE1.isValid(), return typeIn);
             if (mapRE1.indexIn(type) != -1)
                 type.replace(mapRE1.cap(0), QString::fromLatin1("unordered_map<%1, %2>").arg(key, value));
+
+            if (isLibCpp) {
+                QRegExp mapRE2(QString::fromLatin1("unordered_map<std::string, ?%1, ?std::hash<char>, ?std::equal_to<std::string>, ?%2\\s*>")
+                               .arg(valueEsc, allocEsc));
+                mapRE2.setMinimal(true);
+                QTC_ASSERT(mapRE2.isValid(), return typeIn);
+                if (mapRE2.indexIn(type) != -1)
+                    type.replace(mapRE2.cap(0), QString::fromLatin1("unordered_map<std::string, %2>").arg(value));
+            }
         }
     }
     type.replace(QLatin1Char('@'), QLatin1Char('*'));
