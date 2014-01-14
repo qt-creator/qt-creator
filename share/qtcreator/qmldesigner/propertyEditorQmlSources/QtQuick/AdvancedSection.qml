@@ -39,11 +39,12 @@ Section {
     SectionLayout {
         rows: 4
 
-        OriginControl {
-            backendValue: backendValues.transformOrigin
+        Label {
+            text: qsTr("Origin")
         }
 
-        SecondColumnLayout {
+        OriginControl {
+            backendValue: backendValues.transformOrigin
         }
 
         Label {
