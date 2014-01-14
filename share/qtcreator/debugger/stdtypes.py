@@ -640,16 +640,15 @@ def qform__std____1__unordered_map():
     return mapForms()
 
 def qdump__std____1__unordered_map(d, value):
-    n = int(value["__table_"]["__p2_"]["__first_"])
-    d.putItemCount(n)
+    size = int(value["__table_"]["__p2_"]["__first_"])
+    d.putItemCount(size)
     if d.isExpanded():
         node = value["__table_"]["__p1_"]["__first_"]["__next_"]
         pairType = node["__value_"].type
-        with PairedChildren(d, n, pairType, maxNumChild=1000):
+        with PairedChildren(d, size, pairType, maxNumChild=1000):
             for i in d.childRange():
                 with SubItem(d, i):
-                    pair = node["__value_"]
-                    d.putPair(pair)
+                    d.putPair(node["__value_"], i)
                 node = node["__next_"]
 
 def qdump__std____debug__unordered_set(d, value):
