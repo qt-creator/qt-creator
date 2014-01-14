@@ -1248,6 +1248,16 @@ NodeMetaInfo NodeMetaInfo::directSuperClass() const
     return NodeMetaInfo();
 }
 
+QList<TypeName> NodeMetaInfo::superClassNames() const
+{
+    QList<TypeName> list;
+
+    foreach (const Internal::TypeDescription &type,  m_privateData->prototypes()) {
+        list.append(type.className);
+    }
+    return list;
+}
+
 bool NodeMetaInfo::defaultPropertyIsComponent() const
 {
     if (hasDefaultProperty())
