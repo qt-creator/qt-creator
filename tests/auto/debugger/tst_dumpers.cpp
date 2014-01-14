@@ -549,6 +549,7 @@ struct EigenProfile {};
 struct CoreProfile {};
 struct CorePrivateProfile {};
 struct GuiProfile {};
+struct NetworkProfile {};
 
 struct DataBase
 {
@@ -635,6 +636,18 @@ public:
         profileExtra +=
             "CONFIG += QT\n"
             "QT += core\n";
+
+        useQt = true;
+        useQHash = true;
+
+        return *this;
+    }
+
+    const Data &operator%(const NetworkProfile &) const
+    {
+        profileExtra +=
+            "CONFIG += QT\n"
+            "QT += core network\n";
 
         useQt = true;
         useQHash = true;
@@ -2165,20 +2178,21 @@ void tst_Dumpers::dumper_data()
               % Check("map.3.value.2.a", "3", "int")
               % Check("x", "<3 items>", "@QList<nsA::nsB::SomeType*>");
 
-//   QTest::newRow("QMultiMapUintFloat")
-//           << Data("#include <QMap>\n",
-//                   "QMultiMap<uint, float> map;\n"
-//                   "map.insert(11, 11.0);\n"
-//                   "map.insert(22, 22.0);\n"
-//                   "map.insert(22, 33.0);\n"
-//                   "map.insert(22, 34.0);\n"
-//                   "map.insert(22, 35.0);\n"
-//                   "map.insert(22, 36.0);\n")
-//        // FIXME: Wrong behaviour.
-//              % Check("map", "<6 items>", "@QMultiMap<unsigned int, float>")
-//             // % Check("map.[0] 11", "[0] 11", "11", "float")
-//              % Check("map.5", Value4("A"), "float")
-//              % Check("map.5", Value5("B"), "float");
+
+   QTest::newRow("QMultiMapUintFloat")
+           << Data("#include <QMap>\n",
+                   "QMultiMap<uint, float> map;\n"
+                   "map.insert(11, 11.0);\n"
+                   "map.insert(22, 22.0);\n"
+                   "map.insert(22, 33.0);\n"
+                   "map.insert(22, 34.0);\n"
+                   "map.insert(22, 35.0);\n"
+                   "map.insert(22, 36.0);\n")
+              % CoreProfile()
+              % Check("map", "<6 items>", "@QMultiMap<unsigned int, float>")
+              % Check("map.0", "[0] 11", "11", "float")
+              % Check("map.5", "[5] 22", "22", "float");
+
 
    QTest::newRow("QMultiMapStringFloat")
            << Data("#include <QMap>\n"
@@ -3944,42 +3958,32 @@ void tst_Dumpers::dumper_data()
          % Check("vec.1.a", "2", "int");
 
 
-//    QTest::newRow("QVectorFooStar")
-//                     << Data(
-//    {
-//        // This tests the display of a vector of pointers to custom structs");
-//        "QVector<Foo *> vec;\n"
-//         % Check("vec <0 items> QVector<Foo*>");
-//        // Continue");\n"
-//        // step over\n"
-//        // check that the display is ok");\n"
-//        "vec.append(new Foo(1));\n"
-//        "vec.append(0);\n"
-//        "vec.append(new Foo(2));\n"
-//        "vec.append(new Fooooo(3));\n"
-//        // switch "Auto derefencing pointers" in Locals context menu\n"
-//        // off and on again, and check result looks sane");\n"
-//         % Check("vec <4 items> QVector<Foo*>");
-//         % Check("vec.0", "Foo");
-//         % Check("vec.0.a", "1", "int");
-//         % Check("vec.1 0x0 Foo *");
-//         % Check("vec.2", "Foo");
-//         % Check("vec.2.a", "2", "int");
-//         % Check("vec.3", "Fooooo");
-//         % Check("vec.3.a", "5", "int");
+    // This tests the display of a vector of pointers to custom structs");
+    QTest::newRow("QVectorFooStar")
+            << Data("#include <QVector>\n" + fooData,
+                    "QVector<Foo *> vec;\n"
+                    "vec.append(new Foo(1));\n"
+                    "vec.append(0);\n"
+                    "vec.append(new Foo(5));\n")
+            % CoreProfile()
+            % Check("vec", "<3 items>", "@QVector<Foo*>")
+            % CheckType("vec.0", "[0]", "Foo")
+            % Check("vec.0.a", "1", "int")
+            % Check("vec.1", "[1]", "0x0", "Foo *")
+            % CheckType("vec.2", "[2]", "Foo")
+            % Check("vec.2.a", "5", "int");
 
-//    QTest::newRow("QVectorBool")
-//                         << Data(
-//        QVector<bool> vec;
-//         % Check("vec <0 items> QVector<bool>");
-//        // Continue");
-//        // step over
-//        // check that the display is ok");
-//        vec.append(true);
-//        vec.append(false);
-//         % Check("vec <2 items> QVector<bool>");
-//         % Check("vec.0", "true", "bool");
-//         % Check("vec.1", "false", "bool");
+
+    QTest::newRow("QVectorBool")
+            << Data("#include <QVector>\n",
+                    "QVector<bool> vec;\n"
+                    "vec.append(true);\n"
+                    "vec.append(false);\n")
+            % CoreProfile()
+            % Check("vec", "<2 items>", "@QVector<bool>")
+            % Check("vec.0", "[0]", "1", "bool")
+            % Check("vec.1", "[1]", "0", "bool");
+
 
 //    QTest::newRow("QVectorListInt")
 //                             << Data(
@@ -4017,7 +4021,7 @@ void tst_Dumpers::dumper_data()
 //    typedef QList<Goo> GooList;
 
 //    QTest::newRow("NoArgumentName(int i, int, int k)
-//    {
+//
 //        // This is not supposed to work with the compiled dumpers");
 //        "GooList list;
 //        "list.append(Goo("Hello", 1));
@@ -4505,20 +4509,17 @@ void tst_Dumpers::dumper_data()
                     "unused(&a);\n")
              % CheckType("m", "member_t");
 
-//  QTest::newRow("PassByReferenceHelper")
-//          << Data(fooData
-//      (Foo &f)
-//       % CheckType("f Foo &");\n"
-//       % Check("f.a", "12", "int");\n"
-//      // Continue");\n"
-//      ++f.a;\n"
-//       % CheckType("f Foo &");\n"
-//       % Check("f.a", "13", "int");\n"
 
-//  QTest::newRow("PassByReference")
-//                << Data(
-//      "Foo f(12);\n"
-//      "testPassByReferenceHelper(f);\n"
+  QTest::newRow("PassByReference")
+           << Data(fooData +
+                   "void testPassByReference(Foo &f) {\n"
+                   "   BREAK;\n"
+                   "}\n",
+                   "Foo f(12);\n"
+                   "testPassByReference(f);\n")
+               % CheckType("f", "Foo &")
+               % Check("f.a", "12", "int");
+
 
     QTest::newRow("BigInt")
             << Data("#include <QString>\n"
@@ -4763,7 +4764,6 @@ void tst_Dumpers::dumper_data()
 #endif
 
 
-
     // https://bugreports.qt-project.org/browse/QTCREATORBUG-3611
     QTest::newRow("Bug3611")
         << Data("typedef unsigned char byte;\n"
@@ -4772,230 +4772,192 @@ void tst_Dumpers::dumper_data()
          % Check("f", "50 '2'", "byte");
 
 
-
-//    QTest::newRow("https://bugreports.qt-project.org/browse/QTCREATORBUG-4904")
-//        << Data(
-
-//    "struct CustomStruct {\n"
-//    "    int id;\n"
-//    "    double dvalue;\n"
-//    "};",
-//        "QMap<int, CustomStruct> map;\n"
-//        "CustomStruct cs1;\n"
-//        "cs1.id = 1;\n"
-//        "cs1.dvalue = 3.14;\n"
-//        "CustomStruct cs2 = cs1;\n"
-//        "cs2.id = -1;\n"
-//        "map.insert(cs1.id, cs1);\n"
-//        "map.insert(cs2.id, cs2);\n"
-//        "QMap<int, CustomStruct>::iterator it = map.begin();\n"
-//         % Check("map <2 items> QMap<int, bug4904::CustomStruct>");
-//         % Check("map.0   QMapNode<int, bug4904::CustomStruct>");
-//         % Check("map.0.key", "-1", "int");
-//         % Check("map.0.value", "bug4904::CustomStruct");
-//         % Check("map.0.value.dvalue", "3.1400000000000001", "double");
-//         % Check("map.0.value.id", "-1", "int");
-
-
-//    QTest::newRow("// https://bugreports.qt-project.org/browse/QTCREATORBUG-5106")
-//        << Data(
-//    "class A5106\n"
-//    "{\n"
-//    "public:\n"
-//    "        A5106(int a, int b) : m_a(a), m_b(b) {}\n"
-//    "        virtual int test() { return 5; }\n"
-//    "private:\n"
-//    "        int m_a, m_b;\n"
-//    "};\n"
-
-//    "class B5106 : public A5106\n"
-//    "{\n"
-//    "public:\n"
-//    "        B5106(int c, int a, int b) : A5106(a, b), m_c(c) {}\n"
-//    "        virtual int test() { return 4; BREAK_HERE; }\n"
-//    "private:\n"
-//    "        int m_c;\n"
-//    "};\n"
-//    ,
-//    "    B5106 b(1,2,3);\n"
-//    "    b.test();\n"
-//    "    b.A5106::test();\n"
-//    }
-
-
-//    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5184
-
-//    // Note: The report there shows type field "QUrl &" instead of QUrl");
-//    // It's unclear how this can happen. It should never have been like
-//    // that with a stock 7.2 and any version of Creator");
-
-//    void helper(const QUrl &url)\n"
-//    {\n"
-//        QNetworkRequest request(url);\n"
-//        QList<QByteArray> raw = request.rawHeaderList();\n"
-//         % Check("raw <0 items> QList<QByteArray>");
-//         % Check("request", "QNetworkRequest");
-//         % Check("url "http://127.0.0.1/" QUrl &");
-//    }
-
-//    QTest::newRow("5184()
-//    {
-//        QUrl url(QString("http://127.0.0.1/"));\n"
-//        helper(url);\n"
-//    }
-
-
-//namespace qc42170 {
-
-//    // http://www.qtcentre.org/threads/42170-How-to-watch-data-of-actual-type-in-debugger
-
-//    struct Object
-//    {
-//        Object(int id_) : id(id_) {}
-//        virtual ~Object() {}
-//        int id;
-//    };
-
-//    struct Point : Object
-//    {
-//        Point(double x_, double y_) : Object(1), x(x_), y(y_) {}
-//        double x, y;
-//    };
-
-//    struct Circle : Point
-//    {
-//        Circle(double x_, double y_, double r_) : Point(x_, y_), r(r_) { id = 2; }
-//        double r;
-//    };
-
-//    void helper(Object *obj)
-//    {
-//         % Check("obj", "qc42170::Circle");
-//        // Continue");
-
-//         % Check("that obj is shown as a 'Circle' object");
-//        unused(obj);
-//    }
-
-//    QTest::newRow("42170")
-//                      << Data(
-//    {
-//        Circle *circle = new Circle(1.5, -2.5, 3.0);
-//        Object *obj = circle;
-//        helper(circle);
-//        helper(obj);
-//    }
-
-//} // namespace qc42170
-
-
-//namespace bug5799 {
-
-//    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5799
-
-//    QTest::newRow("5799()
-//    "typedef struct { int m1; int m2; } S1;\n"
-//    "struct S2 : S1 { };\n"
-//    "typedef struct S3 { int m1; int m2; } S3;\n"
-//    "struct S4 : S3 { };\n"
-
-//        "S2 s2;\n"
-//        "s2.m1 = 5;\n"
-//        "S4 s4;\n"
-//        "s4.m1 = 5;\n"
-//        "S1 a1[10];\n"
-//        "typedef S1 Array[10];\n"
-//        "Array a2;\n"
-//         % CheckType("a1 bug5799::S1 [10]");
-//         % Check("a2", "bug5799::Array");
-//         % Check("s2", "bug5799::S2");
-//         % Check("s2.@1", "bug5799::S1");
-//         % Check("s2.@1.m1", "5", "int");
-//         % Check("s2.@1.m2", "int");
-//         % Check("s4", "bug5799::S4");
-//         % Check("s4.@1", "bug5799::S3");
-//         % Check("s4.@1.m1", "5", "int");
-//         % Check("s4.@1.m2", "int");
-
-
-//    // http://www.qtcentre.org/threads/41700-How-to-watch-STL-containers-iterators-during-debugging
-
-//    QTest::newRow("41700")
-//                            << Data(
-//    {
-//        "using namespace std;\n"
-//        "typedef map<string, list<string> > map_t;\n"
-//        "map_t m;\n"
-//        "m["one"].push_back("a");\n"
-//        "m["one"].push_back("b");\n"
-//        "m["one"].push_back("c");\n"
-//        "m["two"].push_back("1");\n"
-//        "m["two"].push_back("2");\n"
-//        "m["two"].push_back("3");\n"
-//        "map_t::const_iterator it = m.begin();
-//         % Check("m <2 items> qc41700::map_t");
-//         % Check("m.0   std::pair<std::string const, std::list<std::string>>");
-//         % Check("m.0.first "one" std::string");
-//         % Check("m.0.second <3 items> std::list<std::string>");
-//         % Check("m.0.second.0 "a" std::string");
-//         % Check("m.0.second.1 "b" std::string");
-//         % Check("m.0.second.2 "c" std::string");
-//         % Check("m.1   std::pair<std::string const, std::list<std::string>>");
-//         % Check("m.1.first "two" std::string");
-//         % Check("m.1.second <3 items> std::list<std::string>");
-//         % Check("m.1.second.0 "1" std::string");
-//         % Check("m.1.second.1 "2" std::string");
-//         % Check("m.1.second.2 "3" std::string");
-
-
-//    QTest::newRow("42895()
-//    "void g(int c, int d)\n"
-//    "{\n"
-//        "qDebug() << c << d;\n"
-//        "BREAK"\n"
-//\n"
-//    "void f(int a, int b)\n"
-//    "{\n"
-//    "    g(a, b);\n"
-//    "}\n"
-
-//    "    f(3, 4);\n"
-
-//         % Check("c", "3", "int");
-//         % Check("d", "4", "int");
-//         % Check("there are frames for g and f in the stack view");
-
-
-
-
-//    // https://bugreports.qt-project.org/browse/QTCREATORBUG-6465
-
-//    QTest::newRow("6465()\n"
-//    {\n"
-//        typedef char Foo[20];\n"
-//        Foo foo = "foo";\n"
-//        char bar[20] = "baz";
-
-//namespace bug6857 {
-
-//    class MyFile : public QFile
-//    {
-//    public:
-//        MyFile(const QString &fileName)
-//            : QFile(fileName) {}
-//    };
-
-//    QTest::newRow("6857")
-//                               << Data(
-//        MyFile file("/tmp/tt");
-//        file.setObjectName("A file");
-//         % Check("file  bug6857::MyFile");
-//         % Check("file.@1 "/tmp/tt" QFile");
-//         % Check("file.@1.@1.@1 "A file" QObject");
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-4904
+    QTest::newRow("Bug4904")
+        << Data("#include <QMap>\n"
+                "struct CustomStruct {\n"
+                "    int id;\n"
+                "    double dvalue;\n"
+                "};",
+                "QMap<int, CustomStruct> map;\n"
+                "CustomStruct cs1;\n"
+                "cs1.id = 1;\n"
+                "cs1.dvalue = 3.14;\n"
+                "CustomStruct cs2 = cs1;\n"
+                "cs2.id = -1;\n"
+                "map.insert(cs1.id, cs1);\n"
+                "map.insert(cs2.id, cs2);\n"
+                "QMap<int, CustomStruct>::iterator it = map.begin();\n")
+         % CoreProfile()
+         % Check("map", "<2 items>", "@QMap<int, CustomStruct>")
+         % CheckType("map.0", "[0]", "@QMapNode<int, CustomStruct>")
+         % Check("map.0.key", "-1", "int")
+         % CheckType("map.0.value", "CustomStruct")
+         % Check("map.0.value.dvalue", FloatValue("3.14"), "double")
+         % Check("map.0.value.id", "-1", "int");
 
 
 #if 0
-    QTest::newRow("bug6858")
+      // https://bugreports.qt-project.org/browse/QTCREATORBUG-5106
+      QTest::newRow("Bug5106")
+          << Data("struct A5106 {\n"
+                  "        A5106(int a, int b) : m_a(a), m_b(b) {}\n"
+                  "        virtual int test() { return 5; }\n"
+                  "        int m_a, m_b;\n"
+                  "};\n"
+
+                  "struct B5106 : public A5106 {\n"
+                  "        B5106(int c, int a, int b) : A5106(a, b), m_c(c) {}\n"
+                  "        virtual int test() {\n"
+                  "            BREAK;\n"
+                  "        }\n"
+                  "        int m_c;\n"
+                  "};\n",
+                  "B5106 b(1,2,3);\n"
+                  "b.test();\n"
+                  "b.A5106::test();\n")
+            % Check(?)
+#endif
+
+
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5184
+
+    // Note: The report there shows type field "QUrl &" instead of QUrl");
+    // It's unclear how this can happen. It should never have been like
+    // that with a stock 7.2 and any version of Creator");
+    QTest::newRow("Bug5184")
+        << Data("#include <QUrl>\n"
+                "#include <QNetworkRequest>\n"
+                "void helper(const QUrl &url)\n"
+                "{\n"
+                "    QNetworkRequest request(url);\n"
+                "    QList<QByteArray> raw = request.rawHeaderList();\n"
+                "    BREAK;\n"
+                "    unused(&url);\n"
+                "}\n",
+               " QUrl url(QString(\"http://127.0.0.1/\"));\n"
+               " helper(url);\n")
+           % NetworkProfile()
+           % Check("raw", "<0 items>", "@QList<@QByteArray>")
+           % CheckType("request", "@QNetworkRequest")
+           % Check("url", "\"http://127.0.0.1/\"", "@QUrl &");
+
+
+    // http://www.qtcentre.org/threads/42170-How-to-watch-data-of-actual-type-in-debugger
+    QTest::newRow("QC42170")
+        << Data("struct Object {\n"
+                "    Object(int id_) : id(id_) {}\n"
+                "    virtual ~Object() {}\n"
+                "    int id;\n"
+                "};\n\n"
+                "struct Point : Object\n"
+                "{\n"
+                "    Point(double x_, double y_) : Object(1), x(x_), y(y_) {}\n"
+                "    double x, y;\n"
+                "};\n\n"
+                "struct Circle : Point\n"
+                "{\n"
+                "    Circle(double x_, double y_, double r_) : Point(x_, y_), r(r_) { id = 2; }\n"
+                "    double r;\n"
+                "};\n\n"
+                "void helper(Object *obj)\n"
+                "{\n"
+                "    BREAK;\n"
+                "    unused(obj);\n"
+                "}\n",
+                "Circle *circle = new Circle(1.5, -2.5, 3.0);\n"
+                "Object *obj = circle;\n"
+                "helper(circle);\n"
+                "helper(obj);\n")
+            % CheckType("obj", "Circle");
+
+
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-5799
+    QTest::newRow("Bug5799")
+        << Data("typedef struct { int m1; int m2; } S1;\n"
+                "struct S2 : S1 { };\n"
+                "typedef struct S3 { int m1; int m2; } S3;\n"
+                "struct S4 : S3 { };\n",
+                "S2 s2;\n"
+                "s2.m1 = 5;\n"
+                "S4 s4;\n"
+                "s4.m1 = 5;\n"
+                "S1 a1[10];\n"
+                "typedef S1 Array[10];\n"
+                "Array a2;\n"
+                "unused(&s2, &s4, &a1, &a2);\n")
+             % CheckType("a1", "S1 [10]")
+             % CheckType("a2", "Array")
+             % CheckType("s2", "S2")
+             % CheckType("s2.@1", "[S1]", "S1")
+             % Check("s2.@1.m1", "5", "int")
+             % CheckType("s2.@1.m2", "int")
+             % CheckType("s4", "S4")
+             % CheckType("s4.@1", "[S3]", "S3")
+             % Check("s4.@1.m1", "5", "int")
+             % CheckType("s4.@1.m2", "int");
+
+
+    // http://www.qtcentre.org/threads/41700-How-to-watch-STL-containers-iterators-during-debugging
+    QTest::newRow("QC41700")
+        << Data("#include <map>\n"
+                "#include <list>\n"
+                "#include <string>\n"
+                "using namespace std;\n"
+                "typedef map<string, list<string> > map_t;\n",
+                "map_t m;\n"
+                "m[\"one\"].push_back(\"a\");\n"
+                "m[\"one\"].push_back(\"b\");\n"
+                "m[\"one\"].push_back(\"c\");\n"
+                "m[\"two\"].push_back(\"1\");\n"
+                "m[\"two\"].push_back(\"2\");\n"
+                "m[\"two\"].push_back(\"3\");\n"
+                "map_t::const_iterator it = m.begin();\n")
+         % Check("m", "<2 items>", "map_t")
+         % Check("m.0.first", "\"one\"", "std::string")
+         % Check("m.0.second", "<3 items>", "std::list<std::string>")
+         % Check("m.0.second.0", "[0]", "\"a\"", "std::string")
+         % Check("m.0.second.1", "[1]", "\"b\"", "std::string")
+         % Check("m.0.second.2", "[2]", "\"c\"", "std::string")
+         % Check("m.1.first", "\"two\"", "std::string")
+         % Check("m.1.second", "<3 items>", "std::list<std::string>")
+         % Check("m.1.second.0", "[0]", "\"1\"", "std::string")
+         % Check("m.1.second.1", "[1]", "\"2\"", "std::string")
+         % Check("m.1.second.2", "[2]", "\"3\"", "std::string")
+         % CheckType("it", "std::map<std::string, std::list<std::string> >::const_iterator")
+         % Check("it.first", "\"one\"", "std::string")
+         % Check("it.second", "<3 items>", "std::list<std::string>");
+
+
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-6465
+    QTest::newRow("Bug6465")
+        << Data("typedef char Foo[20];\n"
+                "Foo foo = \"foo\";\n"
+                "char bar[20] = \"baz\";\n")
+        % CheckType("bar", "char[20]");
+
+
+#ifndef Q_OS_WIN
+    // https://bugreports.qt-project.org/browse/QTCREATORBUG-6857
+    QTest::newRow("Bug6857")
+        << Data("#include <QFile>\n"
+                "#include <QString>\n"
+                "struct MyFile : public QFile {\n"
+                "    MyFile(const QString &fileName)\n"
+                "        : QFile(fileName) {}\n"
+                "};\n",
+                "MyFile file(\"/tmp/tt\");\n"
+                "file.setObjectName(\"A file\");\n")
+         % CoreProfile()
+         % Check("file", "\"A file\"", "MyFile")
+         % Check("file.@1", "[QFile]", "\"/tmp/tt\"", "@QFile")
+         % Check("file.@1.[QFileDevice]", "[QFileDevice]", "\"A file\"", "@QFileDevice");
+         //% Check("file.@1.@1", "[QFile]", "\"A file\"", "@QObject");
+#endif
+
+
+#if 0
+    QTest::newRow("Bug6858")
             << Data("#include <QFile>\n"
                     "#include <QString>\n"
                     "class MyFile : public QFile\n"
@@ -5041,7 +5003,7 @@ void tst_Dumpers::dumper_data()
 //}
 
 
-    QTest::newRow("bug6933")
+    QTest::newRow("Bug6933")
             << Data("struct Base\n"
                     "{\n"
                     "    Base() : a(21) {}\n"
