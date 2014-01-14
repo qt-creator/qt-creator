@@ -97,7 +97,9 @@ LocalEnvironmentAspect::LocalEnvironmentAspect(RunConfiguration *parent) :
 
 LocalEnvironmentAspect *LocalEnvironmentAspect::create(RunConfiguration *parent) const
 {
-    return new LocalEnvironmentAspect(parent);
+    LocalEnvironmentAspect *result = new LocalEnvironmentAspect(parent);
+    result->setUserEnvironmentChanges(userEnvironmentChanges());
+    return result;
 }
 
 } // namespace ProjectExplorer

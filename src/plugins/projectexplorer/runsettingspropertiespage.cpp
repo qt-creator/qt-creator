@@ -282,6 +282,10 @@ static bool actionLessThan(const QAction *action1, const QAction *action2)
 void RunSettingsWidget::aboutToShowAddMenu()
 {
     m_addRunMenu->clear();
+    if (m_target->activeRunConfiguration()) {
+        m_addRunMenu->addAction(tr("&Clone Selected"),
+                                this, SLOT(cloneRunConfiguration()));
+    }
     QList<IRunConfigurationFactory *> factories =
         ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
 
@@ -320,6 +324,23 @@ void RunSettingsWidget::addRunConfiguration()
     m_target->addRunConfiguration(newRC);
     m_target->setActiveRunConfiguration(newRC);
     m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+}
+
+void RunSettingsWidget::cloneRunConfiguration()
+{
+    RunConfiguration* activeRunConfiguration = m_target->activeRunConfiguration();
+    IRunConfigurationFactory *factory = IRunConfigurationFactory::find(m_target,
+                                                                       activeRunConfiguration);
+    if (!factory)
+        return;
+
+    RunConfiguration *newRc = factory->clone(m_target, activeRunConfiguration);
+    if (!newRc)
+        return;
+
+    newRc->setDisplayName(activeRunConfiguration->displayName());
+    m_target->addRunConfiguration(newRc);
+    m_target->setActiveRunConfiguration(newRc);
 }
 
 void RunSettingsWidget::removeRunConfiguration()

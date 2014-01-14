@@ -79,6 +79,7 @@ private slots:
     void currentRunConfigurationChanged(int index);
     void aboutToShowAddMenu();
     void addRunConfiguration();
+    void cloneRunConfiguration();
     void removeRunConfiguration();
     void activeRunConfigurationChanged();
     void renameRunConfiguration();
