@@ -398,6 +398,7 @@ BlackBerryConfigurationManager &BlackBerryConfigurationManager::instance()
 BlackBerryConfigurationManager::~BlackBerryConfigurationManager()
 {
     qDeleteAll(m_configs);
+    delete m_writer;
 }
 
 QString BlackBerryConfigurationManager::barsignerCskPath() const
