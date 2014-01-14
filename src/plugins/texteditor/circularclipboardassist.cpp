@@ -73,7 +73,8 @@ public:
         }
 
         //Copy the selected item
-        QApplication::clipboard()->setMimeData(editwidget->duplicateMimeData(m_mimeData.data()));
+        QApplication::clipboard()->setMimeData(
+                    BaseTextEditorWidget::duplicateMimeData(m_mimeData.data()));
 
         //Paste
         editwidget->paste();

@@ -5726,7 +5726,7 @@ void BaseTextEditorWidget::collectToCircularClipboard()
     if (!mimeData)
         return;
     CircularClipboard *circularClipBoard = CircularClipboard::instance();
-    circularClipBoard->collect(duplicateMimeData(mimeData));
+    circularClipBoard->collect(BaseTextEditorWidget::duplicateMimeData(mimeData));
     // We want the latest copied content to be the first one to appear on circular paste.
     circularClipBoard->toLastCollect();
 }
@@ -5742,7 +5742,7 @@ void BaseTextEditorWidget::circularPaste()
 {
     CircularClipboard *circularClipBoard = CircularClipboard::instance();
     if (const QMimeData *clipboardData = QApplication::clipboard()->mimeData()) {
-        circularClipBoard->collect(duplicateMimeData(clipboardData));
+        circularClipBoard->collect(BaseTextEditorWidget::duplicateMimeData(clipboardData));
         circularClipBoard->toLastCollect();
     }
 
@@ -5750,7 +5750,7 @@ void BaseTextEditorWidget::circularPaste()
         return invokeAssist(QuickFix, d->m_clipboardAssistProvider.data());
 
     if (const QMimeData *mimeData = circularClipBoard->next().data()) {
-        QApplication::clipboard()->setMimeData(duplicateMimeData(mimeData));
+        QApplication::clipboard()->setMimeData(BaseTextEditorWidget::duplicateMimeData(mimeData));
         paste();
     }
 }
@@ -5984,7 +5984,7 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
     setTextCursor(cursor);
 }
 
-QMimeData *BaseTextEditorWidget::duplicateMimeData(const QMimeData *source) const
+QMimeData *BaseTextEditorWidget::duplicateMimeData(const QMimeData *source)
 {
     Q_ASSERT(source);
 
