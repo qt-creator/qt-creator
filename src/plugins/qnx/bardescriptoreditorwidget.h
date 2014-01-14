@@ -66,7 +66,7 @@ class BarDescriptorEditorWidget : public QStackedWidget
     Q_OBJECT
 
 public:
-    explicit BarDescriptorEditorWidget(QWidget *parent = 0);
+    explicit BarDescriptorEditorWidget(BarDescriptorEditor *editor, QWidget *parent = 0);
 
     Core::IEditor *editor() const;
 
@@ -96,15 +96,13 @@ signals:
     void changed();
 
 private:
-    BarDescriptorEditor *createEditor();
-
     void initGeneralPage();
     void initApplicationPage();
     void initAssetsPage();
     void initSourcePage();
     void initPanelSize(ProjectExplorer::PanelsWidget *panelsWidget);
 
-    mutable Core::IEditor *m_editor;
+    Core::IEditor *m_editor;
 
     bool m_dirty;
 

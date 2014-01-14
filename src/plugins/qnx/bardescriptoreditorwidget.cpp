@@ -51,9 +51,9 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BarDescriptorEditorWidget::BarDescriptorEditorWidget(QWidget *parent)
+BarDescriptorEditorWidget::BarDescriptorEditorWidget(BarDescriptorEditor *editor, QWidget *parent)
     : QStackedWidget(parent)
-    , m_editor(0)
+    , m_editor(editor)
     , m_dirty(false)
 {
     Core::IContext *myContext = new Core::IContext(this);
@@ -170,11 +170,6 @@ void BarDescriptorEditorWidget::initPanelSize(ProjectExplorer::PanelsWidget *pan
 
 Core::IEditor *BarDescriptorEditorWidget::editor() const
 {
-    if (!m_editor) {
-        m_editor = const_cast<BarDescriptorEditorWidget *>(this)->createEditor();
-        connect(this, SIGNAL(changed()), m_editor->document(), SIGNAL(changed()));
-    }
-
     return m_editor;
 }
 
@@ -268,9 +263,4 @@ void BarDescriptorEditorWidget::setDirty(bool dirty)
 {
     m_dirty = dirty;
     emit changed();
-}
-
-BarDescriptorEditor *BarDescriptorEditorWidget::createEditor()
-{
-    return new BarDescriptorEditor(this);
 }

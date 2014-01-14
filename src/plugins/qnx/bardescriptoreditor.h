@@ -60,7 +60,7 @@ public:
         Source
     };
 
-    explicit BarDescriptorEditor(BarDescriptorEditorWidget *editorWidget);
+    BarDescriptorEditor();
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document();

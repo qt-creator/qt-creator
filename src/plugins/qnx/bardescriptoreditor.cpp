@@ -54,11 +54,12 @@ using namespace ProjectExplorer;
 namespace Qnx {
 namespace Internal {
 
-BarDescriptorEditor::BarDescriptorEditor(BarDescriptorEditorWidget *editorWidget)
+BarDescriptorEditor::BarDescriptorEditor()
 {
+    BarDescriptorEditorWidget *editorWidget = new BarDescriptorEditorWidget(this);
     setWidget(editorWidget);
-
     m_file = new BarDescriptorDocument(editorWidget);
+    connect(editorWidget, SIGNAL(changed()), m_file, SIGNAL(changed()));
 
     m_toolBar = new QToolBar(editorWidget);
 

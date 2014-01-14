@@ -32,6 +32,7 @@
 #include "bardescriptoreditorfactory.h"
 
 #include "qnxconstants.h"
+#include "bardescriptoreditor.h"
 #include "bardescriptoreditorwidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -67,6 +68,6 @@ BarDescriptorEditorFactory::BarDescriptorEditorFactory(QObject *parent)
 
 Core::IEditor *BarDescriptorEditorFactory::createEditor()
 {
-    BarDescriptorEditorWidget *editorWidget = new BarDescriptorEditorWidget();
-    return editorWidget->editor();
+    BarDescriptorEditor *editor = new BarDescriptorEditor();
+    return editor;
 }
