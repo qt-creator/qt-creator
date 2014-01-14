@@ -123,7 +123,7 @@ void BasicProposalItem::applyContextualContent(BaseTextEditor *editor, int baseP
 
 void BasicProposalItem::applySnippet(BaseTextEditor *editor, int basePosition) const
 {
-    BaseTextEditorWidget *editorWidget = static_cast<BaseTextEditorWidget *>(editor->widget());
+    BaseTextEditorWidget *editorWidget = editor->editorWidget();
     QTextCursor tc = editorWidget->textCursor();
     tc.setPosition(basePosition, QTextCursor::KeepAnchor);
     editorWidget->insertCodeSnippet(tc, data().toString());
