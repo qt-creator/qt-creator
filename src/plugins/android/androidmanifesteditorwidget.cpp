@@ -507,7 +507,7 @@ bool AndroidManifestEditorWidget::open(QString *errorString, const QString &file
 
 void AndroidManifestEditorWidget::setDirty(bool dirty)
 {
-    if (m_stayClean)
+    if (m_stayClean || dirty == m_dirty)
         return;
     m_dirty = dirty;
     emit guiChanged();
