@@ -1081,7 +1081,7 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
 
     TemplateDeclarationAST *ast = new (_pool) TemplateDeclarationAST;
 
-    if (LA() == T_EXPORT || LA() == T_EXPORT)
+    if (LA() == T_EXPORT || LA() == T_EXTERN)
         ast->export_token = consumeToken();
 
     ast->template_token = consumeToken();
