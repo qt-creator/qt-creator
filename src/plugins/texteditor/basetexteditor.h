@@ -310,7 +310,6 @@ public slots:
     void abortAssist();
 
 signals:
-    void changed();
     void assistFinished();
     void readOnlyChanged();
 
