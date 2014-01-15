@@ -36,36 +36,32 @@
 
 #include <QActionGroup>
 #include <QToolBar>
+#include <QTextBlock>
 
 using namespace Android;
 using namespace Internal;
 
 Android::Internal::AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget)
-    : BaseTextEditor(editorWidget),
-      m_document(new AndroidManifestDocument(editorWidget))
+    : Core::IEditor(editorWidget), m_toolBar(0)
 {
-    QToolBar *toolBar = new QToolBar;
-
+    m_toolBar = new QToolBar(editorWidget);
     m_actionGroup = new QActionGroup(this);
     connect(m_actionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeEditorPage(QAction*)));
 
-    QAction *generalAction = toolBar->addAction(tr("General"));
+    QAction *generalAction = m_toolBar->addAction(tr("General"));
     generalAction->setData(AndroidManifestEditorWidget::General);
     generalAction->setCheckable(true);
     m_actionGroup->addAction(generalAction);
 
-    QAction *sourceAction = toolBar->addAction(tr("XML Source"));
+    QAction *sourceAction = m_toolBar->addAction(tr("XML Source"));
     sourceAction->setData(AndroidManifestEditorWidget::Source);
     sourceAction->setCheckable(true);
     m_actionGroup->addAction(sourceAction);
 
     generalAction->setChecked(true);
 
-    insertExtraToolBarWidget(BaseTextEditor::Left, toolBar);
-
-
-    setContext(Core::Context(Constants::ANDROID_MANIFEST_EDITOR_CONTEXT,
-              TextEditor::Constants::C_TEXTEDITOR));
+    setContext(Core::Context(Constants::ANDROID_MANIFEST_EDITOR_CONTEXT));
+    setWidget(editorWidget);
 }
 
 Core::Id AndroidManifestEditor::id() const
@@ -73,12 +69,47 @@ Core::Id AndroidManifestEditor::id() const
     return Constants::ANDROID_MANIFEST_EDITOR_ID;
 }
 
+bool AndroidManifestEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
+{
+    return widget()->open(errorString, fileName, realFileName);
+}
+
+QWidget *AndroidManifestEditor::toolBar()
+{
+    return m_toolBar;
+}
+
+AndroidManifestEditorWidget *AndroidManifestEditor::widget() const
+{
+    return static_cast<AndroidManifestEditorWidget *>(Core::IEditor::widget());
+}
+
+Core::IDocument *AndroidManifestEditor::document()
+{
+    return textEditor()->baseTextDocument();
+}
+
+TextEditor::BaseTextEditorWidget *AndroidManifestEditor::textEditor() const
+{
+    return widget()->textEditorWidget();
+}
+
+int AndroidManifestEditor::currentLine() const
+{
+    return textEditor()->textCursor().blockNumber() + 1;
+}
+
+int AndroidManifestEditor::currentColumn() const
+{
+    QTextCursor cursor = textEditor()->textCursor();
+    return cursor.position() - cursor.block().position() + 1;
+}
+
 void AndroidManifestEditor::changeEditorPage(QAction *action)
 {
-    AndroidManifestEditorWidget *editorWidget = static_cast<AndroidManifestEditorWidget *>(widget());
-    if (!editorWidget->setActivePage(static_cast<AndroidManifestEditorWidget::EditorPage>(action->data().toInt()))) {
+    if (!widget()->setActivePage(static_cast<AndroidManifestEditorWidget::EditorPage>(action->data().toInt()))) {
         foreach (QAction *action, m_actionGroup->actions()) {
-            if (action->data().toInt() == editorWidget->activePage()) {
+            if (action->data().toInt() == widget()->activePage()) {
                 action->setChecked(true);
                 break;
             }
