@@ -71,7 +71,6 @@ Section {
 
     SectionLayout {
         columns: 2
-        rows: 3
         Label {
             text: qsTr("Font")
         }
@@ -104,18 +103,26 @@ Section {
                 sizeWidget.setPointPixelSize();
             }
 
-            SpinBox {
-                minimumValue: 0
-                visible: !sizeWidget.pixelSize
-                maximumValue: 400
-                backendValue: pointSize
-            }
+            Item {
+                width: sizeSpinBox.width
+                height: sizeSpinBox.height
 
-            SpinBox {
-                minimumValue: 0
-                visible: sizeWidget.pixelSize
-                maximumValue: 400
-                backendValue: pixelSize
+                SpinBox {
+                    id: sizeSpinBox
+                    minimumValue: 0
+                    //visible: !sizeWidget.pixelSize
+                    z: !sizeWidget.pixelSize ? 1 : 0
+                    maximumValue: 400
+                    backendValue: pointSize
+                }
+
+                SpinBox {
+                    minimumValue: 0
+                    //visible: sizeWidget.pixelSize
+                    z: sizeWidget.pixelSize ? 1 : 0
+                    maximumValue: 400
+                    backendValue: pixelSize
+                }
             }
 
             Controls.ComboBox {

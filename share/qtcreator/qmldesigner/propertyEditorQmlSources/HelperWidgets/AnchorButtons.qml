@@ -43,6 +43,8 @@ import HelperWidgets 2.0
 
 ButtonRow {
     enabled: anchorBackend.hasParent
+    opacity: enabled ? 1 : 0.5
+
     id: buttonRow
 
     ButtonRowButton {
