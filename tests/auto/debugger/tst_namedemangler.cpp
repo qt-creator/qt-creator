@@ -26,6 +26,7 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
 #include <namedemangler/namedemangler.h>
 #include <namedemangler/parsetreenodes.h>
 
@@ -34,15 +35,10 @@
 
 #include <cctype>
 
-#define TEST_CORRECTLY_MANGLED_NAME(mangled, expectedDemangled) \
-    do { \
-        QVERIFY2(demangler.demangle(QLatin1String(mangled)), qPrintable(demangler.errorString())); \
-        QCOMPARE(demangler.demangledName(), QLatin1String(expectedDemangled)); \
-    } while (0)
-
 const char *toString(char c) { return (QByteArray("'") + c + "'").constData(); }
 
 using namespace Debugger::Internal;
+using namespace QTest;
 
 class NameDemanglerAutoTest : public QObject
 {
@@ -51,6 +47,7 @@ private slots:
     void testUnmangledName();
     void testDisjunctFirstSets();
     void testCorrectlyMangledNames();
+    void testCorrectlyMangledNames_data();
     void testIncorrectlyMangledNames();
 
 private:
@@ -66,162 +63,238 @@ void NameDemanglerAutoTest::testUnmangledName()
 
 void NameDemanglerAutoTest::testCorrectlyMangledNames()
 {
-    TEST_CORRECTLY_MANGLED_NAME("_Z1fv", "f()");
-    TEST_CORRECTLY_MANGLED_NAME("_Z1fi", "f(int)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z3foo3bar", "foo(bar)");
-    TEST_CORRECTLY_MANGLED_NAME("_Zrm1XS_", "operator%(X, X)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZplR1XS0_", "operator+(X &, X &)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZlsRK1XS1_", "operator<<(X const &, X const &)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN3FooIA4_iE3barE", "Foo<int[4]>::bar");
-    TEST_CORRECTLY_MANGLED_NAME("_Z5firstI3DuoEvS0_", "void first<Duo>(Duo)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z5firstI3DuoEvT_", "void first<Duo>(Duo)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z3fooIiPFidEiEvv",
-                             "void foo<int, int (*)(double), int>()");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN1N1fE", "N::f");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN6System5Sound4beepEv",
-                             "System::Sound::beep()");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN5Arena5levelE", "Arena::level");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN5StackIiiE5levelE", "Stack<int, int>::level");
-    TEST_CORRECTLY_MANGLED_NAME("_Z1fI1XEvPVN1AIT_E1TE",
-                             "void f<X>(A<X>::T volatile *)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZngILi42EEvN1AIXplT_Li2EEE1TE",
-                             "void operator-<42>(A<42 + 2>::T)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z4makeI7FactoryiET_IT0_Ev",
-                             "Factory<int> make<Factory, int>()");
-    TEST_CORRECTLY_MANGLED_NAME("_Z3foo5Hello5WorldS0_S_",
-                             "foo(Hello, World, World, Hello)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z3fooPM2ABi", "foo(int AB::**)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZlsRSoRKSs",
-        "operator<<(std::basic_ostream<char, std::char_traits<char> > &, "
-        "std::basic_string<char, std::char_traits<char>, "
-        "std::allocator<char> > const &)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZTI7a_class", "typeid(a_class)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZN1A3fooEiE1B", "A::foo(int)::B");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZ3foovEN1C1DE", "foo()::C::D");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZZ3foovEN1C3barEvEN1E3bazEv",
-                             "foo()::C::bar()::E::baz()");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZN1N1fEiE1p", "N::f(int)::p");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZN1N1fEiEs", "N::f(int)::{string literal}");
-    TEST_CORRECTLY_MANGLED_NAME("_Z41__static_initialization_and_destruction_0ii",
-        "__static_initialization_and_destruction_0(int, int)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN20NameDemanglerPrivate3eoiE",
-                             "NameDemanglerPrivate::eoi");
-    TEST_CORRECTLY_MANGLED_NAME(
-        "_ZZN20NameDemanglerPrivate15parseIdentifierEiE8__func__",
-        "NameDemanglerPrivate::parseIdentifier(int)::__func__");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN4QSetI5QCharED1Ev", "QSet<QChar>::~QSet()");
-    TEST_CORRECTLY_MANGLED_NAME("_Zne5QCharS_", "operator!=(QChar, QChar)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN20NameDemanglerPrivate17parseFunctionTypeEv",
-                             "NameDemanglerPrivate::parseFunctionType()");
-    TEST_CORRECTLY_MANGLED_NAME(
-        "_ZNK20NameDemanglerPrivate16ArrayNewOperator8makeExprERK11QStringList",
-        "NameDemanglerPrivate::ArrayNewOperator::makeExpr(QStringList const &) const");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN13QLatin1StringC1EPKc",
-                             "QLatin1String::QLatin1String(char const *)");
-    TEST_CORRECTLY_MANGLED_NAME(
-        "_ZN15QtSharedPointer16ExternalRefCountIN20NameDemanglerPrivate8OperatorEE12internalCopyIS2_EEvRKNS0_IT_EE",
-        "void QtSharedPointer::ExternalRefCount<NameDemanglerPrivate::Operator>::internalCopy<NameDemanglerPrivate::Operator>(QtSharedPointer::ExternalRefCount<NameDemanglerPrivate::Operator> const &)");
-    TEST_CORRECTLY_MANGLED_NAME(
-        "_ZN15QtSharedPointer16ExternalRefCountIN20NameDemanglerPrivate8OperatorEE11internalSetEPNS_20ExternalRefCountDataEPS2_",
-        "QtSharedPointer::ExternalRefCount<NameDemanglerPrivate::Operator>::internalSet(QtSharedPointer::ExternalRefCountData *, NameDemanglerPrivate::Operator *)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN20NameDemanglerPrivate17parseUnscopedNameEv",
-                             "NameDemanglerPrivate::parseUnscopedName()");
-    TEST_CORRECTLY_MANGLED_NAME("_ZNK7QString3argExiiRK5QChar",
-        "QString::arg(long long, int, int, QChar const &) const");
-    TEST_CORRECTLY_MANGLED_NAME(
-        "_ZN20NameDemanglerPrivate8OperatorC2ERK7QStringS3_",
-        "NameDemanglerPrivate::Operator::Operator(QString const &, QString const &)");
-    TEST_CORRECTLY_MANGLED_NAME(
-        "_ZN15QtSharedPointer16ExternalRefCountIN20NameDemanglerPrivate8OperatorEEC2EN2Qt14InitializationE",
-        "QtSharedPointer::ExternalRefCount<NameDemanglerPrivate::Operator>::ExternalRefCount(Qt::Initialization)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN7QString5clearEv", "QString::clear()");
-    TEST_CORRECTLY_MANGLED_NAME("_ZNK5QListI7QStringE2atEi",
-                             "QList<QString>::at(int) const");
-    TEST_CORRECTLY_MANGLED_NAME(
-        "_ZNK7QString10startsWithERKS_N2Qt15CaseSensitivityE",
-        "QString::startsWith(QString const &, Qt::CaseSensitivity) const");
-    TEST_CORRECTLY_MANGLED_NAME("_ZNK4QSetI5QCharE8constEndEv",
-                             "QSet<QChar>::constEnd() const");
-    TEST_CORRECTLY_MANGLED_NAME("_Z11qt_assert_xPKcS0_S0_i",
-        "qt_assert_x(char const *, char const *, char const *, int)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN9QHashData8willGrowEv",
-                             "QHashData::willGrow()");
-    TEST_CORRECTLY_MANGLED_NAME(
-        "_ZNK5QHashI5QChar15QHashDummyValueE14const_iteratorneERKS3_",
-        "QHash<QChar, QHashDummyValue>::const_iterator::operator!=(QHash<QChar, QHashDummyValue>::const_iterator const &) const");
-    TEST_CORRECTLY_MANGLED_NAME("_ZNK13NameDemangler11errorStringEv",
-                             "NameDemangler::errorString() const");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN7QString7replaceERK7QRegExpRKS_",
-        "QString::replace(QRegExp const &, QString const &)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN7QString4freeEPNS_4DataE",
-                             "QString::free(QString::Data *)");
-    TEST_CORRECTLY_MANGLED_NAME(
-        "_ZTSN20NameDemanglerPrivate19ArrayAccessOperatorE",
-        "typeid(NameDemanglerPrivate::ArrayAccessOperator).name()");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN3ns11fERKPFPKiS1_RKhE",
-        "ns1::f(int const * (* const &)(int const *, unsigned char const &))");
-    TEST_CORRECTLY_MANGLED_NAME("_Z9test_funcMN3ns11cImEEKFPKvPiRlmE",
-        "test_func(void const * (ns1::c<unsigned long>::*)(int *, long &, unsigned long) const)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN3ns11fEPKPFPKiS1_RKhE",
-        "ns1::f(int const * (* const *)(int const *, unsigned char const &))");
-    TEST_CORRECTLY_MANGLED_NAME("_ZNK1CcviEv", "C::operator int() const");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN1CppEv", "C::operator++()");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN1CmmEv", "C::operator--()");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN1CppEi", "C::operator++(int)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN1CmmEi", "C::operator--(int)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZNK1CcvT_IPKcEEv", "C::operator char const *<char const *>() const");
-    TEST_CORRECTLY_MANGLED_NAME("_Z9weirdfuncIiEvT_KPFS0_S0_E", "void weirdfunc<int>(int, int (* const)(int))");
-    TEST_CORRECTLY_MANGLED_NAME("_Z9weirdfuncIiEvT_PFS0_DtfL1p_EE", "void weirdfunc<int>(int, int (*)(decltype({param#1})))");
-    TEST_CORRECTLY_MANGLED_NAME("_Z9weirdfuncIiEvT_S0_", "void weirdfunc<int>(int, int)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z9weirdfuncIiEvT_DtfL0p_E", "void weirdfunc<int>(int, decltype({param#1}))");
-    TEST_CORRECTLY_MANGLED_NAME("_Z9weirdfuncIiEvT_S0_S0_", "void weirdfunc<int>(int, int, int)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z9weirdfuncIiEvT_S0_DtfL0p0_E", "void weirdfunc<int>(int, int, decltype({param#2}))");
-    TEST_CORRECTLY_MANGLED_NAME("_Z8toStringIiESsT_",
-            "std::basic_string<char, std::char_traits<char>, std::allocator<char> > toString<int>(int)");
+    QFETCH(QString, demangled);
+    QString mangled = QString::fromLatin1(currentDataTag());
 
-    TEST_CORRECTLY_MANGLED_NAME("_Z4funcIRA5_iEvOT_", "void func<int (&)[5]>(int (&)[5])");
-    TEST_CORRECTLY_MANGLED_NAME("_ZSt9make_pairIiRA5_KcESt4pairINSt17__decay_and_stripIT_E6__typeENS4_IT0_E6__typeEEOS5_OS8_",
-            "std::pair<std::__decay_and_strip<int>::__type, std::__decay_and_strip<char const (&)[5]>::__type> std::make_pair<int, char const (&)[5]>(int &&, char const (&)[5])");
+    QVERIFY2(demangler.demangle(mangled), qPrintable(demangler.errorString()));
+    QCOMPARE(demangler.demangledName(), demangled);
+}
+
+void NameDemanglerAutoTest::testCorrectlyMangledNames_data()
+{
+    addColumn<QString>("demangled");
+
+    newRow("_Z1fv")
+        << "f()";
+    newRow("_Z1fi")
+        << "f(int)";
+    newRow("_Z3foo3bar")
+        << "foo(bar)";
+    newRow("_Zrm1XS_")
+        << "operator%(X, X)";
+    newRow("_ZplR1XS0_")
+        << "operator+(X &, X &)";
+    newRow("_ZlsRK1XS1_")
+        << "operator<<(X const &, X const &)";
+    newRow("_ZN3FooIA4_iE3barE")
+        << "Foo<int[4]>::bar";
+    newRow("_Z5firstI3DuoEvS0_")
+        << "void first<Duo>(Duo)";
+    newRow("_Z5firstI3DuoEvT_")
+        << "void first<Duo>(Duo)";
+    newRow("_Z3fooIiPFidEiEvv")
+        << "void foo<int, int (*)(double), int>()";
+    newRow("_ZN1N1fE")
+        << "N::f";
+    newRow("_ZN6System5Sound4beepEv")
+        << "System::Sound::beep()";
+    newRow("_ZN5Arena5levelE")
+        << "Arena::level";
+    newRow("_ZN5StackIiiE5levelE")
+        << "Stack<int, int>::level";
+    newRow("_Z1fI1XEvPVN1AIT_E1TE")
+        << "void f<X>(A<X>::T volatile *)";
+    newRow("_ZngILi42EEvN1AIXplT_Li2EEE1TE")
+        << "void operator-<42>(A<42 + 2>::T)";
+    newRow("_Z4makeI7FactoryiET_IT0_Ev")
+        << "Factory<int> make<Factory, int>()";
+    newRow("_Z3foo5Hello5WorldS0_S_")
+        << "foo(Hello, World, World, Hello)";
+    newRow("_Z3fooPM2ABi")
+        << "foo(int AB::**)";
+    newRow("_ZlsRSoRKSs")
+        << "operator<<(std::basic_ostream<char, std::char_traits<char> > &, "
+           "std::basic_string<char, std::char_traits<char>, "
+           "std::allocator<char> > const &)";
+    newRow("_ZTI7a_class")
+        << "typeid(a_class)";
+    newRow("_ZZN1A3fooEiE1B")
+        << "A::foo(int)::B";
+    newRow("_ZZ3foovEN1C1DE")
+        << "foo()::C::D";
+    newRow("_ZZZ3foovEN1C3barEvEN1E3bazEv")
+        << "foo()::C::bar()::E::baz()";
+    newRow("_ZZN1N1fEiE1p")
+        << "N::f(int)::p";
+    newRow("_ZZN1N1fEiEs")
+        << "N::f(int)::{string literal}";
+    newRow("_Z41__static_initialization_and_destruction_0ii")
+        << "__static_initialization_and_destruction_0(int, int)";
+    newRow("_ZN20NameDemanglerPrivate3eoiE")
+        << "NameDemanglerPrivate::eoi";
+    newRow("_ZZN20NameDemanglerPrivate15parseIdentifierEiE8__func__")
+        << "NameDemanglerPrivate::parseIdentifier(int)::__func__";
+    newRow("_ZN4QSetI5QCharED1Ev")
+        << "QSet<QChar>::~QSet()";
+    newRow("_Zne5QCharS_")
+        << "operator!=(QChar, QChar)";
+    newRow("_ZN20NameDemanglerPrivate17parseFunctionTypeEv")
+        << "NameDemanglerPrivate::parseFunctionType()";
+    newRow("_ZNK20NameDemanglerPrivate16ArrayNewOperator8makeExprERK11QStringList")
+        << "NameDemanglerPrivate::ArrayNewOperator::makeExpr(QStringList const &) const";
+    newRow("_ZN13QLatin1StringC1EPKc")
+        << "QLatin1String::QLatin1String(char const *)";
+    newRow("_ZN15QtSharedPointer16ExternalRefCountIN20NameDemanglerPrivate8OperatorEE12internalCopyIS2_EEvRKNS0_IT_EE")
+        << "void QtSharedPointer::ExternalRefCount<NameDemanglerPrivate::Operator>"
+           "::internalCopy<NameDemanglerPrivate::Operator>(QtSharedPointer"
+           "::ExternalRefCount<NameDemanglerPrivate::Operator> const &)";
+    newRow("_ZN15QtSharedPointer16ExternalRefCountIN20NameDemanglerPrivate8OperatorEE11internalSetEPNS_20ExternalRefCountDataEPS2_")
+        << "QtSharedPointer::ExternalRefCount<NameDemanglerPrivate::Operator>"
+           "::internalSet(QtSharedPointer::ExternalRefCountData *, NameDemanglerPrivate::Operator *)";
+    newRow("_ZN20NameDemanglerPrivate17parseUnscopedNameEv")
+        << "NameDemanglerPrivate::parseUnscopedName()";
+    newRow("_ZNK7QString3argExiiRK5QChar")
+        << "QString::arg(long long, int, int, QChar const &) const";
+    newRow("_ZN20NameDemanglerPrivate8OperatorC2ERK7QStringS3_")
+        << "NameDemanglerPrivate::Operator::Operator(QString const &, QString const &)";
+    newRow("_ZN15QtSharedPointer16ExternalRefCountIN20NameDemanglerPrivate8OperatorEEC2EN2Qt14InitializationE")
+        << "QtSharedPointer::ExternalRefCount<NameDemanglerPrivate::Operator>::ExternalRefCount(Qt::Initialization)";
+    newRow("_ZN7QString5clearEv")
+        << "QString::clear()";
+    newRow("_ZNK5QListI7QStringE2atEi")
+        << "QList<QString>::at(int) const";
+    newRow("_ZNK7QString10startsWithERKS_N2Qt15CaseSensitivityE")
+        << "QString::startsWith(QString const &, Qt::CaseSensitivity) const";
+    newRow("_ZNK4QSetI5QCharE8constEndEv")
+        << "QSet<QChar>::constEnd() const";
+    newRow("_Z11qt_assert_xPKcS0_S0_i")
+        << "qt_assert_x(char const *, char const *, char const *, int)";
+    newRow("_ZN9QHashData8willGrowEv")
+        << "QHashData::willGrow()";
+    newRow("_ZNK5QHashI5QChar15QHashDummyValueE14const_iteratorneERKS3_")
+        << "QHash<QChar, QHashDummyValue>::const_iterator::operator!="
+           "(QHash<QChar, QHashDummyValue>::const_iterator const &) const";
+    newRow("_ZNK13NameDemangler11errorStringEv")
+        << "NameDemangler::errorString() const";
+    newRow("_ZN7QString7replaceERK7QRegExpRKS_")
+        << "QString::replace(QRegExp const &, QString const &)";
+    newRow("_ZN7QString4freeEPNS_4DataE")
+        << "QString::free(QString::Data *)";
+    newRow("_ZTSN20NameDemanglerPrivate19ArrayAccessOperatorE")
+        << "typeid(NameDemanglerPrivate::ArrayAccessOperator).name()";
+    newRow("_ZN3ns11fERKPFPKiS1_RKhE")
+        << "ns1::f(int const * (* const &)(int const *, unsigned char const &))";
+    newRow("_Z9test_funcMN3ns11cImEEKFPKvPiRlmE")
+        << "test_func(void const * (ns1::c<unsigned long>::*)(int *, long &, unsigned long) const)";
+    newRow("_ZN3ns11fEPKPFPKiS1_RKhE")
+        << "ns1::f(int const * (* const *)(int const *, unsigned char const &))";
+    newRow("_ZNK1CcviEv")
+        << "C::operator int() const";
+    newRow("_ZN1CppEv")
+        << "C::operator++()";
+    newRow("_ZN1CmmEv")
+        << "C::operator--()";
+    newRow("_ZN1CppEi")
+        << "C::operator++(int)";
+    newRow("_ZN1CmmEi")
+        << "C::operator--(int)";
+    newRow("_ZNK1CcvT_IPKcEEv")
+        << "C::operator char const *<char const *>() const";
+    newRow("_Z9weirdfuncIiEvT_KPFS0_S0_E")
+        << "void weirdfunc<int>(int, int (* const)(int))";
+    newRow("_Z9weirdfuncIiEvT_PFS0_DtfL1p_EE")
+        << "void weirdfunc<int>(int, int (*)(decltype({param#1})))";
+    newRow("_Z9weirdfuncIiEvT_S0_")
+        << "void weirdfunc<int>(int, int)";
+    newRow("_Z9weirdfuncIiEvT_DtfL0p_E")
+        << "void weirdfunc<int>(int, decltype({param#1}))";
+    newRow("_Z9weirdfuncIiEvT_S0_S0_")
+        << "void weirdfunc<int>(int, int, int)";
+    newRow("_Z9weirdfuncIiEvT_S0_DtfL0p0_E")
+        << "void weirdfunc<int>(int, int, decltype({param#2}))";
+    newRow("_Z8toStringIiESsT_")
+        << "std::basic_string<char, std::char_traits<char>, std::allocator<char> > toString<int>(int)";
+
+    newRow("_Z4funcIRA5_iEvOT_")
+        << "void func<int (&)[5]>(int (&)[5])";
+    newRow("_ZSt9make_pairIiRA5_KcESt4pairINSt17__decay_and_stripIT_E6__typeENS4_IT0_E6__typeEEOS5_OS8_")
+        << "std::pair<std::__decay_and_strip<int>::__type, "
+           "std::__decay_and_strip<char const (&)[5]>::__type> "
+           "std::make_pair<int, char const (&)[5]>(int &&, char const (&)[5])";
 
     // All examples from the ABI spec.
-    TEST_CORRECTLY_MANGLED_NAME("_ZN1S1xE", "S::x");
-    TEST_CORRECTLY_MANGLED_NAME("_Z1fM1AKFvvE", "f(void (A::*)() const)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z1fIiEvT_", "void f<int>(int)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z3fooc", "foo(char)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z2CBIL_Z3foocEE", "CB<foo(char)>");
-    TEST_CORRECTLY_MANGLED_NAME("_Z2CBIL_Z7IsEmptyEE", "CB<IsEmpty>");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZ1giEN1S1fE_2i", "g(int)::S::f(int)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZ1gvEN1SC1Ev", "g()::S::S()");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZZ1gvEN1SC1EvEs", "g()::S::S()::{string literal}");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZ1gvE5str4a", "g()::str4a");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZ1gvEs_1", "g()::{string literal}");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZ1gvE5str4b", "g()::str4b");
-    TEST_CORRECTLY_MANGLED_NAME("_Z1fPFvvEM1SFvvE", "f(void (*)(), void (S::*)())");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN1N1TIiiE2mfES0_IddE", "N::T<int, int>::mf(N::T<double, double>)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZSt5state", "std::state");
-    TEST_CORRECTLY_MANGLED_NAME("_ZNSt3_In4wardE", "std::_In::ward");
-    TEST_CORRECTLY_MANGLED_NAME("_Z1fN1SUt_E", "f(S::{unnamed type#1})");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZZ1giEN1S1fE_2iEUt1_", "g(int)::S::f(int)::{unnamed type#3}");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZZ1giEN1S1fE_2iENUt1_2fxEv", "g(int)::S::f(int)::{unnamed type#3}::fx()");
-    TEST_CORRECTLY_MANGLED_NAME("_Z1AIcfE", "A<char, float>");
-    TEST_CORRECTLY_MANGLED_NAME("_Z1fIiEvT_PDtfL0pK_E", "void f<int>(int, decltype({param#1 const}) *)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z1AILln42EE", "A<-42L>");
-    TEST_CORRECTLY_MANGLED_NAME("_Z2f1I1QEDTpldtfp_1xdtL_Z1qE1xET_", "decltype({param#1}.x + q.x) f1<Q>(Q)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z2f2I1QEDTpldtfp_1xsrS0_1xET_", "decltype({param#1}.x + Q::x) f2<Q>(Q)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z2f3IiEDTplfp_dtL_Z1dEsr1B1XIT_EE1xES1_", "decltype({param#1} + d.B::X<int>::x) f3<int>(int)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z3fooILi2EEvRAplT_Li1E_i", "void foo<2>(int (&)[2 + 1])");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZ1giENKUlvE_clEv", "g(int)::{lambda()#1}::operator()() const");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZ1giENKUlvE0_clEv", "g(int)::{lambda()#2}::operator()() const");
-    TEST_CORRECTLY_MANGLED_NAME("_ZNK1SIiE1xMUlvE_clEv", "S<int>::x::{lambda()#1}::operator()() const");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN1S4funcEii", "S::func(int, int)");
+    newRow("_ZN1S1xE")
+        << "S::x";
+    newRow("_Z1fM1AKFvvE")
+        << "f(void (A::*)() const)";
+    newRow("_Z1fIiEvT_")
+        << "void f<int>(int)";
+    newRow("_Z3fooc")
+        << "foo(char)";
+    newRow("_Z2CBIL_Z3foocEE")
+        << "CB<foo(char)>";
+    newRow("_Z2CBIL_Z7IsEmptyEE")
+        << "CB<IsEmpty>";
+    newRow("_ZZ1giEN1S1fE_2i")
+        << "g(int)::S::f(int)";
+    newRow("_ZZ1gvEN1SC1Ev")
+        << "g()::S::S()";
+    newRow("_ZZZ1gvEN1SC1EvEs")
+        << "g()::S::S()::{string literal}";
+    newRow("_ZZ1gvE5str4a")
+        << "g()::str4a";
+    newRow("_ZZ1gvEs_1")
+        << "g()::{string literal}";
+    newRow("_ZZ1gvE5str4b")
+        << "g()::str4b";
+    newRow("_Z1fPFvvEM1SFvvE")
+        << "f(void (*)(), void (S::*)())";
+    newRow("_ZN1N1TIiiE2mfES0_IddE")
+        << "N::T<int, int>::mf(N::T<double, double>)";
+    newRow("_ZSt5state")
+        << "std::state";
+    newRow("_ZNSt3_In4wardE")
+        << "std::_In::ward";
+    newRow("_Z1fN1SUt_E")
+        << "f(S::{unnamed type#1})";
+    newRow("_ZZZ1giEN1S1fE_2iEUt1_")
+        << "g(int)::S::f(int)::{unnamed type#3}";
+    newRow("_ZZZ1giEN1S1fE_2iENUt1_2fxEv")
+        << "g(int)::S::f(int)::{unnamed type#3}::fx()";
+    newRow("_Z1AIcfE")
+        << "A<char, float>";
+    newRow("_Z1fIiEvT_PDtfL0pK_E")
+        << "void f<int>(int, decltype({param#1 const}) *)";
+    newRow("_Z1AILln42EE")
+        << "A<-42L>";
+    newRow("_Z2f1I1QEDTpldtfp_1xdtL_Z1qE1xET_")
+        << "decltype({param#1}.x + q.x) f1<Q>(Q)";
+    newRow("_Z2f2I1QEDTpldtfp_1xsrS0_1xET_")
+        << "decltype({param#1}.x + Q::x) f2<Q>(Q)";
+    newRow("_Z2f3IiEDTplfp_dtL_Z1dEsr1B1XIT_EE1xES1_")
+        << "decltype({param#1} + d.B::X<int>::x) f3<int>(int)";
+    newRow("_Z3fooILi2EEvRAplT_Li1E_i")
+        << "void foo<2>(int (&)[2 + 1])";
+    newRow("_ZZ1giENKUlvE_clEv")
+        << "g(int)::{lambda()#1}::operator()() const";
+    newRow("_ZZ1giENKUlvE0_clEv")
+        << "g(int)::{lambda()#2}::operator()() const";
+    newRow("_ZNK1SIiE1xMUlvE_clEv")
+        << "S<int>::x::{lambda()#1}::operator()() const";
+    newRow("_ZN1S4funcEii")
+        << "S::func(int, int)";
 
     // Note: c++filt from binutils 2.22 demangles these wrong (counts default arguments from first instead of from last)
-    TEST_CORRECTLY_MANGLED_NAME("_ZZN1S1fEiiEd0_NKUlvE_clEv", "S::f(int, int)::{default arg#1}::{lambda()#1}::operator()() const");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZN1S1fEiiEd0_NKUlvE0_clEv", "S::f(int, int)::{default arg#1}::{lambda()#2}::operator()() const");
-    TEST_CORRECTLY_MANGLED_NAME("_ZZN1S1fEiiEd_NKUlvE_clEv", "S::f(int, int)::{default arg#2}::{lambda()#1}::operator()() const");
+    newRow("_ZZN1S1fEiiEd0_NKUlvE_clEv")
+        << "S::f(int, int)::{default arg#1}::{lambda()#1}::operator()() const";
+    newRow("_ZZN1S1fEiiEd0_NKUlvE0_clEv")
+        << "S::f(int, int)::{default arg#1}::{lambda()#2}::operator()() const";
+    newRow("_ZZN1S1fEiiEd_NKUlvE_clEv")
+        << "S::f(int, int)::{default arg#2}::{lambda()#1}::operator()() const";
 
      // Note: gcc 4.6.3 encodes this as "_Z2f4I7OpClassEDTadsrT_miES1_".
-    TEST_CORRECTLY_MANGLED_NAME("_Z2f4I7OpClassEDTadsrT_onmiES0_", "decltype(&OpClass::operator-) f4<OpClass>(OpClass)");
+    newRow("_Z2f4I7OpClassEDTadsrT_onmiES0_")
+        << "decltype(&OpClass::operator-) f4<OpClass>(OpClass)";
 }
 
 void NameDemanglerAutoTest::testIncorrectlyMangledNames()
