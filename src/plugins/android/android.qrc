@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/android">
         <file>images/QtAndroid.png</file>
+        <file>Java.mimetypes.xml</file>
     </qresource>
 </RCC>

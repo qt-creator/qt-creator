@@ -46,6 +46,8 @@
 #include "androidgdbserverkitinformation.h"
 #include "androidmanifesteditorfactory.h"
 #include "androidpotentialkit.h"
+#include "javaeditorfactory.h"
+#include "javacompletionassistprovider.h"
 #ifdef HAVE_QBS
 #  include "androidqbspropertyprovider.h"
 #endif
@@ -83,6 +85,8 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidDeployConfigurationFactory);
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
     addAutoReleasedObject(new Internal::AndroidPotentialKit);
+    addAutoReleasedObject(new Internal::JavaEditorFactory);
+    addAutoReleasedObject(new Internal::JavaCompletionAssistProvider);
     ProjectExplorer::KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
 
     // AndroidManifest.xml editor
@@ -98,6 +102,9 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
         return false;
     }
     addAutoReleasedObject(new Internal::AndroidManifestEditorFactory);
+
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":android/Java.mimetypes.xml"), errorMessage))
+        return false;
 
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
             this, SLOT(kitsRestored()));

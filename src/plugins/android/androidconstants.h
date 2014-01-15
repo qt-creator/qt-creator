@@ -67,6 +67,9 @@ const char ANDROID_MANIFEST_EDITOR_ID[] = "Android.AndroidManifestEditor.Id";
 const char ANDROID_MANIFEST_EDITOR_CONTEXT[] = "Android.AndroidManifestEditor.Id";
 
 const char ANDROID_BUILDDIRECTORY[] = "android-build";
+const char JAVA_EDITOR_ID[] = "java.editor";
+const char C_JAVA_EDITOR[] = "Java Editor";
+const char JAVA_MIMETYPE[] = "text/x-java";
 } // namespace Constants;
 } // namespace Android
 

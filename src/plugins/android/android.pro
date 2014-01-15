@@ -49,7 +49,12 @@ HEADERS += \
     createandroidmanifestwizard.h \
     androidpotentialkit.h \
     androidextralibrarylistmodel.h \
-    androidsignaloperation.h
+    androidsignaloperation.h \
+    javaeditor.h \
+    javaeditorfactory.h \
+    javaindenter.h \
+    javaautocompleter.h \
+    javacompletionassistprovider.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -93,7 +98,12 @@ SOURCES += \
     createandroidmanifestwizard.cpp \
     androidpotentialkit.cpp \
     androidextralibrarylistmodel.cpp \
-    androidsignaloperation.cpp
+    androidsignaloperation.cpp \
+    javaeditor.cpp \
+    javaeditorfactory.cpp \
+    javaindenter.cpp \
+    javaautocompleter.cpp \
+    javacompletionassistprovider.cpp
 
 FORMS += \
     androidsettingswidget.ui \
