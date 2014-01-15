@@ -490,8 +490,6 @@ protected:
      */
     virtual bool openLink(const Link &link, bool inNextSplit = false);
 
-    void maybeClearSomeExtraSelections(const QTextCursor &cursor);
-
     /*!
       Reimplement this function to change the default replacement text.
       */

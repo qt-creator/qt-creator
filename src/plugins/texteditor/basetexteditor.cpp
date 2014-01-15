@@ -4467,7 +4467,6 @@ void BaseTextEditorWidget::indentOrUnindent(bool doIndent)
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
 
     QTextCursor cursor = textCursor();
-    maybeClearSomeExtraSelections(cursor);
     cursor.beginEditBlock();
 
     if (cursor.hasSelection()) {
@@ -4678,13 +4677,11 @@ void BaseTextEditorWidget::indentInsertedText(const QTextCursor &tc)
 
 void BaseTextEditorWidget::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
 {
-    maybeClearSomeExtraSelections(cursor);
     d->m_document->indenter()->indent(doc, cursor, typedChar, tabSettings());
 }
 
 void BaseTextEditorWidget::reindent(QTextDocument *doc, const QTextCursor &cursor)
 {
-    maybeClearSomeExtraSelections(cursor);
     d->m_document->indenter()->reindent(doc, cursor, tabSettings());
 }
 
@@ -5221,25 +5218,6 @@ void BaseTextEditorWidget::setExtraSelections(ExtraSelectionKind kind, const QLi
 QList<QTextEdit::ExtraSelection> BaseTextEditorWidget::extraSelections(ExtraSelectionKind kind) const
 {
     return d->m_extraSelections[kind];
-}
-
-void BaseTextEditorWidget::maybeClearSomeExtraSelections(const QTextCursor &cursor)
-{
-    const int smallSelectionSize = 50 * 50;
-    if (cursor.selectionEnd() - cursor.selectionStart() < smallSelectionSize)
-        return;
-
-    d->m_extraSelections[UndefinedSymbolSelection].clear();
-    d->m_extraSelections[ObjCSelection].clear();
-    d->m_extraSelections[CodeWarningsSelection].clear();
-
-    QList<QTextEdit::ExtraSelection> all;
-    for (int i = 0; i < NExtraSelectionKinds; ++i) {
-        if (i == CodeSemanticsSelection || i == SnippetPlaceholderSelection)
-            continue;
-        all += d->m_extraSelections[i];
-    }
-    QPlainTextEdit::setExtraSelections(all);
 }
 
 QString BaseTextEditorWidget::extraSelectionTooltip(int pos) const
