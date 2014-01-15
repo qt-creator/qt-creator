@@ -182,24 +182,29 @@ class Children:
         return True
 
 class PairedChildrenData:
-    def __init__(self, d, pairType):
+    def __init__(self, d, pairType, keyType, valueType):
         self.pairType = pairType
-        self.keyType = d.templateArgument(pairType, 0).unqualified()
-        self.valueType = d.templateArgument(pairType, 1)
+        self.keyType = keyType
+        self.valueType = valueType
         self.isCompact = d.isMapCompact(self.keyType, self.valueType)
-        self.childNumChild = None if self.isCompact else 2
-        self.childType = self.valueType if self.isCompact else self.pairType
+        self.childType = valueType if self.isCompact else pairType
         ns = d.qtNamespace()
         self.keyIsQString = str(self.keyType) == ns + "QString"
         self.keyIsQByteArray = str(self.keyType) == ns + "QByteArray"
 
 class PairedChildren(Children):
-    def __init__(self, d, numChild, pairType, maxNumChild = None):
+    def __init__(self, d, numChild, pairType = None, keyType = None, valueType = None, maxNumChild = None):
         self.d = d
-        d.pairData = PairedChildrenData(d, pairType)
+        if keyType is None:
+            keyType = d.templateArgument(pairType, 0).unqualified()
+        if valueType is None:
+            valueType = d.templateArgument(pairType, 1)
+        d.pairData = PairedChildrenData(d, pairType, keyType, valueType)
+
         Children.__init__(self, d, numChild,
-            d.pairData.childType, d.pairData.childNumChild,
-            maxNumChild, addrBase = None, addrStep = None)
+            d.pairData.childType,
+            maxNumChild = maxNumChild,
+            addrBase = None, addrStep = None)
 
     def __enter__(self):
         self.savedPairData = self.d.pairData if hasattr(self.d, "pairData") else None
@@ -453,8 +458,16 @@ class DumperBase:
                 self.put('key="[%d] %s",' % (index, val))
 
     def putPair(self, pair, index = -1):
-        key = pair["first"]
-        value = pair["second"]
+        try:
+            key = pair["first"]
+            value = pair["second"]
+            keyName = "first"
+            valueName = "second"
+        except:
+            key = pair["key"]
+            value = pair["value"]
+            keyName = "key"
+            valueName = "value"
         if self.pairData.isCompact:
             if self.pairData.keyIsQString:
                 self.put('key="%s",' % self.encodeString(key))
@@ -471,10 +484,12 @@ class DumperBase:
             self.putItem(value)
         else:
             self.putEmptyValue()
+            self.putNumChild(2)
+            self.putField("iname", self.currentIName)
             if self.isExpanded():
-                with Children(self, 2):
-                    self.putSubItem("first", key)
-                    self.putSubItem("second", value)
+                with Children(self):
+                    self.putSubItem(keyName, key)
+                    self.putSubItem(valueName, value)
 
     def isMapCompact(self, keyType, valueType):
         format = self.currentItemFormat()

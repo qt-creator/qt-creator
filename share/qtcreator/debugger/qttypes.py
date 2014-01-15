@@ -907,7 +907,7 @@ def qdump__QMapNode(d, value):
             d.putSubItem("value", value["value"])
 
 
-def qdumpHelper__Qt4_QMap(d, value, forceLong):
+def qdumpHelper__Qt4_QMap(d, value):
     d_ptr = value["d"].dereference()
     e_ptr = value["e"].dereference()
     n = int(d_ptr["size"])
@@ -922,7 +922,6 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
 
         keyType = d.templateArgument(value.type, 0)
         valueType = d.templateArgument(value.type, 1)
-        isCompact = d.isMapCompact(keyType, valueType)
 
         it = e_ptr["forward"].dereference()
 
@@ -941,30 +940,17 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         else:
             payloadSize = nodeType.sizeof - 2 * nodePointerType.sizeof
 
-        if isCompact:
-            innerType = valueType
-        else:
-            innerType = nodeType
-
-        with Children(d, n, childType=innerType):
+        with PairedChildren(d, n, keyType=keyType, valueType=valueType, pairType = nodeType):
             for i in xrange(n):
                 base = it.cast(d.charPtrType()) - payloadSize
                 node = base.cast(nodePointerType).dereference()
                 with SubItem(d, i):
-                    d.putField("iname", d.currentIName)
-                    if isCompact:
-                        #d.putType(valueType)
-                        if forceLong:
-                            d.putName("[%s] %s" % (i, node["key"]))
-                        else:
-                            d.putMapName(node["key"])
-                        d.putItem(node["value"])
-                    else:
-                        d.putItem(node)
+                    #d.putField("iname", d.currentIName)
+                    d.putPair(node, i)
                 it = it.dereference()["forward"].dereference()
 
 
-def qdumpHelper__Qt5_QMap(d, value, forceLong):
+def qdumpHelper__Qt5_QMap(d, value):
     d_ptr = value["d"].dereference()
     n = int(d_ptr["size"])
     d.check(0 <= n and n <= 100*1000*1000)
@@ -978,36 +964,21 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
 
         keyType = d.templateArgument(value.type, 0)
         valueType = d.templateArgument(value.type, 1)
-        isCompact = d.isMapCompact(keyType, valueType)
         # Note: Keeping the spacing in the type lookup
         # below is important for LLDB.
         needle = str(d_ptr.type).replace("QMapData", "QMapNode", 1)
         nodeType = d.lookupType(needle)
 
-        if isCompact:
-            innerType = valueType
-        else:
-            innerType = nodeType
-
-
-        def helper(d, node, nodeType, isCompact, forceLong, i, n):
+        def helper(d, node, nodeType, i):
             left = node["left"]
             if not d.isNull(left):
-                i = helper(d, left.dereference(), nodeType, isCompact, forceLong, i, n)
+                i = helper(d, left.dereference(), nodeType, i)
                 if i >= n:
                     return i
 
             nodex = node.cast(nodeType)
             with SubItem(d, i):
-                d.putField("iname", d.currentIName)
-                if isCompact:
-                    if forceLong:
-                        d.putName("[%s] %s" % (i, nodex["key"]))
-                    else:
-                        d.putMapName(nodex["key"])
-                    d.putItem(nodex["value"])
-                else:
-                    qdump__QMapNode(d, nodex)
+                d.putPair(nodex, i)
 
             i += 1
             if i >= n:
@@ -1015,33 +986,29 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
 
             right = node["right"]
             if not d.isNull(right):
-                i = helper(d, right.dereference(), nodeType, isCompact, forceLong, i, n)
+                i = helper(d, right.dereference(), nodeType, i)
 
             return i
 
-        with Children(d, n, childType=innerType):
+        with PairedChildren(d, n, keyType=keyType, valueType=valueType, pairType = nodeType):
             node = d_ptr["header"]
-            helper(d, node, nodeType, isCompact, forceLong, 0, n)
+            helper(d, node, nodeType, 0)
 
-
-
-def qdumpHelper__QMap(d, value, forceLong):
-    if d.fieldAt(value["d"].dereference().type, 0).name == "backward":
-        qdumpHelper__Qt4_QMap(d, value, forceLong)
-    else:
-        qdumpHelper__Qt5_QMap(d, value, forceLong)
 
 def qform__QMap():
     return mapForms()
 
 def qdump__QMap(d, value):
-    qdumpHelper__QMap(d, value, False)
+    if d.fieldAt(value["d"].dereference().type, 0).name == "backward":
+        qdumpHelper__Qt4_QMap(d, value)
+    else:
+        qdumpHelper__Qt5_QMap(d, value)
 
 def qform__QMultiMap():
     return mapForms()
 
 def qdump__QMultiMap(d, value):
-    qdumpHelper__QMap(d, value, True)
+    qdump__QMap(d, value)
 
 
 def extractCString(table, offset):

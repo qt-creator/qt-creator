@@ -2080,12 +2080,12 @@ void tst_Dumpers::dumper_data()
    QTest::newRow("QMapUIntFloat")
            << Data("#include <QMap>\n",
                    "QMap<uint, float> map;\n"
-                   "map[11] = 11.0;\n"
-                   "map[22] = 22.0;\n")
+                   "map[11] = 31.0;\n"
+                   "map[22] = 32.0;\n")
               % CoreProfile()
               % Check("map", "<2 items>", "@QMap<unsigned int, float>")
-              % Check("map.0", "[11]", "11", "float")
-              % Check("map.1", "[22]", "22", "float");
+              % Check("map.0", "[0] 11", FloatValue("31.0"), "float")
+              % Check("map.1", "[1] 22", FloatValue("32.0"), "float");
 
    QTest::newRow("QMapStringFloat")
            << Data("#include <QMap>\n"

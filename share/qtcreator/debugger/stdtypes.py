@@ -194,7 +194,7 @@ def qdump__std__map(d, value):
     if d.isExpanded():
         pairType = d.templateArgument(d.templateArgument(value.type, 3), 0)
         pairPointer = pairType.pointer()
-        with PairedChildren(d, size, pairType, maxNumChild=1000):
+        with PairedChildren(d, size, pairType=pairType, maxNumChild=1000):
             node = impl["_M_header"]["_M_left"]
             for i in d.childRange():
                 with SubItem(d, i):
@@ -644,8 +644,7 @@ def qdump__std____1__unordered_map(d, value):
     d.putItemCount(size)
     if d.isExpanded():
         node = value["__table_"]["__p1_"]["__first_"]["__next_"]
-        pairType = node["__value_"].type
-        with PairedChildren(d, size, pairType, maxNumChild=1000):
+        with PairedChildren(d, size, pairType=node["__value_"].type, maxNumChild=1000):
             for i in d.childRange():
                 with SubItem(d, i):
                     d.putPair(node["__value_"], i)
