@@ -443,10 +443,6 @@ protected:
     void showDefaultContextMenu(QContextMenuEvent *e, const Core::Id menuContextId);
 
 public:
-    void indentInsertedText(const QTextCursor &tc);
-    void indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar);
-    void reindent(QTextDocument *doc, const QTextCursor &cursor);
-
     struct Link
     {
         Link(const QString &fileName = QString(), int line = 0, int column = 0)

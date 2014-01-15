@@ -47,13 +47,14 @@ void BaseTextEditModifier::indent(int offset, int length)
         return;
 
     if (TextEditor::BaseTextEditorWidget *bte = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())) {
+        TextEditor::BaseTextDocument *btd = bte->baseTextDocument();
         // find the applicable block:
-        QTextDocument *doc = bte->document();
+        QTextDocument *doc = btd->document();
         QTextCursor tc(doc);
         tc.beginEditBlock();
         tc.setPosition(offset);
         tc.setPosition(offset + length, QTextCursor::KeepAnchor);
-        bte->indentInsertedText(tc);
+        btd->autoIndent(tc);
         tc.endEditBlock();
     }
 }
@@ -61,7 +62,7 @@ void BaseTextEditModifier::indent(int offset, int length)
 int BaseTextEditModifier::indentDepth() const
 {
     if (TextEditor::BaseTextEditorWidget *bte = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit()))
-        return bte->tabSettings().m_indentSize;
+        return bte->baseTextDocument()->tabSettings().m_indentSize;
     else
         return 0;
 }

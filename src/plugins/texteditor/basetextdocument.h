@@ -75,6 +75,8 @@ public:
 
     void setIndenter(Indenter *indenter);
     Indenter *indenter() const;
+    void autoIndent(const QTextCursor &cursor, QChar typedChar = QChar::Null);
+    void autoReindent(const QTextCursor &cursor);
 
     ITextMarkable *markableInterface() const;
 

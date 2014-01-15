@@ -1961,7 +1961,7 @@ bool CPPEditorWidget::handleDocumentationComment(QKeyEvent *e)
                         cursor.setPosition(pos);
                         cursor.insertText(comment);
                         cursor.setPosition(pos - 3, QTextCursor::KeepAnchor);
-                        indent(document(), cursor, QChar::Null);
+                        baseTextDocument()->autoIndent(cursor);
                         cursor.endEditBlock();
                         e->accept();
                         return true;

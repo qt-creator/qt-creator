@@ -910,7 +910,7 @@ void BaseTextEditorWidget::copyLineUpDown(bool up)
     move.setPosition(start);
     move.setPosition(end, QTextCursor::KeepAnchor);
 
-    indent(document(), move, QChar::Null);
+    d->m_document->autoIndent(move);
     move.endEditBlock();
 
     setTextCursor(move);
@@ -959,7 +959,7 @@ void BaseTextEditorWidget::insertLineAbove()
     cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
     cursor.insertBlock();
     cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
-    indent(document(), cursor, QChar::Null);
+    d->m_document->autoIndent(cursor);
     cursor.endEditBlock();
     setTextCursor(cursor);
 }
@@ -970,7 +970,7 @@ void BaseTextEditorWidget::insertLineBelow()
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
     cursor.insertBlock();
-    indent(document(), cursor, QChar::Null);
+    d->m_document->autoIndent(cursor);
     cursor.endEditBlock();
     setTextCursor(cursor);
 }
@@ -1124,7 +1124,7 @@ void BaseTextEditorWidget::moveLineUpDown(bool up)
 
     if (shouldReindent) {
         // The text was not commented at all; re-indent.
-        reindent(document(), move);
+        d->m_document->autoReindent(move);
     }
     move.endEditBlock();
 
@@ -1581,7 +1581,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         QString previousIndentationString;
         if (tps.m_autoIndent) {
             cursor.insertBlock();
-            indent(document(), cursor, QChar::Null);
+            d->m_document->autoIndent(cursor);
         } else {
             cursor.insertBlock();
 
@@ -1600,7 +1600,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
                 --extraBlocks;
                 ensureVisible.movePosition(QTextCursor::NextBlock);
                 if (tps.m_autoIndent)
-                    indent(document(), ensureVisible, QChar::Null);
+                    d->m_document->autoIndent(ensureVisible);
                 else if (!previousIndentationString.isEmpty())
                     ensureVisible.insertText(previousIndentationString);
             }
@@ -1699,7 +1699,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
                 cursor.setPosition(newPosition);
                 setTextCursor(cursor);
             }
-            indent(document(), cursor, QChar::Null);
+            d->m_document->autoIndent(cursor);
         } else {
             indentOrUnindent(e->key() == Qt::Key_Tab);
         }
@@ -1868,7 +1868,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
             cursor.setPosition(pos, QTextCursor::KeepAnchor);
         }
         if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
-            indent(document(), cursor, electricChar);
+            d->m_document->autoIndent(cursor, electricChar);
         if (!autoText.isEmpty())
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
 
@@ -1919,7 +1919,7 @@ void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, cons
     }
 
     cursor.setPosition(startCursorPosition, QTextCursor::KeepAnchor);
-    indent(cursor.document(), cursor, QChar());
+    d->m_document->autoIndent(cursor);
     cursor.endEditBlock();
 
     setExtraSelections(BaseTextEditorWidget::SnippetPlaceholderSelection, selections);
@@ -4670,21 +4670,6 @@ void BaseTextEditorWidget::zoomReset()
     emit requestZoomReset();
 }
 
-void BaseTextEditorWidget::indentInsertedText(const QTextCursor &tc)
-{
-    indent(tc.document(), tc, QChar::Null);
-}
-
-void BaseTextEditorWidget::indent(QTextDocument *doc, const QTextCursor &cursor, QChar typedChar)
-{
-    d->m_document->indenter()->indent(doc, cursor, typedChar, tabSettings());
-}
-
-void BaseTextEditorWidget::reindent(QTextDocument *doc, const QTextCursor &cursor)
-{
-    d->m_document->indenter()->reindent(doc, cursor, tabSettings());
-}
-
 BaseTextEditorWidget::Link BaseTextEditorWidget::findLinkAt(const QTextCursor &, bool, bool)
 {
     return Link();
@@ -5290,7 +5275,7 @@ void BaseTextEditorWidget::format()
 {
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
-    indent(document(), cursor, QChar::Null);
+    d->m_document->autoIndent(cursor);
     cursor.endEditBlock();
 }
 
@@ -5939,7 +5924,7 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
         c.setPosition(cursor.document()->findBlockByNumber(reindentBlockStart).position());
         c.setPosition(cursor.document()->findBlockByNumber(reindentBlockEnd).position(),
                       QTextCursor::KeepAnchor);
-        reindent(document(), c);
+        d->m_document->autoReindent(c);
     }
 
     cursor.endEditBlock();

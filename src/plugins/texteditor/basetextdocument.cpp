@@ -170,6 +170,16 @@ void BaseTextDocument::setExtraEncodingSettings(const ExtraEncodingSettings &ext
     d->m_extraEncodingSettings = extraEncodingSettings;
 }
 
+void BaseTextDocument::autoIndent(const QTextCursor &cursor, QChar typedChar)
+{
+    d->m_indenter->indent(d->m_document, cursor, typedChar, d->m_tabSettings);
+}
+
+void BaseTextDocument::autoReindent(const QTextCursor &cursor)
+{
+    d->m_indenter->reindent(d->m_document, cursor, d->m_tabSettings);
+}
+
 const ExtraEncodingSettings &BaseTextDocument::extraEncodingSettings() const
 {
     return d->m_extraEncodingSettings;
