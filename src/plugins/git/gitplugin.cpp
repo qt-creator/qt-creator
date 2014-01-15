@@ -900,9 +900,7 @@ void GitPlugin::startChangeRelatedAction()
         m_gitClient->synchronousRevert(workingDirectory, change);
         break;
     case Checkout:
-        if (!m_gitClient->beginStashScope(workingDirectory, QLatin1String("Checkout")))
-            return;
-        m_gitClient->synchronousCheckout(workingDirectory, change);
+        m_gitClient->stashAndCheckout(workingDirectory, QLatin1String("Checkout"));
         break;
     default:
         return;

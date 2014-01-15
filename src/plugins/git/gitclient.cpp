@@ -1814,6 +1814,16 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
     return true;
 }
 
+bool GitClient::stashAndCheckout(const QString &workingDirectory, const QString &ref)
+{
+    if (!beginStashScope(workingDirectory, QLatin1String("Checkout")))
+        return false;
+    if (!synchronousCheckout(workingDirectory, ref))
+        return false;
+    endStashScope(workingDirectory);
+    return true;
+}
+
 static inline QString msgParentRevisionFailed(const QString &workingDirectory,
                                               const QString &revision,
                                               const QString &why)

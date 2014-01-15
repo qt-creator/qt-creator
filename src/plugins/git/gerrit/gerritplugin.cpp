@@ -256,7 +256,7 @@ void FetchContext::cherryPick()
 
 void FetchContext::checkout()
 {
-    Git::Internal::GitPlugin::instance()->gitClient()->synchronousCheckout(
+    Git::Internal::GitPlugin::instance()->gitClient()->stashAndCheckout(
                 m_repository, QLatin1String("FETCH_HEAD"));
 }
 

@@ -179,7 +179,8 @@ public:
                                   QStringList files = QStringList(),
                                   QString revision = QString(), QString *errorMessage = 0,
                                   bool revertStaging = true);
-    // Checkout branch
+    // Checkout ref
+    bool stashAndCheckout(const QString &workingDirectory, const QString &ref);
     bool synchronousCheckout(const QString &workingDirectory, const QString &ref,
                              QString *errorMessage = 0);
 
