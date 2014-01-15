@@ -916,6 +916,9 @@ bool DiffEditorWidget::isWhitespace(const Diff &diff) const
 
 bool DiffEditorWidget::isEqual(const QList<Diff> &diffList, int diffNumber) const
 {
+    if (diffNumber == diffList.count())
+        return true;
+
     const Diff &diff = diffList.at(diffNumber);
     if (diff.command == Diff::Equal)
         return true;
@@ -1035,8 +1038,10 @@ ChunkData DiffEditorWidget::calculateOriginalData(const QList<Diff> &diffList) c
     bool lastLeftLineEqual = true;
     bool lastRightLineEqual = true;
 
-    for (int i = 0; i < diffList.count(); i++) {
-        Diff diff = diffList.at(i);
+    for (int i = 0; i <= diffList.count(); i++) {
+        Diff diff = i < diffList.count()
+                ? diffList.at(i)
+                : Diff(Diff::Equal, QLatin1String(""));  // dummy, ensure we process to the end even when diffList doesn't end with equality
 
         const QStringList lines = diff.text.split(QLatin1Char('\n'));
 
@@ -1052,14 +1057,14 @@ ChunkData DiffEditorWidget::calculateOriginalData(const QList<Diff> &diffList) c
         for (int j = 0; j < lines.count(); j++) {
             const QString line = lines.at(j);
 
-            if (j > 0) {
-                if (diff.command == Diff::Equal) {
-                    if (lastLeftLineEqual && lastRightLineEqual) {
-                        leftEqualLines.append(currentLeftLine);
-                        rightEqualLines.append(currentRightLine);
-                    }
+            if (j > 0 || i == diffList.count()) {
+                if (diff.command == Diff::Equal && lastLeftLineEqual && lastRightLineEqual) {
+                    leftEqualLines.append(currentLeftLine);
+                    rightEqualLines.append(currentRightLine);
                 }
+            }
 
+            if (j > 0) {
                 if (diff.command != Diff::Insert) {
                     currentLeftLine++;
                     currentLeftLineOffset++;
@@ -1083,7 +1088,7 @@ ChunkData DiffEditorWidget::calculateOriginalData(const QList<Diff> &diffList) c
                 rightLines.last() += line;
                 currentRightPos += line.count();
             } else if (diff.command == Diff::Equal) {
-                if ((line.count() || (j && j < lines.count() - 1)) && // don't treat empty ending line as a line to be aligned unless a line is a one char '/n' only.
+                if ((line.count() || (j && j < lines.count() - 1) || (i == diffList.count())) && // don't treat empty ending line as a line to be aligned unless a line is a one char '\n' only or it's the last line.
                         currentLeftLine != lastAlignedLeftLine &&
                         currentRightLine != lastAlignedRightLine) {
                     // apply line spans before the current lines
