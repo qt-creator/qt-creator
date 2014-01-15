@@ -2082,24 +2082,6 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
     return parsed;
 }
 
-bool Parser::parseAccessSpecifier(SpecifierAST *&node)
-{
-    DEBUG_THIS_RULE();
-    switch (LA()) {
-    case T_PUBLIC:
-    case T_PROTECTED:
-    case T_PRIVATE: {
-        SimpleSpecifierAST *ast = new (_pool) SimpleSpecifierAST;
-        ast->specifier_token = consumeToken();
-        node = ast;
-        return true;
-    }
-
-    default:
-        return false;
-    } // switch
-}
-
 bool Parser::parseAccessDeclaration(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();

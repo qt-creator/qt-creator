@@ -39,7 +39,6 @@ public:
     bool parseTranslationUnit(TranslationUnitAST *&node);
 
 public:
-    bool parseAccessSpecifier(SpecifierAST *&node);
     bool parseExpressionList(ExpressionListAST *&node);
     bool parseAbstractCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list);
     bool parseAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list);
