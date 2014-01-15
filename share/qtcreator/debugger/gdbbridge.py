@@ -717,6 +717,13 @@ class Dumper(DumperBase):
     def call(self, value, func, *args):
         return self.call2(value, func, args)
 
+    def hasChildWithName(self, value, name):
+        try:
+            value[name]
+            return True
+        except:
+            return False
+
     def makeValue(self, type, init):
         type = "::" + stripClassTag(str(type));
         # Avoid malloc symbol clash with QVector.
