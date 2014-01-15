@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "debuggerprotocol.h"
+#include "simplifytype.h"
 
 #include <QString>
 #include <QtTest>
@@ -154,7 +154,7 @@ void SimplifyTypesTest::test()
 {
     QFETCH(QString, input);
     QFETCH(QString, expected);
-    const QString output = simplifySTLType(input);
+    const QString output = simplifyType(input);
     QCOMPARE(output, expected);
 }
 

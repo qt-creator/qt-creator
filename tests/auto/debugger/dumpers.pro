@@ -23,12 +23,14 @@ include($$IDE_SOURCE_TREE/src/rpath.pri)
 
 SOURCES += \
     $$DEBUGGERDIR/debuggerprotocol.cpp \
+    $$DEBUGGERDIR/simplifytype.cpp \
     $$DEBUGGERDIR/watchdata.cpp \
     $$DEBUGGERDIR/watchutils.cpp \
     tst_dumpers.cpp
 
 HEADERS += \
     $$DEBUGGERDIR/debuggerprotocol.h \
+    $$DEBUGGERDIR/simplifytype.h \
     $$DEBUGGERDIR/watchdata.h \
     $$DEBUGGERDIR/watchutils.h \
     temporarydir.h

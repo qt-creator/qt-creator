@@ -72,7 +72,8 @@ HEADERS += \
     debuggersourcepathmappingwidget.h \
     memoryview.h \
     localsandexpressionswindow.h \
-    imageviewer.h
+    imageviewer.h \
+    simplifytype.h
 
 SOURCES += \
     basewindow.cpp \
@@ -127,7 +128,8 @@ SOURCES += \
     debuggersourcepathmappingwidget.cpp \
     memoryview.cpp \
     localsandexpressionswindow.cpp \
-    imageviewer.cpp
+    imageviewer.cpp \
+    simplifytype.cpp
 
 FORMS += \
     localsandexpressionsoptionspage.ui

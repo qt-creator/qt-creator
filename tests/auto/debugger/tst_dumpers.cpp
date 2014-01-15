@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "debuggerprotocol.h"
+#include "simplifytype.h"
 #include "watchdata.h"
 #include "watchutils.h"
 
@@ -348,7 +349,7 @@ struct Type
             }
         }
         QByteArray actualType =
-            simplifySTLType(QString::fromLatin1(actualType0)).toLatin1();
+            simplifyType(QString::fromLatin1(actualType0)).toLatin1();
         actualType.replace(' ', "");
         actualType.replace("const", "");
         QByteArray expectedType = type;

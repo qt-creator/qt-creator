@@ -9,4 +9,4 @@ INCLUDEPATH += $$DEBUGGERDIR
 
 SOURCES += \
     tst_simplifytypes.cpp \
-    $$DEBUGGERDIR/debuggerprotocol.cpp \
+    $$DEBUGGERDIR/simplifytype.cpp \

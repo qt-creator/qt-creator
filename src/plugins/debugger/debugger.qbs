@@ -88,6 +88,7 @@ QtcPlugin {
             "watchhandler.cpp", "watchhandler.h",
             "watchutils.cpp", "watchutils.h",
             "watchwindow.cpp", "watchwindow.h",
+            "simplifytype.cpp", "simplifytype.h",
         ]
     }
 

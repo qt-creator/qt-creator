@@ -36,6 +36,7 @@
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerprotocol.h"
+#include "simplifytype.h"
 #include "imageviewer.h"
 #include "watchutils.h"
 
@@ -477,7 +478,7 @@ static QString niceTypeHelper(const QByteArray &typeIn)
     const Cache::const_iterator it = cache.constFind(typeIn);
     if (it != cache.constEnd())
         return it.value();
-    const QString simplified = simplifySTLType(QLatin1String(typeIn));
+    const QString simplified = simplifyType(QLatin1String(typeIn));
     cache.insert(typeIn, simplified); // For simplicity, also cache unmodified types
     return simplified;
 }
