@@ -11,6 +11,7 @@ Autotest {
         prefix: project.debuggerDir
         files: [
             "debuggerprotocol.h", "debuggerprotocol.cpp",
+            "simplifytype.h", "simplifytype.cpp",
             "watchdata.h", "watchdata.cpp",
             "watchutils.h", "watchutils.cpp"
         ]

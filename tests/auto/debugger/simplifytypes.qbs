@@ -7,7 +7,7 @@ Autotest {
     Group {
         name: "Sources from Debugger plugin"
         prefix: project.debuggerDir
-        files: "debuggerprotocol.cpp"
+        files: "simplifytype.cpp"
     }
     Group {
         name: "Test sources"
