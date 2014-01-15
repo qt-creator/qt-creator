@@ -62,8 +62,8 @@ void PackageUploader::uploadPackage(SshConnection *connection,
     m_uploader = m_connection->createSftpChannel();
     connect(m_uploader.data(), SIGNAL(initialized()), this,
         SLOT(handleSftpChannelInitialized()));
-    connect(m_uploader.data(), SIGNAL(initializationFailed(QString)), this,
-        SLOT(handleSftpChannelInitializationFailed(QString)));
+    connect(m_uploader.data(), SIGNAL(channelError(QString)), this,
+        SLOT(handleSftpChannelError(QString)));
     connect(m_uploader.data(), SIGNAL(finished(QSsh::SftpJobId,QString)),
         this, SLOT(handleSftpJobFinished(QSsh::SftpJobId,QString)));
     m_uploader->initialize();
@@ -86,7 +86,7 @@ void PackageUploader::handleConnectionFailure()
     emit uploadFinished(tr("Connection failed: %1").arg(errorMsg));
 }
 
-void PackageUploader::handleSftpChannelInitializationFailed(const QString &errorMsg)
+void PackageUploader::handleSftpChannelError(const QString &errorMsg)
 {
     QTC_ASSERT(m_state == InitializingSftp || m_state == Inactive, return);
 

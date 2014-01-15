@@ -123,8 +123,8 @@ void GenericDirectUploadService::doDeploy()
 
     d->uploader = connection()->createSftpChannel();
     connect(d->uploader.data(), SIGNAL(initialized()), SLOT(handleSftpInitialized()));
-    connect(d->uploader.data(), SIGNAL(initializationFailed(QString)),
-        SLOT(handleSftpInitializationFailed(QString)));
+    connect(d->uploader.data(), SIGNAL(channelError(QString)),
+        SLOT(handleSftpChannelError(QString)));
     d->uploader->initialize();
     d->state = InitializingSftp;
 }
@@ -146,7 +146,7 @@ void GenericDirectUploadService::handleSftpInitialized()
     uploadNextFile();
 }
 
-void GenericDirectUploadService::handleSftpInitializationFailed(const QString &message)
+void GenericDirectUploadService::handleSftpChannelError(const QString &message)
 {
     QTC_ASSERT(d->state == InitializingSftp, setFinished(); return);
 

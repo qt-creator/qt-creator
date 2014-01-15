@@ -296,12 +296,12 @@ void SftpFileSystemModel::handleSshConnectionEstablished()
 {
     d->sftpChannel = d->sshConnection->createSftpChannel();
     connect(d->sftpChannel.data(), SIGNAL(initialized()), SLOT(handleSftpChannelInitialized()));
-    connect(d->sftpChannel.data(), SIGNAL(initializationFailed(QString)),
-        SLOT(handleSftpChannelInitializationFailed(QString)));
+    connect(d->sftpChannel.data(), SIGNAL(channelError(QString)),
+        SLOT(handleSftpChannelError(QString)));
     d->sftpChannel->initialize();
 }
 
-void SftpFileSystemModel::handleSftpChannelInitializationFailed(const QString &reason)
+void SftpFileSystemModel::handleSftpChannelError(const QString &reason)
 {
     emit connectionError(reason);
     beginResetModel();

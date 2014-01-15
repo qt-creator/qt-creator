@@ -52,7 +52,7 @@ public:
 
 signals:
     void initialized();
-    void initializationFailed(const QString &reason);
+    void channelError(const QString &reason);
     void closed();
     void finished(QSsh::SftpJobId job, const QString &error = QString());
     void dataAvailable(QSsh::SftpJobId job, const QString &data);

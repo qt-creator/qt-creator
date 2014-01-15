@@ -65,7 +65,7 @@ public:
 
 private slots:
     void handleSftpInitialized();
-    void handleSftpInitializationFailed(const QString &errorMessage);
+    void handleSftpChannelError(const QString &errorMessage);
     void handleUploadFinished(QSsh::SftpJobId jobId, const QString &errorMsg);
     void handleMkdirFinished(int exitStatus);
     void handleLnFinished(int exitStatus);

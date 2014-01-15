@@ -63,7 +63,7 @@ signals:
 private slots:
     void handleConnectionFailure();
     void handleSftpChannelInitialized();
-    void handleSftpChannelInitializationFailed(const QString &error);
+    void handleSftpChannelError(const QString &error);
     void handleSftpJobFinished(QSsh::SftpJobId job, const QString &error);
 
 private:

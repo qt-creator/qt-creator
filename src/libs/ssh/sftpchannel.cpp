@@ -88,8 +88,8 @@ SftpChannel::SftpChannel(quint32 channelId,
 {
     connect(d, SIGNAL(initialized()), this, SIGNAL(initialized()),
         Qt::QueuedConnection);
-    connect(d, SIGNAL(initializationFailed(QString)), this,
-        SIGNAL(initializationFailed(QString)), Qt::QueuedConnection);
+    connect(d, SIGNAL(channelError(QString)), this,
+        SIGNAL(channelError(QString)), Qt::QueuedConnection);
     connect(d, SIGNAL(dataAvailable(QSsh::SftpJobId,QString)), this,
         SIGNAL(dataAvailable(QSsh::SftpJobId,QString)), Qt::QueuedConnection);
     connect(d, SIGNAL(fileInfoAvailable(QSsh::SftpJobId,QList<QSsh::SftpFileInfo>)), this,
@@ -271,7 +271,7 @@ void SftpChannelPrivate::handleChannelFailure()
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected SSH_MSG_CHANNEL_FAILURE packet.");
     }
-    emit initializationFailed(tr("Server could not start SFTP subsystem."));
+    emit channelError(tr("Server could not start SFTP subsystem."));
     closeChannel();
 }
 
@@ -298,18 +298,22 @@ void SftpChannelPrivate::handleChannelExtendedDataInternal(quint32 type,
 
 void SftpChannelPrivate::handleExitStatus(const SshChannelExitStatus &exitStatus)
 {
-    const char * const message = "Remote SFTP service exited with exit code %d";
 #ifdef CREATOR_SSH_DEBUG
-    qDebug(message, exitStatus.exitStatus);
-#else
-    if (exitStatus.exitStatus != 0)
-        qWarning(message, exitStatus.exitStatus);
+    qDebug("Remote SFTP service exited with exit code %d", exitStatus.exitStatus);
 #endif
+
+    emit channelError(tr("The SFTP server finished unexpectedly with exit code %1.")
+                      .arg(exitStatus.exitStatus));
+
+    // Note: According to the specs, the server must close the channel after this happens,
+    // but OpenSSH doesn't do that, so we need to initiate the closing procedure ourselves.
+    closeChannel();
 }
 
 void SftpChannelPrivate::handleExitSignal(const SshChannelExitSignal &signal)
 {
-    qWarning("Remote SFTP service killed; signal was %s", signal.signal.data());
+    emit channelError(tr("The SFTP server crashed: %1.").arg(signal.error));
+    closeChannel(); // See above.
 }
 
 void SftpChannelPrivate::handleCurrentPacket()
@@ -356,7 +360,7 @@ void SftpChannelPrivate::handleServerVersion()
 #endif
     const quint32 serverVersion = m_incomingPacket.extractServerVersion();
     if (serverVersion != ProtocolVersion) {
-        emit initializationFailed(tr("Protocol version mismatch: Expected %1, got %2")
+        emit channelError(tr("Protocol version mismatch: Expected %1, got %2")
             .arg(serverVersion).arg(ProtocolVersion));
         closeChannel();
     } else {
@@ -854,7 +858,7 @@ void SftpChannelPrivate::handleOpenFailureInternal(const QString &reason)
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected SSH_MSG_CHANNEL_OPEN_FAILURE packet.");
     }
-    emit initializationFailed(tr("Server could not start session: %1").arg(reason));
+    emit channelError(tr("Server could not start session: %1").arg(reason));
 }
 
 void SftpChannelPrivate::sendReadRequest(const SftpDownload::Ptr &job,
