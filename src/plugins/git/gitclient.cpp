@@ -2777,6 +2777,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     branches << tr("<Detached HEAD>");
     QString headSha;
     // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
+    bool headFound = false;
     foreach (const QString &line, resp.stdOut.split(QLatin1Char('\n'))) {
         if (line.endsWith(QLatin1String("\tHEAD"))) {
             QTC_CHECK(headSha.isNull());
@@ -2786,7 +2787,6 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
 
         const QString pattern = QLatin1String("\trefs/heads/");
         const int pos = line.lastIndexOf(pattern);
-        bool headFound = false;
         if (pos != -1) {
             const QString branchName = line.mid(pos + pattern.count());
             if (!headFound && line.startsWith(headSha)) {
