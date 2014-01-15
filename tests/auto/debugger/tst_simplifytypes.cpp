@@ -50,6 +50,7 @@ const char *description[] =
 
     "libc++_stringvector",
     "libc++_unordered_map",
+    "libc++_hash_node",
 
     "msvc_stdstring",
     "msvc_stdwstring",
@@ -81,7 +82,10 @@ const char *input[] =
 
 // libc++
 "std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > > >",
+
 "std::__1::unordered_map<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, float, std::__1::hash<char, std::__1::char_traits<char>, std::__1::allocator<char> >, std::__1::equal_to<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > >, std::__1::allocator<std::__1::pair<const std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, float> > >",
+
+"std::__1::__hash_node<int, void *>::value_type",
 
 // MSVC
 "class std::basic_string<char,std::char_traits<char>,std::allocator<char> >",
@@ -114,6 +118,7 @@ const char *output[] =
     // libc++
     "std::vector<std::string>",
     "std::unordered_map<std::string, float>",
+    "int",
     // MSVC
     "std::string",
     "std::wstring",
@@ -137,15 +142,15 @@ public:
     SimplifyTypesTest();
 
 private Q_SLOTS:
-    void testCase1();
-    void testCase1_data();
+    void test();
+    void test_data();
 };
 
 SimplifyTypesTest::SimplifyTypesTest()
 {
 }
 
-void SimplifyTypesTest::testCase1()
+void SimplifyTypesTest::test()
 {
     QFETCH(QString, input);
     QFETCH(QString, expected);
@@ -153,7 +158,7 @@ void SimplifyTypesTest::testCase1()
     QCOMPARE(output, expected);
 }
 
-void SimplifyTypesTest::testCase1_data()
+void SimplifyTypesTest::test_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("expected");

@@ -831,146 +831,158 @@ QString simplifySTLType(const QString &typeIn)
         if (ifstreamRE.indexIn(type) != -1)
             type.replace(ifstreamRE.cap(0), QLatin1String("std::ifstream"));
 
+
+        // std::__1::hash_node<int, void *>::value_type -> int
+        if (isLibCpp) {
+            //QRegExp hashNodeRE(QLatin1String("std::__hash_node<([^<>]*),\\s*void\\s*@>::value_type"));
+            QRegExp hashNodeRE(QLatin1String("std::__hash_node<([^<>]*),\\s*void\\s*@>::value_type"));
+            QTC_ASSERT(hashNodeRE.isValid(), return typeIn);
+            if (hashNodeRE.indexIn(type) != -1)
+                type.replace(hashNodeRE.cap(0), hashNodeRE.cap(1));
+        }
+
         // Anything with a std::allocator
         int start = type.indexOf(QLatin1String("std::allocator<"));
-        if (start == -1)
-            break;
-        // search for matching '>'
-        int pos;
-        int level = 0;
-        for (pos = start + 12; pos < type.size(); ++pos) {
-            int c = type.at(pos).unicode();
-            if (c == '<') {
-                ++level;
-            } else if (c == '>') {
-                --level;
-                if (level == 0)
-                    break;
-            }
-        }
-        const QString alloc = fixNestedTemplates(type.mid(start, pos + 1 - start).trimmed());
-        const QString inner = fixNestedTemplates(alloc.mid(15, alloc.size() - 16).trimmed());
-
-        const QString allocEsc = QRegExp::escape(alloc);
-        const QString innerEsc = QRegExp::escape(inner);
-        if (inner == QLatin1String("char")) { // std::string
-            simplifyStdString(QLatin1String("char"), QLatin1String("string"), &type);
-        } else if (inner == QLatin1String("wchar_t")) { // std::wstring
-            simplifyStdString(QLatin1String("wchar_t"), QLatin1String("wstring"), &type);
-        } else if (inner == QLatin1String("unsigned short")) { // std::wstring/MSVC
-            simplifyStdString(QLatin1String("unsigned short"), QLatin1String("wstring"), &type);
-        }
-        // std::vector, std::deque, std::list
-        QRegExp re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(innerEsc, allocEsc));
-        QTC_ASSERT(re1.isValid(), return typeIn);
-        if (re1.indexIn(type) != -1)
-            type.replace(re1.cap(0), QString::fromLatin1("%1<%2>").arg(re1.cap(1), inner));
-
-        // std::stack
-        QRegExp stackRE(QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(innerEsc, innerEsc));
-        stackRE.setMinimal(true);
-        QTC_ASSERT(stackRE.isValid(), return typeIn);
-        if (stackRE.indexIn(type) != -1)
-            type.replace(stackRE.cap(0), QString::fromLatin1("stack<%1>").arg(inner));
-
-        // std::hash<char>
-        QRegExp hashCharRE(QString::fromLatin1("hash<char, std::char_traits<char>, ?%1\\s*>").arg(allocEsc));
-        hashCharRE.setMinimal(true);
-        QTC_ASSERT(hashCharRE.isValid(), return typeIn);
-        if (hashCharRE.indexIn(type) != -1)
-            type.replace(hashCharRE.cap(0), QString::fromLatin1("hash<char>"));
-
-        // std::set
-        QRegExp setRE(QString::fromLatin1("set<%1, ?std::less<%2>, ?%3\\s*>").arg(innerEsc, innerEsc, allocEsc));
-        setRE.setMinimal(true);
-        QTC_ASSERT(setRE.isValid(), return typeIn);
-        if (setRE.indexIn(type) != -1)
-            type.replace(setRE.cap(0), QString::fromLatin1("set<%1>").arg(inner));
-
-        // std::unordered_set
-        QRegExp unorderedSetRE(QString::fromLatin1("unordered_set<%1, ?std::hash<%2>, ?std::equal_to<%3>, ?%4\\s*>")
-            .arg(innerEsc, innerEsc, innerEsc, allocEsc));
-        unorderedSetRE.setMinimal(true);
-        QTC_ASSERT(unorderedSetRE.isValid(), return typeIn);
-        if (unorderedSetRE.indexIn(type) != -1)
-            type.replace(unorderedSetRE.cap(0), QString::fromLatin1("unordered_set<%1>").arg(inner));
-
-        // std::map
-        if (inner.startsWith(QLatin1String("std::pair<"))) {
-            // search for outermost ',', split key and value
+        if (start != -1) {
+            // search for matching '>'
             int pos;
             int level = 0;
-            for (pos = 10; pos < inner.size(); ++pos) {
-                int c = inner.at(pos).unicode();
-                if (c == '<')
+            for (pos = start + 12; pos < type.size(); ++pos) {
+                int c = type.at(pos).unicode();
+                if (c == '<') {
                     ++level;
-                else if (c == '>')
+                } else if (c == '>') {
                     --level;
-                else if (c == ',' && level == 0)
-                    break;
+                    if (level == 0)
+                        break;
+                }
             }
-            const QString key = chopConst(inner.mid(10, pos - 10));
-            const QString keyEsc = QRegExp::escape(key);
-            // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
-            if (inner.at(++pos) == QLatin1Char(' '))
-                pos++;
-            const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
-            const QString valueEsc = QRegExp::escape(value);
-            QRegExp mapRE1(QString::fromLatin1("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*>")
-                           .arg(keyEsc, valueEsc, keyEsc, allocEsc));
-            mapRE1.setMinimal(true);
-            QTC_ASSERT(mapRE1.isValid(), return typeIn);
-            if (mapRE1.indexIn(type) != -1) {
-                type.replace(mapRE1.cap(0), QString::fromLatin1("map<%1, %2>").arg(key, value));
-            } else {
-                QRegExp mapRE2(QString::fromLatin1("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*>")
+            const QString alloc = fixNestedTemplates(type.mid(start, pos + 1 - start).trimmed());
+            const QString inner = fixNestedTemplates(alloc.mid(15, alloc.size() - 16).trimmed());
+
+            const QString allocEsc = QRegExp::escape(alloc);
+            const QString innerEsc = QRegExp::escape(inner);
+            if (inner == QLatin1String("char")) { // std::string
+                simplifyStdString(QLatin1String("char"), QLatin1String("string"), &type);
+            } else if (inner == QLatin1String("wchar_t")) { // std::wstring
+                simplifyStdString(QLatin1String("wchar_t"), QLatin1String("wstring"), &type);
+            } else if (inner == QLatin1String("unsigned short")) { // std::wstring/MSVC
+                simplifyStdString(QLatin1String("unsigned short"), QLatin1String("wstring"), &type);
+            }
+            // std::vector, std::deque, std::list
+            QRegExp re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(innerEsc, allocEsc));
+            QTC_ASSERT(re1.isValid(), return typeIn);
+            if (re1.indexIn(type) != -1)
+                type.replace(re1.cap(0), QString::fromLatin1("%1<%2>").arg(re1.cap(1), inner));
+
+            // std::stack
+            QRegExp stackRE(QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(innerEsc, innerEsc));
+            stackRE.setMinimal(true);
+            QTC_ASSERT(stackRE.isValid(), return typeIn);
+            if (stackRE.indexIn(type) != -1)
+                type.replace(stackRE.cap(0), QString::fromLatin1("stack<%1>").arg(inner));
+
+            // std::hash<char>
+            QRegExp hashCharRE(QString::fromLatin1("hash<char, std::char_traits<char>, ?%1\\s*>").arg(allocEsc));
+            hashCharRE.setMinimal(true);
+            QTC_ASSERT(hashCharRE.isValid(), return typeIn);
+            if (hashCharRE.indexIn(type) != -1)
+                type.replace(hashCharRE.cap(0), QString::fromLatin1("hash<char>"));
+
+            // std::set
+            QRegExp setRE(QString::fromLatin1("set<%1, ?std::less<%2>, ?%3\\s*>").arg(innerEsc, innerEsc, allocEsc));
+            setRE.setMinimal(true);
+            QTC_ASSERT(setRE.isValid(), return typeIn);
+            if (setRE.indexIn(type) != -1)
+                type.replace(setRE.cap(0), QString::fromLatin1("set<%1>").arg(inner));
+
+            // std::unordered_set
+            QRegExp unorderedSetRE(QString::fromLatin1("unordered_set<%1, ?std::hash<%2>, ?std::equal_to<%3>, ?%4\\s*>")
+                .arg(innerEsc, innerEsc, innerEsc, allocEsc));
+            unorderedSetRE.setMinimal(true);
+            QTC_ASSERT(unorderedSetRE.isValid(), return typeIn);
+            if (unorderedSetRE.indexIn(type) != -1)
+                type.replace(unorderedSetRE.cap(0), QString::fromLatin1("unordered_set<%1>").arg(inner));
+
+            // std::map
+            if (inner.startsWith(QLatin1String("std::pair<"))) {
+                // search for outermost ',', split key and value
+                int pos;
+                int level = 0;
+                for (pos = 10; pos < inner.size(); ++pos) {
+                    int c = inner.at(pos).unicode();
+                    if (c == '<')
+                        ++level;
+                    else if (c == '>')
+                        --level;
+                    else if (c == ',' && level == 0)
+                        break;
+                }
+                const QString key = chopConst(inner.mid(10, pos - 10));
+                const QString keyEsc = QRegExp::escape(key);
+                // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
+                if (inner.at(++pos) == QLatin1Char(' '))
+                    pos++;
+                const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
+                const QString valueEsc = QRegExp::escape(value);
+                QRegExp mapRE1(QString::fromLatin1("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*>")
                                .arg(keyEsc, valueEsc, keyEsc, allocEsc));
-                mapRE2.setMinimal(true);
-                if (mapRE2.indexIn(type) != -1)
-                    type.replace(mapRE2.cap(0), QString::fromLatin1("map<const %1, %2>").arg(key, value));
+                mapRE1.setMinimal(true);
+                QTC_ASSERT(mapRE1.isValid(), return typeIn);
+                if (mapRE1.indexIn(type) != -1) {
+                    type.replace(mapRE1.cap(0), QString::fromLatin1("map<%1, %2>").arg(key, value));
+                } else {
+                    QRegExp mapRE2(QString::fromLatin1("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*>")
+                                   .arg(keyEsc, valueEsc, keyEsc, allocEsc));
+                    mapRE2.setMinimal(true);
+                    if (mapRE2.indexIn(type) != -1)
+                        type.replace(mapRE2.cap(0), QString::fromLatin1("map<const %1, %2>").arg(key, value));
+                }
             }
-        }
 
-        // std::unordered_map
-        if (inner.startsWith(QLatin1String("std::pair<"))) {
-            // search for outermost ',', split key and value
-            int pos;
-            int level = 0;
-            for (pos = 10; pos < inner.size(); ++pos) {
-                int c = inner.at(pos).unicode();
-                if (c == '<')
-                    ++level;
-                else if (c == '>')
-                    --level;
-                else if (c == ',' && level == 0)
-                    break;
-            }
-            const QString key = chopConst(inner.mid(10, pos - 10));
-            const QString keyEsc = QRegExp::escape(key);
-            // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
-            if (inner.at(++pos) == QLatin1Char(' '))
-                pos++;
-            const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
-            const QString valueEsc = QRegExp::escape(value);
-            QRegExp mapRE1(QString::fromLatin1("unordered_map<%1, ?%2, ?std::hash<%3 ?>, ?std::equal_to<%4 ?>, ?%5\\s*>")
-                           .arg(keyEsc, valueEsc, keyEsc, keyEsc, allocEsc));
-            mapRE1.setMinimal(true);
-            QTC_ASSERT(mapRE1.isValid(), return typeIn);
-            if (mapRE1.indexIn(type) != -1)
-                type.replace(mapRE1.cap(0), QString::fromLatin1("unordered_map<%1, %2>").arg(key, value));
+            // std::unordered_map
+            if (inner.startsWith(QLatin1String("std::pair<"))) {
+                // search for outermost ',', split key and value
+                int pos;
+                int level = 0;
+                for (pos = 10; pos < inner.size(); ++pos) {
+                    int c = inner.at(pos).unicode();
+                    if (c == '<')
+                        ++level;
+                    else if (c == '>')
+                        --level;
+                    else if (c == ',' && level == 0)
+                        break;
+                }
+                const QString key = chopConst(inner.mid(10, pos - 10));
+                const QString keyEsc = QRegExp::escape(key);
+                // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
+                if (inner.at(++pos) == QLatin1Char(' '))
+                    pos++;
+                const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
+                const QString valueEsc = QRegExp::escape(value);
+                QRegExp mapRE1(QString::fromLatin1("unordered_map<%1, ?%2, ?std::hash<%3 ?>, ?std::equal_to<%4 ?>, ?%5\\s*>")
+                               .arg(keyEsc, valueEsc, keyEsc, keyEsc, allocEsc));
+                mapRE1.setMinimal(true);
+                QTC_ASSERT(mapRE1.isValid(), return typeIn);
+                if (mapRE1.indexIn(type) != -1)
+                    type.replace(mapRE1.cap(0), QString::fromLatin1("unordered_map<%1, %2>").arg(key, value));
 
-            if (isLibCpp) {
-                QRegExp mapRE2(QString::fromLatin1("unordered_map<std::string, ?%1, ?std::hash<char>, ?std::equal_to<std::string>, ?%2\\s*>")
-                               .arg(valueEsc, allocEsc));
-                mapRE2.setMinimal(true);
-                QTC_ASSERT(mapRE2.isValid(), return typeIn);
-                if (mapRE2.indexIn(type) != -1)
-                    type.replace(mapRE2.cap(0), QString::fromLatin1("unordered_map<std::string, %2>").arg(value));
+                if (isLibCpp) {
+                    QRegExp mapRE2(QString::fromLatin1("unordered_map<std::string, ?%1, "
+                                    "?std::hash<char>, ?std::equal_to<std::string>, ?%2\\s*>")
+                                   .arg(valueEsc, allocEsc));
+                    mapRE2.setMinimal(true);
+                    QTC_ASSERT(mapRE2.isValid(), return typeIn);
+                    if (mapRE2.indexIn(type) != -1)
+                        type.replace(mapRE2.cap(0), QString::fromLatin1("unordered_map<std::string, %2>").arg(value));
+                }
             }
-        }
+        } // with std::allocator
     }
     type.replace(QLatin1Char('@'), QLatin1Char('*'));
     type.replace(QLatin1String(" >"), QLatin1String(">"));
+            qDebug() << "TYPE: " << type;
     return type;
 }
 } // namespace Internal
