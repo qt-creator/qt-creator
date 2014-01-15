@@ -4949,9 +4949,11 @@ void tst_Dumpers::dumper_data()
                 "MyFile file(\"/tmp/tt\");\n"
                 "file.setObjectName(\"A file\");\n")
          % CoreProfile()
+         % QtVersion(50000)
          % Check("file", "\"A file\"", "MyFile")
-         % Check("file.@1", "[QFile]", "\"/tmp/tt\"", "@QFile")
-         % Check("file.@1.[QFileDevice]", "[QFileDevice]", "\"A file\"", "@QFileDevice");
+         % Check("file.@1", "[@QFile]", "\"/tmp/tt\"", "@QFile");
+        // FIXME: The classname in the iname is sub-optimal.
+         //% Check("file.@1.[QFileDevice]", "[@QFileDevice]", "\"A file\"", "@QFileDevice");
          //% Check("file.@1.@1", "[QFile]", "\"A file\"", "@QObject");
 #endif
 
