@@ -5790,7 +5790,7 @@ namespace basic {
         testColoredMemoryView();
         testLongEvaluation1();
         testLongEvaluation2();
-        testFork();
+//        testFork();
         testFunctionPointer();
         testMemberPointer();
         testMemberFunctionPointer();
