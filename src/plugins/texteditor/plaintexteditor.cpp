@@ -87,8 +87,8 @@ void PlainTextEditorWidget::ctor()
 
     m_commentDefinition.clearCommentStyles();
 
-    // If configure() is called immediately the whole document is considered modified
-    connect(baseTextDocument(), SIGNAL(changed()), this, SLOT(configure()), Qt::QueuedConnection);
+    connect(baseTextDocument(), SIGNAL(filePathChanged(QString,QString)),
+            this, SLOT(configure()));
     connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configure()));
 }
 
