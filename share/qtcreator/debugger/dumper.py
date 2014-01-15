@@ -182,7 +182,8 @@ class Children:
         return True
 
 class PairedChildrenData:
-    def __init__(self, d, pairType, keyType, valueType):
+    def __init__(self, d, pairType, keyType, valueType, useKeyAndValue):
+        self.useKeyAndValue = useKeyAndValue
         self.pairType = pairType
         self.keyType = keyType
         self.valueType = valueType
@@ -193,13 +194,14 @@ class PairedChildrenData:
         self.keyIsQByteArray = str(self.keyType) == ns + "QByteArray"
 
 class PairedChildren(Children):
-    def __init__(self, d, numChild, pairType = None, keyType = None, valueType = None, maxNumChild = None):
+    def __init__(self, d, numChild, useKeyAndValue = False,
+            pairType = None, keyType = None, valueType = None, maxNumChild = None):
         self.d = d
         if keyType is None:
             keyType = d.templateArgument(pairType, 0).unqualified()
         if valueType is None:
             valueType = d.templateArgument(pairType, 1)
-        d.pairData = PairedChildrenData(d, pairType, keyType, valueType)
+        d.pairData = PairedChildrenData(d, pairType, keyType, valueType, useKeyAndValue)
 
         Children.__init__(self, d, numChild,
             d.pairData.childType,
@@ -458,16 +460,12 @@ class DumperBase:
                 self.put('key="[%d] %s",' % (index, val))
 
     def putPair(self, pair, index = -1):
-        try:
-            key = pair["first"]
-            value = pair["second"]
-            keyName = "first"
-            valueName = "second"
-        except:
+        if self.pairData.useKeyAndValue:
             key = pair["key"]
             value = pair["value"]
-            keyName = "key"
-            valueName = "value"
+        else:
+            key = pair["first"]
+            value = pair["second"]
         if self.pairData.isCompact:
             if self.pairData.keyIsQString:
                 self.put('key="%s",' % self.encodeString(key))
@@ -488,8 +486,12 @@ class DumperBase:
             self.putField("iname", self.currentIName)
             if self.isExpanded():
                 with Children(self):
-                    self.putSubItem(keyName, key)
-                    self.putSubItem(valueName, value)
+                    if self.pairData.useKeyAndValue:
+                        self.putSubItem("key", key)
+                        self.putSubItem("value", value)
+                    else:
+                        self.putSubItem("first", key)
+                        self.putSubItem("second", value)
 
     def isMapCompact(self, keyType, valueType):
         format = self.currentItemFormat()

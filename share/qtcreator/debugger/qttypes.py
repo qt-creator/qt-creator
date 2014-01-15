@@ -940,7 +940,8 @@ def qdumpHelper__Qt4_QMap(d, value):
         else:
             payloadSize = nodeType.sizeof - 2 * nodePointerType.sizeof
 
-        with PairedChildren(d, n, keyType=keyType, valueType=valueType, pairType = nodeType):
+        with PairedChildren(d, n, useKeyAndValue=True,
+                keyType=keyType, valueType=valueType, pairType=nodeType):
             for i in xrange(n):
                 base = it.cast(d.charPtrType()) - payloadSize
                 node = base.cast(nodePointerType).dereference()
@@ -990,7 +991,8 @@ def qdumpHelper__Qt5_QMap(d, value):
 
             return i
 
-        with PairedChildren(d, n, keyType=keyType, valueType=valueType, pairType = nodeType):
+        with PairedChildren(d, n, useKeyAndValue=True,
+                keyType=keyType, valueType=valueType, pairType=nodeType):
             node = d_ptr["header"]
             helper(d, node, nodeType, 0)
 
