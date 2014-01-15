@@ -86,6 +86,8 @@ public:
     QList<NodeMetaInfo> superClasses() const;
     NodeMetaInfo directSuperClass() const;
 
+    QList<TypeName> superClassNames() const;
+
     bool defaultPropertyIsComponent() const;
 
     TypeName typeName() const;

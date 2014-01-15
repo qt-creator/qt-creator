@@ -149,6 +149,7 @@ private slots:
     void setSidebarVisible(bool visible);
     void destroyVersionDialog();
     void openDelayedFiles();
+    void restoreWindowState();
 
 private:
     void updateContextObject(const QList<IContext *> &context);

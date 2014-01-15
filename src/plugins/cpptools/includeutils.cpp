@@ -423,7 +423,7 @@ int IncludeGroup::lineForNewInclude(const QString &newIncludeFileName,
         return -1;
 
     if (isSorted()) {
-        const Include newInclude(newIncludeFileName, QString(), -1, newIncludeType);
+        const Include newInclude(newIncludeFileName, QString(), 0, newIncludeType);
         const QList<Include>::const_iterator it = std::lower_bound(m_includes.begin(),
             m_includes.end(), newInclude, includeFileNamelessThen);
         if (it == m_includes.end())

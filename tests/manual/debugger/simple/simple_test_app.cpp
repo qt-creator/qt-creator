@@ -3311,6 +3311,7 @@ namespace lambda {
         std::string x;
         auto f = [&] () -> const std::string & {
                 int z = x.size();
+                Q_UNUSED(z);
                 return x;
          };
         auto c = f();

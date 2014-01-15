@@ -246,12 +246,13 @@ QDomDocument UpdateInfoPlugin::update()
     QDomDocument updates;
     if (updater.exitStatus() != QProcess::CrashExit) {
         d->m_timer.stop();
-        d->m_lastDayChecked = QDate::currentDate();
         updates.setContent(updater.readAllStandardOutput());
         saveSettings(); // force writing out the last update date
     } else {
         qWarning() << "Updater application crashed.";
     }
+
+    d->m_lastDayChecked = QDate::currentDate();
     return updates;
 }
 

@@ -240,6 +240,9 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     if (m_locked)
         return;
 
+    if (!m_selectedNode.isValid())
+        return;
+
     RewriterTransaction transaction = beginRewriterTransaction(QByteArrayLiteral("PropertyEditorView::changeExpression"));
 
     try {

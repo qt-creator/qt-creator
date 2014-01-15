@@ -990,10 +990,12 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
             innerType = nodeType
 
 
-        def helper(d, node, nodeType, isCompact, forceLong, i):
+        def helper(d, node, nodeType, isCompact, forceLong, i, n):
             left = node["left"]
             if not d.isNull(left):
-                i = helper(d, left.dereference(), nodeType, isCompact, forceLong, i)
+                i = helper(d, left.dereference(), nodeType, isCompact, forceLong, i, n)
+                if i >= n:
+                    return i
 
             nodex = node.cast(nodeType)
             with SubItem(d, i):
@@ -1008,16 +1010,18 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
                     qdump__QMapNode(d, nodex)
 
             i += 1
+            if i >= n:
+                return i
 
             right = node["right"]
             if not d.isNull(right):
-                i = helper(d, right.dereference(), nodeType, isCompact, forceLong, i)
+                i = helper(d, right.dereference(), nodeType, isCompact, forceLong, i, n)
 
             return i
 
         with Children(d, n, childType=innerType):
             node = d_ptr["header"]
-            helper(d, node, nodeType, isCompact, forceLong, 0)
+            helper(d, node, nodeType, isCompact, forceLong, 0, n)
 
 
 

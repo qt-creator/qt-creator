@@ -642,7 +642,7 @@ void QmlLiveTextPreview::editorContentsChanged()
 
 void QmlLiveTextPreview::onAutomaticUpdateFailed()
 {
-    showSyncWarning(AutomaticUpdateFailed, QString(), -1, -1);
+    showSyncWarning(AutomaticUpdateFailed, QString(), UINT_MAX, UINT_MAX);
 }
 
 QList<int> QmlLiveTextPreview::objectReferencesForOffset(quint32 offset)

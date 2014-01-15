@@ -1031,12 +1031,27 @@ void NodeMetaInfoPrivate::setupPrototypes()
             description.majorVersion = qmlValue->componentVersion().majorVersion();
             LanguageUtils::FakeMetaObject::Export qtquickExport = qmlValue->metaObject()->exportInPackage("QtQuick");
             LanguageUtils::FakeMetaObject::Export cppExport = qmlValue->metaObject()->exportInPackage("<cpp>");
-            if (qtquickExport.isValid())
+
+            if (qtquickExport.isValid()) {
                 description.className = qtquickExport.package.toUtf8() + '.' + qtquickExport.type.toUtf8();
-            else if (qmlValue->moduleName().isEmpty() && cppExport.isValid())
-                description.className = cppExport.package.toUtf8() + '.' + cppExport.type.toUtf8();
-            else if (!qmlValue->moduleName().isEmpty())
-                description.className = qmlValue->moduleName().toUtf8() + '.' + description.className;
+            } else {
+                bool found = false;
+                if (cppExport.isValid()) {
+                    foreach (const LanguageUtils::FakeMetaObject::Export &exportValue, qmlValue->metaObject()->exports()) {
+                        if (exportValue.package.toUtf8() != "<cpp>") {
+                            found = true;
+                            description.className = exportValue.package.toUtf8() + '.' + exportValue.type.toUtf8();
+                        }
+                    }
+                }
+                if (!found) {
+                    if (qmlValue->moduleName().isEmpty() && cppExport.isValid()) {
+                        description.className = cppExport.package.toUtf8() + '.' + cppExport.type.toUtf8();
+                    } else if (!qmlValue->moduleName().isEmpty()) {
+                        description.className = qmlValue->moduleName().toUtf8() + '.' + description.className;
+                    }
+                }
+            }
             m_prototypes.append(description);
         } else {
             if (context()->lookupType(document(), QStringList() << ov->className())) {
@@ -1231,6 +1246,16 @@ NodeMetaInfo NodeMetaInfo::directSuperClass() const
     if (superClassesList.count() > 1)
         return superClassesList.at(1);
     return NodeMetaInfo();
+}
+
+QList<TypeName> NodeMetaInfo::superClassNames() const
+{
+    QList<TypeName> list;
+
+    foreach (const Internal::TypeDescription &type,  m_privateData->prototypes()) {
+        list.append(type.className);
+    }
+    return list;
 }
 
 bool NodeMetaInfo::defaultPropertyIsComponent() const

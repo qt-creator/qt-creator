@@ -34,7 +34,11 @@ class QtQuick2ApplicationViewerPrivate
 
 QString QtQuick2ApplicationViewerPrivate::adjustPath(const QString &path)
 {
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_IOS)
+    if (!QDir::isAbsolutePath(path))
+        return QString::fromLatin1("%1/%2")
+                .arg(QCoreApplication::applicationDirPath(), path);
+#elif defined(Q_OS_MAC)
     if (!QDir::isAbsolutePath(path))
         return QStringLiteral("%1/../Resources/%2")
                 .arg(QCoreApplication::applicationDirPath(), path);

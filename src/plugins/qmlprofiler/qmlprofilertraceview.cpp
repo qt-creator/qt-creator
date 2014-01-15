@@ -471,12 +471,14 @@ void QmlProfilerTraceView::profilerDataModelStateChanged()
     switch (d->m_modelManager->state()) {
         case QmlProfilerDataState::Empty: break;
         case QmlProfilerDataState::ClearingData:
+            d->m_mainView->hide();
             emit enableToolbar(false);
         break;
         case QmlProfilerDataState::AcquiringData: break;
         case QmlProfilerDataState::ProcessingData: break;
         case QmlProfilerDataState::Done:
             emit enableToolbar(true);
+            d->m_mainView->show();
         break;
     default:
         break;

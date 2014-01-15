@@ -4,7 +4,7 @@ include(../../../qtcreator.pri)
 include(../../private_headers.pri)
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    qtHaveModule(declarative) {
+    qtHaveModule(declarative-private) {
         QT += declarative-private core-private
         SUBDIRS += qmlpuppet
     }

@@ -283,7 +283,7 @@ unsigned int AndroidDeployStep::remoteModificationTime(const QString &fullDestin
     process.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
     if (!process.waitForFinished(5000)
             || process.exitCode() != 0)
-        return -1;
+        return 0;
     QByteArray output = process.readAll();
     output.replace("\r\n", "\n");
     QList<QByteArray> lines = output.split('\n');

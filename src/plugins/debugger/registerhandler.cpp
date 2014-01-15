@@ -293,7 +293,7 @@ static int bitWidthFromType(int type, int subType)
     return 0;
 }
 
-static const int TopLevelId = -1;
+static const uint TopLevelId = UINT_MAX;
 static bool isTopLevelItem(const QModelIndex &index)
 {
     return quintptr(index.internalId()) == quintptr(TopLevelId);

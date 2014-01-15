@@ -86,6 +86,7 @@ public:
     DebuggerEngineType secondSlaveEngineType;
     DebuggerEngineType cppEngineType;
     QString sysRoot;
+    QString deviceSymbolsRoot;
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
     ProjectExplorer::IDevice::ConstPtr device;

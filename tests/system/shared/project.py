@@ -456,8 +456,8 @@ def __closeSubprocessByPushingStop__(sType):
     stopButton = verifyEnabled(":Qt Creator.Stop_QToolButton")
     if stopButton.enabled:
         clickButton(stopButton)
-        test.verify(playButton.enabled)
-        test.compare(stopButton.enabled, False)
+        test.verify(waitFor("playButton.enabled", 5000), "Play button should be enabled")
+        test.compare(stopButton.enabled, False, "Stop button should be disabled")
         if sType == SubprocessType.QT_QUICK_UI and platform.system() == "Darwin":
             waitFor("stopButton.enabled==False")
             snooze(2)

@@ -174,7 +174,7 @@ public slots:
 
 ExamplesListModel::ExamplesListModel(QObject *parent) :
     QAbstractListModel(parent),
-    m_uniqueQtId(noQtVersionsId)
+    m_uniqueQtId(uniqueQtVersionIdSetting())
 {
     QHash<int, QByteArray> roleNames;
     roleNames[Name] = "name";

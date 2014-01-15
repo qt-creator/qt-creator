@@ -208,7 +208,7 @@ void LldbEngine::setupInferior()
     QTC_CHECK(sp.attachPID <= 0 || (sp.startMode == AttachCrashedExternal
                                 || sp.startMode == AttachExternal));
     cmd.arg("attachPid", sp.attachPID);
-    cmd.arg("sysRoot", sp.sysRoot);
+    cmd.arg("sysRoot", sp.deviceSymbolsRoot.isEmpty() ? sp.sysRoot : sp.deviceSymbolsRoot);
     cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess
                                || sp.startMode == AttachToRemoteServer)
                               ? sp.remoteChannel : QString()));

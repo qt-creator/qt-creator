@@ -18,6 +18,10 @@ Editing
      are detected
    * Fixed issues with splitting when editor is not splittable (QTCREATORBUG-6827)
    * Added action for closing all editors except the visible ones (QTCREATORBUG-9893)
+   * Added support for changing case of entered values in snippets
+     (:u :c :l modifiers like for custom wizards)
+   * Fixed that proposal list would pop up again after it was dismissed with Esc key
+     right after it opened
 
 Managing and Building Projects
    * Fixed exit code that is shown for applications that are run in terminal
@@ -35,6 +39,7 @@ QMake Projects
    * Fixed issues when using qtchooser (QTCREATORBUG-9841)
    * Fixed issues with autosave files triggering reparses (QTCREATORBUG-9957)
    * Fixed that run configurations were created for targets that are not built (QTCREATORBUG-9549)
+   * Fixed issue when renaming a file changes its MIME type (QTCREATORBUG-9824)
 
 CMake Projects
    * Added parser for CMake build errors
@@ -42,16 +47,18 @@ CMake Projects
    * Added support for a CMakeDeployment.txt file that defines deployment rules
 
 Qbs Projects
+   * Added code completion support for code generated from .ui files
 
 Generic Projects
 
 Debugging
+   * Added Debuggers tab to Build & Run options
+   * Pretty printers (Python based, GDB and LLDB)
+      * Added QIPv6Address and support for IPv6 in QHostAddress
    * GDB
-      * Fixed various pretty printers
    * CDB
       * Fixed interrupting 32 bit processes from 64 bit Qt Creator builds
    * LLDB
-      * Fixed various pretty printers
    * QML
 
 Analyzer
@@ -78,6 +85,15 @@ C++ Support
    * Added list of potential destinations when doing "Follow Symbol" on
      virtual function calls (QTCREATORBUG-9611)
    * Fixed "Follow Symbol" for operators (QTCREATORBUG-7485)
+   * Added logic to avoid complete project reparses (QTCREATORBUG-9730)
+   * Added matching against fully qualified name in C++ related locator filters
+
+Qt Quick Designer
+   * Added imports editor
+   * Fixed bread crumb bar for infile components
+
+Qt Designer
+   * Fixed "Go to slot" for form classes that are not part of a project (QTCREATORBUG-9653)
 
 Python Support
 
@@ -85,11 +101,12 @@ GLSL Support
    * Fixed crash (QTCREATORBUG-10166)
 
 Diff Viewer
-   * Added button that switches between inline and side-by-side view
+   * Added button that switches between inline and side-by-side view (QTCREATORBUG-10035)
    * Added syntax highlighting (QTCREATORBUG-9580)
 
 Version Control Systems
    * Fixed crash when reverting changes while commit editor is open (QTCREATORBUG-10190)
+   * Fixed colors in description in submit editor
    * Added VCS topic to window title
    * Fixed that user was asked about adding file to VCS even if it already
      was in VCS (QTCREATORBUG-2455)
@@ -113,6 +130,8 @@ Version Control Systems
    * ClearCase
 
 FakeVim
+   * Added <C-W><C-V> shortcut for splitting editors
+   * Fixed scrolling when using single character or single line movement
 
 Platform Specific
 
@@ -122,6 +141,8 @@ Qt Support
 
 QNX
    * Added check for existence of debug token and show error message in that case (QTCREATORBUG-9103)
+   * Added device auto-detection in "Add BlackBerry Device" wizard
+   * Added support for NDKs with multiple target configurations
 
 Android
    * Added error messages for incompatible devices to compile output (QTCREATORBUG-9690)
