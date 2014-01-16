@@ -298,7 +298,7 @@ void Differ::setDiffMode(Differ::DiffMode mode)
     m_diffMode = mode;
 }
 
-bool Differ::diffMode() const
+Differ::DiffMode Differ::diffMode() const
 {
     return m_diffMode;
 }

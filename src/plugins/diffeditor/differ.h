@@ -70,7 +70,7 @@ public:
     Differ();
     QList<Diff> diff(const QString &text1, const QString &text2);
     void setDiffMode(DiffMode mode);
-    bool diffMode() const;
+    DiffMode diffMode() const;
     static QList<Diff> merge(const QList<Diff> &diffList);
     static QList<Diff> cleanupSemantics(const QList<Diff> &diffList);
     static QList<Diff> cleanupSemanticsLossless(const QList<Diff> &diffList);
