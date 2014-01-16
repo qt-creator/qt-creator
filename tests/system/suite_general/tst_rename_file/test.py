@@ -87,9 +87,6 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
     type(waitForObject(":Qt Creator_Utils::NavigationTreeView::QExpandingLineEdit"), "<Return>")
     test.verify(waitFor("os.path.exists(newFilePath)", 1000),
                 "Verify that file with new name exists: %s" % newFilePath)
-    if not (oldname.lower() == newname.lower() and platform.system() in ('Windows', 'Microsoft')):
-        test.verify(not os.path.exists(oldFilePath),
-                    "Verify that file with old name does not exist: %s" % oldFilePath)
     test.compare(readFile(newFilePath), oldFileText,
                  "Comparing content of file before and after renaming")
     test.verify(waitFor("newname in safeReadFile(proFile)", 2000),
@@ -97,6 +94,9 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
     if not oldname in newname:
         test.verify(not oldname in readFile(proFile),
                     "Verify that old filename '%s' was removed from pro-file." % oldname)
+    if not (oldname.lower() == newname.lower() and platform.system() in ('Windows', 'Microsoft')):
+        test.verify(not oldname in os.listdir(projectDir),
+                    "Verify that file with old name does not exist: %s" % oldFilePath)
 
 def safeReadFile(filename):
     text = ""
