@@ -102,8 +102,6 @@ private:
     QString m_workingDirectory;
     QString m_cmdArguments;
     RunMode m_runMode;
-    bool m_userSetName;
-    QString m_userName;
 };
 
 class CustomExecutableRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
