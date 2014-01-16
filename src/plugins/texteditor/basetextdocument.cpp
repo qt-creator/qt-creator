@@ -60,6 +60,8 @@ class BaseTextDocumentPrivate
 public:
     explicit BaseTextDocumentPrivate(BaseTextDocument *q);
 
+    QTextCursor indentOrUnindent(const QTextCursor &textCursor, bool doIndent);
+
     QString m_defaultPath;
     QString m_suggestedFileName;
     QString m_mimeType;
@@ -82,6 +84,58 @@ BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
     m_fileIsReadOnly(false),
     m_autoSaveRevision(-1)
 {
+}
+
+QTextCursor BaseTextDocumentPrivate::indentOrUnindent(const QTextCursor &textCursor, bool doIndent)
+{
+    QTextCursor cursor = textCursor;
+    cursor.beginEditBlock();
+
+    if (cursor.hasSelection()) {
+        // Indent or unindent the selected lines
+        int pos = cursor.position();
+        int anchor = cursor.anchor();
+        int start = qMin(anchor, pos);
+        int end = qMax(anchor, pos);
+
+        QTextBlock startBlock = m_document->findBlock(start);
+        QTextBlock endBlock = m_document->findBlock(end-1).next();
+
+        if (startBlock.next() == endBlock
+                && (start > startBlock.position() || end < endBlock.position() - 1)) {
+            // Only one line partially selected.
+            cursor.removeSelectedText();
+        } else {
+            for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
+                QString text = block.text();
+                int indentPosition = m_tabSettings.lineIndentPosition(text);
+                if (!doIndent && !indentPosition)
+                    indentPosition = m_tabSettings.firstNonSpace(text);
+                int targetColumn = m_tabSettings.indentedColumn(m_tabSettings.columnAt(text, indentPosition), doIndent);
+                cursor.setPosition(block.position() + indentPosition);
+                cursor.insertText(m_tabSettings.indentationString(0, targetColumn, block));
+                cursor.setPosition(block.position());
+                cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
+                cursor.removeSelectedText();
+            }
+            cursor.endEditBlock();
+            return textCursor;
+        }
+    }
+
+    // Indent or unindent at cursor position
+    QTextBlock block = cursor.block();
+    QString text = block.text();
+    int indentPosition = cursor.positionInBlock();
+    int spaces = m_tabSettings.spacesLeftFromPosition(text, indentPosition);
+    int startColumn = m_tabSettings.columnAt(text, indentPosition - spaces);
+    int targetColumn = m_tabSettings.indentedColumn(m_tabSettings.columnAt(text, indentPosition), doIndent);
+    cursor.setPosition(block.position() + indentPosition);
+    cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
+    cursor.removeSelectedText();
+    cursor.insertText(m_tabSettings.indentationString(startColumn, targetColumn, block));
+    cursor.endEditBlock();
+    return cursor;
 }
 
 BaseTextDocument::BaseTextDocument() : d(new BaseTextDocumentPrivate(this))
@@ -178,6 +232,16 @@ void BaseTextDocument::autoIndent(const QTextCursor &cursor, QChar typedChar)
 void BaseTextDocument::autoReindent(const QTextCursor &cursor)
 {
     d->m_indenter->reindent(d->m_document, cursor, d->m_tabSettings);
+}
+
+QTextCursor BaseTextDocument::indent(const QTextCursor &cursor)
+{
+    return d->indentOrUnindent(cursor, true);
+}
+
+QTextCursor BaseTextDocument::unindent(const QTextCursor &cursor)
+{
+    return d->indentOrUnindent(cursor, false);
 }
 
 const ExtraEncodingSettings &BaseTextDocument::extraEncodingSettings() const

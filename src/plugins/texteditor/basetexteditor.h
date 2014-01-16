@@ -513,7 +513,6 @@ signals:
 
 private:
     void ctor(const QSharedPointer<BaseTextDocument> &doc);
-    void indentOrUnindent(bool doIndent);
     void handleHomeKey(bool anchor);
     void handleBackspaceKey();
     void moveLineUpDown(bool up);

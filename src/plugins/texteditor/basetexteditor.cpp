@@ -997,12 +997,12 @@ void BaseTextEditorWidget::lowercaseSelection()
 
 void BaseTextEditorWidget::indent()
 {
-    indentOrUnindent(true);
+    setTextCursor(baseTextDocument()->indent(textCursor()));
 }
 
 void BaseTextEditorWidget::unindent()
 {
-    indentOrUnindent(false);
+    setTextCursor(baseTextDocument()->unindent(textCursor()));
 }
 
 void BaseTextEditorWidget::openLinkUnderCursor()
@@ -1701,7 +1701,10 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
             }
             d->m_document->autoIndent(cursor);
         } else {
-            indentOrUnindent(e->key() == Qt::Key_Tab);
+            if (e->key() == Qt::Key_Tab)
+                indent();
+            else
+                unindent();
         }
         e->accept();
         return;
@@ -4462,61 +4465,6 @@ const MarginSettings &BaseTextEditorWidget::marginSettings() const
     return d->m_marginSettings;
 }
 
-void BaseTextEditorWidget::indentOrUnindent(bool doIndent)
-{
-    const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
-
-    QTextCursor cursor = textCursor();
-    cursor.beginEditBlock();
-
-    if (cursor.hasSelection()) {
-        // Indent or unindent the selected lines
-        int pos = cursor.position();
-        int anchor = cursor.anchor();
-        int start = qMin(anchor, pos);
-        int end = qMax(anchor, pos);
-
-        QTextDocument *doc = document();
-        QTextBlock startBlock = doc->findBlock(start);
-        QTextBlock endBlock = doc->findBlock(end-1).next();
-
-        if (startBlock.next() == endBlock
-                && (start > startBlock.position() || end < endBlock.position() - 1)) {
-            // Only one line partially selected.
-            cursor.removeSelectedText();
-        } else {
-            for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
-                QString text = block.text();
-                int indentPosition = tabSettings.lineIndentPosition(text);
-                if (!doIndent && !indentPosition)
-                    indentPosition = tabSettings.firstNonSpace(text);
-                int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
-                cursor.setPosition(block.position() + indentPosition);
-                cursor.insertText(tabSettings.indentationString(0, targetColumn, block));
-                cursor.setPosition(block.position());
-                cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
-                cursor.removeSelectedText();
-            }
-            cursor.endEditBlock();
-            return;
-        }
-    }
-
-    // Indent or unindent at cursor position
-    QTextBlock block = cursor.block();
-    QString text = block.text();
-    int indentPosition = cursor.positionInBlock();
-    int spaces = tabSettings.spacesLeftFromPosition(text, indentPosition);
-    int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
-    int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
-    cursor.setPosition(block.position() + indentPosition);
-    cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
-    cursor.removeSelectedText();
-    cursor.insertText(tabSettings.indentationString(startColumn, targetColumn, block));
-    cursor.endEditBlock();
-    setTextCursor(cursor);
-}
-
 void BaseTextEditorWidget::handleHomeKey(bool anchor)
 {
     QTextCursor cursor = textCursor();
@@ -4621,7 +4569,7 @@ void BaseTextEditorWidget::handleBackspaceKey()
                 d->m_snippetOverlay->clear();
                 cursorWithinSnippet = false;
             }
-            indentOrUnindent(false);
+            unindent();
         }
         handled = true;
     }
