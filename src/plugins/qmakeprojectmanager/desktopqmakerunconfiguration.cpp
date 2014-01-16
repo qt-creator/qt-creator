@@ -97,6 +97,7 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Deskt
     m_commandLineArguments(source->m_commandLineArguments),
     m_proFilePath(source->m_proFilePath),
     m_runMode(source->m_runMode),
+    m_forcedGuiMode(source->m_forcedGuiMode),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_parseSuccess(source->m_parseSuccess),
