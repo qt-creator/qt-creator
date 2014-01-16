@@ -171,12 +171,15 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
     // add default qmltypes file if it exists
     const QLatin1String defaultQmltypesFileName("plugins.qmltypes");
     const QString defaultQmltypesPath = makeAbsolute(defaultQmltypesFileName, canonicalLibraryPath);
-    if (QFile::exists(defaultQmltypesPath))
+    if (!plugin.typeInfoPaths.contains(defaultQmltypesPath) && QFile::exists(defaultQmltypesPath))
         plugin.typeInfoPaths += defaultQmltypesPath;
 
     // add typeinfo files listed in qmldir
-    foreach (const QmlDirParser::TypeInfo &typeInfo, libraryInfo.typeInfos())
-        plugin.typeInfoPaths += makeAbsolute(typeInfo.fileName, canonicalLibraryPath);
+    foreach (const QmlDirParser::TypeInfo &typeInfo, libraryInfo.typeInfos()) {
+        QString pathNow = makeAbsolute(typeInfo.fileName, canonicalLibraryPath);
+        if (!plugin.typeInfoPaths.contains(pathNow) && QFile::exists(pathNow))
+            plugin.typeInfoPaths += pathNow;
+    }
 
     // watch plugin libraries
     foreach (const QmlDirParser::Plugin &plugin, snapshot.libraryInfo(canonicalLibraryPath).plugins()) {
