@@ -129,7 +129,6 @@ private:
     // Cached startup sub project information
     ProjectExplorer::LocalApplicationRunConfiguration::RunMode m_runMode;
     bool m_forcedGuiMode;
-    bool m_userSetName;
     bool m_isUsingDyldImageSuffix;
     QString m_userWorkingDirectory;
     bool m_parseSuccess;
