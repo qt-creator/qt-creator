@@ -639,6 +639,9 @@ void ModelManager::updateDocument(Document::Ptr doc)
 
 void ModelManager::updateLibraryInfo(const QString &path, const LibraryInfo &info)
 {
+    if (!info.pluginTypeInfoError().isEmpty())
+        qDebug() << "Dumping errors for " << path << ":" << info.pluginTypeInfoError();
+
     {
         QMutexLocker locker(&m_mutex);
         _validSnapshot.insertLibraryInfo(path, info);

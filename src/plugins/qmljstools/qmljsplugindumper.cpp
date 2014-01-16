@@ -330,6 +330,7 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
         if (!error.isEmpty()) {
             libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
                                                 qmldumpErrorMessage(libraryPath, error));
+            printParseWarnings(libraryPath, libraryInfo.pluginTypeInfoError());
         } else {
             libraryInfo.setMetaObjects(objectsList.values());
             libraryInfo.setModuleApis(moduleApis);
@@ -413,6 +414,7 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
     if (errors.isEmpty()) {
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
     } else {
+        printParseWarnings(libraryPath, errors.join(QLatin1String("\n")));
         errors.prepend(tr("Errors while reading typeinfo files:"));
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError, errors.join(QLatin1String("\n")));
     }
