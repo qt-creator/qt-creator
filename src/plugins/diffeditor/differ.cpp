@@ -516,7 +516,7 @@ QList<Diff> Differ::diffNonCharMode(const QString text1, const QString text2)
     for (int i = 0; i <= diffList.count(); i++) {
         const Diff diffItem = i < diffList.count()
                   ? diffList.at(i)
-                  : Diff(Diff::Equal, QLatin1String("")); // dummy, ensure we process to the end even when diffList doesn't end with equality
+                  : Diff(Diff::Equal); // dummy, ensure we process to the end even when diffList doesn't end with equality
         if (diffItem.command == Diff::Delete) {
             lastDelete += diffItem.text;
         } else if (diffItem.command == Diff::Insert) {
@@ -605,7 +605,7 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
     for (int i = 0; i <= diffList.count(); i++) {
         Diff diff = i < diffList.count()
                   ? diffList.at(i)
-                  : Diff(Diff::Equal, QString()); // dummy, ensure we process to the end even when diffList doesn't end with equality
+                  : Diff(Diff::Equal); // dummy, ensure we process to the end even when diffList doesn't end with equality
         if (diff.command == Diff::Delete) {
             lastDelete += diff.text;
         } else if (diff.command == Diff::Insert) {
@@ -685,7 +685,7 @@ QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
     for (int i = 0; i <= diffList.count(); i++) {
         Diff diff = i < diffList.count()
                   ? diffList.at(i)
-                  : Diff(Diff::Equal, QString()); // dummy, ensure we process to the end even when diffList doesn't end with equality
+                  : Diff(Diff::Equal); // dummy, ensure we process to the end even when diffList doesn't end with equality
         if (diff.command == Diff::Equal) {
             if (!equalities.isEmpty()) {
                 EqualityData &previousData = equalities.last();

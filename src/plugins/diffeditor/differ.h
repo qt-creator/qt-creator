@@ -50,7 +50,7 @@ public:
     };
     Command command;
     QString text;
-    Diff(Command com, const QString &txt);
+    Diff(Command com, const QString &txt = QString());
     Diff();
     bool operator==(const Diff &other) const;
     bool operator!=(const Diff &other) const;
