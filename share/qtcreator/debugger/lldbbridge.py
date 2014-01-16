@@ -312,6 +312,7 @@ class Dumper(DumperBase):
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
         self.dummyValue = None
+        self.types_ = {}
 
     def enterSubItem(self, item):
         if isinstance(item.name, lldb.SBValue):
@@ -614,15 +615,32 @@ class Dumper(DumperBase):
             return xrange(0, self.currentNumChild)
         return xrange(min(self.currentMaxNumChild, self.currentNumChild))
 
+    def canonicalTypeName(self, name):
+        return re.sub('\\bconst\\b', '', name).replace(' ', '')
+
     def lookupType(self, name):
         #warn("LOOKUP TYPE NAME: %s" % name)
         if name.endswith('*'):
-            type = self.lookupType(name[:-1].strip())
-            return type.GetPointerType() if type.IsValid() else None
-        type = self.target.FindFirstType(name)
-        #warn("LOOKUP RESULT: %s" % type.name)
-        #warn("LOOKUP VALID: %s" % type.IsValid())
-        return type if type.IsValid() else None
+            typeobj = self.lookupType(name[:-1].strip())
+            return typeobj.GetPointerType() if type.IsValid() else None
+        typeobj = self.target.FindFirstType(name)
+        #warn("LOOKUP RESULT: %s" % typeobj.name)
+        #warn("LOOKUP VALID: %s" % typeobj.IsValid())
+        if typeobj.IsValid():
+            return typeobj
+        try:
+            if len(self.types_) == 0:
+                for i in xrange(self.target.GetNumModules()):
+                    module = self.target.GetModuleAtIndex(i)
+                    # SBModule.GetType is new somewhere after early 300.x
+                    # So this may fail.
+                    for t in module.GetTypes():
+                        n = self.canonicalTypeName(t.GetName())
+                        self.types_[n] = t
+            return self.types_.get(self.canonicalTypeName(name))
+        except:
+            pass
+        return None
 
     def setupInferior(self, args):
         error = lldb.SBError()
