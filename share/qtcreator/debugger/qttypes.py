@@ -352,9 +352,10 @@ def qdump__QDir(d, value):
 
     done = False
     if d.qtVersion() >= 0x050200:
-        # Try to distinguish bool vs QStringList at the beginning:
-        firstValue = d.extractInt(privAddress)
-        if firstValue == 0 or firstValue == 1:
+        # Try to distinguish bool vs QStringList at the first item
+        # after the refcount:
+        firstValue = d.extractInt(privAddress + 4)
+        if firstValue == 0 or firstValue == 1 or d.qtVersion() >= 0x050300:
             # Looks like a bool. Assume this is after 9fc0965.
             done = True
             if bit32:
