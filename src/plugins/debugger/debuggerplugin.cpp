@@ -2641,6 +2641,7 @@ QMessageBox *showMessageBox(int icon, const QString &title,
         title, text, QMessageBox::StandardButtons(buttons),
         ICore::mainWindow());
     mb->setAttribute(Qt::WA_DeleteOnClose);
+    mb->setTextInteractionFlags(Qt::TextSelectableByMouse);
     mb->show();
     return mb;
 }
