@@ -34,6 +34,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 #include <utils/fileutils.h>
+#include <utils/qtcoverride.h>
 
 namespace Ios {
 namespace Internal {
@@ -59,6 +60,9 @@ public:
     QString appName() const;
     Utils::FileName bundleDir() const;
     Utils::FileName exePath() const;
+
+    bool fromMap(const QVariantMap &map) QTC_OVERRIDE;
+    QVariantMap toMap() const QTC_OVERRIDE;
 
 protected:
     IosRunConfiguration(ProjectExplorer::Target *parent, IosRunConfiguration *source);

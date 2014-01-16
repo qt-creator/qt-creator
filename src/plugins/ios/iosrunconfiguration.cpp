@@ -54,6 +54,8 @@ using namespace QmakeProjectManager;
 namespace Ios {
 namespace Internal {
 
+const QLatin1String runConfigurationKey("Ios.run_arguments");
+
 class IosRunConfigurationWidget : public RunConfigWidget
 {
     Q_OBJECT
@@ -84,6 +86,7 @@ IosRunConfiguration::IosRunConfiguration(Target *parent, Core::Id id, const QStr
 IosRunConfiguration::IosRunConfiguration(Target *parent, IosRunConfiguration *source)
     : RunConfiguration(parent, source)
     , m_profilePath(source->m_profilePath)
+    , m_arguments(source->m_arguments)
 {
     init();
 }
@@ -192,6 +195,19 @@ Utils::FileName IosRunConfiguration::bundleDir() const
 Utils::FileName IosRunConfiguration::exePath() const
 {
     return bundleDir().appendPath(appName());
+}
+
+bool IosRunConfiguration::fromMap(const QVariantMap &map)
+{
+    m_arguments = map.value(runConfigurationKey).toStringList();
+    return RunConfiguration::fromMap(map);
+}
+
+QVariantMap IosRunConfiguration::toMap() const
+{
+    QVariantMap res = RunConfiguration::toMap();
+    res[runConfigurationKey] = m_arguments;
+    return res;
 }
 
 IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runConfiguration) :
