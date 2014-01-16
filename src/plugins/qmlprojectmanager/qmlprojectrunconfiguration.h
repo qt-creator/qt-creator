@@ -111,7 +111,6 @@ private:
     // absolute path to selected main script (if being used)
     QString m_mainScriptFilename;
 
-    int m_qtVersionId;
     QString m_scriptFile;
     QString m_qmlViewerArgs;
 
