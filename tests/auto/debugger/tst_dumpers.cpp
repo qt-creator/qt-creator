@@ -4770,7 +4770,8 @@ void tst_Dumpers::dumper_data()
         << Data("typedef unsigned char byte;\n"
                 "byte f = '2';\n"
                 "int *x = (int*)&f;\n")
-         % Check("f", "50 '2'", "byte");
+         % Check("f", "'2'", "byte").setForLldbOnly()
+         % Check("f", "50 '2'", "byte").setForGdbOnly();
 
 
     // https://bugreports.qt-project.org/browse/QTCREATORBUG-4904
