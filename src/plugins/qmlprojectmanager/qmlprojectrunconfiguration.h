@@ -87,6 +87,8 @@ public:
     QVariantMap toMap() const;
 
     ProjectExplorer::Abi abi() const;
+signals:
+    void scriptSourceChanged();
 
 private slots:
     void changeCurrentFile(Core::IEditor* = 0);
@@ -112,8 +114,6 @@ private:
     int m_qtVersionId;
     QString m_scriptFile;
     QString m_qmlViewerArgs;
-
-    QPointer<Internal::QmlProjectRunConfigurationWidget> m_configurationWidget;
 
     bool m_isEnabled;
 };

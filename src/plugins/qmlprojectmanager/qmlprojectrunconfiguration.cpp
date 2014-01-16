@@ -161,9 +161,7 @@ QtSupport::BaseQtVersion *QmlProjectRunConfiguration::qtVersion() const
 
 QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 {
-    QTC_ASSERT(m_configurationWidget.isNull(), return m_configurationWidget.data());
-    m_configurationWidget = new QmlProjectRunConfigurationWidget(this);
-    return m_configurationWidget.data();
+    return new QmlProjectRunConfigurationWidget(this);
 }
 
 Utils::OutputFormatter *QmlProjectRunConfiguration::createOutputFormatter() const
@@ -218,8 +216,8 @@ void QmlProjectRunConfiguration::setScriptSource(MainScriptSource source,
                 = target()->project()->projectDirectory() + QLatin1Char('/') + m_scriptFile;
     }
     updateEnabled();
-    if (m_configurationWidget)
-        m_configurationWidget.data()->updateFileComboBox();
+
+    emit scriptSourceChanged();
 }
 
 ProjectExplorer::Abi QmlProjectRunConfiguration::abi() const

@@ -84,6 +84,9 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     layout->addWidget(detailsWidget);
 
     updateFileComboBox();
+
+    connect(rc, SIGNAL(scriptSourceChanged()),
+            this, SLOT(updateFileComboBox()));
 }
 
 static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
