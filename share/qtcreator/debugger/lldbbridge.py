@@ -1543,11 +1543,15 @@ def testit():
     db.process = db.target.Launch(listener, None, None, None, None,
         None, None, 0, False, error)
 
+    stoppedThread = db.firstStoppedThread()
+    if stoppedThread:
+        db.process.SetSelectedThread(stoppedThread)
+
     db.report = savedReport
     ns = db.qtNamespace()
     db.reportVariables()
     db.report("@NS@%s@" % ns)
-    #db.report("DUMPER=%s" % qqDumpers)
+    #db.report("DUMPER=%s" % db.qqDumpers)
 
 if __name__ == "__main__":
     if len(sys.argv) > 2:

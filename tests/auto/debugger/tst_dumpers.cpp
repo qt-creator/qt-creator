@@ -976,9 +976,9 @@ void tst_Dumpers::dumper()
             "\n\n#if defined(_MSC_VER)" + (data.useQt ?
                 "\n#include <qt_windows.h>" :
                 "\n#include <Windows.h>") +
-            "\n#define BREAK DebugBreak();"
+            "\n#define BREAK do { DebugBreak(); } while (0)"
             "\n#else"
-            "\n#define BREAK asm(\"int $3\");"
+            "\n#define BREAK do { asm(\"int $3\"); } while (0)"
             "\n#endif"
             "\n"
             "\n\n" + data.includes +
@@ -3680,6 +3680,9 @@ void tst_Dumpers::dumper_data()
                     "    thread[i].m_id = i;\n"
                     "    thread[i].setObjectName(\"This is thread #\" + QString::number(i));\n"
                     "    thread[i].start();\n"
+                    "}\n"
+                    "for (int i = 0; i != N; ++i) {\n"
+                    "    thread[i].wait();\n"
                     "}\n")
                % CoreProfile()
                % CheckType("this", "Thread")
