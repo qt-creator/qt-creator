@@ -107,8 +107,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.solibSearchPath.clear();
         QList<QmakeProFileNode *> nodes = project->allProFiles();
         foreach (QmakeProFileNode *node, nodes)
-            if (node->projectType() == ApplicationTemplate)
-                params.solibSearchPath.append(node->targetInformation().buildDir);
+            params.solibSearchPath.append(node->targetInformation().buildDir);
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         params.solibSearchPath.append(qtSoPaths(version));
     }
