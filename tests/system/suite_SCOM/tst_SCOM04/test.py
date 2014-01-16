@@ -34,7 +34,8 @@ source("../../shared/suites_qtta.py")
 def main():
     # expected error texts - for different compilers
     expectedErrorAlternatives = ["'SyntaxError' was not declared in this scope",
-                                 "'SyntaxError' : undeclared identifier"]
+                                 "'SyntaxError' : undeclared identifier",
+                                 "use of undeclared identifier 'SyntaxError'"]
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
