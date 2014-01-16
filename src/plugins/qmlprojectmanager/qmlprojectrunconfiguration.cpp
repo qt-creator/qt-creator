@@ -68,6 +68,8 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
                                                        QmlProjectRunConfiguration *source) :
     ProjectExplorer::LocalApplicationRunConfiguration(parent, source),
+    m_currentFileFilename(source->m_currentFileFilename),
+    m_mainScriptFilename(source->m_mainScriptFilename),
     m_scriptFile(source->m_scriptFile),
     m_qmlViewerArgs(source->m_qmlViewerArgs),
     m_isEnabled(source->m_isEnabled)
