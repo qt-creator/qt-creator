@@ -299,6 +299,13 @@ def invokeContextMenuOnProject(projectName, menuItem):
             return
     openItemContextMenu(waitForObject(":Qt Creator_Utils::NavigationTreeView"),
                         str(projItem.text).replace("_", "\\_").replace(".", "\\."), 5, 5, 0)
-    activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1' "
-                                   "window=':Qt Creator_Core::Internal::MainWindow'}", menuItem))
+    # Hack for Squish 5.0.1 handling menus of Qt5.2 on Mac (avoids crash) - remove asap
+    if platform.system() == 'Darwin':
+        for obj in object.topLevelObjects():
+            if (className(obj) == "QMenu" and obj.visible):
+                activateItem(waitForObjectItem(obj, menuItem))
+                break
+    else:
+        activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1' "
+                                       "window=':Qt Creator_Core::Internal::MainWindow'}", menuItem))
     return projItem
