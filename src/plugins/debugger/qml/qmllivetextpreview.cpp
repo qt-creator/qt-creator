@@ -397,7 +397,7 @@ void QmlLiveTextPreview::associateEditor(Core::IEditor *editor)
         if (!m_editors.contains(editWidget)) {
             m_editors << editWidget;
             if (m_inspectorAdapter) {
-                connect(editWidget, SIGNAL(changed()), SLOT(editorContentsChanged()));
+                connect(editWidget, SIGNAL(textChanged()), SLOT(editorContentsChanged()));
                 connect(editWidget,
                         SIGNAL(selectedElementsChanged(QList<QmlJS::AST::UiObjectMember*>,QString)),
                         SLOT(changeSelectedElements(QList<QmlJS::AST::UiObjectMember*>,QString)));
