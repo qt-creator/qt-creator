@@ -1013,12 +1013,19 @@ class Dumper(DumperBase):
         self.put('data=[')
         self.anonNumber = 0
         shadowed = {}
-        values = [v for v in frame.GetVariables(True, True, False, False) if v.IsValid()]
+        ids = {} # Filter out duplicates entries at the same address.
+        values = list(frame.GetVariables(True, True, True, False))
         values.reverse() # To get shadowed vars numbered backwards.
         for value in values:
+            if not value.IsValid():
+                continue
+            name = value.GetName()
+            id = "%s:0x%x" % (name, value.GetAddress())
+            if id in ids:
+                continue
+            ids[id] = True
             if self.dummyValue is None:
                 self.dummyValue = value
-            name = value.GetName()
             if name is None:
                 warn("NO NAME FOR VALUE: %s" % value)
                 continue
