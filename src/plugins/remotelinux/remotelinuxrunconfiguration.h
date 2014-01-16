@@ -63,7 +63,6 @@ public:
     ~RemoteLinuxRunConfiguration();
 
     bool isEnabled() const;
-    QString disabledReason() const;
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
 
@@ -98,7 +97,6 @@ protected:
         RemoteLinuxRunConfiguration *source);
     bool fromMap(const QVariantMap &map);
     QString defaultDisplayName();
-    void setDisabledReason(const QString &reason) const;
 
 protected slots:
     void updateEnabledState() { emit enabledChanged(); }

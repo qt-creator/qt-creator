@@ -75,7 +75,6 @@ public:
     QString projectFilePath;
     QString gdbPath;
     QStringList arguments;
-    QString disabledReason;
     bool useAlternateRemoteExecutable;
     QString alternateRemoteExecutable;
     QString workingDirectory;
@@ -121,11 +120,6 @@ void RemoteLinuxRunConfiguration::init()
 bool RemoteLinuxRunConfiguration::isEnabled() const
 {
     return true;
-}
-
-QString RemoteLinuxRunConfiguration::disabledReason() const
-{
-    return d->disabledReason;
 }
 
 QWidget *RemoteLinuxRunConfiguration::createConfigurationWidget()
@@ -271,11 +265,6 @@ void RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated()
 QString RemoteLinuxRunConfiguration::projectFilePath() const
 {
     return d->projectFilePath;
-}
-
-void RemoteLinuxRunConfiguration::setDisabledReason(const QString &reason) const
-{
-    d->disabledReason = reason;
 }
 
 const char *RemoteLinuxRunConfiguration::IdPrefix = "RemoteLinuxRunConfiguration:";
