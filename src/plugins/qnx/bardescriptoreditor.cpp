@@ -180,7 +180,9 @@ void BarDescriptorEditor::updateCursorPosition()
     const QTextBlock block = cursor.block();
     const int line = block.blockNumber() + 1;
     const int column = cursor.position() - block.position();
-    m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line).arg(editorWidget->sourceWidget()->tabSettings().columnAt(block.text(), column)+1),
+    m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line)
+                                   .arg(editorWidget->sourceWidget()->baseTextDocument()
+                                        ->tabSettings().columnAt(block.text(), column)+1),
                                    tr("Line: 9999, Col: 999"));
     if (!block.isVisible())
         editorWidget->sourceWidget()->ensureCursorVisible();

@@ -328,17 +328,19 @@ void QuickToolBar::setProperty(const QString &propertyName, const QVariant &valu
         m_editor->convertPosition(changeSetPos + changeSetLength, &endLine, &column); //get line
 
         if (line > 0) {
-            TextEditor::TabSettings ts = m_editor->editorWidget()->tabSettings();
+            TextEditor::TabSettings ts = m_editor->baseTextDocument()->tabSettings();
             QmlJSIndenter indenter;
             indenter.setTabSize(ts.m_tabSize);
             indenter.setIndentSize(ts.m_indentSize);
 
             for (int i=line;i<=endLine;i++) {
-                QTextBlock start = m_editor->editorWidget()->document()->findBlockByNumber(i);
-                QTextBlock end = m_editor->editorWidget()->document()->findBlockByNumber(i);
+                QTextBlock start = m_editor->baseTextDocument()->document()->findBlockByNumber(i);
+                QTextBlock end = m_editor->baseTextDocument()->document()->findBlockByNumber(i);
 
                 if (end.isValid()) {
-                    const int indent = indenter.indentForBottomLine(m_editor->editorWidget()->document()->begin(), end.next(), QChar::Null);
+                    const int indent = indenter.indentForBottomLine(m_editor->baseTextDocument()
+                                                                    ->document()->begin(),
+                                                                    end.next(), QChar::Null);
                     ts.indentLine(start, indent);
                 }
             }

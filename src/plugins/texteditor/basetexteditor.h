@@ -369,7 +369,6 @@ public:
     virtual void extraAreaMouseEvent(QMouseEvent *);
     void updateFoldingHighlight(const QPoint &pos);
 
-    const TabSettings &tabSettings() const;
     void setLanguageSettingsId(Core::Id settingsId);
     Core::Id languageSettingsId() const;
 
