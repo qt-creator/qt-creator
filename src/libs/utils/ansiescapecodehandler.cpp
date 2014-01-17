@@ -90,17 +90,18 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
     QTextCharFormat charFormat = m_previousFormatClosed ? input.format : m_previousFormat;
 
     const QString escape = QLatin1String("\x1b[");
-    if (!input.text.contains(escape)) {
+    const int escapePos = input.text.indexOf(escape);
+    if (escapePos < 0) {
         outputData << FormattedText(input.text, charFormat);
         return outputData;
-    } else if (!input.text.startsWith(escape)) {
-        outputData << FormattedText(input.text.left(input.text.indexOf(escape)), charFormat);
+    } else if (escapePos != 0) {
+        outputData << FormattedText(input.text.left(escapePos), charFormat);
     }
 
     const QChar semicolon       = QLatin1Char(';');
     const QChar colorTerminator = QLatin1Char('m');
     // strippedText always starts with "\e["
-    QString strippedText = input.text.mid(input.text.indexOf(escape));
+    QString strippedText = input.text.mid(escapePos);
     while (!strippedText.isEmpty()) {
         while (strippedText.startsWith(escape)) {
             strippedText.remove(0, 2);
