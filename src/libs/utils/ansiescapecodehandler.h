@@ -41,20 +41,6 @@ typedef QPair<QString, QTextCharFormat> StringFormatPair;
 
 class QTCREATOR_UTILS_EXPORT AnsiEscapeCodeHandler
 {
-
-enum AnsiEscapeCodes {
-    ResetFormat            =  0,
-    BoldText               =  1,
-    TextColorStart         = 30,
-    TextColorEnd           = 37,
-    RgbTextColor           = 38,
-    DefaultTextColor       = 39,
-    BackgroundColorStart   = 40,
-    BackgroundColorEnd     = 47,
-    RgbBackgroundColor     = 48,
-    DefaultBackgroundColor = 49
-};
-
 public:
     AnsiEscapeCodeHandler();
     QList<StringFormatPair> parseText(const QString &text, const QTextCharFormat &defaultFormat);

@@ -73,6 +73,19 @@ static QColor ansiColor(uint code)
 QList<StringFormatPair> AnsiEscapeCodeHandler::parseText(const QString &text,
                                                          const QTextCharFormat &defaultFormat)
 {
+    enum AnsiEscapeCodes {
+        ResetFormat            =  0,
+        BoldText               =  1,
+        TextColorStart         = 30,
+        TextColorEnd           = 37,
+        RgbTextColor           = 38,
+        DefaultTextColor       = 39,
+        BackgroundColorStart   = 40,
+        BackgroundColorEnd     = 47,
+        RgbBackgroundColor     = 48,
+        DefaultBackgroundColor = 49
+    };
+
     QList<StringFormatPair> outputData;
 
     QTextCharFormat charFormat = m_previousFormatClosed ? defaultFormat : m_previousFormat;
