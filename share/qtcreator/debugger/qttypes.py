@@ -396,26 +396,22 @@ def qdump__QDir(d, value):
 
 
 def qdump__QFile(d, value):
-    try:
-        # Try using debug info first.
-        ptype = d.lookupType(d.qtNamespace() + "QFilePrivate").pointer()
-        d_ptr = value["d_ptr"]["d"]
-        fileNameAddress = d.addressOf(d_ptr.cast(ptype).dereference()["fileName"])
-        d.putNumChild(1)
-    except:
-        if d.qtVersion() >= 0x050000:
-            offset = 176 if d.is32bit() else 280
-        else:
-            offset = 140 if d.is32bit() else 232
-        privAddress = d.dereference(d.addressOf(value) + d.ptrSize())
-        fileNameAddress = privAddress + offset
-        d.putNumChild(0)
+    # 9fc0965 changes the layout of the private structure
+    qtVersion = d.qtVersion()
+    if qtVersion >= 0x050300:
+        offset = 172 if d.is32bit() else 272
+    elif qtVersion >= 0x050000:
+        offset = 176 if d.is32bit() else 280
+    else:
+        offset = 140 if d.is32bit() else 232
+    privAddress = d.dereference(d.addressOf(value) + d.ptrSize())
+    fileNameAddress = privAddress + offset
     d.putStringValueByAddress(fileNameAddress)
+    d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
-            base = d.fieldAt(value.type, 0).type
-            d.putSubItem("[%s]" % str(base), value.cast(base), False)
             d.putCallItem("exists", value, "exists")
+            d.putFields(value)
 
 
 def qdump__QFileInfo(d, value):
