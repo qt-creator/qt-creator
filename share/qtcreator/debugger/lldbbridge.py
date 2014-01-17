@@ -1556,10 +1556,13 @@ def testit():
 
     db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
 
+    launchInfo = lldb.SBLaunchInfo([])
+    launchInfo.SetWorkingDirectory(os.getcwd())
+    environmentList = [key + "=" + value for key,value in os.environ.items()]
+    launchInfo.SetEnvironmentEntries(environmentList, False)
+
     error = lldb.SBError()
-    listener = db.debugger.GetListener()
-    db.process = db.target.Launch(listener, None, None, None, None,
-        None, None, 0, False, error)
+    db.process = db.target.Launch(launchInfo, error)
 
     stoppedThread = db.firstStoppedThread()
     if stoppedThread:
@@ -1569,6 +1572,7 @@ def testit():
     ns = db.qtNamespace()
     db.reportVariables()
     db.report("@NS@%s@" % ns)
+    #db.report("ENV=%s" % os.environ.items())
     #db.report("DUMPER=%s" % db.qqDumpers)
 
 if __name__ == "__main__":

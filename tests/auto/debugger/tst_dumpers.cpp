@@ -546,6 +546,7 @@ struct LldbVersion : VersionBase
 
 struct ForceC {};
 struct EigenProfile {};
+struct UseDebugImage {};
 
 struct CoreProfile {};
 struct CorePrivateProfile {};
@@ -557,7 +558,7 @@ struct DataBase
     DataBase()
       : useQt(false), useQHash(false),
         forceC(false), engines(DumpTestGdbEngine | DumpTestCdbEngine | DumpTestLldbEngine),
-        glibcxxDebug(false)
+        glibcxxDebug(false), useDebugImage(false)
     {}
 
     mutable bool useQt;
@@ -565,6 +566,7 @@ struct DataBase
     mutable bool forceC;
     mutable int engines;
     mutable bool glibcxxDebug;
+    mutable bool useDebugImage;
     mutable GdbVersion neededGdbVersion;
     mutable LldbVersion neededLldbVersion;
     mutable QtVersion neededQtVersion;
@@ -629,6 +631,12 @@ public:
             "INCLUDEPATH += /usr/include/eigen2\n"
             "INCLUDEPATH += /usr/include/eigen3\n";
 
+        return *this;
+    }
+
+    const Data &operator%(const UseDebugImage &) const
+    {
+        useDebugImage = true;
         return *this;
     }
 
@@ -1122,8 +1130,12 @@ void tst_Dumpers::dumper()
 
     t->input = cmds;
 
+    QProcessEnvironment env = m_env;
+    if (data.useDebugImage)
+        env.insert(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
+
     QProcess debugger;
-    debugger.setProcessEnvironment(m_env);
+    debugger.setProcessEnvironment(env);
     debugger.setWorkingDirectory(t->buildPath);
     debugger.start(QString::fromLatin1(exe), args);
     QVERIFY(debugger.waitForStarted());
@@ -3771,8 +3783,8 @@ void tst_Dumpers::dumper_data()
                     "var.setValue(ha);\n"
                     "QHostAddress ha1 = var.value<QHostAddress>();\n"
                     "unused(&ha1);\n")
-               % CoreProfile()
-               % Profile("QT += network\n")
+               % NetworkProfile()
+               % UseDebugImage()
                % Check("ha", "\"127.0.0.1\"", "@QHostAddress")
                % Check("ha.a", "2130706433", "@quint32")
                % Check("ha.ipString", "\"127.0.0.1\"", "@QString")
