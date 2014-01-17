@@ -53,9 +53,9 @@ QT_END_NAMESPACE
 namespace DiffEditor {
 
 class DiffViewEditorWidget;
-struct TextLineData;
-struct ChunkData;
-struct FileData;
+class TextLineData;
+class ChunkData;
+class FileData;
 
 class DIFFEDITOR_EXPORT DiffEditorWidget : public QWidget
 {
