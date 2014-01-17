@@ -384,7 +384,7 @@ void RefactoringFile::apply()
 
 void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const QTextCursor &,
                                                                           const QString &,
-                                                                          const BaseTextEditorWidget *) const,
+                                                                          const BaseTextDocument *) const,
                                        const QList<QPair<QTextCursor, QTextCursor> > &ranges)
 {
     typedef QPair<QTextCursor, QTextCursor> CursorPair;
@@ -393,7 +393,7 @@ void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const 
         QTextCursor selection(p.first.document());
         selection.setPosition(p.first.position());
         selection.setPosition(p.second.position(), QTextCursor::KeepAnchor);
-        ((*m_data).*(mf))(selection, m_fileName, m_editor);
+        ((*m_data).*(mf))(selection, m_fileName, m_editor->baseTextDocument());
     }
 }
 
@@ -406,12 +406,12 @@ void RefactoringFile::fileChanged()
 RefactoringChangesData::~RefactoringChangesData()
 {}
 
-void RefactoringChangesData::indentSelection(const QTextCursor &, const QString &, const BaseTextEditorWidget *) const
+void RefactoringChangesData::indentSelection(const QTextCursor &, const QString &, const BaseTextDocument *) const
 {
     qWarning() << Q_FUNC_INFO << "not implemented";
 }
 
-void RefactoringChangesData::reindentSelection(const QTextCursor &, const QString &, const BaseTextEditorWidget *) const
+void RefactoringChangesData::reindentSelection(const QTextCursor &, const QString &, const BaseTextDocument *) const
 {
     qWarning() << Q_FUNC_INFO << "not implemented";
 }

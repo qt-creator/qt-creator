@@ -401,10 +401,10 @@ void EditorConfiguration::slotAboutToRemoveProject(ProjectExplorer::Project *pro
 }
 
 TabSettings actualTabSettings(const QString &fileName,
-                              const BaseTextEditorWidget *baseTextEditor)
+                              const BaseTextDocument *baseTextdocument)
 {
-    if (baseTextEditor)
-        return baseTextEditor->tabSettings();
+    if (baseTextdocument)
+        return baseTextdocument->tabSettings();
     if (Project *project = SessionManager::projectForFile(fileName))
         return project->editorConfiguration()->codeStyle()->tabSettings();
     return TextEditorSettings::codeStyle()->tabSettings();

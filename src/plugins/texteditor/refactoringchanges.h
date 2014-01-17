@@ -44,6 +44,7 @@ class QTextDocument;
 QT_END_NAMESPACE
 
 namespace TextEditor {
+class BaseTextDocument;
 class BaseTextEditorWidget;
 class RefactoringChanges;
 class RefactoringFile;
@@ -97,7 +98,7 @@ protected:
 
     void indentOrReindent(void (RefactoringChangesData::*mf)(const QTextCursor &,
                                                              const QString &,
-                                                             const BaseTextEditorWidget *) const,
+                                                             const BaseTextDocument *) const,
                           const QList<QPair<QTextCursor, QTextCursor> > &ranges);
 
 protected:
@@ -159,10 +160,10 @@ public:
 
     virtual void indentSelection(const QTextCursor &selection,
                                  const QString &fileName,
-                                 const BaseTextEditorWidget *textEditor) const;
+                                 const BaseTextDocument *textEditor) const;
     virtual void reindentSelection(const QTextCursor &selection,
                                    const QString &fileName,
-                                   const BaseTextEditorWidget *textEditor) const;
+                                   const BaseTextDocument *textEditor) const;
     virtual void fileChanged(const QString &fileName);
 };
 

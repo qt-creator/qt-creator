@@ -51,10 +51,10 @@ public:
 
     virtual void indentSelection(const QTextCursor &selection,
                                  const QString &fileName,
-                                 const TextEditor::BaseTextEditorWidget *textEditor) const
+                                 const TextEditor::BaseTextDocument *textDocument) const
     {
         const TextEditor::TabSettings &tabSettings =
-            ProjectExplorer::actualTabSettings(fileName, textEditor);
+            ProjectExplorer::actualTabSettings(fileName, textDocument);
 
         CppQtStyleIndenter indenter;
         indenter.indent(selection.document(), selection, QChar::Null, tabSettings);
@@ -62,10 +62,10 @@ public:
 
     virtual void reindentSelection(const QTextCursor &selection,
                                    const QString &fileName,
-                                   const TextEditor::BaseTextEditorWidget *textEditor) const
+                                   const TextEditor::BaseTextDocument *textDocument) const
     {
         const TextEditor::TabSettings &tabSettings =
-            ProjectExplorer::actualTabSettings(fileName, textEditor);
+            ProjectExplorer::actualTabSettings(fileName, textDocument);
 
         CppQtStyleIndenter indenter;
         indenter.reindent(selection.document(), selection, tabSettings);
