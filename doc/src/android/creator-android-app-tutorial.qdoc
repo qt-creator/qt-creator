@@ -39,6 +39,17 @@
 
     \image creator_android_tutorial_ex_app.png
 
+    \section1 Setting up the Development Environment
+
+    To be able to build and run the application, you must download and install
+    the latest Android NDK and SDK, and update the SDK to get the API and tools
+    packages needed for development. In addition, you must install the
+    Java SE Development Kit (JDK) and Apache Ant. After you have installed all
+    these tools, you must specify the paths to them in \QC.
+
+    For detailed instructions, see \l{Qt for Android} and
+    \l{Connecting Android Devices}.
+
     \section1 Creating the Project
 
     \list 1
