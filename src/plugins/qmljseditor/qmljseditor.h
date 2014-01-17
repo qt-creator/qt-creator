@@ -73,6 +73,16 @@ class QmlOutlineModel;
 class SemanticInfoUpdater;
 struct SemanticInfoUpdaterSource;
 class SemanticHighlighter;
+
+class QmlJSEditorDocument : public TextEditor::BaseTextDocument
+{
+    Q_OBJECT
+public:
+    QmlJSEditorDocument();
+private slots:
+    void invalidateFormatterCache();
+};
+
 } // namespace Internal
 
 struct QMLJSEDITOR_EXPORT Declaration
@@ -118,7 +128,6 @@ public:
     TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;
 public slots:
-    virtual void setTabSettings(const TextEditor::TabSettings &ts);
     void reparseDocument();
     void reparseDocumentNow();
     void updateSemanticInfo();

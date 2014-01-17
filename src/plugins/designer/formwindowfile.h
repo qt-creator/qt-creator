@@ -30,7 +30,7 @@
 #ifndef FORMWINDOWFILE_H
 #define FORMWINDOWFILE_H
 
-#include <texteditor/basetextdocument.h>
+#include <texteditor/plaintexteditor.h>
 
 #include <QPointer>
 
@@ -42,7 +42,7 @@ QT_END_NAMESPACE
 namespace Designer {
 namespace Internal {
 
-class FormWindowFile : public TextEditor::BaseTextDocument
+class FormWindowFile : public TextEditor::PlainTextDocument
 {
     Q_OBJECT
 

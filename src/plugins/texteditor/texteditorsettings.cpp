@@ -356,9 +356,9 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
     connect(editor, SIGNAL(requestZoomReset()),
             m_instance, SLOT(zoomResetRequested()));
 
-    // Apply current settings (tab settings depend on font settings)
+    // Apply current settings
     editor->setFontSettings(fontSettings());
-    editor->setTabSettings(codeStyle()->tabSettings());
+    editor->baseTextDocument()->setTabSettings(codeStyle()->tabSettings()); // also set through code style ???
     editor->setTypingSettings(typingSettings());
     editor->setStorageSettings(storageSettings());
     editor->setBehaviorSettings(behaviorSettings());

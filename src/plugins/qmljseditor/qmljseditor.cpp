@@ -761,6 +761,18 @@ void QmlJSTextEditorWidget::updateOutlineIndexNow()
     }
 }
 
+QmlJSEditorDocument::QmlJSEditorDocument()
+{
+    connect(this, SIGNAL(tabSettingsChanged()),
+            this, SLOT(invalidateFormatterCache()));
+}
+
+void QmlJSEditorDocument::invalidateFormatterCache()
+{
+    QmlJSTools::CreatorCodeFormatter formatter(tabSettings());
+    formatter.invalidateCache(document());
+}
+
 } // namespace QmlJSEditor
 
 class QtQuickToolbarMarker {};
@@ -1284,14 +1296,6 @@ void QmlJSTextEditorWidget::resizeEvent(QResizeEvent *event)
 void QmlJSTextEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this);
-}
-
-void QmlJSTextEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
-{
-    QmlJSTools::CreatorCodeFormatter formatter(ts);
-    formatter.invalidateCache(document());
-
-    TextEditor::BaseTextEditorWidget::setTabSettings(ts);
 }
 
 void QmlJSTextEditorWidget::updateSemanticInfo()

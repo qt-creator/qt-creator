@@ -54,13 +54,22 @@ public:
     Core::Id id() const;
 };
 
+class TEXTEDITOR_EXPORT PlainTextDocument : public BaseTextDocument
+{
+    Q_OBJECT
+public:
+    PlainTextDocument();
+private slots:
+    void updateTabSettings();
+};
+
 class TEXTEDITOR_EXPORT PlainTextEditorWidget : public BaseTextEditorWidget
 {
     Q_OBJECT
 
 public:
     PlainTextEditorWidget(QWidget *parent = 0);
-    PlainTextEditorWidget(BaseTextDocument *doc, QWidget *parent = 0);
+    PlainTextEditorWidget(PlainTextDocument *doc, QWidget *parent = 0);
     PlainTextEditorWidget(PlainTextEditorWidget *other);
 
     void configure(const QString& mimeType);
@@ -69,7 +78,6 @@ public:
 
 public slots:
     virtual void unCommentSelection();
-    virtual void setTabSettings(const TextEditor::TabSettings &);
 
 private slots:
     void configure();
@@ -83,6 +91,7 @@ protected:
 
 private:
     PlainTextEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
+    PlainTextEditorWidget(BaseTextDocument *, QWidget *); //avoid stupidity
     void ctor();
 
     bool m_isMissingSyntaxDefinition;

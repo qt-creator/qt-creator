@@ -71,6 +71,16 @@ namespace Internal {
 
 class CPPEditorWidget;
 
+class CPPEditorDocument : public TextEditor::BaseTextDocument
+{
+    Q_OBJECT
+public:
+    CPPEditorDocument();
+
+private slots:
+    void invalidateFormatterCache();
+};
+
 class CPPEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
@@ -136,7 +146,6 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
-    virtual void setTabSettings(const TextEditor::TabSettings &);
     void setSortedOutline(bool sort);
     void switchDeclarationDefinition(bool inNextSplit);
     void renameSymbolUnderCursor();

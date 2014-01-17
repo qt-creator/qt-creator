@@ -41,7 +41,7 @@ using namespace Android::Internal;
 
 
 AndroidManifestDocument::AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget)
-    : TextEditor::BaseTextDocument(),
+    : TextEditor::PlainTextDocument(),
       m_editorWidget(editorWidget)
 {
     setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));

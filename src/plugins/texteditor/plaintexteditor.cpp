@@ -58,14 +58,14 @@ PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
 }
 
 PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
-  : BaseTextEditorWidget(parent)
+  : BaseTextEditorWidget(new PlainTextDocument(), parent)
 {
     // Currently only "normal" indentation is supported.
     baseTextDocument()->setIndenter(new NormalIndenter);
     ctor();
 }
 
-PlainTextEditorWidget::PlainTextEditorWidget(BaseTextDocument *doc, QWidget *parent)
+PlainTextEditorWidget::PlainTextEditorWidget(PlainTextDocument *doc, QWidget *parent)
     : BaseTextEditorWidget(doc, parent)
 {
     ctor();
@@ -109,17 +109,6 @@ Id PlainTextEditor::id() const
 void PlainTextEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this, m_commentDefinition);
-}
-
-void PlainTextEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
-{
-    BaseTextEditorWidget::setTabSettings(ts);
-
-    if (baseTextDocument()->syntaxHighlighter()) {
-        Highlighter *highlighter =
-            static_cast<Highlighter *>(baseTextDocument()->syntaxHighlighter());
-        highlighter->setTabSettings(ts);
-    }
 }
 
 void PlainTextEditorWidget::configure()
@@ -186,6 +175,17 @@ void PlainTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
 {
     ICore::showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
                              Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
+}
+
+PlainTextDocument::PlainTextDocument()
+{
+    connect(this, SIGNAL(tabSettingsChanged()), this, SLOT(updateTabSettings()));
+}
+
+void PlainTextDocument::updateTabSettings()
+{
+    if (Highlighter *highlighter = qobject_cast<Highlighter *>(syntaxHighlighter()))
+        highlighter->setTabSettings(tabSettings());
 }
 
 } // namespace TextEditor

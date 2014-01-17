@@ -131,7 +131,7 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
     const TextEditor::TabSettings &ts = m_preferences
             ? m_preferences->currentTabSettings()
             : TextEditorSettings::codeStyle()->tabSettings();
-    m_ui->previewTextEdit->setTabSettings(ts);
+    m_ui->previewTextEdit->baseTextDocument()->setTabSettings(ts);
     CreatorCodeFormatter formatter(ts);
     formatter.invalidateCache(doc);
 

@@ -2395,6 +2395,7 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals()
         SLOT(editorContentsChange(int,int,int)), Qt::DirectConnection);
     QObject::connect(m_document.data(), SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
     QObject::connect(m_document.data(), SIGNAL(reloadFinished(bool)), q, SLOT(documentReloadFinished(bool)));
+    QObject::connect(m_document.data(), SIGNAL(tabSettingsChanged()), q, SLOT(updateTabStops()));
     q->slotUpdateExtraAreaWidth();
 }
 
@@ -4430,17 +4431,17 @@ void BaseTextEditorWidget::setCodeStyle(ICodeStylePreferences *preferences)
     baseTextDocument()->indenter()->setCodeStylePreferences(preferences);
     if (d->m_codeStylePreferences) {
         disconnect(d->m_codeStylePreferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-                this, SLOT(setTabSettings(TextEditor::TabSettings)));
+                d->m_document.data(), SLOT(setTabSettings(TextEditor::TabSettings)));
         disconnect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
                 this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
     }
     d->m_codeStylePreferences = preferences;
     if (d->m_codeStylePreferences) {
         connect(d->m_codeStylePreferences, SIGNAL(currentTabSettingsChanged(TextEditor::TabSettings)),
-                this, SLOT(setTabSettings(TextEditor::TabSettings)));
+                d->m_document.data(), SLOT(setTabSettings(TextEditor::TabSettings)));
         connect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
                 this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
-        setTabSettings(d->m_codeStylePreferences->currentTabSettings());
+        d->m_document->setTabSettings(d->m_codeStylePreferences->currentTabSettings());
         slotCodeStyleSettingsChanged(d->m_codeStylePreferences->currentValue());
     }
 }
@@ -5401,7 +5402,7 @@ void BaseTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     p.setBrush(QPalette::Inactive, QPalette::HighlightedText, p.highlightedText());
     setPalette(p);
     setFont(font);
-    setTabSettings(d->m_document->tabSettings()); // update tabs, they depend on the font
+    updateTabStops(); // update tab stops, they depend on the font
 
     // Line numbers
     QPalette ep = d->m_extraArea->palette();
@@ -5430,18 +5431,6 @@ void BaseTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
         highlighter->setFontSettings(fs);
         highlighter->rehighlight();
     }
-}
-
-void BaseTextEditorWidget::setTabSettings(const TabSettings &ts)
-{
-    d->m_document->setTabSettings(ts);
-
-    // Although the tab stop is stored as qreal the API from QPlainTextEdit only allows it
-    // to be set as an int. A work around is to access directly the QTextOption.
-    qreal charWidth = QFontMetricsF(font()).width(QLatin1Char(' '));
-    QTextOption option = document()->defaultTextOption();
-    option.setTabStop(charWidth * ts.m_tabSize);
-    document()->setDefaultTextOption(option);
 }
 
 void BaseTextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
@@ -6304,6 +6293,16 @@ void BaseTextEditorWidget::handleBlockSelection(int diff_row, int diff_col)
 //        hbar->setValue(rtl ? hbar->maximum() - x : x);
 //    }
 
+}
+
+void BaseTextEditorWidget::updateTabStops()
+{
+    // Although the tab stop is stored as qreal the API from QPlainTextEdit only allows it
+    // to be set as an int. A work around is to access directly the QTextOption.
+    qreal charWidth = QFontMetricsF(font()).width(QLatin1Char(' '));
+    QTextOption option = document()->defaultTextOption();
+    option.setTabStop(charWidth * d->m_document->tabSettings().m_tabSize);
+    document()->setDefaultTextOption(option);
 }
 
 int BaseTextEditorWidget::columnCount() const

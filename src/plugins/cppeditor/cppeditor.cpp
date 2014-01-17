@@ -512,7 +512,7 @@ CPPEditor::CPPEditor(CPPEditorWidget *editor)
 Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)
 
 CPPEditorWidget::CPPEditorWidget(QWidget *parent)
-    : TextEditor::BaseTextEditorWidget(parent)
+    : TextEditor::BaseTextEditorWidget(new CPPEditorDocument(), parent)
 {
     baseTextDocument()->setIndenter(new CppTools::CppQtStyleIndenter);
     ctor();
@@ -1583,14 +1583,6 @@ void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     highlighter->rehighlight();
 }
 
-void CPPEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
-{
-    CppTools::QtStyleCodeFormatter formatter;
-    formatter.invalidateCache(document());
-
-    TextEditor::BaseTextEditorWidget::setTabSettings(ts);
-}
-
 void CPPEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this);
@@ -2025,6 +2017,18 @@ void CPPEditorWidget::showPreProcessorWidget()
         m_preprocessorButton->setProperty("highlightWidget", !additionals.trimmed().isEmpty());
         m_preprocessorButton->update();
     }
+}
+
+CPPEditorDocument::CPPEditorDocument()
+{
+    connect(this, SIGNAL(tabSettingsChanged()),
+            this, SLOT(invalidateFormatterCache()));
+}
+
+void CPPEditorDocument::invalidateFormatterCache()
+{
+    CppTools::QtStyleCodeFormatter formatter;
+    formatter.invalidateCache(document());
 }
 
 #include <cppeditor.moc>

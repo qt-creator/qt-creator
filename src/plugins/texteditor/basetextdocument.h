@@ -65,7 +65,6 @@ public:
 
     void setTypingSettings(const TypingSettings &typingSettings);
     void setStorageSettings(const StorageSettings &storageSettings);
-    void setTabSettings(const TabSettings &tabSettings);
     void setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings);
 
     const TypingSettings &typingSettings() const;
@@ -111,8 +110,12 @@ public:
     bool reload(QString *errorString, QTextCodec *codec);
     void cleanWhitespace(const QTextCursor &cursor);
 
+public slots:
+    void setTabSettings(const TextEditor::TabSettings &tabSettings);
+
 signals:
     void mimeTypeChanged();
+    void tabSettingsChanged();
 
 private:
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);

@@ -414,7 +414,6 @@ public slots:
     virtual void unCommentSelection();
     virtual void setFontSettings(const TextEditor::FontSettings &);
     void setFontSettingsIfVisible(const TextEditor::FontSettings &);
-    virtual void setTabSettings(const TextEditor::TabSettings &);
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     virtual void setMarginSettings(const TextEditor::MarginSettings &);
     virtual void setBehaviorSettings(const TextEditor::BehaviorSettings &);
@@ -547,6 +546,7 @@ private:
 
 private slots:
     void handleBlockSelection(int diff_row, int diff_col);
+    void updateTabStops();
 
     // parentheses matcher
     void _q_matchParentheses();

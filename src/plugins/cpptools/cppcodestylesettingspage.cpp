@@ -465,7 +465,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
     const TextEditor::TabSettings ts = cppCodeStylePreferences->currentTabSettings();
     QtStyleCodeFormatter formatter(ts, ccss);
     foreach (TextEditor::SnippetEditorWidget *preview, m_previews) {
-        preview->setTabSettings(ts);
+        preview->baseTextDocument()->setTabSettings(ts);
         preview->setCodeStyle(cppCodeStylePreferences);
 
         QTextDocument *doc = preview->document();

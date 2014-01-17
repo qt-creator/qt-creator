@@ -209,9 +209,12 @@ const StorageSettings &BaseTextDocument::storageSettings() const
     return d->m_storageSettings;
 }
 
-void BaseTextDocument::setTabSettings(const TabSettings &tabSettings)
+void BaseTextDocument::setTabSettings(const TextEditor::TabSettings &tabSettings)
 {
+    if (tabSettings == d->m_tabSettings)
+        return;
     d->m_tabSettings = tabSettings;
+    emit tabSettingsChanged();
 }
 
 const TabSettings &BaseTextDocument::tabSettings() const
