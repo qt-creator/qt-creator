@@ -37,13 +37,23 @@
 
 namespace Utils {
 
-typedef QPair<QString, QTextCharFormat> StringFormatPair;
+class QTCREATOR_UTILS_EXPORT FormattedText {
+public:
+    FormattedText() { }
+    FormattedText(const FormattedText &other) : text(other.text), format(other.format) { }
+    FormattedText(const QString &txt, const QTextCharFormat &fmt = QTextCharFormat()) :
+        text(txt), format(fmt)
+    { }
+
+    QString text;
+    QTextCharFormat format;
+};
 
 class QTCREATOR_UTILS_EXPORT AnsiEscapeCodeHandler
 {
 public:
     AnsiEscapeCodeHandler();
-    QList<StringFormatPair> parseText(const QString &text, const QTextCharFormat &defaultFormat);
+    QList<FormattedText> parseText(const FormattedText &input);
     void endFormatScope();
 
 private:

@@ -65,8 +65,10 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
     QTextCursor cursor(m_plainTextEdit->document());
     cursor.movePosition(QTextCursor::End);
 
-    foreach (const StringFormatPair &pair, m_escapeCodeHandler->parseText(text, m_formats[format]))
-        cursor.insertText(pair.first, pair.second);
+    foreach (const FormattedText &output,
+             m_escapeCodeHandler->parseText(FormattedText(text, m_formats[format]))) {
+        cursor.insertText(output.text, output.format);
+    }
 }
 
 QTextCharFormat OutputFormatter::charFormat(OutputFormat format) const

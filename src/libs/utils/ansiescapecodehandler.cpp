@@ -70,8 +70,7 @@ static QColor ansiColor(uint code)
     return QColor(red, green, blue);
 }
 
-QList<StringFormatPair> AnsiEscapeCodeHandler::parseText(const QString &text,
-                                                         const QTextCharFormat &defaultFormat)
+QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input)
 {
     enum AnsiEscapeCodes {
         ResetFormat            =  0,
@@ -86,22 +85,22 @@ QList<StringFormatPair> AnsiEscapeCodeHandler::parseText(const QString &text,
         DefaultBackgroundColor = 49
     };
 
-    QList<StringFormatPair> outputData;
+    QList<FormattedText> outputData;
 
-    QTextCharFormat charFormat = m_previousFormatClosed ? defaultFormat : m_previousFormat;
+    QTextCharFormat charFormat = m_previousFormatClosed ? input.format : m_previousFormat;
 
     const QString escape = QLatin1String("\x1b[");
-    if (!text.contains(escape)) {
-        outputData << StringFormatPair(text, charFormat);
+    if (!input.text.contains(escape)) {
+        outputData << FormattedText(input.text, charFormat);
         return outputData;
-    } else if (!text.startsWith(escape)) {
-        outputData << StringFormatPair(text.left(text.indexOf(escape)), charFormat);
+    } else if (!input.text.startsWith(escape)) {
+        outputData << FormattedText(input.text.left(input.text.indexOf(escape)), charFormat);
     }
 
     const QChar semicolon       = QLatin1Char(';');
     const QChar colorTerminator = QLatin1Char('m');
     // strippedText always starts with "\e["
-    QString strippedText = text.mid(text.indexOf(escape));
+    QString strippedText = input.text.mid(input.text.indexOf(escape));
     while (!strippedText.isEmpty()) {
         while (strippedText.startsWith(escape)) {
             strippedText.remove(0, 2);
@@ -129,7 +128,7 @@ QList<StringFormatPair> AnsiEscapeCodeHandler::parseText(const QString &text,
             strippedText.remove(0, 1);
 
             if (numbers.isEmpty()) {
-                charFormat = defaultFormat;
+                charFormat = input.format;
                 endFormatScope();
             }
 
@@ -145,7 +144,7 @@ QList<StringFormatPair> AnsiEscapeCodeHandler::parseText(const QString &text,
                 } else {
                     switch (code) {
                     case ResetFormat:
-                        charFormat = defaultFormat;
+                        charFormat = input.format;
                         endFormatScope();
                         break;
                     case BoldText:
@@ -153,11 +152,11 @@ QList<StringFormatPair> AnsiEscapeCodeHandler::parseText(const QString &text,
                         setFormatScope(charFormat);
                         break;
                     case DefaultTextColor:
-                        charFormat.setForeground(defaultFormat.foreground());
+                        charFormat.setForeground(input.format.foreground());
                         setFormatScope(charFormat);
                         break;
                     case DefaultBackgroundColor:
-                        charFormat.setBackground(defaultFormat.background());
+                        charFormat.setBackground(input.format.background());
                         setFormatScope(charFormat);
                         break;
                     case RgbTextColor:
@@ -194,10 +193,10 @@ QList<StringFormatPair> AnsiEscapeCodeHandler::parseText(const QString &text,
             break;
         int index = strippedText.indexOf(escape);
         if (index > 0) {
-            outputData << StringFormatPair(strippedText.left(index), charFormat);
+            outputData << FormattedText(strippedText.left(index), charFormat);
             strippedText.remove(0, index);
         } else if (index == -1) {
-            outputData << StringFormatPair(strippedText, charFormat);
+            outputData << FormattedText(strippedText, charFormat);
             break;
         }
     }

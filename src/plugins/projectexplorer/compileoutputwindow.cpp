@@ -205,8 +205,9 @@ void CompileOutputWindow::appendText(const QString &text, ProjectExplorer::Build
 
     }
 
-    foreach (const Utils::StringFormatPair &pair, m_escapeCodeHandler->parseText(text, textFormat))
-        m_outputWindow->appendText(pair.first, pair.second);
+    foreach (const Utils::FormattedText &output,
+             m_escapeCodeHandler->parseText(Utils::FormattedText(text, textFormat)))
+        m_outputWindow->appendText(output.text, output.format);
 }
 
 void CompileOutputWindow::clearContents()

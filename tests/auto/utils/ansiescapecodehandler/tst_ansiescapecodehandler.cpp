@@ -34,11 +34,11 @@
 
 using namespace Utils;
 
-typedef QList<StringFormatPair> ResultList;
+typedef QList<FormattedText> FormattedTextList;
 
 Q_DECLARE_METATYPE(QTextCharFormat);
-Q_DECLARE_METATYPE(StringFormatPair);
-Q_DECLARE_METATYPE(ResultList);
+Q_DECLARE_METATYPE(FormattedText);
+Q_DECLARE_METATYPE(FormattedTextList);
 
 static QString ansiEscape(const QByteArray &sequence)
 {
@@ -76,16 +76,16 @@ void tst_AnsiEscapeCodeHandler::testSimpleFormat()
 {
     QFETCH(QString, text);
     QFETCH(QTextCharFormat, format);
-    QFETCH(ResultList, expected);
+    QFETCH(FormattedTextList, expected);
 
     AnsiEscapeCodeHandler handler;
-    ResultList result = handler.parseText(text, format);
+    FormattedTextList result = handler.parseText(FormattedText(text, format));
     handler.endFormatScope();
 
     QCOMPARE(result.size(), expected.size());
     for (int i = 0; i < result.size(); ++i) {
-        QCOMPARE(result[i].first, expected[i].first);
-        QCOMPARE(result[i].second, expected[i].second);
+        QCOMPARE(result[i].text, expected[i].text);
+        QCOMPARE(result[i].format, expected[i].format);
     }
 }
 
@@ -93,40 +93,40 @@ void tst_AnsiEscapeCodeHandler::testSimpleFormat_data()
 {
     QTest::addColumn<QString>("text");
     QTest::addColumn<QTextCharFormat>("format");
-    QTest::addColumn<ResultList>("expected");
+    QTest::addColumn<FormattedTextList>("expected");
 
     // Test pass-through
     QTextCharFormat defaultFormat;
     QTest::newRow("Pass-through") << "Hello World" << defaultFormat
-                       << (ResultList() << StringFormatPair("Hello World", defaultFormat));
+                       << (FormattedTextList() << FormattedText("Hello World", defaultFormat));
 
     // Test text-color change
     QTextCharFormat redFormat;
     redFormat.setForeground(QColor(170, 0, 0));
     const QString text2 = "This is " + red + "red" + normal + " text";
     QTest::newRow("Text-color change") << text2 << QTextCharFormat()
-                       << (ResultList()
-                            << StringFormatPair("This is ", defaultFormat)
-                            << StringFormatPair("red", redFormat)
-                            << StringFormatPair(" text", defaultFormat));
+                       << (FormattedTextList()
+                            << FormattedText("This is ", defaultFormat)
+                            << FormattedText("red", redFormat)
+                            << FormattedText(" text", defaultFormat));
 
     // Test text format change to bold
     QTextCharFormat boldFormat;
     boldFormat.setFontWeight(QFont::Bold);
     const QString text3 = "A line of " + bold + "bold" + normal + " text";
     QTest::newRow("Text-format change") << text3 << QTextCharFormat()
-                       << (ResultList()
-                            << StringFormatPair("A line of ", defaultFormat)
-                            << StringFormatPair("bold", boldFormat)
-                            << StringFormatPair(" text", defaultFormat));
+                       << (FormattedTextList()
+                            << FormattedText("A line of ", defaultFormat)
+                            << FormattedText("bold", boldFormat)
+                            << FormattedText(" text", defaultFormat));
 
     // Test resetting format to normal with other reset pattern
     const QString text4 = "A line of " + bold + "bold" + normal1 + " text";
     QTest::newRow("Alternative reset pattern (QTCREATORBUG-10132)") << text4 << QTextCharFormat()
-                       << (ResultList()
-                            << StringFormatPair("A line of ", defaultFormat)
-                            << StringFormatPair("bold", boldFormat)
-                            << StringFormatPair(" text", defaultFormat));
+                       << (FormattedTextList()
+                            << FormattedText("A line of ", defaultFormat)
+                            << FormattedText("bold", boldFormat)
+                            << FormattedText(" text", defaultFormat));
 }
 
 void tst_AnsiEscapeCodeHandler::testLineOverlappingFormat()
@@ -138,22 +138,22 @@ void tst_AnsiEscapeCodeHandler::testLineOverlappingFormat()
     QTextCharFormat defaultFormat;
 
     AnsiEscapeCodeHandler handler;
-    ResultList result;
-    result.append(handler.parseText(line1, defaultFormat));
-    result.append(handler.parseText(line2, defaultFormat));
+    FormattedTextList result;
+    result.append(handler.parseText(FormattedText(line1, defaultFormat)));
+    result.append(handler.parseText(FormattedText(line2, defaultFormat)));
 
     QTextCharFormat boldFormat;
     boldFormat.setFontWeight(QFont::Bold);
 
     QCOMPARE(result.size(), 4);
-    QCOMPARE(result[0].first, QLatin1String("A line of "));
-    QCOMPARE(result[0].second, defaultFormat);
-    QCOMPARE(result[1].first, QLatin1String("bold text"));
-    QCOMPARE(result[1].second, boldFormat);
-    QCOMPARE(result[2].first, QLatin1String("A line of "));
-    QCOMPARE(result[2].second, boldFormat);
-    QCOMPARE(result[3].first, QLatin1String("normal text"));
-    QCOMPARE(result[3].second, defaultFormat);
+    QCOMPARE(result[0].text, QLatin1String("A line of "));
+    QCOMPARE(result[0].format, defaultFormat);
+    QCOMPARE(result[1].text, QLatin1String("bold text"));
+    QCOMPARE(result[1].format, boldFormat);
+    QCOMPARE(result[2].text, QLatin1String("A line of "));
+    QCOMPARE(result[2].format, boldFormat);
+    QCOMPARE(result[3].text, QLatin1String("normal text"));
+    QCOMPARE(result[3].format, defaultFormat);
 }
 
 QTEST_APPLESS_MAIN(tst_AnsiEscapeCodeHandler)
