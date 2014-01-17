@@ -747,7 +747,7 @@ QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
         }
     }
 
-    return cleanupOverlaps(cleanupSemanticsLossless(merge(newDiffList)));
+    return cleanupOverlaps(merge(cleanupSemanticsLossless(merge(newDiffList))));
 }
 
 QList<Diff> Differ::cleanupSemanticsLossless(const QList<Diff> &diffList)

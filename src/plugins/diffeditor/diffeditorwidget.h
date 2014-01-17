@@ -102,18 +102,13 @@ private:
     };
 
     void setDiff(const QList<DiffList> &diffList);
-    bool isWhitespace(const QChar &c) const;
-    bool isWhitespace(const Diff &diff) const;
-    bool isEqual(const QList<Diff> &diffList, int diffNumber) const;
+    void handleWhitespaces(const QList<Diff> &input,
+                           QList<Diff> *leftOutput,
+                           QList<Diff> *rightOutput) const;
     QList<QTextEdit::ExtraSelection> colorPositions(const QTextCharFormat &format,
             QTextCursor &cursor,
             const QMap<int, int> &positions) const;
     void colorDiff(const QList<FileData> &fileDataList);
-    QList<TextLineData> assemblyRows(const QStringList &lines,
-                                                       const QMap<int, int> &lineSpans,
-                                                       const QMap<int, int> &changedPositions,
-                                                       QMap<int, int> *outputChangedPositions) const;
-    ChunkData calculateOriginalData(const QList<Diff> &diffList) const;
     FileData calculateContextData(const ChunkData &originalData) const;
     void showDiff();
     void synchronizeFoldings(DiffViewEditorWidget *source, DiffViewEditorWidget *destination);
@@ -125,7 +120,7 @@ private:
     QSplitter *m_splitter;
 
     QList<DiffList> m_diffList; // list of original outputs from differ
-    QList<ChunkData> m_originalChunkData; // one big chunk for every file, ignoreWhitespaces taken into account
+    QList<ChunkData> m_originalChunkData; // one big chunk for every file, ignoreWhitespace taken into account
     QList<FileData> m_contextFileData; // ultimate data to be shown, contextLinesNumber taken into account
 
     bool m_foldingBlocker;
