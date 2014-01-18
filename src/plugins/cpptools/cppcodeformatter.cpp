@@ -504,7 +504,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                 leave();
                 continue;
             } else if (m_tokenIndex == m_tokens.size() - 1
-                    && lexerState == Lexer::State_Default) {
+                    && lexerState == T_EOF_SYMBOL) {
                 leave();
             } else if (m_tokenIndex == 0 && m_currentToken.isComment()) {
                 // to allow enter/leave to update the indentDepth
@@ -571,8 +571,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
     if (topState != multiline_comment_start
             && topState != multiline_comment_cont
-            && (lexerState == Lexer::State_MultiLineComment
-                || lexerState == Lexer::State_MultiLineDoxyComment)) {
+            && (lexerState == T_COMMENT
+                || lexerState == T_DOXY_COMMENT)) {
         enter(multiline_comment_start);
     }
 
@@ -1612,7 +1612,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
         if ((topState.type == multiline_comment_cont
              || topState.type == multiline_comment_start)
                 && (kind == T_COMMENT || kind == T_DOXY_COMMENT)
-                && (lexerState == Lexer::State_Default
+                && (lexerState == T_EOF_SYMBOL
                     || tokens.size() != 1)) {
             if (*indentDepth >= m_tabSettings.m_indentSize)
                 *indentDepth -= m_tabSettings.m_indentSize;

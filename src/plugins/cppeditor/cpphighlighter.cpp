@@ -66,7 +66,7 @@ CppHighlighter::CppHighlighter(QTextDocument *document) :
 void CppHighlighter::highlightBlock(const QString &text)
 {
     const int previousState = previousBlockState();
-    int state = 0, initialBraceDepth = 0;
+    int state = T_EOF_SYMBOL, initialBraceDepth = 0;
     if (previousState != -1) {
         state = previousState & 0xff;
         initialBraceDepth = previousState >> 8;
@@ -96,9 +96,9 @@ void CppHighlighter::highlightBlock(const QString &text)
         setCurrentBlockState(previousState);
         BaseTextDocumentLayout::clearParentheses(currentBlock());
         if (text.length())  {// the empty line can still contain whitespace
-            if (initialState == Lexer::State_MultiLineComment)
+            if (initialState == T_COMMENT)
                 highlightLine(text, 0, text.length(), formatForCategory(CppCommentFormat));
-            else if (initialState == Lexer::State_MultiLineDoxyComment)
+            else if (initialState == T_DOXY_COMMENT)
                 highlightLine(text, 0, text.length(), formatForCategory(CppDoxygenCommentFormat));
             else
                 setFormat(0, text.length(), formatForCategory(CppVisualWhitespace));

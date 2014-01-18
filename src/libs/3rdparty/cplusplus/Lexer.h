@@ -32,12 +32,6 @@ class CPLUSPLUS_EXPORT Lexer
     void operator =(const Lexer &other);
 
 public:
-    enum State {
-        State_Default,
-        State_MultiLineComment,
-        State_MultiLineDoxyComment
-    };
-
     Lexer(TranslationUnit *unit);
     Lexer(const char *firstChar, const char *lastChar);
     ~Lexer();

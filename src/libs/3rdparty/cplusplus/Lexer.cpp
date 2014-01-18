@@ -32,7 +32,7 @@ using namespace CPlusPlus;
 Lexer::Lexer(TranslationUnit *unit)
     : _translationUnit(unit),
       _control(unit->control()),
-      _state(State_Default),
+      _state(T_EOF_SYMBOL),
       _flags(0),
       _currentLine(1)
 {
@@ -44,7 +44,7 @@ Lexer::Lexer(TranslationUnit *unit)
 Lexer::Lexer(const char *firstChar, const char *lastChar)
     : _translationUnit(0),
       _control(0),
-      _state(State_Default),
+      _state(T_EOF_SYMBOL),
       _flags(0),
       _currentLine(1)
 {
@@ -145,7 +145,9 @@ void Lexer::scan_helper(Token *tok)
     _tokenStart = _currentChar;
     tok->offset = _currentChar - _firstChar;
 
-    if (_state == State_MultiLineComment || _state == State_MultiLineDoxyComment) {
+    switch (_state) {
+    case T_COMMENT:
+    case T_DOXY_COMMENT: {
         const int originalState = _state;
 
         if (! _yychar) {
@@ -160,7 +162,7 @@ void Lexer::scan_helper(Token *tok)
                 yyinp();
                 if (_yychar == '/') {
                     yyinp();
-                    _state = State_Default;
+                    _state = T_EOF_SYMBOL;
                     break;
                 }
             }
@@ -169,11 +171,9 @@ void Lexer::scan_helper(Token *tok)
         if (! f._scanCommentTokens)
             goto _Lagain;
 
-        else if (originalState == State_MultiLineComment)
-            tok->f.kind = T_COMMENT;
-        else
-            tok->f.kind = T_DOXY_COMMENT;
+        tok->f.kind = originalState;
         return; // done
+    }
     }
 
     if (! _yychar) {
@@ -374,7 +374,7 @@ void Lexer::scan_helper(Token *tok)
         } else if (_yychar == '*') {
             yyinp();
 
-            bool doxy = false;
+            Kind commentKind = T_COMMENT;
 
             if (_yychar == '*' || _yychar == '!') {
                 const char ch = _yychar;
@@ -388,7 +388,7 @@ void Lexer::scan_helper(Token *tok)
                     yyinp();
 
                 if (! _yychar || std::isspace(_yychar))
-                    doxy = true;
+                    commentKind = T_DOXY_COMMENT;
             }
 
             while (_yychar) {
@@ -405,12 +405,12 @@ void Lexer::scan_helper(Token *tok)
             if (_yychar)
                 yyinp();
             else
-                _state = doxy ? State_MultiLineDoxyComment : State_MultiLineComment;
+                _state = commentKind;
 
             if (! f._scanCommentTokens)
                 goto _Lagain;
 
-            tok->f.kind = doxy ? T_DOXY_COMMENT : T_COMMENT;
+            tok->f.kind = commentKind;
 
         } else if (_yychar == '=') {
             yyinp();
