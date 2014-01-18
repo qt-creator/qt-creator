@@ -33,7 +33,9 @@
 #include <QtTest>
 #include <QDebug>
 
-Q_DECLARE_METATYPE(QList<unsigned>)
+typedef QList<unsigned> List;
+
+Q_DECLARE_METATYPE(List)
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
@@ -73,85 +75,85 @@ void tst_SimpleLexer::basic()
 void tst_SimpleLexer::basic_data()
 {
     QTest::addColumn<QByteArray>("source");
-    QTest::addColumn<QList<unsigned> >("expectedTokenKindList");
+    QTest::addColumn<List>("expectedTokenKindList");
 
     QByteArray source;
-    QList<unsigned> expectedTokenKindList;
+    List expectedTokenKindList;
 
     source = "// comment";
-    expectedTokenKindList = QList<unsigned>() << T_CPP_COMMENT;
+    expectedTokenKindList = List() << T_CPP_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "//// comment";
-    expectedTokenKindList = QList<unsigned>() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/// comment";
-    expectedTokenKindList = QList<unsigned>() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "///< comment";
-    expectedTokenKindList = QList<unsigned>() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "//! comment";
-    expectedTokenKindList = QList<unsigned>() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "//!< comment";
-    expectedTokenKindList = QList<unsigned>() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "///\n";
-    expectedTokenKindList = QList<unsigned>() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "///\n"
              "int i;";
-    expectedTokenKindList = QList<unsigned>()
+    expectedTokenKindList = List()
         << T_CPP_DOXY_COMMENT
         << T_INT << T_IDENTIFIER << T_SEMICOLON;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/* comment */\n";
-    expectedTokenKindList = QList<unsigned>() << T_COMMENT;
+    expectedTokenKindList = List() << T_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/* comment\n"
              "   comment\n"
              " */\n";
-    expectedTokenKindList = QList<unsigned>() << T_COMMENT;
+    expectedTokenKindList = List() << T_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/** comment */";
-    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/** comment */\n";
-    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/** comment */ int i;\n";
-    expectedTokenKindList = QList<unsigned>()
+    expectedTokenKindList = List()
         << T_DOXY_COMMENT << T_INT << T_IDENTIFIER << T_SEMICOLON;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/**\n"
             "  * comment\n"
              " */\n";
-    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/*!\n"
             "  * comment\n"
              " */\n";
-    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/*!\n"
              "    comment\n"
              "*/\n";
-    expectedTokenKindList = QList<unsigned>() << T_DOXY_COMMENT;
+    expectedTokenKindList = List() << T_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "int i; /*!< first counter */\n"
@@ -159,7 +161,7 @@ void tst_SimpleLexer::basic_data()
              "int k; ///< third counter\n"
              "int l; //!< fourth counter\n"
              "       //!< more details...  ";
-    expectedTokenKindList = QList<unsigned>()
+    expectedTokenKindList = List()
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_DOXY_COMMENT
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_DOXY_COMMENT
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT
@@ -167,7 +169,7 @@ void tst_SimpleLexer::basic_data()
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "?" "?(?" "?)?" "?<?" "?>a?b:c";
-    expectedTokenKindList = QList<unsigned>()
+    expectedTokenKindList = List()
         << T_LBRACKET << T_RBRACKET << T_LBRACE << T_RBRACE
         << T_IDENTIFIER << T_QUESTION << T_IDENTIFIER << T_COLON << T_IDENTIFIER;
     QTest::newRow(source) << source << expectedTokenKindList;
