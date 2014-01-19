@@ -33,6 +33,8 @@
 #include <QtTest>
 #include <QDebug>
 
+//#define DEBUG_TOKENS
+
 typedef QList<unsigned> List;
 
 Q_DECLARE_METATYPE(List)
@@ -61,12 +63,13 @@ void tst_SimpleLexer::basic()
     for (; i < tokenList.size(); ++i) {
         QVERIFY2(i < expectedTokenKindList.size(), "More tokens than expected.");
 
-        // Compare spelled tokens to have it more readable
         const Token token = tokenList.at(i);
         const unsigned expectedTokenKind = expectedTokenKindList.at(i);
-        Token expectedToken; // Create a Token in order to spell the token kind
-        expectedToken.f.kind = expectedTokenKind;
-//        qDebug("Comparing (i=%d): \"%s\" \"%s\"", i, token.spell(), expectedToken.spell());
+#ifdef DEBUG_TOKENS
+        qDebug("Comparing (i=%d): \"%s\" \"%s\"", i,
+               Token::name(token.kind()),
+               Token::name(expectedTokenKind));
+#endif
         QCOMPARE(token.kind(), expectedTokenKind);
     }
     QVERIFY2(i == expectedTokenKindList.size(), "Less tokens than expected.");
