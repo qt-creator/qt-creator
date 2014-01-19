@@ -80,6 +80,8 @@ private:
     void scanUntilQuote(Token *tok, unsigned char quote);
     void scanNumericLiteral(Token *tok);
     void scanIdentifier(Token *tok, unsigned extraProcessedChars = 0);
+    void scanBackslash(Kind type);
+    void scanCppComment(Kind type);
 
     inline void yyinp()
     {

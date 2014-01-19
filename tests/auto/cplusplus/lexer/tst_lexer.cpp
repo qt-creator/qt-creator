@@ -36,6 +36,7 @@
 //#define DEBUG_TOKENS
 
 typedef QList<unsigned> List;
+typedef QByteArray _;
 
 Q_DECLARE_METATYPE(List)
 
@@ -46,18 +47,31 @@ class tst_SimpleLexer: public QObject
 {
     Q_OBJECT
 
+public:
+    tst_SimpleLexer() : _state(0) {}
+
 private slots:
     void basic();
     void basic_data();
+    void incremental();
+    void incremental_data();
+
+private:
+    void run(const QByteArray &source,
+             const List &expectedTokenKindList,
+             bool preserveState);
+
+    int _state;
 };
 
-void tst_SimpleLexer::basic()
+void tst_SimpleLexer::run(const QByteArray &source,
+                          const List &expectedTokenKindList,
+                          bool preserveState)
 {
-    QFETCH(QByteArray, source);
-    QFETCH(QList<unsigned>, expectedTokenKindList);
-
     SimpleLexer lexer;
-    const QList<Token> tokenList = lexer(source);
+    const QList<Token> tokenList = lexer(source, preserveState ? _state : 0);
+    if (preserveState)
+        _state = lexer.state();
 
     int i = 0;
     for (; i < tokenList.size(); ++i) {
@@ -73,6 +87,14 @@ void tst_SimpleLexer::basic()
         QCOMPARE(token.kind(), expectedTokenKind);
     }
     QVERIFY2(i == expectedTokenKindList.size(), "Less tokens than expected.");
+}
+
+void tst_SimpleLexer::basic()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(List, expectedTokenKindList);
+
+    run(source, expectedTokenKindList, false);
 }
 
 void tst_SimpleLexer::basic_data()
@@ -177,6 +199,128 @@ void tst_SimpleLexer::basic_data()
         << T_IDENTIFIER << T_QUESTION << T_IDENTIFIER << T_COLON << T_IDENTIFIER;
     QTest::newRow(source) << source << expectedTokenKindList;
 
+}
+
+void tst_SimpleLexer::incremental()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(List, expectedTokenKindList);
+
+    run(source, expectedTokenKindList, true);
+}
+
+void tst_SimpleLexer::incremental_data()
+{
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<List>("expectedTokenKindList");
+
+    QTest::newRow("simple_string_literal")
+            << _("\"foo\"")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("unterminated_string_literal")
+            << _("\"foo")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("escaped_string_literal_1")
+            << _("\"foo \\")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("escaped_string_literal_2")
+            << _("bar\"")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("escaped_string_literal_with_spaces_1")
+            << _("\"foo \\    ")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("escaped_string_literal_with_spaces_2")
+            << _("bar\"")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("double_escaped_string_literal_1")
+            << _("\"foo \\")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("double_escaped_string_literal_2")
+            << _("bar \\")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("double_escaped_string_literal_3")
+            << _("baz\"")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("unterminated_escaped_string_literal")
+            << _("\"foo \\\n\nbar\"")
+            << (List() << T_STRING_LITERAL << T_IDENTIFIER << T_STRING_LITERAL);
+
+    QTest::newRow("escaped_string_literal_with_space_and_newline_single")
+            << _("\"foo \\   \n   bar\"")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("escaped_string_literal_with_space_and_newline_1")
+            << _("\"foo \\   \n   ")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("escaped_string_literal_with_space_and_newline_2")
+            << _("bar\"")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("token_after_escaped_string_literal_1")
+            << _("\"foo \\")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("token_after_escaped_string_literal_2")
+            << _("bar\";")
+            << (List() << T_STRING_LITERAL << T_SEMICOLON);
+
+    QTest::newRow("simple_cpp_comment")
+            << _("//foo")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("escaped_cpp_comment_1")
+            << _("//foo \\")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("escaped_cpp_comment_2")
+            << _("bar")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("escaped_cpp_comment_with_spaces_1")
+            << _("//foo \\    ")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("escaped_cpp_comment_with_spaces_2")
+            << _("bar")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("double_escaped_cpp_comment_1")
+            << _("//foo \\")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("double_escaped_cpp_comment_2")
+            << _("bar \\")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("double_escaped_cpp_comment_3")
+            << _("baz")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("escaped_cpp_comment_with_newline")
+            << _("//foo \\\n\nbar")
+            << (List() << T_CPP_COMMENT << T_IDENTIFIER);
+
+    QTest::newRow("escaped_cpp_comment_with_space_and_newline_single")
+            << _("//foo \\   \n   bar")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("escaped_cpp_comment_with_space_and_newline_1")
+            << _("//foo \\   \n   ")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("escaped_cpp_comment_with_space_and_newline_2")
+            << _("bar")
+            << (List() << T_CPP_COMMENT);
 }
 
 QTEST_APPLESS_MAIN(tst_SimpleLexer)

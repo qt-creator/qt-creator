@@ -145,15 +145,17 @@ void Lexer::scan_helper(Token *tok)
     _tokenStart = _currentChar;
     tok->offset = _currentChar - _firstChar;
 
+    if (_state != T_EOF_SYMBOL && !_yychar) {
+        tok->f.kind = T_EOF_SYMBOL;
+        return;
+    }
+
     switch (_state) {
+    case T_EOF_SYMBOL:
+        break;
     case T_COMMENT:
     case T_DOXY_COMMENT: {
         const int originalState = _state;
-
-        if (! _yychar) {
-            tok->f.kind = T_EOF_SYMBOL;
-            return;
-        }
 
         while (_yychar) {
             if (_yychar != '*')
@@ -174,6 +176,17 @@ void Lexer::scan_helper(Token *tok)
         tok->f.kind = originalState;
         return; // done
     }
+    case T_CPP_COMMENT:
+    case T_CPP_DOXY_COMMENT:
+        tok->f.kind = _state;
+        _state = T_EOF_SYMBOL;
+        scanCppComment((Kind)tok->f.kind);
+        return;
+    default: // Strings
+        tok->f.kind = _state;
+        _state = T_EOF_SYMBOL;
+        scanUntilQuote(tok, '"');
+        return;
     }
 
     if (! _yychar) {
@@ -356,20 +369,19 @@ void Lexer::scan_helper(Token *tok)
         if (_yychar == '/') {
             yyinp();
 
-            bool doxy = false;
+            Kind commentType = T_CPP_COMMENT;
 
             if (_yychar == '/' || _yychar == '!') {
                 yyinp();
-                doxy = true;
+                commentType = T_CPP_DOXY_COMMENT;
             }
 
-            while (_yychar && _yychar != '\n')
-                yyinp();
+            scanCppComment(commentType);
 
             if (! f._scanCommentTokens)
                 goto _Lagain;
 
-            tok->f.kind = doxy ? T_CPP_DOXY_COMMENT : T_CPP_COMMENT;
+            tok->f.kind = commentType;
 
         } else if (_yychar == '*') {
             yyinp();
@@ -626,8 +638,6 @@ void Lexer::scan_helper(Token *tok)
 
 void Lexer::scanStringLiteral(Token *tok, unsigned char hint)
 {
-    scanUntilQuote(tok, '"');
-
     if (hint == 'L')
         tok->f.kind = T_WIDE_STRING_LITERAL;
     else if (hint == 'U')
@@ -640,6 +650,8 @@ void Lexer::scanStringLiteral(Token *tok, unsigned char hint)
         tok->f.kind = T_AT_STRING_LITERAL;
     else
         tok->f.kind = T_STRING_LITERAL;
+
+    scanUntilQuote(tok, '"');
 }
 
 void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
@@ -705,8 +717,6 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
 
 void Lexer::scanCharLiteral(Token *tok, unsigned char hint)
 {
-    scanUntilQuote(tok, '\'');
-
     if (hint == 'L')
         tok->f.kind = T_WIDE_CHAR_LITERAL;
     else if (hint == 'U')
@@ -715,6 +725,8 @@ void Lexer::scanCharLiteral(Token *tok, unsigned char hint)
         tok->f.kind = T_UTF16_CHAR_LITERAL;
     else
         tok->f.kind = T_CHAR_LITERAL;
+
+    scanUntilQuote(tok, '\'');
 }
 
 void Lexer::scanUntilQuote(Token *tok, unsigned char quote)
@@ -725,13 +737,10 @@ void Lexer::scanUntilQuote(Token *tok, unsigned char quote)
     while (_yychar
            && _yychar != quote
            && _yychar != '\n') {
-        if (_yychar != '\\')
+        if (_yychar == '\\')
+            scanBackslash((Kind)tok->f.kind);
+        else
             yyinp();
-        else {
-            yyinp(); // skip `\\'
-            if (_yychar)
-                yyinp();
-        }
     }
     int yylen = _currentChar - yytext;
 
@@ -782,5 +791,37 @@ void Lexer::scanIdentifier(Token *tok, unsigned extraProcessedChars)
 
         if (control())
             tok->identifier = control()->identifier(yytext, yylen);
+    }
+}
+
+void Lexer::scanBackslash(Kind type)
+{
+    yyinp(); // skip '\\'
+    if (_yychar && !std::isspace(_yychar)) {
+        yyinp();
+        return;
+    }
+    while (_yychar != '\n' && std::isspace(_yychar))
+        yyinp();
+    if (!_yychar) {
+        _state = type;
+        return;
+    }
+    if (_yychar == '\n') {
+        yyinp();
+        while (_yychar != '\n' && std::isspace(_yychar))
+            yyinp();
+        if (!_yychar)
+            _state = type;
+    }
+}
+
+void Lexer::scanCppComment(Kind type)
+{
+    while (_yychar && _yychar != '\n') {
+        if (_yychar == '\\')
+            scanBackslash(type);
+        else if (_yychar)
+            yyinp();
     }
 }

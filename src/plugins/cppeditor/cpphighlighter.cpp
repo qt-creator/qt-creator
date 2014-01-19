@@ -223,7 +223,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     if (text.length() > lastTokenEnd)
         highlightLine(text, lastTokenEnd, text.length() - lastTokenEnd, formatForCategory(CppVisualWhitespace));
 
-    if (!initialState && state && !tokens.isEmpty()) {
+    if (!initialState && state && !tokens.isEmpty() && tokens.last().isComment()) {
         parentheses.append(Parenthesis(Parenthesis::Opened, QLatin1Char('+'),
                                        tokens.last().begin()));
         ++braceDepth;
