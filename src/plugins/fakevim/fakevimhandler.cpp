@@ -582,6 +582,7 @@ static void searchBackward(QTextCursor *tc, QRegExp &needleExp, int *repeat)
         ++*repeat;
     }
     tc->setPosition(block.position() + i);
+    tc->setPosition(tc->position() + needleExp.matchedLength(), KeepAnchor);
 }
 
 // Commands [[, []
