@@ -237,7 +237,7 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
                               "unnamed='1' visible='1'}")
     clickButton(addButton)
     addMenu = addButton.menu()
-    activateItem(waitForObjectItem(objectMap.realName(addMenu), 'Custom Executable'))
+    activateItem(waitForObjectItem(addMenu, 'Custom Executable'))
     exePathChooser = waitForObject(":Executable:_Utils::PathChooser", 2000)
     exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
     argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
