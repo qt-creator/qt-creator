@@ -69,10 +69,9 @@ public:
     QString mimeType() const;
     ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
 
-    // QBS settings management:
+    // QBS profiles management:
     QString profileForKit(const ProjectExplorer::Kit *k) const;
     void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
-    QStringList profileNames() const;
 
     static qbs::Settings *settings();
     static qbs::Preferences *preferences();

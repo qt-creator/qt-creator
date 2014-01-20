@@ -44,12 +44,12 @@
 #include <QVariantMap>
 
 #include <qbs.h>
+#include <tools/profile.h> // TODO: Do this in qbs.h.
 
-// qbs settings structure:
-const char PROFILE_LIST[] = "preferences.qtcreator.kit.";
-const char PROFILES_PREFIX[] = "profiles.";
+const QChar sep = QLatin1Char('.');
 
-const QChar sep = QChar(QLatin1Char('.'));
+static QString qtcProfileGroup() { return QLatin1String("preferences.qtcreator.kit"); }
+static QString qtcProfilePrefix() { return qtcProfileGroup() + sep; }
 
 namespace QbsProjectManager {
 
@@ -111,29 +111,12 @@ QString QbsManager::profileForKit(const ProjectExplorer::Kit *k) const
 {
     if (!k)
         return QString();
-    return m_settings->value(QString::fromLatin1(PROFILE_LIST) + k->id().toString()).toString();
+    return m_settings->value(qtcProfilePrefix() + k->id().toString()).toString();
 }
 
 void QbsManager::setProfileForKit(const QString &name, const ProjectExplorer::Kit *k)
 {
-    m_settings->setValue(QString::fromLatin1(PROFILE_LIST) + k->id().toString(), name);
-}
-
-QStringList QbsManager::profileNames() const
-{
-    QStringList keyList = m_settings->allKeys();
-
-    QStringList result;
-    foreach (const QString &key, keyList) {
-        if (!key.startsWith(QString::fromLatin1(PROFILES_PREFIX)))
-            continue;
-        QString profile = key;
-        profile.remove(0, QString::fromLatin1(PROFILES_PREFIX).count());
-        profile = profile.left(profile.indexOf(sep));
-        if (!result.contains(profile))
-            result << profile;
-    }
-    return result;
+    m_settings->setValue(qtcProfilePrefix() + k->id().toString(), name);
 }
 
 qbs::Settings *QbsManager::settings()
@@ -148,41 +131,25 @@ qbs::Preferences *QbsManager::preferences()
 
 void QbsManager::addProfile(const QString &name, const QVariantMap &data)
 {
-    const QString base = QLatin1String(PROFILES_PREFIX) + name + sep;
+    qbs::Profile profile(name, settings());
     const QVariantMap::ConstIterator cend = data.constEnd();
     for (QVariantMap::ConstIterator it = data.constBegin(); it != cend; ++it)
-        m_settings->setValue(base + it.key(), it.value());
+        profile.setValue(it.key(), it.value());
 }
 
 void QbsManager::removeCreatorProfiles()
 {
-    QStringList keyList = m_settings->allKeys();
-    QStringList profilesToDelete;
-
-    // Find profiles to remove:
-    foreach (const QString &key, keyList) {
-        if (!key.startsWith(QLatin1String(PROFILE_LIST)))
-            continue;
-        profilesToDelete.append(m_settings->value(key).toString());
-        m_settings->remove(key);
-    }
-    // Remove profiles:
-    foreach (const QString &key, keyList) {
-        if (!key.startsWith(QLatin1String(PROFILES_PREFIX)))
-            continue;
-        const QString kitname = key.mid(QString::fromLatin1(PROFILES_PREFIX).size());
-        foreach (const QString &i, profilesToDelete) {
-            if (kitname.startsWith(i + sep))
-                m_settings->remove(key);
-        }
+    foreach (const QString &key, m_settings->allKeysWithPrefix(qtcProfileGroup())) {
+        const QString fullKey = qtcProfilePrefix() + key;
+        qbs::Profile(m_settings->value(fullKey).toString(), m_settings).removeProfile();
+        m_settings->remove(fullKey);
     }
 }
 
 void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 {
-    QStringList usedProfileNames = profileNames();
     const QString name = ProjectExplorer::Project::makeUnique(
-                QString::fromLatin1("qtc_") + k->fileSystemFriendlyName(), usedProfileNames);
+                QString::fromLatin1("qtc_") + k->fileSystemFriendlyName(), m_settings->profiles());
     setProfileForKit(name, k);
 
     // set up properties:
