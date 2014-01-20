@@ -49,8 +49,10 @@ struct CppFileSettings
 {
     CppFileSettings();
 
+    QStringList headerPrefixes;
     QString headerSuffix;
     QStringList headerSearchPaths;
+    QStringList sourcePrefixes;
     QString sourceSuffix;
     QStringList sourceSearchPaths;
     bool lowerCaseFiles;

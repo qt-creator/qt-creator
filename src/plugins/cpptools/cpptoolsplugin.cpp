@@ -106,6 +106,17 @@ const QStringList &CppToolsPlugin::sourceSearchPaths()
     return m_instance->m_fileSettings->sourceSearchPaths;
 }
 
+const QStringList &CppToolsPlugin::headerPrefixes()
+{
+    return m_instance->m_fileSettings->headerPrefixes;
+}
+
+const QStringList &CppToolsPlugin::sourcePrefixes()
+{
+    return m_instance->m_fileSettings->sourcePrefixes;
+}
+
+
 bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
@@ -256,6 +267,28 @@ static QStringList baseNameWithAllSuffixes(const QString &baseName, const QStrin
     return result;
 }
 
+static QStringList baseNamesWithAllPrefixes(const QStringList &baseNames, bool isHeader)
+{
+    QStringList result;
+    const QStringList &sourcePrefixes = m_instance->sourcePrefixes();
+    const QStringList &headerPrefixes = m_instance->headerPrefixes();
+
+    foreach (const QString &name, baseNames) {
+        foreach (const QString &prefix, isHeader ? headerPrefixes : sourcePrefixes) {
+            if (name.startsWith(prefix)) {
+                QString nameWithoutPrefix = name.mid(prefix.size());
+                result += nameWithoutPrefix;
+                foreach (const QString &prefix, isHeader ? sourcePrefixes : headerPrefixes)
+                    result += prefix + nameWithoutPrefix;
+            }
+        }
+        foreach (const QString &prefix, isHeader ? sourcePrefixes : headerPrefixes)
+            result += prefix + name;
+
+    }
+    return result;
+}
+
 static QStringList baseDirWithAllDirectories(const QDir &baseDir, const QStringList &directories)
 {
     QStringList result;
@@ -345,6 +378,8 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
     const QStringList searchPaths = isHeader ? m_instance->sourceSearchPaths()
                                              : m_instance->headerSearchPaths();
     candidateDirs += baseDirWithAllDirectories(absoluteDir, searchPaths);
+
+    candidateFileNames += baseNamesWithAllPrefixes(candidateFileNames, isHeader);
 
     // Try to find a file in the same or sibling directories first
     foreach (const QString &candidateDir, candidateDirs) {

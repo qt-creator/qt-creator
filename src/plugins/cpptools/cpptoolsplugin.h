@@ -63,6 +63,8 @@ public:
     static CppToolsPlugin *instance();
     static const QStringList &headerSearchPaths();
     static const QStringList &sourceSearchPaths();
+    static const QStringList &headerPrefixes();
+    static const QStringList &sourcePrefixes();
     static void clearHeaderSourceCache();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);

@@ -51,6 +51,8 @@
 #include <QTextStream>
 #include <QFileDialog>
 
+static const char headerPrefixesKeyC[] = "HeaderPrefixes";
+static const char sourcePrefixesKeyC[] = "SourcePrefixes";
 static const char headerSuffixKeyC[] = "HeaderSuffix";
 static const char sourceSuffixKeyC[] = "SourceSuffix";
 static const char headerSearchPathsKeyC[] = "HeaderSearchPaths";
@@ -76,6 +78,8 @@ CppFileSettings::CppFileSettings() :
 void CppFileSettings::toSettings(QSettings *s) const
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
+    s->setValue(QLatin1String(headerPrefixesKeyC), headerPrefixes);
+    s->setValue(QLatin1String(sourcePrefixesKeyC), sourcePrefixes);
     s->setValue(QLatin1String(headerSuffixKeyC), headerSuffix);
     s->setValue(QLatin1String(sourceSuffixKeyC), sourceSuffix);
     s->setValue(QLatin1String(headerSearchPathsKeyC), headerSearchPaths);
@@ -97,7 +101,9 @@ void CppFileSettings::fromSettings(QSettings *s)
             << QDir::toNativeSeparators(QLatin1String("../Src"))
             << QLatin1String("..");
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
-    headerSuffix= s->value(QLatin1String(headerSuffixKeyC), QLatin1String("h")).toString();
+    headerPrefixes = s->value(QLatin1String(headerPrefixesKeyC)).toStringList();
+    sourcePrefixes = s->value(QLatin1String(sourcePrefixesKeyC)).toStringList();
+    headerSuffix = s->value(QLatin1String(headerSuffixKeyC), QLatin1String("h")).toString();
     sourceSuffix = s->value(QLatin1String(sourceSuffixKeyC), QLatin1String("cpp")).toString();
     headerSearchPaths = s->value(QLatin1String(headerSearchPathsKeyC), defaultHeaderSearchPaths)
             .toStringList();
@@ -118,6 +124,8 @@ bool CppFileSettings::applySuffixesToMimeDB()
 bool CppFileSettings::equals(const CppFileSettings &rhs) const
 {
     return lowerCaseFiles == rhs.lowerCaseFiles
+           && headerPrefixes == rhs.headerPrefixes
+           && sourcePrefixes == rhs.sourcePrefixes
            && headerSuffix == rhs.headerSuffix
            && sourceSuffix == rhs.sourceSuffix
            && headerSearchPaths == rhs.headerSearchPaths
@@ -285,6 +293,8 @@ CppFileSettings CppFileSettingsWidget::settings() const
 {
     CppFileSettings rc;
     rc.lowerCaseFiles = m_ui->lowerCaseFileNamesCheckBox->isChecked();
+    rc.headerPrefixes = trimmedPaths(m_ui->headerPrefixesEdit->text());
+    rc.sourcePrefixes = trimmedPaths(m_ui->sourcePrefixesEdit->text());
     rc.headerSuffix = m_ui->headerSuffixComboBox->currentText();
     rc.sourceSuffix = m_ui->sourceSuffixComboBox->currentText();
     rc.headerSearchPaths = trimmedPaths(m_ui->headerSearchPathsEdit->text());
@@ -302,6 +312,8 @@ static inline void setComboText(QComboBox *cb, const QString &text, int defaultI
 void CppFileSettingsWidget::setSettings(const CppFileSettings &s)
 {
     m_ui->lowerCaseFileNamesCheckBox->setChecked(s.lowerCaseFiles);
+    m_ui->headerPrefixesEdit->setText(s.headerPrefixes.join(QLatin1String(",")));
+    m_ui->sourcePrefixesEdit->setText(s.sourcePrefixes.join(QLatin1String(",")));
     setComboText(m_ui->headerSuffixComboBox, s.headerSuffix);
     setComboText(m_ui->sourceSuffixComboBox, s.sourceSuffix);
     m_ui->headerSearchPathsEdit->setText(s.headerSearchPaths.join(QLatin1String(",")));

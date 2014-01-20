@@ -29,6 +29,7 @@
 
 #include "cpptoolsplugin.h"
 #include "cpptoolsreuse.h"
+#include "cppfilesettingspage.h"
 
 #include <utils/fileutils.h>
 
@@ -81,16 +82,31 @@ void CppToolsPlugin::test_headersource_data()
     QTest::addColumn<QString>("headerFileName");
     QTest::newRow("samedir") << _("foo.cpp") << _("foo.h");
     QTest::newRow("includesub") << _("foo.cpp") << _("include/foo.h");
+    QTest::newRow("headerprefix") << _("foo.cpp") << _("testh_foo.h");
+    QTest::newRow("sourceprefixwsub") << _("testc_foo.cpp") << _("include/foo.h");
+    QTest::newRow("sourceAndHeaderPrefixWithBothsub") << _("src/testc_foo.cpp") << _("include/testh_foo.h");
 }
 
 void CppToolsPlugin::initTestCase()
 {
     QDir(baseTestDir()).mkpath(_("."));
+    m_fileSettings->headerSearchPaths.append(QLatin1String("include"));
+    m_fileSettings->headerSearchPaths.append(QLatin1String("../include"));
+    m_fileSettings->sourceSearchPaths.append(QLatin1String("src"));
+    m_fileSettings->sourceSearchPaths.append(QLatin1String("../src"));
+    m_fileSettings->headerPrefixes.append(QLatin1String("testh_"));
+    m_fileSettings->sourcePrefixes.append(QLatin1String("testc_"));
 }
 
 void CppToolsPlugin::cleanupTestCase()
 {
     Utils::FileUtils::removeRecursively(Utils::FileName::fromString(baseTestDir()));
+    m_fileSettings->headerSearchPaths.removeLast();
+    m_fileSettings->headerSearchPaths.removeLast();
+    m_fileSettings->sourceSearchPaths.removeLast();
+    m_fileSettings->sourceSearchPaths.removeLast();
+    m_fileSettings->headerPrefixes.removeLast();
+    m_fileSettings->sourcePrefixes.removeLast();
 }
 
 } // namespace Internal
