@@ -693,8 +693,8 @@ def qdump__QHostAddress(d, value):
         proto = d.extractInt(protoAddress)
         if proto == 1:
             # value.d.d->a6
-            a6 = privAddress + 4 + (2 * sizeofQString if isQt5 else 0)
-            data = d.readMemory(a6, 16)
+            a6Offset = 4 + (2 * sizeofQString if isQt5 else 0)
+            data = d.readMemory(privAddress + a6Offset, 16)
             address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
             scopeId = privAddress + sizeofQString + (0 if isQt5 else 24)
             scopeId = d.encodeStringHelper(d.dereference(scopeId))
@@ -713,14 +713,18 @@ def qdump__QHostAddress(d, value):
     d.putPlainChildren(value["d"]["d"].dereference())
 
 
-def qdump__Q_IPV6ADDR(d, value):
-    data = d.readMemory(d.addressOf(value), 16)
-    d.putValue(':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4)))
-    d.putPlainChildren(value["c"])
-
 def qdump__QIPv6Address(d, value):
-    qdump__Q_IPV6ADDR(d, value)
-
+    #warn("IPV6.VALUE: %s" % value)
+    #warn("IPV6.ADDR: 0x%x" % d.addressOf(value))
+    #warn("IPV6.LOADADDR: 0x%x" % value.GetLoadAddress())
+    c = value["c"]
+    data = d.readMemory(d.addressOf(c), 16)
+    d.putValue(':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4)))
+    #d.putValue('xx')
+    #d.putValue("0x%x - 0x%x" % (d.addressOf(value), d.addressOf(c)))
+    #d.putValue("0x%x - 0x%x" % (value.GetAddress(), c.GetAddress()))
+    #d.putValue("0x%x - 0x%x" % (value.GetLoadAddress(), c.GetLoadAddress()))
+    d.putPlainChildren(c)
 
 def qform__QList():
     return "Assume Direct Storage,Assume Indirect Storage"

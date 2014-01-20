@@ -189,7 +189,14 @@ def impl_SBValue__deref(value):
     result = value.Dereference()
     if result.IsValid():
         return result
-    result = value.CreateValueFromExpression(None, '*' + value.get_expr_path())
+    #warn("EXPR: %s" % '*' + value.get_expr_path())
+    #warn("TARGET: %s" % value.GetTarget())
+    #result = value.CreateValueFromExpression('$', '*' + value.get_expr_path())
+    options = lldb.SBExpressionOptions()
+    result = value.GetTarget().EvaluateExpression('*' + value.get_expr_path(), options)
+    #warn("RESULT.NAME: %s" % result.GetName())
+    #warn("RESULT.TYPE: %s" % result.GetType())
+    #warn("RESULT.LOADADDRESS: %s" % result.GetLoadAddress())
     return result
 
 lldb.SBValue.__add__ = impl_SBValue__add__
@@ -204,7 +211,7 @@ lldb.SBValue.__long__ = lambda self: long(self.GetValue(), 0)
 lldb.SBValue.code = lambda self: self.GetTypeClass()
 lldb.SBValue.cast = lambda self, typeObj: self.Cast(typeObj)
 lldb.SBValue.dereference = impl_SBValue__deref
-lldb.SBValue.address = property(lambda self: self.GetAddress())
+lldb.SBValue.address = property(lambda self: self.GetLoadAddress())
 
 lldb.SBType.pointer = lambda self: self.GetPointerType()
 lldb.SBType.target = lambda self: self.GetPointeeType()
@@ -1009,6 +1016,12 @@ class Dumper(DumperBase):
 
         n = value.GetNumChildren()
         m = value.GetType().GetNumberOfDirectBaseClasses()
+        #warn("FIELDS: %s %s" % (n, m))
+        #warn("VALUE.NAME: %s" % value.GetName())
+        #warn("VALUE.TYPE: %s" % value.GetType())
+        #warn("VALUE.ADDRESS: 0x%x" % value.GetLoadAddress())
+        #warn("VALUE.LOADADDRESS: 0x%x" % value.GetLoadAddress())
+        #warn("VALUE: %s" % value)
         if n > 10000:
             n = 10000
         # seems to happen in the 'inheritance' autotest
@@ -1021,7 +1034,28 @@ class Dumper(DumperBase):
                 self.put('name="[%s]",' % child.name)
                 self.putItem(child)
         for i in xrange(m, n):
+        #for i in range(n):
             child = value.GetChildAtIndex(i)
+            #warn("CHILD.NAME: %s" % child.GetName())
+            #warn("CHILD.TYPE: %s" % child.GetType())
+            #warn("CHILD.FIELD: %s" % field)
+            #warn("CHILD.FIELD.NAME: %s" % field.GetName())
+            #warn("CHILD.FIELD.OFFSET: %s" % field.GetOffsetInBytes())
+            #warn("CHILD.ADDRESS: 0x%x" % child.GetAddress())
+            #warn("CHILD.ISVALID: 0x%x" % child.IsValid())
+            #warn("CHILD.LOADADDRESS: %x" % child.GetLoadAddress())
+            if int(child.GetLoadAddress()) == 0xffffffffffffffff:
+                typeClass = child.GetType().GetTypeClass()
+                if typeClass != lldb.eTypeClassBuiltin:
+                    #warn("EEEE")
+                    field = value.GetType().GetFieldAtIndex(i)
+                    addr = value.GetLoadAddress() + field.GetOffsetInBytes()
+                    child = self.context.CreateValueFromAddress(child.GetName(), addr, child.GetType())
+                    #child = self.createValue(value.GetLoadAddress() + field.GetOffsetInBytes(), child.GetType())
+                    #warn("CHILD X.ADDRESS: 0x%x" % child.GetAddress())
+                    #warn("CHILD X.ISVALID: 0x%x" % child.IsValid())
+                    #warn("CHILD X.LOADADDRESS: %x" % child.GetLoadAddress())
+            #warn("CHILD: %s" % child)
             if child.IsValid():  # FIXME: Anon members?
                 with SubItem(self, child):
                     self.putItem(child)
@@ -1039,12 +1073,12 @@ class Dumper(DumperBase):
             if not value.IsValid():
                 continue
             name = value.GetName()
-            id = "%s:0x%x" % (name, value.GetAddress())
+            id = "%s:0x%x" % (name, value.GetLoadAddress())
             if id in ids:
                 continue
             ids[id] = True
-            if self.dummyValue is None:
-                self.dummyValue = value
+            #if self.dummyValue is None:
+            #    self.dummyValue = value
             if name is None:
                 warn("NO NAME FOR VALUE: %s" % value)
                 continue
@@ -1059,23 +1093,25 @@ class Dumper(DumperBase):
                 self.putItem(value)
 
         # 'watchers':[{'id':'watch.0','exp':'23'},...]
-        if not self.dummyValue is None:
-            for watcher in self.currentWatchers:
-                iname = watcher['iname']
-                # could be 'watch.0' or 'tooltip.deadbead'
-                (base, component) = iname.split('.')
-                exp = binascii.unhexlify(watcher['exp'])
-                if exp == "":
-                    self.put('type="",value="",exp=""')
-                    continue
+        #if not self.dummyValue is None:
+        for watcher in self.currentWatchers:
+            iname = watcher['iname']
+            # could be 'watch.0' or 'tooltip.deadbead'
+            (base, component) = iname.split('.')
+            exp = binascii.unhexlify(watcher['exp'])
+            if exp == "":
+                self.put('type="",value="",exp=""')
+                continue
 
-                value = self.dummyValue.CreateValueFromExpression(iname, exp)
-                self.currentIName = base
-                with SubItem(self, component):
-                    self.put('exp="%s",' % exp)
-                    self.put('wname="%s",' % binascii.hexlify(exp))
-                    self.put('iname="%s",' % iname)
-                    self.putItem(value)
+            options = lldb.SBExpressionOptions()
+            value = self.target.EvaluateExpression(exp, options)
+            #value = self.target.EvaluateExpression(iname, exp)
+            self.currentIName = base
+            with SubItem(self, component):
+                self.put('exp="%s",' % exp)
+                self.put('wname="%s",' % binascii.hexlify(exp))
+                self.put('iname="%s",' % iname)
+                self.putItem(value)
 
         self.put(']')
         self.report('')
@@ -1214,7 +1250,7 @@ class Dumper(DumperBase):
         if hasattr(bp, 'GetNumLocations'):
             for i in xrange(bp.GetNumLocations()):
                 loc = bp.GetLocationAtIndex(i)
-                addr = loc.GetAddress()
+                addr = loc.GetLoadAddress()
                 result += '{locid="%s"' % loc.GetID()
                 result += ',func="%s"' % addr.GetFunction().GetName()
                 result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
@@ -1254,7 +1290,7 @@ class Dumper(DumperBase):
                 frame = self.currentFrame()
                 value = frame.FindVariable(args["expression"])
                 error = lldb.SBError()
-                bpNew = self.target.WatchAddress(value.GetAddress(),
+                bpNew = self.target.WatchAddress(value.GetLoadAddress(),
                     value.GetByteSize(), False, True, error)
             except:
                 return
