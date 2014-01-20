@@ -717,12 +717,11 @@ class Dumper(DumperBase):
     def call(self, value, func, *args):
         return self.call2(value, func, args)
 
-    def hasChildWithName(self, value, name):
+    def childWithName(self, value, name):
         try:
-            value[name]
-            return True
+            return value[name]
         except:
-            return False
+            return None
 
     def makeValue(self, type, init):
         type = "::" + stripClassTag(str(type));
@@ -961,6 +960,11 @@ class Dumper(DumperBase):
         return toInteger(value.cast(self.voidPtrType()))
 
     def isQObject(self, value):
+        typeName = str(value.type)
+        if typeName in self.knownQObjectTypes:
+            return True
+        if typeName in self.knownNonQObjectTypes:
+            return False
         try:
             vtable = self.dereference(toInteger(value.address)) # + ptrSize
             if vtable & 0x3: # This is not a pointer.
@@ -972,9 +976,15 @@ class Dumper(DumperBase):
             s = gdb.execute("info symbol 0x%x" % metaObjectEntry, to_string=True)
             #warn("S: %s " % s)
             #return s.find("::metaObject() const") > 0
-            return s.find("::metaObject() const") > 0 or s.find("10metaObjectEv") > 0
             #return str(metaObjectEntry).find("::metaObject() const") > 0
+            if s.find("::metaObject() const") > 0 or s.find("10metaObjectEv") > 0:
+                self.knownQObjectTypes.add(typeName)
+                return True
+            else:
+                self.knownNonQObjectTypes.add(typeName)
+                return False
         except:
+            self.knownNonQObjectTypes.add(typeName)
             return False
 
     def isQObject_B(self, value):
@@ -1398,7 +1408,8 @@ class Dumper(DumperBase):
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
-        if self.isQObject(value):
+        isQObject = self.isQObject(value)
+        if isQObject:
             self.putQObjectNameValue(value)  # Is this too expensive?
         self.putType(typeName)
         self.putEmptyValue()
@@ -1408,6 +1419,9 @@ class Dumper(DumperBase):
             innerType = None
             with Children(self, 1, childType=innerType):
                 self.putFields(value)
+                if isQObject:
+                    self.putQObjectGuts(value)
+
 
     def putPlainChildren(self, value):
         self.putEmptyValue(-99)
@@ -1422,6 +1436,41 @@ class Dumper(DumperBase):
         if sys.version_info[0] >= 3:
             return bytesToString(binascii.hexlify(mem.tobytes()))
         return binascii.hexlify(mem)
+
+    def readCArray(self, base, size):
+        inferior = self.selectedInferior()
+        if sys.version_info[0] >= 3:
+            mem = bytes()
+            for i in range(size):
+                char = inferior.read_memory(base + i, 1)[0]
+                if not char:
+                    break
+                mem += char
+            return mem.decode("utf8")
+        else:
+            mem = ""
+            for i in range(size):
+                char = inferior.read_memory(base + i, 1)[0]
+                if not char:
+                    break
+                mem += char
+            return mem
+
+    def readCString(self, base):
+        inferior = self.selectedInferior()
+        mem = ""
+        while True:
+            char = inferior.read_memory(base, 1)[0]
+            if not char:
+                break
+            mem += char
+            base += 1
+        #if sys.version_info[0] >= 3:
+        #    return mem.tobytes()
+        return mem
+        #if sys.version_info[0] >= 3:
+        #    return bytesToString(binascii.hexlify(mem.tobytes()))
+        #return binascii.hexlify(mem)
 
     def putFields(self, value, dumpBase = True):
             fields = value.type.fields()
@@ -1638,15 +1687,15 @@ class Dumper(DumperBase):
         # FIXME: This only works when call from inside a Qt function frame.
         namespace = ""
         try:
-            str = gdb.execute("ptype QString::Null", to_string=True)
+            out = gdb.execute("ptype QString::Null", to_string=True)
             # The result looks like:
             # "type = const struct myns::QString::Null {"
             # "    <no data fields>"
             # "}"
-            pos1 = str.find("struct") + 7
-            pos2 = str.find("QString::Null")
+            pos1 = out.find("struct") + 7
+            pos2 = out.find("QString::Null")
             if pos1 > -1 and pos2 > -1:
-                namespace = str[pos1:pos2]
+                namespace = out[pos1:pos2]
             self.cachedQtNamespace = namespace
             self.ns = lambda: self.cachedQtNamespace
         except:

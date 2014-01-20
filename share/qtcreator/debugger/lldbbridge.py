@@ -378,8 +378,9 @@ class Dumper(DumperBase):
         typeClass = typeobj.GetTypeClass()
         return typeClass == lldb.eTypeClassBuiltin
 
-    def hasChildWithName(self, value, name):
-        return value.GetChildMemberWithName(name).IsValid()
+    def childWithName(self, value, name):
+        child = value.GetChildMemberWithName(name)
+        return child if child.IsValid() else None
 
     def childAt(self, value, index):
         return value.GetChildAtIndex(index)

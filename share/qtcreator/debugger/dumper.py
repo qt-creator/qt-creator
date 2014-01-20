@@ -274,6 +274,9 @@ class DumperBase:
         # This keeps canonical forms of the typenames, without array indices etc.
         self.cachedFormats = {}
 
+        self.knownQObjectTypes = set()
+        self.knownNonQObjectTypes = set()
+
 
     def stripForFormat(self, typeName):
         if typeName in self.cachedFormats:
@@ -769,6 +772,8 @@ class DumperBase:
                     self.putItem(value.dereference())
 
     def putQObjectNameValue(self, value):
+        if str(value.type) in self.knownNonQObjectTypes:
+            return
         try:
             intSize = self.intSize()
             ptrSize = self.ptrSize()
@@ -817,12 +822,48 @@ class DumperBase:
             if size == 0:
                 return False
 
-            str = self.readMemory(data, 2 * size)
-            self.putValue(str, Hex4EncodedLittleEndian, 1)
+            raw = self.readMemory(data, 2 * size)
+            self.putValue(raw, Hex4EncodedLittleEndian, 1)
             return True
 
         except:
+            self.knownNonQObjectTypes.insert(str(value.type))
             pass
+
+
+    def staticQObjectPropertyNames(self, metaobject):
+        properties = []
+        dd = metaobject["d"]
+        data = self.dereferenceValue(dd["data"])
+        byteArrayDataType = self.lookupType(self.qtNamespace() + "QByteArrayData")
+        byteArrayDataSize = byteArrayDataType.sizeof
+        sd = self.dereferenceValue(dd["stringdata"])
+
+        propertyCount = self.extractInt(data + 24)
+        propertyData = self.extractInt(data + 28)
+
+        for i in range(propertyCount):
+            x = data + (propertyData + 3 * i) * 4
+            literal = sd + self.extractInt(x) * byteArrayDataSize
+            ldata, lsize, lalloc = self.byteArrayDataHelper(literal)
+            properties.append(self.readCArray(ldata, lsize))
+        return properties
+
+
+    # This is called is when a QObject derived class is expanded
+    def putQObjectGuts(self, qobject):
+        smo = self.childWithName(qobject, "staticMetaObject")
+        if smo is None:
+            return
+        with SubItem(self, "[properties]"):
+            propertyNames = self.staticQObjectPropertyNames(smo)
+            propertyCount = len(propertyNames)
+            self.putItemCount(propertyCount)
+            self.putNumChild(propertyCount)
+            with Children(self):
+                for i in range(propertyCount):
+                    name = propertyNames[i]
+                    self.putCallItem(name, qobject, "property", '"' + name + '"')
 
 
     def isKnownMovableType(self, type):

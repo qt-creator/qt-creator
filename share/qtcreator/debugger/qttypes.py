@@ -1020,6 +1020,114 @@ def extractCString(table, offset):
         offset += 1
     return result
 
+def qdump__QMetaObjectPrivate(d, value):
+    d.putEmptyValue()
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            # int revision;
+            # int className;
+            # int classInfoCount, classInfoData;
+            # int methodCount, methodData;
+            # int propertyCount, propertyData;
+            # int enumeratorCount, enumeratorData;
+            # int constructorCount, constructorData; //since revision 2
+            # int flags; //since revision 3
+            # int signalCount; //since revision 4
+            d.putIntItem("revision", value["revision"])
+            d.putIntItem("methodCount", value["methodCount"])
+            d.putIntItem("propertyCount", value["propertyCount"])
+            d.putIntItem("enumeratorCount", value["enumeratorCount"])
+            d.putIntItem("constructorCount", value["constructorCount"])
+            d.putIntItem("flags", value["flags"])
+            d.putIntItem("signalCount", value["signalCount"])
+
+
+
+def qdump__QMetaObject(d, value):
+    d.putEmptyValue()
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            dd = value["d"]
+            d.putSubItem("d", dd)
+            data = d.dereferenceValue(dd["data"])
+
+            propertyNames = d.staticQObjectPropertyNames(value)
+            propertyIndex = 0
+            for propertyName in propertyNames:
+                with SubItem(d, "property_%s" % propertyIndex):
+                    d.putValue(propertyName)
+                    propertyIndex += 1
+
+           #byteArrayDataType = d.lookupType(d.qtNamespace() + "QByteArrayData")
+           #byteArrayDataSize = byteArrayDataType.sizeof
+           #sd = d.dereferenceValue(dd["stringdata"])
+           #stringdata, size, alloc = d.byteArrayDataHelper(sd)
+
+           #propertyCount = d.extractInt(data + 24)
+           #propertyData = d.extractInt(data + 28)
+
+           ## This is the 'data' member in the qt_meta_stringdata_qobject__*_t struct
+           #d.putIntItem("_byteArrayDataSize", byteArrayDataSize)
+           #d.putAddressItem("_data", data)
+           #d.putAddressItem("_sd_", stringdata)
+           #with SubItem(d, "_sd"):
+           #    d.putValue(d.readMemory(stringdata, size), Hex2EncodedLatin1)
+           #with SubItem(d, "_cn"):
+           #    d.putValue(d.readMemory(stringdata + d.extractInt(data + 4), size), Hex2EncodedLatin1)
+
+           #for i in range(propertyCount):
+           #    with SubItem(d, "property_%s" % i):
+           #        x = data + (propertyData + 3 * i) * 4
+           #        literal = sd + d.extractInt(x) * byteArrayDataSize
+           #        ldata, lsize, lalloc = d.byteArrayDataHelper(literal)
+           #        d.putValue(d.readMemory(ldata, lsize), Hex2EncodedLatin1)
+
+           #        d.putNumChild(1)
+           #        if d.isExpanded():
+           #            with Children(d):
+           #                if d.isExpanded():
+           #                    d.putAddressItem("_literal", literal)
+           #                    d.putIntItem("__data", ldata)
+           #                    d.putIntItem("__size", lsize)
+           #                    d.putIntItem("__alloc", lalloc)
+           #                    d.putIntItem("name", d.extractInt(x))
+           #                    d.putIntItem("type", d.extractInt(x + 4))
+           #                    d.putIntItem("flags", d.extractInt(x + 8))
+
+            methodCount = d.extractInt(data + 16)
+            methodData = d.extractInt(data + 20)
+            for i in range(methodCount):
+                with SubItem(d, "method_%s" % i):
+                    x = data + (methodData + 5 * i) * 4
+                    #d.putEmptyValue()
+                    d.putValue(d.readCString(stringdata + d.extractInt(x)))
+                    d.putNumChild(1)
+                    if d.isExpanded():
+                        with Children(d):
+                            if d.isExpanded():
+                                d.putIntItem("name", d.extractInt(x))
+                                d.putIntItem("argc", d.extractInt(x + 4))
+                                d.putIntItem("argv", d.extractInt(x + 8))
+                                d.putIntItem("type", d.extractInt(x + 12))
+                                d.putIntItem("flags", d.extractInt(x + 16))
+
+            d.putSubItem("stringData", dd["stringdata"])
+            d.putIntItem("revision", d.extractInt(data))
+            d.putIntItem("className", d.extractInt(data + 4))
+            d.putIntItem("classInfoCount", d.extractInt(data + 8))
+            d.putIntItem("className", d.extractInt(data + 12))
+            d.putIntItem("methodCount", d.extractInt(data + 16))
+            d.putIntItem("methodData", d.extractInt(data + 20))
+            d.putIntItem("propertyCount", d.extractInt(data + 24))
+            d.putIntItem("propertyData", d.extractInt(data + 28))
+            d.putIntItem("enumeratorCount", d.extractInt(data + 32))
+            d.putIntItem("enumeratorData", d.extractInt(data + 36))
+            d.putIntItem("constructorCount", d.extractInt(data + 40))
+            d.putIntItem("constructorData", d.extractInt(data + 44))
+            d.putIntItem("flags", d.extractInt(data + 48))
+            d.putIntItem("signalCount", d.extractInt(data + 52))
 
 def qdump__QObject(d, value):
     d.putQObjectNameValue(value)
@@ -1074,8 +1182,8 @@ def qdump__QObject(d, value):
     #d.checkRef(d_ptr["ref"])
     d.putNumChild(4)
     if d.isExpanded():
-      print("DIR: %s\n" % dir())
       with Children(d):
+        d.putQObjectGuts(value)
 
         # Local data.
         if privateTypeName != ns + "QObjectPrivate":
@@ -1095,70 +1203,21 @@ def qdump__QObject(d, value):
             d.putSubItem("parent", d_ptr["parent"])
             d.putSubItem("children", d_ptr["children"])
 
-        # Properties.
-        with SubItem(d, "properties"):
-            # Prolog
-            extraData = d_ptr["extraData"]   # Capitalization!
-            if d.isNull(extraData):
-                dynamicPropertyCount = 0
-            else:
-                extraDataType = d.lookupType(
-                    ns + "QObjectPrivate::ExtraData").pointer()
-                extraData = extraData.cast(extraDataType)
-                ed = extraData.dereference()
-                names = ed["propertyNames"]
-                values = ed["propertyValues"]
-                #userData = ed["userData"]
-                namesBegin = names["d"]["begin"]
-                namesEnd = names["d"]["end"]
-                namesArray = names["d"]["array"]
-                dynamicPropertyCount = namesEnd - namesBegin
+        # Metaobject.
+        d.putSubItem("metaobject", mo)
 
-            #staticPropertyCount = d.call(mo, "propertyCount")
-            staticPropertyCount = metaData[6]
-            #warn("PROPERTY COUNT: %s" % staticPropertyCount)
-            propertyCount = staticPropertyCount + dynamicPropertyCount
+        # Static Properties.
+        with SubItem(d, "statics"):
+            staticPropertyCount = d.call(mo, "propertyCount")
+            #staticPropertyCount = metaData[6]
+            #warn("STATIC PROPERTY COUNT: %s" % staticPropertyCount)
 
             d.putNoType()
-            d.putItemCount(propertyCount)
-            d.putNumChild(propertyCount)
+            d.putItemCount(staticPropertyCount)
+            d.putNumChild(staticPropertyCount)
 
             if d.isExpanded():
-                # FIXME: Make this global. Don't leak.
-                variant = "'%sQVariant'" % ns
-                # Avoid malloc symbol clash with QVector
-                gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)"
-                    % (variant, variant))
-                gdb.execute("set $d.d.is_shared = 0")
-
                 with Children(d):
-                    # Dynamic properties.
-                    if dynamicPropertyCount != 0:
-                        dummyType = d.voidPtrType().pointer()
-                        namesType = d.lookupType(ns + "QByteArray")
-                        valuesBegin = values["d"]["begin"]
-                        valuesEnd = values["d"]["end"]
-                        valuesArray = values["d"]["array"]
-                        valuesType = d.lookupType(ns + "QVariant")
-                        p = namesArray.cast(dummyType) + namesBegin
-                        q = valuesArray.cast(dummyType) + valuesBegin
-                        for i in xrange(dynamicPropertyCount):
-                            with SubItem(d, i):
-                                pp = p.cast(namesType.pointer()).dereference();
-                                d.putField("key", d.encodeByteArray(pp))
-                                d.putField("keyencoded", Hex2EncodedLatin1)
-                                qq = q.cast(valuesType.pointer().pointer())
-                                qq = qq.dereference();
-                                d.putField("addr", cleanAddress(qq))
-                                d.putField("exp", "*(%s*)%s"
-                                     % (variant, cleanAddress(qq)))
-                                t = qdump__QVariant(d, qq)
-                                # Override the "QVariant (foo)" output.
-                                d.putBetterType(t)
-                            p += 1
-                            q += 1
-
-                    # Static properties.
                     propertyData = metaData[7]
                     for i in xrange(staticPropertyCount):
                       with NoAddress(d):
@@ -1168,17 +1227,18 @@ def qdump__QObject(d, value):
                         propertyType = extractCString(metaStringData,
                                                       metaData[offset + 1])
                         with SubItem(d, propertyName):
-                            #flags = metaData[offset + 2]
-                            #warn("FLAGS: %s " % flags)
-                            #warn("PROPERTY: %s %s " % (propertyType, propertyName))
+                            flags = metaData[offset + 2]
+                            warn("FLAGS: %s " % flags)
+                            warn("PROPERTY: %s %s " % (propertyType, propertyName))
                             # #exp = '((\'%sQObject\'*)%s)->property("%s")' \
                             #     % (ns, value.address, propertyName)
-                            #exp = '"((\'%sQObject\'*)%s)"' %
-                            #(ns, value.address,)
-                            #warn("EXPRESSION:  %s" % exp)
-                            prop = d.call(value, "property",
-                                str(cleanAddress(metaStringData + metaData[offset])))
-                            value1 = prop["d"]
+                            exp = '"((%sQObject*)%s)"' % (ns, value.address)
+                            warn("EXPRESSION:  %s" % exp)
+                            warn("METAOBJECT:  %s" % mo)
+                            addr = cleanAddress(metaStringData + metaData[offset])
+                            warn("ADDRESS:  %s" % addr)
+                            prop = d.call(value, "property", str(addr))
+                            warn("PROP:  %s" % prop)
                             #warn("   CODE: %s" % value1["type"])
                             # Type 1 and 2 are bool and int.
                             # Try to save a few cycles in this case:
@@ -1216,6 +1276,64 @@ def qdump__QObject(d, value):
                                 d.putType(propertyType)
                                 d.putValue("...")
                                 d.putNumChild(0)
+
+        # Dynamic Properties.
+        with SubItem(d, "dynamics"):
+            # Prolog
+            extraData = d_ptr["extraData"]   # Capitalization!
+            if d.isNull(extraData):
+                dynamicPropertyCount = 0
+            else:
+                extraDataType = d.lookupType(
+                    ns + "QObjectPrivate::ExtraData").pointer()
+                extraData = extraData.cast(extraDataType)
+                ed = extraData.dereference()
+                names = ed["propertyNames"]
+                values = ed["propertyValues"]
+                #userData = ed["userData"]
+                namesBegin = names["d"]["begin"]
+                namesEnd = names["d"]["end"]
+                namesArray = names["d"]["array"]
+                dynamicPropertyCount = namesEnd - namesBegin
+
+            d.putNoType()
+            d.putItemCount(dynamicPropertyCount)
+            d.putNumChild(dynamicPropertyCount)
+
+            if d.isExpanded() and d.isGdb:
+                import gdb
+                # FIXME: Make this global. Don't leak.
+                variant = "'%sQVariant'" % ns
+                # Avoid malloc symbol clash with QVector
+                gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)"
+                    % (variant, variant))
+                gdb.execute("set $d.d.is_shared = 0")
+
+                with Children(d):
+                    dummyType = d.voidPtrType().pointer()
+                    namesType = d.lookupType(ns + "QByteArray")
+                    valuesBegin = values["d"]["begin"]
+                    valuesEnd = values["d"]["end"]
+                    valuesArray = values["d"]["array"]
+                    valuesType = d.lookupType(ns + "QVariant")
+                    p = namesArray.cast(dummyType) + namesBegin
+                    q = valuesArray.cast(dummyType) + valuesBegin
+                    for i in xrange(dynamicPropertyCount):
+                        with SubItem(d, i):
+                            pp = p.cast(namesType.pointer()).dereference();
+                            d.putField("key", d.encodeByteArray(pp))
+                            d.putField("keyencoded", Hex2EncodedLatin1)
+                            qq = q.cast(valuesType.pointer().pointer())
+                            qq = qq.dereference();
+                            d.putField("addr", cleanAddress(qq))
+                            d.putField("exp", "*(%s*)%s"
+                                 % (variant, cleanAddress(qq)))
+                            t = qdump__QVariant(d, qq)
+                            # Override the "QVariant (foo)" output.
+                            d.putBetterType(t)
+                        p += 1
+                        q += 1
+
 
         # Connections.
         with SubItem(d, "connections"):
@@ -1910,7 +2028,58 @@ qdumpHelper_QVariants_B = [
     "QVariantHash",# 28
 ]
 
-qdumpHelper_QVariants_C = [
+def qdumpHelper_QVariant_31(d, data):
+    # QVariant::VoidStart
+    d.putBetterType("%sQVariant (void *)" % d.qtNamespace())
+    d.putValue("0x%x" % data["ptr"])
+
+def qdumpHelper_QVariant_32(d, data):
+    # QVariant::Long
+    d.putBetterType("%sQVariant (long)" % d.qtNamespace())
+    d.putValue(toInteger(data["l"]))
+
+def qdumpHelper_QVariant_33(d, data):
+    # QVariant::Short
+    d.putBetterType("%sQVariant (short)" % d.qtNamespace())
+    d.putValue(toInteger(data["s"]))
+
+def qdumpHelper_QVariant_34(d, data):
+    # QVariant::Char
+    d.putBetterType("%sQVariant (char)" % d.qtNamespace())
+    d.putValue(toInteger(data["c"]))
+
+def qdumpHelper_QVariant_35(d, data):
+    # QVariant::ULong
+    d.putBetterType("%sQVariant (unsigned long)" % d.qtNamespace())
+    d.putValue(toInteger(data["ul"]))
+
+def qdumpHelper_QVariant_36(d, data):
+    # QVariant::UShort
+    d.putBetterType("%sQVariant (unsigned short)" % d.qtNamespace())
+    d.putValue(toInteger(data["us"]))
+
+def qdumpHelper_QVariant_37(d, data):
+    # QVariant::UChar
+    d.putBetterType("%sQVariant (unsigned char)" % d.qtNamespace())
+    d.putValue(toInteger(data["uc"]))
+
+def qdumpHelper_QVariant_38(d, data):
+    # QVariant::UChar
+    d.putBetterType("%sQVariant (float)" % d.qtNamespace())
+    d.putValue(toInteger(data["f"]))
+
+qdumpHelper_QVariants_D = [
+    qdumpHelper_QVariant_31,
+    qdumpHelper_QVariant_32,
+    qdumpHelper_QVariant_33,
+    qdumpHelper_QVariant_34,
+    qdumpHelper_QVariant_35,
+    qdumpHelper_QVariant_36,
+    qdumpHelper_QVariant_37,
+    qdumpHelper_QVariant_38
+]
+
+qdumpHelper_QVariants_E = [
     "QFont",       # 64
     "QPixmap",     # 65
     "QBrush",      # 66
@@ -1947,6 +2116,11 @@ def qdumpHelper__QVariant(d, value):
         d.putNumChild(0)
         return (None, None, True)
 
+    if variantType >= 31 and variantType <= 38:
+        qdumpHelper_QVariants_D[variantType - 31](d, data)
+        d.putNumChild(0)
+        return (None, None, True)
+
     # Unknown user type.
     if variantType > 86:
         return (None, "", False)
@@ -1955,7 +2129,7 @@ def qdumpHelper__QVariant(d, value):
     if variantType <= 28:
         innert = qdumpHelper_QVariants_B[variantType - 7]
     else:
-        innert = qdumpHelper_QVariants_C[variantType - 64]
+        innert = qdumpHelper_QVariants_E[variantType - 64]
 
     inner = d.qtNamespace() + innert
 
@@ -1966,6 +2140,9 @@ def qdumpHelper__QVariant(d, value):
     if innerType.sizeof > sizePD or isSpecial:
         val = data["ptr"].cast(innerType.pointer().pointer()).dereference().dereference()
     else:
+        # This can break for returned values
+        #warn("DATA: %s" % data)
+        #warn("DATA ADDRESS: %s" % d.addressOf(data))
         val = data.cast(innerType)
 
     d.putEmptyValue(-99)

@@ -288,8 +288,9 @@ def stdTreeIteratorHelper(d, value):
         nodeType = d.lookupType(nodeTypeName)
         data = node.cast(nodeType)["_M_value_field"]
         with Children(d):
-            if d.hasChildWithName(data, "first"):
-                d.putSubItem("first", data["first"])
+            first = d.childWithName(data, "first")
+            if first:
+                d.putSubItem("first", first)
                 d.putSubItem("second", data["second"])
             else:
                 d.putSubItem("value", data)

@@ -2287,28 +2287,37 @@ void tst_Dumpers::dumper_data()
                     "        Q_PROPERTY(QString myProp1 READ myProp1 WRITE setMyProp1)\n"
                     "        QString myProp1() const { return m_myProp1; }\n"
                     "        Q_SLOT void setMyProp1(const QString&mt) { m_myProp1 = mt; }\n"
-                    "        Q_PROPERTY(QString myProp2 READ myProp2 WRITE setMyProp2)\n"
-                    "        QString myProp2() const { return m_myProp2; }\n"
-                    "        Q_SLOT void setMyProp2(const QString&mt) { m_myProp2 = mt; }\n"
+                    "        Q_PROPERTY(QByteArray myProp2 READ myProp2 WRITE setMyProp2)\n"
+                    "        QByteArray myProp2() const { return m_myProp2; }\n"
+                    "        Q_SLOT void setMyProp2(const QByteArray&mt) { m_myProp2 = mt; }\n"
+                    "        Q_PROPERTY(long myProp3 READ myProp3)\n"
+                    "        long myProp3() const { return 54; }\n"
+                    "        Q_PROPERTY(int myProp4 READ myProp4)\n"
+                    "        int myProp4() const { return 44; }\n"
                     "    public:\n"
                     "        Ui *m_ui;\n"
                     "        QString m_myProp1;\n"
-                    "        QString m_myProp2;\n"
+                    "        QByteArray m_myProp2;\n"
                     "    };\n"
                     "} // namespace Bar\n"
                     "} // namespace Names\n"
                     "#include <main.moc>\n",
                     ""
                     "QApplication app(argc, argv);\n"
-                    "Q_UNUSED(app)\n"
                     "Names::Bar::TestObject test;\n"
-                    "test.setMyProp1(\"HELLO\");\n"
-                    "test.setMyProp2(\"WORLD\");\n"
+                    "test.setMyProp1(\"Hello\");\n"
+                    "test.setMyProp2(\"World\");\n"
                     "QString s = test.myProp1();\n"
-                    "s += test.myProp2();\n")
+                    "s += QString::fromLatin1(test.myProp2());\n"
+                    "unused(&app, &test, &s);\n")
                % GuiProfile()
-               % Check("s", "\"HELLOWORLD\"", "@QString")
-               % Check("test", "", "Names::Bar::TestObject");
+               % Check("s", "\"HelloWorld\"", "@QString")
+               % Check("test", "", "Names::Bar::TestObject")
+               % Check("test.[properties]", "<4 items>", "")
+               % Check("test.[properties].myProp1", "\"Hello\"", "@QVariant (QString)")
+               % Check("test.[properties].myProp2", "\"World\"", "@QVariant (QByteArray)")
+               % Check("test.[properties].myProp3", "54", "@QVariant (long)")
+               % Check("test.[properties].myProp4", "44", "@QVariant (int)");
 
     QTest::newRow("QObject3")
             << Data("#include <QWidget>\n"

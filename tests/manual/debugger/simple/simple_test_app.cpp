@@ -1802,6 +1802,12 @@ namespace qobject {
             QString myProp2() const { return m_myProp2; }
             Q_SLOT void setMyProp2(const QString&mt) { m_myProp2 = mt; }
 
+            Q_PROPERTY(long myProp3 READ myProp3)
+            long myProp3() const { return 54; }
+
+            Q_PROPERTY(long myProp4 READ myProp4)
+            long myProp4() const { return 44; }
+
         public:
             Ui *m_ui;
             QString m_myProp1;
@@ -1817,6 +1823,7 @@ namespace qobject {
         Names::Bar::TestObject test;
         test.setMyProp1("HELLO");
         test.setMyProp2("WORLD");
+        test.setObjectName("An object");
         QString s = test.myProp1();
         s += test.myProp2();
         BREAK_HERE;
