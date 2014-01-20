@@ -70,6 +70,9 @@ const char ANDROID_BUILDDIRECTORY[] = "android-build";
 const char JAVA_EDITOR_ID[] = "java.editor";
 const char C_JAVA_EDITOR[] = "Java Editor";
 const char JAVA_MIMETYPE[] = "text/x-java";
+const char WIZARD_JAVA[] = "Wizard.Java";
+const char JAVA_WIZARD_CATEGORY[] = "U.Java";
+const char JAVA_DISPLAY_CATEGORY[] = "Java";
 } // namespace Constants;
 } // namespace Android
 

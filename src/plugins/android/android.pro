@@ -54,7 +54,8 @@ HEADERS += \
     javaeditorfactory.h \
     javaindenter.h \
     javaautocompleter.h \
-    javacompletionassistprovider.h
+    javacompletionassistprovider.h \
+    javafilewizard.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -103,7 +104,8 @@ SOURCES += \
     javaeditorfactory.cpp \
     javaindenter.cpp \
     javaautocompleter.cpp \
-    javacompletionassistprovider.cpp
+    javacompletionassistprovider.cpp \
+    javafilewizard.cpp
 
 FORMS += \
     androidsettingswidget.ui \

@@ -48,6 +48,7 @@
 #include "androidpotentialkit.h"
 #include "javaeditorfactory.h"
 #include "javacompletionassistprovider.h"
+#include "javafilewizard.h"
 #ifdef HAVE_QBS
 #  include "androidqbspropertyprovider.h"
 #endif
@@ -87,6 +88,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidPotentialKit);
     addAutoReleasedObject(new Internal::JavaEditorFactory);
     addAutoReleasedObject(new Internal::JavaCompletionAssistProvider);
+    addAutoReleasedObject(new Internal::JavaFileWizard);
     ProjectExplorer::KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
 
     // AndroidManifest.xml editor
