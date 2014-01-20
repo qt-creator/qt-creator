@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "javaautocompleter.h"
+#include <QTextCursor>
 
 using namespace Android;
 using namespace Android::Internal;
