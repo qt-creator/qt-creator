@@ -81,12 +81,6 @@ int Lexer::state() const
 void Lexer::setState(int state)
 { _state = state; }
 
-bool Lexer::isIncremental() const
-{ return f._isIncremental; }
-
-void Lexer::setIncremental(bool isIncremental)
-{ f._isIncremental = isIncremental; }
-
 bool Lexer::scanCommentTokens() const
 { return f._scanCommentTokens; }
 

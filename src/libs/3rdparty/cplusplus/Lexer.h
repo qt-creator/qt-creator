@@ -70,9 +70,6 @@ public:
     int state() const;
     void setState(int state);
 
-    bool isIncremental() const;
-    void setIncremental(bool isIncremental);
-
     LanguageFeatures languageFeatures() const { return _languageFeatures; }
     void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
 
@@ -101,7 +98,6 @@ private:
 
 private:
     struct Flags {
-        unsigned _isIncremental: 1;
         unsigned _scanCommentTokens: 1;
         unsigned _scanKeywords: 1;
         unsigned _scanAngleStringLiteralTokens: 1;
