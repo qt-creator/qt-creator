@@ -230,6 +230,7 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
         test.warning("Configured Squish directory seems to be missing - using fallback without hooking into subprocess.",
                      "Failed to find '%s'" % startAUT)
         return False
+    progressBarWait()
     addButton = waitForObject("{container={window=':Qt Creator_Core::Internal::MainWindow' "
                               "type='ProjectExplorer::Internal::RunSettingsWidget' unnamed='1' "
                               "visible='1'} occurrence='2' text='Add' type='QPushButton' "
