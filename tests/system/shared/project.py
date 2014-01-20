@@ -30,12 +30,6 @@
 import __builtin__
 import re
 
-processExited = False
-
-def __handleProcessExited__(*args):
-    global processExited
-    processExited = True
-
 def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWelcome=False):
     cleanUpUserFiles(projectPath)
     if fromWelcome:
@@ -383,7 +377,7 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
                     test.warning("Target '%s' is not set up correctly." % Targets.getStringForTarget(current))
     return checkedTargets
 
-def waitForProcessStarted():
+def waitForProcessRunning(running=True):
     outputButton = waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     if not waitFor("outputButton.checked", 10000):
         ensureChecked(outputButton)
@@ -391,7 +385,7 @@ def waitForProcessStarted():
     reRunButton = findObject(":Qt Creator.ReRun_QToolButton")
     waitFor("object.exists(':Qt Creator.Stop_QToolButton')", 20000)
     stopButton = findObject(":Qt Creator.Stop_QToolButton")
-    return waitFor("not reRunButton.enabled and stopButton.enabled", 10000)
+    return waitFor("(reRunButton.enabled != running) and (stopButton.enabled == running)", 10000)
 
 # run and close an application
 # withHookInto - if set to True the function tries to attach to the sub-process instead of simply pressing Stop inside Creator
@@ -404,10 +398,6 @@ def waitForProcessStarted():
 # by yourself (or use the function parameter)
 # ATTENTION! Make sure this function won't fail and the sub-process will end when the function returns
 def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None, sType=None, userDefinedType=None):
-    global processExited
-    processExited = False
-    overrideInstallLazySignalHandler()
-    installLazySignalHandler("{type='QProcess'}", "finished(int,QProcess::ExitStatus)", "__handleProcessExited__")
     runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
     if sType != SubprocessType.QT_QUICK_UI:
@@ -418,7 +408,7 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
             test.fatal("Build inside run wasn't successful - leaving test")
             invokeMenuItem("File", "Exit")
             return False
-    if not waitForProcessStarted():
+    if not waitForProcessRunning():
         test.fatal("Couldn't start application - leaving test")
         invokeMenuItem("File", "Exit")
         return False
@@ -466,7 +456,6 @@ def __closeSubprocessByPushingStop__(sType):
         test.fatal("Subprocess does not seem to have been started.")
 
 def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefType):
-    global processExited
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}")
     if port == None:
@@ -495,7 +484,7 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
             switchViewTo(ViewConstants.EDIT)
             runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
             clickButton(runButton)
-            if not waitForProcessStarted():
+            if not waitForProcessRunning():
                 test.fatal("Something seems to be really wrong.", "Application output:"
                            % str(output.plainText))
                 return False
@@ -522,11 +511,10 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
                        "Using fallback of pushing STOP inside Creator.")
             resetApplicationContextToCreator()
             __closeSubprocessByPushingStop__(sType)
-    waitFor("processExited==True and 'exited with code' in str(output.plainText)", 10000)
-    if not processExited:
+    resetApplicationContextToCreator()
+    if not waitForProcessRunning(False) and waitFor("'exited with code' in str(output.plainText)", 10000):
         test.warning("Sub-process seems not to have closed properly.")
         try:
-            resetApplicationContextToCreator()
             __closeSubprocessByPushingStop__(sType)
         except:
             pass
