@@ -34,8 +34,9 @@
 
 #include "colorscheme.h"
 
-#include <QString>
+#include <QHash>
 #include <QList>
+#include <QString>
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
@@ -109,6 +110,7 @@ private:
     int m_fontZoom;
     bool m_antialias;
     ColorScheme m_scheme;
+    mutable QHash<TextStyle, QTextCharFormat> m_formatCache;
 };
 
 inline bool operator==(const FontSettings &f1, const FontSettings &f2) { return f1.equals(f2); }

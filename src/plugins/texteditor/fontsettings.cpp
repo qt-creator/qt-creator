@@ -70,6 +70,7 @@ void FontSettings::clear()
     m_fontZoom = 100;
     m_antialias = DEFAULT_ANTIALIAS;
     m_scheme.clear();
+    m_formatCache.clear();
 }
 
 void FontSettings::toSettings(const QString &category,
@@ -155,8 +156,10 @@ bool FontSettings::equals(const FontSettings &f) const
  */
 QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
 {
-    const Format &f = m_scheme.formatFor(category);
+    if (m_formatCache.contains(category))
+        return m_formatCache.value(category);
 
+    const Format &f = m_scheme.formatFor(category);
     QTextCharFormat tf;
 
     if (category == C_TEXT) {
@@ -171,6 +174,8 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
         tf.setBackground(f.background());
     tf.setFontWeight(f.bold() ? QFont::Bold : QFont::Normal);
     tf.setFontItalic(f.italic());
+
+    m_formatCache.insert(category, tf);
     return tf;
 }
 
@@ -199,6 +204,7 @@ QString FontSettings::family() const
 void FontSettings::setFamily(const QString &family)
 {
     m_family = family;
+    m_formatCache.clear();
 }
 
 /**
@@ -212,6 +218,7 @@ int FontSettings::fontSize() const
 void FontSettings::setFontSize(int size)
 {
     m_fontSize = size;
+    m_formatCache.clear();
 }
 
 /**
@@ -225,6 +232,7 @@ int FontSettings::fontZoom() const
 void FontSettings::setFontZoom(int zoom)
 {
     m_fontZoom = zoom;
+    m_formatCache.clear();
 }
 
 QFont FontSettings::font() const
@@ -243,6 +251,7 @@ bool FontSettings::antialias() const
 void FontSettings::setAntialias(bool antialias)
 {
     m_antialias = antialias;
+    m_formatCache.clear();
 }
 
 /**
@@ -279,6 +288,7 @@ void FontSettings::setColorSchemeFileName(const QString &fileName)
 bool FontSettings::loadColorScheme(const QString &fileName,
                                    const FormatDescriptions &descriptions)
 {
+    m_formatCache.clear();
     bool loaded = true;
     m_schemeFileName = fileName;
 
@@ -323,6 +333,7 @@ const ColorScheme &FontSettings::colorScheme() const
 void FontSettings::setColorScheme(const ColorScheme &scheme)
 {
     m_scheme = scheme;
+    m_formatCache.clear();
 }
 
 static QString defaultFontFamily()
