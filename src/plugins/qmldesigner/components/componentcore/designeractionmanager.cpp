@@ -269,6 +269,12 @@ bool selectionNotEmptyAndHasWidthOrHeightProperty(const SelectionContext &contex
         && selectionHasProperty1or2(context, widthProperty, heightProperty);
 }
 
+bool singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot(const SelectionContext &context)
+{
+    return singleSelectionItemIsNotAnchored(context)
+            && singleSelectionNotRoot(context);
+}
+
 bool selectionNotEmptyAndHasXorYProperty(const SelectionContext &context)
 {
     return selectionNotEmpty(context)
@@ -335,7 +341,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new MenuDesignerAction(anchorsCategoryDisplayName, anchorsCategory,
                     priorityAnchorsCategory, &singleSelectionAndInBaseState));
         addDesignerAction(new ModelNodeAction
-                   (anchorsFillDisplayName, anchorsCategory, 200, &anchorsFill, &singleSelectionItemIsNotAnchored));
+                   (anchorsFillDisplayName, anchorsCategory, 200, &anchorsFill, &singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot));
         addDesignerAction(new ModelNodeAction
                    (anchorsResetDisplayName, anchorsCategory, 180, &anchorsReset, &singleSelectionItemIsAnchored));
 

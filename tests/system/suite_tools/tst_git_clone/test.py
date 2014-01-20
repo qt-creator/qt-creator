@@ -36,7 +36,7 @@ def verifyCloneLog(targetDir, canceled):
     # Expect fails because of QTCREATORBUG-10531
     cloneLog = waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit")
     finish = findObject(":Git Repository Clone.Finish_QPushButton")
-    waitFor("finish.enabled", 30000)
+    waitFor("canceled or finish.enabled", 30000)
     test.xverify(("Executing in " + targetDir + ":" in str(cloneLog.plainText)),
                  "Searching for target directory in clone log")
     test.xverify((" ".join(["clone", cloneUrl, cloneDir]) in str(cloneLog.plainText)),
@@ -58,7 +58,9 @@ def verifyCloneLog(targetDir, canceled):
     test.xverify((result in str(cloneLog.plainText)),
                  "Searching for result (%s) in clone log:\n%s"
                 % (result, str(cloneLog.plainText).replace(unicode("\x1b"), "")))
-    test.compare(waitForObject(":Git Repository Clone.Result._QLabel").text, summary)
+    resultLabel = findObject(":Git Repository Clone.Result._QLabel")
+    test.verify(waitFor('str(resultLabel.text) == summary', 3000),
+                "Verifying expected result (%s)" % summary)
 
 def verifyFiles(targetDir):
     for file in [".gitignore", "CMakeLists.txt", "jom.pro",
@@ -84,9 +86,12 @@ def main():
         test.compare(cloneDirEdit.text, "p-qt-labs-jom")
         replaceEditorContent(cloneDirEdit, cloneDir)
         clickButton(waitForObject(":Next_QPushButton"))
+        cloneLog = findObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit")
         test.compare(waitForObject(":Git Repository Clone.Result._QLabel").text,
                      "Cloning started...")
         if button == "Cancel immediately":
+            # wait for cloning to have started
+            waitFor('len(str(cloneLog.plainText)) > 20 + len(cloneDir)')
             clickButton(":Git Repository Clone.Cancel_QPushButton")
             verifyCloneLog(targetDir, True)
             clickButton(":Git Repository Clone.Cancel_QPushButton")

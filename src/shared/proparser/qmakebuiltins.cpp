@@ -1531,7 +1531,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                 if (!args.at(2).toQString(m_tmp1).compare(fL1S("append"), Qt::CaseInsensitive))
                     mode = QIODevice::Append;
         }
-        return writeFile(QString(), resolvePath(args.at(0).toQString(m_tmp1)), mode, contents);
+        QString path = resolvePath(args.at(0).toQString(m_tmp1));
+        path.detach(); // make sure to not leak m_tmp1 into the map of written files.
+        return writeFile(QString(), path, mode, contents);
     }
     case T_TOUCH: {
         if (args.count() != 2) {

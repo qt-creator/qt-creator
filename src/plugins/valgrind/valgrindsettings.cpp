@@ -414,6 +414,7 @@ void ValgrindGlobalSettings::readSettings()
 
     defaults.insert(QLatin1String(callgrindCostFormatC), CostDelegate::FormatRelative);
     defaults.insert(QLatin1String(callgrindCycleDetectionC), true);
+    defaults.insert(QLatin1String(callgrindShortenTemplates), true);
 
     // Read stored values
     QSettings *settings = Core::ICore::settings();

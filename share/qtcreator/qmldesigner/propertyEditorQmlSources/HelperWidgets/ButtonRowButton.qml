@@ -62,25 +62,28 @@ Item {
         return index() === (parent.children.length - 1);
     }
 
-    RoundedPanel {
-        roundLeft: isFirst() && buttonRowButton.roundLeftButton
-        roundRight: isLast()
-
+    Item {
         anchors.fill: parent
-        visible: checked
+        RoundedPanel {
+            roundLeft: isFirst() && buttonRowButton.roundLeftButton
+            roundRight: isLast()
 
-        gradient: Gradient {
-            GradientStop {color: '#444' ; position: 0}
-            GradientStop {color: '#333' ; position: 1}
+            anchors.fill: parent
+            z: checked ? 1 : 0
+
+            gradient: Gradient {
+                GradientStop {color: '#444' ; position: 0}
+                GradientStop {color: '#333' ; position: 1}
+            }
         }
-    }
 
-    RoundedPanel {
-        roundLeft: isFirst()
-        roundRight: isLast()
+        RoundedPanel {
+            roundLeft: isFirst()
+            roundRight: isLast()
 
-        anchors.fill: parent
-        visible: !checked
+            anchors.fill: parent
+            z: !checked ? 1 : 0
+        }
     }
 
     Image {

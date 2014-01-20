@@ -60,7 +60,8 @@ Section {
         RowLayout {
             anchors.left: parent.left
             anchors.right: parent.right
-            visible: anchorBackend.topAnchored;
+            enabled: anchorBackend.topAnchored;
+            opacity: enabled ? 1 : 0.5
 
             IconLabel {
                 source:  "../HelperWidgets/images/anchor-top.png"
@@ -116,7 +117,8 @@ Section {
         }
 
         RowLayout {
-            visible: anchorBackend.bottomAnchored;
+            enabled: anchorBackend.bottomAnchored;
+            opacity: enabled ? 1 : 0.5
             anchors.left: parent.left
             anchors.right: parent.right
 
@@ -174,7 +176,8 @@ Section {
         }
 
         RowLayout {
-            visible: anchorBackend.leftAnchored;
+            enabled: anchorBackend.leftAnchored;
+            opacity: enabled ? 1 : 0.5
             anchors.left: parent.left
             anchors.right: parent.right
 
@@ -234,7 +237,8 @@ Section {
         RowLayout {
             anchors.left: parent.left
             anchors.right: parent.right
-            visible: anchorBackend.rightAnchored;
+            enabled: anchorBackend.rightAnchored;
+            opacity: enabled ? 1 : 0.5
 
             IconLabel {
                 source:  "../HelperWidgets/images/anchor-right.png"
@@ -291,7 +295,8 @@ Section {
         RowLayout {
             anchors.left: parent.left
             anchors.right: parent.right
-            visible: anchorBackend.horizontalCentered;
+            enabled: anchorBackend.horizontalCentered;
+            opacity: enabled ? 1 : 0.5
 
             IconLabel {
                 source:  "../HelperWidgets/images/anchor-horizontal.png"
@@ -348,7 +353,8 @@ Section {
         RowLayout {
             anchors.left: parent.left
             anchors.right: parent.right
-            visible: anchorBackend.verticalCentered;
+            enabled: anchorBackend.verticalCentered;
+            opacity: enabled ? 1 : 0.5
 
             IconLabel {
                 source:  "../HelperWidgets/images/anchor-vertical.png"

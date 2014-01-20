@@ -31,7 +31,7 @@ import QtQuick 2.1
 import QtQuick.Controls 1.0 as Controls
 import QtQuick.Layouts 1.0
 
-Row {
+RowLayout {
 
     id: buttonRow
 
@@ -40,6 +40,7 @@ Row {
     property int initalChecked: 0
 
     property int checkedIndex: -1
+    spacing: 0
 
     onCheckedIndexChanged: {
         __checkButton(checkedIndex)

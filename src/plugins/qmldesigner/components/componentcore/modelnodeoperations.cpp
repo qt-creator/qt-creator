@@ -374,17 +374,23 @@ void anchorsFill(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|anchorsFill"));
+    try {
+        RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|anchorsFill"));
 
-    ModelNode modelNode = selectionState.currentSingleSelectedNode();
+        ModelNode modelNode = selectionState.currentSingleSelectedNode();
 
-    QmlItemNode node = modelNode;
-    if (node.isValid()) {
-        node.anchors().fill();
-        backupPropertyAndRemove(modelNode, "x");
-        backupPropertyAndRemove(modelNode, "y");
-        backupPropertyAndRemove(modelNode, "width");
-        backupPropertyAndRemove(modelNode, "height");
+        QmlItemNode node = modelNode;
+        if (node.isValid()) {
+            node.anchors().fill();
+            backupPropertyAndRemove(modelNode, "x");
+            backupPropertyAndRemove(modelNode, "y");
+            backupPropertyAndRemove(modelNode, "width");
+            backupPropertyAndRemove(modelNode, "height");
+        }
+
+        transaction.commit();
+    } catch (RewritingException &e) { //better save then sorry
+        QMessageBox::warning(0, "Error", e.description());
     }
 }
 

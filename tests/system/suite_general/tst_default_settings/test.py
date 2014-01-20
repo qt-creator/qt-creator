@@ -216,6 +216,10 @@ def __getExpectedDebuggers__():
         result.extend(__getCDB__())
     debuggers = ["gdb", "lldb"]
     result.extend(filter(None, map(which, debuggers)))
+    if platform.system() == 'Darwin':
+        xcodeLLDB = "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb"
+        if os.path.exists(xcodeLLDB):
+            result.append(xcodeLLDB)
     return result
 
 def __getCDB__():

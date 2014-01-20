@@ -51,6 +51,66 @@ def verifyItemsInGit(commitMessages):
     verifyItemOrder(commitMessages, plainText)
     return plainText
 
+def verifyClickCommit():
+    gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
+    fileName = waitForObject(":Qt Creator_FilenameQComboBox")
+    test.verify(waitFor('str(fileName.currentText).startswith("Git Log")', 1000),
+                "Verifying Qt Creator still displays git log inside editor.")
+    content = str(gitEditor.plainText)
+    noOfCommits = content.count("commit")
+    commit = None
+    # find second commit
+    try:
+        line = filter(lambda line: line.startswith("commit"), content.splitlines())[-2]
+        commit = line.split(" ", 1)[1]
+    except:
+        test.fail("Could not find the second commit - leaving test")
+        return
+    placeCursorToLine(gitEditor, line)
+    for i in range(5):
+        type(gitEditor, "<Left>")
+    # get the current cursor rectangle which should be positioned on the commit ID
+    rect = gitEditor.cursorRect()
+    # click on the commit ID
+    mouseClick(gitEditor, rect.x, rect.y + rect.height / 2, 0, Qt.LeftButton)
+    expected = 'Git Show "%s"' % commit
+    test.verify(waitFor('str(fileName.currentText) == expected', 5000),
+                "Verifying editor switches to Git Show.")
+    diffShow = waitForObject(":Qt Creator_DiffEditor::Internal::DiffShowEditorWidget")
+    waitFor('len(str(diffShow.plainText)) != 0', 5000)
+    show = str(diffShow.plainText)
+    expected = [{"commit %s" % commit:False},
+                {"Author: (\w|\s)+ <(\w|[-.])+@(\w|[-.])+>": True},
+                {"Date:\s+\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.*":True},
+                {"Branches: master":False}]
+    for line, exp in zip(show.splitlines(), expected):
+        expLine = exp.keys()[0]
+        isRegex = exp.values()[0]
+        if isRegex:
+            test.verify(re.match(expLine, line), "Verifying commit header line '%s'" % line)
+        else:
+            test.compare(line, expLine, "Verifying commit header line.")
+    changed = waitForObject(":Qt Creator_DiffEditor::DiffViewEditorWidget")
+    original = waitForObject(":Qt Creator_DiffEditor::DiffViewEditorWidget2")
+    waitFor('str(changed.plainText) != "Waiting for data..." '
+            'and str(original.plainText) != "Waiting for data..."', 5000)
+    # content of diff editors is merge of modified files
+    diffOriginal = str(original.plainText)
+    diffChanged = str(changed.plainText)
+    # diffChanged must completely contain the pointless_header.h
+    pointlessHeader = readFile(os.path.join(srcPath, projectName, "pointless_header.h"))
+    test.verify(pointlessHeader in diffChanged,
+                "Verifying whether diff editor contains pointless_header.h file.")
+    test.verify(pointlessHeader not in diffOriginal,
+                "Verifying whether original does not contain pointless_header.h file.")
+    test.verify("HEADERS  += mainwindow.h \\\n    pointless_header.h\n" in diffChanged,
+                "Verifying whether diff editor has pointless_header.h listed in pro file.")
+    test.verify("HEADERS  += mainwindow.h\n\n" in diffOriginal
+                and "pointless_header.h" not in diffOriginal,
+                "Verifying whether original has no additional header in pro file.")
+    test.verify(original.readOnly and changed.readOnly and diffShow.readOnly,
+                "Verifying all diff editor widgets are readonly.")
+
 def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
@@ -97,6 +157,9 @@ def main():
 
     invokeMenuItem("Tools", "Git", "Local Repository", "Log")
     verifyItemsInGit(commitMessages)
+    # verifyClickCommit() must be called after the local git has been created and the files
+    # have been pushed to the repository
+    verifyClickCommit()
     invokeMenuItem("File", "Close All Projects and Editors")
 
     invokeMenuItem("File", "Exit")

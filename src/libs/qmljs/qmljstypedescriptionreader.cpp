@@ -111,10 +111,12 @@ void TypeDescriptionReader::readDocument(UiProgram *ast)
         version = ComponentVersion(versionString.left(dotIdx).toInt(),
                                    versionString.mid(dotIdx + 1).toInt());
     }
-    if (version > ComponentVersion(1, 1)) {
-        addError(import->versionToken, tr("Expected version 1.1 or lower."));
+    if (version.majorVersion() != 1) {
+        addError(import->versionToken, tr("Major version different from 1 not supported."));
         return;
     }
+    if (version.minorVersion() > 1)
+        addWarning(import->versionToken, tr("Reading only version 1.1 parts."));
 
     if (!ast->members || !ast->members->member || ast->members->next) {
         addError(SourceLocation(), tr("Expected document to contain a single object definition."));
