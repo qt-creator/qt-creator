@@ -30,12 +30,25 @@
 #include "cpptoolsplugin.h"
 #include "cpptoolsreuse.h"
 
-#include <coreplugin/testdatadir.h>
+#include <utils/fileutils.h>
 
 #include <QDir>
 #include <QtTest>
 
 static inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
+
+static void createTempFile(const QString &fileName)
+{
+    QFile file(fileName);
+    QDir(QFileInfo(fileName).absolutePath()).mkpath(_("."));
+    file.open(QFile::WriteOnly);
+    file.close();
+}
+
+static QString baseTestDir()
+{
+    return QDir::tempPath() + _("/qtc_cppheadersource/");
+}
 
 namespace CppTools {
 namespace Internal {
@@ -46,11 +59,13 @@ void CppToolsPlugin::test_headersource()
     QFETCH(QString, headerFileName);
 
     bool wasHeader;
-    Core::Tests::TestDataDir dataDir(_(SRCDIR "/../../../tests/cppheadersource/")
-        + _(QTest::currentDataTag()));
+    const QString baseDir = baseTestDir();
+    QDir path = QDir(baseDir + _(QTest::currentDataTag()));
 
-    const QString sourcePath = dataDir.file(sourceFileName);
-    const QString headerPath = dataDir.file(headerFileName);
+    const QString sourcePath = path.absoluteFilePath(sourceFileName);
+    const QString headerPath = path.absoluteFilePath(headerFileName);
+    createTempFile(sourcePath);
+    createTempFile(headerPath);
 
     clearHeaderSourceCache();
     QCOMPARE(correspondingHeaderOrSource(sourcePath, &wasHeader), headerPath);
@@ -66,6 +81,16 @@ void CppToolsPlugin::test_headersource_data()
     QTest::addColumn<QString>("headerFileName");
     QTest::newRow("samedir") << _("foo.cpp") << _("foo.h");
     QTest::newRow("includesub") << _("foo.cpp") << _("include/foo.h");
+}
+
+void CppToolsPlugin::initTestCase()
+{
+    QDir(baseTestDir()).mkpath(_("."));
+}
+
+void CppToolsPlugin::cleanupTestCase()
+{
+    Utils::FileUtils::removeRecursively(Utils::FileName::fromString(baseTestDir()));
 }
 
 } // namespace Internal

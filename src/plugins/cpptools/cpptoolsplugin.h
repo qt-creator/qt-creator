@@ -77,6 +77,10 @@ public slots:
 
 private slots:
 #ifdef WITH_TESTS
+    // Init/Cleanup methods implemented in cppheadersource_test.cpp
+    void initTestCase();
+    void cleanupTestCase();
+
     void test_codegen_public_in_empty_class();
     void test_codegen_public_in_nonempty_class();
     void test_codegen_public_before_protected();
