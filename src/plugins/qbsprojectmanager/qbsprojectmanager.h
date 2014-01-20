@@ -74,7 +74,6 @@ public:
     void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
 
     static qbs::Settings *settings();
-    static qbs::Preferences *preferences();
     Internal::QbsLogSink *logSink() { return m_logSink; }
 
 private slots:
@@ -83,12 +82,12 @@ private slots:
 private:
     void addProfile(const QString &name, const QVariantMap &data);
     void removeCreatorProfiles();
+    void addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k);
     void addProfileFromKit(const ProjectExplorer::Kit *k);
 
     Internal::QbsProjectManagerPlugin *m_plugin;
     Internal::QbsLogSink *m_logSink;
     static qbs::Settings *m_settings;
-    static qbs::Preferences *m_preferences;
 
     DefaultPropertyProvider *m_defaultPropertyProvider;
 };

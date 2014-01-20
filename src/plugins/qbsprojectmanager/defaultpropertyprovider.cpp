@@ -46,31 +46,6 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
 {
     QTC_ASSERT(k, return defaultData);
     QVariantMap data = defaultData;
-    QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(k);
-    if (qt) {
-        data.insert(QLatin1String(QTCORE_BINPATH), qt->binPath().toUserOutput());
-        QStringList builds;
-        if (qt->hasDebugBuild())
-            builds << QLatin1String("debug");
-        if (qt->hasReleaseBuild())
-            builds << QLatin1String("release");
-        data.insert(QLatin1String(QTCORE_BUILDVARIANT), builds);
-        data.insert(QLatin1String(QTCORE_DOCPATH), qt->docsPath().toUserOutput());
-        data.insert(QLatin1String(QTCORE_INCPATH), qt->headerPath().toUserOutput());
-        data.insert(QLatin1String(QTCORE_LIBPATH), qt->libraryPath().toUserOutput());
-        data.insert(QLatin1String(QTCORE_PLUGINPATH), qt->pluginPath().toUserOutput());
-        Utils::FileName mkspecPath = qt->mkspecsPath();
-        mkspecPath.appendPath(qt->mkspec().toString());
-        data.insert(QLatin1String(QTCORE_MKSPEC), mkspecPath.toUserOutput());
-        data.insert(QLatin1String(QTCORE_NAMESPACE), qt->qtNamespace());
-        data.insert(QLatin1String(QTCORE_LIBINFIX), qt->qtLibInfix());
-        data.insert(QLatin1String(QTCORE_VERSION), qt->qtVersionString());
-        if (qt->isFrameworkBuild())
-            data.insert(QLatin1String(QTCORE_FRAMEWORKBUILD), true);
-        data.insert(QLatin1String(QTCORE_CONFIG), qt->configValues());
-        data.insert(QLatin1String(QTCORE_QTCONFIG), qt->qtConfigValues());
-    }
-
     if (ProjectExplorer::SysRootKitInformation::hasSysRoot(k))
         data.insert(QLatin1String(QBS_SYSROOT), ProjectExplorer::SysRootKitInformation::sysRoot(k).toUserOutput());
 
@@ -96,6 +71,7 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
                                    : QStringList() << QLatin1String("msvc"));
         } else if (targetAbi.os() == ProjectExplorer::Abi::MacOS) {
             const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // from Ios::Constants (include header?)
+            const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitInformation::qtVersion(k);
             if (qt && qt->type() == QLatin1String(IOSQT)) {
                 QStringList targetOS;
                 if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture)

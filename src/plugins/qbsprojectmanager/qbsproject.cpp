@@ -423,7 +423,8 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
     QVariantMap baseConfig;
     QVariantMap userConfig = config;
     QString specialKey = QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY);
-    baseConfig.insert(specialKey, userConfig.take(specialKey));
+    const QString profileName = userConfig.take(specialKey).toString();
+    baseConfig.insert(specialKey, profileName);
     specialKey = QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY);
     baseConfig.insert(specialKey, userConfig.take(specialKey));
     params.setBuildConfiguration(baseConfig);
@@ -460,10 +461,10 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
     params.setProjectFilePath(m_fileName);
     params.setIgnoreDifferentProjectFilePath(false);
     params.setEnvironment(env.toProcessEnvironment());
-    qbs::Preferences *prefs = QbsManager::preferences();
+    const qbs::Preferences prefs(QbsManager::settings(), profileName);
     const QString qbsDir = qbsDirectory();
-    params.setSearchPaths(prefs->searchPaths(qbsDir));
-    params.setPluginPaths(prefs->pluginPaths(qbsDir));
+    params.setSearchPaths(prefs.searchPaths(qbsDir));
+    params.setPluginPaths(prefs.pluginPaths(qbsDir));
 
     // Do the parsing:
     prepareForParsing();

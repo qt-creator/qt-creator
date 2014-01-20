@@ -35,15 +35,19 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagerplugin.h"
 
+#include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <qmljstools/qmljstoolsconstants.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QVariantMap>
 
 #include <qbs.h>
+#include <qtprofilesetup.h>
 #include <tools/profile.h> // TODO: Do this in qbs.h.
 
 const QChar sep = QLatin1Char('.');
@@ -54,14 +58,12 @@ static QString qtcProfilePrefix() { return qtcProfileGroup() + sep; }
 namespace QbsProjectManager {
 
 qbs::Settings *QbsManager::m_settings = 0;
-qbs::Preferences *QbsManager::m_preferences = 0;
 
 QbsManager::QbsManager(Internal::QbsProjectManagerPlugin *plugin) :
     m_plugin(plugin),
     m_defaultPropertyProvider(new DefaultPropertyProvider)
 {
     m_settings = new qbs::Settings(QLatin1String("QtProject"), QLatin1String("qbs"));
-    m_preferences = new qbs::Preferences(m_settings);
 
     setObjectName(QLatin1String("QbsProjectManager"));
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(pushKitsToQbs()));
@@ -87,7 +89,6 @@ QbsManager::~QbsManager()
 {
     delete m_defaultPropertyProvider;
     delete m_settings;
-    delete m_preferences;
 }
 
 QString QbsManager::mimeType() const
@@ -124,11 +125,6 @@ qbs::Settings *QbsManager::settings()
     return m_settings;
 }
 
-qbs::Preferences *QbsManager::preferences()
-{
-    return m_preferences;
-}
-
 void QbsManager::addProfile(const QString &name, const QVariantMap &data)
 {
     qbs::Profile profile(name, settings());
@@ -146,11 +142,44 @@ void QbsManager::removeCreatorProfiles()
     }
 }
 
+void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k)
+{
+    const QtSupport::BaseQtVersion * const qt = QtSupport::QtKitInformation::qtVersion(k);
+    if (!qt)
+        return;
+
+    qbs::QtEnvironment qtEnv;
+    qtEnv.binaryPath = qt->binPath().toString();
+    if (qt->hasDebugBuild())
+        qtEnv.buildVariant << QLatin1String("debug");
+    if (qt->hasReleaseBuild())
+        qtEnv.buildVariant << QLatin1String("release");
+    qtEnv.documentationPath = qt->docsPath().toString();
+    qtEnv.includePath = qt->headerPath().toString();
+    qtEnv.libraryPath = qt->libraryPath().toString();
+    qtEnv.pluginPath = qt->pluginPath().toString();
+    qtEnv.mkspecBasePath = qt->mkspecsPath().toString();
+    qtEnv.mkspecName = qt->mkspec().toString();
+    qtEnv.mkspecPath = qt->mkspecPath().toString();
+    qtEnv.qtNameSpace = qt->qtNamespace();
+    qtEnv.qtLibInfix = qt->qtLibInfix();
+    qtEnv.qtVersion = qt->qtVersionString();
+    qtEnv.frameworkBuild = qt->isFrameworkBuild();
+    qtEnv.configItems = qt->configValues();
+    qtEnv.qtConfigItems = qt->qtConfigValues();
+    const qbs::ErrorInfo errorInfo = qbs::setupQtProfile(profileName, settings(), qtEnv);
+    if (errorInfo.hasError()) {
+        Core::MessageManager::write(tr("Failed to set up kit for qbs: %1")
+                .arg(errorInfo.toString()), Core::MessageManager::ModeSwitch);
+    }
+}
+
 void QbsManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 {
     const QString name = ProjectExplorer::Project::makeUnique(
                 QString::fromLatin1("qtc_") + k->fileSystemFriendlyName(), m_settings->profiles());
     setProfileForKit(name, k);
+    addQtProfileFromKit(name, k);
 
     // set up properties:
     QVariantMap data = m_defaultPropertyProvider->properties(k, QVariantMap());

@@ -38,9 +38,14 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlJSTools" }
+    property bool useInternalQbsProducts: project.qbsSubModuleExists && !project.useExternalQbs
     Depends {
         name: "qbscore"
-        condition: project.qbsSubModuleExists && !project.useExternalQbs
+        condition: product.useInternalQbsProducts
+    }
+    Depends {
+        name: "qbsqtprofilesetup"
+        condition: product.useInternalQbsProducts
     }
 
     cpp.defines: base.concat([

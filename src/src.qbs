@@ -29,7 +29,7 @@ Project {
         property path resourcesInstallDir: project.ide_data_path + "/qbs"
 
         references: [
-            qbsBaseDir + "/src/lib/lib.qbs",
+            qbsBaseDir + "/src/lib/libs.qbs",
             qbsBaseDir + "/src/plugins/plugins.qbs",
             qbsBaseDir + "/share/share.qbs"
         ]

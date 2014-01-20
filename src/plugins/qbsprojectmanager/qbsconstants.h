@@ -33,22 +33,6 @@
 namespace QbsProjectManager {
 namespace Constants {
 
-// Qt related settings:
-const char QTCORE_BINPATH[] = "Qt.core.binPath";
-const char QTCORE_BUILDVARIANT[] = "Qt.core.buildVariant";
-const char QTCORE_DOCPATH[] = "Qt.core.docPath";
-const char QTCORE_INCPATH[] = "Qt.core.incPath";
-const char QTCORE_LIBPATH[] = "Qt.core.libPath";
-const char QTCORE_PLUGINPATH[] = "Qt.core.pluginPath";
-const char QTCORE_VERSION[] = "Qt.core.version";
-const char QTCORE_NAMESPACE[] = "Qt.core.namespace";
-const char QTCORE_LIBINFIX[] = "Qt.core.libInfix";
-const char QTCORE_MKSPEC[] = "Qt.core.mkspecPath";
-const char QTCORE_FRAMEWORKBUILD[] = "Qt.core.frameworkBuild";
-const char QTCORE_CONFIG[] = "Qt.core.config";
-const char QTCORE_QTCONFIG[] = "Qt.core.qtConfig";
-
-
 // Toolchain related settings:
 const char QBS_TARGETOS[] = "qbs.targetOS";
 const char QBS_SYSROOT[] = "qbs.sysroot";

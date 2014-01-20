@@ -24,7 +24,8 @@ SUBDIRS += \
     utils/process_stub.pro
 
 QBS_DIRS = \
-    ../shared/qbs/src/lib \
+    ../shared/qbs/src/lib/corelib \
+    ../shared/qbs/src/lib/qtprofilesetup \
     ../shared/qbs/src/plugins \
     ../shared/qbs/static.pro
 
