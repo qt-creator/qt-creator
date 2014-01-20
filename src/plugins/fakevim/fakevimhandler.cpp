@@ -5511,29 +5511,9 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         return false;
 
     clearMessage();
-    SavedAction *act = theFakeVimSettings()->item(cmd.args);
     QTC_CHECK(!cmd.args.isEmpty()); // Handled by plugin.
-    if (act && act->value().canConvert(QVariant::Bool)) {
-        // Boolean config to be switched on.
-        bool oldValue = act->value().toBool();
-        if (oldValue == false)
-            act->setValue(true);
-        else if (oldValue == true)
-            {} // nothing to do
-        if (g.highlightsCleared && (cmd.args == _("hls") || cmd.args == _("hlsearch")))
-            highlightMatches(g.lastNeedle);
-    } else if (act) {
-        // Non-boolean to show.
-        showMessage(MessageInfo, cmd.args + QLatin1Char('=') + act->value().toString());
-    } else if (cmd.args.startsWith(_("no"))
-            && (act = theFakeVimSettings()->item(cmd.args.mid(2)))) {
-        // Boolean config to be switched off.
-        bool oldValue = act->value().toBool();
-        if (oldValue == true)
-            act->setValue(false);
-        else if (oldValue == false)
-            {} // nothing to do
-    } else if (cmd.args.contains(QLatin1Char('='))) {
+
+    if (cmd.args.contains(QLatin1Char('='))) {
         // Non-boolean config to set.
         int p = cmd.args.indexOf(QLatin1Char('='));
         QString error = theFakeVimSettings()
@@ -5541,10 +5521,42 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         if (!error.isEmpty())
             showMessage(MessageError, error);
     } else {
-        showMessage(MessageError, FakeVimHandler::tr("Unknown option:") + QLatin1Char(' ') + cmd.args);
+        QString optionName = cmd.args;
+
+        bool toggleOption = optionName.endsWith(QLatin1Char('!'));
+        bool printOption = !toggleOption && optionName.endsWith(QLatin1Char('?'));
+        if (printOption || toggleOption)
+            optionName.chop(1);
+
+        bool negateOption = optionName.startsWith(_("no"));
+        if (negateOption)
+            optionName.remove(0, 2);
+
+        SavedAction *act = theFakeVimSettings()->item(optionName);
+        if (!act) {
+            showMessage(MessageError, FakeVimHandler::tr("Unknown option:")
+                        + QLatin1Char(' ') + cmd.args);
+        } else if (act->defaultValue().type() == QVariant::Bool) {
+            bool oldValue = act->value().toBool();
+            if (printOption) {
+                showMessage(MessageInfo, (oldValue ? _("") : _("no"))
+                            + act->settingsKey().toLower());
+            } else if (toggleOption || negateOption == oldValue) {
+                act->setValue(!oldValue);
+            }
+        } else if (negateOption && !printOption) {
+            showMessage(MessageError, FakeVimHandler::tr("Invalid argument:")
+                        + QLatin1Char(' ') + cmd.args);
+        } else if (toggleOption) {
+            showMessage(MessageError, FakeVimHandler::tr("Trailing characters:")
+                        + QLatin1Char(' ') + cmd.args);
+        } else {
+            showMessage(MessageInfo, act->settingsKey().toLower() + _("=")
+                        + act->value().toString());
+        }
     }
-    updateMiniBuffer();
     updateEditor();
+    updateHighlights();
     return true;
 }
 
