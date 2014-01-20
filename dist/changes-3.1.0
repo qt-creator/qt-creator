@@ -12,6 +12,8 @@ git log --cherry-pick --pretty=oneline origin/3.0..origin/master
 General
 
 Editing
+   * Added File > Reload
+   * Made visible margin configurable per project
 
 Managing and Building Projects
 
@@ -34,19 +36,37 @@ Generic Projects
    * Made importing files follow directory symlinks (QTCREATORBUG-8897)
 
 Debugging
+   * Removed support for GDB without Python
+   * Added context menu item for saving backtrace as tasks-file
    * GDB
    * CDB
+      * Added pretty printer for std::complex and C++11 std::array
    * LLDB
    * QML
 
 Analyzer
 
+QML Profiler
+   * Improved performance (QTCREATORBUG-10950)
+   * Improved layout of details views
+   * Fixed opening files from JavaScript profiling output (QTCREATORBUG-11094)
+
 C++ Support
+   * Added code model inspector
+   * Added experimental support for Clang-based code model
    * Fixed parsing of ??< ??> ??( ??) trigraphs (QTCREATORBUG-2474)
+   * Fixed adding definition for function with rvalue-reference
+     (QTCREATORBUG-10555)
+   * Fixed semantic highlighting after "Save as"
 
 Python Support
 
 GLSL Support
+
+Qt Quick Designer
+   * Fixed selecting overlapping items with same z-value (QTCREATORBUG-11066)
+   * Fixed setting text alignment (QTCREATORBUG-11054)
+   * Fixed crash with anchors (QTCREATORBUG-11138)
 
 Diff Viewer
 
@@ -57,8 +77,11 @@ Version Control Systems
    * ClearCase
       * Improved performance of indexing dynamic views
       * Added warning when editing Derived Objects
+   * Bazaar
+      * Added support for uncommit command
 
 FakeVim
+   * Added "gj", "gk", "g0", "g^" and "g$" commands
    * Made dot command work for letter case commands in visual mode
 
 Platform Specific
@@ -71,11 +94,14 @@ QNX
    * Added support for Python based pretty printers when debugging on devices
    * Added better error messages for common deployment errors
      (QTCREATORBUG-9673, QTCREATORBUG-9001)
+   * Added line and column information to text based BAR descriptor editor
+     (QTCREATORBUG-10395)
    * Fixed several issues with certificate password dialog in BlackBerry
      options (QTCREATORBUG-10948)
 
 Android
    * Made it possible to cancel waiting for an AVD to boot up
+   * Fixed opening Java files from error messages (QTCREATORBUG-10904)
 
 Remote Linux
 
