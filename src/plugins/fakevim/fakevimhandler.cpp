@@ -1833,7 +1833,6 @@ public:
     int m_oldExternalAnchor;
     int m_oldInternalPosition; // copy from last event to check for external changes
     int m_oldInternalAnchor;
-    int m_oldPosition; // FIXME: Merge with above.
     int m_register;
     bool m_visualBlockInsert;
 
@@ -2143,7 +2142,6 @@ void FakeVimHandler::Private::init()
     m_oldInternalPosition = -1;
     m_oldExternalAnchor = -1;
     m_oldExternalPosition = -1;
-    m_oldPosition = -1;
     m_insertState = InsertState();
     m_breakEditBlock = false;
     m_searchStartPosition = 0;
@@ -2197,10 +2195,10 @@ void FakeVimHandler::Private::enterFakeVim()
     importSelection();
 
     // Position changed externally, e.g. by code completion.
-    if (position() != m_oldPosition) {
+    if (position() != m_oldInternalPosition) {
         // record external jump to different line
-        if (m_oldPosition != -1 && lineForPosition(m_oldPosition) != lineForPosition(position()))
-            recordJump(m_oldPosition);
+        if (m_oldInternalPosition != -1 && lineForPosition(m_oldInternalPosition) != lineForPosition(position()))
+            recordJump(m_oldInternalPosition);
         setTargetColumn();
         if (atEndOfLine() && !isVisualMode() && !isInsertMode())
             moveLeft();
@@ -2226,7 +2224,6 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
         if (m_fakeEnd)
             moveLeft();
 
-        m_oldPosition = position();
         if (hasConfig(ConfigShowMarks))
             updateSelection();
 
@@ -2474,15 +2471,15 @@ void FakeVimHandler::Private::commitInsertState()
 
 void FakeVimHandler::Private::invalidateInsertState()
 {
-    m_oldPosition = position();
+    m_oldInternalPosition = position();
     m_insertState.pos1 = -1;
-    m_insertState.pos2 = m_oldPosition;
+    m_insertState.pos2 = m_oldInternalPosition;
     m_insertState.backspaces = 0;
     m_insertState.deletes = 0;
     m_insertState.spaces.clear();
     m_insertState.insertingSpaces = false;
-    m_insertState.textBeforeCursor = textAt(document()->findBlock(m_oldPosition).position(),
-                                            m_oldPosition);
+    m_insertState.textBeforeCursor = textAt(document()->findBlock(m_oldInternalPosition).position(),
+                                            m_oldInternalPosition);
     m_insertState.newLineBefore = false;
     m_insertState.newLineAfter = false;
 }
@@ -4204,8 +4201,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             m_insertState.newLineBefore = true;
         } else {
             moveUp();
-            m_oldPosition = position();
-            m_insertState.pos1 = m_oldPosition;
+            m_oldInternalPosition = position();
+            m_insertState.pos1 = m_oldInternalPosition;
             m_insertState.newLineAfter = true;
         }
         setTargetColumn();
@@ -4673,7 +4670,7 @@ EventResult FakeVimHandler::Private::handleInsertOrReplaceMode(const Input &inpu
         commitInsertState();
         invalidateInsertState();
         breakEditBlock();
-    } else if (m_oldPosition == position()) {
+    } else if (m_oldInternalPosition == position()) {
         setTargetColumn();
     }
 
@@ -7452,7 +7449,7 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
     // Record inserted and deleted text in insert mode.
     if (isInsertMode() && (charsAdded > 0 || charsRemoved > 0)) {
         if (!isInsertStateValid()) {
-            m_insertState.pos1 = m_oldPosition;
+            m_insertState.pos1 = m_oldInternalPosition;
             g.dotCommand = _("i");
             resetCount();
         }
@@ -7463,7 +7460,7 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
                 if (position < m_insertState.pos1) {
                     // backspaces
                     const int bs = m_insertState.pos1 - position;
-                    const QString inserted = textAt(position, m_oldPosition);
+                    const QString inserted = textAt(position, m_oldInternalPosition);
                     const QString removed = m_insertState.textBeforeCursor.right(bs);
                     // Ignore backspaces if same text was just inserted.
                     if ( !inserted.endsWith(removed) ) {
@@ -7485,9 +7482,9 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
 
             m_insertState.pos2 = qMax(m_insertState.pos2 + charsAdded - charsRemoved,
                                       position + charsAdded);
-            m_oldPosition = position + charsAdded;
-            m_insertState.textBeforeCursor = textAt(document()->findBlock(m_oldPosition).position(),
-                                            m_oldPosition);
+            m_oldInternalPosition = position + charsAdded;
+            m_insertState.textBeforeCursor = textAt(document()->findBlock(m_oldInternalPosition).position(),
+                                            m_oldInternalPosition);
         }
     }
 
