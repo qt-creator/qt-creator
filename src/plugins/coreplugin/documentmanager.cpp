@@ -599,7 +599,7 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
     QList<IDocument *> modifiedDocuments;
 
     foreach (IDocument *document, documents) {
-        if (document->isModified()) {
+        if (document && document->isModified()) {
             QString name = document->filePath();
             if (name.isEmpty())
                 name = document->suggestedFileName();
