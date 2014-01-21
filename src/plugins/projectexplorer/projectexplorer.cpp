@@ -1075,15 +1075,7 @@ void ProjectExplorerPlugin::unloadProject()
     if (!document || document->filePath().isEmpty()) //nothing to save?
         return;
 
-    QList<IDocument*> documentsToSave;
-    documentsToSave << document;
-    bool success = false;
-    if (document->isFileReadOnly())
-        success = DocumentManager::saveModifiedDocuments(documentsToSave).isEmpty();
-    else
-        success = DocumentManager::saveModifiedDocumentsSilently(documentsToSave).isEmpty();
-
-    if (!success)
+    if (!DocumentManager::saveModifiedDocumentSilently(document))
         return;
 
     addToRecentProjects(document->filePath(), d->m_currentProject->displayName());
@@ -1967,13 +1959,13 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
         } else {
             bool cancelled = false;
             bool alwaysSave = false;
-            DocumentManager::saveModifiedDocuments(documentsToSave, &cancelled, QString(),
-                                  tr("Always save files before build"), &alwaysSave);
-
-            if (cancelled)
-                return false;
-            if (alwaysSave)
-                d->m_projectExplorerSettings.saveBeforeBuild = true;
+            if (!DocumentManager::saveModifiedDocuments(documentsToSave, QString(), &cancelled,
+                                                        tr("Always save files before build"), &alwaysSave)) {
+                if (cancelled)
+                    return false;
+                if (alwaysSave)
+                    d->m_projectExplorerSettings.saveBeforeBuild = true;
+            }
         }
     }
     return true;

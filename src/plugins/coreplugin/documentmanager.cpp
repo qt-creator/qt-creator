@@ -104,11 +104,11 @@ namespace Core {
 
 static void readSettings();
 
-static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &documents,
-                               bool *cancelled, bool silently,
-                               const QString &message,
-                               const QString &alwaysSaveMessage = QString(),
-                               bool *alwaysSave = 0);
+static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
+                                    const QString &message,
+                                    bool *cancelled, bool silently,
+                                    const QString &alwaysSaveMessage,
+                                    bool *alwaysSave, QList<IDocument *> *failedToSave);
 
 namespace Internal {
 
@@ -549,47 +549,10 @@ void DocumentManager::unexpectFileChange(const QString &fileName)
         updateExpectedState(fixedResolvedName);
 }
 
-
-/*!
-    Tries to save the files listed in \a documents. The \a cancelled argument is set to true
-    if the user cancelled the dialog. Returns the files that could not be saved. If the files
-    listed in documents have no write permissions, an additional dialog will be
-    displayed to
-    query the user for these permissions.
-*/
-QList<IDocument *> DocumentManager::saveModifiedDocumentsSilently(const QList<IDocument *> &documents, bool *cancelled)
-{
-    return saveModifiedFilesHelper(documents, cancelled, true, QString());
-}
-
-/*!
-    Asks the user whether to save the files listed in \a documents. Opens a
-    dialog that displays the \a message, and additional text to ask the users
-    if they want to enable automatic saving
-    of modified files (in this context).
-
-    The \a cancelled argument is set to true if the user cancels the dialog.
-    \a alwaysSave is set to match the selection of the user if files should
-    always automatically be saved. If the files listed in documents have no write
-    permissions, an additional dialog will be displayed to query the user for
-    these permissions.
-
-    Returns the files that have not been saved.
-*/
-QList<IDocument *> DocumentManager::saveModifiedDocuments(const QList<IDocument *> &documents,
-                                              bool *cancelled, const QString &message,
-                                              const QString &alwaysSaveMessage,
-                                              bool *alwaysSave)
-{
-    return saveModifiedFilesHelper(documents, cancelled, false, message, alwaysSaveMessage, alwaysSave);
-}
-
-static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &documents,
-                                              bool *cancelled,
-                                              bool silently,
-                                              const QString &message,
-                                              const QString &alwaysSaveMessage,
-                                              bool *alwaysSave)
+static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
+                                    const QString &message, bool *cancelled, bool silently,
+                                    const QString &alwaysSaveMessage, bool *alwaysSave,
+                                    QList<IDocument *> *failedToSave)
 {
     if (cancelled)
         (*cancelled) = false;
@@ -626,9 +589,10 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
                 if (cancelled)
                     (*cancelled) = true;
                 if (alwaysSave)
-                    *alwaysSave = dia.alwaysSaveChecked();
-                notSaved = modifiedDocuments;
-                return notSaved;
+                    (*alwaysSave) = dia.alwaysSaveChecked();
+                if (failedToSave)
+                    (*failedToSave) = modifiedDocuments;
+                return false;
             }
             if (alwaysSave)
                 *alwaysSave = dia.alwaysSaveChecked();
@@ -648,8 +612,9 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
             if (roDialog.exec() == Core::Internal::ReadOnlyFilesDialog::RO_Cancel) {
                 if (cancelled)
                     (*cancelled) = true;
-                notSaved = modifiedDocuments;
-                return notSaved;
+                if (failedToSave)
+                    (*failedToSave) = modifiedDocuments;
+                return false;
             }
         }
         foreach (IDocument *document, documentsToSave) {
@@ -660,7 +625,9 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
             }
         }
     }
-    return notSaved;
+    if (failedToSave)
+        (*failedToSave) = notSaved;
+    return notSaved.isEmpty();
 }
 
 bool DocumentManager::saveDocument(IDocument *document, const QString &fileName, bool *isReadOnly)
@@ -778,6 +745,118 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document, const QStr
         filterString,
         selectedFilter);
     return absoluteFilePath;
+}
+
+/*!
+    Silently saves all documents and will return true if all modified documents were saved
+    successfully.
+
+    This method will try to avoid showing dialogs to the user, but can do so anyway (e.g. if
+    a file is not writeable).
+
+    \a Canceled will be set if the user canceled any of the dialogs that he interacted with.
+    \a FailedToClose will contain a list of documents that could not be saved if passed into the
+    method.
+*/
+bool DocumentManager::saveAllModifiedDocumentsSilently(bool *canceled,
+                                                       QList<IDocument *> *failedToClose)
+{
+    return saveModifiedDocumentsSilently(modifiedDocuments(), canceled, failedToClose);
+}
+
+/*!
+    Silently saves \a documents and will return true if all of them were saved successfully.
+
+    This method will try to avoid showing dialogs to the user, but can do so anyway (e.g. if
+    a file is not writeable).
+
+    \a Canceled will be set if the user canceled any of the dialogs that he interacted with.
+    \a FailedToClose will contain a list of documents that could not be saved if passed into the
+    method.
+*/
+bool DocumentManager::saveModifiedDocumentsSilently(const QList<IDocument *> &documents, bool *canceled,
+                                                    QList<IDocument *> *failedToClose)
+{
+    return saveModifiedFilesHelper(documents, QString(), canceled, true, QString(), 0, failedToClose);
+}
+
+/*!
+    Silently saves a \a document and will return true if it was saved successfully.
+
+    This method will try to avoid showing dialogs to the user, but can do so anyway (e.g. if
+    a file is not writeable).
+
+    \a Canceled will be set if the user canceled any of the dialogs that he interacted with.
+    \a FailedToClose will contain a list of documents that could not be saved if passed into the
+    method.
+*/
+bool DocumentManager::saveModifiedDocumentSilently(IDocument *document, bool *canceled,
+                                                   QList<IDocument *> *failedToClose)
+{
+    return saveModifiedDocumentsSilently(QList<IDocument *>() << document, canceled, failedToClose);
+}
+
+/*!
+    Presents a dialog with all modified documents to the user and will ask him which of these
+    should be saved.
+
+    This method may show additional dialogs to the user, e.g. if a file is not writeable).
+
+    The dialog text can be set using \a message. \a Canceled will be set if the user canceled any
+    of the dialogs that he interacted with (the method will also return false in this case).
+    The \a alwaysSaveMessage will show an additional checkbox asking in the dialog. The state of
+    this checkbox will be written into \a alwaysSave if set.
+    \a FailedToClose will contain a list of documents that could not be saved if passed into the
+    method.
+*/
+bool DocumentManager::saveAllModifiedDocuments(const QString &message, bool *canceled,
+                                               const QString &alwaysSaveMessage, bool *alwaysSave,
+                                               QList<IDocument *> *failedToClose)
+{
+    return saveModifiedDocuments(modifiedDocuments(), message, canceled,
+                                 alwaysSaveMessage, alwaysSave, failedToClose);
+}
+
+/*!
+    Presents a dialog with \a documents to the user and will ask him which of these should be saved.
+
+    This method may show additional dialogs to the user, e.g. if a file is not writeable).
+
+    The dialog text can be set using \a message. \a Canceled will be set if the user canceled any
+    of the dialogs that he interacted with (the method will also return false in this case).
+    The \a alwaysSaveMessage will show an additional checkbox asking in the dialog. The state of
+    this checkbox will be written into \a alwaysSave if set.
+    \a FailedToClose will contain a list of documents that could not be saved if passed into the
+    method.
+*/
+bool DocumentManager::saveModifiedDocuments(const QList<IDocument *> &documents,
+                                            const QString &message, bool *canceled,
+                                            const QString &alwaysSaveMessage, bool *alwaysSave,
+                                            QList<IDocument *> *failedToClose)
+{
+    return saveModifiedFilesHelper(documents, message, canceled, false,
+                                   alwaysSaveMessage, alwaysSave, failedToClose);
+}
+
+/*!
+    Presents a dialog with the one \a document to the user and will ask him whether he wants it
+    saved.
+
+    This method may show additional dialogs to the user, e.g. if the file is not writeable).
+
+    The dialog text can be set using \a message. \a Canceled will be set if the user canceled any
+    of the dialogs that he interacted with (the method will also return false in this case).
+    The \a alwaysSaveMessage will show an additional checkbox asking in the dialog. The state of
+    this checkbox will be written into \a alwaysSave if set.
+    \a FailedToClose will contain a list of documents that could not be saved if passed into the
+    method.
+*/
+bool DocumentManager::saveModifiedDocument(IDocument *document, const QString &message, bool *canceled,
+                                           const QString &alwaysSaveMessage, bool *alwaysSave,
+                                           QList<IDocument *> *failedToClose)
+{
+    return saveModifiedDocuments(QList<IDocument *>() << document, message, canceled,
+                                 alwaysSaveMessage, alwaysSave, failedToClose);
 }
 
 /*!

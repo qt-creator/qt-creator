@@ -99,12 +99,27 @@ public:
     static QString getSaveAsFileName(const IDocument *document, const QString &filter = QString(),
                               QString *selectedFilter = 0);
 
-    static QList<IDocument *> saveModifiedDocumentsSilently(const QList<IDocument *> &documents, bool *cancelled = 0);
-    static QList<IDocument *> saveModifiedDocuments(const QList<IDocument *> &documents,
-                                     bool *cancelled = 0,
-                                     const QString &message = QString(),
+    static bool saveAllModifiedDocumentsSilently(bool *canceled = 0,
+                                                 QList<IDocument *> *failedToClose = 0);
+    static bool saveModifiedDocumentsSilently(const QList<IDocument *> &documents, bool *canceled = 0,
+                                              QList<IDocument *> *failedToClose = 0);
+    static bool saveModifiedDocumentSilently(IDocument *document, bool *canceled = 0,
+                                             QList<IDocument *> *failedToClose = 0);
+
+    static bool saveAllModifiedDocuments(const QString &message = QString(), bool *canceled = 0,
+                                         const QString &alwaysSaveMessage = QString(),
+                                         bool *alwaysSave = 0,
+                                         QList<IDocument *> *failedToClose = 0);
+    static bool saveModifiedDocuments(const QList<IDocument *> &documents,
+                                      const QString &message = QString(), bool *canceled = 0,
+                                      const QString &alwaysSaveMessage = QString(),
+                                      bool *alwaysSave = 0,
+                                      QList<IDocument *> *failedToClose = 0);
+    static bool saveModifiedDocument(IDocument *document,
+                                     const QString &message = QString(), bool *canceled = 0,
                                      const QString &alwaysSaveMessage = QString(),
-                                     bool *alwaysSave = 0);
+                                     bool *alwaysSave = 0,
+                                     QList<IDocument *> *failedToClose = 0);
 
     static QString fileDialogLastVisitedDirectory();
     static void setFileDialogLastVisitedDirectory(const QString &);

@@ -719,14 +719,6 @@ void GitPlugin::submitEditorMerge(const QStringList &unmerged)
     m_gitClient->merge(m_submitRepository, unmerged);
 }
 
-static bool ensureAllDocumentsSaved()
-{
-    bool cancelled;
-    Core::DocumentManager::saveModifiedDocuments(Core::DocumentManager::modifiedDocuments(),
-                                                 &cancelled);
-    return !cancelled;
-}
-
 void GitPlugin::diffCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
@@ -788,7 +780,7 @@ void GitPlugin::reflogRepository()
 
 void GitPlugin::undoFileChanges(bool revertStaging)
 {
-    if (!ensureAllDocumentsSaved())
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
         return;
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
@@ -798,7 +790,7 @@ void GitPlugin::undoFileChanges(bool revertStaging)
 
 void GitPlugin::undoUnstagedFileChanges()
 {
-    if (!ensureAllDocumentsSaved())
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
         return;
     undoFileChanges(false);
 }
@@ -832,7 +824,7 @@ protected:
 
 void GitPlugin::resetRepository()
 {
-    if (!ensureAllDocumentsSaved())
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
         return;
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -847,7 +839,7 @@ void GitPlugin::resetRepository()
 
 void GitPlugin::startRebase()
 {
-    if (!ensureAllDocumentsSaved())
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
         return;
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -889,7 +881,7 @@ void GitPlugin::startChangeRelatedAction()
         return;
     }
 
-    if (!ensureAllDocumentsSaved())
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
         return;
 
     switch (dialog.command()) {
@@ -1150,7 +1142,7 @@ void GitPlugin::fetch()
 
 void GitPlugin::pull()
 {
-    if (!ensureAllDocumentsSaved())
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
         return;
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -1187,7 +1179,7 @@ void GitPlugin::startMergeTool()
 
 void GitPlugin::continueOrAbortCommand()
 {
-    if (!ensureAllDocumentsSaved())
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
         return;
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
@@ -1286,11 +1278,7 @@ void GitPlugin::updateSubmodules()
 static bool ensureFileSaved(const QString &fileName)
 {
     Core::IDocument *document = Core::EditorManager::documentModel()->documentForFilePath(fileName);
-    if (!document || !document->isModified())
-        return true;
-    bool canceled;
-    Core::DocumentManager::saveModifiedDocuments(QList<Core::IDocument *>() << document, &canceled);
-    return !canceled;
+    return Core::DocumentManager::saveModifiedDocument(document);
 }
 
 void GitPlugin::applyCurrentFilePatch()
@@ -1342,7 +1330,7 @@ void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
 
 void GitPlugin::stash()
 {
-    if (!ensureAllDocumentsSaved())
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
         return;
     // Simple stash without prompt, reset repo.
     const VcsBase::VcsBasePluginState state = currentState();

@@ -360,9 +360,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     ICore::saveSettings();
 
     // Save opened files
-    bool cancelled;
-    QList<IDocument*> notSaved = DocumentManager::saveModifiedDocuments(DocumentManager::modifiedDocuments(), &cancelled);
-    if (cancelled || !notSaved.isEmpty()) {
+    if (!DocumentManager::saveAllModifiedDocuments()) {
         event->ignore();
         return;
     }
@@ -925,7 +923,7 @@ bool MainWindow::showOptionsDialog(Id category, Id page, QWidget *parent)
 
 void MainWindow::saveAll()
 {
-    DocumentManager::saveModifiedDocumentsSilently(DocumentManager::modifiedDocuments());
+    DocumentManager::saveAllModifiedDocuments();
 }
 
 void MainWindow::exit()

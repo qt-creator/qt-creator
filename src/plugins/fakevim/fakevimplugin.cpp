@@ -1945,8 +1945,9 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
     } else if (cmd.matches(_("wa"), _("wall"))) {
         // :w[all]
         QList<IDocument *> toSave = DocumentManager::modifiedDocuments();
-        QList<IDocument *> failed = DocumentManager::saveModifiedDocumentsSilently(toSave);
-        if (failed.isEmpty())
+        QList<IDocument *> failed;
+        bool success = DocumentManager::saveModifiedDocuments(toSave, QString(), 0, QString(), 0, &failed);
+        if (!success)
             handler->showMessage(MessageInfo, tr("Saving succeeded"));
         else
             handler->showMessage(MessageError, tr("%n files not saved", 0, failed.size()));

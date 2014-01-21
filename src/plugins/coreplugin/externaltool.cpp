@@ -593,9 +593,7 @@ void ExternalToolRunner::run()
     if (m_tool->modifiesCurrentDocument()) {
         if (IDocument *document = EditorManager::currentDocument()) {
             m_expectedFileName = document->filePath();
-            bool cancelled = false;
-            DocumentManager::saveModifiedDocuments(QList<IDocument *>() << document, &cancelled);
-            if (cancelled) {
+            if (!DocumentManager::saveModifiedDocument(document)) {
                 deleteLater();
                 return;
             }

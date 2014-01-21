@@ -1084,7 +1084,9 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     //ask whether to save modified files
     if (askAboutModifiedEditors) {
         bool cancelled = false;
-        QList<IDocument*> list = DocumentManager::saveModifiedDocuments(acceptedDocuments.toList(), &cancelled);
+        QList<IDocument *> list;
+        DocumentManager::saveModifiedDocuments(acceptedDocuments.toList(), QString(), &cancelled,
+                                               QString(), 0, &list);
         if (cancelled)
             return false;
         if (!list.isEmpty()) {

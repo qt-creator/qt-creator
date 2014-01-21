@@ -1065,11 +1065,11 @@ bool QmakePriFileNode::saveModifiedEditors()
     if (!document || !document->isModified())
         return true;
 
-    bool cancelled;
-    Core::DocumentManager::saveModifiedDocuments(QList<Core::IDocument *>() << document, &cancelled,
-                                                 tr("There are unsaved changes for project file %1.").arg(m_projectFilePath));
-    if (cancelled)
+    if (!Core::DocumentManager::saveDocument(document,
+                                             tr("There are unsaved changes for project file %1.")
+                                             .arg(m_projectFilePath))) {
         return false;
+    }
     // force instant reload of ourselves
     QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath);
     m_project->qmakeProjectManager()->notifyChanged(m_projectFilePath);
