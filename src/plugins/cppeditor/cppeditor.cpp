@@ -1529,13 +1529,14 @@ TextEditor::CompletionAssistProvider *CPPEditor::completionAssistProvider()
     return CppModelManagerInterface::instance()->cppEditorSupport(this)->completionAssistProvider();
 }
 
-void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
+void CPPEditorWidget::applyFontSettings()
 {
-    TextEditor::BaseTextEditorWidget::setFontSettings(fs);
+    TextEditor::BaseTextEditorWidget::applyFontSettings();
     TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
     if (!highlighter)
         return;
 
+    const TextEditor::FontSettings &fs = baseTextDocument()->fontSettings();
     m_occurrencesFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES);
     m_occurrencesUnusedFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_UNUSED);
     m_occurrencesUnusedFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);

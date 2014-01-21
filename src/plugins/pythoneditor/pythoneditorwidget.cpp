@@ -89,14 +89,14 @@ void EditorWidget::unCommentSelection()
   Handles common IDE fonts&colors settings
   (Tools -> Options -> Text editor -> Fonts and colors)
   */
-void EditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
+void EditorWidget::applyFontSettings()
 {
-    TextEditor::BaseTextEditorWidget::setFontSettings(fs);
+    TextEditor::BaseTextEditorWidget::applyFontSettings();
 
     PythonHighlighter *highlighter =
             qobject_cast<PythonHighlighter *>(baseTextDocument()->syntaxHighlighter());
     if (highlighter)
-        highlighter->setFontSettings(fs);
+        highlighter->setFontSettings(baseTextDocument()->fontSettings());
 }
 
 TextEditor::BaseTextEditor *EditorWidget::createEditor()

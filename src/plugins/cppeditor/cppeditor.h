@@ -145,7 +145,6 @@ Q_SIGNALS:
     void outlineModelIndexChanged(const QModelIndex &index);
 
 public Q_SLOTS:
-    virtual void setFontSettings(const TextEditor::FontSettings &);
     void setSortedOutline(bool sort);
     void switchDeclarationDefinition(bool inNextSplit);
     void renameSymbolUnderCursor();
@@ -162,6 +161,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *);
     void keyPressEvent(QKeyEvent *e);
 
+    void applyFontSettings();
     TextEditor::BaseTextEditor *createEditor();
 
     const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,

@@ -497,7 +497,7 @@ void CppCodeStylePreferencesWidget::decorateEditors(const TextEditor::FontSettin
     }
 
     foreach (TextEditor::SnippetEditorWidget *editor, m_previews) {
-        editor->setFontSettings(fontSettings);
+        editor->baseTextDocument()->setFontSettings(fontSettings);
         if (provider)
             provider->decorateEditor(editor);
     }

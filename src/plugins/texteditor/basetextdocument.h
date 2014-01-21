@@ -43,6 +43,7 @@ namespace TextEditor {
 
 class BaseTextDocumentPrivate;
 class ExtraEncodingSettings;
+class FontSettings;
 class ITextMarkable;
 class Indenter;
 class StorageSettings;
@@ -71,6 +72,7 @@ public:
     const StorageSettings &storageSettings() const;
     const TabSettings &tabSettings() const;
     const ExtraEncodingSettings &extraEncodingSettings() const;
+    const FontSettings &fontSettings() const;
 
     void setIndenter(Indenter *indenter);
     Indenter *indenter() const;
@@ -112,10 +114,12 @@ public:
 
 public slots:
     void setTabSettings(const TextEditor::TabSettings &tabSettings);
+    void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
 signals:
     void mimeTypeChanged();
     void tabSettingsChanged();
+    void fontSettingsChanged();
 
 private:
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);

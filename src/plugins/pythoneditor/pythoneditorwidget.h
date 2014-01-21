@@ -47,10 +47,8 @@ public:
 
     virtual void unCommentSelection();
 
-public slots:
-    virtual void setFontSettings(const TextEditor::FontSettings &);
-
 protected:
+    void applyFontSettings();
     TextEditor::BaseTextEditor *createEditor();
 
 private:

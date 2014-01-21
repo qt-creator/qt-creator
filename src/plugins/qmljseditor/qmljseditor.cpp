@@ -997,10 +997,11 @@ void QmlJSTextEditorWidget::setSelectedElements()
     emit selectedElementsChanged(offsets, wordAtCursor);
 }
 
-void QmlJSTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
+void QmlJSTextEditorWidget::applyFontSettings()
 {
-    TextEditor::BaseTextEditorWidget::setFontSettings(fs);
+    TextEditor::BaseTextEditorWidget::applyFontSettings();
 
+    const TextEditor::FontSettings &fs = baseTextDocument()->fontSettings();
     m_occurrencesFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES);
     m_occurrencesUnusedFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_UNUSED);
     m_occurrencesUnusedFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);

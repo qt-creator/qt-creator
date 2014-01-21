@@ -171,7 +171,7 @@ void PlainTextEditorWidget::configure(const MimeType &mimeType)
         }
     }
 
-    setFontSettings(TextEditorSettings::fontSettings());
+    baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
 
     emit configured(editor());
 }

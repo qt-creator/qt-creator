@@ -125,7 +125,7 @@ DiffShowEditor::DiffShowEditor(DiffEditorWidget *editorWidget)
             m_diffShowWidget, SLOT(setFontSettings(TextEditor::FontSettings)));
     m_diffShowWidget->setDisplaySettings(TextEditorSettings::displaySettings());
     m_diffShowWidget->setCodeStyle(TextEditorSettings::codeStyle());
-    m_diffShowWidget->setFontSettings(TextEditorSettings::fontSettings());
+    m_diffShowWidget->baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
 }
 
 DiffShowEditor::~DiffShowEditor()

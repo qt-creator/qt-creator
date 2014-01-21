@@ -185,7 +185,6 @@ public:
 
 public slots:
     void setDisplaySettings(const DisplaySettings &ds);
-    void setFontSettings(const TextEditor::FontSettings &fs);
 
 signals:
     void jumpToOriginalFileRequested(int diffFileIndex,
@@ -194,6 +193,7 @@ signals:
 
 protected:
     virtual int extraAreaWidth(int *markWidthPtr = 0) const { return BaseTextEditorWidget::extraAreaWidth(markWidthPtr); }
+    void applyFontSettings();
     BaseTextEditor *createEditor() { return new DiffViewEditorEditable(this); }
     virtual QString lineNumber(int blockNumber) const;
     virtual int lineNumberDigits() const;
@@ -356,9 +356,10 @@ void DiffViewEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     BaseTextEditorWidget::setDisplaySettings(settings);
 }
 
-void DiffViewEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
+void DiffViewEditorWidget::applyFontSettings()
 {
-    BaseTextEditorWidget::setFontSettings(fs);
+    BaseTextEditorWidget::applyFontSettings();
+    const TextEditor::FontSettings &fs = baseTextDocument()->fontSettings();
     m_fileLineForeground = fs.formatFor(C_DIFF_FILE_LINE).foreground();
     m_chunkLineForeground = fs.formatFor(C_DIFF_CONTEXT_LINE).foreground();
     m_textForeground = fs.toTextCharFormat(C_TEXT).foreground().color();
@@ -1578,8 +1579,8 @@ static QTextCharFormat fullWidthFormatForTextStyle(const TextEditor::FontSetting
 
 void DiffEditorWidget::setFontSettings(const TextEditor::FontSettings &fontSettings)
 {
-    m_leftEditor->setFontSettings(fontSettings);
-    m_rightEditor->setFontSettings(fontSettings);
+    m_leftEditor->baseTextDocument()->setFontSettings(fontSettings);
+    m_rightEditor->baseTextDocument()->setFontSettings(fontSettings);
 
     m_fileLineFormat = fullWidthFormatForTextStyle(fontSettings, C_DIFF_FILE_LINE);
     m_chunkLineFormat = fullWidthFormatForTextStyle(fontSettings, C_DIFF_CONTEXT_LINE);

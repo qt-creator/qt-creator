@@ -33,6 +33,7 @@
 #include "basetexteditor.h"
 #include "convenience.h"
 #include "extraencodingsettings.h"
+#include "fontsettings.h"
 #include "indenter.h"
 #include "storagesettings.h"
 #include "syntaxhighlighter.h"
@@ -77,6 +78,7 @@ public:
     StorageSettings m_storageSettings;
     TabSettings m_tabSettings;
     ExtraEncodingSettings m_extraEncodingSettings;
+    FontSettings m_fontSettings;
     QTextDocument *m_document;
     SyntaxHighlighter *m_highlighter;
     QScopedPointer<Indenter> m_indenter;
@@ -228,6 +230,19 @@ void BaseTextDocument::setTabSettings(const TextEditor::TabSettings &tabSettings
 const TabSettings &BaseTextDocument::tabSettings() const
 {
     return d->m_tabSettings;
+}
+
+void BaseTextDocument::setFontSettings(const FontSettings &fontSettings)
+{
+    if (fontSettings == d->m_fontSettings)
+        return;
+    d->m_fontSettings = fontSettings;
+    emit fontSettingsChanged();
+}
+
+const FontSettings &BaseTextDocument::fontSettings() const
+{
+    return d->m_fontSettings;
 }
 
 void BaseTextDocument::setExtraEncodingSettings(const ExtraEncodingSettings &extraEncodingSettings)

@@ -107,7 +107,7 @@ void QmlJSCodeStylePreferencesWidget::decorateEditor(const TextEditor::FontSetti
         }
     }
 
-    m_ui->previewTextEdit->setFontSettings(fontSettings);
+    m_ui->previewTextEdit->baseTextDocument()->setFontSettings(fontSettings);
     if (provider)
         provider->decorateEditor(m_ui->previewTextEdit);
 }

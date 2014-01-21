@@ -343,6 +343,7 @@ private:
 
 protected:
     virtual BaseTextEditor *createEditor() = 0;
+    virtual void applyFontSettings();
 
 private slots:
     void editorContentsChange(int position, int charsRemoved, int charsAdded);
@@ -412,8 +413,6 @@ public slots:
     virtual void format();
     virtual void rewrapParagraph();
     virtual void unCommentSelection();
-    virtual void setFontSettings(const TextEditor::FontSettings &);
-    void setFontSettingsIfVisible(const TextEditor::FontSettings &);
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     virtual void setMarginSettings(const TextEditor::MarginSettings &);
     virtual void setBehaviorSettings(const TextEditor::BehaviorSettings &);
@@ -547,6 +546,7 @@ private:
 private slots:
     void handleBlockSelection(int diff_row, int diff_col);
     void updateTabStops();
+    void applyFontSettingsDelayed();
 
     // parentheses matcher
     void _q_matchParentheses();

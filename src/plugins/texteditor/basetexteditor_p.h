@@ -138,7 +138,7 @@ public:
     ICodeStylePreferences *m_codeStylePreferences;
     DisplaySettings m_displaySettings;
     MarginSettings m_marginSettings;
-    FontSettings m_fontSettings;
+    bool m_fontSettingsNeedsApply;
     BehaviorSettings m_behaviorSettings;
 
     int extraAreaSelectionAnchorBlockNumber;

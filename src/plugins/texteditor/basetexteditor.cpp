@@ -2347,6 +2347,7 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate()
     m_parenthesesMatchingTimer(0),
     m_extraArea(0),
     m_codeStylePreferences(0),
+    m_fontSettingsNeedsApply(true), // apply when making visible the first time, for the split case
     extraAreaSelectionAnchorBlockNumber(-1),
     extraAreaToggleMarkBlockNumber(-1),
     extraAreaHighlightFoldedBlockNumber(-1),
@@ -2404,6 +2405,7 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals()
     QObject::connect(m_document.data(), SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
     QObject::connect(m_document.data(), SIGNAL(reloadFinished(bool)), q, SLOT(documentReloadFinished(bool)));
     QObject::connect(m_document.data(), SIGNAL(tabSettingsChanged()), q, SLOT(updateTabStops()));
+    QObject::connect(m_document.data(), SIGNAL(fontSettingsChanged()), q, SLOT(applyFontSettingsDelayed()));
     q->slotUpdateExtraAreaWidth();
 }
 
@@ -5363,25 +5365,25 @@ void BaseTextEditorWidget::unCommentSelection()
 
 void BaseTextEditorWidget::showEvent(QShowEvent* e)
 {
-    if (!d->m_fontSettings.isEmpty()) {
-        setFontSettings(d->m_fontSettings);
-        d->m_fontSettings.clear();
+    if (d->m_fontSettingsNeedsApply) {
+        applyFontSettings();
+        d->m_fontSettingsNeedsApply = false;
     }
     QPlainTextEdit::showEvent(e);
 }
 
 
-void BaseTextEditorWidget::setFontSettingsIfVisible(const TextEditor::FontSettings &fs)
+void BaseTextEditorWidget::applyFontSettingsDelayed()
 {
-    if (!isVisible()) {
-        d->m_fontSettings = fs;
-        return;
-    }
-    setFontSettings(fs);
+    if (isVisible())
+        applyFontSettings();
+    else
+        d->m_fontSettingsNeedsApply = true;
 }
 
-void BaseTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
+void BaseTextEditorWidget::applyFontSettings()
 {
+    const FontSettings &fs = baseTextDocument()->fontSettings();
     const QTextCharFormat textFormat = fs.toTextCharFormat(C_TEXT);
     const QTextCharFormat selectionFormat = fs.toTextCharFormat(C_SELECTION);
     const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(C_LINE_NUMBER);

@@ -135,7 +135,6 @@ public slots:
     void findUsages();
     void renameUsages();
     void showContextPane();
-    virtual void setFontSettings(const TextEditor::FontSettings &);
 
 signals:
     void outlineModelIndexChanged(const QModelIndex &index);
@@ -168,6 +167,7 @@ protected:
     void wheelEvent(QWheelEvent *event);
     void resizeEvent(QResizeEvent *event);
     void scrollContentsBy(int dx, int dy);
+    void applyFontSettings();
     TextEditor::BaseTextEditor *createEditor();
     void createToolBar(QmlJSEditor *editable);
     TextEditor::BaseTextEditorWidget::Link findLinkAt(const QTextCursor &cursor,
