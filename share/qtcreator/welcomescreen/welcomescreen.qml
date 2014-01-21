@@ -36,6 +36,9 @@ ScrollView {
 
     property var fonts: CustomFonts {}
     property var colors: CustomColors { }
+
+    flickableItem.pixelAligned: true
+
     Rectangle {
         width: Math.max(920, scrollView.flickableItem.width - 30)
         height: Math.max(loader.height, scrollView.flickableItem.height);
