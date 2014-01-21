@@ -112,7 +112,8 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
         QDialogButtonBox::StandardButton button = Utils::CheckableMessageBox::question(Core::ICore::mainWindow(),
                                              tr("Setup Application Descriptor File"),
                                              tr("You need to set up a bar descriptor file to enable "
-                                                "packaging.\nDo you want Qt Creator to generate it for your project?"),
+                                                "packaging.\nDo you want Qt Creator to generate it for your project (%1)?")
+                                                                                       .arg(target()->project()->projectFilePath()),
                                              tr("Don't ask again for this project"), &m_appBarDesciptorSetup);
 
         if (button == QDialogButtonBox::No)
