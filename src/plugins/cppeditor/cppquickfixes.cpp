@@ -4832,6 +4832,7 @@ public:
                             funcItem->setEnabled(false);
                             funcItem->setCheckState(Qt::Checked);
                             funcItem->setData(formatReimpFunc.foreground(), Qt::ForegroundRole);
+                            factory->setHasReimplementedFunctions(true);
                             if (formatReimpFunc.background().isValid())
                                 funcItem->setData(formatReimpFunc.background(), Qt::BackgroundRole);
                         }
