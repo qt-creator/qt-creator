@@ -15,3 +15,5 @@ INCLUDEPATH += \
 
 FORMS += \
     screenshotcropperwindow.ui
+
+isEqual(QT_MAJOR_VERSION, 5):QT += widgets
