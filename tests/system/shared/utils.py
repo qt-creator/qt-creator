@@ -169,43 +169,6 @@ def which(program):
                 return cf
         return None
 
-signalObjects = {}
-
-# do not call this function directly - it's only a helper
-def __callbackFunction__(object, *args):
-    global signalObjects
-#    test.log("__callbackFunction__: "+objectMap.realName(object))
-    signalObjects[objectMap.realName(object)] += 1
-
-def waitForSignal(object, signal, timeout=30000):
-    global signalObjects
-    realName = prepareForSignal(object, signal)
-    beforeCount = signalObjects[realName]
-    waitFor("signalObjects[realName] > beforeCount", timeout)
-
-handledSignal = {}
-
-def prepareForSignal(object, signal):
-    global signalObjects
-    global handledSignal
-    overrideInstallLazySignalHandler()
-    realName = objectMap.realName(object)
-#    test.log("waitForSignal: "+realName)
-    if realName in handledSignal.keys():
-        if handledSignal[realName] != signal:
-            # The current implementation does not support this.
-            # When an object has two different handled signals, waitForSignal() will only wait
-            # for the first of them to be emitted.
-            test.warning("You are trying to handle two different signals from the same object.",
-                         "Adding %s to object %s, which already has handled signal %s. "
-                         "This can lead to unexpected results." % (signal, realName, handledSignal[realName]))
-    else:
-        handledSignal[realName] = signal
-    if not (realName in signalObjects):
-        signalObjects[realName] = 0
-    installLazySignalHandler(object, signal, "__callbackFunction__")
-    return realName
-
 # this function removes the user files of given pro file(s)
 # can be called with a single string object or a list of strings holding path(s) to
 # the pro file(s) returns False if it could not remove all user files or has been

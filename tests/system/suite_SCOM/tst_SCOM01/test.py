@@ -46,7 +46,7 @@ def main():
         # try to compile
         test.log("Testing build configuration: " + config)
         clickButton(waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton"))
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        waitForCompile()
         # check output if build successful
         ensureChecked(waitForObject(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton"))
         waitFor("object.exists(':*Qt Creator.Cancel Build_QToolButton')", 20000)

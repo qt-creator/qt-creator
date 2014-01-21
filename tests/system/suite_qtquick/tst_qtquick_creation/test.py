@@ -42,7 +42,7 @@ def main():
                  % (qVer, Targets.getStringForTarget(targ)))
         result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
         invokeMenuItem("Build", "Build All")
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        waitForCompile()
         if not checkCompile():
             test.fatal("Compile failed")
         else:

@@ -70,8 +70,7 @@ def main():
                 verifyBuildConfig(len(checkedTargets), kit, True, enableQmlDebug=True)
                 # explicitly build before start debugging for adding the executable as allowed program to WinFW
                 invokeMenuItem("Build", "Rebuild All")
-                waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}",
-                              "buildQueueFinished(bool)", 300000)
+                waitForCompile(300000)
                 if not checkCompile():
                     test.fatal("Compile had errors... Skipping current build config")
                     continue

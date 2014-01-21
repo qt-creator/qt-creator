@@ -54,7 +54,7 @@ def main():
     # build project 2
     clickButton(waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton"))
     # wait for build to complete
-    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+    waitForCompile()
     # check output if build successful
     ensureChecked(waitForObject(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton"))
     outputLog = str(waitForObject(":Qt Creator.Compile Output_Core::OutputWindow").plainText)

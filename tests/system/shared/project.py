@@ -401,7 +401,7 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
     runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
     if sType != SubprocessType.QT_QUICK_UI:
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+        waitForCompile(300000)
         buildSucceeded = checkLastBuild()
         ensureChecked(waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton"))
         if not buildSucceeded:

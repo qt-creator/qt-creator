@@ -60,10 +60,6 @@ def testRenameId():
     files = ["Core.ContextMenu\\.qml", "Core.GridMenu\\.qml", "Core.ListMenu\\.qml", "focus\\.qml"]
     originalTexts = {}
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
-    # temporarily store editor content for synchronizing purpose
-    # usage of formerTxt is done because I couldn't get waitForSignal() to work
-    # it always stored a different object into the signalObjects map as it looked up afterwards
-    # although used objectMap.realName() for both
     formerTxt = editor.plainText
     for file in files:
         openDocument("focus.QML.qml.%s" % file)
