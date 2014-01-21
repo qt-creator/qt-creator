@@ -131,6 +131,8 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
                                  "For two calls, median and longest time must be the same.")
         deleteAppFromWinFW(workingDir, projectName, False)
         progressBarWait(15000, False)   # wait for "Build" progressbar to disappear
+        clickButton(waitForObject(":Analyzer Toolbar.Clear_QToolButton"))
+        test.verify(waitFor("model.rowCount() == 0", 3000), "Analyzer results cleared.")
 
 def compareEventsTab(model, file):
     significantColumns = [0, 1, 4, 9]
