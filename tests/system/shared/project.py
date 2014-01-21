@@ -512,7 +512,7 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
             resetApplicationContextToCreator()
             __closeSubprocessByPushingStop__(sType)
     resetApplicationContextToCreator()
-    if not waitForProcessRunning(False) and waitFor("'exited with code' in str(output.plainText)", 10000):
+    if not (waitForProcessRunning(False) and waitFor("'exited with code' in str(output.plainText)", 10000)):
         test.warning("Sub-process seems not to have closed properly.")
         try:
             __closeSubprocessByPushingStop__(sType)
