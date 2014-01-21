@@ -1156,7 +1156,7 @@ def qdump__QObject(d, value):
     #    warn("SUPERDATA: %s" % superData)
 
     if privateType is None:
-        #d.putValue(cleanAddress(value.address))
+        #d.putValue(d.cleanAddress(d.pointerValue(value))
         d.putPlainChildren(value)
         return
 
@@ -1242,7 +1242,7 @@ def qdump__QObject(d, value):
                             exp = '"((%sQObject*)%s)"' % (ns, value.address)
                             warn("EXPRESSION:  %s" % exp)
                             warn("METAOBJECT:  %s" % mo)
-                            addr = cleanAddress(metaStringData + metaData[offset])
+                            addr = d.cleanAddress(metaStringData + metaData[offset])
                             warn("ADDRESS:  %s" % addr)
                             prop = d.call(value, "property", str(addr))
                             warn("PROP:  %s" % prop)
@@ -1332,9 +1332,9 @@ def qdump__QObject(d, value):
                             d.putField("keyencoded", Hex2EncodedLatin1)
                             qq = q.cast(valuesType.pointer().pointer())
                             qq = qq.dereference();
-                            d.putField("addr", cleanAddress(qq))
+                            d.putField("addr", d.cleanAddress(qq))
                             d.putField("exp", "*(%s*)%s"
-                                 % (variant, cleanAddress(qq)))
+                                 % (variant, d.cleanAddress(qq)))
                             t = qdump__QVariant(d, qq)
                             # Override the "QVariant (foo)" output.
                             d.putBetterType(t)
@@ -1376,7 +1376,7 @@ def qdump__QObject(d, value):
 
 
         # Signals.
-        signalCount = metaData[13]
+        signalCount = int(metaData[13])
         with SubItem(d, "signals"):
             d.putItemCount(signalCount)
             d.putNoType()
@@ -1418,7 +1418,7 @@ def qdump__QObject(d, value):
         with SubItem(d, "currentSender"):
             d.putNoType()
             sender = d_ptr["currentSender"]
-            d.putValue(cleanAddress(sender))
+            d.putPointerValue(sender)
             if d.isNull(sender):
                 d.putNumChild(0)
             else:

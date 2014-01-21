@@ -577,6 +577,13 @@ class Dumper(DumperBase):
         #if numchild != self.currentChildNumChild:
         self.put('numchild="%s",' % numchild)
 
+    def putPointerValue(self, value):
+        # Use a lower priority
+        if value is None:
+            self.putEmptyValue(-1)
+        else:
+            self.putValue("0x%x" % value.Dereference())
+
     def putSimpleValue(self, value, encoding = None, priority = 0):
         self.putValue(value.GetValue(), encoding, priority)
 

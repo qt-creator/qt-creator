@@ -636,6 +636,20 @@ class DumperBase:
                         addrBase=p, addrStep=ts):
                     self.putFields(value)
 
+    def cleanAddress(self, addr):
+        if addr is None:
+            return "<no address>"
+        # We cannot use str(addr) as it yields rubbish for char pointers
+        # that might trigger Unicode encoding errors.
+        #return addr.cast(lookupType("void").pointer())
+        # We do not use "hex(...)" as it (sometimes?) adds a "L" suffix.
+        try:
+            return "0x%x" % toInteger(addr)
+        except:
+            warn("CANNOT CONVERT TYPE: %s" % type(addr))
+            return str(addr)
+
+
     def putFormattedPointer(self, value):
         #warn("POINTER: %s" % value)
         if self.isNull(value):
@@ -654,7 +668,7 @@ class DumperBase:
         except:
             # Failure to dereference a pointer should at least
             # show the value of a pointer.
-            self.putValue(cleanAddress(value))
+            self.putValue(self.cleanAddress(value))
             self.putType(typeName)
             self.putNumChild(0)
             return True
@@ -929,16 +943,6 @@ class DumperBase:
             f.write(" %s\n" % base.dereference())
             base += 1
         f.write("e\n")
-
-def cleanAddress(addr):
-    if addr is None:
-        return "<no address>"
-    # We cannot use str(addr) as it yields rubbish for char pointers
-    # that might trigger Unicode encoding errors.
-    #return addr.cast(lookupType("void").pointer())
-    # We do not use "hex(...)" as it (sometimes?) adds a "L" suffix.
-    return "0x%x" % toInteger(addr)
-
 
 
 # Some "Enums"
