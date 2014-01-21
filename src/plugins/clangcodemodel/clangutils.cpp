@@ -35,6 +35,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <QDir>
 #include <QFile>
 #include <QSet>
 #include <QString>
@@ -43,6 +44,8 @@ using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 using namespace Core;
 using namespace CppTools;
+
+static const bool BeVerbose = !qgetenv("QTC_CLANG_VERBOSE").isEmpty();
 
 namespace ClangCodeModel {
 namespace Utils {
@@ -110,6 +113,7 @@ static QStringList buildDefines(const QByteArray &defines, bool toolchainDefines
         if (def.isEmpty())
             continue;
 
+        // TODO: verify if we can pass compiler-defined macros when also passing -undef.
         if (toolchainDefines) {
             //### FIXME: the next 3 check shouldn't be needed: we probably don't want to get the compiler-defined defines in.
             if (!def.startsWith("#define "))
@@ -135,6 +139,15 @@ static QStringList buildDefines(const QByteArray &defines, bool toolchainDefines
     }
 
     return result;
+}
+
+static QString getResourceDir()
+{
+    QDir dir(Core::ICore::instance()->resourcePath() + QLatin1String("/cplusplus/clang/") +
+             QLatin1String(CLANG_VERSION) + QLatin1String("/include"));
+    if (!dir.exists() || !QFileInfo(dir, QLatin1String("stdint.h")).exists())
+        dir = QDir(QLatin1String(CLANG_RESOURCE_DIR));
+    return dir.canonicalPath();
 }
 
 /**
@@ -169,9 +182,23 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
     if (pPart.isNull())
         return result;
 
-    result << QLatin1String("-nostdinc");
+    static const QString resourceDir = getResourceDir();
 
-    result << buildDefines(pPart->toolchainDefines, true);
+    if (BeVerbose)
+        result << QLatin1String("-v");
+
+    if (!resourceDir.isEmpty()) {
+        result << QLatin1String("-nostdlibinc");
+        result << (QLatin1String("-I") + resourceDir);
+        result << QLatin1String("-undef");
+    }
+
+    result << QLatin1String("-fmessage-length=0");
+    result << QLatin1String("-fdiagnostics-show-note-include-stack");
+    result << QLatin1String("-fmacro-backtrace-limit=0");
+    result << QLatin1String("-fretain-comments-from-system-headers");
+
+    result << buildDefines(pPart->toolchainDefines, false);
     result << buildDefines(pPart->projectDefines, false);
 
     foreach (const QString &frameworkPath, pPart->frameworkPaths)

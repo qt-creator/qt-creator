@@ -1,4 +1,5 @@
 isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
+LLVM_INSTALL_DIR ~= s,\\\\,/,g
 
 DEFINES += CLANG_COMPLETION
 DEFINES += CLANG_HIGHLIGHTING
@@ -50,15 +51,21 @@ win32 {
             error("Cannot find Clang shared library!")
         }
     }
+    LLVM_LIBDIR = $$LLVM_INSTALL_DIR/lib
     LLVM_LIBS = \
         -L$$LLVM_INSTALL_DIR/bin \
-        -L$$LLVM_INSTALL_DIR/lib \
+        -L$$LLVM_LIBDIR \
         -l$${CLANG_LIB}
     LLVM_LIBS += -ladvapi32 -lshell32
+    LLVM_VERSION = 3.4
 }
 
 unix {
     LLVM_CONFIG = $$findLLVMConfig()
+
+    LLVM_VERSION = $$system($$LLVM_CONFIG --version)
+    LLVM_VERSION = $$replace(LLVM_VERSION, ^(\\d+\\.\\d+).*$, \\1)
+    message("... version $$LLVM_VERSION");
 
     LLVM_INCLUDEPATH = $$system($$LLVM_CONFIG --includedir)
     isEmpty(LLVM_INCLUDEPATH):LLVM_INCLUDEPATH=$$LLVM_INSTALL_DIR/include
@@ -87,3 +94,6 @@ unix {
     LLVM_LIBS = -L$${LLVM_LIBDIR}
     LLVM_LIBS += -l$${CLANG_LIB}
 }
+
+DEFINES += CLANG_VERSION=\\\"$${LLVM_VERSION}\\\"
+DEFINES += "\"CLANG_RESOURCE_DIR=\\\"$${LLVM_LIBDIR}/clang/$${LLVM_VERSION}/include\\\"\""
