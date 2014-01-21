@@ -35,6 +35,22 @@
 #include <QFileInfo>
 
 /*!
+    \class Core::IDocument
+    \brief The IDocument class describes a document that can be saved and reloaded.
+
+    The most common use for implementing an IDocument subclass, is as a document for an IEditor
+    implementation. Multiple editors can work in the same document instance, so the IDocument
+    subclass should hold all data and functions that are independent from the specific
+    IEditor instance, for example the content, highlighting information, the name of the
+    corresponding file, and functions for saving and reloading the file.
+
+    Each IDocument subclass works only with the corresponding IEditor subclasses that it
+    was designed to work with.
+
+    \mainclass
+*/
+
+/*!
     \fn QString Core::IDocument::filePath() const
     Returns the absolute path of the file that this document refers to. May be empty for
     non-file documents.

@@ -54,6 +54,14 @@
 
 using namespace Core;
 
+/*!
+    \class TextEditor::BaseTextDocument
+    \brief The BaseTextDocument class is the base class for QTextDocument based documents.
+
+    Subclasses of BaseTextEditor can either use BaseTextDocument as is (and this is the default),
+    or created subclasses of BaseTextDocument if they have special requirements.
+*/
+
 namespace TextEditor {
 class BaseTextDocumentPrivate
 {

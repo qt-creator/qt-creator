@@ -104,6 +104,14 @@
     \internal
 */
 
+/*!
+    \class TextEditor::BaseTextEditor
+    \brief The BaseTextEditor class is a base class for QPlainTextEdit-based text editors.
+
+    The corresponding document base class is BaseTextDocument, the corresponding widget base class
+    is BaseTextEditorWidget.
+*/
+
 using namespace Core;
 using namespace Utils;
 

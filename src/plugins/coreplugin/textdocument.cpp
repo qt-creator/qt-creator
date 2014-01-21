@@ -34,12 +34,11 @@
 #include <QTextCodec>
 
 /*!
-    \class Core::TextFile
-    \brief The TextFile class is a base class for text files with encoding
-    helpers.
+    \class Core::TextDocument
+    \brief The TextDocument class is a very general base class for documents that work with text.
 
-    This class stores the format obtained from read operations and uses that when writing
-    out files, thus ensuring that CRLF/encodings are preserved.
+    This class contains helper methods for saving and reading text files with encoding and
+    line ending settings.
 
     \sa Utils::TextFileUtils
 */

@@ -48,6 +48,16 @@
 using namespace Core;
 using namespace TextEditor::Internal;
 
+/*!
+    \class TextEditor::PlainTextEditor
+    \brief The PlainTextEditor class is a text editor implementation that adds highlighting
+    by using the Kate text highlighting definitions, and some basic auto indentation.
+
+    It is the default editor for text files used by \QC, if no other editor implementation
+    matches the MIME type. The corresponding document is implemented in PlainTextDocument,
+    the corresponding widget is implemented in PlainTextEditorWidget.
+*/
+
 namespace TextEditor {
 
 PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)

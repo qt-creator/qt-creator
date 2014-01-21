@@ -33,6 +33,23 @@
 
 using namespace TextEditor;
 
+/*!
+    \class TextEditor::ITextEditorDocument
+    \brief The ITextEditorDocument class is an abstract base for documents of text editors.
+
+    It is the base class for documents used by implementations of the ITextEditor class,
+    and contains basic functions for retrieving text content and markers (like bookmarks).
+*/
+
+/*!
+    \class TextEditor::ITextEditor
+    \brief The ITextEditor class is an abstract base class for text editors.
+
+    It contains the basic functions for retrieving and setting cursor position and selections,
+    and operations on them, like removing or inserting. It uses implementations of
+    ITextEditorDocument as the underlying document.
+*/
+
 ITextEditorDocument::ITextEditorDocument(QObject *parent)
     : Core::TextDocument(parent)
 {
