@@ -238,11 +238,7 @@ private:
     QTimer *m_updateOutlineIndexTimer;
     QTimer *m_updateUsesTimer;
     QTimer *m_updateFunctionDeclDefLinkTimer;
-    QTextCharFormat m_occurrencesFormat;
-    QTextCharFormat m_occurrencesUnusedFormat;
-    QTextCharFormat m_occurrenceRenameFormat;
     QHash<int, QTextCharFormat> m_semanticHighlightFormatMap;
-    QTextCharFormat m_keywordFormat;
 
     QList<QTextEdit::ExtraSelection> m_renameSelections;
     int m_currentRenameSelection;

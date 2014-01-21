@@ -168,7 +168,17 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
         tf.setFontStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
     }
 
-    if (f.foreground().isValid())
+    if (category == C_OCCURRENCES_UNUSED) {
+        tf.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        tf.setUnderlineColor(f.foreground());
+        tf.setToolTip(QCoreApplication::translate("FontSettings_C_OCCURRENCES_UNUSED",
+                                                  "Unused variable"));
+    }
+    if (f.foreground().isValid()
+            && category != C_OCCURRENCES
+            && category != C_OCCURRENCES_RENAME
+            && category != C_OCCURRENCES_UNUSED
+            && category != C_SEARCH_RESULT)
         tf.setForeground(f.foreground());
     if (f.background().isValid() && (category == C_TEXT || f.background() != m_scheme.formatFor(C_TEXT).background()))
         tf.setBackground(f.background());

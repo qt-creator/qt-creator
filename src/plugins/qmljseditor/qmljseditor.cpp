@@ -860,7 +860,7 @@ void QmlJSTextEditorWidget::updateUsesNow()
             continue;
 
         QTextEdit::ExtraSelection sel;
-        sel.format = m_occurrencesFormat;
+        sel.format = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
         sel.cursor = textCursor();
         sel.cursor.setPosition(loc.begin());
         sel.cursor.setPosition(loc.end(), QTextCursor::KeepAnchor);
@@ -1000,21 +1000,7 @@ void QmlJSTextEditorWidget::setSelectedElements()
 void QmlJSTextEditorWidget::applyFontSettings()
 {
     TextEditor::BaseTextEditorWidget::applyFontSettings();
-
-    const TextEditor::FontSettings &fs = baseTextDocument()->fontSettings();
-    m_occurrencesFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES);
-    m_occurrencesUnusedFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_UNUSED);
-    m_occurrencesUnusedFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-    m_occurrencesUnusedFormat.setUnderlineColor(m_occurrencesUnusedFormat.foreground().color());
-    m_occurrencesUnusedFormat.clearForeground();
-    m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
-    m_occurrenceRenameFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_RENAME);
-
-    // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
-    m_occurrencesFormat.clearForeground();
-    m_occurrenceRenameFormat.clearForeground();
-
-    m_semanticHighlighter->updateFontSettings(fs);
+    m_semanticHighlighter->updateFontSettings(baseTextDocument()->fontSettings());
 }
 
 

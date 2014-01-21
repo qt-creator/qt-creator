@@ -773,7 +773,8 @@ void CPPEditorWidget::abortRename()
 {
     if (m_currentRenameSelection <= NoCurrentRenameSelection)
         return;
-    m_renameSelections[m_currentRenameSelection].format = m_occurrencesFormat;
+    m_renameSelections[m_currentRenameSelection].format
+            = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
     m_currentRenameSelection = NoCurrentRenameSelection;
     m_currentRenameSelectionBegin = QTextCursor();
     m_currentRenameSelectionEnd = QTextCursor();
@@ -882,7 +883,7 @@ void CPPEditorWidget::markSymbolsNow()
         cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
 
         QTextEdit::ExtraSelection sel;
-        sel.format = m_occurrencesFormat;
+        sel.format = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
         sel.cursor = cursor;
         selections.append(sel);
 
@@ -911,7 +912,8 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
 
     if (!info.doc)
         return;
-
+    const QTextCharFormat &occurrencesFormat
+            = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
     if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
         QList<QTextEdit::ExtraSelection> selections;
 
@@ -923,7 +925,7 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
                                 macro->name().length());
 
             QTextEdit::ExtraSelection sel;
-            sel.format = m_occurrencesFormat;
+            sel.format = occurrencesFormat;
             sel.cursor = cursor;
             selections.append(sel);
         }
@@ -941,7 +943,7 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
             cursor.setPosition(use.end(), QTextCursor::KeepAnchor);
 
             QTextEdit::ExtraSelection sel;
-            sel.format = m_occurrencesFormat;
+            sel.format = occurrencesFormat;
             sel.cursor = cursor;
             selections.append(sel);
         }
@@ -987,7 +989,8 @@ void CPPEditorWidget::renameSymbolUnderCursor()
                                                         m_renameSelections[i].cursor.selectionStart());
             m_currentRenameSelectionEnd = QTextCursor(c.document()->docHandle(),
                                                       m_renameSelections[i].cursor.selectionEnd());
-            m_renameSelections[i].format = m_occurrenceRenameFormat;
+            m_renameSelections[i].format
+                    = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES_RENAME);;
             setExtraSelections(CodeSemanticsSelection, m_renameSelections);
             break;
         }
@@ -1112,9 +1115,9 @@ void CPPEditorWidget::highlightUses(const QList<SemanticInfo::Use> &uses,
 
         QTextEdit::ExtraSelection sel;
         if (isUnused)
-            sel.format = m_occurrencesUnusedFormat;
+            sel.format = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES_UNUSED);
         else
-            sel.format = m_occurrencesFormat;
+            sel.format = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
 
         const int anchor = document()->findBlockByNumber(use.line - 1).position() + use.column - 1;
         const int position = anchor + use.length;
@@ -1537,13 +1540,6 @@ void CPPEditorWidget::applyFontSettings()
         return;
 
     const TextEditor::FontSettings &fs = baseTextDocument()->fontSettings();
-    m_occurrencesFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES);
-    m_occurrencesUnusedFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_UNUSED);
-    m_occurrencesUnusedFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-    m_occurrencesUnusedFormat.setUnderlineColor(m_occurrencesUnusedFormat.foreground().color());
-    m_occurrencesUnusedFormat.clearForeground();
-    m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
-    m_occurrenceRenameFormat = fs.toTextCharFormat(TextEditor::C_OCCURRENCES_RENAME);
 
     m_semanticHighlightFormatMap[CppHighlightingSupport::TypeUse] =
             fs.toTextCharFormat(TextEditor::C_TYPE);
@@ -1565,12 +1561,6 @@ void CPPEditorWidget::applyFontSettings()
             fs.toTextCharFormat(TextEditor::C_KEYWORD);
     m_semanticHighlightFormatMap[CppHighlightingSupport::StringUse] =
             fs.toTextCharFormat(TextEditor::C_STRING);
-    m_keywordFormat = fs.toTextCharFormat(TextEditor::C_KEYWORD);
-
-    // only set the background, we do not want to modify foreground properties
-    // set by the syntax highlighter or the link
-    m_occurrencesFormat.clearForeground();
-    m_occurrenceRenameFormat.clearForeground();
 
     // Clear all additional formats since they may have changed
     QTextBlock b = document()->firstBlock();

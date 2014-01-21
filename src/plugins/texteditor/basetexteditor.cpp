@@ -263,8 +263,6 @@ void BaseTextEditorWidget::ctor(const QSharedPointer<BaseTextDocument> &doc)
 
     // parentheses matcher
     d->m_formatRange = true;
-    d->m_matchFormat.setForeground(Qt::red);
-    d->m_matchFormat.setBackground(QColor(0xb4, 0xee, 0xb4));
     d->m_mismatchFormat.setBackground(palette().color(QPalette::Base).value() < 128
                                       ? Qt::darkMagenta : Qt::magenta);
     d->m_parenthesesMatchingTimer.setSingleShot(true);
@@ -274,8 +272,6 @@ void BaseTextEditorWidget::ctor(const QSharedPointer<BaseTextDocument> &doc)
     connect(&d->m_highlightBlocksTimer, SIGNAL(timeout()), this, SLOT(_q_highlightBlocks()));
 
     d->m_animator = 0;
-
-    d->m_searchResultFormat.setBackground(QColor(0xffef0b));
 
     slotUpdateExtraAreaWidth();
     updateHighlights();
@@ -1924,7 +1920,9 @@ void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, cons
         tc.setPosition(position + length, QTextCursor::KeepAnchor);
         QTextEdit::ExtraSelection selection;
         selection.cursor = tc;
-        selection.format = (length ? d->m_occurrencesFormat : d->m_occurrenceRenameFormat);
+        selection.format = (length
+                            ? baseTextDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES)
+                            : baseTextDocument()->fontSettings().toTextCharFormat(C_OCCURRENCES_RENAME));
         selections.append(selection);
         manglers << data.ranges.at(i).mangler;
     }
@@ -2617,9 +2615,11 @@ void BaseTextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block
         if (!q->inFindScope(blockPosition + idx, blockPosition + idx + l))
             continue;
 
+        const QTextCharFormat &searchResultFormat
+                = m_document->fontSettings().toTextCharFormat(C_SEARCH_RESULT);
         overlay->addOverlaySelection(blockPosition + idx,
                                      blockPosition + idx + l,
-                                     m_searchResultFormat.background().color().darker(120),
+                                     searchResultFormat.background().color().darker(120),
                                      QColor(),
                                      (idx == cursor.selectionStart() - blockPosition
                                       && idx + l == cursor.selectionEnd() - blockPosition)?
@@ -2793,12 +2793,15 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
     QTextDocument *doc = document();
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
+    const FontSettings &fs = baseTextDocument()->fontSettings();
+    const QTextCharFormat &searchScopeFormat = fs.toTextCharFormat(C_SEARCH_SCOPE);
+    const QTextCharFormat &ifdefedOutFormat = fs.toTextCharFormat(C_DISABLED_CODE);
 
     QPointF offset(contentOffset());
     QTextBlock textCursorBlock = textCursor().block();
 
     bool hasMainSelection = textCursor().hasSelection();
-    bool suppressSyntaxInIfdefedOutBlock = (d->m_ifdefedOutFormat.foreground()
+    bool suppressSyntaxInIfdefedOutBlock = (ifdefedOutFormat.foreground()
                                            != palette().foreground());
 
     QRect er = e->rect();
@@ -2812,7 +2815,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
         lineX = QFontMetricsF(font()).width(QLatin1Char('x')) * d->m_visibleWrapColumn + offset.x() + 4;
 
         if (lineX < viewportRect.width()) {
-            const QBrush background = d->m_ifdefedOutFormat.background();
+            const QBrush background = ifdefedOutFormat.background();
             painter.fillRect(QRectF(lineX, er.top(), viewportRect.width() - lineX, er.height()),
                              background);
 
@@ -2949,7 +2952,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                     rr.setRight(viewportRect.width() - offset.x());
                     if (lineX > 0)
                         rr.setRight(qMin(lineX, rr.right()));
-                    painter.fillRect(rr, d->m_ifdefedOutFormat.background());
+                    painter.fillRect(rr, ifdefedOutFormat.background());
                 }
             }
             offsetIDO.ry() += r.height();
@@ -3002,9 +3005,9 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                     rr.setLeft(r.left() + x);
                     if (line.lineNumber() == eline.lineNumber())
                         rr.setRight(r.left() + ex);
-                    painter.fillRect(rr, d->m_searchScopeFormat.background());
+                    painter.fillRect(rr, searchScopeFormat.background());
 
-                    QColor lineCol = d->m_searchScopeFormat.foreground().color();
+                    QColor lineCol = searchScopeFormat.foreground().color();
                     QPen pen = painter.pen();
                     painter.setPen(lineCol);
                     if (blockFS == d->m_findScopeStart.block())
@@ -3035,8 +3038,8 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
         TextEditorOverlay *overlay = new TextEditorOverlay(this);
         overlay->addOverlaySelection(d->m_findScopeStart.position(),
                                      d->m_findScopeEnd.position(),
-                                     d->m_searchScopeFormat.foreground().color(),
-                                     d->m_searchScopeFormat.background().color(),
+                                     searchScopeFormat.foreground().color(),
+                                     searchScopeFormat.background().color(),
                                      TextEditorOverlay::ExpandBegin);
         overlay->setAlpha(false);
         overlay->paint(&painter, e->rect());
@@ -3046,7 +3049,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
 
 
     d->m_searchResultOverlay->fill(&painter,
-                                   d->m_searchResultFormat.background().color(),
+                                   fs.toTextCharFormat(C_SEARCH_RESULT).background().color(),
                                    e->rect());
 
 
@@ -3061,7 +3064,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
             QTextOption option = layout->textOption();
             if (suppressSyntaxInIfdefedOutBlock && BaseTextDocumentLayout::ifdefedOut(block)) {
                 option.setFlags(option.flags() | QTextOption::SuppressColors);
-                painter.setPen(d->m_ifdefedOutFormat.foreground().color());
+                painter.setPen(ifdefedOutFormat.foreground().color());
             } else {
                 option.setFlags(option.flags() & ~QTextOption::SuppressColors);
                 painter.setPen(context.palette.text().color());
@@ -3127,7 +3130,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 rr.moveTop(rr.top() + r.top());
                 rr.setLeft(0);
                 rr.setRight(viewportRect.width() - offset.x());
-                QColor color = d->m_currentLineFormat.background().color();
+                QColor color = fs.toTextCharFormat(C_CURRENT_LINE).background().color();
                 // set alpha, otherwise we cannot see block highlighting and find scope underneath
                 color.setAlpha(128);
                 painter.fillRect(rr, color);
@@ -3473,8 +3476,10 @@ void BaseTextEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.translate(.5, .5);
     QBrush brush = palette().base();
-    if (d->m_ifdefedOutFormat.hasProperty(QTextFormat::BackgroundBrush))
-        brush = d->m_ifdefedOutFormat.background();
+    const QTextCharFormat &ifdefedOutFormat
+            = baseTextDocument()->fontSettings().toTextCharFormat(C_DISABLED_CODE);
+    if (ifdefedOutFormat.hasProperty(QTextFormat::BackgroundBrush))
+        brush = ifdefedOutFormat.background();
     painter.setBrush(brush);
     painter.drawRoundedRect(QRectF(offset.x(),
                                    offset.y(),
@@ -3518,8 +3523,10 @@ int BaseTextEditorWidget::extraAreaWidth(int *markWidthPtr) const
         QFont fnt = d->m_extraArea->font();
         // this works under the assumption that bold or italic
         // can only make a font wider
-        fnt.setBold(d->m_currentLineNumberFormat.font().bold());
-        fnt.setItalic(d->m_currentLineNumberFormat.font().italic());
+        const QTextCharFormat &currentLineNumberFormat
+                = baseTextDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
+        fnt.setBold(currentLineNumberFormat.font().bold());
+        fnt.setItalic(currentLineNumberFormat.font().italic());
         const QFontMetrics linefm(fnt);
 
         space += linefm.width(QLatin1Char('9')) * lineNumberDigits();
@@ -3743,10 +3750,12 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
             if (selected) {
                 painter.save();
                 QFont f = painter.font();
-                f.setBold(d->m_currentLineNumberFormat.font().bold());
-                f.setItalic(d->m_currentLineNumberFormat.font().italic());
+                const QTextCharFormat &currentLineNumberFormat
+                        = baseTextDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER);
+                f.setBold(currentLineNumberFormat.font().bold());
+                f.setItalic(currentLineNumberFormat.font().italic());
                 painter.setFont(f);
-                painter.setPen(d->m_currentLineNumberFormat.foreground().color());
+                painter.setPen(currentLineNumberFormat.foreground().color());
             }
             painter.drawText(QRectF(markWidth, top, extraAreaWidth - markWidth - 4, height), Qt::AlignRight, number);
             if (selected)
@@ -3869,7 +3878,8 @@ void BaseTextEditorWidget::updateCurrentLineHighlight()
 
     if (d->m_highlightCurrentLine) {
         QTextEdit::ExtraSelection sel;
-        sel.format.setBackground(d->m_currentLineFormat.background());
+        sel.format.setBackground(baseTextDocument()->fontSettings()
+                                 .toTextCharFormat(C_CURRENT_LINE).background());
         sel.format.setProperty(QTextFormat::FullWidthSelection, true);
         sel.cursor = textCursor();
         sel.cursor.clearSelection();
@@ -4683,7 +4693,7 @@ void BaseTextEditorWidget::showLink(const Link &link)
     sel.cursor = textCursor();
     sel.cursor.setPosition(link.linkTextStart);
     sel.cursor.setPosition(link.linkTextEnd, QTextCursor::KeepAnchor);
-    sel.format = d->m_linkFormat;
+    sel.format = baseTextDocument()->fontSettings().toTextCharFormat(C_LINK);
     sel.format.setFontUnderline(true);
     setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
     viewport()->setCursor(Qt::PointingHandCursor);
@@ -4882,6 +4892,8 @@ void BaseTextEditorWidget::_q_matchParentheses()
         return;
     }
 
+    const QTextCharFormat &matchFormat
+            = baseTextDocument()->fontSettings().toTextCharFormat(C_PARENTHESES);
     int animatePosition = -1;
     if (backwardMatch.hasSelection()) {
         QTextEdit::ExtraSelection sel;
@@ -4892,7 +4904,7 @@ void BaseTextEditorWidget::_q_matchParentheses()
         } else {
 
             sel.cursor = backwardMatch;
-            sel.format = d->m_matchFormat;
+            sel.format = matchFormat;
 
             sel.cursor.setPosition(backwardMatch.selectionStart());
             sel.cursor.setPosition(sel.cursor.position() + 1, QTextCursor::KeepAnchor);
@@ -4916,7 +4928,7 @@ void BaseTextEditorWidget::_q_matchParentheses()
         } else {
 
             sel.cursor = forwardMatch;
-            sel.format = d->m_matchFormat;
+            sel.format = matchFormat;
 
             sel.cursor.setPosition(forwardMatch.selectionStart());
             sel.cursor.setPosition(sel.cursor.position() + 1, QTextCursor::KeepAnchor);
@@ -4948,8 +4960,8 @@ void BaseTextEditorWidget::_q_matchParentheses()
         d->m_animator = new BaseTextEditorAnimator(this);
         d->m_animator->setPosition(animatePosition);
         QPalette pal;
-        pal.setBrush(QPalette::Text, d->m_matchFormat.foreground());
-        pal.setBrush(QPalette::Base, d->m_matchFormat.background());
+        pal.setBrush(QPalette::Text, matchFormat.foreground());
+        pal.setBrush(QPalette::Base, matchFormat.background());
         d->m_animator->setData(font(), pal, document()->characterAt(d->m_animator->position()));
         connect(d->m_animator, SIGNAL(updateRequest(int,QPointF,QRectF)),
                 this, SLOT(_q_animateUpdate(int,QPointF,QRectF)));
@@ -5387,13 +5399,6 @@ void BaseTextEditorWidget::applyFontSettings()
     const QTextCharFormat textFormat = fs.toTextCharFormat(C_TEXT);
     const QTextCharFormat selectionFormat = fs.toTextCharFormat(C_SELECTION);
     const QTextCharFormat lineNumberFormat = fs.toTextCharFormat(C_LINE_NUMBER);
-    const QTextCharFormat searchResultFormat = fs.toTextCharFormat(C_SEARCH_RESULT);
-    d->m_searchScopeFormat = fs.toTextCharFormat(C_SEARCH_SCOPE);
-    const QTextCharFormat parenthesesFormat = fs.toTextCharFormat(C_PARENTHESES);
-    d->m_currentLineFormat = fs.toTextCharFormat(C_CURRENT_LINE);
-    d->m_currentLineNumberFormat = fs.toTextCharFormat(C_CURRENT_LINE_NUMBER);
-    d->m_linkFormat = fs.toTextCharFormat(C_LINK);
-    d->m_ifdefedOutFormat = fs.toTextCharFormat(C_DISABLED_CODE);
     QFont font(textFormat.font());
 
     const QColor foreground = textFormat.foreground().color();
@@ -5420,18 +5425,6 @@ void BaseTextEditorWidget::applyFontSettings()
     ep.setColor(QPalette::Background, lineNumberFormat.background().style() != Qt::NoBrush ?
                 lineNumberFormat.background().color() : background);
     d->m_extraArea->setPalette(ep);
-
-    // Search results
-    d->m_searchResultFormat.setBackground(searchResultFormat.background());
-
-    // Matching braces
-    d->m_matchFormat = parenthesesFormat;
-
-    // snippests
-    d->m_occurrencesFormat = fs.toTextCharFormat(C_OCCURRENCES);
-    d->m_occurrencesFormat.clearForeground();
-    d->m_occurrenceRenameFormat = fs.toTextCharFormat(C_OCCURRENCES_RENAME);
-    d->m_occurrenceRenameFormat.clearForeground();
 
     slotUpdateExtraAreaWidth();   // Adjust to new font width
     updateCurrentLineHighlight(); // Make sure it takes the new color

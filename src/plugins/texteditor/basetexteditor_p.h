@@ -127,7 +127,6 @@ public:
 
     // parentheses matcher
     bool m_formatRange;
-    QTextCharFormat m_matchFormat;
     QTextCharFormat m_mismatchFormat;
     QTimer m_parenthesesMatchingTimer;
     // end parentheses matcher
@@ -150,8 +149,6 @@ public:
     TextEditorOverlay *m_searchResultOverlay;
     bool snippetCheckCursor(const QTextCursor &cursor);
     void snippetTabOrBacktab(bool forward);
-    QTextCharFormat m_occurrencesFormat;
-    QTextCharFormat m_occurrenceRenameFormat;
 
     RefactorOverlay *m_refactorOverlay;
 
@@ -176,18 +173,11 @@ public:
     uint m_maybeFakeTooltipEvent : 1;
     int m_visibleWrapColumn;
 
-    QTextCharFormat m_linkFormat;
     BaseTextEditorWidget::Link m_currentLink;
     bool m_linkPressed;
 
-    QTextCharFormat m_ifdefedOutFormat;
-
     QRegExp m_searchExpr;
     Core::FindFlags m_findFlags;
-    QTextCharFormat m_searchResultFormat;
-    QTextCharFormat m_searchScopeFormat;
-    QTextCharFormat m_currentLineFormat;
-    QTextCharFormat m_currentLineNumberFormat;
     void highlightSearchResults(const QTextBlock &block, TextEditorOverlay *overlay);
     QTimer m_delayedUpdateTimer;
 

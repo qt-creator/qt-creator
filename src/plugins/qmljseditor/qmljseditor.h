@@ -198,9 +198,6 @@ private:
     Internal::QmlOutlineModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
-    QTextCharFormat m_occurrencesFormat;
-    QTextCharFormat m_occurrencesUnusedFormat;
-    QTextCharFormat m_occurrenceRenameFormat;
 
     Internal::SemanticInfoUpdater *m_semanticInfoUpdater;
     QmlJSTools::SemanticInfo m_semanticInfo;
