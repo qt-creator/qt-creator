@@ -4983,7 +4983,7 @@ public:
             QString lastAccessSpecString;
             for (int j = 0; j < parent->rowCount(); ++j) {
                 const QStandardItem *item = parent->child(j, 0);
-                if (!item->isCheckable() || item->checkState() == Qt::Unchecked)
+                if (!item->isEnabled() || !item->isCheckable() || item->checkState() == Qt::Unchecked)
                     continue;
                 const Function *func = (const Function *)
                         item->data(InsertVirtualMethodsDialog::ClassOrFunction).value<void *>();
