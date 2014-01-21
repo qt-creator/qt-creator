@@ -790,9 +790,12 @@ def qdump__QImage(d, value):
 
     ptrSize = d.ptrSize()
     isQt5 = d.qtVersion() >= 0x050000
-    qt3Support = d.isQt3Support()
     offset = (3 if isQt5 else 2) * ptrSize
     base = d.dereference(d.addressOf(value) + offset)
+    if base == 0:
+        d.putValue("(invalid)")
+        return
+    qt3Support = d.isQt3Support()
     width = d.extractInt(base + 4)
     height = d.extractInt(base + 8)
     nbytes = d.extractInt(base + 16)
@@ -1565,9 +1568,12 @@ def qdump__QObject(d, value):
 def qdump__QPixmap(d, value):
     offset = (3 if d.qtVersion() >= 0x050000 else 2) * d.ptrSize()
     base = d.dereference(d.addressOf(value) + offset)
-    width = d.extractInt(base + d.ptrSize())
-    height = d.extractInt(base + d.ptrSize() + 4)
-    d.putValue("(%dx%d)" % (width, height))
+    if base == 0:
+        d.putValue("(invalid)")
+    else:
+        width = d.extractInt(base + d.ptrSize())
+        height = d.extractInt(base + d.ptrSize() + 4)
+        d.putValue("(%dx%d)" % (width, height))
     d.putNumChild(0)
 
 
@@ -2064,9 +2070,9 @@ def qdumpHelper_QVariant_37(d, data):
     d.putValue(toInteger(data["uc"]))
 
 def qdumpHelper_QVariant_38(d, data):
-    # QVariant::UChar
+    # QVariant::Float
     d.putBetterType("%sQVariant (float)" % d.qtNamespace())
-    d.putValue(toInteger(data["f"]))
+    d.putValue("%f" % data["f"])
 
 qdumpHelper_QVariants_D = [
     qdumpHelper_QVariant_31,
@@ -2091,18 +2097,18 @@ qdumpHelper_QVariants_E = [
     "QRegion",     # 72
     "QBitmap",     # 73
     "QCursor",     # 74
-    "QSizePolicy", # 75
-    "QKeySequence",# 76
-    "QPen",        # 77
-    "QTextLength", # 78
-    "QTextFormat", # 79
-    "X",           # 80
-    "QTransform",  # 81
-    "QMatrix4x4",  # 82
-    "QVector2D",   # 83
-    "QVector3D",   # 84
-    "QVector4D",   # 85
-    "QQuadernion"  # 86
+    "QKeySequence",# 75
+    "QPen",        # 76
+    "QTextLength", # 77
+    "QTextFormat", # 78
+    "X",           # 79
+    "QTransform",  # 80
+    "QMatrix4x4",  # 81
+    "QVector2D",   # 82
+    "QVector3D",   # 83
+    "QVector4D",   # 84
+    "QQuaternion", # 85
+    "QPolygonF"    # 86
 ]
 
 def qdumpHelper__QVariant(d, value):

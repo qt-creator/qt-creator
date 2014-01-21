@@ -3717,31 +3717,113 @@ void tst_Dumpers::dumper_data()
                % Check("value", "\"Some string\"", "@QVariant (QString)");
 
     QTest::newRow("QVariant2")
-            << Data("#include <QVariant>\n"
-                    "#include <QRect>\n"
+            << Data("#include <QApplication>\n"
+                    "#include <QBitArray>\n"
+                    "#include <QDateTime>\n"
+                    "#include <QLocale>\n"
+                    "#include <QMap>\n"
                     "#include <QRectF>\n"
+                    "#include <QRect>\n"
                     "#include <QStringList>\n"
-                    "#include <QString>\n",
+                    "#include <QUrl>\n"
+                    "#include <QVariant>\n"
+                    "#include <QFont>\n"
+                    "#include <QPixmap>\n"
+                    "#include <QBrush>\n"
+                    "#include <QColor>\n"
+                    "#include <QPalette>\n"
+                    "#include <QIcon>\n"
+                    "#include <QImage>\n"
+                    "#include <QPolygon>\n"
+                    "#include <QRegion>\n"
+                    "#include <QBitmap>\n"
+                    "#include <QCursor>\n"
+                    "#include <QSizePolicy>\n"
+                    "#include <QKeySequence>\n"
+                    "#include <QPen>\n"
+                    "#include <QTextLength>\n"
+                    "#include <QTextFormat>\n"
+                    "#include <QTransform>\n"
+                    "#include <QMatrix4x4>\n"
+                    "#include <QVector2D>\n"
+                    "#include <QVector3D>\n"
+                    "#include <QVector4D>\n"
+                    "#include <QQuaternion>\n",
+                    "QApplication app(argc, argv);\n"
                     "QRect r(100, 200, 300, 400);\n"
                     "QRectF rf(100.5, 200.5, 300.5, 400.5);\n"
-                    "QVariant var;                               // Type 0, invalid\n"
-                    "QVariant var1(true);                        // 1, bool\n"
-                    "QVariant var2(2);                           // 2, int\n"
-                    "QVariant var3(3u);                          // 3, uint\n"
-                    "QVariant var4(qlonglong(4));                // 4, qlonglong\n"
-                    "QVariant var5(qulonglong(5));               // 5, qulonglong\n"
-                    "QVariant var6(double(6.0));                 // 6, double\n"
-                    "QVariant var7(QChar(7));                    // 7, QChar\n"
-                    //None,          # 8, QVariantMap
-                    // None,          # 9, QVariantList
-                    "QVariant var10(QString(\"Hello 10\"));      // 10, QString\n"
-                    "QVariant var11(QStringList() << \"Hello\" << \"World\"); // 11, QStringList\n"
-                    "QVariant var19(r);                          // 19 QRect\n"
-                    "QVariant var20(rf);                         // 20 QRectF\n"
+                    "QUrl url = QUrl::fromEncoded(\"http://foo@qt-project.org:10/have_fun\");\n"
+                    "QVariant var;                                  // Type 0, invalid\n"
+                    "QVariant var1(true);                           // 1, bool\n"
+                    "QVariant var2(2);                              // 2, int\n"
+                    "QVariant var3(3u);                             // 3, uint\n"
+                    "QVariant var4(qlonglong(4));                   // 4, qlonglong\n"
+                    "QVariant var5(qulonglong(5));                  // 5, qulonglong\n"
+                    "QVariant var6(double(6.0));                    // 6, double\n"
+                    "QVariant var7(QChar(7));                       // 7, QChar\n"
+                    "QVariant var8 = QVariantMap();                 // 8, QVariantMap\n"
+                    "QVariant var9 = QVariantList();                // 9, QVariantList\n"
+                    "QVariant var10 = QString(\"Hello 10\");        // 10, QString\n"
+                    "QVariant var11 = QStringList() << \"Hello\" << \"World\"; // 11, QStringList\n"
+                    "QVariant var12 = QByteArray(\"array\");        // 12 QByteArray\n"
+                    "QVariant var13 = QBitArray();                  // 13 QBitArray\n"
+                    "QVariant var14 = QDate();                      // 14 QDate\n"
+                    "QVariant var15 = QTime();                      // 15 QTime\n"
+                    "QVariant var16 = QDateTime();                  // 16 QDateTime\n"
+                    "QVariant var17 = url;                          // 17 QUrl\n"
+                    "QVariant var18 = QLocale(\"en_US\");           // 18 QLocale\n"
+                    "QVariant var19(r);                             // 19 QRect\n"
+                    "QVariant var20(rf);                            // 20 QRectF\n"
+                    "QVariant var21 = QSize();                      // 21 QSize\n"
+                    "QVariant var22 = QSizeF();                     // 22 QSizeF\n"
+                    "QVariant var23 = QLine();                      // 23 QLine\n"
+                    "QVariant var24 = QLineF();                     // 24 QLineF\n"
+                    "QVariant var25 = QPoint();                     // 25 QPoint\n"
+                    "QVariant var26 = QPointF();                    // 26 QPointF\n"
+                    "QVariant var27 = QRegExp();                    // 27 QRegExp\n"
+                    "QVariant var28 = QVariantHash();               // 28 QVariantHash\n"
+                    "QVariant var31 = QVariant::fromValue<void *>(&r);         // 31 void *\n"
+                    "QVariant var32 = QVariant::fromValue<long>(32);           // 32 long\n"
+                    "QVariant var33 = QVariant::fromValue<short>(33);          // 33 short\n"
+                    "QVariant var34 = QVariant::fromValue<char>(34);           // 34 char\n"
+                    "QVariant var35 = QVariant::fromValue<unsigned long>(35);  // 35 unsigned long\n"
+                    "QVariant var36 = QVariant::fromValue<unsigned short>(36); // 36 unsigned short\n"
+                    "QVariant var37 = QVariant::fromValue<unsigned char>(37);  // 37 unsigned char\n"
+                    "QVariant var38 = QVariant::fromValue<float>(38);          // 38 float\n"
+                    "QVariant var64 = QFont();                      // 64 QFont\n"
+                    "QVariant var65 = QPixmap();                    // 65 QPixmap\n"
+                    "QVariant var66 = QBrush();                     // 66 QBrush\n"
+                    "QVariant var67 = QColor();                     // 67 QColor\n"
+                    "QVariant var68 = QPalette();                   // 68 QPalette\n"
+                    "QVariant var69 = QIcon();                      // 69 QIcon\n"
+                    "QVariant var70 = QImage();                     // 70 QImage\n"
+                    "QVariant var71 = QPolygon();                   // 71 QPolygon\n"
+                    "QVariant var72 = QRegion();                    // 72 QRegion\n"
+                    "QVariant var73 = QBitmap();                    // 73 QBitmap\n"
+                    "QVariant var74 = QCursor();                    // 74 QCursor\n"
+                    "QVariant var75 = QKeySequence();               // 75 QKeySequence\n"
+                    "QVariant var76 = QPen();                       // 76 QPen\n"
+                    "QVariant var77 = QTextLength();                // 77 QTextLength\n"
+                    "QVariant var78 = QTextFormat();                // 78 QTextFormat\n"
+                    "QVariant var80 = QTransform();                 // 80 QTransform\n"
+                    "QVariant var81 = QMatrix4x4();                 // 81 QMatrix4x4\n"
+                    "QVariant var82 = QVector2D();                  // 82 QVector2D\n"
+                    "QVariant var83 = QVector3D();                  // 83 QVector3D\n"
+                    "QVariant var84 = QVector4D();                  // 84 QVector4D\n"
+                    "QVariant var85 = QQuaternion();                // 85 QQuaternion\n"
+                    "QVariant var86 = QPolygonF();                  // 86 QPolygonF\n"
                     "unused(&var, &var1, &var2, &var3, &var4, &var5, &var6);\n"
-                    "unused(&var, &var7, &var10, &var11, &var19, &var20);\n"
+                    "unused(&var7, &var8, &var9, &var10, &var11, &var19, &var20);\n"
+                    "unused(&var12, &var13, &var14, &var15, &var16, &var17);\n"
+                    "unused(&var21, &var22, &var23, &var24, &var25, &var26);\n"
+                    "unused(&var27, &var28, &var32, &var33, &var34, &var35);\n"
+                    "unused(&var36, &var37, &var38, &var64, &var65, &var66);\n"
+                    "unused(&var67, &var68, &var69, &var70, &var71, &var72);\n"
+                    "unused(&var73, &var74, &var75, &var76, &var77, &var78);\n"
+                    "unused(&var80, &var81, &var82, &var83, &var84, &var18);\n"
+                    "unused(&var85, &var86);\n"
                     )
-               % CoreProfile()
+               % GuiProfile()
                % Check("var", "(invalid)", "@QVariant (invalid)")
                % Check("var1", "true", "@QVariant (bool)")
                % Check("var2", "2", "@QVariant (int)")
@@ -3750,30 +3832,60 @@ void tst_Dumpers::dumper_data()
                % Check("var5", "5", "@QVariant (qulonglong)")
                % Check("var6", "6.0", "@QVariant (double)")
                % Check("var7", "7", "@QVariant (QChar)")
+               % Check("var8", "<0 items>", "@QVariant (QVariantMap)")
+               % Check("var9", "<0 items>", "@QVariant (QVariantList)")
                % Check("var10", "\"Hello 10\"", "@QVariant (QString)")
                % Check("var11", "<2 items>", "@QVariant (QStringList)")
                % Check("var11.1", "[1]", "\"World\"", "@QString")
+               % Check("var12", "\"array\"", "@QVariant (QByteArray)")
+               % Check("var13", "", "@QVariant (QBitArray)")
+               % Check("var14", "(invalid)", "@QVariant (QDate)")
+               % Check("var15", "(invalid)", "@QVariant (QTime)")
+               % Check("var16", "(invalid)", "@QVariant (QDateTime)")
+               % Check("var17", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QVariant (QUrl)")
+               % Check("var17.port", "10", "int")
+               % Check("var18", "\"en_US\"", "@QVariant (QLocale)")
                % Check("var19", "300x400+100+200", "@QVariant (QRect)")
-               % Check("var20", "300.5x400.5+100.5+200.5", "@QVariant (QRectF)");
+               % Check("var20", "300.5x400.5+100.5+200.5", "@QVariant (QRectF)")
+               % Check("var21", "(-1, -1)", "@QVariant (QSize)")
+               % Check("var22", "(-1.0, -1.0)", "@QVariant (QSizeF)")
+               % Check("var23", "", "@QVariant (QLine)")
+               % Check("var24", "", "@QVariant (QLineF)")
+               % Check("var25", "(0, 0)", "@QVariant (QPoint)")
+               % Check("var26", "(0.0, 0.0)", "@QVariant (QPointF)")
+               % Check("var27", "\"\"", "@QVariant (QRegExp)")
+               % Check("var28", "<0 items>", "@QVariant (QVariantHash)")
+               % CheckType("var31", "@QVariant (void *)")
+               % Check("var32", "32", "@QVariant (long)")
+               % Check("var33", "33", "@QVariant (short)")
+               % Check("var34", "34", "@QVariant (char)")
+               % Check("var35", "35", "@QVariant (unsigned long)")
+               % Check("var36", "36", "@QVariant (unsigned short)")
+               % Check("var37", "37", "@QVariant (unsigned char)")
+               % Check("var38", FloatValue("38.0"), "@QVariant (float)")
+               % Check("var64", "", "@QVariant (QFont)")
+               % Check("var65", "(invalid)", "@QVariant (QPixmap)")
+               % Check("var66", "", "@QVariant (QBrush)")
+               % Check("var67", "", "@QVariant (QColor)")
+               % Check("var68", "", "@QVariant (QPalette)")
+               % Check("var69", "", "@QVariant (QIcon)")
+               % Check("var70", "(invalid)", "@QVariant (QImage)")
+               % Check("var71", "", "@QVariant (QPolygon)")
+               //% Check("var72", "", "@QVariant (QRegion)")    FIXME
+               % Check("var73", "", "@QVariant (QBitmap)")
+               % Check("var74", "", "@QVariant (QCursor)")
+               % Check("var75", "", "@QVariant (QKeySequence)")
+               % Check("var76", "", "@QVariant (QPen)")
+               % Check("var77", "", "@QVariant (QTextLength)")
+               % Check("var78", "", "@QVariant (QTextFormat)")
+               % Check("var80", "", "@QVariant (QTransform)")
+               % Check("var81", "", "@QVariant (QMatrix4x4)")
+               % Check("var82", "", "@QVariant (QVector2D)")
+               % Check("var83", "", "@QVariant (QVector3D)")
+               % Check("var84", "", "@QVariant (QVector4D)")
+               % Check("var85", "", "@QVariant (QQuaternion)")
+               % Check("var86", "", "@QVariant (QPolygonF)");
 
-        /*
-         "QByteArray",  # 12
-         "QBitArray",   # 13
-         "QDate",       # 14
-         "QTime",       # 15
-         "QDateTime",   # 16
-         "QUrl",        # 17
-         "QLocale",     # 18
-         "QRect",       # 19
-         "QRectF",      # 20
-         "QSize",       # 21
-         "QSizeF",      # 22
-         "QLine",       # 23
-         "QLineF",      # 24
-         "QPoint",      # 25
-         "QPointF",     # 26
-         "QRegExp",     # 27
-         */
 
     QTest::newRow("QVariant3")
             << Data("#include <QVariant>\n",
