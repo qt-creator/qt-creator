@@ -1397,7 +1397,7 @@ def qdump__QObject(d, value):
 
         # Slots.
         with SubItem(d, "slots"):
-            slotCount = metaData[4] - signalCount
+            slotCount = int(metaData[4]) - signalCount
             d.putItemCount(slotCount)
             d.putNoType()
             d.putNumChild(slotCount)

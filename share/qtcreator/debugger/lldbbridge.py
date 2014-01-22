@@ -183,20 +183,24 @@ def impl_SBValue__getitem__(value, index):
             address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
             return value.CreateValueFromAddress(None, address, innertype)
         return value.GetChildAtIndex(index)
-    return value.GetChildMemberWithName(index)
+    result = value.GetChildMemberWithName(index)
+    if int(result.GetLoadAddress()) == 0xffffffffffffffff:
+        options = lldb.SBExpressionOptions()
+        typeClass = child.GetType().GetTypeClass()
+        if typeClass != lldb.eTypeClassBuiltin:
+            i = value.GetIndexOfChildWithName(index)
+            field = value.GetType().GetFieldAtIndex(i)
+            addr = value.GetLoadAddress() + field.GetOffsetInBytes()
+            child = value.CreateValueFromAddress(child.GetName(), addr, child.GetType())
+    return result
 
 def impl_SBValue__deref(value):
     result = value.Dereference()
     if result.IsValid():
         return result
-    #warn("EXPR: %s" % '*' + value.get_expr_path())
-    #warn("TARGET: %s" % value.GetTarget())
-    #result = value.CreateValueFromExpression('$', '*' + value.get_expr_path())
-    options = lldb.SBExpressionOptions()
-    result = value.GetTarget().EvaluateExpression('*' + value.get_expr_path(), options)
-    #warn("RESULT.NAME: %s" % result.GetName())
-    #warn("RESULT.TYPE: %s" % result.GetType())
-    #warn("RESULT.LOADADDRESS: %s" % result.GetLoadAddress())
+    #warn("RESULT.LOADADDRESS A: 0x%x" % result.GetLoadAddress())
+    result = value.CreateValueFromAddress(None, value.GetValueAsUnsigned(), value.GetType().GetPointerType())
+    #warn("RESULT.LOADADDRESS B: 0x%x" % result.GetLoadAddress())
     return result
 
 lldb.SBValue.__add__ = impl_SBValue__add__
@@ -290,7 +294,6 @@ class Dumper(DumperBase):
         self.useFancy = True
         self.formats = {}
         self.typeformats = {}
-        self.currentAddress = None
 
         self.currentIName = None
         self.currentValuePriority = -100
@@ -339,7 +342,6 @@ class Dumper(DumperBase):
                 item.name = '*'
             self.put('name="%s",' % item.name)
         item.savedIName = self.currentIName
-        item.savedCurrentAddress = self.currentAddress
         item.savedValue = self.currentValue
         item.savedValuePriority = self.currentValuePriority
         item.savedValueEncoding = self.currentValueEncoding
@@ -369,8 +371,6 @@ class Dumper(DumperBase):
                 self.put('value="%s",' % self.currentValue)
         except:
             pass
-        if not self.currentAddress is None:
-            self.put(self.currentAddress)
         self.put('},')
         self.currentIName = item.savedIName
         self.currentValue = item.savedValue
@@ -378,7 +378,6 @@ class Dumper(DumperBase):
         self.currentValueEncoding = item.savedValueEncoding
         self.currentType = item.savedType
         self.currentTypePriority = item.savedTypePriority
-        self.currentAddress = item.savedCurrentAddress
         return True
 
     def isSimpleType(self, typeobj):
@@ -608,9 +607,6 @@ class Dumper(DumperBase):
                     base, type.GetByteSize()):
                 for i in self.childRange():
                     self.putSubItem(i, (base + i).dereference())
-
-    def parseAndEvalute(self, expr):
-        return expr
 
     def createPointerValue(self, address, pointeeType):
         addr = int(address) & 0xFFFFFFFFFFFFFFFF
@@ -890,11 +886,10 @@ class Dumper(DumperBase):
             self.putItem(value, tryDynamic)
 
     def putAddress(self, addr):
-        if self.currentPrintsAddress:
-            try:
-                self.currentAddress = 'addr="0x%s",' % int(addr)
-            except:
-                pass
+        #if int(addr) == 0xffffffffffffffff:
+        #    raise RuntimeError("Illegal address")
+        if self.currentPrintsAddress and not addr is None:
+            self.put('addr="0x%x",' % int(addr))
 
     def isFunctionType(self, type):
         return type.IsFunctionType()
@@ -906,10 +901,10 @@ class Dumper(DumperBase):
         typeClass = value.GetType().GetTypeClass()
 
         if tryDynamic:
-            self.putAddress(value.address)
+            self.putAddress(value.GetLoadAddress())
 
         # Handle build-in LLDB visualizers if wanted.
-        if self.useLldbDumpers and value.GetTypeSynthetic().IsValid():
+        if False and self.useLldbDumpers and value.GetTypeSynthetic().IsValid():
             # FIXME: print "official" summary?
             summary = value.GetTypeSummary()
             if summary.IsValid():
@@ -967,7 +962,6 @@ class Dumper(DumperBase):
             type = value.GetType().GetDereferencedType().unqualified()
             addr = int(value) & 0xFFFFFFFFFFFFFFFF
             self.putItem(value.CreateValueFromAddress(None, addr, type))
-            #self.putItem(value.CreateValueFromData(None, value.GetData(), type))
             self.putBetterType(origType)
             return
 
@@ -1007,10 +1001,13 @@ class Dumper(DumperBase):
                 self.putEmptyValue()
 
         self.put('numchild="%s",' % numchild)
-        self.put('addr="0x%x",' % value.GetLoadAddress())
+
         if self.currentIName in self.expandedINames:
             with Children(self):
                 self.putFields(value)
+
+    def warn(self, msg):
+        self.put('{name="%s",value="",type=""},' % msg)
 
     def putFields(self, value):
         # Suppress printing of 'name' field for arrays.
@@ -1023,12 +1020,6 @@ class Dumper(DumperBase):
 
         n = value.GetNumChildren()
         m = value.GetType().GetNumberOfDirectBaseClasses()
-        #warn("FIELDS: %s %s" % (n, m))
-        #warn("VALUE.NAME: %s" % value.GetName())
-        #warn("VALUE.TYPE: %s" % value.GetType())
-        #warn("VALUE.ADDRESS: 0x%x" % value.GetLoadAddress())
-        #warn("VALUE.LOADADDRESS: 0x%x" % value.GetLoadAddress())
-        #warn("VALUE: %s" % value)
         if n > 10000:
             n = 10000
         # seems to happen in the 'inheritance' autotest
@@ -1043,26 +1034,12 @@ class Dumper(DumperBase):
         for i in xrange(m, n):
         #for i in range(n):
             child = value.GetChildAtIndex(i)
-            #warn("CHILD.NAME: %s" % child.GetName())
-            #warn("CHILD.TYPE: %s" % child.GetType())
-            #warn("CHILD.FIELD: %s" % field)
-            #warn("CHILD.FIELD.NAME: %s" % field.GetName())
-            #warn("CHILD.FIELD.OFFSET: %s" % field.GetOffsetInBytes())
-            #warn("CHILD.ADDRESS: 0x%x" % child.GetAddress())
-            #warn("CHILD.ISVALID: 0x%x" % child.IsValid())
-            #warn("CHILD.LOADADDRESS: %x" % child.GetLoadAddress())
             if int(child.GetLoadAddress()) == 0xffffffffffffffff:
                 typeClass = child.GetType().GetTypeClass()
                 if typeClass != lldb.eTypeClassBuiltin:
-                    #warn("EEEE")
                     field = value.GetType().GetFieldAtIndex(i)
                     addr = value.GetLoadAddress() + field.GetOffsetInBytes()
-                    child = self.context.CreateValueFromAddress(child.GetName(), addr, child.GetType())
-                    #child = self.createValue(value.GetLoadAddress() + field.GetOffsetInBytes(), child.GetType())
-                    #warn("CHILD X.ADDRESS: 0x%x" % child.GetAddress())
-                    #warn("CHILD X.ISVALID: 0x%x" % child.IsValid())
-                    #warn("CHILD X.LOADADDRESS: %x" % child.GetLoadAddress())
-            #warn("CHILD: %s" % child)
+                    child = value.CreateValueFromAddress(child.GetName(), addr, child.GetType())
             if child.IsValid():  # FIXME: Anon members?
                 with SubItem(self, child):
                     self.putItem(child)
