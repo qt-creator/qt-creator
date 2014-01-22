@@ -282,7 +282,8 @@ QString QnxUtils::sdkInstallerPath(const QString &ndkPath)
 }
 
 // The resulting process when launching sdkinstall
-QString QnxUtils::qdeInstallProcess(const QString &ndkPath, const QString &option, const QString &version)
+QString QnxUtils::qdeInstallProcess(const QString &ndkPath, const QString &target,
+                                    const QString &option, const QString &version)
 {
     QString installerPath = sdkInstallerPath(ndkPath);
     if (installerPath.isEmpty())
@@ -293,7 +294,7 @@ QString QnxUtils::qdeInstallProcess(const QString &ndkPath, const QString &optio
     const QString installerApplication = installerPlugins.size() >= 1 ? QLatin1String("com.qnx.tools.ide.sdk.installer.app.SDKInstallerApplication")
                                                                       : QLatin1String("com.qnx.tools.ide.sdk.manager.core.SDKInstallerApplication");
     return QString::fromLatin1("%1 -nosplash -application %2 "
-                               "%3  %4 -vmargs -Dosgi.console=:none").arg(installerPath, installerApplication, option, version);
+                               "%3 %4 %5 -vmargs -Dosgi.console=:none").arg(installerPath, installerApplication, target, option, version);
 }
 
 QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdkPath)

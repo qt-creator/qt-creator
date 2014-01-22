@@ -398,7 +398,7 @@ void BlackBerryNDKSettingsWidget::updateDefaultApiLevel()
 void BlackBerryNDKSettingsWidget::launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::Mode mode,
                                                                   const QString& targetVersion)
 {
-    BlackBerryInstallWizard wizard(mode, targetVersion, this);
+    BlackBerryInstallWizard wizard(mode, BlackBerryInstallerDataHandler::ApiLevel, targetVersion, this);
     if (mode == BlackBerryInstallerDataHandler::InstallMode)
         connect(&wizard, SIGNAL(processFinished()), this, SLOT(handleInstallationFinished()));
     else

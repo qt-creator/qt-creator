@@ -229,7 +229,8 @@ FORMS += \
     blackberrydeviceconfigurationwizardquerypage.ui \
     blackberryinstallwizardtargetpage.ui \
     blackberryinstallwizardndkpage.ui \
-    blackberryinstallwizardprocesspage.ui
+    blackberryinstallwizardprocesspage.ui \
+    blackberryinstallwizardoptionpage.ui
 
 include(../../private_headers.pri)
 include(./cascadesimport/cascadesimport.pri)

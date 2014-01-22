@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Please select target:</string>
+      <string>Please select version:</string>
      </property>
     </widget>
    </item>

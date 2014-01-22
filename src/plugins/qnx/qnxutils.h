@@ -75,7 +75,8 @@ public:
     static QString defaultTargetVersion(const QString& ndkPath);
     static QList<NdkInstallInformation> installedNdks();
     static QString sdkInstallerPath(const QString& ndkPath);
-    static QString qdeInstallProcess(const QString& ndkPath, const QString &option, const QString &version = QString());
+    static QString qdeInstallProcess(const QString& ndkPath, const QString &target,
+                                     const QString &option, const QString &version = QString());
     static QList<Utils::EnvironmentItem> qnxEnvironment(const QString &ndk);
 };
 

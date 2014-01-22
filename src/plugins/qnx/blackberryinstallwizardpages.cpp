@@ -33,6 +33,7 @@
 #include "blackberryconfigurationmanager.h"
 #include "blackberryconfiguration.h"
 
+#include "ui_blackberryinstallwizardoptionpage.h"
 #include "ui_blackberryinstallwizardtargetpage.h"
 #include "ui_blackberryinstallwizardprocesspage.h"
 #include "ui_blackberryinstallwizardndkpage.h"
@@ -50,8 +51,6 @@
 #include <QDir>
 
 #include <QMessageBox>
-#include <QLayout>
-#include <QRadioButton>
 
 namespace Qnx {
 namespace Internal {
@@ -94,56 +93,64 @@ bool NdkPathChooser::validatePath(const QString &path, QString *errorMessage)
 BlackBerryInstallWizardOptionPage::BlackBerryInstallWizardOptionPage(BlackBerryInstallerDataHandler &data,
                                                                      QWidget *parent)
     : QWizardPage(parent)
-    , m_layout(new QVBoxLayout(this))
-    , m_installButton(new QRadioButton)
-    , m_addButton(new QRadioButton)
+    , m_ui(new Ui_BlackBerryInstallWizardOptionPage)
+    , m_buttonGroup(new QButtonGroup(this))
     , m_envFileChooser(new NdkPathChooser(NdkPathChooser::ManualMode))
     , m_data(data)
 {
+    m_ui->setupUi(this);
     setTitle(tr("Options"));
-    connect(m_addButton, SIGNAL(toggled(bool)), this, SLOT(handleOptionChanged()));
+    connect(m_ui->addButton, SIGNAL(toggled(bool)), this, SLOT(handleApiLevelOptionChanged()));
     connect(m_envFileChooser, SIGNAL(pathChanged(QString)), this, SLOT(handlePathChanged(QString)));
+    connect(m_ui->apiLevelButton, SIGNAL(toggled(bool)), this, SLOT(handleTargetChanged()));
+    connect(m_ui->simulatorButton, SIGNAL(toggled(bool)), this, SLOT(handleTargetChanged()));
+    connect(m_ui->runtimeButton, SIGNAL(toggled(bool)), this, SLOT(handleTargetChanged()));
+}
+
+BlackBerryInstallWizardOptionPage::~BlackBerryInstallWizardOptionPage()
+{
+    delete m_ui;
 }
 
 void BlackBerryInstallWizardOptionPage::initializePage()
 {
-    m_installButton->setText(tr("Install New Target"));
-    m_addButton->setText(tr("Add Existing Target"));
+    m_ui->apiLevelOptionsLayout->addWidget(m_envFileChooser);
+    m_buttonGroup->addButton(m_ui->installButton);
+    m_buttonGroup->addButton(m_ui->addButton);
 
+    m_ui->apiLevelButton->setChecked(true);
     if (m_data.mode == BlackBerryInstallerDataHandler::ManuallMode)
-        m_addButton->setChecked(true);
+        m_ui->addButton->setChecked(true);
     else
-        m_installButton->setChecked(true);
+        m_ui->installButton->setChecked(true);
 
-    m_envFileChooser->setEnabled(m_addButton->isChecked());
-
-    m_layout->addWidget(m_installButton);
-    m_layout->addWidget(m_addButton);
-    m_layout->addWidget(m_envFileChooser);
+    m_envFileChooser->setEnabled(m_ui->addButton->isChecked());
 }
 
 bool BlackBerryInstallWizardOptionPage::isComplete() const
 {
-    return (m_installButton->isChecked()
-            || (m_addButton->isChecked() && m_envFileChooser->isValid()));
+    if (m_ui->addButton->isEnabled() && m_ui->addButton->isChecked())
+        return m_envFileChooser->isValid();
+
+    return true;
 }
 
 int BlackBerryInstallWizardOptionPage::nextId() const
 {
-    if (m_addButton->isChecked())
+    if (m_ui->addButton->isChecked())
         return BlackBerryInstallWizard::FinalPageId;
 
     return BlackBerryInstallWizard::NdkPageId;
 }
 
-void BlackBerryInstallWizardOptionPage::handleOptionChanged()
+void BlackBerryInstallWizardOptionPage::handleApiLevelOptionChanged()
 {
-    if (m_addButton->isChecked())
+    if (m_ui->addButton->isChecked())
         m_data.mode = BlackBerryInstallerDataHandler::ManuallMode;
     else
         m_data.mode = BlackBerryInstallerDataHandler::InstallMode;
 
-    m_envFileChooser->setEnabled(m_addButton->isChecked());
+    m_envFileChooser->setEnabled(m_ui->addButton->isChecked());
     emit completeChanged();
 }
 
@@ -151,6 +158,21 @@ void BlackBerryInstallWizardOptionPage::handlePathChanged(const QString &envFile
 {
     if (m_envFileChooser->isValid())
         m_data.ndkPath = envFilePath;
+
+    emit completeChanged();
+}
+
+void BlackBerryInstallWizardOptionPage::handleTargetChanged()
+{
+    m_ui->installButton->setEnabled(m_ui->apiLevelButton->isChecked());
+    m_ui->addButton->setEnabled(m_ui->apiLevelButton->isChecked());
+
+    if (m_ui->apiLevelButton->isChecked())
+        m_data.installTarget = BlackBerryInstallerDataHandler::ApiLevel;
+    else if (m_ui->simulatorButton->isChecked())
+        m_data.installTarget = BlackBerryInstallerDataHandler::Simulator;
+    else if (m_ui->runtimeButton->isChecked())
+        m_data.installTarget = BlackBerryInstallerDataHandler::Runtime;
 
     emit completeChanged();
 }
@@ -250,7 +272,7 @@ BlackBerryInstallWizardTargetPage::BlackBerryInstallWizardTargetPage(BlackBerryI
     , m_targetListProcess(new QProcess(this))
 {
     m_ui->setupUi(this);
-    setTitle(tr("Target"));
+    setTitle(tr("Version"));
 
     connect(m_targetListProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(targetsListProcessFinished()));
@@ -331,7 +353,7 @@ void BlackBerryInstallWizardTargetPage::initTargetsTreeWidget()
     m_ui->targetsTreeWidget->clear();
     m_ui->targetsTreeWidget->setHeaderHidden(false);
     m_ui->targetsTreeWidget->header()->setResizeMode(QHeaderView::ResizeToContents);
-    m_ui->targetsTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("Version") << tr("Target")));
+    m_ui->targetsTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("Version") << tr("Name")));
     m_ui->targetsTreeWidget->setTextElideMode(Qt::ElideNone);
     m_ui->targetsTreeWidget->setColumnCount(2);
 }
@@ -341,11 +363,11 @@ void BlackBerryInstallWizardTargetPage::updateAvailableTargetsList()
     m_ui->targetsTreeWidget->clear();
     m_ui->targetsTreeWidget->setHeaderHidden(true);
     QTreeWidgetItem *item =  new QTreeWidgetItem(m_ui->targetsTreeWidget);
-    item->setText(0, tr("Querying available targets. Please wait..."));
+    item->setText(0, tr("Querying available versions. Please wait..."));
     QFont font;
     font.setItalic(true);
     item->setFont(0, font);
-    QString qdeProcess = QnxUtils::qdeInstallProcess(m_data.ndkPath, QLatin1String(" --list"));
+    QString qdeProcess = QnxUtils::qdeInstallProcess(m_data.ndkPath, QString(), QLatin1String(" --list"));
     QTC_ASSERT(!qdeProcess.isEmpty(), return);
     m_targetListProcess->start(qdeProcess);
 }
@@ -377,6 +399,21 @@ BlackBerryInstallWizardProcessPage::~BlackBerryInstallWizardProcessPage()
 
 void BlackBerryInstallWizardProcessPage::initializePage()
 {
+    QString target;
+    switch (m_data.installTarget) {
+    case BlackBerryInstallerDataHandler::ApiLevel:
+        target = tr("API level version: ");
+        break;
+    case BlackBerryInstallerDataHandler::Simulator:
+        target = tr("simulator version: ");
+        break;
+    case BlackBerryInstallerDataHandler::Runtime:
+        target = tr("runtime version: ");
+        break;
+    default:
+        break;
+    }
+
     if (m_data.mode == BlackBerryInstallerDataHandler::UninstallMode) {
         if (m_data.version.isEmpty()) {
             wizard()->next();
@@ -391,9 +428,9 @@ void BlackBerryInstallWizardProcessPage::initializePage()
             }
         }
 
-        m_ui->label->setText(tr("Uninstalling target:") + QLatin1Char('\n') + m_data.target);
+        m_ui->label->setText(tr("Uninstalling ") + target + m_data.version);
     } else {
-        m_ui->label->setText(tr("Installing target:") + QLatin1Char('\n') + m_data.target);
+        m_ui->label->setText(tr("Installing ") + target + m_data.version);
     }
     // m_targetProcess could be running
     if (m_targetProcess->state() == QProcess::Running) {
@@ -428,6 +465,12 @@ void BlackBerryInstallWizardProcessPage::handleProcessFinished(int exitCode, QPr
 
 void BlackBerryInstallWizardProcessPage::processTarget()
 {
+    QString target;
+    if (m_data.installTarget == BlackBerryInstallerDataHandler::Simulator)
+        target = QLatin1String(" --simulator");
+    else if (m_data.installTarget == BlackBerryInstallerDataHandler::Runtime)
+        target = QLatin1String(" --runtime");
+
     QString option;
     if (m_data.mode == BlackBerryInstallerDataHandler::UninstallMode)
         option = QLatin1String(" --uninstall");
@@ -449,7 +492,7 @@ void BlackBerryInstallWizardProcessPage::processTarget()
 
     // Killing the sdkinstall process won't kill the qde process it launched
     // thus, let's directly launch the resulting qde process
-    QString qdeProcess = QnxUtils::qdeInstallProcess(m_data.ndkPath, option, version);
+    QString qdeProcess = QnxUtils::qdeInstallProcess(m_data.ndkPath, target, option, version);
     QTC_ASSERT(!qdeProcess.isEmpty(), return);
     m_targetProcess->start(qdeProcess);
 
@@ -497,15 +540,30 @@ void BlackBerryInstallWizardFinalPage::initializePage()
     }
 
     QString message;
+    QString target;
+    switch (m_data.installTarget) {
+    case BlackBerryInstallerDataHandler::ApiLevel:
+        target = tr("API level version: ");
+        break;
+    case BlackBerryInstallerDataHandler::Simulator:
+        target = tr("simulator version: ");
+        break;
+    case BlackBerryInstallerDataHandler::Runtime:
+        target = tr("runtime version: ");
+        break;
+    default:
+        break;
+    }
+
     if (m_data.exitCode == 0 && m_data.exitStatus == QProcess::NormalExit) {
         message = m_data.mode == BlackBerryInstallerDataHandler::UninstallMode ?
-            tr("Finished uninstalling target:\n %1").arg(m_data.target) :
-            tr("Finished installing target:\n %1").arg(m_data.target);
+            tr("Finished uninstalling %1:\n %2").arg(target, m_data.version) :
+            tr("Finished installing %1:\n %2").arg(target, m_data.version);
         emit done();
     } else {
         message = m_data.mode == BlackBerryInstallerDataHandler::UninstallMode ?
-            tr("An error has occurred while uninstalling target:\n %1").arg(m_data.target) :
-            tr("An error has occurred while installing target:\n %1").arg(m_data.target);
+            tr("An error has occurred while uninstalling %1:\n %2").arg(target, m_data.version) :
+            tr("An error has occurred while installing %1:\n %2").arg(target, m_data.version);
     }
     label->setText(message);
 }

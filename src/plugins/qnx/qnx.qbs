@@ -118,6 +118,7 @@ QtcPlugin {
         "blackberryinstallwizard.cpp",
         "blackberryinstallwizard.h",
         "blackberryinstallwizardndkpage.ui",
+        "blackberryinstallwizardoptionpage.ui",
         "blackberryinstallwizardpages.cpp",
         "blackberryinstallwizardpages.h",
         "blackberryinstallwizardprocesspage.ui",

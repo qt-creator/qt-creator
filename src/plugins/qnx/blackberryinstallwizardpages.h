@@ -41,13 +41,13 @@
 
 QT_BEGIN_NAMESPACE
 class QProcess;
-class QRadioButton;
-class QVBoxLayout;
+class QButtonGroup;
 QT_END_NAMESPACE
 
 namespace Qnx {
 namespace Internal {
 
+class Ui_BlackBerryInstallWizardOptionPage;
 class Ui_BlackBerryInstallWizardNdkPage;
 class Ui_BlackBerryInstallWizardTargetPage;
 class Ui_BlackBerryInstallWizardProcessPage;
@@ -74,22 +74,24 @@ class BlackBerryInstallWizardOptionPage : public QWizardPage
 
 public:
     explicit BlackBerryInstallWizardOptionPage(BlackBerryInstallerDataHandler &data, QWidget *parent = 0);
+    ~BlackBerryInstallWizardOptionPage();
     void initializePage();
     bool isComplete() const;
     int nextId() const;
 
 protected slots:
-    void handleOptionChanged();
+    void handleApiLevelOptionChanged();
     void handlePathChanged(const QString &envFilePath);
+    void handleTargetChanged();
 
 signals:
     void installModeChanged();
 
 private:
-    QVBoxLayout *m_layout;
-    QRadioButton* m_installButton;
-    QRadioButton* m_addButton;
-    NdkPathChooser* m_envFileChooser;
+    Ui_BlackBerryInstallWizardOptionPage *m_ui;
+    QButtonGroup *m_buttonGroup;
+
+    NdkPathChooser *m_envFileChooser;
     BlackBerryInstallerDataHandler &m_data;
 };
 

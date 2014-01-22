@@ -53,12 +53,19 @@ public:
         ManuallMode
     };
 
+    enum Target {
+        ApiLevel,
+        Simulator,
+        Runtime
+    };
+
     QString ndkPath;
     QString target;
     QString version;
     int exitCode;
     QProcess::ExitStatus exitStatus;
     Mode mode;
+    Target installTarget;
 };
 
 class BlackBerryInstallWizard : public Utils::Wizard
@@ -74,6 +81,7 @@ public:
     };
 
     explicit BlackBerryInstallWizard(BlackBerryInstallerDataHandler::Mode mode = BlackBerryInstallerDataHandler::InstallMode,
+                                     BlackBerryInstallerDataHandler::Target target = BlackBerryInstallerDataHandler::ApiLevel,
                                      const QString& version = QString(),
                                      QWidget *parent = 0);
 

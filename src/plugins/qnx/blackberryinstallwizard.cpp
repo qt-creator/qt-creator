@@ -40,6 +40,7 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 BlackBerryInstallWizard::BlackBerryInstallWizard(BlackBerryInstallerDataHandler::Mode mode,
+                                                 BlackBerryInstallerDataHandler::Target target,
                                                  const QString& version,
                                                  QWidget *parent)
     : Utils::Wizard(parent)
@@ -49,7 +50,9 @@ BlackBerryInstallWizard::BlackBerryInstallWizard(BlackBerryInstallerDataHandler:
     setWindowTitle(tr("BlackBerry NDK Installation Wizard"));
 
     m_data.mode = mode;
+    m_data.installTarget = target;
     m_data.version = version;
+
 
     if (m_data.mode != BlackBerryInstallerDataHandler::UninstallMode) {
         m_optionPage = new BlackBerryInstallWizardOptionPage(m_data, this);
