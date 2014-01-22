@@ -772,11 +772,11 @@ class DumperBase:
                 self.putItem(value.dereference())
                 self.currentChildType = savedCurrentChildType
                 #self.putPointerValue(value)
-                self.put('origaddr="%s",' % value.address)
+                self.put('origaddr="0x%x",' % value.address)
                 return True
 
         #warn("GENERIC PLAIN POINTER: %s" % value.type)
-        #warn("ADDR PLAIN POINTER: %s" % value.address)
+        #warn("ADDR PLAIN POINTER: 0x%x" % value.address)
         self.putType(typeName)
         self.putValue("0x%x" % self.pointerValue(value))
         self.putNumChild(1)
