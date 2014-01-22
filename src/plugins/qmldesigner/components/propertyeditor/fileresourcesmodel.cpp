@@ -29,6 +29,8 @@
 
 #include "fileresourcesmodel.h"
 
+#include <coreplugin/icore.h>
+
 #include <model.h>
 
 #include <QFileDialog>
@@ -130,7 +132,7 @@ void FileResourcesModel::openFileDialog()
     if (!QFileInfo(path).exists())
         path = modelPath;
 
-    QString newFile = QFileDialog::getOpenFileName(0, tr("Open File"), path, m_filter);
+    QString newFile = QFileDialog::getOpenFileName(Core::ICore::mainWindow(), tr("Open File"), path, m_filter);
 
     if (!newFile.isEmpty()) {
         setFileNameStr(newFile);
