@@ -78,7 +78,7 @@ static QString signalProcessByNameCommandLine(const QString &filePath, int signa
                 "cd /proc; for pid in `ls -d [0123456789]*`; "
                 "do "
                 "if [ \"`readlink /proc/$pid/exe`\" = \"%1\" ]; then "
-                "    kill %2 $pid;"
+                "    kill -%2 $pid;"
                 "fi; "
                 "done").arg(filePath).arg(signal);
 }
