@@ -62,6 +62,7 @@ def main():
                                         {os.path.join(workingDir, projectName, "qml", projectName, "main.qml"):13}]
             # Only use 4.7.4 to work around QTBUG-25187
             availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
+            progressBarWait()
             if not availableConfigs:
                 test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
             for kit, config in availableConfigs:
