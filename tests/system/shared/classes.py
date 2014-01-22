@@ -136,13 +136,16 @@ class SubprocessType:
     USER_DEFINED=3
 
     @staticmethod
-    def getWindowType(subprocessType):
+    def getWindowType(subprocessType, qtQuickVersion=1):
         if subprocessType == SubprocessType.QT_WIDGET:
             return "QMainWindow"
         if subprocessType == SubprocessType.QT_QUICK_APPLICATION:
-            return "QmlApplicationViewer"
+            return "QtQuick%dApplicationViewer" % qtQuickVersion
         if subprocessType == SubprocessType.QT_QUICK_UI:
-            return "QDeclarativeViewer"
+            if qtQuickVersion == 1:
+                return "QDeclarativeViewer"
+            else:
+                return "QQuickView"
         if subprocessType == SubprocessType.USER_DEFINED:
             return "user-defined"
         test.fatal("Could not determine the WindowType for SubprocessType %s" % subprocessType)

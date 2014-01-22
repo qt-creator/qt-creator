@@ -54,7 +54,7 @@ def main():
                 if result:
                     result = runAndCloseApp(True, projectName, 11223,
                                             "subprocessFunctionQuick%d" % qVer,
-                                            SubprocessType.QT_QUICK_APPLICATION)
+                                            SubprocessType.QT_QUICK_APPLICATION, quickVersion=qVer)
                 else:
                     result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)
                 removeExecutableAsAttachableAUT(projectName, 11223)
