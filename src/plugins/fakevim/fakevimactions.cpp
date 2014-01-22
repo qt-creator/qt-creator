@@ -77,6 +77,26 @@ QVariant SavedAction::value() const
     return m_value;
 }
 
+void SavedAction::setDefaultValue(const QVariant &value)
+{
+    m_defaultValue = value;
+}
+
+QVariant SavedAction::defaultValue() const
+{
+    return m_defaultValue;
+}
+
+void SavedAction::setSettingsKey(const QString &key)
+{
+    m_settingsKey = key;
+}
+
+QString SavedAction::settingsKey() const
+{
+    return m_settingsKey;
+}
+
 } // namespace Utils
 #endif // FAKEVIM_STANDALONE
 

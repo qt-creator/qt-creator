@@ -53,7 +53,14 @@ public:
     SavedAction(QObject *parent);
     void setValue(const QVariant &value);
     QVariant value() const;
+    void setDefaultValue(const QVariant &value);
+    QVariant defaultValue() const;
+    void setSettingsKey(const QString &key);
+    QString settingsKey() const;
+
     QVariant m_value;
+    QVariant m_defaultValue;
+    QString m_settingsKey;
 };
 
 } // namespace Utils
