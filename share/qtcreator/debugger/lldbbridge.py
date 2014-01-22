@@ -413,6 +413,16 @@ class Dumper(DumperBase):
         #warn("  -> %s" % result)
         return result
 
+    def makeValue(self, type, *args):
+        thread = self.currentThread()
+        frame = thread.GetFrameAtIndex(0)
+        inner = ','.join(args)
+        value = frame.EvaluateExpression(type + '{' + inner + '}')
+        #warn("  TYPE: %s" % value.type)
+        #warn("  ADDR: 0x%x" % value.address)
+        #warn("  VALUE: %s" % value)
+        return value
+
     def parseAndEvaluate(self, expr):
         thread = self.currentThread()
         frame = thread.GetFrameAtIndex(0)

@@ -3370,7 +3370,7 @@ void tst_Dumpers::dumper_data()
                % Check("i11", "", "@QStandardItem")
                % Check("i2", "", "@QStandardItem")
                % Check("m", "", "@QStandardItemModel")
-               % Check("mi", "\"1\"", "@QModelIndex");
+               % Check("mi", "\"1\"", "@QModelIndex").setEngines(GdbEngine);
 
     QTest::newRow("QStackInt")
             << Data("#include <QStack>\n",
