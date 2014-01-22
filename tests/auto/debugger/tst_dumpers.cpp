@@ -1664,7 +1664,8 @@ void tst_Dumpers::dumper_data()
                % Check("hash.2.key", "\".\"", "@QString")
                % CheckType("hash.2.value", "@QPointer<@QObject>");
 
-    QTest::newRow("QHashIntFloatIterator")
+
+    QTest::newRow("QHashIterator")
             << Data("#include <QHash>\n",
                     "typedef QHash<int, float> Hash;\n"
                     "Hash hash;\n"
@@ -1688,19 +1689,12 @@ void tst_Dumpers::dumper_data()
                % Check("it6.key", "33", "int")
                % Check("it6.value", "33", "float");
 
-    QTest::newRow("QHostAddress1")
-            << Data("#include <QHostAddress>\n",
-                    "QHostAddress ha1(129u * 256u * 256u * 256u + 130u);\n"
-                    "QHostAddress ha2;\n"
-                    "ha2.setAddress(\"127.0.0.1\");\n"
-                    "unused(&ha1, &ha2);\n")
-               % CoreProfile()
-               % Profile("QT += network\n")
-               % Check("ha1", "129.0.0.130", "@QHostAddress")
-               % Check("ha2", "\"127.0.0.1\"", "@QHostAddress");
 
-    QTest::newRow("QHostAddress2")
+    QTest::newRow("QHostAddress")
             << Data("#include <QHostAddress>\n",
+                    "QHostAddress ha1(129u * 256u * 256u * 256u + 130u);\n\n"
+                    "QHostAddress ha2;\n"
+                    "ha2.setAddress(\"127.0.0.1\");\n\n"
                     "QIPv6Address addr;\n"
                     "addr.c[0] = 0;\n"
                     "addr.c[1] = 1;\n"
@@ -1718,11 +1712,13 @@ void tst_Dumpers::dumper_data()
                     "addr.c[13] = 0;\n"
                     "addr.c[14] = 0;\n"
                     "addr.c[15] = 0;\n"
-                    "QHostAddress ha1(addr);\n"
-                    "unused(&ha1);\n")
-               % CoreProfile()
-               % Profile("QT += network\n")
+                    "QHostAddress ha3(addr);\n"
+                    "unused(&ha1, &ha2, &ha3);\n")
+               % NetworkProfile()
+               % Check("ha1", "129.0.0.130", "@QHostAddress")
+               % Check("ha2", "\"127.0.0.1\"", "@QHostAddress")
                % Check("addr", "1:203:506:0:809:a0b:0:0", "@QIPv6Address");
+
 
     QTest::newRow("QImage")
             << Data("#include <QImage>\n"
@@ -1756,72 +1752,67 @@ void tst_Dumpers::dumper_data()
                % CheckType("pain", "@QPainter")
                % Check("pm", "(200x200)", "@QPixmap");
 
-    QTest::newRow("QLinkedListInt")
-            << Data("#include <QLinkedList>\n",
-                    "QLinkedList<int> list;\n"
-                    "list.append(101);\n"
-                    "list.append(102);\n")
-               % CoreProfile()
-               % Check("list", "<2 items>", "@QLinkedList<int>")
-               % Check("list.0", "[0]", "101", "int")
-               % Check("list.1", "[1]", "102", "int");
-
-    QTest::newRow("QLinkedListUInt")
-            << Data("#include <QLinkedList>\n",
-                    "QLinkedList<uint> list;\n"
-                    "list.append(103);\n"
-                    "list.append(104);\n")
-               % CoreProfile()
-               % Check("list", "<2 items>", "@QLinkedList<unsigned int>")
-               % Check("list.0", "[0]", "103", "unsigned int")
-               % Check("list.1", "[1]", "104", "unsigned int");
-
-    QTest::newRow("QLinkedListFooStar")
-            << Data("#include <QLinkedList>\n" + fooData,
-                    "QLinkedList<Foo *> list;\n"
-                    "list.append(new Foo(1));\n"
-                    "list.append(0);\n"
-                    "list.append(new Foo(3));\n")
-               % CoreProfile()
-               % Check("list", "<3 items>", "@QLinkedList<Foo*>")
-               % CheckType("list.0", "[0]", "Foo")
-               % Check("list.0.a", "1", "int")
-               % Check("list.1", "[1]", "0x0", "Foo *")
-               % CheckType("list.2", "[2]", "Foo")
-               % Check("list.2.a", "3", "int");
-
-    QTest::newRow("QLinkedListULongLong")
-            << Data("#include <QLinkedList>\n",
-                    "QLinkedList<qulonglong> list;\n"
-                    "list.append(42);\n"
-                    "list.append(43);\n")
-               % CoreProfile()
-               % Check("list", "<2 items>", "@QLinkedList<unsigned long long>")
-               % Check("list.0", "[0]", "42", "unsigned long long")
-               % Check("list.1", "[1]", "43", "unsigned long long");
-
-    QTest::newRow("QLinkedListFoo")
-            << Data("#include <QLinkedList>\n" + fooData,
-                    "QLinkedList<Foo> list;\n"
-                    "list.append(Foo(1));\n"
-                    "list.append(Foo(2));\n")
-               % CoreProfile()
-               % Check("list", "<2 items>", "@QLinkedList<Foo>")
-               % CheckType("list.0", "[0]", "Foo")
-               % Check("list.0.a", "1", "int")
-               % CheckType("list.1", "[1]", "Foo")
-               % Check("list.1.a", "2", "int");
-
-    QTest::newRow("QLinkedListStdString")
+    QTest::newRow("QLinkedList")
             << Data("#include <QLinkedList>\n"
-                    "#include <string>\n",
-                    "QLinkedList<std::string> list;\n"
-                    "list.push_back(\"aa\");\n"
-                    "list.push_back(\"bb\");\n")
+                    "#include <string>\n"
+                    + fooData,
+
+                    "QLinkedList<int> list1;\n"
+                    "list1.append(101);\n"
+                    "list1.append(102);\n\n"
+
+                    "QLinkedList<uint> list2;\n"
+                    "list2.append(103);\n"
+                    "list2.append(104);\n\n"
+
+                    "QLinkedList<Foo *> list3;\n"
+                    "list3.append(new Foo(1));\n"
+                    "list3.append(0);\n"
+                    "list3.append(new Foo(3));\n\n"
+
+                    "QLinkedList<qulonglong> list4;\n"
+                    "list4.append(42);\n"
+                    "list4.append(43);\n\n"
+
+                    "QLinkedList<Foo> list5;\n"
+                    "list5.append(Foo(1));\n"
+                    "list5.append(Foo(2));\n\n"
+
+                    "QLinkedList<std::string> list6;\n"
+                    "list6.push_back(\"aa\");\n"
+                    "list6.push_back(\"bb\");\n")
+
                % CoreProfile()
-               % Check("list", "<2 items>", "@QLinkedList<std::string>")
-               % Check("list.0", "[0]", "\"aa\"", "std::string")
-               % Check("list.1", "[1]", "\"bb\"", "std::string");
+
+               % Check("list1", "<2 items>", "@QLinkedList<int>")
+               % Check("list1.0", "[0]", "101", "int")
+               % Check("list1.1", "[1]", "102", "int")
+
+               % Check("list2", "<2 items>", "@QLinkedList<unsigned int>")
+               % Check("list2.0", "[0]", "103", "unsigned int")
+               % Check("list2.1", "[1]", "104", "unsigned int")
+
+               % Check("list3", "<3 items>", "@QLinkedList<Foo*>")
+               % CheckType("list3.0", "[0]", "Foo")
+               % Check("list3.0.a", "1", "int")
+               % Check("list3.1", "[1]", "0x0", "Foo *")
+               % CheckType("list3.2", "[2]", "Foo")
+               % Check("list3.2.a", "3", "int")
+
+               % Check("list4", "<2 items>", "@QLinkedList<unsigned long long>")
+               % Check("list4.0", "[0]", "42", "unsigned long long")
+               % Check("list4.1", "[1]", "43", "unsigned long long")
+
+               % Check("list5", "<2 items>", "@QLinkedList<Foo>")
+               % CheckType("list5.0", "[0]", "Foo")
+               % Check("list5.0.a", "1", "int")
+               % CheckType("list5.1", "[1]", "Foo")
+               % Check("list5.1.a", "2", "int")
+
+               % Check("list6", "<2 items>", "@QLinkedList<std::string>")
+               % Check("list6.0", "[0]", "\"aa\"", "std::string")
+               % Check("list6.1", "[1]", "\"bb\"", "std::string");
+
 
     QTest::newRow("QListInt")
             << Data("#include <QList>\n",
@@ -5205,7 +5196,7 @@ void tst_Dumpers::dumper_data()
                    "#else\n"
                    "int sharedPtr = 1;\n"
                    "#endif\n"
-                   "unused(&ptrConst, &ref, &refConst, &ptrToPtr, &sharedPtr);\n")
+                   "unused(&ptrConst, &ref, &refConst, &ptrToPtr, &sharedPtr, &s);\n")
                % GdbEngine
                % GdbVersion(70500)
                % BoostProfile()
