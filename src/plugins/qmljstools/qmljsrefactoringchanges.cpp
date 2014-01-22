@@ -124,7 +124,7 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(const QString &fileName, const QShare
     : RefactoringFile(fileName, data)
 {
     // the RefactoringFile is invalid if its not for a file with qml or js code
-    if (languageOfFile(fileName) == Language::Unknown)
+    if (ModelManagerInterface::guessLanguageOfFile(fileName) == Language::Unknown)
         m_fileName.clear();
 }
 
@@ -142,7 +142,8 @@ Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
         const QString name = fileName();
         const Snapshot &snapshot = data()->m_snapshot;
 
-        Document::MutablePtr newDoc = snapshot.documentFromSource(source, name, languageOfFile(name));
+        Document::MutablePtr newDoc = snapshot.documentFromSource(source, name,
+                                                                  ModelManagerInterface::guessLanguageOfFile(name));
         newDoc->parse();
         m_qmljsDocument = newDoc;
     }

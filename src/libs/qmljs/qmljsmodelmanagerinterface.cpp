@@ -29,6 +29,8 @@
 
 #include "qmljsmodelmanagerinterface.h"
 
+#include <QFileInfo>
+
 using namespace QmlJS;
 
 /*!
@@ -65,8 +67,54 @@ ModelManagerInterface::~ModelManagerInterface()
     g_instance = 0;
 }
 
+static QHash<QString, Language::Enum> defaultLanguageMapping()
+{
+    QHash<QString, Language::Enum> res;
+    res[QLatin1String("js")] = Language::JavaScript;
+    res[QLatin1String("qml")] = Language::Qml;
+    res[QLatin1String("qmltypes")] = Language::QmlTypeInfo;
+    res[QLatin1String("qmlproject")] = Language::QmlProject;
+    res[QLatin1String("json")] = Language::Json;
+    res[QLatin1String("qbs")] = Language::QmlQbs;
+    return res;
+}
+
+Language::Enum ModelManagerInterface::guessLanguageOfFile(const QString &fileName)
+{
+    QHash<QString, Language::Enum> lMapping;
+    if (instance())
+        lMapping = instance()->languageForSuffix();
+    else
+        lMapping = defaultLanguageMapping();
+    const QFileInfo info(fileName);
+    const QString fileSuffix = info.suffix();
+    return lMapping.value(fileSuffix, Language::Unknown);
+}
+
+QStringList ModelManagerInterface::globPatternsForLanguages(const QList<Language::Enum> languages)
+{
+    QHash<QString, Language::Enum> lMapping;
+    if (instance())
+        lMapping = instance()->languageForSuffix();
+    else
+        lMapping = defaultLanguageMapping();
+    QStringList patterns;
+    QHashIterator<QString,Language::Enum> i(lMapping);
+    while (i.hasNext()) {
+        i.next();
+        if (languages.contains(i.value()))
+            patterns << QLatin1String("*.") + i.key();
+    }
+    return patterns;
+}
+
 ModelManagerInterface *ModelManagerInterface::instance()
 {
     return g_instance;
+}
+
+QHash<QString, Language::Enum> ModelManagerInterface::languageForSuffix() const
+{
+    return defaultLanguageMapping();
 }
 

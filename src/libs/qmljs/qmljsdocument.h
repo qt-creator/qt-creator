@@ -56,6 +56,7 @@ public:
     static bool isQmlLikeLanguage(Language::Enum languge);
     static bool isFullySupportedLanguage(Language::Enum language);
     static bool isQmlLikeOrJsLanguage(Language::Enum language);
+    static QList<Language::Enum> companionLanguages(Language::Enum language);
 protected:
     Document(const QString &fileName, Language::Enum language);
 
@@ -63,7 +64,6 @@ public:
     ~Document();
 
     static MutablePtr create(const QString &fileName, Language::Enum language);
-    static Language::Enum guessLanguageFromSuffix(const QString &fileName);
 
     Document::Ptr ptr() const;
 

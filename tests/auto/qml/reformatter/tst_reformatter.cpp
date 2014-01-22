@@ -36,6 +36,7 @@
 #include <QFileInfo>
 
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsreformatter.h>
 #include <qmljs/parser/qmljsast_p.h>
 
@@ -78,7 +79,7 @@ void tst_Reformatter::test()
 {
     QFETCH(QString, path);
 
-    Document::MutablePtr doc = Document::create(path, Document::guessLanguageFromSuffix(path));
+    Document::MutablePtr doc = Document::create(path, ModelManagerInterface::guessLanguageOfFile(path));
     QFile file(doc->fileName());
     file.open(QFile::ReadOnly | QFile::Text);
     QString source = QString::fromUtf8(file.readAll());

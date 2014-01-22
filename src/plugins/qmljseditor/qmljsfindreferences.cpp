@@ -816,7 +816,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         if (oldDoc)
             language = oldDoc->language();
         else
-            language = QmlJSTools::languageOfFile(fileName);
+            language = ModelManagerInterface::guessLanguageOfFile(fileName);
 
         Document::MutablePtr newDoc = snapshot.documentFromSource(
                     it.value().first, fileName, language);

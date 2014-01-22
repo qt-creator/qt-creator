@@ -139,6 +139,8 @@ public:
     ModelManagerInterface(QObject *parent = 0);
     virtual ~ModelManagerInterface();
 
+    static Language::Enum guessLanguageOfFile(const QString &fileName);
+    static QStringList globPatternsForLanguages(const QList<Language::Enum> languages);
     static ModelManagerInterface *instance();
 
     virtual WorkingCopy workingCopy() const = 0;
@@ -184,7 +186,6 @@ public:
 
     // Blocks until all parsing threads are done. Used for testing.
     virtual void joinAllThreads() = 0;
-
 public slots:
     virtual void resetCodeModel() = 0;
 
@@ -194,6 +195,8 @@ signals:
     void aboutToRemoveFiles(const QStringList &files);
     void libraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
     void projectInfoUpdated(const ProjectInfo &pinfo);
+protected:
+    virtual QHash<QString,Language::Enum> languageForSuffix() const;
 };
 
 } // namespace QmlJS

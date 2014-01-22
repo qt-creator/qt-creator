@@ -30,6 +30,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QFile>
 #include <QList>
@@ -331,7 +332,7 @@ int main(int argc, char *argv[])
         const QByteArray source = file.readAll();
         file.close();
 
-        Document::MutablePtr doc = Document::create(fileName, Document::guessLanguageFromSuffix(fileName));
+        Document::MutablePtr doc = Document::create(fileName, ModelManagerInterface::guessLanguageOfFile(fileName));
         doc->setSource(QString::fromUtf8(source));
         doc->parse();
 

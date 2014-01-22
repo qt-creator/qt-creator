@@ -137,6 +137,34 @@ bool Document::isQmlLikeOrJsLanguage(Language::Enum language)
     }
 }
 
+QList<Language::Enum> Document::companionLanguages(Language::Enum language)
+{
+    QList<Language::Enum> langs;
+    langs << language;
+    switch (language) {
+    case Language::JavaScript:
+    case Language::Json:
+    case Language::QmlProject:
+    case Language::QmlTypeInfo:
+        break;
+    case Language::QmlQbs:
+        langs << Language::JavaScript;
+        break;
+    case Language::Qml:
+        langs << Language::QmlQtQuick1 << Language::QmlQtQuick2 << Language::JavaScript;
+        break;
+    case Language::QmlQtQuick1:
+    case Language::QmlQtQuick2:
+        langs << Language::Qml << Language::JavaScript;
+        break;
+    case Language::Unknown:
+        langs << Language::JavaScript << Language::Json << Language::QmlProject << Language:: QmlQbs
+              << Language::QmlTypeInfo << Language::QmlQtQuick1 << Language::QmlQtQuick2 ;
+        break;
+    }
+    return langs;
+}
+
 Document::Document(const QString &fileName, Language::Enum language)
     : _engine(0)
     , _ast(0)
@@ -175,19 +203,6 @@ Document::MutablePtr Document::create(const QString &fileName, Language::Enum la
     Document::MutablePtr doc(new Document(fileName, language));
     doc->_ptr = doc;
     return doc;
-}
-
-Language::Enum Document::guessLanguageFromSuffix(const QString &fileName)
-{
-    if (fileName.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive))
-        return Language::Qml;
-    if (fileName.endsWith(QLatin1String(".qbs"), Qt::CaseInsensitive))
-        return Language::QmlQbs;
-    if (fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive))
-        return Language::JavaScript;
-    if (fileName.endsWith(QLatin1String(".json"), Qt::CaseInsensitive))
-        return Language::Json;
-    return Language::Unknown;
 }
 
 Document::Ptr Document::ptr() const

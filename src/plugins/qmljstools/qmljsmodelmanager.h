@@ -60,9 +60,6 @@ class QrcParser;
 
 namespace QmlJSTools {
 
-QMLJSTOOLS_EXPORT QmlJS::Language::Enum languageOfFile(const QString &fileName);
-QMLJSTOOLS_EXPORT QStringList qmlAndJsGlobPatterns();
-
 namespace Internal {
 
 class PluginDumper;
@@ -197,6 +194,8 @@ private:
     PluginDumper *m_pluginDumper;
 
     QFutureSynchronizer<void> m_synchronizer;
+
+    QHash<QString, QmlJS::Language::Enum> languageForSuffix() const QTC_OVERRIDE;
 };
 
 } // namespace Internal

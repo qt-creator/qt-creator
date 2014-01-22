@@ -172,62 +172,28 @@ void QmlJSTools::setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &
 
 static QStringList environmentImportPaths();
 
-static void mergeSuffixes(QStringList &l1, const QStringList &l2)
+QHash<QString,QmlJS::Language::Enum> ModelManager::languageForSuffix() const
 {
-    if (!l2.isEmpty())
-        l1 = l2;
-}
-
-QmlJS::Language::Enum QmlJSTools::languageOfFile(const QString &fileName)
-{
-    QStringList jsSuffixes(QLatin1String("js"));
-    QStringList qmlSuffixes(QLatin1String("qml"));
-    QStringList qmlProjectSuffixes(QLatin1String("qmlproject"));
-    QStringList jsonSuffixes(QLatin1String("json"));
-    QStringList qbsSuffixes(QLatin1String("qbs"));
+    QHash<QString,QmlJS::Language::Enum> res = ModelManagerInterface::languageForSuffix();
 
     if (ICore::instance()) {
         MimeType jsSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JS_MIMETYPE));
-        mergeSuffixes(jsSuffixes, jsSourceTy.suffixes());
+        foreach (const QString &suffix, jsSourceTy.suffixes())
+            res[suffix] = Language::JavaScript;
         MimeType qmlSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QML_MIMETYPE));
-        mergeSuffixes(qmlSuffixes, qmlSourceTy.suffixes());
+        foreach (const QString &suffix, qmlSourceTy.suffixes())
+            res[suffix] = Language::Qml;
         MimeType qbsSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QBS_MIMETYPE));
-        mergeSuffixes(qbsSuffixes, qbsSourceTy.suffixes());
+        foreach (const QString &suffix, qbsSourceTy.suffixes())
+            res[suffix] = Language::QmlQbs;
         MimeType qmlProjectSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
-        mergeSuffixes(qmlProjectSuffixes, qmlProjectSourceTy.suffixes());
+        foreach (const QString &suffix, qmlProjectSourceTy.suffixes())
+            res[suffix] = Language::QmlProject;
         MimeType jsonSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JSON_MIMETYPE));
-        mergeSuffixes(jsonSuffixes, jsonSourceTy.suffixes());
+        foreach (const QString &suffix, jsonSourceTy.suffixes())
+            res[suffix] = Language::Json;
     }
-
-    const QFileInfo info(fileName);
-    const QString fileSuffix = info.suffix();
-    if (jsSuffixes.contains(fileSuffix))
-        return QmlJS::Language::JavaScript;
-    if (qbsSuffixes.contains(fileSuffix))
-        return QmlJS::Language::QmlQbs;
-    if (qmlSuffixes.contains(fileSuffix) || qmlProjectSuffixes.contains(fileSuffix))
-        return QmlJS::Language::Qml;
-    if (jsonSuffixes.contains(fileSuffix))
-        return QmlJS::Language::Json;
-    return QmlJS::Language::Unknown;
-}
-
-QStringList QmlJSTools::qmlAndJsGlobPatterns()
-{
-    QStringList pattern;
-    if (ICore::instance()) {
-        MimeType jsSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JS_MIMETYPE));
-        MimeType qmlSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QML_MIMETYPE));
-
-        QStringList pattern;
-        foreach (const MimeGlobPattern &glob, jsSourceTy.globPatterns())
-            pattern << glob.pattern();
-        foreach (const MimeGlobPattern &glob, qmlSourceTy.globPatterns())
-            pattern << glob.pattern();
-    } else {
-        pattern << QLatin1String("*.qml") << QLatin1String("*.js");
-    }
-    return pattern;
+    return res;
 }
 
 ModelManager::ModelManager(QObject *parent):
@@ -652,9 +618,9 @@ void ModelManager::updateLibraryInfo(const QString &path, const LibraryInfo &inf
         emit libraryInfoUpdated(path, info);
 }
 
-static QStringList qmlFilesInDirectory(const QString &path)
+static QStringList filesInDirectoryForLanguages(const QString &path, QList<Language::Enum> languages)
 {
-    const QStringList pattern = qmlAndJsGlobPatterns();
+    const QStringList pattern = ModelManagerInterface::globPatternsForLanguages(languages);
     QStringList files;
 
     const QDir dir(path);
@@ -671,7 +637,8 @@ static void findNewImplicitImports(const Document::Ptr &doc, const Snapshot &sna
     // it's important we also do this for JS files, otherwise the isEmpty check will fail
     if (snapshot.documentsInDirectory(doc->path()).isEmpty()) {
         if (! scannedPaths->contains(doc->path())) {
-            *importedFiles += qmlFilesInDirectory(doc->path());
+            *importedFiles += filesInDirectoryForLanguages(doc->path(),
+                                                  Document::companionLanguages(doc->language()));
             scannedPaths->insert(doc->path());
         }
     }
@@ -689,7 +656,8 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
         } else if (import.type() == ImportType::Directory) {
             if (snapshot.documentsInDirectory(importName).isEmpty()) {
                 if (! scannedPaths->contains(importName)) {
-                    *importedFiles += qmlFilesInDirectory(importName);
+                    *importedFiles += filesInDirectoryForLanguages(importName,
+                                                          Document::companionLanguages(doc->language()));
                     scannedPaths->insert(importName);
                 }
             }
@@ -703,7 +671,7 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
             QMapIterator<QString,QStringList> dirContents(ModelManagerInterface::instance()->filesInQrcPath(importName));
             while (dirContents.hasNext()) {
                 dirContents.next();
-                if (Document::isQmlLikeOrJsLanguage(Document::guessLanguageFromSuffix(dirContents.key()))) {
+                if (Document::isQmlLikeOrJsLanguage(ModelManagerInterface::guessLanguageOfFile(dirContents.key()))) {
                     foreach (const QString &filePath, dirContents.value()) {
                         if (! snapshot.document(filePath))
                             *importedFiles += filePath;
@@ -763,7 +731,8 @@ static bool findNewQmlLibraryInPath(const QString &path,
             const QFileInfo componentFileInfo(dir.filePath(component.fileName));
             const QString path = QDir::cleanPath(componentFileInfo.absolutePath());
             if (! scannedPaths->contains(path)) {
-                *importedFiles += qmlFilesInDirectory(path);
+                *importedFiles += filesInDirectoryForLanguages(path,
+                                                      Document::companionLanguages(Language::Unknown));
                 scannedPaths->insert(path);
             }
         }
@@ -845,7 +814,7 @@ void ModelManager::parseLoop(QSet<QString> &scannedPaths,
 
         const QString fileName = files.at(i);
 
-        Language::Enum language = languageOfFile(fileName);
+        Language::Enum language = guessLanguageOfFile(fileName);
         if (language == Language::Unknown) {
             if (fileName.endsWith(QLatin1String(".qrc")))
                 modelManager->updateQrcFile(fileName);
@@ -982,7 +951,8 @@ void ModelManager::importScan(QFutureInterface<void> &future,
             if (!findNewQmlLibraryInPath(toScan.path, snapshot, modelManager, &importedFiles,
                                          &scannedPaths, &newLibraries, true)
                     && !libOnly && snapshot.documentsInDirectory(toScan.path).isEmpty())
-                importedFiles += qmlFilesInDirectory(toScan.path);
+                importedFiles += filesInDirectoryForLanguages(toScan.path,
+                                                     Document::companionLanguages(language));
             workDone += 1;
             future.setProgressValue(progressRange * workDone / totalWork);
             if (!importedFiles.isEmpty()) {
