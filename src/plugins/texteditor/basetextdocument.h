@@ -112,6 +112,8 @@ public:
     bool reload(QString *errorString, QTextCodec *codec);
     void cleanWhitespace(const QTextCursor &cursor);
 
+    void ensureFontSettingsApplied();
+
 public slots:
     void setTabSettings(const TextEditor::TabSettings &tabSettings);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
@@ -120,6 +122,9 @@ signals:
     void mimeTypeChanged();
     void tabSettingsChanged();
     void fontSettingsChanged();
+
+protected slots:
+    virtual void applyFontSettings();
 
 private:
     void cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument);

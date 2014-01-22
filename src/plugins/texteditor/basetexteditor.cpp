@@ -5429,11 +5429,7 @@ void BaseTextEditorWidget::applyFontSettings()
     slotUpdateExtraAreaWidth();   // Adjust to new font width
     updateCurrentLineHighlight(); // Make sure it takes the new color
 
-    SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
-    if (highlighter) {
-        highlighter->setFontSettings(fs);
-        highlighter->rehighlight();
-    }
+    baseTextDocument()->ensureFontSettingsApplied();
 }
 
 void BaseTextEditorWidget::setDisplaySettings(const DisplaySettings &ds)

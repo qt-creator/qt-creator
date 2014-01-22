@@ -79,6 +79,7 @@ public:
     TabSettings m_tabSettings;
     ExtraEncodingSettings m_extraEncodingSettings;
     FontSettings m_fontSettings;
+    bool m_fontSettingsNeedsApply; // for applying font settings delayed till an editor becomes visible
     QTextDocument *m_document;
     SyntaxHighlighter *m_highlighter;
     QScopedPointer<Indenter> m_indenter;
@@ -88,6 +89,7 @@ public:
 };
 
 BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
+    m_fontSettingsNeedsApply(false),
     m_document(new QTextDocument(q)),
     m_highlighter(0),
     m_indenter(new Indenter),
@@ -237,7 +239,24 @@ void BaseTextDocument::setFontSettings(const FontSettings &fontSettings)
     if (fontSettings == d->m_fontSettings)
         return;
     d->m_fontSettings = fontSettings;
+    d->m_fontSettingsNeedsApply = true;
     emit fontSettingsChanged();
+}
+
+void BaseTextDocument::ensureFontSettingsApplied()
+{
+    if (!d->m_fontSettingsNeedsApply)
+        return;
+    d->m_fontSettingsNeedsApply = false;
+    applyFontSettings();
+}
+
+void BaseTextDocument::applyFontSettings()
+{
+    if (d->m_highlighter) {
+        d->m_highlighter->setFontSettings(d->m_fontSettings);
+        d->m_highlighter->rehighlight();
+    }
 }
 
 const FontSettings &BaseTextDocument::fontSettings() const

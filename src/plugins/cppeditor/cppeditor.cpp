@@ -1534,11 +1534,6 @@ TextEditor::CompletionAssistProvider *CPPEditor::completionAssistProvider()
 
 void CPPEditorWidget::applyFontSettings()
 {
-    TextEditor::BaseTextEditorWidget::applyFontSettings();
-    TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
-    if (!highlighter)
-        return;
-
     const TextEditor::FontSettings &fs = baseTextDocument()->fontSettings();
 
     m_semanticHighlightFormatMap[CppHighlightingSupport::TypeUse] =
@@ -1562,16 +1557,8 @@ void CPPEditorWidget::applyFontSettings()
     m_semanticHighlightFormatMap[CppHighlightingSupport::StringUse] =
             fs.toTextCharFormat(TextEditor::C_STRING);
 
-    // Clear all additional formats since they may have changed
-    QTextBlock b = document()->firstBlock();
-    while (b.isValid()) {
-        QList<QTextLayout::FormatRange> noFormats;
-        highlighter->setExtraAdditionalFormats(b, noFormats);
-        b = b.next();
-    }
-
-    // This also triggers an update of the additional formats
-    highlighter->rehighlight();
+    // this also makes the document apply font settings
+    TextEditor::BaseTextEditorWidget::applyFontSettings();
 }
 
 void CPPEditorWidget::unCommentSelection()
@@ -2014,6 +2001,20 @@ CPPEditorDocument::CPPEditorDocument()
 {
     connect(this, SIGNAL(tabSettingsChanged()),
             this, SLOT(invalidateFormatterCache()));
+}
+
+void CPPEditorDocument::applyFontSettings()
+{
+    if (TextEditor::SyntaxHighlighter *highlighter = syntaxHighlighter()) {
+        // Clear all additional formats since they may have changed
+        QTextBlock b = document()->firstBlock();
+        while (b.isValid()) {
+            QList<QTextLayout::FormatRange> noFormats;
+            highlighter->setExtraAdditionalFormats(b, noFormats);
+            b = b.next();
+        }
+    }
+    BaseTextDocument::applyFontSettings(); // rehighlights and updates additional formats
 }
 
 void CPPEditorDocument::invalidateFormatterCache()

@@ -85,20 +85,6 @@ void EditorWidget::unCommentSelection()
     Utils::unCommentSelection(this, m_commentDefinition);
 }
 
-/**
-  Handles common IDE fonts&colors settings
-  (Tools -> Options -> Text editor -> Fonts and colors)
-  */
-void EditorWidget::applyFontSettings()
-{
-    TextEditor::BaseTextEditorWidget::applyFontSettings();
-
-    PythonHighlighter *highlighter =
-            qobject_cast<PythonHighlighter *>(baseTextDocument()->syntaxHighlighter());
-    if (highlighter)
-        highlighter->setFontSettings(baseTextDocument()->fontSettings());
-}
-
 TextEditor::BaseTextEditor *EditorWidget::createEditor()
 {
     return new PythonEditor(this);

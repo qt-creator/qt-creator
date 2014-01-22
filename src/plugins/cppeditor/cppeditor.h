@@ -77,6 +77,9 @@ class CPPEditorDocument : public TextEditor::BaseTextDocument
 public:
     CPPEditorDocument();
 
+protected:
+    void applyFontSettings();
+
 private slots:
     void invalidateFormatterCache();
 };

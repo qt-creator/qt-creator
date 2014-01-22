@@ -48,7 +48,6 @@ public:
     virtual void unCommentSelection();
 
 protected:
-    void applyFontSettings();
     TextEditor::BaseTextEditor *createEditor();
 
 private:
