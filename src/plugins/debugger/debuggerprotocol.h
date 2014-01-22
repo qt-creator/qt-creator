@@ -129,10 +129,6 @@ public:
     void fromString(const QByteArray &str);
     void fromStringMultiple(const QByteArray &str);
 
-private:
-    friend class GdbResponse;
-    friend class GdbEngine;
-
     static QByteArray parseCString(const char *&from, const char *to);
     static QByteArray escapeCString(const QByteArray &ba);
     void parseResultOrValue(const char *&from, const char *to);
