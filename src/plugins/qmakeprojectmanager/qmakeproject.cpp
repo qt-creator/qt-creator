@@ -904,6 +904,9 @@ QStringList QmakeProject::files(FilesMode fileMode) const
         if (fileMode == AllFiles)
             files += m_projectFiles->generatedFiles[i];
     }
+
+    files.removeDuplicates();
+
     return files;
 }
 
