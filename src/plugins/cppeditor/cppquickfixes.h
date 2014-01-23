@@ -40,14 +40,6 @@
 
 QT_BEGIN_NAMESPACE
 class QByteArray;
-class QCheckBox;
-class QComboBox;
-class QDialogButtonBox;
-class QStandardItem;
-class QSortFilterProxyModel;
-class QStandardItemModel;
-class QString;
-class QTreeView;
 template <class> class QList;
 QT_END_NAMESPACE
 
@@ -520,81 +512,6 @@ class AssignToLocalVariable : public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
-};
-
-/*!
- Insert (pure) virtual functions of a base class.
- Exposed for tests.
- */
-class InsertVirtualMethodsDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    enum CustomItemRoles {
-        ClassOrFunction = Qt::UserRole + 1,
-        Reimplemented = Qt::UserRole + 2,
-        PureVirtual = Qt::UserRole + 3,
-        AccessSpec = Qt::UserRole + 4
-    };
-
-    enum ImplementationMode {
-        ModeOnlyDeclarations = 0x00000001,
-        ModeInsideClass = 0x00000002,
-        ModeOutsideClass = 0x00000004,
-        ModeImplementationFile = 0x00000008
-    };
-
-    InsertVirtualMethodsDialog(QWidget *parent = 0);
-    void initGui();
-    void initData();
-    virtual ImplementationMode implementationMode() const;
-    void setImplementationsMode(ImplementationMode mode);
-    virtual bool insertKeywordVirtual() const;
-    void setInsertKeywordVirtual(bool insert);
-    void setHasImplementationFile(bool file);
-    void setHasReimplementedFunctions(bool functions);
-    bool hideReimplementedFunctions() const;
-    virtual bool gather();
-
-public slots:
-    void updateCheckBoxes(QStandardItem *item);
-
-private slots:
-    void setHideReimplementedFunctions(bool hide);
-
-private:
-    QTreeView *m_view;
-    QCheckBox *m_hideReimplementedFunctions;
-    QComboBox *m_insertMode;
-    QCheckBox *m_virtualKeyword;
-    QDialogButtonBox *m_buttons;
-    QList<bool> m_expansionStateNormal;
-    QList<bool> m_expansionStateReimp;
-    bool m_hasImplementationFile;
-    bool m_hasReimplementedFunctions;
-
-    void saveExpansionState();
-    void restoreExpansionState();
-
-protected:
-    ImplementationMode m_implementationMode;
-    bool m_insertKeywordVirtual;
-
-public:
-    QStandardItemModel *classFunctionModel;
-    QSortFilterProxyModel *classFunctionFilterModel;
-};
-
-class InsertVirtualMethods: public CppQuickFixFactory
-{
-    Q_OBJECT
-public:
-    InsertVirtualMethods(InsertVirtualMethodsDialog *dialog = new InsertVirtualMethodsDialog);
-    ~InsertVirtualMethods();
-    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
-
-private:
-    InsertVirtualMethodsDialog *m_dialog;
 };
 
 /*!

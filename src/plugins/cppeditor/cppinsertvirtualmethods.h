@@ -27,22 +27,32 @@
 **
 ****************************************************************************/
 
+#ifndef INSERTVIRTUALMETHODS_H
+#define INSERTVIRTUALMETHODS_H
 
-#ifndef CPPQUICKFIX_TEST_UTILS_H
-#define CPPQUICKFIX_TEST_UTILS_H
+#include "cppquickfix.h"
 
-#include "cppquickfixes.h"
+namespace CppEditor {
+namespace Internal {
 
-/// Fake dialog of InsertVirtualMethodsDialog that does not pop up anything.
-class InsertVirtualMethodsDialogTest : public CppEditor::Internal::InsertVirtualMethodsDialog
+class InsertVirtualMethodsDialog;
+
+class InsertVirtualMethods : public CppQuickFixFactory
 {
+    Q_OBJECT
 public:
-    InsertVirtualMethodsDialogTest(ImplementationMode mode, bool insertVirtualKeyword,
-                                   QWidget *parent = 0);
+    InsertVirtualMethods(InsertVirtualMethodsDialog *dialog = 0);
+    ~InsertVirtualMethods();
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+#ifdef WITH_TESTS
+    static InsertVirtualMethods *createTestFactory();
+#endif
 
-    bool gather();
-    ImplementationMode implementationMode() const;
-    bool insertKeywordVirtual() const;
+private:
+    InsertVirtualMethodsDialog *m_dialog;
 };
 
-#endif // CPPQUICKFIX_TEST_UTILS_H
+} // namespace Internal
+} // namespace CppEditor
+
+#endif // INSERTVIRTUALMETHODS_H

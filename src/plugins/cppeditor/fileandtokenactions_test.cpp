@@ -31,9 +31,9 @@
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppquickfix.h"
-#include "cppquickfix_test_utils.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
+#include "cppinsertvirtualmethods.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -474,10 +474,7 @@ void RunAllQuickFixesTokenAction::run(CPPEditorWidget *editorWidget)
         // Where possible, use a guiless version of the factory.
         if (qobject_cast<InsertVirtualMethods *>(quickFixFactory)) {
             QScopedPointer<CppQuickFixFactory> factoryProducingGuiLessOperations;
-            factoryProducingGuiLessOperations.reset(
-                new InsertVirtualMethods(
-                    new InsertVirtualMethodsDialogTest(
-                        InsertVirtualMethodsDialog::ModeOutsideClass, true)));
+            factoryProducingGuiLessOperations.reset(InsertVirtualMethods::createTestFactory());
             factoryProducingGuiLessOperations->match(qfi, operations);
         } else {
             quickFixFactory->match(qfi, operations);

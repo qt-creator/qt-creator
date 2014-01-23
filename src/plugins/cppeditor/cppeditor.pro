@@ -29,7 +29,8 @@ HEADERS += \
     cppsnippetprovider.h \
     cpptypehierarchy.h \
     cppvirtualfunctionassistprovider.h \
-    cppvirtualfunctionproposalitem.h
+    cppvirtualfunctionproposalitem.h \
+    cppinsertvirtualmethods.h
 
 SOURCES += \
     cppautocompleter.cpp \
@@ -56,7 +57,8 @@ SOURCES += \
     cppsnippetprovider.cpp \
     cpptypehierarchy.cpp \
     cppvirtualfunctionassistprovider.cpp \
-    cppvirtualfunctionproposalitem.cpp
+    cppvirtualfunctionproposalitem.cpp \
+    cppinsertvirtualmethods.cpp
 
 FORMS += \
     cpppreprocessordialog.ui \
@@ -68,13 +70,12 @@ RESOURCES += \
 equals(TEST, 1) {
     HEADERS += \
         cppeditortestcase.h \
-        cppquickfix_test_utils.h
+        cppquickfix_test.h
     SOURCES += \
         cppdoxygen_test.cpp \
         cppeditortestcase.cpp \
         cppincludehierarchy_test.cpp \
         cppquickfix_test.cpp \
-        cppquickfix_test_utils.cpp \
         fileandtokenactions_test.cpp \
         followsymbol_switchmethoddecldef_test.cpp
     DEFINES += SRCDIR=\\\"$$PWD\\\"
