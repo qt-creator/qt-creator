@@ -42,7 +42,14 @@ def main():
         if buttonName:
             openContextMenu(waitForObject("{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack'"
                                           "text='PushButton' type='QPushButton' visible='1'}"), 5, 5, 1)
-            activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Change objectName..."))
+            # hack for Squish5/Qt5.2 problems of handling menus on Mac - remove asap
+            if platform.system() == 'Darwin':
+                for obj in object.topLevelObjects():
+                    if className(obj) == 'QMenu' and obj.visible:
+                        activateItem(obj, "Change objectName...")
+                        break
+            else:
+                activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Change objectName..."))
             typeLines(waitForObject(":FormEditorStack_qdesigner_internal::PropertyLineEdit"), buttonName)
         else:
             # Verify that everything works without ever changing the name
