@@ -27,64 +27,36 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCONSTANTS_H
-#define QMLJSCONSTANTS_H
+#ifndef CPPMODELMANAGERBASE_H
+#define CPPMODELMANAGERBASE_H
 
-namespace QmlJS {
+#include <cplusplus/CppDocument.h>
 
-namespace ImportType {
-enum Enum {
-    Invalid,
-    Library,
-    Directory,
-    ImplicitDirectory,
-    File,
-    UnknownFile, // refers a file/directory that wasn't found (or to an url)
-    QrcDirectory,
-    QrcFile
-};
-}
+#include <QObject>
+#include <QList>
 
-namespace ImportKind {
-enum Enum {
-    Invalid,
-    Library,
-    Path,
-    QrcPath
-};
-}
+QT_BEGIN_NAMESPACE
+class QString;
+QT_END_NAMESPACE
 
-namespace Severity {
-enum Enum
+namespace CPlusPlus {
+
+class CPLUSPLUS_EXPORT CppModelManagerBase : public QObject
 {
-    Hint,         // cosmetic or convention
-    MaybeWarning, // possibly a warning, insufficient information
-    Warning,      // could cause unintended behavior
-    MaybeError,   // possibly an error, insufficient information
-    Error         // definitely an error
+    Q_OBJECT
+public:
+    CppModelManagerBase(QObject *parent = 0);
+    ~CppModelManagerBase();
+
+    static CppModelManagerBase *instance();
+    static bool trySetExtraDiagnostics(const QString &fileName, const QString &kind,
+                                       const QList<Document::DiagnosticMessage> &diagnostics);
+
+    virtual bool setExtraDiagnostics(const QString &fileName, const QString &kind,
+                                     const QList<Document::DiagnosticMessage> &diagnostics);
+    virtual CPlusPlus::Snapshot snapshot() const;
 };
-}
 
-namespace Language {
-enum Enum
-{
-    Unknown = 0,
-    JavaScript = 1,
-    Json = 2,
-    Qml = 3,
-    QmlQtQuick1 = 4,
-    QmlQtQuick2 = 5,
-    QmlQbs = 6,
-    QmlProject = 7,
-    QmlTypeInfo = 8
-};
-}
+} // namespace CPlusPlus
 
-namespace Constants {
-
-const char TASK_INDEX[] = "QmlJSEditor.TaskIndex";
-const char TASK_IMPORT_SCAN[] = "QmlJSEditor.TaskImportScan";
-
-} // namespace Constants
-} // namespace QmlJS
-#endif // QMLJSCONSTANTS_H
+#endif // CPPMODELMANAGERBASE_H

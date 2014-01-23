@@ -35,6 +35,7 @@
 #include "cppprojectfile.h"
 
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/cppmodelmanagerbase.h>
 #include <projectexplorer/toolchain.h>
 
 #include <QFuture>
@@ -118,7 +119,7 @@ public:
     ProjectExplorer::ToolChain::WarningFlags cxxWarningFlags;
 };
 
-class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
+class CPPTOOLS_EXPORT CppModelManagerInterface : public CPlusPlus::CppModelManagerBase
 {
     Q_OBJECT
 
@@ -228,7 +229,6 @@ public:
 
     virtual WorkingCopy workingCopy() const = 0;
     virtual QByteArray codeModelConfiguration() const = 0;
-    virtual CPlusPlus::Snapshot snapshot() const = 0;
 
     virtual QList<ProjectInfo> projectInfos() const = 0;
     virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const = 0;
@@ -255,8 +255,6 @@ public:
     virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement = QString()) = 0;
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
 
-    virtual void setExtraDiagnostics(const QString &fileName, const QString &kind,
-                                     const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics) = 0;
     virtual void setIfdefedOutBlocks(const QString &fileName,
                                      const QList<TextEditor::BlockRange> &ifdeffedOutBlocks) = 0;
 

@@ -28,11 +28,11 @@
 ****************************************************************************/
 
 #include "qmljsplugindumper.h"
-#include "qmljsmodelmanager.h"
+#include "qmljsmodelmanagerinterface.h"
 
 #include <qmljs/qmljsinterpreter.h>
-#include <projectexplorer/session.h>
-#include <coreplugin/messagemanager.h>
+//#include <projectexplorer/session.h>
+//#include <coreplugin/messagemanager.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 
@@ -40,10 +40,8 @@
 
 using namespace LanguageUtils;
 using namespace QmlJS;
-using namespace QmlJSTools;
-using namespace QmlJSTools::Internal;
 
-PluginDumper::PluginDumper(ModelManager *modelManager)
+PluginDumper::PluginDumper(ModelManagerInterface *modelManager)
     : QObject(modelManager)
     , m_modelManager(modelManager)
     , m_pluginWatcher(0)
@@ -256,10 +254,9 @@ static QString qmldumpFailedMessage(const QString &libraryPath, const QString &e
 
 static void printParseWarnings(const QString &libraryPath, const QString &warning)
 {
-    Core::MessageManager::write(
+    ModelManagerInterface::writeWarning(
                 PluginDumper::tr("Warnings while parsing qmltypes information of %1:\n"
-                                 "%2").arg(libraryPath, warning),
-                Core::MessageManager::Flash);
+                                 "%2").arg(libraryPath, warning));
 }
 
 static QString qmlPluginDumpErrorMessage(QProcess *process)
@@ -317,8 +314,7 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
 
     if (exitCode != 0) {
         const QString errorMessages = qmlPluginDumpErrorMessage(process);
-        Core::MessageManager::write(qmldumpErrorMessage(libraryPath, errorMessages),
-                                          Core::MessageManager::Flash);
+        ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
     }
 
@@ -360,8 +356,7 @@ void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
         return;
 
     const QString errorMessages = qmlPluginDumpErrorMessage(process);
-    Core::MessageManager::write(qmldumpErrorMessage(libraryPath, errorMessages),
-                                      Core::MessageManager::Flash);
+    ModelManagerInterface::writeWarning(qmldumpErrorMessage(libraryPath, errorMessages));
     if (!libraryPath.isEmpty()) {
         const Snapshot snapshot = m_modelManager->snapshot();
         LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
@@ -442,11 +437,7 @@ void PluginDumper::dump(const Plugin &plugin)
         return;
     }
 
-    ProjectExplorer::Project *activeProject = ProjectExplorer::SessionManager::startupProject();
-    if (!activeProject)
-        return;
-
-    ModelManagerInterface::ProjectInfo info = m_modelManager->projectInfo(activeProject);
+    ModelManagerInterface::ProjectInfo info = m_modelManager->defaultProjectInfo();
 
     if (!info.tryQmlDump || info.qmlDumpPath.isEmpty()) {
         const Snapshot snapshot = m_modelManager->snapshot();

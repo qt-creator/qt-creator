@@ -634,7 +634,7 @@ void QmakeProject::updateQmlJSCodeModel()
 
     setProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS, !projectInfo.sourceFiles.isEmpty());
 
-    modelManager->updateProjectInfo(projectInfo);
+    modelManager->updateProjectInfo(projectInfo, this);
 }
 
 ///*!

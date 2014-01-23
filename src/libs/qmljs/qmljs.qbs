@@ -11,6 +11,7 @@ QtcLibrary {
 
     Depends { name: "Utils" }
     Depends { name: "LanguageUtils" }
+    Depends { name: "CPlusPlus" }
     Depends { name: "Qt"; submodules: ["widgets", "script", "xml"] }
 
     Group {
@@ -33,6 +34,7 @@ QtcLibrary {
             "qmljsdelta.cpp", "qmljsdelta.h",
             "qmljsdocument.cpp", "qmljsdocument.h",
             "qmljsevaluate.cpp", "qmljsevaluate.h",
+            "qmljsfindexportedcpptypes.cpp", "qmljsfindexportedcpptypes.h",
             "qmljsicons.cpp", "qmljsicons.h",
             "qmljsicontextpane.h",
             "qmljsimportdependencies.cpp", "qmljsimportdependencies.h",
@@ -41,6 +43,7 @@ QtcLibrary {
             "qmljslineinfo.cpp", "qmljslineinfo.h",
             "qmljslink.cpp", "qmljslink.h",
             "qmljsmodelmanagerinterface.cpp", "qmljsmodelmanagerinterface.h",
+            "qmljsplugindumper.cpp", "qmljsplugindumper.h",
             "qmljspropertyreader.cpp", "qmljspropertyreader.h",
             "qmljsqrcparser.cpp", "qmljsqrcparser.h",
             "qmljsreformatter.cpp", "qmljsreformatter.h",

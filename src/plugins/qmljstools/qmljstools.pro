@@ -15,12 +15,10 @@ HEADERS += \
     $$PWD/qmljsmodelmanager.h \
     $$PWD/qmljsqtstylecodeformatter.h \
     $$PWD/qmljsrefactoringchanges.h \
-    $$PWD/qmljsplugindumper.h \
     $$PWD/qmljsfunctionfilter.h \
     $$PWD/qmljslocatordata.h \
     $$PWD/qmljsindenter.h \
     $$PWD/qmljscodestylesettingspage.h \
-    $$PWD/qmljsfindexportedcpptypes.h \
     $$PWD/qmljssemanticinfo.h \
     $$PWD/qmljstools_global.h \
     $$PWD/qmlconsolemanager.h \
@@ -41,12 +39,10 @@ SOURCES += \
     $$PWD/qmljsmodelmanager.cpp \
     $$PWD/qmljsqtstylecodeformatter.cpp \
     $$PWD/qmljsrefactoringchanges.cpp \
-    $$PWD/qmljsplugindumper.cpp \
     $$PWD/qmljsfunctionfilter.cpp \
     $$PWD/qmljslocatordata.cpp \
     $$PWD/qmljsindenter.cpp \
     $$PWD/qmljscodestylesettingspage.cpp \
-    $$PWD/qmljsfindexportedcpptypes.cpp \
     $$PWD/qmljssemanticinfo.cpp \
     $$PWD/qmlconsolemanager.cpp \
     $$PWD/qmlconsoleitemmodel.cpp \

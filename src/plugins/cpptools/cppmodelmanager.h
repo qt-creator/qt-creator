@@ -107,7 +107,7 @@ public:
     virtual void findMacroUsages(const CPlusPlus::Macro &macro);
     virtual void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement);
 
-    virtual void setExtraDiagnostics(const QString &fileName, const QString &key,
+    virtual bool setExtraDiagnostics(const QString &fileName, const QString &key,
                                      const QList<Document::DiagnosticMessage> &diagnostics);
     virtual void setIfdefedOutBlocks(const QString &fileName,
                                      const QList<TextEditor::BlockRange> &ifdeffedOutBlocks);

@@ -67,129 +67,15 @@ public:
     ~ModelManager();
 
     void delayedInitialization();
-
-    WorkingCopy workingCopy() const QTC_OVERRIDE;
-    QmlJS::Snapshot snapshot() const QTC_OVERRIDE;
-    QmlJS::Snapshot newestSnapshot() const QTC_OVERRIDE;
-
-    void updateSourceFiles(const QStringList &files,
-                           bool emitDocumentOnDiskChanged) QTC_OVERRIDE;
-    void fileChangedOnDisk(const QString &path) QTC_OVERRIDE;
-    void removeFiles(const QStringList &files) QTC_OVERRIDE;
-    QStringList filesAtQrcPath(const QString &path, const QLocale *locale = 0,
-                               ProjectExplorer::Project *project = 0,
-                               QrcResourceSelector resources = AllQrcResources) QTC_OVERRIDE;
-    QMap<QString,QStringList> filesInQrcPath(const QString &path,
-                                             const QLocale *locale = 0,
-                                             ProjectExplorer::Project *project = 0,
-                                             bool addDirs = false,
-                                             QrcResourceSelector resources = AllQrcResources) QTC_OVERRIDE;
-
-    QList<ProjectInfo> projectInfos() const QTC_OVERRIDE;
-    ProjectInfo projectInfo(ProjectExplorer::Project *project) const QTC_OVERRIDE;
-    void updateProjectInfo(const ProjectInfo &pinfo) QTC_OVERRIDE;
-    Q_SLOT virtual void removeProjectInfo(ProjectExplorer::Project *project);
-    virtual ProjectInfo projectInfoForPath(QString path);
-
-    void updateDocument(QmlJS::Document::Ptr doc);
-    void updateLibraryInfo(const QString &path, const QmlJS::LibraryInfo &info);
-    void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
-    void updateQrcFile(const QString &path);
-
-    QStringList importPaths() const QTC_OVERRIDE;
-    QmlJS::QmlLanguageBundles activeBundles() const QTC_OVERRIDE;
-    QmlJS::QmlLanguageBundles extendedBundles() const QTC_OVERRIDE;
-
-    void loadPluginTypes(const QString &libraryPath, const QString &importPath,
-                         const QString &importUri, const QString &importVersion) QTC_OVERRIDE;
-
-    CppDataHash cppData() const QTC_OVERRIDE;
-
-    QmlJS::LibraryInfo builtins(const QmlJS::Document::Ptr &doc) const QTC_OVERRIDE;
-
-    QmlJS::ViewerContext completeVContext(
-            const QmlJS::ViewerContext &vCtx,
-            const QmlJS::Document::Ptr &doc = QmlJS::Document::Ptr(0)) const QTC_OVERRIDE;
-    QmlJS::ViewerContext defaultVContext(
-            bool autoComplete = true,
-            const QmlJS::Document::Ptr &doc = QmlJS::Document::Ptr(0)) const QTC_OVERRIDE;
-    void setDefaultVContext(const QmlJS::ViewerContext &vContext) QTC_OVERRIDE;
-
-    void joinAllThreads() QTC_OVERRIDE;
-
-public slots:
-    void resetCodeModel() QTC_OVERRIDE;
-
-Q_SIGNALS:
-    void projectPathChanged(const QString &projectPath);
-
 protected:
-    QFuture<void> refreshSourceFiles(const QStringList &sourceFiles,
-                                     bool emitDocumentOnDiskChanged);
-
-    static void parseLoop(QSet<QString> &scannedPaths, QSet<QString> &newLibraries,
-                          WorkingCopy workingCopy, QStringList files, ModelManager *modelManager,
-                          QmlJS::Language::Enum mainLanguage, bool emitDocChangedOnDisk,
-                          Utils::function<bool (qreal)> reportProgress);
-    static void parse(QFutureInterface<void> &future,
-                      WorkingCopy workingCopy,
-                      QStringList files,
-                      ModelManager *modelManager,
-                      QmlJS::Language::Enum mainLanguage,
-                      bool emitDocChangedOnDisk);
-    static void importScan(QFutureInterface<void> &future,
-                    WorkingCopy workingCopy,
-                    QStringList paths,
-                    ModelManager *modelManager,
-                    QmlJS::Language::Enum mainLanguage,
-                    bool emitDocChangedOnDisk);
-
-    void loadQmlTypeDescriptions();
-    void loadQmlTypeDescriptions(const QString &path);
-
-    void updateImportPaths();
-
-private slots:
-    void maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc);
-    void queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan);
-    void startCppQmlTypeUpdate();
-    void asyncReset();
-
-private:
-    static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
-    static void updateCppQmlTypes(QFutureInterface<void> &interface,
-                                  ModelManager *qmlModelManager,
-                                  CPlusPlus::Snapshot snapshot,
-                                  QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents);
-
-    mutable QMutex m_mutex;
-    QmlJS::Snapshot _validSnapshot;
-    QmlJS::Snapshot _newestSnapshot;
-    QStringList m_allImportPaths;
-    QStringList m_defaultImportPaths;
-    QmlJS::QmlLanguageBundles m_activeBundles;
-    QmlJS::QmlLanguageBundles m_extendedBundles;
-    QmlJS::ViewerContext m_vContext;
-    bool m_shouldScanImports;
-    QSet<QString> m_scannedPaths;
-
-    QTimer *m_updateCppQmlTypesTimer;
-    QTimer *m_asyncResetTimer;
-    QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > m_queuedCppDocuments;
-    QFuture<void> m_cppQmlTypesUpdater;
-    QmlJS::QrcCache m_qrcCache;
-
-    CppDataHash m_cppDataHash;
-    mutable QMutex m_cppDataMutex;
-
-    // project integration
-    QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
-
-    PluginDumper *m_pluginDumper;
-
-    QFutureSynchronizer<void> m_synchronizer;
-
     QHash<QString, QmlJS::Language::Enum> languageForSuffix() const QTC_OVERRIDE;
+    void writeMessageInternal(const QString &msg) const QTC_OVERRIDE;
+    ModelManagerInterface::ProjectInfo defaultProjectInfo() const QTC_OVERRIDE;
+    WorkingCopy workingCopyInternal() const QTC_OVERRIDE;
+    void addTaskInternal(QFuture<void> result, const QString &msg, const char *taskId) const QTC_OVERRIDE;
+private:
+    void loadDefaultQmlTypeDescriptions();
+    static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
 };
 
 } // namespace Internal

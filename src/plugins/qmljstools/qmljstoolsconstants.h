@@ -42,9 +42,6 @@ const char QMLTYPES_MIMETYPE[] = "application/x-qt.meta-info+qml";
 const char JS_MIMETYPE[] = "application/javascript";
 const char JSON_MIMETYPE[] = "application/json";
 
-const char TASK_INDEX[] = "QmlJSEditor.TaskIndex";
-const char TASK_IMPORT_SCAN[] = "QmlJSEditor.TaskImportScan";
-
 const char QML_JS_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
 const char QML_JS_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QmlJSTools", "Code Style");
 

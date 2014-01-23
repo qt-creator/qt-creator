@@ -11,6 +11,7 @@ HEADERS += \
     $$PWD/qmljsbind.h \
     $$PWD/qmljsbundle.h \
     $$PWD/qmljsevaluate.h \
+    $$PWD/qmljsfindexportedcpptypes.h \
     $$PWD/qmljsdocument.h \
     $$PWD/qmljsscanner.h \
     $$PWD/qmljsinterpreter.h \
@@ -25,6 +26,7 @@ HEADERS += \
     $$PWD/qmljsrewriter.h \
     $$PWD/qmljsicons.h \
     $$PWD/qmljsdelta.h \
+    $$PWD/qmljsplugindumper.h \
     $$PWD/qmljstypedescriptionreader.h \
     $$PWD/qmljsscopeastpath.h \
     $$PWD/qmljsvalueowner.h \
@@ -47,6 +49,7 @@ SOURCES += \
     $$PWD/qmljsbind.cpp \
     $$PWD/qmljsbundle.cpp \
     $$PWD/qmljsevaluate.cpp \
+    $$PWD/qmljsfindexportedcpptypes.cpp \
     $$PWD/qmljsdocument.cpp \
     $$PWD/qmljsscanner.cpp \
     $$PWD/qmljsinterpreter.cpp \
@@ -60,6 +63,7 @@ SOURCES += \
     $$PWD/qmljsrewriter.cpp \
     $$PWD/qmljsicons.cpp \
     $$PWD/qmljsdelta.cpp \
+    $$PWD/qmljsplugindumper.cpp \
     $$PWD/qmljstypedescriptionreader.cpp \
     $$PWD/qmljsscopeastpath.cpp \
     $$PWD/qmljsvalueowner.cpp \

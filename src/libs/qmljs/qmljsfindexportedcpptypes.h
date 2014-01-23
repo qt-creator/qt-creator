@@ -27,64 +27,38 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCONSTANTS_H
-#define QMLJSCONSTANTS_H
+#ifndef QMLJS_QMLJSFINDEXPORTEDCPPTYPES_H
+#define QMLJS_QMLJSFINDEXPORTEDCPPTYPES_H
+
+#include "qmljs_global.h"
+#include <cplusplus/CppDocument.h>
+#include <languageutils/fakemetaobject.h>
+
+#include <QCoreApplication>
+#include <QHash>
 
 namespace QmlJS {
 
-namespace ImportType {
-enum Enum {
-    Invalid,
-    Library,
-    Directory,
-    ImplicitDirectory,
-    File,
-    UnknownFile, // refers a file/directory that wasn't found (or to an url)
-    QrcDirectory,
-    QrcFile
-};
-}
-
-namespace ImportKind {
-enum Enum {
-    Invalid,
-    Library,
-    Path,
-    QrcPath
-};
-}
-
-namespace Severity {
-enum Enum
+class QMLJS_EXPORT FindExportedCppTypes
 {
-    Hint,         // cosmetic or convention
-    MaybeWarning, // possibly a warning, insufficient information
-    Warning,      // could cause unintended behavior
-    MaybeError,   // possibly an error, insufficient information
-    Error         // definitely an error
+    Q_DECLARE_TR_FUNCTIONS(QmlJSTools::FindExportedCppTypes)
+public:
+    FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot);
+
+    // document must have a valid source and ast for the duration of the call
+    void operator()(const CPlusPlus::Document::Ptr &document);
+
+    QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedTypes() const;
+    QHash<QString, QString> contextProperties() const;
+
+    static bool maybeExportsTypes(const CPlusPlus::Document::Ptr &document);
+
+private:
+    CPlusPlus::Snapshot m_snapshot;
+    QList<LanguageUtils::FakeMetaObject::ConstPtr> m_exportedTypes;
+    QHash<QString, QString> m_contextProperties;
 };
-}
 
-namespace Language {
-enum Enum
-{
-    Unknown = 0,
-    JavaScript = 1,
-    Json = 2,
-    Qml = 3,
-    QmlQtQuick1 = 4,
-    QmlQtQuick2 = 5,
-    QmlQbs = 6,
-    QmlProject = 7,
-    QmlTypeInfo = 8
-};
-}
-
-namespace Constants {
-
-const char TASK_INDEX[] = "QmlJSEditor.TaskIndex";
-const char TASK_IMPORT_SCAN[] = "QmlJSEditor.TaskImportScan";
-
-} // namespace Constants
 } // namespace QmlJS
-#endif // QMLJSCONSTANTS_H
+
+#endif // QMLJS_QMLJSFINDEXPORTEDCPPTYPES_H

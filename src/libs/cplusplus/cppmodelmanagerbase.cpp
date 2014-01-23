@@ -27,37 +27,50 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSTOOLS_QMLJSFINDEXPORTEDCPPTYPES_H
-#define QMLJSTOOLS_QMLJSFINDEXPORTEDCPPTYPES_H
+#include "cppmodelmanagerbase.h"
 
-#include <cplusplus/CppDocument.h>
-#include <languageutils/fakemetaobject.h>
+namespace CPlusPlus {
 
-#include <QCoreApplication>
-#include <QHash>
+static CppModelManagerBase *g_instance = 0;
 
-namespace QmlJSTools {
-
-class FindExportedCppTypes
+CppModelManagerBase::CppModelManagerBase(QObject *parent)
+    : QObject(parent)
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJSTools::FindExportedCppTypes)
-public:
-    FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot);
+    Q_ASSERT(!g_instance);
+    g_instance = this;
+}
 
-    // document must have a valid source and ast for the duration of the call
-    void operator()(const CPlusPlus::Document::Ptr &document);
+CppModelManagerBase::~CppModelManagerBase()
+{
+    Q_ASSERT(g_instance == this);
+    g_instance = 0;
+}
 
-    QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedTypes() const;
-    QHash<QString, QString> contextProperties() const;
+CppModelManagerBase *CppModelManagerBase::instance()
+{
+    return g_instance;
+}
 
-    static bool maybeExportsTypes(const CPlusPlus::Document::Ptr &document);
+bool CppModelManagerBase::trySetExtraDiagnostics(const QString &fileName, const QString &kind,
+                                                 const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics)
+{
+    if (CppModelManagerBase *mm = instance())
+        return mm->setExtraDiagnostics(fileName, kind, diagnostics);
+    return false;
+}
 
-private:
-    CPlusPlus::Snapshot m_snapshot;
-    QList<LanguageUtils::FakeMetaObject::ConstPtr> m_exportedTypes;
-    QHash<QString, QString> m_contextProperties;
-};
+bool CppModelManagerBase::setExtraDiagnostics(const QString &fileName, const QString &kind,
+                                              const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics)
+{
+    Q_UNUSED(fileName);
+    Q_UNUSED(kind);
+    Q_UNUSED(diagnostics);
+    return false;
+}
 
-} // namespace QmlJSTools
+CPlusPlus::Snapshot CppModelManagerBase::snapshot() const
+{
+    return CPlusPlus::Snapshot();
+}
 
-#endif // QMLJSTOOLS_QMLJSFINDEXPORTEDCPPTYPES_H
+} // namespace CPlusPlus

@@ -42,16 +42,13 @@ QT_END_NAMESPACE
 
 namespace Utils { class FileSystemWatcher; }
 
-namespace QmlJSTools {
-namespace Internal {
-
-class ModelManager;
+namespace QmlJS {
 
 class PluginDumper : public QObject
 {
     Q_OBJECT
 public:
-    explicit PluginDumper(ModelManager *modelManager);
+    explicit PluginDumper(ModelManagerInterface *modelManager);
 
 public:
     void loadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info);
@@ -94,7 +91,7 @@ private:
 private:
     Utils::FileSystemWatcher *pluginWatcher();
 
-    ModelManager *m_modelManager;
+    ModelManagerInterface *m_modelManager;
     Utils::FileSystemWatcher *m_pluginWatcher;
     QHash<QProcess *, QString> m_runningQmldumps;
     QList<Plugin> m_plugins;
@@ -102,7 +99,6 @@ private:
     QHash<QString, QmlJS::ModelManagerInterface::ProjectInfo> m_qtToInfo;
 };
 
-} // namespace Internal
-} // namespace QmlJSTools
+} // namespace QmlJS
 
 #endif // QMLJSPLUGINDUMPER_H

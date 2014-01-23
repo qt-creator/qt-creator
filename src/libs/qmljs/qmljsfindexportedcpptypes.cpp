@@ -30,13 +30,16 @@
 #include "qmljsfindexportedcpptypes.h"
 
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsdocument.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cplusplus/cppmodelmanagerbase.h>
+#include <cplusplus/CppDocument.h>
 
 #include <QDebug>
+#include <QList>
 
-using namespace QmlJSTools;
+//using namespace QmlJS;
 
 namespace {
 using namespace CPlusPlus;
@@ -66,7 +69,7 @@ class FindExportsVisitor : protected ASTVisitor
     ASTMatcher _matcher;
     ASTPatternBuilder _builder;
     Overview _overview;
-    QList<Document::DiagnosticMessage> _messages;
+    QList<CPlusPlus::Document::DiagnosticMessage> _messages;
 
 public:
     FindExportsVisitor(CPlusPlus::Document::Ptr doc)
@@ -82,7 +85,7 @@ public:
         accept(translationUnit()->ast());
     }
 
-    QList<Document::DiagnosticMessage> messages() const
+    QList<CPlusPlus::Document::DiagnosticMessage> messages() const
     {
         return _messages;
     }
@@ -181,7 +184,7 @@ protected:
                         Document::DiagnosticMessage::Warning,
                         _doc->fileName(),
                         line, column,
-                        FindExportedCppTypes::tr(
+                        QmlJS::FindExportedCppTypes::tr(
                             "The type will only be available in Qt Creator's QML editors when the type name is a string literal"));
             return false;
         }
@@ -239,7 +242,7 @@ protected:
                         Document::DiagnosticMessage::Warning,
                         _doc->fileName(),
                         line, column,
-                        FindExportedCppTypes::tr(
+                        QmlJS::FindExportedCppTypes::tr(
                             "The module URI cannot be determined by static analysis. The type will be available\n"
                             "globally in the QML editor. You can add a \"// @uri My.Module.Uri\" annotation to let\n"
                             "Qt Creator know about a likely URI."));
@@ -370,7 +373,7 @@ protected:
                         Document::DiagnosticMessage::Warning,
                         _doc->fileName(),
                         line, column,
-                        FindExportedCppTypes::tr(
+                        QmlJS::FindExportedCppTypes::tr(
                             "must be a string literal to be available in the QML editor"));
             return false;
         }
@@ -389,7 +392,7 @@ protected:
     }
 
 private:
-    QString stringOf(AST *ast)
+    QString stringOf(CPlusPlus::AST *ast)
     {
         return stringOf(ast->firstToken(), ast->lastToken() - 1);
     }
@@ -681,6 +684,8 @@ static void buildContextProperties(
 
 } // anonymous namespace
 
+namespace QmlJS {
+
 FindExportedCppTypes::FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot)
     : m_snapshot(snapshot)
 {
@@ -699,11 +704,9 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 
     FindExportsVisitor finder(document);
     finder();
-    if (CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance()) {
-        static const QString kindKey = QLatin1String("QmlJSTools.ExportedQmlTypesDiagnostic");
-        cppModelManager->setExtraDiagnostics(document->fileName(), kindKey,
-                                             finder.messages());
-    }
+    static const QString kindKey = QLatin1String("QmlJSTools.ExportedQmlTypesDiagnostic");
+    CppModelManagerBase::trySetExtraDiagnostics(document->fileName(), kindKey,
+                                                finder.messages());
 
     // if nothing was found, done
     const QList<ContextProperty> contextPropertyDescriptions = finder.contextProperties();
@@ -712,8 +715,8 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
         return;
 
     // context properties need lookup inside function scope, and thus require a full check
-    Document::Ptr localDoc = document;
-    if (document->checkMode() != Document::FullCheck && !contextPropertyDescriptions.isEmpty()) {
+    CPlusPlus::Document::Ptr localDoc = document;
+    if (document->checkMode() != CPlusPlus::Document::FullCheck && !contextPropertyDescriptions.isEmpty()) {
         localDoc = m_snapshot.documentFromSource(document->utf8Source(), document->fileName());
         localDoc->check();
     }
@@ -749,7 +752,7 @@ QHash<QString, QString> FindExportedCppTypes::contextProperties() const
     return m_contextProperties;
 }
 
-bool FindExportedCppTypes::maybeExportsTypes(const Document::Ptr &document)
+bool FindExportedCppTypes::maybeExportsTypes(const CPlusPlus::Document::Ptr &document)
 {
     if (!document->control())
         return false;
@@ -770,3 +773,5 @@ bool FindExportedCppTypes::maybeExportsTypes(const Document::Ptr &document)
     }
     return false;
 }
+
+} // namespace QmlJS

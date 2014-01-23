@@ -247,7 +247,7 @@ void QmlProject::refresh(RefreshOptions options)
             QmlJSTools::defaultProjectInfoForProject(this);
     projectInfo.importPaths = customImportPaths();
 
-    m_modelManager->updateProjectInfo(projectInfo);
+    m_modelManager->updateProjectInfo(projectInfo, this);
 }
 
 QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const

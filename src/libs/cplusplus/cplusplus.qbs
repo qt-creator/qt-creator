@@ -94,6 +94,7 @@ QtcLibrary {
             "BackwardsScanner.cpp", "BackwardsScanner.h",
             "CppDocument.cpp", "CppDocument.h",
             "CppRewriter.cpp", "CppRewriter.h",
+            "cppmodelmanagerbase.cpp", "cppmodelmanagerbase.h",
             "DependencyTable.cpp", "DependencyTable.h",
             "DeprecatedGenTemplateInstance.cpp", "DeprecatedGenTemplateInstance.h",
             "ExpressionUnderCursor.cpp", "ExpressionUnderCursor.h",

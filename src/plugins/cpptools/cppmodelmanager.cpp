@@ -999,7 +999,7 @@ void CppModelManager::enableGarbageCollector(bool enable)
     m_enableGC = enable;
 }
 
-void CppModelManager::setExtraDiagnostics(const QString &fileName,
+bool CppModelManager::setExtraDiagnostics(const QString &fileName,
                                           const QString &kind,
                                           const QList<Document::DiagnosticMessage> &diagnostics)
 {
@@ -1013,9 +1013,10 @@ void CppModelManager::setExtraDiagnostics(const QString &fileName,
     foreach (CppEditorSupport *editorSupport, cppEditorSupports) {
         if (editorSupport->fileName() == fileName) {
             editorSupport->setExtraDiagnostics(kind, diagnostics);
-            break;
+            return true;
         }
     }
+    return false;
 }
 
 void CppModelManager::setIfdefedOutBlocks(const QString &fileName,

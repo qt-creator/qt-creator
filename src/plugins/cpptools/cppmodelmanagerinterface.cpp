@@ -164,8 +164,6 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
     toolchainDefines = tc->predefinedMacros(cxxflags);
 }
 
-static CppModelManagerInterface *g_instance = 0;
-
 const QString CppModelManagerInterface::configurationFileName()
 { return CPlusPlus::Preprocessor::configurationFileName; }
 
@@ -175,21 +173,15 @@ const QString CppModelManagerInterface::editorConfigurationFileName()
 }
 
 CppModelManagerInterface::CppModelManagerInterface(QObject *parent)
-    : QObject(parent)
-{
-    Q_ASSERT(!g_instance);
-    g_instance = this;
-}
+    : CPlusPlus::CppModelManagerBase(parent)
+{ }
 
 CppModelManagerInterface::~CppModelManagerInterface()
-{
-    Q_ASSERT(g_instance == this);
-    g_instance = 0;
-}
+{ }
 
 CppModelManagerInterface *CppModelManagerInterface::instance()
 {
-    return g_instance;
+    return qobject_cast<CppModelManagerInterface *>(CPlusPlus::CppModelManagerBase::instance());
 }
 
 void CppModelManagerInterface::ProjectInfo::clearProjectParts()

@@ -134,7 +134,7 @@ private slots:
                 projectInfo.qmlDumpPath = version->qmlDumpTool(!update.preferDebug);
             projectInfo.qmlDumpEnvironment = version->qmlToolsEnvironment();
             projectInfo.qmlDumpHasRelocatableFlag = version->hasQmlDumpWithRelocatableFlag();
-            modelManager->updateProjectInfo(projectInfo);
+            modelManager->updateProjectInfo(projectInfo, update.project);
         }
 
         // clean up
