@@ -56,31 +56,29 @@ except:
         return "Normal"
 
 
-def bytesToString(b):
-    if sys.version_info[0] == 2:
-        return b
-    return b.decode("utf8")
+class Blob(object):
+    """
+    Helper structure to keep a blob of bytes, possibly
+    in the inferior.
+    """
 
-def stringToBytes(s):
-    if sys.version_info[0] == 2:
-        return s
-    return s.encode("utf8")
+    def __init__(self, data, isComplete = True):
+        self.data = data
+        self.size = len(data)
+        self.isComplete = isComplete
 
-# Base 16 decoding operating on string->string
-def b16decode(s):
-    return bytesToString(base64.b16decode(stringToBytes(s), True))
+    def size(self):
+        return self.size
 
-# Base 16 decoding operating on string->string
-def b16encode(s):
-    return bytesToString(base64.b16encode(stringToBytes(s)))
+    def toHexOutput(self):
+        if hasattr(self.data, "tobytes"):
+            encoded = base64.b16encode(self.data.tobytes())
+        else:
+            encoded = base64.b16encode(self.data)
 
-# Base 64 decoding operating on string->string
-def b64decode(s):
-    return bytesToString(base64.b64decode(stringToBytes(s)))
-
-# Base 64 decoding operating on string->string
-def b64encode(s):
-    return bytesToString(base64.b64encode(stringToBytes(s)))
+        if hasattr(encoded, "decode"):
+            return encoded.decode("utf8")
+        return encoded
 
 
 #
@@ -298,6 +296,18 @@ class DumperBase:
         self.cachedFormats[typeName] = stripped
         return stripped
 
+    # Hex decoding operating on string->string
+    def hexdecode(self, s):
+        if sys.version_info[0] == 2:
+            return s.decode("hex")
+        return bytes.fromhex(s).decode("utf8")
+
+    # Hex decoding operating on string->string
+    def hexencode(self, s):
+        if sys.version_info[0] == 2:
+            return s.encode("hex")
+        return base64.b16encode(s.encode("utf8")).decode("utf8")
+
     def isArmArchitecture(self):
         return False
 
@@ -367,6 +377,9 @@ class DumperBase:
         if limit < size:
             s += "2e2e2e"
         return s
+
+    def readMemory(self, addr, size):
+        return self.extractBlob(addr, size).toHexOutput()
 
     def encodeByteArray(self, value):
         return self.encodeByteArrayHelper(self.dereferenceValue(value))
@@ -692,7 +705,7 @@ class DumperBase:
         if format == 0:
             # Explicitly requested bald pointer.
             self.putType(typeName)
-            self.putValue(b16encode(str(value)), Hex2EncodedUtf8WithoutQuotes)
+            self.putValue(self.hexencode(str(value)), Hex2EncodedUtf8WithoutQuotes)
             self.putNumChild(1)
             if self.currentIName in self.expandedINames:
                 with Children(self):

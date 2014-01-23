@@ -5011,9 +5011,8 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
             dummy.iname = child["iname"].data();
             GdbMi wname = child["wname"];
             if (wname.isValid()) {
-                // Happens (only) for watched expressions. They are encoded as
-                // base64 encoded 8 bit data, without quotes
-                dummy.name = decodeData(wname.data(), Base64Encoded8Bit);
+                // Happens (only) for watched expressions.
+                dummy.name = QString::fromUtf8(QByteArray::fromHex(wname.data()));
                 dummy.exp = dummy.name.toUtf8();
             } else {
                 dummy.name = _(child["name"].data());
@@ -5026,7 +5025,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
                 const GdbMi name = s["name"];
                 const GdbMi size = s["size"];
                 if (name.isValid() && size.isValid())
-                    m_typeInfoCache.insert(QByteArray::fromBase64(name.data()),
+                    m_typeInfoCache.insert(QByteArray::fromHex(name.data()),
                                            TypeInfo(size.data().toUInt()));
             }
         }

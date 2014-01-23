@@ -1,5 +1,4 @@
 
-import binascii
 try:
     import __builtin__
 except:
@@ -498,7 +497,7 @@ class Dumper(DumperBase):
                 for f in arg[pos:].split(","):
                     pos = f.find("=")
                     if pos != -1:
-                        type = b16decode(f[0:pos])
+                        type = self.hexdecode(f[0:pos])
                         self.typeformats[type] = int(f[pos+1:])
             elif arg.startswith("formats:"):
                 for f in arg[pos:].split(","):
@@ -506,7 +505,7 @@ class Dumper(DumperBase):
                     if pos != -1:
                         self.formats[f[0:pos]] = int(f[pos+1:])
             elif arg.startswith("watchers:"):
-                watchers = b16decode(arg[pos:])
+                watchers = self.hexdecode(arg[pos:])
 
         self.useDynamicType = "dyntype" in options
         self.useFancy = "fancy" in options
@@ -621,7 +620,7 @@ class Dumper(DumperBase):
             # Happens e.g. for '(anonymous namespace)::InsertDefOperation'
             if not type is None:
                 self.output.append('{name="%s",size="%s"}'
-                    % (b64encode(name), type.sizeof))
+                    % (self.hexencode(name), type.sizeof))
         self.output.append(']')
         self.typesToReport = {}
         return "".join(self.output)
@@ -818,7 +817,7 @@ class Dumper(DumperBase):
 
     def handleWatch(self, exp, iname):
         exp = str(exp)
-        escapedExp = b64encode(exp);
+        escapedExp = self.hexencode(exp);
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)
@@ -1430,12 +1429,9 @@ class Dumper(DumperBase):
             with Children(self):
                self.putFields(value)
 
-    def readMemory(self, base, size):
+    def extractBlob(self, base, size):
         inferior = self.selectedInferior()
-        mem = inferior.read_memory(base, size)
-        if sys.version_info[0] >= 3:
-            return bytesToString(binascii.hexlify(mem.tobytes()))
-        return binascii.hexlify(mem)
+        return Blob(inferior.read_memory(base, size))
 
     def readCArray(self, base, size):
         inferior = self.selectedInferior()
@@ -1468,9 +1464,6 @@ class Dumper(DumperBase):
         #if sys.version_info[0] >= 3:
         #    return mem.tobytes()
         return mem
-        #if sys.version_info[0] >= 3:
-        #    return bytesToString(binascii.hexlify(mem.tobytes()))
-        #return binascii.hexlify(mem)
 
     def putFields(self, value, dumpBase = True):
             fields = value.type.fields()
@@ -1705,7 +1698,8 @@ class Dumper(DumperBase):
 
     def bbedit(self, args):
         (typeName, expr, data) = args.split(',')
-        typeName = b16decode(typeName)
+        d = Dumper()
+        typeName = d.hexdecode(typeName)
         ns = self.qtNamespace()
         if typeName.startswith(ns):
             typeName = typeName[len(ns):]
@@ -1713,8 +1707,8 @@ class Dumper(DumperBase):
         pos = typeName.find('<')
         if pos != -1:
             typeName = typeName[0:pos]
-        expr = b16decode(expr)
-        data = b16decode(data)
+        expr = d.hexdecode(expr)
+        data = d.hexdecode(data)
         if typeName in self.qqEditable:
             #self.qqEditable[typeName](self, expr, data)
             value = gdb.parse_and_eval(expr)

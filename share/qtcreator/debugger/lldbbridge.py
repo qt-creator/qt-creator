@@ -28,7 +28,6 @@
 #############################################################################
 
 import atexit
-import binascii
 import inspect
 import json
 import os
@@ -850,14 +849,13 @@ class Dumper(DumperBase):
         self.currentTypePriority = self.currentTypePriority + 1
         #warn("BETTER TYPE: %s PRIORITY: %s" % (type, self.currentTypePriority))
 
-    def readMemory(self, base, size):
+    def extractBlob(self, base, size):
         if size == 0:
-            return ""
+            return Blob("")
         base = int(base) & 0xFFFFFFFFFFFFFFFF
         size = int(size) & 0xFFFFFFFF
         error = lldb.SBError()
-        contents = self.process.ReadMemory(base, size, error)
-        return binascii.hexlify(contents)
+        return Blob(self.process.ReadMemory(base, size, error))
 
     def isQObject(self, value):
         try:
@@ -1092,7 +1090,7 @@ class Dumper(DumperBase):
             iname = watcher['iname']
             # could be 'watch.0' or 'tooltip.deadbead'
             (base, component) = iname.split('.')
-            exp = binascii.unhexlify(watcher['exp'])
+            exp = self.hexdecode(watcher['exp'])
             if exp == "":
                 self.put('type="",value="",exp=""')
                 continue
@@ -1103,7 +1101,7 @@ class Dumper(DumperBase):
             self.currentIName = base
             with SubItem(self, component):
                 self.put('exp="%s",' % exp)
-                self.put('wname="%s",' % binascii.hexlify(exp))
+                self.put('wname="%s",' % self.hexencode(exp))
                 self.put('iname="%s",' % iname)
                 self.putItem(value)
 
@@ -1212,11 +1210,11 @@ class Dumper(DumperBase):
             # FIXME: Size?
             msg = self.process.GetSTDOUT(1024)
             self.report('output={channel="stdout",data="%s"}'
-                % binascii.hexlify(msg))
+                % self.hexencode(msg))
         elif type == lldb.SBProcess.eBroadcastBitSTDERR:
             msg = self.process.GetSTDERR(1024)
             self.report('output={channel="stderr",data="%s"}'
-                % binascii.hexlify(msg))
+                % self.hexencode(msg))
         elif type == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 
@@ -1236,7 +1234,7 @@ class Dumper(DumperBase):
             result += ',oneshot="%s"' % (1 if bp.IsOneShot() else 0)
         if hasattr(bp, 'GetCondition'):
             cond = bp.GetCondition()
-            result += ',condition="%s"' % binascii.hexlify("" if cond is None else cond)
+            result += ',condition="%s"' % self.hexencode("" if cond is None else cond)
         result += ',enabled="%s"' % (1 if bp.IsEnabled() else 0)
         result += ',valid="%s"' % (1 if bp.IsValid() else 0)
         result += ',ignorecount="%s"' % bp.GetIgnoreCount()
@@ -1293,7 +1291,7 @@ class Dumper(DumperBase):
             return
         bpNew.SetIgnoreCount(int(args["ignorecount"]))
         if hasattr(bpNew, 'SetCondition'):
-            bpNew.SetCondition(binascii.unhexlify(args["condition"]))
+            bpNew.SetCondition(self.hexdecode(args["condition"]))
         bpNew.SetEnabled(int(args["enabled"]))
         if hasattr(bpNew, 'SetOneShot'):
             bpNew.SetOneShot(int(args["oneshot"]))
@@ -1306,7 +1304,7 @@ class Dumper(DumperBase):
         else:
             bp = self.target.FindBreakpointByID(id)
         bp.SetIgnoreCount(int(args["ignorecount"]))
-        bp.SetCondition(binascii.unhexlify(args["condition"]))
+        bp.SetCondition(self.hexdecode(args["condition"]))
         bp.SetEnabled(int(args["enabled"]))
         if hasattr(bp, 'SetOneShot'):
             bp.SetOneShot(int(args["oneshot"]))
@@ -1481,7 +1479,7 @@ class Dumper(DumperBase):
         result = 'memory={cookie="%s",' % args['cookie']
         result += ',address="%s",' % address
         result += self.describeError(error)
-        result += ',contents="%s"}' % binascii.hexlify(contents)
+        result += ',contents="%s"}' % self.hexencode(contents)
         self.report(result)
 
     def findValueByExpression(self, exp):
@@ -1492,8 +1490,8 @@ class Dumper(DumperBase):
 
     def assignValue(self, args):
         error = lldb.SBError()
-        exp = binascii.unhexlify(args['exp'])
-        value = binascii.unhexlify(args['value'])
+        exp = self.hexdecode(args['exp'])
+        value = self.hexdecode(args['value'])
         lhs = self.findValueByExpression(exp)
         lhs.SetValueFromCString(value, error)
         self.reportError(error)
