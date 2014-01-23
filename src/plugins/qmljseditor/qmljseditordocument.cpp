@@ -32,8 +32,9 @@
 #include "qmljseditordocument_p.h"
 #include "qmljshighlighter.h"
 
-#include <qmljstools/qmljsqtstylecodeformatter.h>
+#include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljsmodelmanager.h>
+#include <qmljstools/qmljsqtstylecodeformatter.h>
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
@@ -74,6 +75,7 @@ QmlJSEditorDocument::QmlJSEditorDocument()
     connect(this, SIGNAL(tabSettingsChanged()),
             m_d, SLOT(invalidateFormatterCache()));
     setSyntaxHighlighter(new Highlighter(document()));
+    setIndenter(new Indenter);
 }
 
 QmlJSEditorDocument::~QmlJSEditorDocument()

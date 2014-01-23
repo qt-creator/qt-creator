@@ -48,7 +48,6 @@
 #include <qmljs/qmljsutils.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
-#include <qmljstools/qmljsindenter.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
