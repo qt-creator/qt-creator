@@ -341,6 +341,14 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
         if (!version)
             return MakefileForWrongProject;
+        if (QtSupport::QtVersionManager::makefileIsFor(makefile, qs->project()->projectFilePath())
+                != QtSupport::QtVersionManager::SameProject) {
+            if (debug) {
+                qDebug() << "different profile used to generate the Makefile:"
+                         << makefile << " expected profile:" << qs->project()->projectFilePath();
+            }
+            return MakefileIncompatible;
+        }
         if (version->qmakeCommand() == qmakePath) {
             // same qtversion
             QPair<BaseQtVersion::QmakeBuildConfigs, QString> result =
