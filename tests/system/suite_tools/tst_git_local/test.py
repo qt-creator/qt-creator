@@ -116,7 +116,7 @@ def main():
     if not startedWithoutPluginError():
         return
     createProject_Qt_GUI(srcPath, projectName, addToVersionControl = "Git")
-    if isQt4Build and not object.exists(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"):
+    if not object.exists(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"):
         clickButton(waitForObject(":Qt Creator_Core::Internal::OutputPaneManageButton"))
         activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Version Control"))
     ensureChecked(waitForObject(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"))
