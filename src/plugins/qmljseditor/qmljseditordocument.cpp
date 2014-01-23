@@ -29,22 +29,54 @@
 
 #include "qmljseditordocument.h"
 
+#include "qmljseditordocument_p.h"
 #include "qmljshighlighter.h"
 
 #include <qmljstools/qmljsqtstylecodeformatter.h>
+#include <qmljstools/qmljsmodelmanager.h>
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
+namespace {
+
+enum {
+    UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100
+};
+
+}
+
+QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *parent)
+    : m_q(parent)
+{
+    m_updateDocumentTimer = new QTimer(this);
+    m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_updateDocumentTimer->setSingleShot(true);
+    connect(m_q->document(), SIGNAL(contentsChanged()), m_updateDocumentTimer, SLOT(start()));
+    connect(m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(reparseDocument()));
+}
+
+void QmlJSEditorDocumentPrivate::invalidateFormatterCache()
+{
+    QmlJSTools::CreatorCodeFormatter formatter(m_q->tabSettings());
+    formatter.invalidateCache(m_q->document());
+}
+
+void QmlJSEditorDocumentPrivate::reparseDocument()
+{
+    QmlJS::ModelManagerInterface::instance()->updateSourceFiles(QStringList() << m_q->filePath(),
+                                                                false);
+}
+
 QmlJSEditorDocument::QmlJSEditorDocument()
+    : m_d(new QmlJSEditorDocumentPrivate(this))
 {
     connect(this, SIGNAL(tabSettingsChanged()),
-            this, SLOT(invalidateFormatterCache()));
+            m_d, SLOT(invalidateFormatterCache()));
     setSyntaxHighlighter(new Highlighter(document()));
 }
 
-void QmlJSEditorDocument::invalidateFormatterCache()
+QmlJSEditorDocument::~QmlJSEditorDocument()
 {
-    QmlJSTools::CreatorCodeFormatter formatter(tabSettings());
-    formatter.invalidateCache(document());
+    delete m_d;
 }

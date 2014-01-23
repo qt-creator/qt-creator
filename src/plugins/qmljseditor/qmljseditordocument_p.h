@@ -27,28 +27,34 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSEDITORDOCUMENT_H
-#define QMLJSEDITORDOCUMENT_H
+#ifndef QMLJSEDITORDOCUMENT_P_H
+#define QMLJSEDITORDOCUMENT_P_H
 
-#include <texteditor/basetextdocument.h>
+#include <QObject>
+#include <QTimer>
 
 namespace QmlJSEditor {
 namespace Internal {
 
-class QmlJSEditorDocumentPrivate;
+class QmlJSEditorDocument;
 
-class QmlJSEditorDocument : public TextEditor::BaseTextDocument
+class QmlJSEditorDocumentPrivate : public QObject
 {
     Q_OBJECT
-public:
-    QmlJSEditorDocument();
-    ~QmlJSEditorDocument();
 
-private:
-    QmlJSEditorDocumentPrivate *m_d;
+public:
+    QmlJSEditorDocumentPrivate(QmlJSEditorDocument *parent);
+
+public slots:
+    void invalidateFormatterCache();
+    void reparseDocument();
+
+public:
+    QmlJSEditorDocument *m_q;
+    QTimer *m_updateDocumentTimer;
 };
 
 } // Internal
 } // QmlJSEditor
 
-#endif // QMLJSEDITORDOCUMENT_H
+#endif // QMLJSEDITORDOCUMENT_P_H

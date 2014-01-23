@@ -36,7 +36,8 @@ HEADERS += \
     qmljssemanticinfoupdater.h \
     qmljssemantichighlighter.h \
     qmljswrapinloader.h \
-    qmljseditordocument.h
+    qmljseditordocument.h \
+    qmljseditordocument_p.h
 
 SOURCES += \
     qmljseditor.cpp \

@@ -320,7 +320,6 @@ void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
                 this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
         connect(newTextEditor, SIGNAL(semanticInfoUpdated()),
                 this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
-        newTextEditor->reparseDocumentNow();
     }
 }
 

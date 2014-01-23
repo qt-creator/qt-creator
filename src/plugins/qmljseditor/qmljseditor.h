@@ -119,8 +119,6 @@ public:
     TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;
 public slots:
-    void reparseDocument();
-    void reparseDocumentNow();
     void updateSemanticInfo();
     void updateSemanticInfoNow();
     void findUsages();
@@ -177,7 +175,6 @@ private:
     QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
     bool hideContextPane();
 
-    QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;
     QTimer *m_updateSemanticInfoTimer;
     QTimer *m_updateOutlineTimer;

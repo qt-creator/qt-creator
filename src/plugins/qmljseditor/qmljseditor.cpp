@@ -479,11 +479,6 @@ void QmlJSTextEditorWidget::ctor()
     setAutoCompleter(new AutoCompleter);
     setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 
-    m_updateDocumentTimer = new QTimer(this);
-    m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
-    m_updateDocumentTimer->setSingleShot(true);
-    connect(m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(reparseDocumentNow()));
-
     m_updateUsesTimer = new QTimer(this);
     m_updateUsesTimer->setInterval(UPDATE_USES_DEFAULT_INTERVAL);
     m_updateUsesTimer->setSingleShot(true);
@@ -493,8 +488,6 @@ void QmlJSTextEditorWidget::ctor()
     m_updateSemanticInfoTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
     m_updateSemanticInfoTimer->setSingleShot(true);
     connect(m_updateSemanticInfoTimer, SIGNAL(timeout()), this, SLOT(updateSemanticInfoNow()));
-
-    connect(this, SIGNAL(textChanged()), this, SLOT(reparseDocument()));
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
@@ -608,19 +601,6 @@ bool QmlJSEditor::open(QString *errorString, const QString &fileName, const QStr
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
     baseTextDocument()->setMimeType(MimeDatabase::findByFile(QFileInfo(fileName)).type());
     return b;
-}
-
-void QmlJSTextEditorWidget::reparseDocument()
-{
-    m_updateDocumentTimer->start();
-}
-
-void QmlJSTextEditorWidget::reparseDocumentNow()
-{
-    m_updateDocumentTimer->stop();
-
-    const QString fileName = baseTextDocument()->filePath();
-    m_modelManager->updateSourceFiles(QStringList() << fileName, false);
 }
 
 static void appendExtraSelectionsForMessages(
