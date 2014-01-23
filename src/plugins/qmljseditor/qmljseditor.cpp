@@ -28,9 +28,10 @@
 ****************************************************************************/
 
 #include "qmljseditor.h"
+
 #include "qmljseditoreditable.h"
 #include "qmljseditorconstants.h"
-#include "qmljshighlighter.h"
+#include "qmljseditordocument.h"
 #include "qmljseditorplugin.h"
 #include "qmloutlinemodel.h"
 #include "qmljsfindreferences.h"
@@ -48,7 +49,6 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 #include <qmljstools/qmljsindenter.h>
-#include <qmljstools/qmljsqtstylecodeformatter.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -758,19 +758,6 @@ void QmlJSTextEditorWidget::updateOutlineIndexNow()
 
         m_outlineCombo->blockSignals(blocked);
     }
-}
-
-QmlJSEditorDocument::QmlJSEditorDocument()
-{
-    connect(this, SIGNAL(tabSettingsChanged()),
-            this, SLOT(invalidateFormatterCache()));
-    setSyntaxHighlighter(new Highlighter(document()));
-}
-
-void QmlJSEditorDocument::invalidateFormatterCache()
-{
-    QmlJSTools::CreatorCodeFormatter formatter(tabSettings());
-    formatter.invalidateCache(document());
 }
 
 } // namespace QmlJSEditor

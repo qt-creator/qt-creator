@@ -36,6 +36,8 @@ QtcPlugin {
         "qmljseditor.qrc",
         "qmljseditor_global.h",
         "qmljseditorconstants.h",
+        "qmljseditordocument.cpp",
+        "qmljseditordocument.h",
         "qmljseditoreditable.cpp",
         "qmljseditoreditable.h",
         "qmljseditorfactory.cpp",

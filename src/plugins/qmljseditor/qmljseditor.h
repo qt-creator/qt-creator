@@ -74,15 +74,6 @@ class SemanticInfoUpdater;
 struct SemanticInfoUpdaterSource;
 class SemanticHighlighter;
 
-class QmlJSEditorDocument : public TextEditor::BaseTextDocument
-{
-    Q_OBJECT
-public:
-    QmlJSEditorDocument();
-private slots:
-    void invalidateFormatterCache();
-};
-
 } // namespace Internal
 
 struct QMLJSEDITOR_EXPORT Declaration
