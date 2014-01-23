@@ -48,7 +48,7 @@ bool ProjectNameValidatingLineEdit::validateProjectName(const QString &name, QSt
     if (name.contains(QLatin1Char('.'))) {
         if (errorMessage)
             *errorMessage = tr("Invalid character '.'.");
-          return false;
+        return false;
     }
     return true;
 }
