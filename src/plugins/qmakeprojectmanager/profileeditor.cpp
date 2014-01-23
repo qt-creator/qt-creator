@@ -95,7 +95,6 @@ ProFileEditorWidget::ProFileEditorWidget(ProFileEditorWidget *other)
 
 void ProFileEditorWidget::ctor()
 {
-    baseTextDocument()->setSyntaxHighlighter(new ProFileHighlighter);
     m_commentDefinition.clearCommentStyles();
     m_commentDefinition.singleLine = QLatin1Char('#');
 }
@@ -211,6 +210,7 @@ ProFileDocument::ProFileDocument()
         : TextEditor::BaseTextDocument()
 {
     setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
+    setSyntaxHighlighter(new ProFileHighlighter);
 }
 
 QString ProFileDocument::defaultPath() const

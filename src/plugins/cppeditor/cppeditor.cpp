@@ -542,8 +542,6 @@ void CPPEditorWidget::ctor()
     setCodeFoldingSupported(true);
     setAutoCompleter(new CppAutoCompleter);
 
-    baseTextDocument()->setSyntaxHighlighter(new CppHighlighter);
-
     m_modelManager = CppModelManagerInterface::instance();
     if (m_modelManager) {
         CppEditorSupport *editorSupport = m_modelManager->cppEditorSupport(editor());
@@ -2001,6 +1999,7 @@ CPPEditorDocument::CPPEditorDocument()
 {
     connect(this, SIGNAL(tabSettingsChanged()),
             this, SLOT(invalidateFormatterCache()));
+    setSyntaxHighlighter(new CppHighlighter);
 }
 
 void CPPEditorDocument::applyFontSettings()

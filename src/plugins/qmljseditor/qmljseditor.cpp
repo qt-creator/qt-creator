@@ -450,7 +450,7 @@ protected:
 
 
 QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
-    TextEditor::BaseTextEditorWidget(parent)
+    TextEditor::BaseTextEditorWidget(new QmlJSEditorDocument, parent)
 {
     ctor();
 }
@@ -514,7 +514,6 @@ void QmlJSTextEditorWidget::ctor()
     m_cursorPositionTimer->setSingleShot(true);
     connect(m_cursorPositionTimer, SIGNAL(timeout()), this, SLOT(updateCursorPositionNow()));
 
-    baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
     baseTextDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
 
     m_modelManager = QmlJS::ModelManagerInterface::instance();
@@ -765,6 +764,7 @@ QmlJSEditorDocument::QmlJSEditorDocument()
 {
     connect(this, SIGNAL(tabSettingsChanged()),
             this, SLOT(invalidateFormatterCache()));
+    setSyntaxHighlighter(new Highlighter(document()));
 }
 
 void QmlJSEditorDocument::invalidateFormatterCache()

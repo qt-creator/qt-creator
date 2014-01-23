@@ -128,7 +128,6 @@ CMakeEditorWidget::CMakeEditorWidget(CMakeEditorWidget *other)
 
 void CMakeEditorWidget::ctor()
 {
-    baseTextDocument()->setSyntaxHighlighter(new CMakeHighlighter);
     m_commentDefinition.clearCommentStyles();
     m_commentDefinition.singleLine = QLatin1Char('#');
 }
@@ -233,6 +232,7 @@ CMakeDocument::CMakeDocument()
     : TextEditor::BaseTextDocument()
 {
     setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
+    setSyntaxHighlighter(new CMakeHighlighter);
 }
 
 QString CMakeDocument::defaultPath() const
