@@ -397,6 +397,7 @@ def waitForProcessRunning(running=True):
 # userDefinedType - if you set sType to SubprocessType.USER_DEFINED you must(!) specify the WindowType for hooking into
 # by yourself (or use the function parameter)
 # ATTENTION! Make sure this function won't fail and the sub-process will end when the function returns
+# returns None if the build failed, False if the subprocess did not start, and True otherwise
 def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None, sType=None, userDefinedType=None, quickVersion=1):
     runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
@@ -406,11 +407,9 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
         ensureChecked(waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton"))
         if not buildSucceeded:
             test.fatal("Build inside run wasn't successful - leaving test")
-            invokeMenuItem("File", "Exit")
-            return False
+            return None
     if not waitForProcessRunning():
         test.fatal("Couldn't start application - leaving test")
-        invokeMenuItem("File", "Exit")
         return False
     if sType == SubprocessType.QT_QUICK_UI and os.getenv("SYSTEST_QMLVIEWER_NO_HOOK_INTO", "0") == "1":
         withHookInto = False

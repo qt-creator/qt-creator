@@ -52,7 +52,9 @@ def main():
             deleteAppFromWinFW(qmlViewerPath, qmlViewer)
         else:
             result = runAndCloseApp(sType=SubprocessType.QT_QUICK_UI)
-        if result:
+        if result == None:
+            checkCompile()
+        else:
             logApplicationOutput()
         invokeMenuItem("File", "Close All Projects and Editors")
     invokeMenuItem("File", "Exit")

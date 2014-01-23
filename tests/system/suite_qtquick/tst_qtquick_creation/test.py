@@ -61,7 +61,9 @@ def main():
                 deleteAppFromWinFW(workingDir, projectName)
             else:
                 result = runAndCloseApp()
-            if result:
+            if result == None:
+                checkCompile()
+            else:
                 logApplicationOutput()
         invokeMenuItem("File", "Close All Projects and Editors")
 

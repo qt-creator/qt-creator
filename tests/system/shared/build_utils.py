@@ -231,7 +231,8 @@ def runVerify(checkedTargets):
     for kit, config in availableConfigs:
         selectBuildConfig(len(checkedTargets), kit, config)
         test.log("Using build config '%s'" % config)
-        if not runAndCloseApp():
-            return
+        if runAndCloseApp() == None:
+            checkCompile()
+            continue
         verifyBuildAndRun()
         mouseClick(waitForObject(":*Qt Creator.Clear_QToolButton"))
