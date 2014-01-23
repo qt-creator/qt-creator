@@ -177,8 +177,6 @@ private:
     QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
     bool hideContextPane();
 
-    const Core::Context m_context;
-
     QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;
     QTimer *m_updateSemanticInfoTimer;
