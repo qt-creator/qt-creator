@@ -32,7 +32,7 @@ using namespace CPlusPlus;
 Lexer::Lexer(TranslationUnit *unit)
     : _translationUnit(unit),
       _control(unit->control()),
-      _state(T_EOF_SYMBOL),
+      _state(0),
       _flags(0),
       _currentLine(1)
 {
@@ -44,7 +44,7 @@ Lexer::Lexer(TranslationUnit *unit)
 Lexer::Lexer(const char *firstChar, const char *lastChar)
     : _translationUnit(0),
       _control(0),
-      _state(T_EOF_SYMBOL),
+      _state(0),
       _flags(0),
       _currentLine(1)
 {
@@ -131,8 +131,21 @@ void Lexer::scan_helper(Token *tok)
   _Lagain:
     while (_yychar && std::isspace(_yychar)) {
         if (_yychar == '\n') {
-            tok->f.joined = false;
-            tok->f.newline = true;
+            tok->f.joined = s._newlineExpected;
+            tok->f.newline = !s._newlineExpected;
+
+            if (s._newlineExpected) {
+                s._newlineExpected = false;
+            } else {
+                switch (s._tokenKind) {
+                case T_EOF_SYMBOL:
+                case T_COMMENT:
+                case T_DOXY_COMMENT:
+                    break; // multiline tokens, don't break on newline
+                default: // Strings and C++ comments
+                    _state = 0;
+                }
+            }
         } else {
             tok->f.whitespace = true;
         }
@@ -145,12 +158,14 @@ void Lexer::scan_helper(Token *tok)
     _tokenStart = _currentChar;
     tok->offset = _currentChar - _firstChar;
 
-    if (_state != T_EOF_SYMBOL && !_yychar) {
+    if (_yychar) {
+        s._newlineExpected = false;
+    } else if (s._tokenKind) {
         tok->f.kind = T_EOF_SYMBOL;
         return;
     }
 
-    switch (_state) {
+    switch (s._tokenKind) {
     case T_EOF_SYMBOL:
         break;
     case T_COMMENT:
@@ -164,7 +179,7 @@ void Lexer::scan_helper(Token *tok)
                 yyinp();
                 if (_yychar == '/') {
                     yyinp();
-                    _state = T_EOF_SYMBOL;
+                    _state = 0;
                     break;
                 }
             }
@@ -178,13 +193,15 @@ void Lexer::scan_helper(Token *tok)
     }
     case T_CPP_COMMENT:
     case T_CPP_DOXY_COMMENT:
-        tok->f.kind = _state;
-        _state = T_EOF_SYMBOL;
+        tok->f.joined = true;
+        tok->f.kind = s._tokenKind;
+        _state = 0;
         scanCppComment((Kind)tok->f.kind);
         return;
     default: // Strings
-        tok->f.kind = _state;
-        _state = T_EOF_SYMBOL;
+        tok->f.joined = true;
+        tok->f.kind = s._tokenKind;
+        _state = 0;
         scanUntilQuote(tok, '"');
         return;
     }
@@ -199,14 +216,7 @@ void Lexer::scan_helper(Token *tok)
 
     switch (ch) {
     case '\\':
-        while (_yychar != '\n' && std::isspace(_yychar))
-            yyinp();
-        // ### CPP_CHECK(! _yychar || _yychar == '\n');
-        if (_yychar == '\n') {
-            tok->f.joined = true;
-            tok->f.newline = false;
-            yyinp();
-        }
+        s._newlineExpected = true;
         goto _Lagain;
 
     case '"':
@@ -417,7 +427,7 @@ void Lexer::scan_helper(Token *tok)
             if (_yychar)
                 yyinp();
             else
-                _state = commentKind;
+                s._tokenKind = commentKind;
 
             if (! f._scanCommentTokens)
                 goto _Lagain;
@@ -804,7 +814,8 @@ void Lexer::scanBackslash(Kind type)
     while (_yychar != '\n' && std::isspace(_yychar))
         yyinp();
     if (!_yychar) {
-        _state = type;
+        s._tokenKind = type;
+        s._newlineExpected = true;
         return;
     }
     if (_yychar == '\n') {
@@ -812,7 +823,7 @@ void Lexer::scanBackslash(Kind type)
         while (_yychar != '\n' && std::isspace(_yychar))
             yyinp();
         if (!_yychar)
-            _state = type;
+            s._tokenKind = type;
     }
 }
 

@@ -254,6 +254,18 @@ void tst_SimpleLexer::incremental_data()
             << _("\"foo \\\n\nbar\"")
             << (List() << T_STRING_LITERAL << T_IDENTIFIER << T_STRING_LITERAL);
 
+    QTest::newRow("escaped_string_literal_with_newline_1")
+            << _("\"foo \\")
+            << (List() << T_STRING_LITERAL);
+
+    QTest::newRow("escaped_string_literal_with_newline_2")
+            << _("")
+            << List();
+
+    QTest::newRow("escaped_string_literal_with_newline_3")
+            << _("bar")
+            << (List() << T_IDENTIFIER);
+
     QTest::newRow("escaped_string_literal_with_space_and_newline_single")
             << _("\"foo \\   \n   bar\"")
             << (List() << T_STRING_LITERAL);
@@ -263,8 +275,8 @@ void tst_SimpleLexer::incremental_data()
             << (List() << T_STRING_LITERAL);
 
     QTest::newRow("escaped_string_literal_with_space_and_newline_2")
-            << _("bar\"")
-            << (List() << T_STRING_LITERAL);
+            << _("bar")
+            << (List() << T_IDENTIFIER);
 
     QTest::newRow("token_after_escaped_string_literal_1")
             << _("\"foo \\")
@@ -310,6 +322,18 @@ void tst_SimpleLexer::incremental_data()
             << _("//foo \\\n\nbar")
             << (List() << T_CPP_COMMENT << T_IDENTIFIER);
 
+    QTest::newRow("escaped_cpp_comment_with_newline_1")
+            << _("//foo \\")
+            << (List() << T_CPP_COMMENT);
+
+    QTest::newRow("escaped_cpp_comment_with_newline_2")
+            << _("")
+            << List();
+
+    QTest::newRow("escaped_cpp_comment_with_newline_3")
+            << _("bar")
+            << (List() << T_IDENTIFIER);
+
     QTest::newRow("escaped_cpp_comment_with_space_and_newline_single")
             << _("//foo \\   \n   bar")
             << (List() << T_CPP_COMMENT);
@@ -320,7 +344,7 @@ void tst_SimpleLexer::incremental_data()
 
     QTest::newRow("escaped_cpp_comment_with_space_and_newline_2")
             << _("bar")
-            << (List() << T_CPP_COMMENT);
+            << (List() << T_IDENTIFIER);
 }
 
 QTEST_APPLESS_MAIN(tst_SimpleLexer)

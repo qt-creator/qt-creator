@@ -70,7 +70,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
     restoreCurrentState(block.previous());
 
     bool endedJoined = false;
-    const int lexerState = tokenizeBlock(block, &endedJoined);
+    // Discard newline expected bit from state
+    const int lexerState = tokenizeBlock(block, &endedJoined) & ~0x80;
     m_tokenIndex = 0;
     m_newStates.clear();
 
@@ -504,7 +505,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                 leave();
                 continue;
             } else if (m_tokenIndex == m_tokens.size() - 1
-                    && lexerState == T_EOF_SYMBOL) {
+                    && lexerState == 0) {
                 leave();
             } else if (m_tokenIndex == 0 && m_currentToken.isComment()) {
                 // to allow enter/leave to update the indentDepth

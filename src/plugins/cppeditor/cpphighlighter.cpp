@@ -66,7 +66,7 @@ CppHighlighter::CppHighlighter(QTextDocument *document) :
 void CppHighlighter::highlightBlock(const QString &text)
 {
     const int previousState = previousBlockState();
-    int state = T_EOF_SYMBOL, initialBraceDepth = 0;
+    int state = 0, initialBraceDepth = 0;
     if (previousState != -1) {
         state = previousState & 0xff;
         initialBraceDepth = previousState >> 8;
@@ -85,6 +85,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     const QList<Token> tokens = tokenize(text, initialState);
     state = tokenize.state(); // refresh the state
 
+    initialState &= ~0x80; // discard newline expected bit
     int foldingIndent = initialBraceDepth;
     if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(currentBlock())) {
         userData->setFoldingIndent(0);
@@ -93,7 +94,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     }
 
     if (tokens.isEmpty()) {
-        setCurrentBlockState(previousState);
+        setCurrentBlockState(state);
         BaseTextDocumentLayout::clearParentheses(currentBlock());
         if (text.length())  {// the empty line can still contain whitespace
             if (initialState == T_COMMENT)

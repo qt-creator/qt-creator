@@ -99,6 +99,11 @@ private:
         unsigned _scanAngleStringLiteralTokens: 1;
     };
 
+    struct State {
+        unsigned char _tokenKind : 7;
+        unsigned char _newlineExpected : 1;
+    };
+
     TranslationUnit *_translationUnit;
     Control *_control;
     const char *_firstChar;
@@ -106,7 +111,10 @@ private:
     const char *_lastChar;
     const char *_tokenStart;
     unsigned char _yychar;
-    int _state;
+    union {
+        unsigned char _state;
+        State s;
+    };
     union {
         unsigned _flags;
         Flags f;

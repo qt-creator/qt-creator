@@ -139,7 +139,7 @@ private:
     uint m_folded : 1;
     uint m_ifdefedOut : 1;
     uint m_foldingIndent : 16;
-    uint m_lexerState : 4;
+    uint m_lexerState : 8;
     uint m_foldingStartIncluded : 1;
     uint m_foldingEndIncluded : 1;
     Parentheses m_parentheses;
