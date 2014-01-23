@@ -164,6 +164,9 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
     qtEnv.qtNameSpace = qt->qtNamespace();
     qtEnv.qtLibInfix = qt->qtLibInfix();
     qtEnv.qtVersion = qt->qtVersionString();
+    qtEnv.qtMajorVersion = qt->qtVersion().majorVersion;
+    qtEnv.qtMinorVersion = qt->qtVersion().minorVersion;
+    qtEnv.qtPatchVersion = qt->qtVersion().patchVersion;
     qtEnv.frameworkBuild = qt->isFrameworkBuild();
     qtEnv.configItems = qt->configValues();
     qtEnv.qtConfigItems = qt->qtConfigValues();
