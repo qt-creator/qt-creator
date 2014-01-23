@@ -68,9 +68,6 @@ SOURCES += qnxplugin.cpp \
     blackberrydebugtokenuploader.cpp \
     blackberrydebugtokenreader.cpp \
     blackberryndkprocess.cpp \
-    blackberrycheckdebugtokenstep.cpp \
-    blackberrycheckdebugtokenstepconfigwidget.cpp \
-    blackberrycheckdebugtokenstepfactory.cpp \
     blackberrydeviceconnection.cpp \
     blackberrydeviceconnectionmanager.cpp \
     blackberrydeviceinformation.cpp \
@@ -99,7 +96,10 @@ SOURCES += qnxplugin.cpp \
     qnxtoolchain.cpp \
     slog2inforunner.cpp \
     blackberryversionnumber.cpp \
-    blackberrydebugtokenpinsdialog.cpp
+    blackberrydebugtokenpinsdialog.cpp \
+    blackberrycheckdevicestatusstepfactory.cpp \
+    blackberrycheckdevicestatusstepconfigwidget.cpp \
+    blackberrycheckdevicestatusstep.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -167,9 +167,6 @@ HEADERS += qnxplugin.h\
     blackberrydebugtokenuploader.h \
     blackberrydebugtokenreader.h \
     blackberryndkprocess.h \
-    blackberrycheckdebugtokenstep.h \
-    blackberrycheckdebugtokenstepconfigwidget.h \
-    blackberrycheckdebugtokenstepfactory.h \
     blackberrydeviceconnection.h \
     blackberrydeviceconnectionmanager.h \
     blackberrydeviceinformation.h \
@@ -198,7 +195,10 @@ HEADERS += qnxplugin.h\
     qnxtoolchain.h \
     slog2inforunner.h \
     blackberryversionnumber.h \
-    blackberrydebugtokenpinsdialog.h
+    blackberrydebugtokenpinsdialog.h \
+    blackberrycheckdevicestatusstep.h \
+    blackberrycheckdevicestatusstepfactory.h \
+    blackberrycheckdevicestatusstepconfigwidget.h
 
 
 FORMS += \
@@ -231,7 +231,8 @@ FORMS += \
     blackberryinstallwizardndkpage.ui \
     blackberryinstallwizardprocesspage.ui \
     blackberryinstallwizardoptionpage.ui \
-    blackberrydebugtokenpinsdialog.ui
+    blackberrydebugtokenpinsdialog.ui \
+    blackberrycheckdevicestatusstepconfigwidget.ui
 
 include(../../private_headers.pri)
 include(./cascadesimport/cascadesimport.pri)

@@ -29,27 +29,37 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEPCONFIGWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEPCONFIGWIDGET_H
+#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEVICESTATUSSTEPCONFIGWIDGET_H
+#define QNX_INTERNAL_BLACKBERRYCHECKDEVICESTATUSSTEPCONFIGWIDGET_H
 
 #include <projectexplorer/buildstep.h>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryCheckDebugTokenConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+namespace Ui {
+class BlackBerryCheckDeviceStatusStepConfigWidget;
+}
+
+class BlackBerryCheckDeviceStatusStep;
+class BlackBerryCheckDeviceStatusStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    explicit BlackBerryCheckDebugTokenConfigWidget();
+    explicit BlackBerryCheckDeviceStatusStepConfigWidget(
+            BlackBerryCheckDeviceStatusStep *checkDeviceStatuStep);
+    ~BlackBerryCheckDeviceStatusStepConfigWidget();
 
     QString displayName() const;
     QString summaryText() const;
 
     bool showWidget() const;
+private:
+    BlackBerryCheckDeviceStatusStep *m_checkDeviceStatusStep;
+    Ui::BlackBerryCheckDeviceStatusStepConfigWidget *m_ui;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPCONFIGWIDGET_H
+#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVICESTATUSSTEPCONFIGWIDGET_H

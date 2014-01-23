@@ -29,8 +29,8 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEP_H
-#define QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEP_H
+#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEVICESTATUSSTEP_H
+#define QNX_INTERNAL_BLACKBERRYCHECKDEVICESTATUSSTEP_H
 
 #include "blackberrydeviceconfiguration.h"
 
@@ -44,34 +44,50 @@ namespace Qnx {
 namespace Internal {
 
 class BlackBerryDeviceInformation;
-class BlackBerryCheckDebugTokenStep : public ProjectExplorer::BuildStep
+class BlackBerryCheckDeviceStatusStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
-    friend class BlackBerryCheckDebugTokenStepFactory;
+    friend class BlackBerryCheckDeviceStatusStepFactory;
 
 public:
-    explicit BlackBerryCheckDebugTokenStep(ProjectExplorer::BuildStepList *bsl);
+    explicit BlackBerryCheckDeviceStatusStep(ProjectExplorer::BuildStepList *bsl);
 
     bool init();
     void run(QFutureInterface<bool> &fi);
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-    void raiseError(const QString& error);
+    void raiseError(const QString &error);
+    void raiseWarning(const QString &warning);
+
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
+
+    bool debugTokenCheckEnabled () const;
+    bool runtimeCheckEnabled() const;
 
 protected:
-    BlackBerryCheckDebugTokenStep(ProjectExplorer::BuildStepList *bsl, BlackBerryCheckDebugTokenStep *bs);
+    BlackBerryCheckDeviceStatusStep(ProjectExplorer::BuildStepList *bsl,
+                                    BlackBerryCheckDeviceStatusStep *bs);
 
 protected slots:
     void checkDeviceInfo(int status);
     void emitOutputInfo();
 
+    void enableDebugTokenCheck(bool enable);
+    void enableRuntimeCheck(bool enable);
+
+    bool handleVersionMismatch(const QString &runtimeVersion, const QString &apiLevelVersion);
+
 private:
     BlackBerryDeviceInformation *m_deviceInfo;
     BlackBerryDeviceConfiguration::ConstPtr m_device;
     QEventLoop *m_eventLoop;
+
+    bool m_runtimeCheckEnabled;
+    bool m_debugTokenCheckEnabled;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEP_H
+#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVICESTATUSSTEP_H

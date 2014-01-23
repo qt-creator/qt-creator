@@ -69,7 +69,7 @@ const char QNX_QNX_RUNCONFIGURATION_PREFIX[] = "Qt4ProjectManager.QNX.QNXRunConf
 
 const char QNX_CREATE_PACKAGE_BS_ID[] = "Qt4ProjectManager.QnxCreatePackageBuildStep";
 const char QNX_DEPLOY_PACKAGE_BS_ID[] = "Qt4ProjectManager.QnxDeployPackageBuildStep";
-const char QNX_CHECK_DEBUG_TOKEN_BS_ID[] = "Qt4ProjectManager.QnxCheckDebugTokenBuildStep";
+const char QNX_CHECK_DEVICE_STATUS_BS_ID[] = "Qt4ProjectManager.QnxCheckDeviceStatusBuildStep";
 
 const char QNX_PROFILEPATH_KEY[]   = "Qt4ProjectManager.QnxRunConfiguration.ProFilePath";
 

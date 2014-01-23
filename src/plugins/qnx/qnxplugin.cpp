@@ -49,7 +49,7 @@
 #include "bardescriptoreditorfactory.h"
 #include "bardescriptormagicmatcher.h"
 #include "blackberrykeyspage.h"
-#include "blackberrycheckdebugtokenstepfactory.h"
+#include "blackberrycheckdevicestatusstepfactory.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "blackberryconfigurationmanager.h"
 #include "blackberryconfiguration.h"
@@ -91,7 +91,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new BlackBerryRunControlFactory);
     addAutoReleasedObject(new BlackBerryNDKSettingsPage);
     addAutoReleasedObject(new BlackBerryKeysPage);
-    addAutoReleasedObject(new BlackBerryCheckDebugTokenStepFactory);
+    addAutoReleasedObject(new BlackBerryCheckDeviceStatusStepFactory);
     addAutoReleasedObject(new CascadesImportWizard);
     BlackBerryDeviceConnectionManager::instance()->initialize();
 

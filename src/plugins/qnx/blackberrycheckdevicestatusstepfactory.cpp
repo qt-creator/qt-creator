@@ -29,9 +29,9 @@
 **
 ****************************************************************************/
 
-#include "blackberrycheckdebugtokenstepfactory.h"
+#include "blackberrycheckdevicestatusstepfactory.h"
 
-#include "blackberrycheckdebugtokenstep.h"
+#include "blackberrycheckdevicestatusstep.h"
 #include "blackberrydeviceconfigurationfactory.h"
 #include "qnxconstants.h"
 
@@ -43,12 +43,13 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BlackBerryCheckDebugTokenStepFactory::BlackBerryCheckDebugTokenStepFactory(QObject *parent) :
+BlackBerryCheckDeviceStatusStepFactory::BlackBerryCheckDeviceStatusStepFactory(QObject *parent) :
     ProjectExplorer::IBuildStepFactory(parent)
 {
 }
 
-QList<Core::Id> BlackBerryCheckDebugTokenStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<Core::Id> BlackBerryCheckDeviceStatusStepFactory::availableCreationIds(
+        ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return QList<Core::Id>();
@@ -57,52 +58,53 @@ QList<Core::Id> BlackBerryCheckDebugTokenStepFactory::availableCreationIds(Proje
     if (deviceType != BlackBerryDeviceConfigurationFactory::deviceType())
         return QList<Core::Id>();
 
-    return QList<Core::Id>() << Core::Id(Constants::QNX_CHECK_DEBUG_TOKEN_BS_ID);
+    return QList<Core::Id>() << Core::Id(Constants::QNX_CHECK_DEVICE_STATUS_BS_ID);
 }
 
-QString BlackBerryCheckDebugTokenStepFactory::displayNameForId(const Core::Id id) const
+QString BlackBerryCheckDeviceStatusStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Constants::QNX_CHECK_DEBUG_TOKEN_BS_ID)
-        return tr("Check Debug Token");
+    if (id == Constants::QNX_CHECK_DEVICE_STATUS_BS_ID)
+        return tr("Check Device Status");
     return QString();
 }
 
-bool BlackBerryCheckDebugTokenStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
+bool BlackBerryCheckDeviceStatusStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-ProjectExplorer::BuildStep *BlackBerryCheckDebugTokenStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
+ProjectExplorer::BuildStep *BlackBerryCheckDeviceStatusStepFactory::create(ProjectExplorer::BuildStepList *parent,
+                                                                           const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
-    return new BlackBerryCheckDebugTokenStep(parent);
+    return new BlackBerryCheckDeviceStatusStep(parent);
 }
 
-bool BlackBerryCheckDebugTokenStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
+bool BlackBerryCheckDeviceStatusStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
 {
     return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
-ProjectExplorer::BuildStep *BlackBerryCheckDebugTokenStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
+ProjectExplorer::BuildStep *BlackBerryCheckDeviceStatusStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
-    BlackBerryCheckDebugTokenStep *bs = new BlackBerryCheckDebugTokenStep(parent);
+    BlackBerryCheckDeviceStatusStep *bs = new BlackBerryCheckDeviceStatusStep(parent);
     if (bs->fromMap(map))
         return bs;
     delete bs;
     return 0;
 }
 
-bool BlackBerryCheckDebugTokenStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const
+bool BlackBerryCheckDeviceStatusStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const
 {
     return canCreate(parent, product->id());
 }
 
-ProjectExplorer::BuildStep *BlackBerryCheckDebugTokenStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
+ProjectExplorer::BuildStep *BlackBerryCheckDeviceStatusStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
 {
     if (!canClone(parent, product))
         return 0;
-    return new BlackBerryCheckDebugTokenStep(parent, static_cast<BlackBerryCheckDebugTokenStep *>(product));
+    return new BlackBerryCheckDeviceStatusStep(parent, static_cast<BlackBerryCheckDeviceStatusStep *>(product));
 }

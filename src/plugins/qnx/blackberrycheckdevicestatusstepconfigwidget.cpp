@@ -29,36 +29,45 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEPFACTORY_H
-#define QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEPFACTORY_H
+#include "blackberrycheckdevicestatusstepconfigwidget.h"
+#include "ui_blackberrycheckdevicestatusstepconfigwidget.h"
+#include "blackberrycheckdevicestatusstep.h"
 
-#include <projectexplorer/buildstep.h>
+using namespace Qnx;
+using namespace Qnx::Internal;
 
-namespace Qnx {
-namespace Internal {
-
-class BlackBerryCheckDebugTokenStepFactory : public ProjectExplorer::IBuildStepFactory
+BlackBerryCheckDeviceStatusStepConfigWidget::BlackBerryCheckDeviceStatusStepConfigWidget(
+        BlackBerryCheckDeviceStatusStep *checkDeviceStatuStep)
+   : ProjectExplorer::BuildStepConfigWidget()
+   , m_checkDeviceStatusStep(checkDeviceStatuStep)
+   , m_ui(new Ui::BlackBerryCheckDeviceStatusStepConfigWidget)
 {
-    Q_OBJECT
-public:
-    explicit BlackBerryCheckDebugTokenStepFactory(QObject *parent = 0);
+    m_ui->setupUi(this);
+    m_ui->checkRuntime->setChecked(m_checkDeviceStatusStep->runtimeCheckEnabled());
+    m_ui->checkDebugToken->setChecked(m_checkDeviceStatusStep->debugTokenCheckEnabled());
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    QString displayNameForId(const Core::Id id) const;
+    connect(m_ui->checkRuntime, SIGNAL(clicked(bool)),
+            m_checkDeviceStatusStep, SLOT(enableRuntimeCheck(bool)));
+    connect(m_ui->checkDebugToken, SIGNAL(clicked(bool)),
+            m_checkDeviceStatusStep, SLOT(enableDebugTokenCheck(bool)));
+}
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
+BlackBerryCheckDeviceStatusStepConfigWidget::~BlackBerryCheckDeviceStatusStepConfigWidget()
+{
+    delete m_ui;
+}
 
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent,
-                                        const QVariantMap &map);
+QString BlackBerryCheckDeviceStatusStepConfigWidget::displayName() const
+{
+    return tr("<b>Check device status</b>");
+}
 
-    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *product);
-};
+QString BlackBerryCheckDeviceStatusStepConfigWidget::summaryText() const
+{
+    return displayName();
+}
 
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPFACTORY_H
+bool BlackBerryCheckDeviceStatusStepConfigWidget::showWidget() const
+{
+    return true;
+}
