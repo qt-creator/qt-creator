@@ -50,9 +50,9 @@ using namespace QmlJS;
     It is an error to use the same ScopeChain from multiple threads; use a copy.
     Copying is cheap. Initial construction is currently expensive.
 
-    When a QmlJSEditor::QmlJSTextEditorWidget is available, there's no need to
+    When a QmlJSEditor::QmlJSEditorDocument is available, there's no need to
     construct a new ScopeChain. Instead use
-    QmlJSTextEditorWidget::semanticInfo()::scopeChain().
+    QmlJSEditorDocument::semanticInfo()::scopeChain().
 */
 
 QmlComponentChain::QmlComponentChain(const Document::Ptr &document)

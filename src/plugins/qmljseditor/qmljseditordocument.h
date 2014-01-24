@@ -30,6 +30,8 @@
 #ifndef QMLJSEDITORDOCUMENT_H
 #define QMLJSEDITORDOCUMENT_H
 
+#include <qmljs/qmljsdocument.h>
+#include <qmljstools/qmljssemanticinfo.h>
 #include <texteditor/basetextdocument.h>
 
 namespace QmlJSEditor {
@@ -44,7 +46,15 @@ public:
     QmlJSEditorDocument();
     ~QmlJSEditorDocument();
 
+    const QmlJSTools::SemanticInfo &semanticInfo() const;
+    bool isSemanticInfoOutdated() const;
+
+signals:
+    void updateCodeWarnings(QmlJS::Document::Ptr doc);
+    void semanticInfoUpdated(const QmlJSTools::SemanticInfo &semanticInfo);
+
 private:
+    friend class QmlJSEditorDocumentPrivate; // sending signals
     QmlJSEditorDocumentPrivate *m_d;
 };
 

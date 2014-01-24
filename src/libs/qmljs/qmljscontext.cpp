@@ -49,9 +49,9 @@ using namespace QmlJS::AST;
 
     Information about the imports of a Document can be accessed with imports().
 
-    When dealing with a QmlJSEditor::QmlJSTextEditorWidget it is unnecessary to
+    When dealing with a QmlJSEditor::QmlJSEditorDocument it is unnecessary to
     construct a new Context manually. Instead use
-    QmlJSTextEditorWidget::semanticInfo()::context.
+    QmlJSEditorDocument::semanticInfo()::context.
 */
 
 ContextPtr Context::create(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner,

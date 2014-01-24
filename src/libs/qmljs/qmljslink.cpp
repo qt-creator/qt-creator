@@ -130,7 +130,7 @@ public:
     Initializes a context by resolving imports. This is an expensive operation.
 
     Instead of making a fresh context, consider reusing the one maintained in the
-    \l{QmlJSEditor::SemanticInfo} of a \l{QmlJSEditor::QmlJSTextEditorWidget}.
+    \l{QmlJSEditor::SemanticInfo} of a \l{QmlJSEditor::QmlJSEditorDocument}.
 */
 
 Link::Link(const Snapshot &snapshot, const ViewerContext &vContext, const LibraryInfo &builtins)

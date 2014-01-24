@@ -31,6 +31,7 @@
 #include "qmljshighlighter.h"
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
+#include "qmljseditordocument.h"
 #include "qmljseditorfactory.h"
 #include "qmljshoverhandler.h"
 #include "qmlfilewizard.h"
@@ -71,6 +72,7 @@
 #include <QSettings>
 #include <QDir>
 #include <QCoreApplication>
+#include <QTextDocument>
 #include <QTimer>
 #include <QMenu>
 #include <QAction>
@@ -95,7 +97,7 @@ QmlJSEditorPlugin::QmlJSEditorPlugin() :
     m_editor(0),
     m_quickFixAssistProvider(0),
     m_reformatFileAction(0),
-    m_currentEditor(0),
+    m_currentDocument(0),
     m_jsonManager(new Utils::JsonSchemaManager(
             QStringList() << Core::ICore::userResourcePath() + QLatin1String("/json/")
                           << Core::ICore::resourcePath() + QLatin1String("/json/")))
@@ -270,11 +272,11 @@ void QmlJSEditorPlugin::renameUsages()
 
 void QmlJSEditorPlugin::reformatFile()
 {
-    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(Core::EditorManager::currentEditor()->widget())) {
-        QTC_ASSERT(!editor->isSemanticInfoOutdated(), return);
+    if (m_currentDocument) {
+        QTC_ASSERT(!m_currentDocument->isSemanticInfoOutdated(), return);
 
-        const QString &newText = QmlJS::reformat(editor->semanticInfo().document);
-        QTextCursor tc(editor->textCursor());
+        const QString &newText = QmlJS::reformat(m_currentDocument->semanticInfo().document);
+        QTextCursor tc(m_currentDocument->document());
         tc.movePosition(QTextCursor::Start);
         tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
         tc.insertText(newText);
@@ -285,7 +287,6 @@ void QmlJSEditorPlugin::showContextPane()
 {
     if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(Core::EditorManager::currentEditor()->widget()))
         editor->showContextPane();
-
 }
 
 Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a,
@@ -306,19 +307,17 @@ QmlJSQuickFixAssistProvider *QmlJSEditorPlugin::quickFixAssistProvider() const
 
 void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)
 {
-    QmlJSTextEditorWidget *newTextEditor = 0;
+    QmlJSEditorDocument *document = 0;
     if (editor)
-        newTextEditor = qobject_cast<QmlJSTextEditorWidget *>(editor->widget());
+        document = qobject_cast<QmlJSEditorDocument *>(editor->document());
 
-    if (m_currentEditor) {
-        m_currentEditor->baseTextDocument()->disconnect(this);
-        m_currentEditor->disconnect(this);
-    }
-    m_currentEditor = newTextEditor;
-    if (newTextEditor) {
-        connect(newTextEditor->baseTextDocument(), SIGNAL(contentsChanged()),
+    if (m_currentDocument)
+        m_currentDocument->disconnect(this);
+    m_currentDocument = document;
+    if (document) {
+        connect(document->document(), SIGNAL(contentsChanged()),
                 this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
-        connect(newTextEditor, SIGNAL(semanticInfoUpdated()),
+        connect(document, SIGNAL(semanticInfoUpdated(QmlJSTools::SemanticInfo)),
                 this, SLOT(checkCurrentEditorSemanticInfoUpToDate()));
     }
 }
@@ -332,7 +331,7 @@ void QmlJSEditorPlugin::runSemanticScan()
 
 void QmlJSEditorPlugin::checkCurrentEditorSemanticInfoUpToDate()
 {
-    const bool semanticInfoUpToDate = m_currentEditor && !m_currentEditor->isSemanticInfoOutdated();
+    const bool semanticInfoUpToDate = m_currentDocument && !m_currentDocument->isSemanticInfoOutdated();
     m_reformatFileAction->setEnabled(semanticInfoUpToDate);
 }
 

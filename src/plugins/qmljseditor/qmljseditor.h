@@ -69,6 +69,7 @@ class QmlJSEditor;
 class FindReferences;
 
 namespace Internal {
+class QmlJSEditorDocument;
 class QmlOutlineModel;
 class SemanticInfoUpdater;
 struct SemanticInfoUpdaterSource;
@@ -96,9 +97,6 @@ class QMLJSEDITOR_EXPORT QmlJSTextEditorWidget : public TextEditor::BaseTextEdit
 {
     Q_OBJECT
 
-    // used e.g. in qmljsprofiler
-    Q_PROPERTY(QmlJSTools::SemanticInfo semanticInfo READ semanticInfo)
-
 public:
     QmlJSTextEditorWidget(QWidget *parent = 0);
     QmlJSTextEditorWidget(QmlJSTextEditorWidget *other);
@@ -106,9 +104,11 @@ public:
 
     virtual void unCommentSelection();
 
+    // redirecting to document
     QmlJSTools::SemanticInfo semanticInfo() const;
     bool isSemanticInfoOutdated() const;
     int editorRevision() const;
+
     QVector<QTextLayout::FormatRange> diagnosticRanges() const;
 
     Internal::QmlOutlineModel *outlineModel() const;
@@ -119,8 +119,6 @@ public:
     TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;
 public slots:
-    void updateSemanticInfo();
-    void updateSemanticInfoNow();
     void findUsages();
     void renameUsages();
     void showContextPane();
@@ -132,7 +130,6 @@ signals:
     void semanticInfoUpdated();
 
 private slots:
-    void onDocumentUpdated(QmlJS::Document::Ptr doc);
     void modificationChanged(bool);
 
     void jumpToOutlineElement(int index);
@@ -144,11 +141,12 @@ private slots:
     void updateUses();
     void updateUsesNow();
 
-    void acceptNewSemanticInfo(const QmlJSTools::SemanticInfo &semanticInfo);
+    void semanticInfoUpdated(const QmlJSTools::SemanticInfo &semanticInfo);
     void onCursorPositionChanged();
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
     void performQuickFix(int index);
+    void updateCodeWarnings(QmlJS::Document::Ptr doc);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
@@ -175,8 +173,8 @@ private:
     QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
     bool hideContextPane();
 
+    Internal::QmlJSEditorDocument *m_qmlJsEditorDocument;
     QTimer *m_updateUsesTimer;
-    QTimer *m_updateSemanticInfoTimer;
     QTimer *m_updateOutlineTimer;
     QTimer *m_updateOutlineIndexTimer;
     QTimer *m_cursorPositionTimer;
@@ -184,10 +182,6 @@ private:
     Internal::QmlOutlineModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
-
-    Internal::SemanticInfoUpdater *m_semanticInfoUpdater;
-    QmlJSTools::SemanticInfo m_semanticInfo;
-    int m_futureSemanticInfoRevision;
 
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
     QVector<QTextLayout::FormatRange> m_diagnosticRanges;

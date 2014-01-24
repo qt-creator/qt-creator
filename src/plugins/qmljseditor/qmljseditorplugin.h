@@ -60,10 +60,10 @@ namespace QmlJS {
 namespace QmlJSEditor {
 
 class QmlFileWizard;
-class QmlJSTextEditorWidget;
 
 namespace Internal {
 
+class QmlJSEditorDocument;
 class QmlJSEditorFactory;
 class QmlJSPreviewRunner;
 class QmlJSQuickFixAssistProvider;
@@ -114,7 +114,7 @@ private:
 
     QAction *m_reformatFileAction;
 
-    QPointer<QmlJSTextEditorWidget> m_currentEditor;
+    QPointer<QmlJSEditorDocument> m_currentDocument;
     QScopedPointer<Utils::JsonSchemaManager> m_jsonManager;
 };
 

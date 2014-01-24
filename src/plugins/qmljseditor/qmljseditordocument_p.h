@@ -30,6 +30,9 @@
 #ifndef QMLJSEDITORDOCUMENT_P_H
 #define QMLJSEDITORDOCUMENT_P_H
 
+#include <qmljs/qmljsdocument.h>
+#include <qmljstools/qmljssemanticinfo.h>
+
 #include <QObject>
 #include <QTimer>
 
@@ -37,6 +40,7 @@ namespace QmlJSEditor {
 namespace Internal {
 
 class QmlJSEditorDocument;
+class SemanticInfoUpdater;
 
 class QmlJSEditorDocumentPrivate : public QObject
 {
@@ -44,14 +48,22 @@ class QmlJSEditorDocumentPrivate : public QObject
 
 public:
     QmlJSEditorDocumentPrivate(QmlJSEditorDocument *parent);
+    ~QmlJSEditorDocumentPrivate();
 
 public slots:
     void invalidateFormatterCache();
     void reparseDocument();
+    void onDocumentUpdated(QmlJS::Document::Ptr doc);
+    void reupdateSemanticInfo();
+    void acceptNewSemanticInfo(const QmlJSTools::SemanticInfo &semanticInfo);
 
 public:
     QmlJSEditorDocument *m_q;
-    QTimer *m_updateDocumentTimer;
+    QTimer *m_updateDocumentTimer; // used to compress multiple document changes
+    QTimer *m_reupdateSemanticInfoTimer; // used to compress multiple libraryInfo changes
+    int m_semanticInfoDocRevision; // document revision to which the semantic info is currently updated to
+    SemanticInfoUpdater *m_semanticInfoUpdater;
+    QmlJSTools::SemanticInfo m_semanticInfo;
 };
 
 } // Internal
