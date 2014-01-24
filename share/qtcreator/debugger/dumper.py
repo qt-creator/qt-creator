@@ -80,6 +80,10 @@ class Blob(object):
             data = ''.join([c for c in data])
         return data
 
+    def toString(self):
+        data = self.toBytes()
+        return data if sys.version_info[0] == 2 else data.decode("utf8")
+
     def extractByte(self, offset = 0):
         return struct.unpack_from("b", self.data, offset)[0]
 
@@ -917,7 +921,7 @@ class DumperBase:
             x = data + (propertyData + 3 * i) * 4
             literal = sd + self.extractInt(x) * byteArrayDataSize
             ldata, lsize, lalloc = self.byteArrayDataHelper(literal)
-            properties.append(self.readCArray(ldata, lsize))
+            properties.append(self.extractBlob(ldata, lsize).toString())
         return properties
 
 
@@ -928,10 +932,11 @@ class DumperBase:
             propertyCount = len(propertyNames)
             self.putItemCount(propertyCount)
             self.putNumChild(propertyCount)
-            with Children(self):
-                for i in range(propertyCount):
-                    name = propertyNames[i]
-                    self.putCallItem(name, qobject, "property", '"' + name + '"')
+            if self.isExpanded():
+                with Children(self):
+                    for i in range(propertyCount):
+                        name = propertyNames[i]
+                        self.putCallItem(name, qobject, "property", '"' + name + '"')
 
 
     def isKnownMovableType(self, type):

@@ -963,44 +963,25 @@ class Dumper(DumperBase):
             return True
         if typeName in self.knownNonQObjectTypes:
             return False
+
+        smo = typeName + "::staticMetaObject"
         try:
-            vtable = self.dereference(toInteger(value.address)) # + ptrSize
-            if vtable & 0x3: # This is not a pointer.
-                return False
-            metaObjectEntry = self.dereference(vtable) # It's the first entry.
-            if metaObjectEntry & 0x1: # This is not a pointer.
-                return False
-            #warn("MO: 0x%x " % metaObjectEntry)
-            s = gdb.execute("info symbol 0x%x" % metaObjectEntry, to_string=True)
-            #warn("S: %s " % s)
-            #return s.find("::metaObject() const") > 0
-            #return str(metaObjectEntry).find("::metaObject() const") > 0
-            if s.find("::metaObject() const") > 0 or s.find("10metaObjectEv") > 0:
+            result = gdb.lookup_global_symbol(smo)
+            if result:
                 self.knownQObjectTypes.add(typeName)
-                return True
             else:
                 self.knownNonQObjectTypes.add(typeName)
-                return False
+            return result
+        except:
+            pass
+
+        # Older GDB...
+        try:
+            gdb.parse_and_eval(smo)
+            self.knownQObjectTypes.add(typeName)
+            return True
         except:
             self.knownNonQObjectTypes.add(typeName)
-            return False
-
-    def isQObject_B(self, value):
-        # Alternative: Check for specific values, like targeting the
-        # 'childEvent' member which is typically not overwritten, slot 8.
-        # ~"Symbol \"Myns::QObject::childEvent(Myns::QChildEvent*)\" is a
-        #  function at address 0xb70f691a.\n"
-        if self.childEventAddress == None:
-            try:
-                loc = gdb.execute("info address ::QObject::childEvent", to_string=True)
-                self.childEventAddress = toInteger(loc[loc.rfind(' '):-2], 16)
-            except:
-                self.childEventAddress = 0
-
-        try:
-            vtable = self.dereference(toInteger(value.address))
-            return self.childEventAddress == self.dereference(vtable + 8 * self.ptrSize())
-        except:
             return False
 
     def put(self, value):
@@ -1445,25 +1426,6 @@ class Dumper(DumperBase):
     def extractBlob(self, base, size):
         inferior = self.selectedInferior()
         return Blob(inferior.read_memory(base, size))
-
-    def readCArray(self, base, size):
-        inferior = self.selectedInferior()
-        if sys.version_info[0] >= 3:
-            mem = bytes()
-            for i in range(size):
-                char = inferior.read_memory(base + i, 1)[0]
-                if not char:
-                    break
-                mem += char
-            return mem.decode("utf8")
-        else:
-            mem = ""
-            for i in range(size):
-                char = inferior.read_memory(base + i, 1)[0]
-                if not char:
-                    break
-                mem += char
-            return mem
 
     def readCString(self, base):
         inferior = self.selectedInferior()

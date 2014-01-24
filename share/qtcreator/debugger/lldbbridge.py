@@ -851,9 +851,6 @@ class Dumper(DumperBase):
         error = lldb.SBError()
         return Blob(self.process.ReadMemory(base, size, error))
 
-    def readCArray(self, base, size):
-        return self.extractBlob(base, size).toBytes()
-
     def toBlob(self, value):
         data = value.GetData()
         size = int(data.GetByteSize())
