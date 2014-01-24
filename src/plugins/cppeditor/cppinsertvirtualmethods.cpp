@@ -53,6 +53,7 @@
 #include <QStandardItemModel>
 #include <QTextDocument>
 #include <QTreeView>
+#include <QVBoxLayout>
 
 using namespace CPlusPlus;
 using namespace CppEditor;
