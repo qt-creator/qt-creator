@@ -37,10 +37,10 @@
 #include <QHash>
 #include <QList>
 #include <QString>
+#include <QTextCharFormat>
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
-class QTextCharFormat;
 class QSettings;
 class QFont;
 QT_END_NAMESPACE
