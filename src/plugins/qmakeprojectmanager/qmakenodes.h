@@ -177,7 +177,7 @@ public:
     static QSet<Utils::FileName> recursiveEnumerate(const QString &folder);
 protected:
     void setIncludedInExactParse(bool b);
-    static QStringList varNames(ProjectExplorer::FileType type);
+    static QStringList varNames(ProjectExplorer::FileType type, QtSupport::ProFileReader *readerExact);
     static QStringList varNamesForRemoving();
     static QString varNameForAdding(const QString &mimeType);
     static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative, QtSupport::BaseQtVersion *qtVersion);

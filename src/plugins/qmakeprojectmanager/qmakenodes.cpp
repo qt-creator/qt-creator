@@ -640,7 +640,7 @@ void QmakePriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReade
     QFileInfo tmpFi;
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
-        QStringList qmakeVariables = varNames(type);
+        QStringList qmakeVariables = varNames(type, readerExact);
 
         QSet<Utils::FileName> newFilePaths;
         foreach (const QString &qmakeVariable, qmakeVariables) {
@@ -1238,7 +1238,7 @@ void QmakePriFileNode::save(const QStringList &lines)
                              errorStrings.join(QLatin1String("\n")));
 }
 
-QStringList QmakePriFileNode::varNames(ProjectExplorer::FileType type)
+QStringList QmakePriFileNode::varNames(ProjectExplorer::FileType type, QtSupport::ProFileReader *readerExact)
 {
     QStringList vars;
     switch (type) {
@@ -1247,12 +1247,18 @@ QStringList QmakePriFileNode::varNames(ProjectExplorer::FileType type)
         vars << QLatin1String("OBJECTIVE_HEADERS");
         vars << QLatin1String("PRECOMPILED_HEADER");
         break;
-    case ProjectExplorer::SourceType:
+    case ProjectExplorer::SourceType: {
         vars << QLatin1String("SOURCES");
-        vars << QLatin1String("OBJECTIVE_SOURCES");
-        vars << QLatin1String("LEXSOURCES");
-        vars << QLatin1String("YACCSOURCES");
+        QStringList listOfExtraCompilers = readerExact->values(QLatin1String("QMAKE_EXTRA_COMPILERS"));
+        foreach (const QString &var, listOfExtraCompilers) {
+            QStringList inputs = readerExact->values(var + QLatin1String(".input"));
+            foreach (const QString &input, inputs)
+                // FORMS and RESOURCES are handled below
+                if (input != QLatin1String("FORMS") && input != QLatin1String("RESOURCES"))
+                    vars << input;
+        }
         break;
+    }
     case ProjectExplorer::ResourceType:
         vars << QLatin1String("RESOURCES");
         break;
