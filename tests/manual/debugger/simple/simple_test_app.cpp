@@ -4527,12 +4527,7 @@ namespace qvariant {
         BREAK_HERE;
         // Check vm <0 items> QVariantMap.
         // Continue.
-        vm["a"] = QVariant(1);
-        vm["b"] = QVariant(2);
-        vm["c"] = QVariant("Some String");
-        vm["d"] = QVariant(21);
-        vm["e"] = QVariant(22);
-        vm["f"] = QVariant("2Some String");
+        vm["abd"] = QVariant(1);
         BREAK_HERE;
         // Expand vm vm.0 vm.5.
         // Check vm <6 items> QVariantMap.

@@ -1964,43 +1964,40 @@ def qdump__QUrl(d, value):
                 d.putGenericItem("query", stringType, query, Hex4EncodedLittleEndian)
                 d.putGenericItem("fragment", stringType, fragment, Hex4EncodedLittleEndian)
 
-def qdumpHelper_QVariant_0(d, data):
+def qdumpHelper_QVariant_0(d, blob):
     # QVariant::Invalid
     d.putBetterType("%sQVariant (invalid)" % d.qtNamespace())
     d.putValue("(invalid)")
 
-def qdumpHelper_QVariant_1(d, data):
+def qdumpHelper_QVariant_1(d, blob):
     # QVariant::Bool
     d.putBetterType("%sQVariant (bool)" % d.qtNamespace())
-    if int(data["b"]):
-        d.putValue("true")
-    else:
-        d.putValue("false")
+    d.putValue("true" if blob.extractByte() else "false")
 
-def qdumpHelper_QVariant_2(d, data):
+def qdumpHelper_QVariant_2(d, blob):
     # QVariant::Int
     d.putBetterType("%sQVariant (int)" % d.qtNamespace())
-    d.putValue(int(data["i"]))
+    d.putValue("%s" % blob.extractInt())
 
-def qdumpHelper_QVariant_3(d, data):
+def qdumpHelper_QVariant_3(d, blob):
     # uint
     d.putBetterType("%sQVariant (uint)" % d.qtNamespace())
-    d.putValue(int(data["u"]))
+    d.putValue(blob.extractUInt())
 
-def qdumpHelper_QVariant_4(d, data):
+def qdumpHelper_QVariant_4(d, blob):
     # qlonglong
     d.putBetterType("%sQVariant (qlonglong)" % d.qtNamespace())
-    d.putValue(int(data["ll"]))
+    d.putValue(blob.extractInt64())
 
-def qdumpHelper_QVariant_5(d, data):
+def qdumpHelper_QVariant_5(d, blob):
     # qulonglong
     d.putBetterType("%sQVariant (qulonglong)" % d.qtNamespace())
-    d.putValue(int(data["ull"]))
+    d.putValue(blob.extractUInt64())
 
-def qdumpHelper_QVariant_6(d, data):
+def qdumpHelper_QVariant_6(d, blob):
     # QVariant::Double
     d.putBetterType("%sQVariant (double)" % d.qtNamespace())
-    d.putValue(float(data["d"]))
+    d.putValue(blob.extractDouble())
 
 qdumpHelper_QVariants_A = [
     qdumpHelper_QVariant_0,
@@ -2038,45 +2035,45 @@ qdumpHelper_QVariants_B = [
     "QVariantHash",# 28
 ]
 
-def qdumpHelper_QVariant_31(d, data):
+def qdumpHelper_QVariant_31(d, blob):
     # QVariant::VoidStart
     d.putBetterType("%sQVariant (void *)" % d.qtNamespace())
-    d.putValue("0x%x" % data["ptr"])
+    d.putValue("0x%x" % blob.extractPointer())
 
-def qdumpHelper_QVariant_32(d, data):
+def qdumpHelper_QVariant_32(d, blob):
     # QVariant::Long
     d.putBetterType("%sQVariant (long)" % d.qtNamespace())
-    d.putValue(toInteger(data["l"]))
+    d.putValue("%s" % blob.extractLong())
 
-def qdumpHelper_QVariant_33(d, data):
+def qdumpHelper_QVariant_33(d, blob):
     # QVariant::Short
     d.putBetterType("%sQVariant (short)" % d.qtNamespace())
-    d.putValue(toInteger(data["s"]))
+    d.putValue("%s" % blob.extractShort())
 
-def qdumpHelper_QVariant_34(d, data):
+def qdumpHelper_QVariant_34(d, blob):
     # QVariant::Char
     d.putBetterType("%sQVariant (char)" % d.qtNamespace())
-    d.putValue(toInteger(data["c"]))
+    d.putValue("%s" % blob.extractByte())
 
-def qdumpHelper_QVariant_35(d, data):
+def qdumpHelper_QVariant_35(d, blob):
     # QVariant::ULong
     d.putBetterType("%sQVariant (unsigned long)" % d.qtNamespace())
-    d.putValue(toInteger(data["ul"]))
+    d.putValue("%s" % blob.extractULong())
 
-def qdumpHelper_QVariant_36(d, data):
+def qdumpHelper_QVariant_36(d, blob):
     # QVariant::UShort
     d.putBetterType("%sQVariant (unsigned short)" % d.qtNamespace())
-    d.putValue(toInteger(data["us"]))
+    d.putValue("%s" % blob.extractUShort())
 
-def qdumpHelper_QVariant_37(d, data):
+def qdumpHelper_QVariant_37(d, blob):
     # QVariant::UChar
     d.putBetterType("%sQVariant (unsigned char)" % d.qtNamespace())
-    d.putValue(toInteger(data["uc"]))
+    d.putValue("%s" % blob.extractByte())
 
-def qdumpHelper_QVariant_38(d, data):
+def qdumpHelper_QVariant_38(d, blob):
     # QVariant::Float
     d.putBetterType("%sQVariant (float)" % d.qtNamespace())
-    d.putValue("%f" % data["f"])
+    d.putValue("%s" % blob.extractFloat())
 
 qdumpHelper_QVariants_D = [
     qdumpHelper_QVariant_31,
@@ -2118,16 +2115,17 @@ qdumpHelper_QVariants_E = [
 def qdumpHelper__QVariant(d, value):
     data = value["d"]["data"]
     variantType = int(value["d"]["type"])
+    blob = d.toBlob(data)
     #warn("VARIANT TYPE: %s : " % variantType)
 
     # Well-known simple type.
     if variantType <= 6:
-        qdumpHelper_QVariants_A[variantType](d, data)
+        qdumpHelper_QVariants_A[variantType](d, blob)
         d.putNumChild(0)
         return (None, None, True)
 
     if variantType >= 31 and variantType <= 38:
-        qdumpHelper_QVariants_D[variantType - 31](d, data)
+        qdumpHelper_QVariants_D[variantType - 31](d, blob)
         d.putNumChild(0)
         return (None, None, True)
 
@@ -2147,6 +2145,7 @@ def qdumpHelper__QVariant(d, value):
     sizePD = 8 # sizeof(QVariant::Private::Data)
     isSpecial = d.qtVersion() >= 0x050000 \
             and (innert == "QVariantMap" or innert == "QVariantHash")
+    #warn("IS SPECIAL: %s" % special)
     if innerType.sizeof > sizePD or isSpecial:
         val = data["ptr"].cast(innerType.pointer().pointer()).dereference().dereference()
     else:

@@ -394,11 +394,11 @@ Value = gdb.Value
 
 
 
-def stripTypedefs(type):
-    type = type.unqualified()
-    while type.code == TypedefCode:
-        type = type.strip_typedefs().unqualified()
-    return type
+def stripTypedefs(typeobj):
+    typeobj = typeobj.unqualified()
+    while typeobj.code == TypedefCode:
+        typeobj = typeobj.strip_typedefs().unqualified()
+    return typeobj
 
 
 #######################################################################
@@ -497,8 +497,8 @@ class Dumper(DumperBase):
                 for f in arg[pos:].split(","):
                     pos = f.find("=")
                     if pos != -1:
-                        type = self.hexdecode(f[0:pos])
-                        self.typeformats[type] = int(f[pos+1:])
+                        typeName = self.hexdecode(f[0:pos])
+                        self.typeformats[typeName] = int(f[pos+1:])
             elif arg.startswith("formats:"):
                 for f in arg[pos:].split(","):
                     pos = f.find("=")
@@ -565,11 +565,11 @@ class Dumper(DumperBase):
             with OutputSafer(self):
                 self.anonNumber = -1
 
-                type = value.type.unqualified()
-                typeName = str(type)
+                typeobj = value.type.unqualified()
+                typeName = str(typeobj)
 
                 # Special handling for char** argv.
-                if type.code == PointerCode \
+                if typeobj.code == PointerCode \
                         and item.iname == "local.argv" \
                         and typeName == "char **":
                     n = 0
@@ -616,13 +616,14 @@ class Dumper(DumperBase):
 
         self.output.append('],typeinfo=[')
         for name in self.typesToReport.keys():
-            type = self.typesToReport[name]
+            typeobj = self.typesToReport[name]
             # Happens e.g. for '(anonymous namespace)::InsertDefOperation'
-            if not type is None:
+            if not typeobj is None:
                 self.output.append('{name="%s",size="%s"}'
-                    % (self.hexencode(name), type.sizeof))
+                    % (self.hexencode(name), typeobj.sizeof))
         self.output.append(']')
         self.typesToReport = {}
+
         return "".join(self.output)
 
     def enterSubItem(self, item):
@@ -946,11 +947,9 @@ class Dumper(DumperBase):
         return struct.unpack("q", self.readRawMemory(addr, 8))[0]
 
     def extractInt(self, addr):
-        #return long(gdb.Value(addr).cast(self.intPtrType()).dereference())
         return struct.unpack("i", self.readRawMemory(addr, 4))[0]
 
     def extractByte(self, addr):
-        #return long(gdb.Value(addr).cast(self.charPtrType()).dereference()) & 0xFF
         return struct.unpack("b", self.readRawMemory(addr, 1))[0]
 
     # Do not use value.address here as this might not have one,
@@ -1428,6 +1427,19 @@ class Dumper(DumperBase):
         if self.currentIName in self.expandedINames:
             with Children(self):
                self.putFields(value)
+
+    def toBlob(self, value):
+        size = toInteger(value.type.sizeof)
+        if value.address:
+            return self.extractBlob(value.address, size)
+
+        # No address. Possibly the result of an inferior call.
+        y = value.cast(gdb.lookup_type("unsigned char").array(0, int(size - 1)))
+        buf = bytearray(struct.pack('x' * size))
+        for i in range(size):
+            buf[i] = int(y[i])
+
+        return Blob(bytes(buf))
 
     def extractBlob(self, base, size):
         inferior = self.selectedInferior()

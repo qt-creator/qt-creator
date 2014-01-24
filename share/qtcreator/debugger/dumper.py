@@ -28,6 +28,7 @@
 ############################################################################
 
 import os
+import struct
 import sys
 import base64
 
@@ -70,16 +71,51 @@ class Blob(object):
     def size(self):
         return self.size
 
-    def toHexOutput(self):
-        if hasattr(self.data, "tobytes"):
-            encoded = base64.b16encode(self.data.tobytes())
-        else:
-            encoded = base64.b16encode(self.data)
+    def toBytes(self):
+        """Retrieves "lazy" contents from memoryviews."""
+        data = self.data
+        if isinstance(data, memoryview):
+            data = data.tobytes()
+        if sys.version_info[0] == 2 and isinstance(data, buffer):
+            data = ''.join([c for c in data])
+        return data
 
-        if hasattr(encoded, "decode"):
-            return encoded.decode("utf8")
-        return encoded
+    def extractByte(self, offset = 0):
+        return struct.unpack_from("b", self.data, offset)[0]
 
+    def extractShort(self, offset = 0):
+        return struct.unpack_from("h", self.data, offset)[0]
+
+    def extractUShort(self, offset = 0):
+        return struct.unpack_from("H", self.data, offset)[0]
+
+    def extractInt(self, offset = 0):
+        return struct.unpack_from("i", self.data, offset)[0]
+
+    def extractUInt(self, offset = 0):
+        return struct.unpack_from("I", self.data, offset)[0]
+
+    def extractLong(self, offset = 0):
+        return struct.unpack_from("l", self.data, offset)[0]
+
+    # FIXME: Note these should take target architecture into account.
+    def extractULong(self, offset = 0):
+        return struct.unpack_from("L", self.data, offset)[0]
+
+    def extractInt64(self, offset = 0):
+        return struct.unpack_from("q", self.data, offset)[0]
+
+    def extractUInt64(self, offset = 0):
+        return struct.unpack_from("Q", self.data, offset)[0]
+
+    def extractDouble(self, offset = 0):
+        return struct.unpack_from("d", self.data, offset)[0]
+
+    def extractFloat(self, offset = 0):
+        return struct.unpack_from("f", self.data, offset)[0]
+
+    def extractPointer(self, offset = 0):
+        return struct.unpack_from("P", self.data, offset)[0]
 
 #
 # Gnuplot based display for array-like structures.
@@ -296,17 +332,22 @@ class DumperBase:
         self.cachedFormats[typeName] = stripped
         return stripped
 
-    # Hex decoding operating on string->string
+    # Hex decoding operating on str, return str.
     def hexdecode(self, s):
         if sys.version_info[0] == 2:
             return s.decode("hex")
         return bytes.fromhex(s).decode("utf8")
 
-    # Hex decoding operating on string->string
+    # Hex decoding operating on str or bytes, return str.
     def hexencode(self, s):
         if sys.version_info[0] == 2:
             return s.encode("hex")
-        return base64.b16encode(s.encode("utf8")).decode("utf8")
+        if isinstance(s, str):
+            s = s.encode("utf8")
+        return base64.b16encode(s).decode("utf8")
+
+    #def toBlob(self, value):
+    #    return self.extractBlob(value.address, value.type.sizeof)
 
     def isArmArchitecture(self):
         return False
@@ -379,7 +420,8 @@ class DumperBase:
         return s
 
     def readMemory(self, addr, size):
-        return self.extractBlob(addr, size).toHexOutput()
+        data = self.extractBlob(addr, size).toBytes()
+        return self.hexencode(data)
 
     def encodeByteArray(self, value):
         return self.encodeByteArrayHelper(self.dereferenceValue(value))
