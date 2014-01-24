@@ -185,12 +185,12 @@ def impl_SBValue__getitem__(value, index):
     result = value.GetChildMemberWithName(index)
     if int(result.GetLoadAddress()) == 0xffffffffffffffff:
         options = lldb.SBExpressionOptions()
-        typeClass = child.GetType().GetTypeClass()
+        typeClass = result.GetType().GetTypeClass()
         if typeClass != lldb.eTypeClassBuiltin:
             i = value.GetIndexOfChildWithName(index)
             field = value.GetType().GetFieldAtIndex(i)
             addr = value.GetLoadAddress() + field.GetOffsetInBytes()
-            child = value.CreateValueFromAddress(child.GetName(), addr, child.GetType())
+            result = value.CreateValueFromAddress(result.GetName(), addr, result.GetType())
     return result
 
 def impl_SBValue__deref(value):
@@ -856,6 +856,16 @@ class Dumper(DumperBase):
         size = int(size) & 0xFFFFFFFF
         error = lldb.SBError()
         return Blob(self.process.ReadMemory(base, size, error))
+
+    def toBlob(self, value):
+        data = value.GetData()
+        size = int(data.GetByteSize())
+        buf = bytearray(struct.pack('x' * size))
+        error = lldb.SBError()
+        #data.ReadRawData(error, 0, buf)
+        for i in range(size):
+            buf[i] = data.GetUnsignedInt8(error, i)
+        return Blob(bytes(buf))
 
     def isQObject(self, value):
         try:
