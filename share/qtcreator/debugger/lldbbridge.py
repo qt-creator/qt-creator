@@ -79,6 +79,7 @@ import lldb
 
 qqWatchpointOffset = 10000
 
+lldb.theDumper = None
 
 def warn(message):
     print('\n\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'"))
@@ -182,16 +183,7 @@ def impl_SBValue__getitem__(value, index):
             address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
             return value.CreateValueFromAddress(None, address, innertype)
         return value.GetChildAtIndex(index)
-    result = value.GetChildMemberWithName(index)
-    if int(result.GetLoadAddress()) == 0xffffffffffffffff:
-        options = lldb.SBExpressionOptions()
-        typeClass = result.GetType().GetTypeClass()
-        if typeClass != lldb.eTypeClassBuiltin:
-            i = value.GetIndexOfChildWithName(index)
-            field = value.GetType().GetFieldAtIndex(i)
-            addr = value.GetLoadAddress() + field.GetOffsetInBytes()
-            result = value.CreateValueFromAddress(result.GetName(), addr, result.GetType())
-    return result
+    return value.GetChildMemberWithName(index)
 
 def impl_SBValue__deref(value):
     result = value.Dereference()
@@ -262,6 +254,8 @@ def simpleEncoding(typeobj):
 class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
+
+        lldb.theDumper = self
 
         self.debugger = lldb.SBDebugger.Create()
         #self.debugger.SetLoggingCallback(loggingCallback)
@@ -408,7 +402,7 @@ class Dumper(DumperBase):
         type = value.type.name
         exp = "((%s*)%s)->%s(%s)" % (type, value.address, func, arg)
         #warn("CALL: %s" % exp)
-        result = value.CreateValueFromExpression('$tmp', exp)
+        result = value.CreateValueFromExpression('', exp)
         #warn("  -> %s" % result)
         return result
 
@@ -857,6 +851,9 @@ class Dumper(DumperBase):
         error = lldb.SBError()
         return Blob(self.process.ReadMemory(base, size, error))
 
+    def readCArray(self, base, size):
+        return self.extractBlob(base, size).toBytes()
+
     def toBlob(self, value):
         data = value.GetData()
         size = int(data.GetByteSize())
@@ -868,15 +865,9 @@ class Dumper(DumperBase):
         return Blob(bytes(buf))
 
     def isQObject(self, value):
-        try:
-            vtable = value.Cast(self.voidPtrType().GetPointerType())
-            metaObjectEntry = vtable.Dereference()
-            addr = lldb.SBAddress(long(metaObjectEntry), self.target)
-            symbol = addr.GetSymbol()
-            name = symbol.GetMangledName()
-            return name.find("10metaObjectEv") > 0
-        except:
-            return False
+        needle = value.GetType().GetName() + "::staticMetaObject"
+        value = self.target.FindFirstGlobalVariable(needle)
+        return value.IsValid()
 
     def stripNamespaceFromType(self, typeName):
         #type = stripClassTag(typeName)
@@ -898,7 +889,7 @@ class Dumper(DumperBase):
 
     def putSubItem(self, component, value, tryDynamic=True):
         if not value.IsValid():
-            warn("INVALID SUBITEM")
+            warn("INVALID SUBITEM: %s" % value.GetName())
             return
         with SubItem(self, component):
             self.putItem(value, tryDynamic)
@@ -1004,8 +995,10 @@ class Dumper(DumperBase):
         #numchild = 1 if value.MightHaveChildren() else 0
         numchild = value.GetNumChildren()
         self.putType(typeName)
+        isQObject = False
         if typeClass == lldb.eTypeClassStruct or typeClass == lldb.eTypeClassClass:
             if self.isQObject(value):
+                isQObject = True
                 self.context = value
                 if not self.putQObjectNameValue(value):  # Is this too expensive?
                     self.putEmptyValue()
@@ -1023,6 +1016,10 @@ class Dumper(DumperBase):
         if self.currentIName in self.expandedINames:
             with Children(self):
                 self.putFields(value)
+                if isQObject:
+                    needle = value.GetType().GetName() + "::staticMetaObject"
+                    smo = self.target.FindFirstGlobalVariable(needle)
+                    self.putQObjectGuts(value, smo)
 
     def warn(self, msg):
         self.put('{name="%s",value="",type=""},' % msg)

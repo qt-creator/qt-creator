@@ -347,7 +347,7 @@ class DumperBase:
         return base64.b16encode(s).decode("utf8")
 
     #def toBlob(self, value):
-    #    return self.extractBlob(value.address, value.type.sizeof)
+    #    """Abstract"""
 
     def isArmArchitecture(self):
         return False
@@ -897,7 +897,8 @@ class DumperBase:
             return True
 
         except:
-            self.knownNonQObjectTypes.insert(str(value.type))
+            #warn("NO QOBJECT: %s" % value.type)
+            #self.knownNonQObjectTypes.add(str(value.type))
             pass
 
 
@@ -921,10 +922,7 @@ class DumperBase:
 
 
     # This is called is when a QObject derived class is expanded
-    def putQObjectGuts(self, qobject):
-        smo = self.childWithName(qobject, "staticMetaObject")
-        if smo is None:
-            return
+    def putQObjectGuts(self, qobject, smo):
         with SubItem(self, "[properties]"):
             propertyNames = self.staticQObjectPropertyNames(smo)
             propertyCount = len(propertyNames)

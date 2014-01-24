@@ -1418,7 +1418,8 @@ class Dumper(DumperBase):
             with Children(self, 1, childType=innerType):
                 self.putFields(value)
                 if isQObject:
-                    self.putQObjectGuts(value)
+                    smo = value["staticMetaObject"]
+                    self.putQObjectGuts(value, smo)
 
 
     def putPlainChildren(self, value):

@@ -2228,7 +2228,6 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QObject2")
             << Data("#include <QWidget>\n"
                     "#include <QApplication>\n"
-                    "namespace Names {\n"
                     "namespace Bar {\n"
                     "    struct Ui { Ui() { w = 0; } QWidget *w; };\n"
                     "    class TestObject : public QObject\n"
@@ -2257,11 +2256,10 @@ void tst_Dumpers::dumper_data()
                     "        QByteArray m_myProp2;\n"
                     "    };\n"
                     "} // namespace Bar\n"
-                    "} // namespace Names\n"
                     "#include <main.moc>\n",
                     ""
                     "QApplication app(argc, argv);\n"
-                    "Names::Bar::TestObject test;\n"
+                    "Bar::TestObject test;\n"
                     "test.setMyProp1(\"Hello\");\n"
                     "test.setMyProp2(\"World\");\n"
                     "QString s = test.myProp1();\n"
@@ -2269,7 +2267,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&app, &test, &s);\n")
                % GuiProfile()
                % Check("s", "\"HelloWorld\"", "@QString")
-               % Check("test", "", "Names::Bar::TestObject")
+               % Check("test", "", "Bar::TestObject")
                % Check("test.[properties]", "<4 items>", "")
                % Check("test.[properties].myProp1", "\"Hello\"", "@QVariant (QString)")
                % Check("test.[properties].myProp2", "\"World\"", "@QVariant (QByteArray)")
