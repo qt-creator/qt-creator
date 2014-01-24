@@ -186,7 +186,7 @@ void FindInFiles::readSettings(QSettings *settings)
 
 void FindInFiles::setDirectory(const QString &directory)
 {
-    syncComboWithSettings(m_directory, directory);
+    syncComboWithSettings(m_directory, QDir::toNativeSeparators(directory));
 }
 
 void FindInFiles::findOnFileSystem(const QString &path)
