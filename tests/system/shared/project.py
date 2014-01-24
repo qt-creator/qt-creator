@@ -518,6 +518,9 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
             __closeSubprocessByPushingStop__(sType)
         except:
             pass
+        if (platform.system() in ('Microsoft', 'Windows') and
+            'Listening on port %d for incoming connectionsdone' % port not in str(output.plainText)):
+            checkForStillRunningQmlExecutable([executable + ".exe"])
     return True
 
 # this helper tries to reset the current application context back
