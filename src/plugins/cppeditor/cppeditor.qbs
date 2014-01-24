@@ -35,6 +35,8 @@ QtcPlugin {
         "cppincludehierarchyitem.cpp", "cppincludehierarchyitem.h",
         "cppincludehierarchymodel.cpp", "cppincludehierarchymodel.h",
         "cppincludehierarchytreeview.cpp", "cppincludehierarchytreeview.h",
+        "cppinsertvirtualmethods.cpp",
+        "cppinsertvirtualmethods.h",
         "cppoutline.cpp", "cppoutline.h",
         "cpppreprocessordialog.cpp", "cpppreprocessordialog.h", "cpppreprocessordialog.ui",
         "cppquickfix.cpp", "cppquickfix.h",
@@ -54,8 +56,7 @@ QtcPlugin {
             "cppeditortestcase.cpp", "cppeditortestcase.h",
             "cppincludehierarchy_test.cpp",
             "cppquickfix_test.cpp",
-            "cppquickfix_test_utils.cpp",
-            "cppquickfix_test_utils.h",
+            "cppquickfix_test.h",
             "fileandtokenactions_test.cpp",
             "followsymbol_switchmethoddecldef_test.cpp",
         ]
