@@ -511,6 +511,7 @@ void MainWindow::registerDefaultContainers()
     menubar->addMenu(ac, Constants::G_HELP);
     ac->menu()->setTitle(tr("&Help"));
     ac->appendGroup(Constants::G_HELP_HELP);
+    ac->appendGroup(Constants::G_HELP_SUPPORT);
     ac->appendGroup(Constants::G_HELP_ABOUT);
 }
 
@@ -745,6 +746,11 @@ void MainWindow::registerDefaultActions()
     ActionContainer *mviews = ActionManager::createMenu(Constants::M_WINDOW_VIEWS);
     mwindow->addMenu(mviews, Constants::G_WINDOW_VIEWS);
     mviews->menu()->setTitle(tr("&Views"));
+
+    // "Help" separators
+    mhelp->addSeparator(globalContext, Constants::G_HELP_SUPPORT);
+    if (!Utils::HostOsInfo::isMacHost())
+        mhelp->addSeparator(globalContext, Constants::G_HELP_ABOUT);
 
     // About IDE Action
     icon = QIcon::fromTheme(QLatin1String("help-about"));
