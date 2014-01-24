@@ -120,7 +120,7 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
 {
     // We want a 900px wide widget with and the scrollbar at the
     // side of the screen.
-    m_root->setFixedWidth(900);
+    m_root->setMaximumWidth(900);
     m_root->setContentsMargins(0, 0, 40, 0);
 
     QPalette pal = m_root->palette();
