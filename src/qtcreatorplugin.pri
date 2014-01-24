@@ -17,11 +17,29 @@ include(../qtcreator.pri)
 # for substitution in the .pluginspec
 dependencyList = "<dependencyList>"
 for(dep, plugin_deps) {
-    include($$PWD/plugins/$$dep/$${dep}_dependencies.pri)
+    dependencies_file =
+    for(dir, QTC_PLUGIN_DIRS) {
+        exists($$dir/$$dep/$${dep}_dependencies.pri) {
+            dependencies_file = $$dir/$$dep/$${dep}_dependencies.pri
+            break()
+        }
+    }
+    isEmpty(dependencies_file): \
+        error("Plugin dependency $$dep not found")
+    include($$dependencies_file)
     dependencyList += "        <dependency name=\"$$QTC_PLUGIN_NAME\" version=\"$$QTCREATOR_VERSION\"/>"
 }
 for(dep, plugin_recmds) {
-    include($$PWD/plugins/$$dep/$${dep}_dependencies.pri)
+    dependencies_file =
+    for(dir, QTC_PLUGIN_DIRS) {
+        exists($$dir/$$dep/$${dep}_dependencies.pri) {
+            dependencies_file = $$dir/$$dep/$${dep}_dependencies.pri
+            break()
+        }
+    }
+    isEmpty(dependencies_file): \
+        error("Plugin dependency $$dep not found")
+    include($$dependencies_file)
     dependencyList += "        <dependency name=\"$$QTC_PLUGIN_NAME\" version=\"$$QTCREATOR_VERSION\" type=\"optional\"/>"
 }
 dependencyList += "    </dependencyList>"
