@@ -40,6 +40,7 @@
 #include <utils/qtcassert.h>
 #include <utils/execmenu.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
+#include <coreplugin/documentmanager.h>
 
 #include <QAction>
 #include <QItemSelectionModel>
@@ -177,6 +178,8 @@ void BranchDialog::add()
 
 void BranchDialog::checkout()
 {
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
+        return;
     QModelIndex idx = selectedIndex();
 
     const QString currentBranch = m_model->fullName(m_model->currentBranch());
@@ -319,6 +322,8 @@ void BranchDialog::log()
 
 void BranchDialog::merge()
 {
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
+        return;
     QModelIndex idx = selectedIndex();
     QTC_CHECK(idx != m_model->currentBranch()); // otherwise the button would not be enabled!
 
@@ -340,6 +345,8 @@ void BranchDialog::merge()
 
 void BranchDialog::rebase()
 {
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
+        return;
     QModelIndex idx = selectedIndex();
     QTC_CHECK(idx != m_model->currentBranch()); // otherwise the button would not be enabled!
 
@@ -351,6 +358,8 @@ void BranchDialog::rebase()
 
 void BranchDialog::cherryPick()
 {
+    if (!Core::DocumentManager::saveAllModifiedDocuments())
+        return;
     QModelIndex idx = selectedIndex();
     QTC_CHECK(idx != m_model->currentBranch()); // otherwise the button would not be enabled!
 
