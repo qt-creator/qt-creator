@@ -96,7 +96,7 @@ QImage ScreenshotCropper::croppedImage(const QImage &sourceImage, const QString 
             return result;
     }
 
-    return sourceImage.scaled(cropSize, Qt::KeepAspectRatio);
+    return sourceImage.scaled(cropSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 }
 
 static int areaAttribute(const QXmlStreamAttributes &attributes, const QString &name)
