@@ -29,6 +29,16 @@
 
 source("../../shared/qtcreator.py")
 
+def macHackActivateContextMenuItem(item):
+    for obj in object.topLevelObjects():
+        try:
+            if className(obj) == 'QMenu' and obj.visible:
+                activateItem(waitForObjectItem(obj, item))
+                return True
+        except:
+            pass
+    return False
+
 def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
@@ -44,10 +54,7 @@ def main():
                                           "text='PushButton' type='QPushButton' visible='1'}"), 5, 5, 1)
             # hack for Squish5/Qt5.2 problems of handling menus on Mac - remove asap
             if platform.system() == 'Darwin':
-                for obj in object.topLevelObjects():
-                    if className(obj) == 'QMenu' and obj.visible:
-                        activateItem(obj, "Change objectName...")
-                        break
+                waitFor("macHackActivateContextMenuItem('Change objectName...')", 6000)
             else:
                 activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Change objectName..."))
             typeLines(waitForObject(":FormEditorStack_qdesigner_internal::PropertyLineEdit"), buttonName)
