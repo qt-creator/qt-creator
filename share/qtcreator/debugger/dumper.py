@@ -685,7 +685,10 @@ class DumperBase:
             # Explicitly requested Local 8-bit formatting.
             self.putValue(blob, Hex2EncodedLocal8Bit)
         else:
-            self.putValue("@0x%x" % self.pointerValue(value.cast(targetType.pointer())))
+            try:
+                self.putValue("@0x%x" % self.pointerValue(value.cast(targetType.pointer())))
+            except:
+                self.putEmptyValue()
 
         if self.currentIName in self.expandedINames:
             p = self.addressOf(value)
@@ -716,7 +719,7 @@ class DumperBase:
             self.putType(value.type)
             self.putValue("0x0")
             self.putNumChild(0)
-            return True
+            return
 
         typeName = str(value.type)
         innerType = value.type.target().unqualified()
@@ -730,7 +733,7 @@ class DumperBase:
             self.putValue(self.cleanAddress(value))
             self.putType(typeName)
             self.putNumChild(0)
-            return True
+            return
 
         format = self.currentItemFormat(value.type)
 
@@ -739,14 +742,14 @@ class DumperBase:
             self.putType(typeName)
             self.putValue(str(value))
             self.putNumChild(0)
-            return True
+            return
 
         if format == None and innerTypeName == "char":
             # Use Latin1 as default for char *.
             self.putType(typeName)
             self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
             self.putNumChild(0)
-            return True
+            return
 
         if format == 0:
             # Explicitly requested bald pointer.
@@ -757,42 +760,42 @@ class DumperBase:
                 with Children(self):
                     with SubItem(self, '*'):
                         self.putItem(value.dereference())
-            return True
+            return
 
         if format == 1:
             # Explicitly requested Latin1 formatting.
             self.putType(typeName)
             self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
             self.putNumChild(0)
-            return True
+            return
 
         if format == 2:
             # Explicitly requested UTF-8 formatting.
             self.putType(typeName)
             self.putValue(self.encodeCharArray(value), Hex2EncodedUtf8)
             self.putNumChild(0)
-            return True
+            return
 
         if format == 3:
             # Explicitly requested local 8 bit formatting.
             self.putType(typeName)
             self.putValue(self.encodeCharArray(value), Hex2EncodedLocal8Bit)
             self.putNumChild(0)
-            return True
+            return
 
         if format == 4:
             # Explicitly requested UTF-16 formatting.
             self.putType(typeName)
             self.putValue(self.encodeChar2Array(value), Hex4EncodedLittleEndian)
             self.putNumChild(0)
-            return True
+            return
 
         if format == 5:
             # Explicitly requested UCS-4 formatting.
             self.putType(typeName)
             self.putValue(self.encodeChar4Array(value), Hex8EncodedLittleEndian)
             self.putNumChild(0)
-            return True
+            return
 
         if not format is None and format >= 6 and format <= 9:
             # Explicitly requested formatting as array of n items.
@@ -801,7 +804,7 @@ class DumperBase:
             self.putItemCount(n)
             self.putNumChild(n)
             self.putArrayData(innerType, value, n)
-            return True
+            return
 
         if self.isFunctionType(innerType):
             # A function pointer.
@@ -831,9 +834,9 @@ class DumperBase:
                 self.putItem(value.dereference())
                 self.currentChildType = savedCurrentChildType
                 #self.putPointerValue(value)
-                if value.address is not None:
-                    self.put('origaddr="0x%x",' % value.address)
-                return True
+                if not value.address is None:
+                    self.put('origaddr="0x%x",' % toInteger(value.address))
+                return
 
         #warn("GENERIC PLAIN POINTER: %s" % value.type)
         #warn("ADDR PLAIN POINTER: 0x%x" % value.address)
