@@ -691,11 +691,16 @@ class DumperBase:
                 self.putEmptyValue()
 
         if self.currentIName in self.expandedINames:
-            p = self.addressOf(value)
-            ts = targetType.sizeof
-            if not self.tryPutArrayContents(targetType, p, int(type.sizeof / ts)):
-                with Children(self, childType=targetType,
-                        addrBase=p, addrStep=ts):
+            try:
+                # May fail on artificial items like xmm register data.
+                p = self.addressOf(value)
+                ts = targetType.sizeof
+                if not self.tryPutArrayContents(targetType, p, int(type.sizeof / ts)):
+                    with Children(self, childType=targetType,
+                            addrBase=p, addrStep=ts):
+                        self.putFields(value)
+            except:
+                with Children(self, childType=targetType):
                     self.putFields(value)
 
     def cleanAddress(self, addr):
