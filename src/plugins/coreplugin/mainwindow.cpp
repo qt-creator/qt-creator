@@ -923,7 +923,7 @@ bool MainWindow::showOptionsDialog(Id category, Id page, QWidget *parent)
 
 void MainWindow::saveAll()
 {
-    DocumentManager::saveAllModifiedDocuments();
+    DocumentManager::saveAllModifiedDocumentsSilently();
 }
 
 void MainWindow::exit()
