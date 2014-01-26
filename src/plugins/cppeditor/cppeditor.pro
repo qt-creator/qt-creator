@@ -21,6 +21,7 @@ HEADERS += \
     cppincludehierarchyitem.h \
     cppincludehierarchymodel.h \
     cppincludehierarchytreeview.h \
+    cppinsertvirtualmethods.h \
     cppoutline.h \
     cpppreprocessordialog.h \
     cppquickfix.h \
@@ -29,8 +30,7 @@ HEADERS += \
     cppsnippetprovider.h \
     cpptypehierarchy.h \
     cppvirtualfunctionassistprovider.h \
-    cppvirtualfunctionproposalitem.h \
-    cppinsertvirtualmethods.h
+    cppvirtualfunctionproposalitem.h
 
 SOURCES += \
     cppautocompleter.cpp \
@@ -49,6 +49,7 @@ SOURCES += \
     cppincludehierarchyitem.cpp \
     cppincludehierarchymodel.cpp \
     cppincludehierarchytreeview.cpp \
+    cppinsertvirtualmethods.cpp \
     cppoutline.cpp \
     cpppreprocessordialog.cpp \
     cppquickfix.cpp \
@@ -57,8 +58,7 @@ SOURCES += \
     cppsnippetprovider.cpp \
     cpptypehierarchy.cpp \
     cppvirtualfunctionassistprovider.cpp \
-    cppvirtualfunctionproposalitem.cpp \
-    cppinsertvirtualmethods.cpp
+    cppvirtualfunctionproposalitem.cpp
 
 FORMS += \
     cpppreprocessordialog.ui \
