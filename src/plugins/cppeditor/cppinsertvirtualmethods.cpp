@@ -40,6 +40,7 @@
 
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/Overview.h>
+#include <utils/changeset.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -64,15 +65,14 @@ using namespace TextEditor;
 namespace CppEditor {
 namespace Internal {
 
+class InsertVirtualMethodsModel;
+
 class InsertVirtualMethodsDialog : public QDialog
 {
     Q_OBJECT
 public:
     enum CustomItemRoles {
-        ClassOrFunction = Qt::UserRole + 1,
-        Reimplemented = Qt::UserRole + 2,
-        PureVirtual = Qt::UserRole + 3,
-        AccessSpec = Qt::UserRole + 4
+        Reimplemented = Qt::UserRole
     };
 
     enum ImplementationMode {
@@ -93,9 +93,6 @@ public:
     void setHasReimplementedFunctions(bool functions);
     bool hideReimplementedFunctions() const;
     virtual bool gather();
-
-public slots:
-    void updateCheckBoxes(QStandardItem *item);
 
 private slots:
     void setHideReimplementedFunctions(bool hide);
@@ -119,7 +116,7 @@ protected:
     bool m_insertKeywordVirtual;
 
 public:
-    QStandardItemModel *classFunctionModel;
+    InsertVirtualMethodsModel *classFunctionModel;
     QSortFilterProxyModel *classFunctionFilterModel;
 };
 
@@ -128,6 +125,279 @@ public:
 
 namespace {
 
+class InsertVirtualMethodsItem
+{
+public:
+    InsertVirtualMethodsItem(InsertVirtualMethodsItem *parent) :
+        row(-1),
+        m_parent(parent)
+    {
+    }
+
+    virtual ~InsertVirtualMethodsItem()
+    {
+    }
+
+    virtual QString description() const = 0;
+    virtual Qt::ItemFlags flags() const = 0;
+    virtual Qt::CheckState checkState() const = 0;
+
+    InsertVirtualMethodsItem *parent() { return m_parent; }
+
+    int row;
+
+private:
+    InsertVirtualMethodsItem *m_parent;
+};
+
+class FunctionItem;
+
+class ClassItem : public InsertVirtualMethodsItem
+{
+public:
+    ClassItem(const QString &className, const Class *clazz);
+    ~ClassItem();
+
+    QString description() const { return name; }
+    Qt::ItemFlags flags() const;
+    Qt::CheckState checkState() const;
+
+    const Class *klass;
+    const QString name;
+    QList<FunctionItem *> functions;
+};
+
+class FunctionItem : public InsertVirtualMethodsItem
+{
+public:
+    FunctionItem(const Function *func, const QString &functionName, ClassItem *parent);
+    QString description() const;
+    Qt::ItemFlags flags() const;
+    Qt::CheckState checkState() const { return checked ? Qt::Checked : Qt::Unchecked; }
+
+    const Function *function;
+    InsertionPointLocator::AccessSpec accessSpec;
+    bool reimplemented;
+    bool alreadyFound;
+    bool checked;
+
+private:
+    QString name;
+};
+
+ClassItem::ClassItem(const QString &className, const Class *clazz) :
+    InsertVirtualMethodsItem(0),
+    klass(clazz),
+    name(className)
+{
+}
+
+ClassItem::~ClassItem()
+{
+    qDeleteAll(functions);
+    functions.clear();
+}
+
+Qt::ItemFlags ClassItem::flags() const
+{
+    foreach (FunctionItem *func, functions) {
+        if (!func->alreadyFound && !func->reimplemented)
+            return Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
+    }
+
+    return Qt::ItemIsSelectable;
+}
+
+Qt::CheckState ClassItem::checkState() const
+{
+    if (functions.isEmpty())
+        return Qt::Unchecked;
+    Qt::CheckState state = functions.first()->checkState();
+    foreach (FunctionItem *function, functions) {
+        Qt::CheckState functionState = function->checkState();
+        if (functionState != state)
+            return Qt::PartiallyChecked;
+    }
+    return state;
+}
+
+FunctionItem::FunctionItem(const Function *func, const QString &functionName, ClassItem *parent) :
+    InsertVirtualMethodsItem(parent),
+    function(func),
+    reimplemented(false),
+    alreadyFound(false),
+    checked(false)
+{
+    name = functionName;
+}
+
+QString FunctionItem::description() const
+{
+    return name;
+}
+
+Qt::ItemFlags FunctionItem::flags() const
+{
+    Qt::ItemFlags res = Qt::ItemNeverHasChildren;
+    if (!reimplemented && !alreadyFound)
+        res |= Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
+    return res;
+}
+
+} // namespace
+
+namespace CppEditor {
+namespace Internal {
+
+class InsertVirtualMethodsModel : public QAbstractItemModel
+{
+public:
+    InsertVirtualMethodsModel(QObject *parent = 0) : QAbstractItemModel(parent)
+    {
+        const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::fontSettings();
+        formatReimpFunc = fs.formatFor(C_DISABLED_CODE);
+    }
+
+    ~InsertVirtualMethodsModel()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        beginResetModel();
+        qDeleteAll(classes);
+        classes.clear();
+        endResetModel();
+    }
+
+    QModelIndex index(int row, int column, const QModelIndex &parent) const
+    {
+        if (column != 0)
+            return QModelIndex();
+        if (parent.isValid()) {
+            ClassItem *classItem = static_cast<ClassItem *>(parent.internalPointer());
+            return createIndex(row, column, classItem->functions.at(row));
+        }
+        return createIndex(row, column, classes.at(row));
+    }
+
+    QModelIndex parent(const QModelIndex &child) const
+    {
+        if (!child.isValid())
+            return QModelIndex();
+        InsertVirtualMethodsItem *parent = itemForIndex(child)->parent();
+        return parent ? createIndex(parent->row, 0, parent) : QModelIndex();
+    }
+
+    int rowCount(const QModelIndex &parent) const
+    {
+        if (!parent.isValid())
+            return classes.count();
+        InsertVirtualMethodsItem *item = itemForIndex(parent);
+        if (item->parent()) // function -> no children
+            return 0;
+        return static_cast<ClassItem *>(item)->functions.count();
+    }
+
+    int columnCount(const QModelIndex &) const
+    {
+        return 1;
+    }
+
+    void addClass(ClassItem *classItem)
+    {
+        int row = classes.count();
+        classItem->row = row;
+        beginInsertRows(QModelIndex(), row, row);
+        classes.append(classItem);
+        endInsertRows();
+    }
+
+    QVariant data(const QModelIndex &index, int role) const
+    {
+        if (!index.isValid())
+            return QVariant();
+
+        InsertVirtualMethodsItem *item = itemForIndex(index);
+        switch (role) {
+        case Qt::DisplayRole:
+            return item->description();
+        case Qt::CheckStateRole:
+            return item->checkState();
+        case Qt::ForegroundRole:
+            if (item->parent() && static_cast<FunctionItem *>(item)->alreadyFound)
+                return formatReimpFunc.foreground();
+            break;
+        case Qt::BackgroundRole:
+            if (item->parent() && static_cast<FunctionItem *>(item)->alreadyFound) {
+                const QColor background = formatReimpFunc.background();
+                if (background.isValid())
+                    return background;
+            }
+            break;
+        case InsertVirtualMethodsDialog::Reimplemented:
+            if (item->parent()) {
+                FunctionItem *function = static_cast<FunctionItem *>(item);
+                return QVariant(function->reimplemented || function->alreadyFound);
+            }
+
+        }
+        return QVariant();
+    }
+
+    bool setData(const QModelIndex &index, const QVariant &value, int role)
+    {
+        if (!index.isValid())
+            return false;
+
+        InsertVirtualMethodsItem *item = itemForIndex(index);
+        switch (role) {
+        case Qt::CheckStateRole: {
+            bool checked = value.toInt() == Qt::Checked;
+            if (item->parent()) {
+                static_cast<FunctionItem *>(item)->checked = checked;
+                const QModelIndex parentIndex = parent(index);
+                emit dataChanged(parentIndex, parentIndex, QVector<int>() << Qt::CheckStateRole);
+                return true;
+            } else {
+                ClassItem *classItem = static_cast<ClassItem *>(item);
+                foreach (FunctionItem *funcItem, classItem->functions) {
+                    if (!funcItem->reimplemented && funcItem->checked != checked) {
+                        funcItem->checked = checked;
+                        QModelIndex funcIndex = createIndex(funcItem->row, 0, funcItem);
+                        emit dataChanged(funcIndex, funcIndex, QVector<int>() << Qt::CheckStateRole);
+                    }
+                }
+                return true;
+            }
+            break;
+        }
+        }
+        return QAbstractItemModel::setData(index, value, role);
+    }
+
+    Qt::ItemFlags flags(const QModelIndex &index) const
+    {
+        if (!index.isValid())
+            return Qt::NoItemFlags;
+        return itemForIndex(index)->flags();
+    }
+
+    QList<ClassItem *> classes;
+
+private:
+    Format formatReimpFunc;
+
+    InsertVirtualMethodsItem *itemForIndex(const QModelIndex &index) const
+    {
+        return static_cast<InsertVirtualMethodsItem *>(index.internalPointer());
+    }
+};
+}
+}
+
+namespace {
 class InsertVirtualMethodsOp : public CppQuickFixOperation
 {
 public:
@@ -203,14 +473,9 @@ public:
         m_factory->classFunctionModel->clear();
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         printer.showFunctionSignatures = true;
-        const FontSettings &fs = TextEditorSettings::fontSettings();
-        const Format formatReimpFunc = fs.formatFor(C_DISABLED_CODE);
-        QHash<const Function *, QStandardItem *> virtualFunctions;
+        QHash<const Function *, FunctionItem *> virtualFunctions;
         foreach (const Class *clazz, baseClasses) {
-            QStandardItem *itemBase = new QStandardItem(printer.prettyName(clazz->name()));
-            itemBase->setData(false, InsertVirtualMethodsDialog::Reimplemented);
-            itemBase->setData(qVariantFromValue((void *) clazz),
-                              InsertVirtualMethodsDialog::ClassOrFunction);
+            ClassItem *itemBase = new ClassItem(printer.prettyName(clazz->name()), clazz);
             for (Scope::iterator it = clazz->firstMember(); it != clazz->lastMember(); ++it) {
                 if (const Function *func = (*it)->type()->asFunctionType()) {
                     // Filter virtual destructors
@@ -262,39 +527,28 @@ public:
                     itemName += QLatin1String(" : ") + itemReturnTypeString;
                     if (isReimplemented)
                         itemName += QLatin1String(" (redeclared)");
-                    QStandardItem *funcItem = new QStandardItem(itemName);
-                    funcItem->setCheckable(true);
+                    FunctionItem *funcItem = new FunctionItem(func, itemName, itemBase);
                     if (isReimplemented) {
                         factory->setHasReimplementedFunctions(true);
-                        funcItem->setEnabled(false);
-                        funcItem->setCheckState(Qt::Unchecked);
-                        if (QStandardItem *first = virtualFunctions[firstVirtual]) {
-                            if (!first->data(InsertVirtualMethodsDialog::Reimplemented).toBool()) {
-                                first->setCheckState(isPureVirtual ? Qt::Checked : Qt::Unchecked);
-                                factory->updateCheckBoxes(first);
-                            }
+                        funcItem->reimplemented = true;
+                        if (FunctionItem *first = virtualFunctions[firstVirtual]) {
+                            if (!first->reimplemented)
+                                first->checked = isPureVirtual;
                         }
                     } else {
                         if (!funcExistsInClass) {
-                            funcItem->setCheckState(isPureVirtual ? Qt::Checked : Qt::Unchecked);
+                            funcItem->checked = isPureVirtual;
                         } else {
-                            funcItem->setEnabled(false);
-                            funcItem->setCheckState(Qt::Checked);
-                            funcItem->setData(formatReimpFunc.foreground(), Qt::ForegroundRole);
+                            funcItem->alreadyFound = true;
+                            funcItem->checked = true;
                             factory->setHasReimplementedFunctions(true);
-                            if (formatReimpFunc.background().isValid())
-                                funcItem->setData(formatReimpFunc.background(), Qt::BackgroundRole);
                         }
                     }
 
-                    funcItem->setData(qVariantFromValue((void *) func),
-                                      InsertVirtualMethodsDialog::ClassOrFunction);
-                    funcItem->setData(isPureVirtual, InsertVirtualMethodsDialog::PureVirtual);
-                    funcItem->setData(acessSpec(*it), InsertVirtualMethodsDialog::AccessSpec);
-                    funcItem->setData(funcExistsInClass || isReimplemented,
-                                      InsertVirtualMethodsDialog::Reimplemented);
+                    funcItem->accessSpec = acessSpec(*it);
+                    funcItem->row = itemBase->functions.count();
+                    itemBase->functions.append(funcItem);
 
-                    itemBase->appendRow(funcItem);
                     virtualFunctions[func] = funcItem;
 
                     // update internal counters
@@ -302,41 +556,11 @@ public:
                         ++m_functionCount;
                 }
             }
-            if (itemBase->hasChildren()) {
-                itemBase->setData(false, InsertVirtualMethodsDialog::Reimplemented);
-                bool enabledFound = false;
-                Qt::CheckState state = Qt::Unchecked;
-                for (int i = 0; i < itemBase->rowCount(); ++i) {
-                    QStandardItem *childItem = itemBase->child(i, 0);
-                    if (!childItem->isEnabled())
-                        continue;
-                    if (!enabledFound) {
-                        state = childItem->checkState();
-                        enabledFound = true;
-                    }
-                    if (childItem->isCheckable()) {
-                        if (!itemBase->isCheckable()) {
-                            itemBase->setCheckable(true);
-                            itemBase->setTristate(true);
-                            itemBase->setCheckState(state);
-                        }
-                        if (state != childItem->checkState()) {
-                            itemBase->setCheckState(Qt::PartiallyChecked);
-                            break;
-                        }
-                    }
-                }
-                if (!enabledFound) {
-                    itemBase->setCheckable(true);
-                    itemBase->setEnabled(false);
-                }
-                m_factory->classFunctionModel->invisibleRootItem()->appendRow(itemBase);
-            }
+            if (!itemBase->functions.isEmpty())
+                m_factory->classFunctionModel->addClass(itemBase);
         }
-        if (!m_factory->classFunctionModel->invisibleRootItem()->hasChildren()
-                || m_functionCount == 0) {
+        if (m_factory->classFunctionModel->classes.isEmpty() || m_functionCount == 0)
             return;
-        }
 
         bool isHeaderFile = false;
         m_cppFileName = correspondingHeaderOrSource(interface->fileName(), &isHeaderFile);
@@ -415,38 +639,32 @@ public:
             targetCoN = targetContext.globalNamespace();
         UseMinimalNames useMinimalNames(targetCoN);
         Control *control = assistInterface()->context().bindings()->control().data();
-        for (int i = 0; i < m_factory->classFunctionModel->rowCount(); ++i) {
-            const QStandardItem *parent =
-                    m_factory->classFunctionModel->invisibleRootItem()->child(i, 0);
-            if (!parent->isCheckable() || parent->checkState() == Qt::Unchecked)
+        foreach (ClassItem *classItem, m_factory->classFunctionModel->classes) {
+            if (classItem->checkState() == Qt::Unchecked)
                 continue;
-            const Class *clazz = (const Class *)
-                    parent->data(InsertVirtualMethodsDialog::ClassOrFunction).value<void *>();
 
             // Add comment
-            const QString comment = QLatin1String("\n// ") + printer.prettyName(clazz->name()) +
+            const QString comment = QLatin1String("\n// ") +
+                    printer.prettyName(classItem->klass->name()) +
                     QLatin1String(" interface\n");
             headerChangeSet.insert(m_insertPosDecl, comment);
 
             // Insert Declarations (+ definitions)
             QString lastAccessSpecString;
-            for (int j = 0; j < parent->rowCount(); ++j) {
-                const QStandardItem *item = parent->child(j, 0);
-                if (!item->isEnabled() || !item->isCheckable() || item->checkState() == Qt::Unchecked)
+            foreach (FunctionItem *funcItem, classItem->functions) {
+                if (funcItem->reimplemented || funcItem->alreadyFound || !funcItem->checked)
                     continue;
-                const Function *func = (const Function *)
-                        item->data(InsertVirtualMethodsDialog::ClassOrFunction).value<void *>();
 
                 // Construct declaration
                 // setup rewriting to get minimally qualified names
                 SubstitutionEnvironment env;
                 env.setContext(assistInterface()->context());
-                env.switchScope(clazz->enclosingScope());
+                env.switchScope(classItem->klass->enclosingScope());
                 env.enter(&useMinimalNames);
 
                 QString declaration;
-                const FullySpecifiedType tn = rewriteType(func->type(), &env, control);
-                declaration += printer.prettyType(tn, func->unqualifiedName());
+                const FullySpecifiedType tn = rewriteType(funcItem->function->type(), &env, control);
+                declaration += printer.prettyType(tn, funcItem->function->unqualifiedName());
 
                 if (m_factory->insertKeywordVirtual())
                     declaration = QLatin1String("virtual ") + declaration;
@@ -455,10 +673,8 @@ public:
                 else
                     declaration += QLatin1String(";\n");
 
-                const InsertionPointLocator::AccessSpec spec =
-                        static_cast<InsertionPointLocator::AccessSpec>(
-                            item->data(InsertVirtualMethodsDialog::AccessSpec).toInt());
-                const QString accessSpecString = InsertionPointLocator::accessSpecToString(spec);
+                const QString accessSpecString =
+                        InsertionPointLocator::accessSpecToString(funcItem->accessSpec);
                 if (accessSpecString != lastAccessSpecString) {
                     declaration = accessSpecString + declaration;
                     if (!lastAccessSpecString.isEmpty()) // separate if not direct after the comment
@@ -470,7 +686,7 @@ public:
                 // Insert definition outside class
                 if (m_factory->implementationMode() & InsertVirtualMethodsDialog::ModeOutsideClass) {
                     const QString name = printer.prettyName(targetClass->name()) +
-                            QLatin1String("::") + printer.prettyName(func->name());
+                            QLatin1String("::") + printer.prettyName(funcItem->function->name());
                     const QString defText = printer.prettyType(tn, name) + QLatin1String("\n{\n}");
                     headerChangeSet.insert(m_insertPosOutside,  QLatin1String("\n\n") + defText);
                 }
@@ -608,7 +824,7 @@ InsertVirtualMethodsDialog::InsertVirtualMethodsDialog(QWidget *parent)
     , m_hasReimplementedFunctions(false)
     , m_implementationMode(ModeOnlyDeclarations)
     , m_insertKeywordVirtual(false)
-    , classFunctionModel(new QStandardItemModel(this))
+    , classFunctionModel(new InsertVirtualMethodsModel(this))
     , classFunctionFilterModel(new InsertVirtualMethodsFilterModel(this))
 {
     classFunctionFilterModel->setSourceModel(classFunctionModel);
@@ -657,8 +873,6 @@ void InsertVirtualMethodsDialog::initGui()
     globalVerticalLayout->addWidget(m_buttons, 0);
     setLayout(globalVerticalLayout);
 
-    connect(classFunctionModel, SIGNAL(itemChanged(QStandardItem*)),
-            this, SLOT(updateCheckBoxes(QStandardItem*)));
     connect(m_hideReimplementedFunctions, SIGNAL(toggled(bool)),
             this, SLOT(setHideReimplementedFunctions(bool)));
 }
@@ -751,33 +965,6 @@ bool InsertVirtualMethodsDialog::hideReimplementedFunctions() const
 {
     // Safty check necessary because of testing class
     return (m_hideReimplementedFunctions && m_hideReimplementedFunctions->isChecked());
-}
-
-void InsertVirtualMethodsDialog::updateCheckBoxes(QStandardItem *item)
-{
-    if (item->hasChildren()) {
-        const Qt::CheckState state = item->checkState();
-        if (!item->isCheckable() || state == Qt::PartiallyChecked)
-            return;
-        for (int i = 0; i < item->rowCount(); ++i) {
-            QStandardItem *childItem = item->child(i, 0);
-            if (childItem->isCheckable() && childItem->isEnabled())
-                childItem->setCheckState(state);
-        }
-    } else {
-        QStandardItem *parent = item->parent();
-        if (!parent->isCheckable())
-            return;
-        const Qt::CheckState state = item->checkState();
-        for (int i = 0; i < parent->rowCount(); ++i) {
-            QStandardItem *childItem = parent->child(i, 0);
-            if (childItem->isEnabled() && state != childItem->checkState()) {
-                parent->setCheckState(Qt::PartiallyChecked);
-                return;
-            }
-        }
-        parent->setCheckState(state);
-    }
 }
 
 void InsertVirtualMethodsDialog::setHideReimplementedFunctions(bool hide)
