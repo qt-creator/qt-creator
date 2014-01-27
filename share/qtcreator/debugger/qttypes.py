@@ -1213,77 +1213,6 @@ def qdump__QObject(d, value):
         # Metaobject.
         d.putSubItem("metaobject", mo)
 
-        # Static Properties.
-        with SubItem(d, "statics"):
-            staticPropertyCount = d.call(mo, "propertyCount")
-            #staticPropertyCount = metaData[6]
-            #warn("STATIC PROPERTY COUNT: %s" % staticPropertyCount)
-
-            d.putNoType()
-            d.putItemCount(staticPropertyCount)
-            d.putNumChild(staticPropertyCount)
-
-            if d.isExpanded():
-                with Children(d):
-                    propertyData = metaData[7]
-                    for i in xrange(staticPropertyCount):
-                      with NoAddress(d):
-                        offset = propertyData + 3 * i
-                        propertyName = extractCString(metaStringData,
-                                                      metaData[offset])
-                        propertyType = extractCString(metaStringData,
-                                                      metaData[offset + 1])
-                        with SubItem(d, propertyName):
-                            flags = metaData[offset + 2]
-                            warn("FLAGS: %s " % flags)
-                            warn("PROPERTY: %s %s " % (propertyType, propertyName))
-                            # #exp = '((\'%sQObject\'*)%s)->property("%s")' \
-                            #     % (ns, value.address, propertyName)
-                            exp = '"((%sQObject*)%s)"' % (ns, value.address)
-                            warn("EXPRESSION:  %s" % exp)
-                            warn("METAOBJECT:  %s" % mo)
-                            addr = d.cleanAddress(metaStringData + metaData[offset])
-                            warn("ADDRESS:  %s" % addr)
-                            prop = d.call(value, "property", str(addr))
-                            warn("PROP:  %s" % prop)
-                            #warn("   CODE: %s" % value1["type"])
-                            # Type 1 and 2 are bool and int.
-                            # Try to save a few cycles in this case:
-                            if int(value1["type"]) > 2:
-                                # Poke back prop
-                                gdb.execute("set $d.d.data.ull = %s"
-                                        % value1["data"]["ull"])
-                                gdb.execute("set $d.d.type = %s"
-                                        % value1["type"])
-                                gdb.execute("set $d.d.is_null = %s"
-                                        % value1["is_null"])
-                                prop = d.parseAndEvaluate("$d").dereference()
-                            val, innert, handled = qdumpHelper__QVariant(d, prop)
-
-                            if handled:
-                                pass
-                            else:
-                                # User types.
-                           #    func = "typeToName(('%sQVariant::Type')%d)"
-                           #       % (ns, variantType)
-                           #    type = str(d.call(value, func))
-                           #    type = type[type.find('"') + 1 : type.rfind('"')]
-                           #    type = type.replace("Q", ns + "Q") # HACK!
-                           #    data = d.call(value, "constData")
-                           #    tdata = data.cast(d.lookupType(type).pointer())
-                           #      .dereference()
-                           #    d.putValue("(%s)" % tdata.type)
-                           #    d.putType(tdata.type)
-                           #    d.putNumChild(1)
-                           #    if d.isExpanded():
-                           #        with Children(d):
-                           #           d.putSubItem("data", tdata)
-                                warn("FIXME: CUSTOM QOBJECT PROPERTY: %s %s"
-                                    % (propertyType, innert))
-                                d.putType(propertyType)
-                                d.putValue("...")
-                                d.putNumChild(0)
-
         # Dynamic Properties.
         with SubItem(d, "dynamics"):
             # Prolog
@@ -2112,26 +2041,19 @@ qdumpHelper_QVariants_E = [
     "QPolygonF"    # 86
 ]
 
-def qdumpHelper__QVariant(d, value):
-    data = value["d"]["data"]
-    variantType = int(value["d"]["type"])
-    blob = d.toBlob(data)
-    #warn("VARIANT TYPE: %s : " % variantType)
+def qdumpHelper__QVariant(d, value, variantType):
+    blob = d.toBlob(value)
 
     # Well-known simple type.
     if variantType <= 6:
         qdumpHelper_QVariants_A[variantType](d, blob)
         d.putNumChild(0)
-        return (None, None, True)
+        return None
 
     if variantType >= 31 and variantType <= 38:
         qdumpHelper_QVariants_D[variantType - 31](d, blob)
         d.putNumChild(0)
-        return (None, None, True)
-
-    # Unknown user type.
-    if variantType > 86:
-        return (None, "", False)
+        return None
 
     # Known Core or Gui type.
     if variantType <= 28:
@@ -2139,33 +2061,30 @@ def qdumpHelper__QVariant(d, value):
     else:
         innert = qdumpHelper_QVariants_E[variantType - 64]
 
+    data = value["d"]["data"]
     inner = d.qtNamespace() + innert
-
     innerType = d.lookupType(inner)
-    sizePD = 8 # sizeof(QVariant::Private::Data)
-    isSpecial = d.qtVersion() >= 0x050000 \
-            and (innert == "QVariantMap" or innert == "QVariantHash")
-    #warn("IS SPECIAL: %s" % special)
-    if innerType.sizeof > sizePD or isSpecial:
+
+    if value["d"]["is_shared"]:
         val = data["ptr"].cast(innerType.pointer().pointer()).dereference().dereference()
     else:
-        # This can break for returned values
-        #warn("DATA: %s" % data)
-        #warn("DATA ADDRESS: %s" % d.addressOf(data))
         val = data.cast(innerType)
 
     d.putEmptyValue(-99)
     d.putItem(val)
     d.putBetterType("%sQVariant (%s)" % (d.qtNamespace(), innert))
 
-    return (None, innert, True)
+    return innert
 
 
 def qdump__QVariant(d, value):
-    (val, innert, handled) = qdumpHelper__QVariant(d, value)
+    variantType = int(value["d"]["type"])
+    #warn("VARIANT TYPE: %s : " % variantType)
 
-    if handled:
-        return innert
+    if variantType <= 86:
+        return qdumpHelper__QVariant(d, value, variantType)
+
+    blob = d.toBlob(value)
 
     # User types.
     d_ptr = value["d"]
