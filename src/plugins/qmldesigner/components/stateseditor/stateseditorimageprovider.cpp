@@ -42,16 +42,19 @@ StatesEditorImageProvider::StatesEditorImageProvider()
 
 QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    if (m_nodeInstanceView.isNull())
-        return QImage();
-
-    if (!m_nodeInstanceView->model())
-        return QImage(); //NodeInstanceView might be detached
 
     QSize newSize = requestedSize;
 
     if (newSize.isEmpty())
         newSize = QSize (100, 100);
+
+    if (m_nodeInstanceView.isNull() || !m_nodeInstanceView->model()) {
+        //NodeInstanceView might be detached
+        //Return white QImage
+        QImage image(newSize, QImage::Format_ARGB32);
+        image.fill(0xFFFFFFFF);
+        return image;
+    }
 
     QString imageId = id.split(QLatin1Char('-')).first();
     QImage image;
