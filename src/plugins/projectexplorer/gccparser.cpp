@@ -32,6 +32,8 @@
 #include "task.h"
 #include "projectexplorerconstants.h"
 
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -165,8 +167,8 @@ void GccParser::amendDescription(const QString &desc, bool monospaced)
         QTextLayout::FormatRange fr;
         fr.start = start;
         fr.length = desc.count() + 1;
-        fr.format.setFontFamily(QLatin1String("Monospaced"));
-        fr.format.setFontStyleHint(QFont::TypeWriter);
+        fr.format.setFont(TextEditor::TextEditorSettings::fontSettings().font());
+        fr.format.setFontStyleHint(QFont::Monospace);
         m_currentTask.formats.append(fr);
     }
     return;
