@@ -180,6 +180,7 @@ public:
     bool reimplemented;
     bool alreadyFound;
     bool checked;
+    FunctionItem *nextOverride;
 
 private:
     QString name;
@@ -201,7 +202,7 @@ ClassItem::~ClassItem()
 Qt::ItemFlags ClassItem::flags() const
 {
     foreach (FunctionItem *func, functions) {
-        if (!func->alreadyFound && !func->reimplemented)
+        if (!func->alreadyFound)
             return Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
     }
 
@@ -226,7 +227,8 @@ FunctionItem::FunctionItem(const Function *func, const QString &functionName, Cl
     function(func),
     reimplemented(false),
     alreadyFound(false),
-    checked(false)
+    checked(false),
+    nextOverride(this)
 {
     name = functionName;
 }
@@ -239,7 +241,7 @@ QString FunctionItem::description() const
 Qt::ItemFlags FunctionItem::flags() const
 {
     Qt::ItemFlags res = Qt::NoItemFlags;
-    if (!reimplemented && !alreadyFound)
+    if (!alreadyFound)
         res |= Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
     return res;
 }
@@ -356,17 +358,23 @@ public:
         case Qt::CheckStateRole: {
             bool checked = value.toInt() == Qt::Checked;
             if (item->parent()) {
-                static_cast<FunctionItem *>(item)->checked = checked;
-                const QModelIndex parentIndex = parent(index);
-                emit dataChanged(parentIndex, parentIndex);
+                FunctionItem *funcItem = static_cast<FunctionItem *>(item);
+                while (funcItem->checked != checked) {
+                    funcItem->checked = checked;
+                    const QModelIndex funcIndex = createIndex(funcItem->row, 0, funcItem);
+                    emit dataChanged(funcIndex, funcIndex);
+                    const QModelIndex parentIndex =
+                            createIndex(funcItem->parent()->row, 0, funcItem->parent());
+                    emit dataChanged(parentIndex, parentIndex);
+                    funcItem = funcItem->nextOverride;
+                }
             } else {
                 ClassItem *classItem = static_cast<ClassItem *>(item);
                 foreach (FunctionItem *funcItem, classItem->functions) {
-                    if (!funcItem->reimplemented && funcItem->checked != checked) {
-                        funcItem->checked = checked;
-                        QModelIndex funcIndex = createIndex(funcItem->row, 0, funcItem);
-                        emit dataChanged(funcIndex, funcIndex);
-                    }
+                    if (funcItem->alreadyFound || funcItem->checked == checked)
+                        continue;
+                    QModelIndex funcIndex = createIndex(funcItem->row, 0, funcItem);
+                    setData(funcIndex, value, role);
                 }
             }
             return true;
@@ -529,9 +537,17 @@ public:
                     if (isReimplemented) {
                         factory->setHasReimplementedFunctions(true);
                         funcItem->reimplemented = true;
+                        funcItem->alreadyFound = funcExistsInClass;
                         if (FunctionItem *first = virtualFunctions[firstVirtual]) {
-                            if (!first->reimplemented)
-                                first->checked = isPureVirtual;
+                            if (!first->alreadyFound) {
+                                while (first->checked != isPureVirtual) {
+                                    first->checked = isPureVirtual;
+                                    first = first->nextOverride;
+                                }
+                            }
+                            funcItem->checked = first->checked;
+                            funcItem->nextOverride = first->nextOverride;
+                            first->nextOverride = funcItem;
                         }
                     } else {
                         if (!funcExistsInClass) {
@@ -641,18 +657,21 @@ public:
             if (classItem->checkState() == Qt::Unchecked)
                 continue;
 
-            // Add comment
-            const QString comment = QLatin1String("\n// ") +
-                    printer.prettyName(classItem->klass->name()) +
-                    QLatin1String(" interface\n");
-            headerChangeSet.insert(m_insertPosDecl, comment);
-
             // Insert Declarations (+ definitions)
             QString lastAccessSpecString;
+            bool first = true;
             foreach (FunctionItem *funcItem, classItem->functions) {
                 if (funcItem->reimplemented || funcItem->alreadyFound || !funcItem->checked)
                     continue;
 
+                if (first) {
+                    // Add comment
+                    const QString comment = QLatin1String("\n// ") +
+                            printer.prettyName(classItem->klass->name()) +
+                            QLatin1String(" interface\n");
+                    headerChangeSet.insert(m_insertPosDecl, comment);
+                    first = false;
+                }
                 // Construct declaration
                 // setup rewriting to get minimally qualified names
                 SubstitutionEnvironment env;
