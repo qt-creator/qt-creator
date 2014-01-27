@@ -92,11 +92,19 @@ static void readDebuggers(const FileName &fileName, bool isSystem)
             // SDK debuggers are always considered to be up-to-date, so no need to recheck them.
         } else {
             // User settings.
-            if (item.isAutoDetected() && (!item.isValid() || item.engineType() == NoEngineType)) {
-                qWarning() << QString::fromLatin1("DebuggerItem \"%1\" (%2) dropped since it is not valid")
-                              .arg(item.command().toString()).arg(item.id().toString());
-                continue;
+            if (item.isAutoDetected()) {
+                if (!item.isValid() || item.engineType() == NoEngineType) {
+                    qWarning() << QString::fromLatin1("DebuggerItem \"%1\" (%2) read from \"%3\" dropped since it is not valid.")
+                                  .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
+                    continue;
+                }
+                if (!item.command().toFileInfo().isExecutable()) {
+                    qWarning() << QString::fromLatin1("DebuggerItem \"%1\" (%2) read from \"%3\" dropped since the command is not executable.")
+                                  .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
+                    continue;
+                }
             }
+
         }
         DebuggerItemManager::registerDebugger(item);
     }
