@@ -1,6 +1,6 @@
 
 AutoTypes {
-    imports: [ "import HelperWidgets 2.0", "import QtQuick 2.1" ]
+    imports: [ "import HelperWidgets 2.0", "import QtQuick 2.1", "import QtQuick.Layouts 1.1" ]
 
     Type {
        typeNames: ["int"]
