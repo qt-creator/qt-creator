@@ -238,7 +238,7 @@ QString FunctionItem::description() const
 
 Qt::ItemFlags FunctionItem::flags() const
 {
-    Qt::ItemFlags res = Qt::ItemNeverHasChildren;
+    Qt::ItemFlags res = Qt::NoItemFlags;
     if (!reimplemented && !alreadyFound)
         res |= Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
     return res;
@@ -358,20 +358,18 @@ public:
             if (item->parent()) {
                 static_cast<FunctionItem *>(item)->checked = checked;
                 const QModelIndex parentIndex = parent(index);
-                emit dataChanged(parentIndex, parentIndex, QVector<int>() << Qt::CheckStateRole);
-                return true;
+                emit dataChanged(parentIndex, parentIndex);
             } else {
                 ClassItem *classItem = static_cast<ClassItem *>(item);
                 foreach (FunctionItem *funcItem, classItem->functions) {
                     if (!funcItem->reimplemented && funcItem->checked != checked) {
                         funcItem->checked = checked;
                         QModelIndex funcIndex = createIndex(funcItem->row, 0, funcItem);
-                        emit dataChanged(funcIndex, funcIndex, QVector<int>() << Qt::CheckStateRole);
+                        emit dataChanged(funcIndex, funcIndex);
                     }
                 }
-                return true;
             }
-            break;
+            return true;
         }
         }
         return QAbstractItemModel::setData(index, value, role);
