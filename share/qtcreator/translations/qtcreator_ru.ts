@@ -8,12 +8,40 @@
         <translation>Дополнительно</translation>
     </message>
     <message>
+        <source>Origin</source>
+        <translation type="unfinished">Происхождение</translation>
+    </message>
+    <message>
         <source>Scale</source>
         <translation>Масштаб</translation>
     </message>
     <message>
         <source>Rotation</source>
         <translation>Вращение</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Включено</translation>
+    </message>
+    <message>
+        <source>Accept mouse and keyboard events</source>
+        <translation>Принимать события мыши и клавиатуры</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Сглаживание</translation>
+    </message>
+    <message>
+        <source>Smooth sampling active</source>
+        <translation>Включение сглаживания</translation>
+    </message>
+    <message>
+        <source>Antialiasing</source>
+        <translation>Антиалиасинг</translation>
+    </message>
+    <message>
+        <source>Anti-aliasing active</source>
+        <translation>Включение антиалиасинга</translation>
     </message>
 </context>
 <context>
@@ -26374,8 +26402,12 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation>Требуется импорт QtQuick.tooling.</translation>
     </message>
     <message>
-        <source>Expected version 1.1 or lower.</source>
-        <translation>Требуется версия 1.1 или ниже.</translation>
+        <source>Major version different from 1 not supported.</source>
+        <translation>Версия с основным номером отличным от 1 не поддерживается.</translation>
+    </message>
+    <message>
+        <source>Reading only version 1.1 parts.</source>
+        <translation>Чтение разделов версии 1.1.</translation>
     </message>
     <message>
         <source>Expected document to contain a single object definition.</source>
