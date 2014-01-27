@@ -393,7 +393,7 @@ void RefactoringFile::indentOrReindent(void (RefactoringChangesData::*mf)(const 
         QTextCursor selection(p.first.document());
         selection.setPosition(p.first.position());
         selection.setPosition(p.second.position(), QTextCursor::KeepAnchor);
-        ((*m_data).*(mf))(selection, m_fileName, m_editor->baseTextDocument());
+        ((*m_data).*(mf))(selection, m_fileName, m_editor ? m_editor->baseTextDocument() : 0);
     }
 }
 
