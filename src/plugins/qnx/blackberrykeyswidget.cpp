@@ -303,7 +303,7 @@ void BlackBerryKeysWidget::updateDebugToken(const QStringList &pins)
     const QString debugTokenPath = m_dtModel->item(m_ui->debugTokens->currentIndex().row(), 0)->text();
     m_requester->requestDebugToken(debugTokenPath,
                                    cskPassword, configuration.defaultKeystorePath(),
-                                   certificatePassword, pins.join(QLatin1Char(',')));
+                                   certificatePassword, pins.join(QLatin1String(",")));
 }
 
 void BlackBerryKeysWidget::requestFinished(int status)

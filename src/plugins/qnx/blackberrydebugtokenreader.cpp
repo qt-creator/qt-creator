@@ -102,7 +102,7 @@ QString BlackBerryDebugTokenReader::pins() const
         pinsHexa << hexa.setNum(pin.toUInt(), 16);
     }
 
-    return pinsHexa.join(QLatin1Char(','));
+    return pinsHexa.join(QLatin1String(","));
 }
 
 bool BlackBerryDebugTokenReader::isSupported()

@@ -39,6 +39,7 @@
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
+class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Qnx {
