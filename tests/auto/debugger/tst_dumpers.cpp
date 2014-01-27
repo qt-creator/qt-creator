@@ -3812,7 +3812,13 @@ void tst_Dumpers::dumper_data()
                     "#include <QVector2D>\n"
                     "#include <QVector3D>\n"
                     "#include <QVector4D>\n"
-                    "#include <QQuaternion>\n",
+                    "#include <QPolygonF>\n"
+                    "#include <QQuaternion>\n"
+                    "#if QT_VERSION < 0x050000\n"
+                    "Q_DECLARE_METATYPE(QPolygonF)\n"
+                    "Q_DECLARE_METATYPE(QPen)\n"
+                    "Q_DECLARE_METATYPE(QTextLength)\n"
+                    "#endif\n",
                     "QApplication app(argc, argv);\n"
                     "QRect r(100, 200, 300, 400);\n"
                     "QRectF rf(100.5, 200.5, 300.5, 400.5);\n"
@@ -3868,14 +3874,17 @@ void tst_Dumpers::dumper_data()
                     "QVariant var75 = QKeySequence();               // 75 QKeySequence\n"
                     "QVariant var76 = QPen();                       // 76 QPen\n"
                     "QVariant var77 = QTextLength();                // 77 QTextLength\n"
+                    "#if QT_VERSION < 0x050000\n"
                     "QVariant var78 = QTextFormat();                // 78 QTextFormat\n"
+                    "unused(&var78);\n"
+                    "#endif\n"
                     "QVariant var80 = QTransform();                 // 80 QTransform\n"
                     "QVariant var81 = QMatrix4x4();                 // 81 QMatrix4x4\n"
                     "QVariant var82 = QVector2D();                  // 82 QVector2D\n"
                     "QVariant var83 = QVector3D();                  // 83 QVector3D\n"
                     "QVariant var84 = QVector4D();                  // 84 QVector4D\n"
                     "QVariant var85 = QQuaternion();                // 85 QQuaternion\n"
-                    "QVariant var86 = QPolygonF();                  // 86 QPolygonF\n"
+                    "QVariant var86 = QVariant::fromValue<QPolygonF>(QPolygonF());\n"
                     "unused(&var, &var1, &var2, &var3, &var4, &var5, &var6);\n"
                     "unused(&var7, &var8, &var9, &var10, &var11, &var19, &var20);\n"
                     "unused(&var12, &var13, &var14, &var15, &var16, &var17);\n"
@@ -3883,9 +3892,9 @@ void tst_Dumpers::dumper_data()
                     "unused(&var27, &var28, &var32, &var33, &var34, &var35);\n"
                     "unused(&var36, &var37, &var38, &var64, &var65, &var66);\n"
                     "unused(&var67, &var68, &var69, &var70, &var71, &var72);\n"
-                    "unused(&var73, &var74, &var75, &var76, &var77, &var78);\n"
+                    "unused(&var73, &var74, &var75, &var76, &var77);\n"
                     "unused(&var80, &var81, &var82, &var83, &var84, &var18);\n"
-                    "unused(&var85, &var86);\n"
+                    "unused(&var85, &var86, &var31);\n"
                     )
                % GuiProfile()
                % Check("var", "(invalid)", "@QVariant (invalid)")
@@ -3941,7 +3950,7 @@ void tst_Dumpers::dumper_data()
                % Check("var75", "", "@QVariant (QKeySequence)")
                % Check("var76", "", "@QVariant (QPen)")
                % Check("var77", "", "@QVariant (QTextLength)")
-               % Check("var78", "", "@QVariant (QTextFormat)")
+               //% Check("var78", Value5(""), "@QVariant (QTextFormat)")
                % Check("var80", "", "@QVariant (QTransform)")
                % Check("var81", "", "@QVariant (QMatrix4x4)")
                % Check("var82", "", "@QVariant (QVector2D)")

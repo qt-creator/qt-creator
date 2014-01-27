@@ -1965,7 +1965,7 @@ qdumpHelper_QVariants_B = [
 ]
 
 def qdumpHelper_QVariant_31(d, blob):
-    # QVariant::VoidStart
+    # QVariant::VoidStar
     d.putBetterType("%sQVariant (void *)" % d.qtNamespace())
     d.putValue("0x%x" % blob.extractPointer())
 
@@ -2027,11 +2027,15 @@ qdumpHelper_QVariants_E = [
     "QRegion",     # 72
     "QBitmap",     # 73
     "QCursor",     # 74
+]
+
+qdumpHelper_QVariants_F = [
+    # Qt 5. In Qt 4 add one.
     "QKeySequence",# 75
     "QPen",        # 76
     "QTextLength", # 77
     "QTextFormat", # 78
-    "X",           # 79
+    "X",
     "QTransform",  # 80
     "QMatrix4x4",  # 81
     "QVector2D",   # 82
@@ -2041,50 +2045,58 @@ qdumpHelper_QVariants_E = [
     "QPolygonF"    # 86
 ]
 
-def qdumpHelper__QVariant(d, value, variantType):
-    blob = d.toBlob(value)
-
-    # Well-known simple type.
-    if variantType <= 6:
-        qdumpHelper_QVariants_A[variantType](d, blob)
-        d.putNumChild(0)
-        return None
-
-    if variantType >= 31 and variantType <= 38:
-        qdumpHelper_QVariants_D[variantType - 31](d, blob)
-        d.putNumChild(0)
-        return None
-
-    # Known Core or Gui type.
-    if variantType <= 28:
-        innert = qdumpHelper_QVariants_B[variantType - 7]
-    else:
-        innert = qdumpHelper_QVariants_E[variantType - 64]
-
-    data = value["d"]["data"]
-    inner = d.qtNamespace() + innert
-    innerType = d.lookupType(inner)
-
-    if value["d"]["is_shared"]:
-        val = data["ptr"].cast(innerType.pointer().pointer()).dereference().dereference()
-    else:
-        val = data.cast(innerType)
-
-    d.putEmptyValue(-99)
-    d.putItem(val)
-    d.putBetterType("%sQVariant (%s)" % (d.qtNamespace(), innert))
-
-    return innert
-
-
 def qdump__QVariant(d, value):
     variantType = int(value["d"]["type"])
     #warn("VARIANT TYPE: %s : " % variantType)
 
-    if variantType <= 86:
-        return qdumpHelper__QVariant(d, value, variantType)
+    # Well-known simple type.
+    if variantType <= 6:
+        blob = d.toBlob(value)
+        qdumpHelper_QVariants_A[variantType](d, blob)
+        d.putNumChild(0)
+        return None
 
-    blob = d.toBlob(value)
+    # Extended Core type (Qt 5)
+    if variantType >= 31 and variantType <= 38 and d.qtVersion() >= 0x050000:
+        blob = d.toBlob(value)
+        qdumpHelper_QVariants_D[variantType - 31](d, blob)
+        return None
+
+    # Extended Core type (Qt 4)
+    if variantType >= 128 and variantType <= 135 and d.qtVersion() < 0x050000:
+        if variantType == 128 or variantType == 135: # No indirection for float.
+            blob = d.toBlob(value)
+        else:
+            blob = d.extractBlob(d.dereference(value["d"]["data"]["ptr"]), 8)
+        qdumpHelper_QVariants_D[variantType - 128](d, blob)
+        return None
+
+    if variantType <= 86:
+        # Known Core or Gui type.
+        if variantType <= 28:
+            innert = qdumpHelper_QVariants_B[variantType - 7]
+        elif variantType <= 74:
+            innert = qdumpHelper_QVariants_E[variantType - 64]
+        elif d.qtVersion() < 0x050000:
+            innert = qdumpHelper_QVariants_F[variantType - 76]
+        else:
+            innert = qdumpHelper_QVariants_F[variantType - 75]
+
+        data = value["d"]["data"]
+        inner = d.qtNamespace() + innert
+        innerType = d.lookupType(inner)
+
+        if value["d"]["is_shared"]:
+            val = data["ptr"].cast(innerType.pointer().pointer()).dereference().dereference()
+        else:
+            val = data.cast(innerType)
+
+        d.putEmptyValue(-99)
+        d.putItem(val)
+        d.putBetterType("%sQVariant (%s)" % (d.qtNamespace(), innert))
+
+        return innert
+
 
     # User types.
     d_ptr = value["d"]
