@@ -360,7 +360,7 @@ public:
         case InsertVirtualMethodsDialog::Reimplemented:
             if (item->parent()) {
                 FunctionItem *function = static_cast<FunctionItem *>(item);
-                return QVariant(function->reimplemented || function->alreadyFound);
+                return QVariant(function->alreadyFound);
             }
 
         }
