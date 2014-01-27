@@ -133,7 +133,7 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     connect(SessionManager::instance(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(aboutToRemoveProject(ProjectExplorer::Project*)));
 
-    d->m_outputWindow = new Internal::CompileOutputWindow(this, cancelBuildAction);
+    d->m_outputWindow = new Internal::CompileOutputWindow(cancelBuildAction);
     ExtensionSystem::PluginManager::addObject(d->m_outputWindow);
 
     d->m_taskWindow = new Internal::TaskWindow;

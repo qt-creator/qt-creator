@@ -58,7 +58,7 @@ class CompileOutputWindow : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    CompileOutputWindow(BuildManager *bm, QAction *cancelBuildAction);
+    CompileOutputWindow(QAction *cancelBuildAction);
     ~CompileOutputWindow();
 
     QWidget *outputWidget(QWidget *);

@@ -102,7 +102,7 @@ private:
 } // namespace Internal
 } // namespace ProjectExplorer
 
-CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/, QAction *cancelBuildAction) :
+CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_cancelBuildButton(new QToolButton),
     m_escapeCodeHandler(new Utils::AnsiEscapeCodeHandler)
 {
