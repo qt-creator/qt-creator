@@ -49,6 +49,9 @@ SelectableFilesModel::SelectableFilesModel(QObject *parent)
     : QAbstractItemModel(parent), m_root(0), m_allFiles(true)
 {
     connect(&m_watcher, SIGNAL(finished()), this, SLOT(buildTreeFinished()));
+
+    m_root = new Tree;
+    m_root->parent = 0;
 }
 
 void SelectableFilesModel::setInitialMarkedFiles(const QStringList &files)
