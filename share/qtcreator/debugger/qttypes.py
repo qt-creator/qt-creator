@@ -2089,7 +2089,7 @@ def qdump__QVariant(d, value):
         if toInteger(value["d"]["is_shared"]):
             val = data["ptr"].cast(innerType.pointer().pointer()).dereference().dereference()
         else:
-            val = data.cast(innerType)
+            val = data["ptr"].cast(innerType)
 
         d.putEmptyValue(-99)
         d.putItem(val)
