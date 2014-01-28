@@ -86,7 +86,7 @@ def main():
         test.compare(cloneDirEdit.text, "p-qt-labs-jom")
         replaceEditorContent(cloneDirEdit, cloneDir)
         clickButton(waitForObject(":Next_QPushButton"))
-        cloneLog = findObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit")
+        cloneLog = waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit", 1000)
         test.compare(waitForObject(":Git Repository Clone.Result._QLabel").text,
                      "Cloning started...")
         if button == "Cancel immediately":
