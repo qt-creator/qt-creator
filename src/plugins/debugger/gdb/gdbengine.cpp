@@ -1704,11 +1704,10 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
         extractGdbVersion(msg,
               &m_gdbVersion, &gdbBuildVersion, &isMacGdb, &m_isQnxGdb);
 
-        // On Mac, fsf gdb does not work sufficiently well,
-        // and on Linux and Windows we require at least 7.2.
-        // Older versions with python still work, but can
-        // be significantly slower.
-        bool isSupported = m_gdbVersion >= 70500;
+        // On Mac, FSF GDB does not work sufficiently well,
+        // and on Linux and Windows we require at least 7.4.1,
+        // on Android 7.3.1.
+        bool isSupported = m_gdbVersion >= 70300;
         if (isSupported)
             showMessage(_("SUPPORTED GDB VERSION ") + msg);
         else
