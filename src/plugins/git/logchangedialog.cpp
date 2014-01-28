@@ -153,7 +153,7 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
     // Retrieve log using a custom format "Sha1:Subject [(refs)]"
     GitClient *client = GitPlugin::instance()->gitClient();
     QStringList arguments;
-    arguments << QLatin1String("--max-count=40") << QLatin1String("--format=%h:%s %d");
+    arguments << QLatin1String("--max-count=1000") << QLatin1String("--format=%h:%s %d");
     arguments << (commit.isEmpty() ? QLatin1String("HEAD") : commit);
     if (!(flags & IncludeRemotes))
         arguments << QLatin1String("--not") << QLatin1String("--remotes");
