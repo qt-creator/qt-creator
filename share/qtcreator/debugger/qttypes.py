@@ -2086,7 +2086,7 @@ def qdump__QVariant(d, value):
         inner = d.qtNamespace() + innert
         innerType = d.lookupType(inner)
 
-        if value["d"]["is_shared"]:
+        if toInteger(value["d"]["is_shared"]):
             val = data["ptr"].cast(innerType.pointer().pointer()).dereference().dereference()
         else:
             val = data.cast(innerType)
