@@ -1136,7 +1136,7 @@ def qdump__QMetaObject(d, value):
             d.putIntItem("flags", d.extractInt(data + 48))
             d.putIntItem("signalCount", d.extractInt(data + 52))
 
-def qdump__QObject(d, value):
+def _qdump__QObject(d, value):
     d.putQObjectNameValue(value)
     ns = d.qtNamespace()
 

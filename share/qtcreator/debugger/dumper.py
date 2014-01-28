@@ -312,8 +312,9 @@ class DumperBase:
         # This keeps canonical forms of the typenames, without array indices etc.
         self.cachedFormats = {}
 
-        self.knownQObjectTypes = set()
-        self.knownNonQObjectTypes = set()
+        # Maps type names to static metaobjects. If a type is known
+        # to not be QObject derived, it contains a 0 value.
+        self.knownStaticMetaObjects = {}
 
 
     def stripForFormat(self, typeName):
@@ -854,8 +855,6 @@ class DumperBase:
                     self.putItem(value.dereference())
 
     def putQObjectNameValue(self, value):
-        if str(value.type) in self.knownNonQObjectTypes:
-            return
         try:
             intSize = self.intSize()
             ptrSize = self.ptrSize()
@@ -910,7 +909,6 @@ class DumperBase:
 
         except:
             #warn("NO QOBJECT: %s" % value.type)
-            #self.knownNonQObjectTypes.add(str(value.type))
             pass
 
 

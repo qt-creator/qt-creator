@@ -970,32 +970,48 @@ class Dumper(DumperBase):
     def dereferenceValue(self, value):
         return toInteger(value.cast(self.voidPtrType()))
 
-    def isQObject(self, value):
-        typeName = str(value.type)
-        if typeName in self.knownQObjectTypes:
-            return True
-        if typeName in self.knownNonQObjectTypes:
-            return False
+    def extractStaticMetaObjectHelper(self, typeobj):
+        """
+        Checks whether type has a Q_OBJECT macro.
+        Returns the staticMetaObject, or 0.
+        """
+        typeName = str(typeobj)
+        result = self.knownStaticMetaObjects.get(typeName, None)
+        if result is not None: # Is 0 or the static metaobject.
+            return result
 
-        smo = typeName + "::staticMetaObject"
+        staticMetaObjectName = typeName + "::staticMetaObject"
         try:
-            result = gdb.lookup_global_symbol(smo)
-            if result:
-                self.knownQObjectTypes.add(typeName)
-            else:
-                self.knownNonQObjectTypes.add(typeName)
+            result = gdb.lookup_global_symbol(staticMetaObjectName)
+            result = result.value() if result else 0
+            self.knownStaticMetaObjects[typeName] = result
             return result
         except:
             pass
 
         # Older GDB...
         try:
-            gdb.parse_and_eval(smo)
-            self.knownQObjectTypes.add(typeName)
-            return True
+            result = gdb.parse_and_eval(staticMetaObjectName)
+            self.knownStaticMetaObjects[typeName] = result
+            return result
         except:
-            self.knownNonQObjectTypes.add(typeName)
-            return False
+            self.knownStaticMetaObjects[typeName] = 0
+            return 0
+
+    def extractStaticMetaObject(self, typeobj):
+        """
+        Checks recursively whether a type derives from QObject.
+        """
+        result = self.extractStaticMetaObjectHelper(typeobj)
+        if result:
+            return result
+        fields = typeobj.fields()
+        if not len(fields):
+            return 0
+        if not fields[0].is_base_class:
+            return 0
+        return self.extractStaticMetaObject(fields[0].type)
+
 
     def put(self, value):
         self.output.append(value)
@@ -1401,9 +1417,9 @@ class Dumper(DumperBase):
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
         #warn("EXPANDED: %s " % (self.currentIName in self.expandedINames))
-        isQObject = self.isQObject(value)
-        if isQObject:
-            self.putQObjectNameValue(value)  # Is this too expensive?
+        staticMetaObject = self.extractStaticMetaObject(value.type)
+        if staticMetaObject:
+            self.putQObjectNameValue(value)
         self.putType(typeName)
         self.putEmptyValue()
         self.putNumChild(len(type.fields()))
@@ -1412,9 +1428,8 @@ class Dumper(DumperBase):
             innerType = None
             with Children(self, 1, childType=innerType):
                 self.putFields(value)
-                if isQObject:
-                    smo = value["staticMetaObject"]
-                    self.putQObjectGuts(value, smo)
+                if staticMetaObject:
+                    self.putQObjectGuts(value, staticMetaObject)
 
 
     def putPlainChildren(self, value):
