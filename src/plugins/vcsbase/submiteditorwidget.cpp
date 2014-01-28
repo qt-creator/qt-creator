@@ -34,6 +34,7 @@
 
 #include <QDebug>
 #include <QPointer>
+#include <QTextBlock>
 #include <QTimer>
 #include <QScopedPointer>
 
@@ -299,11 +300,21 @@ static QString wrappedText(const QTextEdit *e)
     QTextCursor cursor(e->document());
     cursor.movePosition(QTextCursor::Start);
     while (!cursor.atEnd()) {
-        cursor.select(QTextCursor::LineUnderCursor);
-        rc += cursor.selectedText();
-        rc += newLine;
-        cursor.movePosition(QTextCursor::EndOfLine); // Mac needs it
-        cursor.movePosition(QTextCursor::NextCharacter);
+        const QString block = cursor.block().text();
+        if (block.startsWith(QLatin1Char('\t'))) { // Don't wrap
+            rc += block + newLine;
+        } else {
+            forever {
+                cursor.select(QTextCursor::LineUnderCursor);
+                rc += cursor.selectedText();
+                rc += newLine;
+                cursor.movePosition(QTextCursor::EndOfLine); // Mac needs it
+                if (cursor.atBlockEnd())
+                    break;
+                cursor.movePosition(QTextCursor::NextCharacter);
+            }
+        }
+        cursor.movePosition(QTextCursor::NextBlock);
     }
     return rc;
 }
