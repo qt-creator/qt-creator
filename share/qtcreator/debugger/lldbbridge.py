@@ -541,12 +541,6 @@ class Dumper(DumperBase):
     def addressOf(self, value):
         return int(value.GetLoadAddress())
 
-    def dereferenceValue(self, value):
-        return long(value.Cast(self.voidPtrType()))
-
-    def dereference(self, address):
-        return long(self.createValue(address, self.voidPtrType()))
-
     def extractInt(self, address):
         return int(self.createValue(address, self.intType()))
 

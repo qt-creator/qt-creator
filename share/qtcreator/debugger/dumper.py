@@ -118,9 +118,6 @@ class Blob(object):
     def extractFloat(self, offset = 0):
         return struct.unpack_from("f", self.data, offset)[0]
 
-    def extractPointer(self, offset = 0):
-        return struct.unpack_from("P", self.data, offset)[0]
-
 #
 # Gnuplot based display for array-like structures.
 #
@@ -383,7 +380,7 @@ class DumperBase:
             # - qptrdiff offset
             size = self.extractInt(addr + 4)
             alloc = self.extractInt(addr + 8) & 0x7ffffff
-            data = addr + self.dereference(addr + 8 + self.ptrSize())
+            data = addr + self.extractPointer(addr + 8 + self.ptrSize())
             if self.ptrSize() == 4:
                 data = data & 0xffffffff
             else:
@@ -396,7 +393,7 @@ class DumperBase:
             # - char *data;
             alloc = self.extractInt(addr + 4)
             size = self.extractInt(addr + 8)
-            data = self.dereference(addr + 8 + self.ptrSize())
+            data = self.extractPointer(addr + 8 + self.ptrSize())
         return data, size, alloc
 
     # addr is the begin of a QByteArrayData structure
@@ -429,27 +426,27 @@ class DumperBase:
         return self.hexencode(data)
 
     def encodeByteArray(self, value):
-        return self.encodeByteArrayHelper(self.dereferenceValue(value))
+        return self.encodeByteArrayHelper(self.extractPointer(value))
 
     def byteArrayData(self, value):
-        return self.byteArrayDataHelper(self.dereferenceValue(value))
+        return self.byteArrayDataHelper(self.extractPointer(value))
 
     def putByteArrayValue(self, value):
         return self.putValue(self.encodeByteArray(value), Hex2EncodedLatin1)
 
     def putByteArrayValueByAddress(self, addr):
-        self.putValue(self.encodeByteArrayHelper(self.dereference(addr)),
+        self.putValue(self.encodeByteArrayHelper(self.extractPointer(addr)),
             Hex2EncodedLatin1)
 
     def putStringValueByAddress(self, addr):
-        self.putValue(self.encodeStringHelper(self.dereference(addr)),
+        self.putValue(self.encodeStringHelper(self.extractPointer(addr)),
             Hex4EncodedLittleEndian)
 
     def encodeString(self, value):
-        return self.encodeStringHelper(self.dereferenceValue(value))
+        return self.encodeStringHelper(self.extractPointer(value))
 
     def stringData(self, value):
-        return self.byteArrayDataHelper(self.dereferenceValue(value))
+        return self.byteArrayDataHelper(self.extractPointer(value))
 
     def extractTemplateArgument(self, typename, position):
         level = 0
@@ -859,7 +856,7 @@ class DumperBase:
             intSize = self.intSize()
             ptrSize = self.ptrSize()
             # dd = value["d_ptr"]["d"] is just behind the vtable.
-            dd = self.dereference(self.addressOf(value) + ptrSize)
+            dd = self.extractPointer(value, offset=ptrSize)
 
             if self.qtVersion() < 0x050000:
                 # Size of QObjectData: 5 pointer + 2 int
@@ -915,8 +912,8 @@ class DumperBase:
     def staticQObjectPropertyNames(self, metaobject):
         properties = []
         dd = metaobject["d"]
-        data = self.dereferenceValue(dd["data"])
-        sd = self.dereferenceValue(dd["stringdata"])
+        data = self.extractPointer(dd["data"])
+        sd = self.extractPointer(dd["stringdata"])
 
         metaObjectVersion = self.extractInt(data)
         propertyCount = self.extractInt(data + 24)
@@ -1027,6 +1024,18 @@ class DumperBase:
             base += 1
         f.write("e\n")
 
+    def extractPointer(self, thing, offset = 0):
+        if isinstance(thing, int):
+            bytes = self.extractBlob(thing, self.ptrSize()).toBytes()
+        elif sys.version_info[0] == 2 and isinstance(thing, long):
+            bytes = self.extractBlob(thing, self.ptrSize()).toBytes()
+        elif isinstance(thing, Blob):
+            bytes = blob.toBytes()
+        else:
+            # Assume it's a (backend specific) Value.
+            bytes = self.toBlob(thing).toBytes()
+        code = "I" if self.ptrSize() == 4 else "Q"
+        return struct.unpack_from(code, bytes, offset)[0]
 
 # Some "Enums"
 

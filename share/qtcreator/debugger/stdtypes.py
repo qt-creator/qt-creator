@@ -764,7 +764,7 @@ def qdump__std____1__vector(d, value):
     innerType = d.templateArgument(value.type, 0)
     if d.isLldb and d.childAt(value, 0).type == innerType:
         # That's old lldb automatically formatting
-        begin = d.dereferenceValue(value)
+        begin = d.extractPointer(value)
         size = value.GetNumChildren()
     else:
         # Normal case

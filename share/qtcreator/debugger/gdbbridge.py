@@ -947,15 +947,6 @@ class Dumper(DumperBase):
             mem.tobytes()
         return mem
 
-    # FIXME: The commented out versions do not work with
-    # a Python 3 based GDB due to the bug addressed in
-    # https://sourceware.org/ml/gdb-patches/2013-09/msg00571.html
-    def dereference(self, addr):
-        #return long(gdb.Value(addr).cast(self.voidPtrType().pointer()).dereference())
-        ptrSize = self.ptrSize()
-        code = "I" if ptrSize == 4 else "Q"
-        return struct.unpack(code, self.readRawMemory(addr, ptrSize))[0]
-
     def extractInt64(self, addr):
         return struct.unpack("q", self.readRawMemory(addr, 8))[0]
 
@@ -964,11 +955,6 @@ class Dumper(DumperBase):
 
     def extractByte(self, addr):
         return struct.unpack("b", self.readRawMemory(addr, 1))[0]
-
-    # Do not use value.address here as this might not have one,
-    # i.e. be the result of an inferior call
-    def dereferenceValue(self, value):
-        return toInteger(value.cast(self.voidPtrType()))
 
     def extractStaticMetaObjectHelper(self, typeobj):
         """

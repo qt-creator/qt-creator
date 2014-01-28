@@ -230,7 +230,7 @@ def qdump__QTime(d, value):
 
 
 def qdump__QTimeZone(d, value):
-    base = d.dereferenceValue(value)
+    base = d.extractPointer(value)
     if base == 0:
         d.putValue("(null)")
         d.putNumChild(0)
@@ -245,7 +245,7 @@ def qdump__QDateTime(d, value):
     isValid = False
     # This relies on the Qt4/Qt5 internal structure layout:
     # {sharedref(4), ...
-    base = d.dereferenceValue(value)
+    base = d.extractPointer(value)
     if qtVersion >= 0x050200:
         dateBase = base + d.ptrSize() # Only QAtomicInt, but will be padded.
         # qint64 m_msecs
@@ -312,7 +312,7 @@ def qdump__QDateTime(d, value):
 
 def qdump__QDir(d, value):
     d.putNumChild(1)
-    privAddress = d.dereferenceValue(value)
+    privAddress = d.extractPointer(value)
     bit32 = d.is32bit()
     qt5 = d.qtVersion() >= 0x050000
 
@@ -415,7 +415,7 @@ def qdump__QFile(d, value):
 
 
 def qdump__QFileInfo(d, value):
-    privAddress = d.dereferenceValue(value)
+    privAddress = d.extractPointer(value)
     #bit32 = d.is32bit()
     #qt5 = d.qtVersion() >= 0x050000
     #try:
@@ -676,7 +676,7 @@ def qdump__QHostAddress(d, value):
     #   protocol         (2*ptrSize + 20)
     #   bool isParsed    (2*ptrSize + 24)
 
-    privAddress = d.dereferenceValue(value)
+    privAddress = d.extractPointer(value)
     isQt5 = d.qtVersion() >= 0x050000
     sizeofQString = d.ptrSize()
     ipStringAddress = privAddress + (0 if isQt5 else 24)
@@ -841,7 +841,7 @@ def qdump__QImage(d, value):
 
 
 def qdump__QLinkedList(d, value):
-    dd = d.dereferenceValue(value)
+    dd = d.extractPointer(value)
     ptrSize = d.ptrSize()
     n = d.extractInt(dd + 4 + 2 * ptrSize);
     ref = d.extractInt(dd + 2 * ptrSize);
@@ -1058,7 +1058,7 @@ def qdump__QMetaObject(d, value):
         with Children(d):
             dd = value["d"]
             d.putSubItem("d", dd)
-            data = d.dereferenceValue(dd["data"])
+            data = d.extractPointer(dd["data"])
 
             propertyNames = d.staticQObjectPropertyNames(value)
             propertyIndex = 0
@@ -1069,7 +1069,7 @@ def qdump__QMetaObject(d, value):
 
            #byteArrayDataType = d.lookupType(d.qtNamespace() + "QByteArrayData")
            #byteArrayDataSize = byteArrayDataType.sizeof
-           #sd = d.dereferenceValue(dd["stringdata"])
+           #sd = d.extractPointer(dd["stringdata"])
            #stringdata, size, alloc = d.byteArrayDataHelper(sd)
 
            #propertyCount = d.extractInt(data + 24)
@@ -1552,7 +1552,7 @@ def qdump__QRectF(d, value):
 
 def qdump__QRegExp(d, value):
     # value.priv.engineKey.pattern
-    privAddress = d.dereferenceValue(value)
+    privAddress = d.extractPointer(value)
     engineKeyAddress = privAddress + d.ptrSize()
     patternAddress = engineKeyAddress
     d.putStringValueByAddress(patternAddress)
@@ -1595,7 +1595,7 @@ def qdump__QRegion(d, value):
         # QRect extents;
         # QRect innerRect;
         # int innerArea;
-        pp = d.dereferenceValue(p)
+        pp = d.extractPointer(p)
         n = d.extractInt(pp)
         d.putItemCount(n)
         d.putNumChild(n)
@@ -1792,7 +1792,7 @@ def qdump__QTextCodec(d, value):
 
 
 def qdump__QTextCursor(d, value):
-    privAddress = d.dereferenceValue(value)
+    privAddress = d.extractPointer(value)
     if privAddress == 0:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -1822,7 +1822,7 @@ def qdump__QTextDocument(d, value):
 
 def qdump__QUrl(d, value):
     if d.qtVersion() < 0x050000:
-        privAddress = d.dereferenceValue(value)
+        privAddress = d.extractPointer(value)
         if not privAddress:
             # d == 0 if QUrl was constructed with default constructor
             d.putValue("<invalid>")
@@ -1854,7 +1854,7 @@ def qdump__QUrl(d, value):
         # - QString path;
         # - QString query;
         # - QString fragment;
-        privAddress = d.dereferenceValue(value)
+        privAddress = d.extractPointer(value)
         if not privAddress:
             # d == 0 if QUrl was constructed with default constructor
             d.putValue("<invalid>")
@@ -1867,7 +1867,7 @@ def qdump__QUrl(d, value):
         path = d.encodeStringHelper(d.dereference(schemeAddr + 4 * d.ptrSize()))
         query = d.encodeStringHelper(d.dereference(schemeAddr + 5 * d.ptrSize()))
         fragment = d.encodeStringHelper(d.dereference(schemeAddr + 6 * d.ptrSize()))
-        port = d.extractInt(d.dereferenceValue(value) + d.intSize())
+        port = d.extractInt(d.extractPointer(value) + d.intSize())
 
         url = scheme
         url += "3a002f002f00"
@@ -1967,7 +1967,7 @@ qdumpHelper_QVariants_B = [
 def qdumpHelper_QVariant_31(d, blob):
     # QVariant::VoidStar
     d.putBetterType("%sQVariant (void *)" % d.qtNamespace())
-    d.putValue("0x%x" % blob.extractPointer())
+    d.putValue("0x%x" % d.extractPointer(blob))
 
 def qdumpHelper_QVariant_32(d, blob):
     # QVariant::Long
