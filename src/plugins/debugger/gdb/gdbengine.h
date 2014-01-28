@@ -94,14 +94,11 @@ private: ////////// General State //////////
 protected: ////////// Gdb Process Management //////////
 
     void startGdb(const QStringList &args = QStringList());
-    void reportEngineSetupOk(const GdbResponse &response);
-    void handleCheckForPython(const GdbResponse &response);
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);
     void handleNamespaceExtraction(const GdbResponse &response);
 
     void loadInitScript();
-    void tryLoadPythonDumpers();
 
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.
@@ -251,7 +248,6 @@ protected:
     // Gdb initialization sequence
     void handleShowVersion(const GdbResponse &response);
     void handleListFeatures(const GdbResponse &response);
-    void handleHasPython(const GdbResponse &response);
     void handlePythonSetup(const GdbResponse &response);
 
     int m_gdbVersion; // 7.6.1 is 70601

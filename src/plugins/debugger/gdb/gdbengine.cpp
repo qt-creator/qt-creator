@@ -1365,8 +1365,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
-    tryLoadPythonDumpers();
-
     bool gotoHandleStop1 = true;
     if (!m_fullStartDone) {
         m_fullStartDone = true;
@@ -1723,9 +1721,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
 
         if (startParameters().multiProcess)
             postCommand("set detach-on-fork off", ConsoleCommand);
-
         //postCommand("set build-id-verbose 2", ConsoleCommand);
-        postCommand("python print(sys.version)", ConsoleCommand, CB(handleHasPython));
     }
 }
 
@@ -1734,13 +1730,9 @@ void GdbEngine::handleListFeatures(const GdbResponse &response)
     showMessage(_("FEATURES: " + response.toString()));
 }
 
-void GdbEngine::handleHasPython(const GdbResponse &response)
-{
-    Q_UNUSED(response);
-}
-
 void GdbEngine::handlePythonSetup(const GdbResponse &response)
 {
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         const QString commands = debuggerCore()->stringSetting(GdbCustomDumperCommands);
         if (!commands.isEmpty()) {
@@ -1765,6 +1757,13 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
             }
             watchHandler()->addTypeFormats(type, formats);
         }
+
+        loadInitScript();
+        QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+        showMessage(_("ENGINE SUCCESSFULLY STARTED"));
+        notifyEngineSetupOk();
+    } else {
+        notifyEngineSetupFailed();
     }
 }
 
@@ -4338,19 +4337,21 @@ void GdbEngine::startGdb(const QStringList &args)
         postCommand("set detach-on-fork off");
     }
 
-    // Dummy command to guarantee a roundtrip before the adapter proceed.
+    // Finally, set up Python.
+    // We need to guarantee a roundtrip before the adapter proceeds.
     // Make sure this stays the last command in startGdb().
     // Don't use ConsoleCommand, otherwise Mac won't markup the output.
-    postCommand("pwd", CB(reportEngineSetupOk));
-}
+    const QByteArray dumperSourcePath =
+        Core::ICore::resourcePath().toLocal8Bit() + "/debugger/";
 
-void GdbEngine::reportEngineSetupOk(const GdbResponse &response)
-{
-    loadInitScript();
-    Q_UNUSED(response);
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    showMessage(_("ENGINE SUCCESSFULLY STARTED"));
-    notifyEngineSetupOk();
+    const QFileInfo gdbBinaryFile(m_gdb);
+    const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()
+            + "/data-directory/python";
+
+    const GdbCommandFlags flags = ConsoleCommand | Immediate;
+    postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", flags);
+    postCommand("python sys.path.append('" + uninstalledData + "')", flags);
+    postCommand("python from gdbbridge import *", flags, CB(handlePythonSetup));
 }
 
 void GdbEngine::handleGdbStartFailed()
@@ -4379,24 +4380,9 @@ void GdbEngine::loadInitScript()
     }
 }
 
-void GdbEngine::tryLoadPythonDumpers()
-{
-    const QByteArray dumperSourcePath =
-        Core::ICore::resourcePath().toLocal8Bit() + "/debugger/";
-
-    const QFileInfo gdbBinaryFile(m_gdb);
-    const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()
-            + "/data-directory/python";
-
-    const GdbCommandFlags flags = ConsoleCommand | Immediate;
-    postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", flags);
-    postCommand("python sys.path.append('" + uninstalledData + "')", flags);
-    postCommand("python from gdbbridge import *", flags, CB(handlePythonSetup));
-}
-
 void GdbEngine::reloadDebuggingHelpers()
 {
-    tryLoadPythonDumpers();
+    postCommand("bbsetup");
 }
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)

@@ -92,7 +92,6 @@ void GdbAttachEngine::handleAttach(const GdbResponse &response)
     case GdbResultRunning:
         showMessage(_("INFERIOR ATTACHED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        tryLoadPythonDumpers();
         handleInferiorPrepared();
         break;
     case GdbResultError:
