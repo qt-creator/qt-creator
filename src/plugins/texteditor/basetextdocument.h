@@ -105,6 +105,7 @@ public:
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual bool reload(QString *errorString);
 
+    bool setPlainText(const QString &text);
     QTextDocument *document() const;
     void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
     SyntaxHighlighter *syntaxHighlighter() const;

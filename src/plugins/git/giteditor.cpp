@@ -200,7 +200,7 @@ void GitEditor::setPlainTextFiltered(const QString &text)
         break;
     }
 
-    setPlainText(modText);
+    baseTextDocument()->setPlainText(modText);
 }
 
 void GitEditor::commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v)

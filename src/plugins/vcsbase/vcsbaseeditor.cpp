@@ -1184,21 +1184,13 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     return rc;
 }
 
-void VcsBaseEditorWidget::setPlainText(const QString &text)
-{
-    if (text.size() > Core::EditorManager::maxTextFileSize())
-        TextEditor::BaseTextEditorWidget::setPlainText(msgTextTooLarge(text.size()));
-    else
-        TextEditor::BaseTextEditorWidget::setPlainText(text);
-}
-
 void VcsBaseEditorWidget::reportCommandFinished(bool ok, int exitCode, const QVariant &data)
 {
     Q_UNUSED(exitCode);
     Q_UNUSED(data);
 
     if (!ok)
-        setPlainText(tr("Failed to retrieve data."));
+        baseTextDocument()->setPlainText(tr("Failed to retrieve data."));
 }
 
 const VcsBaseEditorParameters *VcsBaseEditorWidget::findType(const VcsBaseEditorParameters *array,
@@ -1596,7 +1588,7 @@ void VcsBase::VcsBaseEditorWidget::testLogResolving(QByteArray &data,
                                                     const QByteArray &entry2)
 {
     init();
-    setPlainText(QLatin1String(data));
+    baseTextDocument()->setPlainText(QLatin1String(data));
     QCOMPARE(d->entriesComboBox()->itemText(0), QString::fromLatin1(entry1));
     QCOMPARE(d->entriesComboBox()->itemText(1), QString::fromLatin1(entry2));
 }

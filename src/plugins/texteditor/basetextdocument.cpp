@@ -70,6 +70,7 @@ public:
     explicit BaseTextDocumentPrivate(BaseTextDocument *q);
 
     QTextCursor indentOrUnindent(const QTextCursor &textCursor, bool doIndent);
+    void resetRevisions();
 
     QString m_defaultPath;
     QString m_suggestedFileName;
@@ -148,6 +149,16 @@ QTextCursor BaseTextDocumentPrivate::indentOrUnindent(const QTextCursor &textCur
     cursor.insertText(m_tabSettings.indentationString(startColumn, targetColumn, block));
     cursor.endEditBlock();
     return cursor;
+}
+
+void BaseTextDocumentPrivate::resetRevisions()
+{
+    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    documentLayout->lastSaveRevision = m_document->revision();
+
+    for (QTextBlock block = m_document->begin(); block.isValid(); block = block.next())
+        block.setRevision(documentLayout->lastSaveRevision);
 }
 
 BaseTextDocument::BaseTextDocument() : d(new BaseTextDocumentPrivate(this))
@@ -448,14 +459,7 @@ bool BaseTextDocument::save(QString *errorString, const QString &saveFileName, b
 
 bool BaseTextDocument::setContents(const QByteArray &contents)
 {
-    if (contents.size() > EditorManager::maxTextFileSize()) {
-        document()->setPlainText(BaseTextEditorWidget::msgTextTooLarge(contents.size()));
-        document()->setModified(false);
-        return false;
-    }
-    document()->setPlainText(QString::fromUtf8(contents));
-    document()->setModified(false);
-    return true;
+    return setPlainText(QString::fromUtf8(contents));
 }
 
 bool BaseTextDocument::shouldAutoSave() const
@@ -564,6 +568,20 @@ bool BaseTextDocument::reload(QString *errorString)
         documentLayout->documentReloaded(marks); // readds text marks
     emit reloadFinished(success);
     return success;
+}
+
+bool BaseTextDocument::setPlainText(const QString &text)
+{
+    if (text.size() > EditorManager::maxTextFileSize()) {
+        document()->setPlainText(BaseTextEditorWidget::msgTextTooLarge(text.size()));
+        d->resetRevisions();
+        document()->setModified(false);
+        return false;
+    }
+    document()->setPlainText(text);
+    d->resetRevisions();
+    document()->setModified(false);
+    return true;
 }
 
 bool BaseTextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)

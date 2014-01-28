@@ -209,9 +209,6 @@ signals:
     void diffChunkReverted(const VcsBase::DiffChunk &dc);
 
 public slots:
-    // Convenience slot to set data read from stdout, will use the
-    // documents' codec to decode
-    void setPlainText(const QString &text);
     void reportCommandFinished(bool ok, int exitCode, const QVariant &data);
 
 protected:
