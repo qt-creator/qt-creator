@@ -902,8 +902,6 @@ void LldbEngine::readLldbStandardError()
     qDebug() << "\nLLDB STDERR" << err;
     //qWarning() << "Unexpected lldb stderr:" << err;
     showMessage(_(err), LogError);
-    if (!err.startsWith("warning:"))
-        m_lldbProc.kill();
 }
 
 void LldbEngine::readLldbStandardOutput()
