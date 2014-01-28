@@ -378,8 +378,6 @@ public:
     const DisplaySettings &displaySettings() const;
     const MarginSettings &marginSettings() const;
 
-    void markBlocksAsChanged(QList<int> blockNumbers);
-
     void ensureCursorVisible();
 
     enum ExtraSelectionKind {
@@ -496,7 +494,6 @@ protected:
 protected slots:
     virtual void slotUpdateExtraArea();
     virtual void slotUpdateExtraAreaWidth();
-    virtual void slotModificationChanged(bool);
     virtual void slotUpdateRequest(const QRect &r, int dy);
     virtual void slotCursorPositionChanged();
     virtual void slotUpdateBlockNotify(const QTextBlock &);

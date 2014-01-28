@@ -71,6 +71,7 @@ public:
 
     QTextCursor indentOrUnindent(const QTextCursor &textCursor, bool doIndent);
     void resetRevisions();
+    void updateRevisions();
 
     QString m_defaultPath;
     QString m_suggestedFileName;
@@ -159,6 +160,23 @@ void BaseTextDocumentPrivate::resetRevisions()
 
     for (QTextBlock block = m_document->begin(); block.isValid(); block = block.next())
         block.setRevision(documentLayout->lastSaveRevision);
+}
+
+void BaseTextDocumentPrivate::updateRevisions()
+{
+    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    int oldLastSaveRevision = documentLayout->lastSaveRevision;
+    documentLayout->lastSaveRevision = m_document->revision();
+
+    if (oldLastSaveRevision != documentLayout->lastSaveRevision) {
+        for (QTextBlock block = m_document->begin(); block.isValid(); block = block.next()) {
+            if (block.revision() < 0 || block.revision() != oldLastSaveRevision)
+                block.setRevision(-documentLayout->lastSaveRevision - 1);
+            else
+                block.setRevision(documentLayout->lastSaveRevision);
+        }
+    }
 }
 
 BaseTextDocument::BaseTextDocument() : d(new BaseTextDocumentPrivate(this))
@@ -451,6 +469,7 @@ bool BaseTextDocument::save(QString *errorString, const QString &saveFileName, b
 
     // inform about the new filename
     const QFileInfo fi(fName);
+    d->updateRevisions();
     d->m_document->setModified(false);
     setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
     emit changed();
@@ -539,6 +558,7 @@ bool BaseTextDocument::open(QString *errorString, const QString &fileName, const
             qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
         QTC_ASSERT(documentLayout, return true);
         documentLayout->lastSaveRevision = d->m_autoSaveRevision = d->m_document->revision();
+        d->updateRevisions();
         d->m_document->setModified(fileName != realFileName);
         setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
     }

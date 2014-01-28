@@ -247,7 +247,7 @@ void BaseTextEditorWidget::ctor(const QSharedPointer<BaseTextDocument> &doc)
     connect(d->m_codeAssistant.data(), SIGNAL(finished()), this, SIGNAL(assistFinished()));
 
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(slotUpdateExtraAreaWidth()));
-    connect(this, SIGNAL(modificationChanged(bool)), this, SLOT(slotModificationChanged(bool)));
+    connect(this, SIGNAL(modificationChanged(bool)), d->m_extraArea, SLOT(update()));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(slotCursorPositionChanged()));
     connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(slotUpdateRequest(QRect,int)));
     connect(this, SIGNAL(selectionChanged()), this, SLOT(slotSelectionChanged()));
@@ -3826,30 +3826,6 @@ void BaseTextEditorWidget::drawFoldingMarker(QPainter *painter, const QPalette &
     }
 }
 
-void BaseTextEditorWidget::slotModificationChanged(bool m)
-{
-    if (m)
-        return;
-
-    QTextDocument *doc = document();
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
-    QTC_ASSERT(documentLayout, return);
-    int oldLastSaveRevision = documentLayout->lastSaveRevision;
-    documentLayout->lastSaveRevision = doc->revision();
-
-    if (oldLastSaveRevision != documentLayout->lastSaveRevision) {
-        QTextBlock block = doc->begin();
-        while (block.isValid()) {
-            if (block.revision() < 0 || block.revision() != oldLastSaveRevision)
-                block.setRevision(-documentLayout->lastSaveRevision - 1);
-            else
-                block.setRevision(documentLayout->lastSaveRevision);
-            block = block.next();
-        }
-    }
-    d->m_extraArea->update();
-}
-
 void BaseTextEditorWidget::slotUpdateRequest(const QRect &r, int dy)
 {
     if (dy) {
@@ -4711,22 +4687,6 @@ void BaseTextEditorWidget::clearLink()
     d->m_currentLink = Link();
     d->m_linkPressed = false;
 }
-
-void BaseTextEditorWidget::markBlocksAsChanged(QList<int> blockNumbers)
-{
-    QTextBlock block = document()->begin();
-    while (block.isValid()) {
-        if (block.revision() < 0)
-            block.setRevision(-block.revision() - 1);
-        block = block.next();
-    }
-    foreach (const int blockNumber, blockNumbers) {
-        QTextBlock block = document()->findBlockByNumber(blockNumber);
-        if (block.isValid())
-            block.setRevision(-block.revision() - 1);
-    }
-}
-
 
 void BaseTextEditorWidget::highlightSearchResults(const QString &txt, Core::FindFlags findFlags)
 {
