@@ -41,6 +41,7 @@
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/Overview.h>
 #include <utils/changeset.h>
+#include <utils/qtcassert.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -161,6 +162,7 @@ public:
     QString description() const { return name; }
     Qt::ItemFlags flags() const;
     Qt::CheckState checkState() const;
+    void removeFunction(int row);
 
     const Class *klass;
     const QString name;
@@ -220,6 +222,15 @@ Qt::CheckState ClassItem::checkState() const
             return Qt::PartiallyChecked;
     }
     return state;
+}
+
+void ClassItem::removeFunction(int row)
+{
+    QTC_ASSERT(row >= 0 && row < functions.count(), return);
+    functions.removeAt(row);
+    // Update row number for all the following functions
+    for (int r = row, total = functions.count(); r < total; ++r)
+        functions[r]->row = r;
 }
 
 FunctionItem::FunctionItem(const Function *func, const QString &functionName, ClassItem *parent) :
@@ -314,6 +325,14 @@ public:
         beginInsertRows(QModelIndex(), row, row);
         classes.append(classItem);
         endInsertRows();
+    }
+
+    void removeFunction(FunctionItem *funcItem)
+    {
+        ClassItem *classItem = static_cast<ClassItem *>(funcItem->parent());
+        beginRemoveRows(createIndex(classItem->row, 0, classItem), funcItem->row, funcItem->row);
+        classItem->removeFunction(funcItem->row);
+        endRemoveRows();
     }
 
     QVariant data(const QModelIndex &index, int role) const
@@ -494,6 +513,18 @@ public:
                     if (!isVirtual)
                         continue;
 
+                    if (func->isFinal()) {
+                        if (FunctionItem *first = virtualFunctions[firstVirtual]) {
+                            FunctionItem *next = 0;
+                            for (FunctionItem *removed = first; next != first; removed = next) {
+                                next = removed->nextOverride;
+                                m_factory->classFunctionModel->removeFunction(removed);
+                                delete removed;
+                            };
+                            virtualFunctions.remove(firstVirtual);
+                        }
+                        continue;
+                    }
                     // Filter OQbject's
                     //   - virtual const QMetaObject *metaObject() const;
                     //   - virtual void *qt_metacast(const char *);
@@ -1504,6 +1535,90 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    // BaseB interface\n"
         "public:\n"
         "    virtual int c();\n"
+        "};\n"
+    );
+
+    // Check: Remove final function
+    QTest::newRow("final_function_removed")
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        "class BaseA {\n"
+        "public:\n"
+        "    virtual int a() = 0;\n"
+        "    virtual int b() = 0;\n"
+        "};\n\n"
+        "class BaseB : public BaseA {\n"
+        "public:\n"
+        "    virtual int a() final = 0;\n"
+        "};\n\n"
+        "class Der@ived : public BaseB {\n"
+        "};"
+        ) << _(
+        "class BaseA {\n"
+        "public:\n"
+        "    virtual int a() = 0;\n"
+        "    virtual int b() = 0;\n"
+        "};\n\n"
+        "class BaseB : public BaseA {\n"
+        "public:\n"
+        "    virtual int a() final = 0;\n"
+        "};\n\n"
+        "class Der@ived : public BaseB {\n"
+        "\n"
+        "    // BaseA interface\n"
+        "public:\n"
+        "    virtual int b();\n"
+        "};\n"
+    );
+
+    // Check: Remove multiple final functions
+    QTest::newRow("multiple_final_functions_removed")
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
+        "class BaseA {\n"
+        "public:\n"
+        "    virtual int a() = 0;\n"
+        "    virtual int b() = 0;\n"
+        "};\n\n"
+        "class BaseB : public BaseA {\n"
+        "public:\n"
+        "    virtual int a() = 0;\n"
+        "    virtual int c() = 0;\n"
+        "};\n\n"
+        "class BaseC : public BaseB {\n"
+        "public:\n"
+        "    virtual int a() final = 0;\n"
+        "    virtual int d() = 0;\n"
+        "};\n\n"
+        "class Der@ived : public BaseC {\n"
+        "};"
+        ) << _(
+        "class BaseA {\n"
+        "public:\n"
+        "    virtual int a() = 0;\n"
+        "    virtual int b() = 0;\n"
+        "};\n\n"
+        "class BaseB : public BaseA {\n"
+        "public:\n"
+        "    virtual int a() = 0;\n"
+        "    virtual int c() = 0;\n"
+        "};\n\n"
+        "class BaseC : public BaseB {\n"
+        "public:\n"
+        "    virtual int a() final = 0;\n"
+        "    virtual int d() = 0;\n"
+        "};\n\n"
+        "class Der@ived : public BaseC {\n"
+        "\n"
+        "    // BaseA interface\n"
+        "public:\n"
+        "    virtual int b();\n"
+        "\n"
+        "    // BaseB interface\n"
+        "public:\n"
+        "    virtual int c();\n"
+        "\n"
+        "    // BaseC interface\n"
+        "public:\n"
+        "    virtual int d();\n"
         "};\n"
     );
 }
