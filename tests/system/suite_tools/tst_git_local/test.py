@@ -29,6 +29,8 @@
 
 source("../../shared/qtcreator.py")
 
+# necessary to not use symbolic links for the parent path of the git project
+srcPath = os.path.realpath(srcPath)
 projectName = "gitProject"
 
 # TODO: Make selecting changes possible
