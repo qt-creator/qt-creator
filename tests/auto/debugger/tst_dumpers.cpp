@@ -1529,140 +1529,130 @@ void tst_Dumpers::dumper_data()
                % Check("s", "\"/tmp/tt\"", "@QString");
 #endif
 
-    QTest::newRow("QHash1")
+    QTest::newRow("QHash")
             << Data("#include <QHash>\n"
+                    "#include <QByteArray>\n"
+                    "#include <QPointer>\n"
                     "#include <QString>\n"
-                    "#include <QList>\n",
-                    "QHash<QString, QList<int> > hash;\n"
-                    "hash.insert(\"Hallo\", QList<int>());\n"
-                    "hash.insert(\"Welt\", QList<int>() << 1);\n"
-                    "hash.insert(\"!\", QList<int>() << 1 << 2);\n")
-               % CoreProfile()
-               % Check("hash", "<3 items>", "@QHash<@QString, @QList<int> >")
-               % Check("hash.0", "[0]", "", "@QHashNode<@QString, @QList<int>>")
-               % Check("hash.0.key", Value4("\"Hallo\""), "@QString")
-               % Check("hash.0.key", Value5("\"Welt\""), "@QString")
-               % Check("hash.0.value", Value4("<0 items>"), "@QList<int>")
-               % Check("hash.0.value", Value5("<1 items>"), "@QList<int>")
-               % Check("hash.1", "[1]", "", "@QHashNode<@QString, @QList<int>>")
-               % Check("hash.1.key", "key", Value4("\"Welt\""), "@QString")
-               % Check("hash.1.key", "key", Value5("\"Hallo\""), "@QString")
-               % Check("hash.1.value", "value", Value4("<1 items>"), "@QList<int>")
-               % Check("hash.1.value", "value", Value5("<0 items>"), "@QList<int>")
-               % Check("hash.2", "[2]", "", "@QHashNode<@QString, @QList<int>>")
-               % Check("hash.2.key", "key", "\"!\"", "@QString")
-               % Check("hash.2.value", "value", "<2 items>", "@QList<int>")
-               % Check("hash.2.value.0", "[0]", "1", "int")
-               % Check("hash.2.value.1", "[1]", "2", "int");
+                    "#include <QList>\n" + fooData,
 
-    QTest::newRow("QHash2")
-            << Data("#include <QHash>\n",
-                    "QHash<int, float> hash;\n"
-                    "hash[11] = 11.0;\n"
-                    "hash[22] = 22.0;\n")
-               % CoreProfile()
-               % Check("hash", "hash", "<2 items>", "@QHash<int, float>")
-               % Check("hash.22", "[22]", "22", "float")
-               % Check("hash.11", "[11]", "11", "float");
+                    "QHash<QString, QList<int> > h1;\n"
+                    "h1.insert(\"Hallo\", QList<int>());\n"
+                    "h1.insert(\"Welt\", QList<int>() << 1);\n"
+                    "h1.insert(\"!\", QList<int>() << 1 << 2);\n\n"
 
-    QTest::newRow("QHash3")
-            << Data("#include <QString>\n"
-                    "#include <QHash>\n",
-                    "QHash<QString, int> hash;\n"
-                    "hash[\"22.0\"] = 22.0;\n"
-                    "hash[\"123.0\"] = 22.0;\n"
-                    "hash[\"111111ss111128.0\"] = 28.0;\n"
-                    "hash[\"11124.0\"] = 22.0;\n"
-                    "hash[\"1111125.0\"] = 22.0;\n"
-                    "hash[\"11111126.0\"] = 22.0;\n"
-                    "hash[\"111111127.0\"] = 27.0;\n"
-                    "hash[\"111111111128.0\"] = 28.0;\n"
-                    "hash[\"111111111111111111129.0\"] = 29.0;\n")
-               % CoreProfile()
-               % Check("hash", "hash", "<9 items>", "@QHash<@QString, int>")
-               % Check("hash.0", "[0]", "", "@QHashNode<@QString, int>")
-               % Check("hash.0.key", "key", Value4("\"123.0\""), "@QString")
-               % Check("hash.0.key", "key", Value5("\"111111111128.0\""), "@QString")
-               % Check("hash.0.value", Value4("22"), "int")
-               % Check("hash.0.value", Value5("28"), "int")
-               % Check("hash.8", "[8]", "", "@QHashNode<@QString, int>")
-               % Check("hash.8.key", "key", Value4("\"11124.0\""), "@QString")
-               % Check("hash.8.key", "key", Value5("\"123.0\""), "@QString")
-               % Check("hash.8.value", "value", Value4("22"), "int")
-               % Check("hash.8.value", "value", Value5("22"), "int");
+                    "QHash<int, float> h2;\n"
+                    "h2[11] = 11.0;\n"
+                    "h2[22] = 22.0;\n\n"
 
-    QTest::newRow("QHash4")
-            << Data("#include <QByteArray>\n"
-                    "#include <QHash>\n",
-                    "QHash<QByteArray, float> hash;\n"
-                    "hash[\"22.0\"] = 22.0;\n"
-                    "hash[\"123.0\"] = 22.0;\n"
-                    "hash[\"111111ss111128.0\"] = 28.0;\n"
-                    "hash[\"11124.0\"] = 22.0;\n"
-                    "hash[\"1111125.0\"] = 22.0;\n"
-                    "hash[\"11111126.0\"] = 22.0;\n"
-                    "hash[\"111111127.0\"] = 27.0;\n"
-                    "hash[\"111111111128.0\"] = 28.0;\n"
-                    "hash[\"111111111111111111129.0\"] = 29.0;\n")
-               % CoreProfile()
-               % Check("hash", "<9 items>", "@QHash<@QByteArray, float>")
-               % Check("hash.0", "[0]", "", "@QHashNode<@QByteArray, float>")
-               % Check("hash.0.key", Value4("\"123.0\""), "@QByteArray")
-               % Check("hash.0.key", Value5("\"111111111128.0\""), "@QByteArray")
-               % Check("hash.0.value", Value4("22"), "float")
-               % Check("hash.0.value", Value5("28"), "float")
-               % Check("hash.8", "[8]", "", "@QHashNode<@QByteArray, float>")
-               % Check("hash.8.key", Value4("\"11124.0\""), "@QByteArray")
-               % Check("hash.8.key", Value5("\"123.0\""), "@QByteArray")
-               % Check("hash.8.value", Value4("22"), "float")
-               % Check("hash.8.value", Value5("22"), "float");
+                    "QHash<QString, int> h3;\n"
+                    "h3[\"22.0\"] = 22.0;\n"
+                    "h3[\"123.0\"] = 22.0;\n"
+                    "h3[\"111111ss111128.0\"] = 28.0;\n"
+                    "h3[\"11124.0\"] = 22.0;\n"
+                    "h3[\"1111125.0\"] = 22.0;\n"
+                    "h3[\"11111126.0\"] = 22.0;\n"
+                    "h3[\"111111127.0\"] = 27.0;\n"
+                    "h3[\"111111111128.0\"] = 28.0;\n"
+                    "h3[\"111111111111111111129.0\"] = 29.0;\n\n"
 
-    QTest::newRow("QHash5")
-            << Data("#include <QString>\n"
-                    "#include <QHash>\n",
-                    "QHash<int, QString> hash;\n"
-                    "hash[22] = \"22.0\";\n")
-               % CoreProfile()
-               % Check("hash", "<1 items>", "@QHash<int, @QString>")
-               % Check("hash.0.key", "22", "int")
-               % Check("hash.0.value", "\"22.0\"", "@QString");
+                    "QHash<QByteArray, float> h4;\n"
+                    "h4[\"22.0\"] = 22.0;\n"
+                    "h4[\"123.0\"] = 22.0;\n"
+                    "h4[\"111111ss111128.0\"] = 28.0;\n"
+                    "h4[\"11124.0\"] = 22.0;\n"
+                    "h4[\"1111125.0\"] = 22.0;\n"
+                    "h4[\"11111126.0\"] = 22.0;\n"
+                    "h4[\"111111127.0\"] = 27.0;\n"
+                    "h4[\"111111111128.0\"] = 28.0;\n"
+                    "h4[\"111111111111111111129.0\"] = 29.0;\n\n"
 
-    QTest::newRow("QHash6")
-            << Data("#include <QHash>\n" + fooData,
-                    "QHash<QString, Foo> hash;\n"
-                    "hash[\"22.0\"] = Foo(22);\n"
-                    "hash[\"33.0\"] = Foo(33);\n")
-               % CoreProfile()
-               % Check("hash", "<2 items>", "@QHash<@QString, Foo>")
-               % Check("hash.0", "[0]", "", "@QHashNode<@QString, Foo>")
-               % Check("hash.0.key", Value4("\"22.0\""), "@QString")
-               % Check("hash.0.key", Value5("\"33.0\""), "@QString")
-               % CheckType("hash.0.value", "Foo")
-               % Check("hash.0.value.a", Value4("22"), "int")
-               % Check("hash.0.value.a", Value5("33"), "int")
-               % Check("hash.1", "[1]", "", "@QHashNode<@QString, Foo>")
-               % Check("hash.1.key", Value4("\"33.0\""), "@QString")
-               % Check("hash.1.key", Value5("\"22.0\""), "@QString")
-               % CheckType("hash.1.value", "Foo");
+                    "QHash<int, QString> h5;\n"
+                    "h5[22] = \"22.0\";\n\n"
 
-    QTest::newRow("QHash7")
-            << Data("#include <QHash>\n"
-                    "#include <QPointer>\n",
+                    "QHash<QString, Foo> h6;\n"
+                    "h6[\"22.0\"] = Foo(22);\n"
+                    "h6[\"33.0\"] = Foo(33);\n\n"
+
                     "QObject ob;\n"
-                    "QHash<QString, QPointer<QObject> > hash;\n"
-                    "hash.insert(\"Hallo\", QPointer<QObject>(&ob));\n"
-                    "hash.insert(\"Welt\", QPointer<QObject>(&ob));\n"
-                    "hash.insert(\".\", QPointer<QObject>(&ob));\n")
+                    "QHash<QString, QPointer<QObject> > h7;\n"
+                    "h7.insert(\"Hallo\", QPointer<QObject>(&ob));\n"
+                    "h7.insert(\"Welt\", QPointer<QObject>(&ob));\n"
+                    "h7.insert(\".\", QPointer<QObject>(&ob));\n")
+
                % CoreProfile()
-               % Check("hash", "<3 items>", "@QHash<@QString, @QPointer<@QObject>>")
-               % Check("hash.0", "[0]", "", "@QHashNode<@QString, @QPointer<@QObject>>")
-               % Check("hash.0.key", Value4("\"Hallo\""), "@QString")
-               % Check("hash.0.key", Value5("\"Welt\""), "@QString")
-               % CheckType("hash.0.value", "@QPointer<@QObject>")
-               //% CheckType("hash.0.value.o", "@QObject")
-               % Check("hash.2", "[2]", "", "@QHashNode<@QString, @QPointer<@QObject>>")
-               % Check("hash.2.key", "\".\"", "@QString")
-               % CheckType("hash.2.value", "@QPointer<@QObject>");
+
+               % Check("h1", "<3 items>", "@QHash<@QString, @QList<int> >")
+               % Check("h1.0", "[0]", "", "@QHashNode<@QString, @QList<int>>")
+               % Check("h1.0.key", Value4("\"Hallo\""), "@QString")
+               % Check("h1.0.key", Value5("\"Welt\""), "@QString")
+               % Check("h1.0.value", Value4("<0 items>"), "@QList<int>")
+               % Check("h1.0.value", Value5("<1 items>"), "@QList<int>")
+               % Check("h1.1", "[1]", "", "@QHashNode<@QString, @QList<int>>")
+               % Check("h1.1.key", "key", Value4("\"Welt\""), "@QString")
+               % Check("h1.1.key", "key", Value5("\"Hallo\""), "@QString")
+               % Check("h1.1.value", "value", Value4("<1 items>"), "@QList<int>")
+               % Check("h1.1.value", "value", Value5("<0 items>"), "@QList<int>")
+               % Check("h1.2", "[2]", "", "@QHashNode<@QString, @QList<int>>")
+               % Check("h1.2.key", "key", "\"!\"", "@QString")
+               % Check("h1.2.value", "value", "<2 items>", "@QList<int>")
+               % Check("h1.2.value.0", "[0]", "1", "int")
+               % Check("h1.2.value.1", "[1]", "2", "int")
+
+               % Check("h2", "<2 items>", "@QHash<int, float>")
+               % Check("h2.22", "[22]", "22", "float")
+               % Check("h2.11", "[11]", "11", "float")
+
+               % Check("h3", "<9 items>", "@QHash<@QString, int>")
+               % Check("h3.0", "[0]", "", "@QHashNode<@QString, int>")
+               % Check("h3.0.key", "key", Value4("\"123.0\""), "@QString")
+               % Check("h3.0.key", "key", Value5("\"111111111128.0\""), "@QString")
+               % Check("h3.0.value", Value4("22"), "int")
+               % Check("h3.0.value", Value5("28"), "int")
+               % Check("h3.8", "[8]", "", "@QHashNode<@QString, int>")
+               % Check("h3.8.key", "key", Value4("\"11124.0\""), "@QString")
+               % Check("h3.8.key", "key", Value5("\"123.0\""), "@QString")
+               % Check("h3.8.value", "value", Value4("22"), "int")
+               % Check("h3.8.value", "value", Value5("22"), "int")
+
+               % Check("h4", "<9 items>", "@QHash<@QByteArray, float>")
+               % Check("h4.0", "[0]", "", "@QHashNode<@QByteArray, float>")
+               % Check("h4.0.key", Value4("\"123.0\""), "@QByteArray")
+               % Check("h4.0.key", Value5("\"111111111128.0\""), "@QByteArray")
+               % Check("h4.0.value", Value4("22"), "float")
+               % Check("h4.0.value", Value5("28"), "float")
+               % Check("h4.8", "[8]", "", "@QHashNode<@QByteArray, float>")
+               % Check("h4.8.key", Value4("\"11124.0\""), "@QByteArray")
+               % Check("h4.8.key", Value5("\"123.0\""), "@QByteArray")
+               % Check("h4.8.value", Value4("22"), "float")
+               % Check("h4.8.value", Value5("22"), "float")
+
+               % Check("h5", "<1 items>", "@QHash<int, @QString>")
+               % Check("h5.0.key", "22", "int")
+               % Check("h5.0.value", "\"22.0\"", "@QString")
+
+               % Check("h6", "<2 items>", "@QHash<@QString, Foo>")
+               % Check("h6.0", "[0]", "", "@QHashNode<@QString, Foo>")
+               % Check("h6.0.key", Value4("\"22.0\""), "@QString")
+               % Check("h6.0.key", Value5("\"33.0\""), "@QString")
+               % CheckType("h6.0.value", "Foo")
+               % Check("h6.0.value.a", Value4("22"), "int")
+               % Check("h6.0.value.a", Value5("33"), "int")
+               % Check("h6.1", "[1]", "", "@QHashNode<@QString, Foo>")
+               % Check("h6.1.key", Value4("\"33.0\""), "@QString")
+               % Check("h6.1.key", Value5("\"22.0\""), "@QString")
+               % CheckType("h6.1.value", "Foo")
+
+               % CoreProfile()
+               % Check("h7", "<3 items>", "@QHash<@QString, @QPointer<@QObject>>")
+               % Check("h7.0", "[0]", "", "@QHashNode<@QString, @QPointer<@QObject>>")
+               % Check("h7.0.key", Value4("\"Hallo\""), "@QString")
+               % Check("h7.0.key", Value5("\"Welt\""), "@QString")
+               % CheckType("h7.0.value", "@QPointer<@QObject>")
+               //% CheckType("h7.0.value.o", "@QObject")
+               % Check("h7.2", "[2]", "", "@QHashNode<@QString, @QPointer<@QObject>>")
+               % Check("h7.2.key", "\".\"", "@QString")
+               % CheckType("h7.2.value", "@QPointer<@QObject>");
 
 
     QTest::newRow("QHashIterator")
