@@ -71,13 +71,13 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(emitDoubleClicked(QModelIndex)));
 }
 
-bool LogChangeWidget::init(const QString &repository, const QString &commit, bool includeRemote)
+bool LogChangeWidget::init(const QString &repository, const QString &commit, LogFlags flags)
 {
-    if (!populateLog(repository, commit, includeRemote))
+    if (!populateLog(repository, commit, flags))
         return false;
     if (!m_model->rowCount()) {
         VcsBase::VcsBaseOutputWindow::instance()->appendError(
-                    GitPlugin::instance()->gitClient()->msgNoCommits(includeRemote));
+                    GitPlugin::instance()->gitClient()->msgNoCommits(flags & IncludeRemotes));
         return false;
     }
     return true;
@@ -143,7 +143,7 @@ void LogChangeWidget::selectionChanged(const QItemSelection &selected,
     }
 }
 
-bool LogChangeWidget::populateLog(const QString &repository, const QString &commit, bool includeRemote)
+bool LogChangeWidget::populateLog(const QString &repository, const QString &commit, LogFlags flags)
 {
     const QString currentCommit = this->commit();
     int selected = currentCommit.isEmpty() ? 0 : -1;
@@ -155,7 +155,7 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
     QStringList arguments;
     arguments << QLatin1String("--max-count=40") << QLatin1String("--format=%h:%s %d");
     arguments << (commit.isEmpty() ? QLatin1String("HEAD") : commit);
-    if (!includeRemote)
+    if (!(flags & IncludeRemotes))
         arguments << QLatin1String("--not") << QLatin1String("--remotes");
     QString output;
     if (!client->synchronousLog(repository, arguments, &output))
@@ -231,9 +231,11 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     resize(600, 400);
 }
 
-bool LogChangeDialog::runDialog(const QString &repository, const QString &commit, bool includeRemote)
+bool LogChangeDialog::runDialog(const QString &repository,
+                                const QString &commit,
+                                LogChangeWidget::LogFlags flags)
 {
-    if (!m_widget->init(repository, commit, includeRemote))
+    if (!m_widget->init(repository, commit, flags))
         return false;
 
     if (QDialog::exec() == QDialog::Accepted) {

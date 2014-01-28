@@ -71,7 +71,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     m_ui->repositoryLabel->setText(tr("<b>Local repository:</b> %1").arg(
                                        QDir::toNativeSeparators(workingDir)));
 
-    if (!m_ui->commitView->init(workingDir, QString(), false))
+    if (!m_ui->commitView->init(workingDir))
         return;
 
     PushItemDelegate *delegate = new PushItemDelegate(m_ui->commitView);

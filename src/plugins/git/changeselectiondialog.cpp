@@ -114,7 +114,7 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     LogChangeDialog dialog(false, this);
     dialog.setWindowTitle(tr("Select Commit"));
 
-    dialog.runDialog(workingDir, commit);
+    dialog.runDialog(workingDir, commit, LogChangeWidget::IncludeRemotes);
 
     if (dialog.result() == QDialog::Rejected || dialog.commitIndex() == -1)
         return;

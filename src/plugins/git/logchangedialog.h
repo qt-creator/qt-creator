@@ -53,9 +53,16 @@ class LogChangeWidget : public QTreeView
     Q_OBJECT
 
 public:
+    enum LogFlag
+    {
+        None = 0x00,
+        IncludeRemotes = 0x01
+    };
+
+    Q_DECLARE_FLAGS(LogFlags, LogFlag)
+
     explicit LogChangeWidget(QWidget *parent = 0);
-    bool init(const QString &repository, const QString &commit = QString(),
-              bool includeRemote = true);
+    bool init(const QString &repository, const QString &commit = QString(), LogFlags flags = None);
     QString commit() const;
     int commitIndex() const;
     QString earliestCommit() const;
@@ -69,7 +76,7 @@ private slots:
 
 private:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-    bool populateLog(const QString &repository, const QString &commit, bool includeRemote);
+    bool populateLog(const QString &repository, const QString &commit, LogFlags flags);
     const QStandardItem *currentItem(int column = 0) const;
 
     QStandardItemModel *m_model;
@@ -79,11 +86,12 @@ private:
 class LogChangeDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     LogChangeDialog(bool isReset, QWidget *parent);
 
     bool runDialog(const QString &repository, const QString &commit = QString(),
-                   bool includeRemote = true);
+                   LogChangeWidget::LogFlags flags = LogChangeWidget::None);
 
     QString commit() const;
     int commitIndex() const;

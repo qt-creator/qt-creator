@@ -98,7 +98,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
         QVBoxLayout *logChangeLayout = new QVBoxLayout;
         logChangeGroupBox->setLayout(logChangeLayout);
         m_logChangeWidget = new LogChangeWidget;
-        m_logChangeWidget->init(repository, QString(), false);
+        m_logChangeWidget->init(repository);
         connect(m_logChangeWidget, SIGNAL(doubleClicked(QString)), this, SIGNAL(show(QString)));
         logChangeLayout->addWidget(m_logChangeWidget);
         insertTopWidget(logChangeGroupBox);
@@ -121,7 +121,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
 void GitSubmitEditorWidget::refreshLog(const QString &repository)
 {
     if (m_logChangeWidget)
-        m_logChangeWidget->init(repository, QString(), false);
+        m_logChangeWidget->init(repository);
 }
 
 GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
