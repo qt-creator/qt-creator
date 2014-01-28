@@ -49,11 +49,7 @@ def main():
         openContextMenu(waitForObject(con[0]), 5, 5, 0)
         # hack for Squish 5/Qt5.2 problems of handling menus on Mac - remove asap
         if platform.system() == 'Darwin':
-            for obj in object.topLevelObjects():
-                if (className(obj) == 'QMenu' and obj.visible
-                    and widgetContainsPoint(waitForObject(con[0]), obj.mapToGlobal(QPoint(0, 0)))):
-                    activateItem(obj, "Go to slot...")
-                    break
+            waitFor("macHackActivateContextMenuItem('Go to slot...', con[0])", 6000)
         else:
             activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Go to slot..."))
         waitForObjectItem(":Select signal.signalList_QTreeWidget", con[1])

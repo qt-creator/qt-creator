@@ -301,10 +301,7 @@ def invokeContextMenuOnProject(projectName, menuItem):
                         str(projItem.text).replace("_", "\\_").replace(".", "\\."), 5, 5, 0)
     # Hack for Squish 5.0.1 handling menus of Qt5.2 on Mac (avoids crash) - remove asap
     if platform.system() == 'Darwin':
-        for obj in object.topLevelObjects():
-            if (className(obj) == "QMenu" and obj.visible):
-                activateItem(waitForObjectItem(obj, menuItem))
-                break
+        waitFor("macHackActivateContextMenuItem(menuItem)", 6000)
     else:
         activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1' "
                                        "window=':Qt Creator_Core::Internal::MainWindow'}", menuItem))

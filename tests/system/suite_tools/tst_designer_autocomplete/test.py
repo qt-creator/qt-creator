@@ -29,16 +29,6 @@
 
 source("../../shared/qtcreator.py")
 
-def macHackActivateContextMenuItem(item):
-    for obj in object.topLevelObjects():
-        try:
-            if className(obj) == 'QMenu' and obj.visible:
-                activateItem(waitForObjectItem(obj, item))
-                return True
-        except:
-            pass
-    return False
-
 def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
