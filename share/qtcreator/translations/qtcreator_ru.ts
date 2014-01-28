@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Origin</source>
-        <translation type="unfinished">Происхождение</translation>
+        <translation>Происхождение</translation>
     </message>
     <message>
         <source>Scale</source>
@@ -14933,7 +14933,7 @@ Commit now?</source>
     </message>
     <message>
         <source>Git Reflog &quot;%1&quot;</source>
-        <translation type="unfinished">Git - reflog «%1»</translation>
+        <translation>Git - reflog «%1»</translation>
     </message>
     <message>
         <source>Cannot describe &quot;%1&quot;.</source>
@@ -15616,7 +15616,7 @@ Commit now?</source>
     </message>
     <message>
         <source>Reflog</source>
-        <translation type="unfinished">Reflog</translation>
+        <translation>Reflog</translation>
     </message>
     <message>
         <source>&amp;Patch</source>
@@ -15688,7 +15688,7 @@ Commit now?</source>
     </message>
     <message>
         <source>Git Gui</source>
-        <translation type="unfinished">Git Gui</translation>
+        <translation>Интерфейс Git</translation>
     </message>
     <message>
         <source>Repository Browser</source>
