@@ -699,19 +699,18 @@ class Dumper(DumperBase):
                 arg += a
 
         #warn("CALL: %s -> %s(%s)" % (value, func, arg))
-        type = stripClassTag(str(value.type))
-        if type.find(":") >= 0:
-            type = "'" + type + "'"
+        typeName = stripClassTag(str(value.type))
+        if typeName.find(":") >= 0:
+            typeName = "'" + typeName + "'"
         # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
-        #exp = "((class %s*)%s)->%s(%s)" % (type, value.address, func, arg)
-        exp = "((%s*)%s)->%s(%s)" % (type, value.address, func, arg)
+        #exp = "((class %s*)%s)->%s(%s)" % (typeName, value.address, func, arg)
+        ptr = value.address if value.address else self.pokeValue(value)
+        exp = "((%s*)%s)->%s(%s)" % (typeName, ptr, func, arg)
         #warn("CALL: %s" % exp)
-        result = None
-        try:
-            result = gdb.parse_and_eval(exp)
-        except:
-            pass
+        result = gdb.parse_and_eval(exp)
         #warn("  -> %s" % result)
+        if not value.address:
+            gdb.parse_and_eval("free(0x%x)" % ptr)
         return result
 
     def call(self, value, func, *args):
@@ -899,6 +898,20 @@ class Dumper(DumperBase):
         self.cachedPtrSize = self.lookupType('void*').sizeof
         self.ptrSize = lambda: self.cachedPtrSize
         return self.cachedPtrSize
+
+    def pokeValue(self, value):
+        """
+        Allocates inferior memory and copies the contents of value.
+        Returns a pointer to the copy.
+        """
+        # Avoid malloc symbol clash with QVector
+        size = value.type.sizeof
+        data = value.cast(gdb.lookup_type("unsigned char").array(0, int(size - 1)))
+        string = ''.join("\\x%02x" % int(data[i]) for i in range(size))
+        exp = '(%s*)memcpy(calloc(%s, 1), "%s", %s)' % (value.type, size, string, size)
+        #warn("EXP: %s" % exp)
+        return toInteger(gdb.parse_and_eval(exp))
+
 
     def createValue(self, address, referencedType):
         try:
