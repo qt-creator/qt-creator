@@ -1244,7 +1244,6 @@ QStringList QmakePriFileNode::varNames(ProjectExplorer::FileType type, QtSupport
     switch (type) {
     case ProjectExplorer::HeaderType:
         vars << QLatin1String("HEADERS");
-        vars << QLatin1String("OBJECTIVE_HEADERS");
         vars << QLatin1String("PRECOMPILED_HEADER");
         break;
     case ProjectExplorer::SourceType: {
