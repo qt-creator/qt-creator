@@ -37,13 +37,15 @@
 #include <QDir>
 #include <QRegExpValidator>
 
+using namespace Git::Internal;
+
 namespace Gerrit {
 namespace Internal {
 
-class PushItemDelegate : public Git::Internal::IconItemDelegate
+class PushItemDelegate : public IconItemDelegate
 {
 public:
-    PushItemDelegate(Git::Internal::LogChangeWidget *widget)
+    PushItemDelegate(LogChangeWidget *widget)
         : IconItemDelegate(widget, QLatin1String(":/git/images/arrowup.png"))
     {
     }
@@ -80,7 +82,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
 
     m_localChangesFound = true;
 
-    Git::Internal::GitClient *gitClient = Git::Internal::GitPlugin::instance()->gitClient();
+    GitClient *gitClient = GitPlugin::instance()->gitClient();
     QString output;
     QString error;
     QStringList args;
@@ -185,8 +187,7 @@ QString GerritPushDialog::calculateChangeRange()
 
     QString number;
 
-    if (!Git::Internal::GitPlugin::instance()->gitClient()->
-            synchronousRevListCmd(m_workingDir, args, &number))
+    if (!GitPlugin::instance()->gitClient()->synchronousRevListCmd(m_workingDir, args, &number))
         reject();
 
     number.chop(1);
