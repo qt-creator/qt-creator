@@ -862,10 +862,12 @@ class Dumper(DumperBase):
             buf[i] = data.GetUnsignedInt8(error, i)
         return Blob(bytes(buf))
 
-    def isQObject(self, value):
-        needle = value.GetType().GetName() + "::staticMetaObject"
-        value = self.target.FindFirstGlobalVariable(needle)
-        return value.IsValid()
+    def extractStaticMetaObject(self, typeobj):
+        if typeobj.GetTypeClass() not in (lldb.eTypeClassStruct, lldb.eTypeClassClass):
+            return 0
+        needle = typeobj.GetUnqualifiedType().GetName() + "::staticMetaObject"
+        result = self.target.FindFirstGlobalVariable(needle)
+        return result if result else 0
 
     def stripNamespaceFromType(self, typeName):
         #type = stripClassTag(typeName)
@@ -993,31 +995,23 @@ class Dumper(DumperBase):
         #numchild = 1 if value.MightHaveChildren() else 0
         numchild = value.GetNumChildren()
         self.putType(typeName)
-        isQObject = False
-        if typeClass == lldb.eTypeClassStruct or typeClass == lldb.eTypeClassClass:
-            if self.isQObject(value):
-                isQObject = True
-                self.context = value
-                if not self.putQObjectNameValue(value):  # Is this too expensive?
-                    self.putEmptyValue()
-            else:
-                self.putEmptyValue()
+        self.putEmptyValue(-1)
+        staticMetaObject = self.extractStaticMetaObject(value.GetType())
+        if staticMetaObject:
+            self.context = value
+            self.putQObjectNameValue(value)
         else:
             v = value.GetValue()
             if v:
                 self.putValue(v)
-            else:
-                self.putEmptyValue()
 
         self.put('numchild="%s",' % numchild)
 
         if self.currentIName in self.expandedINames:
             with Children(self):
                 self.putFields(value)
-                if isQObject:
-                    needle = value.GetType().GetName() + "::staticMetaObject"
-                    smo = self.target.FindFirstGlobalVariable(needle)
-                    self.putQObjectGuts(value, smo)
+                if staticMetaObject:
+                    self.putQObjectGuts(value, staticMetaObject)
 
     def warn(self, msg):
         self.put('{name="%s",value="",type=""},' % msg)

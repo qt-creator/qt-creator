@@ -2191,9 +2191,13 @@ void tst_Dumpers::dumper_data()
                    "QObject::connect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));\n"
                    "QObject::disconnect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));\n"
                    "child.setObjectName(\"A renamed Child\");\n")
+
               % CoreProfile()
+              % UseDebugImage() // FIXME: Avoid the need.
+
               % Check("child", "\"A renamed Child\"", "@QObject")
               % Check("parent", "\"A Parent\"", "@QObject");
+
 
     QTest::newRow("QObject2")
             << Data("#include <QWidget>\n"
