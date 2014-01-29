@@ -130,10 +130,8 @@ void QmlJSTextEditorWidget::ctor()
     m_updateUsesTimer = new QTimer(this);
     m_updateUsesTimer->setInterval(UPDATE_USES_DEFAULT_INTERVAL);
     m_updateUsesTimer->setSingleShot(true);
-    connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
-
-    connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
+    connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUses()));
+    connect(this, SIGNAL(cursorPositionChanged()), m_updateUsesTimer, SLOT(start()));
 
     m_updateOutlineTimer = new QTimer(this);
     m_updateOutlineTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
@@ -424,20 +422,8 @@ void QmlJSTextEditorWidget::showTextMarker()
 
 void QmlJSTextEditorWidget::updateUses()
 {
-    if (m_semanticHighlighter->startRevision() != editorRevision())
-        m_semanticHighlighter->cancel();
-    m_updateUsesTimer->start();
-}
-
-
-void QmlJSTextEditorWidget::updateUsesNow()
-{
-    if (m_qmlJsEditorDocument->isSemanticInfoOutdated()) {
-        updateUses();
+    if (m_qmlJsEditorDocument->isSemanticInfoOutdated()) // will be updated when info is updated
         return;
-    }
-
-    m_updateUsesTimer->stop();
 
     QList<QTextEdit::ExtraSelection> selections;
     foreach (const AST::SourceLocation &loc,
@@ -885,6 +871,8 @@ void QmlJSTextEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo
             m_cursorPositionTimer->start(); //update text marker
         }
     }
+
+    updateUses();
 
     // update outline
     m_updateOutlineTimer->start();

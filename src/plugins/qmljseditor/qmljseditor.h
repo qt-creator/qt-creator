@@ -139,7 +139,6 @@ private slots:
     void showTextMarker();
 
     void updateUses();
-    void updateUsesNow();
 
     void semanticInfoUpdated(const QmlJSTools::SemanticInfo &semanticInfo);
     void onCursorPositionChanged();
@@ -174,7 +173,7 @@ private:
     bool hideContextPane();
 
     Internal::QmlJSEditorDocument *m_qmlJsEditorDocument;
-    QTimer *m_updateUsesTimer;
+    QTimer *m_updateUsesTimer; // to wait for multiple text cursor position changes
     QTimer *m_updateOutlineTimer;
     QTimer *m_updateOutlineIndexTimer;
     QTimer *m_cursorPositionTimer;
