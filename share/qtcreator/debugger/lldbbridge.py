@@ -1066,7 +1066,22 @@ class Dumper(DumperBase):
         self.anonNumber = 0
         shadowed = {}
         ids = {} # Filter out duplicates entries at the same address.
-        values = list(frame.GetVariables(True, True, True, False))
+        values = list(frame.GetVariables(True, True, False, False))
+
+        # We need to look at static variables to get access to
+        # local constants. But not at all of them.
+        for staticVar in frame.GetVariables(False, False, True, False):
+            typename = staticVar.GetType().GetName()
+            name = staticVar.GetName()
+            if name.startswith("qt_meta_stringdata_"):
+                continue
+            if name.startswith("qt_meta_data_"):
+                continue
+            if name.endswith("::staticMetaObject") \
+                    and typename.endswith("QMetaObject"):
+                continue
+            values.append(staticVar)
+
         values.reverse() # To get shadowed vars numbered backwards.
         for value in values:
             if not value.IsValid():
