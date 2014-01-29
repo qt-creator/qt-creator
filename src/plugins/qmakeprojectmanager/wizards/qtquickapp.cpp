@@ -199,12 +199,13 @@ void QtQuickApp::setTemplateInfo(const TemplateInfo &templateInfo)
 
 QString QtQuickApp::pathExtended(int fileType) const
 {
-    const QString qmlSubDir = QLatin1String("qml/") + projectName() + QLatin1Char('/');
+    const QString qmlSubDir = QLatin1String("qml/");
     const QString appViewerTargetSubDir = appViewerOriginSubDir();
 
     const QString mainQmlFile = QLatin1String("main.qml");
+    const QString mainQrcFile = QLatin1String("qml.qrc");
 
-    const QString qmlOriginDir = originsRoot() + QLatin1String("qml/app/");
+    const QString qmlOriginDir = originsRoot() + QLatin1String("qml/");
 
     const QString pathBase = outputPathBase();
 
@@ -212,6 +213,8 @@ QString QtQuickApp::pathExtended(int fileType) const
         case MainQml:                       return pathBase + qmlSubDir + mainQmlFile;
         case MainQmlDeployed:               return qmlSubDir + mainQmlFile;
         case MainQmlOrigin:                 return qmlOriginDir + mainQmlFile;
+        case MainQrc:                       return pathBase + mainQrcFile;
+        case MainQrcOrigin:                 return originsRoot() + mainQrcFile;
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + fileName(AppViewerPri);
         case AppViewerPriOrigin:            return qtQuickApplicationViewerDirectory() + appViewerOriginSubDir() + fileName(AppViewerPri);
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + fileName(AppViewerCpp);
@@ -265,10 +268,14 @@ Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
-
-    files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
-    files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
-    files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH)));
+    if (QFileInfo(path(MainQrcOrigin)).exists()) {
+        files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQrcFile, errorMessage), path(MainQrc)));
+    }
+    if (!appViewerBaseName().isEmpty()) {
+        files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
+        files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
+        files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH)));
+    }
 
     return files;
 }
@@ -313,6 +320,9 @@ QByteArray QtQuickApp::generateFileExtended(int fileType,
     switch (fileType) {
         case QtQuickAppGeneratedFileInfo::MainQmlFile:
             data = readBlob(path(MainQmlOrigin), errorMessage);
+            break;
+        case QtQuickAppGeneratedFileInfo::MainQrcFile:
+            data = readBlob(path(MainQrcOrigin), errorMessage);
             break;
         case QtQuickAppGeneratedFileInfo::AppViewerPriFile:
             data = readBlob(path(AppViewerPriOrigin), errorMessage);
@@ -370,7 +380,7 @@ QList<AbstractGeneratedFileInfo> QtQuickApp::updateableFiles(const QString &main
 QList<DeploymentFolder> QtQuickApp::deploymentFolders() const
 {
     QList<DeploymentFolder> result;
-    result.append(DeploymentFolder(path(QmlDirProFileRelative), QLatin1String("qml")));
+    result.append(DeploymentFolder(path(QmlDirProFileRelative), QLatin1String("")));
     return result;
 }
 

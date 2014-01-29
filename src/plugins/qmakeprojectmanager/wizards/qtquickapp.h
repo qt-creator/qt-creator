@@ -39,6 +39,7 @@ struct QtQuickAppGeneratedFileInfo : public AbstractGeneratedFileInfo
 {
     enum ExtendedFileType {
         MainQmlFile = ExtendedFile,
+        MainQrcFile,
         AppViewerPriFile,
         AppViewerCppFile,
         AppViewerHFile
@@ -70,6 +71,8 @@ public:
         MainQml = ExtendedFile,
         MainQmlDeployed,
         MainQmlOrigin,
+        MainQrc,
+        MainQrcOrigin,
         AppViewerPri,
         AppViewerPriOrigin,
         AppViewerCpp,

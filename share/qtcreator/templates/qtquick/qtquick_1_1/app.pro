@@ -1,7 +1,7 @@
 # Add more folders to ship with the application, here
 # DEPLOYMENTFOLDERS #
-folder_01.source = qml/app
-folder_01.target = qml
+folder_01.source = qml
+folder_01.target =
 DEPLOYMENTFOLDERS = folder_01
 # DEPLOYMENTFOLDERS_END #
 

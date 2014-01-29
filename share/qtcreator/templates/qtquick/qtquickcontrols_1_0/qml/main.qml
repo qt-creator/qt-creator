@@ -2,9 +2,10 @@ import QtQuick 2.1
 import QtQuick.Controls 1.0
 
 ApplicationWindow {
-    title: qsTr("Hello World")
+    visible: true
     width: 640
     height: 480
+    title: qsTr("Hello World")
 
     menuBar: MenuBar {
         Menu {
@@ -16,7 +17,7 @@ ApplicationWindow {
         }
     }
 
-    Button {
+    Text {
         text: qsTr("Hello World")
         anchors.centerIn: parent
     }

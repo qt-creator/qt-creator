@@ -1,12 +1,12 @@
-#include "qtquick2controlsapplicationviewer.h"
+#include <QtQml/QQmlApplicationEngine>
+#include <QtWidgets/QApplication>
 
 int main(int argc, char *argv[])
 {
-    Application app(argc, argv);
+    QApplication app(argc, argv);
 
-    QtQuick2ControlsApplicationViewer viewer;
-    viewer.setMainQmlFile(QStringLiteral("qml/app/main.qml")); // MAINQML
-    viewer.show();
+    QQmlApplicationEngine engine;
+    engine.load(QUrl(QStringLiteral("qrc:///qml/main.qml")));
 
     return app.exec();
 }
