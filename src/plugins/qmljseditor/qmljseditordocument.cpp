@@ -514,5 +514,15 @@ bool QmlJSEditorDocument::isSemanticInfoOutdated() const
     return m_d->m_semanticInfo.revision() != document()->revision();
 }
 
+QVector<QTextLayout::FormatRange> QmlJSEditorDocument::diagnosticRanges() const
+{
+    return m_d->m_diagnosticRanges;
+}
+
+void QmlJSEditorDocument::setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges)
+{
+    m_d->m_diagnosticRanges = ranges;
+}
+
 } // Internal
 } // QmlJSEditor

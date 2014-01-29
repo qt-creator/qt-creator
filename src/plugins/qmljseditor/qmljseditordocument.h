@@ -34,6 +34,8 @@
 #include <qmljstools/qmljssemanticinfo.h>
 #include <texteditor/basetextdocument.h>
 
+#include <QTextLayout>
+
 namespace QmlJSEditor {
 namespace Internal {
 
@@ -48,6 +50,8 @@ public:
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;
     bool isSemanticInfoOutdated() const;
+    QVector<QTextLayout::FormatRange> diagnosticRanges() const;
+    void setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges);
 
 signals:
     void updateCodeWarnings(QmlJS::Document::Ptr doc);

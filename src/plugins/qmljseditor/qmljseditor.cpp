@@ -119,7 +119,7 @@ void QmlJSTextEditorWidget::ctor()
     m_outlineModel = new QmlOutlineModel(this);
     m_contextPane = 0;
     m_findReferences = new FindReferences(this);
-    m_semanticHighlighter = new SemanticHighlighter(this);
+    m_semanticHighlighter = new SemanticHighlighter(m_qmlJsEditorDocument);
 
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -189,11 +189,7 @@ int QmlJSTextEditorWidget::editorRevision() const
 
 QVector<QTextLayout::FormatRange> QmlJSTextEditorWidget::diagnosticRanges() const
 {
-    // this exist mainly because getting the tooltip from the additional formats
-    // requires the use of private api (you have to extract it from
-    // cursor.block().layout()->specialInfo.addFormatIndex (for the .format through .formats.at()),
-    // and use .addFormat to get the range). So a separate bookkeeping is used.
-    return m_diagnosticRanges;
+    return m_qmlJsEditorDocument->diagnosticRanges();
 }
 
 bool QmlJSTextEditorWidget::isSemanticInfoOutdated() const

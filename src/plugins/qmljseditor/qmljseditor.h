@@ -108,7 +108,6 @@ public:
     QmlJSTools::SemanticInfo semanticInfo() const;
     bool isSemanticInfoOutdated() const;
     int editorRevision() const;
-
     QVector<QTextLayout::FormatRange> diagnosticRanges() const;
 
     Internal::QmlOutlineModel *outlineModel() const;
@@ -183,15 +182,12 @@ private:
     QmlJS::ModelManagerInterface *m_modelManager;
 
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
-    QVector<QTextLayout::FormatRange> m_diagnosticRanges;
 
     QmlJS::IContextPane *m_contextPane;
     int m_oldCursorPosition;
 
     FindReferences *m_findReferences;
     Internal::SemanticHighlighter *m_semanticHighlighter;
-
-    friend class Internal::SemanticHighlighter;
 };
 
 } // namespace QmlJSEditor

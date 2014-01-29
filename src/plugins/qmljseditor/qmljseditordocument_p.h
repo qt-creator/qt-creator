@@ -34,6 +34,7 @@
 #include <qmljstools/qmljssemanticinfo.h>
 
 #include <QObject>
+#include <QTextLayout>
 #include <QTimer>
 
 namespace QmlJSEditor {
@@ -64,6 +65,7 @@ public:
     int m_semanticInfoDocRevision; // document revision to which the semantic info is currently updated to
     SemanticInfoUpdater *m_semanticInfoUpdater;
     QmlJSTools::SemanticInfo m_semanticInfo;
+    QVector<QTextLayout::FormatRange> m_diagnosticRanges;
 };
 
 } // Internal

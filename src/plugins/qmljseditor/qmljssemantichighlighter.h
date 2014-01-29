@@ -52,9 +52,9 @@ class SemanticInfo;
 
 namespace QmlJSEditor {
 
-class QmlJSTextEditorWidget;
-
 namespace Internal {
+
+class QmlJSEditorDocument;
 
 class SemanticHighlighter : public QObject
 {
@@ -80,7 +80,7 @@ public:
 
     typedef TextEditor::HighlightingResult Use;
 
-    SemanticHighlighter(QmlJSTextEditorWidget *editor);
+    SemanticHighlighter(QmlJSEditorDocument *document);
 
     void rerun(const QmlJSTools::SemanticInfo &scopeChain);
     void cancel();
@@ -97,7 +97,7 @@ private slots:
 
 private:
     QFutureWatcher<Use>  m_watcher;
-    QmlJSTextEditorWidget *m_editor;
+    QmlJSEditorDocument *m_document;
     int m_startRevision;
     QHash<int, QTextCharFormat> m_formats;
     QHash<int, QTextCharFormat> m_extraFormats;

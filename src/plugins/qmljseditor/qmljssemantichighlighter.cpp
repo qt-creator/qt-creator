@@ -29,7 +29,7 @@
 
 #include "qmljssemantichighlighter.h"
 
-#include "qmljseditor.h"
+#include "qmljseditordocument.h"
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsscopechain.h>
@@ -47,9 +47,10 @@
 #include <texteditor/fontsettings.h>
 #include <utils/qtcassert.h>
 
-#include <QThreadPool>
 #include <QFutureInterface>
 #include <QRunnable>
+#include <QTextDocument>
+#include <QThreadPool>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -534,9 +535,9 @@ private:
 
 } // anonymous namespace
 
-SemanticHighlighter::SemanticHighlighter(QmlJSTextEditorWidget *editor)
-    : QObject(editor)
-    , m_editor(editor)
+SemanticHighlighter::SemanticHighlighter(QmlJSEditorDocument *document)
+    : QObject(document)
+    , m_document(document)
     , m_startRevision(0)
 {
     connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)),
@@ -552,7 +553,7 @@ void SemanticHighlighter::rerun(const QmlJSTools::SemanticInfo &semanticInfo)
     // this does not simply use QtConcurrentRun because we want a low-priority future
     // the thread pool deletes the task when it is done
     CollectionTask::Future f = (new CollectionTask(semanticInfo, *this))->start(QThread::LowestPriority);
-    m_startRevision = m_editor->editorRevision();
+    m_startRevision = m_document->document()->revision();
     m_watcher.setFuture(f);
 }
 
@@ -565,33 +566,24 @@ void SemanticHighlighter::applyResults(int from, int to)
 {
     if (m_watcher.isCanceled())
         return;
-    if (m_startRevision != m_editor->editorRevision())
+    if (m_startRevision != m_document->document()->revision())
         return;
 
-    TextEditor::BaseTextDocument *baseTextDocument = m_editor->baseTextDocument();
-    QTC_ASSERT(baseTextDocument, return);
-    TextEditor::SyntaxHighlighter *highlighter = qobject_cast<TextEditor::SyntaxHighlighter *>(baseTextDocument->syntaxHighlighter());
-    QTC_ASSERT(highlighter, return);
-
     TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
-                highlighter, m_watcher.future(), from, to, m_extraFormats);
+                m_document->syntaxHighlighter(), m_watcher.future(), from, to, m_extraFormats);
 }
 
 void SemanticHighlighter::finished()
 {
     if (m_watcher.isCanceled())
         return;
-    if (m_startRevision != m_editor->editorRevision())
+    if (m_startRevision != m_document->document()->revision())
         return;
 
-    TextEditor::BaseTextDocument *baseTextDocument = m_editor->baseTextDocument();
-    QTC_ASSERT(baseTextDocument, return);
-    TextEditor::SyntaxHighlighter *highlighter = qobject_cast<TextEditor::SyntaxHighlighter *>(baseTextDocument->syntaxHighlighter());
-    QTC_ASSERT(highlighter, return);
-    m_editor->m_diagnosticRanges = m_diagnosticRanges;
+    m_document->setDiagnosticRanges(m_diagnosticRanges);
 
     TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
-                highlighter, m_watcher.future());
+                m_document->syntaxHighlighter(), m_watcher.future());
 }
 
 void SemanticHighlighter::updateFontSettings(const TextEditor::FontSettings &fontSettings)
