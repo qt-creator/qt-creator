@@ -741,10 +741,11 @@ class Dumper(DumperBase):
         self.report(self.describeError(error))
 
     def currentThread(self):
-        return self.process.GetSelectedThread()
+        return None if self.process is None else self.process.GetSelectedThread()
 
     def currentFrame(self):
-        return self.currentThread().GetSelectedFrame()
+        thread = self.currentThread()
+        return None if thread is None else thread.GetSelectedFrame()
 
     def reportLocation(self):
         thread = self.currentThread()
@@ -1057,7 +1058,9 @@ class Dumper(DumperBase):
                     self.putItem(child)
 
     def reportVariables(self, _ = None):
-        frame = self.currentThread().GetSelectedFrame()
+        frame = self.currentFrame()
+        if frame is None:
+            return
         self.currentIName = 'local'
         self.put('data=[')
         self.anonNumber = 0
@@ -1128,14 +1131,15 @@ class Dumper(DumperBase):
             self.report('process="none"')
         else:
             frame = self.currentFrame()
-            result = 'registers=['
-            for group in frame.GetRegisters():
-                for reg in group:
-                    result += '{name="%s"' % reg.GetName()
-                    result += ',value="%s"' % reg.GetValue()
-                    result += ',type="%s"},' % reg.GetType()
-            result += ']'
-            self.report(result)
+            if frame:
+                result = 'registers=['
+                for group in frame.GetRegisters():
+                    for reg in group:
+                        result += '{name="%s"' % reg.GetName()
+                        result += ',value="%s"' % reg.GetValue()
+                        result += ',type="%s"},' % reg.GetType()
+                result += ']'
+                self.report(result)
 
     def report(self, stuff):
         sys.stdout.write(stuff + "@\n")
@@ -1246,7 +1250,7 @@ class Dumper(DumperBase):
         if hasattr(bp, 'GetNumLocations'):
             for i in xrange(bp.GetNumLocations()):
                 loc = bp.GetLocationAtIndex(i)
-                addr = loc.GetLoadAddress()
+                addr = loc.GetAddress()
                 result += '{locid="%s"' % loc.GetID()
                 result += ',func="%s"' % addr.GetFunction().GetName()
                 result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
