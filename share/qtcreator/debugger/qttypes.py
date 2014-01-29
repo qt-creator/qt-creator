@@ -2083,7 +2083,16 @@ def qdump__QVariant(d, value):
             innert = qdumpHelper_QVariants_F[variantType - 75]
 
         data = value["d"]["data"]
-        inner = d.qtNamespace() + innert
+        ns = d.qtNamespace()
+        inner = ns + innert
+        if d.isLldb:
+            # Looking up typedefs is problematic.
+            if innert == "QVariantMap":
+                inner = "%sQMap<%sQString, %sQVariant>" % (ns, ns, ns)
+            elif innert == "QVariantHash":
+                inner = "%sQHash<%sQString, %sQVariant>" % (ns, ns, ns)
+            elif innert == "QVariantList":
+                inner = "%sQList<%sQVariant>" % (ns, ns)
         innerType = d.lookupType(inner)
 
         if toInteger(value["d"]["is_shared"]):

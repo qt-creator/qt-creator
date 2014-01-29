@@ -3795,6 +3795,7 @@ void tst_Dumpers::dumper_data()
                     "#endif\n",
                     "QApplication app(argc, argv);\n"
                     "QRect r(100, 200, 300, 400);\n"
+                    "QPen pen;\n"
                     "QRectF rf(100.5, 200.5, 300.5, 400.5);\n"
                     "QUrl url = QUrl::fromEncoded(\"http://foo@qt-project.org:10/have_fun\");\n"
                     "QVariant var;                                  // Type 0, invalid\n"
@@ -3846,7 +3847,7 @@ void tst_Dumpers::dumper_data()
                     "QVariant var73 = QBitmap();                    // 73 QBitmap\n"
                     "QVariant var74 = QCursor();                    // 74 QCursor\n"
                     "QVariant var75 = QKeySequence();               // 75 QKeySequence\n"
-                    "QVariant var76 = QPen();                       // 76 QPen\n"
+                    "QVariant var76 = pen;                          // 76 QPen\n"
                     "QVariant var77 = QTextLength();                // 77 QTextLength\n"
                     "#if QT_VERSION < 0x050000\n"
                     "QVariant var78 = QTextFormat();                // 78 QTextFormat\n"
