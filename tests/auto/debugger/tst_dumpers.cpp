@@ -1992,19 +1992,51 @@ void tst_Dumpers::dumper_data()
 
    QTest::newRow("QMap")
            << Data("#include <QMap>\n"
-                   "#include <QStringList>\n",
+                   "#include <QObject>\n"
+                   "#include <QPointer>\n"
+                   "#include <QStringList>\n" + fooData + nsData,
 
                    "QMap<uint, QStringList> m0;\n"
                    "unused(&m0);\n\n"
 
                    "QMap<uint, QStringList> m1;\n"
                    "m1[11] = QStringList() << \"11\";\n"
-                   "m1[22] = QStringList() << \"22\";\n"
+                   "m1[22] = QStringList() << \"22\";\n\n"
+
+                   "QMap<uint, float> m2;\n"
+                   "m2[11] = 31.0;\n"
+                   "m2[22] = 32.0;\n\n"
 
                    "typedef QMap<uint, QStringList> T;\n"
                    "T m3;\n"
                    "m3[11] = QStringList() << \"11\";\n"
-                   "m3[22] = QStringList() << \"22\";\n")
+                   "m3[22] = QStringList() << \"22\";\n\n"
+
+                   "QMap<QString, float> m4;\n"
+                   "m4[\"22.0\"] = 22.0;\n\n"
+
+                   "QMap<int, QString> m5;\n"
+                   "m5[22] = \"22.0\";\n\n"
+
+                   "QMap<QString, Foo> m6;\n"
+                   "m6[\"22.0\"] = Foo(22);\n"
+                   "m6[\"33.0\"] = Foo(33);\n\n"
+
+                   "QMap<QString, QPointer<QObject> > m7;\n"
+                   "QObject ob;\n"
+                   "m7.insert(\"Hallo\", QPointer<QObject>(&ob));\n"
+                   "m7.insert(\"Welt\", QPointer<QObject>(&ob));\n"
+                   "m7.insert(\".\", QPointer<QObject>(&ob));\n\n"
+
+                   "QList<nsA::nsB::SomeType *> x;\n"
+                   "x.append(new nsA::nsB::SomeType(1));\n"
+                   "x.append(new nsA::nsB::SomeType(2));\n"
+                   "x.append(new nsA::nsB::SomeType(3));\n"
+                   "QMap<QString, QList<nsA::nsB::SomeType *> > m8;\n"
+                   "m8[\"foo\"] = x;\n"
+                   "m8[\"bar\"] = x;\n"
+                   "m8[\"1\"] = x;\n"
+                   "m8[\"2\"] = x;\n\n")
 
               % CoreProfile()
 
@@ -2020,186 +2052,134 @@ void tst_Dumpers::dumper_data()
               % Check("m1.1.value", "<1 items>", "@QStringList")
               % Check("m1.1.value.0", "[0]", "\"22\"", "@QString")
 
+              % Check("m2", "<2 items>", "@QMap<unsigned int, float>")
+              % Check("m2.0", "[0] 11", FloatValue("31.0"), "float")
+              % Check("m2.1", "[1] 22", FloatValue("32.0"), "float")
+
               % Check("m3", "<2 items>", "T")
-              % Check("m3.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>");
+              % Check("m3.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
 
+              % Check("m4", "<1 items>", "@QMap<@QString, float>")
+              % Check("m4.0", "[0]", "", "@QMapNode<@QString, float>")
+              % Check("m4.0.key", "\"22.0\"", "@QString")
+              % Check("m4.0.value", "22", "float")
 
-   QTest::newRow("QMapUIntFloat")
-           << Data("#include <QMap>\n",
-                   "QMap<uint, float> map;\n"
-                   "map[11] = 31.0;\n"
-                   "map[22] = 32.0;\n")
-              % CoreProfile()
-              % Check("map", "<2 items>", "@QMap<unsigned int, float>")
-              % Check("map.0", "[0] 11", FloatValue("31.0"), "float")
-              % Check("map.1", "[1] 22", FloatValue("32.0"), "float");
+              % Check("m5", "<1 items>", "@QMap<int, @QString>")
+              % Check("m5.0", "[0]", "", "@QMapNode<int, @QString>")
+              % Check("m5.0.key", "22", "int")
+              % Check("m5.0.value", "\"22.0\"", "@QString")
 
-   QTest::newRow("QMapStringFloat")
-           << Data("#include <QMap>\n"
-                   "#include <QString>\n",
-                   "QMap<QString, float> map;\n"
-                   "map[\"22.0\"] = 22.0;\n")
-              % CoreProfile()
-              % Check("map", "<1 items>", "@QMap<@QString, float>")
-              % Check("map.0", "[0]", "", "@QMapNode<@QString, float>")
-              % Check("map.0.key", "\"22.0\"", "@QString")
-              % Check("map.0.value", "22", "float");
+              % Check("m6", "<2 items>", "@QMap<@QString, Foo>")
+              % Check("m6.0", "[0]", "", "@QMapNode<@QString, Foo>")
+              % Check("m6.0.key", "\"22.0\"", "@QString")
+              % Check("m6.0.value", "", "Foo")
+              % Check("m6.0.value.a", "22", "int")
+              % Check("m6.1", "[1]", "", "@QMapNode<@QString, Foo>")
+              % Check("m6.1.key", "\"33.0\"", "@QString")
+              % Check("m6.1.value", "", "Foo")
+              % Check("m6.1.value.a", "33", "int")
 
-   QTest::newRow("QMapIntString")
-           << Data("#include <QMap>\n"
-                   "#include <QString>\n",
-                   "QMap<int, QString> map;\n"
-                   "map[22] = \"22.0\";\n")
-              % CoreProfile()
-              % Check("map", "<1 items>", "@QMap<int, @QString>")
-              % Check("map.0", "[0]", "", "@QMapNode<int, @QString>")
-              % Check("map.0.key", "22", "int")
-              % Check("map.0.value", "\"22.0\"", "@QString");
-
-   QTest::newRow("QMapStringFoo")
-           << Data("#include <QMap>\n" + fooData +
-                   "#include <QString>\n",
-                   "QMap<QString, Foo> map;\n"
-                   "map[\"22.0\"] = Foo(22);\n"
-                   "map[\"33.0\"] = Foo(33);\n")
-              % CoreProfile()
-              % Check("map", "<2 items>", "@QMap<@QString, Foo>")
-              % Check("map.0", "[0]", "", "@QMapNode<@QString, Foo>")
-              % Check("map.0.key", "\"22.0\"", "@QString")
-              % Check("map.0.value", "", "Foo")
-              % Check("map.0.value.a", "22", "int")
-              % Check("map.1", "[1]", "", "@QMapNode<@QString, Foo>")
-              % Check("map.1.key", "\"33.0\"", "@QString")
-              % Check("map.1.value", "", "Foo")
-              % Check("map.1.value.a", "33", "int");
-
-   QTest::newRow("QMapStringPointer")
-           << Data("#include <QMap>\n"
-                   "#include <QObject>\n"
-                   "#include <QPointer>\n"
-                   "#include <QString>\n",
-                   "QObject ob;\n"
-                   "QMap<QString, QPointer<QObject> > map;\n"
-                   "map.insert(\"Hallo\", QPointer<QObject>(&ob));\n"
-                   "map.insert(\"Welt\", QPointer<QObject>(&ob));\n"
-                   "map.insert(\".\", QPointer<QObject>(&ob));\n")
-              % CoreProfile()
-              % Check("map", "<3 items>", "@QMap<@QString, @QPointer<@QObject>>")
-              % Check("map.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.0.key", "\".\"", "@QString")
-              % Check("map.0.value", "", "@QPointer<@QObject>")
-              //% Check("map.0.value.o", Pointer(), "@QObject")
+              % Check("m7", "<3 items>", "@QMap<@QString, @QPointer<@QObject>>")
+              % Check("m7.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              % Check("m7.0.key", "\".\"", "@QString")
+              % Check("m7.0.value", "", "@QPointer<@QObject>")
+              //% Check("m7.0.value.o", Pointer(), "@QObject")
               // FIXME: it's '.wp' in Qt 5
-              % Check("map.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.1.key", "\"Hallo\"", "@QString")
-              % Check("map.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.2.key", "\"Welt\"", "@QString");
+              % Check("m7.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              % Check("m7.1.key", "\"Hallo\"", "@QString")
+              % Check("m7.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              % Check("m7.2.key", "\"Welt\"", "@QString")
 
-   QTest::newRow("QMapStringList")
-           << Data("#include <QMap>\n"
-                   "#include <QList>\n"
-                   "#include <QString>\n" + nsData,
-                   "QList<nsA::nsB::SomeType *> x;\n"
-                   "x.append(new nsA::nsB::SomeType(1));\n"
-                   "x.append(new nsA::nsB::SomeType(2));\n"
-                   "x.append(new nsA::nsB::SomeType(3));\n"
-                   "QMap<QString, QList<nsA::nsB::SomeType *> > map;\n"
-                   "map[\"foo\"] = x;\n"
-                   "map[\"bar\"] = x;\n"
-                   "map[\"1\"] = x;\n"
-                   "map[\"2\"] = x;\n")
-              % CoreProfile()
-              % Check("map", "<4 items>", "@QMap<@QString, @QList<nsA::nsB::SomeType*>>")
-              % Check("map.0", "[0]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
-              % Check("map.0.key", "\"1\"", "@QString")
-              % Check("map.0.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
-              % Check("map.0.value.0", "[0]", "", "nsA::nsB::SomeType")
-              % Check("map.0.value.0.a", "1", "int")
-              % Check("map.0.value.1", "[1]", "", "nsA::nsB::SomeType")
-              % Check("map.0.value.1.a", "2", "int")
-              % Check("map.0.value.2", "[2]", "", "nsA::nsB::SomeType")
-              % Check("map.0.value.2.a", "3", "int")
-              % Check("map.3", "[3]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
-              % Check("map.3.key", "\"foo\"", "@QString")
-              % Check("map.3.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
-              % Check("map.3.value.2", "[2]", "", "nsA::nsB::SomeType")
-              % Check("map.3.value.2.a", "3", "int")
+              % Check("m8", "<4 items>", "@QMap<@QString, @QList<nsA::nsB::SomeType*>>")
+              % Check("m8.0", "[0]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
+              % Check("m8.0.key", "\"1\"", "@QString")
+              % Check("m8.0.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
+              % Check("m8.0.value.0", "[0]", "", "nsA::nsB::SomeType")
+              % Check("m8.0.value.0.a", "1", "int")
+              % Check("m8.0.value.1", "[1]", "", "nsA::nsB::SomeType")
+              % Check("m8.0.value.1.a", "2", "int")
+              % Check("m8.0.value.2", "[2]", "", "nsA::nsB::SomeType")
+              % Check("m8.0.value.2.a", "3", "int")
+              % Check("m8.3", "[3]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
+              % Check("m8.3.key", "\"foo\"", "@QString")
+              % Check("m8.3.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
+              % Check("m8.3.value.2", "[2]", "", "nsA::nsB::SomeType")
+              % Check("m8.3.value.2.a", "3", "int")
               % Check("x", "<3 items>", "@QList<nsA::nsB::SomeType*>");
 
 
-   QTest::newRow("QMultiMapUintFloat")
-           << Data("#include <QMap>\n",
-                   "QMultiMap<uint, float> map;\n"
-                   "map.insert(11, 11.0);\n"
-                   "map.insert(22, 22.0);\n"
-                   "map.insert(22, 33.0);\n"
-                   "map.insert(22, 34.0);\n"
-                   "map.insert(22, 35.0);\n"
-                   "map.insert(22, 36.0);\n")
-              % CoreProfile()
-              % Check("map", "<6 items>", "@QMultiMap<unsigned int, float>")
-              % Check("map.0", "[0] 11", "11", "float")
-              % Check("map.5", "[5] 22", "22", "float");
-
-
-   QTest::newRow("QMultiMapStringFloat")
-           << Data("#include <QMap>\n"
-                   "#include <QString>\n",
-                   "QMultiMap<QString, float> map;\n"
-                   "map.insert(\"22.0\", 22.0);\n")
-              % CoreProfile()
-              % Check("map", "<1 items>", "@QMultiMap<@QString, float>")
-              % Check("map.0", "[0]", "", "@QMapNode<@QString, float>")
-              % Check("map.0.key", "\"22.0\"", "@QString")
-              % Check("map.0.value", "22", "float");
-
-   QTest::newRow("QMultiMapIntString")
-           << Data("#include <QMap>\n"
-                   "#include <QString>\n",
-                   "QMultiMap<int, QString> map;\n"
-                   "map.insert(22, \"22.0\");\n")
-              % CoreProfile()
-              % Check("map", "<1 items>", "@QMultiMap<int, @QString>")
-              % Check("map.0", "[0]", "", "@QMapNode<int, @QString>")
-              % Check("map.0.key", "22", "int")
-              % Check("map.0.value", "\"22.0\"", "@QString");
-
-   QTest::newRow("QMultiMapStringFoo")
-           << Data("#include <QMultiMap>\n" + fooData,
-                   "QMultiMap<QString, Foo> map;\n"
-                   "map.insert(\"22.0\", Foo(22));\n"
-                   "map.insert(\"33.0\", Foo(33));\n"
-                   "map.insert(\"22.0\", Foo(22));\n")
-              % CoreProfile()
-              % Check("map", "<3 items>", "@QMultiMap<@QString, Foo>")
-              % Check("map.0", "[0]", "", "@QMapNode<@QString, Foo>")
-              % Check("map.0.key", "\"22.0\"", "@QString")
-              % Check("map.0.value", "", "Foo")
-              % Check("map.0.value.a", "22", "int")
-              % Check("map.2", "[2]", "", "@QMapNode<@QString, Foo>");
-
-   QTest::newRow("QMultiMapStringPointer")
-           << Data("#include <QMap>\n"
+   QTest::newRow("QMultiMap")
+           << Data("#include <QMultiMap>\n"
                    "#include <QObject>\n"
                    "#include <QPointer>\n"
-                   "#include <QString>\n",
+                   "#include <QString>\n" + fooData,
+
+                   "QMultiMap<int, int> m0;\n"
+                   "unused(&m0);\n\n"
+
+                   "QMultiMap<uint, float> m1;\n"
+                   "m1.insert(11, 11.0);\n"
+                   "m1.insert(22, 22.0);\n"
+                   "m1.insert(22, 33.0);\n"
+                   "m1.insert(22, 34.0);\n"
+                   "m1.insert(22, 35.0);\n"
+                   "m1.insert(22, 36.0);\n\n"
+
+                   "QMultiMap<QString, float> m2;\n"
+                   "m2.insert(\"22.0\", 22.0);\n\n"
+
+                   "QMultiMap<int, QString> m3;\n"
+                   "m3.insert(22, \"22.0\");\n\n"
+
+                   "QMultiMap<QString, Foo> m4;\n"
+                   "m4.insert(\"22.0\", Foo(22));\n"
+                   "m4.insert(\"33.0\", Foo(33));\n"
+                   "m4.insert(\"22.0\", Foo(22));\n\n"
+
                    "QObject ob;\n"
-                   "QMultiMap<QString, QPointer<QObject> > map;\n"
-                   "map.insert(\"Hallo\", QPointer<QObject>(&ob));\n"
-                   "map.insert(\"Welt\", QPointer<QObject>(&ob));\n"
-                   "map.insert(\".\", QPointer<QObject>(&ob));\n"
-                   "map.insert(\".\", QPointer<QObject>(&ob));\n")
+                   "QMultiMap<QString, QPointer<QObject> > m5;\n"
+                   "m5.insert(\"Hallo\", QPointer<QObject>(&ob));\n"
+                   "m5.insert(\"Welt\", QPointer<QObject>(&ob));\n"
+                   "m5.insert(\".\", QPointer<QObject>(&ob));\n"
+                   "m5.insert(\".\", QPointer<QObject>(&ob));\n\n")
+
               % CoreProfile()
-              % Check("map", "<4 items>", "@QMultiMap<@QString, @QPointer<@QObject>>")
-              % Check("map.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.0.key", "\".\"", "@QString")
-              % Check("map.0.value", "", "@QPointer<@QObject>")
-              % Check("map.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.1.key", "\".\"", "@QString")
-              % Check("map.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.2.key", "\"Hallo\"", "@QString")
-              % Check("map.3", "[3]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("map.3.key", "\"Welt\"", "@QString");
+
+              % Check("m0", "<0 items>", "@QMultiMap<int, int>")
+
+              % Check("m1", "<6 items>", "@QMultiMap<unsigned int, float>")
+              % Check("m1.0", "[0] 11", "11", "float")
+              % Check("m1.5", "[5] 22", "22", "float")
+
+              % Check("m2", "<1 items>", "@QMultiMap<@QString, float>")
+              % Check("m2.0", "[0]", "", "@QMapNode<@QString, float>")
+              % Check("m2.0.key", "\"22.0\"", "@QString")
+              % Check("m2.0.value", "22", "float")
+
+              % CoreProfile()
+              % Check("m3", "<1 items>", "@QMultiMap<int, @QString>")
+              % Check("m3.0", "[0]", "", "@QMapNode<int, @QString>")
+              % Check("m3.0.key", "22", "int")
+              % Check("m3.0.value", "\"22.0\"", "@QString")
+
+              % CoreProfile()
+              % Check("m4", "<3 items>", "@QMultiMap<@QString, Foo>")
+              % Check("m4.0", "[0]", "", "@QMapNode<@QString, Foo>")
+              % Check("m4.0.key", "\"22.0\"", "@QString")
+              % Check("m4.0.value", "", "Foo")
+              % Check("m4.0.value.a", "22", "int")
+              % Check("m4.2", "[2]", "", "@QMapNode<@QString, Foo>")
+
+              % Check("m5", "<4 items>", "@QMultiMap<@QString, @QPointer<@QObject>>")
+              % Check("m5.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              % Check("m5.0.key", "\".\"", "@QString")
+              % Check("m5.0.value", "", "@QPointer<@QObject>")
+              % Check("m5.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              % Check("m5.1.key", "\".\"", "@QString")
+              % Check("m5.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              % Check("m5.2.key", "\"Hallo\"", "@QString")
+              % Check("m5.3", "[3]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              % Check("m5.3.key", "\"Welt\"", "@QString");
 
 
    QTest::newRow("QObject1")
