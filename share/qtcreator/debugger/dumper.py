@@ -918,19 +918,37 @@ class DumperBase:
         properties = []
         dd = metaobject["d"]
         data = self.dereferenceValue(dd["data"])
-        byteArrayDataType = self.lookupType(self.qtNamespace() + "QByteArrayData")
-        byteArrayDataSize = byteArrayDataType.sizeof
         sd = self.dereferenceValue(dd["stringdata"])
 
+        metaObjectVersion = self.extractInt(data)
         propertyCount = self.extractInt(data + 24)
         propertyData = self.extractInt(data + 28)
 
-        for i in range(propertyCount):
-            x = data + (propertyData + 3 * i) * 4
-            literal = sd + self.extractInt(x) * byteArrayDataSize
-            ldata, lsize, lalloc = self.byteArrayDataHelper(literal)
-            properties.append(self.extractBlob(ldata, lsize).toString())
+        if metaObjectVersion >= 7: # Qt 5.
+            byteArrayDataType = self.lookupType(self.qtNamespace() + "QByteArrayData")
+            byteArrayDataSize = byteArrayDataType.sizeof
+            for i in range(propertyCount):
+                x = data + (propertyData + 3 * i) * 4
+                literal = sd + self.extractInt(x) * byteArrayDataSize
+                ldata, lsize, lalloc = self.byteArrayDataHelper(literal)
+                properties.append(self.extractBlob(ldata, lsize).toString())
+        else: # Qt 4.
+            for i in range(propertyCount):
+                x = data + (propertyData + 3 * i) * 4
+                ldata = sd + self.extractInt(x)
+                properties.append(self.extractCString(ldata).decode("utf8"))
+
         return properties
+
+    def extractCString(self, addr):
+        result = bytearray()
+        while True:
+            d = self.extractByte(addr)
+            if d == 0:
+                break
+            result.append(d)
+            addr += 1
+        return result
 
 
     # This is called is when a QObject derived class is expanded
