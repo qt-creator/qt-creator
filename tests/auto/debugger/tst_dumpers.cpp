@@ -2697,6 +2697,7 @@ void tst_Dumpers::dumper_data()
                     "double _Complex b = 0;\n"
                     "unused(&a, &b);\n")
                % ForceC()
+               % GdbVersion(70600)
                % Check("a", "0 + 0 * I", "complex double").setForGdbOnly()
                % Check("b", "0 + 0 * I", "complex double").setForGdbOnly()
                % Check("a", "0 + 0i", "_Complex double").setForLldbOnly()
