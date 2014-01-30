@@ -3504,31 +3504,6 @@ void tst_Dumpers::dumper_data()
                % Check("url1.fragment", "\"\"", "@QString");
 
 
-    QTest::newRow("QStringQuotes")
-            << Data("#include <QString>\n",
-                    "QString str1(\"Hello Qt\");\n"
-                    // --> Value: \"Hello Qt\"
-                    "QString str2(\"Hello\\nQt\");\n"
-                    // --> Value: \\"\"Hello\nQt"" (double quote not expected)
-                    "QString str3(\"Hello\\rQt\");\n"
-                    // --> Value: ""HelloQt"" (double quote and missing \r not expected)
-                    "QString str4(\"Hello\\tQt\");\n"
-                    "unused(&str1, &str2, &str3, &str3);\n")
-               // --> Value: "Hello\9Qt" (expected \t instead of \9)
-               % CoreProfile()
-               % Check("str1", "\"Hello Qt\"", "@QString")
-               % Check("str2", "\"Hello\nQt\"", "@QString")
-               % Check("str3", "\"Hello\rQt\"", "@QString")
-               % Check("str4", "\"Hello\tQt\"", "@QString");
-
-    QTest::newRow("QString0")
-            << Data("#include <QByteArray>\n",
-                    "QByteArray str = \"Hello\";\n"
-                    "str.prepend(\"Prefix: \");\n"
-                    "unused(&str);\n")
-               % CoreProfile()
-               % Check("str", "\"Prefix: Hello\"", "@QByteArray");
-
     QByteArray expected1 = "\"AAA";
     expected1.append(char('\t'));
     expected1.append(char('\r'));
@@ -3537,90 +3512,99 @@ void tst_Dumpers::dumper_data()
     expected1.append(char(1));
     expected1.append("BBB\"");
 
-    QTest::newRow("QString1")
-            << Data("#include <QByteArray>\n",
-                    "QByteArray str = \"AAA\";\n"
-                    "str += '\\t';\n"
-                    "str += '\\r';\n"
-                    "str += '\\n';\n"
-                    "str += char(0);\n"
-                    "str += char(1);\n"
-                    "str += \"BBB\";\n"
-                    "unused(&str);\n")
-               % CoreProfile()
-               % Check("str", expected1, "@QByteArray");
+    QChar oUmlaut = QLatin1Char((char)0xf6);
 
-    QTest::newRow("QString2")
-            << Data("#include <QString>\n",
+    QTest::newRow("QString")
+            << Data("#include <QByteArray>\n"
+                    "#include <QString>\n"
+                    "#include <QStringList>\n"
+                    "#include <QStringRef>\n",
+
+                    "QByteArray s0 = \"Hello\";\n"
+                    "s0.prepend(\"Prefix: \");\n"
+                    "unused(&s0);\n\n"
+
+                    "QByteArray s1 = \"AAA\";\n"
+                    "s1 += '\\t';\n"
+                    "s1 += '\\r';\n"
+                    "s1 += '\\n';\n"
+                    "s1 += char(0);\n"
+                    "s1 += char(1);\n"
+                    "s1 += \"BBB\";\n"
+                    "unused(&s1);\n\n"
+
                     "QChar data[] = { 'H', 'e', 'l', 'l', 'o' };\n"
-                    "QString str1 = QString::fromRawData(data, 4);\n"
-                    "QString str2 = QString::fromRawData(data + 1, 4);\n"
-                    "unused(&data, &str1, &str2);\n")
-               % CoreProfile()
-               % Check("str1", "\"Hell\"", "@QString")
-               % Check("str2", "\"ello\"", "@QString");
+                    "QString s2 = QString::fromRawData(data, 4);\n"
+                    "QString s3 = QString::fromRawData(data + 1, 4);\n"
+                    "unused(&data, &s2, &s3);\n\n"
 
-    QTest::newRow("QString3")
+                    "QString s4 = \"Hello \";\n"
+                    "QString s5(\"String Test\");\n"
+                    "QString *s6 = new QString(\"Pointer String Test\");\n"
+                    "unused(&s4, &s5, &s6);\n\n"
+
+                    "const wchar_t *w = L\"aöa\";\n"
+                    "QString s7;\n"
+                    "if (sizeof(wchar_t) == 4)\n"
+                    "    s7 = QString::fromUcs4((uint *)w);\n"
+                    "else\n"
+                    "    s7 = QString::fromUtf16((ushort *)w);\n"
+                    "unused(&w, &s7);\n\n"
+
+                    "QString str = \"Hello\";\n"
+                    "QStringRef s8(&str, 1, 2);\n"
+                    "QStringRef s9;\n"
+                    "unused(&s8, &s9);\n\n"
+
+                    "QStringList l;\n"
+                    "l << \"Hello \";\n"
+                    "l << \" big, \";\n"
+                    "l.takeFirst();\n"
+                    "l << \" World \";\n\n"
+
+                    "QString str1(\"Hello Qt\");\n"
+                    "QString str2(\"Hello\\nQt\");\n"
+                    "QString str3(\"Hello\\rQt\");\n"
+                    "QString str4(\"Hello\\tQt\");\n"
+                    "unused(&str1, &str2, &str3, &str3);\n")
+
+               % CoreProfile()
+
+               % Check("s0", "\"Prefix: Hello\"", "@QByteArray")
+               % Check("s1", expected1, "@QByteArray")
+               % Check("s2", "\"Hell\"", "@QString")
+               % Check("s3", "\"ello\"", "@QString")
+
+               % Check("s4", "\"Hello \"", "@QString")
+               % Check("s5", "\"String Test\"", "@QString")
+               % Check("s6", "\"Pointer String Test\"", "@QString")
+
+               % Check("s7", QString::fromLatin1("\"a%1a\"").arg(oUmlaut), "@QString")
+               % CheckType("w", "w", "wchar_t *")
+
+               % Check("s8", "\"el\"", "@QStringRef")
+               % Check("s9", "(null)", "@QStringRef")
+
+               % Check("l", "<2 items>", "@QStringList")
+               % Check("l.0", "[0]", "\" big, \"", "@QString")
+               % Check("l.1", "[1]", "\" World \"", "@QString")
+
+               % Check("str1", "\"Hello Qt\"", "@QString")
+               % Check("str2", "\"Hello\nQt\"", "@QString")
+               % Check("str3", "\"Hello\rQt\"", "@QString")
+               % Check("str4", "\"Hello\tQt\"", "@QString");
+
+
+
+
+    QTest::newRow("QStringReference")
             << Data("#include <QString>\n"
                     "void stringRefTest(const QString &refstring) { BREAK; unused(&refstring); }\n",
                     "stringRefTest(QString(\"Ref String Test\"));\n")
                % CoreProfile()
                % Check("refstring", "\"Ref String Test\"", "@QString &");
 
-    QTest::newRow("QString4")
-            << Data("#include <QString>\n",
-                    "QString str = \"Hello \";\n"
-                    "QString string(\"String Test\");\n"
-                    "QString *pstring = new QString(\"Pointer String Test\");\n"
-                    "unused(&str, &string, &pstring);\n")
-               % CoreProfile()
-               % Check("pstring", "\"Pointer String Test\"", "@QString")
-               % Check("str", "\"Hello \"", "@QString")
-               % Check("string", "\"String Test\"", "@QString");
 
-    QTest::newRow("QStringRef1")
-            << Data("#include <QStringRef>\n",
-                    "QString str = \"Hello\";\n"
-                    "QStringRef ref1(&str, 1, 2);\n"
-                    "QStringRef ref2;\n"
-                    "unused(&ref1, &ref2);\n")
-               % CoreProfile()
-               % Check("ref1", "\"el\"", "@QStringRef")
-               % Check("ref2", "(null)", "@QStringRef");
-
-    QTest::newRow("QStringList")
-            << Data("#include <QStringList>\n",
-                    "QStringList l;\n"
-                    "l << \"Hello \";\n"
-                    "l << \" big, \";\n"
-                    "l.takeFirst();\n"
-                    "l << \" World \";\n")
-               % CoreProfile()
-               % Check("l", "<2 items>", "@QStringList")
-               % Check("l.0", "[0]", "\" big, \"", "@QString")
-               % Check("l.1", "[1]", "\" World \"", "@QString");
-
-    QChar oUmlaut = QLatin1Char((char)0xf6);
-    QTest::newRow("String")
-            << Data("#include <QString>",
-                    "const wchar_t *w = L\"aöa\";\n"
-                    "QString u;\n"
-                    "if (sizeof(wchar_t) == 4)\n"
-                    "    u = QString::fromUcs4((uint *)w);\n"
-                    "else\n"
-                    "    u = QString::fromUtf16((ushort *)w);\n"
-                    "unused(&w, &u);\n")
-               % CoreProfile()
-               % Check("u", QString::fromLatin1("\"a%1a\"").arg(oUmlaut), "@QString")
-               % CheckType("w", "w", "wchar_t *");
-
-        // All: Select UTF-8 in "Change Format for Type" in L&W context menu");
-        // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu");
-        // Other: Select UCS-6 in "Change Format for Type" in L&W context menu");
-
-
-    // These tests should result in properly displayed umlauts in the
-    // Locals&Watchers view. It is only support on gdb with Python");
     QTest::newRow("CharPointers")
             << Data("const char *s = \"aöa\";\n"
                     "const char *t = \"a\\xc3\\xb6\";\n"
