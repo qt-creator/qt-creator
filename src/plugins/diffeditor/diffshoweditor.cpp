@@ -122,7 +122,7 @@ DiffShowEditor::DiffShowEditor(SideBySideDiffEditorWidget *editorWidget)
     connect(TextEditorSettings::instance(), SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             m_diffShowWidget, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
     connect(TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            m_diffShowWidget, SLOT(setFontSettings(TextEditor::FontSettings)));
+            m_diffShowWidget->baseTextDocument(), SLOT(setFontSettings(TextEditor::FontSettings)));
     m_diffShowWidget->setDisplaySettings(TextEditorSettings::displaySettings());
     m_diffShowWidget->setCodeStyle(TextEditorSettings::codeStyle());
     m_diffShowWidget->baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
