@@ -5391,7 +5391,7 @@ void BaseTextEditorWidget::applyFontSettings()
     d->m_extraArea->setPalette(ep);
 
     slotUpdateExtraAreaWidth();   // Adjust to new font width
-    updateCurrentLineHighlight(); // Make sure it takes the new color
+    updateHighlights();
 }
 
 void BaseTextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
