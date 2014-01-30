@@ -189,10 +189,8 @@ def impl_SBValue__deref(value):
     result = value.Dereference()
     if result.IsValid():
         return result
-    #warn("RESULT.LOADADDRESS A: 0x%x" % result.GetLoadAddress())
-    result = value.CreateValueFromAddress(None, value.GetValueAsUnsigned(), value.GetType().GetPointerType())
-    #warn("RESULT.LOADADDRESS B: 0x%x" % result.GetLoadAddress())
-    return result
+    exp = "*(class %s*)0x%x" % (value.GetType().GetPointeeType(), value.GetValueAsUnsigned())
+    return value.CreateValueFromExpression(None, exp)
 
 lldb.SBValue.__add__ = impl_SBValue__add__
 lldb.SBValue.__sub__ = impl_SBValue__sub__
@@ -1046,6 +1044,7 @@ class Dumper(DumperBase):
         for i in xrange(m, n):
         #for i in range(n):
             child = value.GetChildAtIndex(i)
+            # Only needed in the QVariant4 test.
             if int(child.GetLoadAddress()) == 0xffffffffffffffff:
                 typeClass = child.GetType().GetTypeClass()
                 if typeClass != lldb.eTypeClassBuiltin:
