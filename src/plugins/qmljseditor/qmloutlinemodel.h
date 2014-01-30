@@ -30,7 +30,7 @@
 #ifndef QMLOUTLINEMODEL_H
 #define QMLOUTLINEMODEL_H
 
-#include "qmljseditor.h"
+#include "qmljseditordocument.h"
 #include <utils/changeset.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsicons.h>
@@ -81,7 +81,7 @@ public:
         NonElementBindingType // can be filtered out
     };
 
-    QmlOutlineModel(QmlJSTextEditorWidget *editor);
+    QmlOutlineModel(QmlJSEditorDocument *editor);
 
     // QStandardItemModel
     QStringList mimeTypes() const;
@@ -159,7 +159,7 @@ private:
     QHash<QmlOutlineItem*,QIcon> m_itemToIcon;
     QHash<QmlOutlineItem*,QmlJS::AST::Node*> m_itemToNode;
     QHash<QmlOutlineItem*,QmlJS::AST::UiQualifiedId*> m_itemToIdNode;
-    QmlJSTextEditorWidget *m_textEditor;
+    QmlJSEditorDocument *m_editorDocument;
 
 
     friend class QmlOutlineModelSync;

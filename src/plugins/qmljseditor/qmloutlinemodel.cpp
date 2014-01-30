@@ -298,9 +298,9 @@ private:
     int indent;
 };
 
-QmlOutlineModel::QmlOutlineModel(QmlJSTextEditorWidget *editor) :
+QmlOutlineModel::QmlOutlineModel(QmlJSEditorDocument *editor) :
     QStandardItemModel(editor),
-    m_textEditor(editor)
+    m_editorDocument(editor)
 {
     m_icons = Icons::instance();
     const QString resourcePath = Core::ICore::resourcePath();
@@ -401,7 +401,7 @@ Qt::ItemFlags QmlOutlineModel::flags(const QModelIndex &index) const
 
     // only allow drag&drop if we're in sync
     if (m_semanticInfo.isValid()
-            && !m_textEditor->isSemanticInfoOutdated()) {
+            && !m_editorDocument->isSemanticInfoOutdated()) {
         if (index.parent().isValid())
             flags |= Qt::ItemIsDragEnabled;
         if (index.data(ItemTypeRole) != NonElementBindingType)

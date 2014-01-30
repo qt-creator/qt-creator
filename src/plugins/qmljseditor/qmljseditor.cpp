@@ -114,7 +114,7 @@ void QmlJSTextEditorWidget::ctor()
 {
     m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(baseTextDocument());
     m_outlineCombo = 0;
-    m_outlineModel = new QmlOutlineModel(this);
+    m_outlineModel = new QmlOutlineModel(m_qmlJsEditorDocument);
     m_contextPane = 0;
     m_findReferences = new FindReferences(this);
 
