@@ -320,7 +320,10 @@ public:
             emit changed();
         } else {
             emit aboutToReload();
+            int cPos = m_widget->cursorPosition();
+            m_widget->clear();
             const bool success = open(errorString, filePath());
+            m_widget->setCursorPosition(cPos);
             emit reloadFinished(success);
             return success;
         }
