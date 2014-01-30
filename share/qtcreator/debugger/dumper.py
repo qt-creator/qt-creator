@@ -871,7 +871,7 @@ class DumperBase:
                 # Offset of objectName in QObjectPrivate: 5 pointer + 2 int
                 #   - [QObjectData base]
                 #   - QString objectName
-                objectName = self.dereference(dd + 5 * ptrSize + 2 * intSize)
+                objectName = self.extractPointer(dd + 5 * ptrSize + 2 * intSize)
 
             else:
                 # Size of QObjectData: 5 pointer + 2 int
@@ -882,7 +882,7 @@ class DumperBase:
                 #   - uint isWidget : 1; etc...
                 #   - int postedEvents;
                 #   - QDynamicMetaObjectData *metaObject;
-                extra = self.dereference(dd + 5 * ptrSize + 2 * intSize)
+                extra = self.extractPointer(dd + 5 * ptrSize + 2 * intSize)
                 if extra == 0:
                     return False
 
@@ -893,7 +893,7 @@ class DumperBase:
                 #   - QVector<int> runningTimers;
                 #   - QList<QPointer<QObject> > eventFilters;
                 #   - QString objectName
-                objectName = self.dereference(extra + 5 * ptrSize)
+                objectName = self.extractPointer(extra + 5 * ptrSize)
 
             data, size, alloc = self.byteArrayDataHelper(objectName)
 

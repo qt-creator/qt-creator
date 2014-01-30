@@ -259,12 +259,12 @@ def qdump__QDateTime(d, value):
             msecs = d.extractInt64(dateBase)
             spec = d.extractInt(dateBase + 8)
             offset = d.extractInt(dateBase + 12)
-            tzp = d.dereference(dateBase + 16)
+            tzp = d.extractPointer(dateBase + 16)
             if tzp == 0:
                 tz = ""
             else:
                 idBase = tzp + 2 * d.ptrSize() # [QSharedData] + [vptr]
-                tz = d.encodeByteArrayHelper(d.dereference(idBase))
+                tz = d.encodeByteArrayHelper(d.extractPointer(idBase))
             d.putValue("%s/%s/%s/%s/%s" % (msecs, spec, offset, tz, status),
                 DateTimeInternal)
     else:
@@ -404,7 +404,7 @@ def qdump__QFile(d, value):
         offset = 176 if d.is32bit() else 280
     else:
         offset = 140 if d.is32bit() else 232
-    privAddress = d.dereference(d.addressOf(value) + d.ptrSize())
+    privAddress = d.extractPointer(d.addressOf(value) + d.ptrSize())
     fileNameAddress = privAddress + offset
     d.putStringValueByAddress(fileNameAddress)
     d.putNumChild(1)
@@ -682,7 +682,7 @@ def qdump__QHostAddress(d, value):
     ipStringAddress = privAddress + (0 if isQt5 else 24)
     isParsedAddress = privAddress + 24 + 2 * sizeofQString
     # value.d.d->ipString
-    ipString = d.encodeStringHelper(d.dereference(ipStringAddress))
+    ipString = d.encodeStringHelper(d.extractPointer(ipStringAddress))
     if d.extractByte(isParsedAddress) and len(ipString) > 0:
         d.putValue(ipString, Hex4EncodedLittleEndian)
     else:
@@ -697,7 +697,7 @@ def qdump__QHostAddress(d, value):
             data = d.readMemory(privAddress + a6Offset, 16)
             address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
             scopeId = privAddress + sizeofQString + (0 if isQt5 else 24)
-            scopeId = d.encodeStringHelper(d.dereference(scopeId))
+            scopeId = d.encodeStringHelper(d.extractPointer(scopeId))
             d.putValue("%s%%%s" % (address, scopeId), IPv6AddressAndHexScopeId)
         elif proto == 0:
             # value.d.d->a
@@ -795,7 +795,7 @@ def qdump__QImage(d, value):
     ptrSize = d.ptrSize()
     isQt5 = d.qtVersion() >= 0x050000
     offset = (3 if isQt5 else 2) * ptrSize
-    base = d.dereference(d.addressOf(value) + offset)
+    base = d.extractPointer(d.addressOf(value) + offset)
     if base == 0:
         d.putValue("(invalid)")
         return
@@ -806,7 +806,7 @@ def qdump__QImage(d, value):
     padding = d.ptrSize() - d.intSize()
     pixelRatioSize = 8 if isQt5 else 0
     jumpTableSize = ptrSize if qt3Support else 0
-    bits = d.dereference(base + 20 + padding + pixelRatioSize + ptrSize)
+    bits = d.extractPointer(base + 20 + padding + pixelRatioSize + ptrSize)
     iformat = d.extractInt(base + 20 + padding + pixelRatioSize + jumpTableSize + 2 * ptrSize)
     d.putValue("(%dx%d)" % (width, height))
     d.putNumChild(1)
@@ -852,10 +852,10 @@ def qdump__QLinkedList(d, value):
     if d.isExpanded():
         innerType = d.templateArgument(value.type, 0)
         with Children(d, n, maxNumChild=1000, childType=innerType):
-            pp = d.dereference(dd)
+            pp = d.extractPointer(dd)
             for i in d.childRange():
                 d.putSubItem(i, d.createValue(pp + 2 * ptrSize, innerType))
-                pp = d.dereference(pp)
+                pp = d.extractPointer(pp)
 
 qqLocalesCount = None
 
@@ -1500,7 +1500,7 @@ def _qdump__QObject(d, value):
 
 def qdump__QPixmap(d, value):
     offset = (3 if d.qtVersion() >= 0x050000 else 2) * d.ptrSize()
-    base = d.dereference(d.addressOf(value) + offset)
+    base = d.extractPointer(d.addressOf(value) + offset)
     if base == 0:
         d.putValue("(invalid)")
     else:
@@ -1828,7 +1828,7 @@ def qdump__QUrl(d, value):
             d.putValue("<invalid>")
             return
         encodedOriginalAddress = privAddress + 8 * d.ptrSize()
-        d.putValue(d.encodeByteArrayHelper(d.dereference(encodedOriginalAddress)), Hex2EncodedLatin1)
+        d.putValue(d.encodeByteArrayHelper(d.extractPointer(encodedOriginalAddress)), Hex2EncodedLatin1)
         d.putNumChild(8)
         if d.isExpanded():
             stringType = d.lookupType(d.qtNamespace() + "QString")
@@ -1860,13 +1860,13 @@ def qdump__QUrl(d, value):
             d.putValue("<invalid>")
             return
         schemeAddr = privAddress + 2 * d.intSize()
-        scheme = d.encodeStringHelper(d.dereference(schemeAddr))
-        userName = d.encodeStringHelper(d.dereference(schemeAddr + 1 * d.ptrSize()))
-        password = d.encodeStringHelper(d.dereference(schemeAddr + 2 * d.ptrSize()))
-        host = d.encodeStringHelper(d.dereference(schemeAddr + 3 * d.ptrSize()))
-        path = d.encodeStringHelper(d.dereference(schemeAddr + 4 * d.ptrSize()))
-        query = d.encodeStringHelper(d.dereference(schemeAddr + 5 * d.ptrSize()))
-        fragment = d.encodeStringHelper(d.dereference(schemeAddr + 6 * d.ptrSize()))
+        scheme = d.encodeStringHelper(d.extractPointer(schemeAddr))
+        userName = d.encodeStringHelper(d.extractPointer(schemeAddr + 1 * d.ptrSize()))
+        password = d.encodeStringHelper(d.extractPointer(schemeAddr + 2 * d.ptrSize()))
+        host = d.encodeStringHelper(d.extractPointer(schemeAddr + 3 * d.ptrSize()))
+        path = d.encodeStringHelper(d.extractPointer(schemeAddr + 4 * d.ptrSize()))
+        query = d.encodeStringHelper(d.extractPointer(schemeAddr + 5 * d.ptrSize()))
+        fragment = d.encodeStringHelper(d.extractPointer(schemeAddr + 6 * d.ptrSize()))
         port = d.extractInt(d.extractPointer(value) + d.intSize())
 
         url = scheme
@@ -2067,7 +2067,7 @@ def qdump__QVariant(d, value):
         if variantType == 128 or variantType == 135: # No indirection for float.
             blob = d.toBlob(value)
         else:
-            blob = d.extractBlob(d.dereference(value["d"]["data"]["ptr"]), 8)
+            blob = d.extractBlob(d.extractPointer(value["d"]["data"]["ptr"]), 8)
         qdumpHelper_QVariants_D[variantType - 128](d, blob)
         return None
 

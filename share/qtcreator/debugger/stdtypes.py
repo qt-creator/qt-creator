@@ -142,10 +142,10 @@ def qdump__std__list(d, value):
     node = impl["_M_node"]
     head = d.addressOf(node)
     size = 0
-    pp = d.dereference(head)
+    pp = d.extractPointer(head)
     while head != pp and size <= 1001:
         size += 1
-        pp = d.dereference(pp)
+        pp = d.extractPointer(pp)
 
     d.putItemCount(size, 1000)
     d.putNumChild(size)
@@ -456,7 +456,7 @@ def qdump__std____1__string(d, value):
     firstByte = d.extractByte(base)
     if firstByte & 1:
         # Long/external.
-        data = d.dereference(base + 2 * d.ptrSize())
+        data = d.extractPointer(base + 2 * d.ptrSize())
         size = d.extractInt(base + d.ptrSize())
     else:
         # Short/internal.
@@ -471,7 +471,7 @@ def qdump__std____1__wstring(d, value):
     firstByte = d.extractByte(base)
     if firstByte & 1:
         # Long/external.
-        data = d.dereference(base + 2 * d.ptrSize())
+        data = d.extractPointer(base + 2 * d.ptrSize())
         size = d.extractInt(base + d.ptrSize())
     else:
         # Short/internal.
@@ -599,12 +599,12 @@ def qdump__std__unordered_map(d, value):
                         d.putField("iname", d.currentIName)
                         d.putName("[%s] %s" % (i, pair["first"]))
                         d.putValue(pair["second"])
-                    p = d.dereference(p)
+                    p = d.extractPointer(p)
         else:
             with Children(d, size, childType=pairType):
                 for i in d.childRange():
                     d.putSubItem(i, d.createValue(p + ptrSize - offset, pairType))
-                    p = d.dereference(p + offset)
+                    p = d.extractPointer(p + offset)
 
 def qdump__std____debug__unordered_map(d, value):
     qdump__std__unordered_map(d, value)
@@ -635,7 +635,7 @@ def qdump__std__unordered_set(d, value):
             ptrSize = d.ptrSize()
             for i in d.childRange():
                 d.putSubItem(i, d.createValue(p + ptrSize - offset, valueType))
-                p = d.dereference(p + offset)
+                p = d.extractPointer(p + offset)
 
 def qform__std____1__unordered_map():
     return mapForms()
@@ -721,8 +721,7 @@ def qdump__std__vector(d, value):
                 base = d.pointerValue(start)
                 for i in d.childRange():
                     q = base + int(i / 8)
-                    d.putBoolItem(str(i),
-                        (int(d.dereference(q)) >> (i % 8)) & 1)
+                    d.putBoolItem(str(i), (int(d.extractPointer(q)) >> (i % 8)) & 1)
         else:
             d.putPlotData(type, start, size)
 
