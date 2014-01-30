@@ -45,7 +45,7 @@ namespace DiffEditor {
 class DiffEditorWidget;
 
 namespace Internal {
-class DiffEditorFile;
+class DiffEditorDocument;
 }
 
 class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
@@ -80,7 +80,7 @@ protected:
 private:
     void updateEntryToolTip();
 
-    Internal::DiffEditorFile *m_file;
+    Internal::DiffEditorDocument *m_document;
     DiffEditorWidget *m_editorWidget;
     DiffEditorController *m_diffEditorController;
     QComboBox *m_entriesComboBox;

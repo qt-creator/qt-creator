@@ -27,57 +27,40 @@
 **
 ****************************************************************************/
 
-#include "diffeditorfile.h"
-#include "diffeditorconstants.h"
+#ifndef DIFFEDITORDOCUMENT_H
+#define DIFFEDITORDOCUMENT_H
 
-#include <QCoreApplication>
+#include "diffeditor_global.h"
+
+#include <coreplugin/idocument.h>
 
 namespace DiffEditor {
+
 namespace Internal {
 
-///////////////////////////////// DiffFile //////////////////////////////////
-
-DiffEditorFile::DiffEditorFile(const QString &mimeType, QObject *parent) :
-    Core::IDocument(parent),
-    m_mimeType(mimeType)
+class DiffEditorDocument : public Core::IDocument
 {
-    setDisplayName(QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME));
-    setTemporary(true);
-}
+    Q_OBJECT
+public:
+    explicit DiffEditorDocument(const QString &mimeType,
+                              QObject *parent = 0);
 
-bool DiffEditorFile::setContents(const QByteArray &contents)
-{
-    Q_UNUSED(contents);
-    return true;
-}
+    bool setContents(const QByteArray &contents);
+    QString defaultPath() const { return QString(); }
+    QString suggestedFileName() const { return QString(); }
 
-bool DiffEditorFile::save(QString *errorString, const QString &fileName, bool autoSave)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(fileName)
-    Q_UNUSED(autoSave)
-    return false;
-}
+    bool isModified() const { return false; }
+    QString mimeType() const;
+    bool isSaveAsAllowed() const { return false; }
+    bool save(QString *errorString, const QString &fileName, bool autoSave);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
-QString DiffEditorFile::mimeType() const
-{
-    return m_mimeType;
-}
-
-Core::IDocument::ReloadBehavior DiffEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    Q_UNUSED(state)
-    Q_UNUSED(type)
-    return BehaviorSilent;
-}
-
-bool DiffEditorFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(flag)
-    Q_UNUSED(type)
-    return false;
-}
+private:
+    const QString m_mimeType;
+};
 
 } // namespace Internal
 } // namespace DiffEditor
+
+#endif // DIFFEDITORDOCUMENT_H

@@ -27,40 +27,57 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORFILE_H
-#define DIFFEDITORFILE_H
+#include "diffeditordocument.h"
+#include "diffeditorconstants.h"
 
-#include "diffeditor_global.h"
-
-#include <coreplugin/idocument.h>
+#include <QCoreApplication>
 
 namespace DiffEditor {
-
 namespace Internal {
 
-class DiffEditorFile : public Core::IDocument
+///////////////////////////////// DiffFile //////////////////////////////////
+
+DiffEditorDocument::DiffEditorDocument(const QString &mimeType, QObject *parent) :
+    Core::IDocument(parent),
+    m_mimeType(mimeType)
 {
-    Q_OBJECT
-public:
-    explicit DiffEditorFile(const QString &mimeType,
-                              QObject *parent = 0);
+    setDisplayName(QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME));
+    setTemporary(true);
+}
 
-    bool setContents(const QByteArray &contents);
-    QString defaultPath() const { return QString(); }
-    QString suggestedFileName() const { return QString(); }
+bool DiffEditorDocument::setContents(const QByteArray &contents)
+{
+    Q_UNUSED(contents);
+    return true;
+}
 
-    bool isModified() const { return false; }
-    QString mimeType() const;
-    bool isSaveAsAllowed() const { return false; }
-    bool save(QString *errorString, const QString &fileName, bool autoSave);
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
+bool DiffEditorDocument::save(QString *errorString, const QString &fileName, bool autoSave)
+{
+    Q_UNUSED(errorString)
+    Q_UNUSED(fileName)
+    Q_UNUSED(autoSave)
+    return false;
+}
 
-private:
-    const QString m_mimeType;
-};
+QString DiffEditorDocument::mimeType() const
+{
+    return m_mimeType;
+}
+
+Core::IDocument::ReloadBehavior DiffEditorDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
+{
+    Q_UNUSED(state)
+    Q_UNUSED(type)
+    return BehaviorSilent;
+}
+
+bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(errorString)
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
+    return false;
+}
 
 } // namespace Internal
 } // namespace DiffEditor
-
-#endif // DIFFEDITOREDITABLE_H

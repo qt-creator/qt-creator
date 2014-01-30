@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "diffeditor.h"
-#include "diffeditorfile.h"
+#include "diffeditordocument.h"
 #include "diffeditorwidget.h"
 #include "diffeditorconstants.h"
 
@@ -51,7 +51,7 @@ namespace DiffEditor {
 DiffEditor::DiffEditor(DiffEditorWidget *editorWidget)
     : IEditor(0)
     , m_toolWidget(0)
-    , m_file(new Internal::DiffEditorFile(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this))
+    , m_document(new Internal::DiffEditorDocument(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this))
     , m_editorWidget(editorWidget)
     , m_diffEditorController(0)
     , m_entriesComboBox(0)
@@ -81,7 +81,7 @@ bool DiffEditor::open(QString *errorString, const QString &fileName, const QStri
 
 Core::IDocument *DiffEditor::document()
 {
-    return m_file;
+    return m_document;
 }
 
 Core::Id DiffEditor::id() const
