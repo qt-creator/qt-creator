@@ -1038,8 +1038,8 @@ void ProjectExplorerPlugin::loadAction()
         dir = isProject ? fn : QFileInfo(fn).absolutePath();
     }
 
-    QString filename = QFileDialog::getOpenFileName(0, tr("Load Project"),
-                                                    dir,
+    QString filename = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
+                                                    tr("Load Project"), dir,
                                                     d->m_projectFilterString);
     if (filename.isEmpty())
         return;

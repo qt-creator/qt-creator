@@ -529,7 +529,7 @@ void FakeVimOptionPage::setPlainStyle()
 
 void FakeVimOptionPage::openVimRc()
 {
-    const QString fileName = QFileDialog::getOpenFileName();
+    const QString fileName = QFileDialog::getOpenFileName(Core::ICore::dialogParent());
     if (!fileName.isNull())
         m_ui.lineEditVimRcPath->setText(fileName);
 }

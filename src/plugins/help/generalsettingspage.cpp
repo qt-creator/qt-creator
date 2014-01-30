@@ -216,8 +216,8 @@ void GeneralSettingsPage::importBookmarks()
 {
     m_ui->errorLabel->setVisible(false);
 
-    QString fileName = QFileDialog::getOpenFileName(0, tr("Import Bookmarks"),
-        QDir::currentPath(), tr("Files (*.xbel)"));
+    QString fileName = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
+        tr("Import Bookmarks"), QDir::currentPath(), tr("Files (*.xbel)"));
 
     if (fileName.isEmpty())
         return;
@@ -238,8 +238,8 @@ void GeneralSettingsPage::exportBookmarks()
 {
     m_ui->errorLabel->setVisible(false);
 
-    QString fileName = QFileDialog::getSaveFileName(0, tr("Save File"),
-        QLatin1String("untitled.xbel"), tr("Files (*.xbel)"));
+    QString fileName = QFileDialog::getSaveFileName(Core::ICore::dialogParent(),
+        tr("Save File"), QLatin1String("untitled.xbel"), tr("Files (*.xbel)"));
 
     QLatin1String suffix(".xbel");
     if (!fileName.endsWith(suffix))

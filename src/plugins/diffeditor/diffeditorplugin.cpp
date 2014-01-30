@@ -41,6 +41,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 
 namespace DiffEditor {
 namespace Internal {
@@ -82,13 +83,13 @@ void DiffEditorPlugin::extensionsInitialized()
 
 void DiffEditorPlugin::diff()
 {
-    QString fileName1 = QFileDialog::getOpenFileName(0,
+    QString fileName1 = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
                                                      tr("Select First File for Diff"),
                                                      QString());
     if (fileName1.isNull())
         return;
 
-    QString fileName2 = QFileDialog::getOpenFileName(0,
+    QString fileName2 = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
                                                      tr("Select Second File for Diff"),
                                                      QString());
     if (fileName2.isNull())
