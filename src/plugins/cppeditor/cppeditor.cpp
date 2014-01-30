@@ -1557,6 +1557,7 @@ void CPPEditorWidget::applyFontSettings()
 
     // this also makes the document apply font settings
     TextEditor::BaseTextEditorWidget::applyFontSettings();
+    semanticRehighlight(true);
 }
 
 void CPPEditorWidget::unCommentSelection()

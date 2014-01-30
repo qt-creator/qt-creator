@@ -569,6 +569,10 @@ void QmlJSTextEditorWidget::applyFontSettings()
 {
     TextEditor::BaseTextEditorWidget::applyFontSettings();
     m_semanticHighlighter->updateFontSettings(baseTextDocument()->fontSettings());
+    if (!m_qmlJsEditorDocument->isSemanticInfoOutdated()) {
+        m_semanticHighlighter->rerun(m_qmlJsEditorDocument->semanticInfo());
+        updateUses();
+    }
 }
 
 

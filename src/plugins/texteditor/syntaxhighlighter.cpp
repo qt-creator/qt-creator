@@ -58,11 +58,9 @@ public:
 
     inline void rehighlight(QTextCursor &cursor, QTextCursor::MoveOperation operation) {
         inReformatBlocks = true;
-        cursor.beginEditBlock();
         int from = cursor.position();
         cursor.movePosition(operation);
         reformatBlocks(from, 0, cursor.position() - from);
-        cursor.endEditBlock();
         inReformatBlocks = false;
     }
 
