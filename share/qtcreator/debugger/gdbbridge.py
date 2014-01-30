@@ -1029,7 +1029,8 @@ class Dumper(DumperBase):
 
     def qtVersion(self):
         try:
-            version = str(gdb.parse_and_eval("qVersion()"))
+            ns = self.qtNamespace()
+            version = str(gdb.parse_and_eval("((const char*(*)())'%s::qVersion')()" % ns))
             (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')
             self.cachedQtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
         except:
@@ -1039,8 +1040,8 @@ class Dumper(DumperBase):
                 self.cachedQtVersion = 0x040800
             except:
                 #self.cachedQtVersion = 0x050000
-                # Assume Qt 5 until we have a definitive answer.
-                return 0x050000
+                # Assume Qt 5.3 until we have a definitive answer.
+                return 0x050300
 
         # Memoize good results.
         self.qtVersion = lambda: self.cachedQtVersion
