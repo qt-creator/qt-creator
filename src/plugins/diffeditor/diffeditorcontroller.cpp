@@ -33,9 +33,12 @@ namespace DiffEditor {
 
 DiffEditorController::DiffEditorController(QObject *parent)
     : QObject(parent),
+      m_descriptionEnabled(false),
+      m_descriptionVisible(true),
       m_contextLinesNumber(3),
       m_ignoreWhitespaces(true),
-      m_syncScrollBars(true)
+      m_syncScrollBars(true),
+      m_currentDiffFileIndex(-1)
 {
     clear();
 }
@@ -58,6 +61,21 @@ QList<DiffEditorController::DiffFilesContents> DiffEditorController::diffContent
 QString DiffEditorController::workingDirectory() const
 {
     return m_workingDirectory;
+}
+
+QString DiffEditorController::description() const
+{
+    return m_description;
+}
+
+bool DiffEditorController::isDescriptionEnabled() const
+{
+    return m_descriptionEnabled;
+}
+
+bool DiffEditorController::isDescriptionVisible() const
+{
+    return m_descriptionVisible;
 }
 
 int DiffEditorController::contextLinesNumber() const
@@ -98,6 +116,33 @@ void DiffEditorController::setDiffContents(const QList<DiffFilesContents> &diffF
     m_workingDirectory = workingDirectory;
     m_currentDiffFileIndex = (diffFileList.isEmpty() ? -1 : 0);
     emit diffContentsChanged(diffFileList, workingDirectory);
+}
+
+void DiffEditorController::setDescription(const QString &description)
+{
+    if (m_description == description)
+        return;
+
+    m_description = description;
+    emit descriptionChanged(description);
+}
+
+void DiffEditorController::setDescriptionEnabled(bool on)
+{
+    if (m_descriptionEnabled == on)
+        return;
+
+    m_descriptionEnabled = on;
+    emit descriptionEnablementChanged(on);
+}
+
+void DiffEditorController::setDescriptionVisible(bool on)
+{
+    if (m_descriptionVisible == on)
+        return;
+
+    m_descriptionVisible = on;
+    emit descriptionVisibilityChanged(on);
 }
 
 void DiffEditorController::setContextLinesNumber(int lines)

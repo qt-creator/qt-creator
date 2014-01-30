@@ -25,10 +25,6 @@ QtcPlugin {
         "diffeditorplugin.h",
         "differ.cpp",
         "differ.h",
-        "diffshoweditor.cpp",
-        "diffshoweditor.h",
-        "diffshoweditorfactory.cpp",
-        "diffshoweditorfactory.h",
         "sidebysidediffeditorwidget.cpp",
         "sidebysidediffeditorwidget.h",
     ]

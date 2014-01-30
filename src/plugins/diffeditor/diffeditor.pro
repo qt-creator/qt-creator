@@ -9,8 +9,6 @@ HEADERS += diffeditor_global.h \
         diffeditorfactory.h \
         diffeditorplugin.h \
         differ.h \
-        diffshoweditor.h \
-        diffshoweditorfactory.h \
         sidebysidediffeditorwidget.h
 
 SOURCES += diffeditor.cpp \
@@ -19,8 +17,6 @@ SOURCES += diffeditor.cpp \
         diffeditorfactory.cpp \
         diffeditorplugin.cpp \
         differ.cpp \
-        diffshoweditor.cpp \
-        diffshoweditorfactory.cpp \
         sidebysidediffeditorwidget.cpp
 
 RESOURCES +=

@@ -31,8 +31,6 @@
 #include "diffeditor.h"
 #include "diffeditorconstants.h"
 #include "diffeditorfactory.h"
-#include "diffshoweditor.h"
-#include "diffshoweditorfactory.h"
 #include "sidebysidediffeditorwidget.h"
 
 #include <QFileDialog>
@@ -74,7 +72,6 @@ bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     toolsContainer->addAction(diffCommand, Constants::G_TOOLS_DIFF);
 
     addAutoReleasedObject(new DiffEditorFactory(this));
-    addAutoReleasedObject(new DiffShowEditorFactory(this));
 
     return true;
 }

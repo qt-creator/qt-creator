@@ -60,7 +60,6 @@
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <diffeditor/diffeditor.h>
-#include <diffeditor/diffshoweditor.h>
 #include <diffeditor/diffeditorconstants.h>
 
 #include <QCoreApplication>
@@ -375,11 +374,9 @@ void GitDiffHandler::slotShowDescriptionReceived(const QString &description)
 {
     if (m_editor.isNull())
         return;
-    DiffEditor::DiffShowEditor *editor = qobject_cast<DiffEditor::DiffShowEditor *>(m_editor);
-    if (editor) {
-        editor->setDescription(GitPlugin::instance()->gitClient()->
-                               extendedShowDescription(m_workingDirectory, description));
-    }
+
+    m_editor->setDescription(GitPlugin::instance()->gitClient()->
+                             extendedShowDescription(m_workingDirectory, description));
 
     collectFilesList(QStringList()
                      << m_requestedRevisionRange.begin.id
@@ -1446,7 +1443,8 @@ void GitClient::show(const QString &source, const QString &id,
                                                       id,
                                                       source,
                                                       title,
-                                                      DiffEditor::Constants::DIFF_SHOW_EDITOR_ID);
+                                                      DiffEditor::Constants::DIFF_EDITOR_ID);
+            diffEditor->setDescriptionEnabled(true);
         }
 
         GitDiffHandler *handler = new GitDiffHandler(diffEditor,

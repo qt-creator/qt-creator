@@ -39,14 +39,15 @@
 QT_BEGIN_NAMESPACE
 class QToolBar;
 class QComboBox;
+class QToolButton;
 QT_END_NAMESPACE
+
+namespace TextEditor { class BaseTextEditorWidget; }
 
 namespace DiffEditor {
 class SideBySideDiffEditorWidget;
 
-namespace Internal {
-class DiffEditorDocument;
-}
+namespace Internal { class DiffEditorDocument; }
 
 class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
 {
@@ -58,6 +59,8 @@ public:
 public:
     void setDiff(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
                  const QString &workingDirectory = QString());
+    void setDescription(const QString &description);
+    void setDescriptionEnabled(bool on);
     void clear(const QString &message);
 
     // Core::IEditor
@@ -73,6 +76,8 @@ public slots:
 
 private slots:
     void entryActivated(int index);
+    void slotDescriptionChanged(const QString &description);
+    void slotDescriptionVisibilityChanged();
 
 protected:
     QToolBar *m_toolWidget;
@@ -81,9 +86,11 @@ private:
     void updateEntryToolTip();
 
     Internal::DiffEditorDocument *m_document;
-    SideBySideDiffEditorWidget *m_editorWidget;
+    TextEditor::BaseTextEditorWidget *m_descriptionWidget;
+    SideBySideDiffEditorWidget *m_diffWidget;
     DiffEditorController *m_diffEditorController;
     QComboBox *m_entriesComboBox;
+    QAction *m_toggleDescriptionAction;
 };
 
 } // namespace DiffEditor

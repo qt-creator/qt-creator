@@ -34,6 +34,11 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/minisplitter.h>
+
+#include <texteditor/basetexteditor.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/displaysettings.h>
 
 #include <QToolButton>
 #include <QSpinBox>
@@ -44,7 +49,70 @@
 #include <QComboBox>
 #include <QFileInfo>
 
+using namespace TextEditor;
+
 namespace DiffEditor {
+
+namespace Internal {
+
+class DescriptionEditor : public BaseTextEditor
+{
+    Q_OBJECT
+public:
+    DescriptionEditor(BaseTextEditorWidget *editorWidget) : BaseTextEditor(editorWidget) {}
+
+    Core::Id id() const { return "DescriptionEditor"; }
+};
+
+class DescriptionEditorWidget : public BaseTextEditorWidget
+{
+    Q_OBJECT
+public:
+    DescriptionEditorWidget(QWidget *parent = 0);
+    virtual QSize sizeHint() const;
+
+public slots:
+    void setDisplaySettings(const DisplaySettings &ds);
+
+protected:
+    BaseTextEditor *createEditor() { return new DescriptionEditor(this); }
+
+private:
+};
+
+DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
+    : BaseTextEditorWidget(parent)
+{
+    DisplaySettings settings = displaySettings();
+    settings.m_textWrapping = false;
+    settings.m_displayLineNumbers = false;
+    settings.m_highlightCurrentLine = false;
+    settings.m_displayFoldingMarkers = false;
+    settings.m_markTextChanges = false;
+    settings.m_highlightBlocks = false;
+    BaseTextEditorWidget::setDisplaySettings(settings);
+
+    setCodeFoldingSupported(true);
+    setFrameStyle(QFrame::NoFrame);
+
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+}
+
+QSize DescriptionEditorWidget::sizeHint() const
+{
+    QSize size = BaseTextEditorWidget::sizeHint();
+    size.setHeight(size.height() / 5);
+    return size;
+}
+
+void DescriptionEditorWidget::setDisplaySettings(const DisplaySettings &ds)
+{
+    DisplaySettings settings = displaySettings();
+    settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
+    BaseTextEditorWidget::setDisplaySettings(settings);
+}
+
+} // namespace Internal
 
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
@@ -52,15 +120,39 @@ DiffEditor::DiffEditor(SideBySideDiffEditorWidget *editorWidget)
     : IEditor(0)
     , m_toolWidget(0)
     , m_document(new Internal::DiffEditorDocument(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this))
-    , m_editorWidget(editorWidget)
+    , m_diffWidget(editorWidget)
     , m_diffEditorController(0)
     , m_entriesComboBox(0)
+    , m_toggleDescriptionAction(0)
 {
-    setWidget(editorWidget);
+    QSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
+    m_descriptionWidget = new Internal::DescriptionEditorWidget(splitter);
+    m_descriptionWidget->setReadOnly(true);
+    splitter->addWidget(m_descriptionWidget);
+    splitter->addWidget(editorWidget);
+    setWidget(splitter);
+
+    connect(TextEditorSettings::instance(), SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+            m_descriptionWidget, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
+    connect(TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+            m_descriptionWidget->baseTextDocument(), SLOT(setFontSettings(TextEditor::FontSettings)));
+    m_descriptionWidget->setDisplaySettings(TextEditorSettings::displaySettings());
+    m_descriptionWidget->setCodeStyle(TextEditorSettings::codeStyle());
+    m_descriptionWidget->baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
+
     m_diffEditorController = editorWidget ? editorWidget->diffEditorController() : 0;
     if (m_diffEditorController) {
         connect(m_diffEditorController, SIGNAL(currentDiffFileIndexChanged(int)),
                 this, SLOT(activateEntry(int)));
+        connect(m_diffEditorController, SIGNAL(descriptionChanged(QString)),
+                this, SLOT(slotDescriptionChanged(QString)));
+        connect(m_diffEditorController, SIGNAL(descriptionEnablementChanged(bool)),
+                this, SLOT(slotDescriptionVisibilityChanged()));
+        connect(m_diffEditorController, SIGNAL(descriptionVisibilityChanged(bool)),
+                this, SLOT(slotDescriptionVisibilityChanged()));
+
+        slotDescriptionChanged(m_diffEditorController->description());
+        slotDescriptionVisibilityChanged();
     }
 }
 
@@ -91,7 +183,7 @@ Core::Id DiffEditor::id() const
 
 QTextCodec *DiffEditor::codec() const
 {
-    return m_editorWidget->codec();
+    return m_diffWidget->codec();
 }
 
 static QToolBar *createToolBar(const QWidget *someWidget)
@@ -111,7 +203,7 @@ QWidget *DiffEditor::toolBar()
         return m_toolWidget;
 
     // Create
-    m_toolWidget = createToolBar(m_editorWidget);
+    m_toolWidget = createToolBar(m_diffWidget);
 
     m_entriesComboBox = new QComboBox;
     m_entriesComboBox->setMinimumContentsLength(20);
@@ -148,6 +240,13 @@ QWidget *DiffEditor::toolBar()
     toggleSync->setToolTip(tr("Synchronize Horizontal Scroll Bars"));
     m_toolWidget->addWidget(toggleSync);
 
+    QToolButton *toggleDescription = new QToolButton(m_toolWidget);
+    toggleDescription->setIcon(QIcon(QLatin1String(Core::Constants::ICON_TOGGLE_TOPBAR)));
+    toggleDescription->setCheckable(true);
+    toggleDescription->setChecked(true);
+    m_toggleDescriptionAction = m_toolWidget->addWidget(toggleDescription);
+    slotDescriptionVisibilityChanged();
+
     if (m_diffEditorController) {
         connect(whitespaceButton, SIGNAL(clicked(bool)),
                 m_diffEditorController, SLOT(setIgnoreWhitespaces(bool)));
@@ -155,6 +254,8 @@ QWidget *DiffEditor::toolBar()
                 m_diffEditorController, SLOT(setContextLinesNumber(int)));
         connect(toggleSync, SIGNAL(clicked(bool)),
                 m_diffEditorController, SLOT(setHorizontalScrollBarSynchronization(bool)));
+        connect(toggleDescription, SIGNAL(clicked(bool)),
+                m_diffEditorController, SLOT(setDescriptionVisible(bool)));
         // TODO: synchronize in opposite direction too
     }
 
@@ -206,6 +307,18 @@ void DiffEditor::setDiff(const QList<DiffEditorController::DiffFilesContents> &d
         m_diffEditorController->setDiffContents(diffFileList, workingDirectory);
 }
 
+void DiffEditor::setDescription(const QString &description)
+{
+    if (m_diffEditorController)
+        m_diffEditorController->setDescription(description);
+}
+
+void DiffEditor::setDescriptionEnabled(bool on)
+{
+    if (m_diffEditorController)
+        m_diffEditorController->setDescriptionEnabled(on);
+}
+
 void DiffEditor::clear(const QString &message)
 {
     m_entriesComboBox->clear();
@@ -236,4 +349,34 @@ void DiffEditor::activateEntry(int index)
     updateEntryToolTip();
 }
 
+void DiffEditor::slotDescriptionChanged(const QString &description)
+{
+    m_descriptionWidget->setPlainText(description);
+}
+
+void DiffEditor::slotDescriptionVisibilityChanged()
+{
+    if (!m_diffEditorController)
+        return;
+
+    const bool visible = m_diffEditorController->isDescriptionVisible();
+    const bool enabled = m_diffEditorController->isDescriptionEnabled();
+
+    m_descriptionWidget->setVisible(visible && enabled);
+
+    if (!m_toggleDescriptionAction)
+        return;
+
+    QWidget *toggle = m_toolWidget->widgetForAction(m_toggleDescriptionAction);
+    if (visible)
+        toggle->setToolTip(tr("Hide Change Description"));
+    else
+        toggle->setToolTip(tr("Show Change Description"));
+
+    m_toggleDescriptionAction->setVisible(enabled);
+
+}
+
 } // namespace DiffEditor
+
+#include "diffeditor.moc"
