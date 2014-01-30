@@ -980,6 +980,8 @@ void tst_Dumpers::dumper()
         proFile.write("CONFIG -= QT\n");
     if (m_useGLibCxxDebug)
         proFile.write("DEFINES += _GLIBCXX_DEBUG\n");
+    if (m_gdbVersion < 70500)
+        proFile.write("QMAKE_CXXFLAGS += -gdwarf-3\n");
     proFile.write(data.profileExtra);
     proFile.close();
 
