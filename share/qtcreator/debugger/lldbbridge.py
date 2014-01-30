@@ -856,12 +856,23 @@ class Dumper(DumperBase):
             buf[i] = data.GetUnsignedInt8(error, i)
         return Blob(bytes(buf))
 
+    def extractStaticMetaObjectHelper(self, typeobj):
+        if typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass):
+            needle = typeobj.GetUnqualifiedType().GetName() + "::staticMetaObject"
+            result = self.target.FindFirstGlobalVariable(needle)
+            if result is None:
+                result = 0
+        else:
+            result = 0
+        self.knownStaticMetaObjects[typeobj.GetName()] = result
+        return result
+
     def extractStaticMetaObject(self, typeobj):
-        if typeobj.GetTypeClass() not in (lldb.eTypeClassStruct, lldb.eTypeClassClass):
-            return 0
-        needle = typeobj.GetUnqualifiedType().GetName() + "::staticMetaObject"
-        result = self.target.FindFirstGlobalVariable(needle)
-        return result if result else 0
+        result = self.extractStaticMetaObjectHelper(typeobj)
+        if result:
+            return result
+        base = typeobj.GetDirectBaseClassAtIndex(0).GetType()
+        return self.extractStaticMetaObjectHelper(base)
 
     def stripNamespaceFromType(self, typeName):
         #type = stripClassTag(typeName)
