@@ -77,6 +77,7 @@ def compileSucceeded(compileOutput):
                             "(\d:)?\d{2}:\d\d\.$", str(compileOutput), re.S)
 
 def waitForCompile(timeout=60000):
+    progressBarWait(10000) # avoids switching to Issues pane after checking Compile Output
     ensureChecked(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton")
     output = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")
     if not waitFor("re.match('.*Elapsed time: (\d:)?\d{2}:\d\d\.$', str(output.plainText), re.S)", timeout):

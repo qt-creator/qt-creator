@@ -68,6 +68,11 @@ def modifyRunSettingsForHookInto(projectName, kitCount, port):
                     changingVars.append("SQUISH_LIBQTDIR=%s" % replacement)
                 else:
                     changingVars.append(varName)
+            elif varName == "DYLD_FRAMEWORK_PATH" and platform.system() == 'Darwin':
+                value = str(model.data(model.index(index.row, 1)).toString())
+                test.log("Adding %s to DYLD_FRAMEWORK_PATH" % qtLibPath)
+                replacement = ":".join(filter(len, [qtLibPath, value]))
+                changingVars.append("%s=%s" % (varName, replacement))
         batchEditRunEnvironment(kitCount, 0, changingVars, True)
     switchViewTo(ViewConstants.EDIT)
     return result
