@@ -105,8 +105,8 @@ public:
     bool isSemanticInfoOutdated() const;
     int editorRevision() const;
     QVector<QTextLayout::FormatRange> diagnosticRanges() const;
-
     Internal::QmlOutlineModel *outlineModel() const;
+
     QModelIndex outlineModelIndex();
 
     static QVector<TextEditor::TextStyle> highlighterFormatCategories();
@@ -126,7 +126,6 @@ private slots:
     void modificationChanged(bool);
 
     void jumpToOutlineElement(int index);
-    void updateOutlineNow();
     void updateOutlineIndexNow();
     void updateContextPane();
     void showTextMarker();
@@ -166,11 +165,9 @@ private:
 
     Internal::QmlJSEditorDocument *m_qmlJsEditorDocument;
     QTimer *m_updateUsesTimer; // to wait for multiple text cursor position changes
-    QTimer *m_updateOutlineTimer;
     QTimer *m_updateOutlineIndexTimer;
     QTimer *m_contextPaneTimer;
     QComboBox *m_outlineCombo;
-    Internal::QmlOutlineModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager;
 

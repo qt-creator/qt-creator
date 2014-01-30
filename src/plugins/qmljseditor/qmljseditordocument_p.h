@@ -41,6 +41,7 @@ namespace QmlJSEditor {
 namespace Internal {
 
 class QmlJSEditorDocument;
+class QmlOutlineModel;
 class SemanticHighlighter;
 class SemanticInfoUpdater;
 
@@ -58,6 +59,7 @@ public slots:
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
     void reupdateSemanticInfo();
     void acceptNewSemanticInfo(const QmlJSTools::SemanticInfo &semanticInfo);
+    void updateOutlineModel();
 
 public:
     QmlJSEditorDocument *m_q;
@@ -69,6 +71,9 @@ public:
     QVector<QTextLayout::FormatRange> m_diagnosticRanges;
     Internal::SemanticHighlighter *m_semanticHighlighter;
     bool m_semanticHighlightingNecessary;
+    bool m_outlineModelNeedsUpdate;
+    QTimer *m_updateOutlineModelTimer;
+    Internal::QmlOutlineModel *m_outlineModel;
 };
 
 } // Internal

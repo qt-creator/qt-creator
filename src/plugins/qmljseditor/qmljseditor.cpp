@@ -114,7 +114,6 @@ void QmlJSTextEditorWidget::ctor()
 {
     m_qmlJsEditorDocument = static_cast<QmlJSEditorDocument *>(baseTextDocument());
     m_outlineCombo = 0;
-    m_outlineModel = new QmlOutlineModel(m_qmlJsEditorDocument);
     m_contextPane = 0;
     m_findReferences = new FindReferences(this);
 
@@ -129,11 +128,6 @@ void QmlJSTextEditorWidget::ctor()
     m_updateUsesTimer->setSingleShot(true);
     connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUses()));
     connect(this, SIGNAL(cursorPositionChanged()), m_updateUsesTimer, SLOT(start()));
-
-    m_updateOutlineTimer = new QTimer(this);
-    m_updateOutlineTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
-    m_updateOutlineTimer->setSingleShot(true);
-    connect(m_updateOutlineTimer, SIGNAL(timeout()), this, SLOT(updateOutlineNow()));
 
     m_updateOutlineIndexTimer = new QTimer(this);
     m_updateOutlineIndexTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
@@ -157,14 +151,14 @@ void QmlJSTextEditorWidget::ctor()
 
     connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
 
+    connect(m_qmlJsEditorDocument, SIGNAL(updateCodeWarnings(QmlJS::Document::Ptr)),
+            this, SLOT(updateCodeWarnings(QmlJS::Document::Ptr)));
     connect(m_qmlJsEditorDocument, SIGNAL(semanticInfoUpdated(QmlJSTools::SemanticInfo)),
             this, SLOT(semanticInfoUpdated(QmlJSTools::SemanticInfo)));
 
     connect(this, SIGNAL(refactorMarkerClicked(TextEditor::RefactorMarker)),
             SLOT(onRefactorMarkerClicked(TextEditor::RefactorMarker)));
 
-    connect(baseTextDocument(), SIGNAL(updateCodeWarnings(QmlJS::Document::Ptr)),
-            this, SLOT(updateCodeWarnings(QmlJS::Document::Ptr)));
     setRequestMarkEnabled(true);
 }
 
@@ -194,7 +188,7 @@ bool QmlJSTextEditorWidget::isSemanticInfoOutdated() const
 
 QmlOutlineModel *QmlJSTextEditorWidget::outlineModel() const
 {
-    return m_outlineModel;
+    return m_qmlJsEditorDocument->outlineModel();
 }
 
 QModelIndex QmlJSTextEditorWidget::outlineModelIndex()
@@ -285,7 +279,7 @@ void QmlJSTextEditorWidget::modificationChanged(bool changed)
 void QmlJSTextEditorWidget::jumpToOutlineElement(int /*index*/)
 {
     QModelIndex index = m_outlineCombo->view()->currentIndex();
-    AST::SourceLocation location = m_outlineModel->sourceLocation(index);
+    AST::SourceLocation location = m_qmlJsEditorDocument->outlineModel()->sourceLocation(index);
 
     if (!location.isValid())
         return;
@@ -300,33 +294,12 @@ void QmlJSTextEditorWidget::jumpToOutlineElement(int /*index*/)
     setFocus();
 }
 
-void QmlJSTextEditorWidget::updateOutlineNow()
-{
-    if (!m_qmlJsEditorDocument->semanticInfo().document)
-        return;
-
-    if (m_qmlJsEditorDocument->semanticInfo().document->editorRevision() != editorRevision()) {
-        m_updateOutlineTimer->start();
-        return;
-    }
-
-    m_outlineModel->update(m_qmlJsEditorDocument->semanticInfo());
-
-    QTreeView *treeView = static_cast<QTreeView*>(m_outlineCombo->view());
-    treeView->expandAll();
-
-    updateOutlineIndexNow();
-}
-
 void QmlJSTextEditorWidget::updateOutlineIndexNow()
 {
-    if (m_updateOutlineTimer->isActive())
-        return; // updateOutlineNow will call this function soon anyway
-
-    if (!m_outlineModel->document())
+    if (!m_qmlJsEditorDocument->outlineModel()->document())
         return;
 
-    if (m_outlineModel->document()->editorRevision() != editorRevision()) {
+    if (m_qmlJsEditorDocument->outlineModel()->document()->editorRevision() != editorRevision()) {
         m_updateOutlineIndexTimer->start();
         return;
     }
@@ -604,7 +577,7 @@ void QmlJSTextEditorWidget::createToolBar(QmlJSEditor *editor)
 {
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
-    m_outlineCombo->setModel(m_outlineModel);
+    m_outlineCombo->setModel(m_qmlJsEditorDocument->outlineModel());
 
     QTreeView *treeView = new QTreeView;
 
@@ -627,6 +600,11 @@ void QmlJSTextEditorWidget::createToolBar(QmlJSEditor *editor)
     m_outlineCombo->setSizePolicy(policy);
 
     connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
+    connect(m_qmlJsEditorDocument->outlineModel(), SIGNAL(updated()),
+            m_outlineCombo->view()/*QTreeView*/, SLOT(expandAll()));
+    connect(m_qmlJsEditorDocument->outlineModel(), SIGNAL(updated()),
+            this, SLOT(updateOutlineIndexNow()));
+
     connect(this, SIGNAL(cursorPositionChanged()), m_updateOutlineIndexTimer, SLOT(start()));
 
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
@@ -856,8 +834,10 @@ void QmlJSTextEditorWidget::unCommentSelection()
 
 void QmlJSTextEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
 {
-    if (isVisible())
-        baseTextDocument()->triggerPendingUpdates(); // trigger semantic highlighting if necessary
+    if (isVisible()) {
+         // trigger semantic highlighting and model update if necessary
+        baseTextDocument()->triggerPendingUpdates();
+    }
 
     if (m_contextPane) {
         Node *newNode = semanticInfo.declaringMemberNoProperties(position());
@@ -868,9 +848,6 @@ void QmlJSTextEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo
     }
 
     updateUses();
-
-    // update outline
-    m_updateOutlineTimer->start();
 }
 
 void QmlJSTextEditorWidget::onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker)
@@ -883,11 +860,11 @@ QModelIndex QmlJSTextEditorWidget::indexForPosition(unsigned cursorPosition, con
 {
     QModelIndex lastIndex = rootIndex;
 
-
-    const int rowCount = m_outlineModel->rowCount(rootIndex);
+    QmlOutlineModel *model = m_qmlJsEditorDocument->outlineModel();
+    const int rowCount = model->rowCount(rootIndex);
     for (int i = 0; i < rowCount; ++i) {
-        QModelIndex childIndex = m_outlineModel->index(i, 0, rootIndex);
-        AST::SourceLocation location = m_outlineModel->sourceLocation(childIndex);
+        QModelIndex childIndex = model->index(i, 0, rootIndex);
+        AST::SourceLocation location = model->sourceLocation(childIndex);
 
         if ((cursorPosition >= location.offset)
               && (cursorPosition <= location.offset + location.length)) {

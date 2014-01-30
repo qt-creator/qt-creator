@@ -40,6 +40,7 @@ namespace QmlJSEditor {
 namespace Internal {
 
 class QmlJSEditorDocumentPrivate;
+class QmlOutlineModel;
 
 class QmlJSEditorDocument : public TextEditor::BaseTextDocument
 {
@@ -52,6 +53,7 @@ public:
     bool isSemanticInfoOutdated() const;
     QVector<QTextLayout::FormatRange> diagnosticRanges() const;
     void setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges);
+    Internal::QmlOutlineModel *outlineModel() const;
 
 signals:
     void updateCodeWarnings(QmlJS::Document::Ptr doc);

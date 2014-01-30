@@ -33,6 +33,7 @@
 #include "qmljshighlighter.h"
 #include "qmljssemantichighlighter.h"
 #include "qmljssemanticinfoupdater.h"
+#include "qmloutlinemodel.h"
 
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -46,7 +47,8 @@ using namespace QmlJSTools;
 namespace {
 
 enum {
-    UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100
+    UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100,
+    UPDATE_OUTLINE_INTERVAL = 500
 };
 
 class FindIdDeclarations: protected Visitor
@@ -399,7 +401,9 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     : m_q(parent),
       m_semanticInfoDocRevision(-1),
       m_semanticHighlighter(new SemanticHighlighter(parent)),
-      m_semanticHighlightingNecessary(false)
+      m_semanticHighlightingNecessary(false),
+      m_outlineModelNeedsUpdate(false),
+      m_outlineModel(new QmlOutlineModel(parent))
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
@@ -425,6 +429,12 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     connect(m_reupdateSemanticInfoTimer, SIGNAL(timeout()), this, SLOT(reupdateSemanticInfo()));
     connect(modelManager, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
             m_reupdateSemanticInfoTimer, SLOT(start()));
+
+    // outline model
+    m_updateOutlineModelTimer = new QTimer(this);
+    m_updateOutlineModelTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    m_updateOutlineModelTimer->setSingleShot(true);
+    connect(m_updateOutlineModelTimer, SIGNAL(timeout()), this, SLOT(updateOutlineModel()));
 }
 
 QmlJSEditorDocumentPrivate::~QmlJSEditorDocumentPrivate()
@@ -490,8 +500,18 @@ void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &seman
     FindIdDeclarations updateIds;
     m_semanticInfo.idLocations = updateIds(doc);
 
+    m_outlineModelNeedsUpdate = true;
     m_semanticHighlightingNecessary = true;
-    emit m_q->semanticInfoUpdated(m_semanticInfo);
+
+    emit m_q->semanticInfoUpdated(m_semanticInfo); // calls triggerPendingUpdates as necessary
+}
+
+void QmlJSEditorDocumentPrivate::updateOutlineModel()
+{
+    if (m_q->isSemanticInfoOutdated())
+        return; // outline update will be retriggered when semantic info is updated
+
+    m_outlineModel->update(m_semanticInfo);
 }
 
 QmlJSEditorDocument::QmlJSEditorDocument()
@@ -523,6 +543,11 @@ QVector<QTextLayout::FormatRange> QmlJSEditorDocument::diagnosticRanges() const
     return m_d->m_diagnosticRanges;
 }
 
+QmlOutlineModel *QmlJSEditorDocument::outlineModel() const
+{
+    return m_d->m_outlineModel;
+}
+
 void QmlJSEditorDocument::setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges)
 {
     m_d->m_diagnosticRanges = ranges;
@@ -545,6 +570,10 @@ void QmlJSEditorDocument::triggerPendingUpdates()
     if (m_d->m_semanticHighlightingNecessary && !isSemanticInfoOutdated()) {
         m_d->m_semanticHighlightingNecessary = false;
         m_d->m_semanticHighlighter->rerun(m_d->m_semanticInfo);
+    }
+    if (m_d->m_outlineModelNeedsUpdate && !isSemanticInfoOutdated()) {
+        m_d->m_outlineModelNeedsUpdate = false;
+        m_d->m_updateOutlineModelTimer->start();
     }
 }
 
