@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORWIDGET_H
-#define DIFFEDITORWIDGET_H
+#ifndef SIDEBYSIDEDIFFEDITORWIDGET_H
+#define SIDEBYSIDEDIFFEDITORWIDGET_H
 
 #include "diffeditor_global.h"
 #include "differ.h"
@@ -52,17 +52,17 @@ QT_END_NAMESPACE
 
 namespace DiffEditor {
 
-class DiffViewEditorWidget;
+class SideDiffEditorWidget;
 class TextLineData;
 class ChunkData;
 class FileData;
 
-class DIFFEDITOR_EXPORT DiffEditorWidget : public QWidget
+class DIFFEDITOR_EXPORT SideBySideDiffEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    DiffEditorWidget(QWidget *parent = 0);
-    ~DiffEditorWidget();
+    SideBySideDiffEditorWidget(QWidget *parent = 0);
+    ~SideBySideDiffEditorWidget();
 
     void setDiffEditorController(DiffEditorController *controller);
     DiffEditorController *diffEditorController() const;
@@ -70,7 +70,7 @@ public:
     QTextCodec *codec() const;
 
 #ifdef WITH_TESTS
-    void testAssemblyRows();
+    static void testAssemblyRows();
 #endif // WITH_TESTS
 
 private slots:
@@ -111,12 +111,12 @@ private:
     void colorDiff(const QList<FileData> &fileDataList);
     FileData calculateContextData(const ChunkData &originalData) const;
     void showDiff();
-    void synchronizeFoldings(DiffViewEditorWidget *source, DiffViewEditorWidget *destination);
+    void synchronizeFoldings(SideDiffEditorWidget *source, SideDiffEditorWidget *destination);
     void jumpToOriginalFile(const QString &fileName, int lineNumber, int columnNumber);
 
     DiffEditorController *m_controller;
-    DiffViewEditorWidget *m_leftEditor;
-    DiffViewEditorWidget *m_rightEditor;
+    SideDiffEditorWidget *m_leftEditor;
+    SideDiffEditorWidget *m_rightEditor;
     QSplitter *m_splitter;
 
     QList<DiffList> m_diffList; // list of original outputs from differ
@@ -136,4 +136,4 @@ private:
 
 } // namespace DiffEditor
 
-#endif // DIFFEDITORWIDGET_H
+#endif // SIDEBYSIDEDIFFEDITORWIDGET_H

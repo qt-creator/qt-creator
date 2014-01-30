@@ -29,7 +29,7 @@
 
 #include "diffshoweditor.h"
 #include "diffeditorconstants.h"
-#include "diffeditorwidget.h"
+#include "sidebysidediffeditorwidget.h"
 
 #include <QToolBar>
 #include <QToolButton>
@@ -107,7 +107,7 @@ void DiffShowEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
 } // namespace Internal
 
-DiffShowEditor::DiffShowEditor(DiffEditorWidget *editorWidget)
+DiffShowEditor::DiffShowEditor(SideBySideDiffEditorWidget *editorWidget)
     : DiffEditor(editorWidget)
 {
     document()->setDisplayName(QCoreApplication::translate("DiffShowEditor",

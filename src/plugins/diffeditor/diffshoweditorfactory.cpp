@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
+#include "diffeditorconstants.h"
 #include "diffshoweditorfactory.h"
 #include "diffshoweditor.h"
-#include "diffeditorwidget.h"
-#include "diffeditorconstants.h"
+#include "sidebysidediffeditorwidget.h"
 
 #include <QCoreApplication>
 
@@ -48,7 +48,7 @@ DiffShowEditorFactory::DiffShowEditorFactory(QObject *parent)
 
 Core::IEditor *DiffShowEditorFactory::createEditor()
 {
-    DiffEditorWidget *editorWidget = new DiffEditorWidget();
+    SideBySideDiffEditorWidget *editorWidget = new SideBySideDiffEditorWidget();
     DiffEditorController *editorController = new DiffEditorController(editorWidget);
     editorWidget->setDiffEditorController(editorController);
     DiffShowEditor *editor = new DiffShowEditor(editorWidget);

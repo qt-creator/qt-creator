@@ -31,9 +31,9 @@
 #include "diffeditor.h"
 #include "diffeditorconstants.h"
 #include "diffeditorfactory.h"
-#include "diffeditorwidget.h"
 #include "diffshoweditor.h"
 #include "diffshoweditorfactory.h"
+#include "sidebysidediffeditorwidget.h"
 
 #include <QFileDialog>
 #include <QTextCodec>
@@ -140,8 +140,7 @@ QString DiffEditorPlugin::getFileContents(const QString &fileName, QTextCodec *c
 
 void DiffEditor::Internal::DiffEditorPlugin::testAssemblyRows()
 {
-    DiffEditorWidget widget;
-    widget.testAssemblyRows();
+    SideBySideDiffEditorWidget::testAssemblyRows();
 }
 
 #endif // WITH_TESTS

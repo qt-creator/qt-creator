@@ -30,6 +30,8 @@
 #ifndef DIFFEDITORCONSTANTS_H
 #define DIFFEDITORCONSTANTS_H
 
+#include <QtGlobal>
+
 namespace DiffEditor {
 namespace Constants {
 

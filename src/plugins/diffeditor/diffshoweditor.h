@@ -48,7 +48,7 @@ class DIFFEDITOR_EXPORT DiffShowEditor : public DiffEditor
 {
     Q_OBJECT
 public:
-    explicit DiffShowEditor(DiffEditorWidget *editorWidget);
+    explicit DiffShowEditor(SideBySideDiffEditorWidget *editorWidget);
     virtual ~DiffShowEditor();
 
 public:

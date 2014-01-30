@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "diffeditorwidget.h"
+#include "sidebysidediffeditorwidget.h"
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
 #include <QPlainTextDocumentLayout>
@@ -932,29 +932,31 @@ static ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
 
 //////////////////////
 
-class DiffViewEditorEditable : public BaseTextEditor
+class SideDiffEditor : public BaseTextEditor
 {
     Q_OBJECT
 public:
-    DiffViewEditorEditable(BaseTextEditorWidget *editorWidget)
+    SideDiffEditor(BaseTextEditorWidget *editorWidget)
         : BaseTextEditor(editorWidget)
     {
         connect(this, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
                 this, SLOT(slotTooltipRequested(TextEditor::ITextEditor*,QPoint,int)));
     }
 
-    Core::Id id() const { return "DiffViewEditor"; }
+    Core::Id id() const { return "SideDiffEditor"; }
 
 private slots:
     void slotTooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPoint, int position);
 
 };
 
+////////////////////////
+
 class MultiHighlighter : public SyntaxHighlighter
 {
     Q_OBJECT
 public:
-    MultiHighlighter(DiffViewEditorWidget *editor, QTextDocument *document = 0);
+    MultiHighlighter(SideDiffEditorWidget *editor, QTextDocument *document = 0);
     ~MultiHighlighter();
 
     virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
@@ -964,7 +966,7 @@ protected:
     virtual void highlightBlock(const QString &text);
 
 private:
-    DiffViewEditorWidget *m_editor;
+    SideDiffEditorWidget *m_editor;
     QMap<QString, IHighlighterFactory *> m_mimeTypeToHighlighterFactory;
     QList<SyntaxHighlighter *> m_highlighters;
     QList<QTextDocument *> m_documents;
@@ -972,7 +974,7 @@ private:
 
 ////////////////////////
 
-class DiffViewEditorWidget : public BaseTextEditorWidget
+class SideDiffEditorWidget : public BaseTextEditorWidget
 {
     Q_OBJECT
 public:
@@ -982,7 +984,7 @@ public:
         TextEditor::SyntaxHighlighter *highlighter;
     };
 
-    DiffViewEditorWidget(QWidget *parent = 0);
+    SideDiffEditorWidget(QWidget *parent = 0);
 
     // TODO: remove me, codec should be taken from somewhere else
     QTextCodec *codec() const {
@@ -1016,7 +1018,7 @@ signals:
 protected:
     virtual int extraAreaWidth(int *markWidthPtr = 0) const { return BaseTextEditorWidget::extraAreaWidth(markWidthPtr); }
     void applyFontSettings();
-    BaseTextEditor *createEditor() { return new DiffViewEditorEditable(this); }
+    BaseTextEditor *createEditor() { return new SideDiffEditor(this); }
     virtual QString lineNumber(int blockNumber) const;
     virtual int lineNumberDigits() const;
     virtual bool selectionVisible(int blockNumber) const;
@@ -1053,7 +1055,28 @@ private:
     MultiHighlighter *m_highlighter;
 };
 
-MultiHighlighter::MultiHighlighter(DiffViewEditorWidget *editor, QTextDocument *document)
+////////////////////////
+
+void SideDiffEditor::slotTooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPoint, int position)
+{
+    SideDiffEditorWidget *ew = qobject_cast<SideDiffEditorWidget *>(editorWidget());
+    if (!ew)
+        return;
+
+    QMap<int, DiffEditorController::DiffFileInfo> fi = ew->fileInfo();
+    QMap<int, DiffEditorController::DiffFileInfo>::const_iterator it
+            = fi.constFind(ew->document()->findBlock(position).blockNumber());
+    if (it != fi.constEnd()) {
+        Utils::ToolTip::show(globalPoint, Utils::TextContent(it.value().fileName),
+                                         editor->widget());
+    } else {
+        Utils::ToolTip::hide();
+    }
+}
+
+////////////////////////
+
+MultiHighlighter::MultiHighlighter(SideDiffEditorWidget *editor, QTextDocument *document)
     : SyntaxHighlighter(document),
       m_editor(editor)
 {
@@ -1135,24 +1158,9 @@ void MultiHighlighter::highlightBlock(const QString &text)
     setExtraAdditionalFormats(block, formats);
 }
 
-void DiffViewEditorEditable::slotTooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPoint, int position)
-{
-    DiffViewEditorWidget *ew = qobject_cast<DiffViewEditorWidget *>(editorWidget());
-    if (!ew)
-        return;
+////////////////////////
 
-    QMap<int, DiffEditorController::DiffFileInfo> fi = ew->fileInfo();
-    QMap<int, DiffEditorController::DiffFileInfo>::const_iterator it
-            = fi.constFind(ew->document()->findBlock(position).blockNumber());
-    if (it != fi.constEnd()) {
-        Utils::ToolTip::show(globalPoint, Utils::TextContent(it.value().fileName),
-                                         editor->widget());
-    } else {
-        Utils::ToolTip::hide();
-    }
-}
-
-DiffViewEditorWidget::DiffViewEditorWidget(QWidget *parent)
+SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
     : BaseTextEditorWidget(parent), m_lineNumberDigits(1), m_inPaintEvent(false)
 {
     DisplaySettings settings = displaySettings();
@@ -1171,14 +1179,14 @@ DiffViewEditorWidget::DiffViewEditorWidget(QWidget *parent)
     baseTextDocument()->setSyntaxHighlighter(m_highlighter);
 }
 
-void DiffViewEditorWidget::setDisplaySettings(const DisplaySettings &ds)
+void SideDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 {
     DisplaySettings settings = displaySettings();
     settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
     BaseTextEditorWidget::setDisplaySettings(settings);
 }
 
-void DiffViewEditorWidget::applyFontSettings()
+void SideDiffEditorWidget::applyFontSettings()
 {
     BaseTextEditorWidget::applyFontSettings();
     const TextEditor::FontSettings &fs = baseTextDocument()->fontSettings();
@@ -1188,36 +1196,36 @@ void DiffViewEditorWidget::applyFontSettings()
     update();
 }
 
-QString DiffViewEditorWidget::lineNumber(int blockNumber) const
+QString SideDiffEditorWidget::lineNumber(int blockNumber) const
 {
     if (m_lineNumbers.contains(blockNumber))
         return QString::number(m_lineNumbers.value(blockNumber));
     return QString();
 }
 
-int DiffViewEditorWidget::lineNumberDigits() const
+int SideDiffEditorWidget::lineNumberDigits() const
 {
     return m_lineNumberDigits;
 }
 
-bool DiffViewEditorWidget::selectionVisible(int blockNumber) const
+bool SideDiffEditorWidget::selectionVisible(int blockNumber) const
 {
     return !m_separators.value(blockNumber, false);
 }
 
-bool DiffViewEditorWidget::replacementVisible(int blockNumber) const
+bool SideDiffEditorWidget::replacementVisible(int blockNumber) const
 {
     return isChunkLine(blockNumber) || (isFileLine(blockNumber)
            && TextEditor::BaseTextDocumentLayout::isFolded(document()->findBlockByNumber(blockNumber)));
 }
 
-QColor DiffViewEditorWidget::replacementPenColor(int blockNumber) const
+QColor SideDiffEditorWidget::replacementPenColor(int blockNumber) const
 {
     Q_UNUSED(blockNumber)
     return m_chunkLineForeground;
 }
 
-QString DiffViewEditorWidget::plainTextFromSelection(const QTextCursor &cursor) const
+QString SideDiffEditorWidget::plainTextFromSelection(const QTextCursor &cursor) const
 {
     const int startPosition = cursor.selectionStart();
     const int endPosition = cursor.selectionEnd();
@@ -1252,20 +1260,20 @@ QString DiffViewEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
     return convertToPlainText(text);
 }
 
-void DiffViewEditorWidget::setLineNumber(int blockNumber, int lineNumber)
+void SideDiffEditorWidget::setLineNumber(int blockNumber, int lineNumber)
 {
     const QString lineNumberString = QString::number(lineNumber);
     m_lineNumbers.insert(blockNumber, lineNumber);
     m_lineNumberDigits = qMax(m_lineNumberDigits, lineNumberString.count());
 }
 
-void DiffViewEditorWidget::setFileInfo(int blockNumber, const DiffEditorController::DiffFileInfo &fileInfo)
+void SideDiffEditorWidget::setFileInfo(int blockNumber, const DiffEditorController::DiffFileInfo &fileInfo)
 {
     m_fileInfo[blockNumber] = fileInfo;
     setSeparator(blockNumber, true);
 }
 
-int DiffViewEditorWidget::blockNumberForFileIndex(int fileIndex) const
+int SideDiffEditorWidget::blockNumberForFileIndex(int fileIndex) const
 {
     if (fileIndex < 0 || fileIndex >= m_fileInfo.count())
         return -1;
@@ -1278,7 +1286,7 @@ int DiffViewEditorWidget::blockNumberForFileIndex(int fileIndex) const
     return it.key();
 }
 
-int DiffViewEditorWidget::fileIndexForBlockNumber(int blockNumber) const
+int SideDiffEditorWidget::fileIndexForBlockNumber(int blockNumber) const
 {
     QMap<int, DiffEditorController::DiffFileInfo>::const_iterator it
             = m_fileInfo.constBegin();
@@ -1295,7 +1303,7 @@ int DiffViewEditorWidget::fileIndexForBlockNumber(int blockNumber) const
     return i;
 }
 
-void DiffViewEditorWidget::clearAll(const QString &message)
+void SideDiffEditorWidget::clearAll(const QString &message)
 {
     setBlockSelection(false);
     clear();
@@ -1304,7 +1312,7 @@ void DiffViewEditorWidget::clearAll(const QString &message)
     m_highlighter->setDocuments(QList<QPair<DiffEditorController::DiffFileInfo, QString> >());
 }
 
-void DiffViewEditorWidget::clearAllData()
+void SideDiffEditorWidget::clearAllData()
 {
     m_lineNumberDigits = 1;
     m_lineNumbers.clear();
@@ -1313,19 +1321,19 @@ void DiffViewEditorWidget::clearAllData()
     m_separators.clear();
 }
 
-void  DiffViewEditorWidget::setDocuments(const QList<QPair<DiffEditorController::DiffFileInfo, QString> > &documents)
+void  SideDiffEditorWidget::setDocuments(const QList<QPair<DiffEditorController::DiffFileInfo, QString> > &documents)
 {
     m_highlighter->setDocuments(documents);
 }
 
-void DiffViewEditorWidget::scrollContentsBy(int dx, int dy)
+void SideDiffEditorWidget::scrollContentsBy(int dx, int dy)
 {
     BaseTextEditorWidget::scrollContentsBy(dx, dy);
     // TODO: update only chunk lines
     viewport()->update();
 }
 
-void DiffViewEditorWidget::paintSeparator(QPainter &painter,
+void SideDiffEditorWidget::paintSeparator(QPainter &painter,
                                           QColor &color,
                                           const QString &text,
                                           const QTextBlock &block,
@@ -1363,7 +1371,7 @@ void DiffViewEditorWidget::paintSeparator(QPainter &painter,
     painter.restore();
 }
 
-void DiffViewEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
+void SideDiffEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton && !(e->modifiers() & Qt::ShiftModifier)) {
         QTextCursor cursor = cursorForPosition(e->pos());
@@ -1374,7 +1382,7 @@ void DiffViewEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
     BaseTextEditorWidget::mouseDoubleClickEvent(e);
 }
 
-void DiffViewEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
+void SideDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 {
     if (m_fileInfo.isEmpty())
         return;
@@ -1389,7 +1397,7 @@ void DiffViewEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
     emit jumpToOriginalFileRequested(fileIndexForBlockNumber(blockNumber), lineNumber, columnNumber);
 }
 
-void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
+void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
 {
     m_inPaintEvent = true;
     BaseTextEditorWidget::paintEvent(e);
@@ -1433,7 +1441,7 @@ void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
     paintCollapsedBlockPopup(painter, e->rect());
 }
 
-void DiffViewEditorWidget::paintCollapsedBlockPopup(QPainter &painter, const QRect &clipRect)
+void SideDiffEditorWidget::paintCollapsedBlockPopup(QPainter &painter, const QRect &clipRect)
 {
     QPointF offset(contentOffset());
     QRect viewportRect = viewport()->rect();
@@ -1471,7 +1479,7 @@ void DiffViewEditorWidget::paintCollapsedBlockPopup(QPainter &painter, const QRe
     }
 }
 
-void DiffViewEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
+void SideDiffEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
                                              const QTextBlock &block,
                                              QPointF offset,
                                              const QRect &clip)
@@ -1536,12 +1544,12 @@ void DiffViewEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
 
 //////////////////
 
-DiffEditorWidget::DiffEditorWidget(QWidget *parent)
+SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     : QWidget(parent)
     , m_controller(0)
     , m_foldingBlocker(false)
 {
-    m_leftEditor = new DiffViewEditorWidget(this);
+    m_leftEditor = new SideDiffEditorWidget(this);
     m_leftEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_leftEditor->setReadOnly(true);
     connect(TextEditorSettings::instance(),
@@ -1552,7 +1560,7 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     connect(m_leftEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),
             this, SLOT(slotLeftJumpToOriginalFileRequested(int,int,int)));
 
-    m_rightEditor = new DiffViewEditorWidget(this);
+    m_rightEditor = new SideDiffEditorWidget(this);
     m_rightEditor->setReadOnly(true);
     connect(TextEditorSettings::instance(),
             SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
@@ -1607,12 +1615,12 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     clear(tr("No controller"));
 }
 
-DiffEditorWidget::~DiffEditorWidget()
+SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
 {
 
 }
 
-void DiffEditorWidget::setDiffEditorController(DiffEditorController *controller)
+void SideBySideDiffEditorWidget::setDiffEditorController(DiffEditorController *controller)
 {
     if (m_controller) {
         disconnect(m_controller, SIGNAL(cleared(QString)), this, SLOT(clear(QString)));
@@ -1643,18 +1651,18 @@ void DiffEditorWidget::setDiffEditorController(DiffEditorController *controller)
     }
 }
 
-DiffEditorController *DiffEditorWidget::diffEditorController() const
+DiffEditorController *SideBySideDiffEditorWidget::diffEditorController() const
 {
     return m_controller;
 }
 
-void DiffEditorWidget::clear(const QString &message)
+void SideBySideDiffEditorWidget::clear(const QString &message)
 {
     m_leftEditor->clearAll(message);
     m_rightEditor->clearAll(message);
 }
 
-void DiffEditorWidget::setDiff(const QList<DiffEditorController::DiffFilesContents> &diffFileList, const QString &workingDirectory)
+void SideBySideDiffEditorWidget::setDiff(const QList<DiffEditorController::DiffFilesContents> &diffFileList, const QString &workingDirectory)
 {
     Q_UNUSED(workingDirectory)
 
@@ -1671,7 +1679,7 @@ void DiffEditorWidget::setDiff(const QList<DiffEditorController::DiffFilesConten
     setDiff(diffList);
 }
 
-void DiffEditorWidget::setDiff(const QList<DiffList> &diffList)
+void SideBySideDiffEditorWidget::setDiff(const QList<DiffList> &diffList)
 {
     m_diffList = diffList;
     m_originalChunkData.clear();
@@ -1692,7 +1700,7 @@ void DiffEditorWidget::setDiff(const QList<DiffList> &diffList)
     showDiff();
 }
 
-void DiffEditorWidget::handleWhitespaces(const QList<Diff> &input,
+void SideBySideDiffEditorWidget::handleWhitespaces(const QList<Diff> &input,
                                          QList<Diff> *leftOutput,
                                          QList<Diff> *rightOutput) const
 {
@@ -1708,7 +1716,7 @@ void DiffEditorWidget::handleWhitespaces(const QList<Diff> &input,
     }
 }
 
-void DiffEditorWidget::setContextLinesNumber(int lines)
+void SideBySideDiffEditorWidget::setContextLinesNumber(int lines)
 {
     Q_UNUSED(lines)
 
@@ -1723,14 +1731,14 @@ void DiffEditorWidget::setContextLinesNumber(int lines)
     showDiff();
 }
 
-void DiffEditorWidget::setIgnoreWhitespaces(bool ignore)
+void SideBySideDiffEditorWidget::setIgnoreWhitespaces(bool ignore)
 {
     Q_UNUSED(ignore)
 
     setDiff(m_diffList);
 }
 
-void DiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
+void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
 {
     const int blockNumber = m_leftEditor->blockNumberForFileIndex(diffFileIndex);
 
@@ -1748,12 +1756,12 @@ void DiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     m_rightEditor->centerCursor();
 }
 
-QTextCodec *DiffEditorWidget::codec() const
+QTextCodec *SideBySideDiffEditorWidget::codec() const
 {
     return const_cast<QTextCodec *>(m_leftEditor->codec());
 }
 
-FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) const
+FileData SideBySideDiffEditorWidget::calculateContextData(const ChunkData &originalData) const
 {
     const int contextLinesNumber = m_controller ? m_controller->contextLinesNumber() : 3;
     if (contextLinesNumber < 0)
@@ -1853,7 +1861,7 @@ FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) c
     return fileData;
 }
 
-void DiffEditorWidget::showDiff()
+void SideBySideDiffEditorWidget::showDiff()
 {
     // TODO: remember the line number of the line in the middle
     const int verticalValue = m_leftEditor->verticalScrollBar()->value();
@@ -1990,7 +1998,7 @@ void DiffEditorWidget::showDiff()
     m_rightEditor->updateFoldingHighlight(QPoint(-1, -1));
 }
 
-QList<QTextEdit::ExtraSelection> DiffEditorWidget::colorPositions(
+QList<QTextEdit::ExtraSelection> SideBySideDiffEditorWidget::colorPositions(
         const QTextCharFormat &format,
         QTextCursor &cursor,
         const QMap<int, int> &positions) const
@@ -2013,7 +2021,7 @@ QList<QTextEdit::ExtraSelection> DiffEditorWidget::colorPositions(
     return lineSelections;
 }
 
-void DiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
+void SideBySideDiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
 {
     QPalette pal = m_leftEditor->extraArea()->palette();
     pal.setCurrentColorGroup(QPalette::Active);
@@ -2147,7 +2155,7 @@ static QTextCharFormat fullWidthFormatForTextStyle(const TextEditor::FontSetting
     return format;
 }
 
-void DiffEditorWidget::setFontSettings(const TextEditor::FontSettings &fontSettings)
+void SideBySideDiffEditorWidget::setFontSettings(const TextEditor::FontSettings &fontSettings)
 {
     m_leftEditor->baseTextDocument()->setFontSettings(fontSettings);
     m_rightEditor->baseTextDocument()->setFontSettings(fontSettings);
@@ -2162,7 +2170,7 @@ void DiffEditorWidget::setFontSettings(const TextEditor::FontSettings &fontSetti
     colorDiff(m_contextFileData);
 }
 
-void DiffEditorWidget::slotLeftJumpToOriginalFileRequested(int diffFileIndex,
+void SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested(int diffFileIndex,
                                                            int lineNumber,
                                                            int columnNumber)
 {
@@ -2201,7 +2209,7 @@ void DiffEditorWidget::slotLeftJumpToOriginalFileRequested(int diffFileIndex,
     }
 }
 
-void DiffEditorWidget::slotRightJumpToOriginalFileRequested(int diffFileIndex,
+void SideBySideDiffEditorWidget::slotRightJumpToOriginalFileRequested(int diffFileIndex,
                                                             int lineNumber, int columnNumber)
 {
     if (diffFileIndex < 0 || diffFileIndex >= m_contextFileData.count())
@@ -2212,7 +2220,7 @@ void DiffEditorWidget::slotRightJumpToOriginalFileRequested(int diffFileIndex,
     jumpToOriginalFile(fileName, lineNumber, columnNumber);
 }
 
-void DiffEditorWidget::jumpToOriginalFile(const QString &fileName,
+void SideBySideDiffEditorWidget::jumpToOriginalFile(const QString &fileName,
                                           int lineNumber, int columnNumber)
 {
     if (!m_controller)
@@ -2223,29 +2231,29 @@ void DiffEditorWidget::jumpToOriginalFile(const QString &fileName,
     Core::EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
 }
 
-void DiffEditorWidget::leftVSliderChanged()
+void SideBySideDiffEditorWidget::leftVSliderChanged()
 {
     m_rightEditor->verticalScrollBar()->setValue(m_leftEditor->verticalScrollBar()->value());
 }
 
-void DiffEditorWidget::rightVSliderChanged()
+void SideBySideDiffEditorWidget::rightVSliderChanged()
 {
     m_leftEditor->verticalScrollBar()->setValue(m_rightEditor->verticalScrollBar()->value());
 }
 
-void DiffEditorWidget::leftHSliderChanged()
+void SideBySideDiffEditorWidget::leftHSliderChanged()
 {
     if (!m_controller || m_controller->horizontalScrollBarSynchronization())
         m_rightEditor->horizontalScrollBar()->setValue(m_leftEditor->horizontalScrollBar()->value());
 }
 
-void DiffEditorWidget::rightHSliderChanged()
+void SideBySideDiffEditorWidget::rightHSliderChanged()
 {
     if (!m_controller || m_controller->horizontalScrollBarSynchronization())
         m_leftEditor->horizontalScrollBar()->setValue(m_rightEditor->horizontalScrollBar()->value());
 }
 
-void DiffEditorWidget::leftCursorPositionChanged()
+void SideBySideDiffEditorWidget::leftCursorPositionChanged()
 {
     leftVSliderChanged();
     leftHSliderChanged();
@@ -2256,7 +2264,7 @@ void DiffEditorWidget::leftCursorPositionChanged()
     m_controller->setCurrentDiffFileIndex(m_leftEditor->fileIndexForBlockNumber(m_leftEditor->textCursor().blockNumber()));
 }
 
-void DiffEditorWidget::rightCursorPositionChanged()
+void SideBySideDiffEditorWidget::rightCursorPositionChanged()
 {
     rightVSliderChanged();
     rightHSliderChanged();
@@ -2267,12 +2275,12 @@ void DiffEditorWidget::rightCursorPositionChanged()
     m_controller->setCurrentDiffFileIndex(m_rightEditor->fileIndexForBlockNumber(m_rightEditor->textCursor().blockNumber()));
 }
 
-void DiffEditorWidget::leftDocumentSizeChanged()
+void SideBySideDiffEditorWidget::leftDocumentSizeChanged()
 {
     synchronizeFoldings(m_leftEditor, m_rightEditor);
 }
 
-void DiffEditorWidget::rightDocumentSizeChanged()
+void SideBySideDiffEditorWidget::rightDocumentSizeChanged()
 {
     synchronizeFoldings(m_rightEditor, m_leftEditor);
 }
@@ -2281,7 +2289,7 @@ void DiffEditorWidget::rightDocumentSizeChanged()
    The hack lies in fact, that when unfolding all direct sub-blocks are made visible,
    while some of them need to stay invisible (i.e. unfolded chunk lines)
 */
-static void doFoldOrUnfold(DiffViewEditorWidget *editor, const QTextBlock &block, bool unfold)
+static void doFoldOrUnfold(SideDiffEditorWidget *editor, const QTextBlock &block, bool unfold)
 {
     if (!TextEditor::BaseTextDocumentLayout::canFold(block))
         return;
@@ -2310,7 +2318,7 @@ static void doFoldOrUnfold(DiffViewEditorWidget *editor, const QTextBlock &block
     TextEditor::BaseTextDocumentLayout::setFolded(block, !unfold);
 }
 
-void DiffEditorWidget::synchronizeFoldings(DiffViewEditorWidget *source, DiffViewEditorWidget *destination)
+void SideBySideDiffEditorWidget::synchronizeFoldings(SideDiffEditorWidget *source, SideDiffEditorWidget *destination)
 {
     if (m_foldingBlocker)
         return;
@@ -2412,7 +2420,7 @@ void DiffEditorWidget::synchronizeFoldings(DiffViewEditorWidget *source, DiffVie
 #ifdef WITH_TESTS
 #include <QTest>
 
-void DiffEditor::DiffEditorWidget::testAssemblyRows()
+void DiffEditor::SideBySideDiffEditorWidget::testAssemblyRows()
 {
     QStringList lines;
     lines << QLatin1String("abcd efgh"); // line 0
@@ -2437,4 +2445,4 @@ void DiffEditor::DiffEditorWidget::testAssemblyRows()
 
 #endif // WITH_TESTS
 
-#include "diffeditorwidget.moc"
+#include "sidebysidediffeditorwidget.moc"

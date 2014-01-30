@@ -28,9 +28,9 @@
 ****************************************************************************/
 
 #include "diffeditor.h"
-#include "diffeditordocument.h"
-#include "diffeditorwidget.h"
 #include "diffeditorconstants.h"
+#include "diffeditordocument.h"
+#include "sidebysidediffeditorwidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -48,7 +48,7 @@ namespace DiffEditor {
 
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
-DiffEditor::DiffEditor(DiffEditorWidget *editorWidget)
+DiffEditor::DiffEditor(SideBySideDiffEditorWidget *editorWidget)
     : IEditor(0)
     , m_toolWidget(0)
     , m_document(new Internal::DiffEditorDocument(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this))

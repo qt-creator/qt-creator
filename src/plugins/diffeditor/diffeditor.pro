@@ -8,19 +8,19 @@ HEADERS += diffeditor_global.h \
         diffeditordocument.h \
         diffeditorfactory.h \
         diffeditorplugin.h \
-        diffeditorwidget.h \
         differ.h \
         diffshoweditor.h \
-        diffshoweditorfactory.h
+        diffshoweditorfactory.h \
+        sidebysidediffeditorwidget.h
 
 SOURCES += diffeditor.cpp \
         diffeditorcontroller.cpp \
         diffeditordocument.cpp \
         diffeditorfactory.cpp \
         diffeditorplugin.cpp \
-        diffeditorwidget.cpp \
         differ.cpp \
         diffshoweditor.cpp \
-        diffshoweditorfactory.cpp
+        diffshoweditorfactory.cpp \
+        sidebysidediffeditorwidget.cpp
 
 RESOURCES +=

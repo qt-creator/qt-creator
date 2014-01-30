@@ -42,7 +42,7 @@ class QComboBox;
 QT_END_NAMESPACE
 
 namespace DiffEditor {
-class DiffEditorWidget;
+class SideBySideDiffEditorWidget;
 
 namespace Internal {
 class DiffEditorDocument;
@@ -52,7 +52,7 @@ class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
 {
     Q_OBJECT
 public:
-    explicit DiffEditor(DiffEditorWidget *editorWidget);
+    explicit DiffEditor(SideBySideDiffEditorWidget *editorWidget);
     virtual ~DiffEditor();
 
 public:
@@ -81,7 +81,7 @@ private:
     void updateEntryToolTip();
 
     Internal::DiffEditorDocument *m_document;
-    DiffEditorWidget *m_editorWidget;
+    SideBySideDiffEditorWidget *m_editorWidget;
     DiffEditorController *m_diffEditorController;
     QComboBox *m_entriesComboBox;
 };

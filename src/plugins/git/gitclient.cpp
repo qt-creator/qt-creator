@@ -60,7 +60,6 @@
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <diffeditor/diffeditor.h>
-#include <diffeditor/diffeditorwidget.h>
 #include <diffeditor/diffshoweditor.h>
 #include <diffeditor/diffeditorconstants.h>
 
