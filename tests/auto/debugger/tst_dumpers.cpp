@@ -2195,7 +2195,7 @@ void tst_Dumpers::dumper_data()
                    "child.setObjectName(\"A renamed Child\");\n")
 
               % CoreProfile()
-              % UseDebugImage() // FIXME: Avoid the need.
+              % UseDebugImage() // FIXME: Avoid the need. Needed for LLDB object name.
 
               % Check("child", "\"A renamed Child\"", "@QObject")
               % Check("parent", "\"A Parent\"", "@QObject");
@@ -2256,6 +2256,7 @@ void tst_Dumpers::dumper_data()
                     "#include <QStringList>\n"
                     "#include <QVariant>\n"
                     "#include <QApplication>\n",
+
                     "QApplication app(argc, argv);\n"
                     "QWidget ob;\n"
                     "ob.setObjectName(\"An Object\");\n"
@@ -2275,10 +2276,14 @@ void tst_Dumpers::dumper_data()
                     "obs.append(&app);\n"
                     "ob2.setObjectName(\"A Subobject\");\n"
                     "unused(&ob, &ob1, &ob2);\n")
+
                % GuiProfile()
+               % UseDebugImage() // FIXME: Needed for QObject name
+
                % Check("ob", "\"An Object\"", "@QWidget")
                % Check("ob1", "\"Another Object\"", "@QObject")
                % Check("ob2", "\"A Subobject\"", "@QObject");
+
 
     QByteArray senderData =
             "    class Sender : public QObject\n"
