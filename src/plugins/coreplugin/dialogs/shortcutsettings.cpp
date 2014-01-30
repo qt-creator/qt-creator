@@ -172,7 +172,7 @@ void ShortcutSettings::removeTargetIdentifier()
 
 void ShortcutSettings::importAction()
 {
-    QString fileName = QFileDialog::getOpenFileName(0, tr("Import Keyboard Mapping Scheme"),
+    QString fileName = QFileDialog::getOpenFileName(widget(), tr("Import Keyboard Mapping Scheme"),
         ICore::resourcePath() + QLatin1String("/schemes/"),
         tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
