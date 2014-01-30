@@ -2474,7 +2474,10 @@ void tst_Dumpers::dumper_data()
                     "region += QRect(300, 300, 400, 500);\n"
                     "region2 = region;\n"
                     "unused(&region0, &region1, &region2);\n")
+
                % GuiProfile()
+               % UseDebugImage()
+
                % Check("region0", Value4("<empty>"), "@QRegion")
                % Check("region0", Value5("<0 items>"), "@QRegion")
                % Check("region1", "<1 items>", "@QRegion")
@@ -2490,6 +2493,7 @@ void tst_Dumpers::dumper_data()
                % Check("region2.innerRect", "400x500+300+300", "@QRect")
                % Check("region2.numRects", "2", "int")
                % Check("region2.rects", "<2 items>", "@QVector<@QRect>");
+
 
     QTest::newRow("QSettings")
             << Data("#include <QSettings>\n"
@@ -3649,7 +3653,7 @@ void tst_Dumpers::dumper_data()
                % Check("pos", "4", "int")
                % Check("anc", "1", "int");
 
-    QTest::newRow("QThread1")
+    QTest::newRow("QThread")
             << Data("#include <QThread>\n"
                     "struct Thread : QThread\n"
                     "{\n"
@@ -3660,6 +3664,7 @@ void tst_Dumpers::dumper_data()
                     "    }\n"
                     "    int m_id;\n"
                     "};\n",
+
                     "const int N = 14;\n"
                     "Thread thread[N];\n"
                     "for (int i = 0; i != N; ++i) {\n"
@@ -3670,10 +3675,14 @@ void tst_Dumpers::dumper_data()
                     "for (int i = 0; i != N; ++i) {\n"
                     "    thread[i].wait();\n"
                     "}\n")
+
                % CoreProfile()
+               % UseDebugImage()
+
                % CheckType("this", "Thread")
                % Check("this.@1", "[@QThread]", "\"This is thread #3\"", "@QThread")
                % Check("this.@1.@1", "[@QObject]", "\"This is thread #3\"", "@QObject");
+
 
     QTest::newRow("QVariant")
             << Data("#include <QMap>\n"
