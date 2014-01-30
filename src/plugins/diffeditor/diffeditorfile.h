@@ -36,9 +36,6 @@
 
 namespace DiffEditor {
 
-class DiffEditorWidget;
-class DiffEditorFile;
-
 namespace Internal {
 
 class DiffEditorFile : public Core::IDocument
@@ -52,21 +49,15 @@ public:
     QString defaultPath() const { return QString(); }
     QString suggestedFileName() const { return QString(); }
 
-    bool isModified() const { return m_modified; }
+    bool isModified() const { return false; }
     QString mimeType() const;
     bool isSaveAsAllowed() const { return false; }
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
-    void setModified(bool modified = true);
-
-signals:
-    void saveMe(QString *errorString, const QString &fileName, bool autoSave);
-
 private:
     const QString m_mimeType;
-    bool m_modified;
 };
 
 } // namespace Internal

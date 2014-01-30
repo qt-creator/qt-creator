@@ -39,8 +39,7 @@ namespace Internal {
 
 DiffEditorFile::DiffEditorFile(const QString &mimeType, QObject *parent) :
     Core::IDocument(parent),
-    m_mimeType(mimeType),
-    m_modified(false)
+    m_mimeType(mimeType)
 {
     setDisplayName(QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME));
     setTemporary(true);
@@ -52,21 +51,12 @@ bool DiffEditorFile::setContents(const QByteArray &contents)
     return true;
 }
 
-void DiffEditorFile::setModified(bool modified)
-{
-    if (m_modified == modified)
-        return;
-    m_modified = modified;
-    emit changed();
-}
-
 bool DiffEditorFile::save(QString *errorString, const QString &fileName, bool autoSave)
 {
-    emit saveMe(errorString, fileName, autoSave);
-    if (!errorString->isEmpty())
-        return false;
-    emit changed();
-    return true;
+    Q_UNUSED(errorString)
+    Q_UNUSED(fileName)
+    Q_UNUSED(autoSave)
+    return false;
 }
 
 QString DiffEditorFile::mimeType() const
@@ -86,7 +76,7 @@ bool DiffEditorFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
     Q_UNUSED(errorString)
     Q_UNUSED(flag)
     Q_UNUSED(type)
-    return true;
+    return false;
 }
 
 } // namespace Internal
