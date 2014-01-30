@@ -140,19 +140,17 @@ void QmlJSTextEditorWidget::ctor()
     m_updateOutlineIndexTimer->setSingleShot(true);
     connect(m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
 
-    m_cursorPositionTimer  = new QTimer(this);
-    m_cursorPositionTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
-    m_cursorPositionTimer->setSingleShot(true);
-    connect(m_cursorPositionTimer, SIGNAL(timeout()), this, SLOT(updateCursorPositionNow()));
-
     baseTextDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
 
     m_modelManager = QmlJS::ModelManagerInterface::instance();
     m_contextPane = ExtensionSystem::PluginManager::getObject<QmlJS::IContextPane>();
 
-
+    m_contextPaneTimer  = new QTimer(this);
+    m_contextPaneTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    m_contextPaneTimer->setSingleShot(true);
+    connect(m_contextPaneTimer, SIGNAL(timeout()), this, SLOT(updateContextPane()));
     if (m_contextPane) {
-        connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(onCursorPositionChanged()));
+        connect(this, SIGNAL(cursorPositionChanged()), m_contextPaneTimer, SLOT(start()));
         connect(m_contextPane, SIGNAL(closed()), this, SLOT(showTextMarker()));
     }
     m_oldCursorPosition = -1;
@@ -366,7 +364,7 @@ static QList<TextEditor::RefactorMarker> removeMarkersOfType(const QList<TextEdi
     return result;
 }
 
-void QmlJSTextEditorWidget::updateCursorPositionNow()
+void QmlJSTextEditorWidget::updateContextPane()
 {
     const SemanticInfo info = m_qmlJsEditorDocument->semanticInfo();
     if (m_contextPane && document() && info.isValid()
@@ -410,7 +408,7 @@ void QmlJSTextEditorWidget::updateCursorPositionNow()
 void QmlJSTextEditorWidget::showTextMarker()
 {
     m_oldCursorPosition = -1;
-    updateCursorPositionNow();
+    updateContextPane();
 }
 
 void QmlJSTextEditorWidget::updateUses()
@@ -865,7 +863,7 @@ void QmlJSTextEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo
         Node *newNode = semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
             m_contextPane->apply(editor(), semanticInfo.document, 0, newNode, true);
-            m_cursorPositionTimer->start(); //update text marker
+            m_contextPaneTimer->start(); //update text marker
         }
     }
 
@@ -879,11 +877,6 @@ void QmlJSTextEditorWidget::onRefactorMarkerClicked(const TextEditor::RefactorMa
 {
     if (marker.data.canConvert<QtQuickToolbarMarker>())
         showContextPane();
-}
-
-void QmlJSTextEditorWidget::onCursorPositionChanged()
-{
-    m_cursorPositionTimer->start();
 }
 
 QModelIndex QmlJSTextEditorWidget::indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex) const

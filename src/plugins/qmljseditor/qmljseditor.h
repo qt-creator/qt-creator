@@ -128,13 +128,12 @@ private slots:
     void jumpToOutlineElement(int index);
     void updateOutlineNow();
     void updateOutlineIndexNow();
-    void updateCursorPositionNow();
+    void updateContextPane();
     void showTextMarker();
 
     void updateUses();
 
     void semanticInfoUpdated(const QmlJSTools::SemanticInfo &semanticInfo);
-    void onCursorPositionChanged();
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
     void performQuickFix(int index);
@@ -169,7 +168,7 @@ private:
     QTimer *m_updateUsesTimer; // to wait for multiple text cursor position changes
     QTimer *m_updateOutlineTimer;
     QTimer *m_updateOutlineIndexTimer;
-    QTimer *m_cursorPositionTimer;
+    QTimer *m_contextPaneTimer;
     QComboBox *m_outlineCombo;
     Internal::QmlOutlineModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
