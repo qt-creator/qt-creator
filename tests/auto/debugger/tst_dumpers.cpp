@@ -3955,14 +3955,18 @@ void tst_Dumpers::dumper_data()
                % Check("ha.ipString", "\"127.0.0.1\"", "@QString")
                % Check("ha.isParsed", "true", "bool")
                % Check("ha.protocol", "@QAbstractSocket::IPv4Protocol (0)",
-                       "@QAbstractSocket::NetworkLayerProtocol")
+                       "@QAbstractSocket::NetworkLayerProtocol").setForGdbOnly()
+               % Check("ha.protocol", "IPv4Protocol",
+                       "@QAbstractSocket::NetworkLayerProtocol").setForLldbOnly()
                % Check("ha.scopeId", "\"\"", "@QString")
                % Check("ha1", "\"127.0.0.1\"", "@QHostAddress")
                % Check("ha1.a", "2130706433", "@quint32")
                % Check("ha1.ipString", "\"127.0.0.1\"", "@QString")
                % Check("ha1.isParsed", "true", "bool")
                % Check("ha1.protocol", "@QAbstractSocket::IPv4Protocol (0)",
-                       "@QAbstractSocket::NetworkLayerProtocol")
+                       "@QAbstractSocket::NetworkLayerProtocol").setForGdbOnly()
+               % Check("ha1.protocol", "IPv4Protocol",
+                       "@QAbstractSocket::NetworkLayerProtocol").setForLldbOnly()
                % Check("ha1.scopeId", "\"\"", "@QString")
                % Check("var", "", "@QVariant (@QHostAddress)")
                % Check("var.data", "\"127.0.0.1\"", "@QHostAddress");
