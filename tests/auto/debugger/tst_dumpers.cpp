@@ -422,27 +422,9 @@ struct Check : CheckBase
         return (engine & enginesForCheck);
     }
 
-    const Check &setEngines(int debuggerEngine)
+    const Check &operator%(DebuggerEngine engine)
     {
-        enginesForCheck = debuggerEngine;
-        return *this;
-    }
-
-    const Check &setForLldbOnly() const
-    {
-        enginesForCheck = LldbEngine;
-        return *this;
-    }
-
-    const Check &setForGdbOnly() const
-    {
-        enginesForCheck = GdbEngine;
-        return *this;
-    }
-
-    const Check &setForCdbOnly()
-    {
-        enginesForCheck = CdbEngine;
+        enginesForCheck = engine;
         return *this;
     }
 
@@ -563,7 +545,7 @@ struct DataBase
 {
     DataBase()
       : useQt(false), useQHash(false),
-        forceC(false), engines(GdbEngine | CdbEngine | LldbEngine),
+        forceC(false), engines(AllEngines),
         glibcxxDebug(false), useDebugImage(false)
     {}
 
@@ -589,49 +571,49 @@ public:
         : includes(includes), code(code)
     {}
 
-    const Data &operator%(const Check &check) const
+    const Data &operator+(const Check &check) const
     {
         checks.append(check);
         return *this;
     }
 
-    const Data &operator%(const Profile &profile) const
+    const Data &operator+(const Profile &profile) const
     {
         profileExtra += profile.contents;
         return *this;
     }
 
-    const Data &operator%(const QtVersion &qtVersion) const
+    const Data &operator+(const QtVersion &qtVersion) const
     {
         neededQtVersion = qtVersion;
         return *this;
     }
 
-    const Data &operator%(const GccVersion &gccVersion) const
+    const Data &operator+(const GccVersion &gccVersion) const
     {
         neededGccVersion = gccVersion;
         return *this;
     }
 
-    const Data &operator%(const GdbVersion &gdbVersion) const
+    const Data &operator+(const GdbVersion &gdbVersion) const
     {
         neededGdbVersion = gdbVersion;
         return *this;
     }
 
-    const Data &operator%(const LldbVersion &lldbVersion) const
+    const Data &operator+(const LldbVersion &lldbVersion) const
     {
         neededLldbVersion = lldbVersion;
         return *this;
     }
 
-    const Data &operator%(const DebuggerEngine &enginesForTest) const
+    const Data &operator+(const DebuggerEngine &enginesForTest) const
     {
         engines = enginesForTest;
         return *this;
     }
 
-    const Data &operator%(const EigenProfile &) const
+    const Data &operator+(const EigenProfile &) const
     {
         profileExtra +=
             "INCLUDEPATH += /usr/include/eigen2\n"
@@ -640,13 +622,13 @@ public:
         return *this;
     }
 
-    const Data &operator%(const UseDebugImage &) const
+    const Data &operator+(const UseDebugImage &) const
     {
         useDebugImage = true;
         return *this;
     }
 
-    const Data &operator%(const CoreProfile &) const
+    const Data &operator+(const CoreProfile &) const
     {
         profileExtra +=
             "CONFIG += QT\n"
@@ -658,7 +640,7 @@ public:
         return *this;
     }
 
-    const Data &operator%(const NetworkProfile &) const
+    const Data &operator+(const NetworkProfile &) const
     {
         profileExtra +=
             "CONFIG += QT\n"
@@ -670,9 +652,9 @@ public:
         return *this;
     }
 
-    const Data &operator%(const GuiProfile &) const
+    const Data &operator+(const GuiProfile &) const
     {
-        this->operator%(CoreProfile());
+        this->operator+(CoreProfile());
         profileExtra +=
             "QT += gui\n"
             "greaterThan(QT_MAJOR_VERSION, 4):QT *= widgets\n";
@@ -680,9 +662,9 @@ public:
         return *this;
     }
 
-    const Data &operator%(const CorePrivateProfile &) const
+    const Data &operator+(const CorePrivateProfile &) const
     {
-        this->operator%(CoreProfile());
+        this->operator+(CoreProfile());
         profileExtra +=
             "greaterThan(QT_MAJOR_VERSION, 4) {\n"
             "  QT += core-private\n"
@@ -692,7 +674,7 @@ public:
         return *this;
     }
 
-    const Data &operator%(const ForceC &) const
+    const Data &operator+(const ForceC &) const
     {
         forceC = true;
         return *this;
@@ -1351,34 +1333,6 @@ void tst_Dumpers::dumper_data()
            " } // namespace nsB\n"
            " } // namespace nsA\n";
 
-    QTest::newRow("AnonymousStructGdb")
-            << Data("union {\n"
-                    "     struct { int i; int b; };\n"
-                    "     struct { float f; };\n"
-                    "     double d;\n"
-                    " } a = { { 42, 43 } };\n (void)a;")
-               % GdbEngine
-               % CheckType("a", "a", "union {...}")
-               % Check("a.b", "43", "int")
-               % Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
-               % Check("a.f", FloatValue("5.88545355e-44"), "float")
-               % Check("a.i", "42", "int");
-
-    // FIXME: Merge with GDB case
-    QTest::newRow("AnonymousStructLldb")
-            << Data("union {\n"
-                    "     struct { int i; int b; };\n"
-                    "     struct { float f; };\n"
-                    "     double d;\n"
-                    " } a = { { 42, 43 } };\n (void)a;")
-               //% CheckType("a", "a", "union {...}")
-               % LldbEngine
-               % Check("a.#1.b", "43", "int")
-               % Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
-               % Check("a.#2.f", FloatValue("5.88545355e-44"), "float")
-               % Check("a.#1.i", "42", "int");
-
-
     QTest::newRow("QByteArray")
             << Data("#include <QByteArray>\n"
                     "#include <QString>\n"
@@ -1411,29 +1365,28 @@ void tst_Dumpers::dumper_data()
                     "unused(&buf1, &buf2, &buf3);\n"
                     "unused(&ba0, &ba1, &ba2, &ba4, &ba5, &s, &ss);\n")
 
-               % CoreProfile()
-               % Check("ba0", "ba0", "\"\"", "@QByteArray")
+               + CoreProfile()
+               + Check("ba0", "ba0", "\"\"", "@QByteArray")
 
-               % Check("ba1", QByteArray("\"Hello\"World")
-                      + char(0) + char(1) + char(2) + '"', "@QByteArray").setEngines(
-                  GdbEngine | LldbEngine)
-               % Check("ba1", QByteArray("\"Hello\"World...\""), "@QByteArray").setForCdbOnly()
-               % Check("ba1.0", "[0]", "72", "char")
-               % Check("ba1.11", "[11]", "0", "char")
-               % Check("ba1.12", "[12]", "1", "char")
-               % Check("ba1.13", "[13]", "2", "char")
+               + Check("ba1", QByteArray("\"Hello\"World")
+                      + char(0) + char(1) + char(2) + '"', "@QByteArray") % NoCdbEngine
+               + Check("ba1", QByteArray("\"Hello\"World...\""), "@QByteArray") % CdbEngine
+               + Check("ba1.0", "[0]", "72", "char")
+               + Check("ba1.11", "[11]", "0", "char")
+               + Check("ba1.12", "[12]", "1", "char")
+               + Check("ba1.13", "[13]", "2", "char")
 
-               % CheckType("ba2", "@QByteArray")
-               % Check("s", '"' + QByteArray(10000, 'x') + '"', "@QString")
-               % Check("ss", '"' + QByteArray(10000, 'c') + '"', "std::string")
+               + CheckType("ba2", "@QByteArray")
+               + Check("s", '"' + QByteArray(10000, 'x') + '"', "@QString")
+               + Check("ss", '"' + QByteArray(10000, 'c') + '"', "std::string")
 
-               % Check("buf1", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
-               % Check("buf2", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
-               % Check("buf3", "\"\\ee\"", "@QByteArray")
-               % CheckType("str1", "char *")
+               + Check("buf1", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
+               + Check("buf2", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
+               + Check("buf3", "\"\\ee\"", "@QByteArray")
+               + CheckType("str1", "char *")
 
-               % Check("ba4", "\"Hell\"", "@QByteArray")
-               % Check("ba5", "\"ello\"", "@QByteArray");
+               + Check("ba4", "\"Hell\"", "@QByteArray")
+               + Check("ba5", "\"ello\"", "@QByteArray");
 
 
     QTest::newRow("QChar")
@@ -1441,55 +1394,60 @@ void tst_Dumpers::dumper_data()
                     "QString s = QLatin1String(\"x\");\n"
                     "QChar c = s.at(0);\n"
                     "unused(&c);\n")
-               % CoreProfile()
-               % Check("c", "'x' (120)", "@QChar").setForCdbOnly()
-               % Check("c", "120", "@QChar").setEngines(GdbEngine | LldbEngine);
 
+               + CoreProfile()
 
-    QTest::newRow("QDate")
-            << Data("#include <QDate>\n",
-                    "QDate date0;\n"
-                    "QDate date1;\n"
-                    "date1.setDate(1980, 1, 1);\n"
-                    "unused(&date0, &date1);\n")
-               % CoreProfile()
-               % Check("date0", "(invalid)", "@QDate")
-               % Check("date1", "Tue Jan 1 1980", "@QDate")
-               % Check("date1.(ISO)", "\"1980-01-01\"", "@QString").setEngines(NoCdbEngine)
-               % CheckType("date1.(Locale)", "@QString").setEngines(NoCdbEngine)
-               % CheckType("date1.(SystemLocale)", "@QString").setEngines(NoCdbEngine)
-               % Check("date1.toString", "\"Tue Jan 1 1980\"", "@QString").setEngines(NoCdbEngine);
-
-
-    QTest::newRow("QTime")
-            << Data("#include <QTime>\n",
-                    "QTime time0;\n"
-                    "QTime time1(13, 15, 32);")
-               % CoreProfile()
-               % Check("time0", "(invalid)", "@QTime")
-               % Check("time1", "13:15:32", "@QTime")
-               % Check("time1.(ISO)", "\"13:15:32\"", "@QString").setEngines(NoCdbEngine)
-               % CheckType("time1.(Locale)", "@QString").setEngines(NoCdbEngine)
-               % CheckType("time1.(SystemLocale)", "@QString").setEngines(NoCdbEngine)
-               % Check("time1.toString", "\"13:15:32\"", "@QString").setEngines(NoCdbEngine);
+               + Check("c", "'x' (120)", "@QChar") % CdbEngine
+               + Check("c", "120", "@QChar") % NoCdbEngine;
 
 
     QTest::newRow("QDateTime")
             << Data("#include <QDateTime>\n",
-                    "QDateTime date0;\n"
-                    "QDateTime date1(QDate(1980, 1, 1), QTime(13, 15, 32), Qt::UTC);\n"
-                    "unused(&date0);\n")
-               % CoreProfile()
-               % Check("date0", "(invalid)", "@QDateTime")
-               % Check("date1", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
-               % Check("date1", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
-               % Check("date1.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString").setEngines(NoCdbEngine)
-               % CheckType("date1.(Locale)", "@QString").setEngines(NoCdbEngine)
-               % CheckType("date1.(SystemLocale)", "@QString").setEngines(NoCdbEngine)
-               % Check("date1.toString", Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString").setEngines(NoCdbEngine)
-               % Check("date1.toString", Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString").setEngines(NoCdbEngine)
-               % Check("date1.toUTC", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime").setEngines(NoCdbEngine)
-               % Check("date1.toUTC", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime").setEngines(NoCdbEngine);
+
+                    "QDate d0;\n"
+                    "QDate d1;\n"
+                    "d1.setDate(1980, 1, 1);\n"
+                    "unused(&d0, &d1);\n"
+
+                    "QTime t0;\n"
+                    "QTime t1(13, 15, 32);\n"
+                    "unused(&t0, &t1);\n\n"
+
+                    "QDateTime dt0;\n"
+                    "QDateTime dt1(QDate(1980, 1, 1), QTime(13, 15, 32), Qt::UTC);\n"
+                    "unused(&dt0, &dt1);\n")
+
+               + CoreProfile()
+
+               + Check("d0", "(invalid)", "@QDate")
+               + Check("d1", "Tue Jan 1 1980", "@QDate")
+               + Check("d1.(ISO)", "\"1980-01-01\"", "@QString") % NoCdbEngine
+               + CheckType("d1.(Locale)", "@QString") % NoCdbEngine
+               + CheckType("d1.(SystemLocale)", "@QString") % NoCdbEngine
+               + Check("d1.toString", "\"Tue Jan 1 1980\"", "@QString") % NoCdbEngine
+
+               + Check("t0", "(invalid)", "@QTime")
+               + Check("t1", "13:15:32", "@QTime")
+               + Check("t1.(ISO)", "\"13:15:32\"", "@QString") % NoCdbEngine
+               + CheckType("t1.(Locale)", "@QString") % NoCdbEngine
+               + CheckType("t1.(SystemLocale)", "@QString") % NoCdbEngine
+               + Check("t1.toString", "\"13:15:32\"", "@QString") % NoCdbEngine
+
+               + Check("dt0", "(invalid)", "@QDateTime")
+               + Check("dt1", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
+               + Check("dt1", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
+               + Check("dt1.(ISO)",
+                    "\"1980-01-01T13:15:32Z\"", "@QString") % NoCdbEngine
+               + CheckType("dt1.(Locale)", "@QString") % NoCdbEngine
+               + CheckType("dt1.(SystemLocale)", "@QString") % NoCdbEngine
+               + Check("dt1.toString",
+                    Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString") % NoCdbEngine
+               + Check("dt1.toString",
+                    Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString") % NoCdbEngine
+               + Check("dt1.toUTC",
+                    Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime") % NoCdbEngine
+               + Check("dt1.toUTC",
+                    Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime") % NoCdbEngine;
 
 #ifdef Q_OS_WIN
     QByteArray tempDir = "\"C:/Program Files\"";
@@ -1502,10 +1460,13 @@ void tst_Dumpers::dumper_data()
                     "QString s = dir.absolutePath();\n"
                     "QFileInfoList fi = dir.entryInfoList();\n"
                     "unused(&dir, &s, &fi);\n")
-               % CoreProfile()
-               % Check("dir", tempDir, "@QDir")
-               % Check("dir.absolutePath", tempDir, "@QString").setEngines(NoCdbEngine);
-            // % Check("dir.canonicalPath", tempDir, "@QString");
+
+               + CoreProfile()
+
+               + Check("dir", tempDir, "@QDir")
+            // + Check("dir.canonicalPath", tempDir, "@QString")
+               + Check("dir.absolutePath", tempDir, "@QString") % NoCdbEngine;
+
 
     QTest::newRow("QFileInfo")
 #ifdef Q_OS_WIN
@@ -1515,9 +1476,9 @@ void tst_Dumpers::dumper_data()
                     "file.setObjectName(\"A QFile instance\");\n"
                     "QFileInfo fi(\"C:\\\\Program Files\\\\tt\");\n"
                     "QString s = fi.absoluteFilePath();\n")
-               % Check("fi", "\"C:/Program Files/tt\"", "QFileInfo")
-               % Check("file", "\"C:\\Program Files\\t\"", "QFile")
-               % Check("s", "\"C:/Program Files/tt\"", "QString");
+               + Check("fi", "\"C:/Program Files/tt\"", "QFileInfo")
+               + Check("file", "\"C:\\Program Files\\t\"", "QFile")
+               + Check("s", "\"C:/Program Files/tt\"", "QString");
 #else
             << Data("#include <QFile>\n"
                     "#include <QFileInfo>\n",
@@ -1525,11 +1486,12 @@ void tst_Dumpers::dumper_data()
                     "file.setObjectName(\"A QFile instance\");\n"
                     "QFileInfo fi(\"/tmp/tt\");\n"
                     "QString s = fi.absoluteFilePath();\n")
-               % CoreProfile()
-               % Check("fi", "\"/tmp/tt\"", "@QFileInfo")
-               % Check("file", "\"/tmp/t\"", "@QFile")
-               % Check("s", "\"/tmp/tt\"", "@QString");
+               + CoreProfile()
+               + Check("fi", "\"/tmp/tt\"", "@QFileInfo")
+               + Check("file", "\"/tmp/t\"", "@QFile")
+               + Check("s", "\"/tmp/tt\"", "@QString");
 #endif
+
 
     QTest::newRow("QHash")
             << Data("#include <QHash>\n"
@@ -1580,106 +1542,97 @@ void tst_Dumpers::dumper_data()
                     "QHash<QString, QPointer<QObject> > h7;\n"
                     "h7.insert(\"Hallo\", QPointer<QObject>(&ob));\n"
                     "h7.insert(\"Welt\", QPointer<QObject>(&ob));\n"
-                    "h7.insert(\".\", QPointer<QObject>(&ob));\n")
+                    "h7.insert(\".\", QPointer<QObject>(&ob));\n\n"
 
-               % CoreProfile()
-
-               % Check("h1", "<3 items>", "@QHash<@QString, @QList<int> >")
-               % Check("h1.0", "[0]", "", "@QHashNode<@QString, @QList<int>>")
-               % Check("h1.0.key", Value4("\"Hallo\""), "@QString")
-               % Check("h1.0.key", Value5("\"Welt\""), "@QString")
-               % Check("h1.0.value", Value4("<0 items>"), "@QList<int>")
-               % Check("h1.0.value", Value5("<1 items>"), "@QList<int>")
-               % Check("h1.1", "[1]", "", "@QHashNode<@QString, @QList<int>>")
-               % Check("h1.1.key", "key", Value4("\"Welt\""), "@QString")
-               % Check("h1.1.key", "key", Value5("\"Hallo\""), "@QString")
-               % Check("h1.1.value", "value", Value4("<1 items>"), "@QList<int>")
-               % Check("h1.1.value", "value", Value5("<0 items>"), "@QList<int>")
-               % Check("h1.2", "[2]", "", "@QHashNode<@QString, @QList<int>>")
-               % Check("h1.2.key", "key", "\"!\"", "@QString")
-               % Check("h1.2.value", "value", "<2 items>", "@QList<int>")
-               % Check("h1.2.value.0", "[0]", "1", "int")
-               % Check("h1.2.value.1", "[1]", "2", "int")
-
-               % Check("h2", "<2 items>", "@QHash<int, float>")
-               % Check("h2.22", "[22]", "22", "float")
-               % Check("h2.11", "[11]", "11", "float")
-
-               % Check("h3", "<9 items>", "@QHash<@QString, int>")
-               % Check("h3.0", "[0]", "", "@QHashNode<@QString, int>")
-               % Check("h3.0.key", "key", Value4("\"123.0\""), "@QString")
-               % Check("h3.0.key", "key", Value5("\"111111111128.0\""), "@QString")
-               % Check("h3.0.value", Value4("22"), "int")
-               % Check("h3.0.value", Value5("28"), "int")
-               % Check("h3.8", "[8]", "", "@QHashNode<@QString, int>")
-               % Check("h3.8.key", "key", Value4("\"11124.0\""), "@QString")
-               % Check("h3.8.key", "key", Value5("\"123.0\""), "@QString")
-               % Check("h3.8.value", "value", Value4("22"), "int")
-               % Check("h3.8.value", "value", Value5("22"), "int")
-
-               % Check("h4", "<9 items>", "@QHash<@QByteArray, float>")
-               % Check("h4.0", "[0]", "", "@QHashNode<@QByteArray, float>")
-               % Check("h4.0.key", Value4("\"123.0\""), "@QByteArray")
-               % Check("h4.0.key", Value5("\"111111111128.0\""), "@QByteArray")
-               % Check("h4.0.value", Value4("22"), "float")
-               % Check("h4.0.value", Value5("28"), "float")
-               % Check("h4.8", "[8]", "", "@QHashNode<@QByteArray, float>")
-               % Check("h4.8.key", Value4("\"11124.0\""), "@QByteArray")
-               % Check("h4.8.key", Value5("\"123.0\""), "@QByteArray")
-               % Check("h4.8.value", Value4("22"), "float")
-               % Check("h4.8.value", Value5("22"), "float")
-
-               % Check("h5", "<1 items>", "@QHash<int, @QString>")
-               % Check("h5.0.key", "22", "int")
-               % Check("h5.0.value", "\"22.0\"", "@QString")
-
-               % Check("h6", "<2 items>", "@QHash<@QString, Foo>")
-               % Check("h6.0", "[0]", "", "@QHashNode<@QString, Foo>")
-               % Check("h6.0.key", Value4("\"22.0\""), "@QString")
-               % Check("h6.0.key", Value5("\"33.0\""), "@QString")
-               % CheckType("h6.0.value", "Foo")
-               % Check("h6.0.value.a", Value4("22"), "int")
-               % Check("h6.0.value.a", Value5("33"), "int")
-               % Check("h6.1", "[1]", "", "@QHashNode<@QString, Foo>")
-               % Check("h6.1.key", Value4("\"33.0\""), "@QString")
-               % Check("h6.1.key", Value5("\"22.0\""), "@QString")
-               % CheckType("h6.1.value", "Foo")
-
-               % CoreProfile()
-               % Check("h7", "<3 items>", "@QHash<@QString, @QPointer<@QObject>>")
-               % Check("h7.0", "[0]", "", "@QHashNode<@QString, @QPointer<@QObject>>")
-               % Check("h7.0.key", Value4("\"Hallo\""), "@QString")
-               % Check("h7.0.key", Value5("\"Welt\""), "@QString")
-               % CheckType("h7.0.value", "@QPointer<@QObject>")
-               //% CheckType("h7.0.value.o", "@QObject")
-               % Check("h7.2", "[2]", "", "@QHashNode<@QString, @QPointer<@QObject>>")
-               % Check("h7.2.key", "\".\"", "@QString")
-               % CheckType("h7.2.value", "@QPointer<@QObject>");
-
-
-    QTest::newRow("QHashIterator")
-            << Data("#include <QHash>\n",
                     "typedef QHash<int, float> Hash;\n"
-                    "Hash hash;\n"
-                    "hash[11] = 11.0;\n"
-                    "hash[22] = 22.0;\n"
-                    "hash[33] = 33.0;\n"
-                    "hash[44] = 44.0;\n"
-                    "hash[55] = 55.0;\n"
-                    "hash[66] = 66.0;\n"
-                    "Hash::iterator it1 = hash.begin();\n"
+                    "Hash h8;\n"
+                    "h8[11] = 11.0;\n"
+                    "h8[22] = 22.0;\n"
+                    "h8[33] = 33.0;\n"
+                    "Hash::iterator it1 = h8.begin();\n"
                     "Hash::iterator it2 = it1; ++it2;\n"
-                    "Hash::iterator it3 = it2; ++it3;\n"
-                    "Hash::iterator it4 = it3; ++it4;\n"
-                    "Hash::iterator it5 = it4; ++it5;\n"
-                    "Hash::iterator it6 = it5; ++it6;\n")
-               % CoreProfile()
-               % Check("hash", "<6 items>", "Hash")
-               % Check("hash.11", "[11]", "11", "float")
-               % Check("it1.key", "55", "int")
-               % Check("it1.value", "55", "float")
-               % Check("it6.key", "33", "int")
-               % Check("it6.value", "33", "float");
+                    "Hash::iterator it3 = it2; ++it3;\n\n")
+
+               + CoreProfile()
+
+               + Check("h1", "<3 items>", "@QHash<@QString, @QList<int> >")
+               + Check("h1.0", "[0]", "", "@QHashNode<@QString, @QList<int>>")
+               + Check("h1.0.key", Value4("\"Hallo\""), "@QString")
+               + Check("h1.0.key", Value5("\"Welt\""), "@QString")
+               + Check("h1.0.value", Value4("<0 items>"), "@QList<int>")
+               + Check("h1.0.value", Value5("<1 items>"), "@QList<int>")
+               + Check("h1.1", "[1]", "", "@QHashNode<@QString, @QList<int>>")
+               + Check("h1.1.key", "key", Value4("\"Welt\""), "@QString")
+               + Check("h1.1.key", "key", Value5("\"Hallo\""), "@QString")
+               + Check("h1.1.value", "value", Value4("<1 items>"), "@QList<int>")
+               + Check("h1.1.value", "value", Value5("<0 items>"), "@QList<int>")
+               + Check("h1.2", "[2]", "", "@QHashNode<@QString, @QList<int>>")
+               + Check("h1.2.key", "key", "\"!\"", "@QString")
+               + Check("h1.2.value", "value", "<2 items>", "@QList<int>")
+               + Check("h1.2.value.0", "[0]", "1", "int")
+               + Check("h1.2.value.1", "[1]", "2", "int")
+
+               + Check("h2", "<2 items>", "@QHash<int, float>")
+               + Check("h2.22", "[22]", "22", "float")
+               + Check("h2.11", "[11]", "11", "float")
+
+               + Check("h3", "<9 items>", "@QHash<@QString, int>")
+               + Check("h3.0", "[0]", "", "@QHashNode<@QString, int>")
+               + Check("h3.0.key", "key", Value4("\"123.0\""), "@QString")
+               + Check("h3.0.key", "key", Value5("\"111111111128.0\""), "@QString")
+               + Check("h3.0.value", Value4("22"), "int")
+               + Check("h3.0.value", Value5("28"), "int")
+               + Check("h3.8", "[8]", "", "@QHashNode<@QString, int>")
+               + Check("h3.8.key", "key", Value4("\"11124.0\""), "@QString")
+               + Check("h3.8.key", "key", Value5("\"123.0\""), "@QString")
+               + Check("h3.8.value", "value", Value4("22"), "int")
+               + Check("h3.8.value", "value", Value5("22"), "int")
+
+               + Check("h4", "<9 items>", "@QHash<@QByteArray, float>")
+               + Check("h4.0", "[0]", "", "@QHashNode<@QByteArray, float>")
+               + Check("h4.0.key", Value4("\"123.0\""), "@QByteArray")
+               + Check("h4.0.key", Value5("\"111111111128.0\""), "@QByteArray")
+               + Check("h4.0.value", Value4("22"), "float")
+               + Check("h4.0.value", Value5("28"), "float")
+               + Check("h4.8", "[8]", "", "@QHashNode<@QByteArray, float>")
+               + Check("h4.8.key", Value4("\"11124.0\""), "@QByteArray")
+               + Check("h4.8.key", Value5("\"123.0\""), "@QByteArray")
+               + Check("h4.8.value", Value4("22"), "float")
+               + Check("h4.8.value", Value5("22"), "float")
+
+               + Check("h5", "<1 items>", "@QHash<int, @QString>")
+               + Check("h5.0.key", "22", "int")
+               + Check("h5.0.value", "\"22.0\"", "@QString")
+
+               + Check("h6", "<2 items>", "@QHash<@QString, Foo>")
+               + Check("h6.0", "[0]", "", "@QHashNode<@QString, Foo>")
+               + Check("h6.0.key", Value4("\"22.0\""), "@QString")
+               + Check("h6.0.key", Value5("\"33.0\""), "@QString")
+               + CheckType("h6.0.value", "Foo")
+               + Check("h6.0.value.a", Value4("22"), "int")
+               + Check("h6.0.value.a", Value5("33"), "int")
+               + Check("h6.1", "[1]", "", "@QHashNode<@QString, Foo>")
+               + Check("h6.1.key", Value4("\"33.0\""), "@QString")
+               + Check("h6.1.key", Value5("\"22.0\""), "@QString")
+               + CheckType("h6.1.value", "Foo")
+
+               + CoreProfile()
+               + Check("h7", "<3 items>", "@QHash<@QString, @QPointer<@QObject>>")
+               + Check("h7.0", "[0]", "", "@QHashNode<@QString, @QPointer<@QObject>>")
+               + Check("h7.0.key", Value4("\"Hallo\""), "@QString")
+               + Check("h7.0.key", Value5("\"Welt\""), "@QString")
+               + CheckType("h7.0.value", "@QPointer<@QObject>")
+               //+ CheckType("h7.0.value.o", "@QObject")
+               + Check("h7.2", "[2]", "", "@QHashNode<@QString, @QPointer<@QObject>>")
+               + Check("h7.2.key", "\".\"", "@QString")
+               + CheckType("h7.2.value", "@QPointer<@QObject>")
+
+               + Check("h8", "<3 items>", "Hash")
+               + Check("h8.11", "[11]", "11", "float")
+               + Check("it1.key", "22", "int")
+               + Check("it1.value", "22", "float")
+               + Check("it3.key", "33", "int")
+               + Check("it3.value", "33", "float");
 
 
     QTest::newRow("QHostAddress")
@@ -1706,10 +1659,12 @@ void tst_Dumpers::dumper_data()
                     "addr.c[15] = 0;\n"
                     "QHostAddress ha3(addr);\n"
                     "unused(&ha1, &ha2, &ha3);\n")
-               % NetworkProfile()
-               % Check("ha1", "129.0.0.130", "@QHostAddress")
-               % Check("ha2", "\"127.0.0.1\"", "@QHostAddress")
-               % Check("addr", "1:203:506:0:809:a0b:0:0", "@QIPv6Address");
+
+               + NetworkProfile()
+
+               + Check("ha1", "129.0.0.130", "@QHostAddress")
+               + Check("ha2", "\"127.0.0.1\"", "@QHostAddress")
+               + Check("addr", "1:203:506:0:809:a0b:0:0", "@QIPv6Address");
 
 
     QTest::newRow("QImage")
@@ -1727,11 +1682,11 @@ void tst_Dumpers::dumper_data()
                     "QPixmap pm = QPixmap::fromImage(im);\n"
                     "unused(&pm);\n")
 
-               % GuiProfile()
+               + GuiProfile()
 
-               % Check("im", "(200x200)", "@QImage")
-               % CheckType("pain", "@QPainter")
-               % Check("pm", "(200x200)", "@QPixmap");
+               + Check("im", "(200x200)", "@QImage")
+               + CheckType("pain", "@QPainter")
+               + Check("pm", "(200x200)", "@QPixmap");
 
 
     QTest::newRow("QLinkedList")
@@ -1773,44 +1728,45 @@ void tst_Dumpers::dumper_data()
                     "l6.push_back(\"bb\");\n"
                     "unused(&l6);\n\n")
 
-               % CoreProfile()
+               + CoreProfile()
 
-               % Check("l0", "<0 items>", "@QLinkedList<float>")
+               + Check("l0", "<0 items>", "@QLinkedList<float>")
 
-               % Check("l1", "<2 items>", "@QLinkedList<int>")
-               % Check("l1.0", "[0]", "101", "int")
-               % Check("l1.1", "[1]", "102", "int")
+               + Check("l1", "<2 items>", "@QLinkedList<int>")
+               + Check("l1.0", "[0]", "101", "int")
+               + Check("l1.1", "[1]", "102", "int")
 
-               % Check("l2", "<2 items>", "@QLinkedList<unsigned int>")
-               % Check("l2.0", "[0]", "103", "unsigned int")
-               % Check("l2.1", "[1]", "104", "unsigned int")
+               + Check("l2", "<2 items>", "@QLinkedList<unsigned int>")
+               + Check("l2.0", "[0]", "103", "unsigned int")
+               + Check("l2.1", "[1]", "104", "unsigned int")
 
-               % Check("l3", "<3 items>", "@QLinkedList<Foo*>")
-               % CheckType("l3.0", "[0]", "Foo")
-               % Check("l3.0.a", "1", "int")
-               % Check("l3.1", "[1]", "0x0", "Foo *")
-               % CheckType("l3.2", "[2]", "Foo")
-               % Check("l3.2.a", "3", "int")
+               + Check("l3", "<3 items>", "@QLinkedList<Foo*>")
+               + CheckType("l3.0", "[0]", "Foo")
+               + Check("l3.0.a", "1", "int")
+               + Check("l3.1", "[1]", "0x0", "Foo *")
+               + CheckType("l3.2", "[2]", "Foo")
+               + Check("l3.2.a", "3", "int")
 
-               % Check("l4", "<2 items>", "@QLinkedList<unsigned long long>")
-               % Check("l4.0", "[0]", "42", "unsigned long long")
-               % Check("l4.1", "[1]", "43", "unsigned long long")
+               + Check("l4", "<2 items>", "@QLinkedList<unsigned long long>")
+               + Check("l4.0", "[0]", "42", "unsigned long long")
+               + Check("l4.1", "[1]", "43", "unsigned long long")
 
-               % Check("l5", "<2 items>", "@QLinkedList<Foo>")
-               % CheckType("l5.0", "[0]", "Foo")
-               % Check("l5.0.a", "1", "int")
-               % CheckType("l5.1", "[1]", "Foo")
-               % Check("l5.1.a", "2", "int")
+               + Check("l5", "<2 items>", "@QLinkedList<Foo>")
+               + CheckType("l5.0", "[0]", "Foo")
+               + Check("l5.0.a", "1", "int")
+               + CheckType("l5.1", "[1]", "Foo")
+               + Check("l5.1.a", "2", "int")
 
-               % Check("l6", "<2 items>", "@QLinkedList<std::string>")
-               % Check("l6.0", "[0]", "\"aa\"", "std::string")
-               % Check("l6.1", "[1]", "\"bb\"", "std::string");
+               + Check("l6", "<2 items>", "@QLinkedList<std::string>")
+               + Check("l6.0", "[0]", "\"aa\"", "std::string")
+               + Check("l6.1", "[1]", "\"bb\"", "std::string");
 
 
     QTest::newRow("QList")
             << Data("#include <QList>\n"
                     "#include <QChar>\n"
-                    "#include <QStringList>\n",
+                    "#include <QStringList>\n"
+                    "#include <string>\n",
 
                     "QList<int> l0;\n"
                     "unused(&l0);\n\n"
@@ -1876,98 +1832,101 @@ void tst_Dumpers::dumper_data()
                     "unused(&l10);\n\n"
 
                     "QList<qulonglong> l11;\n"
+                    "l11.append(100);\n"
                     "l11.append(101);\n"
                     "l11.append(102);\n"
-                    "l11.append(102);\n"
-                    "unused(&l11);\n\n")
+                    "unused(&l11);\n\n"
 
-               % CoreProfile()
+                    "QList<std::string> l12, l13;\n"
+                    "l13.push_back(\"aa\");\n"
+                    "l13.push_back(\"bb\");\n"
+                    "l13.push_back(\"cc\");\n"
+                    "l13.push_back(\"dd\");")
 
-               % Check("l0", "<0 items>", "@QList<int>")
+               + CoreProfile()
 
-               % Check("l1", "<10000 items>", "@QList<int>")
-               % Check("l1.0", "[0]", "0", "int")
-               % Check("l1.999", "[999]", "999", "int")
+               + Check("l0", "<0 items>", "@QList<int>")
 
-               % Check("l2", "<2 items>", "@QList<int>")
-               % Check("l2.0", "[0]", "1", "int")
+               + Check("l1", "<10000 items>", "@QList<int>")
+               + Check("l1.0", "[0]", "0", "int")
+               + Check("l1.999", "[999]", "999", "int")
 
-               % Check("l3", "<2 items>", "@QList<@QString>")
-               % Check("l3.0", "[0]", "\"1\"", "@QString")
+               + Check("l2", "<2 items>", "@QList<int>")
+               + Check("l2.0", "[0]", "1", "int")
 
-               % Check("l4", "<2 items>", "@QStringList")
-               % Check("l4.0", "[0]", "\"1\"", "@QString")
+               + Check("l3", "<2 items>", "@QList<@QString>")
+               + Check("l3.0", "[0]", "\"1\"", "@QString")
 
-               % Check("l5", "<3 items>", "@QList<int*>")
-               % CheckType("l5.0", "[0]", "int")
-               % CheckType("l5.1", "[1]", "int")
-               % Check("l5.2", "[2]", "0x0", "int*")
+               + Check("l4", "<2 items>", "@QStringList")
+               + Check("l4.0", "[0]", "\"1\"", "@QString")
 
-               % Check("l6", "<0 items>", "@QList<int*>")
+               + Check("l5", "<3 items>", "@QList<int*>")
+               + CheckType("l5.0", "[0]", "int")
+               + CheckType("l5.1", "[1]", "int")
+               + Check("l5.2", "[2]", "0x0", "int*")
 
-               % Check("l7", "<3 items>", "@QList<unsigned int>")
-               % Check("l7.0", "[0]", "101", "unsigned int")
-               % Check("l7.2", "[2]", "102", "unsigned int")
+               + Check("l6", "<0 items>", "@QList<int*>")
 
-               % Check("l8", "<2 items>", "@QList<@QStringList>")
-               % Check("sl", "<1 items>", "@QStringList")
-               % Check("l8.1", "[1]", "<1 items>", "@QStringList")
-               % Check("l8.1.0", "[0]", "\"aaa\"", "@QString")
+               + Check("l7", "<3 items>", "@QList<unsigned int>")
+               + Check("l7.0", "[0]", "101", "unsigned int")
+               + Check("l7.2", "[2]", "102", "unsigned int")
 
-               % Check("l9", "<3 items>", "@QList<unsigned short>")
-               % Check("l9.0", "[0]", "101", "unsigned short")
-               % Check("l9.2", "[2]", "102", "unsigned short")
+               + Check("l8", "<2 items>", "@QList<@QStringList>")
+               + Check("sl", "<1 items>", "@QStringList")
+               + Check("l8.1", "[1]", "<1 items>", "@QStringList")
+               + Check("l8.1.0", "[0]", "\"aaa\"", "@QString")
 
-               % Check("l10", "<3 items>", "@QList<@QChar>")
-               % Check("l10.0", "[0]", "97", "@QChar")
-               % Check("l10.2", "[2]", "99", "@QChar");
+               + Check("l9", "<3 items>", "@QList<unsigned short>")
+               + Check("l9.0", "[0]", "101", "unsigned short")
+               + Check("l9.2", "[2]", "102", "unsigned short")
 
+               + Check("l10", "<3 items>", "@QList<@QChar>")
+               + Check("l10.0", "[0]", "97", "@QChar")
+               + Check("l10.2", "[2]", "99", "@QChar")
 
-    QTest::newRow("QListStdString")
-            << Data("#include <QList>\n"
-                    "#include <string>\n",
-                    "QList<std::string> l0, l;\n"
-                    "l.push_back(\"aa\");\n"
-                    "l.push_back(\"bb\");\n"
-                    "l.push_back(\"cc\");\n"
-                    "l.push_back(\"dd\");")
-               % CoreProfile()
-               % Check("l0", "<0 items>", "@QList<std::string>")
-               % Check("l", "<4 items>", "@QList<std::string>")
-               % CheckType("l.0", "[0]", "std::string")
-               % Check("l.3", "[3]" ,"\"dd\"", "std::string");
+               + Check("l11", "<3 items>", "@QList<unsigned long long>")
+               + Check("l11.0", "[0]", "100", "unsigned long long")
+               + Check("l11.2", "[2]", "102", "unsigned long long")
+
+               + Check("l12", "<0 items>", "@QList<std::string>")
+               + Check("l13", "<4 items>", "@QList<std::string>")
+               + CheckType("l13.0", "[0]", "std::string")
+               + Check("l13.3", "[3]" ,"\"dd\"", "std::string");
+
 
    QTest::newRow("QListFoo")
             << Data("#include <QList>\n" + fooData,
-                    "QList<Foo> l0, l;\n"
-                    "for (int i = 0; i < 100; ++i)\n"
-                    "    l.push_back(i + 15);\n")
-               % CoreProfile()
-               % Check("l0", "<0 items>", "@QList<Foo>")
-               % Check("l", "<100 items>", "@QList<Foo>")
-               % Check("l.0", "[0]", "", "Foo")
-               % Check("l.99", "[99]", "", "Foo");
 
-   QTest::newRow("QListReverse")
-           << Data("#include <QList>\n",
-                   "QList<int> l = QList<int>() << 1 << 2 << 3;\n"
-                   "typedef std::reverse_iterator<QList<int>::iterator> Reverse;\n"
-                   "Reverse rit(l.end());\n"
-                   "Reverse rend(l.begin());\n"
-                   "QList<int> r;\n"
-                   "while (rit != rend)\n"
-                   "    r.append(*rit++);\n")
-              % CoreProfile()
-              % Check("l", "<3 items>", "@QList<int>")
-              % Check("l.0", "[0]", "1", "int")
-              % Check("l.1", "[1]", "2", "int")
-              % Check("l.2", "[2]", "3", "int")
-              % Check("r", "<3 items>", "@QList<int>")
-              % Check("r.0", "[0]", "3", "int")
-              % Check("r.1", "[1]", "2", "int")
-              % Check("r.2", "[2]", "1", "int")
-              % Check("rend", "", "Reverse")
-              % Check("rit", "", "Reverse");
+                    "QList<Foo> l0, l1;\n"
+                    "for (int i = 0; i < 100; ++i)\n"
+                    "    l1.push_back(i + 15);\n\n"
+
+                    "QList<int> l = QList<int>() << 1 << 2 << 3;\n"
+                    "typedef std::reverse_iterator<QList<int>::iterator> Reverse;\n"
+                    "Reverse rit(l.end());\n"
+                    "Reverse rend(l.begin());\n"
+                    "QList<int> r;\n"
+                    "while (rit != rend)\n"
+                    "    r.append(*rit++);\n")
+
+               + CoreProfile()
+
+               + Check("l0", "<0 items>", "@QList<Foo>")
+               + Check("l1", "<100 items>", "@QList<Foo>")
+               + Check("l1.0", "[0]", "", "Foo")
+               + Check("l1.99", "[99]", "", "Foo")
+
+               + Check("l", "<3 items>", "@QList<int>")
+               + Check("l.0", "[0]", "1", "int")
+               + Check("l.1", "[1]", "2", "int")
+               + Check("l.2", "[2]", "3", "int")
+               + Check("r", "<3 items>", "@QList<int>")
+               + Check("r.0", "[0]", "3", "int")
+               + Check("r.1", "[1]", "2", "int")
+               + Check("r.2", "[2]", "1", "int")
+               + Check("rend", "", "Reverse")
+               + Check("rit", "", "Reverse");
+
 
    QTest::newRow("QLocale")
            << Data("#include <QLocale>\n",
@@ -1977,19 +1936,19 @@ void tst_Dumpers::dumper_data()
                    "QLocale loc1(\"en_US\");\n"
                    "QLocale::MeasurementSystem m1 = loc1.measurementSystem();\n"
                    "unused(&loc0, &loc, &m, &loc1, &m1);\n")
-              % CoreProfile()
-              % Check("loc0", "\"en_US\"", "@QLocale")
-              % CheckType("loc", "@QLocale")
-              % CheckType("m", "@QLocale::MeasurementSystem")
-              % Check("loc1", "\"en_US\"", "@QLocale")
-              % Check("m1", Value5("@QLocale::ImperialUSSystem (1)"),
-                    "@QLocale::MeasurementSystem").setForGdbOnly()
-              % Check("m1", Value4("@QLocale::ImperialSystem (1)"),
-                    "@QLocale::MeasurementSystem").setForGdbOnly()
-              % Check("m1", Value5("ImperialUSSystem"),
-                    "@QLocale::MeasurementSystem").setForLldbOnly()
-              % Check("m1", Value4("ImperialSystem"),
-                    "@QLocale::MeasurementSystem").setForLldbOnly();
+              + CoreProfile()
+              + Check("loc0", "\"en_US\"", "@QLocale")
+              + CheckType("loc", "@QLocale")
+              + CheckType("m", "@QLocale::MeasurementSystem")
+              + Check("loc1", "\"en_US\"", "@QLocale")
+              + Check("m1", Value5("@QLocale::ImperialUSSystem (1)"),
+                    "@QLocale::MeasurementSystem") % GdbEngine
+              + Check("m1", Value4("@QLocale::ImperialSystem (1)"),
+                    "@QLocale::MeasurementSystem") % GdbEngine
+              + Check("m1", Value5("ImperialUSSystem"),
+                    "@QLocale::MeasurementSystem") % LldbEngine
+              + Check("m1", Value4("ImperialSystem"),
+                    "@QLocale::MeasurementSystem") % LldbEngine;
 
 
    QTest::newRow("QMap")
@@ -2040,74 +1999,74 @@ void tst_Dumpers::dumper_data()
                    "m8[\"1\"] = x;\n"
                    "m8[\"2\"] = x;\n\n")
 
-              % CoreProfile()
+              + CoreProfile()
 
-              % Check("m0", "<0 items>", "@QMap<unsigned int, @QStringList>")
+              + Check("m0", "<0 items>", "@QMap<unsigned int, @QStringList>")
 
-              % Check("m1", "<2 items>", "@QMap<unsigned int, @QStringList>")
-              % Check("m1.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
-              % Check("m1.0.key", "11", "unsigned int")
-              % Check("m1.0.value", "<1 items>", "@QStringList")
-              % Check("m1.0.value.0", "[0]", "\"11\"", "@QString")
-              % Check("m1.1", "[1]", "", "@QMapNode<unsigned int, @QStringList>")
-              % Check("m1.1.key", "22", "unsigned int")
-              % Check("m1.1.value", "<1 items>", "@QStringList")
-              % Check("m1.1.value.0", "[0]", "\"22\"", "@QString")
+              + Check("m1", "<2 items>", "@QMap<unsigned int, @QStringList>")
+              + Check("m1.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
+              + Check("m1.0.key", "11", "unsigned int")
+              + Check("m1.0.value", "<1 items>", "@QStringList")
+              + Check("m1.0.value.0", "[0]", "\"11\"", "@QString")
+              + Check("m1.1", "[1]", "", "@QMapNode<unsigned int, @QStringList>")
+              + Check("m1.1.key", "22", "unsigned int")
+              + Check("m1.1.value", "<1 items>", "@QStringList")
+              + Check("m1.1.value.0", "[0]", "\"22\"", "@QString")
 
-              % Check("m2", "<2 items>", "@QMap<unsigned int, float>")
-              % Check("m2.0", "[0] 11", FloatValue("31.0"), "float")
-              % Check("m2.1", "[1] 22", FloatValue("32.0"), "float")
+              + Check("m2", "<2 items>", "@QMap<unsigned int, float>")
+              + Check("m2.0", "[0] 11", FloatValue("31.0"), "float")
+              + Check("m2.1", "[1] 22", FloatValue("32.0"), "float")
 
-              % Check("m3", "<2 items>", "T")
-              % Check("m3.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
+              + Check("m3", "<2 items>", "T")
+              + Check("m3.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
 
-              % Check("m4", "<1 items>", "@QMap<@QString, float>")
-              % Check("m4.0", "[0]", "", "@QMapNode<@QString, float>")
-              % Check("m4.0.key", "\"22.0\"", "@QString")
-              % Check("m4.0.value", "22", "float")
+              + Check("m4", "<1 items>", "@QMap<@QString, float>")
+              + Check("m4.0", "[0]", "", "@QMapNode<@QString, float>")
+              + Check("m4.0.key", "\"22.0\"", "@QString")
+              + Check("m4.0.value", "22", "float")
 
-              % Check("m5", "<1 items>", "@QMap<int, @QString>")
-              % Check("m5.0", "[0]", "", "@QMapNode<int, @QString>")
-              % Check("m5.0.key", "22", "int")
-              % Check("m5.0.value", "\"22.0\"", "@QString")
+              + Check("m5", "<1 items>", "@QMap<int, @QString>")
+              + Check("m5.0", "[0]", "", "@QMapNode<int, @QString>")
+              + Check("m5.0.key", "22", "int")
+              + Check("m5.0.value", "\"22.0\"", "@QString")
 
-              % Check("m6", "<2 items>", "@QMap<@QString, Foo>")
-              % Check("m6.0", "[0]", "", "@QMapNode<@QString, Foo>")
-              % Check("m6.0.key", "\"22.0\"", "@QString")
-              % Check("m6.0.value", "", "Foo")
-              % Check("m6.0.value.a", "22", "int")
-              % Check("m6.1", "[1]", "", "@QMapNode<@QString, Foo>")
-              % Check("m6.1.key", "\"33.0\"", "@QString")
-              % Check("m6.1.value", "", "Foo")
-              % Check("m6.1.value.a", "33", "int")
+              + Check("m6", "<2 items>", "@QMap<@QString, Foo>")
+              + Check("m6.0", "[0]", "", "@QMapNode<@QString, Foo>")
+              + Check("m6.0.key", "\"22.0\"", "@QString")
+              + Check("m6.0.value", "", "Foo")
+              + Check("m6.0.value.a", "22", "int")
+              + Check("m6.1", "[1]", "", "@QMapNode<@QString, Foo>")
+              + Check("m6.1.key", "\"33.0\"", "@QString")
+              + Check("m6.1.value", "", "Foo")
+              + Check("m6.1.value.a", "33", "int")
 
-              % Check("m7", "<3 items>", "@QMap<@QString, @QPointer<@QObject>>")
-              % Check("m7.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("m7.0.key", "\".\"", "@QString")
-              % Check("m7.0.value", "", "@QPointer<@QObject>")
-              //% Check("m7.0.value.o", Pointer(), "@QObject")
+              + Check("m7", "<3 items>", "@QMap<@QString, @QPointer<@QObject>>")
+              + Check("m7.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m7.0.key", "\".\"", "@QString")
+              + Check("m7.0.value", "", "@QPointer<@QObject>")
+              //+ Check("m7.0.value.o", Pointer(), "@QObject")
               // FIXME: it's '.wp' in Qt 5
-              % Check("m7.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("m7.1.key", "\"Hallo\"", "@QString")
-              % Check("m7.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("m7.2.key", "\"Welt\"", "@QString")
+              + Check("m7.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m7.1.key", "\"Hallo\"", "@QString")
+              + Check("m7.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m7.2.key", "\"Welt\"", "@QString")
 
-              % Check("m8", "<4 items>", "@QMap<@QString, @QList<nsA::nsB::SomeType*>>")
-              % Check("m8.0", "[0]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
-              % Check("m8.0.key", "\"1\"", "@QString")
-              % Check("m8.0.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
-              % Check("m8.0.value.0", "[0]", "", "nsA::nsB::SomeType")
-              % Check("m8.0.value.0.a", "1", "int")
-              % Check("m8.0.value.1", "[1]", "", "nsA::nsB::SomeType")
-              % Check("m8.0.value.1.a", "2", "int")
-              % Check("m8.0.value.2", "[2]", "", "nsA::nsB::SomeType")
-              % Check("m8.0.value.2.a", "3", "int")
-              % Check("m8.3", "[3]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
-              % Check("m8.3.key", "\"foo\"", "@QString")
-              % Check("m8.3.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
-              % Check("m8.3.value.2", "[2]", "", "nsA::nsB::SomeType")
-              % Check("m8.3.value.2.a", "3", "int")
-              % Check("x", "<3 items>", "@QList<nsA::nsB::SomeType*>");
+              + Check("m8", "<4 items>", "@QMap<@QString, @QList<nsA::nsB::SomeType*>>")
+              + Check("m8.0", "[0]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
+              + Check("m8.0.key", "\"1\"", "@QString")
+              + Check("m8.0.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
+              + Check("m8.0.value.0", "[0]", "", "nsA::nsB::SomeType")
+              + Check("m8.0.value.0.a", "1", "int")
+              + Check("m8.0.value.1", "[1]", "", "nsA::nsB::SomeType")
+              + Check("m8.0.value.1.a", "2", "int")
+              + Check("m8.0.value.2", "[2]", "", "nsA::nsB::SomeType")
+              + Check("m8.0.value.2.a", "3", "int")
+              + Check("m8.3", "[3]", "", "@QMapNode<@QString, @QList<nsA::nsB::SomeType*>>")
+              + Check("m8.3.key", "\"foo\"", "@QString")
+              + Check("m8.3.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
+              + Check("m8.3.value.2", "[2]", "", "nsA::nsB::SomeType")
+              + Check("m8.3.value.2.a", "3", "int")
+              + Check("x", "<3 items>", "@QList<nsA::nsB::SomeType*>");
 
 
    QTest::newRow("QMultiMap")
@@ -2145,43 +2104,43 @@ void tst_Dumpers::dumper_data()
                    "m5.insert(\".\", QPointer<QObject>(&ob));\n"
                    "m5.insert(\".\", QPointer<QObject>(&ob));\n\n")
 
-              % CoreProfile()
+              + CoreProfile()
 
-              % Check("m0", "<0 items>", "@QMultiMap<int, int>")
+              + Check("m0", "<0 items>", "@QMultiMap<int, int>")
 
-              % Check("m1", "<6 items>", "@QMultiMap<unsigned int, float>")
-              % Check("m1.0", "[0] 11", "11", "float")
-              % Check("m1.5", "[5] 22", "22", "float")
+              + Check("m1", "<6 items>", "@QMultiMap<unsigned int, float>")
+              + Check("m1.0", "[0] 11", "11", "float")
+              + Check("m1.5", "[5] 22", "22", "float")
 
-              % Check("m2", "<1 items>", "@QMultiMap<@QString, float>")
-              % Check("m2.0", "[0]", "", "@QMapNode<@QString, float>")
-              % Check("m2.0.key", "\"22.0\"", "@QString")
-              % Check("m2.0.value", "22", "float")
+              + Check("m2", "<1 items>", "@QMultiMap<@QString, float>")
+              + Check("m2.0", "[0]", "", "@QMapNode<@QString, float>")
+              + Check("m2.0.key", "\"22.0\"", "@QString")
+              + Check("m2.0.value", "22", "float")
 
-              % CoreProfile()
-              % Check("m3", "<1 items>", "@QMultiMap<int, @QString>")
-              % Check("m3.0", "[0]", "", "@QMapNode<int, @QString>")
-              % Check("m3.0.key", "22", "int")
-              % Check("m3.0.value", "\"22.0\"", "@QString")
+              + CoreProfile()
+              + Check("m3", "<1 items>", "@QMultiMap<int, @QString>")
+              + Check("m3.0", "[0]", "", "@QMapNode<int, @QString>")
+              + Check("m3.0.key", "22", "int")
+              + Check("m3.0.value", "\"22.0\"", "@QString")
 
-              % CoreProfile()
-              % Check("m4", "<3 items>", "@QMultiMap<@QString, Foo>")
-              % Check("m4.0", "[0]", "", "@QMapNode<@QString, Foo>")
-              % Check("m4.0.key", "\"22.0\"", "@QString")
-              % Check("m4.0.value", "", "Foo")
-              % Check("m4.0.value.a", "22", "int")
-              % Check("m4.2", "[2]", "", "@QMapNode<@QString, Foo>")
+              + CoreProfile()
+              + Check("m4", "<3 items>", "@QMultiMap<@QString, Foo>")
+              + Check("m4.0", "[0]", "", "@QMapNode<@QString, Foo>")
+              + Check("m4.0.key", "\"22.0\"", "@QString")
+              + Check("m4.0.value", "", "Foo")
+              + Check("m4.0.value.a", "22", "int")
+              + Check("m4.2", "[2]", "", "@QMapNode<@QString, Foo>")
 
-              % Check("m5", "<4 items>", "@QMultiMap<@QString, @QPointer<@QObject>>")
-              % Check("m5.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("m5.0.key", "\".\"", "@QString")
-              % Check("m5.0.value", "", "@QPointer<@QObject>")
-              % Check("m5.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("m5.1.key", "\".\"", "@QString")
-              % Check("m5.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("m5.2.key", "\"Hallo\"", "@QString")
-              % Check("m5.3", "[3]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
-              % Check("m5.3.key", "\"Welt\"", "@QString");
+              + Check("m5", "<4 items>", "@QMultiMap<@QString, @QPointer<@QObject>>")
+              + Check("m5.0", "[0]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m5.0.key", "\".\"", "@QString")
+              + Check("m5.0.value", "", "@QPointer<@QObject>")
+              + Check("m5.1", "[1]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m5.1.key", "\".\"", "@QString")
+              + Check("m5.2", "[2]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m5.2.key", "\"Hallo\"", "@QString")
+              + Check("m5.3", "[3]", "", "@QMapNode<@QString, @QPointer<@QObject>>")
+              + Check("m5.3.key", "\"Welt\"", "@QString");
 
 
    QTest::newRow("QObject1")
@@ -2194,11 +2153,11 @@ void tst_Dumpers::dumper_data()
                    "QObject::disconnect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));\n"
                    "child.setObjectName(\"A renamed Child\");\n")
 
-              % CoreProfile()
-              % UseDebugImage() // FIXME: Avoid the need. Needed for LLDB object name.
+              + CoreProfile()
+              + UseDebugImage() // FIXME: Avoid the need. Needed for LLDB object name.
 
-              % Check("child", "\"A renamed Child\"", "@QObject")
-              % Check("parent", "\"A Parent\"", "@QObject");
+              + Check("child", "\"A renamed Child\"", "@QObject")
+              + Check("parent", "\"A Parent\"", "@QObject");
 
 
     QTest::newRow("QObject2")
@@ -2241,14 +2200,14 @@ void tst_Dumpers::dumper_data()
                     "QString s = test.myProp1();\n"
                     "s += QString::fromLatin1(test.myProp2());\n"
                     "unused(&app, &test, &s);\n")
-               % GuiProfile()
-               % Check("s", "\"HelloWorld\"", "@QString")
-               % Check("test", "", "Bar::TestObject")
-               % Check("test.[properties]", "<4 items>", "")
-               % Check("test.[properties].myProp1", "\"Hello\"", "@QVariant (QString)")
-               % Check("test.[properties].myProp2", "\"World\"", "@QVariant (QByteArray)")
-               % Check("test.[properties].myProp3", "54", "@QVariant (long)")
-               % Check("test.[properties].myProp4", "44", "@QVariant (int)");
+               + GuiProfile()
+               + Check("s", "\"HelloWorld\"", "@QString")
+               + Check("test", "", "Bar::TestObject")
+               + Check("test.[properties]", "<4 items>", "")
+               + Check("test.[properties].myProp1", "\"Hello\"", "@QVariant (QString)")
+               + Check("test.[properties].myProp2", "\"World\"", "@QVariant (QByteArray)")
+               + Check("test.[properties].myProp3", "54", "@QVariant (long)")
+               + Check("test.[properties].myProp4", "44", "@QVariant (int)");
 
     QTest::newRow("QObject3")
             << Data("#include <QWidget>\n"
@@ -2277,12 +2236,12 @@ void tst_Dumpers::dumper_data()
                     "ob2.setObjectName(\"A Subobject\");\n"
                     "unused(&ob, &ob1, &ob2);\n")
 
-               % GuiProfile()
-               % UseDebugImage() // FIXME: Needed for QObject name
+               + GuiProfile()
+               + UseDebugImage() // FIXME: Needed for QObject name
 
-               % Check("ob", "\"An Object\"", "@QWidget")
-               % Check("ob1", "\"Another Object\"", "@QObject")
-               % Check("ob2", "\"A Subobject\"", "@QObject");
+               + Check("ob", "\"An Object\"", "@QWidget")
+               + Check("ob1", "\"Another Object\"", "@QObject")
+               + Check("ob2", "\"A Subobject\"", "@QObject");
 
 
     QByteArray senderData =
@@ -2393,10 +2352,10 @@ void tst_Dumpers::dumper_data()
                     "#include \"main.moc\"\n",
                     "DerivedObject ob;\n"
                     "ob.setX(26);\n")
-              % CoreProfile()
-              % CorePrivateProfile();
+              + CoreProfile()
+              + CorePrivateProfile();
 // FIXME:
-//              % Check("ob.properties.x", "26", "@QVariant (int)");
+//              + Check("ob.properties.x", "26", "@QVariant (int)");
 
 
     QTest::newRow("QRegExp")
@@ -2407,62 +2366,60 @@ void tst_Dumpers::dumper_data()
                     "int pos2 = re.indexIn(str2);\n"
                     "int pos1 = re.indexIn(str1);\n"
                     "unused(&pos1, &pos2);\n")
-               % CoreProfile()
-               % Check("re", "\"a(.*)b(.*)c\"", "@QRegExp")
-               % Check("str1", "\"a1121b344c\"", "@QString")
-               % Check("str2", "\"Xa1121b344c\"", "@QString")
-               % Check("pos1", "0", "int")
-               % Check("pos2", "1", "int");
-
-
-    QTest::newRow("QPoint")
-            << Data("#include <QPoint>\n"
-                    "#include <QPointF>\n"
-                    "#include <QString> // Dummy for namespace\n",
-                    "QString dummy;\n"
-                    "QPoint s0, s;\n"
-                    "s = QPoint(100, 200);\n"
-                    "QPointF pf0, pf;\n"
-                    "pf = QPointF(100.5, 200.5);\n"
-                    "unused(&s0, &s, &dummy);\n")
-               % CoreProfile()
-               % Check("s0", "(0, 0)", "@QPoint")
-               % Check("s", "(100, 200)", "@QPoint")
-               % Check("pf0", "(0.0, 0.0)", "@QPointF")
-               % Check("pf", "(100.5, 200.5)", "@QPointF");
+               + CoreProfile()
+               + Check("re", "\"a(.*)b(.*)c\"", "@QRegExp")
+               + Check("str1", "\"a1121b344c\"", "@QString")
+               + Check("str2", "\"Xa1121b344c\"", "@QString")
+               + Check("pos1", "0", "int")
+               + Check("pos2", "1", "int");
 
 
     QTest::newRow("QRect")
             << Data("#include <QRect>\n"
                     "#include <QRectF>\n"
+                    "#include <QPoint>\n"
+                    "#include <QPointF>\n"
+                    "#include <QSize>\n"
+                    "#include <QSizeF>\n"
                     "#include <QString> // Dummy for namespace\n",
+
                     "QString dummy;\n"
+                    "unused(&dummy);\n"
+
                     "QRect rect0, rect;\n"
                     "rect = QRect(100, 100, 200, 200);\n"
                     "QRectF rectf0, rectf;\n"
                     "rectf = QRectF(100.25, 100.25, 200.5, 200.5);\n"
-                    "unused(&rect0, &rect, &dummy);\n")
-               % Check("rect0", "0x0+0+0", "@QRect")
-               % Check("rect", "200x200+100+100", "@QRect")
-               % Check("rectf0", "0.0x0.0+0.0+0.0", "@QRectF")
-               % Check("rectf", "200.5x200.5+100.25+100.25", "@QRectF");
+                    "unused(&rect0, &rect);\n\n"
 
+                    "QPoint p0, p;\n"
+                    "p = QPoint(100, 200);\n"
+                    "QPointF pf0, pf;\n"
+                    "pf = QPointF(100.5, 200.5);\n"
+                    "unused(&p0, &p);\n"
 
-    QTest::newRow("QSize")
-            << Data("#include <QSize>\n"
-                    "#include <QSizeF>\n"
-                    "#include <QString> // Dummy for namespace\n",
-                    "QString dummy;\n"
                     "QSize s0, s;\n"
                     "QSizeF sf0, sf;\n"
                     "sf = QSizeF(100.5, 200.5);\n"
                     "s = QSize(100, 200);\n"
-                    "unused(&s0, &s, &dummy);\n")
-               % CoreProfile()
-               % Check("s0", "(-1, -1)", "@QSize")
-               % Check("s", "(100, 200)", "@QSize")
-               % Check("sf0", "(-1.0, -1.0)", "@QSizeF")
-               % Check("sf", "(100.5, 200.5)", "@QSizeF");
+                    "unused(&s0, &s);\n")
+
+               + CoreProfile()
+
+               + Check("rect0", "0x0+0+0", "@QRect")
+               + Check("rect", "200x200+100+100", "@QRect")
+               + Check("rectf0", "0.0x0.0+0.0+0.0", "@QRectF")
+               + Check("rectf", "200.5x200.5+100.25+100.25", "@QRectF")
+
+               + Check("p0", "(0, 0)", "@QPoint")
+               + Check("p", "(100, 200)", "@QPoint")
+               + Check("pf0", "(0.0, 0.0)", "@QPointF")
+               + Check("pf", "(100.5, 200.5)", "@QPointF")
+
+               + Check("s0", "(-1, -1)", "@QSize")
+               + Check("s", "(100, 200)", "@QSize")
+               + Check("sf0", "(-1.0, -1.0)", "@QSizeF")
+               + Check("sf", "(100.5, 200.5)", "@QSizeF");
 
 
     QTest::newRow("QRegion")
@@ -2475,24 +2432,24 @@ void tst_Dumpers::dumper_data()
                     "region2 = region;\n"
                     "unused(&region0, &region1, &region2);\n")
 
-               % GuiProfile()
-               % UseDebugImage()
+               + GuiProfile()
+               + UseDebugImage()
 
-               % Check("region0", Value4("<empty>"), "@QRegion")
-               % Check("region0", Value5("<0 items>"), "@QRegion")
-               % Check("region1", "<1 items>", "@QRegion")
-               % Check("region1.extents", "200x200+100+100", "@QRect")
-               % Check("region1.innerArea", "40000", "int")
-               % Check("region1.innerRect", "200x200+100+100", "@QRect")
-               % Check("region1.numRects", "1", "int")
+               + Check("region0", Value4("<empty>"), "@QRegion")
+               + Check("region0", Value5("<0 items>"), "@QRegion")
+               + Check("region1", "<1 items>", "@QRegion")
+               + Check("region1.extents", "200x200+100+100", "@QRect")
+               + Check("region1.innerArea", "40000", "int")
+               + Check("region1.innerRect", "200x200+100+100", "@QRect")
+               + Check("region1.numRects", "1", "int")
                // This seems to be 0(!) items on Linux, 1 on Mac
-               // % Check("region1.rects", "<1 items>", "@QVector<@QRect>")
-               % Check("region2", "<2 items>", "@QRegion")
-               % Check("region2.extents", "600x700+100+100", "@QRect")
-               % Check("region2.innerArea", "200000", "int")
-               % Check("region2.innerRect", "400x500+300+300", "@QRect")
-               % Check("region2.numRects", "2", "int")
-               % Check("region2.rects", "<2 items>", "@QVector<@QRect>");
+               // + Check("region1.rects", "<1 items>", "@QVector<@QRect>")
+               + Check("region2", "<2 items>", "@QRegion")
+               + Check("region2.extents", "600x700+100+100", "@QRect")
+               + Check("region2.innerArea", "200000", "int")
+               + Check("region2.innerRect", "400x500+300+300", "@QRect")
+               + Check("region2.numRects", "2", "int")
+               + Check("region2.rects", "<2 items>", "@QVector<@QRect>");
 
 
     QTest::newRow("QSettings")
@@ -2502,12 +2459,10 @@ void tst_Dumpers::dumper_data()
                     "QCoreApplication app(argc, argv);\n"
                     "QSettings settings(\"/tmp/test.ini\", QSettings::IniFormat);\n"
                     "QVariant value = settings.value(\"item1\", \"\").toString();\n")
-               % CoreProfile()
-               % Check("settings", "", "@QSettings")
-               // FIXME
-               //% Check("settings.[@QObject]", "", "@QObject")
-               // FIXME
-               % Check("value", "\"\"", "@QVariant (QString)");
+               + CoreProfile()
+               + Check("settings", "", "@QSettings")
+               + Check("settings.@1", "[@QObject]", "", "@QObject")
+               + Check("value", "\"\"", "@QVariant (QString)");
 
 
     QTest::newRow("QSet")
@@ -2536,19 +2491,19 @@ void tst_Dumpers::dumper_data()
                     "s3.insert(ptr);\n"
                     "s3.insert(ptr);\n")
 
-               % CoreProfile()
-               % Check("s1", "<2 items>", "@QSet<int>")
-               % Check("s1.0", "[0]", "22", "int")
-               % Check("s1.1", "[1]", "11", "int")
+               + CoreProfile()
+               + Check("s1", "<2 items>", "@QSet<int>")
+               + Check("s1.0", "[0]", "22", "int")
+               + Check("s1.1", "[1]", "11", "int")
 
-               % Check("s2", "<2 items>", "@QSet<@QString>")
-               % Check("s2.0", "[0]", Value4("\"11.0\""), "@QString")
-               % Check("s2.0", "[0]", Value5("\"22.0\""), "@QString")
-               % Check("s2.1", "[1]", Value4("\"22.0\""), "@QString")
-               % Check("s2.1", "[1]", Value5("\"11.0\""), "@QString")
+               + Check("s2", "<2 items>", "@QSet<@QString>")
+               + Check("s2.0", "[0]", Value4("\"11.0\""), "@QString")
+               + Check("s2.0", "[0]", Value5("\"22.0\""), "@QString")
+               + Check("s2.1", "[1]", Value4("\"22.0\""), "@QString")
+               + Check("s2.1", "[1]", Value5("\"11.0\""), "@QString")
 
-               % Check("s3", "<1 items>", "@QSet<@QPointer<@QObject>>")
-               % Check("s3.0", "[0]", "", "@QPointer<@QObject>");
+               + Check("s3", "<1 items>", "@QSet<@QPointer<@QObject>>")
+               + Check("s3.0", "[0]", "", "@QPointer<@QObject>");
 
 
     QByteArray sharedData =
@@ -2620,776 +2575,33 @@ void tst_Dumpers::dumper_data()
                     "QWeakPointer<Foo> ptr53 = ptr50;\n"
                     "unused(&ptr50, &ptr51, &ptr52, &ptr53);\n")
 
-               % CoreProfile()
-
-               % Check("ptr10", "(null)", "@QSharedPointer<int>")
-               % Check("ptr11", "(null)", "@QSharedPointer<int>")
-               % Check("ptr12", "(null)", "@QSharedPointer<int>")
-
-               % Check("ptr20", "", "@QSharedPointer<@QString>")
-               % Check("ptr20.data", "\"hallo\"", "@QString")
-               % Check("ptr20.weakref", "3", "int")
-               % Check("ptr20.strongref", "3", "int")
-               % Check("ptr21.data", "\"hallo\"", "@QString")
-               % Check("ptr22.data", "\"hallo\"", "@QString")
-
-               % Check("ptr30", "43", "@QSharedPointer<int>")
-               % Check("ptr30.data", "43", "int")
-               % Check("ptr30.weakref", "4", "int")
-               % Check("ptr30.strongref", "1", "int")
-               % Check("ptr33", "43", "@QWeakPointer<int>")
-               % Check("ptr33.data", "43", "int")
-
-               % Check("ptr40", "", "@QSharedPointer<@QString>")
-               % Check("ptr40.data", "\"hallo\"", "@QString")
-               % Check("ptr43", "", "@QWeakPointer<@QString>")
-
-               % Check("ptr50", "", "@QSharedPointer<Foo>")
-               % Check("ptr50.data", "", "Foo")
-               % Check("ptr53", "", "@QWeakPointer<Foo>");
-
-
-    QTest::newRow("QXmlAttributes")
-            << Data("#include <QXmlAttributes>\n",
-                    "QXmlAttributes atts;\n"
-                    "atts.append(\"name1\", \"uri1\", \"localPart1\", \"value1\");\n"
-                    "atts.append(\"name2\", \"uri2\", \"localPart2\", \"value2\");\n"
-                    "atts.append(\"name3\", \"uri3\", \"localPart3\", \"value3\");\n")
-               % CoreProfile()
-               % Profile("QT += xml\n")
-               % Check("atts", "", "@QXmlAttributes")
-               % Check("atts.attList", "<3 items>", "@QXmlAttributes::AttributeList")
-               % Check("atts.attList.0", "[0]", "", "@QXmlAttributes::Attribute")
-               % Check("atts.attList.0.localname", "\"localPart1\"", "@QString")
-               % Check("atts.attList.0.qname", "\"name1\"", "@QString")
-               % Check("atts.attList.0.uri", "\"uri1\"", "@QString")
-               % Check("atts.attList.0.value", "\"value1\"", "@QString")
-               % Check("atts.attList.1", "[1]", "", "@QXmlAttributes::Attribute")
-               % Check("atts.attList.1.localname", "\"localPart2\"", "@QString")
-               % Check("atts.attList.1.qname", "\"name2\"", "@QString")
-               % Check("atts.attList.1.uri", "\"uri2\"", "@QString")
-               % Check("atts.attList.1.value", "\"value2\"", "@QString")
-               % Check("atts.attList.2", "[2]", "", "@QXmlAttributes::Attribute")
-               % Check("atts.attList.2.localname", "\"localPart3\"", "@QString")
-               % Check("atts.attList.2.qname", "\"name3\"", "@QString")
-               % Check("atts.attList.2.uri", "\"uri3\"", "@QString")
-               % Check("atts.attList.2.value", "\"value3\"", "@QString");
-
-
-    QTest::newRow("StdArray")
-            << Data("#include <array>\n"
-                    "#include <QString>\n",
-                    "std::array<int, 4> a = { { 1, 2, 3, 4} };\n"
-                    "std::array<QString, 4> b = { { \"1\", \"2\", \"3\", \"4\"} };\n"
-                    "unused(&a, &b);\n")
-               % CoreProfile()
-               % Cxx11Profile()
-               % MacLibCppProfile()
-               % Check("a", "<4 items>", Pattern("std::array<int, 4.*>"))
-               % Check("a.0", "[0]", "1", "int")
-               % Check("b", "<4 items>", Pattern("std::array<@QString, 4.*>"))
-               % Check("b.0", "[0]", "\"1\"", "@QString");
-
-
-    QTest::newRow("StdComplex")
-            << Data("#include <complex>\n",
-                    "std::complex<double> c(1, 2);\n"
-                    "unused(&c);\n")
-               % Check("c", "(1.000000, 2.000000)", "std::complex<double>")
-               % CheckType("c.real", "double");
-
-
-    QTest::newRow("CComplex")
-            << Data("#include <complex.h>\n",
-                    "// Doesn't work when compiled as C++.\n"
-                    "double complex a = 0;\n"
-                    "double _Complex b = 0;\n"
-                    "unused(&a, &b);\n")
-               % ForceC()
-               % GdbVersion(70600)
-               % Check("a", "0 + 0 * I", "complex double").setForGdbOnly()
-               % Check("b", "0 + 0 * I", "complex double").setForGdbOnly()
-               % Check("a", "0 + 0i", "_Complex double").setForLldbOnly()
-               % Check("b", "0 + 0i", "_Complex double").setForLldbOnly();
-
-
-    QTest::newRow("StdDeque")
-            << Data("#include <deque>\n",
-
-                    "std::deque<int> deque0;\n\n"
-
-                    "std::deque<int> deque1;\n"
-                    "deque1.push_back(1);\n"
-                    "deque1.push_back(2);\n"
-
-                    "std::deque<int *> deque2;\n"
-                    "deque2.push_back(new int(1));\n"
-                    "deque2.push_back(0);\n"
-                    "deque2.push_back(new int(2));\n"
-                    "deque2.push_back(new int(3));\n"
-                    "deque2.pop_back();\n"
-                    "deque2.pop_front();\n")
-
-               % Check("deque0", "<0 items>", "std::deque<int>")
-
-               % Check("deque1", "<2 items>", "std::deque<int>")
-               % Check("deque1.0", "[0]", "1", "int")
-               % Check("deque1.1", "[1]", "2", "int")
-
-               % Check("deque2", "<2 items>", "std::deque<int *>")
-               % Check("deque2.0", "[0]", "0x0", "int *")
-               % Check("deque2.1", "[1]", "2", "int");
-
-
-    QTest::newRow("StdDequeQt")
-            << Data("#include <deque>\n" + fooData,
-
-                    "std::deque<Foo> deque0;\n"
-                    "unused(&deque0);\n\n"
-
-                    "std::deque<Foo> deque1;\n"
-                    "deque1.push_back(1);\n"
-                    "deque1.push_front(2);\n"
-
-                    "std::deque<Foo *> deque2;\n"
-                    "deque2.push_back(new Foo(1));\n"
-                    "deque2.push_back(new Foo(2));\n")
-
-               % CoreProfile()
-
-               % Check("deque0", "<0 items>", "std::deque<Foo>")
-
-               % Check("deque1", "<2 items>", "std::deque<Foo>")
-               % Check("deque1.0", "[0]", "", "Foo")
-               % Check("deque1.0.a", "2", "int")
-               % Check("deque1.1", "[1]", "", "Foo")
-               % Check("deque1.1.a", "1", "int")
-
-               % Check("deque2", "<2 items>", "std::deque<Foo*>")
-               % Check("deque2.0", "[0]", "", "Foo")
-               % Check("deque2.0.a", "1", "int")
-               % Check("deque2.1", "[1]", "", "Foo")
-               % Check("deque2.1.a", "2", "int");
-
-
-    QTest::newRow("StdHashSet")
-            << Data("#include <hash_set>\n"
-                    "using namespace __gnu_cxx;\n",
-                    "hash_set<int> h;\n"
-                    "h.insert(1);\n"
-                    "h.insert(194);\n"
-                    "h.insert(2);\n"
-                    "h.insert(3);\n")
-               % GdbEngine
-               % Profile("QMAKE_CXXFLAGS += -Wno-deprecated")
-               % Check("h", "<4 items>", "__gnu__cxx::hash_set<int>")
-               % Check("h.0", "[0]", "194", "int")
-               % Check("h.1", "[1]", "1", "int")
-               % Check("h.2", "[2]", "2", "int")
-               % Check("h.3", "[3]", "3", "int");
-
-
-    QTest::newRow("StdList")
-            << Data("#include <list>\n"
-
-                    "struct Base { virtual ~Base() {} };\n"
-                    "template<class T>\n"
-                    "struct Derived : public std::list<T>, Base {};\n",
-
-                    "std::list<int> l0;\n"
-                    "unused(&l0);\n\n"
-
-                    "std::list<int> l1;\n"
-                    "for (int i = 0; i < 10000; ++i)\n"
-                    "    l1.push_back(i);\n"
-
-                    "std::list<bool> l2;\n"
-                    "l2.push_back(true);\n"
-                    "l2.push_back(false);\n"
-                    "unused(&l2);\n\n"
-
-                    "std::list<int *> l3;\n"
-                    "l3.push_back(new int(1));\n"
-                    "l3.push_back(0);\n"
-                    "l3.push_back(new int(2));\n"
-                    "unused(&l3);\n\n"
-
-                    "Derived<int> l4;\n"
-                    "l4.push_back(1);\n"
-                    "l4.push_back(2);\n"
-                    "unused(&l4);\n\n")
-
-               % Check("l0", "<0 items>", "std::list<int>")
-
-               % Check("l1", "<>1000 items>", "std::list<int>")
-               % Check("l1.0", "[0]", "0", "int")
-               % Check("l1.1", "[1]", "1", "int")
-               % Check("l1.999", "[999]", "999", "int")
-
-               % Check("l2", "<2 items>", "std::list<bool>")
-               % Check("l2.0", "[0]", "true", "bool")
-               % Check("l2.1", "[1]", "false", "bool")
-
-               % Check("l3", "<3 items>", "std::list<int*>")
-               % Check("l3.0", "[0]", "1", "int")
-               % Check("l3.1", "[1]", "0x0", "int *")
-               % Check("l3.2", "[2]", "2", "int")
-
-               % Check("l4.@1.0", "[0]", "1", "int")
-               % Check("l4.@1.1", "[1]", "2", "int");
-
-
-    QTest::newRow("StdListQt")
-            << Data("#include <list>\n" + fooData,
-
-                    "std::list<Foo> l1;\n"
-                    "l1.push_back(15);\n"
-                    "l1.push_back(16);\n"
-                    "unused(&l1);\n\n"
-
-                    "std::list<Foo *> l2;\n"
-                    "l2.push_back(new Foo(1));\n"
-                    "l2.push_back(0);\n"
-                    "l2.push_back(new Foo(2));\n"
-                    "unused(&l2);\n")
-
-               % Check("l1", "<2 items>", "std::list<Foo>")
-               % Check("l1.0", "[0]", "", "Foo")
-               % Check("l1.0.a", "15", "int")
-               % Check("l1.1", "[1]", "", "Foo")
-               % Check("l1.1.a", "16", "int")
-
-               % Check("l2", "<3 items>", "std::list<Foo*>")
-               % Check("l2.0", "[0]", "", "Foo")
-               % Check("l2.0.a", "1", "int")
-               % Check("l2.1", "[1]", "0x0", "Foo *")
-               % Check("l2.2", "[2]", "", "Foo")
-               % Check("l2.2.a", "2", "int");
-
-
-    QTest::newRow("StdMap")
-            << Data("#include <map>\n",
-
-                    "std::map<unsigned int, unsigned int> map1;\n"
-                    "map1[11] = 1;\n"
-                    "map1[22] = 2;\n"
-                    "unused(&map1);\n\n"
-
-                    "std::map<unsigned int, float> map2;\n"
-                    "map2[11] = 11.0;\n"
-                    "map2[22] = 22.0;\n"
-
-                    "typedef std::map<int, float> Map;\n"
-                    "Map map3;\n"
-                    "map3[11] = 11.0;\n"
-                    "map3[22] = 22.0;\n"
-                    "map3[33] = 33.0;\n"
-                    "map3[44] = 44.0;\n"
-                    "map3[55] = 55.0;\n"
-                    "map3[66] = 66.0;\n"
-                    "Map::iterator it1 = map3.begin();\n"
-                    "Map::iterator it2 = it1; ++it2;\n"
-                    "Map::iterator it3 = it2; ++it3;\n"
-                    "Map::iterator it4 = it3; ++it4;\n"
-                    "Map::iterator it5 = it4; ++it5;\n"
-                    "Map::iterator it6 = it5; ++it6;\n"
-                    "unused(&it6);\n")
-
-               % Check("map1", "<2 items>", "std::map<unsigned int, unsigned int>")
-               % Check("map1.11", "[11]", "1", "unsigned int")
-               % Check("map1.22", "[22]", "2", "unsigned int")
-
-               % Check("map2", "<2 items>", "std::map<unsigned int, float>")
-               % Check("map2.11", "[11]", "11", "float")
-               % Check("map2.22", "[22]", "22", "float")
-
-               % Check("map3", "<6 items>", "Map")
-               % Check("map3.11", "[11]", "11", "float")
-               % Check("it1.first", "11", "int")
-               % Check("it1.second", "11", "float")
-               % Check("it6.first", "66", "int")
-               % Check("it6.second", "66", "float");
-
-
-    QTest::newRow("StdMapQt")
-            << Data("#include <map>\n"
-                    "#include <QPointer>\n"
-                    "#include <QObject>\n"
-                    "#include <QStringList>\n"
-                    "#include <QString>\n" + fooData,
-
-                    "std::map<QString, Foo> map1;\n"
-                    "map1[\"22.0\"] = Foo(22);\n"
-                    "map1[\"33.0\"] = Foo(33);\n"
-                    "map1[\"44.0\"] = Foo(44);\n"
-                    "unused(&map1);\n\n"
-
-                    "std::map<const char *, Foo> map2;\n"
-                    "map2[\"22.0\"] = Foo(22);\n"
-                    "map2[\"33.0\"] = Foo(33);\n"
-                    "unused(&map2);\n\n"
-
-                    "std::map<uint, QStringList> map3;\n"
-                    "map3[11] = QStringList() << \"11\";\n"
-                    "map3[22] = QStringList() << \"22\";\n"
-                    "unused(&map3);\n\n"
-
-                    "typedef std::map<uint, QStringList> T;\n"
-                    "T map4;\n"
-                    "map4[11] = QStringList() << \"11\";\n"
-                    "map4[22] = QStringList() << \"22\";\n"
-                    "unused(&map4);\n\n"
-
-                    "std::map<QString, float> map5;\n"
-                    "map5[\"11.0\"] = 11.0;\n"
-                    "map5[\"22.0\"] = 22.0;\n"
-                    "unused(&map5);\n\n"
-
-                    "std::map<int, QString> map6;\n"
-                    "map6[11] = \"11.0\";\n"
-                    "map6[22] = \"22.0\";\n"
-                    "unused(&map6);\n\n"
-
-                    "QObject ob;\n"
-                    "std::map<QString, QPointer<QObject> > map7;\n"
-                    "map7[\"Hallo\"] = QPointer<QObject>(&ob);\n"
-                    "map7[\"Welt\"] = QPointer<QObject>(&ob);\n"
-                    "map7[\".\"] = QPointer<QObject>(&ob);\n"
-                    "unused(&map7);\n")
-
-               % CoreProfile()
-
-               % Check("map1", "<3 items>", "std::map<@QString, Foo>")
-               % Check("map1.0", "[0]", "", "std::pair<@QString const, Foo>")
-               % Check("map1.0.first", "\"22.0\"", "@QString")
-               % Check("map1.0.second", "", "Foo")
-               % Check("map1.0.second.a", "22", "int")
-               % Check("map1.1", "[1]", "", "std::pair<@QString const, Foo>")
-               % Check("map1.2.first", "\"44.0\"", "@QString")
-               % Check("map1.2.second", "", "Foo")
-               % Check("map1.2.second.a", "44", "int")
-
-               % Check("map2", "<2 items>", "std::map<char const*, Foo>")
-               % Check("map2.0", "[0]", "", "std::pair<char const* const, Foo>")
-               % CheckType("map2.0.first", "char *")
-// FIXME
-               //% Check("map2.0.first.0", "50", "char")
-               % Check("map2.0.second", "", "Foo")
-               % Check("map2.0.second.a", "22", "int")
-               % Check("map2.1", "[1]", "", "std::pair<char const* const, Foo>")
-               % CheckType("map2.1.first", "char *")
-               //% Check("map2.1.first.*first", "51 '3'", "char")
-               % Check("map2.1.second", "", "Foo")
-               % Check("map2.1.second.a", "33", "int")
-
-               % Check("map3", "<2 items>", "std::map<unsigned int, @QStringList>")
-               % Check("map3.0", "[0]", "", "std::pair<unsigned int const, @QStringList>")
-               % Check("map3.0.first", "11", "unsigned int")
-               % Check("map3.0.second", "<1 items>", "@QStringList")
-               % Check("map3.0.second.0", "[0]", "\"11\"", "@QString")
-               % Check("map3.1", "[1]", "", "std::pair<unsigned int const, @QStringList>")
-               % Check("map3.1.first", "22", "unsigned int")
-               % Check("map3.1.second", "<1 items>", "@QStringList")
-               % Check("map3.1.second.0", "[0]", "\"22\"", "@QString")
-
-               % Check("map4.1.second.0", "[0]", "\"22\"", "@QString")
-
-               % Check("map5", "<2 items>", "std::map<@QString, float>")
-               % Check("map5.0", "[0]", "", "std::pair<@QString const, float>")
-               % Check("map5.0.first", "\"11.0\"", "@QString")
-               % Check("map5.0.second", "11", "float")
-               % Check("map5.1", "[1]", "", "std::pair<@QString const, float>")
-               % Check("map5.1.first", "\"22.0\"", "@QString")
-               % Check("map5.1.second", "22", "float")
-
-               % Check("map6", "<2 items>", "std::map<int, @QString>")
-               % Check("map6.0", "[0]", "", "std::pair<int const, @QString>")
-               % Check("map6.0.first", "11", "int")
-               % Check("map6.0.second", "\"11.0\"", "@QString")
-               % Check("map6.1", "[1]", "", "std::pair<int const, @QString>")
-               % Check("map6.1.first", "22", "int")
-               % Check("map6.1.second", "\"22.0\"", "@QString")
-
-               % Check("map7", "<3 items>", "std::map<@QString, @QPointer<@QObject>>")
-               % Check("map7.0", "[0]", "", "std::pair<@QString const, @QPointer<@QObject>>")
-               % Check("map7.0.first", "\".\"", "@QString")
-               % Check("map7.0.second", "", "@QPointer<@QObject>")
-               % Check("map7.2", "[2]", "", "std::pair<@QString const, @QPointer<@QObject>>")
-               % Check("map7.2.first", "\"Welt\"", "@QString");
-
-
-    QTest::newRow("StdUniquePtr")
-            << Data("#include <memory>\n" + fooData,
-
-                    "std::unique_ptr<int> p0;\n"
-                    "unused(&p0);\n\n"
-
-                    "std::unique_ptr<int> p1(new int(32));\n"
-                    "unused(&p1);\n\n"
-
-                    "std::unique_ptr<Foo> p2(new Foo);\n"
-                    "unused(&p2);\n")
-
-               % Cxx11Profile()
-               % MacLibCppProfile()
-
-               % Check("p0", "(null)", "std::unique_ptr<int, std::default_delete<int> >")
-
-               % Check("p1", Pointer("32"), "std::unique_ptr<int, std::default_delete<int> >")
-               % Check("p1.data", "32", "int")
-
-               % Check("p2", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >")
-               % CheckType("p2.data", "Foo");
-
-
-    QTest::newRow("StdSharedPtr")
-            << Data("#include <memory>\n" + fooData,
-                    "std::shared_ptr<int> pi(new int(32));\n"
-                    "std::shared_ptr<Foo> pf(new Foo);\n"
-                    "unused(&pi, &pf);\n")
-               % Cxx11Profile()
-               % MacLibCppProfile()
-               % Check("pi", Pointer("32"), "std::shared_ptr<int>")
-               % Check("pi.data", "32", "int")
-               % Check("pf", Pointer(), "std::shared_ptr<Foo>")
-               % CheckType("pf.data", "Foo");
-
-
-    QTest::newRow("StdSet")
-            << Data("#include <set>\n",
-                    "std::set<int> set;\n"
-                    "set.insert(11);\n"
-                    "set.insert(22);\n"
-                    "set.insert(33);\n"
-                    "unused(&set);\n")
-               % Check("set", "<3 items>", "std::set<int>");
-
-
-    QTest::newRow("StdSetIterator")
-            << Data("#include <set>\n",
-                    "typedef std::set<int> Set;\n"
-                    "Set set;\n"
-                    "set.insert(11.0);\n"
-                    "set.insert(22.0);\n"
-                    "set.insert(33.0);\n"
-                    "set.insert(44.0);\n"
-                    "set.insert(55.0);\n"
-                    "set.insert(66.0);\n"
-                    "Set::iterator it1 = set.begin();\n"
-                    "Set::iterator it2 = it1; ++it2;\n"
-                    "Set::iterator it3 = it2; ++it3;\n"
-                    "Set::iterator it4 = it3; ++it4;\n"
-                    "Set::iterator it5 = it4; ++it5;\n"
-                    "Set::iterator it6 = it5; ++it6;\n"
-                    "unused(&it6);\n")
-               % Check("set", "<6 items>", "Set")
-               % Check("it1.value", "11", "int")
-               % Check("it6.value", "66", "int");
-
-
-    QTest::newRow("StdSetQt")
-            << Data("#include <set>\n"
-                    "#include <QPointer>\n"
-                    "#include <QObject>\n"
-                    "#include <QString>\n",
-
-                    "std::set<QString> set1;\n"
-                    "set1.insert(\"22.0\");\n"
-
-                    "QObject ob;\n"
-                    "std::set<QPointer<QObject> > set2;\n"
-                    "QPointer<QObject> ptr(&ob);\n"
-                    "set2.insert(ptr);\n"
-
-                    "unused(&ptr, &ob, &set1, &set2);\n")
-
-               % Check("set1", "<1 items>", "std::set<@QString>")
-               % Check("set1.0", "[0]", "\"22.0\"", "@QString")
-
-               % Check("set2", "<1 items>", "std::set<@QPointer<@QObject>, "
-                    "std::less<@QPointer<@QObject>>, std::allocator<@QPointer<@QObject>>>")
-               % Check("ob", "", "@QObject")
-               % Check("ptr", "", "@QPointer<@QObject>");
-
-
-    QTest::newRow("StdStack")
-            << Data("#include <stack>\n",
-                    "std::stack<int *> s0, s1;\n"
-                    "s1.push(new int(1));\n"
-                    "s1.push(0);\n"
-                    "s1.push(new int(2));\n"
-
-                    "std::stack<int> s2, s3;\n"
-                    "s3.push(1);\n"
-                    "s3.push(2);\n"
-                    "unused(&s0, &s1, &s2, &s3);\n")
-
-               % Check("s0", "<0 items>", "std::stack<int*>")
-
-               % Check("s1", "<3 items>", "std::stack<int*>")
-               % Check("s1.0", "[0]", "1", "int")
-               % Check("s1.1", "[1]", "0x0", "int *")
-               % Check("s1.2", "[2]", "2", "int")
-
-               % Check("s2", "<0 items>", "std::stack<int>")
-
-               % Check("s3", "<2 items>", "std::stack<int>")
-               % Check("s3.0", "[0]", "1", "int")
-               % Check("s3.1", "[1]", "2", "int");
-
-
-    QTest::newRow("StdStackQt")
-            << Data("#include <stack>\n" + fooData,
-                    "std::stack<Foo *> s0, s1;\n"
-                    "std::stack<Foo> s2, s3;\n"
-                    "s1.push(new Foo(1));\n"
-                    "s1.push(new Foo(2));\n"
-                    "s3.push(1);\n"
-                    "s3.push(2);\n"
-                    "unused(&s0, &s1, &s2, &s3);\n")
-               % CoreProfile()
-               % Check("s0", "<0 items>", "std::stack<Foo*>")
-               % Check("s1", "<2 items>", "std::stack<Foo*>")
-               % Check("s1.0", "[0]", "", "Foo")
-               % Check("s1.0.a", "1", "int")
-               % Check("s1.1", "[1]", "", "Foo")
-               % Check("s1.1.a", "2", "int")
-               % Check("s2", "<0 items>", "std::stack<Foo>")
-               % Check("s3", "<2 items>", "std::stack<Foo>")
-               % Check("s3.0", "[0]", "", "Foo")
-               % Check("s3.0.a", "1", "int")
-               % Check("s3.1", "[1]", "", "Foo")
-               % Check("s3.1.a", "2", "int");
-
-
-    QTest::newRow("StdString")
-            << Data("#include <string>\n",
-                    "std::string str0, str;\n"
-                    "std::wstring wstr0, wstr;\n"
-                    "str += \"b\";\n"
-                    "wstr += wchar_t('e');\n"
-                    "str += \"d\";\n"
-                    "wstr += wchar_t('e');\n"
-                    "str += \"e\";\n"
-                    "str += \"b\";\n"
-                    "str += \"d\";\n"
-                    "str += \"e\";\n"
-                    "wstr += wchar_t('e');\n"
-                    "wstr += wchar_t('e');\n"
-                    "str += \"e\";\n"
-                    "unused(&str0, &str, &wstr0, &wstr);\n")
-               % Check("str0", "\"\"", "std::string")
-               % Check("wstr0", "\"\"", "std::wstring")
-               % Check("str", "\"bdebdee\"", "std::string")
-               % Check("wstr", "\"eeee\"", "std::wstring");
-
-
-    QTest::newRow("StdStringQt")
-            << Data("#include <string>\n"
-                    "#include <vector>\n"
-                    "#include <QList>\n",
-                    "std::string str = \"foo\";\n"
-                    "std::vector<std::string> v;\n"
-                    "QList<std::string> l0, l;\n"
-                    "v.push_back(str);\n"
-                    "v.push_back(str);\n"
-                    "l.push_back(str);\n"
-                    "l.push_back(str);\n"
-                    "unused(&v, &l);\n")
-               % CoreProfile()
-               % Check("l0", "<0 items>", "@QList<std::string>")
-               % Check("l", "<2 items>", "@QList<std::string>")
-               % Check("str", "\"foo\"", "std::string")
-               % Check("v", "<2 items>", "std::vector<std::string>")
-               % Check("v.0", "[0]", "\"foo\"", "std::string");
-
-
-    QTest::newRow("StdVector")
-            << Data("#include <vector>\n"
-                    "#include <list>\n",
-
-                    "std::vector<double> v0, v1;\n"
-                    "v1.push_back(1);\n"
-                    "v1.push_back(0);\n"
-                    "v1.push_back(2);\n"
-                    "unused(&v0, &v1);\n\n"
-
-                    "std::vector<int *> v2, v3;\n"
-                    "v3.push_back(new int(1));\n"
-                    "v3.push_back(0);\n"
-                    "v3.push_back(new int(2));\n"
-                    "unused(&v2, &v3);\n\n"
-
-                    "std::vector<int> v4;\n"
-                    "v4.push_back(1);\n"
-                    "v4.push_back(2);\n"
-                    "v4.push_back(3);\n"
-                    "v4.push_back(4);\n"
-                    "unused(&v4);\n\n"
-
-                    "std::vector<std::list<int> *> v5;\n"
-                    "std::list<int> list;\n"
-                    "v5.push_back(new std::list<int>(list));\n"
-                    "v5.push_back(0);\n"
-                    "list.push_back(45);\n"
-                    "v5.push_back(new std::list<int>(list));\n"
-                    "v5.push_back(0);\n"
-                    "unused(&v5);\n")
-
-               % Check("v0", "<0 items>", "std::vector<double>")
-               % Check("v1", "<3 items>", "std::vector<double>")
-               % Check("v1.0", "[0]", "1", "double")
-               % Check("v1.1", "[1]", "0", "double")
-               % Check("v1.2", "[2]", "2", "double")
-
-               % Check("v2", "<0 items>", "std::vector<int*>")
-               % Check("v3", "<3 items>", "std::vector<int*>")
-               % Check("v3.0", "[0]", "1", "int")
-               % Check("v3.1", "[1]", "0x0", "int *")
-               % Check("v3.2", "[2]", "2", "int")
-
-               % Check("v4", "<4 items>", "std::vector<int>")
-               % Check("v4.0", "[0]", "1", "int")
-               % Check("v4.3", "[3]", "4", "int")
-
-               % Check("list", "<1 items>", "std::list<int>")
-               % Check("list.0", "[0]", "45", "int")
-               % Check("v5", "<4 items>", "std::vector<std::list<int>*>")
-               % Check("v5.0", "[0]", "<0 items>", "std::list<int>")
-               % Check("v5.2", "[2]", "<1 items>", "std::list<int>")
-               % Check("v5.2.0", "[0]", "45", "int")
-               % Check("v5.3", "[3]", "0x0", "std::list<int> *");
-
-
-    QTest::newRow("StdVectorBool")
-            << Data("#include <vector>\n",
-
-                    "std::vector<bool> v0;\n"
-                    "unused(&v0);\n\n"
-
-                    "std::vector<bool> v1;\n"
-                    "v1.push_back(true);\n"
-                    "v1.push_back(false);\n"
-                    "v1.push_back(false);\n"
-                    "v1.push_back(true);\n"
-                    "v1.push_back(false);\n"
-                    "unused(&v1);\n\n"
-
-                    "std::vector<bool> v2(65, true);\n"
-                    "unused(&v2);\n\n"
-
-                    "std::vector<bool> v3(300);\n"
-                    "unused(&v3);\n")
-
-               // Known issue: Clang produces "std::vector<std::allocator<bool>>
-               % Check("v0", "<0 items>", "std::vector<bool>").setForGdbOnly()
-               % Check("v0", "<0 items>", "std::vector<std::allocator<bool>>").setForLldbOnly()
-
-               % Check("v1", "<5 items>", "std::vector<bool>").setForGdbOnly()
-               % Check("v1", "<5 items>", "std::vector<std::allocator<bool>>").setForLldbOnly()
-               % Check("v1.0", "[0]", "1", "bool")
-               % Check("v1.1", "[1]", "0", "bool")
-               % Check("v1.2", "[2]", "0", "bool")
-               % Check("v1.3", "[3]", "1", "bool")
-               % Check("v1.4", "[4]", "0", "bool")
-
-               % Check("v2", "<65 items>", "std::vector<bool>").setForGdbOnly()
-               % Check("v2", "<65 items>", "std::vector<std::allocator<bool>>").setForLldbOnly()
-               % Check("v2.0", "[0]", "1", "bool")
-               % Check("v2.64", "[64]", "1", "bool")
-
-               % Check("v3", "<300 items>", "std::vector<bool>").setForGdbOnly()
-               % Check("v3", "<300 items>", "std::vector<std::allocator<bool>>").setForLldbOnly()
-               % Check("v3.0", "[0]", "0", "bool")
-               % Check("v3.299", "[299]", "0", "bool");
-
-
-    QTest::newRow("StdVectorQt")
-            << Data("#include <vector>\n" + fooData,
-
-                    "std::vector<Foo *> v1;\n"
-                    "v1.push_back(new Foo(1));\n"
-                    "v1.push_back(0);\n"
-                    "v1.push_back(new Foo(2));\n"
-
-                    "std::vector<Foo> v2;\n"
-                    "v2.push_back(1);\n"
-                    "v2.push_back(2);\n"
-                    "v2.push_back(3);\n"
-                    "v2.push_back(4);\n"
-                    "unused(&v1, &v2);\n")
-
-               % CoreProfile()
-               % Check("v1", "<3 items>", "std::vector<Foo*>")
-               % Check("v1.0", "[0]", "", "Foo")
-               % Check("v1.0.a", "1", "int")
-               % Check("v1.1", "[1]", "0x0", "Foo *")
-               % Check("v1.2", "[2]", "", "Foo")
-               % Check("v1.2.a", "2", "int")
-
-               % Check("v2", "<4 items>", "std::vector<Foo>")
-               % Check("v2.0", "[0]", "", "Foo")
-               % Check("v2.1.a", "2", "int")
-               % Check("v2.3", "[3]", "", "Foo");
-
-
-    QTest::newRow("StdStream")
-            << Data("#include <istream>\n"
-                    "#include <fstream>\n",
-                    "using namespace std;\n"
-                    "ifstream is0, is;\n"
-                    "#ifdef Q_OS_WIN\n"
-                    "        is.open(\"C:\\\\Program Files\\\\Windows NT\\\\Accessories\\\\wordpad.exe\");\n"
-                    "#else\n"
-                    "        is.open(\"/etc/passwd\");\n"
-                    "#endif\n"
-                    "bool ok = is.good();\n"
-                    "unused(&ok, &is, &is0);\n")
-               % Check("is", "", "std::ifstream")
-               % Check("ok", "true", "bool");
-
-
-    QTest::newRow("StdUnorderedMap")
-            << Data("#include <unordered_map>\n"
-                    "#include <string>\n",
-
-                    "std::unordered_map<unsigned int, unsigned int> map1;\n"
-                    "map1[11] = 1;\n"
-                    "map1[22] = 2;\n"
-
-                    "std::unordered_map<std::string, float> map2;\n"
-                    "map2[\"11.0\"] = 11.0;\n"
-                    "map2[\"22.0\"] = 22.0;\n"
-
-                    "unused(&map1);\n")
-
-               % Cxx11Profile()
-
-               % Check("map1", "<2 items>", "std::unordered_map<unsigned int, unsigned int>")
-               % Check("map1.0", "[0] 22", "2", "unsigned int")
-               % Check("map1.1", "[1] 11", "1", "unsigned int")
-
-               % Check("map2", "<2 items>", "std::unordered_map<std::string, float>")
-               //% Check("map2.0", "[0]", "", "std::pair<std:string const, float>")
-               % Check("map2.0.first", "\"22.0\"", "std::string")
-               % Check("map2.0.second", "22", "float")
-               //% Check("map2.1", "[1]", "", "std::pair<std::string const, float>")
-               % Check("map2.1.first", "\"11.0\"", "std::string")
-               % Check("map2.1.second", "11", "float");
-
-
-    QTest::newRow("StdUnorderedSet")
-            << Data("#include <unordered_set>\n",
-                    "std::unordered_set<int> set1;\n"
-                    "set1.insert(11);\n"
-                    "set1.insert(22);\n"
-                    "set1.insert(33);\n"
-                    "unused(&set1);\n")
-               % Cxx11Profile()
-               % Check("set1", "<3 items>", "std::unordered_set<int>")
-               % Check("set1.0", "[0]", "33", "int")
-               % Check("set1.1", "[1]", "22", "int")
-               % Check("set1.2", "[2]", "11", "int");
+               + CoreProfile()
+
+               + Check("ptr10", "(null)", "@QSharedPointer<int>")
+               + Check("ptr11", "(null)", "@QSharedPointer<int>")
+               + Check("ptr12", "(null)", "@QSharedPointer<int>")
+
+               + Check("ptr20", "", "@QSharedPointer<@QString>")
+               + Check("ptr20.data", "\"hallo\"", "@QString")
+               + Check("ptr20.weakref", "3", "int")
+               + Check("ptr20.strongref", "3", "int")
+               + Check("ptr21.data", "\"hallo\"", "@QString")
+               + Check("ptr22.data", "\"hallo\"", "@QString")
+
+               + Check("ptr30", "43", "@QSharedPointer<int>")
+               + Check("ptr30.data", "43", "int")
+               + Check("ptr30.weakref", "4", "int")
+               + Check("ptr30.strongref", "1", "int")
+               + Check("ptr33", "43", "@QWeakPointer<int>")
+               + Check("ptr33.data", "43", "int")
+
+               + Check("ptr40", "", "@QSharedPointer<@QString>")
+               + Check("ptr40.data", "\"hallo\"", "@QString")
+               + Check("ptr43", "", "@QWeakPointer<@QString>")
+
+               + Check("ptr50", "", "@QSharedPointer<Foo>")
+               + Check("ptr50.data", "", "Foo")
+               + Check("ptr53", "", "@QWeakPointer<Foo>");
 
 
     QTest::newRow("QStandardItemModel")
@@ -3410,13 +2622,13 @@ void tst_Dumpers::dumper_data()
                     "       << (new QStandardItem(\"aa\")));\n"
                     "unused(&i1, &i2, &i11, &m, &mi);\n")
 
-               % GuiProfile()
+               + GuiProfile()
 
-               % Check("i1", "", "@QStandardItem")
-               % Check("i11", "", "@QStandardItem")
-               % Check("i2", "", "@QStandardItem")
-               % Check("m", "", "@QStandardItemModel")
-               % Check("mi", "\"1\"", "@QModelIndex").setEngines(GdbEngine);
+               + Check("i1", "", "@QStandardItem")
+               + Check("i11", "", "@QStandardItem")
+               + Check("i2", "", "@QStandardItem")
+               + Check("m", "", "@QStandardItemModel")
+               + Check("mi", "\"1\"", "@QModelIndex") % NoCdbEngine;
 
 
     QTest::newRow("QStack")
@@ -3450,32 +2662,32 @@ void tst_Dumpers::dumper_data()
                     "s5.append(false);\n"
                     "unused(&s5);\n\n")
 
-               % CoreProfile()
+               + CoreProfile()
 
-               % Check("s1", "<2 items>", "@QStack<int>")
-               % Check("s1.0", "[0]", "1", "int")
-               % Check("s1.1", "[1]", "2", "int")
+               + Check("s1", "<2 items>", "@QStack<int>")
+               + Check("s1.0", "[0]", "1", "int")
+               + Check("s1.1", "[1]", "2", "int")
 
-               % Check("s2", "<10000 items>", "@QStack<int>")
-               % Check("s2.0", "[0]", "0", "int")
-               % Check("s2.8999", "[8999]", "8999", "int")
+               + Check("s2", "<10000 items>", "@QStack<int>")
+               + Check("s2.0", "[0]", "0", "int")
+               + Check("s2.8999", "[8999]", "8999", "int")
 
-               % Check("s3", "<3 items>", "@QStack<Foo*>")
-               % Check("s3.0", "[0]", "", "Foo")
-               % Check("s3.0.a", "1", "int")
-               % Check("s3.1", "[1]", "0x0", "Foo *")
-               % Check("s3.2", "[2]", "", "Foo")
-               % Check("s3.2.a", "2", "int")
+               + Check("s3", "<3 items>", "@QStack<Foo*>")
+               + Check("s3.0", "[0]", "", "Foo")
+               + Check("s3.0.a", "1", "int")
+               + Check("s3.1", "[1]", "0x0", "Foo *")
+               + Check("s3.2", "[2]", "", "Foo")
+               + Check("s3.2.a", "2", "int")
 
-               % Check("s4", "<4 items>", "@QStack<Foo>")
-               % Check("s4.0", "[0]", "", "Foo")
-               % Check("s4.0.a", "1", "int")
-               % Check("s4.3", "[3]", "", "Foo")
-               % Check("s4.3.a", "4", "int")
+               + Check("s4", "<4 items>", "@QStack<Foo>")
+               + Check("s4.0", "[0]", "", "Foo")
+               + Check("s4.0.a", "1", "int")
+               + Check("s4.3", "[3]", "", "Foo")
+               + Check("s4.3.a", "4", "int")
 
-               % Check("s5", "<2 items>", "@QStack<bool>")
-               % Check("s5.0", "[0]", "1", "bool")  // 1 -> true is done on display
-               % Check("s5.1", "[1]", "0", "bool");
+               + Check("s5", "<2 items>", "@QStack<bool>")
+               + Check("s5.0", "[0]", "1", "bool")  // 1 -> true is done on display
+               + Check("s5.1", "[1]", "0", "bool");
 
 
     QTest::newRow("QTimeZone")
@@ -3483,10 +2695,12 @@ void tst_Dumpers::dumper_data()
                     "QTimeZone tz0;\n"
                     "QTimeZone tz1(\"UTC+05:00\");\n"
                     "unused(&tz0, &tz1);\n")
-               % CoreProfile()
-               % QtVersion(50200)
-               % Check("tz0", "(null)", "@QTimeZone")
-               % Check("tz1", "\"UTC+05:00\"", "@QTimeZone");
+
+               + CoreProfile()
+               + QtVersion(50200)
+
+               + Check("tz0", "(null)", "@QTimeZone")
+               + Check("tz1", "\"UTC+05:00\"", "@QTimeZone");
 
 
     QTest::newRow("QUrl")
@@ -3494,18 +2708,20 @@ void tst_Dumpers::dumper_data()
                     "QUrl url0;\n"
                     "QUrl url1 = QUrl::fromEncoded(\"http://foo@qt-project.org:10/have_fun\");\n"
                     "unused(&url0, &url1);\n")
-               % CoreProfile()
-               % Check("url0", "<invalid>", "@QUrl")
-               % Check("url1", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QUrl")
-               % Check("url1.port", "10", "int")
-               % Check("url1.scheme", "\"http\"", "@QString")
-               % Check("url1.userName", "\"foo\"", "@QString")
-               % Check("url1.password", "\"\"", "@QString")
-               % Check("url1.host", "\"qt-project.org\"", "@QString")
-               % Check("url1.path", "\"/have_fun\"", "@QString")
-               % Check("url1.query", "\"\"", Type4("@QByteArray"))
-               % Check("url1.query", "\"\"", Type5("@QString"))
-               % Check("url1.fragment", "\"\"", "@QString");
+
+               + CoreProfile()
+
+               + Check("url0", "<invalid>", "@QUrl")
+               + Check("url1", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QUrl")
+               + Check("url1.port", "10", "int")
+               + Check("url1.scheme", "\"http\"", "@QString")
+               + Check("url1.userName", "\"foo\"", "@QString")
+               + Check("url1.password", "\"\"", "@QString")
+               + Check("url1.host", "\"qt-project.org\"", "@QString")
+               + Check("url1.path", "\"/have_fun\"", "@QString")
+               + Check("url1.query", "\"\"", Type4("@QByteArray"))
+               + Check("url1.query", "\"\"", Type5("@QString"))
+               + Check("url1.fragment", "\"\"", "@QString");
 
 
     QByteArray expected1 = "\"AAA";
@@ -3572,70 +2788,47 @@ void tst_Dumpers::dumper_data()
                     "QString str4(\"Hello\\tQt\");\n"
                     "unused(&str1, &str2, &str3, &str3);\n")
 
-               % CoreProfile()
+               + CoreProfile()
 
-               % Check("s0", "\"Prefix: Hello\"", "@QByteArray")
-               % Check("s1", expected1, "@QByteArray")
-               % Check("s2", "\"Hell\"", "@QString")
-               % Check("s3", "\"ello\"", "@QString")
+               + Check("s0", "\"Prefix: Hello\"", "@QByteArray")
+               + Check("s1", expected1, "@QByteArray")
+               + Check("s2", "\"Hell\"", "@QString")
+               + Check("s3", "\"ello\"", "@QString")
 
-               % Check("s4", "\"Hello \"", "@QString")
-               % Check("s5", "\"String Test\"", "@QString")
-               % Check("s6", "\"Pointer String Test\"", "@QString")
+               + Check("s4", "\"Hello \"", "@QString")
+               + Check("s5", "\"String Test\"", "@QString")
+               + Check("s6", "\"Pointer String Test\"", "@QString")
 
-               % Check("s7", QString::fromLatin1("\"a%1a\"").arg(oUmlaut), "@QString")
-               % CheckType("w", "w", "wchar_t *")
+               + Check("s7", QString::fromLatin1("\"a%1a\"").arg(oUmlaut), "@QString")
+               + CheckType("w", "w", "wchar_t *")
 
-               % Check("s8", "\"el\"", "@QStringRef")
-               % Check("s9", "(null)", "@QStringRef")
+               + Check("s8", "\"el\"", "@QStringRef")
+               + Check("s9", "(null)", "@QStringRef")
 
-               % Check("l", "<2 items>", "@QStringList")
-               % Check("l.0", "[0]", "\" big, \"", "@QString")
-               % Check("l.1", "[1]", "\" World \"", "@QString")
+               + Check("l", "<2 items>", "@QStringList")
+               + Check("l.0", "[0]", "\" big, \"", "@QString")
+               + Check("l.1", "[1]", "\" World \"", "@QString")
 
-               % Check("str1", "\"Hello Qt\"", "@QString")
-               % Check("str2", "\"Hello\nQt\"", "@QString")
-               % Check("str3", "\"Hello\rQt\"", "@QString")
-               % Check("str4", "\"Hello\tQt\"", "@QString");
-
-
+               + Check("str1", "\"Hello Qt\"", "@QString")
+               + Check("str2", "\"Hello\nQt\"", "@QString")
+               + Check("str3", "\"Hello\rQt\"", "@QString")
+               + Check("str4", "\"Hello\tQt\"", "@QString");
 
 
     QTest::newRow("QStringReference")
             << Data("#include <QString>\n"
-                    "void stringRefTest(const QString &refstring) { BREAK; unused(&refstring); }\n",
+                    "void stringRefTest(const QString &refstring) {\n"
+                    "   BREAK;\n"
+                    "   unused(&refstring);\n"
+                    "}\n",
                     "stringRefTest(QString(\"Ref String Test\"));\n")
-               % CoreProfile()
-               % Check("refstring", "\"Ref String Test\"", "@QString &");
+
+               + CoreProfile()
+
+               + Check("refstring", "\"Ref String Test\"", "@QString &");
 
 
-    QTest::newRow("CharPointers")
-            << Data("const char *s = \"aöa\";\n"
-                    "const char *t = \"a\\xc3\\xb6\";\n"
-                    "const unsigned char uu[] = { 'a', 153 /* ö Latin1 */, 'a' };\n"
-                    "const unsigned char *u = uu;\n"
-                    "const wchar_t *w = L\"aöa\";\n"
-                    "unused(&s, &t, &uu, &u, &w);\n")
-               % CheckType("u", "unsigned char *")
-               % CheckType("uu", "unsigned char [3]")
-               % CheckType("s", "char *")
-               % CheckType("t", "char *")
-               % CheckType("w", "wchar_t *");
-
-        // All: Select UTF-8 in "Change Format for Type" in L&W context menu");
-        // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu");
-        // Other: Select UCS-6 in "Change Format for Type" in L&W context menu");
-
-    QTest::newRow("CharArrays")
-            << Data("const char s[] = \"aöa\";\n"
-                    "const char t[] = \"aöax\";\n"
-                    "const wchar_t w[] = L\"aöa\";\n"
-                    "unused(&s, &t, &w);\n")
-               % CheckType("s", "char [5]")
-               % CheckType("t", "char [6]")
-               % CheckType("w", "wchar_t [4]");
-
-    QTest::newRow("Text")
+    QTest::newRow("QText")
             << Data("#include <QApplication>\n"
                     "#include <QTextCursor>\n"
                     "#include <QTextDocument>\n",
@@ -3647,11 +2840,11 @@ void tst_Dumpers::dumper_data()
                     "int pos = tc.position();\n"
                     "int anc = tc.anchor();\n"
                     "unused(&pos, &anc);\n")
-               % GuiProfile()
-               % CheckType("doc", "@QTextDocument")
-               % Check("tc", "4", "@QTextCursor")
-               % Check("pos", "4", "int")
-               % Check("anc", "1", "int");
+               + GuiProfile()
+               + CheckType("doc", "@QTextDocument")
+               + Check("tc", "4", "@QTextCursor")
+               + Check("pos", "4", "int")
+               + Check("anc", "1", "int");
 
     QTest::newRow("QThread")
             << Data("#include <QThread>\n"
@@ -3676,12 +2869,12 @@ void tst_Dumpers::dumper_data()
                     "    thread[i].wait();\n"
                     "}\n")
 
-               % CoreProfile()
-               % UseDebugImage()
+               + CoreProfile()
+               + UseDebugImage()
 
-               % CheckType("this", "Thread")
-               % Check("this.@1", "[@QThread]", "\"This is thread #3\"", "@QThread")
-               % Check("this.@1.@1", "[@QObject]", "\"This is thread #3\"", "@QObject");
+               + CheckType("this", "Thread")
+               + Check("this.@1", "[@QThread]", "\"This is thread #3\"", "@QThread")
+               + Check("this.@1.@1", "[@QObject]", "\"This is thread #3\"", "@QObject");
 
 
     QTest::newRow("QVariant")
@@ -3716,43 +2909,42 @@ void tst_Dumpers::dumper_data()
                     "QVariant v3 = qVariantFromValue(list);\n"
                     "unused(&list, &v3);\n\n")
 
-               % CoreProfile()
+               + CoreProfile()
 
-               % Check("v0", "(invalid)", "@QVariant (invalid)")
+               + Check("v0", "(invalid)", "@QVariant (invalid)")
 
-               //% Check("v1", "\"Some string\"", "@QVariant (QString)")
-               % CheckType("v1", "@QVariant (QString)")
+               //+ Check("v1", "\"Some string\"", "@QVariant (QString)")
+               + CheckType("v1", "@QVariant (QString)")
 
-               % Check("my", "<2 items>", "MyType")
-               % Check("my.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
-               % Check("my.0.key", "1", "unsigned int")
-               % Check("my.0.value", "<1 items>", "@QStringList")
-               % Check("my.0.value.0", "[0]", "\"Hello\"", "@QString")
-               % Check("my.1", "[1]", "", "@QMapNode<unsigned int, @QStringList>")
-               % Check("my.1.key", "3", "unsigned int")
-               % Check("my.1.value", "<1 items>", "@QStringList")
-               % Check("my.1.value.0", "[0]", "\"World\"", "@QString")
-               % CheckType("v2", "@QVariant (MyType)")
-               % Check("v2.data", "<2 items>", "MyType")
-               % Check("v2.data.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
-               % Check("v2.data.0.key", "1", "unsigned int")
-               % Check("v2.data.0.value", "<1 items>", "@QStringList")
-               % Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString")
-               % Check("v2.data.1", "[1]", "", "@QMapNode<unsigned int, @QStringList>")
-               % Check("v2.data.1.key", "3", "unsigned int")
-               % Check("v2.data.1.value", "<1 items>", "@QStringList")
-               % Check("v2.data.1.value.0", "[0]", "\"World\"", "@QString")
+               + Check("my", "<2 items>", "MyType")
+               + Check("my.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
+               + Check("my.0.key", "1", "unsigned int")
+               + Check("my.0.value", "<1 items>", "@QStringList")
+               + Check("my.0.value.0", "[0]", "\"Hello\"", "@QString")
+               + Check("my.1", "[1]", "", "@QMapNode<unsigned int, @QStringList>")
+               + Check("my.1.key", "3", "unsigned int")
+               + Check("my.1.value", "<1 items>", "@QStringList")
+               + Check("my.1.value.0", "[0]", "\"World\"", "@QString")
+               + CheckType("v2", "@QVariant (MyType)")
+               + Check("v2.data", "<2 items>", "MyType")
+               + Check("v2.data.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
+               + Check("v2.data.0.key", "1", "unsigned int")
+               + Check("v2.data.0.value", "<1 items>", "@QStringList")
+               + Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString")
+               + Check("v2.data.1", "[1]", "", "@QMapNode<unsigned int, @QStringList>")
+               + Check("v2.data.1.key", "3", "unsigned int")
+               + Check("v2.data.1.value", "<1 items>", "@QStringList")
+               + Check("v2.data.1.value.0", "[0]", "\"World\"", "@QString")
 
-               % Check("list", "<3 items>", "@QList<int>")
-               % Check("list.0", "[0]", "1", "int")
-               % Check("list.1", "[1]", "2", "int")
-               % Check("list.2", "[2]", "3", "int")
-               % Check("v3", "", "@QVariant (@QList<int>)")
-               % Check("v3.data", "<3 items>", "@QList<int>")
-               % Check("v3.data.0", "[0]", "1", "int")
-               % Check("v3.data.1", "[1]", "2", "int")
-               % Check("v3.data.2", "[2]", "3", "int");
-
+               + Check("list", "<3 items>", "@QList<int>")
+               + Check("list.0", "[0]", "1", "int")
+               + Check("list.1", "[1]", "2", "int")
+               + Check("list.2", "[2]", "3", "int")
+               + Check("v3", "", "@QVariant (@QList<int>)")
+               + Check("v3.data", "<3 items>", "@QList<int>")
+               + Check("v3.data.0", "[0]", "1", "int")
+               + Check("v3.data.1", "[1]", "2", "int")
+               + Check("v3.data.2", "[2]", "3", "int");
 
 
     QTest::newRow("QVariant2")
@@ -3872,68 +3064,70 @@ void tst_Dumpers::dumper_data()
                     "unused(&var80, &var81, &var82, &var83, &var84, &var18);\n"
                     "unused(&var85, &var86, &var31);\n"
                     )
-               % GuiProfile()
-               % Check("var", "(invalid)", "@QVariant (invalid)")
-               % Check("var1", "true", "@QVariant (bool)")
-               % Check("var2", "2", "@QVariant (int)")
-               % Check("var3", "3", "@QVariant (uint)")
-               % Check("var4", "4", "@QVariant (qlonglong)")
-               % Check("var5", "5", "@QVariant (qulonglong)")
-               % Check("var6", "6.0", "@QVariant (double)")
-               % Check("var7", "7", "@QVariant (QChar)")
-               % Check("var8", "<0 items>", "@QVariant (QVariantMap)")
-               % Check("var9", "<0 items>", "@QVariant (QVariantList)")
-               % Check("var10", "\"Hello 10\"", "@QVariant (QString)")
-               % Check("var11", "<2 items>", "@QVariant (QStringList)")
-               % Check("var11.1", "[1]", "\"World\"", "@QString")
-               % Check("var12", "\"array\"", "@QVariant (QByteArray)")
-               % Check("var13", "", "@QVariant (QBitArray)")
-               % Check("var14", "(invalid)", "@QVariant (QDate)")
-               % Check("var15", "(invalid)", "@QVariant (QTime)")
-               % Check("var16", "(invalid)", "@QVariant (QDateTime)")
-               % Check("var17", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QVariant (QUrl)")
-               % Check("var17.port", "10", "int")
-               % Check("var18", "\"en_US\"", "@QVariant (QLocale)")
-               % Check("var19", "300x400+100+200", "@QVariant (QRect)")
-               % Check("var20", "300.5x400.5+100.5+200.5", "@QVariant (QRectF)")
-               % Check("var21", "(-1, -1)", "@QVariant (QSize)")
-               % Check("var22", "(-1.0, -1.0)", "@QVariant (QSizeF)")
-               % Check("var23", "", "@QVariant (QLine)")
-               % Check("var24", "", "@QVariant (QLineF)")
-               % Check("var25", "(0, 0)", "@QVariant (QPoint)")
-               % Check("var26", "(0.0, 0.0)", "@QVariant (QPointF)")
-               % Check("var27", "\"\"", "@QVariant (QRegExp)")
-               % Check("var28", "<0 items>", "@QVariant (QVariantHash)")
-               % CheckType("var31", "@QVariant (void *)")
-               % Check("var32", "32", "@QVariant (long)")
-               % Check("var33", "33", "@QVariant (short)")
-               % Check("var34", "34", "@QVariant (char)")
-               % Check("var35", "35", "@QVariant (unsigned long)")
-               % Check("var36", "36", "@QVariant (unsigned short)")
-               % Check("var37", "37", "@QVariant (unsigned char)")
-               % Check("var38", FloatValue("38.0"), "@QVariant (float)")
-               % Check("var64", "", "@QVariant (QFont)")
-               % Check("var65", "(invalid)", "@QVariant (QPixmap)")
-               % Check("var66", "", "@QVariant (QBrush)")
-               % Check("var67", "", "@QVariant (QColor)")
-               % Check("var68", "", "@QVariant (QPalette)")
-               % Check("var69", "", "@QVariant (QIcon)")
-               % Check("var70", "(invalid)", "@QVariant (QImage)")
-               % Check("var71", "", "@QVariant (QPolygon)")
-               //% Check("var72", "", "@QVariant (QRegion)")    FIXME
-               % Check("var73", "", "@QVariant (QBitmap)")
-               % Check("var74", "", "@QVariant (QCursor)")
-               % Check("var75", "", "@QVariant (QKeySequence)")
-               % Check("var76", "", "@QVariant (QPen)")
-               % Check("var77", "", "@QVariant (QTextLength)")
-               //% Check("var78", Value5(""), "@QVariant (QTextFormat)")
-               % Check("var80", "", "@QVariant (QTransform)")
-               % Check("var81", "", "@QVariant (QMatrix4x4)")
-               % Check("var82", "", "@QVariant (QVector2D)")
-               % Check("var83", "", "@QVariant (QVector3D)")
-               % Check("var84", "", "@QVariant (QVector4D)")
-               % Check("var85", "", "@QVariant (QQuaternion)")
-               % Check("var86", "", "@QVariant (QPolygonF)");
+
+               + GuiProfile()
+
+               + Check("var", "(invalid)", "@QVariant (invalid)")
+               + Check("var1", "true", "@QVariant (bool)")
+               + Check("var2", "2", "@QVariant (int)")
+               + Check("var3", "3", "@QVariant (uint)")
+               + Check("var4", "4", "@QVariant (qlonglong)")
+               + Check("var5", "5", "@QVariant (qulonglong)")
+               + Check("var6", "6.0", "@QVariant (double)")
+               + Check("var7", "7", "@QVariant (QChar)")
+               + Check("var8", "<0 items>", "@QVariant (QVariantMap)")
+               + Check("var9", "<0 items>", "@QVariant (QVariantList)")
+               + Check("var10", "\"Hello 10\"", "@QVariant (QString)")
+               + Check("var11", "<2 items>", "@QVariant (QStringList)")
+               + Check("var11.1", "[1]", "\"World\"", "@QString")
+               + Check("var12", "\"array\"", "@QVariant (QByteArray)")
+               + Check("var13", "", "@QVariant (QBitArray)")
+               + Check("var14", "(invalid)", "@QVariant (QDate)")
+               + Check("var15", "(invalid)", "@QVariant (QTime)")
+               + Check("var16", "(invalid)", "@QVariant (QDateTime)")
+               + Check("var17", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QVariant (QUrl)")
+               + Check("var17.port", "10", "int")
+               + Check("var18", "\"en_US\"", "@QVariant (QLocale)")
+               + Check("var19", "300x400+100+200", "@QVariant (QRect)")
+               + Check("var20", "300.5x400.5+100.5+200.5", "@QVariant (QRectF)")
+               + Check("var21", "(-1, -1)", "@QVariant (QSize)")
+               + Check("var22", "(-1.0, -1.0)", "@QVariant (QSizeF)")
+               + Check("var23", "", "@QVariant (QLine)")
+               + Check("var24", "", "@QVariant (QLineF)")
+               + Check("var25", "(0, 0)", "@QVariant (QPoint)")
+               + Check("var26", "(0.0, 0.0)", "@QVariant (QPointF)")
+               + Check("var27", "\"\"", "@QVariant (QRegExp)")
+               + Check("var28", "<0 items>", "@QVariant (QVariantHash)")
+               + CheckType("var31", "@QVariant (void *)")
+               + Check("var32", "32", "@QVariant (long)")
+               + Check("var33", "33", "@QVariant (short)")
+               + Check("var34", "34", "@QVariant (char)")
+               + Check("var35", "35", "@QVariant (unsigned long)")
+               + Check("var36", "36", "@QVariant (unsigned short)")
+               + Check("var37", "37", "@QVariant (unsigned char)")
+               + Check("var38", FloatValue("38.0"), "@QVariant (float)")
+               + Check("var64", "", "@QVariant (QFont)")
+               + Check("var65", "(invalid)", "@QVariant (QPixmap)")
+               + Check("var66", "", "@QVariant (QBrush)")
+               + Check("var67", "", "@QVariant (QColor)")
+               + Check("var68", "", "@QVariant (QPalette)")
+               + Check("var69", "", "@QVariant (QIcon)")
+               + Check("var70", "(invalid)", "@QVariant (QImage)")
+               + Check("var71", "", "@QVariant (QPolygon)")
+               //+ Check("var72", "", "@QVariant (QRegion)")    FIXME
+               + Check("var73", "", "@QVariant (QBitmap)")
+               + Check("var74", "", "@QVariant (QCursor)")
+               + Check("var75", "", "@QVariant (QKeySequence)")
+               + Check("var76", "", "@QVariant (QPen)")
+               + Check("var77", "", "@QVariant (QTextLength)")
+               //+ Check("var78", Value5(""), "@QVariant (QTextFormat)")
+               + Check("var80", "", "@QVariant (QTransform)")
+               + Check("var81", "", "@QVariant (QMatrix4x4)")
+               + Check("var82", "", "@QVariant (QVector2D)")
+               + Check("var83", "", "@QVariant (QVector3D)")
+               + Check("var84", "", "@QVariant (QVector4D)")
+               + Check("var85", "", "@QVariant (QQuaternion)")
+               + Check("var86", "", "@QVariant (QPolygonF)");
 
 
     QTest::newRow("QVariant4")
@@ -3947,29 +3141,29 @@ void tst_Dumpers::dumper_data()
                     "QHostAddress ha1 = var.value<QHostAddress>();\n"
                     "unused(&ha1);\n")
 
-               % NetworkProfile()
-               % UseDebugImage()
+               + NetworkProfile()
+               + UseDebugImage()
 
-               % Check("ha", "\"127.0.0.1\"", "@QHostAddress")
-               % Check("ha.a", "2130706433", "@quint32")
-               % Check("ha.ipString", "\"127.0.0.1\"", "@QString")
-               % Check("ha.isParsed", "true", "bool")
-               % Check("ha.protocol", "@QAbstractSocket::IPv4Protocol (0)",
-                       "@QAbstractSocket::NetworkLayerProtocol").setForGdbOnly()
-               % Check("ha.protocol", "IPv4Protocol",
-                       "@QAbstractSocket::NetworkLayerProtocol").setForLldbOnly()
-               % Check("ha.scopeId", "\"\"", "@QString")
-               % Check("ha1", "\"127.0.0.1\"", "@QHostAddress")
-               % Check("ha1.a", "2130706433", "@quint32")
-               % Check("ha1.ipString", "\"127.0.0.1\"", "@QString")
-               % Check("ha1.isParsed", "true", "bool")
-               % Check("ha1.protocol", "@QAbstractSocket::IPv4Protocol (0)",
-                       "@QAbstractSocket::NetworkLayerProtocol").setForGdbOnly()
-               % Check("ha1.protocol", "IPv4Protocol",
-                       "@QAbstractSocket::NetworkLayerProtocol").setForLldbOnly()
-               % Check("ha1.scopeId", "\"\"", "@QString")
-               % Check("var", "", "@QVariant (@QHostAddress)")
-               % Check("var.data", "\"127.0.0.1\"", "@QHostAddress");
+               + Check("ha", "\"127.0.0.1\"", "@QHostAddress")
+               + Check("ha.a", "2130706433", "@quint32")
+               + Check("ha.ipString", "\"127.0.0.1\"", "@QString")
+               + Check("ha.isParsed", "true", "bool")
+               + Check("ha.protocol", "@QAbstractSocket::IPv4Protocol (0)",
+                       "@QAbstractSocket::NetworkLayerProtocol") % GdbEngine
+               + Check("ha.protocol", "IPv4Protocol",
+                       "@QAbstractSocket::NetworkLayerProtocol") % LldbEngine
+               + Check("ha.scopeId", "\"\"", "@QString")
+               + Check("ha1", "\"127.0.0.1\"", "@QHostAddress")
+               + Check("ha1.a", "2130706433", "@quint32")
+               + Check("ha1.ipString", "\"127.0.0.1\"", "@QString")
+               + Check("ha1.isParsed", "true", "bool")
+               + Check("ha1.protocol", "@QAbstractSocket::IPv4Protocol (0)",
+                       "@QAbstractSocket::NetworkLayerProtocol") % GdbEngine
+               + Check("ha1.protocol", "IPv4Protocol",
+                       "@QAbstractSocket::NetworkLayerProtocol") % LldbEngine
+               + Check("ha1.scopeId", "\"\"", "@QString")
+               + Check("var", "", "@QVariant (@QHostAddress)")
+               + Check("var.data", "\"127.0.0.1\"", "@QHostAddress");
 
 
     QTest::newRow("QVariantList")
@@ -3992,16 +3186,16 @@ void tst_Dumpers::dumper_data()
                     "QVariant v = vl2;\n\n"
                     "unused(&vl2, &v);\n\n")
 
-               % CoreProfile()
+               + CoreProfile()
 
-               % Check("vl0", "<0 items>", "@QVariantList")
+               + Check("vl0", "<0 items>", "@QVariantList")
 
-               % Check("vl1", "<6 items>", "@QVariantList")
-               % CheckType("vl1.0", "[0]", "@QVariant (int)")
-               % CheckType("vl1.2", "[2]", "@QVariant (QString)")
+               + Check("vl1", "<6 items>", "@QVariantList")
+               + CheckType("vl1.0", "[0]", "@QVariant (int)")
+               + CheckType("vl1.2", "[2]", "@QVariant (QString)")
 
-               % Check("v", "<1 items>", "@QVariant (QVariantList)")
-               % Check("v.0", "[0]", "\"one\"", "@QVariant (QString)");
+               + Check("v", "<1 items>", "@QVariant (QVariantList)")
+               + Check("v.0", "[0]", "\"one\"", "@QVariant (QString)");
 
 
     QTest::newRow("QVariantMap")
@@ -4022,20 +3216,20 @@ void tst_Dumpers::dumper_data()
                     "QVariant v = vm1;\n"
                     "unused(&v);\n")
 
-               % CoreProfile()
+               + CoreProfile()
 
-               % Check("vm0", "<0 items>", "@QVariantMap")
+               + Check("vm0", "<0 items>", "@QVariantMap")
 
-               % Check("vm1", "<6 items>", "@QVariantMap")
-               % Check("vm1.0", "[0]", "", "@QMapNode<@QString, @QVariant>")
-               % Check("vm1.0.key", "\"a\"", "@QString")
-               % Check("vm1.0.value", "1", "@QVariant (int)")
-               % Check("vm1.5", "[5]", "", "@QMapNode<@QString, @QVariant>")
-               % Check("vm1.5.key", "\"f\"", "@QString")
-               % Check("vm1.5.value", "\"2Some String\"", "@QVariant (QString)")
+               + Check("vm1", "<6 items>", "@QVariantMap")
+               + Check("vm1.0", "[0]", "", "@QMapNode<@QString, @QVariant>")
+               + Check("vm1.0.key", "\"a\"", "@QString")
+               + Check("vm1.0.value", "1", "@QVariant (int)")
+               + Check("vm1.5", "[5]", "", "@QMapNode<@QString, @QVariant>")
+               + Check("vm1.5.key", "\"f\"", "@QString")
+               + Check("vm1.5.value", "\"2Some String\"", "@QVariant (QString)")
 
-               % Check("v", "<6 items>", "@QVariant (QVariantMap)")
-               % Check("v.0.key", "\"a\"", "@QString");
+               + Check("v", "<6 items>", "@QVariant (QVariantMap)")
+               + Check("v.0.key", "\"a\"", "@QString");
 
 
     QTest::newRow("QVariantHash")
@@ -4051,17 +3245,17 @@ void tst_Dumpers::dumper_data()
                     "QVariant v = h1;\n"
                     "unused( &v);\n")
 
-               % CoreProfile()
+               + CoreProfile()
 
-               % Check("h0", "<0 items>", "@QVariantHash")
+               + Check("h0", "<0 items>", "@QVariantHash")
 
-               % Check("h1", "<1 items>", "@QVariantHash")
-               % Check("h1.0", "[0]", "", "@QHashNode<@QString, @QVariant>")
-               % Check("h1.0.key", "\"one\"", "@QString")
-               % Check("h1.0.value", "\"vone\"", "@QVariant (QString)")
+               + Check("h1", "<1 items>", "@QVariantHash")
+               + Check("h1.0", "[0]", "", "@QHashNode<@QString, @QVariant>")
+               + Check("h1.0.key", "\"one\"", "@QString")
+               + Check("h1.0.value", "\"vone\"", "@QVariant (QString)")
 
-               % Check("v", "<1 items>", "@QVariant (QVariantHash)")
-               % Check("v.0.key", "\"one\"", "@QString");
+               + Check("v", "<1 items>", "@QVariant (QVariantHash)")
+               + Check("v.0.key", "\"one\"", "@QString");
 
 
     QTest::newRow("QVector")
@@ -4100,47 +3294,802 @@ void tst_Dumpers::dumper_data()
                     "QVector<QList<int> > *pv = &v6;\n"
                     "unused(&v6, &pv);\n\n")
 
-               % CoreProfile()
+               + CoreProfile()
 
-               % Check("v1", "<10000 items>", "@QVector<int>")
-               % Check("v1.0", "[0]", "0", "int")
-               % Check("v1.8999", "[8999]", "80982001", "int")
+               + Check("v1", "<10000 items>", "@QVector<int>")
+               + Check("v1.0", "[0]", "0", "int")
+               + Check("v1.8999", "[8999]", "80982001", "int")
 
-               % Check("v2", "<2 items>", "@QVector<Foo>")
-               % Check("v2.0", "[0]", "", "Foo")
-               % Check("v2.0.a", "1", "int")
-               % Check("v2.1", "[1]", "", "Foo")
-               % Check("v2.1.a", "2", "int")
+               + Check("v2", "<2 items>", "@QVector<Foo>")
+               + Check("v2.0", "[0]", "", "Foo")
+               + Check("v2.0.a", "1", "int")
+               + Check("v2.1", "[1]", "", "Foo")
+               + Check("v2.1.a", "2", "int")
 
-               % Check("v3", "<2 items>", "FooVector")
-               % Check("v3.0", "[0]", "", "Foo")
-               % Check("v3.0.a", "1", "int")
-               % Check("v3.1", "[1]", "", "Foo")
-               % Check("v3.1.a", "2", "int")
+               + Check("v3", "<2 items>", "FooVector")
+               + Check("v3.0", "[0]", "", "Foo")
+               + Check("v3.0.a", "1", "int")
+               + Check("v3.1", "[1]", "", "Foo")
+               + Check("v3.1.a", "2", "int")
 
-               % Check("v4", "<3 items>", "@QVector<Foo*>")
-               % CheckType("v4.0", "[0]", "Foo")
-               % Check("v4.0.a", "1", "int")
-               % Check("v4.1", "[1]", "0x0", "Foo *")
-               % CheckType("v4.2", "[2]", "Foo")
-               % Check("v4.2.a", "5", "int")
+               + Check("v4", "<3 items>", "@QVector<Foo*>")
+               + CheckType("v4.0", "[0]", "Foo")
+               + Check("v4.0.a", "1", "int")
+               + Check("v4.1", "[1]", "0x0", "Foo *")
+               + CheckType("v4.2", "[2]", "Foo")
+               + Check("v4.2.a", "5", "int")
 
-               % Check("v5", "<2 items>", "@QVector<bool>")
-               % Check("v5.0", "[0]", "1", "bool")
-               % Check("v5.1", "[1]", "0", "bool")
+               + Check("v5", "<2 items>", "@QVector<bool>")
+               + Check("v5.0", "[0]", "1", "bool")
+               + Check("v5.1", "[1]", "0", "bool")
 
-               % CheckType("pv", "@QVector<@QList<int>>")
-               % Check("pv.0", "[0]", "<1 items>", "@QList<int>")
-               % Check("pv.0.0", "[0]", "1", "int")
-               % Check("pv.1", "[1]", "<2 items>", "@QList<int>")
-               % Check("pv.1.0", "[0]", "2", "int")
-               % Check("pv.1.1", "[1]", "3", "int")
-               % Check("v6", "<2 items>", "@QVector<@QList<int>>")
-               % Check("v6.0", "[0]", "<1 items>", "@QList<int>")
-               % Check("v6.0.0", "[0]", "1", "int")
-               % Check("v6.1", "[1]", "<2 items>", "@QList<int>")
-               % Check("v6.1.0", "[0]", "2", "int")
-               % Check("v6.1.1", "[1]", "3", "int");
+               + CheckType("pv", "@QVector<@QList<int>>")
+               + Check("pv.0", "[0]", "<1 items>", "@QList<int>")
+               + Check("pv.0.0", "[0]", "1", "int")
+               + Check("pv.1", "[1]", "<2 items>", "@QList<int>")
+               + Check("pv.1.0", "[0]", "2", "int")
+               + Check("pv.1.1", "[1]", "3", "int")
+               + Check("v6", "<2 items>", "@QVector<@QList<int>>")
+               + Check("v6.0", "[0]", "<1 items>", "@QList<int>")
+               + Check("v6.0.0", "[0]", "1", "int")
+               + Check("v6.1", "[1]", "<2 items>", "@QList<int>")
+               + Check("v6.1.0", "[0]", "2", "int")
+               + Check("v6.1.1", "[1]", "3", "int");
+
+
+    QTest::newRow("QXmlAttributes")
+            << Data("#include <QXmlAttributes>\n",
+                    "QXmlAttributes atts;\n"
+                    "atts.append(\"name1\", \"uri1\", \"localPart1\", \"value1\");\n"
+                    "atts.append(\"name2\", \"uri2\", \"localPart2\", \"value2\");\n"
+                    "atts.append(\"name3\", \"uri3\", \"localPart3\", \"value3\");\n")
+
+               + CoreProfile()
+               + Profile("QT += xml\n")
+
+               + Check("atts", "", "@QXmlAttributes")
+               + Check("atts.attList", "<3 items>", "@QXmlAttributes::AttributeList")
+               + Check("atts.attList.0", "[0]", "", "@QXmlAttributes::Attribute")
+               + Check("atts.attList.0.localname", "\"localPart1\"", "@QString")
+               + Check("atts.attList.0.qname", "\"name1\"", "@QString")
+               + Check("atts.attList.0.uri", "\"uri1\"", "@QString")
+               + Check("atts.attList.0.value", "\"value1\"", "@QString")
+               + Check("atts.attList.1", "[1]", "", "@QXmlAttributes::Attribute")
+               + Check("atts.attList.1.localname", "\"localPart2\"", "@QString")
+               + Check("atts.attList.1.qname", "\"name2\"", "@QString")
+               + Check("atts.attList.1.uri", "\"uri2\"", "@QString")
+               + Check("atts.attList.1.value", "\"value2\"", "@QString")
+               + Check("atts.attList.2", "[2]", "", "@QXmlAttributes::Attribute")
+               + Check("atts.attList.2.localname", "\"localPart3\"", "@QString")
+               + Check("atts.attList.2.qname", "\"name3\"", "@QString")
+               + Check("atts.attList.2.uri", "\"uri3\"", "@QString")
+               + Check("atts.attList.2.value", "\"value3\"", "@QString");
+
+
+    QTest::newRow("StdArray")
+            << Data("#include <array>\n"
+                    "#include <QString>\n",
+                    "std::array<int, 4> a = { { 1, 2, 3, 4} };\n"
+                    "std::array<QString, 4> b = { { \"1\", \"2\", \"3\", \"4\"} };\n"
+                    "unused(&a, &b);\n")
+
+               + CoreProfile()
+               + Cxx11Profile()
+               + MacLibCppProfile()
+
+               + Check("a", "<4 items>", Pattern("std::array<int, 4.*>"))
+               + Check("a.0", "[0]", "1", "int")
+               + Check("b", "<4 items>", Pattern("std::array<@QString, 4.*>"))
+               + Check("b.0", "[0]", "\"1\"", "@QString");
+
+
+    QTest::newRow("StdComplex")
+            << Data("#include <complex>\n",
+                    "std::complex<double> c(1, 2);\n"
+                    "unused(&c);\n")
+
+               + Check("c", "(1.000000, 2.000000)", "std::complex<double>")
+               + CheckType("c.real", "double");
+
+
+    QTest::newRow("CComplex")
+            << Data("#include <complex.h>\n",
+                    "// Doesn't work when compiled as C++.\n"
+                    "double complex a = 0;\n"
+                    "double _Complex b = 0;\n"
+                    "unused(&a, &b);\n")
+
+               + ForceC()
+               + GdbVersion(70600)
+
+               + Check("a", "0 + 0 * I", "complex double") % GdbEngine
+               + Check("b", "0 + 0 * I", "complex double") % GdbEngine
+               + Check("a", "0 + 0i", "_Complex double") % LldbEngine
+               + Check("b", "0 + 0i", "_Complex double") % LldbEngine;
+
+
+    QTest::newRow("StdDeque")
+            << Data("#include <deque>\n",
+
+                    "std::deque<int> deque0;\n\n"
+
+                    "std::deque<int> deque1;\n"
+                    "deque1.push_back(1);\n"
+                    "deque1.push_back(2);\n"
+
+                    "std::deque<int *> deque2;\n"
+                    "deque2.push_back(new int(1));\n"
+                    "deque2.push_back(0);\n"
+                    "deque2.push_back(new int(2));\n"
+                    "deque2.push_back(new int(3));\n"
+                    "deque2.pop_back();\n"
+                    "deque2.pop_front();\n")
+
+               + Check("deque0", "<0 items>", "std::deque<int>")
+
+               + Check("deque1", "<2 items>", "std::deque<int>")
+               + Check("deque1.0", "[0]", "1", "int")
+               + Check("deque1.1", "[1]", "2", "int")
+
+               + Check("deque2", "<2 items>", "std::deque<int *>")
+               + Check("deque2.0", "[0]", "0x0", "int *")
+               + Check("deque2.1", "[1]", "2", "int");
+
+
+    QTest::newRow("StdDequeQt")
+            << Data("#include <deque>\n" + fooData,
+
+                    "std::deque<Foo> deque0;\n"
+                    "unused(&deque0);\n\n"
+
+                    "std::deque<Foo> deque1;\n"
+                    "deque1.push_back(1);\n"
+                    "deque1.push_front(2);\n"
+
+                    "std::deque<Foo *> deque2;\n"
+                    "deque2.push_back(new Foo(1));\n"
+                    "deque2.push_back(new Foo(2));\n")
+
+               + CoreProfile()
+
+               + Check("deque0", "<0 items>", "std::deque<Foo>")
+
+               + Check("deque1", "<2 items>", "std::deque<Foo>")
+               + Check("deque1.0", "[0]", "", "Foo")
+               + Check("deque1.0.a", "2", "int")
+               + Check("deque1.1", "[1]", "", "Foo")
+               + Check("deque1.1.a", "1", "int")
+
+               + Check("deque2", "<2 items>", "std::deque<Foo*>")
+               + Check("deque2.0", "[0]", "", "Foo")
+               + Check("deque2.0.a", "1", "int")
+               + Check("deque2.1", "[1]", "", "Foo")
+               + Check("deque2.1.a", "2", "int");
+
+
+    QTest::newRow("StdHashSet")
+            << Data("#include <hash_set>\n"
+                    "using namespace __gnu_cxx;\n",
+
+                    "hash_set<int> h;\n"
+                    "h.insert(1);\n"
+                    "h.insert(194);\n"
+                    "h.insert(2);\n"
+                    "h.insert(3);\n")
+
+               + GdbEngine
+
+               + Profile("QMAKE_CXXFLAGS += -Wno-deprecated")
+               + Check("h", "<4 items>", "__gnu__cxx::hash_set<int>")
+               + Check("h.0", "[0]", "194", "int")
+               + Check("h.1", "[1]", "1", "int")
+               + Check("h.2", "[2]", "2", "int")
+               + Check("h.3", "[3]", "3", "int");
+
+
+    QTest::newRow("StdList")
+            << Data("#include <list>\n"
+
+                    "struct Base { virtual ~Base() {} };\n"
+                    "template<class T>\n"
+                    "struct Derived : public std::list<T>, Base {};\n",
+
+                    "std::list<int> l0;\n"
+                    "unused(&l0);\n\n"
+
+                    "std::list<int> l1;\n"
+                    "for (int i = 0; i < 10000; ++i)\n"
+                    "    l1.push_back(i);\n"
+
+                    "std::list<bool> l2;\n"
+                    "l2.push_back(true);\n"
+                    "l2.push_back(false);\n"
+                    "unused(&l2);\n\n"
+
+                    "std::list<int *> l3;\n"
+                    "l3.push_back(new int(1));\n"
+                    "l3.push_back(0);\n"
+                    "l3.push_back(new int(2));\n"
+                    "unused(&l3);\n\n"
+
+                    "Derived<int> l4;\n"
+                    "l4.push_back(1);\n"
+                    "l4.push_back(2);\n"
+                    "unused(&l4);\n\n")
+
+               + Check("l0", "<0 items>", "std::list<int>")
+
+               + Check("l1", "<>1000 items>", "std::list<int>")
+               + Check("l1.0", "[0]", "0", "int")
+               + Check("l1.1", "[1]", "1", "int")
+               + Check("l1.999", "[999]", "999", "int")
+
+               + Check("l2", "<2 items>", "std::list<bool>")
+               + Check("l2.0", "[0]", "true", "bool")
+               + Check("l2.1", "[1]", "false", "bool")
+
+               + Check("l3", "<3 items>", "std::list<int*>")
+               + Check("l3.0", "[0]", "1", "int")
+               + Check("l3.1", "[1]", "0x0", "int *")
+               + Check("l3.2", "[2]", "2", "int")
+
+               + Check("l4.@1.0", "[0]", "1", "int")
+               + Check("l4.@1.1", "[1]", "2", "int");
+
+
+    QTest::newRow("StdListQt")
+            << Data("#include <list>\n" + fooData,
+
+                    "std::list<Foo> l1;\n"
+                    "l1.push_back(15);\n"
+                    "l1.push_back(16);\n"
+                    "unused(&l1);\n\n"
+
+                    "std::list<Foo *> l2;\n"
+                    "l2.push_back(new Foo(1));\n"
+                    "l2.push_back(0);\n"
+                    "l2.push_back(new Foo(2));\n"
+                    "unused(&l2);\n")
+
+               + Check("l1", "<2 items>", "std::list<Foo>")
+               + Check("l1.0", "[0]", "", "Foo")
+               + Check("l1.0.a", "15", "int")
+               + Check("l1.1", "[1]", "", "Foo")
+               + Check("l1.1.a", "16", "int")
+
+               + Check("l2", "<3 items>", "std::list<Foo*>")
+               + Check("l2.0", "[0]", "", "Foo")
+               + Check("l2.0.a", "1", "int")
+               + Check("l2.1", "[1]", "0x0", "Foo *")
+               + Check("l2.2", "[2]", "", "Foo")
+               + Check("l2.2.a", "2", "int");
+
+
+    QTest::newRow("StdMap")
+            << Data("#include <map>\n",
+
+                    "std::map<unsigned int, unsigned int> map1;\n"
+                    "map1[11] = 1;\n"
+                    "map1[22] = 2;\n"
+                    "unused(&map1);\n\n"
+
+                    "std::map<unsigned int, float> map2;\n"
+                    "map2[11] = 11.0;\n"
+                    "map2[22] = 22.0;\n"
+
+                    "typedef std::map<int, float> Map;\n"
+                    "Map map3;\n"
+                    "map3[11] = 11.0;\n"
+                    "map3[22] = 22.0;\n"
+                    "map3[33] = 33.0;\n"
+                    "map3[44] = 44.0;\n"
+                    "map3[55] = 55.0;\n"
+                    "map3[66] = 66.0;\n"
+                    "Map::iterator it1 = map3.begin();\n"
+                    "Map::iterator it2 = it1; ++it2;\n"
+                    "Map::iterator it3 = it2; ++it3;\n"
+                    "Map::iterator it4 = it3; ++it4;\n"
+                    "Map::iterator it5 = it4; ++it5;\n"
+                    "Map::iterator it6 = it5; ++it6;\n"
+                    "unused(&it6);\n")
+
+               + Check("map1", "<2 items>", "std::map<unsigned int, unsigned int>")
+               + Check("map1.11", "[11]", "1", "unsigned int")
+               + Check("map1.22", "[22]", "2", "unsigned int")
+
+               + Check("map2", "<2 items>", "std::map<unsigned int, float>")
+               + Check("map2.11", "[11]", "11", "float")
+               + Check("map2.22", "[22]", "22", "float")
+
+               + Check("map3", "<6 items>", "Map")
+               + Check("map3.11", "[11]", "11", "float")
+               + Check("it1.first", "11", "int")
+               + Check("it1.second", "11", "float")
+               + Check("it6.first", "66", "int")
+               + Check("it6.second", "66", "float");
+
+
+    QTest::newRow("StdMapQt")
+            << Data("#include <map>\n"
+                    "#include <QPointer>\n"
+                    "#include <QObject>\n"
+                    "#include <QStringList>\n"
+                    "#include <QString>\n" + fooData,
+
+                    "std::map<QString, Foo> map1;\n"
+                    "map1[\"22.0\"] = Foo(22);\n"
+                    "map1[\"33.0\"] = Foo(33);\n"
+                    "map1[\"44.0\"] = Foo(44);\n"
+                    "unused(&map1);\n\n"
+
+                    "std::map<const char *, Foo> map2;\n"
+                    "map2[\"22.0\"] = Foo(22);\n"
+                    "map2[\"33.0\"] = Foo(33);\n"
+                    "unused(&map2);\n\n"
+
+                    "std::map<uint, QStringList> map3;\n"
+                    "map3[11] = QStringList() << \"11\";\n"
+                    "map3[22] = QStringList() << \"22\";\n"
+                    "unused(&map3);\n\n"
+
+                    "typedef std::map<uint, QStringList> T;\n"
+                    "T map4;\n"
+                    "map4[11] = QStringList() << \"11\";\n"
+                    "map4[22] = QStringList() << \"22\";\n"
+                    "unused(&map4);\n\n"
+
+                    "std::map<QString, float> map5;\n"
+                    "map5[\"11.0\"] = 11.0;\n"
+                    "map5[\"22.0\"] = 22.0;\n"
+                    "unused(&map5);\n\n"
+
+                    "std::map<int, QString> map6;\n"
+                    "map6[11] = \"11.0\";\n"
+                    "map6[22] = \"22.0\";\n"
+                    "unused(&map6);\n\n"
+
+                    "QObject ob;\n"
+                    "std::map<QString, QPointer<QObject> > map7;\n"
+                    "map7[\"Hallo\"] = QPointer<QObject>(&ob);\n"
+                    "map7[\"Welt\"] = QPointer<QObject>(&ob);\n"
+                    "map7[\".\"] = QPointer<QObject>(&ob);\n"
+                    "unused(&map7);\n")
+
+               + CoreProfile()
+
+               + Check("map1", "<3 items>", "std::map<@QString, Foo>")
+               + Check("map1.0", "[0]", "", "std::pair<@QString const, Foo>")
+               + Check("map1.0.first", "\"22.0\"", "@QString")
+               + Check("map1.0.second", "", "Foo")
+               + Check("map1.0.second.a", "22", "int")
+               + Check("map1.1", "[1]", "", "std::pair<@QString const, Foo>")
+               + Check("map1.2.first", "\"44.0\"", "@QString")
+               + Check("map1.2.second", "", "Foo")
+               + Check("map1.2.second.a", "44", "int")
+
+               + Check("map2", "<2 items>", "std::map<char const*, Foo>")
+               + Check("map2.0", "[0]", "", "std::pair<char const* const, Foo>")
+               + CheckType("map2.0.first", "char *")
+// FIXME
+               //+ Check("map2.0.first.0", "50", "char")
+               + Check("map2.0.second", "", "Foo")
+               + Check("map2.0.second.a", "22", "int")
+               + Check("map2.1", "[1]", "", "std::pair<char const* const, Foo>")
+               + CheckType("map2.1.first", "char *")
+               //+ Check("map2.1.first.*first", "51 '3'", "char")
+               + Check("map2.1.second", "", "Foo")
+               + Check("map2.1.second.a", "33", "int")
+
+               + Check("map3", "<2 items>", "std::map<unsigned int, @QStringList>")
+               + Check("map3.0", "[0]", "", "std::pair<unsigned int const, @QStringList>")
+               + Check("map3.0.first", "11", "unsigned int")
+               + Check("map3.0.second", "<1 items>", "@QStringList")
+               + Check("map3.0.second.0", "[0]", "\"11\"", "@QString")
+               + Check("map3.1", "[1]", "", "std::pair<unsigned int const, @QStringList>")
+               + Check("map3.1.first", "22", "unsigned int")
+               + Check("map3.1.second", "<1 items>", "@QStringList")
+               + Check("map3.1.second.0", "[0]", "\"22\"", "@QString")
+
+               + Check("map4.1.second.0", "[0]", "\"22\"", "@QString")
+
+               + Check("map5", "<2 items>", "std::map<@QString, float>")
+               + Check("map5.0", "[0]", "", "std::pair<@QString const, float>")
+               + Check("map5.0.first", "\"11.0\"", "@QString")
+               + Check("map5.0.second", "11", "float")
+               + Check("map5.1", "[1]", "", "std::pair<@QString const, float>")
+               + Check("map5.1.first", "\"22.0\"", "@QString")
+               + Check("map5.1.second", "22", "float")
+
+               + Check("map6", "<2 items>", "std::map<int, @QString>")
+               + Check("map6.0", "[0]", "", "std::pair<int const, @QString>")
+               + Check("map6.0.first", "11", "int")
+               + Check("map6.0.second", "\"11.0\"", "@QString")
+               + Check("map6.1", "[1]", "", "std::pair<int const, @QString>")
+               + Check("map6.1.first", "22", "int")
+               + Check("map6.1.second", "\"22.0\"", "@QString")
+
+               + Check("map7", "<3 items>", "std::map<@QString, @QPointer<@QObject>>")
+               + Check("map7.0", "[0]", "", "std::pair<@QString const, @QPointer<@QObject>>")
+               + Check("map7.0.first", "\".\"", "@QString")
+               + Check("map7.0.second", "", "@QPointer<@QObject>")
+               + Check("map7.2", "[2]", "", "std::pair<@QString const, @QPointer<@QObject>>")
+               + Check("map7.2.first", "\"Welt\"", "@QString");
+
+
+    QTest::newRow("StdUniquePtr")
+            << Data("#include <memory>\n" + fooData,
+
+                    "std::unique_ptr<int> p0;\n"
+                    "unused(&p0);\n\n"
+
+                    "std::unique_ptr<int> p1(new int(32));\n"
+                    "unused(&p1);\n\n"
+
+                    "std::unique_ptr<Foo> p2(new Foo);\n"
+                    "unused(&p2);\n")
+
+               + Cxx11Profile()
+               + MacLibCppProfile()
+
+               + Check("p0", "(null)", "std::unique_ptr<int, std::default_delete<int> >")
+
+               + Check("p1", Pointer("32"), "std::unique_ptr<int, std::default_delete<int> >")
+               + Check("p1.data", "32", "int")
+
+               + Check("p2", Pointer(), "std::unique_ptr<Foo, std::default_delete<Foo> >")
+               + CheckType("p2.data", "Foo");
+
+
+    QTest::newRow("StdSharedPtr")
+            << Data("#include <memory>\n" + fooData,
+                    "std::shared_ptr<int> pi(new int(32));\n"
+                    "std::shared_ptr<Foo> pf(new Foo);\n"
+                    "unused(&pi, &pf);\n")
+
+               + Cxx11Profile()
+               + MacLibCppProfile()
+
+               + Check("pi", Pointer("32"), "std::shared_ptr<int>")
+               + Check("pi.data", "32", "int")
+               + Check("pf", Pointer(), "std::shared_ptr<Foo>")
+               + CheckType("pf.data", "Foo");
+
+
+    QTest::newRow("StdSet")
+            << Data("#include <set>\n",
+
+                    "std::set<double> s0;\n"
+
+                    "std::set<int> s1;\n"
+                    "s1.insert(11);\n"
+                    "s1.insert(22);\n"
+                    "s1.insert(33);\n"
+                    "unused(&s1);\n\n"
+
+                    "typedef std::set<int> Set;\n"
+                    "Set s2;\n"
+                    "s2.insert(11.0);\n"
+                    "s2.insert(22.0);\n"
+                    "s2.insert(33.0);\n"
+                    "Set::iterator it1 = s2.begin();\n"
+                    "Set::iterator it2 = it1; ++it2;\n"
+                    "Set::iterator it3 = it2; ++it3;\n"
+                    "unused(&it3);\n")
+
+               + Check("s0", "<0 items>", "std::set<double>")
+
+               + Check("s1", "<3 items>", "std::set<int>")
+
+               + Check("s2", "<3 items>", "Set")
+               + Check("it1.value", "11", "int")
+               + Check("it3.value", "33", "int");
+
+
+    QTest::newRow("StdSetQt")
+            << Data("#include <set>\n"
+                    "#include <QPointer>\n"
+                    "#include <QObject>\n"
+                    "#include <QString>\n",
+
+                    "std::set<QString> set1;\n"
+                    "set1.insert(\"22.0\");\n"
+
+                    "QObject ob;\n"
+                    "std::set<QPointer<QObject> > set2;\n"
+                    "QPointer<QObject> ptr(&ob);\n"
+                    "set2.insert(ptr);\n"
+
+                    "unused(&ptr, &ob, &set1, &set2);\n")
+
+               + Check("set1", "<1 items>", "std::set<@QString>")
+               + Check("set1.0", "[0]", "\"22.0\"", "@QString")
+
+               + Check("set2", "<1 items>", "std::set<@QPointer<@QObject>, "
+                    "std::less<@QPointer<@QObject>>, std::allocator<@QPointer<@QObject>>>")
+               + Check("ob", "", "@QObject")
+               + Check("ptr", "", "@QPointer<@QObject>");
+
+
+    QTest::newRow("StdStack")
+            << Data("#include <stack>\n",
+                    "std::stack<int *> s0, s1;\n"
+                    "s1.push(new int(1));\n"
+                    "s1.push(0);\n"
+                    "s1.push(new int(2));\n"
+
+                    "std::stack<int> s2, s3;\n"
+                    "s3.push(1);\n"
+                    "s3.push(2);\n"
+                    "unused(&s0, &s1, &s2, &s3);\n")
+
+               + Check("s0", "<0 items>", "std::stack<int*>")
+
+               + Check("s1", "<3 items>", "std::stack<int*>")
+               + Check("s1.0", "[0]", "1", "int")
+               + Check("s1.1", "[1]", "0x0", "int *")
+               + Check("s1.2", "[2]", "2", "int")
+
+               + Check("s2", "<0 items>", "std::stack<int>")
+
+               + Check("s3", "<2 items>", "std::stack<int>")
+               + Check("s3.0", "[0]", "1", "int")
+               + Check("s3.1", "[1]", "2", "int");
+
+
+    QTest::newRow("StdStackQt")
+            << Data("#include <stack>\n" + fooData,
+                    "std::stack<Foo *> s0, s1;\n"
+                    "std::stack<Foo> s2, s3;\n"
+                    "s1.push(new Foo(1));\n"
+                    "s1.push(new Foo(2));\n"
+                    "s3.push(1);\n"
+                    "s3.push(2);\n"
+                    "unused(&s0, &s1, &s2, &s3);\n")
+               + CoreProfile()
+               + Check("s0", "<0 items>", "std::stack<Foo*>")
+               + Check("s1", "<2 items>", "std::stack<Foo*>")
+               + Check("s1.0", "[0]", "", "Foo")
+               + Check("s1.0.a", "1", "int")
+               + Check("s1.1", "[1]", "", "Foo")
+               + Check("s1.1.a", "2", "int")
+               + Check("s2", "<0 items>", "std::stack<Foo>")
+               + Check("s3", "<2 items>", "std::stack<Foo>")
+               + Check("s3.0", "[0]", "", "Foo")
+               + Check("s3.0.a", "1", "int")
+               + Check("s3.1", "[1]", "", "Foo")
+               + Check("s3.1.a", "2", "int");
+
+
+    QTest::newRow("StdString")
+            << Data("#include <string>\n",
+                    "std::string str0, str;\n"
+                    "std::wstring wstr0, wstr;\n"
+                    "str += \"b\";\n"
+                    "wstr += wchar_t('e');\n"
+                    "str += \"d\";\n"
+                    "wstr += wchar_t('e');\n"
+                    "str += \"e\";\n"
+                    "str += \"b\";\n"
+                    "str += \"d\";\n"
+                    "str += \"e\";\n"
+                    "wstr += wchar_t('e');\n"
+                    "wstr += wchar_t('e');\n"
+                    "str += \"e\";\n"
+                    "unused(&str0, &str, &wstr0, &wstr);\n")
+               + Check("str0", "\"\"", "std::string")
+               + Check("wstr0", "\"\"", "std::wstring")
+               + Check("str", "\"bdebdee\"", "std::string")
+               + Check("wstr", "\"eeee\"", "std::wstring");
+
+
+    QTest::newRow("StdStringQt")
+            << Data("#include <string>\n"
+                    "#include <vector>\n"
+                    "#include <QList>\n",
+                    "std::string str = \"foo\";\n"
+                    "std::vector<std::string> v;\n"
+                    "QList<std::string> l0, l;\n"
+                    "v.push_back(str);\n"
+                    "v.push_back(str);\n"
+                    "l.push_back(str);\n"
+                    "l.push_back(str);\n"
+                    "unused(&v, &l);\n")
+               + CoreProfile()
+               + Check("l0", "<0 items>", "@QList<std::string>")
+               + Check("l", "<2 items>", "@QList<std::string>")
+               + Check("str", "\"foo\"", "std::string")
+               + Check("v", "<2 items>", "std::vector<std::string>")
+               + Check("v.0", "[0]", "\"foo\"", "std::string");
+
+
+    QTest::newRow("StdVector")
+            << Data("#include <vector>\n"
+                    "#include <list>\n",
+
+                    "std::vector<double> v0, v1;\n"
+                    "v1.push_back(1);\n"
+                    "v1.push_back(0);\n"
+                    "v1.push_back(2);\n"
+                    "unused(&v0, &v1);\n\n"
+
+                    "std::vector<int *> v2, v3;\n"
+                    "v3.push_back(new int(1));\n"
+                    "v3.push_back(0);\n"
+                    "v3.push_back(new int(2));\n"
+                    "unused(&v2, &v3);\n\n"
+
+                    "std::vector<int> v4;\n"
+                    "v4.push_back(1);\n"
+                    "v4.push_back(2);\n"
+                    "v4.push_back(3);\n"
+                    "v4.push_back(4);\n"
+                    "unused(&v4);\n\n"
+
+                    "std::vector<std::list<int> *> v5;\n"
+                    "std::list<int> list;\n"
+                    "v5.push_back(new std::list<int>(list));\n"
+                    "v5.push_back(0);\n"
+                    "list.push_back(45);\n"
+                    "v5.push_back(new std::list<int>(list));\n"
+                    "v5.push_back(0);\n"
+                    "unused(&v5);\n\n"
+
+                    "std::vector<bool> b0;\n"
+                    "unused(&b0);\n\n"
+
+                    "std::vector<bool> b1;\n"
+                    "b1.push_back(true);\n"
+                    "b1.push_back(false);\n"
+                    "b1.push_back(false);\n"
+                    "b1.push_back(true);\n"
+                    "b1.push_back(false);\n"
+                    "unused(&b1);\n\n"
+
+                    "std::vector<bool> b2(65, true);\n"
+                    "unused(&b2);\n\n"
+
+                    "std::vector<bool> b3(300);\n"
+                    "unused(&b3);\n")
+
+               + Check("v0", "<0 items>", "std::vector<double>")
+               + Check("v1", "<3 items>", "std::vector<double>")
+               + Check("v1.0", "[0]", "1", "double")
+               + Check("v1.1", "[1]", "0", "double")
+               + Check("v1.2", "[2]", "2", "double")
+
+               + Check("v2", "<0 items>", "std::vector<int*>")
+               + Check("v3", "<3 items>", "std::vector<int*>")
+               + Check("v3.0", "[0]", "1", "int")
+               + Check("v3.1", "[1]", "0x0", "int *")
+               + Check("v3.2", "[2]", "2", "int")
+
+               + Check("v4", "<4 items>", "std::vector<int>")
+               + Check("v4.0", "[0]", "1", "int")
+               + Check("v4.3", "[3]", "4", "int")
+
+               + Check("list", "<1 items>", "std::list<int>")
+               + Check("list.0", "[0]", "45", "int")
+               + Check("v5", "<4 items>", "std::vector<std::list<int>*>")
+               + Check("v5.0", "[0]", "<0 items>", "std::list<int>")
+               + Check("v5.2", "[2]", "<1 items>", "std::list<int>")
+               + Check("v5.2.0", "[0]", "45", "int")
+               + Check("v5.3", "[3]", "0x0", "std::list<int> *")
+
+               // Known issue: Clang produces "std::vector<std::allocator<bool>>
+               + Check("b0", "<0 items>", "std::vector<bool>") % GdbEngine
+               + Check("b0", "<0 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+
+               + Check("b1", "<5 items>", "std::vector<bool>") % GdbEngine
+               + Check("b1", "<5 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b1.0", "[0]", "1", "bool")
+               + Check("b1.1", "[1]", "0", "bool")
+               + Check("b1.2", "[2]", "0", "bool")
+               + Check("b1.3", "[3]", "1", "bool")
+               + Check("b1.4", "[4]", "0", "bool")
+
+               + Check("b2", "<65 items>", "std::vector<bool>") % GdbEngine
+               + Check("b2", "<65 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b2.0", "[0]", "1", "bool")
+               + Check("b2.64", "[64]", "1", "bool")
+
+               + Check("b3", "<300 items>", "std::vector<bool>") %
+GdbEngine
+               + Check("b3", "<300 items>", "std::vector<std::allocator<bool>>") % LldbEngine
+               + Check("b3.0", "[0]", "0", "bool")
+               + Check("b3.299", "[299]", "0", "bool");
+
+
+    QTest::newRow("StdVectorQt")
+            << Data("#include <vector>\n" + fooData,
+
+                    "std::vector<Foo *> v1;\n"
+                    "v1.push_back(new Foo(1));\n"
+                    "v1.push_back(0);\n"
+                    "v1.push_back(new Foo(2));\n"
+
+                    "std::vector<Foo> v2;\n"
+                    "v2.push_back(1);\n"
+                    "v2.push_back(2);\n"
+                    "v2.push_back(3);\n"
+                    "v2.push_back(4);\n"
+                    "unused(&v1, &v2);\n")
+
+               + CoreProfile()
+               + Check("v1", "<3 items>", "std::vector<Foo*>")
+               + Check("v1.0", "[0]", "", "Foo")
+               + Check("v1.0.a", "1", "int")
+               + Check("v1.1", "[1]", "0x0", "Foo *")
+               + Check("v1.2", "[2]", "", "Foo")
+               + Check("v1.2.a", "2", "int")
+
+               + Check("v2", "<4 items>", "std::vector<Foo>")
+               + Check("v2.0", "[0]", "", "Foo")
+               + Check("v2.1.a", "2", "int")
+               + Check("v2.3", "[3]", "", "Foo");
+
+
+    QTest::newRow("StdStream")
+            << Data("#include <istream>\n"
+                    "#include <fstream>\n",
+
+                    "using namespace std;\n"
+                    "ifstream is0, is;\n"
+                    "#ifdef Q_OS_WIN\n"
+                    "is.open(\"C:\\\\Program Files\\\\Windows NT\\\\Accessories\\\\wordpad.exe\");\n"
+                    "#else\n"
+                    "is.open(\"/etc/passwd\");\n"
+                    "#endif\n"
+                    "bool ok = is.good();\n"
+                    "unused(&ok, &is, &is0);\n")
+
+               + Check("is", "", "std::ifstream")
+               + Check("ok", "true", "bool");
+
+
+    QTest::newRow("StdUnorderedMap")
+            << Data("#include <unordered_map>\n"
+                    "#include <string>\n",
+
+                    "std::unordered_map<unsigned int, unsigned int> map1;\n"
+                    "map1[11] = 1;\n"
+                    "map1[22] = 2;\n"
+
+                    "std::unordered_map<std::string, float> map2;\n"
+                    "map2[\"11.0\"] = 11.0;\n"
+                    "map2[\"22.0\"] = 22.0;\n"
+
+                    "unused(&map1);\n")
+
+               + Cxx11Profile()
+
+               + Check("map1", "<2 items>", "std::unordered_map<unsigned int, unsigned int>")
+               + Check("map1.0", "[0] 22", "2", "unsigned int")
+               + Check("map1.1", "[1] 11", "1", "unsigned int")
+
+               + Check("map2", "<2 items>", "std::unordered_map<std::string, float>")
+               //+ Check("map2.0", "[0]", "", "std::pair<std:string const, float>")
+               + Check("map2.0.first", "\"22.0\"", "std::string")
+               + Check("map2.0.second", "22", "float")
+               //+ Check("map2.1", "[1]", "", "std::pair<std::string const, float>")
+               + Check("map2.1.first", "\"11.0\"", "std::string")
+               + Check("map2.1.second", "11", "float");
+
+
+    QTest::newRow("StdUnorderedSet")
+            << Data("#include <unordered_set>\n",
+                    "std::unordered_set<int> set1;\n"
+                    "set1.insert(11);\n"
+                    "set1.insert(22);\n"
+                    "set1.insert(33);\n"
+                    "unused(&set1);\n")
+
+               + Cxx11Profile()
+
+               + Check("set1", "<3 items>", "std::unordered_set<int>")
+               + Check("set1.0", "[0]", "33", "int")
+               + Check("set1.1", "[1]", "22", "int")
+               + Check("set1.2", "[2]", "11", "int");
+
 
 //namespace noargs {
 
@@ -4166,22 +4115,22 @@ void tst_Dumpers::dumper_data()
 //        "l2.append(Goo("Hello", 1));
 //        "l2.append(Goo("World", 2));
 
-//         % Check("i", "1", "int");
-//         % Check("k", "3", "int");
-//         % Check("list <2 items> noargs::GooList");
-//         % Check("list.0", "noargs::Goo");
-//         % Check("list.0.n_", "1", "int");
-//         % Check("list.0.str_ "Hello" QString");
-//         % Check("list.1", "noargs::Goo");
-//         % Check("list.1.n_", "2", "int");
-//         % Check("list.1.str_ "World" QString");
-//         % Check("l2 <2 items> QList<noargs::Goo>");
-//         % Check("l2.0", "noargs::Goo");
-//         % Check("l2.0.n_", "1", "int");
-//         % Check("l2.0.str_ "Hello" QString");
-//         % Check("l2.1", "noargs::Goo");
-//         % Check("l2.1.n_", "2", "int");
-//         % Check("l2.1.str_ "World" QString");
+//         + Check("i", "1", "int");
+//         + Check("k", "3", "int");
+//         + Check("list <2 items> noargs::GooList");
+//         + Check("list.0", "noargs::Goo");
+//         + Check("list.0.n_", "1", "int");
+//         + Check("list.0.str_ "Hello" QString");
+//         + Check("list.1", "noargs::Goo");
+//         + Check("list.1.n_", "2", "int");
+//         + Check("list.1.str_ "World" QString");
+//         + Check("l2 <2 items> QList<noargs::Goo>");
+//         + Check("l2.0", "noargs::Goo");
+//         + Check("l2.0.n_", "1", "int");
+//         + Check("l2.0.str_ "Hello" QString");
+//         + Check("l2.1", "noargs::Goo");
+//         + Check("l2.1.n_", "2", "int");
+//         + Check("l2.1.str_ "World" QString");
 
 
 //"void foo() {}\n"
@@ -4270,10 +4219,10 @@ void tst_Dumpers::dumper_data()
 //        "MyBar bar;\n"
 //        "MyAnon anon;\n"
 //        "baz::MyBaz baz;\n"
-//         % CheckType("anon namespc::nested::(anonymous namespace)::MyAnon");
-//         % Check("bar", "namespc::nested::MyBar");
-//         % CheckType("baz namespc::nested::(anonymous namespace)::baz::MyBaz");
-//         % Check("foo", "namespc::nested::MyFoo");
+//         + CheckType("anon namespc::nested::(anonymous namespace)::MyAnon");
+//         + Check("bar", "namespc::nested::MyBar");
+//         + CheckType("baz namespc::nested::(anonymous namespace)::baz::MyBaz");
+//         + Check("foo", "namespc::nested::MyFoo");
 //        // Continue");
 //        // step into the doit() functions
 
@@ -4285,6 +4234,54 @@ void tst_Dumpers::dumper_data()
 //    }
 
 
+    QTest::newRow("AnonymousStruct")
+            << Data("union {\n"
+                    "     struct { int i; int b; };\n"
+                    "     struct { float f; };\n"
+                    "     double d;\n"
+                    " } a = { { 42, 43 } };\n (void)a;")
+
+               + Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
+
+               + Check("a.b", "43", "int") % GdbEngine
+               + Check("a.i", "42", "int") % GdbEngine
+               + Check("a.f", FloatValue("5.88545355e-44"), "float") % GdbEngine
+
+               + Check("a.#1.b", "43", "int") % LldbEngine
+               + Check("a.#1.i", "42", "int") % LldbEngine
+               + Check("a.#2.f", FloatValue("5.88545355e-44"), "float") % LldbEngine;
+
+
+    QTest::newRow("CharArrays")
+            << Data("const char s[] = \"aöa\";\n"
+                    "const char t[] = \"aöax\";\n"
+                    "const wchar_t w[] = L\"aöa\";\n"
+                    "unused(&s, &t, &w);\n")
+
+               + CheckType("s", "char [5]")
+               + CheckType("t", "char [6]")
+               + CheckType("w", "wchar_t [4]");
+
+
+    QTest::newRow("CharPointers")
+            << Data("const char *s = \"aöa\";\n"
+                    "const char *t = \"a\\xc3\\xb6\";\n"
+                    "const unsigned char uu[] = { 'a', 153 /* ö Latin1 */, 'a' };\n"
+                    "const unsigned char *u = uu;\n"
+                    "const wchar_t *w = L\"aöa\";\n"
+                    "unused(&s, &t, &uu, &u, &w);\n")
+
+               + CheckType("u", "unsigned char *")
+               + CheckType("uu", "unsigned char [3]")
+               + CheckType("s", "char *")
+               + CheckType("t", "char *")
+               + CheckType("w", "wchar_t *");
+
+        // All: Select UTF-8 in "Change Format for Type" in L&W context menu");
+        // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu");
+        // Other: Select UCS-6 in "Change Format for Type" in L&W context menu");
+
+
     QTest::newRow("GccExtensions")
             << Data(
                    "char v[8] = { 1, 2 };\n"
@@ -4292,14 +4289,14 @@ void tst_Dumpers::dumper_data()
                    "int y[2] = { 1, 2 };\n"
                    "int z __attribute__ ((vector_size (8))) = { 1, 2 };\n"
                    "unused(&v, &w, &y, &z);\n")
-               % Check("v.0", "[0]", "1", "char")
-               % Check("v.1", "[1]", "2", "char")
-               % Check("w.0", "[0]", "1", "char")
-               % Check("w.1", "[1]", "2", "char")
-               % Check("y.0", "[0]", "1", "int")
-               % Check("y.1", "[1]", "2", "int")
-               % Check("z.0", "[0]", "1", "int")
-               % Check("z.1", "[1]", "2", "int");
+               + Check("v.0", "[0]", "1", "char")
+               + Check("v.1", "[1]", "2", "char")
+               + Check("w.0", "[0]", "1", "char")
+               + Check("w.1", "[1]", "2", "char")
+               + Check("y.0", "[0]", "1", "int")
+               + Check("y.1", "[1]", "2", "int")
+               + Check("z.0", "[0]", "1", "int")
+               + Check("z.1", "[1]", "2", "int");
 
 
     QTest::newRow("Int")
@@ -4316,15 +4313,15 @@ void tst_Dumpers::dumper_data()
                     "qint32 s32s = INT_MIN;\n"
                     "QString dummy; // needed to get namespace\n"
                     "unused(&u64, &s64, &u32, &s32, &u64s, &s64s, &u32s, &s32s, &dummy);\n")
-               % CoreProfile()
-               % Check("u64", "18446744073709551615", "@quint64")
-               % Check("s64", "9223372036854775807", "@qint64")
-               % Check("u32", "4294967295", "@quint32")
-               % Check("s32", "2147483647", "@qint32")
-               % Check("u64s", "0", "@quint64")
-               % Check("s64s", "-9223372036854775808", "@qint64")
-               % Check("u32s", "0", "@quint32")
-               % Check("s32s", "-2147483648", "@qint32");
+               + CoreProfile()
+               + Check("u64", "18446744073709551615", "@quint64")
+               + Check("s64", "9223372036854775807", "@qint64")
+               + Check("u32", "4294967295", "@quint32")
+               + Check("s32", "2147483647", "@qint32")
+               + Check("u64s", "0", "@quint64")
+               + Check("s64s", "-9223372036854775808", "@qint64")
+               + Check("u32s", "0", "@quint32")
+               + Check("s32s", "-2147483648", "@qint32");
 
 
     QTest::newRow("Array")
@@ -4342,15 +4339,15 @@ void tst_Dumpers::dumper_data()
                     "a2[4] = 0;\n"
                     "unused(&a2);\n")
 
-               % Check("a1", Pointer(), "double [3][3]")
-               % Check("a1.0", "[0]", Pointer(), "double [3]")
-               % Check("a1.0.0", "[0]", "0", "double")
-               % Check("a1.0.2", "[2]", "2", "double")
-               % Check("a1.2", "[2]", Pointer(), "double [3]")
+               + Check("a1", Pointer(), "double [3][3]")
+               + Check("a1.0", "[0]", Pointer(), "double [3]")
+               + Check("a1.0.0", "[0]", "0", "double")
+               + Check("a1.0.2", "[2]", "2", "double")
+               + Check("a1.2", "[2]", Pointer(), "double [3]")
 
-               % Check("a2", "\"abcd" + QByteArray(16, 0) + '"', "char [20]")
-               % Check("a2.0", "[0]", "97", "char")
-               % Check("a2.3", "[3]", "100", "char");
+               + Check("a2", "\"abcd" + QByteArray(16, 0) + '"', "char [20]")
+               + Check("a2.0", "[0]", "97", "char")
+               + Check("a2.3", "[3]", "100", "char");
 
 
     QTest::newRow("ArrayQt")
@@ -4373,21 +4370,21 @@ void tst_Dumpers::dumper_data()
                     "for (int i = 0; i < 5; ++i)\n"
                     "    a3[i].a = i;\n")
 
-               % CheckType("a1", "@QString [20]")
-               % Check("a1.0", "[0]", "\"a\"", "@QString")
-               % Check("a1.3", "[3]", "\"d\"", "@QString")
-               % Check("a1.4", "[4]", "\"\"", "@QString")
-               % Check("a1.19", "[19]", "\"\"", "@QString")
+               + CheckType("a1", "@QString [20]")
+               + Check("a1.0", "[0]", "\"a\"", "@QString")
+               + Check("a1.3", "[3]", "\"d\"", "@QString")
+               + Check("a1.4", "[4]", "\"\"", "@QString")
+               + Check("a1.19", "[19]", "\"\"", "@QString")
 
-               % CheckType("a2", "@QByteArray [20]")
-               % Check("a2.0", "[0]", "\"a\"", "@QByteArray")
-               % Check("a2.3", "[3]", "\"d\"", "@QByteArray")
-               % Check("a2.4", "[4]", "\"\"", "@QByteArray")
-               % Check("a2.19", "[19]", "\"\"", "@QByteArray")
+               + CheckType("a2", "@QByteArray [20]")
+               + Check("a2.0", "[0]", "\"a\"", "@QByteArray")
+               + Check("a2.3", "[3]", "\"d\"", "@QByteArray")
+               + Check("a2.4", "[4]", "\"\"", "@QByteArray")
+               + Check("a2.19", "[19]", "\"\"", "@QByteArray")
 
-               % CheckType("a3", "Foo [10]")
-               % Check("a3.0", "[0]", "", "Foo")
-               % Check("a3.9", "[9]", "", "Foo");
+               + CheckType("a3", "Foo [10]")
+               + Check("a3.0", "[0]", "", "Foo")
+               + Check("a3.9", "[9]", "", "Foo");
 
 
     QTest::newRow("Bitfields")
@@ -4403,14 +4400,15 @@ void tst_Dumpers::dumper_data()
                     "    int i;\n"
                     "} s;\n"
                     "unused(&s);\n")
-               % Check("s", "", "S")
-               % Check("s.b", "false", "bool")
-               % Check("s.c", "false", "bool")
-               % Check("s.d", "0", "double")
-               % Check("s.f", "0", "float")
-               % Check("s.i", "0", "int")
-               % Check("s.x", "0", "unsigned int")
-               % Check("s.y", "0", "unsigned int");
+
+               + Check("s", "", "S")
+               + Check("s.b", "false", "bool")
+               + Check("s.c", "false", "bool")
+               + Check("s.d", "0", "double")
+               + Check("s.f", "0", "float")
+               + Check("s.i", "0", "int")
+               + Check("s.x", "0", "unsigned int")
+               + Check("s.y", "0", "unsigned int");
 
 
     QTest::newRow("Function")
@@ -4429,13 +4427,16 @@ void tst_Dumpers::dumper_data()
                     "func.max = 10;\n"
                     "func.f = \"cos(x)\";\n"
                     "func.max = 7;\n")
-               % CoreProfile()
-               % Check("func", "", "Function")
-               % Check("func.min", "0", "double")
-               % Check("func.var", "\"x\"", "@QByteArray")
-               % Check("func", "", "Function")
-               % Check("func.f", "\"cos(x)\"", "@QByteArray")
-               % Check("func.max", "7", "double");
+
+               + CoreProfile()
+
+               + Check("func", "", "Function")
+               + Check("func.min", "0", "double")
+               + Check("func.var", "\"x\"", "@QByteArray")
+               + Check("func", "", "Function")
+               + Check("func.f", "\"cos(x)\"", "@QByteArray")
+               + Check("func.max", "7", "double");
+
 
 //    QTest::newRow("AlphabeticSorting")
 //                  << Data(
@@ -4447,11 +4448,11 @@ void tst_Dumpers::dumper_data()
 //        "    Color() { r = 1, g = 2, b = 3, a = 4; }\n"
 //        "};\n"
 //        "    Color c;\n"
-//         % Check("c", "basic::Color");
-//         % Check("c.a", "4", "int");
-//         % Check("c.b", "3", "int");
-//         % Check("c.g", "2", "int");
-//         % Check("c.r", "1", "int");
+//         + Check("c", "basic::Color");
+//         + Check("c.a", "4", "int");
+//         + Check("c.b", "3", "int");
+//         + Check("c.g", "2", "int");
+//         + Check("c.r", "1", "int");
 
 //        // Manual: Toogle "Sort Member Alphabetically" in context menu
 //        // Manual: of "Locals and Expressions" view");
@@ -4470,11 +4471,13 @@ void tst_Dumpers::dumper_data()
                     "ns::vl j = 1000;\n"
                     "ns::verylong k = 1000;\n"
                     "unused(&t1, &t2, &j, &k);\n")
-                % CoreProfile()
-                % Check("j", "1000", "ns::vl")
-                % Check("k", "1000", "ns::verylong")
-                % Check("t1", "0", "myType1")
-                % Check("t2", "0", "myType2");
+
+                + CoreProfile()
+
+                + Check("j", "1000", "ns::vl")
+                + Check("k", "1000", "ns::verylong")
+                + Check("t1", "0", "myType1")
+                + Check("t2", "0", "myType2");
 
 
     QTest::newRow("Struct")
@@ -4486,21 +4489,21 @@ void tst_Dumpers::dumper_data()
                     "Foo *p = new Foo();\n"
                     "unused(&p);\n")
 
-               % Check("f", "", "Foo")
-               % Check("f.a", "3", "int")
-               % Check("f.b", "2", "int")
+               + Check("f", "", "Foo")
+               + Check("f.a", "3", "int")
+               + Check("f.b", "2", "int")
 
-               % Check("p", Pointer(), "Foo")
-               % Check("p.a", "0", "int")
-               % Check("p.b", "2", "int");
+               + Check("p", Pointer(), "Foo")
+               + Check("p.a", "0", "int")
+               + Check("p.b", "2", "int");
 
 
     QTest::newRow("Union")
             << Data("union U { int a; int b; };", "U u;\n"
                     "unused(&u);\n")
-               % Check("u", "", "U")
-               % CheckType("u.a", "int")
-               % CheckType("u.b", "int");
+               + Check("u", "", "U")
+               + CheckType("u.a", "int")
+               + CheckType("u.b", "int");
 
 //    QTest::newRow("TypeFormats")
 //                  << Data(
@@ -4516,9 +4519,9 @@ void tst_Dumpers::dumper_data()
 //    "    u = QString::fromUcs4((uint *)w);\n"
 //    "else\n"
 //    "    u = QString::fromUtf16((ushort *)w);\n"
-//         % CheckType("s char *");
-//         % Check("u "" QString");
-//         % CheckType("w wchar_t *");
+//         + CheckType("s char *");
+//         + Check("u "" QString");
+//         + CheckType("w wchar_t *");
 
 
     QTest::newRow("PointerTypedef")
@@ -4529,48 +4532,54 @@ void tst_Dumpers::dumper_data()
                     "VoidPtr p = &a;\n"
                     "CVoidPtr cp = &a;\n"
                     "unused(&a, &p, &cp);\n")
-               % Check("a", "", "A")
-               % Check("cp", Pointer(), "CVoidPtr")
-               % Check("p", Pointer(), "VoidPtr");
+               + Check("a", "", "A")
+               + Check("cp", Pointer(), "CVoidPtr")
+               + Check("p", Pointer(), "VoidPtr");
 
-    QTest::newRow("Reference1")
-            << Data("int a = 43;\n"
-                    "const int &b = a;\n"
-                    "typedef int &Ref;\n"
-                    "const int c = 44;\n"
-                    "const Ref d = a;\n"
-                    "unused(&a, &b, &c, &d);\n")
-               % Check("a", "43", "int")
-               % Check("b", "43", "int &")
-               % Check("c", "44", "int")
-               % Check("d", "43", "Ref");
 
-    QTest::newRow("Reference2")
-            << Data("#include <QString>\n"
-                    "QString fooxx() { return \"bababa\"; }\n",
-                    "QString a = \"hello\";\n"
-                    "const QString &b = fooxx();\n"
-                    "typedef QString &Ref;\n"
-                    "const QString c = \"world\";\n"
-                    "const Ref d = a;\n"
-                    "unused(&a, &b, &c, &d);\n")
-               % CoreProfile()
-               % Check("a", "\"hello\"", "@QString")
-               % Check("b", "\"bababa\"", "@QString &")
-               % Check("c", "\"world\"", "@QString")
-               % Check("d", "\"hello\"", "Ref");
+    QTest::newRow("Reference")
+            << Data("#include <string>\n"
+                    "#include <QString>\n"
 
-    QTest::newRow("Reference3")
-            << Data("#include <QString>\n",
-                    "QString a = QLatin1String(\"hello\");\n"
-                    "const QString &b = a;\n"
-                    "typedef QString &Ref;\n"
-                    "const Ref d = const_cast<Ref>(a);\n"
-                    "unused(&a, &b, &d);\n")
-               % CoreProfile()
-               % Check("a", "\"hello\"", "@QString")
-               % Check("b", "\"hello\"", "@QString &")
-               % Check("d", "\"hello\"", "Ref");
+                    "using namespace std;\n"
+                    "string fooxx() { return \"bababa\"; }\n",
+
+                    "int a1 = 43;\n"
+                    "const int &b1 = a1;\n"
+                    "typedef int &Ref1;\n"
+                    "const int c1 = 44;\n"
+                    "const Ref1 d1 = a1;\n"
+                    "unused(&a1, &b1, &c1, &d1);\n\n"
+
+                    "string a2 = \"hello\";\n"
+                    "const string &b2 = fooxx();\n"
+                    "typedef string &Ref2;\n"
+                    "const string c2= \"world\";\n"
+                    "const Ref2 d2 = a2;\n"
+                    "unused(&a2, &b2, &c2, &d2);\n\n"
+
+                    "QString a3 = QLatin1String(\"hello\");\n"
+                    "const QString &b3 = a3;\n"
+                    "typedef QString &Ref3;\n"
+                    "const Ref3 d3 = const_cast<Ref3>(a3);\n"
+                    "unused(&a3, &b3, &d3);\n")
+
+               + CoreProfile()
+
+               + Check("a1", "43", "int")
+               + Check("b1", "43", "int &")
+               + Check("c1", "44", "int")
+               + Check("d1", "43", "Ref1")
+
+               + Check("a2", "\"hello\"", "std::string")
+               + Check("b2", "\"bababa\"", "std::string &")
+               + Check("c2", "\"world\"", "std::string")
+               + Check("d2", "\"hello\"", "Ref2")
+
+               + Check("a3", "\"hello\"", "@QString")
+               + Check("b3", "\"hello\"", "@QString &")
+               + Check("d3", "\"hello\"", "Ref3");
+
 
     QTest::newRow("DynamicReference")
             << Data("struct BaseClass { virtual ~BaseClass() {} };\n"
@@ -4579,8 +4588,9 @@ void tst_Dumpers::dumper_data()
                     "BaseClass *b1 = &d;\n"
                     "BaseClass &b2 = d;\n"
                     "unused(&d, &b1, &b2);\n")
-               % CheckType("b1", "DerivedClass") // autoderef
-               % CheckType("b2", "DerivedClass &");
+               + CheckType("b1", "DerivedClass") // autoderef
+               + CheckType("b2", "DerivedClass &");
+
 
 /*
     // FIXME: The QDateTime dumper for 5.3 is really too slow.
@@ -4594,10 +4604,10 @@ void tst_Dumpers::dumper_data()
                     "    time = time.addDays(1);\n"
                     "}\n"
                     "unused(&bigv[10]);\n")
-             % Check("N", "10000", "int")
-             % CheckType("bigv", "@QDateTime [10000]")
-             % CheckType("bigv.0", "[0]", "@QDateTime")
-             % CheckType("bigv.9999", "[9999]", "@QDateTime");
+             + Check("N", "10000", "int")
+             + CheckType("bigv", "@QDateTime [10000]")
+             + CheckType("bigv.0", "[0]", "@QDateTime")
+             + CheckType("bigv.9999", "[9999]", "@QDateTime");
 */
 
     QTest::newRow("LongEvaluation2")
@@ -4606,10 +4616,10 @@ void tst_Dumpers::dumper_data()
                     "for (int i = 0; i < N; ++i)\n"
                     "    bigv[i] = i;\n"
                     "unused(&bigv[10]);\n")
-             % Check("N", "10000", "int")
-             % CheckType("bigv", "int [10000]")
-             % Check("bigv.0", "[0]", "0", "int")
-             % Check("bigv.9999", "[9999]", "9999", "int");
+             + Check("N", "10000", "int")
+             + CheckType("bigv", "int [10000]")
+             + Check("bigv.0", "[0]", "0", "int")
+             + Check("bigv.9999", "[9999]", "9999", "int");
 
 //    QTest::newRow("Fork")
 //                  << Data(
@@ -4618,42 +4628,31 @@ void tst_Dumpers::dumper_data()
 //        "proc.waitForFinished();\n"
 //        "QByteArray ba = proc.readAllStandardError();\n"
 //        "ba.append('x');\n"
-//         % Check("ba "x" QByteArray");
-//         % Check("proc  QProcess");
+//         + Check("ba "x" QByteArray");
+//         + Check("proc  QProcess");
 
-
-    QTest::newRow("FunctionPointer")
-            << Data("int testFunctionPointerHelper(int x) { return x; }\n"
-                    "typedef int (*func_t)(int);\n",
-                    "func_t f = testFunctionPointerHelper;\n"
-                    "int a = f(43);\n"
-                    "unused(&a);\n")
-             % CheckType("f", "func_t");
-
-
-    QByteArray dataClass = "struct Class\n"
-                           "{\n"
-                           "    Class() : a(34) {}\n"
-                           "    int testFunctionPointerHelper(int x) { return x; }\n"
-                           "    int a;\n"
-                           "};\n";
 
     QTest::newRow("MemberFunctionPointer")
-            << Data(dataClass  + "Class x;\n"
-                    "typedef int (Class::*func_t)(int);\n",
-                    "func_t f = &Class::testFunctionPointerHelper;\n"
-                    "int a = (x.*f)(43);\n"
-                    "unused(&a);\n")
-             % CheckType("f", "func_t");
-
-
-    QTest::newRow("MemberPointer")
-            << Data(dataClass  + "Class x;\n"
+            << Data("struct Class\n"
+                    "{\n"
+                    "    Class() : a(34) {}\n"
+                    "    int testFunctionPointerHelper(int x) { return x; }\n"
+                    "    int a;\n"
+                    "};\n"
+                    "typedef int (Class::*func_t)(int);\n"
                     "typedef int (Class::*member_t);\n",
+
+                    "Class x;\n"
+                    "func_t f = &Class::testFunctionPointerHelper;\n"
+                    "int a1 = (x.*f)(43);\n"
+                    "unused(&a1);\n"
+
                     "member_t m = &Class::a;\n"
-                    "int a = x.*m;\n"
-                    "unused(&a);\n")
-             % CheckType("m", "member_t");
+                    "int a2 = x.*m;\n"
+                    "unused(&a2);\n")
+
+             + CheckType("f", "func_t")
+             + CheckType("m", "member_t");
 
 
   QTest::newRow("PassByReference")
@@ -4663,8 +4662,8 @@ void tst_Dumpers::dumper_data()
                    "}\n",
                    "Foo f(12);\n"
                    "testPassByReference(f);\n")
-               % CheckType("f", "Foo &")
-               % Check("f.a", "12", "int");
+               + CheckType("f", "Foo &")
+               + Check("f.a", "12", "int");
 
 
     QTest::newRow("BigInt")
@@ -4676,10 +4675,10 @@ void tst_Dumpers::dumper_data()
                     "qint64 d = c;\n"
                     "QString dummy;\n"
                     "unused(&a, &b, &c, &d, &dummy);\n")
-               % Check("a", "-1143861252567568256", "@qint64")
-               % Check("b", "17302882821141983360", "@quint64")
-               % Check("c", "18446744073709551614", "@quint64")
-               % Check("d", "-2", "@qint64");
+               + Check("a", "-1143861252567568256", "@qint64")
+               + Check("b", "17302882821141983360", "@quint64")
+               + Check("c", "18446744073709551614", "@quint64")
+               + Check("d", "-2", "@qint64");
 
     QTest::newRow("Hidden")
             << Data("#include <QString>\n",
@@ -4694,10 +4693,10 @@ void tst_Dumpers::dumper_data()
                     "    unused(&n);\n"
                     "}\n"
                     "unused(&n);\n")
-               % CoreProfile()
-               % Check("n", "3.5", "double")
-               % Check("n@1", "\"2\"", "@QString")
-               % Check("n@2", "1", "int");
+               + CoreProfile()
+               + Check("n", "3.5", "double")
+               + Check("n@1", "\"2\"", "@QString")
+               + Check("n@2", "1", "int");
 
 
     const Data rvalueData = Data(
@@ -4712,25 +4711,25 @@ void tst_Dumpers::dumper_data()
                     "X y2 = testRValueReferenceHelper2(std::move(y1));\n"
                     "X y3 = testRValueReferenceHelper2(testRValueReferenceHelper1());\n"
                     "unused(&x1, &x2, &x3, &y1, &y2, &y3);\n")
-               % Cxx11Profile()
-               % Check("y1", "", "X")
-               % Check("y2", "", "X")
-               % Check("y3", "", "X");
+               + Cxx11Profile()
+               + Check("y1", "", "X")
+               + Check("y2", "", "X")
+               + Check("y3", "", "X");
 
     QTest::newRow("RValueReferenceLldb")
             << Data(rvalueData)
-               % LldbEngine
-               % Check("x1", "", "X &&")
-               % Check("x2", "", "X &&")
-               % Check("x3", "", "X &&");
+               + LldbEngine
+               + Check("x1", "", "X &&")
+               + Check("x2", "", "X &&")
+               + Check("x3", "", "X &&");
 
     QTest::newRow("RValueReferenceGdb")
             << Data(rvalueData)
-               % GdbEngine
-               % GccVersion(0, 40704)
-               % Check("x1", "", "X &")
-               % Check("x2", "", "X &")
-               % Check("x3", "", "X &");
+               + GdbEngine
+               + GccVersion(0, 40704)
+               + Check("x1", "", "X &")
+               + Check("x2", "", "X &")
+               + Check("x3", "", "X &");
 
     QTest::newRow("SSE")
             << Data("#include <xmmintrin.h>\n"
@@ -4746,30 +4745,31 @@ void tst_Dumpers::dumper_data()
                     "sseA = _mm_loadu_ps(a);\n"
                     "sseB = _mm_loadu_ps(b);\n"
                     "unused(&i, &sseA, &sseB);\n")
-               % Profile("QMAKE_CXXFLAGS += -msse2")
-               % Check("sseA", "", "__m128")
-               % Check("sseB", "", "__m128");
+               + Profile("QMAKE_CXXFLAGS += -msse2")
+               + Check("sseA", "", "__m128")
+               + Check("sseB", "", "__m128");
 
 
     QTest::newRow("BoostOptional")
-            << Data("#include <boost/optional.hpp>\n",
+            << Data("#include <boost/optional.hpp>\n"
+                    "#include <QStringList>\n",
+
                     "boost::optional<int> i0, i1;\n"
                     "i1 = 1;\n"
-                    "unused(&i0, &i1);\n")
-             % BoostProfile()
-             % Check("i0", "<uninitialized>", "boost::optional<int>")
-             % Check("i1", "1", "boost::optional<int>");
+                    "unused(&i0, &i1);\n\n"
 
-
-    QTest::newRow("BoostOptionalQt")
-            << Data("#include <QStringList>\n"
-                    "#include <boost/optional.hpp>\n",
                     "boost::optional<QStringList> sl0, sl;\n"
                     "sl = (QStringList() << \"xxx\" << \"yyy\");\n"
                     "sl.get().append(\"zzz\");\n"
                     "unused(&sl);\n")
-             % BoostProfile()
-             % Check("sl", "<3 items>", "boost::optional<@QStringList>");
+
+             + CoreProfile()
+             + BoostProfile()
+
+             + Check("i0", "<uninitialized>", "boost::optional<int>")
+             + Check("i1", "1", "boost::optional<int>")
+
+             + Check("sl", "<3 items>", "boost::optional<@QStringList>");
 
 
     QTest::newRow("BoostSharedPtr")
@@ -4780,12 +4780,14 @@ void tst_Dumpers::dumper_data()
                     "boost::shared_ptr<int> j = i;\n"
                     "boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << \"HUH!\"));\n"
                     "unused(&s, &i, &j, &sl);\n")
-             % BoostProfile()
-             % Check("s", "(null)", "boost::shared_ptr<int>")
-             % Check("i", "43", "boost::shared_ptr<int>")
-             % Check("j", "43", "boost::shared_ptr<int>")
-             % Check("sl", "", " boost::shared_ptr<@QStringList>")
-             % Check("sl.data", "<1 items>", "@QStringList");
+
+             + BoostProfile()
+
+             + Check("s", "(null)", "boost::shared_ptr<int>")
+             + Check("i", "43", "boost::shared_ptr<int>")
+             + Check("j", "43", "boost::shared_ptr<int>")
+             + Check("sl", "", " boost::shared_ptr<@QStringList>")
+             + Check("sl.data", "<1 items>", "@QStringList");
 
 
     QTest::newRow("BoostGregorianDate")
@@ -4804,13 +4806,13 @@ void tst_Dumpers::dumper_data()
                     "// Not where we started (expected in boost)\n"
                     "date d5 = d -= months(4);\n"
                     "unused(&d1, &d2, &d3, &d4, &d5);\n")
-             % BoostProfile()
-             % Check("d0", "Tue Nov 29 2005", "boost::gregorian::date")
-             % Check("d1", "Thu Dec 29 2005", "boost::gregorian::date")
-             % Check("d2", "Sun Jan 29 2006", "boost::gregorian::date")
-             % Check("d3", "Tue Feb 28 2006", "boost::gregorian::date")
-             % Check("d4", "Fri Mar 31 2006", "boost::gregorian::date")
-             % Check("d5", "Wed Nov 30 2005", "boost::gregorian::date");
+             + BoostProfile()
+             + Check("d0", "Tue Nov 29 2005", "boost::gregorian::date")
+             + Check("d1", "Thu Dec 29 2005", "boost::gregorian::date")
+             + Check("d2", "Sun Jan 29 2006", "boost::gregorian::date")
+             + Check("d3", "Tue Feb 28 2006", "boost::gregorian::date")
+             + Check("d4", "Fri Mar 31 2006", "boost::gregorian::date")
+             + Check("d5", "Wed Nov 30 2005", "boost::gregorian::date");
 
 
     QTest::newRow("BoostPosixTimeTimeDuration")
@@ -4823,10 +4825,11 @@ void tst_Dumpers::dumper_data()
                     "time_duration d2(0, 1, 0);\n"
                     "time_duration d3(0, 0, 1);\n"
                     "unused(&d1, &d2, &d3);\n")
-             % BoostProfile()
-             % Check("d1", "01:00:00", "boost::posix_time::time_duration")
-             % Check("d2", "00:01:00", "boost::posix_time::time_duration")
-             % Check("d3", "00:00:01", "boost::posix_time::time_duration");
+             + BoostProfile()
+             + Check("d1", "01:00:00", "boost::posix_time::time_duration")
+             + Check("d2", "00:01:00", "boost::posix_time::time_duration")
+             + Check("d3", "00:00:01", "boost::posix_time::time_duration");
+
 
     QTest::newRow("BoostBimap")
             << Data("#include <boost/bimap.hpp>\n",
@@ -4837,8 +4840,9 @@ void tst_Dumpers::dumper_data()
                     "int l = it->first;\n"
                     "int r = it->second;\n"
                     "unused(&l, &r);\n")
-             % BoostProfile()
-             % Check("b", "<1 items>", "B");
+             + BoostProfile()
+             + Check("b", "<1 items>", "B");
+
 
     QTest::newRow("BoostPosixTimePtime")
             << Data("#include <boost/date_time.hpp>\n"
@@ -4851,10 +4855,10 @@ void tst_Dumpers::dumper_data()
                     "ptime p2(date(2002, 1, 10), time_duration(0, 0, 0));\n"
                     "ptime p3(date(1970, 1, 1), time_duration(0, 0, 0));\n"
                     "unused(&p1, &p2, &p3);\n")
-             % BoostProfile()
-             % Check("p1", "Thu Jan 10 01:00:00 2002", "boost::posix_time::ptime")
-             % Check("p2", "Thu Jan 10 00:00:00 2002", "boost::posix_time::ptime")
-             % Check("p3", "Thu Jan 1 00:00:00 1970", "boost::posix_time::ptime");
+             + BoostProfile()
+             + Check("p1", "Thu Jan 10 01:00:00 2002", "boost::posix_time::ptime")
+             + Check("p2", "Thu Jan 10 00:00:00 2002", "boost::posix_time::ptime")
+             + Check("p3", "Thu Jan 1 00:00:00 1970", "boost::posix_time::ptime");
 
 
 
@@ -4880,10 +4884,10 @@ void tst_Dumpers::dumper_data()
 //        "KRBase *ptr1 = new KRA;\n"
 //        "KRBase *ptr2 = new KRB;\n"
 //        "ptr2 = new KRB;\n"
-//         % Check("ptr1", "KRBase");
-//         % Check("ptr1.type KRBase::TYPE_A (0) KRBase::Type");
-//         % Check("ptr2", "KRBase");
-//         % Check("ptr2.type KRBase::TYPE_B (1) KRBase::Type");
+//         + Check("ptr1", "KRBase");
+//         + Check("ptr1.type KRBase::TYPE_A (0) KRBase::Type");
+//         + Check("ptr2", "KRBase");
+//         + Check("ptr2.type KRBase::TYPE_B (1) KRBase::Type");
 
 
 #if 0
@@ -4909,8 +4913,8 @@ void tst_Dumpers::dumper_data()
                 "        ++k;\n"
                 "    }\n"
                 "}\n")
-            % EigenProfile()
-            % CheckType("myMatrix", "Eigen::Matrix3d");
+            + EigenProfile()
+            + CheckType("myMatrix", "Eigen::Matrix3d");
 #endif
 
 
@@ -4919,8 +4923,8 @@ void tst_Dumpers::dumper_data()
         << Data("typedef unsigned char byte;\n"
                 "byte f = '2';\n"
                 "int *x = (int*)&f;\n")
-         % Check("f", "'2'", "byte").setForLldbOnly()
-         % Check("f", "50 '2'", "byte").setForGdbOnly();
+         + Check("f", "'2'", "byte") % LldbEngine
+         + Check("f", "50 '2'", "byte") % GdbEngine;
 
 
     // https://bugreports.qt-project.org/browse/QTCREATORBUG-4904
@@ -4939,13 +4943,13 @@ void tst_Dumpers::dumper_data()
                 "map.insert(cs1.id, cs1);\n"
                 "map.insert(cs2.id, cs2);\n"
                 "QMap<int, CustomStruct>::iterator it = map.begin();\n")
-         % CoreProfile()
-         % Check("map", "<2 items>", "@QMap<int, CustomStruct>")
-         % CheckType("map.0", "[0]", "@QMapNode<int, CustomStruct>")
-         % Check("map.0.key", "-1", "int")
-         % CheckType("map.0.value", "CustomStruct")
-         % Check("map.0.value.dvalue", FloatValue("3.14"), "double")
-         % Check("map.0.value.id", "-1", "int");
+         + CoreProfile()
+         + Check("map", "<2 items>", "@QMap<int, CustomStruct>")
+         + CheckType("map.0", "[0]", "@QMapNode<int, CustomStruct>")
+         + Check("map.0.key", "-1", "int")
+         + CheckType("map.0.value", "CustomStruct")
+         + Check("map.0.value.dvalue", FloatValue("3.14"), "double")
+         + Check("map.0.value.id", "-1", "int");
 
 
 #if 0
@@ -4967,7 +4971,7 @@ void tst_Dumpers::dumper_data()
                   "B5106 b(1,2,3);\n"
                   "b.test();\n"
                   "b.A5106::test();\n")
-            % Check(?)
+            + Check(?)
 #endif
 
 
@@ -4988,10 +4992,10 @@ void tst_Dumpers::dumper_data()
                 "}\n",
                " QUrl url(QString(\"http://127.0.0.1/\"));\n"
                " helper(url);\n")
-           % NetworkProfile()
-           % Check("raw", "<0 items>", "@QList<@QByteArray>")
-           % CheckType("request", "@QNetworkRequest")
-           % Check("url", "\"http://127.0.0.1/\"", "@QUrl &");
+           + NetworkProfile()
+           + Check("raw", "<0 items>", "@QList<@QByteArray>")
+           + CheckType("request", "@QNetworkRequest")
+           + Check("url", "\"http://127.0.0.1/\"", "@QUrl &");
 
 
     // https://bugreports.qt-project.org/browse/QTCREATORBUG-5799
@@ -5008,16 +5012,16 @@ void tst_Dumpers::dumper_data()
                 "typedef S1 Array[10];\n"
                 "Array a2;\n"
                 "unused(&s2, &s4, &a1, &a2);\n")
-             % CheckType("a1", "S1 [10]")
-             % CheckType("a2", "Array")
-             % CheckType("s2", "S2")
-             % CheckType("s2.@1", "[S1]", "S1")
-             % Check("s2.@1.m1", "5", "int")
-             % CheckType("s2.@1.m2", "int")
-             % CheckType("s4", "S4")
-             % CheckType("s4.@1", "[S3]", "S3")
-             % Check("s4.@1.m1", "5", "int")
-             % CheckType("s4.@1.m2", "int");
+             + CheckType("a1", "S1 [10]")
+             + CheckType("a2", "Array")
+             + CheckType("s2", "S2")
+             + CheckType("s2.@1", "[S1]", "S1")
+             + Check("s2.@1.m1", "5", "int")
+             + CheckType("s2.@1.m2", "int")
+             + CheckType("s4", "S4")
+             + CheckType("s4.@1", "[S3]", "S3")
+             + Check("s4.@1.m1", "5", "int")
+             + CheckType("s4.@1.m2", "int");
 
 
     // https://bugreports.qt-project.org/browse/QTCREATORBUG-6465
@@ -5025,7 +5029,7 @@ void tst_Dumpers::dumper_data()
         << Data("typedef char Foo[20];\n"
                 "Foo foo = \"foo\";\n"
                 "char bar[20] = \"baz\";\n")
-        % CheckType("bar", "char[20]");
+        + CheckType("bar", "char[20]");
 
 
 #ifndef Q_OS_WIN
@@ -5041,15 +5045,15 @@ void tst_Dumpers::dumper_data()
                 "MyFile file(\"/tmp/tt\");\n"
                 "file.setObjectName(\"A file\");\n")
 
-         % CoreProfile()
-         % QtVersion(50000)
-         % UseDebugImage()
+         + CoreProfile()
+         + QtVersion(50000)
+         + UseDebugImage()
 
-         % Check("file", "\"A file\"", "MyFile")
-         % Check("file.@1", "[@QFile]", "\"/tmp/tt\"", "@QFile");
+         + Check("file", "\"A file\"", "MyFile")
+         + Check("file.@1", "[@QFile]", "\"/tmp/tt\"", "@QFile");
         // FIXME: The classname in the iname is sub-optimal.
-         //% Check("file.@1.[QFileDevice]", "[@QFileDevice]", "\"A file\"", "@QFileDevice");
-         //% Check("file.@1.@1", "[QFile]", "\"A file\"", "@QObject");
+         //+ Check("file.@1.[QFileDevice]", "[@QFileDevice]", "\"A file\"", "@QFileDevice");
+         //+ Check("file.@1.@1", "[QFile]", "\"A file\"", "@QObject");
 #endif
 
 
@@ -5066,9 +5070,9 @@ void tst_Dumpers::dumper_data()
                     "MyFile file(\"/tmp/tt\");\n"
                     "file.setObjectName(\"Another file\");\n"
                     "QFile *pfile = &file;\n")
-         % Check("pfile", "\"Another file\"", "MyFile")
-         % Check("pfile.@1", "\"/tmp/tt\"", "@QFile")
-         % Check("pfile.@1.@1", "\"Another file\"", "@QObject");
+         + Check("pfile", "\"Another file\"", "MyFile")
+         + Check("pfile.@1", "\"/tmp/tt\"", "@QFile")
+         + Check("pfile.@1.@1", "\"Another file\"", "@QObject");
 #endif
 
 //namespace bug6863 {
@@ -5083,7 +5087,7 @@ void tst_Dumpers::dumper_data()
 //    void setProp(QObject *obj)\n"
 //    {\n"
 //        obj->setProperty("foo", "bar");
-//         % Check("obj.[QObject].properties", "<2", "items>");
+//         + Check("obj.[QObject].properties", "<2", "items>");
 //        // Continue");
 //        unused(&obj);
 //    }
@@ -5115,8 +5119,8 @@ void tst_Dumpers::dumper_data()
                     "Derived d;\n"
                     "Base *b = &d;\n"
                     "unused(&d, &b);\n")
-               % Check("b.@1.a", "a", "21", "int")
-               % Check("b.b", "b", "42", "int");
+               + Check("b.@1.a", "a", "21", "int")
+               + Check("b.b", "b", "42", "int");
 
 
 
@@ -5146,7 +5150,7 @@ void tst_Dumpers::dumper_data()
                 "Object *obj = circle;\n"
                 "helper(circle);\n"
                 "helper(obj);\n")
-            % CheckType("obj", "Circle");
+            + CheckType("obj", "Circle");
 
 
 
@@ -5165,23 +5169,23 @@ void tst_Dumpers::dumper_data()
                 "m[\"two\"].push_back(\"2\");\n"
                 "m[\"two\"].push_back(\"3\");\n"
                 "map_t::const_iterator it = m.begin();\n")
-         % Check("m", "<2 items>", "map_t")
-         % Check("m.0.first", "\"one\"", "std::string")
-         % Check("m.0.second", "<3 items>", "std::list<std::string>")
-         % Check("m.0.second.0", "[0]", "\"a\"", "std::string")
-         % Check("m.0.second.1", "[1]", "\"b\"", "std::string")
-         % Check("m.0.second.2", "[2]", "\"c\"", "std::string")
-         % Check("m.1.first", "\"two\"", "std::string")
-         % Check("m.1.second", "<3 items>", "std::list<std::string>")
-         % Check("m.1.second.0", "[0]", "\"1\"", "std::string")
-         % Check("m.1.second.1", "[1]", "\"2\"", "std::string")
-         % Check("m.1.second.2", "[2]", "\"3\"", "std::string")
-         % CheckType("it", "std::map<std::string, std::list<std::string> >::const_iterator")
-         % Check("it.first", "\"one\"", "std::string")
-         % Check("it.second", "<3 items>", "std::list<std::string>");
+         + Check("m", "<2 items>", "map_t")
+         + Check("m.0.first", "\"one\"", "std::string")
+         + Check("m.0.second", "<3 items>", "std::list<std::string>")
+         + Check("m.0.second.0", "[0]", "\"a\"", "std::string")
+         + Check("m.0.second.1", "[1]", "\"b\"", "std::string")
+         + Check("m.0.second.2", "[2]", "\"c\"", "std::string")
+         + Check("m.1.first", "\"two\"", "std::string")
+         + Check("m.1.second", "<3 items>", "std::list<std::string>")
+         + Check("m.1.second.0", "[0]", "\"1\"", "std::string")
+         + Check("m.1.second.1", "[1]", "\"2\"", "std::string")
+         + Check("m.1.second.2", "[2]", "\"3\"", "std::string")
+         + CheckType("it", "std::map<std::string, std::list<std::string> >::const_iterator")
+         + Check("it.first", "\"one\"", "std::string")
+         + Check("it.second", "<3 items>", "std::list<std::string>");
 
 
-    QTest::newRow("valist")
+    QTest::newRow("Varargs")
             << Data("#include <stdarg.h>\n"
                     "void test(const char *format, ...)\n"
                     "{\n"
@@ -5194,9 +5198,9 @@ void tst_Dumpers::dumper_data()
                     "    unused(&i, &f);\n"
                     "}\n",
                     "test(\"abc\", 1, 2.0);\n")
-               % Check("format", "\"abc\"", "char *")
-               % Check("i", "1", "int")
-               % Check("f", "2", "double");
+               + Check("format", "\"abc\"", "char *")
+               + Check("i", "1", "int")
+               + Check("f", "2", "double");
 
 
     QByteArray inheritanceData =
@@ -5218,12 +5222,12 @@ void tst_Dumpers::dumper_data()
                     "c.S1::v = 44;\n"
                     "c.S2::v = 45;\n"
                     "unused(&c.S2::v);\n")
-                % NoLldbEngine
-                % Check("c.c", "1", "int")
-                % Check("c.@1.@2.a", "42", "int")
-                % Check("c.@1.@4.v", "45", "int")
-                % Check("c.@2.@2.a", "43", "int")
-                % Check("c.@2.@4.v", "45", "int");
+                + NoLldbEngine
+                + Check("c.c", "1", "int")
+                + Check("c.@1.@2.a", "42", "int")
+                + Check("c.@1.@4.v", "45", "int")
+                + Check("c.@2.@2.a", "43", "int")
+                + Check("c.@2.@4.v", "45", "int");
 
     // FIXME: Virtual inheritance doesn't work with LLDB 300
     QTest::newRow("InheritanceLldb")
@@ -5234,15 +5238,15 @@ void tst_Dumpers::dumper_data()
                     "c.S1::v = 44;\n"
                     "c.S2::v = 45;\n"
                     "unused(&c.S2::v);\n")
-                % LldbEngine
-                % Check("c.c", "1", "int")
-                % Check("c.@1.@1.a", "42", "int")
-                //% Check("c.@1.@4.v", "45", "int")
-                % Check("c.@2.@1.a", "43", "int");
-                //% Check("c.@2.@4.v", "45", "int");
+                + LldbEngine
+                + Check("c.c", "1", "int")
+                + Check("c.@1.@1.a", "42", "int")
+                //+ Check("c.@1.@4.v", "45", "int")
+                + Check("c.@2.@1.a", "43", "int");
+                //+ Check("c.@2.@4.v", "45", "int");
 
 
-    QTest::newRow("gdb13393")
+    QTest::newRow("Gdb13393")
             << Data(
                    "struct Base {\n"
                    "    Base() : a(1) {}\n"
@@ -5277,84 +5281,69 @@ void tst_Dumpers::dumper_data()
                    "int sharedPtr = 1;\n"
                    "#endif\n"
                    "unused(&ptrConst, &ref, &refConst, &ptrToPtr, &sharedPtr, &s);\n")
-               % GdbEngine
-               % GdbVersion(70500)
-               % BoostProfile()
-               % Check("d", "", "Derived")
-               % Check("d.@1", "[Base]", "", "Base")
-               % Check("d.b", "2", "int")
-               % Check("ptr", "", "Derived")
-               % Check("ptr.@1", "[Base]", "", "Base")
-               % Check("ptr.@1.a", "1", "int")
-               % Check("ptrConst", "", "Derived")
-               % Check("ptrConst.@1", "[Base]", "", "Base")
-               % Check("ptrConst.b", "2", "int")
-               % Check("ptrToPtr", "", "Derived")
-               //% CheckType("ptrToPtr.[vptr]", " ")
-               % Check("ptrToPtr.@1.a", "1", "int")
-               % Check("ref", "", "Derived &")
-               //% CheckType("ref.[vptr]", "")
-               % Check("ref.@1.a", "1", "int")
-               % Check("refConst", "", "Derived &")
-               //% CheckType("refConst.[vptr]", "")
-               % Check("refConst.@1.a", "1", "int")
-               % Check("s", "", "S")
-               % Check("s.ptr", "", "Derived")
-               % Check("s.ptrConst", "", "Derived")
-               % Check("s.ref", "", "Derived &")
-               % Check("s.refConst", "", "Derived &")
-               % Check("sharedPtr", "1", "int");
+
+               + GdbEngine
+               + GdbVersion(70500)
+               + BoostProfile()
+
+               + Check("d", "", "Derived")
+               + Check("d.@1", "[Base]", "", "Base")
+               + Check("d.b", "2", "int")
+               + Check("ptr", "", "Derived")
+               + Check("ptr.@1", "[Base]", "", "Base")
+               + Check("ptr.@1.a", "1", "int")
+               + Check("ptrConst", "", "Derived")
+               + Check("ptrConst.@1", "[Base]", "", "Base")
+               + Check("ptrConst.b", "2", "int")
+               + Check("ptrToPtr", "", "Derived")
+               //+ CheckType("ptrToPtr.[vptr]", " ")
+               + Check("ptrToPtr.@1.a", "1", "int")
+               + Check("ref", "", "Derived &")
+               //+ CheckType("ref.[vptr]", "")
+               + Check("ref.@1.a", "1", "int")
+               + Check("refConst", "", "Derived &")
+               //+ CheckType("refConst.[vptr]", "")
+               + Check("refConst.@1.a", "1", "int")
+               + Check("s", "", "S")
+               + Check("s.ptr", "", "Derived")
+               + Check("s.ptrConst", "", "Derived")
+               + Check("s.ref", "", "Derived &")
+               + Check("s.refConst", "", "Derived &")
+               + Check("sharedPtr", "1", "int");
 
 
     // http://sourceware.org/bugzilla/show_bug.cgi?id=10586. fsf/MI errors out
     // on -var-list-children on an anonymous union. mac/MI was fixed in 2006");
     // The proposed fix has been reported to crash gdb steered from eclipse");
     // http://sourceware.org/ml/gdb-patches/2011-12/msg00420.html
-    QTest::newRow("gdb10586miGdb")
+    QTest::newRow("Gdb10586mi")
             << Data("struct Test {\n"
                     "    struct { int a; float b; };\n"
                     "    struct { int c; float d; };\n"
                     "} v = {{1, 2}, {3, 4}};\n"
                     "unused(&v);\n")
-               % GdbEngine
-               % Check("v", "", "Test")
-               % Check("v.a", "1", "int");
 
-    QTest::newRow("gdb10586miLldb")
-            << Data("struct Test {\n"
-                    "    struct { int a; float b; };\n"
-                    "    struct { int c; float d; };\n"
-                    "} v = {{1, 2}, {3, 4}};\n"
-                    "unused(&v);\n")
-               % LldbEngine
-               % Check("v", "", "Test")
-               % Check("v.#1.a", "1", "int");
+               + Check("v", "", "Test")
+               + Check("v.a", "1", "int") % GdbEngine
+               + Check("v.#1.a", "1", "int") % LldbEngine;
 
-    QTest::newRow("gdb10586eclipseGdb")
+
+    QTest::newRow("Gdb10586eclipse")
             << Data("struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};\n"
                     "struct S { int x, y; } n = {10, 20};\n"
                     "unused(&v, &n);\n")
-               % GdbEngine
-               % Check("v", "", "{...}")
-               % Check("n", "", "S")
-               % Check("v.a", "2", "int")
-               % Check("v.b", "3", "int")
-               % Check("v.x", "1", "int")
-               % Check("n.x", "10", "int")
-               % Check("n.y", "20", "int");
 
-    QTest::newRow("gdb10586eclipseLldb")
-            << Data("struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};\n"
-                    "struct S { int x, y; } n = {10, 20};\n"
-                    "unused(&v, &n);\n")
-               % LldbEngine
-               % Check("v", "", Pattern("<anonymous .*>"))
-               % Check("n", "", "S")
-               % Check("v.#1.a", "2", "int")
-               % Check("v.#2.b", "3", "int")
-               % Check("v.x", "1", "int")
-               % Check("n.x", "10", "int")
-               % Check("n.y", "20", "int");
+               + Check("v", "", "{...}") % GdbEngine
+               + Check("v", "", Pattern("<anonymous .*>")) % LldbEngine
+               + Check("n", "", "S")
+               + Check("v.a", "2", "int") % GdbEngine
+               + Check("v.#1.a", "2", "int") % LldbEngine
+               + Check("v.b", "3", "int") % GdbEngine
+               + Check("v.#2.b", "3", "int") % LldbEngine
+               + Check("v.x", "1", "int")
+               + Check("n.x", "10", "int")
+               + Check("n.y", "20", "int");
+
 
     QTest::newRow("StdInt")
             << Data("#include <stdint.h>\n",
@@ -5365,12 +5354,12 @@ void tst_Dumpers::dumper_data()
                     "uint32_t u32 = 68;\n"
                     "int32_t s32 = 69;\n"
                     "unused(&u8, &s8, &u16, &s16, &u32, &s32);\n")
-               % Check("u8", "64", "uint8_t")
-               % Check("s8", "65", "int8_t")
-               % Check("u16", "66", "uint16_t")
-               % Check("s16", "67", "int16_t")
-               % Check("u32", "68", "uint32_t")
-               % Check("s32", "69", "int32_t");
+               + Check("u8", "64", "uint8_t")
+               + Check("s8", "65", "int8_t")
+               + Check("u16", "66", "uint16_t")
+               + Check("s16", "67", "int16_t")
+               + Check("u32", "68", "uint32_t")
+               + Check("s32", "69", "int32_t");
 
 }
 
