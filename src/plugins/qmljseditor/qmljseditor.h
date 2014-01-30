@@ -71,8 +71,6 @@ class FindReferences;
 namespace Internal {
 class QmlJSEditorDocument;
 class QmlOutlineModel;
-class SemanticInfoUpdater;
-struct SemanticInfoUpdaterSource;
 class SemanticHighlighter;
 
 } // namespace Internal
@@ -126,8 +124,6 @@ signals:
     void outlineModelIndexChanged(const QModelIndex &index);
     void selectedElementsChanged(QList<QmlJS::AST::UiObjectMember*> offsets,
                                  const QString &wordAtCursor);
-    void semanticInfoUpdated();
-
 private slots:
     void modificationChanged(bool);
 

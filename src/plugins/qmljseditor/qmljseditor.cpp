@@ -35,7 +35,6 @@
 #include "qmljseditorplugin.h"
 #include "qmloutlinemodel.h"
 #include "qmljsfindreferences.h"
-#include "qmljssemanticinfoupdater.h"
 #include "qmljsautocompleter.h"
 #include "qmljscompletionassist.h"
 #include "qmljsquickfixassist.h"
