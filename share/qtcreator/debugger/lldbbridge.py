@@ -381,6 +381,9 @@ class Dumper(DumperBase):
         child = value.GetChildMemberWithName(name)
         return child if child.IsValid() else None
 
+    def simpleValue(self, value):
+        return str(value.value)
+
     def childAt(self, value, index):
         return value.GetChildAtIndex(index)
 

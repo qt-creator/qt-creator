@@ -489,7 +489,7 @@ def qdump__std__shared_ptr(d, value):
         return
 
     if d.isSimpleType(d.templateArgument(value.type, 0)):
-        d.putValue("%s @0x%x" % (i.dereference(), d.pointerValue(i)))
+        d.putValue("%s @0x%x" % (d.simpleValue(i.dereference()), d.pointerValue(i)))
     else:
         i = d.expensiveDowncast(i)
         d.putValue("@0x%x" % d.pointerValue(i))
@@ -509,7 +509,7 @@ def qdump__std____1__shared_ptr(d, value):
         return
 
     if d.isSimpleType(d.templateArgument(value.type, 0)):
-        d.putValue("%s @0x%x" % (i.dereference().value, d.pointerValue(i)))
+        d.putValue("%s @0x%x" % (d.simpleValue(i.dereference()), d.pointerValue(i)))
     else:
         d.putValue("@0x%x" % d.pointerValue(i))
 
@@ -528,7 +528,7 @@ def qdump__std__unique_ptr(d, value):
         return
 
     if d.isSimpleType(d.templateArgument(value.type, 0)):
-        d.putValue("%s @0x%x" % (i.dereference(), d.pointerValue(i)))
+        d.putValue("%s @0x%x" % (d.simpleValue(i.dereference()), d.pointerValue(i)))
     else:
         i = d.expensiveDowncast(i)
         d.putValue("@0x%x" % d.pointerValue(i))
@@ -538,14 +538,15 @@ def qdump__std__unique_ptr(d, value):
         d.putSubItem("data", i)
 
 def qdump__std____1__unique_ptr(d, value):
-    i = d.childAt(d.childAt(value["__ptr_"], 0), 0)
+    #i = d.childAt(d.childAt(value["__ptr_"], 0), 0)
+    i = d.childAt(value["__ptr_"], 0)["__first_"]
     if d.isNull(i):
         d.putValue("(null)")
         d.putNumChild(0)
         return
 
     if d.isSimpleType(d.templateArgument(value.type, 0)):
-        d.putValue("%s @0x%x" % (i.dereference().value, d.pointerValue(i)))
+        d.putValue("%s @0x%x" % (d.simpleValue(i.dereference()), d.pointerValue(i)))
     else:
         d.putValue("@0x%x" % d.pointerValue(i))
 

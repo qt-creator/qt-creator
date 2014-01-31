@@ -755,7 +755,11 @@ class Dumper(DumperBase):
     def childAt(self, value, index):
         field = value.type.fields()[index]
         if len(field.name):
-            return value[field.name]
+            try:
+                return value[field.name]
+            except:
+                return value.cast(field.type)
+
         # FIXME: Cheat. There seems to be no official way to access
         # the real item, so we pass back the value. That at least
         # enables later ...["name"] style accesses as gdb handles
@@ -764,6 +768,9 @@ class Dumper(DumperBase):
 
     def fieldAt(self, type, index):
         return type.fields()[index]
+
+    def simpleValue(self, value):
+        return str(value)
 
     def directBaseClass(self, typeobj, index = 0):
         # FIXME: Check it's really a base.
