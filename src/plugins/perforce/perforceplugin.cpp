@@ -685,7 +685,7 @@ void PerforcePlugin::annotateCurrentFile()
 
 void PerforcePlugin::annotate()
 {
-    const QString file = QFileDialog::getOpenFileName(0, tr("p4 annotate"));
+    const QString file = QFileDialog::getOpenFileName(Core::ICore::dialogParent(), tr("p4 annotate"));
     if (!file.isEmpty()) {
         const QFileInfo fi(file);
         annotate(fi.absolutePath(), fi.fileName());
@@ -736,7 +736,7 @@ void PerforcePlugin::filelogCurrentFile()
 
 void PerforcePlugin::filelog()
 {
-    const QString file = QFileDialog::getOpenFileName(0, tr("p4 filelog"));
+    const QString file = QFileDialog::getOpenFileName(Core::ICore::dialogParent(), tr("p4 filelog"));
     if (!file.isEmpty()) {
         const QFileInfo fi(file);
         filelog(fi.absolutePath(), fi.fileName());
