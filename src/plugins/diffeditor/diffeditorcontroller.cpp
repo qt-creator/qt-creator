@@ -193,13 +193,3 @@ void DiffEditorController::setCurrentDiffFileIndex(int diffFileIndex)
 //{
 //}
 
-//QString DiffEditorWidget::source() const
-//{
-//    return m_source;
-//}
-
-//void DiffEditorWidget::setSource(const QString &source)
-//{
-//    m_source = source;
-//}
-

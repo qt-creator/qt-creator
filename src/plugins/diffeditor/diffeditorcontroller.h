@@ -38,7 +38,6 @@ namespace DiffEditor {
 
 class DIFFEDITOR_EXPORT DiffEditorController : public QObject
 {
-//    Q_PROPERTY(QString source READ source WRITE setSource)
     Q_OBJECT
 public:
     class DiffFileInfo {
@@ -62,9 +61,6 @@ public:
     ~DiffEditorController();
 
 //    QTextCodec *codec() const;
-
-//    QString source() const;
-//    void setSource(const  QString &source);
 
     QString clearMessage() const;
 
