@@ -274,6 +274,7 @@ class Dumper(DumperBase):
         #    self.debugger.GetCategoryAtIndex(i).SetEnabled(False)
 
         self.isLldb = True
+        self.isGoodLldb = hasattr(lldb.SBValue, "SetPreferDynamicValue")
         self.process = None
         self.target = None
         self.eventState = lldb.eStateInvalid
@@ -319,7 +320,8 @@ class Dumper(DumperBase):
         if isinstance(item.name, lldb.SBValue):
             # Avoid $$__synth__ suffix on Mac.
             value = item.name
-            value.SetPreferSyntheticValue(False)
+            if self.isGoodLldb:
+                value.SetPreferSyntheticValue(False)
             item.name = value.GetName()
             if item.name is None:
                 self.anonNumber += 1
@@ -866,6 +868,8 @@ class Dumper(DumperBase):
         return result
 
     def extractStaticMetaObject(self, typeobj):
+        if not self.isGoodLldb:
+            return 0
         result = self.extractStaticMetaObjectHelper(typeobj)
         if result:
             return result
@@ -903,13 +907,17 @@ class Dumper(DumperBase):
         if self.currentPrintsAddress and not addr is None:
             self.put('addr="0x%x",' % int(addr))
 
-    def isFunctionType(self, type):
-        return type.IsFunctionType()
+    def isFunctionType(self, typeobj):
+        if self.isGoodLldb:
+            return typeobj.IsFunctionType()
+        #warn("TYPE: %s" % typeobj)
+        return False
 
     def putItem(self, value, tryDynamic=True):
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
         typeName = value.GetType().GetUnqualifiedType().GetName()
-        value.SetPreferDynamicValue(tryDynamic)
+        if self.isGoodLldb:
+            value.SetPreferDynamicValue(tryDynamic)
         typeClass = value.GetType().GetTypeClass()
 
         if tryDynamic:
@@ -921,7 +929,8 @@ class Dumper(DumperBase):
             summary = value.GetTypeSummary()
             if summary.IsValid():
                 warn("DATA: %s" % summary.GetData())
-            value.SetPreferSyntheticValue(False)
+            if self.isGoodLldb:
+                value.SetPreferSyntheticValue(False)
             provider = value.GetTypeSynthetic()
             data = provider.GetData()
             formatter = eval(data)(value, {})
@@ -956,7 +965,8 @@ class Dumper(DumperBase):
                 return
 
         # Our turf now.
-        value.SetPreferSyntheticValue(False)
+        if self.isGoodLldb:
+            value.SetPreferSyntheticValue(False)
 
         # Arrays
         if typeClass == lldb.eTypeClassArray:
