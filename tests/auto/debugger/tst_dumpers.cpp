@@ -1462,6 +1462,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&dir, &s, &fi);\n")
 
                + CoreProfile()
+               + QtVersion(0x50300)
 
                + Check("dir", tempDir, "@QDir")
             // + Check("dir.canonicalPath", tempDir, "@QString")
@@ -5046,7 +5047,7 @@ GdbEngine
                 "file.setObjectName(\"A file\");\n")
 
          + CoreProfile()
-         + QtVersion(50000)
+         + QtVersion(0x50000)
          + UseDebugImage()
 
          + Check("file", "\"A file\"", "MyFile")
