@@ -121,7 +121,7 @@ ColumnLayout {
 
             Button {
                 text: qsTr("Get Started Now")
-                onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/index.html")
+                onClicked: gettingStarted.openSplitHelp("qthelp://org.qt-project.qtcreator/doc/creator-getting-started.html")
             }
 
             Item {
