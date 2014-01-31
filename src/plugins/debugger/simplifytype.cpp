@@ -123,6 +123,8 @@ QString simplifyType(const QString &typeIn)
     const bool isLibCpp = type.contains(QLatin1String("std::__1"));
     type.replace(QLatin1String("std::__1::"), QLatin1String("std::"));
     type.replace(QLatin1String("std::__debug::"), QLatin1String("std::"));
+    QRegExp simpleStringRE(QString::fromLatin1("std::basic_string<char> ?"));
+    type.replace(simpleStringRE, QLatin1String("std::string"));
     type.replace(QLatin1Char('*'), QLatin1Char('@'));
 
     for (int i = 0; i < 10; ++i) {
