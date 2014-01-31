@@ -862,8 +862,14 @@ class Dumper(DumperBase):
     def extractStaticMetaObjectHelper(self, typeobj):
         if typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass):
             needle = typeobj.GetUnqualifiedType().GetName() + "::staticMetaObject"
-            result = self.target.FindFirstGlobalVariable(needle)
-            if result is None:
+            options = lldb.SBExpressionOptions()
+            result = self.target.EvaluateExpression(needle, options)
+            # Surprising results include:
+            # (lldb) script print lldb.target.FindFirstGlobalVariable(
+            # '::QSharedDataPointer<QDirPrivate>::staticMetaObject')
+            # (const QMetaObject) QAbstractAnimation::staticMetaObject = { d = { ... } }
+            #if result.GetName() != needle:
+            if result is None or not result.IsValid():
                 result = 0
         else:
             result = 0
