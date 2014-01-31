@@ -48,11 +48,7 @@ DiffEditorFactory::DiffEditorFactory(QObject *parent)
 
 Core::IEditor *DiffEditorFactory::createEditor()
 {
-    SideBySideDiffEditorWidget *editorWidget = new SideBySideDiffEditorWidget();
-    DiffEditorController *editorController = new DiffEditorController(editorWidget);
-    editorWidget->setDiffEditorController(editorController);
-    DiffEditor *editor = new DiffEditor(editorWidget);
-    return editor;
+    return new DiffEditor();
 }
 
 } // namespace Internal

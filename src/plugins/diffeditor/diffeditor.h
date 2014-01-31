@@ -53,7 +53,8 @@ class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
 {
     Q_OBJECT
 public:
-    explicit DiffEditor(SideBySideDiffEditorWidget *editorWidget);
+    DiffEditor();
+    DiffEditor(DiffEditor *other);
     virtual ~DiffEditor();
 
 public:
@@ -64,6 +65,9 @@ public:
     void clear(const QString &message);
 
     // Core::IEditor
+    bool duplicateSupported() const { return false; }
+    Core::IEditor *duplicate();
+
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document();
     Core::Id id() const;
@@ -79,16 +83,15 @@ private slots:
     void slotDescriptionChanged(const QString &description);
     void slotDescriptionVisibilityChanged();
 
-protected:
-    QToolBar *m_toolWidget;
-
 private:
+    void ctor();
     void updateEntryToolTip();
 
-    Internal::DiffEditorDocument *m_document;
+    QSharedPointer<Internal::DiffEditorDocument> m_document;
     TextEditor::BaseTextEditorWidget *m_descriptionWidget;
     SideBySideDiffEditorWidget *m_diffWidget;
     DiffEditorController *m_diffEditorController;
+    QToolBar *m_toolBar;
     QComboBox *m_entriesComboBox;
     QAction *m_toggleDescriptionAction;
 };

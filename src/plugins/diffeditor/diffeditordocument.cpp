@@ -29,6 +29,7 @@
 
 #include "diffeditordocument.h"
 #include "diffeditorconstants.h"
+#include "diffeditorcontroller.h"
 
 #include <QCoreApplication>
 
@@ -37,12 +38,22 @@ namespace Internal {
 
 ///////////////////////////////// DiffFile //////////////////////////////////
 
-DiffEditorDocument::DiffEditorDocument(const QString &mimeType, QObject *parent) :
-    Core::IDocument(parent),
-    m_mimeType(mimeType)
+DiffEditorDocument::DiffEditorDocument(const QString &mimeType) :
+    Core::IDocument(),
+    m_mimeType(mimeType),
+    m_diffEditorController(new DiffEditorController(this))
 {
     setDisplayName(QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME));
     setTemporary(true);
+}
+
+DiffEditorDocument::~DiffEditorDocument()
+{
+}
+
+DiffEditorController *DiffEditorDocument::diffEditorController() const
+{
+    return m_diffEditorController;
 }
 
 bool DiffEditorDocument::setContents(const QByteArray &contents)

@@ -36,14 +36,18 @@
 
 namespace DiffEditor {
 
+class DiffEditorController;
+
 namespace Internal {
 
 class DiffEditorDocument : public Core::IDocument
 {
     Q_OBJECT
 public:
-    explicit DiffEditorDocument(const QString &mimeType,
-                              QObject *parent = 0);
+    explicit DiffEditorDocument(const QString &mimeType);
+    virtual ~DiffEditorDocument();
+
+    DiffEditorController *diffEditorController() const;
 
     bool setContents(const QByteArray &contents);
     QString defaultPath() const { return QString(); }
@@ -58,6 +62,7 @@ public:
 
 private:
     const QString m_mimeType;
+    DiffEditorController *m_diffEditorController;
 };
 
 } // namespace Internal
