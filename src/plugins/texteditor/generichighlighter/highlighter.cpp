@@ -53,12 +53,17 @@ namespace {
 class HighlighterCodeFormatterData : public CodeFormatterData
 {
 public:
-    HighlighterCodeFormatterData() : m_foldingIndentDelta(0), m_originalObservableState(-1) {}
+    HighlighterCodeFormatterData() :
+        m_foldingIndentDelta(0),
+        m_originalObservableState(-1),
+        m_continueObservableState(-1)
+    {}
+
     ~HighlighterCodeFormatterData() {}
     int m_foldingIndentDelta;
     int m_originalObservableState;
     QStack<QString> m_foldingRegions;
-    QSharedPointer<Internal::Context> m_contextToContinue;
+    int m_continueObservableState;
 };
 
 HighlighterCodeFormatterData *formatterData(const QTextBlock &block)
@@ -163,9 +168,11 @@ void Highlighter::highlightBlock(const QString &text)
             while (progress.offset() < length)
                 iterateThroughRules(text, length, &progress, false, m_currentContext->rules());
 
-            handleContextChange(m_currentContext->lineEndContext(),
-                                m_currentContext->definition(),
-                                false);
+            if (extractObservableState(currentBlockState()) != WillContinue) {
+                handleContextChange(m_currentContext->lineEndContext(),
+                                    m_currentContext->definition(),
+                                    false);
+            }
             m_contexts.clear();
 
             if (m_indentationBasedFolding) {
@@ -221,12 +228,7 @@ void Highlighter::setupDefault()
 void Highlighter::setupFromWillContinue()
 {
     HighlighterCodeFormatterData *previousData = formatterData(currentBlock().previous());
-    if (previousData->m_originalObservableState == Default ||
-        previousData->m_originalObservableState == -1) {
-        m_contexts.push_back(previousData->m_contextToContinue);
-    } else {
-        pushContextSequence(previousData->m_originalObservableState);
-    }
+    pushContextSequence(previousData->m_continueObservableState);
 
     HighlighterCodeFormatterData *data = formatterData(currentBlock());
     data->m_originalObservableState = previousData->m_originalObservableState;
@@ -466,7 +468,10 @@ void Highlighter::createWillContinueBlock()
     } else if (currentObservableState != WillContinue) {
         data->m_originalObservableState = currentObservableState;
     }
-    data->m_contextToContinue = m_currentContext;
+    const QString currentSequence = currentContextSequence();
+    mapPersistentSequence(currentSequence);
+    data->m_continueObservableState = m_persistentObservableStates.value(currentSequence);
+    m_persistentContexts.insert(data->m_continueObservableState, m_contexts);
 
     setCurrentBlockState(computeState(WillContinue));
 }
@@ -481,7 +486,6 @@ void Highlighter::analyseConsistencyOfWillContinueBlock(const QString &text)
 
     if (text.length() == 0 || text.at(text.length() - 1) != kBackSlash) {
         HighlighterCodeFormatterData *data = formatterData(currentBlock());
-        data->m_contextToContinue.clear();
         setCurrentBlockState(computeState(data->m_originalObservableState));
     }
 }

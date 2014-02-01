@@ -187,6 +187,13 @@ void tst_HighlighterEngine::createContexts()
     nestedComment->setLineEndContext("#stay");
     nestedComment->setDefinition(m_definition);
 
+    // SimpleNestedComment context
+    QSharedPointer<Context> simpleNestedComment =
+            m_definition->createContext("SimpleNestedComment", false);
+    simpleNestedComment->setItemData("Comment");
+    simpleNestedComment->setLineEndContext("#pop");
+    simpleNestedComment->setDefinition(m_definition);
+
     // Dummy context
     QSharedPointer<Context> dummy = m_definition->createContext("Dummy", false);
     dummy->setItemData("Dummy");
@@ -433,6 +440,22 @@ void tst_HighlighterEngine::createContexts()
     r27->setFirstNonSpace("true");
     r27->setDefinition(m_definition);
     normal->addRule(QSharedPointer<Rule>(r27));
+
+    Detect2CharsRule *r28 = new Detect2CharsRule;
+    r28->setChar("#");
+    r28->setChar1("#");
+    r28->setItemData("Comment");
+    r28->setContext("SimpleNestedComment");
+    r28->setDefinition(m_definition);
+    QSharedPointer<Rule> sr28(r28);
+    multiComment->addRule(sr28);
+    nestedComment->addRule(sr28);
+
+    LineContinueRule *r29 = new LineContinueRule;
+    r29->setItemData("Comment");
+    r29->setContext("#stay");
+    r29->setDefinition(m_definition);
+    simpleNestedComment->addRule(QSharedPointer<Rule>(r29));
 }
 
 void tst_HighlighterEngine::createItemDatas()
@@ -699,6 +722,12 @@ void tst_HighlighterEngine::testLineContinue_data()
     seqe.add(3, 8);
     seqe.add(8, 9, Formats::instance().baseNFormat());
     seqe.add(9, 10);
+    HighlightSequence seqf(0, 9, Formats::instance().commentFormat());
+    seqf.add(9, 18, Formats::instance().errorFormat());
+    HighlightSequence seqg(0, 7, Formats::instance().commentFormat());
+    HighlightSequence seqh(0, 5, Formats::instance().commentFormat());
+    HighlightSequence seqi(0, 5, Formats::instance().errorFormat());
+    seqi.add(5, 8, Formats::instance().commentFormat());
 
     states << 1 << 2;
     sequences << seqa << seqb;
@@ -722,6 +751,12 @@ void tst_HighlighterEngine::testLineContinue_data()
     sequences << seqa << seqc << seqd << seqe;
     lines = "#define max\\\n    100\\\n000\nint i = 0;";
     QTest::newRow("case 3") << states << sequences << lines;
+
+    clear(&states, &sequences);
+    states << 4 << 1 << 1 << 2 << 3 << 0 << 1;
+    sequences << seqf << seqg << seqh << seqh << seqi << seqh;
+    lines = "/*int i; /# int j;\n##foo \\\nbar \\\nbaz  \nxxx#/yyy\nzzz*/";
+    QTest::newRow("case 4") << states << sequences << lines;
 }
 
 void tst_HighlighterEngine::setupForEditingLineContinue()
