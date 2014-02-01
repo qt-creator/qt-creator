@@ -127,15 +127,13 @@ void tst_HighlighterEngine::initTestCase()
     createKeywords();
     createContexts();
     createItemDatas();
-
-    m_highlighterMock.reset(new HighlighterMock());
-    m_highlighterMock->setDefaultContext(m_definition->initialContext());
-    m_highlighterMock->setDocument(m_text.document());
 }
 
 void tst_HighlighterEngine::init()
 {
-    m_highlighterMock->reset();
+    m_highlighterMock.reset(new HighlighterMock());
+    m_highlighterMock->setDefaultContext(m_definition->initialContext());
+    m_highlighterMock->setDocument(m_text.document());
 }
 
 void tst_HighlighterEngine::createKeywords()
@@ -493,6 +491,7 @@ void tst_HighlighterEngine::test()
     QFETCH(QList<HighlightSequence>, sequences);
     QFETCH(QString, lines);
 
+    init();
     test(states, sequences, lines);
 }
 
@@ -727,6 +726,7 @@ void tst_HighlighterEngine::testLineContinue_data()
 
 void tst_HighlighterEngine::setupForEditingLineContinue()
 {
+    init();
     m_highlighterMock->startNoTestCalls();
     m_text.setPlainText("#define max\\\n    xxx\\\nzzz");
     m_highlighterMock->endNoTestCalls();
@@ -931,7 +931,7 @@ void tst_HighlighterEngine::testPersistentStates_data()
     QTest::newRow("case 11") << states << sequences << text;
 
     clear(&states, &sequences);
-    states << 6;
+    states << 4;
     sequences << seql;
     text = "/*+/#=-";
     QTest::newRow("case 12") << states << sequences << text;
