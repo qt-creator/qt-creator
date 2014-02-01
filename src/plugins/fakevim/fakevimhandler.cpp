@@ -2176,7 +2176,7 @@ void FakeVimHandler::Private::focus()
         updateMiniBuffer();
     updateHighlights();
 
-    leaveFakeVim();
+    leaveFakeVim(false);
 }
 
 void FakeVimHandler::Private::enterFakeVim()
