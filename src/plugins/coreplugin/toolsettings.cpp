@@ -67,20 +67,20 @@ QWidget *ToolSettings::widget()
 
 static QString getUserFilePath(const QString &proposalFileName)
 {
-    QDir resourceDir(ICore::userResourcePath());
+    const QDir resourceDir(ICore::userResourcePath());
     if (!resourceDir.exists(QLatin1String("externaltools")))
         resourceDir.mkpath(QLatin1String("externaltools"));
-    QFileInfo fi(proposalFileName);
+    const QFileInfo fi(proposalFileName);
     const QString &suffix = QLatin1String(".") + fi.completeSuffix();
     const QString &newFilePath = ICore::userResourcePath()
             + QLatin1String("/externaltools/") + fi.baseName();
     int count = 0;
     QString tryPath = newFilePath + suffix;
     while (QFile::exists(tryPath)) {
-        if (count > 15)
+        if (++count > 15)
             return QString();
         // add random number
-        int number = qrand() % 1000;
+        const int number = qrand() % 1000;
         tryPath = newFilePath + QString::number(number) + suffix;
     }
     return tryPath;
