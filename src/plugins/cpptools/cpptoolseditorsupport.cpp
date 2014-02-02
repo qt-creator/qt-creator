@@ -153,7 +153,7 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     connect(m_textEditor->document(), SIGNAL(reloadFinished(bool)),
             this, SLOT(onReloadFinished()));
 
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor *)),
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(onCurrentEditorChanged()));
     m_editorGCTimer = new QTimer(this);
     m_editorGCTimer->setSingleShot(true);

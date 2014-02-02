@@ -51,8 +51,8 @@ PCHManager::PCHManager(QObject *parent)
     m_instance = this;
 
     QObject *msgMgr = Core::MessageManager::instance();
-    connect(this, SIGNAL(pchMessage(QString, Core::MessageManager::PrintToOutputPaneFlags)),
-            msgMgr, SLOT(write(QString, Core::MessageManager::PrintToOutputPaneFlags)));
+    connect(this, SIGNAL(pchMessage(QString,Core::MessageManager::PrintToOutputPaneFlags)),
+            msgMgr, SLOT(write(QString,Core::MessageManager::PrintToOutputPaneFlags)));
 
     connect(&m_pchGenerationWatcher, SIGNAL(finished()),
             this, SLOT(updateActivePCHFiles()));

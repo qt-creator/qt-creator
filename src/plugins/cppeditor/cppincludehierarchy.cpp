@@ -120,8 +120,8 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget() :
     setLayout(layout);
 
     connect(CppEditorPlugin::instance(), SIGNAL(includeHierarchyRequested()), SLOT(perform()));
-    connect(Core::EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor *>)),
-            this, SLOT(editorsClosed(QList<Core::IEditor *>)));
+    connect(Core::EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+            this, SLOT(editorsClosed(QList<Core::IEditor*>)));
 
 }
 

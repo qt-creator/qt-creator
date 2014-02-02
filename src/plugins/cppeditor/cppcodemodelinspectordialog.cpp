@@ -1833,8 +1833,8 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
     m_workingCopyView->setModel(m_proxyWorkingCopyModel);
 
     connect(m_snapshotView->selectionModel(),
-            SIGNAL(currentRowChanged(QModelIndex ,QModelIndex)),
-            SLOT(onDocumentSelected(QModelIndex, QModelIndex)));
+            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            SLOT(onDocumentSelected(QModelIndex,QModelIndex)));
     connect(m_snapshotView, SIGNAL(filterChanged(QString)),
             SLOT(onSnapshotFilterChanged(QString)));
     connect(m_ui->snapshotSelector, SIGNAL(currentIndexChanged(int)),
@@ -1845,14 +1845,14 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
             SLOT(onSymbolsViewExpandedOrCollapsed(QModelIndex)));
 
     connect(m_projectPartsView->selectionModel(),
-            SIGNAL(currentRowChanged(QModelIndex ,QModelIndex)),
-            SLOT(onProjectPartSelected(QModelIndex, QModelIndex)));
+            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            SLOT(onProjectPartSelected(QModelIndex,QModelIndex)));
     connect(m_projectPartsView, SIGNAL(filterChanged(QString)),
             SLOT(onProjectPartFilterChanged(QString)));
 
     connect(m_workingCopyView->selectionModel(),
-            SIGNAL(currentRowChanged(QModelIndex ,QModelIndex)),
-            SLOT(onWorkingCopyDocumentSelected(QModelIndex, QModelIndex)));
+            SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            SLOT(onWorkingCopyDocumentSelected(QModelIndex,QModelIndex)));
     connect(m_workingCopyView, SIGNAL(filterChanged(QString)),
             SLOT(onWorkingCopyFilterChanged(QString)));
 

@@ -342,7 +342,7 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
             editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
     connect(m_instance, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
             editor, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
-    connect(m_instance, SIGNAL(marginSettingsChanged(const TextEditor::MarginSettings &)),
+    connect(m_instance, SIGNAL(marginSettingsChanged(TextEditor::MarginSettings)),
             editor, SLOT(setMarginSettings(TextEditor::MarginSettings)));
     connect(m_instance, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
