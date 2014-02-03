@@ -1654,6 +1654,7 @@ void ProjectExplorerPlugin::showContextMenu(QWidget *view, const QPoint &globalP
             else
                 contextMenu = d->m_subProjectMenu;
             break;
+        case VirtualFolderNodeType:
         case FolderNodeType:
             contextMenu = d->m_folderMenu;
             break;
