@@ -361,7 +361,16 @@ void LldbEngine::activateFrame(int frameIndex)
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
-    runCommand(Command("activateFrame").arg("index", frameIndex));
+    int limit = debuggerCore()->action(MaximalStackDepth)->value().toInt();
+    int n = stackHandler()->stackSize();
+    if (frameIndex == n)
+        limit = n * 10 + 3;
+
+    Command cmd("activateFrame");
+    cmd.arg("index", frameIndex);
+    cmd.arg("thread", threadsHandler()->currentThread().raw());
+    cmd.arg("stacklimit", limit);
+    runCommand(cmd);
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
@@ -970,7 +979,7 @@ void LldbEngine::refreshStack(const GdbMi &stack)
     }
     bool canExpand = stack["hasmore"].toInt();
     debuggerCore()->action(ExpandStack)->setEnabled(canExpand);
-    handler->setFrames(frames);
+    handler->setFrames(frames, canExpand);
 
     int index = stack["current-frame"].toInt();
     handler->setCurrentIndex(index);

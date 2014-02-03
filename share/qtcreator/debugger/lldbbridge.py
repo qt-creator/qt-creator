@@ -800,11 +800,12 @@ class Dumper(DumperBase):
                 return i
         return None
 
-    def reportStack(self, _ = None):
+    def reportStack(self, args = {}):
         if not self.process:
             self.report('msg="No process"')
             return
         thread = self.currentThread()
+        limit = args.get('stacklimit', -1)
         if not thread:
             self.report('msg="No thread"')
             return
@@ -813,12 +814,17 @@ class Dumper(DumperBase):
             frameId = frame.GetFrameID()
         else:
             frameId = 0;
+
+        (n, isLimited) = (limit, True) if limit > 0 else (thread.GetNumFrames(), False)
+
         result = 'stack={current-frame="%s"' % frameId
         result += ',current-thread="%s"' % thread.GetThreadID()
         result += ',frames=['
-        n = thread.GetNumFrames()
         for i in xrange(n):
             frame = thread.GetFrameAtIndex(i)
+            if not frame.IsValid():
+                isLimited = False
+                break
             lineEntry = frame.GetLineEntry()
             line = lineEntry.GetLine()
             usable = line != 0
@@ -830,7 +836,10 @@ class Dumper(DumperBase):
             result += ',fullname="%s"' % fileName(lineEntry.file)
             result += ',usable="%d"' % usable
             result += ',file="%s"},' % fileName(lineEntry.file)
-        result += '],hasmore="0"},'
+        result += ']'
+        result += ',hasmore="%d"' % isLimited
+        result += ',limit="%d"' % limit
+        result += '}'
         self.report(result)
 
     def putBetterType(self, type):
@@ -1239,7 +1248,7 @@ class Dumper(DumperBase):
                     usableFrame = self.firstUsableFrame(stoppedThread)
                     if usableFrame:
                         stoppedThread.SetSelectedFrame(usableFrame)
-                self.reportStack()
+                self.reportStack({'stacklimit': 20})
                 self.reportThreads()
                 self.reportLocation()
                 self.reportVariables()
@@ -1458,8 +1467,14 @@ class Dumper(DumperBase):
             % (result.Succeeded(), result.GetOutput(), result.GetError()))
 
     def activateFrame(self, args):
+        thread = args['thread']
         self.currentThread().SetSelectedFrame(args['index'])
-        self.reportData()
+        state = self.process.GetState()
+        if state == lldb.eStateStopped:
+            self.reportStack(args)
+            self.reportThreads()
+            self.reportLocation()
+            self.reportVariables()
 
     def selectThread(self, args):
         self.process.SetSelectedThreadByID(args['id'])
