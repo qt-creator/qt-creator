@@ -2842,21 +2842,22 @@ void ProjectExplorerPlugin::addExistingDirectory()
 
 void ProjectExplorerPlugin::addExistingFiles(const QStringList &filePaths)
 {
-    addExistingFiles(d->m_currentNode->projectNode(), filePaths);
+    FolderNode *folderNode = qobject_cast<FolderNode *>(d->m_currentNode);
+    addExistingFiles(folderNode, filePaths);
 }
 
-void ProjectExplorerPlugin::addExistingFiles(ProjectNode *projectNode, const QStringList &filePaths)
+void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStringList &filePaths)
 {
-    if (!projectNode) // can happen when project is not yet parsed
+    if (!folderNode) // can happen when project is not yet parsed
         return;
 
-    const QString dir = directoryFor(projectNode);
+    const QString dir = directoryFor(folderNode);
     QStringList fileNames = filePaths;
     QStringList notAdded;
-    projectNode->addFiles(fileNames, &notAdded);
+    folderNode->addFiles(fileNames, &notAdded);
 
     if (!notAdded.isEmpty()) {
-        QString message = tr("Could not add following files to project %1:").arg(projectNode->displayName());
+        QString message = tr("Could not add following files to project %1:").arg(folderNode->projectNode()->displayName());
         message += QLatin1Char('\n');
         QString files = notAdded.join(QString(QLatin1Char('\n')));
         QMessageBox::warning(ICore::mainWindow(), tr("Adding Files to Project Failed"),
@@ -2918,12 +2919,12 @@ void ProjectExplorerPlugin::removeFile()
         const bool deleteFile = removeFileDialog.isDeleteFileChecked();
 
         // remove from project
-        ProjectNode *projectNode = fileNode->projectNode();
-        Q_ASSERT(projectNode);
+        FolderNode *folderNode = fileNode->parentFolderNode();
+        Q_ASSERT(folderNode);
 
-        if (!projectNode->removeFiles(QStringList(filePath))) {
+        if (!folderNode->removeFiles(QStringList(filePath))) {
             QMessageBox::warning(ICore::mainWindow(), tr("Removing File Failed"),
-                                 tr("Could not remove file %1 from project %2.").arg(filePath).arg(projectNode->displayName()));
+                                 tr("Could not remove file %1 from project %2.").arg(filePath).arg(folderNode->projectNode()->displayName()));
             return;
         }
 
@@ -2946,10 +2947,10 @@ void ProjectExplorerPlugin::deleteFile()
     if (button != QMessageBox::Yes)
         return;
 
-    ProjectNode *projectNode = fileNode->projectNode();
-    QTC_ASSERT(projectNode, return);
+    FolderNode *folderNode = fileNode->parentFolderNode();
+    QTC_ASSERT(folderNode, return);
 
-    projectNode->deleteFiles(QStringList(filePath));
+    folderNode->deleteFiles(QStringList(filePath));
 
     DocumentManager::expectFileChange(filePath);
     if (IVersionControl *vc =
@@ -2989,13 +2990,13 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
 
     if (Core::FileUtils::renameFile(orgFilePath, newFilePath)) {
         // Tell the project plugin about rename
-        ProjectNode *projectNode = fileNode->projectNode();
-        if (!projectNode->renameFile(orgFilePath, newFilePath)) {
+        FolderNode *folderNode = fileNode->parentFolderNode();
+        if (!folderNode->renameFile(orgFilePath, newFilePath)) {
             QMessageBox::warning(ICore::mainWindow(), tr("Project Editing Failed"),
                                  tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")
                                  .arg(orgFilePath)
                                  .arg(newFilePath)
-                                 .arg(projectNode->displayName()));
+                                 .arg(folderNode->projectNode()->displayName()));
         } else {
             setCurrent(SessionManager::projectForFile(newFilePath), newFilePath, 0);
         }

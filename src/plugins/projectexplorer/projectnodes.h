@@ -173,6 +173,11 @@ public:
     FileNode *findFile(const QString &path);
     FolderNode *findSubFolder(const QString &path);
 
+    virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
+    virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
+    virtual bool deleteFiles(const QStringList &filePaths);
+    virtual bool renameFile(const QString &filePath, const QString &newFilePath);
+
 protected:
     QList<FolderNode*> m_subFolderNodes;
     QList<FileNode*> m_fileNodes;
@@ -219,10 +224,6 @@ public:
 
     virtual bool removeSubProjects(const QStringList &proFilePaths) = 0;
 
-    virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0) = 0;
-    virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0) = 0;
-    virtual bool deleteFiles(const QStringList &filePaths) = 0;
-    virtual bool renameFile(const QString &filePath, const QString &newFilePath) = 0;
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
 

@@ -55,7 +55,7 @@ class IRunControlFactory;
 class Project;
 class Node;
 class BuildConfiguration;
-class ProjectNode;
+class FolderNode;
 class TaskHub;
 
 namespace Internal { class ProjectExplorerSettings; }
@@ -112,7 +112,7 @@ public:
     void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, RunMode runMode,
                              const bool forceSkipDeploy = false);
 
-    void addExistingFiles(ProjectExplorer::ProjectNode *projectNode, const QStringList &filePaths);
+    void addExistingFiles(ProjectExplorer::FolderNode *projectNode, const QStringList &filePaths);
     void addExistingFiles(const QStringList &filePaths);
 
     void buildProject(ProjectExplorer::Project *p);
