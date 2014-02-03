@@ -32,13 +32,28 @@
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+#include <QStandardItemModel>
 #include <QStringList>
 #include <QXmlStreamReader>
 
 namespace QtSupport {
 namespace Internal {
 
-class QtVersionsModel;
+class QtVersionsModel : public QStandardItemModel
+{
+    Q_OBJECT
+
+public:
+    QtVersionsModel(QObject *parent);
+
+    int findHighestQtVersion();
+    void setupQtVersions();
+    int indexForUniqueId(int uniqueId);
+
+public slots:
+    QVariant get(int i);
+    QVariant getId(int i);
+};
 
 enum ExampleRoles
 {

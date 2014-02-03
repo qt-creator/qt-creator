@@ -34,7 +34,6 @@
 #include <QFile>
 #include <QUrl>
 #include <QXmlStreamReader>
-#include <QStandardItemModel>
 
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
@@ -64,113 +63,107 @@ void setUniqueQtVersionIdSetting(int id)
     settings->setValue(QLatin1String(currentQtVersionFilterSettingsKeyC), id);
 }
 
-class QtVersionsModel : public QStandardItemModel
+QtVersionsModel::QtVersionsModel(QObject *parent)
+    : QStandardItemModel(parent)
 {
-    Q_OBJECT
+    QHash<int, QByteArray> roleNames;
+    roleNames[Qt::UserRole + 1] = "text";
+    roleNames[Qt::UserRole + 2] = "QtId";
+    setRoleNames(roleNames);
+}
 
-public:
-    QtVersionsModel(QObject *parent) : QStandardItemModel(parent)
-    {
-        QHash<int, QByteArray> roleNames;
-        roleNames[Qt::UserRole + 1] = "text";
-        roleNames[Qt::UserRole + 2] = "QtId";
-        setRoleNames(roleNames);
-    }
+int QtVersionsModel::findHighestQtVersion()
+{
+    QList<BaseQtVersion *> qtVersions = QtVersionManager::validVersions();
 
-    int findHighestQtVersion()
-    {
-        QList<BaseQtVersion *> qtVersions = QtVersionManager::validVersions();
+    BaseQtVersion *newVersion = 0;
 
-        BaseQtVersion *newVersion = 0;
+    foreach (BaseQtVersion *version, qtVersions) {
 
-        foreach (BaseQtVersion *version, qtVersions) {
-
-            if (version->isValid() && version->hasDemos() && version->hasExamples()) {
-                if (!newVersion) {
+        if (version->isValid() && version->hasDemos() && version->hasExamples()) {
+            if (!newVersion) {
+                newVersion = version;
+            } else {
+                if (version->qtVersion() > newVersion->qtVersion()) {
                     newVersion = version;
-                } else {
-                    if (version->qtVersion() > newVersion->qtVersion()) {
-                        newVersion = version;
-                    } else if (version->qtVersion() == newVersion->qtVersion()
-                               && version->uniqueId() < newVersion->uniqueId()) {
-                        newVersion = version;
-                    }
+                } else if (version->qtVersion() == newVersion->qtVersion()
+                           && version->uniqueId() < newVersion->uniqueId()) {
+                    newVersion = version;
                 }
             }
         }
-
-        if (!newVersion && !qtVersions.isEmpty())
-            newVersion = qtVersions.first();
-
-        if (!newVersion)
-            return noQtVersionsId;
-
-        return newVersion->uniqueId();
     }
 
-    void setupQtVersions()
-    {
-        beginResetModel();
-        clear();
+    if (!newVersion && !qtVersions.isEmpty())
+        newVersion = qtVersions.first();
 
-        // prioritize default qt version
-        QList<BaseQtVersion *> qtVersions = QtVersionManager::validVersions();
-        ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
-        BaseQtVersion *defaultVersion = QtKitInformation::qtVersion(defaultKit);
-        if (defaultVersion && qtVersions.contains(defaultVersion))
-            qtVersions.move(qtVersions.indexOf(defaultVersion), 0);
+    if (!newVersion)
+        return noQtVersionsId;
 
-        int qtVersionSetting = uniqueQtVersionIdSetting();
-        int newQtVersionSetting = noQtVersionsId;
-        if (qtVersionSetting != noQtVersionsId) {
-            //ensure that the unique Qt id is valid
-            foreach (BaseQtVersion *version, qtVersions) {
-                if (version->uniqueId() == qtVersionSetting)
-                    newQtVersionSetting = qtVersionSetting;
-            }
-        }
+    return newVersion->uniqueId();
+}
 
-        if (newQtVersionSetting == noQtVersionsId)
-            newQtVersionSetting = findHighestQtVersion();
+void QtVersionsModel::setupQtVersions()
+{
+    beginResetModel();
+    clear();
 
-        if (newQtVersionSetting != qtVersionSetting)
-            setUniqueQtVersionIdSetting(newQtVersionSetting);
+    // prioritize default qt version
+    QList<BaseQtVersion *> qtVersions = QtVersionManager::validVersions();
+    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
+    BaseQtVersion *defaultVersion = QtKitInformation::qtVersion(defaultKit);
+    if (defaultVersion && qtVersions.contains(defaultVersion))
+        qtVersions.move(qtVersions.indexOf(defaultVersion), 0);
 
-
+    int qtVersionSetting = uniqueQtVersionIdSetting();
+    int newQtVersionSetting = noQtVersionsId;
+    if (qtVersionSetting != noQtVersionsId) {
+        //ensure that the unique Qt id is valid
         foreach (BaseQtVersion *version, qtVersions) {
-            if (version->hasDemos() || version->hasExamples()) {
-                QStandardItem *newItem = new QStandardItem();
-                newItem->setData(version->displayName(), Qt::UserRole + 1);
-                newItem->setData(version->uniqueId(), Qt::UserRole + 2);
-                appendRow(newItem);
-            }
+            if (version->uniqueId() == qtVersionSetting)
+                newQtVersionSetting = qtVersionSetting;
         }
-        endResetModel();
     }
 
-    int indexForUniqueId(int uniqueId) {
-        for (int i=0; i < rowCount(); i++) {
-            if (uniqueId == getId(i).toInt())
-                return i;
+    if (newQtVersionSetting == noQtVersionsId)
+        newQtVersionSetting = findHighestQtVersion();
+
+    if (newQtVersionSetting != qtVersionSetting)
+        setUniqueQtVersionIdSetting(newQtVersionSetting);
+
+
+    foreach (BaseQtVersion *version, qtVersions) {
+        if (version->hasDemos() || version->hasExamples()) {
+            QStandardItem *newItem = new QStandardItem();
+            newItem->setData(version->displayName(), Qt::UserRole + 1);
+            newItem->setData(version->uniqueId(), Qt::UserRole + 2);
+            appendRow(newItem);
         }
-        return 0;
     }
+    endResetModel();
+}
 
-public slots:
-    QVariant get(int i)
-    {
-        QModelIndex modelIndex = index(i,0);
-        QVariant variant =  data(modelIndex, Qt::UserRole + 1);
-        return variant;
+int QtVersionsModel::indexForUniqueId(int uniqueId) {
+    for (int i=0; i < rowCount(); i++) {
+        if (uniqueId == getId(i).toInt())
+            return i;
     }
+    return 0;
+}
 
-    QVariant getId(int i)
-    {
-        QModelIndex modelIndex = index(i,0);
-        QVariant variant = data(modelIndex, Qt::UserRole + 2);
-        return variant;
-    }
-};
+QVariant QtVersionsModel::get(int i)
+{
+    QModelIndex modelIndex = index(i,0);
+    QVariant variant =  data(modelIndex, Qt::UserRole + 1);
+    return variant;
+}
+
+QVariant QtVersionsModel::getId(int i)
+{
+    QModelIndex modelIndex = index(i,0);
+    QVariant variant = data(modelIndex, Qt::UserRole + 2);
+    return variant;
+}
 
 ExamplesListModel::ExamplesListModel(QObject *parent) :
     QAbstractListModel(parent),
@@ -958,5 +951,3 @@ void ExamplesListModelFilter::parseSearchString(const QString &arg)
 
 } // namespace Internal
 } // namespace QtSupport
-
-#include "exampleslistmodel.moc"
