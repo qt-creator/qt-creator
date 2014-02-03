@@ -85,7 +85,6 @@ public:
     QString path() const;                 // file system path
     virtual int line() const;
     virtual QString displayName() const;
-    virtual QString vcsTopic() const;
     virtual QString tooltip() const;
     virtual bool isEnabled() const;
 

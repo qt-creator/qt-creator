@@ -145,11 +145,6 @@ QString Node::displayName() const
     return QFileInfo(path()).fileName();
 }
 
-QString Node::vcsTopic() const
-{
-    return QString();
-}
-
 QString Node::tooltip() const
 {
     return QDir::toNativeSeparators(path());

@@ -265,9 +265,10 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole: {
             QString name = node->displayName();
 
-            if (node->parentFolderNode()
+            if (node->nodeType() == ProjectNodeType
+                    && node->parentFolderNode()
                     && node->parentFolderNode()->nodeType() == SessionNodeType) {
-                const QString vcsTopic = node->vcsTopic();
+                const QString vcsTopic = static_cast<ProjectNode *>(node)->vcsTopic();
 
                 if (!vcsTopic.isEmpty())
                     name += QLatin1String(" [") + vcsTopic + QLatin1Char(']');
