@@ -825,9 +825,9 @@ void QmakePriFileNode::setIncludedInExactParse(bool b)
     m_includedInExactParse = b;
 }
 
-QList<ProjectNode::ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
+QList<ProjectExplorer::ProjectAction> QmakePriFileNode::supportedActions(Node *node) const
 {
-    QList<ProjectAction> actions;
+    QList<ProjectExplorer::ProjectAction> actions;
 
     const FolderNode *folderNode = this;
     const QmakeProFileNode *proFileNode;
@@ -843,11 +843,11 @@ QList<ProjectNode::ProjectAction> QmakePriFileNode::supportedActions(Node *node)
         // projects (e.g. cpp). It'd be nice if the "add" action could
         // work on a subset of the file types according to project type.
 
-        actions << AddNewFile;
+        actions << ProjectExplorer::AddNewFile;
         if (m_recursiveEnumerateFiles.contains(Utils::FileName::fromString(node->path())))
-            actions << EraseFile;
+            actions << ProjectExplorer::EraseFile;
         else
-            actions << RemoveFile;
+            actions << ProjectExplorer::RemoveFile;
 
         bool addExistingFiles = true;
         if (node->nodeType() == ProjectExplorer::VirtualFolderNodeType) {
@@ -865,12 +865,12 @@ QList<ProjectNode::ProjectAction> QmakePriFileNode::supportedActions(Node *node)
         addExistingFiles = addExistingFiles && !deploysFolder(node->path());
 
         if (addExistingFiles)
-            actions << AddExistingFile << AddExistingDirectory;
+            actions << ProjectExplorer::AddExistingFile << ProjectExplorer::AddExistingDirectory;
 
         break;
     }
     case SubDirsTemplate:
-        actions << AddSubProject << RemoveSubProject;
+        actions << ProjectExplorer::AddSubProject << ProjectExplorer::RemoveSubProject;
         break;
     default:
         break;
@@ -878,13 +878,13 @@ QList<ProjectNode::ProjectAction> QmakePriFileNode::supportedActions(Node *node)
 
     ProjectExplorer::FileNode *fileNode = qobject_cast<FileNode *>(node);
     if (fileNode && fileNode->fileType() != ProjectExplorer::ProjectFileType)
-        actions << Rename;
+        actions << ProjectExplorer::Rename;
 
 
     ProjectExplorer::Target *target = m_project->activeTarget();
     QmakeRunConfigurationFactory *factory = QmakeRunConfigurationFactory::find(target);
     if (factory && !factory->runConfigurationsForNode(target, node).isEmpty())
-        actions << HasSubProjectRunConfigurations;
+        actions << ProjectExplorer::HasSubProjectRunConfigurations;
 
     return actions;
 }

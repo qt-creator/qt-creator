@@ -53,7 +53,7 @@ public:
 
     bool hasBuildTargets() const;
 
-    QList<ProjectExplorer::ProjectNode::ProjectAction> supportedActions(Node *node) const;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
 
     bool canAddSubProject(const QString &proFilePath) const;
 

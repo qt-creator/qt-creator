@@ -145,7 +145,7 @@ public:
 
 
 // ProjectNode interface
-    QList<ProjectAction> supportedActions(Node *node) const;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
 
     bool hasBuildTargets() const { return false; }
 

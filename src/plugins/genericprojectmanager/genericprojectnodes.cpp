@@ -231,7 +231,7 @@ bool GenericProjectNode::hasBuildTargets() const
     return true;
 }
 
-QList<ProjectNode::ProjectAction> GenericProjectNode::supportedActions(Node *node) const
+QList<ProjectExplorer::ProjectAction> GenericProjectNode::supportedActions(Node *node) const
 {
     Q_UNUSED(node);
     return QList<ProjectAction>()

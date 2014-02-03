@@ -43,10 +43,10 @@ bool CMakeProjectNode::hasBuildTargets() const
     return true;
 }
 
-QList<ProjectExplorer::ProjectNode::ProjectAction> CMakeProjectNode::supportedActions(Node *node) const
+QList<ProjectExplorer::ProjectAction> CMakeProjectNode::supportedActions(Node *node) const
 {
     Q_UNUSED(node);
-    return QList<ProjectAction>();
+    return QList<ProjectExplorer::ProjectAction>();
 }
 
 bool CMakeProjectNode::canAddSubProject(const QString &proFilePath) const

@@ -170,16 +170,16 @@ bool QmlProjectNode::hasBuildTargets() const
     return true;
 }
 
-QList<ProjectExplorer::ProjectNode::ProjectAction> QmlProjectNode::supportedActions(Node *node) const
+QList<ProjectExplorer::ProjectAction> QmlProjectNode::supportedActions(Node *node) const
 {
     Q_UNUSED(node);
-    QList<ProjectAction> actions;
-    actions.append(AddNewFile);
-    actions.append(EraseFile);
+    QList<ProjectExplorer::ProjectAction> actions;
+    actions.append(ProjectExplorer::AddNewFile);
+    actions.append(ProjectExplorer::EraseFile);
     if (node->nodeType() == ProjectExplorer::FileNodeType) {
         ProjectExplorer::FileNode *fileNode = static_cast<ProjectExplorer::FileNode *>(node);
         if (fileNode->fileType() != ProjectExplorer::ProjectFileType)
-            actions.append(Rename);
+            actions.append(ProjectExplorer::Rename);
     }
     return actions;
 }

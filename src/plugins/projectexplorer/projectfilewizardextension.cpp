@@ -94,20 +94,20 @@ namespace Internal {
 class AllProjectNodesVisitor : public NodesVisitor
 {
 public:
-    AllProjectNodesVisitor(ProjectNode::ProjectAction action)
+    AllProjectNodesVisitor(ProjectExplorer::ProjectAction action)
         : m_action(action)
         {}
 
-    static ProjectNodeList allProjects(ProjectNode::ProjectAction action);
+    static ProjectNodeList allProjects(ProjectExplorer::ProjectAction action);
 
     virtual void visitProjectNode(ProjectNode *node);
 
 private:
     ProjectNodeList m_projectNodes;
-    ProjectNode::ProjectAction m_action;
+    ProjectExplorer::ProjectAction m_action;
 };
 
-ProjectNodeList AllProjectNodesVisitor::allProjects(ProjectNode::ProjectAction action)
+ProjectNodeList AllProjectNodesVisitor::allProjects(ProjectExplorer::ProjectAction action)
 {
     AllProjectNodesVisitor visitor(action);
     SessionManager::sessionNode()->accept(&visitor);
@@ -397,7 +397,7 @@ QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const IWizard *w
 
 static inline void getProjectChoicesAndToolTips(QStringList *projectChoicesParam,
                                                 QStringList *projectToolTipsParam,
-                                                ProjectNode::ProjectAction *projectActionParam,
+                                                ProjectExplorer::ProjectAction *projectActionParam,
                                                 const QString &generatedProjectFilePath,
                                                 ProjectWizardContext *context)
 {
@@ -413,12 +413,12 @@ static inline void getProjectChoicesAndToolTips(QStringList *projectChoicesParam
     // via Map.
     ProjectEntryMap entryMap;
 
-    ProjectNode::ProjectAction projectAction =
+    ProjectExplorer::ProjectAction projectAction =
            context->wizard->kind() == IWizard::ProjectWizard
-            ? ProjectNode::AddSubProject : ProjectNode::AddNewFile;
+            ? ProjectExplorer::AddSubProject : ProjectExplorer::AddNewFile;
     foreach (ProjectNode *n, AllProjectNodesVisitor::allProjects(projectAction)) {
-        if (projectAction == ProjectNode::AddNewFile
-                || (projectAction == ProjectNode::AddSubProject
+        if (projectAction == ProjectExplorer::AddNewFile
+                || (projectAction == ProjectExplorer::AddSubProject
                 && (generatedProjectFilePath.isEmpty() ? true : n->canAddSubProject(generatedProjectFilePath))))
             entryMap.insert(ProjectEntry(n), true);
     }
@@ -441,14 +441,14 @@ void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProj
 {
     QStringList projectChoices;
     QStringList projectToolTips;
-    ProjectNode::ProjectAction projectAction;
+    ProjectExplorer::ProjectAction projectAction;
 
     getProjectChoicesAndToolTips(&projectChoices, &projectToolTips, &projectAction,
                                  generatedProjectFilePath, m_context);
 
     m_context->page->setProjects(projectChoices);
     m_context->page->setProjectToolTips(projectToolTips);
-    m_context->page->setAddingSubProject(projectAction == ProjectNode::AddSubProject);
+    m_context->page->setAddingSubProject(projectAction == ProjectExplorer::AddSubProject);
 }
 
 bool ProjectFileWizardExtension::processFiles(

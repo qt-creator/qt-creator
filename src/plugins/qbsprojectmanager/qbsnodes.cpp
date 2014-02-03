@@ -252,10 +252,10 @@ bool QbsBaseProjectNode::hasBuildTargets() const
     return false;
 }
 
-QList<ProjectExplorer::ProjectNode::ProjectAction> QbsBaseProjectNode::supportedActions(ProjectExplorer::Node *node) const
+QList<ProjectExplorer::ProjectAction> QbsBaseProjectNode::supportedActions(ProjectExplorer::Node *node) const
 {
     Q_UNUSED(node);
-    return QList<ProjectExplorer::ProjectNode::ProjectAction>();
+    return QList<ProjectExplorer::ProjectAction>();
 }
 
 bool QbsBaseProjectNode::canAddSubProject(const QString &proFilePath) const

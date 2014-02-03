@@ -50,10 +50,10 @@ bool AutotoolsProjectNode::hasBuildTargets() const
     return true;
 }
 
-QList<ProjectNode::ProjectAction> AutotoolsProjectNode::supportedActions(Node *node) const
+QList<ProjectExplorer::ProjectAction> AutotoolsProjectNode::supportedActions(Node *node) const
 {
     Q_UNUSED(node);
-    return QList<ProjectNode::ProjectAction>();
+    return QList<ProjectExplorer::ProjectAction>();
 }
 
 bool AutotoolsProjectNode::canAddSubProject(const QString &proFilePath) const

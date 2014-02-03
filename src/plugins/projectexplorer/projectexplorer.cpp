@@ -2680,8 +2680,8 @@ void ProjectExplorerPlugin::updateContextMenuActions()
     runMenu->menu()->clear();
 
     if (d->m_currentNode && d->m_currentNode->projectNode()) {
-        QList<ProjectNode::ProjectAction> actions =
-                d->m_currentNode->projectNode()->supportedActions(d->m_currentNode);
+        QList<ProjectExplorer::ProjectAction> actions =
+                d->m_currentNode->supportedActions(d->m_currentNode);
 
         if (ProjectNode *pn = qobject_cast<ProjectNode *>(d->m_currentNode)) {
             if (pn == d->m_currentProject->rootProjectNode()) {
@@ -2705,26 +2705,26 @@ void ProjectExplorerPlugin::updateContextMenuActions()
         }
         if (qobject_cast<FolderNode*>(d->m_currentNode)) {
             // Also handles ProjectNode
-            d->m_addNewFileAction->setEnabled(actions.contains(ProjectNode::AddNewFile));
+            d->m_addNewFileAction->setEnabled(actions.contains(ProjectExplorer::AddNewFile));
             d->m_addNewSubprojectAction->setEnabled(d->m_currentNode->nodeType() == ProjectNodeType
-                                                    && actions.contains(ProjectNode::AddSubProject));
-            d->m_addExistingFilesAction->setEnabled(actions.contains(ProjectNode::AddExistingFile));
-            d->m_addExistingDirectoryAction->setEnabled(actions.contains(ProjectNode::AddExistingDirectory));
-            d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
+                                                    && actions.contains(ProjectExplorer::AddSubProject));
+            d->m_addExistingFilesAction->setEnabled(actions.contains(ProjectExplorer::AddExistingFile));
+            d->m_addExistingDirectoryAction->setEnabled(actions.contains(ProjectExplorer::AddExistingDirectory));
+            d->m_renameFileAction->setEnabled(actions.contains(ProjectExplorer::Rename));
         } else if (qobject_cast<FileNode*>(d->m_currentNode)) {
             // Enable and show remove / delete in magic ways:
             // If both are disabled show Remove
             // If both are enabled show both (can't happen atm)
             // If only removeFile is enabled only show it
             // If only deleteFile is enable only show it
-            bool enableRemove = actions.contains(ProjectNode::RemoveFile);
+            bool enableRemove = actions.contains(ProjectExplorer::RemoveFile);
             d->m_removeFileAction->setEnabled(enableRemove);
-            bool enableDelete = actions.contains(ProjectNode::EraseFile);
+            bool enableDelete = actions.contains(ProjectExplorer::EraseFile);
             d->m_deleteFileAction->setEnabled(enableDelete);
             d->m_deleteFileAction->setVisible(enableDelete);
 
             d->m_removeFileAction->setVisible(!enableDelete || enableRemove);
-            d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
+            d->m_renameFileAction->setEnabled(actions.contains(ProjectExplorer::Rename));
         }
     }
 }
@@ -2791,8 +2791,8 @@ void ProjectExplorerPlugin::addNewSubproject()
     QString location = directoryFor(d->m_currentNode);
 
     if (d->m_currentNode->nodeType() == ProjectNodeType
-            && d->m_currentNode->projectNode()->supportedActions(
-                d->m_currentNode->projectNode()).contains(ProjectNode::AddSubProject)) {
+            && d->m_currentNode->supportedActions(
+                d->m_currentNode).contains(ProjectExplorer::AddSubProject)) {
         QVariantMap map;
         map.insert(QLatin1String(Constants::PREFERED_PROJECT_NODE), d->m_currentNode->projectNode()->path());
         if (d->m_currentProject) {

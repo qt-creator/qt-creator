@@ -326,7 +326,7 @@ Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
             return 0; // no flags for session node...
         if (!qobject_cast<ProjectNode *>(node)) {
             // either folder or file node
-            if (node->projectNode()->supportedActions(node).contains(ProjectNode::Rename))
+            if (node->supportedActions(node).contains(ProjectExplorer::Rename))
                 f = f | Qt::ItemIsEditable;
         }
     }

@@ -66,6 +66,27 @@ enum FileType {
     FileTypeSize
 };
 
+enum ProjectAction {
+    AddSubProject,
+    RemoveSubProject,
+    // Let's the user select to which project file
+    // the file is added
+    AddNewFile,
+    AddExistingFile,
+    // Add files, which match user defined filters,
+    // from an existing directory and its subdirectories
+    AddExistingDirectory,
+    // Removes a file from the project, optionally also
+    // delete it on disc
+    RemoveFile,
+    // Deletes a file from the file system, informs the project
+    // that a file was deleted
+    // DeleteFile is a define on windows...
+    EraseFile,
+    Rename,
+    HasSubProjectRunConfigurations
+};
+
 class Node;
 class FileNode;
 class FileContainerNode;
@@ -87,6 +108,8 @@ public:
     virtual QString displayName() const;
     virtual QString tooltip() const;
     virtual bool isEnabled() const;
+
+    virtual QList<ProjectAction> supportedActions(Node *node) const;
 
     void setPath(const QString &path);
     void setLine(int line);
@@ -177,27 +200,6 @@ class PROJECTEXPLORER_EXPORT ProjectNode : public FolderNode
     Q_OBJECT
 
 public:
-    enum ProjectAction {
-        AddSubProject,
-        RemoveSubProject,
-        // Let's the user select to which project file
-        // the file is added
-        AddNewFile,
-        AddExistingFile,
-        // Add files, which match user defined filters,
-        // from an existing directory and its subdirectories
-        AddExistingDirectory,
-        // Removes a file from the project, optionally also
-        // delete it on disc
-        RemoveFile,
-        // Deletes a file from the file system, informs the project
-        // that a file was deleted
-        // DeleteFile is a define on windows...
-        EraseFile,
-        Rename,
-        HasSubProjectRunConfigurations
-    };
-
     QString vcsTopic() const;
 
     // all subFolders that are projects
@@ -208,8 +210,6 @@ public:
     void aboutToChangeHasBuildTargets();
     void hasBuildTargetsChanged();
     virtual bool hasBuildTargets() const = 0;
-
-    virtual QList<ProjectAction> supportedActions(Node *node) const = 0;
 
     virtual bool canAddSubProject(const QString &proFilePath) const = 0;
 
@@ -269,6 +269,8 @@ class PROJECTEXPLORER_EXPORT SessionNode : public FolderNode {
     friend class SessionManager;
 public:
     SessionNode(QObject *parentObject);
+
+    QList<ProjectAction> supportedActions(Node *node) const;
 
     QList<ProjectNode*> projectNodes() const;
 

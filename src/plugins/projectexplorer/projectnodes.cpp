@@ -178,6 +178,11 @@ bool Node::isEnabled() const
     return parentFolderNode()->isEnabled();
 }
 
+QList<ProjectAction> Node::supportedActions(Node *node) const
+{
+    return parentFolderNode()->supportedActions(node);
+}
+
 void Node::setNodeType(NodeType type)
 {
     m_nodeType = type;
@@ -728,6 +733,12 @@ SessionNode::SessionNode(QObject *parentObject)
 {
     setParent(parentObject);
     setNodeType(SessionNodeType);
+}
+
+QList<ProjectAction> SessionNode::supportedActions(Node *node) const
+{
+    Q_UNUSED(node)
+    return QList<ProjectAction>();
 }
 
 QList<NodesWatcher*> SessionNode::watchers() const
