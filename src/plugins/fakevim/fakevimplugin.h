@@ -70,6 +70,7 @@ private slots:
     void test_vim_change_a_word();
     void test_vim_change_replace();
     void test_vim_block_selection();
+    void test_vim_block_selection_insert();
     void test_vim_repeat();
     void test_vim_search();
     void test_vim_indent();
