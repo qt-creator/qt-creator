@@ -35,16 +35,19 @@
 #include <QStandardItemModel>
 #include <QStringList>
 #include <QXmlStreamReader>
+#include <qtsupport/baseqtversion.h>
 
 namespace QtSupport {
 namespace Internal {
+
+class ExamplesListModel;
 
 class QtVersionsModel : public QStandardItemModel
 {
     Q_OBJECT
 
 public:
-    QtVersionsModel(QObject *parent);
+    QtVersionsModel(ExamplesListModel *examplesModel, QObject *parent);
 
     int findHighestQtVersion();
     void setupQtVersions();
@@ -53,6 +56,9 @@ public:
 public slots:
     QVariant get(int i);
     QVariant getId(int i);
+
+private:
+    ExamplesListModel *examplesModel;
 };
 
 enum ExampleRoles
@@ -106,6 +112,8 @@ public:
 
     void setUniqueQtId(int id);
     void updateExamples();
+
+    QList<BaseQtVersion*> qtVersions() const;
 
 signals:
     void tagsUpdated();
