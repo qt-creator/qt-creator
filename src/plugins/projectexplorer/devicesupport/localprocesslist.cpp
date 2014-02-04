@@ -195,20 +195,15 @@ static QList<DeviceProcessItem> getLocalProcessesUsingProc(const QDir &procDir)
 // Determine UNIX processes by running ps
 static QList<DeviceProcessItem> getLocalProcessesUsingPs()
 {
-#ifdef Q_OS_MAC
-    static const char formatC[] = "pid state command";
-#else
-    static const char formatC[] = "pid,state,cmd";
-#endif
     QList<DeviceProcessItem> processes;
     QProcess psProcess;
     QStringList args;
-    args << QLatin1String("-e") << QLatin1String("-o") << QLatin1String(formatC);
+    args << QLatin1String("-e") << QLatin1String("-o") << QLatin1String("pid,comm,args");
     psProcess.start(QLatin1String("ps"), args);
     if (psProcess.waitForStarted()) {
         QByteArray output;
         if (Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, 0, false)) {
-            // Split "457 S+   /Users/foo.app"
+            // Split "457 /Users/foo.app arg1 arg2"
             const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
             const int lineCount = lines.size();
             const QChar blank = QLatin1Char(' ');
@@ -217,10 +212,14 @@ static QList<DeviceProcessItem> getLocalProcessesUsingPs()
                 const int pidSep = line.indexOf(blank);
                 const int cmdSep = pidSep != -1 ? line.indexOf(blank, pidSep + 1) : -1;
                 if (cmdSep > 0) {
+                    const int argsSep = cmdSep != -1 ? line.indexOf(blank, cmdSep + 1) : -1;
                     DeviceProcessItem procData;
                     procData.pid = line.left(pidSep).toInt();
-                    procData.exe = line.mid(cmdSep + 1);
                     procData.cmdLine = line.mid(cmdSep + 1);
+                    if (argsSep == -1)
+                        procData.exe = line.mid(cmdSep + 1);
+                    else
+                        procData.exe = line.mid(cmdSep + 1, argsSep - cmdSep -1);
                     processes.push_back(procData);
                 }
             }
