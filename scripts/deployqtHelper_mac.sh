@@ -57,11 +57,13 @@ cp "$2"/*.qm "$1/Contents/Resources/translations/" || exit 1
 
 # copy libclang if needed
 if [ $LLVM_INSTALL_DIR ]; then
-    cp -f "$LLVM_INSTALL_DIR"/lib/libclang.dylib "$1/Contents/PlugIns/" || exit 1
+    if [ "$LLVM_INSTALL_DIR"/lib/libclang.dylib -nt "$1/Contents/PlugIns"/libclang.dylib ]; then
+        cp -f "$LLVM_INSTALL_DIR"/lib/libclang.dylib "$1/Contents/PlugIns/" || exit 1
+    fi
     _CLANG_CODEMODEL_LIB="$1/Contents/PlugIns/QtProject/libClangCodeModel_debug.dylib"
     if [ ! -f "$_CLANG_CODEMODEL_LIB" ]; then
         _CLANG_CODEMODEL_LIB="$1/Contents/PlugIns/QtProject/libClangCodeModel.dylib"
     fi
-    xcrun install_name_tool -delete_rpath "$LLVM_INSTALL_DIR/lib" -add_rpath "@loader_path/.." "$_CLANG_CODEMODEL_LIB"
+    xcrun install_name_tool -rpath "$LLVM_INSTALL_DIR/lib" "@loader_path/.." "$_CLANG_CODEMODEL_LIB" || true
 fi
 
