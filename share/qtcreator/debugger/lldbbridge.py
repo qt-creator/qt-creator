@@ -658,7 +658,8 @@ class Dumper(DumperBase):
 
         self.executable_ = args['executable']
         self.startMode_ = args.get('startMode', 1)
-        self.processArgs_ = args.get('processArgs', '')
+        self.processArgs_ = args.get('processArgs', [])
+        self.processArgs_ = map(lambda x: self.hexdecode(x), self.processArgs_)
         self.attachPid_ = args.get('attachPid', 0)
         self.sysRoot_ = args.get('sysRoot', '')
         self.remoteChannel_ = args.get('remoteChannel', '')
@@ -706,7 +707,7 @@ class Dumper(DumperBase):
             # stop
             self.report('state="enginerunandinferiorrunok"')
         else:
-            launchInfo = lldb.SBLaunchInfo(self.processArgs_.split())
+            launchInfo = lldb.SBLaunchInfo(self.processArgs_)
             launchInfo.SetWorkingDirectory(os.getcwd())
             environmentList = [key + "=" + value for key,value in os.environ.items()]
             launchInfo.SetEnvironmentEntries(environmentList, False)
@@ -1592,6 +1593,10 @@ class Dumper(DumperBase):
 def convertHash(args):
     if sys.version_info[0] == 3:
         return args
+    if isinstance(args, str):
+        return args
+    if isinstance(args, unicode):
+        return args.encode('utf8')
     cargs = {}
     for arg in args:
         rhs = args[arg]

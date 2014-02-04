@@ -52,6 +52,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
+#include <utils/qtcprocess.h>
 
 #include <texteditor/itexteditor.h>
 #include <coreplugin/idocument.h>
@@ -198,10 +199,19 @@ void LldbEngine::startLldb()
 void LldbEngine::setupInferior()
 {
     const DebuggerStartParameters &sp = startParameters();
+
+    QString executable;
+    QStringList args;
+    Utils::QtcProcess::prepareCommand(QFileInfo(sp.executable).absoluteFilePath(),
+                                      sp.processArgs, &executable, &args);
+
     Command cmd("setupInferior");
-    cmd.arg("executable", QFileInfo(sp.executable).absoluteFilePath());
+    cmd.arg("executable", executable);
     cmd.arg("startMode", sp.startMode); // directly relying on this is brittle wrt. insertions, so check it here
-    cmd.arg("processArgs", sp.processArgs);
+    cmd.beginList("processArgs");
+    foreach (const QString &arg, args)
+        cmd.arg(arg.toUtf8().toHex());
+    cmd.endList();
 
     // it is better not to check the start mode on the python sid (as we would have to duplicate the
     // enum values), and thus we assume that if the sp.attachPID is valid we really have to attach
@@ -1284,6 +1294,14 @@ const LldbEngine::Command &LldbEngine::Command::arg(const char *name, const char
     args.append('"');
     args.append(name);
     args.append("\":\"");
+    args.append(value);
+    args.append("\",");
+    return *this;
+}
+
+const LldbEngine::Command &LldbEngine::Command::arg(const char *value) const
+{
+    args.append("\"");
     args.append(value);
     args.append("\",");
     return *this;

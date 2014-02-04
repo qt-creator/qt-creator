@@ -68,6 +68,7 @@ private:
         Command() {}
         Command(const char *f) : function(f) {}
 
+        const Command &arg(const char *name) const;
         const Command &arg(const char *name, int value) const;
         const Command &arg(const char *name, qlonglong value) const;
         const Command &arg(const char *name, qulonglong value) const;
