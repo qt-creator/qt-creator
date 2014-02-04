@@ -57,6 +57,9 @@ private slots:
 
     void testBarDescriptorDocumentSetBannerComment_data();
     void testBarDescriptorDocumentSetBannerComment();
+
+    void testConfigurationManager_data();
+    void testConfigurationManager();
 #endif
 };
 

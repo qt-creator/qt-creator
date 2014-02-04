@@ -86,6 +86,11 @@ public:
     QList<Utils::EnvironmentItem> qnxEnv() const;
     QVariantMap toMap() const;
 
+#ifdef WITH_TESTS
+    static void setFakeConfig(bool fakeConfig);
+    static bool fakeConfig();
+#endif
+
 private:
     QString m_displayName;
     QString m_targetName;
@@ -112,6 +117,10 @@ private:
     ProjectExplorer::Kit* createKit(
             QnxAbstractQtVersion* version, QnxToolChain* toolChain,
             const QVariant &debuggerItemId);
+
+#ifdef WITH_TESTS
+    static bool m_fakeConfig;
+#endif
 };
 
 } // namespace Internal

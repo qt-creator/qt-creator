@@ -52,6 +52,7 @@
 #include "blackberrycheckdebugtokenstepfactory.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "blackberryconfigurationmanager.h"
+#include "blackberryconfiguration.h"
 #include "cascadesimport/cascadesimportwizard.h"
 #include "qnxtoolchain.h"
 
@@ -390,6 +391,87 @@ void QNXPlugin::testBarDescriptorDocumentSetBannerComment()
     QCOMPARE(doc.xmlSource(), xml);
     QCOMPARE(doc.isModified(), true);
     QCOMPARE(doc.bannerComment(), comment);
+}
+
+void QNXPlugin::testConfigurationManager_data()
+{
+    const QLatin1String NDKEnvFileKey("NDKEnvFile");
+    const QLatin1String NDKPathKey("NDKPath");
+    const QLatin1String NDKDisplayNameKey("NDKDisplayName");
+    const QLatin1String NDKTargetKey("NDKTarget");
+    const QLatin1String NDKHostKey("NDKHost");
+    const QLatin1String NDKVersionKey("NDKVersion");
+    const QLatin1String NDKAutoDetectionSourceKey("NDKAutoDetectionSource");
+    const QLatin1String NDKAutoDetectedKey("NDKAutoDetectedKey");
+
+    QTest::addColumn<QVariantMap>("newerConfiguration");
+    QTest::addColumn<QVariantMap>("olderConfiguration");
+
+    QVariantMap newerConfiguration;
+    newerConfiguration.insert(NDKEnvFileKey, QLatin1String("bbndk-env.sh"));
+    newerConfiguration.insert(NDKPathKey, QLatin1String("NDKPath"));
+    newerConfiguration.insert(NDKDisplayNameKey, QLatin1String("NDKDisplayName"));
+    newerConfiguration.insert(NDKTargetKey, QLatin1String("NDKTarget"));
+    newerConfiguration.insert(NDKHostKey, QLatin1String("NDKHost"));
+    newerConfiguration.insert(NDKVersionKey, QLatin1String("10.1.0.1008"));
+    newerConfiguration.insert(NDKAutoDetectionSourceKey, QLatin1String("NDKAutoDetectionSource"));
+    newerConfiguration.insert(NDKAutoDetectedKey, QLatin1String("NDKAutoDetectedKey"));
+
+    QVariantMap olderConfiguration;
+    olderConfiguration.insert(NDKEnvFileKey, QLatin1String("bbndk-env2.sh"));
+    olderConfiguration.insert(NDKPathKey, QLatin1String("NDKPath"));
+    olderConfiguration.insert(NDKDisplayNameKey, QLatin1String("NDKDisplayName"));
+    olderConfiguration.insert(NDKTargetKey, QLatin1String("NDKTarget"));
+    olderConfiguration.insert(NDKHostKey, QLatin1String("NDKHost"));
+    newerConfiguration.insert(NDKVersionKey, QLatin1String("10.2.0.1008"));
+    olderConfiguration.insert(NDKAutoDetectionSourceKey, QLatin1String("NDKAutoDetectionSource"));
+    olderConfiguration.insert(NDKAutoDetectedKey, QLatin1String("NDKAutoDetectedKey"));
+
+    QTest::newRow("configurations") << newerConfiguration << olderConfiguration;;
+}
+
+void QNXPlugin::testConfigurationManager()
+{
+    BlackBerryConfigurationManager &manager = BlackBerryConfigurationManager::instance();
+
+    QCOMPARE(manager.configurations().count(), 0);
+    QCOMPARE(manager.activeConfigurations().count(), 0);
+    QCOMPARE(manager.defaultConfiguration(), static_cast<BlackBerryConfiguration*>(0));
+    QVERIFY(manager.newestConfigurationEnabled());
+
+    QFETCH(QVariantMap, newerConfiguration);
+    QFETCH(QVariantMap, olderConfiguration);
+
+    BlackBerryConfiguration::setFakeConfig(true);
+    BlackBerryConfiguration *newerConfig = new BlackBerryConfiguration(newerConfiguration);
+    BlackBerryConfiguration *oldConfig = new BlackBerryConfiguration(olderConfiguration);
+
+    QVERIFY(manager.addConfiguration(oldConfig));
+    QVERIFY(manager.newestConfigurationEnabled());
+    QCOMPARE(manager.defaultConfiguration(), oldConfig);
+
+    manager.setDefaultConfiguration(oldConfig);
+
+    QCOMPARE(manager.defaultConfiguration(), oldConfig);
+    QCOMPARE(manager.configurations().first(), oldConfig);
+    QVERIFY(!manager.newestConfigurationEnabled());
+
+    QVERIFY(manager.addConfiguration(newerConfig));
+    QCOMPARE(manager.configurations().first(), newerConfig);
+    QCOMPARE(manager.defaultConfiguration(), oldConfig);
+
+    manager.setDefaultConfiguration(0);
+    QVERIFY(manager.newestConfigurationEnabled());
+    QCOMPARE(manager.defaultConfiguration(), newerConfig);
+
+    manager.setDefaultConfiguration(oldConfig);
+    manager.removeConfiguration(oldConfig);
+    QCOMPARE(manager.defaultConfiguration(), newerConfig);
+    QVERIFY(manager.newestConfigurationEnabled());
+
+    manager.removeConfiguration(newerConfig);
+    QCOMPARE(manager.defaultConfiguration(), static_cast<BlackBerryConfiguration*>(0));
+    QVERIFY(manager.newestConfigurationEnabled());
 }
 
 #endif

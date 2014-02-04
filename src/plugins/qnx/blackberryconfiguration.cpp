@@ -74,6 +74,10 @@ const QLatin1String NDKVersionKey("NDKVersion");
 const QLatin1String NDKAutoDetectionSourceKey("NDKAutoDetectionSource");
 const QLatin1String NDKAutoDetectedKey("NDKAutoDetectedKey");
 
+#ifdef WITH_TESTS
+bool BlackBerryConfiguration::m_fakeConfig = false;
+#endif
+
 BlackBerryConfiguration::BlackBerryConfiguration(const NdkInstallInformation &ndkInstallInfo)
 {
     QString envFilePath = QnxUtils::envFilePath(ndkInstallInfo.path, ndkInstallInfo.version);
@@ -215,6 +219,11 @@ bool BlackBerryConfiguration::isActive() const
 
 bool BlackBerryConfiguration::isValid() const
 {
+#ifdef WITH_TESTS
+    if (BlackBerryConfiguration::fakeConfig())
+        return true;
+#endif
+
     return ((!m_qmake4BinaryFile.isEmpty() || !m_qmake5BinaryFile.isEmpty()) && !m_gccCompiler.isEmpty()
              && !m_deviceDebugger.isEmpty() && !m_simulatorDebugger.isEmpty()
              && m_ndkEnvFile.toFileInfo().exists() && (m_autoDetectionSource.isEmpty() ||
@@ -448,6 +457,18 @@ void BlackBerryConfiguration::deactivate()
         }
     }
 }
+
+#ifdef WITH_TESTS
+void BlackBerryConfiguration::setFakeConfig(bool fakeConfig)
+{
+    m_fakeConfig = fakeConfig;
+}
+
+bool BlackBerryConfiguration::fakeConfig()
+{
+    return m_fakeConfig;
+}
+#endif
 
 } // namespace Internal
 } // namespace Qnx
