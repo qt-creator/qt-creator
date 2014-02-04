@@ -37,8 +37,10 @@ maemo5 {
     INSTALLS += target
 }
 
-CONFIG += c++11
-DEFINES += USE_CXX11
+*g++* {
+    DEFINES += USE_CXX11
+    QMAKE_CXXFLAGS += -std=c++0x
+}
 
 exists($$QMAKE_INCDIR_QT/QtCore/private/qobject_p.h):DEFINES += USE_PRIVATE
 exists(/usr/include/boost/optional.hpp): DEFINES += USE_BOOST
