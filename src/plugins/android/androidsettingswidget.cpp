@@ -375,6 +375,8 @@ void AndroidSettingsWidget::browseSDKLocation()
     Utils::FileName dir = Utils::FileName::fromString(
                 QFileDialog::getExistingDirectory(this, tr("Select Android SDK folder"),
                                                   m_ui->SDKLocationLineEdit->text()));
+    if (dir.isEmpty())
+        return;
     m_ui->SDKLocationLineEdit->setText(dir.toUserOutput());
     sdkLocationEditingFinished();
 }
@@ -384,6 +386,8 @@ void AndroidSettingsWidget::browseNDKLocation()
     Utils::FileName dir = Utils::FileName::fromString(
                 QFileDialog::getExistingDirectory(this, tr("Select Android NDK folder"),
                                                   m_ui->NDKLocationLineEdit->text()));
+    if (dir.isEmpty())
+        return;
     m_ui->NDKLocationLineEdit->setText(dir.toUserOutput());
     ndkLocationEditingFinished();
 }
