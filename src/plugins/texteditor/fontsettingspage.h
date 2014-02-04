@@ -108,6 +108,7 @@ private slots:
     void fontFamilySelected(const QString &family);
     void fontSizeSelected(const QString &sizeString);
     void fontZoomChanged();
+    void antialiasChanged();
     void colorSchemeSelected(int index);
     void copyColorScheme();
     void copyColorScheme(const QString &name);

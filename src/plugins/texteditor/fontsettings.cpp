@@ -247,7 +247,9 @@ void FontSettings::setFontZoom(int zoom)
 
 QFont FontSettings::font() const
 {
-    return QFont(family(), fontSize());
+    QFont f(family(), fontSize());
+    f.setStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
+    return f;
 }
 
 /**

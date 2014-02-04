@@ -351,6 +351,7 @@ QWidget *FontSettingsPage::widget()
         connect(d_ptr->m_ui->familyComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(fontFamilySelected(QString)));
         connect(d_ptr->m_ui->sizeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(fontSizeSelected(QString)));
         connect(d_ptr->m_ui->zoomSpinBox, SIGNAL(valueChanged(int)), this, SLOT(fontZoomChanged()));
+        connect(d_ptr->m_ui->antialias, SIGNAL(toggled(bool)), this, SLOT(antialiasChanged()));
         connect(d_ptr->m_ui->schemeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(colorSchemeSelected(int)));
         connect(d_ptr->m_ui->copyButton, SIGNAL(clicked()), this, SLOT(copyColorScheme()));
         connect(d_ptr->m_ui->deleteButton, SIGNAL(clicked()), this, SLOT(confirmDeleteColorScheme()));
@@ -417,6 +418,12 @@ void FontSettingsPage::fontSizeSelected(const QString &sizeString)
 void FontSettingsPage::fontZoomChanged()
 {
     d_ptr->m_value.setFontZoom(d_ptr->m_ui->zoomSpinBox->value());
+}
+
+void FontSettingsPage::antialiasChanged()
+{
+    d_ptr->m_value.setAntialias(d_ptr->m_ui->antialias->isChecked());
+    d_ptr->m_ui->schemeEdit->setBaseFont(d_ptr->m_value.font());
 }
 
 void FontSettingsPage::colorSchemeSelected(int index)
@@ -591,7 +598,6 @@ void FontSettingsPage::apply()
 {
     if (!d_ptr->m_ui) // page was never shown
         return;
-    d_ptr->m_value.setAntialias(d_ptr->m_ui->antialias->isChecked());
 
     if (d_ptr->m_value.colorScheme() != d_ptr->m_ui->schemeEdit->colorScheme()) {
         // Update the scheme and save it under the name it already has
