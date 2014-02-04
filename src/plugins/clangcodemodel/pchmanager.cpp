@@ -42,9 +42,9 @@ using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 using namespace CPlusPlus;
 
-PCHManager *PCHManager::m_instance = 0;
+PchManager *PchManager::m_instance = 0;
 
-PCHManager::PCHManager(QObject *parent)
+PchManager::PchManager(QObject *parent)
     : QObject(parent)
 {
     Q_ASSERT(!m_instance);
@@ -55,10 +55,10 @@ PCHManager::PCHManager(QObject *parent)
             msgMgr, SLOT(write(QString,Core::MessageManager::PrintToOutputPaneFlags)));
 
     connect(&m_pchGenerationWatcher, SIGNAL(finished()),
-            this, SLOT(updateActivePCHFiles()));
+            this, SLOT(updateActivePchFiles()));
 }
 
-PCHManager::~PCHManager()
+PchManager::~PchManager()
 {
     Q_ASSERT(m_instance);
     m_instance = 0;
@@ -66,19 +66,19 @@ PCHManager::~PCHManager()
     m_projectSettings.clear();
 }
 
-PCHManager *PCHManager::instance()
+PchManager *PchManager::instance()
 {
     return m_instance;
 }
 
-PchInfo::Ptr PCHManager::pchInfo(const ProjectPart::Ptr &projectPart) const
+PchInfo::Ptr PchManager::pchInfo(const ProjectPart::Ptr &projectPart) const
 {
     QMutexLocker locker(&m_mutex);
 
-    return m_activePCHFiles[projectPart];
+    return m_activePchFiles[projectPart];
 }
 
-ClangProjectSettings *PCHManager::settingsForProject(ProjectExplorer::Project *project)
+ClangProjectSettings *PchManager::settingsForProject(ProjectExplorer::Project *project)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -93,14 +93,14 @@ ClangProjectSettings *PCHManager::settingsForProject(ProjectExplorer::Project *p
     return cps;
 }
 
-void PCHManager::setPCHInfo(const QList<ProjectPart::Ptr> &projectParts,
+void PchManager::setPCHInfo(const QList<ProjectPart::Ptr> &projectParts,
                             const PchInfo::Ptr &pchInfo,
                             const QPair<bool, QStringList> &msgs)
 {
     QMutexLocker locker(&m_mutex);
 
     foreach (ProjectPart::Ptr pPart, projectParts)
-        m_activePCHFiles[pPart] = pchInfo;
+        m_activePchFiles[pPart] = pchInfo;
 
     if (pchInfo) {
         if (msgs.first) {
@@ -116,7 +116,7 @@ void PCHManager::setPCHInfo(const QList<ProjectPart::Ptr> &projectParts,
     }
 }
 
-void PCHManager::clangProjectSettingsChanged()
+void PchManager::clangProjectSettingsChanged()
 {
     ClangProjectSettings *cps = qobject_cast<ClangProjectSettings *>(sender());
     if (!cps)
@@ -125,7 +125,7 @@ void PCHManager::clangProjectSettingsChanged()
     onProjectPartsUpdated(cps->project());
 }
 
-void PCHManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
+void PchManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
 {
     Q_UNUSED(project);
 
@@ -133,10 +133,10 @@ void PCHManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
     // the order of signal delivery, it might already have wiped any information
     // about the project.
 
-    updateActivePCHFiles();
+    updateActivePchFiles();
 }
 
-void PCHManager::onProjectPartsUpdated(ProjectExplorer::Project *project)
+void PchManager::onProjectPartsUpdated(ProjectExplorer::Project *project)
 {
     ClangProjectSettings *cps = settingsForProject(project);
     Q_ASSERT(cps);
@@ -149,7 +149,7 @@ void PCHManager::onProjectPartsUpdated(ProjectExplorer::Project *project)
     emit pchInfoUpdated();
 }
 
-void PCHManager::updatePchInfo(ClangProjectSettings *cps,
+void PchManager::updatePchInfo(ClangProjectSettings *cps,
                                const QList<ProjectPart::Ptr> &projectParts)
 {
     if (m_pchGenerationWatcher.isRunning()) {
@@ -157,7 +157,7 @@ void PCHManager::updatePchInfo(ClangProjectSettings *cps,
         m_pchGenerationWatcher.waitForFinished();
     }
 
-    QFuture<void> future = QtConcurrent::run(&PCHManager::doPchInfoUpdate,
+    QFuture<void> future = QtConcurrent::run(&PchManager::doPchInfoUpdate,
                                              cps->pchUsage(),
                                              cps->customPchFile(),
                                              projectParts);
@@ -214,12 +214,12 @@ CppTools::ProjectFile::Kind getPrefixFileKind(bool hasObjectiveC, bool hasCPlusP
 
 }
 
-void PCHManager::doPchInfoUpdate(QFutureInterface<void> &future,
+void PchManager::doPchInfoUpdate(QFutureInterface<void> &future,
                                  ClangProjectSettings::PchUsage pchUsage,
                                  const QString customPchFile,
                                  const QList<ProjectPart::Ptr> projectParts)
 {
-    PCHManager *pchManager = PCHManager::instance();
+    PchManager *pchManager = PchManager::instance();
 
 //    qDebug() << "switching to" << pchUsage;
 
@@ -391,7 +391,7 @@ void PCHManager::doPchInfoUpdate(QFutureInterface<void> &future,
     future.setProgressValue(future.progressValue() + 1);
 }
 
-PchInfo::Ptr PCHManager::findMatchingPCH(const QString &inputFileName,
+PchInfo::Ptr PchManager::findMatchingPCH(const QString &inputFileName,
                                          const QStringList &options,
                                          bool fuzzyMatching) const
 {
@@ -400,7 +400,7 @@ PchInfo::Ptr PCHManager::findMatchingPCH(const QString &inputFileName,
     if (fuzzyMatching) {
         QStringList opts = options;
         opts.sort();
-        foreach (PchInfo::Ptr pchInfo, m_activePCHFiles.values()) {
+        foreach (PchInfo::Ptr pchInfo, m_activePchFiles.values()) {
             if (pchInfo->inputFileName() != inputFileName)
                 continue;
             QStringList pchOpts = pchInfo->options();
@@ -409,7 +409,7 @@ PchInfo::Ptr PCHManager::findMatchingPCH(const QString &inputFileName,
                 return pchInfo;
         }
     } else {
-        foreach (PchInfo::Ptr pchInfo, m_activePCHFiles.values())
+        foreach (PchInfo::Ptr pchInfo, m_activePchFiles.values())
             if (pchInfo->inputFileName() == inputFileName
                     && pchInfo->options() == options)
                 return pchInfo;
@@ -418,7 +418,7 @@ PchInfo::Ptr PCHManager::findMatchingPCH(const QString &inputFileName,
     return PchInfo::Ptr();
 }
 
-void PCHManager::updateActivePCHFiles()
+void PchManager::updateActivePchFiles()
 {
     QMutexLocker locker(&m_mutex);
 
@@ -426,8 +426,8 @@ void PCHManager::updateActivePCHFiles()
     CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
     foreach (const CppTools::CppModelManagerInterface::ProjectInfo &pi, mmi->projectInfos())
         activeParts.unite(QSet<ProjectPart::Ptr>::fromList(pi.projectParts()));
-    QList<ProjectPart::Ptr> partsWithPCHFiles = m_activePCHFiles.keys();
+    QList<ProjectPart::Ptr> partsWithPCHFiles = m_activePchFiles.keys();
     foreach (ProjectPart::Ptr pPart, partsWithPCHFiles)
         if (!activeParts.contains(pPart))
-            m_activePCHFiles.remove(pPart);
+            m_activePchFiles.remove(pPart);
 }

@@ -84,7 +84,7 @@ QFuture<TextEditor::HighlightingResult> ClangHighlightingSupport::highlightingFu
         if (part.isNull())
             continue;
         options = Utils::createClangOptions(part, fileName);
-        pchInfo = PCHManager::instance()->pchInfo(part);
+        pchInfo = PchManager::instance()->pchInfo(part);
         if (!pchInfo.isNull())
             options.append(ClangCodeModel::Utils::createPCHInclusionOptions(pchInfo->fileName()));
         if (!options.isEmpty())

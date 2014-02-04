@@ -588,7 +588,7 @@ restart:
         CXIndexAction idxAction = clang_IndexAction_create(idx);
         const unsigned index_opts = CXIndexOpt_SuppressWarnings;
 
-        PCHManager *pchManager = PCHManager::instance();
+        PchManager *pchManager = PchManager::instance();
         PchInfo::Ptr pchInfo = pchManager->pchInfo(pPart);
 
         for (int i = 0, ei = m_todo.size(); i < ei; ++i) {

@@ -45,19 +45,19 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-class PCHManager: public QObject
+class PchManager : public QObject
 {
     Q_OBJECT
 
     typedef CppTools::ProjectPart ProjectPart;
 
-    static PCHManager *m_instance;
+    static PchManager *m_instance;
 
 public:
-    PCHManager(QObject *parent = 0);
-    virtual ~PCHManager();
+    PchManager(QObject *parent = 0);
+    virtual ~PchManager();
 
-    static PCHManager *instance();
+    static PchManager *instance();
 
     PchInfo::Ptr pchInfo(const ProjectPart::Ptr &projectPart) const;
     ClangProjectSettings *settingsForProject(ProjectExplorer::Project *project);
@@ -72,7 +72,7 @@ public slots:
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
 
 private slots:
-    void updateActivePCHFiles();
+    void updateActivePchFiles();
 
 private:
     void updatePchInfo(ClangProjectSettings *cps,
@@ -89,7 +89,7 @@ private:
 
 private:
     mutable QMutex m_mutex;
-    QHash<ProjectPart::Ptr, PchInfo::Ptr> m_activePCHFiles;
+    QHash<ProjectPart::Ptr, PchInfo::Ptr> m_activePchFiles;
     QHash<ProjectExplorer::Project *, ClangProjectSettings *> m_projectSettings;
     QFutureWatcher<void> m_pchGenerationWatcher;
 };

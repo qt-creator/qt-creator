@@ -79,7 +79,7 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(Project *project)
 {
     m_ui.setupUi(this);
 
-    ClangProjectSettings *cps = PCHManager::instance()->settingsForProject(project);
+    ClangProjectSettings *cps = PchManager::instance()->settingsForProject(project);
     Q_ASSERT(cps);
 
     QButtonGroup *pchGroup = new QButtonGroup(this);
@@ -109,7 +109,7 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(Project *project)
 
 void ClangProjectSettingsWidget::pchUsageChanged(int id)
 {
-    ClangProjectSettings *cps = PCHManager::instance()->settingsForProject(m_project);
+    ClangProjectSettings *cps = PchManager::instance()->settingsForProject(m_project);
     Q_ASSERT(cps);
     cps->setPchUsage(static_cast<ClangProjectSettings::PchUsage>(id));
 
@@ -133,7 +133,7 @@ void ClangProjectSettingsWidget::pchUsageChanged(int id)
 
 void ClangProjectSettingsWidget::customPchFileChanged()
 {
-    ClangProjectSettings *cps = PCHManager::instance()->settingsForProject(m_project);
+    ClangProjectSettings *cps = PchManager::instance()->settingsForProject(m_project);
     Q_ASSERT(cps);
     if (cps->pchUsage() != ClangProjectSettings::PchUse_Custom)
         return;
@@ -146,7 +146,7 @@ void ClangProjectSettingsWidget::customPchFileChanged()
 
 void ClangProjectSettingsWidget::customPchButtonClicked()
 {
-    ClangProjectSettings *cps = PCHManager::instance()->settingsForProject(m_project);
+    ClangProjectSettings *cps = PchManager::instance()->settingsForProject(m_project);
     Q_ASSERT(cps);
 
     QFileDialog d(this);

@@ -58,7 +58,7 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
 
     ClangCodeModel::Internal::initializeClang();
 
-    PCHManager *pchManager = new PCHManager(this);
+    PchManager *pchManager = new PchManager(this);
     FastIndexer *fastIndexer = 0;
 
 #ifdef CLANG_INDEXING

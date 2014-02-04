@@ -216,7 +216,7 @@ IAssistInterface *ClangCompletionAssistProvider::createAssistInterface(
         if (part.isNull())
             continue;
         options = ClangCodeModel::Utils::createClangOptions(part, fileName);
-        pchInfo = PCHManager::instance()->pchInfo(part);
+        pchInfo = PchManager::instance()->pchInfo(part);
         if (!pchInfo.isNull())
             options.append(ClangCodeModel::Utils::createPCHInclusionOptions(pchInfo->fileName()));
         includePaths = part->includePaths;
