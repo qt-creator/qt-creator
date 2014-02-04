@@ -217,8 +217,8 @@ def __getExpectedDebuggers__():
     debuggers = ["gdb", "lldb"]
     result.extend(filter(None, map(which, debuggers)))
     if platform.system() == 'Darwin':
-        xcodeLLDB = "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb"
-        if os.path.exists(xcodeLLDB):
+        xcodeLLDB = getOutputFromCmdline("xcrun --find lldb").strip("\n")
+        if xcodeLLDB and os.path.exists(xcodeLLDB) and xcodeLLDB not in result:
             result.append(xcodeLLDB)
     return result
 
