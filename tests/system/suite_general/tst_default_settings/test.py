@@ -216,6 +216,8 @@ def __getExpectedDebuggers__():
         result.extend(__getCDB__())
     debuggers = ["gdb", "lldb"]
     result.extend(filter(None, map(which, debuggers)))
+    if platform.system() == 'Linux':
+        result.extend(findAllFilesInPATH("lldb-*"))
     if platform.system() == 'Darwin':
         xcodeLLDB = getOutputFromCmdline("xcrun --find lldb").strip("\n")
         if xcodeLLDB and os.path.exists(xcodeLLDB) and xcodeLLDB not in result:
@@ -321,3 +323,10 @@ def __checkCreatedSettings__(settingsFolder):
             text = "modified"
         test.verify(os.path.isfile(fName) and os.path.getsize(fName) > fMinSize,
                     "Verifying whether file '%s' has been %s." % (os.path.basename(fName), text))
+
+def findAllFilesInPATH(programGlob):
+    result = []
+    for path in os.environ["PATH"].split(os.pathsep):
+        files = filter(os.path.isfile, glob.glob(os.path.join(path, programGlob)))
+        result.extend(files)
+    return result
