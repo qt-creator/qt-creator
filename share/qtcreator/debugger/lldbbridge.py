@@ -1099,20 +1099,6 @@ class Dumper(DumperBase):
         ids = {} # Filter out duplicates entries at the same address.
         values = list(frame.GetVariables(True, True, False, False))
 
-        # We need to look at static variables to get access to
-        # local constants. But not at all of them.
-        for staticVar in frame.GetVariables(False, False, True, False):
-            typename = staticVar.GetType().GetName()
-            name = staticVar.GetName()
-            if name.startswith("qt_meta_stringdata_"):
-                continue
-            if name.startswith("qt_meta_data_"):
-                continue
-            if name.endswith("::staticMetaObject") \
-                    and typename.endswith("QMetaObject"):
-                continue
-            values.append(staticVar)
-
         values.reverse() # To get shadowed vars numbered backwards.
         for value in values:
             if not value.IsValid():
@@ -1140,6 +1126,27 @@ class Dumper(DumperBase):
                 with SubItem(self, name):
                     self.put('iname="%s",' % self.currentIName)
                     self.putItem(value)
+
+        with SubItem(self, '[statics]'):
+            self.put('iname="%s",' % self.currentIName)
+            self.putEmptyValue()
+            self.putNumChild(1)
+            if self.isExpanded():
+                with Children(self):
+                    statics = frame.GetVariables(False, False, True, False)
+                    if len(statics):
+                        for i in xrange(len(statics)):
+                            staticVar = statics[i]
+                            typename = staticVar.GetType().GetName()
+                            name = staticVar.GetName()
+                            with SubItem(self, i):
+                                self.put('name="%s",' % name)
+                                self.put('iname="%s",' % self.currentIName)
+                                self.putItem(staticVar)
+                    else:
+                        with SubItem(self, "None"):
+                            self.putEmptyValue()
+                            self.putNumChild(0)
 
         # 'watchers':[{'id':'watch.0','exp':'23'},...]
         #if not self.dummyValue is None:
