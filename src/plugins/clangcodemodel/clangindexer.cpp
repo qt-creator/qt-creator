@@ -36,7 +36,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
 #include <QDir>
@@ -72,10 +71,8 @@ ClangIndexer::ClangIndexer()
     connect(m_clangIndexer, SIGNAL(indexingStarted(QFuture<void>)),
             this, SLOT(onIndexingStarted(QFuture<void>)));
 
-    ProjectExplorer::ProjectExplorerPlugin *pe =
-       ProjectExplorer::ProjectExplorerPlugin::instance();
+    QObject *session = ProjectExplorer::SessionManager::instance();
 
-    ProjectExplorer::SessionManager *session = pe->session();
     connect(session, SIGNAL(aboutToLoadSession(QString)),
             this, SLOT(onAboutToLoadSession(QString)));
     connect(session, SIGNAL(sessionLoaded(QString)),
