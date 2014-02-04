@@ -1368,6 +1368,22 @@ void tst_Preprocessor::comments_within_data()
             "           ) {}\n"
             "}\n"
     );
+
+    QTest::newRow("joined") << _(
+            "// comment \\\n"
+            "\n"
+            "int foo = 4;"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "int foo = 4;"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "// comment \\\n"
+            "\n"
+            "int foo = 4;"
+    );
 }
 
 void tst_Preprocessor::comments_before_args()

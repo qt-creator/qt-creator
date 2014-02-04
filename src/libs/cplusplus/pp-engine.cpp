@@ -1300,7 +1300,7 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
 
 static void adjustForCommentOrStringNewlines(unsigned *currentLine, const PPToken &tk)
 {
-    if (tk.is(T_COMMENT) || tk.is(T_DOXY_COMMENT) || tk.isStringLiteral())
+    if (tk.isComment() || tk.isStringLiteral())
         (*currentLine) += tk.asByteArrayRef().count('\n');
 }
 
