@@ -333,9 +333,9 @@ void CompletionProposalsBuilder::resetWithResult(const CXCompletionResult &cxRes
 void CompletionProposalsBuilder::finalize()
 {
     // Fixes code completion: operator and destructor cases
-    if ((m_contexts & CXCompletionContext_DotMemberAccess)
-            || (m_contexts & CXCompletionContext_ArrowMemberAccess)
-            || (m_contexts & CXCompletionContext_AnyValue)) {
+    if (m_contexts & (CXCompletionContext_DotMemberAccess
+                    | CXCompletionContext_ArrowMemberAccess
+                    | CXCompletionContext_AnyValue)) {
         if (m_resultKind == CodeCompletionResult::DestructorCompletionKind)
             m_priority *= PriorityFix_ExplicitDestructorCall;
         else if (m_resultKind == CodeCompletionResult::FunctionCompletionKind
