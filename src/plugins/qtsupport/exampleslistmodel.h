@@ -134,9 +134,7 @@ private:
     void parseDemos(QXmlStreamReader *reader, const QString &projectsOffset,
                                   const QString &demosInstallPath);
     void parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset);
-    QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath,
-                               QString *examplesFallback, QString *demosFallback,
-                               QString *sourceFallback);
+    QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath);
 
     QList<BaseQtVersion*> m_qtVersions;
     QList<ExampleItem> m_exampleItems;

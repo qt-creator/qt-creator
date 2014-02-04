@@ -352,12 +352,8 @@ void ExamplesListModel::updateExamples()
 {
     QString examplesInstallPath;
     QString demosInstallPath;
-    QString examplesFallback;
-    QString demosFallback;
-    QString sourceFallback;
 
-    QStringList sources = exampleSources(&examplesInstallPath, &demosInstallPath,
-                            &examplesFallback, &demosFallback, &sourceFallback);
+    QStringList sources = exampleSources(&examplesInstallPath, &demosInstallPath);
 
     beginResetModel();
     m_tags.clear();
@@ -375,18 +371,6 @@ void ExamplesListModel::updateExamples()
         QString offsetPath = fi.path();
         QDir examplesDir(offsetPath);
         QDir demosDir(offsetPath);
-        if (!examplesFallback.isEmpty()) {
-            // Look at Qt source directory at first,
-            // since examplesPath() / demosPath() points at the build directory
-            examplesDir = sourceFallback + QLatin1String("/examples");
-            demosDir = sourceFallback + QLatin1String("/demos");
-            // if examples or demos don't exist in source, try the directories
-            // that qmake -query gave (i.e. in the build directory)
-            if (!examplesDir.exists() || !demosDir.exists()) {
-                examplesDir = examplesFallback;
-                demosDir = demosFallback;
-            }
-        }
 
         if (debugExamples())
             qWarning() << QString::fromLatin1("Reading file '%1'...").arg(fi.absoluteFilePath());
@@ -488,13 +472,8 @@ int ExamplesListModel::findHighestQtVersion() const
     return newVersion->uniqueId();
 }
 
-QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QString *demosInstallPath,
-                                              QString *examplesFallback, QString *demosFallback,
-                                              QString *sourceFallback)
+QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QString *demosInstallPath)
 {
-    QTC_CHECK(examplesFallback);
-    QTC_CHECK(demosFallback);
-    QTC_CHECK(sourceFallback);
     QStringList sources;
     QString resourceDir = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/");
 
@@ -523,12 +502,6 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
     if (size > 0)
         return sources;
 
-    // try to find a suitable Qt version
-    // fallbacks are passed back if no example manifest is found
-    // and we fallback to Qt Creator's shipped manifest (e.g. only old Qt Versions found)
-    QString potentialExamplesFallback;
-    QString potentialDemosFallback;
-    QString potentialSourceFallback;
     const QStringList pattern(QLatin1String("*.xml"));
 
     foreach (BaseQtVersion *version, qtVersions()) {
@@ -536,29 +509,25 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
         if (version->uniqueId() != m_uniqueQtId && m_uniqueQtId != noQtVersionsId)
             continue;
 
-        if (version->qtVersion().majorVersion == 5) {
-            // examples directory in Qt5 is under the qtbase submodule,
-            // search other submodule directories for further manifest files
-            QDir qt5docPath = QDir(version->documentationPath());
-            const QStringList examplesPattern(QLatin1String("examples-manifest.xml"));
-            const QStringList demosPattern(QLatin1String("demos-manifest.xml"));
-            QFileInfoList fis;
-            foreach (QFileInfo subDir, qt5docPath.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-                fis << QDir(subDir.absoluteFilePath()).entryInfoList(examplesPattern);
-                fis << QDir(subDir.absoluteFilePath()).entryInfoList(demosPattern);
-            }
-            if (!fis.isEmpty()) {
-                foreach (const QFileInfo &fi, fis)
-                    sources.append(fi.filePath());
-                if (examplesInstallPath)
-                    *examplesInstallPath = version->examplesPath();
-                if (demosInstallPath)
-                    *demosInstallPath = version->demosPath();
-                return sources;
-            }
+        // search for examples-manifest.xml, demos-manifest.xml in doc/*/
+        QDir qt5docPath = QDir(version->documentationPath());
+        const QStringList examplesPattern(QLatin1String("examples-manifest.xml"));
+        const QStringList demosPattern(QLatin1String("demos-manifest.xml"));
+        QFileInfoList fis;
+        foreach (QFileInfo subDir, qt5docPath.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+            fis << QDir(subDir.absoluteFilePath()).entryInfoList(examplesPattern);
+            fis << QDir(subDir.absoluteFilePath()).entryInfoList(demosPattern);
+        }
+        if (!fis.isEmpty()) {
+            foreach (const QFileInfo &fi, fis)
+                sources.append(fi.filePath());
+            if (examplesInstallPath)
+                *examplesInstallPath = version->examplesPath();
+            if (demosInstallPath)
+                *demosInstallPath = version->demosPath();
+            return sources;
         }
 
-        QFileInfoList fis;
         fis << QDir(version->examplesPath()).entryInfoList(pattern);
         fis << QDir(version->demosPath()).entryInfoList(pattern);
         if (!fis.isEmpty()) {
@@ -566,27 +535,8 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
                 sources.append(fi.filePath());
             return sources;
         }
-        // check if this Qt version would be the preferred fallback, Qt 4 only
-        if (version->qtVersion().majorVersion == 4) { // cached, so no performance hit
-            if (potentialExamplesFallback.isEmpty()) {
-                potentialExamplesFallback = version->examplesPath();
-                potentialDemosFallback = version->demosPath();
-                potentialSourceFallback = version->sourcePath().toString();
-            }
-        }
     }
 
-    if (!potentialExamplesFallback.isEmpty()) {
-        // We didn't find a manifest, use Creator-provided XML file with fall back Qt version
-        // qDebug() << Q_FUNC_INFO << "falling through to Creator-provided XML file";
-        sources << QString(resourceDir + QLatin1String("/examples_fallback.xml"));
-        if (examplesFallback)
-            *examplesFallback = potentialExamplesFallback;
-        if (demosFallback)
-            *demosFallback = potentialDemosFallback;
-        if (sourceFallback)
-            *sourceFallback = potentialSourceFallback;
-    }
     return sources;
 }
 
