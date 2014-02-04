@@ -48,6 +48,7 @@ KitChooser::KitChooser(QWidget *parent) :
     QWidget(parent)
 {
     m_chooser = new QComboBox(this);
+    m_chooser->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     m_manageButton = new QPushButton(tr("Manage..."), this);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
