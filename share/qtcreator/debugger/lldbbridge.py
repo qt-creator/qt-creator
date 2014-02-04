@@ -670,7 +670,11 @@ class Dumper(DumperBase):
         # sysroot has to be set *after* the platform
         if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
-        self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
+
+        if os.path.isfile(self.executable_):
+            self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
+        else:
+            self.target = self.debugger.CreateTarget(None, None, None, True, error)
         self.importDumpers()
 
         state = "inferiorsetupok" if self.target.IsValid() else "inferiorsetupfailed"
