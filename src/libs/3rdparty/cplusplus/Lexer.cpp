@@ -170,7 +170,7 @@ void Lexer::scan_helper(Token *tok)
         break;
     case T_COMMENT:
     case T_DOXY_COMMENT: {
-        const int originalState = _state;
+        const int originalKind = s._tokenKind;
 
         while (_yychar) {
             if (_yychar != '*')
@@ -188,16 +188,19 @@ void Lexer::scan_helper(Token *tok)
         if (! f._scanCommentTokens)
             goto _Lagain;
 
-        tok->f.kind = originalState;
+        tok->f.kind = originalKind;
         return; // done
     }
     case T_CPP_COMMENT:
-    case T_CPP_DOXY_COMMENT:
+    case T_CPP_DOXY_COMMENT: {
+        const Kind originalKind = (Kind)s._tokenKind;
         tok->f.joined = true;
-        tok->f.kind = s._tokenKind;
+        if (f._scanCommentTokens)
+            tok->f.kind = originalKind;
         _state = 0;
-        scanCppComment((Kind)tok->f.kind);
+        scanCppComment(originalKind);
         return;
+    }
     default: // Strings
         tok->f.joined = true;
         tok->f.kind = s._tokenKind;
