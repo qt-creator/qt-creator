@@ -71,59 +71,16 @@ QtVersionsModel::QtVersionsModel(ExamplesListModel *examplesModel, QObject *pare
     roleNames[Qt::UserRole + 1] = "text";
     roleNames[Qt::UserRole + 2] = "QtId";
     setRoleNames(roleNames);
+
+    connect(examplesModel, SIGNAL(qtVersionsUpdated()), this, SLOT(update()));
 }
 
-int QtVersionsModel::findHighestQtVersion()
-{
-    QList<BaseQtVersion *> qtVersions = examplesModel->qtVersions();
-
-    BaseQtVersion *newVersion = 0;
-
-    foreach (BaseQtVersion *version, qtVersions) {
-        if (!newVersion) {
-            newVersion = version;
-        } else {
-            if (version->qtVersion() > newVersion->qtVersion()) {
-                newVersion = version;
-            } else if (version->qtVersion() == newVersion->qtVersion()
-                       && version->uniqueId() < newVersion->uniqueId()) {
-                newVersion = version;
-            }
-        }
-    }
-
-    if (!newVersion && !qtVersions.isEmpty())
-        newVersion = qtVersions.first();
-
-    if (!newVersion)
-        return noQtVersionsId;
-
-    return newVersion->uniqueId();
-}
-
-void QtVersionsModel::setupQtVersions()
+void QtVersionsModel::update()
 {
     beginResetModel();
     clear();
 
     QList<BaseQtVersion *> qtVersions = examplesModel->qtVersions();
-
-    int qtVersionSetting = uniqueQtVersionIdSetting();
-    int newQtVersionSetting = noQtVersionsId;
-    if (qtVersionSetting != noQtVersionsId) {
-        //ensure that the unique Qt id is valid
-        foreach (BaseQtVersion *version, qtVersions) {
-            if (version->uniqueId() == qtVersionSetting)
-                newQtVersionSetting = qtVersionSetting;
-        }
-    }
-
-    if (newQtVersionSetting == noQtVersionsId)
-        newQtVersionSetting = findHighestQtVersion();
-
-    if (newQtVersionSetting != qtVersionSetting)
-        setUniqueQtVersionIdSetting(newQtVersionSetting);
-
 
     foreach (BaseQtVersion *version, qtVersions) {
         QStandardItem *newItem = new QStandardItem();
@@ -458,8 +415,7 @@ void ExamplesListModel::updateExamples()
     emit tagsUpdated();
 }
 
-
-QList<QtSupport::BaseQtVersion*> ExamplesListModel::qtVersions() const
+void ExamplesListModel::updateQtVersions()
 {
     QList<BaseQtVersion*> versions = QtVersionManager::validVersions();
 
@@ -477,7 +433,59 @@ QList<QtSupport::BaseQtVersion*> ExamplesListModel::qtVersions() const
     if (defaultVersion && versions.contains(defaultVersion))
         versions.move(versions.indexOf(defaultVersion), 0);
 
-    return versions;
+    if (m_qtVersions == versions)
+        return;
+
+    m_qtVersions = versions;
+    emit qtVersionsUpdated();
+
+    // determine Qt version to show
+    int newUniqueId = noQtVersionsId;
+    if (m_uniqueQtId != noQtVersionsId) {
+        //ensure that the unique Qt id is valid
+        foreach (BaseQtVersion *version, m_qtVersions) {
+            if (version->uniqueId() == m_uniqueQtId)
+                newUniqueId = m_uniqueQtId;
+        }
+    }
+
+    if (newUniqueId == noQtVersionsId)
+        newUniqueId = findHighestQtVersion();
+
+    if (newUniqueId != m_uniqueQtId) {
+        m_uniqueQtId = newUniqueId;
+        setUniqueQtVersionIdSetting(m_uniqueQtId);
+        emit selectedQtVersionChanged();
+    }
+
+}
+
+int ExamplesListModel::findHighestQtVersion() const
+{
+    QList<BaseQtVersion *> versions = qtVersions();
+
+    BaseQtVersion *newVersion = 0;
+
+    foreach (BaseQtVersion *version, versions) {
+        if (!newVersion) {
+            newVersion = version;
+        } else {
+            if (version->qtVersion() > newVersion->qtVersion()) {
+                newVersion = version;
+            } else if (version->qtVersion() == newVersion->qtVersion()
+                       && version->uniqueId() < newVersion->uniqueId()) {
+                newVersion = version;
+            }
+        }
+    }
+
+    if (!newVersion && !versions.isEmpty())
+        newVersion = versions.first();
+
+    if (!newVersion)
+        return noQtVersionsId;
+
+    return newVersion->uniqueId();
 }
 
 QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QString *demosInstallPath,
@@ -650,10 +658,25 @@ QStringList ExamplesListModel::tags() const
     return m_tags;
 }
 
-void ExamplesListModel::setUniqueQtId(int id)
+void ExamplesListModel::update()
 {
-    m_uniqueQtId = id;
+    updateQtVersions();
     updateExamples();
+}
+
+int ExamplesListModel::selectedQtVersion() const
+{
+    return m_uniqueQtId;
+}
+
+void ExamplesListModel::selectQtVersion(int id)
+{
+    if (m_uniqueQtId != id) {
+        m_uniqueQtId = id;
+        setUniqueQtVersionIdSetting(id);
+        updateExamples();
+        emit selectedQtVersionChanged();
+    }
 }
 
 ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, QObject *parent) :
@@ -675,6 +698,8 @@ ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel,
             this, SLOT(helpManagerInitialized()));
 
     connect(this, SIGNAL(showTutorialsOnlyChanged()), SLOT(updateFilter()));
+
+    connect(m_sourceModel, SIGNAL(selectedQtVersionChanged()), this, SIGNAL(qtVersionIndexChanged()));
 
     setSourceModel(m_sourceModel);
 }
@@ -764,8 +789,7 @@ void ExamplesListModelFilter::filterForQtById(int id)
     if (m_blockIndexUpdate || !m_initalized)
         return;
 
-    setUniqueQtVersionIdSetting(id);
-    m_sourceModel->setUniqueQtId(id);
+    m_sourceModel->selectQtVersion(id);
 }
 
 void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
@@ -777,9 +801,7 @@ void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
 void ExamplesListModelFilter::handleQtVersionsChanged()
 {
     m_blockIndexUpdate = true;
-    m_qtVersionModel->setupQtVersions();
-    m_sourceModel->updateExamples();
-    emit qtVersionIndexChanged();
+    m_sourceModel->update();
     m_blockIndexUpdate = false;
 }
 
@@ -812,7 +834,6 @@ void ExamplesListModelFilter::tryToInitialize()
         connect(ProjectExplorer::KitManager::instance(), SIGNAL(defaultkitChanged()),
                 this, SLOT(handleQtVersionsChanged()));
         handleQtVersionsChanged();
-        m_sourceModel->updateExamples();
     }
 }
 
@@ -826,8 +847,8 @@ void ExamplesListModelFilter::delayedUpdateFilter()
 
 int ExamplesListModelFilter::qtVersionIndex() const
 {
-    int id = uniqueQtVersionIdSetting();
-    int index =  m_qtVersionModel->indexForUniqueId(id);
+    int id = m_sourceModel->selectedQtVersion();
+    int index = m_qtVersionModel->indexForUniqueId(id);
     return index;
 }
 

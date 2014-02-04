@@ -49,11 +49,11 @@ class QtVersionsModel : public QStandardItemModel
 public:
     QtVersionsModel(ExamplesListModel *examplesModel, QObject *parent);
 
-    int findHighestQtVersion();
-    void setupQtVersions();
     int indexForUniqueId(int uniqueId);
 
 public slots:
+    void update();
+
     QVariant get(int i);
     QVariant getId(int i);
 
@@ -110,15 +110,25 @@ public:
     void beginReset() { beginResetModel(); }
     void endReset() { endResetModel(); }
 
-    void setUniqueQtId(int id);
-    void updateExamples();
+    void update();
 
-    QList<BaseQtVersion*> qtVersions() const;
+    int selectedQtVersion() const;
+    void selectQtVersion(int id);
+
+    QList<BaseQtVersion*> qtVersions() const { return m_qtVersions; }
 
 signals:
+    void qtVersionsUpdated();
+    void selectedQtVersionChanged();
     void tagsUpdated();
 
 private:
+    void updateQtVersions();
+    void updateExamples();
+
+    void updateSelectedQtVersion();
+    int findHighestQtVersion() const;
+
     void parseExamples(QXmlStreamReader *reader, const QString &projectsOffset,
                                      const QString &examplesInstallPath);
     void parseDemos(QXmlStreamReader *reader, const QString &projectsOffset,
@@ -128,6 +138,7 @@ private:
                                QString *examplesFallback, QString *demosFallback,
                                QString *sourceFallback);
 
+    QList<BaseQtVersion*> m_qtVersions;
     QList<ExampleItem> m_exampleItems;
     QStringList m_tags;
     int m_uniqueQtId;
