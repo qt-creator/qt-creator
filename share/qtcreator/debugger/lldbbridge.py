@@ -1129,9 +1129,13 @@ class Dumper(DumperBase):
                 name += "@%s" % level
             else:
                 shadowed[name] = 1
-            with SubItem(self, name):
-                self.put('iname="%s",' % self.currentIName)
-                self.putItem(value)
+
+            if name == "argv" and value.GetType().GetName() == "char **":
+                self.putSpecialArgv(value)
+            else:
+                with SubItem(self, name):
+                    self.put('iname="%s",' % self.currentIName)
+                    self.putItem(value)
 
         # 'watchers':[{'id':'watch.0','exp':'23'},...]
         #if not self.dummyValue is None:

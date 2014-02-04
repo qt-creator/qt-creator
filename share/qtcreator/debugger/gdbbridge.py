@@ -565,37 +565,8 @@ class Dumper(DumperBase):
             with OutputSafer(self):
                 self.anonNumber = -1
 
-                typeobj = value.type.unqualified()
-                typeName = str(typeobj)
-
-                # Special handling for char** argv.
-                if typeobj.code == PointerCode \
-                        and item.iname == "local.argv" \
-                        and typeName == "char **":
-                    n = 0
-                    p = value
-                    # p is 0 for "optimized out" cases. Or contains rubbish.
-                    try:
-                        if not self.isNull(p):
-                            while not self.isNull(p.dereference()) and n <= 100:
-                                p += 1
-                                n += 1
-                    except:
-                        pass
-
-                    with TopLevelItem(self, item.iname):
-                        self.put('iname="local.argv",name="argv",')
-                        self.putItemCount(n, 100)
-                        self.putType(typeName)
-                        self.putNumChild(n)
-                        if self.currentIName in self.expandedINames:
-                            p = value
-                            with Children(self, n):
-                                for i in xrange(n):
-                                    self.putSubItem(i, p.dereference())
-                                    p += 1
-                    continue
-
+                if item.iname == "local.argv" and str(value.type) == "char **":
+                    self.putSpecialArgv(value)
                 else:
                     # A "normal" local variable or parameter.
                     with TopLevelItem(self, item.iname):

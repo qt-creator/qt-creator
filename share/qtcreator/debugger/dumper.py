@@ -1024,6 +1024,33 @@ class DumperBase:
             base += 1
         f.write("e\n")
 
+    def putSpecialArgv(self, value):
+        """
+        Special handling for char** argv.
+        """
+        n = 0
+        p = value
+        # p is 0 for "optimized out" cases. Or contains rubbish.
+        try:
+            if not self.isNull(p):
+                while not self.isNull(p.dereference()) and n <= 100:
+                    p += 1
+                    n += 1
+        except:
+            pass
+
+        with TopLevelItem(self, 'local.argv'):
+            self.put('iname="local.argv",name="argv",')
+            self.putItemCount(n, 100)
+            self.putType('char **')
+            self.putNumChild(n)
+            if self.currentIName in self.expandedINames:
+                p = value
+                with Children(self, n):
+                    for i in xrange(n):
+                        self.putSubItem(i, p.dereference())
+                        p += 1
+
     def extractPointer(self, thing, offset = 0):
         if isinstance(thing, int):
             bytes = self.extractBlob(thing, self.ptrSize()).toBytes()
