@@ -486,6 +486,10 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             if (flavor == Abi::UnknownFlavor)
                 flavor = Abi::GenericLinuxFlavor;
             format = Abi::ElfFormat;
+        } else if (p == QLatin1String("android")) {
+            flavor = Abi::AndroidLinuxFlavor;
+        } else if (p == QLatin1String("androideabi")) {
+            flavor = Abi::AndroidLinuxFlavor;
         } else if (p.startsWith(QLatin1String("freebsd"))) {
             os = Abi::BsdOS;
             if (flavor == Abi::UnknownFlavor)
