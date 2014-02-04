@@ -98,7 +98,7 @@ Project *androidProject(const QString &file)
 } // anonymous namespace
 
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()
-    : QWidget(),
+    : QScrollArea(),
       m_dirty(false),
       m_stayClean(false),
       m_setAppName(false),
@@ -114,6 +114,8 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 
     m_editor = new AndroidManifestEditor(this);
 
+    setWidgetResizable(true);
+
     connect(&m_timerParseCheck, SIGNAL(timeout()),
             this, SLOT(delayedParseCheck()));
 
@@ -123,10 +125,8 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 
 void AndroidManifestEditorWidget::initializePage()
 {
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
-    m_stackedWidget = new QStackedWidget(this); // simplfy make AndroidManifestEditorWidget a stacked widget
-    layout->addWidget(m_stackedWidget);
+    m_stackedWidget = new QStackedWidget(this);
+    setWidget(m_stackedWidget);
 
     Core::IContext *myContext = new Core::IContext(this);
     myContext->setWidget(m_stackedWidget);

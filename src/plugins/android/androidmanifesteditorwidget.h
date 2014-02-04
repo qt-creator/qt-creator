@@ -35,6 +35,7 @@
 
 #include <QAbstractListModel>
 #include <QStackedWidget>
+#include <QScrollArea>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -84,7 +85,7 @@ protected:
     AndroidManifestEditorWidget *m_parent;
 };
 
-class AndroidManifestEditorWidget : public QWidget
+class AndroidManifestEditorWidget : public QScrollArea
 {
     Q_OBJECT
 public:
