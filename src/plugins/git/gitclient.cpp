@@ -3839,14 +3839,15 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
         return 0;
     }
     // cut 'git version 1.6.5.1.sha'
+    // another form: 'git version 1.9.rc1'
     const QString output = commandOutputFromLocal8Bit(outputText);
-    QRegExp versionPattern(QLatin1String("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+).*$"));
+    QRegExp versionPattern(QLatin1String("^[^\\d]+(\\d+)\\.(\\d+)\\.(\\d+|rc\\d).*$"));
     QTC_ASSERT(versionPattern.isValid(), return 0);
     QTC_ASSERT(versionPattern.exactMatch(output), return 0);
-    const unsigned major = versionPattern.cap(1).toUInt(0, 16);
-    const unsigned minor = versionPattern.cap(2).toUInt(0, 16);
-    const unsigned patch = versionPattern.cap(3).toUInt(0, 16);
-    return version(major, minor, patch);
+    const unsigned majorV = versionPattern.cap(1).toUInt(0, 16);
+    const unsigned minorV = versionPattern.cap(2).toUInt(0, 16);
+    const unsigned patchV = versionPattern.cap(3).toUInt(0, 16);
+    return version(majorV, minorV, patchV);
 }
 
 GitClient::StashInfo::StashInfo() :
