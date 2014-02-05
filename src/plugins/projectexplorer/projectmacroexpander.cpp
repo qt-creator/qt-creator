@@ -29,9 +29,11 @@
 
 #include "projectmacroexpander.h"
 #include "kit.h"
+#include "kitinformation.h"
 #include "projectexplorerconstants.h"
 
 #include <coreplugin/variablemanager.h>
+#include <ssh/sshconnection.h>
 
 using namespace ProjectExplorer;
 
@@ -69,6 +71,30 @@ bool ProjectMacroExpander::resolveProjectMacro(const QString &name, QString *ret
     } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTBUILD_NAME)) {
         result = m_bcName;
         found = true;
+    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTDEVICE_HOSTADDRESS)) {
+        const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
+        if (device) {
+            result = device->sshParameters().host;
+            found = true;
+        }
+    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTDEVICE_SSHPORT)) {
+        const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
+        if (device) {
+            result = QString::number(device->sshParameters().port);
+            found = true;
+        }
+    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTDEVICE_USERNAME)) {
+        const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
+        if (device) {
+            result = device->sshParameters().userName;
+            found = true;
+        }
+    } else if (name == QLatin1String(ProjectExplorer::Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE)) {
+        const IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
+        if (device) {
+            result = device->sshParameters().privateKeyFile;
+            found = true;
+        }
     }
     if (ret)
         *ret = result;

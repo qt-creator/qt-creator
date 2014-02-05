@@ -76,19 +76,27 @@
 
                 \li In the \gui {The device's host name or IP address} field,
                     enter the host name or IP address of the device.
+                    This value will be available in the variable \c %{CurrentDevice:HostAddress}.
 
                 \li In the \gui {The user name to log into the device} field,
                     enter the user name to log into the device and run the
                     application as.
+                    This value will be available in the variable \c %{CurrentDevice:UserName}.
 
                 \li In the \gui {The authentication type} field, select whether
                     to use \gui Password or \gui Key authentication, and enter
                     the user's password or the file that contains the user's
                     private key.
+                    The latter will be available in the variable \c %{CurrentDevice:PrivateKeyFile}.
 
                 \li  Click \gui {Next} to create the connection.
 
             \endlist
+
+            All of these parameters can be edited later, as well as additional ones that the
+            wizard does not show because there are sensible default values. One of these is
+            the SSH port number, which is available in the variable \c %{CurrentDevice:SshPort}.
+
 
         \li Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits
             > \gui Add to add a kit for building for the device. Select the

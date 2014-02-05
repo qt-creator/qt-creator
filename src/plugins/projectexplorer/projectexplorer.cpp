@@ -1011,6 +1011,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     VariableManager::registerVariable(Constants::VAR_CURRENTKIT_FILESYSTEMNAME,
                          tr("The currently active kit's name in a filesystem friendly version."));
     VariableManager::registerVariable(Constants::VAR_CURRENTKIT_ID, tr("The currently active kit's id."));
+    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_HOSTADDRESS,
+            tr("The host address of the device in the currently active kit."));
+    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_SSHPORT,
+            tr("The SSH port of the device in the currently active kit."));
+    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_USERNAME,
+            tr("The user name with which to log into the device in the currently active kit."));
+    VariableManager::registerVariable(Constants::VAR_CURRENTDEVICE_PRIVATEKEYFILE,
+            tr("The private key file with which to authenticate when logging into the device "
+               "in the currently active kit."));
     VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_NAME, tr("The currently active build configuration's name."));
     VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_TYPE, tr("The currently active build configuration's type."));
     VariableManager::registerFileVariables(Constants::VAR_CURRENTSESSION_PREFIX, tr("File where current session is saved."));

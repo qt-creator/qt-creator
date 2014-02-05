@@ -245,6 +245,10 @@ const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
 const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
 const char VAR_CURRENTSESSION_PREFIX[] = "CurrentSession";
 const char VAR_CURRENTSESSION_NAME[] = "CurrentSession:Name";
+const char VAR_CURRENTDEVICE_HOSTADDRESS[] = "CurrentDevice:HostAddress";
+const char VAR_CURRENTDEVICE_SSHPORT[] = "CurrentDevice:SshPort";
+const char VAR_CURRENTDEVICE_USERNAME[] = "CurrentDevice:UserName";
+const char VAR_CURRENTDEVICE_PRIVATEKEYFILE[] = "CurrentDevice:PrivateKeyFile";
 
 const char HIDE_FILE_FILTER_SETTING[] = "GenericProject/FileFilter";
 const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes; *.autosave";
