@@ -34,6 +34,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 #include <utils/fileutils.h>
+#include <utils/qtcoverride.h>
 
 namespace Ios {
 namespace Internal {
@@ -50,8 +51,8 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     IosRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path);
 
-    QWidget *createConfigurationWidget();
-    Utils::OutputFormatter *createOutputFormatter() const;
+    QWidget *createConfigurationWidget() QTC_OVERRIDE;
+    Utils::OutputFormatter *createOutputFormatter() const QTC_OVERRIDE;
     IosDeployStep *deployStep() const;
 
     QStringList commandLineArguments();

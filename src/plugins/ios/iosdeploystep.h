@@ -36,6 +36,7 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <qtsupport/baseqtversion.h>
+#include <utils/qtcoverride.h>
 
 #include <QFutureInterface>
 #include <QProcess>
@@ -65,12 +66,12 @@ public:
     friend class IosDeployStepFactory;
     IosDeployStep(ProjectExplorer::BuildStepList *bc);
 
-    virtual ~IosDeployStep();
+    ~IosDeployStep() QTC_OVERRIDE;
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map) QTC_OVERRIDE;
+    QVariantMap toMap() const QTC_OVERRIDE;
 
-    virtual void run(QFutureInterface<bool> &fi);
+    void run(QFutureInterface<bool> &fi) QTC_OVERRIDE;
     void cleanup();
     ProjectExplorer::IDevice::ConstPtr device() const;
     IosDevice::ConstPtr iosdevice() const;
@@ -92,10 +93,10 @@ private slots:
 private:
     IosDeployStep(ProjectExplorer::BuildStepList *bc,
         IosDeployStep *other);
-    bool init();
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool immutable() const { return true; }
-    bool runInGuiThread() const { return true; }
+    bool init() QTC_OVERRIDE;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() QTC_OVERRIDE;
+    bool immutable() const QTC_OVERRIDE { return true; }
+    bool runInGuiThread() const QTC_OVERRIDE { return true; }
 
     void ctor();
     QString deviceId() const;

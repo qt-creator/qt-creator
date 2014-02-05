@@ -52,7 +52,7 @@ class IosBuildStep : public ProjectExplorer::AbstractProcessStep
 
 public:
     IosBuildStep(ProjectExplorer::BuildStepList *parent);
-    ~IosBuildStep();
+    ~IosBuildStep() QTC_OVERRIDE;
 
     bool init() QTC_OVERRIDE;
     void run(QFutureInterface<bool> &fi) QTC_OVERRIDE;
@@ -92,9 +92,9 @@ class IosBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     IosBuildStepConfigWidget(IosBuildStep *buildStep);
-    ~IosBuildStepConfigWidget();
-    QString displayName() const;
-    QString summaryText() const;
+    ~IosBuildStepConfigWidget() QTC_OVERRIDE;
+    QString displayName() const QTC_OVERRIDE;
+    QString summaryText() const QTC_OVERRIDE;
 
 private slots:
     void buildArgumentsChanged();

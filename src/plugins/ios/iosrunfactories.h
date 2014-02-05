@@ -64,11 +64,13 @@ public:
 
     bool canHandle(ProjectExplorer::Target *t) const QTC_OVERRIDE;
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                        ProjectExplorer::Node *n) QTC_OVERRIDE;
+                                                                        ProjectExplorer::Node *n
+                                                                        ) QTC_OVERRIDE;
 private:
-    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
+    ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent,
+                                                const Core::Id id) QTC_OVERRIDE;
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
-                                                 const QVariantMap &map);
+                                                 const QVariantMap &map) QTC_OVERRIDE;
 };
 
 class IosRunControlFactory : public ProjectExplorer::IRunControlFactory

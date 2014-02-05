@@ -31,6 +31,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/fileutils.h>
+#include <utils/qtcoverride.h>
 
 #include <QSharedPointer>
 
@@ -47,19 +48,19 @@ class IosSimulator : public ProjectExplorer::IDevice
 public:
     typedef QSharedPointer<const IosSimulator> ConstPtr;
     typedef QSharedPointer<IosSimulator> Ptr;
-    ProjectExplorer::IDevice::DeviceInfo deviceInformation() const;
+    ProjectExplorer::IDevice::DeviceInfo deviceInformation() const QTC_OVERRIDE;
 
-    QString displayType() const;
-    ProjectExplorer::IDeviceWidget *createWidget();
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent = 0);
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
+    QString displayType() const QTC_OVERRIDE;
+    ProjectExplorer::IDeviceWidget *createWidget() QTC_OVERRIDE;
+    QList<Core::Id> actionIds() const QTC_OVERRIDE;
+    QString displayNameForActionId(Core::Id actionId) const QTC_OVERRIDE;
+    void executeAction(Core::Id actionId, QWidget *parent = 0) QTC_OVERRIDE;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const QTC_OVERRIDE;
     Utils::FileName simulatorPath() const;
-    void fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &map) QTC_OVERRIDE;
+    QVariantMap toMap() const QTC_OVERRIDE;
 
-    ProjectExplorer::IDevice::Ptr clone() const;
+    ProjectExplorer::IDevice::Ptr clone() const QTC_OVERRIDE;
 
 protected:
     friend class IosSimulatorFactory;

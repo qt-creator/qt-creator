@@ -29,11 +29,14 @@
 #ifndef IOSDEVICE_H
 #define IOSDEVICE_H
 
+#include "iostoolhandler.h"
+
 #include <projectexplorer/devicesupport/idevice.h>
+#include <utils/qtcoverride.h>
+
 #include <QVariantMap>
 #include <QMap>
 #include <QString>
-#include "iostoolhandler.h"
 #include <QSharedPointer>
 
 namespace ProjectExplorer{
@@ -52,17 +55,17 @@ public:
     typedef QSharedPointer<const IosDevice> ConstPtr;
     typedef QSharedPointer<IosDevice> Ptr;
 
-    ProjectExplorer::IDevice::DeviceInfo deviceInformation() const;
-    ProjectExplorer::IDeviceWidget *createWidget();
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent = 0);
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
-    QString displayType() const;
+    ProjectExplorer::IDevice::DeviceInfo deviceInformation() const QTC_OVERRIDE;
+    ProjectExplorer::IDeviceWidget *createWidget() QTC_OVERRIDE;
+    QList<Core::Id> actionIds() const QTC_OVERRIDE;
+    QString displayNameForActionId(Core::Id actionId) const QTC_OVERRIDE;
+    void executeAction(Core::Id actionId, QWidget *parent = 0) QTC_OVERRIDE;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const QTC_OVERRIDE;
+    QString displayType() const QTC_OVERRIDE;
 
-    ProjectExplorer::IDevice::Ptr clone() const;
-    void fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    ProjectExplorer::IDevice::Ptr clone() const QTC_OVERRIDE;
+    void fromMap(const QVariantMap &map) QTC_OVERRIDE;
+    QVariantMap toMap() const QTC_OVERRIDE;
     QString uniqueDeviceID() const;
     IosDevice(const QString &uid);
     QString osVersion() const;

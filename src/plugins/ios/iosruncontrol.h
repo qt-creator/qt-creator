@@ -30,6 +30,7 @@
 #define IOSRUNCONTROL_H
 
 #include <projectexplorer/runconfiguration.h>
+#include <utils/qtcoverride.h>
 
 namespace Ios {
 namespace Internal {
@@ -43,14 +44,14 @@ class IosRunControl : public ProjectExplorer::RunControl
 
 public:
     explicit IosRunControl(IosRunConfiguration *runConfig);
-    ~IosRunControl();
+    ~IosRunControl() QTC_OVERRIDE;
 
 
-    void start();
-    StopResult stop();
-    bool isRunning() const;
-    QString displayName() const;
-    QIcon icon() const;
+    void start() QTC_OVERRIDE;
+    StopResult stop() QTC_OVERRIDE;
+    bool isRunning() const QTC_OVERRIDE;
+    QString displayName() const QTC_OVERRIDE;
+    QIcon icon() const QTC_OVERRIDE;
 
 private slots:
     void handleRemoteProcessFinished(bool cleanEnd);

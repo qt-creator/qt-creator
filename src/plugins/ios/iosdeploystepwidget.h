@@ -30,6 +30,7 @@
 #define IOSDEPLOYSTEPWIDGET_H
 
 #include <projectexplorer/buildstep.h>
+#include <utils/qtcoverride.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class IosDeployStepWidget; }
@@ -45,11 +46,11 @@ class IosDeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     IosDeployStepWidget(IosDeployStep *step);
-    ~IosDeployStepWidget();
+    ~IosDeployStepWidget() QTC_OVERRIDE;
 
 private:
-    virtual QString summaryText() const;
-    virtual QString displayName() const;
+    QString summaryText() const QTC_OVERRIDE;
+    QString displayName() const QTC_OVERRIDE;
 
     Ui::IosDeployStepWidget *ui;
     IosDeployStep *m_step;

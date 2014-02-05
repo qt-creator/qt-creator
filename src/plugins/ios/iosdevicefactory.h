@@ -30,10 +30,11 @@
 #define IOSDEVICEFACTORY_H
 
 #include <projectexplorer/devicesupport/idevicefactory.h>
+#include <utils/qtcoverride.h>
+
 #include <QTimer>
 #include <QMap>
 #include <QString>
-#include <utils/qtcoverride.h>
 
 namespace Ios {
 namespace Internal {
