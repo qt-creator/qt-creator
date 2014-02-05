@@ -69,7 +69,7 @@ QString LinuxDeviceProcess::fullCommandLine() const
     fullCommandLine.append(quote(executable()));
     if (!arguments().isEmpty()) {
         fullCommandLine.append(QLatin1Char(' '));
-        fullCommandLine.append(Utils::QtcProcess::joinArgsUnix(arguments()));
+        fullCommandLine.append(Utils::QtcProcess::joinArgs(arguments(), Utils::OsTypeLinux));
     }
     return fullCommandLine;
 }

@@ -51,6 +51,7 @@
 
 using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
+using namespace Utils;
 
 namespace Ios {
 namespace Internal {
@@ -341,27 +342,27 @@ QString IosRunConfigurationWidget::argListToString(const QStringList &args) cons
 
 QStringList IosRunConfigurationWidget::stringToArgList(const QString &args) const
 {
-    Utils::QtcProcess::SplitError err;
-    QStringList res = Utils::QtcProcess::splitArgs(args, false, &err);
+    QtcProcess::SplitError err;
+    QStringList res = QtcProcess::splitArgs(args, OsTypeMac, false, &err);
     switch (err) {
-    case Utils::QtcProcess::SplitOk:
+    case QtcProcess::SplitOk:
         break;
-    case Utils::QtcProcess::BadQuoting:
+    case QtcProcess::BadQuoting:
         if (args.at(args.size()-1) == QLatin1Char('\\')) {
-            res = Utils::QtcProcess::splitArgs(args + QLatin1Char('\\'), false, &err);
-            if (err != Utils::QtcProcess::SplitOk)
-                res = Utils::QtcProcess::splitArgs(args + QLatin1Char('\\') + QLatin1Char('\''),
-                                                   false, &err);
-            if (err != Utils::QtcProcess::SplitOk)
-                res = Utils::QtcProcess::splitArgs(args + QLatin1Char('\\') + QLatin1Char('\"'),
-                                                   false, &err);
+            res = QtcProcess::splitArgs(args + QLatin1Char('\\'), OsTypeMac, false, &err);
+            if (err != QtcProcess::SplitOk)
+                res = QtcProcess::splitArgs(args + QLatin1Char('\\') + QLatin1Char('\''),
+                                            OsTypeMac, false, &err);
+            if (err != QtcProcess::SplitOk)
+                res = QtcProcess::splitArgs(args + QLatin1Char('\\') + QLatin1Char('\"'),
+                                            OsTypeMac, false, &err);
         }
-        if (err != Utils::QtcProcess::SplitOk)
-            res = Utils::QtcProcess::splitArgs(args + QLatin1Char('\''), false, &err);
-        if (err != Utils::QtcProcess::SplitOk)
-            res = Utils::QtcProcess::splitArgs(args + QLatin1Char('\"'), false, &err);
+        if (err != QtcProcess::SplitOk)
+            res = QtcProcess::splitArgs(args + QLatin1Char('\''), OsTypeMac, false, &err);
+        if (err != QtcProcess::SplitOk)
+            res = QtcProcess::splitArgs(args + QLatin1Char('\"'), OsTypeMac, false, &err);
         break;
-    case Utils::QtcProcess::FoundMeta:
+    case QtcProcess::FoundMeta:
         qDebug() << "IosRunConfigurationWidget FoundMeta (should not happen)";
         break;
     }

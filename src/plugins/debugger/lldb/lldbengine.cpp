@@ -201,11 +201,7 @@ void LldbEngine::setupInferior()
     const DebuggerStartParameters &sp = startParameters();
 
     QString executable;
-#ifdef Q_OS_WIN
-    QString args;
-#else
-    QStringList args;
-#endif
+    Utils::QtcProcess::Arguments args;
     Utils::QtcProcess::prepareCommand(QFileInfo(sp.executable).absoluteFilePath(),
                                       sp.processArgs, &executable, &args);
 
@@ -213,12 +209,8 @@ void LldbEngine::setupInferior()
     cmd.arg("executable", executable);
     cmd.arg("startMode", sp.startMode); // directly relying on this is brittle wrt. insertions, so check it here
     cmd.beginList("processArgs");
-#ifdef Q_OS_WIN
-    // fixme?
-#else
-    foreach (const QString &arg, args)
+    foreach (const QString &arg, args.toUnixArgs())
         cmd.arg(arg.toUtf8().toHex());
-#endif
     cmd.endList();
 
     // it is better not to check the start mode on the python sid (as we would have to duplicate the

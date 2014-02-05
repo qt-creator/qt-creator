@@ -169,20 +169,12 @@ QString ProcessParameters::prettyArguments() const
 {
     QString margs = effectiveArguments();
     QString workDir = effectiveWorkingDirectory();
-#ifdef Q_OS_WIN
-    QString args;
-#else
-    QStringList args;
-#endif
     Utils::QtcProcess::SplitError err;
-    args = Utils::QtcProcess::prepareArgs(margs, &err, &m_environment, &workDir);
+    Utils::QtcProcess::Arguments args =
+            Utils::QtcProcess::prepareArgs(margs, &err, Utils::HostOsInfo::hostOs(), &m_environment, &workDir);
     if (err != Utils::QtcProcess::SplitOk)
         return margs; // Sorry, too complex - just fall back.
-#ifdef Q_OS_WIN
-    return args;
-#else
-    return Utils::QtcProcess::joinArgs(args);
-#endif
+    return args.toString();
 }
 
 QString ProcessParameters::summary(const QString &displayName) const

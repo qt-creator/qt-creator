@@ -75,7 +75,8 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         return false;
 
     QtcProcess::SplitError perr;
-    QStringList pargs = QtcProcess::prepareArgs(args, &perr, &d->m_environment, &d->m_workingDir);
+    QtcProcess::Arguments pargs = QtcProcess::prepareArgs(args, &perr, HostOsInfo::hostOs(),
+                                                          &d->m_environment, &d->m_workingDir);
     QString pcmd;
     if (perr == QtcProcess::SplitOk) {
         pcmd = program;
@@ -91,12 +92,15 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
             return false;
         }
         pcmd = QLatin1String("/bin/sh");
-        pargs << QLatin1String("-c") << (QtcProcess::quoteArg(program) + QLatin1Char(' ') + args);
+        pargs = QtcProcess::Arguments::createUnixArgs(QStringList()
+                    << QLatin1String("-c")
+                    << (QtcProcess::quoteArg(program) + QLatin1Char(' ') + args));
     }
 
     QtcProcess::SplitError qerr;
-    QStringList xtermArgs = QtcProcess::prepareArgs(terminalEmulator(d->m_settings), &qerr,
-                                                    &d->m_environment, &d->m_workingDir);
+    QtcProcess::Arguments xtermArgs = QtcProcess::prepareArgs(terminalEmulator(d->m_settings), &qerr,
+                                                              HostOsInfo::hostOs(),
+                                                              &d->m_environment, &d->m_workingDir);
     if (qerr != QtcProcess::SplitOk) {
         emit processError(qerr == QtcProcess::BadQuoting
                           ? tr("Quoting error in terminal command.")
@@ -134,23 +138,23 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         }
     }
 
-    if (Utils::HostOsInfo::isMacHost()) {
-        xtermArgs << (QCoreApplication::applicationDirPath()
-                      + QLatin1String("/../Resources/qtcreator_process_stub"));
-    } else {
-        xtermArgs << (QCoreApplication::applicationDirPath()
-                      + QLatin1String("/qtcreator_process_stub"));
-    }
-    xtermArgs
+    QString stubPath = QCoreApplication::applicationDirPath();
+    if (Utils::HostOsInfo::isMacHost())
+        stubPath.append(QLatin1String("/../Resources/qtcreator_process_stub"));
+    else
+        stubPath.append(QLatin1String("/qtcreator_process_stub"));
+
+    QStringList allArgs = xtermArgs.toUnixArgs();
+    allArgs << stubPath
               << modeOption(d->m_mode)
               << d->m_stubServer.fullServerName()
               << msgPromptToClose()
               << workingDirectory()
               << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
-              << pcmd << pargs;
+              << pcmd << pargs.toUnixArgs();
 
-    QString xterm = xtermArgs.takeFirst();
-    d->m_process.start(xterm, xtermArgs);
+    QString xterm = allArgs.takeFirst();
+    d->m_process.start(xterm, allArgs);
     if (!d->m_process.waitForStarted()) {
         stubServerShutdown();
         emit processError(tr("Cannot start the terminal emulator '%1', change the setting in the "

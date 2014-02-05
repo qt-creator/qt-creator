@@ -2990,7 +2990,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
     VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
     const QString gitkOpts = settings()->stringValue(GitSettings::gitkOptionsKey);
     if (!gitkOpts.isEmpty())
-        arguments.append(Utils::QtcProcess::splitArgs(gitkOpts));
+        arguments.append(Utils::QtcProcess::splitArgs(gitkOpts, Utils::HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
         arguments << QLatin1String("--") << fileName;
     outwin->appendCommand(workingDirectory, binary, arguments);

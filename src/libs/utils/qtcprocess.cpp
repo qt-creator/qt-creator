@@ -31,16 +31,43 @@
 #include "stringutils.h"
 
 #include <utils/qtcassert.h>
+#include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QDebug>
 #include <QCoreApplication>
+#include <QStack>
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
 #endif
 
-using namespace Utils;
+
+// The main state of the Unix shell parser
+enum MxQuoting { MxBasic, MxSingleQuote, MxDoubleQuote, MxParen, MxSubst, MxGroup, MxMath };
+
+struct MxState
+{
+    MxQuoting current;
+    // Bizarrely enough, double quoting has an impact on the behavior of some
+    // complex expressions within the quoted string.
+    bool dquote;
+};
+QT_BEGIN_NAMESPACE
+Q_DECLARE_TYPEINFO(MxState, Q_PRIMITIVE_TYPE);
+QT_END_NAMESPACE
+
+// Pushed state for the case where a $(()) expansion turns out bogus
+struct MxSave
+{
+    QString str;
+    int pos, varPos;
+};
+QT_BEGIN_NAMESPACE
+Q_DECLARE_TYPEINFO(MxSave, Q_MOVABLE_TYPE);
+QT_END_NAMESPACE
+
+namespace Utils {
 
 /*!
     \class Utils::QtcProcess
@@ -49,9 +76,7 @@ using namespace Utils;
     shell-quoted process arguments.
 */
 
-#ifdef Q_OS_WIN
-
-inline static bool isMetaChar(ushort c)
+inline static bool isMetaCharWin(ushort c)
 {
     static const uchar iqm[] = {
         0x00, 0x00, 0x00, 0x00, 0x40, 0x03, 0x00, 0x50,
@@ -61,7 +86,7 @@ inline static bool isMetaChar(ushort c)
     return (c < sizeof(iqm) * 8) && (iqm[c / 8] & (1 << (c & 7)));
 }
 
-static void envExpand(QString &args, const Environment *env, const QString *pwd)
+static void envExpandWin(QString &args, const Environment *env, const QString *pwd)
 {
     static const QString cdName = QLatin1String("CD");
     int off = 0;
@@ -82,18 +107,18 @@ static void envExpand(QString &args, const Environment *env, const QString *pwd)
     }
 }
 
-QString QtcProcess::prepareArgs(const QString &_args, SplitError *err,
-                                const Environment *env, const QString *pwd)
+static QtcProcess::Arguments prepareArgsWin(const QString &_args, QtcProcess::SplitError *err,
+                                            const Environment *env, const QString *pwd)
 {
     QString args(_args);
 
     if (env) {
-        envExpand(args, env, pwd);
+        envExpandWin(args, env, pwd);
     } else {
         if (args.indexOf(QLatin1Char('%')) >= 0) {
             if (err)
-                *err = FoundMeta;
-            return QString();
+                *err = QtcProcess::FoundMeta;
+            return QtcProcess::Arguments::createWindowsArgs(QString());
         }
     }
 
@@ -109,24 +134,24 @@ QString QtcProcess::prepareArgs(const QString &_args, SplitError *err,
                 if (++p == args.length())
                     break; // For cmd, this is no error.
             } while (args.unicode()[p].unicode() != '"');
-        } else if (isMetaChar(c)) {
+        } else if (isMetaCharWin(c)) {
             if (err)
-                *err = FoundMeta;
-            return QString();
+                *err = QtcProcess::FoundMeta;
+            return QtcProcess::Arguments::createWindowsArgs(QString());
         }
     }
 
     if (err)
-        *err = SplitOk;
-    return args;
+        *err = QtcProcess::SplitOk;
+    return QtcProcess::Arguments::createWindowsArgs(args);
 }
 
-inline static bool isWhiteSpace(ushort c)
+inline static bool isWhiteSpaceWin(ushort c)
 {
     return c == ' ' || c == '\t';
 }
 
-static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
+static QStringList doSplitArgsWin(const QString &args, QtcProcess::SplitError *err)
 {
     QStringList ret;
 
@@ -139,7 +164,7 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
         forever {
             if (p == length)
                 return ret;
-            if (!isWhiteSpace(args.unicode()[p].unicode()))
+            if (!isWhiteSpaceWin(args.unicode()[p].unicode()))
                 break;
             ++p;
         }
@@ -181,7 +206,7 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
             while (--bslashes >= 0)
                 arg.append(QLatin1Char('\\'));
 
-            if (p == length || (!inquote && isWhiteSpace(args.unicode()[p].unicode()))) {
+            if (p == length || (!inquote && isWhiteSpaceWin(args.unicode()[p].unicode()))) {
                 ret.append(arg);
                 if (inquote) {
                     if (err)
@@ -258,28 +283,29 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
     \c{foo " bar}.
  */
 
-QStringList QtcProcess::splitArgs(const QString &_args, bool abortOnMeta, SplitError *err,
-                                  const Environment *env, const QString *pwd)
+
+static QStringList splitArgsWin(const QString &_args, bool abortOnMeta,
+                                QtcProcess::SplitError *err,
+                                const Environment *env, const QString *pwd)
 {
     if (abortOnMeta) {
-        SplitError perr;
+        QtcProcess::SplitError perr;
         if (!err)
             err = &perr;
-        QString args = prepareArgs(_args, &perr, env, pwd);
-        if (*err != SplitOk)
+        QString args = prepareArgsWin(_args, &perr, env, pwd).toWindowsArgs();
+        if (*err != QtcProcess::SplitOk)
             return QStringList();
-        return doSplitArgs(args, err);
+        return doSplitArgsWin(args, err);
     } else {
         QString args = _args;
         if (env)
-            envExpand(args, env, pwd);
-        return doSplitArgs(args, err);
+            envExpandWin(args, env, pwd);
+        return doSplitArgsWin(args, err);
     }
 }
 
-#else // Q_OS_WIN
 
-inline static bool isMeta(QChar cUnicode)
+static bool isMetaUnix(QChar cUnicode)
 {
     static const uchar iqm[] = {
         0x00, 0x00, 0x00, 0x00, 0xdc, 0x07, 0x00, 0xd8,
@@ -291,8 +317,9 @@ inline static bool isMeta(QChar cUnicode)
     return (c < sizeof(iqm) * 8) && (iqm[c / 8] & (1 << (c & 7)));
 }
 
-QStringList QtcProcess::splitArgs(const QString &args, bool abortOnMeta, SplitError *err,
-                                  const Environment *env, const QString *pwd)
+static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
+                                 QtcProcess::SplitError *err,
+                                 const Environment *env, const QString *pwd)
 {
     static const QString pwdName = QLatin1String("PWD");
     QStringList ret;
@@ -448,7 +475,7 @@ QStringList QtcProcess::splitArgs(const QString &args, bool abortOnMeta, SplitEr
                     if (pos >= args.length())
                         goto quoteerr;
                     c = args.unicode()[pos++];
-                } else if (abortOnMeta && isMeta(c)) {
+                } else if (abortOnMeta && isMetaUnix(c)) {
                     goto metaerr;
                 }
                 cret += c;
@@ -466,21 +493,19 @@ QStringList QtcProcess::splitArgs(const QString &args, bool abortOnMeta, SplitEr
 
   okret:
     if (err)
-        *err = SplitOk;
+        *err = QtcProcess::SplitOk;
     return ret;
 
   quoteerr:
     if (err)
-        *err = BadQuoting;
+        *err = QtcProcess::BadQuoting;
     return QStringList();
 
   metaerr:
     if (err)
-        *err = FoundMeta;
+        *err = QtcProcess::FoundMeta;
     return QStringList();
 }
-
-#endif // Q_OS_WIN
 
 inline static bool isSpecialCharUnix(ushort c)
 {
@@ -501,6 +526,16 @@ inline static bool hasSpecialCharsUnix(const QString &arg)
     return false;
 }
 
+QStringList QtcProcess::splitArgs(const QString &args, OsType osType,
+                                  bool abortOnMeta, QtcProcess::SplitError *err,
+                                  const Environment *env, const QString *pwd)
+{
+    if (osType == OsTypeWindows)
+        return splitArgsWin(args, abortOnMeta, err, env, pwd);
+    else
+        return splitArgsUnix(args, abortOnMeta, err, env, pwd);
+}
+
 QString QtcProcess::quoteArgUnix(const QString &arg)
 {
     if (!arg.length())
@@ -515,23 +550,7 @@ QString QtcProcess::quoteArgUnix(const QString &arg)
     return ret;
 }
 
-void QtcProcess::addArgUnix(QString *args, const QString &arg)
-{
-    if (!args->isEmpty())
-        *args += QLatin1Char(' ');
-    *args += quoteArgUnix(arg);
-}
-
-QString QtcProcess::joinArgsUnix(const QStringList &args)
-{
-    QString ret;
-    foreach (const QString &arg, args)
-        addArgUnix(&ret, arg);
-    return ret;
-}
-
-#ifdef Q_OS_WIN
-inline static bool isSpecialChar(ushort c)
+static bool isSpecialCharWin(ushort c)
 {
     // Chars that should be quoted (TM). This includes:
     // - control chars & space
@@ -545,21 +564,21 @@ inline static bool isSpecialChar(ushort c)
     return (c < sizeof(iqm) * 8) && (iqm[c / 8] & (1 << (c & 7)));
 }
 
-inline static bool hasSpecialChars(const QString &arg)
+static bool hasSpecialCharsWin(const QString &arg)
 {
     for (int x = arg.length() - 1; x >= 0; --x)
-        if (isSpecialChar(arg.unicode()[x].unicode()))
+        if (isSpecialCharWin(arg.unicode()[x].unicode()))
             return true;
     return false;
 }
 
-QString QtcProcess::quoteArg(const QString &arg)
+static QString quoteArgWin(const QString &arg)
 {
     if (!arg.length())
         return QString::fromLatin1("\"\"");
 
     QString ret(arg);
-    if (hasSpecialChars(ret)) {
+    if (hasSpecialCharsWin(ret)) {
         // Quotes are escaped and their preceding backslashes are doubled.
         // It's impossible to escape anything inside a quoted string on cmd
         // level, so the outer quoting must be "suspended".
@@ -578,21 +597,38 @@ QString QtcProcess::quoteArg(const QString &arg)
     return ret;
 }
 
-void QtcProcess::addArg(QString *args, const QString &arg)
+QtcProcess::Arguments QtcProcess::prepareArgs(const QString &cmd, SplitError *err, OsType osType,
+                                   const Environment *env, const QString *pwd)
+{
+    if (osType == OsTypeWindows)
+        return prepareArgsWin(cmd, err, env, pwd);
+    else
+        return Arguments::createUnixArgs(splitArgs(cmd, osType, true, err, env, pwd));
+}
+
+
+QString QtcProcess::quoteArg(const QString &arg, OsType osType)
+{
+    if (osType == OsTypeWindows)
+        return quoteArgWin(arg);
+    else
+        return quoteArgUnix(arg);
+}
+
+void QtcProcess::addArg(QString *args, const QString &arg, OsType osType)
 {
     if (!args->isEmpty())
         *args += QLatin1Char(' ');
-    *args += quoteArg(arg);
+    *args += quoteArg(arg, osType);
 }
 
-QString QtcProcess::joinArgs(const QStringList &args)
+QString QtcProcess::joinArgs(const QStringList &args, OsType osType)
 {
     QString ret;
     foreach (const QString &arg, args)
-        addArg(&ret, arg);
+        addArg(&ret, arg, osType);
     return ret;
 }
-#endif
 
 void QtcProcess::addArgs(QString *args, const QString &inArgs)
 {
@@ -609,44 +645,36 @@ void QtcProcess::addArgs(QString *args, const QStringList &inArgs)
         addArg(args, arg);
 }
 
-#ifdef Q_OS_WIN
-void QtcProcess::prepareCommand(const QString &command, const QString &arguments,
-                                QString *outCmd, QString *outArgs,
-                                const Environment *env, const QString *pwd)
-{
-    QtcProcess::SplitError err;
-    *outArgs = QtcProcess::prepareArgs(arguments, &err, env, pwd);
-    if (err == QtcProcess::SplitOk) {
-        *outCmd = command;
-    } else {
-        *outCmd = QString::fromLatin1(qgetenv("COMSPEC"));
-        *outArgs = QLatin1String("/v:off /s /c \"")
-                + quoteArg(QDir::toNativeSeparators(command)) + QLatin1Char(' ') + arguments
-                + QLatin1Char('"');
-    }
-}
-#else
 bool QtcProcess::prepareCommand(const QString &command, const QString &arguments,
-                                QString *outCmd, QStringList *outArgs,
+                                QString *outCmd, Arguments *outArgs, OsType osType,
                                 const Environment *env, const QString *pwd)
 {
     QtcProcess::SplitError err;
-    *outArgs = QtcProcess::prepareArgs(arguments, &err, env, pwd);
+    *outArgs = QtcProcess::prepareArgs(arguments, &err, osType, env, pwd);
     if (err == QtcProcess::SplitOk) {
         *outCmd = command;
     } else {
-        if (err != QtcProcess::FoundMeta)
-            return false;
-        *outCmd = QLatin1String("/bin/sh");
-        *outArgs << QLatin1String("-c") << (quoteArg(command) + QLatin1Char(' ') + arguments);
+        if (osType == OsTypeWindows) {
+            *outCmd = QString::fromLatin1(qgetenv("COMSPEC"));
+            *outArgs = Arguments::createWindowsArgs(QLatin1String("/v:off /s /c \"")
+                    + quoteArg(QDir::toNativeSeparators(command)) + QLatin1Char(' ') + arguments
+                    + QLatin1Char('"'));
+        } else {
+            if (err != QtcProcess::FoundMeta)
+                return false;
+            *outCmd = QLatin1String("/bin/sh");
+            *outArgs = Arguments::createUnixArgs(QStringList()
+                            << QLatin1String("-c")
+                            << (quoteArg(command) + QLatin1Char(' ') + arguments));
+        }
     }
     return true;
 }
-#endif
 
 void QtcProcess::start()
 {
     Environment env;
+    const OsType osType = HostOsInfo::hostOs();
     if (m_haveEnv) {
         if (m_environment.size() == 0)
             qWarning("QtcProcess::start: Empty environment set when running '%s'.", qPrintable(m_command));
@@ -655,16 +683,12 @@ void QtcProcess::start()
         // If the process environemnt has no libraryPath,
         // Qt will copy creator's libraryPath into the process environment.
         // That's brain dead, and we work around it
-#if defined(Q_OS_UNIX)
-#  if defined(Q_OS_MAC)
-        static const char libraryPathC[] = "DYLD_LIBRARY_PATH";
-#  else
-        static const char libraryPathC[] = "LD_LIBRARY_PATH";
-#  endif
-        const QString libraryPath = QLatin1String(libraryPathC);
-        if (env.constFind(libraryPath) == env.constEnd())
-            env.set(libraryPath, QString());
-#endif
+        if (osType != OsTypeWindows) {  // a.k.a "Unixoid"
+            const QString libraryPath =
+                QLatin1String(osType == OsTypeMac ? "DYLD_LIBRARY_PATH" : "LD_LIBRARY_PATH");
+            if (env.constFind(libraryPath) == env.constEnd())
+                env.set(libraryPath, QString());
+        }
         QProcess::setEnvironment(env.toStringList());
     } else {
         env = Environment::systemEnvironment();
@@ -672,27 +696,28 @@ void QtcProcess::start()
 
     const QString &workDir = workingDirectory();
     QString command;
+    QtcProcess::Arguments arguments;
+    bool success = prepareCommand(m_command, m_arguments, &command, &arguments, osType, &env, &workDir);
+    if (osType == OsTypeWindows) {
+        QString args = arguments.toWindowsArgs();
 #ifdef Q_OS_WIN
-    QString arguments;
-    QStringList argList;
-    prepareCommand(m_command, m_arguments, &command, &arguments, &env, &workDir);
-    setNativeArguments(arguments);
-    if (m_useCtrlCStub) {
-        argList << QDir::toNativeSeparators(command);
-        command = QCoreApplication::applicationDirPath() + QLatin1String("/qtcreator_ctrlc_stub.exe");
-    }
-    QProcess::start(command, argList);
-#else
-    QStringList arguments;
-    if (!prepareCommand(m_command, m_arguments, &command, &arguments, &env, &workDir)) {
-        setErrorString(tr("Error in command line."));
-        // Should be FailedToStart, but we cannot set the process error from the outside,
-        // so it would be inconsistent.
-        emit error(QProcess::UnknownError);
-        return;
-    }
-    QProcess::start(command, arguments);
+        setNativeArguments(args);
 #endif
+        if (m_useCtrlCStub) {
+            args = QDir::toNativeSeparators(command);
+            command = QCoreApplication::applicationDirPath() + QLatin1String("/qtcreator_ctrlc_stub.exe");
+        }
+        QProcess::start(command, QStringList(args));
+    } else {
+        if (!success) {
+            setErrorString(tr("Error in command line."));
+            // Should be FailedToStart, but we cannot set the process error from the outside,
+            // so it would be inconsistent.
+            emit error(QProcess::UnknownError);
+            return;
+        }
+        QProcess::start(command, arguments.toUnixArgs());
+    }
 }
 
 #ifdef Q_OS_WIN
@@ -738,10 +763,9 @@ void QtcProcess::interrupt()
 #endif
 }
 
-#ifdef Q_OS_WIN
 // This function assumes that the resulting string will be quoted.
 // That's irrelevant if it does not contain quotes itself.
-static int quoteArgInternal(QString &ret, int bslashes)
+static int quoteArgInternalWin(QString &ret, int bslashes)
 {
     // Quotes are escaped and their preceding backslashes are doubled.
     // It's impossible to escape anything inside a quoted string on cmd
@@ -765,32 +789,6 @@ static int quoteArgInternal(QString &ret, int bslashes)
     return bslashes;
 }
 
-#else
-
-// The main state of the Unix shell parser
-enum MxQuoting { MxBasic, MxSingleQuote, MxDoubleQuote, MxParen, MxSubst, MxGroup, MxMath };
-typedef struct {
-    MxQuoting current;
-    // Bizarrely enough, double quoting has an impact on the behavior of some
-    // complex expressions within the quoted string.
-    bool dquote;
-} MxState;
-QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(MxState, Q_PRIMITIVE_TYPE);
-QT_END_NAMESPACE
-
-// Pushed state for the case where a $(()) expansion turns out bogus
-typedef struct {
-    QString str;
-    int pos, varPos;
-} MxSave;
-QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(MxSave, Q_MOVABLE_TYPE);
-QT_END_NAMESPACE
-
-#include <QStack>
-
-#endif
 
 // TODO: This documentation is relevant for end-users. Where to put it?
 /**
@@ -864,7 +862,7 @@ QT_END_NAMESPACE
  * \return false if the string could not be parsed and therefore no safe
  *   substitution was possible
  */
-bool QtcProcess::expandMacros(QString *cmd, AbstractMacroExpander *mx)
+bool QtcProcess::expandMacros(QString *cmd, AbstractMacroExpander *mx, OsType osType)
 {
     QString str = *cmd;
     if (str.isEmpty())
@@ -878,319 +876,320 @@ bool QtcProcess::expandMacros(QString *cmd, AbstractMacroExpander *mx)
 
     int pos = 0;
 
-#ifdef Q_OS_WIN
-    enum { // cmd.exe parsing state
-        ShellBasic, // initial state
-        ShellQuoted, // double-quoted state => *no* other meta chars are interpreted
-        ShellEscaped // circumflex-escaped state => next char is not interpreted
-    } shellState = ShellBasic;
-    enum { // CommandLineToArgv() parsing state and some more
-        CrtBasic, // initial state
-        CrtNeedWord, // after empty expando; insert empty argument if whitespace follows
-        CrtInWord, // in non-whitespace
-        CrtClosed, // previous char closed the double-quoting
-        CrtHadQuote, // closed double-quoting after an expando
-        // The remaining two need to be numerically higher
-        CrtQuoted, // double-quoted state => spaces don't split tokens
-        CrtNeedQuote // expando opened quote; close if no expando follows
-    } crtState = CrtBasic;
-    int bslashes = 0; // previous chars were manual backslashes
-    int rbslashes = 0; // trailing backslashes in replacement
+    if (osType == OsTypeWindows) {
+        enum { // cmd.exe parsing state
+            ShellBasic, // initial state
+            ShellQuoted, // double-quoted state => *no* other meta chars are interpreted
+            ShellEscaped // circumflex-escaped state => next char is not interpreted
+        } shellState = ShellBasic;
+        enum { // CommandLineToArgv() parsing state and some more
+            CrtBasic, // initial state
+            CrtNeedWord, // after empty expando; insert empty argument if whitespace follows
+            CrtInWord, // in non-whitespace
+            CrtClosed, // previous char closed the double-quoting
+            CrtHadQuote, // closed double-quoting after an expando
+            // The remaining two need to be numerically higher
+            CrtQuoted, // double-quoted state => spaces don't split tokens
+            CrtNeedQuote // expando opened quote; close if no expando follows
+        } crtState = CrtBasic;
+        int bslashes = 0; // previous chars were manual backslashes
+        int rbslashes = 0; // trailing backslashes in replacement
 
-    forever {
-        if (pos == varPos) {
-            if (shellState == ShellEscaped)
-                return false; // Circumflex'd quoted expando would be Bad (TM).
-            if ((shellState == ShellQuoted) != (crtState == CrtQuoted))
-                return false; // CRT quoting out of sync with shell quoting. Ahoy to Redmond.
-            rbslashes += bslashes;
-            bslashes = 0;
-            if (crtState < CrtQuoted) {
-                if (rsts.isEmpty()) {
-                    if (crtState == CrtBasic) {
-                        // Outside any quoting and the string is empty, so put
-                        // a pair of quotes. Delaying that is just pedantry.
-                        crtState = CrtNeedWord;
-                    }
-                } else {
-                    if (hasSpecialChars(rsts)) {
-                        if (crtState == CrtClosed) {
-                            // Quoted expando right after closing quote. Can't do that.
-                            return false;
-                        }
-                        int tbslashes = quoteArgInternal(rsts, 0);
-                        rsts.prepend(QLatin1Char('"'));
-                        if (rbslashes)
-                            rsts.prepend(QString(rbslashes, QLatin1Char('\\')));
-                        crtState = CrtNeedQuote;
-                        rbslashes = tbslashes;
-                    } else {
-                        crtState = CrtInWord; // We know that this string contains no spaces.
-                        // We know that this string contains no quotes,
-                        // so the function won't make a mess.
-                        rbslashes = quoteArgInternal(rsts, rbslashes);
-                    }
-                }
-            } else {
-                rbslashes = quoteArgInternal(rsts, rbslashes);
-            }
-            str.replace(pos, varLen, rsts);
-            pos += rsts.length();
-            varPos = pos;
-            if (!(varLen = mx->findMacro(str, &varPos, &rsts))) {
-                // Don't leave immediately, as we may be in CrtNeedWord state which could
-                // be still resolved, or we may have inserted trailing backslashes.
-                varPos = INT_MAX;
-            }
-            continue;
-        }
-        if (crtState == CrtNeedQuote) {
-            if (rbslashes) {
-                str.insert(pos, QString(rbslashes, QLatin1Char('\\')));
-                pos += rbslashes;
-                varPos += rbslashes;
-                rbslashes = 0;
-            }
-            str.insert(pos, QLatin1Char('"'));
-            pos++;
-            varPos++;
-            crtState = CrtHadQuote;
-        }
-        ushort cc = str.unicode()[pos].unicode();
-        if (shellState == ShellBasic && cc == '^') {
-            shellState = ShellEscaped;
-        } else {
-            if (!cc || cc == ' ' || cc == '\t') {
-                if (crtState < CrtQuoted) {
-                    if (crtState == CrtNeedWord) {
-                        str.insert(pos, QLatin1String("\"\""));
-                        pos += 2;
-                        varPos += 2;
-                    }
-                    crtState = CrtBasic;
-                }
-                if (!cc)
-                    break;
+        forever {
+            if (pos == varPos) {
+                if (shellState == ShellEscaped)
+                    return false; // Circumflex'd quoted expando would be Bad (TM).
+                if ((shellState == ShellQuoted) != (crtState == CrtQuoted))
+                    return false; // CRT quoting out of sync with shell quoting. Ahoy to Redmond.
+                rbslashes += bslashes;
                 bslashes = 0;
-                rbslashes = 0;
-            } else {
-                if (cc == '\\') {
-                    bslashes++;
-                    if (crtState < CrtQuoted)
-                        crtState = CrtInWord;
-                } else {
-                    if (cc == '"') {
-                        if (shellState != ShellEscaped)
-                            shellState = (shellState == ShellQuoted) ? ShellBasic : ShellQuoted;
-                        if (rbslashes) {
-                            // Offset -1: skip possible circumflex. We have at least
-                            // one backslash, so a fixed offset is ok.
-                            str.insert(pos - 1, QString(rbslashes, QLatin1Char('\\')));
-                            pos += rbslashes;
-                            varPos += rbslashes;
+                if (crtState < CrtQuoted) {
+                    if (rsts.isEmpty()) {
+                        if (crtState == CrtBasic) {
+                            // Outside any quoting and the string is empty, so put
+                            // a pair of quotes. Delaying that is just pedantry.
+                            crtState = CrtNeedWord;
                         }
-                        if (!(bslashes & 1)) {
-                            // Even number of backslashes, so the quote is not escaped.
-                            switch (crtState) {
-                            case CrtQuoted:
-                                // Closing quote
-                                crtState = CrtClosed;
-                                break;
-                            case CrtClosed:
-                                // Two consecutive quotes make a literal quote - and
-                                // still close quoting. See QtcProcess::quoteArg().
-                                crtState = CrtInWord;
-                                break;
-                            case CrtHadQuote:
-                                // Opening quote right after quoted expando. Can't do that.
+                    } else {
+                        if (hasSpecialCharsWin(rsts)) {
+                            if (crtState == CrtClosed) {
+                                // Quoted expando right after closing quote. Can't do that.
                                 return false;
-                            default:
-                                // Opening quote
-                                crtState = CrtQuoted;
-                                break;
+                            }
+                            int tbslashes = quoteArgInternalWin(rsts, 0);
+                            rsts.prepend(QLatin1Char('"'));
+                            if (rbslashes)
+                                rsts.prepend(QString(rbslashes, QLatin1Char('\\')));
+                            crtState = CrtNeedQuote;
+                            rbslashes = tbslashes;
+                        } else {
+                            crtState = CrtInWord; // We know that this string contains no spaces.
+                            // We know that this string contains no quotes,
+                            // so the function won't make a mess.
+                            rbslashes = quoteArgInternalWin(rsts, rbslashes);
+                        }
+                    }
+                } else {
+                    rbslashes = quoteArgInternalWin(rsts, rbslashes);
+                }
+                str.replace(pos, varLen, rsts);
+                pos += rsts.length();
+                varPos = pos;
+                if (!(varLen = mx->findMacro(str, &varPos, &rsts))) {
+                    // Don't leave immediately, as we may be in CrtNeedWord state which could
+                    // be still resolved, or we may have inserted trailing backslashes.
+                    varPos = INT_MAX;
+                }
+                continue;
+            }
+            if (crtState == CrtNeedQuote) {
+                if (rbslashes) {
+                    str.insert(pos, QString(rbslashes, QLatin1Char('\\')));
+                    pos += rbslashes;
+                    varPos += rbslashes;
+                    rbslashes = 0;
+                }
+                str.insert(pos, QLatin1Char('"'));
+                pos++;
+                varPos++;
+                crtState = CrtHadQuote;
+            }
+            ushort cc = str.unicode()[pos].unicode();
+            if (shellState == ShellBasic && cc == '^') {
+                shellState = ShellEscaped;
+            } else {
+                if (!cc || cc == ' ' || cc == '\t') {
+                    if (crtState < CrtQuoted) {
+                        if (crtState == CrtNeedWord) {
+                            str.insert(pos, QLatin1String("\"\""));
+                            pos += 2;
+                            varPos += 2;
+                        }
+                        crtState = CrtBasic;
+                    }
+                    if (!cc)
+                        break;
+                    bslashes = 0;
+                    rbslashes = 0;
+                } else {
+                    if (cc == '\\') {
+                        bslashes++;
+                        if (crtState < CrtQuoted)
+                            crtState = CrtInWord;
+                    } else {
+                        if (cc == '"') {
+                            if (shellState != ShellEscaped)
+                                shellState = (shellState == ShellQuoted) ? ShellBasic : ShellQuoted;
+                            if (rbslashes) {
+                                // Offset -1: skip possible circumflex. We have at least
+                                // one backslash, so a fixed offset is ok.
+                                str.insert(pos - 1, QString(rbslashes, QLatin1Char('\\')));
+                                pos += rbslashes;
+                                varPos += rbslashes;
+                            }
+                            if (!(bslashes & 1)) {
+                                // Even number of backslashes, so the quote is not escaped.
+                                switch (crtState) {
+                                case CrtQuoted:
+                                    // Closing quote
+                                    crtState = CrtClosed;
+                                    break;
+                                case CrtClosed:
+                                    // Two consecutive quotes make a literal quote - and
+                                    // still close quoting. See QtcProcess::quoteArg().
+                                    crtState = CrtInWord;
+                                    break;
+                                case CrtHadQuote:
+                                    // Opening quote right after quoted expando. Can't do that.
+                                    return false;
+                                default:
+                                    // Opening quote
+                                    crtState = CrtQuoted;
+                                    break;
+                                }
+                            } else if (crtState < CrtQuoted) {
+                                crtState = CrtInWord;
                             }
                         } else if (crtState < CrtQuoted) {
                             crtState = CrtInWord;
                         }
-                    } else if (crtState < CrtQuoted) {
-                        crtState = CrtInWord;
+                        bslashes = 0;
+                        rbslashes = 0;
                     }
-                    bslashes = 0;
-                    rbslashes = 0;
                 }
-            }
-            if (varPos == INT_MAX && !rbslashes)
-                break;
-            if (shellState == ShellEscaped)
-                shellState = ShellBasic;
-        }
-        pos++;
-    }
-#else
-    MxState state = { MxBasic, false };
-    QStack<MxState> sstack;
-    QStack<MxSave> ostack;
-
-    while (pos < str.length()) {
-        if (pos == varPos) {
-            // Our expansion rules trigger in any context
-            if (state.dquote) {
-                // We are within a double-quoted string. Escape relevant meta characters.
-                rsts.replace(QRegExp(QLatin1String("([$`\"\\\\])")), QLatin1String("\\\\1"));
-            } else if (state.current == MxSingleQuote) {
-                // We are within a single-quoted string. "Suspend" single-quoting and put a
-                // single escaped quote for each single quote inside the string.
-                rsts.replace(QLatin1Char('\''), QLatin1String("'\\''"));
-            } else if (rsts.isEmpty() || hasSpecialCharsUnix(rsts)) {
-                // String contains "quote-worthy" characters. Use single quoting - but
-                // that choice is arbitrary.
-                rsts.replace(QLatin1Char('\''), QLatin1String("'\\''"));
-                rsts.prepend(QLatin1Char('\''));
-                rsts.append(QLatin1Char('\''));
-            } // Else just use the string verbatim.
-            str.replace(pos, varLen, rsts);
-            pos += rsts.length();
-            varPos = pos;
-            if (!(varLen = mx->findMacro(str, &varPos, &rsts)))
-                break;
-            continue;
-        }
-        ushort cc = str.unicode()[pos].unicode();
-        if (state.current == MxSingleQuote) {
-            // Single quoted context - only the single quote has any special meaning.
-            if (cc == '\'')
-                state = sstack.pop();
-        } else if (cc == '\\') {
-            // In any other context, the backslash starts an escape.
-            pos += 2;
-            if (varPos < pos)
-                return false; // Backslash'd quoted expando would be Bad (TM).
-            continue;
-        } else if (cc == '$') {
-            cc = str.unicode()[++pos].unicode();
-            if (cc == '(') {
-                sstack.push(state);
-                if (str.unicode()[pos + 1].unicode() == '(') {
-                    // $(( starts a math expression. This may also be a $( ( in fact,
-                    // so we push the current string and offset on a stack so we can retry.
-                    MxSave sav = { str, pos + 2, varPos };
-                    ostack.push(sav);
-                    state.current = MxMath;
-                    pos += 2;
-                    continue;
-                } else {
-                    // $( starts a command substitution. This actually "opens a new context"
-                    // which overrides surrounding double quoting.
-                    state.current = MxParen;
-                    state.dquote = false;
-                }
-            } else if (cc == '{') {
-                // ${ starts a "braced" variable substitution.
-                sstack.push(state);
-                state.current = MxSubst;
-            } // Else assume that a "bare" variable substitution has started
-        } else if (cc == '`') {
-            // Backticks are evil, as every shell interprets escapes within them differently,
-            // which is a danger for the quoting of our own expansions.
-            // So we just apply *our* rules (which match bash) and transform it into a POSIX
-            // command substitution which has clear semantics.
-            str.replace(pos, 1, QLatin1String("$( " )); // add space -> avoid creating $((
-            varPos += 2;
-            int pos2 = pos += 3;
-            forever {
-                if (pos2 >= str.length())
-                    return false; // Syntax error - unterminated backtick expression.
-                cc = str.unicode()[pos2].unicode();
-                if (cc == '`')
+                if (varPos == INT_MAX && !rbslashes)
                     break;
-                if (cc == '\\') {
-                    cc = str.unicode()[++pos2].unicode();
-                    if (cc == '$' || cc == '`' || cc == '\\' ||
-                        (cc == '"' && state.dquote))
-                    {
-                        str.remove(pos2 - 1, 1);
-                        if (varPos >= pos2)
-                            varPos--;
-                        continue;
-                    }
-                }
-                pos2++;
+                if (shellState == ShellEscaped)
+                    shellState = ShellBasic;
             }
-            str[pos2] = QLatin1Char(')');
-            sstack.push(state);
-            state.current = MxParen;
-            state.dquote = false;
-            continue;
-        } else if (state.current == MxDoubleQuote) {
-            // (Truly) double quoted context - only remaining special char is the closing quote.
-            if (cc == '"')
-                state = sstack.pop();
-        } else if (cc == '\'') {
-            // Start single quote if we are not in "inherited" double quoted context.
-            if (!state.dquote) {
-                sstack.push(state);
-                state.current = MxSingleQuote;
-            }
-        } else if (cc == '"') {
-            // Same for double quoting.
-            if (!state.dquote) {
-                sstack.push(state);
-                state.current = MxDoubleQuote;
-                state.dquote = true;
-            }
-        } else if (state.current == MxSubst) {
-            // "Braced" substitution context - only remaining special char is the closing brace.
-            if (cc == '}')
-                state = sstack.pop();
-        } else if (cc == ')') {
-            if (state.current == MxMath) {
-                if (str.unicode()[pos + 1].unicode() == ')') {
-                    state = sstack.pop();
-                    pos += 2;
-                } else {
-                    // False hit: the $(( was a $( ( in fact.
-                    // ash does not care (and will complain), but bash actually parses it.
-                    varPos = ostack.top().varPos;
-                    pos = ostack.top().pos;
-                    str = ostack.top().str;
-                    ostack.pop();
-                    state.current = MxParen;
-                    state.dquote = false;
-                    sstack.push(state);
-                }
-                continue;
-            } else if (state.current == MxParen) {
-                state = sstack.pop();
-            } else {
-                break; // Syntax error - excess closing parenthesis.
-            }
-        } else if (cc == '}') {
-            if (state.current == MxGroup)
-                state = sstack.pop();
-            else
-                break; // Syntax error - excess closing brace.
-        } else if (cc == '(') {
-            // Context-saving command grouping.
-            sstack.push(state);
-            state.current = MxParen;
-        } else if (cc == '{') {
-            // Plain command grouping.
-            sstack.push(state);
-            state.current = MxGroup;
+            pos++;
         }
-        pos++;
+    } else {
+        // !Windows
+        MxState state = { MxBasic, false };
+        QStack<MxState> sstack;
+        QStack<MxSave> ostack;
+
+        while (pos < str.length()) {
+            if (pos == varPos) {
+                // Our expansion rules trigger in any context
+                if (state.dquote) {
+                    // We are within a double-quoted string. Escape relevant meta characters.
+                    rsts.replace(QRegExp(QLatin1String("([$`\"\\\\])")), QLatin1String("\\\\1"));
+                } else if (state.current == MxSingleQuote) {
+                    // We are within a single-quoted string. "Suspend" single-quoting and put a
+                    // single escaped quote for each single quote inside the string.
+                    rsts.replace(QLatin1Char('\''), QLatin1String("'\\''"));
+                } else if (rsts.isEmpty() || hasSpecialCharsUnix(rsts)) {
+                    // String contains "quote-worthy" characters. Use single quoting - but
+                    // that choice is arbitrary.
+                    rsts.replace(QLatin1Char('\''), QLatin1String("'\\''"));
+                    rsts.prepend(QLatin1Char('\''));
+                    rsts.append(QLatin1Char('\''));
+                } // Else just use the string verbatim.
+                str.replace(pos, varLen, rsts);
+                pos += rsts.length();
+                varPos = pos;
+                if (!(varLen = mx->findMacro(str, &varPos, &rsts)))
+                    break;
+                continue;
+            }
+            ushort cc = str.unicode()[pos].unicode();
+            if (state.current == MxSingleQuote) {
+                // Single quoted context - only the single quote has any special meaning.
+                if (cc == '\'')
+                    state = sstack.pop();
+            } else if (cc == '\\') {
+                // In any other context, the backslash starts an escape.
+                pos += 2;
+                if (varPos < pos)
+                    return false; // Backslash'd quoted expando would be Bad (TM).
+                continue;
+            } else if (cc == '$') {
+                cc = str.unicode()[++pos].unicode();
+                if (cc == '(') {
+                    sstack.push(state);
+                    if (str.unicode()[pos + 1].unicode() == '(') {
+                        // $(( starts a math expression. This may also be a $( ( in fact,
+                        // so we push the current string and offset on a stack so we can retry.
+                        MxSave sav = { str, pos + 2, varPos };
+                        ostack.push(sav);
+                        state.current = MxMath;
+                        pos += 2;
+                        continue;
+                    } else {
+                        // $( starts a command substitution. This actually "opens a new context"
+                        // which overrides surrounding double quoting.
+                        state.current = MxParen;
+                        state.dquote = false;
+                    }
+                } else if (cc == '{') {
+                    // ${ starts a "braced" variable substitution.
+                    sstack.push(state);
+                    state.current = MxSubst;
+                } // Else assume that a "bare" variable substitution has started
+            } else if (cc == '`') {
+                // Backticks are evil, as every shell interprets escapes within them differently,
+                // which is a danger for the quoting of our own expansions.
+                // So we just apply *our* rules (which match bash) and transform it into a POSIX
+                // command substitution which has clear semantics.
+                str.replace(pos, 1, QLatin1String("$( " )); // add space -> avoid creating $((
+                varPos += 2;
+                int pos2 = pos += 3;
+                forever {
+                    if (pos2 >= str.length())
+                        return false; // Syntax error - unterminated backtick expression.
+                    cc = str.unicode()[pos2].unicode();
+                    if (cc == '`')
+                        break;
+                    if (cc == '\\') {
+                        cc = str.unicode()[++pos2].unicode();
+                        if (cc == '$' || cc == '`' || cc == '\\' ||
+                            (cc == '"' && state.dquote))
+                        {
+                            str.remove(pos2 - 1, 1);
+                            if (varPos >= pos2)
+                                varPos--;
+                            continue;
+                        }
+                    }
+                    pos2++;
+                }
+                str[pos2] = QLatin1Char(')');
+                sstack.push(state);
+                state.current = MxParen;
+                state.dquote = false;
+                continue;
+            } else if (state.current == MxDoubleQuote) {
+                // (Truly) double quoted context - only remaining special char is the closing quote.
+                if (cc == '"')
+                    state = sstack.pop();
+            } else if (cc == '\'') {
+                // Start single quote if we are not in "inherited" double quoted context.
+                if (!state.dquote) {
+                    sstack.push(state);
+                    state.current = MxSingleQuote;
+                }
+            } else if (cc == '"') {
+                // Same for double quoting.
+                if (!state.dquote) {
+                    sstack.push(state);
+                    state.current = MxDoubleQuote;
+                    state.dquote = true;
+                }
+            } else if (state.current == MxSubst) {
+                // "Braced" substitution context - only remaining special char is the closing brace.
+                if (cc == '}')
+                    state = sstack.pop();
+            } else if (cc == ')') {
+                if (state.current == MxMath) {
+                    if (str.unicode()[pos + 1].unicode() == ')') {
+                        state = sstack.pop();
+                        pos += 2;
+                    } else {
+                        // False hit: the $(( was a $( ( in fact.
+                        // ash does not care (and will complain), but bash actually parses it.
+                        varPos = ostack.top().varPos;
+                        pos = ostack.top().pos;
+                        str = ostack.top().str;
+                        ostack.pop();
+                        state.current = MxParen;
+                        state.dquote = false;
+                        sstack.push(state);
+                    }
+                    continue;
+                } else if (state.current == MxParen) {
+                    state = sstack.pop();
+                } else {
+                    break; // Syntax error - excess closing parenthesis.
+                }
+            } else if (cc == '}') {
+                if (state.current == MxGroup)
+                    state = sstack.pop();
+                else
+                    break; // Syntax error - excess closing brace.
+            } else if (cc == '(') {
+                // Context-saving command grouping.
+                sstack.push(state);
+                state.current = MxParen;
+            } else if (cc == '{') {
+                // Plain command grouping.
+                sstack.push(state);
+                state.current = MxGroup;
+            }
+            pos++;
+        }
+        // FIXME? May complain if (!sstack.empty()), but we don't really care anyway.
     }
-    // FIXME? May complain if (!sstack.empty()), but we don't really care anyway.
-#endif
 
     *cmd = str;
     return true;
 }
 
-QString QtcProcess::expandMacros(const QString &str, AbstractMacroExpander *mx)
+QString QtcProcess::expandMacros(const QString &str, AbstractMacroExpander *mx, OsType osType)
 {
     QString ret = str;
-    expandMacros(&ret, mx);
+    expandMacros(&ret, mx, osType);
     return ret;
 }
 
@@ -1203,252 +1202,252 @@ bool QtcProcess::ArgIterator::next()
     m_simple = true;
     m_value.clear();
 
-#ifdef Q_OS_WIN
-    enum { // cmd.exe parsing state
-        ShellBasic, // initial state
-        ShellQuoted, // double-quoted state => *no* other meta chars are interpreted
-        ShellEscaped // circumflex-escaped state => next char is not interpreted
-    } shellState = ShellBasic;
-    enum { // CommandLineToArgv() parsing state and some more
-        CrtBasic, // initial state
-        CrtInWord, // in non-whitespace
-        CrtClosed, // previous char closed the double-quoting
-        CrtQuoted // double-quoted state => spaces don't split tokens
-    } crtState = CrtBasic;
-    enum { NoVar, NewVar, FullVar } varState = NoVar; // inside a potential env variable expansion
-    int bslashes = 0; // number of preceding backslashes
+    if (m_osType == OsTypeWindows) {
+        enum { // cmd.exe parsing state
+            ShellBasic, // initial state
+            ShellQuoted, // double-quoted state => *no* other meta chars are interpreted
+            ShellEscaped // circumflex-escaped state => next char is not interpreted
+        } shellState = ShellBasic;
+        enum { // CommandLineToArgv() parsing state and some more
+            CrtBasic, // initial state
+            CrtInWord, // in non-whitespace
+            CrtClosed, // previous char closed the double-quoting
+            CrtQuoted // double-quoted state => spaces don't split tokens
+        } crtState = CrtBasic;
+        enum { NoVar, NewVar, FullVar } varState = NoVar; // inside a potential env variable expansion
+        int bslashes = 0; // number of preceding backslashes
 
-    for (;; m_pos++) {
-        ushort cc = m_pos < m_str->length() ? m_str->unicode()[m_pos].unicode() : 0;
-        if (shellState == ShellBasic && cc == '^') {
-            varState = NoVar;
-            shellState = ShellEscaped;
-        } else if ((shellState == ShellBasic && isMetaChar(cc)) || !cc) { // A "bit" simplistic ...
-            // We ignore crtQuote state here. Whatever ...
-          doReturn:
-            if (m_simple)
-                while (--bslashes >= 0)
-                    m_value += QLatin1Char('\\');
-            else
-                m_value.clear();
-            if (crtState != CrtBasic) {
-                m_prev = prev;
-                return true;
-            }
-            return false;
-        } else {
-            if (crtState != CrtQuoted && (cc == ' ' || cc == '\t')) {
-                if (crtState != CrtBasic) {
-                    // We'll lose shellQuote state here. Whatever ...
-                    goto doReturn;
-                }
-            } else {
-                if (cc == '\\') {
-                    bslashes++;
-                    if (crtState != CrtQuoted)
-                        crtState = CrtInWord;
-                    varState = NoVar;
-                } else {
-                    if (cc == '"') {
-                        varState = NoVar;
-                        if (shellState != ShellEscaped)
-                            shellState = (shellState == ShellQuoted) ? ShellBasic : ShellQuoted;
-                        int obslashes = bslashes;
-                        bslashes >>= 1;
-                        if (!(obslashes & 1)) {
-                            // Even number of backslashes, so the quote is not escaped.
-                            switch (crtState) {
-                            case CrtQuoted:
-                                // Closing quote
-                                crtState = CrtClosed;
-                                continue;
-                            case CrtClosed:
-                                // Two consecutive quotes make a literal quote - and
-                                // still close quoting. See quoteArg().
-                                crtState = CrtInWord;
-                                break;
-                            default:
-                                // Opening quote
-                                crtState = CrtQuoted;
-                                continue;
-                            }
-                        } else if (crtState != CrtQuoted) {
-                            crtState = CrtInWord;
-                        }
-                    } else {
-                        if (cc == '%') {
-                            if (varState == FullVar) {
-                                m_simple = false;
-                                varState = NoVar;
-                            } else {
-                                varState = NewVar;
-                            }
-                        } else if (varState != NoVar) {
-                            // This check doesn't really reflect cmd reality, but it is an
-                            // approximation of what would be sane.
-                            varState = (cc == '_' || cc == '-' || cc == '.'
-                                     || QChar(cc).isLetterOrNumber()) ? FullVar : NoVar;
-
-                        }
-                        if (crtState != CrtQuoted)
-                            crtState = CrtInWord;
-                    }
-                    for (; bslashes > 0; bslashes--)
+        for (;; m_pos++) {
+            ushort cc = m_pos < m_str->length() ? m_str->unicode()[m_pos].unicode() : 0;
+            if (shellState == ShellBasic && cc == '^') {
+                varState = NoVar;
+                shellState = ShellEscaped;
+            } else if ((shellState == ShellBasic && isMetaCharWin(cc)) || !cc) { // A "bit" simplistic ...
+                // We ignore crtQuote state here. Whatever ...
+              doReturn:
+                if (m_simple)
+                    while (--bslashes >= 0)
                         m_value += QLatin1Char('\\');
-                    m_value += QChar(cc);
-                }
-            }
-            if (shellState == ShellEscaped)
-                shellState = ShellBasic;
-        }
-    }
-#else
-    MxState state = { MxBasic, false };
-    QStack<MxState> sstack;
-    QStack<int> ostack;
-    bool hadWord = false;
-
-    for (; m_pos < m_str->length(); m_pos++) {
-        ushort cc = m_str->unicode()[m_pos].unicode();
-        if (state.current == MxSingleQuote) {
-            if (cc == '\'') {
-                state = sstack.pop();
-                continue;
-            }
-        } else if (cc == '\\') {
-            if (++m_pos >= m_str->length())
-                break;
-            cc = m_str->unicode()[m_pos].unicode();
-            if (state.dquote && cc != '"' && cc != '\\' && cc != '$' && cc != '`')
-                m_value += QLatin1Char('\\');
-        } else if (cc == '$') {
-            if (++m_pos >= m_str->length())
-                break;
-            cc = m_str->unicode()[m_pos].unicode();
-            if (cc == '(') {
-                sstack.push(state);
-                if (++m_pos >= m_str->length())
-                    break;
-                if (m_str->unicode()[m_pos].unicode() == '(') {
-                    ostack.push(m_pos);
-                    state.current = MxMath;
-                } else {
-                    state.dquote = false;
-                    state.current = MxParen;
-                    // m_pos too far by one now - whatever.
-                }
-            } else if (cc == '{') {
-                sstack.push(state);
-                state.current = MxSubst;
-            } else {
-                // m_pos too far by one now - whatever.
-            }
-            m_simple = false;
-            hadWord = true;
-            continue;
-        } else if (cc == '`') {
-            forever {
-                if (++m_pos >= m_str->length()) {
-                    m_simple = false;
+                else
+                    m_value.clear();
+                if (crtState != CrtBasic) {
                     m_prev = prev;
                     return true;
                 }
-                cc = m_str->unicode()[m_pos].unicode();
-                if (cc == '`')
-                    break;
-                if (cc == '\\')
-                    m_pos++; // m_pos may be too far by one now - whatever.
+                return false;
+            } else {
+                if (crtState != CrtQuoted && (cc == ' ' || cc == '\t')) {
+                    if (crtState != CrtBasic) {
+                        // We'll lose shellQuote state here. Whatever ...
+                        goto doReturn;
+                    }
+                } else {
+                    if (cc == '\\') {
+                        bslashes++;
+                        if (crtState != CrtQuoted)
+                            crtState = CrtInWord;
+                        varState = NoVar;
+                    } else {
+                        if (cc == '"') {
+                            varState = NoVar;
+                            if (shellState != ShellEscaped)
+                                shellState = (shellState == ShellQuoted) ? ShellBasic : ShellQuoted;
+                            int obslashes = bslashes;
+                            bslashes >>= 1;
+                            if (!(obslashes & 1)) {
+                                // Even number of backslashes, so the quote is not escaped.
+                                switch (crtState) {
+                                case CrtQuoted:
+                                    // Closing quote
+                                    crtState = CrtClosed;
+                                    continue;
+                                case CrtClosed:
+                                    // Two consecutive quotes make a literal quote - and
+                                    // still close quoting. See quoteArg().
+                                    crtState = CrtInWord;
+                                    break;
+                                default:
+                                    // Opening quote
+                                    crtState = CrtQuoted;
+                                    continue;
+                                }
+                            } else if (crtState != CrtQuoted) {
+                                crtState = CrtInWord;
+                            }
+                        } else {
+                            if (cc == '%') {
+                                if (varState == FullVar) {
+                                    m_simple = false;
+                                    varState = NoVar;
+                                } else {
+                                    varState = NewVar;
+                                }
+                            } else if (varState != NoVar) {
+                                // This check doesn't really reflect cmd reality, but it is an
+                                // approximation of what would be sane.
+                                varState = (cc == '_' || cc == '-' || cc == '.'
+                                         || QChar(cc).isLetterOrNumber()) ? FullVar : NoVar;
+
+                            }
+                            if (crtState != CrtQuoted)
+                                crtState = CrtInWord;
+                        }
+                        for (; bslashes > 0; bslashes--)
+                            m_value += QLatin1Char('\\');
+                        m_value += QChar(cc);
+                    }
+                }
+                if (shellState == ShellEscaped)
+                    shellState = ShellBasic;
             }
-            m_simple = false;
-            hadWord = true;
-            continue;
-        } else if (state.current == MxDoubleQuote) {
-            if (cc == '"') {
-                state = sstack.pop();
-                continue;
-            }
-        } else if (cc == '\'') {
-            if (!state.dquote) {
-                sstack.push(state);
-                state.current = MxSingleQuote;
-                hadWord = true;
-                continue;
-            }
-        } else if (cc == '"') {
-            if (!state.dquote) {
-                sstack.push(state);
-                state.dquote = true;
-                state.current = MxDoubleQuote;
-                hadWord = true;
-                continue;
-            }
-        } else if (state.current == MxSubst) {
-            if (cc == '}')
-                state = sstack.pop();
-            continue; // Not simple anyway
-        } else if (cc == ')') {
-            if (state.current == MxMath) {
+        }
+    } else {
+        MxState state = { MxBasic, false };
+        QStack<MxState> sstack;
+        QStack<int> ostack;
+        bool hadWord = false;
+
+        for (; m_pos < m_str->length(); m_pos++) {
+            ushort cc = m_str->unicode()[m_pos].unicode();
+            if (state.current == MxSingleQuote) {
+                if (cc == '\'') {
+                    state = sstack.pop();
+                    continue;
+                }
+            } else if (cc == '\\') {
                 if (++m_pos >= m_str->length())
                     break;
-                if (m_str->unicode()[m_pos].unicode() == ')') {
-                    ostack.pop();
-                    state = sstack.pop();
-                } else {
-                    // false hit: the $(( was a $( ( in fact.
-                    // ash does not care, but bash does.
-                    m_pos = ostack.pop();
-                    state.current = MxParen;
-                    state.dquote = false;
+                cc = m_str->unicode()[m_pos].unicode();
+                if (state.dquote && cc != '"' && cc != '\\' && cc != '$' && cc != '`')
+                    m_value += QLatin1Char('\\');
+            } else if (cc == '$') {
+                if (++m_pos >= m_str->length())
+                    break;
+                cc = m_str->unicode()[m_pos].unicode();
+                if (cc == '(') {
                     sstack.push(state);
+                    if (++m_pos >= m_str->length())
+                        break;
+                    if (m_str->unicode()[m_pos].unicode() == '(') {
+                        ostack.push(m_pos);
+                        state.current = MxMath;
+                    } else {
+                        state.dquote = false;
+                        state.current = MxParen;
+                        // m_pos too far by one now - whatever.
+                    }
+                } else if (cc == '{') {
+                    sstack.push(state);
+                    state.current = MxSubst;
+                } else {
+                    // m_pos too far by one now - whatever.
                 }
+                m_simple = false;
+                hadWord = true;
                 continue;
-            } else if (state.current == MxParen) {
-                state = sstack.pop();
+            } else if (cc == '`') {
+                forever {
+                    if (++m_pos >= m_str->length()) {
+                        m_simple = false;
+                        m_prev = prev;
+                        return true;
+                    }
+                    cc = m_str->unicode()[m_pos].unicode();
+                    if (cc == '`')
+                        break;
+                    if (cc == '\\')
+                        m_pos++; // m_pos may be too far by one now - whatever.
+                }
+                m_simple = false;
+                hadWord = true;
                 continue;
-            } else {
-                break;
-            }
+            } else if (state.current == MxDoubleQuote) {
+                if (cc == '"') {
+                    state = sstack.pop();
+                    continue;
+                }
+            } else if (cc == '\'') {
+                if (!state.dquote) {
+                    sstack.push(state);
+                    state.current = MxSingleQuote;
+                    hadWord = true;
+                    continue;
+                }
+            } else if (cc == '"') {
+                if (!state.dquote) {
+                    sstack.push(state);
+                    state.dquote = true;
+                    state.current = MxDoubleQuote;
+                    hadWord = true;
+                    continue;
+                }
+            } else if (state.current == MxSubst) {
+                if (cc == '}')
+                    state = sstack.pop();
+                continue; // Not simple anyway
+            } else if (cc == ')') {
+                if (state.current == MxMath) {
+                    if (++m_pos >= m_str->length())
+                        break;
+                    if (m_str->unicode()[m_pos].unicode() == ')') {
+                        ostack.pop();
+                        state = sstack.pop();
+                    } else {
+                        // false hit: the $(( was a $( ( in fact.
+                        // ash does not care, but bash does.
+                        m_pos = ostack.pop();
+                        state.current = MxParen;
+                        state.dquote = false;
+                        sstack.push(state);
+                    }
+                    continue;
+                } else if (state.current == MxParen) {
+                    state = sstack.pop();
+                    continue;
+                } else {
+                    break;
+                }
 #if 0 // MxGroup is impossible, see below.
-        } else if (cc == '}') {
-            if (state.current == MxGroup) {
-                state = sstack.pop();
-                continue;
-            }
+            } else if (cc == '}') {
+                if (state.current == MxGroup) {
+                    state = sstack.pop();
+                    continue;
+                }
 #endif
-        } else if (cc == '(') {
-            sstack.push(state);
-            state.current = MxParen;
-            m_simple = false;
-            hadWord = true;
+            } else if (cc == '(') {
+                sstack.push(state);
+                state.current = MxParen;
+                m_simple = false;
+                hadWord = true;
 #if 0 // Should match only at the beginning of a command, which we never have currently.
-        } else if (cc == '{') {
-            sstack.push(state);
-            state.current = MxGroup;
-            m_simple = false;
-            hadWord = true;
-            continue;
-#endif
-        } else if (cc == '<' || cc == '>' || cc == '&' || cc == '|' || cc == ';') {
-            if (sstack.isEmpty())
-                break;
-        } else if (cc == ' ' || cc == '\t') {
-            if (!hadWord)
+            } else if (cc == '{') {
+                sstack.push(state);
+                state.current = MxGroup;
+                m_simple = false;
+                hadWord = true;
                 continue;
-            if (sstack.isEmpty())
-                break;
-        }
-        m_value += QChar(cc);
-        hadWord = true;
-    }
-    // TODO: Possibly complain here if (!sstack.empty())
-    if (!m_simple)
-        m_value.clear();
-    if (hadWord) {
-        m_prev = prev;
-        return true;
-    }
-    return false;
 #endif
+            } else if (cc == '<' || cc == '>' || cc == '&' || cc == '|' || cc == ';') {
+                if (sstack.isEmpty())
+                    break;
+            } else if (cc == ' ' || cc == '\t') {
+                if (!hadWord)
+                    continue;
+                if (sstack.isEmpty())
+                    break;
+            }
+            m_value += QChar(cc);
+            hadWord = true;
+        }
+        // TODO: Possibly complain here if (!sstack.empty())
+        if (!m_simple)
+            m_value.clear();
+        if (hadWord) {
+            m_prev = prev;
+            return true;
+        }
+        return false;
+    }
 }
 
 void QtcProcess::ArgIterator::deleteArg()
@@ -1470,8 +1469,6 @@ void QtcProcess::ArgIterator::appendArg(const QString &str)
     m_pos += qstr.length() + 1;
 }
 
-namespace Utils {
-
 QTCREATOR_UTILS_EXPORT unsigned long qPidToPid(const Q_PID qpid)
 {
 #ifdef Q_OS_WIN
@@ -1480,6 +1477,42 @@ QTCREATOR_UTILS_EXPORT unsigned long qPidToPid(const Q_PID qpid)
 #else
     return qpid;
 #endif
+}
+
+QtcProcess::Arguments QtcProcess::Arguments::createWindowsArgs(const QString &args)
+{
+    Arguments result;
+    result.m_windowsArgs = args;
+    result.m_isWindows = true;
+    return result;
+}
+
+QtcProcess::Arguments QtcProcess::Arguments::createUnixArgs(const QStringList &args)
+{
+    Arguments result;
+    result.m_unixArgs = args;
+    result.m_isWindows = false;
+    return result;
+}
+
+QString QtcProcess::Arguments::toWindowsArgs() const
+{
+    QTC_CHECK(m_isWindows);
+    return m_windowsArgs;
+}
+
+QStringList QtcProcess::Arguments::toUnixArgs() const
+{
+    QTC_CHECK(!m_isWindows);
+    return m_unixArgs;
+}
+
+QString QtcProcess::Arguments::toString() const
+{
+    if (m_isWindows)
+        return m_windowsArgs;
+    else
+        return QtcProcess::joinArgs(m_unixArgs, OsTypeLinux);
 }
 
 } // namespace Utils

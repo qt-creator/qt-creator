@@ -4771,19 +4771,20 @@ void GdbEngine::write(const QByteArray &data)
 
 bool GdbEngine::prepareCommand()
 {
-#ifdef Q_OS_WIN
-    Utils::QtcProcess::SplitError perr;
-    startParameters().processArgs = Utils::QtcProcess::prepareArgs(
-                startParameters().processArgs, &perr,
-                &startParameters().environment, &startParameters().workingDirectory);
-    if (perr != Utils::QtcProcess::SplitOk) {
-        // perr == BadQuoting is never returned on Windows
-        // FIXME? QTCREATORBUG-2809
-        handleAdapterStartFailed(QCoreApplication::translate("DebuggerEngine", // Same message in CdbEngine
-                                                             "Debugging complex command lines is currently not supported on Windows."), Core::Id());
-        return false;
+    if (HostOsInfo::isWindowsHost()) {
+        DebuggerStartParameters &sp = startParameters();
+        QtcProcess::SplitError perr;
+        sp.processArgs = QtcProcess::prepareArgs(sp.processArgs, &perr,
+                                                 Utils::HostOsInfo::hostOs(),
+                    &sp.environment, &sp.workingDirectory).toWindowsArgs();
+        if (perr != Utils::QtcProcess::SplitOk) {
+            // perr == BadQuoting is never returned on Windows
+            // FIXME? QTCREATORBUG-2809
+            handleAdapterStartFailed(QCoreApplication::translate("DebuggerEngine", // Same message in CdbEngine
+                                                                 "Debugging complex command lines is currently not supported on Windows."), Core::Id());
+            return false;
+        }
     }
-#endif
     return true;
 }
 

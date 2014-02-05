@@ -75,7 +75,10 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         pcmd = program;
         pargs = args;
     } else {
-        QtcProcess::prepareCommand(program, args, &pcmd, &pargs, &d->m_environment, &d->m_workingDir);
+        QtcProcess::Arguments outArgs;
+        QtcProcess::prepareCommand(program, args, &pcmd, &outArgs, OsTypeWindows,
+                                   &d->m_environment, &d->m_workingDir);
+        pargs = outArgs.toWindowsArgs();
     }
 
     const QString err = stubServerListen();

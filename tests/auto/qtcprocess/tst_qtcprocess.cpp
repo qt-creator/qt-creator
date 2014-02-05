@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include <utils/qtcprocess.h>
+#include <utils/hostosinfo.h>
 #include <utils/stringutils.h>
 #include <utils/environment.h>
 
@@ -57,6 +58,7 @@ class tst_QtcProcess : public QObject
 
 private slots:
     void initTestCase();
+
     void splitArgs_data();
     void splitArgs();
     void prepareArgs_data();
@@ -67,120 +69,123 @@ private slots:
     void expandMacros();
     void iterations_data();
     void iterations();
-    void iteratorEdits();
+    void iteratorEditsWindows();
+    void iteratorEditsLinux();
 
 private:
-    Environment env;
-    MacroMapExpander mx;
-#ifdef Q_OS_UNIX
+    void iteratorEditsHelper(OsType osType);
+
+    Environment envWindows;
+    Environment envLinux;
+
+    MacroMapExpander mxWin;
+    MacroMapExpander mxUnix;
     QString homeStr;
     QString home;
-#endif
 };
 
 void tst_QtcProcess::initTestCase()
 {
-#ifdef Q_OS_UNIX
     homeStr = QLatin1String("@HOME@");
     home = QDir::homePath();
-#endif
 
-    env.set("empty", "");
-    env.set("word", "hi");
-    env.set("words", "hi ho");
-    env.set("spacedwords", " hi   ho sucker ");
+    QStringList env;
+    env << "empty=" << "word=hi" << "words=hi ho" << "spacedwords= hi   ho sucker ";
+    envWindows = Environment(env, OsTypeWindows);
+    envLinux = Environment(env, OsTypeLinux);
 
-#ifdef Q_OS_WIN
-    mx.insert("a", "hi");
-    mx.insert("aa", "hi ho");
+    mxWin.insert("a", "hi");
+    mxWin.insert("aa", "hi ho");
 
-    mx.insert("b", "h\\i");
-    mx.insert("c", "\\hi");
-    mx.insert("d", "hi\\");
-    mx.insert("ba", "h\\i ho");
-    mx.insert("ca", "\\hi ho");
-    mx.insert("da", "hi ho\\");
+    mxWin.insert("b", "h\\i");
+    mxWin.insert("c", "\\hi");
+    mxWin.insert("d", "hi\\");
+    mxWin.insert("ba", "h\\i ho");
+    mxWin.insert("ca", "\\hi ho");
+    mxWin.insert("da", "hi ho\\");
 
-    mx.insert("e", "h\"i");
-    mx.insert("f", "\"hi");
-    mx.insert("g", "hi\"");
+    mxWin.insert("e", "h\"i");
+    mxWin.insert("f", "\"hi");
+    mxWin.insert("g", "hi\"");
 
-    mx.insert("h", "h\\\"i");
-    mx.insert("i", "\\\"hi");
-    mx.insert("j", "hi\\\"");
+    mxWin.insert("h", "h\\\"i");
+    mxWin.insert("i", "\\\"hi");
+    mxWin.insert("j", "hi\\\"");
 
-    mx.insert("k", "&special;");
+    mxWin.insert("k", "&special;");
 
-    mx.insert("x", "\\");
-    mx.insert("y", "\"");
-#else
-    mx.insert("a", "hi");
-    mx.insert("b", "hi ho");
-    mx.insert("c", "&special;");
-    mx.insert("d", "h\\i");
-    mx.insert("e", "h\"i");
-    mx.insert("f", "h'i");
-#endif
-    mx.insert("z", "");
+    mxWin.insert("x", "\\");
+    mxWin.insert("y", "\"");
+    mxWin.insert("z", "");
+
+    mxUnix.insert("a", "hi");
+    mxUnix.insert("b", "hi ho");
+    mxUnix.insert("c", "&special;");
+    mxUnix.insert("d", "h\\i");
+    mxUnix.insert("e", "h\"i");
+    mxUnix.insert("f", "h'i");
+    mxUnix.insert("z", "");
 }
 
+
 Q_DECLARE_METATYPE(QtcProcess::SplitError)
+Q_DECLARE_METATYPE(Utils::OsType)
 
 void tst_QtcProcess::splitArgs_data()
 {
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
     QTest::addColumn<QtcProcess::SplitError>("err");
+    QTest::addColumn<Utils::OsType>("os");
 
     static const struct {
         const char * const in;
         const char * const out;
         const QtcProcess::SplitError err;
+        const OsType os;
     } vals[] = {
-#ifdef Q_OS_WIN
-        { "", "", QtcProcess::SplitOk },
-        { " ", "", QtcProcess::SplitOk },
-        { "hi", "hi", QtcProcess::SplitOk },
-        { "hi ho", "hi ho", QtcProcess::SplitOk },
-        { " hi ho ", "hi ho", QtcProcess::SplitOk },
-        { "\"hi ho\" \"hi\" ho  ", "\"hi ho\" hi ho", QtcProcess::SplitOk },
-        { "\\", "\\", QtcProcess::SplitOk },
-        { "\\\"", "\"\"\\^\"\"\"", QtcProcess::SplitOk },
-        { "\"hi\"\"\"ho\"", "\"hi\"\\^\"\"ho\"", QtcProcess::SplitOk },
-        { "\\\\\\\"", "\"\"\\\\\\^\"\"\"", QtcProcess::SplitOk },
-        { " ^^ ", "\"^^\"", QtcProcess::SplitOk },
-        { "hi\"", "", QtcProcess::BadQuoting },
-        { "hi\"dood", "", QtcProcess::BadQuoting },
-        { "%var%", "%var%", QtcProcess::SplitOk },
-#else
-        { "", "", QtcProcess::SplitOk },
-        { " ", "", QtcProcess::SplitOk },
-        { "hi", "hi", QtcProcess::SplitOk },
-        { "hi ho", "hi ho", QtcProcess::SplitOk },
-        { " hi ho ", "hi ho", QtcProcess::SplitOk },
-        { "'hi ho' \"hi\" ho  ", "'hi ho' hi ho", QtcProcess::SplitOk },
-        { " \\ ", "' '", QtcProcess::SplitOk },
-        { " \\\" ", "'\"'", QtcProcess::SplitOk },
-        { " '\"' ", "'\"'", QtcProcess::SplitOk },
-        { " \"\\\"\" ", "'\"'", QtcProcess::SplitOk },
-        { "hi'", "", QtcProcess::BadQuoting },
-        { "hi\"dood", "", QtcProcess::BadQuoting },
-        { "$var", "'$var'", QtcProcess::SplitOk },
-        { "~", "@HOME@", QtcProcess::SplitOk },
-        { "~ foo", "@HOME@ foo", QtcProcess::SplitOk },
-        { "foo ~", "foo @HOME@", QtcProcess::SplitOk },
-        { "~/foo", "@HOME@/foo", QtcProcess::SplitOk },
-        { "~foo", "'~foo'", QtcProcess::SplitOk },
-#endif
+        { "", "", QtcProcess::SplitOk, OsTypeWindows },
+        { " ", "", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi", "hi", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi ho", "hi ho", QtcProcess::SplitOk, OsTypeWindows },
+        { " hi ho ", "hi ho", QtcProcess::SplitOk, OsTypeWindows },
+        { "\"hi ho\" \"hi\" ho  ", "\"hi ho\" hi ho", QtcProcess::SplitOk, OsTypeWindows },
+        { "\\", "\\", QtcProcess::SplitOk, OsTypeWindows },
+        { "\\\"", "\"\"\\^\"\"\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "\"hi\"\"\"ho\"", "\"hi\"\\^\"\"ho\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "\\\\\\\"", "\"\"\\\\\\^\"\"\"", QtcProcess::SplitOk, OsTypeWindows },
+        { " ^^ ", "\"^^\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi\"", "", QtcProcess::BadQuoting, OsTypeWindows },
+        { "hi\"dood", "", QtcProcess::BadQuoting, OsTypeWindows },
+        { "%var%", "%var%", QtcProcess::SplitOk, OsTypeWindows },
+
+        { "", "", QtcProcess::SplitOk, OsTypeLinux },
+        { " ", "", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi", "hi", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi ho", "hi ho", QtcProcess::SplitOk, OsTypeLinux },
+        { " hi ho ", "hi ho", QtcProcess::SplitOk, OsTypeLinux },
+        { "'hi ho' \"hi\" ho  ", "'hi ho' hi ho", QtcProcess::SplitOk, OsTypeLinux },
+        { " \\ ", "' '", QtcProcess::SplitOk, OsTypeLinux },
+        { " \\\" ", "'\"'", QtcProcess::SplitOk, OsTypeLinux },
+        { " '\"' ", "'\"'", QtcProcess::SplitOk, OsTypeLinux },
+        { " \"\\\"\" ", "'\"'", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi'", "", QtcProcess::BadQuoting, OsTypeLinux },
+        { "hi\"dood", "", QtcProcess::BadQuoting, OsTypeLinux },
+        { "$var", "'$var'", QtcProcess::SplitOk, OsTypeLinux },
+        { "~", "@HOME@", QtcProcess::SplitOk, OsTypeLinux },
+        { "~ foo", "@HOME@ foo", QtcProcess::SplitOk, OsTypeLinux },
+        { "foo ~", "foo @HOME@", QtcProcess::SplitOk, OsTypeLinux },
+        { "~/foo", "@HOME@/foo", QtcProcess::SplitOk, OsTypeLinux },
+        { "~foo", "'~foo'", QtcProcess::SplitOk, OsTypeLinux }
     };
 
-    for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
+    for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++) {
+        QString out = QString::fromLatin1(vals[i].out);
+        if (vals[i].os == OsTypeLinux)
+            out.replace(homeStr, home);
         QTest::newRow(vals[i].in) << QString::fromLatin1(vals[i].in)
-                                  << QString::fromLatin1(vals[i].out)
-#ifdef Q_OS_UNIX
-                                     .replace(homeStr, home)
-#endif
-                                  << vals[i].err;
+                                  << out << vals[i].err << vals[i].os;
+    }
 }
 
 void tst_QtcProcess::splitArgs()
@@ -188,9 +193,10 @@ void tst_QtcProcess::splitArgs()
     QFETCH(QString, in);
     QFETCH(QString, out);
     QFETCH(QtcProcess::SplitError, err);
+    QFETCH(Utils::OsType, os);
 
     QtcProcess::SplitError outerr;
-    QString outstr = QtcProcess::joinArgs(QtcProcess::splitArgs(in, false, &outerr));
+    QString outstr = QtcProcess::joinArgs(QtcProcess::splitArgs(in, os, false, &outerr), os);
     QCOMPARE(outerr, err);
     if (err == QtcProcess::SplitOk)
         QCOMPARE(outstr, out);
@@ -201,53 +207,53 @@ void tst_QtcProcess::prepareArgs_data()
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
     QTest::addColumn<QtcProcess::SplitError>("err");
+    QTest::addColumn<OsType>("os");
 
     static const struct {
         const char * const in;
         const char * const out;
         const QtcProcess::SplitError err;
+        const OsType os;
     } vals[] = {
-#ifdef Q_OS_WIN
-        { "", "", QtcProcess::SplitOk },
-        { " ", " ", QtcProcess::SplitOk },
-        { "hi", "hi", QtcProcess::SplitOk },
-        { "hi ho", "hi ho", QtcProcess::SplitOk },
-        { " hi ho ", " hi ho ", QtcProcess::SplitOk },
-        { "\"hi ho\" \"hi\" ho  ", "\"hi ho\" \"hi\" ho  ", QtcProcess::SplitOk },
-        { "\\", "\\", QtcProcess::SplitOk },
-        { "\\\"", "\\\"", QtcProcess::SplitOk },
-        { "\"hi\"\"ho\"", "\"hi\"\"ho\"", QtcProcess::SplitOk },
-        { "\\\\\\\"", "\\\\\\\"", QtcProcess::SplitOk },
-        { "^^", "^", QtcProcess::SplitOk },
-        { "hi\"", "hi\"", QtcProcess::SplitOk },
-        { "hi\"dood", "hi\"dood", QtcProcess::SplitOk },
-        { "%var%", "", QtcProcess::FoundMeta },
-        { "echo hi > file", "", QtcProcess::FoundMeta },
-#else
-        { "", "", QtcProcess::SplitOk },
-        { " ", "", QtcProcess::SplitOk },
-        { "hi", "hi", QtcProcess::SplitOk },
-        { "hi ho", "hi ho", QtcProcess::SplitOk },
-        { " hi ho ", "hi ho", QtcProcess::SplitOk },
-        { "'hi ho' \"hi\" ho  ", "'hi ho' hi ho", QtcProcess::SplitOk },
-        { " \\ ", "' '", QtcProcess::SplitOk },
-        { "hi'", "", QtcProcess::BadQuoting },
-        { "hi\"dood", "", QtcProcess::BadQuoting },
-        { "$var", "", QtcProcess::FoundMeta },
-        { "~", "@HOME@", QtcProcess::SplitOk },
-        { "~ foo", "@HOME@ foo", QtcProcess::SplitOk },
-        { "~/foo", "@HOME@/foo", QtcProcess::SplitOk },
-        { "~foo", "", QtcProcess::FoundMeta },
-#endif
+        { " ", " ", QtcProcess::SplitOk, OsTypeWindows },
+        { "", "", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi", "hi", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi ho", "hi ho", QtcProcess::SplitOk, OsTypeWindows },
+        { " hi ho ", " hi ho ", QtcProcess::SplitOk, OsTypeWindows },
+        { "\"hi ho\" \"hi\" ho  ", "\"hi ho\" \"hi\" ho  ", QtcProcess::SplitOk, OsTypeWindows },
+        { "\\", "\\", QtcProcess::SplitOk, OsTypeWindows },
+        { "\\\"", "\\\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "\"hi\"\"ho\"", "\"hi\"\"ho\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "\\\\\\\"", "\\\\\\\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "^^", "^", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi\"", "hi\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi\"dood", "hi\"dood", QtcProcess::SplitOk, OsTypeWindows },
+        { "%var%", "", QtcProcess::FoundMeta, OsTypeWindows },
+        { "echo hi > file", "", QtcProcess::FoundMeta, OsTypeWindows },
+
+        { "", "", QtcProcess::SplitOk, OsTypeLinux },
+        { " ", "", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi", "hi", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi ho", "hi ho", QtcProcess::SplitOk, OsTypeLinux },
+        { " hi ho ", "hi ho", QtcProcess::SplitOk, OsTypeLinux },
+        { "'hi ho' \"hi\" ho  ", "'hi ho' hi ho", QtcProcess::SplitOk, OsTypeLinux },
+        { " \\ ", "' '", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi'", "", QtcProcess::BadQuoting, OsTypeLinux },
+        { "hi\"dood", "", QtcProcess::BadQuoting, OsTypeLinux },
+        { "$var", "", QtcProcess::FoundMeta, OsTypeLinux },
+        { "~", "@HOME@", QtcProcess::SplitOk, OsTypeLinux },
+        { "~ foo", "@HOME@ foo", QtcProcess::SplitOk, OsTypeLinux },
+        { "~/foo", "@HOME@/foo", QtcProcess::SplitOk, OsTypeLinux },
+        { "~foo", "", QtcProcess::FoundMeta, OsTypeLinux }
     };
 
-    for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
+    for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++) {
+        QString out = QString::fromLatin1(vals[i].out);
+        if (vals[i].os == OsTypeLinux)
+            out.replace(homeStr, home);
         QTest::newRow(vals[i].in) << QString::fromLatin1(vals[i].in)
-                                  << QString::fromLatin1(vals[i].out)
-#ifdef Q_OS_UNIX
-                                     .replace(homeStr, home)
-#endif
-                                  << vals[i].err;
+                                  << out << vals[i].err << vals[i].os;
+    }
 }
 
 void tst_QtcProcess::prepareArgs()
@@ -255,14 +261,12 @@ void tst_QtcProcess::prepareArgs()
     QFETCH(QString, in);
     QFETCH(QString, out);
     QFETCH(QtcProcess::SplitError, err);
+    QFETCH(OsType, os);
 
     QtcProcess::SplitError outerr;
-    QString outstr;
-#ifdef Q_OS_WIN
-    outstr = QtcProcess::prepareArgs(in, &outerr);
-#else
-    outstr = QtcProcess::joinArgs(QtcProcess::prepareArgs(in, &outerr));
-#endif
+    QtcProcess::Arguments args = QtcProcess::prepareArgs(in, &outerr, os);
+    QString outstr = args.toString();
+
     QCOMPARE(outerr, err);
     if (err == QtcProcess::SplitOk)
         QCOMPARE(outstr, out);
@@ -273,70 +277,73 @@ void tst_QtcProcess::prepareArgsEnv_data()
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
     QTest::addColumn<QtcProcess::SplitError>("err");
+    QTest::addColumn<OsType>("os");
 
     static const struct {
         const char * const in;
         const char * const out;
         const QtcProcess::SplitError err;
+        const OsType os;
     } vals[] = {
-#ifdef Q_OS_WIN
-        { "", "", QtcProcess::SplitOk },
-        { " ", " ", QtcProcess::SplitOk },
-        { "hi", "hi", QtcProcess::SplitOk },
-        { "hi ho", "hi ho", QtcProcess::SplitOk },
-        { " hi ho ", " hi ho ", QtcProcess::SplitOk },
-        { "\"hi ho\" \"hi\" ho  ", "\"hi ho\" \"hi\" ho  ", QtcProcess::SplitOk },
-        { "\\", "\\", QtcProcess::SplitOk },
-        { "\\\"", "\\\"", QtcProcess::SplitOk },
-        { "\"hi\"\"ho\"", "\"hi\"\"ho\"", QtcProcess::SplitOk },
-        { "\\\\\\\"", "\\\\\\\"", QtcProcess::SplitOk },
-        { "^^", "^", QtcProcess::SplitOk },
-        { "hi\"", "hi\"", QtcProcess::SplitOk },
-        { "hi\"dood", "hi\"dood", QtcProcess::SplitOk },
-        { "%empty%", "%empty%", QtcProcess::SplitOk }, // Yep, no empty variables on Windows.
-        { "%word%", "hi", QtcProcess::SplitOk },
-        { " %word% ", " hi ", QtcProcess::SplitOk },
-        { "%words%", "hi ho", QtcProcess::SplitOk },
-        { "%nonsense%words%", "%nonsensehi ho", QtcProcess::SplitOk },
-        { "fail%nonsense%words%", "fail%nonsensehi ho", QtcProcess::SplitOk },
-        { "%words%words%", "hi howords%", QtcProcess::SplitOk },
-        { "%words%%words%", "hi hohi ho", QtcProcess::SplitOk },
-        { "echo hi > file", "", QtcProcess::FoundMeta },
-#else
-        { "", "", QtcProcess::SplitOk },
-        { " ", "", QtcProcess::SplitOk },
-        { "hi", "hi", QtcProcess::SplitOk },
-        { "hi ho", "hi ho", QtcProcess::SplitOk },
-        { " hi ho ", "hi ho", QtcProcess::SplitOk },
-        { "'hi ho' \"hi\" ho  ", "'hi ho' hi ho", QtcProcess::SplitOk },
-        { " \\ ", "' '", QtcProcess::SplitOk },
-        { "hi'", "", QtcProcess::BadQuoting },
-        { "hi\"dood", "", QtcProcess::BadQuoting },
-        { "$empty", "", QtcProcess::SplitOk },
-        { "$word", "hi", QtcProcess::SplitOk },
-        { " $word ", "hi", QtcProcess::SplitOk },
-        { "${word}", "hi", QtcProcess::SplitOk },
-        { " ${word} ", "hi", QtcProcess::SplitOk },
-        { "$words", "hi ho", QtcProcess::SplitOk },
-        { "$spacedwords", "hi ho sucker", QtcProcess::SplitOk },
-        { "hi${empty}ho", "hiho", QtcProcess::SplitOk },
-        { "hi${words}ho", "hihi hoho", QtcProcess::SplitOk },
-        { "hi${spacedwords}ho", "hi hi ho sucker ho", QtcProcess::SplitOk },
-        { "${", "", QtcProcess::BadQuoting },
-        { "${var", "", QtcProcess::BadQuoting },
-        { "${var ", "", QtcProcess::FoundMeta },
-        { "\"hi${words}ho\"", "'hihi hoho'", QtcProcess::SplitOk },
-        { "\"hi${spacedwords}ho\"", "'hi hi   ho sucker ho'", QtcProcess::SplitOk },
-        { "\"${", "", QtcProcess::BadQuoting },
-        { "\"${var", "", QtcProcess::BadQuoting },
-        { "\"${var ", "", QtcProcess::FoundMeta },
-#endif
+        { " ", " ", QtcProcess::SplitOk, OsTypeWindows },
+        { "", "", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi", "hi", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi ho", "hi ho", QtcProcess::SplitOk, OsTypeWindows },
+        { " hi ho ", " hi ho ", QtcProcess::SplitOk, OsTypeWindows },
+        { "\"hi ho\" \"hi\" ho  ", "\"hi ho\" \"hi\" ho  ", QtcProcess::SplitOk, OsTypeWindows },
+        { "\\", "\\", QtcProcess::SplitOk, OsTypeWindows },
+        { "\\\"", "\\\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "\"hi\"\"ho\"", "\"hi\"\"ho\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "\\\\\\\"", "\\\\\\\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "^^", "^", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi\"", "hi\"", QtcProcess::SplitOk, OsTypeWindows },
+        { "hi\"dood", "hi\"dood", QtcProcess::SplitOk, OsTypeWindows },
+        { "%empty%", "%empty%", QtcProcess::SplitOk, OsTypeWindows }, // Yep, no empty variables on Windows.
+        { "%word%", "hi", QtcProcess::SplitOk, OsTypeWindows },
+        { " %word% ", " hi ", QtcProcess::SplitOk, OsTypeWindows },
+        { "%words%", "hi ho", QtcProcess::SplitOk, OsTypeWindows },
+        { "%nonsense%words%", "%nonsensehi ho", QtcProcess::SplitOk, OsTypeWindows },
+        { "fail%nonsense%words%", "fail%nonsensehi ho", QtcProcess::SplitOk, OsTypeWindows },
+        { "%words%words%", "hi howords%", QtcProcess::SplitOk, OsTypeWindows },
+        { "%words%%words%", "hi hohi ho", QtcProcess::SplitOk, OsTypeWindows },
+        { "echo hi > file", "", QtcProcess::FoundMeta, OsTypeWindows },
+
+        { "", "", QtcProcess::SplitOk, OsTypeLinux },
+        { " ", "", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi", "hi", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi ho", "hi ho", QtcProcess::SplitOk, OsTypeLinux },
+        { " hi ho ", "hi ho", QtcProcess::SplitOk, OsTypeLinux },
+        { "'hi ho' \"hi\" ho  ", "'hi ho' hi ho", QtcProcess::SplitOk, OsTypeLinux },
+        { " \\ ", "' '", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi'", "", QtcProcess::BadQuoting, OsTypeLinux },
+        { "hi\"dood", "", QtcProcess::BadQuoting, OsTypeLinux },
+        { "$empty", "", QtcProcess::SplitOk, OsTypeLinux },
+        { "$word", "hi", QtcProcess::SplitOk, OsTypeLinux },
+        { " $word ", "hi", QtcProcess::SplitOk, OsTypeLinux },
+        { "${word}", "hi", QtcProcess::SplitOk, OsTypeLinux },
+        { " ${word} ", "hi", QtcProcess::SplitOk, OsTypeLinux },
+        { "$words", "hi ho", QtcProcess::SplitOk, OsTypeLinux },
+        { "$spacedwords", "hi ho sucker", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi${empty}ho", "hiho", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi${words}ho", "hihi hoho", QtcProcess::SplitOk, OsTypeLinux },
+        { "hi${spacedwords}ho", "hi hi ho sucker ho", QtcProcess::SplitOk, OsTypeLinux },
+        { "${", "", QtcProcess::BadQuoting, OsTypeLinux },
+        { "${var", "", QtcProcess::BadQuoting, OsTypeLinux },
+        { "${var ", "", QtcProcess::FoundMeta, OsTypeLinux },
+        { "\"hi${words}ho\"", "'hihi hoho'", QtcProcess::SplitOk, OsTypeLinux },
+        { "\"hi${spacedwords}ho\"", "'hi hi   ho sucker ho'", QtcProcess::SplitOk, OsTypeLinux },
+        { "\"${", "", QtcProcess::BadQuoting, OsTypeLinux },
+        { "\"${var", "", QtcProcess::BadQuoting, OsTypeLinux },
+        { "\"${var ", "", QtcProcess::FoundMeta, OsTypeLinux },
     };
 
-    for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
+    for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++) {
+        QString out = QString::fromLatin1(vals[i].out);
+        if (vals[i].os == OsTypeLinux)
+            out.replace(homeStr, home);
         QTest::newRow(vals[i].in) << QString::fromLatin1(vals[i].in)
-                                  << QString::fromLatin1(vals[i].out)
-                                  << vals[i].err;
+                                  << out << vals[i].err << vals[i].os;
+    }
 }
 
 void tst_QtcProcess::prepareArgsEnv()
@@ -344,14 +351,12 @@ void tst_QtcProcess::prepareArgsEnv()
     QFETCH(QString, in);
     QFETCH(QString, out);
     QFETCH(QtcProcess::SplitError, err);
+    QFETCH(OsType, os);
 
     QtcProcess::SplitError outerr;
-    QString outstr;
-#ifdef Q_OS_WIN
-    outstr = QtcProcess::prepareArgs(in, &outerr, &env);
-#else
-    outstr = QtcProcess::joinArgs(QtcProcess::prepareArgs(in, &outerr, &env));
-#endif
+    QtcProcess::Arguments args = QtcProcess::prepareArgs(in, &outerr, os, os == OsTypeLinux ? &envLinux : &envWindows);
+    QString outstr = args.toString();
+
     QCOMPARE(outerr, err);
     if (err == QtcProcess::SplitOk)
         QCOMPARE(outstr, out);
@@ -362,215 +367,215 @@ void tst_QtcProcess::expandMacros_data()
 {
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
+    QTest::addColumn<OsType>("os");
     QChar sp(QLatin1Char(' '));
 
     static const struct {
         const char * const in;
         const char * const out;
+        OsType os;
     } vals[] = {
-#ifdef Q_OS_WIN
-        { "plain", 0 },
-        { "%{a}", "hi" },
-        { "%{aa}", "\"hi ho\"" },
-        { "%{b}", "h\\i" },
-        { "%{c}", "\\hi" },
-        { "%{d}", "hi\\" },
-        { "%{ba}", "\"h\\i ho\"" },
-        { "%{ca}", "\"\\hi ho\"" },
-        { "%{da}", "\"hi ho\\\\\"" }, // or "\"hi ho\"\\"
-        { "%{e}", "\"h\"\\^\"\"i\"" },
-        { "%{f}", "\"\"\\^\"\"hi\"" },
-        { "%{g}", "\"hi\"\\^\"\"\"" },
-        { "%{h}", "\"h\\\\\"\\^\"\"i\"" },
-        { "%{i}", "\"\\\\\"\\^\"\"hi\"" },
-        { "%{j}", "\"hi\\\\\"\\^\"\"\"" },
-        { "%{k}", "\"&special;\"" },
-        { "%{x}", "\\" },
-        { "%{y}", "\"\"\\^\"\"\"" },
-        { "%{z}", "\"\"" },
-        { "^%{z}%{z}", "^%{z}%{z}" }, // stupid user check
+        { "plain", 0, OsTypeWindows },
+        { "%{a}", "hi", OsTypeWindows },
+        { "%{aa}", "\"hi ho\"", OsTypeWindows },
+        { "%{b}", "h\\i", OsTypeWindows },
+        { "%{c}", "\\hi", OsTypeWindows },
+        { "%{d}", "hi\\", OsTypeWindows },
+        { "%{ba}", "\"h\\i ho\"", OsTypeWindows },
+        { "%{ca}", "\"\\hi ho\"", OsTypeWindows },
+        { "%{da}", "\"hi ho\\\\\"", OsTypeWindows }, // or "\"hi ho\"\\"
+        { "%{e}", "\"h\"\\^\"\"i\"", OsTypeWindows },
+        { "%{f}", "\"\"\\^\"\"hi\"", OsTypeWindows },
+        { "%{g}", "\"hi\"\\^\"\"\"", OsTypeWindows },
+        { "%{h}", "\"h\\\\\"\\^\"\"i\"", OsTypeWindows },
+        { "%{i}", "\"\\\\\"\\^\"\"hi\"", OsTypeWindows },
+        { "%{j}", "\"hi\\\\\"\\^\"\"\"", OsTypeWindows },
+        { "%{k}", "\"&special;\"", OsTypeWindows },
+        { "%{x}", "\\", OsTypeWindows },
+        { "%{y}", "\"\"\\^\"\"\"", OsTypeWindows },
+        { "%{z}", "\"\"", OsTypeWindows },
+        { "^%{z}%{z}", "^%{z}%{z}", OsTypeWindows }, // stupid user check
 
-        { "quoted", 0 },
-        { "\"%{a}\"", "\"hi\"" },
-        { "\"%{aa}\"", "\"hi ho\"" },
-        { "\"%{b}\"", "\"h\\i\"" },
-        { "\"%{c}\"", "\"\\hi\"" },
-        { "\"%{d}\"", "\"hi\\\\\"" },
-        { "\"%{ba}\"", "\"h\\i ho\"" },
-        { "\"%{ca}\"", "\"\\hi ho\"" },
-        { "\"%{da}\"", "\"hi ho\\\\\"" },
-        { "\"%{e}\"", "\"h\"\\^\"\"i\"" },
-        { "\"%{f}\"", "\"\"\\^\"\"hi\"" },
-        { "\"%{g}\"", "\"hi\"\\^\"\"\"" },
-        { "\"%{h}\"", "\"h\\\\\"\\^\"\"i\"" },
-        { "\"%{i}\"", "\"\\\\\"\\^\"\"hi\"" },
-        { "\"%{j}\"", "\"hi\\\\\"\\^\"\"\"" },
-        { "\"%{k}\"", "\"&special;\"" },
-        { "\"%{x}\"", "\"\\\\\"" },
-        { "\"%{y}\"", "\"\"\\^\"\"\"" },
-        { "\"%{z}\"", "\"\"" },
+        { "quoted", 0, OsTypeWindows },
+        { "\"%{a}\"", "\"hi\"", OsTypeWindows },
+        { "\"%{aa}\"", "\"hi ho\"", OsTypeWindows },
+        { "\"%{b}\"", "\"h\\i\"", OsTypeWindows },
+        { "\"%{c}\"", "\"\\hi\"", OsTypeWindows },
+        { "\"%{d}\"", "\"hi\\\\\"", OsTypeWindows },
+        { "\"%{ba}\"", "\"h\\i ho\"", OsTypeWindows },
+        { "\"%{ca}\"", "\"\\hi ho\"", OsTypeWindows },
+        { "\"%{da}\"", "\"hi ho\\\\\"", OsTypeWindows },
+        { "\"%{e}\"", "\"h\"\\^\"\"i\"", OsTypeWindows },
+        { "\"%{f}\"", "\"\"\\^\"\"hi\"", OsTypeWindows },
+        { "\"%{g}\"", "\"hi\"\\^\"\"\"", OsTypeWindows },
+        { "\"%{h}\"", "\"h\\\\\"\\^\"\"i\"", OsTypeWindows },
+        { "\"%{i}\"", "\"\\\\\"\\^\"\"hi\"", OsTypeWindows },
+        { "\"%{j}\"", "\"hi\\\\\"\\^\"\"\"", OsTypeWindows },
+        { "\"%{k}\"", "\"&special;\"", OsTypeWindows },
+        { "\"%{x}\"", "\"\\\\\"", OsTypeWindows },
+        { "\"%{y}\"", "\"\"\\^\"\"\"", OsTypeWindows },
+        { "\"%{z}\"", "\"\"", OsTypeWindows },
 
-        { "leading bs", 0 },
-        { "\\%{a}", "\\hi" },
-        { "\\%{aa}", "\\\\\"hi ho\"" },
-        { "\\%{b}", "\\h\\i" },
-        { "\\%{c}", "\\\\hi" },
-        { "\\%{d}", "\\hi\\" },
-        { "\\%{ba}", "\\\\\"h\\i ho\"" },
-        { "\\%{ca}", "\\\\\"\\hi ho\"" },
-        { "\\%{da}", "\\\\\"hi ho\\\\\"" },
-        { "\\%{e}", "\\\\\"h\"\\^\"\"i\"" },
-        { "\\%{f}", "\\\\\"\"\\^\"\"hi\"" },
-        { "\\%{g}", "\\\\\"hi\"\\^\"\"\"" },
-        { "\\%{h}", "\\\\\"h\\\\\"\\^\"\"i\"" },
-        { "\\%{i}", "\\\\\"\\\\\"\\^\"\"hi\"" },
-        { "\\%{j}", "\\\\\"hi\\\\\"\\^\"\"\"" },
-        { "\\%{x}", "\\\\" },
-        { "\\%{y}", "\\\\\"\"\\^\"\"\"" },
-        { "\\%{z}", "\\" },
+        { "leading bs", 0, OsTypeWindows },
+        { "\\%{a}", "\\hi", OsTypeWindows },
+        { "\\%{aa}", "\\\\\"hi ho\"", OsTypeWindows },
+        { "\\%{b}", "\\h\\i", OsTypeWindows },
+        { "\\%{c}", "\\\\hi", OsTypeWindows },
+        { "\\%{d}", "\\hi\\", OsTypeWindows },
+        { "\\%{ba}", "\\\\\"h\\i ho\"", OsTypeWindows },
+        { "\\%{ca}", "\\\\\"\\hi ho\"", OsTypeWindows },
+        { "\\%{da}", "\\\\\"hi ho\\\\\"", OsTypeWindows },
+        { "\\%{e}", "\\\\\"h\"\\^\"\"i\"", OsTypeWindows },
+        { "\\%{f}", "\\\\\"\"\\^\"\"hi\"", OsTypeWindows },
+        { "\\%{g}", "\\\\\"hi\"\\^\"\"\"", OsTypeWindows },
+        { "\\%{h}", "\\\\\"h\\\\\"\\^\"\"i\"", OsTypeWindows },
+        { "\\%{i}", "\\\\\"\\\\\"\\^\"\"hi\"", OsTypeWindows },
+        { "\\%{j}", "\\\\\"hi\\\\\"\\^\"\"\"", OsTypeWindows },
+        { "\\%{x}", "\\\\", OsTypeWindows },
+        { "\\%{y}", "\\\\\"\"\\^\"\"\"", OsTypeWindows },
+        { "\\%{z}", "\\", OsTypeWindows },
 
-        { "trailing bs", 0 },
-        { "%{a}\\", "hi\\" },
-        { "%{aa}\\", "\"hi ho\"\\" },
-        { "%{b}\\", "h\\i\\" },
-        { "%{c}\\", "\\hi\\" },
-        { "%{d}\\", "hi\\\\" },
-        { "%{ba}\\", "\"h\\i ho\"\\" },
-        { "%{ca}\\", "\"\\hi ho\"\\" },
-        { "%{da}\\", "\"hi ho\\\\\"\\" },
-        { "%{e}\\", "\"h\"\\^\"\"i\"\\" },
-        { "%{f}\\", "\"\"\\^\"\"hi\"\\" },
-        { "%{g}\\", "\"hi\"\\^\"\"\"\\" },
-        { "%{h}\\", "\"h\\\\\"\\^\"\"i\"\\" },
-        { "%{i}\\", "\"\\\\\"\\^\"\"hi\"\\" },
-        { "%{j}\\", "\"hi\\\\\"\\^\"\"\"\\" },
-        { "%{x}\\", "\\\\" },
-        { "%{y}\\", "\"\"\\^\"\"\"\\" },
-        { "%{z}\\", "\\" },
+        { "trailing bs", 0, OsTypeWindows },
+        { "%{a}\\", "hi\\", OsTypeWindows },
+        { "%{aa}\\", "\"hi ho\"\\", OsTypeWindows },
+        { "%{b}\\", "h\\i\\", OsTypeWindows },
+        { "%{c}\\", "\\hi\\", OsTypeWindows },
+        { "%{d}\\", "hi\\\\", OsTypeWindows },
+        { "%{ba}\\", "\"h\\i ho\"\\", OsTypeWindows },
+        { "%{ca}\\", "\"\\hi ho\"\\", OsTypeWindows },
+        { "%{da}\\", "\"hi ho\\\\\"\\", OsTypeWindows },
+        { "%{e}\\", "\"h\"\\^\"\"i\"\\", OsTypeWindows },
+        { "%{f}\\", "\"\"\\^\"\"hi\"\\", OsTypeWindows },
+        { "%{g}\\", "\"hi\"\\^\"\"\"\\", OsTypeWindows },
+        { "%{h}\\", "\"h\\\\\"\\^\"\"i\"\\", OsTypeWindows },
+        { "%{i}\\", "\"\\\\\"\\^\"\"hi\"\\", OsTypeWindows },
+        { "%{j}\\", "\"hi\\\\\"\\^\"\"\"\\", OsTypeWindows },
+        { "%{x}\\", "\\\\", OsTypeWindows },
+        { "%{y}\\", "\"\"\\^\"\"\"\\", OsTypeWindows },
+        { "%{z}\\", "\\", OsTypeWindows },
 
-        { "bs-enclosed", 0 },
-        { "\\%{a}\\", "\\hi\\" },
-        { "\\%{aa}\\", "\\\\\"hi ho\"\\" },
-        { "\\%{b}\\", "\\h\\i\\" },
-        { "\\%{c}\\", "\\\\hi\\" },
-        { "\\%{d}\\", "\\hi\\\\" },
-        { "\\%{ba}\\", "\\\\\"h\\i ho\"\\" },
-        { "\\%{ca}\\", "\\\\\"\\hi ho\"\\" },
-        { "\\%{da}\\", "\\\\\"hi ho\\\\\"\\" },
-        { "\\%{e}\\", "\\\\\"h\"\\^\"\"i\"\\" },
-        { "\\%{f}\\", "\\\\\"\"\\^\"\"hi\"\\" },
-        { "\\%{g}\\", "\\\\\"hi\"\\^\"\"\"\\" },
-        { "\\%{h}\\", "\\\\\"h\\\\\"\\^\"\"i\"\\" },
-        { "\\%{i}\\", "\\\\\"\\\\\"\\^\"\"hi\"\\" },
-        { "\\%{j}\\", "\\\\\"hi\\\\\"\\^\"\"\"\\" },
-        { "\\%{x}\\", "\\\\\\" },
-        { "\\%{y}\\", "\\\\\"\"\\^\"\"\"\\" },
-        { "\\%{z}\\", "\\\\" },
+        { "bs-enclosed", 0, OsTypeWindows },
+        { "\\%{a}\\", "\\hi\\", OsTypeWindows },
+        { "\\%{aa}\\", "\\\\\"hi ho\"\\", OsTypeWindows },
+        { "\\%{b}\\", "\\h\\i\\", OsTypeWindows },
+        { "\\%{c}\\", "\\\\hi\\", OsTypeWindows },
+        { "\\%{d}\\", "\\hi\\\\", OsTypeWindows },
+        { "\\%{ba}\\", "\\\\\"h\\i ho\"\\", OsTypeWindows },
+        { "\\%{ca}\\", "\\\\\"\\hi ho\"\\", OsTypeWindows },
+        { "\\%{da}\\", "\\\\\"hi ho\\\\\"\\", OsTypeWindows },
+        { "\\%{e}\\", "\\\\\"h\"\\^\"\"i\"\\", OsTypeWindows },
+        { "\\%{f}\\", "\\\\\"\"\\^\"\"hi\"\\", OsTypeWindows },
+        { "\\%{g}\\", "\\\\\"hi\"\\^\"\"\"\\", OsTypeWindows },
+        { "\\%{h}\\", "\\\\\"h\\\\\"\\^\"\"i\"\\", OsTypeWindows },
+        { "\\%{i}\\", "\\\\\"\\\\\"\\^\"\"hi\"\\", OsTypeWindows },
+        { "\\%{j}\\", "\\\\\"hi\\\\\"\\^\"\"\"\\", OsTypeWindows },
+        { "\\%{x}\\", "\\\\\\", OsTypeWindows },
+        { "\\%{y}\\", "\\\\\"\"\\^\"\"\"\\", OsTypeWindows },
+        { "\\%{z}\\", "\\\\", OsTypeWindows },
 
-        { "bs-enclosed and trailing literal quote", 0 },
-        { "\\%{a}\\\\\\^\"", "\\hi\\\\\\^\"" },
-        { "\\%{aa}\\\\\\^\"", "\\\\\"hi ho\"\\\\\\^\"" },
-        { "\\%{b}\\\\\\^\"", "\\h\\i\\\\\\^\"" },
-        { "\\%{c}\\\\\\^\"", "\\\\hi\\\\\\^\"" },
-        { "\\%{d}\\\\\\^\"", "\\hi\\\\\\\\\\^\"" },
-        { "\\%{ba}\\\\\\^\"", "\\\\\"h\\i ho\"\\\\\\^\"" },
-        { "\\%{ca}\\\\\\^\"", "\\\\\"\\hi ho\"\\\\\\^\"" },
-        { "\\%{da}\\\\\\^\"", "\\\\\"hi ho\\\\\"\\\\\\^\"" },
-        { "\\%{e}\\\\\\^\"", "\\\\\"h\"\\^\"\"i\"\\\\\\^\"" },
-        { "\\%{f}\\\\\\^\"", "\\\\\"\"\\^\"\"hi\"\\\\\\^\"" },
-        { "\\%{g}\\\\\\^\"", "\\\\\"hi\"\\^\"\"\"\\\\\\^\"" },
-        { "\\%{h}\\\\\\^\"", "\\\\\"h\\\\\"\\^\"\"i\"\\\\\\^\"" },
-        { "\\%{i}\\\\\\^\"", "\\\\\"\\\\\"\\^\"\"hi\"\\\\\\^\"" },
-        { "\\%{j}\\\\\\^\"", "\\\\\"hi\\\\\"\\^\"\"\"\\\\\\^\"" },
-        { "\\%{x}\\\\\\^\"", "\\\\\\\\\\\\\\^\"" },
-        { "\\%{y}\\\\\\^\"", "\\\\\"\"\\^\"\"\"\\\\\\^\"" },
-        { "\\%{z}\\\\\\^\"", "\\\\\\\\\\^\"" },
+        { "bs-enclosed and trailing literal quote", 0, OsTypeWindows },
+        { "\\%{a}\\\\\\^\"", "\\hi\\\\\\^\"", OsTypeWindows },
+        { "\\%{aa}\\\\\\^\"", "\\\\\"hi ho\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{b}\\\\\\^\"", "\\h\\i\\\\\\^\"", OsTypeWindows },
+        { "\\%{c}\\\\\\^\"", "\\\\hi\\\\\\^\"", OsTypeWindows },
+        { "\\%{d}\\\\\\^\"", "\\hi\\\\\\\\\\^\"", OsTypeWindows },
+        { "\\%{ba}\\\\\\^\"", "\\\\\"h\\i ho\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{ca}\\\\\\^\"", "\\\\\"\\hi ho\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{da}\\\\\\^\"", "\\\\\"hi ho\\\\\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{e}\\\\\\^\"", "\\\\\"h\"\\^\"\"i\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{f}\\\\\\^\"", "\\\\\"\"\\^\"\"hi\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{g}\\\\\\^\"", "\\\\\"hi\"\\^\"\"\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{h}\\\\\\^\"", "\\\\\"h\\\\\"\\^\"\"i\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{i}\\\\\\^\"", "\\\\\"\\\\\"\\^\"\"hi\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{j}\\\\\\^\"", "\\\\\"hi\\\\\"\\^\"\"\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{x}\\\\\\^\"", "\\\\\\\\\\\\\\^\"", OsTypeWindows },
+        { "\\%{y}\\\\\\^\"", "\\\\\"\"\\^\"\"\"\\\\\\^\"", OsTypeWindows },
+        { "\\%{z}\\\\\\^\"", "\\\\\\\\\\^\"", OsTypeWindows },
 
-        { "bs-enclosed and trailing unclosed quote", 0 },
-        { "\\%{a}\\\\\"", "\\hi\\\\\"" },
-        { "\\%{aa}\\\\\"", "\\\\\"hi ho\"\\\\\"" },
-        { "\\%{b}\\\\\"", "\\h\\i\\\\\"" },
-        { "\\%{c}\\\\\"", "\\\\hi\\\\\"" },
-        { "\\%{d}\\\\\"", "\\hi\\\\\\\\\"" },
-        { "\\%{ba}\\\\\"", "\\\\\"h\\i ho\"\\\\\"" },
-        { "\\%{ca}\\\\\"", "\\\\\"\\hi ho\"\\\\\"" },
-        { "\\%{da}\\\\\"", "\\\\\"hi ho\\\\\"\\\\\"" },
-        { "\\%{e}\\\\\"", "\\\\\"h\"\\^\"\"i\"\\\\\"" },
-        { "\\%{f}\\\\\"", "\\\\\"\"\\^\"\"hi\"\\\\\"" },
-        { "\\%{g}\\\\\"", "\\\\\"hi\"\\^\"\"\"\\\\\"" },
-        { "\\%{h}\\\\\"", "\\\\\"h\\\\\"\\^\"\"i\"\\\\\"" },
-        { "\\%{i}\\\\\"", "\\\\\"\\\\\"\\^\"\"hi\"\\\\\"" },
-        { "\\%{j}\\\\\"", "\\\\\"hi\\\\\"\\^\"\"\"\\\\\"" },
-        { "\\%{x}\\\\\"", "\\\\\\\\\\\\\"" },
-        { "\\%{y}\\\\\"", "\\\\\"\"\\^\"\"\"\\\\\"" },
-        { "\\%{z}\\\\\"", "\\\\\\\\\"" },
+        { "bs-enclosed and trailing unclosed quote", 0, OsTypeWindows },
+        { "\\%{a}\\\\\"", "\\hi\\\\\"", OsTypeWindows },
+        { "\\%{aa}\\\\\"", "\\\\\"hi ho\"\\\\\"", OsTypeWindows },
+        { "\\%{b}\\\\\"", "\\h\\i\\\\\"", OsTypeWindows },
+        { "\\%{c}\\\\\"", "\\\\hi\\\\\"", OsTypeWindows },
+        { "\\%{d}\\\\\"", "\\hi\\\\\\\\\"", OsTypeWindows },
+        { "\\%{ba}\\\\\"", "\\\\\"h\\i ho\"\\\\\"", OsTypeWindows },
+        { "\\%{ca}\\\\\"", "\\\\\"\\hi ho\"\\\\\"", OsTypeWindows },
+        { "\\%{da}\\\\\"", "\\\\\"hi ho\\\\\"\\\\\"", OsTypeWindows },
+        { "\\%{e}\\\\\"", "\\\\\"h\"\\^\"\"i\"\\\\\"", OsTypeWindows },
+        { "\\%{f}\\\\\"", "\\\\\"\"\\^\"\"hi\"\\\\\"", OsTypeWindows },
+        { "\\%{g}\\\\\"", "\\\\\"hi\"\\^\"\"\"\\\\\"", OsTypeWindows },
+        { "\\%{h}\\\\\"", "\\\\\"h\\\\\"\\^\"\"i\"\\\\\"", OsTypeWindows },
+        { "\\%{i}\\\\\"", "\\\\\"\\\\\"\\^\"\"hi\"\\\\\"", OsTypeWindows },
+        { "\\%{j}\\\\\"", "\\\\\"hi\\\\\"\\^\"\"\"\\\\\"", OsTypeWindows },
+        { "\\%{x}\\\\\"", "\\\\\\\\\\\\\"", OsTypeWindows },
+        { "\\%{y}\\\\\"", "\\\\\"\"\\^\"\"\"\\\\\"", OsTypeWindows },
+        { "\\%{z}\\\\\"", "\\\\\\\\\"", OsTypeWindows },
 
-        { "multi-var", 0 },
-        { "%{x}%{y}%{z}", "\\\\\"\"\\^\"\"\"" },
-        { "%{x}%{z}%{y}%{z}", "\\\\\"\"\\^\"\"\"" },
-        { "%{x}%{z}%{y}", "\\\\\"\"\\^\"\"\"" },
-        { "%{x}\\^\"%{z}", "\\\\\\^\"" },
-        { "%{x}%{z}\\^\"%{z}", "\\\\\\^\"" },
-        { "%{x}%{z}\\^\"", "\\\\\\^\"" },
-        { "%{x}\\%{z}", "\\\\" },
-        { "%{x}%{z}\\%{z}", "\\\\" },
-        { "%{x}%{z}\\", "\\\\" },
-        { "%{aa}%{a}", "\"hi hohi\"" },
-        { "%{aa}%{aa}", "\"hi hohi ho\"" },
-        { "%{aa}:%{aa}", "\"hi ho\":\"hi ho\"" },
-        { "hallo ^|%{aa}^|", "hallo ^|\"hi ho\"^|" },
+        { "multi-var", 0, OsTypeWindows },
+        { "%{x}%{y}%{z}", "\\\\\"\"\\^\"\"\"", OsTypeWindows },
+        { "%{x}%{z}%{y}%{z}", "\\\\\"\"\\^\"\"\"", OsTypeWindows },
+        { "%{x}%{z}%{y}", "\\\\\"\"\\^\"\"\"", OsTypeWindows },
+        { "%{x}\\^\"%{z}", "\\\\\\^\"", OsTypeWindows },
+        { "%{x}%{z}\\^\"%{z}", "\\\\\\^\"", OsTypeWindows },
+        { "%{x}%{z}\\^\"", "\\\\\\^\"", OsTypeWindows },
+        { "%{x}\\%{z}", "\\\\", OsTypeWindows },
+        { "%{x}%{z}\\%{z}", "\\\\", OsTypeWindows },
+        { "%{x}%{z}\\", "\\\\", OsTypeWindows },
+        { "%{aa}%{a}", "\"hi hohi\"", OsTypeWindows },
+        { "%{aa}%{aa}", "\"hi hohi ho\"", OsTypeWindows },
+        { "%{aa}:%{aa}", "\"hi ho\":\"hi ho\"", OsTypeWindows },
+        { "hallo ^|%{aa}^|", "hallo ^|\"hi ho\"^|", OsTypeWindows },
 
-        { "quoted multi-var", 0 },
-        { "\"%{x}%{y}%{z}\"", "\"\\\\\"\\^\"\"\"" },
-        { "\"%{x}%{z}%{y}%{z}\"", "\"\\\\\"\\^\"\"\"" },
-        { "\"%{x}%{z}%{y}\"", "\"\\\\\"\\^\"\"\"" },
-        { "\"%{x}\"^\"\"%{z}\"", "\"\\\\\"^\"\"\"" },
-        { "\"%{x}%{z}\"^\"\"%{z}\"", "\"\\\\\"^\"\"\"" },
-        { "\"%{x}%{z}\"^\"\"\"", "\"\\\\\"^\"\"\"" },
-        { "\"%{x}\\%{z}\"", "\"\\\\\\\\\"" },
-        { "\"%{x}%{z}\\%{z}\"", "\"\\\\\\\\\"" },
-        { "\"%{x}%{z}\\\\\"", "\"\\\\\\\\\"" },
-        { "\"%{aa}%{a}\"", "\"hi hohi\"" },
-        { "\"%{aa}%{aa}\"", "\"hi hohi ho\"" },
-        { "\"%{aa}:%{aa}\"", "\"hi ho:hi ho\"" },
-#else
-        { "plain", 0 },
-        { "%{a}", "hi" },
-        { "%{b}", "'hi ho'" },
-        { "%{c}", "'&special;'" },
-        { "%{d}", "'h\\i'" },
-        { "%{e}", "'h\"i'" },
-        { "%{f}", "'h'\\''i'" },
-        { "%{z}", "''" },
-        { "\\%{z}%{z}", "\\%{z}%{z}" }, // stupid user check
+        { "quoted multi-var", 0, OsTypeWindows },
+        { "\"%{x}%{y}%{z}\"", "\"\\\\\"\\^\"\"\"", OsTypeWindows },
+        { "\"%{x}%{z}%{y}%{z}\"", "\"\\\\\"\\^\"\"\"", OsTypeWindows },
+        { "\"%{x}%{z}%{y}\"", "\"\\\\\"\\^\"\"\"", OsTypeWindows },
+        { "\"%{x}\"^\"\"%{z}\"", "\"\\\\\"^\"\"\"", OsTypeWindows },
+        { "\"%{x}%{z}\"^\"\"%{z}\"", "\"\\\\\"^\"\"\"", OsTypeWindows },
+        { "\"%{x}%{z}\"^\"\"\"", "\"\\\\\"^\"\"\"", OsTypeWindows },
+        { "\"%{x}\\%{z}\"", "\"\\\\\\\\\"", OsTypeWindows },
+        { "\"%{x}%{z}\\%{z}\"", "\"\\\\\\\\\"", OsTypeWindows },
+        { "\"%{x}%{z}\\\\\"", "\"\\\\\\\\\"", OsTypeWindows },
+        { "\"%{aa}%{a}\"", "\"hi hohi\"", OsTypeWindows },
+        { "\"%{aa}%{aa}\"", "\"hi hohi ho\"", OsTypeWindows },
+        { "\"%{aa}:%{aa}\"", "\"hi ho:hi ho\"", OsTypeWindows },
 
-        { "single-quoted", 0 },
-        { "'%{a}'", "'hi'" },
-        { "'%{b}'", "'hi ho'" },
-        { "'%{c}'", "'&special;'" },
-        { "'%{d}'", "'h\\i'" },
-        { "'%{e}'", "'h\"i'" },
-        { "'%{f}'", "'h'\\''i'" },
-        { "'%{z}'", "''" },
+        { "plain", 0, OsTypeLinux },
+        { "%{a}", "hi", OsTypeLinux },
+        { "%{b}", "'hi ho'", OsTypeLinux },
+        { "%{c}", "'&special;'", OsTypeLinux },
+        { "%{d}", "'h\\i'", OsTypeLinux },
+        { "%{e}", "'h\"i'", OsTypeLinux },
+        { "%{f}", "'h'\\''i'", OsTypeLinux },
+        { "%{z}", "''", OsTypeLinux },
+        { "\\%{z}%{z}", "\\%{z}%{z}", OsTypeLinux }, // stupid user check
 
-        { "double-quoted", 0 },
-        { "\"%{a}\"", "\"hi\"" },
-        { "\"%{b}\"", "\"hi ho\"" },
-        { "\"%{c}\"", "\"&special;\"" },
-        { "\"%{d}\"", "\"h\\\\i\"" },
-        { "\"%{e}\"", "\"h\\\"i\"" },
-        { "\"%{f}\"", "\"h'i\"" },
-        { "\"%{z}\"", "\"\"" },
+        { "single-quoted", 0, OsTypeLinux },
+        { "'%{a}'", "'hi'", OsTypeLinux },
+        { "'%{b}'", "'hi ho'", OsTypeLinux },
+        { "'%{c}'", "'&special;'", OsTypeLinux },
+        { "'%{d}'", "'h\\i'", OsTypeLinux },
+        { "'%{e}'", "'h\"i'", OsTypeLinux },
+        { "'%{f}'", "'h'\\''i'", OsTypeLinux },
+        { "'%{z}'", "''", OsTypeLinux },
 
-        { "complex", 0 },
-        { "echo \"$(echo %{a})\"", "echo \"$(echo hi)\"" },
-        { "echo \"$(echo %{b})\"", "echo \"$(echo 'hi ho')\"" },
-        { "echo \"$(echo \"%{a}\")\"", "echo \"$(echo \"hi\")\"" },
+        { "double-quoted", 0, OsTypeLinux },
+        { "\"%{a}\"", "\"hi\"", OsTypeLinux },
+        { "\"%{b}\"", "\"hi ho\"", OsTypeLinux },
+        { "\"%{c}\"", "\"&special;\"", OsTypeLinux },
+        { "\"%{d}\"", "\"h\\\\i\"", OsTypeLinux },
+        { "\"%{e}\"", "\"h\\\"i\"", OsTypeLinux },
+        { "\"%{f}\"", "\"h'i\"", OsTypeLinux },
+        { "\"%{z}\"", "\"\"", OsTypeLinux },
+
+        { "complex", 0, OsTypeLinux },
+        { "echo \"$(echo %{a})\"", "echo \"$(echo hi)\"", OsTypeLinux },
+        { "echo \"$(echo %{b})\"", "echo \"$(echo 'hi ho')\"", OsTypeLinux },
+        { "echo \"$(echo \"%{a}\")\"", "echo \"$(echo \"hi\")\"", OsTypeLinux },
         // These make no sense shell-wise, but they test expando nesting
-        { "echo \"%{echo %{a}}\"", "echo \"%{echo hi}\"" },
-        { "echo \"%{echo %{b}}\"", "echo \"%{echo hi ho}\"" },
-        { "echo \"%{echo \"%{a}\"}\"", "echo \"%{echo \"hi\"}\"" },
-#endif
+        { "echo \"%{echo %{a}}\"", "echo \"%{echo hi}\"", OsTypeLinux },
+        { "echo \"%{echo %{b}}\"", "echo \"%{echo hi ho}\"", OsTypeLinux },
+        { "echo \"%{echo \"%{a}\"}\"", "echo \"%{echo \"hi\"}\"", OsTypeLinux },
     };
 
     const char *title = 0;
@@ -581,10 +586,12 @@ void tst_QtcProcess::expandMacros_data()
             char buf[80];
             sprintf(buf, "%s: %s", title, vals[i].in);
             QTest::newRow(buf) << QString::fromLatin1(vals[i].in)
-                               << QString::fromLatin1(vals[i].out);
+                               << QString::fromLatin1(vals[i].out)
+                               << vals[i].os;
             sprintf(buf, "padded %s: %s", title, vals[i].in);
             QTest::newRow(buf) << (sp + QString::fromLatin1(vals[i].in) + sp)
-                               << (sp + QString::fromLatin1(vals[i].out) + sp);
+                               << (sp + QString::fromLatin1(vals[i].out) + sp)
+                               << vals[i].os;
         }
     }
 }
@@ -593,8 +600,12 @@ void tst_QtcProcess::expandMacros()
 {
     QFETCH(QString, in);
     QFETCH(QString, out);
+    QFETCH(OsType, os);
 
-    QtcProcess::expandMacros(&in, &mx);
+    if (os == OsTypeWindows)
+        QtcProcess::expandMacros(&in, &mxWin, os);
+    else
+        QtcProcess::expandMacros(&in, &mxUnix, os);
     QCOMPARE(in, out);
 }
 
@@ -602,75 +613,78 @@ void tst_QtcProcess::iterations_data()
 {
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
+    QTest::addColumn<OsType>("os");
 
     static const struct {
         const char * const in;
         const char * const out;
+        OsType os;
     } vals[] = {
-#ifdef Q_OS_WIN
-        { "", "" },
-        { "hi", "hi" },
-        { "  hi ", "hi" },
-        { "hi ho", "hi ho" },
-        { "\"hi ho\" sucker", "\"hi ho\" sucker" },
-        { "\"hi\"^\"\"ho\" sucker", "\"hi\"\\^\"\"ho\" sucker" },
-        { "\"hi\"\\^\"\"ho\" sucker", "\"hi\"\\^\"\"ho\" sucker" },
-        { "hi^|ho", "\"hi|ho\"" },
-        { "c:\\", "c:\\" },
-        { "\"c:\\\\\"", "c:\\" },
-        { "\\hi\\ho", "\\hi\\ho" },
-        { "hi null%", "hi null%" },
-        { "hi null% ho", "hi null% ho" },
-        { "hi null%here ho", "hi null%here ho" },
-        { "hi null%here%too ho", "hi {} ho" },
-        { "echo hello | more", "echo hello" },
-        { "echo hello| more", "echo hello" },
-#else
-        { "", "" },
-        { " ", "" },
-        { "hi", "hi" },
-        { "  hi ", "hi" },
-        { "'hi'", "hi" },
-        { "hi ho", "hi ho" },
-        { "\"hi ho\" sucker", "'hi ho' sucker" },
-        { "\"hi\\\"ho\" sucker", "'hi\"ho' sucker" },
-        { "\"hi'ho\" sucker", "'hi'\\''ho' sucker" },
-        { "'hi ho' sucker", "'hi ho' sucker" },
-        { "\\\\", "'\\'" },
-        { "'\\'", "'\\'" },
-        { "hi 'null${here}too' ho", "hi 'null${here}too' ho" },
-        { "hi null${here}too ho", "hi {} ho" },
-        { "hi $(echo $dollar cent) ho", "hi {} ho" },
-        { "hi `echo $dollar \\`echo cent\\` | cat` ho", "hi {} ho" },
-        { "echo hello | more", "echo hello" },
-        { "echo hello| more", "echo hello" },
-#endif
+        { "", "", OsTypeWindows },
+        { "hi", "hi", OsTypeWindows },
+        { "  hi ", "hi", OsTypeWindows },
+        { "hi ho", "hi ho", OsTypeWindows },
+        { "\"hi ho\" sucker", "\"hi ho\" sucker", OsTypeWindows },
+        { "\"hi\"^\"\"ho\" sucker", "\"hi\"\\^\"\"ho\" sucker", OsTypeWindows },
+        { "\"hi\"\\^\"\"ho\" sucker", "\"hi\"\\^\"\"ho\" sucker", OsTypeWindows },
+        { "hi^|ho", "\"hi|ho\"", OsTypeWindows },
+        { "c:\\", "c:\\", OsTypeWindows },
+        { "\"c:\\\\\"", "c:\\", OsTypeWindows },
+        { "\\hi\\ho", "\\hi\\ho", OsTypeWindows },
+        { "hi null%", "hi null%", OsTypeWindows },
+        { "hi null% ho", "hi null% ho", OsTypeWindows },
+        { "hi null%here ho", "hi null%here ho", OsTypeWindows },
+        { "hi null%here%too ho", "hi {} ho", OsTypeWindows },
+        { "echo hello | more", "echo hello", OsTypeWindows },
+        { "echo hello| more", "echo hello", OsTypeWindows },
+
+        { "", "", OsTypeLinux },
+        { " ", "", OsTypeLinux },
+        { "hi", "hi", OsTypeLinux },
+        { "  hi ", "hi", OsTypeLinux },
+        { "'hi'", "hi", OsTypeLinux },
+        { "hi ho", "hi ho", OsTypeLinux },
+        { "\"hi ho\" sucker", "'hi ho' sucker", OsTypeLinux },
+        { "\"hi\\\"ho\" sucker", "'hi\"ho' sucker", OsTypeLinux },
+        { "\"hi'ho\" sucker", "'hi'\\''ho' sucker", OsTypeLinux },
+        { "'hi ho' sucker", "'hi ho' sucker", OsTypeLinux },
+        { "\\\\", "'\\'", OsTypeLinux },
+        { "'\\'", "'\\'", OsTypeLinux },
+        { "hi 'null${here}too' ho", "hi 'null${here}too' ho", OsTypeLinux },
+        { "hi null${here}too ho", "hi {} ho", OsTypeLinux },
+        { "hi $(echo $dollar cent) ho", "hi {} ho", OsTypeLinux },
+        { "hi `echo $dollar \\`echo cent\\` | cat` ho", "hi {} ho", OsTypeLinux },
+        { "echo hello | more", "echo hello", OsTypeLinux },
+        { "echo hello| more", "echo hello", OsTypeLinux },
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
         QTest::newRow(vals[i].in) << QString::fromLatin1(vals[i].in)
-                                  << QString::fromLatin1(vals[i].out);
+                                  << QString::fromLatin1(vals[i].out)
+                                  << vals[i].os;
 }
 
 void tst_QtcProcess::iterations()
 {
     QFETCH(QString, in);
     QFETCH(QString, out);
+    QFETCH(OsType, os);
 
     QString outstr;
-    for (QtcProcess::ArgIterator ait(&in); ait.next(); )
+    for (QtcProcess::ArgIterator ait(&in, os); ait.next(); ) {
         if (ait.isSimple())
-            QtcProcess::addArg(&outstr, ait.value());
+            QtcProcess::addArg(&outstr, ait.value(), os);
         else
             QtcProcess::addArgs(&outstr, "{}");
+    }
     QCOMPARE(outstr, out);
 }
 
-void tst_QtcProcess::iteratorEdits()
+void tst_QtcProcess::iteratorEditsHelper(OsType osType)
 {
     QString in1 = "one two three", in2 = in1, in3 = in1, in4 = in1, in5 = in1;
 
-    QtcProcess::ArgIterator ait1(&in1);
+    QtcProcess::ArgIterator ait1(&in1, osType);
     QVERIFY(ait1.next());
     ait1.deleteArg();
     QVERIFY(ait1.next());
@@ -680,7 +694,7 @@ void tst_QtcProcess::iteratorEdits()
     ait1.appendArg("four");
     QCOMPARE(in1, QString::fromLatin1("two three four"));
 
-    QtcProcess::ArgIterator ait2(&in2);
+    QtcProcess::ArgIterator ait2(&in2, osType);
     QVERIFY(ait2.next());
     QVERIFY(ait2.next());
     ait2.deleteArg();
@@ -689,7 +703,7 @@ void tst_QtcProcess::iteratorEdits()
     QVERIFY(!ait2.next());
     QCOMPARE(in2, QString::fromLatin1("one three four"));
 
-    QtcProcess::ArgIterator ait3(&in3);
+    QtcProcess::ArgIterator ait3(&in3, osType);
     QVERIFY(ait3.next());
     ait3.appendArg("one-b");
     QVERIFY(ait3.next());
@@ -698,7 +712,7 @@ void tst_QtcProcess::iteratorEdits()
     QVERIFY(!ait3.next());
     QCOMPARE(in3, QString::fromLatin1("one one-b two"));
 
-    QtcProcess::ArgIterator ait4(&in4);
+    QtcProcess::ArgIterator ait4(&in4, osType);
     ait4.appendArg("pre-one");
     QVERIFY(ait4.next());
     QVERIFY(ait4.next());
@@ -707,7 +721,7 @@ void tst_QtcProcess::iteratorEdits()
     QVERIFY(!ait4.next());
     QCOMPARE(in4, QString::fromLatin1("pre-one one two"));
 
-    QtcProcess::ArgIterator ait5(&in5);
+    QtcProcess::ArgIterator ait5(&in5, osType);
     QVERIFY(ait5.next());
     QVERIFY(ait5.next());
     QVERIFY(ait5.next());
@@ -715,6 +729,16 @@ void tst_QtcProcess::iteratorEdits()
     ait5.deleteArg();
     QVERIFY(!ait5.next());
     QCOMPARE(in5, QString::fromLatin1("one two"));
+}
+
+void tst_QtcProcess::iteratorEditsWindows()
+{
+    iteratorEditsHelper(OsTypeWindows);
+}
+
+void tst_QtcProcess::iteratorEditsLinux()
+{
+    iteratorEditsHelper(OsTypeLinux);
 }
 
 QTEST_MAIN(tst_QtcProcess)

@@ -207,7 +207,7 @@ QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
 
 void RemoteLinuxRunConfiguration::setArguments(const QString &args)
 {
-    d->arguments = QtcProcess::splitArgs(args); // TODO: Widget should be list-based.
+    d->arguments = QtcProcess::splitArgs(args, OsTypeLinux); // TODO: Widget should be list-based.
 }
 
 QString RemoteLinuxRunConfiguration::workingDirectory() const

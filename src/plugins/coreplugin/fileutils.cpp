@@ -121,13 +121,14 @@ void FileUtils::openTerminal(const QString &path)
     // Get terminal application
     QString terminalEmulator;
     QStringList args;
-    if (HostOsInfo::isWindowsHost()) {
+    const OsType hostOs = HostOsInfo::hostOs();
+    if (hostOs == OsTypeWindows) {
         terminalEmulator = ConsoleProcess::defaultTerminalEmulator();
-    } else if (HostOsInfo::isMacHost()) {
+    } else if (hostOs == OsTypeMac) {
         terminalEmulator = ICore::resourcePath()
             + QLatin1String("/scripts/openTerminal.command");
     } else {
-        args = QtcProcess::splitArgs(ConsoleProcess::terminalEmulator(ICore::settings()));
+        args = QtcProcess::splitArgs(ConsoleProcess::terminalEmulator(ICore::settings()), hostOs);
         terminalEmulator = args.takeFirst();
         args.append(QString::fromLocal8Bit(qgetenv("SHELL")));
     }

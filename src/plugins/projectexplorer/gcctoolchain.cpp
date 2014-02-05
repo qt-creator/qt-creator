@@ -928,13 +928,14 @@ void GccToolChainConfigWidget::makeReadOnlyImpl()
 QStringList GccToolChainConfigWidget::splitString(const QString &s)
 {
     QtcProcess::SplitError splitError;
-    QStringList res = QtcProcess::splitArgs(s, false, &splitError);
+    const OsType osType = HostOsInfo::hostOs();
+    QStringList res = QtcProcess::splitArgs(s, osType, false, &splitError);
     if (splitError != QtcProcess::SplitOk){
-        res = QtcProcess::splitArgs(s + QLatin1Char('\\'), false, &splitError);
+        res = QtcProcess::splitArgs(s + QLatin1Char('\\'), osType, false, &splitError);
         if (splitError != QtcProcess::SplitOk){
-            res = QtcProcess::splitArgs(s + QLatin1Char('"'), false, &splitError);
+            res = QtcProcess::splitArgs(s + QLatin1Char('"'), osType, false, &splitError);
             if (splitError != QtcProcess::SplitOk)
-                res = QtcProcess::splitArgs(s + QLatin1Char('\''), false, &splitError);
+                res = QtcProcess::splitArgs(s + QLatin1Char('\''), osType, false, &splitError);
         }
     }
     return res;
