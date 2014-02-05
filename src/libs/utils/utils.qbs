@@ -110,6 +110,7 @@ QtcLibrary {
         "linecolumnlabel.cpp",
         "linecolumnlabel.h",
         "listutils.h",
+        "logging.h",
         "multitask.h",
         "navigationtreeview.cpp",
         "navigationtreeview.h",

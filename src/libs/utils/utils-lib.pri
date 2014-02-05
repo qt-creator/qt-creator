@@ -184,7 +184,8 @@ HEADERS += \
     $$PWD/function.h \
     $$PWD/ansiescapecodehandler.h \
     $$PWD/execmenu.h \
-    $$PWD/completinglineedit.h
+    $$PWD/completinglineedit.h \
+    $$PWD/logging.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
