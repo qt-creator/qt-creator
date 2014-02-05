@@ -35,9 +35,6 @@
 #include "androidconstants.h"
 #include "androidtoolchain.h"
 
-#ifdef Q_OS_WIN
-#include <utils/winutils.h>
-#endif
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <projectexplorer/toolchainmanager.h>
