@@ -1526,7 +1526,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         if (args.count() >= 2) {
             const ProStringList &vals = values(args.at(1).toKey());
             if (!vals.isEmpty())
-                contents = vals.join(fL1S("\n")) + QLatin1Char('\n');
+                contents = vals.join(QLatin1Char('\n')) + QLatin1Char('\n');
             if (args.count() >= 3)
                 if (!args.at(2).toQString(m_tmp1).compare(fL1S("append"), Qt::CaseInsensitive))
                     mode = QIODevice::Append;
