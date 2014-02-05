@@ -620,9 +620,8 @@ int BarDescriptorDocument::tagForElement(const QDomElement &element)
     QMetaEnum tags = metaObject()->enumerator(metaObject()->enumeratorOffset());
     QDomElement el = element;
     while (!el.isNull()) {
-        bool ok;
-        int n = tags.keyToValue(el.tagName().toLatin1().constData(), &ok);
-        if (ok)
+        const int n = tags.keyToValue(el.tagName().toLatin1().constData());
+        if (n > -1)
             return n;
         el = el.parentNode().toElement();
     }
