@@ -34,6 +34,7 @@
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
+#include <utils/qtcoverride.h>
 
 #include <QCoreApplication>
 #include <QSet>
@@ -52,7 +53,7 @@ class QMLJS_EXPORT Check: protected AST::Visitor
 public:
     // prefer taking root scope chain?
     Check(Document::Ptr doc, const ContextPtr &context);
-    virtual ~Check();
+    ~Check() QTC_OVERRIDE;
 
     QList<StaticAnalysis::Message> operator()();
 
@@ -60,43 +61,43 @@ public:
     void disableMessage(StaticAnalysis::Type type);
 
 protected:
-    virtual bool preVisit(AST::Node *ast);
-    virtual void postVisit(AST::Node *ast);
+    bool preVisit(AST::Node *ast) QTC_OVERRIDE;
+    void postVisit(AST::Node *ast) QTC_OVERRIDE;
 
-    virtual bool visit(AST::UiProgram *ast);
-    virtual bool visit(AST::UiObjectDefinition *ast);
-    virtual bool visit(AST::UiObjectBinding *ast);
-    virtual bool visit(AST::UiScriptBinding *ast);
-    virtual bool visit(AST::UiArrayBinding *ast);
-    virtual bool visit(AST::UiPublicMember *ast);
-    virtual bool visit(AST::IdentifierExpression *ast);
-    virtual bool visit(AST::FieldMemberExpression *ast);
-    virtual bool visit(AST::FunctionDeclaration *ast);
-    virtual bool visit(AST::FunctionExpression *ast);
-    virtual bool visit(AST::UiObjectInitializer *);
+    bool visit(AST::UiProgram *ast) QTC_OVERRIDE;
+    bool visit(AST::UiObjectDefinition *ast) QTC_OVERRIDE;
+    bool visit(AST::UiObjectBinding *ast) QTC_OVERRIDE;
+    bool visit(AST::UiScriptBinding *ast) QTC_OVERRIDE;
+    bool visit(AST::UiArrayBinding *ast) QTC_OVERRIDE;
+    bool visit(AST::UiPublicMember *ast) QTC_OVERRIDE;
+    bool visit(AST::IdentifierExpression *ast) QTC_OVERRIDE;
+    bool visit(AST::FieldMemberExpression *ast) QTC_OVERRIDE;
+    bool visit(AST::FunctionDeclaration *ast) QTC_OVERRIDE;
+    bool visit(AST::FunctionExpression *ast) QTC_OVERRIDE;
+    bool visit(AST::UiObjectInitializer *) QTC_OVERRIDE;
 
-    virtual bool visit(AST::BinaryExpression *ast);
-    virtual bool visit(AST::Block *ast);
-    virtual bool visit(AST::WithStatement *ast);
-    virtual bool visit(AST::VoidExpression *ast);
-    virtual bool visit(AST::Expression *ast);
-    virtual bool visit(AST::ExpressionStatement *ast);
-    virtual bool visit(AST::IfStatement *ast);
-    virtual bool visit(AST::ForStatement *ast);
-    virtual bool visit(AST::LocalForStatement *ast);
-    virtual bool visit(AST::WhileStatement *ast);
-    virtual bool visit(AST::DoWhileStatement *ast);
-    virtual bool visit(AST::CaseBlock *ast);
-    virtual bool visit(AST::NewExpression *ast);
-    virtual bool visit(AST::NewMemberExpression *ast);
-    virtual bool visit(AST::CallExpression *ast);
-    virtual bool visit(AST::StatementList *ast);
-    virtual bool visit(AST::ReturnStatement *ast);
-    virtual bool visit(AST::ThrowStatement *ast);
-    virtual bool visit(AST::DeleteExpression *ast);
-    virtual bool visit(AST::TypeOfExpression *ast);
+    bool visit(AST::BinaryExpression *ast) QTC_OVERRIDE;
+    bool visit(AST::Block *ast) QTC_OVERRIDE;
+    bool visit(AST::WithStatement *ast) QTC_OVERRIDE;
+    bool visit(AST::VoidExpression *ast) QTC_OVERRIDE;
+    bool visit(AST::Expression *ast) QTC_OVERRIDE;
+    bool visit(AST::ExpressionStatement *ast) QTC_OVERRIDE;
+    bool visit(AST::IfStatement *ast) QTC_OVERRIDE;
+    bool visit(AST::ForStatement *ast) QTC_OVERRIDE;
+    bool visit(AST::LocalForStatement *ast) QTC_OVERRIDE;
+    bool visit(AST::WhileStatement *ast) QTC_OVERRIDE;
+    bool visit(AST::DoWhileStatement *ast) QTC_OVERRIDE;
+    bool visit(AST::CaseBlock *ast) QTC_OVERRIDE;
+    bool visit(AST::NewExpression *ast) QTC_OVERRIDE;
+    bool visit(AST::NewMemberExpression *ast) QTC_OVERRIDE;
+    bool visit(AST::CallExpression *ast) QTC_OVERRIDE;
+    bool visit(AST::StatementList *ast) QTC_OVERRIDE;
+    bool visit(AST::ReturnStatement *ast) QTC_OVERRIDE;
+    bool visit(AST::ThrowStatement *ast) QTC_OVERRIDE;
+    bool visit(AST::DeleteExpression *ast) QTC_OVERRIDE;
+    bool visit(AST::TypeOfExpression *ast) QTC_OVERRIDE;
 
-    virtual void endVisit(QmlJS::AST::UiObjectInitializer *);
+    void endVisit(QmlJS::AST::UiObjectInitializer *) QTC_OVERRIDE;
 
 private:
     void visitQmlObject(AST::Node *ast, AST::UiQualifiedId *typeId,

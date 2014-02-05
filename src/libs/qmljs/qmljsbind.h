@@ -32,6 +32,7 @@
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsvalueowner.h>
+#include <utils/qtcoverride.h>
 
 #include <QHash>
 #include <QCoreApplication>
@@ -48,7 +49,7 @@ class QMLJS_EXPORT Bind: protected AST::Visitor
 public:
     Bind(Document *doc, QList<DiagnosticMessage> *messages,
          bool isJsLibrary, const QList<ImportInfo> &jsImports);
-    virtual ~Bind();
+    ~Bind() QTC_OVERRIDE;
 
     bool isJsLibrary() const;
     QList<ImportInfo> imports() const;
@@ -68,21 +69,21 @@ protected:
 
     void accept(AST::Node *node);
 
-    virtual bool visit(AST::UiProgram *ast);
-    virtual bool visit(AST::Program *ast);
+    bool visit(AST::UiProgram *ast) QTC_OVERRIDE;
+    bool visit(AST::Program *ast) QTC_OVERRIDE;
 
     // Ui
-    virtual bool visit(AST::UiImport *ast);
-    virtual bool visit(AST::UiPublicMember *ast);
-    virtual bool visit(AST::UiObjectDefinition *ast);
-    virtual bool visit(AST::UiObjectBinding *ast);
-    virtual bool visit(AST::UiScriptBinding *ast);
-    virtual bool visit(AST::UiArrayBinding *ast);
+    bool visit(AST::UiImport *ast) QTC_OVERRIDE;
+    bool visit(AST::UiPublicMember *ast) QTC_OVERRIDE;
+    bool visit(AST::UiObjectDefinition *ast) QTC_OVERRIDE;
+    bool visit(AST::UiObjectBinding *ast) QTC_OVERRIDE;
+    bool visit(AST::UiScriptBinding *ast) QTC_OVERRIDE;
+    bool visit(AST::UiArrayBinding *ast) QTC_OVERRIDE;
 
     // QML/JS
-    virtual bool visit(AST::FunctionDeclaration *ast);
-    virtual bool visit(AST::FunctionExpression *ast);
-    virtual bool visit(AST::VariableDeclaration *ast);
+    bool visit(AST::FunctionDeclaration *ast) QTC_OVERRIDE;
+    bool visit(AST::FunctionExpression *ast) QTC_OVERRIDE;
+    bool visit(AST::VariableDeclaration *ast) QTC_OVERRIDE;
 
     ObjectValue *switchObjectValue(ObjectValue *newObjectValue);
     ObjectValue *bindObject(AST::UiQualifiedId *qualifiedTypeNameId, AST::UiObjectInitializer *initializer);

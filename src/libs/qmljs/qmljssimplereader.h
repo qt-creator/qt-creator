@@ -33,6 +33,8 @@
 #include <qmljs/qmljs_global.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
+#include <utils/qtcoverride.h>
+
 #include <QHash>
 #include <QList>
 #include <QStringList>
@@ -120,9 +122,9 @@ public:
     SimpleReaderNode::Ptr readFromSource(const QString &source);
 
 protected:
-    virtual void elementStart(const QString &name);
-    virtual void elementEnd();
-    virtual void propertyDefinition(const QString &name, const QVariant &value);
+    void elementStart(const QString &name) QTC_OVERRIDE;
+    void elementEnd() QTC_OVERRIDE;
+    void propertyDefinition(const QString &name, const QVariant &value) QTC_OVERRIDE;
 
 private:
     SimpleReaderNode::Ptr m_rootNode;
