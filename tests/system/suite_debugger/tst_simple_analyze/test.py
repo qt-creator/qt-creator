@@ -67,6 +67,9 @@ def main():
 
 def performTest(workingDir, projectName, targetCount, availableConfigs, disableOptimizer):
     for kit, config in availableConfigs:
+        # switching from MSVC to MinGW build will fail on the clean step of 'Rebuild All' because
+        # of differences between MSVC's and MinGW's Makefile (so clean before switching kits)
+        invokeMenuItem('Build', 'Clean Project "%s"' % projectName)
         qtVersion = selectBuildConfig(targetCount, kit, config)[0]
         test.log("Selected kit using Qt %s" % qtVersion)
         verifyBuildConfig(targetCount, kit, True, enableQmlDebug=True)
