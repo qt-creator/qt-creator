@@ -91,6 +91,7 @@ public:
     bool hasEditor(IEditor *editor) const;
 
     QList<IEditor *> editors() const;
+    IEditor *editorForDocument(const IDocument *document) const;
 
     void showEditorStatusBar(const QString &id,
                            const QString &infoText,

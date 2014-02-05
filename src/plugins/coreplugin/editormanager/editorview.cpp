@@ -369,6 +369,14 @@ QList<IEditor *> EditorView::editors() const
     return m_editors;
 }
 
+IEditor *EditorView::editorForDocument(const IDocument *document) const
+{
+    foreach (IEditor *editor, m_editors)
+        if (editor->document() == document)
+            return editor;
+    return 0;
+}
+
 void EditorView::updateEditorHistory(IEditor *editor)
 {
     updateEditorHistory(editor, m_editorHistory);

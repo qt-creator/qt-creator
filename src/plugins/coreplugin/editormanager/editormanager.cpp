@@ -1230,34 +1230,35 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
 {
     Q_ASSERT(view && editor);
 
-    if (view->currentEditor() && view->currentEditor()->document() == editor->document())
-        editor = view->currentEditor();
+    if (view->hasEditor(editor))
+        return editor;
+    if (IEditor *e = view->editorForDocument(editor->document()))
+        return e;
 
-    if (!view->hasEditor(editor)) {
-        bool duplicateSupported = editor->duplicateSupported();
-        if (EditorView *sourceView = viewForEditor(editor)) {
-            if (editor != sourceView->currentEditor() || !duplicateSupported) {
-                // pull the IEditor over to the new view
-                sourceView->removeEditor(editor);
-                view->addEditor(editor);
-                view->setCurrentEditor(editor);
-                if (!sourceView->currentEditor()) {
-                    EditorView *replacementView = 0;
-                    if (IEditor *replacement = pickUnusedEditor(&replacementView)) {
-                        if (replacementView)
-                            replacementView->removeEditor(replacement);
-                        sourceView->addEditor(replacement);
-                        sourceView->setCurrentEditor(replacement);
-                    }
+    // try duplication or pull editor over to new view
+    bool duplicateSupported = editor->duplicateSupported();
+    if (EditorView *sourceView = viewForEditor(editor)) {
+        if (editor != sourceView->currentEditor() || !duplicateSupported) {
+            // pull the IEditor over to the new view
+            sourceView->removeEditor(editor);
+            view->addEditor(editor);
+            view->setCurrentEditor(editor);
+            if (!sourceView->currentEditor()) {
+                EditorView *replacementView = 0;
+                if (IEditor *replacement = pickUnusedEditor(&replacementView)) {
+                    if (replacementView)
+                        replacementView->removeEditor(replacement);
+                    sourceView->addEditor(replacement);
+                    sourceView->setCurrentEditor(replacement);
                 }
-                return editor;
-            } else if (duplicateSupported) {
-                editor = duplicateEditor(editor);
-                Q_ASSERT(editor);
             }
+            return editor;
+        } else if (duplicateSupported) {
+            editor = duplicateEditor(editor);
+            Q_ASSERT(editor);
         }
-        view->addEditor(editor);
     }
+    view->addEditor(editor);
     return editor;
 }
 
@@ -1314,11 +1315,14 @@ IEditor *EditorManager::activateEditorForDocument(IDocument *document, OpenEdito
 Core::IEditor *EditorManager::activateEditorForDocument(Core::Internal::EditorView *view, Core::IDocument *document, OpenEditorFlags flags)
 {
     Q_ASSERT(view);
-    const QList<IEditor*> editors = d->m_documentModel->editorsForDocument(document);
-    if (editors.isEmpty())
-        return 0;
-
-    return activateEditor(view, editors.first(), flags);
+    IEditor *editor = view->editorForDocument(document);
+    if (!editor) {
+        const QList<IEditor*> editors = d->m_documentModel->editorsForDocument(document);
+        if (editors.isEmpty())
+            return 0;
+        editor = editors.first();
+    }
+    return activateEditor(view, editor, flags);
 }
 
 /* For something that has a 'QStringList mimeTypes' (IEditorFactory
