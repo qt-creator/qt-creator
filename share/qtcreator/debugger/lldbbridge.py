@@ -1466,8 +1466,23 @@ class Dumper(DumperBase):
         self.thread.StepOverUntil(file, line)
         self.reportData()
 
-    def executeJumpToLine(self):
-        self.report('error={msg="Not implemented"},state="stopped"')
+    def executeJumpToLine(self, args):
+        frame = self.currentFrame()
+        self.report('state="stopped"')
+        if not frame:
+            self.report('error={msg="No frame"}')
+            return
+        bp = self.target.BreakpointCreateByLocation(
+                    str(args["file"]), int(args["line"]))
+        isWatch = isinstance(bp, lldb.SBWatchpoint)
+        if bp.GetNumLocations() == 0:
+            self.report('error={msg="No location implemented"}')
+            self.target.BreakpointDelete(bp.GetID())
+            return
+        loc = bp.GetLocationAtIndex(0)
+        self.target.BreakpointDelete(bp.GetID())
+        frame.SetPC(loc.GetLoadAddress())
+        self.reportData()
 
     def breakList(self):
         result = lldb.SBCommandReturnObject()
