@@ -1453,6 +1453,31 @@ void tst_Preprocessor::comments_within_data()
             "\n"
             "int foo = 4;"
     );
+
+    QTest::newRow("joined_unterminated") << _(
+            "// comment \\\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "\n"
+            "int foo = 4;"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "# 12 \"<stdin>\"\n"
+            "int foo = 4;"
+        ) << _(
+            "# 1 \"<stdin>\"\n"
+            "// comment \\\n"
+            "\n"
+            "# 12 \"<stdin>\"\n"
+            "int foo = 4;"
+    );
 }
 
 void tst_Preprocessor::comments_before_args()

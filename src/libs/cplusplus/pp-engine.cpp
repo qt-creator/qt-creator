@@ -2039,6 +2039,15 @@ bool Preprocessor::atStartOfOutputLine() const
 void Preprocessor::maybeStartOutputLine()
 {
     QByteArray &buffer = currentOutputBuffer();
-    if (!buffer.isEmpty() && !buffer.endsWith('\n'))
+    if (buffer.isEmpty())
+        return;
+    if (!buffer.endsWith('\n'))
+        buffer.append('\n');
+    // If previous line ends with \ (possibly followed by whitespace), add another \n
+    const char *start = buffer.constData();
+    const char *ch = start + buffer.length() - 2;
+    while (ch > start && (*ch != '\n') && std::isspace(*ch))
+        --ch;
+    if (*ch == '\\')
         buffer.append('\n');
 }
