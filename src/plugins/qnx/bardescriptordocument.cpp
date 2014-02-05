@@ -40,6 +40,7 @@
 #include <QFileInfo>
 #include <QMetaEnum>
 #include <QTextCodec>
+#include <QSet>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -572,4 +573,123 @@ void BarDescriptorDocument::emitAllChanged()
         Tag tag = static_cast<Tag>(tags.value(i));
         emit changed(tag, value(tag));
     }
+}
+
+QString BarDescriptorDocument::bannerComment() const
+{
+    QDomNode nd = m_barDocument.firstChild();
+    QDomProcessingInstruction pi = nd.toProcessingInstruction();
+    if (!pi.isNull())
+        nd = pi.nextSibling();
+
+    return nd.toComment().data();
+}
+
+void BarDescriptorDocument::setBannerComment(const QString &commentText)
+{
+    QDomNode nd = m_barDocument.firstChild();
+    QDomProcessingInstruction pi = nd.toProcessingInstruction();
+    if (!pi.isNull())
+        nd = pi.nextSibling();
+
+    bool oldDirty = m_dirty;
+    QDomComment cnd = nd.toComment();
+    if (cnd.isNull()) {
+        if (!commentText.isEmpty()) {
+            cnd = m_barDocument.createComment(commentText);
+            m_barDocument.insertBefore(cnd, nd);
+            m_dirty = true;
+        }
+    } else {
+        if (commentText.isEmpty()) {
+            m_barDocument.removeChild(cnd);
+            m_dirty = true;
+        } else {
+            if (cnd.data() != commentText) {
+                cnd.setData(commentText);
+                m_dirty = true;
+            }
+        }
+    }
+    if (m_dirty != oldDirty)
+        emit Core::IDocument::changed();
+}
+
+int BarDescriptorDocument::tagForElement(const QDomElement &element)
+{
+    QMetaEnum tags = metaObject()->enumerator(metaObject()->enumeratorOffset());
+    QDomElement el = element;
+    while (!el.isNull()) {
+        bool ok;
+        int n = tags.keyToValue(el.tagName().toLatin1().constData(), &ok);
+        if (ok)
+            return n;
+        el = el.parentNode().toElement();
+    }
+    return -1;
+}
+
+bool BarDescriptorDocument::expandPlaceHolder_helper(const QDomElement &el,
+                                                     const QString &placeholderKey,
+                                                     const QString &placeholderText,
+                                                     QSet<BarDescriptorDocument::Tag> &changedTags)
+{
+    // replace attributes
+    bool elementChanged = false;
+    QDomNamedNodeMap attrs = el.attributes();
+    for (int i = 0; i < attrs.count(); ++i) {
+        QDomAttr attr = attrs.item(i).toAttr();
+        if (!attr.isNull()) {
+            QString s = attr.value();
+            s.replace(placeholderKey, placeholderText);
+            if (s != attr.value()) {
+                attr.setValue(s);
+                elementChanged = true;
+            }
+        }
+    }
+
+    bool documentChanged = false;
+    // replace text
+    for (QDomNode nd = el.firstChild(); !nd.isNull(); nd = nd.nextSibling()) {
+        QDomText txtnd = nd.toText();
+        if (!txtnd.isNull()) {
+            QString s = txtnd.data();
+            s.replace(placeholderKey, placeholderText);
+            if (s != txtnd.data()) {
+                txtnd.setData(s);
+                elementChanged = true;
+            }
+        }
+        QDomElement child = nd.toElement();
+        if (!child.isNull()) {
+            bool hit = expandPlaceHolder_helper(child, placeholderKey, placeholderText, changedTags);
+            documentChanged = documentChanged || hit;
+        }
+    }
+    if (elementChanged) {
+        int n = tagForElement(el);
+        if (n >= 0)
+            changedTags << static_cast<Tag>(n);
+    }
+    documentChanged = documentChanged || elementChanged;
+    return documentChanged;
+}
+
+void BarDescriptorDocument::expandPlaceHolders(const QHash<QString, QString> &placeholdersKeyVals)
+{
+    QSet<Tag> changedTags;
+    QHashIterator<QString, QString> it(placeholdersKeyVals);
+    bool docChanged = false;
+    while (it.hasNext()) {
+        it.next();
+        bool expanded = expandPlaceHolder_helper(m_barDocument.documentElement(),
+                                                 it.key(), it.value(), changedTags);
+        docChanged = docChanged || expanded;
+    }
+    m_dirty = m_dirty || docChanged;
+    foreach (Tag tag, changedTags)
+        emit changed(tag, value(tag));
+    if (docChanged)
+        emit Core::IDocument::changed();
 }

@@ -105,12 +105,16 @@ public:
 
     QVariant value(Tag tag) const;
 
+    void expandPlaceHolders(const QHash<QString, QString> &placeholdersKeyVals);
+
+    QString bannerComment() const;
+    void setBannerComment(const QString &commentText);
+
 signals:
     void changed(BarDescriptorDocument::Tag tag, const QVariant &value);
 
 public slots:
     void setValue(BarDescriptorDocument::Tag tag, const QVariant &value);
-
 private:
     QString stringValue(const QString &tagName) const;
     void setStringValue(const QString &tagName, const QString &value);
@@ -126,6 +130,11 @@ private:
 
     QList<Utils::EnvironmentItem> environment() const;
     void setEnvironment(const QList<Utils::EnvironmentItem> &environment);
+
+    int tagForElement(const QDomElement &element);
+    bool expandPlaceHolder_helper(const QDomElement &el, const QString &placeholderKey,
+                                  const QString &placeholderText,
+                                  QSet<BarDescriptorDocument::Tag> &changedTags);
 
     void emitAllChanged();
 

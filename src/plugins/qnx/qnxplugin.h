@@ -54,6 +54,9 @@ public:
 private slots:
     void testBarDescriptorDocumentSetValue_data();
     void testBarDescriptorDocumentSetValue();
+
+    void testBarDescriptorDocumentSetBannerComment_data();
+    void testBarDescriptorDocumentSetBannerComment();
 #endif
 };
 
