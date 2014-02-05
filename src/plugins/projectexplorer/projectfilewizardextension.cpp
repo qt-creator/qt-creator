@@ -588,30 +588,6 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     file->setContents(doc.toPlainText());
 }
 
-QStringList ProjectFileWizardExtension::getProjectChoices() const
-{
-    QStringList projectChoices;
-    QStringList projectToolTips;
-    ProjectNode::ProjectAction projectAction;
-
-    getProjectChoicesAndToolTips(&projectChoices, &projectToolTips, &projectAction,
-                                 QString(), m_context);
-
-    return projectChoices;
-}
-
-QStringList ProjectFileWizardExtension::getProjectToolTips() const
-{
-    QStringList projectChoices;
-    QStringList projectToolTips;
-    ProjectNode::ProjectAction projectAction;
-
-    getProjectChoicesAndToolTips(&projectChoices, &projectToolTips, &projectAction,
-                                 QString(), m_context);
-
-    return projectToolTips;
-}
-
 void ProjectFileWizardExtension::hideProjectComboBox()
 {
     m_context->page->setProjectComoBoxVisible(false);

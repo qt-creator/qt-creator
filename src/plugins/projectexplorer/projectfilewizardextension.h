@@ -52,9 +52,6 @@ public:
                  bool *removeOpenProjectAttribute, QString *errorMessage);
     void applyCodeStyle(Core::GeneratedFile *file) const;
 
-    QStringList getProjectChoices() const;
-    QStringList getProjectToolTips() const;
-
     void hideProjectComboBox();
 
     void setProjectIndex(int i);
