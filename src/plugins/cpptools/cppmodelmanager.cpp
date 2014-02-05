@@ -65,7 +65,7 @@ namespace CppTools {
 uint qHash(const ProjectPart &p)
 {
     uint h = qHash(p.toolchainDefines) ^ qHash(p.projectDefines) ^ p.cVersion ^ p.cxxVersion
-            ^ p.cxxExtensions ^ p.qtVersion;
+            ^ p.cxxExtensions ^ p.qtVersion ^ qHash(p.projectConfigFile);
 
     foreach (const QString &i, p.includePaths)
         h ^= qHash(i);
@@ -82,6 +82,8 @@ bool operator==(const ProjectPart &p1,
     if (p1.toolchainDefines != p2.toolchainDefines)
         return false;
     if (p1.projectDefines != p2.projectDefines)
+        return false;
+    if (p1.projectConfigFile != p2.projectConfigFile)
         return false;
     if (p1.cVersion != p2.cVersion)
         return false;
@@ -393,6 +395,8 @@ QByteArray CppModelManager::internalDefinedMacros() const
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             addUnique(part->toolchainDefines.split('\n'), &macros, &alreadyIn);
             addUnique(part->projectDefines.split('\n'), &macros, &alreadyIn);
+            if (!part->projectConfigFile.isEmpty())
+                macros += readProjectConfigFile(part);
         }
     }
     return macros;
@@ -434,6 +438,7 @@ void CppModelManager::dumpModelManagerConfiguration()
             qDebug() << "cxxVersion:" << cxxVersion;
             qDebug() << "cxxExtensions:" << cxxExtensions;
             qDebug() << "Qt version:" << part->qtVersion;
+            qDebug() << "project config file:" << part->projectConfigFile;
             qDebug() << "precompiled header:" << part->precompiledHeaders;
             qDebug() << "toolchain defines:" << part->toolchainDefines;
             qDebug() << "project defines:" << part->projectDefines;

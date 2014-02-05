@@ -78,6 +78,7 @@ private:
     QByteArray m_editorDefines;
     QStringList m_includePaths;
     QStringList m_frameworkPaths;
+    QString m_projectConfigFile;
     QStringList m_precompiledHeaders;
     CPlusPlus::Snapshot m_snapshot;
     CPlusPlus::DependencyTable m_deps;

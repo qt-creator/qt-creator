@@ -81,7 +81,6 @@ public:
 
     void refresh(RefreshOptions options);
 
-    QByteArray defines() const;
     QStringList projectIncludePaths() const;
     QStringList files() const;
 
@@ -108,7 +107,6 @@ private:
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
     QStringList m_projectIncludePaths;
-    QByteArray m_defines;
 
     GenericProjectNode *m_rootNode;
     QFuture<void> m_codeModelFuture;

@@ -218,15 +218,6 @@ void GenericProject::parseProject(RefreshOptions options)
 
         // TODO: Possibly load some configuration from the project file
         //QSettings projectInfo(m_fileName, QSettings::IniFormat);
-
-        m_defines.clear();
-
-        QFile configFile(configFileName());
-        if (configFile.open(QFile::ReadOnly)) {
-            // convert from local/file encoding to UTF-8
-            QTextStream configStream(&configFile);
-            m_defines = configStream.readAll().toUtf8();
-        }
     }
 
     if (options & Files)
@@ -265,7 +256,7 @@ void GenericProject::refresh(RefreshOptions options)
         }
 
         part->cxxVersion = CppTools::ProjectPart::CXX11; // assume C++11
-        part->projectDefines += m_defines;
+        part->projectConfigFile = configFileName();
 
         // ### add _defines.
 
@@ -346,11 +337,6 @@ QStringList GenericProject::projectIncludePaths() const
 QStringList GenericProject::files() const
 {
     return m_files;
-}
-
-QByteArray GenericProject::defines() const
-{
-    return m_defines;
 }
 
 QString GenericProject::displayName() const
