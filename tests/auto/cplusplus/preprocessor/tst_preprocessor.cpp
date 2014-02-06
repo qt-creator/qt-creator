@@ -374,6 +374,7 @@ private slots:
     void include_guard_data();
     void empty_trailing_lines();
     void empty_trailing_lines_data();
+    void undef();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -1737,6 +1738,46 @@ void tst_Preprocessor::empty_trailing_lines_data()
             "\n"
             "\n"
     );
+}
+
+void tst_Preprocessor::undef()
+{
+    Environment env;
+    QByteArray output;
+    MockClient client(&env, &output);
+    Preprocessor preprocess(&client, &env);
+    QByteArray input =
+            "#define FOO\n"
+            "#define FOO2\n"
+            "#undef FOO\n"
+            "#undef BAR\n";
+    preprocess.run(QLatin1String("<stdin>"), input);
+    QCOMPARE(env.macroCount(), 4U);
+    Macro *macro = env.macroAt(0);
+    QCOMPARE(macro->name(), QByteArray("FOO"));
+    QCOMPARE(macro->offset(), 8U);
+    QCOMPARE(macro->line(), 1U);
+    QVERIFY(!macro->isHidden());
+    macro = env.macroAt(1);
+    QCOMPARE(macro->name(), QByteArray("FOO2"));
+    QCOMPARE(macro->offset(), 20U);
+    QCOMPARE(macro->line(), 2U);
+    QVERIFY(!macro->isHidden());
+    macro = env.macroAt(2);
+    QCOMPARE(macro->name(), QByteArray("FOO"));
+    QCOMPARE(macro->offset(), 32U);
+    QCOMPARE(macro->line(), 3U);
+    QVERIFY(macro->isHidden());
+    macro = env.macroAt(3);
+    QCOMPARE(macro->name(), QByteArray("BAR"));
+    QCOMPARE(macro->offset(), 43U);
+    QCOMPARE(macro->line(), 4U);
+    QVERIFY(macro->isHidden());
+    QList<QByteArray> macros = client.definedMacros();
+    QVERIFY(macros.contains("FOO"));
+    QVERIFY(macros.contains("FOO2"));
+    QCOMPARE(client.macroUsesLine()["FOO"], (QList<unsigned>() << 3U));
+    QVERIFY(client.macroUsesLine()["BAR"].isEmpty());
 }
 
 void tst_Preprocessor::compare_input_output(bool keepComments)
