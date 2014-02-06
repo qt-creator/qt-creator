@@ -71,8 +71,6 @@ class FindReferences;
 namespace Internal {
 class QmlJSEditorDocument;
 class QmlOutlineModel;
-class SemanticHighlighter;
-
 } // namespace Internal
 
 struct QMLJSEDITOR_EXPORT Declaration
@@ -183,7 +181,6 @@ private:
     int m_oldCursorPosition;
 
     FindReferences *m_findReferences;
-    Internal::SemanticHighlighter *m_semanticHighlighter;
 };
 
 } // namespace QmlJSEditor

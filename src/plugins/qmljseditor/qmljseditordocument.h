@@ -57,6 +57,10 @@ signals:
     void updateCodeWarnings(QmlJS::Document::Ptr doc);
     void semanticInfoUpdated(const QmlJSTools::SemanticInfo &semanticInfo);
 
+protected:
+    void applyFontSettings();
+    void triggerPendingUpdates();
+
 private:
     friend class QmlJSEditorDocumentPrivate; // sending signals
     QmlJSEditorDocumentPrivate *m_d;

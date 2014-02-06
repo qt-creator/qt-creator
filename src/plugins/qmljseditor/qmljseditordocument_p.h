@@ -41,6 +41,7 @@ namespace QmlJSEditor {
 namespace Internal {
 
 class QmlJSEditorDocument;
+class SemanticHighlighter;
 class SemanticInfoUpdater;
 
 class QmlJSEditorDocumentPrivate : public QObject
@@ -66,6 +67,8 @@ public:
     SemanticInfoUpdater *m_semanticInfoUpdater;
     QmlJSTools::SemanticInfo m_semanticInfo;
     QVector<QTextLayout::FormatRange> m_diagnosticRanges;
+    Internal::SemanticHighlighter *m_semanticHighlighter;
+    bool m_semanticHighlightingNecessary;
 };
 
 } // Internal

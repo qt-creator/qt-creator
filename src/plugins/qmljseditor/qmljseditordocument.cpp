@@ -31,6 +31,7 @@
 
 #include "qmljseditordocument_p.h"
 #include "qmljshighlighter.h"
+#include "qmljssemantichighlighter.h"
 #include "qmljssemanticinfoupdater.h"
 
 #include <qmljstools/qmljsindenter.h>
@@ -396,7 +397,9 @@ namespace Internal {
 
 QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *parent)
     : m_q(parent),
-      m_semanticInfoDocRevision(-1)
+      m_semanticInfoDocRevision(-1),
+      m_semanticHighlighter(new SemanticHighlighter(parent)),
+      m_semanticHighlightingNecessary(false)
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
@@ -487,6 +490,7 @@ void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &seman
     FindIdDeclarations updateIds;
     m_semanticInfo.idLocations = updateIds(doc);
 
+    m_semanticHighlightingNecessary = true;
     emit m_q->semanticInfoUpdated(m_semanticInfo);
 }
 
@@ -522,6 +526,26 @@ QVector<QTextLayout::FormatRange> QmlJSEditorDocument::diagnosticRanges() const
 void QmlJSEditorDocument::setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges)
 {
     m_d->m_diagnosticRanges = ranges;
+}
+
+void QmlJSEditorDocument::applyFontSettings()
+{
+    BaseTextDocument::applyFontSettings();
+    m_d->m_semanticHighlighter->updateFontSettings(fontSettings());
+    if (!isSemanticInfoOutdated()) {
+        m_d->m_semanticHighlightingNecessary = false;
+        m_d->m_semanticHighlighter->rerun(m_d->m_semanticInfo);
+    }
+}
+
+void QmlJSEditorDocument::triggerPendingUpdates()
+{
+    BaseTextDocument::triggerPendingUpdates(); // calls applyFontSettings if necessary
+    // might still need to rehighlight if font settings did not change
+    if (m_d->m_semanticHighlightingNecessary && !isSemanticInfoOutdated()) {
+        m_d->m_semanticHighlightingNecessary = false;
+        m_d->m_semanticHighlighter->rerun(m_d->m_semanticInfo);
+    }
 }
 
 } // Internal

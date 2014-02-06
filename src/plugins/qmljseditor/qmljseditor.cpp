@@ -38,7 +38,6 @@
 #include "qmljsautocompleter.h"
 #include "qmljscompletionassist.h"
 #include "qmljsquickfixassist.h"
-#include "qmljssemantichighlighter.h"
 
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsevaluate.h>
@@ -118,7 +117,6 @@ void QmlJSTextEditorWidget::ctor()
     m_outlineModel = new QmlOutlineModel(this);
     m_contextPane = 0;
     m_findReferences = new FindReferences(this);
-    m_semanticHighlighter = new SemanticHighlighter(m_qmlJsEditorDocument);
 
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -567,11 +565,8 @@ void QmlJSTextEditorWidget::setSelectedElements()
 void QmlJSTextEditorWidget::applyFontSettings()
 {
     TextEditor::BaseTextEditorWidget::applyFontSettings();
-    m_semanticHighlighter->updateFontSettings(baseTextDocument()->fontSettings());
-    if (!m_qmlJsEditorDocument->isSemanticInfoOutdated()) {
-        m_semanticHighlighter->rerun(m_qmlJsEditorDocument->semanticInfo());
+    if (!m_qmlJsEditorDocument->isSemanticInfoOutdated())
         updateUses();
-    }
 }
 
 
@@ -863,6 +858,9 @@ void QmlJSTextEditorWidget::unCommentSelection()
 
 void QmlJSTextEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)
 {
+    if (isVisible())
+        baseTextDocument()->triggerPendingUpdates(); // trigger semantic highlighting if necessary
+
     if (m_contextPane) {
         Node *newNode = semanticInfo.declaringMemberNoProperties(position());
         if (newNode) {
@@ -875,9 +873,6 @@ void QmlJSTextEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo
 
     // update outline
     m_updateOutlineTimer->start();
-
-    if (EditorManager::currentEditor() == editor())
-        m_semanticHighlighter->rerun(semanticInfo);
 }
 
 void QmlJSTextEditorWidget::onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker)
