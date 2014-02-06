@@ -5,6 +5,9 @@ QTCREATOR_VERSION = 3.0.81
 QTCREATOR_COMPAT_VERSION = 3.0.81
 BINARY_ARTIFACTS_BRANCH = master
 
+# enable c++11 on everything but mac/release (breaks 10.6)
+!macx|CONFIG(debug, debug|release): CONFIG += c++11
+
 isEqual(QT_MAJOR_VERSION, 5) {
 
 defineReplace(cleanPath) {
