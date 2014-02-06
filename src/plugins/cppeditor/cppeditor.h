@@ -134,8 +134,6 @@ public:
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
     static QString identifierUnderCursor(QTextCursor *macroCursor);
 
-    static QVector<TextEditor::TextStyle> highlighterFormatCategories();
-
     virtual TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind kind,
                                                                 TextEditor::AssistReason reason) const;
 

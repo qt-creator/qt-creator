@@ -1705,25 +1705,6 @@ QModelIndex CPPEditorWidget::indexForPosition(int line, int column,
     return lastIndex;
 }
 
-QVector<TextEditor::TextStyle> CPPEditorWidget::highlighterFormatCategories()
-{
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty()) {
-        categories << TextEditor::C_NUMBER
-                   << TextEditor::C_STRING
-                   << TextEditor::C_TYPE
-                   << TextEditor::C_KEYWORD
-                   << TextEditor::C_OPERATOR
-                   << TextEditor::C_PREPROCESSOR
-                   << TextEditor::C_LABEL
-                   << TextEditor::C_COMMENT
-                   << TextEditor::C_DOXYGEN_COMMENT
-                   << TextEditor::C_DOXYGEN_TAG
-                   << TextEditor::C_VISUAL_WHITESPACE;
-    }
-    return categories;
-}
-
 TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
     TextEditor::AssistKind kind,
     TextEditor::AssistReason reason) const
