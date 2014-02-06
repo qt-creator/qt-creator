@@ -47,6 +47,7 @@ from stdtypes import *
 from misctypes import *
 from boosttypes import *
 from creatortypes import *
+from personaltypes import *
 
 lldbCmd = 'lldb'
 if len(sys.argv) > 1:
