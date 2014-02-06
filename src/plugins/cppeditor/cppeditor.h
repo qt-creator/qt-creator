@@ -156,7 +156,7 @@ public slots:
     void showPreProcessorWidget();
     void renameUsagesNow(const QString &replacement = QString());
     void semanticRehighlight(bool force = false);
-    void highlighterStarted(QFuture<TextEditor::HighlightingResult> highlighter,
+    void highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
                             unsigned revision);
 
 protected:

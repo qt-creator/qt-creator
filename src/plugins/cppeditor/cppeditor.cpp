@@ -549,8 +549,8 @@ void CPPEditorWidget::ctor()
                 this, SLOT(onDocumentUpdated()));
         connect(editorSupport, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
                 this, SLOT(updateSemanticInfo(CppTools::SemanticInfo)));
-        connect(editorSupport, SIGNAL(highlighterStarted(QFuture<TextEditor::HighlightingResult>,uint)),
-                this, SLOT(highlighterStarted(QFuture<TextEditor::HighlightingResult>,uint)));
+        connect(editorSupport, SIGNAL(highlighterStarted(QFuture<TextEditor::HighlightingResult>*,uint)),
+                this, SLOT(highlighterStarted(QFuture<TextEditor::HighlightingResult>*,uint)));
     }
 
     m_highlightRevision = 0;
@@ -1608,7 +1608,7 @@ void CPPEditorWidget::semanticRehighlight(bool force)
         m_modelManager->cppEditorSupport(editor())->recalculateSemanticInfoDetached(force);
 }
 
-void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult> highlighter,
+void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
                                          unsigned revision)
 {
     m_highlightRevision = revision;
@@ -1619,7 +1619,7 @@ void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult>
     connect(m_highlightWatcher.data(), SIGNAL(finished()),
             SLOT(finishHighlightSymbolUsages()));
 
-    m_highlightWatcher->setFuture(highlighter);
+    m_highlightWatcher->setFuture(QFuture<TextEditor::HighlightingResult>(*highlighter));
 }
 
 void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)

@@ -390,7 +390,7 @@ void CppEditorSupport::startHighlighting()
 
         m_highlighter = m_highlightingSupport->highlightingFuture(doc, snapshot);
         m_lastHighlightRevision = revision;
-        emit highlighterStarted(m_highlighter, m_lastHighlightRevision);
+        emit highlighterStarted(&m_highlighter, m_lastHighlightRevision);
     } else {
         const unsigned revision = currentSource(false).revision;
         if (m_lastHighlightRevision == revision)
@@ -400,7 +400,7 @@ void CppEditorSupport::startHighlighting()
         static const Document::Ptr dummyDoc;
         static const Snapshot dummySnapshot;
         m_highlighter = m_highlightingSupport->highlightingFuture(dummyDoc, dummySnapshot);
-        emit highlighterStarted(m_highlighter, m_lastHighlightRevision);
+        emit highlighterStarted(&m_highlighter, m_lastHighlightRevision);
     }
 }
 

@@ -132,7 +132,7 @@ signals:
     void documentUpdated();
     void diagnosticsChanged();
     void semanticInfoUpdated(CppTools::SemanticInfo);
-    void highlighterStarted(QFuture<TextEditor::HighlightingResult>, unsigned revision);
+    void highlighterStarted(QFuture<TextEditor::HighlightingResult> *, unsigned revision);
 
 private slots:
     void onMimeTypeChanged();
