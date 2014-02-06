@@ -378,8 +378,11 @@ void LldbEngine::executeJumpToLine(const ContextData &data)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand(Command("executeJumpToLine")
-        .arg("file", data.fileName).arg("line", data.lineNumber));
+    Command cmd("executeJumpToLocation");
+    cmd.arg("file", data.fileName);
+    cmd.arg("line", data.lineNumber);
+    cmd.arg("address", data.address);
+    runCommand(cmd);
 }
 
 void LldbEngine::activateFrame(int frameIndex)

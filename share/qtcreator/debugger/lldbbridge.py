@@ -1488,16 +1488,19 @@ class Dumper(DumperBase):
         else:
             self.reportData()
 
-    def executeJumpToLine(self, args):
+    def executeJumpToLocation(self, args):
         frame = self.currentFrame()
         self.report('state="stopped"')
         if not frame:
             self.reportStatus("No frame available.")
             self.reportLocation()
             return
-        bp = self.target.BreakpointCreateByLocation(
-                    str(args["file"]), int(args["line"]))
-        isWatch = isinstance(bp, lldb.SBWatchpoint)
+        addr = args.get('address', 0)
+        if addr:
+            bp = self.target.BreakpointCreateByAddress(addr)
+        else:
+            bp = self.target.BreakpointCreateByLocation(
+                        str(args['file']), int(args['line']))
         if bp.GetNumLocations() == 0:
             self.target.BreakpointDelete(bp.GetID())
             self.reportStatus("No target location found.")
