@@ -343,6 +343,7 @@ private:
 
 protected:
     virtual BaseTextEditor *createEditor() = 0;
+    virtual void triggerPendingUpdates();
     virtual void applyFontSettings();
 
 private slots:

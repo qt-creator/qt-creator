@@ -272,16 +272,15 @@ void BaseTextDocument::setFontSettings(const FontSettings &fontSettings)
     emit fontSettingsChanged();
 }
 
-void BaseTextDocument::ensureFontSettingsApplied()
+void BaseTextDocument::triggerPendingUpdates()
 {
-    if (!d->m_fontSettingsNeedsApply)
-        return;
-    d->m_fontSettingsNeedsApply = false;
-    applyFontSettings();
+    if (d->m_fontSettingsNeedsApply)
+        applyFontSettings();
 }
 
 void BaseTextDocument::applyFontSettings()
 {
+    d->m_fontSettingsNeedsApply = false;
     if (d->m_highlighter) {
         d->m_highlighter->setFontSettings(d->m_fontSettings);
         d->m_highlighter->rehighlight();

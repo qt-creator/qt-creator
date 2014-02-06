@@ -113,7 +113,7 @@ public:
     bool reload(QString *errorString, QTextCodec *codec);
     void cleanWhitespace(const QTextCursor &cursor);
 
-    void ensureFontSettingsApplied();
+    void triggerPendingUpdates();
 
 public slots:
     void setTabSettings(const TextEditor::TabSettings &tabSettings);

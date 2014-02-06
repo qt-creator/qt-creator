@@ -5337,24 +5337,28 @@ void BaseTextEditorWidget::unCommentSelection()
 
 void BaseTextEditorWidget::showEvent(QShowEvent* e)
 {
-    if (d->m_fontSettingsNeedsApply) {
-        applyFontSettings();
-        d->m_fontSettingsNeedsApply = false;
-    }
+    triggerPendingUpdates();
     QPlainTextEdit::showEvent(e);
 }
 
 
 void BaseTextEditorWidget::applyFontSettingsDelayed()
 {
+    d->m_fontSettingsNeedsApply = true;
     if (isVisible())
+        triggerPendingUpdates();
+}
+
+void BaseTextEditorWidget::triggerPendingUpdates()
+{
+    if (d->m_fontSettingsNeedsApply)
         applyFontSettings();
-    else
-        d->m_fontSettingsNeedsApply = true;
+    baseTextDocument()->triggerPendingUpdates();
 }
 
 void BaseTextEditorWidget::applyFontSettings()
 {
+    d->m_fontSettingsNeedsApply = false;
     const FontSettings &fs = baseTextDocument()->fontSettings();
     const QTextCharFormat textFormat = fs.toTextCharFormat(C_TEXT);
     const QTextCharFormat selectionFormat = fs.toTextCharFormat(C_SELECTION);
@@ -5388,8 +5392,6 @@ void BaseTextEditorWidget::applyFontSettings()
 
     slotUpdateExtraAreaWidth();   // Adjust to new font width
     updateCurrentLineHighlight(); // Make sure it takes the new color
-
-    baseTextDocument()->ensureFontSettingsApplied();
 }
 
 void BaseTextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
