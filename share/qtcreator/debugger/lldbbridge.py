@@ -1334,6 +1334,8 @@ class Dumper(DumperBase):
         elif bpType == BreakpointAtMain:
             bpNew = self.target.BreakpointCreateByName(
                 "main", self.target.GetExecutable().GetFilename())
+        elif bpType == BreakpointByFunction:
+            bpNew = self.target.BreakpointCreateByName(args["function"])
         elif bpType == BreakpointAtThrow:
             bpNew = self.target.BreakpointCreateForException(
                 lldb.eLanguageTypeC_plus_plus, False, True)
@@ -1354,10 +1356,11 @@ class Dumper(DumperBase):
                 bpNew = self.target.WatchAddress(value.GetLoadAddress(),
                     value.GetByteSize(), False, True, error)
             except:
-                return
+                return self.target.BreakpointCreateByName(None)
         else:
-            warn("UNKNOWN BREAKPOINT TYPE: %s" % bpType)
-            return
+            # This leaves the unhandled breakpoint in a (harmless)
+            # "pending" state.
+            return self.target.BreakpointCreateByName(None)
         bpNew.SetIgnoreCount(int(args["ignorecount"]))
         if hasattr(bpNew, 'SetCondition'):
             bpNew.SetCondition(self.hexdecode(args["condition"]))
