@@ -1654,8 +1654,8 @@ def doit():
         try:
             db.execute(convertHash(json.loads(line)))
         except:
-            warn("EXCEPTION CAUGHT: %s" % sys.exc_info()[1])
-            pass
+            (exType, exValue, exTraceback) = sys.exc_info()
+            showException("MAIN LOOP", exType, exValue, exTraceback)
         line = sys.stdin.readline()
 
 
