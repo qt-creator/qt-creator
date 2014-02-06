@@ -341,6 +341,12 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshMemory(item);
         else if (name == "continuation")
             runContinuation(item);
+        else if (name == "statusmessage") {
+            QString msg = QString::fromUtf8(item.data());
+            if (msg.size())
+                msg[0] = msg.at(0).toUpper();
+            showStatusMessage(msg);
+        }
     }
 }
 
@@ -354,8 +360,11 @@ void LldbEngine::executeRunToLine(const ContextData &data)
 {
     resetLocation();
     notifyInferiorRunRequested();
-    runCommand(Command("executeRunToLine")
-        .arg("file", data.fileName).arg("line", data.address));
+    Command cmd("executeRunToLocation");
+    cmd.arg("file", data.fileName);
+    cmd.arg("line", data.lineNumber);
+    cmd.arg("address", data.address);
+    runCommand(cmd);
 }
 
 void LldbEngine::executeRunToFunction(const QString &functionName)

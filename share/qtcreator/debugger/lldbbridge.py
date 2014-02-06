@@ -735,12 +735,13 @@ class Dumper(DumperBase):
         error.GetDescription(desc)
         result = 'error={type="%s"' % error.GetType()
         result += ',code="%s"' % error.GetError()
-        result += ',msg="%s"' % error.GetCString()
         result += ',desc="%s"}' % desc.GetData()
         return result
 
     def reportError(self, error):
         self.report(self.describeError(error))
+        if error.GetType():
+            self.reportStatus(error.GetCString())
 
     def currentThread(self):
         return None if self.process is None else self.process.GetSelectedThread()
@@ -1201,9 +1202,12 @@ class Dumper(DumperBase):
     def report(self, stuff):
         sys.stdout.write(stuff + "@\n")
 
+    def reportStatus(self, msg):
+        self.report('statusmessage="%s"' % msg)
+
     def interruptInferior(self, _ = None):
         if self.process is None:
-            self.report('msg="No process"')
+            self.reportStatus("No process to interrupt.")
             return
         self.isInterrupting_ = True
         error = self.process.Stop()
@@ -1211,7 +1215,7 @@ class Dumper(DumperBase):
 
     def detachInferior(self, _ = None):
         if self.process is None:
-            self.report('msg="No process"')
+            self.reportStatus("No process to detach from.")
         else:
             error = self.process.Detach()
             self.reportError(error)
@@ -1219,7 +1223,7 @@ class Dumper(DumperBase):
 
     def continueInferior(self, _ = None):
         if self.process is None:
-            self.report('msg="No process"')
+            self.reportStatus("No process to continue.")
         else:
             error = self.process.Continue()
             self.reportError(error)
@@ -1467,24 +1471,37 @@ class Dumper(DumperBase):
     def executeStepOut(self, _ = None):
         self.currentThread().StepOut()
 
-    def executeRunToLine(self, args):
-        file = args['file']
-        line = int(args['line'])
-        self.thread.StepOverUntil(file, line)
-        self.reportData()
+    def executeRunToLocation(self, args):
+        addr = args.get('address', 0)
+        if addr:
+            error = self.currentThread().RunToAddress(addr)
+        else:
+            frame = self.currentFrame()
+            file = args['file']
+            line = int(args['line'])
+            error = self.currentThread().StepOverUntil(frame, lldb.SBFileSpec(file), line)
+        if error.GetType():
+            self.report('state="running"')
+            self.report('state="stopped"')
+            self.reportError(error)
+            self.reportLocation()
+        else:
+            self.reportData()
 
     def executeJumpToLine(self, args):
         frame = self.currentFrame()
         self.report('state="stopped"')
         if not frame:
-            self.report('error={msg="No frame"}')
+            self.reportStatus("No frame available.")
+            self.reportLocation()
             return
         bp = self.target.BreakpointCreateByLocation(
                     str(args["file"]), int(args["line"]))
         isWatch = isinstance(bp, lldb.SBWatchpoint)
         if bp.GetNumLocations() == 0:
-            self.report('error={msg="No location implemented"}')
             self.target.BreakpointDelete(bp.GetID())
+            self.reportStatus("No target location found.")
+            self.reportLocation()
             return
         loc = bp.GetLocationAtIndex(0)
         self.target.BreakpointDelete(bp.GetID())
