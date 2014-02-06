@@ -263,24 +263,33 @@ def getEditorForFileSuffix(curFile):
     glslEditorSuffixes= ["frag", "vert", "fsh", "vsh", "glsl", "shader", "gsh"]
     pytEditorSuffixes = ["py", "pyw", "wsgi"]
     suffix = __getFileSuffix__(curFile)
-    if suffix in cppEditorSuffixes:
-        editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-    elif suffix in qmlEditorSuffixes:
-        editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
-    elif suffix in proEditorSuffixes:
-        editor = waitForObject(":Qt Creator_ProFileEditorWidget")
-    elif suffix in glslEditorSuffixes:
-        editor = waitForObject("{type='GLSLEditor::Internal::GLSLTextEditorWidget' unnamed='1' "
-                               "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
-    elif suffix in pytEditorSuffixes:
-        editor = waitForObject(":Qt Creator_PythonEditor::EditorWidget")
-    else:
-        test.log("Trying PlainTextEditor (file suffix: %s)" % suffix)
-        try:
-            editor = waitForObject(":Qt Creator_TextEditor::PlainTextEditorWidget", 3000)
-        except:
-            test.fatal("Unsupported file suffix for file '%s'" % curFile)
-            editor = None
+    try:
+        if suffix in cppEditorSuffixes:
+            editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+        elif suffix in qmlEditorSuffixes:
+            editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
+        elif suffix in proEditorSuffixes:
+            editor = waitForObject(":Qt Creator_ProFileEditorWidget")
+        elif suffix in glslEditorSuffixes:
+            editor = waitForObject("{type='GLSLEditor::Internal::GLSLTextEditorWidget' unnamed='1' "
+                                   "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+        elif suffix in pytEditorSuffixes:
+            editor = waitForObject(":Qt Creator_PythonEditor::EditorWidget")
+        else:
+            test.log("Trying PlainTextEditor (file suffix: %s)" % suffix)
+            try:
+                editor = waitForObject(":Qt Creator_TextEditor::PlainTextEditorWidget", 3000)
+            except:
+                test.fatal("Unsupported file suffix for file '%s'" % curFile)
+                editor = None
+    except:
+        f = str(waitForObject(":Qt Creator_Core::Internal::MainWindow").windowTitle).split(" ", 1)[0]
+        if os.path.basename(curFile) == f:
+            test.fatal("Could not find editor although expected file matches.")
+        else:
+            test.fatal("Expected (%s) and current file (%s) do not match. Failed to get editor"
+                       % (os.path.basename(curFile), f))
+        editor = None
     return editor
 
 # helper that determines the file suffix of the given fileName
