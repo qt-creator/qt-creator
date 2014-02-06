@@ -171,7 +171,7 @@ HistoryCompleter::HistoryCompleter(FancyLineEdit *lineEdit, const QString &histo
     d->historyKey = QLatin1String("CompleterHistory/") + historyKey;
     d->list = theSettings->value(d->historyKey).toStringList();
     d->lineEdit = lineEdit;
-    if (d->list.count())
+    if (d->list.count() && lineEdit->text().isEmpty())
         lineEdit->setText(d->list.at(0));
 
     setModel(d);
