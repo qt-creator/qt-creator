@@ -49,10 +49,8 @@ public:
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;
     QmlJSTools::QmlJSRefactoringFilePtr currentFile() const;
-    QmlJSTextEditorWidget *editor() const;
 
 private:
-    QmlJSTextEditorWidget *m_editor;
     QmlJSTools::SemanticInfo m_semanticInfo;
     QmlJSTools::QmlJSRefactoringFilePtr m_currentFile;
 };

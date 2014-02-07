@@ -83,7 +83,7 @@ public:
     {
         QString componentName = m_componentName;
         QString path = QFileInfo(fileName()).path();
-        ComponentNameDialog::go(&componentName, &path, assistInterface()->editor());
+        ComponentNameDialog::go(&componentName, &path, Core::ICore::dialogParent());
 
         if (componentName.isEmpty() || path.isEmpty())
             return;
