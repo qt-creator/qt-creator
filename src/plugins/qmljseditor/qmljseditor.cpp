@@ -888,30 +888,6 @@ bool QmlJSTextEditorWidget::hideContextPane()
     return b;
 }
 
-QVector<TextEditor::TextStyle> QmlJSTextEditorWidget::highlighterFormatCategories()
-{
-    /*
-        NumberFormat,
-        StringFormat,
-        TypeFormat,
-        KeywordFormat,
-        LabelFormat,
-        CommentFormat,
-        VisualWhitespace,
-     */
-    static QVector<TextEditor::TextStyle> categories;
-    if (categories.isEmpty()) {
-        categories << TextEditor::C_NUMBER
-                << TextEditor::C_STRING
-                << TextEditor::C_TYPE
-                << TextEditor::C_KEYWORD
-                << TextEditor::C_FIELD
-                << TextEditor::C_COMMENT
-                << TextEditor::C_VISUAL_WHITESPACE;
-    }
-    return categories;
-}
-
 TextEditor::IAssistInterface *QmlJSTextEditorWidget::createAssistInterface(
     TextEditor::AssistKind assistKind,
     TextEditor::AssistReason reason) const

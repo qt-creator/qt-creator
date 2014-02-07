@@ -109,8 +109,6 @@ public:
 
     QModelIndex outlineModelIndex();
 
-    static QVector<TextEditor::TextStyle> highlighterFormatCategories();
-
     TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;
 public slots:
