@@ -180,7 +180,7 @@ void TargetSetupWidget::addBuildInfo(BuildInfo *info, bool isImport)
     pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     pathChooser->setFileName(info->buildDirectory);
     pathChooser->setEnabled(info->supportsShadowBuild);
-    pathChooser->setHistoryCompleter(QLatin1String("BuildDir.History"));
+    pathChooser->setHistoryCompleter(QLatin1String("TargetSetup.BuildDir.History"));
     pathChooser->setReadOnly(!info->supportsShadowBuild || isImport);
     m_newBuildsLayout->addWidget(pathChooser, pos * 2, 1);
 

@@ -59,7 +59,7 @@ ImportWidget::ImportWidget(QWidget *parent) :
     layout->addWidget(m_pathChooser);
 
     m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_pathChooser->setHistoryCompleter(QLatin1String("SourceDir.History"));
+    m_pathChooser->setHistoryCompleter(QLatin1String("Import.SourceDir.History"));
     QPushButton *importButton = new QPushButton(tr("Import"), widget);
     layout->addWidget(importButton);
 

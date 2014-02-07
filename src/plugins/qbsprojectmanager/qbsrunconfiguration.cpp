@@ -366,7 +366,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
     toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
     m_workingDirectoryEdit = new Utils::PathChooser(this);
-    m_workingDirectoryEdit->setHistoryCompleter(QLatin1String("WorkingDir.History"));
+    m_workingDirectoryEdit->setHistoryCompleter(QLatin1String("Qbs.WorkingDir.History"));
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
     ProjectExplorer::EnvironmentAspect *aspect
             = m_rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
