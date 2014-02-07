@@ -2676,6 +2676,10 @@ void ProjectExplorerPlugin::updateContextMenuActions()
     d->m_deleteFileAction->setVisible(true);
     d->m_runActionContextMenu->setVisible(false);
 
+    d->m_openTerminalHere->setVisible(true);
+    d->m_showInGraphicalShell->setVisible(true);
+    d->m_searchOnFileSystem->setVisible(true);
+
     ActionContainer *runMenu = ActionManager::actionContainer(Constants::RUNMENUCONTEXTMENU);
     runMenu->menu()->clear();
 
@@ -2725,6 +2729,12 @@ void ProjectExplorerPlugin::updateContextMenuActions()
 
             d->m_removeFileAction->setVisible(!enableDelete || enableRemove);
             d->m_renameFileAction->setEnabled(actions.contains(ProjectExplorer::Rename));
+        }
+
+        if (actions.contains(ProjectExplorer::HidePathActions)) {
+            d->m_openTerminalHere->setVisible(false);
+            d->m_showInGraphicalShell->setVisible(false);
+            d->m_searchOnFileSystem->setVisible(false);
         }
     }
 }
