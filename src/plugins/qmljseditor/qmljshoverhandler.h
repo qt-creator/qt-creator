@@ -56,9 +56,10 @@ class ObjectValue;
 }
 
 namespace QmlJSEditor {
-class QmlJSTextEditorWidget;
 
 namespace Internal {
+
+class QmlJSTextEditorWidget;
 
 class HoverHandler : public TextEditor::BaseHoverHandler
 {

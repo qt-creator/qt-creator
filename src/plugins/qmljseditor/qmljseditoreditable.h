@@ -35,9 +35,11 @@
 #include <texteditor/basetexteditor.h>
 
 namespace QmlJSEditor {
+namespace Internal {
+
 class QmlJSTextEditorWidget;
 
-class QMLJSEDITOR_EXPORT QmlJSEditor : public TextEditor::BaseTextEditor
+class QmlJSEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
@@ -57,6 +59,7 @@ private:
     Utils::CommentDefinition m_commentDefinition;
 };
 
+} // namespace Internal
 } // namespace QmlJSEditor
 
 #endif // QMLJSEDITOREDITABLE_H

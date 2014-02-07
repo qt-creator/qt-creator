@@ -65,15 +65,15 @@ namespace AST {
     The top-level namespace of the QmlJSEditor plug-in.
  */
 namespace QmlJSEditor {
-class QmlJSEditor;
 class QmlJSEditorDocument;
 class FindReferences;
 
 namespace Internal {
-class QmlOutlineModel;
-} // namespace Internal
 
-class QMLJSEDITOR_EXPORT QmlJSTextEditorWidget : public TextEditor::BaseTextEditorWidget
+class QmlJSEditor;
+class QmlOutlineModel;
+
+class QmlJSTextEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 
@@ -156,6 +156,7 @@ private:
     FindReferences *m_findReferences;
 };
 
+} // namespace Internal
 } // namespace QmlJSEditor
 
 #endif // QMLJSEDITOR_H

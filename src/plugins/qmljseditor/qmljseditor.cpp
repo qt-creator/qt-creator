@@ -96,7 +96,7 @@ using namespace QmlJS::AST;
 using namespace QmlJSTools;
 
 namespace QmlJSEditor {
-using namespace Internal;
+namespace Internal {
 
 QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     TextEditor::BaseTextEditorWidget(new QmlJSEditorDocument, parent)
@@ -293,13 +293,14 @@ void QmlJSTextEditorWidget::updateOutlineIndexNow()
         m_outlineCombo->blockSignals(blocked);
     }
 }
-
+} // namespace Internal
 } // namespace QmlJSEditor
 
 class QtQuickToolbarMarker {};
 Q_DECLARE_METATYPE(QtQuickToolbarMarker)
 
 namespace QmlJSEditor {
+namespace Internal {
 
 template <class T>
 static QList<TextEditor::RefactorMarker> removeMarkersOfType(const QList<TextEditor::RefactorMarker> &markers)
@@ -900,4 +901,5 @@ QString QmlJSTextEditorWidget::foldReplacementText(const QTextBlock &block) cons
     return TextEditor::BaseTextEditorWidget::foldReplacementText(block);
 }
 
+} // namespace Internal
 } // namespace QmlJSEditor

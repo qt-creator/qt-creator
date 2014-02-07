@@ -387,7 +387,7 @@ void QmlLiveTextPreview::associateEditor(Core::IEditor *editor)
     using namespace TextEditor;
     if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
         QTC_ASSERT(QLatin1String(editor->widget()->metaObject()->className()) ==
-                   QLatin1String("QmlJSEditor::QmlJSTextEditorWidget"),
+                   QLatin1String("QmlJSEditor::Internal::QmlJSTextEditorWidget"),
                    return);
 
         BaseTextEditorWidget *editWidget

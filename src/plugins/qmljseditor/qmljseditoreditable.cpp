@@ -45,6 +45,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 namespace QmlJSEditor {
+namespace Internal {
 
 QmlJSEditor::QmlJSEditor(QmlJSTextEditorWidget *editor)
     : BaseTextEditor(editor)
@@ -73,4 +74,5 @@ TextEditor::CompletionAssistProvider *QmlJSEditor::completionAssistProvider()
     return ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>();
 }
 
+} // namespace Internal
 } // namespace QmlJSEditor
