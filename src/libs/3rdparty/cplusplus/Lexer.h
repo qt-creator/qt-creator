@@ -61,6 +61,9 @@ public:
     LanguageFeatures languageFeatures() const { return _languageFeatures; }
     void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
 
+    void setPreprocessorMode(bool onoff)
+    { f._ppMode = onoff; }
+
 public:
     static void yyinp_utf8(const char *&currentSourceChar, unsigned char &yychar,
                            unsigned &utf16charCounter)
@@ -95,7 +98,12 @@ private:
     void scanRawStringLiteral(Token *tok, unsigned char hint = 0);
     void scanCharLiteral(Token *tok, unsigned char hint = 0);
     void scanUntilQuote(Token *tok, unsigned char quote);
+    bool scanDigitSequence();
+    bool scanExponentPart();
+    void scanOptionalFloatingSuffix();
+    void scanOptionalIntegerSuffix(bool allowU = true);
     void scanNumericLiteral(Token *tok);
+    void scanPreprocessorNumber(Token *tok, bool dotAlreadySkipped);
     void scanIdentifier(Token *tok, unsigned extraProcessedChars = 0);
     void scanBackslash(Kind type);
     void scanCppComment(Kind type);
@@ -115,6 +123,7 @@ private:
         unsigned _scanCommentTokens: 1;
         unsigned _scanKeywords: 1;
         unsigned _scanAngleStringLiteralTokens: 1;
+        unsigned _ppMode: 1;
     };
 
     struct State {

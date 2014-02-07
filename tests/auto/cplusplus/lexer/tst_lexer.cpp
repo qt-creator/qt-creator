@@ -70,6 +70,10 @@ private slots:
     void basic_data();
     void incremental();
     void incremental_data();
+    void literals();
+    void literals_data();
+    void preprocessor();
+    void preprocessor_data();
 
     void bytes_and_utf16chars();
     void bytes_and_utf16chars_data();
@@ -82,7 +86,8 @@ private:
     void run(const QByteArray &source,
              const Tokens &expectedTokens,
              bool preserveState,
-             TokenCompareFlags compareFlags);
+             TokenCompareFlags compareFlags,
+             bool preprocessorMode = false);
 
     int _state;
 };
@@ -103,11 +108,13 @@ Tokens tst_SimpleLexer::toTokens(const TokenKindList &tokenKinds)
 void tst_SimpleLexer::run(const QByteArray &source,
                           const Tokens &expectedTokens,
                           bool preserveState,
-                          TokenCompareFlags compareFlags)
+                          TokenCompareFlags compareFlags,
+                          bool preprocessorMode)
 {
     QVERIFY(compareFlags);
 
     SimpleLexer lexer;
+    lexer.setPreprocessorMode(preprocessorMode);
     const Tokens tokens = lexer(source, preserveState ? _state : 0);
     if (preserveState)
         _state = lexer.state();
@@ -140,7 +147,10 @@ void tst_SimpleLexer::run(const QByteArray &source,
         if (compareFlags & CompareUtf16CharsEnd)
             QCOMPARE(token.utf16charsEnd(), expectedToken.utf16charsEnd());
     }
-    QVERIFY2(i == expectedTokens.size(), "Less tokens than expected.");
+
+    QString msg = QLatin1String("Less tokens than expected: got %1, expected %2.");
+    msg = msg.arg(i).arg(expectedTokens.size());
+    QVERIFY2(i == expectedTokens.size(), msg.toUtf8().constData());
 }
 
 void tst_SimpleLexer::basic()
@@ -252,6 +262,97 @@ void tst_SimpleLexer::basic_data()
         << T_LBRACKET << T_RBRACKET << T_LBRACE << T_RBRACE
         << T_IDENTIFIER << T_QUESTION << T_IDENTIFIER << T_COLON << T_IDENTIFIER;
     QTest::newRow(source) << source << expectedTokenKindList;
+}
+
+void tst_SimpleLexer::literals()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(TokenKindList, expectedTokenKindList);
+
+    run(source, toTokens(expectedTokenKindList), false, CompareKind);
+}
+
+void tst_SimpleLexer::literals_data()
+{
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<TokenKindList>("expectedTokenKindList");
+
+    QByteArray source;
+    TokenKindList expectedTokenKindList;
+
+    source =
+            "1.\n"
+            "1.1\n"
+            "1.23456789\n"
+            ".1\n"
+            ".3e8\n"
+            ".3e8f\n"
+            "1e1\n"
+            "1E1\n"
+            "-1e-1\n" // the first minus sign is a separate token!
+            "1e-1\n"
+            "1e+1\n"
+            "1e1L\n"
+            "1e1l\n"
+            "1e1f\n"
+            "1e1F\n"
+            "23.45x"
+            ".45x"
+            ;
+    expectedTokenKindList =
+            TokenKindList() << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_MINUS
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_ERROR << T_ERROR
+                               ;
+    QTest::newRow("float-literals") << source << expectedTokenKindList;
+
+    source = // these are all the same
+            "42\n"
+            "0b101010u\n"
+            "052ll\n"
+            "0x2aL\n"
+            "123FOO\n"
+            "0xfOo\n"
+            "33_\n"
+            ;
+    expectedTokenKindList =
+            TokenKindList() << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_ERROR << T_ERROR << T_ERROR
+                               ;
+    QTest::newRow("integer-literals") << source << expectedTokenKindList;
+}
+
+void tst_SimpleLexer::preprocessor()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(TokenKindList, expectedTokenKindList);
+
+    run(source, toTokens(expectedTokenKindList), false, CompareKind, true);
+}
+
+void tst_SimpleLexer::preprocessor_data()
+{
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<TokenKindList>("expectedTokenKindList");
+
+    QByteArray source;
+    TokenKindList expectedTokenKindList;
+
+    source = // sad but true [2.10]
+            "1\n"
+            "1x.\n"
+            "1.y\n"
+            ".1_1.1.\n"
+            "1e-\n"
+            "01x1b2qWeRtty_Grumble+E-.\n"
+            ;
+    expectedTokenKindList =
+            TokenKindList() << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL;
+    QTest::newRow("pp-number") << source << expectedTokenKindList;
 }
 
 void tst_SimpleLexer::bytes_and_utf16chars()

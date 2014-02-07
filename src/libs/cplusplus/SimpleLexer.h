@@ -51,6 +51,9 @@ public:
     bool skipComments() const;
     void setSkipComments(bool skipComments);
 
+    void setPreprocessorMode(bool ppMode)
+    { _ppMode = ppMode; }
+
     LanguageFeatures languageFeatures() const { return _languageFeatures; }
     void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
 
@@ -74,6 +77,7 @@ private:
     LanguageFeatures _languageFeatures;
     bool _skipComments: 1;
     bool _endedJoined: 1;
+    bool _ppMode: 1;
 };
 
 } // namespace CPlusPlus

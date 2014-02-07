@@ -41,7 +41,8 @@ using namespace CPlusPlus;
 SimpleLexer::SimpleLexer()
     : _lastState(0),
       _skipComments(false),
-      _endedJoined(false)
+      _endedJoined(false),
+      _ppMode(false)
 {}
 
 SimpleLexer::~SimpleLexer()
@@ -73,6 +74,7 @@ Tokens SimpleLexer::operator()(const QString &text, int state)
     Lexer lex(firstChar, lastChar);
     lex.setLanguageFeatures(_languageFeatures);
     lex.setStartWithNewline(true);
+    lex.setPreprocessorMode(_ppMode);
 
     if (! _skipComments)
         lex.setScanCommentTokens(true);

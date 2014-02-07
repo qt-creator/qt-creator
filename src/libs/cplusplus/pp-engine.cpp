@@ -401,6 +401,9 @@ protected:
             const char *end = spell + len;
             char *vend = const_cast<char *>(end);
             _value.set_long(strtol(spell, &vend, 0));
+            // TODO: if (vend != end) error(NaN)
+            // TODO: binary literals
+            // TODO: float literals
             ++(*_lex);
         } else if (isTokenDefined()) {
             ++(*_lex);
@@ -1388,6 +1391,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     m_state.m_lexer = new Lexer(source.constBegin(), source.constEnd());
     m_state.m_lexer->setScanKeywords(false);
     m_state.m_lexer->setScanAngleStringLiteralTokens(false);
+    m_state.m_lexer->setPreprocessorMode(true);
     if (m_keepComments)
         m_state.m_lexer->setScanCommentTokens(true);
     m_state.m_result = result;
@@ -1803,6 +1807,7 @@ const PPToken Preprocessor::evalExpression(PPToken *tk, Value &result)
     PPToken lastConditionToken;
     const QByteArray expanded = expand(tk, &lastConditionToken);
     Lexer lexer(expanded.constData(), expanded.constData() + expanded.size());
+    lexer.setPreprocessorMode(true);
     std::vector<Token> buf;
     Token t;
     do {
