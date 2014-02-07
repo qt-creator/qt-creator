@@ -28,11 +28,10 @@
 ****************************************************************************/
 
 #include "externaleditors.h"
-#include "qmakeproject.h"
-#include "qmakeprojectmanagerconstants.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
@@ -50,15 +49,6 @@ enum { debug = 0 };
 
 namespace QmakeProjectManager {
 namespace Internal {
-
-// Figure out the qmake project used by the file if any
-static QmakeProject *qmakeProjectFor(const QString &fileName)
-{
-    if (ProjectExplorer::Project *baseProject = ProjectExplorer::SessionManager::projectForFile(fileName))
-        if (QmakeProject *project = qobject_cast<QmakeProject*>(baseProject))
-            return project;
-    return 0;
-}
 
 // ------------ Messages
 static inline QString msgStartFailed(const QString &binary, QStringList arguments)
@@ -138,7 +128,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
                                            QString *errorMessage) const
 {
     // Get the binary either from the current Qt version of the project or Path
-    if (const QmakeProject *project = qmakeProjectFor(fileName)) {
+    if (ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(fileName)) {
         if (const ProjectExplorer::Target *target = project->activeTarget()) {
             if (const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit())) {
                 data->binary = (qtVersion->*commandAccessor)();
