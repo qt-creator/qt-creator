@@ -29,6 +29,7 @@
 
 #include "qmljshoverhandler.h"
 #include "qmljseditor.h"
+#include "qmljseditordocument.h"
 #include "qmljseditoreditable.h"
 #include "qmlexpressionundercursor.h"
 
@@ -194,8 +195,8 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
     if (!qmlEditor)
         return;
 
-    const QmlJSTools::SemanticInfo &semanticInfo = qmlEditor->semanticInfo();
-    if (! semanticInfo.isValid() || qmlEditor->isSemanticInfoOutdated())
+    const QmlJSTools::SemanticInfo &semanticInfo = qmlEditor->qmlJsEditorDocument()->semanticInfo();
+    if (!semanticInfo.isValid() || qmlEditor->qmlJsEditorDocument()->isSemanticInfoOutdated())
         return;
 
     QList<AST::Node *> rangePath = semanticInfo.rangePath(pos);
@@ -266,7 +267,8 @@ bool HoverHandler::matchDiagnosticMessage(QmlJSTextEditorWidget *qmlEditor, int 
             return true;
         }
     }
-    foreach (const QTextLayout::FormatRange &range, qmlEditor->diagnosticRanges()) {
+    foreach (const QTextLayout::FormatRange &range,
+             qmlEditor->qmlJsEditorDocument()->diagnosticRanges()) {
         if (pos >= range.start && pos < range.start+range.length) {
             setToolTip(range.format.toolTip());
             return true;

@@ -60,10 +60,10 @@ namespace QmlJS {
 namespace QmlJSEditor {
 
 class QmlFileWizard;
+class QmlJSEditorDocument;
 
 namespace Internal {
 
-class QmlJSEditorDocument;
 class QmlJSEditorFactory;
 class QmlJSPreviewRunner;
 class QmlJSQuickFixAssistProvider;

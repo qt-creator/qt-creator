@@ -29,6 +29,7 @@
 
 #include "qmljsquickfixassist.h"
 #include "qmljseditorconstants.h"
+#include "qmljseditordocument.h"
 
 //temp
 #include "qmljsquickfix.h"
@@ -50,7 +51,7 @@ QmlJSQuickFixAssistInterface::QmlJSQuickFixAssistInterface(QmlJSTextEditorWidget
     : DefaultAssistInterface(editor->document(), editor->position(),
                              editor->baseTextDocument()->filePath(), reason)
     , m_editor(editor)
-    , m_semanticInfo(editor->semanticInfo())
+    , m_semanticInfo(editor->qmlJsEditorDocument()->semanticInfo())
     , m_currentFile(QmlJSRefactoringChanges::file(m_editor, m_semanticInfo.document))
 {}
 

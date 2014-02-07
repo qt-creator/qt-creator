@@ -166,31 +166,6 @@ QmlJSTextEditorWidget::~QmlJSTextEditorWidget()
 {
 }
 
-SemanticInfo QmlJSTextEditorWidget::semanticInfo() const
-{
-    return m_qmlJsEditorDocument->semanticInfo();
-}
-
-int QmlJSTextEditorWidget::editorRevision() const
-{
-    return document()->revision();
-}
-
-QVector<QTextLayout::FormatRange> QmlJSTextEditorWidget::diagnosticRanges() const
-{
-    return m_qmlJsEditorDocument->diagnosticRanges();
-}
-
-bool QmlJSTextEditorWidget::isSemanticInfoOutdated() const
-{
-    return m_qmlJsEditorDocument->isSemanticInfoOutdated();
-}
-
-QmlOutlineModel *QmlJSTextEditorWidget::outlineModel() const
-{
-    return m_qmlJsEditorDocument->outlineModel();
-}
-
 QModelIndex QmlJSTextEditorWidget::outlineModelIndex()
 {
     if (!m_outlineModelIndex.isValid()) {
@@ -299,7 +274,7 @@ void QmlJSTextEditorWidget::updateOutlineIndexNow()
     if (!m_qmlJsEditorDocument->outlineModel()->document())
         return;
 
-    if (m_qmlJsEditorDocument->outlineModel()->document()->editorRevision() != editorRevision()) {
+    if (m_qmlJsEditorDocument->outlineModel()->document()->editorRevision() != document()->revision()) {
         m_updateOutlineIndexTimer->start();
         return;
     }
@@ -830,6 +805,11 @@ void QmlJSTextEditorWidget::resizeEvent(QResizeEvent *event)
 void QmlJSTextEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this);
+}
+
+QmlJSEditorDocument *QmlJSTextEditorWidget::qmlJsEditorDocument() const
+{
+    return m_qmlJsEditorDocument;
 }
 
 void QmlJSTextEditorWidget::semanticInfoUpdated(const SemanticInfo &semanticInfo)

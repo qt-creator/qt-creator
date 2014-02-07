@@ -530,13 +530,15 @@ void QmlJSEditorDocumentPrivate::updateOutlineModel()
     m_outlineModel->update(m_semanticInfo);
 }
 
+} // Internal
+
 QmlJSEditorDocument::QmlJSEditorDocument()
-    : m_d(new QmlJSEditorDocumentPrivate(this))
+    : m_d(new Internal::QmlJSEditorDocumentPrivate(this))
 {
     connect(this, SIGNAL(tabSettingsChanged()),
             m_d, SLOT(invalidateFormatterCache()));
     setSyntaxHighlighter(new Highlighter(document()));
-    setIndenter(new Indenter);
+    setIndenter(new Internal::Indenter);
 }
 
 QmlJSEditorDocument::~QmlJSEditorDocument()
@@ -559,7 +561,7 @@ QVector<QTextLayout::FormatRange> QmlJSEditorDocument::diagnosticRanges() const
     return m_d->m_diagnosticRanges;
 }
 
-QmlOutlineModel *QmlJSEditorDocument::outlineModel() const
+Internal::QmlOutlineModel *QmlJSEditorDocument::outlineModel() const
 {
     return m_d->m_outlineModel;
 }
@@ -593,5 +595,4 @@ void QmlJSEditorDocument::triggerPendingUpdates()
     }
 }
 
-} // Internal
 } // QmlJSEditor

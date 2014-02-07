@@ -124,7 +124,7 @@ void QmlJSOutlineWidget::setEditor(QmlJSTextEditorWidget *editor)
 {
     m_editor = editor;
 
-    m_filterModel->setSourceModel(m_editor->outlineModel());
+    m_filterModel->setSourceModel(m_editor->qmlJsEditorDocument()->outlineModel());
     modelUpdated();
 
     connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -135,7 +135,7 @@ void QmlJSOutlineWidget::setEditor(QmlJSTextEditorWidget *editor)
 
     connect(m_editor, SIGNAL(outlineModelIndexChanged(QModelIndex)),
             this, SLOT(updateSelectionInTree(QModelIndex)));
-    connect(m_editor->outlineModel(), SIGNAL(updated()),
+    connect(m_editor->qmlJsEditorDocument()->outlineModel(), SIGNAL(updated()),
             this, SLOT(modelUpdated()));
 }
 
@@ -207,7 +207,8 @@ void QmlJSOutlineWidget::updateSelectionInText(const QItemSelection &selection)
 void QmlJSOutlineWidget::updateTextCursor(const QModelIndex &index)
 {
     QModelIndex sourceIndex = m_filterModel->mapToSource(index);
-    AST::SourceLocation location = m_editor->outlineModel()->sourceLocation(sourceIndex);
+    AST::SourceLocation location
+            = m_editor->qmlJsEditorDocument()->outlineModel()->sourceLocation(sourceIndex);
 
     if (!location.isValid())
         return;

@@ -52,9 +52,9 @@ class SemanticInfo;
 
 namespace QmlJSEditor {
 
-namespace Internal {
-
 class QmlJSEditorDocument;
+
+namespace Internal {
 
 class SemanticHighlighter : public QObject
 {

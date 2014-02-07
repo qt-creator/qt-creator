@@ -30,6 +30,8 @@
 #ifndef QMLJSEDITORDOCUMENT_H
 #define QMLJSEDITORDOCUMENT_H
 
+#include "qmljseditor_global.h"
+
 #include <qmljs/qmljsdocument.h>
 #include <qmljstools/qmljssemanticinfo.h>
 #include <texteditor/basetextdocument.h>
@@ -37,12 +39,13 @@
 #include <QTextLayout>
 
 namespace QmlJSEditor {
-namespace Internal {
 
+namespace Internal {
 class QmlJSEditorDocumentPrivate;
 class QmlOutlineModel;
+} // Internal
 
-class QmlJSEditorDocument : public TextEditor::BaseTextDocument
+class QMLJSEDITOR_EXPORT QmlJSEditorDocument : public TextEditor::BaseTextDocument
 {
     Q_OBJECT
 public:
@@ -65,10 +68,9 @@ protected:
 
 private:
     friend class QmlJSEditorDocumentPrivate; // sending signals
-    QmlJSEditorDocumentPrivate *m_d;
+    Internal::QmlJSEditorDocumentPrivate *m_d;
 };
 
-} // Internal
 } // QmlJSEditor
 
 #endif // QMLJSEDITORDOCUMENT_H

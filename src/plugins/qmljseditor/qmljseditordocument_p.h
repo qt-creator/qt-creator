@@ -38,9 +38,11 @@
 #include <QTimer>
 
 namespace QmlJSEditor {
-namespace Internal {
 
 class QmlJSEditorDocument;
+
+namespace Internal {
+
 class QmlOutlineModel;
 class SemanticHighlighter;
 class SemanticInfoUpdater;

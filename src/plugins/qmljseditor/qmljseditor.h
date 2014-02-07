@@ -66,10 +66,10 @@ namespace AST {
  */
 namespace QmlJSEditor {
 class QmlJSEditor;
+class QmlJSEditorDocument;
 class FindReferences;
 
 namespace Internal {
-class QmlJSEditorDocument;
 class QmlOutlineModel;
 } // namespace Internal
 
@@ -84,12 +84,7 @@ public:
 
     virtual void unCommentSelection();
 
-    // redirecting to document
-    QmlJSTools::SemanticInfo semanticInfo() const;
-    bool isSemanticInfoOutdated() const;
-    int editorRevision() const;
-    QVector<QTextLayout::FormatRange> diagnosticRanges() const;
-    Internal::QmlOutlineModel *outlineModel() const;
+    QmlJSEditorDocument *qmlJsEditorDocument() const;
 
     QModelIndex outlineModelIndex();
 
@@ -145,7 +140,7 @@ private:
     QModelIndex indexForPosition(unsigned cursorPosition, const QModelIndex &rootIndex = QModelIndex()) const;
     bool hideContextPane();
 
-    Internal::QmlJSEditorDocument *m_qmlJsEditorDocument;
+    QmlJSEditorDocument *m_qmlJsEditorDocument;
     QTimer *m_updateUsesTimer; // to wait for multiple text cursor position changes
     QTimer *m_updateOutlineIndexTimer;
     QTimer *m_contextPaneTimer;
