@@ -73,22 +73,6 @@ class QmlJSEditorDocument;
 class QmlOutlineModel;
 } // namespace Internal
 
-struct QMLJSEDITOR_EXPORT Declaration
-{
-    QString text;
-    int startLine;
-    int startColumn;
-    int endLine;
-    int endColumn;
-
-    Declaration()
-        : startLine(0),
-        startColumn(0),
-        endLine(0),
-        endColumn(0)
-    { }
-};
-
 class QMLJSEDITOR_EXPORT QmlJSTextEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT

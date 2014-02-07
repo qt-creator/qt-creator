@@ -51,6 +51,22 @@ enum {
     UPDATE_OUTLINE_INTERVAL = 500
 };
 
+struct Declaration
+{
+    QString text;
+    int startLine;
+    int startColumn;
+    int endLine;
+    int endColumn;
+
+    Declaration()
+        : startLine(0),
+        startColumn(0),
+        endLine(0),
+        endColumn(0)
+    { }
+};
+
 class FindIdDeclarations: protected Visitor
 {
 public:
