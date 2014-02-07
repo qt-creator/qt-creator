@@ -30,7 +30,6 @@
 #include "basetexteditmodifier.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditordocument.h>
 #include <texteditor/tabsettings.h>
 #include <utils/changeset.h>
@@ -70,18 +69,20 @@ int BaseTextEditModifier::indentDepth() const
 
 bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
 {
-    if (QmlJSEditor::QmlJSTextEditorWidget *qmljse = qobject_cast<QmlJSEditor::QmlJSTextEditorWidget*>(plainTextEdit())) {
-        Utils::ChangeSet changeSet;
-        foreach (const QmlJS::AST::SourceLocation &loc,
-                 qmljse->qmlJsEditorDocument()->semanticInfo().idLocations.value(oldId)) {
-            changeSet.replace(loc.begin(), loc.end(), newId);
+    if (TextEditor::BaseTextEditorWidget *bte = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())) {
+        if (QmlJSEditor::QmlJSEditorDocument *document
+                = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(bte->baseTextDocument())) {
+            Utils::ChangeSet changeSet;
+            foreach (const QmlJS::AST::SourceLocation &loc,
+                    document->semanticInfo().idLocations.value(oldId)) {
+                changeSet.replace(loc.begin(), loc.end(), newId);
+            }
+            QTextCursor tc = bte->textCursor();
+            changeSet.apply(&tc);
+            return true;
         }
-        QTextCursor tc = qmljse->textCursor();
-        changeSet.apply(&tc);
-        return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 QmlJS::Snapshot BaseTextEditModifier::getSnapshot() const
