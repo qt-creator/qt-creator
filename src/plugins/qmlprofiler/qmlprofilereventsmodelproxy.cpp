@@ -69,7 +69,7 @@ QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager
     connect(modelManager->simpleModel(), SIGNAL(changed()), this, SLOT(dataChanged()));
     d->modelId = modelManager->registerModelProxy();
 
-    d->acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding << QmlDebug::HandlingSignal;
+    d->acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding << QmlDebug::HandlingSignal << QmlDebug::Javascript;
 }
 
 QmlProfilerEventsModelProxy::~QmlProfilerEventsModelProxy()
@@ -274,7 +274,7 @@ QmlProfilerEventRelativesModelProxy::QmlProfilerEventRelativesModelProxy(QmlProf
     QTC_CHECK(eventsModel);
     m_eventsModel = eventsModel;
 
-    m_acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding << QmlDebug::HandlingSignal;
+    m_acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding << QmlDebug::HandlingSignal << QmlDebug::Javascript;
 }
 
 QmlProfilerEventRelativesModelProxy::~QmlProfilerEventRelativesModelProxy()

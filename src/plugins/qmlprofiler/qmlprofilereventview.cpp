@@ -622,6 +622,7 @@ QString QmlProfilerEventsMainView::nameForType(int typeNumber)
     case 2: return QmlProfilerEventsMainView::tr("Create");
     case 3: return QmlProfilerEventsMainView::tr("Binding");
     case 4: return QmlProfilerEventsMainView::tr("Signal");
+    case 5: return QmlProfilerEventsMainView::tr("Javascript");
     }
     return QString();
 }

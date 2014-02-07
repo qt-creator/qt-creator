@@ -38,6 +38,7 @@ enum QmlEventType {
     Creating,
     Binding,
     HandlingSignal,
+    Javascript,
     PixmapCacheEvent,
     SceneGraphFrameEvent,
 
