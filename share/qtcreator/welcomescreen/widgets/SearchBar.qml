@@ -59,4 +59,7 @@ Rectangle {
             }
         }
     }
+    Accessible.name: text
+    Accessible.description: placeholderText
+    Accessible.role: Accessible.EditableText
 }

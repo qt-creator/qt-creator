@@ -105,4 +105,5 @@ NativeText {
             }
         ]
     }
+    Accessible.role: Accessible.Link
 }
