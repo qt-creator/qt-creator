@@ -461,7 +461,6 @@ static inline IWizard::WizardKind kindAttribute(const QXmlStreamReader &r)
 
 static inline FeatureSet requiredFeatures(const QXmlStreamReader &reader)
 {
-    FeatureSet r;
     QString value = reader.attributes().value(QLatin1String(featuresRequiredC)).toString();
     QStringList stringList = value.split(QLatin1Char(','), QString::SkipEmptyParts);
     FeatureSet features;
