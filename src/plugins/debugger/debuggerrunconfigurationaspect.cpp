@@ -226,9 +226,11 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
 
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
-    if (m_useQmlDebugger == DebuggerRunConfigurationAspect::AutoEnabledLanguage)
-        return runConfiguration()->target()->project()->projectLanguages().contains(
-                    ProjectExplorer::Constants::LANG_QMLJS);
+    if (m_useQmlDebugger == DebuggerRunConfigurationAspect::AutoEnabledLanguage) {
+        const Core::Context languages = runConfiguration()->target()->project()->projectLanguages();
+        return languages.contains(ProjectExplorer::Constants::LANG_QMLJS)
+            && !languages.contains(ProjectExplorer::Constants::LANG_CXX);
+    }
     return m_useQmlDebugger == DebuggerRunConfigurationAspect::EnabledLanguage;
 }
 
