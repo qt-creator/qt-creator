@@ -354,7 +354,7 @@ class QMLJS_EXPORT Reference: public Value
 {
 public:
     Reference(ValueOwner *valueOwner);
-    ~Reference() QTC_OVERRIDE;
+    ~Reference();
 
     ValueOwner *valueOwner() const;
 
@@ -389,7 +389,7 @@ class QMLJS_EXPORT ObjectValue: public Value
 {
 public:
     ObjectValue(ValueOwner *valueOwner);
-    ~ObjectValue() QTC_OVERRIDE;
+    ~ObjectValue();
 
     ValueOwner *valueOwner() const;
 
@@ -465,7 +465,7 @@ class QMLJS_EXPORT QmlEnumValue: public NumberValue
 {
 public:
     QmlEnumValue(const CppComponentValue *owner, int index);
-    ~QmlEnumValue() QTC_OVERRIDE;
+    ~QmlEnumValue();
 
     const QmlEnumValue *asQmlEnumValue() const QTC_OVERRIDE;
 
@@ -488,7 +488,7 @@ public:
                    const QString &moduleName, const LanguageUtils::ComponentVersion &componentVersion,
                    const LanguageUtils::ComponentVersion &importVersion, int metaObjectRevision,
                    ValueOwner *valueOwner);
-    ~CppComponentValue() QTC_OVERRIDE;
+    ~CppComponentValue();
 
     const CppComponentValue *asCppComponentValue() const QTC_OVERRIDE;
 
@@ -538,7 +538,7 @@ class QMLJS_EXPORT FunctionValue: public ObjectValue
 {
 public:
     FunctionValue(ValueOwner *valueOwner);
-    ~FunctionValue() QTC_OVERRIDE;
+    ~FunctionValue();
 
     virtual const Value *returnValue() const;
 
@@ -569,7 +569,7 @@ class QMLJS_EXPORT Function: public FunctionValue
 {
 public:
     Function(ValueOwner *valueOwner);
-    ~Function() QTC_OVERRIDE;
+    ~Function();
 
     void addArgument(const Value *argument, const QString &name = QString());
     void setReturnValue(const Value *returnValue);
@@ -745,7 +745,7 @@ class QMLJS_EXPORT QmlPrototypeReference: public Reference
 {
 public:
     QmlPrototypeReference(AST::UiQualifiedId *qmlTypeName, const Document *doc, ValueOwner *valueOwner);
-    ~QmlPrototypeReference() QTC_OVERRIDE;
+    ~QmlPrototypeReference();
 
     const QmlPrototypeReference *asQmlPrototypeReference() const QTC_OVERRIDE;
 
@@ -765,7 +765,7 @@ class QMLJS_EXPORT ASTVariableReference: public Reference
 
 public:
     ASTVariableReference(AST::VariableDeclaration *ast, const Document *doc, ValueOwner *valueOwner);
-    ~ASTVariableReference() QTC_OVERRIDE;
+    ~ASTVariableReference();
 
 private:
     const Value *value(ReferenceContext *referenceContext) const QTC_OVERRIDE;
@@ -781,7 +781,7 @@ class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
 
 public:
     ASTFunctionValue(AST::FunctionExpression *ast, const Document *doc, ValueOwner *valueOwner);
-    ~ASTFunctionValue() QTC_OVERRIDE;
+    ~ASTFunctionValue();
 
     AST::FunctionExpression *ast() const;
 
@@ -800,7 +800,7 @@ class QMLJS_EXPORT ASTPropertyReference: public Reference
 
 public:
     ASTPropertyReference(AST::UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner);
-    ~ASTPropertyReference() QTC_OVERRIDE;
+    ~ASTPropertyReference();
 
     const ASTPropertyReference *asAstPropertyReference() const QTC_OVERRIDE;
 
@@ -822,7 +822,7 @@ class QMLJS_EXPORT ASTSignal: public FunctionValue
 
 public:
     ASTSignal(AST::UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner);
-    ~ASTSignal() QTC_OVERRIDE;
+    ~ASTSignal();
 
     const ASTSignal *asAstSignal() const QTC_OVERRIDE;
 
@@ -853,7 +853,7 @@ public:
                    AST::UiObjectInitializer *initializer,
                    const Document *doc,
                    ValueOwner *valueOwner);
-    ~ASTObjectValue() QTC_OVERRIDE;
+    ~ASTObjectValue();
 
     const ASTObjectValue *asAstObjectValue() const QTC_OVERRIDE;
 

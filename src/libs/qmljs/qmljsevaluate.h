@@ -48,7 +48,7 @@ class QMLJS_EXPORT Evaluate: protected AST::Visitor
 {
 public:
     Evaluate(const ScopeChain *scopeChain, ReferenceContext *referenceContext = 0);
-    ~Evaluate() QTC_OVERRIDE;
+    ~Evaluate();
 
     // same as value()
     const Value *operator()(AST::Node *ast);

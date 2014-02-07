@@ -49,7 +49,7 @@ class QMLJS_EXPORT JsonCheck : public AST::Visitor
 {
 public:
     JsonCheck(Document::Ptr doc);
-    ~JsonCheck() QTC_OVERRIDE;
+    ~JsonCheck();
 
     QList<StaticAnalysis::Message> operator()(Utils::JsonSchema *schema);
 

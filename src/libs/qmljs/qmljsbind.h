@@ -49,7 +49,7 @@ class QMLJS_EXPORT Bind: protected AST::Visitor
 public:
     Bind(Document *doc, QList<DiagnosticMessage> *messages,
          bool isJsLibrary, const QList<ImportInfo> &jsImports);
-    ~Bind() QTC_OVERRIDE;
+    ~Bind();
 
     bool isJsLibrary() const;
     QList<ImportInfo> imports() const;

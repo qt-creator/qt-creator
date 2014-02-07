@@ -53,7 +53,7 @@ class QMLJS_EXPORT Check: protected AST::Visitor
 public:
     // prefer taking root scope chain?
     Check(Document::Ptr doc, const ContextPtr &context);
-    ~Check() QTC_OVERRIDE;
+    ~Check();
 
     QList<StaticAnalysis::Message> operator()();
 

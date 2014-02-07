@@ -46,7 +46,7 @@ class IosDeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
 
 public:
     IosDeployStepWidget(IosDeployStep *step);
-    ~IosDeployStepWidget() QTC_OVERRIDE;
+    ~IosDeployStepWidget();
 
 private:
     QString summaryText() const QTC_OVERRIDE;

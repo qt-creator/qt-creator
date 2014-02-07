@@ -44,7 +44,7 @@ class IosRunControl : public ProjectExplorer::RunControl
 
 public:
     explicit IosRunControl(IosRunConfiguration *runConfig);
-    ~IosRunControl() QTC_OVERRIDE;
+    ~IosRunControl();
 
 
     void start() QTC_OVERRIDE;
