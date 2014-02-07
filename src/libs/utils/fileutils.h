@@ -56,6 +56,7 @@ public:
     explicit FileName(const QFileInfo &info);
     QFileInfo toFileInfo() const;
     static FileName fromString(const QString &filename);
+    static FileName fromLatin1(const QByteArray &filename);
     static FileName fromUserInput(const QString &filename);
     QString toString() const;
     QString toUserOutput() const;

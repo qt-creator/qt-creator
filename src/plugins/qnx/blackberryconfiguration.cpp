@@ -335,7 +335,7 @@ Kit *BlackBerryConfiguration::createKit(
 
     if (isSimulator)
         QmakeProjectManager::QmakeKitInformation::setMkspec(
-                 kit, FileName::fromString(QLatin1String("blackberry-x86-qcc")));
+                 kit, FileName::fromLatin1("blackberry-x86-qcc"));
 
     DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
     SysRootKitInformation::setSysRoot(kit, m_sysRoot);

@@ -350,7 +350,7 @@ void IosConfigurations::updateAutomaticKitList()
 
                 SysRootKitInformation::setSysRoot(kitAtt, p.sdkPath);
                 // QmakeProjectManager::QmakeKitInformation::setMkspec(newKit,
-                //    Utils::FileName::fromString(QLatin1String("macx-ios-clang")));
+                //    Utils::FileName::fromLatin1("macx-ios-clang")));
                 if (kitExists) {
                     kitAtt->unblockNotification();
                 } else {

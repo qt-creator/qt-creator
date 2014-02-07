@@ -567,10 +567,10 @@ QList<FileName> GccToolChain::suggestedMkspecList() const
         QString v = version();
         // prefer versioned g++ on mac. This is required to enable building for older Mac OS versions
         if (v.startsWith(QLatin1String("4.0")) && m_compilerCommand.endsWith(QLatin1String("-4.0")))
-            return QList<FileName>() << FileName::fromString(QLatin1String("macx-g++40"));
+            return QList<FileName>() << FileName::fromLatin1("macx-g++40");
         if (v.startsWith(QLatin1String("4.2")) && m_compilerCommand.endsWith(QLatin1String("-4.2")))
-            return QList<FileName>() << FileName::fromString(QLatin1String("macx-g++42"));
-        return QList<FileName>() << FileName::fromString(QLatin1String("macx-g++"));
+            return QList<FileName>() << FileName::fromLatin1("macx-g++42");
+        return QList<FileName>() << FileName::fromLatin1("macx-g++");
     }
 
     if (abi.os() == Abi::LinuxOS) {
@@ -579,14 +579,14 @@ QList<FileName> GccToolChain::suggestedMkspecList() const
         if (abi.wordWidth() == host.wordWidth()) {
             // no need to explicitly set the word width, but provide that mkspec anyway to make sure
             // that the correct compiler is picked if a mkspec with a wordwidth is given.
-            return QList<FileName>() << FileName::fromString(QLatin1String("linux-g++"))
+            return QList<FileName>() << FileName::fromLatin1("linux-g++")
                                             << FileName::fromString(QLatin1String("linux-g++-") + QString::number(m_targetAbi.wordWidth()));
         }
         return QList<FileName>() << FileName::fromString(QLatin1String("linux-g++-") + QString::number(m_targetAbi.wordWidth()));
     }
 
     if (abi.os() == Abi::BsdOS && abi.osFlavor() == Abi::FreeBsdFlavor)
-        return QList<FileName>() << FileName::fromString(QLatin1String("freebsd-g++"));
+        return QList<FileName>() << FileName::fromLatin1("freebsd-g++");
 
     return QList<FileName>();
 }
@@ -1059,14 +1059,14 @@ QList<FileName> ClangToolChain::suggestedMkspecList() const
     Abi abi = targetAbi();
     if (abi.os() == Abi::MacOS)
         return QList<FileName>()
-                << FileName::fromString(QLatin1String("macx-clang"))
-                << FileName::fromString(QLatin1String("macx-clang-32"))
-                << FileName::fromString(QLatin1String("unsupported/macx-clang"))
-                << FileName::fromString(QLatin1String("macx-ios-clang"));
+                << FileName::fromLatin1("macx-clang")
+                << FileName::fromLatin1("macx-clang-32")
+                << FileName::fromLatin1("unsupported/macx-clang")
+                << FileName::fromLatin1("macx-ios-clang");
     else if (abi.os() == Abi::LinuxOS)
         return QList<FileName>()
-                << FileName::fromString(QLatin1String("linux-clang"))
-                << FileName::fromString(QLatin1String("unsupported/linux-clang"));
+                << FileName::fromLatin1("linux-clang")
+                << FileName::fromLatin1("unsupported/linux-clang");
     return QList<FileName>(); // Note: Not supported by Qt yet, so default to the mkspec the Qt was build with
 }
 
@@ -1162,16 +1162,16 @@ QString MingwToolChain::typeDisplayName() const
 QList<FileName> MingwToolChain::suggestedMkspecList() const
 {
     if (Utils::HostOsInfo::isWindowsHost())
-        return QList<FileName>() << FileName::fromString(QLatin1String("win32-g++"));
+        return QList<FileName>() << FileName::fromLatin1("win32-g++");
     if (Utils::HostOsInfo::isLinuxHost()) {
         if (version().startsWith(QLatin1String("4.6.")))
             return QList<FileName>()
-                    << FileName::fromString(QLatin1String("win32-g++-4.6-cross"))
-                    << FileName::fromString(QLatin1String("unsupported/win32-g++-4.6-cross"));
+                    << FileName::fromLatin1("win32-g++-4.6-cross")
+                    << FileName::fromLatin1("unsupported/win32-g++-4.6-cross");
         else
             return QList<FileName>()
-                    << FileName::fromString(QLatin1String("win32-g++-cross"))
-                    << FileName::fromString(QLatin1String("unsupported/win32-g++-cross"));
+                    << FileName::fromLatin1("win32-g++-cross")
+                    << FileName::fromLatin1("unsupported/win32-g++-cross");
     }
     return QList<FileName>();
 }

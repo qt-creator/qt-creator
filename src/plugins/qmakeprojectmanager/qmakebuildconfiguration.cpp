@@ -400,8 +400,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
                         return MakefileMatches;
                     // Actual spec is the default one
 //                    qDebug() << "AS vs VS" << actualSpec << version->mkspec();
-                    if ((actualSpec == version->mkspec() || actualSpec == FileName::fromString(QLatin1String("default")))
-                        && (parsedSpec == version->mkspec() || parsedSpec == FileName::fromString(QLatin1String("default")) || parsedSpec.isEmpty()))
+                    if ((actualSpec == version->mkspec() || actualSpec == FileName::fromLatin1("default"))
+                        && (parsedSpec == version->mkspec() || parsedSpec == FileName::fromLatin1("default") || parsedSpec.isEmpty()))
                         return MakefileMatches;
                 }
                 return MakefileIncompatible;

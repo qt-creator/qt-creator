@@ -534,6 +534,13 @@ FileName FileName::fromString(const QString &filename)
 }
 
 /// Constructs a FileName from \a fileName
+/// \a fileName is not checked for validity.
+FileName FileName::fromLatin1(const QByteArray &filename)
+{
+    return FileName(QString::fromLatin1(filename));
+}
+
+/// Constructs a FileName from \a fileName
 /// \a fileName is only passed through QDir::cleanPath
 FileName FileName::fromUserInput(const QString &filename)
 {

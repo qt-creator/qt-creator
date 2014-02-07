@@ -351,21 +351,21 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
 {
     switch (m_abi.osFlavor()) {
     case ProjectExplorer::Abi::WindowsMsvc2005Flavor:
-        return QList<Utils::FileName>() << Utils::FileName::fromString(QLatin1String("win32-msvc2005"));
+        return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2005");
     case ProjectExplorer::Abi::WindowsMsvc2008Flavor:
-        return QList<Utils::FileName>() << Utils::FileName::fromString(QLatin1String("win32-msvc2008"));
+        return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2008");
     case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
-        return QList<Utils::FileName>() << Utils::FileName::fromString(QLatin1String("win32-msvc2010"));
+        return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2010");
     case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
         QList<Utils::FileName>()
-            << Utils::FileName::fromString(QLatin1String("win32-msvc2012"))
-            << Utils::FileName::fromString(QLatin1String("win32-msvc2010"));
+            << Utils::FileName::fromLatin1("win32-msvc2012")
+            << Utils::FileName::fromLatin1("win32-msvc2010");
         break;
     case ProjectExplorer::Abi::WindowsMsvc2013Flavor:
         QList<Utils::FileName>()
-            << Utils::FileName::fromString(QLatin1String("win32-msvc2013"))
-            << Utils::FileName::fromString(QLatin1String("win32-msvc2012"))
-            << Utils::FileName::fromString(QLatin1String("win32-msvc2010"));
+            << Utils::FileName::fromLatin1("win32-msvc2013")
+            << Utils::FileName::fromLatin1("win32-msvc2012")
+            << Utils::FileName::fromLatin1("win32-msvc2010");
         break;
     default:
         break;

@@ -84,7 +84,7 @@ public:
             m_id = Id::fromString(QUuid::createUuid().toString());
 
         m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
-        m_iconPath = Utils::FileName::fromString(QLatin1String(":///DESKTOP///"));
+        m_iconPath = Utils::FileName::fromLatin1(":///DESKTOP///");
     }
 
     QString m_displayName;
@@ -350,7 +350,7 @@ QIcon Kit::icon(const Utils::FileName &path)
 {
     if (path.isEmpty())
         return QIcon();
-    if (path == Utils::FileName::fromString(QLatin1String(":///DESKTOP///")))
+    if (path == Utils::FileName::fromLatin1(":///DESKTOP///"))
         return qApp->style()->standardIcon(QStyle::SP_ComputerIcon);
 
     QFileInfo fi(path.toString());

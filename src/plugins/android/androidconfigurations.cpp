@@ -334,7 +334,7 @@ FileName AndroidConfig::antToolPath() const
     if (!m_antLocation.isEmpty())
         return m_antLocation;
     else
-        return FileName::fromString(QLatin1String("ant"));
+        return FileName::fromLatin1("ant");
 }
 
 FileName AndroidConfig::emulatorToolPath() const

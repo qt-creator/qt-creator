@@ -2411,35 +2411,35 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             Kit *tmpKit = rawKit;
 
             if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.AndroidDeviceTarget")) {
-                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/android/images/QtAndroid.png")));
+                tmpKit->setIconPath(FileName::fromLatin1(":/android/images/QtAndroid.png"));
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Desktop"));
                 tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("RemoteLinux.EmbeddedLinuxTarget")) {
-                tmpKit->setIconPath(FileName::fromString(QLatin1String(":///DESKTOP///")));
+                tmpKit->setIconPath(FileName::fromLatin1(":///DESKTOP///"));
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("GenericLinuxOsType"));
                 tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.HarmattanDeviceTarget")) {
-                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
+                tmpKit->setIconPath(FileName::fromLatin1(":/projectexplorer/images/MaemoDevice.png"));
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("HarmattanOsType"));
                 tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")) {
-                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
+                tmpKit->setIconPath(FileName::fromLatin1(":/projectexplorer/images/MaemoDevice.png"));
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Maemo5OsType"));
                 tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MeegoDeviceTarget")) {
-                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
+                tmpKit->setIconPath(FileName::fromLatin1(":/projectexplorer/images/MaemoDevice.png"));
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("MeegoOsType"));
                 tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
-                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/SymbianDevice.png")));
+                tmpKit->setIconPath(FileName::fromLatin1(":/projectexplorer/images/SymbianDevice.png"));
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Qt4ProjectManager.SymbianDevice"));
                 tmpKit->setValue("PE.Profile.Device", QString::fromLatin1("Symbian Device"));
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.QtSimulatorTarget")) {
-                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/Simulator.png")));
+                tmpKit->setIconPath(FileName::fromLatin1(":/projectexplorer/images/Simulator.png"));
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Desktop"));
                 tmpKit->setValue("PE.Profile.Device", QString::fromLatin1("Desktop Device"));
             } else {
-                tmpKit->setIconPath(FileName::fromString(QLatin1String(":///DESKTOP///")));
+                tmpKit->setIconPath(FileName::fromLatin1(":///DESKTOP///"));
                 tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Desktop"));
                 tmpKit->setValue("PE.Profile.Device", QString::fromLatin1("Desktop Device"));
             }

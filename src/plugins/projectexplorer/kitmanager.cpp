@@ -244,7 +244,7 @@ void KitManager::restoreKits()
         defaultKit->setDisplayName(tr("Desktop"));
         defaultKit->setSdkProvided(false);
         defaultKit->setAutoDetected(false);
-        defaultKit->setIconPath(Utils::FileName::fromString(QLatin1String(":///DESKTOP///")));
+        defaultKit->setIconPath(Utils::FileName::fromLatin1(":///DESKTOP///"));
 
         defaultKit->setup();
 

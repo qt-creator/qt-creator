@@ -114,7 +114,7 @@ QList<ProjectExplorer::BuildInfo *> QmakeProjectImporter::import(const Utils::Fi
         Utils::FileName parsedSpec =
                 QmakeBuildConfiguration::extractSpecFromArguments(&additionalArguments, importPath.toString(), version);
         Utils::FileName versionSpec = version->mkspec();
-        if (parsedSpec.isEmpty() || parsedSpec == Utils::FileName::fromString(QLatin1String("default")))
+        if (parsedSpec.isEmpty() || parsedSpec == Utils::FileName::fromLatin1("default"))
             parsedSpec = versionSpec;
 
         QString specArgument;
