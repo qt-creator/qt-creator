@@ -28,10 +28,13 @@
 ****************************************************************************/
 
 #include "stackframe.h"
+#include "debuggerstartparameters.h"
+
 #include "watchutils.h"
 
 #include <QDebug>
 #include <QDir>
+#include <QFileInfo>
 
 #include <utils/hostosinfo.h>
 
@@ -45,7 +48,7 @@ namespace Internal {
 ////////////////////////////////////////////////////////////////////////
 
 StackFrame::StackFrame()
-  : level(-1), line(-1), address(0), usable(false)
+  : language(CppLanguage), level(-1), line(-1), address(0), usable(false)
 {}
 
 void StackFrame::clear()
@@ -90,7 +93,9 @@ QString StackFrame::toToolTip() const
         str << "<tr><td>" << tr("Address:") << "</td><td>"
             << formatToolTipAddress(address) << "</td></tr>";
     if (!function.isEmpty())
-        str << "<tr><td>" << tr("Function:") << "</td><td>" << function << "</td></tr>";
+        str << "<tr><td>"
+            << (language == CppLanguage ? tr("Function:") : tr("JS-Function:"))
+            << "</td><td>" << function << "</td></tr>";
     if (!file.isEmpty())
         str << "<tr><td>" << tr("File:") << "</td><td>" << filePath << "</td></tr>";
     if (line != -1)
@@ -125,6 +130,35 @@ QString StackFrame::toToolTip() const
 
     str << "</body></html>";
     return res;
+}
+
+// Try to resolve files of a QML stack (resource files).
+void StackFrame::fixQmlFrame(const DebuggerStartParameters &sp)
+{
+    if (language != QmlLanguage)
+        return;
+    QFileInfo aFi(file);
+    if (aFi.isAbsolute()) {
+        usable = aFi.isFile();
+        return;
+    }
+    if (!file.startsWith(QLatin1String("qrc:/")))
+        return;
+    const QString relativeFile = file.right(file.size() - 5);
+    if (!sp.projectSourceDirectory.isEmpty()) {
+        const QFileInfo pFi(sp.projectSourceDirectory + QLatin1Char('/') + relativeFile);
+        if (pFi.isFile()) {
+            file = pFi.absoluteFilePath();
+            usable = true;
+            return;
+        }
+        const QFileInfo cFi(QDir::currentPath() + QLatin1Char('/') + relativeFile);
+        if (cFi.isFile()) {
+            file = cFi.absoluteFilePath();
+            usable = true;
+            return;
+        }
+    }
 }
 
 QDebug operator<<(QDebug d, const  StackFrame &f)

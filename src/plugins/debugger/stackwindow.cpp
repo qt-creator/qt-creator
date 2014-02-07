@@ -168,6 +168,10 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
     if (engine->hasCapability(CreateFullBacktraceCapability))
         menu.addAction(debuggerCore()->action(CreateFullBacktrace));
 
+    QAction *additionalQmlStackAction = 0;
+    if (engine->hasCapability(AdditionalQmlStackCapability))
+        additionalQmlStackAction = menu.addAction(tr("Load QML stack"));
+
     QAction *actShowMemory = 0;
     if (engine->hasCapability(ShowMemoryCapability)) {
         actShowMemory = menu.addAction(QString());
@@ -242,6 +246,8 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
         engine->loadSymbolsForStack();
     else if (act == actSaveTaskFile)
         saveTaskFile(this, handler);
+    else if (act == additionalQmlStackAction)
+        engine->loadAdditionalQmlStack();
     else
         handleBaseContextAction(act);
 }

@@ -1402,6 +1402,10 @@ void DebuggerEngine::reloadFullStack()
 {
 }
 
+void DebuggerEngine::loadAdditionalQmlStack()
+{
+}
+
 void DebuggerEngine::reloadDebuggingHelpers()
 {
 }

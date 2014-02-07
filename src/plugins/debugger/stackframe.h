@@ -30,6 +30,8 @@
 #ifndef DEBUGGER_STACKFRAME_H
 #define DEBUGGER_STACKFRAME_H
 
+#include "debuggerconstants.h"
+
 #include <QCoreApplication>
 #include <QMetaType>
 
@@ -38,6 +40,9 @@ class QDebug;
 QT_END_NAMESPACE
 
 namespace Debugger {
+
+class DebuggerStartParameters;
+
 namespace Internal {
 
 class StackFrame
@@ -48,8 +53,10 @@ public:
     bool isUsable() const;
     QString toToolTip() const;
     QString toString() const;
+    void fixQmlFrame(const DebuggerStartParameters &sp);
 
 public:
+    DebuggerLanguage language;
     qint32 level;
     QString function;
     QString file;  // We try to put an absolute file name in there.

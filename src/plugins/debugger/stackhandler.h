@@ -67,6 +67,7 @@ public:
     ~StackHandler();
 
     void setFrames(const StackFrames &frames, bool canExpand = false);
+    void prependFrames(const StackFrames &frames);
     const StackFrames &frames() const;
     void setCurrentIndex(int index);
     int currentIndex() const { return m_currentIndex; }
