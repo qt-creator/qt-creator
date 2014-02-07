@@ -43,16 +43,6 @@
 
 namespace QmlJSEditor {
 namespace Internal {
-class QmlJSTextEditorWidget;
-} // Internal
-} // QmlJSEditor
-
-namespace ProjectExplorer {
-class TaskHub;
-} // namespace ProjectExplorer
-
-namespace QmlJSEditor {
-namespace Internal {
 
 class QmlTaskManager : public QObject
 {
