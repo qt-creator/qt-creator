@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import QtQuick.Controls 1.1 as QQControls
 
 Column {
     id: customTab
@@ -40,20 +41,18 @@ Column {
     onCurrentIndexChanged: welcomeMode.activePlugin = currentIndex
     Component.onCompleted: currentIndex = welcomeMode.activePlugin
 
+    QQControls.ExclusiveGroup {
+        id: group
+    }
     Repeater {
         id: repeater
 
         Button {
             text: title
             checkable: true
-            property bool localChecked: customTab.currentIndex === index
-            onLocalCheckedChanged: checked = localChecked
-
-            onClicked: {
-                customTab.currentIndex = index
-                checked = true
-            }
+            exclusiveGroup: group
+            checked: customTab.currentIndex === index
+            onCheckedChanged: if (checked) customTab.currentIndex = index
         }
     }
-
 }
