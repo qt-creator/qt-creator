@@ -59,7 +59,7 @@ Button {
                     antialiasing: true
                     radius: 3
 
-                    visible: !(control.pressed || control.checked)
+                    visible: !(button.pressed || button.checked)
 
                     gradient: Gradient {
                         GradientStop {
@@ -91,7 +91,7 @@ Button {
                     antialiasing: true
                     radius: 3
 
-                    visible: control.pressed || control.checked
+                    visible: button.pressed || button.checked
 
                     gradient: Gradient {
                         GradientStop {
@@ -120,8 +120,8 @@ Button {
                     x: button.iconSource != "" ? 38 : 14
                     renderType: Text.NativeRendering
                     verticalAlignment: Text.AlignVCenter
-                    text: control.text
-                    color:  control.pressed || control.checked ? "lightGray" : "black"
+                    text: button.text
+                    color:  button.pressed || button.checked ? "lightGray" : "black"
                     font.pixelSize: 15
                     font.bold: false
                     smooth: true
