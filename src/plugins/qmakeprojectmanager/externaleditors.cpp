@@ -33,6 +33,7 @@
 #include <utils/synchronousprocess.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
 #include <qtsupport/qtkitinformation.h>
@@ -170,7 +171,7 @@ bool ExternalQtEditor::startEditorProcess(const EditorLaunchData &data, QString 
 LinguistExternalEditor::LinguistExternalEditor(QObject *parent) :
        ExternalQtEditor(linguistIdC,
                         QLatin1String(linguistDisplayName),
-                        QLatin1String(QmakeProjectManager::Constants::LINGUIST_MIMETYPE),
+                        QLatin1String(ProjectExplorer::Constants::LINGUIST_MIMETYPE),
                         parent)
 {
 }
@@ -187,7 +188,7 @@ bool LinguistExternalEditor::startEditor(const QString &fileName, QString *error
 MacDesignerExternalEditor::MacDesignerExternalEditor(QObject *parent) :
        ExternalQtEditor(designerIdC,
                         QLatin1String(designerDisplayName),
-                        QLatin1String(QmakeProjectManager::Constants::FORM_MIMETYPE),
+                        QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE),
                         parent)
 {
 }

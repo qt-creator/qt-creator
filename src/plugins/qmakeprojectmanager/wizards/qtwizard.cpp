@@ -40,6 +40,7 @@
 #include <cpptools/cpptoolsconstants.h>
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/targetsetuppage.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -61,17 +62,17 @@ QtWizard::QtWizard()
 
 QString QtWizard::sourceSuffix()
 {
-    return preferredSuffix(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
+    return preferredSuffix(QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE));
 }
 
 QString QtWizard::headerSuffix()
 {
-    return preferredSuffix(QLatin1String(Constants::CPP_HEADER_MIMETYPE));
+    return preferredSuffix(QLatin1String(ProjectExplorer::Constants::CPP_HEADER_MIMETYPE));
 }
 
 QString QtWizard::formSuffix()
 {
-    return preferredSuffix(QLatin1String(Constants::FORM_MIMETYPE));
+    return preferredSuffix(QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE));
 }
 
 QString QtWizard::profileSuffix()

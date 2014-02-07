@@ -48,10 +48,6 @@ const char PROFILE_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors"
 const char PROFILE_MIMETYPE[] = "application/vnd.qt.qmakeprofile";
 const char PROINCLUDEFILE_MIMETYPE [] = "application/vnd.qt.qmakeproincludefile";
 const char PROFEATUREFILE_MIMETYPE [] = "application/vnd.qt.qmakeprofeaturefile";
-const char CPP_SOURCE_MIMETYPE[] = "text/x-c++src";
-const char CPP_HEADER_MIMETYPE[] = "text/x-c++hdr";
-const char FORM_MIMETYPE[] = "application/x-designer";
-const char LINGUIST_MIMETYPE[] = "application/x-linguist";
 
 // Actions
 const char RUNQMAKE[] = "Qt4Builder.RunQMake";
