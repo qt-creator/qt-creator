@@ -945,19 +945,76 @@ class DumperBase:
             addr += 1
         return result
 
+    def generateQListChildren(self, value):
+        dptr = self.childAt(value, 0)["d"]
+        private = dptr.dereference()
+        begin = int(private["begin"])
+        end = int(private["end"])
+        array = private["array"]
+        size = end - begin
+        innerType = self.templateArgument(value.type, 0)
+        innerSize = innerType.sizeof
+        stepSize = dptr.type.sizeof
+        addr = self.addressOf(array) + begin * stepSize
+        isInternal = innerSize <= stepSize and self.isMovableType(innerType)
+        if isInternal:
+            for i in range(size):
+                yield self.createValue(addr + i * stepSize, innerType)
+        else:
+            p = self.createPointerValue(addr, innerType.pointer())
+            for i in range(size):
+                yield p.dereference().dereference()
+                p += 1
+
 
     # This is called is when a QObject derived class is expanded
     def putQObjectGuts(self, qobject, smo):
+        intSize = self.intSize()
+        ptrSize = self.ptrSize()
+        # dd = value["d_ptr"]["d"] is just behind the vtable.
+        dd = self.extractPointer(qobject, offset=ptrSize)
+
+        extraData = self.extractPointer(dd + 5 * ptrSize + 2 * intSize)
+        #with SubItem(self, "[extradata]"):
+        #    self.putValue("0x%x" % toInteger(extraData))
+
         with SubItem(self, "[properties]"):
-            propertyNames = self.staticQObjectPropertyNames(smo)
-            propertyCount = len(propertyNames)
-            self.putItemCount(propertyCount)
-            self.putNumChild(propertyCount)
+            propertyCount = 0
             if self.isExpanded():
+                propertyNames = self.staticQObjectPropertyNames(smo)
+                propertyCount = len(propertyNames) # Doesn't include dynamic properties.
                 with Children(self):
+                    # Static properties.
                     for i in range(propertyCount):
                         name = propertyNames[i]
                         self.putCallItem(name, qobject, "property", '"' + name + '"')
+
+                    # Dynamic properties.
+                    if extraData == 0:
+                        self.putItemCount(0)
+                        self.putNumChild(0)
+                    else:
+                        propertyNames = extraData + ptrSize
+                        propertyValues = extraData + 2 * ptrSize
+
+                        ns = self.qtNamespace()
+
+                        typ = self.lookupType(ns + "QList<" + ns + "QByteArray>")
+                        names = self.createValue(propertyNames, typ)
+
+                        typ = self.lookupType(ns + "QList<" + ns + "QVariant>")
+                        values = self.createValue(propertyValues, typ)
+
+                        for (k, v) in zip(self.generateQListChildren(names),
+                                self.generateQListChildren(values)) :
+                            with SubItem(self, propertyCount):
+                                self.put('key="%s",' % self.encodeByteArray(k))
+                                self.put('keyencoded="%s",' % Hex2EncodedLatin1)
+                                self.putItem(v)
+                                propertyCount += 1
+
+            self.putValue('<%s items>' % propertyCount if propertyCount else '<>0 items>')
+            self.putNumChild(1)
 
 
     def isKnownMovableType(self, type):
