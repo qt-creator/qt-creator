@@ -58,6 +58,11 @@ C++ Support
    * Fixed adding definition for function with rvalue-reference
      (QTCREATORBUG-10555)
    * Fixed semantic highlighting after "Save as"
+   * Fixed syntax highlighting of multiline strings and comments (QTCREATORBUG-662)
+   * Improved the Insert Virtual Functions refactoring action:
+       * Check only pure virtual functions by default
+       * Display all overrides of a function
+       * Do not include final functions
 
 Python Support
 
@@ -74,6 +79,8 @@ Version Control Systems
    * Git
       * Added visual indicator for affected commits when resetting and rebasing
       * Enabled option to push commit directly after fixup
+      * Enabled choosing non-fast-forward merge when fast-forward is applicable
+      * Added completion in change selection dialog
    * ClearCase
       * Improved performance of indexing dynamic views
       * Added warning when editing Derived Objects
