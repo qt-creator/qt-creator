@@ -277,8 +277,6 @@ public:
     void stashPop(const QString &workingDirectory, const QString &stash);
     void stashPop(const QString &workingDirectory);
     void revert(const QStringList &files, bool revertStaging);
-    void branchList(const QString &workingDirectory);
-    void stashList(const QString &workingDirectory);
     bool synchronousStashList(const QString &workingDirectory,
                               QList<Stash> *stashes,
                               QString *errorMessage = 0);

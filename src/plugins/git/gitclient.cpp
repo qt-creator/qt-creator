@@ -3682,20 +3682,6 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
     return rc;
 }
 
-void GitClient::branchList(const QString &workingDirectory)
-{
-    QStringList arguments(QLatin1String("branch"));
-    arguments << QLatin1String("-r") << QLatin1String(noColorOption);
-    executeGit(workingDirectory, arguments, 0, true);
-}
-
-void GitClient::stashList(const QString &workingDirectory)
-{
-    QStringList arguments(QLatin1String("stash"));
-    arguments << QLatin1String("list") << QLatin1String(noColorOption);
-    executeGit(workingDirectory, arguments, 0, true);
-}
-
 bool GitClient::synchronousStashList(const QString &workingDirectory,
                                      QList<Stash> *stashes,
                                      QString *errorMessage /* = 0 */)
