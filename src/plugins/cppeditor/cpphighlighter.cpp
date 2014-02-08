@@ -224,10 +224,13 @@ void CppHighlighter::highlightBlock(const QString &text)
     if (text.length() > lastTokenEnd)
         highlightLine(text, lastTokenEnd, text.length() - lastTokenEnd, formatForCategory(CppVisualWhitespace));
 
-    if (!initialLexerState && lexerState && !tokens.isEmpty() && tokens.last().isComment()) {
-        parentheses.append(Parenthesis(Parenthesis::Opened, QLatin1Char('+'),
-                                       tokens.last().begin()));
-        ++braceDepth;
+    if (!initialLexerState && lexerState && !tokens.isEmpty()) {
+        const Token &lastToken = tokens.last();
+        if (lastToken.is(T_COMMENT) || lastToken.is(T_DOXY_COMMENT)) {
+            parentheses.append(Parenthesis(Parenthesis::Opened, QLatin1Char('+'),
+                                           lastToken.begin()));
+            ++braceDepth;
+        }
     }
 
     BaseTextDocumentLayout::setParentheses(currentBlock(), parentheses);
