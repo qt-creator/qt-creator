@@ -29,12 +29,14 @@
 
 #include "gerritpushdialog.h"
 #include "ui_gerritpushdialog.h"
+#include "branchcombobox.h"
 
 #include "../gitplugin.h"
 #include "../gitclient.h"
 
 #include <QDateTime>
 #include <QDir>
+#include <QPushButton>
 #include <QRegExpValidator>
 
 using namespace Git::Internal;
@@ -61,7 +63,6 @@ QString GerritPushDialog::determineRemoteBranch()
 {
     const QString earliestCommit = m_ui->commitView->earliestCommit();
 
-    m_localChangesFound = true;
     QString output;
     QString error;
     QStringList args;
@@ -73,7 +74,11 @@ QString GerritPushDialog::determineRemoteBranch()
     const QString head = QLatin1String("/HEAD");
     QStringList refs = output.split(QLatin1Char('\n'));
 
-    const QString remoteTrackingBranch = m_client->synchronousTrackingBranch(m_workingDir);
+    QString localBranch = m_ui->localBranchComboBox->currentText();
+    if (localBranch == QLatin1String("HEAD"))
+        localBranch.clear();
+    const QString remoteTrackingBranch = m_client->synchronousTrackingBranch(m_workingDir,
+                                                                             localBranch);
     QString remoteBranch;
     foreach (const QString &reference, refs) {
         const QString ref = reference.trimmed();
@@ -139,9 +144,6 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     m_ui->repositoryLabel->setText(tr("<b>Local repository:</b> %1").arg(
                                        QDir::toNativeSeparators(workingDir)));
 
-    if (!m_ui->commitView->init(workingDir))
-        return;
-
     PushItemDelegate *delegate = new PushItemDelegate(m_ui->commitView);
     delegate->setParent(this);
 
@@ -156,12 +158,18 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     } else {
         connect(m_ui->remoteComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setRemoteBranches()));
     }
+    m_ui->localBranchComboBox->init(workingDir);
+    connect(m_ui->localBranchComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(updateCommits(int)));
+
     connect(m_ui->targetBranchComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setChangeRange()));
     setRemoteBranches();
+
     m_ui->reviewersLineEdit->setText(reviewerList);
 
     m_ui->topicLineEdit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("^\\S+$")), this));
 
+    updateCommits(m_ui->localBranchComboBox->currentIndex());
     m_valid = true;
 }
 
@@ -175,13 +183,13 @@ QString GerritPushDialog::selectedCommit() const
     return m_ui->commitView->commit();
 }
 
-QString GerritPushDialog::calculateChangeRange()
+QString GerritPushDialog::calculateChangeRange(const QString &branch)
 {
     QString remote = selectedRemoteName();
     remote += QLatin1Char('/');
     remote += selectedRemoteBranchName();
 
-    QStringList args(remote + QLatin1String("..HEAD"));
+    QStringList args(remote + QLatin1String("..") + branch);
     args << QLatin1String("--count");
 
     QString number;
@@ -202,13 +210,11 @@ void GerritPushDialog::setChangeRange()
     QString remote = selectedRemoteName();
     remote += QLatin1Char('/');
     remote += selectedRemoteBranchName();
-    m_ui->infoLabel->setText(tr("Number of commits between HEAD and %1: %2").arg(
-                                 remote, calculateChangeRange()));
-}
-
-bool GerritPushDialog::localChangesFound() const
-{
-    return m_localChangesFound;
+    const QString branch = m_ui->localBranchComboBox->currentText();
+    m_ui->infoLabel->setText(tr("Number of commits between %1 and %2: %3")
+                             .arg(branch)
+                             .arg(remote)
+                             .arg(calculateChangeRange(branch)));
 }
 
 bool GerritPushDialog::valid() const
@@ -243,6 +249,14 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
         m_ui->targetBranchComboBox->addItem(tr("... Include older branches ..."), 1);
     setChangeRange();
     m_ui->targetBranchComboBox->blockSignals(blocked);
+}
+
+void GerritPushDialog::updateCommits(int index)
+{
+    const QString branch = m_ui->localBranchComboBox->itemText(index);
+    const bool hasLocalCommits = m_ui->commitView->init(m_workingDir, branch);
+    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(hasLocalCommits);
+    setChangeRange();
 }
 
 QString GerritPushDialog::selectedRemoteName() const

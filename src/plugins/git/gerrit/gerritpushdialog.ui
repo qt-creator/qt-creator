@@ -47,6 +47,19 @@
        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
       </property>
       <item row="1" column="0">
+       <widget class="QLabel" name="localBranchLabel">
+        <property name="text">
+         <string>&amp;Local branch:</string>
+        </property>
+        <property name="buddy">
+         <cstring>localBranchComboBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="BranchComboBox" name="localBranchComboBox"/>
+      </item>
+      <item row="2" column="0">
        <widget class="QLabel" name="remoteLabel">
         <property name="text">
          <string>R&amp;emote:</string>
@@ -56,10 +69,10 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="2" column="1">
        <widget class="QComboBox" name="remoteComboBox"/>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="targetBranchLabel">
         <property name="text">
          <string>Target &amp;branch:</string>
@@ -69,10 +82,10 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QComboBox" name="targetBranchComboBox"/>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="topicLabel">
         <property name="text">
          <string>&amp;Topic:</string>
@@ -82,17 +95,17 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="4" column="1">
        <widget class="QLineEdit" name="topicLineEdit"/>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QCheckBox" name="draftCheckBox">
         <property name="text">
          <string>&amp;Draft</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
+      <item row="6" column="0" colspan="2">
        <widget class="QLabel" name="infoLabel">
         <property name="text">
          <string>Number of commits</string>
@@ -177,6 +190,11 @@ Partial names can be used if they are unambiguous.</string>
    <class>Git::Internal::LogChangeWidget</class>
    <extends>QTreeView</extends>
    <header location="global">git/logchangedialog.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BranchComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">git/gerrit/branchcombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

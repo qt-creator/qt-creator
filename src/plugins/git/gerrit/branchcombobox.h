@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Petar Perisin.
-** Contact: petar.perisin@gmail.com
+** Copyright (C) 2014 Orgad Shaneh <orgads@gmail.com>.
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
 **
@@ -27,12 +27,10 @@
 **
 ****************************************************************************/
 
-#ifndef GERRITPUSHDIALOG_H
-#define GERRITPUSHDIALOG_H
+#ifndef BRANCHCOMBOBOX_H
+#define BRANCHCOMBOBOX_H
 
-#include <QDialog>
-#include <QMultiMap>
-#include <QDate>
+#include <QComboBox>
 
 namespace Git {
 namespace Internal {
@@ -43,48 +41,19 @@ class GitClient;
 namespace Gerrit {
 namespace Internal {
 
-namespace Ui {
-    class GerritPushDialog;
-}
-
-class GerritPushDialog : public QDialog
+class BranchComboBox : public QComboBox
 {
-    Q_OBJECT
-
 public:
-    GerritPushDialog(const QString &workingDir, const QString &reviewerList, QWidget *parent);
-    ~GerritPushDialog();
-
-    QString selectedCommit() const;
-    QString selectedRemoteName() const;
-    QString selectedRemoteBranchName() const;
-    QString selectedPushType() const;
-    QString selectedTopic() const;
-    QString reviewers() const;
-    bool valid() const;
-
-private slots:
-    void setChangeRange();
-    void setRemoteBranches(bool includeOld = false);
-    void updateCommits(int index);
+    BranchComboBox(QWidget *parent = 0);
+    void init(const QString &repository);
 
 private:
-    typedef QPair<QString, QDate> BranchDate;
-    typedef QMultiMap<QString, BranchDate> RemoteBranchesMap;
-
-    QString determineRemoteBranch();
-    void initRemoteBranches();
-    QString calculateChangeRange(const QString &branch);
-    QString m_workingDir;
-    QString m_suggestedRemoteBranch;
-    Ui::GerritPushDialog *m_ui;
-    RemoteBranchesMap m_remoteBranches;
-    bool m_valid;
     Git::Internal::GitClient *m_client;
+    QString m_repository;
+    bool m_detached;
 };
-
 
 } // namespace Internal
 } // namespace Gerrit
 
-#endif // GERRITPUSHDIALOG_H
+#endif // BRANCHCOMBOBOX_H

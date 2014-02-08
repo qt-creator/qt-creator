@@ -101,6 +101,8 @@ QtcPlugin {
         name: "Gerrit"
         prefix: "gerrit/"
         files: [
+            "branchcombobox.cpp",
+            "branchcombobox.h",
             "gerritdialog.cpp",
             "gerritdialog.h",
             "gerritmodel.cpp",
