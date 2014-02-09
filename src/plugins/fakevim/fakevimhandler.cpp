@@ -939,7 +939,7 @@ public:
             // cursor keys. This breaks some of the logic later on
             // relying on text() being empty for "special" keys.
             // FIXME: Check the real conditions.
-            if (x.unicode() < ' ')
+            if (x.unicode() <= ' ')
                 m_text.clear();
             else if (x.isLetter())
                 m_key = x.toUpper().unicode();
@@ -948,7 +948,16 @@ public:
         // Set text only if input is ascii key without control modifier.
         if (m_text.isEmpty() && k >= 0 && k <= 0x7f && (m & HostOsInfo::controlModifier()) == 0) {
             QChar c = QChar::fromLatin1(k);
-            m_text = QString((m & ShiftModifier) != 0 ? c.toUpper() : c.toLower());
+            if (c.isLetter())
+                m_text = QString(isShift() ? c.toUpper() : c);
+            else if (!isShift())
+                m_text = c;
+        }
+
+        // Normalize <S-TAB>.
+        if (m_key == Qt::Key_Backtab) {
+            m_key = Qt::Key_Tab;
+            m_modifiers |= Qt::ShiftModifier;
         }
 
         // m_xkey is only a cache.
