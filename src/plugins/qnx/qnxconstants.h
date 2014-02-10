@@ -117,6 +117,8 @@ const char QNX_BLACKBERRY_CONFIGS_FILENAME[] = "bbndkconfigurations.xml";
 
 const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
 
+const char QNX_BLACKBERRY_DEFAULT_DEPLOY_QT_BASEPATH[] = "/accounts/devuser/";
+
 } // namespace Constants
 } // namespace Qnx
 

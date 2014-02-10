@@ -101,7 +101,8 @@ SOURCES += qnxplugin.cpp \
     blackberrycheckdevicestatusstepconfigwidget.cpp \
     blackberrycheckdevicestatusstep.cpp \
     qnxattachdebugsupport.cpp \
-    qnxattachdebugdialog.cpp
+    qnxattachdebugdialog.cpp \
+    blackberrydeployqtlibrariesdialog.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -202,7 +203,8 @@ HEADERS += qnxplugin.h\
     blackberrycheckdevicestatusstepfactory.h \
     blackberrycheckdevicestatusstepconfigwidget.h \
     qnxattachdebugsupport.h \
-    qnxattachdebugdialog.h
+    qnxattachdebugdialog.h \
+    blackberrydeployqtlibrariesdialog.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \
@@ -235,7 +237,8 @@ FORMS += \
     blackberryinstallwizardprocesspage.ui \
     blackberryinstallwizardoptionpage.ui \
     blackberrydebugtokenpinsdialog.ui \
-    blackberrycheckdevicestatusstepconfigwidget.ui
+    blackberrycheckdevicestatusstepconfigwidget.ui \
+    blackberrydeployqtlibrariesdialog.ui
 
 include(../../private_headers.pri)
 include(./cascadesimport/cascadesimport.pri)

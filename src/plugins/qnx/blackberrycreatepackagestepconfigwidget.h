@@ -56,10 +56,15 @@ public:
 private slots:
     void setPackageMode(bool signPackagesChecked);
     void showPasswords(bool show);
+    void setBundleMode(int qtLibraryIndex);
+    void updateDeployWidgetsState();
+    void deployLibraries();
 
 private:
     BlackBerryCreatePackageStep *m_step;
     Ui::BlackBerryCreatePackageStepConfigWidget *m_ui;
+
+    QMap<int, QString> m_qtLibraryExplanations;
 };
 
 } // namespace Internal

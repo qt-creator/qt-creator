@@ -24,19 +24,4 @@
     <action system="true">run_native</action>
 
     <asset entry="true" path="PROJECTPATH" type="Qnx/Elf">PROJECTNAME</asset>
-
-    <!--
-         %QT_INSTALL_LIBS%, %QT_INSTALL_PLUGINS, %QT_INSTALL_QML% and %SRC_DIR%
-         tags are replaced on-the-fly when deploying the app. in Qt Creator.
-    -->
-    <asset path="%QT_INSTALL_LIBS%">lib</asset>
-    <asset path="%QT_INSTALL_PLUGINS%">plugins</asset>
-    <asset path="%QT_INSTALL_QML%">imports</asset>
-
-    <!--
-         By default this bar-descriptor.xml embeds Qt5 runtime
-         into the application itself. See the following document
-         for various deployments of Qt runtime to a device:
-         http://qt-project.org/wiki/Qt-on-BlackBerry-devices
-    -->
 </qnx>
