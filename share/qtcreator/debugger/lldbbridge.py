@@ -31,6 +31,7 @@ import atexit
 import inspect
 import json
 import os
+import platform
 import re
 import select
 import sys
@@ -1388,6 +1389,13 @@ class Dumper(DumperBase):
         return self.target.BreakpointDelete(id)
 
     def handleBreakpoints(self, args):
+        # This seems to be only needed on Linux.
+        needStop = False
+        if self.process and platform.system() == "Linux":
+            needStop = self.process.GetState() != lldb.eStateStopped
+        if needStop:
+            error = self.process.Stop()
+
         result = 'bkpts=['
         for bp in args['bkpts']:
             operation = bp['operation']
@@ -1407,6 +1415,10 @@ class Dumper(DumperBase):
                 result += '{operation="removed",modelid="%s"}' % bp["modelid"]
 
         result += "]"
+
+        if needStop:
+            error = self.process.Continue()
+
         self.report(result)
 
     def listModules(self, args):
