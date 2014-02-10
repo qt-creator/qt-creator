@@ -43,6 +43,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
+QString readExecutableNameFromCore(const QString &cmd, const QString &coreFile, bool *isCore);
+
 class GdbCoreEngine : public GdbEngine
 {
     Q_OBJECT
@@ -63,7 +65,6 @@ private:
     void handleRoundTrip(const GdbResponse &response);
     void unpackCoreIfNeeded();
     QString coreFileName() const;
-    QString readExecutableNameFromCore(bool *isCore);
     QString coreName() const;
 
 private slots:

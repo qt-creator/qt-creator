@@ -31,6 +31,8 @@
 
 #include "debuggerstartparameters.h"
 #include "debuggerdialogs.h"
+#include "debuggerkitinformation.h"
+#include "gdb/coregdbadapter.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -265,9 +267,9 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     formLayout->setHorizontalSpacing(6);
     formLayout->setVerticalSpacing(6);
     formLayout->addRow(tr("Kit:"), d->kitChooser);
-    formLayout->addRow(tr("&Executable:"), d->localExecFileName);
     formLayout->addRow(d->forceLocalLabel, d->forceLocalCheckBox);
     formLayout->addRow(tr("Core file:"), coreLayout);
+    formLayout->addRow(tr("&Executable:"), d->localExecFileName);
     formLayout->addRow(tr("Override &start script:"), d->overrideStartScriptFileName);
 
     QFrame *line = new QFrame(this);
@@ -291,9 +293,9 @@ AttachCoreDialog::~AttachCoreDialog()
 int AttachCoreDialog::exec()
 {
     connect(d->selectRemoteCoreButton, SIGNAL(clicked()), SLOT(selectRemoteCoreFile()));
-    connect(d->remoteCoreFileName, SIGNAL(textChanged(QString)), SLOT(changed()));
+    connect(d->remoteCoreFileName, SIGNAL(textChanged(QString)), SLOT(coreFileChanged(QString)));
     connect(d->localExecFileName, SIGNAL(changed(QString)), SLOT(changed()));
-    connect(d->localCoreFileName, SIGNAL(changed(QString)), SLOT(changed()));
+    connect(d->localCoreFileName, SIGNAL(changed(QString)), SLOT(coreFileChanged(QString)));
     connect(d->forceLocalCheckBox, SIGNAL(stateChanged(int)), SLOT(changed()));
     connect(d->kitChooser, SIGNAL(currentIndexChanged(int)), SLOT(changed()));
     connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
@@ -315,6 +317,17 @@ bool AttachCoreDialog::isLocalKit() const
 bool AttachCoreDialog::useLocalCoreFile() const
 {
     return isLocalKit() || d->forceLocalCheckBox->isChecked();
+}
+
+void AttachCoreDialog::coreFileChanged(const QString &core)
+{
+    Kit *k = d->kitChooser->currentKit();
+    QTC_ASSERT(k, return);
+    FileName cmd = DebuggerKitInformation::debuggerCommand(k);
+    bool isCore = false;
+    QString exe = readExecutableNameFromCore(cmd.toString(), core, &isCore);
+    d->localExecFileName->setFileName(FileName::fromString(exe));
+    changed();
 }
 
 void AttachCoreDialog::changed()
