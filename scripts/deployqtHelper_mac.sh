@@ -59,6 +59,7 @@ cp "$2"/*.qm "$1/Contents/Resources/translations/" || exit 1
 if [ $LLVM_INSTALL_DIR ]; then
     if [ "$LLVM_INSTALL_DIR"/lib/libclang.dylib -nt "$1/Contents/PlugIns"/libclang.dylib ]; then
         cp -f "$LLVM_INSTALL_DIR"/lib/libclang.dylib "$1/Contents/PlugIns/" || exit 1
+        cp -Rf "$LLVM_INSTALL_DIR"/lib/clang "$1/Contents/Resources/cplusplus/" || exit 1
     fi
     _CLANG_CODEMODEL_LIB="$1/Contents/PlugIns/QtProject/libClangCodeModel_debug.dylib"
     if [ ! -f "$_CLANG_CODEMODEL_LIB" ]; then
