@@ -122,7 +122,9 @@ public:
 
         QAction *switchAction = new QAction(actionIcon, actionToolTip, parentEditor);
         parentEditor->toolBar()->addAction(switchAction);
-        connect(switchAction, SIGNAL(triggered()), this, SLOT(execute()));
+
+        // must be queued connection because execute() removes the editor & tool bar that the action was added to
+        connect(switchAction, SIGNAL(triggered()), this, SLOT(execute()), Qt::QueuedConnection);
     }
 
     void setWorkingDirectory(const QString &workingDir) { m_workingDirectory = workingDir; }
