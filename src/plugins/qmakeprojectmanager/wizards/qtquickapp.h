@@ -42,7 +42,8 @@ struct QtQuickAppGeneratedFileInfo : public AbstractGeneratedFileInfo
         MainQrcFile,
         AppViewerPriFile,
         AppViewerCppFile,
-        AppViewerHFile
+        AppViewerHFile,
+        QrcDeploymentFile
     };
 
     QtQuickAppGeneratedFileInfo() : AbstractGeneratedFileInfo() {}
@@ -61,6 +62,7 @@ public:
     QString priority;
     QString viewerClassName;
     QString viewerDir;
+    QString qrcDeployment;
     int stubVersionMinor;
 };
 
@@ -79,7 +81,9 @@ public:
         AppViewerCppOrigin,
         AppViewerH,
         AppViewerHOrigin,
-        QmlDirProFileRelative
+        QmlDirProFileRelative,
+        QrcDeployment,
+        QrcDeploymentOrigin
     };
 
     QtQuickApp();
@@ -101,6 +105,7 @@ protected:
     virtual QByteArray generateProFile(QString *errorMessage) const;
 
     QString appViewerBaseName() const;
+    QString qrcDeployment() const;
     QString fileName(ExtendedFileType type) const;
     QString appViewerOriginSubDir() const;
 

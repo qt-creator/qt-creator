@@ -10,3 +10,5 @@ RESOURCES += qml.qrc
 # QML_IMPORT_PATH #
 QML_IMPORT_PATH =
 
+# Default rules for deployment.
+include(../../shared/qrcdeployment.pri)

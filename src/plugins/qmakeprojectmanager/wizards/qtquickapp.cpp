@@ -44,9 +44,14 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
+static QString sharedDirectory()
+{
+    return Core::ICore::resourcePath() + QLatin1String("/templates/shared/");
+}
+
 static QString qtQuickApplicationViewerDirectory()
 {
-    return Core::ICore::resourcePath() + QLatin1String("/templates/shared/qtquickapplicationviewer/");
+    return sharedDirectory() + QLatin1String("qtquickapplicationviewer/");
 }
 
 static QString templateRootDirectory()
@@ -112,6 +117,7 @@ static bool parseTemplateXml(QXmlStreamReader &reader, TemplateInfo *info)
     static const QLatin1String attribute_priority("priority");
     static const QLatin1String attribute_viewerdir("viewerdir");
     static const QLatin1String attribute_viewerclassname("viewerclassname");
+    static const QLatin1String attribute_qrcdeployment("qrcdeployment");
     static const QLatin1String attribute_stubversionminor("stubversionminor");
 
     while (!reader.atEnd() && !reader.hasError()) {
@@ -132,6 +138,9 @@ static bool parseTemplateXml(QXmlStreamReader &reader, TemplateInfo *info)
 
             if (reader.attributes().hasAttribute(attribute_viewerclassname))
                 info->viewerClassName = reader.attributes().value(attribute_viewerclassname).toString();
+
+            if (reader.attributes().hasAttribute(attribute_qrcdeployment))
+                info->qrcDeployment = reader.attributes().value(attribute_qrcdeployment).toString();
 
             if (reader.attributes().hasAttribute(attribute_stubversionminor))
                 info->stubVersionMinor = reader.attributes().value(attribute_stubversionminor).toString().toInt();
@@ -205,6 +214,8 @@ QString QtQuickApp::pathExtended(int fileType) const
     const QString mainQmlFile = QLatin1String("main.qml");
     const QString mainQrcFile = QLatin1String("qml.qrc");
 
+    const QString qrcDeploymentFile = QLatin1String("deployment.pri");
+
     const QString qmlOriginDir = originsRoot() + QLatin1String("qml/");
 
     const QString pathBase = outputPathBase();
@@ -215,6 +226,8 @@ QString QtQuickApp::pathExtended(int fileType) const
         case MainQmlOrigin:                 return qmlOriginDir + mainQmlFile;
         case MainQrc:                       return pathBase + mainQrcFile;
         case MainQrcOrigin:                 return originsRoot() + mainQrcFile;
+        case QrcDeployment:                 return pathBase + qrcDeploymentFile;
+        case QrcDeploymentOrigin:           return sharedDirectory() + qrcDeployment();
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + fileName(AppViewerPri);
         case AppViewerPriOrigin:            return qtQuickApplicationViewerDirectory() + appViewerOriginSubDir() + fileName(AppViewerPri);
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + fileName(AppViewerCpp);
@@ -271,6 +284,9 @@ Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
     if (QFileInfo(path(MainQrcOrigin)).exists()) {
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQrcFile, errorMessage), path(MainQrc)));
     }
+    if (!qrcDeployment().isEmpty()) {
+        files.append(file(generateFile(QtQuickAppGeneratedFileInfo::QrcDeploymentFile, errorMessage), path(QrcDeployment)));
+    }
     if (!appViewerBaseName().isEmpty()) {
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerPriFile, errorMessage), path(AppViewerPri)));
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp)));
@@ -289,6 +305,11 @@ bool QtQuickApp::useExistingMainQml() const
 QString QtQuickApp::appViewerBaseName() const
 {
     return m_templateInfo.viewerDir;
+}
+
+QString QtQuickApp::qrcDeployment() const
+{
+    return m_templateInfo.qrcDeployment;
 }
 
 QString QtQuickApp::fileName(QtQuickApp::ExtendedFileType type) const
@@ -310,6 +331,7 @@ QByteArray QtQuickApp::generateProFile(QString *errorMessage) const
 {
     QByteArray proFileContent = AbstractMobileApp::generateProFile(errorMessage);
     proFileContent.replace("../../shared/qtquickapplicationviewer/", "");
+    proFileContent.replace("../../shared/qrc", ""); // fix a path to qrcdeployment.pri
     return proFileContent;
 }
 
@@ -323,6 +345,9 @@ QByteArray QtQuickApp::generateFileExtended(int fileType,
             break;
         case QtQuickAppGeneratedFileInfo::MainQrcFile:
             data = readBlob(path(MainQrcOrigin), errorMessage);
+            break;
+        case QtQuickAppGeneratedFileInfo::QrcDeploymentFile:
+            data = readBlob(path(QrcDeploymentOrigin), errorMessage);
             break;
         case QtQuickAppGeneratedFileInfo::AppViewerPriFile:
             data = readBlob(path(AppViewerPriOrigin), errorMessage);
