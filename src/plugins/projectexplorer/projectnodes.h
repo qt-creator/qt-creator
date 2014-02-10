@@ -36,6 +36,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
@@ -342,6 +343,102 @@ private:
     friend class SessionNode;
     friend class Node;
 };
+
+template<class T1, class T3>
+bool isSorted(const T1 &list, T3 sorter)
+{
+    typename T1::const_iterator it, iit, end;
+    end = list.constEnd();
+    it = list.constBegin();
+    if (it == end)
+        return true;
+
+    iit = list.constBegin();
+    ++iit;
+
+    while (iit != end) {
+        if (!sorter(*it, *iit))
+            return false;
+        it = iit++;
+    }
+    return true;
+}
+
+template <class T1, class T2, class T3>
+void compareSortedLists(T1 oldList, T2 newList, T1 &removedList, T2 &addedList, T3 sorter)
+{
+    Q_ASSERT(isSorted(oldList, sorter));
+    Q_ASSERT(isSorted(newList, sorter));
+
+    typename T1::const_iterator oldIt, oldEnd;
+    typename T2::const_iterator newIt, newEnd;
+
+    oldIt = oldList.constBegin();
+    oldEnd = oldList.constEnd();
+
+    newIt = newList.constBegin();
+    newEnd = newList.constEnd();
+
+    while (oldIt != oldEnd && newIt != newEnd) {
+        if (sorter(*oldIt, *newIt)) {
+            removedList.append(*oldIt);
+            ++oldIt;
+        } else if (sorter(*newIt, *oldIt)) {
+            addedList.append(*newIt);
+            ++newIt;
+        } else {
+            ++oldIt;
+            ++newIt;
+        }
+    }
+
+    while (oldIt != oldEnd) {
+        removedList.append(*oldIt);
+        ++oldIt;
+    }
+
+    while (newIt != newEnd) {
+        addedList.append(*newIt);
+        ++newIt;
+    }
+}
+
+template <class T1, class T3>
+T1 subtractSortedList(T1 list1, T1 list2, T3 sorter)
+{
+    Q_ASSERT(ProjectExplorer::isSorted(list1, sorter));
+    Q_ASSERT(ProjectExplorer::isSorted(list2, sorter));
+
+    typename T1::const_iterator list1It, list1End;
+    typename T1::const_iterator list2It, list2End;
+
+    list1It = list1.constBegin();
+    list1End = list1.constEnd();
+
+    list2It = list2.constBegin();
+    list2End = list2.constEnd();
+
+    T1 result;
+
+    while (list1It != list1End && list2It != list2End) {
+        if (sorter(*list1It, *list2It)) {
+            result.append(*list1It);
+            ++list1It;
+        } else if (sorter(*list2It, *list1It)) {
+            qWarning() << "subtractSortedList: subtracting value that isn't in set";
+        } else {
+            ++list1It;
+            ++list2It;
+        }
+    }
+
+    while (list1It != list1End) {
+        result.append(*list1It);
+        ++list1It;
+    }
+
+    return result;
+}
 
 } // namespace ProjectExplorer
 

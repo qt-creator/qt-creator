@@ -100,10 +100,18 @@ static const FileTypeDataStorage fileTypeDataStorage[] = {
       ":/qmakeprojectmanager/images/unknown.png" }
 };
 
-bool sortNodesByPath(ProjectExplorer::Node *a, ProjectExplorer::Node *b)
+class SortByPath
 {
-    return a->path() < b->path();
-}
+public:
+    bool operator()(ProjectExplorer::Node *a, ProjectExplorer::Node *b)
+    { return operator()(a->path(), b->path()); }
+    bool operator()(ProjectExplorer::Node *a, const QString &b)
+    { return operator()(a->path(), b); }
+    bool operator()(const QString &a, ProjectExplorer::Node *b)
+    { return operator()(a, b->path()); }
+    bool operator()(const QString &a, const QString &b)
+    { return a < b; }
+};
 
 class QmakeNodeStaticData {
 public:
@@ -484,39 +492,20 @@ struct InternalNode
         }
 
         QList<FileNode*> filesToRemove;
-        QList<FileNode*> filesToAdd;
+        QStringList filesToAdd;
 
-        qSort(files);
-        qSort(existingFileNodes.begin(), existingFileNodes.end(), sortNodesByPath);
+        SortByPath sortByPath;
+        qSort(files.begin(), files.end(), sortByPath);
+        qSort(existingFileNodes.begin(), existingFileNodes.end(), sortByPath);
 
-        QList<FileNode*>::const_iterator existingNodeIter = existingFileNodes.constBegin();
-        QList<QString>::const_iterator newPathIter = files.constBegin();
-        while (existingNodeIter != existingFileNodes.constEnd()
-               && newPathIter != files.constEnd()) {
-            if ((*existingNodeIter)->path() < *newPathIter) {
-                filesToRemove << *existingNodeIter;
-                ++existingNodeIter;
-            } else if ((*existingNodeIter)->path() > *newPathIter) {
-                filesToAdd << new ProjectExplorer::FileNode(*newPathIter, type, false);
-                ++newPathIter;
-            } else { // *existingNodeIter->path() == *newPathIter
-                ++existingNodeIter;
-                ++newPathIter;
-            }
-        }
-        while (existingNodeIter != existingFileNodes.constEnd()) {
-            filesToRemove << *existingNodeIter;
-            ++existingNodeIter;
-        }
-        while (newPathIter != files.constEnd()) {
-            filesToAdd << new ProjectExplorer::FileNode(*newPathIter, type, false);
-            ++newPathIter;
-        }
+        ProjectExplorer::compareSortedLists(existingFileNodes, files, filesToRemove, filesToAdd, sortByPath);
 
-        if (!filesToRemove.isEmpty())
-            folder->removeFileNodes(filesToRemove);
-        if (!filesToAdd.isEmpty())
-            folder->addFileNodes(filesToAdd);
+        QList<FileNode *> nodesToAdd;
+        foreach (const QString &file, filesToAdd)
+            nodesToAdd << new ProjectExplorer::FileNode(file, type, false);
+
+        folder->removeFileNodes(filesToRemove);
+        folder->addFileNodes(nodesToAdd);
     }
 };
 }
@@ -1818,10 +1807,11 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         }
     }
 
+    SortByPath sortByPath;
     qSort(existingProjectNodes.begin(), existingProjectNodes.end(),
-          sortNodesByPath);
-    qSort(newProjectFilesExact);
-    qSort(newProjectFilesCumlative);
+          sortByPath);
+    qSort(newProjectFilesExact.begin(), newProjectFilesExact.end(), sortByPath);
+    qSort(newProjectFilesCumlative.begin(), newProjectFilesCumlative.end(), sortByPath);
 
     QList<ProjectNode*> toAdd;
     QList<ProjectNode*> toRemove;

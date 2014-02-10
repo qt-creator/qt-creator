@@ -420,38 +420,12 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
     qSort(oldList.begin(), oldList.end(), sortNodesByPath);
     qSort(newList.begin(), newList.end(), sortNodesByPath);
 
-    // generate added and deleted list
-    QList<ProjectExplorer::FileNode *>::const_iterator oldIt  = oldList.constBegin();
-    QList<ProjectExplorer::FileNode *>::const_iterator oldEnd = oldList.constEnd();
-    QList<ProjectExplorer::FileNode *>::const_iterator newIt  = newList.constBegin();
-    QList<ProjectExplorer::FileNode *>::const_iterator newEnd = newList.constEnd();
-
     QList<ProjectExplorer::FileNode *> added;
     QList<ProjectExplorer::FileNode *> deleted;
 
-    while (oldIt != oldEnd && newIt != newEnd) {
-        if ( (*oldIt)->path() == (*newIt)->path()) {
-            delete *newIt;
-            ++oldIt;
-            ++newIt;
-        } else if ((*oldIt)->path() < (*newIt)->path()) {
-            deleted.append(*oldIt);
-            ++oldIt;
-        } else {
-            added.append(*newIt);
-            ++newIt;
-        }
-    }
+    ProjectExplorer::compareSortedLists(oldList, newList, deleted, added, sortNodesByPath);
 
-    while (oldIt != oldEnd) {
-        deleted.append(*oldIt);
-        ++oldIt;
-    }
-
-    while (newIt != newEnd) {
-        added.append(*newIt);
-        ++newIt;
-    }
+    qDeleteAll(ProjectExplorer::subtractSortedList(newList, added, sortNodesByPath));
 
     // add added nodes
     foreach (ProjectExplorer::FileNode *fn, added) {
