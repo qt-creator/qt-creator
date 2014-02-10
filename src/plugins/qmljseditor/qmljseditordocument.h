@@ -67,7 +67,7 @@ protected:
     void triggerPendingUpdates();
 
 private:
-    friend class QmlJSEditorDocumentPrivate; // sending signals
+    friend class Internal::QmlJSEditorDocumentPrivate; // sending signals
     Internal::QmlJSEditorDocumentPrivate *m_d;
 };
 
