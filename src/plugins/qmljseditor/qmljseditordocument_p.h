@@ -64,9 +64,9 @@ public slots:
     void updateOutlineModel();
 
 public:
-    QmlJSEditorDocument *m_q;
-    QTimer *m_updateDocumentTimer; // used to compress multiple document changes
-    QTimer *m_reupdateSemanticInfoTimer; // used to compress multiple libraryInfo changes
+    QmlJSEditorDocument *q;
+    QTimer m_updateDocumentTimer; // used to compress multiple document changes
+    QTimer m_reupdateSemanticInfoTimer; // used to compress multiple libraryInfo changes
     int m_semanticInfoDocRevision; // document revision to which the semantic info is currently updated to
     SemanticInfoUpdater *m_semanticInfoUpdater;
     QmlJSTools::SemanticInfo m_semanticInfo;
@@ -74,7 +74,7 @@ public:
     Internal::SemanticHighlighter *m_semanticHighlighter;
     bool m_semanticHighlightingNecessary;
     bool m_outlineModelNeedsUpdate;
-    QTimer *m_updateOutlineModelTimer;
+    QTimer m_updateOutlineModelTimer;
     Internal::QmlOutlineModel *m_outlineModel;
 };
 

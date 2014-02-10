@@ -414,7 +414,7 @@ namespace QmlJSEditor {
 namespace Internal {
 
 QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *parent)
-    : m_q(parent),
+    : q(parent),
       m_semanticInfoDocRevision(-1),
       m_semanticHighlighter(new SemanticHighlighter(parent)),
       m_semanticHighlightingNecessary(false),
@@ -424,11 +424,10 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
     // code model
-    m_updateDocumentTimer = new QTimer(this);
-    m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
-    m_updateDocumentTimer->setSingleShot(true);
-    connect(m_q->document(), SIGNAL(contentsChanged()), m_updateDocumentTimer, SLOT(start()));
-    connect(m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(reparseDocument()));
+    m_updateDocumentTimer.setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_updateDocumentTimer.setSingleShot(true);
+    connect(q->document(), SIGNAL(contentsChanged()), &m_updateDocumentTimer, SLOT(start()));
+    connect(&m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(reparseDocument()));
     connect(modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
             this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
 
@@ -439,18 +438,16 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     m_semanticInfoUpdater->start();
 
     // library info changes
-    m_reupdateSemanticInfoTimer = new QTimer(this);
-    m_reupdateSemanticInfoTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
-    m_reupdateSemanticInfoTimer->setSingleShot(true);
-    connect(m_reupdateSemanticInfoTimer, SIGNAL(timeout()), this, SLOT(reupdateSemanticInfo()));
+    m_reupdateSemanticInfoTimer.setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_reupdateSemanticInfoTimer.setSingleShot(true);
+    connect(&m_reupdateSemanticInfoTimer, SIGNAL(timeout()), this, SLOT(reupdateSemanticInfo()));
     connect(modelManager, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
-            m_reupdateSemanticInfoTimer, SLOT(start()));
+            &m_reupdateSemanticInfoTimer, SLOT(start()));
 
     // outline model
-    m_updateOutlineModelTimer = new QTimer(this);
-    m_updateOutlineModelTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
-    m_updateOutlineModelTimer->setSingleShot(true);
-    connect(m_updateOutlineModelTimer, SIGNAL(timeout()), this, SLOT(updateOutlineModel()));
+    m_updateOutlineModelTimer.setInterval(UPDATE_OUTLINE_INTERVAL);
+    m_updateOutlineModelTimer.setSingleShot(true);
+    connect(&m_updateOutlineModelTimer, SIGNAL(timeout()), this, SLOT(updateOutlineModel()));
 }
 
 QmlJSEditorDocumentPrivate::~QmlJSEditorDocumentPrivate()
@@ -461,23 +458,23 @@ QmlJSEditorDocumentPrivate::~QmlJSEditorDocumentPrivate()
 
 void QmlJSEditorDocumentPrivate::invalidateFormatterCache()
 {
-    CreatorCodeFormatter formatter(m_q->tabSettings());
-    formatter.invalidateCache(m_q->document());
+    CreatorCodeFormatter formatter(q->tabSettings());
+    formatter.invalidateCache(q->document());
 }
 
 void QmlJSEditorDocumentPrivate::reparseDocument()
 {
-    ModelManagerInterface::instance()->updateSourceFiles(QStringList() << m_q->filePath(),
+    ModelManagerInterface::instance()->updateSourceFiles(QStringList() << q->filePath(),
                                                                 false);
 }
 
 void QmlJSEditorDocumentPrivate::onDocumentUpdated(Document::Ptr doc)
 {
-    if (m_q->filePath() != doc->fileName())
+    if (q->filePath() != doc->fileName())
         return;
 
     // text document has changed, simply wait for the next onDocumentUpdated
-    if (doc->editorRevision() != m_q->document()->revision())
+    if (doc->editorRevision() != q->document()->revision())
         return;
 
     if (doc->ast()) {
@@ -485,14 +482,14 @@ void QmlJSEditorDocumentPrivate::onDocumentUpdated(Document::Ptr doc)
         m_semanticInfoDocRevision = doc->editorRevision();
         m_semanticInfoUpdater->update(doc, ModelManagerInterface::instance()->snapshot());
     }
-    emit m_q->updateCodeWarnings(doc);
+    emit q->updateCodeWarnings(doc);
 }
 
 void QmlJSEditorDocumentPrivate::reupdateSemanticInfo()
 {
     // If the editor is newer than the semantic info (possibly with update in progress),
     // new semantic infos won't be accepted anyway. We'll get a onDocumentUpdated anyhow.
-    if (m_q->document()->revision() != m_semanticInfoDocRevision)
+    if (q->document()->revision() != m_semanticInfoDocRevision)
         return;
 
     m_semanticInfoUpdater->reupdate(ModelManagerInterface::instance()->snapshot());
@@ -500,7 +497,7 @@ void QmlJSEditorDocumentPrivate::reupdateSemanticInfo()
 
 void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &semanticInfo)
 {
-    if (semanticInfo.revision() != m_q->document()->revision()) {
+    if (semanticInfo.revision() != q->document()->revision()) {
         // ignore outdated semantic infos
         return;
     }
@@ -510,7 +507,7 @@ void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &seman
 
     // create the ranges
     CreateRanges createRanges;
-    m_semanticInfo.ranges = createRanges(m_q->document(), doc);
+    m_semanticInfo.ranges = createRanges(q->document(), doc);
 
     // Refresh the ids
     FindIdDeclarations updateIds;
@@ -519,12 +516,12 @@ void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &seman
     m_outlineModelNeedsUpdate = true;
     m_semanticHighlightingNecessary = true;
 
-    emit m_q->semanticInfoUpdated(m_semanticInfo); // calls triggerPendingUpdates as necessary
+    emit q->semanticInfoUpdated(m_semanticInfo); // calls triggerPendingUpdates as necessary
 }
 
 void QmlJSEditorDocumentPrivate::updateOutlineModel()
 {
-    if (m_q->isSemanticInfoOutdated())
+    if (q->isSemanticInfoOutdated())
         return; // outline update will be retriggered when semantic info is updated
 
     m_outlineModel->update(m_semanticInfo);
@@ -533,51 +530,51 @@ void QmlJSEditorDocumentPrivate::updateOutlineModel()
 } // Internal
 
 QmlJSEditorDocument::QmlJSEditorDocument()
-    : m_d(new Internal::QmlJSEditorDocumentPrivate(this))
+    : d(new Internal::QmlJSEditorDocumentPrivate(this))
 {
     connect(this, SIGNAL(tabSettingsChanged()),
-            m_d, SLOT(invalidateFormatterCache()));
+            d, SLOT(invalidateFormatterCache()));
     setSyntaxHighlighter(new Highlighter(document()));
     setIndenter(new Internal::Indenter);
 }
 
 QmlJSEditorDocument::~QmlJSEditorDocument()
 {
-    delete m_d;
+    delete d;
 }
 
 const SemanticInfo &QmlJSEditorDocument::semanticInfo() const
 {
-    return m_d->m_semanticInfo;
+    return d->m_semanticInfo;
 }
 
 bool QmlJSEditorDocument::isSemanticInfoOutdated() const
 {
-    return m_d->m_semanticInfo.revision() != document()->revision();
+    return d->m_semanticInfo.revision() != document()->revision();
 }
 
 QVector<QTextLayout::FormatRange> QmlJSEditorDocument::diagnosticRanges() const
 {
-    return m_d->m_diagnosticRanges;
+    return d->m_diagnosticRanges;
 }
 
 Internal::QmlOutlineModel *QmlJSEditorDocument::outlineModel() const
 {
-    return m_d->m_outlineModel;
+    return d->m_outlineModel;
 }
 
 void QmlJSEditorDocument::setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges)
 {
-    m_d->m_diagnosticRanges = ranges;
+    d->m_diagnosticRanges = ranges;
 }
 
 void QmlJSEditorDocument::applyFontSettings()
 {
     BaseTextDocument::applyFontSettings();
-    m_d->m_semanticHighlighter->updateFontSettings(fontSettings());
+    d->m_semanticHighlighter->updateFontSettings(fontSettings());
     if (!isSemanticInfoOutdated()) {
-        m_d->m_semanticHighlightingNecessary = false;
-        m_d->m_semanticHighlighter->rerun(m_d->m_semanticInfo);
+        d->m_semanticHighlightingNecessary = false;
+        d->m_semanticHighlighter->rerun(d->m_semanticInfo);
     }
 }
 
@@ -585,13 +582,13 @@ void QmlJSEditorDocument::triggerPendingUpdates()
 {
     BaseTextDocument::triggerPendingUpdates(); // calls applyFontSettings if necessary
     // might still need to rehighlight if font settings did not change
-    if (m_d->m_semanticHighlightingNecessary && !isSemanticInfoOutdated()) {
-        m_d->m_semanticHighlightingNecessary = false;
-        m_d->m_semanticHighlighter->rerun(m_d->m_semanticInfo);
+    if (d->m_semanticHighlightingNecessary && !isSemanticInfoOutdated()) {
+        d->m_semanticHighlightingNecessary = false;
+        d->m_semanticHighlighter->rerun(d->m_semanticInfo);
     }
-    if (m_d->m_outlineModelNeedsUpdate && !isSemanticInfoOutdated()) {
-        m_d->m_outlineModelNeedsUpdate = false;
-        m_d->m_updateOutlineModelTimer->start();
+    if (d->m_outlineModelNeedsUpdate && !isSemanticInfoOutdated()) {
+        d->m_outlineModelNeedsUpdate = false;
+        d->m_updateOutlineModelTimer.start();
     }
 }
 

@@ -68,7 +68,7 @@ protected:
 
 private:
     friend class Internal::QmlJSEditorDocumentPrivate; // sending signals
-    Internal::QmlJSEditorDocumentPrivate *m_d;
+    Internal::QmlJSEditorDocumentPrivate *d;
 };
 
 } // QmlJSEditor
