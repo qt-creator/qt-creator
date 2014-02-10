@@ -34,6 +34,12 @@
 #include <QMultiMap>
 #include <QDate>
 
+namespace Git {
+namespace Internal {
+class GitClient;
+}
+}
+
 namespace Gerrit {
 namespace Internal {
 
@@ -66,14 +72,16 @@ private:
     typedef QPair<QString, QDate> BranchDate;
     typedef QMultiMap<QString, BranchDate> RemoteBranchesMap;
 
+    QString determineRemoteBranch();
+    void initRemoteBranches();
     QString calculateChangeRange();
     QString m_workingDir;
-    QString m_suggestedRemoteName;
     QString m_suggestedRemoteBranch;
     Ui::GerritPushDialog *m_ui;
     RemoteBranchesMap m_remoteBranches;
     bool m_localChangesFound;
     bool m_valid;
+    Git::Internal::GitClient *m_client;
 };
 
 
