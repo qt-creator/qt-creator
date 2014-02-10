@@ -33,6 +33,7 @@
 
 #include "qnxconstants.h"
 #include "qnxdeviceprocesssignaloperation.h"
+#include "blackberrydeployqtlibrariesdialog.h"
 #include "blackberrydeviceconfigurationwidget.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "qnxdeviceprocesslist.h"
@@ -47,6 +48,7 @@ using namespace ProjectExplorer;
 namespace {
 const char ConnectToDeviceActionId[]      = "Qnx.BlackBerry.ConnectToDeviceAction";
 const char DisconnectFromDeviceActionId[] = "Qnx.BlackBerry.DisconnectFromDeviceAction";
+const char DeployQtLibrariesActionId[]    = "Qnx.BlackBerry.DeployQtLibrariesAction";
 }
 
 BlackBerryDeviceConfiguration::BlackBerryDeviceConfiguration()
@@ -127,7 +129,8 @@ IDeviceWidget *BlackBerryDeviceConfiguration::createWidget()
 QList<Core::Id> BlackBerryDeviceConfiguration::actionIds() const
 {
     return QList<Core::Id>() << Core::Id(ConnectToDeviceActionId)
-                             << Core::Id(DisconnectFromDeviceActionId);
+                             << Core::Id(DisconnectFromDeviceActionId)
+                             << Core::Id(DeployQtLibrariesActionId);
 }
 
 QString BlackBerryDeviceConfiguration::displayNameForActionId(Core::Id actionId) const
@@ -136,6 +139,8 @@ QString BlackBerryDeviceConfiguration::displayNameForActionId(Core::Id actionId)
         return tr("Connect to device");
     else if (actionId == Core::Id(DisconnectFromDeviceActionId))
         return tr("Disconnect from device");
+    else if (actionId == Core::Id(DeployQtLibrariesActionId))
+        return tr("Deploy Qt libraries...");
 
     return QString();
 }
@@ -149,11 +154,15 @@ void BlackBerryDeviceConfiguration::executeAction(Core::Id actionId, QWidget *pa
 
     BlackBerryDeviceConnectionManager *connectionManager =
             BlackBerryDeviceConnectionManager::instance();
-    if (actionId == Core::Id(ConnectToDeviceActionId))
+    if (actionId == Core::Id(ConnectToDeviceActionId)) {
         connectionManager->connectDevice(device);
-    else if (actionId == Core::Id(DisconnectFromDeviceActionId)
-             && connectionManager->isConnected(id()))
+    } else if (actionId == Core::Id(DisconnectFromDeviceActionId)
+             && connectionManager->isConnected(id())) {
         connectionManager->disconnectDevice(device);
+    } else if (actionId == Core::Id(DeployQtLibrariesActionId)) {
+        BlackBerryDeployQtLibrariesDialog dialog(device, parent);
+        dialog.exec();
+    }
 }
 
 QVariantMap BlackBerryDeviceConfiguration::toMap() const
