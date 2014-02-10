@@ -36,6 +36,7 @@
 #include "blackberryconfiguration.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "blackberrysigningutils.h"
+#include "blackberrydebugtokenreader.h"
 #include "qnxconstants.h"
 #include "qnxutils.h"
 
@@ -48,6 +49,7 @@
 #include <QProgressDialog>
 #include <QMessageBox>
 #include <QFileInfo>
+#include <QFileDialog>
 #include <QDir>
 #include <QAbstractButton>
 
@@ -81,6 +83,7 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
     connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceAboutToConnect(Core::Id)),
             this, SLOT(clearConnectionLog(Core::Id)));
 
+    connect(ui->importButton, SIGNAL(clicked()), this, SLOT(importDebugToken()));
     connect(ui->requestButton, SIGNAL(clicked()), this, SLOT(requestDebugToken()));
     connect(ui->uploadButton, SIGNAL(clicked()), this, SLOT(uploadDebugToken()));
 
@@ -125,6 +128,26 @@ void BlackBerryDeviceConfigurationWidget::showPassword(bool showClearText)
 void BlackBerryDeviceConfigurationWidget::debugTokenEditingFinished()
 {
     deviceConfiguration()->setDebugToken(ui->debugToken->currentText());
+}
+
+void BlackBerryDeviceConfigurationWidget::importDebugToken()
+{
+    const QString debugToken = QFileDialog::getOpenFileName(this, tr("Select Debug Token"),
+                                                            QString(), tr("Bar file (*.bar)"));
+
+    if (debugToken.isEmpty())
+        return;
+
+    BlackBerryDebugTokenReader debugTokenReader(debugToken);
+    if (!debugTokenReader.isValid()) {
+        QMessageBox::warning(this, tr("Invalid Debug Token"),
+                             tr("Debug token file %1 cannot be read.").arg(debugToken));
+        return;
+    }
+
+    m_utils.addDebugToken(debugToken);
+    populateDebugTokenCombo(debugToken);
+    debugTokenEditingFinished();
 }
 
 void BlackBerryDeviceConfigurationWidget::requestDebugToken()

@@ -32,6 +32,7 @@
 #include "blackberrydeviceconfigurationwizardpages.h"
 #include "blackberryconfiguration.h"
 #include "blackberrydebugtokenrequestdialog.h"
+#include "blackberrydebugtokenreader.h"
 #include "blackberrysshkeysgenerator.h"
 #include "blackberrydeviceinformation.h"
 #include "ui_blackberrydeviceconfigurationwizardsetuppage.h"
@@ -364,6 +365,7 @@ BlackBerryDeviceConfigurationWizardConfigPage::BlackBerryDeviceConfigurationWiza
     connect(m_ui->configurationNameField, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->debugTokenCombo, SIGNAL(currentTextChanged(QString)), this, SIGNAL(completeChanged()));
     connect(m_ui->generateButton, SIGNAL(clicked()), this, SLOT(generateDebugToken()));
+    connect(m_ui->importButton, SIGNAL(clicked()), this, SLOT(importDebugToken()));
 
     registerField(QLatin1String(CONFIGURATIONNAME_FIELD_ID), m_ui->configurationNameField);
     registerField(QLatin1String(DEBUGTOKENPATH_FIELD_ID), m_ui->debugTokenCombo);
@@ -407,6 +409,31 @@ void BlackBerryDeviceConfigurationWizardConfigPage::generateDebugToken()
 
     m_utils.addDebugToken(dialog.debugToken());
     m_ui->debugTokenCombo->addItem(dialog.debugToken());
+    const int index = m_ui->debugTokenCombo->findText(dialog.debugToken());
+    if (index != -1)
+        m_ui->debugTokenCombo->setCurrentIndex(index);
+}
+
+void BlackBerryDeviceConfigurationWizardConfigPage::importDebugToken()
+{
+    const QString debugToken = QFileDialog::getOpenFileName(this, tr("Select Debug Token"),
+                                                            QString(), tr("Bar file (*.bar)"));
+
+    if (debugToken.isEmpty())
+        return;
+
+    BlackBerryDebugTokenReader debugTokenReader(debugToken);
+    if (!debugTokenReader.isValid()) {
+        QMessageBox::warning(this, tr("Invalid Debug Token"),
+                             tr("Debug token file %1 cannot be read.").arg(debugToken));
+        return;
+    }
+
+    m_utils.addDebugToken(debugToken);
+    m_ui->debugTokenCombo->addItem(debugToken);
+    const int index = m_ui->debugTokenCombo->findText(debugToken);
+    if (index != -1)
+        m_ui->debugTokenCombo->setCurrentIndex(index);
 }
 
 QString BlackBerryDeviceConfigurationWizardConfigPage::configurationName() const

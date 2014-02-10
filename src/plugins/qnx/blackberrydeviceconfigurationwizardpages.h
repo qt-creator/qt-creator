@@ -146,6 +146,7 @@ public:
     QString debugToken() const;
 private slots:
     void generateDebugToken();
+    void importDebugToken();
 
 private:
     Ui::BlackBerryDeviceConfigurationWizardConfigPage *m_ui;

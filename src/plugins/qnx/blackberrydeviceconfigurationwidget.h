@@ -66,6 +66,7 @@ private slots:
     void keyFileEditingFinished();
     void showPassword(bool showClearText);
     void debugTokenEditingFinished();
+    void importDebugToken();
     void requestDebugToken();
     void uploadDebugToken();
     void updateUploadButton();

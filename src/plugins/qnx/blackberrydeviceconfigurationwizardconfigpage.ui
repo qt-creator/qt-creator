@@ -27,7 +27,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
+      <item row="2" column="3">
        <widget class="QPushButton" name="generateButton">
         <property name="text">
          <string>Generate</string>
@@ -47,7 +47,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="3">
+      <item row="4" column="0" colspan="4">
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
@@ -59,6 +59,13 @@
         </property>
         <property name="wordWrap">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="importButton">
+        <property name="text">
+         <string>Import</string>
         </property>
        </widget>
       </item>

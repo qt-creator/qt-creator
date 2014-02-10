@@ -115,6 +115,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="importButton">
+       <property name="text">
+        <string>Import</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="requestButton">
        <property name="text">
         <string>Request</string>
