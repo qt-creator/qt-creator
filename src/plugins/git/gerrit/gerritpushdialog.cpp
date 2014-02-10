@@ -156,7 +156,7 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     } else {
         connect(m_ui->remoteComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setRemoteBranches()));
     }
-    connect(m_ui->branchComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setChangeRange()));
+    connect(m_ui->targetBranchComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setChangeRange()));
     setRemoteBranches();
     m_ui->reviewersLineEdit->setText(reviewerList);
 
@@ -195,7 +195,7 @@ QString GerritPushDialog::calculateChangeRange()
 
 void GerritPushDialog::setChangeRange()
 {
-    if (m_ui->branchComboBox->itemData(m_ui->branchComboBox->currentIndex()) == 1) {
+    if (m_ui->targetBranchComboBox->itemData(m_ui->targetBranchComboBox->currentIndex()) == 1) {
         setRemoteBranches(true);
         return;
     }
@@ -218,8 +218,8 @@ bool GerritPushDialog::valid() const
 
 void GerritPushDialog::setRemoteBranches(bool includeOld)
 {
-    bool blocked = m_ui->branchComboBox->blockSignals(true);
-    m_ui->branchComboBox->clear();
+    bool blocked = m_ui->targetBranchComboBox->blockSignals(true);
+    m_ui->targetBranchComboBox->clear();
 
     int i = 0;
     bool excluded = false;
@@ -230,9 +230,9 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
             const BranchDate &bd = it.value();
             const bool isSuggested = bd.first == m_suggestedRemoteBranch;
             if (includeOld || bd.second.daysTo(QDate::currentDate()) <= 60 || isSuggested) {
-                m_ui->branchComboBox->addItem(bd.first);
+                m_ui->targetBranchComboBox->addItem(bd.first);
                 if (isSuggested)
-                    m_ui->branchComboBox->setCurrentIndex(i);
+                    m_ui->targetBranchComboBox->setCurrentIndex(i);
                 ++i;
             } else {
                 excluded = true;
@@ -240,9 +240,9 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
         }
     }
     if (excluded)
-        m_ui->branchComboBox->addItem(tr("... Include older branches ..."), 1);
+        m_ui->targetBranchComboBox->addItem(tr("... Include older branches ..."), 1);
     setChangeRange();
-    m_ui->branchComboBox->blockSignals(blocked);
+    m_ui->targetBranchComboBox->blockSignals(blocked);
 }
 
 QString GerritPushDialog::selectedRemoteName() const
@@ -252,7 +252,7 @@ QString GerritPushDialog::selectedRemoteName() const
 
 QString GerritPushDialog::selectedRemoteBranchName() const
 {
-    return m_ui->branchComboBox->currentText();
+    return m_ui->targetBranchComboBox->currentText();
 }
 
 QString GerritPushDialog::selectedPushType() const

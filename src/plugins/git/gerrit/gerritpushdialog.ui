@@ -60,17 +60,17 @@
        <widget class="QComboBox" name="remoteComboBox"/>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="branchLabel">
+       <widget class="QLabel" name="targetBranchLabel">
         <property name="text">
-         <string>&amp;Branch:</string>
+         <string>Target &amp;branch:</string>
         </property>
         <property name="buddy">
-         <cstring>branchComboBox</cstring>
+         <cstring>targetBranchComboBox</cstring>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QComboBox" name="branchComboBox"/>
+       <widget class="QComboBox" name="targetBranchComboBox"/>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="topicLabel">
