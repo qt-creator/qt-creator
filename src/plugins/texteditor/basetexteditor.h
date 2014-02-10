@@ -184,6 +184,9 @@ public:
     void setMouseNavigationEnabled(bool b);
     bool mouseNavigationEnabled() const;
 
+    void setMouseHidingEnabled(bool b);
+    bool mouseHidingEnabled() const;
+
     void setScrollWheelZoomingEnabled(bool b);
     bool scrollWheelZoomingEnabled() const;
 

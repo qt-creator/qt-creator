@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>802</width>
-    <height>441</height>
+    <width>801</width>
+    <height>459</height>
    </rect>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
@@ -329,6 +329,13 @@ Specifies how backspace interacts with indentation.
         <string>Mouse and Keyboard</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QCheckBox" name="mouseHiding">
+          <property name="text">
+           <string>Hide mouse cursor while typing</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QCheckBox" name="mouseNavigation">
           <property name="text">

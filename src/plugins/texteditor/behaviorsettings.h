@@ -57,6 +57,7 @@ public:
 
     bool equals(const BehaviorSettings &bs) const;
 
+    bool m_mouseHiding;
     bool m_mouseNavigation;
     bool m_scrollWheelZooming;
     bool m_constrainHoverTooltips;

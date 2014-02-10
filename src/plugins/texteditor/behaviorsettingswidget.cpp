@@ -98,6 +98,8 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
             this, SLOT(slotStorageSettingsChanged()));
     connect(d->m_ui.cleanIndentation, SIGNAL(clicked(bool)),
             this, SLOT(slotStorageSettingsChanged()));
+    connect(d->m_ui.mouseHiding, SIGNAL(clicked()),
+            this, SLOT(slotBehaviorSettingsChanged()));
     connect(d->m_ui.mouseNavigation, SIGNAL(clicked()),
             this, SLOT(slotBehaviorSettingsChanged()));
     connect(d->m_ui.scrollWheelZooming, SIGNAL(clicked(bool)),
@@ -193,6 +195,7 @@ void BehaviorSettingsWidget::updateConstrainTooltipsBoxTooltip() const
 
 void BehaviorSettingsWidget::setAssignedBehaviorSettings(const BehaviorSettings &behaviorSettings)
 {
+    d->m_ui.mouseHiding->setChecked(behaviorSettings.m_mouseHiding);
     d->m_ui.mouseNavigation->setChecked(behaviorSettings.m_mouseNavigation);
     d->m_ui.scrollWheelZooming->setChecked(behaviorSettings.m_scrollWheelZooming);
     d->m_ui.constrainTooltipsBox->setCurrentIndex(behaviorSettings.m_constrainHoverTooltips ? 1 : 0);
@@ -203,6 +206,7 @@ void BehaviorSettingsWidget::setAssignedBehaviorSettings(const BehaviorSettings 
 
 void BehaviorSettingsWidget::assignedBehaviorSettings(BehaviorSettings *behaviorSettings) const
 {
+    behaviorSettings->m_mouseHiding = d->m_ui.mouseHiding->isChecked();
     behaviorSettings->m_mouseNavigation = d->m_ui.mouseNavigation->isChecked();
     behaviorSettings->m_scrollWheelZooming = d->m_ui.scrollWheelZooming->isChecked();
     behaviorSettings->m_constrainHoverTooltips = (d->m_ui.constrainTooltipsBox->currentIndex() == 1);

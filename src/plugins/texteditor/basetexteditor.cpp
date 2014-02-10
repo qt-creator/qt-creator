@@ -1508,7 +1508,7 @@ static inline bool isModifier(QKeyEvent *e)
 
 void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
 {
-    if (!isModifier(e))
+    if (!isModifier(e) && mouseHidingEnabled())
         viewport()->setCursor(Qt::BlankCursor);
     ToolTip::hide();
 
@@ -2266,6 +2266,16 @@ void BaseTextEditorWidget::setMouseNavigationEnabled(bool b)
 bool BaseTextEditorWidget::mouseNavigationEnabled() const
 {
     return d->m_behaviorSettings.m_mouseNavigation;
+}
+
+void BaseTextEditorWidget::setMouseHidingEnabled(bool b)
+{
+    d->m_behaviorSettings.m_mouseHiding = b;
+}
+
+bool BaseTextEditorWidget::mouseHidingEnabled() const
+{
+    return d->m_behaviorSettings.m_mouseHiding;
 }
 
 void BaseTextEditorWidget::setScrollWheelZoomingEnabled(bool b)
