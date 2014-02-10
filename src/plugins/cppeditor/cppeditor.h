@@ -77,11 +77,17 @@ class CPPEditorDocument : public TextEditor::BaseTextDocument
 public:
     CPPEditorDocument();
 
+    bool isObjCEnabled() const;
+
 protected:
     void applyFontSettings();
 
 private slots:
     void invalidateFormatterCache();
+    void onMimeTypeChanged();
+
+private:
+    bool m_isObjCEnabled;
 };
 
 class CPPEditor : public TextEditor::BaseTextEditor
@@ -113,6 +119,9 @@ public:
     CPPEditorWidget(QWidget *parent = 0);
     CPPEditorWidget(CPPEditorWidget *other);
     ~CPPEditorWidget();
+
+    CPPEditorDocument *cppEditorDocument() const;
+
     void unCommentSelection();
 
     unsigned editorRevision() const;
@@ -125,9 +134,6 @@ public:
     virtual void paste(); // reimplemented from BaseTextEditorWidget
     virtual void cut(); // reimplemented from BaseTextEditorWidget
     virtual void selectAll(); // reimplemented from BaseTextEditorWidget
-
-    void setObjCEnabled(bool onoff);
-    bool isObjCEnabled() const;
 
     bool openLink(const Link &link, bool inNextSplit) { return openCppEditorAt(link, inNextSplit); }
 
@@ -182,7 +188,6 @@ private slots:
     void updateFunctionDeclDefLinkNow();
     void onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link);
     void onFilePathChanged();
-    void onMimeTypeChanged();
     void onDocumentUpdated();
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
     void updatePreprocessorButtonTooltip();
@@ -230,6 +235,7 @@ private:
 
     QPointer<CppTools::CppModelManagerInterface> m_modelManager;
 
+    CPPEditorDocument *m_cppEditorDocument;
     QComboBox *m_outlineCombo;
     CPlusPlus::OverviewModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
@@ -250,7 +256,6 @@ private:
 
     CppTools::SemanticInfo m_lastSemanticInfo;
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
-    bool m_objcEnabled;
 
     QScopedPointer<QFutureWatcher<TextEditor::HighlightingResult> > m_highlightWatcher;
     unsigned m_highlightRevision; // the editor revision that requested the highlight

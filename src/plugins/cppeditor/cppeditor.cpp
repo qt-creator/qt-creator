@@ -526,11 +526,11 @@ CPPEditorWidget::CPPEditorWidget(CPPEditorWidget *other)
 
 void CPPEditorWidget::ctor()
 {
+    m_cppEditorDocument = qobject_cast<CPPEditorDocument *>(baseTextDocument());
     m_currentRenameSelection = NoCurrentRenameSelection;
     m_inRename = false;
     m_inRenameChanged = false;
     m_firstRenameChange = false;
-    m_objcEnabled = false;
     m_commentsSettings = CppTools::CppToolsSettings::instance()->commentsSettings();
     m_followSymbolUnderCursor.reset(new FollowSymbolUnderCursor(this));
     m_preprocessorButton = 0;
@@ -572,16 +572,18 @@ void CPPEditorWidget::ctor()
 
     connect(baseTextDocument(), SIGNAL(filePathChanged(QString,QString)),
             this, SLOT(onFilePathChanged()));
-    connect(baseTextDocument(), SIGNAL(mimeTypeChanged()),
-            this, SLOT(onMimeTypeChanged()));
     onFilePathChanged();
-    onMimeTypeChanged();
 }
 
 CPPEditorWidget::~CPPEditorWidget()
 {
     if (m_modelManager)
         m_modelManager->deleteCppEditorSupport(editor());
+}
+
+CPPEditorDocument *CPPEditorWidget::cppEditorDocument() const
+{
+    return m_cppEditorDocument;
 }
 
 TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
@@ -717,14 +719,6 @@ void CPPEditorWidget::selectAll()
 
     BaseTextEditorWidget::selectAll();
 }
-
-void CPPEditorWidget::setObjCEnabled(bool onoff)
-{
-    m_objcEnabled = onoff;
-}
-
-bool CPPEditorWidget::isObjCEnabled() const
-{ return m_objcEnabled; }
 
 void CPPEditorWidget::startRename()
 {
@@ -1822,13 +1816,6 @@ void CPPEditorWidget::onFilePathChanged()
     m_preprocessorButton->update();
 }
 
-void CPPEditorWidget::onMimeTypeChanged()
-{
-    const QString &mt = baseTextDocument()->mimeType();
-    setObjCEnabled(mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-                   || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
-}
-
 void CPPEditorWidget::applyDeclDefLinkChanges(bool jumpToMatch)
 {
     if (!m_declDefLink)
@@ -1985,7 +1972,15 @@ CPPEditorDocument::CPPEditorDocument()
 {
     connect(this, SIGNAL(tabSettingsChanged()),
             this, SLOT(invalidateFormatterCache()));
+    connect(this, SIGNAL(mimeTypeChanged()),
+            this, SLOT(onMimeTypeChanged()));
     setSyntaxHighlighter(new CppHighlighter);
+    onMimeTypeChanged();
+}
+
+bool CPPEditorDocument::isObjCEnabled() const
+{
+    return m_isObjCEnabled;
 }
 
 void CPPEditorDocument::applyFontSettings()
@@ -2006,6 +2001,13 @@ void CPPEditorDocument::invalidateFormatterCache()
 {
     CppTools::QtStyleCodeFormatter formatter;
     formatter.invalidateCache(document());
+}
+
+void CPPEditorDocument::onMimeTypeChanged()
+{
+    const QString &mt = mimeType();
+    m_isObjCEnabled = (mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+                   || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
 
 #include <cppeditor.moc>

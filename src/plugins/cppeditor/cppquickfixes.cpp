@@ -1388,7 +1388,7 @@ void ConvertCStringToNSString::match(const CppQuickFixInterface &interface,
 {
     CppRefactoringFilePtr file = interface->currentFile();
 
-    if (!interface->editor()->isObjCEnabled())
+    if (!interface->editor()->cppEditorDocument()->isObjCEnabled())
         return;
 
     WrapStringLiteral::Type type = WrapStringLiteral::TypeNone;
