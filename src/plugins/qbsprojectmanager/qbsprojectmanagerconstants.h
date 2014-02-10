@@ -48,6 +48,8 @@ const char ACTION_BUILD_FILE_CONTEXT[] = "Qbs.BuildFileCtx";
 const char ACTION_BUILD_FILE[] = "Qbs.BuildFile";
 const char ACTION_BUILD_PRODUCT_CONTEXT[] = "Qbs.BuildProductCtx";
 const char ACTION_BUILD_PRODUCT[] = "Qbs.BuildProduct";
+const char ACTION_BUILD_SUBPROJECT_CONTEXT[] = "Qbs.BuildSubprojectCtx";
+const char ACTION_BUILD_SUBPROJECT[] = "Qbs.BuildSubproduct";
 
 // Ids:
 const char QBS_BUILDSTEP_ID[] = "Qbs.BuildStep";

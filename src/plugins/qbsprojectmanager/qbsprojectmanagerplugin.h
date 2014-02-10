@@ -76,6 +76,8 @@ private slots:
     void buildFile();
     void buildProductContextMenu();
     void buildProduct();
+    void buildSubprojectContextMenu();
+    void buildSubproject();
 
     void reparseCurrentProject();
 
@@ -92,8 +94,10 @@ private:
     QAction *m_reparseQbsCtx;
     QAction *m_buildFileContextMenu;
     QAction *m_buildProductContextMenu;
+    QAction *m_buildSubprojectContextMenu;
     Utils::ParameterAction *m_buildFile;
     Utils::ParameterAction *m_buildProduct;
+    Utils::ParameterAction *m_buildSubproject;
 
     Internal::QbsProject *m_currentProject;
     ProjectExplorer::Target *m_currentTarget;
