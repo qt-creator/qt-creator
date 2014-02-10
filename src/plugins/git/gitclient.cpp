@@ -1866,7 +1866,8 @@ bool GitClient::synchronousRevListCmd(const QString &workingDirectory, const QSt
     QStringList args(QLatin1String("rev-list"));
     args << QLatin1String(noColorOption) << arguments;
 
-    const bool rc = fullySynchronousGit(workingDirectory, args, &outputTextData, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, args, &outputTextData, &errorText,
+                                        VcsBasePlugin::SuppressCommandLogging);
     if (!rc) {
         msgCannotRun(args, workingDirectory, errorText, errorMessage);
         return false;
