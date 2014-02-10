@@ -237,7 +237,7 @@ void QbsProjectManagerPlugin::updateBuildActions()
 
     QString file;
 
-    if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
+    if (Core::IDocument *currentDocument = Core::EditorManager::currentDocument()) {
         file = currentDocument->filePath();
         Node *node  = SessionManager::nodeForFile(file);
         Project *project = qobject_cast<QbsProject *>(SessionManager::projectForFile(file));
