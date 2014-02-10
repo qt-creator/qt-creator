@@ -128,7 +128,7 @@ bool BasicTimelineModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventDat
     if (event.eventType == QmlDebug::Painting)
         return (event.bindingType == QmlDebug::QPainterEvent);
 
-    return (event.eventType <= QmlDebug::HandlingSignal);
+    return (event.eventType <= QmlDebug::Javascript);
 }
 
 void BasicTimelineModel::loadData()
@@ -265,7 +265,8 @@ void BasicTimelineModel::BasicTimelineModelPrivate::findBindingLoops()
 
         static QVector<QmlDebug::QmlEventType> acceptedTypes =
                 QVector<QmlDebug::QmlEventType>() << QmlDebug::Compiling << QmlDebug::Creating
-                                                  << QmlDebug::Binding << QmlDebug::HandlingSignal;
+                                                  << QmlDebug::Binding << QmlDebug::HandlingSignal
+                                                  << QmlDebug::Javascript;
 
         if (!acceptedTypes.contains(data.eventType))
             continue;
@@ -354,7 +355,7 @@ int BasicTimelineModel::categoryDepth(int categoryIndex) const
 
 int BasicTimelineModel::categoryCount() const
 {
-    return 5;
+    return 6;
 }
 
 const QString BasicTimelineModel::categoryLabel(int categoryIndex) const
@@ -365,6 +366,7 @@ const QString BasicTimelineModel::categoryLabel(int categoryIndex) const
     case 2: return QCoreApplication::translate("MainView", "Creating"); break;
     case 3: return QCoreApplication::translate("MainView", "Binding"); break;
     case 4: return QCoreApplication::translate("MainView", "Handling Signal"); break;
+    case 5: return QCoreApplication::translate("MainView", "Javascript"); break;
     default: return QString();
     }
 }
