@@ -6,10 +6,12 @@ QtcPlugin {
     name: "AnalyzerBase"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Utils" }
+    Depends { name: "QtcSsh" }
+
     Depends { name: "Core" }
     Depends { name: "CppTools" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QtcSsh" }
     Depends { name: "TextEditor" }
 
     files: [

@@ -6,11 +6,14 @@ QtcPlugin {
     name: "BareMetal"
     provider: "Sander"
 
+    Depends { name: "Qt"; submodules: ["network", "widgets"]; }
+    Depends { name: "QtcSsh" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
-    Depends { name: "Qt"; submodules: ["network", "widgets"]; }
 
     files: [
         "baremetalconstants.h",

@@ -6,11 +6,14 @@ QtcPlugin {
     name: "QmakeProjectManager"
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
+    Depends { name: "Aggregation" }
+    Depends { name: "QmlJS" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "CppTools" }
-    Depends { name: "QmlJS" }
     Depends { name: "TextEditor" }
     Depends { name: "QmlJSTools" }
 

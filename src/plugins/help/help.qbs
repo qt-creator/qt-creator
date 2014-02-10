@@ -10,8 +10,11 @@ QtcPlugin {
         condition: Qt.core.versionMajor >= 5;
         name: "Qt"; submodules: ["printsupport", "webkitwidgets"];
     }
+    Depends { name: "Aggregation" }
+    Depends { name: "Utils" }
 
     Depends { name: "Core" }
+
     Depends { name: "app_version_header" }
 
     cpp.defines: base.concat(["QT_CLUCENE_SUPPORT"])

@@ -6,6 +6,8 @@ QtcPlugin {
     name: "Subversion"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "VcsBase" }

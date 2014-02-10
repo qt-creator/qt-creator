@@ -1,6 +1,9 @@
 QTC_PLUGIN_NAME = QmakeProjectManager
 QTC_LIB_DEPENDS += \
-    qmljs
+    aggregation \
+    extensionsystem \
+    qmljs \
+    utils
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \

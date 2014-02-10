@@ -1,5 +1,6 @@
 QTC_PLUGIN_NAME = UpdateInfo
 QTC_LIB_DEPENDS += \
-    extensionsystem
+    extensionsystem \
+    utils
 QTC_PLUGIN_DEPENDS += \
     coreplugin

@@ -9,6 +9,8 @@ QtcPlugin {
     pluginspecreplacements: ({"CLEARCASE_DISABLED_STR": (qbs.targetOS.contains("osx") ? "true": "false")})
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }

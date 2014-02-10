@@ -6,6 +6,8 @@ QtcPlugin {
     name: "CodePaster"
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
 

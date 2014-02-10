@@ -9,4 +9,8 @@ QTC_PLUGIN_DEPENDS += \
     analyzerbase
 
 QTC_LIB_DEPENDS += \
+    aggregation \
+    extensionsystem \
+    qmldebug \
+    ssh \
     utils

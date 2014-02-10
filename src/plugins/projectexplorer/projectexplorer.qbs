@@ -8,9 +8,12 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script"] }
     Depends { name: "Qt.quick"; condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1"); }
+    Depends { name: "Aggregation" }
+    Depends { name: "QtcSsh" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
-    Depends { name: "QtcSsh" }
 
     cpp.defines: base.concat("QTC_CPU=X86Architecture")
     Properties {

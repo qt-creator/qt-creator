@@ -6,13 +6,16 @@ QtcPlugin {
     name: "QmlJSTools"
 
     Depends { name: "Qt"; submodules: ["script", "widgets"] }
-    Depends { name: "Core" }
+    Depends { name: "Aggregation" }
+    Depends { name: "CPlusPlus" }
     Depends { name: "LanguageUtils" }
-    Depends { name: "CppTools" }
     Depends { name: "QmlJS" }
+    Depends { name: "Utils" }
+
+    Depends { name: "Core" }
+    Depends { name: "CppTools" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
-    Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
 
     files: [

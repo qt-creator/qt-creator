@@ -8,10 +8,12 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets"]; }
     Depends { name: "Qt.quick"; condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1"); }
+    Depends { name: "Aggregation" }
+    Depends { name: "QmlJS" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "TextEditor" }
-    Depends { name: "QmlJS" }
     Depends { name: "CppTools" }
 
     cpp.includePaths: base.concat([

@@ -6,9 +6,11 @@ QtcPlugin {
     name: "ClassView"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "CPlusPlus" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "CppTools" }
-    Depends { name: "CPlusPlus" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
 

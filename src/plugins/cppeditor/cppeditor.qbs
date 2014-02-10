@@ -7,11 +7,15 @@ QtcPlugin {
     name: "CppEditor"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Aggregation" }
+    Depends { name: "CPlusPlus" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "CppTools" }
-    Depends { name: "CPlusPlus" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
+
     Depends { name: "app_version_header" }
 
     files: [

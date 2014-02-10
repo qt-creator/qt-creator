@@ -6,14 +6,16 @@ QtcPlugin {
     name: "QmlJSEditor"
 
     Depends { name: "Qt"; submodules: ["widgets", "script"] }
+    Depends { name: "Aggregation" }
+    Depends { name: "LanguageUtils" }
+    Depends { name: "Utils" }
+    Depends { name: "QmlEditorWidgets" }
+    Depends { name: "QmlJS" }
+
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlJSTools" }
-    Depends { name: "QmlJS" }
-    Depends { name: "LanguageUtils" }
-    Depends { name: "QmlEditorWidgets" }
-    Depends { name: "CPlusPlus" }
 
     files: [
         "jsfilewizard.cpp",

@@ -7,11 +7,13 @@ QtcPlugin {
     name: "CppTools"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Aggregation" }
+    Depends { name: "CPlusPlus" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "CPlusPlus" }
-    Depends { name: "LanguageUtils" }
 
     cpp.defines: base
     Properties {

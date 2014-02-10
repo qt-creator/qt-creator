@@ -13,6 +13,7 @@ QtcPlugin {
     }
     Depends { name: "Utils" }
     Depends { name: "Aggregation" }
+
     Depends { name: "app_version_header" }
 
     cpp.dynamicLibraries: {

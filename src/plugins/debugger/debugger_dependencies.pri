@@ -1,6 +1,9 @@
 QTC_PLUGIN_NAME = Debugger
 QTC_LIB_DEPENDS += \
+    aggregation \
     cplusplus \
+    extensionsystem \
+    languageutils \
     utils \
     qmldebug \
     qmljs \

@@ -6,9 +6,10 @@ QtcPlugin {
     name: "PythonEditor"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
-    Depends { name: "CppTools" }
     Depends { name: "QtSupport" }
     Depends { name: "ProjectExplorer" }
 

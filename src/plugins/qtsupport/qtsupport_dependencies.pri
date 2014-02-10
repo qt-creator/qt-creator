@@ -1,12 +1,13 @@
 QTC_PLUGIN_NAME = QtSupport
 QTC_LIB_DEPENDS += \
+    aggregation \
+    extensionsystem \
     qmljs \
     utils
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     cpptools \
-    projectexplorer \
-    texteditor
+    projectexplorer
 DEFINES *= \
     QMAKE_AS_LIBRARY \
     PROPARSER_THREAD_SAFE \

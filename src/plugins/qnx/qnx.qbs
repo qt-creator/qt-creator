@@ -6,16 +6,19 @@ QtcPlugin {
     name: "Qnx"
     provider: "BlackBerry"
 
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
+    Depends { name: "QtcSsh" }
+    Depends { name: "QmlDebug" }
+    Depends { name: "Utils" }
+
+    Depends { name: "AnalyzerBase" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
     Depends { name: "QmakeProjectManager" }
     Depends { name: "RemoteLinux" }
     Depends { name: "TextEditor" }
-    Depends { name: "QmlDebug" }
-    Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     files: [
         "bardescriptordocument.cpp",

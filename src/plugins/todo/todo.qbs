@@ -6,12 +6,13 @@ QtcPlugin {
     name: "Todo"
 
     Depends { name: "Qt.widgets" }
-    Depends { name: "Core" }
-    Depends { name: "TextEditor" }
-    Depends { name: "ProjectExplorer" }
     Depends { name: "CPlusPlus" }
-    Depends { name: "CppTools" }
     Depends { name: "QmlJS" }
+    Depends { name: "Utils" }
+
+    Depends { name: "Core" }
+    Depends { name: "ProjectExplorer" }
+    Depends { name: "CppTools" }
 
     files: [
         "constants.h",

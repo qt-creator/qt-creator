@@ -5,8 +5,11 @@ import QtcPlugin
 QtcPlugin {
     name: "ResourceEditor"
 
-    Depends { name: "Core" }
     Depends { name: "Qt"; submodules: ["widgets", "xml"] }
+    Depends { name: "Aggregation" }
+    Depends { name: "Utils" }
+
+    Depends { name: "Core" }
 
     Group {
         name: "General"

@@ -30,15 +30,10 @@ QtcPlugin {
 
     condition: project.buildQbsProjectManager
 
-    Depends { name: "Qt"; submodules: [ "widgets", "script" ] }
-    Depends { name: "ProjectExplorer" }
-    Depends { name: "Core" }
-    Depends { name: "CppTools" }
-    Depends { name: "TextEditor" }
-    Depends { name: "QtSupport" }
-    Depends { name: "QmlJS" }
-    Depends { name: "QmlJSTools" }
     property bool useInternalQbsProducts: project.qbsSubModuleExists && !project.useExternalQbs
+
+    Depends { name: "Qt"; submodules: [ "widgets", "script" ] }
+    Depends { name: "Aggregation" }
     Depends {
         name: "qbscore"
         condition: product.useInternalQbsProducts
@@ -47,6 +42,14 @@ QtcPlugin {
         name: "qbsqtprofilesetup"
         condition: product.useInternalQbsProducts
     }
+    Depends { name: "QmlJS" }
+    Depends { name: "Utils" }
+
+    Depends { name: "ProjectExplorer" }
+    Depends { name: "Core" }
+    Depends { name: "CppTools" }
+    Depends { name: "QtSupport" }
+    Depends { name: "QmlJSTools" }
 
     cpp.defines: base.concat([
         'QML_BUILD_STATIC_LIB',

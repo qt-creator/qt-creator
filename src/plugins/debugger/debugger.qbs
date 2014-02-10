@@ -6,15 +6,18 @@ QtcPlugin {
     name: "Debugger"
 
     Depends { name: "Qt"; submodules: ["widgets", "network", "script"] }
+    Depends { name: "Aggregation" }
+    Depends { name: "CPlusPlus" }
+    Depends { name: "QtcSsh" }
+    Depends { name: "QmlDebug" }
+    Depends { name: "LanguageUtils" }
+    Depends { name: "QmlJS" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "CppTools" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
-    Depends { name: "CPlusPlus" }
-    Depends { name: "QmlJS" }
-    Depends { name: "QmlDebug" }
-    Depends { name: "QtcSsh" }
-    Depends { name: "Utils" }
 
     cpp.includePaths: base.concat(["../../shared/registryaccess"])
 

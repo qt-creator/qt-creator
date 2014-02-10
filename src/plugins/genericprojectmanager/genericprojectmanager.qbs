@@ -6,8 +6,9 @@ QtcPlugin {
     name: "GenericProjectManager"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
-    Depends { name: "CPlusPlus" }
     Depends { name: "CppTools" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }

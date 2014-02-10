@@ -6,9 +6,10 @@ QtcPlugin {
     name: "TaskList"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "TextEditor" }
 
     files: [
         "stopmonitoringhandler.cpp",

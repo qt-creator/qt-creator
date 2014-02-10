@@ -6,6 +6,9 @@ QtcPlugin {
     name: "TextEditor"
 
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script", "printsupport"] }
+    Depends { name: "Aggregation" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
 
     cpp.includePaths: base.concat([path]) // Needed for the highlighterengine autotest.

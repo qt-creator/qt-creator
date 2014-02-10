@@ -5,9 +5,12 @@ import QtcPlugin
 QtcPlugin {
     name: "FakeVim"
 
+    Depends { name: "Qt.widgets" }
+    Depends { name: "Aggregation" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
-    Depends { name: "Qt.widgets" }
 
     files: [
         "fakevimactions.cpp",

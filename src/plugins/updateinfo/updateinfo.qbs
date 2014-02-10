@@ -5,8 +5,10 @@ import QtcPlugin
 QtcPlugin {
     name: "UpdateInfo"
 
-    Depends { name: "Core" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
+    Depends { name: "Utils" }
+
+    Depends { name: "Core" }
 
     property bool enable: false
     pluginspecreplacements: ({"UPDATEINFO_EXPERIMENTAL_STR": (enable ? "false": "true")})

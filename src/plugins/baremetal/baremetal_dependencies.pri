@@ -1,7 +1,8 @@
 QTC_PLUGIN_NAME = BareMetal
 QTC_LIB_DEPENDS += \
-    # nothing here at this time
-
+    extensionsystem \
+    ssh \
+    utils
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     debugger \

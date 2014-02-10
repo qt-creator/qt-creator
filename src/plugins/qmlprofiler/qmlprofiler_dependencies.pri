@@ -1,11 +1,14 @@
 QTC_PLUGIN_NAME = QmlProfiler
 QTC_LIB_DEPENDS += \
+    aggregation \
+    extensionsystem \
     qmldebug \
-    extensionsystem
+    qmljs \
+    ssh \
+    utils
 QTC_PLUGIN_DEPENDS += \
     analyzerbase \
     coreplugin \
     projectexplorer \
-    qmljstools \
     qtsupport \
     texteditor

@@ -6,13 +6,15 @@ QtcPlugin {
     name: "RemoteLinux"
 
     Depends { name: "Qt.widgets" }
+    Depends { name: "QtcSsh" }
+    Depends { name: "QmlDebug" }
+    Depends { name: "Utils" }
+
     Depends { name: "AnalyzerBase" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
-    Depends { name: "QtcSsh" }
 
     files: [
         "abstractpackagingstep.cpp",

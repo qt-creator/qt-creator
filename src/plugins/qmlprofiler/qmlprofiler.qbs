@@ -8,17 +8,17 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Qt.quick"; condition: product.condition; }
+    Depends { name: "Aggregation" }
+    Depends { name: "QmlJS" }
+    Depends { name: "QmlDebug" }
+    Depends { name: "QtcSsh" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "AnalyzerBase" }
-    Depends { name: "QmakeProjectManager" }
-    Depends { name: "RemoteLinux" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
-    Depends { name: "QmlDebug" }
-    Depends { name: "QmlJS" }
-    Depends { name: "QmlJSTools" }
-    Depends { name: "CPlusPlus" }
 
     Group {
         name: "General"

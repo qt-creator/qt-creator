@@ -6,15 +6,13 @@ QtcPlugin {
     name: "QmlProjectManager"
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
+    Depends { name: "QmlJS" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "TextEditor" }
-    Depends { name: "QmlJSEditor" }
-    Depends { name: "QmlJS" }
     Depends { name: "QmlJSTools" }
-    Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
-    Depends { name: "app_version_header" }
 
     Group {
         name: "General"

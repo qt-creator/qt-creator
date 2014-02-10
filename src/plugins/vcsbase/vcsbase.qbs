@@ -5,12 +5,15 @@ import QtcPlugin
 QtcPlugin {
     name: "VcsBase"
 
+    Depends { name: "Qt.widgets" }
+    Depends { name: "Aggregation" }
+    Depends { name: "CPlusPlus" }
+    Depends { name: "Utils" }
+
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "Qt.widgets" }
     Depends { name: "CppTools" }
-    Depends { name: "CPlusPlus" }
 
     files: [
         "baseannotationhighlighter.cpp",
