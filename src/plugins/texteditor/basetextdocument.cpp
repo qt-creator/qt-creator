@@ -64,8 +64,9 @@ using namespace Core;
 */
 
 namespace TextEditor {
-class BaseTextDocumentPrivate
+class BaseTextDocumentPrivate : public QObject
 {
+    Q_OBJECT
 public:
     explicit BaseTextDocumentPrivate(BaseTextDocument *q);
 
@@ -73,6 +74,10 @@ public:
     void resetRevisions();
     void updateRevisions();
 
+public slots:
+    void onModificationChanged(bool modified);
+
+public:
     QString m_defaultPath;
     QString m_suggestedFileName;
     QString m_mimeType;
@@ -179,8 +184,17 @@ void BaseTextDocumentPrivate::updateRevisions()
     }
 }
 
+void BaseTextDocumentPrivate::onModificationChanged(bool modified)
+{
+    // we only want to update the block revisions when going back to the saved version,
+    // e.g. with undo
+    if (!modified)
+        updateRevisions();
+}
+
 BaseTextDocument::BaseTextDocument() : d(new BaseTextDocumentPrivate(this))
 {
+    connect(d->m_document, SIGNAL(modificationChanged(bool)), d, SLOT(onModificationChanged(bool)));
     connect(d->m_document, SIGNAL(modificationChanged(bool)), this, SIGNAL(changed()));
     connect(d->m_document, SIGNAL(contentsChanged()), this, SIGNAL(contentsChanged()));
 
@@ -468,8 +482,7 @@ bool BaseTextDocument::save(QString *errorString, const QString &saveFileName, b
 
     // inform about the new filename
     const QFileInfo fi(fName);
-    d->updateRevisions();
-    d->m_document->setModified(false);
+    d->m_document->setModified(false); // also triggers update of the block revisions
     setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
     emit changed();
     return true;
@@ -686,3 +699,5 @@ void BaseTextDocument::ensureFinalNewLine(QTextCursor& cursor)
 }
 
 } // namespace TextEditor
+
+#include "basetextdocument.moc"
