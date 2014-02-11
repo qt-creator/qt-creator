@@ -249,7 +249,7 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
     }
 
     foreach (const QFileInfo &fi, suspects) {
-        if (fi.exists()) {
+        if (fi.exists() && fi.isExecutable()) {
             FileName command = FileName::fromString(fi.absoluteFilePath());
             if (findByCommand(command))
                 continue;
