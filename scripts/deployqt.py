@@ -215,6 +215,25 @@ def copy_translations(install_dir, qt_tr_dir):
         print translation, '->', tr_dir
         shutil.copy(translation, tr_dir)
 
+def copy_libclang(install_dir, llvm_install_dir):
+    libsource = ""
+    libtarget = ""
+    if sys.platform.startswith("win"):
+        libsource = os.path.join(llvm_install_dir, 'bin', 'libclang.dll')
+        libtarget = os.path.join(install_dir, 'bin')
+    else:
+        libsource = os.path.join(llvm_install_dir, 'lib', 'libclang.so')
+        libtarget = os.path.join(install_dir, 'lib', 'qtcreator')
+    resourcesource = os.path.join(llvm_install_dir, 'lib', 'clang')
+    resourcetarget = os.path.join(install_dir, 'share', 'qtcreator', 'cplusplus', 'clang')
+    print "copying libclang..."
+    print libsource, '->', libtarget
+    shutil.copy(libsource, libtarget)
+    print resourcesource, '->', resourcetarget
+    if (os.path.exists(resourcetarget)):
+        shutil.rmtree(resourcetarget)
+    shutil.copytree(resourcesource, resourcetarget, symlinks=True)
+
 def readQmakeVar(qmake_bin, var):
     pipe = os.popen(' '.join([qmake_bin, '-query', var]))
     return pipe.read().rstrip('\n')
@@ -274,6 +293,8 @@ def main():
     else:
       copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
+    if os.environ["LLVM_INSTALL_DIR"]:
+      copy_libclang(install_dir, os.environ["LLVM_INSTALL_DIR"])
 
     if not sys.platform.startswith('win'):
         fix_rpaths(chrpath_bin, install_dir)
