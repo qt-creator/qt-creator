@@ -29,12 +29,20 @@
 
 #include "qnxanalyzesupport.h"
 
+#include "qnxdeviceconfiguration.h"
+#include "qnxrunconfiguration.h"
+#include "slog2inforunner.h"
+
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerstartparameters.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+
+#include <QFileInfo>
 
 using namespace ProjectExplorer;
 
@@ -59,6 +67,16 @@ QnxAnalyzeSupport::QnxAnalyzeSupport(QnxRunConfiguration *runConfig,
             SLOT(handleAdapterSetupRequested()));
     connect(&m_outputParser, SIGNAL(waitingForConnectionOnPort(quint16)),
             SLOT(remoteIsRunning()));
+
+    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit());
+    QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
+
+    const QString applicationId = QFileInfo(runConfig->remoteExecutableFilePath()).fileName();
+    m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
+    connect(m_slog2Info, SIGNAL(output(QString,Utils::OutputFormat)), this, SLOT(showMessage(QString,Utils::OutputFormat)));
+    connect(runner, SIGNAL(remoteProcessStarted()), m_slog2Info, SLOT(start()));
+    if (qnxDevice->qnxVersion() > 0x060500)
+        connect(m_slog2Info, SIGNAL(commandMissing()), this, SLOT(printMissingWarning()));
 }
 
 void QnxAnalyzeSupport::handleAdapterSetupRequested()
@@ -89,13 +107,15 @@ void QnxAnalyzeSupport::startExecution()
 
 void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)
 {
-    if (m_runControl || state() == Inactive)
+    if (!m_runControl)
         return;
 
     if (!success)
         showMessage(tr("The %1 process closed unexpectedly.").arg(executable()),
                     Utils::NormalMessageFormat);
     m_runControl->notifyRemoteFinished(success);
+
+    m_slog2Info->stop();
 }
 
 void QnxAnalyzeSupport::handleProfilingFinished()
@@ -136,4 +156,9 @@ void QnxAnalyzeSupport::showMessage(const QString &msg, Utils::OutputFormat form
     if (state() != Inactive && m_runControl)
         m_runControl->logApplicationMessage(msg, format);
     m_outputParser.processOutput(msg);
+}
+
+void QnxAnalyzeSupport::printMissingWarning()
+{
+    showMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available!"), Utils::ErrorMessageFormat);
 }

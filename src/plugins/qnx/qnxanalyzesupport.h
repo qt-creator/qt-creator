@@ -42,6 +42,7 @@ namespace Qnx {
 namespace Internal {
 
 class QnxRunConfiguration;
+class Slog2InfoRunner;
 
 class QnxAnalyzeSupport : public QnxAbstractRunSupport
 {
@@ -60,15 +61,19 @@ private slots:
     void handleRemoteOutput(const QByteArray &output);
     void handleError(const QString &error);
 
+    void showMessage(const QString &, Utils::OutputFormat);
+    void printMissingWarning();
+
     void remoteIsRunning();
 
 private:
     void startExecution();
-    void showMessage(const QString &, Utils::OutputFormat);
 
     Analyzer::AnalyzerRunControl *m_runControl;
     QmlDebug::QmlOutputParser m_outputParser;
     int m_qmlPort;
+
+    Slog2InfoRunner *m_slog2Info;
 };
 
 } // namespace Internal
