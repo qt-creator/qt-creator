@@ -48,7 +48,7 @@ namespace Utils { struct SynchronousProcessResponse; }
 namespace Core {
 class IVersionControl;
 class Id;
-class IEditor;
+class IDocument;
 }
 
 namespace VcsBase {
@@ -157,9 +157,9 @@ public:
     static bool isSshPromptConfigured();
 
     // Sets the source of editor contents, can be directory or file.
-    static void setSource(Core::IEditor *editor, const QString &source);
+    static void setSource(Core::IDocument *document, const QString &source);
     // Returns the source of editor contents.
-    static QString source(Core::IEditor *editor);
+    static QString source(Core::IDocument *document);
 
     // Convenience to synchronously run VCS commands
     enum RunVcsFlags {

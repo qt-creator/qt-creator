@@ -34,9 +34,6 @@
 #include <QCoreApplication>
 
 namespace DiffEditor {
-namespace Internal {
-
-///////////////////////////////// DiffFile //////////////////////////////////
 
 DiffEditorDocument::DiffEditorDocument(const QString &mimeType) :
     Core::IDocument(),
@@ -51,7 +48,7 @@ DiffEditorDocument::~DiffEditorDocument()
 {
 }
 
-DiffEditorController *DiffEditorDocument::diffEditorController() const
+DiffEditorController *DiffEditorDocument::controller() const
 {
     return m_diffEditorController;
 }
@@ -90,5 +87,4 @@ bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeTyp
     return false;
 }
 
-} // namespace Internal
 } // namespace DiffEditor

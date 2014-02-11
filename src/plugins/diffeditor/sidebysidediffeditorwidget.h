@@ -36,15 +36,10 @@
 
 #include <QTextEdit>
 
-namespace TextEditor {
-class BaseTextEditorWidget;
-class FontSettings;
-}
+namespace TextEditor { class FontSettings; }
 
 QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
 class QSplitter;
-class QSyntaxHighlighter;
 class QTextCharFormat;
 QT_END_NAMESPACE
 
@@ -53,7 +48,6 @@ QT_END_NAMESPACE
 namespace DiffEditor {
 
 class SideDiffEditorWidget;
-class TextLineData;
 class ChunkData;
 class FileData;
 
@@ -66,8 +60,6 @@ public:
 
     void setDiffEditorController(DiffEditorController *controller);
     DiffEditorController *diffEditorController() const;
-
-    QTextCodec *codec() const;
 
 #ifdef WITH_TESTS
     static void testAssemblyRows();

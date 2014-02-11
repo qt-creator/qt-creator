@@ -56,11 +56,9 @@ namespace VcsBase {
     class VcsBaseEditorParameterWidget;
 }
 
-namespace Utils {
-    struct SynchronousProcessResponse;
-}
+namespace Utils { struct SynchronousProcessResponse; }
 
-namespace DiffEditor { class DiffEditor; }
+namespace DiffEditor { class DiffEditorDocument; }
 
 namespace Git {
 namespace Internal {
@@ -351,8 +349,6 @@ private:
     QTextCodec *getSourceCodec(const QString &file) const;
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                         const QString &dynamicPropertyValue) const;
-    DiffEditor::DiffEditor *findExistingDiffEditor(const char *registerDynamicProperty,
-                                                   const QString &dynamicPropertyValue) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     VcsBase::VcsBaseEditorWidget *createVcsEditor(const Core::Id &kind,
@@ -362,11 +358,9 @@ private:
                                             const char *registerDynamicProperty,
                                             const QString &dynamicPropertyValue,
                                             VcsBase::VcsBaseEditorParameterWidget *configWidget) const;
-    DiffEditor::DiffEditor *createDiffEditor(const char *registerDynamicProperty,
-                                             const QString &dynamicPropertyValue,
+    DiffEditor::DiffEditorDocument *createDiffEditor(const QString documentId,
                                              const QString &source,
-                                             const QString &titlePattern,
-                                             const Core::Id editorId) const;
+                                             const QString &title) const;
 
     VcsBase::Command *createCommand(const QString &workingDirectory,
                              VcsBase::VcsBaseEditorWidget* editor = 0,

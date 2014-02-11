@@ -31,7 +31,7 @@
 #include "diffeditor.h"
 #include "diffeditorconstants.h"
 #include "diffeditorfactory.h"
-#include "sidebysidediffeditorwidget.h"
+#include "diffeditormanager.h"
 
 #include <QFileDialog>
 #include <QTextCodec>
@@ -74,6 +74,8 @@ bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     addAutoReleasedObject(new DiffEditorFactory(this));
 
+    new DiffEditorManager(this);
+
     return true;
 }
 
@@ -107,10 +109,8 @@ void DiffEditorPlugin::diff()
 
     Core::EditorManager::activateEditor(editor);
 
-    QTextCodec *codec = editor->codec();
-
-    const QString text1 = getFileContents(fileName1, codec);
-    const QString text2 = getFileContents(fileName2, codec);
+    const QString text1 = getFileContents(fileName1);
+    const QString text2 = getFileContents(fileName2);
 
     DiffEditorController::DiffFilesContents dfc;
     dfc.leftFileInfo = fileName1;
@@ -120,14 +120,14 @@ void DiffEditorPlugin::diff()
     QList<DiffEditorController::DiffFilesContents> list;
     list.append(dfc);
 
-    editor->setDiff(list);
+    editor->controller()->setDiffContents(list);
 }
 
-QString DiffEditorPlugin::getFileContents(const QString &fileName, QTextCodec *codec) const
+QString DiffEditorPlugin::getFileContents(const QString &fileName) const
 {
     QFile file(fileName);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return codec->toUnicode(file.readAll());
+        return Core::EditorManager::defaultTextCodec()->toUnicode(file.readAll());
     return QString();
 }
 
@@ -135,6 +135,8 @@ QString DiffEditorPlugin::getFileContents(const QString &fileName, QTextCodec *c
 } // namespace DiffEditor
 
 #ifdef WITH_TESTS
+
+#include "sidebysidediffeditorwidget.h"
 
 void DiffEditor::Internal::DiffEditorPlugin::testAssemblyRows()
 {

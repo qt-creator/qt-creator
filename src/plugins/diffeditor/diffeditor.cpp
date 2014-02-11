@@ -118,7 +118,7 @@ void DescriptionEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
 DiffEditor::DiffEditor()
     : IEditor(0)
-    , m_document(new Internal::DiffEditorDocument(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE)))
+    , m_document(new DiffEditorDocument(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE)))
     , m_descriptionWidget(0)
     , m_diffWidget(0)
     , m_diffEditorController(0)
@@ -163,9 +163,13 @@ void DiffEditor::ctor()
     m_descriptionWidget->setCodeStyle(TextEditorSettings::codeStyle());
     m_descriptionWidget->baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
 
-    m_diffEditorController = m_document->diffEditorController();
+    m_diffEditorController = m_document->controller();
     m_diffWidget->setDiffEditorController(m_diffEditorController);
 
+    connect(m_diffEditorController, SIGNAL(cleared(QString)),
+            this, SLOT(slotCleared(QString)));
+    connect(m_diffEditorController, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),
+            this, SLOT(slotDiffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)));
     connect(m_diffEditorController, SIGNAL(currentDiffFileIndexChanged(int)),
             this, SLOT(activateEntry(int)));
     connect(m_diffEditorController, SIGNAL(descriptionChanged(QString)),
@@ -207,11 +211,6 @@ Core::IDocument *DiffEditor::document()
 Core::Id DiffEditor::id() const
 {
     return Constants::DIFF_EDITOR_ID;
-}
-
-QTextCodec *DiffEditor::codec() const
-{
-    return m_diffWidget->codec();
 }
 
 static QToolBar *createToolBar(const QWidget *someWidget)
@@ -275,24 +274,50 @@ QWidget *DiffEditor::toolBar()
     m_toggleDescriptionAction = m_toolBar->addWidget(toggleDescription);
     slotDescriptionVisibilityChanged();
 
-    if (m_diffEditorController) {
-        connect(whitespaceButton, SIGNAL(clicked(bool)),
-                m_diffEditorController, SLOT(setIgnoreWhitespaces(bool)));
-        connect(contextSpinBox, SIGNAL(valueChanged(int)),
-                m_diffEditorController, SLOT(setContextLinesNumber(int)));
-        connect(toggleSync, SIGNAL(clicked(bool)),
-                m_diffEditorController, SLOT(setHorizontalScrollBarSynchronization(bool)));
-        connect(toggleDescription, SIGNAL(clicked(bool)),
-                m_diffEditorController, SLOT(setDescriptionVisible(bool)));
-        // TODO: synchronize in opposite direction too
-    }
+    connect(whitespaceButton, SIGNAL(clicked(bool)),
+            m_diffEditorController, SLOT(setIgnoreWhitespaces(bool)));
+    connect(contextSpinBox, SIGNAL(valueChanged(int)),
+            m_diffEditorController, SLOT(setContextLinesNumber(int)));
+    connect(toggleSync, SIGNAL(clicked(bool)),
+            m_diffEditorController, SLOT(setHorizontalScrollBarSynchronization(bool)));
+    connect(toggleDescription, SIGNAL(clicked(bool)),
+            m_diffEditorController, SLOT(setDescriptionVisible(bool)));
+    // TODO: synchronize in opposite direction too
 
     return m_toolBar;
 }
 
-void DiffEditor::setDiff(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
-                                 const QString &workingDirectory)
+DiffEditorController * DiffEditor::controller() const
 {
+    return m_diffEditorController;
+}
+
+void DiffEditor::updateEntryToolTip()
+{
+    const QString &toolTip = m_entriesComboBox->itemData(
+                m_entriesComboBox->currentIndex(), Qt::ToolTipRole).toString();
+    m_entriesComboBox->setToolTip(toolTip);
+}
+
+void DiffEditor::entryActivated(int index)
+{
+    updateEntryToolTip();
+    m_diffEditorController->setCurrentDiffFileIndex(index);
+}
+
+void DiffEditor::slotCleared(const QString &message)
+{
+    Q_UNUSED(message)
+
+    m_entriesComboBox->clear();
+    updateEntryToolTip();
+}
+
+void DiffEditor::slotDiffContentsChanged(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
+                                         const QString &workingDirectory)
+{
+    Q_UNUSED(workingDirectory)
+
     m_entriesComboBox->clear();
     const int count = diffFileList.count();
     for (int i = 0; i < count; i++) {
@@ -331,42 +356,6 @@ void DiffEditor::setDiff(const QList<DiffEditorController::DiffFilesContents> &d
         m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1, itemToolTip, Qt::ToolTipRole);
     }
     updateEntryToolTip();
-    if (m_diffEditorController)
-        m_diffEditorController->setDiffContents(diffFileList, workingDirectory);
-}
-
-void DiffEditor::setDescription(const QString &description)
-{
-    if (m_diffEditorController)
-        m_diffEditorController->setDescription(description);
-}
-
-void DiffEditor::setDescriptionEnabled(bool on)
-{
-    if (m_diffEditorController)
-        m_diffEditorController->setDescriptionEnabled(on);
-}
-
-void DiffEditor::clear(const QString &message)
-{
-    m_entriesComboBox->clear();
-    updateEntryToolTip();
-    if (m_diffEditorController)
-        m_diffEditorController->clear(message);
-}
-
-void DiffEditor::updateEntryToolTip()
-{
-    const QString &toolTip = m_entriesComboBox->itemData(
-                m_entriesComboBox->currentIndex(), Qt::ToolTipRole).toString();
-    m_entriesComboBox->setToolTip(toolTip);
-}
-
-void DiffEditor::entryActivated(int index)
-{
-    updateEntryToolTip();
-    if (m_diffEditorController)
-        m_diffEditorController->setCurrentDiffFileIndex(index);
 }
 
 void DiffEditor::activateEntry(int index)
@@ -384,9 +373,6 @@ void DiffEditor::slotDescriptionChanged(const QString &description)
 
 void DiffEditor::slotDescriptionVisibilityChanged()
 {
-    if (!m_diffEditorController)
-        return;
-
     const bool visible = m_diffEditorController->isDescriptionVisible();
     const bool enabled = m_diffEditorController->isDescriptionEnabled();
 

@@ -7,6 +7,7 @@ HEADERS += diffeditor_global.h \
         diffeditorcontroller.h \
         diffeditordocument.h \
         diffeditorfactory.h \
+        diffeditormanager.h \
         diffeditorplugin.h \
         differ.h \
         sidebysidediffeditorwidget.h
@@ -15,6 +16,7 @@ SOURCES += diffeditor.cpp \
         diffeditorcontroller.cpp \
         diffeditordocument.cpp \
         diffeditorfactory.cpp \
+        diffeditormanager.cpp \
         diffeditorplugin.cpp \
         differ.cpp \
         sidebysidediffeditorwidget.cpp

@@ -405,11 +405,6 @@ public:
 
     SideDiffEditorWidget(QWidget *parent = 0);
 
-    // TODO: remove me, codec should be taken from somewhere else
-    QTextCodec *codec() const {
-        return const_cast<QTextCodec *>(baseTextDocument()->codec());
-    }
-
     // block number, file info
     QMap<int, DiffEditorController::DiffFileInfo> fileInfo() const { return m_fileInfo; }
 
@@ -1173,11 +1168,6 @@ void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
 
     m_leftEditor->centerCursor();
     m_rightEditor->centerCursor();
-}
-
-QTextCodec *SideBySideDiffEditorWidget::codec() const
-{
-    return const_cast<QTextCodec *>(m_leftEditor->codec());
 }
 
 FileData SideBySideDiffEditorWidget::calculateContextData(const ChunkData &originalData) const

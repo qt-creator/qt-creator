@@ -238,11 +238,7 @@ void StateListener::slotStateChanged()
     } else {
         state.currentFile = currentDocument->filePath();
         if (state.currentFile.isEmpty()) {
-            const QList<Core::IEditor *> editors =
-                    Core::EditorManager::documentModel()->editorsForDocument(currentDocument);
-            if (!editors.isEmpty()) {
-                state.currentFile = VcsBasePlugin::source(editors.first());
-            }
+            state.currentFile = VcsBasePlugin::source(currentDocument);
         }
     }
     QScopedPointer<QFileInfo> currentFileInfo; // Instantiate QFileInfo only once if required.
@@ -750,12 +746,12 @@ bool VcsBasePlugin::isSshPromptConfigured()
 
 static const char SOURCE_PROPERTY[] = "qtcreator_source";
 
-void VcsBasePlugin::setSource(Core::IEditor *editor, const QString &source)
+void VcsBasePlugin::setSource(Core::IDocument *editor, const QString &source)
 {
     editor->setProperty(SOURCE_PROPERTY, source);
 }
 
-QString VcsBasePlugin::source(Core::IEditor *editor)
+QString VcsBasePlugin::source(Core::IDocument *editor)
 {
     return editor->property(SOURCE_PROPERTY).toString();
 }

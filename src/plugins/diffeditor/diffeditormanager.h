@@ -27,73 +27,40 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITOR_H
-#define DIFFEDITOR_H
+#ifndef DIFFEDITORMANAGER_H
+#define DIFFEDITORMANAGER_H
 
 #include "diffeditor_global.h"
-#include "diffeditorcontroller.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 
-QT_BEGIN_NAMESPACE
-class QToolBar;
-class QComboBox;
-class QToolButton;
-QT_END_NAMESPACE
-
-namespace TextEditor { class BaseTextEditorWidget; }
+#include <QMap>
 
 namespace DiffEditor {
 
 class DiffEditorDocument;
-class SideBySideDiffEditorWidget;
 
-class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
+class DIFFEDITOR_EXPORT DiffEditorManager : public QObject
 {
     Q_OBJECT
 public:
-    DiffEditor();
-    DiffEditor(DiffEditor *other);
-    virtual ~DiffEditor();
+    explicit DiffEditorManager(QObject *parent);
+    virtual ~DiffEditorManager();
 
-public:
-    DiffEditorController *controller() const;
+    static DiffEditorManager *instance();
 
-    // Core::IEditor
-    bool duplicateSupported() const { return false; }
-    Core::IEditor *duplicate();
-
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    Core::IDocument *document();
-    Core::Id id() const;
-
-    QWidget *toolBar();
-
-public slots:
-    void activateEntry(int index);
+    static DiffEditorDocument *find(const QString &documentId);
+    static DiffEditorDocument *findOrCreate(const QString &documentId, const QString &displayName);
 
 private slots:
-    void slotCleared(const QString &message);
-    void slotDiffContentsChanged(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
-                                 const QString &workingDirectory);
-    void entryActivated(int index);
-    void slotDescriptionChanged(const QString &description);
-    void slotDescriptionVisibilityChanged();
+    void slotEditorsClosed(const QList<Core::IEditor *> &editors);
 
 private:
-    void ctor();
-    void updateEntryToolTip();
-
-    QSharedPointer<DiffEditorDocument> m_document;
-    TextEditor::BaseTextEditorWidget *m_descriptionWidget;
-    SideBySideDiffEditorWidget *m_diffWidget;
-    DiffEditorController *m_diffEditorController;
-    QToolBar *m_toolBar;
-    QComboBox *m_entriesComboBox;
-    QAction *m_toggleDescriptionAction;
+    QMap<QString, DiffEditorDocument *> idToDocument;
+    QMap<DiffEditorDocument *, QString> documentToId;
 };
 
 } // namespace DiffEditor
 
-#endif // DIFFEDITOR_H
+#endif // DIFFEDITORMANAGER_H

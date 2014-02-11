@@ -58,7 +58,7 @@ private slots:
 #endif // WITH_TESTS
 
 private:
-    QString getFileContents(const QString &fileName, QTextCodec *codec) const;
+    QString getFileContents(const QString &fileName) const;
 
 };
 

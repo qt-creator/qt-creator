@@ -60,8 +60,6 @@ public:
     DiffEditorController(QObject *parent = 0);
     ~DiffEditorController();
 
-//    QTextCodec *codec() const;
-
     QString clearMessage() const;
 
     QList<DiffFilesContents> diffContents() const;
@@ -78,7 +76,8 @@ public:
 public slots:
     void clear();
     void clear(const QString &message);
-    void setDiffContents(const QList<DiffEditorController::DiffFilesContents> &diffFileList, const QString &workingDirectory = QString());
+    void setDiffContents(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
+                         const QString &workingDirectory = QString());
     void setDescription(const QString &description);
     void setDescriptionEnabled(bool on);
 
@@ -90,7 +89,7 @@ public slots:
 
 signals:
     // This sets the current diff file index to -1
-    void cleared(const QString message);
+    void cleared(const QString &message);
     // This sets the current diff file index to 0 (unless diffFileList is empty)
     void diffContentsChanged(const QList<DiffEditorController::DiffFilesContents> &diffFileList, const QString &workingDirectory);
     void descriptionChanged(const QString &description);

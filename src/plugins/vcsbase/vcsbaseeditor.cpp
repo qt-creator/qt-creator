@@ -737,12 +737,12 @@ void VcsBaseEditorWidget::setForceReadOnly(bool b)
 
 QString VcsBaseEditorWidget::source() const
 {
-    return VcsBasePlugin::source(editor());
+    return VcsBasePlugin::source(baseTextDocument());
 }
 
 void VcsBaseEditorWidget::setSource(const  QString &source)
 {
-    VcsBasePlugin::setSource(editor(), source);
+    VcsBasePlugin::setSource(baseTextDocument(), source);
 }
 
 QString VcsBaseEditorWidget::annotateRevisionTextFormat() const

@@ -110,7 +110,8 @@ void DiffEditorController::clear(const QString &message)
     emit cleared(message);
 }
 
-void DiffEditorController::setDiffContents(const QList<DiffFilesContents> &diffFileList, const QString &workingDirectory)
+void DiffEditorController::setDiffContents(const QList<DiffFilesContents> &diffFileList,
+                                           const QString &workingDirectory)
 {
     m_diffFileList = diffFileList;
     m_workingDirectory = workingDirectory;
@@ -188,8 +189,3 @@ void DiffEditorController::setCurrentDiffFileIndex(int diffFileIndex)
 }
 
 } // namespace DiffEditor
-
-//QTextCodec *DiffEditorWidget::codec() const
-//{
-//}
-
