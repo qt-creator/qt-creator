@@ -327,6 +327,7 @@ def __checkCreatedSettings__(settingsFolder):
 def findAllFilesInPATH(programGlob):
     result = []
     for path in os.environ["PATH"].split(os.pathsep):
-        files = filter(os.path.isfile, glob.glob(os.path.join(path, programGlob)))
-        result.extend(files)
+        for curr in glob.glob(os.path.join(path, programGlob)):
+            if os.path.isfile(curr) and os.access(os.X_OK):
+                result.append(curr)
     return result
