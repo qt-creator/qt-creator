@@ -35,9 +35,7 @@
 #include <QStringList>
 #include <QCoreApplication>
 
-namespace Core {
-class GeneratedFile;
-}
+namespace Core { class GeneratedFile; }
 
 namespace Qnx {
 namespace Internal {

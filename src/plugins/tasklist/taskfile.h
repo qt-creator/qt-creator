@@ -32,9 +32,7 @@
 
 #include <coreplugin/idocument.h>
 
-namespace ProjectExplorer {
-class Project;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class Project; }
 
 namespace TaskList {
 namespace Internal {

@@ -36,9 +36,7 @@ QT_BEGIN_NAMESPACE
 class QLabel;
 QT_END_NAMESPACE
 
-namespace Utils {
-class NewClassWidget;
-} // namespace Utils
+namespace Utils { class NewClassWidget; }
 
 namespace QmakeProjectManager {
 namespace Internal {

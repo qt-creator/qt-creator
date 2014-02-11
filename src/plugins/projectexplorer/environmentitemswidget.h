@@ -32,9 +32,7 @@
 
 #include <QDialog>
 
-namespace Utils {
-class EnvironmentItem;
-}
+namespace Utils { class EnvironmentItem; }
 
 namespace ProjectExplorer {
 class EnvironmentItemsWidgetPrivate;

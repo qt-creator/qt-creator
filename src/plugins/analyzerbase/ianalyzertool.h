@@ -40,9 +40,7 @@
 #include <QObject>
 #include <QAction>
 
-namespace ProjectExplorer {
-class RunConfiguration;
-}
+namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Analyzer {
 

@@ -40,9 +40,7 @@ namespace ProjectExplorer {
 
 class Project;
 
-namespace Internal {
-class UserFileVersionHandler;
-}
+namespace Internal { class UserFileVersionHandler; }
 
 class SettingsAccessor
 {

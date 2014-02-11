@@ -46,9 +46,7 @@ class SftpChannel;
 class SshDirectTcpIpTunnel;
 class SshRemoteProcess;
 
-namespace Internal {
-class SshConnectionPrivate;
-} // namespace Internal
+namespace Internal { class SshConnectionPrivate; }
 
 enum SshConnectionOption {
     SshIgnoreDefaultProxy = 0x1,

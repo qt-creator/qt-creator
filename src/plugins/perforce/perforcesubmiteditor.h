@@ -35,9 +35,7 @@
 #include <QStringList>
 #include <QMap>
 
-namespace VcsBase {
-    class SubmitFileModel;
-}
+namespace VcsBase { class SubmitFileModel; }
 
 namespace Perforce {
 namespace Internal {

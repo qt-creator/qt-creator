@@ -34,13 +34,9 @@
 
 #include <QObject>
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
-namespace TextEditor {
-class ITextEditor;
-}
+namespace TextEditor { class ITextEditor; }
 
 namespace GLSLEditor {
 namespace Internal {

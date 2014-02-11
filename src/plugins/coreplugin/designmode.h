@@ -35,9 +35,7 @@
 namespace Core {
 class IEditor;
 
-namespace Internal {
-class DesignModeCoreListener;
-} // namespace Internal
+namespace Internal { class DesignModeCoreListener; }
 
 /**
   * A global mode for Design pane - used by Bauhaus (QML Designer) and

@@ -37,9 +37,7 @@
 #include <QtPlugin>
 #include <QAction>
 
-namespace TextEditor {
-class ITextEditor;
-} // namespace TextEditor
+namespace TextEditor { class ITextEditor; }
 
 namespace CppEditor {
 namespace Internal {

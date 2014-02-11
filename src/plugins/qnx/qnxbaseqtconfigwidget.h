@@ -36,9 +36,7 @@
 
 namespace Qnx {
 namespace Internal {
-namespace Ui {
-class QnxBaseQtConfigWidget;
-}
+namespace Ui { class QnxBaseQtConfigWidget; }
 
 class QnxAbstractQtVersion;
 

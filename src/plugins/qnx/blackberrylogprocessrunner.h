@@ -38,9 +38,7 @@
 
 #include <QObject>
 
-namespace ProjectExplorer {
-class SshDeviceProcess;
-}
+namespace ProjectExplorer { class SshDeviceProcess; }
 
 namespace Qnx {
 namespace Internal {

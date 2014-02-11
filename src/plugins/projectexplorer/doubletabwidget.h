@@ -37,9 +37,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-namespace Ui {
-    class DoubleTabWidget;
-}
+namespace Ui { class DoubleTabWidget; }
 
 class DoubleTabWidget : public QWidget
 {

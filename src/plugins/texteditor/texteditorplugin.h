@@ -32,9 +32,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Core {
-class SearchResultWindow;
-}
+namespace Core { class SearchResultWindow; }
 
 namespace TextEditor {
 

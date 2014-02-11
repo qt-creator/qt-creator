@@ -40,9 +40,7 @@ QT_BEGIN_NAMESPACE
 class QPoint;
 QT_END_NAMESPACE
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace TextEditor {
 

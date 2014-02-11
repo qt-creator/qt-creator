@@ -40,9 +40,7 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Internal {
 
-namespace Ui {
-    class GeneralSettings;
-}
+namespace Ui { class GeneralSettings; }
 
 class GeneralSettings : public IOptionsPage
 {

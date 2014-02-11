@@ -41,9 +41,7 @@ class QGraphicsDropShadowEffect;
 class QGraphicsOpacityEffect;
 QT_END_NAMESPACE
 
-namespace QmlJS {
-    class PropertyReader;
-}
+namespace QmlJS { class PropertyReader; }
 
 namespace QmlEditorWidgets {
 

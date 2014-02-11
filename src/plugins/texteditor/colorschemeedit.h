@@ -42,9 +42,7 @@ QT_END_NAMESPACE
 namespace TextEditor {
 namespace Internal {
 
-namespace Ui {
-class ColorSchemeEdit;
-}
+namespace Ui { class ColorSchemeEdit; }
 
 class FormatsModel;
 

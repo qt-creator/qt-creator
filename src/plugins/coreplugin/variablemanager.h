@@ -37,9 +37,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QFileInfo)
 
-namespace Utils {
-class AbstractMacroExpander;
-}
+namespace Utils { class AbstractMacroExpander; }
 
 namespace Core {
 

@@ -46,9 +46,7 @@ class PluginCollection;
 class IPlugin;
 class PluginSpec;
 
-namespace Internal {
-class PluginManagerPrivate;
-}
+namespace Internal { class PluginManagerPrivate; }
 
 class EXTENSIONSYSTEM_EXPORT PluginManager : public QObject
 {

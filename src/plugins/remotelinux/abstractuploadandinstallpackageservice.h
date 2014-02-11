@@ -35,9 +35,7 @@
 namespace RemoteLinux {
 class AbstractRemoteLinuxPackageInstaller;
 
-namespace Internal {
-class AbstractUploadAndInstallPackageServicePrivate;
-}
+namespace Internal { class AbstractUploadAndInstallPackageServicePrivate; }
 
 class REMOTELINUX_EXPORT AbstractUploadAndInstallPackageService : public AbstractRemoteLinuxDeployService
 {

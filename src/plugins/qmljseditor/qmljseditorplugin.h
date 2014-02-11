@@ -38,9 +38,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 
-namespace Utils {
-class JsonSchemaManager;
-}
+namespace Utils { class JsonSchemaManager; }
 
 namespace Core {
 class Command;
@@ -49,13 +47,9 @@ class ActionManager;
 class IEditor;
 }
 
-namespace TextEditor {
-class ITextEditor;
-}
+namespace TextEditor { class ITextEditor; }
 
-namespace QmlJS {
-    class ModelManagerInterface;
-}
+namespace QmlJS { class ModelManagerInterface; }
 
 namespace QmlJSEditor {
 

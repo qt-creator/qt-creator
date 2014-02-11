@@ -37,9 +37,7 @@
 #include <QTextCodec>
 #include <QMetaType>
 
-namespace Utils {
-class QtcProcess;
-}
+namespace Utils { class QtcProcess; }
 namespace Core {
 namespace Internal {
 

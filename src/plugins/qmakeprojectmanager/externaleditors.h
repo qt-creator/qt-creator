@@ -42,9 +42,7 @@ class QTcpSocket;
 class QSignalMapper;
 QT_END_NAMESPACE
 
-namespace QtSupport {
-class BaseQtVersion;
-}
+namespace QtSupport { class BaseQtVersion; }
 
 namespace QmakeProjectManager {
 namespace Internal {

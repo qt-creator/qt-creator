@@ -34,9 +34,7 @@
 
 #include <utils/wizard.h>
 
-namespace Utils {
-class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 namespace AutotoolsProjectManager {
 namespace Internal {

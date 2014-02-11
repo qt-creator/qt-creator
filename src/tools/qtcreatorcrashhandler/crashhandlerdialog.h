@@ -34,9 +34,7 @@
 
 QT_BEGIN_NAMESPACE
 class QString;
-namespace Ui {
-class CrashHandlerDialog;
-}
+namespace Ui { class CrashHandlerDialog; }
 QT_END_NAMESPACE
 
 class CrashHandler;

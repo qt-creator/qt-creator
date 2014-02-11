@@ -37,9 +37,7 @@ QT_BEGIN_NAMESPACE
 #if QT_VERSION >= 0x050000
 class QDesignerFormWindowInterface;
 #else
-namespace qdesigner_internal {
-    class FormWindowBase;
-}
+namespace qdesigner_internal { class FormWindowBase; }
 #endif
 QT_END_NAMESPACE
 

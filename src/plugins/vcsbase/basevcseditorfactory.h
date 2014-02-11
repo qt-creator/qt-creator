@@ -36,9 +36,7 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 namespace VcsBase {
-namespace Internal {
-class BaseVcsEditorFactoryPrivate;
-} // namespace Internal
+namespace Internal { class BaseVcsEditorFactoryPrivate; }
 
 class VCSBASE_EXPORT BaseVcsEditorFactory : public Core::IEditorFactory
 {

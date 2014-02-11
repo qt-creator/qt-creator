@@ -42,9 +42,7 @@
 
 #include <QTextDocument>
 
-namespace Core {
-class IDocument;
-}
+namespace Core { class IDocument; }
 
 namespace Debugger {
 namespace Internal {

@@ -44,9 +44,7 @@ QT_END_NAMESPACE
 namespace Gitorious {
 namespace Internal {
 
-namespace Ui {
-    class GitoriousHostWidget;
-}
+namespace Ui { class GitoriousHostWidget; }
 
 /* A page listing gitorious hosts with browse/add options. isValid() and the
  * related change signals are provided for use within a QWizardPage.

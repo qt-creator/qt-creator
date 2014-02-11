@@ -48,9 +48,7 @@ class IFindSupport;
 } // namespace Core
 
 namespace TextEditor {
-namespace Internal {
-class BaseFileFindPrivate;
-} // namespace Internal
+namespace Internal { class BaseFileFindPrivate; }
 
 class TEXTEDITOR_EXPORT BaseFileFind : public Core::IFindFilter
 {

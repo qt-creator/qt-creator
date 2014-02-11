@@ -44,9 +44,7 @@
 #include <QVariant>
 #include <QIcon>
 
-namespace QmlJS {
-class Value;
-}
+namespace QmlJS { class Value; }
 
 namespace QmlJSEditor {
 namespace Internal {

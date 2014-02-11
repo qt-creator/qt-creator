@@ -33,9 +33,7 @@
 
 #include <QAbstractTableModel>
 
-namespace ProjectExplorer {
-class Target;
-}
+namespace ProjectExplorer { class Target; }
 
 namespace QmakeProjectManager {
 class QmakeProFileNode;

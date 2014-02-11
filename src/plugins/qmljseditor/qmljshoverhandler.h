@@ -39,13 +39,9 @@ QT_BEGIN_NAMESPACE
 template <class> class QList;
 QT_END_NAMESPACE
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
-namespace TextEditor {
-class ITextEditor;
-}
+namespace TextEditor { class ITextEditor; }
 
 namespace QmlJS {
 class ScopeChain;

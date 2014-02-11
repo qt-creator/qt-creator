@@ -48,9 +48,7 @@ class IMode;
 class Command;
 class NavigationWidget;
 struct NavigationWidgetPrivate;
-namespace Internal {
-class NavigationSubWidget;
-}
+namespace Internal { class NavigationSubWidget; }
 
 class CORE_EXPORT NavigationWidgetPlaceHolder : public QWidget
 {

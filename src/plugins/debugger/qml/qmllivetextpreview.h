@@ -33,13 +33,9 @@
 #include <texteditor/basetexteditor.h>
 #include <qmljs/qmljsdocument.h>
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
-namespace QmlJS {
-class ModelManagerInterface;
-}
+namespace QmlJS { class ModelManagerInterface; }
 
 namespace Debugger {
 namespace Internal {

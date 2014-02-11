@@ -38,9 +38,7 @@
 
 #include <QStringList>
 
-namespace QmlJS {
-class Snapshot;
-} // namespace QmlJS
+namespace QmlJS { class Snapshot; }
 
 namespace QmlDesigner {
 

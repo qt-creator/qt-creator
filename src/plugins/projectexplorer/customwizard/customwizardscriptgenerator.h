@@ -33,9 +33,7 @@
 #include <QMap>
 #include <QStringList>
 
-namespace Core {
-class GeneratedFile;
-}
+namespace Core { class GeneratedFile; }
 
 namespace ProjectExplorer {
 namespace Internal {

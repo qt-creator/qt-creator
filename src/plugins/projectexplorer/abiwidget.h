@@ -37,9 +37,7 @@
 namespace ProjectExplorer {
 class Abi;
 
-namespace Internal {
-class AbiWidgetPrivate;
-} // namespace
+namespace Internal { class AbiWidgetPrivate; }
 
 // --------------------------------------------------------------------------
 // AbiWidget:

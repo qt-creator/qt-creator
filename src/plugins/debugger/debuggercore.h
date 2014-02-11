@@ -43,17 +43,11 @@ class QMessageBox;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace CPlusPlus {
-class Snapshot;
-}
+namespace CPlusPlus { class Snapshot; }
 
-namespace Utils {
-class SavedAction;
-}
+namespace Utils { class SavedAction; }
 
-namespace ProjectExplorer {
-class RunControl;
-}
+namespace ProjectExplorer { class RunControl; }
 
 namespace Debugger {
 

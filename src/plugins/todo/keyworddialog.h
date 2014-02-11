@@ -37,9 +37,7 @@
 namespace Todo {
 namespace Internal {
 
-namespace Ui {
-    class KeywordDialog;
-}
+namespace Ui { class KeywordDialog; }
 
 class Keyword;
 

@@ -40,9 +40,7 @@
 #include <QDateTime>
 #include <QByteArray>
 
-namespace ProjectExplorer {
-class SshDeviceProcess;
-}
+namespace ProjectExplorer { class SshDeviceProcess; }
 
 namespace Qnx {
 namespace Internal {

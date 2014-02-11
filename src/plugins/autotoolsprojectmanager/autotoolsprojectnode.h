@@ -34,9 +34,7 @@
 
 #include <projectexplorer/projectnodes.h>
 
-namespace Core {
-class IDocument;
-}
+namespace Core { class IDocument; }
 
 namespace AutotoolsProjectManager {
 namespace Internal {

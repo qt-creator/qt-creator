@@ -39,9 +39,7 @@ namespace ExtensionSystem {
 class PluginSpec;
 
 namespace Internal {
-namespace Ui {
-    class PluginDetailsView;
-} // namespace Ui
+namespace Ui { class PluginDetailsView; }
 } // namespace Internal
 
 

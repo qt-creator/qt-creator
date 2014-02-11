@@ -50,9 +50,7 @@ QT_END_NAMESPACE
 
 namespace QmlJS {
 class ImportInfo;
-namespace Internal {
-class ImportDependenciesPrivate;
-}
+namespace Internal { class ImportDependenciesPrivate; }
 class ImportDependencies;
 
 // match strenght wrt to the selectors of a ViewerContext

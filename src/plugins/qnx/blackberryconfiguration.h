@@ -45,12 +45,8 @@
 #include <QObject>
 #include <QCoreApplication>
 
-namespace QtSupport {
-class BaseQtVersion;
-}
-namespace Debugger {
-class DebuggerItem;
-}
+namespace QtSupport { class BaseQtVersion; }
+namespace Debugger { class DebuggerItem; }
 
 namespace Qnx {
 namespace Internal {

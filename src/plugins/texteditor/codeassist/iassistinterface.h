@@ -41,9 +41,7 @@ class QTextDocument;
 class QThread;
 QT_END_NAMESPACE
 
-namespace Core {
-class IDocument;
-}
+namespace Core { class IDocument; }
 
 namespace TextEditor {
 

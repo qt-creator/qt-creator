@@ -34,9 +34,7 @@
 
 #include <QDir>
 
-namespace Utils {
-class Environment;
-}
+namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
 

@@ -36,9 +36,7 @@ QT_FORWARD_DECLARE_CLASS(QDesignerFormWindowInterface)
 
 namespace SharedTools {
 
-namespace Internal {
-    class FormResizer;
-}
+namespace Internal { class FormResizer; }
 
 /* A scroll area that embeds a Designer form window */
 

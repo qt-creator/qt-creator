@@ -34,9 +34,7 @@
 
 #include <projectexplorer/deployconfiguration.h>
 
-namespace ProjectExplorer {
-class Target;
-}
+namespace ProjectExplorer { class Target; }
 
 namespace Qnx {
 namespace Internal {

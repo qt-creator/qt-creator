@@ -38,9 +38,7 @@ class QListWidget;
 class QListWidgetItem;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class ToolChain;
-}
+namespace ProjectExplorer { class ToolChain; }
 
 namespace CMakeProjectManager {
 namespace Internal {

@@ -39,9 +39,7 @@ class FormClassWizardGenerationParameters;
 
 namespace Internal {
 
-namespace Ui {
-class FormClassWizardPage;
-}
+namespace Ui { class FormClassWizardPage; }
 
 
 class FormClassWizardPage : public QWizardPage

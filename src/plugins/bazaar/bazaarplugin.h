@@ -49,13 +49,9 @@ class IEditorFactory;
 class IEditor;
 } // namespace Core
 
-namespace Utils {
-class ParameterAction;
-} //namespace Utils
+namespace Utils { class ParameterAction; }
 
-namespace VcsBase {
-class VcsBaseSubmitEditor;
-}
+namespace VcsBase { class VcsBaseSubmitEditor; }
 
 namespace Bazaar {
 namespace Internal {

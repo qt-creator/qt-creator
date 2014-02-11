@@ -36,9 +36,7 @@
 #include <utils/uncommentselection.h>
 
 
-namespace TextEditor {
-class FontSettings;
-}
+namespace TextEditor { class FontSettings; }
 
 namespace CMakeProjectManager {
 namespace Internal {

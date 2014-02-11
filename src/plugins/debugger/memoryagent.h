@@ -38,13 +38,9 @@
 
 QT_FORWARD_DECLARE_CLASS(QPoint)
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
-namespace ProjectExplorer {
-class Abi;
-}
+namespace ProjectExplorer { class Abi; }
 
 namespace Debugger {
 

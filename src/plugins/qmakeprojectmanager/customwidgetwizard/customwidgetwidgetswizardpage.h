@@ -46,9 +46,7 @@ namespace Internal {
 class ClassDefinition;
 struct PluginOptions;
 
-namespace Ui {
-    class CustomWidgetWidgetsWizardPage;
-}
+namespace Ui { class CustomWidgetWidgetsWizardPage; }
 
 class CustomWidgetWidgetsWizardPage : public QWizardPage
 {

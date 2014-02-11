@@ -50,9 +50,7 @@ namespace Core {
 
 namespace Internal {
 
-namespace Ui {
-    class NewDialog;
-}
+namespace Ui { class NewDialog; }
 
 class NewDialog : public QDialog
 {

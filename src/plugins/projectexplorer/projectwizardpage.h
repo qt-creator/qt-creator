@@ -35,9 +35,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-namespace Ui {
-class WizardPage;
-}
+namespace Ui { class WizardPage; }
 
 // Documentation inside.
 class ProjectWizardPage : public QWizardPage

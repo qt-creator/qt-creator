@@ -40,9 +40,7 @@
 #include <QVariant>
 #include <QTime>
 
-namespace Utils {
-class ConsoleProcess;
-}
+namespace Utils { class ConsoleProcess; }
 namespace Debugger {
 namespace Internal {
 

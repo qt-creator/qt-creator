@@ -35,9 +35,7 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-    class ModelPrivate;
-}
+namespace Internal { class ModelPrivate; }
 
 class QMLDESIGNERCORE_EXPORT NodeProperty : public NodeAbstractProperty
 {

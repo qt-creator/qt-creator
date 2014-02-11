@@ -34,9 +34,7 @@
 
 namespace BareMetal {
 
-namespace Ui {
-class BareMetalDeviceConfigurationWidget;
-}
+namespace Ui { class BareMetalDeviceConfigurationWidget; }
 
 class BareMetalDeviceConfigurationWidget
       : public ProjectExplorer::IDeviceWidget

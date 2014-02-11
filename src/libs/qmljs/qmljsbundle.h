@@ -39,9 +39,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QTextStream)
 
-namespace Utils {
-class JsonObjectValue;
-}
+namespace Utils { class JsonObjectValue; }
 
 namespace QmlJS {
 

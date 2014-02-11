@@ -35,9 +35,7 @@
 
 #include <QFileInfo>
 
-namespace VcsBase {
-class SubmitFileModel;
-}
+namespace VcsBase { class SubmitFileModel; }
 
 namespace Mercurial {
 namespace Internal {

@@ -33,9 +33,7 @@
 #include "idevicewidget.h"
 
 namespace ProjectExplorer {
-namespace Ui {
-class DesktopDeviceConfigurationWidget;
-}
+namespace Ui { class DesktopDeviceConfigurationWidget; }
 
 class DesktopDeviceConfigurationWidget : public IDeviceWidget
 {

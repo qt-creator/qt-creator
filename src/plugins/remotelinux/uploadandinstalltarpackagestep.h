@@ -35,9 +35,7 @@
 namespace RemoteLinux {
 class AbstractRemoteLinuxPackageInstaller;
 
-namespace Internal {
-class UploadAndInstallTarPackageServicePrivate;
-}
+namespace Internal { class UploadAndInstallTarPackageServicePrivate; }
 
 class REMOTELINUX_EXPORT UploadAndInstallTarPackageService : public AbstractUploadAndInstallPackageService
 {

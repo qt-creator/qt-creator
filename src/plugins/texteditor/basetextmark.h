@@ -34,9 +34,7 @@
 #include "itextmark.h"
 
 namespace TextEditor {
-namespace Internal {
-class BaseTextMarkRegistry;
-}
+namespace Internal { class BaseTextMarkRegistry; }
 
 class ITextMarkable;
 

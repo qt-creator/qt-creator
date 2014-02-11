@@ -35,9 +35,7 @@
 QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace Utils {
-namespace Internal {
-class PortListPrivate;
-} // namespace Internal
+namespace Internal { class PortListPrivate; }
 
 class QTCREATOR_UTILS_EXPORT PortList
 {

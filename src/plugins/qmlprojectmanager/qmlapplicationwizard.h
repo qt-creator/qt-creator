@@ -33,9 +33,7 @@
 #include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
-namespace ExtensionSystem {
-class IPlugin;
-} // namespace ExtensionSystem
+namespace ExtensionSystem { class IPlugin; }
 
 namespace QmlProjectManager {
 namespace Internal {

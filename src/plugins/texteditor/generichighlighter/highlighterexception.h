@@ -31,11 +31,7 @@
 #define HIGHLIGHTEREXCEPTION_H
 
 namespace TextEditor {
-namespace Internal {
-
-class HighlighterException {};
-
-} // namespace Internal
+namespace Internal { class HighlighterException {}; }
 } // namespace TextEditor
 
 #endif // HIGHLIGHTEREXCEPTION_H

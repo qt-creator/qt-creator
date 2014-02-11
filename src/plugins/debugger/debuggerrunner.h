@@ -35,9 +35,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace Utils {
-class Environment;
-}
+namespace Utils { class Environment; }
 
 namespace Debugger {
 class DebuggerEngine;

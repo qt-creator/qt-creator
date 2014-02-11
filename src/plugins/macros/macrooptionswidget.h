@@ -45,9 +45,7 @@ namespace Internal {
 
 class MacroSettings;
 
-namespace Ui {
-    class MacroOptionsWidget;
-}
+namespace Ui { class MacroOptionsWidget; }
 
 class MacroOptionsWidget : public QWidget {
     Q_OBJECT

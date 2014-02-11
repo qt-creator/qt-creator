@@ -45,13 +45,9 @@
 QT_FORWARD_DECLARE_CLASS(QMenu)
 QT_FORWARD_DECLARE_CLASS(QHelpEvent)
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
-namespace TextEditor {
-class FontSettings;
-}
+namespace TextEditor { class FontSettings; }
 
 namespace BINEditor {
 

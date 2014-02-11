@@ -44,9 +44,7 @@ class FileName;
 
 namespace ProjectExplorer {
 
-namespace Internal {
-class ToolChainPrivate;
-}
+namespace Internal { class ToolChainPrivate; }
 
 class Abi;
 class HeaderPath;

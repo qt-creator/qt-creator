@@ -37,9 +37,7 @@
 namespace Qnx {
 namespace Internal {
 
-namespace Ui {
-class BarDescriptorEditorAuthorInformationWidget;
-}
+namespace Ui { class BarDescriptorEditorAuthorInformationWidget; }
 
 class BarDescriptorEditorAuthorInformationWidget : public BarDescriptorEditorAbstractPanelWidget
 {

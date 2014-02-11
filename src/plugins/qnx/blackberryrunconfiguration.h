@@ -34,9 +34,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace ProjectExplorer {
-class Target;
-}
+namespace ProjectExplorer { class Target; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;

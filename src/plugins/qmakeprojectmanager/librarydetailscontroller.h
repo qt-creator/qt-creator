@@ -36,9 +36,7 @@ namespace QmakeProjectManager {
 class QmakeProFileNode;
 namespace Internal {
 
-namespace Ui {
-    class LibraryDetailsWidget;
-}
+namespace Ui { class LibraryDetailsWidget; }
 
 class LibraryDetailsController : public QObject
 {

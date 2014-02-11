@@ -38,9 +38,7 @@ QT_BEGIN_NAMESPACE
 class QToolButton;
 QT_END_NAMESPACE
 
-namespace Utils {
-class StyledBar;
-}
+namespace Utils { class StyledBar; }
 
 namespace Core {
 class INavigationWidgetFactory;

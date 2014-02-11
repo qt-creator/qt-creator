@@ -34,9 +34,7 @@
 
 #include <utils/environment.h>
 
-namespace Utils {
-class AbstractMacroExpander;
-}
+namespace Utils { class AbstractMacroExpander; }
 
 namespace ProjectExplorer {
 

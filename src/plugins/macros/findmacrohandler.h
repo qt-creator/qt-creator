@@ -34,9 +34,7 @@
 
 #include <coreplugin/find/textfindconstants.h>
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace Macros {
 namespace Internal {

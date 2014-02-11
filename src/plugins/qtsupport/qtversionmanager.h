@@ -44,9 +44,7 @@ class PersistentSettingsWriter;
 namespace ProjectExplorer { class KitInformation; }
 
 namespace QtSupport {
-namespace Internal {
-class QtOptionsPage;
-}
+namespace Internal { class QtOptionsPage; }
 
 struct QMakeAssignment
 {

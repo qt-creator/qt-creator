@@ -33,9 +33,7 @@
 
 #include <QThread>
 
-namespace QSsh {
-class SshKeyGenerator;
-}
+namespace QSsh { class SshKeyGenerator; }
 
 namespace Qnx {
 namespace Internal {

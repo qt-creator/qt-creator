@@ -52,9 +52,7 @@ class IEditor;
 class IMode;
 }
 
-namespace TextEditor {
-class ITextEditor;
-}
+namespace TextEditor { class ITextEditor; }
 
 namespace Debugger {
 class DebuggerEngine;

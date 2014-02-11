@@ -41,9 +41,7 @@ class QWizardPage;
 QT_END_NAMESPACE
 
 namespace VcsBase {
-namespace Internal {
-class BaseCheckoutWizardPrivate;
-}
+namespace Internal { class BaseCheckoutWizardPrivate; }
 
 class Command;
 

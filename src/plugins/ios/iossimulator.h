@@ -35,9 +35,7 @@
 
 #include <QSharedPointer>
 
-namespace ProjectExplorer {
-class Kit;
-}
+namespace ProjectExplorer { class Kit; }
 namespace Ios {
 namespace Internal {
 class IosConfigurations;

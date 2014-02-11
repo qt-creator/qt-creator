@@ -36,9 +36,7 @@
 
 #include "blackberrydeviceconfiguration.h"
 
-namespace ProjectExplorer {
-class Target;
-}
+namespace ProjectExplorer { class Target; }
 
 namespace Qnx {
 namespace Internal {

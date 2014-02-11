@@ -36,18 +36,14 @@ QT_BEGIN_NAMESPACE
 class QAbstractButton;
 QT_END_NAMESPACE
 
-namespace Utils {
-    class DetailsWidget;
-}
+namespace Utils { class DetailsWidget; }
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
 class QmakeProFileNode;
 
 namespace Internal {
-namespace Ui {
-class QmakeProjectConfigWidget;
-}
+namespace Ui { class QmakeProjectConfigWidget; }
 
 class QmakeProjectConfigWidget : public ProjectExplorer::NamedWidget
 {

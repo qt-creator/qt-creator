@@ -40,9 +40,7 @@
 namespace CppTools {
 namespace Internal {
 
-namespace Ui {
-class CompletionSettingsPage;
-}
+namespace Ui { class CompletionSettingsPage; }
 
 // TODO: Move this class to the text editor plugin
 

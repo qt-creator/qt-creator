@@ -34,9 +34,7 @@
 
 #include <QSharedPointer>
 
-namespace VcsBase {
-    class Command;
-}
+namespace VcsBase { class Command; }
 
 namespace Git {
 

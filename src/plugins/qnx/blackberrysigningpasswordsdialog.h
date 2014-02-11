@@ -37,9 +37,7 @@
 namespace Qnx {
 namespace Internal {
 
-namespace Ui {
-class BlackBerrySigningPasswordsDialog;
-}
+namespace Ui { class BlackBerrySigningPasswordsDialog; }
 
 class BlackBerrySigningPasswordsDialog : public QDialog
 {

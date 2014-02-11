@@ -34,9 +34,7 @@
 #include "sshremoteprocess.h"
 
 namespace QSsh {
-namespace Internal {
-class SshRemoteProcessRunnerPrivate;
-} // namespace Internal
+namespace Internal { class SshRemoteProcessRunnerPrivate; }
 
 class QSSH_EXPORT SshRemoteProcessRunner : public QObject
 {

@@ -37,9 +37,7 @@ class QGraphicsScene;
 class QGraphicsSceneMouseEvent;
 QT_END_NAMESPACE
 
-namespace Utils {
-class CrumblePath;
-}
+namespace Utils { class CrumblePath; }
 
 namespace QmlDesigner {
 

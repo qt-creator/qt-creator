@@ -43,9 +43,7 @@ class QSignalMapper;
 class QGraphicsOpacityEffect;
 QT_END_NAMESPACE
 
-namespace Utils {
-class DetailsWidget;
-}
+namespace Utils { class DetailsWidget; }
 
 namespace ProjectExplorer {
 
@@ -146,9 +144,7 @@ private:
     int m_leftMargin;
 };
 
-namespace Ui {
-    class BuildStepsPage;
-}
+namespace Ui { class BuildStepsPage; }
 
 class BuildStepsPage : public NamedWidget
 {

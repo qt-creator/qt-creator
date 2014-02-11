@@ -35,9 +35,7 @@
 
 using namespace QtSupport::Internal;
 
-namespace Ui {
-class ScreenShotCropperWindow;
-}
+namespace Ui { class ScreenShotCropperWindow; }
 
 class ScreenShotCropperWindow : public QMainWindow
 {

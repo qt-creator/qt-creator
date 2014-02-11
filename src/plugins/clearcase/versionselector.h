@@ -40,9 +40,7 @@ QT_END_NAMESPACE
 namespace ClearCase {
 namespace Internal {
 
-namespace Ui {
-    class VersionSelector;
-}
+namespace Ui { class VersionSelector; }
 
 class VersionSelector : public QDialog
 {

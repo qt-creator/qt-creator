@@ -38,9 +38,7 @@ namespace Utils {
 class Environment;
 class EnvironmentItem;
 
-namespace Internal {
-class EnvironmentModelPrivate;
-} // namespace Internal
+namespace Internal { class EnvironmentModelPrivate; }
 
 class QTCREATOR_UTILS_EXPORT EnvironmentModel : public QAbstractTableModel
 {

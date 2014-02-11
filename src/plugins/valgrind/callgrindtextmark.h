@@ -36,9 +36,7 @@
 
 namespace Valgrind {
 
-namespace Callgrind {
-class Function;
-}
+namespace Callgrind { class Function; }
 
 namespace Internal {
 

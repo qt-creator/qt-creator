@@ -35,9 +35,7 @@
 #include <QAbstractSocket>
 
 namespace Utils {
-namespace Internal {
-class TcpPortsGathererPrivate;
-}
+namespace Internal { class TcpPortsGathererPrivate; }
 
 class QTCREATOR_UTILS_EXPORT TcpPortsGatherer
 {

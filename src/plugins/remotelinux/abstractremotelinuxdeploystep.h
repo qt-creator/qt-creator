@@ -39,9 +39,7 @@ namespace RemoteLinux {
 class AbstractRemoteLinuxDeployService;
 class RemoteLinuxDeployConfiguration;
 
-namespace Internal {
-class AbstractRemoteLinuxDeployStepPrivate;
-}
+namespace Internal { class AbstractRemoteLinuxDeployStepPrivate; }
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer::BuildStep
 {

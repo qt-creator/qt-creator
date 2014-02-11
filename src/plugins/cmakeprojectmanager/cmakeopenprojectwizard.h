@@ -50,9 +50,7 @@ class FancyLineEdit;
 class PathChooser;
 }
 
-namespace ProjectExplorer {
-class Kit;
-}
+namespace ProjectExplorer { class Kit; }
 
 namespace CMakeProjectManager {
 namespace Internal {

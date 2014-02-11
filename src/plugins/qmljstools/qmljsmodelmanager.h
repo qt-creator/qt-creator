@@ -46,17 +46,11 @@
 QT_FORWARD_DECLARE_CLASS(QTimer)
 QT_FORWARD_DECLARE_CLASS(QLocale)
 
-namespace Core {
-class MimeType;
-}
+namespace Core { class MimeType; }
 
-namespace CPlusPlus {
-class CppModelManagerInterface;
-}
+namespace CPlusPlus { class CppModelManagerInterface; }
 
-namespace QmlJS {
-class QrcParser;
-}
+namespace QmlJS { class QrcParser; }
 
 namespace QmlJSTools {
 

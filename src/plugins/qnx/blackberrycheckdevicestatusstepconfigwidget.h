@@ -37,9 +37,7 @@
 namespace Qnx {
 namespace Internal {
 
-namespace Ui {
-class BlackBerryCheckDeviceStatusStepConfigWidget;
-}
+namespace Ui { class BlackBerryCheckDeviceStatusStepConfigWidget; }
 
 class BlackBerryCheckDeviceStatusStep;
 class BlackBerryCheckDeviceStatusStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

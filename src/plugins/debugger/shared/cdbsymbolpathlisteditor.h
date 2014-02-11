@@ -34,9 +34,7 @@
 
 #include <QDialog>
 
-namespace Utils {
-    class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 QT_BEGIN_NAMESPACE
 class QDialogButtonBox;

@@ -44,9 +44,7 @@
 #include <QProcess>
 #include <QDateTime>
 
-namespace QSsh {
-class SshRemoteProcessRunner;
-}
+namespace QSsh { class SshRemoteProcessRunner; }
 
 namespace Qnx {
 namespace Internal {

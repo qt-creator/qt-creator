@@ -41,9 +41,7 @@ namespace CPlusPlus {
 class Document;
 class Snapshot;
 }
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace CppTools {
 namespace Tests {

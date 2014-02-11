@@ -49,9 +49,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class FileName; }
 
-namespace Core {
-class ICore;
-}
+namespace Core { class ICore; }
 
 namespace QtSupport {
 class BaseQtVersion;

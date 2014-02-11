@@ -48,9 +48,7 @@ class LibraryTypePage;
 class DetailsPage;
 class SummaryPage;
 
-namespace Ui {
-    class LibraryDetailsWidget;
-}
+namespace Ui { class LibraryDetailsWidget; }
 
 class AddLibraryWizard : public Utils::Wizard
 {

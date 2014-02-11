@@ -42,9 +42,7 @@ class QSpinBox;
 class QCheckBox;
 QT_END_NAMESPACE
 
-namespace Utils {
-class PathChooser;
-}
+namespace Utils { class PathChooser; }
 namespace Gerrit {
 namespace Internal {
 

@@ -40,13 +40,9 @@
 #include <QScopedPointer>
 #include <QIcon>
 
-namespace GLSL {
-class Function;
-}
+namespace GLSL { class Function; }
 
-namespace TextEditor {
-class BasicProposalItem;
-}
+namespace TextEditor { class BasicProposalItem; }
 
 namespace GLSLEditor {
 namespace Internal {

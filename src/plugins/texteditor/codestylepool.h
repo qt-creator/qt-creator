@@ -42,9 +42,7 @@ class ICodeStylePreferences;
 class ICodeStylePreferencesFactory;
 class TabSettings;
 
-namespace Internal {
-class CodeStylePoolPrivate;
-}
+namespace Internal { class CodeStylePoolPrivate; }
 
 class TEXTEDITOR_EXPORT CodeStylePool : public QObject
 {

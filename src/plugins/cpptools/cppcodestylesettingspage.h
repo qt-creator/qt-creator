@@ -53,9 +53,7 @@ class CppCodeStylePreferences;
 
 namespace Internal {
 
-namespace Ui {
-class CppCodeStyleSettingsPage;
-}
+namespace Ui { class CppCodeStyleSettingsPage; }
 
 class CppCodeStylePreferencesWidget : public QWidget
 {

@@ -41,9 +41,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-namespace Internal {
-class ICodeStylePreferencesPrivate;
-}
+namespace Internal { class ICodeStylePreferencesPrivate; }
 
 class TabSettings;
 class CodeStylePool;

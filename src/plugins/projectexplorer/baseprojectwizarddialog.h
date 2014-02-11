@@ -34,9 +34,7 @@
 #include <coreplugin/basefilewizard.h>
 #include <utils/wizard.h>
 
-namespace Utils {
-    class ProjectIntroPage;
-}
+namespace Utils { class ProjectIntroPage; }
 
 namespace ProjectExplorer {
 

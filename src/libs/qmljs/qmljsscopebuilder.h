@@ -44,9 +44,7 @@ class ObjectValue;
 class Value;
 class ScopeChain;
 
-namespace AST {
-    class Node;
-}
+namespace AST { class Node; }
 
 class QMLJS_EXPORT ScopeBuilder
 {

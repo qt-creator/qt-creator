@@ -45,9 +45,7 @@ QT_END_NAMESPACE
 namespace Qnx {
 namespace Internal {
 
-namespace Ui {
-class BarDescriptorEditorEntryPointWidget;
-}
+namespace Ui { class BarDescriptorEditorEntryPointWidget; }
 
 class BarDescriptorEditorEntryPointWidget : public BarDescriptorEditorAbstractPanelWidget
 {

@@ -40,9 +40,7 @@
 #include <QTimer>
 
 namespace QtSupport {
-namespace Internal {
-class QtSupportPlugin;
-}
+namespace Internal { class QtSupportPlugin; }
 
 class QTSUPPORT_EXPORT ProMessageHandler : public QObject, public QMakeHandler
 {

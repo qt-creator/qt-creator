@@ -38,9 +38,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QDir)
 
-namespace Utils {
-class FileSystemWatcher;
-}
+namespace Utils { class FileSystemWatcher; }
 
 namespace QmlProjectManager {
 

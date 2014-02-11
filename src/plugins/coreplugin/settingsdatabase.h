@@ -39,9 +39,7 @@
 
 namespace Core {
 
-namespace Internal {
-class SettingsDatabasePrivate;
-}
+namespace Internal { class SettingsDatabasePrivate; }
 
 class CORE_EXPORT SettingsDatabase : public QObject
 {

@@ -45,9 +45,7 @@ template <class> class QVector;
 template <class> class QList;
 QT_END_NAMESPACE
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace Utils {
 class NavigationTreeView;

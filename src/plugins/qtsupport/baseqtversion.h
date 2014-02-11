@@ -39,13 +39,9 @@
 #include <QStringList>
 #include <QVariantMap>
 
-namespace Utils {
-class Environment;
-} // namespace Utils
+namespace Utils { class Environment; }
 
-namespace Core {
-class FeatureSet;
-} // namespace Core
+namespace Core { class FeatureSet; }
 
 namespace ProjectExplorer {
 class IOutputParser;

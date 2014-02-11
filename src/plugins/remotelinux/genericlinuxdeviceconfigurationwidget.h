@@ -36,9 +36,7 @@
 
 namespace RemoteLinux {
 
-namespace Ui {
-class GenericLinuxDeviceConfigurationWidget;
-}
+namespace Ui { class GenericLinuxDeviceConfigurationWidget; }
 
 class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
         : public ProjectExplorer::IDeviceWidget

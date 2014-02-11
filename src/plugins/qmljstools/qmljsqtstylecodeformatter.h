@@ -35,9 +35,7 @@
 #include <texteditor/basetextdocumentlayout.h>
 #include <qmljs/qmljscodeformatter.h>
 
-namespace TextEditor {
-    class TabSettings;
-}
+namespace TextEditor { class TabSettings; }
 
 namespace QmlJSTools {
 

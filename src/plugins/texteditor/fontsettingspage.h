@@ -46,9 +46,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-namespace Internal {
-class FontSettingsPagePrivate;
-} // namespace Internal
+namespace Internal { class FontSettingsPagePrivate; }
 
 // GUI description of a format consisting of id (settings key)
 // and displayName to be displayed

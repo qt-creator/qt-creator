@@ -47,9 +47,7 @@ namespace Internal {
 class BlackBerryDebugTokenUploader;
 class BlackBerrySigningUtils;
 
-namespace Ui {
-class BlackBerryDeviceConfigurationWidget;
-}
+namespace Ui { class BlackBerryDeviceConfigurationWidget; }
 
 class BlackBerryDeviceConfigurationWidget : public ProjectExplorer::IDeviceWidget
 {

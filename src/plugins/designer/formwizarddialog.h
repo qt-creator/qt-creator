@@ -32,9 +32,7 @@
 
 #include <utils/wizard.h>
 
-namespace Utils {
-    class FileWizardPage;
-}
+namespace Utils { class FileWizardPage; }
 
 namespace Designer {
 namespace Internal {

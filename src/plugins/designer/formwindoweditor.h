@@ -38,15 +38,11 @@ QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
 
-namespace TextEditor {
-    class PlainTextEditor;
-}
+namespace TextEditor { class PlainTextEditor; }
 
 namespace Designer {
 
-namespace Internal {
-    class DesignerXmlEditorWidget;
-}
+namespace Internal { class DesignerXmlEditorWidget; }
 struct FormWindowEditorPrivate;
 
 // IEditor that is used for the QDesignerFormWindowInterface

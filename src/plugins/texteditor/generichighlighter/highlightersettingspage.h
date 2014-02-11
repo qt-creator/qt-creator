@@ -38,9 +38,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-namespace Internal {
-class HighlightDefinitionMetaData;
-}
+namespace Internal { class HighlightDefinitionMetaData; }
 
 class HighlighterSettings;
 

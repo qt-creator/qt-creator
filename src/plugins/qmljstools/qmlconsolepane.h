@@ -37,9 +37,7 @@ class QToolButton;
 class QLabel;
 QT_END_NAMESPACE
 
-namespace Utils {
-class SavedAction;
-}
+namespace Utils { class SavedAction; }
 
 namespace QmlJSTools {
 

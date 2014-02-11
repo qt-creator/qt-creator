@@ -40,9 +40,7 @@ QT_END_NAMESPACE
 namespace Valgrind {
 namespace Internal {
 
-namespace Ui {
-class ValgrindConfigWidget;
-}
+namespace Ui { class ValgrindConfigWidget; }
 
 class ValgrindBaseSettings;
 

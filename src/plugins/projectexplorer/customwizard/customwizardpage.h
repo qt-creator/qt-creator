@@ -42,9 +42,7 @@ class QTextEdit;
 class QLabel;
 QT_END_NAMESPACE
 
-namespace Utils {
-    class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 namespace ProjectExplorer {
 namespace Internal {

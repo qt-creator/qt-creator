@@ -38,9 +38,7 @@
 
 
 namespace Ios {
-namespace Internal {
-class IosToolHandlerPrivate;
-}
+namespace Internal { class IosToolHandlerPrivate; }
 
 class IosToolHandler : public QObject
 {

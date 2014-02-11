@@ -35,9 +35,7 @@
 #include <QStringList>
 #include <QHash>
 
-namespace Core {
-class IDocument;
-}
+namespace Core { class IDocument; }
 
 namespace QmlProjectManager {
 

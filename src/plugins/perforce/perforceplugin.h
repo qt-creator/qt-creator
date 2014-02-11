@@ -53,9 +53,7 @@ namespace Utils {
     class TempFileSaver;
 }
 
-namespace Core {
-    class CommandLocator;
-}
+namespace Core { class CommandLocator; }
 
 namespace Perforce {
 namespace Internal {

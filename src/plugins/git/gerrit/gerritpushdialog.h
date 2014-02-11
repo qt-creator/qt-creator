@@ -35,17 +35,13 @@
 #include <QDate>
 
 namespace Git {
-namespace Internal {
-class GitClient;
-}
+namespace Internal { class GitClient; }
 }
 
 namespace Gerrit {
 namespace Internal {
 
-namespace Ui {
-    class GerritPushDialog;
-}
+namespace Ui { class GerritPushDialog; }
 
 class GerritPushDialog : public QDialog
 {

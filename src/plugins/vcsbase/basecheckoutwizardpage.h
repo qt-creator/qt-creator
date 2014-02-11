@@ -39,9 +39,7 @@ namespace VcsBase {
 namespace Internal {
 class BaseCheckoutWizardPagePrivate;
 
-namespace Ui {
-class BaseCheckoutWizardPage;
-} // namespace Ui
+namespace Ui { class BaseCheckoutWizardPage; }
 } // namespace Internal
 
 

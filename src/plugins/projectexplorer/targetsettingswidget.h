@@ -42,9 +42,7 @@ class Target;
 class Kit;
 namespace Internal {
 
-namespace Ui {
-    class TargetSettingsWidget;
-}
+namespace Ui { class TargetSettingsWidget; }
 
 class TargetSettingsWidget : public QWidget
 {

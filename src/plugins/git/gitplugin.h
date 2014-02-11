@@ -54,13 +54,9 @@ class Context;
 class ActionManager;
 class ActionContainer;
 }
-namespace Utils {
-class ParameterAction;
-}
+namespace Utils { class ParameterAction; }
 namespace Gerrit {
-namespace Internal {
-class GerritPlugin;
-}
+namespace Internal { class GerritPlugin; }
 }
 namespace Git {
 namespace Internal {

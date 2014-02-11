@@ -39,9 +39,7 @@ class QTreeView;
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-    class SelectableFilesModel;
-}
+namespace ProjectExplorer { class SelectableFilesModel; }
 
 namespace GenericProjectManager {
 namespace Internal {

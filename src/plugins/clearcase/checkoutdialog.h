@@ -36,9 +36,7 @@
 namespace ClearCase {
 namespace Internal {
 
-namespace Ui {
-    class CheckOutDialog;
-}
+namespace Ui { class CheckOutDialog; }
 
 class ActivitySelector;
 

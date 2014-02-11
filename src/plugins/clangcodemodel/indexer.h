@@ -44,9 +44,7 @@
 
 namespace ClangCodeModel {
 
-namespace Internal {
-class ClangSymbolSearcher;
-} // namespace Internal
+namespace Internal { class ClangSymbolSearcher; }
 
 class IndexerPrivate;
 

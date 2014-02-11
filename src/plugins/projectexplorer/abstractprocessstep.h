@@ -41,9 +41,7 @@ class QEventLoop;
 class QTimer;
 QT_END_NAMESPACE
 
-namespace Utils {
-class QtcProcess;
-}
+namespace Utils { class QtcProcess; }
 namespace ProjectExplorer {
 
 class IOutputParser;

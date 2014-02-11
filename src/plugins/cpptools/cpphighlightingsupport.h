@@ -38,9 +38,7 @@
 
 #include <QFuture>
 
-namespace TextEditor {
-class ITextEditor;
-}
+namespace TextEditor { class ITextEditor; }
 
 namespace CppTools {
 

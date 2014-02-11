@@ -38,9 +38,7 @@
 namespace Core {
 namespace Internal {
 
-namespace Ui {
-    class ExternalToolConfig;
-}
+namespace Ui { class ExternalToolConfig; }
 
 class ExternalToolModel : public QAbstractItemModel
 {

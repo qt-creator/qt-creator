@@ -36,9 +36,7 @@
 
 namespace Core {
 
-namespace Ui {
-class RemoveFileDialog;
-}
+namespace Ui { class RemoveFileDialog; }
 
 class CORE_EXPORT RemoveFileDialog : public QDialog
 {

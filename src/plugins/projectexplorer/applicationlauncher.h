@@ -36,9 +36,7 @@
 
 #include <QProcess>
 
-namespace Utils {
-class Environment;
-}
+namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
 struct ApplicationLauncherPrivate;

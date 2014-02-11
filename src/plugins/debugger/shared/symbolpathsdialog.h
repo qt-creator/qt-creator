@@ -36,9 +36,7 @@
 namespace Debugger {
 namespace Internal {
 
-namespace Ui {
-class SymbolPathsDialog;
-}
+namespace Ui { class SymbolPathsDialog; }
 
 class SymbolPathsDialog : public QDialog
 {

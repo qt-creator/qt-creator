@@ -37,9 +37,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
-namespace TextEditor {
-class BaseTextEditor;
-} //TextEditor
+namespace TextEditor { class BaseTextEditor; }
 
 namespace QmlJS {
 

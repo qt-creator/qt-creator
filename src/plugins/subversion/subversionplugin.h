@@ -46,13 +46,9 @@ namespace Core {
     class IVersionControl;
     class IEditor;
 }
-namespace Utils {
-    class ParameterAction;
-}
+namespace Utils { class ParameterAction; }
 
-namespace VcsBase {
-    class VcsBaseSubmitEditor;
-}
+namespace VcsBase { class VcsBaseSubmitEditor; }
 
 namespace Subversion {
 namespace Internal {

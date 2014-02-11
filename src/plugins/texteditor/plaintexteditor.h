@@ -34,9 +34,7 @@
 
 #include <utils/uncommentselection.h>
 
-namespace Core {
-class MimeType;
-}
+namespace Core { class MimeType; }
 
 namespace TextEditor {
 

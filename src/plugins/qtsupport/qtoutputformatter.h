@@ -40,9 +40,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
-namespace ProjectExplorer {
-class Project;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class Project; }
 
 namespace QtSupport {
 

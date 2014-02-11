@@ -46,9 +46,7 @@ namespace Internal {
 class GitoriousHostWizardPage;
 struct GitoriousProject;
 
-namespace Ui {
-    class GitoriousProjectWidget;
-}
+namespace Ui { class GitoriousProjectWidget; }
 
 /* Let the user select a project from a host. Displays name and description
  * with tooltip and info button that opens URLs contained in the description.

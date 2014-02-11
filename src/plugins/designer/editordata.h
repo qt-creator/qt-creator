@@ -30,9 +30,7 @@
 #ifndef EDITORDATA_H
 #define EDITORDATA_H
 
-namespace SharedTools {
-    class WidgetHost;
-}
+namespace SharedTools { class WidgetHost; }
 
 namespace Designer {
     class FormWindowEditor;

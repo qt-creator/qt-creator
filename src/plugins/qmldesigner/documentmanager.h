@@ -36,9 +36,7 @@
 
 #include <designdocument.h>
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace QmlDesigner {
 

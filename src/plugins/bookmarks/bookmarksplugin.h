@@ -40,13 +40,9 @@ class QAction;
 class QMenu;
 QT_END_NAMESPACE
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
-namespace TextEditor {
-class ITextEditor;
-}
+namespace TextEditor { class ITextEditor; }
 
 namespace Bookmarks {
 namespace Internal {

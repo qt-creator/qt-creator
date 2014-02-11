@@ -40,9 +40,7 @@ QT_END_NAMESPACE
 namespace Todo {
 namespace Internal {
 
-namespace Ui {
-    class OptionsDialog;
-}
+namespace Ui { class OptionsDialog; }
 
 class Settings;
 class Keyword;

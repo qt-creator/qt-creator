@@ -36,9 +36,7 @@
 #include <qmldebug/qmldebugclient.h>
 #include <qmljs/qmljsdocument.h>
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace QmlDebug {
 class BaseEngineDebugClient;

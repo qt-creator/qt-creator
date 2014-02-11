@@ -42,9 +42,7 @@ class QMenu;
 class QTreeView;
 QT_END_NAMESPACE
 
-namespace Utils {
-    class FilterLineEdit;
-}
+namespace Utils { class FilterLineEdit; }
 
 namespace Core {
 namespace Internal {

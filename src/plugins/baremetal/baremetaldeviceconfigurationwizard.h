@@ -34,9 +34,7 @@
 #include <utils/wizard.h>
 
 namespace BareMetal {
-namespace Internal {
-   class BareMetalDeviceConfigrationWizardPrivate;
-} // namespace Internal
+namespace Internal { class BareMetalDeviceConfigrationWizardPrivate; }
 
 class BareMetalDeviceConfigurationWizard : public Utils::Wizard
 {

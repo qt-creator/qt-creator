@@ -36,14 +36,10 @@
 
 #include <QObject>
 
-namespace QmlJS {
-class IScriptEvaluator;
-}
+namespace QmlJS { class IScriptEvaluator; }
 namespace QmlJSTools {
 
-namespace Internal {
-class QmlConsoleModel;
-}
+namespace Internal { class QmlConsoleModel; }
 
 class QmlConsoleManagerPrivate;
 class QMLJSTOOLS_EXPORT QmlConsoleManager : public QmlJS::ConsoleManagerInterface

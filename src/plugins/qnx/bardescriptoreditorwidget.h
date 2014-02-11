@@ -36,13 +36,9 @@
 
 #include <QStackedWidget>
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
-namespace ProjectExplorer {
-class PanelsWidget;
-}
+namespace ProjectExplorer { class PanelsWidget; }
 
 namespace TextEditor {
 class PlainTextEditorWidget;

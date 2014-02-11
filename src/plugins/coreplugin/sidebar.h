@@ -46,9 +46,7 @@ namespace Core {
 class Command;
 struct SideBarPrivate;
 
-namespace Internal {
-class SideBarWidget;
-} // namespace Internal
+namespace Internal { class SideBarWidget; }
 
 /*
  * An item in the sidebar. Has a widget that is displayed in the sidebar and

@@ -42,9 +42,7 @@ QT_END_NAMESPACE
 namespace Qnx {
 namespace Internal {
 
-namespace Ui {
-class BarDescriptorEditorAssetsWidget;
-}
+namespace Ui { class BarDescriptorEditorAssetsWidget; }
 
 class BarDescriptorAsset;
 

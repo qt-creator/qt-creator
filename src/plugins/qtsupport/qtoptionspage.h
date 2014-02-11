@@ -43,9 +43,7 @@ class QTextBrowser;
 class QUrl;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class ToolChain;
-}
+namespace ProjectExplorer { class ToolChain; }
 
 namespace QtSupport {
 

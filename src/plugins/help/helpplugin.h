@@ -49,9 +49,7 @@ class SideBar;
 class SideBarItem;
 }   // Core
 
-namespace Utils {
-class StyledBar;
-}   // Utils
+namespace Utils { class StyledBar; }
 
 namespace Help {
 namespace Internal {

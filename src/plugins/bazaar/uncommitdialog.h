@@ -34,9 +34,7 @@
 namespace Bazaar {
 namespace Internal {
 
-namespace Ui {
-class UnCommitDialog;
-}
+namespace Ui { class UnCommitDialog; }
 
 class UnCommitDialog : public QDialog
 {

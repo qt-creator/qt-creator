@@ -36,9 +36,7 @@
 #include <QHash>
 #include <QSet>
 
-namespace Core {
-class IDocument;
-}
+namespace Core { class IDocument; }
 
 namespace GenericProjectManager {
 namespace Internal {

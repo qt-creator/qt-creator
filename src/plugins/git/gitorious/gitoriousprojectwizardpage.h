@@ -44,9 +44,7 @@ class GitoriousHostWizardPage;
 struct GitoriousProject;
 class GitoriousProjectWidget;
 
-namespace Ui {
-    class GitoriousProjectWizardPage;
-}
+namespace Ui { class GitoriousProjectWizardPage; }
 
 /* GitoriousProjectWizardPage: Let the user select a project via
  * GitoriousProjectWidget. As switching back and forth hosts (repopulating

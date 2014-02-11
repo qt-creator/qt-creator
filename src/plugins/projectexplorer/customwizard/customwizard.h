@@ -42,9 +42,7 @@ QT_BEGIN_NAMESPACE
 class QDir;
 QT_END_NAMESPACE
 
-namespace Utils {
-    class Wizard;
-}
+namespace Utils { class Wizard; }
 
 namespace ProjectExplorer {
 class CustomWizard;

@@ -43,9 +43,7 @@ class QRadioButton;
 class QComboBox;
 QT_END_NAMESPACE
 
-namespace qbs {
-class InstallOptions;
-}
+namespace qbs { class InstallOptions; }
 
 namespace Utils {
 class PathChooser;

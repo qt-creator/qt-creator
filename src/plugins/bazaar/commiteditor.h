@@ -32,9 +32,7 @@
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 
-namespace VcsBase {
-class SubmitFileModel;
-}
+namespace VcsBase { class SubmitFileModel; }
 
 namespace Bazaar {
 namespace Internal {

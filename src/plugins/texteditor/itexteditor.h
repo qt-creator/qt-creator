@@ -50,9 +50,7 @@ class QRect;
 class QTextBlock;
 QT_END_NAMESPACE
 
-namespace Utils {
-    class CommentDefinition;
-}
+namespace Utils { class CommentDefinition; }
 
 namespace TextEditor {
 

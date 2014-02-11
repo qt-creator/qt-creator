@@ -41,9 +41,7 @@ class AbstractCustomTool;
 class DesignerActionManager;
 class NodeInstanceView;
 
-namespace Internal {
-    class DesignModeWidget;
-}
+namespace Internal { class DesignModeWidget; }
 
 class ViewManagerData;
 

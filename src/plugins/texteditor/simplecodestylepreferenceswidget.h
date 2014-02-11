@@ -40,9 +40,7 @@ class TabSettings;
 class TabSettingsWidget;
 class ICodeStylePreferences;
 
-namespace Ui {
-    class TabPreferencesWidget;
-}
+namespace Ui { class TabPreferencesWidget; }
 
 class TEXTEDITOR_EXPORT SimpleCodeStylePreferencesWidget : public QWidget
 {

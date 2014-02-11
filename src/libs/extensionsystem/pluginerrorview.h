@@ -38,9 +38,7 @@ namespace ExtensionSystem {
 
 class PluginSpec;
 namespace Internal {
-namespace Ui {
-    class PluginErrorView;
-} // namespace Ui
+namespace Ui { class PluginErrorView; }
 } // namespace Internal
 
 class EXTENSIONSYSTEM_EXPORT PluginErrorView : public QWidget

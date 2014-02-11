@@ -54,9 +54,7 @@ class QToolBar;
 #if QT_VERSION >= 0x050000
 class QDesignerFormWindowManagerInterface;
 #else
-namespace qdesigner_internal {
-    class QDesignerFormWindowManager;
-}
+namespace qdesigner_internal { class QDesignerFormWindowManager; }
 #endif
 
 QT_END_NAMESPACE

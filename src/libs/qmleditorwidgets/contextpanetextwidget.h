@@ -35,14 +35,10 @@
 
 QT_BEGIN_NAMESPACE
 class QVariant;
-namespace Ui {
-    class ContextPaneTextWidget;
-}
+namespace Ui { class ContextPaneTextWidget; }
 QT_END_NAMESPACE
 
-namespace QmlJS {
-    class PropertyReader;
-}
+namespace QmlJS { class PropertyReader; }
 
 namespace QmlEditorWidgets {
 

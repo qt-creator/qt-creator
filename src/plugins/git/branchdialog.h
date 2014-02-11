@@ -39,9 +39,7 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-namespace Ui {
-class BranchDialog;
-}
+namespace Ui { class BranchDialog; }
 
 class BranchAddDialog;
 class BranchModel;

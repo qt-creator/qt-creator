@@ -32,13 +32,9 @@
 
 #include "imacrohandler.h"
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
-namespace TextEditor {
-class ITextEditor;
-}
+namespace TextEditor { class ITextEditor; }
 
 namespace Macros {
 namespace Internal {

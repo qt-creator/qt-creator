@@ -39,9 +39,7 @@ class QActionGroup;
 class QToolBar;
 QT_END_NAMESPACE
 
-namespace Utils {
-class LineColumnLabel;
-}
+namespace Utils { class LineColumnLabel; }
 
 namespace Qnx {
 namespace Internal {

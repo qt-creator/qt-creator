@@ -34,9 +34,7 @@
 
 #include <QWizardPage>
 
-namespace Utils {
-class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 namespace Qnx {
 namespace Internal {

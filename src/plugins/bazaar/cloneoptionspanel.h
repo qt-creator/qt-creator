@@ -34,9 +34,7 @@
 namespace Bazaar {
 namespace Internal {
 
-namespace Ui {
-class CloneOptionsPanel;
-}
+namespace Ui { class CloneOptionsPanel; }
 
 class CloneOptionsPanel : public QWidget
 {

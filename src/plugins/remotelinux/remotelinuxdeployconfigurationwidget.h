@@ -36,9 +36,7 @@
 namespace RemoteLinux {
 class RemoteLinuxDeployConfiguration;
 
-namespace Internal {
-class RemoteLinuxDeployConfigurationWidgetPrivate;
-} // namespace Internal
+namespace Internal { class RemoteLinuxDeployConfigurationWidgetPrivate; }
 
 class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
     : public ProjectExplorer::NamedWidget

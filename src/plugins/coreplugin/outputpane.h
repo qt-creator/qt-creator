@@ -42,9 +42,7 @@ namespace Core {
 
 class IMode;
 
-namespace Internal {
-class OutputPaneManager;
-}
+namespace Internal { class OutputPaneManager; }
 struct OutputPanePlaceHolderPrivate;
 
 class CORE_EXPORT OutputPanePlaceHolder : public QWidget

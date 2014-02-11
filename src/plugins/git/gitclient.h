@@ -47,9 +47,7 @@ class QDebug;
 class QProcessEnvironment;
 QT_END_NAMESPACE
 
-namespace Core {
-    class ICore;
-}
+namespace Core { class ICore; }
 
 namespace VcsBase {
     class Command;
@@ -62,9 +60,7 @@ namespace Utils {
     struct SynchronousProcessResponse;
 }
 
-namespace DiffEditor {
-    class DiffEditor;
-}
+namespace DiffEditor { class DiffEditor; }
 
 namespace Git {
 namespace Internal {

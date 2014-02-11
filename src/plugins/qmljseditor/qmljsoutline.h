@@ -36,13 +36,9 @@
 
 #include <QSortFilterProxyModel>
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
-namespace QmlJS {
-class Editor;
-}
+namespace QmlJS { class Editor; }
 
 namespace QmlJSEditor {
 namespace Internal {

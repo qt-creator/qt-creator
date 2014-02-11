@@ -35,9 +35,7 @@
 namespace Macros {
 namespace Internal {
 
-namespace Ui {
-    class SaveDialog;
-}
+namespace Ui { class SaveDialog; }
 
 class SaveDialog : public QDialog
 {

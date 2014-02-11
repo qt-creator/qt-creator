@@ -34,9 +34,7 @@
 
 #include <utils/buildablehelperlibrary.h>
 
-namespace Utils {
-    class Environment;
-}
+namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
     class Project;

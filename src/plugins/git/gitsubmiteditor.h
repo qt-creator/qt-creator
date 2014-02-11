@@ -36,9 +36,7 @@
 
 #include <QStringList>
 
-namespace VcsBase {
-    class SubmitFileModel;
-}
+namespace VcsBase { class SubmitFileModel; }
 
 namespace Git {
 namespace Internal {

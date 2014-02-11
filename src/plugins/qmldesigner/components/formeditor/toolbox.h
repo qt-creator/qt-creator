@@ -36,9 +36,7 @@ QT_BEGIN_NAMESPACE
 class QToolBar;
 QT_END_NAMESPACE
 
-namespace Utils {
-class CrumblePath;
-}
+namespace Utils { class CrumblePath; }
 
 namespace QmlDesigner {
 

@@ -37,9 +37,7 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-class StyleManagerGuard;
-}
+namespace Internal { class StyleManagerGuard; }
 
 class CORESHARED_EXPORT StyleManager {
 public:

@@ -41,9 +41,7 @@ QT_BEGIN_NAMESPACE
 class QFileInfo;
 QT_END_NAMESPACE
 
-namespace Core {
-    class MimeDatabase;
-}
+namespace Core { class MimeDatabase; }
 
 namespace ProjectExplorer {
 class RunConfiguration;

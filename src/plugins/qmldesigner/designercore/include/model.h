@@ -42,9 +42,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-namespace Internal {
-    class ModelPrivate;
-}
+namespace Internal { class ModelPrivate; }
 
 class AnchorLine;
 class ModelNode;

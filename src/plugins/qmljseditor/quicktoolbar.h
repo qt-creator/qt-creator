@@ -34,13 +34,9 @@
 
 #include <QPointer>
 
-namespace TextEditor {
-class BaseTextEditor;
-}
+namespace TextEditor { class BaseTextEditor; }
 
-namespace QmlEditorWidgets {
-class ContextPaneWidget;
-}
+namespace QmlEditorWidgets { class ContextPaneWidget; }
 
 namespace QmlJSEditor {
 

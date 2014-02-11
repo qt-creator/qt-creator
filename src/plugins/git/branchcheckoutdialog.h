@@ -35,9 +35,7 @@
 namespace Git {
 namespace Internal {
 
-namespace Ui {
-    class BranchCheckoutDialog;
-}
+namespace Ui { class BranchCheckoutDialog; }
 
 class BranchCheckoutDialog : public QDialog
 {

@@ -33,9 +33,7 @@
 #include <QComboBox>
 
 namespace Git {
-namespace Internal {
-class GitClient;
-}
+namespace Internal { class GitClient; }
 }
 
 namespace Gerrit {

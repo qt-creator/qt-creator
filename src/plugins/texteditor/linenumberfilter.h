@@ -36,9 +36,7 @@
 #include <QList>
 #include <QFutureInterface>
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace TextEditor {
 namespace Internal {

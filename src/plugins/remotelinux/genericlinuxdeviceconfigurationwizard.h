@@ -35,9 +35,7 @@
 #include <utils/wizard.h>
 
 namespace RemoteLinux {
-namespace Internal {
-class GenericLinuxDeviceConfigurationWizardPrivate;
-} // namespace Internal
+namespace Internal { class GenericLinuxDeviceConfigurationWizardPrivate; }
 
 class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizard : public Utils::Wizard
 {

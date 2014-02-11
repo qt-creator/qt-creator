@@ -32,9 +32,7 @@
 #include "abstractremotelinuxdeployservice.h"
 
 namespace RemoteLinux {
-namespace Internal {
-class RemoteLinuxCustomCommandDeployservicePrivate;
-} // namespace Internal
+namespace Internal { class RemoteLinuxCustomCommandDeployservicePrivate; }
 
 class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeployService
     : public AbstractRemoteLinuxDeployService

@@ -41,9 +41,7 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
-namespace Ui {
-    class StashDialog;
-}
+namespace Ui { class StashDialog; }
 class StashModel;
 
 /* StashDialog: Non-modal dialog that manages the list of stashes

@@ -38,9 +38,7 @@ class QIODevice;
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
-namespace Utils {
-    class ChangeSet;
-}
+namespace Utils { class ChangeSet; }
 
 namespace QmlDesigner {
 

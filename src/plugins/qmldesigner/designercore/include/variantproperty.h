@@ -42,9 +42,7 @@ namespace QmlDesigner {
 
 class AbstractView;
 
-namespace Internal {
-    class ModelPrivate;
-}
+namespace Internal { class ModelPrivate; }
 
 class QMLDESIGNERCORE_EXPORT VariantProperty : public AbstractProperty
 {

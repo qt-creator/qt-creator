@@ -52,9 +52,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
 
-namespace Utils {
-class QtcProcess;
-}
+namespace Utils { class QtcProcess; }
 
 namespace CMakeProjectManager {
 namespace Internal {

@@ -45,9 +45,7 @@ namespace Internal {
 
 class GitoriousProjectWizardPage;
 
-namespace Ui {
-    class GitoriousRepositoryWizardPage;
-}
+namespace Ui { class GitoriousRepositoryWizardPage; }
 
 // A wizard page listing Gitorious repositories in a tree, by repository type.
 

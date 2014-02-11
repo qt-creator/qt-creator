@@ -48,9 +48,7 @@ namespace TextEditor {
 namespace QmlJSTools {
 namespace Internal {
 
-namespace Ui {
-class QmlJSCodeStyleSettingsPage;
-}
+namespace Ui { class QmlJSCodeStyleSettingsPage; }
 
 class QmlJSCodeStylePreferencesWidget : public QWidget
 {

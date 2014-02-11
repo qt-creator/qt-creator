@@ -43,9 +43,7 @@ class QModelIndex;
 class QLabel;
 QT_END_NAMESPACE
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace Utils {
 class AnnotatedItemDelegate;

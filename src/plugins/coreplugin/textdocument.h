@@ -36,9 +36,7 @@
 
 namespace Core {
 
-namespace Internal {
-class TextDocumentPrivate;
-}
+namespace Internal { class TextDocumentPrivate; }
 
 class CORE_EXPORT TextDocument : public IDocument
 {

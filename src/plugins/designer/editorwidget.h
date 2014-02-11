@@ -38,12 +38,8 @@ QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
 
-namespace SharedTools {
-    class WidgetHost;
-}
-namespace Core {
-    class IEditor;
-}
+namespace SharedTools { class WidgetHost; }
+namespace Core { class IEditor; }
 namespace Designer {
 class FormWindowEditor;
 

@@ -43,9 +43,7 @@ QT_BEGIN_NAMESPACE
 class QCheckBox;
 QT_END_NAMESPACE
 
-namespace Utils {
-    class PathListEditor;
-}
+namespace Utils { class PathListEditor; }
 namespace Debugger {
 namespace Internal {
 

@@ -37,18 +37,12 @@
 
 namespace QmlJS {
 class ScopeChain;
-namespace AST {
-class SourceLocation;
-}
+namespace AST { class SourceLocation; }
 }
 
-namespace TextEditor {
-class FontSettings;
-}
+namespace TextEditor { class FontSettings; }
 
-namespace QmlJSTools {
-class SemanticInfo;
-}
+namespace QmlJSTools { class SemanticInfo; }
 
 namespace QmlJSEditor {
 

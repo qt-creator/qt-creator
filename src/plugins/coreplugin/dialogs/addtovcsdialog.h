@@ -35,9 +35,7 @@
 namespace Core {
 namespace Internal {
 
-namespace Ui {
-class AddToVcsDialog;
-}
+namespace Ui { class AddToVcsDialog; }
 
 class AddToVcsDialog : public QDialog
 {

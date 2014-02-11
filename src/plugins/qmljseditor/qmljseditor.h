@@ -48,17 +48,13 @@ class QComboBox;
 class QTimer;
 QT_END_NAMESPACE
 
-namespace Core {
-class ICore;
-}
+namespace Core { class ICore; }
 
 namespace QmlJS {
     class ModelManagerInterface;
     class IContextPane;
     class LookupContext;
-namespace AST {
-    class UiObjectMember;
-}
+namespace AST { class UiObjectMember; }
 }
 
 /*!

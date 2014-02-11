@@ -37,9 +37,7 @@
  * but due to a very hackish test of that generic highlighter,
  * there functions must be outside. */
 
-namespace Core {
-class MimeType;
-}
+namespace Core { class MimeType; }
 
 namespace TextEditor {
 

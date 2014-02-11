@@ -34,9 +34,7 @@
 
 #include <remotelinux/linuxdevice.h>
 
-namespace ProjectExplorer {
-class Kit;
-}
+namespace ProjectExplorer { class Kit; }
 
 namespace Qnx {
 namespace Internal {

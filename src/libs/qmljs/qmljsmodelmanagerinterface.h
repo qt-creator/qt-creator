@@ -41,9 +41,7 @@
 #include <QStringList>
 #include <QPointer>
 
-namespace ProjectExplorer {
-    class Project;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace QmlJS {
 

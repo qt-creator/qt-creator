@@ -36,14 +36,10 @@
 
 QT_BEGIN_NAMESPACE
 class QVariant;
-namespace Ui {
-    class EasingContextPane;
-}
+namespace Ui { class EasingContextPane; }
 QT_END_NAMESPACE
 
-namespace QmlJS {
-    class PropertyReader;
-}
+namespace QmlJS { class PropertyReader; }
 
 namespace QmlEditorWidgets {
 class EasingSimulation;

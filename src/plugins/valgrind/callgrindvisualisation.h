@@ -38,9 +38,7 @@ class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Valgrind {
-namespace Callgrind {
-class Function;
-}
+namespace Callgrind { class Function; }
 }
 
 namespace Valgrind {

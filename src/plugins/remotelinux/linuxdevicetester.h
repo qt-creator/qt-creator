@@ -40,9 +40,7 @@ namespace ProjectExplorer { class DeviceUsedPortsGatherer; }
 
 namespace RemoteLinux {
 
-namespace Internal {
-class GenericLinuxDeviceTesterPrivate;
-}
+namespace Internal { class GenericLinuxDeviceTesterPrivate; }
 
 class REMOTELINUX_EXPORT GenericLinuxDeviceTester : public ProjectExplorer::DeviceTester
 {

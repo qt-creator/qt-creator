@@ -36,9 +36,7 @@
 #include <QProgressDialog>
 
 namespace RemoteLinux {
-namespace Internal {
-class PublicKeyDeploymentDialogPrivate;
-} // namespace Internal
+namespace Internal { class PublicKeyDeploymentDialogPrivate; }
 
 class REMOTELINUX_EXPORT PublicKeyDeploymentDialog : public QProgressDialog
 {

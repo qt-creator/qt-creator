@@ -36,9 +36,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace RemoteLinux {
-class RemoteLinuxRunConfiguration;
-}
+namespace RemoteLinux { class RemoteLinuxRunConfiguration; }
 
 namespace Qnx {
 namespace Internal {

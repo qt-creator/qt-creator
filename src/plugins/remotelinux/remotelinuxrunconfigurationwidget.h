@@ -41,9 +41,7 @@ QT_END_NAMESPACE
 namespace RemoteLinux {
 class RemoteLinuxRunConfiguration;
 
-namespace Internal {
-class RemoteLinuxRunConfigurationWidgetPrivate;
-} // namespace Internal
+namespace Internal { class RemoteLinuxRunConfigurationWidgetPrivate; }
 
 class REMOTELINUX_EXPORT RemoteLinuxRunConfigurationWidget : public QWidget
 {

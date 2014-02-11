@@ -34,9 +34,7 @@
 namespace Bazaar {
 namespace Internal {
 
-namespace Ui {
-class PullOrPushDialog;
-}
+namespace Ui { class PullOrPushDialog; }
 
 class PullOrPushDialog : public QDialog
 {

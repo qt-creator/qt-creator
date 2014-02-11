@@ -38,9 +38,7 @@
 namespace Qnx {
 namespace Internal {
 
-namespace Ui {
-class BlackBerryDeployConfigurationWidget;
-}
+namespace Ui { class BlackBerryDeployConfigurationWidget; }
 
 class BlackBerryDeployConfiguration;
 

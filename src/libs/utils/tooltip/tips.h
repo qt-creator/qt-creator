@@ -36,9 +36,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QVBoxLayout)
 
-namespace Utils {
-class TipContent;
-}
+namespace Utils { class TipContent; }
 
 #ifndef Q_MOC_RUN
 namespace Utils {

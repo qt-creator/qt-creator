@@ -33,9 +33,7 @@
 #include <QQuickView>
 #include <QWidget>
 
-namespace Analyzer {
-class IAnalyzerTool;
-}
+namespace Analyzer { class IAnalyzerTool; }
 
 namespace QmlProfiler {
 

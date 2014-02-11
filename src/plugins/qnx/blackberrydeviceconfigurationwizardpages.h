@@ -39,9 +39,7 @@
 #include <QWizardPage>
 #include <QListWidgetItem>
 
-namespace QSsh {
-class SshKeyGenerator;
-}
+namespace QSsh { class SshKeyGenerator; }
 
 namespace Qnx {
 namespace Internal {

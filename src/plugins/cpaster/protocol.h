@@ -40,9 +40,7 @@ class QNetworkReply;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Core {
-class IOptionsPage;
-}
+namespace Core { class IOptionsPage; }
 
 namespace CodePaster {
 

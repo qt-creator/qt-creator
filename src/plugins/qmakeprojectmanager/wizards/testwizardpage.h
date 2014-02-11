@@ -35,9 +35,7 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
-namespace Ui {
-    class TestWizardPage;
-}
+namespace Ui { class TestWizardPage; }
 
 struct TestWizardParameters;
 

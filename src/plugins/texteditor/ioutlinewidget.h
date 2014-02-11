@@ -33,9 +33,7 @@
 #include <texteditor/texteditor_global.h>
 #include <QWidget>
 
-namespace Core {
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace TextEditor {
 

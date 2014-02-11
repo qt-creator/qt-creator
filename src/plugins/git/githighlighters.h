@@ -32,9 +32,7 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
-namespace TextEditor {
-class FontSettings;
-}
+namespace TextEditor { class FontSettings; }
 
 namespace Git {
 namespace Internal {

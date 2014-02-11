@@ -32,9 +32,7 @@
 
 #include <QMainWindow>
 
-namespace SharedTools {
-    class QrcEditor;
-}
+namespace SharedTools { class QrcEditor; }
 
 class MainWindow : public QMainWindow
 {

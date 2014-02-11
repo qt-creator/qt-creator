@@ -40,9 +40,7 @@ QT_END_NAMESPACE
 namespace BareMetal {
 class BareMetalRunConfiguration;
 
-namespace Internal {
-class BareMetalRunConfigurationWidgetPrivate;
-} // namespace Internal
+namespace Internal { class BareMetalRunConfigurationWidgetPrivate; }
 
 class BareMetalRunConfigurationWidget : public QWidget
 {

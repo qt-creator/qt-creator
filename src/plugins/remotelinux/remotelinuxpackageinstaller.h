@@ -36,9 +36,7 @@
 
 namespace RemoteLinux {
 
-namespace Internal {
-class AbstractRemoteLinuxPackageInstallerPrivate;
-} // namespace Internal
+namespace Internal { class AbstractRemoteLinuxPackageInstallerPrivate; }
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxPackageInstaller : public QObject
 {

@@ -34,9 +34,7 @@
 #include "remotelinux_export.h"
 
 namespace RemoteLinux {
-namespace Internal {
-class GenericDirectUploadStepPrivate;
-}
+namespace Internal { class GenericDirectUploadStepPrivate; }
 
 class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDeployStep
 {

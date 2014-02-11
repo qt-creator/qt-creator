@@ -44,9 +44,7 @@ class StatesEditorModel;
 class StatesEditorView;
 class NodeInstanceView;
 
-namespace Internal {
-class StatesEditorImageProvider;
-}
+namespace Internal { class StatesEditorImageProvider; }
 
 class StatesEditorWidget : public QWidget
 {

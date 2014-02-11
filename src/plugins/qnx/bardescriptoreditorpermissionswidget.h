@@ -39,9 +39,7 @@ namespace Internal {
 
 class BarDescriptorPermissionsModel;
 
-namespace Ui {
-class BarDescriptorEditorPermissionsWidget;
-}
+namespace Ui { class BarDescriptorEditorPermissionsWidget; }
 
 class BarDescriptorEditorPermissionsWidget : public BarDescriptorEditorAbstractPanelWidget
 {

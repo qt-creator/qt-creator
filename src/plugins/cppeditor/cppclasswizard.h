@@ -36,11 +36,7 @@
 
 #include <QWizardPage>
 
-namespace Utils {
-
-class NewClassWidget;
-
-} // namespace Utils
+namespace Utils { class NewClassWidget; }
 
 namespace CppEditor {
 namespace Internal {

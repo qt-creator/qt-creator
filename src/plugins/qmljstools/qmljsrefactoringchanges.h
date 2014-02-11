@@ -36,9 +36,7 @@
 
 #include <texteditor/refactoringchanges.h>
 
-namespace QmlJS {
-class ModelManagerInterface;
-} // namespace QmlJS
+namespace QmlJS { class ModelManagerInterface; }
 
 namespace QmlJSTools {
 

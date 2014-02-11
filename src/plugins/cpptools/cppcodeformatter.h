@@ -48,9 +48,7 @@ class QTextBlock;
 QT_END_NAMESPACE
 
 namespace CppTools {
-namespace Internal {
-class CppCodeFormatterData;
-}
+namespace Internal { class CppCodeFormatterData; }
 
 class CPPTOOLS_EXPORT CodeFormatter
 {
