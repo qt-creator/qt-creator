@@ -29,37 +29,8 @@
 
 import re;
 
-# dictionary to hold a list of all installed handler functions for all object-signalSignature pairs
-installedSignalHandlers = {}
-# flag to indicate whether overrideInstallLazySignalHandler() has been called already
-overridenInstallLazySignalHandlers = False
 # flag to indicate whether a tasks file should be created when building ends with errors
 createTasksFileOnError = True
-
-# call this function to override installLazySignalHandler()
-def overrideInstallLazySignalHandler():
-    global overridenInstallLazySignalHandlers
-    if overridenInstallLazySignalHandlers:
-        return
-    overridenInstallLazySignalHandlers = True
-    global installLazySignalHandler
-    installLazySignalHandler = __addSignalHandlerDict__(installLazySignalHandler)
-
-# avoids adding a handler to a signal twice or more often
-# do not call this function directly - use overrideInstallLazySignalHandler() instead
-def __addSignalHandlerDict__(lazySignalHandlerFunction):
-    global installedSignalHandlers
-    def wrappedFunction(name, signalSignature, handlerFunctionName):
-        handlers = installedSignalHandlers.get("%s____%s" % (name,signalSignature))
-        if handlers == None:
-            lazySignalHandlerFunction(name, signalSignature, handlerFunctionName)
-            installedSignalHandlers.setdefault("%s____%s" % (name,signalSignature), [handlerFunctionName])
-        else:
-            if not handlerFunctionName in handlers:
-                lazySignalHandlerFunction(name, signalSignature, handlerFunctionName)
-                handlers.append(handlerFunctionName)
-                installedSignalHandlers.setdefault("%s____%s" % (name,signalSignature), handlers)
-    return wrappedFunction
 
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
 # lines within the Issues output
@@ -104,6 +75,13 @@ def checkCompile():
 def compileSucceeded(compileOutput):
     return None != re.match(".*exited normally\.\n\d\d:\d\d:\d\d: Elapsed time: "
                             "(\d:)?\d{2}:\d\d\.$", str(compileOutput), re.S)
+
+def waitForCompile(timeout=60000):
+    progressBarWait(10000) # avoids switching to Issues pane after checking Compile Output
+    ensureChecked(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton")
+    output = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")
+    if not waitFor("re.match('.*Elapsed time: (\d:)?\d{2}:\d\d\.$', str(output.plainText), re.S)", timeout):
+        test.warning("Waiting for compile timed out after %d s." % (timeout / 1000))
 
 def dumpBuildIssues(listModel):
     issueDump = []
@@ -254,7 +232,8 @@ def runVerify(checkedTargets):
     for kit, config in availableConfigs:
         selectBuildConfig(len(checkedTargets), kit, config)
         test.log("Using build config '%s'" % config)
-        if not runAndCloseApp():
-            return
+        if runAndCloseApp() == None:
+            checkCompile()
+            continue
         verifyBuildAndRun()
         mouseClick(waitForObject(":*Qt Creator.Clear_QToolButton"))

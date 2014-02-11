@@ -397,7 +397,6 @@ Rectangle {
     Component {
         id: underlay
         Item {
-            anchors.fill:parent
             property variant color: parent.color
             clip:true
             Rectangle {

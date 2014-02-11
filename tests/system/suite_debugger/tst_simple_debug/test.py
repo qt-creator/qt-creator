@@ -62,6 +62,7 @@ def main():
                                         {os.path.join(workingDir, projectName, "qml", projectName, "main.qml"):13}]
             # Only use 4.7.4 to work around QTBUG-25187
             availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
+            progressBarWait()
             if not availableConfigs:
                 test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
             for kit, config in availableConfigs:
@@ -70,8 +71,7 @@ def main():
                 verifyBuildConfig(len(checkedTargets), kit, True, enableQmlDebug=True)
                 # explicitly build before start debugging for adding the executable as allowed program to WinFW
                 invokeMenuItem("Build", "Rebuild All")
-                waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}",
-                              "buildQueueFinished(bool)", 300000)
+                waitForCompile(300000)
                 if not checkCompile():
                     test.fatal("Compile had errors... Skipping current build config")
                     continue

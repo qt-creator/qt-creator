@@ -47,7 +47,11 @@ def main():
     for con in connections:
         selectFromLocator("mainwindow.ui")
         openContextMenu(waitForObject(con[0]), 5, 5, 0)
-        activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Go to slot..."))
+        # hack for Squish 5/Qt5.2 problems of handling menus on Mac - remove asap
+        if platform.system() == 'Darwin':
+            waitFor("macHackActivateContextMenuItem('Go to slot...', con[0])", 6000)
+        else:
+            activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Go to slot..."))
         waitForObjectItem(":Select signal.signalList_QTreeWidget", con[1])
         clickItem(":Select signal.signalList_QTreeWidget", con[1], 5, 5, 0, Qt.LeftButton)
         clickButton(waitForObject(":Go to slot.OK_QPushButton"))

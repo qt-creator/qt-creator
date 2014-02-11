@@ -45,14 +45,16 @@ def main():
             result = addExecutableAsAttachableAUT(qmlViewer, 11223)
             allowAppThroughWinFW(qmlViewerPath, qmlViewer, None)
             if result:
-                result = runAndCloseApp(True, qmlViewer, 11223, sType=SubprocessType.QT_QUICK_UI)
+                result = runAndCloseApp(True, qmlViewer, 11223, sType=SubprocessType.QT_QUICK_UI, quickVersion=quickVersion)
             else:
                 result = runAndCloseApp(sType=SubprocessType.QT_QUICK_UI)
             removeExecutableAsAttachableAUT(qmlViewer, 11223)
             deleteAppFromWinFW(qmlViewerPath, qmlViewer)
         else:
             result = runAndCloseApp(sType=SubprocessType.QT_QUICK_UI)
-        if result:
+        if result == None:
+            checkCompile()
+        else:
             logApplicationOutput()
         invokeMenuItem("File", "Close All Projects and Editors")
     invokeMenuItem("File", "Exit")

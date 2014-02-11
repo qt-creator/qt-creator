@@ -1,0 +1,70 @@
+Qt Creator version 3.0.1 is a bugfix release.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v3.0.0..v3.0.1
+
+Compilers
+   * MSVC
+      * Added detection of native 64 bit arm toolchain
+      * Fixed issue with duplicate entries
+
+QMake Projects
+   * Fixed issue with duplicate entries when configuring projects
+
+Debugging
+   * GDB and LLDB
+      * Added pretty printer for QTimeZone
+      * Fixed pretty printer for QSharedDataPointer
+      * Fixed display of multiple inheritance from std::list
+        (QTCREATORBUG-11023)
+   * GDB
+      * Fixed inserting breakpoints while application is running
+        (QTCREATORBUG-11084)
+      * Fixed display of std::array<some_struct>
+   * LLDB
+      * Fixed display of bases in case of multiple inheritance
+        (QTCREATORBUG-11109)
+   * CDB
+      * Fixed stepping through sources of Qt 5.2 binary package
+        (QTCREATORBUG-11233)
+
+C++ Support
+   * Fixed selecting project to use for specific file
+   * Fixed completion for nested enums (QTCREATORBUG-5456)
+
+QML Profiler
+   * Improved performance (QTCREATORBUG-10950)
+   * Fixed issue with missing details for bindings in events pane
+
+Qt Quick Designer
+   * Added missing Qt Quick 2 specific properties
+   * Fixed crash when anchoring root item (QTCREATORBUG-11078)
+   * Fixed crash when dragging item from library and imports need to change
+     (QTCREATORBUG-11139)
+   * Fixed crash with invalid anchors (QTCREATORBUG-11255)
+   * Fixed crash when editing text without pressing enter or return key
+     (QTCREATORBUG-11249)
+   * Fixed crash with Anchors > Fill and Qt Quick Controls (QTCREATORBUG-10476)
+   * Fixed updating the UI when switching between states (QTCREATORBUG-10674)
+
+FakeVim
+   * Fixed that user command left editor in overwrite mode (QTCREATORBUG-10460)
+
+Platform Specific
+
+Android
+   * Fixed too short timeouts when calling external tools (QTCREATORBUG-10944)
+   * Fixed issues with build paths with non-latin characters (QTBUG-34316)
+   * Fixed issue with symbol search path for debugging (QTCREATORBUG-10382)
+
+iOS
+   * Improved startup performance of on-device debugging (QTCREATORBUG-10884)
+   * Fixed executable path shown in run configuration UI (QTCREATORBUG-11080)
+   * Fixed handling of control characters in application output
+     (QTCREATORBUG-11219)
+   * Fixed that custom application arguments were lost after restart
+

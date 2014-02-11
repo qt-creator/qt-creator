@@ -65,7 +65,8 @@ IDevice::Ptr QnxDeviceConfigurationWizard::device()
     sshParams.port = 22;
     sshParams.timeout = 10;
     sshParams.authenticationType = m_setupPage->authenticationType();
-    if (sshParams.authenticationType == QSsh::SshConnectionParameters::AuthenticationTypePassword)
+    if (sshParams.authenticationType == QSsh::SshConnectionParameters::AuthenticationTypeTryAllPasswordBasedMethods
+        || sshParams.authenticationType == QSsh::SshConnectionParameters::AuthenticationTypePassword)
         sshParams.password = m_setupPage->password();
     else
         sshParams.privateKeyFile = m_setupPage->privateKeyFilePath();

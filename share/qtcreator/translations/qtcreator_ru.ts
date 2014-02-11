@@ -8,12 +8,40 @@
         <translation>Дополнительно</translation>
     </message>
     <message>
+        <source>Origin</source>
+        <translation>Происхождение</translation>
+    </message>
+    <message>
         <source>Scale</source>
         <translation>Масштаб</translation>
     </message>
     <message>
         <source>Rotation</source>
         <translation>Вращение</translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation>Включено</translation>
+    </message>
+    <message>
+        <source>Accept mouse and keyboard events</source>
+        <translation>Принимать события мыши и клавиатуры</translation>
+    </message>
+    <message>
+        <source>Smooth</source>
+        <translation>Сглаживание</translation>
+    </message>
+    <message>
+        <source>Smooth sampling active</source>
+        <translation>Включение сглаживания</translation>
+    </message>
+    <message>
+        <source>Antialiasing</source>
+        <translation>Антиалиасинг</translation>
+    </message>
+    <message>
+        <source>Anti-aliasing active</source>
+        <translation>Включение антиалиасинга</translation>
     </message>
 </context>
 <context>
@@ -14905,7 +14933,7 @@ Commit now?</source>
     </message>
     <message>
         <source>Git Reflog &quot;%1&quot;</source>
-        <translation type="unfinished">Git - reflog «%1»</translation>
+        <translation>Git - reflog «%1»</translation>
     </message>
     <message>
         <source>Cannot describe &quot;%1&quot;.</source>
@@ -15588,7 +15616,7 @@ Commit now?</source>
     </message>
     <message>
         <source>Reflog</source>
-        <translation type="unfinished">Reflog</translation>
+        <translation>Reflog</translation>
     </message>
     <message>
         <source>&amp;Patch</source>
@@ -15660,7 +15688,7 @@ Commit now?</source>
     </message>
     <message>
         <source>Git Gui</source>
-        <translation type="unfinished">Git Gui</translation>
+        <translation>Интерфейс Git</translation>
     </message>
     <message>
         <source>Repository Browser</source>
@@ -26374,8 +26402,12 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation>Требуется импорт QtQuick.tooling.</translation>
     </message>
     <message>
-        <source>Expected version 1.1 or lower.</source>
-        <translation>Требуется версия 1.1 или ниже.</translation>
+        <source>Major version different from 1 not supported.</source>
+        <translation>Версия с основным номером отличным от 1 не поддерживается.</translation>
+    </message>
+    <message>
+        <source>Reading only version 1.1 parts.</source>
+        <translation>Чтение разделов версии 1.1.</translation>
     </message>
     <message>
         <source>Expected document to contain a single object definition.</source>

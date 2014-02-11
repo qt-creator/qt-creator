@@ -58,7 +58,7 @@ def main():
         test.log("Testing build configuration: " + config)
         clickButton(waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton"))
         # wait until build finished
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        waitForCompile()
         # open issues list view
         ensureChecked(waitForObject(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton"))
         issuesView = waitForObject(":Qt Creator.Issues_QListView")

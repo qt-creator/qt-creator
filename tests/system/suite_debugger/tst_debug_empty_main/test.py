@@ -103,7 +103,7 @@ def performDebugging(workingDir, projectName, checkedTargets):
         verifyBuildConfig(len(checkedTargets), kit, True)
         progressBarWait(10000)
         invokeMenuItem("Build", "Rebuild All")
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        waitForCompile()
         isMsvc = isMsvcConfig(len(checkedTargets), kit)
         allowAppThroughWinFW(workingDir, projectName, False)
         clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))

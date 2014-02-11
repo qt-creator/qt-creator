@@ -46,7 +46,7 @@ Column {
             }
 
             SecondColumnLayout {
-                LineEdit {
+                UrlChooser {
                     backendValue: backendValues.source
                     implicitWidth: 180
                 }

@@ -59,7 +59,7 @@ def main():
         # try to build project
         test.log("Testing build configuration: " + config)
         invokeMenuItem("Build", "Build All")
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        waitForCompile()
         # verify build successful
         ensureChecked(waitForObject(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton"))
         compileOutput = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")

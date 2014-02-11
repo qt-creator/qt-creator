@@ -41,7 +41,7 @@ def main():
         test.log("Building project Qt Quick %d Extension Plugin (%s)"
                  % (quickVer, Targets.getStringForTarget(targ)))
         invokeMenuItem("Build","Build All")
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        waitForCompile()
         checkCompile()
         checkLastBuild()
         invokeMenuItem("File", "Close All Projects and Editors")

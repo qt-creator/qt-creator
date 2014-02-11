@@ -61,6 +61,9 @@ public:
     Utils::FileName bundleDir() const;
     Utils::FileName exePath() const;
 
+    bool fromMap(const QVariantMap &map) QTC_OVERRIDE;
+    QVariantMap toMap() const QTC_OVERRIDE;
+
 protected:
     IosRunConfiguration(ProjectExplorer::Target *parent, IosRunConfiguration *source);
     QString defaultDisplayName();

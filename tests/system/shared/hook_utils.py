@@ -68,6 +68,11 @@ def modifyRunSettingsForHookInto(projectName, kitCount, port):
                     changingVars.append("SQUISH_LIBQTDIR=%s" % replacement)
                 else:
                     changingVars.append(varName)
+            elif varName == "DYLD_FRAMEWORK_PATH" and platform.system() == 'Darwin':
+                value = str(model.data(model.index(index.row, 1)).toString())
+                test.log("Adding %s to DYLD_FRAMEWORK_PATH" % qtLibPath)
+                replacement = ":".join(filter(len, [qtLibPath, value]))
+                changingVars.append("%s=%s" % (varName, replacement))
         batchEditRunEnvironment(kitCount, 0, changingVars, True)
     switchViewTo(ViewConstants.EDIT)
     return result
@@ -111,29 +116,12 @@ def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, por
         executable = os.path.abspath(os.path.dirname(qmake) + "/qmlscene")
     if platform.system() in ('Microsoft', 'Windows'):
         executable = executable + ".exe"
-    addRunConfig = waitForObject("{container={window=':Qt Creator_Core::Internal::MainWindow' "
-                              "type='ProjectExplorer::Internal::RunSettingsWidget' unnamed='1' "
-                              "visible='1'} occurrence='2' text='Add' type='QPushButton' "
-                              "unnamed='1' visible='1'}")
-    clickButton(addRunConfig)
-    activateItem(waitForObject("{type='QMenu' visible='1' unnamed='1'}"), "Custom Executable")
-    exePathChooser = waitForObject(":Executable:_Utils::PathChooser")
-    exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
-    argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
-                              "type='QLabel' text='Arguments:' visible='1'} type='QLineEdit' "
-                              "unnamed='1' visible='1'}")
-    wdPathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
-                                  "text='Working directory:' type='QLabel'} "
-                                  "type='Utils::PathChooser' unnamed='1' visible='1'}")
-    wdLineEd = getChildByClass(wdPathChooser, "Utils::BaseValidatingLineEdit")
     startAUT = os.path.abspath(squishPath + "/bin/startaut")
     if platform.system() in ('Microsoft', 'Windows'):
         startAUT = startAUT + ".exe"
+    args = "--verbose --port=%d %s %s.qml" % (port, executable, projectName)
     projectPath = os.path.abspath("%s/%s" % (workingDir, projectName))
-    replaceEditorContent(exeLineEd, startAUT)
-    replaceEditorContent(argLineEd, "--verbose --port=%d %s %s.qml"
-                         % (port, executable, projectName))
-    replaceEditorContent(wdLineEd, projectPath)
+    __invokeAddCustomExecutable__(startAUT, args, projectPath)
     clickButton(waitForObject("{text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow' "
                               "leftWidget={type='QLabel' text~='Us(e|ing) <b>Build Environment</b>'"
@@ -231,27 +219,13 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
                      "Failed to find '%s'" % startAUT)
         return False
     progressBarWait()
-    addButton = waitForObject("{container={window=':Qt Creator_Core::Internal::MainWindow' "
-                              "type='ProjectExplorer::Internal::RunSettingsWidget' unnamed='1' "
-                              "visible='1'} occurrence='2' text='Add' type='QPushButton' "
-                              "unnamed='1' visible='1'}")
-    clickButton(addButton)
-    addMenu = addButton.menu()
-    activateItem(waitForObjectItem(addMenu, 'Custom Executable'))
-    exePathChooser = waitForObject(":Executable:_Utils::PathChooser", 2000)
-    exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
-    argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
-                              "type='QLabel' text='Arguments:' visible='1'} type='QLineEdit' "
-                              "unnamed='1' visible='1'}")
-    wdPathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' text='Working directory:' type='QLabel'} "
-                                  "type='Utils::PathChooser' unnamed='1' visible='1'}")
-    replaceEditorContent(exeLineEd, startAUT)
     # the following is currently only configured for release builds (will be enhanced later)
     if platform.system() in ('Microsoft', 'Windows'):
         debOrRel = "release" + os.sep
     else:
         debOrRel = ""
-    replaceEditorContent(argLineEd, "--verbose --port=%d %s%s" % (port, debOrRel, projectName))
+    args = "--verbose --port=%d %s%s" % (port, debOrRel, projectName)
+    __invokeAddCustomExecutable__(startAUT, args)
     return True
 
 # function that retrieves a specific child object by its class
@@ -424,3 +398,25 @@ def __getSquishServer__():
         test.fatal("SQUISH_PREFIX isn't set - leaving test")
         return None
     return os.path.abspath(squishSrv + "/bin/squishserver")
+
+def __invokeAddCustomExecutable__(exe, args, workingDir=None):
+    addButton = waitForObject("{container={window=':Qt Creator_Core::Internal::MainWindow' "
+                              "type='ProjectExplorer::Internal::RunSettingsWidget' unnamed='1' "
+                              "visible='1'} occurrence='2' text='Add' type='QPushButton' "
+                              "unnamed='1' visible='1'}")
+    clickButton(addButton)
+    addMenu = addButton.menu()
+    activateItem(waitForObjectItem(addMenu, 'Custom Executable'))
+    exePathChooser = waitForObject(":Executable:_Utils::PathChooser")
+    exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
+    argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
+                              "type='QLabel' text='Arguments:' visible='1'} type='QLineEdit' "
+                              "unnamed='1' visible='1'}")
+    wdPathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
+                                  "text='Working directory:' type='QLabel'} "
+                                  "type='Utils::PathChooser' unnamed='1' visible='1'}")
+    wdLineEd = getChildByClass(wdPathChooser, "Utils::BaseValidatingLineEdit")
+    replaceEditorContent(exeLineEd, exe)
+    replaceEditorContent(argLineEd, args)
+    if workingDir:
+        replaceEditorContent(wdLineEd, workingDir)

@@ -42,7 +42,7 @@ def main():
                  % (qVer, Targets.getStringForTarget(targ)))
         result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
         invokeMenuItem("Build", "Build All")
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        waitForCompile()
         if not checkCompile():
             test.fatal("Compile failed")
         else:
@@ -54,14 +54,16 @@ def main():
                 if result:
                     result = runAndCloseApp(True, projectName, 11223,
                                             "subprocessFunctionQuick%d" % qVer,
-                                            SubprocessType.QT_QUICK_APPLICATION)
+                                            SubprocessType.QT_QUICK_APPLICATION, quickVersion=qVer)
                 else:
                     result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)
                 removeExecutableAsAttachableAUT(projectName, 11223)
                 deleteAppFromWinFW(workingDir, projectName)
             else:
                 result = runAndCloseApp()
-            if result:
+            if result == None:
+                checkCompile()
+            else:
                 logApplicationOutput()
         invokeMenuItem("File", "Close All Projects and Editors")
 

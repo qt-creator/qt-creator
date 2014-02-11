@@ -29,6 +29,7 @@
 :Add to Version Control.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':Add to Version Control_QMessageBox'}
 :Add to Version Control_QMessageBox	{text~='Add the file.*to version control (.*)?' type='QMessageBox' unnamed='1' visible='1'}
 :Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox	{container=':Qt Creator.Analyzer Toolbar_QDockWidget' name='AnalyzerManagerToolBox' type='QComboBox' visible='1'}
+:Analyzer Toolbar.Clear_QToolButton	{container=':Qt Creator.Analyzer Toolbar_QDockWidget' toolTip='Discard data' type='QToolButton' unnamed='1' visible='1'}
 :Analyzer Toolbar.Elapsed:_QLabel	{container=':Qt Creator.Analyzer Toolbar_QDockWidget' text~='Elapsed:    \\\\d+.\\\\d s' type='QLabel' unnamed='1' visible='1'}
 :Analyzer Toolbar.Start_QToolButton	{container=':Qt Creator.Analyzer Toolbar_QDockWidget' text='Start' type='QToolButton' unnamed='1' visible='1'}
 :Behavior.Autocomplete common prefix_QCheckBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' name='partiallyComplete' text='Autocomplete common prefix' type='QCheckBox' visible='1'}

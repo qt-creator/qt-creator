@@ -75,8 +75,7 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
             switchViewTo(ViewConstants.EDIT)
         # explicitly build before start debugging for adding the executable as allowed program to WinFW
         invokeMenuItem("Build", "Rebuild All")
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}",
-                      "buildQueueFinished(bool)")
+        waitForCompile()
         if not checkCompile():
             test.fatal("Compile had errors... Skipping current build config")
             continue
@@ -131,6 +130,8 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
                                  "For two calls, median and longest time must be the same.")
         deleteAppFromWinFW(workingDir, projectName, False)
         progressBarWait(15000, False)   # wait for "Build" progressbar to disappear
+        clickButton(waitForObject(":Analyzer Toolbar.Clear_QToolButton"))
+        test.verify(waitFor("model.rowCount() == 0", 3000), "Analyzer results cleared.")
 
 def compareEventsTab(model, file):
     significantColumns = [0, 1, 4, 9]

@@ -1,6 +1,7 @@
 TARGET = qml2puppet
 
 TEMPLATE = app
+CONFIG += console
 
 DESTDIR = $$[QT_INSTALL_BINS]
 

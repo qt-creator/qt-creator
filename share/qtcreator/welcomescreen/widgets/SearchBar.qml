@@ -27,7 +27,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+import QtQuick 2.2
+import QtQuick.Controls 1.1
+import QtQuick.Controls.Styles 1.1
 
 Rectangle {
     id: searchBar
@@ -38,10 +40,10 @@ Rectangle {
     radius: 6
     border.color: "#cccccc"
 
-    property alias placeholderText: placeHolderText.text
+    property alias placeholderText: lineEdit.placeholderText
     property alias text: lineEdit.text
 
-    TextInput {
+    TextField {
         id: lineEdit
         anchors.topMargin: 1
         anchors.left: parent.left
@@ -50,18 +52,11 @@ Rectangle {
         anchors.leftMargin: 12
         anchors.fill: parent
         verticalAlignment: Text.AlignVCenter
-        renderType: Text.NativeRendering
         font.pixelSize: 14
-        font.family: "Helvetica"
-    }
-
-    NativeText {
-        id: placeHolderText
-        visible: !lineEdit.text.length
-        text: qsTr("Search...")
-        anchors.fill: lineEdit
-        font: lineEdit.font
-        verticalAlignment: Text.AlignVCenter
-        color: "gray"
+        placeholderText:  qsTr("Search...")
+        style: TextFieldStyle {
+            background: Item {
+            }
+        }
     }
 }

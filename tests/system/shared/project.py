@@ -397,24 +397,23 @@ def waitForProcessRunning(running=True):
 # userDefinedType - if you set sType to SubprocessType.USER_DEFINED you must(!) specify the WindowType for hooking into
 # by yourself (or use the function parameter)
 # ATTENTION! Make sure this function won't fail and the sub-process will end when the function returns
-def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None, sType=None, userDefinedType=None):
+# returns None if the build failed, False if the subprocess did not start, and True otherwise
+def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None, sType=None, userDefinedType=None, quickVersion=1):
     runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
     if sType != SubprocessType.QT_QUICK_UI:
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+        waitForCompile(300000)
         buildSucceeded = checkLastBuild()
         ensureChecked(waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton"))
         if not buildSucceeded:
             test.fatal("Build inside run wasn't successful - leaving test")
-            invokeMenuItem("File", "Exit")
-            return False
+            return None
     if not waitForProcessRunning():
         test.fatal("Couldn't start application - leaving test")
-        invokeMenuItem("File", "Exit")
         return False
     if sType == SubprocessType.QT_QUICK_UI and os.getenv("SYSTEST_QMLVIEWER_NO_HOOK_INTO", "0") == "1":
         withHookInto = False
-    if withHookInto and not validType(sType, userDefinedType):
+    if withHookInto and not validType(sType, userDefinedType, quickVersion):
         if function != None:
             test.warning("You did not provide a valid value for the SubprocessType value - sType, but you have "
                          "provided a function to execute on the subprocess. Please ensure that your function "
@@ -425,15 +424,15 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
                          "inside creator to terminate execution of the subprocess.")
             withHookInto = False
     if withHookInto and not executable in ("", None):
-        __closeSubprocessByHookingInto__(executable, port, function, sType, userDefinedType)
+        __closeSubprocessByHookingInto__(executable, port, function, sType, userDefinedType, quickVersion)
     else:
         __closeSubprocessByPushingStop__(sType)
     return True
 
-def validType(sType, userDef):
+def validType(sType, userDef, quickVersion):
     if sType == None:
         return False
-    ty = SubprocessType.getWindowType(sType)
+    ty = SubprocessType.getWindowType(sType, quickVersion)
     return ty != None and not (ty == "user-defined" and (userDef == None or userDef.strip() == ""))
 
 def __closeSubprocessByPushingStop__(sType):
@@ -455,7 +454,7 @@ def __closeSubprocessByPushingStop__(sType):
     else:
         test.fatal("Subprocess does not seem to have been started.")
 
-def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefType):
+def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefType, quickVersion):
     ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}")
     if port == None:
@@ -498,7 +497,7 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
         if sType==SubprocessType.USER_DEFINED:
             sendEvent("QCloseEvent", "{type='%s' unnamed='1' visible='1'}" % userDefType)
         else:
-            sendEvent("QCloseEvent", "{type='%s' unnamed='1' visible='1'}" % SubprocessType.getWindowType(sType))
+            sendEvent("QCloseEvent", "{type='%s' unnamed='1' visible='1'}" % SubprocessType.getWindowType(sType, quickVersion))
         resetApplicationContextToCreator()
     else:
         try:
@@ -512,12 +511,15 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
             resetApplicationContextToCreator()
             __closeSubprocessByPushingStop__(sType)
     resetApplicationContextToCreator()
-    if not waitForProcessRunning(False) and waitFor("'exited with code' in str(output.plainText)", 10000):
+    if not (waitForProcessRunning(False) and waitFor("'exited with code' in str(output.plainText)", 10000)):
         test.warning("Sub-process seems not to have closed properly.")
         try:
             __closeSubprocessByPushingStop__(sType)
         except:
             pass
+        if (platform.system() in ('Microsoft', 'Windows') and
+            'Listening on port %d for incoming connectionsdone' % port not in str(output.plainText)):
+            checkForStillRunningQmlExecutable([executable + ".exe"])
     return True
 
 # this helper tries to reset the current application context back

@@ -42,6 +42,6 @@ def main():
     for kit, config in availableConfigs:
         selectBuildConfig(len(checkedTargets), kit, config)
         test.log("Testing build configuration: " + config)
-        if not runAndCloseApp():
-            return
+        if runAndCloseApp() == None:
+            checkCompile()
     invokeMenuItem("File", "Exit")

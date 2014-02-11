@@ -229,7 +229,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     connect(action, SIGNAL(triggered()), this, SLOT(addBookmark()));
 
-    // Add Contents, Index, and Context menu items and a separator to the Help menu
+    // Add Contents, Index, and Context menu items
     action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")),
         tr(SB_CONTENTS), this);
     cmd = ActionManager::registerAction(action, "Help.Contents", globalcontext);
@@ -247,29 +247,15 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
     connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
 
-    if (!Utils::HostOsInfo::isMacHost()) {
-        action = new QAction(this);
-        action->setSeparator(true);
-        cmd = ActionManager::registerAction(action, "Help.Separator", globalcontext);
-        ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    }
-
     action = new QAction(tr("Technical Support"), this);
     cmd = ActionManager::registerAction(action, "Help.TechSupport", globalcontext);
-    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, SIGNAL(triggered()), this, SLOT(slotOpenSupportPage()));
 
     action = new QAction(tr("Report Bug..."), this);
     cmd = ActionManager::registerAction(action, "Help.ReportBug", globalcontext);
-    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, SIGNAL(triggered()), this, SLOT(slotReportBug()));
-
-    if (!Utils::HostOsInfo::isMacHost()) {
-        action = new QAction(this);
-        action->setSeparator(true);
-        cmd = ActionManager::registerAction(action, "Help.Separator2", globalcontext);
-        ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    }
 
     action = new QAction(this);
     ActionManager::registerAction(action, Core::Constants::PRINT, modecontext);

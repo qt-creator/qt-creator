@@ -56,7 +56,7 @@ def main():
     invokeMenuItem("Build", "Rebuild All")
 
     # Wait for, and test if the build succeeded
-    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+    waitForCompile(300000)
     checkCompile()
     checkLastBuild()
 

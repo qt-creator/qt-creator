@@ -29,6 +29,8 @@
 
 source("../../shared/qtcreator.py")
 
+# necessary to not use symbolic links for the parent path of the git project
+srcPath = os.path.realpath(srcPath)
 projectName = "gitProject"
 
 # TODO: Make selecting changes possible
@@ -38,6 +40,8 @@ def commit(commitMessage, expectedLogMessage):
     invokeMenuItem("Tools", "Git", "Local Repository", "Commit...")
     replaceEditorContent(waitForObject(":Description.description_Utils::CompletingTextEdit"), commitMessage)
     ensureChecked(waitForObject(":Files.Check all_QCheckBox"))
+    checkOrFixCommitterInformation('invalidAuthorLabel', 'authorLineEdit', 'Nobody')
+    checkOrFixCommitterInformation('invalidEmailLabel', 'emailLineEdit', 'nobody@nowhere.com')
     clickButton(waitForObject(":splitter.Commit File(s)_VcsBase::QActionPushButton"))
     vcsLog = waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
                            "window=':Qt Creator_Core::Internal::MainWindow'}").plainText
@@ -50,6 +54,22 @@ def verifyItemsInGit(commitMessages):
     plainText = str(gitEditor.plainText)
     verifyItemOrder(commitMessages, plainText)
     return plainText
+
+def createLocalGitConfig(path):
+    config = os.path.join(path, "config")
+    test.verify(os.path.exists(config), "Verifying if .git/config exists.")
+    file = open(config, "a")
+    file.write("\n[user]\n\temail = nobody@nowhere.com\n\tname = Nobody\n")
+    file.close()
+
+def checkOrFixCommitterInformation(labelName, lineEditName, expected):
+    lineEd = waitForObject("{name='%s' type='QLineEdit' visible='1'}" % lineEditName)
+    if not (test.compare(lineEd.text, expected, "Verifying commit information matches local config")
+        and test.verify(checkIfObjectExists("{name='%s' type='QLabel' visible='1'}" % labelName,
+                                            False, 1000),
+                                            "Verifying invalid label is missing")):
+        test.log("Commit information invalid or missing - entering dummy value (%s)" % expected)
+        replaceEditorContent(lineEd, expected)
 
 def verifyClickCommit():
     gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
@@ -80,7 +100,7 @@ def verifyClickCommit():
     waitFor('len(str(diffShow.plainText)) != 0', 5000)
     show = str(diffShow.plainText)
     expected = [{"commit %s" % commit:False},
-                {"Author: (\w|\s)+ <(\w|[-.])+@(\w|[-.])+>": True},
+                {"Author: Nobody <nobody@nowhere.com>": False},
                 {"Date:\s+\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.*":True},
                 {"Branches: master":False}]
     for line, exp in zip(show.splitlines(), expected):
@@ -116,7 +136,7 @@ def main():
     if not startedWithoutPluginError():
         return
     createProject_Qt_GUI(srcPath, projectName, addToVersionControl = "Git")
-    if isQt4Build and not object.exists(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"):
+    if not object.exists(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"):
         clickButton(waitForObject(":Qt Creator_Core::Internal::OutputPaneManageButton"))
         activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Version Control"))
     ensureChecked(waitForObject(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"))
@@ -125,6 +145,7 @@ def main():
     test.verify("Initialized empty Git repository in %s"
                 % os.path.join(srcPath, projectName, ".git").replace("\\", "/") in str(vcsLog),
                 "Has initialization of repo been logged:\n%s " % vcsLog)
+    createLocalGitConfig(os.path.join(srcPath, projectName, ".git"))
     commitMessages = [commit("Initial Commit", "Committed 5 file(s).")]
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     addCPlusPlusFileToCurrentProject("pointless_header.h", "C++ Header File", addToVCS = "Git")

@@ -65,9 +65,9 @@ def main():
             continue
         test.log("Testing build configuration: " + config)
         invokeMenuItem("Build", "Run qmake")
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        waitForCompile()
         invokeMenuItem("Build", "Rebuild All")
-        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)", 300000)
+        waitForCompile(300000)
         checkCompile()
         checkLastBuild()
 
