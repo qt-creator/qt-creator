@@ -38,10 +38,13 @@ class QMenu;
 class QStackedWidget;
 QT_END_NAMESPACE
 
+namespace Utils { class FileName; }
+
 namespace ProjectExplorer {
 
 class Target;
 class Project;
+class ProjectImporter;
 class Kit;
 class PanelsWidget;
 
@@ -72,6 +75,7 @@ private slots:
     void updateTargetButtons();
     void renameTarget();
     void openTargetPreferences();
+    void importTarget();
 
     void removeTarget();
     void menuShown(int targetIndex);
@@ -81,10 +85,12 @@ private slots:
 private:
     Target *cloneTarget(Target *sourceTarget, Kit *k);
     void removeTarget(Target *t);
+    void importTarget(const Utils::FileName &path);
     void createAction(Kit *k, QMenu *menu);
 
     Target *m_currentTarget;
     Project *m_project;
+    ProjectImporter *m_importer;
     TargetSettingsWidget *m_selector;
     QStackedWidget *m_centralWidget;
     QWidget *m_noTargetLabel;
@@ -95,6 +101,7 @@ private:
     QMenu *m_duplicateMenu;
     QMenu *m_addMenu;
     QAction *m_lastAction;
+    QAction *m_importAction;
     int m_menuTargetIndex;
 };
 

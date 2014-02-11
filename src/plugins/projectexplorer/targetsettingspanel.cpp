@@ -29,9 +29,11 @@
 
 #include "targetsettingspanel.h"
 
+#include "buildinfo.h"
 #include "buildsettingspropertiespage.h"
 #include "kitoptionspage.h"
 #include "project.h"
+#include "projectimporter.h"
 #include "projectwindow.h"
 #include "runsettingspropertiespage.h"
 #include "target.h"
@@ -48,6 +50,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <utils/qtcassert.h>
 
+#include <QFileDialog>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
@@ -69,11 +72,13 @@ namespace Internal {
 TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
     m_currentTarget(0),
     m_project(project),
+    m_importer(project->createProjectImporter()),
     m_selector(0),
     m_centralWidget(0),
     m_changeMenu(0),
     m_duplicateMenu(0),
-    m_lastAction(0)
+    m_lastAction(0),
+    m_importAction(0)
 {
     Q_ASSERT(m_project);
 
@@ -82,6 +87,11 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
 
     m_addMenu = new QMenu(this);
     m_targetMenu = new QMenu(this);
+
+    if (m_importer) {
+        m_importAction = new QAction(tr("Import existing build..."), this);
+        connect(m_importAction, SIGNAL(triggered()), this, SLOT(importTarget()));
+    }
 
     setFocusPolicy(Qt::NoFocus);
 
@@ -101,6 +111,7 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
 
 TargetSettingsPanelWidget::~TargetSettingsPanelWidget()
 {
+    delete m_importer;
 }
 
 bool TargetSettingsPanelWidget::event(QEvent *event)
@@ -551,6 +562,11 @@ void TargetSettingsPanelWidget::updateTargetButtons()
     m_addMenu->clear();
     m_targetMenu->clear();
 
+    if (m_importAction) {
+        m_addMenu->addAction(m_importAction);
+        m_addMenu->addSeparator();
+    }
+
     m_changeMenu = m_targetMenu->addMenu(tr("Change Kit"));
     m_duplicateMenu = m_targetMenu->addMenu(tr("Copy to Kit"));
     QAction *removeAction = m_targetMenu->addAction(tr("Remove Kit"));
@@ -603,6 +619,37 @@ void TargetSettingsPanelWidget::openTargetPreferences()
     }
     ICore::showOptionsDialog(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
                              Constants::KITS_SETTINGS_PAGE_ID);
+}
+
+void TargetSettingsPanelWidget::importTarget()
+{
+    QString toImport = QFileDialog::getExistingDirectory(this, tr("Import directory"), m_project->projectDirectory());
+    importTarget(Utils::FileName::fromString(toImport));
+}
+
+void TargetSettingsPanelWidget::importTarget(const Utils::FileName &path)
+{
+    if (!m_importer)
+        return;
+
+    Target *target = 0;
+    BuildConfiguration *bc = 0;
+    QList<BuildInfo *> toImport = m_importer->import(path, false);
+    foreach (BuildInfo *info, toImport) {
+        target = m_project->target(info->kitId);
+        if (!target) {
+            target = new Target(m_project, KitManager::find(info->kitId));
+            m_project->addTarget(target);
+        }
+        bc = info->factory()->create(target, info);
+        QTC_ASSERT(bc, continue);
+        target->addBuildConfiguration(bc);
+    }
+    m_project->setActiveTarget(target);
+    if (target && bc)
+        target->setActiveBuildConfiguration(bc);
+
+    qDeleteAll(toImport);
 }
 
 int TargetSettingsPanelWidget::currentSubIndex() const
