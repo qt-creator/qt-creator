@@ -87,6 +87,7 @@ private:
     QProcess m_adbLogcatProcess;
     QTimer m_checkPIDTimer;
     bool m_wasStarted;
+    int m_tries;
 
     QByteArray m_logcat;
     QString m_intentName;
