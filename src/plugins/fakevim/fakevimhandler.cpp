@@ -2208,6 +2208,8 @@ void FakeVimHandler::Private::focus()
             setPosition(m_searchStartPosition);
             scrollToLine(m_searchFromScreenLine);
             setTargetColumn();
+            setAnchor();
+            commitCursor();
         } else {
             leaveVisualMode();
         }
