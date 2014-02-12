@@ -39,6 +39,7 @@
 #include "blackberrydeploystepfactory.h"
 #include "blackberryrunconfigurationfactory.h"
 #include "blackberryruncontrolfactory.h"
+#include "qnxattachdebugsupport.h"
 #include "qnxdeviceconfigurationfactory.h"
 #include "qnxruncontrolfactory.h"
 #include "qnxdeploystepfactory.h"
@@ -55,19 +56,27 @@
 #include "blackberryconfiguration.h"
 #include "cascadesimport/cascadesimportwizard.h"
 #include "qnxtoolchain.h"
+#include "qnxattachdebugsupport.h"
 
-
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/kitmanager.h>
 
+#include <QAction>
 #include <QtPlugin>
 
 using namespace Qnx::Internal;
 
 QNXPlugin::QNXPlugin()
+    : m_debugSeparator(0)
+    , m_attachToQnxApplication(0)
 {
 }
 
@@ -130,11 +139,45 @@ void QNXPlugin::extensionsInitialized()
 {
     ProjectExplorer::TaskHub::addCategory(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR,
                                           tr("Bar Descriptor"));
+
+    // Debug support
+    QnxAttachDebugSupport *debugSupport = new QnxAttachDebugSupport(this);
+
+    m_attachToQnxApplication = new QAction(this);
+    m_attachToQnxApplication->setText(tr("Attach to Remote QNX Application..."));
+    connect(m_attachToQnxApplication, SIGNAL(triggered()), debugSupport, SLOT(showProcessesDialog()));
+
+    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
+    Core::ActionContainer *mstart = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
+    mstart->appendGroup(Constants::QNX_DEBUGGING_GROUP);
+    mstart->addSeparator(globalcontext, Constants::QNX_DEBUGGING_GROUP, &m_debugSeparator);
+
+    Core::Command *cmd = Core::ActionManager::registerAction(m_attachToQnxApplication, "Debugger.AttachToQnxApplication", globalcontext);
+    mstart->addAction(cmd, Constants::QNX_DEBUGGING_GROUP);
+
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(updateDebuggerActions()));
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QNXPlugin::aboutToShutdown()
 {
     return SynchronousShutdown;
+}
+
+void QNXPlugin::updateDebuggerActions()
+{
+    bool hasValidQnxKit = false;
+    ProjectExplorer::DeviceTypeMatcher qnxTypeMatcher(Constants::QNX_QNX_OS_TYPE);
+    const QList<ProjectExplorer::Kit *> qnxKits = ProjectExplorer::KitManager::matchingKits(qnxTypeMatcher);
+
+    foreach (ProjectExplorer::Kit *qnxKit, qnxKits) {
+        if (qnxKit->isValid() && !ProjectExplorer::DeviceKitInformation::device(qnxKit).isNull()) {
+            hasValidQnxKit = true;
+            break;
+        }
+    }
+
+    m_attachToQnxApplication->setVisible(hasValidQnxKit);
+    m_debugSeparator->setVisible(hasValidQnxKit);
 }
 
 #ifdef WITH_TESTS

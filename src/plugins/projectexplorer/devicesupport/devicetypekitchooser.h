@@ -1,9 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2012 - 2014 BlackBerry Limited. All rights reserved.
-**
-** Contact: BlackBerry (qt@blackberry.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2014 Klarälvdalens Datakonsult AB, a KDAB Group company
+** Contact: info@kdab.com
 **
 ** This file is part of Qt Creator.
 **
@@ -29,50 +27,29 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXPLUGIN_H
-#define QNX_INTERNAL_QNXPLUGIN_H
+#ifndef PROJECTEXPLORER_DEVICETYPEKITCHOOSER_H
+#define PROJECTEXPLORER_DEVICETYPEKITCHOOSER_H
 
-#include <extensionsystem/iplugin.h>
+#include "../kitchooser.h"
+#include "../projectexplorer_export.h"
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
+#include <coreplugin/id.h>
 
-namespace Qnx {
-namespace Internal {
+namespace ProjectExplorer {
 
-class QNXPlugin : public ExtensionSystem::IPlugin
+class PROJECTEXPLORER_EXPORT DeviceTypeKitChooser : public KitChooser
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")
-
 public:
-    QNXPlugin();
-    ~QNXPlugin();
+    explicit DeviceTypeKitChooser(Core::Id deviceType, QWidget *parent = 0);
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-private slots:
-    void updateDebuggerActions();
-#ifdef WITH_TESTS
-    void testBarDescriptorDocumentSetValue_data();
-    void testBarDescriptorDocumentSetValue();
-
-    void testBarDescriptorDocumentSetBannerComment_data();
-    void testBarDescriptorDocumentSetBannerComment();
-
-    void testConfigurationManager_data();
-    void testConfigurationManager();
-#endif
+protected:
+    bool kitMatches(const Kit *k) const;
 
 private:
-    QAction *m_debugSeparator;
-    QAction *m_attachToQnxApplication;
+    Core::Id m_deviceType;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // namespace ProjectExplorer
 
-#endif // QNX_INTERNAL_QNXPLUGIN_H
+#endif // PROJECTEXPLORER_DEVICETYPEKITCHOOSER_H

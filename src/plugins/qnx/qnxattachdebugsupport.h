@@ -1,9 +1,7 @@
 /**************************************************************************
 **
-** Copyright (C) 2012 - 2014 BlackBerry Limited. All rights reserved.
-**
-** Contact: BlackBerry (qt@blackberry.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2014 Klarälvdalens Datakonsult AB, a KDAB Group company
+** Contact: info@kdab.com
 **
 ** This file is part of Qt Creator.
 **
@@ -29,50 +27,63 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXPLUGIN_H
-#define QNX_INTERNAL_QNXPLUGIN_H
+#ifndef QNX_INTERNAL_QNXATTACHDEBUGSUPPORT_H
+#define QNX_INTERNAL_QNXATTACHDEBUGSUPPORT_H
 
-#include <extensionsystem/iplugin.h>
+#include <debugger/debuggerconstants.h>
+#include <projectexplorer/devicesupport/deviceprocesslist.h>
+#include <projectexplorer/devicesupport/idevice.h>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
+#include <QObject>
+
+namespace Debugger {
+class DebuggerEngine;
+}
+
+namespace ProjectExplorer {
+class DeviceApplicationRunner;
+class DeviceUsedPortsGatherer;
+class Kit;
+}
 
 namespace Qnx {
 namespace Internal {
 
-class QNXPlugin : public ExtensionSystem::IPlugin
+class QnxAttachDebugSupport : public QObject
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")
-
 public:
-    QNXPlugin();
-    ~QNXPlugin();
+    explicit QnxAttachDebugSupport(QObject *parent = 0);
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
+public slots:
+    void showProcessesDialog();
 
 private slots:
-    void updateDebuggerActions();
-#ifdef WITH_TESTS
-    void testBarDescriptorDocumentSetValue_data();
-    void testBarDescriptorDocumentSetValue();
+    void launchPDebug();
+    void attachToProcess();
 
-    void testBarDescriptorDocumentSetBannerComment_data();
-    void testBarDescriptorDocumentSetBannerComment();
-
-    void testConfigurationManager_data();
-    void testConfigurationManager();
-#endif
+    void handleDebuggerStateChanged(Debugger::DebuggerState state);
+    void handleError(const QString &message);
+    void handleProgressReport(const QString &message);
+    void handleRemoteOutput(const QByteArray &output);
 
 private:
-    QAction *m_debugSeparator;
-    QAction *m_attachToQnxApplication;
+    void stopPDebug();
+
+    ProjectExplorer::Kit *m_kit;
+    ProjectExplorer::IDevice::ConstPtr m_device;
+    ProjectExplorer::DeviceProcessItem m_process;
+
+    ProjectExplorer::DeviceApplicationRunner *m_runner;
+    ProjectExplorer::DeviceUsedPortsGatherer *m_portsGatherer;
+    Debugger::DebuggerEngine *m_engine;
+
+    int m_pdebugPort;
+    QString m_projectSourceDirectory;
+    QString m_localExecutablePath;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_QNXPLUGIN_H
+#endif // QNX_INTERNAL_QNXATTACHDEBUGSUPPORT_H

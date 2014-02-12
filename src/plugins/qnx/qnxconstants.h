@@ -115,6 +115,8 @@ const char QNX_BLACKBERRY_CASCADESIMPORTER_VERSION[] = "0.0.1";
 
 const char QNX_BLACKBERRY_CONFIGS_FILENAME[] = "bbndkconfigurations.xml";
 
+const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
+
 } // namespace Constants
 } // namespace Qnx
 

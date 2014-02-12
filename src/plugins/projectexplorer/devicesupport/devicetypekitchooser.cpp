@@ -1,9 +1,7 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (C) 2012 - 2014 BlackBerry Limited. All rights reserved.
-**
-** Contact: BlackBerry (qt@blackberry.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2014 Klarälvdalens Datakonsult AB, a KDAB Group company
+** Contact: info@kdab.com
 **
 ** This file is part of Qt Creator.
 **
@@ -29,50 +27,22 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXPLUGIN_H
-#define QNX_INTERNAL_QNXPLUGIN_H
+#include "devicetypekitchooser.h"
 
-#include <extensionsystem/iplugin.h>
+#include "kitinformation.h"
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
+using namespace ProjectExplorer;
 
-namespace Qnx {
-namespace Internal {
-
-class QNXPlugin : public ExtensionSystem::IPlugin
+DeviceTypeKitChooser::DeviceTypeKitChooser(Core::Id deviceType, QWidget *parent)
+    : KitChooser(parent)
+    , m_deviceType(deviceType)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")
+}
 
-public:
-    QNXPlugin();
-    ~QNXPlugin();
+bool DeviceTypeKitChooser::kitMatches(const Kit *k) const
+{
+    if (!KitChooser::kitMatches(k))
+        return false;
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-private slots:
-    void updateDebuggerActions();
-#ifdef WITH_TESTS
-    void testBarDescriptorDocumentSetValue_data();
-    void testBarDescriptorDocumentSetValue();
-
-    void testBarDescriptorDocumentSetBannerComment_data();
-    void testBarDescriptorDocumentSetBannerComment();
-
-    void testConfigurationManager_data();
-    void testConfigurationManager();
-#endif
-
-private:
-    QAction *m_debugSeparator;
-    QAction *m_attachToQnxApplication;
-};
-
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXPLUGIN_H
+    return DeviceTypeKitInformation::deviceTypeId(k) == m_deviceType;
+}

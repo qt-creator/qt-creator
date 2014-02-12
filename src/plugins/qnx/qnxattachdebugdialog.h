@@ -1,9 +1,7 @@
 /**************************************************************************
 **
-** Copyright (C) 2012 - 2014 BlackBerry Limited. All rights reserved.
-**
-** Contact: BlackBerry (qt@blackberry.com)
-** Contact: KDAB (info@kdab.com)
+** Copyright (C) 2014 Klarälvdalens Datakonsult AB, a KDAB Group company
+** Contact: info@kdab.com
 **
 ** This file is part of Qt Creator.
 **
@@ -29,50 +27,33 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXPLUGIN_H
-#define QNX_INTERNAL_QNXPLUGIN_H
+#ifndef QNX_INTERNAL_QNXATTACHDEBUGDIALOG_H
+#define QNX_INTERNAL_QNXATTACHDEBUGDIALOG_H
 
-#include <extensionsystem/iplugin.h>
+#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
+namespace Utils {
+class PathChooser;
+}
 
 namespace Qnx {
 namespace Internal {
 
-class QNXPlugin : public ExtensionSystem::IPlugin
+class QnxAttachDebugDialog : public ProjectExplorer::DeviceProcessesDialog
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")
 
 public:
-    QNXPlugin();
-    ~QNXPlugin();
+    explicit QnxAttachDebugDialog(ProjectExplorer::KitChooser *kitChooser, QWidget *parent = 0);
 
-    bool initialize(const QStringList &arguments, QString *errorString);
-    void extensionsInitialized();
-    ShutdownFlag aboutToShutdown();
-
-private slots:
-    void updateDebuggerActions();
-#ifdef WITH_TESTS
-    void testBarDescriptorDocumentSetValue_data();
-    void testBarDescriptorDocumentSetValue();
-
-    void testBarDescriptorDocumentSetBannerComment_data();
-    void testBarDescriptorDocumentSetBannerComment();
-
-    void testConfigurationManager_data();
-    void testConfigurationManager();
-#endif
+    QString projectSource() const;
+    QString localExecutable() const;
 
 private:
-    QAction *m_debugSeparator;
-    QAction *m_attachToQnxApplication;
+    Utils::PathChooser *m_projectSource;
+    Utils::PathChooser *m_localExecutable;
 };
 
 } // namespace Internal
 } // namespace Qnx
-
-#endif // QNX_INTERNAL_QNXPLUGIN_H
+#endif // QNX_INTERNAL_QNXATTACHDEBUGDIALOG_H
