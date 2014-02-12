@@ -96,7 +96,7 @@ void QmlProfilerEventsModelProxy::limitToRange(qint64 rangeStart, qint64 rangeEn
 
 void QmlProfilerEventsModelProxy::dataChanged()
 {
-    if (d->modelManager->state() == QmlProfilerDataState::Done)
+    if (d->modelManager->state() == QmlProfilerDataState::ProcessingData)
         loadData();
     else if (d->modelManager->state() == QmlProfilerDataState::ClearingData)
         clear();

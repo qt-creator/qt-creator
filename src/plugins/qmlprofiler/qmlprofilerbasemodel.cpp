@@ -27,35 +27,31 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPROCESSEDMODEL_H
-#define QMLPROFILERPROCESSEDMODEL_H
-
-#include "qmlprofilersimplemodel.h"
-#include "qmlprofilerdetailsrewriter.h"
+#include "qmlprofilerbasemodel.h"
+#include "qmlprofilermodelmanager.h"
 
 namespace QmlProfiler {
-namespace Internal {
 
-class QmlProfilerProcessedModel : public QmlProfilerSimpleModel
+QmlProfilerBaseModel::QmlProfilerBaseModel(QmlProfilerModelManager *manager) :
+    m_modelManager(manager), m_processingDone(false)
 {
-    Q_OBJECT
-
-public:
-    explicit QmlProfilerProcessedModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent = 0);
-    ~QmlProfilerProcessedModel();
-
-    virtual void clear();
-    virtual void complete();
-
-private slots:
-    void detailsChanged(int requestId, const QString &newString);
-    void detailsDone();
-
-private:
-    QmlProfilerDetailsRewriter *m_detailsRewriter;
-};
-
-}
+    Q_ASSERT(m_modelManager);
+    m_modelId = m_modelManager->registerModelProxy();
 }
 
-#endif
+void QmlProfilerBaseModel::clear()
+{
+    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
+    m_processingDone = false;
+    emit changed();
+}
+
+void QmlProfilerBaseModel::complete()
+{
+    emit changed();
+    m_processingDone = true;
+    m_modelManager->modelProxyCountUpdated(m_modelId, isEmpty() ? 0 : 1, 1);
+    m_modelManager->modelProcessingDone();
+}
+
+}

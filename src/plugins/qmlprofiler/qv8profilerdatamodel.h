@@ -30,6 +30,8 @@
 #ifndef QV8PROFILERDATAMODEL_H
 #define QV8PROFILERDATAMODEL_H
 
+#include "qmlprofilerbasemodel.h"
+
 #include <QObject>
 #include <QHash>
 
@@ -70,11 +72,11 @@ struct QV8EventSub {
     qint64 totalTime;
 };
 
-class QV8ProfilerDataModel : public QObject
+class QV8ProfilerDataModel : public QmlProfilerBaseModel
 {
     Q_OBJECT
 public:
-    QV8ProfilerDataModel(QObject *parent = 0);
+    QV8ProfilerDataModel(QmlProfilerModelManager *parent);
     ~QV8ProfilerDataModel();
 
     void clear();
@@ -89,9 +91,6 @@ public:
     void load(QXmlStreamReader &stream);
 
     void complete();
-
-signals:
-    void changed();
 
 public slots:
     void addV8Event(int depth,

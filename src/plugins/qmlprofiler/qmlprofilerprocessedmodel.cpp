@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmlprofilerprocessedmodel.h"
+#include "qmlprofilermodelmanager.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
 #include <QUrl>
@@ -96,10 +97,9 @@ bool compareStartTimes(const QmlProfilerSimpleModel::QmlEventData &t1, const Qml
 
 //////////////////////////////////////////////////////////////////////////////
 
-QmlProfilerProcessedModel::QmlProfilerProcessedModel(Utils::FileInProjectFinder *fileFinder, QObject *parent)
+QmlProfilerProcessedModel::QmlProfilerProcessedModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent)
     : QmlProfilerSimpleModel(parent)
     , m_detailsRewriter(new QmlProfilerDetailsRewriter(this, fileFinder))
-    , m_emitChanged(false)
 {
     connect(m_detailsRewriter, SIGNAL(rewriteDetailsString(int,QString)),
             this, SLOT(detailsChanged(int,QString)));
@@ -117,8 +117,6 @@ void QmlProfilerProcessedModel::clear()
 
     // This call emits changed(). Don't emit it again here.
     QmlProfilerSimpleModel::clear();
-
-    m_emitChanged = false;
 }
 
 void QmlProfilerProcessedModel::complete()
@@ -154,12 +152,9 @@ void QmlProfilerProcessedModel::complete()
         m_detailsRewriter->requestDetailsForLocation(i, event->location);
     }
 
+    // Allow QmlProfilerBaseModel::complete() only after documents have been reloaded to avoid
+    // unnecessary updates of child models.
     m_detailsRewriter->reloadDocuments();
-
-    // This call emits changed(). Don't emit it again here.
-    QmlProfilerSimpleModel::complete();
-
-    m_emitChanged = false;
 }
 
 void QmlProfilerProcessedModel::detailsChanged(int requestId, const QString &newString)
@@ -168,16 +163,13 @@ void QmlProfilerProcessedModel::detailsChanged(int requestId, const QString &new
 
     QmlEventData *event = &eventList[requestId];
     event->data = QStringList(newString);
-
-    m_emitChanged = true;
 }
 
 void QmlProfilerProcessedModel::detailsDone()
 {
-    if (m_emitChanged) {
-        emit changed();
-        m_emitChanged = false;
-    }
+    // The child models are supposed to synchronously update on changed(), triggered by
+    // QmlProfilerBaseModel::complete().
+    QmlProfilerSimpleModel::complete();
 }
 
 }

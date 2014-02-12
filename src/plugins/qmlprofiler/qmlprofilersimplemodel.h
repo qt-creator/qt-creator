@@ -31,6 +31,7 @@
 #define QMLPROFILERSIMPLEMODEL_H
 
 #include "qmlprofiler_global.h"
+#include "qmlprofilerbasemodel.h"
 
 #include <qmldebug/qmlprofilereventlocation.h>
 
@@ -43,7 +44,7 @@ namespace QmlProfiler {
 class QmlProfilerModelManager;
 
 // stores the data from the client as-is
-class QMLPROFILER_EXPORT QmlProfilerSimpleModel : public QObject
+class QMLPROFILER_EXPORT QmlProfilerSimpleModel : public QmlProfilerBaseModel
 {
     Q_OBJECT
 public:
@@ -62,7 +63,7 @@ public:
         qint64 numericData5;
     };
 
-    explicit QmlProfilerSimpleModel(QObject *parent = 0);
+    explicit QmlProfilerSimpleModel(QmlProfilerModelManager *parent);
     ~QmlProfilerSimpleModel();
 
     virtual void clear();
@@ -72,17 +73,11 @@ public:
     void addQmlEvent(int type, int bindingType, qint64 startTime, qint64 duration, const QStringList &data, const QmlDebug::QmlEventLocation &location,
                      qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
     qint64 lastTimeMark() const;
-    virtual void complete();
 
     static QString getHashString(const QmlProfilerSimpleModel::QmlEventData &event);
 
-signals:
-    void changed();
-
 protected:
     QVector<QmlEventData> eventList;
-    QmlProfilerModelManager *m_modelManager;
-    int m_modelId;
 };
 
 }

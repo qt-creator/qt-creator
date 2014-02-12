@@ -39,12 +39,9 @@
 
 namespace QmlProfiler {
 
-QmlProfilerSimpleModel::QmlProfilerSimpleModel(QObject *parent)
-    : QObject(parent)
+QmlProfilerSimpleModel::QmlProfilerSimpleModel(QmlProfilerModelManager *parent)
+    : QmlProfilerBaseModel(parent)
 {
-    m_modelManager = qobject_cast<QmlProfilerModelManager *>(parent);
-    Q_ASSERT(m_modelManager);
-    m_modelId = m_modelManager->registerModelProxy();
 }
 
 QmlProfilerSimpleModel::~QmlProfilerSimpleModel()
@@ -53,9 +50,8 @@ QmlProfilerSimpleModel::~QmlProfilerSimpleModel()
 
 void QmlProfilerSimpleModel::clear()
 {
-    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
     eventList.clear();
-    emit changed();
+    QmlProfilerBaseModel::clear();
 }
 
 bool QmlProfilerSimpleModel::isEmpty() const
@@ -96,12 +92,6 @@ qint64 QmlProfilerSimpleModel::lastTimeMark() const
         return 0;
 
     return eventList.last().startTime + eventList.last().duration;
-}
-
-void QmlProfilerSimpleModel::complete()
-{
-    m_modelManager->modelProxyCountUpdated(m_modelId, isEmpty() ? 0 : 1, 1);
-    emit changed();
 }
 
 QString QmlProfilerSimpleModel::getHashString(const QmlProfilerSimpleModel::QmlEventData &event)

@@ -216,8 +216,6 @@ void QmlProfilerModelManager::modelProxyCountUpdated(int proxyId, qint64 count, 
     d->progress += d->partialCounts[proxyId] / d->partialCounts.count();
 
     emit progressChanged();
-    if (d->progress > 0.99)
-        emit dataAvailable();
 }
 
 qint64 QmlProfilerModelManager::estimatedProfilingTime() const
@@ -259,23 +257,35 @@ void QmlProfilerModelManager::addV8Event(int depth, const QString &function, con
 
 void QmlProfilerModelManager::complete()
 {
-    if (state() == QmlProfilerDataState::AcquiringData) {
+    switch (state()) {
+    case QmlProfilerDataState::ProcessingData:
+        setState(QmlProfilerDataState::Done);
+        emit dataAvailable();
+        break;
+    case QmlProfilerDataState::AcquiringData:
         // If trace end time was not explicitly set, use the last event
         if (d->traceTime->endTime() == 0)
             d->traceTime->setEndTime(d->model->lastTimeMark());
         setState(QmlProfilerDataState::ProcessingData);
         d->model->complete();
         d->v8Model->complete();
+        break;
+    case QmlProfilerDataState::Empty:
         setState(QmlProfilerDataState::Done);
-    } else
-    if (state() == QmlProfilerDataState::Empty) {
-        setState(QmlProfilerDataState::Done);
-    } else
-    if (state() == QmlProfilerDataState::Done) {
-        // repeated Done states are ignored
-    } else {
+        break;
+    case QmlProfilerDataState::Done:
+        break;
+    default:
         emit error(tr("Unexpected complete signal in data model."));
+        break;
     }
+}
+
+void QmlProfilerModelManager::modelProcessingDone()
+{
+    Q_ASSERT(state() == QmlProfilerDataState::ProcessingData);
+    if (d->model->processingDone() && d->v8Model->processingDone())
+        complete();
 }
 
 void QmlProfilerModelManager::save(const QString &filename)

@@ -27,35 +27,36 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERPROCESSEDMODEL_H
-#define QMLPROFILERPROCESSEDMODEL_H
+#ifndef QMLPROFILERBASEMODEL_H
+#define QMLPROFILERBASEMODEL_H
 
-#include "qmlprofilersimplemodel.h"
-#include "qmlprofilerdetailsrewriter.h"
+#include "qmlprofiler_global.h"
+#include <QObject>
 
 namespace QmlProfiler {
-namespace Internal {
 
-class QmlProfilerProcessedModel : public QmlProfilerSimpleModel
-{
+class QmlProfilerModelManager;
+
+class QMLPROFILER_EXPORT QmlProfilerBaseModel : public QObject {
     Q_OBJECT
-
 public:
-    explicit QmlProfilerProcessedModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent = 0);
-    ~QmlProfilerProcessedModel();
+    QmlProfilerBaseModel(QmlProfilerModelManager *manager);
+    virtual ~QmlProfilerBaseModel() {}
 
-    virtual void clear();
     virtual void complete();
+    virtual void clear();
+    virtual bool isEmpty() const = 0;
+    bool processingDone() const { return m_processingDone; }
 
-private slots:
-    void detailsChanged(int requestId, const QString &newString);
-    void detailsDone();
+protected:
+    QmlProfilerModelManager *m_modelManager;
+    int m_modelId;
+    bool m_processingDone;
 
-private:
-    QmlProfilerDetailsRewriter *m_detailsRewriter;
+signals:
+    void changed();
 };
 
 }
-}
 
-#endif
+#endif // QMLPROFILERBASEMODEL_H

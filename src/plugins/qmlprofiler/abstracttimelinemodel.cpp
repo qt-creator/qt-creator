@@ -81,7 +81,7 @@ int AbstractTimelineModel::getBindingLoopDest(int index) const
 void AbstractTimelineModel::dataChanged()
 {
     switch (m_modelManager->state()) {
-    case QmlProfilerDataState::Done:
+    case QmlProfilerDataState::ProcessingData:
         loadData();
         break;
     case QmlProfilerDataState::ClearingData:

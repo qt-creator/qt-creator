@@ -261,7 +261,7 @@ void QmlProfilerStateWidget::updateDisplay()
 void QmlProfilerStateWidget::dataStateChanged()
 {
     // consider possible rounding errors
-    d->loadingDone = d->m_modelManager->progress() >= 0.99 ||
+    d->loadingDone = d->m_modelManager->state() == QmlProfilerDataState::Done ||
             d->m_modelManager->state() == QmlProfilerDataState::Empty;
     d->traceAvailable = d->m_modelManager->traceTime()->duration() > 0;
     d->emptyList = d->m_modelManager->isEmpty() || d->m_modelManager->progress() == 0;

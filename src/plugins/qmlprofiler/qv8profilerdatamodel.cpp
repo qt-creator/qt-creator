@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qv8profilerdatamodel.h"
+#include "qmlprofilermodelmanager.h"
 
 #include <QStringList>
 
@@ -107,8 +108,8 @@ public:
     qint64 v8MeasuredTime;
 };
 
-QV8ProfilerDataModel::QV8ProfilerDataModel(QObject *parent)
-    : QObject(parent)
+QV8ProfilerDataModel::QV8ProfilerDataModel(QmlProfilerModelManager *parent)
+    : QmlProfilerBaseModel(parent)
     , d(new QV8ProfilerDataModelPrivate(this))
 {
     d->v8MeasuredTime = 0;
@@ -128,7 +129,7 @@ void QV8ProfilerDataModel::clear()
     d->clearV8RootEvent();
     d->v8MeasuredTime = 0;
 
-    emit changed();
+    QmlProfilerBaseModel::clear();
 }
 
 bool QV8ProfilerDataModel::isEmpty() const
@@ -482,7 +483,7 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
 void QV8ProfilerDataModel::complete()
 {
     collectV8Statistics();
-    emit changed();
+    QmlProfilerBaseModel::complete();
 }
 
 } // namespace Internal

@@ -141,6 +141,7 @@ public slots:
                     double totalTime, double selfTime);
 
     void complete();
+    void modelProcessingDone();
 
     void save(const QString &filename);
     void load(const QString &filename);
