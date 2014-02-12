@@ -36,6 +36,7 @@ namespace Core {
 namespace Constants {
 
 const char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("Locator", "Locator");
+const char CUSTOM_FILTER_BASEID[] = "Locator.CustomFilter";
 const char TASK_INDEX[] = "Locator.Task.Index";
 
 } // namespace Constants

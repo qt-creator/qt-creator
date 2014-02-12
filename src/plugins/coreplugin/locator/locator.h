@@ -33,6 +33,7 @@
 #include "ilocatorfilter.h"
 #include "directoryfilter.h"
 #include "executefilter.h"
+#include "locatorconstants.h"
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/actionmanager/command.h>
@@ -117,8 +118,10 @@ void Locator::loadSettingsHelper(S *settings)
     settings->beginGroup(QLatin1String("CustomFilters"));
     QList<ILocatorFilter *> customFilters;
     const QStringList keys = settings->childKeys();
+    int count = 0;
+    Core::Id baseId(Constants::CUSTOM_FILTER_BASEID);
     foreach (const QString &key, keys) {
-        ILocatorFilter *filter = new DirectoryFilter;
+        ILocatorFilter *filter = new DirectoryFilter(baseId.withSuffix(++count));
         filter->restoreState(settings->value(key).toByteArray());
         m_filters.append(filter);
         customFilters.append(filter);

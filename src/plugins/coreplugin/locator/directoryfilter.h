@@ -46,7 +46,7 @@ class DirectoryFilter : public BaseFileFilter
     Q_OBJECT
 
 public:
-    DirectoryFilter();
+    DirectoryFilter(Core::Id id);
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     bool openConfigDialog(QWidget *parent, bool &needsRefresh);
@@ -59,7 +59,6 @@ private slots:
     void updateOptionButtons();
 
 private:
-    QString m_name;
     QStringList m_directories;
     QStringList m_filters;
     // Our config dialog, uses in addDirectory and editDirectory

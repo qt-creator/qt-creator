@@ -35,13 +35,12 @@
 using namespace Core;
 using namespace Core::Internal;
 
-DirectoryFilter::DirectoryFilter()
-  : m_name(tr("Generic Directory Filter")),
-    m_dialog(0)
+DirectoryFilter::DirectoryFilter(Id id)
+    : m_dialog(0)
 {
-    setId(Core::Id::fromString(m_name));
+    setId(id);
     setIncludedByDefault(true);
-    setDisplayName(m_name);
+    setDisplayName(tr("Generic Directory Filter"));
 
     m_filters.append(QLatin1String("*.h"));
     m_filters.append(QLatin1String("*.cpp"));
@@ -54,7 +53,7 @@ QByteArray DirectoryFilter::saveState() const
     QMutexLocker locker(&m_lock);
     QByteArray value;
     QDataStream out(&value, QIODevice::WriteOnly);
-    out << m_name;
+    out << displayName();
     out << m_directories;
     out << m_filters;
     out << shortcutString();
@@ -67,17 +66,19 @@ bool DirectoryFilter::restoreState(const QByteArray &state)
 {
     QMutexLocker locker(&m_lock);
 
+    QString name;
     QString shortcut;
     bool defaultFilter;
 
     QDataStream in(state);
-    in >> m_name;
+    in >> name;
     in >> m_directories;
     in >> m_filters;
     in >> shortcut;
     in >> defaultFilter;
     in >> files();
 
+    setDisplayName(name);
     setShortcutString(shortcut);
     setIncludedByDefault(defaultFilter);
 
@@ -100,7 +101,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
             this, SLOT(removeDirectory()), Qt::DirectConnection);
     connect(m_ui.directoryList, SIGNAL(itemSelectionChanged()),
             this, SLOT(updateOptionButtons()), Qt::DirectConnection);
-    m_ui.nameEdit->setText(m_name);
+    m_ui.nameEdit->setText(displayName());
     m_ui.nameEdit->selectAll();
     m_ui.directoryList->clear();
     m_ui.directoryList->addItems(m_directories);
@@ -113,7 +114,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
         bool directoriesChanged = false;
         QStringList oldDirectories = m_directories;
         QStringList oldFilters = m_filters;
-        m_name = m_ui.nameEdit->text().trimmed();
+        setDisplayName(m_ui.nameEdit->text().trimmed());
         m_directories.clear();
         int oldCount = oldDirectories.count();
         int newCount = m_ui.directoryList->count();
@@ -176,7 +177,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
             files().clear();
             generateFileNames();
             future.setProgressRange(0, 1);
-            future.setProgressValueAndText(1, tr("%1 filter update: 0 files").arg(m_name));
+            future.setProgressValueAndText(1, tr("%1 filter update: 0 files").arg(displayName()));
             return;
         }
         directories = m_directories;
@@ -189,7 +190,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         if (future.isProgressUpdateNeeded()
                 || future.progressValue() == 0 /*workaround for regression in Qt*/) {
             future.setProgressValueAndText(it.currentProgress(),
-                                           tr("%1 filter update: %n files", 0, filesFound.size()).arg(m_name));
+                                           tr("%1 filter update: %n files", 0, filesFound.size()).arg(displayName()));
         }
     }
 
@@ -199,6 +200,6 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         generateFileNames();
         future.setProgressValue(it.maxProgress());
     } else {
-        future.setProgressValueAndText(it.currentProgress(), tr("%1 filter update: canceled").arg(m_name));
+        future.setProgressValueAndText(it.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));
     }
 }

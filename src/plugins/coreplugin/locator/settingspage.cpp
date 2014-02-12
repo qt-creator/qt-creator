@@ -180,7 +180,8 @@ void SettingsPage::configureFilter(QListWidgetItem *item)
 
 void SettingsPage::addCustomFilter()
 {
-    ILocatorFilter *filter = new DirectoryFilter;
+    ILocatorFilter *filter = new DirectoryFilter(
+                Core::Id(Constants::CUSTOM_FILTER_BASEID).withSuffix(m_customFilters.size() + 1));
     bool needsRefresh = false;
     if (filter->openConfigDialog(m_widget, needsRefresh)) {
         m_filters.append(filter);
