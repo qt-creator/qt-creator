@@ -2210,8 +2210,12 @@ void FakeVimHandler::Private::focus()
             setTargetColumn();
             setAnchor();
             commitCursor();
-        } else {
+        } else if (g.submode != NoSubMode || g.mode == ExMode) {
             leaveVisualMode();
+            setPosition(qMin(position(), anchor()));
+            setTargetColumn();
+            setAnchor();
+            commitCursor();
         }
 
         bool exitCommandLine = (g.subsubmode == SearchSubSubMode || g.mode == ExMode);
