@@ -145,6 +145,8 @@ public:
     QmlProfilerTraceTime *traceTime;
 
     QVector <double> partialCounts;
+    QVector <int> partialCountWeights;
+    int totalWeight;
     double progress;
     qint64 estimatedTime;
 
@@ -156,6 +158,7 @@ public:
 QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *finder, QObject *parent) :
     QObject(parent), d(new QmlProfilerModelManagerPrivate(this))
 {
+    d->totalWeight = 0;
     d->model = new QmlProfilerProcessedModel(finder, this);
     d->v8Model = new QV8ProfilerDataModel(this);
 //    d->model = new QmlProfilerSimpleModel(this);
@@ -201,20 +204,29 @@ double QmlProfilerModelManager::progress() const
 int QmlProfilerModelManager::registerModelProxy()
 {
     d->partialCounts << 0;
+    d->partialCountWeights << 1;
+    d->totalWeight++;
     return d->partialCounts.count()-1;
+}
+
+void QmlProfilerModelManager::setProxyCountWeight(int proxyId, int weight)
+{
+    d->totalWeight += weight - d->partialCountWeights[proxyId];
+    d->partialCountWeights[proxyId] = weight;
 }
 
 void QmlProfilerModelManager::modelProxyCountUpdated(int proxyId, qint64 count, qint64 max)
 {
-    d->progress -= d->partialCounts[proxyId] / d->partialCounts.count();
+    d->progress -= d->partialCounts[proxyId] * d->partialCountWeights[proxyId] /
+            d->totalWeight;
 
     if (max <= 0)
         d->partialCounts[proxyId] = 1;
     else
         d->partialCounts[proxyId] = (double)count / (double) max;
 
-    d->progress += d->partialCounts[proxyId] / d->partialCounts.count();
-
+    d->progress += d->partialCounts[proxyId] * d->partialCountWeights[proxyId] /
+            d->totalWeight;
     emit progressChanged();
 }
 

@@ -101,6 +101,10 @@ QmlProfilerProcessedModel::QmlProfilerProcessedModel(Utils::FileInProjectFinder 
     : QmlProfilerSimpleModel(parent)
     , m_detailsRewriter(new QmlProfilerDetailsRewriter(this, fileFinder))
 {
+    m_processedModelId = m_modelManager->registerModelProxy();
+    // The document loading is very expensive.
+    m_modelManager->setProxyCountWeight(m_processedModelId, 3);
+
     connect(m_detailsRewriter, SIGNAL(rewriteDetailsString(int,QString)),
             this, SLOT(detailsChanged(int,QString)));
     connect(m_detailsRewriter, SIGNAL(eventDetailsChanged()),
@@ -114,13 +118,14 @@ QmlProfilerProcessedModel::~QmlProfilerProcessedModel()
 void QmlProfilerProcessedModel::clear()
 {
     m_detailsRewriter->clearRequests();
-
+    m_modelManager->modelProxyCountUpdated(m_processedModelId, 0, 1);
     // This call emits changed(). Don't emit it again here.
     QmlProfilerSimpleModel::clear();
 }
 
 void QmlProfilerProcessedModel::complete()
 {
+    m_modelManager->modelProxyCountUpdated(m_processedModelId, 0, 1);
     // post-processing
 
     // sort events by start time
@@ -150,6 +155,7 @@ void QmlProfilerProcessedModel::complete()
             continue;
 
         m_detailsRewriter->requestDetailsForLocation(i, event->location);
+        m_modelManager->modelProxyCountUpdated(m_processedModelId, i, n);
     }
 
     // Allow QmlProfilerBaseModel::complete() only after documents have been reloaded to avoid
@@ -167,6 +173,7 @@ void QmlProfilerProcessedModel::detailsChanged(int requestId, const QString &new
 
 void QmlProfilerProcessedModel::detailsDone()
 {
+    m_modelManager->modelProxyCountUpdated(m_processedModelId, 1, 1);
     // The child models are supposed to synchronously update on changed(), triggered by
     // QmlProfilerBaseModel::complete().
     QmlProfilerSimpleModel::complete();

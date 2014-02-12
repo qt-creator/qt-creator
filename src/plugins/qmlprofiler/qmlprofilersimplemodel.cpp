@@ -42,6 +42,7 @@ namespace QmlProfiler {
 QmlProfilerSimpleModel::QmlProfilerSimpleModel(QmlProfilerModelManager *parent)
     : QmlProfilerBaseModel(parent)
 {
+    m_modelManager->setProxyCountWeight(m_modelId, 2);
 }
 
 QmlProfilerSimpleModel::~QmlProfilerSimpleModel()

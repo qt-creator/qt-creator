@@ -69,6 +69,9 @@ QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager
     connect(modelManager->simpleModel(), SIGNAL(changed()), this, SLOT(dataChanged()));
     d->modelId = modelManager->registerModelProxy();
 
+    // We're iterating twice in loadData.
+    modelManager->setProxyCountWeight(d->modelId, 2);
+
     d->acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding << QmlDebug::HandlingSignal << QmlDebug::Javascript;
 }
 
@@ -211,6 +214,8 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
     }
 
     // post-process: calc mean time, median time, percentoftime
+    int i = d->data.size();
+    int total = i * 2;
     foreach (const QString &hash, d->data.keys()) {
         QmlEventStats* stats = &d->data[hash];
         if (stats->calls > 0)
@@ -223,6 +228,7 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
         }
 
         stats->percentOfTime = stats->duration * 100.0 / qmlTime;
+        d->modelManager->modelProxyCountUpdated(d->modelId, i++, total);
     }
 
     // set binding loop flag

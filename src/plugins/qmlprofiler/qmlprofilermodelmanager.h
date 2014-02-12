@@ -117,6 +117,7 @@ public:
 
     double progress() const;
     int registerModelProxy();
+    void setProxyCountWeight(int proxyId, int weight);
     void modelProxyCountUpdated(int proxyId, qint64 count, qint64 max);
 
     qint64 estimatedProfilingTime() const;

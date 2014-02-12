@@ -52,6 +52,7 @@ private slots:
     void detailsDone();
 
 private:
+    int m_processedModelId;
     QmlProfilerDetailsRewriter *m_detailsRewriter;
 };
 
