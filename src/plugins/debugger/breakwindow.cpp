@@ -868,7 +868,7 @@ void BreakTreeView::setBreakpointsEnabled(const BreakpointModelIds &ids, bool en
 
 void BreakTreeView::deleteAllBreakpoints()
 {
-    if (Utils::CheckableMessageBox::doNotAskAgainQuestion(Core::ICore::mainWindow(),
+    if (Utils::CheckableMessageBox::doNotAskAgainQuestion(Core::ICore::dialogParent(),
            tr("Remove All Breakpoints"),
            tr("Are you sure you want to remove all breakpoints "
               "from all files in the current session?"),

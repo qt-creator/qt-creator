@@ -1078,7 +1078,7 @@ public slots:
         QTC_ASSERT(act, return);
         const BreakpointModelId id = act->data().value<BreakpointModelId>();
         QTC_ASSERT(id > 0, return);
-        BreakTreeView::editBreakpoint(id, ICore::mainWindow());
+        BreakTreeView::editBreakpoint(id, ICore::dialogParent());
     }
 
     void slotRunToLine()
@@ -1571,13 +1571,13 @@ void DebuggerPluginPrivate::debugProjectBreakMain()
 void DebuggerPluginPrivate::startAndDebugApplication()
 {
     DebuggerStartParameters sp;
-    if (StartApplicationDialog::run(ICore::mainWindow(), &sp))
+    if (StartApplicationDialog::run(ICore::dialogParent(), &sp))
         DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::attachCore()
 {
-    AttachCoreDialog dlg(ICore::mainWindow());
+    AttachCoreDialog dlg(ICore::dialogParent());
 
     const QString lastExternalKit = configValue("LastExternalKit").toString();
     if (!lastExternalKit.isEmpty())
@@ -1619,7 +1619,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     QTC_ASSERT(kit && fillParameters(&sp, kit), return);
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
-    StartRemoteCdbDialog dlg(ICore::mainWindow());
+    StartRemoteCdbDialog dlg(ICore::dialogParent());
     QString previousConnection = configValue(connectionKey).toString();
     if (previousConnection.isEmpty())
         previousConnection = QLatin1String("localhost:1234");
@@ -1635,7 +1635,7 @@ void DebuggerPluginPrivate::attachToRemoteServer()
 {
     DebuggerStartParameters sp;
     sp.startMode = AttachToRemoteServer;
-    if (StartApplicationDialog::run(ICore::mainWindow(), &sp)) {
+    if (StartApplicationDialog::run(ICore::dialogParent(), &sp)) {
         sp.closeMode = KillAtClose;
         sp.serverStartScript.clear();
         DebuggerRunControlFactory::createAndScheduleRun(sp);
@@ -1657,7 +1657,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     const DebuggerKitChooser::Mode mode = startServerOnly ?
         DebuggerKitChooser::RemoteDebugging : DebuggerKitChooser::LocalDebugging;
     DebuggerKitChooser *kitChooser = new DebuggerKitChooser(mode);
-    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(kitChooser, ICore::mainWindow());
+    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
     dlg->addAcceptButton(ProjectExplorer::DeviceProcessesDialog::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
@@ -1682,7 +1682,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
 
 void DebuggerPluginPrivate::attachToUnstartedApplicationDialog()
 {
-    UnstartedAppWatcherDialog *dlg = new UnstartedAppWatcherDialog(mainWindow());
+    UnstartedAppWatcherDialog *dlg = new UnstartedAppWatcherDialog(ICore::dialogParent());
 
     connect(dlg, SIGNAL(finished(int)), dlg, SLOT(deleteLater()));
     connect(dlg, SIGNAL(processFound()), this, SLOT(attachToFoundProcess()));
@@ -1726,7 +1726,7 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return 0);
     if (process.pid == 0) {
-        QMessageBox::warning(ICore::mainWindow(), tr("Warning"),
+        QMessageBox::warning(ICore::dialogParent(), tr("Warning"),
             tr("Cannot attach to process with PID 0"));
         return 0;
     }
