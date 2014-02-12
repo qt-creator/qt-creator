@@ -3,4 +3,5 @@ QTC_PLUGIN_NAME = QmlProfilerExtension
 #    qmldebug \
 #    extensionsystem
 QTC_PLUGIN_DEPENDS += \
-    qmlprofiler
+    qmlprofiler \
+    licensechecker \

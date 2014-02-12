@@ -19,6 +19,8 @@
 #include "qmlprofilerextensionplugin.h"
 #include "qmlprofilerextensionconstants.h"
 
+#include <licensechecker/licensecheckerplugin.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -26,7 +28,10 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QAction>
+#include <QDebug>
 #include <QMessageBox>
 #include <QMainWindow>
 #include <QMenu>
@@ -61,8 +66,15 @@ bool QmlProfilerExtensionPlugin::initialize(const QStringList &arguments, QStrin
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    addAutoReleasedObject(new PixmapCacheModel);
-    addAutoReleasedObject(new SceneGraphTimelineModel);
+    LicenseChecker::LicenseCheckerPlugin *licenseChecker
+            = ExtensionSystem::PluginManager::getObject<LicenseChecker::LicenseCheckerPlugin>();
+
+    if (licenseChecker && licenseChecker->hasValidLicense()) {
+        addAutoReleasedObject(new PixmapCacheModel);
+        addAutoReleasedObject(new SceneGraphTimelineModel);
+    } else {
+        qWarning() << "Invalid license, disabling QML Profiler Enterprise features";
+    }
 
     return true;
 }
