@@ -363,11 +363,6 @@ void CppEditorSupport::startHighlighting()
     if (!m_highlightingSupport)
         return;
 
-    // Start highlighting only if the editor is or would be visible
-    // (in case another mode is active) in the edit mode.
-    if (!Core::EditorManager::visibleEditors().contains(m_textEditor))
-        return;
-
     if (m_highlightingSupport->requiresSemanticInfo()) {
         Snapshot snapshot;
         Document::Ptr doc;
