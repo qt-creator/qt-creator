@@ -38,7 +38,7 @@ def main():
     # create qt quick application
     createNewQtQuickApplication(tempDir(), "SampleApp")
     # create syntax error in qml file
-    openDocument("SampleApp.QML.qml/SampleApp.main\\.qml")
+    openDocument("SampleApp.QML.qml.main\\.qml")
     if not appendToLine(waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget"), "Text {", "SyntaxError"):
         invokeMenuItem("File", "Exit")
         return
