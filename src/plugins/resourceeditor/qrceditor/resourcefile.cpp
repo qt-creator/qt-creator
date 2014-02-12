@@ -166,6 +166,8 @@ bool ResourceFile::load()
             const QString fileName = absolutePath(felt.text());
             const QString alias = felt.attribute(QLatin1String("alias"));
             File * const file = new File(p, fileName, alias);
+            file->compress = felt.attribute(QLatin1String("compress"));
+            file->threshold = felt.attribute(QLatin1String("threshold"));
             p->file_list.append(file);
         }
     }
@@ -219,6 +221,10 @@ bool ResourceFile::save()
             felt.appendChild(text);
             if (!file.alias.isEmpty())
                 felt.setAttribute(QLatin1String("alias"), file.alias);
+            if (!file.compress.isEmpty())
+                felt.setAttribute(QLatin1String("compress"), file.compress);
+            if (!file.threshold.isEmpty())
+                felt.setAttribute(QLatin1String("threshold"), file.threshold);
         }
     }
 

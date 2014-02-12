@@ -84,6 +84,10 @@ public:
     QString alias;
     QIcon icon;
 
+    // not used, only loaded and saved
+    QString compress;
+    QString threshold;
+
 private:
     bool m_checked;
     bool m_exists;
