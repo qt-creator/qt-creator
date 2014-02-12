@@ -64,7 +64,6 @@ public:
 
     RemoteLinuxRunConfigurationPrivate(const RemoteLinuxRunConfigurationPrivate *other)
         : projectFilePath(other->projectFilePath),
-          gdbPath(other->gdbPath),
           arguments(other->arguments),
           useAlternateRemoteExecutable(other->useAlternateRemoteExecutable),
           alternateRemoteExecutable(other->alternateRemoteExecutable),
@@ -73,7 +72,6 @@ public:
     }
 
     QString projectFilePath;
-    QString gdbPath;
     QStringList arguments;
     bool useAlternateRemoteExecutable;
     QString alternateRemoteExecutable;
