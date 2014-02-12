@@ -36,7 +36,6 @@
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 
 QT_BEGIN_NAMESPACE
-class QLineEdit;
 class QLabel;
 class QCheckBox;
 QT_END_NAMESPACE
@@ -51,42 +50,17 @@ namespace Utils { class PathChooser; }
 namespace Debugger {
 namespace Internal {
 
-enum UnstartedAppWacherState {
-    InvalidWacherState,
-    NotWatchingState,
-    WatchingState,
-    FoundState
-};
-
-class UnstartedAppWatcherDialogPrivate
-{
-public:
-    UnstartedAppWatcherDialogPrivate(QWidget *dialog);
-    void setWaitingState(UnstartedAppWacherState state);
-
-    ProjectExplorer::KitChooser *kitChooser;
-    Utils::PathChooser          *pathChooser;
-
-    QLabel      *waitingLabel;
-    QCheckBox   *hideOnAttachCheckBox;
-    QCheckBox   *continueOnAttachCheckBox;
-    QPushButton *watchingPushButton;
-    QPushButton *closePushButton;
-};
-
 class UnstartedAppWatcherDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit UnstartedAppWatcherDialog(QWidget *parent = 0);
-    ~UnstartedAppWatcherDialog();
 
-    ProjectExplorer::Kit* currentKit() const;
+    ProjectExplorer::Kit *currentKit() const;
     ProjectExplorer::DeviceProcessItem currentProcess() const;
     bool hideOnAttach() const;
     bool continueOnAttach() const;
-
 
 public slots:
     void selectExecutable();
@@ -100,10 +74,25 @@ signals:
     void processFound();
 
 private:
+    enum UnstartedAppWacherState
+    {
+        InvalidWacherState,
+        NotWatchingState,
+        WatchingState,
+        FoundState
+    };
+
     void startStopTimer(bool start);
     bool checkExecutableString() const;
+    void setWaitingState(UnstartedAppWacherState state);
 
-    UnstartedAppWatcherDialogPrivate *d;
+    ProjectExplorer::KitChooser *m_kitChooser;
+    Utils::PathChooser *m_pathChooser;
+    QLabel *m_waitingLabel;
+    QCheckBox *m_hideOnAttachCheckBox;
+    QCheckBox *m_continueOnAttachCheckBox;
+    QPushButton *m_watchingPushButton;
+    QPushButton *m_closePushButton;
     ProjectExplorer::DeviceProcessItem m_process;
     QTimer m_timer;
 };

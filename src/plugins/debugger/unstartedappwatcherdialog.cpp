@@ -51,122 +51,10 @@
 #include <QLineEdit>
 #include <QFileDialog>
 
+using namespace ProjectExplorer;
+
 namespace Debugger {
 namespace Internal {
-
-UnstartedAppWatcherDialogPrivate::UnstartedAppWatcherDialogPrivate(QWidget *dialog)
-{
-    dialog->setWindowTitle(UnstartedAppWatcherDialog::tr("Attach to process not yet started"));
-    QVBoxLayout* mainLayout = new QVBoxLayout(dialog);
-
-    kitChooser = new DebuggerKitChooser(DebuggerKitChooser::LocalDebugging, dialog);
-    kitChooser->populate();
-    kitChooser->setVisible(true);
-
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    if (project && project->activeTarget() && project->activeTarget()->kit())
-        kitChooser->setCurrentKitId(project->activeTarget()->kit()->id());
-    else if (ProjectExplorer::KitManager::defaultKit())
-        kitChooser->setCurrentKitId(ProjectExplorer::KitManager::defaultKit()->id());
-
-    pathChooser = new Utils::PathChooser(dialog);
-    pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-
-    QFormLayout *formLayout = new QFormLayout();
-    formLayout->addRow(new QLabel(UnstartedAppWatcherDialog::tr("Kit: "), dialog), kitChooser);
-    formLayout->addRow(new QLabel(UnstartedAppWatcherDialog::tr("Executable: "), dialog), pathChooser);
-
-    if (project && project->activeTarget() && project->activeTarget()->activeRunConfiguration()) {
-        ProjectExplorer::LocalApplicationRunConfiguration *localAppRC =
-                qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>
-                             (project->activeTarget()->activeRunConfiguration());
-
-        if (localAppRC)
-            pathChooser->setPath(localAppRC->executable());
-    }
-
-    mainLayout->addItem(formLayout);
-    hideOnAttachCheckBox = new QCheckBox(UnstartedAppWatcherDialog::tr("Hide after Attach"), dialog);
-    hideOnAttachCheckBox->setToolTip(UnstartedAppWatcherDialog::tr("If checked, dialog will hide "
-            "after attach, and reappear after application ends.\nAlternatively, dialog will close."));
-
-    hideOnAttachCheckBox->setChecked(false);
-    hideOnAttachCheckBox->setVisible(true);
-
-    mainLayout->addWidget(hideOnAttachCheckBox);
-
-    continueOnAttachCheckBox = new QCheckBox(UnstartedAppWatcherDialog::tr("Continue on Attach"), dialog);
-    continueOnAttachCheckBox->setToolTip(UnstartedAppWatcherDialog::tr("If checked, debugger will "
-                                         "not halt application after attach."));
-
-    continueOnAttachCheckBox->setChecked(true);
-    continueOnAttachCheckBox->setVisible(true);
-
-    mainLayout->addWidget(continueOnAttachCheckBox);
-
-    waitingLabel = new QLabel(QString(), dialog);
-    waitingLabel->setAlignment(Qt::AlignCenter);
-
-    mainLayout->addWidget(waitingLabel);
-
-    mainLayout->addItem(new QSpacerItem(20, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-    QHBoxLayout *buttonsLine = new QHBoxLayout();
-    buttonsLine->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
-
-    watchingPushButton = new QPushButton(dialog);
-    watchingPushButton->setCheckable(true);
-    watchingPushButton->setChecked(false);
-    watchingPushButton->setEnabled(false);
-    watchingPushButton->setText(UnstartedAppWatcherDialog::tr("Start Watching"));
-
-    buttonsLine->addWidget(watchingPushButton);
-
-    closePushButton = new QPushButton(dialog);
-    closePushButton->setText(UnstartedAppWatcherDialog::tr("Close"));
-
-    buttonsLine->addWidget(closePushButton);
-
-    mainLayout->addItem(buttonsLine);
-    dialog->setLayout(mainLayout);
-}
-
-void UnstartedAppWatcherDialogPrivate::setWaitingState(UnstartedAppWacherState state)
-{
-    switch (state) {
-    case InvalidWacherState:
-        waitingLabel->setText(UnstartedAppWatcherDialog::tr("Please select valid executable."));
-        watchingPushButton->setEnabled(false);
-        watchingPushButton->setChecked(false);
-        pathChooser->setEnabled(true);
-        kitChooser->setEnabled(true);
-        break;
-
-    case NotWatchingState:
-        waitingLabel->setText(UnstartedAppWatcherDialog::tr("Not Watching."));
-        watchingPushButton->setEnabled(true);
-        watchingPushButton->setChecked(false);
-        pathChooser->setEnabled(true);
-        kitChooser->setEnabled(true);
-        break;
-
-    case WatchingState:
-        waitingLabel->setText(UnstartedAppWatcherDialog::tr("Waiting for process to start..."));
-        watchingPushButton->setEnabled(true);
-        watchingPushButton->setChecked(true);
-        pathChooser->setEnabled(false);
-        kitChooser->setEnabled(false);
-        break;
-
-    case FoundState:
-        waitingLabel->setText(UnstartedAppWatcherDialog::tr("Attach"));
-        watchingPushButton->setEnabled(false);
-        watchingPushButton->setChecked(true);
-        pathChooser->setEnabled(false);
-        kitChooser->setEnabled(true);
-        break;
-    }
-}
 
 /*!
     \class Debugger::Internal::UnstartedAppWatcherDialog
@@ -189,33 +77,94 @@ void UnstartedAppWatcherDialogPrivate::setWaitingState(UnstartedAppWacherState s
     scripts can restart application several times during tests.
 */
 
-UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent) :
-    QDialog(parent),
-    d(new UnstartedAppWatcherDialogPrivate(this))
+UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
+    : QDialog(parent)
 {
-    connect(d->pathChooser, SIGNAL(beforeBrowsing()), this, SLOT(selectExecutable()));
-    connect(d->watchingPushButton, SIGNAL(toggled(bool)), this, SLOT(startStopWatching(bool)));
-    connect(d->pathChooser, SIGNAL(pathChanged(QString)), this, SLOT(stopAndCheckExecutable()));
-    connect(d->closePushButton, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(findProcess()));
-    d->setWaitingState(checkExecutableString() ? NotWatchingState : InvalidWacherState);
-}
+    setWindowTitle(tr("Attach to process not yet started"));
 
-UnstartedAppWatcherDialog::~UnstartedAppWatcherDialog()
-{
-    delete d;
+    m_kitChooser = new DebuggerKitChooser(DebuggerKitChooser::LocalDebugging, this);
+    m_kitChooser->populate();
+    m_kitChooser->setVisible(true);
+
+    Project *project = ProjectExplorerPlugin::currentProject();
+    if (project && project->activeTarget() && project->activeTarget()->kit())
+        m_kitChooser->setCurrentKitId(project->activeTarget()->kit()->id());
+    else if (KitManager::defaultKit())
+        m_kitChooser->setCurrentKitId(KitManager::defaultKit()->id());
+
+    m_pathChooser = new Utils::PathChooser(this);
+    m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_pathChooser->setHistoryCompleter(QLatin1String("LocalExecutable"));
+
+    if (project && project->activeTarget() && project->activeTarget()->activeRunConfiguration()) {
+        LocalApplicationRunConfiguration *localAppRC =
+                qobject_cast<LocalApplicationRunConfiguration *>
+                             (project->activeTarget()->activeRunConfiguration());
+
+        if (localAppRC)
+            m_pathChooser->setPath(localAppRC->executable());
+    }
+
+    m_hideOnAttachCheckBox = new QCheckBox(tr("Hide after Attach"), this);
+    m_hideOnAttachCheckBox->setToolTip(tr("If checked, dialog will hide "
+            "after attach, and reappear after application ends.\nAlternatively, dialog will close."));
+
+    m_hideOnAttachCheckBox->setChecked(false);
+    m_hideOnAttachCheckBox->setVisible(true);
+
+    m_continueOnAttachCheckBox = new QCheckBox(tr("Continue on Attach"), this);
+    m_continueOnAttachCheckBox->setToolTip(tr("If checked, debugger will "
+                                              "not halt application after attach."));
+
+    m_continueOnAttachCheckBox->setChecked(true);
+    m_continueOnAttachCheckBox->setVisible(true);
+
+    m_waitingLabel = new QLabel(QString(), this);
+    m_waitingLabel->setAlignment(Qt::AlignCenter);
+
+    m_watchingPushButton = new QPushButton(this);
+    m_watchingPushButton->setCheckable(true);
+    m_watchingPushButton->setChecked(false);
+    m_watchingPushButton->setEnabled(false);
+    m_watchingPushButton->setText(tr("Start Watching"));
+
+    m_closePushButton = new QPushButton(this);
+    m_closePushButton->setText(tr("Close"));
+
+    QHBoxLayout *buttonsLine = new QHBoxLayout();
+    buttonsLine->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+    buttonsLine->addWidget(m_watchingPushButton);
+    buttonsLine->addWidget(m_closePushButton);
+
+    QFormLayout *mainLayout = new QFormLayout(this);
+    mainLayout->addRow(new QLabel(tr("Kit: "), this), m_kitChooser);
+    mainLayout->addRow(new QLabel(tr("Executable: "), this), m_pathChooser);
+    mainLayout->addRow(m_hideOnAttachCheckBox);
+    mainLayout->addRow(m_continueOnAttachCheckBox);
+    mainLayout->addRow(m_waitingLabel);
+    mainLayout->addItem(new QSpacerItem(20, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    mainLayout->addRow(buttonsLine);
+    setLayout(mainLayout);
+
+    connect(m_pathChooser, SIGNAL(beforeBrowsing()), this, SLOT(selectExecutable()));
+    connect(m_watchingPushButton, SIGNAL(toggled(bool)), this, SLOT(startStopWatching(bool)));
+    connect(m_pathChooser, SIGNAL(pathChanged(QString)), this, SLOT(stopAndCheckExecutable()));
+    connect(m_closePushButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(findProcess()));
+
+    setWaitingState(checkExecutableString() ? NotWatchingState : InvalidWacherState);
 }
 
 void UnstartedAppWatcherDialog::selectExecutable()
 {
     QString path;
 
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    Project *project = ProjectExplorerPlugin::currentProject();
 
     if (project && project->activeTarget() && project->activeTarget()->activeRunConfiguration()) {
 
-        ProjectExplorer::LocalApplicationRunConfiguration *localAppRC =
-                qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>
+        LocalApplicationRunConfiguration *localAppRC =
+                qobject_cast<LocalApplicationRunConfiguration *>
                              (project->activeTarget()->activeRunConfiguration());
         if (localAppRC)
             path = QFileInfo(localAppRC->executable()).path();
@@ -229,23 +178,23 @@ void UnstartedAppWatcherDialog::selectExecutable()
             path = project->projectDirectory();
         }
     }
-    d->pathChooser->setInitialBrowsePathBackup(path);
+    m_pathChooser->setInitialBrowsePathBackup(path);
 }
 
 void UnstartedAppWatcherDialog::startWatching()
 {
     show();
     if (checkExecutableString()) {
-        d->setWaitingState(WatchingState);
+        setWaitingState(WatchingState);
         startStopTimer(true);
     } else {
-        d->setWaitingState(InvalidWacherState);
+        setWaitingState(InvalidWacherState);
     }
 }
 
-void UnstartedAppWatcherDialog::pidFound(const ProjectExplorer::DeviceProcessItem &p)
+void UnstartedAppWatcherDialog::pidFound(const DeviceProcessItem &p)
 {
-    d->setWaitingState(FoundState);
+    setWaitingState(FoundState);
     startStopTimer(false);
     m_process = p;
 
@@ -259,7 +208,9 @@ void UnstartedAppWatcherDialog::pidFound(const ProjectExplorer::DeviceProcessIte
 
 void UnstartedAppWatcherDialog::startStopWatching(bool start)
 {
-    d->setWaitingState(start ? WatchingState : NotWatchingState);
+    setWaitingState(start ? WatchingState : NotWatchingState);
+    m_watchingPushButton->setText(start ? QLatin1String("Stop Watching")
+                                        : QLatin1String("Start Watching"));
     startStopTimer(start);
 }
 
@@ -273,10 +224,9 @@ void UnstartedAppWatcherDialog::startStopTimer(bool start)
 
 void UnstartedAppWatcherDialog::findProcess()
 {
-    QString appName = d->pathChooser->path();
-    ProjectExplorer::DeviceProcessItem fallback;
-    foreach (const ProjectExplorer::DeviceProcessItem &p,
-             ProjectExplorer::DeviceProcessList::localProcesses()) {
+    QString appName = m_pathChooser->path();
+    DeviceProcessItem fallback;
+    foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses()) {
         if (p.exe == appName) {
             pidFound(p);
             return;
@@ -291,36 +241,73 @@ void UnstartedAppWatcherDialog::findProcess()
 void UnstartedAppWatcherDialog::stopAndCheckExecutable()
 {
     startStopTimer(false);
-    d->setWaitingState(checkExecutableString() ? NotWatchingState : InvalidWacherState);
+    setWaitingState(checkExecutableString() ? NotWatchingState : InvalidWacherState);
 }
 
 bool UnstartedAppWatcherDialog::checkExecutableString() const
 {
-    if (!d->pathChooser->path().isEmpty()) {
-        QFileInfo fileInfo(d->pathChooser->path());
+    if (!m_pathChooser->path().isEmpty()) {
+        QFileInfo fileInfo(m_pathChooser->path());
         return (fileInfo.exists() && fileInfo.isFile());
     }
     return false;
 }
 
-ProjectExplorer::Kit *UnstartedAppWatcherDialog::currentKit() const
+Kit *UnstartedAppWatcherDialog::currentKit() const
 {
-    return d->kitChooser->currentKit();
+    return m_kitChooser->currentKit();
 }
 
-ProjectExplorer::DeviceProcessItem UnstartedAppWatcherDialog::currentProcess() const
+DeviceProcessItem UnstartedAppWatcherDialog::currentProcess() const
 {
     return m_process;
 }
 
 bool UnstartedAppWatcherDialog::hideOnAttach() const
 {
-    return d->hideOnAttachCheckBox->isChecked();
+    return m_hideOnAttachCheckBox->isChecked();
 }
 
 bool UnstartedAppWatcherDialog::continueOnAttach() const
 {
-    return d->continueOnAttachCheckBox->isChecked();
+    return m_continueOnAttachCheckBox->isChecked();
+}
+
+void UnstartedAppWatcherDialog::setWaitingState(UnstartedAppWacherState state)
+{
+    switch (state) {
+    case InvalidWacherState:
+        m_waitingLabel->setText(tr("Please select valid executable."));
+        m_watchingPushButton->setEnabled(false);
+        m_watchingPushButton->setChecked(false);
+        m_pathChooser->setEnabled(true);
+        m_kitChooser->setEnabled(true);
+        break;
+
+    case NotWatchingState:
+        m_waitingLabel->setText(tr("Not Watching."));
+        m_watchingPushButton->setEnabled(true);
+        m_watchingPushButton->setChecked(false);
+        m_pathChooser->setEnabled(true);
+        m_kitChooser->setEnabled(true);
+        break;
+
+    case WatchingState:
+        m_waitingLabel->setText(tr("Waiting for process to start..."));
+        m_watchingPushButton->setEnabled(true);
+        m_watchingPushButton->setChecked(true);
+        m_pathChooser->setEnabled(false);
+        m_kitChooser->setEnabled(false);
+        break;
+
+    case FoundState:
+        m_waitingLabel->setText(tr("Attach"));
+        m_watchingPushButton->setEnabled(false);
+        m_watchingPushButton->setChecked(true);
+        m_pathChooser->setEnabled(false);
+        m_kitChooser->setEnabled(true);
+        break;
+    }
 }
 
 } // namespace Internal
