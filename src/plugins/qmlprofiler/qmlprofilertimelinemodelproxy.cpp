@@ -194,8 +194,6 @@ void BasicTimelineModel::loadData()
     d->computeRowStarts();
 
     m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
-
-    emit countChanged();
 }
 
 void BasicTimelineModel::BasicTimelineModelPrivate::computeNestingContracted()

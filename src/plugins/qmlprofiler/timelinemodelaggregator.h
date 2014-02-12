@@ -102,7 +102,6 @@ public:
     Q_INVOKABLE int correctedCategoryIndexForModel(int modelIndex, int absoluteCategoryIndex) const;
 
 signals:
-    void countChanged();
     void dataAvailable();
     void stateChanged();
     void emptyChanged();

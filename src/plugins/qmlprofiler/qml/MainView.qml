@@ -38,9 +38,7 @@ Rectangle {
 
     property int singleRowHeight: 30
 
-    property bool dataAvailable: true
     property int eventCount: 0
-    property real progress: 0
 
     property alias selectionLocked : view.selectionLocked
     signal updateLockButton
@@ -88,39 +86,14 @@ Rectangle {
 
     Connections {
         target: qmlProfilerModelProxy
-        onCountChanged: {
-            eventCount = qmlProfilerModelProxy.count();
-            if (eventCount === 0)
-                root.clearAll();
-            if (eventCount > 1) {
-                root.progress = Math.min(1.0,
-                    (qmlProfilerModelProxy.lastTimeMark() -
-                    qmlProfilerModelProxy.traceStartTime()) / root.elapsedTime * 1e-9 );
-            } else {
-                root.progress = 0;
-            }
-        }
         onStateChanged: {
-            switch (qmlProfilerModelProxy.getState()) {
-            case 0: {
+            // Clear if model is empty.
+            if (qmlProfilerModelProxy.getState() === 0)
                 root.clearAll();
-                break;
-            }
-            case 1: {
-                root.dataAvailable = false;
-                break;
-            }
-            case 2: {
-                root.progress = 0.9; // jump to 90%
-                break;
-            }
-            }
         }
         onDataAvailable: {
             view.clearData();
             zoomControl.setRange(0,0);
-            progress = 1.0;
-            dataAvailable = true;
             view.visible = true;
             view.requestPaint();
             zoomControl.setRange(qmlProfilerModelProxy.traceStartTime(),
@@ -142,7 +115,6 @@ Rectangle {
 
     function clearData() {
         view.clearData();
-        dataAvailable = false;
         appKilled = false;
         eventCount = 0;
         hideRangeDetails();

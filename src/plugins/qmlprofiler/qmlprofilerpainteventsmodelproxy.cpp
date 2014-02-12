@@ -158,8 +158,6 @@ void PaintEventsModelProxy::loadData()
     d->computeNesting();
 
     m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
-
-    emit countChanged();
 }
 
 /////////////////// QML interface

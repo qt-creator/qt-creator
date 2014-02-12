@@ -148,6 +148,7 @@ public:
     QVector <int> partialCountWeights;
     int totalWeight;
     double progress;
+    double previousProgress;
     qint64 estimatedTime;
 
     // file to load
@@ -227,7 +228,11 @@ void QmlProfilerModelManager::modelProxyCountUpdated(int proxyId, qint64 count, 
 
     d->progress += d->partialCounts[proxyId] * d->partialCountWeights[proxyId] /
             d->totalWeight;
-    emit progressChanged();
+
+    if (d->progress - d->previousProgress > 0.01) {
+        d->previousProgress = d->progress;
+        emit progressChanged();
+    }
 }
 
 qint64 QmlProfilerModelManager::estimatedProfilingTime() const
@@ -258,7 +263,6 @@ void QmlProfilerModelManager::addQmlEvent(int type,
 
     QTC_ASSERT(state() == QmlProfilerDataState::AcquiringData, /**/);
     d->model->addQmlEvent(type, bindingType, startTime, length, data, location, ndata1, ndata2, ndata3, ndata4, ndata5);
-    emit countChanged();
 }
 
 void QmlProfilerModelManager::addV8Event(int depth, const QString &function, const QString &filename,
@@ -374,11 +378,11 @@ void QmlProfilerModelManager::clear()
     for (int i = 0; i < d->partialCounts.count(); i++)
         d->partialCounts[i] = 0;
     d->progress = 0;
+    d->previousProgress = 0;
     d->model->clear();
     d->v8Model->clear();
     d->traceTime->clear();
 
-    emit countChanged();
     setState(QmlProfilerDataState::Empty);
 }
 

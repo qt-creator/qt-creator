@@ -101,7 +101,6 @@ public:
     Q_INVOKABLE virtual int getEventIdForLocation(const QString &filename, int line, int column) const = 0;
 
 signals:
-    void countChanged();
     void dataAvailable();
     void stateChanged();
     void emptyChanged();

@@ -94,7 +94,6 @@ QmlProfilerStateWidget::QmlProfilerStateWidget(QmlProfilerStateManager *stateMan
     // profiler state
     d->m_modelManager = modelManager;
     connect(d->m_modelManager,SIGNAL(stateChanged()), this, SLOT(dataStateChanged()));
-    connect(d->m_modelManager,SIGNAL(countChanged()), this, SLOT(dataStateChanged()));
     connect(d->m_modelManager,SIGNAL(progressChanged()), this, SLOT(dataStateChanged()));
     connect(this, SIGNAL(newTimeEstimation(qint64)), d->m_modelManager, SLOT(newTimeEstimation(qint64)));
     d->m_profilerState = stateManager;

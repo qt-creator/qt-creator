@@ -123,7 +123,6 @@ public:
     qint64 estimatedProfilingTime() const;
 
 signals:
-    void countChanged();
     void error(const QString &error);
     void stateChanged();
     void progressChanged();
