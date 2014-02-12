@@ -82,8 +82,6 @@ SOURCES += qnxplugin.cpp \
     bardescriptoreditorenvironmentwidget.cpp \
     bardescriptoreditorassetswidget.cpp \
     bardescriptoreditorabstractpanelwidget.cpp \
-    blackberrysetupwizard.cpp \
-    blackberrysetupwizardpages.cpp \
     blackberrysigningutils.cpp \
     qnxdevicetester.cpp \
     blackberryconfigurationmanager.cpp \
@@ -186,8 +184,6 @@ HEADERS += qnxplugin.h\
     bardescriptoreditorenvironmentwidget.h \
     bardescriptoreditorassetswidget.h \
     bardescriptoreditorabstractpanelwidget.h \
-    blackberrysetupwizard.h \
-    blackberrysetupwizardpages.h \
     blackberrysigningutils.h \
     qnxdevicetester.h \
     blackberryconfigurationmanager.h \
@@ -230,10 +226,6 @@ FORMS += \
     bardescriptoreditorpermissionswidget.ui \
     bardescriptoreditorenvironmentwidget.ui \
     bardescriptoreditorassetswidget.ui \
-    blackberrysetupwizardkeyspage.ui \
-    blackberrysetupwizardcertificatepage.ui \
-    blackberrysetupwizarddevicepage.ui \
-    blackberrysetupwizardfinishpage.ui \
     blackberrydeviceconfigurationwizardconfigpage.ui \
     blackberrydeviceconfigurationwizardquerypage.ui \
     blackberryinstallwizardtargetpage.ui \

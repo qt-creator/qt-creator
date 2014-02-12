@@ -55,8 +55,6 @@ class BlackBerryNDKSettingsWidget : public QWidget
 public:
     explicit BlackBerryNDKSettingsWidget(QWidget *parent = 0);
 
-   void setWizardMessageVisible(bool visible);
-
    bool hasActiveNdk() const;
 
    QList<BlackBerryConfiguration *> activatedTargets();
@@ -68,7 +66,6 @@ signals:
     void targetsUpdated();
 
 public slots:
-    void launchBlackBerrySetupWizard() const;
     void updateInfoTable(QTreeWidgetItem* currentItem);
     void updateNdkList();
     void addNdkTarget();

@@ -33,7 +33,6 @@
 #include "ui_blackberryndksettingswidget.h"
 #include "qnxutils.h"
 #include "blackberrysigningutils.h"
-#include "blackberrysetupwizard.h"
 
 #include "blackberryconfigurationmanager.h"
 #include "blackberryconfiguration.h"
@@ -82,7 +81,6 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
 
     m_ui->ndksTreeWidget->expandAll();
 
-    connect(m_ui->wizardButton, SIGNAL(clicked()), this, SLOT(launchBlackBerrySetupWizard()));
     connect(m_ui->addNdkButton, SIGNAL(clicked()), this, SLOT(addNdkTarget()));
     connect(m_ui->removeNdkButton, SIGNAL(clicked()), this, SLOT(removeNdkTarget()));
     connect(m_ui->activateNdkTargetButton, SIGNAL(clicked()), this, SLOT(activateNdkTarget()));
@@ -100,12 +98,6 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
 
     updatePage();
     connect(&m_bbConfigManager, SIGNAL(settingsChanged()), &m_timer, SLOT(start()));
-}
-
-void BlackBerryNDKSettingsWidget::setWizardMessageVisible(bool visible)
-{
-    m_ui->wizardLabel->setVisible(visible);
-    m_ui->wizardButton->setVisible(visible);
 }
 
 bool BlackBerryNDKSettingsWidget::hasActiveNdk() const
@@ -129,22 +121,6 @@ BlackBerryConfiguration *BlackBerryNDKSettingsWidget::defaultConfiguration() con
 
     return static_cast<BlackBerryConfiguration*>(
             m_ui->apiLevelCombo->itemData(currentIndex).value<void*>());
-}
-
-void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
-{
-    BlackBerrySigningUtils &blackBerryUtils = BlackBerrySigningUtils::instance();
-    const bool alreadyConfigured = blackBerryUtils.hasRegisteredKeys() && blackBerryUtils.hasDefaultCertificate();
-
-    if (alreadyConfigured) {
-        QMessageBox::information(Core::ICore::mainWindow(), tr("Qt Creator"),
-            tr("It appears that your BlackBerry environment has already been configured."));
-            return;
-    }
-
-    BlackBerrySetupWizard wizard(Core::ICore::mainWindow());
-    connect(&wizard, SIGNAL(ndkTargetsUpdated()), this, SLOT(updateNdkList()));
-    wizard.exec();
 }
 
 void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentItem)
