@@ -293,7 +293,7 @@ def main():
     else:
       copy_qt_libs(install_dir, QT_INSTALL_LIBS, QT_INSTALL_PLUGINS, QT_INSTALL_IMPORTS, QT_INSTALL_QML, plugins, imports)
     copy_translations(install_dir, QT_INSTALL_TRANSLATIONS)
-    if os.environ["LLVM_INSTALL_DIR"]:
+    if "LLVM_INSTALL_DIR" in os.environ:
       copy_libclang(install_dir, os.environ["LLVM_INSTALL_DIR"])
 
     if not sys.platform.startswith('win'):
