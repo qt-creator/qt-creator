@@ -2291,7 +2291,8 @@ bool GitClient::synchronousForEachRefCmd(const QString &workingDirectory, QStrin
     args.push_front(QLatin1String("for-each-ref"));
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText,
+                                        VcsBasePlugin::SuppressCommandLogging);
     *output = commandOutputFromLocal8Bit(outputText);
     if (!rc)
         msgCannotRun(args, workingDirectory, errorText, errorMessage);
