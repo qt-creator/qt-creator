@@ -32,6 +32,7 @@
 #include "gitclient.h"
 
 #include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsbaseplugin.h>
 
 #include <utils/qtcassert.h>
 
@@ -44,6 +45,8 @@
 #include <QVBoxLayout>
 #include <QComboBox>
 #include <QPainter>
+
+using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
@@ -76,7 +79,7 @@ bool LogChangeWidget::init(const QString &repository, const QString &commit, Log
     if (!populateLog(repository, commit, flags))
         return false;
     if (!m_model->rowCount()) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(
+        VcsBaseOutputWindow::instance()->appendError(
                     GitPlugin::instance()->gitClient()->msgNoCommits(flags & IncludeRemotes));
         return false;
     }
@@ -158,7 +161,7 @@ bool LogChangeWidget::populateLog(const QString &repository, const QString &comm
     if (!(flags & IncludeRemotes))
         arguments << QLatin1String("--not") << QLatin1String("--remotes");
     QString output;
-    if (!client->synchronousLog(repository, arguments, &output))
+    if (!client->synchronousLog(repository, arguments, &output, 0, VcsBasePlugin::NoOutput))
         return false;
     foreach (const QString &line, output.split(QLatin1Char('\n'))) {
         const int colonPos = line.indexOf(QLatin1Char(':'));

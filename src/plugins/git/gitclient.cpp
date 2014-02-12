@@ -1649,14 +1649,15 @@ void GitClient::addFile(const QString &workingDirectory, const QString &fileName
 }
 
 bool GitClient::synchronousLog(const QString &workingDirectory, const QStringList &arguments,
-                               QString *output, QString *errorMessageIn)
+                               QString *output, QString *errorMessageIn, unsigned flags)
 {
     QByteArray outputText;
     QByteArray errorText;
     QStringList allArguments;
     allArguments << QLatin1String("log") << QLatin1String(noColorOption);
     allArguments.append(arguments);
-    const bool rc = fullySynchronousGit(workingDirectory, allArguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, allArguments, &outputText, &errorText,
+                                        flags);
     if (rc) {
         QString encodingName = readConfigValue(workingDirectory, QLatin1String("i18n.logOutputEncoding"));
         if (encodingName.isEmpty())

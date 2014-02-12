@@ -157,7 +157,9 @@ public:
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousLog(const QString &workingDirectory,
                         const QStringList &arguments,
-                        QString *output, QString *errorMessage = 0);
+                        QString *output,
+                        QString *errorMessage = 0,
+                        unsigned flags = 0);
     bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
     bool synchronousDelete(const QString &workingDirectory,
                            bool force,
