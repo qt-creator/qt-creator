@@ -56,7 +56,8 @@ public:
     enum LogFlag
     {
         None = 0x00,
-        IncludeRemotes = 0x01
+        IncludeRemotes = 0x01,
+        Silent = 0x02
     };
 
     Q_DECLARE_FLAGS(LogFlags, LogFlag)

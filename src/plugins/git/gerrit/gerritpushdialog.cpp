@@ -254,7 +254,8 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
 void GerritPushDialog::updateCommits(int index)
 {
     const QString branch = m_ui->localBranchComboBox->itemText(index);
-    const bool hasLocalCommits = m_ui->commitView->init(m_workingDir, branch);
+    const bool hasLocalCommits = m_ui->commitView->init(m_workingDir, branch,
+                                                        LogChangeWidget::Silent);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(hasLocalCommits);
     setChangeRange();
 }

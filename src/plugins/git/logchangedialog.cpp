@@ -78,12 +78,13 @@ bool LogChangeWidget::init(const QString &repository, const QString &commit, Log
 {
     if (!populateLog(repository, commit, flags))
         return false;
-    if (!m_model->rowCount()) {
+    if (m_model->rowCount() > 0)
+        return true;
+    if (!(flags & Silent)) {
         VcsBaseOutputWindow::instance()->appendError(
                     GitPlugin::instance()->gitClient()->msgNoCommits(flags & IncludeRemotes));
-        return false;
     }
-    return true;
+    return false;
 }
 
 QString LogChangeWidget::commit() const
