@@ -91,7 +91,7 @@ Core::IVersionControl::OpenSupportMode PerforceVersionControl::openSupportMode(c
 bool PerforceVersionControl::vcsOpen(const QString &fileName)
 {
     const QFileInfo fi(fileName);
-    return m_plugin->vcsOpen(fi.absolutePath(), fi.fileName());
+    return m_plugin->vcsOpen(fi.absolutePath(), fi.fileName(), true);
 }
 
 Core::IVersionControl::SettingsFlags PerforceVersionControl::settingsFlags() const

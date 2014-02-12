@@ -85,7 +85,7 @@ public:
 
     bool managesDirectory(const QString &directory, QString *topLevel = 0);
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
-    bool vcsOpen(const QString &workingDir, const QString &fileName);
+    bool vcsOpen(const QString &workingDir, const QString &fileName, bool silently = false);
     bool vcsAdd(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &filename);
     bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
@@ -158,7 +158,8 @@ private:
                     RunFullySynchronous = 0x20,
                     IgnoreExitCode = 0x40,
                     ShowBusyCursor = 0x80,
-                    LongTimeOut = 0x100
+                    LongTimeOut = 0x100,
+                    SilentStdOut = 0x200,
                    };
 
     // args are passed as command line arguments

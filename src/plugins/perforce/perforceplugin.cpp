@@ -864,14 +864,18 @@ bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
     return managed;
 }
 
-bool PerforcePlugin::vcsOpen(const QString &workingDir, const QString &fileName)
+bool PerforcePlugin::vcsOpen(const QString &workingDir, const QString &fileName, bool silently)
 {
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::vcsOpen" << workingDir << fileName;
     QStringList args;
     args << QLatin1String("edit") << QDir::toNativeSeparators(fileName);
-    const PerforceResponse result = runP4Cmd(workingDir, args,
-                                       CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+
+    int flags = CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow;
+    if (silently) {
+        flags |= SilentStdOut;
+    }
+    const PerforceResponse result = runP4Cmd(workingDir, args, flags);
     return !result.error;
 }
 
@@ -1003,7 +1007,12 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
     // connect stdout to the output window if desired
     if (flags & StdOutToWindow) {
         process.setStdOutBufferedSignalsEnabled(true);
-        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+        if (flags & SilentStdOut) {
+            connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(appendSilently(QString)));
+        }
+        else {
+            connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+        }
     }
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::run syncp actual args [" << process.workingDirectory() << ']' << args;
@@ -1104,7 +1113,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
     if ((flags & StdErrToWindow) && !response.stdErr.isEmpty())
         outputWindow->appendError(response.stdErr);
     if ((flags & StdOutToWindow) && !response.stdOut.isEmpty())
-        outputWindow->append(response.stdOut);
+        outputWindow->append(response.stdOut, VcsBase::VcsBaseOutputWindow::None, flags & SilentStdOut);
     return response;
 }
 
