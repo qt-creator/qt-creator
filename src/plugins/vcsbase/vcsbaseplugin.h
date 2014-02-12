@@ -174,7 +174,9 @@ public:
         FullySynchronously = 0x100,     // Suppress local event loop (in case UI actions are
                                         // triggered by file watchers).
         ExpectRepoChanges = 0x200,      // Expect changes in repository by the command
-        SilentOutput = 0x400            // With ShowStdOutInLogWindow - append output silently
+        SilentOutput = 0x400,           // With ShowStdOutInLogWindow - append output silently
+        NoOutput = SuppressStdErrInLogWindow | SuppressFailMessageInLogWindow
+                   | SuppressCommandLogging
     };
 
     static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,

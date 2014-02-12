@@ -118,11 +118,7 @@ class ClearCasePlugin : public VcsBase::VcsBasePlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClearCase.json")
 
-    static const unsigned SilentRun =
-        SuppressStdErrInLogWindow |
-        SuppressFailMessageInLogWindow |
-        SuppressCommandLogging |
-        FullySynchronously;
+    enum { SilentRun = NoOutput | FullySynchronously };
 
 public:
     ClearCasePlugin();
