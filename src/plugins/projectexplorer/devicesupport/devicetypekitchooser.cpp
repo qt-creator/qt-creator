@@ -29,7 +29,7 @@
 
 #include "devicetypekitchooser.h"
 
-#include "kitinformation.h"
+#include "../kitinformation.h"
 
 using namespace ProjectExplorer;
 
