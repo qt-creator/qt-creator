@@ -64,7 +64,6 @@ public:
     QString barsignerDbPath() const;
     QString defaultKeystorePath() const;
     QString defaultDebugTokenPath() const;
-    void clearConfigurationSettings(BlackBerryConfiguration *config);
 
     // returns the environment for the default API level
     QList<Utils::EnvironmentItem> defaultConfigurationEnv() const;
@@ -74,6 +73,8 @@ public:
 
     bool newestConfigurationEnabled() const;
 
+    void emitSettingsChanged();
+
 public slots:
     void loadSettings();
     void saveSettings();
@@ -81,6 +82,7 @@ public slots:
 
 signals:
     void settingsLoaded();
+    void settingsChanged();
 
 private:
     BlackBerryConfigurationManager(QObject *parent = 0);

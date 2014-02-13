@@ -33,10 +33,12 @@
 #include "blackberrycertificate.h"
 #include "blackberryconfiguration.h"
 #include "blackberryconfigurationmanager.h"
+#include "blackberrycreatecertificatedialog.h"
 #include "blackberrydebugtokenreader.h"
 
 #include <coreplugin/icore.h>
 
+#include <QDialog>
 #include <QFileInfo>
 #include <QString>
 #include <QFile>
@@ -59,7 +61,8 @@ BlackBerrySigningUtils & BlackBerrySigningUtils::instance()
 
 BlackBerrySigningUtils::BlackBerrySigningUtils(QObject *parent) :
     QObject(parent),
-    m_defaultCertificate(0)
+    m_defaultCertificate(0),
+    m_defaultCertificateStatus(NotOpened)
 {
     loadDebugTokens();
 }
@@ -118,21 +121,36 @@ const BlackBerryCertificate * BlackBerrySigningUtils::defaultCertificate() const
     return m_defaultCertificate;
 }
 
+BlackBerrySigningUtils::Status BlackBerrySigningUtils::defaultCertificateOpeningStatus() const
+{
+    return m_defaultCertificateStatus;
+}
+
 void BlackBerrySigningUtils::openDefaultCertificate(QWidget *passwordPromptParent)
 {
-    if (m_defaultCertificate) {
+    switch (m_defaultCertificateStatus) {
+    case Opening:
+        return;
+    case Opened:
         emit defaultCertificateLoaded(BlackBerryCertificate::Success);
         return;
+    default:
+        m_defaultCertificateStatus = Opening;
     }
 
     bool ok;
     const QString password = certificatePassword(passwordPromptParent, &ok);
 
     // action has been canceled
-    if (!ok)
+    if (!ok) {
+        m_defaultCertificateStatus = NotOpened;
         return;
+    }
 
     BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
+
+    if (m_defaultCertificate)
+        m_defaultCertificate->deleteLater();
 
     m_defaultCertificate = new BlackBerryCertificate(configManager.defaultKeystorePath(),
             QString(), password, this);
@@ -149,6 +167,7 @@ void BlackBerrySigningUtils::setDefaultCertificate(BlackBerryCertificate *certif
 
     certificate->setParent(this);
     m_defaultCertificate = certificate;
+    m_defaultCertificateStatus = Opened;
 }
 
 void BlackBerrySigningUtils::clearCskPassword()
@@ -166,6 +185,7 @@ void BlackBerrySigningUtils::deleteDefaultCertificate()
     clearCertificatePassword();
     m_defaultCertificate->deleteLater();
     m_defaultCertificate = 0;
+    m_defaultCertificateStatus = NotOpened;
 
     BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
@@ -192,15 +212,36 @@ void BlackBerrySigningUtils::removeDebugToken(const QString &dt)
     emit debugTokenListChanged();
 }
 
+bool BlackBerrySigningUtils::createCertificate()
+{
+    BlackBerryCreateCertificateDialog dialog;
+
+    const int result = dialog.exec();
+
+    if (result == QDialog::Rejected)
+        return false;
+
+    BlackBerryCertificate *certificate = dialog.certificate();
+
+    if (certificate)
+        setDefaultCertificate(certificate);
+
+    return certificate;
+}
+
 void BlackBerrySigningUtils::certificateLoaded(int status)
 {
     if (status != BlackBerryCertificate::Success) {
+        m_defaultCertificateStatus = NotOpened;
         m_defaultCertificate->deleteLater();
         m_defaultCertificate = 0;
 
-        if (status == BlackBerryCertificate::WrongPassword)
-            clearCertificatePassword();
-    }
+        // we have clear the password under any error since we are not able to distinquish
+        // if password is correct or not in case BlackBerryCertificate::Error status happens
+        clearCertificatePassword();
+    } else
+        m_defaultCertificateStatus = Opened;
+
 
     emit defaultCertificateLoaded(status);
 }

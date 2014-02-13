@@ -30,6 +30,7 @@
 ****************************************************************************/
 
 #include "blackberryconfiguration.h"
+#include "blackberryconfigurationmanager.h"
 #include "blackberryqtversion.h"
 
 #include "qnxtoolchain.h"
@@ -435,6 +436,8 @@ bool BlackBerryConfiguration::activate()
     if (qt5X86Version)
         createKit(qt5X86Version, x86ToolChain, x86DebuggerItemId);
 
+    BlackBerryConfigurationManager::instance().emitSettingsChanged();
+
     return true;
 }
 
@@ -456,6 +459,8 @@ void BlackBerryConfiguration::deactivate()
             KitManager::deregisterKit(kit);
         }
     }
+
+    BlackBerryConfigurationManager::instance().emitSettingsChanged();
 }
 
 #ifdef WITH_TESTS

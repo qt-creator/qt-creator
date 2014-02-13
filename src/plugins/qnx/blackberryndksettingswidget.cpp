@@ -91,8 +91,15 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     connect(m_ui->ndksTreeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(updateInfoTable(QTreeWidgetItem*)));
     connect(this, SIGNAL(targetsUpdated()), this, SLOT(populateDefaultConfigurationCombo()));
 
-    updateNdkList();
-    populateDefaultConfigurationCombo();
+    // BlackBerryConfigurationManager.settingsChanged signal may be emitted multiple times
+    // during the same event handling. This would result in multiple updatePage() calls even through
+    // just one is needed.
+    // QTimer allows to merge those multiple signal emits into a single updatePage() call.
+    m_timer.setSingleShot(true);
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(updatePage()));
+
+    updatePage();
+    connect(&m_bbConfigManager, SIGNAL(settingsChanged()), &m_timer, SLOT(start()));
 }
 
 void BlackBerryNDKSettingsWidget::setWizardMessageVisible(bool visible)
@@ -391,6 +398,12 @@ void BlackBerryNDKSettingsWidget::launchBlackBerryInstallerWizard(BlackBerryInst
         connect(&wizard, SIGNAL(processFinished()), this, SLOT(handleUninstallationFinished()));
 
     wizard.exec();
+}
+
+void BlackBerryNDKSettingsWidget::updatePage()
+{
+    updateNdkList();
+    populateDefaultConfigurationCombo();
 }
 
 } // namespace Internal

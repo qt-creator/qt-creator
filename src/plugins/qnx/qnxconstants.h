@@ -96,6 +96,7 @@ const char QNX_TOOLCHAIN_ID[] = "Qnx.QccToolChain";
 const char QNX_BB_CATEGORY[] = "XF.BlackBerry";
 const char QNX_BB_CATEGORY_TR[] = QT_TRANSLATE_NOOP("BlackBerry", "BlackBerry");
 const char QNX_BB_CATEGORY_ICON[] = ":/qnx/images/target.png";
+const char QNX_BB_SETUP_ID[] = "ZA.BlackBerry Setup";
 const char QNX_BB_NDK_SETTINGS_ID[] = "ZZ.BlackBerry NDK Configuration";
 const char QNX_BB_SIGNING_ID[] = "ZZ.BlackBerry Signing Infrastructure Configuration";
 
@@ -118,6 +119,16 @@ const char QNX_BLACKBERRY_CONFIGS_FILENAME[] = "bbndkconfigurations.xml";
 const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
 
 const char QNX_BLACKBERRY_DEFAULT_DEPLOY_QT_BASEPATH[] = "/accounts/devuser/";
+
+const char QNX_OK_ICON[] = ":/qnx/images/ok.png";
+const char QNX_INFO_ICON[] = ":/qnx/images/info.png";
+const char QNX_WARNING_ICON[] = ":/qnx/images/warning.png";
+const char QNX_ERROR_ICON[] = ":/qnx/images/error.png";
+
+const char QNX_BLACKBERRY_SETUP_URL[] = "http://qt-project.org/wiki/Qt-Creator-with-BlackBerry-10";
+const char QNX_LEGACY_KEYS_URL[] = "https://developer.blackberry.com/native/documentation/core"
+        "/com.qnx.doc.native_sdk.devguide/topic/bbid_to_sa.html";
+const char QNX_REGISTER_KEYS_URL[] = "https://www.blackberry.com/SignedKeys/codesigning.html";
 
 } // namespace Constants
 } // namespace Qnx

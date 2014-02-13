@@ -50,6 +50,12 @@ class BlackBerrySigningUtils : public QObject
     Q_OBJECT
 
 public:
+    enum Status {
+        NotOpened,
+        Opening,
+        Opened
+    };
+
     static BlackBerrySigningUtils &instance();
 
     bool hasRegisteredKeys();
@@ -60,12 +66,14 @@ public:
     QString certificatePassword(QWidget *passwordPromptParent = 0, bool *ok = 0);
 
     const BlackBerryCertificate *defaultCertificate() const;
+    Status defaultCertificateOpeningStatus() const;
 
     void openDefaultCertificate(QWidget *passwordPromptParent = 0);
     void setDefaultCertificate(BlackBerryCertificate *certificate);
     void clearCskPassword();
     void clearCertificatePassword();
     void deleteDefaultCertificate();
+    bool createCertificate();
     void addDebugToken(const QString &dt);
     void removeDebugToken(const QString &dt);
 
@@ -90,6 +98,7 @@ private:
     QString promptPassword(const QString &message, QWidget *dialogParent = 0, bool *ok = 0) const;
 
     BlackBerryCertificate *m_defaultCertificate;
+    Status m_defaultCertificateStatus;
 
     QString m_cskPassword;
     QString m_certificatePassword;

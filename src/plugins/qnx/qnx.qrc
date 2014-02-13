@@ -2,5 +2,9 @@
     <qresource prefix="/qnx">
         <file>images/target-small.png</file>
         <file>images/target.png</file>
+        <file>images/ok.png</file>
+        <file>images/info.png</file>
+        <file>images/warning.png</file>
+        <file>images/error.png</file>
     </qresource>
 </RCC>

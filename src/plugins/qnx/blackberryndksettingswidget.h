@@ -35,6 +35,7 @@
 #include "blackberryinstallwizard.h"
 
 #include <QWidget>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
@@ -80,6 +81,7 @@ public slots:
     void handleUninstallationFinished();
     void updateUi(QTreeWidgetItem* item, BlackBerryConfiguration* config);
     void populateDefaultConfigurationCombo();
+    void updatePage();
 
 private:
     void launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::Mode mode,
@@ -93,6 +95,8 @@ private:
 
     QList<BlackBerryConfiguration *> m_activatedTargets;
     QList<BlackBerryConfiguration *> m_deactivatedTargets;
+
+    QTimer m_timer;
 };
 
 } // namespace Internal

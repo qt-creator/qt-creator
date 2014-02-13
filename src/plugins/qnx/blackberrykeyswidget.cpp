@@ -135,19 +135,8 @@ void BlackBerryKeysWidget::certificateLoaded(int status)
 
 void BlackBerryKeysWidget::createCertificate()
 {
-    BlackBerryCreateCertificateDialog dialog(this);
-
-    const int result = dialog.exec();
-
-    if (result == QDialog::Rejected)
-        return;
-
-    BlackBerryCertificate *certificate = dialog.certificate();
-
-    if (certificate) {
-        m_utils.setDefaultCertificate(certificate);
+    if (m_utils.createCertificate())
         updateCertificateSection();
-    }
 }
 
 void BlackBerryKeysWidget::clearCertificate()
@@ -194,17 +183,16 @@ void BlackBerryKeysWidget::updateCertificateSection()
 void BlackBerryKeysWidget::updateKeysSection()
 {
     if (m_utils.hasLegacyKeys()) {
-        m_ui->keyStatus->setText(tr("It appears you are using legacy key files. "
-                    "Please refer to the "
-                    "<a href=\"https://developer.blackberry.com/native/documentation"
-                    "/core/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/bbid_to_sa.html\">"
-                    "BlackBerry website</a> to find out how to update your keys."));
+        m_ui->keyStatus->setText(tr("It appears you are using legacy key files. Please refer to the "
+                    "<a href=\"%1\">BlackBerry website</a> to find out how to update your keys.")
+                                 .arg(QLatin1String(Qnx::Constants::QNX_LEGACY_KEYS_URL)));
     } else if (m_utils.hasRegisteredKeys()) {
         m_ui->keyStatus->setText(tr("Your keys are ready to be used"));
     } else {
         m_ui->keyStatus->setText(tr("No keys found. Please refer to the "
-                    "<a href=\"https://www.blackberry.com/SignedKeys/codesigning.html\">BlackBerry website</a> "
-                    "to find out how to request your keys."));
+                    "<a href=\"%1\">BlackBerry website</a> "
+                    "to find out how to request your keys.")
+                                 .arg(QLatin1String(Qnx::Constants::QNX_REGISTER_KEYS_URL)));
     }
 }
 

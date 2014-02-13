@@ -102,7 +102,9 @@ SOURCES += qnxplugin.cpp \
     blackberrycheckdevicestatusstep.cpp \
     qnxattachdebugsupport.cpp \
     qnxattachdebugdialog.cpp \
-    blackberrydeployqtlibrariesdialog.cpp
+    blackberrydeployqtlibrariesdialog.cpp \
+    blackberrysetuppage.cpp \
+    blackberrysetupwidget.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -204,7 +206,9 @@ HEADERS += qnxplugin.h\
     blackberrycheckdevicestatusstepconfigwidget.h \
     qnxattachdebugsupport.h \
     qnxattachdebugdialog.h \
-    blackberrydeployqtlibrariesdialog.h
+    blackberrydeployqtlibrariesdialog.h \
+    blackberrysetuppage.h \
+    blackberrysetupwidget.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \

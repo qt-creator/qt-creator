@@ -46,6 +46,7 @@
 #include "qnxdeployconfigurationfactory.h"
 #include "qnxrunconfigurationfactory.h"
 #include "qnxqtversionfactory.h"
+#include "blackberrysetuppage.h"
 #include "blackberryndksettingspage.h"
 #include "bardescriptoreditorfactory.h"
 #include "bardescriptormagicmatcher.h"
@@ -98,6 +99,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new BlackBerryDeployStepFactory);
     addAutoReleasedObject(new BlackBerryRunConfigurationFactory);
     addAutoReleasedObject(new BlackBerryRunControlFactory);
+    addAutoReleasedObject(new BlackBerrySetupPage);
     addAutoReleasedObject(new BlackBerryNDKSettingsPage);
     addAutoReleasedObject(new BlackBerryKeysPage);
     addAutoReleasedObject(new BlackBerryCheckDeviceStatusStepFactory);

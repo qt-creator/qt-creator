@@ -29,8 +29,8 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARD_H
-#define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARD_H
+#ifndef QNX_INTERNAL_BLACKBERRYINSTALLWIZARD_H
+#define QNX_INTERNAL_BLACKBERRYINSTALLWIZARD_H
 
 #include <utils/wizard.h>
 
@@ -105,4 +105,4 @@ private:
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARD_H
+#endif // QNX_INTERNAL_BLACKBERRYINSTALLWIZARD_H

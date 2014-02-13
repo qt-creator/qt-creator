@@ -150,6 +150,8 @@ void BlackBerryConfigurationManager::restoreConfigurations()
         if (!useNewestConfiguration && (config->ndkEnvFile().toString() == ndkEnvFile))
             setDefaultConfiguration(config);
     }
+
+    emit settingsChanged();
 }
 
 // Backward compatibility: Read existing entries in the ManualNDKsGroup
@@ -205,11 +207,17 @@ void BlackBerryConfigurationManager::setDefaultConfiguration(BlackBerryConfigura
     }
 
     m_defaultConfiguration = config;
+    emit settingsChanged();
 }
 
 bool BlackBerryConfigurationManager::newestConfigurationEnabled() const
 {
     return !m_defaultConfiguration;
+}
+
+void BlackBerryConfigurationManager::emitSettingsChanged()
+{
+    emit settingsChanged();
 }
 
 void BlackBerryConfigurationManager::setKitsAutoDetectionSource()
@@ -267,6 +275,7 @@ bool BlackBerryConfigurationManager::addConfiguration(BlackBerryConfiguration *c
 
     if (config->isValid()) {
         insertByVersion(config);
+        emit settingsChanged();
         return true;
     }
 
@@ -287,6 +296,8 @@ void BlackBerryConfigurationManager::removeConfiguration(BlackBerryConfiguration
         setDefaultConfiguration(0);
 
     delete config;
+
+    emit settingsChanged();
 }
 
 QList<BlackBerryConfiguration *> BlackBerryConfigurationManager::configurations() const
@@ -369,6 +380,7 @@ void BlackBerryConfigurationManager::loadSettings()
         m_configs.first()->activate();
 
     emit settingsLoaded();
+    emit settingsChanged();
 }
 
 void BlackBerryConfigurationManager::saveSettings()
