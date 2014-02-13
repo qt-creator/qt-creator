@@ -45,20 +45,11 @@ Item {
     height: root.singleRowHeight
     width: 150
 
-    onExpandedChanged: {
-        qmlProfilerModelProxy.setExpanded(modelIndex, categoryIndex, expanded);
-        backgroundMarks.requestPaint();
-        getDescriptions();
-        updateHeight();
-    }
-
     Component.onCompleted: {
         updateHeight();
     }
 
     function updateHeight() {
-        if (expanded != qmlProfilerModelProxy.expanded(modelIndex, categoryIndex))
-            expanded = qmlProfilerModelProxy.expanded(modelIndex, categoryIndex);
         height = root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex);
     }
 
@@ -85,7 +76,9 @@ Item {
     Connections {
         target: qmlProfilerModelProxy
         onExpandedChanged: {
-            updateHeight();
+            expanded = qmlProfilerModelProxy.expanded(modelIndex, categoryIndex);
+            backgroundMarks.requestPaint();
+            getDescriptions();
         }
 
         onStateChanged: {
@@ -159,7 +152,9 @@ Item {
             anchors.topMargin: -10
             anchors.bottomMargin: -10
             onClicked: {
-                expanded = !expanded;
+                // Don't try to expand empty models.
+                if (expanded || qmlProfilerModelProxy.count(modelIndex) > 0)
+                    qmlProfilerModelProxy.setExpanded(modelIndex, categoryIndex, !expanded);
             }
         }
     }
