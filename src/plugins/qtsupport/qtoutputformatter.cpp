@@ -41,7 +41,7 @@ using namespace QtSupport;
 
 QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     : OutputFormatter()
-    , m_qmlError(QLatin1String("^(file:///.+"    // file url
+    , m_qmlError(QLatin1String("^((?:file|qrc):///.+"    // url
                                ":\\d+"           // colon, line
                                "(?::\\d+)?)"     // colon, column (optional)
                                "[: \t]"))        // colon, space or tab
@@ -187,7 +187,7 @@ void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr,
 void QtOutputFormatter::handleLink(const QString &href)
 {
     if (!href.isEmpty()) {
-        QRegExp qmlLineColumnLink(QLatin1String("^(file:///.+)" // file url
+        QRegExp qmlLineColumnLink(QLatin1String("^((?:file|qrc):///.+)" // url
                                                 ":(\\d+)"            // line
                                                 ":(\\d+)$"));        // column
 
@@ -201,7 +201,7 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
 
-        QRegExp qmlLineLink(QLatin1String("^(file:///.+)" // file url
+        QRegExp qmlLineLink(QLatin1String("^((?:file|qrc):///.+)" // url
                                           ":(\\d+)$"));  // line
 
         if (qmlLineLink.indexIn(href) != -1) {
