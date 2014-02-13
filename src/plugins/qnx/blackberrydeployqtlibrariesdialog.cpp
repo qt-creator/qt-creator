@@ -238,6 +238,9 @@ QList<ProjectExplorer::DeployableFile> BlackBerryDeployQtLibrariesDialog::gather
         const QString &dirPath, const QString &baseDirPath)
 {
     QList<ProjectExplorer::DeployableFile> result;
+    if (dirPath.isEmpty())
+        return result;
+
     QDir dir(dirPath);
     QFileInfoList list = dir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
 
