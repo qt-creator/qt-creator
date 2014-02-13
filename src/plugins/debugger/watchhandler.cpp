@@ -537,15 +537,44 @@ template <class IntType> QString reformatInteger(IntType value, int format)
         case OctalFormat:
             return QLatin1String("(oct) ") + QString::number(value, 8);
     }
-    return QString::number(value); // not reached
+    return QString::number(value, 10); // not reached
+}
+
+static QString reformatInteger(quint64 value, int format, int size, bool isSigned)
+{
+    // Follow convention and don't show negative non-decimal numbers.
+    if (format != DecimalFormat)
+        isSigned = false;
+
+    switch (size) {
+        case 1:
+            value = value & 0xff;
+            return isSigned
+                ? reformatInteger<qint8>(value, format)
+                : reformatInteger<quint8>(value, format);
+        case 2:
+            value = value & 0xffff;
+            return isSigned
+                ? reformatInteger<qint16>(value, format)
+                : reformatInteger<quint16>(value, format);
+        case 4:
+            value = value & 0xffffffff;
+            return isSigned
+                ? reformatInteger<qint32>(value, format)
+                : reformatInteger<quint32>(value, format);
+        default:
+        case 8: return isSigned
+                ? reformatInteger<qint64>(value, format)
+                : reformatInteger<quint64>(value, format);
+    }
 }
 
 // Format printable (char-type) characters
 static QString reformatCharacter(int code, int format)
 {
-    const QString codeS = reformatInteger(code, format);
+    const QString codeS = reformatInteger(code, format, 1, true);
     if (code < 0) // Append unsigned value.
-        return codeS + QLatin1String(" / ") + reformatInteger(256 + code, format);
+        return codeS + QLatin1String(" / ") + reformatInteger(256 + code, format, 1, false);
     const QChar c = QChar(uint(code));
     if (c.isPrint())
         return codeS + QLatin1String(" '") + c + QLatin1Char('\'');
@@ -653,10 +682,10 @@ QString WatchModel::formattedValue(const WatchData &data) const
         // Rest: Leave decimal as is
         if (format <= 0)
             return value;
-        // Evil hack, covers 'unsigned' as well as quint64.
-        if (data.type.contains('u'))
-            return reformatInteger(value.toULongLong(0, 0), format);
-        return reformatInteger(value.toLongLong(), format);
+
+        bool isSigned = value.startsWith(QLatin1Char('-'));
+        quint64 raw = isSigned ? quint64(value.toLongLong()): value.toULongLong();
+        return reformatInteger(raw, format, data.size, isSigned);
     }
 
     if (data.type == "va_list")
@@ -667,7 +696,7 @@ QString WatchModel::formattedValue(const WatchData &data) const
         qulonglong integer = value.toULongLong(&ok, 0);
         if (ok) {
             const int format = itemFormat(data);
-            return reformatInteger(integer, format);
+            return reformatInteger(integer, format, data.size, false);
         }
     }
 
