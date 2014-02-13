@@ -103,14 +103,19 @@ public:
     // Sets a completer that is not a history completer.
     void setSpecialCompleter(QCompleter *completer);
 
+    // Enables fitering
+    void setFiltering(bool on);
+
 signals:
     void buttonClicked(Utils::FancyLineEdit::Side side);
     void leftButtonClicked();
     void rightButtonClicked();
+    void filterChanged(const QString &);
 
 private slots:
     void checkButtons(const QString &);
     void iconClicked();
+    void slotTextChanged(); // For filtering.
 
 protected:
     void resizeEvent(QResizeEvent *e);

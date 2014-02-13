@@ -28,7 +28,7 @@
     </widget>
    </item>
    <item>
-    <widget class="Utils::FilterLineEdit" name="lineEdit"/>
+    <widget class="Utils::FancyLineEdit" name="lineEdit"/>
    </item>
    <item>
     <widget class="QListView" name="listWidget"/>
@@ -86,9 +86,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Utils::FilterLineEdit</class>
+   <class>Utils::FancyLineEdit</class>
    <extends>QLineEdit</extends>
-   <header location="global">utils/filterlineedit.h</header>
+   <header location="global">utils/fancylineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

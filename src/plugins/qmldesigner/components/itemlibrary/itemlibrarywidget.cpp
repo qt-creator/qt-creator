@@ -115,12 +115,13 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     connect(tabBar, SIGNAL(currentChanged(int)), this, SLOT(setCurrentIndexOfStackedWidget(int)));
     connect(tabBar, SIGNAL(currentChanged(int)), this, SLOT(updateSearch()));
 
-    m_filterLineEdit = new Utils::FilterLineEdit(this);
+    m_filterLineEdit = new Utils::FancyLineEdit(this);
     m_filterLineEdit->setObjectName(QLatin1String("itemLibrarySearchInput"));
     m_filterLineEdit->setPlaceholderText(tr("<Filter>", "Library search input hint text"));
     m_filterLineEdit->setDragEnabled(false);
     m_filterLineEdit->setMinimumWidth(75);
     m_filterLineEdit->setTextMargins(0, 0, 20, 0);
+    m_filterLineEdit->setFiltering(true);
     QWidget *lineEditFrame = new QWidget(this);
     lineEditFrame->setObjectName(QLatin1String("itemLibrarySearchInputFrame"));
     QGridLayout *lineEditLayout = new QGridLayout(lineEditFrame);

@@ -31,7 +31,7 @@
 
 #include <localhelpmanager.h>
 
-#include <utils/filterlineedit.h>
+#include <utils/fancylineedit.h>
 #include <utils/styledbar.h>
 
 #include <QMenu>
@@ -424,7 +424,8 @@ void BookmarkWidget::setup(bool showButtons)
     vlayout->setMargin(0);
     vlayout->setSpacing(0);
 
-    searchField = new Utils::FilterLineEdit(this);
+    searchField = new Utils::FancyLineEdit(this);
+    searchField->setFiltering(true);
     setFocusProxy(searchField);
 
     Utils::StyledBar *toolbar = new Utils::StyledBar(this);

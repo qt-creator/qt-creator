@@ -30,7 +30,7 @@
 #ifndef GERRIT_INTERNAL_GERRITDIALOG_H
 #define GERRIT_INTERNAL_GERRITDIALOG_H
 
-#include <utils/filterlineedit.h>
+#include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
 
 #include <QDialog>
@@ -54,7 +54,7 @@ class GerritParameters;
 class GerritModel;
 class GerritChange;
 
-class QueryValidatingLineEdit : public Utils::FilterLineEdit
+class QueryValidatingLineEdit : public Utils::FancyLineEdit
 {
     Q_OBJECT
 
@@ -117,7 +117,7 @@ private:
     QTreeView *m_treeView;
     QTextBrowser *m_detailsBrowser;
     QueryValidatingLineEdit *m_queryLineEdit;
-    Utils::FilterLineEdit *m_filterLineEdit;
+    Utils::FancyLineEdit *m_filterLineEdit;
     Utils::PathChooser *m_repositoryChooser;
     QDialogButtonBox *m_buttonBox;
     QPushButton *m_displayButton;

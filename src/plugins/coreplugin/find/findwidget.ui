@@ -40,7 +40,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="Utils::FilterLineEdit" name="findEdit">
+    <widget class="Utils::FancyLineEdit" name="findEdit">
      <property name="minimumSize">
       <size>
        <width>100</width>
@@ -137,7 +137,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="Utils::FilterLineEdit" name="replaceEdit">
+      <widget class="Utils::FancyLineEdit" name="replaceEdit">
        <property name="minimumSize">
         <size>
          <width>100</width>
@@ -274,11 +274,6 @@
    <class>Utils::FancyLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/fancylineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Utils::FilterLineEdit</class>
-   <extends>Utils::FancyLineEdit</extends>
-   <header location="global">utils/filterlineedit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

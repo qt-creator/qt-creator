@@ -24,7 +24,7 @@
       </widget>
      </item>
      <item>
-      <widget class="Utils::FilterLineEdit" name="filterLineEdit"/>
+      <widget class="Utils::FancyLineEdit" name="filterLineEdit"/>
      </item>
      <item>
       <widget class="QTreeView" name="stashView"/>
@@ -48,11 +48,6 @@
    <class>Utils::FancyLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/fancylineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Utils::FilterLineEdit</class>
-   <extends>Utils::FancyLineEdit</extends>
-   <header location="global">utils/filterlineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

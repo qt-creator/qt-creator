@@ -57,11 +57,12 @@ static const int layoutSpacing  = 5;
 static const int maxTitleWidth = 350;
 
 QueryValidatingLineEdit::QueryValidatingLineEdit(QWidget *parent)
-    : Utils::FilterLineEdit(parent)
+    : Utils::FancyLineEdit(parent)
     , m_valid(true)
     , m_okTextColor(palette().color(QPalette::Active, QPalette::Text))
     , m_errorTextColor(Qt::red)
 {
+    setFiltering(true);
     connect(this, SIGNAL(textChanged(QString)), this, SLOT(setValid()));
 }
 
@@ -98,7 +99,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_treeView(new QTreeView)
     , m_detailsBrowser(new QTextBrowser)
     , m_queryLineEdit(new QueryValidatingLineEdit)
-    , m_filterLineEdit(new Utils::FilterLineEdit)
+    , m_filterLineEdit(new Utils::FancyLineEdit)
     , m_repositoryChooser(new Utils::PathChooser)
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Close))
     , m_repositoryChooserLabel(new QLabel(tr("Apply in:") + QLatin1Char(' '), this))
@@ -123,6 +124,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     filterLayout->addWidget(m_queryLineEdit);
     filterLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
     m_filterLineEdit->setFixedWidth(300);
+    m_filterLineEdit->setFiltering(true);
     filterLayout->addWidget(m_filterLineEdit);
     connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
             m_filterModel, SLOT(setFilterFixedString(QString)));

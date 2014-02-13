@@ -40,7 +40,7 @@
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icontext.h>
 #include <utils/appmainwindow.h>
-#include <utils/filterlineedit.h>
+#include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -224,7 +224,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_filterMenu(new QMenu(this)),
     m_refreshAction(new QAction(tr("Refresh"), this)),
     m_configureAction(new QAction(tr("Configure..."), this)),
-    m_fileLineEdit(new Utils::FilterLineEdit),
+    m_fileLineEdit(new Utils::FancyLineEdit),
     m_updateRequested(false),
     m_acceptRequested(false),
     m_possibleToolTipRequest(false)
@@ -248,6 +248,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
 
     setWindowIcon(QIcon(QLatin1String(":/locator/images/locator.png")));
     const QPixmap image = QPixmap(QLatin1String(Core::Constants::ICON_MAGNIFIER));
+    m_fileLineEdit->setFiltering(true);
     m_fileLineEdit->setButtonPixmap(Utils::FancyLineEdit::Left, image);
     m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, tr("Options"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);

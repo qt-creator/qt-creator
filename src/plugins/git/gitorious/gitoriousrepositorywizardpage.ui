@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="Utils::FilterLineEdit" name="filterLineEdit">
+    <widget class="Utils::FancyLineEdit" name="filterLineEdit">
      <property name="focusPolicy">
       <enum>Qt::ClickFocus</enum>
      </property>
@@ -31,11 +31,6 @@
    <class>Utils::FancyLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/fancylineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Utils::FilterLineEdit</class>
-   <extends>Utils::FancyLineEdit</extends>
-   <header location="global">utils/filterlineedit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

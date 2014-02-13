@@ -59,6 +59,9 @@ QWidget *CommandMappings::widget()
         m_page->targetEdit->setAutoHideButton(Utils::FancyLineEdit::Right, true);
         m_page->targetEdit->setPlaceholderText(QString());
         m_page->targetEdit->installEventFilter(this);
+        m_page->targetEdit->setFiltering(true);
+
+        m_page->filterEdit->setFiltering(true);
 
         connect(m_page->targetEdit, SIGNAL(buttonClicked(Utils::FancyLineEdit::Side)),
             this, SLOT(removeTargetIdentifier()));

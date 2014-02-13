@@ -33,7 +33,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
-#include <utils/filterlineedit.h>
+#include <utils/fancylineedit.h>
 
 #include <QApplication>
 #include <QDialogButtonBox>
@@ -304,7 +304,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_proxyModel(new CategoryFilterModel(this)),
     m_model(new CategoryModel(this)),
     m_stackedLayout(new QStackedLayout),
-    m_filterLineEdit(new Utils::FilterLineEdit),
+    m_filterLineEdit(new Utils::FancyLineEdit),
     m_categoryList(new CategoryListView),
     m_headerLabel(new QLabel),
     m_running(false),
@@ -312,6 +312,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_finished(false)
 {
     m_applied = false;
+    m_filterLineEdit->setFiltering(true);
 
     createGui();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);

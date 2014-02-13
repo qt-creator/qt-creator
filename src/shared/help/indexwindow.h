@@ -32,14 +32,13 @@
 
 #include <QUrl>
 #include <QWidget>
-#include <QLineEdit>
 
 QT_BEGIN_NAMESPACE
-
 class QHelpIndexWidget;
 class QModelIndex;
-
 QT_END_NAMESPACE
+
+namespace Utils { class FancyLineEdit; }
 
 class IndexWindow : public QWidget
 {
@@ -50,10 +49,7 @@ public:
     ~IndexWindow();
 
     void setSearchLineEditText(const QString &text);
-    QString searchLineEditText() const
-    {
-        return m_searchLineEdit->text();
-    }
+    QString searchLineEditText() const;
 
 signals:
     void linkActivated(const QUrl &link);
@@ -69,7 +65,7 @@ private:
     bool eventFilter(QObject *obj, QEvent *e);
     void open(QHelpIndexWidget* indexWidget, const QModelIndex &index);
 
-    QLineEdit *m_searchLineEdit;
+    Utils::FancyLineEdit *m_searchLineEdit;
     QHelpIndexWidget *m_indexWidget;
 };
 

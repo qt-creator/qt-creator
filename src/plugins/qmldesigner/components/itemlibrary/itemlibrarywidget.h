@@ -33,7 +33,7 @@
 #include "itemlibraryinfo.h"
 #include "itemlibrarycomponents.h"
 
-#include <utils/filterlineedit.h>
+#include <utils/fancylineedit.h>
 
 #include <QFrame>
 #include <QToolButton>
@@ -132,7 +132,7 @@ private:
 
     QWeakPointer<QStackedWidget> m_stackedWidget;
 
-    QWeakPointer<Utils::FilterLineEdit> m_filterLineEdit;
+    QWeakPointer<Utils::FancyLineEdit> m_filterLineEdit;
     QScopedPointer<QQuickView> m_itemsView;
     QScopedPointer<Internal::ItemLibraryTreeView> m_resourcesView;
 

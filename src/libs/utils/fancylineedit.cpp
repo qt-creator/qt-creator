@@ -77,11 +77,14 @@ public:
     bool m_iconEnabled[2];
 
     HistoryCompleter *m_historyCompleter;
+
+    bool m_isFiltering;
+    QString m_lastFilterText;
 };
 
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
-    QObject(parent), m_lineEdit(parent),  m_historyCompleter(0)
+    QObject(parent), m_lineEdit(parent),  m_historyCompleter(0), m_isFiltering(false)
 {
     for (int i = 0; i < 2; ++i) {
         m_menu[i] = 0;
@@ -296,6 +299,45 @@ void FancyLineEdit::setButtonFocusPolicy(Side side, Qt::FocusPolicy policy)
 {
     d->m_iconbutton[side]->setFocusPolicy(policy);
 }
+
+void FancyLineEdit::setFiltering(bool on)
+{
+    if (on == d->m_isFiltering)
+        return;
+
+    d->m_isFiltering = on;
+    if (on) {
+        d->m_lastFilterText = text();
+        // KDE has custom icons for this. Notice that icon namings are counter intuitive.
+        // If these icons are not available we use the freedesktop standard name before
+        // falling back to a bundled resource.
+        QIcon icon = QIcon::fromTheme(layoutDirection() == Qt::LeftToRight ?
+                         QLatin1String("edit-clear-locationbar-rtl") :
+                         QLatin1String("edit-clear-locationbar-ltr"),
+                         QIcon::fromTheme(QLatin1String("edit-clear"), QIcon(QLatin1String(":/core/images/editclear.png"))));
+
+        setButtonPixmap(Right, icon.pixmap(16));
+        setButtonVisible(Right, true);
+        setPlaceholderText(tr("Filter"));
+        setButtonToolTip(Right, tr("Clear text"));
+        setAutoHideButton(Right, true);
+        connect(this, SIGNAL(rightButtonClicked()), this, SLOT(clear()));
+        connect(this, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
+    } else {
+        disconnect(this, SIGNAL(rightButtonClicked()), this, SLOT(clear()));
+        disconnect(this, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
+    }
+}
+
+void FancyLineEdit::slotTextChanged()
+{
+    const QString newlyTypedText = text();
+    if (newlyTypedText != d->m_lastFilterText) {
+        d->m_lastFilterText = newlyTypedText;
+        emit filterChanged(d->m_lastFilterText);
+    }
+}
+
 
 // IconButton - helper class to represent a clickable icon
 

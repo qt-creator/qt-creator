@@ -171,7 +171,7 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="Utils::FilterLineEdit" name="searchTerm"/>
+    <widget class="Utils::FancyLineEdit" name="searchTerm"/>
    </item>
    <item row="3" column="0" colspan="2">
     <widget class="QWidget" name="configWidget" native="true">
@@ -190,11 +190,6 @@
    <class>Utils::FancyLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/fancylineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Utils::FilterLineEdit</class>
-   <extends>Utils::FancyLineEdit</extends>
-   <header location="global">utils/filterlineedit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

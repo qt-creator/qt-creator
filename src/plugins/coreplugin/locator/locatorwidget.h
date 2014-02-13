@@ -42,7 +42,7 @@ class QMenu;
 class QTreeView;
 QT_END_NAMESPACE
 
-namespace Utils { class FilterLineEdit; }
+namespace Utils { class FancyLineEdit; }
 
 namespace Core {
 namespace Internal {
@@ -90,7 +90,7 @@ private:
     QMenu *m_filterMenu;
     QAction *m_refreshAction;
     QAction *m_configureAction;
-    Utils::FilterLineEdit *m_fileLineEdit;
+    Utils::FancyLineEdit *m_fileLineEdit;
     QTimer *m_showPopupTimer;
     QFutureWatcher<LocatorFilterEntry> *m_entriesWatcher;
     QMap<Core::Id, QAction *> m_filterActionMap;

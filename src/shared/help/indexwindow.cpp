@@ -36,7 +36,7 @@
 #include <localhelpmanager.h>
 #include <openpagesmanager.h>
 
-#include <utils/filterlineedit.h>
+#include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
 
@@ -59,8 +59,9 @@ IndexWindow::IndexWindow()
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    m_searchLineEdit = new Utils::FilterLineEdit();
+    m_searchLineEdit = new Utils::FancyLineEdit();
     m_searchLineEdit->setPlaceholderText(QString());
+    m_searchLineEdit->setFiltering(true);
     setFocusProxy(m_searchLineEdit);
     connect(m_searchLineEdit, SIGNAL(textChanged(QString)), this,
         SLOT(filterIndices(QString)));
@@ -189,6 +190,11 @@ void IndexWindow::disableSearchLineEdit()
 void IndexWindow::setSearchLineEditText(const QString &text)
 {
     m_searchLineEdit->setText(text);
+}
+
+QString IndexWindow::searchLineEditText() const
+{
+    return m_searchLineEdit->text();
 }
 
 void IndexWindow::open(QHelpIndexWidget* indexWidget, const QModelIndex &index)

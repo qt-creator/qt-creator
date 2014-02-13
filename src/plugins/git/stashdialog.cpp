@@ -115,6 +115,7 @@ StashDialog::StashDialog(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose, true);  // Do not update unnecessarily
 
     ui->setupUi(this);
+    ui->filterLineEdit->setFiltering(true);
     // Buttons
     ui->buttonBox->addButton(m_showCurrentButton, QDialogButtonBox::ActionRole);
     connect(m_showCurrentButton, SIGNAL(clicked()), this, SLOT(showCurrent()));

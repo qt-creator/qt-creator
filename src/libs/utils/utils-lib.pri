@@ -53,7 +53,6 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/detailsbutton.cpp \
     $$PWD/detailswidget.cpp \
     $$PWD/changeset.cpp \
-    $$PWD/filterlineedit.cpp \
     $$PWD/faketooltip.cpp \
     $$PWD/htmldocextractor.cpp \
     $$PWD/navigationtreeview.cpp \
@@ -143,7 +142,6 @@ HEADERS += \
     $$PWD/detailsbutton.h \
     $$PWD/detailswidget.h \
     $$PWD/changeset.h \
-    $$PWD/filterlineedit.h \
     $$PWD/faketooltip.h \
     $$PWD/htmldocextractor.h \
     $$PWD/navigationtreeview.h \

@@ -20,7 +20,7 @@
       <item>
        <layout class="QHBoxLayout">
         <item>
-         <widget class="Utils::FilterLineEdit" name="filterEdit"/>
+         <widget class="Utils::FancyLineEdit" name="filterEdit"/>
         </item>
        </layout>
       </item>
@@ -115,7 +115,7 @@
          </widget>
         </item>
         <item>
-         <widget class="Utils::FilterLineEdit" name="targetEdit"/>
+         <widget class="Utils::FancyLineEdit" name="targetEdit"/>
         </item>
         <item>
          <widget class="QPushButton" name="resetButton">
@@ -158,11 +158,6 @@
    <class>Utils::FancyLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/fancylineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Utils::FilterLineEdit</class>
-   <extends>Utils::FancyLineEdit</extends>
-   <header location="global">utils/filterlineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

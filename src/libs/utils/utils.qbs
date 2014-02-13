@@ -89,8 +89,6 @@ QtcLibrary {
         "filewizardpage.cpp",
         "filewizardpage.h",
         "filewizardpage.ui",
-        "filterlineedit.cpp",
-        "filterlineedit.h",
         "flowlayout.cpp",
         "flowlayout.h",
         "function.cpp",

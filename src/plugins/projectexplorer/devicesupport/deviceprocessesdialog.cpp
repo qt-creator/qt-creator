@@ -32,7 +32,7 @@
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
 
-#include <utils/filterlineedit.h>
+#include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 
 #include <QDialogButtonBox>
@@ -115,7 +115,7 @@ public:
 
     QTreeView *procView;
     QTextBrowser *errorText;
-    FilterLineEdit *processFilterLineEdit;
+    FancyLineEdit *processFilterLineEdit;
     QPushButton *updateListButton;
     QPushButton *killProcessButton;
     QPushButton *acceptButton;
@@ -135,10 +135,11 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 
     processList = 0;
 
-    processFilterLineEdit = new FilterLineEdit(q);
+    processFilterLineEdit = new FancyLineEdit(q);
     processFilterLineEdit->setPlaceholderText(DeviceProcessesDialog::tr("Filter"));
     processFilterLineEdit->setFocus(Qt::TabFocusReason);
     processFilterLineEdit->setHistoryCompleter(QLatin1String("DeviceProcessDialogFilter"));
+    processFilterLineEdit->setFiltering(true);
 
     kitChooser->populate();
 

@@ -45,7 +45,7 @@ class QLabel;
 class QListView;
 QT_END_NAMESPACE
 
-namespace Utils { class FilterLineEdit; }
+namespace Utils { class FancyLineEdit; }
 
 namespace Core {
 namespace Internal {
@@ -99,7 +99,7 @@ private:
     Id m_currentCategory;
     Id m_currentPage;
     QStackedLayout *m_stackedLayout;
-    Utils::FilterLineEdit *m_filterLineEdit;
+    Utils::FancyLineEdit *m_filterLineEdit;
     QListView *m_categoryList;
     QLabel *m_headerLabel;
     bool m_running;

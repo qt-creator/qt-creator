@@ -45,7 +45,6 @@
 #include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
-
 class QEvent;
 class QLineEdit;
 class QTreeView;
@@ -53,8 +52,9 @@ class QToolButton;
 class QStandardItem;
 class QAbstractItemModel;
 class QSortFilterProxyModel;
-
 QT_END_NAMESPACE
+
+namespace Utils { class FancyLineEdit; }
 
 class BookmarkManager;
 
@@ -133,7 +133,7 @@ private:
 private:
     QRegExp regExp;
     TreeView *treeView;
-    QLineEdit *searchField;
+    Utils::FancyLineEdit *searchField;
     QToolButton *addButton;
     QToolButton *removeButton;
     BookmarkManager *bookmarkManager;
