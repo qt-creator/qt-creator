@@ -57,10 +57,10 @@ public:
                                       const CPlusPlus::LookupContext &context,
                                       const CPlusPlus::Function **firstVirtual = 0);
 
-    static QList<CPlusPlus::Symbol *> overrides(CPlusPlus::Function *function,
-                                                CPlusPlus::Class *functionsClass,
-                                                CPlusPlus::Class *staticClass,
-                                                const CPlusPlus::Snapshot &snapshot);
+    static QList<CPlusPlus::Function *> overrides(CPlusPlus::Function *function,
+                                                  CPlusPlus::Class *functionsClass,
+                                                  CPlusPlus::Class *staticClass,
+                                                  const CPlusPlus::Snapshot &snapshot);
 };
 
 } // namespace CppTools

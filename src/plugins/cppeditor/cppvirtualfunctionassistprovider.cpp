@@ -126,7 +126,7 @@ public:
         hintItem->setOrder(-1000);
 
         QList<BasicProposalItem *> items;
-        items << itemFromSymbol(maybeDefinitionFor(m_params.function));
+        items << itemFromFunction(maybeDefinitionFor(m_params.function));
         items << hintItem;
         return new VirtualFunctionProposal(m_params.cursorPosition,
                                            new BasicProposalItemListModel(items),
@@ -144,14 +144,14 @@ public:
         if (!functionsClass)
             return 0;
 
-        const QList<Symbol *> overrides = FunctionUtils::overrides(
+        const QList<Function *> overrides = FunctionUtils::overrides(
             m_params.function, functionsClass, m_params.staticClass, m_params.snapshot);
         if (overrides.isEmpty())
             return 0;
 
         QList<BasicProposalItem *> items;
-        foreach (Symbol *symbol, overrides)
-            items << itemFromSymbol(maybeDefinitionFor(symbol));
+        foreach (Function *func, overrides)
+            items << itemFromFunction(maybeDefinitionFor(func));
         items.first()->setOrder(1000); // Ensure top position for function of static type
 
         return new VirtualFunctionProposal(m_params.cursorPosition,
@@ -160,21 +160,21 @@ public:
     }
 
 private:
-    Symbol *maybeDefinitionFor(Symbol *symbol)
+    Function *maybeDefinitionFor(Function *func)
     {
-        if (Function *definition = m_finder.findMatchingDefinition(symbol, m_params.snapshot))
+        if (Function *definition = m_finder.findMatchingDefinition(func, m_params.snapshot))
             return definition;
-        return symbol;
+        return func;
     }
 
-    BasicProposalItem *itemFromSymbol(Symbol *symbol) const
+    BasicProposalItem *itemFromFunction(Function *func) const
     {
-        const QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(symbol));
-        const CPPEditorWidget::Link link = CPPEditorWidget::linkToSymbol(symbol);
+        const QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(func));
+        const CPPEditorWidget::Link link = CPPEditorWidget::linkToSymbol(func);
 
         BasicProposalItem *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
         item->setText(text);
-        item->setIcon(m_icons.iconForSymbol(symbol));
+        item->setIcon(m_icons.iconForSymbol(func));
 
         return item;
     }

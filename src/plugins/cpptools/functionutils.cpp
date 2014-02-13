@@ -110,10 +110,10 @@ bool FunctionUtils::isPureVirtualFunction(const Function *function,
     return isVirtualFunction_helper(function, context, PureVirtual, firstVirtual);
 }
 
-QList<Symbol *> FunctionUtils::overrides(Function *function, Class *functionsClass,
-                                         Class *staticClass, const Snapshot &snapshot)
+QList<Function *> FunctionUtils::overrides(Function *function, Class *functionsClass,
+                                           Class *staticClass, const Snapshot &snapshot)
 {
-    QList<Symbol *> result;
+    QList<Function *> result;
     QTC_ASSERT(function && functionsClass && staticClass, return result);
 
     FullySpecifiedType referenceType = function->type();
@@ -145,12 +145,12 @@ QList<Symbol *> FunctionUtils::overrides(Function *function, Class *functionsCla
         for (int i = 0, total = c->memberCount(); i < total; ++i) {
             Symbol *candidate = c->memberAt(i);
             const Name *candidateName = candidate->name();
-            const Function *candidateFunc = candidate->type()->asFunctionType();
+            Function *candidateFunc = candidate->type()->asFunctionType();
             if (!candidateName || !candidateFunc)
                 continue;
             if (candidateName->isEqualTo(referenceName)
                     && candidateFunc->isSignatureEqualTo(function)) {
-                result << candidate;
+                result << candidateFunc;
             }
         }
     }
