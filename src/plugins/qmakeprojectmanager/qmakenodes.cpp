@@ -1253,7 +1253,9 @@ QStringList QmakePriFileNode::varNames(ProjectExplorer::FileType type, QtSupport
             QStringList inputs = readerExact->values(var + QLatin1String(".input"));
             foreach (const QString &input, inputs)
                 // FORMS and RESOURCES are handled below
-                if (input != QLatin1String("FORMS") && input != QLatin1String("RESOURCES"))
+                if (input != QLatin1String("FORMS")
+                        && input != QLatin1String("RESOURCES")
+                        && input != QLatin1String("HEADERS"))
                     vars << input;
         }
         break;
