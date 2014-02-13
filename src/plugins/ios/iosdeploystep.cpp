@@ -86,6 +86,10 @@ bool IosDeployStep::init()
 {
     QTC_CHECK(m_transferStatus == NoTransfer);
     m_device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    IosRunConfiguration * runConfig = qobject_cast<IosRunConfiguration *>(
+                this->target()->activeRunConfiguration());
+    QTC_CHECK(runConfig);
+    m_bundlePath = runConfig->bundleDir().toString();
     if (m_device.isNull()) {
         emit addOutput(tr("Error: no device available, deploy failed."),
                        BuildStep::ErrorMessageOutput);
@@ -219,9 +223,7 @@ QString IosDeployStep::deviceId() const
 
 QString IosDeployStep::appBundle() const
 {
-    IosRunConfiguration * runConfig = qobject_cast<IosRunConfiguration *>(
-                this->target()->activeRunConfiguration());
-    return runConfig->bundleDir().toString();
+    return m_bundlePath;
 }
 
 void IosDeployStep::raiseError(const QString &errorString)

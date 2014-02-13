@@ -108,6 +108,7 @@ private:
     IosToolHandler *m_toolHandler;
     QFutureInterface<bool> m_futureInterface;
     ProjectExplorer::IDevice::ConstPtr m_device;
+    QString m_bundlePath;
     static const Core::Id Id;
 };
 
