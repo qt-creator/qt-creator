@@ -213,10 +213,17 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 readMetaObjectRevisions(script, fmo);
             } else if (name == QLatin1String("attachedType")) {
                 fmo->setAttachedTypeName(readStringBinding(script));
+            } else if (name == QLatin1String("isSingleton")) {
+                fmo->setIsSingleton(readBoolBinding(script));
+            } else if (name == QLatin1String("isCreatable")) {
+                fmo->setIsCreatable(readBoolBinding(script));
+            } else if (name == QLatin1String("isComposite")) {
+                fmo->setIsComposite(readBoolBinding(script));
             } else {
                 addWarning(script->firstSourceLocation(),
                            tr("Expected only name, prototype, defaultProperty, attachedType, exports "
-                              "and exportMetaObjectRevisions script bindings, not '%1'.").arg(name));
+                              "isSingleton, isCreatable, isComposite and exportMetaObjectRevisions "
+                              "script bindings, not '%1'.").arg(name));
             }
         } else {
             addWarning(member->firstSourceLocation(), tr("Expected only script bindings and object definitions."));

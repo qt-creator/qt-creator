@@ -166,6 +166,9 @@ private:
     QString m_defaultPropertyName;
     QString m_attachedTypeName;
     QByteArray m_fingerprint;
+    bool m_isSingleton;
+    bool m_isCreatable;
+    bool m_isComposite;
 
 public:
     FakeMetaObject();
@@ -207,6 +210,13 @@ public:
     QByteArray calculateFingerprint() const;
     void updateFingerprint();
     QByteArray fingerprint() const;
+
+    bool isSingleton() const;
+    bool isCreatable() const;
+    bool isComposite() const;
+    void setIsSingleton(bool value);
+    void setIsCreatable(bool value);
+    void setIsComposite(bool value);
 };
 
 } // namespace LanguageUtils

@@ -200,7 +200,7 @@ void FakeMetaProperty::addToHash(QCryptographicHash &hash) const
 }
 
 
-FakeMetaObject::FakeMetaObject()
+FakeMetaObject::FakeMetaObject() : m_isSingleton(false), m_isCreatable(true), m_isComposite(false)
 {
 }
 
@@ -350,6 +350,36 @@ void FakeMetaObject::updateFingerprint()
 QByteArray FakeMetaObject::fingerprint() const
 {
     return m_fingerprint;
+}
+
+bool FakeMetaObject::isSingleton() const
+{
+    return m_isSingleton;
+}
+
+bool FakeMetaObject::isCreatable() const
+{
+    return m_isCreatable;
+}
+
+bool FakeMetaObject::isComposite() const
+{
+    return m_isComposite;
+}
+
+void FakeMetaObject::setIsSingleton(bool value)
+{
+    m_isSingleton = value;
+}
+
+void FakeMetaObject::setIsCreatable(bool value)
+{
+    m_isCreatable = value;
+}
+
+void FakeMetaObject::setIsComposite(bool value)
+{
+    m_isSingleton = value;
 }
 
 FakeMetaObject::Export::Export()
