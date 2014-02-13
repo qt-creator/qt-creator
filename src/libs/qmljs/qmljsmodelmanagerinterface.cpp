@@ -121,6 +121,8 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 
 ModelManagerInterface::~ModelManagerInterface()
 {
+    m_cppQmlTypesUpdater.cancel();
+    m_cppQmlTypesUpdater.waitForFinished();
     Q_ASSERT(g_instance == this);
     g_instance = 0;
 }
@@ -248,13 +250,13 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
 Snapshot ModelManagerInterface::snapshot() const
 {
     QMutexLocker locker(&m_mutex);
-    return _validSnapshot;
+    return m_validSnapshot;
 }
 
 Snapshot ModelManagerInterface::newestSnapshot() const
 {
     QMutexLocker locker(&m_mutex);
-    return _newestSnapshot;
+    return m_newestSnapshot;
 }
 
 void ModelManagerInterface::updateSourceFiles(const QStringList &files,
@@ -321,8 +323,8 @@ void ModelManagerInterface::removeFiles(const QStringList &files)
     QMutexLocker locker(&m_mutex);
 
     foreach (const QString &file, files) {
-        _validSnapshot.remove(file);
-        _newestSnapshot.remove(file);
+        m_validSnapshot.remove(file);
+        m_newestSnapshot.remove(file);
     }
 }
 
@@ -459,7 +461,7 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
         QMutexLocker locker(&m_mutex);
         oldInfo = m_projects.value(p);
         m_projects.insert(p, pinfo);
-        snapshot = _validSnapshot;
+        snapshot = m_validSnapshot;
     }
 
     if (oldInfo.qmlDumpPath != pinfo.qmlDumpPath
@@ -551,8 +553,8 @@ void ModelManagerInterface::updateDocument(Document::Ptr doc)
 {
     {
         QMutexLocker locker(&m_mutex);
-        _validSnapshot.insert(doc);
-        _newestSnapshot.insert(doc, true);
+        m_validSnapshot.insert(doc);
+        m_newestSnapshot.insert(doc, true);
     }
     emit documentUpdated(doc);
 }
@@ -564,8 +566,8 @@ void ModelManagerInterface::updateLibraryInfo(const QString &path, const Library
 
     {
         QMutexLocker locker(&m_mutex);
-        _validSnapshot.insertLibraryInfo(path, info);
-        _newestSnapshot.insertLibraryInfo(path, info);
+        m_validSnapshot.insertLibraryInfo(path, info);
+        m_newestSnapshot.insertLibraryInfo(path, info);
     }
     // only emit if we got new useful information
     if (info.isValid())
@@ -1013,7 +1015,7 @@ void ModelManagerInterface::updateImportPaths()
 
 
     // check if any file in the snapshot imports something new in the new paths
-    Snapshot snapshot = _validSnapshot;
+    Snapshot snapshot = m_validSnapshot;
     QStringList importedFiles;
     QSet<QString> scannedPaths;
     QSet<QString> newLibraries;
@@ -1195,7 +1197,7 @@ LibraryInfo ModelManagerInterface::builtins(const Document::Ptr &doc) const
     if (!info.isValid())
         return LibraryInfo();
 
-    return _validSnapshot.libraryInfo(info.qtImportsPath);
+    return m_validSnapshot.libraryInfo(info.qtImportsPath);
 }
 
 ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
@@ -1241,12 +1243,12 @@ void ModelManagerInterface::resetCodeModel()
         QMutexLocker locker(&m_mutex);
 
         // find all documents currently in the code model
-        foreach (Document::Ptr doc, _validSnapshot)
+        foreach (Document::Ptr doc, m_validSnapshot)
             documents.append(doc->fileName());
 
         // reset the snapshot
-        _validSnapshot = Snapshot();
-        _newestSnapshot = Snapshot();
+        m_validSnapshot = Snapshot();
+        m_newestSnapshot = Snapshot();
     }
 
     // start a reparse thread

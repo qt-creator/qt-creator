@@ -247,9 +247,10 @@ protected:
     void updateImportPaths();
     void loadQmlTypeDescriptionsInternal(const QString &path);
 
+private:
     mutable QMutex m_mutex;
-    QmlJS::Snapshot _validSnapshot;
-    QmlJS::Snapshot _newestSnapshot;
+    QmlJS::Snapshot m_validSnapshot;
+    QmlJS::Snapshot m_newestSnapshot;
     QStringList m_allImportPaths;
     QStringList m_defaultImportPaths;
     QmlJS::QmlLanguageBundles m_activeBundles;

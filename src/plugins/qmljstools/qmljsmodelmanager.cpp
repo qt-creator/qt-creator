@@ -203,8 +203,6 @@ ModelManager::ModelManager(QObject *parent):
 
 ModelManager::~ModelManager()
 {
-    m_cppQmlTypesUpdater.cancel();
-    m_cppQmlTypesUpdater.waitForFinished();
 }
 
 void ModelManager::delayedInitialization()
