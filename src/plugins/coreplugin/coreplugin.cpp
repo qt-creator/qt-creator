@@ -144,6 +144,7 @@ void CorePlugin::fileOpenRequest(const QString &f)
 
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
+    m_findPlugin->aboutToShutdown();
     m_mainWindow->aboutToShutdown();
     return SynchronousShutdown;
 }

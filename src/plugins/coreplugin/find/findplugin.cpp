@@ -132,6 +132,7 @@ void FindPlugin::initialize(const QStringList &, QString *)
     d->m_findDialog = new Internal::FindToolWindow(this);
     d->m_searchResultWindow = new SearchResultWindow(d->m_findDialog);
     ExtensionSystem::PluginManager::addObject(d->m_searchResultWindow);
+    connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(writeSettings()));
 }
 
 void FindPlugin::extensionsInitialized()
@@ -145,7 +146,6 @@ void FindPlugin::aboutToShutdown()
     d->m_findToolBar->setVisible(false);
     d->m_findToolBar->setParent(0);
     d->m_currentDocumentFind->removeConnections();
-    writeSettings();
 }
 
 void FindPlugin::filterChanged()

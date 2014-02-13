@@ -127,6 +127,8 @@ void Locator::initialize(CorePlugin *corePlugin, const QStringList &, QString *)
     m_corePlugin->addObject(m_executeFilter);
 
     m_corePlugin->addAutoReleasedObject(new LocatorFiltersFilter(this, m_locatorWidget));
+
+    connect(ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
 }
 
 void Locator::updatePlaceholderText(Command *command)

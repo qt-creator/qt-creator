@@ -90,13 +90,13 @@ signals:
 private slots:
     void filterChanged();
     void openFindFilter();
+    void writeSettings();
 
 private:
     void setFindFlag(Core::FindFlag flag, bool enabled);
     void updateCompletion(const QString &text, QStringList &completions, QStringListModel *model);
     void setupMenu();
     void setupFilterMenuItems();
-    void writeSettings();
     void readSettings();
 
     //variables
