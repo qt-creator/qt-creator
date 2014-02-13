@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template openeditor="main.qml" priority="E"
-    featuresRequired="QtSupport.Wizards.FeatureQtQuick, QtSupport.Wizards.FeatureQtQuick.1.1"
+    featuresRequired="QtSupport.Wizards.FeatureQtQuick.1.1"
     viewerdir="qtquick1applicationviewer"
     viewerclassname="QtQuick1ApplicationViewer"
     stubversionminor="24">

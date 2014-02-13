@@ -230,31 +230,36 @@ FeatureSet BaseQtVersion::availableFeatures() const
             | FeatureSet(Constants::FEATURE_QT_WEBKIT)
             | FeatureSet(Constants::FEATURE_QT_CONSOLE);
 
-     if (qtVersion() >= QtVersionNumber(4, 7, 0)) {
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK);
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK_1);
-     }
+     if (qtVersion() < QtVersionNumber(4, 7, 0))
+         return features;
 
-     if (qtVersion() >= QtVersionNumber(4, 7, 1)) {
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK_1_1);
-     }
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK);
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_1);
 
-     if (qtVersion() >= QtVersionNumber(5, 0, 0)) {
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK_2);
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_0);
-     }
+     if (qtVersion() < QtVersionNumber(4, 7, 1))
+         return features;
 
-     if (qtVersion() >= QtVersionNumber(5, 1, 0)) {
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_1);
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS);
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1);
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_0);
-     }
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_1_1);
 
-     if (qtVersion() >= QtVersionNumber(5, 2, 0)) {
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_2);
-         features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_1);
-     }
+     if (qtVersion() < QtVersionNumber(5, 0, 0))
+         return features;
+
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_2);
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_0);
+
+     if (qtVersion() < QtVersionNumber(5, 1, 0))
+         return features;
+
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_1);
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS);
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1);
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_0);
+
+     if (qtVersion() < QtVersionNumber(5, 2, 0))
+         return features;
+
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_2_2);
+     features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS_1_1);
 
      return features;
 }
