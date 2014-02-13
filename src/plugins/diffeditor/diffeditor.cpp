@@ -32,6 +32,7 @@
 #include "diffeditordocument.h"
 #include "diffeditorguicontroller.h"
 #include "sidebysidediffeditorwidget.h"
+#include "unifieddiffeditorwidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -41,6 +42,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/displaysettings.h>
 
+#include <QStackedWidget>
 #include <QToolButton>
 #include <QSpinBox>
 #include <QStyle>
@@ -49,6 +51,15 @@
 #include <QToolBar>
 #include <QComboBox>
 #include <QFileInfo>
+#include <QTextCodec>
+
+static const char settingsGroupC[] = "DiffEditor";
+static const char diffEditorTypeKeyC[] = "DiffEditorType";
+static const char sideBySideDiffEditorValueC[] = "SideBySide";
+static const char unifiedDiffEditorValueC[] = "Unified";
+
+static const char legacySettingsGroupC[] = "Git";
+static const char useDiffEditorKeyC[] = "UseDiffEditor";
 
 using namespace TextEditor;
 
@@ -115,12 +126,16 @@ DiffEditor::DiffEditor()
     : IEditor(0)
     , m_document(new DiffEditorDocument())
     , m_descriptionWidget(0)
-    , m_diffWidget(0)
+    , m_stackedWidget(0)
+    , m_sideBySideEditor(0)
+    , m_unifiedEditor(0)
+    , m_currentEditor(0)
     , m_controller(0)
     , m_guiController(0)
     , m_toolBar(0)
     , m_entriesComboBox(0)
     , m_toggleDescriptionAction(0)
+    , m_diffEditorSwitcher(0)
 {
     ctor();
 }
@@ -129,45 +144,64 @@ DiffEditor::DiffEditor(DiffEditor *other)
     : IEditor(0)
     , m_document(other->m_document)
     , m_descriptionWidget(0)
-    , m_diffWidget(0)
+    , m_stackedWidget(0)
+    , m_sideBySideEditor(0)
+    , m_unifiedEditor(0)
+    , m_currentEditor(0)
     , m_controller(0)
     , m_guiController(0)
     , m_toolBar(0)
     , m_entriesComboBox(0)
     , m_toggleDescriptionAction(0)
+    , m_diffEditorSwitcher(0)
 {
     ctor();
 }
 
 void DiffEditor::ctor()
 {
+    setDuplicateSupported(true);
+
     QSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
 
     m_descriptionWidget = new Internal::DescriptionEditorWidget(splitter);
     m_descriptionWidget->setReadOnly(true);
     splitter->addWidget(m_descriptionWidget);
 
-    m_diffWidget = new SideBySideDiffEditorWidget(splitter);
-    splitter->addWidget(m_diffWidget);
+    m_stackedWidget = new QStackedWidget(splitter);
+    splitter->addWidget(m_stackedWidget);
+
+    m_sideBySideEditor = new SideBySideDiffEditorWidget(m_stackedWidget);
+    m_stackedWidget->addWidget(m_sideBySideEditor);
+
+    m_unifiedEditor = new UnifiedDiffEditorWidget(m_stackedWidget);
+    m_stackedWidget->addWidget(m_unifiedEditor);
 
     setWidget(splitter);
 
-    connect(TextEditorSettings::instance(), SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
-            m_descriptionWidget, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-    connect(TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            m_descriptionWidget->baseTextDocument(), SLOT(setFontSettings(TextEditor::FontSettings)));
-    m_descriptionWidget->setDisplaySettings(TextEditorSettings::displaySettings());
-    m_descriptionWidget->setCodeStyle(TextEditorSettings::codeStyle());
-    m_descriptionWidget->baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
+    connect(TextEditorSettings::instance(),
+            SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+            m_descriptionWidget,
+            SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
+    connect(TextEditorSettings::instance(),
+            SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+            m_descriptionWidget->baseTextDocument(),
+            SLOT(setFontSettings(TextEditor::FontSettings)));
+
+    m_descriptionWidget->setDisplaySettings(
+                TextEditorSettings::displaySettings());
+    m_descriptionWidget->setCodeStyle(
+                TextEditorSettings::codeStyle());
+    m_descriptionWidget->baseTextDocument()->setFontSettings(
+                TextEditorSettings::fontSettings());
 
     m_controller = m_document->controller();
     m_guiController = new DiffEditorGuiController(m_controller, this);
-    m_diffWidget->setDiffEditorGuiController(m_guiController);
 
     connect(m_controller, SIGNAL(cleared(QString)),
             this, SLOT(slotCleared(QString)));
-    connect(m_controller, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),
-            this, SLOT(slotDiffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)));
+    connect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
+            this, SLOT(slotDiffFilesChanged(QList<FileData>,QString)));
     connect(m_controller, SIGNAL(descriptionChanged(QString)),
             this, SLOT(slotDescriptionChanged(QString)));
     connect(m_controller, SIGNAL(descriptionEnablementChanged(bool)),
@@ -179,6 +213,10 @@ void DiffEditor::ctor()
 
     slotDescriptionChanged(m_controller->description());
     slotDescriptionVisibilityChanged();
+
+    showDiffEditor(readCurrentDiffEditorSetting());
+
+    toolBar();
 }
 
 DiffEditor::~DiffEditor()
@@ -193,11 +231,36 @@ Core::IEditor *DiffEditor::duplicate()
     return new DiffEditor(this);
 }
 
-bool DiffEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
+bool DiffEditor::open(QString *errorString,
+                      const QString &fileName,
+                      const QString &realFileName)
 {
-    Q_UNUSED(errorString)
-    Q_UNUSED(fileName)
     Q_UNUSED(realFileName)
+
+    if (!m_controller)
+        return false;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        *errorString = tr("Could not open patch file \"%1\".").arg(fileName);
+        return false;
+    }
+
+    const QString patch = Core::EditorManager::defaultTextCodec()->toUnicode(file.readAll());
+
+    bool ok = false;
+    QList<FileData> fileDataList
+            = DiffUtils::readPatch(patch,
+                                   m_controller->isIgnoreWhitespace(),
+                                   &ok);
+    if (!ok) {
+        *errorString = tr("Could not parse patch file \"%1\". "
+                          "The contents is not of unified diff format.")
+                .arg(fileName);
+        return false;
+    }
+
+    m_controller->setDiffFiles(fileDataList, QFileInfo(fileName).absolutePath());
     return true;
 }
 
@@ -223,7 +286,7 @@ QWidget *DiffEditor::toolBar()
         return m_toolBar;
 
     // Create
-    m_toolBar = createToolBar(m_diffWidget);
+    m_toolBar = createToolBar(m_sideBySideEditor);
 
     m_entriesComboBox = new QComboBox;
     m_entriesComboBox->setMinimumContentsLength(20);
@@ -238,7 +301,7 @@ QWidget *DiffEditor::toolBar()
     QToolButton *whitespaceButton = new QToolButton(m_toolBar);
     whitespaceButton->setText(tr("Ignore Whitespace"));
     whitespaceButton->setCheckable(true);
-    whitespaceButton->setChecked(true);
+    whitespaceButton->setChecked(m_controller->isIgnoreWhitespace());
     m_toolBar->addWidget(whitespaceButton);
 
     QLabel *contextLabel = new QLabel(m_toolBar);
@@ -247,40 +310,58 @@ QWidget *DiffEditor::toolBar()
     m_toolBar->addWidget(contextLabel);
 
     QSpinBox *contextSpinBox = new QSpinBox(m_toolBar);
-    contextSpinBox->setRange(-1, 100);
-    contextSpinBox->setValue(3);
+    contextSpinBox->setRange(1, 100);
+    contextSpinBox->setValue(m_controller->contextLinesNumber());
     contextSpinBox->setFrame(false);
-    contextSpinBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding); // Mac Qt5
+    contextSpinBox->setSizePolicy(QSizePolicy::Minimum,
+                                  QSizePolicy::Expanding); // Mac Qt5
     m_toolBar->addWidget(contextSpinBox);
 
     QToolButton *toggleSync = new QToolButton(m_toolBar);
     toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
     toggleSync->setCheckable(true);
-    toggleSync->setChecked(true);
+    toggleSync->setChecked(m_guiController->horizontalScrollBarSynchronization());
     toggleSync->setToolTip(tr("Synchronize Horizontal Scroll Bars"));
     m_toolBar->addWidget(toggleSync);
 
     QToolButton *toggleDescription = new QToolButton(m_toolBar);
-    toggleDescription->setIcon(QIcon(QLatin1String(Core::Constants::ICON_TOGGLE_TOPBAR)));
+    toggleDescription->setIcon(
+                QIcon(QLatin1String(Constants::ICON_TOP_BAR)));
     toggleDescription->setCheckable(true);
-    toggleDescription->setChecked(true);
+    toggleDescription->setChecked(m_guiController->isDescriptionVisible());
     m_toggleDescriptionAction = m_toolBar->addWidget(toggleDescription);
     slotDescriptionVisibilityChanged();
 
+    QToolButton *reloadButton = new QToolButton(m_toolBar);
+    reloadButton->setIcon(QIcon(QLatin1String(Constants::ICON_RELOAD)));
+    reloadButton->setToolTip(tr("Reload Editor"));
+    m_toolBar->addWidget(reloadButton);
+
+    m_diffEditorSwitcher = new QToolButton(m_toolBar);
+    m_toolBar->addWidget(m_diffEditorSwitcher);
+    updateDiffEditorSwitcher();
+
     connect(whitespaceButton, SIGNAL(clicked(bool)),
-            m_guiController, SLOT(setIgnoreWhitespaces(bool)));
+            m_controller, SLOT(setIgnoreWhitespace(bool)));
+    connect(m_controller, SIGNAL(ignoreWhitespaceChanged(bool)),
+            whitespaceButton, SLOT(setChecked(bool)));
     connect(contextSpinBox, SIGNAL(valueChanged(int)),
-            m_guiController, SLOT(setContextLinesNumber(int)));
+            m_controller, SLOT(setContextLinesNumber(int)));
+    connect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
+            contextSpinBox, SLOT(setValue(int)));
     connect(toggleSync, SIGNAL(clicked(bool)),
             m_guiController, SLOT(setHorizontalScrollBarSynchronization(bool)));
     connect(toggleDescription, SIGNAL(clicked(bool)),
             m_guiController, SLOT(setDescriptionVisible(bool)));
-    // TODO: synchronize in opposite direction too
+    connect(m_diffEditorSwitcher, SIGNAL(clicked()),
+            this, SLOT(slotDiffEditorSwitched()));
+    connect(reloadButton, SIGNAL(clicked()),
+            m_controller, SLOT(requestReload()));
 
     return m_toolBar;
 }
 
-DiffEditorController * DiffEditor::controller() const
+DiffEditorController *DiffEditor::controller() const
 {
     return m_controller;
 }
@@ -306,16 +387,16 @@ void DiffEditor::slotCleared(const QString &message)
     updateEntryToolTip();
 }
 
-void DiffEditor::slotDiffContentsChanged(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
-                                         const QString &workingDirectory)
+void DiffEditor::slotDiffFilesChanged(const QList<FileData> &diffFileList,
+                                      const QString &workingDirectory)
 {
     Q_UNUSED(workingDirectory)
 
     m_entriesComboBox->clear();
     const int count = diffFileList.count();
     for (int i = 0; i < count; i++) {
-        const DiffEditorController::DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
-        const DiffEditorController::DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
+        const DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
+        const DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
         const QString leftShortFileName = QFileInfo(leftEntry.fileName).fileName();
         const QString rightShortFileName = QFileInfo(rightEntry.fileName).fileName();
         QString itemText;
@@ -327,26 +408,34 @@ void DiffEditor::slotDiffContentsChanged(const QList<DiffEditorController::DiffF
                 itemToolTip = leftEntry.fileName;
             } else {
                 itemToolTip = tr("[%1] vs. [%2] %3")
-                        .arg(leftEntry.typeInfo, rightEntry.typeInfo, leftEntry.fileName);
+                        .arg(leftEntry.typeInfo,
+                             rightEntry.typeInfo,
+                             leftEntry.fileName);
             }
         } else {
             if (leftShortFileName == rightShortFileName) {
                 itemText = leftShortFileName;
             } else {
                 itemText = tr("%1 vs. %2")
-                        .arg(leftShortFileName, rightShortFileName);
+                        .arg(leftShortFileName,
+                             rightShortFileName);
             }
 
             if (leftEntry.typeInfo.isEmpty() && rightEntry.typeInfo.isEmpty()) {
                 itemToolTip = tr("%1 vs. %2")
-                        .arg(leftEntry.fileName, rightEntry.fileName);
+                        .arg(leftEntry.fileName,
+                             rightEntry.fileName);
             } else {
                 itemToolTip = tr("[%1] %2 vs. [%3] %4")
-                        .arg(leftEntry.typeInfo, leftEntry.fileName, rightEntry.typeInfo, rightEntry.fileName);
+                        .arg(leftEntry.typeInfo,
+                             leftEntry.fileName,
+                             rightEntry.typeInfo,
+                             rightEntry.fileName);
             }
         }
         m_entriesComboBox->addItem(itemText);
-        m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1, itemToolTip, Qt::ToolTipRole);
+        m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1,
+                                       itemToolTip, Qt::ToolTipRole);
     }
     updateEntryToolTip();
 }
@@ -381,7 +470,114 @@ void DiffEditor::slotDescriptionVisibilityChanged()
         toggle->setToolTip(tr("Show Change Description"));
 
     m_toggleDescriptionAction->setVisible(enabled);
+}
 
+void DiffEditor::slotDiffEditorSwitched()
+{
+    QWidget *oldEditor = m_currentEditor;
+    QWidget *newEditor = 0;
+    if (oldEditor == m_sideBySideEditor)
+        newEditor = m_unifiedEditor;
+    else if (oldEditor == m_unifiedEditor)
+        newEditor = m_sideBySideEditor;
+    else
+        newEditor = readCurrentDiffEditorSetting();
+
+    showDiffEditor(newEditor);
+}
+
+void DiffEditor::updateDiffEditorSwitcher()
+{
+    if (!m_diffEditorSwitcher)
+        return;
+
+    QIcon actionIcon;
+    QString actionToolTip;
+    if (m_currentEditor == m_unifiedEditor) {
+        actionIcon = QIcon(QLatin1String(Constants::ICON_SIDE_BY_SIDE_DIFF));
+        actionToolTip = tr("Switch to Side By Side Diff Editor");
+    } else if (m_currentEditor == m_sideBySideEditor) {
+        actionIcon = QIcon(QLatin1String(Constants::ICON_UNIFIED_DIFF));
+        actionToolTip = tr("Switch to Unified Diff Editor");
+    }
+
+    m_diffEditorSwitcher->setIcon(actionIcon);
+    m_diffEditorSwitcher->setToolTip(actionToolTip);
+}
+
+void DiffEditor::showDiffEditor(QWidget *newEditor)
+{
+    if (m_currentEditor == newEditor)
+        return;
+
+    if (m_currentEditor == m_sideBySideEditor)
+        m_sideBySideEditor->setDiffEditorGuiController(0);
+    else if (m_currentEditor == m_unifiedEditor)
+        m_unifiedEditor->setDiffEditorGuiController(0);
+
+    m_currentEditor = newEditor;
+
+    if (m_currentEditor == m_unifiedEditor)
+        m_unifiedEditor->setDiffEditorGuiController(m_guiController);
+    else if (m_currentEditor == m_sideBySideEditor)
+        m_sideBySideEditor->setDiffEditorGuiController(m_guiController);
+
+    m_stackedWidget->setCurrentWidget(m_currentEditor);
+
+    writeCurrentDiffEditorSetting(m_currentEditor);
+    updateDiffEditorSwitcher();
+}
+
+QWidget *DiffEditor::readLegacyCurrentDiffEditorSetting()
+{
+    QSettings *s = Core::ICore::settings();
+
+    s->beginGroup(QLatin1String(legacySettingsGroupC));
+    const bool legacyExists = s->contains(QLatin1String(useDiffEditorKeyC));
+    const bool legacyEditor = s->value(
+                QLatin1String(useDiffEditorKeyC), true).toBool();
+    if (legacyExists)
+        s->remove(QLatin1String(useDiffEditorKeyC));
+    s->endGroup();
+
+    QWidget *currentEditor = m_sideBySideEditor;
+    if (!legacyEditor)
+        currentEditor = m_unifiedEditor;
+
+    if (legacyExists && currentEditor == m_unifiedEditor)
+        writeCurrentDiffEditorSetting(currentEditor);
+
+    return currentEditor;
+}
+
+QWidget *DiffEditor::readCurrentDiffEditorSetting()
+{
+    // replace it with m_sideBySideEditor when dropping legacy stuff
+    QWidget *defaultEditor = readLegacyCurrentDiffEditorSetting();
+
+    QSettings *s = Core::ICore::settings();
+    s->beginGroup(QLatin1String(settingsGroupC));
+    const QString editorString = s->value(
+                QLatin1String(diffEditorTypeKeyC)).toString();
+    s->endGroup();
+    if (editorString == QLatin1String(unifiedDiffEditorValueC))
+        return m_unifiedEditor;
+
+    if (editorString == QLatin1String(sideBySideDiffEditorValueC))
+        return m_sideBySideEditor;
+
+    return defaultEditor;
+}
+
+void DiffEditor::writeCurrentDiffEditorSetting(QWidget *currentEditor)
+{
+    const QString editorString = currentEditor == m_unifiedEditor
+            ? QLatin1String(unifiedDiffEditorValueC)
+            : QLatin1String(sideBySideDiffEditorValueC);
+    QSettings *s = Core::ICore::settings();
+    s->beginGroup(QLatin1String(settingsGroupC));
+    s->setValue(QLatin1String(diffEditorTypeKeyC), editorString);
+    s->endGroup();
 }
 
 } // namespace DiffEditor

@@ -37,9 +37,10 @@
 #include <coreplugin/idocument.h>
 
 QT_BEGIN_NAMESPACE
-class QToolBar;
 class QComboBox;
+class QToolBar;
 class QToolButton;
+class QStackedWidget;
 QT_END_NAMESPACE
 
 namespace TextEditor { class BaseTextEditorWidget; }
@@ -49,6 +50,7 @@ namespace DiffEditor {
 class DiffEditorDocument;
 class DiffEditorGuiController;
 class SideBySideDiffEditorWidget;
+class UnifiedDiffEditorWidget;
 
 class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
 {
@@ -64,7 +66,9 @@ public:
     // Core::IEditor
     Core::IEditor *duplicate();
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    bool open(QString *errorString,
+              const QString &fileName,
+              const QString &realFileName);
     Core::IDocument *document();
 
     QWidget *toolBar();
@@ -74,24 +78,34 @@ public slots:
 
 private slots:
     void slotCleared(const QString &message);
-    void slotDiffContentsChanged(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
-                                 const QString &workingDirectory);
+    void slotDiffFilesChanged(const QList<FileData> &diffFileList,
+                              const QString &workingDirectory);
     void entryActivated(int index);
     void slotDescriptionChanged(const QString &description);
     void slotDescriptionVisibilityChanged();
+    void slotDiffEditorSwitched();
 
 private:
     void ctor();
     void updateEntryToolTip();
+    void showDiffEditor(QWidget *newEditor);
+    void updateDiffEditorSwitcher();
+    QWidget *readLegacyCurrentDiffEditorSetting();
+    QWidget *readCurrentDiffEditorSetting();
+    void writeCurrentDiffEditorSetting(QWidget *currentEditor);
 
     QSharedPointer<DiffEditorDocument> m_document;
     TextEditor::BaseTextEditorWidget *m_descriptionWidget;
-    SideBySideDiffEditorWidget *m_diffWidget;
+    QStackedWidget *m_stackedWidget;
+    SideBySideDiffEditorWidget *m_sideBySideEditor;
+    UnifiedDiffEditorWidget *m_unifiedEditor;
+    QWidget *m_currentEditor;
     DiffEditorController *m_controller;
     DiffEditorGuiController *m_guiController;
     QToolBar *m_toolBar;
     QComboBox *m_entriesComboBox;
     QAction *m_toggleDescriptionAction;
+    QToolButton *m_diffEditorSwitcher;
 };
 
 } // namespace DiffEditor

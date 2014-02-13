@@ -10,9 +10,12 @@ HEADERS += diffeditor_global.h \
         diffeditorguicontroller.h \
         diffeditormanager.h \
         diffeditorplugin.h \
+        diffeditorreloader.h \
         differ.h \
         diffutils.h \
-        sidebysidediffeditorwidget.h
+        selectabletexteditorwidget.h \
+        sidebysidediffeditorwidget.h \
+        unifieddiffeditorwidget.h
 
 SOURCES += diffeditor.cpp \
         diffeditorcontroller.cpp \
@@ -21,8 +24,11 @@ SOURCES += diffeditor.cpp \
         diffeditorguicontroller.cpp \
         diffeditormanager.cpp \
         diffeditorplugin.cpp \
+        diffeditorreloader.cpp \
         differ.cpp \
         diffutils.cpp \
-        sidebysidediffeditorwidget.cpp
+        selectabletexteditorwidget.cpp \
+        sidebysidediffeditorwidget.cpp \
+        unifieddiffeditorwidget.cpp
 
-RESOURCES +=
+RESOURCES += diffeditor.qrc

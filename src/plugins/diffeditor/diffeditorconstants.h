@@ -37,7 +37,13 @@ namespace Constants {
 
 const char DIFF_EDITOR_ID[] = "Diff Editor";
 const char DIFF_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("DiffEditor", "Diff Editor");
+const char DIFF_EDITOR_MIMETYPE[] = "text/x-patch";
 const char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Options";
+
+const char ICON_SIDE_BY_SIDE_DIFF[]  = ":/diffeditor/images/sidebysidediff.png";
+const char ICON_UNIFIED_DIFF[]       = ":/diffeditor/images/unifieddiff.png";
+const char ICON_RELOAD[]             = ":/diffeditor/images/reload.png";
+const char ICON_TOP_BAR[]            = ":/diffeditor/images/topbar.png";
 
 } // namespace Constants
 } // namespace DiffEditor

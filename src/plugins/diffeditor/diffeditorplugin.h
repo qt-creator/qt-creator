@@ -53,9 +53,12 @@ public:
 private slots:
     void diff();
 
-private:
-    QString getFileContents(const QString &fileName) const;
-
+#ifdef WITH_TESTS
+    void testMakePatch_data();
+    void testMakePatch();
+    void testReadPatch_data();
+    void testReadPatch();
+#endif // WITH_TESTS
 };
 
 } // namespace Internal

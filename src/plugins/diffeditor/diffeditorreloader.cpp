@@ -27,29 +27,72 @@
 **
 ****************************************************************************/
 
-#include "diffeditor.h"
-#include "diffeditorconstants.h"
-#include "diffeditorfactory.h"
-#include "sidebysidediffeditorwidget.h"
-
-#include <QCoreApplication>
+#include "diffeditorreloader.h"
+#include "diffeditorcontroller.h"
 
 namespace DiffEditor {
 
-namespace Internal {
-
-DiffEditorFactory::DiffEditorFactory(QObject *parent)
-    : IEditorFactory(parent)
+DiffEditorReloader::DiffEditorReloader(QObject *parent)
+    : QObject(parent),
+      m_controller(0),
+      m_reloading(false)
 {
-    setId(Constants::DIFF_EDITOR_ID);
-    setDisplayName(qApp->translate("DiffEditorFactory", Constants::DIFF_EDITOR_DISPLAY_NAME));
-    addMimeType(Constants::DIFF_EDITOR_MIMETYPE);
 }
 
-Core::IEditor *DiffEditorFactory::createEditor()
+DiffEditorReloader::~DiffEditorReloader()
 {
-    return new DiffEditor();
+
 }
 
-} // namespace Internal
+DiffEditorController *DiffEditorReloader::diffEditorController() const
+{
+    return m_controller;
+}
+
+void DiffEditorReloader::setDiffEditorController(DiffEditorController *controller)
+{
+    if (m_controller) {
+        disconnect(m_controller, SIGNAL(ignoreWhitespaceChanged(bool)),
+                   this, SLOT(requestReload()));
+        disconnect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
+                   this, SLOT(requestReload()));
+        disconnect(m_controller, SIGNAL(reloadRequested()),
+                   this, SLOT(requestReload()));
+    }
+
+    m_controller = controller;
+
+    if (m_controller) {
+        connect(m_controller, SIGNAL(ignoreWhitespaceChanged(bool)),
+                this, SLOT(requestReload()));
+        connect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
+                this, SLOT(requestReload()));
+        connect(m_controller, SIGNAL(reloadRequested()),
+                this, SLOT(requestReload()));
+    }
+}
+
+void DiffEditorReloader::requestReload()
+{
+    if (m_reloading)
+        return;
+
+    if (!m_controller)
+        return;
+
+    m_reloading = true;
+
+    reload();
+}
+
+bool DiffEditorReloader::isReloading() const
+{
+    return m_reloading;
+}
+
+void DiffEditorReloader::reloadFinished()
+{
+    m_reloading = false;
+}
+
 } // namespace DiffEditor

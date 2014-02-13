@@ -15,6 +15,7 @@ QtcPlugin {
     files: [
         "diffeditor.cpp",
         "diffeditor.h",
+        "diffeditor.qrc",
         "diffeditor_global.h",
         "diffeditorconstants.h",
         "diffeditorcontroller.cpp",
@@ -29,12 +30,16 @@ QtcPlugin {
         "diffeditormanager.h",
         "diffeditorplugin.cpp",
         "diffeditorplugin.h",
+        "diffeditorreloader.cpp",
+        "diffeditorreloader.h",
         "differ.cpp",
         "differ.h",
         "diffutils.cpp",
         "diffutils.h",
         "sidebysidediffeditorwidget.cpp",
         "sidebysidediffeditorwidget.h",
+        "unifieddiffeditorwidget.cpp",
+        "unifieddiffeditorwidget.h",
     ]
 }
 

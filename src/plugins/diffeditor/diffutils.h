@@ -30,11 +30,12 @@
 #ifndef DIFFUTILS_H
 #define DIFFUTILS_H
 
+#include "diffeditor_global.h"
+
 #include <QString>
 #include <QMap>
 #include <QTextEdit>
 
-#include "diffeditorcontroller.h"
 #include "texteditor/texteditorconstants.h"
 
 namespace TextEditor { class FontSettings; }
@@ -43,9 +44,18 @@ namespace DiffEditor {
 
 class Diff;
 
-namespace Internal {
+class DIFFEDITOR_EXPORT DiffFileInfo {
+public:
+    DiffFileInfo() : devNull(false) {}
+    DiffFileInfo(const QString &file) : fileName(file), devNull(false) {}
+    DiffFileInfo(const QString &file, const QString &type)
+        : fileName(file), typeInfo(type), devNull(false) {}
+    QString fileName;
+    QString typeInfo;
+    bool devNull;
+};
 
-class TextLineData {
+class DIFFEDITOR_EXPORT TextLineData {
 public:
     enum TextLineType {
         TextLine,
@@ -66,7 +76,7 @@ public:
     QMap<int, int> changedPositions; // counting from the beginning of the line
 };
 
-class RowData {
+class DIFFEDITOR_EXPORT RowData {
 public:
     RowData() : equal(false) {}
     RowData(const TextLineData &l)
@@ -78,35 +88,55 @@ public:
     bool equal;
 };
 
-class ChunkData {
+class DIFFEDITOR_EXPORT ChunkData {
 public:
-    ChunkData() : contextChunk(false) {}
+    ChunkData() : contextChunk(false),
+        leftStartingLineNumber(0), rightStartingLineNumber(0) {}
     QList<RowData> rows;
     bool contextChunk;
+    int leftStartingLineNumber;
+    int rightStartingLineNumber;
 };
 
-class FileData {
+class DIFFEDITOR_EXPORT FileData {
 public:
-    FileData() {}
-    FileData(const ChunkData &chunkData) { chunks.append(chunkData); }
+    FileData()
+        : binaryFiles(false),
+          lastChunkAtTheEndOfFile(false),
+          contextChunksIncluded(false) {}
+    FileData(const ChunkData &chunkData)
+        : binaryFiles(false),
+          lastChunkAtTheEndOfFile(false),
+          contextChunksIncluded(false) { chunks.append(chunkData); }
     QList<ChunkData> chunks;
-    DiffEditorController::DiffFileInfo leftFileInfo;
-    DiffEditorController::DiffFileInfo rightFileInfo;
+    DiffFileInfo leftFileInfo;
+    DiffFileInfo rightFileInfo;
+    bool binaryFiles;
+    bool lastChunkAtTheEndOfFile;
+    bool contextChunksIncluded;
 };
 
-ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
-                                const QList<Diff> &rightDiffList);
-FileData calculateContextData(const ChunkData &originalData,
-                              int contextLinesNumber);
-void addChangedPositions(int positionOffset,
-                         const QMap<int, int> &originalChangedPositions,
-                         QMap<int, int> *changedPositions);
-QList<QTextEdit::ExtraSelection> colorPositions(const QTextCharFormat &format,
-        QTextCursor &cursor,
-        const QMap<int, int> &positions);
-QTextCharFormat fullWidthFormatForTextStyle(const TextEditor::FontSettings &fontSettings,
-                                            TextEditor::TextStyle textStyle);
-} // namespace Internal
+class DIFFEDITOR_EXPORT DiffUtils {
+public:
+
+    static ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
+                                           const QList<Diff> &rightDiffList);
+    static FileData calculateContextData(const ChunkData &originalData,
+                                         int contextLinesNumber,
+                                         int joinChunkThreshold = 1);
+    static QString makePatchLine(const QChar &startLineCharacter,
+                                 const QString &textLine,
+                                 bool lastChunk,
+                                 bool lastLine);
+    static QString makePatch(const ChunkData &chunkData,
+                             const QString &leftFileName,
+                             const QString &rightFileName,
+                             bool lastChunk = false);
+    static QList<FileData> readPatch(const QString &patch,
+                                     bool ignoreWhitespace,
+                                     bool *ok = 0);
+};
+
 } // namespace DiffEditor
 
 #endif // DIFFUTILS_H

@@ -35,7 +35,6 @@
 namespace Git {
 namespace Internal {
 
-const QLatin1String GitSettings::useDiffEditorKey("UseDiffEditor");
 const QLatin1String GitSettings::pullRebaseKey("PullRebase");
 const QLatin1String GitSettings::showTagsKey("ShowTags");
 const QLatin1String GitSettings::omitAnnotationDateKey("OmitAnnotationDate");
@@ -56,7 +55,6 @@ GitSettings::GitSettings()
 
     declareKey(binaryPathKey, QLatin1String("git"));
     declareKey(timeoutKey, Utils::HostOsInfo::isWindowsHost() ? 60 : 30);
-    declareKey(useDiffEditorKey, true);
     declareKey(pullRebaseKey, false);
     declareKey(showTagsKey, false);
     declareKey(omitAnnotationDateKey, false);

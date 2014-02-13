@@ -310,7 +310,7 @@ void BranchDialog::diff()
     if (fullName.isEmpty())
         return;
     // Do not pass working dir by reference since it might change
-    GitPlugin::instance()->gitClient()->diffBranch(QString(m_repository), QStringList(), fullName);
+    GitPlugin::instance()->gitClient()->diffBranch(QString(m_repository), fullName);
 }
 
 void BranchDialog::log()

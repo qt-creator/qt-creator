@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/diffeditor">
+        <file>images/reload.png</file>
+        <file>images/sidebysidediff.png</file>
+        <file>images/unifieddiff.png</file>
+        <file>images/topbar.png</file>
+    </qresource>
+</RCC>

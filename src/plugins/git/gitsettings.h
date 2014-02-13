@@ -48,7 +48,6 @@ class GitSettings : public VcsBase::VcsBaseClientSettings
 public:
     GitSettings();
 
-    static const QLatin1String useDiffEditorKey;
     static const QLatin1String pullRebaseKey;
     static const QLatin1String showTagsKey;
     static const QLatin1String omitAnnotationDateKey;

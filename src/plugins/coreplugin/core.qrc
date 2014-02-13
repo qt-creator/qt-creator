@@ -42,7 +42,6 @@
         <file>images/replace.png</file>
         <file>images/reset.png</file>
         <file>images/sidebaricon.png</file>
-        <file>images/topbaricon.png</file>
         <file>images/splitbutton_horizontal.png</file>
         <file>images/splitbutton_horizontal@2x.png</file>
         <file>images/statusbar.png</file>
@@ -89,8 +88,6 @@
         <file>images/splitbutton_vertical.png</file>
         <file>images/splitbutton_vertical@2x.png</file>
         <file>images/panel_manage_button.png</file>
-        <file>images/sidebysidediff.png</file>
-        <file>images/textdiff.png</file>
         <file>images/pause.png</file>
     </qresource>
 </RCC>

@@ -27,51 +27,54 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORGUICONTROLLER_H
-#define DIFFEDITORGUICONTROLLER_H
+#ifndef SELECTABLETEXTEDITORWIDGET_H
+#define SELECTABLETEXTEDITORWIDGET_H
 
 #include "diffeditor_global.h"
-
-#include <QObject>
+#include <texteditor/basetexteditor.h>
 
 namespace DiffEditor {
 
-class DiffEditorController;
+class DIFFEDITOR_EXPORT DiffSelection
+{
+public:
+    DiffSelection() : start(-1), end(-1), format(0) {}
+    DiffSelection(QTextCharFormat *f) : start(-1), end(-1), format(f) {}
+    DiffSelection(int s, int e, QTextCharFormat *f) : start(s), end(e), format(f) {}
 
-class DIFFEDITOR_EXPORT DiffEditorGuiController : public QObject
+    int start;
+    int end;
+    QTextCharFormat *format;
+};
+
+class DIFFEDITOR_EXPORT SelectableTextEditorWidget
+        : public TextEditor::BaseTextEditorWidget
 {
     Q_OBJECT
 public:
-    DiffEditorGuiController(DiffEditorController *controller,
-                            QObject *parent = 0);
-    ~DiffEditorGuiController();
+    SelectableTextEditorWidget(QWidget *parent = 0);
+    ~SelectableTextEditorWidget();
+    void setSelections(const QMap<int,
+                       QList<DiffSelection> > &selections) {
+        m_selections = selections;
+    }
 
-    DiffEditorController *controller() const;
-
-    bool isDescriptionVisible() const;
-    bool horizontalScrollBarSynchronization() const;
-    int currentDiffFileIndex() const;
-
-public slots:
-    void setDescriptionVisible(bool on);
-    void setHorizontalScrollBarSynchronization(bool on);
-    void setCurrentDiffFileIndex(int diffFileIndex);
-
-signals:
-    void descriptionVisibilityChanged(bool on);
-    void horizontalScrollBarSynchronizationChanged(bool on);
-    void currentDiffFileIndexChanged(int diffFileIndex);
-
-private slots:
-    void slotUpdateDiffFileIndex();
+protected:
+    virtual void paintEvent(QPaintEvent *e);
 
 private:
-    DiffEditorController *m_controller;
-    bool m_descriptionVisible;
-    bool m_syncScrollBars;
-    int m_currentDiffFileIndex;
+    void paintSelections(QPaintEvent *e);
+    void paintSelections(QPainter &painter,
+                         const QList<DiffSelection> &selections,
+                         const QTextBlock &block,
+                         int top);
+
+    // block number, list of ranges
+    // DiffSelection.start - can be -1 (continues from the previous line)
+    // DiffSelection.end - can be -1 (spans to the end of line, even after the last character in line)
+    QMap<int, QList<DiffSelection> > m_selections;
 };
 
 } // namespace DiffEditor
 
-#endif // DIFFEDITORGUICONTROLLER_H
+#endif // SELECTABLETEXTEDITORWIDGET_H

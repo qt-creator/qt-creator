@@ -31,6 +31,7 @@
 #define DIFFEDITORCONTROLLER_H
 
 #include "diffeditor_global.h"
+#include "diffutils.h"
 
 #include <QObject>
 
@@ -40,54 +41,55 @@ class DIFFEDITOR_EXPORT DiffEditorController : public QObject
 {
     Q_OBJECT
 public:
-    class DiffFileInfo {
-    public:
-        DiffFileInfo() {}
-        DiffFileInfo(const QString &file) : fileName(file) {}
-        DiffFileInfo(const QString &file, const QString &type) : fileName(file), typeInfo(type) {}
-        QString fileName;
-        QString typeInfo;
-    };
-
-    class DiffFilesContents {
-    public:
-        DiffFileInfo leftFileInfo;
-        QString leftText;
-        DiffFileInfo rightFileInfo;
-        QString rightText;
-    };
-
     DiffEditorController(QObject *parent = 0);
     ~DiffEditorController();
 
     QString clearMessage() const;
 
-    QList<DiffFilesContents> diffContents() const;
+    QList<FileData> diffFiles() const;
     QString workingDirectory() const;
     QString description() const;
     bool isDescriptionEnabled() const;
+    int contextLinesNumber() const;
+    bool isIgnoreWhitespace() const;
+
+    QString makePatch(int diffFileIndex, int chunkIndex, bool revert) const;
+
+signals:
+    void chunkActionsRequested(QMenu *menu,
+                               int diffFileIndex,
+                               int chunkIndex);
 
 public slots:
     void clear();
     void clear(const QString &message);
-    void setDiffContents(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
-                         const QString &workingDirectory = QString());
+    void setDiffFiles(const QList<FileData> &diffFileList,
+                      const QString &workingDirectory = QString());
     void setDescription(const QString &description);
     void setDescriptionEnabled(bool on);
+    void setContextLinesNumber(int lines);
+    void setIgnoreWhitespace(bool ignore);
+    void requestReload();
 
 signals:
     void cleared(const QString &message);
-    void diffContentsChanged(const QList<DiffEditorController::DiffFilesContents> &diffFileList, const QString &workingDirectory);
+    void diffFilesChanged(const QList<FileData> &diffFileList,
+                          const QString &workingDirectory);
     void descriptionChanged(const QString &description);
     void descriptionEnablementChanged(bool on);
+    void contextLinesNumberChanged(int lines);
+    void ignoreWhitespaceChanged(bool ignore);
+    void reloadRequested();
 
 private:
     QString m_clearMessage;
 
-    QList<DiffFilesContents> m_diffFileList;
+    QList<FileData> m_diffFiles;
     QString m_workingDirectory;
     QString m_description;
     bool m_descriptionEnabled;
+    int m_contextLinesNumber;
+    bool m_ignoreWhitespace;
 };
 
 } // namespace DiffEditor

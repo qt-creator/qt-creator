@@ -30,19 +30,35 @@
 #include "diffeditorguicontroller.h"
 #include "diffeditorcontroller.h"
 
+#include <coreplugin/icore.h>
+
+static const char settingsGroupC[] = "DiffEditor";
+static const char descriptionVisibleKeyC[] = "DescriptionVisible";
+static const char horizontalScrollBarSynchronizationKeyC[] =
+        "HorizontalScrollBarSynchronization";
+
 namespace DiffEditor {
 
-DiffEditorGuiController::DiffEditorGuiController(DiffEditorController *controller, QObject *parent)
+DiffEditorGuiController::DiffEditorGuiController(
+        DiffEditorController *controller,
+        QObject *parent)
     : QObject(parent),
       m_controller(controller),
       m_descriptionVisible(true),
-      m_contextLinesNumber(3),
-      m_ignoreWhitespaces(true),
       m_syncScrollBars(true),
       m_currentDiffFileIndex(-1)
 {
-    connect(m_controller, SIGNAL(cleared(QString)), this, SLOT(slotUpdateDiffFileIndex()));
-    connect(m_controller, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),
+    QSettings *s = Core::ICore::settings();
+    s->beginGroup(QLatin1String(settingsGroupC));
+    m_descriptionVisible = s->value(QLatin1String(descriptionVisibleKeyC),
+                                    m_descriptionVisible).toBool();
+    m_syncScrollBars = s->value(QLatin1String(horizontalScrollBarSynchronizationKeyC),
+                                m_syncScrollBars).toBool();
+    s->endGroup();
+
+    connect(m_controller, SIGNAL(cleared(QString)),
+            this, SLOT(slotUpdateDiffFileIndex()));
+    connect(m_controller, SIGNAL(diffFilesChanged(QList<FileData>,QString)),
             this, SLOT(slotUpdateDiffFileIndex()));
     slotUpdateDiffFileIndex();
 }
@@ -62,16 +78,6 @@ bool DiffEditorGuiController::isDescriptionVisible() const
     return m_descriptionVisible;
 }
 
-int DiffEditorGuiController::contextLinesNumber() const
-{
-    return m_contextLinesNumber;
-}
-
-bool DiffEditorGuiController::isIgnoreWhitespaces() const
-{
-    return m_ignoreWhitespaces;
-}
-
 bool DiffEditorGuiController::horizontalScrollBarSynchronization() const
 {
     return m_syncScrollBars;
@@ -84,7 +90,7 @@ int DiffEditorGuiController::currentDiffFileIndex() const
 
 void DiffEditorGuiController::slotUpdateDiffFileIndex()
 {
-    m_currentDiffFileIndex = (m_controller->diffContents().isEmpty() ? -1 : 0);
+    m_currentDiffFileIndex = (m_controller->diffFiles().isEmpty() ? -1 : 0);
 }
 
 void DiffEditorGuiController::setDescriptionVisible(bool on)
@@ -93,26 +99,13 @@ void DiffEditorGuiController::setDescriptionVisible(bool on)
         return;
 
     m_descriptionVisible = on;
+
+    QSettings *s = Core::ICore::settings();
+    s->beginGroup(QLatin1String(settingsGroupC));
+    s->setValue(QLatin1String(descriptionVisibleKeyC), m_descriptionVisible);
+    s->endGroup();
+
     emit descriptionVisibilityChanged(on);
-}
-
-void DiffEditorGuiController::setContextLinesNumber(int lines)
-{
-    const int l = qMax(lines, -1);
-    if (m_contextLinesNumber == l)
-        return;
-
-    m_contextLinesNumber = l;
-    emit contextLinesNumberChanged(l);
-}
-
-void DiffEditorGuiController::setIgnoreWhitespaces(bool ignore)
-{
-    if (m_ignoreWhitespaces == ignore)
-        return;
-
-    m_ignoreWhitespaces = ignore;
-    emit ignoreWhitespacesChanged(ignore);
 }
 
 void DiffEditorGuiController::setHorizontalScrollBarSynchronization(bool on)
@@ -121,15 +114,23 @@ void DiffEditorGuiController::setHorizontalScrollBarSynchronization(bool on)
         return;
 
     m_syncScrollBars = on;
+
+    QSettings *s = Core::ICore::settings();
+    s->beginGroup(QLatin1String(settingsGroupC));
+    s->setValue(QLatin1String(horizontalScrollBarSynchronizationKeyC),
+                m_syncScrollBars);
+    s->endGroup();
+
     emit horizontalScrollBarSynchronizationChanged(on);
 }
 
 void DiffEditorGuiController::setCurrentDiffFileIndex(int diffFileIndex)
 {
-    if (m_controller->diffContents().isEmpty())
+    if (m_controller->diffFiles().isEmpty())
         return; // -1 is the only valid value in this case
 
-    const int newIndex = qBound(0, diffFileIndex, m_controller->diffContents().count() - 1);
+    const int newIndex = qBound(0, diffFileIndex,
+                                m_controller->diffFiles().count() - 1);
 
     if (m_currentDiffFileIndex == newIndex)
         return;

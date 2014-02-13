@@ -27,38 +27,50 @@
 **
 ****************************************************************************/
 
-#ifndef SIDEBYSIDEDIFFEDITORWIDGET_H
-#define SIDEBYSIDEDIFFEDITORWIDGET_H
+#ifndef UNIFIEDDIFFEDITORWIDGET_H
+#define UNIFIEDDIFFEDITORWIDGET_H
 
 #include "diffeditor_global.h"
 #include "differ.h"
 #include "diffeditorcontroller.h"
-#include <QWidget>
-#include <QTextCharFormat>
+#include "selectabletexteditorwidget.h"
 
-namespace TextEditor { class FontSettings; }
+namespace TextEditor {
+class DisplaySettings;
+class FontSettings;
+}
 
 QT_BEGIN_NAMESPACE
 class QSplitter;
-class QMenu;
+class QTextCharFormat;
 QT_END_NAMESPACE
 
-
 namespace DiffEditor {
+
 class DiffEditorGuiController;
-class SideDiffEditorWidget;
 class ChunkData;
 class FileData;
 
-class DIFFEDITOR_EXPORT SideBySideDiffEditorWidget : public QWidget
+class DIFFEDITOR_EXPORT UnifiedDiffEditorWidget
+        : public SelectableTextEditorWidget
 {
     Q_OBJECT
 public:
-    SideBySideDiffEditorWidget(QWidget *parent = 0);
-    ~SideBySideDiffEditorWidget();
+    UnifiedDiffEditorWidget(QWidget *parent = 0);
+    ~UnifiedDiffEditorWidget();
 
     void setDiffEditorGuiController(DiffEditorGuiController *controller);
     DiffEditorGuiController *diffEditorGuiController() const;
+
+public slots:
+    void setDisplaySettings(const TextEditor::DisplaySettings &ds);
+
+protected:
+    void mouseDoubleClickEvent(QMouseEvent *e);
+    void contextMenuEvent(QContextMenuEvent *e);
+    TextEditor::BaseTextEditor *createEditor();
+    QString lineNumber(int blockNumber) const;
+    int lineNumberDigits() const;
 
 private slots:
     void clear(const QString &message = QString());
@@ -69,55 +81,66 @@ private slots:
     void setCurrentDiffFileIndex(int diffFileIndex);
 
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
-    void slotLeftJumpToOriginalFileRequested(int diffFileIndex,
-                                             int lineNumber, int columnNumber);
-    void slotRightJumpToOriginalFileRequested(int diffFileIndex,
-                                              int lineNumber, int columnNumber);
-    void slotLeftContextMenuRequested(QMenu *menu, int diffFileIndex,
-                                      int chunkIndex);
-    void slotRightContextMenuRequested(QMenu *menu, int diffFileIndex,
-                                       int chunkIndex);
+
+    void slotCursorPositionChangedInEditor();
+
     void slotSendChunkToCodePaster();
     void slotApplyChunk();
     void slotRevertChunk();
-    void leftVSliderChanged();
-    void rightVSliderChanged();
-    void leftHSliderChanged();
-    void rightHSliderChanged();
-    void leftCursorPositionChanged();
-    void rightCursorPositionChanged();
-//    void leftDocumentSizeChanged();
-//    void rightDocumentSizeChanged();
 
 private:
+    void setLeftLineNumber(int blockNumber, int lineNumber);
+    void setRightLineNumber(int blockNumber, int lineNumber);
+    void setFileInfo(int blockNumber,
+                     const DiffFileInfo &leftFileInfo,
+                     const DiffFileInfo &rightFileInfo);
+    void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
     void showDiff();
-//    void synchronizeFoldings(SideDiffEditorWidget *source, SideDiffEditorWidget *destination);
+    QString showChunk(const ChunkData &chunkData,
+                      bool lastChunk,
+                      int *blockNumber,
+                      int *charNumber,
+                      QMap<int, QList<DiffSelection> > *selections);
+    int blockNumberForFileIndex(int fileIndex) const;
+    int fileIndexForBlockNumber(int blockNumber) const;
+    int chunkIndexForBlockNumber(int blockNumber) const;
+    void jumpToOriginalFile(const QTextCursor &cursor);
     void jumpToOriginalFile(const QString &fileName,
-                            int lineNumber, int columnNumber);
+                            int lineNumber,
+                            int columnNumber);
+    void addContextMenuActions(QMenu *menu,
+                               int diffFileIndex,
+                               int chunkIndex);
     void patch(int diffFileIndex, int chunkIndex, bool revert);
 
     DiffEditorGuiController *m_guiController;
     DiffEditorController *m_controller;
-    SideDiffEditorWidget *m_leftEditor;
-    SideDiffEditorWidget *m_rightEditor;
-    QSplitter *m_splitter;
 
-    QList<FileData> m_contextFileData; // ultimate data to be shown, contextLinesNumber taken into account
-
+    // block number, visual line number.
+    QMap<int, int> m_leftLineNumbers;
+    QMap<int, int> m_rightLineNumbers;
     bool m_ignoreCurrentIndexChange;
-    bool m_foldingBlocker;
     int m_contextMenuFileIndex;
     int m_contextMenuChunkIndex;
 
-    QTextCharFormat m_spanLineFormat;
+    int m_leftLineNumberDigits;
+    int m_rightLineNumberDigits;
+    // block number, visual line number.
+    QMap<int, QPair<DiffFileInfo, DiffFileInfo> > m_fileInfo;
+    // start block number, block count of a chunk, chunk index inside a file.
+    QMap<int, QPair<int, int> > m_chunkInfo;
+
+    QList<FileData> m_contextFileData; // ultimate data to be shown
+                                       // contextLinesNumber taken into account
+
     QTextCharFormat m_fileLineFormat;
     QTextCharFormat m_chunkLineFormat;
     QTextCharFormat m_leftLineFormat;
-    QTextCharFormat m_leftCharFormat;
     QTextCharFormat m_rightLineFormat;
+    QTextCharFormat m_leftCharFormat;
     QTextCharFormat m_rightCharFormat;
 };
 
 } // namespace DiffEditor
 
-#endif // SIDEBYSIDEDIFFEDITORWIDGET_H
+#endif // UNIFIEDDIFFEDITORWIDGET_H

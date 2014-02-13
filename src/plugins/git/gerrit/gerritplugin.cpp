@@ -246,7 +246,7 @@ void FetchContext::show()
 {
     const QString title = QString::number(m_change->number) + QLatin1Char('/')
             + QString::number(m_change->currentPatchSet.patchSetNumber);
-    gitClient()->show(m_repository, QLatin1String("FETCH_HEAD"), QStringList(), title);
+    gitClient()->show(m_repository, QLatin1String("FETCH_HEAD"), title);
 }
 
 void FetchContext::cherryPick()

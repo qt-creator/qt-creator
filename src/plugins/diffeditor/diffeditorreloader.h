@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITORGUICONTROLLER_H
-#define DIFFEDITORGUICONTROLLER_H
+#ifndef DIFFEDITORRELOADER_H
+#define DIFFEDITORRELOADER_H
 
 #include "diffeditor_global.h"
 
@@ -38,40 +38,35 @@ namespace DiffEditor {
 
 class DiffEditorController;
 
-class DIFFEDITOR_EXPORT DiffEditorGuiController : public QObject
+class DIFFEDITOR_EXPORT DiffEditorReloader : public QObject
 {
     Q_OBJECT
 public:
-    DiffEditorGuiController(DiffEditorController *controller,
-                            QObject *parent = 0);
-    ~DiffEditorGuiController();
+    DiffEditorReloader(QObject *parent = 0);
+    ~DiffEditorReloader();
 
-    DiffEditorController *controller() const;
+    DiffEditorController *diffEditorController() const;
+    void setDiffEditorController(DiffEditorController *controller);
 
-    bool isDescriptionVisible() const;
-    bool horizontalScrollBarSynchronization() const;
-    int currentDiffFileIndex() const;
+    bool isReloading() const;
 
-public slots:
-    void setDescriptionVisible(bool on);
-    void setHorizontalScrollBarSynchronization(bool on);
-    void setCurrentDiffFileIndex(int diffFileIndex);
+protected:
+    // reloadFinished() should be called
+    // inside reload() (for synchronous reload)
+    // or later (for asynchronous reload)
+    virtual void reload() = 0;
 
-signals:
-    void descriptionVisibilityChanged(bool on);
-    void horizontalScrollBarSynchronizationChanged(bool on);
-    void currentDiffFileIndexChanged(int diffFileIndex);
+protected slots:
+    void reloadFinished();
 
 private slots:
-    void slotUpdateDiffFileIndex();
+    void requestReload();
 
 private:
     DiffEditorController *m_controller;
-    bool m_descriptionVisible;
-    bool m_syncScrollBars;
-    int m_currentDiffFileIndex;
+    bool m_reloading;
 };
 
 } // namespace DiffEditor
 
-#endif // DIFFEDITORGUICONTROLLER_H
+#endif // DIFFEDITORRELOADER_H

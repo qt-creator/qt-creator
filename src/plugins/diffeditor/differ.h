@@ -88,6 +88,10 @@ public:
                                           const QString &rightInput,
                                           QList<Diff> *leftOutput,
                                           QList<Diff> *rightOutput);
+    static void ignoreWhitespaceBetweenEqualities(const QList<Diff> &leftInput,
+                                      const QList<Diff> &rightInput,
+                                      QList<Diff> *leftOutput,
+                                      QList<Diff> *rightOutput);
     static void diffBetweenEqualities(const QList<Diff> &leftInput,
                                       const QList<Diff> &rightInput,
                                       QList<Diff> *leftOutput,

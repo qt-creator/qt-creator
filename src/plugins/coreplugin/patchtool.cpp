@@ -93,7 +93,9 @@ bool PatchTool::runPatch(const QByteArray &input, const QString &workingDirector
     QProcess patchProcess;
     if (!workingDirectory.isEmpty())
         patchProcess.setWorkingDirectory(workingDirectory);
-    QStringList args(QLatin1String("-p") + QString::number(strip));
+    QStringList args;
+    if (strip >= 0)
+        args << (QLatin1String("-p") + QString::number(strip));
     if (reverse)
         args << QLatin1String("-R");
     MessageManager::write(QApplication::translate("Core::PatchTool", "Executing in %1: %2 %3").

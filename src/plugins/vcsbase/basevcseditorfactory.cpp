@@ -33,6 +33,8 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <diffeditor/diffeditorconstants.h>
+
 #include <QCoreApplication>
 #include <QStringList>
 
@@ -67,7 +69,8 @@ BaseVcsEditorFactory::BaseVcsEditorFactory(const VcsBaseEditorParameters *t,
     d->m_describeSlot = describeSlot;
     setId(t->id);
     setDisplayName(QCoreApplication::translate("VCS", t->displayName));
-    addMimeType(t->mimeType);
+    if (QLatin1String(t->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
+        addMimeType(t->mimeType);
     new TextEditor::TextEditorActionHandler(this, t->context);
 }
 
@@ -84,7 +87,8 @@ Core::IEditor *BaseVcsEditorFactory::createEditor()
     if (d->m_describeReceiver)
         connect(vcsEditor, SIGNAL(describeRequested(QString,QString)), d->m_describeReceiver, d->m_describeSlot);
 
-    vcsEditor->baseTextDocument()->setMimeType(mimeTypes().front());
+    if (!mimeTypes().isEmpty())
+        vcsEditor->baseTextDocument()->setMimeType(mimeTypes().front());
 
     TextEditor::TextEditorSettings::initializeEditor(vcsEditor);
     return vcsEditor->editor();

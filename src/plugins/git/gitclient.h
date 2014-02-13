@@ -45,6 +45,7 @@ class QCheckBox;
 class QSignalMapper;
 class QDebug;
 class QProcessEnvironment;
+class QMenu;
 QT_END_NAMESPACE
 
 namespace Core { class ICore; }
@@ -58,7 +59,10 @@ namespace VcsBase {
 
 namespace Utils { struct SynchronousProcessResponse; }
 
-namespace DiffEditor { class DiffEditorDocument; }
+namespace DiffEditor {
+class DiffEditorDocument;
+class DiffEditorController;
+}
 
 namespace Git {
 namespace Internal {
@@ -141,7 +145,6 @@ public:
               const QStringList &unstagedFileNames,
               const QStringList &stagedFileNames = QStringList());
     void diffBranch(const QString &workingDirectory,
-                    const QStringList &diffArgs,
                     const QString &branchName);
     void merge(const QString &workingDirectory, const QStringList &unmergedFileNames = QStringList());
 
@@ -332,7 +335,6 @@ public:
 public slots:
     void show(const QString &source,
               const QString &id,
-              const QStringList &args = QStringList(),
               const QString &name = QString());
     void saveSettings();
 
@@ -341,8 +343,13 @@ private slots:
                                     QString change, int lineNumber);
     void finishSubmoduleUpdate();
     void fetchFinished(const QVariant &cookie);
+    void slotChunkActionsRequested(QMenu *menu, int diffFileIndex, int chunkIndex);
+    void slotStageChunk();
+    void slotUnstageChunk();
 
 private:
+    QString makePatch(int diffFileIndex, int chunkIndex, bool revert) const;
+    void stage(const QString &patch, bool revert);
     QByteArray readConfigBytes(const QString &workingDirectory, const QString &configVar) const;
     QTextCodec *getSourceCodec(const QString &file) const;
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
@@ -421,6 +428,9 @@ private:
     QMap<QString, StashInfo> m_stashInfo;
     QStringList m_updatedSubmodules;
     bool m_disableEditor;
+    int m_contextDiffFileIndex;
+    int m_contextChunkIndex;
+    QPointer<DiffEditor::DiffEditorController> m_contextDocument;
 };
 
 } // namespace Internal
