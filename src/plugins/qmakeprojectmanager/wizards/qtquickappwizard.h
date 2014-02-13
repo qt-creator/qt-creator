@@ -47,13 +47,12 @@ protected:
     QString fileToOpenPostGeneration() const;
 
 private:
-    virtual AbstractMobileApp *app() const;
-    virtual AbstractMobileAppWizardDialog *wizardDialog() const;
-    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent,
-                                                                      const Core::WizardDialogParameters &baseParameters) const;
-    virtual void projectPathChanged(const QString &path) const;
-    virtual void prepareGenerateFiles(const QWizard *wizard,
-        QString *errorMessage) const;
+    AbstractMobileApp *app() const;
+    AbstractMobileAppWizardDialog *wizardDialog() const;
+    AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent,
+                                                              const Core::WizardDialogParameters &baseParameters) const;
+    void projectPathChanged(const QString &path) const;
+    void prepareGenerateFiles(const QWizard *wizard, QString *errorMessage) const;
 
     class QtQuickAppWizardPrivate *d;
 };

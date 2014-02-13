@@ -108,10 +108,8 @@ class CORE_EXPORT BaseFileWizard : public IWizard
     Q_OBJECT
 
 public:
-    virtual ~BaseFileWizard();
-
     // IWizard
-    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
+    void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
 
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
     static void applyExtensionPageShortTitle(Utils::Wizard *wizard, int pageId);
@@ -119,8 +117,6 @@ public:
 protected:
     typedef QList<QWizardPage *> WizardPageList;
     typedef QList<Core::IFileWizardExtension*> ExtensionList;
-
-    explicit BaseFileWizard(QObject *parent = 0);
 
     virtual ExtensionList selectExtensions();
 
@@ -147,9 +143,8 @@ class CORE_EXPORT StandardFileWizard : public BaseFileWizard
     Q_OBJECT
 
 protected:
-    explicit StandardFileWizard(QObject *parent = 0);
-    virtual QWizard *createWizardDialog(QWidget *parent, const WizardDialogParameters &wizardDialogParameters) const;
-    virtual GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
+    QWizard *createWizardDialog(QWidget *parent, const WizardDialogParameters &wizardDialogParameters) const;
+    GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
     virtual GeneratedFiles generateFilesFromPath(const QString &path, const QString &name,
                                                  QString *errorMessage) const = 0;
 };

@@ -54,7 +54,6 @@ private:
     static bool parametrizeTemplate(const QString &templatePath, const QString &templateName,
                                     const GuiAppParameters &params,
                                     QString *target, QString *errorMessage);
-
 };
 
 } // namespace Internal

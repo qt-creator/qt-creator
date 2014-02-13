@@ -55,10 +55,6 @@ FileWizard::FileWizard()
     setDescription(FileWizard::tr(Constants::EN_PY_SOURCE_DESCRIPTION));
 }
 
-FileWizard::~FileWizard()
-{
-}
-
 /**
  * @brief FileWizard::createWizardDialog
  * @param parent

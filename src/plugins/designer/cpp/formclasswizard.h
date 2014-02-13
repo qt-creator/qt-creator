@@ -52,8 +52,7 @@ private:
     QWizard *createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
-    Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 };
 
 } // namespace Internal

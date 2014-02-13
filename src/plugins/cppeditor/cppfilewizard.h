@@ -42,7 +42,7 @@ class CppFileWizard : public Core::StandardFileWizard
     Q_OBJECT
 
 public:
-    CppFileWizard(FileType type);
+    explicit CppFileWizard(FileType type);
 
 private:
     QString fileContents(FileType type, const QString &baseName) const;

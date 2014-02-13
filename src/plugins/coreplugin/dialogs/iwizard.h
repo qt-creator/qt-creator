@@ -74,8 +74,7 @@ public:
         QString descriptionImage;
     };
 
-    IWizard(QObject *parent = 0) : QObject(parent) {}
-    ~IWizard() {}
+    IWizard() { }
 
     QString id() const { return m_data.id; }
     WizardKind kind() const { return m_data.kind; }

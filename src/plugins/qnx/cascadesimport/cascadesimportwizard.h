@@ -63,8 +63,7 @@ class CascadesImportWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
 public:
-    CascadesImportWizard(QObject *parent = 0);
-    virtual ~CascadesImportWizard();
+    CascadesImportWizard();
 
 protected:
     ExtensionList selectExtensions();

@@ -45,9 +45,8 @@ public:
                    const QString &suggestedFileName);
 
 protected:
-    virtual Core::GeneratedFiles
-        generateFilesFromPath(const QString &path, const QString &name,
-                              QString *errorMessage) const;
+    Core::GeneratedFiles generateFilesFromPath(const QString &path, const QString &name,
+                                               QString *errorMessage) const;
 private:
     const QString m_mimeType;
     const QString m_suggestedFileName;

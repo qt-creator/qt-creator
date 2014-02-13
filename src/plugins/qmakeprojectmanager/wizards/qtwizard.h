@@ -95,8 +95,8 @@ public:
 
 private:
     QWizard *createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
-    virtual bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage);
+                                const Core::WizardDialogParameters &wizardDialogParameters) const;
+    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage);
 
 private:
     enum { targetPageId = 1 };
@@ -120,7 +120,7 @@ protected:
 public:
     explicit BaseQmakeProjectWizardDialog(bool showModulesPage, QWidget *parent,
                                         const Core::WizardDialogParameters &parameters);
-    virtual ~BaseQmakeProjectWizardDialog();
+    ~BaseQmakeProjectWizardDialog();
 
     int addModulesPage(int id = -1);
     int addTargetSetupPage(int id = -1);

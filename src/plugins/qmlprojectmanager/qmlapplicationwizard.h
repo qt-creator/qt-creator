@@ -61,7 +61,7 @@ class QmlApplicationWizard : public Core::BaseFileWizard
     Q_OBJECT
 
 public:
-    explicit QmlApplicationWizard();
+    QmlApplicationWizard();
 
     static void createInstances(ExtensionSystem::IPlugin *plugin);
 

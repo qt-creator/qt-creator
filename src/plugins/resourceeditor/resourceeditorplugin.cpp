@@ -51,17 +51,9 @@
 using namespace ResourceEditor::Internal;
 
 ResourceEditorPlugin::ResourceEditorPlugin() :
-    m_wizard(0),
-    m_editor(0),
     m_redoAction(0),
     m_undoAction(0)
 {
-}
-
-ResourceEditorPlugin::~ResourceEditorPlugin()
-{
-    removeObject(m_editor);
-    removeObject(m_wizard);
 }
 
 bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -70,17 +62,17 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/resourceeditor/ResourceEditor.mimetypes.xml"), errorMessage))
         return false;
 
-    m_editor = new ResourceEditorFactory(this);
-    addObject(m_editor);
+    ResourceEditorFactory *editor = new ResourceEditorFactory(this);
+    addAutoReleasedObject(editor);
 
-    m_wizard = new ResourceWizard(this);
-    m_wizard->setDescription(tr("Creates a Qt Resource file (.qrc) that you can add to a Qt Widget Project."));
-    m_wizard->setDisplayName(tr("Qt Resource file"));
-    m_wizard->setId(QLatin1String("F.Resource"));
-    m_wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    m_wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
+    ResourceWizard *wizard = new ResourceWizard;
+    wizard->setDescription(tr("Creates a Qt Resource file (.qrc) that you can add to a Qt Widget Project."));
+    wizard->setDisplayName(tr("Qt Resource file"));
+    wizard->setId(QLatin1String("F.Resource"));
+    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
 
-    addObject(m_wizard);
+    addAutoReleasedObject(wizard);
 
     errorMessage->clear();
 

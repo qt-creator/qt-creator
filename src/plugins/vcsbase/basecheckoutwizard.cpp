@@ -84,8 +84,7 @@ void BaseCheckoutWizardPrivate::clear()
 
 } // namespace Internal
 
-BaseCheckoutWizard::BaseCheckoutWizard(QObject *parent) :
-    Core::IWizard(parent),
+BaseCheckoutWizard::BaseCheckoutWizard() :
     d(new Internal::BaseCheckoutWizardPrivate)
 {
     setWizardKind(IWizard::ProjectWizard);

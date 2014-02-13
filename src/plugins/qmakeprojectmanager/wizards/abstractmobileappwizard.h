@@ -72,8 +72,6 @@ private:
 class QMAKEPROJECTMANAGER_EXPORT AbstractMobileAppWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
-protected:
-    explicit AbstractMobileAppWizard(QObject *parent = 0);
 
 private slots:
     void useProjectPath(const QString &projectName, const QString &projectPath);
@@ -82,20 +80,17 @@ protected:
     virtual QString fileToOpenPostGeneration() const = 0;
 
 private:
-    virtual QWizard *createWizardDialog(QWidget *parent,
-        const Core::WizardDialogParameters &wizardDialogParameters) const;
-    virtual Core::GeneratedFiles generateFiles(const QWizard *wizard,
-        QString *errorMessage) const;
-    virtual bool postGenerateFiles(const QWizard *w,
-        const Core::GeneratedFiles &l, QString *errorMessage);
+    QWizard *createWizardDialog(QWidget *parent,
+                                const Core::WizardDialogParameters &wizardDialogParameters) const;
+    Core::GeneratedFiles generateFiles(const QWizard *wizard, QString *errorMessage) const;
+    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
     virtual AbstractMobileApp *app() const = 0;
     virtual AbstractMobileAppWizardDialog *wizardDialog() const = 0;
     virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent,
                                                                       const Core::WizardDialogParameters &wizardDialogParameters) const = 0;
     virtual void projectPathChanged(const QString &path) const = 0;
-    virtual void prepareGenerateFiles(const QWizard *wizard,
-        QString *errorMessage) const = 0;
+    virtual void prepareGenerateFiles(const QWizard *wizard, QString *errorMessage) const = 0;
 };
 
 } // namespace QmakeProjectManager

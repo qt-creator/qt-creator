@@ -97,11 +97,6 @@ int AbstractMobileAppWizardDialog::addPageWithTitle(QWizardPage *page, const QSt
     return pageId;
 }
 
-
-AbstractMobileAppWizard::AbstractMobileAppWizard(QObject *parent)
-    : Core::BaseFileWizard(parent)
-{ }
-
 QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,
                                                      const Core::WizardDialogParameters &wizardDialogParameters) const
 {

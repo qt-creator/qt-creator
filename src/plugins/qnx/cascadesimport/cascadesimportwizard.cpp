@@ -111,8 +111,7 @@ void CascadesImportWizardDialog::onSrcProjectPathChanged(const QString &path)
 //////////////////////////////////////////////////////////////////////////////
 static const char IMPORT_LOG_FILE_NAME[] = "import.log";
 
-CascadesImportWizard::CascadesImportWizard(QObject *parent)
-: Core::BaseFileWizard(parent)
+CascadesImportWizard::CascadesImportWizard()
 {
     setWizardKind(ProjectWizard);
     setIcon(QPixmap(QLatin1String(Qnx::Constants::QNX_BB_CATEGORY_ICON)));
@@ -123,10 +122,6 @@ CascadesImportWizard::CascadesImportWizard(QObject *parent)
                       "This allows you to use the project in Qt Creator."));
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
-}
-
-CascadesImportWizard::~CascadesImportWizard()
-{
 }
 
 Core::BaseFileWizard::ExtensionList CascadesImportWizard::selectExtensions()

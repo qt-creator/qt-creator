@@ -78,14 +78,14 @@ public:
     typedef QSharedPointer<ICustomWizardFactory> ICustomWizardFactoryPtr;
 
     CustomWizard();
-    virtual ~CustomWizard();
+    ~CustomWizard();
 
     // Can be reimplemented to create custom wizards. initWizardDialog() needs to be
     // called.
-    virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
+    QWizard *createWizardDialog(QWidget *parent,
+                                const Core::WizardDialogParameters &wizardDialogParameters) const;
 
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 
     // Register a factory for a derived custom widget
     static void registerFactory(const QString &name, const ICustomWizardFactoryPtr &f);
@@ -110,7 +110,7 @@ protected:
     Core::GeneratedFiles generateWizardFiles(QString *errorMessage) const;
     // Create replacement map as static base fields + QWizard fields
     FieldReplacementMap replacementMap(const QWizard *w) const;
-    virtual bool writeFiles(const Core::GeneratedFiles &files, QString *errorMessage);
+    bool writeFiles(const Core::GeneratedFiles &files, QString *errorMessage);
 
     CustomWizardParametersPtr parameters() const;
     CustomWizardContextPtr context() const;
@@ -144,7 +144,7 @@ signals:
     void projectLocationChanged(const QString &path);
 
 protected:
-    virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
+    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
     void initProjectWizardDialog(BaseProjectWizardDialog *w, const QString &defaultPath,
                                  const WizardPageList &extensionPages) const;

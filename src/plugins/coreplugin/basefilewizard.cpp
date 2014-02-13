@@ -175,17 +175,6 @@ void WizardEventLoop::rejected()
     \sa Core::Internal::WizardEventLoop
 */
 
-
-BaseFileWizard::BaseFileWizard(QObject *parent) :
-    IWizard(parent)
-{
-}
-
-
-BaseFileWizard::~BaseFileWizard()
-{
-}
-
 BaseFileWizard::ExtensionList BaseFileWizard::selectExtensions()
 {
     return ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
@@ -531,11 +520,6 @@ QString BaseFileWizard::preferredSuffix(const QString &mimeType)
                                                                              QString *errorMessage) const = 0
     Creates the files with the \a name under the \a path.
 */
-
-StandardFileWizard::StandardFileWizard(QObject *parent) :
-    BaseFileWizard(parent)
-{
-}
 
 /*!
     Creates a Utils::FileWizardDialog.

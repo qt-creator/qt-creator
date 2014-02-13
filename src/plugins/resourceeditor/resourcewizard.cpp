@@ -34,11 +34,6 @@
 using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
-ResourceWizard::ResourceWizard(QObject *parent)
-  : Core::StandardFileWizard(parent)
-{
-}
-
 Core::GeneratedFiles
 ResourceWizard::generateFilesFromPath(const QString &path,
                                       const QString &name,

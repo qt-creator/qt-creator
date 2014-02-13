@@ -50,7 +50,7 @@ class VCSBASE_EXPORT BaseCheckoutWizard : public Core::IWizard
     Q_OBJECT
 
 public:
-    explicit BaseCheckoutWizard(QObject *parent = 0);
+    BaseCheckoutWizard();
     ~BaseCheckoutWizard();
 
     void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);

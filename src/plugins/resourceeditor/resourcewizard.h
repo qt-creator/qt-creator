@@ -39,13 +39,9 @@ class ResourceWizard : public Core::StandardFileWizard
 {
     Q_OBJECT
 
-public:
-    explicit ResourceWizard(QObject *parent);
-
 protected:
-    virtual Core::GeneratedFiles
-        generateFilesFromPath(const QString &path, const QString &name,
-                              QString *errorMessage) const;
+    Core::GeneratedFiles generateFilesFromPath(const QString &path, const QString &name,
+                                               QString *errorMessage) const;
 };
 
 } // namespace Internal

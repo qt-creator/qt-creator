@@ -40,14 +40,12 @@ class FileWizard : public Core::BaseFileWizard
 
 public:
     FileWizard();
-    ~FileWizard();
 
 protected:
     QWizard *createWizardDialog(QWidget *parent,
             const Core::WizardDialogParameters &params) const;
 
-    Core::GeneratedFiles generateFiles( const QWizard *dialog,
-            QString *errorMessage) const;
+    Core::GeneratedFiles generateFiles( const QWizard *dialog, QString *errorMessage) const;
 };
 
 } // namespace PythonEditor

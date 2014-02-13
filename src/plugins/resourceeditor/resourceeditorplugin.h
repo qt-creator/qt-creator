@@ -50,7 +50,6 @@ class ResourceEditorPlugin : public ExtensionSystem::IPlugin
 
 public:
     ResourceEditorPlugin();
-    virtual ~ResourceEditorPlugin();
 
     // IPlugin
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);
@@ -68,8 +67,6 @@ private:
     ResourceEditorW * currentEditor() const;
 
 private:
-    ResourceWizard *m_wizard;
-    ResourceEditorFactory *m_editor;
     QAction *m_redoAction;
     QAction *m_undoAction;
     QAction *m_refreshAction;
