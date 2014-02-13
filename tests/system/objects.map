@@ -14,10 +14,10 @@
 :*Qt Creator.Run_Core::Internal::FancyToolButton	{text='Run' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{text='Start Debugging' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Widget Box_QDockWidget	{name='WidgetBoxDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Widget Box'}
-:*Qt Creator.findEdit_Utils::FilterLineEdit	{name='findEdit' type='Utils::FilterLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.findEdit_Utils::FilterLineEdit	{name='findEdit' type='Utils::FancyLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Core::Internal::FancyToolButton	{occurrence='3' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Help::Internal::HelpViewer	{type='Help::Internal::HelpViewer' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator_Utils::FilterLineEdit	{type='Utils::FilterLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator_Utils::FilterLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::IconButton	{occurrence='4' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :About Qt Creator_Core::Internal::VersionDialog	{type='Core::Internal::VersionDialog' unnamed='1' visible='1' windowTitle='About Qt Creator'}
 :Add Bookmark.ExpandBookmarksList_QToolButton	{name='toolButton' text='+' type='QToolButton' visible='1' window=':Add Bookmark_BookmarkDialog'}
@@ -137,7 +137,7 @@
 :Qt Creator.Replace_QToolButton	{name='replaceButton' text='Replace' type='QToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Search for:_QLabel	{text='Search for:' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Stop_QToolButton	{text='Stop' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator.replaceEdit_Utils::FilterLineEdit	{name='replaceEdit' type='Utils::FilterLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.replaceEdit_Utils::FilterLineEdit	{name='replaceEdit' type='Utils::FancyLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.splitter_QSplitter	{name='splitter' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton	{occurrence='3' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
