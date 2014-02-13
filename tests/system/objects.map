@@ -6,7 +6,7 @@
 :*Qt Creator.DoubleTabWidget_ProjectExplorer::Internal::DoubleTabWidget	{name='ProjectExplorer__Internal__DoubleTabWidget' type='ProjectExplorer::Internal::DoubleTabWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='DoubleTabWidget'}
 :*Qt Creator.Events_QDockWidget	{name='QmlProfilerEventsViewDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Events'}
 :*Qt Creator.Events_QTabBar	{aboveWidget=':*Qt Creator.Events_QDockWidget' type='QTabBar' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Find_Find::Internal::FindToolBar	{name='Find__Internal__FindWidget' type='Find::Internal::FindToolBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Find'}
+:*Qt Creator.Find_Find::Internal::FindToolBar	{name='Core__Internal__FindWidget' type='Core::Internal::FindToolBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Find'}
 :*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack	{name='FormEditorStack' type='Designer::Internal::FormEditorStack' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{text='Interrupt' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.JavaScript_QDockWidget	{name='QmlProfilerV8ProfileViewDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='JavaScript'}
@@ -155,7 +155,7 @@
 :Qt Creator_DiffEditor::DiffViewEditorWidget2	{occurrence='2' type='DiffEditor::DiffViewEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_DiffEditor::Internal::DiffShowEditorWidget	{type='DiffEditor::Internal::DiffShowEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_FilenameQComboBox	{type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_Find::Internal::SearchResultTreeView	{type='Find::Internal::SearchResultTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Find::Internal::SearchResultTreeView	{type='Core::Internal::SearchResultTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Git::Internal::GitEditor	{type='Git::Internal::GitEditor' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Help::Internal::HelpViewer	{type='Help::Internal::HelpViewer' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_HelpSelector_QComboBox	{occurrence='3' type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

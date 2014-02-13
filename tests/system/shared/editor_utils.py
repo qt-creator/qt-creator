@@ -299,8 +299,7 @@ def maskSpecialCharsForSearchResult(filename):
 def validateSearchResult(expectedCount):
     searchResult = waitForObject(":Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton")
     ensureChecked(searchResult)
-    resultTreeView = waitForObject("{type='Find::Internal::SearchResultTreeView' unnamed='1' "
-                                   "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    resultTreeView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
     counterLabel = waitForObject("{type='QLabel' unnamed='1' visible='1' text?='*matches found.' "
                                  "window=':Qt Creator_Core::Internal::MainWindow'}")
     matches = cast((str(counterLabel.text)).split(" ", 1)[0], "int")
