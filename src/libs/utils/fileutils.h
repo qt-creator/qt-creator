@@ -36,6 +36,8 @@
 #include <QXmlStreamWriter> // Mac.
 #include <QMetaType>
 
+namespace Utils {class FileName; }
+
 QT_BEGIN_NAMESPACE
 class QFile;
 class QTemporaryFile;
@@ -45,6 +47,9 @@ class QDataStream;
 class QDateTime;
 class QFileInfo;
 class QDir;
+
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::FileName &c);
+
 QT_END_NAMESPACE
 
 namespace Utils {

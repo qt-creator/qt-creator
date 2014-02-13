@@ -43,6 +43,14 @@
 #include <shlobj.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+QDebug operator<<(QDebug dbg, const Utils::FileName &c)
+{
+    return dbg << c.toString();
+}
+
+QT_END_NAMESPACE
+
 namespace Utils {
 
 /*! \class Utils::FileUtils
