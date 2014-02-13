@@ -46,12 +46,12 @@ namespace Utils { class Wizard; }
 
 namespace ProjectExplorer {
 class CustomWizard;
-struct CustomWizardPrivate;
+class CustomWizardPrivate;
 class BaseProjectWizardDialog;
 
 namespace Internal {
-    struct CustomWizardParameters;
-    struct CustomWizardContext;
+    class CustomWizardParameters;
+    class CustomWizardContext;
 }
 
 // Documentation inside.

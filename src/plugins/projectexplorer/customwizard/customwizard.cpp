@@ -67,7 +67,8 @@ namespace ProjectExplorer {
     \sa ProjectExplorer::CustomWizard, ProjectExplorer::CustomProjectWizard
 */
 
-struct CustomWizardPrivate {
+class CustomWizardPrivate {
+public:
     CustomWizardPrivate() : m_context(new Internal::CustomWizardContext) {}
 
     QSharedPointer<Internal::CustomWizardParameters> m_parameters;

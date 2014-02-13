@@ -46,7 +46,8 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 namespace Internal {
 
-struct CustomWizardField {
+class CustomWizardField {
+public:
     // Parameters of the widget control are stored as map
     typedef QMap<QString, QString> ControlAttributeMap;
     CustomWizardField();
@@ -98,7 +99,7 @@ struct GeneratorScriptArgument {
     unsigned flags;
 };
 
-struct CustomWizardParameters
+class CustomWizardParameters
 {
 public:
     enum ParseResult { ParseOk, ParseDisabled, ParseFailed };
@@ -126,7 +127,8 @@ public:
 };
 
 // Documentation inside.
-struct CustomWizardContext {
+class CustomWizardContext {
+public:
     typedef QMap<QString, QString> FieldReplacementMap;
     typedef QSharedPointer<QTemporaryFile> TemporaryFilePtr;
     typedef QList<TemporaryFilePtr> TemporaryFilePtrList;

@@ -47,9 +47,9 @@ namespace Utils { class PathChooser; }
 namespace ProjectExplorer {
 namespace Internal {
 
-struct CustomWizardField;
-struct CustomWizardParameters;
-struct CustomWizardContext;
+class CustomWizardField;
+class CustomWizardParameters;
+class CustomWizardContext;
 
 // Documentation inside.
 class TextFieldComboBox : public QComboBox {
@@ -125,20 +125,23 @@ protected:
     void showError(const QString &);
     void clearError();
 private:
-    struct LineEditData {
+    class LineEditData {
+    public:
         explicit LineEditData(QLineEdit* le = 0, const QString &defText = QString(), const QString &pText = QString());
         QLineEdit* lineEdit;
         QString defaultText;
         QString placeholderText;
         QString userChange;
     };
-    struct TextEditData {
+    class TextEditData {
+    public:
         explicit TextEditData(QTextEdit* le = 0, const QString &defText = QString());
         QTextEdit* textEdit;
         QString defaultText;
         QString userChange;
     };
-    struct PathChooserData {
+    class PathChooserData {
+    public:
         explicit PathChooserData(Utils::PathChooser* pe = 0, const QString &defText = QString());
         Utils::PathChooser* pathChooser;
         QString defaultText;
