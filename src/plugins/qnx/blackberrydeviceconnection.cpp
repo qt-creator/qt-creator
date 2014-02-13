@@ -31,7 +31,6 @@
 
 #include "blackberrydeviceconnection.h"
 
-#include "blackberryconfiguration.h"
 #include "blackberryconfigurationmanager.h"
 #include "qnxutils.h"
 

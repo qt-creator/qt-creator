@@ -30,7 +30,7 @@
 ****************************************************************************/
 
 #include "blackberrycertificate.h"
-#include "blackberryconfiguration.h"
+#include "blackberryapilevelconfiguration.h"
 #include "blackberryconfigurationmanager.h"
 #include "blackberryndkprocess.h"
 

@@ -51,7 +51,6 @@ SOURCES += qnxplugin.cpp \
     blackberryabstractdeploystep.cpp \
     blackberryndksettingswidget.cpp \
     blackberryndksettingspage.cpp \
-    blackberryconfiguration.cpp \
     bardescriptormagicmatcher.cpp \
     bardescriptoreditorfactory.cpp \
     bardescriptoreditor.cpp \
@@ -102,7 +101,9 @@ SOURCES += qnxplugin.cpp \
     qnxattachdebugdialog.cpp \
     blackberrydeployqtlibrariesdialog.cpp \
     blackberrysetuppage.cpp \
-    blackberrysetupwidget.cpp
+    blackberrysetupwidget.cpp \
+    blackberryruntimeconfiguration.cpp \
+    blackberryapilevelconfiguration.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -153,7 +154,6 @@ HEADERS += qnxplugin.h\
     blackberryabstractdeploystep.h \
     blackberryndksettingswidget.h \
     blackberryndksettingspage.h \
-    blackberryconfiguration.h \
     bardescriptormagicmatcher.h \
     bardescriptoreditorfactory.h \
     bardescriptoreditor.h \
@@ -204,7 +204,9 @@ HEADERS += qnxplugin.h\
     qnxattachdebugdialog.h \
     blackberrydeployqtlibrariesdialog.h \
     blackberrysetuppage.h \
-    blackberrysetupwidget.h
+    blackberrysetupwidget.h \
+    blackberryruntimeconfiguration.h \
+    blackberryapilevelconfiguration.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \

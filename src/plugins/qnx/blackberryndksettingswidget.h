@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryConfiguration;
+class BlackBerryApiLevelConfiguration;
 class BlackBerryConfigurationManager;
 class Ui_BlackBerryNDKSettingsWidget;
 
@@ -57,41 +57,45 @@ public:
 
    bool hasActiveNdk() const;
 
-   QList<BlackBerryConfiguration *> activatedTargets();
-   QList<BlackBerryConfiguration *> deactivatedTargets();
+   QList<BlackBerryApiLevelConfiguration *> activatedApiLevels();
+   QList<BlackBerryApiLevelConfiguration *> deactivatedApiLevels();
 
-   BlackBerryConfiguration *defaultConfiguration() const;
+   BlackBerryApiLevelConfiguration *defaultApiLevel() const;
 
 signals:
-    void targetsUpdated();
+    void configurationsUpdated();
 
 public slots:
     void updateInfoTable(QTreeWidgetItem* currentItem);
-    void updateNdkList();
-    void addNdkTarget();
-    void removeNdkTarget();
-    void activateNdkTarget();
-    void deactivateNdkTarget();
-    void uninstallNdkTarget();
+    void updateConfigurationList();
+    void addConfiguration();
+    void removeConfiguration();
+    void activateApiLevel();
+    void deactivateApiLevel();
+    void uninstallConfiguration(BlackBerryInstallerDataHandler::Target target);
     void cleanUp();
     void handleInstallationFinished();
     void handleUninstallationFinished();
-    void updateUi(QTreeWidgetItem* item, BlackBerryConfiguration* config);
+    void updateUi(QTreeWidgetItem* item);
     void populateDefaultConfigurationCombo();
     void updatePage();
 
 private:
     void launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::Mode mode,
+                                         BlackBerryInstallerDataHandler::Target target,
                                          const QString& tagetVersion = QString());
 
     Ui_BlackBerryNDKSettingsWidget *m_ui;
     BlackBerryConfigurationManager &m_bbConfigManager;
 
-    QTreeWidgetItem *m_autoDetectedNdks;
-    QTreeWidgetItem *m_manualNdks;
+    QTreeWidgetItem *m_apiLevels;
+    QTreeWidgetItem *m_runtimes;
 
-    QList<BlackBerryConfiguration *> m_activatedTargets;
-    QList<BlackBerryConfiguration *> m_deactivatedTargets;
+    QTreeWidgetItem *m_autoDetectedNdks;
+    QTreeWidgetItem *m_manualApiLevel;
+
+    QList<BlackBerryApiLevelConfiguration *> m_activatedApiLevel;
+    QList<BlackBerryApiLevelConfiguration *> m_deactivatedApiLevel;
 
     QTimer m_timer;
 };

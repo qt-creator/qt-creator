@@ -31,7 +31,8 @@
 
 #include "blackberryconfigurationmanager.h"
 #include "blackberrycertificate.h"
-#include "blackberryconfiguration.h"
+#include "blackberryapilevelconfiguration.h"
+#include "blackberryruntimeconfiguration.h"
 
 #include "qnxtoolchain.h"
 #include "qnxutils.h"
@@ -54,6 +55,7 @@
 #include <QMessageBox>
 #include <QFileInfo>
 #include <QDebug>
+#include <QDir>
 
 using namespace ProjectExplorer;
 
@@ -79,7 +81,7 @@ static Utils::FileName bbConfigSettingsFileName()
                                 + QLatin1String(Constants::QNX_BLACKBERRY_CONFIGS_FILENAME));
 }
 
-static bool sortConfigurationsByVersion(const BlackBerryConfiguration *a, const BlackBerryConfiguration *b)
+template <class T> static bool sortConfigurationsByVersion(const T *a, const T *b)
 {
     return a->version() > b->version();
 }
@@ -99,8 +101,17 @@ void BlackBerryConfigurationManager::saveConfigurations()
     QVariantMap data;
     data.insert(QLatin1String(BBConfigsFileVersionKey), 1);
     int count = 0;
-    foreach (BlackBerryConfiguration *config, m_configs) {
-        QVariantMap tmp = config->toMap();
+    foreach (BlackBerryApiLevelConfiguration *apiLevel, m_apiLevels) {
+        QVariantMap tmp = apiLevel->toMap();
+        if (tmp.isEmpty())
+            continue;
+
+        data.insert(BBConfigDataKey + QString::number(count), tmp);
+        ++count;
+    }
+
+    foreach (BlackBerryRuntimeConfiguration *runtime, m_runtimes) {
+        QVariantMap tmp = runtime->toMap();
         if (tmp.isEmpty())
             continue;
 
@@ -110,8 +121,8 @@ void BlackBerryConfigurationManager::saveConfigurations()
 
     data.insert(QLatin1String(BBConfigCountKey), count);
 
-    const QString newestConfig = (newestConfigurationEnabled())
-        ? NewestConfigurationValue : defaultConfiguration()->ndkEnvFile().toString();
+    const QString newestConfig = (newestApiLevelEnabled())
+        ? NewestConfigurationValue : defaultApiLevel()->ndkEnvFile().toString();
 
     //save default configuration
     data.insert(QLatin1String(DefaultConfigurationKey), newestConfig);
@@ -142,13 +153,19 @@ void BlackBerryConfigurationManager::restoreConfigurations()
             continue;
 
         const QVariantMap dMap = data.value(key).toMap();
+        const QString configurationType =
+                dMap.value(QLatin1String(Constants::QNX_BB_KEY_CONFIGURATION_TYPE)).toString();
+        if (configurationType == QLatin1String(Constants::QNX_BB_RUNTIME_TYPE)) {
+            BlackBerryRuntimeConfiguration *runtime = new BlackBerryRuntimeConfiguration(dMap);
+            insertRuntimeByVersion(runtime);
+        } else if (configurationType == QLatin1String(Constants::QNX_BB_APILEVEL_TYPE)
+                   || configurationType.isEmpty()) { // Backward compatibility
+            BlackBerryApiLevelConfiguration *apiLevel = new BlackBerryApiLevelConfiguration(dMap);
+            insertApiLevelByVersion(apiLevel);
 
-        BlackBerryConfiguration *config = new BlackBerryConfiguration(dMap);
-
-        insertByVersion(config);
-
-        if (!useNewestConfiguration && (config->ndkEnvFile().toString() == ndkEnvFile))
-            setDefaultConfiguration(config);
+            if (!useNewestConfiguration && (apiLevel->ndkEnvFile().toString() == ndkEnvFile))
+                setDefaultConfiguration(apiLevel);
+        }
     }
 
     emit settingsChanged();
@@ -174,8 +191,9 @@ void BlackBerryConfigurationManager::loadManualConfigurations()
             ndkEnvPath = QnxUtils::envFilePath(ndkPath);
         }
 
-        BlackBerryConfiguration *config = new BlackBerryConfiguration(Utils::FileName::fromString(ndkEnvPath));
-        if (!addConfiguration(config))
+        BlackBerryApiLevelConfiguration *config =
+                new BlackBerryApiLevelConfiguration(Utils::FileName::fromString(ndkEnvPath));
+        if (!addApiLevel(config))
             delete config;
 
         settings->endGroup();
@@ -186,20 +204,36 @@ void BlackBerryConfigurationManager::loadManualConfigurations()
     settings->endGroup();
 }
 
-void BlackBerryConfigurationManager::loadAutoDetectedConfigurations()
+void BlackBerryConfigurationManager::loadAutoDetectedApiLevels()
 {
     foreach (const NdkInstallInformation &ndkInfo, QnxUtils::installedNdks()) {
-        BlackBerryConfiguration *config = new BlackBerryConfiguration(ndkInfo);
-        if (!addConfiguration(config)) {
+        BlackBerryApiLevelConfiguration *config = new BlackBerryApiLevelConfiguration(ndkInfo);
+        if (!addApiLevel(config)) {
             delete config;
-            continue;
         }
     }
 }
 
-void BlackBerryConfigurationManager::setDefaultConfiguration(BlackBerryConfiguration *config)
+void BlackBerryConfigurationManager::loadAutoDetectedRuntimes()
 {
-    if (config && !m_configs.contains(config)) {
+    QRegExp regExp(QLatin1String("runtime_(\\d+)_(\\d+)_(\\d+)_(\\d+)"));
+    foreach (BlackBerryApiLevelConfiguration *apiLevel, m_apiLevels) {
+        QDir ndkDir(apiLevel->ndkPath());
+        foreach (const QFileInfo& fi, ndkDir.entryInfoList(QDir::Dirs)) {
+            if (regExp.exactMatch(fi.baseName())) {
+                BlackBerryRuntimeConfiguration *runtime =
+                        new BlackBerryRuntimeConfiguration(fi.absoluteFilePath());
+                if (!addRuntime(runtime))
+                    delete runtime;
+            }
+        }
+    }
+}
+
+void BlackBerryConfigurationManager::setDefaultConfiguration(
+        BlackBerryApiLevelConfiguration *config)
+{
+    if (config && !m_apiLevels.contains(config)) {
         qWarning() << "BlackBerryConfigurationManager::setDefaultConfiguration -"
                       " configuration does not belong to this instance: "
                    << config->ndkEnvFile().toString();
@@ -210,7 +244,7 @@ void BlackBerryConfigurationManager::setDefaultConfiguration(BlackBerryConfigura
     emit settingsChanged();
 }
 
-bool BlackBerryConfigurationManager::newestConfigurationEnabled() const
+bool BlackBerryConfigurationManager::newestApiLevelEnabled() const
 {
     return !m_defaultConfiguration;
 }
@@ -227,7 +261,7 @@ void BlackBerryConfigurationManager::setKitsAutoDetectionSource()
                 (DeviceTypeKitInformation::deviceTypeId(kit) ==  Constants::QNX_BB_CATEGORY_ICON) &&
                 kit->autoDetectionSource().isEmpty()) {
             QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
-            foreach (BlackBerryConfiguration *config, m_configs) {
+            foreach (BlackBerryApiLevelConfiguration *config, m_apiLevels) {
                 if ((version &&
                      (version->qmakeCommand() == config->qmake4BinaryFile() || version->qmakeCommand() == config->qmake5BinaryFile()))
                         && (SysRootKitInformation::sysRoot(kit) == config->sysRoot()))
@@ -237,17 +271,28 @@ void BlackBerryConfigurationManager::setKitsAutoDetectionSource()
     }
 }
 
-void BlackBerryConfigurationManager::insertByVersion(BlackBerryConfiguration *config)
+void BlackBerryConfigurationManager::insertApiLevelByVersion(
+        BlackBerryApiLevelConfiguration *apiLevel)
 {
-    QList<BlackBerryConfiguration *>::iterator it = qLowerBound(m_configs.begin(), m_configs.end(),
-                                                                config, &sortConfigurationsByVersion);
-    m_configs.insert(it, config);
+    QList<BlackBerryApiLevelConfiguration *>::iterator it =
+            qLowerBound(m_apiLevels.begin(), m_apiLevels.end(),
+                        apiLevel, sortConfigurationsByVersion<BlackBerryApiLevelConfiguration>);
+    m_apiLevels.insert(it, apiLevel);
+}
+
+void BlackBerryConfigurationManager::insertRuntimeByVersion(
+        BlackBerryRuntimeConfiguration *runtime)
+{
+    QList<BlackBerryRuntimeConfiguration *>::iterator it =
+            qLowerBound(m_runtimes.begin(), m_runtimes.end(),
+                        runtime, sortConfigurationsByVersion<BlackBerryRuntimeConfiguration>);
+    m_runtimes.insert(it, runtime);
 }
 
 // Switch to QnxToolchain for exisintg configuration using GccToolChain
 void BlackBerryConfigurationManager::checkToolChainConfiguration()
 {
-    foreach (BlackBerryConfiguration *config, m_configs) {
+    foreach (BlackBerryApiLevelConfiguration *config, m_apiLevels) {
         foreach (ToolChain *tc, ToolChainManager::toolChains()) {
             if (tc->compilerCommand() == config->gccCompiler()
                     && !tc->id().startsWith(QLatin1String(Constants::QNX_TOOLCHAIN_ID))) {
@@ -262,9 +307,9 @@ void BlackBerryConfigurationManager::checkToolChainConfiguration()
     }
 }
 
-bool BlackBerryConfigurationManager::addConfiguration(BlackBerryConfiguration *config)
+bool BlackBerryConfigurationManager::addApiLevel(BlackBerryApiLevelConfiguration *config)
 {
-    foreach (BlackBerryConfiguration *c, m_configs) {
+    foreach (BlackBerryApiLevelConfiguration *c, m_apiLevels) {
         if (config->ndkEnvFile() == c->ndkEnvFile()) {
             if (!config->isAutoDetected())
                 QMessageBox::warning(Core::ICore::mainWindow(), tr("NDK Already Known"),
@@ -274,7 +319,7 @@ bool BlackBerryConfigurationManager::addConfiguration(BlackBerryConfiguration *c
     }
 
     if (config->isValid()) {
-        insertByVersion(config);
+        insertApiLevelByVersion(config);
         emit settingsChanged();
         return true;
     }
@@ -282,7 +327,7 @@ bool BlackBerryConfigurationManager::addConfiguration(BlackBerryConfiguration *c
     return false;
 }
 
-void BlackBerryConfigurationManager::removeConfiguration(BlackBerryConfiguration *config)
+void BlackBerryConfigurationManager::removeApiLevel(BlackBerryApiLevelConfiguration *config)
 {
     if (!config)
         return;
@@ -290,9 +335,9 @@ void BlackBerryConfigurationManager::removeConfiguration(BlackBerryConfiguration
     if (config->isActive())
         config->deactivate();
 
-    m_configs.removeAt(m_configs.indexOf(config));
+    m_apiLevels.removeAll(config);
 
-    if (defaultConfiguration() == config)
+    if (defaultApiLevel() == config)
         setDefaultConfiguration(0);
 
     delete config;
@@ -300,15 +345,40 @@ void BlackBerryConfigurationManager::removeConfiguration(BlackBerryConfiguration
     emit settingsChanged();
 }
 
-QList<BlackBerryConfiguration *> BlackBerryConfigurationManager::configurations() const
+bool BlackBerryConfigurationManager::addRuntime(BlackBerryRuntimeConfiguration *runtime)
 {
-    return m_configs;
+    foreach (BlackBerryRuntimeConfiguration *rt, m_runtimes) {
+        if (runtime->path() == rt->path())
+            return false;
+    }
+
+    insertRuntimeByVersion(runtime);
+    return true;
 }
 
-QList<BlackBerryConfiguration *> BlackBerryConfigurationManager::manualConfigurations() const
+void BlackBerryConfigurationManager::removeRuntime(BlackBerryRuntimeConfiguration *runtime)
 {
-    QList<BlackBerryConfiguration*> manuals;
-    foreach (BlackBerryConfiguration *config, m_configs) {
+    if (!runtime)
+        return;
+
+    m_runtimes.removeAll(runtime);
+    delete runtime;
+}
+
+QList<BlackBerryApiLevelConfiguration *> BlackBerryConfigurationManager::apiLevels() const
+{
+    return m_apiLevels;
+}
+
+QList<BlackBerryRuntimeConfiguration *> BlackBerryConfigurationManager::runtimes() const
+{
+    return m_runtimes;
+}
+
+QList<BlackBerryApiLevelConfiguration *> BlackBerryConfigurationManager::manualApiLevels() const
+{
+    QList<BlackBerryApiLevelConfiguration*> manuals;
+    foreach (BlackBerryApiLevelConfiguration *config, m_apiLevels) {
         if (!config->isAutoDetected())
             manuals << config;
     }
@@ -316,10 +386,10 @@ QList<BlackBerryConfiguration *> BlackBerryConfigurationManager::manualConfigura
     return manuals;
 }
 
-QList<BlackBerryConfiguration *> BlackBerryConfigurationManager::activeConfigurations() const
+QList<BlackBerryApiLevelConfiguration *> BlackBerryConfigurationManager::activeApiLevels() const
 {
-    QList<BlackBerryConfiguration*> actives;
-    foreach (BlackBerryConfiguration *config, m_configs) {
+    QList<BlackBerryApiLevelConfiguration*> actives;
+    foreach (BlackBerryApiLevelConfiguration *config, m_apiLevels) {
         if (config->isActive())
             actives << config;
     }
@@ -327,12 +397,13 @@ QList<BlackBerryConfiguration *> BlackBerryConfigurationManager::activeConfigura
     return actives;
 }
 
-BlackBerryConfiguration *BlackBerryConfigurationManager::configurationFromEnvFile(const Utils::FileName &envFile) const
+BlackBerryApiLevelConfiguration *BlackBerryConfigurationManager::apiLevelFromEnvFile(
+        const Utils::FileName &envFile) const
 {
     if (envFile.isEmpty())
         return 0;
 
-    foreach (BlackBerryConfiguration *config, m_configs) {
+    foreach (BlackBerryApiLevelConfiguration *config, m_apiLevels) {
         if (config->ndkEnvFile() == envFile)
             return config;
     }
@@ -340,21 +411,32 @@ BlackBerryConfiguration *BlackBerryConfigurationManager::configurationFromEnvFil
     return 0;
 }
 
-BlackBerryConfiguration *BlackBerryConfigurationManager::defaultConfiguration() const
+BlackBerryRuntimeConfiguration *BlackBerryConfigurationManager::runtimeFromFilePath(
+        const QString &path)
 {
-    if (m_configs.isEmpty())
+    foreach (BlackBerryRuntimeConfiguration *runtime, m_runtimes) {
+        if (runtime->path() == path)
+            return runtime;
+    }
+
+    return 0;
+}
+
+BlackBerryApiLevelConfiguration *BlackBerryConfigurationManager::defaultApiLevel() const
+{
+    if (m_apiLevels.isEmpty())
         return 0;
 
     // !m_defaultConfiguration means use newest configuration
     if (!m_defaultConfiguration)
-        return m_configs.first();
+        return m_apiLevels.first();
 
     return m_defaultConfiguration;
 }
 
 QList<Utils::EnvironmentItem> BlackBerryConfigurationManager::defaultConfigurationEnv() const
 {
-    const BlackBerryConfiguration *config = defaultConfiguration();
+    const BlackBerryApiLevelConfiguration *config = defaultApiLevel();
 
     if (config)
         return config->qnxEnv();
@@ -371,13 +453,14 @@ void BlackBerryConfigurationManager::loadSettings()
     restoreConfigurations();
     // For backward compatibility
     loadManualConfigurations();
-    loadAutoDetectedConfigurations();
+    loadAutoDetectedApiLevels();
+    loadAutoDetectedRuntimes();
     checkToolChainConfiguration();
 
     // If no target was/is activated, activate one since it's needed by
     // device connection and CSK code.
-    if (activeConfigurations().isEmpty() && !m_configs.isEmpty())
-        m_configs.first()->activate();
+    if (activeApiLevels().isEmpty() && !m_apiLevels.isEmpty())
+        m_apiLevels.first()->activate();
 
     emit settingsLoaded();
     emit settingsChanged();
@@ -397,7 +480,8 @@ BlackBerryConfigurationManager &BlackBerryConfigurationManager::instance()
 
 BlackBerryConfigurationManager::~BlackBerryConfigurationManager()
 {
-    qDeleteAll(m_configs);
+    qDeleteAll(m_apiLevels);
+    qDeleteAll(m_runtimes);
     delete m_writer;
 }
 

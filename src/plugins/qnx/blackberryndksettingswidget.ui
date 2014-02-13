@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>773</width>
-    <height>495</height>
+    <height>412</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -55,14 +55,14 @@
      <item row="1" column="1" rowspan="2">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QPushButton" name="addNdkButton">
+        <widget class="QPushButton" name="addConfigButton">
          <property name="text">
           <string>Add</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="removeNdkButton">
+        <widget class="QPushButton" name="removeConfigButton">
          <property name="text">
           <string>Remove</string>
          </property>
@@ -139,60 +139,77 @@
      <item row="2" column="0">
       <widget class="QGroupBox" name="informationBox">
        <property name="title">
-        <string>API Level Information</string>
+        <string>GroupBox</string>
        </property>
        <layout class="QFormLayout" name="formLayout">
-        <item row="2" column="1">
-         <widget class="QLabel" name="versionLabel">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Name:</string>
-          </property>
-         </widget>
-        </item>
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
+         <widget class="QLabel" name="pathLabel">
           <property name="text">
-           <string>Version:</string>
+           <string>Path:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="QLabel" name="hostLabel">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="baseNameLabel">
+        <item row="2" column="1">
+         <widget class="QLabel" name="path">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="label_4">
+         <widget class="QLabel" name="baseNameLabel">
+          <property name="text">
+           <string>Name:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="baseName">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="versionLabel">
+          <property name="text">
+           <string>Version:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="hostLabel">
           <property name="text">
            <string>Host:</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_5">
+        <item row="5" column="1">
+         <widget class="QLabel" name="host">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="targetLabel">
           <property name="text">
            <string>Target:</string>
           </property>
          </widget>
         </item>
+        <item row="6" column="1">
+         <widget class="QLabel" name="target">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
         <item row="4" column="1">
-         <widget class="QLabel" name="targetLabel">
+         <widget class="QLabel" name="version">
           <property name="text">
            <string/>
           </property>

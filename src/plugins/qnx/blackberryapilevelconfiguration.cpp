@@ -29,11 +29,12 @@
 **
 ****************************************************************************/
 
-#include "blackberryconfiguration.h"
+#include "blackberryapilevelconfiguration.h"
 #include "blackberryconfigurationmanager.h"
 #include "blackberryqtversion.h"
 
 #include "qnxtoolchain.h"
+#include "qnxconstants.h"
 
 #include <utils/qtcassert.h>
 
@@ -76,10 +77,10 @@ const QLatin1String NDKAutoDetectionSourceKey("NDKAutoDetectionSource");
 const QLatin1String NDKAutoDetectedKey("NDKAutoDetectedKey");
 
 #ifdef WITH_TESTS
-bool BlackBerryConfiguration::m_fakeConfig = false;
+bool BlackBerryApiLevelConfiguration::m_fakeConfig = false;
 #endif
 
-BlackBerryConfiguration::BlackBerryConfiguration(const NdkInstallInformation &ndkInstallInfo)
+BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const NdkInstallInformation &ndkInstallInfo)
 {
     QString envFilePath = QnxUtils::envFilePath(ndkInstallInfo.path, ndkInstallInfo.version);
     QTC_ASSERT(!envFilePath.isEmpty(), return);
@@ -96,7 +97,7 @@ BlackBerryConfiguration::BlackBerryConfiguration(const NdkInstallInformation &nd
     ctor();
 }
 
-BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile)
+BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const FileName &ndkEnvFile)
     : m_autoDetectionSource(Utils::FileName())
 {
     QTC_ASSERT(!QFileInfo(ndkEnvFile.toString()).isDir(), return);
@@ -129,7 +130,7 @@ BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile)
     ctor();
 }
 
-BlackBerryConfiguration::BlackBerryConfiguration(const QVariantMap &data)
+BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const QVariantMap &data)
 {
     QString envFilePath = data.value(NDKEnvFileKey).toString();
     QTC_ASSERT(!envFilePath.isEmpty(), return);
@@ -148,7 +149,7 @@ BlackBerryConfiguration::BlackBerryConfiguration(const QVariantMap &data)
     ctor();
 }
 
-void BlackBerryConfiguration::ctor()
+void BlackBerryApiLevelConfiguration::ctor()
 {
     FileName qmake4Path = QnxUtils::executableWithExtension(FileName::fromString(m_qnxHost + QLatin1String("/usr/bin/qmake")));
     FileName qmake5Path = QnxUtils::executableWithExtension(FileName::fromString(m_qnxHost + QLatin1String("/usr/bin/qt5/qmake")));
@@ -172,42 +173,42 @@ void BlackBerryConfiguration::ctor()
         m_simulatorDebugger = simulatorGdbPath;
 }
 
-QString BlackBerryConfiguration::ndkPath() const
+QString BlackBerryApiLevelConfiguration::ndkPath() const
 {
     return m_ndkEnvFile.parentDir().toString();
 }
 
-QString BlackBerryConfiguration::displayName() const
+QString BlackBerryApiLevelConfiguration::displayName() const
 {
     return m_displayName;
 }
 
-QString BlackBerryConfiguration::targetName() const
+QString BlackBerryApiLevelConfiguration::targetName() const
 {
     return m_targetName;
 }
 
-QString BlackBerryConfiguration::qnxHost() const
+QString BlackBerryApiLevelConfiguration::qnxHost() const
 {
     return m_qnxHost;
 }
 
-BlackBerryVersionNumber BlackBerryConfiguration::version() const
+BlackBerryVersionNumber BlackBerryApiLevelConfiguration::version() const
 {
     return m_version;
 }
 
-bool BlackBerryConfiguration::isAutoDetected() const
+bool BlackBerryApiLevelConfiguration::isAutoDetected() const
 {
     return !m_autoDetectionSource.isEmpty();
 }
 
-Utils::FileName BlackBerryConfiguration::autoDetectionSource() const
+Utils::FileName BlackBerryApiLevelConfiguration::autoDetectionSource() const
 {
     return m_autoDetectionSource;
 }
 
-bool BlackBerryConfiguration::isActive() const
+bool BlackBerryApiLevelConfiguration::isActive() const
 {
     foreach (Kit *kit, KitManager::kits()) {
         if (kit->isAutoDetected() &&
@@ -218,10 +219,10 @@ bool BlackBerryConfiguration::isActive() const
     return false;
 }
 
-bool BlackBerryConfiguration::isValid() const
+bool BlackBerryApiLevelConfiguration::isValid() const
 {
 #ifdef WITH_TESTS
-    if (BlackBerryConfiguration::fakeConfig())
+    if (BlackBerryApiLevelConfiguration::fakeConfig())
         return true;
 #endif
 
@@ -232,49 +233,51 @@ bool BlackBerryConfiguration::isValid() const
              && m_sysRoot.toFileInfo().exists());
 }
 
-FileName BlackBerryConfiguration::ndkEnvFile() const
+FileName BlackBerryApiLevelConfiguration::ndkEnvFile() const
 {
     return m_ndkEnvFile;
 }
 
-FileName BlackBerryConfiguration::qmake4BinaryFile() const
+FileName BlackBerryApiLevelConfiguration::qmake4BinaryFile() const
 {
     return m_qmake4BinaryFile;
 }
 
-FileName BlackBerryConfiguration::qmake5BinaryFile() const
+FileName BlackBerryApiLevelConfiguration::qmake5BinaryFile() const
 {
     return m_qmake5BinaryFile;
 }
 
-FileName BlackBerryConfiguration::gccCompiler() const
+FileName BlackBerryApiLevelConfiguration::gccCompiler() const
 {
     return m_gccCompiler;
 }
 
-FileName BlackBerryConfiguration::deviceDebuger() const
+FileName BlackBerryApiLevelConfiguration::deviceDebuger() const
 {
     return m_deviceDebugger;
 }
 
-FileName BlackBerryConfiguration::simulatorDebuger() const
+FileName BlackBerryApiLevelConfiguration::simulatorDebuger() const
 {
     return m_simulatorDebugger;
 }
 
-FileName BlackBerryConfiguration::sysRoot() const
+FileName BlackBerryApiLevelConfiguration::sysRoot() const
 {
     return m_sysRoot;
 }
 
-QList<Utils::EnvironmentItem> BlackBerryConfiguration::qnxEnv() const
+QList<Utils::EnvironmentItem> BlackBerryApiLevelConfiguration::qnxEnv() const
 {
     return m_qnxEnv;
 }
 
-QVariantMap BlackBerryConfiguration::toMap() const
+QVariantMap BlackBerryApiLevelConfiguration::toMap() const
 {
     QVariantMap data;
+    data.insert(QLatin1String(Qnx::Constants::QNX_BB_KEY_CONFIGURATION_TYPE),
+                QLatin1String(Qnx::Constants::QNX_BB_APILEVEL_TYPE));
     data.insert(QLatin1String(NDKEnvFileKey), m_ndkEnvFile.toString());
     data.insert(QLatin1String(NDKDisplayNameKey), m_displayName);
     data.insert(QLatin1String(NDKPathKey), ndkPath());
@@ -286,7 +289,7 @@ QVariantMap BlackBerryConfiguration::toMap() const
     return data;
 }
 
-QnxAbstractQtVersion *BlackBerryConfiguration::createQtVersion(
+QnxAbstractQtVersion *BlackBerryApiLevelConfiguration::createQtVersion(
         const FileName &qmakePath, Qnx::QnxArchitecture arch, const QString &versionName)
 {
     QnxAbstractQtVersion *version = new BlackBerryQtVersion(
@@ -296,7 +299,7 @@ QnxAbstractQtVersion *BlackBerryConfiguration::createQtVersion(
     return version;
 }
 
-QnxToolChain *BlackBerryConfiguration::createToolChain(
+QnxToolChain *BlackBerryApiLevelConfiguration::createToolChain(
         ProjectExplorer::Abi abi, const QString &versionName)
 {
     QnxToolChain* toolChain = new QnxToolChain(ToolChain::AutoDetection);
@@ -309,7 +312,7 @@ QnxToolChain *BlackBerryConfiguration::createToolChain(
     return toolChain;
 }
 
-QVariant BlackBerryConfiguration::createDebuggerItem(
+QVariant BlackBerryApiLevelConfiguration::createDebuggerItem(
         QList<ProjectExplorer::Abi> abis, Qnx::QnxArchitecture arch, const QString &versionName)
 {
     Utils::FileName command = arch == X86 ? m_simulatorDebugger : m_deviceDebugger;
@@ -322,7 +325,7 @@ QVariant BlackBerryConfiguration::createDebuggerItem(
     return DebuggerItemManager::registerDebugger(debugger);
 }
 
-Kit *BlackBerryConfiguration::createKit(
+Kit *BlackBerryApiLevelConfiguration::createKit(
         QnxAbstractQtVersion *version, QnxToolChain *toolChain, const QVariant &debuggerItemId)
 {
     Kit *kit = new Kit;
@@ -359,7 +362,7 @@ Kit *BlackBerryConfiguration::createKit(
     return kit;
 }
 
-bool BlackBerryConfiguration::activate()
+bool BlackBerryApiLevelConfiguration::activate()
 {
     if (!isValid()) {
         if (!m_autoDetectionSource.isEmpty())
@@ -441,7 +444,7 @@ bool BlackBerryConfiguration::activate()
     return true;
 }
 
-void BlackBerryConfiguration::deactivate()
+void BlackBerryApiLevelConfiguration::deactivate()
 {
     foreach (Kit *kit, KitManager::kits()) {
         if (kit->isAutoDetected() &&
@@ -464,12 +467,12 @@ void BlackBerryConfiguration::deactivate()
 }
 
 #ifdef WITH_TESTS
-void BlackBerryConfiguration::setFakeConfig(bool fakeConfig)
+void BlackBerryApiLevelConfiguration::setFakeConfig(bool fakeConfig)
 {
     m_fakeConfig = fakeConfig;
 }
 
-bool BlackBerryConfiguration::fakeConfig()
+bool BlackBerryApiLevelConfiguration::fakeConfig()
 {
     return m_fakeConfig;
 }

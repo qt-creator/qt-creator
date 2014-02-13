@@ -130,6 +130,11 @@ const char QNX_LEGACY_KEYS_URL[] = "https://developer.blackberry.com/native/docu
         "/com.qnx.doc.native_sdk.devguide/topic/bbid_to_sa.html";
 const char QNX_REGISTER_KEYS_URL[] = "https://www.blackberry.com/SignedKeys/codesigning.html";
 
+const char QNX_BB_KEY_CONFIGURATION_TYPE[] = "BBConfigurationType";
+
+const char QNX_BB_APILEVEL_TYPE[] = "BBApiLevel";
+const char QNX_BB_RUNTIME_TYPE[] = "BBRuntime";
+
 } // namespace Constants
 } // namespace Qnx
 

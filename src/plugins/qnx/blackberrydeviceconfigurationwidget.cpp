@@ -33,7 +33,6 @@
 #include "blackberrydebugtokenuploader.h"
 #include "blackberrydebugtokenrequestdialog.h"
 #include "ui_blackberrydeviceconfigurationwidget.h"
-#include "blackberryconfiguration.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "blackberrysigningutils.h"
 #include "blackberrydebugtokenreader.h"

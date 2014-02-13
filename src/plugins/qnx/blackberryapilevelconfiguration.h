@@ -54,13 +54,13 @@ namespace Internal {
 class QnxAbstractQtVersion;
 class QnxToolChain;
 
-class BlackBerryConfiguration
+class BlackBerryApiLevelConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::BlackBerryConfiguration)
+    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::BlackBerryApiLevelConfiguration)
 public:
-    BlackBerryConfiguration(const NdkInstallInformation &ndkInstallInfo);
-    BlackBerryConfiguration(const Utils::FileName &ndkEnvFile);
-    BlackBerryConfiguration(const QVariantMap &data);
+    BlackBerryApiLevelConfiguration(const NdkInstallInformation &ndkInstallInfo);
+    BlackBerryApiLevelConfiguration(const Utils::FileName &ndkEnvFile);
+    BlackBerryApiLevelConfiguration(const QVariantMap &data);
     bool activate();
     void deactivate();
     QString ndkPath() const;

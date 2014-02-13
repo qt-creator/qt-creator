@@ -30,7 +30,6 @@
 ****************************************************************************/
 
 #include "blackberryndkprocess.h"
-#include "blackberryconfiguration.h"
 #include "blackberryconfigurationmanager.h"
 
 #include <utils/hostosinfo.h>

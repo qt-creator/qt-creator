@@ -43,7 +43,8 @@ namespace Utils { class PersistentSettingsWriter; }
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryConfiguration;
+class BlackBerryApiLevelConfiguration;
+class BlackBerryRuntimeConfiguration;
 
 class BlackBerryConfigurationManager : public QObject
 {
@@ -51,13 +52,17 @@ class BlackBerryConfigurationManager : public QObject
 public:
     static BlackBerryConfigurationManager &instance();
     ~BlackBerryConfigurationManager();
-    bool addConfiguration(BlackBerryConfiguration *config);
-    void removeConfiguration(BlackBerryConfiguration *config);
-    QList<BlackBerryConfiguration*> configurations() const;
-    QList<BlackBerryConfiguration*> manualConfigurations() const;
-    QList<BlackBerryConfiguration *> activeConfigurations() const;
-    BlackBerryConfiguration *configurationFromEnvFile(const Utils::FileName &envFile) const;
-    BlackBerryConfiguration *defaultConfiguration() const;
+    bool addApiLevel(BlackBerryApiLevelConfiguration *config);
+    void removeApiLevel(BlackBerryApiLevelConfiguration *config);
+    bool addRuntime(BlackBerryRuntimeConfiguration *runtime);
+    void removeRuntime(BlackBerryRuntimeConfiguration *runtime);
+    QList<BlackBerryApiLevelConfiguration*> apiLevels() const;
+    QList<BlackBerryRuntimeConfiguration *> runtimes() const;
+    QList<BlackBerryApiLevelConfiguration*> manualApiLevels() const;
+    QList<BlackBerryApiLevelConfiguration *> activeApiLevels() const;
+    BlackBerryApiLevelConfiguration *apiLevelFromEnvFile(const Utils::FileName &envFile) const;
+    BlackBerryRuntimeConfiguration *runtimeFromFilePath(const QString &path);
+    BlackBerryApiLevelConfiguration *defaultApiLevel() const;
 
     QString barsignerCskPath() const;
     QString idTokenPath() const;
@@ -68,10 +73,11 @@ public:
     // returns the environment for the default API level
     QList<Utils::EnvironmentItem> defaultConfigurationEnv() const;
 
-    void loadAutoDetectedConfigurations();
-    void setDefaultConfiguration(BlackBerryConfiguration *config);
+    void loadAutoDetectedApiLevels();
+    void loadAutoDetectedRuntimes();
+    void setDefaultConfiguration(BlackBerryApiLevelConfiguration *config);
 
-    bool newestConfigurationEnabled() const;
+    bool newestApiLevelEnabled() const;
 
     void emitSettingsChanged();
 
@@ -86,9 +92,10 @@ signals:
 
 private:
     BlackBerryConfigurationManager(QObject *parent = 0);
-    QList<BlackBerryConfiguration*> m_configs;
+    QList<BlackBerryApiLevelConfiguration*> m_apiLevels;
+    QList<BlackBerryRuntimeConfiguration*> m_runtimes;
 
-    BlackBerryConfiguration *m_defaultConfiguration;
+    BlackBerryApiLevelConfiguration *m_defaultConfiguration;
 
     Utils::PersistentSettingsWriter *m_writer;
 
@@ -98,7 +105,8 @@ private:
     void loadManualConfigurations();
     void setKitsAutoDetectionSource();
 
-    void insertByVersion(BlackBerryConfiguration* config);
+    void insertApiLevelByVersion(BlackBerryApiLevelConfiguration* apiLevel);
+    void insertRuntimeByVersion(BlackBerryRuntimeConfiguration* runtime);
 };
 
 } // namespace Internal

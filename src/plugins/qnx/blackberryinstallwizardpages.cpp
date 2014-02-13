@@ -31,7 +31,7 @@
 
 #include "blackberryinstallwizardpages.h"
 #include "blackberryconfigurationmanager.h"
-#include "blackberryconfiguration.h"
+#include "blackberryapilevelconfiguration.h"
 
 #include "ui_blackberryinstallwizardoptionpage.h"
 #include "ui_blackberryinstallwizardtargetpage.h"
@@ -482,7 +482,7 @@ void BlackBerryInstallWizardProcessPage::processTarget()
 
     // deactivate target if activated before uninstalling
     if (m_data.mode == BlackBerryInstallerDataHandler::UninstallMode) {
-        foreach (BlackBerryConfiguration *config, BlackBerryConfigurationManager::instance().configurations()) {
+        foreach (BlackBerryApiLevelConfiguration *config, BlackBerryConfigurationManager::instance().apiLevels()) {
             if (m_data.target.contains((config->targetName())) && config->isActive()) {
                 config->deactivate();
                 break;
@@ -519,11 +519,12 @@ void BlackBerryInstallWizardFinalPage::initializePage()
 
     if (m_data.mode == BlackBerryInstallerDataHandler::ManuallMode) {
         BlackBerryConfigurationManager  &configManager = BlackBerryConfigurationManager::instance();
-        BlackBerryConfiguration *config = configManager.configurationFromEnvFile(Utils::FileName::fromString(m_data.ndkPath));
+        BlackBerryApiLevelConfiguration *config =
+                configManager.apiLevelFromEnvFile(Utils::FileName::fromString(m_data.ndkPath));
 
         if (!config) {
-            config = new BlackBerryConfiguration(Utils::FileName::fromString(m_data.ndkPath));
-            if (!configManager.addConfiguration(config)) {
+            config = new BlackBerryApiLevelConfiguration(Utils::FileName::fromString(m_data.ndkPath));
+            if (!configManager.addApiLevel(config)) {
                 delete config;
                 // TODO: more explicit error message!
                 label->setText(tr("An error has occurred while adding target from:\n %1").arg(m_data.ndkPath));

@@ -35,7 +35,8 @@
 #include "blackberrysigningutils.h"
 
 #include "blackberryconfigurationmanager.h"
-#include "blackberryconfiguration.h"
+#include "blackberryapilevelconfiguration.h"
+#include "blackberryruntimeconfiguration.h"
 
 #include <utils/pathchooser.h>
 
@@ -57,37 +58,44 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     m_ui(new Ui_BlackBerryNDKSettingsWidget),
     m_bbConfigManager(BlackBerryConfigurationManager::instance()),
     m_autoDetectedNdks(0),
-    m_manualNdks(0)
+    m_manualApiLevel(0)
 {
     m_ui->setupUi(this);
 
     updateInfoTable(0);
 
-    m_activatedTargets << m_bbConfigManager.activeConfigurations();
+    m_activatedApiLevel << m_bbConfigManager.activeApiLevels();
 
     m_ui->ndksTreeWidget->header()->setResizeMode(QHeaderView::Stretch);
     m_ui->ndksTreeWidget->header()->setStretchLastSection(false);
-    m_ui->ndksTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("API Level") << tr("Environment File")));
+    m_ui->ndksTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("Configuration")));
     m_ui->ndksTreeWidget->setTextElideMode(Qt::ElideNone);
-    m_ui->ndksTreeWidget->setColumnCount(2);
-    m_autoDetectedNdks = new QTreeWidgetItem(m_ui->ndksTreeWidget);
+    m_ui->ndksTreeWidget->setColumnCount(1);
+
+    m_apiLevels = new QTreeWidgetItem(m_ui->ndksTreeWidget);
+    m_apiLevels->setText(0, tr("Api Levels"));
+    m_runtimes = new QTreeWidgetItem(m_ui->ndksTreeWidget);
+    m_runtimes->setText(0, tr("Runtimes"));
+
+    m_autoDetectedNdks = new QTreeWidgetItem(m_apiLevels);
     m_autoDetectedNdks->setText(0, tr("Auto-Detected"));
     m_autoDetectedNdks->setFirstColumnSpanned(true);
     m_autoDetectedNdks->setFlags(Qt::ItemIsEnabled);
-    m_manualNdks = new QTreeWidgetItem(m_ui->ndksTreeWidget);
-    m_manualNdks->setText(0, tr("Manual"));
-    m_manualNdks->setFirstColumnSpanned(true);
-    m_manualNdks->setFlags(Qt::ItemIsEnabled);
+    m_manualApiLevel = new QTreeWidgetItem(m_apiLevels);
+    m_manualApiLevel->setText(0, tr("Manual"));
+    m_manualApiLevel->setFirstColumnSpanned(true);
+    m_manualApiLevel->setFlags(Qt::ItemIsEnabled);
 
     m_ui->ndksTreeWidget->expandAll();
 
-    connect(m_ui->addNdkButton, SIGNAL(clicked()), this, SLOT(addNdkTarget()));
-    connect(m_ui->removeNdkButton, SIGNAL(clicked()), this, SLOT(removeNdkTarget()));
-    connect(m_ui->activateNdkTargetButton, SIGNAL(clicked()), this, SLOT(activateNdkTarget()));
-    connect(m_ui->deactivateNdkTargetButton, SIGNAL(clicked()), this, SLOT(deactivateNdkTarget()));
+    connect(m_ui->addConfigButton, SIGNAL(clicked()), this, SLOT(addConfiguration()));
+    connect(m_ui->removeConfigButton, SIGNAL(clicked()), this, SLOT(removeConfiguration()));
+    connect(m_ui->activateNdkTargetButton, SIGNAL(clicked()), this, SLOT(activateApiLevel()));
+    connect(m_ui->deactivateNdkTargetButton, SIGNAL(clicked()), this, SLOT(deactivateApiLevel()));
+
     connect(m_ui->cleanUpButton, SIGNAL(clicked()), this, SLOT(cleanUp()));
     connect(m_ui->ndksTreeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(updateInfoTable(QTreeWidgetItem*)));
-    connect(this, SIGNAL(targetsUpdated()), this, SLOT(populateDefaultConfigurationCombo()));
+    connect(this, SIGNAL(configurationsUpdated()), this, SLOT(populateDefaultConfigurationCombo()));
 
     // BlackBerryConfigurationManager.settingsChanged signal may be emitted multiple times
     // during the same event handling. This would result in multiple updatePage() calls even through
@@ -102,57 +110,74 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
 
 bool BlackBerryNDKSettingsWidget::hasActiveNdk() const
 {
-    return !m_bbConfigManager.configurations().isEmpty();
+    return !m_bbConfigManager.apiLevels().isEmpty();
 }
 
-QList<BlackBerryConfiguration *> BlackBerryNDKSettingsWidget::activatedTargets()
+QList<BlackBerryApiLevelConfiguration *> BlackBerryNDKSettingsWidget::activatedApiLevels()
 {
-    return m_activatedTargets;
+    return m_activatedApiLevel;
 }
 
-QList<BlackBerryConfiguration *> BlackBerryNDKSettingsWidget::deactivatedTargets()
+QList<BlackBerryApiLevelConfiguration *> BlackBerryNDKSettingsWidget::deactivatedApiLevels()
 {
-    return m_deactivatedTargets;
+    return m_deactivatedApiLevel;
 }
 
-BlackBerryConfiguration *BlackBerryNDKSettingsWidget::defaultConfiguration() const
+BlackBerryApiLevelConfiguration *BlackBerryNDKSettingsWidget::defaultApiLevel() const
 {
     const int currentIndex = m_ui->apiLevelCombo->currentIndex();
 
-    return static_cast<BlackBerryConfiguration*>(
+    return static_cast<BlackBerryApiLevelConfiguration*>(
             m_ui->apiLevelCombo->itemData(currentIndex).value<void*>());
 }
 
 void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentItem)
 {
-    BlackBerryConfiguration *config = m_bbConfigManager.configurationFromEnvFile(
-            Utils::FileName::fromString(currentItem ? currentItem->text(1) : QString()));
-    updateUi(currentItem, config);
+    updateUi(currentItem);
+    if (!currentItem)
+        return;
 
-    m_ui->informationBox->setVisible(config);
-    if (config) {
-        m_ui->baseNameLabel->setText(config->displayName());
-        m_ui->hostLabel->setText(QDir::toNativeSeparators(config->qnxHost()));
-        m_ui->targetLabel->setText(QDir::toNativeSeparators(config->sysRoot().toString()));
-        m_ui->versionLabel->setText(config->version().toString());
+    if (currentItem->parent() == m_runtimes) {
+        BlackBerryRuntimeConfiguration *runtime = static_cast<BlackBerryRuntimeConfiguration*>(
+                    currentItem->data(0, Qt::UserRole).value<void*>());
+        if (runtime) {
+            m_ui->baseName->setText(runtime->displayName());
+            m_ui->version->setText(runtime->version().toString());
+            m_ui->path->setText(runtime->path());
+
+            m_ui->removeConfigButton->setEnabled(runtime);
+            m_ui->activateNdkTargetButton->setEnabled(false);
+            m_ui->deactivateNdkTargetButton->setEnabled(false);
+        }
+
+        return;
+    } else if (currentItem->parent() == m_autoDetectedNdks || currentItem->parent() == m_manualApiLevel) {
+        BlackBerryApiLevelConfiguration *config = static_cast<BlackBerryApiLevelConfiguration*>(
+                    currentItem->data(0, Qt::UserRole).value<void*>());
+
+        m_ui->path->setText(config->ndkEnvFile().toString());
+        m_ui->baseName->setText(config->displayName());
+        m_ui->host->setText(QDir::toNativeSeparators(config->qnxHost()));
+        m_ui->target->setText(QDir::toNativeSeparators(config->sysRoot().toString()));
+        m_ui->version->setText(config->version().toString());
     }
 }
 
-void BlackBerryNDKSettingsWidget::updateNdkList()
+void BlackBerryNDKSettingsWidget::updateConfigurationList()
 {
     qDeleteAll(m_autoDetectedNdks->takeChildren());
-    qDeleteAll(m_manualNdks->takeChildren());
+    qDeleteAll(m_manualApiLevel->takeChildren());
+    qDeleteAll(m_runtimes->takeChildren());
 
     bool enableCleanUp = false;
-    foreach (BlackBerryConfiguration *config, m_bbConfigManager.configurations()) {
-        QTreeWidgetItem *parent = config->isAutoDetected() ? m_autoDetectedNdks : m_manualNdks;
+    foreach (BlackBerryApiLevelConfiguration *config, m_bbConfigManager.apiLevels()) {
+        QTreeWidgetItem *parent = config->isAutoDetected() ? m_autoDetectedNdks : m_manualApiLevel;
         QTreeWidgetItem *item = new QTreeWidgetItem(parent);
         item->setText(0, config->displayName());
-        item->setText(1, config->ndkEnvFile().toString());
+        item->setData(0, Qt::UserRole, QVariant::fromValue(static_cast<void*>(config)));
         QFont font;
-        font.setBold(config->isActive() || m_activatedTargets.contains(config));
+        font.setBold(config->isActive() || m_activatedApiLevel.contains(config));
         item->setFont(0, font);
-        item->setFont(1, font);
         item->setIcon(0, config->isValid() ? QIcon() : invalidConfigIcon);
         // TODO: Do the same if qmake, qcc, debugger are no longer detected...
         if (!config->isValid()) {
@@ -181,157 +206,202 @@ void BlackBerryNDKSettingsWidget::updateNdkList()
         }
     }
 
+    foreach (BlackBerryRuntimeConfiguration *runtime, m_bbConfigManager.runtimes()) {
+        QTreeWidgetItem *item = new QTreeWidgetItem(m_runtimes);
+        item->setText(0, runtime->displayName());
+        item->setData(0, Qt::UserRole, QVariant::fromValue(static_cast<void*>(runtime)));
+    }
+
     m_ui->ndksTreeWidget->setCurrentItem(m_autoDetectedNdks->child(0));
     m_ui->cleanUpButton->setEnabled(enableCleanUp);
 }
 
-void BlackBerryNDKSettingsWidget::addNdkTarget()
+void BlackBerryNDKSettingsWidget::addConfiguration()
 {
-    launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::InstallMode);
-    emit targetsUpdated();
+    launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::InstallMode, BlackBerryInstallerDataHandler::ApiLevel);
+    emit configurationsUpdated();
 }
 
-void BlackBerryNDKSettingsWidget::removeNdkTarget()
+void BlackBerryNDKSettingsWidget::removeConfiguration()
+{
+    QTreeWidgetItem * current = m_ui->ndksTreeWidget->currentItem();
+    if (!current)
+        return;
+
+    if (current->parent() == m_runtimes) {
+        uninstallConfiguration(BlackBerryInstallerDataHandler::Runtime);
+        emit configurationsUpdated();
+    } else {
+        const QString ndk = m_ui->ndksTreeWidget->currentItem()->text(0);
+        BlackBerryApiLevelConfiguration *config = static_cast<BlackBerryApiLevelConfiguration*>(
+                    current->data(0, Qt::UserRole).value<void*>());
+        if (config->isAutoDetected()) {
+            uninstallConfiguration(BlackBerryInstallerDataHandler::ApiLevel);
+            emit configurationsUpdated();
+            return;
+        }
+
+        QMessageBox::StandardButton button =
+                QMessageBox::question(Core::ICore::mainWindow(),
+                                      tr("Clean BlackBerry 10 Configuration"),
+                                      tr("Are you sure you want to remove:\n %1?").arg(ndk),
+                                      QMessageBox::Yes | QMessageBox::No);
+
+        if (button == QMessageBox::Yes) {
+            m_activatedApiLevel.removeOne(config);
+            m_deactivatedApiLevel.removeOne(config);
+            m_bbConfigManager.removeApiLevel(config);
+            m_manualApiLevel->removeChild(m_ui->ndksTreeWidget->currentItem());
+            emit configurationsUpdated();
+        }
+    }
+}
+
+void BlackBerryNDKSettingsWidget::activateApiLevel()
 {
     if (!m_ui->ndksTreeWidget->currentItem())
         return;
 
-    QString ndk = m_ui->ndksTreeWidget->currentItem()->text(0);
-    QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
+    BlackBerryApiLevelConfiguration *config = static_cast<BlackBerryApiLevelConfiguration*>(
+                m_ui->ndksTreeWidget->currentItem()->data(0, Qt::UserRole).value<void*>());
 
-    BlackBerryConfiguration *config = m_bbConfigManager.configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
-    if (!config)
-        return;
+    if (!m_activatedApiLevel.contains(config)) {
+        m_activatedApiLevel << config;
+        if (m_deactivatedApiLevel.contains(config))
+           m_deactivatedApiLevel.removeAt(m_deactivatedApiLevel.indexOf(config));
 
-    if (config->isAutoDetected()) {
-        uninstallNdkTarget();
-        emit targetsUpdated();
-        return;
-    }
-
-    QMessageBox::StandardButton button =
-            QMessageBox::question(Core::ICore::mainWindow(),
-                                  tr("Clean BlackBerry 10 Configuration"),
-                                  tr("Are you sure you want to remove:\n %1?").arg(ndk),
-                                  QMessageBox::Yes | QMessageBox::No);
-
-    if (button == QMessageBox::Yes) {
-        m_activatedTargets.removeOne(config);
-        m_deactivatedTargets.removeOne(config);
-        m_bbConfigManager.removeConfiguration(config);
-        m_manualNdks->removeChild(m_ui->ndksTreeWidget->currentItem());
-        emit targetsUpdated();
+        updateUi(m_ui->ndksTreeWidget->currentItem());
+        emit configurationsUpdated();
     }
 }
 
-void BlackBerryNDKSettingsWidget::activateNdkTarget()
+void BlackBerryNDKSettingsWidget::deactivateApiLevel()
 {
     if (!m_ui->ndksTreeWidget->currentItem())
         return;
 
-    QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
-
-    BlackBerryConfiguration *config = m_bbConfigManager.configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
-    if (config && !m_activatedTargets.contains(config)) {
-        m_activatedTargets << config;
-        if (m_deactivatedTargets.contains(config))
-           m_deactivatedTargets.removeAt(m_deactivatedTargets.indexOf(config));
-
-        updateUi(m_ui->ndksTreeWidget->currentItem(), config);
-        emit targetsUpdated();
+    BlackBerryApiLevelConfiguration *config = static_cast<BlackBerryApiLevelConfiguration*>(
+                m_ui->ndksTreeWidget->currentItem()->data(0, Qt::UserRole).value<void*>());
+    if (m_activatedApiLevel.contains(config)) {
+        m_deactivatedApiLevel << config;
+        m_activatedApiLevel.removeAt(m_activatedApiLevel.indexOf(config));
+        updateUi(m_ui->ndksTreeWidget->currentItem());
+        emit configurationsUpdated();
     }
 }
 
-void BlackBerryNDKSettingsWidget::deactivateNdkTarget()
+void BlackBerryNDKSettingsWidget::updateUi(QTreeWidgetItem *item)
 {
-    if (!m_ui->ndksTreeWidget->currentItem())
-        return;
-
-    QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
-
-    BlackBerryConfiguration *config = m_bbConfigManager.configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
-    if (config && m_activatedTargets.contains(config)) {
-        m_deactivatedTargets << config;
-        m_activatedTargets.removeAt(m_activatedTargets.indexOf(config));
-        updateUi(m_ui->ndksTreeWidget->currentItem(), config);
-        emit targetsUpdated();
-    }
-}
-
-void BlackBerryNDKSettingsWidget::updateUi(QTreeWidgetItem *item, BlackBerryConfiguration *config)
-{
-    if (!item || !config) {
-        m_ui->removeNdkButton->setEnabled(false);
+    if (!item || (item->parent() != m_runtimes &&
+                  item->parent() != m_autoDetectedNdks &&
+                  item->parent() != m_manualApiLevel )) {
+        m_ui->removeConfigButton->setEnabled(false);
         m_ui->activateNdkTargetButton->setEnabled(false);
         m_ui->deactivateNdkTargetButton->setEnabled(false);
+       m_ui->informationBox->setVisible(false);
         return;
     }
 
-    const bool contains = m_activatedTargets.contains(config);
-    QFont font;
-    font.setBold(contains);
-    item->setFont(0, font);
-    item->setFont(1, font);
+    const bool isRuntimeItem = item->parent() == m_runtimes;
+    // Update the infornation to show in the information panel
+    m_ui->informationBox->setVisible(true);
+    m_ui->informationBox->setTitle(isRuntimeItem ?
+                                       tr("Runtime Information") : tr("API Level Information"));
+    m_ui->pathLabel->setText(isRuntimeItem ? tr("Path:") : tr("Environment File:"));
+    m_ui->hostLabel->setVisible(!isRuntimeItem);
+    m_ui->host->setVisible(!isRuntimeItem);
+    m_ui->targetLabel->setVisible(!isRuntimeItem);
+    m_ui->target->setVisible(!isRuntimeItem);
 
-    m_ui->activateNdkTargetButton->setEnabled(!contains);
-    m_ui->deactivateNdkTargetButton->setEnabled(contains && m_activatedTargets.size() > 1);
-    // Disable remove button for auto detected pre-10.2 NDKs (uninstall wizard doesn't handle them)
-    m_ui->removeNdkButton->setEnabled(!(config->isAutoDetected()
-                                            && QnxUtils::sdkInstallerPath(config->ndkPath()).isEmpty()));
+    if (!isRuntimeItem) {
+        BlackBerryApiLevelConfiguration *config = static_cast<BlackBerryApiLevelConfiguration*>(
+                    item->data(0, Qt::UserRole).value<void*>());
+        const bool contains = m_activatedApiLevel.contains(config);
+        QFont font;
+        font.setBold(contains);
+        item->setFont(0, font);
+
+        m_ui->activateNdkTargetButton->setEnabled(!contains);
+        m_ui->deactivateNdkTargetButton->setEnabled(contains && m_activatedApiLevel.size() > 1);
+        // Disable remove button for auto detected pre-10.2 NDKs (uninstall wizard doesn't handle them)
+        m_ui->removeConfigButton->setEnabled(!(config->isAutoDetected()
+                                               && QnxUtils::sdkInstallerPath(config->ndkPath()).isEmpty()));
+    }
 }
 
-void BlackBerryNDKSettingsWidget::uninstallNdkTarget()
+void BlackBerryNDKSettingsWidget::uninstallConfiguration(BlackBerryInstallerDataHandler::Target target)
 {
     const QMessageBox::StandardButton answer = QMessageBox::question(this, tr("Confirmation"),
                                                                      tr("Are you sure you want to uninstall %1?").
-                                                                     arg(m_ui->baseNameLabel->text()),
+                                                                     arg(m_ui->baseName->text()),
                                                                      QMessageBox::Yes | QMessageBox::No);
 
-    if (answer == QMessageBox::Yes)
-        launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::UninstallMode, m_ui->versionLabel->text());
+    if (answer == QMessageBox::Yes) {
+        if (target == BlackBerryInstallerDataHandler::ApiLevel) {
+            launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::UninstallMode,
+                                        BlackBerryInstallerDataHandler::ApiLevel, m_ui->version->text());
+        } else if (target == BlackBerryInstallerDataHandler::Runtime) {
+            if (m_ui->ndksTreeWidget->currentItem()) {
+                launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::UninstallMode,
+                                                BlackBerryInstallerDataHandler::Runtime,
+                                                m_ui->ndksTreeWidget->currentItem()->text(0));
+            }
+        }
+
+    }
 }
 
 void BlackBerryNDKSettingsWidget::cleanUp()
 {
-    foreach (BlackBerryConfiguration *config, m_bbConfigManager.configurations()) {
+    foreach (BlackBerryApiLevelConfiguration *config, m_bbConfigManager.apiLevels()) {
         if (!config->isValid()) {
-            m_activatedTargets.removeOne(config);
-            m_deactivatedTargets.removeOne(config);
-            m_bbConfigManager.removeConfiguration(config);
+            m_activatedApiLevel.removeOne(config);
+            m_deactivatedApiLevel.removeOne(config);
+            m_bbConfigManager.removeApiLevel(config);
         }
     }
 
-    updateNdkList();
+    updateConfigurationList();
 }
 
 void BlackBerryNDKSettingsWidget::handleInstallationFinished()
 {
-    m_bbConfigManager.loadAutoDetectedConfigurations();
-    updateNdkList();
+    m_bbConfigManager.loadAutoDetectedApiLevels();
+    m_bbConfigManager.loadAutoDetectedRuntimes();
+    updateConfigurationList();
 }
 
 void BlackBerryNDKSettingsWidget::handleUninstallationFinished()
 {
-    if (!m_ui->ndksTreeWidget->currentItem())
+    QTreeWidgetItem *current = m_ui->ndksTreeWidget->currentItem();
+    if (!current)
         return;
 
-    QString targetName = m_ui->ndksTreeWidget->currentItem()->text(0);
-    QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
+    if (current->parent() == m_runtimes) {
+        BlackBerryRuntimeConfiguration *runtime = static_cast<BlackBerryRuntimeConfiguration*>(
+                    current->data(0, Qt::UserRole).value<void*>());
+        m_bbConfigManager.removeRuntime(runtime);
+        updateConfigurationList();
+        return;
+    }
+
+    const QString targetName = current->text(0);
     // Check if the target is corrrecly uninstalled
     foreach (const NdkInstallInformation &ndk, QnxUtils::installedNdks()) {
         if (ndk.name == targetName)
             return;
     }
 
-    BlackBerryConfiguration *config = m_bbConfigManager.configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
-    if (m_activatedTargets.contains(config))
-        m_activatedTargets.removeAt(m_activatedTargets.indexOf(config));
-    else if (m_deactivatedTargets.contains(config))
-        m_deactivatedTargets.removeAt(m_deactivatedTargets.indexOf(config));
+    BlackBerryApiLevelConfiguration *config = static_cast<BlackBerryApiLevelConfiguration*>(
+                current->data(0, Qt::UserRole).value<void*>());
+    if (m_activatedApiLevel.contains(config))
+        m_activatedApiLevel.removeAt(m_activatedApiLevel.indexOf(config));
+    else if (m_deactivatedApiLevel.contains(config))
+        m_deactivatedApiLevel.removeAt(m_deactivatedApiLevel.indexOf(config));
 
-    m_bbConfigManager.removeConfiguration(config);
+    m_bbConfigManager.removeApiLevel(config);
 
-    updateNdkList();
+    updateConfigurationList();
 }
 
 void BlackBerryNDKSettingsWidget::populateDefaultConfigurationCombo()
@@ -339,7 +409,7 @@ void BlackBerryNDKSettingsWidget::populateDefaultConfigurationCombo()
     // prevent QComboBox::currentIndexChanged() from being emitted
     m_ui->apiLevelCombo->clear();
 
-    QList<BlackBerryConfiguration*> configurations = m_bbConfigManager.configurations();
+    QList<BlackBerryApiLevelConfiguration*> configurations = m_bbConfigManager.apiLevels();
 
     m_ui->apiLevelCombo->addItem(tr("Newest version"),
             QVariant::fromValue(static_cast<void*>(0)));
@@ -349,9 +419,9 @@ void BlackBerryNDKSettingsWidget::populateDefaultConfigurationCombo()
 
     int configIndex = 0;
 
-    BlackBerryConfiguration *defaultConfig = m_bbConfigManager.defaultConfiguration();
+    BlackBerryApiLevelConfiguration *defaultConfig = m_bbConfigManager.defaultApiLevel();
 
-    foreach (BlackBerryConfiguration *config, configurations) {
+    foreach (BlackBerryApiLevelConfiguration *config, configurations) {
         m_ui->apiLevelCombo->addItem(config->displayName(),
                 QVariant::fromValue(static_cast<void*>(config)));
 
@@ -359,15 +429,17 @@ void BlackBerryNDKSettingsWidget::populateDefaultConfigurationCombo()
             configIndex = m_ui->apiLevelCombo->count() - 1;
     }
 
-    const int currentIndex = (m_bbConfigManager.newestConfigurationEnabled()) ? 0 : configIndex;
+    const int currentIndex = (m_bbConfigManager.newestApiLevelEnabled()) ? 0 : configIndex;
 
     m_ui->apiLevelCombo->setCurrentIndex(currentIndex);
 }
 
-void BlackBerryNDKSettingsWidget::launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::Mode mode,
-                                                                  const QString& targetVersion)
+void BlackBerryNDKSettingsWidget::launchBlackBerryInstallerWizard(
+        BlackBerryInstallerDataHandler::Mode mode,
+        BlackBerryInstallerDataHandler::Target target,
+        const QString& targetVersion)
 {
-    BlackBerryInstallWizard wizard(mode, BlackBerryInstallerDataHandler::ApiLevel, targetVersion, this);
+    BlackBerryInstallWizard wizard(mode, target, targetVersion, this);
     if (mode == BlackBerryInstallerDataHandler::InstallMode)
         connect(&wizard, SIGNAL(processFinished()), this, SLOT(handleInstallationFinished()));
     else

@@ -34,7 +34,7 @@
 #include "qnxutils.h"
 
 #include "blackberryconfigurationmanager.h"
-#include "blackberryconfiguration.h"
+#include "blackberryapilevelconfiguration.h"
 
 #include <utils/pathchooser.h>
 
@@ -87,7 +87,8 @@ ToolChainConfigWidget *QnxToolChain::configurationWidget()
 
 void QnxToolChain::addToEnvironment(Utils::Environment &env) const
 {
-    foreach (BlackBerryConfiguration* config, BlackBerryConfigurationManager::instance().configurations()) {
+    foreach (BlackBerryApiLevelConfiguration* config,
+             BlackBerryConfigurationManager::instance().apiLevels()) {
         if (config->gccCompiler() == compilerCommand()) {
             setQnxEnvironment(env, config->qnxEnv());
             break;

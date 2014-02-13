@@ -31,7 +31,6 @@
 
 #include "blackberrysigningutils.h"
 #include "blackberrycertificate.h"
-#include "blackberryconfiguration.h"
 #include "blackberryconfigurationmanager.h"
 #include "blackberrycreatecertificatedialog.h"
 #include "blackberrydebugtokenreader.h"

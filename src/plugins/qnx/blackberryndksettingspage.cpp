@@ -32,7 +32,7 @@
 #include "blackberryndksettingspage.h"
 #include "blackberryndksettingswidget.h"
 #include "blackberryconfigurationmanager.h"
-#include "blackberryconfiguration.h"
+#include "blackberryapilevelconfiguration.h"
 #include "qnxconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -46,7 +46,7 @@ BlackBerryNDKSettingsPage::BlackBerryNDKSettingsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
     setId(Core::Id(Constants::QNX_BB_NDK_SETTINGS_ID));
-    setDisplayName(tr("API Level"));
+    setDisplayName(tr("API Levels and Runtimes"));
     setCategory(Constants::QNX_BB_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("BlackBerry",
                 Constants::QNX_BB_CATEGORY_TR));
@@ -62,19 +62,19 @@ QWidget *BlackBerryNDKSettingsPage::widget()
 
 void BlackBerryNDKSettingsPage::apply()
 {
-    foreach (BlackBerryConfiguration* config, m_widget->activatedTargets()) {
+    foreach (BlackBerryApiLevelConfiguration* config, m_widget->activatedApiLevels()) {
         if (!config->isActive())
             config->activate();
     }
 
-    foreach (BlackBerryConfiguration* config, m_widget->deactivatedTargets()) {
+    foreach (BlackBerryApiLevelConfiguration* config, m_widget->deactivatedApiLevels()) {
         if (config->isActive())
             config->deactivate();
     }
 
     BlackBerryConfigurationManager &manager = BlackBerryConfigurationManager::instance();
 
-    manager.setDefaultConfiguration(m_widget->defaultConfiguration());
+    manager.setDefaultConfiguration(m_widget->defaultApiLevel());
 }
 
 void BlackBerryNDKSettingsPage::finish()

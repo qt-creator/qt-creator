@@ -54,7 +54,7 @@
 #include "blackberrycheckdevicestatusstepfactory.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "blackberryconfigurationmanager.h"
-#include "blackberryconfiguration.h"
+#include "blackberryapilevelconfiguration.h"
 #include "cascadesimport/cascadesimportwizard.h"
 #include "qnxtoolchain.h"
 #include "qnxattachdebugsupport.h"
@@ -479,44 +479,46 @@ void QNXPlugin::testConfigurationManager()
 {
     BlackBerryConfigurationManager &manager = BlackBerryConfigurationManager::instance();
 
-    QCOMPARE(manager.configurations().count(), 0);
-    QCOMPARE(manager.activeConfigurations().count(), 0);
-    QCOMPARE(manager.defaultConfiguration(), static_cast<BlackBerryConfiguration*>(0));
-    QVERIFY(manager.newestConfigurationEnabled());
+    QCOMPARE(manager.apiLevels().count(), 0);
+    QCOMPARE(manager.activeApiLevels().count(), 0);
+    QCOMPARE(manager.defaultApiLevel(), static_cast<BlackBerryApiLevelConfiguration*>(0));
+    QVERIFY(manager.newestApiLevelEnabled());
 
     QFETCH(QVariantMap, newerConfiguration);
     QFETCH(QVariantMap, olderConfiguration);
 
-    BlackBerryConfiguration::setFakeConfig(true);
-    BlackBerryConfiguration *newerConfig = new BlackBerryConfiguration(newerConfiguration);
-    BlackBerryConfiguration *oldConfig = new BlackBerryConfiguration(olderConfiguration);
+    BlackBerryApiLevelConfiguration::setFakeConfig(true);
+    BlackBerryApiLevelConfiguration *newerConfig =
+            new BlackBerryApiLevelConfiguration(newerConfiguration);
+    BlackBerryApiLevelConfiguration *oldConfig =
+            new BlackBerryApiLevelConfiguration(olderConfiguration);
 
-    QVERIFY(manager.addConfiguration(oldConfig));
-    QVERIFY(manager.newestConfigurationEnabled());
-    QCOMPARE(manager.defaultConfiguration(), oldConfig);
+    QVERIFY(manager.addApiLevel(oldConfig));
+    QVERIFY(manager.newestApiLevelEnabled());
+    QCOMPARE(manager.defaultApiLevel(), oldConfig);
 
     manager.setDefaultConfiguration(oldConfig);
 
-    QCOMPARE(manager.defaultConfiguration(), oldConfig);
-    QCOMPARE(manager.configurations().first(), oldConfig);
-    QVERIFY(!manager.newestConfigurationEnabled());
+    QCOMPARE(manager.defaultApiLevel(), oldConfig);
+    QCOMPARE(manager.apiLevels().first(), oldConfig);
+    QVERIFY(!manager.newestApiLevelEnabled());
 
-    QVERIFY(manager.addConfiguration(newerConfig));
-    QCOMPARE(manager.configurations().first(), newerConfig);
-    QCOMPARE(manager.defaultConfiguration(), oldConfig);
+    QVERIFY(manager.addApiLevel(newerConfig));
+    QCOMPARE(manager.apiLevels().first(), newerConfig);
+    QCOMPARE(manager.defaultApiLevel(), oldConfig);
 
     manager.setDefaultConfiguration(0);
-    QVERIFY(manager.newestConfigurationEnabled());
-    QCOMPARE(manager.defaultConfiguration(), newerConfig);
+    QVERIFY(manager.newestApiLevelEnabled());
+    QCOMPARE(manager.defaultApiLevel(), newerConfig);
 
     manager.setDefaultConfiguration(oldConfig);
-    manager.removeConfiguration(oldConfig);
-    QCOMPARE(manager.defaultConfiguration(), newerConfig);
-    QVERIFY(manager.newestConfigurationEnabled());
+    manager.removeApiLevel(oldConfig);
+    QCOMPARE(manager.defaultApiLevel(), newerConfig);
+    QVERIFY(manager.newestApiLevelEnabled());
 
-    manager.removeConfiguration(newerConfig);
-    QCOMPARE(manager.defaultConfiguration(), static_cast<BlackBerryConfiguration*>(0));
-    QVERIFY(manager.newestConfigurationEnabled());
+    manager.removeApiLevel(newerConfig);
+    QCOMPARE(manager.defaultApiLevel(), static_cast<BlackBerryApiLevelConfiguration*>(0));
+    QVERIFY(manager.newestApiLevelEnabled());
 }
 
 #endif

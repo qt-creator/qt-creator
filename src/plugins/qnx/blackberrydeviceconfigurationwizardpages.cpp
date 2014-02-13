@@ -30,7 +30,6 @@
 ****************************************************************************/
 
 #include "blackberrydeviceconfigurationwizardpages.h"
-#include "blackberryconfiguration.h"
 #include "blackberrydebugtokenrequestdialog.h"
 #include "blackberrydebugtokenreader.h"
 #include "blackberrysshkeysgenerator.h"
@@ -38,7 +37,6 @@
 #include "ui_blackberrydeviceconfigurationwizardsetuppage.h"
 #include "ui_blackberrydeviceconfigurationwizardquerypage.h"
 #include "ui_blackberrydeviceconfigurationwizardconfigpage.h"
-#include "blackberryconfiguration.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "blackberrysigningutils.h"
 #include "qnxutils.h"

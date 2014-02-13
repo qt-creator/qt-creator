@@ -29,65 +29,32 @@
 **
 ****************************************************************************/
 
-#ifndef BLACKBERRYKEYSWIDGET_H_H
-#define BLACKBERRYKEYSWIDGET_H_H
+#ifndef BLACKBERRYRUNTIMECONFIGURATION_H
+#define BLACKBERRYRUNTIMECONFIGURATION_H
 
-#include <QWidget>
-#include <QString>
-
-QT_BEGIN_NAMESPACE
-class QStandardItemModel;
-class QModelIndex;
-QT_END_NAMESPACE
+#include <blackberryversionnumber.h>
 
 namespace Qnx {
 namespace Internal {
-
-class BlackBerryCertificate;
-class BlackBerrySigningUtils;
-class BlackBerryDebugTokenRequester;
-class Ui_BlackBerryKeysWidget;
-
-class BlackBerryKeysWidget : public QWidget
+class BlackBerryRuntimeConfiguration
 {
-    Q_OBJECT
 public:
-    explicit BlackBerryKeysWidget(QWidget *parent = 0);
-    void saveSettings();
+    BlackBerryRuntimeConfiguration(const QString &path,
+                                   const BlackBerryVersionNumber &version = BlackBerryVersionNumber());
+    BlackBerryRuntimeConfiguration(const QVariantMap &data);
 
-private slots:
-    void certificateLoaded(int status);
-    void createCertificate();
-    void clearCertificate();
-    void loadDefaultCertificate();
-    void updateDebugTokenList();
-
-    void requestDebugToken();
-    void importDebugToken();
-    void editDebugToken();
-    void removeDebugToken();
-    void updateDebugToken(const QStringList &pins);
-    void requestFinished(int status);
-    void updateUi(const QModelIndex &index);
-
-protected:
-    void showEvent(QShowEvent *event);
+    QString path() const;
+    QString displayName() const;
+    BlackBerryVersionNumber version() const;
+    QVariantMap toMap() const;
 
 private:
-    void updateKeysSection();
-    void updateCertificateSection();
-    void setCertificateError(const QString &error);
-    void setCreateCertificateVisible(bool show);
-    void initModel();
-
-    BlackBerrySigningUtils &m_utils;
-
-    Ui_BlackBerryKeysWidget *m_ui;
-    QStandardItemModel *m_dtModel;
-    BlackBerryDebugTokenRequester *m_requester;
+    QString m_path;
+    QString m_displayName;
+    BlackBerryVersionNumber m_version;
 };
 
-} // namespace Internal
-} // namespeace Qnx
+}
+}
 
-#endif // BLACKBERRYKEYSWIDGET_H_H
+#endif // BLACKBERRYRUNTIMECONFIGURATION_H
