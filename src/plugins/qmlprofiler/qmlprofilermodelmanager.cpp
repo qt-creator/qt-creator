@@ -58,7 +58,7 @@ void QmlProfilerDataState::setState(QmlProfilerDataState::State state)
 
     switch (state) {
         case ClearingData:
-            QTC_ASSERT(m_state == Done || m_state == Empty, /**/);
+            QTC_ASSERT(m_state == Done || m_state == Empty || m_state == AcquiringData, /**/);
         break;
         case Empty:
             // if it's not empty, complain but go on
