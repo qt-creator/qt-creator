@@ -151,11 +151,6 @@ bool CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::G
     return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
 }
 
-void CustomQmakeProjectWizard::registerSelf()
-{
-    ProjectExplorer::CustomWizard::registerFactory<CustomQmakeProjectWizard>(QLatin1String("qt4project"));
-}
-
 // ----------------- BaseQmakeProjectWizardDialog
 BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(bool showModulesPage, QWidget *parent,
                                                        const Core::WizardDialogParameters &parameters) :

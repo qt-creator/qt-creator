@@ -55,17 +55,31 @@ namespace Internal {
 }
 
 // Documentation inside.
-class ICustomWizardFactory
+class ICustomWizardFactory : public QObject
 {
+    Q_OBJECT
+
 public:
-    virtual CustomWizard *create(QObject *parent = 0) const = 0;
-    virtual ~ICustomWizardFactory() {}
+    ICustomWizardFactory(const QString &klass, Core::IWizard::WizardKind kind) :
+        m_klass(klass), m_kind(kind)
+    { }
+
+    virtual CustomWizard *create() const = 0;
+    QString klass() const { return m_klass; }
+    int kind() const { return m_kind; }
+
+private:
+    QString m_klass;
+    Core::IWizard::WizardKind m_kind;
 };
 
 // Convenience template to create wizard factory classes.
 template <class Wizard> class CustomWizardFactory : public ICustomWizardFactory
 {
-    CustomWizard *create(QObject * = 0) const { return new Wizard; }
+public:
+    CustomWizardFactory(const QString &klass, Core::IWizard::WizardKind kind) : ICustomWizardFactory(klass, kind) { }
+    CustomWizardFactory(Core::IWizard::WizardKind kind) : ICustomWizardFactory(QString(), kind) { }
+    CustomWizard *create() const { return new Wizard; }
 };
 
 // Documentation inside.
@@ -86,11 +100,6 @@ public:
                                 const Core::WizardDialogParameters &wizardDialogParameters) const;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
-
-    // Register a factory for a derived custom widget
-    static void registerFactory(const QString &name, const ICustomWizardFactoryPtr &f);
-    template <class Wizard> static void registerFactory(const QString &name)
-        { registerFactory(name, ICustomWizardFactoryPtr(new CustomWizardFactory<Wizard>)); }
 
     // Create all wizards. As other plugins might register factories for derived
     // classes, call it in extensionsInitialized().

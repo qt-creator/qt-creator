@@ -36,6 +36,8 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
+#include <extensionsystem/pluginmanager.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -330,39 +332,23 @@ CustomWizard::CustomWizardContextPtr CustomWizard::context() const
     return d->m_context;
 }
 
-// Static factory map
-typedef QMap<QString, QSharedPointer<ICustomWizardFactory> > CustomWizardFactoryMap;
-Q_GLOBAL_STATIC(CustomWizardFactoryMap, customWizardFactoryMap)
-
-void CustomWizard::registerFactory(const QString &name, const ICustomWizardFactoryPtr &f)
+CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p,
+                                         const Core::IWizard::Data &b)
 {
-    customWizardFactoryMap()->insert(name, f);
-}
-
-CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p, const Core::IWizard::Data &b)
-{
-    CustomWizard * rc = 0;
-    if (p->klass.isEmpty()) {
-        // Use defaults for empty class names
-        switch (b.kind) {
-            case Core::IWizard::ProjectWizard:
-                rc = new CustomProjectWizard;
-                break;
-            case Core::IWizard::FileWizard:
-            case Core::IWizard::ClassWizard:
-                rc = new CustomWizard;
-                break;
-            }
-    } else {
-        // Look up class name in map
-        const CustomWizardFactoryMap::const_iterator it = customWizardFactoryMap()->constFind(p->klass);
-        if (it != customWizardFactoryMap()->constEnd())
-            rc = it.value()->create();
+    CustomWizard *rc = 0;
+    QList<ICustomWizardFactory *> factories = ExtensionSystem::PluginManager::getObjects<ICustomWizardFactory>();
+    foreach (ICustomWizardFactory *tmp, factories) {
+        if ((p->klass.isEmpty() && b.kind == tmp->kind())
+                || (!p->klass.isEmpty() && p->klass == tmp->klass())) {
+            rc = tmp->create();
+            break;
+        }
     }
     if (!rc) {
         qWarning("Unable to create custom wizard for class %s.", qPrintable(p->klass));
         return 0;
     }
+
     rc->setData(b);
     rc->setParameters(p);
     return rc;

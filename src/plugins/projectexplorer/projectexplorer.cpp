@@ -30,6 +30,7 @@
 #include "projectexplorer.h"
 
 #include "buildsteplist.h"
+#include "customwizard/customwizard.h"
 #include "deployablefile.h"
 #include "deployconfiguration.h"
 #include "gcctoolchainfactories.h"
@@ -393,6 +394,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             this, SLOT(updateActions()));
     connect(sessionManager, SIGNAL(sessionLoaded(QString)),
             this, SLOT(updateWelcomePage()));
+
+    addAutoReleasedObject(new CustomWizardFactory<CustomProjectWizard>(Core::IWizard::ProjectWizard));
+    addAutoReleasedObject(new CustomWizardFactory<CustomWizard>(Core::IWizard::FileWizard));
+    addAutoReleasedObject(new CustomWizardFactory<CustomWizard>(Core::IWizard::ClassWizard));
 
     d->m_proWindow = new ProjectWindow;
     addAutoReleasedObject(d->m_proWindow);

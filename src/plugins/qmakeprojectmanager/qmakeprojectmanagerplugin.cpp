@@ -127,7 +127,8 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     addAutoReleasedObject(new TestWizard);
     addAutoReleasedObject(new CustomWidgetWizard);
 
-    CustomQmakeProjectWizard::registerSelf();
+    addAutoReleasedObject(new CustomWizardFactory<CustomQmakeProjectWizard>
+                          (QLatin1String("qmakeproject"), Core::IWizard::ProjectWizard));
 
     addAutoReleasedObject(new QMakeStepFactory);
     addAutoReleasedObject(new MakeStepFactory);

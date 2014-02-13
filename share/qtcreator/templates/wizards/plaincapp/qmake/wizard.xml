@@ -35,7 +35,7 @@ The "class" and "firstpage" attributes specify that it is a Qt 4 wizard and
 leave room for the Qt 4 target page.
 -->
 <wizard version="1" kind="project"
-        class="qt4project" firstpage="10"
+        class="qmakeproject" firstpage="10"
         id="R.Plain C" category="I.Projects"
         featuresRequired="QtSupport.Wizards.FeatureQt">
     <icon>../common/console.png</icon>

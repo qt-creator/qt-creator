@@ -96,6 +96,7 @@ Platform Specific
 Linux
 
 Qt Support
+   * Custom wizards now use class "qmakeproject" instead of "qt4project"
 
 QNX
    * Added support for Python based pretty printers when debugging on devices

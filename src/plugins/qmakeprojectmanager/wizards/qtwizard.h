@@ -91,8 +91,6 @@ class CustomQmakeProjectWizard : public ProjectExplorer::CustomProjectWizard
 public:
     CustomQmakeProjectWizard();
 
-    static void registerSelf();
-
 private:
     QWizard *createWizardDialog(QWidget *parent,
                                 const Core::WizardDialogParameters &wizardDialogParameters) const;

@@ -31,7 +31,7 @@
 **************************************************************************/
 -->
 <wizard version="1" kind="project"
-        class="qt4project" firstpage="10"
+        class="qmakeproject" firstpage="10"
         id="Q.QnxBlackBerryCascadesApp" category="F.QtApplications"
         featuresRequired="QtSupport.Wizards.FeatureBlackBerry">
     <icon>icon.png</icon>

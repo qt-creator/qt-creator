@@ -113,7 +113,7 @@
             \code
 
             <wizard version="1" kind="project"
-            class="qt4project" firstpage="10"
+            class="qmakeproject" firstpage="10"
             id="A.HelloWorld" category="B.CustomProjects">
 
             \endcode
@@ -127,7 +127,7 @@
                 \c class.
 
             \li \c class specifies the type of the project. This attribute is
-                optional. Use the value \c qt4project to add Qt 4 specific pages.
+                optional. Use the value \c qmakeproject to add Qt specific pages.
 
             \li \c firstpage specifies the place of the new page in the standard
                 project wizard. The value 10 ensures that the custom page
