@@ -160,16 +160,19 @@ LookupContext::LookupContext(Document::Ptr thisDocument,
     : _expressionDocument(Document::create(QLatin1String("<LookupContext>")))
     , _thisDocument(thisDocument)
     , _snapshot(snapshot)
+    , _bindings(new CreateBindings(thisDocument, snapshot))
     , m_expandTemplates(false)
 {
 }
 
 LookupContext::LookupContext(Document::Ptr expressionDocument,
                              Document::Ptr thisDocument,
-                             const Snapshot &snapshot)
+                             const Snapshot &snapshot,
+                             QSharedPointer<CreateBindings> bindings)
     : _expressionDocument(expressionDocument)
     , _thisDocument(thisDocument)
     , _snapshot(snapshot)
+    , _bindings(bindings)
     , m_expandTemplates(false)
 {
 }
@@ -276,21 +279,6 @@ QList<LookupItem> LookupContext::lookupByUsing(const Name *name, Scope *scope) c
     return candidates;
 }
 
-
-QSharedPointer<CreateBindings> LookupContext::bindings() const
-{
-    if (! _bindings) {
-        _bindings = QSharedPointer<CreateBindings>(new CreateBindings(_thisDocument, _snapshot));
-        _bindings->setExpandTemplates(m_expandTemplates);
-    }
-
-    return _bindings;
-}
-
-void LookupContext::setBindings(QSharedPointer<CreateBindings> bindings)
-{
-    _bindings = bindings;
-}
 
 Document::Ptr LookupContext::expressionDocument() const
 { return _expressionDocument; }
@@ -533,6 +521,7 @@ ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *pa
     , _name(0)
 #endif // DEBUG_LOOKUP
 {
+    Q_ASSERT(factory);
 }
 
 ClassOrNamespace::~ClassOrNamespace()

@@ -63,8 +63,11 @@ class CreateBindings;
 
 class CPLUSPLUS_EXPORT ClassOrNamespace
 {
-public:
+    Q_DISABLE_COPY(ClassOrNamespace)
+
     ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent);
+
+public:
     ~ClassOrNamespace();
 
     const TemplateNameId *templateId() const;
@@ -286,7 +289,8 @@ public:
 
     LookupContext(Document::Ptr expressionDocument,
                   Document::Ptr thisDocument,
-                  const Snapshot &snapshot);
+                  const Snapshot &snapshot,
+                  QSharedPointer<CreateBindings> bindings = QSharedPointer<CreateBindings>());
 
     LookupContext(const LookupContext &other);
     LookupContext &operator = (const LookupContext &other);
@@ -308,10 +312,8 @@ public:
     ClassOrNamespace *lookupParent(Symbol *symbol) const;
 
     /// \internal
-    QSharedPointer<CreateBindings> bindings() const;
-
-    /// \internal
-    void setBindings(QSharedPointer<CreateBindings> bindings);
+    QSharedPointer<CreateBindings> bindings() const
+    { return _bindings; }
 
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
     static QList<const Name *> path(Symbol *symbol);
@@ -338,7 +340,7 @@ private:
     Snapshot _snapshot;
 
     // Bindings
-    mutable QSharedPointer<CreateBindings> _bindings;
+    QSharedPointer<CreateBindings> _bindings;
 
     bool m_expandTemplates;
 };

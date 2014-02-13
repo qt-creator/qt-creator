@@ -48,17 +48,6 @@ TypeOfExpression::TypeOfExpression():
 {
 }
 
-void TypeOfExpression::reset()
-{
-    m_thisDocument.clear();
-    m_snapshot = Snapshot();
-    m_ast = 0;
-    m_scope = 0;
-    m_lookupContext = LookupContext();
-    m_bindings.clear();
-    m_environment.clear();
-}
-
 void TypeOfExpression::init(Document::Ptr thisDocument, const Snapshot &snapshot,
                             QSharedPointer<CreateBindings> bindings,
                             const QSet<const Declaration *> &autoDeclarationsBeingResolved)
@@ -68,7 +57,12 @@ void TypeOfExpression::init(Document::Ptr thisDocument, const Snapshot &snapshot
     m_ast = 0;
     m_scope = 0;
     m_lookupContext = LookupContext();
+
+    Q_ASSERT(m_bindings.isNull());
     m_bindings = bindings;
+    if (m_bindings.isNull())
+        m_bindings.reset(new CreateBindings(thisDocument, snapshot));
+
     m_environment.clear();
     m_autoDeclarationsBeingResolved = autoDeclarationsBeingResolved;
 }
@@ -111,17 +105,12 @@ QList<LookupItem> TypeOfExpression::operator()(ExpressionAST *expression,
     m_scope = scope;
 
     m_documents.append(document);
-    m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot);
-    m_lookupContext.setBindings(m_bindings);
+    m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot, m_bindings);
+    Q_ASSERT(!m_bindings.isNull());
     m_lookupContext.setExpandTemplates(m_expandTemplates);
 
     ResolveExpression resolve(m_lookupContext, m_autoDeclarationsBeingResolved);
-    const QList<LookupItem> items = resolve(m_ast, scope);
-
-    if (! m_bindings)
-        m_lookupContext = resolve.context();
-
-    return items;
+    return resolve(m_ast, scope);
 }
 
 QList<LookupItem> TypeOfExpression::reference(ExpressionAST *expression,
@@ -133,17 +122,12 @@ QList<LookupItem> TypeOfExpression::reference(ExpressionAST *expression,
     m_scope = scope;
 
     m_documents.append(document);
-    m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot);
-    m_lookupContext.setBindings(m_bindings);
+    m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot, m_bindings);
+    Q_ASSERT(!m_bindings.isNull());
     m_lookupContext.setExpandTemplates(m_expandTemplates);
 
     ResolveExpression resolve(m_lookupContext, m_autoDeclarationsBeingResolved);
-    const QList<LookupItem> items = resolve.reference(m_ast, scope);
-
-    if (! m_bindings)
-        m_lookupContext = resolve.context();
-
-    return items;
+    return resolve.reference(m_ast, scope);
 }
 
 QByteArray TypeOfExpression::preprocess(const QByteArray &utf8code) const

@@ -65,8 +65,6 @@ public:
               const QSet<const Declaration *> &autoDeclarationsBeingResolved
                 = QSet<const Declaration *>());
 
-    void reset();
-
     enum PreprocessMode {
         NoPreprocess,
         Preprocess

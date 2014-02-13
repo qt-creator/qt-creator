@@ -1150,7 +1150,7 @@ ClassOrNamespace *ResolveExpression::findClassForTemplateParameterInExpressionSc
         ClassOrNamespace *resultBinding,
         const FullySpecifiedType &ty) const
 {
-    if (resultBinding && resultBinding->instantiationOrigin()) {
+    if (resultBinding) {
         if (ClassOrNamespace *origin = resultBinding->instantiationOrigin()) {
             foreach (Symbol *originSymbol, origin->symbols()) {
                 if (Scope *originScope = originSymbol->asScope()) {
