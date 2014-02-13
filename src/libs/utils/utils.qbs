@@ -31,8 +31,6 @@ QtcLibrary {
         "appmainwindow.h",
         "basetreeview.cpp",
         "basetreeview.h",
-        "basevalidatinglineedit.cpp",
-        "basevalidatinglineedit.h",
         "bracematcher.cpp",
         "bracematcher.h",
         "buildablehelperlibrary.cpp",

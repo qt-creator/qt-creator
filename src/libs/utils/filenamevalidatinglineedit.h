@@ -30,11 +30,11 @@
 #ifndef FILENAMEVALIDATINGLINEEDIT_H
 #define FILENAMEVALIDATINGLINEEDIT_H
 
-#include "basevalidatinglineedit.h"
+#include "fancylineedit.h"
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT FileNameValidatingLineEdit : public BaseValidatingLineEdit
+class QTCREATOR_UTILS_EXPORT FileNameValidatingLineEdit : public FancyLineEdit
 {
     Q_OBJECT
     Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)

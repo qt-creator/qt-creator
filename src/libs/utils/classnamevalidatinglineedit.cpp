@@ -65,7 +65,7 @@ ClassNameValidatingLineEditPrivate:: ClassNameValidatingLineEditPrivate() :
 
 // --------------------- ClassNameValidatingLineEdit
 ClassNameValidatingLineEdit::ClassNameValidatingLineEdit(QWidget *parent) :
-    Utils::BaseValidatingLineEdit(parent),
+    Utils::FancyLineEdit(parent),
     d(new ClassNameValidatingLineEditPrivate)
 {
     updateRegExp();
@@ -123,9 +123,8 @@ bool ClassNameValidatingLineEdit::validate(const QString &value, QString *errorM
     return true;
 }
 
-void ClassNameValidatingLineEdit::slotChanged(const QString &t)
+void ClassNameValidatingLineEdit::handleChanged(const QString &t)
 {
-    Utils::BaseValidatingLineEdit::slotChanged(t);
     if (isValid()) {
         // Suggest file names, strip namespaces
         QString fileName = d->m_lowerCaseFileName ? t.toLower() : t;

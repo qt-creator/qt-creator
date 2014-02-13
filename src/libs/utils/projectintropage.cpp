@@ -161,12 +161,12 @@ bool ProjectIntroPage::validate()
     // Name valid? Ignore 'DisplayingInitialText' state.
     bool nameValid = false;
     switch (d->m_ui.nameLineEdit->state()) {
-    case BaseValidatingLineEdit::Invalid:
+    case FancyLineEdit::Invalid:
         displayStatusMessage(Error, d->m_ui.nameLineEdit->errorMessage());
         return false;
-    case BaseValidatingLineEdit::DisplayingInitialText:
+    case FancyLineEdit::DisplayingInitialText:
         break;
-    case BaseValidatingLineEdit::Valid:
+    case FancyLineEdit::Valid:
         nameValid = true;
         break;
     }

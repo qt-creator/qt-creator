@@ -30,14 +30,14 @@
 #ifndef CLASSNAMEVALIDATINGLINEEDIT_H
 #define CLASSNAMEVALIDATINGLINEEDIT_H
 
-#include "basevalidatinglineedit.h"
+#include "fancylineedit.h"
 
 namespace Utils {
 
 struct ClassNameValidatingLineEditPrivate;
 
 class QTCREATOR_UTILS_EXPORT ClassNameValidatingLineEdit
-  : public Utils::BaseValidatingLineEdit
+  : public Utils::FancyLineEdit
 {
     Q_OBJECT
     Q_PROPERTY(bool namespacesEnabled READ namespacesEnabled WRITE setNamespacesEnabled DESIGNABLE true)
@@ -68,9 +68,9 @@ signals:
     void updateFileName(const QString &t);
 
 protected:
-    virtual bool validate(const QString &value, QString *errorMessage) const;
-    virtual void slotChanged(const QString &t);
-    virtual QString fixInputString(const QString &string);
+    bool validate(const QString &value, QString *errorMessage) const;
+    void handleChanged(const QString &t);
+    QString fixInputString(const QString &string);
 
 private:
     void updateRegExp() const;

@@ -66,7 +66,7 @@ static QRegExp &windowsDeviceSubDirPattern()
 
 // ----------- FileNameValidatingLineEdit
 FileNameValidatingLineEdit::FileNameValidatingLineEdit(QWidget *parent) :
-    BaseValidatingLineEdit(parent),
+    FancyLineEdit(parent),
     m_allowDirectories(false),
     m_forceFirstCapitalLetter(false)
 {

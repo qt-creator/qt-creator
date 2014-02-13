@@ -37,7 +37,7 @@ namespace QbsProjectManager {
 namespace Internal {
 
 QbsPropertyLineEdit::QbsPropertyLineEdit(QWidget *parent) :
-    Utils::BaseValidatingLineEdit(parent)
+    Utils::FancyLineEdit(parent)
 { }
 
 QList<QPair<QString, QString> > QbsPropertyLineEdit::properties() const

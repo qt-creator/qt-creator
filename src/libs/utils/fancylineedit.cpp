@@ -43,15 +43,33 @@
 /*!
     \class Utils::FancyLineEdit
 
-    \brief The FancyLineEdit class is a line edit with an embedded pixmap on
-    one side that is connected to
-    a menu.
+    \brief The FancyLineEdit class is an enhanced line edit with several
+    opt-in features.
 
-    Additionally, it can display a grayed hintText (like "Type Here to")
+    A FancyLineEdit instance can have:
+
+    \list
+    \li An embedded pixmap on one side that is connected to a menu.
+
+    \li A grayed hintText (like "Type Here to")
     when not focused and empty. When connecting to the changed signals and
     querying text, one has to be aware that the text is set to that hint
     text if isShowingHintText() returns true (that is, does not contain
     valid user input).
+
+    \li A history completer.
+
+    \li The ability to validate the contents of the text field by overriding
+    virtual \c validate() function in derived clases.
+    \endlist
+
+    When invalid, the text color will turn red and a tooltip will
+    contain the error message. This approach is less intrusive than a
+    QValidator which will prevent the user from entering certain characters.
+
+    A visible hint text results validation to be in state 'DisplayingInitialText',
+    which is not valid, but is not marked red.
+
  */
 
 enum { margin = 6 };
@@ -69,7 +87,8 @@ public:
 
     virtual bool eventFilter(QObject *obj, QEvent *event);
 
-    FancyLineEdit  *m_lineEdit;
+    FancyLineEdit *m_lineEdit;
+    QString m_oldText;
     QPixmap m_pixmap[2];
     QMenu *m_menu[2];
     bool m_menuTabFocusTrigger[2];
@@ -80,11 +99,25 @@ public:
 
     bool m_isFiltering;
     QString m_lastFilterText;
+
+    const QColor m_okTextColor;
+    QColor m_errorTextColor;
+    FancyLineEdit::State m_state;
+    QString m_errorMessage;
+    QString m_initialText;
+    bool m_firstChange;
 };
 
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
-    QObject(parent), m_lineEdit(parent),  m_historyCompleter(0), m_isFiltering(false)
+    QObject(parent),
+    m_lineEdit(parent),
+    m_historyCompleter(0),
+    m_isFiltering(false),
+    m_okTextColor(FancyLineEdit::textColor(parent)),
+    m_errorTextColor(Qt::red),
+    m_state(FancyLineEdit::Invalid),
+    m_firstChange(true)
 {
     for (int i = 0; i < 2; ++i) {
         m_menu[i] = 0;
@@ -130,20 +163,9 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
     ensurePolished();
     updateMargins();
 
-    connect(this, SIGNAL(textChanged(QString)), this, SLOT(checkButtons(QString)));
     connect(d->m_iconbutton[Left], SIGNAL(clicked()), this, SLOT(iconClicked()));
     connect(d->m_iconbutton[Right], SIGNAL(clicked()), this, SLOT(iconClicked()));
-}
-
-void FancyLineEdit::checkButtons(const QString &text)
-{
-    if (m_oldText.isEmpty() || text.isEmpty()) {
-        for (int i = 0; i < 2; ++i) {
-            if (d->m_iconbutton[i]->hasAutoHide())
-                d->m_iconbutton[i]->animateShow(!text.isEmpty());
-        }
-        m_oldText = text;
-    }
+    connect(this, SIGNAL(textChanged(QString)), this, SLOT(onTextChanged(QString)));
 }
 
 FancyLineEdit::~FancyLineEdit()
@@ -322,24 +344,132 @@ void FancyLineEdit::setFiltering(bool on)
         setButtonToolTip(Right, tr("Clear text"));
         setAutoHideButton(Right, true);
         connect(this, SIGNAL(rightButtonClicked()), this, SLOT(clear()));
-        connect(this, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
     } else {
         disconnect(this, SIGNAL(rightButtonClicked()), this, SLOT(clear()));
-        disconnect(this, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
     }
 }
 
-void FancyLineEdit::slotTextChanged()
+QString FancyLineEdit::initialText() const
 {
-    const QString newlyTypedText = text();
-    if (newlyTypedText != d->m_lastFilterText) {
-        d->m_lastFilterText = newlyTypedText;
-        emit filterChanged(d->m_lastFilterText);
+    return d->m_initialText;
+}
+
+void FancyLineEdit::setInitialText(const QString &t)
+{
+    if (d->m_initialText != t) {
+        d->m_initialText = t;
+        d->m_firstChange = true;
+        setText(t);
     }
 }
 
+QColor FancyLineEdit::errorColor() const
+{
+    return d->m_errorTextColor;
+}
 
+void FancyLineEdit::setErrorColor(const  QColor &c)
+{
+     d->m_errorTextColor = c;
+}
+
+QColor FancyLineEdit::textColor(const QWidget *w)
+{
+    return w->palette().color(QPalette::Active, QPalette::Text);
+}
+
+void FancyLineEdit::setTextColor(QWidget *w, const QColor &c)
+{
+    QPalette palette = w->palette();
+    palette.setColor(QPalette::Active, QPalette::Text, c);
+    w->setPalette(palette);
+}
+
+bool FancyLineEdit::validate(const QString &value, QString *errorMessage) const
+{
+    Q_UNUSED(value);
+    Q_UNUSED(errorMessage);
+    return true;
+}
+
+FancyLineEdit::State FancyLineEdit::state() const
+{
+    return d->m_state;
+}
+
+bool FancyLineEdit::isValid() const
+{
+    return d->m_state == Valid;
+}
+
+QString FancyLineEdit::errorMessage() const
+{
+    return d->m_errorMessage;
+}
+
+void FancyLineEdit::onTextChanged(const QString &t)
+{
+    if (d->m_isFiltering){
+        if (t != d->m_lastFilterText) {
+            d->m_lastFilterText = t;
+            emit filterChanged(t);
+        }
+    }
+
+    d->m_errorMessage.clear();
+    // Are we displaying the initial text?
+    const bool isDisplayingInitialText = !d->m_initialText.isEmpty() && t == d->m_initialText;
+    const State newState = isDisplayingInitialText ?
+                               DisplayingInitialText :
+                               (validate(t, &d->m_errorMessage) ? Valid : Invalid);
+    setToolTip(d->m_errorMessage);
+    // Changed..figure out if valid changed. DisplayingInitialText is not valid,
+    // but should not show error color. Also trigger on the first change.
+    if (newState != d->m_state || d->m_firstChange) {
+        const bool validHasChanged = (d->m_state == Valid) != (newState == Valid);
+        d->m_state = newState;
+        d->m_firstChange = false;
+        setTextColor(this, newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
+        if (validHasChanged) {
+            emit validChanged(newState == Valid);
+            emit validChanged();
+        }
+    }
+    bool block = blockSignals(true);
+    const QString fixedString = fixInputString(t);
+    if (t != fixedString) {
+        const int cursorPos = cursorPosition();
+        setText(fixedString);
+        setCursorPosition(qMin(cursorPos, fixedString.length()));
+    }
+    blockSignals(block);
+
+    // Check buttons.
+    if (d->m_oldText.isEmpty() || t.isEmpty()) {
+        for (int i = 0; i < 2; ++i) {
+            if (d->m_iconbutton[i]->hasAutoHide())
+                d->m_iconbutton[i]->animateShow(!t.isEmpty());
+        }
+        d->m_oldText = t;
+    }
+
+    handleChanged(t);
+}
+
+void FancyLineEdit::triggerChanged()
+{
+    onTextChanged(text());
+}
+
+QString FancyLineEdit::fixInputString(const QString &string)
+{
+    return string;
+}
+
+
+//
 // IconButton - helper class to represent a clickable icon
+//
 
 IconButton::IconButton(QWidget *parent)
     : QAbstractButton(parent), m_autoHide(false)

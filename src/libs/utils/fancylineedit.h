@@ -71,6 +71,10 @@ class QTCREATOR_UTILS_EXPORT FancyLineEdit : public CompletingLineEdit
     Q_OBJECT
     Q_ENUMS(Side)
 
+    // Validation.
+    Q_PROPERTY(QString initialText READ initialText WRITE setInitialText DESIGNABLE true)
+    Q_PROPERTY(QColor errorColor READ errorColor WRITE setErrorColor DESIGNABLE true)
+
 public:
     enum Side {Left = 0, Right = 1};
 
@@ -97,28 +101,65 @@ public:
     void setAutoHideButton(Side side, bool h);
     bool hasAutoHideButton(Side side) const;
 
+
+    // Completion
+
     // Enable a history completer with a history of entries.
     void setHistoryCompleter(const QString &historyKey);
-
     // Sets a completer that is not a history completer.
     void setSpecialCompleter(QCompleter *completer);
 
+
+    // Filtering
+
     // Enables fitering
     void setFiltering(bool on);
+
+
+    //  Validation
+
+    enum State { Invalid, DisplayingInitialText, Valid };
+
+    State state() const;
+    bool isValid() const;
+    QString errorMessage() const;
+
+    QString initialText() const;
+    void setInitialText(const QString &);
+
+    QColor errorColor() const;
+    void setErrorColor(const  QColor &);
+
+    // Trigger an update (after changing settings)
+    void triggerChanged();
+
+    static QColor textColor(const QWidget *w);
+    static void setTextColor(QWidget *w, const QColor &c);
+
+protected slots:
+    // Custom behaviour can be added here.
+    virtual void handleChanged(const QString &) {}
 
 signals:
     void buttonClicked(Utils::FancyLineEdit::Side side);
     void leftButtonClicked();
     void rightButtonClicked();
+
     void filterChanged(const QString &);
 
+    void validChanged();
+    void validChanged(bool validState);
+    void validReturnPressed();
+
 private slots:
-    void checkButtons(const QString &);
     void iconClicked();
-    void slotTextChanged(); // For filtering.
+    void onTextChanged(const QString &);
 
 protected:
     void resizeEvent(QResizeEvent *e);
+
+    virtual bool validate(const QString &value, QString *errorMessage) const;
+    virtual QString fixInputString(const QString &string);
 
 private:
     // Unimplemented, to force the user to make a decision on
@@ -130,7 +171,6 @@ private:
     friend class Utils::FancyLineEditPrivate;
 
     FancyLineEditPrivate *d;
-    QString m_oldText;
 };
 
 } // namespace Utils

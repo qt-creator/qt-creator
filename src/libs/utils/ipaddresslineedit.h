@@ -30,13 +30,13 @@
 #ifndef IPADDRESSLINEEDIT_H
 #define IPADDRESSLINEEDIT_H
 
-#include "basevalidatinglineedit.h"
+#include "fancylineedit.h"
 
 namespace Utils {
 
 class IpAddressLineEditPrivate;
 
-class QTCREATOR_UTILS_EXPORT IpAddressLineEdit : public Utils::BaseValidatingLineEdit
+class QTCREATOR_UTILS_EXPORT IpAddressLineEdit : public Utils::FancyLineEdit
 {
     Q_OBJECT
 
@@ -50,7 +50,7 @@ signals:
 
 protected:
     virtual bool validate(const QString &value, QString *errorMessage) const;
-    virtual void slotChanged(const QString &t);
+    virtual void handleChanged(const QString &t);
 
 private:
     IpAddressLineEditPrivate *d;

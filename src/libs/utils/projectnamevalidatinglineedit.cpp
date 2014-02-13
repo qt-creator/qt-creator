@@ -35,7 +35,7 @@
 namespace Utils {
 
 ProjectNameValidatingLineEdit::ProjectNameValidatingLineEdit(QWidget *parent)
-  : BaseValidatingLineEdit(parent)
+  : FancyLineEdit(parent)
 {
 }
 

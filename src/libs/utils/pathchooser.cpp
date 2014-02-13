@@ -30,7 +30,6 @@
 #include "pathchooser.h"
 
 #include "fancylineedit.h"
-#include "basevalidatinglineedit.h"
 #include "environment.h"
 #include "qtcassert.h"
 
@@ -64,7 +63,7 @@ namespace Utils {
 
 // ------------------ PathValidatingLineEdit
 
-class PathValidatingLineEdit : public BaseValidatingLineEdit
+class PathValidatingLineEdit : public FancyLineEdit
 {
 public:
     explicit PathValidatingLineEdit(PathChooser *chooser, QWidget *parent = 0);
@@ -77,7 +76,7 @@ private:
 };
 
 PathValidatingLineEdit::PathValidatingLineEdit(PathChooser *chooser, QWidget *parent) :
-    BaseValidatingLineEdit(parent),
+    FancyLineEdit(parent),
     m_chooser(chooser)
 {
     QTC_ASSERT(chooser, return);

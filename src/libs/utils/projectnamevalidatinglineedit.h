@@ -30,11 +30,11 @@
 #ifndef PROJECTNAMEVALIDATINGLINEEDIT_H
 #define PROJECTNAMEVALIDATINGLINEEDIT_H
 
-#include "basevalidatinglineedit.h"
+#include "fancylineedit.h"
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT ProjectNameValidatingLineEdit : public BaseValidatingLineEdit
+class QTCREATOR_UTILS_EXPORT ProjectNameValidatingLineEdit : public FancyLineEdit
 {
     Q_OBJECT
 
