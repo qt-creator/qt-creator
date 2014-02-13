@@ -48,10 +48,6 @@ def main():
     if not startedWithoutPluginError():
         return
     targets = Targets.desktopTargetClasses()
-    if not checkDebuggingLibrary(Targets.intToArray(targets)):
-        test.fatal("Error while checking debugging libraries - leaving this test.")
-        invokeMenuItem("File", "Exit")
-        return
 
     # empty Qt
     workingDir = tempDir()
