@@ -233,7 +233,7 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
             int shadowoffset = 2;
             if ((yfrom + radius + shadowoffset < 0 && yto + radius + shadowoffset < 0) ||
                     (yfrom - radius >= height() && yto - radius >= height()))
-                break;
+                continue;
 
             // shadow
             p->setPen(shadowPen);
