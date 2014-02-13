@@ -893,6 +893,16 @@
     Suddenly, QList symbols are exported from two libraries which results in a
     clash.
 
+
+    \section2 Inheritance Versus Aggregation
+
+    \list
+        \li Use inheritance if there is a clear \e{is-a} relation.
+        \li Use aggregation for re-use of orthogonal building blocks.
+        \li Prefer aggregation over inheritance if there is a choice.
+    \endlist
+
+
     \section2 Conventions for Public Header Files
 
     Our public header files have to survive the strict settings of
