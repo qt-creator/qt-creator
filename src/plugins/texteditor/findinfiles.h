@@ -32,6 +32,8 @@
 
 #include "basefilefind.h"
 
+#include <utils/fileutils.h>
+
 #include <QPointer>
 #include <QStringListModel>
 
@@ -55,7 +57,7 @@ public:
     void writeSettings(QSettings *settings);
     void readSettings(QSettings *settings);
 
-    void setDirectory(const QString &directory);
+    void setDirectory(const Utils::FileName &directory);
 
 protected:
     Utils::FileIterator *files(const QStringList &nameFilters,
@@ -71,10 +73,10 @@ private slots:
     void openFileBrowser();
 
 private:
-    QString path() const;
+    Utils::FileName path() const;
 
     QStringListModel m_directoryStrings;
-    QString m_directorySetting;
+    Utils::FileName m_directorySetting;
     QPointer<QWidget> m_configWidget;
     QPointer<QComboBox> m_directory;
 };
