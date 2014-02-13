@@ -358,11 +358,19 @@ void AndroidRunner::logcatReadStandardError()
 
 void AndroidRunner::logcatReadStandardOutput()
 {
-    m_logcat += m_adbLogcatProcess.readAllStandardOutput();
-    bool keepLastLine = m_logcat.endsWith('\n');
-    QByteArray line;
+    QList<QByteArray> lines = m_adbLogcatProcess.readAllStandardOutput().split('\n');
+    // lines always contains at least one item
+    lines[0].prepend(m_logcat);
+    if (!lines.last().endsWith('\n')) {
+        // incomplete line
+        m_logcat = lines.last();
+        lines.removeLast();
+    } else {
+        m_logcat.clear();
+    }
+
     QByteArray pid(QString::fromLatin1("%1):").arg(m_processPID).toLatin1());
-    foreach (line, m_logcat.split('\n')) {
+    foreach (QByteArray line, lines) {
         if (!line.contains(pid))
             continue;
         if (line.endsWith('\r'))
@@ -376,8 +384,6 @@ void AndroidRunner::logcatReadStandardOutput()
             emit remoteOutput(line);
 
     }
-    if (keepLastLine)
-        m_logcat = line;
 }
 
 void AndroidRunner::adbKill(qint64 pid)
