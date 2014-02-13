@@ -170,15 +170,15 @@ bool OpenEditorsWidget::eventFilter(QObject *obj, QEvent *event)
 
 void OpenEditorsWidget::handlePressed(const QModelIndex &index)
 {
-    if (index.column() == 0)
-        activateEditor(index);
-    else if (index.column() == 1)
+    if (index.column() == 1)
         m_delegate->pressedIndex = index;
 }
 
 void OpenEditorsWidget::handleClicked(const QModelIndex &index)
 {
-    if (index.column() == 1) { // the funky close button
+    if (index.column() == 0) {
+        activateEditor(index);
+    } else if (index.column() == 1) { // the funky close button
         closeEditor(index);
 
         // work around a bug in itemviews where the delegate wouldn't get the QStyle::State_MouseOver
