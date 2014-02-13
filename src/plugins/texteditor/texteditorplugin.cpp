@@ -114,7 +114,7 @@ public:
     }
 
     void runWizard(const QString &, QWidget *, const QString &, const QVariantMap &)
-        { createFile(); }
+    { createFile(); }
 
 public Q_SLOTS:
     virtual void createFile();

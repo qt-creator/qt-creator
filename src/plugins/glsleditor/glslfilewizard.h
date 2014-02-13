@@ -53,10 +53,10 @@ private:
     QString fileContents(const QString &baseName, ShaderType shaderType) const;
 
     QWizard *createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
+                                const Core::WizardDialogParameters &wizardDialogParameters) const;
 
     Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
+                                       QString *errorMessage) const;
 
     QString preferredSuffix(ShaderType shaderType) const;
 

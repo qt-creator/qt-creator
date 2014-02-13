@@ -43,9 +43,9 @@ public:
 
 protected:
     QWizard *createWizardDialog(QWidget *parent,
-            const Core::WizardDialogParameters &params) const;
+                                const Core::WizardDialogParameters &params) const;
 
-    Core::GeneratedFiles generateFiles( const QWizard *dialog, QString *errorMessage) const;
+    Core::GeneratedFiles generateFiles(const QWizard *dialog, QString *errorMessage) const;
 };
 
 } // namespace PythonEditor
