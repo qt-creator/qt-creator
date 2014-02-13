@@ -36,13 +36,14 @@
 #include "qmljsinterpreter.h"
 #include "qmljsutils.h"
 
+#include <QDir>
+
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace LanguageUtils;
 
-TypeDescriptionReader::TypeDescriptionReader(const QString &data)
-    : _source(data)
-    , _objects(0)
+TypeDescriptionReader::TypeDescriptionReader(const QString &fileName, const QString &data)
+    : _fileName (fileName), _source(data), _objects(0)
 {
 }
 
@@ -162,7 +163,8 @@ void TypeDescriptionReader::readModule(UiObjectDefinition *ast)
 
 void TypeDescriptionReader::addError(const SourceLocation &loc, const QString &message)
 {
-    _errorMessage += QString::fromLatin1("%1:%2: %3\n").arg(
+    _errorMessage += QString::fromLatin1("%1:%2:%3: %4\n").arg(
+                QDir::toNativeSeparators(_fileName),
                 QString::number(loc.startLine),
                 QString::number(loc.startColumn),
                 message);
@@ -170,7 +172,8 @@ void TypeDescriptionReader::addError(const SourceLocation &loc, const QString &m
 
 void TypeDescriptionReader::addWarning(const SourceLocation &loc, const QString &message)
 {
-    _warningMessage += QString::fromLatin1("%1:%2: %3\n").arg(
+    _warningMessage += QString::fromLatin1("%1:%2:%3: %4\n").arg(
+                QDir::toNativeSeparators(_fileName),
                 QString::number(loc.startLine),
                 QString::number(loc.startColumn),
                 message);
@@ -193,7 +196,9 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
             else if (name == QLatin1String("Enum"))
                 readEnum(component, fmo);
             else
-                addWarning(component->firstSourceLocation(), tr("Expected only Property, Method, Signal and Enum object definitions."));
+                addWarning(component->firstSourceLocation(),
+                           tr("Expected only Property, Method, Signal and Enum object definitions, not '%1'.")
+                           .arg(name));
         } else if (script) {
             QString name = toString(script->qualifiedId);
             if (name == QLatin1String("name")) {
@@ -211,7 +216,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
             } else {
                 addWarning(script->firstSourceLocation(),
                            tr("Expected only name, prototype, defaultProperty, attachedType, exports "
-                              "and exportMetaObjectRevisions script bindings."));
+                              "and exportMetaObjectRevisions script bindings, not '%1'.").arg(name));
             }
         } else {
             addWarning(member->firstSourceLocation(), tr("Expected only script bindings and object definitions."));

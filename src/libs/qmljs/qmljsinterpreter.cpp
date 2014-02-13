@@ -1298,7 +1298,7 @@ void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &contents,
 
     errorMessage->clear();
     warningMessage->clear();
-    TypeDescriptionReader reader(QString::fromUtf8(contents));
+    TypeDescriptionReader reader(fileName, QString::fromUtf8(contents));
     if (!reader(newObjects, newModuleApis)) {
         if (reader.errorMessage().isEmpty())
             *errorMessage = QLatin1String("unknown error");

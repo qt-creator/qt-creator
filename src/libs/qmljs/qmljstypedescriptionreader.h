@@ -54,7 +54,7 @@ class QMLJS_EXPORT TypeDescriptionReader
     Q_DECLARE_TR_FUNCTIONS(QmlJS::TypeDescriptionReader)
 
 public:
-    explicit TypeDescriptionReader(const QString &data);
+    explicit TypeDescriptionReader(const QString &fileName, const QString &data);
     ~TypeDescriptionReader();
 
     bool operator()(
@@ -85,6 +85,7 @@ private:
     void addError(const AST::SourceLocation &loc, const QString &message);
     void addWarning(const AST::SourceLocation &loc, const QString &message);
 
+    QString _fileName;
     QString _source;
     QString _errorMessage;
     QString _warningMessage;
