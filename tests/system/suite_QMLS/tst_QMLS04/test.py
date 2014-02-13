@@ -56,7 +56,7 @@ def main():
         test.passes("Refactoring was properly applied in source file")
     else:
         test.fail("Refactoring of Text to MyComponent failed in source file. Content of editor:\n%s" % codeText)
-    myCompTE = "SampleApp.QML.qml/SampleApp.MyComponent\\.qml"
+    myCompTE = "SampleApp.QML.qml.MyComponent\\.qml"
     appeared = False
     # there should be new QML file generated with name "MyComponent.qml"
     try:
@@ -86,7 +86,7 @@ def main():
     #save and exit
     invokeMenuItem("File", "Save All")
     # check if new file was created in file system
-    test.verify(os.path.exists(projectDir + "/SampleApp/qml/SampleApp/MyComponent.qml"),
+    test.verify(os.path.exists(projectDir + "/SampleApp/qml/MyComponent.qml"),
                 "Verifying if MyComponent.qml exists in file system after save")
     invokeMenuItem("File", "Exit")
 
