@@ -99,9 +99,11 @@ BaseCheckoutWizard::~BaseCheckoutWizard()
     delete d;
 }
 
-void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const QString & /*platform*/, const QVariantMap &extraValues)
+void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const QString &platform,
+                                   const QVariantMap &extraValues)
 {
-    Q_UNUSED(extraValues)
+    Q_UNUSED(platform);
+    Q_UNUSED(extraValues);
     // Create dialog and launch
     d->parameterPages = createParameterPages(path);
     Internal::CheckoutWizardDialog dialog(d->parameterPages, parent);
