@@ -5,11 +5,20 @@ import QtcPlugin
 QtcPlugin {
     name: "Help"
 
-    Depends { name: "Qt"; submodules: ["help", "network", "webkit"]; }
+    Depends { name: "Qt"; submodules: ["help", "network"]; }
     Depends {
         condition: Qt.core.versionMajor >= 5;
-        name: "Qt"; submodules: ["printsupport", "webkitwidgets"];
+        name: "Qt.printsupport"
     }
+    Depends {
+        name: "Qt.webkit"
+        required: false
+    }
+    Depends {
+        name: "Qt.webkitwidgets"
+        condition: Qt.core.versionMajor >= 5 && Qt.webkit.present
+    }
+
     Depends { name: "Aggregation" }
     Depends { name: "Utils" }
 
@@ -17,7 +26,12 @@ QtcPlugin {
 
     Depends { name: "app_version_header" }
 
-    cpp.defines: base.concat(["QT_CLUCENE_SUPPORT"])
+    cpp.defines: {
+        var defines = base.concat(["QT_CLUCENE_SUPPORT"]);
+        if (Qt.core.versionMajor >= 5 && !Qt.webkit.present)
+            defines.push("QT_NO_WEBKIT");
+        return defines;
+    }
 
     // We include headers from src/shared/help, and their sources include headers from here...
     cpp.includePaths: base.concat([sharedSources.prefix, path])
