@@ -240,7 +240,7 @@ void ResourceFile::refresh()
     }
 }
 
-void ResourceFile::addFile(int prefix_idx, const QString &file, int file_idx)
+int ResourceFile::addFile(int prefix_idx, const QString &file, int file_idx)
 {
     Prefix * const p = m_prefix_list[prefix_idx];
     Q_ASSERT(p);
@@ -249,19 +249,21 @@ void ResourceFile::addFile(int prefix_idx, const QString &file, int file_idx)
     if (file_idx == -1)
         file_idx = files.size();
     files.insert(file_idx, new File(p, absolutePath(file)));
+    return file_idx;
 }
 
-void ResourceFile::addPrefix(const QString &prefix, const QString &lang, int prefix_idx)
+int ResourceFile::addPrefix(const QString &prefix, const QString &lang, int prefix_idx)
 {
     QString fixed_prefix = fixPrefix(prefix);
     if (indexOfPrefix(fixed_prefix, lang) != -1)
-        return;
+        return -1;
 
     Q_ASSERT(prefix_idx >= -1 && prefix_idx <= m_prefix_list.size());
     if (prefix_idx == -1)
         prefix_idx = m_prefix_list.size();
     m_prefix_list.insert(prefix_idx, new Prefix(fixed_prefix));
     m_prefix_list[prefix_idx]->lang = lang;
+    return prefix_idx;
 }
 
 void ResourceFile::removePrefix(int prefix_idx)
@@ -281,16 +283,37 @@ void ResourceFile::removeFile(int prefix_idx, int file_idx)
     fileList.removeAt(file_idx);
 }
 
-void ResourceFile::replacePrefix(int prefix_idx, const QString &prefix)
+bool ResourceFile::replacePrefix(int prefix_idx, const QString &prefix)
 {
+    const QString fixed_prefix = fixPrefix(prefix);
     Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
-    m_prefix_list[prefix_idx]->name = fixPrefix(prefix);
+    const int existingIndex = indexOfPrefix(fixed_prefix, m_prefix_list.at(prefix_idx)->lang, prefix_idx);
+    if (existingIndex != -1) // prevent duplicated prefix + lang combinations
+        return false;
+    m_prefix_list[prefix_idx]->name = fixed_prefix;
+    return true;
 }
 
-void ResourceFile::replaceLang(int prefix_idx, const QString &lang)
+bool ResourceFile::replaceLang(int prefix_idx, const QString &lang)
 {
     Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
+    const int existingIndex = indexOfPrefix(m_prefix_list.at(prefix_idx)->name, lang, prefix_idx);
+    if (existingIndex != -1) // prevent duplicated prefix + lang combinations
+        return false;
+
     m_prefix_list[prefix_idx]->lang = lang;
+    return true;
+}
+
+bool ResourceFile::replacePrefixAndLang(int prefix_idx, const QString &prefix, const QString &lang)
+{
+    const QString fixed_prefix = fixPrefix(prefix);
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
+    const int existingIndex = indexOfPrefix(fixed_prefix, lang, prefix_idx);
+    if (existingIndex != -1) // prevent duplicated prefix + lang combinations
+        return false;
+    m_prefix_list[prefix_idx]->name = fixed_prefix;
+    return true;
 }
 
 void ResourceFile::replaceAlias(int prefix_idx, int file_idx, const QString &alias)
@@ -347,8 +370,16 @@ void ResourceFile::replaceFile(int pref_idx, int file_idx, const QString &file)
 
 int ResourceFile::indexOfPrefix(const QString &prefix, const QString &lang) const
 {
+    return indexOfPrefix(prefix, lang, -1);
+}
+
+int ResourceFile::indexOfPrefix(const QString &prefix, const QString &lang, int skip) const
+{
+
     QString fixed_prefix = fixPrefix(prefix);
     for (int i = 0; i < m_prefix_list.size(); ++i) {
+        if (i == skip)
+            continue;
         if (m_prefix_list.at(i)->name == fixed_prefix
                 && m_prefix_list.at(i)->lang == lang)
             return i;

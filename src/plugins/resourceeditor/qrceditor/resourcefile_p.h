@@ -148,21 +148,20 @@ public:
     QString file(int prefix_idx, int file_idx) const;
     QString alias(int prefix_idx, int file_idx) const;
 
-    void addFile(int prefix_idx, const QString &file, int file_idx = -1);
-    void addPrefix(const QString &prefix, const QString &lang, int prefix_idx = -1);
+    int addFile(int prefix_idx, const QString &file, int file_idx = -1);
+    int addPrefix(const QString &prefix, const QString &lang, int prefix_idx = -1);
 
     void removePrefix(int prefix_idx);
     void removeFile(int prefix_idx, int file_idx);
 
-    void replacePrefix(int prefix_idx, const QString &prefix);
-    void replaceLang(int prefix_idx, const QString &lang);
+    bool replacePrefix(int prefix_idx, const QString &prefix);
+    bool replaceLang(int prefix_idx, const QString &lang);
+    bool replacePrefixAndLang(int prefix_idx, const QString &prefix, const QString &lang);
     void replaceAlias(int prefix_idx, int file_idx, const QString &alias);
 
     bool renameFile(const QString fileName, const QString &newFileName);
 
-private:
     void replaceFile(int pref_idx, int file_idx, const QString &file);
-public:
     int indexOfPrefix(const QString &prefix, const QString &lang) const;
     int indexOfFile(int pref_idx, const QString &file) const;
 
@@ -186,6 +185,7 @@ public:
 
 private:
     void clearPrefixList();
+    int indexOfPrefix(const QString &prefix, const QString &lang, int skip) const;
 };
 
 /*!
