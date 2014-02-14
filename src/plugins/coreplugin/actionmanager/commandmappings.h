@@ -33,7 +33,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QObject>
-#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -41,9 +40,11 @@ class QTreeWidget;
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
+namespace Utils { class FancyLineEdit; }
+
 namespace Core {
 
-namespace Internal {  namespace Ui { class CommandMappings; }  }
+namespace Internal { class CommandMappingsPrivate; }
 
 class CORE_EXPORT CommandMappings : public Core::IOptionsPage
 {
@@ -51,6 +52,8 @@ class CORE_EXPORT CommandMappings : public Core::IOptionsPage
 
 public:
     CommandMappings(QObject *parent = 0);
+    ~CommandMappings();
+    virtual bool hasConflicts() const;
 
 protected slots:
     void commandChanged(QTreeWidgetItem *current);
@@ -78,11 +81,10 @@ protected:
     void setTargetEditTitle(const QString &s);
     void setTargetHeader(const QString &s);
     void setModified(QTreeWidgetItem *item, bool modified);
-    virtual void markPossibleCollisions(QTreeWidgetItem *) {}
-    virtual void resetCollisionMarkers() {}
+
 private:
-    QPointer<QWidget> m_widget;
-    Internal::Ui::CommandMappings *m_page;
+    friend class Internal::CommandMappingsPrivate;
+    Internal::CommandMappingsPrivate *d;
 };
 
 } // namespace Core
