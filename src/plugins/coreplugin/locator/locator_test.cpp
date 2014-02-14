@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 
-#include "locator.h"
+#include "coreplugin.h"
 
 #include "basefilefilter.h"
 #include "locatorfiltertest.h"
@@ -44,7 +44,7 @@ using namespace Core::Tests;
 
 namespace {
 
-QTC_DECLARE_MYTESTDATADIR("../../../tests/locators/")
+QTC_DECLARE_MYTESTDATADIR("../../../../tests/locators/")
 
 class MyBaseFileFilter : public Core::BaseFileFilter
 {
@@ -80,7 +80,7 @@ public:
 Q_DECLARE_METATYPE(ReferenceData)
 Q_DECLARE_METATYPE(QList<ReferenceData>)
 
-void Core::Internal::Locator::test_basefilefilter()
+void Core::Internal::CorePlugin::test_basefilefilter()
 {
     QFETCH(QStringList, testFiles);
     QFETCH(QList<ReferenceData>, referenceDataList);
@@ -97,7 +97,7 @@ void Core::Internal::Locator::test_basefilefilter()
     }
 }
 
-void Core::Internal::Locator::test_basefilefilter_data()
+void Core::Internal::CorePlugin::test_basefilefilter_data()
 {
     QTest::addColumn<QStringList>("testFiles");
     QTest::addColumn<QList<ReferenceData> >("referenceDataList");
