@@ -20,6 +20,7 @@
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
 #include "qmlprofiler/sortedtimelinemodel.h"
+#include "qmlprofiler/singlecategorytimelinemodel_p.h"
 
 #include <QDebug>
 
@@ -28,14 +29,11 @@ namespace Internal {
 
 using namespace QmlProfiler;
 
-class PixmapCacheModel::PixmapCacheModelPrivate : public SortedTimelineModel<PixmapCacheEvent> {
+class PixmapCacheModel::PixmapCacheModelPrivate :
+        public SortedTimelineModel<PixmapCacheEvent,
+                                   SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
+{
 public:
-    PixmapCacheModelPrivate(PixmapCacheModel *qq):q(qq) {}
-
-    ~PixmapCacheModelPrivate();
-
-    PixmapCacheModel *q;
-
     void computeCacheSizes();
     void resizeUnfinishedLoads();
     void flattenLoads();
@@ -43,133 +41,54 @@ public:
 
     QVector < QString > pixmapUrls;
     QVector < QPair<int, int> > pixmapSizes;
-    bool isExpanded;
     int expandedRowCount;
     int collapsedRowCount;
-    void addVP(QVariantList &l, QString label, qint64 time);
+    void addVP(QVariantList &l, QString label, qint64 time) const;
 
     qint64 minCacheSize;
     qint64 maxCacheSize;
+private:
+    Q_DECLARE_PUBLIC(PixmapCacheModel)
 };
 
 PixmapCacheModel::PixmapCacheModel(QObject *parent)
-    : AbstractTimelineModel(QLatin1String("PixmapCacheTimeLineModel"), parent),
-      d(new PixmapCacheModelPrivate(this))
+    : SingleCategoryTimelineModel(new PixmapCacheModelPrivate(),
+                                  QLatin1String("PixmapCacheTimeLineModel"),
+                                  QLatin1String("Pixmap Cache"), QmlDebug::PixmapCacheEvent, parent)
 {
+    Q_D(PixmapCacheModel);
     d->collapsedRowCount = 1;
     d->expandedRowCount = 1;
 }
 
-PixmapCacheModel::~PixmapCacheModel()
-{
-}
-
-int PixmapCacheModel::count() const
-{
-    return d->count();
-}
-
-bool PixmapCacheModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
-{
-    return (event.eventType == QmlDebug::PixmapCacheEvent);
-}
-
-qint64 PixmapCacheModel::lastTimeMark() const
-{
-    return d->lastEndTime();
-}
-
-bool PixmapCacheModel::expanded(int ) const
-{
-    return d->isExpanded;
-}
-
-void PixmapCacheModel::setExpanded(int category, bool expanded)
-{
-    Q_UNUSED(category);
-    bool prev_expanded = d->isExpanded;
-    d->isExpanded = expanded;
-    if (prev_expanded != expanded)
-        emit expandedChanged();
-}
-
 int PixmapCacheModel::categoryDepth(int categoryIndex) const
 {
+    Q_D(const PixmapCacheModel);
     Q_UNUSED(categoryIndex);
     if (isEmpty())
         return 1;
-    if (d->isExpanded)
+    if (d->expanded)
         return d->expandedRowCount;
     return d->collapsedRowCount;
 }
 
-int PixmapCacheModel::categoryCount() const
-{
-    return 1;
-}
-
-const QString PixmapCacheModel::categoryLabel(int categoryIndex) const
-{
-    Q_UNUSED(categoryIndex);
-    return QLatin1String("Pixmap Cache");
-}
-
-int PixmapCacheModel::findFirstIndex(qint64 startTime) const
-{
-    return d->findFirstIndex(startTime);
-}
-
-int PixmapCacheModel::findFirstIndexNoParents(qint64 startTime) const
-{
-    return d->findFirstIndexNoParents(startTime);
-}
-
-int PixmapCacheModel::findLastIndex(qint64 endTime) const
-{
-    return d->findLastIndex(endTime);
-}
-
-int PixmapCacheModel::getEventType(int index) const
-{
-    Q_UNUSED(index);
-    return QmlDebug::PixmapCacheEvent;
-}
-
-int PixmapCacheModel::getEventCategory(int index) const
-{
-    Q_UNUSED(index);
-    return 0;
-}
-
 int PixmapCacheModel::getEventRow(int index) const
 {
-    if (d->isExpanded)
+    Q_D(const PixmapCacheModel);
+    if (d->expanded)
         return d->range(index).rowNumberExpanded;
     return d->range(index).rowNumberCollapsed;
 }
 
-qint64 PixmapCacheModel::getDuration(int index) const
-{
-    return d->range(index).duration;
-}
-
-qint64 PixmapCacheModel::getStartTime(int index) const
-{
-    return d->range(index).start;
-}
-
-qint64 PixmapCacheModel::getEndTime(int index) const
-{
-    return getStartTime(index)+getDuration(index);
-}
-
 int PixmapCacheModel::getEventId(int index) const
 {
+    Q_D(const PixmapCacheModel);
     return d->range(index).eventId;
 }
 
 QColor PixmapCacheModel::getColor(int index) const
 {
+    Q_D(const PixmapCacheModel);
     if (d->range(index).pixmapEventType == PixmapCacheCountChanged)
         return QColor::fromHsl(240, 76, 166);
 
@@ -179,6 +98,7 @@ QColor PixmapCacheModel::getColor(int index) const
 
 float PixmapCacheModel::getHeight(int index) const
 {
+    Q_D(const PixmapCacheModel);
     if (d->range(index).pixmapEventType == PixmapCacheCountChanged) {
         float scale = d->maxCacheSize - d->minCacheSize;
         float fraction = 1.0f;
@@ -202,10 +122,11 @@ QString getFilenameOnly(QString absUrl)
 
 const QVariantList PixmapCacheModel::getLabelsForCategory(int category) const
 {
+    Q_D(const PixmapCacheModel);
     Q_UNUSED(category);
     QVariantList result;
 
-    if (d->isExpanded && !isEmpty()) {
+    if (d->expanded && !isEmpty()) {
         {
             // Cache Size
             QVariantMap element;
@@ -230,7 +151,7 @@ const QVariantList PixmapCacheModel::getLabelsForCategory(int category) const
     return result;
 }
 
-void PixmapCacheModel::PixmapCacheModelPrivate::addVP(QVariantList &l, QString label, qint64 time)
+void PixmapCacheModel::PixmapCacheModelPrivate::addVP(QVariantList &l, QString label, qint64 time) const
 {
     if (time > 0) {
         QVariantMap res;
@@ -241,6 +162,7 @@ void PixmapCacheModel::PixmapCacheModelPrivate::addVP(QVariantList &l, QString l
 
 const QVariantList PixmapCacheModel::getEventDetails(int index) const
 {
+    Q_D(const PixmapCacheModel);
     QVariantList result;
     const PixmapCacheModelPrivate::Range *ev = &d->range(index);
 
@@ -281,26 +203,11 @@ const QVariantList PixmapCacheModel::getEventDetails(int index) const
     return result;
 }
 
-const QVariantMap PixmapCacheModel::getEventLocation(int /*index*/) const
-{
-    QVariantMap map;
-    return map;
-}
-
-int PixmapCacheModel::getEventIdForHash(const QString &/*eventHash*/) const
-{
-    return -1;
-}
-
-int PixmapCacheModel::getEventIdForLocation(const QString &/*filename*/, int /*line*/, int /*column*/) const
-{
-    return -1;
-}
-
 void PixmapCacheModel::loadData()
 {
+    Q_D(PixmapCacheModel);
     clear();
-    QmlProfilerSimpleModel *simpleModel = m_modelManager->simpleModel();
+    QmlProfilerSimpleModel *simpleModel = d->modelManager->simpleModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -386,7 +293,7 @@ void PixmapCacheModel::loadData()
             break;
         }
 
-        m_modelManager->modelProxyCountUpdated(m_modelId, d->count(), 2*simpleModel->getEvents().count());
+        d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), 2*simpleModel->getEvents().count());
     }
 
     if (lastCacheSizeEvent != -1) {
@@ -400,19 +307,20 @@ void PixmapCacheModel::loadData()
     d->computeRowCounts();
     d->computeNesting();
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
 }
 
 void PixmapCacheModel::clear()
 {
+    Q_D(PixmapCacheModel);
     d->SortedTimelineModel::clear();
     d->pixmapUrls.clear();
     d->pixmapSizes.clear();
     d->collapsedRowCount = 1;
     d->expandedRowCount = 1;
-    d->isExpanded = false;
+    d->expanded = false;
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 
 void PixmapCacheModel::PixmapCacheModelPrivate::computeCacheSizes()
@@ -431,6 +339,7 @@ void PixmapCacheModel::PixmapCacheModelPrivate::computeCacheSizes()
 
 void PixmapCacheModel::PixmapCacheModelPrivate::resizeUnfinishedLoads()
 {
+    Q_Q(PixmapCacheModel);
     // all the "load start" events with duration 0 continue till the end of the trace
     for (int i = 0; i < count(); i++) {
         if (range(i).pixmapEventType == PixmapCacheModel::PixmapLoadingStarted &&

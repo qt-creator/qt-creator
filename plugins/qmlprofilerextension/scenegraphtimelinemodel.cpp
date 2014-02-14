@@ -20,6 +20,7 @@
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
 #include "qmlprofiler/sortedtimelinemodel.h"
+#include "qmlprofiler/singlecategorytimelinemodel_p.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -51,51 +52,21 @@ enum SceneGraphCategoryType {
     MaximumSceneGraphCategoryType
 };
 
-class SceneGraphTimelineModel::SceneGraphTimelineModelPrivate : public SortedTimelineModel<SceneGraphTimelineModel::SceneGraphEvent> {
+class SceneGraphTimelineModel::SceneGraphTimelineModelPrivate :
+        public SortedTimelineModel<SceneGraphTimelineModel::SceneGraphEvent,
+                                   SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
+{
 public:
-    SceneGraphTimelineModelPrivate(SceneGraphTimelineModel *qq):q(qq) {}
-    ~SceneGraphTimelineModelPrivate();
-
-    SceneGraphTimelineModel *q;
-
-    bool isExpanded;
-    void addVP(QVariantList &l, QString label, qint64 time);
+    void addVP(QVariantList &l, QString label, qint64 time) const;
+private:
+    Q_DECLARE_PUBLIC(SceneGraphTimelineModel)
 };
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
-    : AbstractTimelineModel(QLatin1String("SceneGraphTimeLineModel"), parent),
-      d(new SceneGraphTimelineModelPrivate(this))
+    : SingleCategoryTimelineModel(new SceneGraphTimelineModelPrivate,
+                                  QLatin1String("SceneGraphTimeLineModel"), tr("Scene Graph"),
+                                  QmlDebug::SceneGraphFrameEvent, parent)
 {
-}
-
-SceneGraphTimelineModel::~SceneGraphTimelineModel()
-{
-}
-
-int SceneGraphTimelineModel::count() const
-{
-    return d->count();
-}
-
-bool SceneGraphTimelineModel::eventAccepted(const QmlProfiler::QmlProfilerSimpleModel::QmlEventData &event) const
-{
-    return (event.eventType == QmlDebug::SceneGraphFrameEvent);
-}
-
-qint64 SceneGraphTimelineModel::lastTimeMark() const
-{
-    return d->lastEndTime();
-}
-
-bool SceneGraphTimelineModel::expanded(int ) const
-{
-    return d->isExpanded;
-}
-
-void SceneGraphTimelineModel::setExpanded(int category, bool expanded)
-{
-    Q_UNUSED(category);
-    d->isExpanded = expanded;
 }
 
 int SceneGraphTimelineModel::categoryDepth(int categoryIndex) const
@@ -106,66 +77,15 @@ int SceneGraphTimelineModel::categoryDepth(int categoryIndex) const
     return 3;
 }
 
-int SceneGraphTimelineModel::categoryCount() const
-{
-    return 1;
-}
-
-const QString SceneGraphTimelineModel::categoryLabel(int categoryIndex) const
-{
-    Q_UNUSED(categoryIndex);
-    return tr("Scene Graph");
-}
-
-int SceneGraphTimelineModel::findFirstIndex(qint64 startTime) const
-{
-    return d->findFirstIndex(startTime);
-}
-
-int SceneGraphTimelineModel::findFirstIndexNoParents(qint64 startTime) const
-{
-    return d->findFirstIndexNoParents(startTime);
-}
-
-int SceneGraphTimelineModel::findLastIndex(qint64 endTime) const
-{
-    return d->findLastIndex(endTime);
-}
-
-int SceneGraphTimelineModel::getEventType(int index) const
-{
-    Q_UNUSED(index);
-    return QmlDebug::SceneGraphFrameEvent;
-}
-
-int SceneGraphTimelineModel::getEventCategory(int index) const
-{
-    Q_UNUSED(index);
-    return 0;
-}
-
 int SceneGraphTimelineModel::getEventRow(int index) const
 {
+    Q_D(const SceneGraphTimelineModel);
     return d->range(index).sgEventType + 1;
-}
-
-qint64 SceneGraphTimelineModel::getDuration(int index) const
-{
-    return d->range(index).duration;
-}
-
-qint64 SceneGraphTimelineModel::getStartTime(int index) const
-{
-    return d->range(index).start;
-}
-
-qint64 SceneGraphTimelineModel::getEndTime(int index) const
-{
-    return getStartTime(index)+getDuration(index);
 }
 
 int SceneGraphTimelineModel::getEventId(int index) const
 {
+    Q_D(const SceneGraphTimelineModel);
     return d->range(index).sgEventType;
 }
 
@@ -186,12 +106,6 @@ QColor SceneGraphTimelineModel::getColor(int index) const
     return QColor::fromHsl((fpsFraction*96)+10, 76, 166);
 }
 
-float SceneGraphTimelineModel::getHeight(int index) const
-{
-    Q_UNUSED(index);
-    return 1.0f;
-}
-
 QString labelForSGType(int t)
 {
     switch ((SceneGraphCategoryType)t) {
@@ -205,10 +119,11 @@ QString labelForSGType(int t)
 
 const QVariantList SceneGraphTimelineModel::getLabelsForCategory(int category) const
 {
+    Q_D(const SceneGraphTimelineModel);
     Q_UNUSED(category);
     QVariantList result;
 
-    if (d->isExpanded && !isEmpty()) {
+    if (d->expanded && !isEmpty()) {
         for (int i = 0; i < MaximumSceneGraphCategoryType; i++) {
             QVariantMap element;
 
@@ -222,7 +137,7 @@ const QVariantList SceneGraphTimelineModel::getLabelsForCategory(int category) c
     return result;
 }
 
-void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::addVP(QVariantList &l, QString label, qint64 time)
+void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::addVP(QVariantList &l, QString label, qint64 time) const
 {
     if (time > 0) {
         QVariantMap res;
@@ -234,8 +149,11 @@ void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::addVP(QVariantList
 
 const QVariantList SceneGraphTimelineModel::getEventDetails(int index) const
 {
+    Q_D(const SceneGraphTimelineModel);
     QVariantList result;
-    const SortedTimelineModel<SceneGraphEvent>::Range *ev = &d->range(index);
+    const SortedTimelineModel<SceneGraphEvent,
+            SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>::Range *ev =
+            &d->range(index);
 
     {
         QVariantMap res;
@@ -273,26 +191,11 @@ const QVariantList SceneGraphTimelineModel::getEventDetails(int index) const
     return result;
 }
 
-const QVariantMap SceneGraphTimelineModel::getEventLocation(int /*index*/) const
-{
-    QVariantMap map;
-    return map;
-}
-
-int SceneGraphTimelineModel::getEventIdForHash(const QString &) const
-{
-    return -1;
-}
-
-int SceneGraphTimelineModel::getEventIdForLocation(const QString &/*filename*/, int /*line*/, int /*column*/) const
-{
-    return -1;
-}
-
 void SceneGraphTimelineModel::loadData()
 {
+    Q_D(SceneGraphTimelineModel);
     clear();
-    QmlProfilerSimpleModel *simpleModel = m_modelManager->simpleModel();
+    QmlProfilerSimpleModel *simpleModel = d->modelManager->simpleModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -380,18 +283,19 @@ void SceneGraphTimelineModel::loadData()
             }
         }
 
-        m_modelManager->modelProxyCountUpdated(m_modelId, d->count(), simpleModel->getEvents().count());
+        d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), simpleModel->getEvents().count());
     }
 
     d->computeNesting();
-    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
 }
 
 void SceneGraphTimelineModel::clear()
 {
+    Q_D(SceneGraphTimelineModel);
     d->clear();
-    d->isExpanded = false;
-    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
+    d->expanded = false;
+    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 
 } // namespace Internal
