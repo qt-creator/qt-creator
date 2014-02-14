@@ -155,7 +155,7 @@ public:
     QString alias(int prefix_idx, int file_idx) const;
 
     void addFile(int prefix_idx, const QString &file, int file_idx = -1);
-    void addPrefix(const QString &prefix, int prefix_idx = -1);
+    void addPrefix(const QString &prefix, const QString &lang, int prefix_idx = -1);
 
     void removePrefix(int prefix_idx);
     void removeFile(int prefix_idx, int file_idx);
@@ -169,10 +169,10 @@ public:
 private:
     void replaceFile(int pref_idx, int file_idx, const QString &file);
 public:
-    int indexOfPrefix(const QString &prefix) const;
+    int indexOfPrefix(const QString &prefix, const QString &lang) const;
     int indexOfFile(int pref_idx, const QString &file) const;
 
-    bool contains(const QString &prefix, const QString &file = QString()) const;
+    bool contains(const QString &prefix, const QString &lang, const QString &file = QString()) const;
     bool contains(int pref_idx, const QString &file) const;
 
     QString relativePath(const QString &abs_path) const;
@@ -243,7 +243,7 @@ public:
     virtual void changeLang(const QModelIndex &idx, const QString &lang);
     virtual void changeAlias(const QModelIndex &idx, const QString &alias);
     virtual QModelIndex deleteItem(const QModelIndex &idx);
-    QModelIndex getIndex(const QString &prefix, const QString &file);
+    QModelIndex getIndex(const QString &prefix, const QString &lang, const QString &file);
     QModelIndex prefixIndex(const QModelIndex &sel_idx) const;
 
     QString absolutePath(const QString &path) const

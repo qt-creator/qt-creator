@@ -151,7 +151,7 @@ bool ResourceFile::load()
             prefix = QString(QLatin1Char('/'));
         const QString language = relt.attribute(QLatin1String("lang"));
 
-        const int idx = indexOfPrefix(prefix);
+        const int idx = indexOfPrefix(prefix, language);
         Prefix * p = 0;
         if (idx == -1) {
             p = new Prefix(prefix, language);
@@ -328,16 +328,17 @@ void ResourceFile::addFile(int prefix_idx, const QString &file, int file_idx)
     files.insert(file_idx, new File(p, absolutePath(file)));
 }
 
-void ResourceFile::addPrefix(const QString &prefix, int prefix_idx)
+void ResourceFile::addPrefix(const QString &prefix, const QString &lang, int prefix_idx)
 {
     QString fixed_prefix = fixPrefix(prefix);
-    if (indexOfPrefix(fixed_prefix) != -1)
+    if (indexOfPrefix(fixed_prefix, lang) != -1)
         return;
 
     Q_ASSERT(prefix_idx >= -1 && prefix_idx <= m_prefix_list.size());
     if (prefix_idx == -1)
         prefix_idx = m_prefix_list.size();
     m_prefix_list.insert(prefix_idx, new Prefix(fixed_prefix));
+    m_prefix_list[prefix_idx]->lang = lang;
 }
 
 void ResourceFile::removePrefix(int prefix_idx)
@@ -421,11 +422,12 @@ void ResourceFile::replaceFile(int pref_idx, int file_idx, const QString &file)
     fileList[file_idx]->name = file;
 }
 
-int ResourceFile::indexOfPrefix(const QString &prefix) const
+int ResourceFile::indexOfPrefix(const QString &prefix, const QString &lang) const
 {
     QString fixed_prefix = fixPrefix(prefix);
     for (int i = 0; i < m_prefix_list.size(); ++i) {
-        if (m_prefix_list.at(i)->name == fixed_prefix)
+        if (m_prefix_list.at(i)->name == fixed_prefix
+                && m_prefix_list.at(i)->lang == lang)
             return i;
     }
     return -1;
@@ -460,9 +462,9 @@ QString ResourceFile::absolutePath(const QString &rel_path) const
     return QDir::cleanPath(rc);
 }
 
-bool ResourceFile::contains(const QString &prefix, const QString &file) const
+bool ResourceFile::contains(const QString &prefix, const QString &lang, const QString &file) const
 {
-    int pref_idx = indexOfPrefix(prefix);
+    int pref_idx = indexOfPrefix(prefix, lang);
     if (pref_idx == -1)
         return false;
     if (file.isEmpty())
@@ -864,12 +866,12 @@ QString ResourceModel::file(const QModelIndex &index) const
     return m_resource_file.file(index.parent().row(), index.row());
 }
 
-QModelIndex ResourceModel::getIndex(const QString &prefix, const QString &file)
+QModelIndex ResourceModel::getIndex(const QString &prefix, const QString &lang, const QString &file)
 {
     if (prefix.isEmpty())
         return QModelIndex();
 
-    const int pref_idx = m_resource_file.indexOfPrefix(prefix);
+    const int pref_idx = m_resource_file.indexOfPrefix(prefix, lang);
     if (pref_idx == -1)
         return QModelIndex();
 
@@ -897,12 +899,12 @@ QModelIndex ResourceModel::addNewPrefix()
     const QString format = QLatin1String("/new/prefix%1");
     int i = 1;
     QString prefix = format.arg(i);
-    for ( ; m_resource_file.contains(prefix); i++)
+    for ( ; m_resource_file.contains(prefix, QString()); i++)
         prefix = format.arg(i);
 
     i = rowCount(QModelIndex());
     beginInsertRows(QModelIndex(), i, i);
-    m_resource_file.addPrefix(prefix);
+    m_resource_file.addPrefix(prefix, QString());
     endInsertRows();
 
     setDirty(true);
@@ -974,8 +976,7 @@ void ResourceModel::insertPrefix(int prefixIndex, const QString &prefix,
         const QString &lang)
 {
     beginInsertRows(QModelIndex(), prefixIndex, prefixIndex);
-    m_resource_file.addPrefix(prefix, prefixIndex);
-    m_resource_file.replaceLang(prefixIndex, lang);
+    m_resource_file.addPrefix(prefix, lang, prefixIndex);
     endInsertRows();
     setDirty(true);
 }
@@ -1008,8 +1009,7 @@ void ResourceModel::changePrefix(const QModelIndex &model_idx, const QString &pr
     const int prefix_idx = model_idx.row();
     if (m_resource_file.prefix(prefix_idx) == ResourceFile::fixPrefix(prefix))
         return;
-
-    if (m_resource_file.contains(prefix))
+    if (m_resource_file.contains(prefix, m_resource_file.lang(prefix_idx)))
         return;
 
     m_resource_file.replacePrefix(prefix_idx, prefix);
