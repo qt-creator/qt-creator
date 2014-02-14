@@ -48,7 +48,6 @@ public:
 
 //    void setModelManager(QmlProfiler::Internal::QmlProfilerModelManager *modelManager);
 
-    QString name() const;
     int count() const;
 
     bool isEmpty() const;

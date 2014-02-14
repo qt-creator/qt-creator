@@ -64,17 +64,13 @@ public:
 };
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
-    : AbstractTimelineModel(parent), d(new SceneGraphTimelineModelPrivate(this))
+    : AbstractTimelineModel(QLatin1String("SceneGraphTimeLineModel"), parent),
+      d(new SceneGraphTimelineModelPrivate(this))
 {
 }
 
 SceneGraphTimelineModel::~SceneGraphTimelineModel()
 {
-}
-
-QString SceneGraphTimelineModel::name() const
-{
-    return QLatin1String("SceneGraphTimeLineModel");
 }
 
 int SceneGraphTimelineModel::count() const

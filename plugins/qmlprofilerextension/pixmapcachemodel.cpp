@@ -54,7 +54,8 @@ public:
 };
 
 PixmapCacheModel::PixmapCacheModel(QObject *parent)
-    : AbstractTimelineModel(parent), d(new PixmapCacheModelPrivate(this))
+    : AbstractTimelineModel(QLatin1String("PixmapCacheTimeLineModel"), parent),
+      d(new PixmapCacheModelPrivate(this))
 {
     d->collapsedRowCount = 1;
     d->expandedRowCount = 1;
@@ -62,11 +63,6 @@ PixmapCacheModel::PixmapCacheModel(QObject *parent)
 
 PixmapCacheModel::~PixmapCacheModel()
 {
-}
-
-QString PixmapCacheModel::name() const
-{
-    return QLatin1String("PixmapCacheTimeLineModel");
 }
 
 int PixmapCacheModel::count() const
