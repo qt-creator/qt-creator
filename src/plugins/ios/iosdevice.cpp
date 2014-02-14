@@ -312,34 +312,39 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
     QLatin1String devStatusKey = QLatin1String("developerStatus");
     if (info.contains(devStatusKey)) {
         QString devStatus = info.value(devStatusKey);
-        if (devStatus == QLatin1String("*off*")) {
-            devManager->setDeviceState(newDev->id(), IDevice::DeviceConnected);
-            if (!newDev->m_ignoreDevice && !IosConfigurations::ignoreAllDevices()) {
-                QMessageBox mBox;
-                mBox.setText(tr("An iOS device in user mode has been detected."));
-                mBox.setInformativeText(tr("Do you want to see how to set it up for development?"));
-                mBox.setStandardButtons(QMessageBox::NoAll | QMessageBox::No | QMessageBox::Yes);
-                mBox.setDefaultButton(QMessageBox::Yes);
-                int ret = mBox.exec();
-                switch (ret) {
-                case QMessageBox::Yes:
-                    Core::HelpManager::handleHelpRequest(
-                                QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-developing-ios.html"));
-                    break;
-                case QMessageBox::No:
-                    newDev->m_ignoreDevice = true;
-                    break;
-                case QMessageBox::NoAll:
-                    IosConfigurations::setIgnoreAllDevices(true);
-                    break;
-                default:
-                break;
-                }
-            }
-        } else if (devStatus == QLatin1String("Development")) {
+        if (devStatus == QLatin1String("Development")) {
             devManager->setDeviceState(newDev->id(), IDevice::DeviceReadyToUse);
+            m_userModeDeviceIds.removeOne(uid);
         } else {
             devManager->setDeviceState(newDev->id(), IDevice::DeviceConnected);
+            bool shouldIgnore = newDev->m_ignoreDevice;
+            newDev->m_ignoreDevice = true;
+            if (devStatus == QLatin1String("*off*")) {
+                if (!shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
+                    QMessageBox mBox;
+                    mBox.setText(tr("An iOS device in user mode has been detected."));
+                    mBox.setInformativeText(tr("Do you want to see how to set it up for development?"));
+                    mBox.setStandardButtons(QMessageBox::NoAll | QMessageBox::No | QMessageBox::Yes);
+                    mBox.setDefaultButton(QMessageBox::Yes);
+                    int ret = mBox.exec();
+                    switch (ret) {
+                    case QMessageBox::Yes:
+                        Core::HelpManager::handleHelpRequest(
+                                    QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-developing-ios.html"));
+                        break;
+                    case QMessageBox::No:
+                        break;
+                    case QMessageBox::NoAll:
+                        IosConfigurations::setIgnoreAllDevices(true);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            if (!m_userModeDeviceIds.contains(uid))
+                m_userModeDeviceIds.append(uid);
+            m_userModeDevicesTimer.start();
         }
     }
 }
@@ -497,6 +502,16 @@ void IosDeviceManager::monitorAvailableDevices()
 IosDeviceManager::IosDeviceManager(QObject *parent) :
     QObject(parent)
 {
+    m_userModeDevicesTimer.setSingleShot(true);
+    m_userModeDevicesTimer.setInterval(8000);
+    connect(&m_userModeDevicesTimer, SIGNAL(timeout()),
+            SLOT(updateUserModeDevices()));
+}
+
+void IosDeviceManager::updateUserModeDevices()
+{
+    foreach (const QString &uid, m_userModeDeviceIds)
+        updateInfo(uid);
 }
 
 IosDeviceManager *IosDeviceManager::instance()

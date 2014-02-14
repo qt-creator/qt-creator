@@ -38,6 +38,8 @@
 #include <QMap>
 #include <QString>
 #include <QSharedPointer>
+#include <QStringList>
+#include <QTimer>
 
 namespace ProjectExplorer{
 class Kit;
@@ -100,8 +102,12 @@ public slots:
                     const Ios::IosToolHandler::Dict &info);
     void infoGathererFinished(Ios::IosToolHandler *gatherer);
     void monitorAvailableDevices();
+private slots:
+    void updateUserModeDevices();
 private:
     IosDeviceManager(QObject *parent = 0);
+    QTimer m_userModeDevicesTimer;
+    QStringList m_userModeDeviceIds;
 };
 
 namespace IosKitInformation {
