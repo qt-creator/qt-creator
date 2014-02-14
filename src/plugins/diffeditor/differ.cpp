@@ -40,6 +40,7 @@ publication by Neil Fraser: http://neil.fraser.name/writing/diff/
 #include <QList>
 #include <QStringList>
 #include <QMap>
+#include <QPair>
 #include <QCoreApplication>
 
 namespace DiffEditor {
