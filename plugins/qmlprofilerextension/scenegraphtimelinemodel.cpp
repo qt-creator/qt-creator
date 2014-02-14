@@ -77,13 +77,6 @@ int SceneGraphTimelineModel::categories() const
     return 1;
 }
 
-QStringList SceneGraphTimelineModel::categoryTitles() const
-{
-    QStringList retString;
-    retString << categoryLabel(0);
-    return retString;
-}
-
 QString SceneGraphTimelineModel::name() const
 {
     return QLatin1String("SceneGraphTimeLineModel");
