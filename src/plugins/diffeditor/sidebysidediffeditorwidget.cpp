@@ -403,9 +403,9 @@ static void diffWithWhitespaceReduced(const Diff &leftDiff,
  * For the above example it would be:
  *
  * leftCodeMap:  <1, <3, "   "> >
- *               <5, <3, "     "> >
+ *               <5, <7, "     "> >
  * rightCodeMap: <1, <3, " /t"> >
- *               <5, <3, "  /t    "> >
+ *               <5, <7, "  /t    "> >
  *
  */
 static QString encodeExpandedWhitespace(const QString &leftEquality,
