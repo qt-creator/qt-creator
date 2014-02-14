@@ -27,63 +27,36 @@
 **
 ****************************************************************************/
 
+#ifndef SINGLECATEGORYTIMELINEMODEL_H
+#define SINGLECATEGORYTIMELINEMODEL_H
 
-#ifndef QMLPROFILERPAINTEVENTSMODELPROXY_H
-#define QMLPROFILERPAINTEVENTSMODELPROXY_H
-
-#include <QObject>
-#include "singlecategorytimelinemodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
-#include <qmldebug/qmlprofilereventlocation.h>
-//#include <QHash>
-//#include <QVector>
-#include <QVariantList>
-//#include <QVariantMap>
-#include "qmlprofilersimplemodel.h"
-#include <QColor>
-
+#include "abstracttimelinemodel.h"
 
 namespace QmlProfiler {
-class QmlProfilerModelManager;
 
-namespace Internal {
-
-class PaintEventsModelProxy : public SingleCategoryTimelineModel
+class QMLPROFILER_EXPORT SingleCategoryTimelineModel : public AbstractTimelineModel
 {
-//    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
-
     Q_OBJECT
 public:
-
-    struct QmlPaintEventData {
-        int framerate;
-        int animationcount;
-    };
-
-    PaintEventsModelProxy(QObject *parent = 0);
-
-    void loadData();
-    void clear();
-
-    Q_INVOKABLE int categoryDepth(int categoryIndex) const;
-    Q_INVOKABLE int getEventId(int index) const;
-    int getEventRow(int index) const;
-
-    Q_INVOKABLE QColor getColor(int index) const;
-    Q_INVOKABLE float getHeight(int index) const;
-
-    Q_INVOKABLE const QVariantList getLabelsForCategory(int category) const;
-    Q_INVOKABLE const QVariantList getEventDetails(int index) const;
-
-private slots:
     bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const;
+    Q_INVOKABLE bool expanded(int) const;
+    Q_INVOKABLE void setExpanded(int, bool expanded);
 
-private:
-    class PaintEventsModelProxyPrivate;
-    Q_DECLARE_PRIVATE(PaintEventsModelProxy)
+    Q_INVOKABLE int categoryCount() const;
+
+    int getEventType(int index) const;
+    Q_INVOKABLE int getEventCategory(int index) const;
+    Q_INVOKABLE const QString categoryLabel(int categoryIndex) const;
+
+protected:
+    class SingleCategoryTimelineModelPrivate;
+    SingleCategoryTimelineModel(SingleCategoryTimelineModelPrivate *dd, const QString &name,
+                                const QString &label, QmlDebug::QmlEventType eventType,
+                                QObject *parent);
+    Q_DECLARE_PRIVATE(SingleCategoryTimelineModel)
 };
 
 }
-}
 
-#endif
+#endif // SINGLECATEGORYTIMELINEMODEL_H

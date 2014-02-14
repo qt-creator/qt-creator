@@ -54,9 +54,6 @@ struct CategorySpan {
 class BasicTimelineModel::BasicTimelineModelPrivate : public SortedTimelineModel<BasicTimelineModel::QmlRangeEventStartInstance>
 {
 public:
-    BasicTimelineModelPrivate(BasicTimelineModel *qq) : q(qq) {}
-    ~BasicTimelineModelPrivate() {}
-
     // convenience functions
     void prepare();
     void computeNestingContracted();
@@ -68,30 +65,26 @@ public:
     QVector <QString> eventHashes;
     QVector <CategorySpan> categorySpan;
     bool seenPaintEvent;
-
-    BasicTimelineModel *q;
+private:
+    Q_DECLARE_PUBLIC(BasicTimelineModel)
 };
 
 BasicTimelineModel::BasicTimelineModel(QObject *parent)
-    : AbstractTimelineModel(QLatin1String("BasicTimelineModel"), parent),
-      d(new BasicTimelineModelPrivate(this))
+    : AbstractTimelineModel(new BasicTimelineModelPrivate, QLatin1String("BasicTimelineModel"),
+                            parent)
 {
-}
-
-BasicTimelineModel::~BasicTimelineModel()
-{
-    delete d;
 }
 
 void BasicTimelineModel::clear()
 {
+    Q_D(BasicTimelineModel);
     d->SortedTimelineModel::clear();
     d->eventDict.clear();
     d->eventHashes.clear();
     d->categorySpan.clear();
     d->seenPaintEvent = false;
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 
 void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
@@ -114,8 +107,9 @@ bool BasicTimelineModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventDat
 
 void BasicTimelineModel::loadData()
 {
+    Q_D(BasicTimelineModel);
     clear();
-    QmlProfilerSimpleModel *simpleModel = m_modelManager->simpleModel();
+    QmlProfilerSimpleModel *simpleModel = d->modelManager->simpleModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -149,10 +143,10 @@ void BasicTimelineModel::loadData()
         // store starttime-based instance
         d->insert(event.startTime, event.duration, QmlRangeEventStartInstance(d->eventHashes.indexOf(eventHash)));
 
-        m_modelManager->modelProxyCountUpdated(m_modelId, d->count(), eventList.count() * 6);
+        d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), eventList.count() * 6);
     }
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 2, 6);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 2, 6);
 
     // compute range nesting
     d->computeNesting();
@@ -160,25 +154,26 @@ void BasicTimelineModel::loadData()
     // compute nestingLevel - nonexpanded
     d->computeNestingContracted();
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 3, 6);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 3, 6);
 
     // compute nestingLevel - expanded
     d->computeExpandedLevels();
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 4, 6);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 4, 6);
 
 
     d->findBindingLoops();
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 5, 6);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 5, 6);
 
     d->computeRowStarts();
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
 }
 
 void BasicTimelineModel::BasicTimelineModelPrivate::computeNestingContracted()
 {
+    Q_Q(BasicTimelineModel);
     int i;
     int eventCount = count();
 
@@ -276,6 +271,7 @@ void BasicTimelineModel::BasicTimelineModelPrivate::findBindingLoops()
 
 void BasicTimelineModel::BasicTimelineModelPrivate::computeRowStarts()
 {
+    Q_Q(BasicTimelineModel);
     int rowStart = 0;
     for (int i = 0; i < categorySpan.count(); i++) {
         categorySpan[i].rowStart = rowStart;
@@ -285,18 +281,9 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeRowStarts()
 
 /////////////////// QML interface
 
-int BasicTimelineModel::count() const
-{
-    return d->count();
-}
-
-qint64 BasicTimelineModel::lastTimeMark() const
-{
-    return d->lastEndTime();
-}
-
 bool BasicTimelineModel::expanded(int category) const
 {
+    Q_D(const BasicTimelineModel);
     if (d->categorySpan.count() <= category)
         return false;
     return d->categorySpan[category].expanded;
@@ -304,6 +291,7 @@ bool BasicTimelineModel::expanded(int category) const
 
 void BasicTimelineModel::setExpanded(int category, bool expanded)
 {
+    Q_D(BasicTimelineModel);
     if (d->categorySpan.count() <= category)
         return;
 
@@ -314,6 +302,7 @@ void BasicTimelineModel::setExpanded(int category, bool expanded)
 
 int BasicTimelineModel::categoryDepth(int categoryIndex) const
 {
+    Q_D(const BasicTimelineModel);
     // special for paint events: show only when empty model or there's actual events
     if (categoryIndex == QmlDebug::Painting && !d->seenPaintEvent)
         return 0;
@@ -343,29 +332,15 @@ const QString BasicTimelineModel::categoryLabel(int categoryIndex) const
     }
 }
 
-
-int BasicTimelineModel::findFirstIndex(qint64 startTime) const
-{
-    return d->findFirstIndex(startTime);
-}
-
-int BasicTimelineModel::findFirstIndexNoParents(qint64 startTime) const
-{
-    return d->findFirstIndexNoParents(startTime);
-}
-
-int BasicTimelineModel::findLastIndex(qint64 endTime) const
-{
-    return d->findLastIndex(endTime);
-}
-
 int BasicTimelineModel::getEventType(int index) const
 {
+    Q_D(const BasicTimelineModel);
     return d->eventDict[d->range(index).eventId].eventType;
 }
 
 int BasicTimelineModel::getEventCategory(int index) const
 {
+    Q_D(const BasicTimelineModel);
     int evTy = getEventType(index);
     // special: paint events shown?
     if (!d->seenPaintEvent)
@@ -375,34 +350,22 @@ int BasicTimelineModel::getEventCategory(int index) const
 
 int BasicTimelineModel::getEventRow(int index) const
 {
+    Q_D(const BasicTimelineModel);
     if (d->categorySpan[getEventType(index)].expanded)
         return d->range(index).displayRowExpanded + d->categorySpan[getEventType(index)].rowStart;
     else
         return d->range(index).displayRowCollapsed  + d->categorySpan[getEventType(index)].rowStart;
 }
 
-qint64 BasicTimelineModel::getDuration(int index) const
-{
-    return d->range(index).duration;
-}
-
-qint64 BasicTimelineModel::getStartTime(int index) const
-{
-    return d->range(index).start;
-}
-
-qint64 BasicTimelineModel::getEndTime(int index) const
-{
-    return d->range(index).start + d->range(index).duration;
-}
-
 int BasicTimelineModel::getEventId(int index) const
 {
+    Q_D(const BasicTimelineModel);
     return d->range(index).eventId;
 }
 
 int BasicTimelineModel::getBindingLoopDest(int index) const
 {
+    Q_D(const BasicTimelineModel);
     return d->range(index).bindingLoopHead;
 }
 
@@ -412,15 +375,9 @@ QColor BasicTimelineModel::getColor(int index) const
     return QColor::fromHsl((ndx*25)%360, 76, 166);
 }
 
-float BasicTimelineModel::getHeight(int index) const
-{
-    Q_UNUSED(index);
-    // 100% height for regular events
-    return 1.0f;
-}
-
 const QVariantList BasicTimelineModel::getLabelsForCategory(int category) const
 {
+    Q_D(const BasicTimelineModel);
     QVariantList result;
 
     if (d->categorySpan.count() > category && d->categorySpan[category].expanded) {
@@ -441,6 +398,7 @@ const QVariantList BasicTimelineModel::getLabelsForCategory(int category) const
 
 const QVariantList BasicTimelineModel::getEventDetails(int index) const
 {
+    Q_D(const BasicTimelineModel);
     QVariantList result;
     int eventId = getEventId(index);
 
@@ -485,6 +443,7 @@ const QVariantList BasicTimelineModel::getEventDetails(int index) const
 
 const QVariantMap BasicTimelineModel::getEventLocation(int index) const
 {
+    Q_D(const BasicTimelineModel);
     QVariantMap result;
     int eventId = getEventId(index);
 
@@ -500,11 +459,13 @@ const QVariantMap BasicTimelineModel::getEventLocation(int index) const
 
 int BasicTimelineModel::getEventIdForHash(const QString &eventHash) const
 {
+    Q_D(const BasicTimelineModel);
     return d->eventHashes.indexOf(eventHash);
 }
 
 int BasicTimelineModel::getEventIdForLocation(const QString &filename, int line, int column) const
 {
+    Q_D(const BasicTimelineModel);
     // if this is called from v8 view, we don't have the column number, it will be -1
     foreach (const QmlRangeEventData &eventData, d->eventDict) {
         if (eventData.location.filename == filename &&

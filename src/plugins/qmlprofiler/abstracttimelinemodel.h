@@ -45,59 +45,54 @@ class QMLPROFILER_EXPORT AbstractTimelineModel : public QObject
     Q_OBJECT
 
 public:
-    explicit AbstractTimelineModel(const QString &name, QObject *parent = 0);
+    class AbstractTimelineModelPrivate;
     ~AbstractTimelineModel();
 
+    // Trivial methods implemented by the abstract model itself
     void setModelManager(QmlProfilerModelManager *modelManager);
-
     QStringList categoryTitles() const;
     QString name() const;
-    virtual int count() const = 0;
-
     bool isEmpty() const;
 
-    virtual bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const = 0;
-
-    Q_INVOKABLE virtual qint64 lastTimeMark() const = 0;
+    // Methods are directly passed on to the private model and relying on its virtual methods.
+    Q_INVOKABLE qint64 lastTimeMark() const;
     Q_INVOKABLE qint64 traceStartTime() const;
     Q_INVOKABLE qint64 traceEndTime() const;
     Q_INVOKABLE qint64 traceDuration() const;
     Q_INVOKABLE int getState() const;
+    Q_INVOKABLE int rowCount() const;
+    Q_INVOKABLE qint64 getDuration(int index) const;
+    Q_INVOKABLE qint64 getStartTime(int index) const;
+    Q_INVOKABLE qint64 getEndTime(int index) const;
+    int findFirstIndex(qint64 startTime) const;
+    int findFirstIndexNoParents(qint64 startTime) const;
+    int findLastIndex(qint64 endTime) const;
+    int count() const;
 
+    // Methods that have to be implemented by child models
     Q_INVOKABLE virtual bool expanded(int category) const = 0;
     Q_INVOKABLE virtual void setExpanded(int category, bool expanded) = 0;
     Q_INVOKABLE virtual int categoryDepth(int categoryIndex) const = 0;
     Q_INVOKABLE virtual int categoryCount() const = 0;
-    Q_INVOKABLE virtual int rowCount() const;
     Q_INVOKABLE virtual const QString categoryLabel(int categoryIndex) const = 0;
-
-    virtual int findFirstIndex(qint64 startTime) const = 0;
-    virtual int findFirstIndexNoParents(qint64 startTime) const = 0;
-    virtual int findLastIndex(qint64 endTime) const = 0;
-
+    Q_INVOKABLE virtual int getEventId(int index) const = 0;
+    Q_INVOKABLE virtual QColor getColor(int index) const = 0;
+    Q_INVOKABLE virtual const QVariantList getLabelsForCategory(int category) const = 0;
+    Q_INVOKABLE virtual const QVariantList getEventDetails(int index) const = 0;
+    virtual bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const = 0;
     virtual int getEventType(int index) const = 0;
     virtual int getEventCategory(int index) const = 0;
     virtual int getEventRow(int index) const = 0;
-
     virtual void loadData() = 0;
     virtual void clear() = 0;
 
-    Q_INVOKABLE virtual qint64 getDuration(int index) const = 0;
-    Q_INVOKABLE virtual qint64 getStartTime(int index) const = 0;
-    Q_INVOKABLE virtual qint64 getEndTime(int index) const = 0;
-    Q_INVOKABLE virtual int getEventId(int index) const = 0;
-    Q_INVOKABLE virtual int getBindingLoopDest(int index) const;
-    Q_INVOKABLE virtual QColor getColor(int index) const = 0;
-    Q_INVOKABLE virtual float getHeight(int index) const = 0;
-
-    Q_INVOKABLE virtual const QVariantList getLabelsForCategory(int category) const = 0;
-
-    Q_INVOKABLE virtual const QVariantList getEventDetails(int index) const = 0;
-
+    // Methods which can optionally be implemented by child models.
     // returned map should contain "file", "line", "column" properties, or be empty
-    Q_INVOKABLE virtual const QVariantMap getEventLocation(int index) const = 0;
-    Q_INVOKABLE virtual int getEventIdForHash(const QString &eventHash) const = 0;
-    Q_INVOKABLE virtual int getEventIdForLocation(const QString &filename, int line, int column) const = 0;
+    Q_INVOKABLE virtual const QVariantMap getEventLocation(int index) const;
+    Q_INVOKABLE virtual int getEventIdForHash(const QString &eventHash) const;
+    Q_INVOKABLE virtual int getEventIdForLocation(const QString &filename, int line, int column) const;
+    Q_INVOKABLE virtual int getBindingLoopDest(int index) const;
+    Q_INVOKABLE virtual float getHeight(int index) const;
 
 signals:
     void dataAvailable();
@@ -106,12 +101,15 @@ signals:
     void expandedChanged();
 
 protected:
-    QString m_name;
-    QmlProfilerModelManager *m_modelManager;
-    int m_modelId;
+    explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &name,
+                                   QObject *parent = 0);
+    AbstractTimelineModelPrivate *d_ptr;
 
 protected slots:
     void dataChanged();
+
+private:
+    Q_DECLARE_PRIVATE(AbstractTimelineModel)
 };
 
 }

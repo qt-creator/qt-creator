@@ -27,63 +27,36 @@
 **
 ****************************************************************************/
 
+#ifndef ABSTRACTTIMELINEMODEL_P_H
+#define ABSTRACTTIMELINEMODEL_P_H
 
-#ifndef QMLPROFILERPAINTEVENTSMODELPROXY_H
-#define QMLPROFILERPAINTEVENTSMODELPROXY_H
-
-#include <QObject>
-#include "singlecategorytimelinemodel.h"
-#include <qmldebug/qmlprofilereventtypes.h>
-#include <qmldebug/qmlprofilereventlocation.h>
-//#include <QHash>
-//#include <QVector>
-#include <QVariantList>
-//#include <QVariantMap>
-#include "qmlprofilersimplemodel.h"
-#include <QColor>
-
+#include "abstracttimelinemodel.h"
 
 namespace QmlProfiler {
-class QmlProfilerModelManager;
 
-namespace Internal {
-
-class PaintEventsModelProxy : public SingleCategoryTimelineModel
-{
-//    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
-
-    Q_OBJECT
+class QMLPROFILER_EXPORT AbstractTimelineModel::AbstractTimelineModelPrivate {
 public:
+    virtual ~AbstractTimelineModelPrivate() {}
 
-    struct QmlPaintEventData {
-        int framerate;
-        int animationcount;
-    };
+    virtual int count() const = 0;
+    virtual qint64 duration(int index) const = 0;
+    virtual qint64 startTime(int index) const = 0;
+    virtual qint64 lastEndTime() const = 0;
+    virtual qint64 firstStartTime() const = 0;
+    virtual int findFirstIndex(qint64 startTime) const = 0;
+    virtual int findFirstIndexNoParents(qint64 startTime) const = 0;
+    virtual int findLastIndex(qint64 endTime) const = 0;
 
-    PaintEventsModelProxy(QObject *parent = 0);
+    QString name;
+    QmlProfilerModelManager *modelManager;
+    int modelId;
 
-    void loadData();
-    void clear();
-
-    Q_INVOKABLE int categoryDepth(int categoryIndex) const;
-    Q_INVOKABLE int getEventId(int index) const;
-    int getEventRow(int index) const;
-
-    Q_INVOKABLE QColor getColor(int index) const;
-    Q_INVOKABLE float getHeight(int index) const;
-
-    Q_INVOKABLE const QVariantList getLabelsForCategory(int category) const;
-    Q_INVOKABLE const QVariantList getEventDetails(int index) const;
-
-private slots:
-    bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const;
+protected:
+    AbstractTimelineModel *q_ptr;
 
 private:
-    class PaintEventsModelProxyPrivate;
-    Q_DECLARE_PRIVATE(PaintEventsModelProxy)
+    Q_DECLARE_PUBLIC(AbstractTimelineModel)
 };
 
 }
-}
-
-#endif
+#endif // ABSTRACTTIMELINEMODEL_P_H

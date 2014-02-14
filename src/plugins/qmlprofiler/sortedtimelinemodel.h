@@ -30,13 +30,17 @@
 #ifndef SORTEDTIMELINEMODEL_H
 #define SORTEDTIMELINEMODEL_H
 
+#include "abstracttimelinemodel_p.h"
 #include <QVector>
 #include <QLinkedList>
 
 namespace QmlProfiler {
 
-template<class Data>
-class SortedTimelineModel {
+// The template has to be inserted into the hierarchy of public/private classes when Data is known.
+// Otherwise we'd have to add implementation details to the public headers. This is why the class to
+// be derived from is given as template parameter.
+template<class Data, class Base = AbstractTimelineModel::AbstractTimelineModelPrivate>
+class SortedTimelineModel : public Base {
 public:
     struct Range : public Data {
         Range() : Data(), start(-1), duration(-1), parent(-1) {}
@@ -65,10 +69,13 @@ public:
 
     inline int count() const { return ranges.count(); }
 
+    qint64 duration(int index) const { return range(index).duration; }
+    qint64 startTime(int index) const { return range(index).start; }
+
     inline qint64 lastEndTime() const { return endTimes.last().end; }
     inline qint64 firstStartTime() const { return ranges.first().start; }
 
-    inline const Range &range(int index) { return ranges[index]; }
+    inline const Range &range(int index) const { return ranges[index]; }
     inline Data &data(int index) { return ranges[index]; }
 
     inline int insert(qint64 startTime, qint64 duration, const Data &item)

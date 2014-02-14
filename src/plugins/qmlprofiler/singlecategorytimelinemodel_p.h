@@ -27,63 +27,21 @@
 **
 ****************************************************************************/
 
+#ifndef SINGLECATEGORYTIMELINEMODEL_P_H
+#define SINGLECATEGORYTIMELINEMODEL_P_H
 
-#ifndef QMLPROFILERPAINTEVENTSMODELPROXY_H
-#define QMLPROFILERPAINTEVENTSMODELPROXY_H
-
-#include <QObject>
 #include "singlecategorytimelinemodel.h"
-#include <qmldebug/qmlprofilereventtypes.h>
-#include <qmldebug/qmlprofilereventlocation.h>
-//#include <QHash>
-//#include <QVector>
-#include <QVariantList>
-//#include <QVariantMap>
-#include "qmlprofilersimplemodel.h"
-#include <QColor>
-
+#include "abstracttimelinemodel_p.h"
 
 namespace QmlProfiler {
-class QmlProfilerModelManager;
 
-namespace Internal {
-
-class PaintEventsModelProxy : public SingleCategoryTimelineModel
-{
-//    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
-
-    Q_OBJECT
+class SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate :
+        public AbstractTimelineModel::AbstractTimelineModelPrivate {
 public:
-
-    struct QmlPaintEventData {
-        int framerate;
-        int animationcount;
-    };
-
-    PaintEventsModelProxy(QObject *parent = 0);
-
-    void loadData();
-    void clear();
-
-    Q_INVOKABLE int categoryDepth(int categoryIndex) const;
-    Q_INVOKABLE int getEventId(int index) const;
-    int getEventRow(int index) const;
-
-    Q_INVOKABLE QColor getColor(int index) const;
-    Q_INVOKABLE float getHeight(int index) const;
-
-    Q_INVOKABLE const QVariantList getLabelsForCategory(int category) const;
-    Q_INVOKABLE const QVariantList getEventDetails(int index) const;
-
-private slots:
-    bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const;
-
-private:
-    class PaintEventsModelProxyPrivate;
-    Q_DECLARE_PRIVATE(PaintEventsModelProxy)
+    bool expanded;
+    QString label;
+    QmlDebug::QmlEventType eventType;
 };
-
-}
 }
 
-#endif
+#endif // SINGLECATEGORYTIMELINEMODEL_P_H

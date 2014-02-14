@@ -28,21 +28,33 @@
 ****************************************************************************/
 
 #include "abstracttimelinemodel.h"
+#include "abstracttimelinemodel_p.h"
 
 namespace QmlProfiler {
 
-AbstractTimelineModel::AbstractTimelineModel(const QString &name, QObject *parent) :
-    QObject(parent), m_name(name), m_modelManager(0)
-{}
+AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &name,
+                                             QObject *parent) :
+    QObject(parent), d_ptr(dd)
+{
+    Q_D(AbstractTimelineModel);
+    d->q_ptr = this;
+    d->name = name;
+    d->modelId = 0;
+    d->modelManager = 0;
+}
 
 AbstractTimelineModel::~AbstractTimelineModel()
-{}
+{
+    Q_D(AbstractTimelineModel);
+    delete d;
+}
 
 void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManager)
 {
-    m_modelManager = modelManager;
-    connect(modelManager->simpleModel(),SIGNAL(changed()),this,SLOT(dataChanged()));
-    m_modelId = modelManager->registerModelProxy();
+    Q_D(AbstractTimelineModel);
+    d->modelManager = modelManager;
+    connect(d->modelManager->simpleModel(),SIGNAL(changed()),this,SLOT(dataChanged()));
+    d->modelId = d->modelManager->registerModelProxy();
 }
 
 QStringList AbstractTimelineModel::categoryTitles() const
@@ -55,7 +67,56 @@ QStringList AbstractTimelineModel::categoryTitles() const
 
 QString AbstractTimelineModel::name() const
 {
-    return m_name;
+    Q_D(const AbstractTimelineModel);
+    return d->name;
+}
+
+int AbstractTimelineModel::count() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->count();
+}
+
+qint64 AbstractTimelineModel::lastTimeMark() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->lastEndTime();
+}
+
+int AbstractTimelineModel::findFirstIndex(qint64 startTime) const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->findFirstIndex(startTime);
+}
+
+int AbstractTimelineModel::findFirstIndexNoParents(qint64 startTime) const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->findFirstIndexNoParents(startTime);
+}
+
+int AbstractTimelineModel::findLastIndex(qint64 endTime) const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->findLastIndex(endTime);
+}
+
+qint64 AbstractTimelineModel::getDuration(int index) const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->duration(index);
+}
+
+qint64 AbstractTimelineModel::getStartTime(int index) const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->startTime(index);
+}
+
+qint64 AbstractTimelineModel::getEndTime(int index) const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->startTime(index) + d->duration(index);
 }
 
 bool AbstractTimelineModel::isEmpty() const
@@ -65,22 +126,47 @@ bool AbstractTimelineModel::isEmpty() const
 
 qint64 AbstractTimelineModel::traceStartTime() const
 {
-    return m_modelManager->traceTime()->startTime();
+    Q_D(const AbstractTimelineModel);
+    return d->modelManager->traceTime()->startTime();
 }
 
 qint64 AbstractTimelineModel::traceEndTime() const
 {
-    return m_modelManager->traceTime()->endTime();
+    Q_D(const AbstractTimelineModel);
+    return d->modelManager->traceTime()->endTime();
 }
 
 qint64 AbstractTimelineModel::traceDuration() const
 {
-    return m_modelManager->traceTime()->duration();
+    Q_D(const AbstractTimelineModel);
+    return d->modelManager->traceTime()->duration();
 }
 
 int AbstractTimelineModel::getState() const
 {
-    return (int)m_modelManager->state();
+    Q_D(const AbstractTimelineModel);
+    return (int)d->modelManager->state();
+}
+
+const QVariantMap AbstractTimelineModel::getEventLocation(int index) const
+{
+    Q_UNUSED(index);
+    QVariantMap map;
+    return map;
+}
+
+int AbstractTimelineModel::getEventIdForHash(const QString &eventHash) const
+{
+    Q_UNUSED(eventHash);
+    return -1;
+}
+
+int AbstractTimelineModel::getEventIdForLocation(const QString &filename, int line, int column) const
+{
+    Q_UNUSED(filename);
+    Q_UNUSED(line);
+    Q_UNUSED(column);
+    return -1;
 }
 
 int AbstractTimelineModel::rowCount() const
@@ -97,9 +183,16 @@ int AbstractTimelineModel::getBindingLoopDest(int index) const
     return -1;
 }
 
+float AbstractTimelineModel::getHeight(int index) const
+{
+    Q_UNUSED(index);
+    return 1.0f;
+}
+
 void AbstractTimelineModel::dataChanged()
 {
-    switch (m_modelManager->state()) {
+    Q_D(AbstractTimelineModel);
+    switch (d->modelManager->state()) {
     case QmlProfilerDataState::ProcessingData:
         loadData();
         break;

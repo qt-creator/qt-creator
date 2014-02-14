@@ -31,6 +31,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilersimplemodel.h"
 #include "sortedtimelinemodel.h"
+#include "singlecategorytimelinemodel_p.h"
 #include <QCoreApplication>
 
 #include <QVector>
@@ -50,52 +51,51 @@ struct CategorySpan {
     int contractedRows;
 };
 
-class PaintEventsModelProxy::PaintEventsModelProxyPrivate : public SortedTimelineModel<QmlPaintEventData>
+class PaintEventsModelProxy::PaintEventsModelProxyPrivate :
+        public SortedTimelineModel<QmlPaintEventData,
+                                   SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
 {
 public:
-    PaintEventsModelProxyPrivate(PaintEventsModelProxy *qq) : q(qq) {}
-    ~PaintEventsModelProxyPrivate() {}
-
     void computeAnimationCountLimit();
 
     int minAnimationCount;
     int maxAnimationCount;
-    bool expanded;
     bool seenForeignPaintEvent;
 
-    PaintEventsModelProxy *q;
+private:
+    Q_DECLARE_PUBLIC(PaintEventsModelProxy)
 };
 
 PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
-    : AbstractTimelineModel(QLatin1String("PaintEventsModelProxy"), parent),
-      d(new PaintEventsModelProxyPrivate(this))
+    : SingleCategoryTimelineModel(new PaintEventsModelProxyPrivate,
+                                  QLatin1String("PaintEventsModelProxy"), tr("Painting"),
+                                  QmlDebug::Painting, parent)
 {
 }
 
-PaintEventsModelProxy::~PaintEventsModelProxy()
-{
-    delete d;
-}
 
 void PaintEventsModelProxy::clear()
 {
+    Q_D(PaintEventsModelProxy);
     d->SortedTimelineModel::clear();
     d->minAnimationCount = 1;
     d->maxAnimationCount = 1;
     d->expanded = false;
     d->seenForeignPaintEvent = false;
-    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 
 bool PaintEventsModelProxy::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
 {
-    return (event.eventType == QmlDebug::Painting && event.bindingType == QmlDebug::AnimationFrame);
+    return SingleCategoryTimelineModel::eventAccepted(event) &&
+            event.bindingType == QmlDebug::AnimationFrame;
 }
 
 void PaintEventsModelProxy::loadData()
 {
+    Q_D(PaintEventsModelProxy);
     clear();
-    QmlProfilerSimpleModel *simpleModel = m_modelManager->simpleModel();
+    QmlProfilerSimpleModel *simpleModel = d->modelManager->simpleModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -133,41 +133,20 @@ void PaintEventsModelProxy::loadData()
 
         minNextStartTime = event.startTime + 1;
 
-        m_modelManager->modelProxyCountUpdated(m_modelId, d->count(), referenceList.count());
+        d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), referenceList.count());
     }
 
     d->computeAnimationCountLimit();
     d->computeNesting();
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
+    d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
 }
 
 /////////////////// QML interface
 
-int PaintEventsModelProxy::count() const
-{
-    return d->count();
-}
-
-qint64 PaintEventsModelProxy::lastTimeMark() const
-{
-    return d->lastEndTime();
-}
-
-bool PaintEventsModelProxy::expanded(int ) const
-{
-    return d->expanded;
-}
-
-void PaintEventsModelProxy::setExpanded(int category, bool expanded)
-{
-    Q_UNUSED(category);
-    d->expanded = expanded;
-    emit expandedChanged();
-}
-
 int PaintEventsModelProxy::categoryDepth(int categoryIndex) const
 {
+    Q_D(const PaintEventsModelProxy);
     Q_UNUSED(categoryIndex);
     if (isEmpty())
         return d->seenForeignPaintEvent ? 0 : 1;
@@ -175,65 +154,10 @@ int PaintEventsModelProxy::categoryDepth(int categoryIndex) const
         return 2;
 }
 
-int PaintEventsModelProxy::categoryCount() const
-{
-    return 1;
-}
-
-const QString PaintEventsModelProxy::categoryLabel(int categoryIndex) const
-{
-    Q_UNUSED(categoryIndex);
-    return tr("Painting");
-}
-
-
-int PaintEventsModelProxy::findFirstIndex(qint64 startTime) const
-{
-    return d->findFirstIndex(startTime);
-}
-
-int PaintEventsModelProxy::findFirstIndexNoParents(qint64 startTime) const
-{
-    return d->findFirstIndexNoParents(startTime);
-}
-
-int PaintEventsModelProxy::findLastIndex(qint64 endTime) const
-{
-    return d->findLastIndex(endTime);
-}
-
-int PaintEventsModelProxy::getEventType(int index) const
-{
-    Q_UNUSED(index);
-    return (int)QmlDebug::Painting;
-}
-
-int PaintEventsModelProxy::getEventCategory(int index) const
-{
-    Q_UNUSED(index);
-    // there is only one category, all events belong to it
-    return 0;
-}
-
 int PaintEventsModelProxy::getEventRow(int index) const
 {
     Q_UNUSED(index);
     return 1;
-}
-
-qint64 PaintEventsModelProxy::getDuration(int index) const
-{
-    return d->range(index).duration;
-}
-
-qint64 PaintEventsModelProxy::getStartTime(int index) const
-{
-    return d->range(index).start;
-}
-
-qint64 PaintEventsModelProxy::getEndTime(int index) const
-{
-    return d->range(index).start + d->range(index).duration;
 }
 
 int PaintEventsModelProxy::getEventId(int index) const
@@ -245,6 +169,7 @@ int PaintEventsModelProxy::getEventId(int index) const
 
 QColor PaintEventsModelProxy::getColor(int index) const
 {
+    Q_D(const PaintEventsModelProxy);
     double fpsFraction = d->range(index).framerate / 60.0;
     if (fpsFraction > 1.0)
         fpsFraction = 1.0;
@@ -255,6 +180,7 @@ QColor PaintEventsModelProxy::getColor(int index) const
 
 float PaintEventsModelProxy::getHeight(int index) const
 {
+    Q_D(const PaintEventsModelProxy);
     float scale = d->maxAnimationCount - d->minAnimationCount;
     float fraction = 1.0f;
     if (scale > 1)
@@ -297,6 +223,7 @@ void PaintEventsModelProxy::PaintEventsModelProxyPrivate::computeAnimationCountL
 
 const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
 {
+    Q_D(const PaintEventsModelProxy);
     QVariantList result;
 //    int eventId = getEventId(index);
 
@@ -332,24 +259,5 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
     return result;
 }
 
-const QVariantMap PaintEventsModelProxy::getEventLocation(int /*index*/) const
-{
-    QVariantMap map;
-    return map;
-}
-
-int PaintEventsModelProxy::getEventIdForHash(const QString &/*eventHash*/) const
-{
-    // paint events do not have an eventHash
-    return -1;
-}
-
-int PaintEventsModelProxy::getEventIdForLocation(const QString &/*filename*/, int /*line*/, int /*column*/) const
-{
-    // paint events do not have a defined location
-    return -1;
-}
-
 }
 }
-
