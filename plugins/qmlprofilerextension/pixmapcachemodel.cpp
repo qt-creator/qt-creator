@@ -70,11 +70,6 @@ int PixmapCacheModel::count() const
     return d->count();
 }
 
-bool PixmapCacheModel::isEmpty() const
-{
-    return d->count() == 0;
-}
-
 bool PixmapCacheModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
 {
     return (event.eventType == QmlDebug::PixmapCacheEvent);

@@ -50,8 +50,6 @@ public:
 
     int count() const;
 
-    bool isEmpty() const;
-
     bool eventAccepted(const QmlProfiler::QmlProfilerSimpleModel::QmlEventData &event) const;
 
     Q_INVOKABLE qint64 lastTimeMark() const;

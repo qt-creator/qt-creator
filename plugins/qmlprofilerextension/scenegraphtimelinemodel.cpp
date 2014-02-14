@@ -78,11 +78,6 @@ int SceneGraphTimelineModel::count() const
     return d->count();
 }
 
-bool SceneGraphTimelineModel::isEmpty() const
-{
-    return d->count() == 0;
-}
-
 bool SceneGraphTimelineModel::eventAccepted(const QmlProfiler::QmlProfilerSimpleModel::QmlEventData &event) const
 {
     return (event.eventType == QmlDebug::SceneGraphFrameEvent);
