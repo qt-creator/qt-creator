@@ -54,7 +54,7 @@ public:
     QString name() const;
     virtual int count() const = 0;
 
-    virtual bool isEmpty() const = 0;
+    bool isEmpty() const;
 
     virtual bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const = 0;
 

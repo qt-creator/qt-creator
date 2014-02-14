@@ -289,11 +289,6 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeRowStarts()
 
 /////////////////// QML interface
 
-bool BasicTimelineModel::isEmpty() const
-{
-    return count() == 0;
-}
-
 int BasicTimelineModel::count() const
 {
     return d->count();

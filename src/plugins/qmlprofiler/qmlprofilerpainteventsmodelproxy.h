@@ -67,8 +67,6 @@ public:
     Q_INVOKABLE int count() const;
     void clear();
 
-    bool isEmpty() const;
-
     Q_INVOKABLE qint64 lastTimeMark() const;
 
     Q_INVOKABLE bool expanded(int category) const;

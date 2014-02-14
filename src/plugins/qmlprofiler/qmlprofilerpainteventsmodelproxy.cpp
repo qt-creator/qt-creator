@@ -145,11 +145,6 @@ void PaintEventsModelProxy::loadData()
 
 /////////////////// QML interface
 
-bool PaintEventsModelProxy::isEmpty() const
-{
-    return count() == 0;
-}
-
 int PaintEventsModelProxy::count() const
 {
     return d->count();

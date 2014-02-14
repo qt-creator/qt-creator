@@ -88,8 +88,6 @@ public:
 
 
 // QML interface
-    bool isEmpty() const;
-
     Q_INVOKABLE qint64 lastTimeMark() const;
 
     Q_INVOKABLE bool expanded(int category) const;

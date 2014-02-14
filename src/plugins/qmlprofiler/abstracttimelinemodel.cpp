@@ -58,6 +58,11 @@ QString AbstractTimelineModel::name() const
     return m_name;
 }
 
+bool AbstractTimelineModel::isEmpty() const
+{
+    return count() == 0;
+}
+
 qint64 AbstractTimelineModel::traceStartTime() const
 {
     return m_modelManager->traceTime()->startTime();
