@@ -35146,7 +35146,7 @@ Indicateurs : %3</translation>
     </message>
     <message>
         <source>Function name</source>
-        <translation>Nom de fichier</translation>
+        <translation>Nom de fonction</translation>
     </message>
     <message>
         <source>Break on memory address</source>
