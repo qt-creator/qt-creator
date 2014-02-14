@@ -72,11 +72,6 @@ SceneGraphTimelineModel::~SceneGraphTimelineModel()
 {
 }
 
-int SceneGraphTimelineModel::categories() const
-{
-    return 1;
-}
-
 QString SceneGraphTimelineModel::name() const
 {
     return QLatin1String("SceneGraphTimeLineModel");

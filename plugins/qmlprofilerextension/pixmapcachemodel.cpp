@@ -64,11 +64,6 @@ PixmapCacheModel::~PixmapCacheModel()
 {
 }
 
-int PixmapCacheModel::categories() const
-{
-    return 1;
-}
-
 QString PixmapCacheModel::name() const
 {
     return QLatin1String("PixmapCacheTimeLineModel");
