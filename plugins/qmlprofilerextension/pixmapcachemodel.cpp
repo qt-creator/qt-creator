@@ -46,7 +46,6 @@ public:
     bool isExpanded;
     int expandedRowCount;
     int collapsedRowCount;
-    QString displayTime(double time);
     void addVP(QVariantList &l, QString label, qint64 time);
 
     qint64 minCacheSize;
@@ -231,21 +230,11 @@ const QVariantList PixmapCacheModel::getLabelsForCategory(int category) const
     return result;
 }
 
-QString PixmapCacheModel::PixmapCacheModelPrivate::displayTime(double time)
-{
-    if (time < 1e6)
-        return QString::number(time/1e3,'f',3) + trUtf8(" \xc2\xb5s");
-    if (time < 1e9)
-        return QString::number(time/1e6,'f',3) + tr(" ms");
-
-    return QString::number(time/1e9,'f',3) + tr(" s");
-}
-
 void PixmapCacheModel::PixmapCacheModelPrivate::addVP(QVariantList &l, QString label, qint64 time)
 {
     if (time > 0) {
         QVariantMap res;
-        res.insert(label, QVariant(displayTime(time)));
+        res.insert(label, QVariant(QmlProfilerSimpleModel::formatTime(time)));
         l << res;
     }
 }

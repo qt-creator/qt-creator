@@ -59,7 +59,6 @@ public:
     SceneGraphTimelineModel *q;
 
     bool isExpanded;
-    QString displayTime(double time);
     void addVP(QVariantList &l, QString label, qint64 time);
 };
 
@@ -223,23 +222,11 @@ const QVariantList SceneGraphTimelineModel::getLabelsForCategory(int category) c
     return result;
 }
 
-
-
-QString SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::displayTime(double time)
-{
-    if (time < 1e6)
-        return QString::number(time/1e3,'f',3) + trUtf8(" \xc2\xb5s");
-    if (time < 1e9)
-        return QString::number(time/1e6,'f',3) + tr(" ms");
-
-    return QString::number(time/1e9,'f',3) + tr(" s");
-}
-
 void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::addVP(QVariantList &l, QString label, qint64 time)
 {
     if (time > 0) {
         QVariantMap res;
-        res.insert(label, QVariant(displayTime(time)));
+        res.insert(label, QVariant(QmlProfilerSimpleModel::formatTime(time)));
         l << res;
     }
 }
