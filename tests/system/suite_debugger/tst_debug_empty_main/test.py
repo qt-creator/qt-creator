@@ -34,7 +34,8 @@ def addFileToProject(projectPath, category, fileTemplate, fileName):
     nameLineEdit = waitForObject("{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' "
                                  "visible='1'}")
     replaceEditorContent(nameLineEdit, fileName)
-    test.compare(waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}").text,
+    test.compare(waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
+                               "toolTip?='Full path: *'}").text,
                  projectPath, "Verifying whether path is correct.")
     clickButton(waitForObject(":Next_QPushButton"))
     projCombo = waitForObject("{buddy={name='projectLabel' text='Add to project:' type='QLabel' "

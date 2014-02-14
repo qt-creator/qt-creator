@@ -231,7 +231,7 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
 # function that retrieves a specific child object by its class
 # this is sometimes the best way to avoid using waitForObject() on objects that
 # occur more than once - but could easily be found by using a compound object
-# (e.g. search for Utils::PathChooser instead of Utils::BaseValidatingLineEdit and get the child)
+# (e.g. search for Utils::PathChooser instead of Utils::FancyLineEdit and get the child)
 def getChildByClass(parent, classToSearchFor, occurence=1):
     children = [child for child in object.children(parent) if className(child) == classToSearchFor]
     if len(children) < occurence:
@@ -408,14 +408,14 @@ def __invokeAddCustomExecutable__(exe, args, workingDir=None):
     addMenu = addButton.menu()
     activateItem(waitForObjectItem(addMenu, 'Custom Executable'))
     exePathChooser = waitForObject(":Executable:_Utils::PathChooser")
-    exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
+    exeLineEd = getChildByClass(exePathChooser, "Utils::FancyLineEdit")
     argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
                               "type='QLabel' text='Arguments:' visible='1'} type='QLineEdit' "
                               "unnamed='1' visible='1'}")
     wdPathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
                                   "text='Working directory:' type='QLabel'} "
                                   "type='Utils::PathChooser' unnamed='1' visible='1'}")
-    wdLineEd = getChildByClass(wdPathChooser, "Utils::BaseValidatingLineEdit")
+    wdLineEd = getChildByClass(wdPathChooser, "Utils::FancyLineEdit")
     replaceEditorContent(exeLineEd, exe)
     replaceEditorContent(argLineEd, args)
     if workingDir:

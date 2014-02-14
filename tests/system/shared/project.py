@@ -56,7 +56,7 @@ def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWe
 def openCmakeProject(projectPath, buildDir):
     invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
-    replaceEditorContent("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'"
+    replaceEditorContent("{type='Utils::FancyLineEdit' unnamed='1' visible='1'"
                          "window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}", buildDir)
     clickButton(waitForObject(":CMake Wizard.Next_QPushButton"))
     return __handleCmakeWizardPage__()
@@ -111,7 +111,8 @@ def __createProjectOrFileSelectType__(category, template, fromWelcome = False, i
     return __getSupportedPlatforms__(str(text), template)[0]
 
 def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
-    directoryEdit = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}")
+    directoryEdit = waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
+                                  "toolTip?='Full path: *'}")
     replaceEditorContent(directoryEdit, path)
     projectNameEdit = waitForObject("{name='nameLineEdit' visible='1' "
                                     "type='Utils::ProjectNameValidatingLineEdit'}")
@@ -635,7 +636,7 @@ def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False, addTo
         return
     __createProjectOrFileSelectType__("  C++", template, isProject=False)
     window = "{type='Utils::FileWizardDialog' unnamed='1' visible='1'}"
-    basePath = str(waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1' "
+    basePath = str(waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
                                  "window=%s}" % window).text)
     lineEdit = waitForObject("{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' "
                              "visible='1' window=%s}" % window)
