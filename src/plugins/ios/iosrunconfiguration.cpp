@@ -30,10 +30,12 @@
 #include "iosrunconfiguration.h"
 #include "iosmanager.h"
 #include "iosdeploystep.h"
+#include "ui_iosrunconfiguration.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
@@ -41,7 +43,6 @@
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
-#include "ui_iosrunconfiguration.h"
 
 #include <QList>
 
@@ -93,7 +94,43 @@ IosRunConfiguration::IosRunConfiguration(Target *parent, IosRunConfiguration *so
 
 void IosRunConfiguration::init()
 {
+    QmakeProject *project = static_cast<QmakeProject *>(target()->project());
+    m_parseSuccess = project->validParse(m_profilePath);
+    m_parseInProgress = project->parseInProgress(m_profilePath);
+    m_lastIsEnabled = isEnabled();
+    m_lastDisabledReason = disabledReason();
+    connect(DeviceManager::instance(), SIGNAL(updated()),
+            SLOT(deviceChanges()));
+    connect(KitManager::instance(), SIGNAL(kitsChanged()),
+            SLOT(deviceChanges()));
+    connect(target()->project(), SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)));
+}
+
+void IosRunConfiguration::enabledCheck()
+{
+    bool newIsEnabled = isEnabled();
+    QString newDisabledReason = disabledReason();
+    if (newDisabledReason != m_lastDisabledReason || newIsEnabled != m_lastIsEnabled) {
+        m_lastDisabledReason = newDisabledReason;
+        m_lastIsEnabled = newIsEnabled;
+        emit enabledChanged();
+    }
+}
+
+void IosRunConfiguration::deviceChanges() {
     setDefaultDisplayName(defaultDisplayName());
+    enabledCheck();
+}
+
+void IosRunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success,
+                                         bool parseInProgress)
+{
+    if (m_profilePath != pro->path())
+        return;
+    m_parseSuccess = success;
+    m_parseInProgress = parseInProgress;
+    enabledCheck();
 }
 
 QWidget *IosRunConfiguration::createConfigurationWidget()
@@ -208,6 +245,76 @@ QVariantMap IosRunConfiguration::toMap() const
     QVariantMap res = RunConfiguration::toMap();
     res[runConfigurationKey] = m_arguments;
     return res;
+}
+
+bool IosRunConfiguration::isEnabled() const
+{
+    if (m_parseInProgress || !m_parseSuccess)
+        return false;
+    Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
+        return false;
+    IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    if (dev.isNull() || dev->deviceState() != IDevice::DeviceReadyToUse)
+        return false;
+    return RunConfiguration::isEnabled();
+}
+
+QString IosRunConfiguration::disabledReason() const
+{
+    if (m_parseInProgress)
+        return tr("The .pro file '%1' is currently being parsed.")
+                .arg(QFileInfo(m_profilePath).fileName());
+    if (!m_parseSuccess)
+        return static_cast<QmakeProject *>(target()->project())
+                ->disabledReasonForRunConfiguration(m_profilePath);
+    Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
+        return tr("Kit has incorrect device type for running on iOS devices.");
+    IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    QString validDevName;
+    bool hasConncetedDev = false;
+    if (devType == Constants::IOS_DEVICE_TYPE) {
+        DeviceManager *dm = DeviceManager::instance();
+        for (int idev = 0; idev < dm->deviceCount(); ++idev) {
+            IDevice::ConstPtr availDev = dm->deviceAt(idev);
+            if (!availDev.isNull() && availDev->type() == Constants::IOS_DEVICE_TYPE) {
+                if (availDev->deviceState() == IDevice::DeviceReadyToUse) {
+                    validDevName += QLatin1String(" ");
+                    validDevName += availDev->displayName();
+                } else if (availDev->deviceState() == IDevice::DeviceConnected) {
+                    hasConncetedDev = true;
+                }
+            }
+        }
+    }
+
+    if (dev.isNull()) {
+        if (!validDevName.isEmpty())
+            return tr("No device chosen. Select %1.").arg(validDevName); // should not happen
+        else if (hasConncetedDev)
+            return tr("No device chosen. Enable developer mode on a device."); // should not happen
+        else
+            return tr("No device available.");
+    } else {
+        switch (dev->deviceState()) {
+        case IDevice::DeviceReadyToUse:
+            break;
+        case IDevice::DeviceConnected:
+            return tr("To use this device you need to enable developer mode on it.");
+        case IDevice::DeviceDisconnected:
+        case IDevice::DeviceStateUnknown:
+            if (!validDevName.isEmpty())
+                return tr("%1 is not connected. Select %2?")
+                        .arg(dev->displayName(), validDevName);
+            else if (hasConncetedDev)
+                return tr("%1 is not connected. Enable developer mode on a device?")
+                        .arg(dev->displayName());
+            else
+                return tr("%1 is not connected.").arg(dev->displayName());
+        }
+    }
+    return RunConfiguration::disabledReason();
 }
 
 IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runConfiguration) :

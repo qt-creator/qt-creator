@@ -36,6 +36,10 @@
 #include <utils/fileutils.h>
 #include <utils/qtcoverride.h>
 
+namespace QmakeProjectManager {
+class QmakeProFileNode;
+}
+
 namespace Ios {
 namespace Internal {
 
@@ -60,6 +64,8 @@ public:
     QString appName() const;
     Utils::FileName bundleDir() const;
     Utils::FileName exePath() const;
+    bool isEnabled() const;
+    QString disabledReason() const;
 
     bool fromMap(const QVariantMap &map) QTC_OVERRIDE;
     QVariantMap toMap() const QTC_OVERRIDE;
@@ -68,12 +74,20 @@ protected:
     IosRunConfiguration(ProjectExplorer::Target *parent, IosRunConfiguration *source);
     QString defaultDisplayName();
 
+private slots:
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
+    void deviceChanges();
 private:
     void init();
+    void enabledCheck();
     friend class IosRunConfigurationWidget;
 
     QString m_profilePath;
     QStringList m_arguments;
+    QString m_lastDisabledReason;
+    bool m_lastIsEnabled;
+    bool m_parseInProgress;
+    bool m_parseSuccess;
 };
 
 } // namespace Internal
