@@ -118,17 +118,17 @@ void GerritPushDialog::initRemoteBranches()
         BranchDate bd(ref.mid(refBranchIndex + 1), QDateTime::fromTime_t(timeT).date());
         m_remoteBranches.insertMulti(ref.left(refBranchIndex), bd);
     }
-    const QString remoteBranch = determineRemoteBranch();
-    if (!remoteBranch.isEmpty())
-        m_suggestedRemoteBranch = remoteBranch.mid(remoteBranch.indexOf(QLatin1Char('/')) + 1);
-
     QStringList remotes = m_remoteBranches.keys();
     remotes.removeDuplicates();
     m_ui->remoteComboBox->addItems(remotes);
-    if (!m_suggestedRemoteBranch.isEmpty()) {
-        int index = m_ui->remoteComboBox->findText(m_suggestedRemoteBranch);
-        if (index != -1)
-            m_ui->remoteComboBox->setCurrentIndex(index);
+    const int remoteCount = m_ui->remoteComboBox->count();
+    if (remoteCount < 1) {
+        return;
+    } else if (remoteCount == 1) {
+        m_ui->remoteLabel->hide();
+        m_ui->remoteComboBox->hide();
+    } else {
+        connect(m_ui->remoteComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setRemoteBranches()));
     }
 }
 
@@ -149,27 +149,22 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
 
     initRemoteBranches();
 
-    const int remoteCount = m_ui->remoteComboBox->count();
-    if (remoteCount < 1) {
+    if (m_ui->remoteComboBox->count() < 1)
         return;
-    } else if (remoteCount == 1) {
-        m_ui->remoteLabel->hide();
-        m_ui->remoteComboBox->hide();
-    } else {
-        connect(m_ui->remoteComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setRemoteBranches()));
-    }
+
     m_ui->localBranchComboBox->init(workingDir);
     connect(m_ui->localBranchComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(updateCommits(int)));
 
     connect(m_ui->targetBranchComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setChangeRange()));
+
+    updateCommits(m_ui->localBranchComboBox->currentIndex());
     setRemoteBranches();
 
     m_ui->reviewersLineEdit->setText(reviewerList);
 
     m_ui->topicLineEdit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("^\\S+$")), this));
 
-    updateCommits(m_ui->localBranchComboBox->currentIndex());
     m_valid = true;
 }
 
@@ -256,8 +251,21 @@ void GerritPushDialog::updateCommits(int index)
     const QString branch = m_ui->localBranchComboBox->itemText(index);
     const bool hasLocalCommits = m_ui->commitView->init(m_workingDir, branch,
                                                         LogChangeWidget::Silent);
+
+    const QString remoteBranch = determineRemoteBranch();
+    if (!remoteBranch.isEmpty()) {
+        const int slash = remoteBranch.indexOf(QLatin1Char('/'));
+
+        m_suggestedRemoteBranch = remoteBranch.mid(slash + 1);
+        const QString remote = remoteBranch.left(slash);
+        const int index = m_ui->remoteComboBox->findText(remote);
+        if (index != -1 && index != m_ui->remoteComboBox->currentIndex())
+            m_ui->remoteComboBox->setCurrentIndex(index);
+        else
+            setRemoteBranches();
+    }
+
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(hasLocalCommits);
-    setChangeRange();
 }
 
 QString GerritPushDialog::selectedRemoteName() const
