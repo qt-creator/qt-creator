@@ -68,18 +68,14 @@ public:
 };
 
 PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
-    : AbstractTimelineModel(parent), d(new PaintEventsModelProxyPrivate(this))
+    : AbstractTimelineModel(QLatin1String("PaintEventsModelProxy"), parent),
+      d(new PaintEventsModelProxyPrivate(this))
 {
 }
 
 PaintEventsModelProxy::~PaintEventsModelProxy()
 {
     delete d;
-}
-
-QString PaintEventsModelProxy::name() const
-{
-    return QLatin1String("PaintEventsModelProxy");
 }
 
 void PaintEventsModelProxy::clear()

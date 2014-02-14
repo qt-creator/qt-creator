@@ -82,8 +82,6 @@ public:
     BasicTimelineModel(QObject *parent = 0);
     ~BasicTimelineModel();
 
-    QString name() const;
-
     void loadData();
     Q_INVOKABLE int count() const;
     void clear();

@@ -45,13 +45,13 @@ class QMLPROFILER_EXPORT AbstractTimelineModel : public QObject
     Q_OBJECT
 
 public:
-    explicit AbstractTimelineModel(QObject *parent = 0);
+    explicit AbstractTimelineModel(const QString &name, QObject *parent = 0);
     ~AbstractTimelineModel();
 
     void setModelManager(QmlProfilerModelManager *modelManager);
 
     QStringList categoryTitles() const;
-    virtual QString name() const = 0;
+    QString name() const;
     virtual int count() const = 0;
 
     virtual bool isEmpty() const = 0;
@@ -106,6 +106,7 @@ signals:
     void expandedChanged();
 
 protected:
+    QString m_name;
     QmlProfilerModelManager *m_modelManager;
     int m_modelId;
 

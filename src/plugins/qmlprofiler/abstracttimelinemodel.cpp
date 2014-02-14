@@ -31,7 +31,8 @@
 
 namespace QmlProfiler {
 
-AbstractTimelineModel::AbstractTimelineModel(QObject *parent) : QObject(parent), m_modelManager(0)
+AbstractTimelineModel::AbstractTimelineModel(const QString &name, QObject *parent) :
+    QObject(parent), m_name(name), m_modelManager(0)
 {}
 
 AbstractTimelineModel::~AbstractTimelineModel()
@@ -50,6 +51,11 @@ QStringList AbstractTimelineModel::categoryTitles() const
     for (int i = 0; i < categoryCount(); i++)
         retString << categoryLabel(i);
     return retString;
+}
+
+QString AbstractTimelineModel::name() const
+{
+    return m_name;
 }
 
 qint64 AbstractTimelineModel::traceStartTime() const

@@ -75,18 +75,14 @@ public:
 };
 
 BasicTimelineModel::BasicTimelineModel(QObject *parent)
-    : AbstractTimelineModel(parent), d(new BasicTimelineModelPrivate(this))
+    : AbstractTimelineModel(QLatin1String("BasicTimelineModel"), parent),
+      d(new BasicTimelineModelPrivate(this))
 {
 }
 
 BasicTimelineModel::~BasicTimelineModel()
 {
     delete d;
-}
-
-QString BasicTimelineModel::name() const
-{
-    return QLatin1String("BasicTimelineModel");
 }
 
 void BasicTimelineModel::clear()

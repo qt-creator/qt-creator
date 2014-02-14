@@ -63,8 +63,6 @@ public:
     PaintEventsModelProxy(QObject *parent = 0);
     ~PaintEventsModelProxy();
 
-    QString name() const;
-
     void loadData();
     Q_INVOKABLE int count() const;
     void clear();
