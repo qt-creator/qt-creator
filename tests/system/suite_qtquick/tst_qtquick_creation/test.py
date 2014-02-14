@@ -33,12 +33,13 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    for targ, qVer in {Targets.DESKTOP_480_GCC:1, Targets.DESKTOP_501_DEFAULT:2}.items():
+    # TODO provide Qt5.2/Qt5.1 to enable QtQuick2 testing
+    for targ, qVer in {Targets.DESKTOP_480_GCC:"1.1"}.items(): # Targets.DESKTOP_501_DEFAULT:2}.items():
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targ,
                                                                   qtQuickVersion=qVer)
-        test.log("Building project Qt Quick %d Application (%s)"
+        test.log("Building project Qt Quick %s Application (%s)"
                  % (qVer, Targets.getStringForTarget(targ)))
         result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
         invokeMenuItem("Build", "Build All")
@@ -53,7 +54,7 @@ def main():
                 allowAppThroughWinFW(workingDir, projectName)
                 if result:
                     result = runAndCloseApp(True, projectName, 11223,
-                                            "subprocessFunctionQuick%d" % qVer,
+                                            "subprocessFunctionQuick%s" % qVer[0],
                                             SubprocessType.QT_QUICK_APPLICATION, quickVersion=qVer)
                 else:
                     result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)

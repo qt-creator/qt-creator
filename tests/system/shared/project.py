@@ -129,19 +129,23 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
     clickButton(waitForObject(":Next_QPushButton"))
     return str(projectName)
 
-def __createProjectHandleQtQuickSelection__(qtQuickVersion, withControls):
+def __createProjectHandleQtQuickSelection__(qtQuickVersion, controlsVersion):
     comboBox = waitForObject("{type='QComboBox' unnamed='1' visible='1' "
                              "leftWidget={text='Qt Quick component set:' type='QLabel' unnamed='1' "
                              "visible='1'}}")
-    if qtQuickVersion == 1:
+    if qtQuickVersion == "1.1":
         selectFromCombo(comboBox, "Qt Quick 1.1")
-        if withControls:
+        if controlsVersion:
             test.warning("Controls are not available for Quick 1.")
-    elif qtQuickVersion == 2:
-        if withControls:
-            selectFromCombo(comboBox, "Qt Quick Controls 1.0")
+    elif qtQuickVersion[:2] == "2.":
+        if controlsVersion:
+            if controlsVersion in ("1.0", "1.1"):
+                selectFromCombo(comboBox, "Qt Quick Controls %s" % controlsVersion)
+            else:
+                test.fatal("Got unknown Qt Quick Controls version: %s - trying to continue."
+                           % str(controlsVersion))
         else:
-            selectFromCombo(comboBox, "Qt Quick 2.0")
+            selectFromCombo(comboBox, "Qt Quick %s" % qtQuickVersion)
     else:
         test.fatal("Got unknown Qt Quick version: %s - trying to continue." % str(qtQuickVersion))
     label = waitForObject("{type='QLabel' unnamed='1' visible='1' text?='Creates a *' }")
@@ -269,11 +273,11 @@ def createProject_Qt_Console(path, projectName, checks = True):
     return checkedTargets
 
 def createNewQtQuickApplication(workingDir, projectName = None,
-                                targets=Targets.desktopTargetClasses(), qtQuickVersion=1,
-                                fromWelcome=False, withControls=False):
+                                targets=Targets.desktopTargetClasses(), qtQuickVersion="1.1",
+                                fromWelcome=False, controlsVersion=None):
     available = __createProjectOrFileSelectType__("  Applications", "Qt Quick Application", fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    requiredQt = __createProjectHandleQtQuickSelection__(qtQuickVersion, withControls)
+    requiredQt = __createProjectHandleQtQuickSelection__(qtQuickVersion, controlsVersion)
     __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
@@ -283,12 +287,12 @@ def createNewQtQuickApplication(workingDir, projectName = None,
     progressBarWait(10000)
     return checkedTargets, projectName
 
-def createNewQtQuickUI(workingDir, qtQuickVersion=1, withControls=False):
+def createNewQtQuickUI(workingDir, qtQuickVersion="1.1", controlsVersion=None):
     __createProjectOrFileSelectType__("  Applications", "Qt Quick UI")
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
-    __createProjectHandleQtQuickSelection__(qtQuickVersion, withControls)
+    __createProjectHandleQtQuickSelection__(qtQuickVersion, controlsVersion)
     __createProjectHandleLastPage__()
     return projectName
 
@@ -399,7 +403,7 @@ def waitForProcessRunning(running=True):
 # by yourself (or use the function parameter)
 # ATTENTION! Make sure this function won't fail and the sub-process will end when the function returns
 # returns None if the build failed, False if the subprocess did not start, and True otherwise
-def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None, sType=None, userDefinedType=None, quickVersion=1):
+def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None, sType=None, userDefinedType=None, quickVersion="1.1"):
     runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
     if sType != SubprocessType.QT_QUICK_UI:

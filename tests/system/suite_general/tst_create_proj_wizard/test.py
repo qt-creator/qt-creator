@@ -33,7 +33,7 @@ import re
 
 def main():
     global tmpSettingsDir
-    quickCombinations = [[1,False], [2,False], [2,True]]
+    quickCombinations = [["1.1",None], ["2.1",None], ["2.2",None], ["2.1","1.0"], ["2.2","1.1"]]
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return

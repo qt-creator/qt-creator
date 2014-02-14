@@ -90,7 +90,7 @@ def batchEditRunEnvironment(kitCount, currentTarget, modifications, alreadyOnRun
     clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' visible='1' "
                               "window=':Edit Environment_ProjectExplorer::EnvironmentItemsDialog'}"))
 
-def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, port, quickVersion=1):
+def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, port, quickVersion="1.1"):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.RUN, True)
 
@@ -107,7 +107,7 @@ def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, por
                      "Using fallback of pushing STOP inside Creator.")
         return None
     test.log("Using (QtVersion/mkspec) %s/%s with SquishPath %s" % (qtVersion, mkspec, squishPath))
-    if quickVersion == 1:
+    if quickVersion == "1.1":
         if platform.system() == "Darwin":
             executable = os.path.abspath(os.path.dirname(qmake) + "/QMLViewer.app")
         else:
