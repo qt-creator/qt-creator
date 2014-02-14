@@ -59,7 +59,7 @@ protected:
     }
 };
 
-QString GerritPushDialog::determineRemoteBranch()
+QString GerritPushDialog::determineRemoteBranch(const QString &localBranch)
 {
     const QString earliestCommit = m_ui->commitView->earliestCommit();
 
@@ -74,11 +74,10 @@ QString GerritPushDialog::determineRemoteBranch()
     const QString head = QLatin1String("/HEAD");
     QStringList refs = output.split(QLatin1Char('\n'));
 
-    QString localBranch = m_ui->localBranchComboBox->currentText();
-    if (localBranch == QLatin1String("HEAD"))
-        localBranch.clear();
-    const QString remoteTrackingBranch = m_client->synchronousTrackingBranch(m_workingDir,
-                                                                             localBranch);
+    QString remoteTrackingBranch;
+    if (localBranch != QLatin1String("HEAD"))
+        remoteTrackingBranch = m_client->synchronousTrackingBranch(m_workingDir, localBranch);
+
     QString remoteBranch;
     foreach (const QString &reference, refs) {
         const QString ref = reference.trimmed();
@@ -252,7 +251,7 @@ void GerritPushDialog::updateCommits(int index)
     const bool hasLocalCommits = m_ui->commitView->init(m_workingDir, branch,
                                                         LogChangeWidget::Silent);
 
-    const QString remoteBranch = determineRemoteBranch();
+    const QString remoteBranch = determineRemoteBranch(branch);
     if (!remoteBranch.isEmpty()) {
         const int slash = remoteBranch.indexOf(QLatin1Char('/'));
 

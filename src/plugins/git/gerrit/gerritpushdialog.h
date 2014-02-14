@@ -68,7 +68,7 @@ private:
     typedef QPair<QString, QDate> BranchDate;
     typedef QMultiMap<QString, BranchDate> RemoteBranchesMap;
 
-    QString determineRemoteBranch();
+    QString determineRemoteBranch(const QString &localBranch);
     void initRemoteBranches();
     QString calculateChangeRange(const QString &branch);
     QString m_workingDir;
