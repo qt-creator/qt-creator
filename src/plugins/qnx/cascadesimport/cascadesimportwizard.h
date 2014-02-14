@@ -66,7 +66,7 @@ public:
     CascadesImportWizard();
 
 protected:
-    ExtensionList selectExtensions();
+    ExtensionList extensions() const;
     QWizard* createWizardDialog(QWidget *parent,
                                 const Core::WizardDialogParameters &wizardDialogParameters) const;
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;

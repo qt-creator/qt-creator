@@ -118,7 +118,7 @@ protected:
     typedef QList<QWizardPage *> WizardPageList;
     typedef QList<Core::IFileWizardExtension*> ExtensionList;
 
-    virtual ExtensionList selectExtensions();
+    virtual ExtensionList extensions() const;
 
     virtual QWizard *createWizardDialog(QWidget *parent,
                                         const WizardDialogParameters &wizardDialogParameters) const = 0;

@@ -175,7 +175,7 @@ void WizardEventLoop::rejected()
     \sa Core::Internal::WizardEventLoop
 */
 
-BaseFileWizard::ExtensionList BaseFileWizard::selectExtensions()
+BaseFileWizard::ExtensionList BaseFileWizard::extensions() const
 {
     return ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
 }
@@ -186,12 +186,12 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
 
     QString errorMessage;
     // Compile extension pages, purge out unused ones
-    ExtensionList extensions = selectExtensions();
+    ExtensionList extensionList = extensions();
     WizardPageList  allExtensionPages;
-    for (ExtensionList::iterator it = extensions.begin(); it !=  extensions.end(); ) {
+    for (ExtensionList::iterator it = extensionList.begin(); it !=  extensionList.end(); ) {
         const WizardPageList extensionPages = (*it)->extensionPages(this);
         if (extensionPages.empty()) {
-            it = extensions.erase(it);
+            it = extensionList.erase(it);
         } else {
             allExtensionPages += extensionPages;
             ++it;
@@ -199,7 +199,7 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
     }
 
     if (debugWizard)
-        qDebug() << Q_FUNC_INFO <<  path << parent << "exs" <<  extensions.size() << allExtensionPages.size();
+        qDebug() << Q_FUNC_INFO <<  path << parent << "exs" <<  extensionList.size() << allExtensionPages.size();
 
     QWizardPage *firstExtensionPage = 0;
     if (!allExtensionPages.empty())
@@ -244,7 +244,7 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
             }
         }
         if (firstExtensionPageHit)
-            foreach (IFileWizardExtension *ex, extensions)
+            foreach (IFileWizardExtension *ex, extensionList)
                 ex->firstExtensionPageShown(files, extraValues);
         if (accepted)
             break;
@@ -262,7 +262,7 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
         break;
     }
 
-    foreach (IFileWizardExtension *ex, extensions) {
+    foreach (IFileWizardExtension *ex, extensionList) {
         for (int i = 0; i < files.count(); i++) {
             ex->applyCodeStyle(&files[i]);
         }
@@ -276,7 +276,7 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
 
     bool removeOpenProjectAttribute = false;
     // Run the extensions
-    foreach (IFileWizardExtension *ex, extensions) {
+    foreach (IFileWizardExtension *ex, extensionList) {
         bool remove;
         if (!ex->processFiles(files, &remove, &errorMessage)) {
             if (!errorMessage.isEmpty())
