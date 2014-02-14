@@ -37,6 +37,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <debugger/debuggerconstants.h>
 #include <qmakeprojectmanager/qmakeproject.h>
@@ -45,7 +46,6 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/id.h>
-
 
 using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
@@ -166,10 +166,21 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
     Q_ASSERT(canRun(runConfig, mode));
     IosRunConfiguration *rc = qobject_cast<IosRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
+    RunControl *res = 0;
+    Core::Id devId = ProjectExplorer::DeviceKitInformation::deviceId(rc->target()->kit());
+    // The device can only run an application at a time, if an app is running stop it.
+    if (m_activeRunControls.contains(devId)) {
+        QPointer<ProjectExplorer::RunControl> activeRunControl = m_activeRunControls[devId];
+        activeRunControl->stop();
+        m_activeRunControls.remove(devId);
+    }
     if (mode == NormalRunMode)
-        return new Ios::Internal::IosRunControl(rc);
+        res = new Ios::Internal::IosRunControl(rc);
     else
-        return IosDebugSupport::createDebugRunControl(rc, errorMessage);
+        res = IosDebugSupport::createDebugRunControl(rc, errorMessage);
+    if (devId.isValid())
+        m_activeRunControls[devId] = res;
+    return res;
 }
 
 } // namespace Internal
