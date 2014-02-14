@@ -443,7 +443,7 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
         }
 
         if (m_fieldShown[TotalTime]) {
-            newRow << new EventsViewItem(displayTime(v8event->totalTime));
+            newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(v8event->totalTime));
             newRow.last()->setData(QVariant(v8event->totalTime));
         }
 
@@ -453,7 +453,7 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
         }
 
         if (m_fieldShown[SelfTime]) {
-            newRow << new EventsViewItem(displayTime(v8event->selfTime));
+            newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(v8event->selfTime));
             newRow.last()->setData(QVariant(v8event->selfTime));
         }
 
@@ -478,28 +478,6 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
             m_model->invisibleRootItem()->appendRow(newRow);
         }
     }
-}
-
-QString QV8ProfilerEventsMainView::displayTime(double time)
-{
-    if (time < 1e6)
-        return QString::number(time/1e3,'f',3) + trUtf8(" \xc2\xb5s");
-    if (time < 1e9)
-        return QString::number(time/1e6,'f',3) + tr(" ms");
-
-    return QString::number(time/1e9,'f',3) + tr(" s");
-}
-
-QString QV8ProfilerEventsMainView::nameForType(int typeNumber)
-{
-    switch (typeNumber) {
-    case 0: return QV8ProfilerEventsMainView::tr("Paint");
-    case 1: return QV8ProfilerEventsMainView::tr("Compile");
-    case 2: return QV8ProfilerEventsMainView::tr("Create");
-    case 3: return QV8ProfilerEventsMainView::tr("Binding");
-    case 4: return QV8ProfilerEventsMainView::tr("Signal");
-    }
-    return QString();
 }
 
 int QV8ProfilerEventsMainView::selectedEventId() const
@@ -687,7 +665,7 @@ void QV8ProfilerEventRelativesView::rebuildTree(QList<QV8EventSub*> events)
     foreach (QV8EventSub *event, events) {
         QList<QStandardItem *> newRow;
         newRow << new EventsViewItem(event->reference->displayName);
-        newRow << new EventsViewItem(QV8ProfilerEventsMainView::displayTime(event->totalTime));
+        newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(event->totalTime));
         newRow << new EventsViewItem(event->reference->functionName);
         newRow.at(0)->setData(QVariant(event->reference->eventId), EventIdRole);
         newRow.at(1)->setData(QVariant(event->totalTime));

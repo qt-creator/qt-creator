@@ -115,7 +115,6 @@ public:
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
 
-    static QString displayTime(double time);
     static QString nameForType(int typeNumber);
 
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);

@@ -544,7 +544,7 @@ void QmlProfilerEventsMainView::parseModelProxy()
         }
 
         if (d->m_fieldShown[TotalTime]) {
-            newRow << new EventsViewItem(displayTime(event.duration));
+            newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(event.duration));
             newRow.last()->setData(QVariant(event.duration));
         }
 
@@ -554,22 +554,22 @@ void QmlProfilerEventsMainView::parseModelProxy()
         }
 
         if (d->m_fieldShown[TimePerCall]) {
-            newRow << new EventsViewItem(displayTime(event.timePerCall));
+            newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(event.timePerCall));
             newRow.last()->setData(QVariant(event.timePerCall));
         }
 
         if (d->m_fieldShown[MedianTime]) {
-            newRow << new EventsViewItem(displayTime(event.medianTime));
+            newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(event.medianTime));
             newRow.last()->setData(QVariant(event.medianTime));
         }
 
         if (d->m_fieldShown[MaxTime]) {
-            newRow << new EventsViewItem(displayTime(event.maxTime));
+            newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(event.maxTime));
             newRow.last()->setData(QVariant(event.maxTime));
         }
 
         if (d->m_fieldShown[MinTime]) {
-            newRow << new EventsViewItem(displayTime(event.minTime));
+            newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(event.minTime));
             newRow.last()->setData(QVariant(event.minTime));
         }
 
@@ -602,16 +602,6 @@ void QmlProfilerEventsMainView::parseModelProxy()
             parentItem->appendRow(newRow);
         }
     }
-}
-
-QString QmlProfilerEventsMainView::displayTime(double time)
-{
-    if (time < 1e6)
-        return QString::number(time/1e3,'f',3) + trUtf8(" \xc2\xb5s");
-    if (time < 1e9)
-        return QString::number(time/1e6,'f',3) + tr(" ms");
-
-    return QString::number(time/1e9,'f',3) + tr(" s");
 }
 
 QString QmlProfilerEventsMainView::nameForType(int typeNumber)
@@ -828,13 +818,13 @@ void QmlProfilerEventRelativesView::rebuildTree(QmlProfilerEventRelativesModelPr
         // no indirections at this level of abstraction!
         newRow << new EventsViewItem(event.displayName);
         newRow << new EventsViewItem(QmlProfilerEventsMainView::nameForType(event.eventType));
-        newRow << new EventsViewItem(QmlProfilerEventsMainView::displayTime(event.duration));
+        newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(event.duration));
         newRow << new EventsViewItem(QString::number(event.calls));
         newRow << new EventsViewItem(event.details);
 
 //        newRow << new EventsViewItem(event->reference->displayName);
 //        newRow << new EventsViewItem(QmlProfilerEventsMainView::nameForType(event->reference->eventType));
-//        newRow << new EventsViewItem(QmlProfilerEventsMainView::displayTime(event->duration));
+//        newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(event->duration));
 //        newRow << new EventsViewItem(QString::number(event->calls));
 //        newRow << new EventsViewItem(event->reference->details);
         newRow.at(0)->setData(QVariant(key), EventHashStrRole);

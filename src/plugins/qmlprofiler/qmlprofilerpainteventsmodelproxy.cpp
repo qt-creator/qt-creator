@@ -56,7 +56,6 @@ public:
     PaintEventsModelProxyPrivate(PaintEventsModelProxy *qq) : q(qq) {}
     ~PaintEventsModelProxyPrivate() {}
 
-    QString displayTime(double time);
     void computeAnimationCountLimit();
 
     int minAnimationCount;
@@ -281,16 +280,6 @@ const QVariantList PaintEventsModelProxy::getLabelsForCategory(int category) con
     return result;
 }
 
-QString PaintEventsModelProxy::PaintEventsModelProxyPrivate::displayTime(double time)
-{
-    if (time < 1e6)
-        return QString::number(time/1e3,'f',3) + trUtf8(" \xc2\xb5s");
-    if (time < 1e9)
-        return QString::number(time/1e6,'f',3) + tr(" ms");
-
-    return QString::number(time/1e9,'f',3) + tr(" s");
-}
-
 void PaintEventsModelProxy::PaintEventsModelProxyPrivate::computeAnimationCountLimit()
 {
     minAnimationCount = 1;
@@ -321,7 +310,8 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
     // duration
     {
         QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"), QVariant(d->displayTime(d->range(index).duration)));
+        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"),
+                         QVariant(QmlProfilerSimpleModel::formatTime(d->range(index).duration)));
         result << valuePair;
     }
 

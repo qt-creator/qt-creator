@@ -64,8 +64,6 @@ public:
     void findBindingLoops();
     void computeRowStarts();
 
-    QString displayTime(double time);
-
     QVector <BasicTimelineModel::QmlRangeEventData> eventDict;
     QVector <QString> eventHashes;
     QVector <CategorySpan> categorySpan;
@@ -443,16 +441,6 @@ const QVariantList BasicTimelineModel::getLabelsForCategory(int category) const
     return result;
 }
 
-QString BasicTimelineModel::BasicTimelineModelPrivate::displayTime(double time)
-{
-    if (time < 1e6)
-        return QString::number(time/1e3,'f',3) + trUtf8(" \xc2\xb5s");
-    if (time < 1e9)
-        return QString::number(time/1e6,'f',3) + tr(" ms");
-
-    return QString::number(time/1e9,'f',3) + tr(" s");
-}
-
 const QVariantList BasicTimelineModel::getEventDetails(int index) const
 {
     QVariantList result;
@@ -468,7 +456,8 @@ const QVariantList BasicTimelineModel::getEventDetails(int index) const
     // duration
     {
         QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"), QVariant(d->displayTime(d->range(index).duration)));
+        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"),
+                         QVariant(QmlProfilerSimpleModel::formatTime(d->range(index).duration)));
         result << valuePair;
     }
 

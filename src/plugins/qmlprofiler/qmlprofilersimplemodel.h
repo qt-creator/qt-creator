@@ -75,6 +75,7 @@ public:
     qint64 lastTimeMark() const;
 
     static QString getHashString(const QmlProfilerSimpleModel::QmlEventData &event);
+    static QString formatTime(qint64 timestamp);
 
 protected:
     QVector<QmlEventData> eventList;

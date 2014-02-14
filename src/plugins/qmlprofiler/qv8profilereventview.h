@@ -101,9 +101,6 @@ public:
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
 
-    static QString displayTime(double time);
-    static QString nameForType(int typeNumber);
-
     int selectedEventId() const;
 
     void setShowExtendedStatistics(bool);
