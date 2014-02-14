@@ -1040,7 +1040,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             "int f(A *o) { o->$@virt(); }\n"
             "}\n")
         << (OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 2)
+            << OverrideItem(QLatin1String("A::virt = 0"), 2)
             << OverrideItem(QLatin1String("B::virt"), 5)
             << OverrideItem(QLatin1String("C::virt"), 8)
             << OverrideItem(QLatin1String("CD1::virt"), 11)
@@ -1110,7 +1110,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             "\n"
             "int f(C *o) { o->$@virt(); }\n")
         << (OverrideItemList()
-            << OverrideItem(QLatin1String("C::virt"), 2)
+            << OverrideItem(QLatin1String("C::virt = 0"), 2)
             << OverrideItem(QLatin1String("A::virt"), 8)
             << OverrideItem(QLatin1String("B::virt"), 5));
 
@@ -1194,7 +1194,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             "\n"
             "void client(A &o) { o.$@virt(); }\n")
         << (OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 2));
+            << OverrideItem(QLatin1String("A::virt = 0"), 2));
 
     /// Check: Do not trigger on a.virt() if a is of type A.
     QTest::newRow("notOnDotMemberAccessOfNonReferenceType") << _(
@@ -1312,7 +1312,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_multipleD
             ;
 
     const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 1)
+            << OverrideItem(QLatin1String("A::virt = 0"), 1)
             << OverrideItem(QLatin1String("B::virt"), 2);
 
     F2TestCase(F2TestCase::FollowSymbolUnderCursorAction, testFiles, finalResults);

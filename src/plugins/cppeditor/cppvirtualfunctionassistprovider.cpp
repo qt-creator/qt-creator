@@ -126,7 +126,7 @@ public:
         hintItem->setOrder(-1000);
 
         QList<BasicProposalItem *> items;
-        items << itemFromFunction(maybeDefinitionFor(m_params.function));
+        items << itemFromFunction(m_params.function);
         items << hintItem;
         return new VirtualFunctionProposal(m_params.cursorPosition,
                                            new BasicProposalItemListModel(items),
@@ -151,7 +151,7 @@ public:
 
         QList<BasicProposalItem *> items;
         foreach (Function *func, overrides)
-            items << itemFromFunction(maybeDefinitionFor(func));
+            items << itemFromFunction(func);
         items.first()->setOrder(1000); // Ensure top position for function of static type
 
         return new VirtualFunctionProposal(m_params.cursorPosition,
@@ -160,7 +160,7 @@ public:
     }
 
 private:
-    Function *maybeDefinitionFor(Function *func)
+    Function *maybeDefinitionFor(Function *func) const
     {
         if (Function *definition = m_finder.findMatchingDefinition(func, m_params.snapshot))
             return definition;
@@ -169,8 +169,10 @@ private:
 
     BasicProposalItem *itemFromFunction(Function *func) const
     {
-        const QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(func));
-        const CPPEditorWidget::Link link = CPPEditorWidget::linkToSymbol(func);
+        const CPPEditorWidget::Link link = CPPEditorWidget::linkToSymbol(maybeDefinitionFor(func));
+        QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(func));
+        if (func->isPureVirtual())
+            text += QLatin1String(" = 0");
 
         BasicProposalItem *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
         item->setText(text);
@@ -182,7 +184,7 @@ private:
     VirtualFunctionAssistProvider::Parameters m_params;
     Overview m_overview;
     Icons m_icons;
-    CppTools::SymbolFinder m_finder;
+    mutable CppTools::SymbolFinder m_finder;
 };
 
 VirtualFunctionAssistProvider::VirtualFunctionAssistProvider()
