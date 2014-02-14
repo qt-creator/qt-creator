@@ -328,6 +328,6 @@ def findAllFilesInPATH(programGlob):
     result = []
     for path in os.environ["PATH"].split(os.pathsep):
         for curr in glob.glob(os.path.join(path, programGlob)):
-            if os.path.isfile(curr) and os.access(os.X_OK):
+            if os.path.isfile(curr) and os.access(curr, os.X_OK):
                 result.append(curr)
     return result
