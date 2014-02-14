@@ -1027,6 +1027,10 @@ void ResourceModel::changeLang(const QModelIndex &model_idx, const QString &lang
     if (m_resource_file.lang(prefix_idx) == lang)
         return;
 
+    if (m_resource_file.contains(m_resource_file.prefix(prefix_idx), lang))
+        return;
+
+
     m_resource_file.replaceLang(prefix_idx, lang);
     emit dataChanged(prefix_model_idx, prefix_model_idx);
     setDirty(true);
