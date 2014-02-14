@@ -201,9 +201,12 @@ void GerritPushDialog::setChangeRange()
         setRemoteBranches(true);
         return;
     }
+    const QString remoteBranchName = selectedRemoteBranchName();
+    if (remoteBranchName.isEmpty())
+        return;
     QString remote = selectedRemoteName();
     remote += QLatin1Char('/');
-    remote += selectedRemoteBranchName();
+    remote += remoteBranchName;
     const QString branch = m_ui->localBranchComboBox->currentText();
     m_ui->infoLabel->setText(tr("Number of commits between %1 and %2: %3")
                              .arg(branch)
