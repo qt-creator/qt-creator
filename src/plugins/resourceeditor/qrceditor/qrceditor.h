@@ -60,8 +60,6 @@ public:
     void setResourceDragEnabled(bool e);
     bool resourceDragEnabled() const;
 
-    void addFile(const QString &prefix, const QString &file);
-
     const QUndoStack *commandHistory() const { return &m_history; }
 
     void refresh();

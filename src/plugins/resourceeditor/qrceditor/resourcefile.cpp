@@ -864,14 +864,6 @@ QString ResourceModel::file(const QModelIndex &index) const
     return m_resource_file.file(index.parent().row(), index.row());
 }
 
-QModelIndex ResourceModel::getIndex(const QString &prefixed_file)
-{
-    QString prefix, file;
-    if (!m_resource_file.split(prefixed_file, &prefix, &file))
-        return QModelIndex();
-    return getIndex(prefix, file);
-}
-
 QModelIndex ResourceModel::getIndex(const QString &prefix, const QString &file)
 {
     if (prefix.isEmpty())

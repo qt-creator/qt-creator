@@ -90,10 +90,6 @@ public:
     bool isDirty() const;
     void setDirty(bool dirty);
 
-    void addFiles(QStringList fileList, const QModelIndex &index);
-
-    void addFile(const QString &prefix, const QString &file);
-
     bool isPrefix(const QModelIndex &index) const;
 
     QString currentAlias() const;

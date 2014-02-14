@@ -339,12 +339,6 @@ bool QrcEditor::resourceDragEnabled() const
     return m_treeview->resourceDragEnabled();
 }
 
-void QrcEditor::addFile(const QString &prefix, const QString &file)
-{
-    // TODO: make this function UNDO / REDO aware
-    m_treeview->addFile(prefix, file);
-}
-
 void QrcEditor::editCurrentItem()
 {
     if (m_treeview->selectionModel()->currentIndex().isValid())

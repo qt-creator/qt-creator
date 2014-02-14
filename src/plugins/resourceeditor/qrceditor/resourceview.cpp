@@ -364,34 +364,6 @@ QStringList ResourceView::fileNamesToAdd()
             tr("All files (*)"));
 }
 
-void ResourceView::addFiles(QStringList fileList, const QModelIndex &index)
-{
-    if (fileList.isEmpty())
-        return;
-    QModelIndex idx = index;
-    if (!m_qrcModel->hasChildren(QModelIndex())) {
-        idx = addPrefix();
-        expand(idx);
-    }
-
-    idx = m_qrcModel->addFiles(idx, fileList);
-
-    if (idx.isValid()) {
-        const QModelIndex preindex = m_qrcModel->prefixIndex(index);
-        setExpanded(preindex, true);
-        selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
-        QString prefix, file;
-        m_qrcModel->getItem(preindex, prefix, file);
-// XXX        emit filesAdded(prefix, fileList);
-    }
-}
-
-void ResourceView::addFile(const QString &prefix, const QString &file)
-{
-    const QModelIndex preindex = m_qrcModel->getIndex(prefix, QString());
-    addFiles(QStringList(file), preindex);
-}
-
 bool ResourceView::load(const QString &fileName)
 {
     const QFileInfo fi(fileName);
