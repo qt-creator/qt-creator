@@ -69,11 +69,29 @@ public:
     };
     Differ();
     QList<Diff> diff(const QString &text1, const QString &text2);
+    QList<Diff> unifiedDiff(const QString &text1, const QString &text2);
     void setDiffMode(DiffMode mode);
     DiffMode diffMode() const;
     static QList<Diff> merge(const QList<Diff> &diffList);
     static QList<Diff> cleanupSemantics(const QList<Diff> &diffList);
     static QList<Diff> cleanupSemanticsLossless(const QList<Diff> &diffList);
+
+    static void splitDiffList(const QList<Diff> &diffList,
+                              QList<Diff> *leftDiffList,
+                              QList<Diff> *rightDiffList);
+    static QList<Diff> moveWhitespaceIntoEqualities(const QList<Diff> &input);
+    static void diffWithWhitespaceReduced(const QString &leftInput,
+                                          const QString &rightInput,
+                                          QList<Diff> *leftOutput,
+                                          QList<Diff> *rightOutput);
+    static void unifiedDiffWithWhitespaceReduced(const QString &leftInput,
+                                          const QString &rightInput,
+                                          QList<Diff> *leftOutput,
+                                          QList<Diff> *rightOutput);
+    static void diffBetweenEqualities(const QList<Diff> &leftInput,
+                                      const QList<Diff> &rightInput,
+                                      QList<Diff> *leftOutput,
+                                      QList<Diff> *rightOutput);
 
 private:
     QList<Diff> preprocess1AndDiff(const QString &text1, const QString &text2);

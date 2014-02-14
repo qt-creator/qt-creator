@@ -236,6 +236,617 @@ static int cleanupSemanticsScore(const QString &text1, const QString &text2)
     return 0;
 }
 
+static bool isWhitespace(const QChar &c)
+{
+    if (c == QLatin1Char(' ') || c == QLatin1Char('\t'))
+        return true;
+    return false;
+}
+
+static bool isNewLine(const QChar &c)
+{
+    if (c == QLatin1Char('\n'))
+        return true;
+    return false;
+}
+
+/*
+ * Splits the diffList into left and right diff lists.
+ * The left diff list contains the original (insertions removed),
+ * while the right diff list contains the destination (deletions removed).
+ */
+void Differ::splitDiffList(const QList<Diff> &diffList,
+                          QList<Diff> *leftDiffList,
+                          QList<Diff> *rightDiffList)
+{
+    if (!leftDiffList || !rightDiffList)
+        return;
+
+    leftDiffList->clear();
+    rightDiffList->clear();
+
+    for (int i = 0; i < diffList.count(); i++) {
+        const Diff diff = diffList.at(i);
+
+        if (diff.command != Diff::Delete)
+            rightDiffList->append(diff);
+        if (diff.command != Diff::Insert)
+            leftDiffList->append(diff);
+    }
+}
+
+/*
+ * Prerequisites:
+ * input should be only the left or right list of diffs, not a mix of both.
+ *
+ * Moves whitespace characters from Diff::Delete or Diff::Insert into
+ * surrounding Diff::Equal, if possible.
+ * It may happen, that some Diff::Delete of Diff::Insert will disappear.
+ */
+QList<Diff> Differ::moveWhitespaceIntoEqualities(const QList<Diff> &input)
+{
+    QList<Diff> output = input;
+
+    for (int i = 0; i < output.count(); i++) {
+        Diff diff = output[i];
+
+        if (diff.command != Diff::Equal) {
+            if (i > 0) { // check previous equality
+                Diff &previousDiff = output[i - 1];
+                const int previousDiffCount = previousDiff.text.count();
+                if (previousDiff.command == Diff::Equal
+                        && previousDiffCount
+                        && isWhitespace(previousDiff.text.at(previousDiffCount - 1))) { // previous diff ends with whitespace
+                    int j = 0;
+                    while (j < diff.text.count()) {
+                        if (!isWhitespace(diff.text.at(j)))
+                            break;
+                        ++j;
+                    }
+                    if (j > 0) { // diff starts with j whitespaces, move them to the previous diff
+                        previousDiff.text.append(diff.text.left(j));
+                        diff.text = diff.text.mid(j);
+                    }
+                }
+            }
+            if (i < output.count() - 1) { // check next equality
+                const int diffCount = diff.text.count();
+                Diff &nextDiff = output[i + 1];
+                const int nextDiffCount = nextDiff.text.count();
+                if (nextDiff.command == Diff::Equal
+                        && nextDiffCount
+                        && (isWhitespace(nextDiff.text.at(0)) || isNewLine(nextDiff.text.at(0)))) { // next diff starts with whitespace or with newline
+                    int j = 0;
+                    while (j < diffCount) {
+                        if (!isWhitespace(diff.text.at(diffCount - j - 1)))
+                            break;
+                        ++j;
+                    }
+                    if (j > 0) { // diff ends with j whitespaces, move them to the next diff
+                        nextDiff.text.prepend(diff.text.mid(diffCount - j));
+                        diff.text = diff.text.left(diffCount - j);
+                    }
+                }
+            }
+            // remove diff if empty
+            if (diff.text.isEmpty()) {
+                output.removeAt(i);
+                --i;
+            } else {
+                output[i] = diff;
+            }
+        }
+    }
+    return output;
+}
+
+/*
+ * Encodes any sentence of whitespaces with one simple space.
+ *
+ * The mapping is returned by codeMap argument, which contains
+ * the position in output string of encoded whitespace character
+ * and it's corresponding original sequence of whitespace characters.
+ *
+ * The returned string contains encoded version of the input string.
+ */
+static QString encodeReducedWhitespace(const QString &input,
+                                       QMap<int, QString> *codeMap)
+{
+    QString output;
+    if (!codeMap)
+        return output;
+
+    int inputIndex = 0;
+    int outputIndex = 0;
+    while (inputIndex < input.count()) {
+        QChar c = input.at(inputIndex);
+
+        if (isWhitespace(c)) {
+            output.append(QLatin1Char(' '));
+            codeMap->insert(outputIndex, QString(c));
+            ++inputIndex;
+
+            while (inputIndex < input.count()) {
+                QChar reducedChar = input.at(inputIndex);
+
+                if (!isWhitespace(reducedChar))
+                    break;
+
+                (*codeMap)[outputIndex].append(reducedChar);
+                ++inputIndex;
+            }
+        } else {
+            output.append(c);
+            ++inputIndex;
+        }
+        ++outputIndex;
+    }
+    return output;
+}
+
+/*
+ * This is corresponding function to encodeReducedWhitespace().
+ *
+ * The input argument contains version encoded with codeMap,
+ * the returned value contains decoded diff list.
+ */
+static QList<Diff> decodeReducedWhitespace(const QList<Diff> &input,
+                                           const QMap<int, QString> &codeMap)
+{
+    QList<Diff> output;
+
+    int counter = 0;
+    QMap<int, QString>::const_iterator it = codeMap.constBegin();
+    const QMap<int, QString>::const_iterator itEnd = codeMap.constEnd();
+    for (int i = 0; i < input.count(); i++) {
+        Diff diff = input.at(i);
+        const int diffCount = diff.text.count();
+        while ((it != itEnd) && (it.key() < counter + diffCount)) {
+            const int reversePosition = diffCount + counter - it.key();
+            const int updatedDiffCount = diff.text.count();
+            diff.text.replace(updatedDiffCount - reversePosition, 1, it.value());
+            ++it;
+        }
+        output.append(diff);
+        counter += diffCount;
+    }
+    return output;
+}
+
+/*
+ * Prerequisites:
+ * leftDiff is expected to be Diff::Delete and rightDiff is expected to be Diff::Insert.
+ *
+ * Encode any sentence of whitespaces with simple space (inside leftDiff and rightDiff),
+ * diff without cleanup,
+ * split diffs,
+ * decode.
+ */
+void Differ::diffWithWhitespaceReduced(const QString &leftInput,
+                                       const QString &rightInput,
+                                       QList<Diff> *leftOutput,
+                                       QList<Diff> *rightOutput)
+{
+    if (!leftOutput || !rightOutput)
+        return;
+
+    leftOutput->clear();
+    rightOutput->clear();
+
+    QMap<int, QString> leftCodeMap;
+    QMap<int, QString> rightCodeMap;
+    const QString leftString = encodeReducedWhitespace(leftInput, &leftCodeMap);
+    const QString rightString = encodeReducedWhitespace(rightInput, &rightCodeMap);
+
+    Differ differ;
+    QList<Diff> diffList = differ.diff(leftString, rightString);
+
+    QList<Diff> leftDiffList;
+    QList<Diff> rightDiffList;
+    Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
+
+    *leftOutput = decodeReducedWhitespace(leftDiffList, leftCodeMap);
+    *rightOutput = decodeReducedWhitespace(rightDiffList, rightCodeMap);
+}
+
+/*
+ * Prerequisites:
+ * leftDiff is expected to be Diff::Delete and rightDiff is expected to be Diff::Insert.
+ *
+ * Encode any sentence of whitespaces with simple space (inside leftDiff and rightDiff),
+ * diff without cleanup,
+ * split diffs,
+ * decode.
+ */
+void Differ::unifiedDiffWithWhitespaceReduced(const QString &leftInput,
+                                       const QString &rightInput,
+                                       QList<Diff> *leftOutput,
+                                       QList<Diff> *rightOutput)
+{
+    if (!leftOutput || !rightOutput)
+        return;
+
+    leftOutput->clear();
+    rightOutput->clear();
+
+    QMap<int, QString> leftCodeMap;
+    QMap<int, QString> rightCodeMap;
+    const QString leftString = encodeReducedWhitespace(leftInput, &leftCodeMap);
+    const QString rightString = encodeReducedWhitespace(rightInput, &rightCodeMap);
+
+    Differ differ;
+    QList<Diff> diffList = differ.unifiedDiff(leftString, rightString);
+
+    QList<Diff> leftDiffList;
+    QList<Diff> rightDiffList;
+    Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
+
+    *leftOutput = decodeReducedWhitespace(leftDiffList, leftCodeMap);
+    *rightOutput = decodeReducedWhitespace(rightDiffList, rightCodeMap);
+}
+
+/*
+ * Prerequisites:
+ * leftEquality and rightEquality needs to be equal. They may differ only with
+ * whitespaces character (count and kind).
+ *
+ * Replaces any corresponding sentence of whitespaces inside left and right equality
+ * with space characters. The number of space characters inside
+ * replaced sequence depends on the longest sequence of whitespace characters
+ * either in left or right equlity.
+ *
+ * E.g., when:
+ * leftEquality:   "a   b     c" (3 whitespace characters, 5 whitespace characters)
+ * rightEquality:  "a /tb  /t    c" (2 whitespace characters, 7 whitespace characters)
+ * then:
+ * returned value: "a   b       c" (3 space characters, 7 space characters)
+ *
+ * The returned code maps contains the info about the encoding done.
+ * The key on the map is the position of encoding inside the output string,
+ * and the value, which is a pair of int and string,
+ * describes how many characters were encoded in the output string
+ * and what was the original whitespace sequence in the original
+ * For the above example it would be:
+ *
+ * leftCodeMap:  <1, <3, "   "> >
+ *               <5, <7, "     "> >
+ * rightCodeMap: <1, <3, " /t"> >
+ *               <5, <7, "  /t    "> >
+ *
+ */
+static QString encodeExpandedWhitespace(const QString &leftEquality,
+                                        const QString &rightEquality,
+                                        QMap<int, QPair<int, QString> > *leftCodeMap,
+                                        QMap<int, QPair<int, QString> > *rightCodeMap,
+                                        bool *ok)
+{
+    if (ok)
+        *ok = false;
+
+    if (!leftCodeMap || !rightCodeMap)
+        return QString();
+
+    leftCodeMap->clear();
+    rightCodeMap->clear();
+    QString output;
+
+    const int leftCount = leftEquality.count();
+    const int rightCount = rightEquality.count();
+    int leftIndex = 0;
+    int rightIndex = 0;
+    while (leftIndex < leftCount && rightIndex < rightCount) {
+        QString leftWhitespaces;
+        QString rightWhitespaces;
+        while (leftIndex < leftCount && isWhitespace(leftEquality.at(leftIndex))) {
+            leftWhitespaces.append(leftEquality.at(leftIndex));
+            ++leftIndex;
+        }
+        while (rightIndex < rightCount && isWhitespace(rightEquality.at(rightIndex))) {
+            rightWhitespaces.append(rightEquality.at(rightIndex));
+            ++rightIndex;
+        }
+
+        if (leftIndex < leftCount && rightIndex < rightCount) {
+            if (leftEquality.at(leftIndex) != rightEquality.at(rightIndex))
+                return QString(); // equalities broken
+
+        } else if (leftIndex == leftCount && rightIndex == rightCount) {
+            ; // do nothing, the last iteration
+        } else {
+            return QString(); // equalities broken
+        }
+
+        if ((leftWhitespaces.count() && !rightWhitespaces.count())
+                || (!leftWhitespaces.count() && rightWhitespaces.count())) {
+            return QString(); // there must be at least 1 corresponding whitespace, equalities broken
+        }
+
+        if (leftWhitespaces.count() && rightWhitespaces.count()) {
+            const int replacementPosition = output.count();
+            const int replacementSize = qMax(leftWhitespaces.count(), rightWhitespaces.count());
+            const QString replacement(replacementSize, QLatin1Char(' '));
+            leftCodeMap->insert(replacementPosition, qMakePair(replacementSize, leftWhitespaces));
+            rightCodeMap->insert(replacementPosition, qMakePair(replacementSize, rightWhitespaces));
+            output.append(replacement);
+        }
+
+        if (leftIndex < leftCount)
+            output.append(leftEquality.at(leftIndex)); // add common character
+
+        ++leftIndex;
+        ++rightIndex;
+    }
+
+    if (ok)
+        *ok = true;
+
+    return output;
+}
+
+/*
+ * This is corresponding function to encodeExpandedWhitespace().
+ *
+ * The input argument contains version encoded with codeMap,
+ * the returned value contains decoded diff list.
+ */
+static QList<Diff> decodeExpandedWhitespace(const QList<Diff> input,
+                                            const QMap<int, QPair<int, QString> > &codeMap,
+                                            bool *ok)
+{
+    if (ok)
+        *ok = false;
+
+    QList<Diff> output;
+
+    int counter = 0;
+    QMap<int, QPair<int, QString> >::const_iterator it = codeMap.constBegin();
+    const QMap<int, QPair<int, QString> >::const_iterator itEnd = codeMap.constEnd();
+    for (int i = 0; i < input.count(); i++) {
+        Diff diff = input.at(i);
+        const int diffCount = diff.text.count();
+        while ((it != itEnd) && (it.key() < counter + diffCount)) {
+            const int replacementSize = it.value().first;
+            const int reversePosition = diffCount + counter - it.key();
+            if (reversePosition < replacementSize)
+                return QList<Diff>(); // replacement exceeds one Diff
+            const QString replacement = it.value().second;
+            const int updatedDiffCount = diff.text.count();
+            diff.text.replace(updatedDiffCount - reversePosition, replacementSize, replacement);
+            ++it;
+        }
+        output.append(diff);
+        counter += diffCount;
+    }
+
+    if (ok)
+        *ok = true;
+
+    return output;
+}
+
+/*
+ * Prerequisites:
+ * leftInput and rightInput should contain the same number of equalities,
+ * equalities should differ only in whitespaces.
+ *
+ * Encodes any sentence of whitespace characters in equalities only
+ * with the maximal number of corresponding whitespace characters
+ * (inside leftInput and rightInput), so that the leftInput and rightInput
+ * can be merged together again,
+ * diff merged sequence with cleanup,
+ * decode.
+ */
+static bool diffWithWhitespaceExpandedInEqualities(const QList<Diff> &leftInput,
+                                                   const QList<Diff> &rightInput,
+                                                   QList<Diff> *leftOutput,
+                                                   QList<Diff> *rightOutput)
+{
+    if (!leftOutput || !rightOutput)
+        return false;
+
+    leftOutput->clear();
+    rightOutput->clear();
+
+    const int leftCount = leftInput.count();
+    const int rightCount = rightInput.count();
+    int l = 0;
+    int r = 0;
+
+    QString leftText;
+    QString rightText;
+
+    QMap<int, QPair<int, QString> > commonLeftCodeMap;
+    QMap<int, QPair<int, QString> > commonRightCodeMap;
+
+    while (l <= leftCount && r <= rightCount) {
+        Diff leftDiff = l < leftCount ? leftInput.at(l) : Diff(Diff::Equal);
+        Diff rightDiff = r < rightCount ? rightInput.at(r) : Diff(Diff::Equal);
+
+        if (leftDiff.command == Diff::Equal && rightDiff.command == Diff::Equal) {
+            QMap<int, QPair<int, QString> > leftCodeMap;
+            QMap<int, QPair<int, QString> > rightCodeMap;
+
+            bool ok = false;
+            QString commonEquality = encodeExpandedWhitespace(leftDiff.text,
+                                          rightDiff.text,
+                                          &leftCodeMap,
+                                          &rightCodeMap,
+                                          &ok);
+            if (!ok)
+                return false;
+
+            // join code map positions with common maps
+            QMapIterator<int, QPair<int, QString> > itLeft(leftCodeMap);
+            while (itLeft.hasNext()) {
+                itLeft.next();
+                commonLeftCodeMap.insert(leftText.count() + itLeft.key(), itLeft.value());
+            }
+            QMapIterator<int, QPair<int, QString> > itRight(rightCodeMap);
+            while (itRight.hasNext()) {
+                itRight.next();
+                commonRightCodeMap.insert(rightText.count() + itRight.key(), itRight.value());
+            }
+
+            leftText.append(commonEquality);
+            rightText.append(commonEquality);
+
+            ++l;
+            ++r;
+        }
+
+        if (leftDiff.command != Diff::Equal) {
+            leftText.append(leftDiff.text);
+            ++l;
+        }
+        if (rightDiff.command != Diff::Equal) {
+            rightText.append(rightDiff.text);
+            ++r;
+        }
+    }
+
+    Differ differ;
+    QList<Diff> diffList = differ.cleanupSemantics(differ.diff(leftText, rightText));
+
+    QList<Diff> leftDiffList;
+    QList<Diff> rightDiffList;
+    Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
+
+    leftDiffList = Differ::moveWhitespaceIntoEqualities(leftDiffList);
+    rightDiffList = Differ::moveWhitespaceIntoEqualities(rightDiffList);
+
+    bool ok = false;
+    *leftOutput = decodeExpandedWhitespace(leftDiffList, commonLeftCodeMap, &ok);
+    if (!ok)
+        return false;
+    *rightOutput = decodeExpandedWhitespace(rightDiffList, commonRightCodeMap, &ok);
+    if (!ok)
+        return false;
+    return true;
+}
+
+static void appendWithEqualitiesSquashed(const QList<Diff> &leftInput,
+                             const QList<Diff> &rightInput,
+                             QList<Diff> *leftOutput,
+                             QList<Diff> *rightOutput)
+{
+    if (leftInput.count()
+            && rightInput.count()
+            && leftOutput->count()
+            && rightOutput->count()
+            && leftInput.first().command == Diff::Equal
+            && rightInput.first().command == Diff::Equal
+            && leftOutput->last().command == Diff::Equal
+            && rightOutput->last().command == Diff::Equal) {
+        leftOutput->last().text += leftInput.first().text;
+        rightOutput->last().text += rightInput.first().text;
+        leftOutput->append(leftInput.mid(1));
+        rightOutput->append(rightInput.mid(1));
+        return;
+    }
+    leftOutput->append(leftInput);
+    rightOutput->append(rightInput);
+}
+
+/*
+ * Prerequisites:
+ * leftInput cannot contain insertions, while right input cannot contain deletions.
+ * The number of equalities on leftInput and rightInput lists should be the same.
+ * Deletions and insertions need to be merged.
+ *
+ * For each corresponding insertion / deletion pair:
+ * - diffWithWhitespaceReduced(): rediff them separately with whitespace reduced (new equalities may appear)
+ * - moveWhitespaceIntoEqualities(): move whitespace into new equalities
+ * - diffWithWhitespaceExpandedInEqualities(): expand whitespace inside new equalities only and rediff with cleanup
+ */
+void Differ::diffBetweenEqualities(const QList<Diff> &leftInput,
+                                  const QList<Diff> &rightInput,
+                                  QList<Diff> *leftOutput,
+                                  QList<Diff> *rightOutput)
+{
+    if (!leftOutput || !rightOutput)
+        return;
+
+    leftOutput->clear();
+    rightOutput->clear();
+
+    const int leftCount = leftInput.count();
+    const int rightCount = rightInput.count();
+    int l = 0;
+    int r = 0;
+
+    while (l <= leftCount && r <= rightCount) {
+        Diff leftDiff = l < leftCount
+                ? leftInput.at(l)
+                : Diff(Diff::Equal);
+        Diff rightDiff = r < rightCount
+                ? rightInput.at(r)
+                : Diff(Diff::Equal);
+
+        if (leftDiff.command == Diff::Equal && rightDiff.command == Diff::Equal) {
+            Diff previousLeftDiff = l > 0 ? leftInput.at(l - 1) : Diff(Diff::Equal);
+            Diff previousRightDiff = r > 0 ? rightInput.at(r - 1) : Diff(Diff::Equal);
+
+            if (previousLeftDiff.command == Diff::Delete
+                    && previousRightDiff.command == Diff::Insert) {
+                QList<Diff> outputLeftDiffList;
+                QList<Diff> outputRightDiffList;
+
+                QList<Diff> reducedLeftDiffList;
+                QList<Diff> reducedRightDiffList;
+                diffWithWhitespaceReduced(previousLeftDiff.text,
+                                           previousRightDiff.text,
+                                           &reducedLeftDiffList,
+                                           &reducedRightDiffList);
+
+                reducedLeftDiffList = moveWhitespaceIntoEqualities(reducedLeftDiffList);
+                reducedRightDiffList = moveWhitespaceIntoEqualities(reducedRightDiffList);
+
+                QList<Diff> cleanedLeftDiffList;
+                QList<Diff> cleanedRightDiffList;
+                if (diffWithWhitespaceExpandedInEqualities(reducedLeftDiffList,
+                                                           reducedRightDiffList,
+                                                           &cleanedLeftDiffList,
+                                                           &cleanedRightDiffList)) {
+                    outputLeftDiffList = cleanedLeftDiffList;
+                    outputRightDiffList = cleanedRightDiffList;
+                } else {
+                    outputLeftDiffList = reducedLeftDiffList;
+                    outputRightDiffList = reducedRightDiffList;
+                }
+
+                appendWithEqualitiesSquashed(outputLeftDiffList,
+                                             outputRightDiffList,
+                                             leftOutput,
+                                             rightOutput);
+            } else if (previousLeftDiff.command == Diff::Delete) {
+                leftOutput->append(previousLeftDiff);
+            } else if (previousRightDiff.command == Diff::Insert) {
+                rightOutput->append(previousRightDiff);
+            }
+
+            QList<Diff> leftEquality;
+            QList<Diff> rightEquality;
+            if (l < leftCount)
+                leftEquality.append(leftDiff);
+            if (r < rightCount)
+                rightEquality.append(rightDiff);
+
+            appendWithEqualitiesSquashed(leftEquality,
+                                         rightEquality,
+                                         leftOutput,
+                                         rightOutput);
+
+            ++l;
+            ++r;
+        }
+
+        if (leftDiff.command != Diff::Equal)
+            ++l;
+        if (rightDiff.command != Diff::Equal)
+            ++r;
+    }
+}
+
 ///////////////
 
 
@@ -291,6 +902,24 @@ QList<Diff> Differ::diff(const QString &text1, const QString &text2)
 {
     m_currentDiffMode = m_diffMode;
     return merge(preprocess1AndDiff(text1, text2));
+}
+
+QList<Diff> Differ::unifiedDiff(const QString &text1, const QString &text2)
+{
+    QString encodedText1;
+    QString encodedText2;
+    QStringList subtexts = encode(text1, text2, &encodedText1, &encodedText2);
+
+    DiffMode diffMode = m_currentDiffMode;
+    m_currentDiffMode = CharMode;
+
+    // Each different subtext is a separate symbol
+    // process these symbols as text with bigger alphabet
+    QList<Diff> diffList = merge(preprocess1AndDiff(encodedText1, encodedText2));
+
+    diffList = decode(diffList, subtexts);
+    m_currentDiffMode = diffMode;
+    return diffList;
 }
 
 void Differ::setDiffMode(Differ::DiffMode mode)
