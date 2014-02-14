@@ -47,7 +47,7 @@ public:
     void addModel(AbstractTimelineModel *m);
 
 
-    Q_INVOKABLE int categories() const;
+    Q_INVOKABLE int categoryCount() const;
     Q_INVOKABLE int visibleCategories() const;
     Q_INVOKABLE QStringList categoryTitles() const;
     Q_INVOKABLE int count(int modelIndex = -1) const;

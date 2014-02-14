@@ -63,8 +63,6 @@ public:
     PaintEventsModelProxy(QObject *parent = 0);
     ~PaintEventsModelProxy();
 
-
-    int categories() const;
     QString name() const;
 
     void loadData();

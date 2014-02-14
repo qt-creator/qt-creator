@@ -82,8 +82,6 @@ public:
     BasicTimelineModel(QObject *parent = 0);
     ~BasicTimelineModel();
 
-
-    int categories() const;
     QString name() const;
 
     void loadData();

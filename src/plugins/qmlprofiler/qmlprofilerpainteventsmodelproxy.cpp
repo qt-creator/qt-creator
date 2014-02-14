@@ -77,11 +77,6 @@ PaintEventsModelProxy::~PaintEventsModelProxy()
     delete d;
 }
 
-int PaintEventsModelProxy::categories() const
-{
-    return categoryCount();
-}
-
 QString PaintEventsModelProxy::name() const
 {
     return QLatin1String("PaintEventsModelProxy");

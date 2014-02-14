@@ -95,11 +95,11 @@ void TimelineModelAggregator::addModel(AbstractTimelineModel *m)
 }
 
 // order?
-int TimelineModelAggregator::categories() const
+int TimelineModelAggregator::categoryCount() const
 {
     int categoryCount = 0;
     foreach (const AbstractTimelineModel *modelProxy, d->modelList)
-        categoryCount += modelProxy->categories();
+        categoryCount += modelProxy->categoryCount();
     return categoryCount;
 }
 
@@ -107,7 +107,7 @@ int TimelineModelAggregator::visibleCategories() const
 {
     int categoryCount = 0;
     foreach (const AbstractTimelineModel *modelProxy, d->modelList) {
-        for (int i = 0; i < modelProxy->categories(); i++)
+        for (int i = 0; i < modelProxy->categoryCount(); i++)
             if (modelProxy->categoryDepth(i) > 0)
                 categoryCount ++;
     }

@@ -84,11 +84,6 @@ BasicTimelineModel::~BasicTimelineModel()
     delete d;
 }
 
-int BasicTimelineModel::categories() const
-{
-    return categoryCount();
-}
-
 QString BasicTimelineModel::name() const
 {
     return QLatin1String("BasicTimelineModel");

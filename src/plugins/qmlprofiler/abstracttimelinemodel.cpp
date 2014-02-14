@@ -47,7 +47,7 @@ void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManage
 QStringList AbstractTimelineModel::categoryTitles() const
 {
     QStringList retString;
-    for (int i = 0; i < categories(); i++)
+    for (int i = 0; i < categoryCount(); i++)
         retString << categoryLabel(i);
     return retString;
 }
