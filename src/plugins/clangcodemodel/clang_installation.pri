@@ -36,22 +36,27 @@ defineReplace(findLLVMConfig) {
     return(llvm-config)
 }
 
-win32 {
-    LLVM_INCLUDEPATH = $$LLVM_INSTALL_DIR/include
-    exists ($${LLVM_INSTALL_DIR}/lib/clang.*) {
-        CLANG_LIB = clang
-    } else {
-        exists ($${LLVM_INSTALL_DIR}/lib/libclang.*) {
-            CLANG_LIB = libclang
-        } else {
-            error("Cannot find Clang shared library!")
+defineReplace(findClangOnWindows) {
+    FILE_EXTS = a dll
+    win32-msvc*: FILE_EXTS = lib dll
+    for (suffix, $$list(lib bin)) {
+        for (libname, $$list(clang libclang)) {
+            for (ext, FILE_EXTS) {
+                exists("$${LLVM_INSTALL_DIR}/$${suffix}/$${libname}.$${ext}")
+                    return($${LLVM_INSTALL_DIR}/$${suffix}/)
+            }
         }
     }
-    LLVM_LIBDIR = $$LLVM_INSTALL_DIR/lib
-    LLVM_LIBS = \
-        -L$$LLVM_INSTALL_DIR/bin \
-        -L$$LLVM_LIBDIR \
-        -l$${CLANG_LIB}
+    error("Cannot find clang shared library at $${LLVM_INSTALL_DIR}")
+}
+
+win32 {
+    LLVM_INCLUDEPATH = "$$LLVM_INSTALL_DIR/include"
+    CLANG_LIB_PATH = $$findClangOnWindows()
+    CLANG_LIB = clang
+    !exists("$${CLANG_LIB_PATH}/clang.*"):CLANG_LIB = libclang
+
+    LLVM_LIBS = -L"$${CLANG_LIB_PATH}" -l$${CLANG_LIB}
     LLVM_LIBS += -ladvapi32 -lshell32
     LLVM_VERSION = 3.4
 }
