@@ -452,8 +452,8 @@ public:
         , m_replaceDotForArrow(static_cast<CppAssistProposalModel *>(model)->m_replaceDotForArrow)
     {}
 
-    virtual bool isCorrective() const { return m_replaceDotForArrow; }
-    virtual void makeCorrection(BaseTextEditor *editor);
+    bool isCorrective() const { return m_replaceDotForArrow; }
+    void makeCorrection(BaseTextEditor *editor);
 
 private:
     bool m_replaceDotForArrow;

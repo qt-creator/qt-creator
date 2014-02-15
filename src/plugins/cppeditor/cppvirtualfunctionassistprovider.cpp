@@ -100,8 +100,7 @@ public:
         , m_openInSplit(openInSplit)
     {}
 
-    bool isFragile() const
-    { return true; }
+    bool isFragile() const { return true; }
 
     IAssistProposalWidget *createWidget() const
     { return new VirtualFunctionProposalWidget(m_openInSplit); }

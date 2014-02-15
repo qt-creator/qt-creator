@@ -40,14 +40,14 @@ class TEXTEDITOR_EXPORT GenericProposal : public IAssistProposal
 {
 public:
     GenericProposal(int cursorPos, IGenericProposalModel *model);
-    virtual ~GenericProposal();
+    ~GenericProposal();
 
-    virtual bool isFragile() const;
-    virtual int basePosition() const;
-    virtual bool isCorrective() const;
-    virtual void makeCorrection(BaseTextEditor *editor);
-    virtual IAssistProposalModel *model() const;
-    virtual IAssistProposalWidget *createWidget() const;
+    bool isFragile() const;
+    int basePosition() const;
+    bool isCorrective() const;
+    void makeCorrection(BaseTextEditor *editor);
+    IAssistProposalModel *model() const;
+    IAssistProposalWidget *createWidget() const;
 
 protected:
     void moveBasePosition(int length);

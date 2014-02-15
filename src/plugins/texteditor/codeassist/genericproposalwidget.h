@@ -45,19 +45,19 @@ class TEXTEDITOR_EXPORT GenericProposalWidget : public IAssistProposalWidget
 
 public:
     GenericProposalWidget();
-    virtual ~GenericProposalWidget();
+    ~GenericProposalWidget();
 
-    virtual void setAssistant(CodeAssistant *assistant);
-    virtual void setReason(AssistReason reason);
-    virtual void setKind(AssistKind kind);
-    virtual void setUnderlyingWidget(const QWidget *underlyingWidget);
-    virtual void setModel(IAssistProposalModel *model);
-    virtual void setDisplayRect(const QRect &rect);
-    virtual void setIsSynchronized(bool isSync);
+    void setAssistant(CodeAssistant *assistant);
+    void setReason(AssistReason reason);
+    void setKind(AssistKind kind);
+    void setUnderlyingWidget(const QWidget *underlyingWidget);
+    void setModel(IAssistProposalModel *model);
+    void setDisplayRect(const QRect &rect);
+    void setIsSynchronized(bool isSync);
 
-    virtual void showProposal(const QString &prefix);
-    virtual void updateProposal(const QString &prefix);
-    virtual void closeProposal();
+    void showProposal(const QString &prefix);
+    void updateProposal(const QString &prefix);
+    void closeProposal();
 
 private:
     bool updateAndCheck(const QString &prefix);
@@ -70,7 +70,7 @@ private slots:
     void turnOnAutoWidth();
 
 protected:
-    virtual bool eventFilter(QObject *o, QEvent *e);
+    bool eventFilter(QObject *o, QEvent *e);
     bool activateCurrentProposalItem();
 
 private:

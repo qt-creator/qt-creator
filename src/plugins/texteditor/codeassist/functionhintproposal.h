@@ -42,12 +42,12 @@ public:
     FunctionHintProposal(int cursorPos, IFunctionHintProposalModel *model);
     virtual ~FunctionHintProposal();
 
-    virtual bool isFragile() const;
-    virtual int basePosition() const;
-    virtual bool isCorrective() const;
-    virtual void makeCorrection(BaseTextEditor *editor);
-    virtual IAssistProposalModel *model() const;
-    virtual IAssistProposalWidget *createWidget() const;
+    bool isFragile() const;
+    int basePosition() const;
+    bool isCorrective() const;
+    void makeCorrection(BaseTextEditor *editor);
+    IAssistProposalModel *model() const;
+    IAssistProposalWidget *createWidget() const;
 
 private:
     int m_basePosition;
