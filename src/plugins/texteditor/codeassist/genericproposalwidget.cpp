@@ -666,6 +666,11 @@ bool GenericProposalWidget::activateCurrentProposalItem()
     return false;
 }
 
+IGenericProposalModel *GenericProposalWidget::model()
+{
+    return d->m_model;
+}
+
 #include "genericproposalwidget.moc"
 
 } // TextEditor

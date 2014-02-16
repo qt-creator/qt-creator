@@ -88,6 +88,17 @@ protected:
         return GenericProposalWidget::eventFilter(o, e);
     }
 
+    void showProposal(const QString &prefix)
+    {
+        IGenericProposalModel *proposalModel = model();
+        if (proposalModel && proposalModel->size() == 1) {
+            emit proposalItemActivated(proposalModel->proposalItem(0));
+            deleteLater();
+            return;
+        }
+        GenericProposalWidget::showProposal(prefix);
+    }
+
 private:
     QKeySequence m_sequence;
 };

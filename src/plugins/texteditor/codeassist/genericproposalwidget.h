@@ -37,6 +37,7 @@
 namespace TextEditor {
 
 class GenericProposalWidgetPrivate;
+class IGenericProposalModel;
 
 class TEXTEDITOR_EXPORT GenericProposalWidget : public IAssistProposalWidget
 {
@@ -72,6 +73,7 @@ private slots:
 protected:
     bool eventFilter(QObject *o, QEvent *e);
     bool activateCurrentProposalItem();
+    IGenericProposalModel *model();
 
 private:
     GenericProposalWidgetPrivate *d;
