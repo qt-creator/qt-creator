@@ -125,7 +125,8 @@ QList<Symbol *> FunctionUtils::overrides(Function *function, Class *functionsCla
     const TypeHierarchy &staticClassHierarchy = builder.buildDerivedTypeHierarchy();
 
     QList<TypeHierarchy> l;
-    l.append(TypeHierarchy(functionsClass));
+    if (functionsClass != staticClass)
+        l.append(TypeHierarchy(functionsClass));
     l.append(staticClassHierarchy);
 
     while (!l.isEmpty()) {
