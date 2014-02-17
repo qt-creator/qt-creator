@@ -55,7 +55,7 @@ namespace Internal {
 }
 
 // Documentation inside.
-class ICustomWizardFactory : public QObject
+class PROJECTEXPLORER_EXPORT ICustomWizardFactory : public QObject
 {
     Q_OBJECT
 
