@@ -46,7 +46,9 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <cplusplus/ExpressionUnderCursor.h>
+
 #include <utils/faketooltip.h>
+#include <utils/qtcoverride.h>
 
 #include <QIcon>
 #include <QPainter>
@@ -149,10 +151,10 @@ public:
         , m_currentArg(-1)
     {}
 
-    virtual void reset() {}
-    virtual int size() const { return m_items.size(); }
-    virtual QString text(int index) const;
-    virtual int activeArgument(const QString &prefix) const;
+    void reset() QTC_OVERRIDE {}
+    int size() const QTC_OVERRIDE { return m_items.size(); }
+    QString text(int index) const QTC_OVERRIDE;
+    int activeArgument(const QString &prefix) const QTC_OVERRIDE;
 
 private:
     QVector<GLSL::Function *> m_items;

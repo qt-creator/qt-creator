@@ -35,6 +35,8 @@
 #include <texteditor/codeassist/assistenums.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 
+#include <utils/qtcoverride.h>
+
 QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
@@ -53,9 +55,9 @@ class CPPTOOLS_EXPORT CppCompletionAssistProvider : public TextEditor::Completio
     Q_OBJECT
 
 public:
-    virtual bool supportsEditor(const Core::Id &editorId) const;
-    virtual int activationCharSequenceLength() const;
-    virtual bool isActivationCharSequence(const QString &sequence) const;
+    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    int activationCharSequenceLength() const QTC_OVERRIDE;
+    bool isActivationCharSequence(const QString &sequence) const QTC_OVERRIDE;
 
     virtual TextEditor::IAssistInterface *createAssistInterface(
             ProjectExplorer::Project *project, TextEditor::BaseTextEditor *editor,

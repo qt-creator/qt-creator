@@ -38,6 +38,8 @@
 #include <texteditor/codeassist/quickfixassistprovider.h>
 #include <texteditor/codeassist/quickfixassistprocessor.h>
 
+#include <utils/qtcoverride.h>
+
 namespace QmlJSEditor {
 namespace Internal {
 
@@ -45,7 +47,7 @@ class QmlJSQuickFixAssistInterface : public TextEditor::DefaultAssistInterface
 {
 public:
     QmlJSQuickFixAssistInterface(QmlJSTextEditorWidget *editor, TextEditor::AssistReason reason);
-    virtual ~QmlJSQuickFixAssistInterface();
+    ~QmlJSQuickFixAssistInterface();
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;
     QmlJSTools::QmlJSRefactoringFilePtr currentFile() const;
@@ -60,9 +62,9 @@ class QmlJSQuickFixProcessor : public TextEditor::QuickFixAssistProcessor
 {
 public:
     QmlJSQuickFixProcessor(const TextEditor::IAssistProvider *provider);
-    virtual ~QmlJSQuickFixProcessor();
+    ~QmlJSQuickFixProcessor();
 
-    virtual const TextEditor::IAssistProvider *provider() const;
+    const TextEditor::IAssistProvider *provider() const QTC_OVERRIDE;
 
 private:
     const TextEditor::IAssistProvider *m_provider;
@@ -73,13 +75,13 @@ class QmlJSQuickFixAssistProvider : public TextEditor::QuickFixAssistProvider
 {
 public:
     QmlJSQuickFixAssistProvider();
-    virtual ~QmlJSQuickFixAssistProvider();
+    ~QmlJSQuickFixAssistProvider();
 
-    virtual bool isAsynchronous() const;
-    virtual bool supportsEditor(const Core::Id &editorId) const;
-    virtual TextEditor::IAssistProcessor *createProcessor() const;
+    bool isAsynchronous() const QTC_OVERRIDE;
+    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
-    virtual QList<TextEditor::QuickFixFactory *> quickFixFactories() const;
+    QList<TextEditor::QuickFixFactory *> quickFixFactories() const QTC_OVERRIDE;
 };
 
 } // Internal

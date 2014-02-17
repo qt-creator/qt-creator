@@ -40,7 +40,7 @@ class TEXTEDITOR_EXPORT IFunctionHintProposalModel : public IAssistProposalModel
 {
 public:
     IFunctionHintProposalModel();
-    virtual ~IFunctionHintProposalModel();
+    ~IFunctionHintProposalModel();
 
     virtual int activeArgument(const QString &prefix) const = 0;
 };

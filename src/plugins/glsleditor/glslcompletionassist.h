@@ -37,6 +37,8 @@
 #include <texteditor/codeassist/defaultassistinterface.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
+#include <utils/qtcoverride.h>
+
 #include <QScopedPointer>
 #include <QIcon>
 
@@ -54,20 +56,20 @@ class GLSLCompletionAssistProvider : public TextEditor::CompletionAssistProvider
     Q_OBJECT
 
 public:
-    virtual bool supportsEditor(const Core::Id &editorId) const;
-    virtual TextEditor::IAssistProcessor *createProcessor() const;
+    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
-    virtual int activationCharSequenceLength() const;
-    virtual bool isActivationCharSequence(const QString &sequence) const;
+    int activationCharSequenceLength() const QTC_OVERRIDE;
+    bool isActivationCharSequence(const QString &sequence) const QTC_OVERRIDE;
 };
 
 class GLSLCompletionAssistProcessor : public TextEditor::IAssistProcessor
 {
 public:
     GLSLCompletionAssistProcessor();
-    virtual ~GLSLCompletionAssistProcessor();
+    ~GLSLCompletionAssistProcessor();
 
-    virtual TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface);
+    TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface) QTC_OVERRIDE;
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;

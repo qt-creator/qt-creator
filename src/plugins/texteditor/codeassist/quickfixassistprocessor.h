@@ -32,17 +32,19 @@
 
 #include "iassistprocessor.h"
 
+#include <utils/qtcoverride.h>
+
 namespace TextEditor {
 
 class TEXTEDITOR_EXPORT QuickFixAssistProcessor : public IAssistProcessor
 {
 public:
     QuickFixAssistProcessor();
-    virtual ~QuickFixAssistProcessor();
+    ~QuickFixAssistProcessor();
 
     virtual const IAssistProvider *provider() const = 0;
 
-    virtual IAssistProposal *perform(const IAssistInterface *interface);
+    IAssistProposal *perform(const IAssistInterface *interface) QTC_OVERRIDE;
 };
 
 } // TextEditor

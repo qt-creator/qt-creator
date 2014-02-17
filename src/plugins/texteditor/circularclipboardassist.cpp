@@ -39,6 +39,8 @@
 
 #include <coreplugin/coreconstants.h>
 
+#include <utils/qtcoverride.h>
+
 #include <QApplication>
 #include <QClipboard>
 
@@ -62,7 +64,7 @@ public:
         setText(text);
     }
 
-    virtual void apply(BaseTextEditor *editor, int /*basePosition*/) const
+    void apply(BaseTextEditor *editor, int /*basePosition*/) const QTC_OVERRIDE
     {
         BaseTextEditorWidget *editwidget = editor->editorWidget();
 
@@ -87,7 +89,7 @@ private:
 class ClipboardAssistProcessor: public IAssistProcessor
 {
 public:
-    IAssistProposal *perform(const IAssistInterface *interface)
+    IAssistProposal *perform(const IAssistInterface *interface) QTC_OVERRIDE
     {
         if (!interface)
             return 0;

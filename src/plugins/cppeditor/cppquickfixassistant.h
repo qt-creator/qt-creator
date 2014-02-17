@@ -37,6 +37,8 @@
 
 #include <cplusplus/LookupContext.h>
 
+#include <utils/qtcoverride.h>
+
 namespace CppTools {
 class CppRefactoringFile;
 typedef QSharedPointer<CppRefactoringFile> CppRefactoringFilePtr;
@@ -77,7 +79,7 @@ class CppQuickFixAssistProcessor : public TextEditor::QuickFixAssistProcessor
 public:
     CppQuickFixAssistProcessor(const TextEditor::IAssistProvider *provider);
 
-    virtual const TextEditor::IAssistProvider *provider() const;
+    const TextEditor::IAssistProvider *provider() const QTC_OVERRIDE;
 
 private:
     const TextEditor::IAssistProvider *m_provider;
@@ -86,11 +88,11 @@ private:
 class CppQuickFixAssistProvider : public TextEditor::QuickFixAssistProvider
 {
 public:
-    virtual bool isAsynchronous() const;
-    virtual bool supportsEditor(const Core::Id &editorId) const;
-    virtual TextEditor::IAssistProcessor *createProcessor() const;
+    bool isAsynchronous() const QTC_OVERRIDE;
+    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
-    virtual QList<TextEditor::QuickFixFactory *> quickFixFactories() const;
+    QList<TextEditor::QuickFixFactory *> quickFixFactories() const QTC_OVERRIDE;
 };
 
 } // Internal

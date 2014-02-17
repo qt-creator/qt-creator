@@ -32,6 +32,8 @@
 
 #include "iassistproposal.h"
 
+#include <utils/qtcoverride.h>
+
 namespace TextEditor {
 
 class IFunctionHintProposalModel;
@@ -40,14 +42,14 @@ class TEXTEDITOR_EXPORT FunctionHintProposal : public IAssistProposal
 {
 public:
     FunctionHintProposal(int cursorPos, IFunctionHintProposalModel *model);
-    virtual ~FunctionHintProposal();
+    ~FunctionHintProposal();
 
-    bool isFragile() const;
-    int basePosition() const;
-    bool isCorrective() const;
-    void makeCorrection(BaseTextEditor *editor);
-    IAssistProposalModel *model() const;
-    IAssistProposalWidget *createWidget() const;
+    bool isFragile() const QTC_OVERRIDE;
+    int basePosition() const QTC_OVERRIDE;
+    bool isCorrective() const QTC_OVERRIDE;
+    void makeCorrection(BaseTextEditor *editor) QTC_OVERRIDE;
+    IAssistProposalModel *model() const QTC_OVERRIDE;
+    IAssistProposalWidget *createWidget() const QTC_OVERRIDE;
 
 private:
     int m_basePosition;

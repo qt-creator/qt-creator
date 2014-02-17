@@ -34,6 +34,8 @@
 #include "basicproposalitem.h"
 #include "ifunctionhintproposalmodel.h"
 
+#include <utils/qtcoverride.h>
+
 namespace TextEditor {
 
 class TEXTEDITOR_EXPORT Keywords
@@ -58,11 +60,11 @@ class TEXTEDITOR_EXPORT KeywordsAssistProposalItem : public TextEditor::BasicPro
 {
 public:
     KeywordsAssistProposalItem(Keywords keywords);
-    virtual ~KeywordsAssistProposalItem();
+    ~KeywordsAssistProposalItem();
 
-    virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void applyContextualContent(TextEditor::BaseTextEditor *editor,
-                                        int basePosition) const;
+    bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
+    void applyContextualContent(TextEditor::BaseTextEditor *editor,
+                                int basePosition) const QTC_OVERRIDE;
 private:
     Keywords m_keywords;
 };
@@ -71,12 +73,12 @@ class TEXTEDITOR_EXPORT KeywordsFunctionHintModel : public TextEditor::IFunction
 {
 public:
     KeywordsFunctionHintModel(const QStringList &functionSymbols);
-    virtual ~KeywordsFunctionHintModel();
+    ~KeywordsFunctionHintModel();
 
-    virtual void reset();
-    virtual int size() const;
-    virtual QString text(int index) const;
-    virtual int activeArgument(const QString &prefix) const;
+    void reset() QTC_OVERRIDE;
+    int size() const QTC_OVERRIDE;
+    QString text(int index) const QTC_OVERRIDE;
+    int activeArgument(const QString &prefix) const QTC_OVERRIDE;
 
 private:
     QStringList m_functionSymbols;
@@ -86,10 +88,10 @@ class TEXTEDITOR_EXPORT KeywordsCompletionAssistProcessor : public TextEditor::I
 {
 public:
     KeywordsCompletionAssistProcessor(Keywords keywords);
-    virtual ~KeywordsCompletionAssistProcessor();
+    ~KeywordsCompletionAssistProcessor();
 
-    virtual TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface);
-    virtual QChar startOfCommentChar() const;
+    TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface) QTC_OVERRIDE;
+    QChar startOfCommentChar() const;
 
 private:
     bool acceptsIdleEditor();

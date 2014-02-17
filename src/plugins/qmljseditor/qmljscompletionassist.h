@@ -39,6 +39,8 @@
 #include <texteditor/snippets/snippetassistcollector.h>
 #include <texteditor/codeassist/defaultassistinterface.h>
 
+#include <utils/qtcoverride.h>
+
 #include <QStringList>
 #include <QScopedPointer>
 #include <QVariant>
@@ -54,9 +56,9 @@ class QmlJSCompletionAssistInterface;
 class QmlJSAssistProposalItem : public TextEditor::BasicProposalItem
 {
 public:
-    virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void applyContextualContent(TextEditor::BaseTextEditor *editor,
-                                        int basePosition) const;
+    bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
+    void applyContextualContent(TextEditor::BaseTextEditor *editor,
+                                int basePosition) const QTC_OVERRIDE;
 };
 
 
@@ -67,9 +69,9 @@ public:
         : TextEditor::BasicProposalItemListModel(items)
     {}
 
-    virtual void filter(const QString &prefix);
-    virtual void sort(const QString &prefix);
-    virtual bool keepPerfectMatch(TextEditor::AssistReason reason) const;
+    void filter(const QString &prefix) QTC_OVERRIDE;
+    void sort(const QString &prefix) QTC_OVERRIDE;
+    bool keepPerfectMatch(TextEditor::AssistReason reason) const QTC_OVERRIDE;
 };
 
 
@@ -78,12 +80,12 @@ class QmlJSCompletionAssistProvider : public TextEditor::CompletionAssistProvide
     Q_OBJECT
 
 public:
-    virtual bool supportsEditor(const Core::Id &editorId) const;
-    virtual TextEditor::IAssistProcessor *createProcessor() const;
+    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
-    virtual int activationCharSequenceLength() const;
-    virtual bool isActivationCharSequence(const QString &sequence) const;
-    virtual bool isContinuationChar(const QChar &c) const;
+    int activationCharSequenceLength() const QTC_OVERRIDE;
+    bool isActivationCharSequence(const QString &sequence) const QTC_OVERRIDE;
+    bool isContinuationChar(const QChar &c) const QTC_OVERRIDE;
 };
 
 
@@ -91,9 +93,9 @@ class QmlJSCompletionAssistProcessor : public TextEditor::IAssistProcessor
 {
 public:
     QmlJSCompletionAssistProcessor();
-    virtual ~QmlJSCompletionAssistProcessor();
+    ~QmlJSCompletionAssistProcessor();
 
-    virtual TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface);
+    TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface) QTC_OVERRIDE;
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;

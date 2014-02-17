@@ -32,6 +32,8 @@
 
 #include "codeassist/iassistprovider.h"
 
+#include <utils/qtcoverride.h>
+
 namespace TextEditor {
 namespace Internal {
 
@@ -39,8 +41,8 @@ class ClipboardAssistProvider: public IAssistProvider
 {
 public:
     bool isAsynchronous() const;
-    virtual bool supportsEditor(const Core::Id &editorId) const;
-    virtual IAssistProcessor *createProcessor() const;
+    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 };
 
 } // namespace Internal

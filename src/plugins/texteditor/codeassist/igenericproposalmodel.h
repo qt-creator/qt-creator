@@ -45,7 +45,7 @@ class TEXTEDITOR_EXPORT IGenericProposalModel : public IAssistProposalModel
 {
 public:
     IGenericProposalModel();
-    virtual ~IGenericProposalModel();
+    ~IGenericProposalModel();
 
     virtual QIcon icon(int index) const = 0;
     virtual QString detail(int index) const = 0;

@@ -32,6 +32,8 @@
 
 #include <texteditor/codeassist/completionassistprovider.h>
 
+#include <utils/qtcoverride.h>
+
 #include <QStringList>
 
 namespace QmakeProjectManager {
@@ -43,10 +45,10 @@ class ProFileCompletionAssistProvider : public TextEditor::CompletionAssistProvi
 public:
     ProFileCompletionAssistProvider();
     void init();
-    virtual ~ProFileCompletionAssistProvider();
+    ~ProFileCompletionAssistProvider();
 
-    virtual bool supportsEditor(const Core::Id &editorId) const;
-    virtual TextEditor::IAssistProcessor *createProcessor() const;
+    bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
+    TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
     QStringList variables() const;
     QStringList functions() const;
 private:

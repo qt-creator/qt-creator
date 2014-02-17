@@ -107,7 +107,7 @@ public:
     // Invoke the processor already here to calculate the proposals. Return false in order to
     // indicate that configure failed, so the actual code assist invocation leading to a pop-up
     // will not happen.
-    bool configure(const VirtualFunctionAssistProvider::Parameters &params)
+    bool configure(const VirtualFunctionAssistProvider::Parameters &params) QTC_OVERRIDE
     {
         VirtualFunctionAssistProvider::configure(params);
 

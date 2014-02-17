@@ -53,6 +53,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcoverride.h>
 
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
@@ -88,7 +89,7 @@ protected:
         return GenericProposalWidget::eventFilter(o, e);
     }
 
-    void showProposal(const QString &prefix)
+    void showProposal(const QString &prefix) QTC_OVERRIDE
     {
         IGenericProposalModel *proposalModel = model();
         if (proposalModel && proposalModel->size() == 1) {
@@ -111,9 +112,9 @@ public:
         , m_openInSplit(openInSplit)
     {}
 
-    bool isFragile() const { return true; }
+    bool isFragile() const QTC_OVERRIDE { return true; }
 
-    IAssistProposalWidget *createWidget() const
+    IAssistProposalWidget *createWidget() const QTC_OVERRIDE
     { return new VirtualFunctionProposalWidget(m_openInSplit); }
 
 private:
@@ -127,7 +128,7 @@ public:
         : m_params(params)
     {}
 
-    IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *)
+    IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *) QTC_OVERRIDE
     {
         QTC_ASSERT(m_params.function, return 0);
 
@@ -144,7 +145,7 @@ public:
                                            m_params.openInNextSplit);
     }
 
-    IAssistProposal *perform(const IAssistInterface *)
+    IAssistProposal *perform(const IAssistInterface *) QTC_OVERRIDE
     {
         QTC_ASSERT(m_params.function, return 0);
         QTC_ASSERT(m_params.staticClass, return 0);

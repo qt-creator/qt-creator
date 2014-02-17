@@ -73,6 +73,7 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcoverride.h>
 #include <utils/savedaction.h>
 #include <utils/stylehelper.h>
 
@@ -894,18 +895,18 @@ public:
         : m_provider(const_cast<FakeVimCompletionAssistProvider *>(provider))
     {}
 
-    virtual bool implicitlyApplies() const
+    bool implicitlyApplies() const QTC_OVERRIDE
     {
         return false;
     }
 
-    virtual bool prematurelyApplies(const QChar &c) const
+    bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE
     {
         m_provider->appendNeedle(c);
         return text() == m_provider->needle();
     }
 
-    virtual void applyContextualContent(BaseTextEditor *, int) const
+    void applyContextualContent(BaseTextEditor *, int) const QTC_OVERRIDE
     {
         QTC_ASSERT(m_provider->handler(), return);
         m_provider->handler()->handleReplay(text().mid(m_provider->needle().size()));
@@ -924,7 +925,7 @@ public:
         : BasicProposalItemListModel(items)
     {}
 
-    virtual bool supportsPrefixExpansion() const
+    bool supportsPrefixExpansion() const QTC_OVERRIDE
     {
         return false;
     }
@@ -937,7 +938,7 @@ public:
         : m_provider(static_cast<const FakeVimCompletionAssistProvider *>(provider))
     {}
 
-    IAssistProposal *perform(const IAssistInterface *interface)
+    IAssistProposal *perform(const IAssistInterface *interface) QTC_OVERRIDE
     {
         const QString &needle = m_provider->needle();
 
@@ -1728,7 +1729,7 @@ public:
         : QObject(parent), m_handler(handler)
     {}
 
-    virtual ~DeferredDeleter()
+    ~DeferredDeleter()
     {
         if (m_handler) {
             m_handler->disconnectFromEditor();

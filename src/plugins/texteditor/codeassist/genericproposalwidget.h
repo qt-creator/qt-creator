@@ -34,6 +34,8 @@
 
 #include <texteditor/texteditor_global.h>
 
+#include <utils/qtcoverride.h>
+
 namespace TextEditor {
 
 class GenericProposalWidgetPrivate;
@@ -48,17 +50,17 @@ public:
     GenericProposalWidget();
     ~GenericProposalWidget();
 
-    void setAssistant(CodeAssistant *assistant);
-    void setReason(AssistReason reason);
-    void setKind(AssistKind kind);
-    void setUnderlyingWidget(const QWidget *underlyingWidget);
-    void setModel(IAssistProposalModel *model);
-    void setDisplayRect(const QRect &rect);
-    void setIsSynchronized(bool isSync);
+    void setAssistant(CodeAssistant *assistant) QTC_OVERRIDE;
+    void setReason(AssistReason reason) QTC_OVERRIDE;
+    void setKind(AssistKind kind) QTC_OVERRIDE;
+    void setUnderlyingWidget(const QWidget *underlyingWidget) QTC_OVERRIDE;
+    void setModel(IAssistProposalModel *model) QTC_OVERRIDE;
+    void setDisplayRect(const QRect &rect) QTC_OVERRIDE;
+    void setIsSynchronized(bool isSync) QTC_OVERRIDE;
 
-    void showProposal(const QString &prefix);
-    void updateProposal(const QString &prefix);
-    void closeProposal();
+    void showProposal(const QString &prefix) QTC_OVERRIDE;
+    void updateProposal(const QString &prefix) QTC_OVERRIDE;
+    void closeProposal() QTC_OVERRIDE;
 
 private:
     bool updateAndCheck(const QString &prefix);

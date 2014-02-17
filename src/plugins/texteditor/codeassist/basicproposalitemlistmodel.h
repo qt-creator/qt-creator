@@ -34,6 +34,8 @@
 
 #include <texteditor/texteditor_global.h>
 
+#include <utils/qtcoverride.h>
+
 #include <QList>
 #include <QHash>
 #include <QPair>
@@ -47,22 +49,22 @@ class TEXTEDITOR_EXPORT BasicProposalItemListModel : public IGenericProposalMode
 public:
     BasicProposalItemListModel();
     BasicProposalItemListModel(const QList<BasicProposalItem *> &items);
-    virtual ~BasicProposalItemListModel();
+    ~BasicProposalItemListModel();
 
-    virtual void reset();
-    virtual int size() const;
-    virtual QString text(int index) const;
-    virtual QIcon icon(int index) const;
-    virtual QString detail(int index) const;
-    virtual int persistentId(int index) const;
-    virtual void removeDuplicates();
-    virtual void filter(const QString &prefix);
-    virtual bool isSortable(const QString &prefix) const;
-    virtual void sort(const QString &prefix);
-    virtual bool supportsPrefixExpansion() const;
-    virtual QString proposalPrefix() const;
-    virtual bool keepPerfectMatch(AssistReason reason) const;
-    virtual IAssistProposalItem *proposalItem(int index) const;
+    void reset() QTC_OVERRIDE;
+    int size() const QTC_OVERRIDE;
+    QString text(int index) const QTC_OVERRIDE;
+    QIcon icon(int index) const QTC_OVERRIDE;
+    QString detail(int index) const QTC_OVERRIDE;
+    int persistentId(int index) const QTC_OVERRIDE;
+    void removeDuplicates() QTC_OVERRIDE;
+    void filter(const QString &prefix) QTC_OVERRIDE;
+    bool isSortable(const QString &prefix) const QTC_OVERRIDE;
+    void sort(const QString &prefix) QTC_OVERRIDE;
+    bool supportsPrefixExpansion() const QTC_OVERRIDE;
+    QString proposalPrefix() const QTC_OVERRIDE;
+    bool keepPerfectMatch(AssistReason reason) const QTC_OVERRIDE;
+    IAssistProposalItem *proposalItem(int index) const QTC_OVERRIDE;
 
     void loadContent(const QList<BasicProposalItem *> &items);
     void setSortingAllowed(bool isAllowed);

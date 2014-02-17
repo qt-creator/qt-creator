@@ -34,6 +34,8 @@
 
 #include <texteditor/texteditor_global.h>
 
+#include <utils/qtcoverride.h>
+
 #include <QVariant>
 #include <QIcon>
 
@@ -43,13 +45,13 @@ class TEXTEDITOR_EXPORT BasicProposalItem : public IAssistProposalItem
 {
 public:
     BasicProposalItem();
-    virtual ~BasicProposalItem();
+    ~BasicProposalItem();
 
     void setIcon(const QIcon &icon);
     const QIcon &icon() const;
 
     void setText(const QString &text);
-    virtual QString text() const;
+    QString text() const QTC_OVERRIDE;
 
     void setDetail(const QString &detail);
     const QString &detail() const;
@@ -60,9 +62,9 @@ public:
     int order() const;
     void setOrder(int order);
 
-    virtual bool implicitlyApplies() const;
-    virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void apply(BaseTextEditor *editor, int basePosition) const;
+    bool implicitlyApplies() const QTC_OVERRIDE;
+    bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
+    void apply(BaseTextEditor *editor, int basePosition) const QTC_OVERRIDE;
     virtual void applyContextualContent(BaseTextEditor *editor, int basePosition) const;
     virtual void applySnippet(BaseTextEditor *editor, int basePosition) const;
     virtual void applyQuickFix(BaseTextEditor *editor, int basePosition) const;

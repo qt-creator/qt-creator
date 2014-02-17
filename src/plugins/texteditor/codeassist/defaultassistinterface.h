@@ -32,6 +32,8 @@
 
 #include "iassistinterface.h"
 
+#include <utils/qtcoverride.h>
+
 namespace TextEditor {
 
 class TEXTEDITOR_EXPORT DefaultAssistInterface : public IAssistInterface
@@ -41,16 +43,16 @@ public:
                            int position,
                            const QString &fileName,
                            AssistReason reason);
-    virtual ~DefaultAssistInterface();
+    ~DefaultAssistInterface();
 
-    virtual int position() const { return m_position; }
-    virtual QChar characterAt(int position) const;
-    virtual QString textAt(int position, int length) const;
-    virtual QString fileName() const { return m_fileName; }
-    virtual QTextDocument *textDocument() const { return m_textDocument; }
-    virtual void prepareForAsyncUse();
-    virtual void recreateTextDocument();
-    virtual AssistReason reason() const;
+    int position() const QTC_OVERRIDE { return m_position; }
+    QChar characterAt(int position) const QTC_OVERRIDE;
+    QString textAt(int position, int length) const QTC_OVERRIDE;
+    QString fileName() const QTC_OVERRIDE { return m_fileName; }
+    QTextDocument *textDocument() const QTC_OVERRIDE { return m_textDocument; }
+    void prepareForAsyncUse() QTC_OVERRIDE;
+    void recreateTextDocument() QTC_OVERRIDE;
+    AssistReason reason() const QTC_OVERRIDE;
 
 private:
     QTextDocument *m_textDocument;

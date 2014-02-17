@@ -42,6 +42,7 @@
 #include <texteditor/completionsettings.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcoverride.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -136,7 +137,7 @@ public:
         , order(order)
     {}
 
-    virtual void operator()(const Value *base, const QString &name, const Value *value)
+    void operator()(const Value *base, const QString &name, const Value *value) QTC_OVERRIDE
     {
         Q_UNUSED(base)
         QVariant data;
@@ -164,7 +165,7 @@ public:
         , afterOn(afterOn)
     {}
 
-    virtual void operator ()(const Value *base, const QString &name, const Value *)
+    void operator ()(const Value *base, const QString &name, const Value *) QTC_OVERRIDE
     {
         const CppComponentValue *qmlBase = value_cast<CppComponentValue>(base);
 
@@ -246,34 +247,34 @@ private:
         (*_propertyProcessor)(_currentObject, name, value);
     }
 
-    virtual bool processProperty(const QString &name, const Value *value)
+    bool processProperty(const QString &name, const Value *value) QTC_OVERRIDE
     {
         process(name, value);
         return true;
     }
 
-    virtual bool processEnumerator(const QString &name, const Value *value)
+    bool processEnumerator(const QString &name, const Value *value) QTC_OVERRIDE
     {
         if (! _globalCompletion)
             process(name, value);
         return true;
     }
 
-    virtual bool processSignal(const QString &name, const Value *value)
+    bool processSignal(const QString &name, const Value *value) QTC_OVERRIDE
     {
         if (_globalCompletion)
             process(name, value);
         return true;
     }
 
-    virtual bool processSlot(const QString &name, const Value *value)
+    bool processSlot(const QString &name, const Value *value) QTC_OVERRIDE
     {
         if (_enumerateSlots)
             process(name, value);
         return true;
     }
 
-    virtual bool processGeneratedSlot(const QString &name, const Value *value)
+    bool processGeneratedSlot(const QString &name, const Value *value) QTC_OVERRIDE
     {
         if (_enumerateGeneratedSlots || (_currentObject && _currentObject->className().endsWith(QLatin1String("Keys")))) {
             // ### FIXME: add support for attached properties.
@@ -404,10 +405,10 @@ public:
         , m_isVariadic(isVariadic)
     {}
 
-    virtual void reset() {}
-    virtual int size() const { return 1; }
-    virtual QString text(int index) const;
-    virtual int activeArgument(const QString &prefix) const;
+    void reset() QTC_OVERRIDE {}
+    int size() const QTC_OVERRIDE { return 1; }
+    QString text(int index) const QTC_OVERRIDE;
+    int activeArgument(const QString &prefix) const QTC_OVERRIDE;
 
 private:
     QString m_functionName;

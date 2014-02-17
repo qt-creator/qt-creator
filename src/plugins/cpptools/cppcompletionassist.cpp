@@ -45,6 +45,7 @@
 #include <texteditor/completionsettings.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcoverride.h>
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/CppRewriter.h>
@@ -85,9 +86,9 @@ public:
     CppAssistProposalItem() :
         m_isOverloaded(false) {}
 
-    virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void applyContextualContent(TextEditor::BaseTextEditor *editor,
-                                        int basePosition) const;
+    bool prematurelyApplies(const QChar &c) const QTC_OVERRIDE;
+    void applyContextualContent(TextEditor::BaseTextEditor *editor,
+                                int basePosition) const QTC_OVERRIDE;
 
     bool isOverloaded() const { return m_isOverloaded; }
     void markAsOverloaded() { m_isOverloaded = true; }
@@ -350,10 +351,10 @@ public:
         , m_typeOfExpression(typeOfExp)
     {}
 
-    virtual void reset() {}
-    virtual int size() const { return m_functionSymbols.size(); }
-    virtual QString text(int index) const;
-    virtual int activeArgument(const QString &prefix) const;
+    void reset() QTC_OVERRIDE {}
+    int size() const QTC_OVERRIDE { return m_functionSymbols.size(); }
+    QString text(int index) const QTC_OVERRIDE;
+    int activeArgument(const QString &prefix) const QTC_OVERRIDE;
 
 private:
     QList<Function *> m_functionSymbols;
@@ -452,8 +453,8 @@ public:
         , m_replaceDotForArrow(static_cast<CppAssistProposalModel *>(model)->m_replaceDotForArrow)
     {}
 
-    bool isCorrective() const { return m_replaceDotForArrow; }
-    void makeCorrection(BaseTextEditor *editor);
+    bool isCorrective() const QTC_OVERRIDE { return m_replaceDotForArrow; }
+    void makeCorrection(BaseTextEditor *editor) QTC_OVERRIDE;
 
 private:
     bool m_replaceDotForArrow;
@@ -528,32 +529,32 @@ protected:
         return item;
     }
 
-    virtual void visit(const Identifier *name)
+    void visit(const Identifier *name)
     {
         _item = newCompletionItem(name);
         if (!_symbol->isScope() || _symbol->isFunction())
             _item->setDetail(overview.prettyType(_symbol->type(), name));
     }
 
-    virtual void visit(const TemplateNameId *name)
+    void visit(const TemplateNameId *name)
     {
         _item = newCompletionItem(name);
         _item->setText(QLatin1String(name->identifier()->chars()));
     }
 
-    virtual void visit(const DestructorNameId *name)
+    void visit(const DestructorNameId *name)
     { _item = newCompletionItem(name); }
 
-    virtual void visit(const OperatorNameId *name)
+    void visit(const OperatorNameId *name)
     {
         _item = newCompletionItem(name);
         _item->setDetail(overview.prettyType(_symbol->type(), name));
     }
 
-    virtual void visit(const ConversionNameId *name)
+    void visit(const ConversionNameId *name)
     { _item = newCompletionItem(name); }
 
-    virtual void visit(const QualifiedNameId *name)
+    void visit(const QualifiedNameId *name)
     { _item = newCompletionItem(name->name()); }
 };
 
