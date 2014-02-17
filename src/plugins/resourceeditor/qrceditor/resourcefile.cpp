@@ -240,68 +240,6 @@ void ResourceFile::refresh()
     }
 }
 
-bool ResourceFile::split(const QString &_path, QString *prefix, QString *file) const
-{
-    prefix->clear();
-    file->clear();
-
-    QString path = _path;
-    if (!path.startsWith(QLatin1Char(':')))
-        return false;
-    path = path.mid(1);
-
-    for (int i = 0; i < m_prefix_list.size(); ++i) {
-        Prefix const * const &pref = m_prefix_list.at(i);
-        if (!path.startsWith(pref->name))
-            continue;
-
-        *prefix = pref->name;
-        if (pref->name == QString(QLatin1Char('/')))
-            *file = path.mid(1);
-        else
-            *file = path.mid(pref->name.size() + 1);
-
-        const QString filePath = absolutePath(*file);
-
-        for (int j = 0; j < pref->file_list.count(); j++) {
-            File const * const &f = pref->file_list.at(j);
-            if (!f->alias.isEmpty()) {
-                if (absolutePath(f->alias) == filePath) {
-                    *file = f->name;
-                    return true;
-                }
-            } else if (f->name == filePath)
-                return true;
-        }
-    }
-
-    return false;
-}
-
-QString ResourceFile::resolvePath(const QString &path) const
-{
-    QString prefix, file;
-    if (split(path, &prefix, &file))
-        return absolutePath(file);
-
-    return QString();
-}
-
-bool ResourceFile::isEmpty() const
-{
-    return m_file_name.isEmpty() && m_prefix_list.isEmpty();
-}
-
-QStringList ResourceFile::fileList(int pref_idx) const
-{
-    QStringList result;
-    Q_ASSERT(pref_idx >= 0 && pref_idx < m_prefix_list.count());
-    const FileList &abs_file_list = m_prefix_list.at(pref_idx)->file_list;
-    foreach (const File *abs_file, abs_file_list)
-        result.append(relativePath(abs_file->name));
-    return result;
-}
-
 void ResourceFile::addFile(int prefix_idx, const QString &file, int file_idx)
 {
     Prefix * const p = m_prefix_list[prefix_idx];

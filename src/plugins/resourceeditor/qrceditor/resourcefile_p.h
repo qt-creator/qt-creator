@@ -139,11 +139,6 @@ public:
     QString errorMessage() const { return m_error_message; }
     void refresh();
 
-private:
-    QString resolvePath(const QString &path) const;
-    QStringList fileList(int pref_idx) const;
-
-public:
     int prefixCount() const;
     QString prefix(int idx) const;
     QString lang(int idx) const;
@@ -178,10 +173,6 @@ public:
     QString absolutePath(const QString &rel_path) const;
 
     static QString fixPrefix(const QString &prefix);
-    bool split(const QString &path, QString *prefix, QString *file) const;
-
-private:
-    bool isEmpty() const;
 
 private:
     PrefixList m_prefix_list;
