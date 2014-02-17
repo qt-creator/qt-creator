@@ -36,20 +36,22 @@
 
     \list
 
-        \li Code completion
+        \li \l{Completing Code}{Code completion}
 
-        \li Syntactic and semantic highlighting
+        \li Syntactic and \l{Semantic Highlighting}{semantic highlighting}
 
-        \li Navigating in the code by using the locator, following symbols, and
-            so on
+        \li Navigating in the code by using the \l{Searching with the Locator}
+            {locator}, \l{Moving to Symbol Definition or Declaration}
+            {following symbols}, and so on
 
-        \li Inspecting code by using the class browser, the outline, and so on
+        \li Inspecting code by using the \l{Browsing Project Contents}
+            {class browser}, the \l{Viewing QML Types}{outline}, and so on
 
-        \li Diagnostics and tooltips
+        \li Diagnostics and \l{Viewing Function Tooltips}{tooltips}
 
-        \li Finding and renaming symbols
+        \li \l{Finding Symbols}{Finding and renaming symbols}
 
-        \li Refactoring actions
+        \li \l{Applying Refactoring Actions}{Refactoring actions}
 
     \endlist
 
