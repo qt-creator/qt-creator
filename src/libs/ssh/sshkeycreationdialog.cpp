@@ -45,6 +45,12 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     : QDialog(parent), m_keyGenerator(0), m_ui(new Ui::SshKeyCreationDialog)
 {
     m_ui->setupUi(this);
+    // Not using Utils::PathChooser::browseButtonLabel to avoid dependency
+#ifdef Q_OS_MAC
+    m_ui->privateKeyFileButton->setText(tr("Choose..."));
+#else
+    m_ui->privateKeyFileButton->setText(tr("Browse..."));
+#endif
     const QString defaultPath = QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
         + QLatin1String("/.ssh/qtc_id");
     setPrivateKeyFile(defaultPath);
