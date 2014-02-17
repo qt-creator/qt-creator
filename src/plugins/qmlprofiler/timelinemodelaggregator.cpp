@@ -174,8 +174,6 @@ bool TimelineModelAggregator::expanded(int modelIndex, int category) const
 
 void TimelineModelAggregator::setExpanded(int modelIndex, int category, bool expanded)
 {
-//    int modelIndex = modelIndexForCategory(category);
-//    category = correctedCategoryIndexForModel(modelIndex, categoryIndex);
     d->modelList[modelIndex]->setExpanded(category, expanded);
 }
 
@@ -196,8 +194,6 @@ int TimelineModelAggregator::rowCount(int modelIndex) const
 
 const QString TimelineModelAggregator::categoryLabel(int modelIndex, int categoryIndex) const
 {
-//    int modelIndex = modelIndexForCategory(categoryIndex);
-//    categoryIndex = correctedCategoryIndexForModel(modelIndex, categoryIndex);
     return d->modelList[modelIndex]->categoryLabel(categoryIndex);
 }
 
@@ -299,8 +295,6 @@ float TimelineModelAggregator::getHeight(int modelIndex, int index) const
 
 const QVariantList TimelineModelAggregator::getLabelsForCategory(int modelIndex, int category) const
 {
-//    int modelIndex = modelIndexForCategory(category);
-//    category = correctedCategoryIndexForModel(modelIndex, category);
     return d->modelList[modelIndex]->getLabelsForCategory(category);
 }
 

@@ -35,13 +35,9 @@
 #include "abstracttimelinemodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <qmldebug/qmlprofilereventlocation.h>
-//#include <QHash>
-//#include <QVector>
 #include <QVariantList>
-//#include <QVariantMap>
 #include "qmlprofilerdatamodel.h"
 #include <QColor>
-
 
 namespace QmlProfiler {
 class QmlProfilerModelManager;
@@ -50,8 +46,6 @@ namespace Internal {
 
 class BasicTimelineModel : public AbstractTimelineModel
 {
-//    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
-
     Q_OBJECT
 public:
     struct QmlRangeEventData

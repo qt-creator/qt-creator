@@ -341,8 +341,6 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
 
     d->modelProxy = modelProxy;
     connect(d->modelProxy,SIGNAL(dataAvailable()), this, SLOT(buildModel()));
-//    connect(d->modelProxy,SIGNAL(stateChanged()),
-//            this,SLOT(profilerDataModelStateChanged()));
     d->m_firstNumericColumn = 0;
     d->m_preventSelectBounce = false;
     d->m_showExtendedStatistics = false;
@@ -366,7 +364,6 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
 QmlProfilerEventsMainView::~QmlProfilerEventsMainView()
 {
     clear();
-    //delete d->modelProxy;
     delete d->m_model;
     delete d;
 }
@@ -808,7 +805,6 @@ void QmlProfilerEventRelativesView::rebuildTree(QmlProfilerEventRelativesModelPr
 
     QStandardItem *topLevelItem = treeModel()->invisibleRootItem();
 
-    //foreach (const QmlProfilerEventParentsModelProxy::QmlEventParentData &event, eventMap.values()) {
     foreach (const QString &key, eventMap.keys()) {
         const QmlProfilerEventRelativesModelProxy::QmlEventRelativesData &event = eventMap[key];
         QList<QStandardItem *> newRow;
@@ -822,11 +818,6 @@ void QmlProfilerEventRelativesView::rebuildTree(QmlProfilerEventRelativesModelPr
         newRow << new EventsViewItem(QString::number(event.calls));
         newRow << new EventsViewItem(event.details);
 
-//        newRow << new EventsViewItem(event->reference->displayName);
-//        newRow << new EventsViewItem(QmlProfilerEventsMainView::nameForType(event->reference->eventType));
-//        newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(event->duration));
-//        newRow << new EventsViewItem(QString::number(event->calls));
-//        newRow << new EventsViewItem(event->reference->details);
         newRow.at(0)->setData(QVariant(key), EventHashStrRole);
         newRow.at(2)->setData(QVariant(event.duration));
         newRow.at(3)->setData(QVariant(event.calls));

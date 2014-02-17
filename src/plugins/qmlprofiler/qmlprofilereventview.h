@@ -118,7 +118,6 @@ public:
     static QString nameForType(int typeNumber);
 
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
-//    int selectedEventId() const;
     QString selectedEventHash() const;
 
     void setShowExtendedStatistics(bool);
@@ -170,7 +169,6 @@ private:
     void rebuildTree(QmlProfilerEventParentsModelProxy::QmlEventRelativesMap eventMap);
     void updateHeader();
     QStandardItemModel *treeModel();
-//    QmlProfilerModelManager *m_profilerModelManager;
 
     class QmlProfilerEventParentsViewPrivate;
     QmlProfilerEventParentsViewPrivate *d;

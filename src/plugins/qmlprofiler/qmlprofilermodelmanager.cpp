@@ -161,7 +161,6 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     d->totalWeight = 0;
     d->model = new QmlProfilerDataModel(finder, this);
     d->v8Model = new QV8ProfilerDataModel(finder, this);
-//    d->model = new QmlProfilerSimpleModel(this);
     d->dataState = new QmlProfilerDataState(this, this);
     d->traceTime = new QmlProfilerTraceTime(this);
 }

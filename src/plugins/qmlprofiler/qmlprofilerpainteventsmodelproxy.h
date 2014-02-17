@@ -50,8 +50,6 @@ namespace Internal {
 
 class PaintEventsModelProxy : public SingleCategoryTimelineModel
 {
-//    Q_PROPERTY(bool empty READ isEmpty NOTIFY emptyChanged)
-
     Q_OBJECT
 public:
 

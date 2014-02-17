@@ -242,16 +242,6 @@ void QmlProfilerStateWidget::updateDisplay()
         return;
     }
 
-    // Everything empty (base state), commented out now but needed in the future.
-//    if (d->emptyList && d->loadingDone) {
-//        setVisible(true);
-//        d->progressBar->setVisible(false);
-//        d->text->setText(tr("Profiler ready"));
-//        resize(200,70);
-//        parentResized();
-//        return;
-//    }
-
     // There is a trace on view, hide this dialog
     d->progressBar->setVisible(false);
     setVisible(false);

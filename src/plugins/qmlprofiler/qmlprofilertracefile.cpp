@@ -189,9 +189,6 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
     QTC_ASSERT(stream.name() == _("eventData"), return);
 
     QXmlStreamAttributes attributes = stream.attributes();
-    if (attributes.hasAttribute(_("totalTime"))) {
-        // not used any more
-    }
 
     int eventIndex = -1;
     QmlEvent event = {

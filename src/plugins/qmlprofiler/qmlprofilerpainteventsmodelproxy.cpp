@@ -225,7 +225,6 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
 {
     Q_D(const PaintEventsModelProxy);
     QVariantList result;
-//    int eventId = getEventId(index);
 
     static const char trContext[] = "RangeDetails";
     {
