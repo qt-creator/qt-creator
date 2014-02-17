@@ -194,17 +194,10 @@ bool ResourceFile::save()
     QDomElement root = doc.createElement(QLatin1String("RCC"));
     doc.appendChild(root);
 
-    const QStringList name_list = prefixList();
-
-    foreach (const QString &name, name_list) {
-        FileList file_list;
-        QString lang;
-        foreach (const Prefix *pref, m_prefix_list) {
-            if (pref->name == name){
-                file_list += pref->file_list;
-                lang = pref->lang;
-            }
-        }
+    foreach (const Prefix *pref, m_prefix_list) {
+        FileList file_list = pref->file_list;
+        const QString &name = pref->name;
+        const QString &lang = pref->lang;
 
         QDomElement relt = doc.createElement(QLatin1String("qresource"));
         root.appendChild(relt);
@@ -292,14 +285,6 @@ QString ResourceFile::resolvePath(const QString &path) const
         return absolutePath(file);
 
     return QString();
-}
-
-QStringList ResourceFile::prefixList() const
-{
-    QStringList result;
-    for (int i = 0; i < m_prefix_list.size(); ++i)
-        result.append(m_prefix_list.at(i)->name);
-    return result;
 }
 
 bool ResourceFile::isEmpty() const

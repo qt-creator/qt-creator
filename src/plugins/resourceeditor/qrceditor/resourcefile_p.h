@@ -141,7 +141,6 @@ public:
 
 private:
     QString resolvePath(const QString &path) const;
-    QStringList prefixList() const;
     QStringList fileList(int pref_idx) const;
 
 public:
