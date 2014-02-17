@@ -136,6 +136,11 @@ bool MercurialControl::vcsAnnotate(const QString &file, int line)
     return true;
 }
 
+QString MercurialControl::vcsTopic(const QString &directory)
+{
+    return mercurialClient->branchQuerySync(directory);
+}
+
 bool MercurialControl::sccManaged(const QString &filename)
 {
     const QFileInfo fi(filename);
