@@ -208,11 +208,11 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("Maximum string value length is %1."), 1);
     newMsg(ErrInvalidArrayValueLength, Error,
            tr("%1 elements expected in array value."), 1);
-    newMsg(WarnImperativeCodeNotEditableInVisualDesigner, Error,
+    newMsg(WarnImperativeCodeNotEditableInVisualDesigner, Warning,
             tr("Imperative code is not supported in the Qt Quick Designer."));
     newMsg(WarnUnsupportedTypeInVisualDesigner, Warning,
             tr("This type is not supported in the Qt Quick Designer."));
-    newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Error,
+    newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Warning,
             tr("Reference to parent item cannot be resolved correctly by the Qt Quick Designer."));
     newMsg(WarnUndefinedValueForVisualDesigner, Warning,
             tr("This visual property binding cannot be evaluated in the local context "
