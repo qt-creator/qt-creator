@@ -82,14 +82,6 @@ int PaintEventsModelProxy::categories() const
     return categoryCount();
 }
 
-QStringList PaintEventsModelProxy::categoryTitles() const
-{
-    QStringList retString;
-    for (int i=0; i<categories(); i++)
-        retString << categoryLabel(i);
-    return retString;
-}
-
 QString PaintEventsModelProxy::name() const
 {
     return QLatin1String("PaintEventsModelProxy");

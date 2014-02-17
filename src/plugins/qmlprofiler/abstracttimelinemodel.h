@@ -51,7 +51,7 @@ public:
     void setModelManager(QmlProfilerModelManager *modelManager);
 
     virtual int categories() const = 0;
-    virtual QStringList categoryTitles() const = 0;
+    QStringList categoryTitles() const;
     virtual QString name() const = 0;
     virtual int count() const = 0;
 

@@ -44,6 +44,14 @@ void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManage
     m_modelId = modelManager->registerModelProxy();
 }
 
+QStringList AbstractTimelineModel::categoryTitles() const
+{
+    QStringList retString;
+    for (int i = 0; i < categories(); i++)
+        retString << categoryLabel(i);
+    return retString;
+}
+
 qint64 AbstractTimelineModel::traceStartTime() const
 {
     return m_modelManager->traceTime()->startTime();

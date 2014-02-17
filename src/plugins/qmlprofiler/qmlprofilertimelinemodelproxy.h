@@ -84,7 +84,6 @@ public:
 
 
     int categories() const;
-    QStringList categoryTitles() const;
     QString name() const;
 
     void loadData();

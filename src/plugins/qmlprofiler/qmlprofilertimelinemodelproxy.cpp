@@ -89,14 +89,6 @@ int BasicTimelineModel::categories() const
     return categoryCount();
 }
 
-QStringList BasicTimelineModel::categoryTitles() const
-{
-    QStringList retString;
-    for (int i=0; i<categories(); i++)
-        retString << categoryLabel(i);
-    return retString;
-}
-
 QString BasicTimelineModel::name() const
 {
     return QLatin1String("BasicTimelineModel");
