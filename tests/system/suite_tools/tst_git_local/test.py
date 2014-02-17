@@ -96,7 +96,7 @@ def verifyClickCommit():
     expected = 'Git Show "%s"' % commit
     test.verify(waitFor('str(fileName.currentText) == expected', 5000),
                 "Verifying editor switches to Git Show.")
-    diffShow = waitForObject(":Qt Creator_DiffEditor::Internal::DiffShowEditorWidget")
+    diffShow = waitForObject(":Qt Creator_DiffEditor::Internal::DescriptionEditorWidget")
     waitFor('len(str(diffShow.plainText)) != 0', 5000)
     show = str(diffShow.plainText)
     expected = [{"commit %s" % commit:False},
@@ -110,8 +110,8 @@ def verifyClickCommit():
             test.verify(re.match(expLine, line), "Verifying commit header line '%s'" % line)
         else:
             test.compare(line, expLine, "Verifying commit header line.")
-    changed = waitForObject(":Qt Creator_DiffEditor::DiffViewEditorWidget")
-    original = waitForObject(":Qt Creator_DiffEditor::DiffViewEditorWidget2")
+    changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
+    original = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget2")
     waitFor('str(changed.plainText) != "Waiting for data..." '
             'and str(original.plainText) != "Waiting for data..."', 5000)
     # content of diff editors is merge of modified files
