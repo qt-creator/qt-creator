@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 
-#include "coreplugin.h"
+#include "../coreplugin.h"
 
 #include "basefilefilter.h"
 #include "locatorfiltertest.h"
