@@ -39,6 +39,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
+#include <QTextDocument> // Qt::escape() in Qt 4
 #include <QXmlStreamWriter>
 
 namespace Beautifier {
@@ -164,7 +165,7 @@ void ArtisticStyleSettings::createDocumentationFile() const
                     const QString text = QLatin1String("<p><span class=\"option\">")
                             + keys.filter(QRegExp(QLatin1String("^\\-"))).join(QLatin1String(", "))
                             + QLatin1String("</span></p><p>")
-                            + Qt::escape(docu.join(QLatin1Char(' ')))
+                            + Qt::escape(docu.join(QLatin1String(" ")))
                             + QLatin1String("</p>");
                     stream.writeTextElement(QLatin1String(Constants::DOCUMENTATION_XMLDOC), text);
                     stream.writeEndElement();

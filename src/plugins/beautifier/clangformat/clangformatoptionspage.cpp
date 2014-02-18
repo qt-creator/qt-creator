@@ -80,7 +80,9 @@ QString ClangFormatOptionsPageWidget::searchKeywords() const
 void ClangFormatOptionsPageWidget::restore()
 {
     ui->command->setPath(m_settings->command());
-    ui->predefinedStyle->setCurrentText(m_settings->predefinedStyle());
+    int textIndex = ui->predefinedStyle->findText(m_settings->predefinedStyle());
+    if (textIndex != -1)
+        ui->predefinedStyle->setCurrentIndex(textIndex);
     ui->formatEntireFileFallback->setChecked(m_settings->formatEntireFileFallback());
     ui->configurations->setSettings(m_settings);
     ui->configurations->setCurrentConfiguration(m_settings->customStyle());

@@ -135,14 +135,15 @@ QString BeautifierPlugin::format(const QString &text, QStringList command, const
     // Format temporary file
     QProcess process;
     command.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
-    process.start(command.takeFirst(), command);
+    const QString processProgram = command.takeFirst();
+    process.start(processProgram, command);
     if (!process.waitForFinished()) {
-        showError(tr("Failed to call %1 or an error occurred.").arg(process.program()));
+        showError(tr("Failed to call %1 or an error occurred.").arg(processProgram));
         return QString();
     }
     const QByteArray output = process.readAllStandardError();
     if (!output.isEmpty())
-        showError(process.program() + QLatin1String(": ") + QString::fromLocal8Bit(output));
+        showError(processProgram + QLatin1String(": ") + QString::fromLocal8Bit(output));
 
     // Read text back
     Utils::FileReader reader;

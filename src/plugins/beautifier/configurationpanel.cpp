@@ -63,7 +63,9 @@ void ConfigurationPanel::setSettings(AbstractSettings *settings)
 
 void ConfigurationPanel::setCurrentConfiguration(const QString &text)
 {
-    ui->configurations->setCurrentText(text);
+    int textIndex = ui->configurations->findText(text);
+    if (textIndex != -1)
+        ui->configurations->setCurrentIndex(textIndex);
 }
 
 QString ConfigurationPanel::currentConfiguration() const
@@ -113,7 +115,9 @@ void ConfigurationPanel::populateConfigurations(const QString &key)
     const QString currentText = (!key.isEmpty()) ? key : ui->configurations->currentText();
     ui->configurations->clear();
     ui->configurations->addItems(m_settings->styles());
-    ui->configurations->setCurrentText(currentText);
+    int textIndex = ui->configurations->findText(currentText);
+    if (textIndex != -1)
+        ui->configurations->setCurrentIndex(textIndex);
     updateButtons();
     ui->configurations->blockSignals(false);
 }

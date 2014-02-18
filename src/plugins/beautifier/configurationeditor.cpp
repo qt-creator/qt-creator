@@ -63,7 +63,7 @@ void ConfigurationSyntaxHighlighter::setKeywords(const QStringList &keywords)
     for (int i = 0, total = keywords.count(); i < total; ++i)
         pattern << QRegExp::escape(keywords.at(i));
 
-    m_expressionKeyword.setPattern(QLatin1String("(?:\\s|^)(") + pattern.join(QLatin1Char('|'))
+    m_expressionKeyword.setPattern(QLatin1String("(?:\\s|^)(") + pattern.join(QLatin1String("|"))
                                    + QLatin1String(")(?=\\s|\\:|\\=|\\,|$)"));
 }
 
@@ -120,7 +120,11 @@ void ConfigurationEditor::setSettings(AbstractSettings *settings)
     QStringList keywords = m_settings->options();
     m_highlighter->setKeywords(keywords);
     keywords << m_settings->completerWords();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     keywords.sort(Qt::CaseInsensitive);
+#else //QT_VERSION_CHECK(5, 0, 0)
+    keywords.sort();
+#endif //QT_VERSION_CHECK(5, 0, 0)
     m_model->setStringList(keywords);
 }
 
