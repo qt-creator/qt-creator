@@ -39,6 +39,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QTextCodec>
@@ -155,10 +156,12 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
 
 QString MercurialClient::branchQuerySync(const QString &repositoryRoot)
 {
-    QByteArray output;
-    if (vcsFullySynchronousExec(repositoryRoot, QStringList(QLatin1String("branch")), &output))
-        return QTextCodec::codecForLocale()->toUnicode(output).trimmed();
-
+    QFile branchFile(repositoryRoot + QLatin1String("/.hg/branch"));
+    if (branchFile.open(QFile::ReadOnly)) {
+        const QByteArray branch = branchFile.readAll().trimmed();
+        if (!branch.isEmpty())
+            return QString::fromLocal8Bit(branch);
+    }
     return QLatin1String("Unknown Branch");
 }
 

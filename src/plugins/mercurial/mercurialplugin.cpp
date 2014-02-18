@@ -581,7 +581,7 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
                         arg(QDir::toNativeSeparators(m_submitRepository));
     commitEditor->document()->setDisplayName(msg);
 
-    QString branch = m_client->branchQuerySync(m_submitRepository);
+    QString branch = versionControl()->vcsTopic(m_submitRepository);
     commitEditor->setFields(m_submitRepository, branch,
                             mercurialSettings.stringValue(MercurialSettings::userNameKey),
                             mercurialSettings.stringValue(MercurialSettings::userEmailKey), status);

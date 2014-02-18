@@ -65,7 +65,6 @@ public:
     QString vcsGetRepositoryURL(const QString &directory);
     bool sccManaged(const QString &filename);
     bool vcsAnnotate(const QString &file, int line);
-    QString vcsTopic(const QString &directory);
 
 public slots:
     // To be connected to the HgTask's success signal to emit the repository/

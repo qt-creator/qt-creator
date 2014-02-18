@@ -33,6 +33,8 @@
 #include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseconstants.h>
 
+#include <coreplugin/vcsmanager.h>
+
 #include <QFileInfo>
 #include <QVariant>
 #include <QStringList>
@@ -40,8 +42,29 @@
 
 using namespace Mercurial::Internal;
 
+class MercurialTopicCache : public Core::IVersionControl::TopicCache
+{
+public:
+    MercurialTopicCache(MercurialClient *client) : m_client(client) {}
+
+protected:
+    QString trackFile(const QString &repository)
+    {
+        return repository + QLatin1String("/.hg/branch");
+    }
+
+    QString refreshTopic(const QString &repository)
+    {
+        return m_client->branchQuerySync(repository);
+    }
+
+private:
+    MercurialClient *m_client;
+};
+
 MercurialControl::MercurialControl(MercurialClient *client)
-    : mercurialClient(client)
+    : Core::IVersionControl(new MercurialTopicCache(client))
+    , mercurialClient(client)
 {
 }
 
@@ -134,11 +157,6 @@ bool MercurialControl::vcsAnnotate(const QString &file, int line)
     const QFileInfo fi(file);
     mercurialClient->annotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
-}
-
-QString MercurialControl::vcsTopic(const QString &directory)
-{
-    return mercurialClient->branchQuerySync(directory);
 }
 
 bool MercurialControl::sccManaged(const QString &filename)
