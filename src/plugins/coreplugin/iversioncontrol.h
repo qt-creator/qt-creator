@@ -64,7 +64,7 @@ public:
         OpenMandatory  /*!< Files must always be opened by the VCS */
     };
 
-    explicit IVersionControl(QObject *parent = 0) : QObject(parent) {}
+    IVersionControl() {}
     virtual ~IVersionControl() {}
 
     virtual QString displayName() const = 0;
