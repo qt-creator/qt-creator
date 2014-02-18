@@ -77,7 +77,7 @@
   <customwidget>
    <class>Beautifier::Internal::ConfigurationEditor</class>
    <extends>QPlainTextEdit</extends>
-   <header>configurationeditor.h</header>
+   <header location="global">beautifier/configurationeditor.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
