@@ -141,7 +141,7 @@ void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::addVP(QVariantList
 {
     if (time > 0) {
         QVariantMap res;
-        res.insert(label, QVariant(QmlProfilerSimpleModel::formatTime(time)));
+        res.insert(label, QVariant(QmlProfilerBaseModel::formatTime(time)));
         l << res;
     }
 }
@@ -195,14 +195,14 @@ void SceneGraphTimelineModel::loadData()
 {
     Q_D(SceneGraphTimelineModel);
     clear();
-    QmlProfilerSimpleModel *simpleModel = d->modelManager->simpleModel();
+    QmlProfilerDataModel *simpleModel = d->modelManager->qmlModel();
     if (simpleModel->isEmpty())
         return;
 
     int lastRenderEvent = -1;
 
     // combine the data of several eventtypes into two rows
-    foreach (const QmlProfilerSimpleModel::QmlEventData &event, simpleModel->getEvents()) {
+    foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
         if (!eventAccepted(event))
             continue;
 

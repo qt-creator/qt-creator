@@ -155,7 +155,7 @@ void PixmapCacheModel::PixmapCacheModelPrivate::addVP(QVariantList &l, QString l
 {
     if (time > 0) {
         QVariantMap res;
-        res.insert(label, QVariant(QmlProfilerSimpleModel::formatTime(time)));
+        res.insert(label, QVariant(QmlProfilerBaseModel::formatTime(time)));
         l << res;
     }
 }
@@ -207,7 +207,7 @@ void PixmapCacheModel::loadData()
 {
     Q_D(PixmapCacheModel);
     clear();
-    QmlProfilerSimpleModel *simpleModel = d->modelManager->simpleModel();
+    QmlProfilerDataModel *simpleModel = d->modelManager->qmlModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -216,7 +216,7 @@ void PixmapCacheModel::loadData()
     QVector < int > pixmapStartPoints;
     QVector < int > pixmapCachePoints;
 
-    foreach (const QmlProfilerSimpleModel::QmlEventData &event, simpleModel->getEvents()) {
+    foreach (const QmlProfilerDataModel::QmlEventData &event, simpleModel->getEvents()) {
         if (!eventAccepted(event))
             continue;
 

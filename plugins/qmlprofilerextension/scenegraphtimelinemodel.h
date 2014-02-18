@@ -21,7 +21,7 @@
 
 #include "qmlprofiler/singlecategorytimelinemodel.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
-#include "qmlprofiler/qmlprofilersimplemodel.h"
+#include "qmlprofiler/qmlprofilerdatamodel.h"
 
 #include <QStringList>
 #include <QColor>
