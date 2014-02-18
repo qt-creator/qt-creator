@@ -38,7 +38,32 @@
 namespace Git {
 namespace Internal {
 
+class GitTopicCache : public Core::IVersionControl::TopicCache
+{
+public:
+    GitTopicCache(GitClient *client) :
+        m_client(client)
+    {
+    }
+
+protected:
+    QString trackFile(const QString &repository)
+    {
+        const QString gitDir = m_client->findGitDirForRepository(repository);
+        return gitDir.isEmpty() ? QString() : (gitDir + QLatin1String("/HEAD"));
+    }
+
+    QString refreshTopic(const QString &repository)
+    {
+        return m_client->synchronousTopic(repository);
+    }
+
+private:
+    GitClient *m_client;
+};
+
 GitVersionControl::GitVersionControl(GitClient *client) :
+    Core::IVersionControl(new GitTopicCache(client)),
     m_client(client)
 {
 }
@@ -120,7 +145,7 @@ QString GitVersionControl::vcsGetRepositoryURL(const QString &directory)
 
 QString GitVersionControl::vcsTopic(const QString &directory)
 {
-    QString topic = m_client->synchronousTopic(directory);
+    QString topic = Core::IVersionControl::vcsTopic(directory);
     const QString commandInProgress = m_client->commandInProgressDescription(directory);
     if (!commandInProgress.isEmpty())
         topic += QLatin1String(" (") + commandInProgress + QLatin1Char(')');

@@ -2024,28 +2024,13 @@ bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList
     return true;
 }
 
-struct TopicData
-{
-    QDateTime timeStamp;
-    QString topic;
-};
-
 // Retrieve topic (branch, tag or HEAD hash)
 QString GitClient::synchronousTopic(const QString &workingDirectory)
 {
-    static QHash<QString, TopicData> topicCache;
-    QString gitDir = findGitDirForRepository(workingDirectory);
-    if (gitDir.isEmpty())
-        return QString();
-    TopicData &data = topicCache[gitDir];
-    QDateTime lastModified = QFileInfo(gitDir + QLatin1String("/HEAD")).lastModified();
-    if (lastModified == data.timeStamp)
-        return data.topic;
-    data.timeStamp = lastModified;
     // First try to find branch
     QString branch = synchronousCurrentLocalBranch(workingDirectory);
     if (!branch.isEmpty())
-        return data.topic = branch;
+        return branch;
 
     // Detached HEAD, try a tag or remote branch
     QStringList references;
@@ -2059,10 +2044,8 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
 
     foreach (const QString &ref, references) {
         int derefInd = ref.indexOf(dereference);
-        if (ref.startsWith(tagStart)) {
-            return data.topic = ref.mid(tagStart.size(),
-                                        (derefInd == -1) ? -1 : derefInd - tagStart.size());
-        }
+        if (ref.startsWith(tagStart))
+            return ref.mid(tagStart.size(), (derefInd == -1) ? -1 : derefInd - tagStart.size());
         if (ref.startsWith(remoteStart)) {
             remoteBranch = ref.mid(remoteStart.size(),
                                    (derefInd == -1) ? -1 : derefInd - remoteStart.size());
@@ -2070,7 +2053,7 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
     }
 
     // No tag
-    return data.topic = remoteBranch.isEmpty() ? tr("Detached HEAD") : remoteBranch;
+    return remoteBranch.isEmpty() ? tr("Detached HEAD") : remoteBranch;
 }
 
 bool GitClient::synchronousRevParseCmd(const QString &workingDirectory, const QString &ref,

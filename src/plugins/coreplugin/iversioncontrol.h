@@ -33,9 +33,10 @@
 #include "core_global.h"
 #include "id.h"
 
+#include <QDateTime>
+#include <QFlags>
 #include <QObject>
 #include <QString>
-#include <QFlags>
 
 namespace Core {
 
@@ -64,8 +65,29 @@ public:
         OpenMandatory  /*!< Files must always be opened by the VCS */
     };
 
-    IVersionControl() {}
-    virtual ~IVersionControl() {}
+    class TopicCache
+    {
+    public:
+        virtual ~TopicCache();
+        QString topic(const QString &topLevel);
+
+    protected:
+        virtual QString trackFile(const QString &repository) = 0;
+        virtual QString refreshTopic(const QString &repository) = 0;
+
+    private:
+        struct TopicData
+        {
+            QDateTime timeStamp;
+            QString topic;
+        };
+
+        QHash<QString, TopicData> m_cache;
+
+    };
+
+    explicit IVersionControl(TopicCache *topicCache = 0) : m_topicCache(topicCache) {}
+    virtual ~IVersionControl();
 
     virtual QString displayName() const = 0;
     virtual Id id() const = 0;
@@ -158,7 +180,7 @@ public:
     /*!
      * Topic (e.g. name of the current branch)
      */
-    virtual QString vcsTopic(const QString &directory);
+    virtual QString vcsTopic(const QString &topLevel);
 
     /*!
      * Display annotation for a file and scroll to line
@@ -179,6 +201,9 @@ signals:
     void repositoryChanged(const QString &repository);
     void filesChanged(const QStringList &files);
     void configurationChanged();
+
+private:
+    TopicCache *m_topicCache;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IVersionControl::SettingsFlags)

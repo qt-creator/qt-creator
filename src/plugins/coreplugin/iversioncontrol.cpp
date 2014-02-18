@@ -28,7 +28,29 @@
 ****************************************************************************/
 
 #include "iversioncontrol.h"
+#include "vcsmanager.h"
 
+#include <utils/qtcassert.h>
+
+#include <QFileInfo>
+
+/*!
+ *  \class Core::IVersionControl::TopicCache
+ *  \brief The TopicCache class stores a {directory -> topic} cache
+ *
+ *  In order to support topic, an IVersionControl subclass needs to create
+ *  an instance of TopicCache subclass with appropriate overrides for its
+ *  pure virtual functions, and pass this instance to IVersionControl's constructor.
+ */
+
+/*!
+ *  \fn Core::IVersionControl::TopicCache::trackFile(const QString &repository)
+ *  Returns path to file that invalidates the cache when modified, for \a repository.
+ *  e.g. for git this file is .git/HEAD
+ *
+ *  \fn Core::IVersionControl::TopicCache::refreshTopic(const QString &repository)
+ *  Returns current topic for \a repository.
+ */
 namespace Core {
 
 QString IVersionControl::vcsOpenText() const
@@ -41,15 +63,44 @@ QString IVersionControl::vcsMakeWritableText() const
     return QString();
 }
 
-QString IVersionControl::vcsTopic(const QString &)
+QString IVersionControl::vcsTopic(const QString &topLevel)
 {
-    return QString();
+    return m_topicCache ? m_topicCache->topic(topLevel) : QString();
+}
+
+IVersionControl::~IVersionControl()
+{
+    delete m_topicCache;
 }
 
 IVersionControl::OpenSupportMode IVersionControl::openSupportMode(const QString &fileName) const
 {
     Q_UNUSED(fileName);
     return NoOpen;
+}
+
+IVersionControl::TopicCache::~TopicCache()
+{
+}
+
+/*!
+ * Returns topic for repository under \a topLevel.
+ *
+ * If the cache for \a topLevel is valid, it will be used. Otherwise it will be refreshed.
+ */
+QString IVersionControl::TopicCache::topic(const QString &topLevel)
+{
+    QTC_ASSERT(!topLevel.isEmpty(), return QString());
+    TopicData &data = m_cache[topLevel];
+    QString file = trackFile(topLevel);
+
+    if (file.isEmpty())
+        return QString();
+    const QDateTime lastModified = QFileInfo(file).lastModified();
+    if (lastModified == data.timeStamp)
+        return data.topic;
+    data.timeStamp = lastModified;
+    return data.topic = refreshTopic(topLevel);
 }
 
 } // namespace Core
