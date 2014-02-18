@@ -47,9 +47,11 @@
 #include <QTextStream>
 #include <QProcess>
 
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QModelIndex>
+#include <QtCore/QUrl>
 
 namespace Android {
 namespace Internal {
@@ -131,6 +133,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->AVDTableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     m_ui->AVDTableView->horizontalHeader()->setResizeMode(1, QHeaderView::ResizeToContents);
 
+    m_ui->downloadAntToolButton->setVisible(Utils::HostOsInfo::isWindowsHost());
+    m_ui->downloadOpenJDKToolButton->setVisible(Utils::HostOsInfo::isWindowsHost());
 
     check(All);
     applyToUi(All);
@@ -419,6 +423,26 @@ void AndroidSettingsWidget::browseOpenJDKLocation()
         return;
     m_ui->OpenJDKLocationLineEdit->setText(file.toUserOutput());
     openJDKLocationEditingFinished();
+}
+
+void AndroidSettingsWidget::openSDKDownloadUrl()
+{
+    QDesktopServices::openUrl(QUrl::fromUserInput(QLatin1String("http://developer.android.com/sdk")));
+}
+
+void AndroidSettingsWidget::openNDKDownloadUrl()
+{
+    QDesktopServices::openUrl(QUrl::fromUserInput(QLatin1String("http://developer.android.com/tools/sdk/ndk/index.html#Downloads")));
+}
+
+void AndroidSettingsWidget::openAntDownloadUrl()
+{
+    QDesktopServices::openUrl(QUrl::fromUserInput(QLatin1String("http://ant.apache.org/bindownload.cgi")));
+}
+
+void AndroidSettingsWidget::openOpenJDKDownloadUrl()
+{
+    QDesktopServices::openUrl(QUrl::fromUserInput(QLatin1String("http://www.oracle.com/technetwork/java/javase/downloads")));
 }
 
 void AndroidSettingsWidget::addAVD()

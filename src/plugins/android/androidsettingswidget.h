@@ -81,6 +81,10 @@ private slots:
     void browseNDKLocation();
     void browseAntLocation();
     void browseOpenJDKLocation();
+    void openSDKDownloadUrl();
+    void openNDKDownloadUrl();
+    void openAntDownloadUrl();
+    void openOpenJDKDownloadUrl();
     void addAVD();
     void removeAVD();
     void startAVD();
