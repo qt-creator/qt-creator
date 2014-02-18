@@ -41,41 +41,41 @@
 
 namespace QmlProfiler {
 
-struct QV8EventSub;
-
-struct QV8EventData
-{
-    QV8EventData();
-    ~QV8EventData();
-
-    QString displayName;
-    QString eventHashStr;
-    QString filename;
-    QString functionName;
-    int line;
-    double totalTime; // given in milliseconds
-    double totalPercent;
-    double selfTime;
-    double SelfTimeInPercent;
-    QHash <QString, QV8EventSub *> parentHash;
-    QHash <QString, QV8EventSub *> childrenHash;
-    int eventId;
-
-    QV8EventData &operator=(const QV8EventData &ref);
-};
-
-struct QV8EventSub {
-    QV8EventSub(QV8EventData *from) : reference(from), totalTime(0) {}
-    QV8EventSub(QV8EventSub *from) : reference(from->reference), totalTime(from->totalTime) {}
-
-    QV8EventData *reference;
-    qint64 totalTime;
-};
-
 class QV8ProfilerDataModel : public QmlProfilerBaseModel
 {
     Q_OBJECT
 public:
+    struct QV8EventSub;
+
+    struct QV8EventData
+    {
+        QV8EventData();
+        ~QV8EventData();
+
+        QString displayName;
+        QString eventHashStr;
+        QString filename;
+        QString functionName;
+        int line;
+        double totalTime; // given in milliseconds
+        double totalPercent;
+        double selfTime;
+        double SelfTimeInPercent;
+        QHash <QString, QV8EventSub *> parentHash;
+        QHash <QString, QV8EventSub *> childrenHash;
+        int eventId;
+
+        QV8EventData &operator=(const QV8EventData &ref);
+    };
+
+    struct QV8EventSub {
+        QV8EventSub(QV8EventData *from) : reference(from), totalTime(0) {}
+        QV8EventSub(QV8EventSub *from) : reference(from->reference), totalTime(from->totalTime) {}
+
+        QV8EventData *reference;
+        qint64 totalTime;
+    };
+
     QV8ProfilerDataModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent = 0);
     ~QV8ProfilerDataModel();
 

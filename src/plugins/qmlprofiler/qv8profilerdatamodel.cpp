@@ -35,24 +35,24 @@
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(QmlProfiler::QV8EventData, Q_MOVABLE_TYPE);
-Q_DECLARE_TYPEINFO(QmlProfiler::QV8EventSub, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QmlProfiler::QV8ProfilerDataModel::QV8EventData, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QmlProfiler::QV8ProfilerDataModel::QV8EventSub, Q_MOVABLE_TYPE);
 QT_END_NAMESPACE
 
 namespace QmlProfiler {
 
-typedef  QHash <QString, QV8EventSub *> EventHash;
+typedef QHash <QString, QV8ProfilerDataModel::QV8EventSub *> EventHash;
 
 static EventHash cloneEventHash(const EventHash &src)
 {
     EventHash result;
     const EventHash::ConstIterator cend = src.constEnd();
     for (EventHash::ConstIterator it = src.constBegin(); it != cend; ++it)
-        result.insert(it.key(), new QV8EventSub(it.value()));
+        result.insert(it.key(), new QV8ProfilerDataModel::QV8EventSub(it.value()));
     return result;
 }
 
-QV8EventData &QV8EventData::operator=(const QV8EventData &ref)
+QV8ProfilerDataModel::QV8EventData &QV8ProfilerDataModel::QV8EventData::operator=(const QV8EventData &ref)
 {
     if (this == &ref)
         return *this;
@@ -77,7 +77,7 @@ QV8EventData &QV8EventData::operator=(const QV8EventData &ref)
     return *this;
 }
 
-QV8EventData::QV8EventData()
+QV8ProfilerDataModel::QV8EventData::QV8EventData()
 {
     line = -1;
     eventId = -1;
@@ -87,7 +87,7 @@ QV8EventData::QV8EventData()
     SelfTimeInPercent = 0;
 }
 
-QV8EventData::~QV8EventData()
+QV8ProfilerDataModel::QV8EventData::~QV8EventData()
 {
     qDeleteAll(parentHash.values());
     parentHash.clear();
@@ -137,7 +137,7 @@ bool QV8ProfilerDataModel::isEmpty() const
     return d->v8EventHash.isEmpty();
 }
 
-QV8EventData *QV8ProfilerDataModel::v8EventDescription(int eventId) const
+QV8ProfilerDataModel::QV8EventData *QV8ProfilerDataModel::v8EventDescription(int eventId) const
 {
     foreach (QV8EventData *event, d->v8EventHash) {
         if (event->eventId == eventId)
@@ -151,7 +151,7 @@ qint64 QV8ProfilerDataModel::v8MeasuredTime() const
     return d->v8MeasuredTime;
 }
 
-QList<QV8EventData *> QV8ProfilerDataModel::getV8Events() const
+QList<QV8ProfilerDataModel::QV8EventData *> QV8ProfilerDataModel::getV8Events() const
 {
     return d->v8EventHash.values();
 }

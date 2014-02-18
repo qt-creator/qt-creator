@@ -34,6 +34,7 @@
 #include <qmldebug/qmlprofilereventtypes.h>
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventsmodelproxy.h"
+#include "qv8profilerdatamodel.h"
 #include "qmlprofilertreeview.h"
 
 #include <analyzerbase/ianalyzertool.h>
@@ -41,7 +42,6 @@
 #include "qmlprofilerviewmanager.h"
 
 namespace QmlProfiler {
-struct QV8EventSub;
 
 namespace Internal {
 
@@ -148,7 +148,7 @@ public slots:
     void clear();
 
 private:
-    void rebuildTree(QList<QV8EventSub*> events);
+    void rebuildTree(QList<QV8ProfilerDataModel::QV8EventSub*> events);
     void updateHeader();
 
     QV8ProfilerEventRelativesView::SubViewType m_type;

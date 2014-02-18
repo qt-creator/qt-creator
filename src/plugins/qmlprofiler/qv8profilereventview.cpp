@@ -263,7 +263,7 @@ class QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate
 public:
     QV8ProfilerEventsMainViewPrivate(QV8ProfilerEventsMainView *qq) : q(qq) {}
 
-    void buildV8ModelFromList( const QList<QV8EventData *> &list );
+    void buildV8ModelFromList( const QList<QV8ProfilerDataModel::QV8EventData *> &list );
     int getFieldCount();
 
     QString textForItem(QStandardItem *item, bool recursive) const;
@@ -428,10 +428,11 @@ void QV8ProfilerEventsMainView::buildModel()
     collapseAll();
 }
 
-void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFromList(const QList<QV8EventData *> &list)
+void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFromList(
+        const QList<QV8ProfilerDataModel::QV8EventData *> &list)
 {
     for (int index = 0; index < list.count(); index++) {
-        QV8EventData *v8event = list.at(index);
+        QV8ProfilerDataModel::QV8EventData *v8event = list.at(index);
         QList<QStandardItem *> newRow;
 
         if (m_fieldShown[Name])
@@ -639,10 +640,10 @@ QV8ProfilerEventRelativesView::~QV8ProfilerEventRelativesView()
 
 void QV8ProfilerEventRelativesView::displayEvent(int index)
 {
-    QV8EventData *event = m_v8Model->v8EventDescription(index);
+    QV8ProfilerDataModel::QV8EventData *event = m_v8Model->v8EventDescription(index);
     QTC_CHECK(event);
 
-    QList<QV8EventSub*> events;
+    QList<QV8ProfilerDataModel::QV8EventSub*> events;
     if (m_type == ParentsView)
         events = event->parentHash.values();
     else
@@ -656,13 +657,13 @@ void QV8ProfilerEventRelativesView::displayEvent(int index)
     sortByColumn(1);
 }
 
-void QV8ProfilerEventRelativesView::rebuildTree(QList<QV8EventSub*> events)
+void QV8ProfilerEventRelativesView::rebuildTree(QList<QV8ProfilerDataModel::QV8EventSub*> events)
 {
     clear();
 
     QStandardItem *topLevelItem = m_model->invisibleRootItem();
 
-    foreach (QV8EventSub *event, events) {
+    foreach (QV8ProfilerDataModel::QV8EventSub *event, events) {
         QList<QStandardItem *> newRow;
         newRow << new EventsViewItem(event->reference->displayName);
         newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(event->totalTime));
