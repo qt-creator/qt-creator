@@ -325,7 +325,7 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData *grp, const QString &productPath
     QbsFileNode *idx = new QbsFileNode(grp->location().fileName(),
                                        ProjectExplorer::ProjectFileType, false,
                                        grp->location().line());
-    addFileNodes(QList<ProjectExplorer::FileNode *>() << idx, this);
+    addFileNodes(QList<ProjectExplorer::FileNode *>() << idx);
 
     updateQbsGroupData(grp, productPath, true, true);
 }
@@ -435,7 +435,7 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
             FolderNode *fn = root->findSubFolder(c->path());
             if (!fn) {
                 fn = new FolderNode(c->path());
-                root->projectNode()->addFolderNodes(QList<FolderNode *>() << fn, root);
+                root->addFolderNodes(QList<FolderNode *>() << fn);
             } else {
                 foldersToRemove.removeOne(fn);
                 if (updateExisting)
@@ -446,9 +446,9 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
             setupFolder(fn, c, c->path(), updateExisting);
         }
     }
-    root->projectNode()->removeFileNodes(filesToRemove, root);
-    root->projectNode()->removeFolderNodes(foldersToRemove, root);
-    root->projectNode()->addFileNodes(filesToAdd, root);
+    root->removeFileNodes(filesToRemove);
+    root->removeFolderNodes(foldersToRemove);
+    root->addFileNodes(filesToAdd);
 }
 
 // --------------------------------------------------------------------
@@ -466,7 +466,7 @@ QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
     ProjectExplorer::FileNode *idx = new QbsFileNode(prd.location().fileName(),
                                                      ProjectExplorer::ProjectFileType, false,
                                                      prd.location().line());
-    addFileNodes(QList<ProjectExplorer::FileNode *>() << idx, this);
+    addFileNodes(QList<ProjectExplorer::FileNode *>() << idx);
 
     setQbsProductData(prd);
 }
@@ -656,7 +656,7 @@ void QbsProjectNode::ctor()
 
     setIcon(m_projectIcon);
     addFileNodes(QList<ProjectExplorer::FileNode *>()
-                 << new ProjectExplorer::FileNode(path(), ProjectExplorer::ProjectFileType, false), this);
+                 << new ProjectExplorer::FileNode(path(), ProjectExplorer::ProjectFileType, false));
 }
 
 QbsProductNode *QbsProjectNode::findProductNode(const QString &name)

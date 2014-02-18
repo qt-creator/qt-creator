@@ -459,18 +459,18 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
         // Get relative path to rootNode
         QString parentDir = QFileInfo(fn->path()).absolutePath();
         ProjectExplorer::FolderNode *folder = findOrCreateFolder(rootNode, parentDir);
-        rootNode->addFileNodes(QList<ProjectExplorer::FileNode *>()<< fn, folder);
+        folder->addFileNodes(QList<ProjectExplorer::FileNode *>()<< fn);
     }
 
     // remove old file nodes and check whether folder nodes can be removed
     foreach (ProjectExplorer::FileNode *fn, deleted) {
         ProjectExplorer::FolderNode *parent = fn->parentFolderNode();
 //        qDebug()<<"removed"<<fn->path();
-        rootNode->removeFileNodes(QList<ProjectExplorer::FileNode *>() << fn, parent);
+        parent->removeFileNodes(QList<ProjectExplorer::FileNode *>() << fn);
         // Check for empty parent
         while (parent->subFolderNodes().isEmpty() && parent->fileNodes().isEmpty()) {
             ProjectExplorer::FolderNode *grandparent = parent->parentFolderNode();
-            rootNode->removeFolderNodes(QList<ProjectExplorer::FolderNode *>() << parent, grandparent);
+            grandparent->removeFolderNodes(QList<ProjectExplorer::FolderNode *>() << parent);
             parent = grandparent;
             if (parent == rootNode)
                 break;
@@ -501,7 +501,7 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
             // No FolderNode yet, so create it
             ProjectExplorer::FolderNode *tmp = new ProjectExplorer::FolderNode(path);
             tmp->setDisplayName(part);
-            rootNode->addFolderNodes(QList<ProjectExplorer::FolderNode *>() << tmp, parent);
+            parent->addFolderNodes(QList<ProjectExplorer::FolderNode *>() << tmp);
             parent = tmp;
         }
     }

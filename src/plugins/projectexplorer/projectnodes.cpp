@@ -358,6 +358,168 @@ bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
 }
 
 /*!
+  Adds file nodes specified by \a files to the internal list of the folder
+  and emits the corresponding signals from the projectNode.
+
+  This function should be called within an implementation of the public function
+  addFiles.
+*/
+
+void FolderNode::addFileNodes(const QList<FileNode *> &files)
+{
+    Q_ASSERT(projectNode());
+    ProjectNode *pn = projectNode();
+    if (files.isEmpty())
+        return;
+
+    foreach (NodesWatcher *watcher, pn->watchers())
+        emit watcher->filesAboutToBeAdded(this, files);
+
+    foreach (FileNode *file, files) {
+        QTC_ASSERT(!file->parentFolderNode(),
+                   qDebug("File node has already a parent folder"));
+
+        file->setParentFolderNode(this);
+        file->setProjectNode(pn);
+        // Now find the correct place to insert file
+        if (m_fileNodes.count() == 0
+                || m_fileNodes.last() < file) {
+            // empty list or greater then last node
+            m_fileNodes.append(file);
+        } else {
+            QList<FileNode *>::iterator it
+                    = qLowerBound(m_fileNodes.begin(),
+                                  m_fileNodes.end(),
+                                  file);
+            m_fileNodes.insert(it, file);
+        }
+    }
+
+    foreach (NodesWatcher *watcher, pn->watchers())
+        emit watcher->filesAdded();
+}
+
+/*!
+  Removes \a files from the internal list and emits the corresponding signals.
+
+  All objects in the \a files list are deleted.
+  This function should be called within an implementation of the public function
+  removeFiles.
+*/
+
+void FolderNode::removeFileNodes(const QList<FileNode *> &files)
+{
+    Q_ASSERT(projectNode());
+    ProjectNode *pn = projectNode();
+
+    if (files.isEmpty())
+        return;
+
+    QList<FileNode*> toRemove = files;
+    qSort(toRemove.begin(), toRemove.end());
+
+    foreach (NodesWatcher *watcher, pn->watchers())
+        emit watcher->filesAboutToBeRemoved(this, toRemove);
+
+    QList<FileNode*>::const_iterator toRemoveIter = toRemove.constBegin();
+    QList<FileNode*>::iterator filesIter = m_fileNodes.begin();
+    for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
+        while (*filesIter != *toRemoveIter) {
+            ++filesIter;
+            QTC_ASSERT(filesIter != m_fileNodes.end(),
+                       qDebug("File to remove is not part of specified folder!"));
+        }
+        delete *filesIter;
+        filesIter = m_fileNodes.erase(filesIter);
+    }
+
+    foreach (NodesWatcher *watcher, pn->watchers())
+        emit watcher->filesRemoved();
+}
+
+/*!
+  Adds folder nodes specified by \a subFolders to the node hierarchy below
+  \a parentFolder and emits the corresponding signals.
+*/
+void FolderNode::addFolderNodes(const QList<FolderNode*> &subFolders)
+{
+    Q_ASSERT(projectNode());
+    ProjectNode *pn = projectNode();
+
+    if (subFolders.isEmpty())
+        return;
+
+    foreach (NodesWatcher *watcher, pn->watchers())
+        watcher->foldersAboutToBeAdded(this, subFolders);
+
+    foreach (FolderNode *folder, subFolders) {
+        QTC_ASSERT(!folder->parentFolderNode(),
+                   qDebug("Project node has already a parent folder"));
+        folder->setParentFolderNode(this);
+        folder->setProjectNode(pn);
+
+        // Find the correct place to insert
+        if (m_subFolderNodes.count() == 0
+                || m_subFolderNodes.last() < folder) {
+            // empty list or greater then last node
+            m_subFolderNodes.append(folder);
+        } else {
+            // Binary Search for insertion point
+            QList<FolderNode*>::iterator it
+                    = qLowerBound(m_subFolderNodes.begin(),
+                                  m_subFolderNodes.end(),
+                                  folder);
+            m_subFolderNodes.insert(it, folder);
+        }
+
+        // project nodes have to be added via addProjectNodes
+        QTC_ASSERT(folder->nodeType() != ProjectNodeType,
+                   qDebug("project nodes have to be added via addProjectNodes"));
+    }
+
+    foreach (NodesWatcher *watcher, pn->watchers())
+        emit watcher->foldersAdded();
+}
+
+/*!
+  Removes file nodes specified by \a subFolders from the node hierarchy and emits
+  the corresponding signals.
+
+  All objects in the \a subFolders list are deleted.
+*/
+void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
+{
+    Q_ASSERT(projectNode());
+    ProjectNode *pn = projectNode();
+
+    if (subFolders.isEmpty())
+        return;
+
+    QList<FolderNode*> toRemove = subFolders;
+    qSort(toRemove.begin(), toRemove.end());
+
+    foreach (NodesWatcher *watcher, pn->watchers())
+        emit watcher->foldersAboutToBeRemoved(this, toRemove);
+
+    QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
+    QList<FolderNode*>::iterator folderIter = m_subFolderNodes.begin();
+    for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
+        QTC_ASSERT((*toRemoveIter)->nodeType() != ProjectNodeType,
+                   qDebug("project nodes have to be removed via removeProjectNodes"));
+        while (*folderIter != *toRemoveIter) {
+            ++folderIter;
+            QTC_ASSERT(folderIter != m_subFolderNodes.end(),
+                       qDebug("Folder to remove is not part of specified folder!"));
+        }
+        delete *folderIter;
+        folderIter = m_subFolderNodes.erase(folderIter);
+    }
+
+    foreach (NodesWatcher *watcher, pn->watchers())
+        emit watcher->foldersRemoved();
+}
+
+/*!
   \class ProjectExplorer::VirtualFolderNode
 
   In-memory presentation of a virtual folder.
@@ -570,178 +732,6 @@ void ProjectNode::removeProjectNodes(const QList<ProjectNode*> &subProjects)
 
         foreach (NodesWatcher *watcher, m_watchers)
             emit watcher->foldersRemoved();
-    }
-}
-
-/*!
-  Adds folder nodes specified by \a subFolders to the node hierarchy below
-  \a parentFolder and emits the corresponding signals.
-*/
-void ProjectNode::addFolderNodes(const QList<FolderNode*> &subFolders, FolderNode *parentFolder)
-{
-    Q_ASSERT(parentFolder);
-
-    if (!subFolders.isEmpty()) {
-        const bool emitSignals = (parentFolder->projectNode() == this);
-
-        if (emitSignals)
-            foreach (NodesWatcher *watcher, m_watchers)
-                watcher->foldersAboutToBeAdded(parentFolder, subFolders);
-
-        foreach (FolderNode *folder, subFolders) {
-            QTC_ASSERT(!folder->parentFolderNode(),
-                qDebug("Project node has already a parent folder"));
-            folder->setParentFolderNode(parentFolder);
-            folder->setProjectNode(this);
-
-            // Find the correct place to insert
-            if (parentFolder->m_subFolderNodes.count() == 0
-                    || parentFolder->m_subFolderNodes.last() < folder) {
-                // empty list or greater then last node
-                parentFolder->m_subFolderNodes.append(folder);
-            } else {
-                // Binary Search for insertion point
-                QList<FolderNode*>::iterator it
-                        = qLowerBound(parentFolder->m_subFolderNodes.begin(),
-                                      parentFolder->m_subFolderNodes.end(),
-                                      folder);
-                parentFolder->m_subFolderNodes.insert(it, folder);
-            }
-
-            // project nodes have to be added via addProjectNodes
-            QTC_ASSERT(folder->nodeType() != ProjectNodeType,
-                qDebug("project nodes have to be added via addProjectNodes"));
-        }
-
-        if (emitSignals)
-            foreach (NodesWatcher *watcher, m_watchers)
-                emit watcher->foldersAdded();
-    }
-}
-
-/*!
-  Removes file nodes specified by \a subFolders from the node hierarchy and emits
-  the corresponding signals.
-
-  All objects in the \a subFolders list are deleted.
-*/
-void ProjectNode::removeFolderNodes(const QList<FolderNode*> &subFolders,
-                                   FolderNode *parentFolder)
-{
-    Q_ASSERT(parentFolder);
-
-    if (!subFolders.isEmpty()) {
-        const bool emitSignals = (parentFolder->projectNode() == this);
-
-        QList<FolderNode*> toRemove = subFolders;
-        qSort(toRemove.begin(), toRemove.end());
-
-        if (emitSignals)
-            foreach (NodesWatcher *watcher, m_watchers)
-                emit watcher->foldersAboutToBeRemoved(parentFolder, toRemove);
-
-        QList<FolderNode*>::const_iterator toRemoveIter = toRemove.constBegin();
-        QList<FolderNode*>::iterator folderIter = parentFolder->m_subFolderNodes.begin();
-        for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
-            QTC_ASSERT((*toRemoveIter)->nodeType() != ProjectNodeType,
-                qDebug("project nodes have to be removed via removeProjectNodes"));
-            while (*folderIter != *toRemoveIter) {
-                ++folderIter;
-                QTC_ASSERT(folderIter != parentFolder->m_subFolderNodes.end(),
-                    qDebug("Folder to remove is not part of specified folder!"));
-            }
-            delete *folderIter;
-            folderIter = parentFolder->m_subFolderNodes.erase(folderIter);
-        }
-
-        if (emitSignals)
-            foreach (NodesWatcher *watcher, m_watchers)
-                emit watcher->foldersRemoved();
-    }
-}
-
-/*!
-  Adds file nodes specified by \a files to the internal list in the location
-  specified by \a folder and emits the corresponding signals.
-
-  This function should be called within an implementation of the public function
-  addFiles.
-*/
-
-void ProjectNode::addFileNodes(const QList<FileNode*> &files, FolderNode *folder)
-{
-    Q_ASSERT(folder);
-
-    if (!files.isEmpty()) {
-        const bool emitSignals = (folder->projectNode() == this);
-
-        if (emitSignals)
-            foreach (NodesWatcher *watcher, m_watchers)
-                emit watcher->filesAboutToBeAdded(folder, files);
-
-        foreach (FileNode *file, files) {
-            QTC_ASSERT(!file->parentFolderNode(),
-                qDebug("File node has already a parent folder"));
-
-            file->setParentFolderNode(folder);
-            file->setProjectNode(this);
-            // Now find the correct place to insert file
-            if (folder->m_fileNodes.count() == 0
-                    || folder->m_fileNodes.last() < file) {
-                // empty list or greater then last node
-                folder->m_fileNodes.append(file);
-            } else {
-                QList<FileNode *>::iterator it
-                        = qLowerBound(folder->m_fileNodes.begin(),
-                                      folder->m_fileNodes.end(),
-                                      file);
-                folder->m_fileNodes.insert(it, file);
-            }
-        }
-
-        if (emitSignals)
-            foreach (NodesWatcher *watcher, m_watchers)
-                emit watcher->filesAdded();
-    }
-}
-
-/*!
-  Removes \a files from the internal list and emits the corresponding signals.
-
-  All objects in the \a files list are deleted.
-  This function should be called within an implementation of the public function
-  removeFiles.
-*/
-
-void ProjectNode::removeFileNodes(const QList<FileNode*> &files, FolderNode *folder)
-{
-    Q_ASSERT(folder);
-
-    if (!files.isEmpty()) {
-        const bool emitSignals = (folder->projectNode() == this);
-
-        QList<FileNode*> toRemove = files;
-        qSort(toRemove.begin(), toRemove.end());
-
-        if (emitSignals)
-            foreach (NodesWatcher *watcher, m_watchers)
-                emit watcher->filesAboutToBeRemoved(folder, toRemove);
-
-        QList<FileNode*>::const_iterator toRemoveIter = toRemove.constBegin();
-        QList<FileNode*>::iterator filesIter = folder->m_fileNodes.begin();
-        for (; toRemoveIter != toRemove.constEnd(); ++toRemoveIter) {
-            while (*filesIter != *toRemoveIter) {
-                ++filesIter;
-                QTC_ASSERT(filesIter != folder->m_fileNodes.end(),
-                    qDebug("File to remove is not part of specified folder!"));
-            }
-            delete *filesIter;
-            filesIter = folder->m_fileNodes.erase(filesIter);
-        }
-
-        if (emitSignals)
-            foreach (NodesWatcher *watcher, m_watchers)
-                emit watcher->filesRemoved();
     }
 }
 

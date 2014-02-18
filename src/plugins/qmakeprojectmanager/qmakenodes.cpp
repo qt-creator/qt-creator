@@ -384,9 +384,9 @@ struct InternalNode
     }
 
     // Makes the projectNode's subtree below the given folder match this internal node's subtree
-    void updateSubFolders(QmakeProjectManager::QmakePriFileNode *projectNode, ProjectExplorer::FolderNode *folder)
+    void updateSubFolders(ProjectExplorer::FolderNode *folder)
     {
-        updateFiles(projectNode, folder, type);
+        updateFiles(folder, type);
 
         // updateFolders
         QMultiMap<QString, FolderNode *> existingFolderNodes;
@@ -466,16 +466,16 @@ struct InternalNode
                 foldersToRemove << jit.value();
 
         if (!foldersToRemove.isEmpty())
-            projectNode->removeFolderNodes(foldersToRemove, folder);
+            folder->removeFolderNodes(foldersToRemove);
         if (!foldersToAdd.isEmpty())
-            projectNode->addFolderNodes(foldersToAdd, folder);
+            folder->addFolderNodes(foldersToAdd);
 
         foreach (const NodePair &np, nodesToUpdate)
-            np.first->updateSubFolders(projectNode, np.second);
+            np.first->updateSubFolders(np.second);
     }
 
     // Makes the folder's files match this internal node's file list
-    void updateFiles(QmakeProjectManager::QmakePriFileNode *projectNode, FolderNode *folder, FileType type)
+    void updateFiles(FolderNode *folder, FileType type)
     {
         QList<FileNode*> existingFileNodes;
         foreach (FileNode *fileNode, folder->fileNodes()) {
@@ -514,9 +514,9 @@ struct InternalNode
         }
 
         if (!filesToRemove.isEmpty())
-            projectNode->removeFileNodes(filesToRemove, folder);
+            folder->removeFileNodes(filesToRemove);
         if (!filesToAdd.isEmpty())
-            projectNode->addFileNodes(filesToAdd, folder);
+            folder->addFileNodes(filesToAdd);
     }
 };
 }
@@ -569,7 +569,7 @@ void QmakePriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReade
 {
     // add project file node
     if (m_fileNodes.isEmpty())
-        addFileNodes(QList<FileNode*>() << new ProjectExplorer::FileNode(m_projectFilePath, ProjectExplorer::ProjectFileType, false), this);
+        addFileNodes(QList<FileNode*>() << new ProjectExplorer::FileNode(m_projectFilePath, ProjectExplorer::ProjectFileType, false));
 
     const QString &projectDir = m_qmakeProFileNode->m_projectDir;
 
@@ -695,7 +695,7 @@ void QmakePriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReade
         }
     }
 
-    contents.updateSubFolders(this, this);
+    contents.updateSubFolders(this);
 }
 
 void QmakePriFileNode::watchFolders(const QSet<QString> &folders)
@@ -772,7 +772,7 @@ bool QmakePriFileNode::folderChanged(const QString &changedFolder, const QSet<Ut
         }
     }
 
-    contents.updateSubFolders(this, this);
+    contents.updateSubFolders(this);
     return true;
 }
 
@@ -1726,9 +1726,9 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                 return;
 
             // delete files && folders && projects
-            removeFileNodes(fileNodes(), this);
+            removeFileNodes(fileNodes());
             removeProjectNodes(subProjectNodes());
-            removeFolderNodes(subFolderNodes(), this);
+            removeFolderNodes(subFolderNodes());
 
             // change project type
             QmakeProjectType oldType = m_projectType;
@@ -1757,9 +1757,9 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             }
         }
 
-        removeFileNodes(fileNodes(), this);
+        removeFileNodes(fileNodes());
         removeProjectNodes(subProjectNodes());
-        removeFolderNodes(subFolderNodes(), this);
+        removeFolderNodes(subFolderNodes());
 
         bool changesHasBuildTargets = hasBuildTargets() ^ hasBuildTargets(projectType);
 

@@ -313,7 +313,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
             // AutotoolsProjectNode::addFileNodes() is a very expensive operation. It is
             // important to collect as much file nodes of the same parent folder as
             // possible before invoking it.
-            m_rootNode->addFileNodes(fileNodes, oldParentFolder);
+            oldParentFolder->addFileNodes(fileNodes);
             fileNodes.clear();
         }
 
@@ -330,7 +330,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
     }
 
     if (!fileNodes.isEmpty())
-        m_rootNode->addFileNodes(fileNodes, parentFolder);
+        parentFolder->addFileNodes(fileNodes);
 
     // Remove unused file nodes and empty folder nodes
     QHash<QString, Node *>::const_iterator it = nodeHash.constBegin();
@@ -338,12 +338,12 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
         if ((*it)->nodeType() == FileNodeType) {
             FileNode *fileNode = static_cast<FileNode *>(*it);
             FolderNode* parent = fileNode->parentFolderNode();
-            m_rootNode->removeFileNodes(QList<FileNode *>() << fileNode, parent);
+            parent->removeFileNodes(QList<FileNode *>() << fileNode);
 
             // Remove all empty parent folders
             while (parent->subFolderNodes().isEmpty() && parent->fileNodes().isEmpty()) {
                 FolderNode *grandParent = parent->parentFolderNode();
-                m_rootNode->removeFolderNodes(QList<FolderNode *>() << parent, grandParent);
+                grandParent->removeFolderNodes(QList<FolderNode *>() << parent);
                 parent = grandParent;
                 if (parent == m_rootNode)
                     break;
@@ -382,7 +382,7 @@ FolderNode *AutotoolsProject::insertFolderNode(const QDir &nodeDir, QHash<QStrin
         }
     }
 
-    m_rootNode->addFolderNodes(QList<FolderNode *>() << folder, parentFolder);
+    parentFolder->addFolderNodes(QList<FolderNode *>() << folder);
     nodes.insert(nodePath, folder);
 
     return folder;

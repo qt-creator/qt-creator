@@ -69,8 +69,8 @@ void QmlProjectNode::refresh()
     using namespace ProjectExplorer;
 
     // remove the existing nodes.
-    removeFileNodes(fileNodes(), this);
-    removeFolderNodes(subFolderNodes(), this);
+    removeFileNodes(fileNodes());
+    removeFolderNodes(subFolderNodes());
 
     //ProjectExplorerPlugin::instance()->setCurrentNode(0); // ### remove me
 
@@ -82,8 +82,7 @@ void QmlProjectNode::refresh()
     files.removeAll(m_project->filesFileName());
 
     addFileNodes(QList<FileNode *>()
-                 << projectFilesNode,
-                 this);
+                 << projectFilesNode);
 
     QHash<QString, QStringList> filesInDirectory;
 
@@ -118,7 +117,7 @@ void QmlProjectNode::refresh()
             fileNodes.append(fileNode);
         }
 
-        addFileNodes(fileNodes, folder);
+        folder->addFileNodes(fileNodes);
     }
 
     m_folderByName.clear();
@@ -154,7 +153,7 @@ ProjectExplorer::FolderNode *QmlProjectNode::findOrCreateFolderByName(const QStr
     if (! parent)
         parent = this;
 
-    addFolderNodes(QList<FolderNode*>() << folder, parent);
+    parent->addFolderNodes(QList<FolderNode*>() << folder);
 
     return folder;
 }

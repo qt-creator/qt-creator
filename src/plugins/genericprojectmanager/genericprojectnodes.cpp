@@ -103,8 +103,7 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
         addFileNodes(QList<FileNode *>()
                      << projectFilesNode
                      << projectIncludesNode
-                     << projectConfigNode,
-                     this);
+                     << projectConfigNode);
     }
 
     // Do those separately
@@ -142,7 +141,7 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
             fileNodes.append(fileNode);
         }
 
-        addFileNodes(fileNodes, folder);
+        folder->addFileNodes(fileNodes);
     }
 
     filesInPaths = sortFilesIntoPaths(baseDir, removed);
@@ -161,7 +160,7 @@ void GenericProjectNode::refresh(QSet<QString> oldFileList)
                     fileNodes.append(fn);
         }
 
-        removeFileNodes(fileNodes, folder);
+        folder->removeFileNodes(fileNodes);
     }
 
     foreach (FolderNode *fn, subFolderNodes())
@@ -175,7 +174,7 @@ void GenericProjectNode::removeEmptySubFolders(FolderNode *gparent, FolderNode *
         removeEmptySubFolders(parent, fn);
 
     if (parent->subFolderNodes().isEmpty() && parent->fileNodes().isEmpty())
-        removeFolderNodes(QList<FolderNode*>() << parent, gparent);
+        gparent->removeFolderNodes(QList<FolderNode*>() << parent);
 }
 
 FolderNode *GenericProjectNode::createFolderByName(const QStringList &components, int end)
@@ -198,7 +197,7 @@ FolderNode *GenericProjectNode::createFolderByName(const QStringList &components
     FolderNode *parent = findFolderByName(components, end - 1);
     if (!parent)
         parent = createFolderByName(components, end - 1);
-    addFolderNodes(QList<FolderNode*>() << folder, parent);
+    parent->addFolderNodes(QList<FolderNode*>() << folder);
 
     return folder;
 }

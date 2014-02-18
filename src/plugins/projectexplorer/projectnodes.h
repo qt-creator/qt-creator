@@ -146,6 +146,7 @@ public:
 
 private:
     // managed by ProjectNode
+    friend class FolderNode;
     friend class ProjectNode;
 
     FileType m_fileType;
@@ -177,6 +178,12 @@ public:
     virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
     virtual bool deleteFiles(const QStringList &filePaths);
     virtual bool renameFile(const QString &filePath, const QString &newFilePath);
+
+    void addFileNodes(const QList<FileNode*> &files);
+    void removeFileNodes(const QList<FileNode*> &files);
+
+    void addFolderNodes(const QList<FolderNode*> &subFolders);
+    void removeFolderNodes(const QList<FolderNode*> &subFolders);
 
 protected:
     QList<FolderNode*> m_subFolderNodes;
@@ -238,12 +245,6 @@ public:
     void accept(NodesVisitor *visitor);
 
     bool isEnabled() const { return true; }
-
-    void addFolderNodes(const QList<FolderNode*> &subFolders, FolderNode *parentFolder);
-    void removeFolderNodes(const QList<FolderNode*> &subFolders, FolderNode *parentFolder);
-
-    void addFileNodes(const QList<FileNode*> &files, FolderNode *parentFolder);
-    void removeFileNodes(const QList<FileNode*> &files, FolderNode *parentFolder);
 
     // to be called in implementation of
     // the corresponding public functions
