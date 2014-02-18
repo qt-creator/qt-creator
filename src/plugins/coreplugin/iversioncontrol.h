@@ -179,9 +179,6 @@ signals:
     void repositoryChanged(const QString &repository);
     void filesChanged(const QStringList &files);
     void configurationChanged();
-
-    // TODO: ADD A WAY TO DETECT WHETHER A FILE IS MANAGED, e.g
-    // virtual bool sccManaged(const QString &filename) = 0;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IVersionControl::SettingsFlags)
