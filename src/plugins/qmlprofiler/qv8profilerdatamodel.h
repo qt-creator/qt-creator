@@ -31,6 +31,7 @@
 #define QV8PROFILERDATAMODEL_H
 
 #include "qmlprofilerbasemodel.h"
+#include <utils/fileinprojectfinder.h>
 
 #include <QObject>
 #include <QHash>
@@ -76,7 +77,7 @@ class QV8ProfilerDataModel : public QmlProfilerBaseModel
 {
     Q_OBJECT
 public:
-    QV8ProfilerDataModel(QmlProfilerModelManager *parent);
+    QV8ProfilerDataModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent = 0);
     ~QV8ProfilerDataModel();
 
     void clear();
@@ -99,6 +100,8 @@ public slots:
                     int lineNumber,
                     double totalTime,
                     double selfTime);
+    void detailsChanged(int requestId, const QString &newString);
+    void detailsDone();
 
 private:
     class QV8ProfilerDataModelPrivate;

@@ -29,6 +29,8 @@
 
 #include "qv8profilerdatamodel.h"
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilerdetailsrewriter.h"
+#include <utils/qtcassert.h>
 
 #include <QStringList>
 
@@ -103,21 +105,31 @@ public:
     void collectV8Statistics();
 
     QHash<QString, QV8EventData *> v8EventHash;
+    QList<QV8EventData *> pendingRewrites;
     QHash<int, QV8EventData *> v8parents;
     QV8EventData v8RootEvent;
     qint64 v8MeasuredTime;
+    QmlProfilerDetailsRewriter *detailsRewriter;
 };
 
-QV8ProfilerDataModel::QV8ProfilerDataModel(QmlProfilerModelManager *parent)
+QV8ProfilerDataModel::QV8ProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
+                                           QmlProfilerModelManager *parent)
     : QmlProfilerBaseModel(parent)
     , d(new QV8ProfilerDataModelPrivate(this))
 {
+    d->detailsRewriter = new QmlProfilerDetailsRewriter(this, fileFinder);
     d->v8MeasuredTime = 0;
     d->clearV8RootEvent();
+
+    connect(d->detailsRewriter, SIGNAL(rewriteDetailsString(int,QString)),
+            this, SLOT(detailsChanged(int,QString)));
+    connect(d->detailsRewriter, SIGNAL(eventDetailsChanged()),
+            this, SLOT(detailsDone()));
 }
 
 QV8ProfilerDataModel::~QV8ProfilerDataModel()
 {
+    delete d->detailsRewriter;
     delete d;
 }
 
@@ -128,6 +140,8 @@ void QV8ProfilerDataModel::clear()
     d->v8parents.clear();
     d->clearV8RootEvent();
     d->v8MeasuredTime = 0;
+    d->detailsRewriter->clearRequests();
+    d->pendingRewrites.clear();
 
     QmlProfilerBaseModel::clear();
 }
@@ -226,6 +240,20 @@ void QV8ProfilerDataModel::addV8Event(int depth,
 
 }
 
+void QV8ProfilerDataModel::detailsChanged(int requestId, const QString &newString)
+{
+    QTC_ASSERT(requestId < d->pendingRewrites.count(), return);
+
+    QV8EventData *event = d->pendingRewrites[requestId];
+    event->filename = newString;
+}
+
+void QV8ProfilerDataModel::detailsDone()
+{
+    d->pendingRewrites.clear();
+    QmlProfilerBaseModel::complete();
+}
+
 void QV8ProfilerDataModel::collectV8Statistics()
 {
     d->collectV8Statistics();
@@ -267,15 +295,20 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
             v8event->SelfTimeInPercent = v8event->selfTime * 100.0 / selfTimes;
         }
 
-        int index = 0;
+        int index = pendingRewrites.size();
         foreach (QV8EventData *v8event, v8EventHash.values()) {
             v8event->eventId = index++;
+            pendingRewrites << v8event;
+            detailsRewriter->requestDetailsForLocation(index,
+                    QmlDebug::QmlEventLocation(v8event->filename, v8event->line, 1));
         }
+
         v8RootEvent.eventId = v8EventHash[rootEventHash]->eventId;
     } else {
         // On empty data, still add a fake root event
         clearV8RootEvent();
     }
+    detailsRewriter->reloadDocuments();
 }
 
 void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::clearV8RootEvent()
@@ -483,7 +516,6 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
 void QV8ProfilerDataModel::complete()
 {
     collectV8Statistics();
-    QmlProfilerBaseModel::complete();
 }
 
 } // namespace Internal
