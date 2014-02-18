@@ -27,47 +27,29 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERBASEMODEL_H
-#define QMLPROFILERBASEMODEL_H
+#ifndef QMLPROFILERBASEMODEL_P_H
+#define QMLPROFILERBASEMODEL_P_H
 
-#include "qmlprofiler_global.h"
-#include "qmlprofilerdetailsrewriter.h"
-#include <QObject>
+#include "qmlprofilerbasemodel.h"
 
 namespace QmlProfiler {
 
-class QmlProfilerModelManager;
-
-class QMLPROFILER_EXPORT QmlProfilerBaseModel : public QObject {
-    Q_OBJECT
+class QmlProfilerBaseModel::QmlProfilerBaseModelPrivate {
 public:
-    virtual ~QmlProfilerBaseModel();
+    QmlProfilerBaseModelPrivate(QmlProfilerBaseModel *qq) : q_ptr(qq) {}
+    virtual ~QmlProfilerBaseModelPrivate() {}
 
-    virtual void complete();
-    virtual void clear();
-    virtual bool isEmpty() const = 0;
-    bool processingDone() const;
-
-    static QString formatTime(qint64 timestamp);
-
-protected slots:
-    virtual void detailsChanged(int requestId, const QString &newString) = 0;
-    virtual void detailsDone();
-
-signals:
-    void changed();
+    QmlProfilerModelManager *modelManager;
+    int modelId;
+    bool processingDone;
+    Internal::QmlProfilerDetailsRewriter *detailsRewriter;
 
 protected:
-    class QmlProfilerBaseModelPrivate;
-    QmlProfilerBaseModelPrivate *d_ptr;
-
-    QmlProfilerBaseModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *manager,
-                         QmlProfilerBaseModelPrivate *dd);
-
+    QmlProfilerBaseModel *q_ptr;
 private:
-    Q_DECLARE_PRIVATE(QmlProfilerBaseModel)
+    Q_DECLARE_PUBLIC(QmlProfilerBaseModel)
 };
 
 }
 
-#endif // QMLPROFILERBASEMODEL_H
+#endif // QMLPROFILERBASEMODEL_P_H

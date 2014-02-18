@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmlprofilerdatamodel.h"
+#include "qmlprofilerbasemodel_p.h"
 #include "qmlprofilermodelmanager.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
@@ -35,6 +36,16 @@
 #include <QDebug>
 
 namespace QmlProfiler {
+
+class QmlProfilerDataModel::QmlProfilerDataModelPrivate :
+        public QmlProfilerBaseModel::QmlProfilerBaseModelPrivate
+{
+public:
+    QmlProfilerDataModelPrivate(QmlProfilerDataModel *qq) : QmlProfilerBaseModelPrivate(qq) {}
+    QVector<QmlEventData> eventList;
+private:
+    Q_DECLARE_PUBLIC(QmlProfilerDataModel)
+};
 
 QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventData &event);
 QString getDisplayName(const QmlProfilerDataModel::QmlEventData &event);
@@ -102,45 +113,51 @@ bool compareStartTimes(const QmlProfilerDataModel::QmlEventData &t1, const QmlPr
 
 QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
                                                      QmlProfilerModelManager *parent)
-    : QmlProfilerBaseModel(fileFinder, parent)
+    : QmlProfilerBaseModel(fileFinder, parent, new QmlProfilerDataModelPrivate(this))
 {
+    Q_D(QmlProfilerDataModel);
     // The document loading is very expensive.
-    m_modelManager->setProxyCountWeight(m_modelId, 4);
+    d->modelManager->setProxyCountWeight(d->modelId, 4);
 }
 
 const QVector<QmlProfilerDataModel::QmlEventData> &QmlProfilerDataModel::getEvents() const
 {
-    return m_eventList;
+    Q_D(const QmlProfilerDataModel);
+    return d->eventList;
 }
 
 int QmlProfilerDataModel::count() const
 {
-    return m_eventList.count();
+    Q_D(const QmlProfilerDataModel);
+    return d->eventList.count();
 }
 
 void QmlProfilerDataModel::clear()
 {
-    m_eventList.clear();
+    Q_D(QmlProfilerDataModel);
+    d->eventList.clear();
     // This call emits changed(). Don't emit it again here.
     QmlProfilerBaseModel::clear();
 }
 
 bool QmlProfilerDataModel::isEmpty() const
 {
-    return m_eventList.isEmpty();
+    Q_D(const QmlProfilerDataModel);
+    return d->eventList.isEmpty();
 }
 
 void QmlProfilerDataModel::complete()
 {
+    Q_D(QmlProfilerDataModel);
     // post-processing
 
     // sort events by start time
-    qSort(m_eventList.begin(), m_eventList.end(), compareStartTimes);
+    qSort(d->eventList.begin(), d->eventList.end(), compareStartTimes);
 
     // rewrite strings
-    int n = m_eventList.count();
+    int n = d->eventList.count();
     for (int i = 0; i < n; i++) {
-        QmlEventData *event = &m_eventList[i];
+        QmlEventData *event = &d->eventList[i];
         event->location = getLocation(*event);
         event->displayName = getDisplayName(*event);
         event->data = QStringList() << getInitialDetails(*event);
@@ -160,8 +177,8 @@ void QmlProfilerDataModel::complete()
         if (event->location.column == -1)
             continue;
 
-        m_detailsRewriter.requestDetailsForLocation(i, event->location);
-        m_modelManager->modelProxyCountUpdated(m_modelId, i + n, n * 2);
+        d->detailsRewriter->requestDetailsForLocation(i, event->location);
+        d->modelManager->modelProxyCountUpdated(d->modelId, i + n, n * 2);
     }
 
     // Allow changed() event only after documents have been reloaded to avoid
@@ -175,6 +192,7 @@ void QmlProfilerDataModel::addQmlEvent(int type, int bindingType, qint64 startTi
                                             qint64 ndata1, qint64 ndata2, qint64 ndata3,
                                             qint64 ndata4, qint64 ndata5)
 {
+    Q_D(QmlProfilerDataModel);
     QString displayName;
     if (type == QmlDebug::Painting && bindingType == QmlDebug::AnimationFrame) {
         displayName = tr("Animations");
@@ -186,10 +204,10 @@ void QmlProfilerDataModel::addQmlEvent(int type, int bindingType, qint64 startTi
 
     QmlEventData eventData = {displayName, type, bindingType, startTime, duration, data, location,
                               ndata1, ndata2, ndata3, ndata4, ndata5};
-    m_eventList.append(eventData);
+    d->eventList.append(eventData);
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, startTime,
-                                           m_modelManager->estimatedProfilingTime() * 2);
+    d->modelManager->modelProxyCountUpdated(d->modelId, startTime,
+                                            d->modelManager->estimatedProfilingTime() * 2);
 }
 
 QString QmlProfilerDataModel::getHashString(const QmlProfilerDataModel::QmlEventData &event)
@@ -204,17 +222,19 @@ QString QmlProfilerDataModel::getHashString(const QmlProfilerDataModel::QmlEvent
 
 qint64 QmlProfilerDataModel::lastTimeMark() const
 {
-    if (m_eventList.isEmpty())
+    Q_D(const QmlProfilerDataModel);
+    if (d->eventList.isEmpty())
         return 0;
 
-    return m_eventList.last().startTime + m_eventList.last().duration;
+    return d->eventList.last().startTime + d->eventList.last().duration;
 }
 
 void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newString)
 {
-    QTC_ASSERT(requestId < m_eventList.count(), return);
+    Q_D(QmlProfilerDataModel);
+    QTC_ASSERT(requestId < d->eventList.count(), return);
 
-    QmlEventData *event = &m_eventList[requestId];
+    QmlEventData *event = &d->eventList[requestId];
     event->data = QStringList(newString);
 }
 

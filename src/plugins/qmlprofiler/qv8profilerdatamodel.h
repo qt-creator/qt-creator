@@ -77,7 +77,6 @@ public:
     };
 
     QV8ProfilerDataModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent = 0);
-    ~QV8ProfilerDataModel();
 
     void clear();
     bool isEmpty() const;
@@ -103,8 +102,9 @@ public slots:
 
 private:
     class QV8ProfilerDataModelPrivate;
-    QV8ProfilerDataModelPrivate *d;
     void clearV8RootEvent();
+
+    Q_DECLARE_PRIVATE(QV8ProfilerDataModel)
 };
 
 } // namespace QmlProfiler

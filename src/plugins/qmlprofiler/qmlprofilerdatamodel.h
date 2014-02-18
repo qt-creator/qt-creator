@@ -70,7 +70,8 @@ protected slots:
     void detailsChanged(int requestId, const QString &newString);
 
 private:
-    QVector<QmlEventData> m_eventList;
+    class QmlProfilerDataModelPrivate;
+    Q_DECLARE_PRIVATE(QmlProfilerDataModel)
 };
 
 }

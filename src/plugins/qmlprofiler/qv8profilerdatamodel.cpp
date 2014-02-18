@@ -30,6 +30,7 @@
 #include "qv8profilerdatamodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdetailsrewriter.h"
+#include "qmlprofilerbasemodel_p.h"
 #include <utils/qtcassert.h>
 
 #include <QStringList>
@@ -95,33 +96,35 @@ QV8ProfilerDataModel::QV8EventData::~QV8EventData()
     childrenHash.clear();
 }
 
-class QV8ProfilerDataModel::QV8ProfilerDataModelPrivate
+class QV8ProfilerDataModel::QV8ProfilerDataModelPrivate :
+        public QmlProfilerBaseModel::QmlProfilerBaseModelPrivate
 {
 public:
-    QV8ProfilerDataModelPrivate(QV8ProfilerDataModel *qq) {Q_UNUSED(qq);}
+    QV8ProfilerDataModelPrivate(QV8ProfilerDataModel *qq) :
+            QmlProfilerBaseModel::QmlProfilerBaseModelPrivate(qq) {}
 
     QHash<QString, QV8EventData *> v8EventHash;
     QList<QV8EventData *> pendingRewrites;
     QHash<int, QV8EventData *> v8parents;
     QV8EventData v8RootEvent;
     qint64 v8MeasuredTime;
+
+private:
+    Q_DECLARE_PUBLIC(QV8ProfilerDataModel)
 };
 
 QV8ProfilerDataModel::QV8ProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
                                            QmlProfilerModelManager *parent)
-    : QmlProfilerBaseModel(fileFinder, parent), d(new QV8ProfilerDataModelPrivate(this))
+    : QmlProfilerBaseModel(fileFinder, parent, new QV8ProfilerDataModelPrivate(this))
 {
+    Q_D(QV8ProfilerDataModel);
     d->v8MeasuredTime = 0;
     clearV8RootEvent();
 }
 
-QV8ProfilerDataModel::~QV8ProfilerDataModel()
-{
-    delete d;
-}
-
 void QV8ProfilerDataModel::clear()
 {
+    Q_D(QV8ProfilerDataModel);
     qDeleteAll(d->v8EventHash.values());
     d->v8EventHash.clear();
     d->v8parents.clear();
@@ -134,11 +137,13 @@ void QV8ProfilerDataModel::clear()
 
 bool QV8ProfilerDataModel::isEmpty() const
 {
+    Q_D(const QV8ProfilerDataModel);
     return d->v8EventHash.isEmpty();
 }
 
 QV8ProfilerDataModel::QV8EventData *QV8ProfilerDataModel::v8EventDescription(int eventId) const
 {
+    Q_D(const QV8ProfilerDataModel);
     foreach (QV8EventData *event, d->v8EventHash) {
         if (event->eventId == eventId)
             return event;
@@ -148,11 +153,13 @@ QV8ProfilerDataModel::QV8EventData *QV8ProfilerDataModel::v8EventDescription(int
 
 qint64 QV8ProfilerDataModel::v8MeasuredTime() const
 {
+    Q_D(const QV8ProfilerDataModel);
     return d->v8MeasuredTime;
 }
 
 QList<QV8ProfilerDataModel::QV8EventData *> QV8ProfilerDataModel::getV8Events() const
 {
+    Q_D(const QV8ProfilerDataModel);
     return d->v8EventHash.values();
 }
 
@@ -168,6 +175,7 @@ void QV8ProfilerDataModel::addV8Event(int depth,
                                       double totalTime,
                                       double selfTime)
 {
+    Q_D(QV8ProfilerDataModel);
     QString displayName = filename.mid(filename.lastIndexOf(QLatin1Char('/')) + 1) +
             QLatin1Char(':') + QString::number(lineNumber);
     QString hashStr = getHashStringForV8Event(displayName, function);
@@ -228,18 +236,21 @@ void QV8ProfilerDataModel::addV8Event(int depth,
 
 void QV8ProfilerDataModel::detailsChanged(int requestId, const QString &newString)
 {
+    Q_D(QV8ProfilerDataModel);
     QTC_ASSERT(requestId < d->pendingRewrites.count(), return);
     d->pendingRewrites[requestId]->filename = newString;
 }
 
 void QV8ProfilerDataModel::detailsDone()
 {
+    Q_D(QV8ProfilerDataModel);
     d->pendingRewrites.clear();
     QmlProfilerBaseModel::detailsDone();
 }
 
 void QV8ProfilerDataModel::complete()
 {
+    Q_D(QV8ProfilerDataModel);
     if (!d->v8EventHash.isEmpty()) {
         double totalTimes = d->v8MeasuredTime;
         double selfTimes = 0;
@@ -278,7 +289,7 @@ void QV8ProfilerDataModel::complete()
         foreach (QV8EventData *v8event, d->v8EventHash.values()) {
             v8event->eventId = index++;
             d->pendingRewrites << v8event;
-            m_detailsRewriter.requestDetailsForLocation(index,
+            d->detailsRewriter->requestDetailsForLocation(index,
                     QmlDebug::QmlEventLocation(v8event->filename, v8event->line, 1));
         }
 
@@ -293,6 +304,7 @@ void QV8ProfilerDataModel::complete()
 
 void QV8ProfilerDataModel::clearV8RootEvent()
 {
+    Q_D(QV8ProfilerDataModel);
     d->v8RootEvent.displayName = tr("<program>");
     d->v8RootEvent.eventHashStr = tr("<program>");
     d->v8RootEvent.functionName = tr("Main Program");
@@ -312,6 +324,7 @@ void QV8ProfilerDataModel::clearV8RootEvent()
 
 void QV8ProfilerDataModel::save(QXmlStreamWriter &stream)
 {
+    Q_D(QV8ProfilerDataModel);
     stream.writeStartElement(QLatin1String("v8profile")); // v8 profiler output
     stream.writeAttribute(QLatin1String("totalTime"), QString::number(d->v8MeasuredTime));
     foreach (const QV8EventData *v8event, d->v8EventHash) {
@@ -351,6 +364,7 @@ void QV8ProfilerDataModel::save(QXmlStreamWriter &stream)
 
 void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
 {
+    Q_D(QV8ProfilerDataModel);
     QHash <int, QV8EventData *> v8eventBuffer;
     QHash <int, QString> childrenIndexes;
     QHash <int, QString> childrenTimes;

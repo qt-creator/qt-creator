@@ -29,32 +29,52 @@
 
 #include "qmlprofilerbasemodel.h"
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilerbasemodel_p.h"
 
 namespace QmlProfiler {
 
 QmlProfilerBaseModel::QmlProfilerBaseModel(Utils::FileInProjectFinder *fileFinder,
-                                           QmlProfilerModelManager *manager) :
-    m_modelManager(manager), m_processingDone(false), m_detailsRewriter(this, fileFinder)
+                                           QmlProfilerModelManager *manager,
+                                           QmlProfilerBaseModelPrivate *dd) : d_ptr(dd)
 {
-    Q_ASSERT(m_modelManager);
-    m_modelId = m_modelManager->registerModelProxy();
-    connect(&m_detailsRewriter, SIGNAL(rewriteDetailsString(int,QString)),
+    Q_D(QmlProfilerBaseModel);
+    d->modelManager = manager;
+    d->processingDone = false;
+    d->detailsRewriter = new QmlProfilerDetailsRewriter(this, fileFinder);
+    Q_ASSERT(d->modelManager);
+    d->modelId = d->modelManager->registerModelProxy();
+    connect(d->detailsRewriter, SIGNAL(rewriteDetailsString(int,QString)),
             this, SLOT(detailsChanged(int,QString)));
-    connect(&m_detailsRewriter, SIGNAL(eventDetailsChanged()),
+    connect(d->detailsRewriter, SIGNAL(eventDetailsChanged()),
             this, SLOT(detailsDone()));
+}
+
+QmlProfilerBaseModel::~QmlProfilerBaseModel()
+{
+    Q_D(QmlProfilerBaseModel);
+    delete d->detailsRewriter;
+    delete d;
 }
 
 void QmlProfilerBaseModel::clear()
 {
-    m_detailsRewriter.clearRequests();
-    m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
-    m_processingDone = false;
+    Q_D(QmlProfilerBaseModel);
+    d->detailsRewriter->clearRequests();
+    d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
+    d->processingDone = false;
     emit changed();
+}
+
+bool QmlProfilerBaseModel::processingDone() const
+{
+    Q_D(const QmlProfilerBaseModel);
+    return d->processingDone;
 }
 
 void QmlProfilerBaseModel::complete()
 {
-    m_detailsRewriter.reloadDocuments();
+    Q_D(QmlProfilerBaseModel);
+    d->detailsRewriter->reloadDocuments();
 }
 
 QString QmlProfilerBaseModel::formatTime(qint64 timestamp)
@@ -69,10 +89,11 @@ QString QmlProfilerBaseModel::formatTime(qint64 timestamp)
 
 void QmlProfilerBaseModel::detailsDone()
 {
+    Q_D(QmlProfilerBaseModel);
     emit changed();
-    m_processingDone = true;
-    m_modelManager->modelProxyCountUpdated(m_modelId, isEmpty() ? 0 : 1, 1);
-    m_modelManager->modelProcessingDone();
+    d->processingDone = true;
+    d->modelManager->modelProxyCountUpdated(d->modelId, isEmpty() ? 0 : 1, 1);
+    d->modelManager->modelProcessingDone();
 }
 
 }

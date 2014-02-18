@@ -67,7 +67,8 @@ HEADERS += \
     abstracttimelinemodel_p.h \
     singlecategorytimelinemodel.h \
     singlecategorytimelinemodel_p.h \
-    qmlprofilerdatamodel.h
+    qmlprofilerdatamodel.h \
+    qmlprofilerbasemodel_p.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc
