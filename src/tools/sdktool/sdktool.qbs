@@ -13,6 +13,7 @@ QtcTool {
 
     files: [
         "adddebuggeroperation.cpp", "adddebuggeroperation.h",
+        "adddeviceoperation.cpp", "adddeviceoperation.h",
         "addkeysoperation.cpp",
         "addkeysoperation.h",
         "addkitoperation.cpp",
@@ -31,6 +32,7 @@ QtcTool {
         "operation.cpp",
         "operation.h",
         "rmdebuggeroperation.cpp", "rmdebuggeroperation.h",
+        "rmdeviceoperation.cpp", "rmdeviceoperation.h",
         "rmkeysoperation.cpp",
         "rmkeysoperation.h",
         "rmkitoperation.cpp",
