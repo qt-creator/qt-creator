@@ -7,6 +7,7 @@ Project {
         "dumpers.qbs",
         "gdb.qbs",
         "namedemangler.qbs",
-        "simplifytypes.qbs"
+        "simplifytypes.qbs",
+        "disassembler.qbs"
     ]
 }

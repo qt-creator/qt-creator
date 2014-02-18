@@ -73,6 +73,7 @@ public:
     bool coversAddress(quint64 address) const;
     void appendUnparsed(const QString &line);
     void appendLine(const DisassemblerLine &dl);
+    void appendComment(const QString &line);
     // Mixed source/assembly: Retrieve contents of source (cached)
     void appendSourceLine(const QString &fileName, uint line);
 

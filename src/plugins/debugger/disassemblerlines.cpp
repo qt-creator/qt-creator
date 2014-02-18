@@ -142,6 +142,13 @@ void DisassemblerLines::appendSourceLine(const QString &fileName, uint lineNumbe
     appendLine(dl);
 }
 
+void DisassemblerLines::appendComment(const QString &line)
+{
+    DisassemblerLine dl;
+    dl.data = line;
+    appendLine(dl);
+}
+
 void DisassemblerLines::appendUnparsed(const QString &unparsed)
 {
     QString line = unparsed.trimmed();
@@ -162,15 +169,24 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
     if (line.startsWith(QLatin1String("=> ")))
         line = line.mid(3);
     if (line.startsWith(QLatin1String("0x"))) {
-        // Address line.
-        int pos1 = line.indexOf(QLatin1Char('<')) + 1;
-        int posc = line.indexOf(QLatin1Char(':'));
+        // Address line. Split at the tab.
+        int tab = line.indexOf(QLatin1Char('\t'));
+        if (tab == -1) {
+            appendComment(line);
+            return;
+        }
+        QString address = line.left(tab);
+        if (address.endsWith(QLatin1Char(':')))
+            address.chop(1);
+        int pos1 = address.indexOf(QLatin1Char('<')) + 1;
         DisassemblerLine dl;
-        if (pos1 && line.indexOf(QLatin1String("<UNDEFINED> instruction:")) == -1) {
-            int pos2 = line.indexOf(QLatin1Char('+'), pos1);
-            int pos3 = line.indexOf(QLatin1Char('>'), pos1);
-            if (pos1 < pos2 && pos2 < pos3) {
-                QString function = line.mid(pos1, pos2 - pos1);
+        dl.data = line.mid(tab).trimmed();
+        if (pos1 && address.indexOf(QLatin1String("<UNDEFINED> instruction:")) == -1) {
+            if (address.endsWith(QLatin1Char('>')))
+                address.chop(1);
+            int pos2 = address.indexOf(QLatin1Char('+'), pos1);
+            if (pos1 < pos2) {
+                QString function = address.mid(pos1, pos2 - pos1);
                 if (function != m_lastFunction) {
                     DisassemblerLine dl;
                     dl.data = _("Function: ") + function;
@@ -178,16 +194,14 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
                     m_lastFunction = function;
                 }
             }
-            dl.address = line.left(pos1 - 1).toULongLong(0, 0);
+            dl.address = address.left(pos1 - 1).toULongLong(0, 0);
             dl.function = m_lastFunction;
-            dl.offset = line.mid(pos2, pos3 - pos2).toUInt();
-            dl.data = line.mid(pos3 + 3).trimmed();
+            dl.offset = address.mid(pos2).toUInt();
         } else {
             // Plain data like "0x0000cd64:\tadd\tlr, pc, lr\n"
-            dl.address = line.left(posc).toULongLong(0, 0);
+            dl.address = address.toULongLong(0, 0);
             dl.function = m_lastFunction;
             dl.offset = 0;
-            dl.data = line.mid(posc + 1).trimmed();
         }
         m_rowCache[dl.address] = m_data.size() + 1;
         m_data.append(dl);
@@ -205,8 +219,11 @@ QString DisassemblerLine::toString() const
     QString str;
     if (isAssembler()) {
         if (address)
-            str += _("0x%1  <+0x%2> ").arg(address, 0, 16)
-                .arg(offset, 4, 16, QLatin1Char('0'));
+            str += _("0x%1  ").arg(address, 0, 16);
+        if (offset)
+            str += _("<+0x%2> ").arg(offset, 4, 16, QLatin1Char('0'));
+        else
+            str += _("          ");
         str += _("        ");
         str += data;
     } else if (isCode()) {
