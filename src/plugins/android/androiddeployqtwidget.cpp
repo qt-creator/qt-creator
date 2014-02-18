@@ -41,6 +41,8 @@
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
+#include <utils/fancylineedit.h>
+#include <utils/pathchooser.h>
 
 #include <QFileDialog>
 
@@ -83,7 +85,12 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
 
     // signing
     m_ui->signPackageCheckBox->setChecked(m_step->signPackage());
-    m_ui->KeystoreLocationLineEdit->setText(m_step->keystorePath().toUserOutput());
+    m_ui->KeystoreLocationPathChooser->setExpectedKind(Utils::PathChooser::File);
+    m_ui->KeystoreLocationPathChooser->lineEdit()->setReadOnly(true);
+    m_ui->KeystoreLocationPathChooser->setPath(m_step->keystorePath().toUserOutput());
+    m_ui->KeystoreLocationPathChooser->setInitialBrowsePathBackup(QDir::homePath());
+    m_ui->KeystoreLocationPathChooser->setPromptDialogFilter(tr("Keystore files (*.keystore *.jks)"));
+    m_ui->KeystoreLocationPathChooser->setPromptDialogTitle(tr("Select keystore file"));
     m_ui->signingDebugWarningIcon->hide();
     m_ui->signingDebugWarningLabel->hide();
     signPackageCheckBoxToggled(m_step->signPackage());
@@ -116,8 +123,8 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
             this, SLOT(signPackageCheckBoxToggled(bool)));
     connect(m_ui->KeystoreCreatePushButton, SIGNAL(clicked()),
             this, SLOT(createKeyStore()));
-    connect(m_ui->KeystoreLocationPushButton, SIGNAL(clicked()),
-            this, SLOT(browseKeyStore()));
+    connect(m_ui->KeystoreLocationPathChooser, SIGNAL(pathChanged(QString)),
+            SLOT(updateKeyStorePath(QString)));
     connect(m_ui->certificatesAliasComboBox, SIGNAL(activated(QString)),
             this, SLOT(certificatesAliasComboBoxActivated(QString)));
     connect(m_ui->certificatesAliasComboBox, SIGNAL(currentIndexChanged(QString)),
@@ -269,7 +276,7 @@ void AndroidDeployQtWidget::createKeyStore()
     AndroidCreateKeystoreCertificate d;
     if (d.exec() != QDialog::Accepted)
         return;
-    m_ui->KeystoreLocationLineEdit->setText(d.keystoreFilePath().toUserOutput());
+    m_ui->KeystoreLocationPathChooser->setPath(d.keystoreFilePath().toUserOutput());
     m_step->setKeystorePath(d.keystoreFilePath());
     m_step->setKeystorePassword(d.keystorePassword());
     m_step->setCertificateAlias(d.certificateAlias());
@@ -284,17 +291,11 @@ void AndroidDeployQtWidget::setCertificates()
     m_ui->certificatesAliasComboBox->setModel(certificates);
 }
 
-void AndroidDeployQtWidget::browseKeyStore()
+void AndroidDeployQtWidget::updateKeyStorePath(const QString &path)
 {
-    Utils::FileName keystorePath = m_step->keystorePath();
-    if (keystorePath.isEmpty())
-        keystorePath = Utils::FileName::fromString(QDir::homePath());
-    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select keystore file"), keystorePath.toString(), tr("Keystore files (*.keystore *.jks)")));
-    if (file.isEmpty())
-        return;
-    m_ui->KeystoreLocationLineEdit->setText(file.toUserOutput());
+    Utils::FileName file = Utils::FileName::fromString(path);
     m_step->setKeystorePath(file);
-    m_ui->signPackageCheckBox->setChecked(false);
+    m_ui->signPackageCheckBox->setChecked(!file.isEmpty());
 }
 
 void AndroidDeployQtWidget::certificatesAliasComboBoxActivated(const QString &alias)

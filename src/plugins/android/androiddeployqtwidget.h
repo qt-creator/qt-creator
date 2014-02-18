@@ -67,7 +67,7 @@ private slots:
     void updateSigningWarning();
     void openPackageLocationCheckBoxToggled(bool checked);
     void verboseOutputCheckBoxToggled(bool checked);
-    void browseKeyStore();
+    void updateKeyStorePath(const QString &path);
     void signPackageCheckBoxToggled(bool checked);
     void updateInputFileUi();
     void inputFileComboBoxIndexChanged();

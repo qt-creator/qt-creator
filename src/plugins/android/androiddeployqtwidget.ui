@@ -33,23 +33,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="KeystoreLocationLineEdit">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
+         <widget class="Utils::PathChooser" name="KeystoreLocationPathChooser" native="true"/>
         </item>
         <item>
          <widget class="QPushButton" name="KeystoreCreatePushButton">
           <property name="text">
-           <string>Create</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="KeystoreLocationPushButton">
-          <property name="text">
-           <string>Browse</string>
+           <string>Create...</string>
           </property>
          </widget>
         </item>
@@ -338,7 +327,7 @@ The APK will not be usable on any other device.</string>
              <string>Select library to include in package.</string>
             </property>
             <property name="text">
-             <string>Add</string>
+             <string>Add...</string>
             </property>
             <property name="toolButtonStyle">
              <enum>Qt::ToolButtonTextOnly</enum>
@@ -377,6 +366,14 @@ The APK will not be usable on any other device.</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../projectexplorer/projectexplorer.qrc"/>
  </resources>
