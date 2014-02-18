@@ -1046,7 +1046,9 @@ void CPPEditorWidget::jumpToOutlineElement(int index)
     if (!symbol)
         return;
 
-    openCppEditorAt(linkToSymbol(symbol));
+    const Link &link = linkToSymbol(symbol);
+    gotoLine(link.targetLine, link.targetColumn);
+    Core::EditorManager::activateEditor(editor());
 }
 
 void CPPEditorWidget::setSortedOutline(bool sort)
