@@ -42,7 +42,7 @@ class GitVersionControl : public Core::IVersionControl
 {
     Q_OBJECT
 public:
-    explicit GitVersionControl(GitClient *plugin);
+    explicit GitVersionControl(GitClient *client);
 
     QString displayName() const;
     Core::Id id() const;
