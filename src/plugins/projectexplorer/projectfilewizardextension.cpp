@@ -85,92 +85,133 @@ enum { debugExtension = 0 };
 
 namespace ProjectExplorer {
 
+typedef QList<FolderNode *> FolderNodeList;
 typedef QList<ProjectNode *> ProjectNodeList;
 
 namespace Internal {
 
-// AllProjectNodesVisitor: Retrieve all projects (*.pri/*.pro)
-// which support adding files
-class AllProjectNodesVisitor : public NodesVisitor
+// AddNewFileNodesVisitor: Retrieve all folders which support AddNew
+class AddNewFileNodesVisitor : public NodesVisitor
 {
 public:
-    AllProjectNodesVisitor(ProjectExplorer::ProjectAction action)
-        : m_action(action)
-        {}
+    AddNewFileNodesVisitor();
 
-    static ProjectNodeList allProjects(ProjectExplorer::ProjectAction action);
+    static FolderNodeList allFolders();
+
+    virtual void visitProjectNode(ProjectNode *node);
+    virtual void visitFolderNode(FolderNode *node);
+
+private:
+    FolderNodeList m_folderNodes;
+};
+
+AddNewFileNodesVisitor::AddNewFileNodesVisitor()
+{}
+
+FolderNodeList AddNewFileNodesVisitor::allFolders()
+{
+    AddNewFileNodesVisitor visitor;
+    SessionManager::sessionNode()->accept(&visitor);
+    return visitor.m_folderNodes;
+}
+
+void AddNewFileNodesVisitor::visitProjectNode(ProjectNode *node)
+{
+    visitFolderNode(node);
+}
+
+void AddNewFileNodesVisitor::visitFolderNode(FolderNode *node)
+{
+    const QList<ProjectExplorer::ProjectAction> &list = node->supportedActions(node);
+    if (list.contains(ProjectExplorer::AddNewFile) && !list.contains(ProjectExplorer::InheritedFromParent))
+        m_folderNodes.push_back(node);
+}
+
+// AddNewProjectNodesVisitor: Retrieve all folders which support AddNewProject
+// also checks the path of the added subproject
+class AddNewProjectNodesVisitor : public NodesVisitor
+{
+public:
+    AddNewProjectNodesVisitor(const QString &subProjectPath);
+
+    static ProjectNodeList projectNodes(const QString &subProjectPath);
 
     virtual void visitProjectNode(ProjectNode *node);
 
 private:
     ProjectNodeList m_projectNodes;
-    ProjectExplorer::ProjectAction m_action;
+    QString m_subProjectPath;
 };
 
-ProjectNodeList AllProjectNodesVisitor::allProjects(ProjectExplorer::ProjectAction action)
+AddNewProjectNodesVisitor::AddNewProjectNodesVisitor(const QString &subProjectPath)
+    : m_subProjectPath(subProjectPath)
+{}
+
+ProjectNodeList AddNewProjectNodesVisitor::projectNodes(const QString &subProjectPath)
 {
-    AllProjectNodesVisitor visitor(action);
+    AddNewProjectNodesVisitor visitor(subProjectPath);
     SessionManager::sessionNode()->accept(&visitor);
     return visitor.m_projectNodes;
 }
 
-void AllProjectNodesVisitor::visitProjectNode(ProjectNode *node)
+void AddNewProjectNodesVisitor::visitProjectNode(ProjectNode *node)
 {
-    if (node->supportedActions(node).contains(m_action))
-        m_projectNodes.push_back(node);
+    const QList<ProjectExplorer::ProjectAction> &list = node->supportedActions(node);
+    if (list.contains(ProjectExplorer::AddSubProject) && !list.contains(ProjectExplorer::InheritedFromParent))
+        if (m_subProjectPath.isEmpty() || node->canAddSubProject(m_subProjectPath))
+            m_projectNodes.push_back(node);
 }
 
 // ProjectEntry: Context entry for a *.pri/*.pro file. Stores name and path
 // for quick sort and path search, provides operator<() for maps.
-struct ProjectEntry {
-    enum Type { ProFile, PriFile }; // Sort order: 'pro' before 'pri'
+struct FolderEntry {
+    FolderEntry() : node(0), priority(-1) {}
+    explicit FolderEntry(FolderNode *node, const QStringList &generatedFiles);
 
-    ProjectEntry() : node(0), type(ProFile) {}
-    explicit ProjectEntry(ProjectNode *node);
+    int compare(const FolderEntry &rhs) const;
 
-    int compare(const ProjectEntry &rhs) const;
-
-    ProjectNode *node;
+    FolderNode *node;
     QString directory; // For matching against wizards' files, which are native.
-    QString fileName;
+    QString displayName;
     QString baseName;
-    Type type;
+    int priority;
 };
 
-ProjectEntry::ProjectEntry(ProjectNode *n) :
-    node(n),
-    type(ProFile)
+FolderEntry::FolderEntry(FolderNode *n, const QStringList &generatedFiles) :
+    node(n)
 {
-    const QFileInfo fi(node->path());
-    fileName = fi.fileName();
+    FolderNode::AddNewInformation info = node->addNewInformation(generatedFiles);
+    displayName = info.displayName;
+    const QFileInfo fi(ProjectExplorerPlugin::pathFor(node));
     baseName = fi.baseName();
-    if (fi.suffix() != QLatin1String("pro"))
-        type = PriFile;
-    directory = fi.absolutePath();
+    priority = info.priority;
+    directory = ProjectExplorerPlugin::directoryFor(node);
 }
 
 // Sort helper that sorts by base name and puts '*.pro' before '*.pri'
-int ProjectEntry::compare(const ProjectEntry &rhs) const
+int FolderEntry::compare(const FolderEntry &rhs) const
 {
+    if (const int drc = displayName.compare(rhs.displayName))
+        return drc;
     if (const int drc = directory.compare(rhs.directory))
         return drc;
     if (const int brc = baseName.compare(rhs.baseName))
         return brc;
-    if (type < rhs.type)
+    if (priority > rhs.priority)
         return -1;
-    if (type > rhs.type)
+    if (priority < rhs.priority)
         return 1;
     return 0;
 }
 
-inline bool operator<(const ProjectEntry &pe1, const ProjectEntry &pe2)
+inline bool operator<(const FolderEntry &pe1, const FolderEntry &pe2)
 {
     return pe1.compare(pe2) < 0;
 }
 
-QDebug operator<<(QDebug d, const ProjectEntry &e)
+QDebug operator<<(QDebug d, const FolderEntry &e)
 {
-    d.nospace() << e.directory << ' ' << e.fileName << ' ' << e.type;
+    d.nospace() << e.directory << ' ' << e.displayName << ' ' << e.priority;
     return d;
 }
 
@@ -182,7 +223,7 @@ struct ProjectWizardContext
 
     QList<IVersionControl*> versionControls;
     QList<IVersionControl*> activeVersionControls;
-    QList<ProjectEntry> projects;
+    QList<FolderEntry> projects;
     QPointer<ProjectWizardPage> page; // this is managed by the wizard!
     bool repositoryExists; // Is VCS 'add' sufficient, or should a repository be created?
     QString commonDirectory;
@@ -217,13 +258,14 @@ ProjectFileWizardExtension::~ProjectFileWizardExtension()
     delete m_context;
 }
 
-static QList<ProjectEntry> findDeployProject(const QList<ProjectEntry> &projects,
+static QList<FolderEntry> findDeployProject(const QList<FolderEntry> &folders,
                                  QString &commonPath)
 {
-    QList<ProjectEntry> filtered;
-    foreach (const ProjectEntry &project, projects)
-        if (project.node->deploysFolder(commonPath))
-            filtered << project;
+    QList<FolderEntry> filtered;
+    foreach (const FolderEntry &folder, folders)
+        if (folder.node->nodeType() == ProjectNodeType)
+            if (static_cast<ProjectNode *>(folder.node)->deploysFolder(commonPath))
+                filtered << folder;
     return filtered;
 }
 
@@ -231,38 +273,42 @@ static QList<ProjectEntry> findDeployProject(const QList<ProjectEntry> &projects
 // path. Either a direct match on the directory or the directory with
 // the longest matching path (list containing"/project/subproject1" matching
 // common path "/project/subproject1/newuserpath").
-static int findMatchingProject(const QList<ProjectEntry> &projects,
+static int findMatchingProject(const QList<FolderEntry> &projects,
                                const QString &commonPath,
-                               const QString &preferedProjectNode)
+                               Node *preferedProjectNode)
 {
     if (projects.isEmpty() || commonPath.isEmpty())
         return -1;
 
     const int count = projects.size();
-    if (!preferedProjectNode.isEmpty()) {
+    if (preferedProjectNode) {
         for (int p = 0; p < count; ++p) {
-            if (projects.at(p).node->path() == preferedProjectNode)
+            if (projects.at(p).node == preferedProjectNode)
                 return p;
         }
     }
 
     int bestMatch = -1;
     int bestMatchLength = 0;
-    bool bestMatchIsProFile = false;
+    int bestMatchPriority = -1;
     for (int p = 0; p < count; p++) {
         // Direct match or better match? (note that the wizards' files are native).
-        const ProjectEntry &entry = projects.at(p);
+        const FolderEntry &entry = projects.at(p);
         const QString &projectDirectory = entry.directory;
         const int projectDirectorySize = projectDirectory.size();
-        if (projectDirectorySize == bestMatchLength && bestMatchIsProFile)
-            continue; // prefer first pro file over all other files with same bestMatchLength
-        if (projectDirectorySize == bestMatchLength && entry.type == ProjectEntry::PriFile)
-            continue; // we already have a match with same bestMatchLength that is at least a pri file
-        if (projectDirectorySize >= bestMatchLength
-                && commonPath.startsWith(projectDirectory)) {
-            bestMatchIsProFile = (entry.type == ProjectEntry::ProFile);
-            bestMatchLength = projectDirectory.size();
-            bestMatch = p;
+        if (entry.priority > bestMatchPriority) {
+            if (commonPath.startsWith(projectDirectory)) {
+                bestMatchPriority = entry.priority;
+                bestMatchLength = projectDirectory.size();
+                bestMatch = p;
+            }
+        } else if (entry.priority == bestMatchPriority) {
+            if (projectDirectorySize > bestMatchLength
+                    && commonPath.startsWith(projectDirectory)) {
+                bestMatchPriority = entry.priority;
+                bestMatchLength = projectDirectory.size();
+                bestMatch = p;
+            }
         }
     }
     return bestMatch;
@@ -280,10 +326,11 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
         const QList<GeneratedFile> &files,
         const QVariantMap &extraValues)
 {
-    initProjectChoices(generatedProjectFilePath(files));
+    initProjectChoices(files);
 
     if (debugExtension)
         qDebug() << Q_FUNC_INFO << files.size();
+
     // Parametrize wizard page: find best project to add to, set up files display and
     // version control depending on path
     QStringList fileNames;
@@ -295,7 +342,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 
     int bestProjectIndex = -1;
 
-    QList<ProjectEntry> deployingProjects = findDeployProject(m_context->projects, m_context->commonDirectory);
+    QList<FolderEntry> deployingProjects = findDeployProject(m_context->projects, m_context->commonDirectory);
     if (!deployingProjects.isEmpty()) {
         // Oh we do have someone that deploys it
         // then the best match is NONE
@@ -305,8 +352,8 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 
         QString text = tr("The files are implicitly added to the projects:");
         text += QLatin1Char('\n');
-        foreach (const ProjectEntry &project, deployingProjects) {
-            text += project.fileName;
+        foreach (const FolderEntry &project, deployingProjects) {
+            text += project.displayName;
             text += QLatin1Char('\n');
         }
 
@@ -314,7 +361,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
         bestProjectIndex = -1;
     } else {
         bestProjectIndex = findMatchingProject(m_context->projects, m_context->commonDirectory,
-                                               extraValues.value(QLatin1String(Constants::PREFERED_PROJECT_NODE)).toString());
+                                               extraValues.value(QLatin1String(Constants::PREFERED_PROJECT_NODE)).value<Node *>());
         m_context->page->setNoneLabel(tr("<None>"));
     }
 
@@ -398,7 +445,7 @@ QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const IWizard *w
 static inline void getProjectChoicesAndToolTips(QStringList *projectChoicesParam,
                                                 QStringList *projectToolTipsParam,
                                                 ProjectExplorer::ProjectAction *projectActionParam,
-                                                const QString &generatedProjectFilePath,
+                                                const QList<GeneratedFile> &generatedFiles,
                                                 ProjectWizardContext *context)
 {
     // Set up project list which remains the same over duration of wizard execution
@@ -408,43 +455,50 @@ static inline void getProjectChoicesAndToolTips(QStringList *projectChoicesParam
     QStringList projectChoices(ProjectFileWizardExtension::tr("<None>"));
     QStringList projectToolTips((QString()));
 
-    typedef QMap<ProjectEntry, bool> ProjectEntryMap;
+    typedef QMap<FolderEntry, bool> FolderEntryMap;
     // Sort by base name and purge duplicated entries (resulting from dependencies)
     // via Map.
-    ProjectEntryMap entryMap;
+    FolderEntryMap entryMap;
+    ProjectExplorer::ProjectAction projectAction;
+    if (context->wizard->kind()== IWizard::ProjectWizard) {
+        const QString projectFilePath = generatedProjectFilePath(generatedFiles);
+        projectAction = ProjectExplorer::AddNewFile;
+        foreach (ProjectNode *pn, AddNewProjectNodesVisitor::projectNodes(projectFilePath))
+            entryMap.insert(FolderEntry(pn, QStringList() << projectFilePath), true);
 
-    ProjectExplorer::ProjectAction projectAction =
-           context->wizard->kind() == IWizard::ProjectWizard
-            ? ProjectExplorer::AddSubProject : ProjectExplorer::AddNewFile;
-    foreach (ProjectNode *n, AllProjectNodesVisitor::allProjects(projectAction)) {
-        if (projectAction == ProjectExplorer::AddNewFile
-                || (projectAction == ProjectExplorer::AddSubProject
-                && (generatedProjectFilePath.isEmpty() ? true : n->canAddSubProject(generatedProjectFilePath))))
-            entryMap.insert(ProjectEntry(n), true);
+    } else {
+        QStringList filePaths;
+        foreach (const GeneratedFile &gf, generatedFiles)
+            filePaths << gf.path();
+
+        projectAction = ProjectExplorer::AddSubProject;
+        foreach (FolderNode *fn, AddNewFileNodesVisitor::allFolders())
+            entryMap.insert(FolderEntry(fn, filePaths), true);
     }
 
     context->projects.clear();
 
     // Collect names
-    const ProjectEntryMap::const_iterator cend = entryMap.constEnd();
-    for (ProjectEntryMap::const_iterator it = entryMap.constBegin(); it != cend; ++it) {
+    const FolderEntryMap::const_iterator cend = entryMap.constEnd();
+    for (FolderEntryMap::const_iterator it = entryMap.constBegin(); it != cend; ++it) {
         context->projects.push_back(it.key());
-        projectChoices.push_back(it.key().fileName);
+        projectChoices.push_back(it.key().displayName);
         projectToolTips.push_back(QDir::toNativeSeparators(it.key().directory));
     }
+
     *projectChoicesParam  = projectChoices;
     *projectToolTipsParam = projectToolTips;
     *projectActionParam = projectAction;
 }
 
-void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProjectFilePath)
+void ProjectFileWizardExtension::initProjectChoices(const QList<GeneratedFile> generatedFiles)
 {
     QStringList projectChoices;
     QStringList projectToolTips;
     ProjectExplorer::ProjectAction projectAction;
 
     getProjectChoicesAndToolTips(&projectChoices, &projectToolTips, &projectAction,
-                                 generatedProjectFilePath, m_context);
+                                 generatedFiles, m_context);
 
     m_context->page->setProjects(projectChoices);
     m_context->page->setProjectToolTips(projectToolTips);
@@ -481,15 +535,15 @@ bool ProjectFileWizardExtension::processProject(
 
     QString generatedProject = generatedProjectFilePath(files);
 
-    // Add files to  project (Entry at 0 is 'None').
-    const int projectIndex = m_context->page->currentProjectIndex() - 1;
-    if (projectIndex < 0 || projectIndex >= m_context->projects.size())
+    // Add files to folder (Entry at 0 is 'None').
+    const int folderIndex = m_context->page->currentProjectIndex() - 1;
+    if (folderIndex < 0 || folderIndex >= m_context->projects.size())
         return true;
-    ProjectNode *project = m_context->projects.at(projectIndex).node;
+    FolderNode *folder = m_context->projects.at(folderIndex).node;
     if (m_context->wizard->kind() == IWizard::ProjectWizard) {
-        if (!project->addSubProjects(QStringList(generatedProject))) {
+        if (!static_cast<ProjectNode *>(folder)->addSubProjects(QStringList(generatedProject))) {
             *errorMessage = tr("Failed to add subproject '%1'\nto project '%2'.")
-                            .arg(generatedProject).arg(project->path());
+                            .arg(generatedProject).arg(folder->path());
             return false;
         }
         *removeOpenProjectAttribute = true;
@@ -497,9 +551,9 @@ bool ProjectFileWizardExtension::processProject(
         QStringList filePaths;
         foreach (const GeneratedFile &generatedFile, files)
             filePaths << generatedFile.path();
-        if (!project->addFiles(filePaths)) {
+        if (!folder->addFiles(filePaths)) {
             *errorMessage = tr("Failed to add one or more files to project\n'%1' (%2).").
-                    arg(project->path(), filePaths.join(QString(QLatin1Char(','))));
+                    arg(folder->path(), filePaths.join(QString(QLatin1Char(','))));
             return false;
         }
     }
@@ -556,12 +610,12 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     if (!languageId.isValid())
         return; // don't modify files like *.ui *.pro
 
-    ProjectNode *project = 0;
+    FolderNode *folder = 0;
     const int projectIndex = m_context->page->currentProjectIndex() - 1;
     if (projectIndex >= 0 && projectIndex < m_context->projects.size())
-        project = m_context->projects.at(projectIndex).node;
+        folder = m_context->projects.at(projectIndex).node;
 
-    Project *baseProject = SessionManager::projectForNode(project);
+    Project *baseProject = SessionManager::projectForNode(folder);
 
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
 

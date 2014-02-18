@@ -158,6 +158,7 @@ public:
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
     bool deleteFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
+    AddNewInformation addNewInformation(const QStringList &files) const;
 
     bool setProVariable(const QString &var, const QString &value);
 
@@ -366,6 +367,8 @@ public:
     bool isParent(QmakeProFileNode *node);
 
     bool hasBuildTargets() const;
+
+    AddNewInformation addNewInformation(const QStringList &files) const;
 
     QmakeProjectType projectType() const;
 

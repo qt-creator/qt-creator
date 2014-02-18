@@ -180,7 +180,9 @@ bool Node::isEnabled() const
 
 QList<ProjectAction> Node::supportedActions(Node *node) const
 {
-    return parentFolderNode()->supportedActions(node);
+    QList<ProjectAction> list = parentFolderNode()->supportedActions(node);
+    list.append(ProjectExplorer::InheritedFromParent);
+    return list;
 }
 
 void Node::setNodeType(NodeType type)
@@ -355,6 +357,12 @@ bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
     if (projectNode())
         return projectNode()->renameFile(filePath, newFilePath);
     return false;
+}
+
+FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &files) const
+{
+    Q_UNUSED(files);
+    return AddNewInformation(QFileInfo(path()).fileName(), 100);
 }
 
 /*!

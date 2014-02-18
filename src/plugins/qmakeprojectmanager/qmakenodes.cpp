@@ -1040,6 +1040,12 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
     return true;
 }
 
+ProjectExplorer::FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringList &files) const
+{
+    Q_UNUSED(files)
+    return ProjectExplorer::FolderNode::AddNewInformation(QFileInfo(path()).fileName(), 90);
+}
+
 bool QmakePriFileNode::priFileWritable(const QString &path)
 {
     Core::Internal::ReadOnlyFilesDialog roDialog(path, Core::ICore::mainWindow());
@@ -1538,6 +1544,12 @@ bool QmakeProFileNode::isParent(QmakeProFileNode *node)
 bool QmakeProFileNode::hasBuildTargets() const
 {
     return hasBuildTargets(projectType());
+}
+
+ProjectExplorer::FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files) const
+{
+    Q_UNUSED(files)
+    return AddNewInformation(QFileInfo(path()).fileName(), 100);
 }
 
 bool QmakeProFileNode::hasBuildTargets(QmakeProjectType projectType) const

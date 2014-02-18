@@ -68,6 +68,8 @@ enum FileType {
 };
 
 enum ProjectAction {
+    // Special value to indicate that the actions are handled by the parent
+    InheritedFromParent,
     AddSubProject,
     RemoveSubProject,
     // Let's the user select to which project file
@@ -179,6 +181,18 @@ public:
     virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
     virtual bool deleteFiles(const QStringList &filePaths);
     virtual bool renameFile(const QString &filePath, const QString &newFilePath);
+
+    class AddNewInformation
+    {
+    public:
+        AddNewInformation(const QString &name, int p)
+            :displayName(name), priority(p)
+        {}
+        QString displayName;
+        int priority;
+    };
+
+    virtual AddNewInformation addNewInformation(const QStringList &files) const;
 
     void addFileNodes(const QList<FileNode*> &files);
     void removeFileNodes(const QList<FileNode*> &files);
@@ -441,5 +455,7 @@ T1 subtractSortedList(T1 list1, T1 list2, T3 sorter)
 }
 
 } // namespace ProjectExplorer
+
+Q_DECLARE_METATYPE(ProjectExplorer::Node *)
 
 #endif // PROJECTNODES_H
