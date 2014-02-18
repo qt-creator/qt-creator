@@ -2832,8 +2832,7 @@ void ProjectExplorerPlugin::addExistingDirectory()
 
 void ProjectExplorerPlugin::addExistingFiles(const QStringList &filePaths)
 {
-    ProjectNode *projectNode = qobject_cast<ProjectNode*>(d->m_currentNode->projectNode());
-    addExistingFiles(projectNode, filePaths);
+    addExistingFiles(d->m_currentNode->projectNode(), filePaths);
 }
 
 void ProjectExplorerPlugin::addExistingFiles(ProjectNode *projectNode, const QStringList &filePaths)
