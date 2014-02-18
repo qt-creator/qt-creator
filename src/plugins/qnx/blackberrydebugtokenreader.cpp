@@ -41,8 +41,6 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 namespace {
-const char MANIFEST_FILENAME[] = "META-INF/MANIFEST.MF";
-
 const char MANIFEST_AUTHOR_KEY[]    = "Package-Author: ";
 const char MANIFEST_AUTHOR_ID_KEY[] = "Package-Author-Id: ";
 const char MANIFEST_EXPIRY[]        = "Debug-Token-Expiry-Date: ";
