@@ -28,10 +28,13 @@
 ****************************************************************************/
 
 #include "cppcompletionassist.h"
+
+#include "cppdoxygen.h"
 #include "cppmodelmanager.h"
+#include "cppmodelmanagerinterface.h"
+#include "cppsnapshotupdater.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
-#include "cppdoxygen.h"
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -422,24 +425,9 @@ TextEditor::IAssistInterface *InternalCompletionAssistProvider::createAssistInte
         int position, TextEditor::AssistReason reason) const
 {
     Q_UNUSED(project);
-
-    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-
-    if (CppEditorSupport *supp = modelManager->cppEditorSupport(editor)) {
-        if (QSharedPointer<SnapshotUpdater> updater = supp->snapshotUpdater()) {
-            updater->update(modelManager->workingCopy());
-            return new CppTools::Internal::CppCompletionAssistInterface(
-                        document,
-                        position,
-                        editor->document()->filePath(),
-                        reason,
-                        updater->snapshot(),
-                        updater->includePaths(),
-                        updater->frameworkPaths());
-        }
-    }
-
-    return 0;
+    QTC_ASSERT(editor, return 0);
+    QTC_ASSERT(document, return 0);
+    return new CppTools::Internal::CppCompletionAssistInterface(editor, document, position, reason);
 }
 
 // -----------------
@@ -1929,4 +1917,21 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
     }
 
     return false;
+}
+
+void CppCompletionAssistInterface::getCppSpecifics() const
+{
+    if (m_gotCppSpecifics)
+        return;
+    m_gotCppSpecifics = true;
+
+    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
+    if (CppEditorSupport *supp = modelManager->cppEditorSupport(m_editor)) {
+        if (QSharedPointer<SnapshotUpdater> updater = supp->snapshotUpdater()) {
+            updater->update(modelManager->workingCopy());
+            m_snapshot = updater->snapshot();
+            m_includePaths = updater->includePaths();
+            m_frameworkPaths = updater->frameworkPaths();
+        }
+    }
 }
