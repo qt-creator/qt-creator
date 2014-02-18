@@ -133,8 +133,8 @@ QmlConsoleView::QmlConsoleView(QWidget *parent) :
 
 void QmlConsoleView::onScrollToBottom()
 {
-    // Keep scrolling to bottom if scroll bar is at maximum()
-    if (verticalScrollBar()->value() == verticalScrollBar()->maximum())
+    // Keep scrolling to bottom if scroll bar is not at maximum()
+    if (verticalScrollBar()->value() != verticalScrollBar()->maximum())
         scrollToBottom();
 }
 
