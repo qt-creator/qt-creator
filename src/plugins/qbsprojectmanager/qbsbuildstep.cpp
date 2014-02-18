@@ -239,6 +239,9 @@ void QbsBuildStep::buildingDone(bool success)
         createTaskAndOutput(ProjectExplorer::Task::Error, item.description(),
                             item.codeLocation().fileName(), item.codeLocation().line());
 
+    // Building can uncover additional target artifacts.
+    static_cast<QbsProject *>(project())->parseCurrentBuildConfiguration(true);
+
     QTC_ASSERT(m_fi, return);
     m_fi->reportResult(success);
     m_fi = 0; // do not delete, it is not ours
