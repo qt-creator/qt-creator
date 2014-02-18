@@ -43,6 +43,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qmakeprojectmanager/qmakestep.h>
+#include <utils/pathchooser.h>
 
 #include <QTimer>
 
@@ -147,6 +148,7 @@ AndroidPackageCreationWidget::AndroidPackageCreationWidget(AndroidPackageCreatio
     m_prebundledLibs = new CheckModel(this);
 
     m_ui->setupUi(this);
+    m_ui->KeystoreLocationPushButton->setText(tr(Utils::PathChooser::browseButtonLabel));
     m_ui->signingDebugWarningIcon->hide();
     m_ui->signingDebugWarningLabel->hide();
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
