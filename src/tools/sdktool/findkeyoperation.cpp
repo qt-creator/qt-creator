@@ -96,6 +96,19 @@ bool FindKeyOperation::test() const
     testMap.insert(QLatin1String("testint"), 23);
     testMap.insert(QLatin1String("testbool"), true);
 
+    subKeys.clear();
+    QVariantList list1;
+    list1.append(QLatin1String("ignore this"));
+    list1.append(QLatin1String("ignore this2"));
+    QVariantList list2;
+    list2.append(QLatin1String("somevalue"));
+    subKeys.insert(QLatin1String("findMe"), QLatin1String("FindInList"));
+    list2.append(subKeys);
+    list2.append(QLatin1String("someothervalue"));
+    list1.append(QVariant(list2));
+
+    testMap.insert(QLatin1String("aList"), list1);
+
     QStringList result;
     result = findKey(testMap, QLatin1String("missing"));
     if (!result.isEmpty())
@@ -112,22 +125,36 @@ bool FindKeyOperation::test() const
             || !result.contains(QLatin1String("testbool")))
         return false;
 
+    result = findKey(testMap, QLatin1String("findMe"));
+    if (result.count() != 1
+            || !result.contains(QLatin1String("aList[2][1]/findMe")))
+        return false;
+
     return true;
 }
 #endif
 
-QStringList FindKeyOperation::findKey(const QVariantMap &map, const QString &key)
+QStringList FindKeyOperation::findKey(const QVariant &in, const QString &key, const QString &prefix)
 {
     QStringList result;
-    for (QVariantMap::const_iterator i = map.begin(); i != map.end(); ++i) {
-        if (i.key() == key) {
-            result << key;
-            continue;
+    if (in.type() == QVariant::Map) {
+        QVariantMap map = in.toMap();
+        for (QVariantMap::const_iterator i = map.begin(); i != map.end(); ++i) {
+            QString pfx = prefix;
+            if (!pfx.isEmpty())
+                pfx.append(QLatin1Char('/'));
+            if (i.key() == key) {
+                result << pfx + key;
+            } else {
+                pfx.append(i.key());
+                result.append(findKey(i.value(), key, pfx));
+            }
         }
-        if (i.value().type() == QVariant::Map) {
-            QStringList subKeyList = findKey(i.value().toMap(), key);
-            foreach (const QString &subKey, subKeyList)
-                result << i.key() + QLatin1Char('/') + subKey;
+    } else if (in.type() == QVariant::List) {
+        QVariantList list = in.toList();
+        for (int pos = 0; pos < list.count(); ++pos) {
+            QString pfx = prefix + QLatin1Char('[') + QString::number(pos) + QLatin1String("]");
+            result.append(findKey(list.at(pos), key, pfx));
         }
     }
     return result;

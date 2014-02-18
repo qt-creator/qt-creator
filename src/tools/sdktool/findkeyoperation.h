@@ -47,7 +47,8 @@ public:
     bool test() const;
 #endif
 
-    static QStringList findKey(const QVariantMap &map, const QString &key);
+    static QStringList findKey(const QVariant &in, const QString &key,
+                               const QString &prefix = QString());
 
 private:
     QString m_file;
