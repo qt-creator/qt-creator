@@ -71,8 +71,10 @@
 #include <texteditor/codeassist/iassistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 
+#include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcoverride.h>
 #include <utils/savedaction.h>
 #include <utils/stylehelper.h>
@@ -386,7 +388,6 @@ private slots:
     void copyTextEditorSettings();
     void setQtStyle();
     void setPlainStyle();
-    void openVimRc();
     void updateVimRcWidgets();
 
 private:
@@ -403,7 +404,10 @@ QWidget *FakeVimOptionPage::widget()
         m_ui.setupUi(m_widget);
         const QString vimrcDefault = Utils::HostOsInfo::isAnyUnixHost() ?
                     QLatin1String("$HOME/.vimrc") : QLatin1String("%USERPROFILE%\\_vimrc");
-        m_ui.lineEditVimRcPath->setPlaceholderText(tr("Default: %1").arg(vimrcDefault));
+        m_ui.pathChooserVimRcPath->setExpectedKind(Utils::PathChooser::File);
+        m_ui.pathChooserVimRcPath->lineEdit()->setToolTip(tr("Keep empty to use the default path, i.e. "
+                                                             "%USERPROFILE%\\_vimrc on Windows, ~/.vimrc otherwise."));
+        m_ui.pathChooserVimRcPath->lineEdit()->setPlaceholderText(tr("Default: %1").arg(vimrcDefault));
 
         m_group.clear();
         m_group.insert(theFakeVimSetting(ConfigUseFakeVim),
@@ -411,7 +415,7 @@ QWidget *FakeVimOptionPage::widget()
         m_group.insert(theFakeVimSetting(ConfigReadVimRc),
                        m_ui.checkBoxReadVimRc);
         m_group.insert(theFakeVimSetting(ConfigVimRcPath),
-                       m_ui.lineEditVimRcPath);
+                       m_ui.pathChooserVimRcPath);
 
         m_group.insert(theFakeVimSetting(ConfigExpandTab),
                        m_ui.checkBoxExpandTab);
@@ -467,8 +471,6 @@ QWidget *FakeVimOptionPage::widget()
                 SLOT(setQtStyle()));
         connect(m_ui.pushButtonSetPlainStyle, SIGNAL(clicked()),
                 SLOT(setPlainStyle()));
-        connect(m_ui.pushButtonVimRcPath, SIGNAL(clicked()),
-                SLOT(openVimRc()));
         connect(m_ui.checkBoxReadVimRc, SIGNAL(stateChanged(int)),
                 SLOT(updateVimRcWidgets()));
         updateVimRcWidgets();
@@ -528,18 +530,9 @@ void FakeVimOptionPage::setPlainStyle()
     m_ui.checkBoxPassKeys->setChecked(false);
 }
 
-void FakeVimOptionPage::openVimRc()
-{
-    const QString fileName = QFileDialog::getOpenFileName(Core::ICore::dialogParent());
-    if (!fileName.isNull())
-        m_ui.lineEditVimRcPath->setText(fileName);
-}
-
 void FakeVimOptionPage::updateVimRcWidgets()
 {
-    bool enabled = m_ui.checkBoxReadVimRc->isChecked();
-    m_ui.lineEditVimRcPath->setEnabled(enabled);
-    m_ui.pushButtonVimRcPath->setEnabled(enabled);
+    m_ui.pathChooserVimRcPath->setEnabled(m_ui.checkBoxReadVimRc->isChecked());
 }
 
 //const char *FAKEVIM_CONTEXT = "FakeVim";

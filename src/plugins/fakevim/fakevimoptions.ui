@@ -287,25 +287,7 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLineEdit" name="lineEditVimRcPath">
-            <property name="toolTip">
-             <string>Keep empty to use the default path, i.e. %USERPROFILE%\_vimrc on Windows, ~/.vimrc otherwise.</string>
-            </property>
-            <property name="placeholderText">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButtonVimRcPath">
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="Utils::PathChooser" name="pathChooserVimRcPath" native="true"/>
         </item>
        </layout>
       </item>
@@ -365,6 +347,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>checkBoxUseFakeVim</tabstop>
   <tabstop>checkBoxAutoIndent</tabstop>
@@ -389,8 +379,7 @@
   <tabstop>lineEditBackspace</tabstop>
   <tabstop>lineEditIsKeyword</tabstop>
   <tabstop>checkBoxReadVimRc</tabstop>
-  <tabstop>lineEditVimRcPath</tabstop>
-  <tabstop>pushButtonVimRcPath</tabstop>
+  <tabstop>pathChooserVimRcPath</tabstop>
   <tabstop>pushButtonCopyTextEditorSettings</tabstop>
   <tabstop>pushButtonSetQtStyle</tabstop>
   <tabstop>pushButtonSetPlainStyle</tabstop>
