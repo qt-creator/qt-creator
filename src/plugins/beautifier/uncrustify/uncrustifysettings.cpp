@@ -114,6 +114,12 @@ QString UncrustifySettings::documentationFilePath() const
 
 void UncrustifySettings::createDocumentationFile() const
 {
+    QProcess process;
+    process.start(command(), QStringList() << QLatin1String("--show-config"));
+    process.waitForFinished(2000); // show config should be really fast.
+    if (process.error() != QProcess::UnknownError)
+        return;
+
     QFile file(documentationFilePath());
     const QFileInfo fi(file);
     if (!fi.exists())
@@ -121,12 +127,7 @@ void UncrustifySettings::createDocumentationFile() const
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
         return;
 
-    QProcess process;
-    process.start(command(), QStringList() << QLatin1String("--show-config"));
-    process.waitForFinished(2000); // show config should be really fast.
-    if (process.error() != QProcess::UnknownError)
-        return;
-
+    bool contextWritten = false;
     QXmlStreamWriter stream(&file);
     stream.setAutoFormatting(true);
     stream.writeStartDocument(QLatin1String("1.0"), true);
@@ -158,6 +159,7 @@ void UncrustifySettings::createDocumentationFile() const
                 stream.writeTextElement(QLatin1String(Constants::DOCUMENTATION_XMLKEY), keyword);
                 stream.writeTextElement(QLatin1String(Constants::DOCUMENTATION_XMLDOC), text);
                 stream.writeEndElement();
+                contextWritten = true;
                 break;
             } else {
                 docu << subline;
@@ -167,6 +169,13 @@ void UncrustifySettings::createDocumentationFile() const
 
     stream.writeEndElement();
     stream.writeEndDocument();
+
+    // An empty file causes error messages and a contextless file preventing this function to run
+    // again in order to generate the documentation successfully. Thus delete the file.
+    if (!contextWritten) {
+        file.close();
+        file.remove();
+    }
 }
 
 } // namespace Uncrustify
