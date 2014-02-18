@@ -10,6 +10,7 @@ QTC_PLUGIN_DEPENDS += \
     qtsupport \
     texteditor \
     cpptools \
-    qmljstools
+    qmljstools \
+    resourceeditor
 QTC_PLUGIN_RECOMMENDS += \
     designer

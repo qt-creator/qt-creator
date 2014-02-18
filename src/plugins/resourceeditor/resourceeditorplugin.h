@@ -36,6 +36,11 @@ QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer {
+class Node;
+class Project;
+}
+
 namespace ResourceEditor {
 namespace Internal {
 
@@ -60,6 +65,17 @@ private slots:
     void onRedo();
     void onRefresh();
 
+    void addPrefixContextMenu();
+    void renamePrefixContextMenu();
+    void removePrefixContextMenu();
+    void renameFileContextMenu();
+    void removeFileContextMenu();
+
+    void openEditorContextMenu();
+    void openTextEditorContextMenu();
+
+    void updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*);
+
 public:
     void onUndoStackChanged(ResourceEditorW const *editor, bool canUndo, bool canRedo);
 
@@ -70,6 +86,17 @@ private:
     QAction *m_redoAction;
     QAction *m_undoAction;
     QAction *m_refreshAction;
+
+    // project tree's folder context menu
+    QAction *m_addPrefix;
+    QAction *m_removePrefix;
+    QAction *m_renamePrefix;
+
+    QAction *m_renameResourceFile;
+    QAction *m_removeResourceFile;
+
+    QAction *m_openInEditor;
+    QAction *m_openInTextEditor;
 };
 
 } // namespace Internal

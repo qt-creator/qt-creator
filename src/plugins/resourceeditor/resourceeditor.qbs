@@ -20,6 +20,7 @@ QtcPlugin {
             "resourceeditorplugin.cpp", "resourceeditorplugin.h",
             "resourceeditorw.cpp", "resourceeditorw.h",
             "resourcewizard.cpp", "resourcewizard.h",
+            "resource_global.h", "resourcenode.cpp", "resourcenode.h"
         ]
     }
 

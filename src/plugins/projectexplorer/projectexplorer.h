@@ -122,7 +122,12 @@ public:
 
     QList<RunControl *> runControls() const;
 
+    void initiateInlineRenaming();
+
     static QString displayNameForStepId(Core::Id stepId);
+
+    static QString directoryFor(Node *node);
+    static QString pathFor(Node *node);
 
 signals:
     void runControlStarted(ProjectExplorer::RunControl *rc);
@@ -270,8 +275,6 @@ private slots:
 #endif
 
 private:
-    QString directoryFor(Node *node);
-    QString pathFor(Node *node);
     void deploy(QList<Project *>);
     int queue(QList<Project *>, QList<Core::Id> stepIds);
     void updateContextMenuActions();

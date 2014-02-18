@@ -51,6 +51,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/uicodemodelsupport.h>
 
+#include <resourceeditor/resourcenode.h>
+
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
 
@@ -394,12 +396,15 @@ struct InternalNode
     // Makes the projectNode's subtree below the given folder match this internal node's subtree
     void updateSubFolders(ProjectExplorer::FolderNode *folder)
     {
-        updateFiles(folder, type);
+        if (type == ProjectExplorer::ResourceType)
+            updateResourceFiles(folder);
+        else
+            updateFiles(folder, type);
 
         // updateFolders
         QMultiMap<QString, FolderNode *> existingFolderNodes;
         foreach (FolderNode *node, folder->subFolderNodes())
-            if (node->nodeType() != ProjectNodeType)
+            if (node->nodeType() != ProjectNodeType && !qobject_cast<ResourceEditor::ResourceTopLevelNode *>(node))
                 existingFolderNodes.insert(node->path(), node);
 
         QList<FolderNode *> foldersToRemove;
@@ -506,6 +511,37 @@ struct InternalNode
 
         folder->removeFileNodes(filesToRemove);
         folder->addFileNodes(nodesToAdd);
+    }
+
+    // Makes the folder's files match this internal node's file list
+    void updateResourceFiles(FolderNode *folder)
+    {
+        QList<ProjectExplorer::FolderNode *> existingResourceNodes; // for resource special handling
+        foreach (FolderNode *folderNode, folder->subFolderNodes()) {
+            if (ResourceEditor::ResourceTopLevelNode *rn = qobject_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
+                existingResourceNodes << rn;
+        }
+
+        QList<ProjectExplorer::FolderNode *> resourcesToRemove;
+        QStringList resourcesToAdd;
+
+        SortByPath sortByPath;
+        qSort(files.begin(), files.end(), sortByPath);
+        qSort(existingResourceNodes.begin(), existingResourceNodes.end(), sortByPath);
+
+        ProjectExplorer::compareSortedLists(existingResourceNodes, files, resourcesToRemove, resourcesToAdd, sortByPath);
+
+        QList<FolderNode *> nodesToAdd;
+        nodesToAdd.reserve(resourcesToAdd.size());
+
+        foreach (const QString &file, resourcesToAdd)
+            nodesToAdd.append(new ResourceEditor::ResourceTopLevelNode(file, folder));
+
+        folder->removeFolderNodes(resourcesToRemove);
+        folder->addFolderNodes(nodesToAdd);
+
+        foreach (FolderNode *fn, nodesToAdd)
+            qobject_cast<ResourceEditor::ResourceTopLevelNode *>(fn)->update();
     }
 };
 }
@@ -866,7 +902,8 @@ QList<ProjectExplorer::ProjectAction> QmakePriFileNode::supportedActions(Node *n
     }
 
     ProjectExplorer::FileNode *fileNode = qobject_cast<FileNode *>(node);
-    if (fileNode && fileNode->fileType() != ProjectExplorer::ProjectFileType)
+    if ((fileNode && fileNode->fileType() != ProjectExplorer::ProjectFileType)
+            || qobject_cast<ResourceEditor::ResourceTopLevelNode *>(node))
         actions << ProjectExplorer::Rename;
 
 

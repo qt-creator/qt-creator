@@ -1734,6 +1734,11 @@ QList<RunControl *> ProjectExplorerPlugin::runControls() const
     return d->m_outputPane->runControls();
 }
 
+void ProjectExplorerPlugin::initiateInlineRenaming()
+{
+    renameFile();
+}
+
 void ProjectExplorerPlugin::buildQueueFinished(bool success)
 {
     if (debug)
@@ -2758,6 +2763,12 @@ QString pathOrDirectoryFor(Node *node, bool dir)
         }
     } else {
         QFileInfo fi(path);
+        // remove any /suffixes, which e.g. ResourceNode uses
+        // Note this should be removed again by making node->path() a true path again
+        // That requires changes in both the VirtualFolderNode and ResourceNode
+        while (!fi.exists() && !fi.isRoot())
+            fi.setFile(fi.absolutePath());
+
         if (dir)
             location = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
         else
@@ -2833,8 +2844,7 @@ void ProjectExplorerPlugin::addExistingDirectory()
 {
     QTC_ASSERT(d->m_currentNode, return);
 
-    const QString path = QFileInfo(d->m_currentNode->path()).absolutePath();
-    SelectableFilesDialogAddDirectory dialog(path, QStringList(), Core::ICore::mainWindow());
+    SelectableFilesDialogAddDirectory dialog(directoryFor(d->m_currentNode), QStringList(), Core::ICore::mainWindow());
 
     if (dialog.exec() == QDialog::Accepted)
         addExistingFiles(dialog.selectedFiles());
@@ -2981,16 +2991,13 @@ void ProjectExplorerPlugin::renameFile()
 
 void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
 {
-    FileNode *fileNode = qobject_cast<FileNode *>(node);
-    if (!fileNode)
-        return;
     QString orgFilePath = QFileInfo(node->path()).absoluteFilePath();
     QString dir = QFileInfo(orgFilePath).absolutePath();
     QString newFilePath = dir + QLatin1Char('/') + to;
 
     if (Core::FileUtils::renameFile(orgFilePath, newFilePath)) {
         // Tell the project plugin about rename
-        FolderNode *folderNode = fileNode->parentFolderNode();
+        FolderNode *folderNode = node->parentFolderNode();
         if (!folderNode->renameFile(orgFilePath, newFilePath)) {
             QMessageBox::warning(ICore::mainWindow(), tr("Project Editing Failed"),
                                  tr("The file %1 was renamed to %2, but the project file %3 could not be automatically changed.")

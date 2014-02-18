@@ -26,33 +26,15 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#ifndef RESOUCE_GLOBAL_H
+#define RESOUCE_GLOBAL_H
 
-#ifndef RESOURCEEDITOR_CONSTANTS_H
-#define RESOURCEEDITOR_CONSTANTS_H
+#include <qglobal.h>
 
-namespace ResourceEditor {
-namespace Constants {
+#if defined(RESOURCE_LIBRARY)
+#  define RESOURCE_EXPORT Q_DECL_EXPORT
+#else
+#  define RESOURCE_EXPORT Q_DECL_IMPORT
+#endif
 
-const char C_RESOURCEEDITOR[] = "Qt4.ResourceEditor";
-const char RESOURCEEDITOR_ID[] = "Qt4.ResourceEditor";
-const char C_RESOURCEEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Resource Editor");
-
-const char REFRESH[] = "ResourceEditor.Refresh";
-
-const char C_RESOURCE_MIMETYPE[] = "application/vnd.qt.xml.resource";
-
-const char C_ADD_PREFIX[] = "ResourceEditor.AddPrefix";
-const char C_REMOVE_PREFIX[] = "ResourceEditor.RemovePrefix";
-const char C_RENAME_PREFIX[] = "ResourceEditor.RenamePrefix";
-
-const char C_REMOVE_FILE[] = "ResourceEditor.RemoveFile";
-const char C_RENAME_FILE[] = "ResourceEditor.RenameFile";
-
-const char C_OPEN_EDITOR[] = "ResourceEditor.OpenEditor";
-const char C_OPEN_TEXT_EDITOR[] = "ResourceEditor.OpenTextEditor";
-
-
-} // namespace Constants
-} // namespace ResourceEditor
-
-#endif // RESOURCEEDITOR_CONSTANTS_H
+#endif // RESOUCE_GLOBAL_H
