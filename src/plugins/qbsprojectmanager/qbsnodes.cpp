@@ -222,18 +222,12 @@ public:
 
 QbsFileNode::QbsFileNode(const QString &filePath, const ProjectExplorer::FileType fileType,
                          bool generated, int line) :
-    ProjectExplorer::FileNode(filePath, fileType, generated),
-    m_line(line)
+    ProjectExplorer::FileNode(filePath, fileType, generated, line)
 { }
-
-void QbsFileNode::setLine(int l)
-{
-    m_line = l;
-}
 
 QString QbsFileNode::displayName() const
 {
-    return ProjectExplorer::FileNode::displayName() + QLatin1Char(':') + QString::number(m_line);
+    return ProjectExplorer::FileNode::displayName() + QLatin1Char(':') + QString::number(line());
 }
 
 bool QbsFileNode::update(const qbs::CodeLocation &loc)
@@ -241,8 +235,7 @@ bool QbsFileNode::update(const qbs::CodeLocation &loc)
     const QString oldPath = path();
     const int oldLine = line();
 
-    setPath(loc.fileName());
-    setLine(loc.line());
+    setPathAndLine(loc.fileName(), loc.line());
     return (line() != oldLine || path() != oldPath);
 }
 

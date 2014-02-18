@@ -55,16 +55,10 @@ class QbsFileNode : public ProjectExplorer::FileNode
 public:
     QbsFileNode(const QString &filePath, const ProjectExplorer::FileType fileType, bool generated,
                 int line);
-    int line() const { return m_line; }
-
-    void setLine(int l);
 
     QString displayName() const;
 
     bool update(const qbs::CodeLocation &loc);
-
-private:
-    int m_line;
 };
 
 // ---------------------------------------------------------------------------

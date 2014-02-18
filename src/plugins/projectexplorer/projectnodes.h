@@ -83,16 +83,18 @@ public:
     ProjectNode *projectNode() const;     // managing project
     FolderNode *parentFolderNode() const; // parent folder or project
     QString path() const;                 // file system path
-    virtual int line() const;
+    int line() const;
     virtual QString displayName() const;
     virtual QString tooltip() const;
     virtual bool isEnabled() const;
 
     void setPath(const QString &path);
+    void setLine(int line);
+    void setPathAndLine(const QString &path, int line);
     void emitNodeUpdated();
 
 protected:
-    Node(NodeType nodeType, const QString &path);
+    Node(NodeType nodeType, const QString &path, int line = -1);
 
     void setNodeType(NodeType type);
     void setProjectNode(ProjectNode *project);
@@ -106,12 +108,13 @@ private:
     ProjectNode *m_projectNode;
     FolderNode *m_folderNode;
     QString m_path;
+    int m_line;
 };
 
 class PROJECTEXPLORER_EXPORT FileNode : public Node {
     Q_OBJECT
 public:
-    FileNode(const QString &filePath, const FileType fileType, bool generated);
+    FileNode(const QString &filePath, const FileType fileType, bool generated, int line = -1);
 
     FileType fileType() const;
     bool isGenerated() const;

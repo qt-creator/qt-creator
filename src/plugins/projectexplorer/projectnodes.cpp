@@ -62,12 +62,13 @@ using namespace ProjectExplorer;
 */
 
 Node::Node(NodeType nodeType,
-           const QString &filePath)
+           const QString &filePath, int line)
         : QObject(),
           m_nodeType(nodeType),
           m_projectNode(0),
           m_folderNode(0),
-          m_path(filePath)
+          m_path(filePath),
+          m_line(line)
 {
 
 }
@@ -101,6 +102,28 @@ void Node::setPath(const QString &path)
 
     emitNodeSortKeyAboutToChange();
     m_path = path;
+    emitNodeSortKeyChanged();
+    emitNodeUpdated();
+}
+
+void Node::setLine(int line)
+{
+    if (m_line == line)
+        return;
+    emitNodeSortKeyAboutToChange();
+    m_line = line;
+    emitNodeSortKeyChanged();
+    emitNodeUpdated();
+}
+
+void Node::setPathAndLine(const QString &path, int line)
+{
+    if (m_path == path
+            && m_line == line)
+        return;
+    emitNodeSortKeyAboutToChange();
+    m_path = path;
+    m_line = line;
     emitNodeSortKeyChanged();
     emitNodeUpdated();
 }
@@ -189,8 +212,8 @@ void Node::setParentFolderNode(FolderNode *parentFolder)
 
 FileNode::FileNode(const QString &filePath,
                    const FileType fileType,
-                   bool generated)
-        : Node(FileNodeType, filePath),
+                   bool generated, int line)
+        : Node(FileNodeType, filePath, line),
           m_fileType(fileType),
           m_generated(generated)
 {
