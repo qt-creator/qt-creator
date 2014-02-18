@@ -37,7 +37,7 @@
 #include <qmldebug/qmlprofilereventlocation.h>
 #include <qmldebug/qmlprofilereventtypes.h>
 
-#include "qmlprofilersimplemodel.h"
+#include "qmlprofilerdatamodel.h"
 #include "qv8profilerdatamodel.h"
 
 QT_FORWARD_DECLARE_CLASS(QIODevice)
@@ -112,12 +112,12 @@ public:
 
     void setTraceTime(qint64 startTime, qint64 endTime, qint64 measturedTime);
     void setV8DataModel(QV8ProfilerDataModel *dataModel);
-    void setQmlEvents(const QVector<QmlProfilerSimpleModel::QmlEventData> &events);
+    void setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventData> &events);
 
     void save(QIODevice *device);
 
 private:
-    void calculateMeasuredTime(const QVector<QmlProfilerSimpleModel::QmlEventData> &events);
+    void calculateMeasuredTime(const QVector<QmlProfilerDataModel::QmlEventData> &events);
 
 
     qint64 m_startTime, m_endTime, m_measuredTime;

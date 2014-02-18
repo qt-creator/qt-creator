@@ -29,7 +29,7 @@
 
 #include "qmlprofilerpainteventsmodelproxy.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilersimplemodel.h"
+#include "qmlprofilerdatamodel.h"
 #include "sortedtimelinemodel.h"
 #include "singlecategorytimelinemodel_p.h"
 #include <QCoreApplication>
@@ -85,7 +85,7 @@ void PaintEventsModelProxy::clear()
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 
-bool PaintEventsModelProxy::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
+bool PaintEventsModelProxy::eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const
 {
     return SingleCategoryTimelineModel::eventAccepted(event) &&
             event.bindingType == QmlDebug::AnimationFrame;
@@ -95,17 +95,17 @@ void PaintEventsModelProxy::loadData()
 {
     Q_D(PaintEventsModelProxy);
     clear();
-    QmlProfilerSimpleModel *simpleModel = d->modelManager->simpleModel();
+    QmlProfilerDataModel *simpleModel = d->modelManager->qmlModel();
     if (simpleModel->isEmpty())
         return;
 
     // collect events
-    const QVector<QmlProfilerSimpleModel::QmlEventData> referenceList = simpleModel->getEvents();
+    const QVector<QmlProfilerDataModel::QmlEventData> referenceList = simpleModel->getEvents();
 
     QmlPaintEventData lastEvent;
     qint64 minNextStartTime = 0;
 
-    foreach (const QmlProfilerSimpleModel::QmlEventData &event, referenceList) {
+    foreach (const QmlProfilerDataModel::QmlEventData &event, referenceList) {
         if (!eventAccepted(event)) {
             if (event.eventType == QmlDebug::Painting)
                 d->seenForeignPaintEvent = true;
@@ -238,7 +238,7 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
     {
         QVariantMap valuePair;
         valuePair.insert(QCoreApplication::translate(trContext, "Duration:"),
-                         QVariant(QmlProfilerSimpleModel::formatTime(d->range(index).duration)));
+                         QVariant(QmlProfilerBaseModel::formatTime(d->range(index).duration)));
         result << valuePair;
     }
 

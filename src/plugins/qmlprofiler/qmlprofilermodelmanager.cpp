@@ -28,8 +28,7 @@
 ****************************************************************************/
 
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilersimplemodel.h"
-#include "qmlprofilerprocessedmodel.h"
+#include "qmlprofilerdatamodel.h"
 #include "qv8profilerdatamodel.h"
 #include "qmlprofilertracefile.h"
 
@@ -139,7 +138,7 @@ public:
     ~QmlProfilerModelManagerPrivate() {}
     QmlProfilerModelManager *q;
 
-    QmlProfilerSimpleModel *model;
+    QmlProfilerDataModel *model;
     QV8ProfilerDataModel *v8Model;
     QmlProfilerDataState *dataState;
     QmlProfilerTraceTime *traceTime;
@@ -160,7 +159,7 @@ QmlProfilerModelManager::QmlProfilerModelManager(Utils::FileInProjectFinder *fin
     QObject(parent), d(new QmlProfilerModelManagerPrivate(this))
 {
     d->totalWeight = 0;
-    d->model = new QmlProfilerProcessedModel(finder, this);
+    d->model = new QmlProfilerDataModel(finder, this);
     d->v8Model = new QV8ProfilerDataModel(finder, this);
 //    d->model = new QmlProfilerSimpleModel(this);
     d->dataState = new QmlProfilerDataState(this, this);
@@ -177,7 +176,7 @@ QmlProfilerTraceTime *QmlProfilerModelManager::traceTime() const
     return d->traceTime;
 }
 
-QmlProfilerSimpleModel *QmlProfilerModelManager::simpleModel() const
+QmlProfilerDataModel *QmlProfilerModelManager::qmlModel() const
 {
     return d->model;
 }

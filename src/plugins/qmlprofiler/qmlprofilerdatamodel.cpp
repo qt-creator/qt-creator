@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "qmlprofilerprocessedmodel.h"
+#include "qmlprofilerdatamodel.h"
 #include "qmlprofilermodelmanager.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/qtcassert.h>
@@ -35,13 +35,12 @@
 #include <QDebug>
 
 namespace QmlProfiler {
-namespace Internal {
 
-QmlDebug::QmlEventLocation getLocation(const QmlProfilerSimpleModel::QmlEventData &event);
-QString getDisplayName(const QmlProfilerSimpleModel::QmlEventData &event);
-QString getInitialDetails(const QmlProfilerSimpleModel::QmlEventData &event);
+QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventData &event);
+QString getDisplayName(const QmlProfilerDataModel::QmlEventData &event);
+QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event);
 
-QmlDebug::QmlEventLocation getLocation(const QmlProfilerSimpleModel::QmlEventData &event)
+QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventData &event)
 {
     QmlDebug::QmlEventLocation eventLocation = event.location;
     if ((event.eventType == QmlDebug::Creating || event.eventType == QmlDebug::Compiling)
@@ -53,14 +52,14 @@ QmlDebug::QmlEventLocation getLocation(const QmlProfilerSimpleModel::QmlEventDat
     return eventLocation;
 }
 
-QString getDisplayName(const QmlProfilerSimpleModel::QmlEventData &event)
+QString getDisplayName(const QmlProfilerDataModel::QmlEventData &event)
 {
     const QmlDebug::QmlEventLocation eventLocation = getLocation(event);
     QString displayName;
 
     // generate hash
     if (eventLocation.filename.isEmpty()) {
-        displayName = QmlProfilerProcessedModel::tr("<bytecode>");
+        displayName = QmlProfilerDataModel::tr("<bytecode>");
     } else {
         const QString filePath = QUrl(eventLocation.filename).path();
         displayName = filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +
@@ -70,16 +69,16 @@ QString getDisplayName(const QmlProfilerSimpleModel::QmlEventData &event)
     return displayName;
 }
 
-QString getInitialDetails(const QmlProfilerSimpleModel::QmlEventData &event)
+QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event)
 {
     QString details;
     // generate details string
     if (event.data.isEmpty())
-        details = QmlProfilerProcessedModel::tr("Source code not available.");
+        details = QmlProfilerDataModel::tr("Source code not available.");
     else {
         details = event.data.join(QLatin1String(" ")).replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         if (details.isEmpty()) {
-            details = QmlProfilerProcessedModel::tr("anonymous function");
+            details = QmlProfilerDataModel::tr("anonymous function");
         } else {
             QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
             bool match = rewrite.exactMatch(details);
@@ -94,51 +93,54 @@ QString getInitialDetails(const QmlProfilerSimpleModel::QmlEventData &event)
 }
 
 
-bool compareStartTimes(const QmlProfilerSimpleModel::QmlEventData &t1, const QmlProfilerSimpleModel::QmlEventData &t2)
+bool compareStartTimes(const QmlProfilerDataModel::QmlEventData &t1, const QmlProfilerDataModel::QmlEventData &t2)
 {
     return t1.startTime < t2.startTime;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-QmlProfilerProcessedModel::QmlProfilerProcessedModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent)
-    : QmlProfilerSimpleModel(parent)
-    , m_detailsRewriter(new QmlProfilerDetailsRewriter(this, fileFinder))
+QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
+                                                     QmlProfilerModelManager *parent)
+    : QmlProfilerBaseModel(fileFinder, parent)
 {
-    m_processedModelId = m_modelManager->registerModelProxy();
     // The document loading is very expensive.
-    m_modelManager->setProxyCountWeight(m_processedModelId, 3);
-
-    connect(m_detailsRewriter, SIGNAL(rewriteDetailsString(int,QString)),
-            this, SLOT(detailsChanged(int,QString)));
-    connect(m_detailsRewriter, SIGNAL(eventDetailsChanged()),
-            this, SLOT(detailsDone()));
+    m_modelManager->setProxyCountWeight(m_modelId, 4);
 }
 
-QmlProfilerProcessedModel::~QmlProfilerProcessedModel()
+const QVector<QmlProfilerDataModel::QmlEventData> &QmlProfilerDataModel::getEvents() const
 {
+    return m_eventList;
 }
 
-void QmlProfilerProcessedModel::clear()
+int QmlProfilerDataModel::count() const
 {
-    m_detailsRewriter->clearRequests();
-    m_modelManager->modelProxyCountUpdated(m_processedModelId, 0, 1);
+    return m_eventList.count();
+}
+
+void QmlProfilerDataModel::clear()
+{
+    m_eventList.clear();
     // This call emits changed(). Don't emit it again here.
-    QmlProfilerSimpleModel::clear();
+    QmlProfilerBaseModel::clear();
 }
 
-void QmlProfilerProcessedModel::complete()
+bool QmlProfilerDataModel::isEmpty() const
 {
-    m_modelManager->modelProxyCountUpdated(m_processedModelId, 0, 1);
+    return m_eventList.isEmpty();
+}
+
+void QmlProfilerDataModel::complete()
+{
     // post-processing
 
     // sort events by start time
-    qSort(eventList.begin(), eventList.end(), compareStartTimes);
+    qSort(m_eventList.begin(), m_eventList.end(), compareStartTimes);
 
     // rewrite strings
-    int n = eventList.count();
+    int n = m_eventList.count();
     for (int i = 0; i < n; i++) {
-        QmlEventData *event = &eventList[i];
+        QmlEventData *event = &m_eventList[i];
         event->location = getLocation(*event);
         event->displayName = getDisplayName(*event);
         event->data = QStringList() << getInitialDetails(*event);
@@ -158,30 +160,62 @@ void QmlProfilerProcessedModel::complete()
         if (event->location.column == -1)
             continue;
 
-        m_detailsRewriter->requestDetailsForLocation(i, event->location);
-        m_modelManager->modelProxyCountUpdated(m_processedModelId, i, n);
+        m_detailsRewriter.requestDetailsForLocation(i, event->location);
+        m_modelManager->modelProxyCountUpdated(m_modelId, i + n, n * 2);
     }
 
-    // Allow QmlProfilerBaseModel::complete() only after documents have been reloaded to avoid
+    // Allow changed() event only after documents have been reloaded to avoid
     // unnecessary updates of child models.
-    m_detailsRewriter->reloadDocuments();
+    QmlProfilerBaseModel::complete();
 }
 
-void QmlProfilerProcessedModel::detailsChanged(int requestId, const QString &newString)
+void QmlProfilerDataModel::addQmlEvent(int type, int bindingType, qint64 startTime,
+                                            qint64 duration, const QStringList &data,
+                                            const QmlDebug::QmlEventLocation &location,
+                                            qint64 ndata1, qint64 ndata2, qint64 ndata3,
+                                            qint64 ndata4, qint64 ndata5)
 {
-    QTC_ASSERT(requestId < eventList.count(), return);
+    QString displayName;
+    if (type == QmlDebug::Painting && bindingType == QmlDebug::AnimationFrame) {
+        displayName = tr("Animations");
+    } else {
+        displayName = QString::fromLatin1("%1:%2").arg(
+                location.filename,
+                QString::number(location.line));
+    }
 
-    QmlEventData *event = &eventList[requestId];
+    QmlEventData eventData = {displayName, type, bindingType, startTime, duration, data, location,
+                              ndata1, ndata2, ndata3, ndata4, ndata5};
+    m_eventList.append(eventData);
+
+    m_modelManager->modelProxyCountUpdated(m_modelId, startTime,
+                                           m_modelManager->estimatedProfilingTime() * 2);
+}
+
+QString QmlProfilerDataModel::getHashString(const QmlProfilerDataModel::QmlEventData &event)
+{
+    return QString::fromLatin1("%1:%2:%3:%4:%5").arg(
+                event.location.filename,
+                QString::number(event.location.line),
+                QString::number(event.location.column),
+                QString::number(event.eventType),
+                QString::number(event.bindingType));
+}
+
+qint64 QmlProfilerDataModel::lastTimeMark() const
+{
+    if (m_eventList.isEmpty())
+        return 0;
+
+    return m_eventList.last().startTime + m_eventList.last().duration;
+}
+
+void QmlProfilerDataModel::detailsChanged(int requestId, const QString &newString)
+{
+    QTC_ASSERT(requestId < m_eventList.count(), return);
+
+    QmlEventData *event = &m_eventList[requestId];
     event->data = QStringList(newString);
 }
 
-void QmlProfilerProcessedModel::detailsDone()
-{
-    m_modelManager->modelProxyCountUpdated(m_processedModelId, 1, 1);
-    // The child models are supposed to synchronously update on changed(), triggered by
-    // QmlProfilerBaseModel::complete().
-    QmlProfilerSimpleModel::complete();
-}
-
-}
 }

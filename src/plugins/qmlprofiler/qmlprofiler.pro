@@ -22,8 +22,6 @@ SOURCES += \
     qmlprofilerstatewidget.cpp \
     qmlprofilerruncontrolfactory.cpp \
     qmlprofilermodelmanager.cpp \
-    qmlprofilersimplemodel.cpp \
-    qmlprofilerprocessedmodel.cpp \
     qmlprofilereventsmodelproxy.cpp \
     qmlprofilertimelinemodelproxy.cpp \
     qmlprofilertreeview.cpp \
@@ -33,7 +31,8 @@ SOURCES += \
     qmlprofilerpainteventsmodelproxy.cpp \
     sortedtimelinemodel.cpp \
     qmlprofilerbasemodel.cpp \
-    singlecategorytimelinemodel.cpp
+    singlecategorytimelinemodel.cpp \
+    qmlprofilerdatamodel.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -56,8 +55,6 @@ HEADERS += \
     qmlprofilerstatewidget.h \
     qmlprofilerruncontrolfactory.h \
     qmlprofilermodelmanager.h \
-    qmlprofilersimplemodel.h \
-    qmlprofilerprocessedmodel.h \
     qmlprofilereventsmodelproxy.h \
     qmlprofilertimelinemodelproxy.h \
     qmlprofilertreeview.h \
@@ -69,7 +66,8 @@ HEADERS += \
     qmlprofilerbasemodel.h \
     abstracttimelinemodel_p.h \
     singlecategorytimelinemodel.h \
-    singlecategorytimelinemodel_p.h
+    singlecategorytimelinemodel_p.h \
+    qmlprofilerdatamodel.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc

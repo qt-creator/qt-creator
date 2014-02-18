@@ -32,21 +32,42 @@
 
 namespace QmlProfiler {
 
-QmlProfilerBaseModel::QmlProfilerBaseModel(QmlProfilerModelManager *manager) :
-    m_modelManager(manager), m_processingDone(false)
+QmlProfilerBaseModel::QmlProfilerBaseModel(Utils::FileInProjectFinder *fileFinder,
+                                           QmlProfilerModelManager *manager) :
+    m_modelManager(manager), m_processingDone(false), m_detailsRewriter(this, fileFinder)
 {
     Q_ASSERT(m_modelManager);
     m_modelId = m_modelManager->registerModelProxy();
+    connect(&m_detailsRewriter, SIGNAL(rewriteDetailsString(int,QString)),
+            this, SLOT(detailsChanged(int,QString)));
+    connect(&m_detailsRewriter, SIGNAL(eventDetailsChanged()),
+            this, SLOT(detailsDone()));
 }
 
 void QmlProfilerBaseModel::clear()
 {
+    m_detailsRewriter.clearRequests();
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
     m_processingDone = false;
     emit changed();
 }
 
 void QmlProfilerBaseModel::complete()
+{
+    m_detailsRewriter.reloadDocuments();
+}
+
+QString QmlProfilerBaseModel::formatTime(qint64 timestamp)
+{
+    if (timestamp < 1e6)
+        return QString::number(timestamp/1e3f,'f',3) + trUtf8(" \xc2\xb5s");
+    if (timestamp < 1e9)
+        return QString::number(timestamp/1e6f,'f',3) + tr(" ms");
+
+    return QString::number(timestamp/1e9f,'f',3) + tr(" s");
+}
+
+void QmlProfilerBaseModel::detailsDone()
 {
     emit changed();
     m_processingDone = true;

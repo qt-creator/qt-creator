@@ -39,7 +39,7 @@ class QMLPROFILER_EXPORT SingleCategoryTimelineModel : public AbstractTimelineMo
 {
     Q_OBJECT
 public:
-    bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const;
+    bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const;
     Q_INVOKABLE bool expanded(int) const;
     Q_INVOKABLE void setExpanded(int, bool expanded);
 

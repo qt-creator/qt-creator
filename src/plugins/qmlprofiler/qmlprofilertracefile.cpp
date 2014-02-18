@@ -401,10 +401,10 @@ void QmlProfilerFileWriter::setV8DataModel(QV8ProfilerDataModel *dataModel)
     m_v8Model = dataModel;
 }
 
-void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerSimpleModel::QmlEventData> &events)
+void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerDataModel::QmlEventData> &events)
 {
-    foreach (const QmlProfilerSimpleModel::QmlEventData &event, events) {
-        const QString hashStr = QmlProfilerSimpleModel::getHashString(event);
+    foreach (const QmlProfilerDataModel::QmlEventData &event, events) {
+        const QString hashStr = QmlProfilerDataModel::getHashString(event);
         if (!m_qmlEvents.contains(hashStr)) {
             QmlEvent e = { event.displayName,
                            event.location.filename,
@@ -524,7 +524,7 @@ void QmlProfilerFileWriter::save(QIODevice *device)
     stream.writeEndDocument();
 }
 
-void QmlProfilerFileWriter::calculateMeasuredTime(const QVector<QmlProfilerSimpleModel::QmlEventData> &events)
+void QmlProfilerFileWriter::calculateMeasuredTime(const QVector<QmlProfilerDataModel::QmlEventData> &events)
 {
     // measured time isn't used, but old clients might still need it
     // -> we calculate it explicitly
@@ -535,7 +535,7 @@ void QmlProfilerFileWriter::calculateMeasuredTime(const QVector<QmlProfilerSimpl
     int level = QmlDebug::Constants::QML_MIN_LEVEL;
     endtimesPerLevel[0] = 0;
 
-    foreach (const QmlProfilerSimpleModel::QmlEventData &event, events) {
+    foreach (const QmlProfilerDataModel::QmlEventData &event, events) {
         // whitelist
         if (!m_acceptedTypes.contains(event.eventType))
             continue;

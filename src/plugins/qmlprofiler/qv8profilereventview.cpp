@@ -443,7 +443,7 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
         }
 
         if (m_fieldShown[TotalTime]) {
-            newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(v8event->totalTime));
+            newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(v8event->totalTime));
             newRow.last()->setData(QVariant(v8event->totalTime));
         }
 
@@ -453,7 +453,7 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
         }
 
         if (m_fieldShown[SelfTime]) {
-            newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(v8event->selfTime));
+            newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(v8event->selfTime));
             newRow.last()->setData(QVariant(v8event->selfTime));
         }
 
@@ -665,7 +665,7 @@ void QV8ProfilerEventRelativesView::rebuildTree(QList<QV8EventSub*> events)
     foreach (QV8EventSub *event, events) {
         QList<QStandardItem *> newRow;
         newRow << new EventsViewItem(event->reference->displayName);
-        newRow << new EventsViewItem(QmlProfilerSimpleModel::formatTime(event->totalTime));
+        newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(event->totalTime));
         newRow << new EventsViewItem(event->reference->functionName);
         newRow.at(0)->setData(QVariant(event->reference->eventId), EventIdRole);
         newRow.at(1)->setData(QVariant(event->totalTime));

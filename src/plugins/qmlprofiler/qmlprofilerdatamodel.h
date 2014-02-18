@@ -27,24 +27,14 @@
 **
 ****************************************************************************/
 
-#ifndef QMLPROFILERSIMPLEMODEL_H
-#define QMLPROFILERSIMPLEMODEL_H
+#ifndef QMLPROFILERDATAMODEL_H
+#define QMLPROFILERDATAMODEL_H
 
-#include "qmlprofiler_global.h"
 #include "qmlprofilerbasemodel.h"
-
-#include <qmldebug/qmlprofilereventlocation.h>
-
-#include <QObject>
-#include <QVector>
-#include <QStringList>
 
 namespace QmlProfiler {
 
-class QmlProfilerModelManager;
-
-// stores the data from the client as-is
-class QMLPROFILER_EXPORT QmlProfilerSimpleModel : public QmlProfilerBaseModel
+class QMLPROFILER_EXPORT QmlProfilerDataModel : public QmlProfilerBaseModel
 {
     Q_OBJECT
 public:
@@ -63,22 +53,24 @@ public:
         qint64 numericData5;
     };
 
-    explicit QmlProfilerSimpleModel(QmlProfilerModelManager *parent);
-    ~QmlProfilerSimpleModel();
+    explicit QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *parent = 0);
 
-    virtual void clear();
-    bool isEmpty() const;
     const QVector<QmlEventData> &getEvents() const;
     int count() const;
-    void addQmlEvent(int type, int bindingType, qint64 startTime, qint64 duration, const QStringList &data, const QmlDebug::QmlEventLocation &location,
+    virtual void clear();
+    virtual bool isEmpty() const;
+    virtual void complete();
+    void addQmlEvent(int type, int bindingType, qint64 startTime, qint64 duration,
+                     const QStringList &data, const QmlDebug::QmlEventLocation &location,
                      qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
+    static QString getHashString(const QmlProfilerDataModel::QmlEventData &event);
     qint64 lastTimeMark() const;
 
-    static QString getHashString(const QmlProfilerSimpleModel::QmlEventData &event);
-    static QString formatTime(qint64 timestamp);
+protected slots:
+    void detailsChanged(int requestId, const QString &newString);
 
-protected:
-    QVector<QmlEventData> eventList;
+private:
+    QVector<QmlEventData> m_eventList;
 };
 
 }

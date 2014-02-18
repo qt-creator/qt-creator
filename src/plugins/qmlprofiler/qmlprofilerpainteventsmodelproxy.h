@@ -39,7 +39,7 @@
 //#include <QVector>
 #include <QVariantList>
 //#include <QVariantMap>
-#include "qmlprofilersimplemodel.h"
+#include "qmlprofilerdatamodel.h"
 #include <QColor>
 
 
@@ -76,7 +76,7 @@ public:
     Q_INVOKABLE const QVariantList getEventDetails(int index) const;
 
 private slots:
-    bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const;
+    bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const;
 
 private:
     class PaintEventsModelProxyPrivate;

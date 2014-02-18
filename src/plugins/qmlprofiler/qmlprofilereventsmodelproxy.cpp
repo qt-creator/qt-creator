@@ -29,7 +29,7 @@
 
 #include "qmlprofilereventsmodelproxy.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilersimplemodel.h"
+#include "qmlprofilerdatamodel.h"
 
 #include <utils/qtcassert.h>
 
@@ -66,7 +66,7 @@ QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager
     : QObject(parent), d(new QmlProfilerEventsModelProxyPrivate(this))
 {
     d->modelManager = modelManager;
-    connect(modelManager->simpleModel(), SIGNAL(changed()), this, SLOT(dataChanged()));
+    connect(modelManager->qmlModel(), SIGNAL(changed()), this, SLOT(dataChanged()));
     d->modelId = modelManager->registerModelProxy();
 
     // We're iterating twice in loadData.
@@ -120,16 +120,16 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
 
     const bool checkRanges = (rangeStart != -1) && (rangeEnd != -1);
 
-    const QVector<QmlProfilerSimpleModel::QmlEventData> eventList
-            = d->modelManager->simpleModel()->getEvents();
+    const QVector<QmlProfilerDataModel::QmlEventData> eventList
+            = d->modelManager->qmlModel()->getEvents();
 
     // used by binding loop detection
-    typedef QPair<QString, const QmlProfilerSimpleModel::QmlEventData*> CallStackEntry;
+    typedef QPair<QString, const QmlProfilerDataModel::QmlEventData*> CallStackEntry;
     QStack<CallStackEntry> callStack;
     callStack.push(CallStackEntry(QString(), 0)); // artificial root
 
     for (int i = 0; i < eventList.size(); ++i) {
-        const QmlProfilerSimpleModel::QmlEventData *event = &eventList[i];
+        const QmlProfilerDataModel::QmlEventData *event = &eventList[i];
 
         if (!d->acceptedTypes.contains(event->eventType))
             continue;
@@ -141,7 +141,7 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
         }
 
         // put event in hash
-        QString hash = QmlProfilerSimpleModel::getHashString(*event);
+        QString hash = QmlProfilerDataModel::getHashString(*event);
         if (!d->data.contains(hash)) {
             QmlEventStats stats = {
                 event->displayName,
@@ -190,7 +190,7 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
         //
         // binding loop detection
         //
-        const QmlProfilerSimpleModel::QmlEventData *potentialParent = callStack.top().second;
+        const QmlProfilerDataModel::QmlEventData *potentialParent = callStack.top().second;
         while (potentialParent
                && !(potentialParent->startTime + potentialParent->duration > event->startTime)) {
             callStack.pop();
@@ -275,7 +275,7 @@ QmlProfilerEventRelativesModelProxy::QmlProfilerEventRelativesModelProxy(QmlProf
 {
     QTC_CHECK(modelManager);
     m_modelManager = modelManager;
-    connect(modelManager->simpleModel(), SIGNAL(changed()), this, SLOT(dataChanged()));
+    connect(modelManager->qmlModel(), SIGNAL(changed()), this, SLOT(dataChanged()));
 
     QTC_CHECK(eventsModel);
     m_eventsModel = eventsModel;
@@ -325,13 +325,13 @@ QmlProfilerEventParentsModelProxy::~QmlProfilerEventParentsModelProxy()
 void QmlProfilerEventParentsModelProxy::loadData()
 {
     clear();
-    QmlProfilerSimpleModel *simpleModel = m_modelManager->simpleModel();
+    QmlProfilerDataModel *simpleModel = m_modelManager->qmlModel();
     if (simpleModel->isEmpty())
         return;
 
-    QHash<QString, QmlProfilerSimpleModel::QmlEventData> cachedEvents;
+    QHash<QString, QmlProfilerDataModel::QmlEventData> cachedEvents;
     QString rootEventName = tr("<program>");
-    QmlProfilerSimpleModel::QmlEventData rootEvent = {
+    QmlProfilerDataModel::QmlEventData rootEvent = {
         rootEventName,
         QmlDebug::Binding,
         0,
@@ -353,8 +353,8 @@ void QmlProfilerEventParentsModelProxy::loadData()
     // compute parent-child relationship and call count
     QHash<int, QString> lastParent;
     //for (int index = fromIndex; index <= toIndex; index++) {
-    const QVector<QmlProfilerSimpleModel::QmlEventData> eventList = simpleModel->getEvents();
-    foreach (const QmlProfilerSimpleModel::QmlEventData &event, eventList) {
+    const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
+    foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
         if (!m_acceptedTypes.contains(event.eventType))
             continue;
@@ -370,7 +370,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
 
 
         QString parentHash = rootEventName;
-        QString eventHash = QmlProfilerSimpleModel::getHashString(event);
+        QString eventHash = QmlProfilerDataModel::getHashString(event);
 
         // save in cache
         if (!cachedEvents.contains(eventHash))
@@ -379,7 +379,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
         if (level > QmlDebug::Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
             parentHash = lastParent[level-1];
 
-        QmlProfilerSimpleModel::QmlEventData *parentEvent = &(cachedEvents[parentHash]);
+        QmlProfilerDataModel::QmlEventData *parentEvent = &(cachedEvents[parentHash]);
 
         // generate placeholder if needed
         if (!m_data.contains(eventHash))
@@ -418,7 +418,7 @@ QmlProfilerEventChildrenModelProxy::~QmlProfilerEventChildrenModelProxy()
 void QmlProfilerEventChildrenModelProxy::loadData()
 {
     clear();
-    QmlProfilerSimpleModel *simpleModel = m_modelManager->simpleModel();
+    QmlProfilerDataModel *simpleModel = m_modelManager->qmlModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -433,8 +433,8 @@ void QmlProfilerEventChildrenModelProxy::loadData()
 
     // compute parent-child relationship and call count
     QHash<int, QString> lastParent;
-    const QVector<QmlProfilerSimpleModel::QmlEventData> eventList = simpleModel->getEvents();
-    foreach (const QmlProfilerSimpleModel::QmlEventData &event, eventList) {
+    const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
+    foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
         if (!m_acceptedTypes.contains(event.eventType))
             continue;
@@ -449,7 +449,7 @@ void QmlProfilerEventChildrenModelProxy::loadData()
         endtimesPerLevel[level] = event.startTime + event.duration;
 
         QString parentHash = rootEventName;
-        QString eventHash = QmlProfilerSimpleModel::getHashString(event);
+        QString eventHash = QmlProfilerDataModel::getHashString(event);
 
         if (level > QmlDebug::Constants::QML_MIN_LEVEL && lastParent.contains(level-1))
             parentHash = lastParent[level-1];

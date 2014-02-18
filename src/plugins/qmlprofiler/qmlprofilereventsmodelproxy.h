@@ -31,7 +31,7 @@
 #ifndef QMLPROFILEREVENTSMODELPROXY_H
 #define QMLPROFILEREVENTSMODELPROXY_H
 
-#include "qmlprofilersimplemodel.h"
+#include "qmlprofilerdatamodel.h"
 #include <QObject>
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <qmldebug/qmlprofilereventlocation.h>

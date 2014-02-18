@@ -40,7 +40,6 @@
 #include <QXmlStreamWriter>
 
 namespace QmlProfiler {
-namespace Internal {
 
 struct QV8EventSub;
 
@@ -86,7 +85,6 @@ public:
     QV8EventData *v8EventDescription(int eventId) const;
 
     qint64 v8MeasuredTime() const;
-    void collectV8Statistics();
 
     void save(QXmlStreamWriter &stream);
     void load(QXmlStreamReader &stream);
@@ -106,9 +104,9 @@ public slots:
 private:
     class QV8ProfilerDataModelPrivate;
     QV8ProfilerDataModelPrivate *d;
+    void clearV8RootEvent();
 };
 
-} // namespace Internal
 } // namespace QmlProfiler
 
 #endif // QV8PROFILERDATAMODEL_H

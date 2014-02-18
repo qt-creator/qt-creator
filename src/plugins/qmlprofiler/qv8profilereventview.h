@@ -41,11 +41,12 @@
 #include "qmlprofilerviewmanager.h"
 
 namespace QmlProfiler {
+struct QV8EventSub;
+
 namespace Internal {
 
 class QV8ProfilerEventsMainView;
 class QV8ProfilerEventRelativesView;
-struct QV8EventSub;
 
 
 class QV8ProfilerEventsWidget : public QWidget

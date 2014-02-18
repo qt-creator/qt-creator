@@ -31,6 +31,7 @@
 #define QMLPROFILERBASEMODEL_H
 
 #include "qmlprofiler_global.h"
+#include "qmlprofilerdetailsrewriter.h"
 #include <QObject>
 
 namespace QmlProfiler {
@@ -40,7 +41,7 @@ class QmlProfilerModelManager;
 class QMLPROFILER_EXPORT QmlProfilerBaseModel : public QObject {
     Q_OBJECT
 public:
-    QmlProfilerBaseModel(QmlProfilerModelManager *manager);
+    QmlProfilerBaseModel(Utils::FileInProjectFinder *fileFinder, QmlProfilerModelManager *manager);
     virtual ~QmlProfilerBaseModel() {}
 
     virtual void complete();
@@ -48,10 +49,17 @@ public:
     virtual bool isEmpty() const = 0;
     bool processingDone() const { return m_processingDone; }
 
+    static QString formatTime(qint64 timestamp);
+
 protected:
     QmlProfilerModelManager *m_modelManager;
     int m_modelId;
     bool m_processingDone;
+    Internal::QmlProfilerDetailsRewriter m_detailsRewriter;
+
+protected slots:
+    virtual void detailsChanged(int requestId, const QString &newString) = 0;
+    virtual void detailsDone();
 
 signals:
     void changed();

@@ -38,12 +38,12 @@
 #include <QObject>
 
 namespace QmlProfiler {
-class QmlProfilerSimpleModel;
 class QmlProfilerModelManager;
+class QmlProfilerDataModel;
+class QV8ProfilerDataModel;
 
 namespace Internal {
 
-class QV8ProfilerDataModel;
 class QmlProfilerDataState : public QObject
 {
     Q_OBJECT
@@ -109,7 +109,7 @@ public:
 
     QmlProfilerDataState::State state() const;
     QmlProfilerTraceTime *traceTime() const;
-    QmlProfilerSimpleModel *simpleModel() const;
+    QmlProfilerDataModel *qmlModel() const;
     QV8ProfilerDataModel *v8Model() const;
 
     bool isEmpty() const;

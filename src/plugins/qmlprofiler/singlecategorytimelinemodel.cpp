@@ -45,7 +45,7 @@ SingleCategoryTimelineModel::SingleCategoryTimelineModel(SingleCategoryTimelineM
 
 /////////////////// QML interface
 
-bool SingleCategoryTimelineModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
+bool SingleCategoryTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const
 {
     Q_D(const SingleCategoryTimelineModel);
     return (event.eventType == d->eventType);

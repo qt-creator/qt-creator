@@ -29,7 +29,7 @@
 
 #include "qmlprofilertimelinemodelproxy.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilersimplemodel.h"
+#include "qmlprofilerdatamodel.h"
 #include "sortedtimelinemodel.h"
 
 #include <QCoreApplication>
@@ -96,7 +96,7 @@ void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
     }
 }
 
-bool BasicTimelineModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
+bool BasicTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const
 {
     // only accept Qt4.x Painting events
     if (event.eventType == QmlDebug::Painting)
@@ -109,7 +109,7 @@ void BasicTimelineModel::loadData()
 {
     Q_D(BasicTimelineModel);
     clear();
-    QmlProfilerSimpleModel *simpleModel = d->modelManager->simpleModel();
+    QmlProfilerDataModel *simpleModel = d->modelManager->qmlModel();
     if (simpleModel->isEmpty())
         return;
 
@@ -118,14 +118,14 @@ void BasicTimelineModel::loadData()
     d->prepare();
 
     // collect events
-    const QVector<QmlProfilerSimpleModel::QmlEventData> eventList = simpleModel->getEvents();
-    foreach (const QmlProfilerSimpleModel::QmlEventData &event, eventList) {
+    const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
+    foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         if (!eventAccepted(event))
             continue;
         if (event.eventType == QmlDebug::Painting)
             d->seenPaintEvent = true;
 
-        QString eventHash = QmlProfilerSimpleModel::getHashString(event);
+        QString eventHash = QmlProfilerDataModel::getHashString(event);
 
         // store in dictionary
         if (!d->eventHashes.contains(eventHash)) {
@@ -413,7 +413,7 @@ const QVariantList BasicTimelineModel::getEventDetails(int index) const
     {
         QVariantMap valuePair;
         valuePair.insert(QCoreApplication::translate(trContext, "Duration:"),
-                         QVariant(QmlProfilerSimpleModel::formatTime(d->range(index).duration)));
+                         QVariant(QmlProfilerBaseModel::formatTime(d->range(index).duration)));
         result << valuePair;
     }
 

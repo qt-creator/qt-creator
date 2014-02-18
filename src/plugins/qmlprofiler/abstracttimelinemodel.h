@@ -33,7 +33,7 @@
 
 #include "qmlprofiler_global.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilersimplemodel.h"
+#include "qmlprofilerdatamodel.h"
 #include <QObject>
 #include <QVariant>
 #include <QColor>
@@ -79,7 +79,7 @@ public:
     Q_INVOKABLE virtual QColor getColor(int index) const = 0;
     Q_INVOKABLE virtual const QVariantList getLabelsForCategory(int category) const = 0;
     Q_INVOKABLE virtual const QVariantList getEventDetails(int index) const = 0;
-    virtual bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const = 0;
+    virtual bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const = 0;
     virtual int getEventType(int index) const = 0;
     virtual int getEventCategory(int index) const = 0;
     virtual int getEventRow(int index) const = 0;

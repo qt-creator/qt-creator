@@ -35,12 +35,11 @@
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
-Q_DECLARE_TYPEINFO(QmlProfiler::Internal::QV8EventData, Q_MOVABLE_TYPE);
-Q_DECLARE_TYPEINFO(QmlProfiler::Internal::QV8EventSub, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QmlProfiler::QV8EventData, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QmlProfiler::QV8EventSub, Q_MOVABLE_TYPE);
 QT_END_NAMESPACE
 
 namespace QmlProfiler {
-namespace Internal {
 
 typedef  QHash <QString, QV8EventSub *> EventHash;
 
@@ -101,35 +100,23 @@ class QV8ProfilerDataModel::QV8ProfilerDataModelPrivate
 public:
     QV8ProfilerDataModelPrivate(QV8ProfilerDataModel *qq) {Q_UNUSED(qq);}
 
-    void clearV8RootEvent();
-    void collectV8Statistics();
-
     QHash<QString, QV8EventData *> v8EventHash;
     QList<QV8EventData *> pendingRewrites;
     QHash<int, QV8EventData *> v8parents;
     QV8EventData v8RootEvent;
     qint64 v8MeasuredTime;
-    QmlProfilerDetailsRewriter *detailsRewriter;
 };
 
 QV8ProfilerDataModel::QV8ProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
                                            QmlProfilerModelManager *parent)
-    : QmlProfilerBaseModel(parent)
-    , d(new QV8ProfilerDataModelPrivate(this))
+    : QmlProfilerBaseModel(fileFinder, parent), d(new QV8ProfilerDataModelPrivate(this))
 {
-    d->detailsRewriter = new QmlProfilerDetailsRewriter(this, fileFinder);
     d->v8MeasuredTime = 0;
-    d->clearV8RootEvent();
-
-    connect(d->detailsRewriter, SIGNAL(rewriteDetailsString(int,QString)),
-            this, SLOT(detailsChanged(int,QString)));
-    connect(d->detailsRewriter, SIGNAL(eventDetailsChanged()),
-            this, SLOT(detailsDone()));
+    clearV8RootEvent();
 }
 
 QV8ProfilerDataModel::~QV8ProfilerDataModel()
 {
-    delete d->detailsRewriter;
     delete d;
 }
 
@@ -138,9 +125,8 @@ void QV8ProfilerDataModel::clear()
     qDeleteAll(d->v8EventHash.values());
     d->v8EventHash.clear();
     d->v8parents.clear();
-    d->clearV8RootEvent();
+    clearV8RootEvent();
     d->v8MeasuredTime = 0;
-    d->detailsRewriter->clearRequests();
     d->pendingRewrites.clear();
 
     QmlProfilerBaseModel::clear();
@@ -243,28 +229,21 @@ void QV8ProfilerDataModel::addV8Event(int depth,
 void QV8ProfilerDataModel::detailsChanged(int requestId, const QString &newString)
 {
     QTC_ASSERT(requestId < d->pendingRewrites.count(), return);
-
-    QV8EventData *event = d->pendingRewrites[requestId];
-    event->filename = newString;
+    d->pendingRewrites[requestId]->filename = newString;
 }
 
 void QV8ProfilerDataModel::detailsDone()
 {
     d->pendingRewrites.clear();
-    QmlProfilerBaseModel::complete();
+    QmlProfilerBaseModel::detailsDone();
 }
 
-void QV8ProfilerDataModel::collectV8Statistics()
+void QV8ProfilerDataModel::complete()
 {
-    d->collectV8Statistics();
-}
-
-void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
-{
-    if (!v8EventHash.isEmpty()) {
-        double totalTimes = v8MeasuredTime;
+    if (!d->v8EventHash.isEmpty()) {
+        double totalTimes = d->v8MeasuredTime;
         double selfTimes = 0;
-        foreach (const QV8EventData *v8event, v8EventHash) {
+        foreach (const QV8EventData *v8event, d->v8EventHash) {
             selfTimes += v8event->selfTime;
         }
 
@@ -276,58 +255,59 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
 
         // insert root event in eventlist
         // the +1 ns is to get it on top of the sorted list
-        v8RootEvent.totalTime = v8MeasuredTime + 1;
-        v8RootEvent.selfTime = 0;
+        d->v8RootEvent.totalTime = d->v8MeasuredTime + 1;
+        d->v8RootEvent.selfTime = 0;
 
         QString rootEventHash = getHashStringForV8Event(
                     tr("<program>"),
                     tr("Main Program"));
-        QV8EventData *v8RootEventPointer = v8EventHash[rootEventHash];
+        QV8EventData *v8RootEventPointer = d->v8EventHash[rootEventHash];
         if (v8RootEventPointer) {
-            v8RootEvent = *v8RootEventPointer;
+            d->v8RootEvent = *v8RootEventPointer;
         } else {
-            v8EventHash[rootEventHash] = new QV8EventData;
-            *v8EventHash[rootEventHash] = v8RootEvent;
+            d->v8EventHash[rootEventHash] = new QV8EventData;
+            *(d->v8EventHash[rootEventHash]) = d->v8RootEvent;
         }
 
-        foreach (QV8EventData *v8event, v8EventHash) {
+        foreach (QV8EventData *v8event, d->v8EventHash) {
             v8event->totalPercent = v8event->totalTime * 100.0 / totalTimes;
             v8event->SelfTimeInPercent = v8event->selfTime * 100.0 / selfTimes;
         }
 
-        int index = pendingRewrites.size();
-        foreach (QV8EventData *v8event, v8EventHash.values()) {
+        int index = d->pendingRewrites.size();
+        foreach (QV8EventData *v8event, d->v8EventHash.values()) {
             v8event->eventId = index++;
-            pendingRewrites << v8event;
-            detailsRewriter->requestDetailsForLocation(index,
+            d->pendingRewrites << v8event;
+            m_detailsRewriter.requestDetailsForLocation(index,
                     QmlDebug::QmlEventLocation(v8event->filename, v8event->line, 1));
         }
 
-        v8RootEvent.eventId = v8EventHash[rootEventHash]->eventId;
+        d->v8RootEvent.eventId = d->v8EventHash[rootEventHash]->eventId;
     } else {
         // On empty data, still add a fake root event
         clearV8RootEvent();
     }
-    detailsRewriter->reloadDocuments();
+
+    QmlProfilerBaseModel::complete();
 }
 
-void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::clearV8RootEvent()
+void QV8ProfilerDataModel::clearV8RootEvent()
 {
-    v8RootEvent.displayName = tr("<program>");
-    v8RootEvent.eventHashStr = tr("<program>");
-    v8RootEvent.functionName = tr("Main Program");
+    d->v8RootEvent.displayName = tr("<program>");
+    d->v8RootEvent.eventHashStr = tr("<program>");
+    d->v8RootEvent.functionName = tr("Main Program");
 
-    v8RootEvent.line = -1;
-    v8RootEvent.totalTime = 0;
-    v8RootEvent.totalPercent = 0;
-    v8RootEvent.selfTime = 0;
-    v8RootEvent.SelfTimeInPercent = 0;
-    v8RootEvent.eventId = -1;
+    d->v8RootEvent.line = -1;
+    d->v8RootEvent.totalTime = 0;
+    d->v8RootEvent.totalPercent = 0;
+    d->v8RootEvent.selfTime = 0;
+    d->v8RootEvent.SelfTimeInPercent = 0;
+    d->v8RootEvent.eventId = -1;
 
-    qDeleteAll(v8RootEvent.parentHash.values());
-    qDeleteAll(v8RootEvent.childrenHash.values());
-    v8RootEvent.parentHash.clear();
-    v8RootEvent.childrenHash.clear();
+    qDeleteAll(d->v8RootEvent.parentHash.values());
+    qDeleteAll(d->v8RootEvent.childrenHash.values());
+    d->v8RootEvent.parentHash.clear();
+    d->v8RootEvent.childrenHash.clear();
 }
 
 void QV8ProfilerDataModel::save(QXmlStreamWriter &stream)
@@ -509,14 +489,7 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
         d->v8EventHash[storedV8Event->eventHashStr] = storedV8Event;
     }
 
-    d->collectV8Statistics();
-
+    complete();
 }
 
-void QV8ProfilerDataModel::complete()
-{
-    collectV8Statistics();
-}
-
-} // namespace Internal
 } // namespace QmlProfiler

@@ -61,7 +61,7 @@ public:
 
     bool isEmpty() const;
 
-    bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const;
+    bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const;
 
     Q_INVOKABLE int basicModelIndex() const;
 
