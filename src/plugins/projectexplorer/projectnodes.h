@@ -338,6 +338,7 @@ private:
 
     // let project & session emit signals
     friend class ProjectNode;
+    friend class FolderNode;
     friend class SessionNode;
     friend class Node;
 };
