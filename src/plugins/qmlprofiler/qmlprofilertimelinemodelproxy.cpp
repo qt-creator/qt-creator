@@ -243,9 +243,7 @@ void BasicTimelineModel::BasicTimelineModelPrivate::findBindingLoops()
         BasicTimelineModel::QmlRangeEventData data = eventDict.at(event->eventId);
 
         static QVector<QmlDebug::QmlEventType> acceptedTypes =
-                QVector<QmlDebug::QmlEventType>() << QmlDebug::Compiling << QmlDebug::Creating
-                                                  << QmlDebug::Binding << QmlDebug::HandlingSignal
-                                                  << QmlDebug::Javascript;
+                QVector<QmlDebug::QmlEventType>() << QmlDebug::Binding << QmlDebug::HandlingSignal;
 
         if (!acceptedTypes.contains(data.eventType))
             continue;
