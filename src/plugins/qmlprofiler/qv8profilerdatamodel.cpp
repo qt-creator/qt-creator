@@ -502,8 +502,6 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
                     storedV8Event->displayName, storedV8Event->functionName);
         d->v8EventHash[storedV8Event->eventHashStr] = storedV8Event;
     }
-
-    complete();
 }
 
 } // namespace QmlProfiler
