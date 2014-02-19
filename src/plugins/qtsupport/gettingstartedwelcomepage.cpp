@@ -33,10 +33,7 @@
 #include "screenshotcropper.h"
 
 #include <utils/pathchooser.h>
-
-#ifdef Q_OS_WIN
 #include <utils/winutils.h>
-#endif
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>

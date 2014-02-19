@@ -176,6 +176,8 @@ QtcLibrary {
         "unixutils.h",
         "utils.qrc",
         "utils_global.h",
+        "winutils.cpp",
+        "winutils.h",
         "wizard.cpp",
         "wizard.h",
         "images/arrow.png",
@@ -208,8 +210,6 @@ QtcLibrary {
         condition: qbs.targetOS.contains("windows")
         files: [
             "consoleprocess_win.cpp",
-            "winutils.cpp",
-            "winutils.h",
         ]
     }
 

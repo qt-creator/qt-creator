@@ -139,11 +139,7 @@ void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
     QString text;
     QString versionCommand;
     if (item.engineType() == CdbEngineType) {
-#ifdef Q_OS_WIN
-        const bool is64bit = winIs64BitSystem();
-#else
-        const bool is64bit = false;
-#endif
+        const bool is64bit = is64BitWindowsSystem();
         const QString versionString = is64bit ? tr("64-bit version") : tr("32-bit version");
         //: Label text for path configuration. %2 is "x-bit version".
         text = tr("<html><body><p>Specify the path to the "

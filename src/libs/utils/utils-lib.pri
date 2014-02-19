@@ -86,14 +86,10 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/function.cpp \
     $$PWD/ansiescapecodehandler.cpp \
     $$PWD/execmenu.cpp \
-    $$PWD/completinglineedit.cpp
+    $$PWD/completinglineedit.cpp \
+    $$PWD/winutils.cpp
 
-win32 {
-    SOURCES += \
-        $$PWD/consoleprocess_win.cpp \
-        $$PWD/winutils.cpp
-    HEADERS += $$PWD/winutils.h
-}
+win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
 
 HEADERS += \
@@ -181,7 +177,8 @@ HEADERS += \
     $$PWD/ansiescapecodehandler.h \
     $$PWD/execmenu.h \
     $$PWD/completinglineedit.h \
-    $$PWD/logging.h
+    $$PWD/logging.h \
+    $$PWD/winutils.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

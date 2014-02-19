@@ -34,6 +34,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QProcess>
 
 #ifdef Q_OS_WIN
 #define _WIN32_WINNT 0x0502
@@ -123,10 +124,10 @@ void DesktopProcessSignalOperation::interruptProcessSilently(int pid)
 #ifdef Q_OS_WIN
     enum SpecialInterrupt { NoSpecialInterrupt, Win32Interrupt, Win64Interrupt };
 
-    bool is64BitSystem = Utils::winIs64BitSystem();
+    bool is64BitSystem = Utils::is64BitWindowsSystem();
     SpecialInterrupt si = NoSpecialInterrupt;
     if (is64BitSystem)
-        si = Utils::winIs64BitBinary(m_debuggerCommand) ? Win64Interrupt : Win32Interrupt;
+        si = Utils::is64BitWindowsBinary(m_debuggerCommand) ? Win64Interrupt : Win32Interrupt;
     /*
     Windows 64 bit has a 32 bit subsystem (WOW64) which makes it possible to run a
     32 bit application inside a 64 bit environment.
@@ -167,7 +168,7 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                                      + Utils::winErrorMessage(GetLastError()));
             break;
         }
-        bool creatorIs64Bit = Utils::winIs64BitBinary(qApp->applicationFilePath());
+        bool creatorIs64Bit = Utils::is64BitWindowsBinary(qApp->applicationFilePath());
         if (!is64BitSystem
                 || si == NoSpecialInterrupt
                 || si == Win64Interrupt && creatorIs64Bit

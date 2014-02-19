@@ -352,7 +352,6 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
     m_verboseLog(false), // Default CDB setting
     m_notifyEngineShutdownOnTermination(false),
     m_hasDebuggee(false),
-    m_cdbIs64Bit(false),
     m_wow64State(wow64Uninitialized),
     m_elapsedLogTime(0),
     m_sourceStepInto(false),
@@ -669,15 +668,10 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
         return false;
     }
 
-    m_cdbIs64Bit =
-#ifdef Q_OS_WIN
-            Utils::winIs64BitBinary(executable);
-#else
-            false;
-#endif
-    if (!m_cdbIs64Bit)
+    bool cdbIs64Bit = Utils::is64BitWindowsBinary(executable);
+    if (!cdbIs64Bit)
         m_wow64State = noWow64Stack;
-    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(m_cdbIs64Bit));
+    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));
     if (!extensionFi.isFile()) {
         *errorMessage = QString::fromLatin1("Internal error: The extension %1 cannot be found.\n"
                                             "If you build Qt Creator from sources, check out "

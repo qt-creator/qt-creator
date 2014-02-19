@@ -46,10 +46,6 @@
 #include <utils/iwelcomepage.h>
 #include <utils/networkaccessmanager.h>
 
-#ifdef Q_OS_WIN
-#include <utils/winutils.h>
-#endif
-
 #include <QScrollArea>
 #include <QDesktopServices>
 #include <QPainter>

@@ -31,9 +31,11 @@
 #include "qtcassert.h"
 
 // Enable WinAPI Windows XP and later
+#ifdef Q_OS_WIN
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
 #include <windows.h>
+#endif
 
 #include <QString>
 #include <QVector>
@@ -47,6 +49,7 @@ namespace Utils {
 QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error)
 {
     QString rc = QString::fromLatin1("#%1: ").arg(error);
+#ifdef Q_OS_WIN
     ushort *lpMsgBuf;
 
     const int len = FormatMessage(
@@ -58,6 +61,7 @@ QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error)
     } else {
         rc += QString::fromLatin1("<unknown error>");
     }
+#endif
     return rc;
 }
 
@@ -76,6 +80,7 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
                                                 const QString &name,
                                                 QString *errorMessage)
 {
+#ifdef Q_OS_WIN
     // Resolve required symbols from the version.dll
     typedef DWORD (APIENTRY *GetFileVersionInfoSizeProtoType)(LPCTSTR, LPDWORD);
     typedef BOOL (APIENTRY *GetFileVersionInfoWProtoType)(LPCWSTR, DWORD, DWORD, LPVOID);
@@ -127,17 +132,26 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
         break;
     }
     return rc;
+#endif
+    Q_UNUSED(t);
+    Q_UNUSED(name);
+    Q_UNUSED(errorMessage);
+    return QString();
 }
 
-QTCREATOR_UTILS_EXPORT bool winIs64BitSystem()
+QTCREATOR_UTILS_EXPORT bool is64BitWindowsSystem()
 {
+#ifdef Q_OS_WIN
     SYSTEM_INFO systemInfo;
     GetNativeSystemInfo(&systemInfo);
     return systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64
             || systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64;
+#else
+    return false;
+#endif
 }
 
-QTCREATOR_UTILS_EXPORT bool winIs64BitBinary(const QString &binaryIn)
+QTCREATOR_UTILS_EXPORT bool is64BitWindowsBinary(const QString &binaryIn)
 {
        QTC_ASSERT(!binaryIn.isEmpty(), return false);
 #ifdef Q_OS_WIN32

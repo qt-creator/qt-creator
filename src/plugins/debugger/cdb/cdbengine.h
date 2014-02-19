@@ -271,7 +271,6 @@ private:
     bool m_verboseLog;
     bool m_notifyEngineShutdownOnTermination;
     bool m_hasDebuggee;
-    bool m_cdbIs64Bit;
     enum Wow64State {
         wow64Uninitialized,
         noWow64Stack,

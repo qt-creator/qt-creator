@@ -106,9 +106,7 @@
 #include <utils/styledbar.h>
 #include <utils/proxyaction.h>
 #include <utils/statuslabel.h>
-#ifdef Q_OS_WIN
-#  include <utils/winutils.h>
-#endif
+#include <utils/winutils.h>
 
 #include <QComboBox>
 #include <QDockWidget>
@@ -588,13 +586,11 @@ public:
     // On a 64bit OS, prefer a 64bit debugger.
     static Kit *findUniversalCdbKit()
     {
-#ifdef Q_OS_WIN
-        if (Utils::winIs64BitSystem()) {
+        if (Utils::is64BitWindowsSystem()) {
             CdbMatcher matcher64(64);
             if (Kit *cdb64Kit = KitManager::find(matcher64))
                 return cdb64Kit;
         }
-#endif
         CdbMatcher matcher;
         return KitManager::find(matcher);
     }

@@ -43,10 +43,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
-
-#ifdef Q_OS_WIN
 #include <utils/winutils.h>
-#endif
 
 using namespace Core;
 using namespace QmlProjectManager::Internal;

@@ -40,10 +40,7 @@
 #include "debuggerstringutils.h"
 #include "debuggertooltipmanager.h"
 #include "breakhandler.h"
-
-#ifdef Q_OS_WIN
-#  include "shared/peutils.h"
-#endif
+#include "shared/peutils.h"
 
 #include <projectexplorer/localapplicationrunconfiguration.h> // For LocalApplication*
 #include <projectexplorer/environmentaspect.h> // For the environment

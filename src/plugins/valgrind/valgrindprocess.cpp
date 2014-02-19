@@ -35,11 +35,6 @@
 #include <QFileInfo>
 
 #include <utils/qtcassert.h>
-#include <utils/winutils.h>
-
-#ifdef Q_OS_WIN
-#    include <qt_windows.h>
-#endif
 
 namespace Valgrind {
 
