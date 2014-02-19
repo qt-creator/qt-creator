@@ -938,9 +938,9 @@ void CallgrindToolPrivate::loadExternalXmlLogFile()
 {
     const QString filePath = QFileDialog::getOpenFileName(
                 Core::ICore::mainWindow(),
-                tr("Open Callgrind XML Log File"),
+                tr("Open Callgrind Log File"),
                 QString(),
-                tr("XML Files (*.xml);;All Files (*)"));
+                tr("Callgrind Output (callgrind.out*);;All Files (*)"));
     if (filePath.isEmpty())
         return;
 
