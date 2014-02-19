@@ -16,6 +16,7 @@ QtcPlugin {
     Depends { name: "CppTools" }
     Depends { name: "TextEditor" }
     Depends { name: "QmlJSTools" }
+    Depends { name: "ResourceEditor" }
 
     pluginRecommends: [
         "Designer"

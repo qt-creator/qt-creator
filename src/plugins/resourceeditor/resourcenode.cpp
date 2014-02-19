@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "resourcenode.h"
-#include "resourcefile_p.h"
 #include "resourceeditorconstants.h"
+#include "qrceditor/resourcefile_p.h"
 
 #include <utils/fileutils.h>
 

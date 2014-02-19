@@ -7,9 +7,12 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets", "xml"] }
     Depends { name: "Aggregation" }
+    Depends { name: "ProjectExplorer" }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
+
+    cpp.defines: base.concat(["RESOURCE_LIBRARY"])
 
     Group {
         name: "General"
