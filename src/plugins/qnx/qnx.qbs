@@ -162,7 +162,7 @@ QtcPlugin {
         "blackberryapilevelconfiguration.cpp",
         "blackberryapilevelconfiguration.h",
         "blackberryruntimeconfiguration.cpp",
-        "blackberryruntimeconfiguration",
+        "blackberryruntimeconfiguration.h",
         "blackberrycertificate.cpp",
         "blackberrycertificate.h",
         "blackberrykeyspage.cpp",
