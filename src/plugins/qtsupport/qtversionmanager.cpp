@@ -64,6 +64,13 @@ namespace QtSupport {
 
 using namespace Internal;
 
+struct QMakeAssignment
+{
+    QString variable;
+    QString op;
+    QString value;
+};
+
 const char QTVERSION_DATA_KEY[] = "QtVersion.";
 const char QTVERSION_TYPE_KEY[] = "QtVersion.Type";
 const char QTVERSION_FILE_VERSION_KEY[] = "Version";
@@ -100,6 +107,41 @@ bool qtVersionNumberCompare(BaseQtVersion *a, BaseQtVersion *b)
 {
     return a->qtVersion() > b->qtVersion() || (a->qtVersion() == b->qtVersion() && a->uniqueId() < b->uniqueId());
 }
+
+static QString findQMakeLine(const QString &makefile, const QString &key)
+{
+    QFile fi(makefile);
+    if (fi.exists() && fi.open(QFile::ReadOnly)) {
+        QTextStream ts(&fi);
+        while (!ts.atEnd()) {
+            const QString line = ts.readLine();
+            if (line.startsWith(key))
+                return line;
+        }
+    }
+    return QString();
+}
+
+/// This function trims the "#Command /path/to/qmake" from the the line
+static QString trimLine(const QString line)
+{
+
+    // Actually the first space after #Command: /path/to/qmake
+    const int firstSpace = line.indexOf(QLatin1Char(' '), 11);
+    return line.mid(firstSpace).trimmed();
+}
+
+static void parseArgs(const QString &args,
+                      QList<QMakeAssignment> *assignments,
+                      QList<QMakeAssignment> *afterAssignments,
+                      QString *additionalArguments);
+static BaseQtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments,
+                                                                    BaseQtVersion::QmakeBuildConfigs defaultBuildConfig);
+static bool restoreQtVersions();
+static void findSystemQt();
+static void saveQtVersions();
+static void updateDocumentation();
+
 
 // --------------------------------------------------------------------------
 // QtVersionManager
@@ -168,7 +210,7 @@ QObject *QtVersionManager::instance()
     return m_instance;
 }
 
-bool QtVersionManager::restoreQtVersions()
+static bool restoreQtVersions()
 {
     QTC_ASSERT(!m_writer, return false);
     m_writer = new PersistentSettingsWriter(settingsFileName(QLatin1String(QTVERSION_FILENAME)),
@@ -362,7 +404,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
         emit qtVersionsChanged(added, removed, changed);
 }
 
-void QtVersionManager::saveQtVersions()
+static void saveQtVersions()
 {
     if (!m_writer)
         return;
@@ -383,7 +425,7 @@ void QtVersionManager::saveQtVersions()
     m_writer->save(data, Core::ICore::mainWindow());
 }
 
-void QtVersionManager::findSystemQt()
+static void findSystemQt()
 {
     FileName systemQMakePath = BuildableHelperLibrary::findSystemQt(Environment::systemEnvironment());
     if (systemQMakePath.isNull())
@@ -419,7 +461,7 @@ void QtVersionManager::removeVersion(BaseQtVersion *version)
     delete version;
 }
 
-void QtVersionManager::updateDocumentation()
+static void updateDocumentation()
 {
     QStringList files;
     foreach (BaseQtVersion *v, m_versions) {
@@ -526,7 +568,8 @@ public:
     }
 };
 
-bool QtVersionManager::equals(BaseQtVersion *a, BaseQtVersion *b)
+// This function is really simplistic...
+static bool equals(BaseQtVersion *a, BaseQtVersion *b)
 {
     return a->equals(b);
 }
@@ -718,30 +761,7 @@ QPair<BaseQtVersion::QmakeBuildConfigs, QString> QtVersionManager::scanMakeFile(
     return qMakePair(result, result2);
 }
 
-QString QtVersionManager::findQMakeLine(const QString &makefile, const QString &key)
-{
-    QFile fi(makefile);
-    if (fi.exists() && fi.open(QFile::ReadOnly)) {
-        QTextStream ts(&fi);
-        while (!ts.atEnd()) {
-            const QString line = ts.readLine();
-            if (line.startsWith(key))
-                return line;
-        }
-    }
-    return QString();
-}
-
-/// This function trims the "#Command /path/to/qmake" from the the line
-QString QtVersionManager::trimLine(const QString line)
-{
-
-    // Actually the first space after #Command: /path/to/qmake
-    const int firstSpace = line.indexOf(QLatin1Char(' '), 11);
-    return line.mid(firstSpace).trimmed();
-}
-
-void QtVersionManager::parseArgs(const QString &args, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments, QString *additionalArguments)
+static void parseArgs(const QString &args, QList<QMakeAssignment> *assignments, QList<QMakeAssignment> *afterAssignments, QString *additionalArguments)
 {
     QRegExp regExp(QLatin1String("([^\\s\\+-]*)\\s*(\\+=|=|-=|~=)(.*)"));
     bool after = false;
@@ -789,7 +809,7 @@ void QtVersionManager::parseArgs(const QString &args, QList<QMakeAssignment> *as
 }
 
 /// This function extracts all the CONFIG+=debug, CONFIG+=release
-BaseQtVersion::QmakeBuildConfigs QtVersionManager::qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, BaseQtVersion::QmakeBuildConfigs defaultBuildConfig)
+static BaseQtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments, BaseQtVersion::QmakeBuildConfigs defaultBuildConfig)
 {
     BaseQtVersion::QmakeBuildConfigs result = defaultBuildConfig;
     QList<QMakeAssignment> oldAssignments = *assignments;

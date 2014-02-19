@@ -34,24 +34,9 @@
 #include "baseqtversion.h"
 
 QT_FORWARD_DECLARE_CLASS(QStringList)
-QT_FORWARD_DECLARE_CLASS(QTimer)
 
-namespace Utils {
-class FileSystemWatcher;
-class PersistentSettingsWriter;
-} // namespace Utils
-
-namespace ProjectExplorer { class KitInformation; }
 
 namespace QtSupport {
-namespace Internal { class QtOptionsPage; }
-
-struct QMakeAssignment
-{
-    QString variable;
-    QString op;
-    QString value;
-};
 
 class QTSUPPORT_EXPORT QtVersionManager : public QObject
 {
@@ -107,28 +92,10 @@ private slots:
     void updateFromInstaller(bool emitSignal = true);
 
 private:
-    // This function is really simplistic...
-    static bool equals(BaseQtVersion *a, BaseQtVersion *b);
-    static QString findQMakeLine(const QString &directory, const QString &key);
-    static QString trimLine(const QString line);
-    static void parseArgs(const QString &args,
-                          QList<QMakeAssignment> *assignments,
-                          QList<QMakeAssignment> *afterAssignments,
-                          QString *additionalArguments);
-    static BaseQtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments,
-                                                                    BaseQtVersion::QmakeBuildConfigs defaultBuildConfig);
-    static bool restoreQtVersions();
-    static void findSystemQt();
-    static void saveQtVersions();
-    static void updateDocumentation();
     // Used by QtOptionsPage
     static void setNewQtVersions(QList<BaseQtVersion *> newVersions);
     // Used by QtVersion
     static int getUniqueId();
-    static void addNewVersionsFromInstaller();
-
-    static int indexOfVersionInList(const BaseQtVersion * const version, const QList<BaseQtVersion *> &list);
-    static void updateUniqueIdToIndexMap();
 };
 
 } // namespace QtSupport
