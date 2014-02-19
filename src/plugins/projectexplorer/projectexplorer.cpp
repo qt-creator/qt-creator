@@ -1810,11 +1810,11 @@ void ProjectExplorerPlugin::updateContext()
 void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node *node)
 {
     if (debug)
-        qDebug() << "ProjectExplorer - setting path to " << (node ? node->path() : filePath)
+        qDebug() << "ProjectExplorer - setting path to " << (node ? pathFor(node) : filePath)
                 << " and project to " << (project ? project->displayName() : QLatin1String("0"));
 
     if (node)
-        filePath = node->path();
+        filePath = pathFor(node);
     else
         node = SessionManager::nodeForFile(filePath, project);
 
