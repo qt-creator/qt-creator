@@ -100,15 +100,6 @@ static bool sortByPrefixAndLang(ProjectExplorer::FolderNode *a, ProjectExplorer:
     return aa->lang() < bb->lang();
 }
 
-static bool equalByPrefixAndLang(ProjectExplorer::FolderNode *a, ProjectExplorer::FolderNode *b)
-{
-    ResourceFolderNode *aa = static_cast<ResourceFolderNode *>(a);
-    ResourceFolderNode *bb = static_cast<ResourceFolderNode *>(b);
-
-    return aa->prefix() == bb->prefix()
-            && aa->lang() == bb->lang();
-}
-
 static bool sortNodesByPath(ProjectExplorer::Node *a, ProjectExplorer::Node *b)
 {
     return a->path() < b->path();
