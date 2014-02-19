@@ -2160,25 +2160,26 @@ def qform__QVector():
 
 
 def qdump__QVector(d, value):
-    private = value["d"]
-    d.checkRef(private["ref"])
-    alloc = int(private["alloc"])
-    size = int(private["size"])
     innerType = d.templateArgument(value.type, 0)
-    try:
-        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
-        offset = private["offset"]
-        data = private.cast(d.charPtrType()) + offset
-    except:
-        # Qt 4.
-        data = value["p"]["array"]
-
-    p = data.cast(innerType.pointer())
+    if d.qtVersion() >= 0x050000:
+        private = value["d"]
+        d.checkRef(private["ref"])
+        alloc = int(private["alloc"])
+        size = int(private["size"])
+        offset = int(private["offset"])
+        data = d.pointerValue(private) + offset
+    else:
+        anon = d.childAt(value, 0)
+        private = anon["d"]
+        d.checkRef(private["ref"])
+        alloc = int(private["alloc"])
+        size = int(private["size"])
+        data = d.addressOf(anon["p"]["array"])
 
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
-    d.putPlotData(innerType, p, size)
+    d.putPlotData(innerType, data, size)
 
 
 def qdump__QWeakPointer(d, value):
