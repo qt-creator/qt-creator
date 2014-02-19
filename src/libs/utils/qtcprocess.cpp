@@ -699,17 +699,19 @@ void QtcProcess::start()
     QtcProcess::Arguments arguments;
     bool success = prepareCommand(m_command, m_arguments, &command, &arguments, osType, &env, &workDir);
     if (osType == OsTypeWindows) {
-        QString args = arguments.toWindowsArgs();
+        QString args;
+        if (m_useCtrlCStub) {
+            args = QtcProcess::quoteArg(QDir::toNativeSeparators(command));
+            command = QCoreApplication::applicationDirPath()
+                    + QLatin1String("/qtcreator_ctrlc_stub.exe");
+        }
+        QtcProcess::addArgs(&args, arguments.toWindowsArgs());
 #ifdef Q_OS_WIN
         setNativeArguments(args);
 #endif
-        if (m_useCtrlCStub) {
-            args = QDir::toNativeSeparators(command);
-            command = QCoreApplication::applicationDirPath() + QLatin1String("/qtcreator_ctrlc_stub.exe");
-        } else {
-            args.clear();
-        }
-        QProcess::start(command, QStringList(args));
+        // Note: Arguments set with setNativeArgs will be appended to the ones
+        // passed with start() below.
+        QProcess::start(command, QStringList());
     } else {
         if (!success) {
             setErrorString(tr("Error in command line."));
