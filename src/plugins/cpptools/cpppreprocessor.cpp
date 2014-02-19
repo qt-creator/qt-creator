@@ -172,32 +172,31 @@ void CppPreprocessor::resetEnvironment()
     m_included.clear();
 }
 
-void CppPreprocessor::getFileContents(const QString &absoluteFilePath,
+bool CppPreprocessor::getFileContents(const QString &absoluteFilePath,
                                       QByteArray *contents,
                                       unsigned *revision) const
 {
-    if (absoluteFilePath.isEmpty())
-        return;
+    if (absoluteFilePath.isEmpty() || !contents || !revision)
+        return false;
 
+    // Get from working copy
     if (m_workingCopy.contains(absoluteFilePath)) {
         const QPair<QByteArray, unsigned> entry = m_workingCopy.get(absoluteFilePath);
-        if (contents)
-            *contents = entry.first;
-        if (revision)
-            *revision = entry.second;
-        return;
+        *contents = entry.first;
+        *revision = entry.second;
+        return true;
     }
 
-    if (contents) {
-        QString error;
-        if (Utils::TextFileFormat::readFileUTF8(absoluteFilePath, m_defaultCodec, contents, &error)
-                != Utils::TextFileFormat::ReadSuccess) {
-            qWarning("Error reading file \"%s\": \"%s\".", qPrintable(absoluteFilePath),
-                     qPrintable(error));
-        }
+    // Get from file
+    *revision = 0;
+    QString error;
+    if (Utils::TextFileFormat::readFileUTF8(absoluteFilePath, m_defaultCodec, contents, &error)
+            != Utils::TextFileFormat::ReadSuccess) {
+        qWarning("Error reading file \"%s\": \"%s\".", qPrintable(absoluteFilePath),
+                 qPrintable(error));
+        return false;
     }
-    if (revision)
-        *revision = 0;
+    return true;
 }
 
 bool CppPreprocessor::checkFile(const QString &absoluteFilePath) const
@@ -388,13 +387,22 @@ static QByteArray convertToLatin1(const QByteArray &contents)
 
 void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType type)
 {
+    typedef Document::DiagnosticMessage Message;
     if (fileName.isEmpty())
         return;
 
     QString absoluteFileName = resolveFile(fileName, type);
     absoluteFileName = QDir::cleanPath(absoluteFileName);
-    if (m_currentDoc)
+    if (m_currentDoc) {
         m_currentDoc->addIncludeFile(Document::Include(fileName, absoluteFileName, line, type));
+        if (absoluteFileName.isEmpty()) {
+            const QString text = QCoreApplication::translate(
+                "CppPreprocessor", "%1: No such file or directory").arg(fileName);
+            Message message(Message::Warning, m_currentDoc->fileName(), line, /*column =*/ 0, text);
+            m_currentDoc->addDiagnosticMessage(message);
+            return;
+        }
+    }
     if (m_included.contains(absoluteFileName))
         return; // we've already seen this file.
     if (absoluteFileName != modelManager()->configurationFileName())
@@ -402,21 +410,14 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
 
     unsigned editorRevision = 0;
     QByteArray contents;
-    getFileContents(absoluteFileName, &contents, &editorRevision);
+    const bool gotFileContents = getFileContents(absoluteFileName, &contents, &editorRevision);
     contents = convertToLatin1(contents);
-    if (m_currentDoc) {
-        if (contents.isEmpty() && !QFileInfo(absoluteFileName).isAbsolute()) {
-            QString msg = QCoreApplication::translate(
-                    "CppPreprocessor", "%1: No such file or directory").arg(fileName);
-
-            Document::DiagnosticMessage d(Document::DiagnosticMessage::Warning,
-                                          m_currentDoc->fileName(),
-                                          line, /*column = */ 0,
-                                          msg);
-
-            m_currentDoc->addDiagnosticMessage(d);
-            return;
-        }
+    if (m_currentDoc && !gotFileContents) {
+        const QString text = QCoreApplication::translate(
+            "CppPreprocessor", "%1: Could not get file contents").arg(fileName);
+        Message message(Message::Warning, m_currentDoc->fileName(), line, /*column =*/ 0, text);
+        m_currentDoc->addDiagnosticMessage(message);
+        return;
     }
 
     if (m_dumpFileNameWhileParsing) {

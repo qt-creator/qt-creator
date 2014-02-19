@@ -161,3 +161,21 @@ void CppToolsPlugin::test_cpppreprocessor_includes_cyclic()
     QCOMPARE(doc2->resolvedIncludes().size(), 1);
     QCOMPARE(doc2->resolvedIncludes().first().resolvedFileName(), fileName1);
 }
+
+/// Check: All include errors are reported as diagnostic messages.
+void CppToolsPlugin::test_cpppreprocessor_includes_allDiagnostics()
+{
+    QByteArray source =
+        "#include <NotResolvable1>\n"
+        "#include <NotResolvable2>\n"
+        "\n"
+        ;
+
+    SourcePreprocessor processor;
+    Document::Ptr document = processor.run(source);
+    QVERIFY(document);
+
+    QCOMPARE(document->resolvedIncludes().size(), 0);
+    QCOMPARE(document->unresolvedIncludes().size(), 2);
+    QCOMPARE(document->diagnosticMessages().size(), 2);
+}
