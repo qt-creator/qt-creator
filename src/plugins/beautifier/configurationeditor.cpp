@@ -59,9 +59,12 @@ void ConfigurationSyntaxHighlighter::setKeywords(const QStringList &keywords)
     if (keywords.isEmpty())
         return;
 
+    // Check for empty keywords since they can cause an endless loop in highlightBlock().
     QStringList pattern;
-    for (int i = 0, total = keywords.count(); i < total; ++i)
-        pattern << QRegExp::escape(keywords.at(i));
+    foreach (const QString &word, keywords) {
+        if (!word.isEmpty())
+            pattern << QRegExp::escape(word);
+    }
 
     m_expressionKeyword.setPattern(QLatin1String("(?:\\s|^)(") + pattern.join(QLatin1String("|"))
                                    + QLatin1String(")(?=\\s|\\:|\\=|\\,|$)"));
