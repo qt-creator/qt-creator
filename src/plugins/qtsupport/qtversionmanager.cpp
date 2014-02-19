@@ -46,9 +46,6 @@
 #include <utils/persistentsettings.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
-#ifdef Q_OS_WIN
-#    include <utils/winutils.h>
-#endif
 
 #include <QDebug>
 #include <QDir>
