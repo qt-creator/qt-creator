@@ -65,7 +65,7 @@ public:
         OpenMandatory  /*!< Files must always be opened by the VCS */
     };
 
-    class TopicCache
+    class CORE_EXPORT TopicCache
     {
     public:
         virtual ~TopicCache();
