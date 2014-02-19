@@ -62,7 +62,7 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
     Q_PROPERTY(Utils::FileName baseFileName READ baseFileName WRITE setBaseFileName DESIGNABLE false)
 
 public:
-    static const char * const browseButtonLabel;
+    static QString browseButtonLabel();
 
     explicit PathChooser(QWidget *parent = 0);
     virtual ~PathChooser();

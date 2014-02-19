@@ -52,13 +52,6 @@
     This class has some validation logic for embedding into QWizardPage.
 */
 
-const char * const Utils::PathChooser::browseButtonLabel =
-#ifdef Q_OS_MAC
-                   QT_TRANSLATE_NOOP("Utils::PathChooser", "Choose...");
-#else
-                   QT_TRANSLATE_NOOP("Utils::PathChooser", "Browse...");
-#endif
-
 namespace Utils {
 
 // ------------------ PathValidatingLineEdit
@@ -251,7 +244,7 @@ PathChooser::PathChooser(QWidget *parent) :
     d->m_hLayout->addWidget(d->m_lineEdit);
     d->m_hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    addButton(tr(browseButtonLabel), this, SLOT(slotBrowse()));
+    addButton(browseButtonLabel(), this, SLOT(slotBrowse()));
 
     setLayout(d->m_hLayout);
     setFocusProxy(d->m_lineEdit);
@@ -276,6 +269,11 @@ void PathChooser::insertButton(int index, const QString &text, QObject *receiver
     connect(button, SIGNAL(clicked()), receiver, slotFunc);
     d->m_hLayout->insertWidget(index + 1/*line edit*/, button);
     d->m_buttons.insert(index, button);
+}
+
+QString Utils::PathChooser::browseButtonLabel()
+{
+    return HostOsInfo::isMacHost() ? tr("Choose...") : tr("Browse...");
 }
 
 QAbstractButton *PathChooser::buttonAtIndex(int index) const

@@ -148,7 +148,7 @@ AndroidPackageCreationWidget::AndroidPackageCreationWidget(AndroidPackageCreatio
     m_prebundledLibs = new CheckModel(this);
 
     m_ui->setupUi(this);
-    m_ui->KeystoreLocationPushButton->setText(tr(Utils::PathChooser::browseButtonLabel));
+    m_ui->KeystoreLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
     m_ui->signingDebugWarningIcon->hide();
     m_ui->signingDebugWarningLabel->hide();
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
