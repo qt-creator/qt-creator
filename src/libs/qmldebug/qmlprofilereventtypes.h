@@ -56,13 +56,7 @@ enum BindingType {
 };
 
 namespace Constants {
-const char TYPE_PAINTING_STR[] = "Painting";
-const char TYPE_COMPILING_STR[] = "Compiling";
-const char TYPE_CREATING_STR[] = "Creating";
-const char TYPE_BINDING_STR[] = "Binding";
-const char TYPE_HANDLINGSIGNAL_STR[] = "HandlingSignal";
-const char PROFILER_FILE_VERSION[] = "1.02";
-const int QML_MIN_LEVEL = 1;
+const int QML_MIN_LEVEL = 1; // Set to 0 to remove the empty line between models in the timeline
 }
 
 } // namespace QmlDebug
