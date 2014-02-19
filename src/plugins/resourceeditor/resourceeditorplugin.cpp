@@ -79,6 +79,7 @@ public:
 
         QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok
                                                          | QDialogButtonBox::Cancel,
+                                                         Qt::Horizontal,
                                                          this);
 
         layout->addWidget(buttons);
