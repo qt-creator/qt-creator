@@ -290,6 +290,11 @@ bool ResourceFile::replacePrefix(int prefix_idx, const QString &prefix)
     const int existingIndex = indexOfPrefix(fixed_prefix, m_prefix_list.at(prefix_idx)->lang, prefix_idx);
     if (existingIndex != -1) // prevent duplicated prefix + lang combinations
         return false;
+
+    // no change
+    if (m_prefix_list.at(prefix_idx)->name == fixed_prefix)
+        return false;
+
     m_prefix_list[prefix_idx]->name = fixed_prefix;
     return true;
 }
@@ -301,6 +306,11 @@ bool ResourceFile::replaceLang(int prefix_idx, const QString &lang)
     if (existingIndex != -1) // prevent duplicated prefix + lang combinations
         return false;
 
+    // no change
+    if (m_prefix_list.at(prefix_idx)->lang == lang)
+        return false;
+
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     m_prefix_list[prefix_idx]->lang = lang;
     return true;
 }
@@ -312,6 +322,13 @@ bool ResourceFile::replacePrefixAndLang(int prefix_idx, const QString &prefix, c
     const int existingIndex = indexOfPrefix(fixed_prefix, lang, prefix_idx);
     if (existingIndex != -1) // prevent duplicated prefix + lang combinations
         return false;
+
+    // no change
+    if (m_prefix_list.at(prefix_idx)->name == fixed_prefix
+            && m_prefix_list.at(prefix_idx)->lang == lang)
+        return false;
+
+    Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     m_prefix_list[prefix_idx]->name = fixed_prefix;
     return true;
 }
@@ -961,12 +978,8 @@ void ResourceModel::changePrefix(const QModelIndex &model_idx, const QString &pr
 
     const QModelIndex prefix_model_idx = prefixIndex(model_idx);
     const int prefix_idx = model_idx.row();
-    if (m_resource_file.prefix(prefix_idx) == ResourceFile::fixPrefix(prefix))
+    if (!m_resource_file.replacePrefix(prefix_idx, prefix))
         return;
-    if (m_resource_file.contains(prefix, m_resource_file.lang(prefix_idx)))
-        return;
-
-    m_resource_file.replacePrefix(prefix_idx, prefix);
     emit dataChanged(prefix_model_idx, prefix_model_idx);
     setDirty(true);
 }
@@ -978,14 +991,8 @@ void ResourceModel::changeLang(const QModelIndex &model_idx, const QString &lang
 
     const QModelIndex prefix_model_idx = prefixIndex(model_idx);
     const int prefix_idx = model_idx.row();
-    if (m_resource_file.lang(prefix_idx) == lang)
+    if (!m_resource_file.replaceLang(prefix_idx, lang))
         return;
-
-    if (m_resource_file.contains(m_resource_file.prefix(prefix_idx), lang))
-        return;
-
-
-    m_resource_file.replaceLang(prefix_idx, lang);
     emit dataChanged(prefix_model_idx, prefix_model_idx);
     setDirty(true);
 }
