@@ -33,9 +33,6 @@
 #include "qtsupport_global.h"
 #include "baseqtversion.h"
 
-QT_FORWARD_DECLARE_CLASS(QStringList)
-
-
 namespace QtSupport {
 
 class QTSUPPORT_EXPORT QtVersionManager : public QObject
@@ -74,10 +71,6 @@ public:
                                                                      BaseQtVersion::QmakeBuildConfigs defaultBuildConfig);
     static Utils::FileName findQMakeBinaryFromMakefile(const QString &directory);
     static bool isValidId(int id);
-
-    static Core::FeatureSet availableFeatures(const QString &platformName);
-    static QStringList availablePlatforms();
-    static QString displayNameForPlatform(const QString &string);
 
 signals:
     // content of BaseQtVersion objects with qmake path might have changed
