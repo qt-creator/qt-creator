@@ -40,6 +40,8 @@
 #include "blackberrydebugtokenrequestdialog.h"
 #include "ui_blackberrykeyswidget.h"
 
+#include "qnxconstants.h"
+
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QMessageBox>

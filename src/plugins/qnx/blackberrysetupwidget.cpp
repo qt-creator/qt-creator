@@ -31,7 +31,7 @@
 #include "blackberrysetupwidget.h"
 
 #include "blackberryconfigurationmanager.h"
-#include "blackberryconfiguration.h"
+#include "blackberryapilevelconfiguration.h"
 #include "blackberrysigningutils.h"
 #include "blackberrydeviceconfigurationwizard.h"
 #include "blackberryinstallwizard.h"
@@ -157,8 +157,8 @@ void APILevelSetupItem::fix()
     if (!found.testFlag(Any) || !found.testFlag(Valid)) {
         installAPILevel();
     } else if (!found.testFlag(Active)) {
-        foreach (BlackBerryConfiguration *config,
-                BlackBerryConfigurationManager::instance().configurations()) {
+        foreach (BlackBerryApiLevelConfiguration *config,
+                BlackBerryConfigurationManager::instance().apiLevels()) {
             if (config->isValid() && !config->isActive()) {
                 config->activate();
                 break;
@@ -178,8 +178,8 @@ APILevelSetupItem::FoundTypes APILevelSetupItem::resolvedFoundType()
 
     // TODO: for now, all Trunk versions are understood as 10.2 compliant
     BlackBerryVersionNumber version_10_2(QLatin1String("10.2.0.0"));
-    foreach (BlackBerryConfiguration *config,
-            BlackBerryConfigurationManager::instance().configurations()) {
+    foreach (BlackBerryApiLevelConfiguration *config,
+            BlackBerryConfigurationManager::instance().apiLevels()) {
         found |= Any;
         if (config->isValid()) {
             found |= Valid;
@@ -190,7 +190,8 @@ APILevelSetupItem::FoundTypes APILevelSetupItem::resolvedFoundType()
         }
     }
 
-    BlackBerryConfiguration *config = BlackBerryConfigurationManager::instance().defaultConfiguration();
+    BlackBerryApiLevelConfiguration *config =
+            BlackBerryConfigurationManager::instance().defaultApiLevel();
     if (config && config->version() > version_10_2)
         found |= V_10_2_AS_DEFAULT;
 
@@ -210,7 +211,7 @@ void APILevelSetupItem::handleInstallationFinished()
 {
     // manually-added API Levels are automatically registered by BlackBerryInstallWizard
     // auto-detected API Levels needs to reloaded explicitly
-    BlackBerryConfigurationManager::instance().loadAutoDetectedConfigurations();
+    BlackBerryConfigurationManager::instance().loadAutoDetectedApiLevels();
     validate();
 }
 

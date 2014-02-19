@@ -450,7 +450,7 @@ void BlackBerryNDKSettingsWidget::launchBlackBerryInstallerWizard(
 
 void BlackBerryNDKSettingsWidget::updatePage()
 {
-    updateNdkList();
+    updateConfigurationList();
     populateDefaultConfigurationCombo();
 }
 
