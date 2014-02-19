@@ -32,7 +32,7 @@
 #ifndef BLACKBERRYRUNTIMECONFIGURATION_H
 #define BLACKBERRYRUNTIMECONFIGURATION_H
 
-#include <blackberryversionnumber.h>
+#include "blackberryversionnumber.h"
 
 #include <QVariantMap>
 
