@@ -42,6 +42,7 @@ class Document;
 class Snapshot;
 }
 namespace Core { class IEditor; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace CppTools {
 namespace Tests {
@@ -69,6 +70,7 @@ public:
     ~TestCase();
 
     bool succeededSoFar() const;
+    bool openBaseTextEditor(const QString &fileName, TextEditor::BaseTextEditor **editor);
     void closeEditorAtEndOfTestCase(Core::IEditor *editor);
 
     static bool closeEditorWithoutGarbageCollectorInvocation(Core::IEditor *editor);

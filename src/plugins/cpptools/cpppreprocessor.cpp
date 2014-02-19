@@ -355,7 +355,7 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
 
         if (Document::Ptr includedDoc = m_snapshot.document(includedFile))
             mergeEnvironment(includedDoc);
-        else
+        else if (!m_included.contains(includedFile))
             run(includedFile);
     }
 

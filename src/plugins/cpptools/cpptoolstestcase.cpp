@@ -30,6 +30,7 @@
 #include "cpptoolstestcase.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/basetexteditor.h>
 
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
@@ -98,6 +99,18 @@ TestCase::~TestCase()
 bool TestCase::succeededSoFar() const
 {
     return m_succeededSoFar;
+}
+
+bool TestCase::openBaseTextEditor(const QString &fileName, TextEditor::BaseTextEditor **editor)
+{
+    typedef TextEditor::BaseTextEditor BTEditor;
+    if (BTEditor *e = qobject_cast<BTEditor *>(Core::EditorManager::openEditor(fileName))) {
+        if (editor) {
+            *editor = e;
+            return true;
+        }
+    }
+    return false;
 }
 
 CPlusPlus::Snapshot TestCase::globalSnapshot()
