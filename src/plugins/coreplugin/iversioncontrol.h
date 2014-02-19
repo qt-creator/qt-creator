@@ -35,6 +35,7 @@
 
 #include <QDateTime>
 #include <QFlags>
+#include <QHash>
 #include <QObject>
 #include <QString>
 
