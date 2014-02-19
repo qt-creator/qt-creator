@@ -278,7 +278,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Qt::EditRole: {
-            result = node->displayName();
+            result = QFileInfo(node->path()).fileName();
             break;
         }
         case Qt::ToolTipRole: {
