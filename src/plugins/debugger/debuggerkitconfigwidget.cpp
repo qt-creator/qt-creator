@@ -46,10 +46,6 @@
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 
-#ifdef Q_OS_WIN
-#include <utils/winutils.h>
-#endif
-
 #include <QApplication>
 #include <QComboBox>
 #include <QDirIterator>
@@ -64,8 +60,6 @@
 #include <QUuid>
 
 using namespace ProjectExplorer;
-using namespace Utils;
-using namespace Debugger::Internal;
 
 namespace Debugger {
 namespace Internal {
