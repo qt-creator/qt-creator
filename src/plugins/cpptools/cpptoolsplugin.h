@@ -122,7 +122,7 @@ private slots:
     void test_format_pointerdeclaration_macros();
     void test_format_pointerdeclaration_macros_data();
 
-    void test_cpppreprocessor_includes();
+    void test_cpppreprocessor_includes_resolvedUnresolved();
 
     void test_functionutils_virtualFunctions();
     void test_functionutils_virtualFunctions_data();

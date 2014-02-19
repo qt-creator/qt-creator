@@ -90,7 +90,8 @@ private:
     CppModelManager *m_cmm;
 };
 
-void CppToolsPlugin::test_cpppreprocessor_includes()
+/// Check: Resolved and unresolved includes are properly tracked.
+void CppToolsPlugin::test_cpppreprocessor_includes_resolvedUnresolved()
 {
     QByteArray source =
         "#include \"header.h\"\n"
@@ -103,17 +104,16 @@ void CppToolsPlugin::test_cpppreprocessor_includes()
     QVERIFY(document);
 
     const QList<Document::Include> resolvedIncludes = document->resolvedIncludes();
-    QVERIFY(resolvedIncludes.size() == 1);
-    QVERIFY(resolvedIncludes.at(0).type() == Client::IncludeLocal);
+    QCOMPARE(resolvedIncludes.size(), 1);
+    QCOMPARE(resolvedIncludes.at(0).type(), Client::IncludeLocal);
     QCOMPARE(resolvedIncludes.at(0).unresolvedFileName(), QLatin1String("header.h"));
     const QString expectedResolvedFileName
             = TestIncludePaths::testFilePath(QLatin1String("header.h"));
     QCOMPARE(resolvedIncludes.at(0).resolvedFileName(), expectedResolvedFileName);
 
     const QList<Document::Include> unresolvedIncludes = document->unresolvedIncludes();
-    QVERIFY(unresolvedIncludes.size() == 1);
-    QVERIFY(unresolvedIncludes.at(0).type() == Client::IncludeLocal);
+    QCOMPARE(unresolvedIncludes.size(), 1);
+    QCOMPARE(unresolvedIncludes.at(0).type(), Client::IncludeLocal);
     QCOMPARE(unresolvedIncludes.at(0).unresolvedFileName(), QLatin1String("notresolvable.h"));
     QVERIFY(unresolvedIncludes.at(0).resolvedFileName().isEmpty());
 }
-
