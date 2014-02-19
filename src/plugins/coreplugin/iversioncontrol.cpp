@@ -35,21 +35,34 @@
 #include <QFileInfo>
 
 /*!
- *  \class Core::IVersionControl::TopicCache
- *  \brief The TopicCache class stores a {directory -> topic} cache
- *
- *  In order to support topic, an IVersionControl subclass needs to create
- *  an instance of TopicCache subclass with appropriate overrides for its
- *  pure virtual functions, and pass this instance to IVersionControl's constructor.
+    \class Core::IVersionControl::TopicCache
+    \brief The TopicCache class stores a cache which maps a directory to a topic.
+
+    A VCS topic is typically the current active branch name, but it can also have other
+    values (for example the latest tag) when there is no active branch.
+
+    It is displayed:
+    \list
+    \li In the project tree, next to each root project - corresponding to the project.
+    \li In the main window title - corresponding to the current active editor.
+    \endlist
+
+    In order to enable topic display, an IVersionControl subclass needs to create
+    an instance of the TopicCache subclass with appropriate overrides for its
+    pure virtual functions, and pass this instance to IVersionControl's constructor.
+
+    The cache tracks a file in the repository, which is expected to change when the
+    topic changes. When the file is modified, the cache is refreshed.
+    For example: for Git this file is typically <repository>/.git/HEAD
  */
 
 /*!
- *  \fn Core::IVersionControl::TopicCache::trackFile(const QString &repository)
- *  Returns path to file that invalidates the cache when modified, for \a repository.
- *  e.g. for git this file is .git/HEAD
- *
- *  \fn Core::IVersionControl::TopicCache::refreshTopic(const QString &repository)
- *  Returns current topic for \a repository.
+    \fn Core::IVersionControl::TopicCache::trackFile(const QString &repository)
+    Returns the path to the file that invalidates the cache for \a repository when
+    the file is modified.
+
+    \fn Core::IVersionControl::TopicCache::refreshTopic(const QString &repository)
+    Returns the current topic for \a repository.
  */
 namespace Core {
 
@@ -84,9 +97,9 @@ IVersionControl::TopicCache::~TopicCache()
 }
 
 /*!
- * Returns topic for repository under \a topLevel.
- *
- * If the cache for \a topLevel is valid, it will be used. Otherwise it will be refreshed.
+   Returns the topic for repository under \a topLevel.
+
+   If the cache for \a topLevel is valid, it will be used. Otherwise it will be refreshed.
  */
 QString IVersionControl::TopicCache::topic(const QString &topLevel)
 {
