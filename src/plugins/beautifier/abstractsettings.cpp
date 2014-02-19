@@ -35,11 +35,10 @@
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
 
-#include <QDomDocument>
 #include <QDir>
-#include <QDomElement>
 #include <QFile>
 #include <QFileInfo>
+#include <QXmlStreamReader>
 
 namespace Beautifier {
 namespace Internal {
@@ -280,12 +279,10 @@ void AbstractSettings::readDocumentation()
         return;
     }
 
-    QDomDocument xml;
-    xml.setContent(&file);
-    file.close();
-
-    QDomElement docElem = xml.documentElement();
-    if (docElem.tagName() != QLatin1String(Constants::DOCUMENTATION_XMLROOT)) {
+    QXmlStreamReader xml(&file);
+    if (!xml.readNextStartElement())
+        return;
+    if (xml.name() != QLatin1String(Constants::DOCUMENTATION_XMLROOT)) {
         BeautifierPlugin::showError(tr("The file \"%1\" is not a valid documentation file.")
                                     .arg(filename));
         return;
@@ -296,24 +293,29 @@ void AbstractSettings::readDocumentation()
     // text we save a huge amount of memory.
     m_options.clear();
     m_docu.clear();
-    QDomElement e = docElem.firstChildElement(QLatin1String(Constants::DOCUMENTATION_XMLENTRY));
-    while (!e.isNull()) {
-        QDomElement keys = e.firstChildElement(QLatin1String(Constants::DOCUMENTATION_XMLKEYS));
-        if (keys.isNull()) {
-            m_docu << e.firstChildElement(QLatin1String(Constants::DOCUMENTATION_XMLDOC)).text();
-            m_options.insert(
-                        e.firstChildElement(QLatin1String(Constants::DOCUMENTATION_XMLKEY)).text(),
-                        m_docu.size() - 1);
-        } else {
-            m_docu << e.firstChildElement(QLatin1String(Constants::DOCUMENTATION_XMLDOC)).text();
-            const int index = m_docu.size() - 1;
-            QDomElement key = keys.firstChildElement(QLatin1String(Constants::DOCUMENTATION_XMLKEY));
-            while (!key.isNull()) {
-                m_options.insert(key.text(), index);
-                key = key.nextSiblingElement(QLatin1String(Constants::DOCUMENTATION_XMLKEY));
+    QStringList keys;
+    while (!(xml.atEnd() || xml.hasError())) {
+        if (xml.readNext() == QXmlStreamReader::StartElement) {
+            const QStringRef &name = xml.name();
+            if (name == QLatin1String(Constants::DOCUMENTATION_XMLENTRY)) {
+                keys.clear();
+            } else if (name == QLatin1String(Constants::DOCUMENTATION_XMLKEY)) {
+                if (xml.readNext() == QXmlStreamReader::Characters)
+                    keys << xml.text().toString();
+            } else if (name == QLatin1String(Constants::DOCUMENTATION_XMLDOC)) {
+                if (xml.readNext() == QXmlStreamReader::Characters) {
+                    m_docu << xml.text().toString();
+                    const int index = m_docu.size() - 1;
+                    foreach (const QString &key, keys)
+                        m_options.insert(key, index);
+                }
             }
         }
-        e = e.nextSiblingElement(QLatin1String(Constants::DOCUMENTATION_XMLENTRY));
+    }
+
+    if (xml.hasError()) {
+        BeautifierPlugin::showError(tr("Could not read documentation file \"%1\". Error: %2.")
+                                    .arg(filename).arg(xml.errorString()));
     }
 }
 
