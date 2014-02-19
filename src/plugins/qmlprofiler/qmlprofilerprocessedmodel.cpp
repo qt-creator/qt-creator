@@ -78,12 +78,16 @@ QString getInitialDetails(const QmlProfilerSimpleModel::QmlEventData &event)
         details = QmlProfilerProcessedModel::tr("Source code not available.");
     else {
         details = event.data.join(QLatin1String(" ")).replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
-        QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
-        bool match = rewrite.exactMatch(details);
-        if (match)
-            details = rewrite.cap(1) + QLatin1String(": ") + rewrite.cap(3);
-        if (details.startsWith(QLatin1String("file://")))
-            details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
+        if (details.isEmpty()) {
+            details = QmlProfilerProcessedModel::tr("anonymous function");
+        } else {
+            QRegExp rewrite(QLatin1String("\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)"));
+            bool match = rewrite.exactMatch(details);
+            if (match)
+                details = rewrite.cap(1) + QLatin1String(": ") + rewrite.cap(3);
+            if (details.startsWith(QLatin1String("file://")))
+                details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
+        }
     }
 
     return details;
