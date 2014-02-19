@@ -1780,6 +1780,11 @@ public:
         if (editor())
             EDITOR(setTextCursor(m_cursor));
     }
+    // Restore cursor from editor widget.
+    void pullCursor() {
+        if (editor())
+            m_cursor = EDITOR(textCursor());
+    }
 
     // Values to save when starting FakeVim processing.
     int m_firstVisibleLine;
@@ -2235,7 +2240,7 @@ void FakeVimHandler::Private::enterFakeVim()
 {
     QTC_ASSERT(!m_inFakeVim, qDebug() << "enterFakeVim() shouldn't be called recursively!"; return);
 
-    m_cursor = EDITOR(textCursor());
+    pullCursor();
     if (m_cursor.isNull())
         m_cursor = QTextCursor(document());
 
@@ -6093,8 +6098,15 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
 bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)
 {
     bool handled = false;
+    int pos = m_cursor.position();
+    commitCursor();
     emit q->handleExCommandRequested(&handled, cmd);
     //qDebug() << "HANDLER REQUEST: " << cmd.cmd << handled;
+    if (handled) {
+        pullCursor();
+        if (m_cursor.position() != pos)
+            recordJump(pos);
+    }
     return handled;
 }
 
@@ -7276,7 +7288,7 @@ bool FakeVimHandler::Private::passEventToEditor(QEvent &event)
     updateCursorShape();
 
     if (accepted)
-        m_cursor = EDITOR(textCursor());
+        pullCursor();
 
     return accepted;
 }
@@ -7659,7 +7671,7 @@ void FakeVimHandler::Private::undoRedo(bool undo)
         state.revision = previousRevision;
     } else {
         updateFirstVisibleLine();
-        m_cursor = EDITOR(textCursor());
+        pullCursor();
     }
     stack2.push(state);
 
