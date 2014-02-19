@@ -34,6 +34,8 @@
 
 #include <blackberryversionnumber.h>
 
+#include <QVariantMap>
+
 namespace Qnx {
 namespace Internal {
 class BlackBerryRuntimeConfiguration
