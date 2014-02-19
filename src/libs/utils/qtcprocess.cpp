@@ -706,6 +706,8 @@ void QtcProcess::start()
         if (m_useCtrlCStub) {
             args = QDir::toNativeSeparators(command);
             command = QCoreApplication::applicationDirPath() + QLatin1String("/qtcreator_ctrlc_stub.exe");
+        } else {
+            args.clear();
         }
         QProcess::start(command, QStringList(args));
     } else {
