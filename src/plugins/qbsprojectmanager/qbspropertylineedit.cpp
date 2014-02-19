@@ -48,7 +48,7 @@ QList<QPair<QString, QString> > QbsPropertyLineEdit::properties() const
 bool QbsPropertyLineEdit::validate(const QString &value, QString *errorMessage) const
 {
     Utils::QtcProcess::SplitError err;
-    QStringList argList = Utils::QtcProcess::splitArgs(value, false, &err);
+    QStringList argList = Utils::QtcProcess::splitArgs(value, Utils::HostOsInfo::hostOs(), false, &err);
     if (err != Utils::QtcProcess::SplitOk) {
         if (errorMessage)
             *errorMessage = tr("Could not split properties.");
