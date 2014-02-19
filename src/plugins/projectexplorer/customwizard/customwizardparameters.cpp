@@ -986,7 +986,7 @@ void CustomWizardContext::reset()
                             currentDate.toString(Qt::ISODate));
     baseReplacements.insert(QLatin1String("CurrentTime:ISO"),
                             currentTime.toString(Qt::ISODate));
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= 0x050200
     baseReplacements.insert(QLatin1String("CurrentDate:RFC"),
                             currentDate.toString(Qt::RFC2822Date));
     baseReplacements.insert(QLatin1String("CurrentTime:RFC"),
