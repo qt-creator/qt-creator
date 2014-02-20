@@ -820,25 +820,19 @@ void EditorManager::addNativeDirActions(QMenu *contextMenu, DocumentModel::Entry
 
 static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)
 {
-    QWidget *w = 0;
-    if (view->currentEditor()) {
-        w = view->currentEditor()->widget()->focusWidget();
-        if (!w)
-            w = view->currentEditor()->widget();
-    } else {
-        w = view->focusWidget();
-        if (!w)
-            w = view;
-    }
+    IEditor *editor = view->currentEditor();
+    QWidget *target = editor ? editor->widget() : view;
+    QWidget *focus = target->focusWidget();
+    QWidget *w = focus ? focus : target;
+
     w->setFocus();
     ICore::raiseWindow(w);
-    if (OutputPanePlaceHolder::getCurrent()
-            && OutputPanePlaceHolder::getCurrent()->window() == view->window()) {
+
+    OutputPanePlaceHolder *holder = OutputPanePlaceHolder::getCurrent();
+    if (holder && holder->window() == view->window()) {
         // unmaximize output pane if necessary
-        if (OutputPanePlaceHolder::getCurrent()
-                && OutputPanePlaceHolder::getCurrent()->isVisible()
-                && OutputPanePlaceHolder::getCurrent()->isMaximized())
-            OutputPanePlaceHolder::getCurrent()->unmaximize();
+        if (holder->isVisible() && holder->isMaximized())
+            holder->unmaximize();
     }
 }
 
