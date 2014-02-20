@@ -321,7 +321,6 @@ void ModeManager::setFocusToCurrentMode()
         if (!focusWidget)
             focusWidget = widget;
         focusWidget->setFocus();
-        ICore::raiseWindow(focusWidget);
     }
 }
 
