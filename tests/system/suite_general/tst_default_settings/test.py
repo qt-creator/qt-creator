@@ -227,6 +227,7 @@ def __getExpectedDebuggers__():
 def __getCDB__():
     result = []
     possibleLocations = ["C:\\Program Files\\Debugging Tools for Windows (x64)",
+                         "C:\\Program Files (x86)\\Debugging Tools for Windows (x86)",
                          "C:\\Program Files (x86)\\Windows Kits\\8.0\\Debuggers\\x86",
                          "C:\\Program Files\\Windows Kits\\8.0\\Debuggers\\x86",
                          "C:\\Program Files (x86)\\Windows Kits\\8.1\\Debuggers\\x86",
