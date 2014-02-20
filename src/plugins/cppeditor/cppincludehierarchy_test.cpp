@@ -143,6 +143,35 @@ void CppEditorPlugin::test_includehierarchy_data()
                    "Included by\n"
                    "  file3.h\n"
                    );
+
+    QTest::newRow("simple-cyclic")
+            << (QList<QByteArray>()
+                << QByteArray("#include \"file2.h\"\n")
+                << QByteArray("#include \"file1.h\"\n"))
+            << QString::fromLatin1(
+                   "Includes\n"
+                   "  file2.h\n"
+                   "    file1.h (cyclic)\n"
+                   "Included by\n"
+                   "  file2.h\n"
+                   "    file1.h (cyclic)\n"
+                   );
+
+    QTest::newRow("complex-cyclic")
+            << (QList<QByteArray>()
+                << QByteArray("#include \"file2.h\"\n")
+                << QByteArray("#include \"file3.h\"\n")
+                << QByteArray("#include \"file1.h\"\n"))
+            << QString::fromLatin1(
+                   "Includes\n"
+                   "  file2.h\n"
+                   "    file3.h\n"
+                   "      file1.h (cyclic)\n"
+                   "Included by\n"
+                   "  file3.h\n"
+                   "    file2.h\n"
+                   "      file1.h (cyclic)\n"
+                   );
 }
 
 void CppEditorPlugin::test_includehierarchy()

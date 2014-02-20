@@ -161,6 +161,7 @@ void CppIncludeHierarchyModel::fetchMore(const QModelIndex &parent)
 
     if (parentItem->needChildrenPopulate()) {
         QSet<QString> cyclic;
+        cyclic << m_editor->document()->filePath();
         CppIncludeHierarchyItem *item = parentItem->parent();
         while (!(item == m_includesItem || item == m_includedByItem)) {
             cyclic << item->filePath();
