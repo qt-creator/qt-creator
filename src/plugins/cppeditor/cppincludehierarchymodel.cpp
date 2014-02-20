@@ -301,7 +301,11 @@ void CppIncludeHierarchyModel::buildHierarchyIncludedBy_helper(const QString &fi
                                                                             isCyclic);
                 item->setLine(includeFile.line());
                 parent->appendChild(item);
-                buildHierarchyIncludedBy_helper(filePathFromSnapshot, item, cyclic, false);
+
+                if (isCyclic)
+                    continue;
+                else
+                    buildHierarchyIncludedBy_helper(filePathFromSnapshot, item, cyclic, false);
             }
         }
     }
