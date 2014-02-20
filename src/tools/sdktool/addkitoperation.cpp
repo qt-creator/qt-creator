@@ -398,7 +398,7 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map,
                                     const KeyValuePairList &extra)
 {
     // Sanity check: Make sure autodetection source is not in use already:
-    QStringList valueKeys = FindValueOperation::findValues(map, QVariant(id));
+    QStringList valueKeys = FindValueOperation::findValue(map, QVariant(id));
     bool hasId = false;
     foreach (const QString &k, valueKeys) {
         if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(ID))) {

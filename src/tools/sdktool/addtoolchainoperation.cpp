@@ -225,7 +225,7 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map,
                                                 const QString &supportedAbis, const KeyValuePairList &extra)
 {
     // Sanity check: Does the Id already exist?
-    QStringList valueKeys = FindValueOperation::findValues(map, id);
+    QStringList valueKeys = FindValueOperation::findValue(map, id);
     bool hasId = false;
     foreach (const QString &k, valueKeys) {
         if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(ID))) {

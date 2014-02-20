@@ -256,7 +256,7 @@ QVariantMap AddQtOperation::addQt(const QVariantMap &map,
         sdkId = QString::fromLatin1("SDK.") + id;
 
     // Sanity check: Make sure autodetection source is not in use already:
-    QStringList valueKeys = FindValueOperation::findValues(map, sdkId);
+    QStringList valueKeys = FindValueOperation::findValue(map, sdkId);
     bool hasId = false;
     foreach (const QString &k, valueKeys) {
         if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(AUTODETECTION_SOURCE))) {

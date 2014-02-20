@@ -47,7 +47,7 @@ public:
     bool test() const;
 #endif
 
-    static QStringList findValues(const QVariant &in, const QVariant &value,
+    static QStringList findValue(const QVariant &in, const QVariant &value,
                                   const QString &prefix = QString());
 
 private:

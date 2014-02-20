@@ -82,7 +82,7 @@ int FindValueOperation::execute() const
     QVariantMap map = load(m_file);
 
     foreach (const QVariant &v, m_values) {
-        const QStringList result = findValues(map, v);
+        const QStringList result = findValue(map, v);
         foreach (const QString &r, result)
             std::cout << qPrintable(r) << std::endl;
     }
@@ -120,22 +120,22 @@ bool FindValueOperation::test() const
     testMap.insert(QLatin1String("aList"), list1);
 
     QStringList result;
-    result = findValues(testMap, QVariant(23));
+    result = findValue(testMap, QVariant(23));
     if (result.count() != 1
             || !result.contains(QLatin1String("testint")))
         return false;
 
-    result = findValues(testMap, QVariant(53));
+    result = findValue(testMap, QVariant(53));
     if (result.count() != 2
             || !result.contains(QLatin1String("subkeys/subsubkeys/testint2"))
             || !result.contains(QLatin1String("subkeys/otherint")))
         return false;
 
-    result = findValues(testMap, QVariant(23456));
+    result = findValue(testMap, QVariant(23456));
     if (!result.isEmpty())
         return false;
 
-    result = findValues(testMap, QVariant(QString::fromLatin1("FindInList")));
+    result = findValue(testMap, QVariant(QString::fromLatin1("FindInList")));
     if (result.count() != 1
             || !result.contains(QLatin1String("aList[2][1]/findMe")))
         return false;
@@ -144,7 +144,7 @@ bool FindValueOperation::test() const
 }
 #endif
 
-QStringList FindValueOperation::findValues(const QVariant &in, const QVariant &value,
+QStringList FindValueOperation::findValue(const QVariant &in, const QVariant &value,
                                            const QString &prefix)
 {
     QStringList result;
@@ -157,13 +157,13 @@ QStringList FindValueOperation::findValues(const QVariant &in, const QVariant &v
             if (!pfx.isEmpty())
                 pfx.append(QLatin1Char('/'));
             pfx.append(i.key());
-            result.append(findValues(i.value(), value, pfx));
+            result.append(findValue(i.value(), value, pfx));
         }
     } else if (in.type() == QVariant::List) {
         QVariantList list = in.toList();
         for (int pos = 0; pos < list.count(); ++pos) {
             QString pfx = prefix + QLatin1Char('[') + QString::number(pos) + QLatin1String("]");
-            result.append(findValues(list.at(pos), value, pfx));
+            result.append(findValue(list.at(pos), value, pfx));
         }
     }
     return result;
