@@ -31,6 +31,7 @@
 
 #include "buildinfo.h"
 #include "buildsettingspropertiespage.h"
+#include "ipotentialkit.h"
 #include "kitoptionspage.h"
 #include "project.h"
 #include "projectimporter.h"
@@ -303,13 +304,20 @@ void TargetSettingsPanelWidget::duplicateActionTriggered(QAction *action)
 
 void TargetSettingsPanelWidget::addActionTriggered(QAction *action)
 {
-    Kit *k = KitManager::find(action->data().value<Core::Id>());
-    QTC_ASSERT(!m_project->target(k), return);
+    const QVariant data = action->data();
+    if (data.canConvert<Core::Id>()) { // id of kit
+        Kit *k = KitManager::find(action->data().value<Core::Id>());
+        QTC_ASSERT(!m_project->target(k), return);
 
-    Target *target = m_project->createTarget(k);
-    if (!target)
-        return;
-    m_project->addTarget(target);
+        Target *target = m_project->createTarget(k);
+        if (!target)
+            return;
+        m_project->addTarget(target);
+    } else {
+        QTC_ASSERT(data.canConvert<IPotentialKit *>(), return);
+        IPotentialKit *potentialKit = data.value<IPotentialKit *>();
+        potentialKit->executeFromMenu();
+    }
 }
 
 Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
@@ -562,10 +570,19 @@ void TargetSettingsPanelWidget::updateTargetButtons()
     m_addMenu->clear();
     m_targetMenu->clear();
 
-    if (m_importAction) {
+    if (m_importAction)
         m_addMenu->addAction(m_importAction);
-        m_addMenu->addSeparator();
+    const QList<IPotentialKit *> potentialKits
+            = ExtensionSystem::PluginManager::getObjects<IPotentialKit>();
+    foreach (IPotentialKit *potentialKit, potentialKits) {
+        if (!potentialKit->isEnabled())
+            continue;
+        QAction *action = new QAction(potentialKit->displayName(), m_addMenu);
+        action->setData(QVariant::fromValue(potentialKit));
+        m_addMenu->addAction(action);
     }
+    if (!m_addMenu->actions().isEmpty())
+        m_addMenu->addSeparator();
 
     m_changeMenu = m_targetMenu->addMenu(tr("Change Kit"));
     m_duplicateMenu = m_targetMenu->addMenu(tr("Copy to Kit"));
@@ -589,7 +606,6 @@ void TargetSettingsPanelWidget::updateTargetButtons()
         createAction(k, m_changeMenu);
         createAction(k, m_duplicateMenu);
     }
-
     if (m_changeMenu->actions().isEmpty())
         m_changeMenu->setEnabled(false);
     if (m_duplicateMenu->actions().isEmpty())

@@ -40,7 +40,10 @@ class AndroidPotentialKit : public ProjectExplorer::IPotentialKit
 {
     Q_OBJECT
 public:
+    QString displayName() const;
+    void executeFromMenu();
     QWidget *createWidget(QWidget *parent) const;
+    bool isEnabled() const;
 };
 
 class AndroidPotentialKitWidget : public Utils::DetailsWidget

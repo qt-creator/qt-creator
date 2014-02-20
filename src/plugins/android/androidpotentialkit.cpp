@@ -46,7 +46,25 @@
 using namespace Android;
 using namespace Android::Internal;
 
+QString AndroidPotentialKit::displayName() const
+{
+    return tr("Configure Android...");
+}
+
+void Android::Internal::AndroidPotentialKit::executeFromMenu()
+{
+    Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_CATEGORY,
+                                   Constants::ANDROID_SETTINGS_ID);
+}
+
 QWidget *AndroidPotentialKit::createWidget(QWidget *parent) const
+{
+    if (!isEnabled())
+        return 0;
+    return new AndroidPotentialKitWidget(parent);
+}
+
+bool AndroidPotentialKit::isEnabled() const
 {
     QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
     foreach (ProjectExplorer::Kit *kit, kits) {
@@ -54,7 +72,7 @@ QWidget *AndroidPotentialKit::createWidget(QWidget *parent) const
         if (kit->isAutoDetected()
                 && deviceId == Core::Id(Constants::ANDROID_DEVICE_ID)
                 && !kit->isSdkProvided()) {
-            return 0;
+            return false;
         }
     }
 
@@ -66,10 +84,7 @@ QWidget *AndroidPotentialKit::createWidget(QWidget *parent) const
         }
     }
 
-    if (!found) // no android qt
-        return 0;
-
-    return new AndroidPotentialKitWidget(parent);
+    return found;
 }
 
 AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
