@@ -250,6 +250,7 @@ void AndroidConfig::updateNdkInformation() const
     default: /* unknown host */ return;
     }
 
+    path = ndkLocation();
     QDirIterator jt(path.appendPath(QLatin1String("prebuilt")).toString(), hostPatterns, QDir::Dirs);
     if (jt.hasNext()) {
         jt.next();
