@@ -969,7 +969,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
     // their corresponding argument in macro substitution. For expanded tokens which are
     // generated, this information must be taken from somewhere else. What we do is to keep
     // a "reference" line initialize set to the line where expansion happens.
-    unsigned baseLine = idTk.lineno;
+    unsigned baseLine = idTk.lineno - m_state.m_lineRef + 1;
 
     QVector<PPToken> body = macro->definitionTokens();
 
