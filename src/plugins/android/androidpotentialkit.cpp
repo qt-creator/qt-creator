@@ -90,8 +90,8 @@ bool AndroidPotentialKit::isEnabled() const
 AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     : Utils::DetailsWidget(parent)
 {
-    setSummaryText(QLatin1String("<b>Create Android Kits</b>"));
-    setIcon(QIcon(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON)));
+    setSummaryText(QLatin1String("<b>Android has not been configured. Create Android kits.</b>"));
+    setIcon(QIcon(QLatin1String(":/projectexplorer/images/compile_warning.png")));
     //detailsWidget->setState(Utils::DetailsWidget::NoSummary);
     QWidget *mainWidget = new QWidget(this);
     setWidget(mainWidget);
