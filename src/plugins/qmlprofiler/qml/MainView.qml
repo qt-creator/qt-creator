@@ -38,8 +38,6 @@ Rectangle {
 
     property int singleRowHeight: 30
 
-    property int eventCount: 0
-
     property alias selectionLocked : view.selectionLocked
     signal updateLockButton
     property alias selectedItem: view.selectedItem
@@ -116,7 +114,6 @@ Rectangle {
     function clearData() {
         view.clearData();
         appKilled = false;
-        eventCount = 0;
         hideRangeDetails();
         selectionRangeMode = false;
         updateRangeButton();
@@ -206,7 +203,7 @@ Rectangle {
     // ***** slots
     onSelectionRangeModeChanged: {
         selectionRangeControl.enabled = selectionRangeMode;
-        selectionRange.reset(selectionRangeMode);
+        selectionRange.reset();
     }
 
     onSelectionLockedChanged: {
@@ -280,7 +277,7 @@ Rectangle {
 
             SelectionRange {
                 id: selectionRange
-                visible: root.selectionRangeMode
+                visible: root.selectionRangeMode && creationState !== 0
                 height: parent.height
                 z: 2
             }
@@ -423,7 +420,7 @@ Rectangle {
 
     SelectionRangeDetails {
         id: selectionRangeDetails
-        visible: root.selectionRangeMode
+        visible: selectionRange.visible
         startTime: selectionRange.startTimeString
         duration: selectionRange.durationString
         endTime: selectionRange.endTimeString

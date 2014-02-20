@@ -63,11 +63,10 @@ RangeMover {
         root.updateRangeButton();
     }
 
-    function reset(setVisible) {
+    function reset() {
         setRight(getLeft() + 1);
         creationState = 0;
         creationReference = 0;
-        visible = setVisible;
     }
 
     function setPos(pos) {
@@ -128,9 +127,6 @@ RangeMover {
         if (selectionRange.creationState === 0) {
             selectionRange.creationState = 1;
         }
-
-        if (!root.eventCount)
-            return;
 
         if (!selectionRangeControl.pressed && selectionRange.creationState==3)
             return;
