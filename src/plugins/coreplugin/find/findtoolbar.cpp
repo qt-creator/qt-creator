@@ -103,8 +103,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     QMenu *lineEditMenu = new QMenu(m_ui.findEdit);
     m_ui.findEdit->setButtonMenu(Utils::FancyLineEdit::Left, lineEditMenu);
     m_ui.findEdit->setButtonVisible(Utils::FancyLineEdit::Left, true);
-    m_ui.findEdit->setPlaceholderText(QString());
     m_ui.findEdit->setFiltering(true);
+    m_ui.findEdit->setPlaceholderText(QString());
     m_ui.replaceEdit->setPlaceholderText(QString());
 
     connect(m_ui.findEdit, SIGNAL(textChanged(QString)), this, SLOT(invokeFindIncremental()));
