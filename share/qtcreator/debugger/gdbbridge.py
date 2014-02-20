@@ -8,12 +8,9 @@ try:
 except:
     pass
 
-import inspect
 import os
 import os.path
 import sys
-import tempfile
-import traceback
 import struct
 
 
@@ -148,39 +145,7 @@ def listOfLocals(varList):
 
 
 def catchCliOutput(command):
-    try:
-        return gdb.execute(command, to_string=True).split("\n")
-    except:
-        pass
-    filename = createTempFile()
-    gdb.execute("set logging off")
-#        gdb.execute("set logging redirect off")
-    gdb.execute("set logging file %s" % filename)
-#        gdb.execute("set logging redirect on")
-    gdb.execute("set logging on")
-    msg = ""
-    try:
-        gdb.execute(command)
-    except RuntimeError as error:
-        # For the first phase of core file loading this yield
-        # "No symbol table is loaded.  Use the \"file\" command."
-        msg = str(error)
-    except:
-        msg = "Unknown error"
-    gdb.execute("set logging off")
-#        gdb.execute("set logging redirect off")
-    if len(msg):
-        # Having that might confuse result handlers in the gdbengine.
-        #warn("CLI ERROR: %s " % msg)
-        removeTempFile(filename)
-        return "CLI ERROR: %s " % msg
-    temp = open(filename, "r")
-    lines = []
-    for line in temp:
-        lines.append(line)
-    temp.close()
-    removeTempFile(filename)
-    return lines
+    return gdb.execute(command, to_string=True).split("\n")
 
 
 #######################################################################
@@ -326,33 +291,6 @@ registerCommand("importPlainDumpers", importPlainDumpers)
 
 
 #gdb.Value.child = impl_Value_child
-
-# Fails on SimulatorQt.
-tempFileCounter = 0
-try:
-    # Test if 2.6 is used (Windows), trigger exception and default
-    # to 2nd version.
-    file = tempfile.NamedTemporaryFile(prefix="py_",delete=True)
-    file.close()
-    def createTempFile():
-        file = tempfile.NamedTemporaryFile(prefix="py_",delete=True)
-        file.close()
-        return file.name
-
-except:
-    def createTempFile():
-        global tempFileCounter
-        tempFileCounter += 1
-        fileName = "%s/py_tmp_%d_%d" \
-            % (tempfile.gettempdir(), os.getpid(), tempFileCounter)
-        return fileName
-
-def removeTempFile(name):
-    try:
-        os.remove(name)
-    except:
-        pass
-
 
 
 class OutputSafer:
