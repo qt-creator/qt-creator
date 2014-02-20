@@ -369,7 +369,7 @@ void QmlProfilerFileReader::processQmlEvents()
         QmlEvent &event = m_qmlEvents[eventIndex];
 
         emit rangedEvent(event.type, event.bindingType, range.startTime, range.duration,
-                         QStringList(event.displayName),
+                         QStringList(event.details),
                          QmlEventLocation(event.filename, event.line, event.column),
                          range.numericData1,range.numericData2, range.numericData3, range.numericData4, range.numericData5);
 
