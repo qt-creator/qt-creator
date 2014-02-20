@@ -60,6 +60,7 @@ Project {
         "updateinfo/updateinfo.qbs",
         "valgrind/valgrind.qbs",
         "vcsbase/vcsbase.qbs",
-        "welcome/welcome.qbs"
+        "welcome/welcome.qbs",
+        "winrt/winrt.qbs"
     ].concat(project.additionalPlugins)
 }

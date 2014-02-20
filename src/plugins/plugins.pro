@@ -51,6 +51,10 @@ SUBDIRS   = \
     ios \
     beautifier
 
+minQtVersion(5, 0, 0) {
+    SUBDIRS += winrt
+}
+
 # prefer qmake variable set on command line over env var
 isEmpty(LLVM_INSTALL_DIR):LLVM_INSTALL_DIR=$$(LLVM_INSTALL_DIR)
 !isEmpty(LLVM_INSTALL_DIR) {

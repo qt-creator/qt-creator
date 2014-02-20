@@ -70,12 +70,16 @@ const char FEATURE_DESKTOP[] = "QtSupport.Wizards.FeatureDesktop";
 const char DESKTOP_PLATFORM[] = "Desktop";
 const char EMBEDDED_LINUX_PLATFORM[] = "Embedded Linux";
 const char WINDOWS_CE_PLATFORM[] = "Windows CE";
+const char WINDOWS_RT_PLATFORM[] = "Windows Runtime";
+const char WINDOWS_PHONE_PLATFORM[] = "Windows Phone";
 const char ANDROID_PLATFORM[] = "Android";
 const char IOS_PLATFORM[] = "iOS";
 
 const char DESKTOP_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Desktop");
 const char EMBEDDED_LINUX_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Embedded Linux");
 const char WINDOWS_CE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Windows CE");
+const char WINDOWS_RT_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Windows Runtime");
+const char WINDOWS_PHONE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Windows Phone");
 const char ANDROID_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Android");
 const char IOS_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "iOS");
 
