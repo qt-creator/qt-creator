@@ -325,7 +325,8 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
                                   .arg(versionControl->displayName()),
                                   InfoBarEntry::GlobalSuppressionEnabled);
                 d->m_unconfiguredVcs = versionControl;
-                info.setCustomButtonInfo(tr("Configure"), m_instance, SLOT(configureVcs()));
+                info.setCustomButtonInfo(Core::ICore::msgShowOptionsDialog(), m_instance,
+                                         SLOT(configureVcs()));
                 infoBar->addInfo(info);
             }
             return 0;

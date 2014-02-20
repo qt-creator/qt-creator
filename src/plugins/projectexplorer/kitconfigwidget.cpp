@@ -53,4 +53,9 @@ void KitConfigWidget::setMutable(bool b)
     m_kit->setMutable(m_kitInformation->id(), b);
 }
 
+QString KitConfigWidget::msgManage()
+{
+    return tr("Manage...");
+}
+
 } // namespace ProjectExplorer

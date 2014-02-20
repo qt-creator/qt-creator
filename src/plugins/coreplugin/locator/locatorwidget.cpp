@@ -223,7 +223,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     m_completionList(new CompletionList(this)),
     m_filterMenu(new QMenu(this)),
     m_refreshAction(new QAction(tr("Refresh"), this)),
-    m_configureAction(new QAction(tr("Configure..."), this)),
+    m_configureAction(new QAction(Core::ICore::msgShowOptionsDialog(), this)),
     m_fileLineEdit(new Utils::FancyLineEdit),
     m_updateRequested(false),
     m_acceptRequested(false),

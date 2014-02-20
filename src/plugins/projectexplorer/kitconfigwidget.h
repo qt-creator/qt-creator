@@ -67,6 +67,8 @@ public:
     bool isMutable() const;
     void setMutable(bool b);
 
+    static QString msgManage();
+
 signals:
     void dirty();
 

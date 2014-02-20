@@ -83,7 +83,7 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInfo
     refresh();
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentDebuggerChanged(int)));
 
-    m_manageButton = new QPushButton(tr("Manage..."));
+    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageDebuggers()));
 

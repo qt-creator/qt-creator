@@ -700,7 +700,7 @@ ExternalToolManager::ExternalToolManager()
 
     d->m_configureSeparator = new QAction(this);
     d->m_configureSeparator->setSeparator(true);
-    d->m_configureAction = new QAction(tr("Configure..."), this);
+    d->m_configureAction = new QAction(Core::ICore::msgShowOptionsDialog(), this);
     connect(d->m_configureAction, SIGNAL(triggered()), this, SLOT(openPreferences()));
 
     // add the external tools menu

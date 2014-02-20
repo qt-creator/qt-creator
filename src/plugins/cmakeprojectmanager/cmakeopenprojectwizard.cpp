@@ -390,7 +390,7 @@ NoKitPage::NoKitPage(CMakeOpenProjectWizard *cmakeWizard)
     layout->addWidget(m_descriptionLabel);
 
     m_optionsButton = new QPushButton;
-    m_optionsButton->setText(tr("Show Options"));
+    m_optionsButton->setText(Core::ICore::msgShowOptionsDialog());
 
     connect(m_optionsButton, SIGNAL(clicked()),
             this, SLOT(showOptions()));
