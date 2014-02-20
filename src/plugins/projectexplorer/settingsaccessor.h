@@ -40,7 +40,7 @@ namespace ProjectExplorer {
 
 class Project;
 
-namespace Internal { class UserFileVersionHandler; }
+namespace Internal { class VersionUpgrader; }
 
 class SettingsAccessor
 {
@@ -55,7 +55,7 @@ public:
 
 private:
     // Takes ownership of the handler!
-    void addVersionHandler(Internal::UserFileVersionHandler *handler);
+    void addVersionUpgrader(Internal::VersionUpgrader *handler);
 
     QStringList findSettingsFiles(const QString &suffix) const;
     static QByteArray creatorId();
@@ -114,7 +114,7 @@ private:
         mutable Utils::PersistentSettingsWriter *m_writer;
     };
 
-    QMap<int, Internal::UserFileVersionHandler *> m_handlers;
+    QMap<int, Internal::VersionUpgrader *> m_handlers;
     int m_firstVersion;
     int m_lastVersion;
     const FileAccessor m_userFileAcessor;
