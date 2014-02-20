@@ -358,7 +358,8 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
     else:
         # following targets depend on the build environment - added for further/later tests
         available = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_GCC, Targets.DESKTOP_501_DEFAULT,
-                     Targets.MAEMO5, Targets.EMBEDDED_LINUX, Targets.SIMULATOR, Targets.HARMATTAN]
+                     Targets.DESKTOP_521_DEFAULT, Targets.MAEMO5, Targets.EMBEDDED_LINUX,
+                     Targets.SIMULATOR, Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(Targets.EMBEDDED_LINUX)
             available.append(Targets.DESKTOP_480_MSVC2010)
@@ -559,7 +560,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
                     result.append(Targets.EMBEDDED_LINUX)
                 elif platform.system() in ('Windows', 'Microsoft'):
                     result.append(Targets.DESKTOP_480_MSVC2010)
-            result.append(Targets.DESKTOP_501_DEFAULT)
+            result.extend([Targets.DESKTOP_501_DEFAULT, Targets.DESKTOP_521_DEFAULT])
         if 'MeeGo/Harmattan' in supports:
             result.append(Targets.HARMATTAN)
         if 'Maemo/Fremantle' in supports:
@@ -569,7 +570,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
     elif 'Platform independent' in text:
         # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
         result = [Targets.DESKTOP_474_GCC, Targets.DESKTOP_480_GCC, Targets.DESKTOP_501_DEFAULT,
-                  Targets.MAEMO5, Targets.SIMULATOR, Targets.HARMATTAN]
+                  Targets.DESKTOP_521_DEFAULT, Targets.MAEMO5, Targets.SIMULATOR, Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
             result.append(Targets.DESKTOP_480_MSVC2010)
     else:

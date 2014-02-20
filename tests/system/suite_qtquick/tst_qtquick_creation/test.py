@@ -33,8 +33,8 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    # TODO provide Qt5.2/Qt5.1 to enable QtQuick2 testing
-    for targ, qVer in {Targets.DESKTOP_480_GCC:"1.1"}.items(): # Targets.DESKTOP_501_DEFAULT:2}.items():
+    for targ, qVer in [[Targets.DESKTOP_480_GCC, "1.1"], [Targets.DESKTOP_521_DEFAULT, "2.1"],
+                       [Targets.DESKTOP_521_DEFAULT, "2.2"]]:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targ,

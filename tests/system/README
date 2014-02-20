@@ -11,8 +11,8 @@ On Linux/Mac this is ~/QtSDK, and on Windows this is C:\QtSDK.
 After installing the QtSDK you should use the package manager of the QtSDK (SDKMaintenanceTool) to add some more packages.
 You'll need at least Desktop Qt versions 4.7.4, 4.8.0, Harmattan stuff (except QEmu), Maemo Toolchain, Qt Examples, Simulator, Documentation files.
 
-Third - some of the test suites/test cases expect Qt 5.0.1 installed in its default location.
-On Linux/Mac this is ~/Qt5.0.1, and on Windows this is C:\Qt\Qt5.0.1.
+Third - some of the test suites/test cases expect Qt 5.0.1 and Qt 5.2.1 installed in its default location.
+On Linux/Mac this is ~/Qt5.0.1 or ~/Qt5.2.1, and on Windows this is C:\Qt\Qt5.0.1 or C:\Qt\Qt5.2.1.
 
 Fourth - you'll have to provide some additional repositories (and for the hooking into subprocesses even some more Squish bundles, see below).
 These additional repositories are located inside ~/QtSDK/src or C:\QtSDK\src (depending on the OS you're on).
