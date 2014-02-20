@@ -40,8 +40,9 @@
 
 #include <QFont>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+namespace ProjectExplorer {
+
+using namespace Internal;
 
 namespace {
 
@@ -899,7 +900,6 @@ void FlatModel::nodeUpdated(Node *node)
     emit dataChanged(idx, idx);
 }
 
-namespace ProjectExplorer {
 namespace Internal {
 
 int caseFriendlyCompare(const QString &a, const QString &b)
@@ -911,5 +911,6 @@ int caseFriendlyCompare(const QString &a, const QString &b)
 }
 
 }
-}
+
+} // namespace ProjectExplorer
 
