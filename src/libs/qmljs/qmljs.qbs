@@ -92,6 +92,7 @@ QtcLibrary {
     }
 
     Export {
+        Depends { name: "CPlusPlus" }
         Depends { name: "LanguageUtils" }
     }
 }
