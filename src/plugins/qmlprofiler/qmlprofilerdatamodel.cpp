@@ -95,7 +95,8 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event)
             bool match = rewrite.exactMatch(details);
             if (match)
                 details = rewrite.cap(1) + QLatin1String(": ") + rewrite.cap(3);
-            if (details.startsWith(QLatin1String("file://")))
+            if (details.startsWith(QLatin1String("file://")) ||
+                    details.startsWith(QLatin1String("qrc:/")))
                 details = details.mid(details.lastIndexOf(QLatin1Char('/')) + 1);
         }
     }
