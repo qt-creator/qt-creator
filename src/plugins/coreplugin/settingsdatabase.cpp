@@ -131,6 +131,9 @@ SettingsDatabase::SettingsDatabase(const QString &path,
                 d->m_settings.insert(query.value(0).toString(), QVariant());
             }
         }
+
+        // syncing can be slow, especially on Linux and Windows
+        d->m_db.exec(QLatin1String("PRAGMA synchronous = OFF;"));
     }
 }
 
