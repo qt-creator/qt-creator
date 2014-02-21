@@ -244,8 +244,11 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     }
 
     // Make sure we an absolute path:
-    const QString directory = QDir(inputDirectory).absolutePath();
-
+    QString directory = QDir(inputDirectory).absolutePath();
+#ifdef WITH_TESTS
+    if (directory[0].isLetter() && directory.indexOf(QLatin1String(":") + QLatin1String(TEST_PREFIX)) == 1)
+        directory = directory.mid(2);
+#endif
     VcsManagerPrivate::VcsInfo *cachedData = d->findInCache(directory);
     if (cachedData) {
         if (topLevelDirectory)
