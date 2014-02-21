@@ -31,6 +31,7 @@
 #define IPOTENTIALKIT_H
 
 #include <QObject>
+#include <QMetaType>
 #include "projectexplorer_export.h"
 
 namespace ProjectExplorer {
@@ -47,5 +48,6 @@ public:
 };
 
 }
+Q_DECLARE_METATYPE(ProjectExplorer::IPotentialKit*)
 
 #endif // IPOTENTIALKIT_H
