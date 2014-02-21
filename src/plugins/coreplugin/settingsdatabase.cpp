@@ -252,6 +252,20 @@ QStringList SettingsDatabase::childKeys() const
     return children;
 }
 
+void SettingsDatabase::beginTransaction()
+{
+    if (!d->m_db.isOpen())
+        return;
+    d->m_db.exec(QLatin1String("BEGIN TRANSACTION;"));
+}
+
+void SettingsDatabase::endTransaction()
+{
+    if (!d->m_db.isOpen())
+        return;
+    d->m_db.exec(QLatin1String("END TRANSACTION;"));
+}
+
 void SettingsDatabase::sync()
 {
     // TODO: Delay writing of dirty keys and save them here

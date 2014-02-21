@@ -186,6 +186,7 @@ void Locator::saveSettings()
 {
     if (m_settingsInitialized) {
         SettingsDatabase *s = ICore::settingsDatabase();
+        s->beginTransaction();
         s->beginGroup(QLatin1String("QuickOpen"));
         s->remove(QString());
         s->setValue(QLatin1String("RefreshInterval"), refreshInterval());
@@ -202,6 +203,7 @@ void Locator::saveSettings()
         }
         s->endGroup();
         s->endGroup();
+        s->endTransaction();
     }
 }
 

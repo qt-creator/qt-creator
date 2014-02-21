@@ -57,6 +57,9 @@ public:
     QString group() const;
     QStringList childKeys() const;
 
+    void beginTransaction();
+    void endTransaction();
+
     void sync();
 
 private:

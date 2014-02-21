@@ -2287,10 +2287,12 @@ static const char autoSaveIntervalKey[] = "EditorManager/AutoSaveInterval";
 void EditorManager::saveSettings()
 {
     SettingsDatabase *settings = ICore::settingsDatabase();
+    settings->beginTransaction();
     settings->setValue(QLatin1String(documentStatesKey), d->m_editorStates);
     settings->setValue(QLatin1String(reloadBehaviorKey), d->m_reloadSetting);
     settings->setValue(QLatin1String(autoSaveEnabledKey), d->m_autoSaveEnabled);
     settings->setValue(QLatin1String(autoSaveIntervalKey), d->m_autoSaveInterval);
+    settings->endTransaction();
 }
 
 void EditorManager::readSettings()
