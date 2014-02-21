@@ -15,6 +15,79 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
+    <widget class="QLabel" name="OpenJDKLocationLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>JDK location:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="OpenJDKLocationLineEdit"/>
+   </item>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="OpenJDKLocationPushButton">
+     <property name="text">
+      <string>Browse</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QToolButton" name="downloadOpenJDKToolButton">
+     <property name="toolTip">
+      <string>Download JDK</string>
+     </property>
+     <property name="icon">
+      <iconset resource="android.qrc">
+       <normaloff>:/android/images/download.png</normaloff>:/android/images/download.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="3">
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="jdkWarningIconLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>:/projectexplorer/images/compile_warning.png</pixmap>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="jdkWarningLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
     <widget class="QLabel" name="SDKLocationLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -30,17 +103,17 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="2" column="1">
     <widget class="QLineEdit" name="SDKLocationLineEdit"/>
    </item>
-   <item row="0" column="2">
+   <item row="2" column="2">
     <widget class="QPushButton" name="SDKLocationPushButton">
      <property name="text">
       <string>Browse</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="3">
+   <item row="2" column="3">
     <widget class="QToolButton" name="downloadSDKToolButton">
      <property name="toolTip">
       <string>Download Android SDK</string>
@@ -51,7 +124,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="3">
+   <item row="3" column="1" colspan="3">
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QLabel" name="sdkWarningIconLabel">
@@ -87,7 +160,7 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="NDKLocationLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -103,17 +176,17 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="4" column="1">
     <widget class="QLineEdit" name="NDKLocationLineEdit"/>
    </item>
-   <item row="2" column="2">
+   <item row="4" column="2">
     <widget class="QPushButton" name="NDKLocationPushButton">
      <property name="text">
       <string>Browse</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="3">
+   <item row="4" column="3">
     <widget class="QToolButton" name="downloadNDKToolButton">
      <property name="toolTip">
       <string>Download Android NDK</string>
@@ -124,7 +197,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1" colspan="3">
+   <item row="5" column="1" colspan="3">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <property name="spacing">
       <number>2</number>
@@ -160,7 +233,7 @@
      </item>
     </layout>
    </item>
-   <item row="4" column="1" colspan="3">
+   <item row="6" column="1" colspan="3">
     <widget class="QCheckBox" name="CreateKitCheckBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -176,7 +249,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1" colspan="3">
+   <item row="7" column="1" colspan="3">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="spacing">
       <number>2</number>
@@ -215,7 +288,7 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="0">
+   <item row="8" column="0">
     <widget class="QLabel" name="AntLocationLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -231,17 +304,17 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="8" column="1">
     <widget class="QLineEdit" name="AntLocationLineEdit"/>
    </item>
-   <item row="6" column="2">
+   <item row="8" column="2">
     <widget class="QPushButton" name="AntLocationPushButton">
      <property name="text">
       <string>Browse</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="3">
+   <item row="8" column="3">
     <widget class="QToolButton" name="downloadAntToolButton">
      <property name="toolTip">
       <string>Download Ant</string>
@@ -251,79 +324,6 @@
        <normaloff>:/android/images/download.png</normaloff>:/android/images/download.png</iconset>
      </property>
     </widget>
-   </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="OpenJDKLocationLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>JDK location:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <widget class="QLineEdit" name="OpenJDKLocationLineEdit"/>
-   </item>
-   <item row="7" column="2">
-    <widget class="QPushButton" name="OpenJDKLocationPushButton">
-     <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="3">
-    <widget class="QToolButton" name="downloadOpenJDKToolButton">
-     <property name="toolTip">
-      <string>Download JDK</string>
-     </property>
-     <property name="icon">
-      <iconset resource="android.qrc">
-       <normaloff>:/android/images/download.png</normaloff>:/android/images/download.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="1" colspan="3">
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
-     <item>
-      <widget class="QLabel" name="jdkWarningIconLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="jdkWarningLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item row="9" column="0" colspan="4">
     <widget class="QFrame" name="AVDManagerFrame">
