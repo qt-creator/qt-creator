@@ -5,7 +5,7 @@ import qbs.FileInfo
 Module {
     Depends { id: qtcore; name: "Qt.core" }
 
-    additionalProductFileTags: qtcore.versionMajor < 5 ? ["pluginSpec"] : ["qt_plugin_metadata"]
+    additionalProductTypes: qtcore.versionMajor < 5 ? ["pluginSpec"] : ["qt_plugin_metadata"]
 
     Rule {
         inputs: ["pluginSpecIn"]
