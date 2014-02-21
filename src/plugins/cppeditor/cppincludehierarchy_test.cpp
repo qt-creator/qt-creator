@@ -46,12 +46,33 @@ using namespace CppTools;
 
 namespace {
 
+QString toString(CppIncludeHierarchyModel &model, const QModelIndex &index, int indent = 0)
+{
+    QString result = QString(indent, QLatin1Char(' ')) + index.data().toString()
+            + QLatin1Char('\n');
+    const int itemsCount = model.rowCount(index);
+    for (int i = 0; i < itemsCount; ++i) {
+        QModelIndex child = index.child(i, 0);
+        if (model.canFetchMore(child))
+            model.fetchMore(child);
+
+        indent += 2;
+        result += toString(model, child, indent);
+    }
+    return result;
+}
+
+QString toString(CppIncludeHierarchyModel &model)
+{
+    return toString(model, model.index(0, 0))
+            + toString(model, model.index(1, 0));
+}
+
 class IncludeHierarchyTestCase: public CppEditor::Internal::Tests::TestCase
 {
 public:
     IncludeHierarchyTestCase(const QList<QByteArray> &sourceList,
-                             int includesCount,
-                             int includedByCount)
+                             const QString &expectedHierarchy)
     {
         QVERIFY(succeededSoFar());
 
@@ -80,37 +101,54 @@ public:
         // Test model
         CppIncludeHierarchyModel model(0);
         model.buildHierarchy(editor, fileName);
-        QCOMPARE(model.rowCount(model.index(0, 0)), includesCount);
-        QCOMPARE(model.rowCount(model.index(1, 0)), includedByCount);
+        const QString actualHierarchy = toString(model);
+        QCOMPARE(actualHierarchy, expectedHierarchy);
     }
 };
 
 } // anonymous namespace
 
-void CppEditorPlugin::test_includeHierarchyModel_simpleIncludes()
+void CppEditorPlugin::test_includehierarchy_data()
 {
-    QList<QByteArray> sourceList;
-    sourceList.append(QByteArray("#include \"file2.h\"\n"));
-    sourceList.append(QByteArray());
+    QTest::addColumn<QList<QByteArray> >("documents");
+    QTest::addColumn<QString>("expectedHierarchy");
 
-    IncludeHierarchyTestCase(sourceList, 1, 0);
+    QTest::newRow("single-includes")
+            << (QList<QByteArray>()
+                << QByteArray("#include \"file2.h\"\n")
+                << QByteArray())
+            << QString::fromLatin1(
+                   "Includes\n"
+                   "  file2.h\n"
+                   "Included by (none)\n");
+
+    QTest::newRow("single-includedBy")
+            << (QList<QByteArray>()
+                << QByteArray()
+                << QByteArray("#include \"file1.h\"\n"))
+            << QString::fromLatin1(
+                   "Includes (none)\n"
+                   "Included by\n"
+                   "  file2.h\n"
+                   );
+
+    QTest::newRow("both-includes-and-includedBy")
+            << (QList<QByteArray>()
+                << QByteArray("#include \"file2.h\"\n")
+                << QByteArray()
+                << QByteArray("#include \"file1.h\"\n"))
+            << QString::fromLatin1(
+                   "Includes\n"
+                   "  file2.h\n"
+                   "Included by\n"
+                   "  file3.h\n"
+                   );
 }
 
-void CppEditorPlugin::test_includeHierarchyModel_simpleIncludedBy()
+void CppEditorPlugin::test_includehierarchy()
 {
-    QList<QByteArray> sourceList;
-    sourceList.append(QByteArray());
-    sourceList.append(QByteArray("#include \"file1.h\"\n"));
+    QFETCH(QList<QByteArray>, documents);
+    QFETCH(QString, expectedHierarchy);
 
-    IncludeHierarchyTestCase(sourceList, 0, 1);
-}
-
-void CppEditorPlugin::test_includeHierarchyModel_simpleIncludesAndIncludedBy()
-{
-    QList<QByteArray> sourceList;
-    sourceList.append(QByteArray("#include \"file2.h\"\n"));
-    sourceList.append(QByteArray());
-    sourceList.append(QByteArray("#include \"file1.h\"\n"));
-
-    IncludeHierarchyTestCase(sourceList, 1, 1);
+    IncludeHierarchyTestCase(documents, expectedHierarchy);
 }
