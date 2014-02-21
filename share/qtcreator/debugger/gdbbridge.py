@@ -56,8 +56,6 @@ def registerCommand(name, func):
 
     Command()
 
-def parseAndEvaluate(exp):
-    return gdb.parse_and_eval(exp)
 
 def listOfLocals(varList):
     frame = gdb.selected_frame()
@@ -144,9 +142,6 @@ def listOfLocals(varList):
     return items
 
 
-def catchCliOutput(command):
-    return gdb.execute(command, to_string=True).split("\n")
-
 
 #######################################################################
 #
@@ -181,30 +176,6 @@ NamespaceCode = gdb.TYPE_CODE_NAMESPACE
 #Code = gdb.TYPE_CODE_DECFLOAT # Decimal floating point.
 #Code = gdb.TYPE_CODE_MODULE # Fortran
 #Code = gdb.TYPE_CODE_INTERNAL_FUNCTION
-
-
-#######################################################################
-#
-# Step Command
-#
-#######################################################################
-
-def sal(args):
-    (cmd, addr) = args.split(",")
-    lines = catchCliOutput("info line *" + addr)
-    fromAddr = "0x0"
-    toAddr = "0x0"
-    for line in lines:
-        pos0from = line.find(" starts at address") + 19
-        pos1from = line.find(" ", pos0from)
-        pos0to = line.find(" ends at", pos1from) + 9
-        pos1to = line.find(" ", pos0to)
-        if pos1to > 0:
-            fromAddr = line[pos0from : pos1from]
-            toAddr = line[pos0to : pos1to]
-    gdb.execute("maint packet sal%s,%s,%s" % (cmd,fromAddr, toAddr))
-
-registerCommand("sal", sal)
 
 
 #######################################################################
@@ -290,8 +261,6 @@ def importPlainDumpers(args):
 registerCommand("importPlainDumpers", importPlainDumpers)
 
 
-#gdb.Value.child = impl_Value_child
-
 
 class OutputSafer:
     def __init__(self, d):
@@ -310,14 +279,6 @@ class OutputSafer:
             self.d.output = self.savedOutput
         return False
 
-
-
-def value(expr):
-    value = parseAndEvaluate(expr)
-    try:
-        return int(value)
-    except:
-        return str(value)
 
 
 #def couldBePointer(p, align):
@@ -636,7 +597,7 @@ class Dumper(DumperBase):
         # Avoid malloc symbol clash with QVector.
         gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (type, type))
         gdb.execute("set *$d = {%s}" % init)
-        value = parseAndEvaluate("$d").dereference()
+        value = gdb.parse_and_eval("$d").dereference()
         #warn("  TYPE: %s" % value.type)
         #warn("  ADDR: %s" % value.address)
         #warn("  VALUE: %s" % value)
@@ -655,7 +616,7 @@ class Dumper(DumperBase):
         gdb.execute("set $d=(std::string*)calloc(sizeof(std::string), 2)");
         gdb.execute("call($d->basic_string(\"" + init +
             "\",*(std::allocator<char>*)(1+$d)))")
-        value = parseAndEvaluate("$d").dereference()
+        value = gdb.parse_and_eval("$d").dereference()
         #warn("  TYPE: %s" % value.type)
         #warn("  ADDR: %s" % value.address)
         #warn("  VALUE: %s" % value)
@@ -1634,7 +1595,7 @@ class Dumper(DumperBase):
 
     def dynamicTypeName(self, value):
         if self.hasVTable(value.type):
-            #vtbl = str(parseAndEvaluate("{int(*)(int)}%s" % int(value.address)))
+            #vtbl = str(gdb.parse_and_eval("{int(*)(int)}%s" % int(value.address)))
             try:
                 # Fails on 7.1 due to the missing to_string.
                 vtbl = gdb.execute("info symbol {int*}%s" % int(value.address),
@@ -1836,7 +1797,7 @@ registerCommand("threadnames", threadnames)
 def qmlb(args):
     # executeCommand(command, to_string=True).split("\n")
     warm("RUNNING: break -f QScript::FunctionWrapper::proxyCall")
-    output = catchCliOutput("rbreak -f QScript::FunctionWrapper::proxyCall")
+    output =  gdb.execute("rbreak -f QScript::FunctionWrapper::proxyCall", to_string=True).split("\n")
     warn("OUTPUT: %s " % output)
     bp = output[0]
     warn("BP: %s " % bp)
