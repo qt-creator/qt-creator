@@ -63,6 +63,7 @@ using namespace ResourceEditor::Internal;
 
 class PrefixLangDialog : public QDialog
 {
+    Q_OBJECT
 public:
     PrefixLangDialog(const QString &title, const QString &prefix, const QString &lang, QWidget *parent)
         : QDialog(parent)
@@ -333,3 +334,5 @@ ResourceEditorW * ResourceEditorPlugin::currentEditor() const
 }
 
 Q_EXPORT_PLUGIN(ResourceEditorPlugin)
+
+#include "resourceeditorplugin.moc"
