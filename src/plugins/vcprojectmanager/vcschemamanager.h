@@ -58,6 +58,7 @@ public:
     QList<QString> toolXMLFilePaths() const;
     void addToolXML(const QString &toolKey, const QString &toolFilePath);
     void removeToolXML(const QString &toolKey);
+    void removeToolSchemas();
 
     void removeAllSchemas();
 

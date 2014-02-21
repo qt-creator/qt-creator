@@ -101,6 +101,8 @@ void ToolSchemaWidget::saveSettings()
 {
     VcSchemaManager *vcSM = VcSchemaManager::instance();
 
+    vcSM->removeToolSchemas();
+
     if (vcSM) {
         for (int i = 0; i < ui->m_toolXMLTable->rowCount(); ++i) {
             ToolSchemaTableItem *tableItem = static_cast<ToolSchemaTableItem *>(ui->m_toolXMLTable->item(i, 0));

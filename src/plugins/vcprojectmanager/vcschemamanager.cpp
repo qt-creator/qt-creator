@@ -100,6 +100,11 @@ void VcSchemaManager::removeToolXML(const QString &toolKey)
     m_toolXMLPaths.remove(toolKey);
 }
 
+void VcSchemaManager::removeToolSchemas()
+{
+    m_toolXMLPaths.clear();
+}
+
 void VcSchemaManager::removeAllSchemas()
 {
     m_documentSchemas.clear();
