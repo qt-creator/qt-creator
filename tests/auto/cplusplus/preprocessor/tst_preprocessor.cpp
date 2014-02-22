@@ -588,6 +588,7 @@ void tst_Preprocessor::macro_uses_lines()
     QCOMPARE(client.macroUsesLine().value("NOTHING"), QList<unsigned>() << 13U);
     QCOMPARE(client.macroUsesLine().value("ENABLE"), QList<unsigned>() << 18U << 22U << 23U);
     QCOMPARE(client.macroUsesLine().value("ENABLE_COOL"), QList<unsigned>() << 21U);
+    QCOMPARE(client.definitionsResolvedFromLines().value("ENABLE_COOL"), QList<unsigned>() << 18U);
     QCOMPARE(client.expandedMacrosOffset(), QList<unsigned>()
              << buffer.lastIndexOf("FOO\n")
              << buffer.lastIndexOf("HEADER")
@@ -1098,13 +1099,19 @@ void tst_Preprocessor::defined_usage()
             "#endif\n"
             "#ifndef ABSENT2\n"
             "#endif\n"
+            "#if defined(ABSENT3)\n"
+            "#endif\n"
+            "#if defined(X)\n"
+            "#endif\n"
+            "#if defined(X) || defined(Y)\n"
+            "#endif\n"
             ;
     pp.run(QLatin1String("<stdin>"), source);
     QHash<QByteArray, QList<unsigned> > definitionsResolvedFromLines =
             client.definitionsResolvedFromLines();
-    QCOMPARE(definitionsResolvedFromLines["X"], QList<unsigned>() << 3 << 7);
-    QCOMPARE(definitionsResolvedFromLines["Y"], QList<unsigned>() << 5 << 9);
-    QCOMPARE(client.unresolvedDefines(), QSet<QByteArray>() << "ABSENT" << "ABSENT2");
+    QCOMPARE(definitionsResolvedFromLines["X"], QList<unsigned>() << 3 << 7 << 17 << 19);
+    QCOMPARE(definitionsResolvedFromLines["Y"], QList<unsigned>() << 5 << 9 << 19);
+    QCOMPARE(client.unresolvedDefines(), QSet<QByteArray>() << "ABSENT" << "ABSENT2" << "ABSENT3");
 }
 
 void tst_Preprocessor::dont_eagerly_expand_data()
