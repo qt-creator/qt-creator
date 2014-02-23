@@ -73,8 +73,8 @@ public:
                     if (_oper->isEqualTo(name))
                         _result.append(fun);
             }
-        } else if (const Identifier *id = _declaration->identifier()) {
-            if (id->isEqualTo(fun->identifier()))
+        } else if (Function *decl = _declaration->type()->asFunctionType()) {
+            if (fun->isEqualTo(decl))
                 _result.append(fun);
         }
 
@@ -338,7 +338,6 @@ QList<Declaration *> SymbolFinder::findMatchingDeclaration(const LookupContext &
     findMatchingDeclaration(context, functionType, &typeMatch, &argumentCountMatch, &nameMatch);
     result.append(typeMatch);
     result.append(argumentCountMatch);
-    result.append(nameMatch);
     return result;
 }
 
