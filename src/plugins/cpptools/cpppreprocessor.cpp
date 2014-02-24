@@ -235,9 +235,11 @@ QString CppPreprocessor::cleanPath(const QString &path)
 
 QString CppPreprocessor::resolveFile_helper(const QString &fileName, IncludeType type)
 {
-    const QFileInfo fileInfo(fileName);
-    if (isInjectedFile(fileName) || fileInfo.isAbsolute())
+    if (isInjectedFile(fileName))
         return fileName;
+
+    if (QFileInfo(fileName).isAbsolute())
+        return checkFile(fileName) ? fileName : QString();
 
     if (type == IncludeLocal && m_currentDoc) {
         const QFileInfo currentFileInfo(m_currentDoc->fileName());

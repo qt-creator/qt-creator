@@ -168,6 +168,7 @@ void CppToolsPlugin::test_cpppreprocessor_includes_allDiagnostics()
     QByteArray source =
         "#include <NotResolvable1>\n"
         "#include <NotResolvable2>\n"
+        "#include \"/some/nonexisting/file123.h\"\n"
         "\n"
         ;
 
@@ -176,6 +177,6 @@ void CppToolsPlugin::test_cpppreprocessor_includes_allDiagnostics()
     QVERIFY(document);
 
     QCOMPARE(document->resolvedIncludes().size(), 0);
-    QCOMPARE(document->unresolvedIncludes().size(), 2);
-    QCOMPARE(document->diagnosticMessages().size(), 2);
+    QCOMPARE(document->unresolvedIncludes().size(), 3);
+    QCOMPARE(document->diagnosticMessages().size(), 3);
 }
