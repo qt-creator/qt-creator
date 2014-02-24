@@ -3084,7 +3084,7 @@ static int assignQStringI(SymbolGroupNode  *n, const char *className,
                 << v.address() << ',' << data.stringLength << ')';
         std::wstring wOutput;
         std::string errorMessage;
-        return ExtensionContext::instance().call(callStr.str(), &wOutput, &errorMessage) ?
+        return ExtensionContext::instance().call(callStr.str(), 0, &wOutput, &errorMessage) ?
             assignQStringI(n, className, data, ctx, false) : 5;
     }
     // Write data.

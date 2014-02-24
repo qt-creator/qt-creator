@@ -349,7 +349,17 @@ bool ExtensionContext::reportLong(char code, int token, const char *serviceName,
     return true;
 }
 
+static const char *goCommandForCall(unsigned callFlags)
+{
+    if (callFlags & ExtensionContext::CallWithExceptionsHandled)
+        return "~. gh";
+    else if (callFlags & ExtensionContext::CallWithExceptionsNotHandled)
+        return "~. gN";
+    return "~. g";
+}
+
 bool ExtensionContext::call(const std::string &functionCall,
+                            unsigned callFlags,
                             std::wstring *output,
                             std::string *errorMessage)
 {
@@ -366,7 +376,7 @@ bool ExtensionContext::call(const std::string &functionCall,
     }
     // Execute in current thread. TODO: This must not crash, else we are in an inconsistent state
     // (need to call 'gh', etc.)
-    hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "~. g", DEBUG_EXECUTE_ECHO);
+    hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, goCommandForCall(callFlags), DEBUG_EXECUTE_ECHO);
     if (FAILED(hr)) {
         *errorMessage = msgDebugEngineComFailed("Execute", hr);
         return 0;
@@ -378,9 +388,9 @@ bool ExtensionContext::call(const std::string &functionCall,
     *output =  stopRecordingOutput();
     // Crude attempt at recovering from a crash: Issue 'gN' (go with exception not handled).
     const bool crashed = output->find(L"This exception may be expected and handled.") != std::string::npos;
-    if (crashed) {
+    if (crashed && !callFlags) {
         m_stopReason.clear();
-        hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "~. gN", DEBUG_EXECUTE_ECHO);
+        hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, goCommandForCall(CallWithExceptionsNotHandled), DEBUG_EXECUTE_ECHO);
         m_control->WaitForEvent(0, INFINITE);
         *errorMessage = "A crash occurred while calling: " + functionCall;
         return false;

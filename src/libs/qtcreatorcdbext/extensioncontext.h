@@ -58,6 +58,11 @@ class ExtensionContext {
 
     ExtensionContext();
 public:
+    enum CallFlags {
+        CallWithExceptionsHandled = 0x1,
+        CallWithExceptionsNotHandled = 0x2
+    };
+
     // Key used to report stop reason in StopReasonMap
     static const char *stopReasonKeyC;
     static const char *breakPointStopReasonC;  // pre-defined stop reasons
@@ -109,7 +114,7 @@ public:
     void startRecordingOutput();
     std::wstring stopRecordingOutput();
     // Execute a function call and record the output.
-    bool call(const std::string &functionCall, std::wstring *output, std::string *errorMessage);
+    bool call(const std::string &functionCall, unsigned callFlags, std::wstring *output, std::string *errorMessage);
 
     CIDebugClient *hookedClient() const { return m_hookedClient; }
 
