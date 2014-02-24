@@ -403,13 +403,13 @@ Rectangle {
             color: labels.color
         }
 
-        // Gradient borders
-        VerticalGradientBorder {
+        // border between labels and timeline
+        Rectangle {
             anchors.left: labels.right
             anchors.top: labels.top
             anchors.bottom: labelsTail.bottom
-            leftColor: "#00000000"
-            rightColor: "#86000000"
+            width: 1
+            color: "#858585"
         }
     }
 
@@ -483,21 +483,5 @@ Rectangle {
                 zoomControl.setRange(startTime, startTime + windowLength);
             }
         }
-    }
-
-    VerticalGradientBorder {
-        anchors.right: root.right
-        anchors.top: root.top
-        anchors.bottom: root.bottom
-        rightColor: "#00000000"
-        leftColor: "#86000000"
-    }
-
-    HorizontalGradientBorder {
-        anchors.bottom: root.bottom
-        anchors.left: root.left
-        anchors.right: root.right
-        bottomColor: "#00000000"
-        topColor: "#86000000"
     }
 }

@@ -83,6 +83,4 @@ OTHER_FILES += \
     qml/TimeMarks.qml \
     qml/SelectionRange.qml \
     qml/SelectionRangeDetails.qml \
-    qml/Overview.qml \
-    qml/VerticalGradientBorder.qml \
-    qml/HorizontalGradientBorder.qml
+    qml/Overview.qml

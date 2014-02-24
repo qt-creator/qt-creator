@@ -16,8 +16,6 @@
         <file>Overview.js</file>
         <file>SelectionRange.qml</file>
         <file>SelectionRangeDetails.qml</file>
-        <file>HorizontalGradientBorder.qml</file>
-        <file>VerticalGradientBorder.qml</file>
         <file>arrow_down.png</file>
         <file>arrow_right.png</file>
         <file>dialog_shadow.png</file>
