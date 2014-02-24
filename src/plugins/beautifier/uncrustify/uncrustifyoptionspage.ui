@@ -58,7 +58,7 @@
         <item>
          <widget class="QCheckBox" name="useCustomStyle">
           <property name="text">
-           <string>Use selfdefined style:</string>
+           <string>Use self-defined style:</string>
           </property>
          </widget>
         </item>

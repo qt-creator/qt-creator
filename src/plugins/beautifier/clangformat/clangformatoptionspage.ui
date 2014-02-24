@@ -23,7 +23,7 @@
       <item>
        <widget class="QLabel" name="commandLabel">
         <property name="text">
-         <string>ClangFormat command:</string>
+         <string>Clang Format command:</string>
         </property>
        </widget>
       </item>
@@ -74,7 +74,7 @@
       <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="formatEntireFileFallback">
         <property name="text">
-         <string>Format entire file if no text was selected. (For action &quot;Format Selected Text&quot;)</string>
+         <string>Format entire file if no text was selected. (For action Format Selected Text)</string>
         </property>
        </widget>
       </item>

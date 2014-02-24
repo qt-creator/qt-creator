@@ -131,7 +131,7 @@ void ArtisticStyle::formatFile()
         cfgFileName = m_settings->styleFileName(m_settings->customStyle());
 
     if (cfgFileName.isEmpty()) {
-        BeautifierPlugin::showError(tr("Could not get configuration file for Artistic Style."));
+        BeautifierPlugin::showError(tr("Cannot get configuration file for Artistic Style."));
     } else {
         BeautifierPlugin::formatCurrentFile(QStringList()
                                             << m_settings->command()
