@@ -686,10 +686,10 @@ void FindToolBar::findPreviousSelected()
 bool FindToolBar::focusNextPrevChild(bool next)
 {
     // close tab order change
-    if (next && m_ui.replaceAllButton->hasFocus())
+    if (next && m_ui.advancedButton->hasFocus())
         m_ui.findEdit->setFocus(Qt::TabFocusReason);
     else if (!next && m_ui.findEdit->hasFocus())
-        m_ui.replaceAllButton->setFocus(Qt::TabFocusReason);
+        m_ui.advancedButton->setFocus(Qt::TabFocusReason);
     else
         return Utils::StyledBar::focusNextPrevChild(next);
     return true;
