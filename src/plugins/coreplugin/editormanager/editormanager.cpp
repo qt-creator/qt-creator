@@ -411,12 +411,14 @@ EditorManager::EditorManager(QWidget *parent) :
     medit->addMenu(advancedMenu, Constants::G_EDIT_ADVANCED);
     advancedMenu->menu()->setTitle(tr("Ad&vanced"));
     advancedMenu->appendGroup(Constants::G_EDIT_FORMAT);
+    advancedMenu->appendGroup(Constants::G_EDIT_TEXT);
     advancedMenu->appendGroup(Constants::G_EDIT_COLLAPSING);
     advancedMenu->appendGroup(Constants::G_EDIT_BLOCKS);
     advancedMenu->appendGroup(Constants::G_EDIT_FONT);
     advancedMenu->appendGroup(Constants::G_EDIT_EDITOR);
 
     // Advanced menu separators
+    advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_TEXT);
     advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_COLLAPSING);
     advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_BLOCKS);
     advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_FONT);

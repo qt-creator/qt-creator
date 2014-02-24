@@ -5060,6 +5060,8 @@ void BaseTextEditorWidget::copyLine()
     QTextCursor prevCursor = textCursor();
     maybeSelectLine();
     copy();
+    if (!prevCursor.hasSelection())
+        prevCursor.movePosition(QTextCursor::StartOfBlock);
     setTextCursor(prevCursor);
 }
 

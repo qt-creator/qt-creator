@@ -159,6 +159,7 @@ const char G_EDIT_OTHER[]          = "QtCreator.Group.Edit.Other";
 // Advanced edit menu groups
 const char G_EDIT_FORMAT[]         = "QtCreator.Group.Edit.Format";
 const char G_EDIT_COLLAPSING[]     = "QtCreator.Group.Edit.Collapsing";
+const char G_EDIT_TEXT[]           = "QtCreator.Group.Edit.Text";
 const char G_EDIT_BLOCKS[]         = "QtCreator.Group.Edit.Blocks";
 const char G_EDIT_FONT[]           = "QtCreator.Group.Edit.Font";
 const char G_EDIT_EDITOR[]         = "QtCreator.Group.Edit.Editor";

@@ -136,12 +136,6 @@ void TextEditorActionHandler::createActions()
             SLOT(gotoAction()));
     m_printAction = registerAction(PRINT,
             SLOT(printAction()));
-    m_cutLineAction = registerAction(CUT_LINE,
-            SLOT(cutLine()), true, tr("Cut &Line"),
-            QKeySequence(tr("Shift+Del")));
-    m_copyLineAction = registerAction(COPY_LINE,
-            SLOT(copyLine()), false, tr("Copy &Line"),
-            QKeySequence(tr("Ctrl+Ins")));
     m_deleteLineAction = registerAction(DELETE_LINE,
             SLOT(deleteLine()), true, tr("Delete &Line"));
     m_deleteEndOfWordAction = registerAction(DELETE_END_OF_WORD,
@@ -241,6 +235,14 @@ void TextEditorActionHandler::createActions()
             SLOT(unCommentSelection()), true, tr("Toggle Comment &Selection"),
             QKeySequence(tr("Ctrl+/")),
             G_EDIT_FORMAT, advancedEditMenu);
+    m_cutLineAction = registerAction(CUT_LINE,
+            SLOT(cutLine()), true, tr("Cut &Line"),
+            QKeySequence(tr("Shift+Del")),
+            G_EDIT_TEXT, advancedEditMenu);
+    m_copyLineAction = registerAction(COPY_LINE,
+            SLOT(copyLine()), false, tr("Copy &Line"),
+            QKeySequence(tr("Ctrl+Ins")),
+            G_EDIT_TEXT, advancedEditMenu);
     m_foldAction = registerAction(FOLD,
             SLOT(fold()), true, tr("Fold"),
             QKeySequence(tr("Ctrl+<")),
