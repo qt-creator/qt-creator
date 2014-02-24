@@ -462,7 +462,7 @@ static inline void getProjectChoicesAndToolTips(QStringList *projectChoicesParam
     ProjectExplorer::ProjectAction projectAction;
     if (context->wizard->kind()== IWizard::ProjectWizard) {
         const QString projectFilePath = generatedProjectFilePath(generatedFiles);
-        projectAction = ProjectExplorer::AddNewFile;
+        projectAction = ProjectExplorer::AddSubProject;
         foreach (ProjectNode *pn, AddNewProjectNodesVisitor::projectNodes(projectFilePath))
             entryMap.insert(FolderEntry(pn, QStringList() << projectFilePath), true);
 
@@ -471,7 +471,7 @@ static inline void getProjectChoicesAndToolTips(QStringList *projectChoicesParam
         foreach (const GeneratedFile &gf, generatedFiles)
             filePaths << gf.path();
 
-        projectAction = ProjectExplorer::AddSubProject;
+        projectAction = ProjectExplorer::AddNewFile;
         foreach (FolderNode *fn, AddNewFileNodesVisitor::allFolders())
             entryMap.insert(FolderEntry(fn, filePaths), true);
     }
