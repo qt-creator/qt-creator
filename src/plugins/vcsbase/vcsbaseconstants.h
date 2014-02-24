@@ -49,6 +49,9 @@ const char VCS_ID_SUBVERSION[] = "J.Subversion";
 const char VCS_ID_PERFORCE[] = "P.Perforce";
 const char VCS_ID_CVS[] = "Z.CVS";
 
+const char VAR_VCS_NAME[] = "CurrentProject:VcsName";
+const char VAR_VCS_TOPIC[] = "CurrentProject:VcsTopic";
+
 } // namespace Constants
 } // namespace VcsBase
 

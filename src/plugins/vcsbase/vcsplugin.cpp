@@ -28,12 +28,20 @@
 ****************************************************************************/
 
 #include "vcsplugin.h"
+
+#include "vcsbaseconstants.h"
+
 #include "commonsettingspage.h"
 #include "nicknamedialog.h"
 #include "vcsbaseoutputwindow.h"
 #include "corelistener.h"
 
+#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/mimedatabase.h>
+#include <coreplugin/variablemanager.h>
+#include <coreplugin/vcsmanager.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -74,6 +82,15 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_settingsPage, SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
             this, SLOT(slotSettingsChanged()));
     slotSettingsChanged();
+
+    connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
+            this, SLOT(updateVariable(QByteArray)));
+
+    Core::VariableManager::registerVariable(Constants::VAR_VCS_NAME,
+        tr("Name of the version control system in use by the current project."));
+    Core::VariableManager::registerVariable(Constants::VAR_VCS_TOPIC,
+        tr("The current version control topic (branch or tag) identification of the current project."));
+
     return true;
 }
 
@@ -120,6 +137,32 @@ void VcsPlugin::slotSettingsChanged()
 {
     if (m_nickNameModel)
         populateNickNameModel();
+}
+
+void VcsPlugin::updateVariable(const QByteArray &variable)
+{
+    static ProjectExplorer::Project *cachedProject = 0;
+    static Core::IVersionControl *cachedVc = 0;
+    static QString cachedTopLevel;
+
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    if (cachedProject != project) {
+        cachedVc = Core::VcsManager::findVersionControlForDirectory(project->projectDirectory(),
+                                                                    &cachedTopLevel);
+        cachedProject = project;
+    }
+
+    if (variable == Constants::VAR_VCS_NAME) {
+        if (cachedVc)
+            Core::VariableManager::insert(variable, cachedVc->displayName());
+        else
+            Core::VariableManager::remove(variable);
+    } else if (variable == Constants::VAR_VCS_TOPIC) {
+        if (cachedVc)
+            Core::VariableManager::insert(variable, cachedVc->vcsTopic(cachedTopLevel));
+        else
+            Core::VariableManager::remove(variable);
+    }
 }
 
 } // namespace Internal
