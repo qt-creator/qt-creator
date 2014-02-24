@@ -28,6 +28,8 @@
 ****************************************************************************/
 
 #include "sidebysidediffeditorwidget.h"
+#include "diffeditorguicontroller.h"
+
 #include <QPlainTextEdit>
 #include <QVBoxLayout>
 #include <QPlainTextDocumentLayout>
@@ -960,6 +962,7 @@ void SideDiffEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
 
 SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     : QWidget(parent)
+    , m_guiController(0)
     , m_controller(0)
     , m_foldingBlocker(false)
 {
@@ -1034,40 +1037,46 @@ SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
 
 }
 
-void SideBySideDiffEditorWidget::setDiffEditorController(DiffEditorController *controller)
+void SideBySideDiffEditorWidget::setDiffEditorGuiController(DiffEditorGuiController *controller)
 {
-    if (m_controller) {
+    if (m_guiController) {
         disconnect(m_controller, SIGNAL(cleared(QString)), this, SLOT(clear(QString)));
         disconnect(m_controller, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),
                 this, SLOT(setDiff(QList<DiffEditorController::DiffFilesContents>,QString)));
-        disconnect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
+
+        disconnect(m_guiController, SIGNAL(contextLinesNumberChanged(int)),
                 this, SLOT(setContextLinesNumber(int)));
-        disconnect(m_controller, SIGNAL(ignoreWhitespacesChanged(bool)),
+        disconnect(m_guiController, SIGNAL(ignoreWhitespacesChanged(bool)),
                 this, SLOT(setIgnoreWhitespaces(bool)));
-        disconnect(m_controller, SIGNAL(currentDiffFileIndexChanged(int)),
+        disconnect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
                 this, SLOT(setCurrentDiffFileIndex(int)));
 
         clear(tr("No controller"));
     }
-    m_controller = controller;
-    if (m_controller) {
+    m_guiController = controller;
+    m_controller = 0;
+    if (m_guiController) {
+        m_controller = m_guiController->controller();
+
         connect(m_controller, SIGNAL(cleared(QString)), this, SLOT(clear(QString)));
         connect(m_controller, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),
                 this, SLOT(setDiff(QList<DiffEditorController::DiffFilesContents>,QString)));
-        connect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
+
+        connect(m_guiController, SIGNAL(contextLinesNumberChanged(int)),
                 this, SLOT(setContextLinesNumber(int)));
-        connect(m_controller, SIGNAL(ignoreWhitespacesChanged(bool)),
+        connect(m_guiController, SIGNAL(ignoreWhitespacesChanged(bool)),
                 this, SLOT(setIgnoreWhitespaces(bool)));
-        connect(m_controller, SIGNAL(currentDiffFileIndexChanged(int)),
+        connect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
                 this, SLOT(setCurrentDiffFileIndex(int)));
 
         setDiff(m_controller->diffContents(), m_controller->workingDirectory());
     }
 }
 
-DiffEditorController *SideBySideDiffEditorWidget::diffEditorController() const
+
+DiffEditorGuiController *SideBySideDiffEditorWidget::diffEditorGuiController() const
 {
-    return m_controller;
+    return m_guiController;
 }
 
 void SideBySideDiffEditorWidget::clear(const QString &message)
@@ -1122,10 +1131,9 @@ void SideBySideDiffEditorWidget::handleWhitespaces(const QList<Diff> &input,
         return;
 
     Differ::splitDiffList(input, leftOutput, rightOutput);
-    if (m_controller && m_controller->isIgnoreWhitespaces()) {
+    if (m_guiController && m_guiController->isIgnoreWhitespaces()) {
         QList<Diff> leftDiffList = Differ::moveWhitespaceIntoEqualities(*leftOutput);
         QList<Diff> rightDiffList = Differ::moveWhitespaceIntoEqualities(*rightOutput);
-
         Differ::diffBetweenEqualities(leftDiffList, rightDiffList, leftOutput, rightOutput);
     }
 }
@@ -1172,7 +1180,7 @@ void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
 
 FileData SideBySideDiffEditorWidget::calculateContextData(const ChunkData &originalData) const
 {
-    const int contextLinesNumber = m_controller ? m_controller->contextLinesNumber() : 3;
+    const int contextLinesNumber = m_guiController ? m_guiController->contextLinesNumber() : 3;
     if (contextLinesNumber < 0)
         return FileData(originalData);
 
@@ -1652,13 +1660,13 @@ void SideBySideDiffEditorWidget::rightVSliderChanged()
 
 void SideBySideDiffEditorWidget::leftHSliderChanged()
 {
-    if (!m_controller || m_controller->horizontalScrollBarSynchronization())
+    if (!m_guiController || m_guiController->horizontalScrollBarSynchronization())
         m_rightEditor->horizontalScrollBar()->setValue(m_leftEditor->horizontalScrollBar()->value());
 }
 
 void SideBySideDiffEditorWidget::rightHSliderChanged()
 {
-    if (!m_controller || m_controller->horizontalScrollBarSynchronization())
+    if (!m_guiController || m_guiController->horizontalScrollBarSynchronization())
         m_leftEditor->horizontalScrollBar()->setValue(m_rightEditor->horizontalScrollBar()->value());
 }
 
@@ -1667,10 +1675,10 @@ void SideBySideDiffEditorWidget::leftCursorPositionChanged()
     leftVSliderChanged();
     leftHSliderChanged();
 
-    if (!m_controller)
+    if (!m_guiController)
         return;
 
-    m_controller->setCurrentDiffFileIndex(m_leftEditor->fileIndexForBlockNumber(m_leftEditor->textCursor().blockNumber()));
+    m_guiController->setCurrentDiffFileIndex(m_leftEditor->fileIndexForBlockNumber(m_leftEditor->textCursor().blockNumber()));
 }
 
 void SideBySideDiffEditorWidget::rightCursorPositionChanged()
@@ -1678,10 +1686,10 @@ void SideBySideDiffEditorWidget::rightCursorPositionChanged()
     rightVSliderChanged();
     rightHSliderChanged();
 
-    if (!m_controller)
+    if (!m_guiController)
         return;
 
-    m_controller->setCurrentDiffFileIndex(m_rightEditor->fileIndexForBlockNumber(m_rightEditor->textCursor().blockNumber()));
+    m_guiController->setCurrentDiffFileIndex(m_rightEditor->fileIndexForBlockNumber(m_rightEditor->textCursor().blockNumber()));
 }
 
 void SideBySideDiffEditorWidget::leftDocumentSizeChanged()

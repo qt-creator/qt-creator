@@ -47,6 +47,7 @@ QT_END_NAMESPACE
 
 namespace DiffEditor {
 
+class DiffEditorGuiController;
 class SideDiffEditorWidget;
 class ChunkData;
 class FileData;
@@ -58,8 +59,8 @@ public:
     SideBySideDiffEditorWidget(QWidget *parent = 0);
     ~SideBySideDiffEditorWidget();
 
-    void setDiffEditorController(DiffEditorController *controller);
-    DiffEditorController *diffEditorController() const;
+    void setDiffEditorGuiController(DiffEditorGuiController *controller);
+    DiffEditorGuiController *diffEditorGuiController() const;
 
 #ifdef WITH_TESTS
     static void testAssemblyRows();
@@ -106,6 +107,7 @@ private:
     void synchronizeFoldings(SideDiffEditorWidget *source, SideDiffEditorWidget *destination);
     void jumpToOriginalFile(const QString &fileName, int lineNumber, int columnNumber);
 
+    DiffEditorGuiController *m_guiController;
     DiffEditorController *m_controller;
     SideDiffEditorWidget *m_leftEditor;
     SideDiffEditorWidget *m_rightEditor;

@@ -33,12 +33,7 @@ namespace DiffEditor {
 
 DiffEditorController::DiffEditorController(QObject *parent)
     : QObject(parent),
-      m_descriptionEnabled(false),
-      m_descriptionVisible(true),
-      m_contextLinesNumber(3),
-      m_ignoreWhitespaces(true),
-      m_syncScrollBars(true),
-      m_currentDiffFileIndex(-1)
+      m_descriptionEnabled(false)
 {
     clear();
 }
@@ -73,31 +68,6 @@ bool DiffEditorController::isDescriptionEnabled() const
     return m_descriptionEnabled;
 }
 
-bool DiffEditorController::isDescriptionVisible() const
-{
-    return m_descriptionVisible;
-}
-
-int DiffEditorController::contextLinesNumber() const
-{
-    return m_contextLinesNumber;
-}
-
-bool DiffEditorController::isIgnoreWhitespaces() const
-{
-    return m_ignoreWhitespaces;
-}
-
-bool DiffEditorController::horizontalScrollBarSynchronization() const
-{
-    return m_syncScrollBars;
-}
-
-int DiffEditorController::currentDiffFileIndex() const
-{
-    return m_currentDiffFileIndex;
-}
-
 void DiffEditorController::clear()
 {
     clear(tr("No difference"));
@@ -106,7 +76,6 @@ void DiffEditorController::clear()
 void DiffEditorController::clear(const QString &message)
 {
     m_clearMessage = message;
-    m_currentDiffFileIndex = -1;
     emit cleared(message);
 }
 
@@ -115,7 +84,6 @@ void DiffEditorController::setDiffContents(const QList<DiffFilesContents> &diffF
 {
     m_diffFileList = diffFileList;
     m_workingDirectory = workingDirectory;
-    m_currentDiffFileIndex = (diffFileList.isEmpty() ? -1 : 0);
     emit diffContentsChanged(diffFileList, workingDirectory);
 }
 
@@ -135,57 +103,6 @@ void DiffEditorController::setDescriptionEnabled(bool on)
 
     m_descriptionEnabled = on;
     emit descriptionEnablementChanged(on);
-}
-
-void DiffEditorController::setDescriptionVisible(bool on)
-{
-    if (m_descriptionVisible == on)
-        return;
-
-    m_descriptionVisible = on;
-    emit descriptionVisibilityChanged(on);
-}
-
-void DiffEditorController::setContextLinesNumber(int lines)
-{
-    const int l = qMax(lines, -1);
-    if (m_contextLinesNumber == l)
-        return;
-
-    m_contextLinesNumber = l;
-    emit contextLinesNumberChanged(l);
-}
-
-void DiffEditorController::setIgnoreWhitespaces(bool ignore)
-{
-    if (m_ignoreWhitespaces == ignore)
-        return;
-
-    m_ignoreWhitespaces = ignore;
-    emit ignoreWhitespacesChanged(ignore);
-}
-
-void DiffEditorController::setHorizontalScrollBarSynchronization(bool on)
-{
-    if (m_syncScrollBars == on)
-        return;
-
-    m_syncScrollBars = on;
-    emit horizontalScrollBarSynchronizationChanged(on);
-}
-
-void DiffEditorController::setCurrentDiffFileIndex(int diffFileIndex)
-{
-    if (!m_diffFileList.count())
-        return; // -1 is the only valid value in this case
-
-    const int newIndex = qBound(0, diffFileIndex, m_diffFileList.count() - 1);
-
-    if (m_currentDiffFileIndex == newIndex)
-        return;
-
-    m_currentDiffFileIndex = newIndex;
-    emit currentDiffFileIndexChanged(newIndex);
 }
 
 } // namespace DiffEditor

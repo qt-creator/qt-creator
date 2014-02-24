@@ -67,12 +67,6 @@ public:
     QString description() const;
     bool isDescriptionEnabled() const;
 
-    bool isDescriptionVisible() const;
-    int contextLinesNumber() const;
-    bool isIgnoreWhitespaces() const;
-    bool horizontalScrollBarSynchronization() const;
-    int currentDiffFileIndex() const;
-
 public slots:
     void clear();
     void clear(const QString &message);
@@ -81,25 +75,11 @@ public slots:
     void setDescription(const QString &description);
     void setDescriptionEnabled(bool on);
 
-    void setDescriptionVisible(bool on);
-    void setContextLinesNumber(int lines);
-    void setIgnoreWhitespaces(bool ignore);
-    void setHorizontalScrollBarSynchronization(bool on);
-    void setCurrentDiffFileIndex(int diffFileIndex);
-
 signals:
-    // This sets the current diff file index to -1
     void cleared(const QString &message);
-    // This sets the current diff file index to 0 (unless diffFileList is empty)
     void diffContentsChanged(const QList<DiffEditorController::DiffFilesContents> &diffFileList, const QString &workingDirectory);
     void descriptionChanged(const QString &description);
     void descriptionEnablementChanged(bool on);
-
-    void descriptionVisibilityChanged(bool on);
-    void contextLinesNumberChanged(int lines);
-    void ignoreWhitespacesChanged(bool ignore);
-    void horizontalScrollBarSynchronizationChanged(bool on);
-    void currentDiffFileIndexChanged(int diffFileIndex);
 
 private:
     QString m_clearMessage;
@@ -108,12 +88,6 @@ private:
     QString m_workingDirectory;
     QString m_description;
     bool m_descriptionEnabled;
-
-    bool m_descriptionVisible;
-    int m_contextLinesNumber;
-    bool m_ignoreWhitespaces;
-    bool m_syncScrollBars;
-    int m_currentDiffFileIndex;
 };
 
 } // namespace DiffEditor

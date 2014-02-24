@@ -30,6 +30,7 @@
 #include "diffeditor.h"
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
+#include "diffeditorguicontroller.h"
 #include "sidebysidediffeditorwidget.h"
 
 #include <coreplugin/icore.h>
@@ -121,7 +122,8 @@ DiffEditor::DiffEditor()
     , m_document(new DiffEditorDocument(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE)))
     , m_descriptionWidget(0)
     , m_diffWidget(0)
-    , m_diffEditorController(0)
+    , m_controller(0)
+    , m_guiController(0)
     , m_toolBar(0)
     , m_entriesComboBox(0)
     , m_toggleDescriptionAction(0)
@@ -134,7 +136,8 @@ DiffEditor::DiffEditor(DiffEditor *other)
     , m_document(other->m_document)
     , m_descriptionWidget(0)
     , m_diffWidget(0)
-    , m_diffEditorController(0)
+    , m_controller(0)
+    , m_guiController(0)
     , m_toolBar(0)
     , m_entriesComboBox(0)
     , m_toggleDescriptionAction(0)
@@ -163,23 +166,24 @@ void DiffEditor::ctor()
     m_descriptionWidget->setCodeStyle(TextEditorSettings::codeStyle());
     m_descriptionWidget->baseTextDocument()->setFontSettings(TextEditorSettings::fontSettings());
 
-    m_diffEditorController = m_document->controller();
-    m_diffWidget->setDiffEditorController(m_diffEditorController);
+    m_controller = m_document->controller();
+    m_guiController = new DiffEditorGuiController(m_controller, this);
+    m_diffWidget->setDiffEditorGuiController(m_guiController);
 
-    connect(m_diffEditorController, SIGNAL(cleared(QString)),
+    connect(m_controller, SIGNAL(cleared(QString)),
             this, SLOT(slotCleared(QString)));
-    connect(m_diffEditorController, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),
+    connect(m_controller, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),
             this, SLOT(slotDiffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)));
-    connect(m_diffEditorController, SIGNAL(currentDiffFileIndexChanged(int)),
-            this, SLOT(activateEntry(int)));
-    connect(m_diffEditorController, SIGNAL(descriptionChanged(QString)),
+    connect(m_controller, SIGNAL(descriptionChanged(QString)),
             this, SLOT(slotDescriptionChanged(QString)));
-    connect(m_diffEditorController, SIGNAL(descriptionEnablementChanged(bool)),
+    connect(m_controller, SIGNAL(descriptionEnablementChanged(bool)),
             this, SLOT(slotDescriptionVisibilityChanged()));
-    connect(m_diffEditorController, SIGNAL(descriptionVisibilityChanged(bool)),
+    connect(m_guiController, SIGNAL(descriptionVisibilityChanged(bool)),
             this, SLOT(slotDescriptionVisibilityChanged()));
+    connect(m_guiController, SIGNAL(currentDiffFileIndexChanged(int)),
+            this, SLOT(activateEntry(int)));
 
-    slotDescriptionChanged(m_diffEditorController->description());
+    slotDescriptionChanged(m_controller->description());
     slotDescriptionVisibilityChanged();
 }
 
@@ -275,13 +279,13 @@ QWidget *DiffEditor::toolBar()
     slotDescriptionVisibilityChanged();
 
     connect(whitespaceButton, SIGNAL(clicked(bool)),
-            m_diffEditorController, SLOT(setIgnoreWhitespaces(bool)));
+            m_guiController, SLOT(setIgnoreWhitespaces(bool)));
     connect(contextSpinBox, SIGNAL(valueChanged(int)),
-            m_diffEditorController, SLOT(setContextLinesNumber(int)));
+            m_guiController, SLOT(setContextLinesNumber(int)));
     connect(toggleSync, SIGNAL(clicked(bool)),
-            m_diffEditorController, SLOT(setHorizontalScrollBarSynchronization(bool)));
+            m_guiController, SLOT(setHorizontalScrollBarSynchronization(bool)));
     connect(toggleDescription, SIGNAL(clicked(bool)),
-            m_diffEditorController, SLOT(setDescriptionVisible(bool)));
+            m_guiController, SLOT(setDescriptionVisible(bool)));
     // TODO: synchronize in opposite direction too
 
     return m_toolBar;
@@ -289,7 +293,7 @@ QWidget *DiffEditor::toolBar()
 
 DiffEditorController * DiffEditor::controller() const
 {
-    return m_diffEditorController;
+    return m_controller;
 }
 
 void DiffEditor::updateEntryToolTip()
@@ -302,7 +306,7 @@ void DiffEditor::updateEntryToolTip()
 void DiffEditor::entryActivated(int index)
 {
     updateEntryToolTip();
-    m_diffEditorController->setCurrentDiffFileIndex(index);
+    m_guiController->setCurrentDiffFileIndex(index);
 }
 
 void DiffEditor::slotCleared(const QString &message)
@@ -373,8 +377,8 @@ void DiffEditor::slotDescriptionChanged(const QString &description)
 
 void DiffEditor::slotDescriptionVisibilityChanged()
 {
-    const bool visible = m_diffEditorController->isDescriptionVisible();
-    const bool enabled = m_diffEditorController->isDescriptionEnabled();
+    const bool enabled = m_controller->isDescriptionEnabled();
+    const bool visible = m_guiController->isDescriptionVisible();
 
     m_descriptionWidget->setVisible(visible && enabled);
 

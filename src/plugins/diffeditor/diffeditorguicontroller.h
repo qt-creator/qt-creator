@@ -27,75 +27,58 @@
 **
 ****************************************************************************/
 
-#ifndef DIFFEDITOR_H
-#define DIFFEDITOR_H
+#ifndef DIFFEDITORGUICONTROLLER_H
+#define DIFFEDITORGUICONTROLLER_H
 
 #include "diffeditor_global.h"
-#include "diffeditorcontroller.h"
 
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/idocument.h>
-
-QT_BEGIN_NAMESPACE
-class QToolBar;
-class QComboBox;
-class QToolButton;
-QT_END_NAMESPACE
-
-namespace TextEditor { class BaseTextEditorWidget; }
+#include <QObject>
 
 namespace DiffEditor {
 
-class DiffEditorDocument;
-class DiffEditorGuiController;
-class SideBySideDiffEditorWidget;
+class DiffEditorController;
 
-class DIFFEDITOR_EXPORT DiffEditor : public Core::IEditor
+class DIFFEDITOR_EXPORT DiffEditorGuiController : public QObject
 {
     Q_OBJECT
 public:
-    DiffEditor();
-    DiffEditor(DiffEditor *other);
-    virtual ~DiffEditor();
+    DiffEditorGuiController(DiffEditorController *controller, QObject *parent = 0);
+    ~DiffEditorGuiController();
 
-public:
     DiffEditorController *controller() const;
 
-    // Core::IEditor
-    bool duplicateSupported() const { return false; }
-    Core::IEditor *duplicate();
-
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    Core::IDocument *document();
-    Core::Id id() const;
-
-    QWidget *toolBar();
+    bool isDescriptionVisible() const;
+    int contextLinesNumber() const;
+    bool isIgnoreWhitespaces() const;
+    bool horizontalScrollBarSynchronization() const;
+    int currentDiffFileIndex() const;
 
 public slots:
-    void activateEntry(int index);
+    void setDescriptionVisible(bool on);
+    void setContextLinesNumber(int lines);
+    void setIgnoreWhitespaces(bool ignore);
+    void setHorizontalScrollBarSynchronization(bool on);
+    void setCurrentDiffFileIndex(int diffFileIndex);
+
+signals:
+    void descriptionVisibilityChanged(bool on);
+    void contextLinesNumberChanged(int lines);
+    void ignoreWhitespacesChanged(bool ignore);
+    void horizontalScrollBarSynchronizationChanged(bool on);
+    void currentDiffFileIndexChanged(int diffFileIndex);
 
 private slots:
-    void slotCleared(const QString &message);
-    void slotDiffContentsChanged(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
-                                 const QString &workingDirectory);
-    void entryActivated(int index);
-    void slotDescriptionChanged(const QString &description);
-    void slotDescriptionVisibilityChanged();
+    void slotUpdateDiffFileIndex();
 
 private:
-    void ctor();
-    void updateEntryToolTip();
-
-    QSharedPointer<DiffEditorDocument> m_document;
-    TextEditor::BaseTextEditorWidget *m_descriptionWidget;
-    SideBySideDiffEditorWidget *m_diffWidget;
     DiffEditorController *m_controller;
-    DiffEditorGuiController *m_guiController;
-    QToolBar *m_toolBar;
-    QComboBox *m_entriesComboBox;
-    QAction *m_toggleDescriptionAction;
+    bool m_descriptionVisible;
+    int m_contextLinesNumber;
+    bool m_ignoreWhitespaces;
+    bool m_syncScrollBars;
+    int m_currentDiffFileIndex;
 };
 
 } // namespace DiffEditor
 
-#endif // DIFFEDITOR_H
+#endif // DIFFEDITORGUICONTROLLER_H
