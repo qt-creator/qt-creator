@@ -43,17 +43,21 @@ class SrcDestDialog : public QDialog
     Q_OBJECT
 
 public:
-    SrcDestDialog(QWidget *parent = 0);
+    enum Direction { outgoing, incoming };
+    explicit SrcDestDialog(Direction dir, QWidget *parent = 0);
     ~SrcDestDialog();
 
     void setPathChooserKind(Utils::PathChooser::Kind kind);
     QString getRepositoryString() const;
+    QString workingDir() const;
 
 private:
     QUrl getRepoUrl() const;
 
 private:
     Ui::SrcDestDialog *m_ui;
+    Direction m_direction;
+    mutable QString m_workingdir;
 };
 
 } // namespace Internal

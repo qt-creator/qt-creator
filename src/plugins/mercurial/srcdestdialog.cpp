@@ -38,9 +38,10 @@
 using namespace VcsBase;
 using namespace Mercurial::Internal;
 
-SrcDestDialog::SrcDestDialog(QWidget *parent) :
+SrcDestDialog::SrcDestDialog(Direction dir, QWidget *parent) :
     QDialog(parent),
-    m_ui(new Ui::SrcDestDialog)
+    m_ui(new Ui::SrcDestDialog),
+    m_direction(dir)
 {
     m_ui->setupUi(this);
     m_ui->localPathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
@@ -91,10 +92,28 @@ QString SrcDestDialog::getRepositoryString() const
     return m_ui->urlLineEdit->text();
 }
 
+QString SrcDestDialog::workingDir() const
+{
+    return m_workingdir;
+}
+
 QUrl SrcDestDialog::getRepoUrl() const
 {
     MercurialPlugin *plugin = MercurialPlugin::instance();
     const VcsBasePluginState state = plugin->currentState();
-    QSettings settings(QString(QLatin1String("%1/.hg/hgrc")).arg(state.currentProjectPath()), QSettings::IniFormat);
-    return settings.value(QLatin1String("paths/default")).toUrl();
+    // Repo to use: Default to the project repo, but use the current
+    const QString projectLoc = state.currentProjectPath();
+    const QString fileLoc = state.currentFileTopLevel();
+    m_workingdir = projectLoc;
+    if (!fileLoc.isEmpty())
+        m_workingdir = fileLoc;
+    if (!projectLoc.isEmpty() && fileLoc.startsWith(projectLoc + QLatin1Char('/')))
+        m_workingdir = projectLoc;
+    QSettings settings(QString(QLatin1String("%1/.hg/hgrc")).arg(m_workingdir), QSettings::IniFormat);
+    QUrl url;
+    if (m_direction == outgoing)
+        url = settings.value(QLatin1String("paths/default-push")).toUrl();
+    if (url.isEmpty())
+        url = settings.value(QLatin1String("paths/default")).toUrl();
+    return url;
 }

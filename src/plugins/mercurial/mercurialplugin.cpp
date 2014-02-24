@@ -439,11 +439,11 @@ void MercurialPlugin::pull()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    SrcDestDialog dialog;
+    SrcDestDialog dialog(SrcDestDialog::incoming);
     dialog.setWindowTitle(tr("Pull Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    m_client->synchronousPull(state.topLevel(), dialog.getRepositoryString());
+    m_client->synchronousPull(dialog.workingDir(), dialog.getRepositoryString());
 }
 
 void MercurialPlugin::push()
@@ -451,11 +451,11 @@ void MercurialPlugin::push()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    SrcDestDialog dialog;
+    SrcDestDialog dialog(SrcDestDialog::outgoing);
     dialog.setWindowTitle(tr("Push Destination"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    m_client->synchronousPush(state.topLevel(), dialog.getRepositoryString());
+    m_client->synchronousPush(dialog.workingDir(), dialog.getRepositoryString());
 }
 
 void MercurialPlugin::update()
@@ -491,7 +491,7 @@ void MercurialPlugin::incoming()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    SrcDestDialog dialog;
+    SrcDestDialog dialog(SrcDestDialog::incoming);
     dialog.setWindowTitle(tr("Incoming Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
