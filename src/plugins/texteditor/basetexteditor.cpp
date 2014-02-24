@@ -6230,11 +6230,12 @@ bool BaseTextEditorWidget::inFindScope(int selectionStart, int selectionEnd)
 
 void BaseTextEditorWidget::setBlockSelection(bool on)
 {
-    if (d->m_inBlockSelectionMode != on) {
-        d->m_inBlockSelectionMode = on;
-        if (on)
-            d->m_blockSelection.fromSelection(d->m_document->tabSettings(), textCursor());
-    }
+    if (d->m_inBlockSelectionMode == on)
+        return;
+
+    d->m_inBlockSelectionMode = on;
+    if (on)
+        d->m_blockSelection.fromSelection(d->m_document->tabSettings(), textCursor());
     viewport()->update();
 }
 
