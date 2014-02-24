@@ -170,8 +170,8 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
     Core::Id devId = ProjectExplorer::DeviceKitInformation::deviceId(rc->target()->kit());
     // The device can only run an application at a time, if an app is running stop it.
     if (m_activeRunControls.contains(devId)) {
-        QPointer<ProjectExplorer::RunControl> activeRunControl = m_activeRunControls[devId];
-        activeRunControl->stop();
+        if (QPointer<ProjectExplorer::RunControl> activeRunControl = m_activeRunControls[devId])
+            activeRunControl->stop();
         m_activeRunControls.remove(devId);
     }
     if (mode == NormalRunMode)
