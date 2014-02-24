@@ -48,6 +48,8 @@ namespace {
     enum { warnAboutFindFailures = 0 };
 }
 
+static const char kKeyboardSettingsKey[] = "KeyboardShortcuts";
+
 using namespace Core;
 using namespace Core::Internal;
 
@@ -281,6 +283,7 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, Id id, const Conte
     } else {
         sc = new Shortcut(id);
         d->m_idCmdMap.insert(id, sc);
+        d->readUserSettings(id, sc);
     }
 
     if (sc->shortcut()) {
@@ -571,6 +574,7 @@ Action *ActionManagerPrivate::overridableAction(Id id)
     } else {
         a = new Action(id);
         m_idCmdMap.insert(id, a);
+        readUserSettings(id, a);
         ICore::mainWindow()->addAction(a->action());
         a->action()->setObjectName(id.toString());
         a->action()->setShortcutContext(Qt::ApplicationShortcut);
@@ -583,43 +587,60 @@ Action *ActionManagerPrivate::overridableAction(Id id)
     return a;
 }
 
-static const char settingsGroup[] = "KeyBindings";
-static const char idKey[] = "ID";
-static const char sequenceKey[] = "Keysequence";
+void ActionManagerPrivate::readUserSettings(Id id, CommandPrivate *cmd)
+{
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
+    if (settings->contains(id.toString()))
+        cmd->setKeySequence(QKeySequence(settings->value(id.toString()).toString()));
+    settings->endGroup();
+}
+
+static const char oldSettingsGroup[] = "KeyBindings";
+static const char oldIdKey[] = "ID";
+static const char oldSequenceKey[] = "Keysequence";
 
 void ActionManagerPrivate::initialize()
 {
+    // TODO remove me after some period after 3.1
+    // check if settings in old style (pre 3.1) exist
     QSettings *settings = Core::ICore::settings();
-    const int shortcuts = settings->beginReadArray(QLatin1String(settingsGroup));
+    if (settings->contains(QLatin1String(kKeyboardSettingsKey)))
+        return;
+    // move old settings style to new settings style
+    QMap<Id, QKeySequence> shortcutMap;
+    const int shortcuts = settings->beginReadArray(QLatin1String(oldSettingsGroup));
     for (int i = 0; i < shortcuts; ++i) {
         settings->setArrayIndex(i);
-        const QKeySequence key(settings->value(QLatin1String(sequenceKey)).toString());
-        const Id id = Id::fromSetting(settings->value(QLatin1String(idKey)));
-
-        Command *cmd = ActionManager::command(id);
-        if (cmd)
-            cmd->setKeySequence(key);
+        const QKeySequence key(settings->value(QLatin1String(oldSequenceKey)).toString());
+        const Id id = Id::fromSetting(settings->value(QLatin1String(oldIdKey)));
+        shortcutMap.insert(id, key);
     }
     settings->endArray();
+    // write settings in new style
+    settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
+    QMapIterator<Id, QKeySequence> it(shortcutMap);
+    while (it.hasNext()) {
+        it.next();
+        settings->setValue(it.key().toString(), it.value().toString());
+    }
+    settings->endGroup();
+    // remove old settings
+    settings->remove(QLatin1String(oldSettingsGroup));
 }
 
 void ActionManagerPrivate::saveSettings(QSettings *settings)
 {
-    settings->beginWriteArray(QLatin1String(settingsGroup));
-    int count = 0;
-
+    settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
     const IdCmdMap::const_iterator cmdcend = m_idCmdMap.constEnd();
     for (IdCmdMap::const_iterator j = m_idCmdMap.constBegin(); j != cmdcend; ++j) {
         const Id id = j.key();
         CommandPrivate *cmd = j.value();
         QKeySequence key = cmd->keySequence();
-        if (key != cmd->defaultKeySequence()) {
-            settings->setArrayIndex(count);
-            settings->setValue(QLatin1String(idKey), id.toString());
-            settings->setValue(QLatin1String(sequenceKey), key.toString());
-            count++;
-        }
+        if (key != cmd->defaultKeySequence())
+            settings->setValue(id.toString(), key.toString());
+        else
+            settings->remove(id.toString());
     }
-
-    settings->endArray();
+    settings->endGroup();
 }

@@ -74,6 +74,8 @@ public:
     bool hasContext(const Context &context) const;
     Action *overridableAction(Id id);
 
+    void readUserSettings(Id id, CommandPrivate *cmd);
+
 public slots:
     void containerDestroyed();
 

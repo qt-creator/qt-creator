@@ -80,7 +80,7 @@ signals:
 private:
     ActionManager(QObject *parent = 0);
     ~ActionManager();
-    void initialize();
+    static void initialize();
     void saveSettings(QSettings *settings);
     void setContext(const Context &context);
 

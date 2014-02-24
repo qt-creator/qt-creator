@@ -147,6 +147,8 @@ MainWindow::MainWindow() :
     m_zoomAction(0),
     m_toggleSideBarButton(new QToolButton)
 {
+    ActionManager::initialize(); // must be done before registering any actions
+
     (void) new DocumentManager(this);
     OutputPaneManager::create();
 
@@ -343,9 +345,6 @@ void MainWindow::extensionsInitialized()
     OutputPaneManager::instance()->init();
     m_vcsManager->extensionsInitialized();
     m_navigationWidget->setFactories(ExtensionSystem::PluginManager::getObjects<INavigationWidgetFactory>());
-
-    // reading the shortcut settings must be done after all shortcuts have been registered
-    m_actionManager->initialize();
 
     readSettings();
     updateContext();
