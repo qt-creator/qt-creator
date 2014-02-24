@@ -43,16 +43,16 @@ class VCSBASE_EXPORT BaseVcsEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    explicit BaseVcsEditorFactory(const VcsBaseEditorParameters *type);
+    explicit BaseVcsEditorFactory(const VcsBaseEditorParameters *type,
+                              QObject *describeReceiver,
+                              const char *describeSlot);
     ~BaseVcsEditorFactory();
 
     Core::IEditor *createEditor();
 
 private:
-    // Implement to create and initialize (call init()) a
-    // VcsBaseEditor subclass
-    virtual VcsBaseEditorWidget *createVcsBaseEditor(const VcsBaseEditorParameters *type,
-                                               QWidget *parent = 0) = 0;
+    // Implement to create and initialize (call init()) a VcsBaseEditor subclass.
+    virtual VcsBaseEditorWidget *createVcsBaseEditor(const VcsBaseEditorParameters *type) = 0;
 
     Internal::BaseVcsEditorFactoryPrivate *const d;
 };
@@ -64,36 +64,17 @@ class VcsEditorFactory : public BaseVcsEditorFactory
 public:
     explicit VcsEditorFactory(const VcsBaseEditorParameters *type,
                               QObject *describeReceiver = 0,
-                              const char *describeSlot = 0);
+                              const char *describeSlot = 0)
+        : BaseVcsEditorFactory(type, describeReceiver, describeSlot)
+    {
+    }
 
 private:
-    VcsBaseEditorWidget *createVcsBaseEditor(const VcsBaseEditorParameters *type,
-                                             QWidget *parent = 0);
-    QObject *m_describeReceiver;
-    const char *m_describeSlot;
+    VcsBaseEditorWidget *createVcsBaseEditor(const VcsBaseEditorParameters *type)
+    {
+        return new Editor(type, 0);
+    }
 };
-
-template <class Editor>
-VcsEditorFactory<Editor>::VcsEditorFactory(const VcsBaseEditorParameters *type,
-                                           QObject *describeReceiver,
-                                           const char *describeSlot) :
-    BaseVcsEditorFactory(type),
-    m_describeReceiver(describeReceiver),
-    m_describeSlot(describeSlot)
-{
-}
-
-template <class Editor>
-VcsBaseEditorWidget *VcsEditorFactory<Editor>::createVcsBaseEditor(const VcsBaseEditorParameters *type,
-                                                             QWidget *parent)
-{
-    VcsBaseEditorWidget *rc = new Editor(type, parent);
-    rc->init();
-    if (m_describeReceiver)
-        connect(rc, SIGNAL(describeRequested(QString,QString)), m_describeReceiver, m_describeSlot);
-    return rc;
-
-}
 
 } // namespace VcsBase
 
