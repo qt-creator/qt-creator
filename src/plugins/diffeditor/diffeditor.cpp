@@ -56,17 +56,6 @@ namespace DiffEditor {
 
 namespace Internal {
 
-class DescriptionEditor : public BaseTextEditor
-{
-    Q_OBJECT
-public:
-    DescriptionEditor(BaseTextEditorWidget *editorWidget)
-        : BaseTextEditor(editorWidget)
-    {
-        setId("DescriptionEditor");
-    }
-};
-
 class DescriptionEditorWidget : public BaseTextEditorWidget
 {
     Q_OBJECT
@@ -78,9 +67,12 @@ public slots:
     void setDisplaySettings(const DisplaySettings &ds);
 
 protected:
-    BaseTextEditor *createEditor() { return new DescriptionEditor(this); }
-
-private:
+    BaseTextEditor *createEditor()
+    {
+        BaseTextEditor *editor = new BaseTextEditor(this);
+        editor->setId("DescriptionEditor");
+        return editor;
+    }
 };
 
 DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
