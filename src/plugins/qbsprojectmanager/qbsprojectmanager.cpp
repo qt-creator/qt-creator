@@ -35,6 +35,7 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagerplugin.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/kit.h>
@@ -63,7 +64,7 @@ QbsManager::QbsManager(Internal::QbsProjectManagerPlugin *plugin) :
     m_plugin(plugin),
     m_defaultPropertyProvider(new DefaultPropertyProvider)
 {
-    m_settings = new qbs::Settings(QLatin1String("QtProject"), QLatin1String("qbs"));
+    m_settings = new qbs::Settings(Core::ICore::userResourcePath());
 
     setObjectName(QLatin1String("QbsProjectManager"));
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(pushKitsToQbs()));
