@@ -44,8 +44,8 @@ public:
     virtual ~IConfigurationBuildTools() {}
     virtual void addTool(IConfigurationBuildTool *tool) = 0;
     virtual void removeTool(IConfigurationBuildTool *tool) = 0;
-    virtual IConfigurationBuildTool* tool(const QString &toolKey) const = 0;
-    virtual IConfigurationBuildTool* tool(int index) const = 0;
+    virtual IConfigurationBuildTool *tool(const QString &toolKey) const = 0;
+    virtual IConfigurationBuildTool *tool(int index) const = 0;
     virtual int toolCount() const = 0;
     virtual void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const = 0;
 };

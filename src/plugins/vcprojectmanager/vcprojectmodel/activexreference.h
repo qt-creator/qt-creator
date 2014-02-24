@@ -49,19 +49,19 @@ public:
 
     virtual ~ActiveXReference();
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     // IReference interface
     IAttributeContainer *attributeContainer() const;
     ConfigurationContainer *configurationContainer() const;
     QString type() const;
-    IReference* clone() const;
+    IReference *clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);
     void processReferenceConfig(const QDomNode &referenceConfig);
-    IConfiguration* createReferenceConfiguration() const;
+    IConfiguration *createReferenceConfiguration() const;
 
     GeneralAttributeContainer *m_attributeContainer;
     ConfigurationContainer *m_configurations;

@@ -47,8 +47,8 @@ public:
     virtual QString name() const = 0;
     virtual void setName(const QString &name) = 0;
 
-    virtual IAttributeDescriptionDataItem* attributeDescription(const QString &attributeKey) const = 0;
-    virtual IAttributeDescriptionDataItem* attributeDescription(int index) const = 0;
+    virtual IAttributeDescriptionDataItem *attributeDescription(const QString &attributeKey) const = 0;
+    virtual IAttributeDescriptionDataItem *attributeDescription(int index) const = 0;
     virtual int attributeDescriptionCount() const = 0;
     virtual void addAttributeDescription(IAttributeDescriptionDataItem* attributeDesc) = 0;
     virtual void removeAttributeDescription(IAttributeDescriptionDataItem* attributeDesc) = 0;

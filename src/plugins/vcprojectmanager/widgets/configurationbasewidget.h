@@ -53,7 +53,7 @@ protected:
     QListWidget *m_listWidget;
     QStackedWidget *m_stackWidget;
 
-    IConfiguration* m_config;
+    IConfiguration *m_config;
     QList<VcNodeWidget *> m_toolWidgets;
 };
 

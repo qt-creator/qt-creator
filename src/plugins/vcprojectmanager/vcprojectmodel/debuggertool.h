@@ -42,15 +42,15 @@ class DebuggerTool : public IDebuggerTool
 public:
     DebuggerTool();
     DebuggerTool(const DebuggerTool &tool);
-    DebuggerTool& operator=(DebuggerTool &tool);
+    DebuggerTool &operator=(DebuggerTool &tool);
     ~DebuggerTool();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     IAttributeContainer *attributeContainer() const;
-    IDebuggerTool* clone() const;
+    IDebuggerTool *clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);

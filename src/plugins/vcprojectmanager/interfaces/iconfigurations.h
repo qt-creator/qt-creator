@@ -44,7 +44,7 @@ class IConfigurations : public IVcProjectXMLNode
 public:
     virtual ~IConfigurations() {}
 
-    virtual ConfigurationContainer* configurationContainer() const = 0;
+    virtual ConfigurationContainer *configurationContainer() const = 0;
 };
 
 } // namespace Internal

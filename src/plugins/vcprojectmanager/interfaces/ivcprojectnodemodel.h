@@ -59,7 +59,7 @@ public:
      * in that configuration and “appending” that widget as a child of a parent configuration widget.
      * \return A pointer to a newly created settings widhget for a node.
      */
-    virtual VcNodeWidget* createSettingsWidget() = 0;
+    virtual VcNodeWidget *createSettingsWidget() = 0;
 
     /*!
      * This member function is called when project is creating it's own XML DOM  representation.

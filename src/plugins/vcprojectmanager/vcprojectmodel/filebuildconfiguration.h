@@ -40,7 +40,7 @@ class FileBuildConfiguration : public Configuration
 public:
     FileBuildConfiguration();
     FileBuildConfiguration(const FileBuildConfiguration &fileBuildConfig);
-    FileBuildConfiguration& operator =(const FileBuildConfiguration &fileBuildConfig);
+    FileBuildConfiguration &operator =(const FileBuildConfiguration &fileBuildConfig);
 
     VcNodeWidget *createSettingsWidget();
 

@@ -99,14 +99,14 @@ public:
 
     bool addMsBuildInformation(MsBuildInformation *msBuildInfo);
     QList<MsBuildInformation *> msBuildInformations() const;
-    MsBuildInformation* msBuildInformation(Core::Id msBuildID);
-    MsBuildInformation* msBuildInformation(MsBuildInformation::MsBuildVersion minVersion, MsBuildInformation::MsBuildVersion maxVersion);
+    MsBuildInformation *msBuildInformation(Core::Id msBuildID);
+    MsBuildInformation *msBuildInformation(MsBuildInformation::MsBuildVersion minVersion, MsBuildInformation::MsBuildVersion maxVersion);
     void removeMsBuildInformation(const Core::Id &msBuildId);
     void replace(Core::Id targetMsBuild, MsBuildInformation *newMsBuild);
 
     void saveSettings();
 
-    static MsBuildInformation* createMsBuildInfo(const QString &executablePath, const QString &version);
+    static MsBuildInformation *createMsBuildInfo(const QString &executablePath, const QString &version);
 
 signals:
     void msBuildAdded(Core::Id id);

@@ -48,7 +48,7 @@ public:
     QString value() const;
     void setValue(const QString &value);
     bool isUsed() const;
-    IToolAttribute* clone() const;
+    IToolAttribute *clone() const;
 
 private:
     QString m_attributeValue;

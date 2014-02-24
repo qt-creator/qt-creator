@@ -44,7 +44,7 @@ class Tools : public ITools
 public:
     Tools();
     Tools(const Tools &tools);
-    Tools& operator=(const Tools &tools);
+    Tools &operator=(const Tools &tools);
     ~Tools();
 
     // ITools interface

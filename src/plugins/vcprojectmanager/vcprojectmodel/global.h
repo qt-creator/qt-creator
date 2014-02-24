@@ -40,11 +40,11 @@ class Global : public IGlobal
 public:
     Global();
     Global(const Global &global);
-    Global& operator=(const Global &global);
+    Global &operator=(const Global &global);
     ~Global();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     QString displayName() const;
@@ -52,7 +52,7 @@ public:
     QString value() const;
     void setValue(const QString &value);
 
-    IGlobal* clone() const;
+    IGlobal *clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);

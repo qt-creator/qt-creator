@@ -50,20 +50,20 @@ public:
 
     virtual ~IConfiguration() {}
 
-    virtual IAttributeContainer* attributeContainer() const = 0;
+    virtual IAttributeContainer *attributeContainer() const = 0;
     virtual QString fullName() const = 0;
     virtual QString name() const = 0;
     virtual QString platform() const = 0;
     virtual void setFullName(const QString &fullName) = 0;
     virtual void setName(const QString &name) = 0;
     virtual void setPlatform(const QString &platform) = 0;
-    virtual ITools* tools() const = 0;
+    virtual ITools *tools() const = 0;
 
     /*!
      * Implement in order to support creating a clone of a IConfiguration instance.
      * \return A pointer to newly created IConfiguration instance.
      */
-    virtual IConfiguration* clone() const = 0;
+    virtual IConfiguration *clone() const = 0;
 
 signals:
     void nameChanged();

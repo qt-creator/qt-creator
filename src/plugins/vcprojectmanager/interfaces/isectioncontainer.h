@@ -43,8 +43,8 @@ class ISectionContainer
 public:
     virtual ~ISectionContainer() {}
     virtual ISectionContainer& operator=(ISectionContainer &toolSec) = 0;
-    virtual IToolSection* section(int index) const = 0;
-    virtual IToolSection* section(const QString &sectionName) const = 0;
+    virtual IToolSection *section(int index) const = 0;
+    virtual IToolSection *section(const QString &sectionName) const = 0;
     virtual int sectionCount() const = 0;
     virtual void appendSection(IToolSection *section) = 0;
     virtual void removeSection(const QString &sectionName) = 0;

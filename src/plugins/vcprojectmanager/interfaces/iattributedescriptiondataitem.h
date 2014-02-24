@@ -45,10 +45,10 @@ public:
     virtual QString descriptionText() const = 0;
     virtual QString displayText() const = 0;
     virtual QString key() const = 0;
-    virtual ToolAttributeOption* firstOption() const = 0;
+    virtual ToolAttributeOption *firstOption() const = 0;
     virtual void setFirstOption(ToolAttributeOption *opt) = 0;
     virtual QString defaultValue() const = 0;
-    virtual IToolAttribute* createAttribute() const = 0;
+    virtual IToolAttribute *createAttribute() const = 0;
     virtual QString optionalValue(const QString &key) const = 0;
     virtual void setOptionalValue(const QString &key, const QString &value) = 0;
     virtual void removeOptionalValue(const QString &key) = 0;

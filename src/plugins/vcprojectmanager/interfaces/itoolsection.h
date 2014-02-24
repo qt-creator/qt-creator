@@ -44,8 +44,8 @@ public:
     virtual ~IToolSection() {}
     virtual IToolAttributeContainer *attributeContainer() const = 0;
     virtual const IToolSectionDescription *sectionDescription() const = 0;
-    virtual VcNodeWidget* createSettingsWidget() = 0;
-    virtual IToolSection* clone() const = 0;
+    virtual VcNodeWidget *createSettingsWidget() = 0;
+    virtual IToolSection *clone() const = 0;
 };
 
 } // Internal

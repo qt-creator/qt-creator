@@ -45,7 +45,7 @@ public:
     virtual void addReference(IReference* reference) = 0;
     virtual void removeReference(IReference* reference) = 0;
     virtual int referenceCount() const = 0;
-    virtual IReference* reference(int index) const = 0;
+    virtual IReference *reference(int index) const = 0;
 };
 
 } // namespace Internal

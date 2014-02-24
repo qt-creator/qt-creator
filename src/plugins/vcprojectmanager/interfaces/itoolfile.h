@@ -43,8 +43,8 @@ class IToolFile : public IVcProjectXMLNode
 public:
     virtual ~IToolFile() {}
     virtual QString type() const = 0;
-    virtual IToolFile* clone() const = 0;
-    virtual IAttributeContainer* attributeContainer() const = 0;
+    virtual IToolFile *clone() const = 0;
+    virtual IAttributeContainer *attributeContainer() const = 0;
 };
 
 } // Internal

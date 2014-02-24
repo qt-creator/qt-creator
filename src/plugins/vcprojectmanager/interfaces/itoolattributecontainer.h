@@ -41,8 +41,8 @@ class IToolAttributeContainer
 {
 public:
     virtual ~IToolAttributeContainer() {}
-    virtual IToolAttribute* toolAttribute(int index) const = 0;
-    virtual IToolAttribute* toolAttribute(const QString &attributeKey) const = 0;
+    virtual IToolAttribute *toolAttribute(int index) const = 0;
+    virtual IToolAttribute *toolAttribute(const QString &attributeKey) const = 0;
     virtual int toolAttributeCount() const = 0;
     virtual void addToolAttribute(IToolAttribute* toolAttribute) = 0;
     virtual void removeToolAttribute(IToolAttribute* toolAttribute) = 0;

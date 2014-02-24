@@ -53,7 +53,7 @@ class VcProjectDocument : public IVisualStudioProject
 public:
     VcProjectDocument(const QString &filePath, VcDocConstants::DocumentVersion docVersion);
     VcProjectDocument(const VcProjectDocument &vcDoc);
-    VcProjectDocument& operator=(const VcProjectDocument &vcDoc);
+    VcProjectDocument &operator=(const VcProjectDocument &vcDoc);
     virtual ~VcProjectDocument();
     void processNode(const QDomNode &domDoc);
 
@@ -68,9 +68,9 @@ public:
     IReferences *referencess() const;
     IToolFiles *toolFiles() const;
     IPublishingData *publishingData() const;
-    IAttributeContainer* attributeContainer() const;
+    IAttributeContainer *attributeContainer() const;
     VcNodeWidget *createSettingsWidget();
-    IConfiguration* createDefaultBuildConfiguration(const QString &fullConfigName) const;
+    IConfiguration *createDefaultBuildConfiguration(const QString &fullConfigName) const;
 
 protected:
     void processDocumentNode(const QDomNode &node);

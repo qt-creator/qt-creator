@@ -47,7 +47,7 @@ class ToolSection;
 class ConfigurationTool : public IConfigurationBuildTool
 {
 public:
-    ConfigurationTool(const IToolDescription* toolDesc);
+    ConfigurationTool(const IToolDescription *toolDesc);
     ConfigurationTool(const ConfigurationTool &tool);
     virtual ~ConfigurationTool();
 
@@ -56,7 +56,7 @@ public:
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     const IToolDescription *toolDescription() const;
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
 
     ISectionContainer *sectionContainer() const;
     IConfigurationBuildTool *clone() const;

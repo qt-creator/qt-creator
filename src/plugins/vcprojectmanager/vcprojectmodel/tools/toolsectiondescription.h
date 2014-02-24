@@ -46,16 +46,16 @@ class ToolSectionDescription : public IToolSectionDescription
 public:
     ToolSectionDescription();
 
-    IToolSection* createToolSection() const;
+    IToolSection *createToolSection() const;
 
     QString name() const;
     void setName(const QString &name);
 
-    IAttributeDescriptionDataItem* attributeDescription(const QString &attributeKey) const;
-    IAttributeDescriptionDataItem* attributeDescription(int index) const;
+    IAttributeDescriptionDataItem *attributeDescription(const QString &attributeKey) const;
+    IAttributeDescriptionDataItem *attributeDescription(int index) const;
     int attributeDescriptionCount() const;
-    void addAttributeDescription(IAttributeDescriptionDataItem* attributeDesc);
-    void removeAttributeDescription(IAttributeDescriptionDataItem* attributeDesc);
+    void addAttributeDescription(IAttributeDescriptionDataItem *attributeDesc);
+    void removeAttributeDescription(IAttributeDescriptionDataItem *attributeDesc);
     void removeAttributeDescription(const QString &attributeKey);
 
 private:

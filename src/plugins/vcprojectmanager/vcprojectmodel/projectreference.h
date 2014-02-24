@@ -42,17 +42,17 @@ class ProjectReference : public IReference
 public:
     ProjectReference();
     ProjectReference(const ProjectReference &projRef);
-    ProjectReference& operator=(const ProjectReference &projRef);
+    ProjectReference &operator=(const ProjectReference &projRef);
     ~ProjectReference();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     IAttributeContainer *attributeContainer() const;
     ConfigurationContainer *configurationContainer() const;
     QString type() const;
-    IReference* clone() const;
+    IReference *clone() const;
 
 protected:
     void processReferenceConfig(const QDomNode &referenceConfig);

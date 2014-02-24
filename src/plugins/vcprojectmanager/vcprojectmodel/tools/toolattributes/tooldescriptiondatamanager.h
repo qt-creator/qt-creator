@@ -63,13 +63,13 @@ class ToolDescriptionDataManager : public QObject
 {
     friend class VcProjectManagerPlugin;
 public:
-    static ToolDescriptionDataManager* instance();
+    static ToolDescriptionDataManager *instance();
     void readToolXMLFiles();
     ~ToolDescriptionDataManager();
 
     int toolDescriptionCount() const;
-    IToolDescription* toolDescription(int index) const;
-    IToolDescription* toolDescription(const QString &toolKey) const;
+    IToolDescription *toolDescription(int index) const;
+    IToolDescription *toolDescription(const QString &toolKey) const;
 
     static ToolInfo readToolInfo(const QString &filePath, QString *errorMsg = 0, int *errorLine = 0, int *errorColumn = 0);
 
@@ -80,7 +80,7 @@ private:
     void processDomNode(const QDomNode &node);
     void processToolSectionNode(IToolDescription *toolDescription, const QDomNode &domNode);
     void processToolAttributeDescriptions(ToolSectionDescription *toolSectDesc, const QDomNode &domNode);
-    IToolDescription* readToolDescription(const QDomNode &domNode);
+    IToolDescription *readToolDescription(const QDomNode &domNode);
 
     QList<IToolDescription *> m_toolDescriptions;
     static ToolDescriptionDataManager *m_instance;

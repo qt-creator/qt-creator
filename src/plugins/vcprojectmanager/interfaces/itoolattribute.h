@@ -51,7 +51,7 @@ public:
     virtual QString value() const = 0;
     virtual void setValue(const QString &value) = 0;
     virtual bool isUsed() const = 0;
-    virtual IToolAttribute* clone() const = 0;
+    virtual IToolAttribute *clone() const = 0;
 };
 
 } // namespace Internal

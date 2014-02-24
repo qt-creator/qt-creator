@@ -44,7 +44,7 @@ class VcSchemaManager : public QObject
     Q_OBJECT
 
 public:
-    static VcSchemaManager* instance();
+    static VcSchemaManager *instance();
     ~VcSchemaManager();
 
     void addDocumentSchema(const QString &schemaPath, Constants::SchemaVersion version);

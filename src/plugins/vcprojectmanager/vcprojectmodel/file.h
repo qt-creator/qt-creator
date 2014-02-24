@@ -49,10 +49,10 @@ public:
 
     File(IVisualStudioProject *parentProjectDoc);
     File(const File &file);
-    File& operator=(const File &file);
+    File &operator=(const File &file);
     ~File();
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     ConfigurationContainer *configurationContainer() const;
@@ -60,11 +60,11 @@ public:
 
     QString relativePath() const;
     void setRelativePath(const QString &relativePath);
-    IFile* clone() const;
+    IFile *clone() const;
     ProjectExplorer::FileType fileType() const;
     QString canonicalPath() const;
 
-    IConfiguration* createDefaultBuildConfiguration(const QString &fullConfigName) const;
+    IConfiguration *createDefaultBuildConfiguration(const QString &fullConfigName) const;
 
 private:
     void processFileConfiguration(const QDomNode &fileConfigNode);

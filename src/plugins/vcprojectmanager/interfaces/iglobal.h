@@ -45,7 +45,7 @@ public:
     virtual void setDisplayName(const QString &name) = 0;
     virtual QString value() const = 0;
     virtual void setValue(const QString &value) = 0;
-    virtual IGlobal* clone() const = 0;
+    virtual IGlobal *clone() const = 0;
 };
 
 } // namespace Internal

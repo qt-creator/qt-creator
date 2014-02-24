@@ -43,11 +43,11 @@ class ToolFiles : public IToolFiles
 public:
     ToolFiles();
     ToolFiles(const ToolFiles &toolFiles);
-    ToolFiles& operator=(const ToolFiles &toolFiles);
+    ToolFiles &operator=(const ToolFiles &toolFiles);
     ~ToolFiles();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     void addToolFile(IToolFile *toolFile);

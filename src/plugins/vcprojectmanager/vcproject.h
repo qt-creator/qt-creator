@@ -88,7 +88,7 @@ private:
     void updateCodeModels();
     void importBuildConfigurations();
     void addBuildConfiguration(ProjectExplorer::Target *target, IConfiguration *config);
-    VcProjectBuildConfiguration* findBuildConfiguration(ProjectExplorer::Target *target, const QString &buildConfigurationName) const;
+    VcProjectBuildConfiguration *findBuildConfiguration(ProjectExplorer::Target *target, const QString &buildConfigurationName) const;
     void allProjectFile(QStringList &allFiles) const;
     VcManager *m_projectManager;
     VcProjectFile *m_projectFile;

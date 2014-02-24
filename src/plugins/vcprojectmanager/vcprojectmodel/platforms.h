@@ -46,11 +46,11 @@ class Platforms : public IPlatforms
 public:
     Platforms();
     Platforms(const Platforms &platforms);
-    Platforms& operator=(const Platforms &platforms);
+    Platforms &operator=(const Platforms &platforms);
     ~Platforms();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     void addPlatform(IPlatform *platform);

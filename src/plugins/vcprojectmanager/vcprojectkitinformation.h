@@ -62,7 +62,7 @@ public:
     ItemList toUserOutput(const Kit *) const;
     ProjectExplorer::KitConfigWidget *createConfigWidget(Kit *k) const;
 
-    static MsBuildInformation* msBuildInfo(const Kit *k);
+    static MsBuildInformation *msBuildInfo(const Kit *k);
 
     static void setMsBuild(Kit *k, MsBuildInformation *msBuildId);
 

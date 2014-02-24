@@ -44,11 +44,11 @@ class References : public IReferences
 public:
     References();
     References(const References &references);
-    References& operator=(const References &references);
+    References &operator=(const References &references);
     ~References();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     void addReference(IReference *reference);

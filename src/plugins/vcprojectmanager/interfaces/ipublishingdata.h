@@ -45,8 +45,8 @@ public :
     virtual void addPublishingItem(IPublishingItem *item) = 0;
     virtual void removePublishingItem(IPublishingItem *item) = 0;
     virtual int publishingItemCount() const = 0;
-    virtual IPublishingItem* publishingItem(int index) const = 0;
-    virtual IAttributeContainer* attributeContainer() const = 0;
+    virtual IPublishingItem *publishingItem(int index) const = 0;
+    virtual IAttributeContainer *attributeContainer() const = 0;
 };
 
 } // Internal

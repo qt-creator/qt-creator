@@ -60,7 +60,7 @@ VcDocumentModel::~VcDocumentModel()
     delete m_vcProjectDocument;
 }
 
-IVisualStudioProject* VcDocumentModel::vcProjectDocument() const
+IVisualStudioProject *VcDocumentModel::vcProjectDocument() const
 {
     return m_vcProjectDocument;
 }

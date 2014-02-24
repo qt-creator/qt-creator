@@ -48,7 +48,7 @@ public:
     explicit VcDocumentModel(const QString &filePath, VcDocConstants::DocumentVersion version);
     virtual ~VcDocumentModel();
 
-    IVisualStudioProject* vcProjectDocument() const;
+    IVisualStudioProject *vcProjectDocument() const;
     bool saveToFile(const QString &filePath) const;
 
 private:

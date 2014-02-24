@@ -45,13 +45,13 @@ public:
     virtual void addFile(IFile *file) = 0;
     virtual void removeFile(IFile *file) = 0;
     virtual int fileCount() const = 0;
-    virtual IFile* file(int index) const = 0;
-    virtual IFile* file(const QString &relativePath) const = 0;
+    virtual IFile *file(int index) const = 0;
+    virtual IFile *file(const QString &relativePath) const = 0;
     virtual bool fileExists(const QString &relativeFilePath) const = 0;
 
     virtual void addFileContainer(IFileContainer *fileContainer) = 0;
     virtual int fileContainerCount() const = 0;
-    virtual IFileContainer* fileContainer(int index) const = 0;
+    virtual IFileContainer *fileContainer(int index) const = 0;
     virtual void removeFileContainer(IFileContainer *fileContainer) = 0;
 };
 

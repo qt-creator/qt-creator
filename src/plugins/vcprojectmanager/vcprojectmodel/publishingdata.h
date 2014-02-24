@@ -45,18 +45,18 @@ class PublishingData : public IPublishingData
 public:
     PublishingData();
     PublishingData(const PublishingData &data);
-    PublishingData& operator=(const PublishingData &data);
+    PublishingData &operator=(const PublishingData &data);
     ~PublishingData();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     void addPublishingItem(IPublishingItem *item);
     void removePublishingItem(IPublishingItem *item);
     int publishingItemCount() const;
     IPublishingItem *publishingItem(int index) const;
-    IAttributeContainer* attributeContainer() const;
+    IAttributeContainer *attributeContainer() const;
 
 private:
     void processPublishingItem(const QDomNode &publishingItem);

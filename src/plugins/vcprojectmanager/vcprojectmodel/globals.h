@@ -46,11 +46,11 @@ class Globals : public IGlobals
 public:
     Globals();
     Globals(const Globals &globals);
-    Globals& operator=(const Globals &globals);
+    Globals &operator=(const Globals &globals);
     ~Globals();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     void addGlobal(IGlobal *global);

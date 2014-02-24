@@ -70,11 +70,11 @@ private:
     void addDefaultToolToConfig(IConfiguration *config, const QString &toolKey);
     bool hasNonDefaultConfigurationTool(IConfiguration *config);
     bool containsNonDefaultConfiguration(ConfigurationContainer *configCont);
-    ConfigurationContainer* cloneFileConfigContainer(IFile *file);
+    ConfigurationContainer *cloneFileConfigContainer(IFile *file);
 
     IVisualStudioProject *m_vsProject;
     ConfigurationsWidget *m_configsWidget;
-    QMap<IFile*, ConfigurationContainer*> m_fileConfigurations;
+    QMap<IFile *, ConfigurationContainer *> m_fileConfigurations;
     ConfigurationContainer *m_buildConfigurations;
 };
 

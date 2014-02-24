@@ -46,14 +46,14 @@ class Configurations : public IConfigurations
 public:
     Configurations(VcProjectDocument *vcProjDoc);
     Configurations(const Configurations &configs);
-    Configurations& operator=(const Configurations &configs);
+    Configurations &operator=(const Configurations &configs);
     ~Configurations();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    ConfigurationContainer* configurationContainer() const;
+    ConfigurationContainer *configurationContainer() const;
 
 private:
     void processConfiguration(const QDomNode &configurationNode);

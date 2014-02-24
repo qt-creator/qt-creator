@@ -143,7 +143,7 @@ signals:
     void settingsDialogAccepted();
 
 private:
-    VcFileNode* findFileNode(const QString &filePath);
+    VcFileNode *findFileNode(const QString &filePath);
 
     IVisualStudioProject *m_vcProjectModel;
 };

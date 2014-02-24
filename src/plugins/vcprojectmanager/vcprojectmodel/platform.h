@@ -40,11 +40,11 @@ class Platform : public IPlatform
 public:
     Platform();
     Platform(const Platform &platform);
-    Platform& operator=(const Platform &platform);
+    Platform &operator=(const Platform &platform);
     ~Platform();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     QString displayName() const;

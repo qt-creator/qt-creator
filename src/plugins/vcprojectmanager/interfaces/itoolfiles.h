@@ -43,7 +43,7 @@ public:
     virtual ~IToolFiles() {}
     virtual void addToolFile(IToolFile *toolFile) = 0;
     virtual int toolFileCount() const = 0;
-    virtual IToolFile* toolFile(int index) const = 0;
+    virtual IToolFile *toolFile(int index) const = 0;
     virtual void removeToolFile(IToolFile *toolFile) = 0;
 };
 } // Internal

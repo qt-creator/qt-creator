@@ -53,7 +53,7 @@ public:
     virtual QString toolDisplayName() const = 0;
     virtual void setToolDisplayName(const QString &toolDisplayName) = 0;
 
-    virtual IConfigurationBuildTool* createTool() const = 0;
+    virtual IConfigurationBuildTool *createTool() const = 0;
 };
 
 } // Internal

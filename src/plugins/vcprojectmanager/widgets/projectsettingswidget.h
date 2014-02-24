@@ -55,7 +55,7 @@ public:
 
     void addWidget(const QString &name, QWidget *widget);
     void addWidget(const QString &name, const QIcon &icon = QIcon(), QWidget *widget = 0);
-    QWidget* widget(const QString &name);
+    QWidget *widget(const QString &name);
 
 signals:
     void okButtonClicked();

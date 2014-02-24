@@ -44,7 +44,7 @@ public:
     virtual ~IDeploymentTools() {}
     virtual void addTool(IDeploymentTool *tool) = 0;
     virtual void removeTool(IDeploymentTool *tool) = 0;
-    virtual IDeploymentTool* tool(int index) const = 0;
+    virtual IDeploymentTool *tool(int index) const = 0;
     virtual int toolCount() const = 0;
     virtual void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const = 0;
 };

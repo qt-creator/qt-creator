@@ -41,7 +41,7 @@ class GeneralToolAttributeContainer : public IToolAttributeContainer
 public:
     GeneralToolAttributeContainer();
     GeneralToolAttributeContainer(const GeneralToolAttributeContainer &container);
-    GeneralToolAttributeContainer& operator=(const GeneralToolAttributeContainer &container);
+    GeneralToolAttributeContainer &operator=(const GeneralToolAttributeContainer &container);
     ~GeneralToolAttributeContainer();
 
     // IToolAttributeContainer interface

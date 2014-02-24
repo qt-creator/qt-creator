@@ -53,19 +53,19 @@ class IVisualStudioProject : public IVcProjectXMLNode
 public:
     virtual ~IVisualStudioProject() {}
 
-    virtual IAttributeContainer* attributeContainer() const = 0;
-    virtual IConfigurations* configurations() const = 0;
-    virtual IFiles* files() const = 0;
-    virtual IGlobals* globals() const = 0;
-    virtual IPlatforms* platforms() const = 0;
-    virtual IReferences* referencess() const = 0;
-    virtual IToolFiles* toolFiles() const = 0;
-    virtual IPublishingData* publishingData() const = 0;
+    virtual IAttributeContainer *attributeContainer() const = 0;
+    virtual IConfigurations *configurations() const = 0;
+    virtual IFiles *files() const = 0;
+    virtual IGlobals *globals() const = 0;
+    virtual IPlatforms *platforms() const = 0;
+    virtual IReferences *referencess() const = 0;
+    virtual IToolFiles *toolFiles() const = 0;
+    virtual IPublishingData *publishingData() const = 0;
     virtual QString filePath() const = 0;
     virtual bool saveToFile(const QString &filePath) const = 0;
     virtual VcDocConstants::DocumentVersion documentVersion() const = 0;
 
-    virtual IConfiguration* createDefaultBuildConfiguration(const QString &fullConfigName) const = 0;
+    virtual IConfiguration *createDefaultBuildConfiguration(const QString &fullConfigName) const = 0;
 };
 
 } // namespace Internal

@@ -40,7 +40,7 @@ class AttributeDescriptionDataItem;
 class StringListToolAttribute : public IToolAttribute
 {
 public:
-    StringListToolAttribute(const AttributeDescriptionDataItem* descDataItem);
+    StringListToolAttribute(const AttributeDescriptionDataItem *descDataItem);
     StringListToolAttribute(const StringListToolAttribute &attr);
 
     const IAttributeDescriptionDataItem *descriptionDataItem() const;
@@ -48,7 +48,7 @@ public:
     QString value() const;
     void setValue(const QString &value);
     bool isUsed() const;
-    IToolAttribute* clone() const;
+    IToolAttribute *clone() const;
 
 private:
     QStringList m_attributeValue;

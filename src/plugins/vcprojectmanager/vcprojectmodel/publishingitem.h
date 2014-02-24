@@ -43,15 +43,15 @@ class PublishingItem : public IPublishingItem
 public:
     PublishingItem();
     PublishingItem(const PublishingItem &item);
-    PublishingItem& operator=(const PublishingItem &item);
+    PublishingItem &operator=(const PublishingItem &item);
     ~PublishingItem();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    IAttributeContainer* attributeContainer() const;
-    IPublishingItem* clone() const;
+    IAttributeContainer *attributeContainer() const;
+    IPublishingItem *clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);

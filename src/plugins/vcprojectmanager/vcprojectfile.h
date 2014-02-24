@@ -66,13 +66,13 @@ public:
     QString filePath();
     QString path();
 
-    VcDocProjectNode* createVcDocNode() const;
+    VcDocProjectNode *createVcDocNode() const;
     void reloadVcDoc();
-    VcDocumentModel* documentModel() const;
+    VcDocumentModel *documentModel() const;
 private:
     QString m_filePath;
     QString m_path;
-    VcDocumentModel* m_documentModel;
+    VcDocumentModel *m_documentModel;
 };
 
 } // namespace Internal

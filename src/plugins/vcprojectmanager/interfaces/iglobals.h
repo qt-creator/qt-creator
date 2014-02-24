@@ -42,7 +42,7 @@ class IGlobals : public IVcProjectXMLNode
 public:
     virtual void addGlobal(IGlobal *global) = 0;
     virtual int globalCount() const = 0;
-    virtual IGlobal* global(int index) const = 0;
+    virtual IGlobal *global(int index) const = 0;
     virtual void removeGlobal(IGlobal *global) = 0;
 };
 

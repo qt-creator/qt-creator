@@ -43,7 +43,7 @@ class FileContainer : public IFileContainer
 public:
     FileContainer(const QString &containerType, IVisualStudioProject *parentProjectDoc);
     FileContainer(const FileContainer &fileContainer);
-    FileContainer& operator=(const FileContainer &folder);
+    FileContainer &operator=(const FileContainer &folder);
     ~FileContainer();
 
     QString containerType() const;

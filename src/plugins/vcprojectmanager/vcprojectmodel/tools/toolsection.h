@@ -52,11 +52,11 @@ public:
 
     IToolAttributeContainer *attributeContainer() const;
     const IToolSectionDescription *sectionDescription() const;
-    VcNodeWidget* createSettingsWidget();
-    IToolSection* clone() const;
+    VcNodeWidget *createSettingsWidget();
+    IToolSection *clone() const;
 
 private:
-    const ToolSectionDescription * m_toolDesc;
+    const ToolSectionDescription *m_toolDesc;
     GeneralToolAttributeContainer *m_attributeContainer;
 };
 

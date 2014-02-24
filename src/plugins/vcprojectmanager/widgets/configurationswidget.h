@@ -50,7 +50,7 @@ public:
     ~ConfigurationsWidget();
 
     void addConfiguration(const QString &configName, QWidget *configWidget);
-    QWidget* configWidget(const QString &configName);
+    QWidget *configWidget(const QString &configName);
     void removeConfiguration(const QString &configNameWithPlatform);
     void renameConfiguration(const QString &newconfigNameWithPlatform, const QString &oldConfigNameWithPlatform);
     QList<ConfigurationBaseWidget *> configWidgets();

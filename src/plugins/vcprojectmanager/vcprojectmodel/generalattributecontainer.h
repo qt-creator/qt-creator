@@ -42,7 +42,7 @@ class GeneralAttributeContainer : public IAttributeContainer
 public:
     GeneralAttributeContainer();
     GeneralAttributeContainer(const GeneralAttributeContainer &attrCont);
-    GeneralAttributeContainer& operator=(const GeneralAttributeContainer &attrCont);
+    GeneralAttributeContainer &operator=(const GeneralAttributeContainer &attrCont);
     QString attributeValue(const QString &attributeName) const;
     void clearAttribute(const QString &attributeName);
     void removeAttribute(const QString &attributeName);

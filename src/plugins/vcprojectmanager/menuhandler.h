@@ -44,7 +44,7 @@ class MenuHandler : public QObject
     friend class VcProjectManagerPlugin;
 
 public:
-    static MenuHandler* instance();
+    static MenuHandler *instance();
     ~MenuHandler();
 
 private:

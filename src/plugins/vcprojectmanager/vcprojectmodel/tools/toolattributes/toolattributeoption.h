@@ -49,7 +49,7 @@ public:
     void setValue(const QString &value);
 
     bool isNull() const;
-    ToolAttributeOption* nextOption() const;
+    ToolAttributeOption *nextOption() const;
     void appendOption(ToolAttributeOption *option);
 
 private:

@@ -44,9 +44,9 @@ class ITools
 {
 public:
     virtual ~ITools() {}
-    virtual IConfigurationBuildTools* configurationBuildTools() const = 0;
-    virtual IDeploymentTools* deploymentTools() const = 0;
-    virtual IDebuggerTools* debuggerTools() const = 0;
+    virtual IConfigurationBuildTools *configurationBuildTools() const = 0;
+    virtual IDeploymentTools *deploymentTools() const = 0;
+    virtual IDebuggerTools *debuggerTools() const = 0;
 };
 
 } // namespace Internal

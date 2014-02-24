@@ -46,12 +46,12 @@ class ConfigurationContainer : public QObject
 public:
     ConfigurationContainer(QObject *parent = 0);
     ConfigurationContainer(const ConfigurationContainer &configCont);
-    ConfigurationContainer& operator=(const ConfigurationContainer &configCont);
+    ConfigurationContainer &operator=(const ConfigurationContainer &configCont);
     ~ConfigurationContainer();
 
     void addConfiguration(IConfiguration *config);
-    IConfiguration* configuration(const QString &fullName) const;
-    IConfiguration* configuration(int index) const;
+    IConfiguration *configuration(const QString &fullName) const;
+    IConfiguration *configuration(int index) const;
     int configurationCount() const;
     void removeConfiguration(const QString &fullName);
     void appendToXMLNode(QDomElement &domElement, QDomDocument &domXMLDocument);

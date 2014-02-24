@@ -43,15 +43,15 @@ class DeploymentTool : public IDeploymentTool
 public:
     DeploymentTool();
     DeploymentTool(const DeploymentTool &tool);
-    DeploymentTool& operator=(const DeploymentTool &tool);
+    DeploymentTool &operator=(const DeploymentTool &tool);
     ~DeploymentTool();
 
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     IAttributeContainer *attributeContainer() const;
-    IDeploymentTool* clone() const;
+    IDeploymentTool *clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);

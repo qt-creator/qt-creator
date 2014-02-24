@@ -45,17 +45,17 @@ class AssemblyReference : public IReference
 public:
     AssemblyReference();
     AssemblyReference(const AssemblyReference &asmRef);
-    AssemblyReference& operator=(const AssemblyReference &asmRef);
+    AssemblyReference &operator=(const AssemblyReference &asmRef);
 
     ~AssemblyReference();
     void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
+    VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     IAttributeContainer *attributeContainer() const;
     ConfigurationContainer *configurationContainer() const;
     QString type() const;
-    IReference* clone() const;
+    IReference *clone() const;
 
 protected:
     virtual void processNodeAttributes(const QDomElement &element);
