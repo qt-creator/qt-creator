@@ -115,7 +115,7 @@ Add, modify, and remove document filters, which determine the documentation set 
      <item>
       <widget class="QPushButton" name="filterAddButton">
        <property name="text">
-        <string>Add</string>
+        <string>Add...</string>
        </property>
       </widget>
      </item>
