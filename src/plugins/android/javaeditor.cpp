@@ -52,6 +52,7 @@ using namespace Android::Internal;
 JavaEditor::JavaEditor(JavaEditorWidget *editor)
   : BaseTextEditor(editor)
 {
+    setId(Constants::JAVA_EDITOR_ID);
     setContext(Core::Context(Constants::C_JAVA_EDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
 }
@@ -62,11 +63,6 @@ Core::IEditor *JavaEditor::duplicate()
                 qobject_cast<JavaEditorWidget*>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
-}
-
-Core::Id JavaEditor::id() const
-{
-    return Core::Id(Constants::JAVA_EDITOR_ID);
 }
 
 TextEditor::CompletionAssistProvider *JavaEditor::completionAssistProvider()

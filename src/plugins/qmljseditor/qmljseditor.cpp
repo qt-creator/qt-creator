@@ -183,11 +183,6 @@ IEditor *QmlJSEditor::duplicate()
     return newEditor->editor();
 }
 
-Id QmlJSEditor::id() const
-{
-    return Constants::C_QMLJSEDITOR_ID;
-}
-
 bool QmlJSEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);

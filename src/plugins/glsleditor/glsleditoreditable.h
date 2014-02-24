@@ -46,7 +46,6 @@ public:
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate();
-    Core::Id id() const;
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     TextEditor::CompletionAssistProvider *completionAssistProvider();
 };

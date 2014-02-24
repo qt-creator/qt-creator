@@ -181,6 +181,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
                                          SubmitEditorWidget *editorWidget) :
     d(new VcsBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
+    setId(parameters->id);
     setContext(Core::Context(parameters->context));
     setWidget(d->m_widget);
     document()->setDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));
@@ -390,11 +391,6 @@ QString VcsBaseSubmitEditor::checkScriptWorkingDirectory() const
 void VcsBaseSubmitEditor::setCheckScriptWorkingDirectory(const QString &s)
 {
     d->m_checkScriptWorkingDirectory = s;
-}
-
-Core::Id VcsBaseSubmitEditor::id() const
-{
-    return d->m_parameters->id;
 }
 
 static QToolBar *createToolBar(const QWidget *someWidget, QAction *submitAction, QAction *diffAction)

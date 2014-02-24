@@ -47,9 +47,11 @@ public:
     IEditor(QObject *parent = 0) : IContext(parent) {}
     virtual ~IEditor() {}
 
+    void setId(Core::Id id);
+    Core::Id id() const;
+
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName) = 0;
     virtual IDocument *document() = 0;
-    virtual Core::Id id() const = 0;
 
     virtual bool duplicateSupported() const { return false; }
     virtual IEditor *duplicate() { return 0; }
@@ -64,6 +66,9 @@ public:
     virtual QWidget *toolBar() = 0;
 
     virtual bool isDesignModePreferred() const { return false; }
+
+private:
+    Core::Id m_id;
 };
 
 } // namespace Core

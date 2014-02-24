@@ -67,7 +67,6 @@ public:
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document();
-    Core::Id id() const;
 
     QWidget *toolBar();
 

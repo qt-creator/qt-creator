@@ -60,9 +60,11 @@ class DescriptionEditor : public BaseTextEditor
 {
     Q_OBJECT
 public:
-    DescriptionEditor(BaseTextEditorWidget *editorWidget) : BaseTextEditor(editorWidget) {}
-
-    Core::Id id() const { return "DescriptionEditor"; }
+    DescriptionEditor(BaseTextEditorWidget *editorWidget)
+        : BaseTextEditor(editorWidget)
+    {
+        setId("DescriptionEditor");
+    }
 };
 
 class DescriptionEditorWidget : public BaseTextEditorWidget
@@ -147,6 +149,7 @@ DiffEditor::DiffEditor(DiffEditor *other)
 
 void DiffEditor::ctor()
 {
+    setId(Constants::DIFF_EDITOR_ID);
     QSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
 
     m_descriptionWidget = new Internal::DescriptionEditorWidget(splitter);
@@ -210,11 +213,6 @@ bool DiffEditor::open(QString *errorString, const QString &fileName, const QStri
 Core::IDocument *DiffEditor::document()
 {
     return m_document.data();
-}
-
-Core::Id DiffEditor::id() const
-{
-    return Constants::DIFF_EDITOR_ID;
 }
 
 static QToolBar *createToolBar(const QWidget *someWidget)

@@ -504,6 +504,7 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
 CPPEditor::CPPEditor(CPPEditorWidget *editor)
     : BaseTextEditor(editor)
 {
+    setId(CppEditor::Constants::CPPEDITOR_ID);
     m_context.add(CppEditor::Constants::C_CPPEDITOR);
     m_context.add(ProjectExplorer::Constants::LANG_CXX);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
@@ -1497,11 +1498,6 @@ Core::IEditor *CPPEditor::duplicate()
                 qobject_cast<CPPEditorWidget *>(editorWidget()));
     CppEditorPlugin::instance()->initializeEditor(newEditor);
     return newEditor->editor();
-}
-
-Core::Id CPPEditor::id() const
-{
-    return CppEditor::Constants::CPPEDITOR_ID;
 }
 
 bool CPPEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)

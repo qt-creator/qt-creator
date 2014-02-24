@@ -47,11 +47,7 @@ SnippetEditor::SnippetEditor(SnippetEditorWidget *editor)
     : BaseTextEditor(editor)
 {
     setContext(Core::Context(Constants::SNIPPET_EDITOR_ID, Constants::C_TEXTEDITOR));
-}
-
-Core::Id SnippetEditor::id() const
-{
-    return Core::Id(Constants::SNIPPET_EDITOR_ID);
+    setId(Constants::SNIPPET_EDITOR_ID);
 }
 
 SnippetEditorWidget::SnippetEditorWidget(QWidget *parent) : BaseTextEditorWidget(parent)

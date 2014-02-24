@@ -55,6 +55,7 @@ namespace Internal {
 ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
   : BaseTextEditor(editor)
 {
+    setId(Constants::PROFILE_EDITOR_ID);
     setContext(Core::Context(Constants::C_PROFILEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
 }
@@ -65,11 +66,6 @@ Core::IEditor *ProFileEditor::duplicate()
                 qobject_cast<ProFileEditorWidget*>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
-}
-
-Core::Id ProFileEditor::id() const
-{
-    return Core::Id(Constants::PROFILE_EDITOR_ID);
 }
 
 TextEditor::CompletionAssistProvider *ProFileEditor::completionAssistProvider()

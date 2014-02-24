@@ -154,22 +154,17 @@ class VcsBaseEditor : public TextEditor::BaseTextEditor
 public:
     VcsBaseEditor(VcsBaseEditorWidget *, const VcsBaseEditorParameters *type);
 
-    Core::Id id() const { return m_id; }
-
 signals:
     void describeRequested(const QString &source, const QString &change);
     void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
                                    const QString &change, int line);
-
-private:
-    Core::Id m_id;
 };
 
 VcsBaseEditor::VcsBaseEditor(VcsBaseEditorWidget *widget,
                              const VcsBaseEditorParameters *type)  :
-    BaseTextEditor(widget),
-    m_id(type->id)
+    BaseTextEditor(widget)
 {
+    setId(type->id);
     setContext(Core::Context(type->context, TextEditor::Constants::C_TEXTEDITOR));
 }
 

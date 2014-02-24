@@ -78,12 +78,8 @@ Core::IEditor *ProjectFilesFactory::createEditor()
 ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
   : BaseTextEditor(editor)
 {
+    setId(Constants::FILES_EDITOR_ID);
     setContext(Core::Context(Constants::C_FILESEDITOR));
-}
-
-Core::Id ProjectFilesEditor::id() const
-{
-    return Core::Id(Constants::FILES_EDITOR_ID);
 }
 
 bool ProjectFilesEditor::duplicateSupported() const

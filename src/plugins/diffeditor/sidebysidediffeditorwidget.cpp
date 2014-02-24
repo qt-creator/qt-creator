@@ -360,11 +360,10 @@ public:
     SideDiffEditor(BaseTextEditorWidget *editorWidget)
         : BaseTextEditor(editorWidget)
     {
+        setId("SideDiffEditor");
         connect(this, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
                 this, SLOT(slotTooltipRequested(TextEditor::ITextEditor*,QPoint,int)));
     }
-
-    Core::Id id() const { return "SideDiffEditor"; }
 
 private slots:
     void slotTooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPoint, int position);

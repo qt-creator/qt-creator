@@ -206,11 +206,6 @@ Core::IEditor *GLSLEditorEditable::duplicate()
     return newEditor->editor();
 }
 
-Core::Id GLSLEditorEditable::id() const
-{
-    return GLSLEditor::Constants::C_GLSLEDITOR_ID;
-}
-
 bool GLSLEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     baseTextDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
