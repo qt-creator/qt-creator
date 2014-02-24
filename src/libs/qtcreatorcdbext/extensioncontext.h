@@ -39,6 +39,7 @@
 class LocalsSymbolGroup;
 class WatchesSymbolGroup;
 class OutputCallback;
+class ExtensionCommandContext;
 
 // Global parameters
 class Parameters
@@ -120,6 +121,8 @@ public:
 
     const Parameters &parameters() const { return m_parameters; }
     Parameters &parameters() { return m_parameters; }
+
+    ULONG64 jsExecutionContext(ExtensionCommandContext &exc, std::string *errorMessage);
 
     bool stateNotification() const { return m_stateNotification; }
     void setStateNotification(bool s) { m_stateNotification = s; }

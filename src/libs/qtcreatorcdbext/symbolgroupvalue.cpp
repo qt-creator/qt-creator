@@ -747,7 +747,7 @@ std::string QtInfo::moduleName(Module m) const
 {
     // Must match the enumeration
     static const char* modNames[] =
-        {"Core", "Gui", "Widgets", "Network", "Script" };
+        {"Core", "Gui", "Widgets", "Network", "Script", "Qml" };
     std::ostringstream result;
     result << "Qt";
     if (version >= 5)

@@ -104,6 +104,7 @@ enum Command {
     CmdMemory,
     CmdExpression,
     CmdStack,
+    CmdQmlStack,
     CmdShutdownex,
     CmdAddWatch,
     CmdWidgetAt,
@@ -167,12 +168,13 @@ static const CommandDescription commandDescriptions[] = {
 {"memory","Prints memory contents in Base64 encoding.","[-t token] <address> <length>"},
 {"expression","Prints expression value.","[-t token] <expression>"},
 {"stack","Prints stack in GDBMI format.","[-t token] [<max-frames>|unlimited]"},
+{"qmlstack","Prints QML stack in GDBMI format.","[-t token] [js-executioncontext]"},
 {"shutdownex","Unhooks output callbacks.\nNeeds to be called explicitly only in case of remote debugging.",""},
 {"addwatch","Add watch expression","<iname> <expression>"},
 {"widgetat","Return address of widget at position","<x> <y>"},
 {"breakpoints","List breakpoints with modules","[-h] [-v]"},
 {"test","Testing command","-T type | -w watch-expression"},
-{"setparameter","Set parameter","maxStringLength=value maxStackDepth=value"}
+{"setparameter","Set parameter","maxStringLength=value maxStackDepth=value stateNotification=1,0"}
 };
 
 typedef std::vector<std::string> StringVector;
@@ -913,6 +915,12 @@ extern "C" HRESULT CALLBACK setparameter(CIDebugClient *, PCSTR args)
             } else if (!token.compare(0, equalsPos, "maxStackDepth")) {
                 if (integerFromString(value, &ExtensionContext::instance().parameters().maxStackDepth))
                     ++success;
+            } else if (!token.compare(0, equalsPos, "stateNotification")) {
+                int s; // Silence state notification (development purposes only)
+                if (integerFromString(value, &s)) {
+                    ExtensionContext::instance().setStateNotification(s != 0);
+                    ++success;
+                }
             }
         }
     }
@@ -1024,6 +1032,64 @@ extern "C" HRESULT CALLBACK stack(CIDebugClient *Client, PCSTR argsIn)
         ExtensionContext::instance().report('N', token, 0, "stack", errorMessage.c_str());
     else
         ExtensionContext::instance().reportLong('R', token, "stack", stack);
+    return S_OK;
+}
+
+// Extension command 'qmlstack'
+// Report stack correctly as 'k' does not list instruction pointer
+// correctly.
+extern "C" HRESULT CALLBACK qmlstack(CIDebugClient *client, PCSTR argsIn)
+{
+    ExtensionCommandContext exc(client);
+    std::string errorMessage;
+
+    int token = 0;
+    bool humanReadable = false;
+    ULONG64 jsExecutionContext = 0;
+    std::string stackDump;
+
+    do {
+        StringList tokens = commandTokens<StringList>(argsIn, &token);
+        if (!tokens.empty() && tokens.front() == "-h") {
+             humanReadable = true;
+             tokens.pop_front();
+        }
+        if (!tokens.empty()) {
+            if (!integerFromString(tokens.front(), &jsExecutionContext)) {
+                errorMessage = "Invalid address " + tokens.front();
+                break;
+            }
+            tokens.pop_front();
+        }
+        ExtensionCommandContext exc(client);
+        if (!jsExecutionContext) { // Try to find execution context unless it was given.
+            jsExecutionContext = ExtensionContext::instance().jsExecutionContext(exc, &errorMessage);
+            if (!jsExecutionContext)
+                break;
+        }
+        // call function to get stack trace. Call with exceptions handled right from
+        // the start assuming this is invoked for crashed applications.
+        std::ostringstream callStr;
+        const QtInfo &qtInfo = QtInfo::get(SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()));
+        callStr << qtInfo.prependQtModule("qt_v4StackTrace(", QtInfo::Qml) << std::showbase << std::hex
+                << jsExecutionContext << std::dec << std::noshowbase << ')';
+        std::wstring wOutput;
+        if (!ExtensionContext::instance().call(callStr.str(), ExtensionContext::CallWithExceptionsHandled, &wOutput, &errorMessage))
+            break;
+        // extract GDBMI info from call
+        const std::string::size_type sPos = wOutput.find(L"stack=[");
+        const std::string::size_type sEndPos = wOutput.rfind(L']');
+        if (sPos == std::string::npos || sEndPos == std::string::npos || sEndPos < sPos) {
+            errorMessage = "No stack returned";
+            break;
+        }
+        stackDump = wStringToString(wOutput.substr(sPos, sEndPos - sPos + 1));
+    } while (false);
+
+    if (stackDump.empty())
+        ExtensionContext::instance().report('N', token, 0, "qmlstack", errorMessage.c_str());
+    else
+        ExtensionContext::instance().reportLong('R', token, "qmlstack", stackDump);
     return S_OK;
 }
 
