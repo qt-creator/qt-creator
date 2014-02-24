@@ -71,6 +71,7 @@ BranchDialog::BranchDialog(QWidget *parent) :
     connect(m_ui->renameButton, SIGNAL(clicked()), this, SLOT(rename()));
     connect(m_ui->diffButton, SIGNAL(clicked()), this, SLOT(diff()));
     connect(m_ui->logButton, SIGNAL(clicked()), this, SLOT(log()));
+    connect(m_ui->resetButton, SIGNAL(clicked()), this, SLOT(reset()));
     connect(m_ui->mergeButton, SIGNAL(clicked()), this, SLOT(merge()));
     connect(m_ui->rebaseButton, SIGNAL(clicked()), this, SLOT(rebase()));
     connect(m_ui->cherryPickButton, SIGNAL(clicked()), this, SLOT(cherryPick()));
@@ -318,6 +319,22 @@ void BranchDialog::log()
         return;
     // Do not pass working dir by reference since it might change
     GitPlugin::instance()->gitClient()->log(QString(m_repository), QString(), false, QStringList(branchName));
+}
+
+void BranchDialog::reset()
+{
+    QString currentName = m_model->fullName(m_model->currentBranch(), true);
+    QString branchName = m_model->fullName(selectedIndex(), true);
+    if (currentName.isEmpty() || branchName.isEmpty())
+        return;
+
+    if (QMessageBox::question(this, tr("Git Reset"), tr("Hard reset branch '%1' to '%2'?")
+                              .arg(currentName).arg(branchName),
+                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+        GitPlugin::instance()->gitClient()->reset(QString(m_repository), QLatin1String("--hard"),
+                                                  branchName);
+
+    }
 }
 
 void BranchDialog::merge()
