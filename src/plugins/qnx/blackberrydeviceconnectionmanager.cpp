@@ -187,7 +187,7 @@ void BlackBerryDeviceConnectionManager::disconnectDevice(const ProjectExplorer::
  */
 const QString BlackBerryDeviceConnectionManager::privateKeyPath() const
 {
-    return QFileInfo(Core::ICore::settings()->fileName()).absolutePath() + QLatin1String("/qtcreator/qnx/id_rsa");
+    return Core::ICore::userResourcePath() + QLatin1String("/qnx/id_rsa");
 }
 
 /*!

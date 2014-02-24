@@ -141,7 +141,7 @@ void DeviceManager::load()
 
     // Only create writer now: We do not want to save before the settings were read!
     d->writer = new Utils::PersistentSettingsWriter(
-                settingsFilePath(QLatin1String("/qtcreator/devices.xml")),
+                settingsFilePath(QLatin1String("/devices.xml")),
                 QLatin1String("QtCreatorDevices"));
 
     Utils::PersistentSettingsReader reader;
@@ -151,7 +151,7 @@ void DeviceManager::load()
         sdkDevices = fromMap(reader.restoreValues().value(QLatin1String(DeviceManagerKey)).toMap());
     // read devices file from user settings path
     QList<IDevice::Ptr> userDevices;
-    if (reader.load(settingsFilePath(QLatin1String("/qtcreator/devices.xml"))))
+    if (reader.load(settingsFilePath(QLatin1String("/devices.xml"))))
         userDevices = fromMap(reader.restoreValues().value(QLatin1String(DeviceManagerKey)).toMap());
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
@@ -215,7 +215,7 @@ QVariantMap DeviceManager::toMap() const
 
 Utils::FileName DeviceManager::settingsFilePath(const QString &extension)
 {
-    return Utils::FileName::fromString(QFileInfo(Core::ICore::settings()->fileName()).absolutePath() + extension);
+    return Utils::FileName::fromString(Core::ICore::userResourcePath() + extension);
 }
 
 Utils::FileName DeviceManager::systemSettingsFilePath(const QString &deviceFileRelativePath)
