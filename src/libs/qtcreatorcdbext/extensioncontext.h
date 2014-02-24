@@ -116,6 +116,9 @@ public:
     const Parameters &parameters() const { return m_parameters; }
     Parameters &parameters() { return m_parameters; }
 
+    bool stateNotification() const { return m_stateNotification; }
+    void setStateNotification(bool s) { m_stateNotification = s; }
+
 private:
     bool isInitialized() const;
 

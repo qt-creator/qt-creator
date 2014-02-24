@@ -53,6 +53,29 @@ Parameters::Parameters() : maxStringLength(10000), maxStackDepth(1000)
 {
 }
 
+/*!  \class StateNotificationBlocker
+
+    Blocks state (stopped) notification of ExtensionContext while instantiated
+
+    \ingroup qtcreatorcdbext
+*/
+
+class StateNotificationBlocker {
+    StateNotificationBlocker(const StateNotificationBlocker &);
+    StateNotificationBlocker &operator=(const StateNotificationBlocker &);
+
+public:
+    StateNotificationBlocker(ExtensionContext *ec)
+        : m_oldValue(ec->stateNotification())
+        , m_extensionContext(ec)
+        { m_extensionContext->setStateNotification(false); }
+    ~StateNotificationBlocker() { m_extensionContext->setStateNotification(m_oldValue); }
+
+private:
+    const bool m_oldValue;
+    ExtensionContext *m_extensionContext;
+};
+
 /*!  \class ExtensionContext
 
     Global singleton with context.
@@ -350,18 +373,15 @@ bool ExtensionContext::call(const std::string &functionCall,
     }
     // Wait until finished
     startRecordingOutput();
-    m_stateNotification = false;
+    StateNotificationBlocker blocker(this);
     m_control->WaitForEvent(0, INFINITE);
     *output =  stopRecordingOutput();
-    m_stateNotification = true;
     // Crude attempt at recovering from a crash: Issue 'gN' (go with exception not handled).
     const bool crashed = output->find(L"This exception may be expected and handled.") != std::string::npos;
     if (crashed) {
         m_stopReason.clear();
-        m_stateNotification = false;
         hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "~. gN", DEBUG_EXECUTE_ECHO);
         m_control->WaitForEvent(0, INFINITE);
-        m_stateNotification = true;
         *errorMessage = "A crash occurred while calling: " + functionCall;
         return false;
     }
