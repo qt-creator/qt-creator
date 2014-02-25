@@ -35,10 +35,12 @@
 
 //#define DEBUG_TOKENS
 
-typedef QList<unsigned> List;
+typedef QList<unsigned> TokenKindList;
+typedef QList<CPlusPlus::Token> TokenList;
 typedef QByteArray _;
 
-Q_DECLARE_METATYPE(List)
+Q_DECLARE_METATYPE(TokenKindList)
+Q_DECLARE_METATYPE(TokenList)
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
@@ -57,16 +59,36 @@ private slots:
     void incremental_data();
 
 private:
+    static TokenList toTokenList(const TokenKindList &tokenKinds);
+
+    enum TokenCompareFlag {
+        CompareKind = 1 << 1
+    };
+    Q_DECLARE_FLAGS(TokenCompareFlags, TokenCompareFlag)
+
     void run(const QByteArray &source,
-             const List &expectedTokenKindList,
-             bool preserveState);
+             const TokenList &expectedTokenList,
+             bool preserveState,
+             TokenCompareFlag compareFlags);
 
     int _state;
 };
 
+TokenList tst_SimpleLexer::toTokenList(const TokenKindList &tokenKinds)
+{
+    TokenList tokens;
+    foreach (unsigned tokenKind, tokenKinds) {
+        Token token;
+        token.f.kind = tokenKind;
+        tokens << token;
+    }
+    return tokens;
+}
+
 void tst_SimpleLexer::run(const QByteArray &source,
-                          const List &expectedTokenKindList,
-                          bool preserveState)
+                          const TokenList &expectedTokenList,
+                          bool preserveState,
+                          TokenCompareFlag compareFlags)
 {
     SimpleLexer lexer;
     const QList<Token> tokenList = lexer(source, preserveState ? _state : 0);
@@ -75,110 +97,111 @@ void tst_SimpleLexer::run(const QByteArray &source,
 
     int i = 0;
     for (; i < tokenList.size(); ++i) {
-        QVERIFY2(i < expectedTokenKindList.size(), "More tokens than expected.");
+        QVERIFY2(i < expectedTokenList.size(), "More tokens than expected.");
 
         const Token token = tokenList.at(i);
-        const unsigned expectedTokenKind = expectedTokenKindList.at(i);
+        const Token expectedToken = expectedTokenList.at(i);
 #ifdef DEBUG_TOKENS
         qDebug("Comparing (i=%d): \"%s\" \"%s\"", i,
                Token::name(token.kind()),
-               Token::name(expectedTokenKind));
+               Token::name(expectedToken.kind()));
 #endif
-        QCOMPARE(token.kind(), expectedTokenKind);
+        if (compareFlags & CompareKind)
+            QCOMPARE(token.kind(), expectedToken.kind());
     }
-    QVERIFY2(i == expectedTokenKindList.size(), "Less tokens than expected.");
+    QVERIFY2(i == expectedTokenList.size(), "Less tokens than expected.");
 }
 
 void tst_SimpleLexer::basic()
 {
     QFETCH(QByteArray, source);
-    QFETCH(List, expectedTokenKindList);
+    QFETCH(TokenKindList, expectedTokenKindList);
 
-    run(source, expectedTokenKindList, false);
+    run(source, toTokenList(expectedTokenKindList), false, CompareKind);
 }
 
 void tst_SimpleLexer::basic_data()
 {
     QTest::addColumn<QByteArray>("source");
-    QTest::addColumn<List>("expectedTokenKindList");
+    QTest::addColumn<TokenKindList>("expectedTokenKindList");
 
     QByteArray source;
-    List expectedTokenKindList;
+    TokenKindList expectedTokenKindList;
 
     source = "// comment";
-    expectedTokenKindList = List() << T_CPP_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_CPP_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "//// comment";
-    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/// comment";
-    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "///< comment";
-    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "//! comment";
-    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "//!< comment";
-    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "///\n";
-    expectedTokenKindList = List() << T_CPP_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "///\n"
              "int i;";
-    expectedTokenKindList = List()
+    expectedTokenKindList = TokenKindList()
         << T_CPP_DOXY_COMMENT
         << T_INT << T_IDENTIFIER << T_SEMICOLON;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/* comment */\n";
-    expectedTokenKindList = List() << T_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/* comment\n"
              "   comment\n"
              " */\n";
-    expectedTokenKindList = List() << T_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/** comment */";
-    expectedTokenKindList = List() << T_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/** comment */\n";
-    expectedTokenKindList = List() << T_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/** comment */ int i;\n";
-    expectedTokenKindList = List()
+    expectedTokenKindList = TokenKindList()
         << T_DOXY_COMMENT << T_INT << T_IDENTIFIER << T_SEMICOLON;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/**\n"
             "  * comment\n"
              " */\n";
-    expectedTokenKindList = List() << T_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/*!\n"
             "  * comment\n"
              " */\n";
-    expectedTokenKindList = List() << T_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "/*!\n"
              "    comment\n"
              "*/\n";
-    expectedTokenKindList = List() << T_DOXY_COMMENT;
+    expectedTokenKindList = TokenKindList() << T_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "int i; /*!< first counter */\n"
@@ -186,7 +209,7 @@ void tst_SimpleLexer::basic_data()
              "int k; ///< third counter\n"
              "int l; //!< fourth counter\n"
              "       //!< more details...  ";
-    expectedTokenKindList = List()
+    expectedTokenKindList = TokenKindList()
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_DOXY_COMMENT
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_DOXY_COMMENT
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT
@@ -194,7 +217,7 @@ void tst_SimpleLexer::basic_data()
     QTest::newRow(source) << source << expectedTokenKindList;
 
     source = "?" "?(?" "?)?" "?<?" "?>a?b:c";
-    expectedTokenKindList = List()
+    expectedTokenKindList = TokenKindList()
         << T_LBRACKET << T_RBRACKET << T_LBRACE << T_RBRACE
         << T_IDENTIFIER << T_QUESTION << T_IDENTIFIER << T_COLON << T_IDENTIFIER;
     QTest::newRow(source) << source << expectedTokenKindList;
@@ -204,147 +227,147 @@ void tst_SimpleLexer::basic_data()
 void tst_SimpleLexer::incremental()
 {
     QFETCH(QByteArray, source);
-    QFETCH(List, expectedTokenKindList);
+    QFETCH(TokenKindList, expectedTokenKindList);
 
-    run(source, expectedTokenKindList, true);
+    run(source, toTokenList(expectedTokenKindList), true, CompareKind);
 }
 
 void tst_SimpleLexer::incremental_data()
 {
     QTest::addColumn<QByteArray>("source");
-    QTest::addColumn<List>("expectedTokenKindList");
+    QTest::addColumn<TokenKindList>("expectedTokenKindList");
 
     QTest::newRow("simple_string_literal")
             << _("\"foo\"")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("unterminated_string_literal")
             << _("\"foo")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("escaped_string_literal_1")
             << _("\"foo \\")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("escaped_string_literal_2")
             << _("bar\"")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("escaped_string_literal_with_spaces_1")
             << _("\"foo \\    ")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("escaped_string_literal_with_spaces_2")
             << _("bar\"")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("double_escaped_string_literal_1")
             << _("\"foo \\")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("double_escaped_string_literal_2")
             << _("bar \\")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("double_escaped_string_literal_3")
             << _("baz\"")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("unterminated_escaped_string_literal")
             << _("\"foo \\\n\nbar\"")
-            << (List() << T_STRING_LITERAL << T_IDENTIFIER << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL << T_IDENTIFIER << T_STRING_LITERAL);
 
     QTest::newRow("escaped_string_literal_with_newline_1")
             << _("\"foo \\")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("escaped_string_literal_with_newline_2")
             << _("")
-            << List();
+            << TokenKindList();
 
     QTest::newRow("escaped_string_literal_with_newline_3")
             << _("bar")
-            << (List() << T_IDENTIFIER);
+            << (TokenKindList() << T_IDENTIFIER);
 
     QTest::newRow("escaped_string_literal_with_space_and_newline_single")
             << _("\"foo \\   \n   bar\"")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("escaped_string_literal_with_space_and_newline_1")
             << _("\"foo \\   \n   ")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("escaped_string_literal_with_space_and_newline_2")
             << _("bar")
-            << (List() << T_IDENTIFIER);
+            << (TokenKindList() << T_IDENTIFIER);
 
     QTest::newRow("token_after_escaped_string_literal_1")
             << _("\"foo \\")
-            << (List() << T_STRING_LITERAL);
+            << (TokenKindList() << T_STRING_LITERAL);
 
     QTest::newRow("token_after_escaped_string_literal_2")
             << _("bar\";")
-            << (List() << T_STRING_LITERAL << T_SEMICOLON);
+            << (TokenKindList() << T_STRING_LITERAL << T_SEMICOLON);
 
     QTest::newRow("simple_cpp_comment")
             << _("//foo")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("escaped_cpp_comment_1")
             << _("//foo \\")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("escaped_cpp_comment_2")
             << _("bar")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("escaped_cpp_comment_with_spaces_1")
             << _("//foo \\    ")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("escaped_cpp_comment_with_spaces_2")
             << _("bar")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("double_escaped_cpp_comment_1")
             << _("//foo \\")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("double_escaped_cpp_comment_2")
             << _("bar \\")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("double_escaped_cpp_comment_3")
             << _("baz")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("escaped_cpp_comment_with_newline")
             << _("//foo \\\n\nbar")
-            << (List() << T_CPP_COMMENT << T_IDENTIFIER);
+            << (TokenKindList() << T_CPP_COMMENT << T_IDENTIFIER);
 
     QTest::newRow("escaped_cpp_comment_with_newline_1")
             << _("//foo \\")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("escaped_cpp_comment_with_newline_2")
             << _("")
-            << List();
+            << TokenKindList();
 
     QTest::newRow("escaped_cpp_comment_with_newline_3")
             << _("bar")
-            << (List() << T_IDENTIFIER);
+            << (TokenKindList() << T_IDENTIFIER);
 
     QTest::newRow("escaped_cpp_comment_with_space_and_newline_single")
             << _("//foo \\   \n   bar")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("escaped_cpp_comment_with_space_and_newline_1")
             << _("//foo \\   \n   ")
-            << (List() << T_CPP_COMMENT);
+            << (TokenKindList() << T_CPP_COMMENT);
 
     QTest::newRow("escaped_cpp_comment_with_space_and_newline_2")
             << _("bar")
-            << (List() << T_IDENTIFIER);
+            << (TokenKindList() << T_IDENTIFIER);
 }
 
 QTEST_APPLESS_MAIN(tst_SimpleLexer)
