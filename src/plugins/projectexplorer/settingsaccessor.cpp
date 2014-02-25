@@ -54,6 +54,19 @@
 
 using namespace Utils;
 
+namespace {
+static QString generateSuffix(const QString &alt1, const QString &alt2)
+{
+    QString suffix = alt1;
+    if (suffix.isEmpty())
+        suffix = alt2;
+    suffix.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_.-]")), QString(QLatin1Char('_'))); // replace fishy characters:
+    if (!suffix.startsWith(QLatin1String(".")))
+        suffix.prepend(QLatin1Char('.'));
+    return suffix;
+}
+} // end namespace
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -877,24 +890,12 @@ SettingsAccessor::FileAccessor::FileAccessor(const QString &defaultSuffix,
     , m_accessor(accessor)
     , m_writer(0)
 {
-    assignSuffix(defaultSuffix, environmentSuffix);
+    m_suffix = generateSuffix(environmentSuffix, defaultSuffix);
 }
 
 SettingsAccessor::FileAccessor::~FileAccessor()
 {
     delete m_writer;
-}
-
-void SettingsAccessor::FileAccessor::assignSuffix(const QString &defaultSuffix,
-                                                  const QString &environmentSuffix)
-{
-    if (!environmentSuffix.isEmpty()) {
-        m_suffix = environmentSuffix;
-        m_suffix.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_.-]")), QString(QLatin1Char('_'))); // replace fishy characters:
-        m_suffix.prepend(QLatin1Char('.'));
-    } else {
-        m_suffix = defaultSuffix;
-    }
 }
 
 bool SettingsAccessor::FileAccessor::readFile(SettingsData *settings) const

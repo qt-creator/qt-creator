@@ -104,8 +104,6 @@ private:
         QString suffix() const { return m_suffix; }
 
     private:
-        void assignSuffix(const QString &defaultSuffix, const QString &environmentSuffix);
-
         QString m_suffix;
         bool m_environmentSpecific;
         SettingsAccessor *m_accessor;
