@@ -41,8 +41,6 @@ class IAttributeContainer;
 class IFileContainer : public IVcProjectXMLNode
 {
 public:
-    virtual ~IFileContainer() {}
-
     virtual QString containerType() const = 0;
 
     virtual void addFile(IFile *file) = 0;

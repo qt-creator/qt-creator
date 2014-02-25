@@ -39,8 +39,6 @@ namespace Internal {
 class IGlobal : public IVcProjectXMLNode
 {
 public:
-    ~IGlobal() {}
-
     virtual QString displayName() const = 0;
     virtual void setDisplayName(const QString &name) = 0;
     virtual QString value() const = 0;

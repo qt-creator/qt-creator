@@ -40,7 +40,6 @@ class IAttributeContainer;
 class IDebuggerTool : public IVcProjectXMLNode
 {
 public:
-    ~IDebuggerTool() {}
     virtual IAttributeContainer *attributeContainer() const = 0;
     virtual IDebuggerTool *clone() const = 0;
 };

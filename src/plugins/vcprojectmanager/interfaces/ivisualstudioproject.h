@@ -51,8 +51,6 @@ class IConfiguration;
 class IVisualStudioProject : public IVcProjectXMLNode
 {
 public:
-    virtual ~IVisualStudioProject() {}
-
     virtual IAttributeContainer *attributeContainer() const = 0;
     virtual IConfigurations *configurations() const = 0;
     virtual IFiles *files() const = 0;

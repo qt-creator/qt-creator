@@ -40,8 +40,6 @@ namespace Internal {
 class IPlatform : public IVcProjectXMLNode
 {
 public:
-    virtual ~IPlatform() {}
-
     virtual QString displayName() const = 0;
     virtual void setDisplayName(const QString &displayName) = 0;
     virtual IPlatform *clone() const = 0;

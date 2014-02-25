@@ -40,7 +40,6 @@ class IAttributeContainer;
 class IPublishingItem : public IVcProjectXMLNode
 {
 public:
-    virtual ~IPublishingItem() {}
     virtual IAttributeContainer *attributeContainer() const = 0;
     virtual IPublishingItem *clone() const = 0;
 };

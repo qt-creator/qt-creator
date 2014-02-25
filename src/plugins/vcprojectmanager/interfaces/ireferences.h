@@ -40,8 +40,6 @@ class IReference;
 class IReferences : public IVcProjectXMLNode
 {
 public:
-    virtual ~IReferences() {}
-
     virtual void addReference(IReference* reference) = 0;
     virtual void removeReference(IReference* reference) = 0;
     virtual int referenceCount() const = 0;

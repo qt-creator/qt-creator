@@ -41,7 +41,6 @@ class IFileContainer;
 class IFiles : public IVcProjectXMLNode
 {
 public:
-    virtual ~IFiles() {}
     virtual void addFile(IFile *file) = 0;
     virtual void removeFile(IFile *file) = 0;
     virtual int fileCount() const = 0;

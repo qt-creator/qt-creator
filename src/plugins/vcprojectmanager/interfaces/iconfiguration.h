@@ -48,8 +48,6 @@ public:
     IConfiguration(QObject *parent = 0) : QObject(parent) {}
     IConfiguration(const IConfiguration &) : QObject(0) {}
 
-    virtual ~IConfiguration() {}
-
     virtual IAttributeContainer *attributeContainer() const = 0;
     virtual QString fullName() const = 0;
     virtual QString displayname() const = 0;

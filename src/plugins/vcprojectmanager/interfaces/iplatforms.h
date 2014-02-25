@@ -40,8 +40,6 @@ class IPlatform;
 class IPlatforms : public IVcProjectXMLNode
 {
 public:
-    virtual ~IPlatforms() {}
-
     virtual void addPlatform(IPlatform *platform) = 0;
     virtual int platformCount() const = 0;
     virtual IPlatform *platform(int index) const = 0;

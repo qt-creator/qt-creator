@@ -42,8 +42,6 @@ class IToolDescription;
 class IConfigurationBuildTool : public IVcProjectXMLNode
 {
 public:
-    ~IConfigurationBuildTool() {}
-
     virtual ISectionContainer *sectionContainer() const = 0;
     virtual const IToolDescription *toolDescription() const = 0;
     virtual IConfigurationBuildTool *clone() const = 0;

@@ -41,7 +41,6 @@ class IAttributeContainer;
 class IPublishingData : public IVcProjectXMLNode
 {
 public :
-    virtual ~IPublishingData() {}
     virtual void addPublishingItem(IPublishingItem *item) = 0;
     virtual void removePublishingItem(IPublishingItem *item) = 0;
     virtual int publishingItemCount() const = 0;

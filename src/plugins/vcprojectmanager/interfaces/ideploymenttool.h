@@ -40,7 +40,6 @@ class IAttributeContainer;
 class IDeploymentTool : public IVcProjectXMLNode
 {
 public:
-    virtual ~IDeploymentTool() {}
     virtual IAttributeContainer *attributeContainer() const = 0;
     virtual IDeploymentTool *clone() const = 0;
 };

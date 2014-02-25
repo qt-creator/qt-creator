@@ -45,8 +45,6 @@ class IAttributeContainer;
 class IFile : public IVcProjectXMLNode
 {
 public:
-    virtual ~IFile() {}
-
     virtual QString relativePath() const = 0;
     virtual void setRelativePath(const QString &path) = 0;
     virtual QString canonicalPath() const  = 0;
