@@ -73,6 +73,8 @@ BasicTimelineModel::BasicTimelineModel(QObject *parent)
     : AbstractTimelineModel(new BasicTimelineModelPrivate, QLatin1String("BasicTimelineModel"),
                             parent)
 {
+    Q_D(BasicTimelineModel);
+    d->seenPaintEvent = false;
 }
 
 void BasicTimelineModel::clear()
