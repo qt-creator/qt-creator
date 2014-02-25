@@ -4959,12 +4959,12 @@ namespace basic {
     {
         quint64 u64 = ULLONG_MAX;
         qint64 s64 = LLONG_MAX;
-        quint32 u32 = ULONG_MAX;
-        qint32 s32 = LONG_MAX;
+        quint32 u32 = UINT_MAX;
+        qint32 s32 = INT_MAX;
         quint64 u64s = 0;
         qint64 s64s = LLONG_MIN;
         quint32 u32s = 0;
-        qint32 s32s = LONG_MIN;
+        qint32 s32s = INT_MIN;
 
         BREAK_HERE;
         // Check u64 18446744073709551615 quint64.
