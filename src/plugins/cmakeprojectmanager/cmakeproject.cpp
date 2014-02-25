@@ -349,7 +349,22 @@ bool CMakeProject::parseCMakeLists()
 
         // This explicitly adds -I. to the include paths
         part->includePaths += projectDirectory();
-        part->includePaths += cbpparser.includeFiles();
+
+        foreach (const QString &includeFile, cbpparser.includeFiles()) {
+            // CodeBlocks is utterly ignorant of frameworks on Mac, and won't report framework
+            // paths. The work-around is to check if the include path ends in ".framework", and
+            // if so, add the parent directory as framework path.
+            if (includeFile.endsWith(QLatin1String(".framework"))) {
+                const int slashIdx = includeFile.lastIndexOf(QLatin1Char('/'));
+                if (slashIdx != -1) {
+                    part->frameworkPaths += includeFile.left(slashIdx);
+                    continue;
+                }
+            }
+
+            part->includePaths += includeFile;
+        }
+
         part->projectDefines += cbpparser.defines();
 
         CppTools::ProjectFileAdder adder(part->files);
