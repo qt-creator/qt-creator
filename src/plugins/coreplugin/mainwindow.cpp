@@ -353,6 +353,8 @@ void MainWindow::extensionsInitialized()
     emit m_coreImpl->coreAboutToOpen();
     show();
     emit m_coreImpl->coreOpened();
+    // Delay restoreWindowState, since it is overridden by LayoutRequest event
+    QTimer::singleShot(0, this, SLOT(restoreWindowState()));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -1080,9 +1082,6 @@ void MainWindow::readSettings()
                 m_settings->value(QLatin1String(colorKey),
                                   QColor(Utils::StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
-
-    // Delay restoreWindowState, since it is overridden by LayoutRequest event
-    QTimer::singleShot(0, this, SLOT(restoreWindowState()));
 
     bool modeSelectorVisible = m_settings->value(QLatin1String(modeSelectorVisibleKey), true).toBool();
     ModeManager::setModeSelectorVisible(modeSelectorVisible);
