@@ -561,7 +561,7 @@ QVariantMap SettingsAccessor::restoreSettings() const
     return userSettings.m_map;
 }
 
-bool SettingsAccessor::saveSettings(const QVariantMap &map) const
+bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) const
 {
     if (map.isEmpty())
         return false;
@@ -574,7 +574,7 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map) const
     if (shared.isValid())
         trackUserStickySettings(settings.m_map, shared.toMap());
 
-    return m_userFileAcessor.writeFile(&settings);
+    return m_userFileAcessor.writeFile(&settings, parent);
 }
 
 void SettingsAccessor::addVersionUpgrader(VersionUpgrader *handler)
@@ -922,7 +922,7 @@ bool SettingsAccessor::FileAccessor::readFile(SettingsData *settings) const
     return true;
 }
 
-bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings) const
+bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings, QWidget *parent) const
 {
     if (!m_writer || m_writer->fileName() != settings->fileName()) {
         delete m_writer;
@@ -941,7 +941,7 @@ bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings) con
 
     if (m_environmentSpecific)
         data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
-    return m_writer->save(data, Core::ICore::mainWindow());
+    return m_writer->save(data, parent);
 }
 
 // -------------------------------------------------------------------------

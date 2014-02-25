@@ -38,6 +38,7 @@
 
 #include <coreplugin/idocument.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <limits>
@@ -303,7 +304,7 @@ void Project::saveSettings()
     emit aboutToSaveSettings();
     if (!d->m_accessor)
         d->m_accessor = new Internal::UserFileAccessor(this);
-    d->m_accessor->saveSettings(toMap());
+    d->m_accessor->saveSettings(toMap(), Core::ICore::mainWindow());
 }
 
 bool Project::restoreSettings()

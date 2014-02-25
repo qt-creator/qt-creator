@@ -51,7 +51,7 @@ public:
     Project *project() const;
 
     QVariantMap restoreSettings() const;
-    bool saveSettings(const QVariantMap &map) const;
+    bool saveSettings(const QVariantMap &data, QWidget *parent) const;
 
     void addVersionUpgrader(Internal::VersionUpgrader *handler); // Takes ownership of the handler!
 private:
@@ -99,7 +99,7 @@ private:
         ~FileAccessor();
 
         bool readFile(SettingsData *settings) const;
-        bool writeFile(const SettingsData *settings) const;
+        bool writeFile(const SettingsData *settings, QWidget *parent) const;
 
         QString suffix() const { return m_suffix; }
 
