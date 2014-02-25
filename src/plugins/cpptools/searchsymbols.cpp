@@ -80,8 +80,8 @@ bool SearchSymbols::visit(Enum *symbol)
     if (!(symbolsToSearchFor & SymbolSearcher::Enums))
         return false;
 
-    QString name = symbolName(symbol);
-    QString scopedName = scopedSymbolName(name);
+    QString name = overview.prettyName(symbol->name());
+    QString scopedName = scopedSymbolName(name, symbol);
     QString previousScope = switchScope(scopedName);
     appendItem(name, QString(), previousScope, ModelItemInfo::Enum, symbol);
     for (unsigned i = 0; i < symbol->memberCount(); ++i) {
@@ -93,9 +93,9 @@ bool SearchSymbols::visit(Enum *symbol)
 
 bool SearchSymbols::visit(Function *symbol)
 {
-    if (!(symbolsToSearchFor & SymbolSearcher::Functions))
+    if (!(symbolsToSearchFor & SymbolSearcher::Functions) || !symbol->name())
         return false;
-    QString name = symbolName(symbol);
+    QString name = overview.prettyName(symbol->name());
     QString type = overview.prettyType(symbol->type());
     appendItem(name, type, _scope, ModelItemInfo::Function, symbol);
     return false;
@@ -127,19 +127,22 @@ bool SearchSymbols::visit(Declaration *symbol)
         }
     }
 
-    QString name = symbolName(symbol);
-    QString type = overview.prettyType(symbol->type());
-    appendItem(name, type, _scope,
-               symbol->type()->asFunctionType() ? ModelItemInfo::Function
-                                                : ModelItemInfo::Declaration,
-               symbol);
+    if (symbol->name()) {
+        QString name = overview.prettyName(symbol->name());
+        QString type = overview.prettyType(symbol->type());
+        appendItem(name, type, _scope,
+                   symbol->type()->asFunctionType() ? ModelItemInfo::Function
+                                                    : ModelItemInfo::Declaration,
+                   symbol);
+    }
+
     return false;
 }
 
 bool SearchSymbols::visit(Class *symbol)
 {
-    QString name = symbolName(symbol);
-    QString scopedName = scopedSymbolName(name);
+    QString name = overview.prettyName(symbol->name());
+    QString scopedName = scopedSymbolName(name, symbol);
     QString previousScope = switchScope(scopedName);
     if (symbolsToSearchFor & SymbolSearcher::Classes)
         appendItem(name, QString(), previousScope, ModelItemInfo::Class, symbol);
@@ -235,44 +238,39 @@ bool SearchSymbols::visit(CPlusPlus::ObjCPropertyDeclaration *)
     return false;
 }
 
-QString SearchSymbols::scopedSymbolName(const QString &symbolName) const
+QString SearchSymbols::scopedSymbolName(const QString &symbolName, const Symbol *symbol) const
 {
     QString name = _scope;
     if (!name.isEmpty())
         name += QLatin1String("::");
-    name += symbolName;
+    name += scopeName(symbolName, symbol);
     return name;
 }
 
 QString SearchSymbols::scopedSymbolName(const Symbol *symbol) const
 {
-    return scopedSymbolName(symbolName(symbol));
+    return scopedSymbolName(overview.prettyName(symbol->name()), symbol);
 }
 
-QString SearchSymbols::symbolName(const Symbol *symbol) const
+QString SearchSymbols::scopeName(const QString &name, const Symbol *symbol) const
 {
-    QString symbolName = overview.prettyName(symbol->name());
-    if (symbolName.isEmpty()) {
-        QString type;
-        if (symbol->isNamespace()) {
-            type = QLatin1String("namespace");
-        } else if (symbol->isEnum()) {
-            type = QLatin1String("enum");
-        } else if (const Class *c = symbol->asClass())  {
-            if (c->isUnion())
-                type = QLatin1String("union");
-            else if (c->isStruct())
-                type = QLatin1String("struct");
-            else
-                type = QLatin1String("class");
-        } else {
-            type = QLatin1String("symbol");
-        }
-        symbolName = QLatin1String("<anonymous ");
-        symbolName += type;
-        symbolName += QLatin1Char('>');
+    if (!name.isEmpty())
+        return name;
+
+    if (symbol->isNamespace()) {
+        return QLatin1String("<anonymous namespace>");
+    } else if (symbol->isEnum()) {
+        return QLatin1String("<anonymous enum>");
+    } else if (const Class *c = symbol->asClass())  {
+        if (c->isUnion())
+            return QLatin1String("<anonymous union>");
+        else if (c->isStruct())
+            return QLatin1String("<anonymous struct>");
+        else
+            return QLatin1String("<anonymous class>");
+    } else {
+        return QLatin1String("<anonymous symbol>");
     }
-    return symbolName;
 }
 
 void SearchSymbols::appendItem(const QString &symbolName, const QString &symbolType,

@@ -182,9 +182,9 @@ protected:
     virtual bool visit(CPlusPlus::ObjCMethod *);
     virtual bool visit(CPlusPlus::ObjCPropertyDeclaration *);
 
-    QString scopedSymbolName(const QString &symbolName) const;
+    QString scopedSymbolName(const QString &symbolName, const CPlusPlus::Symbol *symbol) const;
     QString scopedSymbolName(const CPlusPlus::Symbol *symbol) const;
-    QString symbolName(const CPlusPlus::Symbol *symbol) const;
+    QString scopeName(const QString &name, const CPlusPlus::Symbol *symbol) const;
     void appendItem(const QString &symbolName,
                     const QString &symbolType,
                     const QString &symbolScope,
