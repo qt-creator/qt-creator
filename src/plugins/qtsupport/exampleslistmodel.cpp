@@ -502,8 +502,6 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
     if (size > 0)
         return sources;
 
-    const QStringList pattern(QLatin1String("*.xml"));
-
     foreach (BaseQtVersion *version, qtVersions()) {
         //filter for qt versions
         if (version->uniqueId() != m_uniqueQtId && m_uniqueQtId != noQtVersionsId)
@@ -525,14 +523,6 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
                 *examplesInstallPath = version->examplesPath();
             if (demosInstallPath)
                 *demosInstallPath = version->demosPath();
-            return sources;
-        }
-
-        fis << QDir(version->examplesPath()).entryInfoList(pattern);
-        fis << QDir(version->demosPath()).entryInfoList(pattern);
-        if (!fis.isEmpty()) {
-            foreach (const QFileInfo &fi, fis)
-                sources.append(fi.filePath());
             return sources;
         }
     }
