@@ -30,13 +30,14 @@
 #include "execmenu.h"
 #include "fancylineedit.h"
 #include "historycompleter.h"
+#include "hostosinfo.h"
 #include "qtcassert.h"
 
 #include <QAbstractItemView>
 #include <QDebug>
 #include <QKeyEvent>
 #include <QMenu>
-#include <QPainter>
+#include <QStylePainter>
 #include <QPropertyAnimation>
 #include <QStyle>
 
@@ -182,6 +183,11 @@ void FancyLineEdit::setButtonVisible(Side side, bool visible)
 bool FancyLineEdit::isButtonVisible(Side side) const
 {
     return d->m_iconEnabled[side];
+}
+
+QAbstractButton *FancyLineEdit::button(FancyLineEdit::Side side) const
+{
+    return d->m_iconbutton[side];
 }
 
 void FancyLineEdit::iconClicked()
@@ -480,7 +486,7 @@ IconButton::IconButton(QWidget *parent)
 
 void IconButton::paintEvent(QPaintEvent *)
 {
-    QPainter painter(this);
+    QStylePainter painter(this);
     QRect pixmapRect = QRect(0, 0, m_pixmap.width(), m_pixmap.height());
     pixmapRect.moveCenter(rect().center());
 
@@ -488,6 +494,18 @@ void IconButton::paintEvent(QPaintEvent *)
         painter.setOpacity(m_iconOpacity);
 
     painter.drawPixmap(pixmapRect, m_pixmap);
+
+    if (hasFocus()) {
+        QStyleOptionFocusRect focusOption;
+        focusOption.initFrom(this);
+        focusOption.rect = pixmapRect;
+        if (HostOsInfo::isMacHost()) {
+            focusOption.rect.adjust(-4, -4, 4, 4);
+            painter.drawControl(QStyle::CE_FocusFrame, focusOption);
+        } else {
+            painter.drawPrimitive(QStyle::PE_FrameFocusRect, focusOption);
+        }
+    }
 }
 
 void IconButton::animateShow(bool visible)
@@ -503,6 +521,22 @@ void IconButton::animateShow(bool visible)
         animation->setEndValue(0.0);
         animation->start(QAbstractAnimation::DeleteWhenStopped);
     }
+}
+
+void IconButton::keyPressEvent(QKeyEvent *ke)
+{
+    QAbstractButton::keyPressEvent(ke);
+    if (!ke->modifiers() && (ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return))
+        click();
+    // do not forward to line edit
+    ke->accept();
+}
+
+void IconButton::keyReleaseEvent(QKeyEvent *ke)
+{
+    QAbstractButton::keyReleaseEvent(ke);
+    // do not forward to line edit
+    ke->accept();
 }
 
 } // namespace Utils
