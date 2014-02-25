@@ -36,7 +36,9 @@
 #include <QTimer>
 #include <QThread>
 #include <QSettings>
+#include <QRegExp>
 #include <mach/error.h>
+
 /* // annoying to import, do without
 #if QT_VERSION < 0x050000
 #include <private/qcore_mac_p.h>
@@ -60,8 +62,12 @@
 #include "MobileDevice.h"
 #endif
 
+// avoid utils dependency
+#define QTC_OVERRIDE override
+
 static const bool debugGdbServer = false;
 static const bool debugAll = false;
+static const bool verbose = true;
 
 // ------- MobileDeviceLib interface --------
 namespace {
@@ -126,6 +132,8 @@ typedef am_res_t (MDEV_API *AMDeviceUninstallApplicationPtr)(ServiceSocket, CFSt
                                                                 AMDeviceInstallApplicationCallback,
                                                                 void*);
 typedef am_res_t (MDEV_API *AMDeviceLookupApplicationsPtr)(AMDeviceRef, CFDictionaryRef, CFDictionaryRef *);
+typedef am_res_t (MDEV_API *USBMuxConnectByPortPtr)(unsigned int, int, ServiceSocket*);
+
 } // extern C
 
 QString CFStringRef2QString(CFStringRef s)
@@ -205,6 +213,7 @@ public :
                                                                     AMDeviceInstallApplicationCallback,
                                                                     void*);
     am_res_t deviceLookupApplications(AMDeviceRef, CFDictionaryRef, CFDictionaryRef *);
+    am_res_t connectByPort(unsigned int connectionId, int port, ServiceSocket *resFd);
 
     void addError(const QString &msg);
     void addError(const char *msg);
@@ -231,6 +240,7 @@ private:
     AMDeviceInstallApplicationPtr m_AMDeviceInstallApplication;
     AMDeviceUninstallApplicationPtr m_AMDeviceUninstallApplication;
     AMDeviceLookupApplicationsPtr m_AMDeviceLookupApplications;
+    USBMuxConnectByPortPtr m_USBMuxConnectByPort;
 };
 
 extern "C" {
@@ -244,7 +254,8 @@ public:
     void *userData;
 };
 
-class CommandSession {
+class CommandSession : public DeviceSession
+{
 public:
     virtual ~CommandSession();
     explicit CommandSession(const QString &deviceId);
@@ -262,6 +273,8 @@ public:
     bool startService(const QString &service, ServiceSocket &fd);
     void stopService(ServiceSocket fd);
     void startDeviceLookup(int timeout);
+    bool connectToPort(quint16 port, ServiceSocket *fd) QTC_OVERRIDE;
+    int qmljsDebugPort() const QTC_OVERRIDE;
     void addError(const QString &msg);
     bool writeAll(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
     bool sendGdbCommand(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
@@ -271,7 +284,6 @@ public:
 
     MobileDeviceLib *lib();
 
-    QString deviceId;
     AMDeviceRef device;
     int progressBase;
     int unexpectedChars;
@@ -300,7 +312,7 @@ public:
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
                         Ios::IosDeviceManager::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
-                     Ios::IosDeviceManager::OpStatus status, int fd);
+                     Ios::IosDeviceManager::OpStatus status, int gdbFd, DeviceSession *deviceSession);
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
                            const QString &info);
     void deviceWithId(QString deviceId, int timeout, DeviceAvailableCallback callback, void *userData);
@@ -334,6 +346,7 @@ public:
     void deviceCallbackReturned();
     bool installApp();
     bool runApp();
+    int qmljsDebugPort() const QTC_OVERRIDE;
     am_res_t appTransferCallback(CFDictionaryRef dict);
     am_res_t appInstallCallback(CFDictionaryRef dict);
     void reportProgress2(int progress, const QString &status);
@@ -342,7 +355,18 @@ public:
     QString commandName();
 };
 
-} // namespace Internal
+}
+
+DeviceSession::DeviceSession(const QString &deviceId) :
+    deviceId(deviceId)
+{
+}
+
+DeviceSession::~DeviceSession()
+{
+}
+
+// namespace Internal
 } // namespace Ios
 
 
@@ -556,9 +580,11 @@ void IosDeviceManagerPrivate::didTransferApp(const QString &bundlePath, const QS
 }
 
 void IosDeviceManagerPrivate::didStartApp(const QString &bundlePath, const QString &deviceId,
-                                       IosDeviceManager::OpStatus status, int fd)
+                                          IosDeviceManager::OpStatus status, int gdbFd,
+                                          DeviceSession *deviceSession)
 {
-    emit IosDeviceManagerPrivate::instance()->q->didStartApp(bundlePath, deviceId, status, fd);
+    emit IosDeviceManagerPrivate::instance()->q->didStartApp(bundlePath, deviceId, status, gdbFd,
+                                                             deviceSession);
 }
 
 void IosDeviceManagerPrivate::isTransferringApp(const QString &bundlePath, const QString &deviceId,
@@ -709,7 +735,7 @@ int IosDeviceManagerPrivate::processGdbServer(int fd)
 
 // ------- ConnectSession implementation --------
 
-CommandSession::CommandSession(const QString &deviceId) : deviceId(deviceId), device(0),
+CommandSession::CommandSession(const QString &deviceId) : DeviceSession(deviceId), device(0),
     progressBase(0), unexpectedChars(0), aknowledge(true)
 { }
 
@@ -777,6 +803,32 @@ bool CommandSession::startService(const QString &serviceName, ServiceSocket &fd)
     return !failure;
 }
 
+bool CommandSession::connectToPort(quint16 port, ServiceSocket *fd)
+{
+    if (!fd)
+        return false;
+    bool failure = false;
+    *fd = 0;
+    ServiceSocket fileDescriptor;
+    if (!connectDevice())
+        return false;
+    if (am_res_t error = lib()->connectByPort(lib()->deviceGetConnectionID(device), htons(port), &fileDescriptor)) {
+        addError(QString::fromLatin1("connectByPort on device %1 port %2 failed, AMDeviceStartService returned %3")
+                 .arg(deviceId).arg(port).arg(error));
+        failure = true;
+        *fd = -1;
+    } else {
+        *fd = fileDescriptor;
+    }
+    disconnectDevice();
+    return !failure;
+}
+
+int CommandSession::qmljsDebugPort() const
+{
+    return 0;
+}
+
 void CommandSession::stopService(ServiceSocket fd)
 {
     // would be close socket on windows
@@ -791,7 +843,7 @@ void CommandSession::startDeviceLookup(int timeout)
 
 void CommandSession::addError(const QString &msg)
 {
-    if (debugAll)
+    if (verbose)
         qDebug() << "CommandSession ERROR: " << msg;
     IosDeviceManagerPrivate::instance()->addError(commandName() + msg);
 }
@@ -985,7 +1037,7 @@ bool CommandSession::expectGdbReply(ServiceSocket gdbFd, QByteArray expected)
 {
     QByteArray repl = readGdbReply(gdbFd);
     if (repl != expected) {
-        addError(QString::fromLatin1("Unexpected reply: %1 (%2) vs %3 (%3)")
+        addError(QString::fromLatin1("Unexpected reply: %1 (%2) vs %3 (%4)")
                  .arg(QString::fromLocal8Bit(repl.constData(), repl.size()))
                  .arg(QString::fromLatin1(repl.toHex().constData(), 2*repl.size()))
                  .arg(QString::fromLocal8Bit(expected.constData(), expected.size()))
@@ -1090,6 +1142,20 @@ void AppOpSession::deviceCallbackReturned()
     }
 }
 
+int AppOpSession::qmljsDebugPort() const
+{
+    QRegExp qmlPortRe = QRegExp(QLatin1String("-qmljsdebugger=port:([0-9]+)"));
+    foreach (const QString &arg, extraArgs) {
+        if (qmlPortRe.indexIn(arg) == 0) {
+            bool ok;
+            int res = qmlPortRe.cap(1).toInt(&ok);
+            if (ok && res >0 && res <= 0xFFFF)
+                return res;
+        }
+    }
+    return 0;
+}
+
 bool AppOpSession::runApp()
 {
     bool failure = (device == 0);
@@ -1128,7 +1194,7 @@ bool AppOpSession::runApp()
     }
     IosDeviceManagerPrivate::instance()->didStartApp(
                 bundlePath, deviceId,
-                (failure ? IosDeviceManager::Failure : IosDeviceManager::Success), gdbFd);
+                (failure ? IosDeviceManager::Failure : IosDeviceManager::Success), gdbFd, this);
     return !failure;
 }
 
@@ -1326,6 +1392,7 @@ bool MobileDeviceLib::load()
     m_AMDeviceInstallApplication = &AMDeviceInstallApplication;
     //m_AMDeviceUninstallApplication = &AMDeviceUninstallApplication;
     //m_AMDeviceLookupApplications = &AMDeviceLookupApplications;
+    m_USBMuxConnectByPort = &USBMuxConnectByPort;
 #else
     QLibrary *libAppleFSCompression = new QLibrary(QLatin1String("/System/Library/PrivateFrameworks/AppleFSCompression.framework/AppleFSCompression"));
     if (!libAppleFSCompression->load())
@@ -1395,6 +1462,9 @@ bool MobileDeviceLib::load()
     m_AMDeviceLookupApplications = reinterpret_cast<AMDeviceLookupApplicationsPtr>(lib.resolve("AMDeviceLookupApplications"));
     if (m_AMDeviceLookupApplications == 0)
         addError("MobileDeviceLib does not define AMDeviceLookupApplications");
+    m_USBMuxConnectByPort = reinterpret_cast<USBMuxConnectByPortPtr>(lib.resolve("USBMuxConnectByPort"));
+    if (m_USBMuxConnectByPort == 0)
+        addError("MobileDeviceLib does not define USBMuxConnectByPort");
 #endif
     return true;
 }
@@ -1554,6 +1624,13 @@ am_res_t MobileDeviceLib::deviceLookupApplications(AMDeviceRef device, CFDiction
 {
     if (m_AMDeviceLookupApplications)
         return m_AMDeviceLookupApplications(device, options, res);
+    return -1;
+}
+
+am_res_t MobileDeviceLib::connectByPort(unsigned int connectionId, int port, ServiceSocket *resFd)
+{
+    if (m_USBMuxConnectByPort)
+        return m_USBMuxConnectByPort(connectionId, port, resFd);
     return -1;
 }
 

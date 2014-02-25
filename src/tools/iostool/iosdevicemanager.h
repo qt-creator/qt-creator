@@ -45,6 +45,10 @@ class DevInfoSession;
 class IosDeviceManagerPrivate;
 } // namespace Internal
 
+typedef unsigned int ServiceSocket;
+
+class DeviceSession;
+
 class IosDeviceManager : public QObject
 {
     Q_OBJECT
@@ -77,7 +81,8 @@ signals:
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
                         Ios::IosDeviceManager::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
-                        Ios::IosDeviceManager::OpStatus status, int gdbFd);
+                     Ios::IosDeviceManager::OpStatus status, int gdbFd,
+                     Ios::DeviceSession *deviceSession);
     void deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::Dict &info);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
@@ -88,6 +93,15 @@ private:
     friend class Internal::DevInfoSession;
     IosDeviceManager(QObject *parent = 0);
     Internal::IosDeviceManagerPrivate *d;
+};
+
+class DeviceSession {
+public:
+    DeviceSession(const QString &deviceId);
+    virtual ~DeviceSession();
+    QString deviceId;
+    virtual int qmljsDebugPort() const = 0;
+    virtual bool connectToPort(quint16 port, ServiceSocket *fd) = 0;
 };
 
 } // namespace Ios
