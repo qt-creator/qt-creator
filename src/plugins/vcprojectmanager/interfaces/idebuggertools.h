@@ -41,12 +41,12 @@ class IDebuggerTool;
 class IDebuggerTools
 {
 public:
+    virtual ~IDebuggerTools() {}
     virtual void addTool(IDebuggerTool *tool) = 0;
     virtual void removeTool(IDebuggerTool *tool) = 0;
     virtual IDebuggerTool *tool(int index) const = 0;
     virtual int toolCount() const = 0;
     virtual void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const = 0;
-
 };
 } // Internal
 } // VcProjectManager
