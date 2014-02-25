@@ -3,7 +3,7 @@ QTCREATOR_PRI_INCLUDED = 1
 
 QTCREATOR_VERSION = 3.0.81
 QTCREATOR_COMPAT_VERSION = 3.0.81
-BINARY_ARTIFACTS_BRANCH = master
+BINARY_ARTIFACTS_BRANCH = 3.1
 
 # enable c++11 on everything but mac/release (breaks 10.6)
 !macx|CONFIG(debug, debug|release): CONFIG += c++11
