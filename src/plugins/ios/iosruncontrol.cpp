@@ -42,7 +42,7 @@ namespace Internal {
 
 IosRunControl::IosRunControl(IosRunConfiguration *rc)
     : RunControl(rc, NormalRunMode)
-    , m_runner(new IosRunner(this, rc, false))
+    , m_runner(new IosRunner(this, rc, false, false))
     , m_running(false)
 {
 }

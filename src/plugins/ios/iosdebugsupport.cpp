@@ -119,7 +119,9 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
 
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    if (aspect->useCppDebugger()) {
+    bool cppDebug = aspect->useCppDebugger();
+    bool qmlDebug = aspect->useQmlDebugger();
+    if (cppDebug) {
         params.languages |= CppLanguage;
         params.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
         params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
@@ -128,42 +130,36 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
         params.executable = runConfig->exePath().toString();
         params.remoteChannel = QLatin1String("connect://localhost:0");
     }
-    if (aspect->useQmlDebugger()) {
+    if (qmlDebug) {
         params.languages |= QmlLanguage;
-        QTcpServer server;
-        QTC_ASSERT(server.listen(QHostAddress::LocalHost)
-                   || server.listen(QHostAddress::LocalHostIPv6), return 0);
-        params.qmlServerAddress = server.serverAddress().toString();
-        params.remoteSetupNeeded = true;
-        //TODO: Not sure if these are the right paths.
         params.projectSourceDirectory = project->projectDirectory();
         params.projectSourceFiles = project->files(QmakeProject::ExcludeGeneratedFiles);
         params.projectBuildDirectory = project->rootQmakeProjectNode()->buildDir();
+        if (!cppDebug)
+            params.startMode = AttachToRemoteServer;
     }
 
     DebuggerRunControl * const debuggerRunControl
         = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
     if (debuggerRunControl)
-        new IosDebugSupport(runConfig, debuggerRunControl);
+        new IosDebugSupport(runConfig, debuggerRunControl, cppDebug, qmlDebug);
     return debuggerRunControl;
 }
 
 IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
-    DebuggerRunControl *runControl)
+    DebuggerRunControl *runControl, bool cppDebug, bool qmlDebug)
     : QObject(runControl), m_runControl(runControl),
-      m_runner(new IosRunner(this, runConfig, true)),
-      m_qmlPort(0)
+      m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug))
 {
-
     connect(m_runControl->engine(), SIGNAL(requestRemoteSetup()),
             m_runner, SLOT(start()));
     connect(m_runControl, SIGNAL(finished()),
             m_runner, SLOT(stop()));
 
-    connect(m_runner, SIGNAL(gotGdbserverPort(int)),
-        SLOT(handleGdbServerPort(int)));
-    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID)),
-        SLOT(handleGotInferiorPid(Q_PID)));
+    connect(m_runner, SIGNAL(gotServerPorts(int,int)),
+        SLOT(handleServerPorts(int,int)));
+    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID, int)),
+        SLOT(handleGotInferiorPid(Q_PID, int)));
     connect(m_runner, SIGNAL(finished(bool)),
         SLOT(handleRemoteProcessFinished(bool)));
 
@@ -177,22 +173,22 @@ IosDebugSupport::~IosDebugSupport()
 {
 }
 
-void IosDebugSupport::handleGdbServerPort(int gdbServerPort)
+void IosDebugSupport::handleServerPorts(int gdbServerPort, int qmlPort)
 {
-    if (gdbServerPort > 0) {
-        m_runControl->engine()->notifyEngineRemoteSetupDone(gdbServerPort, m_qmlPort);
+    if (gdbServerPort > 0 || (m_runner && !m_runner->cppDebug() && qmlPort > 0)) {
+        m_runControl->engine()->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
     } else {
         m_runControl->engine()->notifyEngineRemoteSetupFailed(
                     tr("Could not get debug server file descriptor."));
     }
 }
 
-void IosDebugSupport::handleGotInferiorPid(Q_PID pid)
+void IosDebugSupport::handleGotInferiorPid(Q_PID pid, int qmlPort)
 {
     if (pid > 0) {
         //m_runControl->engine()->notifyInferiorPid(pid);
 #ifndef Q_OS_WIN // Q_PID might be 64 bit pointer...
-        m_runControl->engine()->notifyEngineRemoteSetupDone(int(pid), m_qmlPort);
+        m_runControl->engine()->notifyEngineRemoteSetupDone(int(pid), qmlPort);
 #endif
     } else {
         m_runControl->engine()->notifyEngineRemoteSetupFailed(

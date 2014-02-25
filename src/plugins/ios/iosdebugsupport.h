@@ -50,12 +50,12 @@ public:
                                                               QString *errorMessage);
 
     IosDebugSupport(IosRunConfiguration *runConfig,
-        Debugger::DebuggerRunControl *runControl);
+        Debugger::DebuggerRunControl *runControl, bool cppDebug, bool qmlDebug);
     ~IosDebugSupport();
 
 private slots:
-    void handleGdbServerPort(int gdbServerFd);
-    void handleGotInferiorPid(Q_PID);
+    void handleServerPorts(int gdbServerFd, int qmlPort);
+    void handleGotInferiorPid(Q_PID, int qmlPort);
     void handleRemoteProcessFinished(bool cleanEnd);
 
     void handleRemoteOutput(const QString &output);
@@ -65,8 +65,6 @@ private:
     Debugger::DebuggerRunControl *m_runControl;
     IosRunner * const m_runner;
     const QString m_dumperLib;
-
-    int m_qmlPort;
 };
 
 } // namespace Internal

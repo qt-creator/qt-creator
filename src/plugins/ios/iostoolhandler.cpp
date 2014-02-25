@@ -65,7 +65,7 @@ struct ParserState {
         ControlChar,
         AppStarted,
         InferiorPid,
-        GdbServerPort,
+        ServerPorts,
         Item,
         Status,
         AppTransfer,
@@ -79,6 +79,7 @@ struct ParserState {
     QString value;
     QMap<QString,QString> info;
     int progress, maxProgress;
+    int gdbPort, qmlPort;
     bool collectChars() {
         switch (kind) {
         case Msg:
@@ -87,9 +88,9 @@ struct ParserState {
         case Value:
         case Status:
         case InferiorPid:
-        case GdbServerPort:
         case AppOutput:
             return true;
+        case ServerPorts:
         case QueryResult:
         case ControlChar:
         case AppStarted:
@@ -103,7 +104,7 @@ struct ParserState {
     }
 
     ParserState(Kind kind) :
-        kind(kind) { }
+        kind(kind), gdbPort(0), qmlPort(0) { }
 };
 
 class IosToolHandlerPrivate
@@ -142,7 +143,8 @@ public:
                         IosToolHandler::OpStatus status);
     void didStartApp(const QString &bundlePath, const QString &deviceId,
                      IosToolHandler::OpStatus status);
-    void gotGdbserverPort(const QString &bundlePath, const QString &deviceId, int gdbPort);
+    void gotServerPorts(const QString &bundlePath, const QString &deviceId, int gdbPort,
+                        int qmlPort);
     void gotInferiorPid(const QString &bundlePath, const QString &deviceId, Q_PID pid);
     void deviceInfo(const QString &deviceId, const IosToolHandler::Dict &info);
     void appOutput(const QString &output);
@@ -301,10 +303,10 @@ void IosToolHandlerPrivate::didStartApp(const QString &bundlePath, const QString
     emit q->didStartApp(q, bundlePath, deviceId, status);
 }
 
-void IosToolHandlerPrivate::gotGdbserverPort(const QString &bundlePath,
-                  const QString &deviceId, int gdbPort)
+void IosToolHandlerPrivate::gotServerPorts(const QString &bundlePath,
+                                           const QString &deviceId, int gdbPort, int qmlPort)
 {
-    emit q->gotGdbserverPort(q, bundlePath, deviceId, gdbPort);
+    emit q->gotServerPorts(q, bundlePath, deviceId, gdbPort, qmlPort);
 }
 
 void IosToolHandlerPrivate::gotInferiorPid(const QString &bundlePath, const QString &deviceId,
@@ -439,8 +441,12 @@ void IosToolHandlerPrivate::processXml()
                 stack.append(ParserState(ParserState::DeviceInfo));
             } else if (elName == QLatin1String("inferior_pid")) {
                 stack.append(ParserState(ParserState::InferiorPid));
-            } else if (elName == QLatin1String("gdb_server_port")) {
-                stack.append(ParserState(ParserState::GdbServerPort));
+            } else if (elName == QLatin1String("server_ports")) {
+                stack.append(ParserState(ParserState::ServerPorts));
+                QXmlStreamAttributes attributes = outputParser.attributes();
+                int gdbServerPort = attributes.value(QLatin1String("gdb_server")).toString().toInt();
+                int qmlServerPort = attributes.value(QLatin1String("qml_server")).toString().toInt();
+                gotServerPorts(bundlePath, deviceId, gdbServerPort, qmlServerPort);
             } else {
                 qDebug() << "unexpected element " << elName;
             }
@@ -494,8 +500,7 @@ void IosToolHandlerPrivate::processXml()
             case ParserState::InferiorPid:
                 gotInferiorPid(bundlePath, deviceId, Q_PID(p.chars.toInt()));
                 break;
-            case ParserState::GdbServerPort:
-                gotGdbserverPort(bundlePath, deviceId, p.chars.toInt());
+            case ParserState::ServerPorts:
                 break;
             }
             break;
