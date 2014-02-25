@@ -63,6 +63,8 @@
 
 #include <qbs.h>
 
+#include <QCoreApplication>
+#include <QDir>
 #include <QFileInfo>
 
 using namespace Core;
@@ -462,9 +464,8 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
     params.setIgnoreDifferentProjectFilePath(false);
     params.setEnvironment(env.toProcessEnvironment());
     const qbs::Preferences prefs(QbsManager::settings(), profileName);
-    const QString qbsDir = qbsDirectory();
-    params.setSearchPaths(prefs.searchPaths(qbsDir));
-    params.setPluginPaths(prefs.pluginPaths(qbsDir));
+    params.setSearchPaths(prefs.searchPaths(resourcesBaseDirectory()));
+    params.setPluginPaths(prefs.pluginPaths(pluginsBaseDirectory()));
 
     // Do the parsing:
     prepareForParsing();
@@ -705,12 +706,21 @@ void QbsProject::updateDeploymentInfo(const qbs::Project &project)
     activeTarget()->setDeploymentData(deploymentData);
 }
 
-QString QbsProject::qbsDirectory() const
+QString QbsProject::resourcesBaseDirectory() const
 {
     const QString qbsInstallDir = QLatin1String(QBS_INSTALL_DIR);
     if (!qbsInstallDir.isEmpty())
         return qbsInstallDir;
     return ICore::resourcePath() + QLatin1String("/qbs");
+}
+
+QString QbsProject::pluginsBaseDirectory() const
+{
+    const QString qbsInstallDir = QLatin1String(QBS_INSTALL_DIR);
+    if (!qbsInstallDir.isEmpty())
+        return qbsInstallDir + QLatin1String("/lib/");
+    return QDir::cleanPath(QCoreApplication::applicationDirPath()
+                           + QLatin1String("/../lib/qtcreator"));
 }
 
 } // namespace Internal

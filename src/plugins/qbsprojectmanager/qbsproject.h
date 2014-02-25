@@ -131,7 +131,8 @@ private:
     void updateQmlJsCodeModel(const qbs::ProjectData &prj);
     void updateApplicationTargets(const qbs::ProjectData &projectData);
     void updateDeploymentInfo(const qbs::Project &project);
-    QString qbsDirectory() const;
+    QString resourcesBaseDirectory() const;
+    QString pluginsBaseDirectory() const;
 
     QbsManager *const m_manager;
     const QString m_projectName;
