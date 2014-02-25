@@ -92,6 +92,8 @@ Canvas {
 
     // ***** slots
     onPaint: {
+        if (context === null)
+            return; // canvas isn't ready
         Plotter.qmlProfilerModelProxy = qmlProfilerModelProxy;
         if (dataReady) {
             Plotter.plot(canvas, context, region);
