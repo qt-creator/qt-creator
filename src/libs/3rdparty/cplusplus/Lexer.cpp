@@ -104,12 +104,6 @@ void Lexer::pushLineStartOffset()
         _translationUnit->pushLineOffset(_currentChar - _firstChar);
 }
 
-unsigned Lexer::tokenOffset() const
-{ return _tokenStart - _firstChar; }
-
-unsigned Lexer::tokenLength() const
-{ return _currentChar - _tokenStart; }
-
 void Lexer::scan(Token *tok)
 {
     tok->reset();

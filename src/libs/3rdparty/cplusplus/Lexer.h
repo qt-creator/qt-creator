@@ -44,9 +44,6 @@ public:
     inline void operator()(Token *tok)
     { scan(tok); }
 
-    unsigned tokenOffset() const;
-    unsigned tokenLength() const;
-
     bool scanCommentTokens() const;
     void setScanCommentTokens(bool onoff);
 
