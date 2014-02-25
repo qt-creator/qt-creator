@@ -118,7 +118,7 @@ const char SHARED_SETTINGS[] = "SharedSettings";
 class UserFileVersion0Upgrader : public VersionUpgrader
 {
 public:
-    UserFileVersion0Upgrader(SettingsAccessor *a) : m_accessor(a) { }
+    UserFileVersion0Upgrader(UserFileAccessor *a) : m_accessor(a) { }
 
     int version() const { return 0; }
     QString backupExtension() const { return QLatin1String("1.3"); }
@@ -129,7 +129,7 @@ private:
     QVariantMap convertRunConfigurations(const QVariantMap &map) const;
     QVariantMap convertBuildSteps(const QVariantMap &map) const;
 
-    SettingsAccessor *m_accessor;
+    UserFileAccessor *m_accessor;
 };
 
 // Version 1 is used in master post Qt Creator 1.3.x.
@@ -138,7 +138,7 @@ private:
 class UserFileVersion1Upgrader : public VersionUpgrader
 {
 public:
-    UserFileVersion1Upgrader(SettingsAccessor *a) : m_accessor(a) { }
+    UserFileVersion1Upgrader(UserFileAccessor *a) : m_accessor(a) { }
     int version() const { return 1; }
     QString backupExtension() const { return QLatin1String("1.3+git"); }
     QVariantMap upgrade(const QVariantMap &map);
@@ -162,7 +162,7 @@ private:
         QString displayName;
     };
 
-    SettingsAccessor *m_accessor;
+    UserFileAccessor *m_accessor;
 };
 
 // Version 2 is used in master post Qt Creator 2.0 alpha.
@@ -255,7 +255,7 @@ public:
 class UserFileVersion11Upgrader : public VersionUpgrader
 {
 public:
-    UserFileVersion11Upgrader(SettingsAccessor *a) : m_accessor(a) { }
+    UserFileVersion11Upgrader(UserFileAccessor *a) : m_accessor(a) { }
     ~UserFileVersion11Upgrader();
 
     int version() const { return 11; }
@@ -286,7 +286,7 @@ private:
     QHash<int, QString> m_qtVersionExtras;
 
     QHash<Kit *, QVariantMap> m_targets;
-    SettingsAccessor *m_accessor;
+    UserFileAccessor *m_accessor;
 };
 
 // Version 12 reflects the move of environment settings from CMake/Qt4/Custom into
@@ -378,24 +378,13 @@ static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMa
     return result;
 }
 
-// -------------------------------------------------------------------------
-// UserFileAccessor
-// -------------------------------------------------------------------------
-SettingsAccessor::SettingsAccessor(Project *project) :
-    m_firstVersion(-1),
-    m_lastVersion(-1),
-    m_userFileAcessor(QLatin1String(".user"),
-                      QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")),
-                      true,
-                      this),
-    m_sharedFileAcessor(QLatin1String(".shared"),
-                        QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")),
-                        false,
-                        this),
-    m_project(project)
+// --------------------------------------------------------------------
+// UserFileAccessor:
+// --------------------------------------------------------------------
+UserFileAccessor::UserFileAccessor(Project *project)
+    : SettingsAccessor(project)
 {
-    QTC_CHECK(m_project);
-
+    // Register Upgraders:
     addVersionUpgrader(new UserFileVersion0Upgrader(this));
     addVersionUpgrader(new UserFileVersion1Upgrader(this));
     addVersionUpgrader(new UserFileVersion2Upgrader);
@@ -411,6 +400,22 @@ SettingsAccessor::SettingsAccessor(Project *project) :
     addVersionUpgrader(new UserFileVersion12Upgrader);
     addVersionUpgrader(new UserFileVersion13Upgrader);
     addVersionUpgrader(new UserFileVersion14Upgrader);
+}
+
+SettingsAccessor::SettingsAccessor(Project *project) :
+    m_firstVersion(-1),
+    m_lastVersion(-1),
+    m_userFileAcessor(QLatin1String(".user"),
+                      QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")),
+                      true,
+                      this),
+    m_sharedFileAcessor(QLatin1String(".shared"),
+                        QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")),
+                        false,
+                        this),
+    m_project(project)
+{
+    QTC_CHECK(m_project);
 }
 
 SettingsAccessor::~SettingsAccessor()

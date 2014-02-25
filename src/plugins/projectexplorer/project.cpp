@@ -91,7 +91,7 @@ public:
     Core::Context m_projectContext;
     Core::Context m_projectLanguages;
     QVariantMap m_pluginSettings;
-    SettingsAccessor *m_accessor;
+    Internal::UserFileAccessor *m_accessor;
 };
 
 ProjectPrivate::ProjectPrivate() :
@@ -302,14 +302,14 @@ void Project::saveSettings()
 {
     emit aboutToSaveSettings();
     if (!d->m_accessor)
-        d->m_accessor = new SettingsAccessor(this);
+        d->m_accessor = new Internal::UserFileAccessor(this);
     d->m_accessor->saveSettings(toMap());
 }
 
 bool Project::restoreSettings()
 {
     if (!d->m_accessor)
-        d->m_accessor = new SettingsAccessor(this);
+        d->m_accessor = new Internal::UserFileAccessor(this);
     QVariantMap map(d->m_accessor->restoreSettings());
     bool ok = fromMap(map);
     if (ok)

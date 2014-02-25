@@ -46,17 +46,15 @@ class SettingsAccessor
 {
 public:
     SettingsAccessor(Project *project);
-    ~SettingsAccessor();
+    virtual ~SettingsAccessor();
 
     Project *project() const;
 
     QVariantMap restoreSettings() const;
     bool saveSettings(const QVariantMap &map) const;
 
+    void addVersionUpgrader(Internal::VersionUpgrader *handler); // Takes ownership of the handler!
 private:
-    // Takes ownership of the handler!
-    void addVersionUpgrader(Internal::VersionUpgrader *handler);
-
     QStringList findSettingsFiles(const QString &suffix) const;
     static QByteArray creatorId();
     QString defaultFileName(const QString &suffix) const;
@@ -123,6 +121,14 @@ private:
     Project *m_project;
 };
 
+namespace Internal {
+class UserFileAccessor : public SettingsAccessor
+{
+public:
+    UserFileAccessor(Project *project);
+};
+
+} // namespace Internal
 } // namespace ProjectExplorer
 
 #endif // SETTINGSACCESSOR_H
