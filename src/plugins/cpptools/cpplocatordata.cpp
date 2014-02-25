@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-
 #include "cpplocatordata.h"
+#include "cpptoolsplugin.h"
 
 using namespace CppTools;
 using namespace CppTools::Internal;
@@ -37,6 +37,8 @@ static const int MaxPendingDocuments = 10;
 
 CppLocatorData::CppLocatorData(CppModelManager *modelManager)
     : m_modelManager(modelManager)
+    , m_strings(CppToolsPlugin::stringTable())
+    , m_search(m_strings)
     , m_pendingDocumentsMutex(QMutex::Recursive)
 {
     m_search.setSymbolsToSearchFor(SymbolSearcher::Enums
@@ -104,8 +106,9 @@ void CppLocatorData::onAboutToRemoveFiles(const QStringList &files)
         m_allEnums.remove(file);
         m_allClasses.remove(file);
         m_allFunctions.remove(file);
-        removeFilePath(file);
     }
+
+    m_strings.scheduleGC();
 }
 
 void CppLocatorData::flushPendingDocument(bool force)

@@ -136,7 +136,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppLocatorFilter(locatorData));
     addAutoReleasedObject(new CppClassesFilter(locatorData));
     addAutoReleasedObject(new CppFunctionsFilter(locatorData));
-    addAutoReleasedObject(new CppCurrentDocumentFilter(modelManager));
+    addAutoReleasedObject(new CppCurrentDocumentFilter(modelManager, m_stringTable));
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
     addAutoReleasedObject(new CppCodeModelSettingsPage(m_codeModelSettings));
     addAutoReleasedObject(new SymbolsFindFilter(modelManager));
@@ -188,6 +188,11 @@ ExtensionSystem::IPlugin::ShutdownFlag CppToolsPlugin::aboutToShutdown()
 QSharedPointer<CppCodeModelSettings> CppToolsPlugin::codeModelSettings() const
 {
     return m_codeModelSettings;
+}
+
+StringTable &CppToolsPlugin::stringTable()
+{
+    return instance()->m_stringTable;
 }
 
 void CppToolsPlugin::switchHeaderSource()

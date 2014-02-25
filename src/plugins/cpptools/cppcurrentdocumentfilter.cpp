@@ -36,8 +36,10 @@
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
-CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
+CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager,
+                                                   StringTable &stringTable)
     : m_modelManager(manager)
+    , search(stringTable)
 {
     setId("Methods in current Document");
     setDisplayName(tr("C++ Symbols in Current Document"));
@@ -57,7 +59,8 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
             this,          SLOT(onEditorAboutToClose(Core::IEditor*)));
 }
 
-QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString & origEntry)
+QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
+        QFutureInterface<Core::LocatorFilterEntry> &future, const QString & origEntry)
 {
     QString entry = trimWildcards(origEntry);
     QList<Core::LocatorFilterEntry> goodEntries;

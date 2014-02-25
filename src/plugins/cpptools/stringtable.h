@@ -27,59 +27,51 @@
 **
 ****************************************************************************/
 
+#ifndef STRINGTABLE_H
+#define STRINGTABLE_H
 
-#ifndef CPPLOCATORDATA_H
-#define CPPLOCATORDATA_H
-
-#include <QHash>
-#include <QVector>
-
-#include <cplusplus/CppDocument.h>
-
-#include "cppmodelmanager.h"
-#include "searchsymbols.h"
-#include "stringtable.h"
+#include <QAtomicInt>
+#include <QMutex>
+#include <QObject>
+#include <QRunnable>
+#include <QSet>
+#include <QTimer>
 
 namespace CppTools {
 namespace Internal {
 
-class CppLocatorData : public QObject
+class StringTable: public QObject
 {
     Q_OBJECT
-public:
-    explicit CppLocatorData(CppModelManager *modelManager);
 
-    QList<ModelItemInfo> enums();
-    QList<ModelItemInfo> classes();
-    QList<ModelItemInfo> functions();
+public:
+    StringTable();
+
+    QString insert(const QString &string);
+    void scheduleGC();
 
 private slots:
-    void onDocumentUpdated(const CPlusPlus::Document::Ptr &document);
-    void onAboutToRemoveFiles(const QStringList &files);
+    void startGC();
 
 private:
-    void flushPendingDocument(bool force);
-    QList<ModelItemInfo> allModelItemInfos(const QHash<QString,
-                                           QList<ModelItemInfo> > &items) const;
+    void GC();
+    class GCRunner: public QRunnable {
+        StringTable &m_stringTable;
 
-    QString findOrInsertFilePath(const QString &path)
-    { return m_strings.insert(path); }
+    public:
+        GCRunner(StringTable &stringTable): m_stringTable(stringTable) {}
+        virtual void run() { m_stringTable.GC(); }
+    } m_gcRunner;
+    friend class GCRunner;
 
 private:
-    CppModelManager *m_modelManager;
-
-    StringTable &m_strings; // Used to avoid QString duplication
-
-    SearchSymbols m_search;
-    QHash<QString, QList<ModelItemInfo> > m_allEnums;
-    QHash<QString, QList<ModelItemInfo> > m_allClasses;
-    QHash<QString, QList<ModelItemInfo> > m_allFunctions;
-
-    mutable QMutex m_pendingDocumentsMutex;
-    QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;
+    mutable QMutex m_lock;
+    QAtomicInt m_stopGCRequested;
+    QSet<QString> m_strings;
+    QTimer m_gcCountDown;
 };
 
-} // namespace Internal
-} // namespace CppTools
+} // Internal namespace
+} // CppTools namespace
 
-#endif // CPPLOCATORDATA_H
+#endif // STRINGTABLE_H

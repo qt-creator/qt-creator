@@ -52,6 +52,7 @@ HEADERS += \
     includeutils.h \
     insertionpointlocator.h \
     searchsymbols.h \
+    stringtable.h \
     symbolfinder.h \
     symbolsfindfilter.h \
     typehierarchybuilder.h
@@ -104,6 +105,7 @@ SOURCES += \
     includeutils.cpp \
     insertionpointlocator.cpp \
     searchsymbols.cpp \
+    stringtable.cpp \
     symbolfinder.cpp \
     symbolsfindfilter.cpp \
     typehierarchybuilder.cpp

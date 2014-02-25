@@ -32,6 +32,7 @@
 
 #include "cpptools_global.h"
 #include "cppindexingsupport.h"
+#include "stringtable.h"
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Icons.h>
@@ -140,7 +141,7 @@ public:
 
     static SymbolTypes AllTypes;
 
-    SearchSymbols();
+    SearchSymbols(Internal::StringTable &stringTable);
 
     void setSymbolsToSearchFor(const SymbolTypes &types);
 
@@ -193,9 +194,9 @@ protected:
 
 private:
     QString findOrInsert(const QString &s)
-    { return *strings.insert(s); }
+    { return strings.insert(s); }
 
-    QSet<QString> strings;            // Used to avoid QString duplication
+    Internal::StringTable &strings;            // Used to avoid QString duplication
 
     QString _scope;
     CPlusPlus::Overview overview;

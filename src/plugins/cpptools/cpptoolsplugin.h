@@ -31,6 +31,7 @@
 #define CPPTOOLS_H
 
 #include "cpptools_global.h"
+#include "stringtable.h"
 
 #include <projectexplorer/projectexplorer.h>
 
@@ -72,6 +73,8 @@ public:
     ShutdownFlag aboutToShutdown();
 
     QSharedPointer<CppCodeModelSettings> codeModelSettings() const;
+
+    static StringTable &stringTable();
 
 public slots:
     void switchHeaderSource();
@@ -163,6 +166,7 @@ private:
     QSharedPointer<CppFileSettings> m_fileSettings;
     QSharedPointer<CppCodeModelSettings> m_codeModelSettings;
     CppToolsSettings *m_settings;
+    StringTable m_stringTable;
 };
 
 } // namespace Internal

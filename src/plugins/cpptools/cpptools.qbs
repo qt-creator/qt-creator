@@ -72,6 +72,7 @@ QtcPlugin {
         "includeutils.cpp", "includeutils.h",
         "insertionpointlocator.cpp", "insertionpointlocator.h",
         "searchsymbols.cpp", "searchsymbols.h",
+        "stringtable.cpp", "stringtable.h",
         "symbolfinder.cpp", "symbolfinder.h",
         "symbolsfindfilter.cpp", "symbolsfindfilter.h",
         "typehierarchybuilder.cpp", "typehierarchybuilder.h",

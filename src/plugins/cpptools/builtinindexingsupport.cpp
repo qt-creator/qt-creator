@@ -4,6 +4,7 @@
 #include "cpppreprocessor.h"
 #include "searchsymbols.h"
 #include "cpptoolsconstants.h"
+#include "cpptoolsplugin.h"
 #include "cppprojectfile.h"
 
 #include <coreplugin/icore.h>
@@ -107,7 +108,7 @@ public:
         future.setProgressValue(0);
         int progress = 0;
 
-        SearchSymbols search;
+        SearchSymbols search(CppToolsPlugin::stringTable());
         search.setSymbolsToSearchFor(m_parameters.types);
         CPlusPlus::Snapshot::const_iterator it = m_snapshot.begin();
 

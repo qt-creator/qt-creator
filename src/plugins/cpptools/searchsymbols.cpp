@@ -42,8 +42,9 @@ SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
         | SymbolSearcher::Enums
         | SymbolSearcher::Declarations;
 
-SearchSymbols::SearchSymbols() :
-    symbolsToSearchFor(SymbolSearcher::Classes | SymbolSearcher::Functions | SymbolSearcher::Enums)
+SearchSymbols::SearchSymbols(Internal::StringTable &stringTable)
+    : strings(stringTable)
+    , symbolsToSearchFor(SymbolSearcher::Classes | SymbolSearcher::Functions | SymbolSearcher::Enums)
 {
 }
 
@@ -62,7 +63,7 @@ QList<ModelItemInfo> SearchSymbols::operator()(Document::Ptr doc, int sizeHint, 
     }
     (void) switchScope(previousScope);
     QList<ModelItemInfo> result = items;
-    strings.clear();
+    strings.scheduleGC();
     items.clear();
     m_paths.clear();
     return result;
@@ -291,7 +292,7 @@ void SearchSymbols::appendItem(const QString &symbolName, const QString &symbolT
                                findOrInsert(symbolType),
                                findOrInsert(symbolScope),
                                itemType,
-                               path,
+                               findOrInsert(path),
                                symbol->line(),
                                symbol->column() - 1, // 1-based vs 0-based column
                                icon));
