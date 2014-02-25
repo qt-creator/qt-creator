@@ -71,6 +71,8 @@ public:
     QString uniqueDeviceID() const;
     IosDevice(const QString &uid);
     QString osVersion() const;
+    quint16 nextPort() const;
+    bool canAutoDetectPorts() const QTC_OVERRIDE;
 
     static QString name();
 
@@ -81,6 +83,7 @@ protected:
     IosDevice(const IosDevice &other);
     Dict m_extraInfo;
     bool m_ignoreDevice;
+    mutable quint16 m_lastPort;
 };
 
 class IosDeviceManager : public QObject {

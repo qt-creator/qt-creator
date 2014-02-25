@@ -34,6 +34,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <coreplugin/helpmanager.h>
+#include <utils/portlist.h>
 
 #include <QCoreApplication>
 #include <QVariant>
@@ -84,21 +85,28 @@ IosDevice::IosDevice()
     : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
                              IDevice::AutoDetected,
                              IDevice::Hardware,
-                             Constants::IOS_DEVICE_ID)
+                             Constants::IOS_DEVICE_ID),
+      m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setDisplayName(IosDevice::name());
     setDeviceState(DeviceDisconnected);
+    Utils::PortList ports;
+    ports.addRange(Constants::IOS_DEVICE_PORT_START,
+                   Constants::IOS_DEVICE_PORT_END);
+    setFreePorts(ports);
 }
 
 IosDevice::IosDevice(const IosDevice &other)
-    : IDevice(other), m_extraInfo(other.m_extraInfo), m_ignoreDevice(other.m_ignoreDevice)
+    : IDevice(other), m_extraInfo(other.m_extraInfo), m_ignoreDevice(other.m_ignoreDevice),
+      m_lastPort(other.m_lastPort)
 { }
 
 IosDevice::IosDevice(const QString &uid)
     : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
                              IDevice::AutoDetected,
                              IDevice::Hardware,
-                             Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid))
+                             Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid)),
+    m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setDisplayName(IosDevice::name());
     setDeviceState(DeviceDisconnected);
@@ -193,6 +201,19 @@ QString IosDevice::name()
 QString IosDevice::osVersion() const
 {
     return m_extraInfo.value(QLatin1String("osVersion"));
+}
+
+quint16 IosDevice::nextPort() const
+{
+    // use qrand instead?
+    if (++m_lastPort >= Constants::IOS_DEVICE_PORT_END)
+        m_lastPort = Constants::IOS_DEVICE_PORT_START;
+    return m_lastPort;
+}
+
+bool IosDevice::canAutoDetectPorts() const
+{
+    return true;
 }
 
 
