@@ -29,6 +29,13 @@
 
 using namespace CPlusPlus;
 
+/*!
+    \class Lexer
+    \brief The Lexer generates tokens from an UTF-8 encoded source text.
+
+    \sa Token
+*/
+
 Lexer::Lexer(TranslationUnit *unit)
     : _translationUnit(unit),
       _control(unit->control()),
@@ -63,6 +70,7 @@ void Lexer::setSource(const char *firstChar, const char *lastChar)
     _firstChar = firstChar;
     _lastChar = lastChar;
     _currentChar = _firstChar - 1;
+    _currentCharUtf16 = -1;
     _tokenStart = _currentChar;
     _yychar = '\n';
 }
@@ -109,6 +117,7 @@ void Lexer::scan(Token *tok)
     tok->reset();
     scan_helper(tok);
     tok->f.bytes = _currentChar - _tokenStart;
+    tok->f.utf16chars = _currentCharUtf16 - _tokenStartUtf16;
 }
 
 void Lexer::scan_helper(Token *tok)
@@ -142,6 +151,9 @@ void Lexer::scan_helper(Token *tok)
 
     _tokenStart = _currentChar;
     tok->byteOffset = _currentChar - _firstChar;
+
+    _tokenStartUtf16 = _currentCharUtf16;
+    tok->utf16charOffset = _currentCharUtf16;
 
     if (_yychar) {
         s._newlineExpected = false;
@@ -621,8 +633,8 @@ void Lexer::scan_helper(Token *tok)
             } else {
                 scanIdentifier(tok);
             }
-        } else if (std::isalpha(ch) || ch == '_' || ch == '$') {
-            scanIdentifier(tok);
+        } else if (std::isalpha(ch) || ch == '_' || ch == '$' || isByteOfMultiByteCodePoint(ch)) {
+            scanIdentifier(tok, _currentChar - _tokenStart - 1);
         } else if (std::isdigit(ch)) {
             scanNumericLiteral(tok);
         } else {
@@ -776,8 +788,10 @@ void Lexer::scanNumericLiteral(Token *tok)
 void Lexer::scanIdentifier(Token *tok, unsigned extraProcessedChars)
 {
     const char *yytext = _currentChar - 1 - extraProcessedChars;
-    while (std::isalnum(_yychar) || _yychar == '_' || _yychar == '$')
+    while (std::isalnum(_yychar) || _yychar == '_' || _yychar == '$'
+            || isByteOfMultiByteCodePoint(_yychar)) {
         yyinp();
+    }
     int yylen = _currentChar - yytext;
     if (f._scanKeywords)
         tok->f.kind = classify(yytext, yylen, _languageFeatures);

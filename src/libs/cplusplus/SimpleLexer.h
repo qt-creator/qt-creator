@@ -54,7 +54,7 @@ public:
 
     bool endedJoined() const;
 
-    QList<Token> operator()(const QString &text, int state = 0);
+    QList<Token> operator()(const QString &text, int state = 0, bool convertToUtf8 = false);
 
     int state() const
     { return _lastState; }

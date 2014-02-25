@@ -285,7 +285,7 @@ enum Kind {
 class CPLUSPLUS_EXPORT Token
 {
 public:
-    Token() : flags(0), byteOffset(0), ptr(0) {}
+    Token() : flags(0), byteOffset(0), utf16charOffset(0), ptr(0) {}
 
     inline bool is(unsigned k) const    { return f.kind == k; }
     inline bool isNot(unsigned k) const { return f.kind != k; }
@@ -298,13 +298,14 @@ public:
     inline bool joined() const { return f.joined; }
     inline bool expanded() const { return f.expanded; }
     inline bool generated() const { return f.generated; }
+
     inline unsigned bytes() const { return f.bytes; }
+    inline unsigned bytesBegin() const { return byteOffset; }
+    inline unsigned bytesEnd() const { return byteOffset + f.bytes; }
 
-    inline unsigned bytesBegin() const
-    { return byteOffset; }
-
-    inline unsigned bytesEnd() const
-    { return byteOffset + f.bytes; }
+    inline unsigned utf16chars() const { return f.utf16chars; }
+    inline unsigned utf16charsBegin() const { return utf16charOffset; }
+    inline unsigned utf16charsEnd() const { return utf16charOffset + f.utf16chars; }
 
     inline bool isLiteral() const
     { return f.kind >= T_FIRST_LITERAL && f.kind <= T_LAST_LITERAL; }
@@ -354,15 +355,17 @@ public:
         unsigned generated     : 1;
         // Unused...
         unsigned pad           : 3;
-        // The token length in bytes.
+        // The token length in bytes and UTF16 chars.
         unsigned bytes         : 16;
+        unsigned utf16chars    : 16;
     };
     union {
-        unsigned flags;
+        unsigned long flags;
         Flags f;
     };
 
     unsigned byteOffset;
+    unsigned utf16charOffset;
 
     union {
         void *ptr;
@@ -392,6 +395,5 @@ struct LanguageFeatures
 };
 
 } // namespace CPlusPlus
-
 
 #endif // CPLUSPLUS_TOKEN_H

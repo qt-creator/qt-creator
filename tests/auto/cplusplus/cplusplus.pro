@@ -12,4 +12,5 @@ SUBDIRS = \
     misc \
     cxx11 \
     checksymbols \
-    lexer
+    lexer \
+    translationunit

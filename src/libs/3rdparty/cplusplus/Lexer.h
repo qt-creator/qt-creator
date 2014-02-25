@@ -62,6 +62,7 @@ public:
     void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
 
 private:
+    void pushLineStartOffset();
     void scan_helper(Token *tok);
     void setSource(const char *firstChar, const char *lastChar);
     static int classify(const char *string, int length, LanguageFeatures features);
@@ -77,14 +78,31 @@ private:
     void scanBackslash(Kind type);
     void scanCppComment(Kind type);
 
-    inline void yyinp()
+    static bool isByteOfMultiByteCodePoint(unsigned char byte)
+    { return byte & 0x80; } // Check if most significant bit is set
+
+    void yyinp()
     {
-        _yychar = *++_currentChar;
+        ++_currentCharUtf16;
+
+        // Process multi-byte UTF-8 code point (non-latin1)
+        if (CPLUSPLUS_UNLIKELY(isByteOfMultiByteCodePoint(_yychar))) {
+            unsigned trailingBytesCurrentCodePoint = 1;
+            for (unsigned char c = _yychar << 2; isByteOfMultiByteCodePoint(c); c <<= 1)
+                ++trailingBytesCurrentCodePoint;
+            // Code points >= 0x00010000 are represented by two UTF16 code units
+            if (trailingBytesCurrentCodePoint >= 3)
+                ++_currentCharUtf16;
+            _yychar = *(_currentChar += trailingBytesCurrentCodePoint + 1);
+
+        // Process single-byte UTF-8 code point (latin1)
+        } else {
+            _yychar = *++_currentChar;
+        }
+
         if (CPLUSPLUS_UNLIKELY(_yychar == '\n'))
             pushLineStartOffset();
     }
-
-    void pushLineStartOffset();
 
 private:
     struct Flags {
@@ -105,6 +123,10 @@ private:
     const char *_lastChar;
     const char *_tokenStart;
     unsigned char _yychar;
+
+    unsigned _currentCharUtf16;
+    unsigned _tokenStartUtf16;
+
     union {
         unsigned char _state;
         State s;
@@ -113,6 +135,7 @@ private:
         unsigned _flags;
         Flags f;
     };
+
     unsigned _currentLine;
     LanguageFeatures _languageFeatures;
 };
