@@ -78,7 +78,7 @@ QString Platform::displayName() const
     return m_name;
 }
 
-void Platform::setName(const QString &name)
+void Platform::setDisplayName(const QString &name)
 {
     m_name = name;
 }

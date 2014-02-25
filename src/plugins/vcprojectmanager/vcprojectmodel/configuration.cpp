@@ -139,7 +139,7 @@ QString Configuration::fullName() const
     return m_fullName;
 }
 
-QString Configuration::name() const
+QString Configuration::displayname() const
 {
     return m_configurationName;
 }
@@ -155,7 +155,7 @@ void Configuration::setFullName(const QString &fullName)
     emit nameChanged();
 }
 
-void Configuration::setName(const QString &name)
+void Configuration::setDisplayName(const QString &name)
 {
     m_configurationName = name;
 }

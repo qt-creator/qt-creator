@@ -43,12 +43,12 @@ IToolSection *ToolSectionDescription::createToolSection() const
     return new ToolSection(this);
 }
 
-QString ToolSectionDescription::name() const
+QString ToolSectionDescription::displayName() const
 {
     return m_name;
 }
 
-void ToolSectionDescription::setName(const QString &name)
+void ToolSectionDescription::setDisplayName(const QString &name)
 {
     m_name = name;
 }

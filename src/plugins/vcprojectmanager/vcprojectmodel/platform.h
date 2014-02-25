@@ -48,7 +48,7 @@ public:
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     QString displayName() const;
-    void setName(const QString &displayName);
+    void setDisplayName(const QString &displayName);
     IPlatform *clone() const;
 
 private:

@@ -223,7 +223,7 @@ void ToolDescriptionDataManager::processToolSectionNode(IToolDescription *toolDe
                 QDomAttr domElement = domNode.toAttr();
 
                 if (domElement.name() == QLatin1String("Name")) {
-                    toolSectionDesc->setName(domElement.value());
+                    toolSectionDesc->setDisplayName(domElement.value());
                 }
             }
         }

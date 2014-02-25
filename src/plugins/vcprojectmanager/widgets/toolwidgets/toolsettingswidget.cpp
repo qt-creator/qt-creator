@@ -57,7 +57,7 @@ ToolSettingsWidget::ToolSettingsWidget(ConfigurationTool *tool, QWidget *parent)
 
             if (toolSection) {
                 VcNodeWidget *toolSectionWidget = toolSection->createSettingsWidget();
-                mainTabWidget->addTab(toolSectionWidget, toolSection->sectionDescription()->name());
+                mainTabWidget->addTab(toolSectionWidget, toolSection->sectionDescription()->displayName());
                 m_sections.append(toolSectionWidget);
             }
         }

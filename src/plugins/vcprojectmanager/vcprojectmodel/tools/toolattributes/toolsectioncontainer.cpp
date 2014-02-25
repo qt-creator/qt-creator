@@ -83,7 +83,7 @@ IToolSection *ToolSectionContainer::section(int index) const
 IToolSection *ToolSectionContainer::section(const QString &sectionName) const
 {
     foreach (IToolSection *sec, m_toolSections) {
-        if (sec && sec->sectionDescription()->name() == sectionName) {
+        if (sec && sec->sectionDescription()->displayName() == sectionName) {
             return sec;
         }
     }
@@ -101,7 +101,7 @@ void ToolSectionContainer::appendSection(IToolSection *section)
         return;
 
     foreach (IToolSection *sec, m_toolSections) {
-        if (sec && sec->sectionDescription()->name() == section->sectionDescription()->name())
+        if (sec && sec->sectionDescription()->displayName() == section->sectionDescription()->displayName())
             return;
     }
     m_toolSections.append(section);
@@ -110,7 +110,7 @@ void ToolSectionContainer::appendSection(IToolSection *section)
 void ToolSectionContainer::removeSection(const QString &sectionName)
 {
     foreach (IToolSection *sec, m_toolSections) {
-        if (sec && sec->sectionDescription()->name() == sectionName) {
+        if (sec && sec->sectionDescription()->displayName() == sectionName) {
             m_toolSections.removeOne(sec);
             delete sec;
             return;

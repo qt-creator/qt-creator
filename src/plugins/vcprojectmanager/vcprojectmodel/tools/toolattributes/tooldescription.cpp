@@ -69,7 +69,7 @@ void ToolDescription::removeSectionDescription(IToolSectionDescription *sectionD
     }
 
     foreach (IToolSectionDescription* toolSectionDesc, m_sectionDescriptions) {
-        if (toolSectionDesc->name() == sectionDescription->name()) {
+        if (toolSectionDesc->displayName() == sectionDescription->displayName()) {
             m_sectionDescriptions.removeOne(sectionDescription);
             delete sectionDescription;
             return;
@@ -80,7 +80,7 @@ void ToolDescription::removeSectionDescription(IToolSectionDescription *sectionD
 void ToolDescription::addSectionDescription(IToolSectionDescription *sectionDescription)
 {
     foreach (IToolSectionDescription* toolSectionDesc, m_sectionDescriptions) {
-        if (toolSectionDesc->name() == sectionDescription->name())
+        if (toolSectionDesc->displayName() == sectionDescription->displayName())
             return;
     }
 

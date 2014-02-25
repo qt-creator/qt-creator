@@ -52,10 +52,10 @@ public:
 
     virtual IAttributeContainer *attributeContainer() const = 0;
     virtual QString fullName() const = 0;
-    virtual QString name() const = 0;
+    virtual QString displayname() const = 0;
     virtual QString platform() const = 0;
     virtual void setFullName(const QString &fullName) = 0;
-    virtual void setName(const QString &name) = 0;
+    virtual void setDisplayName(const QString &displayname) = 0;
     virtual void setPlatform(const QString &platform) = 0;
     virtual ITools *tools() const = 0;
 

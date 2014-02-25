@@ -58,10 +58,10 @@ public:
     // IConfiguration interface
     IAttributeContainer *attributeContainer() const;
     QString fullName() const;
-    QString name() const;
+    QString displayname() const;
     QString platform() const;
     void setFullName(const QString &fullName);
-    void setName(const QString &name);
+    void setDisplayName(const QString &displayname);
     void setPlatform(const QString &platform);
     ITools *tools() const;
     IConfiguration *clone() const;

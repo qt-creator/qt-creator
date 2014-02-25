@@ -44,8 +44,8 @@ public:
     virtual ~IToolSectionDescription() {}
     virtual IToolSection* createToolSection() const = 0;
 
-    virtual QString name() const = 0;
-    virtual void setName(const QString &name) = 0;
+    virtual QString displayName() const = 0;
+    virtual void setDisplayName(const QString &displayName) = 0;
 
     virtual IAttributeDescriptionDataItem *attributeDescription(const QString &attributeKey) const = 0;
     virtual IAttributeDescriptionDataItem *attributeDescription(int index) const = 0;

@@ -48,8 +48,8 @@ public:
 
     IToolSection *createToolSection() const;
 
-    QString name() const;
-    void setName(const QString &name);
+    QString displayName() const;
+    void setDisplayName(const QString &displayName);
 
     IAttributeDescriptionDataItem *attributeDescription(const QString &attributeKey) const;
     IAttributeDescriptionDataItem *attributeDescription(int index) const;
