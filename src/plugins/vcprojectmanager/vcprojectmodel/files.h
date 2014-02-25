@@ -42,11 +42,11 @@ namespace Internal {
 class Files : public IFiles
 {
 public:
-    Files(IVisualStudioProject *parentProject);
+    explicit Files(IVisualStudioProject *parentProject);
     Files(const Files &files);
     Files &operator =(const Files &files);
-
     ~Files();
+
     void processNode(const QDomNode &node);
     VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;

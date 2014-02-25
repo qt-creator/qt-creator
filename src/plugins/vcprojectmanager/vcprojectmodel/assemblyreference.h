@@ -46,8 +46,8 @@ public:
     AssemblyReference();
     AssemblyReference(const AssemblyReference &asmRef);
     AssemblyReference &operator=(const AssemblyReference &asmRef);
-
     ~AssemblyReference();
+
     void processNode(const QDomNode &node);
     VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;

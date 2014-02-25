@@ -47,6 +47,7 @@ class ConfigurationBaseWidget : public VcNodeWidget
 public:
     explicit ConfigurationBaseWidget(IConfiguration *config);
     ~ConfigurationBaseWidget();
+
     void saveData();
 
 protected:

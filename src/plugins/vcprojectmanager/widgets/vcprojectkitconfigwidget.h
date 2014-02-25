@@ -57,7 +57,7 @@ public:
     bool visibleInKit();
 
     QWidget *mainWidget() const;
-    QWidget *buttonWidget() const { return 0; }
+    QWidget *buttonWidget() const;
 
 private slots:
     void currentMsBuildChanged(int index);

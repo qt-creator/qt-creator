@@ -54,9 +54,9 @@ public:
     VcProjectDocument(const QString &filePath, VcDocConstants::DocumentVersion docVersion);
     VcProjectDocument(const VcProjectDocument &vcDoc);
     VcProjectDocument &operator=(const VcProjectDocument &vcDoc);
-    virtual ~VcProjectDocument();
-    void processNode(const QDomNode &domDoc);
+    ~VcProjectDocument();
 
+    void processNode(const QDomNode &domDoc);
     bool saveToFile(const QString &filePath) const;
     VcDocConstants::DocumentVersion documentVersion() const;
     QString filePath() const;

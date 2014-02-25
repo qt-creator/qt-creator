@@ -86,6 +86,11 @@ QWidget *VcProjectKitConfigWidget::mainWidget() const
     return m_comboBox;
 }
 
+QWidget *VcProjectKitConfigWidget::buttonWidget() const
+{
+    return 0;
+}
+
 void VcProjectKitConfigWidget::currentMsBuildChanged(int index)
 {
     if (0 <= index && index < m_comboBox->count()) {

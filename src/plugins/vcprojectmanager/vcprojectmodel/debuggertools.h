@@ -42,7 +42,6 @@ public:
     DebuggerTools();
 
     // IDebuggerTools interface
-public:
     void addTool(IDebuggerTool *tool);
     void removeTool(IDebuggerTool *tool);
     IDebuggerTool *tool(int index) const;

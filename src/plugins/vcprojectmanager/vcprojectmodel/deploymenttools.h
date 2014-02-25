@@ -42,6 +42,7 @@ public:
     DeploymentTools();
     DeploymentTools(const DeploymentTools &tools);
     DeploymentTools &operator=(const DeploymentTools &tools);
+
     // IDeploymentTools interface
     void addTool(IDeploymentTool *tool);
     void removeTool(IDeploymentTool *tool);

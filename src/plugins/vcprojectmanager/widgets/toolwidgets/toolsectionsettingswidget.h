@@ -46,7 +46,8 @@ class IToolAttributeSettingsWidget;
 class ToolSectionSettingsWidget : public VcNodeWidget
 {
 public:
-    ToolSectionSettingsWidget(ToolSection *toolSection, QWidget *parent = 0);
+    explicit ToolSectionSettingsWidget(ToolSection *toolSection, QWidget *parent = 0);
+
     void saveData();
 
 private:

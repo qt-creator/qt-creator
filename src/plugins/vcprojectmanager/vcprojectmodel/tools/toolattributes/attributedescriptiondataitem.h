@@ -46,6 +46,7 @@ public:
                                  const QString &descriptionText,
                                  const QString &defaultVal);
     ~AttributeDescriptionDataItem();
+
     // IAttributeDescriptionDataItem interface
     QString descriptionText() const;
     QString displayText() const;

@@ -47,10 +47,11 @@ class File : public IFile
 public:
     typedef QSharedPointer<File>  Ptr;
 
-    File(IVisualStudioProject *parentProjectDoc);
+    explicit File(IVisualStudioProject *parentProjectDoc);
     File(const File &file);
     File &operator=(const File &file);
     ~File();
+
     void processNode(const QDomNode &node);
     VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;

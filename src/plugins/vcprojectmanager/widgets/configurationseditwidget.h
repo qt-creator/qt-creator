@@ -50,6 +50,7 @@ class ConfigurationsEditWidget : public VcNodeWidget
 public:
     ConfigurationsEditWidget(IVisualStudioProject *vsProj, ConfigurationContainer *configContainer);
     ~ConfigurationsEditWidget();
+
     void saveData();
 
 private slots:

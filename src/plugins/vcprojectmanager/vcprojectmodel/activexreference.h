@@ -46,8 +46,8 @@ public:
     ActiveXReference();
     ActiveXReference(const ActiveXReference &ref);
     ActiveXReference &operator=(const ActiveXReference &ref);
+    ~ActiveXReference();
 
-    virtual ~ActiveXReference();
     void processNode(const QDomNode &node);
     VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
