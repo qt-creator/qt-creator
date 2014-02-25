@@ -63,7 +63,13 @@ ProjectExplorer::IDevice::Ptr IosDeviceFactory::create(Core::Id id) const
 
 bool IosDeviceFactory::canRestore(const QVariantMap &map) const
 {
-    return ProjectExplorer::IDevice::typeFromMap(map) == Constants::IOS_DEVICE_TYPE;
+    if (ProjectExplorer::IDevice::typeFromMap(map) != Constants::IOS_DEVICE_TYPE)
+        return false;
+    QVariantMap vMap = map.value(QLatin1String(Constants::EXTRA_INFO_KEY)).toMap();
+    if (vMap.isEmpty()
+            || vMap.value(QLatin1String("deviceName")).toString() == QLatin1String("*unknown*"))
+        return false; // transient device (probably generated during an activation)
+    return true;
 }
 
 ProjectExplorer::IDevice::Ptr IosDeviceFactory::restore(const QVariantMap &map) const

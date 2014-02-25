@@ -79,8 +79,6 @@ static QString CFStringRef2QString(CFStringRef s)
 namespace Ios {
 namespace Internal {
 
-const char extraInfoKey[] = "extraInfo";
-
 IosDevice::IosDevice()
     : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
                              IDevice::AutoDetected,
@@ -166,7 +164,7 @@ IDevice::Ptr IosDevice::clone() const
 void IosDevice::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);
-    QVariantMap vMap = map.value(QLatin1String(extraInfoKey)).toMap();
+    QVariantMap vMap = map.value(QLatin1String(Constants::EXTRA_INFO_KEY)).toMap();
     QMapIterator<QString, QVariant> i(vMap);
     m_extraInfo.clear();
     while (i.hasNext()) {
@@ -184,7 +182,7 @@ QVariantMap IosDevice::toMap() const
         i.next();
         vMap.insert(i.key(), i.value());
     }
-    res.insert(QLatin1String(extraInfoKey), vMap);
+    res.insert(QLatin1String(Constants::EXTRA_INFO_KEY), vMap);
     return res;
 }
 
@@ -281,7 +279,10 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
         qDebug() << "ignoring disconnection of ios device " << uid; // should neve happen
     } else {
         const IosDevice *iosDev = static_cast<const IosDevice *>(dev.data());
-        if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
+        if (iosDev->m_extraInfo.isEmpty()
+                || iosDev->m_extraInfo.value(QLatin1String("deviceName")) == QLatin1String("*unknown*")) {
+            devManager->removeDevice(iosDev->id());
+        } else if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
             if (debugDeviceDetection)
                 qDebug() << "disconnecting device " << iosDev->uniqueDeviceID();
             devManager->setDeviceState(iosDev->id(), IDevice::DeviceDisconnected);
