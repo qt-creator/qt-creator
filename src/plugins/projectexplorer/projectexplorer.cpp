@@ -2938,7 +2938,9 @@ void ProjectExplorerPlugin::removeFile()
             return;
         }
 
+        DocumentManager::expectFileChange(filePath);
         Core::FileUtils::removeFile(filePath, deleteFile);
+        DocumentManager::unexpectFileChange(filePath);
     }
 }
 
