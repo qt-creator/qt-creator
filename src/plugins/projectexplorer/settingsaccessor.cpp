@@ -2579,13 +2579,9 @@ static QString maddeRoot(const QString &qmakePath)
 
 void UserFileVersion11Upgrader::parseQtversionFile()
 {
-    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    FileName fileName = FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml"));
     PersistentSettingsReader reader;
-    if (!reader.load(fileName)) {
-        qWarning("Failed to open legacy qtversions.xml file.");
-        return;
-    }
+    QFileInfo settingsLocation = QFileInfo(Core::ICore::settings()->fileName());
+    reader.load(Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml")));
     QVariantMap data = reader.restoreValues();
 
     int count = data.value(QLatin1String("QtVersion.Count"), 0).toInt();
@@ -2622,13 +2618,9 @@ void UserFileVersion11Upgrader::parseQtversionFile()
 
 void UserFileVersion11Upgrader::parseToolChainFile()
 {
-    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    FileName fileName = FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml"));
     PersistentSettingsReader reader;
-    if (!reader.load(fileName)) {
-        qWarning("Failed to open legacy toolChains.xml file.");
-        return;
-    }
+    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
+    reader.load(Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml")));
     QVariantMap data = reader.restoreValues();
     int count = data.value(QLatin1String("ToolChain.Count"), 0).toInt();
     for (int i = 0; i < count; ++i) {
