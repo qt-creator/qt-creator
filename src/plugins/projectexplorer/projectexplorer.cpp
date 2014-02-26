@@ -3169,7 +3169,8 @@ void ProjectExplorerPluginPrivate::removeFile()
                                  tr("Could not remove file %1 from project %2.")
                                  .arg(QDir::toNativeSeparators(filePath))
                                  .arg(folderNode->projectNode()->displayName()));
-            return;
+            if (!deleteFile)
+                return;
         }
 
         DocumentManager::expectFileChange(filePath);
