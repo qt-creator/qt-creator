@@ -71,6 +71,8 @@ public:
     void clear();
 
 private:
+    static const int PixmapCacheCountHue = 240;
+
     class PixmapCacheModelPrivate;
     Q_DECLARE_PRIVATE(PixmapCacheModel)
 };

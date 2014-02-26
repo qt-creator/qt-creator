@@ -90,10 +90,9 @@ QColor PixmapCacheModel::getColor(int index) const
 {
     Q_D(const PixmapCacheModel);
     if (d->range(index).pixmapEventType == PixmapCacheCountChanged)
-        return QColor::fromHsl(240, 76, 166);
+        return getColorByHue(PixmapCacheCountHue);
 
-    int ndx = getEventId(index);
-    return QColor::fromHsl((ndx*25)%360, 76, 166);
+    return getEventColor(index);
 }
 
 float PixmapCacheModel::getHeight(int index) const
