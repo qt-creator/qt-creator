@@ -2001,7 +2001,8 @@ bool GitClient::synchronousHeadRefs(const QString &workingDirectory, QStringList
          << QLatin1String("--abbrev=10") << QLatin1String("--dereference");
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText,
+                                        VcsBasePlugin::SuppressCommandLogging);
     if (!rc) {
         msgCannotRun(args, workingDirectory, errorText, errorMessage);
         return false;
