@@ -65,11 +65,11 @@ CppHighlighter::CppHighlighter(QTextDocument *document) :
 
 void CppHighlighter::highlightBlock(const QString &text)
 {
-    const int previousState = previousBlockState();
-    int state = 0, initialBraceDepth = 0;
-    if (previousState != -1) {
-        state = previousState & 0xff;
-        initialBraceDepth = previousState >> 8;
+    const int previousBlockState_ = previousBlockState();
+    int lexerState = 0, initialBraceDepth = 0;
+    if (previousBlockState_ != -1) {
+        lexerState = previousBlockState_ & 0xff;
+        initialBraceDepth = previousBlockState_ >> 8;
     }
 
     int braceDepth = initialBraceDepth;
@@ -81,11 +81,11 @@ void CppHighlighter::highlightBlock(const QString &text)
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);
 
-    int initialState = state;
-    const QList<Token> tokens = tokenize(text, initialState);
-    state = tokenize.state(); // refresh the state
+    int initialLexerState = lexerState;
+    const QList<Token> tokens = tokenize(text, initialLexerState);
+    lexerState = tokenize.state(); // refresh lexer state
 
-    initialState &= ~0x80; // discard newline expected bit
+    initialLexerState &= ~0x80; // discard newline expected bit
     int foldingIndent = initialBraceDepth;
     if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(currentBlock())) {
         userData->setFoldingIndent(0);
@@ -94,12 +94,12 @@ void CppHighlighter::highlightBlock(const QString &text)
     }
 
     if (tokens.isEmpty()) {
-        setCurrentBlockState((braceDepth << 8) | state);
+        setCurrentBlockState((braceDepth << 8) | lexerState);
         BaseTextDocumentLayout::clearParentheses(currentBlock());
         if (text.length())  {// the empty line can still contain whitespace
-            if (initialState == T_COMMENT)
+            if (initialLexerState == T_COMMENT)
                 highlightLine(text, 0, text.length(), formatForCategory(CppCommentFormat));
-            else if (initialState == T_DOXY_COMMENT)
+            else if (initialLexerState == T_DOXY_COMMENT)
                 highlightLine(text, 0, text.length(), formatForCategory(CppDoxygenCommentFormat));
             else
                 setFormat(0, text.length(), formatForCategory(CppVisualWhitespace));
@@ -183,7 +183,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (tk.isStringLiteral() || tk.isCharLiteral()) {
             highlightLine(text, tk.begin(), tk.length(), formatForCategory(CppStringFormat));
         } else if (tk.isComment()) {
-            const int startPosition = initialState ? previousTokenEnd : tk.begin();
+            const int startPosition = initialLexerState ? previousTokenEnd : tk.begin();
             if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT))
                 highlightLine(text, startPosition, tk.end() - startPosition, formatForCategory(CppCommentFormat));
 
@@ -194,7 +194,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             //  - the line starts in a C Comment (initalState != 0)
             //  - the first token of the line is a T_COMMENT (i == 0 && tk.is(T_COMMENT))
             //  - is not a continuation line (tokens.size() > 1 || !state)
-            if (initialState && i == 0 && (tokens.size() > 1 || !state)) {
+            if (initialLexerState && i == 0 && (tokens.size() > 1 || !lexerState)) {
                 --braceDepth;
                 // unless we are at the end of the block, we reduce the folding indent
                 if (i == tokens.size()-1)
@@ -205,7 +205,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 parentheses.append(Parenthesis(Parenthesis::Closed, QLatin1Char('-'), tokenEnd));
 
                 // clear the initial state.
-                initialState = 0;
+                initialLexerState = 0;
             }
 
         } else if (tk.isKeyword() || CppTools::isQtKeyword(text.midRef(tk.begin(), tk.length())) || tk.isObjCAtKeyword()) {
@@ -224,7 +224,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     if (text.length() > lastTokenEnd)
         highlightLine(text, lastTokenEnd, text.length() - lastTokenEnd, formatForCategory(CppVisualWhitespace));
 
-    if (!initialState && state && !tokens.isEmpty() && tokens.last().isComment()) {
+    if (!initialLexerState && lexerState && !tokens.isEmpty() && tokens.last().isComment()) {
         parentheses.append(Parenthesis(Parenthesis::Opened, QLatin1Char('+'),
                                        tokens.last().begin()));
         ++braceDepth;
