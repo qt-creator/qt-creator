@@ -313,24 +313,6 @@ void FolderNode::setIcon(const QIcon &icon)
     m_icon = icon;
 }
 
-FileNode *FolderNode::findFile(const QString &path)
-{
-    foreach (FileNode *n, fileNodes()) {
-        if (n->path() == path)
-            return n;
-    }
-    return 0;
-}
-
-FolderNode *FolderNode::findSubFolder(const QString &path)
-{
-    foreach (FolderNode *n, subFolderNodes()) {
-        if (n->path() == path)
-            return n;
-    }
-    return 0;
-}
-
 bool FolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
 {
     if (projectNode())

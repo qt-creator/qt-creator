@@ -424,7 +424,14 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
 
         // Handle files:
         if (c->isFile()) {
-            ProjectExplorer::FileNode *fn = root->findFile(path);
+            ProjectExplorer::FileNode *fn = 0;
+            foreach (ProjectExplorer::FileNode *f, root->fileNodes()) {
+                // There can be one match only here!
+                if (f->path() != path)
+                    continue;
+                fn = f;
+                break;
+            }
             if (fn) {
                 filesToRemove.removeOne(fn);
                 if (updateExisting)
@@ -435,7 +442,14 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
             }
             continue;
         } else {
-            FolderNode *fn = root->findSubFolder(c->path());
+            ProjectExplorer::FolderNode *fn = 0;
+            foreach (ProjectExplorer::FolderNode *f, root->subFolderNodes()) {
+                // There can be one match only here!
+                if (f->path() != path)
+                    continue;
+                fn = f;
+                break;
+            }
             if (!fn) {
                 fn = new FolderNode(c->path());
                 root->addFolderNodes(QList<FolderNode *>() << fn);

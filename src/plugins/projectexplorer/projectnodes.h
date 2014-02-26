@@ -174,9 +174,6 @@ public:
     void setDisplayName(const QString &name);
     void setIcon(const QIcon &icon);
 
-    FileNode *findFile(const QString &path);
-    FolderNode *findSubFolder(const QString &path);
-
     virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = 0);
     virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
     virtual bool deleteFiles(const QStringList &filePaths);
