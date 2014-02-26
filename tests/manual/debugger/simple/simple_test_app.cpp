@@ -98,6 +98,20 @@
 #endif // USE_UNINITIALIZED_AUTOBREAK
 #endif
 
+#ifdef HAS_BOOST
+#ifndef ANDROID
+#define USE_BOOST 1
+#endif
+#endif
+
+#ifdef HAS_PRIVATE
+#define USE_PRIVATE 1
+#endif
+
+#ifdef HAS_EIGEN
+#define USE_EIGEN 1
+#endif
+
 #ifdef QT_SCRIPT_LIB
 #define USE_SCRIPTLIB 1
 #else
@@ -225,9 +239,11 @@ void dummyStatement(...) {}
 #endif
 
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(Q_OS_MAC)
+#  ifndef ANDROID
 #    define USE_GCC_EXT 1
 #    undef __DEPRECATED
 #    include <ext/hash_set>
+#  endif
 #endif
 
 #ifdef Q_OS_WIN
