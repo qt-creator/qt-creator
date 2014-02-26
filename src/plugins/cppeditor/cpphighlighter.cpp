@@ -94,7 +94,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     }
 
     if (tokens.isEmpty()) {
-        setCurrentBlockState(state);
+        setCurrentBlockState((braceDepth << 8) | state);
         BaseTextDocumentLayout::clearParentheses(currentBlock());
         if (text.length())  {// the empty line can still contain whitespace
             if (initialState == T_COMMENT)
