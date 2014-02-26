@@ -179,7 +179,7 @@ QColor PaintEventsModelProxy::getColor(int index) const
         fpsFraction = 1.0;
     if (fpsFraction < 0.0)
         fpsFraction = 0.0;
-    return QColor::fromHsl((fpsFraction*96)+10, 76, 166);
+    return getFractionColor(fpsFraction);
 }
 
 float PaintEventsModelProxy::getHeight(int index) const

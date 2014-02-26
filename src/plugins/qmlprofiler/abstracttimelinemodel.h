@@ -101,6 +101,29 @@ signals:
     void expandedChanged();
 
 protected:
+    enum BoxColorProperties {
+        EventHueMultiplier = 25,
+        FractionHueMultiplier = 96,
+        FractionHueMininimum = 10,
+        Saturation = 150,
+        Lightness = 166
+    };
+
+    QColor getEventColor(int index) const
+    {
+        return getColorByHue(getEventId(index) * EventHueMultiplier);
+    }
+
+    QColor getFractionColor(double fraction) const
+    {
+        return getColorByHue(fraction * FractionHueMultiplier + FractionHueMininimum);
+    }
+
+    QColor getColorByHue(int hue) const
+    {
+        return QColor::fromHsl(hue % 360, Saturation, Lightness);
+    }
+
     explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &name,
                                    QObject *parent = 0);
     AbstractTimelineModelPrivate *d_ptr;

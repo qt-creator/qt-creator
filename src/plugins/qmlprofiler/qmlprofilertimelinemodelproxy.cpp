@@ -373,8 +373,7 @@ int BasicTimelineModel::getBindingLoopDest(int index) const
 
 QColor BasicTimelineModel::getColor(int index) const
 {
-    int ndx = getEventId(index);
-    return QColor::fromHsl((ndx*25)%360, 76, 166);
+    return getEventColor(index);
 }
 
 const QVariantList BasicTimelineModel::getLabelsForCategory(int category) const
