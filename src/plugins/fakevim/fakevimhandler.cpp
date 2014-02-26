@@ -973,7 +973,7 @@ public:
             // cursor keys. This breaks some of the logic later on
             // relying on text() being empty for "special" keys.
             // FIXME: Check the real conditions.
-            if (x.unicode() <= ' ')
+            if (x.unicode() < ' ')
                 m_text.clear();
             else if (x.isLetter())
                 m_key = x.toUpper().unicode();
@@ -1061,7 +1061,7 @@ public:
             return m_key < a.m_key;
         // Text for some mapped key cannot be determined (e.g. <C-J>) so if text is not set for
         // one of compared keys ignore it.
-        if (!m_text.isEmpty() && !a.m_text.isEmpty())
+        if (!m_text.isEmpty() && !a.m_text.isEmpty() && m_text != _(" "))
             return m_text < a.m_text;
         return m_modifiers < a.m_modifiers;
     }
