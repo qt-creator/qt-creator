@@ -970,13 +970,20 @@ void tst_Dumpers::dumper()
     QFile source(t->buildPath + QLatin1Char('/') + QLatin1String(mainFile));
     QVERIFY(source.open(QIODevice::ReadWrite));
     QByteArray fullCode = QByteArray() +
-            "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n\n#if defined(_MSC_VER)" + (data.useQt ?
                 "\n#include <qt_windows.h>" :
                 "\n#include <Windows.h>") +
-            "\n#define BREAK do { DebugBreak(); } while (0)"
+                "\n#define BREAK do { DebugBreak(); } while (0)"
+                "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n#else"
-            "\n#define BREAK do { asm(\"int $3\"); } while (0)"
+                "\n#include <stdint.h>\n"
+                "\n#define BREAK do { asm(\"int $3\"); } while (0)"
+                "\n"
+                "\nstatic volatile int64_t unused_dummy;\n"
+                "\nvoid __attribute__((optimize(\"O0\"))) unused(const void *first,...)\n"
+                "\n{\n"
+                "\n    unused_dummy += (int64_t)first;\n"
+                "\n}\n"
             "\n#endif"
             "\n"
             "\n\n" + data.includes +
