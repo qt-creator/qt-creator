@@ -418,22 +418,17 @@ UserFileAccessor::UserFileAccessor(Project *project)
 SettingsAccessor::SettingsAccessor(Project *project) :
     m_firstVersion(-1),
     m_lastVersion(-1),
-    m_userFileAcessor(QLatin1String(".user"),
-                      QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")),
-                      true,
-                      this),
-    m_sharedFileAcessor(QLatin1String(".shared"),
-                        QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")),
-                        false,
-                        this),
     m_project(project)
 {
     QTC_CHECK(m_project);
+    m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), QLatin1String(".user"));
+    m_sharedSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")), QLatin1String(".shared"));
 }
 
 SettingsAccessor::~SettingsAccessor()
 {
     qDeleteAll(m_handlers);
+    delete m_writer;
 }
 
 Project *SettingsAccessor::project() const
@@ -583,12 +578,12 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
     backupUserFile();
 
     SettingsData settings(map);
-    settings.m_fileName = FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
+    settings.m_fileName = FileName::fromString(defaultFileName(m_userSuffix));
     const QVariant &shared = m_project->property(SHARED_SETTINGS);
     if (shared.isValid())
         trackUserStickySettings(settings.m_map, shared.toMap());
 
-    return m_userFileAcessor.writeFile(&settings, parent);
+    return writeFile(&settings, parent);
 }
 
 void SettingsAccessor::addVersionUpgrader(VersionUpgrader *handler)
@@ -660,8 +655,8 @@ int SettingsAccessor::currentVersion() const
 void SettingsAccessor::backupUserFile() const
 {
     SettingsData oldSettings;
-    oldSettings.m_fileName = FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
-    if (!m_userFileAcessor.readFile(&oldSettings))
+    oldSettings.m_fileName = FileName::fromString(defaultFileName(m_userSuffix));
+    if (!readFile(&oldSettings, true))
         return;
 
     // Do we need to do a backup?
@@ -688,7 +683,7 @@ void SettingsAccessor::incrementVersion(SettingsAccessor::SettingsData &data) co
 SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
 {
     SettingsData result;
-    QStringList fileList = findSettingsFiles(m_userFileAcessor.suffix());
+    QStringList fileList = findSettingsFiles(m_userSuffix);
     if (fileList.isEmpty()) // No settings found at all.
         return result;
 
@@ -726,7 +721,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
         msgBox.setEscapeButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::No)
             result.clear();
-    } else if ((result.fileName().toString() != defaultFileName(m_userFileAcessor.suffix()))
+    } else if ((result.fileName().toString() != defaultFileName(m_userSuffix))
                && (result.version() < currentVersion())) {
         QMessageBox::information(
                     Core::ICore::mainWindow(),
@@ -750,10 +745,10 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
 SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings() const
 {
     SettingsData sharedSettings;
-    QString fn = project()->projectFilePath() + m_sharedFileAcessor.suffix();
+    QString fn = project()->projectFilePath() + m_sharedSuffix;
     sharedSettings.m_fileName = FileName::fromString(fn);
 
-    if (!m_sharedFileAcessor.readFile(&sharedSettings))
+    if (!readFile(&sharedSettings, false))
         return sharedSettings;
 
     if (sharedSettings.m_version > currentVersion()) {
@@ -792,7 +787,7 @@ SettingsAccessor::SettingsData SettingsAccessor::findBestSettings(const QStringL
     foreach (const QString &file, candidates) {
         tmp.clear();
         tmp.m_fileName = FileName::fromString(file);
-        if (!m_userFileAcessor.readFile(&tmp))
+        if (!readFile(&tmp, true))
             continue;
 
         if (tmp.version() > currentVersion()) {
@@ -873,30 +868,10 @@ bool SettingsAccessor::SettingsData::isValid() const
     return m_version > -1 && !m_fileName.isEmpty();
 }
 
-// -------------------------------------------------------------------------
-// FileAcessor
-// -------------------------------------------------------------------------
-
 static const char VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
 static const char ENVIRONMENT_ID_KEY[] = "ProjectExplorer.Project.Updater.EnvironmentId";
 
-SettingsAccessor::FileAccessor::FileAccessor(const QString &defaultSuffix,
-                                             const QString &environmentSuffix,
-                                             bool envSpecific,
-                                             SettingsAccessor *accessor)
-    : m_environmentSpecific(envSpecific)
-    , m_accessor(accessor)
-    , m_writer(0)
-{
-    m_suffix = generateSuffix(environmentSuffix, defaultSuffix);
-}
-
-SettingsAccessor::FileAccessor::~FileAccessor()
-{
-    delete m_writer;
-}
-
-bool SettingsAccessor::FileAccessor::readFile(SettingsData *settings) const
+bool SettingsAccessor::readFile(SettingsData *settings, bool environmentSpecific) const
 {
     if (settings->fileName().isEmpty()) {
         settings->clear();
@@ -912,7 +887,7 @@ bool SettingsAccessor::FileAccessor::readFile(SettingsData *settings) const
     settings->m_map = reader.restoreValues();
 
     // Get environment Id:
-    if (m_environmentSpecific) {
+    if (environmentSpecific) {
         settings->m_environmentId = settings->m_map.value(QLatin1String(ENVIRONMENT_ID_KEY)).toByteArray();
         settings->m_map.remove(QLatin1String(ENVIRONMENT_ID_KEY));
     }
@@ -922,7 +897,7 @@ bool SettingsAccessor::FileAccessor::readFile(SettingsData *settings) const
     return true;
 }
 
-bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings, QWidget *parent) const
+bool SettingsAccessor::writeFile(const SettingsData *settings, QWidget *parent) const
 {
     if (!m_writer || m_writer->fileName() != settings->fileName()) {
         delete m_writer;
@@ -937,7 +912,7 @@ bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings, QWi
         data.insert(i.key(), i.value());
     }
 
-    data.insert(QLatin1String(VERSION_KEY), m_accessor->m_lastVersion + 1);
+    data.insert(QLatin1String(VERSION_KEY), m_lastVersion + 1);
     data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
     return m_writer->save(data, parent);
 }

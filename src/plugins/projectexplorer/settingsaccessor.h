@@ -88,33 +88,15 @@ private:
     SettingsData findBestSettings(const QStringList &candidates) const;
     SettingsData mergeSettings(const SettingsData &user, const SettingsData &shared) const;
 
-    // The entity which actually reads/writes to the settings file.
-    class FileAccessor
-    {
-    public:
-        FileAccessor(const QString &defaultSuffix,
-                     const QString &environmentSuffix,
-                     bool envSpecific,
-                     SettingsAccessor *accessor);
-        ~FileAccessor();
-
-        bool readFile(SettingsData *settings) const;
-        bool writeFile(const SettingsData *settings, QWidget *parent) const;
-
-        QString suffix() const { return m_suffix; }
-
-    private:
-        QString m_suffix;
-        bool m_environmentSpecific;
-        SettingsAccessor *m_accessor;
-        mutable Utils::PersistentSettingsWriter *m_writer;
-    };
+    bool readFile(SettingsData *settings, bool environmentSpecific) const;
+    bool writeFile(const SettingsData *settings, QWidget *parent) const;
 
     QMap<int, Internal::VersionUpgrader *> m_handlers;
     int m_firstVersion;
     int m_lastVersion;
-    const FileAccessor m_userFileAcessor;
-    const FileAccessor m_sharedFileAcessor;
+    QString m_userSuffix;
+    QString m_sharedSuffix;
+    mutable Utils::PersistentSettingsWriter *m_writer;
 
     Project *m_project;
 };
