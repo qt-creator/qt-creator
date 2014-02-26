@@ -62,7 +62,6 @@ public:
 
     // IEditor
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
-    virtual Core::Id id() const;
 
     virtual QWidget *toolBar();
 

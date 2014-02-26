@@ -54,6 +54,7 @@ FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditorWidget *editor) :
     TextEditor::PlainTextEditor(editor),
     d(new FormWindowEditorPrivate)
 {
+    setId(Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     d->m_widget = editor;
     setContext(Core::Context(Designer::Constants::K_DESIGNER_XML_EDITOR_ID,
                              Designer::Constants::C_DESIGNER_XML_EDITOR));
@@ -121,11 +122,6 @@ void FormWindowEditor::syncXmlEditor()
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowEditor::syncXmlEditor" << d->m_widget->formWindowFile()->filePath();
     d->m_widget->formWindowFile()->syncXmlFromFormWindow();
-}
-
-Core::Id FormWindowEditor::id() const
-{
-    return Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
 }
 
 QWidget *FormWindowEditor::toolBar()
