@@ -240,3 +240,8 @@ FORMS += \
     tabsettingswidget.ui \
     codestyleselectorwidget.ui
 RESOURCES += texteditor.qrc
+
+equals(TEST, 1) {
+SOURCES += basetexteditor_test.cpp
+}
+

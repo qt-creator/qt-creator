@@ -6166,6 +6166,13 @@ void BaseTextBlockSelection::moveAnchor(int blockNumber, int visualColumn)
     lastBlock.movePosition(QTextCursor::EndOfBlock);
 }
 
+int BaseTextBlockSelection::position(const TabSettings &ts) const
+{
+    const QTextBlock &block = anchor <= TopRight ? lastBlock.block() : firstBlock.block();
+    const int column = anchor % 2 ? firstVisualColumn : lastVisualColumn;
+    return block.position() + ts.positionAtColumn(block.text(), column);
+}
+
 QTextCursor BaseTextBlockSelection::selection(const TabSettings &ts) const
 {
     QTextCursor cursor = firstBlock;
@@ -6334,50 +6341,46 @@ void BaseTextEditorWidget::transformSelection(TransformationMethod method)
 void BaseTextEditorWidget::transformBlockSelection(TransformationMethod method)
 {
     QTextCursor cursor = textCursor();
-    int minPos = cursor.anchor();
-    int maxPos = cursor.position();
-    if (minPos > maxPos)
-        qSwap(minPos, maxPos);
-    int leftBound = verticalBlockSelectionFirstColumn();
-    int rightBound = verticalBlockSelectionLastColumn();
-    BaseTextBlockSelection::Anchor anchorPosition = d->m_blockSelection.anchor;
-    QString text = cursor.selectedText();
-    QString transformedText = text;
-    QTextBlock currentLine = document()->findBlock(minPos);
-    int lineStart = currentLine.position();
-    do {
-        if (currentLine.contains(lineStart + leftBound)) {
-            int currentBlockWidth = qBound(0, currentLine.text().length() - leftBound,
-                                           rightBound - leftBound);
-            cursor.setPosition(lineStart + leftBound);
-            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, currentBlockWidth);
-            transformedText.replace(lineStart + leftBound - minPos, currentBlockWidth,
-                                    (cursor.selectedText().*method)());
+    const TabSettings &ts = d->m_document->tabSettings();
+
+    // saved to restore the blockselection
+    const int selectionPosition = d->m_blockSelection.position(ts);
+    const int anchorColumn = d->m_blockSelection.anchorColumnNumber();
+    const int anchorBlock = d->m_blockSelection.anchorBlockNumber();
+    const BaseTextBlockSelection::Anchor anchor = d->m_blockSelection.anchor;
+
+    QTextBlock block = d->m_blockSelection.firstBlock.block();
+    const QTextBlock &lastBlock = d->m_blockSelection.lastBlock.block();
+
+    cursor.beginEditBlock();
+    for (;;) {
+        // get position of the selection
+        const QString &blockText = block.text();
+        const int startPos = block.position()
+                + ts.positionAtColumn(blockText, d->m_blockSelection.firstVisualColumn);
+        const int endPos = block.position()
+                + ts.positionAtColumn(blockText, d->m_blockSelection.lastVisualColumn);
+
+        // check if the selection is inside the text block
+        if (startPos < endPos) {
+            cursor.setPosition(startPos);
+            cursor.setPosition(endPos, QTextCursor::KeepAnchor);
+            const QString &transformedText = (d->m_document->textAt(startPos, endPos - startPos).*method)();
+            if (transformedText != cursor.selectedText())
+                cursor.insertText(transformedText);
         }
-        currentLine = currentLine.next();
-        if (!currentLine.isValid())
+        if (block == lastBlock)
             break;
-        lineStart = currentLine.position();
-    } while (lineStart < maxPos);
-
-    if (transformedText == text) {
-        // if the transformation does not do anything to the selection, do no create an undo step
-        return;
+        block = block.next();
     }
+    cursor.endEditBlock();
 
-    cursor.setPosition(minPos);
-    cursor.setPosition(maxPos, QTextCursor::KeepAnchor);
-    cursor.insertText(transformedText);
     // restore former block selection
-    if (anchorPosition <= BaseTextBlockSelection::TopRight)
-        qSwap(minPos, maxPos);
-    cursor.setPosition(minPos);
-    cursor.setPosition(maxPos, QTextCursor::KeepAnchor);
-    d->m_blockSelection.fromSelection(d->m_document->tabSettings(), cursor);
-    d->m_blockSelection.anchor = anchorPosition;
+    cursor.setPosition(selectionPosition, QTextCursor::MoveAnchor);
     d->m_inBlockSelectionMode = true;
-    d->m_blockSelection.firstVisualColumn = leftBound;
-    d->m_blockSelection.lastVisualColumn = rightBound;
+    d->m_blockSelection.fromSelection(ts, cursor);
+    d->m_blockSelection.anchor = anchor;
+    d->m_blockSelection.moveAnchor(anchorBlock, anchorColumn);
     setTextCursor(d->m_blockSelection.selection(d->m_document->tabSettings()));
     viewport()->update();
 }

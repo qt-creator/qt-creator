@@ -70,6 +70,7 @@ public:
     enum Anchor {TopLeft = 0, TopRight, BottomLeft, BottomRight} anchor;
     BaseTextBlockSelection():firstVisualColumn(0), lastVisualColumn(0), anchor(BottomRight){}
     void moveAnchor(int blockNumber, int visualColumn);
+    int position(const TabSettings &ts) const;
     inline int anchorColumnNumber() const { return (anchor % 2) ? lastVisualColumn : firstVisualColumn; }
     inline int anchorBlockNumber() const {
         return (anchor <= TopRight ? firstBlock.blockNumber() : lastBlock.blockNumber()); }

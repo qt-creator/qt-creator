@@ -76,6 +76,9 @@ private slots:
 #ifdef WITH_TESTS
     void testSnippetParsing_data();
     void testSnippetParsing();
+
+    void testBlockSelectionTransformation_data();
+    void testBlockSelectionTransformation();
 #endif
 
 private:

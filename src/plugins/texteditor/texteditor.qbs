@@ -268,4 +268,12 @@ QtcPlugin {
             "snippetssettingspage.ui",
         ]
     }
+
+    Group {
+        name: "Tests"
+        condition: project.testsEnabled
+        files: [
+            "basetexteditor_test.cpp",
+        ]
+    }
 }
