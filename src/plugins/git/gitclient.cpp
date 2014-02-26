@@ -2052,9 +2052,19 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
                                    (derefInd == -1) ? -1 : derefInd - remoteStart.size());
         }
     }
+    if (!remoteBranch.isEmpty())
+        return remoteBranch;
 
-    // No tag
-    return remoteBranch.isEmpty() ? tr("Detached HEAD") : remoteBranch;
+    // No tag or remote branch - try git describe
+    QByteArray output;
+    QStringList arguments;
+    arguments << QLatin1String("describe");
+    if (fullySynchronousGit(workingDirectory, arguments, &output, 0, VcsBasePlugin::NoOutput)) {
+        const QString describeOutput = commandOutputFromLocal8Bit(output.trimmed());
+        if (!describeOutput.isEmpty())
+            return describeOutput;
+    }
+    return tr("Detached HEAD");
 }
 
 bool GitClient::synchronousRevParseCmd(const QString &workingDirectory, const QString &ref,
