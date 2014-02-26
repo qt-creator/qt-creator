@@ -938,9 +938,7 @@ bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings, QWi
     }
 
     data.insert(QLatin1String(VERSION_KEY), m_accessor->m_lastVersion + 1);
-
-    if (m_environmentSpecific)
-        data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
+    data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
     return m_writer->save(data, parent);
 }
 
