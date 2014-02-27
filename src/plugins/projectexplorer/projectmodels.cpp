@@ -823,6 +823,9 @@ void FlatModel::removeFromCache(QList<FolderNode *> list)
 
 void FlatModel::changedSortKey(FolderNode *folderNode, Node *node)
 {
+    if (!m_childNodes.contains(folderNode))
+        return; // The directory was not yet mapped, so there is no need to sort it.
+
     QList<Node *> nodes = m_childNodes.value(folderNode);
     int oldIndex = nodes.indexOf(node);
 
