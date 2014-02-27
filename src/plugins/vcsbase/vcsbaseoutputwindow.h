@@ -121,6 +121,8 @@ public slots:
 private:
     VcsBaseOutputWindow();
 
+    QString filterPasswordFromUrls(const QString &input);
+
     VcsBaseOutputWindowPrivate *d;
 };
 

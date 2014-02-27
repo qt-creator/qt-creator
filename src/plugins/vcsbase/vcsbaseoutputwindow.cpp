@@ -272,6 +272,7 @@ public:
 
     QPointer<Internal::OutputWindowPlainTextEdit> m_plainTextEdit;
     QString repository;
+    QRegExp passwordRegExp;
 };
 
 // Create log editor on demand. Some errors might be logged
@@ -289,7 +290,23 @@ VcsBaseOutputWindow *VcsBaseOutputWindowPrivate::instance = 0;
 VcsBaseOutputWindow::VcsBaseOutputWindow() :
     d(new VcsBaseOutputWindowPrivate)
 {
+    d->passwordRegExp = QRegExp(QLatin1String("://([^@:]+):([^@]+)@"));
+    Q_ASSERT(d->passwordRegExp.isValid());
     VcsBaseOutputWindowPrivate::instance = this;
+}
+
+QString VcsBaseOutputWindow::filterPasswordFromUrls(const QString &input)
+{
+    int pos = 0;
+    QString result = input;
+    while ((pos = d->passwordRegExp.indexIn(result, pos)) >= 0) {
+        QString tmp = result.left(pos + 3) + d->passwordRegExp.cap(1) + QLatin1String(":***@");
+        int newStart = tmp.count();
+        tmp += result.mid(pos + d->passwordRegExp.matchedLength());
+        result = tmp;
+        pos = newStart;
+    }
+    return result;
 }
 
 VcsBaseOutputWindow::~VcsBaseOutputWindow()
@@ -443,7 +460,7 @@ QString VcsBaseOutputWindow::msgExecutionLogEntry(const QString &workingDir,
 
 void VcsBaseOutputWindow::appendCommand(const QString &text)
 {
-    append(text, Command, true);
+    append(filterPasswordFromUrls(text), Command, true);
 }
 
 void VcsBaseOutputWindow::appendCommand(const QString &workingDirectory,
