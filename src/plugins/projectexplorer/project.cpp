@@ -311,7 +311,7 @@ bool Project::restoreSettings()
 {
     if (!d->m_accessor)
         d->m_accessor = new Internal::UserFileAccessor(this);
-    QVariantMap map(d->m_accessor->restoreSettings());
+    QVariantMap map(d->m_accessor->restoreSettings(Core::ICore::mainWindow()));
     bool ok = fromMap(map);
     if (ok)
         emit settingsLoaded();

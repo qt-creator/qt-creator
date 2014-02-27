@@ -50,7 +50,7 @@ public:
 
     Project *project() const;
 
-    QVariantMap restoreSettings() const;
+    QVariantMap restoreSettings(QWidget *parent) const;
     bool saveSettings(const QVariantMap &data, QWidget *parent) const;
 
     void addVersionUpgrader(Internal::VersionUpgrader *handler); // Takes ownership of the handler!
@@ -83,8 +83,8 @@ private:
 
     void upgradeSettings(SettingsData &data, int toVersion) const;
 
-    SettingsData readUserSettings() const;
-    SettingsData readSharedSettings() const;
+    SettingsData readUserSettings(QWidget *parent) const;
+    SettingsData readSharedSettings(QWidget *parent) const;
     SettingsData findBestSettings(const QStringList &candidates) const;
     SettingsData mergeSettings(const SettingsData &user, const SettingsData &shared) const;
 

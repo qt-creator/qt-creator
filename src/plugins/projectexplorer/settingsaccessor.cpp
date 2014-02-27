@@ -577,13 +577,13 @@ void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
 } // Anonymous
 
 
-QVariantMap SettingsAccessor::restoreSettings() const
+QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
 {
     if (m_lastVersion < 0)
         return QVariantMap();
 
-    SettingsData userSettings = readUserSettings();
-    SettingsData sharedSettings = readSharedSettings();
+    SettingsData userSettings = readUserSettings(parent);
+    SettingsData sharedSettings = readSharedSettings(parent);
     userSettings = mergeSettings(userSettings, sharedSettings);
 
     if (!userSettings.isValid())
@@ -696,7 +696,7 @@ void SettingsAccessor::backupUserFile() const
         QFile::copy(origName, backupName);
 }
 
-SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
+SettingsAccessor::SettingsData SettingsAccessor::readUserSettings(QWidget *parent) const
 {
     SettingsData result;
     QStringList fileList = findSettingsFiles(m_userSuffix);
@@ -708,7 +708,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
     // Error handling:
     if (!result.isValid()) {
         QMessageBox::information(
-            Core::ICore::mainWindow(),
+            parent,
             QApplication::translate("ProjectExplorer::SettingsAccessor",
                                     "No valid Settings found"),
             QApplication::translate("ProjectExplorer::SettingsAccessor",
@@ -732,7 +732,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
                                     "<p>Do you still want to load the settings file '%1'?</p>")
                     .arg(result.fileName().toUserOutput()),
             QMessageBox::Yes | QMessageBox::No,
-            Core::ICore::mainWindow());
+            parent);
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setEscapeButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::No)
@@ -740,7 +740,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
     } else if ((result.fileName().toString() != defaultFileName(m_userSuffix))
                && (result.version() < currentVersion())) {
         QMessageBox::information(
-                    Core::ICore::mainWindow(),
+                    parent,
                     QApplication::translate("ProjectExplorer::SettingsAccessor",
                                             "Using Old Settings"),
                     QApplication::translate("ProjectExplorer::SettingsAccessor",
@@ -758,7 +758,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
     return result;
 }
 
-SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings() const
+SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings(QWidget *parent) const
 {
     SettingsData sharedSettings;
     QString fn = project()->projectFilePath() + m_sharedSuffix;
@@ -783,7 +783,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings() const
                                             "supported by Qt Creator. "
                                             "Do you want to try loading it anyway?"),
                     QMessageBox::Yes | QMessageBox::No,
-                    Core::ICore::mainWindow());
+                    parent);
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setEscapeButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::No)
