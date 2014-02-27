@@ -353,6 +353,7 @@ class Dumper(DumperBase):
         self.childEventAddress = None
         self.typesReported = {}
         self.typesToReport = {}
+        self.qtNamespaceToReport = None
 
     def run(self, args):
         self.output = []
@@ -493,6 +494,10 @@ class Dumper(DumperBase):
                     % (self.hexencode(name), typeobj.sizeof))
         self.output.append(']')
         self.typesToReport = {}
+
+        if self.qtNamespaceToReport:
+            self.output.append(',qtnamespace="%s"' % self.qtNamespaceToReport)
+            self.qtNamespaceToReport = None
 
         return "".join(self.output)
 
@@ -1567,8 +1572,13 @@ class Dumper(DumperBase):
             pos2 = out.find("QString::Null")
             if pos1 > -1 and pos2 > -1:
                 namespace = out[pos1:pos2]
+
+            # Doesn't work
+            #gdb.write('=qt-namespace-detected,ns="%s"' % namespace)
+            self.qtNamespaceToReport = namespace
+
             self.cachedQtNamespace = namespace
-            self.ns = lambda: self.cachedQtNamespace
+            self.qtNamespace = lambda: self.cachedQtNamespace
         except:
             pass
 

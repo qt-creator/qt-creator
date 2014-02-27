@@ -96,7 +96,6 @@ protected: ////////// Gdb Process Management //////////
     void startGdb(const QStringList &args = QStringList());
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);
-    void handleNamespaceExtraction(const GdbResponse &response);
 
     void loadInitScript();
 
