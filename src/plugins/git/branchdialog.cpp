@@ -128,6 +128,7 @@ void BranchDialog::enableButtons()
     m_ui->diffButton->setEnabled(hasActions);
     m_ui->checkoutButton->setEnabled(hasActions && !currentSelected);
     m_ui->rebaseButton->setEnabled(hasActions && !currentSelected);
+    m_ui->resetButton->setEnabled(hasActions && currentLocal && !currentSelected);
     m_ui->mergeButton->setEnabled(hasActions && !currentSelected);
     m_ui->cherryPickButton->setEnabled(hasActions && !currentSelected);
     m_ui->trackButton->setEnabled(hasActions && currentLocal && !currentSelected && !isTag);
