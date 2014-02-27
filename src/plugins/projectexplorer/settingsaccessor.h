@@ -77,10 +77,8 @@ private:
 
         void clear();
         bool isValid() const;
-        QByteArray environmentId() const { return m_environmentId; }
         Utils::FileName fileName() const { return m_fileName; }
 
-        QByteArray m_environmentId;
         QVariantMap m_map;
         Utils::FileName m_fileName;
     };
@@ -92,8 +90,10 @@ private:
     SettingsData findBestSettings(const QStringList &candidates) const;
     SettingsData mergeSettings(const SettingsData &user, const SettingsData &shared) const;
 
-    bool readFile(SettingsData *settings, bool environmentSpecific) const;
+    bool readFile(SettingsData *settings) const;
     bool writeFile(const SettingsData *settings, QWidget *parent) const;
+
+    QByteArray environmentIdFromMap(const QVariantMap &data) const;
 
     int m_firstVersion;
     int m_lastVersion;

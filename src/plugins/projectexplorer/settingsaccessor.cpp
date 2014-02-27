@@ -451,7 +451,7 @@ public:
 
         for (; it != eit; ++it) {
             const QString &key = it.key();
-            if (key == QLatin1String(VERSION_KEY))
+            if (key == QLatin1String(VERSION_KEY) || key == QLatin1String(ENVIRONMENT_ID_KEY))
                 continue;
             const QVariant &sharedValue = it.value();
             const QVariant &userValue = userMap.value(key);
@@ -612,6 +612,10 @@ void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
 
 } // Anonymous
 
+QByteArray SettingsAccessor::environmentIdFromMap(const QVariantMap &data) const
+{
+    return data.value(QLatin1String(ENVIRONMENT_ID_KEY)).toByteArray();
+}
 
 QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
 {
@@ -714,14 +718,15 @@ void SettingsAccessor::backupUserFile() const
 {
     SettingsData oldSettings;
     oldSettings.m_fileName = FileName::fromString(defaultFileName(m_userSuffix));
-    if (!readFile(&oldSettings, true))
+    if (!readFile(&oldSettings))
         return;
 
     // Do we need to do a backup?
     const QString origName = oldSettings.fileName().toString();
     QString backupName = origName;
-    if (!oldSettings.environmentId().isEmpty() && oldSettings.environmentId() != creatorId())
-        backupName += QLatin1String(".") + QString::fromLatin1(oldSettings.environmentId()).mid(1, 7);
+    const QByteArray oldEnvironmentId = environmentIdFromMap(oldSettings.m_map);
+    if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != creatorId())
+        backupName += QLatin1String(".") + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
     const int oldVersion = versionFromMap(oldSettings.m_map);
     if (oldVersion != currentVersion()) {
         if (d->m_upgraders.contains(oldVersion))
@@ -742,6 +747,8 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings(QWidget *paren
 
     result = findBestSettings(fileList);
 
+    const QByteArray resultEnvironmentId = environmentIdFromMap(result.m_map);
+
     // Error handling:
     if (!result.isValid()) {
         QMessageBox::information(
@@ -754,7 +761,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings(QWidget *paren
                                     "<p>All settings files were either too new or too "
                                     "old to be read.</p>"),
             QMessageBox::Ok);
-    } else if (!result.environmentId().isEmpty() && result.environmentId() != creatorId()) {
+    } else if (!resultEnvironmentId.isEmpty() && resultEnvironmentId != creatorId()) {
         // Wrong environment!
         QMessageBox msgBox(
             QMessageBox::Question,
@@ -801,7 +808,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings(QWidget *par
     QString fn = project()->projectFilePath() + m_sharedSuffix;
     sharedSettings.m_fileName = FileName::fromString(fn);
 
-    if (!readFile(&sharedSettings, false))
+    if (!readFile(&sharedSettings))
         return sharedSettings;
 
     if (versionFromMap(sharedSettings.m_map) > currentVersion()) {
@@ -840,7 +847,7 @@ SettingsAccessor::SettingsData SettingsAccessor::findBestSettings(const QStringL
     foreach (const QString &file, candidates) {
         tmp.clear();
         tmp.m_fileName = FileName::fromString(file);
-        if (!readFile(&tmp, true))
+        if (!readFile(&tmp))
             continue;
 
         const int tmpVersion = versionFromMap(tmp.m_map);
@@ -854,7 +861,8 @@ SettingsAccessor::SettingsData SettingsAccessor::findBestSettings(const QStringL
             continue;
         }
 
-        if (tmp.environmentId().isEmpty() || tmp.environmentId() == creatorId()) {
+        const QByteArray tmpEnvironmentId = environmentIdFromMap(tmp.m_map);
+        if (tmpEnvironmentId.isEmpty() || tmpEnvironmentId == creatorId()) {
             if (tmpVersion > versionFromMap(newestMatching.m_map))
                 newestMatching = tmp;
         } else {
@@ -909,7 +917,6 @@ void SettingsAccessor::SettingsData::clear()
 {
     m_map.clear();
     m_fileName.clear();
-    m_environmentId.clear();
 }
 
 bool SettingsAccessor::SettingsData::isValid() const
@@ -917,7 +924,7 @@ bool SettingsAccessor::SettingsData::isValid() const
     return versionFromMap(m_map) > -1 && !m_fileName.isEmpty();
 }
 
-bool SettingsAccessor::readFile(SettingsData *settings, bool environmentSpecific) const
+bool SettingsAccessor::readFile(SettingsData *settings) const
 {
     if (settings->fileName().isEmpty()) {
         settings->clear();
@@ -931,13 +938,6 @@ bool SettingsAccessor::readFile(SettingsData *settings, bool environmentSpecific
     }
 
     settings->m_map = reader.restoreValues();
-
-    // Get environment Id:
-    if (environmentSpecific) {
-        settings->m_environmentId = settings->m_map.value(QLatin1String(ENVIRONMENT_ID_KEY)).toByteArray();
-        settings->m_map.remove(QLatin1String(ENVIRONMENT_ID_KEY));
-    }
-
     return true;
 }
 
