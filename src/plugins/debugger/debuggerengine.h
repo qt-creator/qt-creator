@@ -184,6 +184,7 @@ public:
     virtual void reloadRegisters();
     virtual void reloadSourceFiles();
     virtual void reloadFullStack();
+    virtual void loadAdditionalQmlStack();
     virtual void reloadDebuggingHelpers();
 
     virtual void setRegisterValue(int regnr, const QString &value);

@@ -27,14 +27,62 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+#include "winrtqtversion.h"
 
-Rectangle {
-    property color topColor
-    property color bottomColor
-    height: 6
-    gradient: Gradient {
-        GradientStop { position: 0.0; color: bottomColor; }
-        GradientStop { position: 1.0; color: topColor; }
-    }
+#include "winrtconstants.h"
+
+#include <coreplugin/featureprovider.h>
+#include <qtsupport/qtsupportconstants.h>
+
+namespace WinRt {
+namespace Internal {
+
+WinRtQtVersion::WinRtQtVersion()
+{
 }
+
+WinRtQtVersion::WinRtQtVersion(const Utils::FileName &path, bool isAutodetected,
+        const QString &autodetectionSource)
+    : BaseQtVersion(path, isAutodetected, autodetectionSource)
+{
+    setDisplayName(defaultDisplayName(qtVersionString(), path, false));
+}
+
+QtSupport::BaseQtVersion *WinRtQtVersion::clone() const
+{
+    return new WinRtQtVersion(*this);
+}
+
+QString WinRtQtVersion::type() const
+{
+    return QLatin1String(Constants::WINRT_WINRTQT);
+}
+
+QString WinRtQtVersion::description() const
+{
+    return tr("Windows Runtime");
+}
+
+Core::FeatureSet WinRtQtVersion::availableFeatures() const
+{
+    return QtSupport::BaseQtVersion::availableFeatures()
+            | Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
+}
+
+QString WinRtQtVersion::platformName() const
+{
+    return QLatin1String(QtSupport::Constants::WINDOWS_RT_PLATFORM);
+}
+
+QString WinRtQtVersion::platformDisplayName() const
+{
+    return QLatin1String(QtSupport::Constants::WINDOWS_RT_PLATFORM_TR);
+}
+
+QList<ProjectExplorer::Abi> WinRtQtVersion::detectQtAbis() const
+{
+    return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
+}
+
+} // Internal
+} // WinRt

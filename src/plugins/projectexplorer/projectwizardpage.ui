@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>ProjectExplorer::Internal::WizardPage</class>
  <widget class="QWizardPage" name="ProjectExplorer::Internal::WizardPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>397</width>
+    <height>248</height>
+   </rect>
+  </property>
   <property name="title">
    <string>Project Management</string>
   </property>
@@ -67,7 +75,7 @@
      <item row="2" column="2">
       <widget class="QPushButton" name="vcsManageButton">
        <property name="text">
-        <string>Manage...</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -108,8 +116,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>316</width>
-        <height>103</height>
+        <width>373</width>
+        <height>104</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">

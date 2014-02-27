@@ -73,6 +73,7 @@ public:
                                   const QVariantMap &extraVariables = QVariantMap());
 
     static bool showOptionsDialog(Id group, Id page, QWidget *parent = 0);
+    static QString msgShowOptionsDialog();
 
     static bool showWarningWithOptions(const QString &title, const QString &text,
                                        const QString &details = QString(),

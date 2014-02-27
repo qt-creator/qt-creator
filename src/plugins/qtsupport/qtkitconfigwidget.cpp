@@ -55,7 +55,7 @@ QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplo
         versionIds.append(v->uniqueId());
     versionsChanged(versionIds, QList<int>(), QList<int>());
 
-    m_manageButton = new QPushButton(tr("Manage..."));
+    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
 
     refresh();
     m_combo->setToolTip(toolTip());

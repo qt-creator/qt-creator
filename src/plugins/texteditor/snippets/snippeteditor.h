@@ -50,7 +50,6 @@ public:
 
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate() { return 0; }
-    Core::Id id() const;
 };
 
 class TEXTEDITOR_EXPORT SnippetEditorWidget : public BaseTextEditorWidget

@@ -177,7 +177,7 @@ void AbstractSettings::save()
         const QString path = m_styleDir.absolutePath();
         if (!(m_styleDir.mkpath(path)
               && m_styleDir.cd(path))) {
-            BeautifierPlugin::showError(tr("Failed to save styles. %1 does not exist.").arg(path));
+            BeautifierPlugin::showError(tr("Cannot save styles. %1 does not exist.").arg(path));
             return;
         }
     }
@@ -197,13 +197,13 @@ void AbstractSettings::save()
 
         Utils::FileSaver saver(styleFileName(iStyles.key()));
         if (saver.hasError()) {
-            BeautifierPlugin::showError(tr("Could not open file \"%1\": %2.")
+            BeautifierPlugin::showError(tr("Cannot open file \"%1\": %2.")
                                         .arg(saver.fileName())
                                         .arg(saver.errorString()));
         } else {
             saver.write(iStyles.value().toLocal8Bit());
             if (!saver.finalize()) {
-                BeautifierPlugin::showError(tr("Error while saving file \"%1\": %2.")
+                BeautifierPlugin::showError(tr("Cannot save file \"%1\": %2.")
                                             .arg(saver.fileName())
                                             .arg(saver.errorString()));
             }
@@ -275,7 +275,7 @@ void AbstractSettings::readDocumentation()
         createDocumentationFile();
 
     if (!file.open(QIODevice::ReadOnly)) {
-        BeautifierPlugin::showError(tr("Could not open documentation file \"%1\".").arg(filename));
+        BeautifierPlugin::showError(tr("Cannot open documentation file \"%1\".").arg(filename));
         return;
     }
 
@@ -314,7 +314,7 @@ void AbstractSettings::readDocumentation()
     }
 
     if (xml.hasError()) {
-        BeautifierPlugin::showError(tr("Could not read documentation file \"%1\". Error: %2.")
+        BeautifierPlugin::showError(tr("Cannot read documentation file \"%1\": %2.")
                                     .arg(filename).arg(xml.errorString()));
     }
 }

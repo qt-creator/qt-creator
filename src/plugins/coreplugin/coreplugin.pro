@@ -197,7 +197,6 @@ HEADERS += mainwindow.h \
     dialogs/addtovcsdialog.h
 
 FORMS += dialogs/newdialog.ui \
-    actionmanager/commandmappings.ui \
     dialogs/saveitemsdialog.ui \
     dialogs/readonlyfilesdialog.ui \
     dialogs/openwithdialog.ui \

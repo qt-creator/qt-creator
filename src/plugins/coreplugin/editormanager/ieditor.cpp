@@ -56,3 +56,14 @@
   \sa Core::EditorFactoryInterface Core::IContext
 
 */
+
+
+void Core::IEditor::setId(Core::Id id)
+{
+    m_id = id;
+}
+
+Core::Id Core::IEditor::id() const
+{
+    return m_id;
+}

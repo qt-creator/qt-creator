@@ -100,7 +100,7 @@ DebuggerSettings::DebuggerSettings()
 
     item = new SavedAction(this);
     insertItem(SettingsDialog, item);
-    item->setText(tr("Debugger Properties..."));
+    item->setText(tr("Configure Debugger..."));
 
     //
     // View

@@ -129,7 +129,7 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, const
     refresh();
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentToolChainChanged(int)));
 
-    m_manageButton = new QPushButton(tr("Manage..."));
+    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageToolChains()));
 
@@ -316,7 +316,7 @@ DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy, c
 {
     m_comboBox->setModel(m_model);
 
-    m_manageButton = new QPushButton(tr("Manage"));
+    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
 
     refresh();
     m_comboBox->setToolTip(toolTip());

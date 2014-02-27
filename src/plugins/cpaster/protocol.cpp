@@ -166,7 +166,7 @@ bool Protocol::showConfigurationError(const Protocol *p,
     QMessageBox mb(QMessageBox::Warning, title, message, QMessageBox::Cancel, parent);
     QPushButton *settingsButton = 0;
     if (showConfig)
-        settingsButton = mb.addButton(tr("Settings..."), QMessageBox::AcceptRole);
+        settingsButton = mb.addButton(Core::ICore::msgShowOptionsDialog(), QMessageBox::AcceptRole);
     mb.exec();
     bool rc = false;
     if (mb.clickedButton() == settingsButton)

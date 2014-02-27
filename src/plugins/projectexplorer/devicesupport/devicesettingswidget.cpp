@@ -305,7 +305,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     }
 
     if (device->canCreateProcessModel()) {
-        QPushButton * const button = new QPushButton(tr("Show Running Processes"));
+        QPushButton * const button = new QPushButton(tr("Show Running Processes..."));
         m_additionalActionButtons << button;
         connect(button, SIGNAL(clicked()), SLOT(handleProcessListRequested()));
         m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);

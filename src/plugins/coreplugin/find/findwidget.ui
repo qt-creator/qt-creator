@@ -55,14 +55,20 @@
       <property name="spacing">
        <number>3</number>
       </property>
-      <property name="margin">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
        <number>0</number>
       </property>
       <item>
        <widget class="QToolButton" name="findPreviousButton">
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
-        </property>
         <property name="arrowType">
          <enum>Qt::LeftArrow</enum>
         </property>
@@ -72,9 +78,6 @@
        <widget class="QToolButton" name="findNextButton">
         <property name="font">
          <font/>
-        </property>
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
         </property>
         <property name="arrowType">
          <enum>Qt::RightArrow</enum>
@@ -181,14 +184,20 @@
         <property name="spacing">
          <number>3</number>
         </property>
-        <property name="margin">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
          <number>0</number>
         </property>
         <item>
          <widget class="QToolButton" name="replaceButton">
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
           <property name="text">
            <string>Replace</string>
           </property>
@@ -204,9 +213,6 @@
          <widget class="QToolButton" name="replaceNextButton">
           <property name="font">
            <font/>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
            <string>Replace &amp;&amp; Find</string>
@@ -279,8 +285,13 @@
  <tabstops>
   <tabstop>findEdit</tabstop>
   <tabstop>replaceEdit</tabstop>
-  <tabstop>close</tabstop>
+  <tabstop>replaceButton</tabstop>
+  <tabstop>replaceNextButton</tabstop>
   <tabstop>replaceAllButton</tabstop>
+  <tabstop>advancedButton</tabstop>
+  <tabstop>findPreviousButton</tabstop>
+  <tabstop>findNextButton</tabstop>
+  <tabstop>close</tabstop>
  </tabstops>
  <resources/>
  <connections/>

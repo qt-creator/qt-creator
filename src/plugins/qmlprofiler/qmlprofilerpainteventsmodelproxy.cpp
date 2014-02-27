@@ -71,6 +71,10 @@ PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
                                   QLatin1String("PaintEventsModelProxy"), tr("Painting"),
                                   QmlDebug::Painting, parent)
 {
+    Q_D(PaintEventsModelProxy);
+    d->seenForeignPaintEvent = false;
+    d->minAnimationCount = 1;
+    d->maxAnimationCount = 1;
 }
 
 

@@ -87,6 +87,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
         m_contextMenu(new QMenu),
         m_toolBar(new QToolBar)
 {
+    setId(ResourceEditor::Constants::RESOURCEEDITOR_ID);
     setContext(context);
     setWidget(m_resourceEditor);
 
@@ -215,11 +216,6 @@ void ResourceEditorDocument::setFilePath(const QString &newName)
 void ResourceEditorDocument::setBlockDirtyChanged(bool value)
 {
     m_blockDirtyChanged = value;
-}
-
-Core::Id ResourceEditorW::id() const
-{
-    return Core::Id(ResourceEditor::Constants::RESOURCEEDITOR_ID);
 }
 
 QWidget *ResourceEditorW::toolBar()

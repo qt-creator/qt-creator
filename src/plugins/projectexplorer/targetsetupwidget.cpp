@@ -33,6 +33,7 @@
 #include "buildinfo.h"
 #include "projectexplorerconstants.h"
 #include "kit.h"
+#include "kitconfigwidget.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 
@@ -79,7 +80,7 @@ TargetSetupWidget::TargetSetupWidget(Kit *k,
 
     Utils::FadingWidget *panel = new Utils::FadingWidget(m_detailsWidget);
     QHBoxLayout *panelLayout = new QHBoxLayout(panel);
-    m_manageButton = new QPushButton(tr("Manage..."));
+    m_manageButton = new QPushButton(KitConfigWidget::msgManage());
     panelLayout->addWidget(m_manageButton);
     m_detailsWidget->setToolWidget(panel);
 

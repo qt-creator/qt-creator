@@ -27,19 +27,41 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
+#ifndef WINRTRUNCONFIGURATIONWIDGET_H
+#define WINRTRUNCONFIGURATIONWIDGET_H
 
-Item {
-    property color leftColor
-    property color rightColor
-    width: 6
-    HorizontalGradientBorder {
-        anchors.left: parent.right
-        anchors.top: parent.top
-        transformOrigin: Item.TopLeft
-        rotation: 90
-        width: parent.height
-        topColor: rightColor
-        bottomColor: leftColor
-    }
+#include <utils/detailswidget.h>
+
+namespace WinRt {
+namespace Internal {
+
+namespace Ui {
+class WinRtRunConfigurationWidget;
 }
+
+class WinRtRunConfiguration;
+
+class WinRtRunConfigurationWidget : public Utils::DetailsWidget
+{
+    Q_OBJECT
+public:
+    explicit WinRtRunConfigurationWidget(WinRtRunConfiguration *rc, QWidget *parent = 0);
+    ~WinRtRunConfigurationWidget();
+
+    bool isValid() const;
+
+public slots:
+    void setArguments(const QString &args);
+
+private slots:
+    void onUninstallCheckBoxChanged();
+
+private:
+    WinRtRunConfiguration *m_runConfiguration;
+    Ui::WinRtRunConfigurationWidget *m_ui;
+};
+
+} // namespace Internal
+} // namespace WinRt
+
+#endif // WINRTRUNCONFIGURATIONWIDGET_H

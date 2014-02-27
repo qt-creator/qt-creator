@@ -49,6 +49,8 @@ Canvas {
     }
 
     onPaint: {
+        if (context === null)
+            return; // canvas isn't ready
         context.fillStyle = "white";
         context.fillRect(0, 0, width, height);
 
@@ -92,26 +94,9 @@ Canvas {
         context.lineTo(width, height-1);
         context.stroke();
 
-        // gradient borders
-        var gradientDark = "rgba(0, 0, 0, 0.53125)";
-        var gradientClear = "rgba(0, 0, 0, 0)";
-        var grad = context.createLinearGradient(0, 0, 0, 6);
-        grad.addColorStop(0,gradientDark);
-        grad.addColorStop(1,gradientClear);
-        context.fillStyle = grad;
-        context.fillRect(0, 0, width, 6);
-
-        grad = context.createLinearGradient(0, 0, 6, 0);
-        grad.addColorStop(0,gradientDark);
-        grad.addColorStop(1,gradientClear);
-        context.fillStyle = grad;
-        context.fillRect(0, 0, 6, height);
-
-        grad = context.createLinearGradient(width, 0, width-6, 0);
-        grad.addColorStop(0,gradientDark);
-        grad.addColorStop(1,gradientClear);
-        context.fillStyle = grad;
-        context.fillRect(width-6, 0, 6, height);
+        // left border
+        context.fillStyle = "#858585";
+        context.fillRect(0, 0, 1, height);
     }
 
     function prettyPrintTime( t )

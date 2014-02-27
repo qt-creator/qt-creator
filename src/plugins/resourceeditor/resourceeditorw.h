@@ -88,7 +88,6 @@ public:
     // IEditor
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IDocument *document() { return m_resourceDocument; }
-    Core::Id id() const;
     QWidget *toolBar();
 
     void setSuggestedFileName(const QString &fileName);

@@ -409,6 +409,9 @@ protected:
     void handleThreadNames(const GdbResponse &response);
     Q_SLOT void reloadStack(bool forceGotoLocation);
     Q_SLOT virtual void reloadFullStack();
+    virtual void loadAdditionalQmlStack();
+    void handleQmlStackFrameArguments(const GdbResponse &response);
+    void handleQmlStackTrace(const GdbResponse &response);
     int currentFrame() const;
 
     QList<GdbMi> m_currentFunctionArgs;

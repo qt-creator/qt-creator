@@ -147,8 +147,8 @@ class CentralizedFolderWatcher : public QObject
 public:
     CentralizedFolderWatcher(QmakeProject *parent);
     ~CentralizedFolderWatcher();
-    void watchFolders(const QList<QString> &folders, QmakeProjectManager::QmakePriFileNode *node);
-    void unwatchFolders(const QList<QString> &folders, QmakeProjectManager::QmakePriFileNode *node);
+    void watchFolders(const QList<QString> &folders, QmakePriFileNode *node);
+    void unwatchFolders(const QList<QString> &folders, QmakePriFileNode *node);
 
 private slots:
     void folderChanged(const QString &folder);
@@ -159,7 +159,7 @@ private:
     QmakeProject *m_project;
     QSet<QString> recursiveDirs(const QString &folder);
     QFileSystemWatcher m_watcher;
-    QMultiMap<QString, QmakeProjectManager::QmakePriFileNode *> m_map;
+    QMultiMap<QString, QmakePriFileNode *> m_map;
 
     QSet<QString> m_recursiveWatchedFolders;
     QTimer m_compressTimer;
@@ -1217,7 +1217,7 @@ QSet<QString> CentralizedFolderWatcher::recursiveDirs(const QString &folder)
     return result;
 }
 
-void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, QmakeProjectManager::QmakePriFileNode *node)
+void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, QmakePriFileNode *node)
 {
     if (debugCFW)
         qDebug()<<"CFW::watchFolders()"<<folders<<"for node"<<node->path();
@@ -1242,7 +1242,7 @@ void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qmake
     }
 }
 
-void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, QmakeProjectManager::QmakePriFileNode *node)
+void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, QmakePriFileNode *node)
 {
     if (debugCFW)
         qDebug()<<"CFW::unwatchFolders()"<<folders<<"for node"<<node->path();
@@ -1266,7 +1266,7 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qma
                 // So the rwf is a subdirectory of a folder we aren't watching
                 // but maybe someone else wants us to watch
                 bool needToWatch = false;
-                QMultiMap<QString, QmakeProjectManager::QmakePriFileNode *>::const_iterator it, end;
+                QMultiMap<QString, QmakePriFileNode *>::const_iterator it, end;
                 end = m_map.constEnd();
                 for (it = m_map.constEnd(); it != end; ++it) {
                     if (rwf.startsWith(it.key())) {
@@ -1315,12 +1315,12 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
     while (true) {
         if (!dir.endsWith(slash))
             dir.append(slash);
-        QList<QmakeProjectManager::QmakePriFileNode *> nodes = m_map.values(dir);
+        QList<QmakePriFileNode *> nodes = m_map.values(dir);
         if (!nodes.isEmpty()) {
             // Collect all the files
             QSet<Utils::FileName> newFiles;
             newFiles += QmakePriFileNode::recursiveEnumerate(folder);
-            foreach (QmakeProjectManager::QmakePriFileNode *node, nodes) {
+            foreach (QmakePriFileNode *node, nodes) {
                 newOrRemovedFiles = newOrRemovedFiles
                         || node->folderChanged(folder, newFiles);
             }

@@ -67,6 +67,7 @@ void SemanticMarker::setFileName(const QString &fileName)
 
     unsigned clangOpts = clang_defaultEditingTranslationUnitOptions();
     clangOpts |= CXTranslationUnit_DetailedPreprocessingRecord;
+    clangOpts |= CXTranslationUnit_Incomplete;
     clangOpts &= ~CXTranslationUnit_CacheCompletionResults;
     m_unit->setManagementOptions(clangOpts);
 }

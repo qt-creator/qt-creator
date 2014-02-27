@@ -1419,10 +1419,12 @@ IEditor *EditorManager::createEditor(const Id &editorId, const QString &fileName
     }
 
     IEditor *editor = factories.front()->createEditor();
-    if (editor)
+    if (editor) {
+        QTC_CHECK(editor->id().isValid()); // sanity check that the editor has an id set
         connect(editor->document(), SIGNAL(changed()), m_instance, SLOT(handleDocumentStateChange()));
-    if (editor)
         emit m_instance->editorCreated(editor, fileName);
+    }
+
     return editor;
 }
 

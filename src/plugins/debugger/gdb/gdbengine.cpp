@@ -2020,7 +2020,8 @@ bool GdbEngine::hasCapability(unsigned cap) const
         | OperateByInstructionCapability
         | RunToLineCapability
         | WatchComplexExpressionsCapability
-        | MemoryAddressCapability))
+        | MemoryAddressCapability
+        | AdditionalQmlStackCapability))
         return true;
 
     if (startParameters().startMode == AttachCore)
@@ -3207,6 +3208,90 @@ void GdbEngine::reloadFullStack()
         QVariant::fromValue<StackCookie>(StackCookie(true, true)));
 }
 
+void GdbEngine::loadAdditionalQmlStack()
+{
+    // Scan for QV4::ExecutionContext parameter in the parameter list of a V4 call.
+    postCommand("-stack-list-arguments --simple-values", NeedsStop, CB(handleQmlStackFrameArguments));
+}
+
+// Scan the arguments of a stack list for the address of a QV4::ExecutionContext.
+static quint64 findJsExecutionContextAddress(const GdbMi &stackArgsResponse, const QByteArray &qtNamespace)
+{
+    const GdbMi frameList = stackArgsResponse.childAt(0);
+    if (!frameList.childCount())
+        return 0;
+    QByteArray jsExecutionContextType = qtNamespace;
+    if (!jsExecutionContextType.isEmpty())
+        jsExecutionContextType.append("::");
+    jsExecutionContextType.append("QV4::ExecutionContext *");
+    foreach (const GdbMi &frameNode, frameList.children()) {
+        foreach (const GdbMi &argNode, frameNode["args"].children()) {
+            if (argNode["type"].data() == jsExecutionContextType) {
+                bool ok;
+                const quint64 address = argNode["value"].data().toULongLong(&ok, 16);
+                if (ok && address)
+                    return address;
+            }
+        }
+    }
+    return 0;
+}
+
+static QString msgCannotLoadQmlStack(const QString &why)
+{
+    return _("Unable to load QML stack: ") + why;
+}
+
+void GdbEngine::handleQmlStackFrameArguments(const GdbResponse &response)
+{
+    if (!response.data.isValid()) {
+        showMessage(msgCannotLoadQmlStack(_("No stack obtained.")), LogError);
+        return;
+    }
+    const quint64 contextAddress = findJsExecutionContextAddress(response.data, qtNamespace());
+    if (!contextAddress) {
+        showMessage(msgCannotLoadQmlStack(_("The address of the JS execution context could not be found.")), LogError);
+        return;
+    }
+    // Call the debug function of QML with the context address to obtain the QML stack trace.
+    QByteArray command = "-data-evaluate-expression \"qt_v4StackTrace((QV4::ExecutionContext *)0x";
+    command += QByteArray::number(contextAddress, 16);
+    command += ")\"";
+    postCommand(command, CB(handleQmlStackTrace));
+}
+
+void GdbEngine::handleQmlStackTrace(const GdbResponse &response)
+{
+    if (!response.data.isValid()) {
+        showMessage(msgCannotLoadQmlStack(_("No result obtained.")), LogError);
+        return;
+    }
+    // Prepend QML stack frames to existing C++ stack frames.
+    QByteArray stackData = response.data["value"].data();
+    const int index = stackData.indexOf("stack=");
+    if (index == -1) {
+        showMessage(msgCannotLoadQmlStack(_("Malformed result.")), LogError);
+        return;
+    }
+    stackData.remove(0, index);
+    stackData.replace("\\\"", "\"");
+    GdbMi stackMi;
+    stackMi.fromString(stackData);
+    const int qmlFrameCount = stackMi.childCount();
+    if (!qmlFrameCount) {
+        showMessage(msgCannotLoadQmlStack(_("No stack frames obtained.")), LogError);
+        return;
+    }
+    QList<StackFrame> qmlFrames;
+    qmlFrames.reserve(qmlFrameCount);
+    for (int i = 0; i < qmlFrameCount; ++i) {
+        StackFrame frame = parseStackFrame(stackMi.childAt(i), i);
+        frame.fixQmlFrame(startParameters());
+        qmlFrames.append(frame);
+    }
+    stackHandler()->prependFrames(qmlFrames);
+}
+
 void GdbEngine::reloadStack(bool forceGotoLocation)
 {
     PENDING_DEBUG("RELOAD STACK");
@@ -3233,6 +3318,8 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     frame.line = frameMi["line"].toInt();
     frame.address = frameMi["addr"].toAddress();
     frame.usable = QFileInfo(frame.file).isReadable();
+    if (frameMi["language"].data() == "js")
+        frame.language = QmlLanguage;
     return frame;
 }
 
@@ -3308,6 +3395,10 @@ void GdbEngine::activateFrame(int frameIndex)
 
     QTC_ASSERT(frameIndex < handler->stackSize(), return);
 
+    if (handler->frameAt(frameIndex).language == QmlLanguage) {
+        gotoLocation(handler->frameAt(frameIndex));
+        return;
+    }
     // Assuming the command always succeeds this saves a roundtrip.
     // Otherwise the lines below would need to get triggered
     // after a response to this -stack-select-frame here.

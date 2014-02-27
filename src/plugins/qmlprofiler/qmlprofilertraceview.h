@@ -75,6 +75,7 @@ public:
     bool hasValidSelection() const;
     qint64 selectionStart() const;
     qint64 selectionEnd() const;
+    void showContextMenu(QPoint position);
 
 public slots:
     void clearDisplay();
@@ -95,6 +96,7 @@ private slots:
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent *event);
 
 private slots:
     void profilerStateChanged();
@@ -117,7 +119,6 @@ signals:
     void resized();
 
 private:
-    void contextMenuEvent(QContextMenuEvent *);
     QWidget *createToolbar();
 
     void setRecording(bool recording);
@@ -126,6 +127,14 @@ private:
 private:
     class QmlProfilerTraceViewPrivate;
     QmlProfilerTraceViewPrivate *d;
+};
+
+class QmlProfilerQuickView : public QQuickView {
+public:
+    QmlProfilerQuickView(QmlProfilerTraceView *parent) : parent(parent) {}
+protected:
+    QmlProfilerTraceView *parent;
+    bool event(QEvent *ev);
 };
 
 } // namespace Internal

@@ -143,7 +143,7 @@ void ClangFormatSettings::createDocumentationFile() const
         const QString options = line.right(line.size() - firstSpace).trimmed();
         const QString text = QLatin1String("<p><span class=\"option\">") + keyword
                 + QLatin1String("</span> <span class=\"param\">") + options
-                + QLatin1String("</span></p><p>") + tr("Yet no description available.")
+                + QLatin1String("</span></p><p>") + tr("No description available.")
                 + QLatin1String("</p>");
         stream.writeStartElement(QLatin1String(Constants::DOCUMENTATION_XMLENTRY));
         stream.writeTextElement(QLatin1String(Constants::DOCUMENTATION_XMLKEY), keyword);

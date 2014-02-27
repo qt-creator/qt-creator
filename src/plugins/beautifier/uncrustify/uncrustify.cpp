@@ -126,7 +126,7 @@ void Uncrustify::formatFile()
         cfgFileName = m_settings->styleFileName(m_settings->customStyle());
 
     if (cfgFileName.isEmpty()) {
-        BeautifierPlugin::showError(tr("Could not get configuration file for uncrustify."));
+        BeautifierPlugin::showError(tr("Cannot get configuration file for uncrustify."));
     } else {
         BeautifierPlugin::formatCurrentFile(QStringList()
                                             << m_settings->command()

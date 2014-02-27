@@ -32,15 +32,15 @@
 #include "imageviewer.h"
 #include "imageviewerconstants.h"
 
-#include <QList>
-#include <QSignalMapper>
-#include <QAction>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/id.h>
+
+#include <QAction>
+#include <QList>
+#include <QSignalMapper>
 
 namespace ImageViewer {
 namespace Internal {

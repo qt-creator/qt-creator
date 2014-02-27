@@ -21,6 +21,7 @@ expression
 shutdownex
 test
 stack
+qmlstack
 addwatch
 widgetat
 breakpoints

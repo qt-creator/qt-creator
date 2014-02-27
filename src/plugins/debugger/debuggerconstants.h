@@ -161,7 +161,8 @@ enum DebuggerCapabilities
     RunToLineCapability = 0x800000,
     MemoryAddressCapability = 0x1000000,
     ShowModuleSectionsCapability = 0x200000,
-    WatchComplexExpressionsCapability = 0x400000 // Used to filter out challenges for cdb.
+    WatchComplexExpressionsCapability = 0x400000, // Used to filter out challenges for cdb.
+    AdditionalQmlStackCapability = 0x800000 // C++ debugger engine is able to retrieve QML stack as well.
 };
 
 enum LogChannel

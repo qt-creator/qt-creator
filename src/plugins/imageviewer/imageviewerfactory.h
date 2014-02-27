@@ -31,6 +31,8 @@
 #ifndef IMAGEVIEWERFACTORY_H
 #define IMAGEVIEWERFACTORY_H
 
+#include "imagevieweractionhandler.h"
+
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
@@ -38,19 +40,20 @@
 namespace ImageViewer {
 namespace Internal {
 
+class ImageViewerActionHandler;
+
 class ImageViewerFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 public:
     explicit ImageViewerFactory(QObject *parent = 0);
-    ~ImageViewerFactory();
 
     Core::IEditor *createEditor();
 
     void extensionsInitialized();
 
 private:
-    struct ImageViewerFactoryPrivate *d;
+    ImageViewerActionHandler m_actionHandler;
 };
 
 } // namespace Internal

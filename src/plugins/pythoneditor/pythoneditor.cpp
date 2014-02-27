@@ -50,6 +50,7 @@ namespace Internal {
 PythonEditor::PythonEditor(EditorWidget *editorWidget)
     :BaseTextEditor(editorWidget)
 {
+    setId(Constants::C_PYTHONEDITOR_ID);
     setContext(Core::Context(Constants::C_PYTHONEDITOR_ID,
                              TextEditor::Constants::C_TEXTEDITOR));
 }
@@ -63,14 +64,6 @@ Core::IEditor *PythonEditor::duplicate()
     EditorWidget *widget = new EditorWidget(qobject_cast<EditorWidget *>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(widget);
     return widget->editor();
-}
-
-/**
- * @returns Unique editor class identifier, that is Constants::C_PYTHONEDITOR_ID
- */
-Core::Id PythonEditor::id() const
-{
-    return Core::Id(Constants::C_PYTHONEDITOR_ID);
 }
 
 bool PythonEditor::open(QString *errorString,

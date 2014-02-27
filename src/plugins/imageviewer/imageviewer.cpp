@@ -62,6 +62,8 @@ ImageViewer::ImageViewer(QWidget *parent)
     : IEditor(parent),
     d(new ImageViewerPrivate)
 {
+    setId(Constants::IMAGEVIEWER_ID);
+
     d->file = new ImageViewerFile(this);
     d->imageView = new ImageView();
 
@@ -135,11 +137,6 @@ bool ImageViewer::open(QString *errorString, const QString &fileName, const QStr
 Core::IDocument *ImageViewer::document()
 {
     return d->file;
-}
-
-Core::Id ImageViewer::id() const
-{
-    return Core::Id(Constants::IMAGEVIEWER_ID);
 }
 
 QWidget *ImageViewer::toolBar()

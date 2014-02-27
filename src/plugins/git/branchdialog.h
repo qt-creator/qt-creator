@@ -70,6 +70,7 @@ private slots:
     void rename();
     void diff();
     void log();
+    void reset();
     void merge();
     void rebase();
     void cherryPick();

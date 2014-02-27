@@ -127,7 +127,7 @@ QString BeautifierPlugin::format(const QString &text, QStringList command, const
     sourceFile.setAutoRemove(true);
     sourceFile.write(text.toUtf8());
     if (!sourceFile.finalize()) {
-        showError(tr("Couldn't create temporary file %1: %2.")
+        showError(tr("Cannot create temporary file \"%1\": %2.")
                   .arg(sourceFile.fileName()).arg(sourceFile.errorString()));
         return QString();
     }
@@ -138,7 +138,7 @@ QString BeautifierPlugin::format(const QString &text, QStringList command, const
     const QString processProgram = command.takeFirst();
     process.start(processProgram, command);
     if (!process.waitForFinished()) {
-        showError(tr("Failed to call %1 or an error occurred.").arg(processProgram));
+        showError(tr("Cannot call %1 or some other error occurred.").arg(processProgram));
         return QString();
     }
     const QByteArray output = process.readAllStandardError();
@@ -148,7 +148,7 @@ QString BeautifierPlugin::format(const QString &text, QStringList command, const
     // Read text back
     Utils::FileReader reader;
     if (!reader.fetch(sourceFile.fileName(), QIODevice::Text)) {
-        showError(tr("Couldn't read file %1: %2.")
+        showError(tr("Cannot read file \"%1\": %2.")
                   .arg(sourceFile.fileName()).arg(reader.errorString()));
         return QString();
     }

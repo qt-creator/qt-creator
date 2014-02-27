@@ -85,10 +85,9 @@ private:
 
     void handleKeyEvent(QKeyEvent *e);
     int translateModifiers(Qt::KeyboardModifiers state, const QString &text);
-    using Core::CommandMappings::markPossibleCollisions;
-    void markPossibleCollisions(ShortcutItem *);
-    void resetCollisionMarker(ShortcutItem *);
-    void resetCollisionMarkers();
+
+    void markCollisions(ShortcutItem *);
+    bool hasConflicts() const;
 
     QList<ShortcutItem *> m_scitems;
     int m_key[4], m_keyNum;

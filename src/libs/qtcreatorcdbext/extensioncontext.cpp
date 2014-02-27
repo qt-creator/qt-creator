@@ -29,6 +29,7 @@
 
 #include "extensioncontext.h"
 #include "symbolgroup.h"
+#include "symbolgroupvalue.h"
 #include "eventcallback.h"
 #include "outputcallback.h"
 #include "stringutils.h"
@@ -52,6 +53,29 @@ const char *ExtensionContext::breakPointStopReasonC = "breakpoint";
 Parameters::Parameters() : maxStringLength(10000), maxStackDepth(1000)
 {
 }
+
+/*!  \class StateNotificationBlocker
+
+    Blocks state (stopped) notification of ExtensionContext while instantiated
+
+    \ingroup qtcreatorcdbext
+*/
+
+class StateNotificationBlocker {
+    StateNotificationBlocker(const StateNotificationBlocker &);
+    StateNotificationBlocker &operator=(const StateNotificationBlocker &);
+
+public:
+    StateNotificationBlocker(ExtensionContext *ec)
+        : m_oldValue(ec->stateNotification())
+        , m_extensionContext(ec)
+        { m_extensionContext->setStateNotification(false); }
+    ~StateNotificationBlocker() { m_extensionContext->setStateNotification(m_oldValue); }
+
+private:
+    const bool m_oldValue;
+    ExtensionContext *m_extensionContext;
+};
 
 /*!  \class ExtensionContext
 
@@ -164,6 +188,80 @@ ULONG ExtensionContext::executionStatus() const
 {
     ULONG ex = 0;
     return (m_control && SUCCEEDED(m_control->GetExecutionStatus(&ex))) ? ex : ULONG(0);
+}
+
+// Helpers for finding the address of the JS execution context in
+// case of a QML crash: Find module
+static std::string findModule(CIDebugSymbols *syms,
+                              const std::string &name,
+                              std::string *errorMessage)
+{
+    const Modules mods = getModules(syms, errorMessage);
+    const size_t count = mods.size();
+    for (size_t m = 0; m < count; ++m)
+        if (!mods.at(m).name.compare(0, name.size(), name))
+            return mods.at(m).name;
+    return std::string();
+}
+
+// Try to find a JS execution context passed as parameter in a complete stack dump (kp)
+static ULONG64 jsExecutionContextFromStackTrace(const std::wstring &stack)
+{
+    // Search for "QV4::ExecutionContext * - varying variable names - 0x...[,)]"
+    const wchar_t needle[] = L"struct QV4::ExecutionContext * "; // .. varying variable names .. 0x...
+    const std::string::size_type varPos = stack.find(needle);
+    if (varPos == std::string::npos)
+        return 0;
+    const std::string::size_type varEnd = varPos + sizeof(needle) / sizeof(wchar_t) - 1;
+    std::string::size_type numPos = stack.find(L"0x", varEnd);
+    if (numPos == std::string::npos || numPos > (varEnd + 20))
+        return 0;
+    numPos += 2;
+    const std::string::size_type endPos = stack.find_first_of(L",)", numPos);
+    if (endPos == std::string::npos)
+        return 0;
+    // Fix hex values: (0x)000000f5`cecae5b0 -> (0x)000000f5cecae5b0
+    std::wstring address = stack.substr(numPos, endPos - numPos);
+    if (address.size() > 8 && address.at(8) == L'`')
+        address.erase(8, 1);
+    std::wistringstream str(address);
+    ULONG64 result;
+    str >> std::hex >> result;
+    return str.fail() ? 0 : result;
+}
+
+// Try to find address of jsExecutionContext by looking at the
+// stack trace in case QML is loaded.
+ULONG64 ExtensionContext::jsExecutionContext(ExtensionCommandContext &exc,
+                                             std::string *errorMessage)
+{
+
+    const QtInfo &qtInfo = QtInfo::get(SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()));
+    static const std::string qmlModule =
+        findModule(exc.symbols(), qtInfo.moduleName(QtInfo::Qml), errorMessage);
+    if (qmlModule.empty()) {
+        if (errorMessage->empty())
+            *errorMessage = "QML not loaded";
+        return 0;
+    }
+    // Retrieve full stack (costly) and try to find a JS execution context passed as parameter
+    startRecordingOutput();
+    StateNotificationBlocker blocker(this);
+    const HRESULT hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "kp", DEBUG_EXECUTE_ECHO);
+    if (FAILED(hr)) {
+        stopRecordingOutput();
+        *errorMessage = msgDebugEngineComFailed("Execute", hr);
+        return 0;
+    }
+    const std::wstring fullStackTrace = stopRecordingOutput();
+    if (fullStackTrace.empty()) {
+        *errorMessage = "Unable to obtain stack (output redirection in place?)";
+        return 0;
+    }
+    const ULONG64 result = jsExecutionContextFromStackTrace(fullStackTrace);
+    if (!result)
+        *errorMessage = "JS ExecutionContext address not found in stack";
+    return result;
 }
 
 // Complete stop parameters with common parameters and report
@@ -326,7 +424,17 @@ bool ExtensionContext::reportLong(char code, int token, const char *serviceName,
     return true;
 }
 
+static const char *goCommandForCall(unsigned callFlags)
+{
+    if (callFlags & ExtensionContext::CallWithExceptionsHandled)
+        return "~. gh";
+    else if (callFlags & ExtensionContext::CallWithExceptionsNotHandled)
+        return "~. gN";
+    return "~. g";
+}
+
 bool ExtensionContext::call(const std::string &functionCall,
+                            unsigned callFlags,
                             std::wstring *output,
                             std::string *errorMessage)
 {
@@ -343,25 +451,22 @@ bool ExtensionContext::call(const std::string &functionCall,
     }
     // Execute in current thread. TODO: This must not crash, else we are in an inconsistent state
     // (need to call 'gh', etc.)
-    hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "~. g", DEBUG_EXECUTE_ECHO);
+    hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, goCommandForCall(callFlags), DEBUG_EXECUTE_ECHO);
     if (FAILED(hr)) {
         *errorMessage = msgDebugEngineComFailed("Execute", hr);
         return 0;
     }
     // Wait until finished
     startRecordingOutput();
-    m_stateNotification = false;
+    StateNotificationBlocker blocker(this);
     m_control->WaitForEvent(0, INFINITE);
     *output =  stopRecordingOutput();
-    m_stateNotification = true;
     // Crude attempt at recovering from a crash: Issue 'gN' (go with exception not handled).
     const bool crashed = output->find(L"This exception may be expected and handled.") != std::string::npos;
-    if (crashed) {
+    if (crashed && !callFlags) {
         m_stopReason.clear();
-        m_stateNotification = false;
-        hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, "~. gN", DEBUG_EXECUTE_ECHO);
+        hr = m_control->Execute(DEBUG_OUTCTL_ALL_CLIENTS, goCommandForCall(CallWithExceptionsNotHandled), DEBUG_EXECUTE_ECHO);
         m_control->WaitForEvent(0, INFINITE);
-        m_stateNotification = true;
         *errorMessage = "A crash occurred while calling: " + functionCall;
         return false;
     }

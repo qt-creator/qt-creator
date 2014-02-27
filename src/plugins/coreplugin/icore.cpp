@@ -338,6 +338,11 @@ bool ICore::showOptionsDialog(const Id group, const Id page, QWidget *parent)
     return m_mainwindow->showOptionsDialog(group, page, parent);
 }
 
+QString ICore::msgShowOptionsDialog()
+{
+    return QCoreApplication::translate("Core", "Configure...", "msgShowOptionsDialog");
+}
+
 bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                    const QString &details,
                                    Id settingsCategory,

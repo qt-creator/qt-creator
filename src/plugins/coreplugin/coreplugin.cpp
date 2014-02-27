@@ -117,9 +117,9 @@ void CorePlugin::extensionsInitialized()
     MimeDatabase::syncUserModifiedMimeTypes();
     if (m_designMode->designModeIsRequired())
         addObject(m_designMode);
-    m_mainWindow->extensionsInitialized();
     m_findPlugin->extensionsInitialized();
     m_locator->extensionsInitialized();
+    m_mainWindow->extensionsInitialized();
 }
 
 bool CorePlugin::delayedInitialize()

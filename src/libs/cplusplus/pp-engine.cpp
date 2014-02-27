@@ -898,6 +898,11 @@ void Preprocessor::skipPreprocesorDirective(PPToken *tk)
     ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
 
     while (isContinuationToken(*tk)) {
+        if (tk->isComment()) {
+            synchronizeOutputLines(*tk);
+            enforceSpacing(*tk, true);
+            currentOutputBuffer().append(tk->tokenStart(), tk->length());
+        }
         lex(tk);
     }
 }
@@ -1300,7 +1305,7 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
 
 static void adjustForCommentOrStringNewlines(unsigned *currentLine, const PPToken &tk)
 {
-    if (tk.is(T_COMMENT) || tk.is(T_DOXY_COMMENT) || tk.isStringLiteral())
+    if (tk.isComment() || tk.isStringLiteral())
         (*currentLine) += tk.asByteArrayRef().count('\n');
 }
 
@@ -1703,8 +1708,13 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         previousLine = tk->lineno;
 
         // Discard comments in macro definitions (keep comments flag doesn't apply here).
-        if (!tk->isComment())
+        if (tk->isComment()) {
+            synchronizeOutputLines(*tk);
+            enforceSpacing(*tk, true);
+            currentOutputBuffer().append(tk->tokenStart(), tk->length());
+        } else {
             bodyTokens.push_back(*tk);
+        }
 
         lex(tk);
     }
@@ -2029,6 +2039,15 @@ bool Preprocessor::atStartOfOutputLine() const
 void Preprocessor::maybeStartOutputLine()
 {
     QByteArray &buffer = currentOutputBuffer();
-    if (!buffer.isEmpty() && !buffer.endsWith('\n'))
+    if (buffer.isEmpty())
+        return;
+    if (!buffer.endsWith('\n'))
+        buffer.append('\n');
+    // If previous line ends with \ (possibly followed by whitespace), add another \n
+    const char *start = buffer.constData();
+    const char *ch = start + buffer.length() - 2;
+    while (ch > start && (*ch != '\n') && std::isspace(*ch))
+        --ch;
+    if (*ch == '\\')
         buffer.append('\n');
 }

@@ -56,6 +56,7 @@ namespace Internal {
 
 BarDescriptorEditor::BarDescriptorEditor()
 {
+    setId(Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID);
     m_file = new BarDescriptorDocument(this);
 
     BarDescriptorEditorWidget *editorWidget = new BarDescriptorEditorWidget(this);
@@ -120,11 +121,6 @@ bool BarDescriptorEditor::open(QString *errorString, const QString &fileName, co
 Core::IDocument *BarDescriptorEditor::document()
 {
     return m_file;
-}
-
-Core::Id BarDescriptorEditor::id() const
-{
-    return Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID;
 }
 
 QWidget *BarDescriptorEditor::toolBar()

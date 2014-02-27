@@ -105,7 +105,7 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     layout->addWidget(label, 0, 0, 1, 2);
 
     QPushButton *openOptions = new QPushButton;
-    openOptions->setText(tr("Open Settings"));
+    openOptions->setText(Core::ICore::msgShowOptionsDialog());
     openOptions->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(openOptions, 1, 1);
 

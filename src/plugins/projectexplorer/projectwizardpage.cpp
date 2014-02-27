@@ -54,6 +54,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     m_ui(new Ui::WizardPage)
 {
     m_ui->setupUi(this);
+    m_ui->vcsManageButton->setText(Core::ICore::msgShowOptionsDialog());
     connect(m_ui->projectComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotProjectChanged(int)));
     connect(m_ui->vcsManageButton, SIGNAL(clicked()), this, SLOT(slotManageVcs()));

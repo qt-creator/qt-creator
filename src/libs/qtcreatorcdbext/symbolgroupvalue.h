@@ -184,7 +184,7 @@ struct QtInfo
 {
     enum Module
     {
-        Core, Gui, Widgets, Network, Script
+        Core, Gui, Widgets, Network, Script, Qml
     };
 
     QtInfo() : version(0) {}

@@ -2,7 +2,7 @@
 # in case MS VS compilers are used.
 
 CDB_PATH=""
-win32-msvc* {
+win32-msvc*|winrt {
     CDB_PATH="$$(CDB_PATH)"
     isEmpty(CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows/sdk"
     !exists($$CDB_PATH):CDB_PATH="$$(ProgramFiles)/Debugging Tools For Windows (x86)/sdk"

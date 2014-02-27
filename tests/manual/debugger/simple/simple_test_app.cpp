@@ -98,6 +98,20 @@
 #endif // USE_UNINITIALIZED_AUTOBREAK
 #endif
 
+#ifdef HAS_BOOST
+#ifndef ANDROID
+#define USE_BOOST 1
+#endif
+#endif
+
+#ifdef HAS_PRIVATE
+#define USE_PRIVATE 1
+#endif
+
+#ifdef HAS_EIGEN
+#define USE_EIGEN 1
+#endif
+
 #ifdef QT_SCRIPT_LIB
 #define USE_SCRIPTLIB 1
 #else
@@ -225,9 +239,11 @@ void dummyStatement(...) {}
 #endif
 
 #if defined(__GNUC__) && !defined(__llvm__) && !defined(Q_OS_MAC)
+#  ifndef ANDROID
 #    define USE_GCC_EXT 1
 #    undef __DEPRECATED
 #    include <ext/hash_set>
+#  endif
 #endif
 
 #ifdef Q_OS_WIN
@@ -4959,12 +4975,12 @@ namespace basic {
     {
         quint64 u64 = ULLONG_MAX;
         qint64 s64 = LLONG_MAX;
-        quint32 u32 = ULONG_MAX;
-        qint32 s32 = LONG_MAX;
+        quint32 u32 = UINT_MAX;
+        qint32 s32 = INT_MAX;
         quint64 u64s = 0;
         qint64 s64s = LLONG_MIN;
         quint32 u32s = 0;
-        qint32 s32s = LONG_MIN;
+        qint32 s32s = INT_MIN;
 
         BREAK_HERE;
         // Check u64 18446744073709551615 quint64.

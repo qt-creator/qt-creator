@@ -147,6 +147,8 @@ MainWindow::MainWindow() :
     m_zoomAction(0),
     m_toggleSideBarButton(new QToolButton)
 {
+    ActionManager::initialize(); // must be done before registering any actions
+
     (void) new DocumentManager(this);
     OutputPaneManager::create();
 
@@ -344,15 +346,14 @@ void MainWindow::extensionsInitialized()
     m_vcsManager->extensionsInitialized();
     m_navigationWidget->setFactories(ExtensionSystem::PluginManager::getObjects<INavigationWidgetFactory>());
 
-    // reading the shortcut settings must be done after all shortcuts have been registered
-    m_actionManager->initialize();
-
     readSettings();
     updateContext();
 
     emit m_coreImpl->coreAboutToOpen();
     show();
     emit m_coreImpl->coreOpened();
+    // Delay restoreWindowState, since it is overridden by LayoutRequest event
+    QTimer::singleShot(0, this, SLOT(restoreWindowState()));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -1080,9 +1081,6 @@ void MainWindow::readSettings()
                 m_settings->value(QLatin1String(colorKey),
                                   QColor(Utils::StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
-
-    // Delay restoreWindowState, since it is overridden by LayoutRequest event
-    QTimer::singleShot(0, this, SLOT(restoreWindowState()));
 
     bool modeSelectorVisible = m_settings->value(QLatin1String(modeSelectorVisibleKey), true).toBool();
     ModeManager::setModeSelectorVisible(modeSelectorVisible);

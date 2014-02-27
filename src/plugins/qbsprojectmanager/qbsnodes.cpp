@@ -227,7 +227,10 @@ QbsFileNode::QbsFileNode(const QString &filePath, const ProjectExplorer::FileTyp
 
 QString QbsFileNode::displayName() const
 {
-    return ProjectExplorer::FileNode::displayName() + QLatin1Char(':') + QString::number(line());
+    int l = line();
+    if (l < 0)
+        return ProjectExplorer::FileNode::displayName();
+    return ProjectExplorer::FileNode::displayName() + QLatin1Char(':') + QString::number(l);
 }
 
 bool QbsFileNode::update(const qbs::CodeLocation &loc)

@@ -655,7 +655,7 @@ std::string widgetAt(const SymbolGroupValueContext &ctx, int x, int y, std::stri
     callStr << std::showbase << std::hex << symbols.front().second
             << std::noshowbase << std::dec << '(' << x << ',' << y << ')';
     std::wstring wOutput;
-    if (!ExtensionContext::instance().call(callStr.str(), &wOutput, errorMessage))
+    if (!ExtensionContext::instance().call(callStr.str(), 0, &wOutput, errorMessage))
         return std::string();
     // Returns: ".call returns\nclass QWidget * 0x00000000`022bf100\nbla...".
     // Chop lines in front and after 'class ...' and convert first line.

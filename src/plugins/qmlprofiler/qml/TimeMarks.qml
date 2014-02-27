@@ -47,6 +47,8 @@ Canvas {
     onYChanged: requestPaint()
 
     onPaint: {
+        if (context === null)
+            return; // canvas isn't ready
         drawBackgroundBars( context, region );
 
         var totalTime = endTime - startTime;

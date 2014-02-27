@@ -39,6 +39,7 @@
 class LocalsSymbolGroup;
 class WatchesSymbolGroup;
 class OutputCallback;
+class ExtensionCommandContext;
 
 // Global parameters
 class Parameters
@@ -58,6 +59,11 @@ class ExtensionContext {
 
     ExtensionContext();
 public:
+    enum CallFlags {
+        CallWithExceptionsHandled = 0x1,
+        CallWithExceptionsNotHandled = 0x2
+    };
+
     // Key used to report stop reason in StopReasonMap
     static const char *stopReasonKeyC;
     static const char *breakPointStopReasonC;  // pre-defined stop reasons
@@ -109,12 +115,17 @@ public:
     void startRecordingOutput();
     std::wstring stopRecordingOutput();
     // Execute a function call and record the output.
-    bool call(const std::string &functionCall, std::wstring *output, std::string *errorMessage);
+    bool call(const std::string &functionCall, unsigned callFlags, std::wstring *output, std::string *errorMessage);
 
     CIDebugClient *hookedClient() const { return m_hookedClient; }
 
     const Parameters &parameters() const { return m_parameters; }
     Parameters &parameters() { return m_parameters; }
+
+    ULONG64 jsExecutionContext(ExtensionCommandContext &exc, std::string *errorMessage);
+
+    bool stateNotification() const { return m_stateNotification; }
+    void setStateNotification(bool s) { m_stateNotification = s; }
 
 private:
     bool isInitialized() const;

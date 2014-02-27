@@ -1109,7 +1109,8 @@ bool CdbEngine::hasCapability(unsigned cap) const
            |CreateFullBacktraceCapability
            |OperateByInstructionCapability
            |RunToLineCapability
-           |MemoryAddressCapability);
+           |MemoryAddressCapability
+           |AdditionalQmlStackCapability);
 }
 
 void CdbEngine::executeStep()
@@ -1471,6 +1472,11 @@ void CdbEngine::activateFrame(int index)
     }
 
     const StackFrame frame = frames.at(index);
+    if (frame.language != CppLanguage) {
+        gotoLocation(frame);
+        return;
+    }
+
     if (debug || debugLocals)
         qDebug("activateFrame idx=%d '%s' %d", index,
                qPrintable(frame.file), frame.line);
@@ -2933,6 +2939,9 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = 0)
             frame.file = QFile::decodeName(fullName.data());
             frame.line = frameMi["line"].data().toInt();
             frame.usable = false; // To be decided after source path mapping.
+            const GdbMi languageMi = frameMi["language"];
+            if (languageMi.isValid() && languageMi.data() == "js")
+                frame.language = QmlLanguage;
         }
         frame.function = QLatin1String(frameMi["func"].data());
         frame.from = QLatin1String(frameMi["from"].data());
@@ -2985,6 +2994,39 @@ unsigned CdbEngine::parseStackTrace(const GdbMi &data, bool sourceStepInto)
     stackHandler()->setFrames(frames, incomplete);
     activateFrame(current);
     return 0;
+}
+
+void CdbEngine::loadAdditionalQmlStack()
+{
+    postExtensionCommand("qmlstack", QByteArray(), 0, &CdbEngine::handleAdditionalQmlStack);
+}
+
+void CdbEngine::handleAdditionalQmlStack(const CdbExtensionCommandPtr &reply)
+{
+    QString errorMessage;
+    do {
+        if (!reply->success) {
+            errorMessage = QLatin1String(reply->errorMessage);
+            break;
+        }
+        GdbMi stackGdbMi;
+        stackGdbMi.fromString(reply->reply);
+        if (!stackGdbMi.isValid()) {
+            errorMessage = QLatin1String("GDBMI parser error");
+            break;
+        }
+        StackFrames qmlFrames = parseFrames(stackGdbMi);
+        const int qmlFrameCount = qmlFrames.size();
+        if (!qmlFrameCount) {
+            errorMessage = QLatin1String("Empty stack");
+            break;
+        }
+        for (int i = 0; i < qmlFrameCount; ++i)
+            qmlFrames[i].fixQmlFrame(startParameters());
+        stackHandler()->prependFrames(qmlFrames);
+    } while (false);
+    if (!errorMessage.isEmpty())
+        showMessage(QLatin1String("Unable to obtain QML stack trace: ") + errorMessage, LogError);
 }
 
 void CdbEngine::mergeStartParametersSourcePathMap()

@@ -340,7 +340,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Start</string>
+         <string>Start...</string>
         </property>
        </widget>
       </item>
@@ -389,7 +389,7 @@
         <item>
          <widget class="QPushButton" name="manageAVDPushButton">
           <property name="text">
-           <string>Start AVD Manager</string>
+           <string>Start AVD Manager...</string>
           </property>
          </widget>
         </item>
@@ -408,7 +408,7 @@
       <item row="1" column="1">
        <widget class="QPushButton" name="AVDAddPushButton">
         <property name="text">
-         <string>Add</string>
+         <string>Add...</string>
         </property>
        </widget>
       </item>

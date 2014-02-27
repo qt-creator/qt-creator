@@ -28,133 +28,245 @@
 ****************************************************************************/
 
 #include "commandmappings.h"
-#include "ui_commandmappings.h"
 #include "commandsfile.h"
+
 #include <coreplugin/dialogs/shortcutsettings.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/fancylineedit.h>
+#include <utils/qtcassert.h>
 
-#include <QTreeWidgetItem>
 #include <QDebug>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPointer>
+#include <QPushButton>
+#include <QTreeWidgetItem>
+#include <QVBoxLayout>
 
 Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*)
 
-using namespace Core;
-using namespace Core::Internal;
+using namespace Utils;
+
+namespace Core {
+namespace Internal {
+
+class KeySequenceValidator : public FancyLineEdit
+{
+public:
+    KeySequenceValidator(QWidget *parent, CommandMappings *mappings)
+        : FancyLineEdit(parent), m_mappings(mappings)
+    {}
+
+    bool validate(const QString &, QString *) const
+    {
+        return !m_mappings->hasConflicts();
+    }
+
+    CommandMappings *m_mappings;
+};
+
+class CommandMappingsPrivate
+{
+public:
+    CommandMappingsPrivate(CommandMappings *parent)
+        : q(parent), m_widget(0)
+    {}
+
+    void setupWidget()
+    {
+        QTC_CHECK(m_widget == 0);
+        m_widget = new QWidget;
+
+        groupBox = new QGroupBox(m_widget);
+        groupBox->setTitle(CommandMappings::tr("Command Mappings"));
+
+        filterEdit = new FancyLineEdit(groupBox);
+        filterEdit->setFiltering(true);
+
+        commandList = new QTreeWidget(groupBox);
+        commandList->setRootIsDecorated(false);
+        commandList->setUniformRowHeights(true);
+        commandList->setSortingEnabled(true);
+        commandList->setColumnCount(3);
+
+        QTreeWidgetItem *item = commandList->headerItem();
+        item->setText(2, CommandMappings::tr("Target"));
+        item->setText(1, CommandMappings::tr("Label"));
+        item->setText(0, CommandMappings::tr("Command"));
+
+        defaultButton = new QPushButton(CommandMappings::tr("Reset All"), groupBox);
+        defaultButton->setToolTip(CommandMappings::tr("Reset all to default"));
+
+        importButton = new QPushButton(CommandMappings::tr("Import..."), groupBox);
+        exportButton = new QPushButton(CommandMappings::tr("Export..."), groupBox);
+
+        targetEditGroup = new QGroupBox(CommandMappings::tr("Target Identifier"), m_widget);
+
+        targetEdit = new KeySequenceValidator(targetEditGroup, q);
+        targetEdit->setAutoHideButton(FancyLineEdit::Right, true);
+        targetEdit->setPlaceholderText(QString());
+        targetEdit->installEventFilter(q);
+        targetEdit->setFiltering(true);
+
+        resetButton = new QPushButton(targetEditGroup);
+        resetButton->setToolTip(CommandMappings::tr("Reset to default"));
+        resetButton->setText(CommandMappings::tr("Reset"));
+
+        QLabel *infoLabel = new QLabel(targetEditGroup);
+        infoLabel->setTextFormat(Qt::RichText);
+
+        QHBoxLayout *hboxLayout1 = new QHBoxLayout();
+        hboxLayout1->addWidget(defaultButton);
+        hboxLayout1->addStretch();
+        hboxLayout1->addWidget(importButton);
+        hboxLayout1->addWidget(exportButton);
+
+        QHBoxLayout *hboxLayout = new QHBoxLayout();
+        hboxLayout->addWidget(filterEdit);
+
+        QVBoxLayout *vboxLayout1 = new QVBoxLayout(groupBox);
+        vboxLayout1->addLayout(hboxLayout);
+        vboxLayout1->addWidget(commandList);
+        vboxLayout1->addLayout(hboxLayout1);
+
+        QHBoxLayout *hboxLayout2 = new QHBoxLayout();
+        hboxLayout2->addWidget(new QLabel(CommandMappings::tr("Target:"), targetEditGroup));
+        hboxLayout2->addWidget(targetEdit);
+        hboxLayout2->addWidget(resetButton);
+
+        QVBoxLayout *vboxLayout2 = new QVBoxLayout(targetEditGroup);
+        vboxLayout2->addLayout(hboxLayout2);
+        vboxLayout2->addWidget(infoLabel);
+
+        QVBoxLayout *vboxLayout = new QVBoxLayout(m_widget);
+        vboxLayout->addWidget(groupBox);
+        vboxLayout->addWidget(targetEditGroup);
+
+        q->connect(targetEdit, SIGNAL(buttonClicked(Utils::FancyLineEdit::Side)),
+            SLOT(removeTargetIdentifier()));
+        q->connect(resetButton, SIGNAL(clicked()),
+            SLOT(resetTargetIdentifier()));
+        q->connect(exportButton, SIGNAL(clicked()),
+            SLOT(exportAction()));
+        q->connect(importButton, SIGNAL(clicked()),
+            SLOT(importAction()));
+        q->connect(defaultButton, SIGNAL(clicked()),
+            SLOT(defaultAction()));
+
+        q->initialize();
+
+        commandList->sortByColumn(0, Qt::AscendingOrder);
+
+        q->connect(filterEdit, SIGNAL(textChanged(QString)),
+            SLOT(filterChanged(QString)));
+        q->connect(commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+            SLOT(commandChanged(QTreeWidgetItem*)));
+        q->connect(targetEdit, SIGNAL(textChanged(QString)),
+            SLOT(targetIdentifierChanged()));
+
+        new HeaderViewStretcher(commandList->header(), 1);
+
+        q->commandChanged(0);
+    }
+
+    CommandMappings *q;
+    QPointer<QWidget> m_widget;
+
+    QGroupBox *groupBox;
+    FancyLineEdit *filterEdit;
+    QTreeWidget *commandList;
+    QPushButton *defaultButton;
+    QPushButton *importButton;
+    QPushButton *exportButton;
+    QGroupBox *targetEditGroup;
+    FancyLineEdit *targetEdit;
+    QPushButton *resetButton;
+};
+
+} // namespace Internal
 
 CommandMappings::CommandMappings(QObject *parent)
-    : IOptionsPage(parent), m_page(0)
+    : IOptionsPage(parent), d(new Internal::CommandMappingsPrivate(this))
 {
 }
 
-// IOptionsPage
+CommandMappings::~CommandMappings()
+{
+   delete d;
+}
 
 QWidget *CommandMappings::widget()
 {
-    if (!m_widget) {
-        m_page = new Ui::CommandMappings();
-        m_widget = new QWidget;
-        m_page->setupUi(m_widget);
-        m_page->targetEdit->setAutoHideButton(Utils::FancyLineEdit::Right, true);
-        m_page->targetEdit->setPlaceholderText(QString());
-        m_page->targetEdit->installEventFilter(this);
-        m_page->targetEdit->setFiltering(true);
-
-        m_page->filterEdit->setFiltering(true);
-
-        connect(m_page->targetEdit, SIGNAL(buttonClicked(Utils::FancyLineEdit::Side)),
-            this, SLOT(removeTargetIdentifier()));
-        connect(m_page->resetButton, SIGNAL(clicked()),
-            this, SLOT(resetTargetIdentifier()));
-        connect(m_page->exportButton, SIGNAL(clicked()),
-            this, SLOT(exportAction()));
-        connect(m_page->importButton, SIGNAL(clicked()),
-            this, SLOT(importAction()));
-        connect(m_page->defaultButton, SIGNAL(clicked()),
-            this, SLOT(defaultAction()));
-
-        initialize();
-
-        m_page->commandList->sortByColumn(0, Qt::AscendingOrder);
-
-        connect(m_page->filterEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(filterChanged(QString)));
-        connect(m_page->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-            this, SLOT(commandChanged(QTreeWidgetItem*)));
-        connect(m_page->targetEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(targetIdentifierChanged()));
-
-        new Utils::HeaderViewStretcher(m_page->commandList->header(), 1);
-
-        commandChanged(0);
-    }
-    return m_widget;
+    if (!d->m_widget)
+        d->setupWidget();
+    return d->m_widget;
 }
 
 void CommandMappings::setImportExportEnabled(bool enabled)
 {
-    m_page->importButton->setVisible(enabled);
-    m_page->exportButton->setVisible(enabled);
+    d->importButton->setVisible(enabled);
+    d->exportButton->setVisible(enabled);
 }
 
 QTreeWidget *CommandMappings::commandList() const
 {
-    return m_page->commandList;
+    return d->commandList;
 }
 
 QLineEdit *CommandMappings::targetEdit() const
 {
-    return m_page->targetEdit;
+    return d->targetEdit;
 }
 
 void CommandMappings::setPageTitle(const QString &s)
 {
-    m_page->groupBox->setTitle(s);
+    d->groupBox->setTitle(s);
 }
 
 void CommandMappings::setTargetLabelText(const QString &s)
 {
-    m_page->targetEditLabel->setText(s);
+    d->targetEdit->setText(s);
 }
 
 void CommandMappings::setTargetEditTitle(const QString &s)
 {
-    m_page->targetEditGroup->setTitle(s);
+    d->targetEditGroup->setTitle(s);
 }
 
 void CommandMappings::setTargetHeader(const QString &s)
 {
-    m_page->commandList->setHeaderLabels(QStringList() << tr("Command") << tr("Label") << s);
+    d->commandList->setHeaderLabels(QStringList() << tr("Command") << tr("Label") << s);
 }
 
 void CommandMappings::finish()
 {
-    delete m_widget;
-    if (!m_page) // page was never shown
-        return;
-    delete m_page;
-    m_page = 0;
+    delete d->m_widget;
 }
 
 void CommandMappings::commandChanged(QTreeWidgetItem *current)
 {
     if (!current || !current->data(0, Qt::UserRole).isValid()) {
-        m_page->targetEdit->setText(QString());
-        m_page->targetEditGroup->setEnabled(false);
+        d->targetEdit->setText(QString());
+        d->targetEditGroup->setEnabled(false);
         return;
     }
-    m_page->targetEditGroup->setEnabled(true);
+    d->targetEditGroup->setEnabled(true);
 }
 
 void CommandMappings::filterChanged(const QString &f)
 {
-    if (!m_page)
-        return;
-    for (int i=0; i<m_page->commandList->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *item = m_page->commandList->topLevelItem(i);
+    for (int i = 0; i < d->commandList->topLevelItemCount(); ++i) {
+        QTreeWidgetItem *item = d->commandList->topLevelItem(i);
         filter(f, item);
     }
+}
+
+bool CommandMappings::hasConflicts() const
+{
+    return true;
 }
 
 bool CommandMappings::filter(const QString &filterString, QTreeWidgetItem *item)
@@ -163,7 +275,7 @@ bool CommandMappings::filter(const QString &filterString, QTreeWidgetItem *item)
     int columnCount = item->columnCount();
     for (int i = 0; !visible && i < columnCount; ++i) {
         QString text = item->text(i);
-        if (Utils::HostOsInfo::isMacHost()) {
+        if (HostOsInfo::isMacHost()) {
             // accept e.g. Cmd+E in the filter. the text shows special fancy characters for Cmd
             if (i == columnCount - 1) {
                 QKeySequence key = QKeySequence::fromString(text, QKeySequence::NativeText);
@@ -203,7 +315,7 @@ void CommandMappings::setModified(QTreeWidgetItem *item , bool modified)
 
 QString CommandMappings::filterText() const
 {
-    if (!m_page)
-        return QString();
-    return m_page->filterEdit->text();
+    return d->filterEdit ? d->filterEdit->text() : QString();
 }
+
+} // namespace Core

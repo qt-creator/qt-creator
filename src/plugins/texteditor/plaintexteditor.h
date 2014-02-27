@@ -49,7 +49,6 @@ public:
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate();
-    Core::Id id() const;
 };
 
 class TEXTEDITOR_EXPORT PlainTextDocument : public BaseTextDocument

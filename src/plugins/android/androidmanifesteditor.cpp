@@ -44,6 +44,8 @@ using namespace Internal;
 Android::Internal::AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget)
     : Core::IEditor(editorWidget), m_toolBar(0)
 {
+    setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
+
     m_toolBar = new QToolBar(editorWidget);
     m_actionGroup = new QActionGroup(this);
     connect(m_actionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeEditorPage(QAction*)));
@@ -62,11 +64,6 @@ Android::Internal::AndroidManifestEditor::AndroidManifestEditor(AndroidManifestE
 
     setContext(Core::Context(Constants::ANDROID_MANIFEST_EDITOR_CONTEXT));
     setWidget(editorWidget);
-}
-
-Core::Id AndroidManifestEditor::id() const
-{
-    return Constants::ANDROID_MANIFEST_EDITOR_ID;
 }
 
 bool AndroidManifestEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)

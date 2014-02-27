@@ -29,7 +29,6 @@
 ****************************************************************************/
 
 #include "imageviewerfactory.h"
-#include "imagevieweractionhandler.h"
 #include "imageviewerconstants.h"
 #include "imageviewer.h"
 
@@ -41,19 +40,11 @@
 namespace ImageViewer {
 namespace Internal {
 
-struct ImageViewerFactoryPrivate
-{
-    QPointer<ImageViewerActionHandler> actionHandler;
-};
-
 ImageViewerFactory::ImageViewerFactory(QObject *parent) :
-    Core::IEditorFactory(parent),
-    d(new ImageViewerFactoryPrivate)
+    Core::IEditorFactory(parent)
 {
     setId(Constants::IMAGEVIEWER_ID);
     setDisplayName(qApp->translate("OpenWith::Editors", Constants::IMAGEVIEWER_DISPLAY_NAME));
-
-    d->actionHandler = new ImageViewerActionHandler(this);
 
     QMap<QByteArray, const char *> possibleMimeTypes;
     possibleMimeTypes.insert("bmp", "image/bmp");
@@ -80,11 +71,6 @@ ImageViewerFactory::ImageViewerFactory(QObject *parent) :
     }
 }
 
-ImageViewerFactory::~ImageViewerFactory()
-{
-    delete d;
-}
-
 Core::IEditor *ImageViewerFactory::createEditor()
 {
     return new ImageViewer();
@@ -92,7 +78,7 @@ Core::IEditor *ImageViewerFactory::createEditor()
 
 void ImageViewerFactory::extensionsInitialized()
 {
-    d->actionHandler->createActions();
+    m_actionHandler.createActions();
 }
 
 } // namespace Internal

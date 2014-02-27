@@ -51,21 +51,20 @@ namespace Internal {
 class BaseVcsEditorFactoryPrivate
 {
 public:
-    BaseVcsEditorFactoryPrivate(const VcsBaseEditorParameters *t);
-
     const VcsBaseEditorParameters *m_type;
+    QObject *m_describeReceiver;
+    const char *m_describeSlot;
 };
-
-BaseVcsEditorFactoryPrivate::BaseVcsEditorFactoryPrivate(const VcsBaseEditorParameters *t) :
-    m_type(t)
-{
-}
 
 } // namespace Internal
 
-BaseVcsEditorFactory::BaseVcsEditorFactory(const VcsBaseEditorParameters *t)
-  : d(new Internal::BaseVcsEditorFactoryPrivate(t))
+BaseVcsEditorFactory::BaseVcsEditorFactory(const VcsBaseEditorParameters *t,
+                                           QObject *describeReceiver, const char *describeSlot)
+  : d(new Internal::BaseVcsEditorFactoryPrivate)
 {
+    d->m_type = t;
+    d->m_describeReceiver = describeReceiver;
+    d->m_describeSlot = describeSlot;
     setId(t->id);
     setDisplayName(QCoreApplication::translate("VCS", t->displayName));
     addMimeType(t->mimeType);
@@ -80,6 +79,10 @@ BaseVcsEditorFactory::~BaseVcsEditorFactory()
 Core::IEditor *BaseVcsEditorFactory::createEditor()
 {
     VcsBaseEditorWidget *vcsEditor = createVcsBaseEditor(d->m_type);
+
+    vcsEditor->init();
+    if (d->m_describeReceiver)
+        connect(vcsEditor, SIGNAL(describeRequested(QString,QString)), d->m_describeReceiver, d->m_describeSlot);
 
     vcsEditor->baseTextDocument()->setMimeType(mimeTypes().front());
 

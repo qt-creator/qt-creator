@@ -53,7 +53,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     ui->options->setEnabled(false);
     ui->predefinedStyle->addItems(m_settings->predefinedStyles());
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    ui->command->setPromptDialogTitle(tr("ClangFormat Command"));
+    ui->command->setPromptDialogTitle(tr("Clang Format Command"));
     connect(ui->command, SIGNAL(validChanged(bool)), ui->options, SLOT(setEnabled(bool)));
     ui->configurations->setSettings(m_settings);
 }
@@ -112,7 +112,7 @@ ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings, QO
     m_searchKeywords()
 {
     setId(Constants::ClangFormat::OPTION_ID);
-    setDisplayName(tr("ClangFormat"));
+    setDisplayName(tr("Clang Format"));
     setCategory(Constants::OPTION_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Beautifier", Constants::OPTION_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::OPTION_CATEGORY_ICON));

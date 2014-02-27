@@ -161,6 +161,7 @@ void CppIncludeHierarchyModel::fetchMore(const QModelIndex &parent)
 
     if (parentItem->needChildrenPopulate()) {
         QSet<QString> cyclic;
+        cyclic << m_editor->document()->filePath();
         CppIncludeHierarchyItem *item = parentItem->parent();
         while (!(item == m_includesItem || item == m_includedByItem)) {
             cyclic << item->filePath();
@@ -301,7 +302,11 @@ void CppIncludeHierarchyModel::buildHierarchyIncludedBy_helper(const QString &fi
                                                                             isCyclic);
                 item->setLine(includeFile.line());
                 parent->appendChild(item);
-                buildHierarchyIncludedBy_helper(filePathFromSnapshot, item, cyclic, false);
+
+                if (isCyclic)
+                    continue;
+                else
+                    buildHierarchyIncludedBy_helper(filePathFromSnapshot, item, cyclic, false);
             }
         }
     }

@@ -181,6 +181,20 @@ static void handleLine(const QStringList &newLines,
     }
 }
 
+static void handleDifference(const QString &text,
+                             QStringList *lines,
+                             QMap<int, int> *changedPositions,
+                             int *lineNumber,
+                             int *charNumber)
+{
+    const int oldPosition = *lineNumber + *charNumber;
+    const QStringList newLeftLines = text.split(QLatin1Char('\n'));
+    for (int line = 0; line < newLeftLines.count(); ++line)
+        handleLine(newLeftLines, line, lines, lineNumber, charNumber);
+    const int newPosition = *lineNumber + *charNumber;
+    changedPositions->insert(oldPosition, newPosition);
+}
+
 static bool lastLinesEqual(const QStringList &leftLines,
                            const QStringList &rightLines)
 {
@@ -237,23 +251,13 @@ static ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
 
         if (leftDiff.command == Diff::Delete) {
             // process delete
-            const int oldPosition = leftCharNumber + leftLineNumber;
-            const QStringList newLeftLines = leftDiff.text.split(QLatin1Char('\n'));
-            for (int line = 0; line < newLeftLines.count(); line++)
-                handleLine(newLeftLines, line, &leftLines, &leftLineNumber, &leftCharNumber);
-            const int newPosition = leftCharNumber + leftLineNumber;
-            leftChangedPositions.insert(oldPosition, newPosition);
+            handleDifference(leftDiff.text, &leftLines, &leftChangedPositions, &leftLineNumber, &leftCharNumber);
             lastLineEqual = lastLinesEqual(leftLines, rightLines);
             i++;
         }
         if (rightDiff.command == Diff::Insert) {
             // process insert
-            const int oldPosition = rightCharNumber + rightLineNumber;
-            const QStringList newRightLines = rightDiff.text.split(QLatin1Char('\n'));
-            for (int line = 0; line < newRightLines.count(); line++)
-                handleLine(newRightLines, line, &rightLines, &rightLineNumber, &rightCharNumber);
-            const int newPosition = rightCharNumber + rightLineNumber;
-            rightChangedPositions.insert(oldPosition, newPosition);
+            handleDifference(rightDiff.text, &rightLines, &rightChangedPositions, &rightLineNumber, &rightCharNumber);
             lastLineEqual = lastLinesEqual(leftLines, rightLines);
             j++;
         }
@@ -360,11 +364,10 @@ public:
     SideDiffEditor(BaseTextEditorWidget *editorWidget)
         : BaseTextEditor(editorWidget)
     {
+        setId("SideDiffEditor");
         connect(this, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
                 this, SLOT(slotTooltipRequested(TextEditor::ITextEditor*,QPoint,int)));
     }
-
-    Core::Id id() const { return "SideDiffEditor"; }
 
 private slots:
     void slotTooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPoint, int position);

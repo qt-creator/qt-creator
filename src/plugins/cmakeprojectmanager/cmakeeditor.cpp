@@ -59,6 +59,7 @@ using namespace CMakeProjectManager::Internal;
 CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
   : BaseTextEditor(editor)
 {
+    setId(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
     setContext(Core::Context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
     connect(document(), SIGNAL(changed()), this, SLOT(markAsChanged()));
@@ -70,11 +71,6 @@ Core::IEditor *CMakeEditor::duplicate()
                 qobject_cast<CMakeEditorWidget *>(editorWidget()));
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
-}
-
-Core::Id CMakeEditor::id() const
-{
-    return Core::Id(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
 }
 
 TextEditor::CompletionAssistProvider *CMakeEditor::completionAssistProvider()
