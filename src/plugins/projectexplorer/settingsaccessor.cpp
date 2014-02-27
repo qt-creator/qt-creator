@@ -30,26 +30,22 @@
 #include "settingsaccessor.h"
 
 #include "abi.h"
-#include "buildconfiguration.h"
 #include "devicesupport/devicemanager.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
-#include "target.h"
 #include "toolchain.h"
 #include "toolchainmanager.h"
 #include "kit.h"
 #include "kitmanager.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/persistentsettings.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QApplication>
-#include <QFile>
 #include <QMessageBox>
 
 using namespace Utils;
