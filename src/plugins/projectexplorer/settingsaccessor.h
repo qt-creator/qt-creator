@@ -67,8 +67,8 @@ private:
     class SettingsData
     {
     public:
-        SettingsData() : m_version(-1), m_usingBackup(false) {}
-        SettingsData(const QVariantMap &map) : m_version(-1), m_usingBackup(false), m_map(map) {}
+        SettingsData() : m_version(-1) {}
+        SettingsData(const QVariantMap &map) : m_version(-1), m_map(map) {}
 
         void clear();
         bool isValid() const;
@@ -78,7 +78,6 @@ private:
 
         int m_version;
         QByteArray m_environmentId;
-        bool m_usingBackup;
         QVariantMap m_map;
         Utils::FileName m_fileName;
     };

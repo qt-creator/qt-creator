@@ -887,7 +887,6 @@ SettingsAccessor::SettingsData SettingsAccessor::mergeSettings(const SettingsAcc
 void SettingsAccessor::SettingsData::clear()
 {
     m_version = -1;
-    m_usingBackup = false;
     m_map.clear();
     m_fileName.clear();
     m_environmentId.clear();
