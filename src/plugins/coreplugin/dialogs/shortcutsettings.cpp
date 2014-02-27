@@ -200,6 +200,8 @@ void ShortcutSettings::resetTargetIdentifier()
     if (current && current->data(0, Qt::UserRole).isValid()) {
         ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
         setKeySequence(scitem->m_cmd->defaultKeySequence());
+        foreach (ShortcutItem *item, m_scitems)
+            markCollisions(item);
     }
 }
 
