@@ -81,7 +81,7 @@ private:
         Utils::FileName m_fileName;
     };
 
-    void incrementVersion(SettingsData &data) const;
+    void upgradeSettings(SettingsData &data, int toVersion) const;
 
     SettingsData readUserSettings() const;
     SettingsData readSharedSettings() const;

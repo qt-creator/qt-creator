@@ -502,6 +502,28 @@ private:
 
 } // namespace
 
+/**
+ * @brief Upgrade the settings to a target version
+ */
+void SettingsAccessor::upgradeSettings(SettingsData &data, int toVersion) const
+{
+    if (data.m_map.isEmpty())
+        return;
+
+    if (data.version() >= toVersion
+            || data.version() < m_firstVersion
+            || toVersion > currentVersion())
+        return;
+
+    for (int i = data.version(); i < toVersion; ++i) {
+        VersionUpgrader *upgrader = m_handlers.value(data.version());
+        data.m_map = upgrader->upgrade(data.m_map);
+        data.m_version++;
+    }
+
+    return;
+}
+
 namespace {
 
 // When restoring settings...
@@ -674,12 +696,6 @@ void SettingsAccessor::backupUserFile() const
         QFile::copy(origName, backupName);
 }
 
-void SettingsAccessor::incrementVersion(SettingsAccessor::SettingsData &data) const
-{
-    data.m_map = m_handlers.value(data.version())->upgrade(data.m_map);
-    ++data.m_version;
-}
-
 SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
 {
     SettingsData result;
@@ -826,11 +842,8 @@ SettingsAccessor::SettingsData SettingsAccessor::mergeSettings(const SettingsAcc
     SettingsData newShared = shared;
     SettingsData result;
     if (shared.isValid() && user.isValid()) {
-        while (newUser.version() < newShared.version())
-            incrementVersion(newUser);
-
-        while (newShared.version() < newUser.version())
-            incrementVersion(newShared);
+        upgradeSettings(newUser, newShared.version());
+        upgradeSettings(newShared, newUser.version());
         result = newUser;
         result.m_map = mergeSharedSettings(newUser.m_map, newShared.m_map);
     } else if (shared.isValid()) {
@@ -845,8 +858,7 @@ SettingsAccessor::SettingsData SettingsAccessor::mergeSettings(const SettingsAcc
         return result;
 
     // Update from the base version to Creator's version.
-    for (int i = result.version(); i < currentVersion(); ++i)
-        incrementVersion(result);
+    upgradeSettings(result, currentVersion());
 
     return result;
 }
