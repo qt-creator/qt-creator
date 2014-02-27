@@ -283,7 +283,6 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, Id id, const Conte
     } else {
         sc = new Shortcut(id);
         d->m_idCmdMap.insert(id, sc);
-        d->readUserSettings(id, sc);
     }
 
     if (sc->shortcut()) {
@@ -299,6 +298,7 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, Id id, const Conte
     sc->setShortcut(shortcut);
     sc->setScriptable(scriptable);
     sc->setContext(context);
+    d->readUserSettings(id, sc);
 
     emit m_instance->commandListChanged();
     emit m_instance->commandAdded(id.toString());
