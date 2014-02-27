@@ -40,6 +40,8 @@
 #include <QList>
 #include <QtTest>
 
+Q_DECLARE_METATYPE(QList<QByteArray>)
+
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
 using namespace CppTools;
