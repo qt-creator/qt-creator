@@ -323,8 +323,8 @@ void BranchDialog::log()
 
 void BranchDialog::reset()
 {
-    QString currentName = m_model->fullName(m_model->currentBranch(), true);
-    QString branchName = m_model->fullName(selectedIndex(), true);
+    QString currentName = m_model->fullName(m_model->currentBranch());
+    QString branchName = m_model->fullName(selectedIndex());
     if (currentName.isEmpty() || branchName.isEmpty())
         return;
 
