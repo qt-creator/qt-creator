@@ -55,6 +55,11 @@ public:
     QVariantMap restoreSettings(QWidget *parent) const;
     bool saveSettings(const QVariantMap &data, QWidget *parent) const;
 
+    static QVariantMap setVersionInMap(const QVariantMap &data, int version);
+    static int versionFromMap(const QVariantMap &data);
+    static int originalVersionFromMap(const QVariantMap &data);
+    static QVariantMap setOriginalVersionInMap(const QVariantMap &data, int version);
+
     void addVersionUpgrader(Internal::VersionUpgrader *handler); // Takes ownership of the handler!
 private:
     QStringList findSettingsFiles(const QString &suffix) const;
@@ -67,16 +72,14 @@ private:
     class SettingsData
     {
     public:
-        SettingsData() : m_version(-1) {}
-        SettingsData(const QVariantMap &map) : m_version(-1), m_map(map) {}
+        SettingsData() {}
+        SettingsData(const QVariantMap &map) : m_map(map) {}
 
         void clear();
         bool isValid() const;
         QByteArray environmentId() const { return m_environmentId; }
-        int version() const { return m_version; }
         Utils::FileName fileName() const { return m_fileName; }
 
-        int m_version;
         QByteArray m_environmentId;
         QVariantMap m_map;
         Utils::FileName m_fileName;
