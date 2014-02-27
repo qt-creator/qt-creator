@@ -27,7 +27,7 @@ Project {
         property path libRPaths:  qbs.targetOS.contains("osx")
             ? ["@loader_path/.."] : ["$ORIGIN/.."]
         property path resourcesInstallDir: project.ide_data_path + "/qbs"
-        property string pluginsInstallDir: "lib/qtcreator"
+        property string pluginsInstallDir: project.libDirName + "/qtcreator"
 
         references: [
             qbsBaseDir + "/src/lib/libs.qbs",

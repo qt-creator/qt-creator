@@ -727,7 +727,7 @@ QString QbsProject::pluginsBaseDirectory() const
     if (!qbsInstallDir.isEmpty())
         return qbsInstallDir + QLatin1String("/lib/");
     return QDir::cleanPath(QCoreApplication::applicationDirPath()
-                           + QLatin1String("/../lib/qtcreator"));
+                           + QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator"));
 }
 
 } // namespace Internal

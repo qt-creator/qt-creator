@@ -16,19 +16,20 @@ Project {
     property pathList additionalPlugins: []
     property pathList additionalLibs: []
     property pathList additionalTools: []
+    property string libDirName: "lib"
     property string ide_library_path: {
         if (qbs.targetOS.contains("osx"))
             return ide_app_target + ".app/Contents/PlugIns"
         else if (qbs.targetOS.contains("windows"))
             return ide_app_path
         else
-            return "lib/qtcreator"
+            return libDirName + "/qtcreator"
     }
     property string ide_plugin_path: {
         if (qbs.targetOS.contains("osx"))
             return ide_library_path
         else if (qbs.targetOS.contains("windows"))
-            return "lib/qtcreator/plugins"
+            return libDirName + "/qtcreator/plugins"
         else
             return ide_library_path + "/plugins"
     }
@@ -47,7 +48,7 @@ Project {
     property bool testsEnabled: qbs.getenv("TEST") || qbs.buildVariant === "debug"
     property stringList generalDefines: [
         "QT_CREATOR",
-        'IDE_LIBRARY_BASENAME="lib"',
+        'IDE_LIBRARY_BASENAME="' + libDirName + '"',
         "QT_DISABLE_DEPRECATED_BEFORE=0x040900",
         "QT_NO_CAST_TO_ASCII",
         "QT_NO_CAST_FROM_ASCII"
