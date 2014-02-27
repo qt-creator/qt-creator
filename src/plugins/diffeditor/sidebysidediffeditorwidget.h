@@ -63,7 +63,7 @@ public:
     DiffEditorGuiController *diffEditorGuiController() const;
 
 #ifdef WITH_TESTS
-    static void testAssemblyRows();
+    static void testFixPositions();
 #endif // WITH_TESTS
 
 private slots:
