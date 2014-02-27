@@ -1263,6 +1263,7 @@ void MainWindow::restoreWindowState()
     restoreState(settings->value(QLatin1String(windowStateKey)).toByteArray());
     settings->endGroup();
     show();
+    m_statusBarManager->restoreSettings();
 }
 
 } // namespace Internal

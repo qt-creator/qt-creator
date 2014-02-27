@@ -235,7 +235,7 @@ LocatorWidget::LocatorWidget(Locator *qop) :
     setFocusProxy(m_fileLineEdit);
     setWindowTitle(tr("Locate..."));
     resize(200, 90);
-    QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     sizePolicy.setHorizontalStretch(0);
     sizePolicy.setVerticalStretch(0);
     setSizePolicy(sizePolicy);

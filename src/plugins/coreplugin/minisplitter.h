@@ -44,11 +44,16 @@ namespace Core {
 class CORE_EXPORT MiniSplitter : public QSplitter
 {
 public:
-    MiniSplitter(QWidget *parent = 0);
-    MiniSplitter(Qt::Orientation orientation);
+    enum SplitterStyle {Dark, Light};
+
+    MiniSplitter(QWidget *parent = 0, SplitterStyle style = Dark);
+    MiniSplitter(Qt::Orientation orientation, SplitterStyle style = Dark);
 
 protected:
     QSplitterHandle *createHandle();
+
+private:
+    SplitterStyle m_style;
 };
 
 } // namespace Core

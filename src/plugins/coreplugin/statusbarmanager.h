@@ -30,15 +30,30 @@
 #ifndef STATUSBARMANAGER_H
 #define STATUSBARMANAGER_H
 
-#include <QObject>
-#include <QList>
+#include "minisplitter.h"
 
-QT_FORWARD_DECLARE_CLASS(QWidget)
+#include <QList>
+#include <QObject>
+
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
 
 namespace Core {
 namespace Internal {
 
 class MainWindow;
+
+class NonResizingSplitter : public MiniSplitter
+{
+    Q_OBJECT
+
+public:
+    explicit NonResizingSplitter(QWidget *parent);
+
+protected:
+    void resizeEvent(QResizeEvent *ev);
+};
 
 class StatusBarManager : public QObject
 {
@@ -50,13 +65,16 @@ public:
 
     void init();
     void extensionsInitalized();
+    void restoreSettings();
 
 private slots:
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);
+    void saveSettings();
 
 private:
     MainWindow *m_mainWnd;
+    QSplitter *m_splitter;
     QList<QWidget *> m_statusBarWidgets;
 };
 
