@@ -1824,6 +1824,9 @@ def qdump__QTextDocument(d, value):
             d.putCallItem("toPlainText", value, "toPlainText")
 
 
+def qform__QUrl():
+    return "Inline,Separate Window"
+
 def qdump__QUrl(d, value):
     if d.qtVersion() < 0x050000:
         privAddress = d.extractPointer(value)
@@ -1884,6 +1887,14 @@ def qdump__QUrl(d, value):
             url += ''.join(["%02x00" % ord(c) for c in str(port)])
         url += path
         d.putValue(url, Hex4EncodedLittleEndian)
+
+        format = d.currentItemFormat()
+        if format == 1:
+            d.putDisplay(StopDisplay)
+        elif format == 2:
+            d.putField("editformat", DisplayUtf16String)
+            d.putField("editvalue", url)
+
         d.putNumChild(8)
         if d.isExpanded():
             stringType = d.lookupType(d.qtNamespace() + "QString")

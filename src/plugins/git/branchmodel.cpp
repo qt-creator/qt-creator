@@ -692,14 +692,18 @@ QModelIndex BranchModel::nodeToIndex(BranchNode *node) const
 
 void BranchModel::removeNode(const QModelIndex &idx)
 {
-    QModelIndex tmp = idx; // tmp is a leaf, so count must be 0.
-    while (indexToNode(tmp)->count() == 0) {
-        QModelIndex tmpParent = parent(tmp);
-        beginRemoveRows(tmpParent, tmp.row(), tmp.row());
-        indexToNode(tmpParent)->children.removeAt(tmp.row());
-        delete indexToNode(tmp);
+    QModelIndex nodeIndex = idx; // idx is a leaf, so count must be 0.
+    BranchNode *node = indexToNode(nodeIndex);
+    while (node->count() == 0 && node->parent != m_rootNode) {
+        BranchNode *parentNode = node->parent;
+        const QModelIndex parentIndex = nodeToIndex(parentNode);
+        const int nodeRow = nodeIndex.row();
+        beginRemoveRows(parentIndex, nodeRow, nodeRow);
+        parentNode->children.removeAt(nodeRow);
+        delete node;
         endRemoveRows();
-        tmp = tmpParent;
+        node = parentNode;
+        nodeIndex = parentIndex;
     }
 }
 

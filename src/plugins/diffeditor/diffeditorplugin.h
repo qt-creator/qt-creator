@@ -54,7 +54,7 @@ private slots:
     void diff();
 
 #ifdef WITH_TESTS
-    void testAssemblyRows();
+    void testFixPositions();
 #endif // WITH_TESTS
 
 private:

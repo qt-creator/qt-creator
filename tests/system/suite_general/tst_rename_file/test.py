@@ -82,7 +82,10 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
         openItemContextMenu(treeview, itemText, 5, 5, 0)
     except:
         openItemContextMenu(treeview, addBranchWildcardToRoot(itemText), 5, 5, 0)
-    activateItem(waitForObjectItem(":Qt Creator.Project.Menu.File_QMenu", "Rename..."))
+    if oldname.endswith(".qrc"):
+        activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Folder_QMenu", "Rename File"))
+    else:
+        activateItem(waitForObjectItem(":Qt Creator.Project.Menu.File_QMenu", "Rename..."))
     type(waitForObject(":Qt Creator_Utils::NavigationTreeView::QExpandingLineEdit"), newname)
     type(waitForObject(":Qt Creator_Utils::NavigationTreeView::QExpandingLineEdit"), "<Return>")
     test.verify(waitFor("os.path.exists(newFilePath)", 1000),

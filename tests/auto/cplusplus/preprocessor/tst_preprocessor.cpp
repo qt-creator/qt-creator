@@ -32,6 +32,7 @@
 #include <QtTest>
 #include <QFile>
 #include <QHash>
+#include <QSet>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
@@ -116,9 +117,17 @@ public:
     }
 
     virtual void passedMacroDefinitionCheck(unsigned /*offset*/,
-                                            unsigned /*line*/,
-                                            const Macro &/*macro*/) {}
-    virtual void failedMacroDefinitionCheck(unsigned /*offset*/, const ByteArrayRef &/*name*/) {}
+                                            unsigned line,
+                                            const Macro &macro)
+    {
+        m_definitionsResolvedFromLines[macro.name()].append(line);
+    }
+
+    virtual void failedMacroDefinitionCheck(unsigned /*offset*/,
+                                            const ByteArrayRef &name)
+    {
+        m_unresolvedDefines.insert(name.toByteArray());
+    }
 
     virtual void notifyMacroReference(unsigned offset, unsigned line, const Macro &macro)
     {
@@ -249,6 +258,12 @@ public:
     QHash<QByteArray, QList<unsigned> > macroUsesLine() const
     { return m_macroUsesLine; }
 
+    QHash<QByteArray, QList<unsigned> > definitionsResolvedFromLines() const
+    { return m_definitionsResolvedFromLines; }
+
+    QSet<QByteArray> unresolvedDefines() const
+    { return m_unresolvedDefines; }
+
     const QList<int> macroArgsCount() const
     { return m_macroArgsCount; }
 
@@ -266,6 +281,8 @@ private:
     QList<QByteArray> m_definedMacros;
     QList<unsigned> m_definedMacrosLine;
     QHash<QByteArray, QList<unsigned> > m_macroUsesLine;
+    QHash<QByteArray, QList<unsigned> > m_definitionsResolvedFromLines;
+    QSet<QByteArray> m_unresolvedDefines;
     QList<int> m_macroArgsCount;
 };
 
@@ -326,6 +343,7 @@ private slots:
     void extra_va_args();
     void defined();
     void defined_data();
+    void defined_usage();
     void empty_macro_args();
     void macro_args_count();
     void invalid_param_count();
@@ -356,6 +374,7 @@ private slots:
     void include_guard_data();
     void empty_trailing_lines();
     void empty_trailing_lines_data();
+    void undef();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -1058,6 +1077,36 @@ void tst_Preprocessor::defined_data()
         "#endif\n";
 }
 
+void tst_Preprocessor::defined_usage()
+{
+    QByteArray output;
+    Environment env;
+    MockClient client(&env, &output);
+    Preprocessor pp(&client, &env);
+    QByteArray source =
+            "#define X\n"
+            "#define Y\n"
+            "#ifdef X\n"
+            "#endif\n"
+            "#ifdef Y\n"
+            "#endif\n"
+            "#ifndef X\n"
+            "#endif\n"
+            "#ifndef Y\n"
+            "#endif\n"
+            "#ifdef ABSENT\n"
+            "#endif\n"
+            "#ifndef ABSENT2\n"
+            "#endif\n"
+            ;
+    pp.run(QLatin1String("<stdin>"), source);
+    QHash<QByteArray, QList<unsigned> > definitionsResolvedFromLines =
+            client.definitionsResolvedFromLines();
+    QCOMPARE(definitionsResolvedFromLines["X"], QList<unsigned>() << 3 << 7);
+    QCOMPARE(definitionsResolvedFromLines["Y"], QList<unsigned>() << 5 << 9);
+    QCOMPARE(client.unresolvedDefines(), QSet<QByteArray>() << "ABSENT" << "ABSENT2");
+}
+
 void tst_Preprocessor::dont_eagerly_expand_data()
 {
     QTest::addColumn<QByteArray>("input");
@@ -1689,6 +1738,46 @@ void tst_Preprocessor::empty_trailing_lines_data()
             "\n"
             "\n"
     );
+}
+
+void tst_Preprocessor::undef()
+{
+    Environment env;
+    QByteArray output;
+    MockClient client(&env, &output);
+    Preprocessor preprocess(&client, &env);
+    QByteArray input =
+            "#define FOO\n"
+            "#define FOO2\n"
+            "#undef FOO\n"
+            "#undef BAR\n";
+    preprocess.run(QLatin1String("<stdin>"), input);
+    QCOMPARE(env.macroCount(), 4U);
+    Macro *macro = env.macroAt(0);
+    QCOMPARE(macro->name(), QByteArray("FOO"));
+    QCOMPARE(macro->offset(), 8U);
+    QCOMPARE(macro->line(), 1U);
+    QVERIFY(!macro->isHidden());
+    macro = env.macroAt(1);
+    QCOMPARE(macro->name(), QByteArray("FOO2"));
+    QCOMPARE(macro->offset(), 20U);
+    QCOMPARE(macro->line(), 2U);
+    QVERIFY(!macro->isHidden());
+    macro = env.macroAt(2);
+    QCOMPARE(macro->name(), QByteArray("FOO"));
+    QCOMPARE(macro->offset(), 32U);
+    QCOMPARE(macro->line(), 3U);
+    QVERIFY(macro->isHidden());
+    macro = env.macroAt(3);
+    QCOMPARE(macro->name(), QByteArray("BAR"));
+    QCOMPARE(macro->offset(), 43U);
+    QCOMPARE(macro->line(), 4U);
+    QVERIFY(macro->isHidden());
+    QList<QByteArray> macros = client.definedMacros();
+    QVERIFY(macros.contains("FOO"));
+    QVERIFY(macros.contains("FOO2"));
+    QCOMPARE(client.macroUsesLine()["FOO"], (QList<unsigned>() << 3U));
+    QVERIFY(client.macroUsesLine()["BAR"].isEmpty());
 }
 
 void tst_Preprocessor::compare_input_output(bool keepComments)

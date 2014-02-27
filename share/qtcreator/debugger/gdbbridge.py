@@ -833,47 +833,54 @@ class Dumper(DumperBase):
     def extractByte(self, addr):
         return struct.unpack("b", self.readRawMemory(addr, 1))[0]
 
-    def extractStaticMetaObjectHelper(self, typeobj):
+
+    def extractStaticMetaObjectHelper(self, typeName):
         """
         Checks whether type has a Q_OBJECT macro.
         Returns the staticMetaObject, or 0.
+        """
+        # No templates for now.
+        if typeName.find('<') >= 0:
+            return 0
+
+        staticMetaObjectName = typeName + "::staticMetaObject"
+        if hasattr(gdb, 'lookup_global_symbol'):
+            result = gdb.lookup_global_symbol(staticMetaObjectName)
+            result = result.value() if result else 0
+        else:
+            # Older GDB...
+            try:
+                result = gdb.parse_and_eval(staticMetaObjectName)
+            except:
+                result = 0
+
+        # We need to distinguish Q_OBJECT from Q_GADGET:
+        # a Q_OBJECT SMO has a non-null superdata (unless it's QObject itself),
+        # a Q_GADGET SMO has a null superdata (hopefully)
+        if result and typeName != self.qtNamespace() + "QObject":
+            if not self.extractPointer(result):
+                # This looks like a Q_GADGET
+                result = 0
+
+        return result
+
+    def extractStaticMetaObject(self, typeobj):
+        """
+        Checks recursively whether a type derives from QObject.
         """
         typeName = str(typeobj)
         result = self.knownStaticMetaObjects.get(typeName, None)
         if result is not None: # Is 0 or the static metaobject.
             return result
 
-        staticMetaObjectName = typeName + "::staticMetaObject"
-        try:
-            result = gdb.lookup_global_symbol(staticMetaObjectName)
-            result = result.value() if result else 0
-            self.knownStaticMetaObjects[typeName] = result
-            return result
-        except:
-            pass
+        result = self.extractStaticMetaObjectHelper(typeName)
+        if not result:
+            fields = typeobj.fields()
+            if len(fields) and fields[0].is_base_class:
+                result = self.extractStaticMetaObject(fields[0].type)
 
-        # Older GDB...
-        try:
-            result = gdb.parse_and_eval(staticMetaObjectName)
-            self.knownStaticMetaObjects[typeName] = result
-            return result
-        except:
-            self.knownStaticMetaObjects[typeName] = 0
-            return 0
-
-    def extractStaticMetaObject(self, typeobj):
-        """
-        Checks recursively whether a type derives from QObject.
-        """
-        result = self.extractStaticMetaObjectHelper(typeobj)
-        if result:
-            return result
-        fields = typeobj.fields()
-        if not len(fields):
-            return 0
-        if not fields[0].is_base_class:
-            return 0
-        return self.extractStaticMetaObject(fields[0].type)
+        self.knownStaticMetaObjects[typeName] = result
+        return result
 
 
     def put(self, value):

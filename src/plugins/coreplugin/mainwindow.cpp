@@ -351,9 +351,9 @@ void MainWindow::extensionsInitialized()
 
     emit m_coreImpl->coreAboutToOpen();
     show();
-    emit m_coreImpl->coreOpened();
     // Delay restoreWindowState, since it is overridden by LayoutRequest event
     QTimer::singleShot(0, this, SLOT(restoreWindowState()));
+    QTimer::singleShot(0, m_coreImpl, SIGNAL(coreOpened()));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

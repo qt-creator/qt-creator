@@ -223,4 +223,24 @@ void CppModelManagerInterface::ProjectInfo::appendProjectPart(const ProjectPart:
         m_defines.append('\n');
     m_defines.append(part->toolchainDefines);
     m_defines.append(part->projectDefines);
+    if (!part->projectConfigFile.isEmpty()) {
+        m_defines.append('\n');
+        m_defines += readProjectConfigFile(part);
+        m_defines.append('\n');
+    }
 }
+
+QByteArray CppModelManagerInterface::readProjectConfigFile(const ProjectPart::Ptr &part)
+{
+    QByteArray result;
+
+    QFile f(part->projectConfigFile);
+    if (f.open(QIODevice::ReadOnly)) {
+        QTextStream is(&f);
+        result = is.readAll().toUtf8();
+        f.close();
+    }
+
+    return result;
+}
+

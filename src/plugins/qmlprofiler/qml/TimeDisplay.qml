@@ -54,17 +54,18 @@ Canvas {
         context.fillStyle = "white";
         context.fillRect(0, 0, width, height);
 
+        var realWidth = width - 1; // account for left border
         var totalTime = endTime - startTime;
-        var spacing = width / totalTime;
+        var spacing = realWidth / totalTime;
 
         var initialBlockLength = 120;
-        var timePerBlock = Math.pow(2, Math.floor( Math.log( totalTime / width * initialBlockLength ) / Math.LN2 ) );
+        var timePerBlock = Math.pow(2, Math.floor( Math.log( totalTime / realWidth * initialBlockLength ) / Math.LN2 ) );
         var pixelsPerBlock = timePerBlock * spacing;
         var pixelsPerSection = pixelsPerBlock / 5;
-        var blockCount = width / pixelsPerBlock;
+        var blockCount = realWidth / pixelsPerBlock;
 
         var realStartTime = Math.floor(startTime/timePerBlock) * timePerBlock;
-        var realStartPos = (startTime-realStartTime) * spacing;
+        var realStartPos = (startTime - realStartTime) * spacing - 1;
 
         timePerPixel = timePerBlock/pixelsPerBlock;
 

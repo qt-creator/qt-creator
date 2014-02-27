@@ -128,6 +128,7 @@ void BranchDialog::enableButtons()
     m_ui->diffButton->setEnabled(hasActions);
     m_ui->checkoutButton->setEnabled(hasActions && !currentSelected);
     m_ui->rebaseButton->setEnabled(hasActions && !currentSelected);
+    m_ui->resetButton->setEnabled(hasActions && currentLocal && !currentSelected);
     m_ui->mergeButton->setEnabled(hasActions && !currentSelected);
     m_ui->cherryPickButton->setEnabled(hasActions && !currentSelected);
     m_ui->trackButton->setEnabled(hasActions && currentLocal && !currentSelected && !isTag);
@@ -323,8 +324,8 @@ void BranchDialog::log()
 
 void BranchDialog::reset()
 {
-    QString currentName = m_model->fullName(m_model->currentBranch(), true);
-    QString branchName = m_model->fullName(selectedIndex(), true);
+    QString currentName = m_model->fullName(m_model->currentBranch());
+    QString branchName = m_model->fullName(selectedIndex());
     if (currentName.isEmpty() || branchName.isEmpty())
         return;
 

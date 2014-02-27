@@ -107,8 +107,7 @@ RangeMover {
     // creation control
     function releasedOnCreation() {
         if (selectionRange.creationState === 2) {
-            flick.interactive = true;
-            vertflick.stayInteractive = true;
+            flick.stayInteractive = true;
             selectionRange.creationState = 3;
             selectionRangeControl.enabled = false;
         }
@@ -116,8 +115,7 @@ RangeMover {
 
     function pressedOnCreation() {
         if (selectionRange.creationState === 1) {
-            flick.interactive = false;
-            vertflick.stayInteractive = false;
+            flick.stayInteractive = false;
             selectionRange.setPos(selectionRangeControl.mouseX + flick.contentX);
             selectionRange.creationState = 2;
         }

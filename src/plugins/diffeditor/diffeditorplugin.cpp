@@ -138,9 +138,9 @@ QString DiffEditorPlugin::getFileContents(const QString &fileName) const
 
 #include "sidebysidediffeditorwidget.h"
 
-void DiffEditor::Internal::DiffEditorPlugin::testAssemblyRows()
+void DiffEditor::Internal::DiffEditorPlugin::testFixPositions()
 {
-    SideBySideDiffEditorWidget::testAssemblyRows();
+    SideBySideDiffEditorWidget::testFixPositions();
 }
 
 #endif // WITH_TESTS

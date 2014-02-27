@@ -44,7 +44,7 @@ def main():
     for project in projects:
         openQmakeProject(project)
     progressBarWait(20000)
-    checkNavigator(49, "Verifying whether all projects have been opened.")
+    checkNavigator(68, "Verifying whether all projects have been opened.")
     openDocument("propertyanimation.QML.qml.color-animation\\.qml")
     openDocument("declarative-music-browser.Headers.utility\\.h")
     checkOpenDocuments(2, "Verifying whether 2 files are open.")
@@ -57,7 +57,7 @@ def main():
     switchSession(sessionName)
     test.verify(waitFor("sessionName in str(mainWindow.windowTitle)", 2000),
                 "Verifying window title contains created session name.")
-    checkNavigator(49, "Verifying whether all projects have been re-opened.")
+    checkNavigator(68, "Verifying whether all projects have been re-opened.")
     checkOpenDocuments(2, "Verifying whether 2 files have been re-opened.")
     if test.verify("utility.h" in str(mainWindow.windowTitle),
                    "Verifying whether utility.h has been opened."):

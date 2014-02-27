@@ -198,6 +198,9 @@ QStringList createClangOptions(const ProjectPart::Ptr &pPart, ProjectFile::Kind 
     result << QLatin1String("-fmacro-backtrace-limit=0");
     result << QLatin1String("-fretain-comments-from-system-headers");
 
+    if (!pPart->projectConfigFile.isEmpty())
+        result << QLatin1String("-include") << pPart->projectConfigFile;
+
     result << buildDefines(pPart->toolchainDefines, false);
     result << buildDefines(pPart->projectDefines, false);
 

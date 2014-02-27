@@ -36,7 +36,7 @@
 
 namespace VcsBase {
 
-struct VcsBaseOutputWindowPrivate;
+class VcsBaseOutputWindowPrivate;
 
 class VCSBASE_EXPORT VcsBaseOutputWindow : public Core::IOutputPane
 {
@@ -120,6 +120,8 @@ public slots:
 
 private:
     VcsBaseOutputWindow();
+
+    QString filterPasswordFromUrls(const QString &input);
 
     VcsBaseOutputWindowPrivate *d;
 };

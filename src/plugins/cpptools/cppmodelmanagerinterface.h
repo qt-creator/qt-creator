@@ -106,6 +106,7 @@ public:
     QString projectFile;
     ProjectExplorer::Project *project;
     QList<ProjectFile> files;
+    QString projectConfigFile; // currently only used by the Generic Project Manager
     QByteArray projectDefines;
     QByteArray toolchainDefines;
     QStringList includePaths;
@@ -290,6 +291,9 @@ public slots:
 
     virtual void updateModifiedSourceFiles() = 0;
     virtual void GC() = 0;
+
+protected:
+    static QByteArray readProjectConfigFile(const ProjectPart::Ptr &part);
 };
 
 } // namespace CppTools

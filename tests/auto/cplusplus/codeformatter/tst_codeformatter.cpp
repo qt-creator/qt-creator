@@ -127,6 +127,7 @@ private Q_SLOTS:
     void functionDefaultArgument();
     void attributeInAccessSpecifier();
     void braceReturn();
+    void staticVarDeclWithTypeDecl();
 };
 
 struct Line {
@@ -2108,6 +2109,43 @@ void tst_CodeFormatter::braceReturn()
          << Line("    int x;")
          << Line("};")
          ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::staticVarDeclWithTypeDecl()
+{
+    QList<Line> data;
+    data << Line("static class: public Foo {")
+         << Line("public:")
+         << Line("    int bar();")
+         << Line("} mooze;")
+         << Line("")
+         << Line("static enum Col {")
+         << Line("    red,")
+         << Line("    yellow,")
+         << Line("    green")
+         << Line("} Loc;")
+         << Line("")
+         << Line("static enum {")
+         << Line("    red,")
+         << Line("    yellow,")
+         << Line("    green")
+         << Line("} Loc;")
+         << Line("")
+         << Line("enum class Col {")
+         << Line("    red,")
+         << Line("    yellow,")
+         << Line("    green")
+         << Line("};")
+         << Line("")
+         << Line("static enum class Col")
+         << Line("{")
+         << Line("    red,")
+         << Line("    yellow,")
+         << Line("    green")
+         << Line("} Loc;")
+         << Line("")
+            ;
     checkIndent(data);
 }
 

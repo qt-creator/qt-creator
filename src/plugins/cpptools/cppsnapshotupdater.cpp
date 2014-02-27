@@ -60,6 +60,7 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
     QStringList includePaths;
     QStringList frameworkPaths;
     QStringList precompiledHeaders;
+    QString projectConfigFile;
 
     updateProjectPart();
 
@@ -73,6 +74,7 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         configFile += m_projectPart->projectDefines;
         includePaths = m_projectPart->includePaths;
         frameworkPaths = m_projectPart->frameworkPaths;
+        projectConfigFile = m_projectPart->projectConfigFile;
         if (m_usePrecompiledHeaders)
             precompiledHeaders = m_projectPart->precompiledHeaders;
     }
@@ -96,6 +98,11 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
 
     if (frameworkPaths != m_frameworkPaths) {
         m_frameworkPaths = frameworkPaths;
+        invalidateSnapshot = true;
+    }
+
+    if (projectConfigFile != m_projectConfigFile) {
+        m_projectConfigFile = projectConfigFile;
         invalidateSnapshot = true;
     }
 
@@ -160,6 +167,8 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         preproc.setIncludePaths(m_includePaths);
         preproc.setFrameworkPaths(m_frameworkPaths);
         preproc.run(configurationFileName);
+        if (!m_projectConfigFile.isEmpty())
+            preproc.run(m_projectConfigFile);
         if (m_usePrecompiledHeaders) {
             foreach (const QString &precompiledHeader, m_precompiledHeaders)
                 preproc.run(precompiledHeader);

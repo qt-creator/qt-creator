@@ -179,6 +179,9 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case declaration_start:
             switch (kind) {
+            case T_CLASS:
+            case T_STRUCT:      turnInto(class_start); continue;
+            case T_ENUM:        turnInto(enum_start); continue;
             case T_RBRACE:      leave(true); continue;
             case T_SEMICOLON:   leave(true); break;
             case T_EQUAL:       enter(assign_open_or_initializer); break;

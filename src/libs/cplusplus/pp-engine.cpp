@@ -1951,10 +1951,19 @@ void Preprocessor::handleUndefDirective(PPToken *tk)
     lex(tk); // consume "undef" token
     if (tk->is(T_IDENTIFIER)) {
         const ByteArrayRef macroName = tk->asByteArrayRef();
-        const Macro *macro = m_env->remove(macroName);
+        const unsigned offset = tk->offset + m_state.m_offsetRef;
+        // Track macro use if previously defined
+        if (m_client) {
+            if (const Macro *existingMacro = m_env->resolve(macroName))
+                m_client->notifyMacroReference(offset, tk->lineno, *existingMacro);
+        }
+        synchronizeOutputLines(*tk);
+        Macro *macro = m_env->remove(macroName);
 
-        if (m_client && macro)
+        if (m_client && macro) {
+            macro->setOffset(offset);
             m_client->macroAdded(*macro);
+        }
         lex(tk); // consume macro name
 #ifndef NO_DEBUG
     } else {

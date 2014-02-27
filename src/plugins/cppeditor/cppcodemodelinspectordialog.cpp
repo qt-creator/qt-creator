@@ -560,14 +560,16 @@ void CppCodeModelInspectorDumper::dumpProjectInfos(
                 projectName = project->displayName();
                 projectFilePath = project->projectFilePath();
             }
+            if (!part->projectConfigFile.isEmpty())
+                m_out << i3 << "Project Config File: " << part->projectConfigFile << "\n";
             m_out << i2 << "Project Part \"" << part->projectFile << "\"{{{3\n";
-            m_out << i3 << "Project Part Name: " << part->displayName << "\n";
-            m_out << i3 << "Project Name     : " << projectName << "\n";
-            m_out << i3 << "Project File     : " << projectFilePath << "\n";
-            m_out << i3 << "C Version        : " << toString(part->cVersion) << "\n";
-            m_out << i3 << "CXX Version      : " << toString(part->cxxVersion) << "\n";
-            m_out << i3 << "CXX Extensions   : " << toString(part->cxxExtensions) << "\n";
-            m_out << i3 << "Qt Version       : " << toString(part->qtVersion) << "\n";
+            m_out << i3 << "Project Part Name  : " << part->displayName << "\n";
+            m_out << i3 << "Project Name       : " << projectName << "\n";
+            m_out << i3 << "Project File       : " << projectFilePath << "\n";
+            m_out << i3 << "C Version          : " << toString(part->cVersion) << "\n";
+            m_out << i3 << "CXX Version        : " << toString(part->cxxVersion) << "\n";
+            m_out << i3 << "CXX Extensions     : " << toString(part->cxxExtensions) << "\n";
+            m_out << i3 << "Qt Version         : " << toString(part->qtVersion) << "\n";
 
             if (!part->files.isEmpty()) {
                 m_out << i3 << "Files:{{{4\n";
@@ -2246,6 +2248,9 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
         << qMakePair(QString::fromLatin1("CXX Extensions"), toString(part->cxxExtensions))
         << qMakePair(QString::fromLatin1("Qt Version"), toString(part->qtVersion))
         ;
+    if (!part->projectConfigFile.isEmpty())
+        table.prepend(qMakePair(QString::fromLatin1("Project Config File"),
+                                part->projectConfigFile));
     m_partGenericInfoModel->configure(table);
     resizeColumns<KeyValueModel>(m_ui->partGeneralView);
 

@@ -48,6 +48,11 @@
 namespace GenericProjectManager {
 namespace Internal {
 
+static const char *const ConfigFileTemplate =
+        "// Add predefined macros for your project here. For example:\n"
+        "// #define THE_ANSWER 42\n"
+        ;
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // GenericProjectWizardDialog
@@ -189,7 +194,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     generatedIncludesFile.setContents(includePaths.join(QLatin1String("\n")));
 
     Core::GeneratedFile generatedConfigFile(configFileName);
-    generatedConfigFile.setContents(QLatin1String("// ADD PREDEFINED MACROS HERE!\n"));
+    generatedConfigFile.setContents(QLatin1String(ConfigFileTemplate));
 
     Core::GeneratedFiles files;
     files.append(generatedFilesFile);
