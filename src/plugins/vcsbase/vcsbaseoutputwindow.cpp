@@ -264,8 +264,9 @@ void OutputWindowPlainTextEdit::setFormat(enum VcsBaseOutputWindow::MessageStyle
 } // namespace Internal
 
 // ------------------- VcsBaseOutputWindowPrivate
-struct VcsBaseOutputWindowPrivate
+class VcsBaseOutputWindowPrivate
 {
+public:
     static VcsBaseOutputWindow *instance;
     Internal::OutputWindowPlainTextEdit *plainTextEdit();
 

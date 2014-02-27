@@ -36,7 +36,7 @@
 
 namespace VcsBase {
 
-struct VcsBaseOutputWindowPrivate;
+class VcsBaseOutputWindowPrivate;
 
 class VCSBASE_EXPORT VcsBaseOutputWindow : public Core::IOutputPane
 {
