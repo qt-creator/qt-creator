@@ -411,10 +411,33 @@ UserFileAccessor::UserFileAccessor(Project *project)
     addVersionUpgrader(new UserFileVersion14Upgrader);
 }
 
+namespace ProjectExplorer {
+// --------------------------------------------------------------------
+// SettingsAccessorPrivate:
+// --------------------------------------------------------------------
+class SettingsAccessorPrivate
+{
+public:
+    SettingsAccessorPrivate() :
+        m_writer(0)
+    { }
+
+    ~SettingsAccessorPrivate()
+    {
+        qDeleteAll(m_upgraders);
+        delete m_writer;
+    }
+
+    QMap<int, Internal::VersionUpgrader *> m_upgraders;
+    Utils::PersistentSettingsWriter *m_writer;
+};
+} // end namespace
+
 SettingsAccessor::SettingsAccessor(Project *project) :
     m_firstVersion(-1),
     m_lastVersion(-1),
-    m_project(project)
+    m_project(project),
+    d(new SettingsAccessorPrivate)
 {
     QTC_CHECK(m_project);
     m_userSuffix = generateSuffix(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")), QLatin1String(".user"));
@@ -423,8 +446,7 @@ SettingsAccessor::SettingsAccessor(Project *project) :
 
 SettingsAccessor::~SettingsAccessor()
 {
-    qDeleteAll(m_handlers);
-    delete m_writer;
+    delete d;
 }
 
 Project *SettingsAccessor::project() const
@@ -512,7 +534,7 @@ void SettingsAccessor::upgradeSettings(SettingsData &data, int toVersion) const
         return;
 
     for (int i = data.version(); i < toVersion; ++i) {
-        VersionUpgrader *upgrader = m_handlers.value(data.version());
+        VersionUpgrader *upgrader = d->m_upgraders.value(data.version());
         data.m_map = upgrader->upgrade(data.m_map);
         data.m_version++;
     }
@@ -609,11 +631,11 @@ void SettingsAccessor::addVersionUpgrader(VersionUpgrader *handler)
     const int version(handler->version());
     QTC_ASSERT(handler, return);
     QTC_ASSERT(version >= 0, return);
-    QTC_ASSERT(!m_handlers.contains(version), return);
-    QTC_ASSERT(m_handlers.isEmpty() ||
+    QTC_ASSERT(!d->m_upgraders.contains(version), return);
+    QTC_ASSERT(d->m_upgraders.isEmpty() ||
                (version == m_lastVersion + 1 || version == m_firstVersion - 1), return);
 
-    if (m_handlers.isEmpty()) {
+    if (d->m_upgraders.isEmpty()) {
         m_firstVersion = version;
         m_lastVersion = version;
     } else {
@@ -623,15 +645,15 @@ void SettingsAccessor::addVersionUpgrader(VersionUpgrader *handler)
             m_lastVersion = version;
     }
 
-    m_handlers.insert(version, handler);
+    d->m_upgraders.insert(version, handler);
 
     // Postconditions:
     Q_ASSERT(m_lastVersion >= 0);
     Q_ASSERT(m_firstVersion >= 0);
     Q_ASSERT(m_lastVersion >= m_firstVersion);
-    Q_ASSERT(m_handlers.count() == m_lastVersion - m_firstVersion + 1);
+    Q_ASSERT(d->m_upgraders.count() == m_lastVersion - m_firstVersion + 1);
     for (int i = m_firstVersion; i < m_lastVersion; ++i)
-        Q_ASSERT(m_handlers.contains(i));
+        Q_ASSERT(d->m_upgraders.contains(i));
 }
 
 /* Will always return the default name first */
@@ -683,8 +705,8 @@ void SettingsAccessor::backupUserFile() const
     if (!oldSettings.environmentId().isEmpty() && oldSettings.environmentId() != creatorId())
         backupName += QLatin1String(".") + QString::fromLatin1(oldSettings.environmentId()).mid(1, 7);
     if (oldSettings.version() != currentVersion()) {
-        if (m_handlers.contains(oldSettings.version()))
-            backupName += QLatin1String(".") + m_handlers.value(oldSettings.version())->backupExtension();
+        if (d->m_upgraders.contains(oldSettings.version()))
+            backupName += QLatin1String(".") + d->m_upgraders.value(oldSettings.version())->backupExtension();
         else
             backupName += QLatin1String(".") + QString::number(oldSettings.version());
     }
@@ -907,9 +929,9 @@ bool SettingsAccessor::readFile(SettingsData *settings, bool environmentSpecific
 
 bool SettingsAccessor::writeFile(const SettingsData *settings, QWidget *parent) const
 {
-    if (!m_writer || m_writer->fileName() != settings->fileName()) {
-        delete m_writer;
-        m_writer = new PersistentSettingsWriter(settings->fileName(), QLatin1String("QtCreatorProject"));
+    if (!d->m_writer || d->m_writer->fileName() != settings->fileName()) {
+        delete d->m_writer;
+        d->m_writer = new PersistentSettingsWriter(settings->fileName(), QLatin1String("QtCreatorProject"));
     }
 
     QVariantMap data;
@@ -922,7 +944,7 @@ bool SettingsAccessor::writeFile(const SettingsData *settings, QWidget *parent) 
 
     data.insert(QLatin1String(VERSION_KEY), m_lastVersion + 1);
     data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
-    return m_writer->save(data, parent);
+    return d->m_writer->save(data, parent);
 }
 
 // -------------------------------------------------------------------------

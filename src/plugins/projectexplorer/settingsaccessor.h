@@ -42,6 +42,8 @@ class Project;
 
 namespace Internal { class VersionUpgrader; }
 
+class SettingsAccessorPrivate;
+
 class SettingsAccessor
 {
 public:
@@ -91,14 +93,16 @@ private:
     bool readFile(SettingsData *settings, bool environmentSpecific) const;
     bool writeFile(const SettingsData *settings, QWidget *parent) const;
 
-    QMap<int, Internal::VersionUpgrader *> m_handlers;
     int m_firstVersion;
     int m_lastVersion;
     QString m_userSuffix;
     QString m_sharedSuffix;
-    mutable Utils::PersistentSettingsWriter *m_writer;
 
     Project *m_project;
+
+    SettingsAccessorPrivate *d;
+
+    friend class SettingsAccessorPrivate;
 };
 
 namespace Internal {
