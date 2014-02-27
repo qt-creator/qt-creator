@@ -83,12 +83,12 @@ private:
         Utils::FileName m_fileName;
     };
 
-    void upgradeSettings(SettingsData &data, int toVersion) const;
+    QVariantMap upgradeSettings(const QVariantMap &data, int toVersion) const;
 
-    SettingsData readUserSettings(QWidget *parent) const;
-    SettingsData readSharedSettings(QWidget *parent) const;
+    QVariantMap readUserSettings(QWidget *parent) const;
+    QVariantMap readSharedSettings(QWidget *parent) const;
     SettingsData findBestSettings(const QStringList &candidates) const;
-    SettingsData mergeSettings(const SettingsData &user, const SettingsData &shared) const;
+    QVariantMap mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const;
 
     bool readFile(SettingsData *settings) const;
     bool writeFile(const SettingsData *settings, QWidget *parent) const;

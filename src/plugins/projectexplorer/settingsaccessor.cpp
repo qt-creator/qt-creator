@@ -532,28 +532,35 @@ QVariantMap SettingsAccessor::setVersionInMap(const QVariantMap &data, int versi
 
 /**
  * @brief Upgrade the settings to a target version
+ * @param data The settings to upgrade
+ * @param toVersion The target version
+ * @return Settings of the requested version.
  */
-void SettingsAccessor::upgradeSettings(SettingsData &data, int toVersion) const
+QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int toVersion) const
 {
-    const int version = versionFromMap(data.m_map);
-    if (data.m_map.isEmpty())
-        return;
+    const int version = versionFromMap(data);
 
-    if (!data.m_map.contains(QLatin1String(ORIGINAL_VERSION_KEY)))
-        data.m_map = setOriginalVersionInMap(data.m_map, version);
+    if (data.isEmpty())
+        return data;
+
+    QVariantMap result;
+    if (!data.contains(QLatin1String(ORIGINAL_VERSION_KEY)))
+        result = setOriginalVersionInMap(data, version);
+    else
+        result = data;
 
     if (version >= toVersion
             || version < m_firstVersion
             || toVersion > currentVersion())
-        return;
+        return result;
 
     for (int i = version; i < toVersion; ++i) {
         VersionUpgrader *upgrader = d->m_upgraders.value(i);
-        data.m_map = upgrader->upgrade(data.m_map);
-        data.m_map = setVersionInMap(data.m_map, i + 1);
+        result = upgrader->upgrade(result);
+        result = setVersionInMap(result, i + 1);
     }
 
-    return;
+    return result;
 }
 
 namespace {
@@ -622,14 +629,9 @@ QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
     if (m_lastVersion < 0)
         return QVariantMap();
 
-    SettingsData userSettings = readUserSettings(parent);
-    SettingsData sharedSettings = readSharedSettings(parent);
-    userSettings = mergeSettings(userSettings, sharedSettings);
-
-    if (!userSettings.isValid())
-        return QVariantMap();
-
-    return userSettings.m_map;
+    QVariantMap userSettings = readUserSettings(parent);
+    QVariantMap sharedSettings = readSharedSettings(parent);
+    return mergeSettings(userSettings, sharedSettings);
 }
 
 bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) const
@@ -738,12 +740,12 @@ void SettingsAccessor::backupUserFile() const
         QFile::copy(origName, backupName);
 }
 
-SettingsAccessor::SettingsData SettingsAccessor::readUserSettings(QWidget *parent) const
+QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 {
     SettingsData result;
     QStringList fileList = findSettingsFiles(m_userSuffix);
     if (fileList.isEmpty()) // No settings found at all.
-        return result;
+        return result.m_map;
 
     result = findBestSettings(fileList);
 
@@ -799,17 +801,17 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings(QWidget *paren
                     .arg(result.fileName().toUserOutput()),
                     QMessageBox::Ok);
     }
-    return result;
+    return result.m_map;
 }
 
-SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings(QWidget *parent) const
+QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 {
     SettingsData sharedSettings;
     QString fn = project()->projectFilePath() + m_sharedSuffix;
     sharedSettings.m_fileName = FileName::fromString(fn);
 
     if (!readFile(&sharedSettings))
-        return sharedSettings;
+        return sharedSettings.m_map;
 
     if (versionFromMap(sharedSettings.m_map) > currentVersion()) {
         // The shared file version is newer than Creator... If we have valid user
@@ -835,7 +837,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings(QWidget *par
         else
             sharedSettings.m_map = setVersionInMap(sharedSettings.m_map, currentVersion());
     }
-    return sharedSettings;
+    return sharedSettings.m_map;
 }
 
 SettingsAccessor::SettingsData SettingsAccessor::findBestSettings(const QStringList &candidates) const
@@ -882,32 +884,26 @@ SettingsAccessor::SettingsData SettingsAccessor::findBestSettings(const QStringL
     return result;
 }
 
-SettingsAccessor::SettingsData SettingsAccessor::mergeSettings(const SettingsAccessor::SettingsData &user,
-                                                               const SettingsAccessor::SettingsData &shared) const
+QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
+                                            const QVariantMap &sharedMap) const
 {
-    SettingsData newUser = user;
-    SettingsData newShared = shared;
-    SettingsData result;
-    if (shared.isValid() && user.isValid()) {
-        upgradeSettings(newUser, versionFromMap(newShared.m_map));
-        upgradeSettings(newShared, versionFromMap(newUser.m_map));
-        result = newUser;
-        result.m_map = mergeSharedSettings(newUser.m_map, newShared.m_map);
-    } else if (shared.isValid()) {
-        result = shared;
-    } else if (user.isValid()) {
-        result = user;
+    QVariantMap newUser = userMap;
+    QVariantMap newShared = sharedMap;
+    QVariantMap result;
+    if (!newUser.isEmpty() && !newShared.isEmpty()) {
+        newUser = upgradeSettings(newUser, versionFromMap(newShared));
+        newShared = upgradeSettings(newShared, versionFromMap(newUser));
+        result = mergeSharedSettings(newUser, newShared);
+    } else if (!sharedMap.isEmpty()) {
+        result = sharedMap;
+    } else if (!userMap.isEmpty()) {
+        result = userMap;
     }
 
-    m_project->setProperty(SHARED_SETTINGS, newShared.m_map);
-
-    if (!result.isValid())
-        return result;
+    m_project->setProperty(SHARED_SETTINGS, newShared);
 
     // Update from the base version to Creator's version.
-    upgradeSettings(result, currentVersion());
-
-    return result;
+    return upgradeSettings(result, currentVersion());
 }
 
 // -------------------------------------------------------------------------
