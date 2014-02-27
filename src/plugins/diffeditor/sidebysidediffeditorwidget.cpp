@@ -73,22 +73,23 @@ public:
         Separator,
         Invalid
     };
-    TextLineData() : textLineType(Invalid), changed(true) {}
-    TextLineData(const QString &txt) : textLineType(TextLine), text(txt), changed(true) {}
-    TextLineData(TextLineType t) : textLineType(t), changed(true) {}
+    TextLineData() : textLineType(Invalid) {}
+    TextLineData(const QString &txt) : textLineType(TextLine), text(txt) {}
+    TextLineData(TextLineType t) : textLineType(t) {}
     TextLineType textLineType;
     QString text;
-    bool changed; // true if anything was changed in this line (inserted or removed), taking whitespaces into account
 };
 
 class RowData {
 public:
+    RowData() : equal(false) {}
     RowData(const TextLineData &l)
-        : leftLine(l), rightLine(l) {}
+        : leftLine(l), rightLine(l), equal(true) {}
     RowData(const TextLineData &l, const TextLineData &r)
-        : leftLine(l), rightLine(r) {}
+        : leftLine(l), rightLine(r), equal(false) {}
     TextLineData leftLine;
     TextLineData rightLine;
+    bool equal;
 };
 
 class ChunkData {
@@ -113,7 +114,6 @@ public:
 
 static QList<TextLineData> assemblyRows(const QStringList &lines,
                                         const QMap<int, int> &lineSpans,
-                                        const QMap<int, bool> &equalLines,
                                         const QMap<int, int> &changedPositions,
                                         QMap<int, int> *outputChangedPositions)
 {
@@ -135,8 +135,6 @@ static QList<TextLineData> assemblyRows(const QStringList &lines,
             const int textLength = lines.at(i).count() + 1;
             pos += textLength;
             data.append(lines.at(i));
-            if (equalLines.contains(i))
-                data.last().changed = false;
         }
         while (changedIt != changedEnd) {
             if (changedIt.key() >= pos)
@@ -229,9 +227,8 @@ static ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
     // <line number, span count>
     QMap<int, int> leftSpans;
     QMap<int, int> rightSpans;
-    // <line number, dummy>
-    QMap<int, bool> leftEqualLines;
-    QMap<int, bool> rightEqualLines;
+    // <left line number, right line number>
+    QMap<int, int> equalLines;
 
     int leftLineNumber = 0;
     int rightLineNumber = 0;
@@ -310,16 +307,12 @@ static ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
                 }
 
                 // check if lines are equal
-                if (line < newLeftLines.count() - 1 || i == leftDiffList.count()) {
-                    // left line is equal
+                if ((line < commonLineCount - 1) // before the last common line in equality
+                        || (line == commonLineCount - 1 // or the last common line in equality
+                            && i == leftDiffList.count() // and it's the last iteration
+                            && j == rightDiffList.count())) {
                     if (line > 0 || lastLineEqual)
-                        leftEqualLines.insert(leftLineNumber, true);
-                }
-
-                if (line < newRightLines.count() - 1 || j == rightDiffList.count()) {
-                    // right line is equal
-                    if (line > 0 || lastLineEqual)
-                        rightEqualLines.insert(rightLineNumber, true);
+                        equalLines.insert(leftLineNumber, rightLineNumber);
                 }
 
                 if (line > 0)
@@ -334,12 +327,10 @@ static ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
 
     QList<TextLineData> leftData = assemblyRows(leftLines,
                                                 leftSpans,
-                                                leftEqualLines,
                                                 leftChangedPositions,
                                                 &chunkData.changedLeftPositions);
     QList<TextLineData> rightData = assemblyRows(rightLines,
                                                  rightSpans,
-                                                 rightEqualLines,
                                                  rightChangedPositions,
                                                  &chunkData.changedRightPositions);
 
@@ -350,8 +341,22 @@ static ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
         rightData.append(TextLineData(TextLineData::Separator));
 
     const int visualLineCount = leftData.count();
-    for (int i = 0; i < visualLineCount; i++)
-        chunkData.rows.append(RowData(leftData.at(i), rightData.at(i)));
+    int leftLine = -1;
+    int rightLine = -1;
+    for (int i = 0; i < visualLineCount; i++) {
+        const TextLineData &leftTextLine = leftData.at(i);
+        const TextLineData &rightTextLine = rightData.at(i);
+        RowData row(leftTextLine, rightTextLine);
+
+        if (leftTextLine.textLineType == TextLineData::TextLine)
+            ++leftLine;
+        if (rightTextLine.textLineType == TextLineData::TextLine)
+            ++rightLine;
+        if (equalLines.value(leftLine, -1) == rightLine)
+            row.equal = true;
+
+        chunkData.rows.append(row);
+    }
     return chunkData;
 }
 
@@ -1194,13 +1199,13 @@ FileData SideBySideDiffEditorWidget::calculateContextData(const ChunkData &origi
     int i = 0;
     while (i < originalData.rows.count()) {
         const RowData &row = originalData.rows[i];
-        if (!row.leftLine.changed && !row.rightLine.changed) {
+        if (row.equal) {
             // count how many equal
             int equalRowStart = i;
             i++;
             while (i < originalData.rows.count()) {
                 const RowData originalRow = originalData.rows.at(i);
-                if (originalRow.leftLine.changed || originalRow.rightLine.changed)
+                if (!originalRow.equal)
                     break;
                 i++;
             }
@@ -1509,7 +1514,7 @@ void SideBySideDiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
                 leftPos += rowData.leftLine.text.count() + 1; // +1 for '\n'
                 rightPos += rowData.rightLine.text.count() + 1; // +1 for '\n'
 
-                if (rowData.leftLine.changed) {
+                if (!rowData.equal) {
                     if (rowData.leftLine.textLineType == TextLineData::TextLine) {
                         leftLinePos[leftLastDiffBlockStartPos] = leftPos;
                         leftLastSkippedBlockStartPos = leftPos;
@@ -1517,12 +1522,6 @@ void SideBySideDiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
                         leftSkippedPos[leftLastSkippedBlockStartPos] = leftPos;
                         leftLastDiffBlockStartPos = leftPos;
                     }
-                } else {
-                    leftLastDiffBlockStartPos = leftPos;
-                    leftLastSkippedBlockStartPos = leftPos;
-                }
-
-                if (rowData.rightLine.changed) {
                     if (rowData.rightLine.textLineType == TextLineData::TextLine) {
                         rightLinePos[rightLastDiffBlockStartPos] = rightPos;
                         rightLastSkippedBlockStartPos = rightPos;
@@ -1531,6 +1530,8 @@ void SideBySideDiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
                         rightLastDiffBlockStartPos = rightPos;
                     }
                 } else {
+                    leftLastDiffBlockStartPos = leftPos;
+                    leftLastSkippedBlockStartPos = leftPos;
                     rightLastDiffBlockStartPos = rightPos;
                     rightLastSkippedBlockStartPos = rightPos;
                 }
@@ -1616,8 +1617,7 @@ void SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested(int diffFil
                 if (rowData.rightLine.textLineType == TextLineData::TextLine)
                     rightLineNumber++;
                 if (leftLineNumber == lineNumber) {
-                    int colNr = !rowData.leftLine.changed && !rowData.rightLine.changed
-                            ? columnNumber : 0;
+                    int colNr = rowData.equal ? columnNumber : 0;
                     jumpToOriginalFile(leftFileName, rightLineNumber, colNr);
                     return;
                 }
@@ -1852,14 +1852,12 @@ void DiffEditor::SideBySideDiffEditorWidget::testAssemblyRows()
     QMap<int, int> changedPositions;
     changedPositions[5] = 14; // changed text from position 5 to position 14, occupy 9 characters: "efgh\nijkl"
 
-    QMap<int, bool> equalLines; // no equal lines
-
     QMap<int, int> expectedChangedPositions;
     expectedChangedPositions[5] = 20; // "efgh\n[\n\n\n\n\n\n]ijkl" - [\n] means inserted span
 
     QMap<int, int> outputChangedPositions;
 
-    assemblyRows(lines, lineSpans, equalLines, changedPositions, &outputChangedPositions);
+    assemblyRows(lines, lineSpans, changedPositions, &outputChangedPositions);
     QVERIFY(outputChangedPositions == expectedChangedPositions);
 }
 
