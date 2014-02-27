@@ -130,13 +130,6 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QPushButton" name="resetButton">
-            <property name="text">
-             <string>Reset</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
         <item>
@@ -155,6 +148,13 @@
            <widget class="QPushButton" name="rebaseButton">
             <property name="text">
              <string>Re&amp;base</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="resetButton">
+            <property name="text">
+             <string>Reset</string>
             </property>
            </widget>
           </item>
