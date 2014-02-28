@@ -419,7 +419,6 @@ public:
         Settings() {}
         Settings(const QVariantMap &map) : map(map) {}
 
-        void clear();
         bool isValid() const;
 
         QVariantMap map;
@@ -814,7 +813,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setEscapeButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::No)
-            result.clear();
+            result.map.clear();
     } else if ((result.path.toString() != defaultFileName(m_userSuffix))
                && (versionFromMap(result.map) < currentVersion())) {
         QMessageBox::information(
@@ -863,7 +862,7 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setEscapeButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::No)
-            sharedSettings.clear();
+            sharedSettings.map.clear();
         else
             sharedSettings.map = setVersionInMap(sharedSettings.map, currentVersion());
     }
@@ -877,7 +876,6 @@ SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const Se
     Settings tmp;
 
     foreach (const QString &file, candidates) {
-        tmp.clear();
         tmp.path = FileName::fromString(file);
         tmp.map = accessor->readFile(tmp.path);
         if (tmp.map.isEmpty())
@@ -940,12 +938,6 @@ QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
 // -------------------------------------------------------------------------
 // SettingsData
 // -------------------------------------------------------------------------
-void SettingsAccessorPrivate::Settings::clear()
-{
-    map.clear();
-    path.clear();
-}
-
 bool SettingsAccessorPrivate::Settings::isValid() const
 {
     return SettingsAccessor::versionFromMap(map) > -1 && !path.isEmpty();
