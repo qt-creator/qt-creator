@@ -27,6 +27,7 @@ SUBDIRS   = \
     cmakeprojectmanager \
     autotoolsprojectmanager \
     fakevim \
+    emacskeys \
     designer \
     resourceeditor \
     genericprojectmanager \

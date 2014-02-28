@@ -28,6 +28,7 @@ Project {
         "designer/designer.qbs",
         "diffeditor/diffeditor.qbs",
         "fakevim/fakevim.qbs",
+        "emacskeys/emacskeys.qbs",
         "find/find.qbs",
         "genericprojectmanager/genericprojectmanager.qbs",
         "git/git.qbs",
