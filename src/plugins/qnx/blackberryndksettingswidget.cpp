@@ -181,7 +181,7 @@ void BlackBerryNDKSettingsWidget::updateConfigurationList()
         item->setIcon(0, config->isValid() ? QIcon() : invalidConfigIcon);
         // TODO: Do the same if qmake, qcc, debugger are no longer detected...
         if (!config->isValid()) {
-            QString toolTip = tr("Invalid target %1: ").arg(config->targetName());
+            QString toolTip = tr("Invalid target %1:").arg(config->targetName());
             if (config->isAutoDetected() && !config->autoDetectionSource().toFileInfo().exists())
                 toolTip += QLatin1Char('\n') + tr("- Target no longer installed.");
 
