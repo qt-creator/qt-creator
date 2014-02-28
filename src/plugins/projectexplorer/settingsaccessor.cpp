@@ -416,9 +416,6 @@ public:
     class Settings
     {
     public:
-        Settings() {}
-        Settings(const QVariantMap &map) : map(map) {}
-
         bool isValid() const;
 
         QVariantMap map;
@@ -656,7 +653,8 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
 
     backupUserFile();
 
-    SettingsAccessorPrivate::Settings settings(map);
+    SettingsAccessorPrivate::Settings settings;
+    settings.map = map;
     settings.path = FileName::fromString(defaultFileName(m_userSuffix));
     const QVariant &shared = m_project->property(SHARED_SETTINGS);
     if (shared.isValid())
