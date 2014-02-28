@@ -65,6 +65,7 @@ public:
 protected:
     QVariantMap readFile(const Utils::FileName &path) const;
     QVariantMap upgradeSettings(const QVariantMap &data, int toVersion) const;
+    virtual QVariantMap prepareSettings(const QVariantMap &data) const;
 
 private:
     QStringList findSettingsFiles(const QString &suffix) const;
@@ -96,6 +97,9 @@ class UserFileAccessor : public SettingsAccessor
 {
 public:
     UserFileAccessor(Project *project);
+
+protected:
+    QVariantMap prepareSettings(const QVariantMap &data) const;
 };
 
 } // namespace Internal

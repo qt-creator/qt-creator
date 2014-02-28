@@ -50,10 +50,6 @@
 
 using namespace Utils;
 
-const char ENVIRONMENT_ID_KEY[] = "ProjectExplorer.Project.Updater.EnvironmentId";
-const char VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
-const char ORIGINAL_VERSION_KEY[] = "OriginalVersion";
-
 namespace {
 static QString generateSuffix(const QString &alt1, const QString &alt2)
 {
@@ -123,8 +119,14 @@ using namespace Internal;
 
 namespace {
 
-const char USER_STICKY_KEYS_KEY[] = "ProjectExplorer.Project.UserStickyKeys";
+const char USER_STICKY_KEYS_KEY[] = "UserStickyKeys";
 const char SHARED_SETTINGS[] = "SharedSettings";
+const char ENVIRONMENT_ID_KEY[] = "EnvironmentId";
+const char VERSION_KEY[] = "Version";
+const char ORIGINAL_VERSION_KEY[] = "OriginalVersion";
+
+// for compatibility with QtC 3.1 and older:
+const char OBSOLETE_VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
 
 // Version 1 is used in master post Qt Creator 1.3.x.
 // It was never used in any official release but is required for the
@@ -312,6 +314,14 @@ public:
     QVariantMap upgrade(const QVariantMap &map);
 };
 
+// Version 15 Use settingsaccessor based class for user file reading/writing
+class UserFileVersion15Upgrader : public VersionUpgrader
+{
+public:
+    int version() const { return 15; }
+    QString backupExtension() const { return QLatin1String("3.2-pre1"); }
+    QVariantMap upgrade(const QVariantMap &map);
+};
 } // namespace
 
 //
@@ -393,6 +403,20 @@ UserFileAccessor::UserFileAccessor(Project *project)
     addVersionUpgrader(new UserFileVersion12Upgrader);
     addVersionUpgrader(new UserFileVersion13Upgrader);
     addVersionUpgrader(new UserFileVersion14Upgrader);
+    addVersionUpgrader(new UserFileVersion15Upgrader);
+}
+
+QVariantMap UserFileAccessor::prepareSettings(const QVariantMap &data) const
+{
+    // Move from old Version field to new one:
+    // This can not be done in a normal upgrader since the version information is needed
+    // to decide which upgraders to run
+    QVariantMap result = SettingsAccessor::prepareSettings(data);
+    if (data.contains(QLatin1String(OBSOLETE_VERSION_KEY))) {
+        result = setVersionInMap(result, data.value(key, versionFromMap(data)).toInt());
+        result.remove(key);
+    }
+    return result;
 }
 
 namespace ProjectExplorer {
@@ -543,6 +567,20 @@ QVariantMap SettingsAccessor::setVersionInMap(const QVariantMap &data, int versi
 }
 
 /**
+ * @brief Run directly after reading the data
+ *
+ * This method is called right after reading the data before any attempt at interpreting the data
+ * is made.
+ *
+ * @param data The input data
+ * @return The prepared data.
+ */
+QVariantMap SettingsAccessor::prepareSettings(const QVariantMap &data) const
+{
+    return data;
+}
+
+/**
  * @brief Upgrade the settings to a target version
  * @param data The settings to upgrade
  * @param toVersion The target version
@@ -674,6 +712,8 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
     }
 
     data.insert(QLatin1String(VERSION_KEY), m_lastVersion + 1);
+    // for compatibility with QtC 3.1 and older:
+    data.insert(QLatin1String(OBSOLETE_VERSION_KEY), m_lastVersion + 1); // TODO: Move into UserfileAccessor!
     data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
     return d->m_writer->save(data, parent);
 }
@@ -947,7 +987,7 @@ QVariantMap SettingsAccessor::readFile(const Utils::FileName &path) const
     if (!reader.load(path))
         return QVariantMap();
 
-    return reader.restoreValues();
+    return prepareSettings(reader.restoreValues());
 }
 
 // -------------------------------------------------------------------------
@@ -2273,4 +2313,22 @@ QVariantMap UserFileVersion14Upgrader::upgrade(const QVariantMap &map)
             result.insert(it.key(), it.value());
     }
     return result;
+}
+
+// --------------------------------------------------------------------
+// UserFileVersion15Upgrader:
+// --------------------------------------------------------------------
+
+QVariantMap UserFileVersion15Upgrader::upgrade(const QVariantMap &map)
+{
+    QList<Change> changes;
+    changes.append(qMakePair(QLatin1String("ProjectExplorer.Project.Updater.EnvironmentId"),
+                             QLatin1String("EnvironmentId")));
+    // This is actually handled in the SettingsAccessor itself:
+    // changes.append(qMakePair(QLatin1String("ProjectExplorer.Project.Updater.FileVersion"),
+    //                          QLatin1String("Version")));
+    changes.append(qMakePair(QLatin1String("ProjectExplorer.Project.UserStickyKeys"),
+                             QLatin1String("UserStickyKeys")));
+
+    return renameKeys(changes, QVariantMap(map));
 }
