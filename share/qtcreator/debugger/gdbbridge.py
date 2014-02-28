@@ -1742,7 +1742,7 @@ class Dumper(DumperBase):
             # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
             exp = "(class '%s'*)0" % ts
             try:
-                type = parseAndEvaluate(exp).type.target()
+                type = self.parseAndEvaluate(exp).type.target()
             except:
                 # Can throw "RuntimeError: No type named class Foo."
                 pass
