@@ -61,6 +61,11 @@ public:
     static QVariantMap setOriginalVersionInMap(const QVariantMap &data, int version);
 
     void addVersionUpgrader(Internal::VersionUpgrader *handler); // Takes ownership of the handler!
+
+protected:
+    QVariantMap readFile(const Utils::FileName &path) const;
+    QVariantMap upgradeSettings(const QVariantMap &data, int toVersion) const;
+
 private:
     QStringList findSettingsFiles(const QString &suffix) const;
     static QByteArray creatorId();
@@ -68,13 +73,9 @@ private:
     int currentVersion() const;
     void backupUserFile() const;
 
-    QVariantMap upgradeSettings(const QVariantMap &data, int toVersion) const;
-
     QVariantMap readUserSettings(QWidget *parent) const;
     QVariantMap readSharedSettings(QWidget *parent) const;
     QVariantMap mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const;
-
-    QVariantMap readFile(const Utils::FileName &path) const;
 
     static QByteArray environmentIdFromMap(const QVariantMap &data);
 
