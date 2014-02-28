@@ -412,7 +412,22 @@ public:
         delete m_writer;
     }
 
-    SettingsAccessor::SettingsData bestSettings(const SettingsAccessor *accessor, const QStringList &candidates) const;
+    // The relevant data from the settings currently in use.
+    class Settings
+    {
+    public:
+        Settings() {}
+        Settings(const QVariantMap &map) : m_map(map) {}
+
+        void clear();
+        bool isValid() const;
+        Utils::FileName fileName() const { return m_fileName; }
+
+        QVariantMap m_map;
+        Utils::FileName m_fileName;
+    };
+
+    Settings bestSettings(const SettingsAccessor *accessor, const QStringList &candidates) const;
 
     QMap<int, Internal::VersionUpgrader *> m_upgraders;
     Utils::PersistentSettingsWriter *m_writer;
@@ -643,7 +658,7 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
 
     backupUserFile();
 
-    SettingsData settings(map);
+    SettingsAccessorPrivate::Settings settings(map);
     settings.m_fileName = FileName::fromString(defaultFileName(m_userSuffix));
     const QVariant &shared = m_project->property(SHARED_SETTINGS);
     if (shared.isValid())
@@ -735,7 +750,7 @@ int SettingsAccessor::currentVersion() const
 
 void SettingsAccessor::backupUserFile() const
 {
-    SettingsData oldSettings;
+    SettingsAccessorPrivate::Settings oldSettings;
     oldSettings.m_fileName = FileName::fromString(defaultFileName(m_userSuffix));
     oldSettings.m_map = readFile(oldSettings.m_fileName);
     if (oldSettings.m_map.isEmpty())
@@ -760,7 +775,7 @@ void SettingsAccessor::backupUserFile() const
 
 QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 {
-    SettingsData result;
+    SettingsAccessorPrivate::Settings result;
     QStringList fileList = findSettingsFiles(m_userSuffix);
     if (fileList.isEmpty()) // No settings found at all.
         return result.m_map;
@@ -824,7 +839,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 
 QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 {
-    SettingsData sharedSettings;
+    SettingsAccessorPrivate::Settings sharedSettings;
     QString fn = project()->projectFilePath() + m_sharedSuffix;
     sharedSettings.m_fileName = FileName::fromString(fn);
     sharedSettings.m_map = readFile(sharedSettings.m_fileName);
@@ -856,11 +871,11 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
     return sharedSettings.m_map;
 }
 
-SettingsAccessor::SettingsData SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor, const QStringList &candidates) const
+SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor, const QStringList &candidates) const
 {
-    SettingsAccessor::SettingsData newestNonMatching;
-    SettingsAccessor::SettingsData newestMatching;
-    SettingsAccessor::SettingsData tmp;
+    Settings newestNonMatching;
+    Settings newestMatching;
+    Settings tmp;
 
     foreach (const QString &file, candidates) {
         tmp.clear();
@@ -892,7 +907,7 @@ SettingsAccessor::SettingsData SettingsAccessorPrivate::bestSettings(const Setti
             break;
     }
 
-    SettingsAccessor::SettingsData result;
+    Settings result;
     if (newestMatching.isValid())
         result = newestMatching;
     else if (newestNonMatching.isValid())
@@ -926,15 +941,15 @@ QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,
 // -------------------------------------------------------------------------
 // SettingsData
 // -------------------------------------------------------------------------
-void SettingsAccessor::SettingsData::clear()
+void SettingsAccessorPrivate::Settings::clear()
 {
     m_map.clear();
     m_fileName.clear();
 }
 
-bool SettingsAccessor::SettingsData::isValid() const
+bool SettingsAccessorPrivate::Settings::isValid() const
 {
-    return versionFromMap(m_map) > -1 && !m_fileName.isEmpty();
+    return SettingsAccessor::versionFromMap(m_map) > -1 && !m_fileName.isEmpty();
 }
 
 QVariantMap SettingsAccessor::readFile(const Utils::FileName &path) const

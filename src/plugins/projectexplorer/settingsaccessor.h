@@ -68,21 +68,6 @@ private:
     int currentVersion() const;
     void backupUserFile() const;
 
-    // The relevant data from the settings currently in use.
-    class SettingsData
-    {
-    public:
-        SettingsData() {}
-        SettingsData(const QVariantMap &map) : m_map(map) {}
-
-        void clear();
-        bool isValid() const;
-        Utils::FileName fileName() const { return m_fileName; }
-
-        QVariantMap m_map;
-        Utils::FileName m_fileName;
-    };
-
     QVariantMap upgradeSettings(const QVariantMap &data, int toVersion) const;
 
     QVariantMap readUserSettings(QWidget *parent) const;
