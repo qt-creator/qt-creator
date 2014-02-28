@@ -27,28 +27,25 @@
 **
 ****************************************************************************/
 
-#ifndef DESIGNERPROPERTYMAP_H
-#define DESIGNERPROPERTYMAP_H
-
-#include <QQmlPropertyMap>
-#include <QtQml>
-#include "propertyeditorvalue.h"
+#include "designerpropertymap.h"
 
 namespace QmlDesigner {
 
-class DesignerPropertyMap : public QQmlPropertyMap
+DesignerPropertyMap::DesignerPropertyMap(QObject *parent) : QQmlPropertyMap(parent), m_defaultValue(new PropertyEditorValue(this))
 {
+}
 
-public:
-    DesignerPropertyMap(QObject *parent = 0);
+QVariant DesignerPropertyMap::value(const QString &key) const
+{
+    if (contains(key))
+        return QQmlPropertyMap::value(key);
+    return  QVariant::fromValue(m_defaultValue);
+}
 
-    QVariant value(const QString &key) const;
-
-    static void registerDeclarativeType(const QString &name);
-private:
-    PropertyEditorValue *m_defaultValue;
-};
+void DesignerPropertyMap::registerDeclarativeType(const QString &name)
+{
+    qmlRegisterType<DesignerPropertyMap>("Bauhaus",1,0,name.toLatin1());
+}
 
 } //QmlDesigner
 
-#endif // DESIGNERPROPERTYMAP_H

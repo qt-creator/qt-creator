@@ -4,6 +4,7 @@ SOURCES += propertyeditorview.cpp \
     qmlanchorbindingproxy.cpp \
     propertyeditorvalue.cpp \
     propertyeditortransaction.cpp \
+    designerpropertymap.cpp \
     propertyeditorcontextobject.cpp \
     quick2propertyeditorview.cpp \
     propertyeditorqmlbackend.cpp \

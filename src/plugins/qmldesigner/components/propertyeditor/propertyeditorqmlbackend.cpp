@@ -222,7 +222,7 @@ Internal::QmlAnchorBindingProxy &PropertyEditorQmlBackend::backendAnchorBinding(
     return m_backendAnchorBinding;
 }
 
-DesignerPropertyMap<PropertyEditorValue> &PropertyEditorQmlBackend::backendValuesPropertyMap() {
+DesignerPropertyMap &PropertyEditorQmlBackend::backendValuesPropertyMap() {
     return m_backendValuesPropertyMap;
 }
 
