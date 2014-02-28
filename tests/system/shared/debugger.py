@@ -126,10 +126,16 @@ def removeOldBreakpoints():
 # param expectedBPOrder holds a list of dicts where the dicts contain always
 #       only 1 key:value pair - the key is the name of the file, the value is
 #       line number where the debugger should stop
-def doSimpleDebugging(kitCount, currentKit, currentConfigName, pressContinueCount=1, expectedBPOrder=[]):
+def doSimpleDebugging(kitCount, currentKit, currentConfigName, pressContinueCount=1,
+                      expectedBPOrder=[], enableQml=True):
     expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ \(\d+\) in thread \d+\.']
     if len(expectedBPOrder) == 0:
         expectedLabelTexts.append("Running\.")
+    switchViewTo(ViewConstants.PROJECTS)
+    switchToBuildOrRunSettingsFor(kitCount, currentKit, ProjectSettings.RUN)
+    ensureChecked(waitForObject("{container=':Qt Creator.scrollArea_QScrollArea' text='Enable QML' "
+                                "type='QCheckBox' unnamed='1' visible='1'}"), enableQml)
+    switchViewTo(ViewConstants.EDIT)
     if not __startDebugger__(kitCount, currentKit, currentConfigName):
         return False
     statusLabel = findObject(":Debugger Toolbar.StatusText_Utils::StatusLabel")
