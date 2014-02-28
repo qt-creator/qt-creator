@@ -73,7 +73,7 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     m_ui->ndksTreeWidget->setColumnCount(1);
 
     m_apiLevels = new QTreeWidgetItem(m_ui->ndksTreeWidget);
-    m_apiLevels->setText(0, tr("Api Levels"));
+    m_apiLevels->setText(0, tr("API Levels"));
     m_runtimes = new QTreeWidgetItem(m_ui->ndksTreeWidget);
     m_runtimes->setText(0, tr("Runtimes"));
 
