@@ -833,6 +833,17 @@ class Dumper(DumperBase):
     def extractByte(self, addr):
         return struct.unpack("b", self.readRawMemory(addr, 1))[0]
 
+    def findSymbol(self, symbolName):
+        try:
+            result = gdb.lookup_global_symbol(symbolName)
+            return result.value() if result else 0
+        except:
+            pass
+        # Older GDB ~7.4
+        try:
+            return gdb.parse_and_eval(symbolName)
+        except:
+            return 0
 
     def extractStaticMetaObjectHelper(self, typeName):
         """
@@ -844,15 +855,7 @@ class Dumper(DumperBase):
             return 0
 
         staticMetaObjectName = typeName + "::staticMetaObject"
-        if hasattr(gdb, 'lookup_global_symbol'):
-            result = gdb.lookup_global_symbol(staticMetaObjectName)
-            result = result.value() if result else 0
-        else:
-            # Older GDB...
-            try:
-                result = gdb.parse_and_eval(staticMetaObjectName)
-            except:
-                result = 0
+        result = self.findSymbol(staticMetaObjectName)
 
         # We need to distinguish Q_OBJECT from Q_GADGET:
         # a Q_OBJECT SMO has a non-null superdata (unless it's QObject itself),
