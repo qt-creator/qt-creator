@@ -77,7 +77,6 @@ public:
     virtual Id id() const = 0;
 
     virtual QAction *action() const = 0;
-    virtual QShortcut *shortcut() const = 0;
     virtual Context context() const = 0;
 
     virtual void setAttribute(CommandAttribute attr) = 0;

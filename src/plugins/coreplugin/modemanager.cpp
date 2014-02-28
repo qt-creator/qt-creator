@@ -47,7 +47,6 @@
 #include <QVector>
 
 #include <QSignalMapper>
-#include <QShortcut>
 #include <QAction>
 
 namespace Core {
@@ -68,7 +67,7 @@ struct ModeManagerPrivate
     Internal::FancyActionBar *m_actionBar;
     QMap<QAction*, int> m_actions;
     QVector<IMode*> m_modes;
-    QVector<Command*> m_modeShortcuts;
+    QVector<Command*> m_modeCommands;
     QSignalMapper *m_signalMapper;
     Context m_addedContexts;
     int m_oldCurrent;
@@ -182,15 +181,14 @@ void ModeManager::objectAdded(QObject *obj)
     d->m_modeStack->setTabEnabled(index, mode->isEnabled());
 
     // Register mode shortcut
-    const Id shortcutId = mode->id().withPrefix("QtCreator.Mode.");
-    QShortcut *shortcut = new QShortcut(d->m_mainWindow);
-    shortcut->setWhatsThis(tr("Switch to <b>%1</b> mode").arg(mode->displayName()));
-    Command *cmd = ActionManager::registerShortcut(shortcut, shortcutId, Context(Constants::C_GLOBAL));
+    const Id actionId = mode->id().withPrefix("QtCreator.Mode.");
+    QAction *action = new QAction(tr("Switch to <b>%1</b> mode").arg(mode->displayName()), this);
+    Command *cmd = ActionManager::registerAction(action, actionId, Context(Constants::C_GLOBAL));
 
-    d->m_modeShortcuts.insert(index, cmd);
+    d->m_modeCommands.insert(index, cmd);
     connect(cmd, SIGNAL(keySequenceChanged()), m_instance, SLOT(updateModeToolTip()));
-    for (int i = 0; i < d->m_modeShortcuts.size(); ++i) {
-        Command *currentCmd = d->m_modeShortcuts.at(i);
+    for (int i = 0; i < d->m_modeCommands.size(); ++i) {
+        Command *currentCmd = d->m_modeCommands.at(i);
         // we need this hack with currentlyHasDefaultSequence
         // because we call setDefaultShortcut multiple times on the same cmd
         // and still expect the current shortcut to change with it
@@ -202,8 +200,8 @@ void ModeManager::objectAdded(QObject *obj)
             currentCmd->setKeySequence(currentCmd->defaultKeySequence());
     }
 
-    d->m_signalMapper->setMapping(shortcut, mode->id().uniqueIdentifier());
-    connect(shortcut, SIGNAL(activated()), d->m_signalMapper, SLOT(map()));
+    d->m_signalMapper->setMapping(action, mode->id().uniqueIdentifier());
+    connect(action, SIGNAL(triggered()), d->m_signalMapper, SLOT(map()));
     connect(mode, SIGNAL(enabledStateChanged(bool)),
             m_instance, SLOT(enabledStateChanged()));
 }
@@ -212,9 +210,9 @@ void ModeManager::updateModeToolTip()
 {
     Command *cmd = qobject_cast<Command *>(sender());
     if (cmd) {
-        int index = d->m_modeShortcuts.indexOf(cmd);
+        int index = d->m_modeCommands.indexOf(cmd);
         if (index != -1)
-            d->m_modeStack->setTabToolTip(index, cmd->stringWithAppendedShortcut(cmd->shortcut()->whatsThis()));
+            d->m_modeStack->setTabToolTip(index, cmd->action()->toolTip());
     }
 }
 
@@ -253,7 +251,7 @@ void ModeManager::aboutToRemoveObject(QObject *obj)
 
     const int index = d->m_modes.indexOf(mode);
     d->m_modes.remove(index);
-    d->m_modeShortcuts.remove(index);
+    d->m_modeCommands.remove(index);
     d->m_modeStack->removeTab(index);
 
     d->m_mainWindow->removeContextObject(mode);

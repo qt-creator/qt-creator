@@ -204,39 +204,71 @@ using namespace Core;
 using namespace Core::Internal;
 
 /*!
-    \class CommandPrivate
-    \internal
+  \class Action
+  \internal
 */
-
-CommandPrivate::CommandPrivate(Id id)
-    : m_attributes(0), m_id(id), m_isKeyInitialized(false)
+Action::Action(Id id)
+    : m_attributes(0),
+      m_id(id),
+      m_isKeyInitialized(false),
+      m_action(new Utils::ProxyAction(this)),
+      m_active(false),
+      m_contextInitialized(false)
 {
+    m_action->setShortcutVisibleInToolTip(true);
+    connect(m_action, SIGNAL(changed()), this, SLOT(updateActiveState()));
 }
 
-void CommandPrivate::setDefaultKeySequence(const QKeySequence &key)
+Id Action::id() const
+{
+    return m_id;
+}
+
+void Action::setDefaultKeySequence(const QKeySequence &key)
 {
     if (!m_isKeyInitialized)
         setKeySequence(key);
     m_defaultKey = key;
 }
 
-QKeySequence CommandPrivate::defaultKeySequence() const
+QKeySequence Action::defaultKeySequence() const
 {
     return m_defaultKey;
 }
 
-void CommandPrivate::setKeySequence(const QKeySequence &key)
+QAction *Action::action() const
 {
-    Q_UNUSED(key)
-    m_isKeyInitialized = true;
+    return m_action;
 }
 
-void CommandPrivate::setDescription(const QString &text)
+QString Action::stringWithAppendedShortcut(const QString &str) const
+{
+    return Utils::ProxyAction::stringWithAppendedShortcut(str, keySequence());
+}
+
+Context Action::context() const
+{
+    return m_context;
+}
+
+void Action::setKeySequence(const QKeySequence &key)
+{
+    m_isKeyInitialized = true;
+    m_action->setShortcut(key);
+    emit keySequenceChanged();
+}
+
+QKeySequence Action::keySequence() const
+{
+    return m_action->shortcut();
+}
+
+void Action::setDescription(const QString &text)
 {
     m_defaultText = text;
 }
 
-QString CommandPrivate::description() const
+QString Action::description() const
 {
     if (!m_defaultText.isEmpty())
         return m_defaultText;
@@ -245,155 +277,8 @@ QString CommandPrivate::description() const
         text.remove(QRegExp(QLatin1String("&(?!&)")));
         if (!text.isEmpty())
             return text;
-    } else if (shortcut()) {
-        if (!shortcut()->whatsThis().isEmpty())
-            return shortcut()->whatsThis();
     }
     return id().toString();
-}
-
-Id CommandPrivate::id() const
-{
-    return m_id;
-}
-
-Core::Context CommandPrivate::context() const
-{
-    return m_context;
-}
-
-void CommandPrivate::setAttribute(CommandAttribute attr)
-{
-    m_attributes |= attr;
-}
-
-void CommandPrivate::removeAttribute(CommandAttribute attr)
-{
-    m_attributes &= ~attr;
-}
-
-bool CommandPrivate::hasAttribute(CommandAttribute attr) const
-{
-    return (m_attributes & attr);
-}
-
-QString CommandPrivate::stringWithAppendedShortcut(const QString &str) const
-{
-    return Utils::ProxyAction::stringWithAppendedShortcut(str, keySequence());
-}
-
-// ---------- Shortcut ------------
-
-/*!
-    \class Shortcut
-    \internal
-*/
-
-Shortcut::Shortcut(Id id)
-    : CommandPrivate(id), m_shortcut(0), m_scriptable(false)
-{}
-
-void Shortcut::setShortcut(QShortcut *shortcut)
-{
-    m_shortcut = shortcut;
-}
-
-QShortcut *Shortcut::shortcut() const
-{
-    return m_shortcut;
-}
-
-void Shortcut::setContext(const Core::Context &context)
-{
-    m_context = context;
-}
-
-Core::Context Shortcut::context() const
-{
-    return m_context;
-}
-
-void Shortcut::setKeySequence(const QKeySequence &key)
-{
-    CommandPrivate::setKeySequence(key);
-    m_shortcut->setKey(key);
-    emit keySequenceChanged();
-}
-
-QKeySequence Shortcut::keySequence() const
-{
-    return m_shortcut->key();
-}
-
-void Shortcut::setCurrentContext(const Core::Context &context)
-{
-    foreach (Id id, m_context) {
-        if (context.contains(id)) {
-            if (!m_shortcut->isEnabled()) {
-                m_shortcut->setEnabled(true);
-                emit activeStateChanged();
-            }
-            return;
-        }
-    }
-    if (m_shortcut->isEnabled()) {
-        m_shortcut->setEnabled(false);
-        emit activeStateChanged();
-    }
-    return;
-}
-
-bool Shortcut::isActive() const
-{
-    return m_shortcut->isEnabled();
-}
-
-bool Shortcut::isScriptable() const
-{
-    return m_scriptable;
-}
-
-bool Shortcut::isScriptable(const Core::Context &) const
-{
-    return m_scriptable;
-}
-
-void Shortcut::setScriptable(bool value)
-{
-    m_scriptable = value;
-}
-
-// ---------- Action ------------
-
-/*!
-  \class Action
-  \internal
-*/
-Action::Action(Id id)
-    : CommandPrivate(id),
-    m_action(new Utils::ProxyAction(this)),
-    m_active(false),
-    m_contextInitialized(false)
-{
-    m_action->setShortcutVisibleInToolTip(true);
-    connect(m_action, SIGNAL(changed()), this, SLOT(updateActiveState()));
-}
-
-QAction *Action::action() const
-{
-    return m_action;
-}
-
-void Action::setKeySequence(const QKeySequence &key)
-{
-    CommandPrivate::setKeySequence(key);
-    m_action->setShortcut(key);
-    emit keySequenceChanged();
-}
-
-QKeySequence Action::keySequence() const
-{
-    return m_action->shortcut();
 }
 
 void Action::setCurrentContext(const Core::Context &context)
@@ -502,7 +387,7 @@ bool Action::isScriptable(const Core::Context &context) const
 
 void Action::setAttribute(CommandAttribute attr)
 {
-    CommandPrivate::setAttribute(attr);
+    m_attributes |= attr;
     switch (attr) {
     case Core::Command::CA_Hide:
         m_action->setAttribute(Utils::ProxyAction::Hide);
@@ -520,7 +405,7 @@ void Action::setAttribute(CommandAttribute attr)
 
 void Action::removeAttribute(CommandAttribute attr)
 {
-    CommandPrivate::removeAttribute(attr);
+    m_attributes &= ~attr;
     switch (attr) {
     case Core::Command::CA_Hide:
         m_action->removeAttribute(Utils::ProxyAction::Hide);
@@ -534,4 +419,9 @@ void Action::removeAttribute(CommandAttribute attr)
     case Core::Command::CA_NonConfigurable:
         break;
     }
+}
+
+bool Action::hasAttribute(Command::CommandAttribute attr) const
+{
+    return (m_attributes & attr);
 }

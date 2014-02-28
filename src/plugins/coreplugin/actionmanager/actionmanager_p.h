@@ -48,16 +48,16 @@ namespace Core {
 
 namespace Internal {
 
+class Action;
 class ActionContainerPrivate;
 class MainWindow;
-class CommandPrivate;
 
 class ActionManagerPrivate : public QObject
 {
     Q_OBJECT
 
 public:
-    typedef QHash<Core::Id, CommandPrivate *> IdCmdMap;
+    typedef QHash<Core::Id, Action *> IdCmdMap;
     typedef QHash<Core::Id, ActionContainerPrivate *> IdContainerMap;
 
     explicit ActionManagerPrivate();
@@ -74,13 +74,12 @@ public:
     bool hasContext(const Context &context) const;
     Action *overridableAction(Id id);
 
-    void readUserSettings(Id id, CommandPrivate *cmd);
+    void readUserSettings(Id id, Action *cmd);
 
 public slots:
     void containerDestroyed();
 
     void actionTriggered();
-    void shortcutTriggered();
 
 public:
     IdCmdMap m_idCmdMap;

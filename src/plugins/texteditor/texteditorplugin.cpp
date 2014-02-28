@@ -52,7 +52,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtPlugin>
-#include <QShortcut>
+#include <QAction>
 #include <QDir>
 #include <QTemporaryFile>
 
@@ -169,29 +169,21 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
 
     // Add shortcut for invoking automatic completion
-    QShortcut *completionShortcut = new QShortcut(Core::ICore::mainWindow());
-    completionShortcut->setWhatsThis(tr("Triggers a completion in this scope"));
-    // Make sure the shortcut still works when the completion widget is active
-    completionShortcut->setContext(Qt::ApplicationShortcut);
-    Core::Command *command = Core::ActionManager::registerShortcut(completionShortcut, Constants::COMPLETE_THIS, context);
+    QAction *completionAction = new QAction(tr("Trigger Completion"), this);
+    Core::Command *command = Core::ActionManager::registerAction(completionAction, Constants::COMPLETE_THIS, context);
     command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
-    connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
+    connect(completionAction, SIGNAL(triggered()), this, SLOT(invokeCompletion()));
 
     // Add shortcut for invoking quick fix options
-    QShortcut *quickFixShortcut = new QShortcut(Core::ICore::mainWindow());
-    quickFixShortcut->setWhatsThis(tr("Triggers a quick fix in this scope"));
-    // Make sure the shortcut still works when the quick fix widget is active
-    quickFixShortcut->setContext(Qt::ApplicationShortcut);
-    Core::Command *quickFixCommand = Core::ActionManager::registerShortcut(quickFixShortcut, Constants::QUICKFIX_THIS, context);
+    QAction *quickFixAction = new QAction(tr("Trigger Quick Fix"), this);
+    Core::Command *quickFixCommand = Core::ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
     quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
-    connect(quickFixShortcut, SIGNAL(activated()), this, SLOT(invokeQuickFix()));
+    connect(quickFixAction, SIGNAL(triggered()), this, SLOT(invokeQuickFix()));
 
     // Add shortcut for create a scratch buffer
-    QShortcut *scratchBufferShortcut = new QShortcut(Core::ICore::mainWindow());
-    scratchBufferShortcut->setWhatsThis(tr("Creates a scratch buffer using a temporary file."));
-    scratchBufferShortcut->setContext(Qt::ApplicationShortcut);
-    Core::ActionManager::registerShortcut(scratchBufferShortcut, Constants::CREATE_SCRATCH_BUFFER, context);
-    connect(scratchBufferShortcut, SIGNAL(activated()), scratchFile, SLOT(createFile()));
+    QAction *scratchBufferAction = new QAction(tr("Create Scratch Buffer Using a Temporary File"), this);
+    Core::ActionManager::registerAction(scratchBufferAction, Constants::CREATE_SCRATCH_BUFFER, context);
+    connect(scratchBufferAction, SIGNAL(triggered()), scratchFile, SLOT(createFile()));
 
     // Generic highlighter.
     connect(Core::ICore::instance(), SIGNAL(coreOpened()),

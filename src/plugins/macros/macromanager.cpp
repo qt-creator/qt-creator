@@ -49,6 +49,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QFile>
@@ -57,7 +58,6 @@
 #include <QSignalMapper>
 #include <QList>
 
-#include <QShortcut>
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -100,6 +100,7 @@ public:
 
     MacroManager *q;
     QMap<QString, Macro *> macros;
+    QMap<QString, QAction *> actions;
     Macro *currentMacro;
     bool isRecording;
 
@@ -163,14 +164,16 @@ void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
 {
     // Add sortcut
     Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
-    QShortcut *shortcut = new QShortcut(Core::ICore::mainWindow());
-    shortcut->setWhatsThis(macro->description());
-    Core::ActionManager::registerShortcut(shortcut, makeId(macro->displayName()), context);
-    connect(shortcut, SIGNAL(activated()), mapper, SLOT(map()));
-    mapper->setMapping(shortcut, macro->displayName());
+    QAction *action = new QAction(macro->description(), q);
+    Core::Command *command = Core::ActionManager::registerAction(
+                action, makeId(macro->displayName()), context);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(action, SIGNAL(triggered()), mapper, SLOT(map()));
+    mapper->setMapping(action, macro->displayName());
 
     // Add macro to the map
     macros[macro->displayName()] = macro;
+    actions[macro->displayName()] = action;
 }
 
 void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
@@ -178,7 +181,9 @@ void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
     if (!macros.contains(name))
         return;
     // Remove shortcut
-    Core::ActionManager::unregisterShortcut(makeId(name));
+    QAction *action = actions.take(name);
+    Core::ActionManager::unregisterAction(action, makeId(name));
+    delete action;
 
     // Remove macro from the map
     Macro *macro = macros.take(name);
@@ -192,10 +197,9 @@ void MacroManager::MacroManagerPrivate::changeMacroDescription(Macro *macro, con
     macro->setDescription(description);
     macro->save(macro->fileName(), Core::ICore::mainWindow());
 
-    // Change shortcut what's this
-    Core::Command *command = Core::ActionManager::command(makeId(macro->displayName()));
-    if (command && command->shortcut())
-        command->shortcut()->setWhatsThis(description);
+    QAction *action = actions[macro->displayName()];
+    QTC_ASSERT(action, return);
+    action->setText(description);
 }
 
 bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)

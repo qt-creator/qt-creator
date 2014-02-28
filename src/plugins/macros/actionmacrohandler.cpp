@@ -113,10 +113,6 @@ void ActionMacroHandler::registerCommand(Id id)
             m_mapper->setMapping(action, id.toString());
             return;
         }
-        if (QShortcut *shortcut = command->shortcut()) {
-            connect(shortcut, SIGNAL(activated()), m_mapper, SLOT(map()));
-            m_mapper->setMapping(shortcut, id.toString());
-        }
     }
 }
 

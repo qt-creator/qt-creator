@@ -92,7 +92,6 @@
 #include <QCloseEvent>
 #include <QMenu>
 #include <QPrinter>
-#include <QShortcut>
 #include <QStatusBar>
 #include <QToolButton>
 #include <QMessageBox>
@@ -537,10 +536,10 @@ void MainWindow::registerDefaultActions()
 
     // Return to editor shortcut: Note this requires Qt to fix up
     // handling of shortcut overrides in menus, item views, combos....
-    m_focusToEditor = new QShortcut(this);
-    Command *cmd = ActionManager::registerShortcut(m_focusToEditor, Constants::S_RETURNTOEDITOR, globalContext);
+    m_focusToEditor = new QAction(tr("Return to Editor"), this);
+    Command *cmd = ActionManager::registerAction(m_focusToEditor, Constants::S_RETURNTOEDITOR, globalContext);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_Escape));
-    connect(m_focusToEditor, SIGNAL(activated()), this, SLOT(setFocusToEditor()));
+    connect(m_focusToEditor, SIGNAL(triggered()), this, SLOT(setFocusToEditor()));
 
     // New File Action
     QIcon icon = QIcon::fromTheme(QLatin1String("document-new"), QIcon(QLatin1String(Constants::ICON_NEWFILE)));

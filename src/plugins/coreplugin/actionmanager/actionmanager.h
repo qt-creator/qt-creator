@@ -60,7 +60,6 @@ public:
     static ActionContainer *createMenuBar(Id id);
 
     static Command *registerAction(QAction *action, Id id, const Context &context, bool scriptable = false);
-    static Command *registerShortcut(QShortcut *shortcut, Id id, const Context &context, bool scriptable = false);
 
     static Command *command(Id id);
     static ActionContainer *actionContainer(Id id);
@@ -68,7 +67,6 @@ public:
     static QList<Command *> commands();
 
     static void unregisterAction(QAction *action, Id id);
-    static void unregisterShortcut(Id id);
 
     static void setPresentationModeEnabled(bool enabled);
     static bool isPresentationModeEnabled();

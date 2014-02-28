@@ -112,8 +112,8 @@ void MacroOptionsWidget::createTable()
 
             Core::Command *command =
                     Core::ActionManager::command(base.withSuffix(it.value()->displayName()));
-            if (command && command->shortcut())
-                macroItem->setText(2, command->shortcut()->key().toString());
+            if (command && command->action())
+                macroItem->setText(2, command->action()->shortcut().toString());
         }
     }
 }

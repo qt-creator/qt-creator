@@ -46,85 +46,30 @@
 namespace Core {
 namespace Internal {
 
-class CommandPrivate : public Core::Command
-{
-    Q_OBJECT
-public:
-    CommandPrivate(Id id);
-    virtual ~CommandPrivate() {}
-
-    void setDefaultKeySequence(const QKeySequence &key);
-    QKeySequence defaultKeySequence() const;
-
-    void setKeySequence(const QKeySequence &key);
-
-    void setDescription(const QString &text);
-    QString description() const;
-
-    Id id() const;
-
-    Context context() const;
-
-
-    void setAttribute(CommandAttribute attr);
-    void removeAttribute(CommandAttribute attr);
-    bool hasAttribute(CommandAttribute attr) const;
-
-    virtual void setCurrentContext(const Context &context) = 0;
-
-    QString stringWithAppendedShortcut(const QString &str) const;
-
-protected:
-    Context m_context;
-    CommandAttributes m_attributes;
-    Id m_id;
-    QKeySequence m_defaultKey;
-    QString m_defaultText;
-    bool m_isKeyInitialized;
-};
-
-class Shortcut : public CommandPrivate
-{
-    Q_OBJECT
-public:
-    Shortcut(Id id);
-
-    void setKeySequence(const QKeySequence &key);
-    QKeySequence keySequence() const;
-
-    void setShortcut(QShortcut *shortcut);
-    QShortcut *shortcut() const;
-
-    QAction *action() const { return 0; }
-
-    void setContext(const Context &context);
-    Context context() const;
-    void setCurrentContext(const Context &context);
-
-    bool isActive() const;
-
-    bool isScriptable() const;
-    bool isScriptable(const Context &) const;
-    void setScriptable(bool value);
-
-private:
-    QShortcut *m_shortcut;
-    bool m_scriptable;
-};
-
-class Action : public CommandPrivate
+class Action : public Core::Command
 {
     Q_OBJECT
 public:
     Action(Id id);
 
+    Id id() const;
+
+    void setDefaultKeySequence(const QKeySequence &key);
+    QKeySequence defaultKeySequence() const;
+
     void setKeySequence(const QKeySequence &key);
     QKeySequence keySequence() const;
 
-    QAction *action() const;
-    QShortcut *shortcut() const { return 0; }
+    void setDescription(const QString &text);
+    QString description() const;
 
+    QAction *action() const;
+
+    QString stringWithAppendedShortcut(const QString &str) const;
+
+    Context context() const;
     void setCurrentContext(const Context &context);
+
     bool isActive() const;
     void addOverrideAction(QAction *action, const Context &context, bool scriptable);
     void removeOverrideAction(QAction *action);
@@ -135,12 +80,20 @@ public:
 
     void setAttribute(CommandAttribute attr);
     void removeAttribute(CommandAttribute attr);
+    bool hasAttribute(CommandAttribute attr) const;
 
 private slots:
     void updateActiveState();
 
 private:
     void setActive(bool state);
+
+    Context m_context;
+    CommandAttributes m_attributes;
+    Id m_id;
+    QKeySequence m_defaultKey;
+    QString m_defaultText;
+    bool m_isKeyInitialized;
 
     Utils::ProxyAction *m_action;
     QString m_toolTip;

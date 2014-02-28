@@ -44,7 +44,6 @@
 #include <QAction>
 #include <QHBoxLayout>
 #include <QResizeEvent>
-#include <QShortcut>
 #include <QStandardItemModel>
 
 Q_DECLARE_METATYPE(Core::INavigationWidgetFactory *)
@@ -137,7 +136,7 @@ struct NavigationWidgetPrivate
     ~NavigationWidgetPrivate() { delete m_factoryModel; }
 
     QList<Internal::NavigationSubWidget *> m_subWidgets;
-    QHash<QShortcut *, Core::Id> m_shortcutMap;
+    QHash<QAction *, Core::Id> m_actionMap;
     QHash<Core::Id, Core::Command *> m_commandMap;
     QStandardItemModel *m_factoryModel;
 
@@ -185,12 +184,11 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
     foreach (INavigationWidgetFactory *factory, factories) {
         const Id id = factory->id();
 
-        QShortcut *shortcut = new QShortcut(this);
-        shortcut->setWhatsThis(tr("Activate %1 Pane").arg(factory->displayName()));
-        connect(shortcut, SIGNAL(activated()), this, SLOT(activateSubWidget()));
-        d->m_shortcutMap.insert(shortcut, id);
+        QAction *action= new QAction(tr("Activate %1 Pane").arg(factory->displayName()), this);
+        connect(action, SIGNAL(triggered()), this, SLOT(activateSubWidget()));
+        d->m_actionMap.insert(action, id);
 
-        Command *cmd = ActionManager::registerShortcut(shortcut,
+        Command *cmd = ActionManager::registerAction(action,
             id.withPrefix("QtCreator.Sidebar."), navicontext);
         cmd->setDefaultKeySequence(factory->activationSequence());
         d->m_commandMap.insert(id, cmd);
@@ -257,8 +255,8 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,int 
 
 void NavigationWidget::activateSubWidget()
 {
-    QShortcut *original = qobject_cast<QShortcut *>(sender());
-    Id id = d->m_shortcutMap[original];
+    QAction *original = qobject_cast<QAction *>(sender());
+    Id id = d->m_actionMap[original];
     activateSubWidget(id);
 }
 

@@ -75,7 +75,7 @@ void TextEditorMacroHandler::startRecording(Macro *macro)
         m_currentEditor->widget()->installEventFilter(this);
 
     // Block completion
-    Core::ActionManager::command(TextEditor::Constants::COMPLETE_THIS)->shortcut()->blockSignals(true);
+    Core::ActionManager::command(TextEditor::Constants::COMPLETE_THIS)->action()->blockSignals(true);
 }
 
 void TextEditorMacroHandler::endRecordingMacro(Macro *macro)
@@ -85,7 +85,7 @@ void TextEditorMacroHandler::endRecordingMacro(Macro *macro)
     IMacroHandler::endRecordingMacro(macro);
 
     // Unblock completion
-    Core::ActionManager::command(TextEditor::Constants::COMPLETE_THIS)->shortcut()->blockSignals(false);
+    Core::ActionManager::command(TextEditor::Constants::COMPLETE_THIS)->action()->blockSignals(false);
 }
 
 bool TextEditorMacroHandler::canExecuteEvent(const MacroEvent &macroEvent)

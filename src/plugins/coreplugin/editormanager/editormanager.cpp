@@ -73,7 +73,6 @@
 #include <QTimer>
 
 #include <QAction>
-#include <QShortcut>
 #include <QApplication>
 #include <QFileDialog>
 #include <QMenu>
@@ -307,11 +306,11 @@ EditorManager::EditorManager(QWidget *parent) :
 
     if (Utils::HostOsInfo::isWindowsHost()) {
         // workaround for QTCREATORBUG-72
-        QShortcut *sc = new QShortcut(parent);
-        cmd = ActionManager::registerShortcut(sc, Constants::CLOSE_ALTERNATIVE, editManagerContext);
+        QAction *action = new QAction(tr("Alternative Close"), this);
+        cmd = ActionManager::registerAction(action, Constants::CLOSE_ALTERNATIVE, editManagerContext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
         cmd->setDescription(EditorManager::tr("Close"));
-        connect(sc, SIGNAL(activated()), this, SLOT(closeEditor()));
+        connect(action, SIGNAL(triggered()), this, SLOT(closeEditor()));
     }
 
     // Close All Action
