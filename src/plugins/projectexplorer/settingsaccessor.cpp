@@ -722,7 +722,8 @@ void SettingsAccessor::backupUserFile() const
 {
     SettingsData oldSettings;
     oldSettings.m_fileName = FileName::fromString(defaultFileName(m_userSuffix));
-    if (!readFile(&oldSettings))
+    oldSettings.m_map = readFile(oldSettings.m_fileName);
+    if (oldSettings.m_map.isEmpty())
         return;
 
     // Do we need to do a backup?
@@ -811,9 +812,7 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
     SettingsData sharedSettings;
     QString fn = project()->projectFilePath() + m_sharedSuffix;
     sharedSettings.m_fileName = FileName::fromString(fn);
-
-    if (!readFile(&sharedSettings))
-        return sharedSettings.m_map;
+    sharedSettings.m_map = readFile(sharedSettings.m_fileName);
 
     if (versionFromMap(sharedSettings.m_map) > currentVersion()) {
         // The shared file version is newer than Creator... If we have valid user
@@ -851,7 +850,8 @@ SettingsAccessor::SettingsData SettingsAccessorPrivate::bestSettings(const Setti
     foreach (const QString &file, candidates) {
         tmp.clear();
         tmp.m_fileName = FileName::fromString(file);
-        if (!accessor->readFile(&tmp))
+        tmp.m_map = accessor->readFile(tmp.m_fileName);
+        if (tmp.m_map.isEmpty())
             continue;
 
         const int tmpVersion = SettingsAccessor::versionFromMap(tmp.m_map);
@@ -922,21 +922,13 @@ bool SettingsAccessor::SettingsData::isValid() const
     return versionFromMap(m_map) > -1 && !m_fileName.isEmpty();
 }
 
-bool SettingsAccessor::readFile(SettingsData *settings) const
+QVariantMap SettingsAccessor::readFile(const Utils::FileName &path) const
 {
-    if (settings->fileName().isEmpty()) {
-        settings->clear();
-        return false;
-    }
+    Utils::PersistentSettingsReader reader;
+    if (!reader.load(path))
+        return QVariantMap();
 
-    PersistentSettingsReader reader;
-    if (!reader.load(settings->fileName())) {
-        settings->clear();
-        return false;
-    }
-
-    settings->m_map = reader.restoreValues();
-    return true;
+    return reader.restoreValues();
 }
 
 bool SettingsAccessor::writeFile(const SettingsData *settings, QWidget *parent) const

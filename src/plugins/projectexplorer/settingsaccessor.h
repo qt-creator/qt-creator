@@ -89,7 +89,7 @@ private:
     QVariantMap readSharedSettings(QWidget *parent) const;
     QVariantMap mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const;
 
-    bool readFile(SettingsData *settings) const;
+    QVariantMap readFile(const Utils::FileName &path) const;
     bool writeFile(const SettingsData *settings, QWidget *parent) const;
 
     static QByteArray environmentIdFromMap(const QVariantMap &data);
