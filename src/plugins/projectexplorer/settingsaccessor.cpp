@@ -649,7 +649,22 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
     if (shared.isValid())
         trackUserStickySettings(settings.m_map, shared.toMap());
 
-    return writeFile(&settings, parent);
+    if (!d->m_writer || d->m_writer->fileName() != settings.fileName()) {
+        delete d->m_writer;
+        d->m_writer = new PersistentSettingsWriter(settings.fileName(), QLatin1String("QtCreatorProject"));
+    }
+
+    QVariantMap data;
+
+    for (QVariantMap::const_iterator i = settings.m_map.constBegin();
+         i != settings.m_map.constEnd();
+         ++i) {
+        data.insert(i.key(), i.value());
+    }
+
+    data.insert(QLatin1String(VERSION_KEY), m_lastVersion + 1);
+    data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
+    return d->m_writer->save(data, parent);
 }
 
 void SettingsAccessor::addVersionUpgrader(VersionUpgrader *handler)
@@ -929,26 +944,6 @@ QVariantMap SettingsAccessor::readFile(const Utils::FileName &path) const
         return QVariantMap();
 
     return reader.restoreValues();
-}
-
-bool SettingsAccessor::writeFile(const SettingsData *settings, QWidget *parent) const
-{
-    if (!d->m_writer || d->m_writer->fileName() != settings->fileName()) {
-        delete d->m_writer;
-        d->m_writer = new PersistentSettingsWriter(settings->fileName(), QLatin1String("QtCreatorProject"));
-    }
-
-    QVariantMap data;
-
-    for (QVariantMap::const_iterator i = settings->m_map.constBegin();
-         i != settings->m_map.constEnd();
-         ++i) {
-        data.insert(i.key(), i.value());
-    }
-
-    data.insert(QLatin1String(VERSION_KEY), m_lastVersion + 1);
-    data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
-    return d->m_writer->save(data, parent);
 }
 
 // -------------------------------------------------------------------------
