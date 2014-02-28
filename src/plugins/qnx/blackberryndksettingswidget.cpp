@@ -322,7 +322,7 @@ void BlackBerryNDKSettingsWidget::updateUi(QTreeWidgetItem *item)
         item->setFont(0, font);
 
         m_ui->activateNdkTargetButton->setEnabled(!contains);
-        m_ui->deactivateNdkTargetButton->setEnabled(contains && m_activatedApiLevel.size() > 1);
+        m_ui->deactivateNdkTargetButton->setEnabled(contains);
         // Disable remove button for auto detected pre-10.2 NDKs (uninstall wizard doesn't handle them)
         m_ui->removeConfigButton->setEnabled(!(config->isAutoDetected()
                                                && QnxUtils::sdkInstallerPath(config->ndkPath()).isEmpty()));
