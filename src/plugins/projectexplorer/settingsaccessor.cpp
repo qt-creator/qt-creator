@@ -446,16 +446,24 @@ public:
         Utils::FileName path;
     };
 
+    int firstVersion() const { return m_upgraders.isEmpty() ? -1 : m_upgraders.first()->version(); }
+    int lastVersion() const { return m_upgraders.isEmpty() ? -1 : m_upgraders.last()->version(); }
+    int currentVersion() const { return lastVersion() + 1; }
+    VersionUpgrader *upgrader(const int version) const
+    {
+        int pos = version - firstVersion();
+        if (pos >= 0 && pos < m_upgraders.count())
+            return m_upgraders.at(pos);
+        return 0;
+    }
     Settings bestSettings(const SettingsAccessor *accessor, const QStringList &candidates) const;
 
-    QMap<int, Internal::VersionUpgrader *> m_upgraders;
+    QList<VersionUpgrader *> m_upgraders;
     Utils::PersistentSettingsWriter *m_writer;
 };
 } // end namespace
 
 SettingsAccessor::SettingsAccessor(Project *project) :
-    m_firstVersion(-1),
-    m_lastVersion(-1),
     m_project(project),
     d(new SettingsAccessorPrivate)
 {
@@ -600,12 +608,13 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int toVer
         result = data;
 
     if (version >= toVersion
-            || version < m_firstVersion
-            || toVersion > currentVersion())
+            || version < d->firstVersion()
+            || toVersion > d->currentVersion())
         return result;
 
     for (int i = version; i < toVersion; ++i) {
-        VersionUpgrader *upgrader = d->m_upgraders.value(i);
+        VersionUpgrader *upgrader = d->upgrader(i);
+        QTC_CHECK(upgrader && upgrader->version() == i);
         result = upgrader->upgrade(result);
         result = setVersionInMap(result, i + 1);
     }
@@ -676,7 +685,7 @@ QByteArray SettingsAccessor::environmentIdFromMap(const QVariantMap &data)
 
 QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
 {
-    if (m_lastVersion < 0)
+    if (d->lastVersion() < 0)
         return QVariantMap();
 
     QVariantMap userSettings = readUserSettings(parent);
@@ -711,41 +720,27 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
         data.insert(i.key(), i.value());
     }
 
-    data.insert(QLatin1String(VERSION_KEY), m_lastVersion + 1);
+    data.insert(QLatin1String(VERSION_KEY), d->currentVersion());
     // for compatibility with QtC 3.1 and older:
-    data.insert(QLatin1String(OBSOLETE_VERSION_KEY), m_lastVersion + 1); // TODO: Move into UserfileAccessor!
+    data.insert(QLatin1String(OBSOLETE_VERSION_KEY), d->currentVersion()); // TODO: Move into UserfileAccessor!
     data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
     return d->m_writer->save(data, parent);
 }
 
-void SettingsAccessor::addVersionUpgrader(VersionUpgrader *handler)
+bool SettingsAccessor::addVersionUpgrader(VersionUpgrader *upgrader)
 {
-    const int version(handler->version());
-    QTC_ASSERT(handler, return);
-    QTC_ASSERT(version >= 0, return);
-    QTC_ASSERT(!d->m_upgraders.contains(version), return);
-    QTC_ASSERT(d->m_upgraders.isEmpty() ||
-               (version == m_lastVersion + 1 || version == m_firstVersion - 1), return);
+    QTC_ASSERT(upgrader, return false);
+    int version = upgrader->version();
+    QTC_ASSERT(version >= 0, return false);
 
-    if (d->m_upgraders.isEmpty()) {
-        m_firstVersion = version;
-        m_lastVersion = version;
-    } else {
-        if (version < m_firstVersion)
-            m_firstVersion = version;
-        if (version > m_lastVersion)
-            m_lastVersion = version;
-    }
+    if (d->m_upgraders.isEmpty() || d->currentVersion() == version)
+        d->m_upgraders.append(upgrader);
+    else if (d->firstVersion() - 1 == version)
+        d->m_upgraders.prepend(upgrader);
+    else
+        QTC_ASSERT(false, return false); // Upgrader was added out of sequence or twice
 
-    d->m_upgraders.insert(version, handler);
-
-    // Postconditions:
-    Q_ASSERT(m_lastVersion >= 0);
-    Q_ASSERT(m_firstVersion >= 0);
-    Q_ASSERT(m_lastVersion >= m_firstVersion);
-    Q_ASSERT(d->m_upgraders.count() == m_lastVersion - m_firstVersion + 1);
-    for (int i = m_firstVersion; i < m_lastVersion; ++i)
-        Q_ASSERT(d->m_upgraders.contains(i));
+    return true;
 }
 
 /* Will always return the default name first */
@@ -781,7 +776,12 @@ QString SettingsAccessor::defaultFileName(const QString &suffix) const
 
 int SettingsAccessor::currentVersion() const
 {
-    return m_lastVersion + 1;
+    return d->currentVersion();
+}
+
+int SettingsAccessor::firstSupportedVersion() const
+{
+    return d->firstVersion();
 }
 
 void SettingsAccessor::backupUserFile() const
@@ -800,8 +800,9 @@ void SettingsAccessor::backupUserFile() const
         backupName += QLatin1String(".") + QString::fromLatin1(oldEnvironmentId).mid(1, 7);
     const int oldVersion = versionFromMap(oldSettings.map);
     if (oldVersion != currentVersion()) {
-        if (d->m_upgraders.contains(oldVersion))
-            backupName += QLatin1String(".") + d->m_upgraders.value(oldVersion)->backupExtension();
+        VersionUpgrader *upgrader = d->upgrader(oldVersion);
+        if (upgrader)
+            backupName += QLatin1String(".") + upgrader->backupExtension();
         else
             backupName += QLatin1String(".") + QString::number(oldVersion);
     }
@@ -925,7 +926,7 @@ SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const Se
             qWarning() << "Skipping settings file" << tmp.path.toUserOutput() << "(too new).";
             continue;
         }
-        if (tmpVersion < accessor->m_firstVersion) {
+        if (tmpVersion < accessor->firstSupportedVersion()) {
             qWarning() << "Skipping settings file" << tmp.path.toUserOutput() << "(too old).";
             continue;
         }
@@ -938,7 +939,7 @@ SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const Se
             if (tmpVersion > SettingsAccessor::versionFromMap(newestNonMatching.map))
                 newestNonMatching = tmp;
         }
-        if (SettingsAccessor::versionFromMap(newestMatching.map) == accessor->m_lastVersion + 1)
+        if (SettingsAccessor::versionFromMap(newestMatching.map) == accessor->currentVersion())
             break;
     }
 
