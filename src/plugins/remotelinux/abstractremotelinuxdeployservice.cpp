@@ -314,10 +314,11 @@ void AbstractRemoteLinuxDeployService::handleConnectionFailure()
         break;
     case Connecting: {
         QString errorMsg = tr("Could not connect to host: %1").arg(d->connection->errorString());
+        errorMsg += QLatin1Char('\n');
         if (deviceConfiguration()->machineType() == IDevice::Emulator)
-            errorMsg += tr("\nDid the emulator fail to start?");
+            errorMsg += tr("Did the emulator fail to start?");
         else
-            errorMsg += tr("\nIs the device connected and set up for network access?");
+            errorMsg += tr("Is the device connected and set up for network access?");
         emit errorMessage(errorMsg);
         setFinished();
         break;

@@ -101,7 +101,7 @@ void RemoteLinuxEnvironmentReader::remoteProcessFinished()
         const QString remoteStderr
                 = QString::fromUtf8(m_deviceProcess->readAllStandardError()).trimmed();
         if (!remoteStderr.isEmpty())
-            errorMessage += tr("\nRemote stderr was: '%1'").arg(remoteStderr);
+            errorMessage += QLatin1Char('\n') + tr("Remote stderr was: \"%1\"").arg(remoteStderr);
         emit error(errorMessage);
     } else {
         QString remoteOutput = QString::fromUtf8(m_deviceProcess->readAllStandardOutput());
