@@ -254,7 +254,7 @@ void CodepasterPlugin::post(QString data, const QString &mimeType)
 
     const QString username = m_settings->username;
 
-    PasteView view(m_protocols, mimeType, ICore::mainWindow());
+    PasteView view(m_protocols, mimeType, ICore::dialogParent());
     view.setProtocol(m_settings->protocol);
 
     const FileDataList diffChunks = splitDiffToFiles(data);
@@ -274,7 +274,7 @@ void CodepasterPlugin::fetchUrl()
     QUrl url;
     do {
         bool ok = true;
-        url = QUrl(QInputDialog::getText(0, tr("Fetch from URL"), tr("Enter URL:"), QLineEdit::Normal, QString(), &ok));
+        url = QUrl(QInputDialog::getText(ICore::dialogParent(), tr("Fetch from URL"), tr("Enter URL:"), QLineEdit::Normal, QString(), &ok));
         if (!ok)
             return;
     } while (!url.isValid());
@@ -283,7 +283,7 @@ void CodepasterPlugin::fetchUrl()
 
 void CodepasterPlugin::fetch()
 {
-    PasteSelectDialog dialog(m_protocols, ICore::mainWindow());
+    PasteSelectDialog dialog(m_protocols, ICore::dialogParent());
     dialog.setProtocol(m_settings->protocol);
 
     if (dialog.exec() != QDialog::Accepted)
