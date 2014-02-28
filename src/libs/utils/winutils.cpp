@@ -66,6 +66,7 @@ QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error)
 }
 
 
+#ifdef Q_OS_WIN
 static inline QString msgCannotLoad(const char *lib, const QString &why)
 {
     return QString::fromLatin1("Unable load %1: %2").arg(QLatin1String(lib), why);
@@ -75,6 +76,7 @@ static inline QString msgCannotResolve(const char *lib)
 {
     return QString::fromLatin1("Unable to resolve all required symbols in  %1").arg(QLatin1String(lib));
 }
+#endif
 
 QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
                                                 const QString &name,
