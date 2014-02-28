@@ -1241,6 +1241,11 @@ QVariant WatchModel::headerData(int section, Qt::Orientation orientation, int ro
     return QVariant();
 }
 
+static inline QString msgArrayFormat(int n)
+{
+    return WatchModel::tr("Array of %n items", 0, n);
+}
+
 QStringList WatchModel::typeFormatList(const WatchData &data) const
 {
     if (data.origaddr || isPointerType(data.type))
@@ -1251,10 +1256,10 @@ QStringList WatchModel::typeFormatList(const WatchData &data) const
             << tr("Local 8bit string")
             << tr("UTF16 string")
             << tr("UCS4 string")
-            << tr("Array of %1 items").arg(10)
-            << tr("Array of %1 items").arg(100)
-            << tr("Array of %1 items").arg(1000)
-            << tr("Array of %1 items").arg(10000);
+            << msgArrayFormat(10)
+            << msgArrayFormat(100)
+            << msgArrayFormat(1000)
+            << msgArrayFormat(10000);
     if (data.type.contains("char[") || data.type.contains("char ["))
         return QStringList()
             << tr("Latin1 string")
