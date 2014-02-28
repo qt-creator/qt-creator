@@ -60,6 +60,11 @@ public:
 
     void setAutoHide(bool hide) { m_autoHide = hide; }
     bool hasAutoHide() const { return m_autoHide; }
+
+protected:
+    void keyPressEvent(QKeyEvent *ke);
+    void keyReleaseEvent(QKeyEvent *ke);
+
 private:
     float m_iconOpacity;
     bool m_autoHide;
@@ -89,6 +94,7 @@ public:
 
     void setButtonVisible(Side side, bool visible);
     bool isButtonVisible(Side side) const;
+    QAbstractButton *button(Side side) const;
 
     void setButtonToolTip(Side side, const QString &);
     void setButtonFocusPolicy(Side side, Qt::FocusPolicy policy);

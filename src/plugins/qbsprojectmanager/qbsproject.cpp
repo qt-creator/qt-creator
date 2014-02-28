@@ -45,6 +45,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/kit.h>
@@ -381,6 +382,12 @@ void QbsProject::parseCurrentBuildConfiguration(bool force)
 
     if (!m_forceParsing)
         m_forceParsing = force;
+
+    // Qbs does update the build graph during the build. So we cannot
+    // start to parse while a build is running or we will lose information.
+    // Just return since the qbsbuildstep will trigger a reparse after the build.
+    if (ProjectExplorer::BuildManager::isBuilding(this))
+        return;
 
     if (!activeTarget())
         return;

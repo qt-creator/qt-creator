@@ -37,6 +37,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <QCoreApplication>
+
 using namespace ProjectExplorer;
 
 namespace WinRt {
@@ -46,6 +48,23 @@ static const char appxDeployConfigurationC[] = "WinRTAppxDeployConfiguration";
 static const char phoneDeployConfigurationC[] = "WinRTPhoneDeployConfiguration";
 static const char emulatorDeployConfigurationC[] = "WinRTEmulatorDeployConfiguration";
 
+static QString msgDeployConfigurationDisplayName(const Core::Id &id)
+{
+    if (id == appxDeployConfigurationC) {
+        return QCoreApplication::translate("WinRt::Internal::WinRtDeployConfiguration",
+                                           "Deploy locally");
+    }
+    if (id == phoneDeployConfigurationC) {
+        return QCoreApplication::translate("WinRt::Internal::WinRtDeployConfiguration",
+                                           "Deploy to Windows Phone");
+    }
+    if (id == emulatorDeployConfigurationC) {
+        return QCoreApplication::translate("WinRt::Internal::WinRtDeployConfiguration",
+                                           "Deploy to Windows Phone Emulator");
+    }
+    return QString();
+}
+
 WinRtDeployConfigurationFactory::WinRtDeployConfigurationFactory(QObject *parent)
     : DeployConfigurationFactory(parent)
 {
@@ -53,13 +72,7 @@ WinRtDeployConfigurationFactory::WinRtDeployConfigurationFactory(QObject *parent
 
 QString WinRtDeployConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == appxDeployConfigurationC)
-        return tr("Deploy locally");
-    if (id == phoneDeployConfigurationC)
-        return tr("Deploy to Windows Phone");
-    if (id == emulatorDeployConfigurationC)
-        return tr("Deploy to Windows Phone Emulator");
-    return QString();
+    return msgDeployConfigurationDisplayName(id);
 }
 
 QList<Core::Id> WinRtDeployConfigurationFactory::availableCreationIds(Target *parent) const
@@ -144,8 +157,10 @@ QList<Core::Id> WinRtDeployStepFactory::availableCreationIds(BuildStepList *pare
 
 QString WinRtDeployStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Constants::WINRT_BUILD_STEP_DEPLOY)
-        return tr("Deploy Qt binaries and application files");
+    if (id == Constants::WINRT_BUILD_STEP_DEPLOY) {
+        return QCoreApplication::translate("WinRt::Internal::WinRtDeployStepFactory",
+                                           "Deploy Qt binaries and application files");
+    }
     return QString();
 }
 
@@ -193,12 +208,7 @@ BuildStep *WinRtDeployStepFactory::clone(BuildStepList *parent, BuildStep *sourc
 WinRtDeployConfiguration::WinRtDeployConfiguration(Target *target, Core::Id id)
     : DeployConfiguration(target, id)
 {
-    if (id == appxDeployConfigurationC)
-        setDefaultDisplayName(tr("Deploy locally"));
-    if (id == phoneDeployConfigurationC)
-        setDefaultDisplayName(tr("Deploy to Windows Phone Device"));
-    if (id == emulatorDeployConfigurationC)
-        setDefaultDisplayName(tr("Deploy to Windows Phone Emulator"));
+    setDefaultDisplayName(msgDeployConfigurationDisplayName(id));
 
     stepList()->insertStep(0, new WinRtPackageDeploymentStep(stepList()));
 }

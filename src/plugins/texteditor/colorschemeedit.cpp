@@ -251,8 +251,6 @@ void ColorSchemeEdit::changeForeColor()
     const QColor newColor = QColorDialog::getColor(color, m_ui->boldCheckBox->window());
     if (!newColor.isValid())
         return;
-    QPalette p = m_ui->foregroundToolButton->palette();
-    p.setColor(QPalette::Active, QPalette::Button, newColor);
     m_ui->foregroundToolButton->setStyleSheet(colorButtonStyleSheet(newColor));
     m_ui->eraseForegroundToolButton->setEnabled(true);
 

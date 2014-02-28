@@ -33,9 +33,14 @@
 #include "ui_findwidget.h"
 #include "currentdocumentfind.h"
 
+#include <coreplugin/id.h>
 #include <utils/styledbar.h>
 
 #include <QTimer>
+
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+QT_END_NAMESPACE
 
 namespace Core {
 
@@ -43,6 +48,26 @@ class FindToolBarPlaceHolder;
 class FindPlugin;
 
 namespace Internal {
+
+class OptionsPopup : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit OptionsPopup(QWidget *parent);
+
+protected:
+    bool event(QEvent *ev);
+    bool eventFilter(QObject *obj, QEvent *ev);
+
+private slots:
+    void actionChanged();
+
+private:
+    QCheckBox *createCheckboxForCommand(Id id);
+
+    QMap<QAction *, QCheckBox *> m_checkboxMap;
+};
 
 class FindToolBar : public Utils::StyledBar
 {
@@ -85,6 +110,7 @@ private slots:
     void updateFindAction();
     void updateToolBar();
     void findFlagsChanged();
+    void findEditButtonClicked();
 
     void setCaseSensitive(bool sensitive);
     void setWholeWord(bool wholeOnly);

@@ -56,10 +56,12 @@ BlackBerryDeployConfigurationWidget::BlackBerryDeployConfigurationWidget(BlackBe
 
     PathChooserDelegate *appDescriptorPathDelegate = new PathChooserDelegate(this);
     appDescriptorPathDelegate->setExpectedKind(Utils::PathChooser::File);
+    appDescriptorPathDelegate->setHistoryCompleter(QLatin1String("BB.BarXml.History"));
     appDescriptorPathDelegate->setPromptDialogFilter(QLatin1String("*.xml"));
 
     PathChooserDelegate *barPathDelegate = new PathChooserDelegate(this);
     barPathDelegate->setExpectedKind(Utils::PathChooser::File);
+    barPathDelegate->setHistoryCompleter(QLatin1String("BB.AppBar.History"));
     barPathDelegate->setPromptDialogFilter(QLatin1String("*.bar"));
 
     m_ui->deployPackagesView->setItemDelegateForColumn(1, appDescriptorPathDelegate);

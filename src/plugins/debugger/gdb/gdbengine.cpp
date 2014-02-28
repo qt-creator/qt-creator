@@ -4608,56 +4608,6 @@ void GdbEngine::handleInferiorPrepared()
 void GdbEngine::finishInferiorSetup()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    // Extract Qt namespace.
-    QString fileName;
-    {
-        QTemporaryFile symbols(QDir::tempPath() + _("/gdb_ns_"));
-        symbols.open();
-        fileName = symbols.fileName();
-    }
-    postCommand("maint print msymbols \"" + fileName.toLocal8Bit() + '"',
-        CB(handleNamespaceExtraction), fileName);
-}
-
-void GdbEngine::handleDebugInfoLocation(const GdbResponse &response)
-{
-    if (response.resultClass == GdbResultDone) {
-        const QByteArray debugInfoLocation = startParameters().debugInfoLocation.toLocal8Bit();
-        if (QFile::exists(QString::fromLocal8Bit(debugInfoLocation))) {
-            const QByteArray curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
-            if (curDebugInfoLocations.isEmpty()) {
-                postCommand("set debug-file-directory " + debugInfoLocation);
-            } else {
-                postCommand("set debug-file-directory " + debugInfoLocation
-                        + HostOsInfo::pathListSeparator().toLatin1()
-                        + curDebugInfoLocations);
-            }
-        }
-    }
-}
-
-void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
-{
-    QFile file(response.cookie.toString());
-    file.open(QIODevice::ReadOnly);
-    QByteArray ba = file.readAll();
-    file.close();
-    file.remove();
-    QByteArray ns;
-    int pos = ba.indexOf("7QString16fromAscii_helper");
-    if (pos > -1) {
-        int pos1 = pos - 1;
-        while (pos1 > 0 && ba.at(pos1) != 'N' && ba.at(pos1) > '@')
-            --pos1;
-        ++pos1;
-        ns = ba.mid(pos1, pos - pos1);
-    }
-    if (ns.isEmpty()) {
-        showMessage(_("FOUND NON-NAMESPACED QT"));
-    } else {
-        showMessage(_("FOUND NAMESPACED QT: " + ns));
-        setQtNamespace(ns + "::");
-    }
 
     if (startParameters().startMode == AttachCore) {
         notifyInferiorSetupOk(); // No breakpoints in core files.
@@ -4675,6 +4625,23 @@ void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
                         CB(handleBreakOnQFatal), QVariant(true));
         } else {
             notifyInferiorSetupOk();
+        }
+    }
+}
+
+void GdbEngine::handleDebugInfoLocation(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        const QByteArray debugInfoLocation = startParameters().debugInfoLocation.toLocal8Bit();
+        if (QFile::exists(QString::fromLocal8Bit(debugInfoLocation))) {
+            const QByteArray curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
+            if (curDebugInfoLocations.isEmpty()) {
+                postCommand("set debug-file-directory " + debugInfoLocation);
+            } else {
+                postCommand("set debug-file-directory " + debugInfoLocation
+                        + HostOsInfo::pathListSeparator().toLatin1()
+                        + curDebugInfoLocations);
+            }
         }
     }
 }
@@ -5073,6 +5040,12 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         GdbMi all;
         all.fromStringMultiple(out);
         GdbMi data = all["data"];
+
+        GdbMi ns = all["qtnamespace"];
+        if (ns.isValid()) {
+            setQtNamespace(ns.data());
+            showMessage(_("FOUND NAMESPACED QT: " + ns.data()));
+        }
 
         WatchHandler *handler = watchHandler();
         QList<WatchData> list;

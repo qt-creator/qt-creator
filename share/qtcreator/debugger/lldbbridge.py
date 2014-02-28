@@ -659,6 +659,7 @@ class Dumper(DumperBase):
 
         self.executable_ = args['executable']
         self.startMode_ = args.get('startMode', 1)
+        self.breakOnMain_ = args.get('breakOnMain', 0)
         self.processArgs_ = args.get('processArgs', [])
         self.processArgs_ = map(lambda x: self.hexdecode(x), self.processArgs_)
         self.attachPid_ = args.get('attachPid', 0)
@@ -716,6 +717,8 @@ class Dumper(DumperBase):
             launchInfo.SetWorkingDirectory(os.getcwd())
             environmentList = [key + "=" + value for key,value in os.environ.items()]
             launchInfo.SetEnvironmentEntries(environmentList, False)
+            if self.breakOnMain_:
+                self.createBreakpointAtMain()
             self.process = self.target.Launch(launchInfo, error)
             if not error.Success():
                 self.reportError(error)
@@ -1323,6 +1326,10 @@ class Dumper(DumperBase):
         result += '],'
         return result
 
+    def createBreakpointAtMain(self):
+        return self.target.BreakpointCreateByName(
+            "main", self.target.GetExecutable().GetFilename())
+
     def addBreakpoint(self, args):
         bpType = args["type"]
         if bpType == BreakpointByFileAndLine:
@@ -1333,8 +1340,7 @@ class Dumper(DumperBase):
         elif bpType == BreakpointByAddress:
             bpNew = self.target.BreakpointCreateByAddress(args["address"])
         elif bpType == BreakpointAtMain:
-            bpNew = self.target.BreakpointCreateByName(
-                "main", self.target.GetExecutable().GetFilename())
+            bpNew = self.createBreakpointAtMain()
         elif bpType == BreakpointByFunction:
             bpNew = self.target.BreakpointCreateByName(args["function"])
         elif bpType == BreakpointAtThrow:

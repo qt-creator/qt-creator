@@ -165,6 +165,10 @@ void LinuxDeviceDebugSupport::startExecution()
 
     QStringList args = arguments();
     QString command;
+
+    if (d->qmlDebugging)
+        args.prepend(QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(d->qmlPort));
+
     if (d->qmlDebugging && !d->cppDebugging) {
         command = remoteFilePath();
     } else {

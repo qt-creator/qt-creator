@@ -57,6 +57,7 @@ BarDescriptorEditorEntryPointWidget::BarDescriptorEditorEntryPointWidget(QWidget
     m_ui->setupUi(this);
 
     m_ui->iconFilePath->setExpectedKind(Utils::PathChooser::File);
+    m_ui->iconFilePath->setHistoryCompleter(QLatin1String("Qmake.Icon.History"));
     m_ui->iconFilePath->setPromptDialogFilter(tr("Images (*.jpg *.png)"));
 
     m_ui->iconWarningLabel->setVisible(false);

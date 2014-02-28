@@ -46,11 +46,13 @@ QT_END_NAMESPACE
 
 
 namespace DiffEditor {
-
 class DiffEditorGuiController;
 class SideDiffEditorWidget;
+
+namespace Internal {
 class ChunkData;
 class FileData;
+}
 
 class DIFFEDITOR_EXPORT SideBySideDiffEditorWidget : public QWidget
 {
@@ -101,8 +103,7 @@ private:
     QList<QTextEdit::ExtraSelection> colorPositions(const QTextCharFormat &format,
             QTextCursor &cursor,
             const QMap<int, int> &positions) const;
-    void colorDiff(const QList<FileData> &fileDataList);
-    FileData calculateContextData(const ChunkData &originalData) const;
+    void colorDiff(const QList<Internal::FileData> &fileDataList);
     void showDiff();
     void synchronizeFoldings(SideDiffEditorWidget *source, SideDiffEditorWidget *destination);
     void jumpToOriginalFile(const QString &fileName, int lineNumber, int columnNumber);
@@ -114,8 +115,8 @@ private:
     QSplitter *m_splitter;
 
     QList<DiffList> m_diffList; // list of original outputs from differ
-    QList<ChunkData> m_originalChunkData; // one big chunk for every file, ignoreWhitespace taken into account
-    QList<FileData> m_contextFileData; // ultimate data to be shown, contextLinesNumber taken into account
+    QList<Internal::ChunkData> m_originalChunkData; // one big chunk for every file, ignoreWhitespace taken into account
+    QList<Internal::FileData> m_contextFileData; // ultimate data to be shown, contextLinesNumber taken into account
 
     bool m_foldingBlocker;
     QString m_source;

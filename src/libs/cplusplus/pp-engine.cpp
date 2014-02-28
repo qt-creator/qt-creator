@@ -829,8 +829,11 @@ void Preprocessor::handleDefined(PPToken *tk)
     pushToken(tk);
 
     QByteArray result(1, '0');
-    if (m_env->resolve(idToken.asByteArrayRef()))
+    const ByteArrayRef macroName = idToken.asByteArrayRef();
+    if (macroDefinition(macroName, idToken.offset + m_state.m_offsetRef,
+                        idToken.lineno, m_env, m_client)) {
         result[0] = '1';
+    }
     *tk = generateToken(T_NUMERIC_LITERAL, result.constData(), result.size(), lineno, false);
 }
 
@@ -969,7 +972,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
     // their corresponding argument in macro substitution. For expanded tokens which are
     // generated, this information must be taken from somewhere else. What we do is to keep
     // a "reference" line initialize set to the line where expansion happens.
-    unsigned baseLine = idTk.lineno;
+    unsigned baseLine = idTk.lineno - m_state.m_lineRef + 1;
 
     QVector<PPToken> body = macro->definitionTokens();
 

@@ -208,6 +208,7 @@ void LldbEngine::setupInferior()
     Command cmd("setupInferior");
     cmd.arg("executable", executable);
     cmd.arg("startMode", sp.startMode); // directly relying on this is brittle wrt. insertions, so check it here
+    cmd.arg("breakOnMain", sp.breakOnMain);
     cmd.beginList("processArgs");
     foreach (const QString &arg, args.toUnixArgs())
         cmd.arg(arg.toUtf8().toHex());
