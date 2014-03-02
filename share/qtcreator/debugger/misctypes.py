@@ -47,6 +47,12 @@ def qdump____m256(d, value):
     if d.isExpanded():
         d.putArrayData(d.lookupType("float"), value.address, 8)
 
+def qdump____m512(d, value):
+    d.putEmptyValue()
+    d.putNumChild(1)
+    if d.isExpanded():
+        d.putArrayData(d.lookupType("float"), value.address, 16)
+
 def qdump____m128d(d, value):
     d.putEmptyValue()
     d.putNumChild(1)
@@ -58,6 +64,12 @@ def qdump____m256d(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         d.putArrayData(d.lookupType("double"), value.address, 4)
+
+def qdump____m512d(d, value):
+    d.putEmptyValue()
+    d.putNumChild(1)
+    if d.isExpanded():
+        d.putArrayData(d.lookupType("double"), value.address, 8)
 
 def qdump____m128i(d, value):
     data = d.readMemory(value.address, 16)
@@ -108,6 +120,23 @@ def qdump____m256i(d, value):
                 d.putEmptyValue()
                 d.putType("unsigned long long [4]")
                 d.putArrayData(d.lookupType("unsigned long long"), value.address, 4)
+
+def qdump____m512i(d, value):
+    data = d.readMemory(value.address, 64)
+    d.putValue(':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(0, 64, 4))
+               + ', ' + ':'.join("%04x" % int(data[i:i+4], 16) for i in xrange(64, 128, 4)))
+    d.putNumChild(2)
+    if d.isExpanded():
+        # fake 2 children as arrays
+        with Children(d):
+            with SubItem(d, "uint32x16"):
+                d.putEmptyValue()
+                d.putType("unsigned int [16]")
+                d.putArrayData(d.lookupType("unsigned int"), value.address, 16)
+            with SubItem(d, "uint64x8"):
+                d.putEmptyValue()
+                d.putType("unsigned long long [8]")
+                d.putArrayData(d.lookupType("unsigned long long"), value.address, 8)
 
 #######################################################################
 #
