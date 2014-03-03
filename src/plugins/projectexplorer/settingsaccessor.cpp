@@ -46,7 +46,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QApplication>
-#include <QMessageBox>
 
 using namespace Utils;
 
@@ -655,6 +654,106 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int toVer
     return result;
 }
 
+/**
+ * Find issues with the settings file and warn the user about them.
+ *
+ * \a data is the data from the settings file.
+ * \a path is the full path to the settings used.
+ * \a parent is the widget to be set as parent of any dialogs that are opened.
+ *
+ * Returns \c true if the settings are not usable anymore and \c false otherwise.
+ */
+SettingsAccessor::ProceedInfo SettingsAccessor::reportIssues(const QVariantMap &data,
+                                                             const Utils::FileName &path,
+                                                             QWidget *parent) const
+{
+    IssueInfo issue = findIssues(data, path);
+    QMessageBox::Icon icon = QMessageBox::Information;
+
+    if (issue.buttons.count() > 1)
+        icon = QMessageBox::Question;
+
+    QMessageBox::StandardButtons buttons = QMessageBox::NoButton;
+    foreach (QMessageBox::StandardButton b, issue.buttons.keys())
+        buttons |= b;
+
+    if (buttons == QMessageBox::NoButton)
+        return Continue;
+
+    QMessageBox msgBox(icon, issue.title, issue.message, buttons, parent);
+    if (issue.defaultButton != QMessageBox::NoButton)
+        msgBox.setDefaultButton(issue.defaultButton);
+    if (issue.escapeButton != QMessageBox::NoButton)
+        msgBox.setEscapeButton(issue.escapeButton);
+
+    int boxAction = msgBox.exec();
+    return issue.buttons.value(static_cast<QMessageBox::StandardButton>(boxAction));
+}
+
+/**
+ * Checks \a data located at \a path for issues to be displayed with reportIssues.
+ *
+ * Returns a IssueInfo object which is then used by reportIssues.
+ */
+SettingsAccessor::IssueInfo SettingsAccessor::findIssues(const QVariantMap &data, const Utils::FileName &path) const
+{
+    SettingsAccessor::IssueInfo result;
+
+    Utils::FileName defaultSettingsPath = project()->projectFilePath();
+    defaultSettingsPath.appendString(m_userSuffix);
+
+    int version = versionFromMap(data);
+    if (!path.toFileInfo().exists()) {
+        return result;
+    } else if (data.isEmpty() || version < firstSupportedVersion() || version > currentVersion()) {
+        result.title = QApplication::translate("Utils::SettingsAccessor", "No Valid Settings Found");
+        result.message = QApplication::translate("Utils::SettingsAccessor",
+                                                 "<p>No valid settings file could be found.</p>"
+                                                 "<p>All settings files found in directory \"%1\" "
+                                                 "were either too new or too old to be read.</p>")
+                .arg(path.toUserOutput());
+        result.buttons.insert(QMessageBox::Ok, DiscardAndContinue);
+    } else if ((path != defaultSettingsPath) && (version < currentVersion())) {
+        result.title = QApplication::translate("Utils::SettingsAccessor", "Using Old Settings");
+        result.message = QApplication::translate("Utils::SettingsAccessor",
+                                                 "<p>The versioned backup \"%1\" of the settings "
+                                                 "file is used, because the non-versioned file was "
+                                                 "created by an incompatible version of Qt Creator.</p>"
+                                                 "<p>Settings changes made since the last time this "
+                                                 "version of Qt Creator was used are ignored, and "
+                                                 "changes made now will <b>not</b> be propagated to "
+                                                 "the newer version.</p>").arg(path.toUserOutput());
+        result.buttons.insert(QMessageBox::Ok, Continue);
+    }
+
+    if (!result.buttons.isEmpty())
+        return result;
+
+    QByteArray readId = environmentIdFromMap(data);
+    if (!readId.isEmpty() && readId != creatorId()) {
+        result.title = differentEnvironmentMsg(project()->displayName());
+        result.message = QApplication::translate("ProjectExplorer::EnvironmentIdAccessor",
+                                                 "<p>No .user settings file created by this instance "
+                                                 "of Qt Creator was found.</p>"
+                                                 "<p>Did you work with this project on another machine or "
+                                                 "using a different settings path before?</p>"
+                                                 "<p>Do you still want to load the settings file \"%1\"?</p>")
+                .arg(path.toUserOutput());
+        result.defaultButton = QMessageBox::No;
+        result.escapeButton = QMessageBox::No;
+        result.buttons.insert(QMessageBox::Yes, SettingsAccessor::Continue);
+        result.buttons.insert(QMessageBox::No, SettingsAccessor::DiscardAndContinue);
+    }
+    return result;
+}
+
+QString SettingsAccessor::differentEnvironmentMsg(const QString &projectName)
+{
+    return QApplication::translate("ProjectExplorer::EnvironmentIdAccessor",
+                                   "Settings File for \"%1\" from a different Environment?")
+            .arg(projectName);
+}
+
 namespace {
 
 // When restoring settings...
@@ -855,59 +954,13 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
         return result.map;
 
     result = d->bestSettings(this, fileList);
+    if (result.path.isEmpty())
+        result.path = project()->projectDirectory();
 
-    const QByteArray resultEnvironmentId = environmentIdFromMap(result.map);
+    ProceedInfo proceed = reportIssues(result.map, result.path, parent);
+    if (proceed == DiscardAndContinue)
+        return QVariantMap();
 
-    // Error handling:
-    if (!result.isValid()) {
-        QMessageBox::information(
-            parent,
-            QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "No valid Settings found"),
-            QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "<p>No valid settings file could be found "
-                                    "for this installation of Qt Creator.</p>"
-                                    "<p>All settings files were either too new or too "
-                                    "old to be read.</p>"),
-            QMessageBox::Ok);
-    } else if (!resultEnvironmentId.isEmpty() && resultEnvironmentId != creatorId()) {
-        // Wrong environment!
-        QMessageBox msgBox(
-            QMessageBox::Question,
-            QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "Settings File for \"%1\" from a different Environment?")
-                    .arg(project()->displayName()),
-            QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "<p>No .user settings file created by this instance "
-                                    "of Qt Creator was found.</p>"
-                                    "<p>Did you work with this project on another machine or "
-                                    "using a different settings path before?</p>"
-                                    "<p>Do you still want to load the settings file \"%1\"?</p>")
-                    .arg(result.path.toUserOutput()),
-            QMessageBox::Yes | QMessageBox::No,
-            parent);
-        msgBox.setDefaultButton(QMessageBox::No);
-        msgBox.setEscapeButton(QMessageBox::No);
-        if (msgBox.exec() == QMessageBox::No)
-            result.map.clear();
-    } else if ((result.path.toString() != defaultFileName(m_userSuffix))
-               && (versionFromMap(result.map) < currentVersion())) {
-        QMessageBox::information(
-                    parent,
-                    QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                            "Using Old Settings"),
-                    QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                            "<p>The versioned backup \"%1\" of the .user settings "
-                                            "file is used, because the non-versioned file was "
-                                            "created by an incompatible version of Qt Creator.</p>"
-                                            "<p>Project settings changes made since "
-                                            "the last time this version of Qt Creator was used "
-                                            "with this project are ignored, and changes made now "
-                                            "will <b>not</b> be propagated to the newer version."
-                                            "</p>")
-                    .arg(result.path.toUserOutput()),
-                    QMessageBox::Ok);
-    }
     return result.map;
 }
 

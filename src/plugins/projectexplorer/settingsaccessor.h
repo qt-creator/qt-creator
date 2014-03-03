@@ -33,6 +33,7 @@
 #include <utils/fileutils.h>
 
 #include <QVariantMap>
+#include <QMessageBox>
 
 namespace Utils { class PersistentSettingsWriter; }
 
@@ -65,12 +66,53 @@ public:
 
     bool addVersionUpgrader(Internal::VersionUpgrader *upgrader); // takes ownership of upgrader
 
+    enum ProceedInfo { Continue, DiscardAndContinue };
+    class IssueInfo {
+    public:
+        IssueInfo() : defaultButton(QMessageBox::NoButton), escapeButton(QMessageBox::NoButton) { }
+        IssueInfo(const QString &t, const QString &m,
+                  QMessageBox::StandardButton d = QMessageBox::NoButton,
+                  QMessageBox::StandardButton e = QMessageBox::NoButton,
+                  const QHash<QMessageBox::StandardButton, ProceedInfo> &b
+                      = QHash<QMessageBox::StandardButton, ProceedInfo>()) :
+            title(t), message(m), defaultButton(d), escapeButton(e), buttons(b)
+        { }
+        IssueInfo(const IssueInfo &other) :
+            title(other.title),
+            message(other.message),
+            defaultButton(other.defaultButton),
+            escapeButton(other.escapeButton),
+            buttons(other.buttons)
+        { }
+
+        IssueInfo &operator = (const IssueInfo &other)
+        {
+            title = other.title;
+            message = other.message;
+            defaultButton = other.defaultButton;
+            escapeButton = other.escapeButton;
+            buttons = other.buttons;
+            return *this;
+        }
+
+        QString title;
+        QString message;
+        QMessageBox::StandardButton defaultButton;
+        QMessageBox::StandardButton escapeButton;
+        QHash<QMessageBox::StandardButton, ProceedInfo> buttons;
+    };
+
 protected:
     QVariantMap readFile(const Utils::FileName &path) const;
     QVariantMap upgradeSettings(const QVariantMap &data, int toVersion) const;
+
+    ProceedInfo reportIssues(const QVariantMap &data, const Utils::FileName &path, QWidget *parent) const;
+
     virtual QVariantMap prepareSettings(const QVariantMap &data) const;
 
     virtual bool isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const;
+
+    virtual IssueInfo findIssues(const QVariantMap &data, const Utils::FileName &path) const;
 
 private:
     QList<Utils::FileName> settingsFiles(const QString &suffix) const;
@@ -83,6 +125,7 @@ private:
     QVariantMap mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const;
 
     static QByteArray environmentIdFromMap(const QVariantMap &data);
+    static QString differentEnvironmentMsg(const QString &projectName);
 
     QString m_userSuffix;
     QString m_sharedSuffix;
