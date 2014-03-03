@@ -456,7 +456,7 @@ public:
             return m_upgraders.at(pos);
         return 0;
     }
-    Settings bestSettings(const SettingsAccessor *accessor, const QStringList &candidates) const;
+    Settings bestSettings(const SettingsAccessor *accessor, const QList<Utils::FileName> &pathList);
 
     QList<VersionUpgrader *> m_upgraders;
     Utils::PersistentSettingsWriter *m_writer;
@@ -744,20 +744,20 @@ bool SettingsAccessor::addVersionUpgrader(VersionUpgrader *upgrader)
 }
 
 /* Will always return the default name first */
-QStringList SettingsAccessor::findSettingsFiles(const QString &suffix) const
+QList<FileName> SettingsAccessor::findSettingsFiles(const QString &suffix) const
 {
     const QString defaultName = defaultFileName(suffix);
     QDir projectDir = QDir(project()->projectDirectory().toString());
 
-    QStringList result;
+    QList<Utils::FileName> result;
     if (QFileInfo(defaultName).exists())
-        result << defaultName;
+        result << Utils::FileName::fromString(defaultName);
 
     QFileInfoList fiList = projectDir.entryInfoList(
                 QStringList(QFileInfo(defaultName).fileName() + QLatin1String("*")), QDir::Files);
 
     foreach (const QFileInfo &fi, fiList) {
-        const QString path = fi.absoluteFilePath();
+        const Utils::FileName path = Utils::FileName::fromString(fi.absoluteFilePath());
         if (!result.contains(path))
             result.append(path);
     }
@@ -813,7 +813,7 @@ void SettingsAccessor::backupUserFile() const
 QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 {
     SettingsAccessorPrivate::Settings result;
-    QStringList fileList = findSettingsFiles(m_userSuffix);
+    QList<Utils::FileName> fileList = findSettingsFiles(m_userSuffix);
     if (fileList.isEmpty()) // No settings found at all.
         return result.map;
 
@@ -908,14 +908,15 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
     return sharedSettings.map;
 }
 
-SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor, const QStringList &candidates) const
+SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor,
+                                                                        const QList<Utils::FileName> &pathList)
 {
     Settings newestNonMatching;
     Settings newestMatching;
     Settings tmp;
 
-    foreach (const QString &file, candidates) {
-        tmp.path = FileName::fromString(file);
+    foreach (const Utils::FileName &file, pathList) {
+        tmp.path = file;
         tmp.map = accessor->readFile(tmp.path);
         if (tmp.map.isEmpty())
             continue;

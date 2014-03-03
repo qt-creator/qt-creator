@@ -71,7 +71,7 @@ protected:
     virtual QVariantMap prepareSettings(const QVariantMap &data) const;
 
 private:
-    QStringList findSettingsFiles(const QString &suffix) const;
+    QList<Utils::FileName> findSettingsFiles(const QString &suffix) const;
     static QByteArray creatorId();
     QString defaultFileName(const QString &suffix) const;
     void backupUserFile() const;
