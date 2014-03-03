@@ -342,7 +342,7 @@ namespace Utils {
 namespace Internal {
 QString matchCaseReplacement(const QString &originalText, const QString &replaceText)
 {
-    if (originalText.isEmpty())
+    if (originalText.isEmpty() || replaceText.isEmpty())
        return replaceText;
 
     //Now proceed with actual case matching
