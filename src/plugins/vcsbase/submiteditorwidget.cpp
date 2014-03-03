@@ -303,6 +303,7 @@ static QString wrappedText(const QTextEdit *e)
         const QString block = cursor.block().text();
         if (block.startsWith(QLatin1Char('\t'))) { // Don't wrap
             rc += block + newLine;
+            cursor.movePosition(QTextCursor::EndOfBlock);
         } else {
             forever {
                 cursor.select(QTextCursor::LineUnderCursor);
