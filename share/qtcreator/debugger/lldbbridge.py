@@ -660,12 +660,15 @@ class Dumper(DumperBase):
         self.executable_ = args['executable']
         self.startMode_ = args.get('startMode', 1)
         self.breakOnMain_ = args.get('breakOnMain', 0)
+        self.useTerminal_ = args.get('useTerminal', 0)
         self.processArgs_ = args.get('processArgs', [])
         self.processArgs_ = map(lambda x: self.hexdecode(x), self.processArgs_)
         self.attachPid_ = args.get('attachPid', 0)
         self.sysRoot_ = args.get('sysRoot', '')
         self.remoteChannel_ = args.get('remoteChannel', '')
         self.platform_ = args.get('platform', '')
+
+        self.ignoreStops = 1 if self.useTerminal_ else 0
 
         if self.platform_:
             self.debugger.SetCurrentPlatform(self.platform_)
@@ -1259,6 +1262,9 @@ class Dumper(DumperBase):
                 if self.isInterrupting_:
                     self.isInterrupting_ = False
                     self.report('state="inferiorstopok"')
+                elif self.ignoreStops > 0:
+                    self.ignoreStops -= 1
+                    self.process.Continue()
                 else:
                     self.report('state="stopped"')
             else:

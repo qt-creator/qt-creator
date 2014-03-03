@@ -35,6 +35,8 @@
 #include <debugger/memoryagent.h>
 #include <debugger/watchhandler.h>
 
+#include <utils/consoleprocess.h>
+
 #include <QPointer>
 #include <QProcess>
 #include <QQueue>
@@ -211,6 +213,13 @@ private:
     QScopedPointer<DebuggerToolTipContext> m_toolTipContext;
 
     void showToolTip();
+
+    // Console handling.
+    Q_SLOT void stubError(const QString &msg);
+    Q_SLOT void stubExited();
+    Q_SLOT void stubStarted();
+    bool prepareCommand();
+    Utils::ConsoleProcess m_stubProc;
 };
 
 } // namespace Internal
