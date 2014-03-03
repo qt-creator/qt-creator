@@ -37,6 +37,7 @@
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/pathchooser.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
@@ -135,6 +136,11 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
 
     m_ui->downloadAntToolButton->setVisible(Utils::HostOsInfo::isWindowsHost());
     m_ui->downloadOpenJDKToolButton->setVisible(Utils::HostOsInfo::isWindowsHost());
+
+    m_ui->SDKLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
+    m_ui->NDKLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
+    m_ui->AntLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
+    m_ui->OpenJDKLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
 
     check(All);
     applyToUi(All);
