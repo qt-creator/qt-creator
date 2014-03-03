@@ -43,6 +43,7 @@
 
 #include <QStringList>
 #include <QTextCursor>
+#include <QCoreApplication>
 
 namespace ClangCodeModel {
 
@@ -104,6 +105,8 @@ private:
 
 class CLANG_EXPORT ClangCompletionAssistProcessor : public TextEditor::IAssistProcessor
 {
+    Q_DECLARE_TR_FUNCTIONS(ClangCodeModel::Internal::ClangCompletionAssistProcessor)
+
 public:
     ClangCompletionAssistProcessor();
     virtual ~ClangCompletionAssistProcessor();

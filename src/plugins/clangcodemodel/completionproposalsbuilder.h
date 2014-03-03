@@ -34,10 +34,14 @@
 #include "clang_global.h"
 #include <clang-c/Index.h>
 
+#include <QCoreApplication>
+
 namespace ClangCodeModel {
 
 class CLANG_EXPORT CompletionProposalsBuilder
 {
+    Q_DECLARE_TR_FUNCTIONS(ClangCodeModel::CompletionProposalsBuilder)
+
 public:
     CompletionProposalsBuilder(QList<CodeCompletionResult> &results, quint64 contexts, bool isSignalSlotCompletion);
     void operator ()(const CXCompletionResult &cxResult);
