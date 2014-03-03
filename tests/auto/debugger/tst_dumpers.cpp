@@ -1088,25 +1088,14 @@ void tst_Dumpers::dumper()
     } else if (m_debuggerEngine == CdbEngine) {
         exe = m_debuggerBinary;
         args << QLatin1String("-aqtcreatorcdbext.dll")
-             << QLatin1String("-lines")
              << QLatin1String("-G")
-             << QLatin1String("-c.idle_cmd")
-             << QLatin1String("!qtcreatorcdbext.idle")
+             << QLatin1String("-xi")
+             << QLatin1String("0x4000001f")
+             << QLatin1String("-c")
+             << QLatin1String("g")
              << QLatin1String("debug\\doit.exe");
-        cmds = "l+t\n"
-               "l+s\n"
-               "sxi 0x4000001f\n"
-               "g\n"
-               "!qtcreatorcdbext.expandlocals -t 0 -c 0 " + expanded + "\n";
-        int token = 0;
-        QStringList sortediNames;
-        foreach (QByteArray iName, expandedINames)
-            sortediNames << QString::fromLatin1(iName);
-        sortediNames.sort();
-        foreach (QString iName, sortediNames)
-            cmds += "!qtcreatorcdbext.locals -t " + QByteArray::number(++token)
-                    + " -c 0 " + iName.toLatin1() + "\n";
-        cmds += "q\n";
+        cmds = "!qtcreatorcdbext.locals -t -D -e " + expanded + " -v -c 0\n"
+               "q\n";
     } else if (m_debuggerEngine == LldbEngine) {
         exe = "python";
         args << QLatin1String(dumperDir + "/lldbbridge.py")
@@ -1177,16 +1166,16 @@ void tst_Dumpers::dumper()
             context.nameSpace.clear();
         contents.replace("\\\"", "\"");
     } else {
+        // "<qtcreatorcdbext>|type_char|token|remainingChunks|locals|message"
         const QByteArray locals = "|locals|";
-        int pos1 = output.indexOf(locals);
-        QVERIFY(pos1 != -1);
+        int localsBeginPos = output.indexOf(locals);
+        QVERIFY(localsBeginPos != -1);
         do {
-            pos1 += locals.length();
-            int pos2 = output.indexOf("\n", pos1);
-            QVERIFY(pos2 != -1);
-            contents += output.mid(pos1, pos2 - pos1);
-            pos1 = output.indexOf(locals, pos2);
-        } while (pos1 != -1);
+            const int msgStart = localsBeginPos + locals.length();
+            const int msgEnd = output.indexOf("\n", msgStart);
+            contents += output.mid(msgStart, msgEnd - msgStart);
+            localsBeginPos = output.indexOf(locals, msgEnd);
+        } while (localsBeginPos != -1);
     }
 
     GdbMi actual;
