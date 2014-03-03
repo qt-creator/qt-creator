@@ -590,6 +590,38 @@ QVariantMap SettingsAccessor::prepareSettings(const QVariantMap &data) const
 }
 
 /**
+ * @brief Check which of two sets of data are a better match to load.
+ *
+ * This method is used to compare data extracted from two XML settings files.
+ * It will never be called with a version too old or too new to be read by
+ * the current instance of Qt Creator.
+ *
+ * @param origData The basis for the compare.
+ * @param newData The new value to compare against the basis.
+ * @return True if newData is a better match than origData and false otherwise.
+ */
+bool SettingsAccessor::isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const
+{
+    if (origData.isEmpty())
+        return true;
+
+    int origVersion = versionFromMap(origData);
+    QByteArray origEnv = environmentIdFromMap(origData);
+
+    int newVersion = versionFromMap(newData);
+    QByteArray newEnv = environmentIdFromMap(newData);
+
+    if (origEnv != newEnv) {
+        if (origEnv == creatorId())
+            return false;
+        if (newEnv == creatorId())
+            return true;
+    }
+
+    return newVersion > origVersion;
+}
+
+/**
  * @brief Upgrade the settings to a target version
  * @param data The settings to upgrade
  * @param toVersion The target version
@@ -912,46 +944,20 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor,
                                                                         const QList<Utils::FileName> &pathList)
 {
-    Settings newestNonMatching;
-    Settings newestMatching;
-    Settings tmp;
+    Settings bestMatch;
+    foreach (const Utils::FileName &path, pathList) {
+        QVariantMap tmp = accessor->readFile(path);
 
-    foreach (const Utils::FileName &file, pathList) {
-        tmp.path = file;
-        tmp.map = accessor->readFile(tmp.path);
-        if (tmp.map.isEmpty())
+        int version = SettingsAccessor::versionFromMap(tmp);
+        if (version < firstVersion() || version > currentVersion())
             continue;
 
-        const int tmpVersion = SettingsAccessor::versionFromMap(tmp.map);
-
-        if (tmpVersion > accessor->currentVersion()) {
-            qWarning() << "Skipping settings file" << tmp.path.toUserOutput() << "(too new).";
-            continue;
+        if (accessor->isBetterMatch(bestMatch.map, tmp)) {
+            bestMatch.path = path;
+            bestMatch.map = tmp;
         }
-        if (tmpVersion < accessor->firstSupportedVersion()) {
-            qWarning() << "Skipping settings file" << tmp.path.toUserOutput() << "(too old).";
-            continue;
-        }
-
-        const QByteArray tmpEnvironmentId = SettingsAccessor::environmentIdFromMap(tmp.map);
-        if (tmpEnvironmentId.isEmpty() || tmpEnvironmentId == SettingsAccessor::creatorId()) {
-            if (tmpVersion > SettingsAccessor::versionFromMap(newestMatching.map))
-                newestMatching = tmp;
-        } else {
-            if (tmpVersion > SettingsAccessor::versionFromMap(newestNonMatching.map))
-                newestNonMatching = tmp;
-        }
-        if (SettingsAccessor::versionFromMap(newestMatching.map) == accessor->currentVersion())
-            break;
     }
-
-    Settings result;
-    if (newestMatching.isValid())
-        result = newestMatching;
-    else if (newestNonMatching.isValid())
-        result = newestNonMatching;
-
-    return result;
+    return bestMatch;
 }
 
 QVariantMap SettingsAccessor::mergeSettings(const QVariantMap &userMap,

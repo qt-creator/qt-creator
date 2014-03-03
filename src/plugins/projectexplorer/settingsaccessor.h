@@ -70,6 +70,8 @@ protected:
     QVariantMap upgradeSettings(const QVariantMap &data, int toVersion) const;
     virtual QVariantMap prepareSettings(const QVariantMap &data) const;
 
+    virtual bool isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const;
+
 private:
     QList<Utils::FileName> findSettingsFiles(const QString &suffix) const;
     static QByteArray creatorId();
