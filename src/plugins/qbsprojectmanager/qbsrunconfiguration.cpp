@@ -563,10 +563,11 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(ProjectExplorer
     if (!project || !project->qbsProject().isValid())
         return result;
 
-    foreach (const qbs::ProductData &product, project->qbsProjectData().allProducts()) {
-        if (!project->qbsProject().targetExecutable(product, qbs::InstallOptions()).isEmpty())
-            result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
-    }
+    // Create one RC per product. There is no information on what those products actually
+    // are or whether they are going to get installed before a project is built.
+    foreach (const qbs::ProductData &product, project->qbsProjectData().allProducts())
+        result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
+
     return result;
 }
 
