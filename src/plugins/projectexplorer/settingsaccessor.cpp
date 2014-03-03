@@ -777,7 +777,7 @@ bool SettingsAccessor::addVersionUpgrader(VersionUpgrader *upgrader)
 }
 
 /* Will always return the default name first */
-QList<FileName> SettingsAccessor::findSettingsFiles(const QString &suffix) const
+QList<FileName> SettingsAccessor::settingsFiles(const QString &suffix) const
 {
     const QString defaultName = defaultFileName(suffix);
     QDir projectDir = QDir(project()->projectDirectory().toString());
@@ -846,7 +846,7 @@ void SettingsAccessor::backupUserFile() const
 QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 {
     SettingsAccessorPrivate::Settings result;
-    QList<Utils::FileName> fileList = findSettingsFiles(m_userSuffix);
+    QList<Utils::FileName> fileList = settingsFiles(m_userSuffix);
     if (fileList.isEmpty()) // No settings found at all.
         return result.map;
 

@@ -73,7 +73,7 @@ protected:
     virtual bool isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const;
 
 private:
-    QList<Utils::FileName> findSettingsFiles(const QString &suffix) const;
+    QList<Utils::FileName> settingsFiles(const QString &suffix) const;
     static QByteArray creatorId();
     QString defaultFileName(const QString &suffix) const;
     void backupUserFile() const;
