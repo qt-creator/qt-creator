@@ -358,6 +358,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
 
     m_executableLineEdit = new QLineEdit(this);
     m_executableLineEdit->setEnabled(false);
+    m_executableLineEdit->setPlaceholderText(tr("<unknown>"));
     toplayout->addRow(tr("Executable:"), m_executableLineEdit);
 
     QLabel *argumentsLabel = new QLabel(tr("Arguments:"), this);
