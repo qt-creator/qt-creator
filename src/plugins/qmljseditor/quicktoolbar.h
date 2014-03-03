@@ -62,6 +62,8 @@ public slots:
    void onEnabledChanged(bool);
 
 private:
+   void indentLines(int startLine, int endLine);
+
     QmlEditorWidgets::ContextPaneWidget* contextWidget();
     QPointer<QmlEditorWidgets::ContextPaneWidget> m_widget;
     QmlJS::Document::Ptr m_doc;
