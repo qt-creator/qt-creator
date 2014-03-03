@@ -778,6 +778,8 @@ VcProjectDocument *VcProjectDocumentFactory::create(const QString &filePath, VcD
     case VcDocConstants::DV_MSVC_2008:
         vcDoc = new VcProjectDocument2008(filePath);
         break;
+    case VcDocConstants::DV_UNRECOGNIZED:
+        return 0;
     }
 
     if (vcDoc)

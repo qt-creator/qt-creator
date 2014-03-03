@@ -308,6 +308,8 @@ ProjectReference::Ptr ProjectReferenceFactory::create(VcDocConstants::DocumentVe
     case VcDocConstants::DV_MSVC_2008:
         ref = ProjectReference::Ptr(new ProjectReference2008);
         break;
+    case VcDocConstants::DV_UNRECOGNIZED:
+        return ref;
     }
 
     if (ref)

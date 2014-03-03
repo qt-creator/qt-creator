@@ -33,8 +33,8 @@ namespace VcProjectManager {
 namespace Internal {
 
 ToolAttributeOption::ToolAttributeOption()
-    : m_isNull(true),
-      m_nextOption(0)
+    : m_nextOption(0),
+      m_isNull(true)
 {
 }
 

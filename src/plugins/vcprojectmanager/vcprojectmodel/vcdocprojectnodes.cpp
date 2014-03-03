@@ -333,7 +333,7 @@ bool VcDocProjectNode::addFiles(const ProjectExplorer::FileType fileType, const 
         }
     }
 
-    if (node->nodeType() == ProjectExplorer::ProjectFileType) {
+    if (node->nodeType() == ProjectExplorer::ProjectNodeType) {
         VcDocProjectNode *projectNode = static_cast<VcDocProjectNode *>(node);
 
         if (projectNode) {
@@ -383,7 +383,7 @@ bool VcDocProjectNode::removeFiles(const ProjectExplorer::FileType fileType, con
                         containerNode->removeFileNode(fileNode);
                 }
 
-                else if (parentNode && parentNode->nodeType() == ProjectExplorer::ProjectFileType) {
+                else if (parentNode && parentNode->nodeType() == ProjectExplorer::ProjectNodeType) {
                     VcDocProjectNode *projectNode = static_cast<VcDocProjectNode *>(parentNode);
 
                     if (projectNode)

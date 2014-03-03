@@ -30,6 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
 #define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
 
+#include <QList>
 #include <QString>
 #include "../../../interfaces/itooldescription.h"
 

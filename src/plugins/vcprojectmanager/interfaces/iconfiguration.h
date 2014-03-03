@@ -45,8 +45,8 @@ class IConfiguration : public QObject, public IVcProjectXMLNode
     Q_OBJECT
 
 public:
-    IConfiguration(QObject *parent = 0)
-        : QObject(parent) {}
+    IConfiguration(QObject *parent = 0) : QObject(parent) {}
+    IConfiguration(const IConfiguration &) : QObject(0) {}
 
     virtual ~IConfiguration() {}
 

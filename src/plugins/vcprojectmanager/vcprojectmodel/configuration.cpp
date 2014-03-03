@@ -54,7 +54,7 @@ Configuration::Configuration(const QString &nodeName)
 {
 }
 
-Configuration::Configuration(const Configuration &config)
+Configuration::Configuration(const Configuration &config) : IConfiguration(config)
 {
     m_fullName = config.m_fullName;
     m_nodeName = config.m_nodeName;

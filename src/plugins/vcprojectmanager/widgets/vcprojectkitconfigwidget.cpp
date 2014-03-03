@@ -58,6 +58,7 @@ VcProjectKitConfigWidget::VcProjectKitConfigWidget(ProjectExplorer::Kit *k)
 
 VcProjectKitConfigWidget::~VcProjectKitConfigWidget()
 {
+    delete m_comboBox;
 }
 
 QString VcProjectKitConfigWidget::displayName() const

@@ -47,13 +47,12 @@ ConfigurationsBaseWidget *ConfigurationsFactory::createSettingsWidget(VcProjectD
     switch (vcProjDoc->documentVersion()) {
     case VcDocConstants::DV_MSVC_2003:
         return new Configurations2003Widget(config, vcProjDoc);
-        break;
     case VcDocConstants::DV_MSVC_2005:
         return new Configurations2005Widget(config, vcProjDoc);
-        break;
     case VcDocConstants::DV_MSVC_2008:
         return new Configurations2008Widget(config, vcProjDoc);
-        break;
+    case VcDocConstants::DV_UNRECOGNIZED:
+        return 0;
     }
 
     return 0;
