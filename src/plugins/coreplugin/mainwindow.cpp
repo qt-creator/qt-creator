@@ -350,7 +350,6 @@ void MainWindow::extensionsInitialized()
     updateContext();
 
     emit m_coreImpl->coreAboutToOpen();
-    show();
     // Delay restoreWindowState, since it is overridden by LayoutRequest event
     QTimer::singleShot(0, this, SLOT(restoreWindowState()));
     QTimer::singleShot(0, m_coreImpl, SIGNAL(coreOpened()));
@@ -1271,4 +1270,5 @@ void MainWindow::restoreWindowState()
         resize(1008, 700); // size without window decoration
     restoreState(m_settings->value(QLatin1String(windowStateKey)).toByteArray());
     m_settings->endGroup();
+    show();
 }
