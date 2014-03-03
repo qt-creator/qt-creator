@@ -32,6 +32,7 @@
 #include "qtcprocess.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QTimer>
@@ -62,6 +63,12 @@ ConsoleProcess::ConsoleProcess(QObject *parent)  :
     connect(&d->m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
 
     d->m_process.setProcessChannelMode(QProcess::ForwardedChannels);
+}
+
+qint64 ConsoleProcess::applicationMainThreadID() const
+{
+    QTC_CHECK(false);
+    return -1;
 }
 
 void ConsoleProcess::setSettings(QSettings *settings)
