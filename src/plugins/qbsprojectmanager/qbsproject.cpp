@@ -362,6 +362,12 @@ void QbsProject::buildConfigurationChanged(BuildConfiguration *bc)
 
 void QbsProject::startParsing()
 {
+    // Qbs does update the build graph during the build. So we cannot
+    // start to parse while a build is running or we will lose information.
+    // Just return since the qbsbuildstep will trigger a reparse after the build.
+    if (ProjectExplorer::BuildManager::isBuilding(this))
+        return;
+
     parseCurrentBuildConfiguration(false);
 }
 
@@ -382,12 +388,6 @@ void QbsProject::parseCurrentBuildConfiguration(bool force)
 
     if (!m_forceParsing)
         m_forceParsing = force;
-
-    // Qbs does update the build graph during the build. So we cannot
-    // start to parse while a build is running or we will lose information.
-    // Just return since the qbsbuildstep will trigger a reparse after the build.
-    if (ProjectExplorer::BuildManager::isBuilding(this))
-        return;
 
     if (!activeTarget())
         return;

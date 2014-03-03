@@ -476,8 +476,14 @@ void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringLi
 
 void QbsProjectManagerPlugin::reparseCurrentProject()
 {
-    if (m_currentProject)
-        m_currentProject->parseCurrentBuildConfiguration(true);
+    if (!m_currentProject || BuildManager::isBuilding(m_currentProject)) {
+        // Qbs does update the build graph during the build. So we cannot
+        // start to parse while a build is running or we will lose information.
+        // Just return since the qbsbuildstep will trigger a reparse after the build.
+        return;
+    }
+
+    m_currentProject->parseCurrentBuildConfiguration(true);
 }
 
 } // namespace Internal
