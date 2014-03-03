@@ -1,8 +1,8 @@
 !isEmpty(QTCREATOR_PRI_INCLUDED):error("qtcreator.pri already included")
 QTCREATOR_PRI_INCLUDED = 1
 
-QTCREATOR_VERSION = 3.0.81
-QTCREATOR_COMPAT_VERSION = 3.0.81
+QTCREATOR_VERSION = 3.0.82
+QTCREATOR_COMPAT_VERSION = 3.0.82
 BINARY_ARTIFACTS_BRANCH = 3.1
 
 # enable c++11 on everything but mac/release (breaks 10.6)
