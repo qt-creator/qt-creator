@@ -71,6 +71,7 @@ C++ Support
    * Fixed semantic highlighting after "Save as"
    * Fixed syntax highlighting of multiline strings and comments (QTCREATORBUG-662)
    * Fixed that symbol dropdown was jumping to the wrong editor (QTCREATORBUG-11157)
+   * Fixed highlighting when #undef is used (QTCREATORBUG-10454)
    * Improved the Insert Virtual Functions refactoring action:
        * Check only pure virtual functions by default
        * Display all overrides of a function
@@ -97,6 +98,7 @@ Version Control Systems
       * Enabled choosing non-fast-forward merge when fast-forward is applicable
       * Added completion in change selection dialog
       * Fixed freeze after resolving conflict with cherry-pick or revert
+      * Added support for local branch selection in the Push to Gerrit dialog
    * ClearCase
       * Improved performance of indexing dynamic views
       * Added warning when editing Derived Objects
