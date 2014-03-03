@@ -776,24 +776,28 @@ bool SettingsAccessor::addVersionUpgrader(VersionUpgrader *upgrader)
     return true;
 }
 
-/* Will always return the default name first */
+/* Will always return the default name first (if applicable) */
 QList<FileName> SettingsAccessor::settingsFiles(const QString &suffix) const
 {
-    const QString defaultName = defaultFileName(suffix);
-    QDir projectDir = QDir(project()->projectDirectory().toString());
-
     QList<Utils::FileName> result;
-    if (QFileInfo(defaultName).exists())
-        result << Utils::FileName::fromString(defaultName);
 
-    QFileInfoList fiList = projectDir.entryInfoList(
-                QStringList(QFileInfo(defaultName).fileName() + QLatin1String("*")), QDir::Files);
+    const Utils::FileName baseName = project()->projectFilePath();
+    QFileInfo fi = baseName.toFileInfo();
+    QDir dir = QDir(fi.absolutePath());
+    QString filter = fi.fileName() + suffix + QLatin1String("*");
 
-    foreach (const QFileInfo &fi, fiList) {
+    QFileInfoList list = dir.entryInfoList(QStringList() << filter, QDir::Files);
+
+    foreach (const QFileInfo &fi, list) {
         const Utils::FileName path = Utils::FileName::fromString(fi.absoluteFilePath());
-        if (!result.contains(path))
-            result.append(path);
+        if (!result.contains(path)) {
+            if (path.endsWith(suffix))
+                result.prepend(path);
+            else
+                result.append(path);
+        }
     }
+
     return result;
 }
 
