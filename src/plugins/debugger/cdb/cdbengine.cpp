@@ -1673,7 +1673,7 @@ void CdbEngine::handleResolveSymbol(const CdbBuiltinCommandPtr &command)
 
 // Find the function address matching needle in a list of function
 // addresses obtained from the 'x' command. Check for the
-// mimimum POSITIVE offset (needle >= function address.)
+// minimum POSITIVE offset (needle >= function address.)
 static inline quint64 findClosestFunctionAddress(const QList<quint64> &addresses,
                                                  quint64 needle)
 {

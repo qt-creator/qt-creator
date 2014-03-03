@@ -896,7 +896,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
     int heightWithoutKitArea = 0;
 
     if (!onlySummary) {
-        // list widget heigth
+        // list widget height
         int maxItemCount = m_projectListWidget->maxCount();
         for (int i = TARGET; i < LAST; ++i)
             maxItemCount = qMax(maxItemCount, m_listWidgets[i]->maxCount());
@@ -906,7 +906,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
             heightWithoutKitArea = height() - oldSummaryLabelY + 1;
         } else {
             // Clamp the size of the listwidgets to be
-            // at least as high as the the sidebar button
+            // at least as high as the sidebar button
             // and at most twice as high
             heightWithoutKitArea = summaryLabelHeight
                     + qBound(alignedWithActionHeight,

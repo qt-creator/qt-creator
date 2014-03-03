@@ -111,7 +111,7 @@ public:
     bool hasError() const;
 
     /**
-     * @return True, if the the has been cancelled by MakefileParserThread::cancel().
+     * @return True, if the parsing has been cancelled by MakefileParserThread::cancel().
      */
     bool isCanceled() const;
 

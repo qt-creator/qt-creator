@@ -89,7 +89,7 @@ QString JsonValue::kindToString(JsonValue::Kind kind)
     if (kind == Null)
         return QLatin1String("null");
 
-    return QLatin1String("unkown");
+    return QLatin1String("unknown");
 }
 
 JsonValue *JsonValue::build(const QVariant &variant, JsonMemoryPool *pool)

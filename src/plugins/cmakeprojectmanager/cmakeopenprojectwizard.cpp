@@ -736,7 +736,7 @@ void CMakeRunPage::runCMake()
     m_cmakeWizard->setKit(generatorInfo.kit());
     m_cmakeWizard->setUseNinja(generatorInfo.isNinja());
 
-    // If mode is initial the user chooses the kit, otherwise it's already choosen
+    // If mode is initial the user chooses the kit, otherwise it's already chosen
     // and the environment already contains the kit
     if (m_mode == Initial)
         generatorInfo.kit()->addToEnvironment(env);

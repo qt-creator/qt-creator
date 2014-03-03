@@ -3215,7 +3215,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
                 filesToReset.append(newFile);
             }
         } else if (state & UnmergedFile && checked) {
-            QTC_ASSERT(false, continue); // There should not be unmerged files when commiting!
+            QTC_ASSERT(false, continue); // There should not be unmerged files when committing!
         }
 
         if (state == ModifiedFile && checked) {
@@ -3231,7 +3231,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
         } else if (state == CopiedFile && checked) {
             QTC_ASSERT(false, continue); // only is noticed after adding a new file to the index
         } else if (state == UnmergedFile && checked) {
-            QTC_ASSERT(false, continue); // There should not be unmerged files when commiting!
+            QTC_ASSERT(false, continue); // There should not be unmerged files when committing!
         }
     }
 

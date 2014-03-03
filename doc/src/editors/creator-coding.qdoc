@@ -58,7 +58,7 @@
         \li \l{Configuring the Editor}
 
             You can change the fonts, colors, highlighting, and indentation.
-            If you are used to the the Vim editor, you can even run the main
+            If you are used to the Vim editor, you can even run the main
             editor in a manner similar to it in the \gui{FakeVim} mode.
 
     \endlist

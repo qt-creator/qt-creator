@@ -33,7 +33,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    # using a temporary directory won't mess up a potentially exisiting
+    # using a temporary directory won't mess up a potentially existing
     createNewQtQuickApplication(tempDir(), "untitled")
     if not prepareQmlFile():
         invokeMenuItem("File", "Save All")

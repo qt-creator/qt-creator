@@ -231,7 +231,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case T_RBRACKET:    turnInto(lambda_declarator_expected); break; // we can't determine exact kind of expression. Try again
             case T_COMMA:
-            case T_EQUAL:       turnInto(lambda_instroducer); break;              // ',' or '=' inside brackets can be only whithin lambda capture list
+            case T_EQUAL:       turnInto(lambda_instroducer); break;              // ',' or '=' inside brackets can be only within lambda capture list
             case T_IDENTIFIER:          // '&', id, 'this' are allowed both in the capture list and subscribtion
             case T_AMPER:
             case T_THIS:        break;

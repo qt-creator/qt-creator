@@ -976,7 +976,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 
     QVector<PPToken> body = macro->definitionTokens();
 
-    // Withing nested expansion we might reach a previously added marker token. In this case,
+    // Within nested expansion we might reach a previously added marker token. In this case,
     // we need to move it from its current possition to outside the nesting.
     PPToken oldMarkerTk;
 
@@ -1837,13 +1837,13 @@ void Preprocessor::handleElifDirective(PPToken *tk, const PPToken &poundToken)
             m_state.m_skipping[m_state.m_ifLevel] = true;
         } else if (m_state.m_trueTest[m_state.m_ifLevel]) {
             if (!m_state.m_skipping[m_state.m_ifLevel]) {
-                // start skipping because the preceeding then-part was not skipped
+                // start skipping because the preceding then-part was not skipped
                 m_state.m_skipping[m_state.m_ifLevel] = true;
                 if (m_client)
                     startSkippingBlocks(poundToken);
             }
         } else {
-            // preceeding then-part was skipped, so calculate if we should start
+            // preceding then-part was skipped, so calculate if we should start
             // skipping, depending on the condition
             Value result;
             evalExpression(tk, result);

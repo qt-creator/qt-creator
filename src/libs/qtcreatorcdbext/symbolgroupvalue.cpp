@@ -1793,7 +1793,7 @@ static bool dumpQStringFromQPrivateClass(const SymbolGroupValue &v,
             v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
     if (!stringNode && errorMessage.find("DEBUG_ANY_ID") != std::string::npos) {
         // HACK:
-        // In some rare cases the the AddSymbol can't create a node with a given module name,
+        // In some rare cases the AddSymbol can't create a node with a given module name,
         // but is able to add the symbol without any modulename.
         dumpType = QtInfo::get(v.context()).prependModuleAndNameSpace("QString", "", QtInfo::get(v.context()).nameSpace);
         symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , dumpType);
@@ -2557,7 +2557,7 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
         if (const SymbolGroupValue sv = dataV.typeCast(qtInfo.prependQtCoreModule("QString *").c_str())) {
             if (!dumpQString(sv, str)) {
                 // HACK:
-                // In some rare cases the the AddSymbol can't create a node with a given module name,
+                // In some rare cases the AddSymbol can't create a node with a given module name,
                 // but is able to add the symbol without any modulename.
                 if (const SymbolGroupValue svc = dataV.typeCast("QString *"))
                     dumpQString(svc, str);

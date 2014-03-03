@@ -2563,7 +2563,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     if (handler->state(id) == BreakpointRemoveRequested) {
         if (response.resultClass == GdbResultDone) {
-            // This delete was defered. Act now.
+            // This delete was deferred. Act now.
             const GdbMi mainbkpt = response.data["bkpt"];
             handler->notifyBreakpointRemoveProceeding(id);
             QByteArray nr = mainbkpt["number"].data();

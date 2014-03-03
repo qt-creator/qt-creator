@@ -95,7 +95,7 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
             pos = nextPos;
         } else {
             // Not sure about this, but we need to account for the case where
-            // the end of the replacement doesn't have the directory seperator and
+            // the end of the replacement doesn't have the directory separator and
             // neither does the start of the insert. This solution assumes:
             //  1) Having \\ in a path is valid (it is on WinXP)
             //  2) We're only replacing in paths. This will cause problems if there's

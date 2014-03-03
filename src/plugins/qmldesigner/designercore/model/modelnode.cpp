@@ -617,7 +617,7 @@ void ModelNode::destroy()
 
 
 /*!
-  \brief Returns if the the two nodes reference the same entity in the same model
+  \brief Returns if the two nodes reference the same entity in the same model
   */
 bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode)
 {
@@ -630,7 +630,7 @@ bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode)
 }
 
 /*!
-  \brief Returns if the the two nodes do not reference the same entity in the same model
+  \brief Returns if the two nodes do not reference the same entity in the same model
   */
 bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode)
 {

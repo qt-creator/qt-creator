@@ -82,12 +82,12 @@ class JIRA:
             JIRA.__instance__._number = number
             JIRA.__instance__.__fetchResolutionFromJira__()
 
-    # overriden to make it possible to use JIRA just like the
+    # overridden to make it possible to use JIRA just like the
     # underlying implementation (__impl)
     def __getattr__(self, attr):
         return getattr(self.__instance__, attr)
 
-    # overriden to make it possible to use JIRA just like the
+    # overridden to make it possible to use JIRA just like the
     # underlying implementation (__impl)
     def __setattr__(self, attr, value):
         return setattr(self.__instance__, attr, value)
