@@ -2,52 +2,124 @@
 <instructionals module="Qt">
   <tutorials>
     <tutorial imageUrl="images/icons/buildrun.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-build-example-application.html" projectPath="" name="Building and Running an Example Application">
-      <description><![CDATA[You can test that your installation is successful by opening an existing example application project.]]></description>
+      <description><![CDATA[Testing that your installation is successful by opening an existing example application project.]]></description>
       <tags>qt creator,build,compile</tags>
     </tutorial>
     <tutorial imageUrl="images/icons/qwidget.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-writing-program.html" projectPath="" name="Creating a Qt Widget Based Application">
-      <description><![CDATA[This tutorial describes how to use Qt Creator to create a small Qt application, Text Finder.]]></description>
-      <tags>qt,c++,text,qt designer,qt creator</tags>
+      <description><![CDATA[Using Qt Creator to create a small Qt application, Text Finder.]]></description>
+      <tags>qt creator,qt designer,widgets,c++,text</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtdoc/qtdoc/gettingstartedqt.html" projectPath="" name="Getting Started Programming with Qt Widgets">
+      <description><![CDATA[Developing Qt applications using C++ and the Qt Widgets module.]]></description>
+      <tags>qt,qt creator,qt designer,widgets,c++</tags>
     </tutorial>
     <tutorial imageUrl="images/icons/qtquick.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-qml-application.html" projectPath="" name="Creating a Qt Quick Application">
-      <description><![CDATA[This tutorial uses basic elements and illustrates basic concepts of Qt Quick.]]></description>
-      <tags>qt quick,qml,states,transitions,visual designer,qt creator</tags>
+      <description><![CDATA[Using basic QML elements and learning about basic concepts of Qt Quick.]]></description>
+      <tags>qt creator,qt quick designer,qt quick,qml,states,transitions</tags>
     </tutorial>
-    <tutorial imageUrl="images/icons/ddays09.png" difficulty="" projectPath="" name="Qt Creator Bootcamp" isVideo="true" videoUrl="http://developer.qt.nokia.com/videos/watch/qt_creator_bootcamp" videoLength="58:29">
-      <description><![CDATA[All you need to start with Qt Creator - a cross-platform IDE Are you developing cross-platform applications with Qt, but are missing a cross-platform development environment?]]></description>
-      <tags>qt sdk,qt creator</tags>
+    <tutorial imageUrl="images/icons/androidapp.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-android-app-tutorial.html" projectPath="" name="Creating an Android Application">
+      <description><![CDATA[Developing Qt Quick applications for Android devices using Qt Quick Controls.]]></description>
+      <tags>qt creator,qt quick designer,qml,android</tags>
     </tutorial>
-    <tutorial imageUrl="images/icons/ddays11.png" difficulty="" projectPath="" name="Qt Quick - Rapid User Interface Prototyping" isVideo="true" videoUrl="http://qt-project.org/videos/watch/using-qt-quick-for-rapid-ui-prototyping-and-development" videoLength="55:47">
-      <description><![CDATA[Skip Flash & PhotoShop. Go straight to Qt Quick! Creating an application with a great user experience is a challenge. Traditionally a lot of effort goes into upfront design where tools such as Flash or PhotoShop are used to prototype ideas.]]></description>
-      <tags>qt quick,qml,qt sdk,qt creator</tags>
-    </tutorial>
-    <tutorial imageUrl="images/icons/ddays10.png" difficulty="" projectPath="" name="Meet Qt Quick" isVideo="true" videoUrl="http://developer.qt.nokia.com/videos/watch/meet_qt_quick" videoLength="1:08:24">
-      <description><![CDATA[The fundamental elements behind Qt Quick and how to quickly create fluid, animated user interfaces! Qt Quick is a set of technologies that makes it easier for developers and designers to create modern and attractive UIs.]]></description>
-      <tags>qt quick, qml</tags>
-    </tutorial>
-    <tutorial imageUrl="images/icons/ddays11.png" difficulty="" projectPath="" name="What’s new in QtQuick 2.0" isVideo="true" videoUrl="http://qt-project.org/videos/watch/whats-new-in-qtquick-2.0" videoLength="46:10">
-      <description><![CDATA[Qt Quick 1.0 brought a suite of technologies to make it easy for designers and developers to easily create fluid animated interfaces. QtQuick 2.0 takes this further with the introduction of a built-in Scene Graph rendering system and more.]]></description>
-      <tags>qt quick, qml</tags>
-    </tutorial>
-    <tutorial imageUrl="images/icons/ddays11.png" difficulty="" projectPath="" name="Qt Quick Best Practices and Design Patterns" isVideo="true" videoUrl="http://qt-project.org/videos/watch/qt-quick-best-practices-and-design-patterns" videoLength="48:51">
-      <description><![CDATA[This talk discusses various QML best practices and design patterns for building powerful and scalable Qt Quick applications with QML and C++ code.]]></description>
-      <tags>qt quick, qml</tags>
-    </tutorial>
-    <tutorial imageUrl="images/icons/ddays12.png" difficulty="" projectPath="" name="What is New in QtWebKit in 5.0" isVideo="true" videoUrl="http://www.youtube.com/watch?v=xEuapSGxaeU" videoLength="1:01:55">
-      <description><![CDATA[The web platform continues to evolve at breakneck speed. With our WebKit port to Qt 5 we are bringing these latest web technologies to the Qt world.]]></description>
-      <tags>qt, webkit</tags>
+    <tutorial imageUrl="images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtdoc/qtdoc/gettingstartedqml.html" projectPath="" name="Getting Started Programming with Qt Quick">
+      <description><![CDATA[Developing Qt Quick applications using QML and C++.]]></description>
+      <tags>qt quick,qml,c++</tags>
     </tutorial>
     <tutorial imageUrl="images/icons/ddays12.png" difficulty="" projectPath="" name="Qt Creator 101" isVideo="true" videoUrl="http://www.youtube.com/watch?v=s7PgHmuFaGY" videoLength="55:38">
-      <description><![CDATA[The presentation provides a short introduction into Qt Creator, demonstrates targeting different environments from within the IDE and highlights new features found in Qt Creator 2.6.]]></description>
+      <description><![CDATA[Getting started with using Qt Creator for cross-platform development.]]></description>
       <tags>qt creator</tags>
     </tutorial>
-    <tutorial imageUrl="images/icons/ddays12.png" difficulty="" projectPath="" name="Qt 5 Roadmap" isVideo="true" videoUrl="http://www.youtube.com/watch?v=3QgG9oYhH-c" videoLength="1:01:43">
-      <description><![CDATA[Qt 5.0 is a major step forward for Qt. It includes many new features and forms a great basis for the years to come. The talk gives an overview over these, as well as an outlook towards upcoming Qt release.]]></description>
-      <tags>qt 5, qt</tags>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Extending Qt Creator Without Writing Code" isVideo="true" videoUrl="http://www.youtube.com/watch?v=DP0lMoLVneY" videoLength="59:49">
+      <description><![CDATA[Customizing Qt Creator to fit your own or your customers' purposes.]]></description>
+      <tags>qt creator,configuration</tags>
     </tutorial>
-    <tutorial imageUrl="images/icons/ddays12.png" difficulty="" projectPath="" name="QML Coding, Performance and Debugging: Usage of Tools" isVideo="true" videoUrl="http://www.youtube.com/watch?v=mPXn6L2Wftc" videoLength="53:52">
-      <description><![CDATA[The presentation shows the usage of the various QtQuick tools. The Editor provides code navigation, code completion and validation and context help, among other features.]]></description>
-      <tags>qt quick, qml, qt creator</tags>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Qt Creator Plugin Development" isVideo="true" videoUrl="http://www.youtube.com/watch?v=6AEYgVPjl-s" videoLength="59:49">
+      <description><![CDATA[Adding plugins to Qt Creator.]]></description>
+      <tags>qt creator,plugins</tags>
     </tutorial>
-  </tutorials>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Targeting Multiple Mobile Platforms with Qt Creator" isVideo="true" videoUrl="http://www.youtube.com/watch?v=jDRup5z2qz0" videoLength="52:38">
+      <description><![CDATA[Using Qt Creator to develop a cross-platform application for mobile devices and other small devices.]]></description>
+      <tags>qt creator,qt quick,qml,c++,android,blackberry,sailfishos</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Step by Step Qt on Android Tutorial" isVideo="true" videoUrl="http://www.youtube.com/watch?v=yhdi6JONtQo" videoLength="1:02:30">
+      <description><![CDATA[Using Qt Creator to develop a Qt Quick application for Android devices.]]></description>
+      <tags>qt creator,qt quick,qml,android</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Qt for iOS" isVideo="true" videoUrl="http://www.youtube.com/watch?v=HNQpJG2F6ow" videoLength="1:00:48">
+      <description><![CDATA[Using Qt Creator to develop a Qt Quick application for iOS that uses sensors and the native camera on the device.]]></description>
+      <tags>qt creator,qt quick,ios,sensors,camera</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Qt Creator for BareMetal Development" isVideo="true" videoUrl="http://www.youtube.com/watch?v=hrKz63Q_Rf0" videoLength="9:35">
+      <description><![CDATA[Using Qt Creator to develop for BareMetal devices.]]></description>
+      <tags>qt creator,baremetal</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Qt on WinRT" isVideo="true" videoUrl="http://www.youtube.com/watch?v=NubVGd_LcxQ" videoLength="50:01">
+      <description><![CDATA[Learning about the experimental Qt on Windows Runtime port.]]></description>
+      <tags>qt,winrt</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Developing Embedded Linux Applications with Qt" isVideo="true" videoUrl="http://www.youtube.com/watch?v=lyQVw1RtaH4" videoLength="53:27">
+      <description><![CDATA[Getting started with developing Qt applications for embedded Linux devices.]]></description>
+      <tags>qt, embedded</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Introduction to Qt Quick Controls" isVideo="true" videoUrl="http://www.youtube.com/watch?v=JLLIYysXsj8" videoLength="57:34">
+      <description><![CDATA[Using Qt Quick Controls, a set of UI elements, to create user interfaces using Qt Quick 2.]]></description>
+      <tags>qt quick,controls</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Adaptable UIs with Qt Quick" isVideo="true" videoUrl="http://www.youtube.com/watch?v=7zlvbHow9Gw" videoLength="46:16">
+      <description><![CDATA[Implementing adaptable Qt QUick UIs using layouts, bindings, file selectors, and loaders.]]></description>
+      <tags>qt quick,layouts,bindings</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Qt Quick and Input Events (Touch, Mouse, Keyboard)" isVideo="true" videoUrl="http://www.youtube.com/watch?v=yTsCkfTAl1s" videoLength="1:07:05">
+      <description><![CDATA[Handling user input with Qt Quick.]]></description>
+      <tags>qt quick,qml,input</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Building 3D OpenGL Scenes with Qt 5 and QML" isVideo="true" videoUrl="http://www.youtube.com/watch?v=29wCpA0DBZI" videoLength="52:38">
+      <description><![CDATA[Using QQuickWindow's OpenGL context to render 3D objects.]]></description>
+      <tags>qt quick,qml,3d</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Integrating Qt Quick with 3D renderers" isVideo="true" videoUrl="http://www.youtube.com/watch?v=BfIaTccy6HQ" videoLength="1:00:04">
+      <description><![CDATA[Integrating Qt Quick with other 3D scene rendering models.]]></description>
+      <tags>qt quick,qt,scenegraph,3d</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Qt 5.2's QML Engine in Depth" isVideo="true" videoUrl="http://www.youtube.com/watch?v=QdyRZApt5ww" videoLength="52:35">
+      <description><![CDATA[Learning about data types in JavaScript and QML, the old and new Qt architecture, and future optimizations to Qt.]]></description>
+      <tags>qt,qml,data types</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="QML Tricks and Treats" isVideo="true" videoUrl="http://www.youtube.com/watch?v=JNDFUHOoPSM" videoLength="56:20">
+      <description><![CDATA[Structuring an application that combines QML and C++ code, looking up QML language scope and names, creating custom views, handling user input, and styling applications.]]></description>
+    <tags>qt quick,qml,c++,build,compile,input,styling</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Speeding up Your Qt App with New QtNetwork Features" isVideo="true" videoUrl="http://www.youtube.com/watch?v=OM9BgcXr9ys" videoLength="49:10">
+      <description><![CDATA[Making applications load network data faster.]]></description>
+      <tags>qt quick,qml,network</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Introducing QtWebEngine" isVideo="true" videoUrl="http://www.youtube.com/watch?v=Pc5zKGmeYN0" videoLength="1:03:06">
+      <description><![CDATA[Introduces the Qt Web Engine technology preview for desktop and embedded platforms.]]></description>
+      <tags>qt,web engine</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="QmlWeb - Running Qt Quick Applications on the Web" isVideo="true" videoUrl="http://www.youtube.com/watch?v=Ea8Maw4FTw8" videoLength="57:05">
+      <description><![CDATA[Taking QML to the web.]]></description>
+      <tags>qml,qt quick,web</tags>
+    </tutorial>
+      <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Signals and Slots in Qt 5" isVideo="true" videoUrl="http://www.youtube.com/watch?v=pwNd8gq6PZY" videoLength="55:30">
+      <description><![CDATA[Learning about the signal and slot syntax in Qt 5.]]></description>
+    <tags>qt,signals,slots</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="KDE Frameworks 5: Qt Add-ons Overview" isVideo="true" videoUrl="http://www.youtube.com/watch?v=P5RP46ZUk6s" videoLength="53:27">
+      <description><![CDATA[Using Qt add-ons for data compression, plotting with axis, multithreaded tasks, configuration, modeling items, and core tasks.]]></description>
+      <tags>qt,add-ons,compression,plotting,configuration</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Applied Type Erasure in Qt 5" isVideo="true" videoUrl="http://www.youtube.com/watch?v=MOzQX4C29os" videoLength="45:46">
+    <description><![CDATA[Learning about type erasure based on QVariant and the capabilities introduced in Qt 5.2.]]></description>
+    <tags>qt,data types</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Analysing & Solving Qt UI Performance Problems on Embedded Hardware" isVideo="true" videoUrl="http://www.youtube.com/watch?v=TI_LJkQtZtA" videoLength="50:57">
+    <description><![CDATA[Using trace viewing and analysis and profiling tools to solve typical Qt UI performance problems on embedded devices.]]></description>
+    <tags>qt quick,qml,qt creator,qml profiler,embedded</tags>
+    </tutorial>
+    <tutorial imageUrl="images/icons/ddays13.png" difficulty="" projectPath="" name="Take Your Apps on the Road — an Automotive 101 for Developers" isVideo="true" videoUrl="http://www.youtube.com/watch?v=Hq8XkUtyjsA" videoLength="1:02:36">
+      <description><![CDATA[Developing applications for the automotive industry.]]></description>
+      <tags>qt quick,qml,automotive</tags>
+    </tutorial>
+    </tutorials>
 </instructionals>
