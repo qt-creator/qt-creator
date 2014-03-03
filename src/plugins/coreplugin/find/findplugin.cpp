@@ -129,6 +129,11 @@ void FindPlugin::initialize(const QStringList &, QString *)
     d->m_currentDocumentFind = new Internal::CurrentDocumentFind;
 
     d->m_findToolBar = new Internal::FindToolBar(this, d->m_currentDocumentFind);
+    auto *findToolBarContext = new IContext(this);
+    findToolBarContext->setWidget(d->m_findToolBar);
+    findToolBarContext->setContext(Context(Constants::C_FINDTOOLBAR));
+    ICore::addContextObject(findToolBarContext);
+
     d->m_findDialog = new Internal::FindToolWindow(this);
     d->m_searchResultWindow = new SearchResultWindow(d->m_findDialog);
     ExtensionSystem::PluginManager::addObject(d->m_searchResultWindow);

@@ -39,6 +39,8 @@
 namespace Core {
 namespace Constants {
 
+const char C_FINDTOOLBAR[]     = "Find.ToolBar";
+
 const char M_FIND[]            = "Find.FindMenu";
 const char M_FIND_ADVANCED[]   = "Find.FindAdvancedMenu";
 const char G_FIND_CURRENTDOCUMENT[] = "Find.FindMenu.CurrentDocument";

@@ -119,14 +119,14 @@ private slots:
 
     void adaptToCandidate();
 
+    bool setFocusToCurrentFindSupport();
+
 protected:
     bool focusNextPrevChild(bool next);
-    void keyPressEvent(QKeyEvent *event);
 
 private:
     void installEventFilters();
     void invokeClearResults();
-    bool setFocusToCurrentFindSupport();
     void setFindFlag(FindFlag flag, bool enabled);
     bool hasFindFlag(FindFlag flag);
     FindFlags effectiveFindFlags();
@@ -140,13 +140,12 @@ private:
     void updateIcons();
     void updateFlagMenus();
 
-    bool shouldSetFocusOnKeyEvent(QKeyEvent *event);
-
     FindPlugin *m_plugin;
     CurrentDocumentFind *m_currentDocumentFind;
     Ui::FindWidget m_ui;
     QCompleter *m_findCompleter;
     QCompleter *m_replaceCompleter;
+    QAction *m_goToCurrentFindAction;
     QAction *m_findInDocumentAction;
     QAction *m_findNextSelectedAction;
     QAction *m_findPreviousSelectedAction;

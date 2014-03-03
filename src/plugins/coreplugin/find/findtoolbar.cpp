@@ -149,6 +149,11 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     m_ui.advancedButton->setDefaultAction(Core::ActionManager::command(Constants::ADVANCED_FIND)->action());
 
+    m_goToCurrentFindAction = new QAction(tr("Go to Current Document Find"), this);
+    cmd = Core::ActionManager::registerAction(m_goToCurrentFindAction, Constants::S_RETURNTOEDITOR,
+                                              Context(Constants::C_FINDTOOLBAR));
+    connect(m_goToCurrentFindAction, SIGNAL(triggered()), this, SLOT(setFocusToCurrentFindSupport()));
+
     QIcon icon = QIcon::fromTheme(QLatin1String("edit-find-replace"));
     m_findInDocumentAction = new QAction(icon, tr("Find/Replace"), this);
     cmd = Core::ActionManager::registerAction(m_findInDocumentAction, Constants::FIND_IN_DOCUMENT, globalcontext);
@@ -277,14 +282,6 @@ void FindToolBar::installEventFilters()
     }
 }
 
-bool FindToolBar::shouldSetFocusOnKeyEvent(QKeyEvent *event)
-{
-    return event->key() == Qt::Key_Escape && !event->modifiers()
-            && !m_findCompleter->popup()->isVisible()
-            && !m_replaceCompleter->popup()->isVisible()
-            && m_currentDocumentFind->isEnabled();
-}
-
 bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {
@@ -315,10 +312,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
         }
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-        if (shouldSetFocusOnKeyEvent(ke)) {
-            event->accept();
-            return true;
-        } else if (ke->key() == Qt::Key_Space && (ke->modifiers() & Utils::HostOsInfo::controlModifier())) {
+        if (ke->key() == Qt::Key_Space && (ke->modifiers() & Utils::HostOsInfo::controlModifier())) {
             event->accept();
             return true;
         }
@@ -328,16 +322,6 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
             m_currentDocumentFind->clearFindScope();
     }
     return Utils::StyledBar::eventFilter(obj, event);
-}
-
-void FindToolBar::keyPressEvent(QKeyEvent *event)
-{
-    if (shouldSetFocusOnKeyEvent(event)) {
-        if (setFocusToCurrentFindSupport())
-            event->accept();
-        return;
-    }
-    return Utils::StyledBar::keyPressEvent(event);
 }
 
 void FindToolBar::adaptToCandidate()
@@ -359,6 +343,9 @@ void FindToolBar::updateToolBar()
 {
     bool enabled = m_currentDocumentFind->isEnabled();
     bool replaceEnabled = enabled && m_currentDocumentFind->supportsReplace();
+
+    m_goToCurrentFindAction->setEnabled(enabled);
+
     m_findNextAction->setEnabled(enabled);
     m_findPreviousAction->setEnabled(enabled);
 
