@@ -36,6 +36,7 @@
 
 #include "ui_qbsbuildstepconfigwidget.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -431,6 +432,8 @@ void QbsBuildStepConfigWidget::updateState()
     m_ui->buildVariantComboBox->setCurrentIndex(idx);
 
     QString command = QLatin1String("qbs build ");
+    command += QString::fromLatin1("--settings-dir ")
+            + QDir::toNativeSeparators(Core::ICore::userResourcePath()) + QLatin1String(" ");
     if (m_step->dryRun())
         command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())

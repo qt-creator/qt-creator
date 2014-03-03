@@ -35,6 +35,7 @@
 
 #include "ui_qbsinstallstepconfigwidget.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kit.h>
@@ -312,6 +313,8 @@ void QbsInstallStepConfigWidget::updateState()
         m_ui->installRootChooser->setBaseDirectory(data.buildDirectory());
 
     QString command = QLatin1String("qbs install ");
+    command += QString::fromLatin1("--settings-dir ")
+            + QDir::toNativeSeparators(Core::ICore::userResourcePath()) + QLatin1String(" ");
     if (m_step->dryRun())
         command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())
