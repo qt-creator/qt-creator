@@ -230,7 +230,7 @@ struct ProjectExplorerPluginPrivate {
     Internal::AppOutputPane *m_outputPane;
 
     QList<QPair<QString, QString> > m_recentProjects; // pair of filename, displayname
-    static const int m_maxRecentProjects = 7;
+    static const int m_maxRecentProjects = 25;
 
     QString m_lastOpenDirectory;
     RunConfiguration *m_delayedRunConfiguration;
