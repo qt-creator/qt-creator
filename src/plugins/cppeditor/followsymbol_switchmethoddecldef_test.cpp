@@ -677,12 +677,12 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
     // 3.3.8 Enumeration scope
     QTest::newRow("nsMemberHidesNsMemberIntroducedByUsingDirective") << _(
         "namespace A {\n"
-        "  char x;\n"
+        "    char x;\n"
         "}\n"
         "\n"
         "namespace B {\n"                               // Line 5
-        "  using namespace A;\n"
-        "  int $x; // hides A::x\n"
+        "    using namespace A;\n"
+        "    int $x; // hides A::x\n"
         "}\n"
         "\n"
         "int main()\n"                                  // Line 10
@@ -747,76 +747,76 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
     );
 
     QTest::newRow("classConstructor") << _(
-            "class Foo {\n"
-            "    F@oo();"
-            "    ~Foo();"
-            "};\n\n"
-            "Foo::$Foo()\n"
-            "{\n"
-            "}\n\n"
-            "Foo::~Foo()\n"
-            "{\n"
-            "}\n"
+        "class Foo {\n"
+        "    F@oo();"
+        "    ~Foo();"
+        "};\n\n"
+        "Foo::$Foo()\n"
+        "{\n"
+        "}\n\n"
+        "Foo::~Foo()\n"
+        "{\n"
+        "}\n"
     );
 
     QTest::newRow("classDestructor") << _(
-            "class Foo {\n"
-            "    Foo();"
-            "    ~@Foo();"
-            "};\n\n"
-            "Foo::Foo()\n"
-            "{\n"
-            "}\n\n"
-            "Foo::~$Foo()\n"
-            "{\n"
-            "}\n"
+        "class Foo {\n"
+        "    Foo();"
+        "    ~@Foo();"
+        "};\n\n"
+        "Foo::Foo()\n"
+        "{\n"
+        "}\n\n"
+        "Foo::~$Foo()\n"
+        "{\n"
+        "}\n"
     );
 
     QTest::newRow("skipForwardDeclarationBasic") << _(
-            "class $Foo {};\n"
-            "class Foo;\n"
-            "@Foo foo;\n"
+        "class $Foo {};\n"
+        "class Foo;\n"
+        "@Foo foo;\n"
     );
 
     QTest::newRow("skipForwardDeclarationTemplates") << _(
-            "template <class E> class $Container {};\n"
-            "template <class E> class Container;\n"
-            "@Container<int> container;\n"
+        "template <class E> class $Container {};\n"
+        "template <class E> class Container;\n"
+        "@Container<int> container;\n"
     );
 
     QTest::newRow("using_QTCREATORBUG7903_globalNamespace") << _(
-            "namespace NS {\n"
-            "class Foo {};\n"
-            "}\n"
-            "using NS::$Foo;\n"
-            "void fun()\n"
-            "{\n"
-            "    @Foo foo;\n"
-            "}\n"
+        "namespace NS {\n"
+        "class Foo {};\n"
+        "}\n"
+        "using NS::$Foo;\n"
+        "void fun()\n"
+        "{\n"
+        "    @Foo foo;\n"
+        "}\n"
     );
 
     QTest::newRow("using_QTCREATORBUG7903_namespace") << _(
-            "namespace NS {\n"
-            "class Foo {};\n"
-            "}\n"
-            "namespace NS1 {\n"
-            "void fun()\n"
-            "{\n"
-            "    using NS::$Foo;\n"
-            "    @Foo foo;\n"
-            "}\n"
-            "}\n"
+        "namespace NS {\n"
+        "class Foo {};\n"
+        "}\n"
+        "namespace NS1 {\n"
+        "void fun()\n"
+        "{\n"
+        "    using NS::$Foo;\n"
+        "    @Foo foo;\n"
+        "}\n"
+        "}\n"
     );
 
     QTest::newRow("using_QTCREATORBUG7903_insideFunction") << _(
-            "namespace NS {\n"
-            "class Foo {};\n"
-            "}\n"
-            "void fun()\n"
-            "{\n"
-            "    using NS::$Foo;\n"
-            "    @Foo foo;\n"
-            "}\n"
+        "namespace NS {\n"
+        "class Foo {};\n"
+        "}\n"
+        "void fun()\n"
+        "{\n"
+        "    using NS::$Foo;\n"
+        "    @Foo foo;\n"
+        "}\n"
     );
 }
 
