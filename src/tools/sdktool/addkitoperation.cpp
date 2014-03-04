@@ -58,6 +58,7 @@ const char DEBUGGER[] = "Debugger.Information";
 const char DEBUGGER_ENGINE[] = "EngineType";
 const char DEBUGGER_BINARY[] = "Binary";
 const char DEVICE_TYPE[] = "PE.Profile.DeviceType";
+const char DEVICE_ID[] = "PE.Profile.Device";
 const char SYSROOT[] = "PE.Profile.SysRoot";
 const char TOOLCHAIN[] = "PE.Profile.ToolChain";
 const char MKSPEC[] = "QtPM4.mkSpecInformation";
@@ -88,6 +89,7 @@ QString AddKitOperation::argumentsHelpText() const
                          "    --debuggerengine <ENGINE>                  debuggerengine of the new kit.\n"
                          "    --debugger <PATH>                          debugger of the new kit.\n"
                          "    --devicetype <TYPE>                        device type of the new kit (required).\n"
+                         "    --device <ID>                              device id to use (optional).\n"
                          "    --sysroot <PATH>                           sysroot of the new kit.\n"
                          "    --toolchain <ID>                           tool chain of the new kit.\n"
                          "    --qt <ID>                                  Qt of the new kit.\n"
@@ -164,6 +166,14 @@ bool AddKitOperation::setArguments(const QStringList &args)
             continue;
         }
 
+        if (current == QLatin1String("--device")) {
+            if (next.isNull())
+                return false;
+            ++i; // skip next;
+            m_device = next;
+            continue;
+        }
+
         if (current == QLatin1String("--sysroot")) {
             if (next.isNull())
                 return false;
@@ -231,8 +241,9 @@ int AddKitOperation::execute() const
     if (map.isEmpty())
         map = initializeKits();
 
-    QVariantMap result = addKit(map, m_id, m_displayName, m_icon, m_debuggerId, m_debuggerEngine, m_debugger,
-                                m_deviceType.toUtf8(), m_sysRoot, m_tc, m_qt, m_mkspec, m_extra);
+    QVariantMap result = addKit(map, m_id, m_displayName, m_icon, m_debuggerId, m_debuggerEngine,
+                                m_debugger, m_deviceType.toUtf8(), m_device, m_sysRoot, m_tc, m_qt,
+                                m_mkspec, m_extra);
 
     if (result.isEmpty() || map == result)
         return 2;
@@ -256,7 +267,7 @@ bool AddKitOperation::test() const
 
     map = addKit(map, QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
                  QString(), 1, QLatin1String("/usr/bin/gdb-test"),
-                 QByteArray("Desktop"), QString(),
+                 QByteArray("Desktop"), QString(), QString(),
                  QLatin1String("{some-tc-id}"), QLatin1String("{some-qt-id}"), QLatin1String("unsupported/mkspec"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
 
@@ -287,7 +298,7 @@ bool AddKitOperation::test() const
         return false;
 
     QVariantMap data = profile0.value(QLatin1String(DATA)).toMap();
-    if (data.count() != 7
+    if (data.count() != 8
             || !data.contains(QLatin1String(DEBUGGER))
             || data.value(QLatin1String(DEBUGGER)).type()!= QVariant::Map)
         return false;
@@ -295,7 +306,7 @@ bool AddKitOperation::test() const
     // Ignore existing ids:
     QVariantMap result = addKit(map, QLatin1String("testId"), QLatin1String("Test Qt Version X"), QLatin1String("/tmp/icon3.png"),
                                 QString(), 1, QLatin1String("/usr/bin/gdb-test3"),
-                                QByteArray("Desktop"), QString(),
+                                QByteArray("Desktop"), QString(), QString(),
                                 QLatin1String("{some-tc-id3}"), QLatin1String("{some-qt-id3}"), QLatin1String("unsupported/mkspec3"),
                                 KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue3"))));
     if (!result.isEmpty())
@@ -304,7 +315,7 @@ bool AddKitOperation::test() const
     // Make sure name is unique:
     map = addKit(map, QLatin1String("testId2"), QLatin1String("Test Kit2"), QLatin1String("/tmp/icon2.png"),
                  QString(), 1, QLatin1String("/usr/bin/gdb-test2"),
-                 QByteArray("Desktop"), QString(),
+                 QByteArray("Desktop"), QLatin1String("deviceId"), QString(),
                  QLatin1String("{some-tc-id2}"), QLatin1String("{some-qt-id2}"), QLatin1String("unsupported/mkspec2"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue2"))));
     if (map.count() != 5
@@ -337,7 +348,9 @@ bool AddKitOperation::test() const
         return false;
 
     data = profile1.value(QLatin1String(DATA)).toMap();
-    if (data.count() != 7
+    if (data.count() != 8
+            || !data.contains(QLatin1String(DEVICE_ID))
+            || data.value(QLatin1String(DEVICE_ID)).toString() != QLatin1String("deviceId")
             || !data.contains(QLatin1String(DEBUGGER))
             || data.value(QLatin1String(DEBUGGER)).type() != QVariant::Map)
         return false;
@@ -345,7 +358,7 @@ bool AddKitOperation::test() const
     // Test debugger id:
     map = addKit(map, QLatin1String("test with debugger Id"), QLatin1String("Test debugger Id"), QLatin1String("/tmp/icon2.png"),
                  QString::fromLatin1("debugger Id"), 0, QString(),
-                 QByteArray("Desktop"), QString(),
+                 QByteArray("Desktop"), QString(), QString(),
                  QLatin1String("{some-tc-id2}"), QLatin1String("{some-qt-id2}"), QLatin1String("unsupported/mkspec2"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue2"))));
     if (map.count() != 6
@@ -381,7 +394,7 @@ bool AddKitOperation::test() const
         return false;
 
     data = profile2.value(QLatin1String(DATA)).toMap();
-    if (data.count() != 7
+    if (data.count() != 8
             || !data.contains(QLatin1String(DEBUGGER))
             || data.value(QLatin1String(DEBUGGER)).toString() != QLatin1String("debugger Id"))
         return false;
@@ -390,10 +403,11 @@ bool AddKitOperation::test() const
 }
 #endif
 
-QVariantMap AddKitOperation::addKit(const QVariantMap &map,
-                                    const QString &id, const QString &displayName, const QString &icon,
-                                    const QString &debuggerId, const quint32 &debuggerType, const QString &debugger,
-                                    const QByteArray &deviceType, const QString &sysRoot,
+QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QString &id,
+                                    const QString &displayName, const QString &icon,
+                                    const QString &debuggerId, const quint32 &debuggerType,
+                                    const QString &debugger, const QByteArray &deviceType,
+                                    const QString &device, const QString &sysRoot,
                                     const QString &tc, const QString &qt, const QString &mkspec,
                                     const KeyValuePairList &extra)
 {
@@ -464,6 +478,8 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map,
     }
     data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
                          << QLatin1String(DEVICE_TYPE), QVariant(deviceType));
+    data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
+                         << QLatin1String(DEVICE_ID), QVariant(device));
     data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)
                          << QLatin1String(SYSROOT), QVariant(sysRoot));
     data << KeyValuePair(QStringList() << kit << QLatin1String(DATA)

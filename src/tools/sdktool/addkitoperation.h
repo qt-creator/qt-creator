@@ -51,12 +51,12 @@ public:
     bool test() const;
 #endif
 
-    static QVariantMap addKit(const QVariantMap &map,
-                              const QString &id, const QString &displayName, const QString &icon, const QString &debuggerId,
+    static QVariantMap addKit(const QVariantMap &map, const QString &id, const QString &displayName,
+                              const QString &icon, const QString &debuggerId,
                               const quint32 &debuggerType, const QString &debugger,
-                              const QByteArray &deviceType, const QString &sysRoot,
-                              const QString &tc, const QString &qt, const QString &mkspec,
-                              const KeyValuePairList &extra);
+                              const QByteArray &deviceType, const QString &device,
+                              const QString &sysRoot, const QString &tc, const QString &qt,
+                              const QString &mkspec, const KeyValuePairList &extra);
 
     static QVariantMap initializeKits();
 
@@ -68,6 +68,7 @@ private:
     quint32 m_debuggerEngine;
     QString m_debugger;
     QString m_deviceType;
+    QString m_device;
     QString m_sysRoot;
     QString m_tc;
     QString m_qt;
