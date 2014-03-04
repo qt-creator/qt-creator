@@ -1158,11 +1158,6 @@ void CPPEditorWidget::updateOutlineToolTip()
 
 void CPPEditorWidget::updateUses()
 {
-    if (m_highlightWatcher) {
-        m_highlightWatcher->cancel();
-        m_highlightWatcher.reset();
-    }
-
     // Block premature semantic info calculation when editor is created.
     if (m_modelManager && m_modelManager->cppEditorSupport(editor())->initialized())
         m_updateUsesTimer->start();
