@@ -241,6 +241,9 @@ Rectangle {
         width: labels.width
         contentY: flick.contentY
 
+        // reserve some more space than needed to prevent weird effects when resizing
+        contentHeight: labels.height + height
+
         Rectangle {
             id: labels
             anchors.left: parent.left
