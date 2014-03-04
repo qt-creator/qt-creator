@@ -155,20 +155,10 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
 {
     if (mode & Sdk) {
         m_sdkState = Okay;
-        if (m_androidConfig.sdkLocation().isEmpty()) {
+        if (m_androidConfig.sdkLocation().isEmpty())
             m_sdkState = NotSet;
-        } else {
-            Utils::FileName adb = m_androidConfig.sdkLocation();
-            Utils::FileName androidExe = m_androidConfig.sdkLocation();
-            Utils::FileName androidBat = m_androidConfig.sdkLocation();
-            Utils::FileName emulator = m_androidConfig.sdkLocation();
-            if (!adb.appendPath(QLatin1String("platform-tools/adb" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists()
-                    || (!androidExe.appendPath(QLatin1String("/tools/android" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists()
-                        && !androidBat.appendPath(QLatin1String("/tools/android" ANDROID_BAT_SUFFIX)).toFileInfo().exists())
-                    || !emulator.appendPath(QLatin1String("/tools/emulator" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists()) {
-                m_sdkState = Error;
-            }
-        }
+        else if (!(sdkLocationIsValid() && sdkPlatformToolsInstalled()))
+            m_sdkState = Error;
     }
 
     if (mode & Ndk) {
@@ -241,7 +231,10 @@ void AndroidSettingsWidget::applyToUi(AndroidSettingsWidget::Mode mode)
             m_ui->sdkWarningIconLabel->setVisible(true);
             m_ui->sdkWarningLabel->setVisible(true);
             Utils::FileName location = Utils::FileName::fromUserInput(m_ui->SDKLocationLineEdit->text());
-            m_ui->sdkWarningLabel->setText(tr("\"%1\" does not seem to be an Android SDK top folder.").arg(location.toUserOutput()));
+            if (sdkLocationIsValid())
+                m_ui->sdkWarningLabel->setText(tr("The Platform tools are missing. Please use the Android SDK Manager to install them."));
+            else
+                m_ui->sdkWarningLabel->setText(tr("\"%1\" does not seem to be an Android SDK top folder.").arg(location.toUserOutput()));
         } else {
             m_ui->sdkWarningIconLabel->setVisible(false);
             m_ui->sdkWarningLabel->setVisible(false);
@@ -298,6 +291,22 @@ void AndroidSettingsWidget::applyToUi(AndroidSettingsWidget::Mode mode)
 
         m_AVDModel.setAvdList(m_androidConfig.androidVirtualDevices());
     }
+}
+
+bool AndroidSettingsWidget::sdkLocationIsValid() const
+{
+    Utils::FileName androidExe = m_androidConfig.sdkLocation();
+    Utils::FileName androidBat = m_androidConfig.sdkLocation();
+    Utils::FileName emulator = m_androidConfig.sdkLocation();
+    return (androidExe.appendPath(QLatin1String("/tools/android" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists()
+            || androidBat.appendPath(QLatin1String("/tools/android" ANDROID_BAT_SUFFIX)).toFileInfo().exists())
+            && emulator.appendPath(QLatin1String("/tools/emulator" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists();
+}
+
+bool AndroidSettingsWidget::sdkPlatformToolsInstalled() const
+{
+    Utils::FileName adb = m_androidConfig.sdkLocation();
+    return adb.appendPath(QLatin1String("platform-tools/adb" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists();
 }
 
 void AndroidSettingsWidget::saveSettings()
