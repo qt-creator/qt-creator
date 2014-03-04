@@ -832,24 +832,16 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
 
     backupUserFile();
 
-    SettingsAccessorPrivate::Settings settings;
-    settings.map = map;
-    settings.path = FileName::fromString(defaultFileName(m_userSuffix));
+    QVariantMap data = map;
+
+    Utils::FileName path = FileName::fromString(defaultFileName(m_userSuffix));
     const QVariant &shared = m_project->property(SHARED_SETTINGS);
     if (shared.isValid())
-        trackUserStickySettings(settings.map, shared.toMap());
+        trackUserStickySettings(data, shared.toMap());
 
-    if (!d->m_writer || d->m_writer->fileName() != settings.path) {
+    if (!d->m_writer || d->m_writer->fileName() != path) {
         delete d->m_writer;
-        d->m_writer = new PersistentSettingsWriter(settings.path, QLatin1String("QtCreatorProject"));
-    }
-
-    QVariantMap data;
-
-    for (QVariantMap::const_iterator i = settings.map.constBegin();
-         i != settings.map.constEnd();
-         ++i) {
-        data.insert(i.key(), i.value());
+        d->m_writer = new PersistentSettingsWriter(path, QLatin1String("QtCreatorProject"));
     }
 
     data.insert(QLatin1String(VERSION_KEY), d->currentVersion());
