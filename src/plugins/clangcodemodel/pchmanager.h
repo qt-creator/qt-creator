@@ -75,12 +75,21 @@ private slots:
     void updateActivePchFiles();
 
 private:
+    struct UpdateParams {
+        UpdateParams(const QString &customPchFile, const QList<ProjectPart::Ptr> &projectParts)
+            : customPchFile(customPchFile) , projectParts(projectParts) {}
+        const QString customPchFile;
+        const QList<ProjectPart::Ptr> projectParts;
+    };
+
     void updatePchInfo(ClangProjectSettings *cps,
                        const QList<ProjectPart::Ptr> &projectParts);
-    static void doPchInfoUpdate(QFutureInterface<void> &future,
-                                ClangProjectSettings::PchUsage pchUsage,
-                                const QString customPchFile,
-                                const QList<ProjectPart::Ptr> projectParts);
+
+    static void doPchInfoUpdateNone(QFutureInterface<void> &future, const UpdateParams &params);
+    static void doPchInfoUpdateFuzzy(QFutureInterface<void> &future, const UpdateParams &params);
+    static void doPchInfoUpdateExact(QFutureInterface<void> &future, const UpdateParams &params);
+    static void doPchInfoUpdateCustom(QFutureInterface<void> &future, const UpdateParams &params);
+
     void setPCHInfo(const QList<ProjectPart::Ptr> &projectParts,
                     const PchInfo::Ptr &pchInfo,
                     const QPair<bool, QStringList> &msgs);
