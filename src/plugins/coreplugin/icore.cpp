@@ -298,6 +298,7 @@
 #include <QStatusBar>
 
 using namespace Core::Internal;
+using namespace ExtensionSystem;
 
 namespace Core {
 
@@ -356,7 +357,10 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
 
 QSettings *ICore::settings(QSettings::Scope scope)
 {
-    return m_mainwindow->settings(scope);
+    if (scope == QSettings::UserScope)
+        return PluginManager::settings();
+    else
+        return PluginManager::globalSettings();
 }
 
 SettingsDatabase *ICore::settingsDatabase()

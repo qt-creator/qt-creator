@@ -100,8 +100,10 @@
 #include <QPushButton>
 #include <QStyleFactory>
 
-using namespace Core;
-using namespace Core::Internal;
+using namespace ExtensionSystem;
+
+namespace Core {
+namespace Internal {
 
 enum { debugMainWindow = 0 };
 
@@ -109,9 +111,7 @@ MainWindow::MainWindow() :
     Utils::AppMainWindow(),
     m_coreImpl(new ICore(this)),
     m_additionalContexts(Constants::C_GLOBAL),
-    m_settings(ExtensionSystem::PluginManager::settings()),
-    m_globalSettings(ExtensionSystem::PluginManager::globalSettings()),
-    m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
+    m_settingsDatabase(new SettingsDatabase(QFileInfo(PluginManager::settings()->fileName()).path(),
                                             QLatin1String("QtCreator"),
                                             this)),
     m_printer(0),
@@ -152,7 +152,7 @@ MainWindow::MainWindow() :
     (void) new DocumentManager(this);
     OutputPaneManager::create();
 
-    Utils::HistoryCompleter::setSettings(m_settings);
+    Utils::HistoryCompleter::setSettings(PluginManager::settings());
 
     setWindowTitle(tr("Qt Creator"));
     if (!Utils::HostOsInfo::isMacHost())
@@ -270,8 +270,6 @@ MainWindow::~MainWindow()
     m_mimeTypeSettings = 0;
     delete m_systemEditor;
     m_systemEditor = 0;
-    delete m_settings;
-    m_settings = 0;
     delete m_printer;
     m_printer = 0;
     delete m_vcsManager;
@@ -956,14 +954,6 @@ void MainWindow::openFileWith()
     }
 }
 
-QSettings *MainWindow::settings(QSettings::Scope scope) const
-{
-    if (scope == QSettings::UserScope)
-        return m_settings;
-    else
-        return m_globalSettings;
-}
-
 IContext *MainWindow::contextObject(QWidget *widget)
 {
     return m_contextWidgets.value(widget);
@@ -1069,7 +1059,8 @@ static const char modeSelectorVisibleKey[] = "ModeSelectorVisible";
 
 void MainWindow::readSettings()
 {
-    m_settings->beginGroup(QLatin1String(settingsGroup));
+    QSettings *settings = PluginManager::settings();
+    settings->beginGroup(QLatin1String(settingsGroup));
 
     if (m_overrideColor.isValid()) {
         Utils::StyleHelper::setBaseColor(m_overrideColor);
@@ -1077,38 +1068,39 @@ void MainWindow::readSettings()
         m_overrideColor = Utils::StyleHelper::baseColor();
     } else {
         Utils::StyleHelper::setBaseColor(
-                m_settings->value(QLatin1String(colorKey),
+                settings->value(QLatin1String(colorKey),
                                   QColor(Utils::StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
 
-    bool modeSelectorVisible = m_settings->value(QLatin1String(modeSelectorVisibleKey), true).toBool();
+    bool modeSelectorVisible = settings->value(QLatin1String(modeSelectorVisibleKey), true).toBool();
     ModeManager::setModeSelectorVisible(modeSelectorVisible);
     m_toggleModeSelectorAction->setChecked(modeSelectorVisible);
 
-    m_settings->endGroup();
+    settings->endGroup();
 
     m_editorManager->readSettings();
-    m_navigationWidget->restoreSettings(m_settings);
-    m_rightPaneWidget->readSettings(m_settings);
+    m_navigationWidget->restoreSettings(settings);
+    m_rightPaneWidget->readSettings(settings);
 }
 
 void MainWindow::writeSettings()
 {
-    m_settings->beginGroup(QLatin1String(settingsGroup));
+    QSettings *settings = PluginManager::settings();
+    settings->beginGroup(QLatin1String(settingsGroup));
 
     if (!(m_overrideColor.isValid() && Utils::StyleHelper::baseColor() == m_overrideColor))
-        m_settings->setValue(QLatin1String(colorKey), Utils::StyleHelper::requestedBaseColor());
+        settings->setValue(QLatin1String(colorKey), Utils::StyleHelper::requestedBaseColor());
 
-    m_settings->setValue(QLatin1String(windowGeometryKey), saveGeometry());
-    m_settings->setValue(QLatin1String(windowStateKey), saveState());
-    m_settings->setValue(QLatin1String(modeSelectorVisibleKey), ModeManager::isModeSelectorVisible());
+    settings->setValue(QLatin1String(windowGeometryKey), saveGeometry());
+    settings->setValue(QLatin1String(windowStateKey), saveState());
+    settings->setValue(QLatin1String(modeSelectorVisibleKey), ModeManager::isModeSelectorVisible());
 
-    m_settings->endGroup();
+    settings->endGroup();
 
     DocumentManager::saveSettings();
-    m_actionManager->saveSettings(m_settings);
+    m_actionManager->saveSettings(settings);
     m_editorManager->saveSettings();
-    m_navigationWidget->saveSettings(m_settings);
+    m_navigationWidget->saveSettings(settings);
 }
 
 void MainWindow::updateAdditionalContexts(const Context &remove, const Context &add)
@@ -1265,10 +1257,14 @@ bool MainWindow::showWarningWithOptions(const QString &title,
 
 void MainWindow::restoreWindowState()
 {
-    m_settings->beginGroup(QLatin1String(settingsGroup));
-    if (!restoreGeometry(m_settings->value(QLatin1String(windowGeometryKey)).toByteArray()))
+    QSettings *settings = PluginManager::settings();
+    settings->beginGroup(QLatin1String(settingsGroup));
+    if (!restoreGeometry(settings->value(QLatin1String(windowGeometryKey)).toByteArray()))
         resize(1008, 700); // size without window decoration
-    restoreState(m_settings->value(QLatin1String(windowStateKey)).toByteArray());
-    m_settings->endGroup();
+    restoreState(settings->value(QLatin1String(windowStateKey)).toByteArray());
+    settings->endGroup();
     show();
 }
+
+} // namespace Internal
+} // namespace Core
