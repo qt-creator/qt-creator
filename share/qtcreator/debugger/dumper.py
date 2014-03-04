@@ -990,10 +990,7 @@ class DumperBase:
                         self.putCallItem(name, qobject, "property", '"' + name + '"')
 
                     # Dynamic properties.
-                    if extraData == 0:
-                        self.putItemCount(0)
-                        self.putNumChild(0)
-                    else:
+                    if extraData:
                         propertyNames = extraData + ptrSize
                         propertyValues = extraData + 2 * ptrSize
 

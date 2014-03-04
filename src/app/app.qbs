@@ -5,7 +5,7 @@ Application {
     consoleApplication: qbs.debugInformation
 
     cpp.rpaths: qbs.targetOS.contains("osx") ? ["@executable_path/.."]
-                                             : ["$ORIGIN/../lib/qtcreator"]
+                                             : ["$ORIGIN/../" + project.libDirName + "/qtcreator"]
     cpp.defines: project.generalDefines
     cpp.linkerFlags: {
         if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))

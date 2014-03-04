@@ -467,7 +467,7 @@ void Manager::downloadDefinitionsFinished()
         else
             text = tr("Error downloading one or more definitions.");
         if (writeError)
-            text.append(tr("\nPlease check the directory's access rights."));
+            text.append(QLatin1Char('\n') + tr("Please check the directory's access rights."));
         QMessageBox::critical(0, tr("Download Error"), text);
     }
 

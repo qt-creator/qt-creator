@@ -19,7 +19,7 @@
      <item>
       <widget class="QRadioButton" name="apiLevelButton">
        <property name="text">
-        <string>Install Api Level</string>
+        <string>Install API Level</string>
        </property>
       </widget>
      </item>

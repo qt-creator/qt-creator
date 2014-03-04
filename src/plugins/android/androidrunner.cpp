@@ -160,10 +160,10 @@ void AndroidRunner::checkPID()
         if (m_wasStarted) {
             m_wasStarted = false;
             m_checkPIDTimer.stop();
-            emit remoteProcessFinished(tr("\n\n'%1' died.").arg(m_packageName));
+            emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" died.").arg(m_packageName));
         } else {
             if (++m_tries > 3)
-                emit remoteProcessFinished(tr("\n\nUnable to start '%1'").arg(m_packageName));
+                emit remoteProcessFinished(QLatin1String("\n\n") + tr("Unable to start \"%1\"").arg(m_packageName));
         }
     } else if (!m_wasStarted){
         if (m_useCppDebugger) {
@@ -343,7 +343,7 @@ void AndroidRunner::stop()
     m_tries = 0;
     if (m_processPID != -1) {
         forceStop();
-        emit remoteProcessFinished(tr("\n\n'%1' terminated.").arg(m_packageName));
+        emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" terminated.").arg(m_packageName));
     }
     //QObject::disconnect(&m_adbLogcatProcess, 0, this, 0);
     m_adbLogcatProcess.kill();

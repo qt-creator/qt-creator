@@ -73,7 +73,7 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     m_ui->ndksTreeWidget->setColumnCount(1);
 
     m_apiLevels = new QTreeWidgetItem(m_ui->ndksTreeWidget);
-    m_apiLevels->setText(0, tr("Api Levels"));
+    m_apiLevels->setText(0, tr("API Levels"));
     m_runtimes = new QTreeWidgetItem(m_ui->ndksTreeWidget);
     m_runtimes->setText(0, tr("Runtimes"));
 
@@ -181,7 +181,7 @@ void BlackBerryNDKSettingsWidget::updateConfigurationList()
         item->setIcon(0, config->isValid() ? QIcon() : invalidConfigIcon);
         // TODO: Do the same if qmake, qcc, debugger are no longer detected...
         if (!config->isValid()) {
-            QString toolTip = tr("Invalid target %1: ").arg(config->targetName());
+            QString toolTip = tr("Invalid target %1:").arg(config->targetName());
             if (config->isAutoDetected() && !config->autoDetectionSource().toFileInfo().exists())
                 toolTip += QLatin1Char('\n') + tr("- Target no longer installed.");
 
@@ -322,7 +322,7 @@ void BlackBerryNDKSettingsWidget::updateUi(QTreeWidgetItem *item)
         item->setFont(0, font);
 
         m_ui->activateNdkTargetButton->setEnabled(!contains);
-        m_ui->deactivateNdkTargetButton->setEnabled(contains && m_activatedApiLevel.size() > 1);
+        m_ui->deactivateNdkTargetButton->setEnabled(contains);
         // Disable remove button for auto detected pre-10.2 NDKs (uninstall wizard doesn't handle them)
         m_ui->removeConfigButton->setEnabled(!(config->isAutoDetected()
                                                && QnxUtils::sdkInstallerPath(config->ndkPath()).isEmpty()));

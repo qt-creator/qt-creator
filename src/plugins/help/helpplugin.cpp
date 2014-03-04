@@ -868,9 +868,12 @@ void HelpPlugin::activateContext()
         links = HelpManager::linksForIdentifier(m_idFromContext);
         if (links.isEmpty()) {
             // Maybe this is already an URL...
-            QUrl url(m_idFromContext);
-            if (url.isValid())
-                links.insert(m_idFromContext, m_idFromContext);
+            // Require protocol specifier, otherwise most strings would be 'local file names'
+            if (m_idFromContext.contains(QLatin1Char(':'))) {
+                QUrl url(m_idFromContext);
+                if (url.isValid())
+                    links.insert(m_idFromContext, m_idFromContext);
+            }
         }
     }
 

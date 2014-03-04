@@ -53,7 +53,8 @@ QString ModelManagerSupport::id() const
 
 QString ModelManagerSupport::displayName() const
 {
-    return QCoreApplication::translate("ModelManagerSupport::displayName",
+    //: Display name
+    return QCoreApplication::translate("ClangCodeModel::Internal::ModelManagerSupport",
                                        "Clang");
 }
 

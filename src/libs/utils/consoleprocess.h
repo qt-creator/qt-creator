@@ -71,9 +71,8 @@ public:
     void killProcess();
     void killStub();
 
-#ifdef Q_OS_WIN
     qint64 applicationMainThreadID() const;
-#else
+#ifndef Q_OS_WIN
     void detachStub();
 #endif
 

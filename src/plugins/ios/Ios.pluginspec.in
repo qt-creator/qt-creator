@@ -1,4 +1,4 @@
-<plugin name=\"Ios\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\" experimental=\"true\">
+<plugin name=\"Ios\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>Digia Plc</vendor>
     <copyright>(C) 2014 Digia Plc</copyright>
     <platform>Mac OS.*</platform>

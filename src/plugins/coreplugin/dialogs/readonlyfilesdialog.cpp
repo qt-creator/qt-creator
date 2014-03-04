@@ -232,7 +232,8 @@ void ReadOnlyFilesDialog::promptFailWarning(const QStringList &files, ReadOnlyRe
     } else {
         title = tr("Could Not Change Permissions on Some Files");
         message = d->failWarning;
-        message += tr("\nSee details for a complete list of files.");
+        message += QLatin1Char('\n');
+        message += tr("See details for a complete list of files.");
         details = files.join(QLatin1String("\n"));
     }
     QMessageBox msgBox(QMessageBox::Warning, title, message);

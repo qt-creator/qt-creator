@@ -118,7 +118,7 @@ void SshDeviceProcessList::handleProcessError(const QString &errorMessage)
     QString fullMessage = errorMessage;
     const QByteArray remoteStderr = d->process.readAllStandardError();
     if (!remoteStderr.isEmpty())
-        fullMessage += tr("\nRemote stderr was: %1").arg(QString::fromUtf8(remoteStderr));
+        fullMessage += QLatin1Char('\n') + tr("Remote stderr was: %1").arg(QString::fromUtf8(remoteStderr));
     reportError(fullMessage);
 }
 

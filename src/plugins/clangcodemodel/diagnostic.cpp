@@ -52,11 +52,11 @@ const QString Diagnostic::severityAsString() const
         return QString();
 
     static QStringList strs = QStringList()
-            << QCoreApplication::translate("Diagnostic", "ignored")
-            << QCoreApplication::translate("Diagnostic", "note")
-            << QCoreApplication::translate("Diagnostic", "warning")
-            << QCoreApplication::translate("Diagnostic", "error")
-            << QCoreApplication::translate("Diagnostic", "fatal")
+            << QCoreApplication::translate("ClangCodeModel::Diagnostic", "ignored")
+            << QCoreApplication::translate("ClangCodeModel::Diagnostic", "note")
+            << QCoreApplication::translate("ClangCodeModel::Diagnostic", "warning")
+            << QCoreApplication::translate("ClangCodeModel::Diagnostic", "error")
+            << QCoreApplication::translate("ClangCodeModel::Diagnostic", "fatal")
                ;
 
     return strs.at(m_severity);

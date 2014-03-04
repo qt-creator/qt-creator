@@ -96,7 +96,8 @@ void CompletionProposalsBuilder::operator ()(const CXCompletionResult &cxResult)
 
     if (m_resultAvailability == CodeCompletionResult::Deprecated) {
         m_comment += QLatin1String("<b>@note</b> ");
-        m_comment += QCoreApplication::translate("deprecated C++ symbol", "Is deprecated");
+        //: deprecated C++ symbol
+        m_comment += tr("Is deprecated");
     }
 
     m_hint = QLatin1String("<p>");
@@ -675,9 +676,9 @@ void CompletionProposalsBuilder::concatSlotSignalSignature(const CXCompletionStr
 
     const QString parent = Internal::getQString(clang_getCompletionParent(cxString, NULL));
     if (m_resultKind == CodeCompletionResult::SlotCompletionKind)
-        m_hint += QObject::tr("Slot of %1, returns %2").arg(parent).arg(resultType);
+        m_hint += tr("Slot of %1, returns %2").arg(parent, resultType);
     else
-        m_hint += QObject::tr("Signal of %1, returns %2").arg(parent).arg(resultType);
+        m_hint += tr("Signal of %1, returns %2").arg(parent, resultType);
 }
 
 /**

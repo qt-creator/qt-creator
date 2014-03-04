@@ -93,7 +93,8 @@ void FileWidget::comboBoxChanged()
 
 void FileWidget::onButtonReleased()
 {
-    QString newFile = QFileDialog::getOpenFileName(0, tr("Open File"), m_path.toLocalFile(), m_filter);
+    QString newFile = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                   m_path.toLocalFile(), m_filter);
     if (!newFile.isEmpty())
         setFileNameStr(newFile);
 }

@@ -36,6 +36,7 @@
 
 #include "ui_qbsbuildstepconfigwidget.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -234,16 +235,26 @@ QVariantMap QbsBuildStep::toMap() const
 
 void QbsBuildStep::buildingDone(bool success)
 {
+    m_lastWasSuccess = success;
     // Report errors:
     foreach (const qbs::ErrorItem &item, m_job->error().items())
         createTaskAndOutput(ProjectExplorer::Task::Error, item.description(),
                             item.codeLocation().fileName(), item.codeLocation().line());
 
-    // Building can uncover additional target artifacts.
-    static_cast<QbsProject *>(project())->parseCurrentBuildConfiguration(true);
+    QbsProject *pro = static_cast<QbsProject *>(project());
+    connect(pro, SIGNAL(projectParsingDone(bool)), this, SLOT(reparsingDone()));
 
+    // Building can uncover additional target artifacts.
+    // Wait for reparsing to finish, since before that our run configurations may not be valid.
+    pro->parseCurrentBuildConfiguration(true);
+}
+
+void QbsBuildStep::reparsingDone()
+{
+    disconnect(static_cast<QbsProject *>(project()), SIGNAL(projectParsingDone(bool)),
+               this, SLOT(reparsingDone()));
     QTC_ASSERT(m_fi, return);
-    m_fi->reportResult(success);
+    m_fi->reportResult(m_lastWasSuccess);
     m_fi = 0; // do not delete, it is not ours
     m_job->deleteLater();
     m_job = 0;
@@ -421,6 +432,8 @@ void QbsBuildStepConfigWidget::updateState()
     m_ui->buildVariantComboBox->setCurrentIndex(idx);
 
     QString command = QLatin1String("qbs build ");
+    command += QString::fromLatin1("--settings-dir ")
+            + QDir::toNativeSeparators(Core::ICore::userResourcePath()) + QLatin1String(" ");
     if (m_step->dryRun())
         command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())

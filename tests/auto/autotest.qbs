@@ -21,7 +21,8 @@ CppApplication {
     // absolute paths to resources in the build directory.
 //    cpp.rpaths: qbs.targetOS.contains("osx")
 //            ? ["@executable_path/.."]
-//            : ["$ORIGIN/../lib/qtcreator", "$ORIGIN/../lib/qtcreator/plugins/QtProject"]
+//            : ["$ORIGIN/../" + project.libDirName + "/qtcreator",
+//               "$ORIGIN/../" project.libDirName + "/qtcreator/plugins/QtProject"]
 //    Group {
 //        fileTagsFilter: product.type
 //        qbs.install: true

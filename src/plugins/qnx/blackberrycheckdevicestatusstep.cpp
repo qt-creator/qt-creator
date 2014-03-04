@@ -146,8 +146,8 @@ void BlackBerryCheckDeviceStatusStep::checkDeviceInfo(int status)
         }
 
         bool ok = true;
-        if (deviceRuntimeVersion.toString() != apiLevelVersion.toString()) {
-            raiseError(tr("The device runtime version (%1) does not match API level version (%2)")
+        if (apiLevelVersion > deviceRuntimeVersion) {
+            raiseError(tr("The device runtime version (%1) is inferior to the API level version (%2)")
                        .arg(deviceRuntimeVersion.toString(), apiLevelVersion.toString()));
 
             QMetaObject::invokeMethod(this, "handleVersionMismatch", Qt::BlockingQueuedConnection,

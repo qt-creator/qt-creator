@@ -78,7 +78,6 @@ public:
 
     QString executable() const;
     RunMode runMode() const;
-    bool forcedGuiMode() const;
     QString workingDirectory() const;
     QString commandLineArguments() const;
 
@@ -91,6 +90,7 @@ public:
     void addToBaseEnvironment(Utils::Environment &env) const;
 
     QString qbsProduct() const;
+    bool isConsoleApplication() const;
 
 signals:
     void commandLineArgumentsChanged(const QString&);

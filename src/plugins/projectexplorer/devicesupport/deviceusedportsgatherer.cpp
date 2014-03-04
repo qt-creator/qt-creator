@@ -170,7 +170,8 @@ void DeviceUsedPortsGatherer::handleProcessClosed(int exitStatus)
 
     if (!errMsg.isEmpty()) {
         if (!d->remoteStderr.isEmpty()) {
-            errMsg += tr("\nRemote error output was: %1")
+            errMsg += QLatin1Char('\n');
+            errMsg += tr("Remote error output was: %1")
                 .arg(QString::fromUtf8(d->remoteStderr));
         }
         emit error(errMsg);

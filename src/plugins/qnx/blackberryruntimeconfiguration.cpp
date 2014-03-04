@@ -35,6 +35,7 @@
 
 #include <QVariantMap>
 #include <QFileInfo>
+#include <QCoreApplication>
 
 namespace Qnx {
 namespace Internal {
@@ -54,7 +55,7 @@ BlackBerryRuntimeConfiguration::BlackBerryRuntimeConfiguration(
         m_version = BlackBerryVersionNumber::fromFileName(QFileInfo(path).baseName(),
                                                           QRegExp(QLatin1String("^runtime_(.*)$")));
 
-    m_displayName = QObject::tr("Runtime ") + m_version.toString();
+    m_displayName = QCoreApplication::translate("Qnx::Internal::BlackBerryRuntimeConfiguration", "Runtime %1").arg(m_version.toString());
 }
 
 BlackBerryRuntimeConfiguration::BlackBerryRuntimeConfiguration(const QVariantMap &data)

@@ -41,6 +41,8 @@
 
 #include <QMessageBox>
 
+using namespace Utils;
+
 namespace Debugger {
 namespace Internal {
 
@@ -120,12 +122,11 @@ void GdbTermEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
-#ifdef Q_OS_WIN
     const qint64 attachedMainThreadID = m_stubProc.applicationMainThreadID();
-    showMessage(QString::fromLatin1("Attaching to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID), LogMisc);
-#else
-    showMessage(QString::fromLatin1("Attaching to %1").arg(attachedPID), LogMisc);
-#endif
+    const QString msg = (attachedMainThreadID != -1)
+            ? QString::fromLatin1("Attaching to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
+            : QString::fromLatin1("Attaching to %1").arg(attachedPID);
+    showMessage(msg, LogMisc);
     notifyInferiorPid(attachedPID);
     postCommand("attach " + QByteArray::number(attachedPID),
         CB(handleStubAttached));
@@ -143,11 +144,7 @@ void GdbTermEngine::handleStubAttached(const GdbResponse &response)
         } else {
             QString errorMessage;
             // Resume thread that was suspended by console stub process (see stub code).
-#ifdef Q_OS_WIN
             const qint64 mainThreadId = m_stubProc.applicationMainThreadID();
-#else
-            const qint64 mainThreadId = -1;
-#endif
             if (winResumeThread(mainThreadId, &errorMessage)) {
                 showMessage(QString::fromLatin1("Inferior attached, thread %1 resumed").
                             arg(mainThreadId), LogMisc);

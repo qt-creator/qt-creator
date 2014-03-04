@@ -338,7 +338,7 @@ void BlackBerryKeysWidget::requestFinished(int status)
     default:
         m_utils.clearCertificatePassword();
         m_utils.clearCskPassword();
-        errorString += tr("An unknwon error has occurred.");
+        errorString += tr("An unknown error has occurred.");
         break;
     }
 

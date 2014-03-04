@@ -80,6 +80,7 @@ signals:
 
 private slots:
     void buildingDone(bool success);
+    void reparsingDone();
     void handleTaskStarted(const QString &desciption, int max);
     void handleProgress(int value);
     void handleCommandDescriptionReport(const QString &highlight, const QString &message);
@@ -108,6 +109,7 @@ private:
     QFutureInterface<bool> *m_fi;
     qbs::BuildJob *m_job;
     int m_progressBase;
+    bool m_lastWasSuccess;
     ProjectExplorer::IOutputParser *m_parser;
 
     friend class QbsBuildStepConfigWidget;

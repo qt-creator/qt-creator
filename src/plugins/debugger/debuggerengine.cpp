@@ -1804,7 +1804,7 @@ void DebuggerEngine::checkForReleaseBuild(const DebuggerStartParameters &sp)
 
         foreach (const QByteArray &name, interesting) {
             const QString found = seen.contains(name) ? tr("Found.") : tr("Not found.");
-            detailedWarning.append(tr("\nSection %1: %2").arg(_(name)).arg(found));
+            detailedWarning.append(QLatin1Char('\n') + tr("Section %1: %2").arg(_(name)).arg(found));
         }
         break;
     }

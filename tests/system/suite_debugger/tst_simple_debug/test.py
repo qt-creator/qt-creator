@@ -73,7 +73,7 @@ def main():
                     continue
                 allowAppThroughWinFW(workingDir, projectName, False)
                 if not doSimpleDebugging(len(checkedTargets), kit, config,
-                                         2, expectedBreakpointsOrder):
+                                         len(expectedBreakpointsOrder), expectedBreakpointsOrder):
                     try:
                         stopB = findObject(':Qt Creator.Stop_QToolButton')
                         if stopB.enabled:
@@ -85,6 +85,12 @@ def main():
                 ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
                 clickButton(waitForObject("{type='CloseButton' unnamed='1' visible='1' "
                                           "window=':Qt Creator_Core::Internal::MainWindow'}"))
+                if platform.system() == 'Darwin' and JIRA.isBugStillOpen(11595):
+                    try:
+                        expectedBreakpointsOrder.remove({os.path.join(workingDir, projectName, "main.cpp"):10})
+                        test.warning("Removed cpp file after first run. (QTCREATORBUG-11595)")
+                    except:
+                        pass
         else:
             test.fatal("Setting breakpoints failed - leaving without testing.")
     invokeMenuItem("File", "Exit")

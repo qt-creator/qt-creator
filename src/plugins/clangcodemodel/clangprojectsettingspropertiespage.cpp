@@ -48,8 +48,7 @@ QString ClangProjectSettingsPanelFactory::id() const
 
 QString ClangProjectSettingsPanelFactory::displayName() const
 {
-    return QCoreApplication::translate("ClangProjectSettingsPropertiesPage",
-                                       "Clang Settings");
+    return ClangProjectSettingsWidget::tr("Clang Settings");
 }
 
 int ClangProjectSettingsPanelFactory::priority() const
@@ -67,9 +66,7 @@ bool ClangProjectSettingsPanelFactory::supports(Project *project)
 PropertiesPanel *ClangProjectSettingsPanelFactory::createPanel(Project *project)
 {
     PropertiesPanel *panel = new PropertiesPanel;
-    panel->setDisplayName(QCoreApplication::translate(
-                              "ClangProjectSettingsPropertiesPage",
-                              "Clang Settings"));
+    panel->setDisplayName(ClangProjectSettingsWidget::tr("Clang Settings"));
     panel->setWidget(new ClangProjectSettingsWidget(project));
     return panel;
 }

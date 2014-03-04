@@ -100,8 +100,8 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
 void BeautifierPlugin::extensionsInitialized()
 {
     if (const Core::EditorManager *editorManager = Core::EditorManager::instance()) {
-        connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor *)),
-                this, SLOT(updateActions(Core::IEditor *)));
+        connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
+                this, SLOT(updateActions(Core::IEditor*)));
     }
 }
 

@@ -136,13 +136,17 @@ bool sortNodes(Node *n1, Node *n2)
 
     // must be file nodes
     {
+        int result = caseFriendlyCompare(n1->displayName(), n2->displayName());
+        if (result != 0)
+            return result < 0;
+
         const QString filePath1 = n1->path();
         const QString filePath2 = n2->path();
 
         const QString fileName1 = QFileInfo(filePath1).fileName();
         const QString fileName2 = QFileInfo(filePath2).fileName();
 
-        int result = caseFriendlyCompare(fileName1, fileName2);
+        result = caseFriendlyCompare(fileName1, fileName2);
         if (result != 0) {
             return result < 0; // sort by filename
         } else {
