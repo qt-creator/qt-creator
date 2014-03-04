@@ -134,6 +134,8 @@ QtcPlugin {
         "blackberryqtversion.h",
         "blackberryqtversionfactory.cpp",
         "blackberryqtversionfactory.h",
+        "blackberrypotentialkit.cpp",
+        "blackberrypotentialkit.h",
         "blackberryprocessparser.cpp",
         "blackberryprocessparser.h",
         "blackberryrunconfiguration.cpp",

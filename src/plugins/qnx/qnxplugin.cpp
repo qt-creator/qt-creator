@@ -58,6 +58,7 @@
 #include "cascadesimport/cascadesimportwizard.h"
 #include "qnxtoolchain.h"
 #include "qnxattachdebugsupport.h"
+#include "blackberrypotentialkit.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -104,6 +105,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new BlackBerryKeysPage);
     addAutoReleasedObject(new BlackBerryCheckDeviceStatusStepFactory);
     addAutoReleasedObject(new CascadesImportWizard);
+    addAutoReleasedObject(new BlackBerryPotentialKit);
     BlackBerryDeviceConnectionManager::instance()->initialize();
 
     // Handles QNX
