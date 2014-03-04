@@ -110,6 +110,7 @@ protected:
     ProceedInfo reportIssues(const QVariantMap &data, const Utils::FileName &path, QWidget *parent) const;
 
     virtual QVariantMap prepareSettings(const QVariantMap &data) const;
+    virtual QVariantMap prepareToSaveSettings(const QVariantMap &data) const;
 
     virtual bool isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const;
 
@@ -146,6 +147,7 @@ public:
 
 protected:
     QVariantMap prepareSettings(const QVariantMap &data) const;
+    QVariantMap prepareToSaveSettings(const QVariantMap &data) const;
 };
 
 } // namespace Internal

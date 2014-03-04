@@ -419,6 +419,15 @@ QVariantMap UserFileAccessor::prepareSettings(const QVariantMap &data) const
     return result;
 }
 
+QVariantMap UserFileAccessor::prepareToSaveSettings(const QVariantMap &data) const
+{
+    QVariantMap tmp = SettingsAccessor::prepareToSaveSettings(data);
+
+    // for compatibility with QtC 3.1 and older:
+    tmp.insert(QLatin1String(OBSOLETE_VERSION_KEY), currentVersion());
+    return tmp;
+}
+
 namespace ProjectExplorer {
 // --------------------------------------------------------------------
 // SettingsAccessorPrivate:
@@ -823,6 +832,19 @@ QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
     return mergeSettings(userSettings, sharedSettings);
 }
 
+QVariantMap SettingsAccessor::prepareToSaveSettings(const QVariantMap &data) const
+{
+    QVariantMap tmp = data;
+    const QVariant &shared = m_project->property(SHARED_SETTINGS);
+    if (shared.isValid())
+        trackUserStickySettings(tmp, shared.toMap());
+
+    tmp.insert(QLatin1String(VERSION_KEY), d->currentVersion());
+    tmp.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
+
+    return tmp;
+}
+
 bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) const
 {
     if (map.isEmpty())
@@ -830,22 +852,14 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
 
     backupUserFile();
 
-    QVariantMap data = map;
+    QVariantMap data = prepareToSaveSettings(map);
 
     Utils::FileName path = FileName::fromString(defaultFileName(m_userSuffix));
-    const QVariant &shared = m_project->property(SHARED_SETTINGS);
-    if (shared.isValid())
-        trackUserStickySettings(data, shared.toMap());
-
     if (!d->m_writer || d->m_writer->fileName() != path) {
         delete d->m_writer;
         d->m_writer = new PersistentSettingsWriter(path, QLatin1String("QtCreatorProject"));
     }
 
-    data.insert(QLatin1String(VERSION_KEY), d->currentVersion());
-    // for compatibility with QtC 3.1 and older:
-    data.insert(QLatin1String(OBSOLETE_VERSION_KEY), d->currentVersion()); // TODO: Move into UserfileAccessor!
-    data.insert(QLatin1String(ENVIRONMENT_ID_KEY), SettingsAccessor::creatorId());
     return d->m_writer->save(data, parent);
 }
 
