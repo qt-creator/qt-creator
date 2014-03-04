@@ -62,7 +62,8 @@ private:
 
     QRegExp m_makeDir;
     QRegExp m_makeLine;
-    QRegExp m_makefileError;
+    QRegExp m_threeStarError;
+    QRegExp m_errorInMakefile;
 
     QStringList m_directories;
 
