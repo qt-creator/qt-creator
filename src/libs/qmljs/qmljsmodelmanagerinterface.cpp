@@ -1054,7 +1054,7 @@ void ModelManagerInterface::updateImportPaths()
 
         m_synchronizer.addFuture(result);
 
-        addTaskInternal(result, tr("Qml import scan"), Constants::TASK_IMPORT_SCAN);
+        addTaskInternal(result, tr("QML import scan"), Constants::TASK_IMPORT_SCAN);
     }
 }
 
