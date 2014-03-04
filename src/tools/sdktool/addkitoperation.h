@@ -60,6 +60,16 @@ public:
 
     static QVariantMap initializeKits();
 
+    // internal:
+    static QVariantMap addKit(const QVariantMap &map, const QVariantMap &tcMap,
+                              const QVariantMap &qtMap, const QVariantMap &devMap,
+                              const QString &id, const QString &displayName,
+                              const QString &icon, const QString &debuggerId,
+                              const quint32 &debuggerType, const QString &debugger,
+                              const QByteArray &deviceType, const QString &device,
+                              const QString &sysRoot, const QString &tc, const QString &qt,
+                              const QString &mkspec, const KeyValuePairList &extra);
+
 private:
     QString m_id;
     QString m_displayName;

@@ -30,6 +30,9 @@
 #include "addkitoperation.h"
 
 #include "addkeysoperation.h"
+#include "addtoolchainoperation.h"
+#include "addqtoperation.h"
+#include "adddeviceoperation.h"
 #include "findkeyoperation.h"
 #include "findvalueoperation.h"
 #include "getoperation.h"
@@ -256,6 +259,27 @@ bool AddKitOperation::test() const
 {
     QVariantMap map = initializeKits();
 
+    QVariantMap tcMap = AddToolChainOperation::initializeToolChains();
+    tcMap = AddToolChainOperation::addToolChain(tcMap, QLatin1String("{tc-id}"), QLatin1String("TC"),
+                                                QLatin1String("/usr/bin/gcc"),
+                                                QLatin1String("x86-linux-generic-elf-32bit"),
+                                                QLatin1String("x86-linux-generic-elf-32bit"),
+                                                KeyValuePairList());
+
+    QVariantMap qtMap = AddQtOperation::initializeQtVersions();
+    qtMap = AddQtOperation::addQt(qtMap, QLatin1String("{qt-id}"), QLatin1String("Qt"),
+                                  QLatin1String("desktop-qt"), QLatin1String("/usr/bin/qmake"),
+                                  KeyValuePairList());
+
+    QVariantMap devMap = AddDeviceOperation::initializeDevices();
+    devMap = AddDeviceOperation::addDevice(devMap, QLatin1String("{dev-id}"), QLatin1String("Dev"), 0, 0,
+                                           QLatin1String("HWplatform"), QLatin1String("SWplatform"),
+                                           QLatin1String("localhost"), QLatin1String("10000-11000"),
+                                           QLatin1String("localhost"), QLatin1String(""), 42,
+                                           QLatin1String("desktop"), QLatin1String(""), 22, 10000,
+                                           QLatin1String("uname"), 1,
+                                           KeyValuePairList());
+
     if (map.count() != 3
             || !map.contains(QLatin1String(VERSION))
             || map.value(QLatin1String(VERSION)).toInt() != 1
@@ -265,10 +289,39 @@ bool AddKitOperation::test() const
             || map.value(QLatin1String(DEFAULT)).toInt() != -1)
         return false;
 
-    map = addKit(map, QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
+    // Fail if TC is not there:
+    QVariantMap empty = addKit(map, tcMap, qtMap, devMap,
+                               QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
+                               QString(), 1, QLatin1String("/usr/bin/gdb-test"),
+                               QByteArray("Desktop"), QLatin1String("{dev-id}"), QString(),
+                               QLatin1String("{tcXX-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
+                               KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
+    if (!empty.isEmpty())
+        return false;
+    // Fail if Qt is not there:
+    empty = addKit(map, tcMap, qtMap, devMap,
+                   QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
+                   QString(), 1, QLatin1String("/usr/bin/gdb-test"),
+                   QByteArray("Desktop"), QLatin1String("{dev-id}"), QString(),
+                   QLatin1String("{tc-id}"), QLatin1String("{qtXX-id}"), QLatin1String("unsupported/mkspec"),
+                   KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
+    if (!empty.isEmpty())
+        return false;
+    // Fail if dev is not there:
+    empty = addKit(map, tcMap, qtMap, devMap,
+                   QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
+                   QString(), 1, QLatin1String("/usr/bin/gdb-test"),
+                   QByteArray("Desktop"), QLatin1String("{devXX-id}"), QString(),
+                   QLatin1String("{tc-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
+                   KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
+    if (!empty.isEmpty())
+        return false;
+
+    map = addKit(map, tcMap, qtMap, devMap,
+                 QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
                  QString(), 1, QLatin1String("/usr/bin/gdb-test"),
                  QByteArray("Desktop"), QString(), QString(),
-                 QLatin1String("{some-tc-id}"), QLatin1String("{some-qt-id}"), QLatin1String("unsupported/mkspec"),
+                 QLatin1String("{tc-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
 
     if (map.count() != 4
@@ -304,20 +357,22 @@ bool AddKitOperation::test() const
         return false;
 
     // Ignore existing ids:
-    QVariantMap result = addKit(map, QLatin1String("testId"), QLatin1String("Test Qt Version X"), QLatin1String("/tmp/icon3.png"),
+    QVariantMap result = addKit(map, tcMap, qtMap, devMap,
+                                QLatin1String("testId"), QLatin1String("Test Qt Version X"), QLatin1String("/tmp/icon3.png"),
                                 QString(), 1, QLatin1String("/usr/bin/gdb-test3"),
                                 QByteArray("Desktop"), QString(), QString(),
-                                QLatin1String("{some-tc-id3}"), QLatin1String("{some-qt-id3}"), QLatin1String("unsupported/mkspec3"),
-                                KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue3"))));
+                                QLatin1String("{tc-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
+                                KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (!result.isEmpty())
         return false;
 
     // Make sure name is unique:
-    map = addKit(map, QLatin1String("testId2"), QLatin1String("Test Kit2"), QLatin1String("/tmp/icon2.png"),
+    map = addKit(map, tcMap, qtMap, devMap,
+                 QLatin1String("testId2"), QLatin1String("Test Kit2"), QLatin1String("/tmp/icon2.png"),
                  QString(), 1, QLatin1String("/usr/bin/gdb-test2"),
-                 QByteArray("Desktop"), QLatin1String("deviceId"), QString(),
-                 QLatin1String("{some-tc-id2}"), QLatin1String("{some-qt-id2}"), QLatin1String("unsupported/mkspec2"),
-                 KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue2"))));
+                 QByteArray("Desktop"), QLatin1String("{dev-id}"), QString(),
+                 QLatin1String("{tc-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
+                 KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (map.count() != 5
             || !map.contains(QLatin1String(VERSION))
             || map.value(QLatin1String(VERSION)).toInt() != 1
@@ -350,17 +405,18 @@ bool AddKitOperation::test() const
     data = profile1.value(QLatin1String(DATA)).toMap();
     if (data.count() != 8
             || !data.contains(QLatin1String(DEVICE_ID))
-            || data.value(QLatin1String(DEVICE_ID)).toString() != QLatin1String("deviceId")
+            || data.value(QLatin1String(DEVICE_ID)).toString() != QLatin1String("{dev-id}")
             || !data.contains(QLatin1String(DEBUGGER))
             || data.value(QLatin1String(DEBUGGER)).type() != QVariant::Map)
         return false;
 
     // Test debugger id:
-    map = addKit(map, QLatin1String("test with debugger Id"), QLatin1String("Test debugger Id"), QLatin1String("/tmp/icon2.png"),
+    map = addKit(map, tcMap, qtMap, devMap,
+                 QLatin1String("test with debugger Id"), QLatin1String("Test debugger Id"), QLatin1String("/tmp/icon2.png"),
                  QString::fromLatin1("debugger Id"), 0, QString(),
                  QByteArray("Desktop"), QString(), QString(),
-                 QLatin1String("{some-tc-id2}"), QLatin1String("{some-qt-id2}"), QLatin1String("unsupported/mkspec2"),
-                 KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue2"))));
+                 QLatin1String("{tc-id}"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
+                 KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (map.count() != 6
             || !map.contains(QLatin1String(VERSION))
             || map.value(QLatin1String(VERSION)).toInt() != 1
@@ -403,13 +459,30 @@ bool AddKitOperation::test() const
 }
 #endif
 
-QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QString &id,
-                                    const QString &displayName, const QString &icon,
-                                    const QString &debuggerId, const quint32 &debuggerType,
-                                    const QString &debugger, const QByteArray &deviceType,
-                                    const QString &device, const QString &sysRoot,
-                                    const QString &tc, const QString &qt, const QString &mkspec,
-                                    const KeyValuePairList &extra)
+QVariantMap AddKitOperation::addKit(const QVariantMap &map,
+                                    const QString &id, const QString &displayName,
+                                    const QString &icon, const QString &debuggerId,
+                                    const quint32 &debuggerType, const QString &debugger,
+                                    const QByteArray &deviceType, const QString &device,
+                                    const QString &sysRoot, const QString &tc, const QString &qt,
+                                    const QString &mkspec, const KeyValuePairList &extra)
+{
+    QVariantMap tcMap = load(QLatin1String("toolchains"));
+    QVariantMap qtMap = load(QLatin1String("qtversions"));
+    QVariantMap devMap = load(QLatin1String("devices"));
+
+    return addKit(map, tcMap, qtMap, devMap, id, displayName, icon, debuggerId, debuggerType,
+                  debugger, deviceType, device, sysRoot, tc, qt, mkspec, extra);
+}
+
+QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &tcMap,
+                                    const QVariantMap &qtMap, const QVariantMap &devMap,
+                                    const QString &id, const QString &displayName,
+                                    const QString &icon, const QString &debuggerId,
+                                    const quint32 &debuggerType, const QString &debugger,
+                                    const QByteArray &deviceType, const QString &device,
+                                    const QString &sysRoot, const QString &tc, const QString &qt,
+                                    const QString &mkspec, const KeyValuePairList &extra)
 {
     // Sanity check: Make sure autodetection source is not in use already:
     QStringList valueKeys = FindValueOperation::findValue(map, QVariant(id));
@@ -422,6 +495,23 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QString &id,
     }
     if (hasId) {
         std::cerr << "Error: Id " << qPrintable(id) << " already defined as kit." << std::endl;
+        return QVariantMap();
+    }
+
+    if (!tc.isEmpty() && !AddToolChainOperation::exists(tcMap, tc)) {
+        std::cerr << "Error: Toolchain " << qPrintable(tc) << " does not exist." << std::endl;
+        return QVariantMap();
+    }
+
+    QString qtId = qt;
+    if (!qtId.isEmpty() && !qtId.startsWith(QLatin1String("SDK.")))
+        qtId = QString::fromLatin1("SDK.") + qt;
+    if (!qtId.isEmpty() && !AddQtOperation::exists(qtMap, qtId)) {
+        std::cerr << "Error: Qt " << qPrintable(qtId) << " does not exist." << std::endl;
+        return QVariantMap();
+    }
+    if (!device.isEmpty() && !AddDeviceOperation::exists(devMap, device)) {
+        std::cerr << "Error: Device " << qPrintable(device) << " does not exist." << std::endl;
         return QVariantMap();
     }
 
@@ -454,10 +544,6 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QString &id,
     foreach (const QString &nameKey, nameKeys)
         nameList << GetOperation::get(map, nameKey).toString();
     const QString uniqueName = makeUnique(displayName, nameList);
-
-    QString qtId = qt;
-    if (!qtId.startsWith(QLatin1String("SDK.")))
-        qtId = QString::fromLatin1("SDK.") + qt;
 
     // insert data:
     KeyValuePairList data;

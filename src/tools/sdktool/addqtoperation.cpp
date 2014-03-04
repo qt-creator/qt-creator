@@ -53,6 +53,13 @@ const char AUTODETECTION_SOURCE[] = "autodetectionSource";
 const char QMAKE[] = "QMakePath";
 const char TYPE[] = "QtVersion.Type";
 
+static QString extendId(const QString &id)
+{
+    if (!id.isEmpty() && !id.startsWith(QLatin1String("SDK.")))
+        return QString::fromLatin1("SDK.") + id;
+    return id;
+}
+
 QString AddQtOperation::name() const
 {
     return QLatin1String("addQt");
@@ -171,11 +178,11 @@ bool AddQtOperation::test() const
         return false;
 
 #if defined Q_OS_WIN
-    map = addQt(map, QLatin1String("testId"), QLatin1String("Test Qt Version"), QLatin1String("testType"),
+    map = addQt(map, QLatin1String("{some-qt-id}"), QLatin1String("Test Qt Version"), QLatin1String("testType"),
                 QLatin1String("/tmp//../tmp/test\\qmake"),
                 KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
 #else
-    map = addQt(map, QLatin1String("testId"), QLatin1String("Test Qt Version"), QLatin1String("testType"),
+    map = addQt(map, QLatin1String("{some-qt-id}"), QLatin1String("Test Qt Version"), QLatin1String("testType"),
                 QLatin1String("/tmp//../tmp/test/qmake"),
                 KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
 #endif
@@ -195,7 +202,7 @@ bool AddQtOperation::test() const
             || !version0.contains(QLatin1String(AUTODETECTED))
             || version0.value(QLatin1String(AUTODETECTED)).toBool() != true
             || !version0.contains(QLatin1String(AUTODETECTION_SOURCE))
-            || version0.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != QLatin1String("SDK.testId")
+            || version0.value(QLatin1String(AUTODETECTION_SOURCE)).toString() != QLatin1String("SDK.{some-qt-id}")
             || !version0.contains(QLatin1String(TYPE))
             || version0.value(QLatin1String(TYPE)).toString() != QLatin1String("testType")
             || !version0.contains(QLatin1String(QMAKE))
@@ -205,7 +212,7 @@ bool AddQtOperation::test() const
         return false;
 
     // Ignore existing ids:
-    QVariantMap result = addQt(map, QLatin1String("testId"), QLatin1String("Test Qt Version2"), QLatin1String("testType2"),
+    QVariantMap result = addQt(map, QLatin1String("{some-qt-id}"), QLatin1String("Test Qt Version2"), QLatin1String("testType2"),
                                QLatin1String("/tmp/test/qmake2"),
                                KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
     if (!result.isEmpty())
@@ -251,20 +258,10 @@ QVariantMap AddQtOperation::addQt(const QVariantMap &map,
                                   const QString &id, const QString &displayName, const QString &type,
                                   const QString &qmake, const KeyValuePairList &extra)
 {
-    QString sdkId = id;
-    if (!id.startsWith(QLatin1String("SDK.")))
-        sdkId = QString::fromLatin1("SDK.") + id;
+    QString sdkId = extendId(id);
 
     // Sanity check: Make sure autodetection source is not in use already:
-    QStringList valueKeys = FindValueOperation::findValue(map, sdkId);
-    bool hasId = false;
-    foreach (const QString &k, valueKeys) {
-        if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(AUTODETECTION_SOURCE))) {
-            hasId = true;
-            break;
-        }
-    }
-    if (hasId) {
+    if (exists(map, sdkId)) {
         std::cerr << "Error: Id " << qPrintable(id) << " already defined as Qt versions." << std::endl;
         return QVariantMap();
     }
@@ -314,4 +311,25 @@ QVariantMap AddQtOperation::initializeQtVersions()
     QVariantMap map;
     map.insert(QLatin1String(VERSION), 1);
     return map;
+}
+
+bool AddQtOperation::exists(const QString &id)
+{
+    QVariantMap map = load(QLatin1String("qtversion"));
+    return exists(map, id);
+}
+
+bool AddQtOperation::exists(const QVariantMap &map, const QString &id)
+{
+    QString sdkId = extendId(id);
+
+    // Sanity check: Make sure autodetection source is not in use already:
+    QStringList valueKeys = FindValueOperation::findValue(map, sdkId);
+    foreach (const QString &k, valueKeys) {
+        if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(AUTODETECTION_SOURCE))) {
+            return true;
+            break;
+        }
+    }
+    return false;
 }

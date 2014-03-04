@@ -64,7 +64,7 @@ public:
     virtual bool test() const = 0;
 #endif
 
-    QVariantMap load(const QString &file) const;
+    static QVariantMap load(const QString &file);
     bool save(const QVariantMap &map, const QString &file) const;
 
     static QVariant valueFromString(const QString &v);

@@ -30,6 +30,9 @@
 #include "rmkitoperation.h"
 
 #include "addkeysoperation.h"
+#include "addtoolchainoperation.h"
+#include "adddeviceoperation.h"
+#include "addqtoperation.h"
 #include "addkitoperation.h"
 #include "findkeyoperation.h"
 #include "findvalueoperation.h"
@@ -98,21 +101,43 @@ int RmKitOperation::execute() const
 #ifdef WITH_TESTS
 bool RmKitOperation::test() const
 {
+    QVariantMap tcMap = AddToolChainOperation::initializeToolChains();
+    tcMap = AddToolChainOperation::addToolChain(tcMap, QLatin1String("{tc-id}"), QLatin1String("TC"),
+                                                QLatin1String("/usr/bin/gcc"),
+                                                QLatin1String("x86-linux-generic-elf-32bit"),
+                                                QLatin1String("x86-linux-generic-elf-32bit"),
+                                                KeyValuePairList());
+
+    QVariantMap qtMap = AddQtOperation::initializeQtVersions();
+    qtMap = AddQtOperation::addQt(qtMap, QLatin1String("{qt-id}"), QLatin1String("Qt"),
+                                  QLatin1String("desktop-qt"), QLatin1String("/usr/bin/qmake"),
+                                  KeyValuePairList());
+
+    QVariantMap devMap = AddDeviceOperation::initializeDevices();
+    devMap = AddDeviceOperation::addDevice(devMap, QLatin1String("{dev-id}"), QLatin1String("Dev"), 0, 0,
+                                           QLatin1String("HWplatform"), QLatin1String("SWplatform"),
+                                           QLatin1String("localhost"), QLatin1String("10000-11000"),
+                                           QLatin1String("localhost"), QLatin1String(""), 42,
+                                           QLatin1String("desktop"), QLatin1String(""), 22, 10000,
+                                           QLatin1String("uname"), 1,
+                                           KeyValuePairList());
+
     QVariantMap map =
-            AddKitOperation::addKit(AddKitOperation::initializeKits(),
+            AddKitOperation::addKit(AddKitOperation::initializeKits(), tcMap, qtMap, devMap,
                                     QLatin1String("testId"), QLatin1String("Test Qt Version"),
                                     QLatin1String("/tmp/icon.png"),
                                     QString(), 1, QLatin1String("/usr/bin/gdb-test"),
                                     QByteArray("Desktop"), QString(),  QString(),
-                                    QLatin1String("{some-tc-id}"), QLatin1String("{some-qt-id}"),
+                                    QLatin1String("{tc-id}"), QLatin1String("{qt-id}"),
                                     QLatin1String("unsupported/mkspec"),
                                     KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     map =
-            AddKitOperation::addKit(map, QLatin1String("testId2"), QLatin1String("Test Qt Version"),
+            AddKitOperation::addKit(map, tcMap, qtMap, devMap,
+                                    QLatin1String("testId2"), QLatin1String("Test Qt Version"),
                                     QLatin1String("/tmp/icon2.png"),
                                     QString(), 1, QLatin1String("/usr/bin/gdb-test2"),
                                     QByteArray("Desktop"), QString(), QString(),
-                                    QLatin1String("{some-tc-id2}"), QLatin1String("{some-qt-id2}"),
+                                    QLatin1String("{tc-id}"), QLatin1String("{qt-id}"),
                                     QLatin1String("unsupported/mkspec2"),
                                     KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue2"))));
 

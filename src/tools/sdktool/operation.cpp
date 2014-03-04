@@ -95,7 +95,7 @@ Operation::KeyValuePair::KeyValuePair(const QStringList &k, const QVariant &v) :
     key(k), value(v)
 { }
 
-QVariantMap Operation::load(const QString &file) const
+QVariantMap Operation::load(const QString &file)
 {
     QVariantMap map;
 

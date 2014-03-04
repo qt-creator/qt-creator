@@ -68,6 +68,9 @@ public:
 
     static QVariantMap initializeDevices();
 
+    static bool exists(const QString &id);
+    static bool exists(const QVariantMap &map, const QString &id);
+
 private:
     static KeyValuePairList createDevice(const QString &id, const QString &displayName, int type,
                                          int auth, const QString &hwPlatform, const QString &swPlatform,

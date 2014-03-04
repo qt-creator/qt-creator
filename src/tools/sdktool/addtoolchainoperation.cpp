@@ -187,7 +187,7 @@ bool AddToolChainOperation::test() const
         return false;
 
     // Make sure name stays unique:
-    map = addToolChain(map, QLatin1String("testId2"), QLatin1String("name"), QLatin1String("/tmp/test"),
+    map = addToolChain(map, QLatin1String("{some-tc-id}"), QLatin1String("name"), QLatin1String("/tmp/test"),
                             QLatin1String("test-abi"), QLatin1String("test-abi,test-abi2"),
                             KeyValuePairList() << KeyValuePair(QLatin1String("ExtraKey"), QVariant(QLatin1String("ExtraValue"))));
     if (map.value(QLatin1String(COUNT)).toInt() != 2
@@ -206,7 +206,7 @@ bool AddToolChainOperation::test() const
         return false;
     tcData = map.value(QString::fromLatin1(PREFIX) + QLatin1Char('1')).toMap();
         if (tcData.count() != 7
-                || tcData.value(QLatin1String(ID)).toString() != QLatin1String("testId2")
+                || tcData.value(QLatin1String(ID)).toString() != QLatin1String("{some-tc-id}")
                 || tcData.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("name2")
                 || tcData.value(QLatin1String(AUTODETECTED)).toBool() != true
                 || tcData.value(QLatin1String(PATH)).toString() != QLatin1String("/tmp/test")
@@ -225,15 +225,7 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map,
                                                 const QString &supportedAbis, const KeyValuePairList &extra)
 {
     // Sanity check: Does the Id already exist?
-    QStringList valueKeys = FindValueOperation::findValue(map, id.toUtf8());
-    bool hasId = false;
-    foreach (const QString &k, valueKeys) {
-        if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(ID))) {
-            hasId = true;
-            break;
-        }
-    }
-    if (hasId) {
+    if (exists(map, id)) {
         std::cerr << "Error: Id " << qPrintable(id) << " already defined for tool chains." << std::endl;
         return QVariantMap();
     }
@@ -283,4 +275,22 @@ QVariantMap AddToolChainOperation::initializeToolChains()
     map.insert(QLatin1String(COUNT), 0);
     map.insert(QLatin1String(VERSION), 1);
     return map;
+}
+
+bool AddToolChainOperation::exists(const QVariantMap &map, const QString &id)
+{
+    QStringList valueKeys = FindValueOperation::findValue(map, id.toUtf8());
+
+    foreach (const QString &k, valueKeys) {
+        if (k.endsWith(QString(QLatin1Char('/')) + QLatin1String(ID))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool AddToolChainOperation::exists(const QString &id)
+{
+    QVariantMap map = Operation::load(QLatin1String("toolchains"));
+    return exists(map, id);
 }
