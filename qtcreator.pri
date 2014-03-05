@@ -5,8 +5,24 @@ QTCREATOR_VERSION = 3.1.81
 QTCREATOR_COMPAT_VERSION = 3.1.81
 BINARY_ARTIFACTS_BRANCH = master
 
-# enable c++11 on everything but mac/release (breaks 10.6)
-!macx|CONFIG(debug, debug|release): CONFIG += c++11
+# enable c++11
+isEqual(QT_MAJOR_VERSION, 5) {
+    CONFIG += c++11
+} else {
+    macx {
+        !macx-clang-libc++: error("You need to use the macx-clang-libc++ mkspec to compile Qt Creator (call qmake with '-spec unsupported/macx-clang-libc++')")
+    } else:linux-g++* {
+        QMAKE_CXXFLAGS += -std=c++0x
+    } else:linux-icc* {
+        QMAKE_CXXFLAGS += -std=c++11
+    } else:linux-clang* {
+        QMAKE_CXXFLAGS += -std=c++11
+        QMAKE_LFLAGS += -stdlib=libc++ -lc++abi
+    } else:win32-g++* {
+        QMAKE_CXXFLAGS += -std=c++0x
+    }
+    # nothing to do for MSVC10+
+}
 
 isEqual(QT_MAJOR_VERSION, 5) {
 
@@ -133,12 +149,6 @@ macx {
     IDE_DOC_PATH     = $$IDE_DATA_PATH/doc
     IDE_BIN_PATH     = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/MacOS
     copydata = 1
-    !isEqual(QT_MAJOR_VERSION, 5) {
-        # we use @rpath which is 10.5+
-        # Qt5 doesn't support 10.5, and will set the minimum version to 10.6 or 10.7.
-        QMAKE_CXXFLAGS *= -mmacosx-version-min=10.5
-        QMAKE_LFLAGS *= -mmacosx-version-min=10.5
-    }
 } else {
     contains(TEMPLATE, vc.*):vcproj = 1
     IDE_APP_TARGET   = qtcreator
