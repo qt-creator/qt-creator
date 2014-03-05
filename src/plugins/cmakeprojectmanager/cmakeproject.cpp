@@ -763,6 +763,7 @@ void CMakeProject::createUiCodeModelSupport()
 CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
     : Core::IDocument(parent), m_project(parent)
 {
+    setId("Cmake.ProjectFile");
     setFilePath(fileName);
 }
 

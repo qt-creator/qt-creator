@@ -39,7 +39,9 @@ using namespace TaskList::Internal;
 // --------------------------------------------------------------------------
 
 TaskFile::TaskFile(QObject *parent) : Core::IDocument(parent)
-{ }
+{
+    setId("TaskList.TaskFile");
+}
 
 TaskFile::~TaskFile()
 { }

@@ -43,6 +43,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <texteditor/basetexteditor.h>
 
@@ -91,7 +92,7 @@ bool ClangFormat::initialize()
 
 void ClangFormat::updateActions(Core::IEditor *editor)
 {
-    const bool enabled = (editor && editor->id() == CppEditor::Constants::CPPEDITOR_ID);
+    const bool enabled = (editor && editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID);
     m_formatFile->setEnabled(enabled);
     m_formatRange->setEnabled(enabled);
 }

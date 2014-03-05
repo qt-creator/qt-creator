@@ -41,6 +41,7 @@ QmlProjectFile::QmlProjectFile(QmlProject *parent, QString fileName)
 {
     QTC_CHECK(m_project);
     QTC_CHECK(!fileName.isEmpty());
+    setId("Qml.ProjectFile");
     setFilePath(fileName);
 }
 

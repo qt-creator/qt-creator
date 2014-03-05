@@ -60,7 +60,7 @@ QmlDesignerPlugin *QmlDesignerPlugin::m_instance = 0;
 
 static bool isQmlFile(Core::IEditor *editor)
 {
-    return editor && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID;
+    return editor && editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID;
 }
 
 static bool isInDesignerMode()
@@ -324,9 +324,7 @@ void QmlDesignerPlugin::resetModelSelection()
 
 void QmlDesignerPlugin::onCurrentEditorChanged(Core::IEditor *editor)
 {
-    if (editor
-            && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
-            && isInDesignerMode())
+    if (isQmlFile(editor) && isInDesignerMode())
     {
         m_shortCutManager.updateActions(editor);
         changeEditor();
@@ -340,11 +338,7 @@ static bool isDesignerMode(Core::IMode *mode)
 
 void QmlDesignerPlugin::onCurrentModeChanged(Core::IMode *newMode, Core::IMode *oldMode)
 {
-    if (!Core::EditorManager::currentEditor())
-        return;
-
-    if (Core::EditorManager::currentEditor()
-            && Core::EditorManager::currentEditor()->id() != QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
+    if (!isQmlFile(Core::EditorManager::currentEditor()))
         return;
 
     if ((currentDesignDocument()
@@ -437,8 +431,7 @@ const DesignerActionManager &QmlDesignerPlugin::designerActionManager() const
 void QmlDesignerPlugin::switchTextDesign()
 {
     if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_EDIT) {
-        Core::IEditor *editor = Core::EditorManager::currentEditor();
-        if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
+        if (isQmlFile(Core::EditorManager::currentEditor()))
             Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
     } else if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_DESIGN) {
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);

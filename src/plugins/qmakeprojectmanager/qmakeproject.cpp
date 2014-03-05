@@ -271,6 +271,7 @@ QmakeProjectFile::QmakeProjectFile(const QString &filePath, QObject *parent)
     : Core::IDocument(parent),
       m_mimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE))
 {
+    setId("Qmake.ProFile");
     setFilePath(filePath);
 }
 

@@ -567,8 +567,9 @@ void VcsBasePlugin::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEdit
 {
     if (debug)
         qDebug() << this << "plugin's submit editor"
-                 << d->m_submitEditor << (d->m_submitEditor ? d->m_submitEditor->id().name() : "")
-                 << "closing submit editor" << submitEditor << submitEditor->id().name();
+                 << d->m_submitEditor << (d->m_submitEditor ? d->m_submitEditor->document()->id().name() : "")
+                 << "closing submit editor" << submitEditor
+                 << (submitEditor ? submitEditor->document()->id().name() : "");
     if (submitEditor == d->m_submitEditor)
         *result = submitEditorAboutToClose();
 }

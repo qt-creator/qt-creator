@@ -205,6 +205,7 @@ public:
     BinEditorDocument(BinEditorWidget *parent) :
         Core::IDocument(parent)
     {
+        setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         m_widget = parent;
         connect(m_widget, SIGNAL(dataRequested(quint64)),
             this, SLOT(provideData(quint64)));
@@ -340,7 +341,6 @@ class BinEditor : public Core::IEditor
 public:
     BinEditor(BinEditorWidget *widget)
     {
-        setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         setWidget(widget);
         m_widget = widget;
         m_file = new BinEditorDocument(m_widget);

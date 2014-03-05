@@ -29,6 +29,7 @@
 
 #include "qmljseditordocument.h"
 
+#include "qmljseditorconstants.h"
 #include "qmljseditordocument_p.h"
 #include "qmljshighlighter.h"
 #include "qmljssemantichighlighter.h"
@@ -532,6 +533,7 @@ void QmlJSEditorDocumentPrivate::updateOutlineModel()
 QmlJSEditorDocument::QmlJSEditorDocument()
     : d(new Internal::QmlJSEditorDocumentPrivate(this))
 {
+    setId(Constants::C_QMLJSEDITOR_ID);
     connect(this, SIGNAL(tabSettingsChanged()),
             d, SLOT(invalidateFormatterCache()));
     setSyntaxHighlighter(new Highlighter(document()));

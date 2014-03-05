@@ -70,7 +70,7 @@ protected:
     BaseTextEditor *createEditor()
     {
         BaseTextEditor *editor = new BaseTextEditor(this);
-        editor->setId("DescriptionEditor");
+        editor->document()->setId("DiffEditor.DescriptionEditor");
         return editor;
     }
 };
@@ -141,7 +141,6 @@ DiffEditor::DiffEditor(DiffEditor *other)
 
 void DiffEditor::ctor()
 {
-    setId(Constants::DIFF_EDITOR_ID);
     QSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
 
     m_descriptionWidget = new Internal::DescriptionEditorWidget(splitter);

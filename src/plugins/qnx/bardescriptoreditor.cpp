@@ -56,7 +56,6 @@ namespace Internal {
 
 BarDescriptorEditor::BarDescriptorEditor()
 {
-    setId(Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID);
     m_file = new BarDescriptorDocument(this);
 
     BarDescriptorEditorWidget *editorWidget = new BarDescriptorEditorWidget(this);

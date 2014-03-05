@@ -31,6 +31,8 @@
 
 #include "infobar.h"
 
+#include <utils/qtcassert.h>
+
 #include <QFile>
 #include <QFileInfo>
 
@@ -71,6 +73,17 @@ IDocument::~IDocument()
 {
     removeAutoSaveFile();
     delete m_infoBar;
+}
+
+void IDocument::setId(Id id)
+{
+    m_id = id;
+}
+
+Id IDocument::id() const
+{
+    QTC_CHECK(m_id.isValid());
+    return m_id;
 }
 
 /*!

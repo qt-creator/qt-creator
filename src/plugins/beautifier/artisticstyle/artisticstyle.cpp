@@ -43,6 +43,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -86,7 +87,7 @@ bool ArtisticStyle::initialize()
 
 void ArtisticStyle::updateActions(Core::IEditor *editor)
 {
-    m_formatFile->setEnabled(editor && editor->id() == CppEditor::Constants::CPPEDITOR_ID);
+    m_formatFile->setEnabled(editor && editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID);
 }
 
 QList<QObject *> ArtisticStyle::autoReleaseObjects()

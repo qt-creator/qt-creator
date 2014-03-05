@@ -38,6 +38,7 @@ namespace Internal {
 QbsProjectFile::QbsProjectFile(QbsProject *parent, QString fileName) : Core::IDocument(parent),
     m_project(parent)
 {
+    setId("Qbs.ProjectFile");
     setFilePath(fileName);
 }
 

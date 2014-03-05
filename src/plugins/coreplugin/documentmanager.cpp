@@ -1432,7 +1432,7 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
                 = EditorManager::documentModel()->editorsForFilePath(entry.fileName);
         if (!editorsOpenForFile.isEmpty()) {
             foreach (IEditor *openEditor, editorsOpenForFile) {
-                if (entry.editorFactory->id() == openEditor->id())
+                if (entry.editorFactory->id() == openEditor->document()->id())
                     editorsOpenForFile.removeAll(openEditor);
             }
             if (!EditorManager::closeEditors(editorsOpenForFile)) // don't open if cancel was pressed

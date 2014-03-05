@@ -59,7 +59,6 @@ using namespace CMakeProjectManager::Internal;
 CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
   : BaseTextEditor(editor)
 {
-    setId(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
     setContext(Core::Context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
     connect(document(), SIGNAL(changed()), this, SLOT(markAsChanged()));
@@ -227,6 +226,7 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 CMakeDocument::CMakeDocument()
     : TextEditor::BaseTextDocument()
 {
+    setId(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
     setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
     setSyntaxHighlighter(new CMakeHighlighter);
 }

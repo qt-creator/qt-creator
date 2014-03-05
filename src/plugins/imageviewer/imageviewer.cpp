@@ -62,8 +62,6 @@ ImageViewer::ImageViewer(QWidget *parent)
     : IEditor(parent),
     d(new ImageViewerPrivate)
 {
-    setId(Constants::IMAGEVIEWER_ID);
-
     d->file = new ImageViewerFile(this);
     d->imageView = new ImageView();
 

@@ -407,6 +407,7 @@ void ResourceFolderNode::updateFiles(QList<ProjectExplorer::FileNode *> newList)
 ResourceFileWatcher::ResourceFileWatcher(ResourceTopLevelNode *node)
     : IDocument(node), m_node(node)
 {
+    setId("ResourceNodeWatcher");
     setFilePath(node->path());
 }
 

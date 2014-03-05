@@ -30,6 +30,7 @@
 
 #include "imageviewerfile.h"
 #include "imageviewer.h"
+#include "imageviewerconstants.h"
 
 #include <QFileInfo>
 
@@ -39,6 +40,7 @@ namespace Internal {
 ImageViewerFile::ImageViewerFile(ImageViewer *parent)
     : Core::IDocument(parent)
 {
+    setId(Constants::IMAGEVIEWER_ID);
     m_editor = parent;
 }
 

@@ -52,7 +52,6 @@ using namespace Android::Internal;
 JavaEditor::JavaEditor(JavaEditorWidget *editor)
   : BaseTextEditor(editor)
 {
-    setId(Constants::JAVA_EDITOR_ID);
     setContext(Core::Context(Constants::C_JAVA_EDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
 }
@@ -112,6 +111,7 @@ TextEditor::BaseTextEditor *JavaEditorWidget::createEditor()
 JavaDocument::JavaDocument()
         : TextEditor::BaseTextDocument()
 {
+    setId(Constants::JAVA_EDITOR_ID);
     setMimeType(QLatin1String(Constants::JAVA_MIMETYPE));
     setSyntaxHighlighter(TextEditor::createGenericSyntaxHighlighter(Core::MimeDatabase::findByType(QLatin1String(Constants::JAVA_MIMETYPE))));
     setIndenter(new JavaIndenter);

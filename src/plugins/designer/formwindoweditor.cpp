@@ -54,7 +54,6 @@ FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditorWidget *editor) :
     TextEditor::PlainTextEditor(editor),
     d(new FormWindowEditorPrivate)
 {
-    setId(Core::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     d->m_widget = editor;
     setContext(Core::Context(Designer::Constants::K_DESIGNER_XML_EDITOR_ID,
                              Designer::Constants::C_DESIGNER_XML_EDITOR));

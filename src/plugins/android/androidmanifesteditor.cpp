@@ -44,8 +44,6 @@ using namespace Internal;
 Android::Internal::AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget)
     : Core::IEditor(editorWidget), m_toolBar(0)
 {
-    setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
-
     m_toolBar = new QToolBar(editorWidget);
     m_actionGroup = new QActionGroup(this);
     connect(m_actionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeEditorPage(QAction*)));

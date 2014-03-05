@@ -40,6 +40,7 @@ AutotoolsProjectFile::AutotoolsProjectFile(AutotoolsProject *project, const QStr
     Core::IDocument(project),
     m_project(project)
 {
+    setId("Autotools.ProjectFile");
     setFilePath(fileName);
 }
 

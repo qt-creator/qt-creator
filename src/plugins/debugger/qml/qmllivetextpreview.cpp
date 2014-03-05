@@ -384,8 +384,9 @@ QmlLiveTextPreview::~QmlLiveTextPreview()
 
 void QmlLiveTextPreview::associateEditor(Core::IEditor *editor)
 {
+    QTC_ASSERT(editor, return);
     using namespace TextEditor;
-    if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+    if (editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
         QTC_ASSERT(QLatin1String(editor->widget()->metaObject()->className()) ==
                    QLatin1String("QmlJSEditor::Internal::QmlJSTextEditorWidget"),
                    return);
@@ -409,7 +410,7 @@ void QmlLiveTextPreview::associateEditor(Core::IEditor *editor)
 void QmlLiveTextPreview::unassociateEditor(Core::IEditor *oldEditor)
 {
     using namespace TextEditor;
-    if (oldEditor && oldEditor->id()
+    if (oldEditor && oldEditor->document()->id()
             == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
         BaseTextEditorWidget *editWidget
                 = qobject_cast<BaseTextEditorWidget*>(oldEditor->widget());

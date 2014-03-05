@@ -63,7 +63,6 @@ namespace TextEditor {
 PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
   : BaseTextEditor(editor)
 {
-    setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     setContext(Core::Context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                              TextEditor::Constants::C_TEXTEDITOR));
 }
@@ -185,6 +184,7 @@ void PlainTextEditorWidget::acceptMissingSyntaxDefinitionInfo()
 
 PlainTextDocument::PlainTextDocument()
 {
+    setId(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     connect(this, SIGNAL(tabSettingsChanged()), this, SLOT(updateTabSettings()));
 }
 

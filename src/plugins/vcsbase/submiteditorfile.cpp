@@ -45,12 +45,13 @@ using namespace VcsBase::Internal;
     submit editor files.
 */
 
-SubmitEditorFile::SubmitEditorFile(const QString &mimeType, VcsBaseSubmitEditor *parent) :
+SubmitEditorFile::SubmitEditorFile(const VcsBaseSubmitEditorParameters *parameters, VcsBaseSubmitEditor *parent) :
     Core::IDocument(parent),
-    m_mimeType(mimeType),
+    m_mimeType(QLatin1String(parameters->mimeType)),
     m_modified(false),
     m_editor(parent)
 {
+    setId(parameters->id);
     setTemporary(true);
 }
 

@@ -31,6 +31,8 @@
 #define IDOCUMENT_H
 
 #include "core_global.h"
+#include "id.h"
+
 #include <QObject>
 
 namespace Core {
@@ -75,6 +77,9 @@ public:
     IDocument(QObject *parent = 0);
     virtual ~IDocument();
 
+    void setId(Core::Id id);
+    Core::Id id() const;
+
     virtual bool save(QString *errorString, const QString &fileName = QString(), bool autoSave = false) = 0;
     virtual bool setContents(const QByteArray &contents);
 
@@ -118,6 +123,7 @@ signals:
     void filePathChanged(const QString &oldName, const QString &newName);
 
 private:
+    Id m_id;
     QString m_filePath;
     QString m_displayName;
     bool m_temporary;

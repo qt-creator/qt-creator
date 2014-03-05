@@ -66,6 +66,7 @@ ResourceEditorDocument::ResourceEditorDocument(ResourceEditorW *parent) :
     m_blockDirtyChanged(false),
     m_parent(parent)
 {
+    setId(ResourceEditor::Constants::RESOURCEEDITOR_ID);
     setFilePath(parent->m_resourceEditor->fileName());
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorFile::ResourceEditorFile()";
@@ -87,7 +88,6 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
         m_contextMenu(new QMenu),
         m_toolBar(new QToolBar)
 {
-    setId(ResourceEditor::Constants::RESOURCEEDITOR_ID);
     setContext(context);
     setWidget(m_resourceEditor);
 

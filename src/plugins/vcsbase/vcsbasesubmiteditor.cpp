@@ -167,7 +167,7 @@ VcsBaseSubmitEditorPrivate::VcsBaseSubmitEditorPrivate(const VcsBaseSubmitEditor
     m_widget(editorWidget),
     m_toolWidget(0),
     m_parameters(parameters),
-    m_file(new SubmitEditorFile(QLatin1String(parameters->mimeType), q)),
+    m_file(new SubmitEditorFile(parameters, q)),
     m_nickNameDialog(0)
 {
     QCompleter *completer = new QCompleter(q);
@@ -181,7 +181,6 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
                                          SubmitEditorWidget *editorWidget) :
     d(new VcsBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
-    setId(parameters->id);
     setContext(Core::Context(parameters->context));
     setWidget(d->m_widget);
     document()->setDisplayName(QCoreApplication::translate("VCS", d->m_parameters->displayName));

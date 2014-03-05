@@ -78,7 +78,7 @@ Core::IEditor *ProjectFilesFactory::createEditor()
 ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
   : BaseTextEditor(editor)
 {
-    setId(Constants::FILES_EDITOR_ID);
+    document()->setId(Constants::FILES_EDITOR_ID);
     setContext(Core::Context(Constants::C_FILESEDITOR));
 }
 

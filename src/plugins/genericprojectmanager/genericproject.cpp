@@ -408,6 +408,7 @@ GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName,
       m_project(parent),
       m_options(options)
 {
+    setId("Generic.ProjectFile");
     setFilePath(fileName);
 }
 

@@ -47,11 +47,11 @@ SnippetEditor::SnippetEditor(SnippetEditorWidget *editor)
     : BaseTextEditor(editor)
 {
     setContext(Core::Context(Constants::SNIPPET_EDITOR_ID, Constants::C_TEXTEDITOR));
-    setId(Constants::SNIPPET_EDITOR_ID);
 }
 
 SnippetEditorWidget::SnippetEditorWidget(QWidget *parent) : BaseTextEditorWidget(parent)
 {
+    baseTextDocument()->setId(Constants::SNIPPET_EDITOR_ID);
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     setHighlightCurrentLine(false);
     setLineNumbersVisible(false);

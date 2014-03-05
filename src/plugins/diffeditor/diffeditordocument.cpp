@@ -40,6 +40,7 @@ DiffEditorDocument::DiffEditorDocument(const QString &mimeType) :
     m_mimeType(mimeType),
     m_diffEditorController(new DiffEditorController(this))
 {
+    setId(Constants::DIFF_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("DiffEditor", Constants::DIFF_EDITOR_DISPLAY_NAME));
     setTemporary(true);
 }

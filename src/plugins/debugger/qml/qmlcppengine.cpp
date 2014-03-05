@@ -111,10 +111,11 @@ bool QmlCppEngine::canDisplayTooltip() const
 bool QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
         TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
 {
+    QTC_ASSERT(editor, return false);
     bool success = false;
-    if (editor->id() == CppEditor::Constants::CPPEDITOR_ID)
+    if (editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID)
         success = d->m_cppEngine->setToolTipExpression(mousePos, editor, ctx);
-    else if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
+    else if (editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
         success = d->m_qmlEngine->setToolTipExpression(mousePos, editor, ctx);
     return success;
 }

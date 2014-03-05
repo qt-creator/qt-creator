@@ -294,7 +294,7 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
     if (!m_engineClientConnected)
         return;
 
-    if (!newEditor || newEditor->id()
+    if (!newEditor || newEditor->document()->id()
             != QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
         return;
 

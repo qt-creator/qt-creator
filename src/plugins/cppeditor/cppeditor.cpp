@@ -504,7 +504,6 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
 CPPEditor::CPPEditor(CPPEditorWidget *editor)
     : BaseTextEditor(editor)
 {
-    setId(CppEditor::Constants::CPPEDITOR_ID);
     m_context.add(CppEditor::Constants::C_CPPEDITOR);
     m_context.add(ProjectExplorer::Constants::LANG_CXX);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
@@ -1966,6 +1965,7 @@ void CPPEditorWidget::showPreProcessorWidget()
 
 CPPEditorDocument::CPPEditorDocument()
 {
+    setId(CppEditor::Constants::CPPEDITOR_ID);
     connect(this, SIGNAL(tabSettingsChanged()),
             this, SLOT(invalidateFormatterCache()));
     connect(this, SIGNAL(mimeTypeChanged()),

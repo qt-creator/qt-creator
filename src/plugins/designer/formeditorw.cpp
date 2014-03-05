@@ -728,7 +728,7 @@ void FormEditorW::currentEditorChanged(IEditor *editor)
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << editor << " of " << m_fwm->formWindowCount();
 
-    if (editor && editor->id() == Constants::K_DESIGNER_XML_EDITOR_ID) {
+    if (editor && editor->document()->id() == Constants::K_DESIGNER_XML_EDITOR_ID) {
         FormWindowEditor *xmlEditor = qobject_cast<FormWindowEditor *>(editor);
         QTC_ASSERT(xmlEditor, return);
         ensureInitStage(FullyInitialized);

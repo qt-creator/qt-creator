@@ -1419,7 +1419,7 @@ IEditor *EditorManager::createEditor(const Id &editorId, const QString &fileName
 
     IEditor *editor = factories.front()->createEditor();
     if (editor) {
-        QTC_CHECK(editor->id().isValid()); // sanity check that the editor has an id set
+        QTC_CHECK(editor->document()->id().isValid()); // sanity check that the editor has an id set
         connect(editor->document(), SIGNAL(changed()), m_instance, SLOT(handleDocumentStateChange()));
         emit m_instance->editorCreated(editor, fileName);
     }
@@ -1440,7 +1440,8 @@ void EditorManager::addEditor(IEditor *editor)
         const bool addWatcher = !isTemporary;
         DocumentManager::addDocument(editor->document(), addWatcher);
         if (!isTemporary)
-            DocumentManager::addToRecentFiles(editor->document()->filePath(), editor->id());
+            DocumentManager::addToRecentFiles(editor->document()->filePath(),
+                                              editor->document()->id());
     }
     emit m_instance->editorOpened(editor);
 }

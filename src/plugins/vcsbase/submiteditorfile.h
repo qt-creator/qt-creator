@@ -30,6 +30,8 @@
 #ifndef SUBMITEDITORFILE_H
 #define SUBMITEDITORFILE_H
 
+#include "vcsbasesubmiteditor.h"
+
 #include <coreplugin/idocument.h>
 
 namespace VcsBase {
@@ -41,7 +43,7 @@ class SubmitEditorFile : public Core::IDocument
 {
     Q_OBJECT
 public:
-    explicit SubmitEditorFile(const QString &mimeType,
+    explicit SubmitEditorFile(const VcsBaseSubmitEditorParameters *parameters,
                               VcsBaseSubmitEditor *parent = 0);
 
     bool setContents(const QByteArray &contents);

@@ -55,7 +55,6 @@ namespace Internal {
 ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
   : BaseTextEditor(editor)
 {
-    setId(Constants::PROFILE_EDITOR_ID);
     setContext(Core::Context(Constants::C_PROFILEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
 }
@@ -205,6 +204,7 @@ void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 ProFileDocument::ProFileDocument()
         : TextEditor::BaseTextDocument()
 {
+    setId(Constants::PROFILE_EDITOR_ID);
     setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
     setSyntaxHighlighter(new ProFileHighlighter);
 }

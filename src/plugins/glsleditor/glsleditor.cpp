@@ -143,6 +143,7 @@ void Document::addRange(const QTextCursor &cursor, GLSL::Scope *scope)
 GLSLTextEditorWidget::GLSLTextEditorWidget(QWidget *parent)
     : TextEditor::BaseTextEditorWidget(parent)
 {
+    baseTextDocument()->setId(GLSLEditor::Constants::C_GLSLEDITOR_ID);
     baseTextDocument()->setIndenter(new GLSLIndenter());
     ctor();
 }

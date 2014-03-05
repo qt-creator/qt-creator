@@ -164,7 +164,6 @@ VcsBaseEditor::VcsBaseEditor(VcsBaseEditorWidget *widget,
                              const VcsBaseEditorParameters *type)  :
     BaseTextEditor(widget)
 {
-    setId(type->id);
     setContext(Core::Context(type->context, TextEditor::Constants::C_TEXTEDITOR));
 }
 
@@ -652,6 +651,7 @@ VcsBaseEditorWidget::VcsBaseEditorWidget(const VcsBaseEditorParameters *type, QW
     d(new Internal::VcsBaseEditorWidgetPrivate(this, type))
 {
     viewport()->setMouseTracking(true);
+    baseTextDocument()->setId(type->id);
     baseTextDocument()->setMimeType(QLatin1String(d->m_parameters->mimeType));
 }
 

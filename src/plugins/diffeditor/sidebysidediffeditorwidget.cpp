@@ -78,7 +78,7 @@ public:
     SideDiffEditor(BaseTextEditorWidget *editorWidget)
         : BaseTextEditor(editorWidget)
     {
-        setId("SideDiffEditor");
+        document()->setId("DiffEditor.SideDiffEditor");
         connect(this, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
                 this, SLOT(slotTooltipRequested(TextEditor::ITextEditor*,QPoint,int)));
     }

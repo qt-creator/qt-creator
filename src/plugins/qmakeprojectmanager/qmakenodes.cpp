@@ -183,6 +183,7 @@ using namespace QmakeProjectManager::Internal;
 QmakePriFile::QmakePriFile(QmakeProjectManager::QmakePriFileNode *qmakePriFile)
     : IDocument(qmakePriFile), m_priFile(qmakePriFile)
 {
+    setId("Qmake.PriFile");
     setFilePath(m_priFile->path());
 }
 

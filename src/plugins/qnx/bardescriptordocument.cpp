@@ -48,6 +48,7 @@ using namespace Qnx::Internal;
 BarDescriptorDocument::BarDescriptorDocument(QObject *parent)
     : Core::TextDocument(parent)
 {
+    setId(Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID);
     // blackberry-nativepackager requires the XML file to be in UTF-8 encoding,
     // force if possible
     if (QTextCodec *defaultUTF8 = QTextCodec::codecForName("UTF-8"))

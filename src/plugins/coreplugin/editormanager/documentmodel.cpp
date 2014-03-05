@@ -137,7 +137,7 @@ void DocumentModel::addEditor(IEditor *editor, bool *isNewDocument)
     if (isNew) {
         Entry *entry = new Entry;
         entry->document = editor->document();
-        entry->m_id = editor->id();
+        entry->m_id = editor->document()->id();
         addEntry(entry);
     }
 }
