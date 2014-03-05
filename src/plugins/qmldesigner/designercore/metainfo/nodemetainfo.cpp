@@ -147,10 +147,11 @@ public:
                 TypeId typeId;
                 TypeName typeName = typeId(value).toUtf8();
                 if (typeName == "number") {
-                    if (value->asRealValue())
-                        typeName = "real";
-                    else
+                    if (value->asIntValue()) {
                         typeName = "int";
+                    } else {
+                        typeName = "real";
+                    }
                 }
                 m_properties.append(qMakePair(propertyName, typeName));
             }
