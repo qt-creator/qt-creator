@@ -414,19 +414,19 @@ void AndroidSettingsWidget::browseNDKLocation()
 void AndroidSettingsWidget::browseAntLocation()
 {
     QString dir;
-    QString antApp;
+    QString filter;
     if (Utils::HostOsInfo::isWindowsHost()) {
-        dir = QDir::homePath();
-        antApp = QLatin1String("ant.bat");
+        dir = QDir::homePath() + QLatin1String("/ant.bat");
+        filter = QLatin1String("ant (ant.bat)");
     } else {
         dir = QLatin1String("/usr/bin/ant");
-        antApp = QLatin1String("ant");
+        filter = QLatin1String("ant (ant)");
     }
     const QString file =
-        QFileDialog::getOpenFileName(this, tr("Select ant Script"), dir, antApp);
+        QFileDialog::getOpenFileName(this, tr("Select ant Script"), dir, filter);
     if (!file.length())
         return;
-    m_ui->AntLocationLineEdit->setText(file);
+    m_ui->AntLocationLineEdit->setText(QDir::toNativeSeparators(file));
     antLocationEditingFinished();
 }
 
