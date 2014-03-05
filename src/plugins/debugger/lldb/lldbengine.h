@@ -174,7 +174,9 @@ private:
     void refreshModules(const GdbMi &modules);
     void refreshSymbols(const GdbMi &symbols);
     void refreshOutput(const GdbMi &output);
-    void refreshBreakpoints(const GdbMi &bkpts);
+    void refreshAddedBreakpoint(const GdbMi &bkpts);
+    void refreshChangedBreakpoint(const GdbMi &bkpts);
+    void refreshRemovedBreakpoint(const GdbMi &bkpts);
     void runContinuation(const GdbMi &data);
 
     typedef void (LldbEngine::*LldbCommandContinuation)();

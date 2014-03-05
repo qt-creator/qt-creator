@@ -415,8 +415,12 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshModules(item);
         else if (name == "symbols")
             refreshSymbols(item);
-        else if (name == "bkpts")
-            refreshBreakpoints(item);
+        else if (name == "breakpoint-added")
+            refreshAddedBreakpoint(item);
+        else if (name == "breakpoint-changed")
+            refreshChangedBreakpoint(item);
+        else if (name == "breakpoint-removed")
+            refreshRemovedBreakpoint(item);
         else if (name == "output")
             refreshOutput(item);
         else if (name == "disassembly")
@@ -605,9 +609,11 @@ void LldbEngine::attemptBreakpointSynchronization()
 void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
 {
     BreakHandler *handler = breakHandler();
-    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-    BreakpointResponse response = handler->response(id);
     BreakpointResponseId rid = BreakpointResponseId(bkpt["lldbid"].data());
+    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+    if (!id.isValid())
+        id = handler->findBreakpointByResponseId(rid);
+    BreakpointResponse response = handler->response(id);
     if (added)
         response.id = rid;
     QTC_CHECK(response.id == rid);
@@ -616,35 +622,35 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
     response.ignoreCount = bkpt["ignorecount"].toInt();
     response.condition = QByteArray::fromHex(bkpt["condition"].data());
     response.hitCount = bkpt["hitcount"].toInt();
+    response.fileName = bkpt["file"].toUtf8();
+    response.lineNumber = bkpt["line"].toInt();
 
-    if (added) {
-        // Added.
-        GdbMi locations = bkpt["locations"];
-        const int numChild = locations.children().size();
-        if (numChild > 1) {
-            foreach (const GdbMi &location, locations.children()) {
-                const int locid = location["locid"].toInt();
-                BreakpointResponse sub;
-                sub.id = BreakpointResponseId(rid.majorPart(), locid);
-                sub.type = response.type;
-                sub.address = location["addr"].toAddress();
-                sub.functionName = location["func"].toUtf8();
-                handler->insertSubBreakpoint(id, sub);
-            }
-        } else if (numChild == 1) {
-            const GdbMi location = locations.childAt(0);
-            response.address = location["addr"].toAddress();
-            response.functionName = location["func"].toUtf8();
-        } else {
-            QTC_CHECK(false);
+    GdbMi locations = bkpt["locations"];
+    const int numChild = locations.children().size();
+    if (numChild > 1) {
+        foreach (const GdbMi &location, locations.children()) {
+            const int locid = location["locid"].toInt();
+            BreakpointResponse sub;
+            sub.id = BreakpointResponseId(rid.majorPart(), locid);
+            sub.type = response.type;
+            sub.address = location["addr"].toAddress();
+            sub.functionName = location["func"].toUtf8();
+            sub.fileName = location["file"].toUtf8();
+            sub.lineNumber = location["line"].toInt();
+            handler->insertSubBreakpoint(id, sub);
         }
-        handler->setResponse(id, response);
-        handler->notifyBreakpointInsertOk(id);
+    } else if (numChild == 1) {
+        const GdbMi location = locations.childAt(0);
+        response.address = location["addr"].toAddress();
+        response.functionName = location["func"].toUtf8();
     } else {
-        // Changed.
-        handler->setResponse(id, response);
-        handler->notifyBreakpointChangeOk(id);
+        QTC_CHECK(false);
     }
+    handler->setResponse(id, response);
+    if (added)
+        handler->notifyBreakpointInsertOk(id);
+    else
+        handler->notifyBreakpointChangeOk(id);
 }
 
 void LldbEngine::refreshDisassembly(const GdbMi &data)
@@ -694,25 +700,26 @@ void LldbEngine::refreshOutput(const GdbMi &output)
     showMessage(QString::fromUtf8(data), ch);
 }
 
-void LldbEngine::refreshBreakpoints(const GdbMi &bkpts)
+void LldbEngine::refreshAddedBreakpoint(const GdbMi &bkpt)
+{
+    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+    QTC_CHECK(breakHandler()->state(id) == BreakpointInsertProceeding);
+    updateBreakpointData(bkpt, true);
+}
+
+void LldbEngine::refreshChangedBreakpoint(const GdbMi &bkpt)
+{
+    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+    QTC_CHECK(!id.isValid() || breakHandler()->state(id) == BreakpointChangeProceeding);
+    updateBreakpointData(bkpt, false);
+}
+
+void LldbEngine::refreshRemovedBreakpoint(const GdbMi &bkpt)
 {
     BreakHandler *handler = breakHandler();
-    foreach (const GdbMi &bkpt, bkpts.children()) {
-        QByteArray op = bkpt["operation"].data();
-        if (op == "added") {
-            BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-            QTC_CHECK(handler->state(id) == BreakpointInsertProceeding);
-            updateBreakpointData(bkpt, true);
-        } else if (op == "changed") {
-            BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-            QTC_CHECK(handler->state(id) == BreakpointChangeProceeding);
-            updateBreakpointData(bkpt, false);
-        } else if (op == "removed") {
-            BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-            QTC_CHECK(handler->state(id) == BreakpointRemoveProceeding);
-            handler->notifyBreakpointRemoveOk(id);
-        }
-    }
+    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+    QTC_CHECK(handler->state(id) == BreakpointRemoveProceeding);
+    handler->notifyBreakpointRemoveOk(id);
 }
 
 void LldbEngine::loadSymbols(const QString &moduleName)

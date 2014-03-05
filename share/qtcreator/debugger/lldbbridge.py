@@ -316,6 +316,7 @@ class Dumper(DumperBase):
         self.isInterrupting_ = False
         self.dummyValue = None
         self.types_ = {}
+        self.breakpointsToCheck = set([])
 
     def enterSubItem(self, item):
         if isinstance(item.name, lldb.SBValue):
@@ -804,6 +805,14 @@ class Dumper(DumperBase):
         result += '],current-thread-id="%s"},' % self.currentThread().id
         self.report(result)
 
+    def reportChangedBreakpoints(self):
+        for i in xrange(0, self.target.GetNumBreakpoints()):
+            bp = self.target.GetBreakpointAtIndex(i)
+            if bp.GetID() in self.breakpointsToCheck:
+                if bp.GetNumLocations():
+                    self.breakpointsToCheck.remove(bp.GetID())
+                    self.report('breakpoint-changed={%s}' % self.describeBreakpoint(bp))
+
     def firstUsableFrame(self, thread):
         for i in xrange(10):
             frame = thread.GetFrameAtIndex(i)
@@ -1283,6 +1292,7 @@ class Dumper(DumperBase):
                 self.reportLocation()
                 self.reportVariables()
                 self.reportRegisters()
+                self.reportChangedBreakpoints()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
         elif type == lldb.SBProcess.eBroadcastBitSTDOUT:
@@ -1297,13 +1307,12 @@ class Dumper(DumperBase):
         elif type == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 
-    def describeBreakpoint(self, bp, modelId):
+    def describeBreakpoint(self, bp):
         isWatch = isinstance(bp, lldb.SBWatchpoint)
         if isWatch:
             result  = 'lldbid="%s"' % (qqWatchpointOffset + bp.GetID())
         else:
             result  = 'lldbid="%s"' % bp.GetID()
-        result += ',modelid="%s"' % modelId
         if not bp.IsValid():
             return
         result += ',hitcount="%s"' % bp.GetHitCount()
@@ -1318,18 +1327,25 @@ class Dumper(DumperBase):
         result += ',valid="%s"' % (1 if bp.IsValid() else 0)
         result += ',ignorecount="%s"' % bp.GetIgnoreCount()
         result += ',locations=['
+        lineEntry = None
         if hasattr(bp, 'GetNumLocations'):
             for i in xrange(bp.GetNumLocations()):
                 loc = bp.GetLocationAtIndex(i)
                 addr = loc.GetAddress()
+                lineEntry = addr.GetLineEntry()
                 result += '{locid="%s"' % loc.GetID()
                 result += ',func="%s"' % addr.GetFunction().GetName()
                 result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
                 result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
                 result += ',valid="%s"' % (1 if loc.IsValid() else 0)
                 result += ',ignorecount="%s"' % loc.GetIgnoreCount()
+                result += ',file="%s"' % lineEntry.GetFileSpec()
+                result += ',line="%s"' % lineEntry.GetLine()
                 result += ',addr="%s"},' % loc.GetLoadAddress()
-        result += '],'
+        result += ']'
+        if lineEntry is not None:
+            result += ',file="%s"' % lineEntry.GetFileSpec()
+            result += ',line="%s"' % lineEntry.GetLine()
         return result
 
     def createBreakpointAtMain(self):
@@ -1339,26 +1355,26 @@ class Dumper(DumperBase):
     def addBreakpoint(self, args):
         bpType = args["type"]
         if bpType == BreakpointByFileAndLine:
-            bpNew = self.target.BreakpointCreateByLocation(
+            bp = self.target.BreakpointCreateByLocation(
                 str(args["file"]), int(args["line"]))
         elif bpType == BreakpointByFunction:
-            bpNew = self.target.BreakpointCreateByName(args["function"])
+            bp = self.target.BreakpointCreateByName(args["function"])
         elif bpType == BreakpointByAddress:
-            bpNew = self.target.BreakpointCreateByAddress(args["address"])
+            bp = self.target.BreakpointCreateByAddress(args["address"])
         elif bpType == BreakpointAtMain:
-            bpNew = self.createBreakpointAtMain()
+            bp = self.createBreakpointAtMain()
         elif bpType == BreakpointByFunction:
-            bpNew = self.target.BreakpointCreateByName(args["function"])
+            bp = self.target.BreakpointCreateByName(args["function"])
         elif bpType == BreakpointAtThrow:
-            bpNew = self.target.BreakpointCreateForException(
+            bp = self.target.BreakpointCreateForException(
                 lldb.eLanguageTypeC_plus_plus, False, True)
         elif bpType == BreakpointAtCatch:
-            bpNew = self.target.BreakpointCreateForException(
+            bp = self.target.BreakpointCreateForException(
                 lldb.eLanguageTypeC_plus_plus, True, False)
         elif bpType == WatchpointAtAddress:
             error = lldb.SBError()
-            bpNew = self.target.WatchAddress(args["address"], 4, False, True, error)
-            #warn("BPNEW: %s" % bpNew)
+            bp = self.target.WatchAddress(args["address"], 4, False, True, error)
+            #warn("BPNEW: %s" % bp)
             self.reportError(error)
         elif bpType == WatchpointAtExpression:
             # FIXME: Top level-only for now.
@@ -1366,7 +1382,7 @@ class Dumper(DumperBase):
                 frame = self.currentFrame()
                 value = frame.FindVariable(args["expression"])
                 error = lldb.SBError()
-                bpNew = self.target.WatchAddress(value.GetLoadAddress(),
+                bp = self.target.WatchAddress(value.GetLoadAddress(),
                     value.GetByteSize(), False, True, error)
             except:
                 return self.target.BreakpointCreateByName(None)
@@ -1374,13 +1390,14 @@ class Dumper(DumperBase):
             # This leaves the unhandled breakpoint in a (harmless)
             # "pending" state.
             return self.target.BreakpointCreateByName(None)
-        bpNew.SetIgnoreCount(int(args["ignorecount"]))
-        if hasattr(bpNew, 'SetCondition'):
-            bpNew.SetCondition(self.hexdecode(args["condition"]))
-        bpNew.SetEnabled(int(args["enabled"]))
-        if hasattr(bpNew, 'SetOneShot'):
-            bpNew.SetOneShot(int(args["oneshot"]))
-        return bpNew
+        bp.SetIgnoreCount(int(args["ignorecount"]))
+        if hasattr(bp, 'SetCondition'):
+            bp.SetCondition(self.hexdecode(args["condition"]))
+        bp.SetEnabled(int(args["enabled"]))
+        if hasattr(bp, 'SetOneShot'):
+            bp.SetOneShot(int(args["oneshot"]))
+        self.breakpointsToCheck.add(bp.GetID())
+        return bp
 
     def changeBreakpoint(self, args):
         id = int(args["lldbid"])
@@ -1393,6 +1410,7 @@ class Dumper(DumperBase):
         bp.SetEnabled(int(args["enabled"]))
         if hasattr(bp, 'SetOneShot'):
             bp.SetOneShot(int(args["oneshot"]))
+        return bp
 
     def removeBreakpoint(self, args):
         id = int(args['lldbid'])
@@ -1408,30 +1426,27 @@ class Dumper(DumperBase):
         if needStop:
             error = self.process.Stop()
 
-        result = 'bkpts=['
         for bp in args['bkpts']:
             operation = bp['operation']
+            modelId = bp['modelid']
 
             if operation == 'add':
                 bpNew = self.addBreakpoint(bp)
-                result += '{operation="added",%s}' \
-                    % self.describeBreakpoint(bpNew, bp["modelid"])
+                self.report('breakpoint-added={%s,modelid="%s"}'
+                    % (self.describeBreakpoint(bpNew), modelId))
 
             elif operation == 'change':
                 bpNew = self.changeBreakpoint(bp)
-                result += '{operation="changed",%s' \
-                    % self.describeBreakpoint(bpNew, bp["modelid"])
+                self.report('breakpoint-changed={%s,modelid="%s"}'
+                    % (self.describeBreakpoint(bpNew), modelId))
 
             elif operation == 'remove':
                 bpDead = self.removeBreakpoint(bp)
-                result += '{operation="removed",modelid="%s"}' % bp["modelid"]
-
-        result += "]"
+                self.report('breakpoint-removed={modelid="%s"}' % modelId)
 
         if needStop:
             error = self.process.Continue()
 
-        self.report(result)
 
     def listModules(self, args):
         result = 'modules=['
