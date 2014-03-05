@@ -56,7 +56,7 @@ class BlackBerryApplicationRunner : public QObject
 {
     Q_OBJECT
 public:
-    explicit BlackBerryApplicationRunner(bool debugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent = 0);
+    explicit BlackBerryApplicationRunner(bool cppDebugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent = 0);
 
     bool isRunning() const;
     qint64 pid() const;
@@ -96,7 +96,7 @@ private slots:
 private:
     void reset();
 
-    bool m_debugMode;
+    bool m_cppDebugMode;
 
     qint64 m_pid;
     QString m_appId;

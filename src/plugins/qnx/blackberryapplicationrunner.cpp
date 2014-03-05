@@ -57,9 +57,9 @@ using namespace ProjectExplorer;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent)
+BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool cppDebugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent)
     : QObject(parent)
-    , m_debugMode(debugMode)
+    , m_cppDebugMode(cppDebugMode)
     , m_pid(-1)
     , m_appId(QString())
     , m_running(false)
@@ -246,7 +246,7 @@ void BlackBerryApplicationRunner::launchApplication()
 
     QStringList args;
     args << QLatin1String("-launchApp");
-    if (m_debugMode)
+    if (m_cppDebugMode)
         args << QLatin1String("-debugNative");
     args << QLatin1String("-device") << m_sshParams.host;
     if (!m_sshParams.password.isEmpty())
