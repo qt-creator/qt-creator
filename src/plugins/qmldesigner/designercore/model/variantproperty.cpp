@@ -140,7 +140,7 @@ QDebug operator<<(QDebug debug, const VariantProperty &VariantProperty)
 }
 QTextStream& operator<<(QTextStream &stream, const VariantProperty &property)
 {
-    stream << "VariantProperty(" << property.name() << ',' << ' ' << property.value().toString() << ')';
+    stream << "VariantProperty(" << property.name() << ',' << ' ' << property.value().toString() << ' ' << property.value().typeName() << ')';
 
     return stream;
 }
