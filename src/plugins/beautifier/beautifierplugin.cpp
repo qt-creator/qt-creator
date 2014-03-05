@@ -291,6 +291,29 @@ void BeautifierPlugin::showError(const QString &error)
     Core::MessageManager::write(tr("ERROR in Beautifier: %1").arg(error.trimmed()));
 }
 
+QString BeautifierPlugin::msgCannotGetConfigurationFile(const QString &command)
+{
+    return tr("Cannot get configuration file for %1.").arg(command);
+}
+
+QString BeautifierPlugin::msgFormatCurrentFile()
+{
+    //: Menu entry
+    return tr("Format Current File");
+}
+
+QString BeautifierPlugin::msgFormatSelectedText()
+{
+    //: Menu entry
+    return tr("Format Selected Text");
+}
+
+QString BeautifierPlugin::msgCommandPromptDialogTitle(const QString &command)
+{
+    //: File dialog title for path chooser when choosing binary
+    return tr("%1 Command").arg(command);
+}
+
 } // namespace Internal
 } // namespace Beautifier
 

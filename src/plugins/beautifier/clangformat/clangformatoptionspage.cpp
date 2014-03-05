@@ -34,6 +34,7 @@
 #include "clangformatsettings.h"
 
 #include "../beautifierconstants.h"
+#include "../beautifierplugin.h"
 
 #include <coreplugin/icore.h>
 
@@ -53,7 +54,8 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     ui->options->setEnabled(false);
     ui->predefinedStyle->addItems(m_settings->predefinedStyles());
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    ui->command->setPromptDialogTitle(tr("Clang Format Command"));
+    ui->command->setPromptDialogTitle(
+                BeautifierPlugin::msgCommandPromptDialogTitle(QLatin1String("Clang Format")));
     connect(ui->command, SIGNAL(validChanged(bool)), ui->options, SLOT(setEnabled(bool)));
     ui->configurations->setSettings(m_settings);
 }

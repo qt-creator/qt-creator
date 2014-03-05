@@ -71,7 +71,7 @@ bool ArtisticStyle::initialize()
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ArtisticStyle::MENU_ID);
     menu->menu()->setTitle(QLatin1String("Artistic Style"));
 
-    m_formatFile = new QAction(tr("Format Current File"), this);
+    m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
             = Core::ActionManager::registerAction(m_formatFile,
                                                   Constants::ArtisticStyle::ACTION_FORMATFILE,
@@ -131,7 +131,8 @@ void ArtisticStyle::formatFile()
         cfgFileName = m_settings->styleFileName(m_settings->customStyle());
 
     if (cfgFileName.isEmpty()) {
-        BeautifierPlugin::showError(tr("Cannot get configuration file for Artistic Style."));
+        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
+                                        QLatin1String("Artistic Style")));
     } else {
         BeautifierPlugin::formatCurrentFile(QStringList()
                                             << m_settings->command()

@@ -69,7 +69,7 @@ bool ClangFormat::initialize()
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::ClangFormat::MENU_ID);
     menu->menu()->setTitle(QLatin1String("ClangFormat"));
 
-    m_formatFile = new QAction(tr("Format Current File"), this);
+    m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
             = Core::ActionManager::registerAction(m_formatFile,
                                                   Constants::ClangFormat::ACTION_FORMATFILE,
@@ -77,7 +77,7 @@ bool ClangFormat::initialize()
     menu->addAction(cmd);
     connect(m_formatFile, SIGNAL(triggered()), this, SLOT(formatFile()));
 
-    m_formatRange = new QAction(tr("Format Selected Text"), this);
+    m_formatRange = new QAction(BeautifierPlugin::msgFormatSelectedText(), this);
     cmd = Core::ActionManager::registerAction(m_formatRange,
                                               Constants::ClangFormat::ACTION_FORMATSELECTED,
                                               Core::Context(Core::Constants::C_GLOBAL));
