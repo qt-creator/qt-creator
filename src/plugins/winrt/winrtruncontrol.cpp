@@ -114,11 +114,6 @@ QIcon WinRtRunControl::icon() const
     return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
-void WinRtRunControl::cannotRetrieveDebugOutput()
-{
-    appendMessage(tr("Cannot retrieve debugging output.\n"), Utils::ErrorMessageFormat);
-}
-
 void WinRtRunControl::onProcessStarted()
 {
     QTC_CHECK(m_state == StartingState);
