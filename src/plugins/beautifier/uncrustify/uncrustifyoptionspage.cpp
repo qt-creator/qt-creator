@@ -52,8 +52,8 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
 {
     ui->setupUi(this);
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    ui->command->setPromptDialogTitle(
-                BeautifierPlugin::msgCommandPromptDialogTitle(QLatin1String("Uncrustify")));
+    ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
+                                          QLatin1String(Constants::Uncrustify::DISPLAY_NAME)));
     connect(ui->command, SIGNAL(validChanged(bool)), ui->options, SLOT(setEnabled(bool)));
     ui->configurations->setSettings(m_settings);
 }

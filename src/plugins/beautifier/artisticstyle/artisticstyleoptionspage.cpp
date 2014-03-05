@@ -52,8 +52,8 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
 {
     ui->setupUi(this);
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    ui->command->setPromptDialogTitle(
-                BeautifierPlugin::msgCommandPromptDialogTitle(QLatin1String("Artistic Style")));
+    ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
+                                          QLatin1String(Constants::ArtisticStyle::DISPLAY_NAME)));
     connect(ui->command, SIGNAL(validChanged(bool)), ui->options, SLOT(setEnabled(bool)));
     ui->configurations->setSettings(m_settings);
 }
