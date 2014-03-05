@@ -102,6 +102,7 @@ public:
     bool availableInVersion(int majorVersion, int minorVersion) const;
     bool isSubclassOf(const TypeName &type, int majorVersion, int minorVersio) const;
 
+    bool isGraphicalItem() const;
     bool isLayoutable() const;
     bool isView() const;
 

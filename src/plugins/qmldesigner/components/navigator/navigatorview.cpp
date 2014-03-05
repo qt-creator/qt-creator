@@ -133,6 +133,7 @@ void NavigatorView::modelAttached(Model *model)
 
 void NavigatorView::modelAboutToBeDetached(Model *model)
 {
+    m_treeModel->removeSubTree(rootModelNode());
     m_treeModel->clearView();
     AbstractView::modelAboutToBeDetached(model);
 }
