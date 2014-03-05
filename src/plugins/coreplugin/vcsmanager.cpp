@@ -85,7 +85,7 @@ public:
         QString topLevel;
     };
 
-    VcsManagerPrivate() : m_unconfiguredVcs(0)
+    VcsManagerPrivate() : m_unconfiguredVcs(0), m_cachedAdditionalToolsPathsDirty(true)
     { }
 
     ~VcsManagerPrivate()
@@ -180,6 +180,9 @@ public:
     QMap<QString, VcsInfo *> m_cachedMatches;
     QList<VcsInfo *> m_vcsInfoList;
     IVersionControl *m_unconfiguredVcs;
+
+    QStringList m_cachedAdditionalToolsPaths;
+    bool m_cachedAdditionalToolsPathsDirty;
 };
 
 static VcsManagerPrivate *d = 0;
@@ -213,6 +216,8 @@ void VcsManager::extensionsInitialized()
                 DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)));
         connect(versionControl, SIGNAL(repositoryChanged(QString)),
                 m_instance, SIGNAL(repositoryChanged(QString)));
+        connect(versionControl, SIGNAL(configurationChanged()),
+                m_instance, SLOT(handleConfigurationChanges()));
     }
 }
 
@@ -411,6 +416,17 @@ QString VcsManager::msgToAddToVcsFailed(const QStringList &files, const IVersion
               .arg(vc->displayName(), files.join(QString(QLatin1Char('\n'))));
 }
 
+QStringList VcsManager::additionalToolsPath()
+{
+    if (d->m_cachedAdditionalToolsPathsDirty) {
+        d->m_cachedAdditionalToolsPaths.clear();
+        foreach (IVersionControl *vc, allVersionControls())
+            d->m_cachedAdditionalToolsPaths.append(vc->additionalToolsPath());
+        d->m_cachedAdditionalToolsPathsDirty = false;
+    }
+    return d->m_cachedAdditionalToolsPaths;
+}
+
 void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNames)
 {
     IVersionControl *vc = findVersionControlForDirectory(directory);
@@ -460,6 +476,11 @@ void VcsManager::configureVcs()
     QTC_ASSERT(d->m_unconfiguredVcs, return);
     ICore::showOptionsDialog(Id(VcsBase::Constants::VCS_SETTINGS_CATEGORY),
                              d->m_unconfiguredVcs->id());
+}
+
+void VcsManager::handleConfigurationChanges()
+{
+    d->m_cachedAdditionalToolsPathsDirty = true;
 }
 
 } // namespace Core
