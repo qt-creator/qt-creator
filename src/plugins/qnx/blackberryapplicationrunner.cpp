@@ -35,18 +35,13 @@
 #include "blackberrydeviceconnectionmanager.h"
 #include "blackberryrunconfiguration.h"
 #include "blackberrylogprocessrunner.h"
-#include "blackberrydeviceinformation.h"
-#include "blackberryversionnumber.h"
 #include "qnxconstants.h"
 
-#include <coreplugin/icore.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
 
-#include <QMessageBox>
 #include <QTimer>
 #include <QDir>
 
@@ -71,18 +66,18 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool cppDebugMode, Blac
     , m_stopping(false)
     , m_launchProcess(0)
     , m_stopProcess(0)
-    , m_deviceInfo(0)
     , m_logProcessRunner(0)
     , m_runningStateTimer(new QTimer(this))
     , m_runningStateProcess(0)
-    , m_target(runConfiguration->target())
 {
     QTC_ASSERT(runConfiguration, return);
-    BuildConfiguration *buildConfig = m_target->activeBuildConfiguration();
+
+    Target *target = runConfiguration->target();
+    BuildConfiguration *buildConfig = target->activeBuildConfiguration();
     m_environment = buildConfig->environment();
     m_deployCmd = m_environment.searchInPath(QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD));
 
-    m_device = BlackBerryDeviceConfiguration::device(m_target->kit());
+    m_device = BlackBerryDeviceConfiguration::device(target->kit());
     m_barPackage = runConfiguration->barPackage();
 
     // The BlackBerry device always uses key authentication
@@ -102,14 +97,14 @@ void BlackBerryApplicationRunner::start()
 {
     if (!BlackBerryDeviceConnectionManager::instance()->isConnected(m_device->id())) {
         connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceConnected()),
-                this, SLOT(checkDeployMode()));
+                this, SLOT(launchApplication()));
         connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceDisconnected(Core::Id)),
                 this, SLOT(disconnectFromDeviceSignals(Core::Id)));
         connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id,QString)),
                 this, SLOT(displayConnectionOutput(Core::Id,QString)));
         BlackBerryDeviceConnectionManager::instance()->connectDevice(m_device->id());
     } else {
-        checkDeployMode();
+        launchApplication();
     }
 }
 
@@ -134,55 +129,6 @@ void BlackBerryApplicationRunner::displayConnectionOutput(Core::Id deviceId, con
         emit output(msg, Utils::StdOutFormat);
     else if (msg.contains(QLatin1String("Error:")))
         emit output(msg, Utils::StdErrFormat);
-}
-
-void BlackBerryApplicationRunner::checkDeviceRuntimeVersion(int status)
-{
-    if (status != BlackBerryNdkProcess::Success) {
-        emit output(tr("Cannot determine device runtime version."), Utils::StdErrFormat);
-        return;
-    }
-
-    QFileInfo fi(m_target->kit()->autoDetectionSource());
-    BlackBerryVersionNumber apiVersion =
-            BlackBerryVersionNumber::fromNdkEnvFileName(fi.baseName());
-    if (apiVersion.isEmpty()) {
-        emit output(tr("Cannot determine API level version."), Utils::StdErrFormat);
-        launchApplication();
-        return;
-    }
-
-    const QString runtimeVersion = m_deviceInfo->scmBundle();
-    if (apiVersion.toString() != runtimeVersion) {
-        const QMessageBox::StandardButton answer =
-                QMessageBox::question(Core::ICore::mainWindow(),
-                                      tr("Confirmation"),
-                                      tr("The device runtime version(%1) does not match "
-                                         "the API level version(%2).\n"
-                                         "This may cause unexpected behavior when debugging.\n"
-                                         "Do you want to continue anyway?")
-                                      .arg(runtimeVersion, apiVersion.toString()),
-                                      QMessageBox::Yes | QMessageBox::No);
-
-        if (answer == QMessageBox::No) {
-            emit startFailed(tr("API level version does not match Runtime version."));
-            return;
-        }
-    }
-
-    launchApplication();
-}
-
-void BlackBerryApplicationRunner::queryDeviceInformation()
-{
-    if (!m_deviceInfo) {
-        m_deviceInfo = new BlackBerryDeviceInformation(this);
-        connect(m_deviceInfo, SIGNAL(finished(int)),
-                this, SLOT(checkDeviceRuntimeVersion(int)));
-    }
-
-    m_deviceInfo->setDeviceTarget(m_sshParams.host, m_sshParams.password);
-    emit output(tr("Querying device runtime version..."), Utils::StdOutFormat);
 }
 
 void BlackBerryApplicationRunner::startFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -293,6 +239,11 @@ void BlackBerryApplicationRunner::setApplicationId(const QString &applicationId)
 
 void BlackBerryApplicationRunner::launchApplication()
 {
+    // If original device connection fails before launching, this method maybe triggered
+    // if any other device is connected(?)
+    if (!BlackBerryDeviceConnectionManager::instance()->isConnected(m_device->id()))
+        return;
+
     QStringList args;
     args << QLatin1String("-launchApp");
     if (m_cppDebugMode)
@@ -315,19 +266,6 @@ void BlackBerryApplicationRunner::launchApplication()
     m_launchProcess->start(m_deployCmd, args);
     m_runningStateTimer->start();
     m_running = true;
-}
-
-void BlackBerryApplicationRunner::checkDeployMode()
-{
-    // If original device connection fails before launching, this method maybe triggered
-    // if any other device is connected
-    if (!BlackBerryDeviceConnectionManager::instance()->isConnected(m_device->id()))
-        return;
-
-    if (m_debugMode)
-        queryDeviceInformation(); // check API version vs Runtime version
-    else
-        launchApplication();
 }
 
 void BlackBerryApplicationRunner::startRunningStateTimer()

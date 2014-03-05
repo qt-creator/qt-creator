@@ -45,14 +45,12 @@
 #include <QDateTime>
 
 namespace QSsh { class SshRemoteProcessRunner; }
-namespace ProjectExplorer { class Target; }
 
 namespace Qnx {
 namespace Internal {
 
 class BlackBerryRunConfiguration;
 class BlackBerryLogProcessRunner;
-class BlackBerryDeviceInformation;
 
 class BlackBerryApplicationRunner : public QObject
 {
@@ -91,15 +89,12 @@ private slots:
     void setApplicationId(const QString &applicationId);
 
     void launchApplication();
-    void checkDeployMode();
     void startLogProcessRunner();
 
     void displayConnectionOutput(Core::Id deviceId, const QString &output);
-    void checkDeviceRuntimeVersion(int status);
 
 private:
     void reset();
-    void queryDeviceInformation();
 
     bool m_cppDebugMode;
 
@@ -118,13 +113,11 @@ private:
     QProcess *m_launchProcess;
     QProcess *m_stopProcess;
     BlackBerryProcessParser m_launchStopProcessParser;
-    BlackBerryDeviceInformation *m_deviceInfo;
 
     BlackBerryLogProcessRunner *m_logProcessRunner;
 
     QTimer *m_runningStateTimer;
     QProcess *m_runningStateProcess;
-    ProjectExplorer::Target *m_target;
 };
 
 } // namespace Internal
