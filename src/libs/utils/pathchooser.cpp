@@ -302,14 +302,17 @@ FileName PathChooser::baseFileName() const
 void PathChooser::setBaseFileName(const FileName &base)
 {
     d->m_baseDirectory = base.toString();
+    triggerChanged();
 }
 
 void PathChooser::setEnvironment(const Utils::Environment &env)
 {
     QString oldExpand = path();
     d->m_environment = env;
-    if (path() != oldExpand)
+    if (path() != oldExpand) {
+        triggerChanged();
         emit changed(rawPath());
+    }
 }
 
 QString PathChooser::path() const
