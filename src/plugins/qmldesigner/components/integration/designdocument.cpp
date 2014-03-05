@@ -552,8 +552,11 @@ void DesignDocument::paste()
             PropertyName defaultProperty(targetNode.metaInfo().defaultPropertyName());
 
             scatterItem(pastedNode, targetNode);
-            if (targetNode.hasNodeListProperty(defaultProperty))
+            if (targetNode.metaInfo().propertyIsListProperty(defaultProperty)) {
                 targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+            } else {
+                qWarning() << "Cannot reparent to" << targetNode;
+            }
 
             transaction.commit();
             NodeMetaInfo::clearCache();
