@@ -198,6 +198,12 @@ public:
      */
     virtual QString vcsMakeWritableText() const;
 
+    /*!
+     * Return a list of paths where tools that came with the VCS may be installed.
+     * This is helpful on windows where e.g. git comes with a lot of nice unix tools.
+     */
+    virtual QStringList additionalToolsPath() const;
+
 signals:
     void repositoryChanged(const QString &repository);
     void filesChanged(const QStringList &files);
