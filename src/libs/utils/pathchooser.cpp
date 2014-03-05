@@ -291,7 +291,7 @@ void PathChooser::setBaseDirectory(const QString &directory)
     if (d->m_baseDirectory == directory)
         return;
     d->m_baseDirectory = directory;
-    d->m_lineEdit->triggerChanged();
+    triggerChanged();
 }
 
 FileName PathChooser::baseFileName() const
@@ -437,7 +437,7 @@ void PathChooser::slotBrowse()
     }
 
     emit browsingFinished();
-    d->m_lineEdit->triggerChanged();
+    triggerChanged();
 }
 
 void PathChooser::slotTextChanged()
