@@ -200,6 +200,7 @@
                 \li \l{Searching with the Locator}
             \endlist
             \li \l{Refactoring}
+            \li \l{Beautifying Source Code}
             \li \l{Configuring the Editor}
             \list
                 \li \l{Specifying Text Editor Settings}

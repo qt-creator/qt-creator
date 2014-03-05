@@ -1,0 +1,99 @@
+/****************************************************************************
+**
+** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-refactoring.html
+    \page creator-beautifier.html
+    \nextpage creator-editor-options.html
+
+    \title Beautifying Source Code
+
+    You can use the experimental Beautifier plugin to format your source code
+    by using the following external tools:
+
+    \list
+
+        \li \l{http://astyle.sourceforge.net}{Artistic Style}
+
+        \li \l{http://clang.llvm.org/docs/ClangFormat.html}{ClangFormat}
+
+        \li \l{http://uncrustify.sourceforge.net}{Uncrustify}
+
+    \endlist
+
+    The Beautifier plugin parses the source code into component structures, such
+    as assignment statements, if blocks, loops, and so on, and formats them as
+    specified in the Beautifier options. You can use a predefined style or
+    define your own style.
+
+    To use the Beautifier plugin:
+
+    \list 1
+
+        \li Download and install the tool to use for formatting source code.
+
+        \li Select \gui Help > \gui {About Plugins} > \gui {C++} >
+            \gui Beautifier to enable the plugin.
+
+        \li Restart \QC to be able to use the plugin.
+
+        \li Select \gui Tools > \gui Options > \gui Beautifier to specify
+            settings for the tool you want to use. The options you have depend
+            on the tool.
+
+        \li Select \gui Tools > \gui Beautifier > \gui {Artistic Style},
+            \gui ClangFormat or \gui Uncrustify > \gui {Format Current File}
+            to format the currently open file.
+
+            You can \l{Keyboard Shortcuts}{create keyboard shortcuts} for the
+            functions.
+
+    \endlist
+
+    \section1 Specifying Styles
+
+    Select \gui Tools > \gui Options > \gui Beautifier to set the configuration
+    file that defines the style to use in the source files.
+
+    \image beautifier_options.png
+
+    Select the \gui {Use file defined in project file} option to use the
+    configuration file defined in the qmake OTHER_FILES variable as the
+    configuration file for the selected tool. For example, \c{uncrustify.cfg}.
+
+    Select the \gui {Use $HOME} option to use the specified file in the user's
+    home directory as the configuration file for the selected tool. For example,
+    \c{.uncrustify.cgf} or \c{uncrustify.cgf}.
+
+    Select the \gui {Use self-defined Style} option, and then \gui Add to define
+    your own style. The \gui {Edit Configuration} dialog provides syntax
+    highlighting, auto-completion, and context-sensitive help.
+
+    \image beautifier_editor.png
+
+    By default, ClangFormat formats only the selected text. To format the entire
+    file when no text is selected, select the
+    \gui {Format entire file if no text was selected} check box.
+*/

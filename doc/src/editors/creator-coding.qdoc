@@ -55,6 +55,12 @@
             can easily find and rename symbols and apply predefined actions to
             refactor code.
 
+        \li \l{Beautifying Source Code}
+
+            Beautifying code means applying indentation and style to source
+            code files. You can use the Artistic Style, ClangFormat, or
+            Uncrustify tool to format source files.
+
         \li \l{Configuring the Editor}
 
             You can change the fonts, colors, highlighting, and indentation.
