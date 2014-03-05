@@ -410,6 +410,14 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
     if (absoluteFileName != modelManager()->configurationFileName())
         m_included.insert(absoluteFileName);
 
+    // Already in snapshot? Use it!
+    Document::Ptr doc = m_snapshot.document(absoluteFileName);
+    if (doc) {
+        mergeEnvironment(doc);
+        return;
+    }
+
+    // Otherwise get file contents
     unsigned editorRevision = 0;
     QByteArray contents;
     const bool gotFileContents = getFileContents(absoluteFileName, &contents, &editorRevision);
@@ -425,12 +433,6 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
     if (m_dumpFileNameWhileParsing) {
         qDebug() << "Parsing file:" << absoluteFileName
                  << "contents:" << contents.size() << "bytes";
-    }
-
-    Document::Ptr doc = m_snapshot.document(absoluteFileName);
-    if (doc) {
-        mergeEnvironment(doc);
-        return;
     }
 
     doc = Document::create(absoluteFileName);
