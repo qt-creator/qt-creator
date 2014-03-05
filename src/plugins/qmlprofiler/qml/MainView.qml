@@ -341,10 +341,12 @@ Rectangle {
                 if (start !== startTime || end !== endTime) {
                     startTime = start;
                     endTime = end;
-                    var newStartX = (startTime - qmlProfilerModelProxy.traceStartTime()) *
-                            flick.width / (endTime-startTime);
-                    if (isFinite(newStartX) && Math.abs(newStartX - flick.contentX) >= 1)
-                        flick.contentX = newStartX;
+                    if (!flick.flickingHorizontally) {
+                        var newStartX = (startTime - qmlProfilerModelProxy.traceStartTime()) *
+                                flick.width / (endTime-startTime);
+                        if (isFinite(newStartX) && Math.abs(newStartX - flick.contentX) >= 1)
+                            flick.contentX = newStartX;
+                    }
                 }
             }
 
