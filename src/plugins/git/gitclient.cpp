@@ -1122,8 +1122,10 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
     QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
 
     // Create new, set wait message, set up with source and codec
-    Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(id, &title,
-                                                                              m_msgWait.toUtf8());
+    Core::IEditor *outputEditor
+            = Core::EditorManager::openEditorWithContents(id, &title, m_msgWait.toUtf8(),
+                                                          (Core::EditorManager::OpenInOtherSplit
+                                                           | Core::EditorManager::NoNewSplits));
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
     connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),

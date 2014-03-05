@@ -1517,7 +1517,9 @@ IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString
         qDebug() << "ClearCasePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
+    IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8(),
+                                                            (EditorManager::OpenInOtherSplit
+                                                             | EditorManager::NoNewSplits));
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,QString,int)));
     ClearCaseEditor *e = qobject_cast<ClearCaseEditor*>(editor->widget());
