@@ -158,7 +158,10 @@ public:
         }
         if (m_action->isEnabled()) {
             ModelNode parentNode;
-            if (m_selectionContext.singleNodeIsSelected() && !m_selectionContext.currentSingleSelectedNode().isRootNode()) {
+            if (m_selectionContext.singleNodeIsSelected()
+                    && !m_selectionContext.currentSingleSelectedNode().isRootNode()
+                    && m_selectionContext.currentSingleSelectedNode().hasParentProperty()) {
+
                 ActionTemplate *selectionAction = new ActionTemplate(QString(), &ModelNodeOperations::select);
                 selectionAction->setParent(m_menu.data());
 
