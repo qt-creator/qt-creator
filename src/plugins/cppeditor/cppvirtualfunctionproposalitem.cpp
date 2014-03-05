@@ -44,7 +44,7 @@ void VirtualFunctionProposalItem::apply(TextEditor::BaseTextEditor *, int) const
     if (!m_link.hasValidTarget())
         return;
 
-    Core::EditorManager::OpenEditorFlags flags;
+    Core::EditorManager::OpenEditorFlags flags = Core::EditorManager::NoFlags;
     if (m_openInSplit)
         flags |= Core::EditorManager::OpenInOtherSplit;
     Core::EditorManager::openEditorAt(m_link.targetFileName,
