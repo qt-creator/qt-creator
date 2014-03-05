@@ -43,6 +43,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/session.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
@@ -650,6 +651,9 @@ static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocument *desig
 {
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *currentProject = projectExplorer->currentProject();
+
+    if (!currentProject)
+        currentProject = ProjectExplorer::SessionManager::projectForFile(designDocument->fileName());
 
     if (!currentProject)
         return 0;
