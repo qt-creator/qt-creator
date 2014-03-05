@@ -481,6 +481,9 @@ void VcsManager::configureVcs()
 void VcsManager::handleConfigurationChanges()
 {
     d->m_cachedAdditionalToolsPathsDirty = true;
+    IVersionControl *vcs = qobject_cast<IVersionControl *>(sender());
+    if (vcs)
+        emit configurationChanged(vcs);
 }
 
 } // namespace Core

@@ -98,6 +98,7 @@ public:
 
 signals:
     void repositoryChanged(const QString &repository);
+    void configurationChanged(const IVersionControl *vcs);
 
 public slots:
     static void clearVersionControlCache();
