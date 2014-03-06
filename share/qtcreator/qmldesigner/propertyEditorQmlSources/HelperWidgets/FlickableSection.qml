@@ -112,19 +112,6 @@ Section {
         }
 
         Label {
-            text: qsTr("Behavior")
-            toolTip: qsTr("Bounds behavior")
-        }
-
-        SecondColumnLayout {
-            ComboBox {
-                backendValue: backendValues.boundsBehavior
-                model: ["StopAtBounds", "DragOverBounds", "DragAndOvershootBounds"]
-                Layout.fillWidth: true
-            }
-        }
-
-        Label {
             text:qsTr("Interactive")
         }
 
