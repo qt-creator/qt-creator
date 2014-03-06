@@ -98,7 +98,6 @@
 
 #include <QDesktopServices>
 #include <QItemDelegate>
-#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QShortcut>
 #include <QTextBlock>
@@ -2119,9 +2118,12 @@ void FakeVimPluginPrivate::showCommandBuffer(const QString &contents,
 
 void FakeVimPluginPrivate::showExtraInformation(const QString &text)
 {
-    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
-    if (handler)
-        QMessageBox::information(handler->widget(), tr("FakeVim Information"), text);
+    EditorManager::splitSideBySide();
+    QString title = _("stdout.txt");
+    IEditor *iedit = EditorManager::openEditorWithContents(Id(), &title, text.toUtf8());
+    EditorManager::activateEditor(iedit);
+    FakeVimHandler *handler = m_editorToHandler.value(iedit, 0);
+    handler->handleCommand(_("0"));
 }
 
 void FakeVimPluginPrivate::changeSelection(const QList<QTextEdit::ExtraSelection> &selection)
