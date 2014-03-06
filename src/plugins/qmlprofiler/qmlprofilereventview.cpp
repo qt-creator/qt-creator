@@ -524,8 +524,8 @@ void QmlProfilerEventsMainView::parseModelProxy()
                     typeString = typeString + QLatin1Char(' ') +  tr("(Opt)");
                     toolTipText = tr("Binding is evaluated by the optimized engine.");
                 } else if (event.bindingType == (int)V8Binding) {
-                    toolTipText = tr("Binding not optimized (e.g. has side effects or assignments,\n"
-                                     "references to elements in other files, loops, etc.)");
+                    toolTipText = tr("Binding not optimized (might have side effects or assignments,\n"
+                                     "references to elements in other files, loops, and so on.)");
 
                 }
             }
@@ -609,7 +609,7 @@ QString QmlProfilerEventsMainView::nameForType(int typeNumber)
     case 2: return QmlProfilerEventsMainView::tr("Create");
     case 3: return QmlProfilerEventsMainView::tr("Binding");
     case 4: return QmlProfilerEventsMainView::tr("Signal");
-    case 5: return QmlProfilerEventsMainView::tr("Javascript");
+    case 5: return QmlProfilerEventsMainView::tr("JavaScript");
     }
     return QString();
 }

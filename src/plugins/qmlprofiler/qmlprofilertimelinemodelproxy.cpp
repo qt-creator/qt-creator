@@ -329,7 +329,7 @@ const QString BasicTimelineModel::categoryLabel(int categoryIndex) const
     case 2: return QCoreApplication::translate("MainView", "Creating"); break;
     case 3: return QCoreApplication::translate("MainView", "Binding"); break;
     case 4: return QCoreApplication::translate("MainView", "Handling Signal"); break;
-    case 5: return QCoreApplication::translate("MainView", "Javascript"); break;
+    case 5: return QCoreApplication::translate("MainView", "JavaScript"); break;
     default: return QString();
     }
 }
