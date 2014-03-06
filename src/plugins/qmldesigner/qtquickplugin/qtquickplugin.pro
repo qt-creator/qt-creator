@@ -1,4 +1,3 @@
-include(../../../../qtcreator.pri)
-include(../../../private_headers.pri)
+include(../../../../qtcreator.pri)\
 include(qtquickplugin.pri)
 include(../plugindestdir.pri)
