@@ -288,7 +288,7 @@ void BeautifierPlugin::formatCurrentFile(QStringList command)
 
 void BeautifierPlugin::showError(const QString &error)
 {
-    Core::MessageManager::write(tr("ERROR in Beautifier: %1").arg(error.trimmed()));
+    Core::MessageManager::write(tr("Error in Beautifier: %1").arg(error.trimmed()));
 }
 
 QString BeautifierPlugin::msgCannotGetConfigurationFile(const QString &command)
