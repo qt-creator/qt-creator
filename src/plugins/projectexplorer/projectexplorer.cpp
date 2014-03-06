@@ -1769,7 +1769,7 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
         if (BuildManager::tasksAvailable())
             BuildManager::showTaskWindow();
     }
-    d->m_delayedRunConfiguration.clear();
+    d->m_delayedRunConfiguration = 0;
     d->m_shouldHaveRunConfiguration = false;
     d->m_runMode = NoRunMode;
 }
