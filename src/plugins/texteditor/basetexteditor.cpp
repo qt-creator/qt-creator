@@ -4695,14 +4695,9 @@ void BaseTextEditorWidget::clearLink()
 
 void BaseTextEditorWidget::highlightSearchResults(const QString &txt, Core::FindFlags findFlags)
 {
-    QString pattern = txt;
-    // highlighting single characters only if you're searching for whole words
-    if (pattern.size() < 2 && !(findFlags & FindWholeWords))
-        pattern.clear();
-
-    if (d->m_searchExpr.pattern() == pattern)
+    if (d->m_searchExpr.pattern() == txt)
         return;
-    d->m_searchExpr.setPattern(pattern);
+    d->m_searchExpr.setPattern(txt);
     d->m_searchExpr.setPatternSyntax((findFlags & FindRegularExpression) ?
                                      QRegExp::RegExp : QRegExp::FixedString);
     d->m_searchExpr.setCaseSensitivity((findFlags & FindCaseSensitively) ?
