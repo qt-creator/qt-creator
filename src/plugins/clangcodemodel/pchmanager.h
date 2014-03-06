@@ -85,10 +85,10 @@ private:
     void updatePchInfo(ClangProjectSettings *cps,
                        const QList<ProjectPart::Ptr> &projectParts);
 
-    static void doPchInfoUpdateNone(QFutureInterface<void> &future, const UpdateParams &params);
-    static void doPchInfoUpdateFuzzy(QFutureInterface<void> &future, const UpdateParams &params);
-    static void doPchInfoUpdateExact(QFutureInterface<void> &future, const UpdateParams &params);
-    static void doPchInfoUpdateCustom(QFutureInterface<void> &future, const UpdateParams &params);
+    static void doPchInfoUpdateNone(QFutureInterface<void> &future, const UpdateParams params);
+    static void doPchInfoUpdateFuzzy(QFutureInterface<void> &future, const UpdateParams params);
+    static void doPchInfoUpdateExact(QFutureInterface<void> &future, const UpdateParams params);
+    static void doPchInfoUpdateCustom(QFutureInterface<void> &future, const UpdateParams params);
 
     void setPCHInfo(const QList<ProjectPart::Ptr> &projectParts,
                     const PchInfo::Ptr &pchInfo,

@@ -161,7 +161,7 @@ void PchManager::updatePchInfo(ClangProjectSettings *cps,
     const ClangProjectSettings::PchUsage pchUsage = cps->pchUsage();
 
     void (*updateFunction)(QFutureInterface<void> &future,
-                           const PchManager::UpdateParams &params) = 0;
+                           const PchManager::UpdateParams params) = 0;
     QString message;
     if (pchUsage == ClangProjectSettings::PchUse_None
             || (pchUsage == ClangProjectSettings::PchUse_Custom && customPchFile.isEmpty())) {
@@ -181,9 +181,8 @@ void PchManager::updatePchInfo(ClangProjectSettings *cps,
     QTC_ASSERT(updateFunction && !message.isEmpty(), return);
 
     Core::MessageManager::write(message, Core::MessageManager::Silent);
-    const UpdateParams updateParams = UpdateParams(customPchFile, projectParts);
-    QFuture<void> future
-        = QtConcurrent::run<void, const UpdateParams &>(updateFunction, updateParams);
+    QFuture<void> future = QtConcurrent::run(updateFunction,
+                                             UpdateParams(customPchFile, projectParts));
     m_pchGenerationWatcher.setFuture(future);
     Core::ProgressManager::addTask(future, tr("Precompiling..."), "Key.Tmp.Precompiling");
 }
@@ -237,7 +236,8 @@ CppTools::ProjectFile::Kind getPrefixFileKind(bool hasObjectiveC, bool hasCPlusP
 
 }
 
-void PchManager::doPchInfoUpdateNone(QFutureInterface<void> &future, const PchManager::UpdateParams &params)
+void PchManager::doPchInfoUpdateNone(QFutureInterface<void> &future,
+                                     const PchManager::UpdateParams params)
 {
     future.setProgressRange(0, 1);
     PchInfo::Ptr emptyPch = PchInfo::createEmpty();
@@ -246,7 +246,8 @@ void PchManager::doPchInfoUpdateNone(QFutureInterface<void> &future, const PchMa
     future.setProgressValue(1);
 }
 
-void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future, const PchManager::UpdateParams &params)
+void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
+                                      const PchManager::UpdateParams params)
 {
     QHash<QString, QSet<QString> > includes, frameworks;
     QHash<QString, QSet<QByteArray> > definesPerPCH;
@@ -338,7 +339,8 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future, const PchM
     future.setProgressValue(future.progressValue() + 1);
 }
 
-void PchManager::doPchInfoUpdateExact(QFutureInterface<void> &future, const PchManager::UpdateParams &params)
+void PchManager::doPchInfoUpdateExact(QFutureInterface<void> &future,
+                                      const PchManager::UpdateParams params)
 {
     future.setProgressRange(0, params.projectParts.size() + 1);
     future.setProgressValue(0);
@@ -370,7 +372,8 @@ void PchManager::doPchInfoUpdateExact(QFutureInterface<void> &future, const PchM
     future.setProgressValue(future.progressValue() + 1);
 }
 
-void PchManager::doPchInfoUpdateCustom(QFutureInterface<void> &future, const PchManager::UpdateParams &params)
+void PchManager::doPchInfoUpdateCustom(QFutureInterface<void> &future,
+                                       const PchManager::UpdateParams params)
 {
     future.setProgressRange(0, 1);
     future.setProgressValue(0);
