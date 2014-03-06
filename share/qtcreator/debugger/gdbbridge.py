@@ -1044,20 +1044,6 @@ class Dumper(DumperBase):
                 return Hex2EncodedFloat8
         return None
 
-    def tryPutArrayContents(self, typeobj, base, n):
-        enc = self.simpleEncoding(typeobj)
-        if not enc:
-            return False
-        size = n * typeobj.sizeof;
-        self.put('childtype="%s",' % typeobj)
-        self.put('addrbase="0x%x",' % toInteger(base))
-        self.put('addrstep="0x%x",' % toInteger(typeobj.sizeof))
-        self.put('arrayencoding="%s",' % enc)
-        self.put('arraydata="')
-        self.put(self.readMemory(base, size))
-        self.put('",')
-        return True
-
     def isReferenceType(self, typeobj):
         return typeobj.code == gdb.TYPE_CODE_REF
 

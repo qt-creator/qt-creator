@@ -221,35 +221,6 @@ lldb.SBType.strip_typedefs = \
 lldb.SBType.__orig__str__ = lldb.SBType.__str__
 lldb.SBType.__str__ = lldb.SBType.GetName
 
-def simpleEncoding(typeobj):
-    code = typeobj.GetTypeClass()
-    size = typeobj.sizeof
-    if code == lldb.eTypeClassBuiltin:
-        name = str(typeobj)
-        if name == "float":
-            return Hex2EncodedFloat4
-        if name == "double":
-            return Hex2EncodedFloat8
-        if name.find("unsigned") >= 0:
-            if size == 1:
-                return Hex2EncodedUInt1
-            if size == 2:
-                return Hex2EncodedUInt2
-            if size == 4:
-                return Hex2EncodedUInt4
-            if size == 8:
-                return Hex2EncodedUInt8
-        else:
-            if size == 1:
-                return Hex2EncodedInt1
-            if size == 2:
-                return Hex2EncodedInt2
-            if size == 4:
-                return Hex2EncodedInt4
-            if size == 8:
-                return Hex2EncodedInt8
-    return None
-
 class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
@@ -588,18 +559,34 @@ class Dumper(DumperBase):
     def putSimpleValue(self, value, encoding = None, priority = 0):
         self.putValue(value.GetValue(), encoding, priority)
 
-    def tryPutArrayContents(self, typeobj, base, n):
-        if not self.isSimpleType(typeobj):
-            return False
-        size = n * typeobj.sizeof
-        self.put('childtype="%s",' % typeobj)
-        self.put('addrbase="0x%x",' % int(base))
-        self.put('addrstep="%d",' % typeobj.sizeof)
-        self.put('arrayencoding="%s",' % simpleEncoding(typeobj))
-        self.put('arraydata="')
-        self.put(self.readMemory(base, size))
-        self.put('",')
-        return True
+    def simpleEncoding(self, typeobj):
+        code = typeobj.GetTypeClass()
+        size = typeobj.sizeof
+        if code == lldb.eTypeClassBuiltin:
+            name = str(typeobj)
+            if name == "float":
+                return Hex2EncodedFloat4
+            if name == "double":
+                return Hex2EncodedFloat8
+            if name.find("unsigned") >= 0:
+                if size == 1:
+                    return Hex2EncodedUInt1
+                if size == 2:
+                    return Hex2EncodedUInt2
+                if size == 4:
+                    return Hex2EncodedUInt4
+                if size == 8:
+                    return Hex2EncodedUInt8
+            else:
+                if size == 1:
+                    return Hex2EncodedInt1
+                if size == 2:
+                    return Hex2EncodedInt2
+                if size == 4:
+                    return Hex2EncodedInt4
+                if size == 8:
+                    return Hex2EncodedInt8
+        return None
 
     def putArrayData(self, type, base, n,
             childNumChild = None, maxNumChild = 10000):
