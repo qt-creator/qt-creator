@@ -98,7 +98,7 @@ public:
         item->setText(0, CommandMappings::tr("Command"));
 
         defaultButton = new QPushButton(CommandMappings::tr("Reset All"), groupBox);
-        defaultButton->setToolTip(CommandMappings::tr("Reset all to default"));
+        defaultButton->setToolTip(CommandMappings::tr("Reset all to default."));
 
         importButton = new QPushButton(CommandMappings::tr("Import..."), groupBox);
         exportButton = new QPushButton(CommandMappings::tr("Export..."), groupBox);
@@ -112,7 +112,7 @@ public:
         targetEdit->setFiltering(true);
 
         resetButton = new QPushButton(targetEditGroup);
-        resetButton->setToolTip(CommandMappings::tr("Reset to default"));
+        resetButton->setToolTip(CommandMappings::tr("Reset to default."));
         resetButton->setText(CommandMappings::tr("Reset"));
 
         QLabel *infoLabel = new QLabel(targetEditGroup);

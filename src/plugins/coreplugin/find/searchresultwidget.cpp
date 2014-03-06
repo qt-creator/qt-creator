@@ -146,7 +146,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_cancelButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(cancel()));
     m_searchAgainButton = new QToolButton(topWidget);
-    m_searchAgainButton->setToolTip(tr("Repeat the search with same parameters"));
+    m_searchAgainButton->setToolTip(tr("Repeat the search with same parameters."));
     m_searchAgainButton->setText(tr("Search again"));
     m_searchAgainButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_searchAgainButton->setVisible(false);
@@ -158,7 +158,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_replaceTextEdit->setEnabled(false);
     m_replaceTextEdit->setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
     m_replaceButton = new QToolButton(topWidget);
-    m_replaceButton->setToolTip(tr("Replace all occurrences"));
+    m_replaceButton->setToolTip(tr("Replace all occurrences."));
     m_replaceButton->setText(tr("Replace"));
     m_replaceButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     m_replaceButton->setEnabled(false);

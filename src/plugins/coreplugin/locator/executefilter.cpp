@@ -158,18 +158,18 @@ void ExecuteFilter::runHeadCommand()
         const ExecuteData &d = m_taskQueue.head();
         const QString fullPath = Utils::Environment::systemEnvironment().searchInPath(d.executable);
         if (fullPath.isEmpty()) {
-            MessageManager::write(tr("Could not find executable for '%1'").arg(d.executable));
+            MessageManager::write(tr("Could not find executable for '%1'.").arg(d.executable));
             m_taskQueue.dequeue();
             runHeadCommand();
             return;
         }
-        MessageManager::write(tr("Starting command '%1'").arg(headCommand()));
+        MessageManager::write(tr("Starting command '%1'.").arg(headCommand()));
         m_process->setWorkingDirectory(d.workingDirectory);
         m_process->setCommand(fullPath, d.arguments);
         m_process->start();
         m_process->closeWriteChannel();
         if (!m_process->waitForStarted(1000)) {
-             MessageManager::write(tr("Could not start process: %1").arg(m_process->errorString()));
+             MessageManager::write(tr("Could not start process: %1.").arg(m_process->errorString()));
              m_taskQueue.dequeue();
              runHeadCommand();
         }
