@@ -678,7 +678,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     action->setDisabled(true);
     action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_REDO)));
     //action->setText(tr("Dump"));
-    action->setToolTip(tr("Request the dumping of profile information. This will update the callgrind visualization."));
+    action->setToolTip(tr("Request the dumping of profile information. This will update the Callgrind visualization."));
     connect(action, SIGNAL(triggered()), this, SLOT(slotRequestDump()));
     layout->addWidget(createToolButton(action));
     m_dumpAction = action;
