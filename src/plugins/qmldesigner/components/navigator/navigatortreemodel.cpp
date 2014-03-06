@@ -444,7 +444,7 @@ bool NavigatorTreeModel::isNodeInvisible(const ModelNode &node) const
 void NavigatorTreeModel::addSubTree(const ModelNode &node)
 {
     Q_ASSERT(node.isValid());
-    if (!containsNodeHash(node.internalId())); {
+    if (!containsNodeHash(node.internalId())) {
 
         //updateItemRow(node, newRow);
 
