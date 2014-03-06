@@ -190,6 +190,8 @@ QByteArray MsvcToolChain::msvcPredefinedMacros(const QStringList cxxflags,
             predefinedMacros += "#undef ";
             predefinedMacros += arg.mid(2).toLocal8Bit();
             predefinedMacros += '\n';
+        } else if (arg.startsWith(QLatin1String("-I"))) {
+            // Include paths should not have any effect on defines
         } else {
             toProcess.append(arg);
         }
