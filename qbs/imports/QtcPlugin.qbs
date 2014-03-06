@@ -27,11 +27,14 @@ Product {
     cpp.installNamePrefix: "@rpath/PlugIns/" + provider + "/"
     cpp.rpaths: qbs.targetOS.contains("osx") ? ["@loader_path/../..", "@executable_path/.."]
                                       : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../.."]
+    cpp.cxxFlags: QtcFunctions.commonCxxFlags(qbs)
     cpp.linkerFlags: {
+        var flags = QtcFunctions.commonLinkerFlags(qbs);
         if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
-            return ["-Wl,-s"]
+            flags.push("-Wl,-s");
         else if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))
-            return ["/INCREMENTAL:NO"] // Speed up startup time when debugging with cdb
+            flags.push("/INCREMENTAL:NO"); // Speed up startup time when debugging with cdb
+        return flags;
     }
 
     property string pluginIncludeBase: ".." // #include <plugin/header.h>
