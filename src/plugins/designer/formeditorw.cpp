@@ -50,7 +50,6 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/outputpane.h>
 #include <texteditor/texteditorsettings.h>
-#include <cpptools/cpptoolsconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QDesignerFormEditorPluginInterface>
@@ -134,7 +133,6 @@ FormEditorW::FormEditorW() :
     m_actionGroupPreviewInStyle(0),
     m_previewInStyleMenu(0),
     m_actionAboutPlugins(0),
-    m_actionSwitchSource(0),
     m_shortcutMapper(new QSignalMapper(this)),
     m_context(0),
     m_modeWidget(0),
@@ -401,11 +399,7 @@ void FormEditorW::setupActions()
 {
     //menus
     ActionContainer *medit = ActionManager::actionContainer(Core::Constants::M_EDIT);
-    ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
-
-    ActionContainer *mformtools = ActionManager::createMenu(M_FORMEDITOR);
-    mformtools->menu()->setTitle(tr("For&m Editor"));
-    mtools->addMenu(mformtools);
+    ActionContainer *mformtools = ActionManager::actionContainer(M_FORMEDITOR);
 
     //overridden actions
     bindShortcut(ActionManager::registerAction(m_fwm->actionUndo(), Core::Constants::UNDO, m_contexts), m_fwm->actionUndo());
@@ -528,26 +522,20 @@ void FormEditorW::setupActions()
 
     mformtools->addSeparator(m_contexts);
 
-    m_actionSwitchSource = new QAction(tr("Switch Source/Form"), this);
-    connect(m_actionSwitchSource, SIGNAL(triggered()), this, SLOT(switchSourceForm()));
-
-    // Switch form/source in editor/design contexts.
-    Context switchContexts = m_contexts;
-    switchContexts.add(Core::Constants::C_EDITORMANAGER);
-    addToolAction(m_actionSwitchSource, switchContexts, "FormEditor.FormSwitchSource", mformtools, tr("Shift+F4"));
-
-    mformtools->addSeparator(m_contexts);
+    mformtools->addSeparator(m_contexts, Core::Constants::G_DEFAULT_THREE);
 #if QT_VERSION >= 0x050000
     QAction *actionFormSettings = m_fwm->action(QDesignerFormWindowManagerInterface::FormWindowSettingsDialogAction);
 #else
     QAction *actionFormSettings = m_fwm->actionShowFormWindowSettingsDialog();
 #endif
-    addToolAction(actionFormSettings, m_contexts, "FormEditor.FormSettings", mformtools);
+    addToolAction(actionFormSettings, m_contexts, "FormEditor.FormSettings", mformtools,
+                  QString(), Core::Constants::G_DEFAULT_THREE);
 
-    mformtools->addSeparator(m_contexts);
+    mformtools->addSeparator(m_contexts, Core::Constants::G_DEFAULT_THREE);
     m_actionAboutPlugins = new QAction(tr("About Qt Designer Plugins..."), this);
     m_actionAboutPlugins->setMenuRole(QAction::NoRole);
-    addToolAction(m_actionAboutPlugins, m_contexts, "FormEditor.AboutPlugins", mformtools);
+    addToolAction(m_actionAboutPlugins, m_contexts, "FormEditor.AboutPlugins", mformtools,
+                  QString(), Core::Constants::G_DEFAULT_THREE);
     connect(m_actionAboutPlugins,  SIGNAL(triggered()), m_fwm,
 #if QT_VERSION >= 0x050000
             SLOT(showPluginDialog())
@@ -669,14 +657,15 @@ QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
 
 // Create a tool action
 Command *FormEditorW::addToolAction(QAction *a, const Context &context, const Id &id,
-                                          ActionContainer *c1, const QString &keySequence)
+                                          ActionContainer *c1, const QString &keySequence,
+                                    Core::Id groupId)
 {
     Command *command = ActionManager::registerAction(a, id, context);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
     if (!a->isSeparator())
         bindShortcut(command, a);
-    c1->addAction(command);
+    c1->addAction(command, groupId);
     return command;
 }
 
@@ -846,58 +835,6 @@ void FormEditorW::print()
     } while (false);
     printer->setFullPage(oldFullPage);
     printer->setOrientation(oldOrientation);
-}
-
-// Find out current existing editor file
-static QString currentFile()
-{
-    if (const IDocument *document = EditorManager::currentDocument()) {
-        const QString fileName = document->filePath();
-        if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
-            return fileName;
-    }
-    return QString();
-}
-
-// Switch between form ('ui') and source file ('cpp'):
-// Find corresponding 'other' file, simply assuming it is in the same directory.
-static QString otherFile()
-{
-    // Determine mime type of current file.
-    const QString current = currentFile();
-    if (current.isEmpty())
-        return QString();
-    const MimeType currentMimeType = MimeDatabase::findByFile(current);
-    if (!currentMimeType)
-        return QString();
-    // Determine potential suffixes of candidate files
-    // 'ui' -> 'cpp', 'cpp/h' -> 'ui'.
-    QStringList candidateSuffixes;
-    if (currentMimeType.type() == QLatin1String(FORM_MIMETYPE)) {
-        candidateSuffixes += MimeDatabase::findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)).suffixes();
-    } else if (currentMimeType.type() == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
-               || currentMimeType.type() == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)) {
-        candidateSuffixes += MimeDatabase::findByType(QLatin1String(FORM_MIMETYPE)).suffixes();
-    } else {
-        return QString();
-    }
-    // Try to find existing file with desired suffix
-    const QFileInfo currentFI(current);
-    const QString currentBaseName = currentFI.path() + QLatin1Char('/')
-            + currentFI.baseName() + QLatin1Char('.');
-    foreach (const QString &candidateSuffix, candidateSuffixes) {
-        const QFileInfo fi(currentBaseName + candidateSuffix);
-        if (fi.isFile())
-            return fi.absoluteFilePath();
-    }
-    return QString();
-}
-
-void FormEditorW::switchSourceForm()
-{
-    const QString fileToOpen = otherFile();
-    if (!fileToOpen.isEmpty())
-        EditorManager::openEditor(fileToOpen);
 }
 
 } // namespace Internal

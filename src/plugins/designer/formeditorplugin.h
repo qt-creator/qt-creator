@@ -32,6 +32,10 @@
 
 #include <extensionsystem/iplugin.h>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
 namespace Designer {
 namespace Internal {
 
@@ -48,14 +52,17 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     void extensionsInitialized();
 
-private:
-    void initializeTemplates();
-
 private slots:
 #ifdef WITH_TESTS
     void test_gotoslot();
     void test_gotoslot_data();
 #endif
+    void switchSourceForm();
+
+private:
+    void initializeTemplates();
+
+    QAction *m_actionSwitchSource;
 };
 
 } // namespace Internal

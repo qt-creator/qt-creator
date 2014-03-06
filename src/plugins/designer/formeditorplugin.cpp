@@ -40,10 +40,14 @@
 #include "settingspage.h"
 #include "qtdesignerformclasscodegenerator.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
+#include <cpptools/cpptoolsconstants.h>
 
 #include <QDebug>
 #include <QLibraryInfo>
@@ -55,6 +59,7 @@ using namespace Designer::Internal;
 using namespace Designer::Constants;
 
 FormEditorPlugin::FormEditorPlugin()
+    : m_actionSwitchSource(new QAction(tr("Switch Source/Form"), this))
 {
 }
 
@@ -99,6 +104,18 @@ void FormEditorPlugin::extensionsInitialized()
 {
     DesignMode::instance()->setDesignModeIsRequired();
     // 4) test and make sure everything works (undo, saving, editors, opening/closing multiple files, dirtiness etc)
+
+    ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *mformtools = ActionManager::createMenu(M_FORMEDITOR);
+    mformtools->menu()->setTitle(tr("For&m Editor"));
+    mtools->addMenu(mformtools);
+
+    connect(m_actionSwitchSource, SIGNAL(triggered()), this, SLOT(switchSourceForm()));
+    Core::Context context(Designer::Constants::C_FORMEDITOR, Core::Constants::C_EDITORMANAGER);
+    Core::Command *cmd = Core::ActionManager::registerAction(m_actionSwitchSource,
+                                                             "FormEditor.FormSwitchSource", context);
+    cmd->setDefaultKeySequence(tr("Shift+F4"));
+    mformtools->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 }
 
 ////////////////////////////////////////////////////
@@ -132,6 +149,58 @@ void FormEditorPlugin::initializeTemplates()
 
     addAutoReleasedObject(new CppSettingsPage);
 #endif
+}
+
+// Find out current existing editor file
+static QString currentFile()
+{
+    if (const IDocument *document = EditorManager::currentDocument()) {
+        const QString fileName = document->filePath();
+        if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
+            return fileName;
+    }
+    return QString();
+}
+
+// Switch between form ('ui') and source file ('cpp'):
+// Find corresponding 'other' file, simply assuming it is in the same directory.
+static QString otherFile()
+{
+    // Determine mime type of current file.
+    const QString current = currentFile();
+    if (current.isEmpty())
+        return QString();
+    const MimeType currentMimeType = MimeDatabase::findByFile(current);
+    if (!currentMimeType)
+        return QString();
+    // Determine potential suffixes of candidate files
+    // 'ui' -> 'cpp', 'cpp/h' -> 'ui'.
+    QStringList candidateSuffixes;
+    if (currentMimeType.type() == QLatin1String(FORM_MIMETYPE)) {
+        candidateSuffixes += MimeDatabase::findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)).suffixes();
+    } else if (currentMimeType.type() == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
+               || currentMimeType.type() == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)) {
+        candidateSuffixes += MimeDatabase::findByType(QLatin1String(FORM_MIMETYPE)).suffixes();
+    } else {
+        return QString();
+    }
+    // Try to find existing file with desired suffix
+    const QFileInfo currentFI(current);
+    const QString currentBaseName = currentFI.path() + QLatin1Char('/')
+            + currentFI.baseName() + QLatin1Char('.');
+    foreach (const QString &candidateSuffix, candidateSuffixes) {
+        const QFileInfo fi(currentBaseName + candidateSuffix);
+        if (fi.isFile())
+            return fi.absoluteFilePath();
+    }
+    return QString();
+}
+
+void FormEditorPlugin::switchSourceForm()
+{
+    const QString fileToOpen = otherFile();
+    if (!fileToOpen.isEmpty())
+        Core::EditorManager::openEditor(fileToOpen);
 }
 
 Q_EXPORT_PLUGIN(FormEditorPlugin)
