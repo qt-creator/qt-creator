@@ -101,7 +101,7 @@ ProjectExplorer::Project *QbsManager::openProject(const QString &fileName, QStri
 {
     if (!QFileInfo(fileName).isFile()) {
         if (errorString)
-            *errorString = tr("Failed opening project '%1': Project is not a file")
+            *errorString = tr("Failed opening project '%1': Project is not a file.")
                 .arg(fileName);
         return 0;
     }
@@ -173,7 +173,7 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
     qtEnv.qtConfigItems = qt->qtConfigValues();
     const qbs::ErrorInfo errorInfo = qbs::setupQtProfile(profileName, settings(), qtEnv);
     if (errorInfo.hasError()) {
-        Core::MessageManager::write(tr("Failed to set up kit for qbs: %1")
+        Core::MessageManager::write(tr("Failed to set up kit for Qbs: %1")
                 .arg(errorInfo.toString()), Core::MessageManager::ModeSwitch);
     }
 }
