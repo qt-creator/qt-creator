@@ -85,9 +85,12 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     QList<BarPackageDeployInformation> enabledPackages() const;
+    QList<BarPackageDeployInformation> allPackages() const;
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
+
+    ProjectExplorer::Target *target() const;
 
 private slots:
     void updateModel();

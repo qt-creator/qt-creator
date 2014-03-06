@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2012 - 2014 BlackBerry Limited. All rights reserved.
+** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
 **
 ** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
@@ -29,45 +29,48 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEPLOYCONFIGURATION_H
-#define QNX_INTERNAL_BLACKBERRYDEPLOYCONFIGURATION_H
+#ifndef QNX_INTERNAL_BARDESCRIPTORFILENODEMANAGER_H
+#define QNX_INTERNAL_BARDESCRIPTORFILENODEMANAGER_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <QObject>
 
-#include "blackberrydeviceconfiguration.h"
+namespace ProjectExplorer {
+class DeployConfiguration;
+class Project;
+class ProjectNode;
+class Target;
+}
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDeployInformation;
+class BarDescriptorFileNode;
 
-class BlackBerryDeployConfiguration : public ProjectExplorer::DeployConfiguration
+class BarDescriptorFileNodeManager : public QObject
 {
     Q_OBJECT
-    friend class BlackBerryDeployConfigurationFactory;
-
 public:
-    explicit BlackBerryDeployConfiguration(ProjectExplorer::Target *parent);
-    virtual ~BlackBerryDeployConfiguration();
+    explicit BarDescriptorFileNodeManager(QObject *parent = 0);
 
-    ProjectExplorer::NamedWidget *createConfigWidget();
-
-    BlackBerryDeployInformation *deploymentInfo() const;
-
-    QVariantMap toMap() const;
-
-protected:
-    BlackBerryDeployConfiguration(ProjectExplorer::Target *parent, BlackBerryDeployConfiguration *source);
-
-    bool fromMap(const QVariantMap &map);
+private slots:
+    void setCurrentProject(ProjectExplorer::Project *project);
+    void updateBarDescriptorNodes(ProjectExplorer::Target *target);
+    void handleDeploymentInfoChanged();
 
 private:
-    void ctor();
+    BarDescriptorFileNode *findBarDescriptorFileNode(ProjectExplorer::ProjectNode *parent) const;
+    ProjectExplorer::ProjectNode *findProjectNode(ProjectExplorer::ProjectNode *parent,
+                                                  const QString &projectFilePath) const;
 
-    BlackBerryDeployInformation *m_deployInformation;
+    void updateBarDescriptorNodes(ProjectExplorer::Project *project, bool attemptCreate);
+    bool createBarDescriptor(ProjectExplorer::Project *project, const QString &barDescriptorPath,
+                             ProjectExplorer::ProjectNode *projectNode);
+
+    void removeBarDescriptorNodes(ProjectExplorer::Project *project);
+    void removeBarDescriptorNodes(ProjectExplorer::ProjectNode *parent);
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYDEPLOYCONFIGURATION_H
+#endif // QNX_INTERNAL_BARDESCRIPTORFILENODEMANAGER_H

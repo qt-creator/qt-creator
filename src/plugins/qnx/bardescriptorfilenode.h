@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2012 - 2014 BlackBerry Limited. All rights reserved.
+** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
 **
 ** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
@@ -29,45 +29,24 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEPLOYCONFIGURATION_H
-#define QNX_INTERNAL_BLACKBERRYDEPLOYCONFIGURATION_H
+#ifndef QNX_INTERNAL_BARDESCRIPTORFILENODE_H
+#define QNX_INTERNAL_BARDESCRIPTORFILENODE_H
 
-#include <projectexplorer/deployconfiguration.h>
-
-#include "blackberrydeviceconfiguration.h"
+#include <projectexplorer/projectnodes.h>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDeployInformation;
-
-class BlackBerryDeployConfiguration : public ProjectExplorer::DeployConfiguration
+class BarDescriptorFileNode : public ProjectExplorer::FileNode
 {
     Q_OBJECT
-    friend class BlackBerryDeployConfigurationFactory;
-
 public:
-    explicit BlackBerryDeployConfiguration(ProjectExplorer::Target *parent);
-    virtual ~BlackBerryDeployConfiguration();
+    explicit BarDescriptorFileNode(const QString &filePath);
 
-    ProjectExplorer::NamedWidget *createConfigWidget();
-
-    BlackBerryDeployInformation *deploymentInfo() const;
-
-    QVariantMap toMap() const;
-
-protected:
-    BlackBerryDeployConfiguration(ProjectExplorer::Target *parent, BlackBerryDeployConfiguration *source);
-
-    bool fromMap(const QVariantMap &map);
-
-private:
-    void ctor();
-
-    BlackBerryDeployInformation *m_deployInformation;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYDEPLOYCONFIGURATION_H
+#endif // QNX_INTERNAL_BARDESCRIPTORFILENODE_H

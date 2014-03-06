@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2012 - 2014 BlackBerry Limited. All rights reserved.
+** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
 **
 ** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
@@ -29,45 +29,20 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEPLOYCONFIGURATION_H
-#define QNX_INTERNAL_BLACKBERRYDEPLOYCONFIGURATION_H
+#include "bardescriptorfilenode.h"
 
-#include <projectexplorer/deployconfiguration.h>
+using namespace Qnx;
+using namespace Qnx::Internal;
 
-#include "blackberrydeviceconfiguration.h"
-
-namespace Qnx {
-namespace Internal {
-
-class BlackBerryDeployInformation;
-
-class BlackBerryDeployConfiguration : public ProjectExplorer::DeployConfiguration
+BarDescriptorFileNode::BarDescriptorFileNode(const QString &filePath)
+    : ProjectExplorer::FileNode(filePath, ProjectExplorer::ProjectFileType, false)
 {
-    Q_OBJECT
-    friend class BlackBerryDeployConfigurationFactory;
+}
 
-public:
-    explicit BlackBerryDeployConfiguration(ProjectExplorer::Target *parent);
-    virtual ~BlackBerryDeployConfiguration();
+QList<ProjectExplorer::ProjectAction> BarDescriptorFileNode::supportedActions(ProjectExplorer::Node *node) const
+{
+    Q_UNUSED(node)
 
-    ProjectExplorer::NamedWidget *createConfigWidget();
-
-    BlackBerryDeployInformation *deploymentInfo() const;
-
-    QVariantMap toMap() const;
-
-protected:
-    BlackBerryDeployConfiguration(ProjectExplorer::Target *parent, BlackBerryDeployConfiguration *source);
-
-    bool fromMap(const QVariantMap &map);
-
-private:
-    void ctor();
-
-    BlackBerryDeployInformation *m_deployInformation;
-};
-
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_BLACKBERRYDEPLOYCONFIGURATION_H
+    // To disable "Remove File..." and "Rename..." context menu actions
+    return QList<ProjectExplorer::ProjectAction>();
+}

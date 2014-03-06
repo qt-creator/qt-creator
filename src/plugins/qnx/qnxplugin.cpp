@@ -59,6 +59,7 @@
 #include "qnxtoolchain.h"
 #include "qnxattachdebugsupport.h"
 #include "blackberrypotentialkit.h"
+#include "bardescriptorfilenodemanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -106,6 +107,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new BlackBerryCheckDeviceStatusStepFactory);
     addAutoReleasedObject(new CascadesImportWizard);
     addAutoReleasedObject(new BlackBerryPotentialKit);
+    addAutoReleasedObject(new BarDescriptorFileNodeManager);
     BlackBerryDeviceConnectionManager::instance()->initialize();
 
     // Handles QNX

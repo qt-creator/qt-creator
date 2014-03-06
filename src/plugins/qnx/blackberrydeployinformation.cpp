@@ -183,6 +183,11 @@ QList<BarPackageDeployInformation> BlackBerryDeployInformation::enabledPackages(
     return result;
 }
 
+QList<BarPackageDeployInformation> BlackBerryDeployInformation::allPackages() const
+{
+    return m_deployInformation;
+}
+
 QVariantMap BlackBerryDeployInformation::toMap() const
 {
     QVariantMap outerMap;
@@ -230,6 +235,11 @@ void BlackBerryDeployInformation::fromMap(const QVariantMap &map)
     }
 
     endResetModel();
+}
+
+ProjectExplorer::Target *BlackBerryDeployInformation::target() const
+{
+    return m_target;
 }
 
 void BlackBerryDeployInformation::updateModel()
