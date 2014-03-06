@@ -58,7 +58,7 @@
         <item row="0" column="1">
          <widget class="QCheckBox" name="designerWarningsCheckBox">
           <property name="toolTip">
-           <string>Warns about QML features which are not properly supported by the Qt Quick Designer</string>
+           <string>Warns about QML features which are not properly supported by the Qt Quick Designer.</string>
           </property>
           <property name="text">
            <string>Warn about unsupported features in the Qt Quick Designer</string>
@@ -68,7 +68,7 @@
         <item row="1" column="1">
          <widget class="QCheckBox" name="designerWarningsInEditorCheckBox">
           <property name="toolTip">
-           <string>Also warns in the code editor about QML features which are not properly supported by the Qt Quick Designer</string>
+           <string>Also warns in the code editor about QML features which are not properly supported by the Qt Quick Designer.</string>
           </property>
           <property name="text">
            <string>Warn about unsupported features of Qt Quick Designer in the code editor</string>
