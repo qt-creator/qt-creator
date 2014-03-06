@@ -401,6 +401,10 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshLocals(item);
         else if (name == "stack")
             refreshStack(item);
+        else if (name == "stack-position")
+            refreshStackPosition(item);
+        else if (name == "stack-top")
+            refreshStackTop(item);
         else if (name == "registers")
             refreshRegisters(item);
         else if (name == "threads")
@@ -1083,8 +1087,6 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
 
 void LldbEngine::refreshStack(const GdbMi &stack)
 {
-    //if (!partial)
-    //    emit stackFrameCompleted();
     StackHandler *handler = stackHandler();
     StackFrames frames;
     foreach (const GdbMi &item, stack["frames"].children()) {
@@ -1101,9 +1103,25 @@ void LldbEngine::refreshStack(const GdbMi &stack)
     bool canExpand = stack["hasmore"].toInt();
     debuggerCore()->action(ExpandStack)->setEnabled(canExpand);
     handler->setFrames(frames, canExpand);
+}
 
-    int index = stack["current-frame"].toInt();
+void LldbEngine::refreshStackPosition(const GdbMi &position)
+{
+    setStackPosition(position["id"].toInt());
+}
+
+void LldbEngine::refreshStackTop(const GdbMi &)
+{
+    setStackPosition(stackHandler()->firstUsableIndex());
+}
+
+void LldbEngine::setStackPosition(int index)
+{
+    StackHandler *handler = stackHandler();
+    handler->setFrames(handler->frames());
     handler->setCurrentIndex(index);
+    if (index >= 0 && index < handler->stackSize())
+        gotoLocation(handler->frameAt(index));
 }
 
 void LldbEngine::refreshRegisters(const GdbMi &registers)
@@ -1221,7 +1239,13 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
         id = ++m_lastAgentId;
         m_disassemblerAgents.insert(p, id);
     }
-    runCommand(Command("disassemble").arg("cookie", id));
+    const Location &loc = agent->location();
+    Command cmd("disassemble");
+    cmd.arg("cookie", id);
+    cmd.arg("address", loc.address());
+    cmd.arg("function", loc.functionName());
+    cmd.arg("flavor", debuggerCore()->boolSetting(IntelFlavor) ? "intel" : "att");
+    runCommand(cmd);
 }
 
 
@@ -1234,10 +1258,11 @@ void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
         m_memoryAgents.insert(agent, id);
     }
     m_memoryAgentTokens.insert(id, editorToken);
-    runCommand(Command("fetchMemory")
-               .arg("address", addr)
-               .arg("length", length)
-               .arg("cookie", id));
+    Command cmd("fetchMemory");
+    cmd.arg("address", addr);
+    cmd.arg("length", length);
+    cmd.arg("cookie", id);
+    runCommand(cmd);
 }
 
 void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
@@ -1249,10 +1274,11 @@ void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
         m_memoryAgents.insert(agent, id);
         m_memoryAgentTokens.insert(id, editorToken);
     }
-    runCommand(Command("writeMemory")
-               .arg("address", addr)
-               .arg("data", data.toHex())
-               .arg("cookie", id));
+    Command cmd("writeMemory");
+    cmd.arg("address", addr);
+    cmd.arg("data", data.toHex());
+    cmd.arg("cookie", id);
+    runCommand(cmd);
 }
 
 void LldbEngine::setRegisterValue(int regnr, const QString &value)

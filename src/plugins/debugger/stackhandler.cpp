@@ -219,6 +219,16 @@ void StackHandler::prependFrames(const StackFrames &frames)
     emit stackChanged();
 }
 
+int StackHandler::firstUsableIndex() const
+{
+    if (!debuggerCore()->boolSetting(OperateByInstruction)) {
+        for (int i = 0, n = m_stackFrames.size(); i != n; ++i)
+            if (m_stackFrames.at(i).isUsable())
+                return i;
+    }
+    return 0;
+}
+
 const StackFrames &StackHandler::frames() const
 {
     return m_stackFrames;

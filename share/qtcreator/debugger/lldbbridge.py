@@ -831,16 +831,10 @@ class Dumper(DumperBase):
         if not thread:
             self.report('msg="No thread"')
             return
-        frame = thread.GetSelectedFrame()
-        if frame:
-            frameId = frame.GetFrameID()
-        else:
-            frameId = 0;
 
         (n, isLimited) = (limit, True) if limit > 0 else (thread.GetNumFrames(), False)
 
-        result = 'stack={current-frame="%s"' % frameId
-        result += ',current-thread="%s"' % thread.GetThreadID()
+        result = 'stack={current-thread="%s"' % thread.GetThreadID()
         result += ',frames=['
         for i in xrange(n):
             frame = thread.GetFrameAtIndex(i)
@@ -849,20 +843,32 @@ class Dumper(DumperBase):
                 break
             lineEntry = frame.GetLineEntry()
             line = lineEntry.GetLine()
-            usable = line != 0
             result += '{pc="0x%x"' % frame.GetPC()
             result += ',level="%d"' % frame.idx
             result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
             result += ',func="%s"' % frame.GetFunctionName()
             result += ',line="%d"' % line
             result += ',fullname="%s"' % fileName(lineEntry.file)
-            result += ',usable="%d"' % usable
             result += ',file="%s"},' % fileName(lineEntry.file)
         result += ']'
         result += ',hasmore="%d"' % isLimited
         result += ',limit="%d"' % limit
         result += '}'
         self.report(result)
+
+    def reportStackPosition(self):
+        thread = self.currentThread()
+        if not thread:
+            self.report('msg="No thread"')
+            return
+        frame = thread.GetSelectedFrame()
+        if frame:
+            self.report('stack-position={id="%s"}' % frame.GetFrameID())
+        else:
+            self.report('stack-position={id="-1"}')
+
+    def reportStackTop(self):
+        self.report('stack-top={}')
 
     def putBetterType(self, type):
         try:
@@ -1196,8 +1202,8 @@ class Dumper(DumperBase):
             state = self.process.GetState()
             if state == lldb.eStateStopped:
                 self.reportStack()
+                self.reportStackPosition()
                 self.reportThreads()
-                self.reportLocation()
                 self.reportVariables()
 
     def reportRegisters(self, _ = None):
@@ -1284,10 +1290,8 @@ class Dumper(DumperBase):
                 stoppedThread = self.firstStoppedThread()
                 if stoppedThread:
                     self.process.SetSelectedThread(stoppedThread)
-                    usableFrame = self.firstUsableFrame(stoppedThread)
-                    if usableFrame:
-                        stoppedThread.SetSelectedFrame(usableFrame)
                 self.reportStack({'stacklimit': 20})
+                self.reportStackTop()
                 self.reportThreads()
                 self.reportLocation()
                 self.reportVariables()
@@ -1564,9 +1568,7 @@ class Dumper(DumperBase):
         self.currentThread().SetSelectedFrame(args['index'])
         state = self.process.GetState()
         if state == lldb.eStateStopped:
-            self.reportStack(args)
-            self.reportThreads()
-            self.reportLocation()
+            self.reportStackPosition()
             self.reportVariables()
 
     def selectThread(self, args):
@@ -1601,19 +1603,30 @@ class Dumper(DumperBase):
         self.reportVariables(args)
 
     def disassemble(self, args):
-        frame = self.currentFrame();
-        function = frame.GetFunction()
-        name = function.GetName()
+        functionName = args.get('function', '')
+        flavor = args.get('flavor', '')
+        function = None
+        if len(functionName):
+            functions = self.target.FindFunctions(functionName).functions
+            if len(functions):
+                function = functions[0]
+        if function:
+            base = function.GetStartAddress().GetLoadAddress(self.target)
+            instructions = function.GetInstructions(self.target)
+        else:
+            base = args.get('address', 0)
+            addr = lldb.SBAddress(base, self.target)
+            instructions = self.target.ReadInstructions(addr, 100)
+
         result = 'disassembly={cookie="%s",' % args['cookie']
         result += ',lines=['
-        base = function.GetStartAddress().GetLoadAddress(self.target)
-        for insn in function.GetInstructions(self.target):
+        for insn in instructions:
             comment = insn.GetComment(self.target)
             addr = insn.GetAddress().GetLoadAddress(self.target)
             result += '{address="%s"' % addr
             result += ',inst="%s %s"' % (insn.GetMnemonic(self.target),
                 insn.GetOperands(self.target))
-            result += ',func_name="%s"' % name
+            result += ',func_name="%s"' % functionName
             if comment:
                 result += ',comment="%s"' % comment
             result += ',offset="%s"},' % (addr - base)
