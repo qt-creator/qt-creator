@@ -114,7 +114,7 @@ const char SHARED_SETTINGS[] = "SharedSettings";
 
 // Version 0 is used in Qt Creator 1.3.x and
 // (in a slighly different flavour) post 1.3 master.
-class Version0Handler : public VersionUpgrader
+class UserFileVersion0Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 0; }
@@ -130,7 +130,7 @@ private:
 // Version 1 is used in master post Qt Creator 1.3.x.
 // It was never used in any official release but is required for the
 // transition to later versions (which introduce support for targets).
-class Version1Handler : public VersionUpgrader
+class UserFileVersion1Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 1; }
@@ -160,7 +160,7 @@ private:
 };
 
 // Version 2 is used in master post Qt Creator 2.0 alpha.
-class Version2Handler : public VersionUpgrader
+class UserFileVersion2Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 2; }
@@ -169,7 +169,7 @@ public:
 };
 
 // Version 3 reflect the move of symbian signing from run to build step.
-class Version3Handler : public VersionUpgrader
+class UserFileVersion3Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 3; }
@@ -178,7 +178,7 @@ public:
 };
 
 // Version 4 reflects the introduction of deploy steps
-class Version4Handler : public VersionUpgrader
+class UserFileVersion4Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 4; }
@@ -187,7 +187,7 @@ public:
 };
 
 // Version 5 reflects the introduction of new deploy steps for Symbian/Maemo
-class Version5Handler : public VersionUpgrader
+class UserFileVersion5Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 5; }
@@ -196,7 +196,7 @@ public:
 };
 
 // Version 6 reflects the introduction of new deploy steps for Symbian/Maemo
-class Version6Handler : public VersionUpgrader
+class UserFileVersion6Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 6; }
@@ -205,7 +205,7 @@ public:
 };
 
 // Version 7 reflects the introduction of new deploy configuration for Symbian
-class Version7Handler : public VersionUpgrader
+class UserFileVersion7Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 7; }
@@ -216,7 +216,7 @@ public:
 // Version 8 reflects the change of environment variable expansion rules,
 // turning some env variables into expandos, the change of argument quoting rules,
 // and the change of VariableManager's expansion syntax.
-class Version8Handler : public VersionUpgrader
+class UserFileVersion8Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 8; }
@@ -228,7 +228,7 @@ public:
 };
 
 // Version 9 reflects the refactoring of the Maemo deploy step.
-class Version9Handler : public VersionUpgrader
+class UserFileVersion9Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 9; }
@@ -237,7 +237,7 @@ public:
 };
 
 // Version 10 introduces disabling buildsteps, and handles upgrading custom process steps
-class Version10Handler : public VersionUpgrader
+class UserFileVersion10Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 10; }
@@ -246,11 +246,10 @@ public:
 };
 
 // Version 11 introduces kits
-class Version11Handler : public VersionUpgrader
+class UserFileVersion11Upgrader : public VersionUpgrader
 {
 public:
-    Version11Handler();
-    ~Version11Handler();
+    ~UserFileVersion11Upgrader();
 
     int version() const { return 11; }
     QString backupExtension() const { return QLatin1String("2.6pre1"); }
@@ -284,7 +283,7 @@ private:
 
 // Version 12 reflects the move of environment settings from CMake/Qt4/Custom into
 // LocalApplicationRunConfiguration
-class Version12Handler : public VersionUpgrader
+class UserFileVersion12Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 12; }
@@ -294,7 +293,7 @@ public:
 
 // Version 13 reflects the move of environment settings from LocalApplicationRunConfiguration
 // into the EnvironmentAspect
-class Version13Handler : public VersionUpgrader
+class UserFileVersion13Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 13; }
@@ -303,7 +302,7 @@ public:
 };
 
 // Version 14 Move builddir into BuildConfiguration
-class Version14Handler : public VersionUpgrader
+class UserFileVersion14Upgrader : public VersionUpgrader
 {
 public:
     int version() const { return 14; }
@@ -389,21 +388,21 @@ SettingsAccessor::SettingsAccessor(Project *project) :
 {
     QTC_CHECK(m_project);
 
-    addVersionUpgrader(new Version0Handler);
-    addVersionUpgrader(new Version1Handler);
-    addVersionUpgrader(new Version2Handler);
-    addVersionUpgrader(new Version3Handler);
-    addVersionUpgrader(new Version4Handler);
-    addVersionUpgrader(new Version5Handler);
-    addVersionUpgrader(new Version6Handler);
-    addVersionUpgrader(new Version7Handler);
-    addVersionUpgrader(new Version8Handler);
-    addVersionUpgrader(new Version9Handler);
-    addVersionUpgrader(new Version10Handler);
-    addVersionUpgrader(new Version11Handler);
-    addVersionUpgrader(new Version12Handler);
-    addVersionUpgrader(new Version13Handler);
-    addVersionUpgrader(new Version14Handler);
+    addVersionUpgrader(new UserFileVersion0Upgrader);
+    addVersionUpgrader(new UserFileVersion1Upgrader);
+    addVersionUpgrader(new UserFileVersion2Upgrader);
+    addVersionUpgrader(new UserFileVersion3Upgrader);
+    addVersionUpgrader(new UserFileVersion4Upgrader);
+    addVersionUpgrader(new UserFileVersion5Upgrader);
+    addVersionUpgrader(new UserFileVersion6Upgrader);
+    addVersionUpgrader(new UserFileVersion7Upgrader);
+    addVersionUpgrader(new UserFileVersion8Upgrader);
+    addVersionUpgrader(new UserFileVersion9Upgrader);
+    addVersionUpgrader(new UserFileVersion10Upgrader);
+    addVersionUpgrader(new UserFileVersion11Upgrader);
+    addVersionUpgrader(new UserFileVersion12Upgrader);
+    addVersionUpgrader(new UserFileVersion13Upgrader);
+    addVersionUpgrader(new UserFileVersion14Upgrader);
 }
 
 SettingsAccessor::~SettingsAccessor()
@@ -933,10 +932,10 @@ bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings) con
 }
 
 // -------------------------------------------------------------------------
-// Version0Handler
+// UserFileVersion0Upgrader:
 // -------------------------------------------------------------------------
 
-QVariantMap Version0Handler::convertBuildConfigurations(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion0Upgrader::convertBuildConfigurations(Project *project, const QVariantMap &map)
 {
     Q_ASSERT(project);
     QVariantMap result;
@@ -1020,7 +1019,7 @@ QVariantMap Version0Handler::convertBuildConfigurations(Project *project, const 
     return result;
 }
 
-QVariantMap Version0Handler::convertRunConfigurations(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion0Upgrader::convertRunConfigurations(Project *project, const QVariantMap &map)
 {
     Q_UNUSED(project);
     QVariantMap result;
@@ -1151,7 +1150,7 @@ QVariantMap Version0Handler::convertRunConfigurations(Project *project, const QV
     return result;
 }
 
-QVariantMap Version0Handler::convertBuildSteps(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion0Upgrader::convertBuildSteps(Project *project, const QVariantMap &map)
 {
     Q_UNUSED(project);
     QVariantMap result;
@@ -1231,7 +1230,7 @@ QVariantMap Version0Handler::convertBuildSteps(Project *project, const QVariantM
     return result;
 }
 
-QVariantMap Version0Handler::upgrade(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion0Upgrader::upgrade(Project *project, const QVariantMap &map)
 {
     QVariantMap result;
 
@@ -1377,10 +1376,10 @@ QVariantMap Version0Handler::upgrade(Project *project, const QVariantMap &map)
 }
 
 // -------------------------------------------------------------------------
-// Version1Handler
+// UserFileVersion1Upgrader:
 // -------------------------------------------------------------------------
 
-QVariantMap Version1Handler::upgrade(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion1Upgrader::upgrade(Project *project, const QVariantMap &map)
 {
     QVariantMap result;
 
@@ -1479,10 +1478,10 @@ QVariantMap Version1Handler::upgrade(Project *project, const QVariantMap &map)
 }
 
 // -------------------------------------------------------------------------
-// Version2Handler
+// UserFileVersion2Upgrader:
 // -------------------------------------------------------------------------
 
-QVariantMap Version2Handler::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion2Upgrader::upgrade(Project *, const QVariantMap &map)
 {
     QList<Change> changes;
     changes.append(qMakePair(QLatin1String("CMakeProjectManager.CMakeBuildConfiguration.UserEnvironmentChanges"),
@@ -1498,7 +1497,7 @@ QVariantMap Version2Handler::upgrade(Project *, const QVariantMap &map)
 }
 
 // -------------------------------------------------------------------------
-// Version3Handler
+// UserFileVersion3Upgrader:
 // -------------------------------------------------------------------------
 
 // insert the additional build step:
@@ -1525,7 +1524,7 @@ QVariantMap Version2Handler::upgrade(Project *, const QVariantMap &map)
 // <value key="Qt4ProjectManager.S60DeviceRunConfiguration.SigningMode" type="int">0</value>
 //</valuemap>
 
-QVariantMap Version3Handler::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion3Upgrader::upgrade(Project *, const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -1545,11 +1544,11 @@ QVariantMap Version3Handler::upgrade(Project *, const QVariantMap &map)
 
 
 // -------------------------------------------------------------------------
-// Version4Handler
+// UserFileVersion4Upgrader:
 // -------------------------------------------------------------------------
 
 // Move packaging steps from build steps into deploy steps
-QVariantMap Version4Handler::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion4Upgrader::upgrade(Project *, const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -1640,11 +1639,11 @@ QVariantMap Version4Handler::upgrade(Project *, const QVariantMap &map)
 }
 
 // -------------------------------------------------------------------------
-// Version5Handler
+// UserFileVersion5Upgrader:
 // -------------------------------------------------------------------------
 
 // Move packaging steps from build steps into deploy steps
-QVariantMap Version5Handler::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion5Upgrader::upgrade(Project *, const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -1700,11 +1699,11 @@ QVariantMap Version5Handler::upgrade(Project *, const QVariantMap &map)
 }
 
 // -------------------------------------------------------------------------
-// Version6Handler
+// UserFileVersion6Upgrader:
 // -------------------------------------------------------------------------
 
 // Introduce DeployConfiguration and BuildStepLists
-QVariantMap Version6Handler::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion6Upgrader::upgrade(Project *, const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -1804,11 +1803,11 @@ QVariantMap Version6Handler::upgrade(Project *, const QVariantMap &map)
 }
 
 // -------------------------------------------------------------------------
-// Version7Handler
+// UserFileVersion7Upgrader:
 // -------------------------------------------------------------------------
 
 // new implementation of DeployConfiguration
-QVariantMap Version7Handler::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion7Upgrader::upgrade(Project *, const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -1827,7 +1826,7 @@ QVariantMap Version7Handler::upgrade(Project *, const QVariantMap &map)
 }
 
 // -------------------------------------------------------------------------
-// Version8Handler
+// UserFileVersion8Upgrader:
 // -------------------------------------------------------------------------
 
 // Argument list reinterpretation
@@ -2126,7 +2125,7 @@ static QVariant version8VarNodeHandler(const QVariant &var)
     return vl;
 }
 
-QVariantMap Version8Handler::upgrade(Project *, const QVariantMap &map)
+QVariantMap UserFileVersion8Upgrader::upgrade(Project *, const QVariantMap &map)
 {
     const char * const *p1 = argListKeys;
     QVariantMap rmap1 = processHandlerNodes(buildHandlerNodes(&p1), map, version8ArgNodeHandler);
@@ -2138,7 +2137,11 @@ QVariantMap Version8Handler::upgrade(Project *, const QVariantMap &map)
     return processHandlerNodes(buildHandlerNodes(&p4), rmap3, version8VarNodeHandler);
 }
 
-QVariantMap Version9Handler::upgrade(Project *project, const QVariantMap &map)
+// --------------------------------------------------------------------
+// UserFileVersion9Upgrader:
+// --------------------------------------------------------------------
+
+QVariantMap UserFileVersion9Upgrader::upgrade(Project *project, const QVariantMap &map)
 {
     Q_UNUSED(project);
 
@@ -2187,7 +2190,11 @@ QVariantMap Version9Handler::upgrade(Project *project, const QVariantMap &map)
     return result;
 }
 
-QVariantMap Version10Handler::upgrade(Project *project, const QVariantMap &map)
+// --------------------------------------------------------------------
+// UserFileVersion10Upgrader:
+// --------------------------------------------------------------------
+
+QVariantMap UserFileVersion10Upgrader::upgrade(Project *project, const QVariantMap &map)
 {
     Q_UNUSED(project);
     QList<Change> changes;
@@ -2196,13 +2203,12 @@ QVariantMap Version10Handler::upgrade(Project *project, const QVariantMap &map)
     return renameKeys(changes, QVariantMap(map));
 }
 
-Version11Handler::Version11Handler()
-{ }
+// --------------------------------------------------------------------
+// UserFileVersion11Upgrader:
+// --------------------------------------------------------------------
 
-Version11Handler::~Version11Handler()
+UserFileVersion11Upgrader::~UserFileVersion11Upgrader()
 {
-    if (!KitManager::instance()) // Can happen during teardown!
-        return;
     QList<Kit *> knownKits = KitManager::kits();
     foreach (Kit *k, m_targets.keys()) {
         if (!knownKits.contains(k))
@@ -2216,7 +2222,7 @@ static inline int targetId(const QString &targetKey)
     return targetKey.mid(targetKey.lastIndexOf(QLatin1Char('.')) + 1).toInt();
 }
 
-QVariantMap Version11Handler::upgrade(Project *project, const QVariantMap &map)
+QVariantMap UserFileVersion11Upgrader::upgrade(Project *project, const QVariantMap &map)
 {
     // Read in old data to help with the transition:
     parseQtversionFile();
@@ -2445,7 +2451,7 @@ QVariantMap Version11Handler::upgrade(Project *project, const QVariantMap &map)
     return result;
 }
 
-Kit *Version11Handler::uniqueKit(Kit *k)
+Kit *UserFileVersion11Upgrader::uniqueKit(Kit *k)
 {
     const QString tc = k->value("PE.Profile.ToolChain").toString();
     const int qt = k->value("QtSupport.QtInformation").toInt();
@@ -2478,7 +2484,7 @@ Kit *Version11Handler::uniqueKit(Kit *k)
     return k->clone(true);
 }
 
-void Version11Handler::addBuildConfiguration(Kit *k, const QVariantMap &bc, int bcPos, int bcActive)
+void UserFileVersion11Upgrader::addBuildConfiguration(Kit *k, const QVariantMap &bc, int bcPos, int bcActive)
 {
     QVariantMap merged = m_targets.value(k);
     int internalCount = merged.value(QLatin1String("ProjectExplorer.Target.BuildConfigurationCount"), 0).toInt();
@@ -2499,7 +2505,7 @@ void Version11Handler::addBuildConfiguration(Kit *k, const QVariantMap &bc, int 
     m_targets.insert(k, merged);
 }
 
-void Version11Handler::addDeployConfiguration(Kit *k, const QVariantMap &dc, int dcPos, int dcActive)
+void UserFileVersion11Upgrader::addDeployConfiguration(Kit *k, const QVariantMap &dc, int dcPos, int dcActive)
 {
     QVariantMap merged = m_targets.value(k);
     int internalCount = merged.value(QLatin1String("ProjectExplorer.Target.DeployConfigurationCount"), 0).toInt();
@@ -2520,7 +2526,7 @@ void Version11Handler::addDeployConfiguration(Kit *k, const QVariantMap &dc, int
     m_targets.insert(k, merged);
 }
 
-void Version11Handler::addRunConfigurations(Kit *k,
+void UserFileVersion11Upgrader::addRunConfigurations(Kit *k,
                                             const QMap<int, QVariantMap> &rcs, int activeRc,
                                             const QString &projectDir)
 {
@@ -2561,7 +2567,7 @@ static QString maddeRoot(const QString &qmakePath)
     return dir.absolutePath();
 }
 
-void Version11Handler::parseQtversionFile()
+void UserFileVersion11Upgrader::parseQtversionFile()
 {
     QFileInfo settingsLocation(Core::ICore::settings()->fileName());
     FileName fileName = FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml"));
@@ -2604,7 +2610,7 @@ void Version11Handler::parseQtversionFile()
     }
 }
 
-void Version11Handler::parseToolChainFile()
+void UserFileVersion11Upgrader::parseToolChainFile()
 {
     QFileInfo settingsLocation(Core::ICore::settings()->fileName());
     FileName fileName = FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml"));
@@ -2631,7 +2637,11 @@ void Version11Handler::parseToolChainFile()
     }
 }
 
-QVariantMap Version12Handler::upgrade(Project *project, const QVariantMap &map)
+// --------------------------------------------------------------------
+// UserFileVersion12Upgrader:
+// --------------------------------------------------------------------
+
+QVariantMap UserFileVersion12Upgrader::upgrade(Project *project, const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -2655,7 +2665,11 @@ QVariantMap Version12Handler::upgrade(Project *project, const QVariantMap &map)
     return result;
 }
 
-QVariantMap Version13Handler::upgrade(Project *project, const QVariantMap &map)
+// --------------------------------------------------------------------
+// UserFileVersion13Upgrader:
+// --------------------------------------------------------------------
+
+QVariantMap UserFileVersion13Upgrader::upgrade(Project *project, const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
@@ -2673,7 +2687,11 @@ QVariantMap Version13Handler::upgrade(Project *project, const QVariantMap &map)
     return result;
 }
 
-QVariantMap Version14Handler::upgrade(Project *project, const QVariantMap &map)
+// --------------------------------------------------------------------
+// UserFileVersion14Upgrader:
+// --------------------------------------------------------------------
+
+QVariantMap UserFileVersion14Upgrader::upgrade(Project *project, const QVariantMap &map)
 {
     QVariantMap result;
     QMapIterator<QString, QVariant> it(map);
