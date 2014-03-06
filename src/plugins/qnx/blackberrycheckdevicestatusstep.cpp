@@ -121,7 +121,9 @@ void BlackBerryCheckDeviceStatusStep::checkDeviceInfo(int status)
     }
 
     if (m_debugTokenCheckEnabled && !m_deviceInfo->debugTokenValid()) {
-        raiseError(m_deviceInfo->debugTokenValidationError());
+        QString errorMsg = m_deviceInfo->debugTokenValidationError()
+                + tr(". Upload a valid debug token into the device.");
+        raiseError(errorMsg);
         m_eventLoop->exit(false);
         return;
     }
