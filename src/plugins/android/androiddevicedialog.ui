@@ -6,36 +6,29 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>618</width>
-    <height>400</height>
+    <width>636</width>
+    <height>438</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Select Android Device</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QPushButton" name="refreshDevicesButton">
-     <property name="text">
-      <string>Refresh Device List</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="createAVDButton">
-     <property name="text">
-      <string>Create Android Virtual Device</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
+   <item row="3" column="0" colspan="2">
     <widget class="QCheckBox" name="defaultDeviceCheckBox">
      <property name="text">
       <string>Always use this device for architecture %1</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="2">
+   <item row="2" column="1">
+    <widget class="QPushButton" name="createAVDButton">
+     <property name="text">
+      <string>Create Android Virtual Device</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -45,14 +38,62 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0" colspan="3">
-    <widget class="QTreeView" name="deviceView">
-     <property name="minimumSize">
-      <size>
-       <width>600</width>
-       <height>300</height>
-      </size>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="refreshDevicesButton">
+     <property name="text">
+      <string>Refresh Device List</string>
      </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="devicesPage">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="1" column="0">
+        <widget class="QTreeView" name="deviceView">
+         <property name="minimumSize">
+          <size>
+           <width>600</width>
+           <height>300</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="missingLabel">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;aaa&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;My device is missing&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="noDevicesPage">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="noDeviceFoundLabel">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
