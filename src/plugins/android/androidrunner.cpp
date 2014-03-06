@@ -163,7 +163,7 @@ void AndroidRunner::checkPID()
             emit remoteProcessFinished(QLatin1String("\n\n") + tr("\"%1\" died.").arg(m_packageName));
         } else {
             if (++m_tries > 3)
-                emit remoteProcessFinished(QLatin1String("\n\n") + tr("Unable to start \"%1\"").arg(m_packageName));
+                emit remoteProcessFinished(QLatin1String("\n\n") + tr("Unable to start \"%1\".").arg(m_packageName));
         }
     } else if (!m_wasStarted){
         if (m_useCppDebugger) {
