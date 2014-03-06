@@ -70,6 +70,9 @@ public:
     QmlProfilerEventsModelProxy(QmlProfilerModelManager *modelManager, QObject *parent = 0);
     ~QmlProfilerEventsModelProxy();
 
+    void setEventTypeAccepted(QmlDebug::QmlEventType type, bool accepted);
+    bool eventTypeAccepted(QmlDebug::QmlEventType) const;
+
     const QList<QmlEventStats> getData() const;
     int count() const;
     void clear();
@@ -133,7 +136,6 @@ protected:
     QHash <QString, QmlEventRelativesMap> m_data;
     QmlProfilerModelManager *m_modelManager;
     QmlProfilerEventsModelProxy *m_eventsModel;
-    QVector <int> m_acceptedTypes;
 };
 
 class QmlProfilerEventParentsModelProxy : public QmlProfilerEventRelativesModelProxy
@@ -147,8 +149,6 @@ public:
 
 protected:
     virtual void loadData();
-signals:
-    void dataAvailable();
 };
 
 class QmlProfilerEventChildrenModelProxy : public QmlProfilerEventRelativesModelProxy
@@ -162,8 +162,6 @@ public:
 
 protected:
     virtual void loadData();
-signals:
-    void dataAvailable();
 };
 
 }

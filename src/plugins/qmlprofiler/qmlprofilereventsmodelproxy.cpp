@@ -58,7 +58,7 @@ public:
 
     int modelId;
 
-    QVector<int> acceptedTypes;
+    QList<QmlDebug::QmlEventType> acceptedTypes;
     QSet<QString> eventsInBindingLoop;
 };
 
@@ -78,6 +78,19 @@ QmlProfilerEventsModelProxy::QmlProfilerEventsModelProxy(QmlProfilerModelManager
 QmlProfilerEventsModelProxy::~QmlProfilerEventsModelProxy()
 {
     delete d;
+}
+
+void QmlProfilerEventsModelProxy::setEventTypeAccepted(QmlDebug::QmlEventType type, bool accepted)
+{
+    if (accepted && !d->acceptedTypes.contains(type))
+        d->acceptedTypes << type;
+    else if (!accepted && d->acceptedTypes.contains(type))
+        d->acceptedTypes.removeOne(type);
+}
+
+bool QmlProfilerEventsModelProxy::eventTypeAccepted(QmlDebug::QmlEventType type) const
+{
+    return d->acceptedTypes.contains(type);
 }
 
 const QList<QmlProfilerEventsModelProxy::QmlEventStats> QmlProfilerEventsModelProxy::getData() const
@@ -131,7 +144,7 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
     for (int i = 0; i < eventList.size(); ++i) {
         const QmlProfilerDataModel::QmlEventData *event = &eventList[i];
 
-        if (!d->acceptedTypes.contains(event->eventType))
+        if (!d->acceptedTypes.contains((QmlDebug::QmlEventType)event->eventType))
             continue;
 
         if (checkRanges) {
@@ -275,12 +288,13 @@ QmlProfilerEventRelativesModelProxy::QmlProfilerEventRelativesModelProxy(QmlProf
 {
     QTC_CHECK(modelManager);
     m_modelManager = modelManager;
-    connect(modelManager->qmlModel(), SIGNAL(changed()), this, SLOT(dataChanged()));
 
     QTC_CHECK(eventsModel);
     m_eventsModel = eventsModel;
 
-    m_acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding << QmlDebug::HandlingSignal << QmlDebug::Javascript;
+    // Load the child models whenever the parent model is done to get the filtering for JS/QML
+    // right.
+    connect(m_eventsModel, SIGNAL(dataAvailable()), this, SLOT(dataChanged()));
 }
 
 QmlProfilerEventRelativesModelProxy::~QmlProfilerEventRelativesModelProxy()
@@ -356,7 +370,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
     const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
-        if (!m_acceptedTypes.contains(event.eventType))
+        if (!m_eventsModel->eventTypeAccepted((QmlDebug::QmlEventType)event.eventType))
             continue;
 
         // level computation
@@ -436,7 +450,7 @@ void QmlProfilerEventChildrenModelProxy::loadData()
     const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
-        if (!m_acceptedTypes.contains(event.eventType))
+        if (!m_eventsModel->eventTypeAccepted((QmlDebug::QmlEventType)event.eventType))
             continue;
 
         // level computation

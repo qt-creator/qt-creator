@@ -428,7 +428,7 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     if (!d->m_viewContainer->hasValidSelection())
         getLocalStatsAction->setEnabled(false);
 
-    QAction *getGlobalStatsAction = menu.addAction(tr("Reset Events Pane"));
+    QAction *getGlobalStatsAction = menu.addAction(tr("Show Full Range in Events Pane"));
     if (d->m_viewContainer->hasGlobalStats())
         getGlobalStatsAction->setEnabled(false);
 
