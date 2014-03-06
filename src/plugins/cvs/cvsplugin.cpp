@@ -1182,7 +1182,6 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
         e->setSource(source);
     if (codec)
         e->setCodec(codec);
-    EditorManager::activateEditor(editor);
     return editor;
 }
 

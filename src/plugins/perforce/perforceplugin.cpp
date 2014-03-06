@@ -1194,7 +1194,6 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
     e->baseTextDocument()->setSuggestedFileName(s);
     if (codec)
         e->setCodec(codec);
-    Core::EditorManager::activateEditor(editor);
     return editor;
 }
 

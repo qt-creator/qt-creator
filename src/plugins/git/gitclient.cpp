@@ -1140,7 +1140,6 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
     }
 
     rc->setForceReadOnly(true);
-    Core::EditorManager::activateEditor(outputEditor);
 
     if (configWidget)
         rc->setConfigurationWidget(configWidget);

@@ -1530,7 +1530,6 @@ IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString
         e->setSource(source);
     if (codec)
         e->setCodec(codec);
-    EditorManager::activateEditor(editor);
     return editor;
 }
 

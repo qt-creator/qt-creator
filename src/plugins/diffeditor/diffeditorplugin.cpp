@@ -107,8 +107,6 @@ void DiffEditorPlugin::diff()
     if (!editor)
         return;
 
-    Core::EditorManager::activateEditor(editor);
-
     const QString text1 = getFileContents(fileName1);
     const QString text2 = getFileContents(fileName2);
 

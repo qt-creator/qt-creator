@@ -113,8 +113,9 @@ public:
     static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
                                  const Id &editorId = Id(), OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = 0);
-    static IEditor *openEditorWithContents(const Id &editorId,
-        QString *titlePattern = 0, const QByteArray &contents = QByteArray());
+    static IEditor *openEditorWithContents(const Id &editorId, QString *titlePattern = 0,
+                                           const QByteArray &contents = QByteArray(),
+                                           OpenEditorFlags flags = NoFlags);
 
     static bool openExternalEditor(const QString &fileName, const Id &editorId);
 

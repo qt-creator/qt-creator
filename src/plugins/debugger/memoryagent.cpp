@@ -188,7 +188,6 @@ bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
     MemoryView::setBinEditorRange(editorBinEditor, addr, MemoryAgent::DataRange, MemoryAgent::BinBlockSize);
     MemoryView::setBinEditorMarkup(editorBinEditor, ml);
     m_editors << editor;
-    EditorManager::activateEditor(editor);
     return true;
 }
 

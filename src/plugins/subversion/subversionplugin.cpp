@@ -1036,7 +1036,6 @@ Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const 
         e->setSource(source);
     if (codec)
         e->setCodec(codec);
-    Core::EditorManager::activateEditor(editor);
     return editor;
 }
 

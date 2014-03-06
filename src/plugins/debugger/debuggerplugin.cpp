@@ -2542,9 +2542,9 @@ void DebuggerPluginPrivate::openTextEditor(const QString &titlePattern0,
         return;
     QString titlePattern = titlePattern0;
     IEditor *editor = EditorManager::openEditorWithContents(
-        CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents.toUtf8());
+                CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents.toUtf8(),
+                EditorManager::IgnoreNavigationHistory);
     QTC_ASSERT(editor, return);
-    EditorManager::activateEditor(editor, EditorManager::IgnoreNavigationHistory);
 }
 
 void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int timeout)

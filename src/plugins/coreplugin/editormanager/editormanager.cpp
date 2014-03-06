@@ -1657,10 +1657,14 @@ QStringList EditorManager::getOpenFileNames()
 
 IEditor *EditorManager::openEditorWithContents(const Id &editorId,
                                         QString *titlePattern,
-                                        const QByteArray &contents)
+                                        const QByteArray &contents,
+                                        OpenEditorFlags flags)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << editorId.name() << titlePattern << contents;
+
+    if (flags & EditorManager::OpenInOtherSplit)
+        m_instance->gotoOtherSplit();
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -1712,6 +1716,7 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
 
     m_instance->addEditor(edt);
     QApplication::restoreOverrideCursor();
+    activateEditor(edt, flags);
     return edt;
 }
 
