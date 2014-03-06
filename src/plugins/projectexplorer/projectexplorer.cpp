@@ -233,7 +233,8 @@ struct ProjectExplorerPluginPrivate {
     static const int m_maxRecentProjects = 25;
 
     QString m_lastOpenDirectory;
-    RunConfiguration *m_delayedRunConfiguration;
+    QPointer<RunConfiguration> m_delayedRunConfiguration;
+    bool m_shouldHaveRunConfiguration;
     RunMode m_runMode;
     QString m_projectFilterString;
     Internal::MiniProjectTargetSelector * m_targetSelector;
@@ -256,7 +257,7 @@ struct ProjectExplorerPluginPrivate {
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_currentProject(0),
     m_currentNode(0),
-    m_delayedRunConfiguration(0),
+    m_shouldHaveRunConfiguration(false),
     m_runMode(NoRunMode),
     m_projectsMode(0),
     m_kitManager(0),
@@ -1747,7 +1748,7 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
     updateActions();
 
     bool ignoreErrors = true;
-    if (d->m_delayedRunConfiguration && success && BuildManager::getErrorTaskCount() > 0) {
+    if (!d->m_delayedRunConfiguration.isNull() && success && BuildManager::getErrorTaskCount() > 0) {
         ignoreErrors = QMessageBox::question(ICore::mainWindow(),
                                              tr("Ignore all errors?"),
                                              tr("Found some build errors in current task.\n"
@@ -1755,14 +1756,21 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
                                              QMessageBox::Yes | QMessageBox::No,
                                              QMessageBox::No) == QMessageBox::Yes;
     }
+    if (d->m_delayedRunConfiguration.isNull() && d->m_shouldHaveRunConfiguration) {
+        QMessageBox::warning(ICore::mainWindow(),
+                             tr("Run Configuration removed!"),
+                             tr("The Configuration that was supposed to run is no longer "
+                                "available.\n"), QMessageBox::Ok);
+    }
 
-    if (success && ignoreErrors && d->m_delayedRunConfiguration) {
-        executeRunConfiguration(d->m_delayedRunConfiguration, d->m_runMode);
+    if (success && ignoreErrors && !d->m_delayedRunConfiguration.isNull()) {
+        executeRunConfiguration(d->m_delayedRunConfiguration.data(), d->m_runMode);
     } else {
         if (BuildManager::tasksAvailable())
             BuildManager::showTaskWindow();
     }
-    d->m_delayedRunConfiguration = 0;
+    d->m_delayedRunConfiguration.clear();
+    d->m_shouldHaveRunConfiguration = false;
     d->m_runMode = NoRunMode;
 }
 
@@ -2326,6 +2334,7 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
         // delay running till after our queued steps were processed
         d->m_runMode = runMode;
         d->m_delayedRunConfiguration = rc;
+        d->m_shouldHaveRunConfiguration = true;
     } else {
         executeRunConfiguration(rc, runMode);
     }
