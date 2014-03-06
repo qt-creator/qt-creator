@@ -80,7 +80,7 @@ namespace Internal {
 UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Attach to process not yet started"));
+    setWindowTitle(tr("Attach to Process Not Yet Started"));
 
     m_kitChooser = new DebuggerKitChooser(DebuggerKitChooser::LocalDebugging, this);
     m_kitChooser->populate();
@@ -105,16 +105,16 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
             m_pathChooser->setPath(localAppRC->executable());
     }
 
-    m_hideOnAttachCheckBox = new QCheckBox(tr("Hide after Attach"), this);
-    m_hideOnAttachCheckBox->setToolTip(tr("If checked, dialog will hide "
-            "after attach, and reappear after application ends.\nAlternatively, dialog will close."));
+    m_hideOnAttachCheckBox = new QCheckBox(tr("Hide after attach"), this);
+    m_hideOnAttachCheckBox->setToolTip(tr("Hides the dialog after attach "
+            " and shows it after application ends.\nAlternatively, closes the dialog."));
 
     m_hideOnAttachCheckBox->setChecked(false);
     m_hideOnAttachCheckBox->setVisible(true);
 
-    m_continueOnAttachCheckBox = new QCheckBox(tr("Continue on Attach"), this);
-    m_continueOnAttachCheckBox->setToolTip(tr("If checked, debugger will "
-                                              "not halt application after attach."));
+    m_continueOnAttachCheckBox = new QCheckBox(tr("Continue on attach"), this);
+    m_continueOnAttachCheckBox->setToolTip(tr("Debugger does not stop the"
+                                              " application after attach."));
 
     m_continueOnAttachCheckBox->setChecked(true);
     m_continueOnAttachCheckBox->setVisible(true);
@@ -277,7 +277,7 @@ void UnstartedAppWatcherDialog::setWaitingState(UnstartedAppWacherState state)
 {
     switch (state) {
     case InvalidWacherState:
-        m_waitingLabel->setText(tr("Please select valid executable."));
+        m_waitingLabel->setText(tr("Select valid executable."));
         m_watchingPushButton->setEnabled(false);
         m_watchingPushButton->setChecked(false);
         m_pathChooser->setEnabled(true);
@@ -285,7 +285,7 @@ void UnstartedAppWatcherDialog::setWaitingState(UnstartedAppWacherState state)
         break;
 
     case NotWatchingState:
-        m_waitingLabel->setText(tr("Not Watching."));
+        m_waitingLabel->setText(tr("Not watching."));
         m_watchingPushButton->setEnabled(true);
         m_watchingPushButton->setChecked(false);
         m_pathChooser->setEnabled(true);
