@@ -34,6 +34,7 @@
 
 #include "blackberrydebugtokenreader.h"
 #include "blackberrydeviceconfiguration.h"
+#include "blackberrysigningutils.h"
 #include "qnxconstants.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -87,6 +88,7 @@ void BarDescriptorEditorAuthorInformationWidget::setAuthorFromDebugToken()
             debugTokens << bbDevice->debugToken();
         }
     }
+    debugTokens << BlackBerrySigningUtils::instance().debugTokens();
     debugTokens.removeDuplicates();
 
     bool ok;

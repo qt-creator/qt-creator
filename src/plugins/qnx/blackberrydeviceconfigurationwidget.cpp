@@ -242,9 +242,7 @@ void BlackBerryDeviceConfigurationWidget::populateDebugTokenCombo(const QString&
 {
     ui->debugToken->clear();
     ui->debugToken->addItems(m_utils.debugTokens());
-    const int index = ui->debugToken->findText(current);
-    if (index != -1)
-        ui->debugToken->setCurrentIndex(index);
+    ui->debugToken->setCurrentText(current);
 }
 
 void BlackBerryDeviceConfigurationWidget::updateDebugTokenCombo()
