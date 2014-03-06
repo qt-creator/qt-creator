@@ -1062,7 +1062,7 @@ void ProjectExplorerPlugin::loadAction()
     openProject(filename, &errorMessage);
 
     if (!errorMessage.isEmpty())
-        QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project"), errorMessage);
+        QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project."), errorMessage);
     updateActions();
 }
 
@@ -1385,7 +1385,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
             }
         }
         if (found) {
-            appendError(errorString, tr("Failed opening project '%1': Project already open")
+            appendError(errorString, tr("Failed opening project '%1': Project already open.")
                         .arg(QDir::toNativeSeparators(fileName)));
             SessionManager::reportProjectLoadingProgress();
             continue;
@@ -1406,7 +1406,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
                                 setCurrentNode(pro->rootProjectNode());
                             openedPro += pro;
                         } else {
-                            appendError(errorString, tr("Failed opening project '%1': Settings could not be restored")
+                            appendError(errorString, tr("Failed opening project '%1': Settings could not be restored.")
                                         .arg(QDir::toNativeSeparators(fileName)));
                             delete pro;
                         }
@@ -2654,7 +2654,7 @@ void ProjectExplorerPlugin::openRecentProject()
         QString errorMessage;
         openProject(fileName, &errorMessage);
         if (!errorMessage.isEmpty())
-            QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project"), errorMessage);
+            QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project."), errorMessage);
     }
 }
 
