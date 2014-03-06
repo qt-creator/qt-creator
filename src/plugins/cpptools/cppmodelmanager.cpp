@@ -60,6 +60,8 @@
 #include <sstream>
 #endif
 
+static const bool DumpProjectInfo = qgetenv("QTC_DUMP_PROJECT_INFO") == "1";
+
 namespace CppTools {
 
 uint qHash(const ProjectPart &p)
@@ -245,7 +247,7 @@ CppModelManager::CppModelManager(QObject *parent)
             this, SIGNAL(globalSnapshotChanged()));
 
     m_findReferences = new CppFindReferences(this);
-    m_indexerEnabled = qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull();
+    m_indexerEnabled = qgetenv("QTC_NO_CODE_INDEXER") != "1";
 
     m_dirty = true;
 
@@ -782,7 +784,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
     } // Mutex scope
 
     // If requested, dump everything we got
-    if (!qgetenv("QTCREATOR_DUMP_PROJECT_INFO").isEmpty())
+    if (DumpProjectInfo)
         dumpModelManagerConfiguration();
 
     // Remove files from snapshot that are not reachable any more

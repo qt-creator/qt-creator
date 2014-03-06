@@ -45,7 +45,7 @@ using namespace ClangCodeModel::Internal;
 using namespace Core;
 using namespace CppTools;
 
-static const bool BeVerbose = !qgetenv("QTC_CLANG_VERBOSE").isEmpty();
+static const bool BeVerbose = qgetenv("QTC_CLANG_VERBOSE") == "1";
 
 namespace ClangCodeModel {
 namespace Utils {

@@ -47,7 +47,7 @@ static QBasicAtomicInt unitDataCount = Q_BASIC_ATOMIC_INITIALIZER(0);
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 
-static const int DisplayDiagnostics = qgetenv("QTC_CLANG_VERBOSE").isEmpty() ? 0 : 1;
+static const int DisplayDiagnostics = (qgetenv("QTC_CLANG_VERBOSE") == "1") ? 1 : 0;
 
 Unit::Unit()
     : m_index(0)
