@@ -110,7 +110,6 @@ using namespace Internal;
 namespace {
 
 const char USER_STICKY_KEYS_KEY[] = "ProjectExplorer.Project.UserStickyKeys";
-
 const char SHARED_SETTINGS[] = "SharedSettings";
 
 // Version 0 is used in Qt Creator 1.3.x and
@@ -417,47 +416,72 @@ Project *SettingsAccessor::project() const
 
 namespace {
 
-// It's assumed that the shared map has the same structure as the user map.
-template <class Operation_T>
-void synchronizeSettings(QVariantMap &userMap,
-                         const QVariantMap &sharedMap,
-                         Operation_T *op)
-{
-    QVariantMap::const_iterator it = sharedMap.begin();
-    QVariantMap::const_iterator eit = sharedMap.end();
-    for (; it != eit; ++it) {
-        const QString &key = it.key();
-        const QVariant &sharedValue = it.value();
-        const QVariant &userValue = userMap.value(key);
-        if (sharedValue.type() == QVariant::Map) {
-            if (userValue.type() != QVariant::Map) {
-                // This should happen only if the user manually changed the file in such a way.
+class Operation {
+public:
+    virtual ~Operation() { }
+
+    virtual void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue) = 0;
+
+    void synchronize(QVariantMap &userMap, const QVariantMap &sharedMap)
+    {
+        QVariantMap::const_iterator it = sharedMap.begin();
+        QVariantMap::const_iterator eit = sharedMap.end();
+
+        for (; it != eit; ++it) {
+            const QString &key = it.key();
+            const QVariant &sharedValue = it.value();
+            const QVariant &userValue = userMap.value(key);
+            if (sharedValue.type() == QVariant::Map) {
+                if (userValue.type() != QVariant::Map) {
+                    // This should happen only if the user manually changed the file in such a way.
+                    continue;
+                }
+                QVariantMap nestedUserMap = userValue.toMap();
+                synchronize(nestedUserMap, sharedValue.toMap());
+                userMap.insert(key, nestedUserMap);
                 continue;
             }
-            QVariantMap nestedUserMap = userValue.toMap();
-            synchronizeSettings(nestedUserMap,
-                                sharedValue.toMap(),
-                                op);
-            userMap.insert(key, nestedUserMap);
-        } else if (userMap.contains(key) && userValue != sharedValue) {
-            op->apply(userMap, key, sharedValue);
+            if (userMap.contains(key) && userValue != sharedValue) {
+                apply(userMap, key, sharedValue);
+                continue;
+            }
         }
     }
-}
+};
 
-
-class MergeSharedSetting
+class MergeSettingsOperation : public Operation
 {
 public:
-    MergeSharedSetting(const QSet<QString> &sticky) : m_userSticky(sticky) {}
+    MergeSettingsOperation(const QSet<QString> &sticky) : m_userSticky(sticky) { }
 
     void apply(QVariantMap &userMap, const QString &key, const QVariant &sharedValue)
     {
         if (!m_userSticky.contains(key))
             userMap.insert(key, sharedValue);
     }
+
+private:
     QSet<QString> m_userSticky;
 };
+
+
+class TrackStickyness : public Operation
+{
+public:
+    void apply(QVariantMap &userMap, const QString &key, const QVariant &)
+    {
+        m_userSticky.insert(key);
+    }
+
+    QStringList stickySettings() const { return m_userSticky.toList(); }
+
+private:
+    QSet<QString> m_userSticky;
+};
+
+} // namespace
+
+namespace {
 
 // When restoring settings...
 //   We check whether a .shared file exists. If so, we compare the settings in this file with
@@ -483,20 +507,10 @@ QVariantMap mergeSharedSettings(const QVariantMap &userMap, const QVariantMap &s
             stickyKeys.insert(v.toString());
     }
 
-    MergeSharedSetting op(stickyKeys);
-    synchronizeSettings(result, sharedMap, &op);
+    MergeSettingsOperation op(stickyKeys);
+    op.synchronize(result, sharedMap);
     return result;
 }
-
-class TrackUserStickySetting
-{
-public:
-    void apply(QVariantMap &, const QString &key, const QVariant &)
-    {
-        m_userSticky.insert(key);
-    }
-    QSet<QString> m_userSticky;
-};
 
 // When saving settings...
 //   If a .shared file was considered in the previous restoring step, we check whether for
@@ -511,10 +525,10 @@ void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
     if (sharedMap.isEmpty())
         return;
 
-    TrackUserStickySetting op;
-    synchronizeSettings(userMap, sharedMap, &op);
+    TrackStickyness op;
+    op.synchronize(userMap, sharedMap);
 
-    userMap.insert(QLatin1String(USER_STICKY_KEYS_KEY), QVariant(op.m_userSticky.toList()));
+    userMap.insert(QLatin1String(USER_STICKY_KEYS_KEY), QVariant(op.stickySettings()));
 }
 
 } // Anonymous
