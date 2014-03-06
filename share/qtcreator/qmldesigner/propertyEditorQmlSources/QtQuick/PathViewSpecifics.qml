@@ -146,6 +146,7 @@ Column {
                     model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
                     backendValue: backendValues.highlightRangeMode
                     Layout.fillWidth: true
+                    scope: "PathView"
                 }
 
                 ExpandingSpacer {

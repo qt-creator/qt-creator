@@ -90,6 +90,7 @@ Column {
                     model: ["Horizontal", "Vertical"]
                     backendValue: backendValues.orientation
                     Layout.fillWidth: true
+                    scope: "ListView"
                 }
 
             }
@@ -102,6 +103,7 @@ Column {
                 ComboBox {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
+                    scope: "Qt"
                 }
 
                 ExpandingSpacer {
@@ -116,8 +118,9 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
-                    model: ["NoSnap", "SnapToRow", "SnapOneRow"]
+                    model: ["NoSnap", "SnapToItem", "SnapOneItem"]
                     backendValue: backendValues.snapMode
+                    scope: "ListView"
                 }
 
                 ExpandingSpacer {
@@ -163,6 +166,7 @@ Column {
                     model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
                     backendValue: backendValues.highlightRangeMode
                     Layout.fillWidth: true
+                    scope: "ListView"
                 }
 
                 ExpandingSpacer {

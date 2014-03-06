@@ -91,6 +91,7 @@ Section {
                 backendValue: backendValues.flickableDirection
                 model: ["AutoFlickDirection", "HorizontalFlick", "VerticalFlick", "HorizontalAndVerticalFlick"]
                 Layout.fillWidth: true
+                scope: "Flickable"
             }
 
         }
@@ -105,6 +106,7 @@ Section {
                 backendValue: backendValues.boundsBehavior
                 model: ["StopAtBounds", "DragOverBounds", "DragAndOvershootBounds"]
                 Layout.fillWidth: true
+                scope: "Flickable"
             }
 
         }

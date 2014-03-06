@@ -107,9 +107,10 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
-                    model: ["LeftToRight", "TopToBottom"]
+                    model: ["FlowLeftToRight", "FlowTopToBottom"]
                     backendValue: backendValues.flow
                     Layout.fillWidth: true
+                    scope: "GridView"
                 }
             }
 
@@ -137,6 +138,7 @@ Column {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
                     Layout.fillWidth: true
+                    scope: "Qt"
                 }
             }
 
@@ -150,6 +152,7 @@ Column {
                     model: ["NoSnap", "SnapToRow", "SnapOneRow"]
                     backendValue: backendValues.snapMode
                     Layout.fillWidth: true
+                    scope: "GridView"
                 }
             }
 
@@ -173,6 +176,7 @@ Column {
                     model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
                     backendValue: backendValues.highlightRangeMode
                     Layout.fillWidth: true
+                    scope: "GridView"
                 }
             }
 
