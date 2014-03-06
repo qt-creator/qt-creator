@@ -65,7 +65,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
                                                  CMakeBuildConfiguration *source) :
     BuildConfiguration(parent, source),
     m_msvcVersion(source->m_msvcVersion),
-    m_useNinja(false)
+    m_useNinja(source->m_useNinja)
 {
     Q_ASSERT(parent);
     cloneSteps(source);
