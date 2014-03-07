@@ -35,26 +35,27 @@ def main():
         return
     # using a temporary directory won't mess up a potentially existing
     createNewQtQuickApplication(tempDir(), "untitled")
-    if not prepareQmlFile():
+    originalText = prepareQmlFile()
+    if not originalText:
         invokeMenuItem("File", "Save All")
         invokeMenuItem("File", "Exit")
         return
-    testReIndent()
+    testReIndent(originalText)
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
 
 def prepareQmlFile():
     if not openDocument("untitled.QML.qml.main\\.qml"):
         test.fatal("Could not open main.qml")
-        return False
+        return None
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     for i in range(3):
         content = "%s" % editor.plainText
-        start = content.find("Text {")
-        if not placeCursorToLine(editor, "Text {"):
+        start = content.find("MouseArea {")
+        if not placeCursorToLine(editor, "MouseArea {"):
             test.fatal("Couldn't find line(s) I'm looking for - QML file seems to "
                        "have changed!\nLeaving test...")
-            return False
+            return None
         type(editor, "<Right>")
         type(editor, "<Up>")
         # mark until the end of file
@@ -67,27 +68,32 @@ def prepareQmlFile():
         type(editor, "<Ctrl+C>")
         for j in range(10):
             type(editor, "<Ctrl+V>")
-    global originalText
     # assume the current editor content to be indented correctly
     originalText = "%s" % editor.plainText
     indented = editor.plainText
     lines = str(indented).splitlines()
     test.log("Using %d lines..." % len(lines))
     editor.plainText = "\n".join([line.lstrip() for line in lines]) + "\n"
-    return True
+    return originalText
 
-def testReIndent():
-    global originalText
+def testReIndent(originalText):
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
+    correctIndented = len(originalText)
+    incorrectIndented = correctIndented + 4004
     type(editor, "<Ctrl+A>")
     test.log("calling re-indent")
     starttime = datetime.utcnow()
     type(editor, "<Ctrl+I>")
-    waitFor("originalText == str(editor.plainText)", 25000)
+    waitFor("len(str(editor.plainText)) in (incorrectIndented, correctIndented)", 25000)
     endtime = datetime.utcnow()
+    test.xverify(originalText == str(editor.plainText),
+                 "Verify that indenting restored the original text. "
+                 "This may fail when empty lines are being indented.")
+    invokeMenuItem("File", "Save All")
+    waitFor("originalText == str(editor.plainText)", 25000)
     textAfterReIndent = "%s" % editor.plainText
     if originalText==textAfterReIndent:
-        test.passes("Text successfully re-indented within %d seconds" % (endtime-starttime).seconds)
+        test.passes("Text successfully re-indented after saving (indentation took: %d seconds)" % (endtime-starttime).seconds)
     else:
         # shrink the texts - it's huge output that takes long time to finish & screenshot is taken as well
         originalText = shrinkText(originalText, 20)
