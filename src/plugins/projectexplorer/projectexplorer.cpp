@@ -1497,7 +1497,8 @@ void ProjectExplorerPlugin::updateWelcomePage()
 
 void ProjectExplorerPlugin::currentModeChanged(IMode *mode, IMode *oldMode)
 {
-    Q_UNUSED(oldMode);
+    if (oldMode && oldMode->id() == ProjectExplorer::Constants::MODE_SESSION)
+        ICore::saveSettings();
     if (mode && mode->id() == Core::Constants::MODE_WELCOME)
         updateWelcomePage();
 }

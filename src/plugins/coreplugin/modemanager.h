@@ -82,8 +82,6 @@ private slots:
     void currentTabChanged(int index);
     void updateModeToolTip();
     void enabledStateChanged();
-    void handleStartup();
-    void handleShutdown();
 
 private:
     explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);

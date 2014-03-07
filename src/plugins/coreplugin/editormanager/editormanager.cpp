@@ -1783,9 +1783,6 @@ void EditorManager::autoSave()
     if (!errors.isEmpty())
         QMessageBox::critical(ICore::mainWindow(), tr("File Error"),
                               errors.join(QLatin1String("\n")));
-
-    // Also save settings while accessing the disk anyway:
-    ICore::saveSettings();
 }
 
 MakeWritableResult EditorManager::makeFileWritable(IDocument *document)

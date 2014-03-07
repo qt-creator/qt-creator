@@ -317,7 +317,7 @@ ICore::ICore(MainWindow *mainwindow)
     m_mainwindow = mainwindow;
     // Save settings once after all plugins are initialized:
     connect(ExtensionSystem::PluginManager::instance(), SIGNAL(initializationDone()),
-            this, SIGNAL(saveSettingsRequested()));
+            this, SLOT(saveSettings()));
 }
 
 ICore::~ICore()
