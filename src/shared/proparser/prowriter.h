@@ -66,8 +66,9 @@ public:
         const QDir &proFileDir, const QStringList &filePaths, const QStringList &vars);
 
 private:
-    static bool locateVarValues(const ushort *tokPtr,
-        const QString &scope, const QString &var, int *scopeStart, int *bestLine);
+    static bool locateVarValues(const ushort *tokPtr, const ushort *tokPtrEnd,
+                                const QString &scope, const QString &var, int *scopeStart, int *bestLine);
+    static QString compileScope(const QString &scope);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ProWriter::PutFlags)

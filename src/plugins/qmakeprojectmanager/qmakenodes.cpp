@@ -1214,7 +1214,7 @@ void QmakePriFileNode::changeFiles(const QString &mimeType,
     includeFile->deref();
 }
 
-bool QmakePriFileNode::setProVariable(const QString &var, const QString &value)
+bool QmakePriFileNode::setProVariable(const QString &var, const QStringList &values, const QString &scope, int flags)
 {
     if (!ensureWriteableProFile(m_projectFilePath))
         return false;
@@ -1223,8 +1223,9 @@ bool QmakePriFileNode::setProVariable(const QString &var, const QString &value)
     ProFile *includeFile = pair.first;
     QStringList lines = pair.second;
 
-    ProWriter::putVarValues(includeFile, &lines, QStringList(value), var,
-                            ProWriter::ReplaceValues | ProWriter::OneLine | ProWriter::AssignOperator);
+    ProWriter::putVarValues(includeFile, &lines, values, var,
+                            ProWriter::PutFlags(flags),
+                            scope);
 
     if (!includeFile)
         return false;
