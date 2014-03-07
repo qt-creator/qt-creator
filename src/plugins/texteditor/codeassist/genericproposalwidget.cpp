@@ -36,6 +36,7 @@
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/elidinglabel.h>
 #include <utils/faketooltip.h>
 #include <utils/hostosinfo.h>
 
@@ -150,12 +151,15 @@ class GenericProposalInfoFrame : public Utils::FakeToolTip
 {
 public:
     GenericProposalInfoFrame(QWidget *parent = 0)
-        : Utils::FakeToolTip(parent), m_label(new QLabel(this))
+        : Utils::FakeToolTip(parent), m_label(new Utils::ElidingLabel(this))
     {
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setMargin(0);
         layout->setSpacing(0);
         layout->addWidget(m_label);
+
+        // Limit horizontal width
+        m_label->setSizePolicy(QSizePolicy::Fixed, m_label->sizePolicy().verticalPolicy());
 
         m_label->setForegroundRole(QPalette::ToolTipText);
         m_label->setBackgroundRole(QPalette::ToolTipBase);
@@ -164,6 +168,20 @@ public:
     void setText(const QString &text)
     {
         m_label->setText(text);
+    }
+
+    // Workaround QTCREATORBUG-11653
+    void calculateMaximumWidth()
+    {
+        const QDesktopWidget *desktopWidget = QApplication::desktop();
+        const int desktopWidth = desktopWidget->isVirtualDesktop()
+                ? desktopWidget->width()
+                : desktopWidget->availableGeometry(desktopWidget->primaryScreen()).width();
+        const QMargins widgetMargins = contentsMargins();
+        const QMargins layoutMargins = layout()->contentsMargins();
+        const int margins = widgetMargins.left() + widgetMargins.right()
+                + layoutMargins.left() + layoutMargins.right();
+        m_label->setMaximumWidth(desktopWidth - this->pos().x() - margins);
     }
 
 private:
@@ -296,6 +314,7 @@ void GenericProposalWidgetPrivate::maybeShowInfoTip()
 
     m_infoFrame->move(m_completionListView->infoFramePos());
     m_infoFrame->setText(infoTip);
+    m_infoFrame->calculateMaximumWidth();
     m_infoFrame->adjustSize();
     m_infoFrame->show();
     m_infoFrame->raise();
