@@ -40,10 +40,10 @@ def verifyCloneLog(targetDir, canceled):
     else:
         cloneLog = str(waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit").plainText)
         # test for QTCREATORBUG-10112
-        test.xcompare(cloneLog.count("remote: Counting objects:"), 1)
-        test.xcompare(cloneLog.count("remote: Finding sources:"), 1)
-        test.xcompare(cloneLog.count("Receiving objects:"), 1)
-        test.xcompare(cloneLog.count("Resolving deltas:"), 1)
+        test.compare(cloneLog.count("remote: Counting objects:"), 1)
+        test.compare(cloneLog.count("remote: Finding sources:"), 1)
+        test.compare(cloneLog.count("Receiving objects:"), 1)
+        test.compare(cloneLog.count("Resolving deltas:"), 1)
         test.verify(not "Stopping..." in cloneLog,
                     "Searching for 'Stopping...' in clone log")
         test.verify(("'" + cloneDir + "'..." in cloneLog),
