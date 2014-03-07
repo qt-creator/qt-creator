@@ -52,7 +52,17 @@
 
     \list 1
 
-        \li Download and install the tool to use for formatting source code.
+        \li Download and install the tool to use for formatting source code:
+
+            \list
+                \li \l{http://sourceforge.net/projects/astyle/files/astyle}
+                    {Artistic Style}
+                \li \l{http://llvm.org/releases/download.html}{ClangFormat}
+                \li \l{http://sourceforge.net/projects/uncrustify/files/uncrustify}
+                    {Uncrustify}
+            \endlist
+
+            You might have to build the tools from sources for some platforms.
 
         \li Select \gui Help > \gui {About Plugins} > \gui {C++} >
             \gui Beautifier to enable the plugin.
@@ -60,11 +70,41 @@
         \li Restart \QC to be able to use the plugin.
 
         \li Select \gui Tools > \gui Options > \gui Beautifier to specify
-            settings for the tool you want to use. The options you have depend
-            on the tool.
+            settings for the tool you want to use.
+
+            \image beautifier_options.png
+
+        \li In the \gui {Artistic Style command}, \gui {Clang Format command},
+            or \gui {Uncrustify command} field, specify the path to the tool
+            executable.
+
+        \li In the \gui Options group, select the configuration file that
+            defines the style to use in the source files. If you select several
+            options, they are applied from top down.
+
+            \list
+
+                \li Select the \gui {Use file defined in project files} option
+                    to use the configuration file defined in the qmake
+                    OTHER_FILES variable as the configuration file for the
+                    selected tool.
+
+                \li Select the \gui {Use $HOME} option to use the specified file
+                    in the user's home directory as the configuration file for
+                    the selected tool.
+
+                \li Select the \gui {Use self-defined style} option, and then
+                    \gui Add to define your own style.
+
+                \li Define code formatting in the \gui {Edit Configuration}
+                    dialog. It provides syntax highlighting, auto-completion,
+                    and context-sensitive help. For these features, you must
+                    have the tool installed.
+
+                   \image beautifier_editor.png
 
         \li Select \gui Tools > \gui Beautifier > \gui {Artistic Style},
-            \gui ClangFormat or \gui Uncrustify > \gui {Format Current File}
+            \gui ClangFormat, or \gui Uncrustify > \gui {Format Current File}
             to format the currently open file.
 
             You can \l{Keyboard Shortcuts}{create keyboard shortcuts} for the
@@ -72,28 +112,9 @@
 
     \endlist
 
-    \section1 Specifying Styles
-
-    Select \gui Tools > \gui Options > \gui Beautifier to set the configuration
-    file that defines the style to use in the source files.
-
-    \image beautifier_options.png
-
-    Select the \gui {Use file defined in project file} option to use the
-    configuration file defined in the qmake OTHER_FILES variable as the
-    configuration file for the selected tool. For example, \c{uncrustify.cfg}.
-
-    Select the \gui {Use $HOME} option to use the specified file in the user's
-    home directory as the configuration file for the selected tool. For example,
-    \c{.uncrustify.cgf} or \c{uncrustify.cgf}.
-
-    Select the \gui {Use self-defined Style} option, and then \gui Add to define
-    your own style. The \gui {Edit Configuration} dialog provides syntax
-    highlighting, auto-completion, and context-sensitive help.
-
-    \image beautifier_editor.png
-
-    By default, ClangFormat formats only the selected text. To format the entire
-    file when no text is selected, select the
-    \gui {Format entire file if no text was selected} check box.
+    In addition to the \gui {Format Current File} command, ClangFormat provides
+    the \gui {Format Selected Text} command. If you select it when no text is
+    selected, nothing happens. To format the entire file in this case, select
+    the \gui {Format entire file if no text was selected} check box in the
+    \gui {Clang Format} options.
 */
