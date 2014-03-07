@@ -173,7 +173,7 @@ class AndroidConfigurations : public QObject
     Q_OBJECT
 
 public:
-    static AndroidConfig currentConfig();
+    static const AndroidConfig &currentConfig();
     static void setConfig(const AndroidConfig &config);
     static AndroidConfigurations *instance();
 

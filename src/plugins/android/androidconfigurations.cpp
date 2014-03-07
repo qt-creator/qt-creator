@@ -1077,7 +1077,7 @@ QStringList AndroidDeviceInfo::adbSelector(const QString &serialNumber)
     return QStringList() << QLatin1String("-s") << serialNumber;
 }
 
-AndroidConfig AndroidConfigurations::currentConfig()
+const AndroidConfig &AndroidConfigurations::currentConfig()
 {
     return m_instance->m_config; // ensure that m_instance is initialized
 }
