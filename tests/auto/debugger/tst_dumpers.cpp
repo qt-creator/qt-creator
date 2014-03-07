@@ -974,7 +974,7 @@ void tst_Dumpers::dumper()
             "\n\n#if defined(_MSC_VER)" + (data.useQt ?
                 "\n#include <qt_windows.h>" :
                 "\n#include <Windows.h>") +
-            "\n#define BREAK do { DebugBreak(); } while (0)"
+            "\n#define BREAK int *nullPtr = 0; *nullPtr = 0;"
             "\n#else"
             "\n#define BREAK do { asm(\"int $3\"); } while (0)"
             "\n#endif"
@@ -1098,7 +1098,6 @@ void tst_Dumpers::dumper()
                "l+s\n"
                "sxi 0x4000001f\n"
                "g\n"
-               "gu\n"
                "!qtcreatorcdbext.expandlocals -t 0 -c 0 " + expanded + "\n";
         int token = 0;
         QStringList sortediNames;
