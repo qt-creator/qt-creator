@@ -1081,8 +1081,7 @@ void tst_Dumpers::dumper()
                 "python sys.path.append('" + uninstalledData + "')\n"
                 "python from gdbbridge import *\n"
                 "run " + nograb + "\n"
-                "python print('@%sS@%s@' % ('N', theDumper.qtNamespace()))\n"
-                "bb options:fancy,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
+                "bb options:fancy,forcens,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
 
         cmds += "quit\n";
 
@@ -1150,20 +1149,14 @@ void tst_Dumpers::dumper()
     if (m_debuggerEngine == GdbEngine) {
         int posDataStart = output.indexOf("data=");
         QVERIFY(posDataStart != -1);
-        int posDataEnd = output.indexOf(",typeinfo", posDataStart);
-        QVERIFY(posDataEnd != -1);
-        contents = output.mid(posDataStart, posDataEnd - posDataStart);
-
-        int posNameSpaceStart = output.indexOf("@NS@");
-        QVERIFY(posNameSpaceStart != -1);
-        posNameSpaceStart += sizeof("@NS@") - 1;
-        int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
-        QVERIFY(posNameSpaceEnd != -1);
-        context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
-        //qDebug() << "FOUND NS: " << context.nameSpace;
-        if (context.nameSpace == "::")
-            context.nameSpace.clear();
+        contents = output.mid(posDataStart);
         contents.replace("\\\"", "\"");
+
+        GdbMi actualx;
+        actualx.fromStringMultiple(contents);
+        context.nameSpace = actualx["qtnamespace"].data();
+        //qDebug() << "FOUND NS: " << context.nameSpace;
+
     } else if (m_debuggerEngine == LldbEngine) {
         //qDebug() << "GOT OUTPUT: " << output;
         int pos = output.indexOf("data=[{");
@@ -1198,6 +1191,7 @@ void tst_Dumpers::dumper()
 
     GdbMi actual;
     actual.fromString(contents);
+
     WatchData local;
     local.iname = "local";
 

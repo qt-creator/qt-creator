@@ -409,11 +409,13 @@ class Dumper(DumperBase):
 
         self.useDynamicType = "dyntype" in options
         self.useFancy = "fancy" in options
+        self.forceQtNamespace = "forcens" in options
         self.passExceptions = "pe" in options
         #self.passExceptions = True
         self.autoDerefPointers = "autoderef" in options
         self.partialUpdate = "partial" in options
         self.tooltipOnly = "tooltiponly" in options
+        self.fallbackQtVersion = 0x50200
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
         #warn("VARIABLES: %s" % varList)
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
@@ -494,6 +496,9 @@ class Dumper(DumperBase):
                     % (self.hexencode(name), typeobj.sizeof))
         self.output.append(']')
         self.typesToReport = {}
+
+        if "forcens" in options:
+            self.qtNamepaceToRport = self.qtNamespace()
 
         if self.qtNamespaceToReport:
             self.output.append(',qtnamespace="%s"' % self.qtNamespaceToReport)
@@ -912,14 +917,8 @@ class Dumper(DumperBase):
             (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')
             self.cachedQtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
         except:
-            try:
-                # This will fail on Qt 5
-                gdb.execute("ptype QString::shared_null", to_string=True)
-                return 0x040800
-            except:
-                #self.cachedQtVersion = 0x050000
-                # Assume Qt 5.3 until we have a definitive answer.
-                return 0x050300
+            # Use fallback until we have a better answer.
+            return self.fallbackQtVersion
 
         # Memoize good results.
         self.qtVersion = lambda: self.cachedQtVersion
@@ -1546,29 +1545,32 @@ class Dumper(DumperBase):
                     self.importPlainDumper(printer)
 
     def qtNamespace(self):
-        # FIXME: This only works when call from inside a Qt function frame.
-        namespace = ""
+        # This only works when called from a valid frame.
         try:
-            out = gdb.execute("ptype QString::Null", to_string=True)
-            # The result looks like:
-            # "type = const struct myns::QString::Null {"
-            # "    <no data fields>"
-            # "}"
-            pos1 = out.find("struct") + 7
-            pos2 = out.find("QString::Null")
-            if pos1 > -1 and pos2 > -1:
-                namespace = out[pos1:pos2]
-
-            # Doesn't work
-            #gdb.write('=qt-namespace-detected,ns="%s"' % namespace)
-            self.qtNamespaceToReport = namespace
-
-            self.cachedQtNamespace = namespace
-            self.qtNamespace = lambda: self.cachedQtNamespace
+            cand = "QArrayData::shared_null"
+            symbol = gdb.lookup_symbol(cand)[0]
+            if symbol:
+                ns = symbol.name[:-len(cand)]
+                self.qtNamespaceToReport = ns
+                self.qtNamespace = lambda: ns
+                return ns
         except:
             pass
 
-        return namespace
+        try:
+            # This is Qt, but not 5.x.
+            cand = "QByteArray::shared_null"
+            symbol = gdb.lookup_symbol(cand)[0]
+            if symbol:
+                ns = symbol.name[:-len(cand)]
+                self.qtNamespaceToReport = ns
+                self.qtNamespace = lambda: ns
+                self.fallbackQtVersion = 0x40800
+                return ns
+        except:
+            pass
+
+        return ""
 
     def bbedit(self, args):
         (typeName, expr, data) = args.split(',')
