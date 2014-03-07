@@ -188,7 +188,8 @@ void ChannelBuffer::clearForRun()
 QString ChannelBuffer::linesRead()
 {
     // Any new lines?
-    const int lastLineIndex = data.lastIndexOf(QLatin1Char('\n'));
+    const int lastLineIndex = qMax(data.lastIndexOf(QLatin1Char('\n')),
+                                   data.lastIndexOf(QLatin1Char('\r')));
     if (lastLineIndex == -1 || lastLineIndex <= bufferPos)
         return QString();
     const int nextBufferPos = lastLineIndex + 1;
@@ -719,20 +720,8 @@ QString SynchronousProcess::locateBinary(const QString &path, const QString &bin
 
 QString SynchronousProcess::normalizeNewlines(const QString &text)
 {
-    const QChar cr(QLatin1Char('\r'));
-    const QChar lf(QLatin1Char('\n'));
-    QString res;
-    res.reserve(text.size());
-    for (int i = 0, count = text.size(); i < count; ++i) {
-        const QChar c = text.at(i);
-        if (c == cr) {
-            res += lf;
-            if (i + 1 < count && text.at(i + 1) == lf)
-                ++i;
-        } else {
-            res += c;
-        }
-    }
+    QString res = text;
+    res.replace(QLatin1String("\r\n"), QLatin1String("\n"));
     return res;
 }
 
