@@ -555,10 +555,10 @@ struct DataBase
     mutable int engines;
     mutable bool glibcxxDebug;
     mutable bool useDebugImage;
-    mutable GdbVersion neededGdbVersion;
+    mutable GdbVersion neededGdbVersion;     // DEC. 70600
     mutable LldbVersion neededLldbVersion;
-    mutable QtVersion neededQtVersion;
-    mutable GccVersion neededGccVersion;
+    mutable QtVersion neededQtVersion;       // HEX! 0x50300
+    mutable GccVersion neededGccVersion;     // DEC. 40702
 };
 
 class Data : public DataBase
@@ -906,7 +906,7 @@ void tst_Dumpers::dumper()
         int minor = output.mid(pos1, pos2++ - pos1).toInt();
         int pos3 = output.indexOf(' ', pos2 + 1);
         int patch = output.mid(pos2, pos3++ - pos2).toInt();
-        m_qtVersion = 10000 * major + 100 * minor + patch;
+        m_qtVersion = 0x10000 * major + 0x100 * minor + patch;
 
         if (data.neededQtVersion.min > m_qtVersion)
             MSKIP_SINGLE("Need minimum Qt version "
@@ -2691,7 +2691,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&tz0, &tz1);\n")
 
                + CoreProfile()
-               + QtVersion(50200)
+               + QtVersion(0x50200)
 
                + Check("tz0", "(null)", "@QTimeZone")
                + Check("tz1", "\"UTC+05:00\"", "@QTimeZone");
