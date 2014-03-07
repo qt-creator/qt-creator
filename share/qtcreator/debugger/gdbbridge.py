@@ -915,7 +915,7 @@ class Dumper(DumperBase):
             try:
                 # This will fail on Qt 5
                 gdb.execute("ptype QString::shared_null", to_string=True)
-                self.cachedQtVersion = 0x040800
+                return 0x040800
             except:
                 #self.cachedQtVersion = 0x050000
                 # Assume Qt 5.3 until we have a definitive answer.
