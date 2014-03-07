@@ -111,10 +111,10 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
 
         QDialogButtonBox::StandardButton button = Utils::CheckableMessageBox::question(Core::ICore::mainWindow(),
                                              tr("Setup Application Descriptor File"),
-                                             tr("You need to set up a bar descriptor file to enable "
+                                             tr("You need to set up a BAR descriptor file to enable "
                                                 "packaging.\nDo you want Qt Creator to generate it for your project (%1)?")
                                                                                        .arg(target()->project()->projectFilePath()),
-                                             tr("Don't ask again for this project"), &m_appBarDesciptorSetup);
+                                             tr("Don not ask again for this project"), &m_appBarDesciptorSetup);
 
         if (button == QDialogButtonBox::No)
             return;
@@ -132,7 +132,7 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
         if (!reader.fetch(barDescriptorTemplate)) {
             QMessageBox::warning(Core::ICore::mainWindow(),
                                  tr("Cannot Set up Application Descriptor File"),
-                                 tr("Reading the bar descriptor template failed."),
+                                 tr("Reading the BAR descriptor template failed."),
                                  QMessageBox::Ok);
             return;
         }
@@ -152,7 +152,7 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
         if (!writer.finalize()) {
             QMessageBox::warning(Core::ICore::mainWindow(),
                                  tr("Cannot Set up Application Descriptor File"),
-                                 tr("Writing the bar descriptor file failed."),
+                                 tr("Writing the BAR descriptor file failed."),
                                  QMessageBox::Ok);
             return;
         }

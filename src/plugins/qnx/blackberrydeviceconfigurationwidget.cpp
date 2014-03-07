@@ -132,7 +132,7 @@ void BlackBerryDeviceConfigurationWidget::debugTokenEditingFinished()
 void BlackBerryDeviceConfigurationWidget::importDebugToken()
 {
     const QString debugToken = QFileDialog::getOpenFileName(this, tr("Select Debug Token"),
-                                                            QString(), tr("Bar file (*.bar)"));
+                                                            QString(), tr("BAR file (*.bar)"));
 
     if (debugToken.isEmpty())
         return;

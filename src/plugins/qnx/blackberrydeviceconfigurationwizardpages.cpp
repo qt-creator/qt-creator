@@ -265,7 +265,7 @@ void BlackBerryDeviceConfigurationWizardQueryPage::processQueryFinished(int stat
         checkAndGenerateSSHKeys();
     else
         setState(Done, tr("Cannot connect to the device. "
-                "Check if the device is in development mode and has matching host name and password."));
+                "Check that the device is in development mode and has matching host name and password."));
 }
 
 void BlackBerryDeviceConfigurationWizardQueryPage::checkAndGenerateSSHKeys()
@@ -415,7 +415,7 @@ void BlackBerryDeviceConfigurationWizardConfigPage::generateDebugToken()
 void BlackBerryDeviceConfigurationWizardConfigPage::importDebugToken()
 {
     const QString debugToken = QFileDialog::getOpenFileName(this, tr("Select Debug Token"),
-                                                            QString(), tr("Bar file (*.bar)"));
+                                                            QString(), tr("BAR file (*.bar)"));
 
     if (debugToken.isEmpty())
         return;

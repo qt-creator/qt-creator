@@ -195,7 +195,7 @@ void BlackBerryDeployQtLibrariesDialog::handleRemoteProcessCompleted()
         // Directory exists
         if (m_processRunner->processExitCode() == 0) {
             int answer = QMessageBox::question(this, windowTitle(),
-                                               tr("The remote directory '%1' already exist. "
+                                               tr("The remote directory '%1' already exists. "
                                                   "Deploying to that directory will remove any files "
                                                   "already present.\n\n"
                                                   "Are you sure you want to continue?")

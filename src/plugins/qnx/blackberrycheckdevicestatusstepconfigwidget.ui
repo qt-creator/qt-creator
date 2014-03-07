@@ -17,14 +17,14 @@
    <item>
     <widget class="QCheckBox" name="checkRuntime">
      <property name="text">
-      <string>Check Device Runtime</string>
+      <string>Check device runtime</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="checkDebugToken">
      <property name="text">
-      <string>Check Debug Token</string>
+      <string>Check debug token</string>
      </property>
     </widget>
    </item>

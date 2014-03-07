@@ -58,9 +58,9 @@ BlackBerryCreatePackageStepConfigWidget::BlackBerryCreatePackageStepConfigWidget
     m_qtLibraryExplanations[1] = tr("Include Qt libraries in the package. "
                                     "This will increase the package size.");
     m_qtLibraryExplanations[2] = tr("Use deployed Qt libraries on the device.");
-    m_ui->qtLibrary->addItem(tr("Use pre-installed Qt"), BlackBerryCreatePackageStep::PreInstalledQt);
-    m_ui->qtLibrary->addItem(tr("Bundle Qt in package"), BlackBerryCreatePackageStep::BundleQt);
-    m_ui->qtLibrary->addItem(tr("Use deployed Qt"), BlackBerryCreatePackageStep::DeployedQt);
+    m_ui->qtLibrary->addItem(tr("Use Pre-installed Qt"), BlackBerryCreatePackageStep::PreInstalledQt);
+    m_ui->qtLibrary->addItem(tr("Bundle Qt in Package"), BlackBerryCreatePackageStep::BundleQt);
+    m_ui->qtLibrary->addItem(tr("Use Deployed Qt"), BlackBerryCreatePackageStep::DeployedQt);
 
     connect(m_ui->signPackages, SIGNAL(toggled(bool)), this, SLOT(setPackageMode(bool)));
     connect(m_ui->cskPassword, SIGNAL(textChanged(QString)), m_step, SLOT(setCskPassword(QString)));

@@ -178,7 +178,7 @@
       <item row="0" column="3">
        <widget class="QPushButton" name="deployNowButton">
         <property name="text">
-         <string>Deploy now</string>
+         <string>Deploy Now</string>
         </property>
        </widget>
       </item>

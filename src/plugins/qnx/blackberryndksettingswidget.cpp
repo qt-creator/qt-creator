@@ -307,7 +307,7 @@ void BlackBerryNDKSettingsWidget::updateUi(QTreeWidgetItem *item)
     m_ui->informationBox->setVisible(true);
     m_ui->informationBox->setTitle(isRuntimeItem ?
                                        tr("Runtime Information") : tr("API Level Information"));
-    m_ui->pathLabel->setText(isRuntimeItem ? tr("Path:") : tr("Environment File:"));
+    m_ui->pathLabel->setText(isRuntimeItem ? tr("Path:") : tr("Environment file:"));
     m_ui->hostLabel->setVisible(!isRuntimeItem);
     m_ui->host->setVisible(!isRuntimeItem);
     m_ui->targetLabel->setVisible(!isRuntimeItem);
@@ -411,7 +411,7 @@ void BlackBerryNDKSettingsWidget::populateDefaultConfigurationCombo()
 
     QList<BlackBerryApiLevelConfiguration*> configurations = m_bbConfigManager.apiLevels();
 
-    m_ui->apiLevelCombo->addItem(tr("Newest version"),
+    m_ui->apiLevelCombo->addItem(tr("Newest Version"),
             QVariant::fromValue(static_cast<void*>(0)));
 
     if (configurations.isEmpty())

@@ -95,7 +95,7 @@ bool BlackBerryCreatePackageStep::init()
 
     const QString packageCmd = target()->activeBuildConfiguration()->environment().searchInPath(QLatin1String(PACKAGER_CMD));
     if (packageCmd.isEmpty()) {
-        raiseError(tr("Could not find packager command '%1' in the build environment")
+        raiseError(tr("Could not find packager command '%1' in the build environment.")
                    .arg(QLatin1String(PACKAGER_CMD)));
         return false;
     }
@@ -105,18 +105,18 @@ bool BlackBerryCreatePackageStep::init()
 
     QList<BarPackageDeployInformation> packagesToDeploy = deployConfig->deploymentInfo()->enabledPackages();
     if (packagesToDeploy.isEmpty()) {
-        raiseError(tr("No packages enabled for deployment"));
+        raiseError(tr("No packages enabled for deployment."));
         return false;
     }
 
     foreach (const BarPackageDeployInformation &info, packagesToDeploy) {
         if (info.appDescriptorPath().isEmpty()) {
-            raiseError(tr("Application descriptor file not specified, please check deployment settings"));
+            raiseError(tr("BAR application descriptor file not specified. Check deployment settings."));
             return false;
         }
 
         if (info.packagePath().isEmpty()) {
-            raiseError(tr("No package specified, please check deployment settings"));
+            raiseError(tr("No package specified. Check deployment settings."));
             return false;
         }
 
@@ -124,7 +124,7 @@ bool BlackBerryCreatePackageStep::init()
         QDir dir(buildDir);
         if (!dir.exists()) {
             if (!dir.mkpath(buildDir)) {
-                raiseError(tr("Could not create build directory '%1'").arg(buildDir));
+                raiseError(tr("Could not create build directory '%1'.").arg(buildDir));
                 return false;
             }
         }
@@ -146,7 +146,7 @@ bool BlackBerryCreatePackageStep::init()
                 dlg.setCskPassword(m_cskPassword);
                 dlg.setStorePassword(m_keystorePassword);
                 if (dlg.exec() == QDialog::Rejected) {
-                    raiseError(tr("Missing passwords for signing packages"));
+                    raiseError(tr("Missing passwords for signing packages."));
                     return false;
                 }
 
@@ -170,7 +170,7 @@ bool BlackBerryCreatePackageStep::init()
                     (QtSupport::QtKitInformation::qtVersion(target()->kit()));
             if (!qtVersion) {
                 raiseError(tr("Qt version configured for BlackBerry kit "
-                              "is not a BlackBerry Qt version"));
+                              "is not a BlackBerry Qt version."));
                 return false;
             }
 
@@ -317,14 +317,14 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
 {
     BlackBerryQtVersion *qtVersion = dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtKitInformation::qtVersion(target()->kit()));
     if (!qtVersion) {
-        raiseError(tr("Error preparing application descriptor file"));
+        raiseError(tr("Error preparing BAR application descriptor file."));
         return false;
     }
 
     BarDescriptorDocument doc;
     QString errorString;
     if (!doc.open(&errorString, appDescriptorPath)) {
-        raiseError(tr("Error opening application descriptor file '%1' - %2")
+        raiseError(tr("Error opening BAR application descriptor file '%1' - %2")
             .arg(QDir::toNativeSeparators(appDescriptorPath))
             .arg(errorString));
         return false;
@@ -396,7 +396,7 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
 
     doc.setFilePath(preparedFilePath);
     if (!doc.save(&errorString)) {
-        raiseError(tr("Error saving prepared application descriptor file '%1' - %2")
+        raiseError(tr("Error saving prepared BAR application descriptor file '%1' - %2")
             .arg(QDir::toNativeSeparators(preparedFilePath))
             .arg(errorString));
         return false;
