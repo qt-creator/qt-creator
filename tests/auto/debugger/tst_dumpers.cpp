@@ -910,10 +910,10 @@ void tst_Dumpers::dumper()
 
         if (data.neededQtVersion.min > m_qtVersion)
             MSKIP_SINGLE("Need minimum Qt version "
-                + QByteArray::number(data.neededQtVersion.min));
+                + QByteArray::number(data.neededQtVersion.min, 16));
         if (data.neededQtVersion.max < m_qtVersion)
             MSKIP_SINGLE("Need maximum Qt version "
-                + QByteArray::number(data.neededQtVersion.max));
+                + QByteArray::number(data.neededQtVersion.max, 16));
     }
 
     if (data.neededGccVersion.isRestricted) {
