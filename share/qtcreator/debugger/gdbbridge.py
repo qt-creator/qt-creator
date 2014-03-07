@@ -910,19 +910,28 @@ class Dumper(DumperBase):
     def isQnxTarget(self):
         return 'qnx' in gdb.TARGET_CONFIG.lower()
 
-    def qtVersion(self):
+    def qtVersionString(self):
+        try:
+            return str(gdb.lookup_symbol("qVersion")[0].value()())
+        except:
+            pass
         try:
             ns = self.qtNamespace()
-            version = str(gdb.parse_and_eval("((const char*(*)())'%s::qVersion')()" % ns))
+            return str(gdb.parse_and_eval("((const char*(*)())'%sqVersion')()" % ns))
+        except:
+            pass
+        return None
+
+    def qtVersion(self):
+        try:
+            version = self.qtVersionString()
             (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')
-            self.cachedQtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+            qtversion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+            self.qtVersion = lambda: qtversion
+            return qtversion
         except:
             # Use fallback until we have a better answer.
             return self.fallbackQtVersion
-
-        # Memoize good results.
-        self.qtVersion = lambda: self.cachedQtVersion
-        return self.cachedQtVersion
 
     def isQt3Support(self):
         if self.qtVersion() >= 0x050000:
