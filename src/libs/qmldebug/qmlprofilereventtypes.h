@@ -55,6 +55,13 @@ enum BindingType {
     MaximumBindingType
 };
 
+enum AnimationThread {
+    GuiThread,
+    RenderThread,
+
+    MaximumAnimationThread
+};
+
 namespace Constants {
 const int QML_MIN_LEVEL = 1; // Set to 0 to remove the empty line between models in the timeline
 }

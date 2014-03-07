@@ -32,6 +32,7 @@
 #include "qmlprofilerdatamodel.h"
 #include "sortedtimelinemodel.h"
 #include "singlecategorytimelinemodel_p.h"
+#include <utils/qtcassert.h>
 #include <QCoreApplication>
 
 #include <QVector>
@@ -50,10 +51,9 @@ class PaintEventsModelProxy::PaintEventsModelProxyPrivate :
                                    SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
 {
 public:
-    void computeAnimationCountLimit();
 
-    int minAnimationCount;
-    int maxAnimationCount;
+    int maxGuiThreadAnimations;
+    int maxRenderThreadAnimations;
     bool seenForeignPaintEvent;
 
 private:
@@ -67,8 +67,7 @@ PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
 {
     Q_D(PaintEventsModelProxy);
     d->seenForeignPaintEvent = false;
-    d->minAnimationCount = 1;
-    d->maxAnimationCount = 1;
+    d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;
 }
 
 
@@ -76,8 +75,7 @@ void PaintEventsModelProxy::clear()
 {
     Q_D(PaintEventsModelProxy);
     d->SortedTimelineModel::clear();
-    d->minAnimationCount = 1;
-    d->maxAnimationCount = 1;
+    d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;
     d->expanded = false;
     d->seenForeignPaintEvent = false;
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
@@ -101,7 +99,7 @@ void PaintEventsModelProxy::loadData()
     const QVector<QmlProfilerDataModel::QmlEventData> referenceList = simpleModel->getEvents();
 
     QmlPaintEventData lastEvent;
-    qint64 minNextStartTime = 0;
+    qint64 minNextStartTimes[] = {0, 0};
 
     foreach (const QmlProfilerDataModel::QmlEventData &event, referenceList) {
         if (!eventAccepted(event)) {
@@ -110,6 +108,8 @@ void PaintEventsModelProxy::loadData()
             continue;
         }
 
+        lastEvent.threadId = (QmlDebug::AnimationThread)event.numericData3;
+
         // initial estimation of the event duration: 1/framerate
         qint64 estimatedDuration = event.numericData1 > 0 ? 1e9/event.numericData1 : 1;
 
@@ -117,7 +117,7 @@ void PaintEventsModelProxy::loadData()
         qint64 realEndTime = event.startTime;
 
         // ranges should not overlap. If they do, our estimate wasn't accurate enough
-        qint64 realStartTime = qMax(event.startTime - estimatedDuration, minNextStartTime);
+        qint64 realStartTime = qMax(event.startTime - estimatedDuration, minNextStartTimes[lastEvent.threadId]);
 
         // Sometimes our estimate is far off or the server has miscalculated the frame rate
         if (realStartTime >= realEndTime)
@@ -127,14 +127,21 @@ void PaintEventsModelProxy::loadData()
         // The server should know better after all and if it doesn't we want to see that.
         lastEvent.framerate = (int)event.numericData1;
         lastEvent.animationcount = (int)event.numericData2;
+        QTC_ASSERT(lastEvent.animationcount > 0, continue);
+
         d->insert(realStartTime, realEndTime - realStartTime, lastEvent);
 
-        minNextStartTime = event.startTime + 1;
+        if (lastEvent.threadId == QmlDebug::GuiThread)
+            d->maxGuiThreadAnimations = qMax(lastEvent.animationcount, d->maxGuiThreadAnimations);
+        else
+            d->maxRenderThreadAnimations =
+                    qMax(lastEvent.animationcount, d->maxRenderThreadAnimations);
+
+        minNextStartTimes[lastEvent.threadId] = event.startTime + 1;
 
         d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), referenceList.count());
     }
 
-    d->computeAnimationCountLimit();
     d->computeNesting();
 
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
@@ -144,25 +151,25 @@ void PaintEventsModelProxy::loadData()
 
 int PaintEventsModelProxy::categoryDepth(int categoryIndex) const
 {
-    Q_D(const PaintEventsModelProxy);
     Q_UNUSED(categoryIndex);
+    Q_D(const PaintEventsModelProxy);
     if (isEmpty())
         return d->seenForeignPaintEvent ? 0 : 1;
     else
-        return 2;
+        return (d->maxGuiThreadAnimations == 0 || d->maxRenderThreadAnimations == 0) ? 2 : 3;
 }
 
 int PaintEventsModelProxy::getEventRow(int index) const
 {
-    Q_UNUSED(index);
-    return 1;
+    Q_D(const PaintEventsModelProxy);
+    QmlDebug::AnimationThread threadId = d->range(index).threadId;
+    return (threadId == QmlDebug::GuiThread || d->maxGuiThreadAnimations == 0) ? 1 : 2;
 }
 
 int PaintEventsModelProxy::getEventId(int index) const
 {
-    // there is only one event Id for all painting events
-    Q_UNUSED(index);
-    return 0;
+    Q_D(const PaintEventsModelProxy);
+    return d->range(index).threadId;
 }
 
 QColor PaintEventsModelProxy::getColor(int index) const
@@ -179,44 +186,34 @@ QColor PaintEventsModelProxy::getColor(int index) const
 float PaintEventsModelProxy::getHeight(int index) const
 {
     Q_D(const PaintEventsModelProxy);
-    float scale = d->maxAnimationCount - d->minAnimationCount;
-    float fraction = 1.0f;
-    if (scale > 1)
-        fraction = (float)(d->range(index).animationcount -
-                            d->minAnimationCount) / scale;
-
-    return fraction * 0.85f + 0.15f;
+    const PaintEventsModelProxyPrivate::Range &range = d->range(index);
+    return (float)range.animationcount / (float)(range.threadId == QmlDebug::GuiThread ?
+            d->maxGuiThreadAnimations : d->maxRenderThreadAnimations) * 0.85f + 0.15f;
 }
 
 const QVariantList PaintEventsModelProxy::getLabelsForCategory(int category) const
 {
     Q_UNUSED(category);
+    Q_D(const PaintEventsModelProxy);
     QVariantList result;
 
-    if (!isEmpty()) {
+    if (d->maxGuiThreadAnimations > 0) {
         QVariantMap element;
-        element.insert(QLatin1String("displayName"), QVariant(QLatin1String("Animations")));
-        element.insert(QLatin1String("description"), QVariant(QLatin1String("Animations")));
-        element.insert(QLatin1String("id"), QVariant(0));
+        element.insert(QLatin1String("displayName"), QVariant(tr("Animations")));
+        element.insert(QLatin1String("description"), QVariant(tr("GUI Thread")));
+        element.insert(QLatin1String("id"), QVariant(QmlDebug::GuiThread));
+        result << element;
+    }
+
+    if (d->maxRenderThreadAnimations > 0) {
+        QVariantMap element;
+        element.insert(QLatin1String("displayName"), QVariant(tr("Animations")));
+        element.insert(QLatin1String("description"), QVariant(tr("Render Thread")));
+        element.insert(QLatin1String("id"), QVariant(QmlDebug::RenderThread));
         result << element;
     }
 
     return result;
-}
-
-void PaintEventsModelProxy::PaintEventsModelProxyPrivate::computeAnimationCountLimit()
-{
-    minAnimationCount = 1;
-    maxAnimationCount = 1;
-    if (count() == 0)
-        return;
-
-    for (int i=0; i < count(); i++) {
-        if (range(i).animationcount < minAnimationCount)
-            minAnimationCount = range(i).animationcount;
-        else if (range(i).animationcount > maxAnimationCount)
-            maxAnimationCount = range(i).animationcount;
-    }
 }
 
 const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
@@ -250,6 +247,15 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
     {
         QVariantMap valuePair;
         valuePair.insert(QCoreApplication::translate(trContext, "Animations:"), QVariant(QString::fromLatin1("%1").arg(d->range(index).animationcount)));
+        result << valuePair;
+    }
+
+    {
+        QVariantMap valuePair;
+        valuePair.insert(QCoreApplication::translate(trContext, "Context:"),
+                         QCoreApplication::translate(trContext,
+                                d->range(index).threadId == QmlDebug::GuiThread ?
+                                "GUI Thread" : "Render Thread"));
         result << valuePair;
     }
 
