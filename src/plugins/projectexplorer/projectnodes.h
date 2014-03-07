@@ -189,7 +189,7 @@ public:
         int priority;
     };
 
-    virtual AddNewInformation addNewInformation(const QStringList &files) const;
+    virtual AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
 
     void addFileNodes(const QList<FileNode*> &files);
     void removeFileNodes(const QList<FileNode*> &files);

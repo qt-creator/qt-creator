@@ -59,7 +59,7 @@ public:
     bool addPrefix(const QString &prefix, const QString &lang);
     bool removePrefix(const QString &prefix, const QString &lang);
 
-    AddNewInformation addNewInformation(const QStringList &files) const;
+    AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
 
 private:
     Internal::ResourceFileWatcher *m_document;
@@ -84,7 +84,7 @@ public:
 
     bool renamePrefix(const QString &prefix, const QString &lang);
 
-    AddNewInformation addNewInformation(const QStringList &files) const;
+    AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
 
     QString prefix() const;
     QString lang() const;

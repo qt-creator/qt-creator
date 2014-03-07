@@ -1066,10 +1066,10 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
     return true;
 }
 
-ProjectExplorer::FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringList &files) const
+ProjectExplorer::FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
-    return ProjectExplorer::FolderNode::AddNewInformation(QFileInfo(path()).fileName(), 90);
+    return ProjectExplorer::FolderNode::AddNewInformation(QFileInfo(path()).fileName(), context == this ? 120 : 90);
 }
 
 bool QmakePriFileNode::priFileWritable(const QString &path)
@@ -1572,10 +1572,10 @@ bool QmakeProFileNode::hasBuildTargets() const
     return hasBuildTargets(projectType());
 }
 
-ProjectExplorer::FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files) const
+ProjectExplorer::FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)
-    return AddNewInformation(QFileInfo(path()).fileName(), 100);
+    return AddNewInformation(QFileInfo(path()).fileName(), context == this ? 120 : 100);
 }
 
 bool QmakeProFileNode::hasBuildTargets(QmakeProjectType projectType) const

@@ -45,7 +45,7 @@
 using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
-static int priority(const QStringList &files)
+static bool priority(const QStringList &files)
 {
     if (files.isEmpty())
         return -1;
@@ -54,8 +54,8 @@ static int priority(const QStringList &files)
     if (type.startsWith(QLatin1String("image/"))
             || type == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
             || type == QLatin1String(QmlJSTools::Constants::JS_MIMETYPE))
-        return 120;
-    return 80;
+        return true;
+    return false;
 }
 
 static bool addFilesToResource(const QString &resourceFile, const QStringList &filePaths, QStringList *notAdded,
@@ -244,12 +244,21 @@ bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &la
     return false;
 }
 
-ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInformation(const QStringList &files) const
+ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInformation(const QStringList &files, Node *context) const
 {
     QString name = tr("%1 Prefix: %2")
             .arg(QFileInfo(path()).fileName())
             .arg(QLatin1String("/"));
-    return AddNewInformation(name, priority(files) + 1);
+
+    int p = 80;
+    if (priority(files)) {
+        if (context == 0 || context == this)
+            p = 125;
+        else if (projectNode() == context)
+            p = 150; // steal from our project node
+    }
+
+    return AddNewInformation(name, p);
 }
 
 ResourceFolderNode::ResourceFolderNode(const QString &prefix, const QString &lang, ResourceTopLevelNode *parent)
@@ -357,12 +366,19 @@ bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang
     return true;
 }
 
-ProjectExplorer::FolderNode::AddNewInformation ResourceFolderNode::addNewInformation(const QStringList &files) const
+ProjectExplorer::FolderNode::AddNewInformation ResourceFolderNode::addNewInformation(const QStringList &files, Node *context) const
 {
     QString name = tr("%1 Prefix: %2")
             .arg(QFileInfo(m_topLevelNode->path()).fileName())
             .arg(displayName());
-    return AddNewInformation(name, priority(files) + 1);
+
+    int p = 80;
+    if (priority(files)) {
+        if (context == 0 || context == this)
+            p = 120;
+    }
+
+    return AddNewInformation(name, p);
 }
 
 QString ResourceFolderNode::displayName() const
