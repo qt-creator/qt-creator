@@ -45,12 +45,6 @@
 namespace QmlProfiler {
 namespace Internal {
 
-struct CategorySpan {
-    bool expanded;
-    int expandedRows;
-    int contractedRows;
-};
-
 class PaintEventsModelProxy::PaintEventsModelProxyPrivate :
         public SortedTimelineModel<QmlPaintEventData,
                                    SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
