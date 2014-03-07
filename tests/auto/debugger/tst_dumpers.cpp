@@ -3421,7 +3421,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&a, &b);\n")
 
                + ForceC()
-               + GdbVersion(70600)
+               + GdbVersion(70500)
 
                + Check("a", "0 + 0 * I", "complex double") % GdbEngine
                + Check("b", "0 + 0 * I", "complex double") % GdbEngine
