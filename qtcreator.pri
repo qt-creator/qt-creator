@@ -10,7 +10,11 @@ isEqual(QT_MAJOR_VERSION, 5) {
     CONFIG += c++11
 } else {
     macx {
-        !macx-clang-libc++: error("You need to use the macx-clang-libc++ mkspec to compile Qt Creator (call qmake with '-spec unsupported/macx-clang-libc++')")
+        !macx-clang*: error("You need to use the macx-clang or macx-clang-libc++ mkspec to compile Qt Creator (call qmake with '-spec unsupported/macx-clang')")
+        QMAKE_CFLAGS += -mmacosx-version-min=10.7
+        QMAKE_CXXFLAGS += -std=c++11 -stdlib=libc++ -mmacosx-version-min=10.7
+        QMAKE_OBJECTIVE_CXXFLAGS += -std=c++11 -stdlib=libc++ -mmacosx-version-min=10.7
+        QMAKE_LFLAGS += -stdlib=libc++ -mmacosx-version-min=10.7
     } else:linux-g++* {
         QMAKE_CXXFLAGS += -std=c++0x
     } else:linux-icc* {
