@@ -614,13 +614,13 @@ void BaseTextEditorWidget::editorContentsChange(int position, int charsRemoved, 
     d->m_contentsChanged = true;
     QTextDocument *doc = document();
     BaseTextDocumentLayout *documentLayout = static_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    const QTextBlock posBlock = doc->findBlock(position);
 
     // Keep the line numbers and the block information for the text marks updated
     if (charsRemoved != 0) {
         documentLayout->updateMarksLineNumber();
-        documentLayout->updateMarksBlock(document()->findBlock(position));
+        documentLayout->updateMarksBlock(posBlock);
     } else {
-        const QTextBlock posBlock = doc->findBlock(position);
         const QTextBlock nextBlock = doc->findBlock(position + charsAdded);
         if (posBlock != nextBlock) {
             documentLayout->updateMarksLineNumber();
@@ -639,6 +639,14 @@ void BaseTextEditorWidget::editorContentsChange(int position, int charsRemoved, 
 
     if (charsAdded != 0 && document()->characterAt(position + charsAdded - 1).isPrint())
         d->m_assistRelevantContentAdded = true;
+
+    int newBlockCount = doc->blockCount();
+    if (!hasFocus() && newBlockCount != d->m_blockCount) {
+        // lines were inserted or removed from outside, keep viewport on same part of text
+        if (firstVisibleBlock().blockNumber() > posBlock.blockNumber())
+            verticalScrollBar()->setValue(verticalScrollBar()->value() + newBlockCount - d->m_blockCount);
+    }
+    d->m_blockCount = newBlockCount;
 }
 
 void BaseTextEditorWidget::slotSelectionChanged()
@@ -2390,6 +2398,7 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate()
     m_codeAssistant(new CodeAssistant),
     m_assistRelevantContentAdded(false),
     m_cursorBlockNumber(-1),
+    m_blockCount(0),
     m_markDragging(false),
     m_autoCompleter(new AutoCompleter),
     m_clipboardAssistProvider(new Internal::ClipboardAssistProvider)

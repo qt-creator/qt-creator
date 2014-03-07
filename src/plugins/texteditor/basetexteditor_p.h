@@ -205,6 +205,7 @@ public:
 
     QPointer<BaseTextEditorAnimator> m_animator;
     int m_cursorBlockNumber;
+    int m_blockCount;
 
     QPoint m_markDragStart;
     bool m_markDragging;
