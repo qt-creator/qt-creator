@@ -402,7 +402,7 @@ def qdump__QDir(d, value):
 def qdump__QFile(d, value):
     # 9fc0965 changes the layout of the private structure
     qtVersion = d.qtVersion()
-    if qtVersion >= 0x050300:
+    if qtVersion >= 0x050200:
         offset = 176 if d.is32bit() else 272
     elif qtVersion >= 0x050000:
         offset = 180 if d.is32bit() else 280
