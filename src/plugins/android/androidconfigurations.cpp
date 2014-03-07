@@ -574,7 +574,9 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices() const
                 break;
             if (line.contains(QLatin1String("Target:")))
                 dev.sdk = line.mid(line.lastIndexOf(QLatin1Char(' '))).remove(QLatin1Char(')')).toInt();
-            if (line.contains(QLatin1String("ABI:")))
+            if (line.contains(QLatin1String("Tag/ABI:")))
+                dev.cpuAbi = QStringList() << line.mid(line.lastIndexOf(QLatin1Char('/')) +1);
+            else if (line.contains(QLatin1String("ABI:")))
                 dev.cpuAbi = QStringList() << line.mid(line.lastIndexOf(QLatin1Char(' '))).trimmed();
         }
         // armeabi-v7a devices can also run armeabi code
