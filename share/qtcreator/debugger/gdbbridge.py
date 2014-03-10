@@ -331,7 +331,11 @@ registerCommand("bbedit", bbedit)
 
 
 def bb(args):
-    print(theDumper.run(args))
+    try:
+        print(theDumper.run(args))
+    except:
+        import traceback
+        traceback.print_exc()
 
 registerCommand("bb", bb)
 
