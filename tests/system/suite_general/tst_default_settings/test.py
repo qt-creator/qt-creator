@@ -163,11 +163,15 @@ def __getExpectedCompilers__():
     compilers = ["g++"]
     if platform.system() in ('Linux', 'Darwin'):
         compilers.extend(["g++-4.0", "g++-4.2", "clang++"])
+    if platform.system() == 'Darwin':
+        xcodeClang = getOutputFromCmdline("xcrun --find clang++").strip("\n")
+        if xcodeClang and os.path.exists(xcodeClang) and xcodeClang not in expected:
+            expected.append(xcodeClang)
     for compiler in compilers:
         compilerPath = which(compiler)
         if compilerPath:
-            if compiler == 'clang++':
-                if subprocess.call(['clang++', '-dumpmachine']) != 0:
+            if compiler.endswith('clang++'):
+                if subprocess.call([compiler, '-dumpmachine']) != 0:
                     test.warning("clang found in PATH, but version is not supported.")
                     continue
             expected.append(compilerPath)
