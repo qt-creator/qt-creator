@@ -855,7 +855,9 @@ class Dumper(DumperBase):
             pass
         # Older GDB ~7.4
         try:
-            return gdb.parse_and_eval(symbolName)
+            address = gdb.parse_and_eval("&'%s'" % symbolName)
+            type = gdb.lookup_type(self.qtNamespace() + "QMetaObject")
+            return self.createPointerValue(address, type)
         except:
             return 0
 
