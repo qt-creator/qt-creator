@@ -331,8 +331,11 @@ void AndroidDeviceModel::setDevices(const QVector<AndroidDeviceInfo> &devices)
     AndroidDeviceModelNode *incompatibleDevices = 0; // created on demand
     foreach (const AndroidDeviceInfo &device, devices) {
         QString error;
-        if (device.unauthorized) {
+        if (device.state == AndroidDeviceInfo::UnAuthorizedState) {
             error = AndroidDeviceDialog::tr("Unauthorized. Please check the confirmation dialog on your device %1.")
+                    .arg(device.serialNumber);
+        }else if (device.state == AndroidDeviceInfo::OfflineState) {
+            error = AndroidDeviceDialog::tr("Offline. Please check the state of your device %1.")
                     .arg(device.serialNumber);
         } else if (!device.cpuAbi.contains(m_abi)) {
             error = AndroidDeviceDialog::tr("ABI is incompatible, device supports ABIs: %1.")

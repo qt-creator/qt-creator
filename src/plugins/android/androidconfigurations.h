@@ -56,6 +56,8 @@ struct AndroidDeviceInfo
     QString serialNumber;
     QStringList cpuAbi;
     int sdk;
+    enum State { OkState, UnAuthorizedState, OfflineState };
+    State state;
     bool unauthorized;
     enum AndroidDeviceType { Hardware, Emulator };
     AndroidDeviceType type;

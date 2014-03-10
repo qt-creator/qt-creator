@@ -431,7 +431,12 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
         dev.type = serialNo.startsWith(QLatin1String("emulator")) ? AndroidDeviceInfo::Emulator : AndroidDeviceInfo::Hardware;
         dev.sdk = getSDKVersion(dev.serialNumber);
         dev.cpuAbi = getAbis(dev.serialNumber);
-        dev.unauthorized = (deviceType == QLatin1String("unauthorized"));
+        if (deviceType == QLatin1String("unauthorized"))
+            dev.state = AndroidDeviceInfo::UnAuthorizedState;
+        else if (deviceType == QLatin1String("offline"))
+            dev.state = AndroidDeviceInfo::OfflineState;
+        else
+            dev.state = AndroidDeviceInfo::OkState;
         devices.push_back(dev);
     }
 
@@ -575,7 +580,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::androidVirtualDevices() const
         // armeabi-v7a devices can also run armeabi code
         if (dev.cpuAbi == QStringList(QLatin1String("armeabi-v7a")))
             dev.cpuAbi << QLatin1String("armeabi");
-        dev.unauthorized = false;
+        dev.state = AndroidDeviceInfo::OkState;
         dev.type = AndroidDeviceInfo::Emulator;
         devices.push_back(dev);
     }
