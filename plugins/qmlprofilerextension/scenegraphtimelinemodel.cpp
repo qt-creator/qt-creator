@@ -110,7 +110,7 @@ QString labelForSGType(int t)
 {
     switch ((SceneGraphCategoryType)t) {
     case SceneGraphRenderThread:
-        return QCoreApplication::translate("SceneGraphTimelineModel", "Renderer Thread");
+        return QCoreApplication::translate("SceneGraphTimelineModel", "Render Thread");
     case SceneGraphGUIThread:
         return QCoreApplication::translate("SceneGraphTimelineModel", "GUI Thread");
     default: return QString();
