@@ -48,6 +48,8 @@ class QLineEdit;
 class QListView;
 class QSpinBox;
 class QToolButton;
+class QXmlStreamReader;
+class QXmlStreamWriter;
 QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
@@ -137,7 +139,6 @@ private:
     void syncToEditor();
 
     bool checkDocument(QDomDocument doc, QString *errorMessage, int *errorLine, int *errorColumn);
-    bool setAndroidAppLibName(QDomDocument document, QDomElement activity, const QString &name);
     enum IconDPI { LowDPI, MediumDPI, HighDPI };
     QIcon icon(const QString &baseDir, IconDPI dpi);
     QString iconPath(const QString &baseDir, IconDPI dpi);
@@ -146,6 +147,14 @@ private:
     void updateInfoBar(const QString &errorMessage, int line, int column);
     void hideInfoBar();
     Q_SLOT void updateTargetComboBox();
+
+    void parseManifest(QXmlStreamReader &reader, QXmlStreamWriter &writer);
+    void parseApplication(QXmlStreamReader &reader, QXmlStreamWriter &writer);
+    void parseActivity(QXmlStreamReader &reader, QXmlStreamWriter &writer);
+    bool parseMetaData(QXmlStreamReader &reader, QXmlStreamWriter &writer);
+    void parseUsesSdk(QXmlStreamReader &reader, QXmlStreamWriter &writer);
+    QString parseUsesPermission(QXmlStreamReader &reader, QXmlStreamWriter &writer, const QSet<QString> permissions);
+    void parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer);
 
     bool m_dirty; // indicates that we need to call syncToEditor()
     bool m_stayClean;
