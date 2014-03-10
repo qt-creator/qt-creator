@@ -750,8 +750,10 @@ static inline AbstractSymbolGroupNodePtrVector
      bool isLargeOrStatic = innerTypeSize > pointerSize;
      if (!isLargeOrStatic && !SymbolGroupValue::isPointerType(innerType)) {
          const KnownType kt = knownType(innerType, false); // inner type, no 'class ' prefix.
-         if (kt != KT_Unknown && !(kt & (KT_POD_Type|KT_Qt_PrimitiveType|KT_Qt_MovableType)))
+         if (kt != KT_Unknown && !(kt & (KT_POD_Type|KT_Qt_PrimitiveType|KT_Qt_MovableType))
+                 && !(kt == KT_QStringList && QtInfo::get(v.context()).version >= 5)) {
              isLargeOrStatic = true;
+         }
      }
      if (SymbolGroupValue::verbose)
          DebugPrint() << "isLargeOrStatic " << isLargeOrStatic;
