@@ -41,6 +41,10 @@
 #include <QDir>
 #include <stdlib.h> // mkdtemp
 
+#ifdef Q_OS_MAC
+  #include <unistd.h>
+#endif
+
 QT_BEGIN_NAMESPACE
 
 //************* TemporaryDirPrivate
