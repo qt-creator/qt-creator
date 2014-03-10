@@ -42,7 +42,7 @@ class DIFFEDITOR_EXPORT DiffEditorDocument : public Core::IDocument
 {
     Q_OBJECT
 public:
-    explicit DiffEditorDocument(const QString &mimeType);
+    explicit DiffEditorDocument();
     virtual ~DiffEditorDocument();
 
     DiffEditorController *controller() const;
@@ -59,7 +59,6 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
 private:
-    const QString m_mimeType;
     DiffEditorController *m_diffEditorController;
 };
 

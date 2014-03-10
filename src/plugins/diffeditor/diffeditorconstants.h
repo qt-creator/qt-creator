@@ -37,7 +37,6 @@ namespace Constants {
 
 const char DIFF_EDITOR_ID[] = "Diff Editor";
 const char DIFF_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("DiffEditor", "Diff Editor");
-const char DIFF_EDITOR_MIMETYPE[] = "text/x-patch";
 const char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Options";
 
 } // namespace Constants

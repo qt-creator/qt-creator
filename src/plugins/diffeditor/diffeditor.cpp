@@ -113,7 +113,7 @@ void DescriptionEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
 DiffEditor::DiffEditor()
     : IEditor(0)
-    , m_document(new DiffEditorDocument(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE)))
+    , m_document(new DiffEditorDocument())
     , m_descriptionWidget(0)
     , m_diffWidget(0)
     , m_controller(0)
