@@ -337,9 +337,15 @@ Kit *BlackBerryApiLevelConfiguration::createKit(
     if (debuggerItemId.isValid())
         DebuggerKitInformation::setDebugger(kit, debuggerItemId);
 
-    if (isSimulator)
-        QmakeProjectManager::QmakeKitInformation::setMkspec(
-                 kit, FileName::fromLatin1("blackberry-x86-qcc"));
+    if (version->qtVersion().majorVersion == 4) {
+        if (isSimulator) {
+            QmakeProjectManager::QmakeKitInformation::setMkspec(
+                     kit, FileName::fromLatin1("blackberry-x86-qcc"));
+        } else {
+            QmakeProjectManager::QmakeKitInformation::setMkspec(
+                     kit, FileName::fromLatin1("blackberry-armv7le-qcc"));
+        }
+    }
 
     DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
     SysRootKitInformation::setSysRoot(kit, m_sysRoot);
