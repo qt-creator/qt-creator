@@ -105,9 +105,8 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
             m_pathChooser->setPath(localAppRC->executable());
     }
 
-    m_hideOnAttachCheckBox = new QCheckBox(tr("Hide after attach"), this);
-    m_hideOnAttachCheckBox->setToolTip(tr("Hides the dialog after attach "
-            " and shows it after application ends.\nAlternatively, closes the dialog."));
+    m_hideOnAttachCheckBox = new QCheckBox(tr("Reopen dialog when application finishes"), this);
+    m_hideOnAttachCheckBox->setToolTip(tr("Reopens this dialog when application finishes."));
 
     m_hideOnAttachCheckBox->setChecked(false);
     m_hideOnAttachCheckBox->setVisible(true);
