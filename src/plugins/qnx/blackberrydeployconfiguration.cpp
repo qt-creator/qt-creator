@@ -114,7 +114,7 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
                                              tr("You need to set up a BAR descriptor file to enable "
                                                 "packaging.\nDo you want Qt Creator to generate it for your project (%1)?")
                                                                                        .arg(target()->project()->projectFilePath()),
-                                             tr("Don not ask again for this project"), &m_appBarDesciptorSetup);
+                                             tr("Do not ask again for this project"), &m_appBarDesciptorSetup);
 
         if (button == QDialogButtonBox::No)
             return;
