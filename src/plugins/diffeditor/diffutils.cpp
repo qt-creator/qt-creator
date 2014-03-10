@@ -30,6 +30,7 @@
 #include "diffutils.h"
 #include "differ.h"
 #include <QStringList>
+#include "texteditor/fontsettings.h"
 
 namespace DiffEditor {
 namespace Internal {
@@ -163,8 +164,9 @@ ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
 
                     if (leftDifference && rightDifference) {
                         bool doAlign = true;
-                        if (line == 0 // omit alignment when first lines of equalities are empty
-                                && (newLeftLines.at(0).isEmpty() || newRightLines.at(0).isEmpty())) {
+                        if (line == 0 // omit alignment when first lines of equalities are empty and last generated lines are not equal
+                                && (newLeftLines.at(0).isEmpty() || newRightLines.at(0).isEmpty())
+                                && !lastLineEqual) {
                             doAlign = false;
                         }
 
@@ -234,7 +236,7 @@ ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
             ++leftLine;
         if (rightTextLine.textLineType == TextLineData::TextLine)
             ++rightLine;
-        if (equalLines.value(leftLine, -1) == rightLine)
+        if (equalLines.value(leftLine, -2) == rightLine)
             row.equal = true;
 
         chunkData.rows.append(row);
@@ -345,6 +347,37 @@ FileData calculateContextData(const ChunkData &originalData, int contextLinesNum
         }
     }
     return fileData;
+}
+
+QList<QTextEdit::ExtraSelection> colorPositions(
+        const QTextCharFormat &format,
+        QTextCursor &cursor,
+        const QMap<int, int> &positions)
+{
+    QList<QTextEdit::ExtraSelection> lineSelections;
+
+    cursor.setPosition(0);
+    QMapIterator<int, int> itPositions(positions);
+    while (itPositions.hasNext()) {
+        itPositions.next();
+
+        cursor.setPosition(itPositions.key());
+        cursor.setPosition(itPositions.value(), QTextCursor::KeepAnchor);
+
+        QTextEdit::ExtraSelection selection;
+        selection.cursor = cursor;
+        selection.format = format;
+        lineSelections.append(selection);
+    }
+    return lineSelections;
+}
+
+QTextCharFormat fullWidthFormatForTextStyle(const TextEditor::FontSettings &fontSettings,
+                                            TextEditor::TextStyle textStyle)
+{
+    QTextCharFormat format = fontSettings.toTextCharFormat(textStyle);
+    format.setProperty(QTextFormat::FullWidthSelection, true);
+    return format;
 }
 
 } // namespace Internal
