@@ -25,10 +25,14 @@
  * Runs the iPhoneSimulator backed by a main runloop.
  */
 int main (int argc, char *argv[]) {
+    int qtargc = 1;
+    char *qtarg = 0;
+    if (argc)
+        qtarg = argv[0];
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QApplication a(argc, argv);
+    QApplication a(qtargc, &qtarg);
 #else
-    QGuiApplication a(argc, argv);
+    QGuiApplication a(qtargc, &qtarg);
 #endif
 
 
@@ -37,7 +41,7 @@ int main (int argc, char *argv[]) {
     QString xcodePath = QLatin1String("/Applications/Xcode.app/Contents/Developer/");
     for (int i = 0; i + 1 < argc; ++i) {
         if (strcmp(argv[i], "--developer-path") == 0)
-            xcodePath = QCoreApplication::arguments().at(i+1);
+            xcodePath = QString::fromLocal8Bit(argv[i + 1]);
     }
     if (!xcodePath.endsWith(QLatin1Char('/')))
         xcodePath.append(QLatin1Char('/'));
