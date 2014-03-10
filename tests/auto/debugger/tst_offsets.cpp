@@ -34,6 +34,7 @@
 #define private public
 
 #include <private/qfile_p.h>
+#include <private/qfileinfo_p.h>
 
 class tst_offsets : public QObject
 {
@@ -76,6 +77,12 @@ void tst_offsets::offsets_data()
             data << 140 << 232;
     }
 
+    {
+        QFileInfoPrivate *p = 0;
+        QTestData &data = QTest::newRow("FileInfo::filePath")
+                << int((char *)&p->fileEntry.m_filePath - (char *)p);
+        data << 4 << 8;
+    }
 }
 
 
