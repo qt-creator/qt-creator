@@ -162,12 +162,12 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
     connect(m_removePrefix, SIGNAL(triggered()), this, SLOT(removePrefixContextMenu()));
 
-    m_renameResourceFile = new QAction(tr("Rename File"), this);
+    m_renameResourceFile = new QAction(tr("Rename..."), this);
     command = Core::ActionManager::registerAction(m_renameResourceFile, Constants::C_RENAME_FILE, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
     connect(m_renameResourceFile, SIGNAL(triggered()), this, SLOT(renameFileContextMenu()));
 
-    m_removeResourceFile = new QAction(tr("Remove File"), this);
+    m_removeResourceFile = new QAction(tr("Remove File..."), this);
     command = Core::ActionManager::registerAction(m_removeResourceFile, Constants::C_REMOVE_FILE, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
     connect(m_removeResourceFile, SIGNAL(triggered()), this, SLOT(removeFileContextMenu()));
