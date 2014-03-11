@@ -48,7 +48,7 @@ using namespace ResourceEditor::Internal;
 static bool priority(const QStringList &files)
 {
     if (files.isEmpty())
-        return -1;
+        return false;
     Core::MimeType mt = Core::MimeDatabase::findByFile(files.at(0));
     QString type = mt.type();
     if (type.startsWith(QLatin1String("image/"))
