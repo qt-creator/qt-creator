@@ -114,6 +114,13 @@ void IosRunner::start()
     }
     m_cleanExit = false;
     m_qmlPort = 0;
+    if (!QFileInfo::exists(m_bundleDir)) {
+        TaskHub::addTask(Task::Warning,
+                         tr("Could not find %1.").arg(m_bundleDir),
+                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        emit finished(m_cleanExit);
+        return;
+    }
     IosToolHandler::DeviceType devType = IosToolHandler::IosDeviceType;
     if (m_device->type() == Ios::Constants::IOS_DEVICE_TYPE) {
         IosDevice::ConstPtr iosDevice = m_device.dynamicCast<const IosDevice>();
