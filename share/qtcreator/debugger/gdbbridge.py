@@ -1146,6 +1146,9 @@ class Dumper(DumperBase):
             self.putType(typeName)
             if value.is_optimized_out:
                 self.putValue("<optimized out>")
+            elif type.sizeof == 1:
+                # Force unadorned value transport for char and Co.
+                self.putValue(int(value) & 0xff)
             else:
                 self.putValue(value)
             self.putNumChild(0)
