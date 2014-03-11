@@ -47,7 +47,7 @@ int containerSize(KnownType kt, SymbolGroupNode *n, const SymbolGroupValueContex
 /* Create a list of children of containers. */
 std::vector<AbstractSymbolGroupNode *> containerChildren(SymbolGroupNode *node,
                                                          int type,
-                                                         int size,
+                                                         unsigned size,
                                                          const SymbolGroupValueContext &ctx);
 
 #endif // CONTAINERS_H
