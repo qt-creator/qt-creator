@@ -233,29 +233,18 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
     painter->drawRect(m_boundingRect.adjusted(0., 0., -1., -1.));
 }
 
-void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
+static void paintTextInPlaceHolderForInvisbleItem(QPainter *painter,
+                                                  const QString &id,
+                                                  const QString &typeName,
+                                                  const QRectF &boundingRect)
 {
-    painter->save();
-
-    qreal stripesWidth = 12;
-
-    QRegion innerRegion = QRegion(m_boundingRect.adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
-    QRegion outerRegion  = QRegion(m_boundingRect.toRect()) - innerRegion;
-
-    painter->setClipRegion(outerRegion);
-    painter->setClipping(true);
-    painter->fillRect(m_boundingRect.adjusted(1, 1, -1, -1), Qt::BDiagPattern);
-
-    QString displayText = qmlItemNode().id();
-
-    if (displayText.isEmpty())
-        displayText = qmlItemNode().simplifiedTypeName();
+    QString displayText = id.isEmpty() ? typeName : id;
 
     QTextOption textOption;
     textOption.setAlignment(Qt::AlignTop);
     textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 
-    if (m_boundingRect.height() > 60) {
+    if (boundingRect.height() > 60) {
         QFont font;
         font.setStyleHint(QFont::SansSerif);
         font.setBold(true);
@@ -264,22 +253,40 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
 
         QFontMetrics fm(font);
         painter->rotate(90);
-        if (fm.width(displayText) > (m_boundingRect.height() - 32) && displayText.length() > 4) {
+        if (fm.width(displayText) > (boundingRect.height() - 32) && displayText.length() > 4) {
 
-            displayText = fm.elidedText(displayText, Qt::ElideRight, m_boundingRect.height() - 32, Qt::TextShowMnemonic);
+            displayText = fm.elidedText(displayText, Qt::ElideRight, boundingRect.height() - 32, Qt::TextShowMnemonic);
         }
 
         QRectF rotatedBoundingBox;
-        rotatedBoundingBox.setWidth(m_boundingRect.height());
+        rotatedBoundingBox.setWidth(boundingRect.height());
         rotatedBoundingBox.setHeight(12);
-        rotatedBoundingBox.setY(-m_boundingRect.width() + 12);
+        rotatedBoundingBox.setY(-boundingRect.width() + 12);
         rotatedBoundingBox.setX(20);
 
         painter->setFont(font);
         painter->setPen(QColor(48, 48, 96, 255));
         painter->drawText(rotatedBoundingBox, displayText, textOption);
     }
+}
 
+void paintDecorationInPlaceHolderForInvisbleItem(QPainter *painter, const QRectF &boundingRect)
+{
+    qreal stripesWidth = 12;
+
+    QRegion innerRegion = QRegion(boundingRect.adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
+    QRegion outerRegion  = QRegion(boundingRect.toRect()) - innerRegion;
+
+    painter->setClipRegion(outerRegion);
+    painter->setClipping(true);
+    painter->fillRect(boundingRect.adjusted(1, 1, -1, -1), Qt::BDiagPattern);
+}
+
+void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
+{
+    painter->save();
+    paintDecorationInPlaceHolderForInvisbleItem(painter, m_boundingRect);
+    paintTextInPlaceHolderForInvisbleItem(painter, qmlItemNode().id(), qmlItemNode().simplifiedTypeName(), m_boundingRect);
     painter->restore();
 }
 
