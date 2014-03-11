@@ -1819,7 +1819,7 @@ registerCommand("threadnames", threadnames)
 
 def qmlb(args):
     # executeCommand(command, to_string=True).split("\n")
-    warm("RUNNING: break -f QScript::FunctionWrapper::proxyCall")
+    warn("RUNNING: break -f QScript::FunctionWrapper::proxyCall")
     output =  gdb.execute("rbreak -f QScript::FunctionWrapper::proxyCall", to_string=True).split("\n")
     warn("OUTPUT: %s " % output)
     bp = output[0]
