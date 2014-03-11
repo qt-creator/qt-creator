@@ -26,75 +26,56 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#ifndef CMAKEPROJECTMANAGER_INTERNAL_CMAKESETTINGSPAGE_H
+#define CMAKEPROJECTMANAGER_INTERNAL_CMAKESETTINGSPAGE_H
 
-#ifndef CMAKEPROJECTMANAGER_H
-#define CMAKEPROJECTMANAGER_H
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/pathchooser.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 
-#include <projectexplorer/iprojectmanager.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
-#include <coreplugin/icontext.h>
-
-#include <utils/environment.h>
-
-#include <QAction>
-#include <QCheckBox>
-#include <QDir>
-#include <QFuture>
 #include <QPointer>
-#include <QStringList>
-#include <QVector>
 
-#include "cmakesettingspage.h"
+#include "cmakevalidator.h"
 
-namespace Utils { class QtcProcess; }
+QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_FORWARD_DECLARE_CLASS(QCheckBox)
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeSettingsPage;
-
-class CMakeManager : public ProjectExplorer::IProjectManager
+class CMakeSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
-public:
-    CMakeManager(CMakeSettingsPage *cmakeSettingsPage);
 
-    virtual ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
-    virtual QString mimeType() const;
+public:
+    CMakeSettingsPage();
+    ~CMakeSettingsPage();
+
+    QWidget *widget();
+    void apply();
+    void finish();
 
     QString cmakeExecutable() const;
-    bool isCMakeExecutableValid() const;
-
     void setCMakeExecutable(const QString &executable);
-
-    void createXmlFile(Utils::QtcProcess *process,
-                       const QString &arguments,
-                       const QString &sourceDirectory,
-                       const QDir &buildDirectory,
-                       const Utils::Environment &env,
-                       const QString &generator);
+    bool isCMakeExecutableValid() const;
     bool hasCodeBlocksMsvcGenerator() const;
     bool hasCodeBlocksNinjaGenerator() const;
     bool preferNinja() const;
-    static QString findCbpFile(const QDir &);
 
-    static QString findDumperLibrary(const Utils::Environment &env);
-private slots:
-    void updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
-    void runCMake();
-    void runCMakeContextMenu();
+    TextEditor::Keywords keywords();
+
 private:
-    void runCMake(ProjectExplorer::Project *project);
-    static QString qtVersionForQMake(const QString &qmakePath);
-    static QPair<QString, QString> findQtDir(const Utils::Environment &env);
-    CMakeSettingsPage *m_settingsPage;
-    QAction *m_runCMakeAction;
-    QAction *m_runCMakeActionContextMenu;
-    ProjectExplorer::Project *m_contextProject;
+    void saveSettings() const;
+    QString findCmakeExecutable() const;
+
+    QPointer<QWidget> m_widget;
+    Utils::PathChooser *m_pathchooser;
+    QCheckBox *m_preferNinja;
+    CMakeValidator m_cmakeValidatorForUser;
+    CMakeValidator m_cmakeValidatorForSystem;
 };
 
 } // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTMANAGER_H
+#endif // CMAKEPROJECTMANAGER_INTERNAL_CMAKESETTINGSPAGE_H
