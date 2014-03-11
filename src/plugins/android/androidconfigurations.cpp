@@ -884,8 +884,9 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
     m_instance->m_config = devConfigs;
 
     m_instance->save();
-    m_instance->updateAutomaticKitList();
     m_instance->updateAndroidDevice();
+    m_instance->updateToolChainList();
+    m_instance->updateAutomaticKitList();
     emit m_instance->updated();
 }
 
@@ -942,6 +943,32 @@ static bool equalKits(Kit *a, Kit *b)
 {
     return ToolChainKitInformation::toolChain(a) == ToolChainKitInformation::toolChain(b)
             && QtSupport::QtKitInformation::qtVersion(a) == QtSupport::QtKitInformation::qtVersion(b);
+}
+
+void AndroidConfigurations::updateToolChainList()
+{
+    QList<ToolChain *> existingToolChains = ToolChainManager::toolChains();
+    QList<ToolChain *> toolchains = AndroidToolChainFactory::createToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation());
+    foreach (ToolChain *tc, toolchains) {
+        bool found = false;
+        for (int i = 0; i < existingToolChains.count(); ++i) {
+            if (*(existingToolChains.at(i)) == *tc) {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+            delete tc;
+        else
+            ToolChainManager::registerToolChain(tc);
+    }
+
+    foreach (ToolChain *tc, existingToolChains) {
+        if (tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)) {
+            if (!tc->isValid())
+                ToolChainManager::deregisterToolChain(tc);
+        }
+    }
 }
 
 void AndroidConfigurations::updateAutomaticKitList()
