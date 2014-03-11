@@ -34,7 +34,10 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 
-namespace QmakeProjectManager { class QmakeProject; }
+namespace QmakeProjectManager {
+class QmakeProject;
+class QmakeProFileNode;
+}
 
 namespace Android {
 namespace Internal {
@@ -54,8 +57,13 @@ public:
     void removeEntries(QModelIndexList list);
     void addEntries(const QStringList &list);
 
+    bool isEnabled() const;
+
+signals:
+    void enabledChanged(bool);
+
 private slots:
-    void reset();
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool success, bool parseInProgress);
 
 private:
     QmakeProjectManager::QmakeProject *m_project;

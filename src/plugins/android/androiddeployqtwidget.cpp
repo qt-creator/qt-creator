@@ -154,22 +154,15 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
     connect(m_ui->addAndroidExtraLibButton, SIGNAL(clicked()), this, SLOT(addAndroidExtraLib()));
     connect(m_ui->removeAndroidExtraLibButton, SIGNAL(clicked()), this, SLOT(removeAndroidExtraLib()));
 
-    connect(m_step->project(), SIGNAL(proFilesEvaluated()), this, SLOT(checkProjectTemplate()));
-    checkProjectTemplate();
+    connect(m_extraLibraryListModel, SIGNAL(enabledChanged(bool)),
+            m_ui->additionalLibrariesGroupBox, SLOT(setEnabled(bool)));
+
+    m_ui->additionalLibrariesGroupBox->setEnabled(m_extraLibraryListModel->isEnabled());
 }
 
 AndroidDeployQtWidget::~AndroidDeployQtWidget()
 {
     delete m_ui;
-}
-
-void AndroidDeployQtWidget::checkProjectTemplate()
-{
-    QmakeProjectManager::QmakeProject *project = static_cast<QmakeProjectManager::QmakeProject *>(m_step->project());
-    if (project->rootQmakeProjectNode()->projectType() == QmakeProjectManager::ApplicationTemplate)
-        m_ui->additionalLibrariesGroupBox->setEnabled(true);
-    else
-        m_ui->additionalLibrariesGroupBox->setEnabled(false);
 }
 
 void AndroidDeployQtWidget::createManifestButton()
