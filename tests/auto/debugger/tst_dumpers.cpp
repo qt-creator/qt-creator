@@ -161,9 +161,7 @@ static void setupCdb(QString *makeBinary, QProcessEnvironment *environment)
             env.set(envIt.key(), envIt.value());
     const QByteArray cdbextPath = CDBEXT_PATH "\\qtcreatorcdbext64";
     QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
-    env.appendOrSet(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
-                         QString::fromLatin1(cdbextPath),
-                         QLatin1String(";"));
+    env.set(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"), QString::fromLatin1(cdbextPath));
     *makeBinary = env.searchInPath(QLatin1String("nmake.exe"));
     *environment = env.toProcessEnvironment();
 }
@@ -541,12 +539,15 @@ struct CorePrivateProfile {};
 struct GuiProfile {};
 struct NetworkProfile {};
 
+struct BigArrayProfile {};
+
 struct DataBase
 {
     DataBase()
       : useQt(false), useQHash(false),
         forceC(false), engines(AllEngines),
-        glibcxxDebug(false), useDebugImage(false)
+        glibcxxDebug(false), useDebugImage(false),
+        bigArray(false)
     {}
 
     mutable bool useQt;
@@ -555,6 +556,7 @@ struct DataBase
     mutable int engines;
     mutable bool glibcxxDebug;
     mutable bool useDebugImage;
+    mutable bool bigArray;
     mutable GdbVersion neededGdbVersion;     // DEC. 70600
     mutable LldbVersion neededLldbVersion;
     mutable QtVersion neededQtVersion;       // HEX! 0x50300
@@ -649,6 +651,12 @@ public:
         useQt = true;
         useQHash = true;
 
+        return *this;
+    }
+
+    const Data &operator+(const BigArrayProfile &) const
+    {
+        this->bigArray = true;
         return *this;
     }
 
@@ -1094,8 +1102,10 @@ void tst_Dumpers::dumper()
              << QLatin1String("-c")
              << QLatin1String("g")
              << QLatin1String("debug\\doit.exe");
-        cmds = "!qtcreatorcdbext.locals -t -D -e " + expanded + " -v -c 0\n"
-               "q\n";
+        if (data.bigArray)
+            cmds = "!qtcreatorcdbext.setparameter maxArraySize=10000\n";
+        cmds += "!qtcreatorcdbext.locals -t -D -e " + expanded + " -v -c 0\n"
+                "q\n";
     } else if (m_debuggerEngine == LldbEngine) {
         exe = "python";
         args << QLatin1String(dumperDir + "/lldbbridge.py")
@@ -1646,7 +1656,8 @@ void tst_Dumpers::dumper_data()
                + NetworkProfile()
 
                + Check("ha1", "129.0.0.130", "@QHostAddress")
-               + Check("ha2", "\"127.0.0.1\"", "@QHostAddress")
+               + Check("ha2", "\"127.0.0.1\"", "@QHostAddress") % NoCdbEngine
+               + Check("ha2", "127.0.0.1", "@QHostAddress") % CdbEngine
                + Check("addr", "1:203:506:0:809:a0b:0:0", "@QIPv6Address");
 
 
@@ -1667,9 +1678,11 @@ void tst_Dumpers::dumper_data()
 
                + GuiProfile()
 
-               + Check("im", "(200x200)", "@QImage")
+               + Check("im", "(200x200)", "@QImage") % NoCdbEngine
+               + Check("im", "200x200, depth: 32, format: 4, 160000 bytes", "@QImage") % CdbEngine
                + CheckType("pain", "@QPainter")
-               + Check("pm", "(200x200)", "@QPixmap");
+               + Check("pm", "(200x200)", "@QPixmap") % NoCdbEngine
+               + Check("pm", "200x200, depth: 32", "@QPixmap") % CdbEngine;
 
 
     QTest::newRow("QLinkedList")
@@ -1724,15 +1737,20 @@ void tst_Dumpers::dumper_data()
                + Check("l2.1", "[1]", "104", "unsigned int")
 
                + Check("l3", "<3 items>", "@QLinkedList<Foo*>")
-               + CheckType("l3.0", "[0]", "Foo")
+               + CheckType("l3.0", "[0]", "Foo") % NoCdbEngine
+               + CheckType("l3.0", "[0]", "Foo *") % CdbEngine
                + Check("l3.0.a", "1", "int")
                + Check("l3.1", "[1]", "0x0", "Foo *")
-               + CheckType("l3.2", "[2]", "Foo")
+               + CheckType("l3.2", "[2]", "Foo") % NoCdbEngine
+               + CheckType("l3.2", "[2]", "Foo *") % CdbEngine
                + Check("l3.2.a", "3", "int")
 
-               + Check("l4", "<2 items>", "@QLinkedList<unsigned long long>")
-               + Check("l4.0", "[0]", "42", "unsigned long long")
-               + Check("l4.1", "[1]", "43", "unsigned long long")
+               + Check("l4", "<2 items>", "@QLinkedList<unsigned long long>") % NoCdbEngine
+               + Check("l4", "<2 items>", "QLinkedList<unsigned __int64>") % CdbEngine
+               + Check("l4.0", "[0]", "42", "unsigned long long") % NoCdbEngine
+               + Check("l4.0", "[0]", "42", "unsigned int64") % CdbEngine
+               + Check("l4.1", "[1]", "43", "unsigned long long") % NoCdbEngine
+               + Check("l4.1", "[1]", "43", "unsigned int64") % CdbEngine
 
                + Check("l5", "<2 items>", "@QLinkedList<Foo>")
                + CheckType("l5.0", "[0]", "Foo")
@@ -1828,6 +1846,8 @@ void tst_Dumpers::dumper_data()
 
                + CoreProfile()
 
+               + BigArrayProfile()
+
                + Check("l0", "<0 items>", "@QList<int>")
 
                + Check("l1", "<10000 items>", "@QList<int>")
@@ -1844,8 +1864,10 @@ void tst_Dumpers::dumper_data()
                + Check("l4.0", "[0]", "\"1\"", "@QString")
 
                + Check("l5", "<3 items>", "@QList<int*>")
-               + CheckType("l5.0", "[0]", "int")
-               + CheckType("l5.1", "[1]", "int")
+               + CheckType("l5.0", "[0]", "int") % NoCdbEngine
+               + CheckType("l5.0", "[0]", "int *") % CdbEngine
+               + CheckType("l5.1", "[1]", "int") % NoCdbEngine
+               + CheckType("l5.1", "[1]", "int *") % CdbEngine
                + Check("l5.2", "[2]", "0x0", "int*")
 
                + Check("l6", "<0 items>", "@QList<int*>")
@@ -1864,12 +1886,18 @@ void tst_Dumpers::dumper_data()
                + Check("l9.2", "[2]", "102", "unsigned short")
 
                + Check("l10", "<3 items>", "@QList<@QChar>")
-               + Check("l10.0", "[0]", "97", "@QChar")
-               + Check("l10.2", "[2]", "99", "@QChar")
+               + Check("l10.0", "[0]", "97", "@QChar") % NoCdbEngine
+               + Check("l10.0", "[0]", "'a' (97)", "@QChar") % CdbEngine
+               + Check("l10.2", "[2]", "99", "@QChar") % NoCdbEngine
+               + Check("l10.2", "[2]", "'c' (99)", "@QChar") % CdbEngine
 
-               + Check("l11", "<3 items>", "@QList<unsigned long long>")
-               + Check("l11.0", "[0]", "100", "unsigned long long")
-               + Check("l11.2", "[2]", "102", "unsigned long long")
+               + Check("l11", "<3 items>", "@QList<unsigned long long>") % NoCdbEngine
+               + Check("l11.0", "[0]", "100", "unsigned long long") % NoCdbEngine
+               + Check("l11.2", "[2]", "102", "unsigned long long") % NoCdbEngine
+
+               + Check("l11", "<3 items>", "@QList<unsigned __int64>") % CdbEngine
+               + Check("l11.0", "[0]", "100", "unsigned int64") % CdbEngine
+               + Check("l11.2", "[2]", "102", "unsigned int64") % CdbEngine
 
                + Check("l12", "<0 items>", "@QList<std::string>")
                + Check("l13", "<4 items>", "@QList<std::string>")
@@ -2647,6 +2675,8 @@ void tst_Dumpers::dumper_data()
 
                + CoreProfile()
 
+               + BigArrayProfile()
+
                + Check("s1", "<2 items>", "@QStack<int>")
                + Check("s1.0", "[0]", "1", "int")
                + Check("s1.1", "[1]", "2", "int")
@@ -2656,21 +2686,27 @@ void tst_Dumpers::dumper_data()
                + Check("s2.8999", "[8999]", "8999", "int")
 
                + Check("s3", "<3 items>", "@QStack<Foo*>")
-               + Check("s3.0", "[0]", "", "Foo")
+               + Check("s3.0", "[0]", "", "Foo") % NoCdbEngine
+               + CheckType("s3.0", "[0]", "Foo *") % CdbEngine
                + Check("s3.0.a", "1", "int")
                + Check("s3.1", "[1]", "0x0", "Foo *")
-               + Check("s3.2", "[2]", "", "Foo")
+               + Check("s3.2", "[2]", "", "Foo") % NoCdbEngine
+               + CheckType("s3.2", "[2]", "Foo *") % CdbEngine
                + Check("s3.2.a", "2", "int")
 
                + Check("s4", "<4 items>", "@QStack<Foo>")
-               + Check("s4.0", "[0]", "", "Foo")
+               + Check("s4.0", "[0]", "", "Foo") % NoCdbEngine
+               + Check("s4.0", "[0]", "class Foo", "Foo") % CdbEngine
                + Check("s4.0.a", "1", "int")
-               + Check("s4.3", "[3]", "", "Foo")
+               + Check("s4.3", "[3]", "", "Foo")  % NoCdbEngine
+               + Check("s4.3", "[3]", "class Foo", "Foo") % CdbEngine
                + Check("s4.3.a", "4", "int")
 
                + Check("s5", "<2 items>", "@QStack<bool>")
-               + Check("s5.0", "[0]", "1", "bool")  // 1 -> true is done on display
-               + Check("s5.1", "[1]", "0", "bool");
+               + Check("s5.0", "[0]", "1", "bool") % NoCdbEngine // 1 -> true is done on display
+               + Check("s5.0", "[0]", "true", "bool") % CdbEngine
+               + Check("s5.1", "[1]", "0", "bool") % NoCdbEngine
+               + Check("s5.1", "[1]", "false", "bool") % CdbEngine;
 
 
     QTest::newRow("QTimeZone")
@@ -3279,6 +3315,8 @@ void tst_Dumpers::dumper_data()
 
                + CoreProfile()
 
+               + BigArrayProfile()
+
                + Check("v1", "<10000 items>", "@QVector<int>")
                + Check("v1.0", "[0]", "0", "int")
                + Check("v1.8999", "[8999]", "80982001", "int")
@@ -3499,6 +3537,8 @@ void tst_Dumpers::dumper_data()
                     "l4.push_back(1);\n"
                     "l4.push_back(2);\n"
                     "unused(&l4);\n\n")
+
+               + BigArrayProfile()
 
                + Check("l0", "<0 items>", "std::list<int>")
 
@@ -4457,6 +4497,8 @@ GdbEngine
 
                 + CoreProfile()
 
+                + BigArrayProfile()
+
                 + Check("j", "1000", "ns::vl")
                 + Check("k", "1000", "ns::verylong")
                 + Check("t1", "0", "myType1")
@@ -4599,6 +4641,7 @@ GdbEngine
                     "for (int i = 0; i < N; ++i)\n"
                     "    bigv[i] = i;\n"
                     "unused(&bigv[10]);\n")
+             + BigArrayProfile()
              + Check("N", "10000", "int")
              + CheckType("bigv", "int [10000]")
              + Check("bigv.0", "[0]", "0", "int")
