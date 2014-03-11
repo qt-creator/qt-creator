@@ -330,6 +330,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
                                                 overview.prettyName(context.fullyQualifiedName(symbol)),
                                                 replace ? Core::SearchResultWindow::SearchAndReplace
                                                         : Core::SearchResultWindow::SearchOnly,
+                                                Core::SearchResultWindow::PreserveCaseDisabled,
                                                 QLatin1String("CppEditor"));
     search->setTextToReplace(replacement);
     connect(search, SIGNAL(replaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)),
@@ -640,6 +641,7 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
                 QString::fromUtf8(macro.name()),
                 replace ? Core::SearchResultWindow::SearchAndReplace
                         : Core::SearchResultWindow::SearchOnly,
+                Core::SearchResultWindow::PreserveCaseDisabled,
                 QLatin1String("CppEditor"));
 
     search->setTextToReplace(replacement);

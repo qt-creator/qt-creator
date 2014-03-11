@@ -929,7 +929,8 @@ void FindReferences::displayResults(int first, int last)
                         label, QString(), symbolName, Core::SearchResultWindow::SearchOnly);
         } else {
             m_currentSearch = Core::SearchResultWindow::instance()->startNewSearch(
-                        label, QString(), symbolName, Core::SearchResultWindow::SearchAndReplace);
+                        label, QString(), symbolName, Core::SearchResultWindow::SearchAndReplace,
+                        Core::SearchResultWindow::PreserveCaseDisabled);
             m_currentSearch->setTextToReplace(replacement);
             connect(m_currentSearch, SIGNAL(replaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)),
                     SLOT(onReplaceButtonClicked(QString,QList<Core::SearchResultItem>,bool)));

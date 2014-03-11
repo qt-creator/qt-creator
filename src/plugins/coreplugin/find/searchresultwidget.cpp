@@ -81,6 +81,7 @@ using namespace Core::Internal;
 SearchResultWidget::SearchResultWidget(QWidget *parent) :
     QWidget(parent),
     m_count(0),
+    m_preserveCaseSupported(true),
     m_isShowingReplaceUI(false),
     m_searchAgainSupported(false)
 {
@@ -294,13 +295,18 @@ QString SearchResultWidget::textToReplace() const
     return m_replaceTextEdit->text();
 }
 
+void SearchResultWidget::setSupportPreserveCase(bool enabled)
+{
+    m_preserveCaseSupported = enabled;
+}
+
 void SearchResultWidget::setShowReplaceUI(bool visible)
 {
     m_searchResultTreeView->model()->setShowReplaceUI(visible);
     m_replaceLabel->setVisible(visible);
     m_replaceTextEdit->setVisible(visible);
     m_replaceButton->setVisible(visible);
-    m_preserveCaseCheck->setVisible(visible);
+    m_preserveCaseCheck->setVisible(visible && m_preserveCaseSupported);
     m_isShowingReplaceUI = visible;
 }
 
@@ -446,7 +452,8 @@ void SearchResultWidget::handleReplaceButton()
     // by pressing return in replace line edit
     if (m_replaceButton->isEnabled()) {
         m_infoBar.clear();
-        emit replaceButtonClicked(m_replaceTextEdit->text(), checkedItems(), m_preserveCaseCheck->isChecked());
+        emit replaceButtonClicked(m_replaceTextEdit->text(), checkedItems(),
+                                  m_preserveCaseSupported && m_preserveCaseCheck->isChecked());
     }
 }
 

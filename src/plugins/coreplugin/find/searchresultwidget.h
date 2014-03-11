@@ -70,6 +70,7 @@ public:
 
     void setTextToReplace(const QString &textToReplace);
     QString textToReplace() const;
+    void setSupportPreserveCase(bool enabled);
     void setShowReplaceUI(bool visible);
 
     bool hasFocusInternally() const;
@@ -123,6 +124,7 @@ private:
     SearchResultTreeView *m_searchResultTreeView;
     int m_count;
     QString m_dontAskAgainGroup;
+    bool m_preserveCaseSupported;
     QFrame *m_messageWidget;
     Core::InfoBar m_infoBar;
     Core::InfoBarDisplay m_infoBarDisplay;

@@ -375,6 +375,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
                                                  const QString &toolTip,
                                                  const QString &searchTerm,
                                                  SearchMode searchOrSearchAndReplace,
+                                                 PreserveCaseMode preserveCaseMode,
                                                  const QString &cfgGroup)
 {
     if (d->m_searchResults.size() >= MAX_SEARCH_HISTORY) {
@@ -395,6 +396,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     connect(widget, SIGNAL(restarted()), d, SLOT(moveWidgetToTop()));
     connect(widget, SIGNAL(requestPopup(bool)), d, SLOT(popupRequested(bool)));
     widget->setTextEditorFont(d->m_font, d->m_color);
+    widget->setSupportPreserveCase(preserveCaseMode == PreserveCaseEnabled);
     widget->setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
     widget->setAutoExpandResults(d->m_expandCollapseAction->isChecked());
     widget->setInfo(label, toolTip, searchTerm);
