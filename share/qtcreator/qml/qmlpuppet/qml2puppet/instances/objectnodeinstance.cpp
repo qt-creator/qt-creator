@@ -1053,6 +1053,9 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
     QObject *object = 0;
     QQmlType *type = getQmlType(typeName, majorNumber, minorNumber);
 
+    if (typeName == "QtQuick.Window/Window")
+        type = getQmlType("QtQuick/Item", 2, 0);
+
     if (type) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)) // TODO remove hack later if we only support >= 5.2
         if ( type->isComposite()) {
