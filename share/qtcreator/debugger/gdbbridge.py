@@ -1488,64 +1488,64 @@ class Dumper(DumperBase):
         result += ']'
         return result
 
-    def threadname(self, maximalStackDepth, objectPrivateType):
-        e = gdb.selected_frame()
-        out = ""
-        ns = self.qtNamespace()
-        while True:
-            maximalStackDepth -= 1
-            if maximalStackDepth < 0:
-                break
-            e = e.older()
-            if e == None or e.name() == None:
-                break
-            if e.name() == ns + "QThreadPrivate::start" \
-                    or e.name() == "_ZN14QThreadPrivate5startEPv@4":
-                try:
-                    thrptr = e.read_var("thr").dereference()
-                    d_ptr = thrptr["d_ptr"]["d"].cast(objectPrivateType).dereference()
-                    try:
-                        objectName = d_ptr["objectName"]
-                    except: # Qt 5
-                        p = d_ptr["extraData"]
-                        if not self.isNull(p):
-                            objectName = p.dereference()["objectName"]
-                    if not objectName is None:
-                        data, size, alloc = self.stringData(objectName)
-                        if size > 0:
-                             s = self.readMemory(data, 2 * size)
-
-                    thread = gdb.selected_thread()
-                    inner = '{valueencoded="';
-                    inner += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
-                    inner += str(thread.num) + '",value="'
-                    inner += s
-                    #inner += self.encodeString(objectName)
-                    inner += '"},'
-
-                    out += inner
-                except:
-                    pass
-        return out
+    #def threadname(self, maximalStackDepth, objectPrivateType):
+    #    e = gdb.selected_frame()
+    #    out = ""
+    #    ns = self.qtNamespace()
+    #    while True:
+    #        maximalStackDepth -= 1
+    #        if maximalStackDepth < 0:
+    #            break
+    #        e = e.older()
+    #        if e == None or e.name() == None:
+    #            break
+    #        if e.name() == ns + "QThreadPrivate::start" \
+    #                or e.name() == "_ZN14QThreadPrivate5startEPv@4":
+    #            try:
+    #                thrptr = e.read_var("thr").dereference()
+    #                d_ptr = thrptr["d_ptr"]["d"].cast(objectPrivateType).dereference()
+    #                try:
+    #                    objectName = d_ptr["objectName"]
+    #                except: # Qt 5
+    #                    p = d_ptr["extraData"]
+    #                    if not self.isNull(p):
+    #                        objectName = p.dereference()["objectName"]
+    #                if not objectName is None:
+    #                    data, size, alloc = self.stringData(objectName)
+    #                    if size > 0:
+    #                         s = self.readMemory(data, 2 * size)
+    #
+    #                thread = gdb.selected_thread()
+    #                inner = '{valueencoded="';
+    #                inner += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+    #                inner += str(thread.num) + '",value="'
+    #                inner += s
+    #                #inner += self.encodeString(objectName)
+    #                inner += '"},'
+    #
+    #                out += inner
+    #            except:
+    #                pass
+    #    return out
 
     def threadnames(self, maximalStackDepth):
         # FIXME: This needs a proper implementation for MinGW, and only there.
-        # Linux, Mac and QNX mirror the objectName()to the underlying threads,
+        # Linux, Mac and QNX mirror the objectName() to the underlying threads,
         # so we get the names already as part of the -thread-info output.
         return '[]'
-        out = '['
-        oldthread = gdb.selected_thread()
-        if oldthread:
-            try:
-                objectPrivateType = gdb.lookup_type(ns + "QObjectPrivate").pointer()
-                inferior = self.selectedInferior()
-                for thread in inferior.threads():
-                    thread.switch()
-                    out += self.threadname(maximalStackDepth, objectPrivateType)
-            except:
-                pass
-            oldthread.switch()
-        return out + ']'
+        #out = '['
+        #oldthread = gdb.selected_thread()
+        #if oldthread:
+        #    try:
+        #        objectPrivateType = gdb.lookup_type(ns + "QObjectPrivate").pointer()
+        #        inferior = self.selectedInferior()
+        #        for thread in inferior.threads():
+        #            thread.switch()
+        #            out += self.threadname(maximalStackDepth, objectPrivateType)
+        #    except:
+        #        pass
+        #    oldthread.switch()
+        #return out + ']'
 
 
     def importPlainDumper(self, printer):
