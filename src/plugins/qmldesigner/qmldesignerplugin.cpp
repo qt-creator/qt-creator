@@ -42,7 +42,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <extensionsystem/pluginspec.h>
-
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/hostosinfo.h>
@@ -339,29 +339,41 @@ static bool isDesignerMode(Core::IMode *mode)
     return mode == Core::DesignMode::instance();
 }
 
+static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
+{
+    if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+        QmlJS::Document::Ptr document = QmlJS::ModelManagerInterface::instance()->snapshot().document(editor->document()->filePath());
+        if (!document.isNull())
+            return document->language() == QmlJS::Language::QmlQtQuick1
+                    || document->language() == QmlJS::Language::QmlQtQuick2
+                    || document->language() == QmlJS::Language::Qml;
+    }
+
+    return false;
+}
+
+static bool documentIsAlreadyOpen(DesignDocument *designDocument, Core::IEditor *editor, Core::IMode *newMode)
+{
+    return designDocument
+            && editor == designDocument->editor()
+            && isDesignerMode(newMode);
+}
+
 void QmlDesignerPlugin::onCurrentModeChanged(Core::IMode *newMode, Core::IMode *oldMode)
 {
-    if (!Core::EditorManager::currentEditor())
-        return;
-
     if (Core::EditorManager::currentEditor()
-            && Core::EditorManager::currentEditor()->id() != QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
-        return;
+            && checkIfEditorIsQtQuick(Core::EditorManager::currentEditor())
+            && !documentIsAlreadyOpen(currentDesignDocument(), Core::EditorManager::currentEditor(), newMode)) {
 
-    if ((currentDesignDocument()
-         && Core::EditorManager::currentEditor() == currentDesignDocument()->editor())
-            && isDesignerMode(newMode))
-        return;
-
-    if (!isDesignerMode(newMode) && isDesignerMode(oldMode))
-        hideDesigner();
-    else  if (Core::EditorManager::currentEditor()
-              && isDesignerMode(newMode)
-              && isQmlFile(Core::EditorManager::currentEditor()))
-        showDesigner();
-    else if (currentDesignDocument())
-        hideDesigner();
-
+        if (!isDesignerMode(newMode) && isDesignerMode(oldMode))
+            hideDesigner();
+        else  if (Core::EditorManager::currentEditor()
+                  && isDesignerMode(newMode)
+                  && isQmlFile(Core::EditorManager::currentEditor()))
+            showDesigner();
+        else if (currentDesignDocument())
+            hideDesigner();
+    }
 }
 
 DesignDocument *QmlDesignerPlugin::currentDesignDocument() const
