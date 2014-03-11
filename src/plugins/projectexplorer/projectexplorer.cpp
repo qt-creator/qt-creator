@@ -1750,18 +1750,18 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
 
     bool ignoreErrors = true;
     if (!d->m_delayedRunConfiguration.isNull() && success && BuildManager::getErrorTaskCount() > 0) {
-        ignoreErrors = QMessageBox::question(ICore::mainWindow(),
-                                             tr("Ignore all errors?"),
+        ignoreErrors = QMessageBox::question(ICore::dialogParent(),
+                                             tr("Ignore All Errors?"),
                                              tr("Found some build errors in current task.\n"
                                                 "Do you want to ignore them?"),
                                              QMessageBox::Yes | QMessageBox::No,
                                              QMessageBox::No) == QMessageBox::Yes;
     }
     if (d->m_delayedRunConfiguration.isNull() && d->m_shouldHaveRunConfiguration) {
-        QMessageBox::warning(ICore::mainWindow(),
-                             tr("Run Configuration removed!"),
-                             tr("The Configuration that was supposed to run is no longer "
-                                "available.\n"), QMessageBox::Ok);
+        QMessageBox::warning(ICore::dialogParent(),
+                             tr("Run Configuration Removed"),
+                             tr("The configuration that was supposed to run is no longer "
+                                "available."), QMessageBox::Ok);
     }
 
     if (success && ignoreErrors && !d->m_delayedRunConfiguration.isNull()) {
