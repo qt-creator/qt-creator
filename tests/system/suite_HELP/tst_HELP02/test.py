@@ -57,11 +57,12 @@ def getQtCreatorVersionFromFile():
 def checkQtCreatorHelpVersion(expectedVersion):
     switchViewTo(ViewConstants.HELP)
     try:
-        creatorManual = waitForObject("{column='0' container=':Qt Creator_QHelpContentWidget' "
-                                      "text?='Qt Creator Manual*' type='QModelIndex'}", 5000)
-        test.compare(str(creatorManual.text)[18:], expectedVersion,
-                     "Verifying whether manual uses expected version, text is: %s" % creatorManual.text)
-    except LookupError:
+        helpContentWidget = waitForObject(':Qt Creator_QHelpContentWidget', 5000)
+        items = dumpItems(helpContentWidget.model())
+        test.compare(filter(lambda x: x.startswith('Qt Creator Manual'), items)[0],
+                     'Qt Creator Manual %s' % expectedVersion,
+                     'Verifying whether manual uses expected version.')
+    except:
         test.fail("Missing Qt Creator Manual.")
 
 def main():
