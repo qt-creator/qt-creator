@@ -62,10 +62,6 @@ public:
     void setDiffEditorGuiController(DiffEditorGuiController *controller);
     DiffEditorGuiController *diffEditorGuiController() const;
 
-#ifdef WITH_TESTS
-    static void testFixPositions();
-#endif // WITH_TESTS
-
 private slots:
     void clear(const QString &message = QString());
     void setDiff(const QList<DiffEditorController::DiffFilesContents> &diffFileList, const QString &workingDirectory);

@@ -1037,86 +1037,6 @@ void SideBySideDiffEditorWidget::showDiff()
     m_rightEditor->updateFoldingHighlight(QPoint(-1, -1));
 }
 
-static void fixPositions(QMap<int, int>::ConstIterator *it,
-                  const QMap<int, int>::ConstIterator &itEnd,
-                  int fileOffset,
-                  int charCounter,
-                  int spanCounter,
-                  int *lastSpanCounter,
-                  QMap<int, int> *changedPositions)
-{
-    while (*it != itEnd) {
-        if (it->key() >= charCounter)
-            break;
-
-        if (it->value() >= charCounter) {
-            if (*lastSpanCounter != -1)
-                break;
-
-            *lastSpanCounter = spanCounter;
-            break;
-        }
-
-        const int startSpanOffset = *lastSpanCounter != -1
-                ? *lastSpanCounter : spanCounter;
-        *lastSpanCounter = -1;
-
-        const int startPos = it->key() + startSpanOffset + fileOffset;
-        const int endPos = it->value() + spanCounter + fileOffset;
-        changedPositions->insert(startPos, endPos);
-        ++(*it);
-    }
-}
-
-static void fixPositions(const ChunkData &chunkData,
-                         const int leftFileOffset,
-                         const int rightFileOffset,
-                         QMap<int, int> *leftCharPos,
-                         QMap<int, int> *rightCharPos)
-{
-    QMap<int, int>::ConstIterator leftIt = chunkData.changedLeftPositions.constBegin();
-    const QMap<int, int>::ConstIterator leftItEnd = chunkData.changedLeftPositions.constEnd();
-    QMap<int, int>::ConstIterator rightIt = chunkData.changedRightPositions.constBegin();
-    const QMap<int, int>::ConstIterator rightItEnd = chunkData.changedRightPositions.constEnd();
-    if (leftIt == leftItEnd && rightIt == rightItEnd)
-        return;
-
-    int leftCharCounter = 0;
-    int rightCharCounter = 0;
-    int leftSpanCounter = 0;
-    int rightSpanCounter = 0;
-    int leftLastSpanCounter = -1;
-    int rightLastSpanCounter = -1;
-    for (int i = 0; i < chunkData.rows.count(); i++) {
-        const RowData &row = chunkData.rows.at(i);
-
-        if (row.leftLine.textLineType == TextLineData::TextLine)
-            leftCharCounter += row.leftLine.text.count() + 1; // +1 for '\n'
-        else
-            ++leftSpanCounter;
-
-        if (row.rightLine.textLineType == TextLineData::TextLine)
-            rightCharCounter += row.rightLine.text.count() + 1; // +1 for '\n'
-        else
-            ++rightSpanCounter;
-
-        fixPositions(&leftIt,
-                     leftItEnd,
-                     leftFileOffset,
-                     leftCharCounter,
-                     leftSpanCounter,
-                     &leftLastSpanCounter,
-                     leftCharPos);
-        fixPositions(&rightIt,
-                     rightItEnd,
-                     rightFileOffset,
-                     rightCharCounter,
-                     rightSpanCounter,
-                     &rightLastSpanCounter,
-                     rightCharPos);
-    }
-}
-
 void SideBySideDiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
 {
     QPalette pal = m_leftEditor->extraArea()->palette();
@@ -1144,31 +1064,30 @@ void SideBySideDiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
     int rightLastSkippedBlockStartPos = 0;
 
     for (int i = 0; i < fileDataList.count(); i++) {
+        const FileData &fileData = fileDataList.at(i);
         leftFilePos[leftPos] = leftPos + 1;
         rightFilePos[rightPos] = rightPos + 1;
         leftPos++; // for file line
         rightPos++; // for file line
-        const FileData &fileData = fileDataList.at(i);
 
         for (int j = 0; j < fileData.chunks.count(); j++) {
-            ChunkData chunkData = fileData.chunks.at(j);
+            const ChunkData &chunkData = fileData.chunks.at(j);
             if (chunkData.contextChunk) {
                 leftChunkPos[leftPos] = leftPos + 1;
                 rightChunkPos[rightPos] = rightPos + 1;
                 leftPos++; // for chunk line
                 rightPos++; // for chunk line
             }
-            const int leftFileOffset = leftPos;
-            const int rightFileOffset = rightPos;
             leftLastDiffBlockStartPos = leftPos;
             rightLastDiffBlockStartPos = rightPos;
             leftLastSkippedBlockStartPos = leftPos;
             rightLastSkippedBlockStartPos = rightPos;
 
-            fixPositions(chunkData, leftFileOffset, rightFileOffset, &leftCharPos, &rightCharPos);
-
             for (int k = 0; k < chunkData.rows.count(); k++) {
-                RowData rowData = chunkData.rows.at(k);
+                const RowData &rowData = chunkData.rows.at(k);
+
+                addChangedPositions(leftPos, rowData.leftLine.changedPositions, &leftCharPos);
+                addChangedPositions(rightPos, rowData.rightLine.changedPositions, &rightCharPos);
 
                 leftPos += rowData.leftLine.text.count() + 1; // +1 for '\n'
                 rightPos += rowData.rightLine.text.count() + 1; // +1 for '\n'
@@ -1204,22 +1123,22 @@ void SideBySideDiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
     QList<QTextEdit::ExtraSelection> leftSelections
             = colorPositions(m_leftLineFormat, leftCursor, leftLinePos);
     leftSelections
-            += colorPositions(spanLineFormat, leftCursor, leftSkippedPos);
-    leftSelections
             += colorPositions(m_chunkLineFormat, leftCursor, leftChunkPos);
     leftSelections
             += colorPositions(m_fileLineFormat, leftCursor, leftFilePos);
+    leftSelections
+            += colorPositions(spanLineFormat, leftCursor, leftSkippedPos);
     leftSelections
             += colorPositions(m_leftCharFormat, leftCursor, leftCharPos);
 
     QList<QTextEdit::ExtraSelection> rightSelections
             = colorPositions(m_rightLineFormat, rightCursor, rightLinePos);
     rightSelections
-            += colorPositions(spanLineFormat, rightCursor, rightSkippedPos);
-    rightSelections
             += colorPositions(m_chunkLineFormat, rightCursor, rightChunkPos);
     rightSelections
             += colorPositions(m_fileLineFormat, rightCursor, rightFilePos);
+    rightSelections
+            += colorPositions(spanLineFormat, rightCursor, rightSkippedPos);
     rightSelections
             += colorPositions(m_rightCharFormat, rightCursor, rightCharPos);
 
@@ -1485,44 +1404,6 @@ void SideBySideDiffEditorWidget::synchronizeFoldings(SideDiffEditorWidget *sourc
     m_foldingBlocker = false;
 }
 
-
 } // namespace DiffEditor
-
-#ifdef WITH_TESTS
-#include <QTest>
-
-void DiffEditor::SideBySideDiffEditorWidget::testFixPositions()
-{
-    ChunkData chunkData;
-    chunkData.rows.append(RowData(TextLineData(QLatin1String("abcd efgh")), TextLineData(QLatin1String("abcd "))));
-    chunkData.rows.append(RowData(TextLineData(TextLineData::Separator), TextLineData(QLatin1String(""))));
-    chunkData.rows.append(RowData(TextLineData(TextLineData::Separator), TextLineData(QLatin1String(""))));
-    chunkData.rows.append(RowData(TextLineData(TextLineData::Separator), TextLineData(QLatin1String(""))));
-    chunkData.rows.append(RowData(TextLineData(TextLineData::Separator), TextLineData(QLatin1String(""))));
-    chunkData.rows.append(RowData(TextLineData(TextLineData::Separator), TextLineData(QLatin1String(""))));
-    chunkData.rows.append(RowData(TextLineData(TextLineData::Separator), TextLineData(QLatin1String(""))));
-    chunkData.rows.append(RowData(TextLineData(QLatin1String("ijkl mnop")), TextLineData(QLatin1String(" mnop"))));
-
-    chunkData.changedLeftPositions.insert(5, 14); // changed text from position 5 to position 14, occupy 9 characters: "efgh\nijkl"
-
-    QMap<int, int> expectedLeftChangedPositions;
-    expectedLeftChangedPositions[5] = 20; // "efgh\n[\n\n\n\n\n\n]ijkl" - [\n] means inserted span
-
-    QMap<int, int> outputLeftChangedPositions;
-    QMap<int, int> outputRightChangedPositions;
-
-    fixPositions(chunkData, 0, 0, &outputLeftChangedPositions, &outputRightChangedPositions);
-    QVERIFY(outputLeftChangedPositions == expectedLeftChangedPositions);
-
-    QMap<int, int> expectedLeftMovedPositions;
-    expectedLeftMovedPositions[15] = 30; // moved by 10
-    outputLeftChangedPositions.clear();
-    outputRightChangedPositions.clear();
-
-    fixPositions(chunkData, 10, 0, &outputLeftChangedPositions, &outputRightChangedPositions);
-    QVERIFY(outputLeftChangedPositions == expectedLeftMovedPositions);
-}
-
-#endif // WITH_TESTS
 
 #include "sidebysidediffeditorwidget.moc"

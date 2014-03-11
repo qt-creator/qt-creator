@@ -133,15 +133,4 @@ QString DiffEditorPlugin::getFileContents(const QString &fileName) const
 } // namespace Internal
 } // namespace DiffEditor
 
-#ifdef WITH_TESTS
-
-#include "sidebysidediffeditorwidget.h"
-
-void DiffEditor::Internal::DiffEditorPlugin::testFixPositions()
-{
-    SideBySideDiffEditorWidget::testFixPositions();
-}
-
-#endif // WITH_TESTS
-
 Q_EXPORT_PLUGIN(DiffEditor::Internal::DiffEditorPlugin)

@@ -53,10 +53,6 @@ public:
 private slots:
     void diff();
 
-#ifdef WITH_TESTS
-    void testFixPositions();
-#endif // WITH_TESTS
-
 private:
     QString getFileContents(const QString &fileName) const;
 
