@@ -1281,8 +1281,6 @@ class Dumper(DumperBase):
                 self.reportStackTop()
                 self.reportThreads()
                 self.reportLocation()
-                self.reportVariables()
-                self.reportRegisters()
                 self.reportChangedBreakpoints()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
@@ -1556,7 +1554,6 @@ class Dumper(DumperBase):
         state = self.process.GetState()
         if state == lldb.eStateStopped:
             self.reportStackPosition()
-            self.reportVariables()
 
     def selectThread(self, args):
         self.process.SetSelectedThreadByID(args['id'])

@@ -320,7 +320,6 @@ void LldbEngine::setupInferior()
     }
 
     runCommand(cmd);
-    updateLocals(); // update display options
 }
 
 void LldbEngine::runEngine()
@@ -493,6 +492,8 @@ void LldbEngine::activateFrame(int frameIndex)
     cmd.arg("thread", threadsHandler()->currentThread().raw());
     cmd.arg("stacklimit", limit);
     runCommand(cmd);
+
+    updateAll();
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
@@ -872,6 +873,7 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
 
 void LldbEngine::updateAll()
 {
+    reloadRegisters();
     updateLocals();
 }
 
@@ -1181,6 +1183,8 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         if (m_continueAtNextSpontaneousStop) {
             m_continueAtNextSpontaneousStop = false;
             continueInferior();
+        } else {
+            updateAll();
         }
     } else if (newState == "inferiorstopok")
         notifyInferiorStopOk();

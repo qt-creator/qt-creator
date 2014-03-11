@@ -184,7 +184,6 @@ private:
 
     typedef void (LldbEngine::*LldbCommandContinuation)();
 
-    void handleStop(const QByteArray &response);
     void handleListLocals(const QByteArray &response);
     void handleListModules(const QByteArray &response);
     void handleListSymbols(const QByteArray &response);
