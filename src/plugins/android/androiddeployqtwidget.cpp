@@ -351,7 +351,7 @@ void AndroidDeployQtWidget::addAndroidExtraLib()
 {
     QStringList fileNames = QFileDialog::getOpenFileNames(this,
                                                           tr("Select additional libraries"),
-                                                          QDir::homePath(),
+                                                          m_currentBuildConfiguration->target()->project()->projectDirectory(),
                                                           tr("Libraries (*.so)"));
 
     if (!fileNames.isEmpty())
