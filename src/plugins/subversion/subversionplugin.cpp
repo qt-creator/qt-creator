@@ -564,7 +564,8 @@ void SubversionPlugin::revertAll()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     const QString title = tr("Revert repository");
-    if (QMessageBox::warning(0, title, tr("Revert all pending changes to the repository?"),
+    if (QMessageBox::warning(Core::ICore::dialogParent(), title,
+                             tr("Revert all pending changes to the repository?"),
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
     // NoteL: Svn "revert ." doesn not work.
@@ -574,7 +575,8 @@ void SubversionPlugin::revertAll()
             runSvn(state.topLevel(), args, m_settings.timeOutMs(),
                    SshPasswordPrompt|ShowStdOutInLogWindow);
     if (revertResponse.error)
-        QMessageBox::warning(0, title, tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
+        QMessageBox::warning(Core::ICore::dialogParent(), title,
+                             tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
     else
         subVersionControl()->emitRepositoryChanged(state.topLevel());
 }
@@ -594,7 +596,8 @@ void SubversionPlugin::revertCurrentFile()
 
     if (diffResponse.stdOut.isEmpty())
         return;
-    if (QMessageBox::warning(0, QLatin1String("svn revert"), tr("The file has been changed. Do you want to revert it?"),
+    if (QMessageBox::warning(Core::ICore::dialogParent(), QLatin1String("svn revert"),
+                             tr("The file has been changed. Do you want to revert it?"),
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 

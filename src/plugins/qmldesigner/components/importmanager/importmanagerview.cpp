@@ -32,6 +32,8 @@
 
 #include <rewritingexception.h>
 
+#include <coreplugin/icore.h>
+
 #include <QMessageBox>
 
 namespace QmlDesigner {
@@ -252,7 +254,7 @@ void ImportManagerView::removeImport(const Import &import)
             model()->changeImports(QList<Import>(), QList<Import>() << import);
     }
     catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+        QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
     }
 }
 
@@ -263,7 +265,7 @@ void ImportManagerView::addImport(const Import &import)
             model()->changeImports(QList<Import>() << import, QList<Import>());
     }
     catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+        QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
     }
 }
 

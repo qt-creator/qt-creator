@@ -462,7 +462,7 @@ void PerforcePlugin::revertCurrentFile()
 
     bool doNotRevert = false;
     if (!result.stdOut.isEmpty())
-        doNotRevert = (QMessageBox::warning(0, tr("p4 revert"),
+        doNotRevert = (QMessageBox::warning(Core::ICore::dialogParent(), tr("p4 revert"),
                                             tr("The file has been changed. Do you want to revert it?"),
                                             QMessageBox::Yes, QMessageBox::No) == QMessageBox::No);
     if (doNotRevert)
@@ -514,7 +514,7 @@ void PerforcePlugin::revertCurrentProject()
     QTC_ASSERT(state.hasProject(), return);
 
     const QString msg = tr("Do you want to revert all changes to the project \"%1\"?").arg(state.currentProjectName());
-    if (QMessageBox::warning(0, tr("p4 revert"), msg, QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+    if (QMessageBox::warning(Core::ICore::dialogParent(), tr("p4 revert"), msg, QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
     revertProject(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state), false);
 }

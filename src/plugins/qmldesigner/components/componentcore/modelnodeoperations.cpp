@@ -30,6 +30,8 @@
 #include "modelnodeoperations.h"
 #include "modelnodecontextmenu_helper.h"
 
+#include <coreplugin/icore.h>
+
 #include <cmath>
 #include <QMessageBox>
 #include <QByteArray>
@@ -47,6 +49,11 @@
 namespace QmlDesigner {
 
 const PropertyName auxDataString("anchors_");
+
+static void showError(const RewritingException &e)
+{
+    QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
+}
 
 static inline QList<QmlItemNode> siblingsForNode(const QmlItemNode &itemNode)
 {
@@ -184,7 +191,7 @@ void toFront(const SelectionContext &selectionState)
             node.setVariantProperty("z", maximumZ);
         }
     } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+        showError(e);
     }
 }
 
@@ -202,7 +209,7 @@ void toBack(const SelectionContext &selectionState)
         }
 
     } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+        showError(e);
     }
 }
 
@@ -222,7 +229,7 @@ void raise(const SelectionContext &selectionState)
             }
         }
     } catch (RewritingException &e) { //better save then sorry
-         QMessageBox::warning(0, "Error", e.description());
+         showError(e);
     }
 }
 
@@ -243,7 +250,7 @@ void lower(const SelectionContext &selectionState)
             }
         }
     } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+        showError(e);
     }
 }
 
@@ -267,7 +274,7 @@ void setVisible(const SelectionContext &selectionState)
     try {
         selectionState.selectedModelNodes().first().variantProperty("visible").setValue(selectionState.toggled());
     } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+        showError(e);
     }
 }
 
@@ -280,7 +287,7 @@ void setFillWidth(const SelectionContext &selectionState)
     try {
         selectionState.firstSelectedModelNode().variantProperty("Layout.fillWidth").setValue(selectionState.toggled());
     } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+        showError(e);
     }
 }
 
@@ -293,7 +300,7 @@ void setFillHeight(const SelectionContext &selectionState)
     try {
         selectionState.firstSelectedModelNode().variantProperty("Layout.fillHeight").setValue(selectionState.toggled());
     } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+        showError(e);
     }
 }
 
@@ -309,7 +316,7 @@ void resetSize(const SelectionContext &selectionState)
             node.removeProperty("height");
         }
     } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+        showError(e);
     }
 }
 
@@ -325,7 +332,7 @@ void resetPosition(const SelectionContext &selectionState)
             node.removeProperty("y");
         }
     } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+        showError(e);
     }
 }
 
@@ -390,7 +397,7 @@ void anchorsFill(const SelectionContext &selectionState)
 
         transaction.commit();
     } catch (RewritingException &e) { //better save then sorry
-        QMessageBox::warning(0, "Error", e.description());
+        showError(e);
     }
 }
 

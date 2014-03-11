@@ -356,7 +356,7 @@ void GerritPlugin::openView()
 {
     if (m_dialog.isNull()) {
         while (!m_parameters->isValid()) {
-            QMessageBox::warning(0, tr("Error"),
+            QMessageBox::warning(ICore::dialogParent(), tr("Error"),
                     tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
             const Id group = VcsBase::Constants::VCS_SETTINGS_CATEGORY;
             if (!ICore::showOptionsDialog(group, "Gerrit"))

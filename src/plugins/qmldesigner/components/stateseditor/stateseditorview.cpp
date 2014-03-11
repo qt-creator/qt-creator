@@ -43,6 +43,9 @@
 
 #include <qmlitemnode.h>
 
+#include <coreplugin/icore.h>
+
+
 namespace QmlDesigner {
 
 /**
@@ -158,7 +161,7 @@ void StatesEditorView::removeState(int nodeId)
             stateNode.destroy();
         }
     }  catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+        QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
     }
 }
 
@@ -209,7 +212,7 @@ void StatesEditorView::addState()
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);
     }  catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+        QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
     }
 }
 
@@ -304,7 +307,7 @@ void StatesEditorView::renameState(int nodeId, const QString &newName)
                 setCurrentState(oldState);
             }
         }  catch (RewritingException &e) {
-            QMessageBox::warning(0, "Error", e.description());
+            QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
         }
     }
 }

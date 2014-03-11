@@ -42,6 +42,7 @@
 #include "wizards/html5app.h"
 
 #include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/documentmanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -101,7 +102,7 @@ void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString &pro
                                "outdated or have been modified:<br><br>%2<br><br>Do you want "
                                "Qt Creator to update the files? Any changes will be lost.")
                 .arg(nativeProFile, fileNames.join(QLatin1String(", ")));
-        if (QMessageBox::question(0, title, message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+        if (QMessageBox::question(Core::ICore::dialogParent(), title, message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             QString error;
             if (!app->updateFiles(updates, error))
                 QMessageBox::critical(0, title, error);

@@ -39,6 +39,7 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -631,7 +632,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
     }
 
     if (forceUpdate)
-        QMessageBox::warning(0, tr("Warning"), tr("Android files have been updated automatically."));
+        QMessageBox::warning(Core::ICore::dialogParent(), tr("Warning"), tr("Android files have been updated automatically."));
 
     return true;
 }

@@ -37,6 +37,8 @@
 #include <modelnode.h>
 #include <variantproperty.h>
 
+#include <coreplugin/icore.h>
+
 enum {
     debug = false
 };
@@ -169,7 +171,7 @@ void StatesEditorModel::renameState(int nodeId, const QString &newName)
         return;
 
     if (newName.isEmpty() ||! m_statesEditorView->validStateName(newName)) {
-        QMessageBox::warning(0, tr("Invalid state name"),
+        QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid state name"),
                              newName.isEmpty() ?
                                  tr("The empty string as a name is reserved for the base state.") :
                                  tr("Name already used in another state"));

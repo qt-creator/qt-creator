@@ -73,6 +73,7 @@
 
 #include "qmldesignerplugin.h"
 
+#include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
 
 #include <QMessageBox>
@@ -262,7 +263,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
                }
 
            } else {
-               QMessageBox::warning(0, tr("Cannot Start QML Puppet Executable"),
+               QMessageBox::warning(Core::ICore::dialogParent(),
+                                    tr("Cannot Start QML Puppet Executable"),
                                     tr("The executable of the QML Puppet process (%1) cannot be started. "
                                        "Please check your installation. "
                                        "QML Puppet is a process which runs in the background to render the items.").
@@ -274,11 +276,15 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            m_localServer->close();
 
        } else {
-           QMessageBox::warning(0, tr("Wrong QML Puppet Executable Version"), tr("The QML Puppet version is incompatible with the Qt Creator version."));
+           QMessageBox::warning(Core::ICore::dialogParent(),
+                                tr("Wrong QML Puppet Executable Version"),
+                                tr("The QML Puppet version is incompatible with the Qt Creator version."));
            QmlDesignerPlugin::instance()->switchToTextModeDeferred();
        }
    } else {
-           QMessageBox::warning(0, tr("Cannot Find QML Puppet Executable"), missingQmlPuppetErrorMessage(applicationPath));
+           QMessageBox::warning(Core::ICore::dialogParent(),
+                                tr("Cannot Find QML Puppet Executable"),
+                                missingQmlPuppetErrorMessage(applicationPath));
            QmlDesignerPlugin::instance()->switchToTextModeDeferred();
    }
 
@@ -433,8 +439,9 @@ void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitSt
     if (m_captureFileForTest.isOpen()) {
         m_captureFileForTest.close();
         m_captureFileForTest.remove();
-        QMessageBox::warning(0, tr("QML Puppet Crashed"), tr("You are recording a puppet stream and the puppet crashed. "
-                                                             "It is recommended to reopen the Qt Quick Designer and start again."));
+        QMessageBox::warning(Core::ICore::dialogParent(), tr("QML Puppet Crashed"),
+                             tr("You are recording a puppet stream and the puppet crashed. "
+                                "It is recommended to reopen the Qt Quick Designer and start again."));
     }
 
 

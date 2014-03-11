@@ -29,6 +29,8 @@
 
 #include "qmljspreviewrunner.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
@@ -71,7 +73,7 @@ void QmlJSPreviewRunner::run(const QString &filename)
     }
 
     if (!errorMessage.isEmpty())
-        QMessageBox::warning(0, tr("Failed to preview Qt Quick file"),
+        QMessageBox::warning(Core::ICore::dialogParent(), tr("Failed to preview Qt Quick file"),
                              tr("Could not preview Qt Quick (QML) file. Reason:\n%1").arg(errorMessage));
 }
 

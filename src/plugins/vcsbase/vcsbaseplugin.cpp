@@ -632,7 +632,7 @@ void VcsBasePlugin::promptToDeleteCurrentFile()
     QTC_ASSERT(state.hasFile(), return);
     const bool rc = Core::VcsManager::promptToDelete(versionControl(), state.currentFile());
     if (!rc)
-        QMessageBox::warning(0, tr("Version Control"),
+        QMessageBox::warning(Core::ICore::dialogParent(), tr("Version Control"),
                              tr("The file '%1' could not be deleted.").
                              arg(QDir::toNativeSeparators(state.currentFile())),
                              QMessageBox::Ok);

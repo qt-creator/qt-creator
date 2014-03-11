@@ -35,6 +35,8 @@
 #include <metainfo.h>
 #include <rewritingexception.h>
 
+#include <coreplugin/icore.h>
+
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <QMimeData>
@@ -275,7 +277,7 @@ void DragTool::commitTransaction()
     try {
         m_rewriterTransaction.commit();
     } catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+        QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
     }
 }
 
