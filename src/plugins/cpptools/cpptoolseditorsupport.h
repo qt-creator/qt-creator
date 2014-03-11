@@ -119,11 +119,17 @@ public:
 
     CPlusPlus::Document::Ptr lastSemanticInfoDocument() const;
 
+    enum ForceReason {
+        NoForce,
+        ForceDueToMissingSemanticInfo,
+        ForceDueEditorRequest
+    };
+
     /// Recalculates the semantic info in a future, and will emit the
     /// semanticInfoUpdated() signal when finished.
     /// Requires that initialized() is true.
-    /// \param force do not check if the old semantic info is still valid
-    void recalculateSemanticInfoDetached(bool force = false);
+    /// \param forceReason the reason to force, if any
+    void recalculateSemanticInfoDetached(ForceReason forceReason);
 
     CppCompletionAssistProvider *completionAssistProvider() const;
 
@@ -148,7 +154,7 @@ private slots:
     void updateDocumentNow();
 
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
-    void startHighlighting();
+    void startHighlighting(ForceReason forceReason = NoForce);
 
     void onDiagnosticsChanged();
 

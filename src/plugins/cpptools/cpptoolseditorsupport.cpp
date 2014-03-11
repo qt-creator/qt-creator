@@ -237,7 +237,7 @@ Document::Ptr CppEditorSupport::lastSemanticInfoDocument() const
     return m_lastSemanticInfo.doc;
 }
 
-void CppEditorSupport::recalculateSemanticInfoDetached(bool force)
+void CppEditorSupport::recalculateSemanticInfoDetached(ForceReason forceReason)
 {
     // Block premature calculation caused by CppEditorPlugin::currentEditorChanged
     // when the editor is created.
@@ -245,12 +245,13 @@ void CppEditorSupport::recalculateSemanticInfoDetached(bool force)
         return;
 
     m_futureSemanticInfo.cancel();
+    const bool force = forceReason != NoForce;
     SemanticInfo::Source source = currentSource(force);
     m_futureSemanticInfo = QtConcurrent::run<CppEditorSupport, void>(
                 &CppEditorSupport::recalculateSemanticInfoDetached_helper, this, source);
 
     if (force && m_highlightingSupport && !m_highlightingSupport->requiresSemanticInfo())
-        startHighlighting();
+        startHighlighting(forceReason);
 }
 
 CppCompletionAssistProvider *CppEditorSupport::completionAssistProvider() const
@@ -352,14 +353,14 @@ void CppEditorSupport::onDocumentUpdated(Document::Ptr doc)
                  || m_lastSemanticInfo.doc->translationUnit()->ast() == 0
                  || m_lastSemanticInfo.doc->fileName() != fileName()))) {
         m_initialized = true;
-        recalculateSemanticInfoDetached(/* force = */ true);
+        recalculateSemanticInfoDetached(ForceDueToMissingSemanticInfo);
     }
 
     // notify the editor that the document is updated
     emit documentUpdated();
 }
 
-void CppEditorSupport::startHighlighting()
+void CppEditorSupport::startHighlighting(ForceReason forceReason)
 {
     if (!m_highlightingSupport)
         return;
@@ -395,8 +396,8 @@ void CppEditorSupport::startHighlighting()
         m_lastHighlightOnCompleteSemanticInfo = complete;
         emit highlighterStarted(&m_highlighter, m_lastHighlightRevision);
     } else {
-        const unsigned revision = currentSource(false).revision;
-        if (m_lastHighlightRevision == revision)
+        const unsigned revision = editorRevision();
+        if (forceReason != ForceDueEditorRequest && m_lastHighlightRevision == revision)
             return;
 
         m_highlighter.cancel();

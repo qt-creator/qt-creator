@@ -1591,8 +1591,12 @@ bool CPPEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
 
 void CPPEditorWidget::semanticRehighlight(bool force)
 {
-    if (m_modelManager)
-        m_modelManager->cppEditorSupport(editor())->recalculateSemanticInfoDetached(force);
+    if (m_modelManager) {
+        const CppEditorSupport::ForceReason forceReason = force
+                ? CppEditorSupport::ForceDueEditorRequest
+                : CppEditorSupport::NoForce;
+        m_modelManager->cppEditorSupport(editor())->recalculateSemanticInfoDetached(forceReason);
+    }
 }
 
 void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
