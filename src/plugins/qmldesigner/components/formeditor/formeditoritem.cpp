@@ -266,6 +266,7 @@ static void paintTextInPlaceHolderForInvisbleItem(QPainter *painter,
 
         painter->setFont(font);
         painter->setPen(QColor(48, 48, 96, 255));
+        painter->setClipping(false);
         painter->drawText(rotatedBoundingBox, displayText, textOption);
     }
 }
