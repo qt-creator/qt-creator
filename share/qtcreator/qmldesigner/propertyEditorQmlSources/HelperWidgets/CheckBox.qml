@@ -66,17 +66,8 @@ Controls.CheckBox {
             backendValue.value = checkBox.checked;
     }
 
-    style: CheckBoxStyle {
-        spacing: 8
-        label: Controls.Label { text: control.text ; color: checkBox.textColor }
-        indicator:  Item {
-            implicitWidth: 16
-            implicitHeight: 16
-            Image { source: "qrc:qmldesigner/images/checkbox_" +
-                            (control.checked ? "checked": "unchecked") +
-                            (control.pressed ? "_pressed": "") + ".png" }
-        }
-    }                                          //control.pressed ? "qrc:qmldesigner/images/checkbox_unchecked_pressed.png" :
+    style: CustomCheckBoxStyle {
+    }
 
 
 }

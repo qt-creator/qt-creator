@@ -130,7 +130,7 @@ void WinRtDeviceFactory::onProcessFinished(int exitCode, QProcess::ExitStatus ex
     }
 
     if (exitCode != 0) {
-        MessageManager::write(tr("winrtrunner.exe returned with exit code %1.")
+        MessageManager::write(tr("winrtrunner returned with exit code %1.")
                                     .arg(exitCode), MessageManager::Flash);
         return;
     }
@@ -238,8 +238,12 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
             deviceManager->addDevice(ProjectExplorer::IDevice::ConstPtr(device));
         }
     }
-    MessageManager::write(tr("Found %1 Windows Runtime devices. %2 of them are new.").arg(numFound)
-                          .arg(numFound - numSkipped));
+    QString message = tr("Found %n Windows Runtime devices.", 0, numFound);
+    if (const int numNew = numFound - numSkipped) {
+        message += QLatin1Char(' ');
+        message += tr("%n of them are new.", 0, numNew);
+    }
+    MessageManager::write(message);
 }
 
 } // Internal

@@ -499,7 +499,7 @@ bool AndroidManifestEditorWidget::open(QString *errorString, const QString &file
             return true;
         }
     }
-    // some error occured
+    // some error occurred
     updateInfoBar(error, errorLine, errorColumn);
     setActivePage(Source);
     return true;

@@ -91,6 +91,7 @@ Section {
                 backendValue: backendValues.flickableDirection
                 model: ["AutoFlickDirection", "HorizontalFlick", "VerticalFlick", "HorizontalAndVerticalFlick"]
                 Layout.fillWidth: true
+                scope: "Flickable"
             }
 
         }
@@ -105,21 +106,9 @@ Section {
                 backendValue: backendValues.boundsBehavior
                 model: ["StopAtBounds", "DragOverBounds", "DragAndOvershootBounds"]
                 Layout.fillWidth: true
+                scope: "Flickable"
             }
 
-        }
-
-        Label {
-            text: qsTr("Behavior")
-            toolTip: qsTr("Bounds behavior")
-        }
-
-        SecondColumnLayout {
-            ComboBox {
-                backendValue: backendValues.boundsBehavior
-                model: ["StopAtBounds", "DragOverBounds", "DragAndOvershootBounds"]
-                Layout.fillWidth: true
-            }
         }
 
         Label {

@@ -131,7 +131,7 @@ BaseTextMark::BaseTextMark(const QString &fileName, int lineNumber)
 {
 }
 
-// we need two phase initilization, since we are calling virtual functions
+// we need two phase initialization, since we are calling virtual functions
 // of BaseTextMark in add() and also accessing widthFactor
 // which might be set in the derived constructor
 void BaseTextMark::init()

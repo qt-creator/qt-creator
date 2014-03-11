@@ -84,6 +84,12 @@
             requires the BlackBerry NDK or the QNX SDK to be installed on the
             development PC.
 
+        \li \l{Connecting Windows Runtime Devices}
+
+            You can build Windows Store Apps and run them on Windows Phones, the
+            Windows Phone Emulator, or the Windows computer in Modern UI mode.
+            You can install the necessary tool chains as part of Qt 5.3.
+
     \endlist
 
 */

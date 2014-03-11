@@ -206,7 +206,15 @@ Utils::FileName IosRunConfiguration::bundleDir() const
     QmakeBuildConfiguration *bc =
             qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
     if (bc) {
-        res = bc->buildDirectory();
+        QmakeProject *pro = qobject_cast<QmakeProject *>(target()->project());
+        const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(profilePath());
+        if (node) {
+            TargetInformation ti = node->targetInformation();
+            if (ti.valid)
+                res = FileName::fromString(ti.buildDir);
+        }
+        if (res.isEmpty())
+            res = bc->buildDirectory();
         switch (bc->buildType()) {
         case BuildConfiguration::Debug :
         case BuildConfiguration::Unknown :

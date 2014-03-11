@@ -221,35 +221,6 @@ lldb.SBType.strip_typedefs = \
 lldb.SBType.__orig__str__ = lldb.SBType.__str__
 lldb.SBType.__str__ = lldb.SBType.GetName
 
-def simpleEncoding(typeobj):
-    code = typeobj.GetTypeClass()
-    size = typeobj.sizeof
-    if code == lldb.eTypeClassBuiltin:
-        name = str(typeobj)
-        if name == "float":
-            return Hex2EncodedFloat4
-        if name == "double":
-            return Hex2EncodedFloat8
-        if name.find("unsigned") >= 0:
-            if size == 1:
-                return Hex2EncodedUInt1
-            if size == 2:
-                return Hex2EncodedUInt2
-            if size == 4:
-                return Hex2EncodedUInt4
-            if size == 8:
-                return Hex2EncodedUInt8
-        else:
-            if size == 1:
-                return Hex2EncodedInt1
-            if size == 2:
-                return Hex2EncodedInt2
-            if size == 4:
-                return Hex2EncodedInt4
-            if size == 8:
-                return Hex2EncodedInt8
-    return None
-
 class Dumper(DumperBase):
     def __init__(self):
         DumperBase.__init__(self)
@@ -316,6 +287,7 @@ class Dumper(DumperBase):
         self.isInterrupting_ = False
         self.dummyValue = None
         self.types_ = {}
+        self.breakpointsToCheck = set([])
 
     def enterSubItem(self, item):
         if isinstance(item.name, lldb.SBValue):
@@ -587,18 +559,34 @@ class Dumper(DumperBase):
     def putSimpleValue(self, value, encoding = None, priority = 0):
         self.putValue(value.GetValue(), encoding, priority)
 
-    def tryPutArrayContents(self, typeobj, base, n):
-        if not self.isSimpleType(typeobj):
-            return False
-        size = n * typeobj.sizeof
-        self.put('childtype="%s",' % typeobj)
-        self.put('addrbase="0x%x",' % int(base))
-        self.put('addrstep="%d",' % typeobj.sizeof)
-        self.put('arrayencoding="%s",' % simpleEncoding(typeobj))
-        self.put('arraydata="')
-        self.put(self.readMemory(base, size))
-        self.put('",')
-        return True
+    def simpleEncoding(self, typeobj):
+        code = typeobj.GetTypeClass()
+        size = typeobj.sizeof
+        if code == lldb.eTypeClassBuiltin:
+            name = str(typeobj)
+            if name == "float":
+                return Hex2EncodedFloat4
+            if name == "double":
+                return Hex2EncodedFloat8
+            if name.find("unsigned") >= 0:
+                if size == 1:
+                    return Hex2EncodedUInt1
+                if size == 2:
+                    return Hex2EncodedUInt2
+                if size == 4:
+                    return Hex2EncodedUInt4
+                if size == 8:
+                    return Hex2EncodedUInt8
+            else:
+                if size == 1:
+                    return Hex2EncodedInt1
+                if size == 2:
+                    return Hex2EncodedInt2
+                if size == 4:
+                    return Hex2EncodedInt4
+                if size == 8:
+                    return Hex2EncodedInt8
+        return None
 
     def putArrayData(self, type, base, n,
             childNumChild = None, maxNumChild = 10000):
@@ -660,12 +648,15 @@ class Dumper(DumperBase):
         self.executable_ = args['executable']
         self.startMode_ = args.get('startMode', 1)
         self.breakOnMain_ = args.get('breakOnMain', 0)
+        self.useTerminal_ = args.get('useTerminal', 0)
         self.processArgs_ = args.get('processArgs', [])
         self.processArgs_ = map(lambda x: self.hexdecode(x), self.processArgs_)
         self.attachPid_ = args.get('attachPid', 0)
         self.sysRoot_ = args.get('sysRoot', '')
         self.remoteChannel_ = args.get('remoteChannel', '')
         self.platform_ = args.get('platform', '')
+
+        self.ignoreStops = 1 if self.useTerminal_ else 0
 
         if self.platform_:
             self.debugger.SetCurrentPlatform(self.platform_)
@@ -801,6 +792,14 @@ class Dumper(DumperBase):
         result += '],current-thread-id="%s"},' % self.currentThread().id
         self.report(result)
 
+    def reportChangedBreakpoints(self):
+        for i in xrange(0, self.target.GetNumBreakpoints()):
+            bp = self.target.GetBreakpointAtIndex(i)
+            if bp.GetID() in self.breakpointsToCheck:
+                if bp.GetNumLocations():
+                    self.breakpointsToCheck.remove(bp.GetID())
+                    self.report('breakpoint-changed={%s}' % self.describeBreakpoint(bp))
+
     def firstUsableFrame(self, thread):
         for i in xrange(10):
             frame = thread.GetFrameAtIndex(i)
@@ -819,16 +818,10 @@ class Dumper(DumperBase):
         if not thread:
             self.report('msg="No thread"')
             return
-        frame = thread.GetSelectedFrame()
-        if frame:
-            frameId = frame.GetFrameID()
-        else:
-            frameId = 0;
 
         (n, isLimited) = (limit, True) if limit > 0 else (thread.GetNumFrames(), False)
 
-        result = 'stack={current-frame="%s"' % frameId
-        result += ',current-thread="%s"' % thread.GetThreadID()
+        result = 'stack={current-thread="%s"' % thread.GetThreadID()
         result += ',frames=['
         for i in xrange(n):
             frame = thread.GetFrameAtIndex(i)
@@ -837,20 +830,32 @@ class Dumper(DumperBase):
                 break
             lineEntry = frame.GetLineEntry()
             line = lineEntry.GetLine()
-            usable = line != 0
             result += '{pc="0x%x"' % frame.GetPC()
             result += ',level="%d"' % frame.idx
             result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
             result += ',func="%s"' % frame.GetFunctionName()
             result += ',line="%d"' % line
             result += ',fullname="%s"' % fileName(lineEntry.file)
-            result += ',usable="%d"' % usable
             result += ',file="%s"},' % fileName(lineEntry.file)
         result += ']'
         result += ',hasmore="%d"' % isLimited
         result += ',limit="%d"' % limit
         result += '}'
         self.report(result)
+
+    def reportStackPosition(self):
+        thread = self.currentThread()
+        if not thread:
+            self.report('msg="No thread"')
+            return
+        frame = thread.GetSelectedFrame()
+        if frame:
+            self.report('stack-position={id="%s"}' % frame.GetFrameID())
+        else:
+            self.report('stack-position={id="-1"}')
+
+    def reportStackTop(self):
+        self.report('stack-top={}')
 
     def putBetterType(self, type):
         try:
@@ -1184,8 +1189,8 @@ class Dumper(DumperBase):
             state = self.process.GetState()
             if state == lldb.eStateStopped:
                 self.reportStack()
+                self.reportStackPosition()
                 self.reportThreads()
-                self.reportLocation()
                 self.reportVariables()
 
     def reportRegisters(self, _ = None):
@@ -1259,6 +1264,9 @@ class Dumper(DumperBase):
                 if self.isInterrupting_:
                     self.isInterrupting_ = False
                     self.report('state="inferiorstopok"')
+                elif self.ignoreStops > 0:
+                    self.ignoreStops -= 1
+                    self.process.Continue()
                 else:
                     self.report('state="stopped"')
             else:
@@ -1269,14 +1277,13 @@ class Dumper(DumperBase):
                 stoppedThread = self.firstStoppedThread()
                 if stoppedThread:
                     self.process.SetSelectedThread(stoppedThread)
-                    usableFrame = self.firstUsableFrame(stoppedThread)
-                    if usableFrame:
-                        stoppedThread.SetSelectedFrame(usableFrame)
                 self.reportStack({'stacklimit': 20})
+                self.reportStackTop()
                 self.reportThreads()
                 self.reportLocation()
                 self.reportVariables()
                 self.reportRegisters()
+                self.reportChangedBreakpoints()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
         elif type == lldb.SBProcess.eBroadcastBitSTDOUT:
@@ -1291,13 +1298,12 @@ class Dumper(DumperBase):
         elif type == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 
-    def describeBreakpoint(self, bp, modelId):
+    def describeBreakpoint(self, bp):
         isWatch = isinstance(bp, lldb.SBWatchpoint)
         if isWatch:
             result  = 'lldbid="%s"' % (qqWatchpointOffset + bp.GetID())
         else:
             result  = 'lldbid="%s"' % bp.GetID()
-        result += ',modelid="%s"' % modelId
         if not bp.IsValid():
             return
         result += ',hitcount="%s"' % bp.GetHitCount()
@@ -1312,18 +1318,25 @@ class Dumper(DumperBase):
         result += ',valid="%s"' % (1 if bp.IsValid() else 0)
         result += ',ignorecount="%s"' % bp.GetIgnoreCount()
         result += ',locations=['
+        lineEntry = None
         if hasattr(bp, 'GetNumLocations'):
             for i in xrange(bp.GetNumLocations()):
                 loc = bp.GetLocationAtIndex(i)
                 addr = loc.GetAddress()
+                lineEntry = addr.GetLineEntry()
                 result += '{locid="%s"' % loc.GetID()
                 result += ',func="%s"' % addr.GetFunction().GetName()
                 result += ',enabled="%s"' % (1 if loc.IsEnabled() else 0)
                 result += ',resolved="%s"' % (1 if loc.IsResolved() else 0)
                 result += ',valid="%s"' % (1 if loc.IsValid() else 0)
                 result += ',ignorecount="%s"' % loc.GetIgnoreCount()
+                result += ',file="%s"' % lineEntry.GetFileSpec()
+                result += ',line="%s"' % lineEntry.GetLine()
                 result += ',addr="%s"},' % loc.GetLoadAddress()
-        result += '],'
+        result += ']'
+        if lineEntry is not None:
+            result += ',file="%s"' % lineEntry.GetFileSpec()
+            result += ',line="%s"' % lineEntry.GetLine()
         return result
 
     def createBreakpointAtMain(self):
@@ -1333,26 +1346,26 @@ class Dumper(DumperBase):
     def addBreakpoint(self, args):
         bpType = args["type"]
         if bpType == BreakpointByFileAndLine:
-            bpNew = self.target.BreakpointCreateByLocation(
+            bp = self.target.BreakpointCreateByLocation(
                 str(args["file"]), int(args["line"]))
         elif bpType == BreakpointByFunction:
-            bpNew = self.target.BreakpointCreateByName(args["function"])
+            bp = self.target.BreakpointCreateByName(args["function"])
         elif bpType == BreakpointByAddress:
-            bpNew = self.target.BreakpointCreateByAddress(args["address"])
+            bp = self.target.BreakpointCreateByAddress(args["address"])
         elif bpType == BreakpointAtMain:
-            bpNew = self.createBreakpointAtMain()
+            bp = self.createBreakpointAtMain()
         elif bpType == BreakpointByFunction:
-            bpNew = self.target.BreakpointCreateByName(args["function"])
+            bp = self.target.BreakpointCreateByName(args["function"])
         elif bpType == BreakpointAtThrow:
-            bpNew = self.target.BreakpointCreateForException(
+            bp = self.target.BreakpointCreateForException(
                 lldb.eLanguageTypeC_plus_plus, False, True)
         elif bpType == BreakpointAtCatch:
-            bpNew = self.target.BreakpointCreateForException(
+            bp = self.target.BreakpointCreateForException(
                 lldb.eLanguageTypeC_plus_plus, True, False)
         elif bpType == WatchpointAtAddress:
             error = lldb.SBError()
-            bpNew = self.target.WatchAddress(args["address"], 4, False, True, error)
-            #warn("BPNEW: %s" % bpNew)
+            bp = self.target.WatchAddress(args["address"], 4, False, True, error)
+            #warn("BPNEW: %s" % bp)
             self.reportError(error)
         elif bpType == WatchpointAtExpression:
             # FIXME: Top level-only for now.
@@ -1360,7 +1373,7 @@ class Dumper(DumperBase):
                 frame = self.currentFrame()
                 value = frame.FindVariable(args["expression"])
                 error = lldb.SBError()
-                bpNew = self.target.WatchAddress(value.GetLoadAddress(),
+                bp = self.target.WatchAddress(value.GetLoadAddress(),
                     value.GetByteSize(), False, True, error)
             except:
                 return self.target.BreakpointCreateByName(None)
@@ -1368,13 +1381,14 @@ class Dumper(DumperBase):
             # This leaves the unhandled breakpoint in a (harmless)
             # "pending" state.
             return self.target.BreakpointCreateByName(None)
-        bpNew.SetIgnoreCount(int(args["ignorecount"]))
-        if hasattr(bpNew, 'SetCondition'):
-            bpNew.SetCondition(self.hexdecode(args["condition"]))
-        bpNew.SetEnabled(int(args["enabled"]))
-        if hasattr(bpNew, 'SetOneShot'):
-            bpNew.SetOneShot(int(args["oneshot"]))
-        return bpNew
+        bp.SetIgnoreCount(int(args["ignorecount"]))
+        if hasattr(bp, 'SetCondition'):
+            bp.SetCondition(self.hexdecode(args["condition"]))
+        bp.SetEnabled(int(args["enabled"]))
+        if hasattr(bp, 'SetOneShot'):
+            bp.SetOneShot(int(args["oneshot"]))
+        self.breakpointsToCheck.add(bp.GetID())
+        return bp
 
     def changeBreakpoint(self, args):
         id = int(args["lldbid"])
@@ -1387,6 +1401,7 @@ class Dumper(DumperBase):
         bp.SetEnabled(int(args["enabled"]))
         if hasattr(bp, 'SetOneShot'):
             bp.SetOneShot(int(args["oneshot"]))
+        return bp
 
     def removeBreakpoint(self, args):
         id = int(args['lldbid'])
@@ -1402,30 +1417,27 @@ class Dumper(DumperBase):
         if needStop:
             error = self.process.Stop()
 
-        result = 'bkpts=['
         for bp in args['bkpts']:
             operation = bp['operation']
+            modelId = bp['modelid']
 
             if operation == 'add':
                 bpNew = self.addBreakpoint(bp)
-                result += '{operation="added",%s}' \
-                    % self.describeBreakpoint(bpNew, bp["modelid"])
+                self.report('breakpoint-added={%s,modelid="%s"}'
+                    % (self.describeBreakpoint(bpNew), modelId))
 
             elif operation == 'change':
                 bpNew = self.changeBreakpoint(bp)
-                result += '{operation="changed",%s' \
-                    % self.describeBreakpoint(bpNew, bp["modelid"])
+                self.report('breakpoint-changed={%s,modelid="%s"}'
+                    % (self.describeBreakpoint(bpNew), modelId))
 
             elif operation == 'remove':
                 bpDead = self.removeBreakpoint(bp)
-                result += '{operation="removed",modelid="%s"}' % bp["modelid"]
-
-        result += "]"
+                self.report('breakpoint-removed={modelid="%s"}' % modelId)
 
         if needStop:
             error = self.process.Continue()
 
-        self.report(result)
 
     def listModules(self, args):
         result = 'modules=['
@@ -1543,9 +1555,7 @@ class Dumper(DumperBase):
         self.currentThread().SetSelectedFrame(args['index'])
         state = self.process.GetState()
         if state == lldb.eStateStopped:
-            self.reportStack(args)
-            self.reportThreads()
-            self.reportLocation()
+            self.reportStackPosition()
             self.reportVariables()
 
     def selectThread(self, args):
@@ -1580,19 +1590,30 @@ class Dumper(DumperBase):
         self.reportVariables(args)
 
     def disassemble(self, args):
-        frame = self.currentFrame();
-        function = frame.GetFunction()
-        name = function.GetName()
+        functionName = args.get('function', '')
+        flavor = args.get('flavor', '')
+        function = None
+        if len(functionName):
+            functions = self.target.FindFunctions(functionName).functions
+            if len(functions):
+                function = functions[0]
+        if function:
+            base = function.GetStartAddress().GetLoadAddress(self.target)
+            instructions = function.GetInstructions(self.target)
+        else:
+            base = args.get('address', 0)
+            addr = lldb.SBAddress(base, self.target)
+            instructions = self.target.ReadInstructions(addr, 100)
+
         result = 'disassembly={cookie="%s",' % args['cookie']
         result += ',lines=['
-        base = function.GetStartAddress().GetLoadAddress(self.target)
-        for insn in function.GetInstructions(self.target):
+        for insn in instructions:
             comment = insn.GetComment(self.target)
             addr = insn.GetAddress().GetLoadAddress(self.target)
             result += '{address="%s"' % addr
             result += ',inst="%s %s"' % (insn.GetMnemonic(self.target),
                 insn.GetOperands(self.target))
-            result += ',func_name="%s"' % name
+            result += ',func_name="%s"' % functionName
             if comment:
                 result += ',comment="%s"' % comment
             result += ',offset="%s"},' % (addr - base)

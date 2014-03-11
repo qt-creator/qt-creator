@@ -336,7 +336,7 @@ public:
         unsigned kind       : 8;
         // The token starts a new line.
         unsigned newline    : 1;
-        // The token is preceeded by whitespace(s).
+        // The token is preceded by whitespace(s).
         unsigned whitespace : 1;
         // The token is joined with the previous one.
         unsigned joined     : 1;
@@ -354,7 +354,7 @@ public:
         unsigned generated  : 1;
         // Unused...
         unsigned pad        : 3;
-        // The token lenght.
+        // The token length.
         unsigned length     : 16;
     };
     union {

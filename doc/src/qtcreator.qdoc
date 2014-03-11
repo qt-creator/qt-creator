@@ -200,6 +200,7 @@
                 \li \l{Searching with the Locator}
             \endlist
             \li \l{Refactoring}
+            \li \l{Beautifying Source Code}
             \li \l{Configuring the Editor}
             \list
                 \li \l{Specifying Text Editor Settings}
@@ -226,6 +227,7 @@
                 \li \l{Connecting Embedded Linux Devices}
                 \li \l{Connecting iOS Devices}
                 \li \l{Connecting QNX Devices}
+                \li \l{Connecting Windows Runtime Devices}
             \endlist
             \li \l{Customizing the Build Process}
         \endlist

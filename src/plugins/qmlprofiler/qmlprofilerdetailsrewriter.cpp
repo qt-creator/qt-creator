@@ -108,6 +108,7 @@ public:
     QList <PendingEvent> m_pendingEvents;
     QStringList m_pendingDocs;
     Utils::FileInProjectFinder *m_projectFinder;
+    QMap<QString, QString> m_filesCache;
 
     QmlProfilerDetailsRewriter *q;
 };
@@ -125,7 +126,13 @@ QmlProfilerDetailsRewriter::~QmlProfilerDetailsRewriter()
 void QmlProfilerDetailsRewriter::requestDetailsForLocation(int requestId,
         const QmlDebug::QmlEventLocation &location)
 {
-    const QString localFile = d->m_projectFinder->findFile(location.filename);
+    QString localFile;
+    if (!d->m_filesCache.contains(location.filename)) {
+        localFile = d->m_projectFinder->findFile(location.filename);
+        d->m_filesCache[location.filename] = localFile;
+    } else {
+        localFile = d->m_filesCache[location.filename];
+    }
     QFileInfo fileInfo(localFile);
     if (!fileInfo.exists() || !fileInfo.isReadable())
         return;
@@ -173,6 +180,7 @@ void QmlProfilerDetailsRewriter::rewriteDetailsForLocation(QTextStream &textDoc,
 
 void QmlProfilerDetailsRewriter::clearRequests()
 {
+    d->m_filesCache.clear();
     d->m_pendingDocs.clear();
 }
 
@@ -204,6 +212,7 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
                    this,
                    SLOT(documentReady(QmlJS::Document::Ptr)));
         emit eventDetailsChanged();
+        d->m_filesCache.clear();
     }
 }
 

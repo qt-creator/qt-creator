@@ -225,7 +225,7 @@ void PluginDumper::dumpAllPlugins()
 
 static QString noTypeinfoError(const QString &libraryPath)
 {
-    return PluginDumper::tr("QML module does not contain information about components contained in plugins\n\n"
+    return PluginDumper::tr("QML module does not contain information about components contained in plugins.\n\n"
                             "Module path: %1\n"
                             "See \"Using QML Modules with Plugins\" in the documentation.").arg(
                 libraryPath);
@@ -255,7 +255,7 @@ static QString qmldumpFailedMessage(const QString &libraryPath, const QString &e
 static void printParseWarnings(const QString &libraryPath, const QString &warning)
 {
     ModelManagerInterface::writeWarning(
-                PluginDumper::tr("Warnings while parsing qmltypes information of %1:\n"
+                PluginDumper::tr("Warnings while parsing QML type information of %1:\n"
                                  "%2").arg(libraryPath, warning));
 }
 

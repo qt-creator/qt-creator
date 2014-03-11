@@ -233,7 +233,8 @@ struct ProjectExplorerPluginPrivate {
     static const int m_maxRecentProjects = 25;
 
     QString m_lastOpenDirectory;
-    RunConfiguration *m_delayedRunConfiguration;
+    QPointer<RunConfiguration> m_delayedRunConfiguration;
+    bool m_shouldHaveRunConfiguration;
     RunMode m_runMode;
     QString m_projectFilterString;
     Internal::MiniProjectTargetSelector * m_targetSelector;
@@ -256,7 +257,7 @@ struct ProjectExplorerPluginPrivate {
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_currentProject(0),
     m_currentNode(0),
-    m_delayedRunConfiguration(0),
+    m_shouldHaveRunConfiguration(false),
     m_runMode(NoRunMode),
     m_projectsMode(0),
     m_kitManager(0),
@@ -1061,7 +1062,7 @@ void ProjectExplorerPlugin::loadAction()
     openProject(filename, &errorMessage);
 
     if (!errorMessage.isEmpty())
-        QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project"), errorMessage);
+        QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project."), errorMessage);
     updateActions();
 }
 
@@ -1384,7 +1385,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
             }
         }
         if (found) {
-            appendError(errorString, tr("Failed opening project '%1': Project already open")
+            appendError(errorString, tr("Failed opening project '%1': Project already open.")
                         .arg(QDir::toNativeSeparators(fileName)));
             SessionManager::reportProjectLoadingProgress();
             continue;
@@ -1405,7 +1406,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
                                 setCurrentNode(pro->rootProjectNode());
                             openedPro += pro;
                         } else {
-                            appendError(errorString, tr("Failed opening project '%1': Settings could not be restored")
+                            appendError(errorString, tr("Failed opening project '%1': Settings could not be restored.")
                                         .arg(QDir::toNativeSeparators(fileName)));
                             delete pro;
                         }
@@ -1496,7 +1497,8 @@ void ProjectExplorerPlugin::updateWelcomePage()
 
 void ProjectExplorerPlugin::currentModeChanged(IMode *mode, IMode *oldMode)
 {
-    Q_UNUSED(oldMode);
+    if (oldMode && oldMode->id() == ProjectExplorer::Constants::MODE_SESSION)
+        ICore::saveSettings();
     if (mode && mode->id() == Core::Constants::MODE_WELCOME)
         updateWelcomePage();
 }
@@ -1747,22 +1749,29 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
     updateActions();
 
     bool ignoreErrors = true;
-    if (d->m_delayedRunConfiguration && success && BuildManager::getErrorTaskCount() > 0) {
-        ignoreErrors = QMessageBox::question(ICore::mainWindow(),
-                                             tr("Ignore all errors?"),
+    if (!d->m_delayedRunConfiguration.isNull() && success && BuildManager::getErrorTaskCount() > 0) {
+        ignoreErrors = QMessageBox::question(ICore::dialogParent(),
+                                             tr("Ignore All Errors?"),
                                              tr("Found some build errors in current task.\n"
                                                 "Do you want to ignore them?"),
                                              QMessageBox::Yes | QMessageBox::No,
                                              QMessageBox::No) == QMessageBox::Yes;
     }
+    if (d->m_delayedRunConfiguration.isNull() && d->m_shouldHaveRunConfiguration) {
+        QMessageBox::warning(ICore::dialogParent(),
+                             tr("Run Configuration Removed"),
+                             tr("The configuration that was supposed to run is no longer "
+                                "available."), QMessageBox::Ok);
+    }
 
-    if (success && ignoreErrors && d->m_delayedRunConfiguration) {
-        executeRunConfiguration(d->m_delayedRunConfiguration, d->m_runMode);
+    if (success && ignoreErrors && !d->m_delayedRunConfiguration.isNull()) {
+        executeRunConfiguration(d->m_delayedRunConfiguration.data(), d->m_runMode);
     } else {
         if (BuildManager::tasksAvailable())
             BuildManager::showTaskWindow();
     }
     d->m_delayedRunConfiguration = 0;
+    d->m_shouldHaveRunConfiguration = false;
     d->m_runMode = NoRunMode;
 }
 
@@ -2326,6 +2335,7 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
         // delay running till after our queued steps were processed
         d->m_runMode = runMode;
         d->m_delayedRunConfiguration = rc;
+        d->m_shouldHaveRunConfiguration = true;
     } else {
         executeRunConfiguration(rc, runMode);
     }
@@ -2644,7 +2654,7 @@ void ProjectExplorerPlugin::openRecentProject()
         QString errorMessage;
         openProject(fileName, &errorMessage);
         if (!errorMessage.isEmpty())
-            QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project"), errorMessage);
+            QMessageBox::critical(ICore::mainWindow(), tr("Failed to open project."), errorMessage);
     }
 }
 

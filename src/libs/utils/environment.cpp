@@ -31,6 +31,7 @@
 
 #include <QDir>
 #include <QProcessEnvironment>
+#include <QSet>
 #include <QCoreApplication>
 
 class SystemEnvironment : public Utils::Environment
@@ -262,7 +263,11 @@ QString Environment::searchInPath(const QString &executable,
     if (fi.isAbsolute())
         return exec;
 
+    QSet<QString> alreadyChecked;
     foreach (const QString &dir, additionalDirs) {
+        if (alreadyChecked.contains(dir))
+            continue;
+        alreadyChecked.insert(dir);
         QString tmp = searchInDirectory(execs, dir);
         if (!tmp.isEmpty())
             return tmp;
@@ -272,6 +277,9 @@ QString Environment::searchInPath(const QString &executable,
         return QString();
 
     foreach (const QString &p, path()) {
+        if (alreadyChecked.contains(p))
+            continue;
+        alreadyChecked.insert(p);
         QString tmp = searchInDirectory(execs, QDir::fromNativeSeparators(p));
         if (!tmp.isEmpty())
             return tmp;

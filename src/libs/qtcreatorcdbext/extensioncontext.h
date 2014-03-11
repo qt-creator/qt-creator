@@ -48,6 +48,7 @@ public:
     Parameters();
 
     unsigned maxStringLength;
+    unsigned maxArraySize;
     unsigned maxStackDepth;
 };
 

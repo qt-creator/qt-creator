@@ -33,6 +33,7 @@
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
+#include <QStringList>
 
 /*!
     \class Core::IVersionControl::TopicCache
@@ -74,6 +75,11 @@ QString IVersionControl::vcsOpenText() const
 QString IVersionControl::vcsMakeWritableText() const
 {
     return QString();
+}
+
+QStringList IVersionControl::additionalToolsPath() const
+{
+    return QStringList();
 }
 
 QString IVersionControl::vcsTopic(const QString &topLevel)

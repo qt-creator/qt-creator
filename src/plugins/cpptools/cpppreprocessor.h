@@ -55,7 +55,8 @@ public:
 protected:
     CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
 
-    void getFileContents(const QString &absoluteFilePath, QByteArray *contents, unsigned *revision) const;
+    bool getFileContents(const QString &absoluteFilePath, QByteArray *contents,
+                         unsigned *revision) const;
     bool checkFile(const QString &absoluteFilePath) const;
     QString resolveFile(const QString &fileName, IncludeType type);
     QString resolveFile_helper(const QString &fileName, IncludeType type);

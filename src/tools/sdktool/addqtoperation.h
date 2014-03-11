@@ -55,6 +55,9 @@ public:
 
     static QVariantMap initializeQtVersions();
 
+    static bool exists(const QString &id);
+    static bool exists(const QVariantMap &map, const QString &id);
+
 private:
     QString m_id; // actually this is the autodetectionSource
     QString m_displayName;

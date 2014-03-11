@@ -227,7 +227,7 @@ QString GitoriousRepositoryWizardPage::repositoryName() const
 
 QUrl GitoriousRepositoryWizardPage::repositoryURL() const
 {
-    // Find by name (as we sorted the the repositories)
+    // Find by name (as we sorted the repositories)
     const QString repoName = repositoryName();
     foreach (const GitoriousRepository &r, m_projectPage->project()->repositories)
         if (r.name == repoName)

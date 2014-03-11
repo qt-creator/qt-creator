@@ -1492,8 +1492,13 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
 IEditor *EditorManager::openEditor(const QString &fileName, const Id &editorId,
                                    OpenEditorFlags flags, bool *newEditor)
 {
-    if (flags & EditorManager::OpenInOtherSplit)
-        m_instance->gotoOtherSplit();
+    if (flags & EditorManager::OpenInOtherSplit) {
+        if (flags & EditorManager::NoNewSplits)
+            m_instance->gotoNextSplit();
+        else
+            m_instance->gotoOtherSplit();
+    }
+
     return m_instance->openEditor(m_instance->currentEditorView(),
                                   fileName, editorId, flags, newEditor);
 }
@@ -1659,10 +1664,18 @@ QStringList EditorManager::getOpenFileNames()
 
 IEditor *EditorManager::openEditorWithContents(const Id &editorId,
                                         QString *titlePattern,
-                                        const QByteArray &contents)
+                                        const QByteArray &contents,
+                                        OpenEditorFlags flags)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << editorId.name() << titlePattern << contents;
+
+    if (flags & EditorManager::OpenInOtherSplit) {
+        if (flags & EditorManager::NoNewSplits)
+            m_instance->gotoNextSplit();
+        else
+            m_instance->gotoOtherSplit();
+    }
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -1714,6 +1727,7 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
 
     m_instance->addEditor(edt);
     QApplication::restoreOverrideCursor();
+    activateEditor(edt, flags);
     return edt;
 }
 
@@ -1785,9 +1799,6 @@ void EditorManager::autoSave()
     if (!errors.isEmpty())
         QMessageBox::critical(ICore::mainWindow(), tr("File Error"),
                               errors.join(QLatin1String("\n")));
-
-    // Also save settings while accessing the disk anyway:
-    ICore::saveSettings();
 }
 
 MakeWritableResult EditorManager::makeFileWritable(IDocument *document)

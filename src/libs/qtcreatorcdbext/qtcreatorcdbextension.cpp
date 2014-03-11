@@ -174,7 +174,8 @@ static const CommandDescription commandDescriptions[] = {
 {"widgetat","Return address of widget at position","<x> <y>"},
 {"breakpoints","List breakpoints with modules","[-h] [-v]"},
 {"test","Testing command","-T type | -w watch-expression"},
-{"setparameter","Set parameter","maxStringLength=value maxStackDepth=value stateNotification=1,0"}
+{"setparameter","Set parameter",
+ "maxStringLength=value maxArraySize=value maxStackDepth=value stateNotification=1,0"}
 };
 
 typedef std::vector<std::string> StringVector;
@@ -911,6 +912,9 @@ extern "C" HRESULT CALLBACK setparameter(CIDebugClient *, PCSTR args)
             const std::string value = token.substr(equalsPos + 1, token.size() - 1 - equalsPos);
             if (!token.compare(0, equalsPos, "maxStringLength")) {
                 if (integerFromString(value, &ExtensionContext::instance().parameters().maxStringLength))
+                    ++success;
+            } else if (!token.compare(0, equalsPos, "maxArraySize")) {
+                if (integerFromString(value, &ExtensionContext::instance().parameters().maxArraySize))
                     ++success;
             } else if (!token.compare(0, equalsPos, "maxStackDepth")) {
                 if (integerFromString(value, &ExtensionContext::instance().parameters().maxStackDepth))

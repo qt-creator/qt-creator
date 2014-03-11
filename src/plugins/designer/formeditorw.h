@@ -127,7 +127,6 @@ private slots:
     void toolChanged(int);
     void print();
     void setPreviewMenuEnabled(bool e);
-    void switchSourceForm();
     void updateShortcut(QObject *command);
     void closeFormEditorsForXmlEditors(QList<Core::IEditor*> editors);
 
@@ -160,7 +159,8 @@ private:
                                          const QString &keySequence = QString());
     Core::Command *addToolAction(QAction *a,
                                  const Core::Context &context, const Core::Id &id,
-                                 Core::ActionContainer *c1, const QString &keySequence = QString());
+                                 Core::ActionContainer *c1, const QString &keySequence = QString(),
+                                 Core::Id groupId = Core::Id());
     QToolBar *createEditorToolBar() const;
 
     static FormEditorW *m_self;
@@ -187,7 +187,6 @@ private:
     QActionGroup *m_actionGroupPreviewInStyle;
     QMenu *m_previewInStyleMenu;
     QAction *m_actionAboutPlugins;
-    QAction *m_actionSwitchSource;
     QSignalMapper *m_shortcutMapper;
 
     DesignerContext *m_context;

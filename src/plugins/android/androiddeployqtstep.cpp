@@ -243,7 +243,7 @@ bool AndroidDeployQtStep::init()
 
     QString inputFile = node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
     if (inputFile.isEmpty()) { // should never happen
-        emit addOutput(tr("Internal Error: Unknown android deployment json file location"), BuildStep::ErrorMessageOutput);
+        emit addOutput(tr("Internal Error: Unknown Android deployment JSON file location."), BuildStep::ErrorMessageOutput);
         return false;
     }
 

@@ -289,10 +289,12 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     connect(m_reparseExternallyChangedFiles, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);
 
-    QAction *inspectCppCodeModel = new QAction(tr("Debug: Inspect C++ Code Model"), this);
+    cppToolsMenu->addSeparator(globalContext);
+    QAction *inspectCppCodeModel = new QAction(tr("Inspect C++ Code Model..."), this);
     cmd = ActionManager::registerAction(inspectCppCodeModel, Constants::INSPECT_CPP_CODEMODEL, globalContext);
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+F12") : tr("Ctrl+Shift+F12")));
     connect(inspectCppCodeModel, SIGNAL(triggered()), this, SLOT(inspectCppCodeModel()));
+    cppToolsMenu->addAction(cmd);
 
     contextMenu->addSeparator(context);
 

@@ -98,8 +98,8 @@ void AnalyzerRunConfigWidget::chooseSettings(int setting)
     m_configWidget->setEnabled(isCustom);
     m_restoreButton->setEnabled(isCustom);
     m_details->setSummaryText(isCustom
-        ? tr("Use <strong>Customized Settings</strong>")
-        : tr("Use <strong>Global Settings</strong>"));
+        ? tr("Use Customized Settings")
+        : tr("Use Global Settings"));
 }
 
 void AnalyzerRunConfigWidget::restoreGlobal()

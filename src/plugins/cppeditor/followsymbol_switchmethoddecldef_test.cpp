@@ -332,6 +332,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 //    qDebug() << "Expected column:" << expectedColumn;
 
     QEXPECT_FAIL("globalVarFromEnum", "Contributor works on a fix.", Abort);
+    QEXPECT_FAIL("matchFunctionSignature_Follow_5", "foo(int) resolved as CallAST", Abort);
     QCOMPARE(currentTextEditor->currentLine(), expectedLine);
     QCOMPARE(currentTextEditor->currentColumn() - 1, expectedColumn);
 
@@ -452,6 +453,50 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
         "    return 1 + 1;\n"
         "}\n"                   // Line 10
     );
+
+    QTest::newRow("matchFunctionSignature_Def_1") << _(
+        "class Foo {\n"
+        "    void @foo(int);\n"
+        "    void foo();\n"
+        "};\n"
+        ) << _(
+        "#include \"file.h\"\n"
+        "void Foo::$foo(int) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Def_2") << _(
+        "class Foo {\n"
+        "    void $foo(int);\n"
+        "    void foo();\n"
+        "};\n"
+        ) << _(
+        "#include \"file.h\"\n"
+        "void Foo::@foo(int) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Def_3") << _(
+        "class Foo {\n"
+        "    void foo(int);\n"
+        "    void @$foo() {}\n"
+        "};\n"
+        ) << _(
+        "#include \"file.h\"\n"
+        "void Foo::foo(int) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Def_4") << _(
+        "class Foo {\n"
+        "    void foo(int);\n"
+        "    void @$foo();\n"
+        "};\n"
+    ) << _();
+
+    QTest::newRow("matchFunctionSignature_Def_5") << _(
+        "class Foo {\n"
+        "    void @$foo(int);\n"
+        "    void foo();\n"
+        "};\n"
+    ) << _();
 }
 
 void CppEditorPlugin::test_SwitchMethodDeclarationDefinition()
@@ -677,12 +722,12 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
     // 3.3.8 Enumeration scope
     QTest::newRow("nsMemberHidesNsMemberIntroducedByUsingDirective") << _(
         "namespace A {\n"
-        "  char x;\n"
+        "    char x;\n"
         "}\n"
         "\n"
         "namespace B {\n"                               // Line 5
-        "  using namespace A;\n"
-        "  int $x; // hides A::x\n"
+        "    using namespace A;\n"
+        "    int $x; // hides A::x\n"
         "}\n"
         "\n"
         "int main()\n"                                  // Line 10
@@ -747,76 +792,114 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
     );
 
     QTest::newRow("classConstructor") << _(
-            "class Foo {\n"
-            "    F@oo();"
-            "    ~Foo();"
-            "};\n\n"
-            "Foo::$Foo()\n"
-            "{\n"
-            "}\n\n"
-            "Foo::~Foo()\n"
-            "{\n"
-            "}\n"
+        "class Foo {\n"
+        "    F@oo();"
+        "    ~Foo();"
+        "};\n\n"
+        "Foo::$Foo()\n"
+        "{\n"
+        "}\n\n"
+        "Foo::~Foo()\n"
+        "{\n"
+        "}\n"
     );
 
     QTest::newRow("classDestructor") << _(
-            "class Foo {\n"
-            "    Foo();"
-            "    ~@Foo();"
-            "};\n\n"
-            "Foo::Foo()\n"
-            "{\n"
-            "}\n\n"
-            "Foo::~$Foo()\n"
-            "{\n"
-            "}\n"
+        "class Foo {\n"
+        "    Foo();"
+        "    ~@Foo();"
+        "};\n\n"
+        "Foo::Foo()\n"
+        "{\n"
+        "}\n\n"
+        "Foo::~$Foo()\n"
+        "{\n"
+        "}\n"
     );
 
     QTest::newRow("skipForwardDeclarationBasic") << _(
-            "class $Foo {};\n"
-            "class Foo;\n"
-            "@Foo foo;\n"
+        "class $Foo {};\n"
+        "class Foo;\n"
+        "@Foo foo;\n"
     );
 
     QTest::newRow("skipForwardDeclarationTemplates") << _(
-            "template <class E> class $Container {};\n"
-            "template <class E> class Container;\n"
-            "@Container<int> container;\n"
+        "template <class E> class $Container {};\n"
+        "template <class E> class Container;\n"
+        "@Container<int> container;\n"
     );
 
     QTest::newRow("using_QTCREATORBUG7903_globalNamespace") << _(
-            "namespace NS {\n"
-            "class Foo {};\n"
-            "}\n"
-            "using NS::$Foo;\n"
-            "void fun()\n"
-            "{\n"
-            "    @Foo foo;\n"
-            "}\n"
+        "namespace NS {\n"
+        "class Foo {};\n"
+        "}\n"
+        "using NS::$Foo;\n"
+        "void fun()\n"
+        "{\n"
+        "    @Foo foo;\n"
+        "}\n"
     );
 
     QTest::newRow("using_QTCREATORBUG7903_namespace") << _(
-            "namespace NS {\n"
-            "class Foo {};\n"
-            "}\n"
-            "namespace NS1 {\n"
-            "void fun()\n"
-            "{\n"
-            "    using NS::$Foo;\n"
-            "    @Foo foo;\n"
-            "}\n"
-            "}\n"
+        "namespace NS {\n"
+        "class Foo {};\n"
+        "}\n"
+        "namespace NS1 {\n"
+        "void fun()\n"
+        "{\n"
+        "    using NS::$Foo;\n"
+        "    @Foo foo;\n"
+        "}\n"
+        "}\n"
     );
 
     QTest::newRow("using_QTCREATORBUG7903_insideFunction") << _(
-            "namespace NS {\n"
-            "class Foo {};\n"
-            "}\n"
-            "void fun()\n"
-            "{\n"
-            "    using NS::$Foo;\n"
-            "    @Foo foo;\n"
-            "}\n"
+        "namespace NS {\n"
+        "class Foo {};\n"
+        "}\n"
+        "void fun()\n"
+        "{\n"
+        "    using NS::$Foo;\n"
+        "    @Foo foo;\n"
+        "}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_1") << _(
+        "class Foo {\n"
+        "    void @foo(int);\n"
+        "    void foo();\n"
+        "};\n"
+        "void Foo::$foo(int) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_2") << _(
+        "class Foo {\n"
+        "    void $foo(int);\n"
+        "    void foo();\n"
+        "};\n"
+        "void Foo::@foo(int) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_3") << _(
+        "class Foo {\n"
+        "    void foo(int);\n"
+        "    void @$foo() {}\n"
+        "};\n"
+        "void Foo::foo(int) {}\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_4") << _(
+        "class Foo {\n"
+        "    void foo(int);\n"
+        "    void @$foo();\n"
+        "};\n"
+    );
+
+    QTest::newRow("matchFunctionSignature_Follow_5") << _(
+        "class Foo {\n"
+        "    void @$foo(int);\n"
+        "    void foo();\n"
+        "};\n"
     );
 }
 
@@ -844,6 +927,17 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
         << TestDocument::create("template <class E> class Container;\n"
                                 "@Container<int> container;\n",
                                 "forwardDeclaredAndUsed.h")
+    );
+
+    QTest::newRow("matchFunctionSignature") << (QList<TestDocumentPtr>()
+        << TestDocument::create("class Foo {\n"
+                                "    void @foo(int);\n"
+                                "    void foo() {}\n"
+                                "};\n",
+                                "foo.h")
+        << TestDocument::create("#include \"foo.h\"\n"
+                                "void Foo::$foo(int) {}\n",
+                                "foo.cpp")
     );
 }
 

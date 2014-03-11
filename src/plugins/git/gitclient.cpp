@@ -1122,8 +1122,10 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
     QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
 
     // Create new, set wait message, set up with source and codec
-    Core::IEditor *outputEditor = Core::EditorManager::openEditorWithContents(id, &title,
-                                                                              m_msgWait.toUtf8());
+    Core::IEditor *outputEditor
+            = Core::EditorManager::openEditorWithContents(id, &title, m_msgWait.toUtf8(),
+                                                          (Core::EditorManager::OpenInOtherSplit
+                                                           | Core::EditorManager::NoNewSplits));
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
     connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
@@ -1140,7 +1142,6 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
     }
 
     rc->setForceReadOnly(true);
-    Core::EditorManager::activateEditor(outputEditor);
 
     if (configWidget)
         rc->setConfigurationWidget(configWidget);
@@ -3215,7 +3216,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
                 filesToReset.append(newFile);
             }
         } else if (state & UnmergedFile && checked) {
-            QTC_ASSERT(false, continue); // There should not be unmerged files when commiting!
+            QTC_ASSERT(false, continue); // There should not be unmerged files when committing!
         }
 
         if (state == ModifiedFile && checked) {
@@ -3231,7 +3232,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
         } else if (state == CopiedFile && checked) {
             QTC_ASSERT(false, continue); // only is noticed after adding a new file to the index
         } else if (state == UnmergedFile && checked) {
-            QTC_ASSERT(false, continue); // There should not be unmerged files when commiting!
+            QTC_ASSERT(false, continue); // There should not be unmerged files when committing!
         }
     }
 

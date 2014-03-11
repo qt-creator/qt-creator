@@ -83,6 +83,8 @@ public:
 
     QString binaryPath() const;
 
+    QStringList searchPathList() const;
+
 protected:
     QString settingsGroup() const;
     void setSettingsGroup(const QString &group);

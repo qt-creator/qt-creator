@@ -152,6 +152,11 @@ QString GitVersionControl::vcsTopic(const QString &directory)
     return topic;
 }
 
+QStringList GitVersionControl::additionalToolsPath() const
+{
+    return m_client->settings()->searchPathList();
+}
+
 bool GitVersionControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
     const QString topLevelFound = m_client->findRepositoryForDirectory(directory);

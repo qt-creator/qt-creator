@@ -67,7 +67,7 @@ private:
         return category; \
     }
 
-# ifdef QT_VERSION > 0x050000
+#if QT_VERSION > 0x050000
 
 //
 // Qt 5.0, 5.1 do have already support for categories in QMessageLogger
@@ -106,7 +106,7 @@ private:
 
 #include <QLoggingCategory>
 
-#ifdef QT_VERSION < 0x053000
+#if QT_VERSION < 0x053000
 
 // printf style for qCDebug was only added in Qt 5.3
 
@@ -125,5 +125,5 @@ private:
         QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO, category().categoryName()).critical(__VA_ARGS__)
 
 #endif // QT_VERSION < 0x053000
-
+#endif // QT_VERSION < 0x052000
 #endif // LOGGING_H

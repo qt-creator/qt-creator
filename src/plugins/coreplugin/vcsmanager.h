@@ -90,14 +90,22 @@ public:
     static QString msgAddToVcsFailedTitle();
     static QString msgToAddToVcsFailed(const QStringList &files, const IVersionControl *vc);
 
+    /*!
+     * Return a list of paths where tools that came with the VCS may be installed.
+     * This is helpful on windows where e.g. git comes with a lot of nice unix tools.
+     */
+    static QStringList additionalToolsPath();
+
 signals:
     void repositoryChanged(const QString &repository);
+    void configurationChanged(const IVersionControl *vcs);
 
 public slots:
     static void clearVersionControlCache();
 
 private slots:
     static void configureVcs();
+    void handleConfigurationChanges();
 
 private:
     explicit VcsManager(QObject *parent = 0);

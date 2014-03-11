@@ -169,9 +169,14 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             d->maximumTime = qMax(time, d->maximumTime);
         } else if (event == AnimationFrame) {
             int frameRate, animationCount;
+            int threadId;
             stream >> frameRate >> animationCount;
+            if (!stream.atEnd())
+                stream >> threadId;
+            else
+                threadId = 0;
             emit rangedEvent(QmlDebug::Painting, QmlDebug::AnimationFrame, time, 0,
-                       QStringList(), QmlDebug::QmlEventLocation(), frameRate, animationCount, 0,0,0);
+                       QStringList(), QmlDebug::QmlEventLocation(), frameRate, animationCount, threadId,0,0);
             d->maximumTime = qMax(time, d->maximumTime);
         } else if (event == StartTrace) {
             emit this->traceStarted(time);

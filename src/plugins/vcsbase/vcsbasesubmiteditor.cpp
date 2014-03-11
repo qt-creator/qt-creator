@@ -114,7 +114,7 @@ static const char *belongingClassName(const CPlusPlus::Function *function)
     files from the list by pressing unchecking them or diff the selection
     by doubleclicking.
 
-    The action matching the the ids (unless 0) of the parameter struct will be
+    The action matching the ids (unless 0) of the parameter struct will be
     registered with the EditorWidget and submit/diff actions will be added to
     a toolbar.
 

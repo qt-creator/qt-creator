@@ -316,9 +316,9 @@ void DisassemblerAgent::setContentsToEditor(const DisassemblerLines &contents)
                 qobject_cast<BaseTextEditorWidget *>(d->editor->widget());
         if (baseTextEdit)
             baseTextEdit->setRequestMarkEnabled(true);
+    } else {
+        EditorManager::activateEditor(d->editor);
     }
-
-    EditorManager::activateEditor(d->editor);
 
     QPlainTextEdit *plainTextEdit =
         qobject_cast<QPlainTextEdit *>(d->editor->widget());

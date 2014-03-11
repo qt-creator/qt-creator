@@ -331,7 +331,11 @@ registerCommand("bbedit", bbedit)
 
 
 def bb(args):
-    print(theDumper.run(args))
+    try:
+        print(theDumper.run(args))
+    except:
+        import traceback
+        traceback.print_exc()
 
 registerCommand("bb", bb)
 
@@ -409,11 +413,13 @@ class Dumper(DumperBase):
 
         self.useDynamicType = "dyntype" in options
         self.useFancy = "fancy" in options
+        self.forceQtNamespace = "forcens" in options
         self.passExceptions = "pe" in options
         #self.passExceptions = True
         self.autoDerefPointers = "autoderef" in options
         self.partialUpdate = "partial" in options
         self.tooltipOnly = "tooltiponly" in options
+        self.fallbackQtVersion = 0x50200
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
         #warn("VARIABLES: %s" % varList)
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
@@ -494,6 +500,9 @@ class Dumper(DumperBase):
                     % (self.hexencode(name), typeobj.sizeof))
         self.output.append(']')
         self.typesToReport = {}
+
+        if "forcens" in options:
+            self.qtNamepaceToRport = self.qtNamespace()
 
         if self.qtNamespaceToReport:
             self.output.append(',qtnamespace="%s"' % self.qtNamespaceToReport)
@@ -846,7 +855,9 @@ class Dumper(DumperBase):
             pass
         # Older GDB ~7.4
         try:
-            return gdb.parse_and_eval(symbolName)
+            address = gdb.parse_and_eval("&'%s'" % symbolName)
+            type = gdb.lookup_type(self.qtNamespace() + "QMetaObject")
+            return self.createPointerValue(address, type)
         except:
             return 0
 
@@ -905,25 +916,28 @@ class Dumper(DumperBase):
     def isQnxTarget(self):
         return 'qnx' in gdb.TARGET_CONFIG.lower()
 
-    def qtVersion(self):
+    def qtVersionString(self):
+        try:
+            return str(gdb.lookup_symbol("qVersion")[0].value()())
+        except:
+            pass
         try:
             ns = self.qtNamespace()
-            version = str(gdb.parse_and_eval("((const char*(*)())'%s::qVersion')()" % ns))
-            (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')
-            self.cachedQtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+            return str(gdb.parse_and_eval("((const char*(*)())'%sqVersion')()" % ns))
         except:
-            try:
-                # This will fail on Qt 5
-                gdb.execute("ptype QString::shared_null", to_string=True)
-                self.cachedQtVersion = 0x040800
-            except:
-                #self.cachedQtVersion = 0x050000
-                # Assume Qt 5.3 until we have a definitive answer.
-                return 0x050300
+            pass
+        return None
 
-        # Memoize good results.
-        self.qtVersion = lambda: self.cachedQtVersion
-        return self.cachedQtVersion
+    def qtVersion(self):
+        try:
+            version = self.qtVersionString()
+            (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')
+            qtversion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+            self.qtVersion = lambda: qtversion
+            return qtversion
+        except:
+            # Use fallback until we have a better answer.
+            return self.fallbackQtVersion
 
     def isQt3Support(self):
         if self.qtVersion() >= 0x050000:
@@ -1043,20 +1057,6 @@ class Dumper(DumperBase):
             if typeobj.sizeof == 8:
                 return Hex2EncodedFloat8
         return None
-
-    def tryPutArrayContents(self, typeobj, base, n):
-        enc = self.simpleEncoding(typeobj)
-        if not enc:
-            return False
-        size = n * typeobj.sizeof;
-        self.put('childtype="%s",' % typeobj)
-        self.put('addrbase="0x%x",' % toInteger(base))
-        self.put('addrstep="0x%x",' % toInteger(typeobj.sizeof))
-        self.put('arrayencoding="%s",' % enc)
-        self.put('arraydata="')
-        self.put(self.readMemory(base, size))
-        self.put('",')
-        return True
 
     def isReferenceType(self, typeobj):
         return typeobj.code == gdb.TYPE_CODE_REF
@@ -1560,29 +1560,32 @@ class Dumper(DumperBase):
                     self.importPlainDumper(printer)
 
     def qtNamespace(self):
-        # FIXME: This only works when call from inside a Qt function frame.
-        namespace = ""
+        # This only works when called from a valid frame.
         try:
-            out = gdb.execute("ptype QString::Null", to_string=True)
-            # The result looks like:
-            # "type = const struct myns::QString::Null {"
-            # "    <no data fields>"
-            # "}"
-            pos1 = out.find("struct") + 7
-            pos2 = out.find("QString::Null")
-            if pos1 > -1 and pos2 > -1:
-                namespace = out[pos1:pos2]
-
-            # Doesn't work
-            #gdb.write('=qt-namespace-detected,ns="%s"' % namespace)
-            self.qtNamespaceToReport = namespace
-
-            self.cachedQtNamespace = namespace
-            self.qtNamespace = lambda: self.cachedQtNamespace
+            cand = "QArrayData::shared_null"
+            symbol = gdb.lookup_symbol(cand)[0]
+            if symbol:
+                ns = symbol.name[:-len(cand)]
+                self.qtNamespaceToReport = ns
+                self.qtNamespace = lambda: ns
+                return ns
         except:
             pass
 
-        return namespace
+        try:
+            # This is Qt, but not 5.x.
+            cand = "QByteArray::shared_null"
+            symbol = gdb.lookup_symbol(cand)[0]
+            if symbol:
+                ns = symbol.name[:-len(cand)]
+                self.qtNamespaceToReport = ns
+                self.qtNamespace = lambda: ns
+                self.fallbackQtVersion = 0x40800
+                return ns
+        except:
+            pass
+
+        return ""
 
     def bbedit(self, args):
         (typeName, expr, data) = args.split(',')

@@ -714,6 +714,19 @@ class DumperBase:
             warn("CANNOT CONVERT TYPE: %s" % type(addr))
             return str(addr)
 
+    def tryPutArrayContents(self, typeobj, base, n):
+        enc = self.simpleEncoding(typeobj)
+        if not enc:
+            return False
+        size = n * typeobj.sizeof;
+        self.put('childtype="%s",' % typeobj)
+        self.put('addrbase="0x%x",' % toInteger(base))
+        self.put('addrstep="0x%x",' % toInteger(typeobj.sizeof))
+        self.put('arrayencoding="%s",' % enc)
+        self.put('arraydata="')
+        self.put(self.readMemory(base, size))
+        self.put('",')
+        return True
 
     def putFormattedPointer(self, value):
         #warn("POINTER: %s" % value)

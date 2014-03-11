@@ -241,6 +241,9 @@ Rectangle {
         width: labels.width
         contentY: flick.contentY
 
+        // reserve some more space than needed to prevent weird effects when resizing
+        contentHeight: labels.height + height
+
         Rectangle {
             id: labels
             anchors.left: parent.left
@@ -341,10 +344,12 @@ Rectangle {
                 if (start !== startTime || end !== endTime) {
                     startTime = start;
                     endTime = end;
-                    var newStartX = (startTime - qmlProfilerModelProxy.traceStartTime()) *
-                            flick.width / (endTime-startTime);
-                    if (isFinite(newStartX) && Math.abs(newStartX - flick.contentX) >= 1)
-                        flick.contentX = newStartX;
+                    if (!flick.flickingHorizontally) {
+                        var newStartX = (startTime - qmlProfilerModelProxy.traceStartTime()) *
+                                flick.width / (endTime-startTime);
+                        if (isFinite(newStartX) && Math.abs(newStartX - flick.contentX) >= 1)
+                            flick.contentX = newStartX;
+                    }
                 }
             }
 

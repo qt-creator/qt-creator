@@ -55,6 +55,9 @@ public:
 
     QString searchKeyWordMatchString() const;
 
+private slots:
+    void updatePath();
+
 private:
     Ui::CommonSettingsPage *m_ui;
 };

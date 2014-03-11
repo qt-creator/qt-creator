@@ -197,7 +197,7 @@ void TranslationUnit::tokenize()
                             if (tk.is(T_TILDE)) {
                                 lex(&tk);
 
-                                // Get the total number of generated tokens and specifiy "null"
+                                // Get the total number of generated tokens and specify "null"
                                 // information for them.
                                 unsigned totalGenerated =
                                         static_cast<unsigned>(strtoul(tk.spell(), 0, 0));

@@ -32,10 +32,10 @@
 
 #include <QQmlPropertyMap>
 #include <QtQml>
+#include "propertyeditorvalue.h"
 
 namespace QmlDesigner {
 
-template <class DefaultType>
 class DesignerPropertyMap : public QQmlPropertyMap
 {
 
@@ -46,29 +46,8 @@ public:
 
     static void registerDeclarativeType(const QString &name);
 private:
-    DefaultType m_defaultValue;
+    PropertyEditorValue *m_defaultValue;
 };
-
-template <class DefaultType>
-DesignerPropertyMap<DefaultType>::DesignerPropertyMap(QObject *parent) : QQmlPropertyMap(parent), m_defaultValue(this)
-{
-}
-
-template <class DefaultType>
-QVariant DesignerPropertyMap<DefaultType>::value(const QString &key) const
-{
-    if (contains(key))
-        return QQmlPropertyMap::value(key);
-    return QVariant(&m_defaultValue);
-}
-
-
-template <class DefaultType>
-void DesignerPropertyMap<DefaultType>::registerDeclarativeType(const QString &name)
-{
-    typedef DesignerPropertyMap<DefaultType> myType;
-    qmlRegisterType<myType>("Bauhaus",1,0,name);
-}
 
 } //QmlDesigner
 

@@ -60,7 +60,6 @@ public:
     QIcon icon() const;
 
 private slots:
-    void cannotRetrieveDebugOutput();
     void onProcessStarted();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void onProcessError();

@@ -145,6 +145,7 @@ Item {
         source: expanded ? "arrow_down.png" : "arrow_right.png"
         x: parent.width - 12
         y: root.singleRowHeight / 2 - height / 2
+        smooth: false
         MouseArea {
             anchors.fill: parent
             anchors.rightMargin: -10

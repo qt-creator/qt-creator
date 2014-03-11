@@ -70,9 +70,9 @@ Uncrustify::~Uncrustify()
 bool Uncrustify::initialize()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::Uncrustify::MENU_ID);
-    menu->menu()->setTitle(QLatin1String("Uncrustify"));
+    menu->menu()->setTitle(QLatin1String(Constants::Uncrustify::DISPLAY_NAME));
 
-    m_formatFile = new QAction(tr("Format Current File"), this);
+    m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
             = Core::ActionManager::registerAction(m_formatFile,
                                                   Constants::Uncrustify::ACTION_FORMATFILE,
@@ -127,7 +127,8 @@ void Uncrustify::formatFile()
         cfgFileName = m_settings->styleFileName(m_settings->customStyle());
 
     if (cfgFileName.isEmpty()) {
-        BeautifierPlugin::showError(tr("Cannot get configuration file for uncrustify."));
+        BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
+                                        QLatin1String(Constants::Uncrustify::DISPLAY_NAME)));
     } else {
         BeautifierPlugin::formatCurrentFile(QStringList()
                                             << m_settings->command()

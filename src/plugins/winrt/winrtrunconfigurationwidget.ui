@@ -28,7 +28,7 @@
    <item>
     <widget class="QCheckBox" name="uninstallAfterStop">
      <property name="text">
-      <string>uninstall package after stop</string>
+      <string>Uninstall package after stop</string>
      </property>
     </widget>
    </item>

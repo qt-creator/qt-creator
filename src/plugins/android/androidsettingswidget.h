@@ -98,6 +98,8 @@ private:
     enum State { NotSet = 0, Okay = 1, Error = 2 };
     void check(Mode mode);
     void applyToUi(Mode mode);
+    bool sdkLocationIsValid() const;
+    bool sdkPlatformToolsInstalled() const;
 
     State m_sdkState;
     State m_ndkState;

@@ -375,7 +375,8 @@ def openDocument(treeElement):
             item = waitForObjectItem(navigator, treeElement)
         doubleClickItem(navigator, treeElement, 5, 5, 0, Qt.LeftButton)
         mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-        waitFor("item.text in str(mainWindow.windowTitle)")
+        expected = str(item.text).split("/")[-1]
+        waitFor("expected in str(mainWindow.windowTitle)")
         return True
     except:
         return False

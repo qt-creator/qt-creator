@@ -291,7 +291,7 @@ void PathChooser::setBaseDirectory(const QString &directory)
     if (d->m_baseDirectory == directory)
         return;
     d->m_baseDirectory = directory;
-    d->m_lineEdit->triggerChanged();
+    triggerChanged();
 }
 
 FileName PathChooser::baseFileName() const
@@ -302,14 +302,17 @@ FileName PathChooser::baseFileName() const
 void PathChooser::setBaseFileName(const FileName &base)
 {
     d->m_baseDirectory = base.toString();
+    triggerChanged();
 }
 
 void PathChooser::setEnvironment(const Utils::Environment &env)
 {
     QString oldExpand = path();
     d->m_environment = env;
-    if (path() != oldExpand)
+    if (path() != oldExpand) {
+        triggerChanged();
         emit changed(rawPath());
+    }
 }
 
 QString PathChooser::path() const
@@ -434,7 +437,7 @@ void PathChooser::slotBrowse()
     }
 
     emit browsingFinished();
-    d->m_lineEdit->triggerChanged();
+    triggerChanged();
 }
 
 void PathChooser::slotTextChanged()

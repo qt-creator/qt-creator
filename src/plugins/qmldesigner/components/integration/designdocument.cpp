@@ -43,6 +43,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/session.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
@@ -552,8 +553,11 @@ void DesignDocument::paste()
             PropertyName defaultProperty(targetNode.metaInfo().defaultPropertyName());
 
             scatterItem(pastedNode, targetNode);
-            if (targetNode.hasNodeListProperty(defaultProperty))
+            if (targetNode.metaInfo().propertyIsListProperty(defaultProperty)) {
                 targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+            } else {
+                qWarning() << "Cannot reparent to" << targetNode;
+            }
 
             transaction.commit();
             NodeMetaInfo::clearCache();
@@ -647,6 +651,9 @@ static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocument *desig
 {
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *currentProject = projectExplorer->currentProject();
+
+    if (!currentProject)
+        currentProject = ProjectExplorer::SessionManager::projectForFile(designDocument->fileName());
 
     if (!currentProject)
         return 0;

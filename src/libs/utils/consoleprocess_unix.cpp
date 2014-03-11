@@ -67,7 +67,6 @@ ConsoleProcess::ConsoleProcess(QObject *parent)  :
 
 qint64 ConsoleProcess::applicationMainThreadID() const
 {
-    QTC_CHECK(false);
     return -1;
 }
 

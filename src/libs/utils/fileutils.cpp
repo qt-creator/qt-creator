@@ -514,7 +514,7 @@ QString FileName::toUserOutput() const
 
 /// Find the parent directory of a given directory.
 
-/// Returns an empty FileName if the current dirctory is already
+/// Returns an empty FileName if the current directory is already
 /// a root level directory.
 
 /// \returns \a FileName with the last segment removed.

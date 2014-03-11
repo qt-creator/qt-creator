@@ -56,6 +56,11 @@ public:
     static void formatCurrentFile(QStringList command);
     static void showError(const QString &error);
 
+    static QString msgCannotGetConfigurationFile(const QString &command);
+    static QString msgFormatCurrentFile();
+    static QString msgFormatSelectedText();
+    static QString msgCommandPromptDialogTitle(const QString &command);
+
 private slots:
     void updateActions(Core::IEditor *editor = 0);
 

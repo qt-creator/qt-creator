@@ -119,7 +119,7 @@ static QString findQMakeLine(const QString &makefile, const QString &key)
     return QString();
 }
 
-/// This function trims the "#Command /path/to/qmake" from the the line
+/// This function trims the "#Command /path/to/qmake" from the line
 static QString trimLine(const QString line)
 {
 

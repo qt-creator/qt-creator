@@ -662,7 +662,7 @@
     Also, the debugger displays access data for QFileInfo and provides
     access to the "real" contents of QVariant.
 
-    Right-click in the the \gui{Locals and Expressions} view to open a context
+    Right-click in the \gui{Locals and Expressions} view to open a context
     menu that provides additional options for viewing data. The available
     options depend on the type of the current items, and are provided by the
     \l{Using Debugging Helpers}{Debugging Helpers}. Typically, string-like data,

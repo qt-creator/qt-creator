@@ -357,10 +357,14 @@ QString VcsBaseClientSettings::binaryPath() const
 {
     if (d->m_binaryFullPath.isEmpty()) {
         d->m_binaryFullPath = Utils::Environment::systemEnvironment().searchInPath(
-                    stringValue(binaryPathKey), stringValue(pathKey).split(
-                        Utils::HostOsInfo::pathListSeparator()));
+                    stringValue(binaryPathKey), searchPathList());
     }
     return d->m_binaryFullPath;
+}
+
+QStringList VcsBaseClientSettings::searchPathList() const
+{
+    return stringValue(pathKey).split(Utils::HostOsInfo::pathListSeparator());
 }
 
 QString VcsBaseClientSettings::settingsGroup() const

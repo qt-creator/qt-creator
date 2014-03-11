@@ -34,6 +34,7 @@
 
 #include "blackberrydeviceconfiguration.h"
 #include "blackberryprocessparser.h"
+#include "blackberryversionnumber.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -51,12 +52,13 @@ namespace Internal {
 
 class BlackBerryRunConfiguration;
 class BlackBerryLogProcessRunner;
+class BlackBerryDeviceInformation;
 
 class BlackBerryApplicationRunner : public QObject
 {
     Q_OBJECT
 public:
-    explicit BlackBerryApplicationRunner(bool debugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent = 0);
+    explicit BlackBerryApplicationRunner(bool cppDebugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent = 0);
 
     bool isRunning() const;
     qint64 pid() const;
@@ -89,14 +91,17 @@ private slots:
     void setApplicationId(const QString &applicationId);
 
     void launchApplication();
+    void checkDeployMode();
     void startLogProcessRunner();
 
     void displayConnectionOutput(Core::Id deviceId, const QString &output);
+    void checkDeviceRuntimeVersion(int status);
 
 private:
     void reset();
+    void queryDeviceInformation();
 
-    bool m_debugMode;
+    bool m_cppDebugMode;
 
     qint64 m_pid;
     QString m_appId;
@@ -113,11 +118,14 @@ private:
     QProcess *m_launchProcess;
     QProcess *m_stopProcess;
     BlackBerryProcessParser m_launchStopProcessParser;
+    BlackBerryDeviceInformation *m_deviceInfo;
 
     BlackBerryLogProcessRunner *m_logProcessRunner;
 
     QTimer *m_runningStateTimer;
     QProcess *m_runningStateProcess;
+
+    BlackBerryVersionNumber m_bbApiLevelVersion;
 };
 
 } // namespace Internal

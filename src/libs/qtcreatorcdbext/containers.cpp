@@ -31,6 +31,7 @@
 #include "symbolgroupvalue.h"
 #include "symbolgroup.h"
 #include "stringutils.h"
+#include "extensioncontext.h"
 
 #include <functional>
 #include <iterator>
@@ -225,13 +226,13 @@ int containerSize(KnownType kt, const SymbolGroupValue &v)
  * and the next link */
 template <class ValueFunction, class NextFunction>
 AbstractSymbolGroupNodePtrVector linkedListChildList(SymbolGroupValue headNode,
-                                                     int count,
+                                                     unsigned count,
                                                      ValueFunction valueFunc,
                                                      NextFunction nextFunc)
 {
     AbstractSymbolGroupNodePtrVector rc;
     rc.reserve(count);
-    for (int i =0; i < count && headNode; i++) {
+    for (unsigned i = 0; i < count && headNode; i++) {
         if (const SymbolGroupValue value = valueFunc(headNode)) {
             rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, value.node()));
             headNode = nextFunc(headNode);
@@ -254,7 +255,7 @@ private:
 };
 
 // std::list<T>: Skip dummy head node and then a linked list of "_Next", "_Myval".
-static inline AbstractSymbolGroupNodePtrVector stdListChildList(SymbolGroupNode *n, int count,
+static inline AbstractSymbolGroupNodePtrVector stdListChildList(SymbolGroupNode *n, unsigned count,
                                                         const SymbolGroupValueContext &ctx)
 {
     if (!count)
@@ -267,13 +268,13 @@ static inline AbstractSymbolGroupNodePtrVector stdListChildList(SymbolGroupNode 
     return AbstractSymbolGroupNodePtrVector();
 }
 
-static inline AbstractSymbolGroupNodePtrVector stdArrayChildList(SymbolGroupNode *n, int count,
+static inline AbstractSymbolGroupNodePtrVector stdArrayChildList(SymbolGroupNode *n, unsigned count,
                                                         const SymbolGroupValueContext &ctx)
 {
     AbstractSymbolGroupNodePtrVector rc;
     if (SymbolGroupValue elems = SymbolGroupValue(n, ctx)["_Elems"]) {
         rc.reserve(count);
-        for (int i = 0; i < count; ++i) {
+        for (unsigned i = 0; i < count; ++i) {
             if (const SymbolGroupValue value = elems[i])
                 rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, value.node()));
             else
@@ -284,8 +285,8 @@ static inline AbstractSymbolGroupNodePtrVector stdArrayChildList(SymbolGroupNode
 }
 
 // QLinkedList<T>: Dummy head node and then a linked list of "n", "t".
-static inline AbstractSymbolGroupNodePtrVector qLinkedListChildList(SymbolGroupNode *n, int count,
-                                                        const SymbolGroupValueContext &ctx)
+static inline AbstractSymbolGroupNodePtrVector qLinkedListChildList(
+        SymbolGroupNode *n, unsigned count, const SymbolGroupValueContext &ctx)
 {
     if (count)
         if (const SymbolGroupValue head = SymbolGroupValue(n, ctx)["e"]["n"])
@@ -301,14 +302,14 @@ template <class AddressFunc>
 AbstractSymbolGroupNodePtrVector arrayChildList(SymbolGroup *sg, AddressFunc addressFunc,
                                                 const std::string &module,
                                                 const std::string &innerType,
-                                                int count)
+                                                unsigned count)
 {
     AbstractSymbolGroupNodePtrVector rc;
     if (!count)
         return rc;
     std::string errorMessage;
     rc.reserve(count);
-    for (int i = 0; i < count; i++) {
+    for (unsigned i = 0; i < count; i++) {
         const std::string name = SymbolGroupValue::pointedToSymbolName(addressFunc(), innerType);
         if (SymbolGroupNode *child = sg->addSymbol(module, name, std::string(), &errorMessage)) {
             rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, child));
@@ -344,7 +345,7 @@ private:
 
 static inline AbstractSymbolGroupNodePtrVector
     arrayChildList(SymbolGroup *sg, ULONG64 address, const std::string &module,
-                   const std::string &innerType, int count)
+                   const std::string &innerType, unsigned count)
 {
     if (const unsigned innerTypeSize = SymbolGroupValue::sizeOf(innerType.c_str()))
         return arrayChildList(sg, AddressSequence(address, innerTypeSize),
@@ -354,7 +355,7 @@ static inline AbstractSymbolGroupNodePtrVector
 
 // std::vector<T>
 static inline AbstractSymbolGroupNodePtrVector
-    stdVectorChildList(SymbolGroupNode *n, int count, const SymbolGroupValueContext &ctx)
+    stdVectorChildList(SymbolGroupNode *n, unsigned count, const SymbolGroupValueContext &ctx)
 {
     if (!count)
         return AbstractSymbolGroupNodePtrVector();
@@ -382,14 +383,14 @@ AbstractSymbolGroupNodePtrVector
                            const AddressType *blockArray, ULONG64 blockArraySize,
                            const std::string &module,
                            const std::string &innerType, ULONG64 innerTypeSize,
-                           ULONG64 startOffset, ULONG64 dequeSize, int count)
+                           ULONG64 startOffset, ULONG64 dequeSize, unsigned count)
 {
     AbstractSymbolGroupNodePtrVector rc;
     rc.reserve(count);
     std::string errorMessage;
     // Determine block number and offset in the block array T[][dequeSize]
     // and create symbol by address.
-    for (int i = 0; i < count; i++) {
+    for (unsigned i = 0; i < count; i++) {
         // see <deque>-header: std::deque<T>::iterator::operator*
         const ULONG64 offset = startOffset + i;
         ULONG64 block = offset / dequeSize;
@@ -407,7 +408,7 @@ AbstractSymbolGroupNodePtrVector
 
 // std::deque<>
 static inline AbstractSymbolGroupNodePtrVector
-    stdDequeChildList(const SymbolGroupValue &dequeIn, int count)
+    stdDequeChildList(const SymbolGroupValue &dequeIn, unsigned count)
 {
     if (!count)
         return AbstractSymbolGroupNodePtrVector();
@@ -618,29 +619,29 @@ static inline SymbolGroupValueVector
 
 // std::set<>: Children directly contained in list
 static inline AbstractSymbolGroupNodePtrVector
-    stdSetChildList(const SymbolGroupValue &set, int count)
+    stdSetChildList(const SymbolGroupValue &set, unsigned count)
 {
     const SymbolGroupValueVector children = stdTreeChildList(set, count);
     if (int(children.size()) != count)
         return AbstractSymbolGroupNodePtrVector();
     AbstractSymbolGroupNodePtrVector rc;
     rc.reserve(count);
-    for (int i = 0; i < count; i++)
+    for (unsigned i = 0; i < count; i++)
         rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, children.at(i).node()));
     return rc;
 }
 
 // std::map<K,V>: A list of std::pair<K,V> (derived from std::pair_base<K,V>)
 static inline AbstractSymbolGroupNodePtrVector
-    stdMapChildList(const SymbolGroupValue &map, int count)
+    stdMapChildList(const SymbolGroupValue &map, unsigned count)
 {
     const SymbolGroupValueVector children = stdTreeChildList(map[unsigned(0)], count);
-    if (int(children.size()) != count)
+    if (children.size() != count)
         return AbstractSymbolGroupNodePtrVector();
     AbstractSymbolGroupNodePtrVector rc;
     rc.reserve(count);
     const std::string firstName = "first";
-    for (int i = 0; i < count; i++) {
+    for (unsigned i = 0; i < count; i++) {
         // MSVC2010 (only) has a std::pair_base class.
         const SymbolGroupValue key = SymbolGroupValue::findMember(children.at(i), firstName);
         const SymbolGroupValue pairBase = key.parent();
@@ -658,7 +659,7 @@ static inline AbstractSymbolGroupNodePtrVector
 
 // QVector<T>
 static inline AbstractSymbolGroupNodePtrVector
-    qVectorChildList(SymbolGroupNode *n, int count, const SymbolGroupValueContext &ctx)
+    qVectorChildList(SymbolGroupNode *n, unsigned count, const SymbolGroupValueContext &ctx)
 {
     if (!count)
         return AbstractSymbolGroupNodePtrVector();
@@ -706,7 +707,7 @@ private:
 
 // QList<>.
 static inline AbstractSymbolGroupNodePtrVector
-    qListChildList(const SymbolGroupValue &v, int count)
+    qListChildList(const SymbolGroupValue &v, unsigned count)
 {
     // QList<T>: d/array is declared as array of void *[]. Dereference first
     // element to obtain address.
@@ -750,8 +751,10 @@ static inline AbstractSymbolGroupNodePtrVector
      bool isLargeOrStatic = innerTypeSize > pointerSize;
      if (!isLargeOrStatic && !SymbolGroupValue::isPointerType(innerType)) {
          const KnownType kt = knownType(innerType, false); // inner type, no 'class ' prefix.
-         if (kt != KT_Unknown && !(kt & (KT_POD_Type|KT_Qt_PrimitiveType|KT_Qt_MovableType)))
+         if (kt != KT_Unknown && !(kt & (KT_POD_Type|KT_Qt_PrimitiveType|KT_Qt_MovableType))
+                 && !(kt == KT_QStringList && QtInfo::get(v.context()).version >= 5)) {
              isLargeOrStatic = true;
+         }
      }
      if (SymbolGroupValue::verbose)
          DebugPrint() << "isLargeOrStatic " << isLargeOrStatic;
@@ -896,7 +899,7 @@ SymbolGroupValueVector qHashNodes(const SymbolGroupValue &v,
 // QSet<>: Contains a 'QHash<key, QHashDummyValue>' as member 'q_hash'.
 // Just dump the keys as an array.
 static inline AbstractSymbolGroupNodePtrVector
-    qSetChildList(const SymbolGroupValue &v, int count)
+    qSetChildList(const SymbolGroupValue &v, unsigned count)
 {
     const SymbolGroupValue qHash = v["q_hash"];
     AbstractSymbolGroupNodePtrVector rc;
@@ -906,7 +909,7 @@ static inline AbstractSymbolGroupNodePtrVector
     if (nodes.size() != VectorIndexType(count))
         return rc;
     rc.reserve(count);
-    for (int i = 0; i < count; i++) {
+    for (unsigned i = 0; i < count; i++) {
         if (const SymbolGroupValue key = nodes.at(i)["key"])
             rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, key.node()));
         else
@@ -917,7 +920,7 @@ static inline AbstractSymbolGroupNodePtrVector
 
 // QHash<>: Add with fake map nodes.
 static inline AbstractSymbolGroupNodePtrVector
-    qHashChildList(const SymbolGroupValue &v, int count)
+    qHashChildList(const SymbolGroupValue &v, unsigned count)
 {
     AbstractSymbolGroupNodePtrVector rc;
     if (!count)
@@ -926,7 +929,7 @@ static inline AbstractSymbolGroupNodePtrVector
     if (nodes.size() != count)
         return rc;
     rc.reserve(count);
-    for (int i = 0; i < count; i++) {
+    for (unsigned i = 0; i < count; i++) {
         const SymbolGroupValue &mapNode = nodes.at(i);
         const SymbolGroupValue key = mapNode["key"];
         const SymbolGroupValue value = mapNode["value"];
@@ -1088,7 +1091,7 @@ static inline AbstractSymbolGroupNodePtrVector
 
 /*! Determine children of containers \ingroup qtcreatorcdbext */
 AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int type,
-                                                   int size, const SymbolGroupValueContext &ctx)
+                                                   unsigned size, const SymbolGroupValueContext &ctx)
 {
     if (SymbolGroupValue::verbose) {
         DebugPrint dp;
@@ -1100,8 +1103,9 @@ AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int ty
     }
     if (!size)
         return AbstractSymbolGroupNodePtrVector();
-    if (size > 100)
-        size = 100;
+    const unsigned maxArraySize = ExtensionContext::instance().parameters().maxArraySize;
+    if (size > maxArraySize)
+        size = maxArraySize;
     switch (type) {
     case KT_QVector:
         return qVectorChildList(node, size, ctx);

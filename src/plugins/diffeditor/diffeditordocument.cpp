@@ -35,9 +35,8 @@
 
 namespace DiffEditor {
 
-DiffEditorDocument::DiffEditorDocument(const QString &mimeType) :
+DiffEditorDocument::DiffEditorDocument() :
     Core::IDocument(),
-    m_mimeType(mimeType),
     m_diffEditorController(new DiffEditorController(this))
 {
     setId(Constants::DIFF_EDITOR_ID);
@@ -70,7 +69,7 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
 
 QString DiffEditorDocument::mimeType() const
 {
-    return m_mimeType;
+    return QString();
 }
 
 Core::IDocument::ReloadBehavior DiffEditorDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const

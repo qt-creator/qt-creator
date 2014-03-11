@@ -1023,7 +1023,10 @@ Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const 
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8());
+    Core::IEditor *editor
+            = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8(),
+                                                          (Core::EditorManager::OpenInOtherSplit
+                                                           | Core::EditorManager::NoNewSplits));
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,QString,int)));
     SubversionEditor *e = qobject_cast<SubversionEditor*>(editor->widget());
@@ -1036,7 +1039,6 @@ Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const 
         e->setSource(source);
     if (codec)
         e->setCodec(codec);
-    Core::EditorManager::activateEditor(editor);
     return editor;
 }
 

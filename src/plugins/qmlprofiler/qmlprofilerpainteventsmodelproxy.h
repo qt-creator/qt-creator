@@ -56,6 +56,7 @@ public:
     struct QmlPaintEventData {
         int framerate;
         int animationcount;
+        QmlDebug::AnimationThread threadId;
     };
 
     PaintEventsModelProxy(QObject *parent = 0);

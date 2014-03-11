@@ -69,7 +69,7 @@ WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, RunMod
     m_isWinPhone = (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT));
     m_runnerFilePath = qt->binPath().toString() + QStringLiteral("/winrtrunner.exe");
     if (!QFile::exists(m_runnerFilePath)) {
-        appendMessage(tr("Cannot find winrtrunner.exe in '%1'.").arg(
+        appendMessage(tr("Cannot find winrtrunner.exe in \"%1\".").arg(
                           QDir::toNativeSeparators(qt->binPath().toString())),
                       Utils::ErrorMessageFormat);
         return;
@@ -114,11 +114,6 @@ QIcon WinRtRunControl::icon() const
     return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
-void WinRtRunControl::cannotRetrieveDebugOutput()
-{
-    appendMessage(tr("Cannot retrieve debugging output.\n"), Utils::ErrorMessageFormat);
-}
-
 void WinRtRunControl::onProcessStarted()
 {
     QTC_CHECK(m_state == StartingState);
@@ -132,12 +127,13 @@ void WinRtRunControl::onProcessFinished(int exitCode, QProcess::ExitStatus exitS
     QTC_CHECK(m_state == StartedState);
 
     if (exitStatus == QProcess::CrashExit) {
-        appendMessage(tr("winrtrunner crashed\n"), Utils::ErrorMessageFormat);
+        appendMessage(tr("winrtrunner crashed.") + QLatin1Char('\n'), Utils::ErrorMessageFormat);
     } else if (exitCode != 0) {
-        appendMessage(tr("winrtrunner returned with exit code %1\n").arg(exitCode),
-                Utils::ErrorMessageFormat);
+        appendMessage(tr("winrtrunner returned with exit code %1.").arg(exitCode)
+                      + QLatin1Char('\n'), Utils::ErrorMessageFormat);
     } else {
-        appendMessage(tr("winrtrunner finished successfully.\n"), Utils::NormalMessageFormat);
+        appendMessage(tr("winrtrunner finished successfully.")
+                      + QLatin1Char('\n'), Utils::NormalMessageFormat);
     }
 
     m_process->disconnect();

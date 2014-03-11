@@ -12,7 +12,7 @@ Mac OS X 10.7 or later
 
 Building the sources requires Qt 5.2.0 or later.
 It is also possible to build with Qt 4.8.x, but in that case the Welcome mode,
-Qt Quick Designer, QML Profiler and Qbs support are disabled.
+Qt Quick Designer, QML Profiler, and the WinRT and Qbs support are disabled.
 
 Compiling Qt Creator
 ====================

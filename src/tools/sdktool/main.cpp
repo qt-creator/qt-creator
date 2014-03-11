@@ -164,21 +164,25 @@ int main(int argc, char *argv[])
     Settings settings;
 
     QList<Operation *> operations;
-    operations << new AddDebuggerOperation
+    operations << new AddKeysOperation
+
+               << new AddDebuggerOperation
                << new AddDeviceOperation
-               << new AddKeysOperation
-               << new AddKitOperation
                << new AddQtOperation
                << new AddToolChainOperation
-               << new FindKeyOperation
-               << new FindValueOperation
+
+               << new AddKitOperation
+
                << new GetOperation
+               << new RmKitOperation
                << new RmDebuggerOperation
                << new RmDeviceOperation
                << new RmKeysOperation
-               << new RmKitOperation
                << new RmQtOperation
-               << new RmToolChainOperation;
+               << new RmToolChainOperation
+
+               << new FindKeyOperation
+               << new FindValueOperation;
 
 #ifdef WITH_TESTS
     std::cerr << std::endl << std::endl << "Starting tests..." << std::endl;

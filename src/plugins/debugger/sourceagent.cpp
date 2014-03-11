@@ -120,9 +120,9 @@ void SourceAgent::setContent(const QString &filePath, const QString &content)
                 qobject_cast<BaseTextEditorWidget *>(d->editor->widget());
         if (baseTextEdit)
             baseTextEdit->setRequestMarkEnabled(true);
+    } else {
+        EditorManager::activateEditor(d->editor);
     }
-
-    EditorManager::activateEditor(d->editor);
 
     QPlainTextEdit *plainTextEdit =
         qobject_cast<QPlainTextEdit *>(d->editor->widget());

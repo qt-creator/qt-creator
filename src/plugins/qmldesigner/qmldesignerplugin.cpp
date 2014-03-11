@@ -275,6 +275,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     if (!currentDesignDocument()->isDocumentLoaded())
         currentDesignDocument()->loadDocument(currentDesignDocument()->plainTextEdit());
 
+    currentDesignDocument()->updateActiveQtVersion();
     currentDesignDocument()->attachRewriterToModel();
 
     resetModelSelection();

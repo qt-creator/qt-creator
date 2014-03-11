@@ -102,12 +102,11 @@ void DiffEditorPlugin::diff()
     //: Editor title
     QString title = tr("Diff \"%1\", \"%2\"").arg(fileName1).arg(fileName2);
     DiffEditor *editor = qobject_cast<DiffEditor *>
-            (Core::EditorManager::openEditorWithContents(editorId, &title));
-
+            (Core::EditorManager::openEditorWithContents(editorId, &title, QByteArray(),
+                                                         (Core::EditorManager::OpenInOtherSplit
+                                                          | Core::EditorManager::NoNewSplits)));
     if (!editor)
         return;
-
-    Core::EditorManager::activateEditor(editor);
 
     const QString text1 = getFileContents(fileName1);
     const QString text2 = getFileContents(fileName2);

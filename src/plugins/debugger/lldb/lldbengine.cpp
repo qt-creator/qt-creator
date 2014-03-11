@@ -69,6 +69,8 @@
 #include <QMessageBox>
 #include <QToolTip>
 
+using namespace Utils;
+
 namespace Debugger {
 namespace Internal {
 
@@ -90,6 +92,19 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     m_lastToken = 0;
     setObjectName(QLatin1String("LldbEngine"));
 
+    if (startParameters.useTerminal) {
+        #ifdef Q_OS_WIN
+            // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
+            if (QSysInfo::WindowsVersion >= QSysInfo::WV_VISTA)
+                m_stubProc.setMode(Utils::ConsoleProcess::Suspend);
+            else
+                m_stubProc.setMode(Utils::ConsoleProcess::Debug);
+        #else
+            m_stubProc.setMode(Utils::ConsoleProcess::Debug);
+            m_stubProc.setSettings(Core::ICore::settings());
+        #endif
+    }
+
     connect(debuggerCore()->action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             SLOT(updateLocals()));
     connect(debuggerCore()->action(CreateFullBacktrace), SIGNAL(triggered()),
@@ -103,7 +118,10 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
 }
 
 LldbEngine::~LldbEngine()
-{}
+{
+    m_stubProc.disconnect(); // Avoid spurious state transitions from late exiting stub
+}
+
 
 void LldbEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages)
 {
@@ -136,6 +154,8 @@ void LldbEngine::shutdownEngine()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     m_lldbProc.kill();
+    if (startParameters().useTerminal)
+        m_stubProc.stop();
 }
 
 void LldbEngine::abortDebugger()
@@ -151,13 +171,67 @@ void LldbEngine::abortDebugger()
     }
 }
 
+// FIXME: Merge with GdbEngine/QtcProcess
+bool LldbEngine::prepareCommand()
+{
+    if (HostOsInfo::isWindowsHost()) {
+        DebuggerStartParameters &sp = startParameters();
+        QtcProcess::SplitError perr;
+        sp.processArgs = QtcProcess::prepareArgs(sp.processArgs, &perr,
+                                                 Utils::HostOsInfo::hostOs(),
+                    &sp.environment, &sp.workingDirectory).toWindowsArgs();
+        if (perr != Utils::QtcProcess::SplitOk) {
+            // perr == BadQuoting is never returned on Windows
+            // FIXME? QTCREATORBUG-2809
+            notifyEngineSetupFailed();
+            return false;
+        }
+    }
+    return true;
+}
+
 void LldbEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    if (startParameters().remoteSetupNeeded)
-        notifyEngineRequestRemoteSetup();
-    else
-        startLldb();
+    if (startParameters().useTerminal) {
+        QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+        showMessage(_("TRYING TO START ADAPTER"));
+
+    // Currently, adapters are not re-used
+    //    // We leave the console open, so recycle it now.
+    //    m_stubProc.blockSignals(true);
+    //    m_stubProc.stop();
+    //    m_stubProc.blockSignals(false);
+
+        if (!prepareCommand()) {
+            notifyEngineSetupFailed();
+            return;
+        }
+
+        m_stubProc.setWorkingDirectory(startParameters().workingDirectory);
+        // Set environment + dumper preload.
+        m_stubProc.setEnvironment(startParameters().environment);
+
+        connect(&m_stubProc, SIGNAL(processError(QString)), SLOT(stubError(QString)));
+        connect(&m_stubProc, SIGNAL(processStarted()), SLOT(stubStarted()));
+        connect(&m_stubProc, SIGNAL(stubStopped()), SLOT(stubExited()));
+        // FIXME: Starting the stub implies starting the inferior. This is
+        // fairly unclean as far as the state machine and error reporting go.
+
+        if (!m_stubProc.start(startParameters().executable,
+                             startParameters().processArgs)) {
+            // Error message for user is delivered via a signal.
+            //handleAdapterStartFailed(QString());
+            notifyEngineSetupFailed();
+            return;
+        }
+
+    } else {
+        QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+        if (startParameters().remoteSetupNeeded)
+            notifyEngineRequestRemoteSetup();
+        else
+            startLldb();
+    }
 }
 
 void LldbEngine::startLldb()
@@ -207,27 +281,44 @@ void LldbEngine::setupInferior()
 
     Command cmd("setupInferior");
     cmd.arg("executable", executable);
-    cmd.arg("startMode", sp.startMode); // directly relying on this is brittle wrt. insertions, so check it here
     cmd.arg("breakOnMain", sp.breakOnMain);
+    cmd.arg("useTerminal", sp.useTerminal);
+
     cmd.beginList("processArgs");
     foreach (const QString &arg, args.toUnixArgs())
         cmd.arg(arg.toUtf8().toHex());
     cmd.endList();
 
-    // it is better not to check the start mode on the python sid (as we would have to duplicate the
-    // enum values), and thus we assume that if the sp.attachPID is valid we really have to attach
-    QTC_CHECK(sp.attachPID <= 0 || (sp.startMode == AttachCrashedExternal
-                                || sp.startMode == AttachExternal));
-    cmd.arg("attachPid", sp.attachPID);
-    cmd.arg("sysRoot", sp.deviceSymbolsRoot.isEmpty() ? sp.sysRoot : sp.deviceSymbolsRoot);
-    cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess
-                               || sp.startMode == AttachToRemoteServer)
-                              ? sp.remoteChannel : QString()));
-    cmd.arg("platform", sp.platform);
-    QTC_CHECK(!sp.continueAfterAttach || (sp.startMode == AttachToRemoteProcess
-                                          || sp.startMode == AttachExternal
-                                          || sp.startMode == AttachToRemoteServer));
-    m_continueAtNextSpontaneousStop = false;
+    if (sp.useTerminal) {
+        QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+        const qint64 attachedPID = m_stubProc.applicationPID();
+        const qint64 attachedMainThreadID = m_stubProc.applicationMainThreadID();
+        const QString msg = (attachedMainThreadID != -1)
+                ? QString::fromLatin1("Attaching to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
+                : QString::fromLatin1("Attaching to %1").arg(attachedPID);
+        showMessage(msg, LogMisc);
+        cmd.arg("startMode", AttachExternal);
+        cmd.arg("attachPid", attachedPID);
+
+    } else {
+
+        cmd.arg("startMode", sp.startMode);
+        // it is better not to check the start mode on the python sid (as we would have to duplicate the
+        // enum values), and thus we assume that if the sp.attachPID is valid we really have to attach
+        QTC_CHECK(sp.attachPID <= 0 || (sp.startMode == AttachCrashedExternal
+                                    || sp.startMode == AttachExternal));
+        cmd.arg("attachPid", sp.attachPID);
+        cmd.arg("sysRoot", sp.deviceSymbolsRoot.isEmpty() ? sp.sysRoot : sp.deviceSymbolsRoot);
+        cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess
+                                   || sp.startMode == AttachToRemoteServer)
+                                  ? sp.remoteChannel : QString()));
+        cmd.arg("platform", sp.platform);
+        QTC_CHECK(!sp.continueAfterAttach || (sp.startMode == AttachToRemoteProcess
+                                              || sp.startMode == AttachExternal
+                                              || sp.startMode == AttachToRemoteServer));
+        m_continueAtNextSpontaneousStop = false;
+    }
+
     runCommand(cmd);
     updateLocals(); // update display options
 }
@@ -310,6 +401,10 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshLocals(item);
         else if (name == "stack")
             refreshStack(item);
+        else if (name == "stack-position")
+            refreshStackPosition(item);
+        else if (name == "stack-top")
+            refreshStackTop(item);
         else if (name == "registers")
             refreshRegisters(item);
         else if (name == "threads")
@@ -324,8 +419,12 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshModules(item);
         else if (name == "symbols")
             refreshSymbols(item);
-        else if (name == "bkpts")
-            refreshBreakpoints(item);
+        else if (name == "breakpoint-added")
+            refreshAddedBreakpoint(item);
+        else if (name == "breakpoint-changed")
+            refreshChangedBreakpoint(item);
+        else if (name == "breakpoint-removed")
+            refreshRemovedBreakpoint(item);
         else if (name == "output")
             refreshOutput(item);
         else if (name == "disassembly")
@@ -514,9 +613,11 @@ void LldbEngine::attemptBreakpointSynchronization()
 void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
 {
     BreakHandler *handler = breakHandler();
-    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-    BreakpointResponse response = handler->response(id);
     BreakpointResponseId rid = BreakpointResponseId(bkpt["lldbid"].data());
+    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+    if (!id.isValid())
+        id = handler->findBreakpointByResponseId(rid);
+    BreakpointResponse response = handler->response(id);
     if (added)
         response.id = rid;
     QTC_CHECK(response.id == rid);
@@ -525,35 +626,35 @@ void LldbEngine::updateBreakpointData(const GdbMi &bkpt, bool added)
     response.ignoreCount = bkpt["ignorecount"].toInt();
     response.condition = QByteArray::fromHex(bkpt["condition"].data());
     response.hitCount = bkpt["hitcount"].toInt();
+    response.fileName = bkpt["file"].toUtf8();
+    response.lineNumber = bkpt["line"].toInt();
 
-    if (added) {
-        // Added.
-        GdbMi locations = bkpt["locations"];
-        const int numChild = locations.children().size();
-        if (numChild > 1) {
-            foreach (const GdbMi &location, locations.children()) {
-                const int locid = location["locid"].toInt();
-                BreakpointResponse sub;
-                sub.id = BreakpointResponseId(rid.majorPart(), locid);
-                sub.type = response.type;
-                sub.address = location["addr"].toAddress();
-                sub.functionName = location["func"].toUtf8();
-                handler->insertSubBreakpoint(id, sub);
-            }
-        } else if (numChild == 1) {
-            const GdbMi location = locations.childAt(0);
-            response.address = location["addr"].toAddress();
-            response.functionName = location["func"].toUtf8();
-        } else {
-            QTC_CHECK(false);
+    GdbMi locations = bkpt["locations"];
+    const int numChild = locations.children().size();
+    if (numChild > 1) {
+        foreach (const GdbMi &location, locations.children()) {
+            const int locid = location["locid"].toInt();
+            BreakpointResponse sub;
+            sub.id = BreakpointResponseId(rid.majorPart(), locid);
+            sub.type = response.type;
+            sub.address = location["addr"].toAddress();
+            sub.functionName = location["func"].toUtf8();
+            sub.fileName = location["file"].toUtf8();
+            sub.lineNumber = location["line"].toInt();
+            handler->insertSubBreakpoint(id, sub);
         }
-        handler->setResponse(id, response);
-        handler->notifyBreakpointInsertOk(id);
+    } else if (numChild == 1) {
+        const GdbMi location = locations.childAt(0);
+        response.address = location["addr"].toAddress();
+        response.functionName = location["func"].toUtf8();
     } else {
-        // Changed.
-        handler->setResponse(id, response);
-        handler->notifyBreakpointChangeOk(id);
+        QTC_CHECK(false);
     }
+    handler->setResponse(id, response);
+    if (added)
+        handler->notifyBreakpointInsertOk(id);
+    else
+        handler->notifyBreakpointChangeOk(id);
 }
 
 void LldbEngine::refreshDisassembly(const GdbMi &data)
@@ -603,25 +704,26 @@ void LldbEngine::refreshOutput(const GdbMi &output)
     showMessage(QString::fromUtf8(data), ch);
 }
 
-void LldbEngine::refreshBreakpoints(const GdbMi &bkpts)
+void LldbEngine::refreshAddedBreakpoint(const GdbMi &bkpt)
+{
+    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+    QTC_CHECK(breakHandler()->state(id) == BreakpointInsertProceeding);
+    updateBreakpointData(bkpt, true);
+}
+
+void LldbEngine::refreshChangedBreakpoint(const GdbMi &bkpt)
+{
+    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+    QTC_CHECK(!id.isValid() || breakHandler()->state(id) == BreakpointChangeProceeding);
+    updateBreakpointData(bkpt, false);
+}
+
+void LldbEngine::refreshRemovedBreakpoint(const GdbMi &bkpt)
 {
     BreakHandler *handler = breakHandler();
-    foreach (const GdbMi &bkpt, bkpts.children()) {
-        QByteArray op = bkpt["operation"].data();
-        if (op == "added") {
-            BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-            QTC_CHECK(handler->state(id) == BreakpointInsertProceeding);
-            updateBreakpointData(bkpt, true);
-        } else if (op == "changed") {
-            BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-            QTC_CHECK(handler->state(id) == BreakpointChangeProceeding);
-            updateBreakpointData(bkpt, false);
-        } else if (op == "removed") {
-            BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
-            QTC_CHECK(handler->state(id) == BreakpointRemoveProceeding);
-            handler->notifyBreakpointRemoveOk(id);
-        }
-    }
+    BreakpointModelId id = BreakpointModelId(bkpt["modelid"].data());
+    QTC_CHECK(handler->state(id) == BreakpointRemoveProceeding);
+    handler->notifyBreakpointRemoveOk(id);
 }
 
 void LldbEngine::loadSymbols(const QString &moduleName)
@@ -985,8 +1087,6 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
 
 void LldbEngine::refreshStack(const GdbMi &stack)
 {
-    //if (!partial)
-    //    emit stackFrameCompleted();
     StackHandler *handler = stackHandler();
     StackFrames frames;
     foreach (const GdbMi &item, stack["frames"].children()) {
@@ -1003,9 +1103,25 @@ void LldbEngine::refreshStack(const GdbMi &stack)
     bool canExpand = stack["hasmore"].toInt();
     debuggerCore()->action(ExpandStack)->setEnabled(canExpand);
     handler->setFrames(frames, canExpand);
+}
 
-    int index = stack["current-frame"].toInt();
+void LldbEngine::refreshStackPosition(const GdbMi &position)
+{
+    setStackPosition(position["id"].toInt());
+}
+
+void LldbEngine::refreshStackTop(const GdbMi &)
+{
+    setStackPosition(stackHandler()->firstUsableIndex());
+}
+
+void LldbEngine::setStackPosition(int index)
+{
+    StackHandler *handler = stackHandler();
+    handler->setFrames(handler->frames());
     handler->setCurrentIndex(index);
+    if (index >= 0 && index < handler->stackSize())
+        gotoLocation(handler->frameAt(index));
 }
 
 void LldbEngine::refreshRegisters(const GdbMi &registers)
@@ -1123,7 +1239,13 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
         id = ++m_lastAgentId;
         m_disassemblerAgents.insert(p, id);
     }
-    runCommand(Command("disassemble").arg("cookie", id));
+    const Location &loc = agent->location();
+    Command cmd("disassemble");
+    cmd.arg("cookie", id);
+    cmd.arg("address", loc.address());
+    cmd.arg("function", loc.functionName());
+    cmd.arg("flavor", debuggerCore()->boolSetting(IntelFlavor) ? "intel" : "att");
+    runCommand(cmd);
 }
 
 
@@ -1136,10 +1258,11 @@ void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
         m_memoryAgents.insert(agent, id);
     }
     m_memoryAgentTokens.insert(id, editorToken);
-    runCommand(Command("fetchMemory")
-               .arg("address", addr)
-               .arg("length", length)
-               .arg("cookie", id));
+    Command cmd("fetchMemory");
+    cmd.arg("address", addr);
+    cmd.arg("length", length);
+    cmd.arg("cookie", id);
+    runCommand(cmd);
 }
 
 void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
@@ -1151,10 +1274,11 @@ void LldbEngine::changeMemory(MemoryAgent *agent, QObject *editorToken,
         m_memoryAgents.insert(agent, id);
         m_memoryAgentTokens.insert(id, editorToken);
     }
-    runCommand(Command("writeMemory")
-               .arg("address", addr)
-               .arg("data", data.toHex())
-               .arg("cookie", id));
+    Command cmd("writeMemory");
+    cmd.arg("address", addr);
+    cmd.arg("data", data.toHex());
+    cmd.arg("cookie", id);
+    runCommand(cmd);
 }
 
 void LldbEngine::setRegisterValue(int regnr, const QString &value)
@@ -1354,6 +1478,26 @@ void LldbEngine::Command::endGroup() const
     if (args.endsWith(','))
         args.chop(1);
     args += "},";
+}
+
+void LldbEngine::stubStarted()
+{
+    startLldb();
+}
+
+void LldbEngine::stubError(const QString &msg)
+{
+    showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
+}
+
+void LldbEngine::stubExited()
+{
+    if (state() == EngineShutdownRequested || state() == DebuggerFinished) {
+        showMessage(_("STUB EXITED EXPECTEDLY"));
+        return;
+    }
+    showMessage(_("STUB EXITED"));
+    notifyEngineIll();
 }
 
 } // namespace Internal

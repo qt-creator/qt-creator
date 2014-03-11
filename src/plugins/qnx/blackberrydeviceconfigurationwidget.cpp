@@ -132,7 +132,7 @@ void BlackBerryDeviceConfigurationWidget::debugTokenEditingFinished()
 void BlackBerryDeviceConfigurationWidget::importDebugToken()
 {
     const QString debugToken = QFileDialog::getOpenFileName(this, tr("Select Debug Token"),
-                                                            QString(), tr("Bar file (*.bar)"));
+                                                            QString(), tr("BAR file (*.bar)"));
 
     if (debugToken.isEmpty())
         return;
@@ -242,9 +242,7 @@ void BlackBerryDeviceConfigurationWidget::populateDebugTokenCombo(const QString&
 {
     ui->debugToken->clear();
     ui->debugToken->addItems(m_utils.debugTokens());
-    const int index = ui->debugToken->findText(current);
-    if (index != -1)
-        ui->debugToken->setCurrentIndex(index);
+    ui->debugToken->setEditText(current);
 }
 
 void BlackBerryDeviceConfigurationWidget::updateDebugTokenCombo()

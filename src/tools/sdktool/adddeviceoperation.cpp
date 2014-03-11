@@ -334,17 +334,13 @@ QVariantMap AddDeviceOperation::addDevice(const QVariantMap &map,
                                           const KeyValuePairList &extra)
 {
     QVariantMap result = map;
-    QVariantMap dmMap = map.value(QLatin1String(DEVICEMANAGER_ID)).toMap();
-
-    QVariantList devList = dmMap.value(QLatin1String(DEVICE_LIST_ID)).toList();
-    foreach (const QVariant &dev, devList) {
-        QVariantMap devData = dev.toMap();
-        QString current = devData.value(QLatin1String(DEVICE_ID_ID)).toString();
-        if (current == id) {
-            std::cerr << "Device " << qPrintable(id) << " already exists!" << std::endl;
-            return result;
-        }
+    if (exists(map, id)) {
+        std::cerr << "Device " << qPrintable(id) << " already exists!" << std::endl;
+        return result;
     }
+
+    QVariantMap dmMap = map.value(QLatin1String(DEVICEMANAGER_ID)).toMap();
+    QVariantList devList = dmMap.value(QLatin1String(DEVICE_LIST_ID)).toList();
 
     QVariantMap devMap
             = AddKeysOperation::addKeys(QVariantMap(),
@@ -371,6 +367,25 @@ QVariantMap AddDeviceOperation::initializeDevices()
     QVariantMap data;
     data.insert(QLatin1String(DEVICEMANAGER_ID), dmData);
     return data;
+}
+
+bool AddDeviceOperation::exists(const QString &id)
+{
+    QVariantMap map = load(QLatin1String("device"));
+    return exists(map, id);
+}
+
+bool AddDeviceOperation::exists(const QVariantMap &map, const QString &id)
+{
+    QVariantMap dmMap = map.value(QLatin1String(DEVICEMANAGER_ID)).toMap();
+    QVariantList devList = dmMap.value(QLatin1String(DEVICE_LIST_ID)).toList();
+    foreach (const QVariant &dev, devList) {
+        QVariantMap devData = dev.toMap();
+        QString current = devData.value(QLatin1String(DEVICE_ID_ID)).toString();
+        if (current == id)
+            return true;
+    }
+    return false;
 }
 
 Operation::KeyValuePairList AddDeviceOperation::createDevice(const QString &id, const QString &displayName,

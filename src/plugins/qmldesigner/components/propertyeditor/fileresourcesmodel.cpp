@@ -101,6 +101,9 @@ QString FileResourcesModel::filter() const
 
 QStringList FileResourcesModel::fileModel() const
 {
+    if (m_model.isEmpty())
+        return QStringList(QString());
+
     return m_model;
 }
 

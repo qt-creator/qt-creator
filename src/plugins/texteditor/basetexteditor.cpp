@@ -231,8 +231,6 @@ void BaseTextEditorWidget::ctor(const QSharedPointer<BaseTextDocument> &doc)
     d->m_document = doc;
     d->setupDocumentSignals();
 
-    d->m_lastScrollPos = -1;
-
     // from RESEARCH
 
     setLayoutDirection(Qt::LeftToRight);
@@ -2344,13 +2342,10 @@ AutoCompleter *BaseTextEditorWidget::autoCompleter() const
 
 BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate()
     :
-    m_lastScrollPos(-1),
-    m_lineNumber(-1),
     q(0),
     m_contentsChanged(false),
     m_lastCursorChangeWasInteresting(false),
     m_parenthesesMatchingEnabled(false),
-    m_updateTimer(0),
     m_formatRange(false),
     m_parenthesesMatchingTimer(0),
     m_extraArea(0),

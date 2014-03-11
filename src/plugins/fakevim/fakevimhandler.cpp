@@ -3150,7 +3150,7 @@ void FakeVimHandler::Private::fixSelection()
 
     if (g.movetype == MoveExclusive && g.subsubmode == NoSubSubMode) {
         if (anchor() < position() && atBlockStart()) {
-            // Exlusive motion ending at the beginning of line
+            // Exclusive motion ending at the beginning of line
             // becomes inclusive and end is moved to end of previous line.
             g.movetype = MoveInclusive;
             moveToStartOfLine();

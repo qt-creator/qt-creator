@@ -34,6 +34,7 @@ namespace Beautifier {
 namespace Constants {
 namespace Uncrustify {
 
+const char DISPLAY_NAME[]          = "Uncrustify";
 const char ACTION_FORMATFILE[]     = "Uncrustify.FormatFile";
 const char MENU_ID[]               = "Uncrustify.Menu";
 const char OPTION_ID[]             = "Uncrustify";

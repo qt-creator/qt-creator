@@ -170,7 +170,7 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *additionalQmlStackAction = 0;
     if (engine->hasCapability(AdditionalQmlStackCapability))
-        additionalQmlStackAction = menu.addAction(tr("Load QML stack"));
+        additionalQmlStackAction = menu.addAction(tr("Load QML Stack"));
 
     QAction *actShowMemory = 0;
     if (engine->hasCapability(ShowMemoryCapability)) {

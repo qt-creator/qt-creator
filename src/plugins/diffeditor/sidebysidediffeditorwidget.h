@@ -33,16 +33,14 @@
 #include "diffeditor_global.h"
 #include "differ.h"
 #include "diffeditorcontroller.h"
-
-#include <QTextEdit>
+#include <QWidget>
+#include <QTextCharFormat>
 
 namespace TextEditor { class FontSettings; }
 
 QT_BEGIN_NAMESPACE
 class QSplitter;
-class QTextCharFormat;
 QT_END_NAMESPACE
-
 
 
 namespace DiffEditor {
@@ -100,9 +98,6 @@ private:
     void handleWhitespaces(const QList<Diff> &input,
                            QList<Diff> *leftOutput,
                            QList<Diff> *rightOutput) const;
-    QList<QTextEdit::ExtraSelection> colorPositions(const QTextCharFormat &format,
-            QTextCursor &cursor,
-            const QMap<int, int> &positions) const;
     void colorDiff(const QList<Internal::FileData> &fileDataList);
     void showDiff();
     void synchronizeFoldings(SideDiffEditorWidget *source, SideDiffEditorWidget *destination);
@@ -119,7 +114,6 @@ private:
     QList<Internal::FileData> m_contextFileData; // ultimate data to be shown, contextLinesNumber taken into account
 
     bool m_foldingBlocker;
-    QString m_source;
 
     QTextCharFormat m_fileLineFormat;
     QTextCharFormat m_chunkLineFormat;

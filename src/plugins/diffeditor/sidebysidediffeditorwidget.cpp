@@ -756,6 +756,9 @@ SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
 
 void SideBySideDiffEditorWidget::setDiffEditorGuiController(DiffEditorGuiController *controller)
 {
+    if (m_guiController == controller)
+        return;
+
     if (m_guiController) {
         disconnect(m_controller, SIGNAL(cleared(QString)), this, SLOT(clear(QString)));
         disconnect(m_controller, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),
@@ -850,8 +853,8 @@ void SideBySideDiffEditorWidget::handleWhitespaces(const QList<Diff> &input,
 
     Differ::splitDiffList(input, leftOutput, rightOutput);
     if (m_guiController && m_guiController->isIgnoreWhitespaces()) {
-        QList<Diff> leftDiffList = Differ::moveWhitespaceIntoEqualities(*leftOutput);
-        QList<Diff> rightDiffList = Differ::moveWhitespaceIntoEqualities(*rightOutput);
+        const QList<Diff> leftDiffList = Differ::moveWhitespaceIntoEqualities(*leftOutput);
+        const QList<Diff> rightDiffList = Differ::moveWhitespaceIntoEqualities(*rightOutput);
         Differ::diffBetweenEqualities(leftDiffList, rightDiffList, leftOutput, rightOutput);
     }
 }
@@ -1034,30 +1037,7 @@ void SideBySideDiffEditorWidget::showDiff()
     m_rightEditor->updateFoldingHighlight(QPoint(-1, -1));
 }
 
-QList<QTextEdit::ExtraSelection> SideBySideDiffEditorWidget::colorPositions(
-        const QTextCharFormat &format,
-        QTextCursor &cursor,
-        const QMap<int, int> &positions) const
-{
-    QList<QTextEdit::ExtraSelection> lineSelections;
-
-    cursor.setPosition(0);
-    QMapIterator<int, int> itPositions(positions);
-    while (itPositions.hasNext()) {
-        itPositions.next();
-
-        cursor.setPosition(itPositions.key());
-        cursor.setPosition(itPositions.value(), QTextCursor::KeepAnchor);
-
-        QTextEdit::ExtraSelection selection;
-        selection.cursor = cursor;
-        selection.format = format;
-        lineSelections.append(selection);
-    }
-    return lineSelections;
-}
-
-void fixPositions(QMap<int, int>::ConstIterator *it,
+static void fixPositions(QMap<int, int>::ConstIterator *it,
                   const QMap<int, int>::ConstIterator &itEnd,
                   int fileOffset,
                   int charCounter,
@@ -1245,14 +1225,6 @@ void SideBySideDiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
 
     m_leftEditor->setExtraSelections(BaseTextEditorWidget::OtherSelection, leftSelections);
     m_rightEditor->setExtraSelections(BaseTextEditorWidget::OtherSelection, rightSelections);
-}
-
-static QTextCharFormat fullWidthFormatForTextStyle(const TextEditor::FontSettings &fontSettings,
-                                          TextEditor::TextStyle textStyle)
-{
-    QTextCharFormat format = fontSettings.toTextCharFormat(textStyle);
-    format.setProperty(QTextFormat::FullWidthSelection, true);
-    return format;
 }
 
 void SideBySideDiffEditorWidget::setFontSettings(const TextEditor::FontSettings &fontSettings)

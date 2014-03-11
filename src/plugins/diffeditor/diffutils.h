@@ -32,7 +32,12 @@
 
 #include <QString>
 #include <QMap>
+#include <QTextEdit>
+
 #include "diffeditorcontroller.h"
+#include "texteditor/texteditorconstants.h"
+
+namespace TextEditor { class FontSettings; }
 
 namespace DiffEditor {
 
@@ -89,7 +94,11 @@ ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
                                 const QList<Diff> &rightDiffList);
 FileData calculateContextData(const ChunkData &originalData,
                               int contextLinesNumber);
-
+QList<QTextEdit::ExtraSelection> colorPositions(const QTextCharFormat &format,
+        QTextCursor &cursor,
+        const QMap<int, int> &positions);
+QTextCharFormat fullWidthFormatForTextStyle(const TextEditor::FontSettings &fontSettings,
+                                            TextEditor::TextStyle textStyle);
 } // namespace Internal
 } // namespace DiffEditor
 

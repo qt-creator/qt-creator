@@ -19,7 +19,7 @@
      <item>
       <widget class="QRadioButton" name="apiLevelButton">
        <property name="text">
-        <string>Install API Level</string>
+        <string>Install API level</string>
        </property>
       </widget>
      </item>
@@ -46,14 +46,14 @@
          <item>
           <widget class="QRadioButton" name="installButton">
            <property name="text">
-            <string>Install New Target</string>
+            <string>Install new target</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QRadioButton" name="addButton">
            <property name="text">
-            <string>Add Existing Target</string>
+            <string>Add existing target</string>
            </property>
           </widget>
          </item>
@@ -64,14 +64,14 @@
      <item>
       <widget class="QRadioButton" name="simulatorButton">
        <property name="text">
-        <string>Install Simulator</string>
+        <string>Install simulator</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QRadioButton" name="runtimeButton">
        <property name="text">
-        <string>Install Runtime</string>
+        <string>Install runtime</string>
        </property>
       </widget>
      </item>

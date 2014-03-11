@@ -191,8 +191,11 @@ FormEditorItem* DragTool::calculateContainer(const QPointF &point, FormEditorIte
     QList<QGraphicsItem *> list = scene()->items(point);
     foreach (QGraphicsItem *item, list) {
          FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-         if (formEditorItem && formEditorItem != currentItem && formEditorItem->isContainer()
-             && !isAncestorOf(currentItem, formEditorItem))
+         if (formEditorItem
+                 && formEditorItem != currentItem
+                 && formEditorItem->isContainer()
+                 && !formEditorItem->qmlItemNode().modelNode().metaInfo().isLayoutable()
+                 && !isAncestorOf(currentItem, formEditorItem))
              return formEditorItem;
     }
 

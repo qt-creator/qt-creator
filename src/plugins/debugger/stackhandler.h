@@ -71,6 +71,7 @@ public:
     const StackFrames &frames() const;
     void setCurrentIndex(int index);
     int currentIndex() const { return m_currentIndex; }
+    int firstUsableIndex() const;
     StackFrame currentFrame() const;
     const StackFrame &frameAt(int index) const { return m_stackFrames.at(index); }
     int stackSize() const { return m_stackFrames.size(); }

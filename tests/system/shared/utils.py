@@ -322,7 +322,7 @@ def verifyOutput(string, substring, outputFrom, outputIn):
     else:
         test.passes("Output from " + outputFrom + " found at position " + str(index) + " of " + outputIn)
 
-# function that verifies the existance and the read permissions
+# function that verifies the existence and the read permissions
 # of the given file path
 # if the executing user hasn't the read permission it checks
 # the parent folders for their execute permission
@@ -461,7 +461,7 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
                         t,v,tb = sys.exc_info()
                         currResult = None
                         test.fatal("Function to additionally execute on Options Dialog could not be found or "
-                                   "an exception occured while executing it.", "%s(%s)" % (str(t), str(v)))
+                                   "an exception occurred while executing it.", "%s(%s)" % (str(t), str(v)))
                     additionalResult.append(currResult)
     if not keepOptionsOpen:
         clickButton(waitForObject(":Options.Cancel_QPushButton"))
@@ -524,7 +524,7 @@ def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
                     t,v,tb = sys.exc_info()
                     currResult = None
                     test.fatal("Function to additionally execute on Options Dialog could not be "
-                               "found or an exception occured while executing it.", "%s(%s)" %
+                               "found or an exception occurred while executing it.", "%s(%s)" %
                                (str(t), str(v)))
                 additionalResult.append(currResult)
     if not keepOptionsOpen:

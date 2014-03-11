@@ -63,6 +63,8 @@ public:
     bool vcsAnnotate(const QString &file, int line);
     QString vcsTopic(const QString &directory);
 
+    QStringList additionalToolsPath() const;
+
     void emitFilesChanged(const QStringList &);
     void emitRepositoryChanged(const QString &);
     void emitConfigurationChanged();

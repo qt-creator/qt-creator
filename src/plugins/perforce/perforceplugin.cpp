@@ -1182,7 +1182,10 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
         qDebug() << "PerforcePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8());
+    Core::IEditor *editor
+            = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8(),
+                                                          (Core::EditorManager::OpenInOtherSplit
+                                                           | Core::EditorManager::NoNewSplits));
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(vcsAnnotate(QString,QString,QString,int)));
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
@@ -1194,7 +1197,6 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
     e->baseTextDocument()->setSuggestedFileName(s);
     if (codec)
         e->setCodec(codec);
-    Core::EditorManager::activateEditor(editor);
     return editor;
 }
 

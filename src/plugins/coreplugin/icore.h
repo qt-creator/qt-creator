@@ -118,6 +118,7 @@ public:
 
     static void emitNewItemsDialogRequested();
 
+public slots:
     static void saveSettings();
 
 signals:

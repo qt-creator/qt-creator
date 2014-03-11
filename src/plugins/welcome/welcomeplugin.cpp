@@ -50,6 +50,7 @@
 #include <QDesktopServices>
 #include <QPainter>
 #include <QVBoxLayout>
+#include <QMessageBox>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -116,6 +117,9 @@ signals:
 
 private slots:
     void welcomePluginAdded(QObject*);
+#if QT_VERSION >= 0x050300
+    void sceneGraphError(QQuickWindow::SceneGraphError, const QString &message);
+#endif
 
 private:
     void facilitateQml(QQmlEngine *engine);
@@ -144,6 +148,10 @@ WelcomeMode::WelcomeMode() :
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
     m_welcomePage = new QQuickView;
+#if QT_VERSION >= 0x050300
+    connect(m_welcomePage, SIGNAL(sceneGraphError(QQuickWindow::SceneGraphError,QString)),
+            this, SLOT(sceneGraphError(QQuickWindow::SceneGraphError,QString)));
+#endif // Qt 5.3
     m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
     m_welcomePage->setResizeMode(QQuickView::SizeRootObjectToView);
 
@@ -186,6 +194,19 @@ WelcomeMode::~WelcomeMode()
     delete m_modeWidget;
     delete m_networkAccessManagerFactory;
 }
+
+#if QT_VERSION >= 0x050300
+void WelcomeMode::sceneGraphError(QQuickWindow::SceneGraphError, const QString &message)
+{
+    QMessageBox *messageBox =
+        new QMessageBox(QMessageBox::Warning,
+                        tr("Welcome Mode Load Error"), message,
+                        QMessageBox::Close, m_modeWidget);
+    messageBox->setModal(false);
+    messageBox->setAttribute(Qt::WA_DeleteOnClose);
+    messageBox->show();
+}
+#endif // Qt 5.3
 
 bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
 {

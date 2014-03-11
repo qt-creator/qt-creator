@@ -147,10 +147,11 @@ public:
                 TypeId typeId;
                 TypeName typeName = typeId(value).toUtf8();
                 if (typeName == "number") {
-                    if (value->asRealValue())
-                        typeName = "real";
-                    else
+                    if (value->asIntValue()) {
                         typeName = "int";
+                    } else {
+                        typeName = "real";
+                    }
                 }
                 m_properties.append(qMakePair(propertyName, typeName));
             }
@@ -1337,6 +1338,11 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
     }
     m_privateData->prototypeCacheNegatives().insert(Internal::stringIdentifier(type, majorVersion, minorVersion));
     return false;
+}
+
+bool NodeMetaInfo::isGraphicalItem() const
+{
+    return isSubclassOf("QtQuick.Item", -1, -1) || isSubclassOf("QtQuick.Window", -1, -1);
 }
 
 void NodeMetaInfo::clearCache()

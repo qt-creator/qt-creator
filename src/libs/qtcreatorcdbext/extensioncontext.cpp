@@ -50,7 +50,7 @@ const char *ExtensionContext::breakPointStopReasonC = "breakpoint";
     \ingroup qtcreatorcdbext
 */
 
-Parameters::Parameters() : maxStringLength(10000), maxStackDepth(1000)
+Parameters::Parameters() : maxStringLength(10000), maxArraySize(100) ,maxStackDepth(1000)
 {
 }
 

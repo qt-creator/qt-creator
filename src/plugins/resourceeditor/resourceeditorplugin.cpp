@@ -134,7 +134,7 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     const Core::Context context(Constants::C_RESOURCEEDITOR);
     m_undoAction = new QAction(tr("&Undo"), this);
     m_redoAction = new QAction(tr("&Redo"), this);
-    m_refreshAction = new QAction(tr("Recheck existence of referenced files"), this);
+    m_refreshAction = new QAction(tr("Recheck Existence of Referenced Files"), this);
     Core::ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
     Core::ActionManager::registerAction(m_redoAction, Core::Constants::REDO, context);
     Core::ActionManager::registerAction(m_refreshAction, Constants::REFRESH, context);
@@ -162,12 +162,12 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
     connect(m_removePrefix, SIGNAL(triggered()), this, SLOT(removePrefixContextMenu()));
 
-    m_renameResourceFile = new QAction(tr("Rename File"), this);
+    m_renameResourceFile = new QAction(tr("Rename..."), this);
     command = Core::ActionManager::registerAction(m_renameResourceFile, Constants::C_RENAME_FILE, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
     connect(m_renameResourceFile, SIGNAL(triggered()), this, SLOT(renameFileContextMenu()));
 
-    m_removeResourceFile = new QAction(tr("Remove File"), this);
+    m_removeResourceFile = new QAction(tr("Remove File..."), this);
     command = Core::ActionManager::registerAction(m_removeResourceFile, Constants::C_REMOVE_FILE, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
     connect(m_removeResourceFile, SIGNAL(triggered()), this, SLOT(removeFileContextMenu()));
@@ -250,7 +250,7 @@ void ResourceEditorPlugin::removeFileContextMenu()
     ProjectExplorer::FolderNode *parent = rfn->parentFolderNode();
     if (!parent->removeFiles(QStringList() << path))
         QMessageBox::warning(Core::ICore::mainWindow(),
-                             tr("File Removal failed"),
+                             tr("File Removal Failed"),
                              tr("Removing file %1 from the project failed.").arg(path));
 }
 

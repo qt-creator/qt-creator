@@ -58,6 +58,7 @@
 #include "cascadesimport/cascadesimportwizard.h"
 #include "qnxtoolchain.h"
 #include "qnxattachdebugsupport.h"
+#include "blackberrypotentialkit.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -104,6 +105,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new BlackBerryKeysPage);
     addAutoReleasedObject(new BlackBerryCheckDeviceStatusStepFactory);
     addAutoReleasedObject(new CascadesImportWizard);
+    addAutoReleasedObject(new BlackBerryPotentialKit);
     BlackBerryDeviceConnectionManager::instance()->initialize();
 
     // Handles QNX
@@ -121,13 +123,13 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     Core::MimeGlobPattern barDescriptorGlobPattern(QLatin1String("*.xml"), Core::MimeGlobPattern::MinWeight + 1);
     Core::MimeType barDescriptorMimeType;
     barDescriptorMimeType.setType(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
-    barDescriptorMimeType.setComment(tr("Bar descriptor file (BlackBerry)"));
+    barDescriptorMimeType.setComment(tr("BAR descriptor file (BlackBerry)"));
     barDescriptorMimeType.setGlobPatterns(QList<Core::MimeGlobPattern>() << barDescriptorGlobPattern);
     barDescriptorMimeType.addMagicMatcher(QSharedPointer<Core::IMagicMatcher>(new BarDescriptorMagicMatcher));
     barDescriptorMimeType.setSubClassesOf(QStringList() << QLatin1String("application/xml"));
 
     if (!Core::MimeDatabase::addMimeType(barDescriptorMimeType)) {
-        *errorString = tr("Could not add mime-type for bar-descriptor.xml editor.");
+        *errorString = tr("Could not add MIME type for bar-descriptor.xml editor.");
         return false;
     }
     addAutoReleasedObject(new BarDescriptorEditorFactory);
@@ -140,13 +142,13 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
 void QNXPlugin::extensionsInitialized()
 {
     ProjectExplorer::TaskHub::addCategory(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR,
-                                          tr("Bar Descriptor"));
+                                          tr("BAR Descriptor"));
 
     // Debug support
     QnxAttachDebugSupport *debugSupport = new QnxAttachDebugSupport(this);
 
     m_attachToQnxApplication = new QAction(this);
-    m_attachToQnxApplication->setText(tr("Attach to Remote QNX Application..."));
+    m_attachToQnxApplication->setText(tr("Attach to remote QNX application..."));
     connect(m_attachToQnxApplication, SIGNAL(triggered()), debugSupport, SLOT(showProcessesDialog()));
 
     const Core::Context globalcontext(Core::Constants::C_GLOBAL);

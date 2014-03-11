@@ -182,7 +182,7 @@ void QmakeBuildConfiguration::qtVersionsChanged(const QList<int> &,const QList<i
 
 void QmakeBuildConfiguration::updateShadowBuild()
 {
-    // We also emit buildDirectoryChanged if the the Qt version's supportShadowBuild changed
+    // We also emit buildDirectoryChanged if the Qt version's supportShadowBuild changed
     bool currentShadowBuild = supportsShadowBuilds();
     if (currentShadowBuild != m_qtVersionSupportsShadowBuilds) {
         if (!currentShadowBuild)

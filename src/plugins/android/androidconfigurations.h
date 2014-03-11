@@ -56,6 +56,8 @@ struct AndroidDeviceInfo
     QString serialNumber;
     QStringList cpuAbi;
     int sdk;
+    enum State { OkState, UnAuthorizedState, OfflineState };
+    State state;
     bool unauthorized;
     enum AndroidDeviceType { Hardware, Emulator };
     AndroidDeviceType type;
@@ -173,7 +175,7 @@ class AndroidConfigurations : public QObject
     Q_OBJECT
 
 public:
-    static AndroidConfig currentConfig();
+    static const AndroidConfig &currentConfig();
     static void setConfig(const AndroidConfig &config);
     static AndroidConfigurations *instance();
 

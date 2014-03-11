@@ -98,22 +98,25 @@ public:
     static EditorToolBar *createToolBar(QWidget *parent = 0);
 
     enum OpenEditorFlag {
+        NoFlags = 0,
         DoNotChangeCurrentEditor = 1,
         IgnoreNavigationHistory = 2,
         DoNotMakeVisible = 4,
         CanContainLineNumber = 8,
-        OpenInOtherSplit = 16
+        OpenInOtherSplit = 16,
+        NoNewSplits = 32
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 
     static QString splitLineNumber(QString *fileName);
     static IEditor *openEditor(const QString &fileName, const Id &editorId = Id(),
-        OpenEditorFlags flags = 0, bool *newEditor = 0);
+        OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
     static IEditor *openEditorAt(const QString &fileName,  int line, int column = 0,
-                                 const Id &editorId = Id(), OpenEditorFlags flags = 0,
+                                 const Id &editorId = Id(), OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = 0);
-    static IEditor *openEditorWithContents(const Id &editorId,
-        QString *titlePattern = 0, const QByteArray &contents = QByteArray());
+    static IEditor *openEditorWithContents(const Id &editorId, QString *titlePattern = 0,
+                                           const QByteArray &contents = QByteArray(),
+                                           OpenEditorFlags flags = NoFlags);
 
     static bool openExternalEditor(const QString &fileName, const Id &editorId);
 
@@ -259,11 +262,12 @@ private:
 
     static IEditor *placeEditor(Internal::EditorView *view, IEditor *editor);
     static IEditor *duplicateEditor(IEditor *editor);
-    static IEditor *activateEditor(Internal::EditorView *view, IEditor *editor, OpenEditorFlags flags = 0);
-    static void activateEditorForEntry(Internal::EditorView *view, DocumentModel::Entry *entry, OpenEditorFlags flags = 0);
+    static IEditor *activateEditor(Internal::EditorView *view, IEditor *editor, OpenEditorFlags flags = NoFlags);
+    static void activateEditorForEntry(Internal::EditorView *view, DocumentModel::Entry *entry,
+                                       OpenEditorFlags flags = NoFlags);
     static void activateView(Internal::EditorView *view);
     static IEditor *openEditor(Internal::EditorView *view, const QString &fileName,
-        const Id &id = Id(), OpenEditorFlags flags = 0, bool *newEditor = 0);
+        const Id &id = Id(), OpenEditorFlags flags = NoFlags, bool *newEditor = 0);
     static int visibleDocumentsCount();
 
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);

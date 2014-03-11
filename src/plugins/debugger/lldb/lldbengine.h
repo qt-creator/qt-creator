@@ -35,6 +35,8 @@
 #include <debugger/memoryagent.h>
 #include <debugger/watchhandler.h>
 
+#include <utils/consoleprocess.h>
+
 #include <QPointer>
 #include <QProcess>
 #include <QQueue>
@@ -164,6 +166,9 @@ private:
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
     void refreshStack(const GdbMi &stack);
+    void refreshStackPosition(const GdbMi &position);
+    void refreshStackTop(const GdbMi &position);
+    void setStackPosition(int index);
     void refreshRegisters(const GdbMi &registers);
     void refreshLocals(const GdbMi &vars);
     void refreshTypeInfo(const GdbMi &typeInfo);
@@ -172,7 +177,9 @@ private:
     void refreshModules(const GdbMi &modules);
     void refreshSymbols(const GdbMi &symbols);
     void refreshOutput(const GdbMi &output);
-    void refreshBreakpoints(const GdbMi &bkpts);
+    void refreshAddedBreakpoint(const GdbMi &bkpts);
+    void refreshChangedBreakpoint(const GdbMi &bkpts);
+    void refreshRemovedBreakpoint(const GdbMi &bkpts);
     void runContinuation(const GdbMi &data);
 
     typedef void (LldbEngine::*LldbCommandContinuation)();
@@ -211,6 +218,13 @@ private:
     QScopedPointer<DebuggerToolTipContext> m_toolTipContext;
 
     void showToolTip();
+
+    // Console handling.
+    Q_SLOT void stubError(const QString &msg);
+    Q_SLOT void stubExited();
+    Q_SLOT void stubStarted();
+    bool prepareCommand();
+    Utils::ConsoleProcess m_stubProc;
 };
 
 } // namespace Internal

@@ -78,6 +78,11 @@ public:
     void setShowExtendedStatistics(bool show);
     bool showExtendedStatistics() const;
 
+    void setShowJavaScript(bool show);
+    bool showJavaScript() const;
+
+    void setShowQml(bool show);
+    bool showQml() const;
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);

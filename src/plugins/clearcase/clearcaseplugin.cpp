@@ -1121,7 +1121,7 @@ void ClearCasePlugin::diffActivity()
             // latest version - updated each line
             filever[file].second = shortver;
 
-            // pre-first version. only for the first occurence
+            // pre-first version. only for the first occurrence
             if (filever[file].first.isEmpty()) {
                 int verpos = shortver.lastIndexOf(QRegExp(QLatin1String("[^0-9]"))) + 1;
                 int vernum = shortver.mid(verpos).toInt();
@@ -1517,7 +1517,9 @@ IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString
         qDebug() << "ClearCasePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
+    IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8(),
+                                                            (EditorManager::OpenInOtherSplit
+                                                             | EditorManager::NoNewSplits));
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,QString,int)));
     ClearCaseEditor *e = qobject_cast<ClearCaseEditor*>(editor->widget());
@@ -1530,7 +1532,6 @@ IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString
         e->setSource(source);
     if (codec)
         e->setCodec(codec);
-    EditorManager::activateEditor(editor);
     return editor;
 }
 

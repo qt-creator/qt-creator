@@ -166,6 +166,7 @@ Section {
             Layout.fillWidth: true
             backendValue: (backendValues.style === undefined) ? dummyBackendValue : backendValues.style
             model:  ["Normal", "Outline", "Raised", "Sunken"]
+            scope: "Text"
         }
     }
 }

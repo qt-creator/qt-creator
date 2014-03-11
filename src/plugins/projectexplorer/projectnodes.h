@@ -189,7 +189,7 @@ public:
         int priority;
     };
 
-    virtual AddNewInformation addNewInformation(const QStringList &files) const;
+    virtual AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
 
     void addFileNodes(const QList<FileNode*> &files);
     void removeFileNodes(const QList<FileNode*> &files);
@@ -319,7 +319,7 @@ public:
 signals:
     // everything
 
-    // Emited whenever the model needs to send a update signal.
+    // Emitted whenever the model needs to send a update signal.
     void nodeUpdated(ProjectExplorer::Node *node);
 
     // projects
