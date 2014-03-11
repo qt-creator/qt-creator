@@ -309,9 +309,11 @@ void addChangedPositions(int positionOffset, const QMap<int, int> &originalChang
         const int endPos = it.value();
         const int newStartPos = startPos < 0 ? -1 : startPos + positionOffset;
         const int newEndPos = endPos < 0 ? -1 : endPos + positionOffset;
-        if (startPos < 0 && !changedPositions->isEmpty())
-            changedPositions->insert(changedPositions->lastKey(), newEndPos);
-        else
+        if (startPos < 0 && !changedPositions->isEmpty()) {
+           QMap<int, int>::iterator last = changedPositions->end();
+           --last;
+           last.value() = newEndPos;
+        } else
             changedPositions->insert(newStartPos, newEndPos);
     }
 }
