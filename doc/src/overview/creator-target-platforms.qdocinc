@@ -16,6 +16,8 @@
 
         \li QNX
 
+        \li Windows Runtime (including Windows Phone)
+
     \endlist
 
     The following table summarizes operating system support for developing
@@ -55,6 +57,11 @@
             \li Yes
             \li Yes
             \li Yes (see \l{Running on QNX Devices} for limitations)
+        \row
+            \li Windows Runtime
+            \li No
+            \li No
+            \li Yes
     \endtable
 
     \note Symbian support has been removed from \QC 2.6. To develop for Symbian,

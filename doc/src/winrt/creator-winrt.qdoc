@@ -1,0 +1,69 @@
+/****************************************************************************
+**
+** Copyright (c) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+    /*!
+
+    \contentspage index.html
+    \previouspage creator-developing-qnx.html
+    \page creator-developing-winrt.html
+    \nextpage creator-build-process-customizing.html
+
+    \title Connecting Windows Runtime Devices
+
+    You can build Windows Store Apps and run them on Windows Phones, Windows
+    Phone Emulator, or the Windows computer in Modern UI mode.
+
+    \QC uses the integrated \c windeployqt and \c winrtrunner tools to deploy
+    and run applications. You can also run the tools manually from the command
+    line.
+
+    The Qt 5.3 installer adds Windows Runtime and Windows Phone Qt versions to
+    \QC and creates the necessary kits.
+
+    \image creator-winrt-kits.png "WinRT kits"
+
+    To connect Windows Runtime devices:
+
+    \list 1
+
+        \li Select \gui Help > \gui {About Plugins} > \gui {Device Support} >
+            \gui WinRT to enable the experimental Winows Runtime plugin.
+
+        \li Restart \QC to be able to use the plugin.
+
+        \li To specify build settings:
+
+        \list 1
+
+            \li Open a project for an application you want to develop for the
+                device.
+
+            \li Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+                add a kit for building and running applications on Windows
+                Runtime devices (the local computer, for now) Windows Phones,
+                or the Windows Phone emulator.
+
+        \endlist
+
+        \li Select \gui Run to specify run settings.
+
+            Usually, you can use the default settings.
+
+    \endlist
+
+*/
