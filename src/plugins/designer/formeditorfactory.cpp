@@ -63,7 +63,7 @@ Core::IEditor *FormEditorFactory::createEditor()
     if (data.formWindowEditor) {
         Core::InfoBarEntry info(Core::Id(Constants::INFO_READ_ONLY),
                                 tr("This file can only be edited in <b>Design</b> mode."));
-        info.setCustomButtonInfo(tr("Switch mode"), this, SLOT(designerModeClicked()));
+        info.setCustomButtonInfo(tr("Switch Mode"), this, SLOT(designerModeClicked()));
         data.formWindowEditor->document()->infoBar()->addInfo(info);
     }
     return data.formWindowEditor;
