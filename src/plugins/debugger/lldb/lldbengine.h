@@ -162,6 +162,7 @@ private:
     Q_SLOT void runEngine2();
     Q_SLOT void updateAll();
     Q_SLOT void updateLocals();
+    Q_SLOT void createFullBacktrace();
     void doUpdateLocals(UpdateParameters params);
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
@@ -181,6 +182,7 @@ private:
     void refreshChangedBreakpoint(const GdbMi &bkpts);
     void refreshRemovedBreakpoint(const GdbMi &bkpts);
     void runContinuation(const GdbMi &data);
+    void showFullBacktrace(const GdbMi &data);
 
     typedef void (LldbEngine::*LldbCommandContinuation)();
 

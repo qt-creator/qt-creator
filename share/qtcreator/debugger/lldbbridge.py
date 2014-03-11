@@ -1562,6 +1562,12 @@ class Dumper(DumperBase):
     def requestModuleSymbols(self, frame):
         self.handleCommand("target module list " + frame)
 
+    def createFullBacktrace(self, _ = None):
+        command = "thread backtrace all"
+        result = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand(command, result)
+        self.report('full-backtrace="%s"' % self.hexencode(result.GetOutput()))
+
     def executeDebuggerCommand(self, args):
         result = lldb.SBCommandReturnObject()
         command = args['command']

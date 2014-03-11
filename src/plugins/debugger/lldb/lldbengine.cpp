@@ -108,7 +108,7 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     connect(debuggerCore()->action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             SLOT(updateLocals()));
     connect(debuggerCore()->action(CreateFullBacktrace), SIGNAL(triggered()),
-            SLOT(updateAll()));
+            SLOT(createFullBacktrace()));
     connect(debuggerCore()->action(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
             SLOT(updateLocals()));
     connect(debuggerCore()->action(UseDynamicType), SIGNAL(valueChanged(QVariant)),
@@ -432,6 +432,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshMemory(item);
         else if (name == "continuation")
             runContinuation(item);
+        else if (name == "full-backtrace")
+            showFullBacktrace(item);
         else if (name == "statusmessage") {
             QString msg = QString::fromUtf8(item.data());
             if (msg.size())
@@ -439,6 +441,12 @@ void LldbEngine::handleResponse(const QByteArray &response)
             showStatusMessage(msg);
         }
     }
+}
+
+void LldbEngine::showFullBacktrace(const GdbMi &data)
+{
+    debuggerCore()->openTextEditor(_("Backtrace $"),
+        QString::fromUtf8(QByteArray::fromHex(data.data())));
 }
 
 void LldbEngine::runContinuation(const GdbMi &data)
@@ -1252,6 +1260,10 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
     runCommand(cmd);
 }
 
+void LldbEngine::createFullBacktrace()
+{
+    runCommand("createFullBacktrace");
+}
 
 void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
         quint64 addr, quint64 length)
