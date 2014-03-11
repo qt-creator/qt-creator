@@ -347,9 +347,6 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
     // find if we are in the right column
     int itemRow;
     for (int i=eventTo; i>=eventFrom; --i) {
-        if (ceil(m_profilerModelProxy->getEndTime(modelIndex, i)*m_spacing) < floor(time*m_spacing))
-            continue;
-
         itemRow = modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i);
 
         if (itemRow == row) {
