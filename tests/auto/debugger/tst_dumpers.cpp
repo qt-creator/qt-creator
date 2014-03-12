@@ -4887,6 +4887,18 @@ GdbEngine
              + Check("p3", "Thu Jan 1 00:00:00 1970", "boost::posix_time::ptime");
 
 
+    QTest::newRow("BoostList")
+            << Data("#include <boost/container/list.hpp>\n",
+                    "typedef std::pair<int, double> p;\n"
+                    "boost::container::list<p> l;\n"
+                    "l.push_back(p(13, 61));\n"
+                    "l.push_back(p(14, 64));\n"
+                    "l.push_back(p(15, 65));\n"
+                    "l.push_back(p(16, 66));\n")
+             + BoostProfile()
+             + Check("l", "<4 items>", "boost::container::list<std::pair<int,double>>")
+             + Check("l.2.second", "65", "double");
+
 
 //    // This tests qdump__KRBase in share/qtcreator/debugger/qttypes.py which uses
 //    // a static typeflag to dispatch to subclasses");
