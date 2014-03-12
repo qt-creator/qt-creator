@@ -35,7 +35,7 @@
 
 #include <QPointer>
 
-#include "cmakevalidator.h"
+#include "cmaketool.h"
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QCheckBox)
@@ -71,8 +71,8 @@ private:
     QPointer<QWidget> m_widget;
     Utils::PathChooser *m_pathchooser;
     QCheckBox *m_preferNinja;
-    CMakeValidator m_cmakeValidatorForUser;
-    CMakeValidator m_cmakeValidatorForSystem;
+    CMakeTool m_cmakeValidatorForUser;
+    CMakeTool m_cmakeValidatorForSystem;
 };
 
 } // namespace Internal

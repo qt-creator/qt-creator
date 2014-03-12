@@ -40,12 +40,12 @@ QT_FORWARD_DECLARE_CLASS(QProcess)
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeValidator : public QObject
+class CMakeTool : public QObject
 {
     Q_OBJECT
 public:
-    CMakeValidator();
-    ~CMakeValidator();
+    CMakeTool();
+    ~CMakeTool();
 
     enum State { Invalid, RunningBasic, RunningFunctionList, RunningFunctionDetails,
                  RunningPropertyList, RunningVariableList, RunningDone };

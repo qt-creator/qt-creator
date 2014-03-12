@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "cmakevalidator.h"
+#include "cmaketool.h"
 
 #include <QProcess>
 #include <QFileInfo>
@@ -36,20 +36,20 @@
 using namespace CMakeProjectManager::Internal;
 
 ///////////////////////////
-// CMakeValidator
+// CMakeTool
 ///////////////////////////
-CMakeValidator::CMakeValidator()
+CMakeTool::CMakeTool()
     : m_state(Invalid), m_process(0), m_hasCodeBlocksMsvcGenerator(false), m_hasCodeBlocksNinjaGenerator(false)
 {
 
 }
 
-CMakeValidator::~CMakeValidator()
+CMakeTool::~CMakeTool()
 {
     cancel();
 }
 
-void CMakeValidator::cancel()
+void CMakeTool::cancel()
 {
     if (m_process) {
         disconnect(m_process, SIGNAL(finished(int)));
@@ -59,7 +59,7 @@ void CMakeValidator::cancel()
     }
 }
 
-void CMakeValidator::setCMakeExecutable(const QString &executable)
+void CMakeTool::setCMakeExecutable(const QString &executable)
 {
     cancel();
     m_process = new QProcess();
@@ -70,96 +70,96 @@ void CMakeValidator::setCMakeExecutable(const QString &executable)
     QFileInfo fi(m_executable);
     if (fi.exists() && fi.isExecutable()) {
         // Run it to find out more
-        m_state = CMakeValidator::RunningBasic;
+        m_state = CMakeTool::RunningBasic;
         if (!startProcess(QStringList(QLatin1String("--help"))))
-            m_state = CMakeValidator::Invalid;
+            m_state = CMakeTool::Invalid;
     } else {
-        m_state = CMakeValidator::Invalid;
+        m_state = CMakeTool::Invalid;
     }
 }
 
-void CMakeValidator::finished(int exitCode)
+void CMakeTool::finished(int exitCode)
 {
     if (exitCode) {
-        m_state = CMakeValidator::Invalid;
+        m_state = CMakeTool::Invalid;
         return;
     }
-    if (m_state == CMakeValidator::RunningBasic) {
+    if (m_state == CMakeTool::RunningBasic) {
         QByteArray response = m_process->readAll();
 
         m_hasCodeBlocksMsvcGenerator = response.contains("CodeBlocks - NMake Makefiles");
         m_hasCodeBlocksNinjaGenerator = response.contains("CodeBlocks - Ninja");
 
         if (response.isEmpty()) {
-            m_state = CMakeValidator::Invalid;
+            m_state = CMakeTool::Invalid;
         } else {
-            m_state = CMakeValidator::RunningFunctionList;
+            m_state = CMakeTool::RunningFunctionList;
             if (!startProcess(QStringList(QLatin1String("--help-command-list"))))
                 finished(0); // should never happen, just continue
         }
-    } else if (m_state == CMakeValidator::RunningFunctionList) {
+    } else if (m_state == CMakeTool::RunningFunctionList) {
         parseFunctionOutput(m_process->readAll());
-        m_state = CMakeValidator::RunningFunctionDetails;
+        m_state = CMakeTool::RunningFunctionDetails;
         if (!startProcess(QStringList(QLatin1String("--help-commands"))))
             finished(0); // should never happen, just continue
-    } else if (m_state == CMakeValidator::RunningFunctionDetails) {
+    } else if (m_state == CMakeTool::RunningFunctionDetails) {
         parseFunctionDetailsOutput(m_process->readAll());
-        m_state = CMakeValidator::RunningPropertyList;
+        m_state = CMakeTool::RunningPropertyList;
         if (!startProcess(QStringList(QLatin1String("--help-property-list"))))
             finished(0); // should never happen, just continue
-    } else if (m_state == CMakeValidator::RunningPropertyList) {
+    } else if (m_state == CMakeTool::RunningPropertyList) {
         parseVariableOutput(m_process->readAll());
-        m_state = CMakeValidator::RunningVariableList;
+        m_state = CMakeTool::RunningVariableList;
         if (!startProcess(QStringList(QLatin1String("--help-variable-list"))))
             finished(0); // should never happen, just continue
-    } else if (m_state == CMakeValidator::RunningVariableList) {
+    } else if (m_state == CMakeTool::RunningVariableList) {
         parseVariableOutput(m_process->readAll());
         parseDone();
-        m_state = CMakeValidator::RunningDone;
+        m_state = CMakeTool::RunningDone;
     }
 }
 
-bool CMakeValidator::isValid() const
+bool CMakeTool::isValid() const
 {
-    if (m_state == CMakeValidator::Invalid)
+    if (m_state == CMakeTool::Invalid)
         return false;
-    if (m_state == CMakeValidator::RunningBasic)
+    if (m_state == CMakeTool::RunningBasic)
         m_process->waitForFinished();
-    return (m_state != CMakeValidator::Invalid);
+    return (m_state != CMakeTool::Invalid);
 }
 
-bool CMakeValidator::startProcess(const QStringList &args)
+bool CMakeTool::startProcess(const QStringList &args)
 {
     m_process->start(m_executable, args);
     return m_process->waitForStarted(2000);
 }
 
-QString CMakeValidator::cmakeExecutable() const
+QString CMakeTool::cmakeExecutable() const
 {
     return m_executable;
 }
 
-bool CMakeValidator::hasCodeBlocksMsvcGenerator() const
+bool CMakeTool::hasCodeBlocksMsvcGenerator() const
 {
     if (!isValid())
         return false;
     return m_hasCodeBlocksMsvcGenerator;
 }
 
-bool CMakeValidator::hasCodeBlocksNinjaGenerator() const
+bool CMakeTool::hasCodeBlocksNinjaGenerator() const
 {
     if (!isValid())
         return false;
     return m_hasCodeBlocksNinjaGenerator;
 }
 
-TextEditor::Keywords CMakeValidator::keywords()
+TextEditor::Keywords CMakeTool::keywords()
 {
-    while (m_state != RunningDone && m_state != CMakeValidator::Invalid) {
+    while (m_state != RunningDone && m_state != CMakeTool::Invalid) {
         m_process->waitForFinished();
     }
 
-    if (m_state == CMakeValidator::Invalid)
+    if (m_state == CMakeTool::Invalid)
         return TextEditor::Keywords(QStringList(), QStringList(), QMap<QString, QStringList>());
 
     return TextEditor::Keywords(m_variables, m_functions, m_functionArgs);
@@ -195,7 +195,7 @@ static void extractKeywords(const QByteArray &input, QStringList *destination)
         *destination << keyword;
 }
 
-void CMakeValidator::parseFunctionOutput(const QByteArray &output)
+void CMakeTool::parseFunctionOutput(const QByteArray &output)
 {
     QList<QByteArray> cmakeFunctionsList = output.split('\n');
     m_functions.clear();
@@ -206,13 +206,13 @@ void CMakeValidator::parseFunctionOutput(const QByteArray &output)
     }
 }
 
-QString CMakeValidator::formatFunctionDetails(const QString &command, const QString &args)
+QString CMakeTool::formatFunctionDetails(const QString &command, const QString &args)
 {
     return QString::fromLatin1("<table><tr><td><b>%1</b></td><td>%2</td></tr>")
             .arg(Qt::escape(command)).arg(Qt::escape(args));
 }
 
-void CMakeValidator::parseFunctionDetailsOutput(const QByteArray &output)
+void CMakeTool::parseFunctionDetailsOutput(const QByteArray &output)
 {
     QStringList cmakeFunctionsList = m_functions;
     QList<QByteArray> cmakeCommandsHelp = output.split('\n');
@@ -261,7 +261,7 @@ void CMakeValidator::parseFunctionDetailsOutput(const QByteArray &output)
     m_functions = m_functionArgs.keys();
 }
 
-void CMakeValidator::parseVariableOutput(const QByteArray &output)
+void CMakeTool::parseVariableOutput(const QByteArray &output)
 {
     QList<QByteArray> variableList = output.split('\n');
     if (!variableList.isEmpty()) {
@@ -282,7 +282,7 @@ void CMakeValidator::parseVariableOutput(const QByteArray &output)
     }
 }
 
-void CMakeValidator::parseDone()
+void CMakeTool::parseDone()
 {
     m_variables.sort();
     m_variables.removeDuplicates();

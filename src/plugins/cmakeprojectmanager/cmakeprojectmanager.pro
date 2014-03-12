@@ -16,7 +16,7 @@ HEADERS = cmakebuildinfo.h \
     cmakehighlighterfactory.h \
     cmakelocatorfilter.h \
     cmakefilecompletionassist.h \
-    cmakevalidator.h \
+    cmaketool.h \
     cmakeparser.h \
     generatorinfo.h \
     cmakesettingspage.h
@@ -35,7 +35,7 @@ SOURCES = cmakeproject.cpp \
     cmakehighlighterfactory.cpp \
     cmakelocatorfilter.cpp \
     cmakefilecompletionassist.cpp \
-    cmakevalidator.cpp \
+    cmaketool.cpp \
     cmakeparser.cpp \
     generatorinfo.cpp \
     cmakesettingspage.cpp
