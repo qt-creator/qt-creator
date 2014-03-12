@@ -4950,7 +4950,7 @@ GdbEngine
                 "byte f = '2';\n"
                 "int *x = (int*)&f;\n")
          + Check("f", "'2'", "byte") % LldbEngine
-         + Check("f", "50 '2'", "byte") % GdbEngine;
+         + Check("f", "50", "byte") % GdbEngine;
 
 
     // https://bugreports.qt-project.org/browse/QTCREATORBUG-4904
