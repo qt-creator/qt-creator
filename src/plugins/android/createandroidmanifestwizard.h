@@ -34,6 +34,7 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QLabel;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Target; }
@@ -70,9 +71,16 @@ class ChooseDirectoryPage : public QWizardPage
     Q_OBJECT
 public:
     ChooseDirectoryPage(CreateAndroidManifestWizard *wizard);
+protected:
+    bool isComplete() const;
+private slots:
+    void checkPackageSourceDir();
 private:
     CreateAndroidManifestWizard *m_wizard;
     Utils::PathChooser *m_androidPackageSourceDir;
+    QLabel *m_sourceDirectoryWarning;
+    QLabel *m_warningIcon;
+    bool m_complete;
 };
 
 class CreateAndroidManifestWizard : public Utils::Wizard
