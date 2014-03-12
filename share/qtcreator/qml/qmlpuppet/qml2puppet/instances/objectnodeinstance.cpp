@@ -1044,6 +1044,39 @@ static QQmlType *getQmlType(const QString &typeName, int majorNumber, int minorN
      return  QQmlMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
 }
 
+static bool isWindowMetaObject(const QMetaObject *metaObject)
+{
+    if (metaObject) {
+        if (metaObject->className() == QByteArrayLiteral("QWindow"))
+            return true;
+
+        return isWindowMetaObject(metaObject->superClass());
+    }
+
+    return false;
+}
+
+static QObject *createDummyWindow(QQmlContext *context, const QUrl &sourceUrl)
+{
+    QQmlComponent component(context->engine());
+    QByteArray dummyWindow;
+    dummyWindow.append("import QtQuick 2.0\n");
+    dummyWindow.append("Item {\n");
+    dummyWindow.append("property string title\n");
+    dummyWindow.append("}\n");
+
+    component.setData(dummyWindow, sourceUrl);
+
+    return component.create();
+}
+
+static bool isWindow(QObject *object) {
+    if (object)
+        return isWindowMetaObject(object->metaObject());
+
+    return false;
+}
+
 QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
     ComponentCompleteDisabler disableComponentComplete;
@@ -1052,9 +1085,6 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
 
     QObject *object = 0;
     QQmlType *type = getQmlType(typeName, majorNumber, minorNumber);
-
-    if (typeName == "QtQuick.Window/Window")
-        type = getQmlType("QtQuick/Item", 2, 0);
 
     if (type) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)) // TODO remove hack later if we only support >= 5.2
@@ -1069,6 +1099,12 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
                 object = type->create();
             }
         }
+
+        if (isWindow(object)) {
+            delete object;
+            object = createDummyWindow(context, type->sourceUrl());
+        }
+
     } else {
         qWarning() << "QuickDesigner: Cannot create an object of type"
                    << QString("%1 %2,%3").arg(typeName).arg(majorNumber).arg(minorNumber)
