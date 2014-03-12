@@ -37,3 +37,4 @@ OriginControl 2.0 OriginControl.qml
 CustomComboBoxStyle 2.0 CustomComboBoxStyle.qml
 CustomSpinBoxStyle 2.0 CustomSpinBoxStyle.qml
 CustomCheckBoxStyle 2.0 CustomCheckBoxStyle.qml
+ColorLogic 2.0 ColorLogic.qml
