@@ -28,26 +28,12 @@
 ****************************************************************************/
 
 #include "winrtpackagedeploymentstep.h"
-#include "winrtdevice.h"
 #include "winrtconstants.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/ioutputparser.h>
-#include <projectexplorer/kitinformation.h>
-#include <utils/fileutils.h>
-#include <qtsupport/profilereader.h>
-#include <proparser/qmakevfs.h>
-#include <utils/hostosinfo.h>
-
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QRegularExpression>
-#include <QRegularExpressionMatchIterator>
 
 using namespace ProjectExplorer;
 
