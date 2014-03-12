@@ -208,7 +208,6 @@ void QtQuickApp::setTemplateInfo(const TemplateInfo &templateInfo)
 
 QString QtQuickApp::pathExtended(int fileType) const
 {
-    const QString qmlSubDir = QLatin1String("qml/");
     const QString appViewerTargetSubDir = appViewerOriginSubDir();
 
     const QString mainQmlFile = QLatin1String("main.qml");
@@ -219,8 +218,8 @@ QString QtQuickApp::pathExtended(int fileType) const
     const QString pathBase = outputPathBase();
 
     switch (fileType) {
-        case MainQml:                       return pathBase + qmlSubDir + mainQmlFile;
-        case MainQmlOrigin:                 return originsRoot() + qmlSubDir + mainQmlFile;
+        case MainQml:                       return pathBase + mainQmlFile;
+        case MainQmlOrigin:                 return originsRoot() + mainQmlFile;
         case MainQrc:                       return pathBase + mainQrcFile;
         case MainQrcOrigin:                 return originsRoot() + mainQrcFile;
         case QrcDeployment:                 return pathBase + qrcDeploymentFile;
