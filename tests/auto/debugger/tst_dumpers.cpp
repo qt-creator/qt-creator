@@ -4597,7 +4597,7 @@ GdbEngine
                + Check("d1", "43", "Ref1")
 
                + Check("a2", "\"hello\"", "std::string")
-               + Check("b2", "\"bababa\"", "std::string &")
+               + Check("b2", "\"bababa\"", Pattern("(std::)?string &")) // Clang...
                + Check("c2", "\"world\"", "std::string")
                + Check("d2", "\"hello\"", "Ref2")
 
