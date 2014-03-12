@@ -429,55 +429,35 @@ class Dumper(DumperBase):
         return typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass)
 
     def qtVersionAndNamespace(self):
-        self.cachedQtNamespace = ""
-        self.cachedQtVersion = 0x0
+        for func in self.target.FindFunctions('qVersion'):
+            name = func.GetSymbol().GetName()
+            if name.count(':') > 2:
+                continue
 
-        coreExpression = re.compile(r"(lib)?Qt5?Core")
-        for n in range(0, self.target.GetNumModules()):
-            module = self.target.GetModuleAtIndex(n)
-            fileName = module.GetFileSpec().GetFilename()
-            if coreExpression.match(fileName):
-                # Extract version.
-                reverseVersion = module.GetVersion()
-                if len(reverseVersion):
-                    # Mac, Clang?
-                    reverseVersion.reverse()
-                    shift = 0
-                    for v in reverseVersion:
-                        self.cachedQtVersion += v << shift
-                        shift += 8
-                else:
-                    # Linux, gcc?
-                    if fileName.endswith(".5"):
-                        self.cachedQtVersion = 0x50000
-                    elif fileName.endswith(".4"):
-                        self.cachedQtVersion = 0x40800
-                    else:
-                        warn("CANNOT GUESS QT VERSION")
+            version = str(self.parseAndEvaluate('((const char*())%s)()' % name))
+            version.replace("'", '"') # Both seem possible
+            version = version[version.find('"')+1:version.rfind('"')]
 
+            if version.count('.') != 2:
+                continue
 
-                # Look for some Qt symbol to extract namespace.
-                for symbol in module.symbols:
-                    name = symbol.GetName()
-                    pos = name.find("QString")
-                    if pos >= 0:
-                        name = name[:pos]
-                        if name.endswith("::"):
-                            self.cachedQtNamespace = re.sub('^.*[^\w]([\w]+)::$', '\\1', name) + '::'
-                        break
-                break
+            qtNamespace = name[:name.find('qVersion')]
+            self.qtNamespace = lambda: qtNamespace
 
-        # Memoize good results.
-        self.qtNamespace = lambda: self.cachedQtNamespace
-        self.qtVersion = lambda: self.cachedQtVersion
+            (major, minor, patch) = version.split('.')
+            qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+            self.qtVersion = lambda: qtVersion
+
+            return (qtNamespace, qtVersion)
+
+        return ('', 0x50200)
 
     def qtNamespace(self):
-        self.qtVersionAndNamespace()
-        return self.cachedQtNamespace
+        return self.qtVersionAndNamespace()[0]
 
     def qtVersion(self):
         self.qtVersionAndNamespace()
-        return self.cachedQtVersion
+        return self.qtVersionAndNamespace()[1]
 
     def intSize(self):
         return 4
