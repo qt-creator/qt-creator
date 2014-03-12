@@ -408,7 +408,7 @@ class Dumper(DumperBase):
         return p.GetValueAsUnsigned() == 0
 
     def directBaseClass(self, typeobj, index = 0):
-        result = typeobj.GetDirectBaseClassAtIndex(index)
+        result = typeobj.GetDirectBaseClassAtIndex(index).GetType()
         return result if result.IsValid() else None
 
     def templateArgument(self, typeobj, index):
