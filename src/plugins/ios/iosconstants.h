@@ -55,6 +55,7 @@ const char IOS_DEVICE_TYPE[] = "Ios.Device.Type";
 const char IOS_SIMULATOR_TYPE[] = "Ios.Simulator.Type";
 const char IOS_DEVICE_ID[] = "iOS Device ";
 const char IOS_SIMULATOR_DEVICE_ID[] = "iOS Simulator Device ";
+const char IOS_DSYM_BUILD_STEP_ID[] = "Ios.IosDsymBuildStep";
 
 const quint16 IOS_DEVICE_PORT_START = 30000;
 const quint16 IOS_DEVICE_PORT_END = 31000;

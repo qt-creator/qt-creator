@@ -36,6 +36,7 @@
 #include "iosdeploystepfactory.h"
 #include "iosdevicefactory.h"
 #include "iosmanager.h"
+#include "iosdsymbuildstep.h"
 #include "iosqtversionfactory.h"
 #include "iosrunfactories.h"
 #include "iossettingspage.h"
@@ -72,6 +73,7 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new Internal::IosSimulatorFactory);
     addAutoReleasedObject(new Internal::IosBuildStepFactory);
     addAutoReleasedObject(new Internal::IosDeployStepFactory);
+    addAutoReleasedObject(new Internal::IosDsymBuildStepFactory);
     addAutoReleasedObject(new Internal::IosDeployConfigurationFactory);
 
     return true;
