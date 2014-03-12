@@ -38,7 +38,6 @@
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/kitinformation.h>
-#include <coreplugin/idocument.h>
 #include <utils/fileutils.h>
 #include <qtsupport/profilereader.h>
 #include <proparser/qmakevfs.h>
@@ -63,7 +62,7 @@ WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl)
 
 bool WinRtPackageDeploymentStep::init()
 {
-    Utils::FileName proFile = Utils::FileName::fromString(project()->document()->filePath());
+    Utils::FileName proFile = Utils::FileName::fromString(project()->projectFilePath());
     const QString targetPath
             = target()->applicationTargets().targetForProject(proFile).toString()
                 + QLatin1String(".exe");
