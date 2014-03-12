@@ -113,6 +113,11 @@ static QStringList buildDefines(const QByteArray &defines, bool toolchainDefines
         if (def.isEmpty())
             continue;
 
+        // This is a quick fix for QTCREATORBUG-11501.
+        // TODO: do a proper fix, see QTCREATORBUG-11709.
+        if (def.startsWith("#define __cplusplus"))
+            continue;
+
         // TODO: verify if we can pass compiler-defined macros when also passing -undef.
         if (toolchainDefines) {
             //### FIXME: the next 3 check shouldn't be needed: we probably don't want to get the compiler-defined defines in.
