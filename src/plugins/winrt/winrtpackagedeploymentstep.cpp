@@ -34,8 +34,10 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildtargetinfo.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
+using Utils::QtcProcess;
 
 namespace WinRt {
 namespace Internal {
@@ -55,9 +57,14 @@ bool WinRtPackageDeploymentStep::init()
     // ### Actually, targetForProject is supposed to return the file path including the file
     // extension. Whenever this will eventually work, we have to remove the .exe suffix here.
 
+    QString args;
+    QtcProcess::addArg(&args, QDir::toNativeSeparators(targetPath));
+    QtcProcess::addArg(&args, QStringLiteral("--qmldir"));
+    QtcProcess::addArg(&args, QDir::toNativeSeparators(project()->projectDirectory()));
+
     ProcessParameters *params = processParameters();
     params->setCommand(QLatin1String("windeployqt.exe"));
-    params->setArguments(QDir::toNativeSeparators(targetPath));
+    params->setArguments(args);
     params->setEnvironment(target()->activeBuildConfiguration()->environment());
 
     return AbstractProcessStep::init();
