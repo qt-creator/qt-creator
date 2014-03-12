@@ -235,7 +235,7 @@ void InfoBarDisplay::update()
         if (info.globalSuppression == InfoBarEntry::GlobalSuppressionEnabled) {
             infoWidgetSuppressButton = new QToolButton;
             infoWidgetSuppressButton->setProperty("infoId", info.id.uniqueIdentifier());
-            infoWidgetSuppressButton->setText(tr("Do not show again"));
+            infoWidgetSuppressButton->setText(tr("Do Not Show Again"));
             connect(infoWidgetSuppressButton, SIGNAL(clicked()), SLOT(suppressButtonClicked()));
         }
 
