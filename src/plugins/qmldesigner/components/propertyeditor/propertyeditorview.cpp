@@ -156,7 +156,7 @@ void PropertyEditorView::changeValue(const QString &name)
                     m_locked = true;
                     value->setValue(m_selectedNode.id());
                     m_locked = false;
-                    QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"), e.description());
+                    e.showException(tr("Invalid Id"));
                 }
             } else { //there is already an id, so we refactor
                 if (rewriterView())
@@ -227,7 +227,7 @@ void PropertyEditorView::changeValue(const QString &name)
             }
         }
         catch (RewritingException &e) {
-            QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
+            e.showException();
         }
 }
 
@@ -303,7 +303,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     }
 
     catch (RewritingException &e) {
-        QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
+        e.showException();
     }
 }
 

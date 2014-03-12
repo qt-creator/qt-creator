@@ -34,6 +34,11 @@
 #include <cxxabi.h>
 #endif
 
+#include <coreplugin/icore.h>
+
+#include <QCoreApplication>
+#include <QMessageBox>
+
 
 /*!
 \defgroup CoreExceptions
@@ -143,6 +148,15 @@ void Exception::createWarning() const
 QString Exception::description() const
 {
     return QString("file: %1, function: %2, line: %3").arg(m_file, m_function, QString::number(m_line));
+}
+
+/*!
+    Shows message in a message box.
+*/
+void Exception::showException(const QString &title) const
+{
+    QString t = title.isEmpty() ? QCoreApplication::translate("QmlDesigner", "Error") : title;
+    QMessageBox::warning(Core::ICore::dialogParent(), t, description());
 }
 
 /*!

@@ -32,7 +32,6 @@
 #include "stateseditormodel.h"
 #include <rewritingexception.h>
 
-#include <QMessageBox>
 #include <QDebug>
 #include <math.h>
 
@@ -42,8 +41,6 @@
 #include <nodelistproperty.h>
 
 #include <qmlitemnode.h>
-
-#include <coreplugin/icore.h>
 
 
 namespace QmlDesigner {
@@ -161,7 +158,7 @@ void StatesEditorView::removeState(int nodeId)
             stateNode.destroy();
         }
     }  catch (RewritingException &e) {
-        QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
+        e.showException();
     }
 }
 
@@ -212,7 +209,7 @@ void StatesEditorView::addState()
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);
     }  catch (RewritingException &e) {
-        QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
+        e.showException();
     }
 }
 
@@ -307,7 +304,7 @@ void StatesEditorView::renameState(int nodeId, const QString &newName)
                 setCurrentState(oldState);
             }
         }  catch (RewritingException &e) {
-            QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
+            e.showException();
         }
     }
 }

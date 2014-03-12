@@ -40,7 +40,6 @@
 #include <viewmanager.h>
 #include <nodeinstanceview.h>
 
-#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -53,7 +52,6 @@
 #include <QUrl>
 #include <QDebug>
 
-#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QApplication>
 
@@ -366,7 +364,7 @@ void DesignDocument::deleteSelected()
         }
 
     } catch (RewritingException &e) {
-        QMessageBox::warning(Core::ICore::dialogParent(), tr("Error"), e.description());
+        e.showException();
     }
 }
 

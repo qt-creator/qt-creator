@@ -580,7 +580,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
             }
         }
     }  catch (RewritingException &e) { //better safe than sorry! There always might be cases where we fail
-        QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
+        e.showException();
     }
 }
 

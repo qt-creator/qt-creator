@@ -35,12 +35,9 @@
 #include <metainfo.h>
 #include <rewritingexception.h>
 
-#include <coreplugin/icore.h>
-
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <QMimeData>
-#include <QMessageBox>
 #include <QTimer>
 
 namespace QmlDesigner {
@@ -277,7 +274,7 @@ void DragTool::commitTransaction()
     try {
         m_rewriterTransaction.commit();
     } catch (RewritingException &e) {
-        QMessageBox::warning(Core::ICore::dialogParent(), "Error", e.description());
+        e.showException();
     }
 }
 
