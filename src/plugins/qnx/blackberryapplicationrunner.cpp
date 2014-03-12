@@ -105,14 +105,14 @@ void BlackBerryApplicationRunner::start()
 {
     if (!BlackBerryDeviceConnectionManager::instance()->isConnected(m_device->id())) {
         connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceConnected()),
-                this, SLOT(launchApplication()));
+                this, SLOT(checkDeployMode()));
         connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceDisconnected(Core::Id)),
                 this, SLOT(disconnectFromDeviceSignals(Core::Id)));
         connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id,QString)),
                 this, SLOT(displayConnectionOutput(Core::Id,QString)));
         BlackBerryDeviceConnectionManager::instance()->connectDevice(m_device->id());
     } else {
-        launchApplication();
+        checkDeployMode();
     }
 }
 
