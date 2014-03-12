@@ -35,6 +35,7 @@
 #include "cppsemanticinfo.h"
 #include "cppsnapshotupdater.h"
 
+#include <cplusplus/Control.h>
 #include <cplusplus/CppDocument.h>
 
 #include <QFuture>
@@ -43,7 +44,10 @@
 #include <QSharedPointer>
 #include <QTimer>
 
-namespace CPlusPlus { class AST; }
+namespace CPlusPlus {
+class AST;
+class DeclarationAST;
+} // namespace CPlusPlus
 
 namespace TextEditor {
 class BaseTextEditor;
@@ -171,9 +175,19 @@ private:
     };
 
 private:
+    class FuturizedTopLevelDeclarationProcessor: public CPlusPlus::TopLevelDeclarationProcessor
+    {
+    public:
+        FuturizedTopLevelDeclarationProcessor(QFutureInterface<void> &future): m_future(future) {}
+        bool processDeclaration(CPlusPlus::DeclarationAST *) { return !isCanceled(); }
+        bool isCanceled() { return m_future.isCanceled(); }
+    private:
+        QFutureInterface<void> m_future;
+    };
+
     SemanticInfo::Source currentSource(bool force);
     void recalculateSemanticInfoNow(const SemanticInfo::Source &source, bool emitSignalWhenFinished,
-                                    CPlusPlus::TopLevelDeclarationProcessor *processor = 0);
+                                    FuturizedTopLevelDeclarationProcessor *processor = 0);
     void recalculateSemanticInfoDetached_helper(QFutureInterface<void> &future,
                                                 SemanticInfo::Source source);
 
@@ -209,6 +223,7 @@ private:
 
     // Highlighting:
     unsigned m_lastHighlightRevision;
+    bool m_lastHighlightOnCompleteSemanticInfo;
     QFuture<TextEditor::HighlightingResult> m_highlighter;
     QScopedPointer<CppTools::CppHighlightingSupport> m_highlightingSupport;
 

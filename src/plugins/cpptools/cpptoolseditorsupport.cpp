@@ -120,6 +120,7 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     , m_fileIsBeingReloaded(false)
     , m_initialized(false)
     , m_lastHighlightRevision(0)
+    , m_lastHighlightOnCompleteSemanticInfo(true)
     , m_highlightingSupport(modelManager->highlightingSupport(textEditor))
     , m_completionAssistProvider(m_modelManager->completionAssistProvider(textEditor))
 {
@@ -368,6 +369,7 @@ void CppEditorSupport::startHighlighting()
         Document::Ptr doc;
         unsigned revision;
         bool forced;
+        bool complete;
 
         {
             QMutexLocker locker(&m_lastSemanticInfoLock);
@@ -375,16 +377,22 @@ void CppEditorSupport::startHighlighting()
             doc = m_lastSemanticInfo.doc;
             revision = m_lastSemanticInfo.revision;
             forced = m_lastSemanticInfo.forced;
+            complete = m_lastSemanticInfo.complete;
         }
 
         if (doc.isNull())
             return;
+
+        if (!m_lastHighlightOnCompleteSemanticInfo)
+            forced = true;
+
         if (!forced && m_lastHighlightRevision == revision)
             return;
-        m_highlighter.cancel();
 
+        m_highlighter.cancel();
         m_highlighter = m_highlightingSupport->highlightingFuture(doc, snapshot);
         m_lastHighlightRevision = revision;
+        m_lastHighlightOnCompleteSemanticInfo = complete;
         emit highlighterStarted(&m_highlighter, m_lastHighlightRevision);
     } else {
         const unsigned revision = currentSource(false).revision;
@@ -501,6 +509,7 @@ void CppEditorSupport::releaseResources()
     snapshotUpdater()->releaseSnapshot();
     QMutexLocker semanticLocker(&m_lastSemanticInfoLock);
     m_lastSemanticInfo = SemanticInfo();
+    m_lastHighlightOnCompleteSemanticInfo = true;
 }
 
 SemanticInfo::Source CppEditorSupport::currentSource(bool force)
@@ -521,7 +530,7 @@ SemanticInfo::Source CppEditorSupport::currentSource(bool force)
 
 void CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::Source &source,
                                                   bool emitSignalWhenFinished,
-                                                  TopLevelDeclarationProcessor *processor)
+                                                  FuturizedTopLevelDeclarationProcessor *processor)
 {
     SemanticInfo semanticInfo;
 
@@ -547,6 +556,8 @@ void CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::Source &so
             if (processor)
                 doc->control()->setTopLevelDeclarationProcessor(processor);
             doc->check();
+            if (processor && processor->isCanceled())
+                semanticInfo.complete = false;
             semanticInfo.doc = doc;
         } else {
             return;
@@ -576,21 +587,8 @@ void CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::Source &so
 
 void CppEditorSupport::recalculateSemanticInfoDetached_helper(QFutureInterface<void> &future, SemanticInfo::Source source)
 {
-    class TLDProc: public TopLevelDeclarationProcessor
-    {
-        QFutureInterface<void> m_theFuture;
-
-    public:
-        TLDProc(QFutureInterface<void> &aFuture): m_theFuture(aFuture) {}
-        virtual ~TLDProc() {}
-        virtual bool processDeclaration(DeclarationAST *ast) {
-            Q_UNUSED(ast);
-            return !m_theFuture.isCanceled();
-        }
-    };
-
-    TLDProc tldProc(future);
-    recalculateSemanticInfoNow(source, true, &tldProc);
+    FuturizedTopLevelDeclarationProcessor processor(future);
+    recalculateSemanticInfoNow(source, true, &processor);
 }
 
 void CppEditorSupport::onMimeTypeChanged()

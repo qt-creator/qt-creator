@@ -79,6 +79,7 @@ public:
 
     unsigned revision;
     bool forced;
+    bool complete;
     CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;
     LocalUseMap localUses;
