@@ -408,7 +408,8 @@ class Dumper(DumperBase):
         return p.GetValueAsUnsigned() == 0
 
     def directBaseClass(self, typeobj, index = 0):
-        return typeobj.GetDirectBaseClassAtIndex(index)
+        result = typeobj.GetDirectBaseClassAtIndex(index)
+        return result if result.IsValid() else None
 
     def templateArgument(self, typeobj, index):
         type = typeobj.GetTemplateArgumentType(index)
@@ -883,31 +884,8 @@ class Dumper(DumperBase):
             buf[i] = data.GetUnsignedInt8(error, i)
         return Blob(bytes(buf))
 
-    def extractStaticMetaObjectHelper(self, typeobj):
-        if typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass):
-            needle = typeobj.GetUnqualifiedType().GetName() + "::staticMetaObject"
-            options = lldb.SBExpressionOptions()
-            result = self.target.EvaluateExpression(needle, options)
-            # Surprising results include:
-            # (lldb) script print lldb.target.FindFirstGlobalVariable(
-            # '::QSharedDataPointer<QDirPrivate>::staticMetaObject')
-            # (const QMetaObject) QAbstractAnimation::staticMetaObject = { d = { ... } }
-            #if result.GetName() != needle:
-            if result is None or not result.IsValid():
-                result = 0
-        else:
-            result = 0
-        self.knownStaticMetaObjects[typeobj.GetName()] = result
-        return result
-
-    def extractStaticMetaObject(self, typeobj):
-        if not self.isGoodLldb:
-            return 0
-        result = self.extractStaticMetaObjectHelper(typeobj)
-        if result:
-            return result
-        base = typeobj.GetDirectBaseClassAtIndex(0).GetType()
-        return self.extractStaticMetaObjectHelper(base)
+    def findSymbol(self, symbolName):
+        return self.target.FindFirstGlobalVariable(symbolName)
 
     def stripNamespaceFromType(self, typeName):
         #type = stripClassTag(typeName)

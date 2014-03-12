@@ -657,8 +657,12 @@ class Dumper(DumperBase):
         return str(value)
 
     def directBaseClass(self, typeobj, index = 0):
-        # FIXME: Check it's really a base.
-        return typeobj.fields()[index]
+        for f in typeobj.fields():
+            if f.is_base_class:
+                if index == 0:
+                    return f.type
+                index -= 1;
+        return None
 
     def checkPointer(self, p, align = 1):
         if not self.isNull(p):
@@ -860,47 +864,6 @@ class Dumper(DumperBase):
             return self.createPointerValue(address, type)
         except:
             return 0
-
-    def extractStaticMetaObjectHelper(self, typeName):
-        """
-        Checks whether type has a Q_OBJECT macro.
-        Returns the staticMetaObject, or 0.
-        """
-        # No templates for now.
-        if typeName.find('<') >= 0:
-            return 0
-
-        staticMetaObjectName = typeName + "::staticMetaObject"
-        result = self.findSymbol(staticMetaObjectName)
-
-        # We need to distinguish Q_OBJECT from Q_GADGET:
-        # a Q_OBJECT SMO has a non-null superdata (unless it's QObject itself),
-        # a Q_GADGET SMO has a null superdata (hopefully)
-        if result and typeName != self.qtNamespace() + "QObject":
-            if not self.extractPointer(result):
-                # This looks like a Q_GADGET
-                result = 0
-
-        return result
-
-    def extractStaticMetaObject(self, typeobj):
-        """
-        Checks recursively whether a type derives from QObject.
-        """
-        typeName = str(typeobj)
-        result = self.knownStaticMetaObjects.get(typeName, None)
-        if result is not None: # Is 0 or the static metaobject.
-            return result
-
-        result = self.extractStaticMetaObjectHelper(typeName)
-        if not result:
-            fields = typeobj.fields()
-            if len(fields) and fields[0].is_base_class:
-                result = self.extractStaticMetaObject(fields[0].type)
-
-        self.knownStaticMetaObjects[typeName] = result
-        return result
-
 
     def put(self, value):
         self.output.append(value)

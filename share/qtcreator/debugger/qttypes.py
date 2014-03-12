@@ -1776,7 +1776,7 @@ def qdump__QStringRef(d, value):
 
 
 def qdump__QStringList(d, value):
-    listType = d.directBaseClass(value.type).type
+    listType = d.directBaseClass(value.type)
     qdump__QList(d, value.cast(listType))
     d.putBetterType(value.type)
 
