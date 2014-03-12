@@ -112,7 +112,7 @@ QList<Utils::EnvironmentItem> BlackBerryQtVersion::environment() const
         return QList<Utils::EnvironmentItem>();
 
     QString envFile = m_ndkEnvFile.isEmpty() ? QnxUtils::envFilePath(sdkPath()) : m_ndkEnvFile;
-    QList<Utils::EnvironmentItem> env = QnxUtils::qnxEnvironmentFromNdkFile(envFile);
+    QList<Utils::EnvironmentItem> env = QnxUtils::qnxEnvironmentFromEnvFile(envFile);
 
     // BB NDK Host is having qmake executable which is using qt.conf file to specify
     // base information. The qt.conf file is using 'CPUVARDIR' environment variable

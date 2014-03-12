@@ -155,9 +155,9 @@ void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentItem)
         BlackBerryApiLevelConfiguration *config = static_cast<BlackBerryApiLevelConfiguration*>(
                     currentItem->data(0, Qt::UserRole).value<void*>());
 
-        m_ui->path->setText(config->ndkEnvFile().toString());
+        m_ui->path->setText(config->envFile().toString());
         m_ui->baseName->setText(config->displayName());
-        m_ui->host->setText(QDir::toNativeSeparators(config->qnxHost()));
+        m_ui->host->setText(QDir::toNativeSeparators(config->qnxHost().toString()));
         m_ui->target->setText(QDir::toNativeSeparators(config->sysRoot().toString()));
         m_ui->version->setText(config->version().toString());
     }
@@ -189,20 +189,20 @@ void BlackBerryNDKSettingsWidget::updateConfigurationList()
             if (config->isAutoDetected() && !config->autoDetectionSource().toFileInfo().exists())
                 toolTip += QLatin1Char('\n') + tr("- Target no longer installed.");
 
-            if (!config->ndkEnvFile().toFileInfo().exists())
+            if (!config->envFile().toFileInfo().exists())
                 toolTip += QLatin1Char('\n') + tr("- No NDK environment file found.");
 
             if (config->qmake4BinaryFile().isEmpty()
                     && config->qmake5BinaryFile().isEmpty())
                 toolTip += QLatin1Char('\n') + tr("- No Qt version found.");
 
-            if (config->gccCompiler().isEmpty())
+            if (config->qccCompilerPath().isEmpty())
                 toolTip += QLatin1Char('\n') + tr("- No compiler found.");
 
-            if (config->deviceDebuger().isEmpty())
+            if (config->armDebuggerPath().isEmpty())
                 toolTip += QLatin1Char('\n') + tr("- No debugger found for device.");
 
-            if (config->simulatorDebuger().isEmpty())
+            if (config->x86DebuggerPath().isEmpty())
                 toolTip += QLatin1Char('\n') + tr("- No debugger found for simulator.");
 
             item->setToolTip(0, toolTip);

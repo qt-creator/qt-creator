@@ -89,7 +89,7 @@ void QnxToolChain::addToEnvironment(Utils::Environment &env) const
 {
     foreach (BlackBerryApiLevelConfiguration *config,
              BlackBerryConfigurationManager::instance()->apiLevels()) {
-        if (config->gccCompiler() == compilerCommand()) {
+        if (config->qccCompilerPath() == compilerCommand()) {
             setQnxEnvironment(env, config->qnxEnv());
             break;
         }

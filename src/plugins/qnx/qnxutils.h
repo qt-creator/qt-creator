@@ -66,7 +66,7 @@ public:
     static QString addQuotes(const QString &string);
     static Qnx::QnxArchitecture cpudirToArch(const QString &cpuDir);
     static QStringList searchPaths(QnxAbstractQtVersion *qtVersion);
-    static QList<Utils::EnvironmentItem> qnxEnvironmentFromNdkFile(const QString &fileName);
+    static QList<Utils::EnvironmentItem> qnxEnvironmentFromEnvFile(const QString &fileName);
     static bool isValidNdkPath(const QString & ndkPath);
     static QString envFilePath(const QString & ndkPath, const QString& targetVersion = QString());
     static Utils::FileName executableWithExtension(const Utils::FileName &fileName);

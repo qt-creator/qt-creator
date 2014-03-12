@@ -88,7 +88,7 @@ QStringList QnxUtils::searchPaths(QnxAbstractQtVersion *qtVersion)
     return searchPaths;
 }
 
-QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromNdkFile(const QString &fileName)
+QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
 {
     QList <Utils::EnvironmentItem> items;
 

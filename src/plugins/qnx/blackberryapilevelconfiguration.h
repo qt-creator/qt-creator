@@ -34,6 +34,7 @@
 
 #include "qnxutils.h"
 #include "blackberryversionnumber.h"
+#include "qnxbaseconfiguration.h"
 #include "qnxconstants.h"
 
 #include <utils/environment.h>
@@ -54,7 +55,7 @@ namespace Internal {
 class QnxAbstractQtVersion;
 class QnxToolChain;
 
-class BlackBerryApiLevelConfiguration
+class BlackBerryApiLevelConfiguration : public QnxBaseConfiguration
 {
     Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::BlackBerryApiLevelConfiguration)
 public:
@@ -66,20 +67,14 @@ public:
     QString ndkPath() const;
     QString displayName() const;
     QString targetName() const;
-    QString qnxHost() const;
     BlackBerryVersionNumber version() const;
     bool isAutoDetected() const;
     Utils::FileName autoDetectionSource() const;
     bool isActive() const;
     bool isValid() const;
-    Utils::FileName ndkEnvFile() const;
     Utils::FileName qmake4BinaryFile() const;
     Utils::FileName qmake5BinaryFile() const;
-    Utils::FileName gccCompiler() const;
-    Utils::FileName deviceDebuger() const;
-    Utils::FileName simulatorDebuger() const;
     Utils::FileName sysRoot() const;
-    QList<Utils::EnvironmentItem> qnxEnv() const;
     QVariantMap toMap() const;
 
 #ifdef WITH_TESTS
@@ -87,32 +82,23 @@ public:
     static bool fakeConfig();
 #endif
 
+protected:
+    QnxAbstractQtVersion *createQtVersion(
+            const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch, const QString &versionName);
+    ProjectExplorer::Kit *createKit(
+            QnxAbstractQtVersion *version, QnxToolChain *armToolChain, const QVariant &debuggerItemId);
+    QStringList validationErrors() const;
+
 private:
     QString m_displayName;
     QString m_targetName;
-    QString m_qnxHost;
     BlackBerryVersionNumber m_version;
     Utils::FileName m_autoDetectionSource;
-    Utils::FileName m_ndkEnvFile;
     Utils::FileName m_qmake4BinaryFile;
     Utils::FileName m_qmake5BinaryFile;
-    Utils::FileName m_gccCompiler;
-    Utils::FileName m_deviceDebugger;
-    Utils::FileName m_simulatorDebugger;
     Utils::FileName m_sysRoot;
-    QList<Utils::EnvironmentItem> m_qnxEnv;
 
     void ctor();
-
-    QnxAbstractQtVersion* createQtVersion(
-            const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch, const QString &versionName);
-    QnxToolChain* createToolChain(
-            ProjectExplorer::Abi abi, const QString &versionName);
-    QVariant createDebuggerItem(
-            QList<ProjectExplorer::Abi> abis, Qnx::QnxArchitecture arch, const QString &versionName);
-    ProjectExplorer::Kit* createKit(
-            QnxAbstractQtVersion* version, QnxToolChain* toolChain,
-            const QVariant &debuggerItemId);
 
 #ifdef WITH_TESTS
     static bool m_fakeConfig;

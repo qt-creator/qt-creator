@@ -106,7 +106,9 @@ SOURCES += qnxplugin.cpp \
     blackberryapilevelconfiguration.cpp \
     blackberrypotentialkit.cpp \
     bardescriptorfilenode.cpp \
-    bardescriptorfilenodemanager.cpp
+    bardescriptorfilenodemanager.cpp \
+    qnxconfiguration.cpp \
+    qnxbaseconfiguration.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -212,7 +214,9 @@ HEADERS += qnxplugin.h\
     blackberryapilevelconfiguration.h \
     blackberrypotentialkit.h \
     bardescriptorfilenode.h \
-    bardescriptorfilenodemanager.h
+    bardescriptorfilenodemanager.h \
+    qnxconfiguration.h \
+    qnxbaseconfiguration.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \

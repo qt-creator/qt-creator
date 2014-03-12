@@ -126,7 +126,7 @@ void BlackBerryConfigurationManager::saveConfigurations()
     data.insert(QLatin1String(BBConfigCountKey), count);
 
     const QString newestConfig = (newestApiLevelEnabled())
-        ? NewestConfigurationValue : defaultApiLevel()->ndkEnvFile().toString();
+        ? NewestConfigurationValue : defaultApiLevel()->envFile().toString();
 
     //save default configuration
     data.insert(QLatin1String(DefaultConfigurationKey), newestConfig);
@@ -167,7 +167,7 @@ void BlackBerryConfigurationManager::restoreConfigurations()
             BlackBerryApiLevelConfiguration *apiLevel = new BlackBerryApiLevelConfiguration(dMap);
             insertApiLevelByVersion(apiLevel);
 
-            if (!useNewestConfiguration && (apiLevel->ndkEnvFile().toString() == ndkEnvFile))
+            if (!useNewestConfiguration && (apiLevel->envFile().toString() == ndkEnvFile))
                 setDefaultConfiguration(apiLevel);
         }
     }
@@ -240,7 +240,7 @@ void BlackBerryConfigurationManager::setDefaultConfiguration(
     if (config && !m_apiLevels.contains(config)) {
         qWarning() << "BlackBerryConfigurationManager::setDefaultConfiguration -"
                       " configuration does not belong to this instance: "
-                   << config->ndkEnvFile().toString();
+                   << config->envFile().toString();
         return;
     }
 
@@ -269,7 +269,7 @@ void BlackBerryConfigurationManager::setKitsAutoDetectionSource()
                 if ((version &&
                      (version->qmakeCommand() == config->qmake4BinaryFile() || version->qmakeCommand() == config->qmake5BinaryFile()))
                         && (SysRootKitInformation::sysRoot(kit) == config->sysRoot())) {
-                    kit->setAutoDetectionSource(config->ndkEnvFile().toString());
+                    kit->setAutoDetectionSource(config->envFile().toString());
                     // Set stickyness since not necessary saved for those kits
                     kit->setSticky(QtSupport::QtKitInformation::id(), true);
                     kit->setSticky(ToolChainKitInformation::id(), true);
@@ -306,7 +306,7 @@ void BlackBerryConfigurationManager::checkToolChainConfiguration()
 {
     foreach (BlackBerryApiLevelConfiguration *config, m_apiLevels) {
         foreach (ToolChain *tc, ToolChainManager::toolChains()) {
-            if (tc->compilerCommand() == config->gccCompiler()
+            if (tc->compilerCommand() == config->qccCompilerPath()
                     && !tc->id().startsWith(QLatin1String(Constants::QNX_TOOLCHAIN_ID))) {
                 if (config->isActive()) {
                     // reset
@@ -322,7 +322,7 @@ void BlackBerryConfigurationManager::checkToolChainConfiguration()
 bool BlackBerryConfigurationManager::addApiLevel(BlackBerryApiLevelConfiguration *config)
 {
     foreach (BlackBerryApiLevelConfiguration *c, m_apiLevels) {
-        if (config->ndkEnvFile() == c->ndkEnvFile()) {
+        if (config->envFile() == c->envFile()) {
             if (!config->isAutoDetected())
                 QMessageBox::warning(Core::ICore::mainWindow(), tr("NDK Already Known"),
                                  tr("The NDK already has a configuration."), QMessageBox::Ok);
@@ -416,7 +416,7 @@ BlackBerryApiLevelConfiguration *BlackBerryConfigurationManager::apiLevelFromEnv
         return 0;
 
     foreach (BlackBerryApiLevelConfiguration *config, m_apiLevels) {
-        if (config->ndkEnvFile() == envFile)
+        if (config->envFile() == envFile)
             return config;
     }
 
