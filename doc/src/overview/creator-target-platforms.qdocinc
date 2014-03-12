@@ -65,5 +65,5 @@
     \endtable
 
     \note Madde support has been removed from \QC 3.0. To develop for Maemo or Harmattan,
-    install \QSDK 1.2.1 or \QSDK 1.1.2 and use \QC 2.8.
+    use \QC 2.8.
 
