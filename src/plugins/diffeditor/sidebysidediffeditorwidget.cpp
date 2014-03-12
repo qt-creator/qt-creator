@@ -1120,27 +1120,19 @@ void SideBySideDiffEditorWidget::colorDiff(const QList<FileData> &fileDataList)
     QTextCursor leftCursor = m_leftEditor->textCursor();
     QTextCursor rightCursor = m_rightEditor->textCursor();
 
-    QList<QTextEdit::ExtraSelection> leftSelections
-            = colorPositions(m_leftLineFormat, leftCursor, leftLinePos);
-    leftSelections
-            += colorPositions(m_chunkLineFormat, leftCursor, leftChunkPos);
-    leftSelections
-            += colorPositions(m_fileLineFormat, leftCursor, leftFilePos);
-    leftSelections
-            += colorPositions(spanLineFormat, leftCursor, leftSkippedPos);
-    leftSelections
-            += colorPositions(m_leftCharFormat, leftCursor, leftCharPos);
+    QList<QTextEdit::ExtraSelection> leftSelections;
+    leftSelections += colorPositions(m_leftLineFormat, leftCursor, leftLinePos);
+    leftSelections += colorPositions(m_leftCharFormat, leftCursor, leftCharPos);
+    leftSelections += colorPositions(spanLineFormat, leftCursor, leftSkippedPos);
+    leftSelections += colorPositions(m_chunkLineFormat, leftCursor, leftChunkPos);
+    leftSelections += colorPositions(m_fileLineFormat, leftCursor, leftFilePos);
 
-    QList<QTextEdit::ExtraSelection> rightSelections
-            = colorPositions(m_rightLineFormat, rightCursor, rightLinePos);
-    rightSelections
-            += colorPositions(m_chunkLineFormat, rightCursor, rightChunkPos);
-    rightSelections
-            += colorPositions(m_fileLineFormat, rightCursor, rightFilePos);
-    rightSelections
-            += colorPositions(spanLineFormat, rightCursor, rightSkippedPos);
-    rightSelections
-            += colorPositions(m_rightCharFormat, rightCursor, rightCharPos);
+    QList<QTextEdit::ExtraSelection> rightSelections;
+    rightSelections += colorPositions(m_rightLineFormat, rightCursor, rightLinePos);
+    rightSelections += colorPositions(m_rightCharFormat, rightCursor, rightCharPos);
+    rightSelections += colorPositions(spanLineFormat, rightCursor, rightSkippedPos);
+    rightSelections += colorPositions(m_chunkLineFormat, rightCursor, rightChunkPos);
+    rightSelections += colorPositions(m_fileLineFormat, rightCursor, rightFilePos);
 
     m_leftEditor->setExtraSelections(BaseTextEditorWidget::OtherSelection, leftSelections);
     m_rightEditor->setExtraSelections(BaseTextEditorWidget::OtherSelection, rightSelections);
