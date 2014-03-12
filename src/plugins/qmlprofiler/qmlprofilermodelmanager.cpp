@@ -132,6 +132,18 @@ void QmlProfilerTraceTime::setEndTime(qint64 time)
     }
 }
 
+void QmlProfilerTraceTime::decreaseStartTime(qint64 time)
+{
+    if (m_startTime > time)
+        setStartTime(time);
+}
+
+void QmlProfilerTraceTime::increaseEndTime(qint64 time)
+{
+    if (m_endTime < time)
+        setEndTime(time);
+}
+
 
 } // namespace Internal
 

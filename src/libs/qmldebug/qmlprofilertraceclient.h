@@ -59,14 +59,14 @@ public:
 
 public slots:
     void clearData();
-    void sendRecordingStatus();
+    void sendRecordingStatus(int engineId = -1);
 
 signals:
     void complete(qint64 maximumTime);
     void gap(qint64 time);
     void event(int event, qint64 time);
-    void traceFinished( qint64 time );
-    void traceStarted( qint64 time );
+    void traceFinished(qint64 time, const QList<int> &engineIds);
+    void traceStarted(qint64 time, const QList<int> &engineIds);
     void rangedEvent(QmlDebug::Message, QmlDebug::RangeType, int detailType, qint64 startTime,
                      qint64 length, const QString &data,
                      const QmlDebug::QmlEventLocation &location, qint64 param1, qint64 param2,

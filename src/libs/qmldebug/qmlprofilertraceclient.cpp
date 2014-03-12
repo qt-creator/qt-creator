@@ -28,13 +28,15 @@
 ****************************************************************************/
 
 #include "qmlprofilertraceclient.h"
+#include "qmlenginecontrolclient.h"
 
 namespace QmlDebug {
 
 class QmlProfilerTraceClientPrivate {
 public:
-    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q)
+    QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *_q, QmlDebugConnection *client)
         : q(_q)
+        , engineControl(client)
         ,  inProgressRanges(0)
         , maximumTime(0)
         , recording(false)
@@ -42,9 +44,10 @@ public:
         ::memset(rangeCount, 0, MaximumRangeType * sizeof(int));
     }
 
-    void sendRecordingStatus();
+    void sendRecordingStatus(int engineId);
 
     QmlProfilerTraceClient *q;
+    QmlEngineControlClient engineControl;
     qint64 inProgressRanges;
     QStack<qint64> rangeStartTimes[MaximumRangeType];
     QStack<QString> rangeDatas[MaximumRangeType];
@@ -61,18 +64,22 @@ using namespace QmlDebug;
 
 static const int GAP_TIME = 150;
 
-void QmlProfilerTraceClientPrivate::sendRecordingStatus()
+void QmlProfilerTraceClientPrivate::sendRecordingStatus(int engineId)
 {
     QByteArray ba;
     QDataStream stream(&ba, QIODevice::WriteOnly);
     stream << recording;
+    if (engineId != -1)
+        stream << engineId;
     q->sendMessage(ba);
 }
 
 QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebugConnection *client)
     : QmlDebugClient(QLatin1String("CanvasFrameRate"), client)
-    , d(new QmlProfilerTraceClientPrivate(this))
+    , d(new QmlProfilerTraceClientPrivate(this, client))
 {
+    connect(&d->engineControl, SIGNAL(engineAboutToBeAdded(int,QString)),
+            this, SLOT(sendRecordingStatus(int)));
 }
 
 QmlProfilerTraceClient::~QmlProfilerTraceClient()
@@ -96,9 +103,9 @@ void QmlProfilerTraceClient::clearData()
     emit cleared();
 }
 
-void QmlProfilerTraceClient::sendRecordingStatus()
+void QmlProfilerTraceClient::sendRecordingStatus(int engineId)
 {
-    d->sendRecordingStatus();
+    d->sendRecordingStatus(engineId);
 }
 
 bool QmlProfilerTraceClient::isEnabled() const
@@ -164,7 +171,13 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             setRecordingFromServer(true);
 
         if (event == EndTrace) {
-            emit this->traceFinished(time);
+            QList<int> engineIds;
+            while (!stream.atEnd()) {
+                int id;
+                stream >> id;
+                engineIds << id;
+            }
+            emit this->traceFinished(time, engineIds);
             d->maximumTime = time;
             d->maximumTime = qMax(time, d->maximumTime);
         } else if (event == AnimationFrame) {
@@ -179,7 +192,13 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                              QmlDebug::QmlEventLocation(), frameRate, animationCount, threadId,0,0);
             d->maximumTime = qMax(time, d->maximumTime);
         } else if (event == StartTrace) {
-            emit this->traceStarted(time);
+            QList<int> engineIds;
+            while (!stream.atEnd()) {
+                int id;
+                stream >> id;
+                engineIds << id;
+            }
+            emit this->traceStarted(time, engineIds);
             d->maximumTime = time;
         } else if (event < MaximumEventType) {
             emit this->event((EventType)event, time);

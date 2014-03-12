@@ -21,7 +21,8 @@ HEADERS += \
     $$PWD/qmlenginedebugclient.h \
     $$PWD/basetoolsclient.h \
     $$PWD/declarativetoolsclient.h \
-    $$PWD/qmltoolsclient.h
+    $$PWD/qmltoolsclient.h \
+    $$PWD/qmlenginecontrolclient.h
 
 SOURCES += \
     $$PWD/qmldebugclient.cpp \
@@ -34,5 +35,6 @@ SOURCES += \
     $$PWD/basetoolsclient.cpp \
     $$PWD/declarativetoolsclient.cpp \
     $$PWD/qmltoolsclient.cpp \
-    $$PWD/declarativeenginedebugclient.cpp
+    $$PWD/declarativeenginedebugclient.cpp \
+    $$PWD/qmlenginecontrolclient.cpp
 

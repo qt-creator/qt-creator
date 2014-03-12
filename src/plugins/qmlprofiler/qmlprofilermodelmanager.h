@@ -94,6 +94,9 @@ public slots:
     void setStartTime(qint64 time);
     void setEndTime(qint64 time);
 
+    void decreaseStartTime(qint64 time);
+    void increaseEndTime(qint64 time);
+
 private:
     qint64 m_startTime;
     qint64 m_endTime;
