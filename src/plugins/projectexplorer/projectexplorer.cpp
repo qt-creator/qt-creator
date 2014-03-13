@@ -2771,6 +2771,12 @@ QString pathOrDirectoryFor(Node *node, bool dir)
                 list << f->path() + QLatin1Char('/');
             location = Utils::commonPath(list);
         }
+
+        QFileInfo fi(location);
+        while ((!fi.exists() || !fi.isDir())
+               && !fi.isRoot())
+            fi.setFile(fi.absolutePath());
+        location = fi.absoluteFilePath();
     } else {
         QFileInfo fi(path);
         // remove any /suffixes, which e.g. ResourceNode uses
