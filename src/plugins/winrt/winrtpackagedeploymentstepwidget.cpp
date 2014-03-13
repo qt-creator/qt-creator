@@ -51,7 +51,7 @@ WinRtPackageDeploymentStepWidget::~WinRtPackageDeploymentStepWidget()
 
 QString WinRtPackageDeploymentStepWidget::summaryText() const
 {
-    return QStringLiteral("<b>") + displayName() + QStringLiteral("</b>");
+    return displayName();
 }
 
 QString WinRtPackageDeploymentStepWidget::displayName() const

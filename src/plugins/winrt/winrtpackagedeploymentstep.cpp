@@ -46,7 +46,7 @@ namespace Internal {
 WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl)
     : AbstractProcessStep(bsl, Constants::WINRT_BUILD_STEP_DEPLOY)
 {
-    setDisplayName(tr("Deploy Qt binaries and application files to output directory"));
+    setDisplayName(tr("Run windeployqt"));
     m_args = defaultWinDeployQtArguments();
 }
 
