@@ -584,7 +584,7 @@ void CppEditorSupport::recalculateSemanticInfoDetached_helper(QFutureInterface<v
         virtual ~TLDProc() {}
         virtual bool processDeclaration(DeclarationAST *ast) {
             Q_UNUSED(ast);
-            return m_theFuture.isCanceled();
+            return !m_theFuture.isCanceled();
         }
     };
 
