@@ -78,7 +78,7 @@ public:
     SemanticInfo();
 
     unsigned revision;
-    bool forced: 1;
+    bool forced;
     CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;
     LocalUseMap localUses;
