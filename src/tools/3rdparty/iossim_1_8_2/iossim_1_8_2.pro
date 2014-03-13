@@ -26,10 +26,10 @@ iPhoneSimulatorRemoteClientDirectLinking {
     -F/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks \
     -F/Applications/Xcode.app/Contents/OtherFrameworks
   LIBS += \
-    -framework DTViPhoneSimulatorRemoteClient
+    -framework iPhoneSimulatorRemoteClient
   QMAKE_RPATHDIR += /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks \
-    /Applications/Xcode.app/Contents/OtherFrameworks \
-    /System/Library/PrivateFrameworks
+    /Applications/Xcode.app/Contents/OtherFrameworks
+    /System/Library/PrivateFrameworks \
 }
 
 TEMPLATE = app
@@ -49,7 +49,7 @@ HEADERS += \
   nsprintf.h \
   nsstringexpandpath.h \
   version.h \
-  dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h
+  iphonesimulatorremoteclient/iphonesimulatorremoteclient.h
 
 OTHER_FILES = IOSSIM_LICENSE \
   Info.plist

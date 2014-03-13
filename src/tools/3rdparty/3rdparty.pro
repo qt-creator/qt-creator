@@ -1,5 +1,7 @@
 TEMPLATE = subdirs
 
 mac {
-    SUBDIRS += iossim
+    SUBDIRS += \
+    iossim \
+    iossim_1_8_2
 }
