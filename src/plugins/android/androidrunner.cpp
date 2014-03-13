@@ -183,6 +183,7 @@ void AndroidRunner::checkPID()
             emit remoteProcessStarted(-1, -1);
         }
         m_wasStarted = true;
+        logcatReadStandardOutput();
     }
 }
 
@@ -357,6 +358,8 @@ void AndroidRunner::logcatReadStandardError()
 
 void AndroidRunner::logcatReadStandardOutput()
 {
+    if (m_processPID == -1)
+        return;
     QList<QByteArray> lines = m_adbLogcatProcess.readAllStandardOutput().split('\n');
     // lines always contains at least one item
     lines[0].prepend(m_logcat);
