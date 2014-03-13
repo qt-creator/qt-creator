@@ -353,7 +353,7 @@ bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang
     ResourceFile file(m_topLevelNode->path());
     if (!file.load())
         return false;
-    int index = file.indexOfPrefix(prefix, lang);
+    int index = file.indexOfPrefix(m_prefix, m_lang);
     if (index == -1)
         return false;
 
