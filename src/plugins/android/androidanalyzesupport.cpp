@@ -114,10 +114,12 @@ void AndroidAnalyzeSupport::handleRemoteOutput(const QByteArray &output)
 
 void AndroidAnalyzeSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
+    const QString msg = QString::fromUtf8(output);
     if (m_runControl)
-        m_runControl->logApplicationMessage(QString::fromUtf8(output), Utils::StdErrFormatSameLine);
+        m_runControl->logApplicationMessage(msg, Utils::StdErrFormatSameLine);
     else
         AndroidRunSupport::handleRemoteErrorOutput(output);
+    m_outputParser.processOutput(msg);
 }
 
 void AndroidAnalyzeSupport::remoteIsRunning()
