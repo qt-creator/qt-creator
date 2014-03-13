@@ -159,7 +159,8 @@ QList<Language::Enum> Document::companionLanguages(Language::Enum language)
         break;
     case Language::Unknown:
         langs << Language::JavaScript << Language::Json << Language::QmlProject << Language:: QmlQbs
-              << Language::QmlTypeInfo << Language::QmlQtQuick1 << Language::QmlQtQuick2 ;
+              << Language::QmlTypeInfo << Language::QmlQtQuick1 << Language::QmlQtQuick2
+              << Language::Qml;
         break;
     }
     return langs;
