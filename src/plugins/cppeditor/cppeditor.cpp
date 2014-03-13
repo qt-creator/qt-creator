@@ -964,7 +964,7 @@ void CPPEditorWidget::renameSymbolUnderCursor()
         return;
 
     CppEditorSupport *edSup = m_modelManager->cppEditorSupport(editor());
-    updateSemanticInfo(edSup->recalculateSemanticInfo(/* emitSignalWhenFinished = */ false));
+    updateSemanticInfo(edSup->recalculateSemanticInfo());
     abortRename();
 
     QTextCursor c = textCursor();

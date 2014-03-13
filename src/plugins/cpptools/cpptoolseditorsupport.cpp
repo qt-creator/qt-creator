@@ -220,12 +220,12 @@ bool CppEditorSupport::initialized()
     return m_initialized;
 }
 
-SemanticInfo CppEditorSupport::recalculateSemanticInfo(bool emitSignalWhenFinished)
+SemanticInfo CppEditorSupport::recalculateSemanticInfo()
 {
     m_futureSemanticInfo.cancel();
 
     SemanticInfo::Source source = currentSource(false);
-    recalculateSemanticInfoNow(source, emitSignalWhenFinished);
+    recalculateSemanticInfoNow(source, /*emitSignalWhenFinished=*/ false);
     return m_lastSemanticInfo;
 }
 

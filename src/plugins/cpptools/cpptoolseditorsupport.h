@@ -110,8 +110,8 @@ public:
     bool initialized();
 
     /// Retrieve the semantic info, which will get recalculated on the current
-    /// thread if it is outdate.
-    SemanticInfo recalculateSemanticInfo(bool emitSignalWhenFinished = true);
+    /// thread if it is outdate. Will not emit the semanticInfoUpdated() signal.
+    SemanticInfo recalculateSemanticInfo();
 
     CPlusPlus::Document::Ptr lastSemanticInfoDocument() const;
 
