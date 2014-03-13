@@ -54,6 +54,8 @@
 #include <cplusplus/Token.h>
 #include <cplusplus/Literals.h>
 
+#include <utils/scopedswap.h>
+
 #include <QDebug>
 #include <QList>
 #include <QDate>
@@ -72,6 +74,8 @@
 
 #include <deque>
 
+using namespace Utils;
+
 namespace {
 enum {
     MAX_TOKEN_EXPANSION_COUNT = 5000,
@@ -80,28 +84,6 @@ enum {
 }
 
 namespace {
-/// RAII object to save a value, and restore it when the scope is left.
-template<typename _T>
-class ScopedSwap
-{
-    _T oldValue;
-    _T &ref;
-
-public:
-    ScopedSwap(_T &var, _T newValue)
-        : oldValue(newValue)
-        , ref(var)
-    {
-        std::swap(ref, oldValue);
-    }
-
-    ~ScopedSwap()
-    {
-        std::swap(ref, oldValue);
-    }
-};
-typedef ScopedSwap<bool> ScopedBoolSwap;
-
 static bool same(const char *a, const char *b, int size)
 {
     return strncmp(a, b, size) == 0;

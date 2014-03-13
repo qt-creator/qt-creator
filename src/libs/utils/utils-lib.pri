@@ -182,7 +182,8 @@ HEADERS += \
     $$PWD/logging.h \
     $$PWD/winutils.h \
     $$PWD/itemviews.h \
-    $$PWD/treeviewcombobox.h
+    $$PWD/treeviewcombobox.h \
+    $$PWD/scopedswap.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

@@ -152,6 +152,7 @@ QtcLibrary {
         "savedaction.h",
         "savefile.cpp",
         "savefile.h",
+        "scopedswap.h",
         "settingsselector.cpp",
         "settingsselector.h",
         "settingsutils.h",
