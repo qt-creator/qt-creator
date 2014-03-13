@@ -84,7 +84,7 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
         uiBorderImage->setupUi(this);
         m_fileWidget = uiBorderImage->fileWidget;
         m_sizeLabel = uiBorderImage->sizeLabel;
-        uiBorderImage->label->setToolTip(tr("double click for preview"));
+        uiBorderImage->label->setToolTip(tr("Double click for preview."));
         uiBorderImage->label->installEventFilter(labelFilter);
 
 
@@ -103,7 +103,7 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
     } else {
         ui = new Ui::ContextPaneWidgetImage;
         ui->setupUi(this);
-        ui->label->setToolTip(tr("double click for preview"));
+        ui->label->setToolTip(tr("Double click for preview."));
         ui->label->installEventFilter(labelFilter);
         m_fileWidget = ui->fileWidget;
         m_sizeLabel = ui->sizeLabel;

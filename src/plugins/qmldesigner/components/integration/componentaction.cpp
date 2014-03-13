@@ -54,7 +54,7 @@ QWidget  *ComponentAction::createWidget(QWidget *parent)
 {
     QComboBox *comboBox = new QComboBox(parent);
     comboBox->setMinimumWidth(120);
-    comboBox->setToolTip(tr("Edit sub components defined in this file"));
+    comboBox->setToolTip(tr("Edit sub components defined in this file."));
     comboBox->setModel(m_componentView->standardItemModel());
     comboBox->setCurrentIndex(-1);
     connect(comboBox, SIGNAL(activated(int)), SLOT(emitCurrentComponentChanged(int)));

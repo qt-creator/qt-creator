@@ -140,7 +140,7 @@
      <item>
       <widget class="QLineEdit" name="portsLineEdit">
        <property name="toolTip">
-        <string>You can enter lists and ranges like this: 1024,1026-1028,1030</string>
+        <string>You can enter lists and ranges like this: '1024,1026-1028,1030'.</string>
        </property>
       </widget>
      </item>

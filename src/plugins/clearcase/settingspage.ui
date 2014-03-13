@@ -193,7 +193,7 @@
       <item row="5" column="0">
        <widget class="QCheckBox" name="autoAssignActivityCheckBox">
         <property name="toolTip">
-         <string>Check this if you have a trigger that renames the activity automatically. You will not be prompted for activity name</string>
+         <string>Check this if you have a trigger that renames the activity automatically. You will not be prompted for activity name.</string>
         </property>
         <property name="text">
          <string>Aut&amp;o assign activity names</string>
@@ -227,7 +227,7 @@
       <item row="9" column="1">
        <widget class="QLineEdit" name="indexOnlyVOBsEdit">
         <property name="toolTip">
-         <string>VOBs list, separated by comma. Indexer will only traverse the specified VOBs. If left blank, all active VOBs will be indexed</string>
+         <string>VOBs list, separated by comma. Indexer will only traverse the specified VOBs. If left blank, all active VOBs will be indexed.</string>
         </property>
        </widget>
       </item>

@@ -37,7 +37,7 @@
        <item>
         <widget class="QPushButton" name="addButton">
          <property name="toolTip">
-          <string>Add tool</string>
+          <string>Add tool.</string>
          </property>
          <property name="text">
           <string>Add</string>
@@ -47,7 +47,7 @@
        <item>
         <widget class="QPushButton" name="removeButton">
          <property name="toolTip">
-          <string>Remove tool</string>
+          <string>Remove tool.</string>
          </property>
          <property name="text">
           <string>Remove</string>
@@ -70,7 +70,7 @@
        <item>
         <widget class="QPushButton" name="revertButton">
          <property name="toolTip">
-          <string>Revert tool to default</string>
+          <string>Revert tool to default.</string>
          </property>
          <property name="text">
           <string>Reset</string>
@@ -149,7 +149,7 @@
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;What to do with the executable's standard output.
-&lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it&lt;/li&gt;&lt;li&gt;Show in pane: Show it in the general output pane&lt;/li&gt;&lt;li&gt;Replace selection: Replace the current selection in the current document with it&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+&lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it.&lt;/li&gt;&lt;li&gt;Show in pane: Show it in the general output pane.&lt;/li&gt;&lt;li&gt;Replace selection: Replace the current selection in the current document with it.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </string>
         </property>
         <property name="text">
@@ -181,9 +181,9 @@
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head&gt;&lt;body&gt;
 &lt;p &gt;What to do with the executable's standard error output.&lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it&lt;/li&gt;
-&lt;li&gt;Show in pane: Show it in the general output pane&lt;/li&gt;
-&lt;li&gt;Replace selection: Replace the current selection in the current document with it&lt;/li&gt;
+&lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it.&lt;/li&gt;
+&lt;li&gt;Show in pane: Show it in the general output pane.&lt;/li&gt;
+&lt;li&gt;Replace selection: Replace the current selection in the current document with it.&lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">

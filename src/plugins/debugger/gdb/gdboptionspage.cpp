@@ -152,7 +152,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     checkBoxLoadGdbDumpers->setText(GdbOptionsPage::tr("Load system GDB pretty printers"));
     checkBoxLoadGdbDumpers->setToolTip(GdbOptionsPage::tr(
         "Uses the default GDB pretty printers installed in your "
-        "system or linked to the libraries your application uses.\n"));
+        "system or linked to the libraries your application uses."));
 
     checkBoxIntelFlavor = new QCheckBox(groupBoxGeneral);
     checkBoxIntelFlavor->setText(GdbOptionsPage::tr("Use Intel style disassembly"));

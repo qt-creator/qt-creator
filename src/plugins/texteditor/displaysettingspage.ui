@@ -97,7 +97,7 @@
       <item row="4" column="0">
        <widget class="QCheckBox" name="visualizeWhitespace">
         <property name="toolTip">
-         <string>Show tabs and spaces.</string>
+         <string>Shows tabs and spaces.</string>
         </property>
         <property name="text">
          <string>&amp;Visualize whitespace</string>

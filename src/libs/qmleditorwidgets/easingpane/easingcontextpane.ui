@@ -54,7 +54,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Play simulation</string>
+      <string>Play simulation.</string>
      </property>
     </widget>
    </item>
@@ -83,7 +83,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Type of easing curve</string>
+      <string>Type of easing curve.</string>
      </property>
      <item>
       <property name="text">
@@ -164,7 +164,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Acceleration or deceleration of easing curve</string>
+      <string>Acceleration or deceleration of easing curve.</string>
      </property>
      <item>
       <property name="text">
@@ -207,7 +207,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Duration of animation</string>
+      <string>Duration of animation.</string>
      </property>
      <property name="specialValueText">
       <string>INVALID</string>
@@ -251,7 +251,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Amplitude of elastic and bounce easing curves</string>
+      <string>Amplitude of elastic and bounce easing curves.</string>
      </property>
      <property name="specialValueText">
       <string>INVALID</string>
@@ -292,7 +292,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Easing period of an elastic curve</string>
+      <string>Easing period of an elastic curve.</string>
      </property>
      <property name="specialValueText">
       <string>INVALID</string>
@@ -333,7 +333,7 @@
       </size>
      </property>
      <property name="toolTip">
-      <string>Easing overshoot for a back curve</string>
+      <string>Easing overshoot for a back curve.</string>
      </property>
      <property name="specialValueText">
       <string>INVALID</string>

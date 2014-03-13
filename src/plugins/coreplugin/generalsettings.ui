@@ -232,7 +232,7 @@
         <item>
          <widget class="QCheckBox" name="autoSaveCheckBox">
           <property name="toolTip">
-           <string>Automatically create temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</string>
+           <string>Automatically creates temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</string>
           </property>
           <property name="text">
            <string>Auto-save modified files</string>

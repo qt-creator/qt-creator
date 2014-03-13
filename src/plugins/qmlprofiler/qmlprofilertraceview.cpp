@@ -226,19 +226,19 @@ QWidget *QmlProfilerTraceView::createToolbar()
 
     QToolButton *buttonPrev= new QToolButton;
     buttonPrev->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_prev.png")));
-    buttonPrev->setToolTip(tr("Jump to previous event"));
+    buttonPrev->setToolTip(tr("Jump to previous event."));
     connect(buttonPrev, SIGNAL(clicked()), this, SIGNAL(jumpToPrev()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonPrev, SLOT(setEnabled(bool)));
 
     QToolButton *buttonNext= new QToolButton;
     buttonNext->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_next.png")));
-    buttonNext->setToolTip(tr("Jump to next event"));
+    buttonNext->setToolTip(tr("Jump to next event."));
     connect(buttonNext, SIGNAL(clicked()), this, SIGNAL(jumpToNext()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonNext, SLOT(setEnabled(bool)));
 
     QToolButton *buttonZoomControls = new QToolButton;
     buttonZoomControls->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_zoom.png")));
-    buttonZoomControls->setToolTip(tr("Show zoom slider"));
+    buttonZoomControls->setToolTip(tr("Show zoom slider."));
     buttonZoomControls->setCheckable(true);
     buttonZoomControls->setChecked(false);
     connect(buttonZoomControls, SIGNAL(toggled(bool)), this, SIGNAL(showZoomSlider(bool)));
@@ -246,7 +246,7 @@ QWidget *QmlProfilerTraceView::createToolbar()
 
     d->m_buttonRange = new QToolButton;
     d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselection.png")));
-    d->m_buttonRange->setToolTip(tr("Select range"));
+    d->m_buttonRange->setToolTip(tr("Select range."));
     d->m_buttonRange->setCheckable(true);
     d->m_buttonRange->setChecked(false);
     connect(d->m_buttonRange, SIGNAL(clicked(bool)), this, SLOT(toggleRangeMode(bool)));
@@ -255,7 +255,7 @@ QWidget *QmlProfilerTraceView::createToolbar()
 
     d->m_buttonLock = new QToolButton;
     d->m_buttonLock->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_selectionmode.png")));
-    d->m_buttonLock->setToolTip(tr("View event information on mouseover"));
+    d->m_buttonLock->setToolTip(tr("View event information on mouseover."));
     d->m_buttonLock->setCheckable(true);
     d->m_buttonLock->setChecked(false);
     connect(d->m_buttonLock, SIGNAL(clicked(bool)), this, SLOT(toggleLockMode(bool)));

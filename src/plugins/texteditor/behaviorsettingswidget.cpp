@@ -186,10 +186,10 @@ void BehaviorSettingsWidget::updateConstrainTooltipsBoxTooltip() const
 {
     if (d->m_ui.constrainTooltipsBox->currentIndex() == 0) {
         d->m_ui.constrainTooltipsBox->setToolTip(
-            tr("Display context-sensitive help or type information on mouseover."));
+            tr("Displays context-sensitive help or type information on mouseover."));
     } else {
         d->m_ui.constrainTooltipsBox->setToolTip(
-            tr("Display context-sensitive help or type information on Shift+Mouseover."));
+            tr("Displays context-sensitive help or type information on Shift+Mouseover."));
     }
 }
 

@@ -58,14 +58,14 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     checkBoxUseAlternatingRowColors->setText(tr("Use alternating row colors in debug views"));
 
     checkBoxFontSizeFollowsEditor = new QCheckBox(behaviorBox);
-    checkBoxFontSizeFollowsEditor->setToolTip(tr("Change the font size in the debugger views when the font size in the main editor changes."));
+    checkBoxFontSizeFollowsEditor->setToolTip(tr("Changes the font size in the debugger views when the font size in the main editor changes."));
     checkBoxFontSizeFollowsEditor->setText(tr("Debugger font size follows main editor"));
 
     checkBoxUseToolTipsInMainEditor = new QCheckBox(behaviorBox);
     checkBoxUseToolTipsInMainEditor->setText(tr("Use tooltips in main editor while debugging"));
 
     checkBoxListSourceFiles = new QCheckBox(behaviorBox);
-    checkBoxListSourceFiles->setToolTip(tr("Populate the source file view automatically. This might slow down debugger startup considerably."));
+    checkBoxListSourceFiles->setToolTip(tr("Populates the source file view automatically. This might slow down debugger startup considerably."));
     checkBoxListSourceFiles->setText(tr("Populate source file view automatically"));
 
     checkBoxCloseBuffersOnExit = new QCheckBox(behaviorBox);
@@ -82,20 +82,20 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     checkBoxBringToForegroundOnInterrrupt->setText(tr("Bring Qt Creator to foreground when application interrupts"));
 
     checkBoxShowQmlObjectTree = new QCheckBox(behaviorBox);
-    checkBoxShowQmlObjectTree->setToolTip(tr("Show QML object tree in Locals & Expressions when connected and not stepping."));
+    checkBoxShowQmlObjectTree->setToolTip(tr("Shows QML object tree in Locals & Expressions when connected and not stepping."));
     checkBoxShowQmlObjectTree->setText(tr("Show QML object tree"));
 
     checkBoxBreakpointsFullPath = new QCheckBox(behaviorBox);
-    checkBoxBreakpointsFullPath->setToolTip(tr("Enable a full file path in breakpoints by default also for GDB."));
+    checkBoxBreakpointsFullPath->setToolTip(tr("Enables a full file path in breakpoints by default also for GDB."));
     checkBoxBreakpointsFullPath->setText(tr("Set breakpoints using a full absolute path"));
 
     checkBoxRegisterForPostMortem = new QCheckBox(behaviorBox);
-    checkBoxRegisterForPostMortem->setToolTip(tr("Register Qt Creator for debugging crashed applications."));
+    checkBoxRegisterForPostMortem->setToolTip(tr("Registers Qt Creator for debugging crashed applications."));
     checkBoxRegisterForPostMortem->setText(tr("Use Qt Creator for post-mortem debugging"));
 
     checkBoxWarnOnReleaseBuilds = new QCheckBox(behaviorBox);
     checkBoxWarnOnReleaseBuilds->setText(tr("Warn when debugging \"Release\" builds"));
-    checkBoxWarnOnReleaseBuilds->setToolTip(tr("Show a warning when starting the debugger "
+    checkBoxWarnOnReleaseBuilds->setToolTip(tr("Shows a warning when starting the debugger "
                                             "on a binary with insufficient debug information."));
 
     labelMaximalStackDepth = new QLabel(tr("Maximum stack depth:"), behaviorBox);

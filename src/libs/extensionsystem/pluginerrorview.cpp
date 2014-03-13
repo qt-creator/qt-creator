@@ -75,35 +75,35 @@ void PluginErrorView::update(PluginSpec *spec)
     switch (spec->state()) {
     case PluginSpec::Invalid:
         text = tr("Invalid");
-        tooltip = tr("Description file found, but error on read");
+        tooltip = tr("Description file found, but error on read.");
         break;
     case PluginSpec::Read:
         text = tr("Read");
-        tooltip = tr("Description successfully read");
+        tooltip = tr("Description successfully read.");
         break;
     case PluginSpec::Resolved:
         text = tr("Resolved");
-        tooltip = tr("Dependencies are successfully resolved");
+        tooltip = tr("Dependencies are successfully resolved.");
         break;
     case PluginSpec::Loaded:
         text = tr("Loaded");
-        tooltip = tr("Library is loaded");
+        tooltip = tr("Library is loaded.");
         break;
     case PluginSpec::Initialized:
         text = tr("Initialized");
-        tooltip = tr("Plugin's initialization function succeeded");
+        tooltip = tr("Plugin's initialization function succeeded.");
         break;
     case PluginSpec::Running:
         text = tr("Running");
-        tooltip = tr("Plugin successfully loaded and running");
+        tooltip = tr("Plugin successfully loaded and running.");
         break;
     case PluginSpec::Stopped:
         text = tr("Stopped");
-        tooltip = tr("Plugin was shut down");
+        tooltip = tr("Plugin was shut down.");
         break;
     case PluginSpec::Deleted:
         text = tr("Deleted");
-        tooltip = tr("Plugin ended its life cycle and was deleted");
+        tooltip = tr("Plugin ended its life cycle and was deleted.");
         break;
     }
 

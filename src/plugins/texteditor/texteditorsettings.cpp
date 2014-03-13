@@ -207,7 +207,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                          tr("Reserved keywords of the programming language."),
                                          Qt::darkYellow));
     formatDescr.append(FormatDescription(C_OPERATOR, tr("Operator"),
-                                         tr("Operators. (For example operator++ operator-=)")));
+                                         tr("Operators (for example operator++ or operator-=).")));
     formatDescr.append(FormatDescription(C_PREPROCESSOR, tr("Preprocessor"),
                                          tr("Preprocessor directives."), Qt::darkBlue));
     formatDescr.append(FormatDescription(C_LABEL, tr("Label"), tr("Labels for goto statements."),
@@ -220,7 +220,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_DOXYGEN_TAG, tr("Doxygen Tag"), tr("Doxygen tags."),
                                          Qt::blue));
     formatDescr.append(FormatDescription(C_VISUAL_WHITESPACE, tr("Visual Whitespace"),
-                                         tr("Whitespace\nWill not be applied to whitespace "
+                                         tr("Whitespace.\nWill not be applied to whitespace "
                                             "in comments and strings."), Qt::lightGray));
     formatDescr.append(FormatDescription(C_DISABLED_CODE, tr("Disabled Code"),
                                          tr("Code disabled by preprocessor directives.")));

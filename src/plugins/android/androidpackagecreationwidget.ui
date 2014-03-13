@@ -45,7 +45,7 @@
       <item row="0" column="0" colspan="2">
        <widget class="QPushButton" name="readInfoPushButton">
         <property name="toolTip">
-         <string>Automatically check required Qt libraries from compiled application</string>
+         <string>Automatically check required Qt libraries from compiled application.</string>
         </property>
         <property name="text">
          <string>Read information from application (must be compiled)</string>

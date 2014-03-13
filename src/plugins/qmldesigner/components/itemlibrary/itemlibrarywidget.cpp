@@ -205,7 +205,7 @@ QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
     buttons << new QToolButton();
     buttons.first()->setText(tr("I "));
     buttons.first()->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));
-    buttons.first()->setToolTip(tr("Manage imports for components"));
+    buttons.first()->setToolTip(tr("Manage imports for components."));
     buttons.first()->setPopupMode(QToolButton::InstantPopup);
     QMenu * menu = new QMenu;
     QAction * basicQtAction = new QAction(menu);
