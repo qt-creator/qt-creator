@@ -27,24 +27,47 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTCONSTANTS_H
-#define WINRTCONSTANTS_H
+#include "winrtpackagedeploymentstepwidget.h"
+#include <ui_winrtpackagedeploymentstepwidget.h>
+#include <coreplugin/coreconstants.h>
+#include <QIcon>
 
 namespace WinRt {
 namespace Internal {
-namespace Constants {
-const char WINRT_DEVICE_TYPE_LOCAL[] = "WinRt.Device.Local";
-const char WINRT_DEVICE_TYPE_EMULATOR[] = "WinRt.Device.Emulator";
-const char WINRT_DEVICE_TYPE_PHONE[] = "WinRt.Device.Phone";
-const char WINRT_BUILD_STEP_DEPLOY[] = "WinRt.BuildStep.Deploy";
-const char WINRT_BUILD_STEP_DEPLOY_ARGUMENTS[] = "WinRt.BuildStep.Deploy.Arguments";
-const char WINRT_WINRTQT[] = "WinRt.QtVersion.WindowsRuntime";
-const char WINRT_WINPHONEQT[] = "WinRt.QtVersion.WindowsPhone";
-const char WINRT_QTMAP_SUBKEYNAME[] = "WinRt";
-const char WINRT_QTMAP_OSFLAVOR[] = "OsFlavor";
-const char WINRT_MANIFEST_EDITOR_ID[] = "WinRTManifestEditorID";
-}
-} // Internal
-} // WinRt
 
-#endif // WINRTCONSTANTS_H
+WinRtPackageDeploymentStepWidget::WinRtPackageDeploymentStepWidget(WinRtPackageDeploymentStep *step)
+    : m_ui(new Ui::WinRtPackageDeploymentStepWidget)
+    , m_step(step)
+{
+    m_ui->setupUi(this);
+    m_ui->leArguments->setText(m_step->winDeployQtArguments());
+    m_ui->btnRestoreDefaultArgs->setIcon(QIcon(QLatin1String(Core::Constants::ICON_RESET)));
+}
+
+WinRtPackageDeploymentStepWidget::~WinRtPackageDeploymentStepWidget()
+{
+    delete m_ui;
+}
+
+QString WinRtPackageDeploymentStepWidget::summaryText() const
+{
+    return QStringLiteral("<b>") + displayName() + QStringLiteral("</b>");
+}
+
+QString WinRtPackageDeploymentStepWidget::displayName() const
+{
+    return m_step->displayName();
+}
+
+void WinRtPackageDeploymentStepWidget::on_btnRestoreDefaultArgs_clicked()
+{
+    m_ui->leArguments->setText(m_step->defaultWinDeployQtArguments());
+}
+
+void WinRtPackageDeploymentStepWidget::on_leArguments_textChanged(QString str)
+{
+    m_step->setWinDeployQtArguments(str);
+}
+
+} // namespace Internal
+} // namespace WinRt

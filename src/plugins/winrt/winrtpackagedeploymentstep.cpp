@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "winrtpackagedeploymentstep.h"
+#include "winrtpackagedeploymentstepwidget.h"
 #include "winrtconstants.h"
 
 #include <projectexplorer/project.h>
@@ -46,6 +47,7 @@ WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl)
     : AbstractProcessStep(bsl, Constants::WINRT_BUILD_STEP_DEPLOY)
 {
     setDisplayName(tr("Deploy Qt binaries and application files to output directory"));
+    m_args = defaultWinDeployQtArguments();
 }
 
 bool WinRtPackageDeploymentStep::init()
@@ -57,10 +59,8 @@ bool WinRtPackageDeploymentStep::init()
     // ### Actually, targetForProject is supposed to return the file path including the file
     // extension. Whenever this will eventually work, we have to remove the .exe suffix here.
 
-    QString args;
-    QtcProcess::addArg(&args, QDir::toNativeSeparators(targetPath));
-    QtcProcess::addArg(&args, QStringLiteral("--qmldir"));
-    QtcProcess::addArg(&args, QDir::toNativeSeparators(project()->projectDirectory()));
+    QString args = QtcProcess::quoteArg(QDir::toNativeSeparators(targetPath));
+    args += QLatin1Char(' ') + m_args;
 
     ProcessParameters *params = processParameters();
     params->setCommand(QLatin1String("windeployqt.exe"));
@@ -72,7 +72,42 @@ bool WinRtPackageDeploymentStep::init()
 
 BuildStepConfigWidget *WinRtPackageDeploymentStep::createConfigWidget()
 {
-    return new SimpleBuildStepConfigWidget(this);
+    return new WinRtPackageDeploymentStepWidget(this);
+}
+
+void WinRtPackageDeploymentStep::setWinDeployQtArguments(const QString &args)
+{
+    m_args = args;
+}
+
+QString WinRtPackageDeploymentStep::winDeployQtArguments() const
+{
+    return m_args;
+}
+
+QString WinRtPackageDeploymentStep::defaultWinDeployQtArguments() const
+{
+    QString args;
+    QtcProcess::addArg(&args, QStringLiteral("--qmldir"));
+    QtcProcess::addArg(&args, QDir::toNativeSeparators(project()->projectDirectory()));
+    return args;
+}
+
+bool WinRtPackageDeploymentStep::fromMap(const QVariantMap &map)
+{
+    if (!AbstractProcessStep::fromMap(map))
+        return false;
+    QVariant v = map.value(QLatin1String(Constants::WINRT_BUILD_STEP_DEPLOY_ARGUMENTS));
+    if (v.isValid())
+        m_args = v.toString();
+    return true;
+}
+
+QVariantMap WinRtPackageDeploymentStep::toMap() const
+{
+    QVariantMap map = AbstractProcessStep::toMap();
+    map.insert(QLatin1String(Constants::WINRT_BUILD_STEP_DEPLOY_ARGUMENTS), m_args);
+    return map;
 }
 
 } // namespace Internal

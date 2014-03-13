@@ -27,24 +27,38 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTCONSTANTS_H
-#define WINRTCONSTANTS_H
+#ifndef WINRTPACKAGEDEPLOYMENTSTEPWIDGET_H
+#define WINRTPACKAGEDEPLOYMENTSTEPWIDGET_H
+
+#include "winrtpackagedeploymentstep.h"
+
+#include <projectexplorer/buildstep.h>
 
 namespace WinRt {
 namespace Internal {
-namespace Constants {
-const char WINRT_DEVICE_TYPE_LOCAL[] = "WinRt.Device.Local";
-const char WINRT_DEVICE_TYPE_EMULATOR[] = "WinRt.Device.Emulator";
-const char WINRT_DEVICE_TYPE_PHONE[] = "WinRt.Device.Phone";
-const char WINRT_BUILD_STEP_DEPLOY[] = "WinRt.BuildStep.Deploy";
-const char WINRT_BUILD_STEP_DEPLOY_ARGUMENTS[] = "WinRt.BuildStep.Deploy.Arguments";
-const char WINRT_WINRTQT[] = "WinRt.QtVersion.WindowsRuntime";
-const char WINRT_WINPHONEQT[] = "WinRt.QtVersion.WindowsPhone";
-const char WINRT_QTMAP_SUBKEYNAME[] = "WinRt";
-const char WINRT_QTMAP_OSFLAVOR[] = "OsFlavor";
-const char WINRT_MANIFEST_EDITOR_ID[] = "WinRTManifestEditorID";
-}
-} // Internal
-} // WinRt
 
-#endif // WINRTCONSTANTS_H
+namespace Ui { class WinRtPackageDeploymentStepWidget; }
+
+class WinRtPackageDeploymentStepWidget : public ProjectExplorer::BuildStepConfigWidget
+{
+    Q_OBJECT
+public:
+    WinRtPackageDeploymentStepWidget(WinRtPackageDeploymentStep *step);
+    ~WinRtPackageDeploymentStepWidget();
+
+    virtual QString summaryText() const;
+    virtual QString displayName() const;
+
+private slots:
+    void on_btnRestoreDefaultArgs_clicked();
+    void on_leArguments_textChanged(QString str);
+
+private:
+    Ui::WinRtPackageDeploymentStepWidget *m_ui;
+    WinRtPackageDeploymentStep *m_step;
+};
+
+} // namespace Internal
+} // namespace WinRt
+
+#endif // WINRTPACKAGEDEPLOYMENTSTEPWIDGET_H

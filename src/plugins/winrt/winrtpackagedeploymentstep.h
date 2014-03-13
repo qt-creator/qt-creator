@@ -42,6 +42,16 @@ public:
     explicit WinRtPackageDeploymentStep(ProjectExplorer::BuildStepList *bsl);
     bool init();
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+
+    void setWinDeployQtArguments(const QString &args);
+    QString winDeployQtArguments() const;
+    QString defaultWinDeployQtArguments() const;
+
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
+
+private:
+    QString m_args;
 };
 
 } // namespace Internal
