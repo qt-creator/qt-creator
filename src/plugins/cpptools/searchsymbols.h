@@ -39,14 +39,13 @@
 #include <cplusplus/Overview.h>
 
 #include <utils/fileutils.h>
+#include <utils/function.h>
 
 #include <QIcon>
 #include <QString>
 #include <QSet>
 #include <QSharedPointer>
 #include <QHash>
-
-#include <functional>
 
 namespace CppTools {
 
@@ -76,6 +75,13 @@ private:
           m_column(column)
     {}
 
+    ModelItemInfo(const QString &fileName, int sizeHint)
+        : m_fileName(fileName)
+        , m_type(Declaration)
+        , m_line(0)
+        , m_column(0)
+    { m_children.reserve(sizeHint); }
+
 public:
     typedef QSharedPointer<ModelItemInfo> Ptr;
     static Ptr create(const QString &symbolName,
@@ -89,6 +95,11 @@ public:
     {
         return Ptr(new ModelItemInfo(
                        symbolName, symbolType, symbolScope, type, fileName, line, column, icon));
+    }
+
+    static Ptr create(const QString &fileName, int sizeHint)
+    {
+        return Ptr(new ModelItemInfo(fileName, sizeHint));
     }
 
     QString scopedSymbolName() const
@@ -135,6 +146,11 @@ public:
     int line() const { return m_line; }
     int column() const { return m_column; }
 
+    void addChild(ModelItemInfo::Ptr childItem) { m_children.append(childItem); }
+    void squeeze();
+
+    void visitAllChildren(std::function<void (const ModelItemInfo::Ptr &)> f) const;
+
 private:
     QString m_symbolName; // as found in the code, therefore might be qualified
     QString m_symbolType;
@@ -144,10 +160,10 @@ private:
     ItemType m_type;
     int m_line;
     int m_column;
+    QVector<ModelItemInfo::Ptr> m_children;
 };
 
-class SearchSymbols: public std::binary_function<CPlusPlus::Document::Ptr, int, QList<ModelItemInfo> >,
-                     protected CPlusPlus::SymbolVisitor
+class SearchSymbols: protected CPlusPlus::SymbolVisitor
 {
 public:
     typedef SymbolSearcher::SymbolTypes SymbolTypes;
@@ -158,19 +174,16 @@ public:
 
     void setSymbolsToSearchFor(const SymbolTypes &types);
 
-    QList<ModelItemInfo::Ptr> operator()(CPlusPlus::Document::Ptr doc, int sizeHint = 500)
+    ModelItemInfo::Ptr operator()(CPlusPlus::Document::Ptr doc, int sizeHint = 500)
     { return operator()(doc, sizeHint, QString()); }
 
-    QList<ModelItemInfo::Ptr> operator()(CPlusPlus::Document::Ptr doc, int sizeHint,
-                                         const QString &scope);
+    ModelItemInfo::Ptr operator()(CPlusPlus::Document::Ptr doc, int sizeHint, const QString &scope);
 
 protected:
     using SymbolVisitor::visit;
 
     void accept(CPlusPlus::Symbol *symbol)
     { CPlusPlus::Symbol::visitSymbol(symbol, this); }
-
-    QString switchScope(const QString &scope);
 
     virtual bool visit(CPlusPlus::UsingNamespaceDirective *);
     virtual bool visit(CPlusPlus::UsingDeclaration *);
@@ -200,11 +213,11 @@ protected:
     QString scopedSymbolName(const QString &symbolName, const CPlusPlus::Symbol *symbol) const;
     QString scopedSymbolName(const CPlusPlus::Symbol *symbol) const;
     QString scopeName(const QString &name, const CPlusPlus::Symbol *symbol) const;
-    void appendItem(const QString &symbolName,
-                    const QString &symbolType,
-                    const QString &symbolScope,
-                    ModelItemInfo::ItemType type,
-                    CPlusPlus::Symbol *symbol);
+    ModelItemInfo::Ptr addChildItem(const QString &symbolName,
+                                    const QString &symbolType,
+                                    const QString &symbolScope,
+                                    ModelItemInfo::ItemType type,
+                                    CPlusPlus::Symbol *symbol);
 
 private:
     QString findOrInsert(const QString &s)
@@ -212,10 +225,10 @@ private:
 
     Internal::StringTable &strings;            // Used to avoid QString duplication
 
+    ModelItemInfo::Ptr _parent;
     QString _scope;
     CPlusPlus::Overview overview;
     CPlusPlus::Icons icons;
-    QList<ModelItemInfo::Ptr> items;
     SymbolTypes symbolsToSearchFor;
     QHash<const CPlusPlus::StringLiteral *, QString> m_paths;
 };

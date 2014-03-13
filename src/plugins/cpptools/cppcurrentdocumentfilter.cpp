@@ -79,7 +79,9 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         Snapshot snapshot = m_modelManager->snapshot();
         Document::Ptr thisDocument = snapshot.document(m_currentFileName);
         if (thisDocument)
-            m_itemsOfCurrentDoc = search(thisDocument);
+            search(thisDocument)->visitAllChildren([&](const ModelItemInfo::Ptr &info){
+                m_itemsOfCurrentDoc.append(info);
+            });
     }
 
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);

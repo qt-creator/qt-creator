@@ -125,10 +125,8 @@ public:
                 break;
             if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->fileName())) {
                 QVector<Core::SearchResultItem> resultItems;
-                QList<ModelItemInfo::Ptr> modelInfos = search(it.value());
-                foreach (const ModelItemInfo::Ptr &info, modelInfos) {
-                    int index = matcher.indexIn(info->symbolName());
-                    if (index != -1) {
+                search(it.value())->visitAllChildren([&](const ModelItemInfo::Ptr &info) {
+                    if (matcher.indexIn(info->symbolName()) != -1) {
                         QString text = info->symbolName();
                         QString scope = info->symbolScope();
                         if (info->type() == ModelItemInfo::Function) {
@@ -150,7 +148,7 @@ public:
                         item.userData = qVariantFromValue(info);
                         resultItems << item;
                     }
-                }
+                });
                 if (!resultItems.isEmpty())
                     future.reportResults(resultItems);
             }

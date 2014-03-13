@@ -126,8 +126,7 @@ void CppLocatorData::flushPendingDocument(bool force)
 
         const int sizeHint = m_allEnums[fileName].size() + m_allClasses[fileName].size()
                 + m_allFunctions[fileName].size() + 10;
-        const QList<ModelItemInfo::Ptr> results = m_search(doc, sizeHint);
-        foreach (ModelItemInfo::Ptr info, results) {
+        m_search(doc, sizeHint)->visitAllChildren([&](const ModelItemInfo::Ptr &info) {
             switch (info->type()) {
             case ModelItemInfo::Enum:
                 resultsEnums.append(info);
@@ -141,7 +140,7 @@ void CppLocatorData::flushPendingDocument(bool force)
             default:
                 break;
             }
-        }
+        });
 
         m_allEnums[fileName] = resultsEnums;
         m_allClasses[fileName] = resultsClasses;
