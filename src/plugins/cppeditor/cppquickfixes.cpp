@@ -1919,11 +1919,11 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     QList<Core::LocatorFilterEntry> matches = classesFilter->matchesFor(dummyInterface, className);
     bool classExists = false;
     foreach (const Core::LocatorFilterEntry &entry, matches) {
-        const ModelItemInfo info = entry.internalData.value<ModelItemInfo>();
-        if (info.symbolName != className)
+        ModelItemInfo::Ptr info = entry.internalData.value<ModelItemInfo::Ptr>();
+        if (info->symbolName() != className)
             continue;
         classExists = true;
-        const QString &fileName = info.fileName;
+        const QString &fileName = info->fileName();
         const QFileInfo fileInfo(fileName);
 
         // find the shortest way to include fileName given the includePaths

@@ -49,9 +49,9 @@ class CppLocatorData : public QObject
 public:
     explicit CppLocatorData(CppModelManager *modelManager);
 
-    QList<ModelItemInfo> enums();
-    QList<ModelItemInfo> classes();
-    QList<ModelItemInfo> functions();
+    QList<ModelItemInfo::Ptr> enums();
+    QList<ModelItemInfo::Ptr> classes();
+    QList<ModelItemInfo::Ptr> functions();
 
 private slots:
     void onDocumentUpdated(const CPlusPlus::Document::Ptr &document);
@@ -59,8 +59,8 @@ private slots:
 
 private:
     void flushPendingDocument(bool force);
-    QList<ModelItemInfo> allModelItemInfos(const QHash<QString,
-                                           QList<ModelItemInfo> > &items) const;
+    QList<ModelItemInfo::Ptr> allModelItemInfos(
+            const QHash<QString, QList<ModelItemInfo::Ptr>> &items) const;
 
     QString findOrInsertFilePath(const QString &path)
     { return m_strings.insert(path); }
@@ -71,9 +71,9 @@ private:
     StringTable &m_strings; // Used to avoid QString duplication
 
     SearchSymbols m_search;
-    QHash<QString, QList<ModelItemInfo> > m_allEnums;
-    QHash<QString, QList<ModelItemInfo> > m_allClasses;
-    QHash<QString, QList<ModelItemInfo> > m_allFunctions;
+    QHash<QString, QList<ModelItemInfo::Ptr> > m_allEnums;
+    QHash<QString, QList<ModelItemInfo::Ptr> > m_allClasses;
+    QHash<QString, QList<ModelItemInfo::Ptr> > m_allFunctions;
 
     mutable QMutex m_pendingDocumentsMutex;
     QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;

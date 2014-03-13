@@ -45,18 +45,18 @@ CppClassesFilter::~CppClassesFilter()
 {
 }
 
-QList<QList<CppTools::ModelItemInfo> > CppClassesFilter::itemsToMatchUserInputAgainst() const
+QList<QList<ModelItemInfo::Ptr> > CppClassesFilter::itemsToMatchUserInputAgainst() const
 {
-    return QList<QList<CppTools::ModelItemInfo> >() << m_data->classes();
+    return QList<QList<CppTools::ModelItemInfo::Ptr> >() << m_data->classes();
 }
 
-Core::LocatorFilterEntry CppClassesFilter::filterEntryFromModelItemInfo(const ModelItemInfo &info)
+Core::LocatorFilterEntry CppClassesFilter::filterEntryFromModelItemInfo(ModelItemInfo::Ptr info)
 {
     const QVariant id = qVariantFromValue(info);
-    Core::LocatorFilterEntry filterEntry(this, info.symbolName, id, info.icon);
-    filterEntry.extraInfo = info.symbolScope.isEmpty()
-        ? info.shortNativeFilePath()
-        : info.symbolScope;
+    Core::LocatorFilterEntry filterEntry(this, info->symbolName(), id, info->icon());
+    filterEntry.extraInfo = info->symbolScope().isEmpty()
+        ? info->shortNativeFilePath()
+        : info->symbolScope();
 
     return filterEntry;
 }

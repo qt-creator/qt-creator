@@ -44,22 +44,22 @@ CppFunctionsFilter::~CppFunctionsFilter()
 {
 }
 
-QList<QList<CppTools::ModelItemInfo> > CppFunctionsFilter::itemsToMatchUserInputAgainst() const
+QList<QList<CppTools::ModelItemInfo::Ptr> > CppFunctionsFilter::itemsToMatchUserInputAgainst() const
 {
-    return QList<QList<CppTools::ModelItemInfo> >() << m_data->functions();
+    return QList<QList<CppTools::ModelItemInfo::Ptr> >() << m_data->functions();
 }
 
-Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
+Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromModelItemInfo(ModelItemInfo::Ptr info)
 {
     const QVariant id = qVariantFromValue(info);
 
-    QString name = info.symbolName;
-    QString extraInfo = info.symbolScope;
-    info.unqualifiedNameAndScope(name, &name, &extraInfo);
+    QString name = info->symbolName();
+    QString extraInfo = info->symbolScope();
+    info->unqualifiedNameAndScope(name, &name, &extraInfo);
     if (extraInfo.isEmpty())
-        extraInfo = info.shortNativeFilePath();
+        extraInfo = info->shortNativeFilePath();
 
-    Core::LocatorFilterEntry filterEntry(this, name + info.symbolType, id, info.icon);
+    Core::LocatorFilterEntry filterEntry(this, name + info->symbolType(), id, info->icon());
     filterEntry.extraInfo = extraInfo;
 
     return filterEntry;

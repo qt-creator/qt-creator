@@ -43,22 +43,21 @@
 #include <QIcon>
 #include <QString>
 #include <QSet>
+#include <QSharedPointer>
 #include <QHash>
 
 #include <functional>
 
 namespace CppTools {
 
-struct CPPTOOLS_EXPORT ModelItemInfo
+class CPPTOOLS_EXPORT ModelItemInfo
 {
+    Q_DISABLE_COPY(ModelItemInfo)
+
+public:
     enum ItemType { Enum, Class, Function, Declaration };
 
-    ModelItemInfo()
-        : type(Declaration),
-          line(0),
-          column(0)
-    { }
-
+private:
     ModelItemInfo(const QString &symbolName,
                   const QString &symbolType,
                   const QString &symbolScope,
@@ -67,38 +66,42 @@ struct CPPTOOLS_EXPORT ModelItemInfo
                   int line,
                   int column,
                   const QIcon &icon)
-        : symbolName(symbolName),
-          symbolType(symbolType),
-          symbolScope(symbolScope),
-          fileName(fileName),
-          icon(icon),
-          type(type),
-          line(line),
-          column(column)
-    { }
+        : m_symbolName(symbolName),
+          m_symbolType(symbolType),
+          m_symbolScope(symbolScope),
+          m_fileName(fileName),
+          m_icon(icon),
+          m_type(type),
+          m_line(line),
+          m_column(column)
+    {}
 
-    ModelItemInfo(const ModelItemInfo &otherInfo)
-        : symbolName(otherInfo.symbolName),
-          symbolType(otherInfo.symbolType),
-          symbolScope(otherInfo.symbolScope),
-          fileName(otherInfo.fileName),
-          icon(otherInfo.icon),
-          type(otherInfo.type),
-          line(otherInfo.line),
-          column(otherInfo.column)
-    { }
+public:
+    typedef QSharedPointer<ModelItemInfo> Ptr;
+    static Ptr create(const QString &symbolName,
+                      const QString &symbolType,
+                      const QString &symbolScope,
+                      ItemType type,
+                      const QString &fileName,
+                      int line,
+                      int column,
+                      const QIcon &icon)
+    {
+        return Ptr(new ModelItemInfo(
+                       symbolName, symbolType, symbolScope, type, fileName, line, column, icon));
+    }
 
     QString scopedSymbolName() const
     {
-        return symbolScope.isEmpty()
-                ? symbolName
-                : symbolScope +  QLatin1String("::") + symbolName;
+        return m_symbolScope.isEmpty()
+                ? m_symbolName
+                : m_symbolScope +  QLatin1String("::") + m_symbolName;
     }
 
     bool unqualifiedNameAndScope(const QString &defaultName, QString *name, QString *scope) const
     {
         *name = defaultName;
-        *scope = symbolScope;
+        *scope = m_symbolScope;
         const QString qualifiedName = scopedSymbolName();
         const int colonColonPosition = qualifiedName.lastIndexOf(QLatin1String("::"));
         if (colonColonPosition != -1) {
@@ -121,16 +124,26 @@ struct CPPTOOLS_EXPORT ModelItemInfo
     }
 
     QString shortNativeFilePath() const
-    { return Utils::FileUtils::shortNativePath(Utils::FileName::fromString(fileName)); }
+    { return Utils::FileUtils::shortNativePath(Utils::FileName::fromString(m_fileName)); }
 
-    QString symbolName; // as found in the code, therefore might be qualified
-    QString symbolType;
-    QString symbolScope;
-    QString fileName;
-    QIcon icon;
-    ItemType type;
-    int line;
-    int column;
+    QString symbolName() const { return m_symbolName; }
+    QString symbolType() const { return m_symbolType; }
+    QString symbolScope() const { return m_symbolScope; }
+    QString fileName() const { return m_fileName; }
+    QIcon icon() const { return m_icon; }
+    ItemType type() const { return m_type; }
+    int line() const { return m_line; }
+    int column() const { return m_column; }
+
+private:
+    QString m_symbolName; // as found in the code, therefore might be qualified
+    QString m_symbolType;
+    QString m_symbolScope;
+    QString m_fileName;
+    QIcon m_icon;
+    ItemType m_type;
+    int m_line;
+    int m_column;
 };
 
 class SearchSymbols: public std::binary_function<CPlusPlus::Document::Ptr, int, QList<ModelItemInfo> >,
@@ -145,10 +158,11 @@ public:
 
     void setSymbolsToSearchFor(const SymbolTypes &types);
 
-    QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc, int sizeHint = 500)
+    QList<ModelItemInfo::Ptr> operator()(CPlusPlus::Document::Ptr doc, int sizeHint = 500)
     { return operator()(doc, sizeHint, QString()); }
 
-    QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc, int sizeHint, const QString &scope);
+    QList<ModelItemInfo::Ptr> operator()(CPlusPlus::Document::Ptr doc, int sizeHint,
+                                         const QString &scope);
 
 protected:
     using SymbolVisitor::visit;
@@ -201,7 +215,7 @@ private:
     QString _scope;
     CPlusPlus::Overview overview;
     CPlusPlus::Icons icons;
-    QList<ModelItemInfo> items;
+    QList<ModelItemInfo::Ptr> items;
     SymbolTypes symbolsToSearchFor;
     QHash<const CPlusPlus::StringLiteral *, QString> m_paths;
 };
@@ -209,6 +223,6 @@ private:
 } // namespace CppTools
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CppTools::SearchSymbols::SymbolTypes)
-Q_DECLARE_METATYPE(CppTools::ModelItemInfo)
+Q_DECLARE_METATYPE(CppTools::ModelItemInfo::Ptr)
 
 #endif // SEARCHSYMBOLS_H

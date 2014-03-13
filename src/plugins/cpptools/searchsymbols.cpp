@@ -53,7 +53,8 @@ void SearchSymbols::setSymbolsToSearchFor(const SymbolTypes &types)
     symbolsToSearchFor = types;
 }
 
-QList<ModelItemInfo> SearchSymbols::operator()(Document::Ptr doc, int sizeHint, const QString &scope)
+QList<ModelItemInfo::Ptr> SearchSymbols::operator()(Document::Ptr doc, int sizeHint,
+                                                    const QString &scope)
 {
     QString previousScope = switchScope(scope);
     items.clear();
@@ -62,7 +63,7 @@ QList<ModelItemInfo> SearchSymbols::operator()(Document::Ptr doc, int sizeHint, 
         accept(doc->globalSymbolAt(i));
     }
     (void) switchScope(previousScope);
-    QList<ModelItemInfo> result = items;
+    QList<ModelItemInfo::Ptr> result = items;
     strings.scheduleGC();
     items.clear();
     m_paths.clear();
@@ -288,12 +289,12 @@ void SearchSymbols::appendItem(const QString &symbolName, const QString &symbolT
     }
 
     const QIcon icon = icons.iconForSymbol(symbol);
-    items.append(ModelItemInfo(findOrInsert(symbolName),
-                               findOrInsert(symbolType),
-                               findOrInsert(symbolScope),
-                               itemType,
-                               findOrInsert(path),
-                               symbol->line(),
-                               symbol->column() - 1, // 1-based vs 0-based column
-                               icon));
+    items.append(ModelItemInfo::create(findOrInsert(symbolName),
+                                       findOrInsert(symbolType),
+                                       findOrInsert(symbolScope),
+                                       itemType,
+                                       findOrInsert(path),
+                                       symbol->line(),
+                                       symbol->column() - 1, // 1-based vs 0-based column
+                                       icon));
 }

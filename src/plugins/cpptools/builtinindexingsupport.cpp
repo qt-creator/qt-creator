@@ -125,19 +125,19 @@ public:
                 break;
             if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->fileName())) {
                 QVector<Core::SearchResultItem> resultItems;
-                QList<ModelItemInfo> modelInfos = search(it.value());
-                foreach (const ModelItemInfo &info, modelInfos) {
-                    int index = matcher.indexIn(info.symbolName);
+                QList<ModelItemInfo::Ptr> modelInfos = search(it.value());
+                foreach (const ModelItemInfo::Ptr &info, modelInfos) {
+                    int index = matcher.indexIn(info->symbolName());
                     if (index != -1) {
-                        QString text = info.symbolName;
-                        QString scope = info.symbolScope;
-                        if (info.type == ModelItemInfo::Function) {
+                        QString text = info->symbolName();
+                        QString scope = info->symbolScope();
+                        if (info->type() == ModelItemInfo::Function) {
                             QString name;
-                            info.unqualifiedNameAndScope(info.symbolName, &name, &scope);
-                            text = name + info.symbolType;
-                        } else if (info.type == ModelItemInfo::Declaration){
-                            text = ModelItemInfo::representDeclaration(info.symbolName,
-                                                                       info.symbolType);
+                            info->unqualifiedNameAndScope(info->symbolName(), &name, &scope);
+                            text = name + info->symbolType();
+                        } else if (info->type() == ModelItemInfo::Declaration){
+                            text = ModelItemInfo::representDeclaration(info->symbolName(),
+                                                                       info->symbolType());
                         }
 
                         Core::SearchResultItem item;
@@ -145,7 +145,7 @@ public:
                         item.text = text;
                         item.textMarkPos = -1;
                         item.textMarkLength = 0;
-                        item.icon = info.icon;
+                        item.icon = info->icon();
                         item.lineNumber = -1;
                         item.userData = qVariantFromValue(info);
                         resultItems << item;

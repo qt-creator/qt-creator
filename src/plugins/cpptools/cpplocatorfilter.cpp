@@ -47,13 +47,14 @@ CppLocatorFilter::~CppLocatorFilter()
 {
 }
 
-Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
+Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromModelItemInfo(ModelItemInfo::Ptr info)
 {
     const QVariant id = qVariantFromValue(info);
-    Core::LocatorFilterEntry filterEntry(this, info.scopedSymbolName(), id, info.icon);
-    filterEntry.extraInfo = info.type == ModelItemInfo::Class || info.type == ModelItemInfo::Enum
-        ? info.shortNativeFilePath()
-        : info.symbolType;
+    Core::LocatorFilterEntry filterEntry(this, info->scopedSymbolName(), id, info->icon());
+    if (info->type() == ModelItemInfo::Class || info->type() == ModelItemInfo::Enum)
+        filterEntry.extraInfo = info->shortNativeFilePath();
+    else
+        filterEntry.extraInfo = info->symbolType();
 
     return filterEntry;
 }
@@ -63,9 +64,9 @@ void CppLocatorFilter::refresh(QFutureInterface<void> &future)
     Q_UNUSED(future)
 }
 
-QList<QList<CppTools::ModelItemInfo> > CppLocatorFilter::itemsToMatchUserInputAgainst() const
+QList<QList<CppTools::ModelItemInfo::Ptr> > CppLocatorFilter::itemsToMatchUserInputAgainst() const
 {
-    return QList<QList<CppTools::ModelItemInfo> >()
+    return QList<QList<CppTools::ModelItemInfo::Ptr> >()
         << m_data->classes()
         << m_data->functions()
         << m_data->enums();
@@ -77,7 +78,8 @@ static bool compareLexigraphically(const Core::LocatorFilterEntry &a,
     return a.displayName < b.displayName;
 }
 
-QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &origEntry)
+QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
+        QFutureInterface<Core::LocatorFilterEntry> &future, const QString &origEntry)
 {
     QString entry = trimWildcards(origEntry);
     QList<Core::LocatorFilterEntry> goodEntries;
@@ -91,12 +93,13 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Co
     bool hasColonColon = entry.contains(QLatin1String("::"));
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
-    const QList<QList<CppTools::ModelItemInfo> > itemLists = itemsToMatchUserInputAgainst();
-    foreach (const QList<CppTools::ModelItemInfo> &items, itemLists) {
-        foreach (const ModelItemInfo &info, items) {
+    const QList<QList<CppTools::ModelItemInfo::Ptr> > itemLists = itemsToMatchUserInputAgainst();
+    foreach (const QList<CppTools::ModelItemInfo::Ptr> &items, itemLists) {
+        foreach (ModelItemInfo::Ptr info, items) {
             if (future.isCanceled())
                 break;
-            const QString matchString = hasColonColon ? info.scopedSymbolName() : info.symbolName;
+            const QString matchString = hasColonColon ? info->scopedSymbolName()
+                                                      : info->symbolName();
             if ((hasWildcard && regexp.exactMatch(matchString))
                 || (!hasWildcard && matcher.indexIn(matchString) != -1)) {
                 const Core::LocatorFilterEntry filterEntry = filterEntryFromModelItemInfo(info);
@@ -119,6 +122,6 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(QFutureInterface<Co
 
 void CppLocatorFilter::accept(Core::LocatorFilterEntry selection) const
 {
-    ModelItemInfo info = qvariant_cast<CppTools::ModelItemInfo>(selection.internalData);
-    Core::EditorManager::openEditorAt(info.fileName, info.line, info.column);
+    ModelItemInfo::Ptr info = qvariant_cast<CppTools::ModelItemInfo::Ptr>(selection.internalData);
+    Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }

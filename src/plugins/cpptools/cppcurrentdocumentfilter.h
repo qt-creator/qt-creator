@@ -61,7 +61,7 @@ private slots:
 private:
     CppModelManager * m_modelManager;
     QString m_currentFileName;
-    QList<ModelItemInfo> m_itemsOfCurrentDoc;
+    QList<ModelItemInfo::Ptr> m_itemsOfCurrentDoc;
     SearchSymbols search;
 };
 

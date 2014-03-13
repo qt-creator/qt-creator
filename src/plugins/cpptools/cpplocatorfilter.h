@@ -48,13 +48,14 @@ public:
     CppLocatorFilter(CppLocatorData *locatorData);
     ~CppLocatorFilter();
 
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry);
     void accept(Core::LocatorFilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
 
-private:
-    virtual QList<QList<ModelItemInfo> > itemsToMatchUserInputAgainst() const;
-    virtual Core::LocatorFilterEntry filterEntryFromModelItemInfo(const ModelItemInfo &info);
+protected:
+    virtual QList<QList<ModelItemInfo::Ptr> > itemsToMatchUserInputAgainst() const;
+    virtual Core::LocatorFilterEntry filterEntryFromModelItemInfo(ModelItemInfo::Ptr info);
 
 protected:
     CppLocatorData *m_data;

@@ -53,19 +53,19 @@ CppLocatorData::CppLocatorData(CppModelManager *modelManager)
             this, SLOT(onAboutToRemoveFiles(QStringList)));
 }
 
-QList<ModelItemInfo> CppLocatorData::enums()
+QList<ModelItemInfo::Ptr> CppLocatorData::enums()
 {
     flushPendingDocument(true);
     return allModelItemInfos(m_allEnums);
 }
 
-QList<ModelItemInfo> CppLocatorData::classes()
+QList<ModelItemInfo::Ptr> CppLocatorData::classes()
 {
     flushPendingDocument(true);
     return allModelItemInfos(m_allClasses);
 }
 
-QList<ModelItemInfo> CppLocatorData::functions()
+QList<ModelItemInfo::Ptr> CppLocatorData::functions()
 {
     flushPendingDocument(true);
     return allModelItemInfos(m_allFunctions);
@@ -120,15 +120,15 @@ void CppLocatorData::flushPendingDocument(bool force)
     foreach (CPlusPlus::Document::Ptr doc, m_pendingDocuments) {
         const QString fileName = findOrInsertFilePath(doc->fileName());
 
-        QList<ModelItemInfo> resultsEnums;
-        QList<ModelItemInfo> resultsClasses;
-        QList<ModelItemInfo> resultsFunctions;
+        QList<ModelItemInfo::Ptr> resultsEnums;
+        QList<ModelItemInfo::Ptr> resultsClasses;
+        QList<ModelItemInfo::Ptr> resultsFunctions;
 
         const int sizeHint = m_allEnums[fileName].size() + m_allClasses[fileName].size()
                 + m_allFunctions[fileName].size() + 10;
-        const QList<ModelItemInfo> results = m_search(doc, sizeHint);
-        foreach (const ModelItemInfo &info, results) {
-            switch (info.type) {
+        const QList<ModelItemInfo::Ptr> results = m_search(doc, sizeHint);
+        foreach (ModelItemInfo::Ptr info, results) {
+            switch (info->type()) {
             case ModelItemInfo::Enum:
                 resultsEnums.append(info);
                 break;
@@ -152,11 +152,11 @@ void CppLocatorData::flushPendingDocument(bool force)
     m_pendingDocuments.reserve(MaxPendingDocuments);
 }
 
-QList<ModelItemInfo> CppLocatorData::allModelItemInfos(const QHash<QString,
-                                                       QList<ModelItemInfo> > &items) const
+QList<ModelItemInfo::Ptr> CppLocatorData::allModelItemInfos(const QHash<QString,
+                                                            QList<ModelItemInfo::Ptr>> &items) const
 {
-    QList<ModelItemInfo> result;
-    QHashIterator<QString, QList<ModelItemInfo> > it(items);
+    QList<ModelItemInfo::Ptr> result;
+    QHashIterator<QString, QList<ModelItemInfo::Ptr> > it(items);
     while (it.hasNext()) {
         it.next();
         result.append(it.value());

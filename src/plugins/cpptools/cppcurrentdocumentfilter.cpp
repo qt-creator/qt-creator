@@ -84,28 +84,28 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
 
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
-    foreach (const ModelItemInfo & info, m_itemsOfCurrentDoc)
-    {
+    foreach (ModelItemInfo::Ptr info, m_itemsOfCurrentDoc) {
         if (future.isCanceled())
             break;
 
-        QString matchString = info.symbolName;
-        if (info.type == ModelItemInfo::Declaration)
-            matchString = ModelItemInfo::representDeclaration(info.symbolName, info.symbolType);
-        else if (info.type == ModelItemInfo::Function)
-            matchString += info.symbolType;
+        QString matchString = info->symbolName();
+        if (info->type() == ModelItemInfo::Declaration)
+            matchString = ModelItemInfo::representDeclaration(info->symbolName(),
+                                                              info->symbolType());
+        else if (info->type() == ModelItemInfo::Function)
+            matchString += info->symbolType();
 
         if ((hasWildcard && regexp.exactMatch(matchString))
             || (!hasWildcard && matcher.indexIn(matchString) != -1))
         {
             QVariant id = qVariantFromValue(info);
             QString name = matchString;
-            QString extraInfo = info.symbolScope;
-            if (info.type == ModelItemInfo::Function) {
-                if (info.unqualifiedNameAndScope(matchString, &name, &extraInfo))
-                    name += info.symbolType;
+            QString extraInfo = info->symbolScope();
+            if (info->type() == ModelItemInfo::Function) {
+                if (info->unqualifiedNameAndScope(matchString, &name, &extraInfo))
+                    name += info->symbolType();
             }
-            Core::LocatorFilterEntry filterEntry(this, name, id, info.icon);
+            Core::LocatorFilterEntry filterEntry(this, name, id, info->icon());
             filterEntry.extraInfo = extraInfo;
 
             if (matchString.startsWith(entry, caseSensitivityForPrefix))
@@ -123,8 +123,8 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
 
 void CppCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection) const
 {
-    ModelItemInfo info = qvariant_cast<CppTools::ModelItemInfo>(selection.internalData);
-    Core::EditorManager::openEditorAt(info.fileName, info.line, info.column);
+    ModelItemInfo::Ptr info = qvariant_cast<CppTools::ModelItemInfo::Ptr>(selection.internalData);
+    Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }
 
 void CppCurrentDocumentFilter::refresh(QFutureInterface<void> &future)
