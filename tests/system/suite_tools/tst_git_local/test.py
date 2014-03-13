@@ -35,7 +35,7 @@ projectName = "gitProject"
 
 # TODO: Make selecting changes possible
 def commit(commitMessage, expectedLogMessage):
-    ensureChecked(waitForObject(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"))
+    openVcsLog()
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     invokeMenuItem("Tools", "Git", "Local Repository", "Commit...")
     replaceEditorContent(waitForObject(":Description.description_Utils::CompletingTextEdit"), commitMessage)
@@ -136,10 +136,7 @@ def main():
     if not startedWithoutPluginError():
         return
     createProject_Qt_GUI(srcPath, projectName, addToVersionControl = "Git")
-    if not object.exists(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"):
-        clickButton(waitForObject(":Qt Creator_Core::Internal::OutputPaneManageButton"))
-        activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Version Control"))
-    ensureChecked(waitForObject(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"))
+    openVcsLog()
     vcsLog = waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
                            "window=':Qt Creator_Core::Internal::MainWindow'}").plainText
     test.verify("Initialized empty Git repository in %s"
