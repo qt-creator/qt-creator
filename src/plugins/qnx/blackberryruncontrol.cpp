@@ -43,7 +43,7 @@ using namespace Qnx::Internal;
 BlackBerryRunControl::BlackBerryRunControl(BlackBerryRunConfiguration *runConfiguration)
     : ProjectExplorer::RunControl(runConfiguration, ProjectExplorer::NormalRunMode)
 {
-    m_runner = new BlackBerryApplicationRunner(false, runConfiguration, this);
+    m_runner = new BlackBerryApplicationRunner(BlackBerryApplicationRunner::LaunchFlags(), runConfiguration, this);
 
     connect(m_runner, SIGNAL(started()), this, SIGNAL(started()));
     connect(m_runner, SIGNAL(finished()), this, SIGNAL(finished()));

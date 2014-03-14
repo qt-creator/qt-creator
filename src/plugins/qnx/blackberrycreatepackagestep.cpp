@@ -306,20 +306,6 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
         QDir::toNativeSeparators(target()->project()->projectDirectory());
     doc.expandPlaceHolders(placeHoldersHash);
 
-    // Add parameter for QML debugging (if enabled)
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = target()->activeRunConfiguration()->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    if (aspect->useQmlDebugger()) {
-        const QString qmlDebuggerArg = QString::fromLatin1("-qmljsdebugger=port:%1")
-                .arg(aspect->qmlDebugServerPort());
-
-        QStringList args = doc.value(BarDescriptorDocument::arg).toStringList();
-        if (!args.contains(qmlDebuggerArg))
-            args.append(qmlDebuggerArg);
-
-        doc.setValue(BarDescriptorDocument::arg, args);
-    }
-
     // Set up correct environment depending on using bundled/pre-installed Qt
     QList<Utils::EnvironmentItem> envItems =
             doc.value(BarDescriptorDocument::env).value<QList<Utils::EnvironmentItem> >();

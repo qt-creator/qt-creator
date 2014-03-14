@@ -44,8 +44,12 @@ BlackBerryDebugSupport::BlackBerryDebugSupport(BlackBerryRunConfiguration *runCo
     : QObject(runControl->engine())
     , m_engine(runControl->engine())
 {
-    const bool cppDebugMode = m_engine->startParameters().languages & Debugger::CppLanguage;
-    m_runner = new BlackBerryApplicationRunner(cppDebugMode, runConfig, this);
+    BlackBerryApplicationRunner::LaunchFlags launchFlags;
+    if (m_engine->startParameters().languages & Debugger::CppLanguage)
+        launchFlags |= BlackBerryApplicationRunner::CppDebugLaunch;
+    if (m_engine->startParameters().languages & Debugger::QmlLanguage)
+        launchFlags |= BlackBerryApplicationRunner::QmlDebugLaunch;
+    m_runner = new BlackBerryApplicationRunner(launchFlags, runConfig, this);
 
     connect(m_engine, SIGNAL(requestRemoteSetup()), this, SLOT(launchRemoteApplication()));
     connect(m_engine, SIGNAL(stateChanged(Debugger::DebuggerState)),

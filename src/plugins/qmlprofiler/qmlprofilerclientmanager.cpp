@@ -240,8 +240,6 @@ void QmlProfilerClientManager::connectToClient()
     if (!d->connection || d->connection->state() != QAbstractSocket::UnconnectedState)
         return;
 
-    QmlProfilerTool::logStatus(QString::fromLatin1("QML Profiler: Connecting to %1:%2 ...")
-                               .arg(d->tcpHost, QString::number(d->tcpPort)));
     d->connection->connectToHost(d->tcpHost, d->tcpPort);
 }
 
@@ -309,14 +307,17 @@ void QmlProfilerClientManager::connectionStateChanged()
     case QAbstractSocket::ConnectingState: {
         if (QmlProfilerPlugin::debugOutput)
             qWarning("QML Profiler: Connecting to debug server ...");
+        QmlProfilerTool::logStatus(tr("QML Profiler: Connecting to %1:%2 ...")
+            .arg(d->tcpHost, QString::number(d->tcpPort)));
         break;
     }
     case QAbstractSocket::ConnectedState:
     {
         if (QmlProfilerPlugin::debugOutput)
             qWarning("QML Profiler: connected and running");
-            // notify the client recording status
-            clientRecordingChanged();
+        // notify the client recording status
+        clientRecordingChanged();
+        QmlProfilerTool::logStatus(tr("QML Profiler: connected and running"));
         break;
     }
     case QAbstractSocket::ClosingState:
