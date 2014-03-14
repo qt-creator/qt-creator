@@ -63,7 +63,7 @@
 
         \li \l{Connecting Mobile Devices}
 
-            When you install tool chains for device types as part of an SDK,
+            When you install tool chains for device types as part of a Qt distribution,
             the build and run settings for mobile device types might be set up
             automatically. However, you might need to install and configure some
             additional software on the devices to be able to connect to them

@@ -77,8 +77,8 @@
     Since Qt 5.1, a set of Qt Quick Controls is available for creating classic
     desktop-style user interfaces using Qt Quick 2.1.
 
-    You can install Qt Quick 1 Components as part of the Qt 4 SDK and the Qt
-    Quick Controls as part of Qt 5.1, or later.
+    Qt Quick 1 Components are a part of Qt 4, whereas Qt Quick Controls were
+    added to Qt 5.1.
 
     The \QC project wizards create Qt Quick applications that use Qt Quick
     Components or Controls.
