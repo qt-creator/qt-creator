@@ -133,6 +133,16 @@ ColumnLayout {
                 x: 14
                 spacing: 16
                 IconAndLink {
+                    iconSource: "images/icons/qt_account.png"
+                    title: qsTr("Qt Account")
+                    openUrl: "https://login.qt.digia.com/qtaccount?utm_source=qtcreator31"
+                }
+                IconAndLink {
+                    iconSource: "images/icons/qt_cloud.png"
+                    title: qsTr("Qt Cloud Services")
+                    openUrl: "https://developer.qtc.io?utm_source=qtcreator31"
+                }
+                IconAndLink {
                     iconSource: "images/icons/onlineCommunity.png"
                     title: qsTr("Online Community")
                     openUrl: "http://qt-project.org/forums"
