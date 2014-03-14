@@ -699,8 +699,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
         QMessageBox::information(
             Core::ICore::mainWindow(),
             QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "No valid .user file found for '%1'")
-                    .arg(project()->displayName()),
+                                    "No valid Settings found"),
             QApplication::translate("ProjectExplorer::SettingsAccessor",
                                     "<p>No valid settings file could be found "
                                     "for this installation of Qt Creator.</p>"
@@ -732,8 +731,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readUserSettings() const
         QMessageBox::information(
                     Core::ICore::mainWindow(),
                     QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                            "Using Old Settings File for '%1'")
-                    .arg(project()->displayName()),
+                                            "Using Old Settings"),
                     QApplication::translate("ProjectExplorer::SettingsAccessor",
                                             "<p>The versioned backup '%1' of the .user settings "
                                             "file is used, because the non-versioned file was "
