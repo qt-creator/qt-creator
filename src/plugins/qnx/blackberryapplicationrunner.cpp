@@ -323,7 +323,7 @@ void BlackBerryApplicationRunner::checkQmlJsDebugArguments()
     QStringList args;
     args << QLatin1String("-listManifest") << QDir::toNativeSeparators(m_barPackage);
     if (debugCheckQmlJSArgs)
-        qDebug() << "get manifest:" << nativePackagerCmd << args.join(QLatin1Char(' '));
+        qDebug() << "get manifest:" << nativePackagerCmd << args.join(QLatin1String(" "));
     m_checkQmlJsDebugArgumentsProcess->start(nativePackagerCmd, args);
 }
 
@@ -383,7 +383,7 @@ void BlackBerryApplicationRunner::checkQmlJsDebugArgumentsManifestLoaded()
     args << manifestFile->fileName();
     args << QLatin1String("app/META-INF/MANIFEST.MF");
     if (debugCheckQmlJSArgs)
-        qDebug() << "set manifest:" << m_deployCmd << args.join(QLatin1Char(' '));
+        qDebug() << "set manifest:" << m_deployCmd << args.join(QLatin1String(" "));
     m_checkQmlJsDebugArgumentsProcess->start(m_deployCmd, args);
 }
 
@@ -427,7 +427,7 @@ void BlackBerryApplicationRunner::launchApplication()
         m_launchProcess->setEnvironment(m_environment.toStringList());
     }
     if (debugCheckQmlJSArgs)
-        qDebug() << "launch:" << m_deployCmd << args.join(QLatin1Char(' '));
+        qDebug() << "launch:" << m_deployCmd << args.join(QLatin1String(" "));
     m_launchProcess->start(m_deployCmd, args);
     m_runningStateTimer->start();
     m_running = true;
