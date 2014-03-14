@@ -1716,6 +1716,7 @@ def testit():
     db.report("@NS@%s@" % ns)
     #db.report("ENV=%s" % os.environ.items())
     #db.report("DUMPER=%s" % db.qqDumpers)
+    lldb.SBDebugger.Destroy(db.debugger)
 
 if __name__ == "__main__":
     if len(sys.argv) > 2:
