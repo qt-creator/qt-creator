@@ -31,7 +31,7 @@
 
 #include <qglobal.h>
 
-#if QT_VERSION < 0x052000
+#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
 
 //
 // Qt < 5.2 didn't feature categorized logging:
@@ -67,7 +67,7 @@ private:
         return category; \
     }
 
-#if QT_VERSION > 0x050000
+#if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 
 //
 // Qt 5.0, 5.1 do have already support for categories in QMessageLogger
@@ -100,13 +100,13 @@ private:
         qCritical(__VA_ARGS__)
 
 
-# endif // QT_VERSION > 0x050000
+# endif // QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 
-#else // QT_VERSION >= 0x052000
+#else // QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
 
 #include <QLoggingCategory>
 
-#if QT_VERSION < 0x053000
+#if QT_VERSION < QT_VERSION_CHECK(5, 3, 0)
 
 // printf style for qCDebug was only added in Qt 5.3
 
@@ -124,6 +124,6 @@ private:
     for (bool q_category_enabled = category().isCriticalEnabled(); q_category_enabled; q_category_enabled = false)  \
         QMessageLogger(__FILE__, __LINE__, Q_FUNC_INFO, category().categoryName()).critical(__VA_ARGS__)
 
-#endif // QT_VERSION < 0x053000
-#endif // QT_VERSION < 0x052000
+#endif // QT_VERSION < QT_VERSION_CHECK(5, 3, 0)
+#endif // QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
 #endif // LOGGING_H
