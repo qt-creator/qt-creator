@@ -371,7 +371,8 @@ void AndroidRunner::logcatProcess(const QByteArray &text, QByteArray &buffer, bo
         if (line.endsWith('\r'))
             line.chop(1);
         line.append('\n');
-        if (onlyError || line.startsWith("E/")
+        if (onlyError || line.startsWith("F/")
+                || line.startsWith("E/")
                 || line.startsWith("D/Qt")
                 || line.startsWith("W/"))
             emit remoteErrorOutput(line);
