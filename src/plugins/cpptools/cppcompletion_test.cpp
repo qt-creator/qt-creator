@@ -1441,6 +1441,19 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("A")
             << QLatin1String("a"));
 
+    QTest::newRow("nested_class_declaration_with_object_name_inside_function") << _(
+            "int foo()\n"
+            "{\n"
+            "    struct Nested\n"
+            "    {\n"
+            "        int i;\n"
+            "    } n;\n"
+            "    @;\n"
+            "}\n"
+        ) << _("n.") << (QStringList()
+            << QLatin1String("Nested")
+            << QLatin1String("i"));
+
     QTest::newRow("nested_anonymous_class_QTCREATORBUG10876_1") << _(
             "struct EnclosingStruct\n"
             "{\n"
