@@ -110,7 +110,7 @@ void BlackBerryDebugTokenPinsDialog::removePin()
 
     const QString pin = m_model->item(index.row(), 0)->text();
     const int result = QMessageBox::question(this, tr("Confirmation"),
-            tr("Are you sure you want to remove PIN: %1")
+            tr("Are you sure you want to remove PIN: %1?")
             .arg(pin), QMessageBox::Yes | QMessageBox::No);
 
     if (result == QMessageBox::Yes) {
