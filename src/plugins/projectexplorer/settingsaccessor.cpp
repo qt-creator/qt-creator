@@ -421,7 +421,6 @@ public:
 
         void clear();
         bool isValid() const;
-        Utils::FileName fileName() const { return path; }
 
         QVariantMap map;
         Utils::FileName path;
@@ -664,9 +663,9 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map, QWidget *parent) con
     if (shared.isValid())
         trackUserStickySettings(settings.map, shared.toMap());
 
-    if (!d->m_writer || d->m_writer->fileName() != settings.fileName()) {
+    if (!d->m_writer || d->m_writer->fileName() != settings.path) {
         delete d->m_writer;
-        d->m_writer = new PersistentSettingsWriter(settings.fileName(), QLatin1String("QtCreatorProject"));
+        d->m_writer = new PersistentSettingsWriter(settings.path, QLatin1String("QtCreatorProject"));
     }
 
     QVariantMap data;
@@ -757,7 +756,7 @@ void SettingsAccessor::backupUserFile() const
         return;
 
     // Do we need to do a backup?
-    const QString origName = oldSettings.fileName().toString();
+    const QString origName = oldSettings.path.toString();
     QString backupName = origName;
     const QByteArray oldEnvironmentId = environmentIdFromMap(oldSettings.map);
     if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != creatorId())
@@ -809,14 +808,14 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
                                     "<p>Did you work with this project on another machine or "
                                     "using a different settings path before?</p>"
                                     "<p>Do you still want to load the settings file '%1'?</p>")
-                    .arg(result.fileName().toUserOutput()),
+                    .arg(result.path.toUserOutput()),
             QMessageBox::Yes | QMessageBox::No,
             parent);
         msgBox.setDefaultButton(QMessageBox::No);
         msgBox.setEscapeButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::No)
             result.clear();
-    } else if ((result.fileName().toString() != defaultFileName(m_userSuffix))
+    } else if ((result.path.toString() != defaultFileName(m_userSuffix))
                && (versionFromMap(result.map) < currentVersion())) {
         QMessageBox::information(
                     parent,
@@ -831,7 +830,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
                                             "with this project are ignored, and changes made now "
                                             "will <b>not</b> be propagated to the newer version."
                                             "</p>")
-                    .arg(result.fileName().toUserOutput()),
+                    .arg(result.path.toUserOutput()),
                     QMessageBox::Ok);
     }
     return result.map;
@@ -887,11 +886,11 @@ SettingsAccessorPrivate::Settings SettingsAccessorPrivate::bestSettings(const Se
         const int tmpVersion = SettingsAccessor::versionFromMap(tmp.map);
 
         if (tmpVersion > accessor->currentVersion()) {
-            qWarning() << "Skipping settings file" << tmp.fileName().toUserOutput() << "(too new).";
+            qWarning() << "Skipping settings file" << tmp.path.toUserOutput() << "(too new).";
             continue;
         }
         if (tmpVersion < accessor->m_firstVersion) {
-            qWarning() << "Skipping settings file" << tmp.fileName().toUserOutput() << "(too old).";
+            qWarning() << "Skipping settings file" << tmp.path.toUserOutput() << "(too old).";
             continue;
         }
 
