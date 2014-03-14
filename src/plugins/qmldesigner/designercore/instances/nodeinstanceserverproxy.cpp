@@ -120,6 +120,18 @@ static bool hasQtQuick2(NodeInstanceView *nodeInstanceView)
     return false;
 }
 
+static bool hasQtQuick1(NodeInstanceView *nodeInstanceView)
+{
+    if (nodeInstanceView && nodeInstanceView->model()) {
+        foreach (const Import &import ,nodeInstanceView->model()->imports()) {
+            if (import.url() ==  "QtQuick" && import.version().toDouble() < 2.0)
+                return true;
+        }
+    }
+
+    return false;
+}
+
 QString NodeInstanceServerProxy::creatorQmlPuppetPath()
 {
     QString applicationPath =  QCoreApplication::applicationDirPath();
@@ -265,10 +277,11 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            } else {
                QMessageBox::warning(Core::ICore::dialogParent(),
                                     tr("Cannot Start QML Puppet Executable"),
-                                    tr("The executable of the QML Puppet process (%1) cannot be started. "
-                                       "Please check your installation. "
-                                       "QML Puppet is a process which runs in the background to render the items.").
-                                    arg(applicationPath));
+                                    missingQmlPuppetErrorMessage(pathToQt,
+                                                                 tr("The executable of the QML Puppet process (%1) cannot be started. "
+                                                                    "Please check your installation. "
+                                                                    "QML Puppet is a process which runs in the background to render the items.\n\n"
+                                                                    ).arg(applicationPath)));
 
                QmlDesignerPlugin::instance()->switchToTextModeDeferred();
            }
@@ -278,14 +291,19 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        } else {
            QMessageBox::warning(Core::ICore::dialogParent(),
                                 tr("Wrong QML Puppet Executable Version"),
-                                tr("The QML Puppet version is incompatible with the Qt Creator version."));
+                                missingQmlPuppetErrorMessage(pathToQt,
+                                                             tr("The QML Puppet version is incompatible with the Qt Creator version.\n\n")));
            QmlDesignerPlugin::instance()->switchToTextModeDeferred();
        }
    } else {
-           QMessageBox::warning(Core::ICore::dialogParent(),
-                                tr("Cannot Find QML Puppet Executable"),
-                                missingQmlPuppetErrorMessage(applicationPath));
-           QmlDesignerPlugin::instance()->switchToTextModeDeferred();
+       QMessageBox::warning(Core::ICore::dialogParent(),
+                            tr("Cannot Find QML Puppet Executable"),
+                            missingQmlPuppetErrorMessage(pathToQt,
+                                                         tr("The executable of the QML Puppet process (<code>%1</code>) cannot be found. "
+                                                            "Check your installation. "
+                                                            "QML Puppet is a process which runs in the background to render the items.").
+                                                         arg(QDir::toNativeSeparators(applicationPath))) );
+       QmlDesignerPlugin::instance()->switchToTextModeDeferred();
    }
 
    int indexOfCapturePuppetStream = QCoreApplication::arguments().indexOf("-capture-puppet-stream");
@@ -362,28 +380,58 @@ NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
     return m_nodeInstanceView.data();
 }
 
-QString NodeInstanceServerProxy::missingQmlPuppetErrorMessage(const QString &applicationPath) const
+static QString generatePuppetCompilingHelp(const QString &puppetName, const QString &pathToQt)
+{
+
+    QString buildDirectory =  QDir::toNativeSeparators(QDir::tempPath() + QStringLiteral("/") + puppetName);
+    QString qmakePath = QDir::toNativeSeparators(pathToQt + QStringLiteral("/bin/qmake -r "));
+    QString projectPath = QDir::toNativeSeparators(sharedDirPath() + QStringLiteral("/qml/qmlpuppet/%1/%1.pro\n"));
+
+    QString puppetCompileHelp;
+
+    puppetCompileHelp.append(QStringLiteral("<p><code><pre>"));
+    puppetCompileHelp.append(QStringLiteral("mkdir ") + buildDirectory+ QStringLiteral("\n"));
+    puppetCompileHelp.append(QStringLiteral("cd ") + buildDirectory + QStringLiteral("\n"));
+    puppetCompileHelp.append(qmakePath + projectPath);
+    puppetCompileHelp.append(QStringLiteral("make"));
+    puppetCompileHelp.append(QStringLiteral("</pre></code></p>"));
+
+    puppetCompileHelp = puppetCompileHelp.arg(puppetName);
+
+    return puppetCompileHelp;
+}
+
+QString NodeInstanceServerProxy::missingQmlPuppetErrorMessage(const QString &pathToQt, const QString &preMessage) const
 {
     QString message;
-    QTextStream str(&message);
-    str << "<html><head/><body><p>"
-        << tr("The executable of the QML Puppet process (<code>%1</code>) cannot be found. "
-              "Check your installation. "
-              "QML Puppet is a process which runs in the background to render the items.").
-           arg(QDir::toNativeSeparators(applicationPath))
+    QTextStream messageStream(&message);
+    messageStream << "<html><head/><body><p>"
+        << preMessage
         << "</p>";
     if (hasQtQuick2(m_nodeInstanceView.data())) {
-        str << "<p>"
-            << tr("You can build <code>qml2puppet</code> yourself with Qt 5.0.1 or higher. "
+        messageStream << "<p>"
+            << tr("You can build <code>qml2puppet</code> yourself with Qt 5.2.0 or higher. "
                  "The source can be found in <code>%1</code>.").
                arg(QDir::toNativeSeparators(sharedDirPath() + QLatin1String("/qml/qmlpuppet/qml2puppet/")))
             << "</p><p>"
             << tr("<code>qml2puppet</code> will be installed to the <code>bin</code> directory of your Qt version. "
                   "Qt Quick Designer will check the <code>bin</code> directory of the currently active Qt version "
                   "of your project.")
-            << "</p>";
+            << "</p>"
+            << generatePuppetCompilingHelp(QStringLiteral("qml2puppet"), pathToQt);
+    } else if (hasQtQuick1(m_nodeInstanceView.data())) {
+        messageStream << "<p>"
+            << tr("You can build <code>qml2puppet</code> yourself with Qt 5.2.0 or higher. "
+                 "The source can be found in <code>%1</code>.").
+               arg(QDir::toNativeSeparators(sharedDirPath() + QLatin1String("/qml/qmlpuppet/qmlpuppet/")))
+            << "</p><p>"
+            << tr("<code>qmlpuppet</code> will be installed to the <code>bin</code> directory of your Qt version. "
+                  "Qt Quick Designer will check the <code>bin</code> directory of the currently active Qt version "
+                  "of your project.")
+            << "</p>"
+            << generatePuppetCompilingHelp(QStringLiteral("qmlpuppet"), pathToQt);
     }
-    str << "</p></body></html>";
+    messageStream << "</p></body></html>";
     return message;
 }
 
