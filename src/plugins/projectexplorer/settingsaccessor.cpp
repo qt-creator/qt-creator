@@ -482,6 +482,7 @@ class TrackStickyness : public Operation
 public:
     void apply(QVariantMap &userMap, const QString &key, const QVariant &)
     {
+        Q_UNUSED(userMap);
         m_userSticky.insert(key);
     }
 
