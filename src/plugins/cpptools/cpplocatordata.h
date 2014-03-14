@@ -27,58 +27,66 @@
 **
 ****************************************************************************/
 
-
 #ifndef CPPLOCATORDATA_H
 #define CPPLOCATORDATA_H
 
+#include <functional>
 #include <QHash>
-#include <QVector>
 
 #include <cplusplus/CppDocument.h>
 
+#include "cpptools_global.h"
 #include "cppmodelmanager.h"
 #include "searchsymbols.h"
 #include "stringtable.h"
 
 namespace CppTools {
+
 namespace Internal {
+class CppToolsPlugin;
+} // Internal namespace
 
 class CppLocatorData : public QObject
 {
     Q_OBJECT
+
+    // Only one instance, created by the CppToolsPlugin.
+    CppLocatorData();
+    friend class Internal::CppToolsPlugin;
+
 public:
-    explicit CppLocatorData(CppModelManager *modelManager);
+    void filterAllFiles(IndexItem::Visitor func) const
+    {
+        flushPendingDocument(true);
+        QMutexLocker locker(&m_pendingDocumentsMutex);
+        QHash<QString, IndexItem::Ptr> infosByFile = m_infosByFile;
+        locker.unlock();
+        for (auto i = infosByFile.constBegin(), ei = infosByFile.constEnd(); i != ei; ++i)
+            if (i.value()->visitAllChildren(func) == IndexItem::Break)
+                return;
+    }
 
-    QList<IndexItem::Ptr> enums();
-    QList<IndexItem::Ptr> classes();
-    QList<IndexItem::Ptr> functions();
-
-private slots:
+public slots:
     void onDocumentUpdated(const CPlusPlus::Document::Ptr &document);
     void onAboutToRemoveFiles(const QStringList &files);
 
 private:
-    void flushPendingDocument(bool force);
+    void flushPendingDocument(bool force) const;
     QList<IndexItem::Ptr> allIndexItems(const QHash<QString, QList<IndexItem::Ptr>> &items) const;
 
-    QString findOrInsertFilePath(const QString &path)
-    { return m_strings.insert(path); }
+    QString findOrInsertFilePath(const QString &path) const
+    { return m_strings->insert(path); }
 
 private:
-    CppModelManager *m_modelManager;
+    Internal::StringTable *m_strings; // Used to avoid QString duplication
 
-    StringTable &m_strings; // Used to avoid QString duplication
-
-    SearchSymbols m_search;
-    QHash<QString, QList<IndexItem::Ptr> > m_allEnums;
-    QHash<QString, QList<IndexItem::Ptr> > m_allClasses;
-    QHash<QString, QList<IndexItem::Ptr> > m_allFunctions;
+    mutable SearchSymbols m_search;
+    mutable QHash<QString, IndexItem::Ptr> m_infosByFile;
 
     mutable QMutex m_pendingDocumentsMutex;
-    QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;
+    mutable QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;
 };
 
-} // namespace Internal
-} // namespace CppTools
+} // CppTools namespace
 
 #endif // CPPLOCATORDATA_H

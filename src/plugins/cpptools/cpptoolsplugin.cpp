@@ -131,7 +131,13 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     connect(DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)),
             modelManager, SLOT(updateSourceFiles(QStringList)));
 
-    CppLocatorData *locatorData = new CppLocatorData(modelManager);
+    CppLocatorData *locatorData = new CppLocatorData;
+    connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
+            locatorData, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
+
+    connect(modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
+            locatorData, SLOT(onAboutToRemoveFiles(QStringList)));
+
     addAutoReleasedObject(locatorData);
     addAutoReleasedObject(new CppLocatorFilter(locatorData));
     addAutoReleasedObject(new CppClassesFilter(locatorData));

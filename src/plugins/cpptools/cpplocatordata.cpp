@@ -33,42 +33,17 @@
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-static const int MaxPendingDocuments = 10;
+enum { MaxPendingDocuments = 10 };
 
-CppLocatorData::CppLocatorData(CppModelManager *modelManager)
-    : m_modelManager(modelManager)
-    , m_strings(CppToolsPlugin::stringTable())
-    , m_search(m_strings)
+CppLocatorData::CppLocatorData()
+    : m_strings(&CppToolsPlugin::stringTable())
+    , m_search(CppToolsPlugin::stringTable())
     , m_pendingDocumentsMutex(QMutex::Recursive)
 {
-    m_search.setSymbolsToSearchFor(SymbolSearcher::Enums
-                                 | SymbolSearcher::Classes
-                                 | SymbolSearcher::Functions);
+    m_search.setSymbolsToSearchFor(SymbolSearcher::Enums |
+                                   SymbolSearcher::Classes |
+                                   SymbolSearcher::Functions);
     m_pendingDocuments.reserve(MaxPendingDocuments);
-
-    connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
-            this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
-
-    connect(m_modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
-            this, SLOT(onAboutToRemoveFiles(QStringList)));
-}
-
-QList<IndexItem::Ptr> CppLocatorData::enums()
-{
-    flushPendingDocument(true);
-    return allIndexItems(m_allEnums);
-}
-
-QList<IndexItem::Ptr> CppLocatorData::classes()
-{
-    flushPendingDocument(true);
-    return allIndexItems(m_allClasses);
-}
-
-QList<IndexItem::Ptr> CppLocatorData::functions()
-{
-    flushPendingDocument(true);
-    return allIndexItems(m_allFunctions);
 }
 
 void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
@@ -93,57 +68,37 @@ void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
 
 void CppLocatorData::onAboutToRemoveFiles(const QStringList &files)
 {
+    if (files.isEmpty())
+        return;
+
     QMutexLocker locker(&m_pendingDocumentsMutex);
 
-    for (int i = 0; i < m_pendingDocuments.size(); ) {
-        if (files.contains(m_pendingDocuments.at(i)->fileName()))
-            m_pendingDocuments.remove(i);
-        else
-            ++i;
-    }
-
     foreach (const QString &file, files) {
-        m_allEnums.remove(file);
-        m_allClasses.remove(file);
-        m_allFunctions.remove(file);
+        m_infosByFile.remove(file);
+
+        for (int i = 0; i < m_pendingDocuments.size(); ++i) {
+            if (m_pendingDocuments.at(i)->fileName() == file) {
+                m_pendingDocuments.remove(i);
+                break;
+            }
+        }
     }
 
-    m_strings.scheduleGC();
+    m_strings->scheduleGC();
+    flushPendingDocument(false);
 }
 
-void CppLocatorData::flushPendingDocument(bool force)
+void CppLocatorData::flushPendingDocument(bool force) const
 {
+    // TODO: move this off the UI thread and into a future.
     QMutexLocker locker(&m_pendingDocumentsMutex);
     if (!force && m_pendingDocuments.size() < MaxPendingDocuments)
         return;
+    if (m_pendingDocuments.isEmpty())
+        return;
 
-    foreach (CPlusPlus::Document::Ptr doc, m_pendingDocuments) {
-        const QString fileName = findOrInsertFilePath(doc->fileName());
-
-        QList<IndexItem::Ptr> resultsEnums;
-        QList<IndexItem::Ptr> resultsClasses;
-        QList<IndexItem::Ptr> resultsFunctions;
-
-        m_search(doc)->visitAllChildren([&](const IndexItem::Ptr &info) {
-            switch (info->type()) {
-            case IndexItem::Enum:
-                resultsEnums.append(info);
-                break;
-            case IndexItem::Class:
-                resultsClasses.append(info);
-                break;
-            case IndexItem::Function:
-                resultsFunctions.append(info);
-                break;
-            default:
-                break;
-            }
-        });
-
-        m_allEnums[fileName] = resultsEnums;
-        m_allClasses[fileName] = resultsClasses;
-        m_allFunctions[fileName] = resultsFunctions;
-    }
+    foreach (CPlusPlus::Document::Ptr doc, m_pendingDocuments)
+        m_infosByFile.insert(findOrInsertFilePath(doc->fileName()), m_search(doc));
 
     m_pendingDocuments.clear();
     m_pendingDocuments.reserve(MaxPendingDocuments);

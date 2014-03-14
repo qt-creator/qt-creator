@@ -65,14 +65,6 @@ void CppLocatorFilter::refresh(QFutureInterface<void> &future)
     Q_UNUSED(future)
 }
 
-QList<QList<CppTools::IndexItem::Ptr> > CppLocatorFilter::itemsToMatchUserInputAgainst() const
-{
-    return QList<QList<CppTools::IndexItem::Ptr> >()
-        << m_data->classes()
-        << m_data->functions()
-        << m_data->enums();
-}
-
 static bool compareLexigraphically(const Core::LocatorFilterEntry &a,
                                    const Core::LocatorFilterEntry &b)
 {
@@ -93,16 +85,15 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
     bool hasWildcard = (entry.contains(asterisk) || entry.contains(QLatin1Char('?')));
     bool hasColonColon = entry.contains(QLatin1String("::"));
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
+    const IndexItem::ItemType wanted = matchTypes();
 
-    const QList<QList<CppTools::IndexItem::Ptr> > itemLists = itemsToMatchUserInputAgainst();
-    foreach (const QList<CppTools::IndexItem::Ptr> &items, itemLists) {
-        foreach (IndexItem::Ptr info, items) {
-            if (future.isCanceled())
-                break;
-            const QString matchString = hasColonColon ? info->scopedSymbolName()
-                                                      : info->symbolName();
-            if ((hasWildcard && regexp.exactMatch(matchString))
-                || (!hasWildcard && matcher.indexIn(matchString) != -1)) {
+    m_data->filterAllFiles([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
+        if (future.isCanceled())
+            return IndexItem::Break;
+        if (info->type() & wanted) {
+            const QString matchString = hasColonColon ? info->scopedSymbolName() : info->symbolName();
+            if ((hasWildcard && regexp.exactMatch(matchString)) ||
+                    (!hasWildcard && matcher.indexIn(matchString) != -1)) {
                 const Core::LocatorFilterEntry filterEntry = filterEntryFromIndexItem(info);
                 if (matchString.startsWith(entry, caseSensitivityForPrefix))
                     betterEntries.append(filterEntry);
@@ -110,7 +101,12 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
                     goodEntries.append(filterEntry);
             }
         }
-    }
+
+        if (info->type() & IndexItem::Enum)
+            return IndexItem::Continue;
+        else
+            return IndexItem::Recurse;
+    });
 
     if (goodEntries.size() < 1000)
         qStableSort(goodEntries.begin(), goodEntries.end(), compareLexigraphically);

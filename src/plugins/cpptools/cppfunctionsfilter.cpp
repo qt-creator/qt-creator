@@ -45,11 +45,6 @@ CppFunctionsFilter::~CppFunctionsFilter()
 {
 }
 
-QList<QList<CppTools::IndexItem::Ptr> > CppFunctionsFilter::itemsToMatchUserInputAgainst() const
-{
-    return QList<QList<CppTools::IndexItem::Ptr> >() << m_data->functions();
-}
-
 Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
     const QVariant id = qVariantFromValue(info);

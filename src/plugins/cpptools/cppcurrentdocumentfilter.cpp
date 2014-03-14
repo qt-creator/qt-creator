@@ -78,10 +78,13 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
     if (m_itemsOfCurrentDoc.isEmpty()) {
         Snapshot snapshot = m_modelManager->snapshot();
         Document::Ptr thisDocument = snapshot.document(m_currentFileName);
-        if (thisDocument)
-            search(thisDocument)->visitAllChildren([&](const IndexItem::Ptr &info){
+        if (thisDocument) {
+            IndexItem::Ptr rootNode = search(thisDocument);
+            rootNode->visitAllChildren([&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
                 m_itemsOfCurrentDoc.append(info);
+                return IndexItem::Recurse;
             });
+        }
     }
 
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);

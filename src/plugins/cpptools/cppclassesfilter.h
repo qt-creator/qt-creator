@@ -34,19 +34,22 @@
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
 
+#include <utils/qtcoverride.h>
+
 namespace CppTools {
 
+// TODO: un-export this
 class CPPTOOLS_EXPORT CppClassesFilter : public Internal::CppLocatorFilter
 {
     Q_OBJECT
 
 public:
-    CppClassesFilter(Internal::CppLocatorData *locatorData);
-    ~CppClassesFilter();
+    CppClassesFilter(CppLocatorData *locatorData);
+    ~CppClassesFilter() QTC_OVERRIDE;
 
-private:
-    QList<QList<CppTools::IndexItem::Ptr> > itemsToMatchUserInputAgainst() const;
-    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info);
+protected:
+    IndexItem::ItemType matchTypes() const QTC_OVERRIDE { return IndexItem::Class; }
+    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) QTC_OVERRIDE;
 };
 
 } // namespace CppTools

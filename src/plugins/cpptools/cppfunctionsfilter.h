@@ -33,6 +33,8 @@
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
 
+#include <utils/qtcoverride.h>
+
 namespace CppTools {
 namespace Internal {
 
@@ -42,11 +44,11 @@ class CppFunctionsFilter : public CppLocatorFilter
 
 public:
     CppFunctionsFilter(CppLocatorData *locatorData);
-    ~CppFunctionsFilter();
+    ~CppFunctionsFilter() QTC_OVERRIDE;
 
-private:
-    QList<QList<IndexItem::Ptr> > itemsToMatchUserInputAgainst() const;
-    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info);
+protected:
+    IndexItem::ItemType matchTypes() const QTC_OVERRIDE { return IndexItem::Function; }
+    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info) QTC_OVERRIDE;
 };
 
 } // namespace Internal

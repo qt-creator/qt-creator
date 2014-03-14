@@ -44,12 +44,3 @@ void IndexItem::squeeze()
     for (int i = 0, ei = m_children.size(); i != ei; ++i)
         m_children[i]->squeeze();
 }
-
-void IndexItem::visitAllChildren(std::function<void (const IndexItem::Ptr &)> f) const
-{
-    foreach (const IndexItem::Ptr &child, m_children) {
-        f(child);
-        if (!child->m_children.isEmpty())
-            child->visitAllChildren(f);
-    }
-}

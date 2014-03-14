@@ -125,7 +125,7 @@ public:
                 break;
             if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->fileName())) {
                 QVector<Core::SearchResultItem> resultItems;
-                search(it.value())->visitAllChildren([&](const IndexItem::Ptr &info) {
+                auto filter = [&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
                     if (matcher.indexIn(info->symbolName()) != -1) {
                         QString text = info->symbolName();
                         QString scope = info->symbolScope();
@@ -148,7 +148,10 @@ public:
                         item.userData = qVariantFromValue(info);
                         resultItems << item;
                     }
-                });
+
+                    return IndexItem::Recurse;
+                };
+                search(it.value())->visitAllChildren(filter);
                 if (!resultItems.isEmpty())
                     future.reportResults(resultItems);
             }

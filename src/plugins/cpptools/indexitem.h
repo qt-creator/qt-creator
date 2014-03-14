@@ -38,6 +38,8 @@
 #include <QSharedPointer>
 #include <QMetaType>
 
+#include <functional>
+
 namespace CppTools {
 
 class CPPTOOLS_EXPORT IndexItem
@@ -45,7 +47,14 @@ class CPPTOOLS_EXPORT IndexItem
     Q_DISABLE_COPY(IndexItem)
 
 public:
-    enum ItemType { Enum, Class, Function, Declaration };
+    enum ItemType {
+        Enum        = 1 << 0,
+        Class       = 1 << 1,
+        Function    = 1 << 2,
+        Declaration = 1 << 3,
+
+        All = Enum | Class | Function | Declaration
+    };
 
 private:
     IndexItem(const QString &symbolName,
@@ -139,7 +148,34 @@ public:
     void addChild(IndexItem::Ptr childItem) { m_children.append(childItem); }
     void squeeze();
 
-    void visitAllChildren(std::function<void (const IndexItem::Ptr &)> f) const;
+    enum VisitorResult {
+        Break, /// terminates traversal
+        Continue, /// continues traversal with the next sibling
+        Recurse, /// continues traversal with the children
+    };
+
+    typedef std::function<VisitorResult (const IndexItem::Ptr &)> Visitor;
+
+    VisitorResult visitAllChildren(Visitor callback) const
+    {
+        VisitorResult result = Recurse;
+        foreach (const IndexItem::Ptr &child, m_children) {
+            result = callback(child);
+            switch (result) {
+            case Break:
+                return Break;
+            case Continue:
+                continue;
+            case Recurse:
+                if (!child->m_children.isEmpty()) {
+                    result = child->visitAllChildren(callback);
+                    if (result == Break)
+                        return Break;
+                }
+            }
+        }
+        return result;
+    }
 
 private:
     QString m_symbolName; // as found in the code, therefore might be qualified
