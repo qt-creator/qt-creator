@@ -174,8 +174,6 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_mainSplitter(0),
     m_toolBar(Core::EditorManager::createToolBar(this)),
     m_crumbleBar(new CrumbleBar(this)),
-    m_outputPanePlaceholder(0),
-    m_outputPlaceholderSplitter(0),
     m_isDisabled(false),
     m_showSidebars(true),
     m_initStatus(NotInitialized),
@@ -223,6 +221,8 @@ void DesignModeWidget::toggleSidebars()
         m_leftSideBar->setVisible(m_showSidebars);
     if (m_rightSideBar)
         m_rightSideBar->setVisible(m_showSidebars);
+    if (m_topSideBar)
+        m_topSideBar->setVisible(m_showSidebars);
 }
 
 void DesignModeWidget::readSettings()
@@ -524,50 +524,62 @@ static QWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos)
     return tabWidget;
 }
 
-QWidget *DesignModeWidget::createCenterWidget()
+static QWidget *createTopSideBarWidget(const QList<WidgetInfo> &widgetInfo)
 {
-    QWidget *centerWidget = new QWidget;
-
-    QVBoxLayout *rightLayout = new QVBoxLayout(centerWidget);
-    rightLayout->setMargin(0);
-    rightLayout->setSpacing(0);
-
-    rightLayout->addWidget(m_toolBar);
-    rightLayout->addWidget(createCrumbleBarFrame());
-
     //### we now own these here
     QList<WidgetInfo> topWidgetInfos;
-    foreach (const WidgetInfo &widgetInfo, viewManager().widgetInfos()) {
+    foreach (const WidgetInfo &widgetInfo, widgetInfo) {
         if (widgetInfo.placementHint == widgetInfo.TopPane)
             topWidgetInfos.append(widgetInfo);
     }
 
     if (topWidgetInfos.count() == 1)
-        rightLayout->addWidget(topWidgetInfos.first().widget);
+        return topWidgetInfos.first().widget;
     else
-        rightLayout->addWidget(createWidgetsInTabWidget(topWidgetInfos));
+        return createWidgetsInTabWidget(topWidgetInfos);
+}
 
+static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widgetInfo)
+{
     QList<WidgetInfo> centralWidgetInfos;
-    foreach (const WidgetInfo &widgetInfo, viewManager().widgetInfos()) {
+    foreach (const WidgetInfo &widgetInfo, widgetInfo) {
         if (widgetInfo.placementHint == widgetInfo.CentralPane)
             centralWidgetInfos.append(widgetInfo);
     }
 
     // editor and output panes
-    m_outputPlaceholderSplitter = new Core::MiniSplitter;
-    m_outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::DesignMode::instance(), m_outputPlaceholderSplitter);
+    Core::MiniSplitter *outputPlaceholderSplitter = new Core::MiniSplitter;
+    outputPlaceholderSplitter->setStretchFactor(0, 10);
+    outputPlaceholderSplitter->setStretchFactor(1, 0);
+    outputPlaceholderSplitter->setOrientation(Qt::Vertical);
+
+    StyledOutputpanePlaceHolder *outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::DesignMode::instance(), outputPlaceholderSplitter);
 
     if (centralWidgetInfos.count() == 1)
-        m_outputPlaceholderSplitter->addWidget(centralWidgetInfos.first().widget);
+        outputPlaceholderSplitter->addWidget(centralWidgetInfos.first().widget);
     else
-         m_outputPlaceholderSplitter->addWidget(createWidgetsInTabWidget(centralWidgetInfos));
+         outputPlaceholderSplitter->addWidget(createWidgetsInTabWidget(centralWidgetInfos));
 
-    m_outputPlaceholderSplitter->addWidget(m_outputPanePlaceholder);
-    m_outputPlaceholderSplitter->setStretchFactor(0, 10);
-    m_outputPlaceholderSplitter->setStretchFactor(1, 0);
-    m_outputPlaceholderSplitter->setOrientation(Qt::Vertical);
+    outputPlaceholderSplitter->addWidget(outputPanePlaceholder);
 
-    rightLayout->addWidget(m_outputPlaceholderSplitter);
+    return outputPlaceholderSplitter;
+}
+
+QWidget *DesignModeWidget::createCenterWidget()
+{
+    QWidget *centerWidget = new QWidget;
+
+    QVBoxLayout *horizontalLayout = new QVBoxLayout(centerWidget);
+    horizontalLayout->setMargin(0);
+    horizontalLayout->setSpacing(0);
+
+    horizontalLayout->addWidget(m_toolBar);
+    horizontalLayout->addWidget(createCrumbleBarFrame());
+
+    m_topSideBar = createTopSideBarWidget(viewManager().widgetInfos());
+    horizontalLayout->addWidget(m_topSideBar.data());
+
+    horizontalLayout->addWidget(createCentralSplitter(viewManager().widgetInfos()));
 
     return centerWidget;
 }
