@@ -32,6 +32,7 @@
 
 #include <cplusplus/CppDocument.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <utils/hostosinfo.h>
 #include <utils/runextensions.h>
 
 #include <QCoreApplication>
@@ -84,6 +85,17 @@ CreateMarkers::CreateMarkers(SemanticMarker::Ptr semanticMarker,
 CreateMarkers::~CreateMarkers()
 { }
 
+static QString commandLine(const QStringList &options, const QString &fileName)
+{
+    const QStringList allOptions = QStringList(options)
+        << QLatin1String("-fsyntax-only") << fileName;
+    QStringList allOptionsQuoted;
+    foreach (const QString &option, allOptions)
+        allOptionsQuoted.append(QLatin1Char('\'') + option + QLatin1Char('\''));
+    return ::Utils::HostOsInfo::withExecutableSuffix(QLatin1String("clang"))
+        + QLatin1Char(' ') + allOptionsQuoted.join(QLatin1String(" "));
+}
+
 void CreateMarkers::run()
 {
     QMutexLocker lock(m_marker->mutex());
@@ -95,7 +107,8 @@ void CreateMarkers::run()
     QTime t;
     if (DebugTiming) {
         qDebug() << "*** Highlighting from" << m_firstLine << "to" << m_lastLine << "of" << m_fileName;
-        qDebug() << "***** Options: " << m_options.join(QLatin1String(" "));
+        qDebug("***** Options (cmd line equivalent): %s",
+               commandLine(m_options, m_fileName).toUtf8().constData());
         t.start();
     }
 
