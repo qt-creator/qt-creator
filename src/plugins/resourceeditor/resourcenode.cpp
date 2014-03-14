@@ -219,8 +219,6 @@ bool ResourceTopLevelNode::addPrefix(const QString &prefix, const QString &lang)
     file.save();
     Core::DocumentManager::unexpectFileChange(path());
 
-    update();
-
     return true;
 }
 
@@ -236,8 +234,6 @@ bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &la
             Core::DocumentManager::expectFileChange(path());
             file.save();
             Core::DocumentManager::unexpectFileChange(path());
-
-            update();
             return true;
         }
     }
