@@ -401,6 +401,25 @@ static QString generatePuppetCompilingHelp(const QString &puppetName, const QStr
     return puppetCompileHelp;
 }
 
+static void formatQmlPuppetCompilationMessage(const QString &puppetName,
+                                              const QString &sharedDirPath,
+                                              const QString &pathToQt,
+                                              QTextStream &messageStream)
+{
+    const QString sourcePath = sharedDirPath + QStringLiteral("/qml/qmlpuppet/") + puppetName + QLatin1Char('/');
+    messageStream << "<p>"
+        //: %1 Puppet binary name ("qmlpuppet", "qml2puppet"), %2 source path.
+        << NodeInstanceServerProxy::tr("You can build <code>%1</code> yourself with Qt 5.2.0 or higher. "
+                                       "The source can be found in <code>%2</code>.")
+                                    .arg(puppetName, QDir::toNativeSeparators(sourcePath))
+        << "</p><p>"
+        << NodeInstanceServerProxy::tr("<code>%1</code> will be installed to the <code>bin</code> directory of your Qt version. "
+                                       "Qt Quick Designer will check the <code>bin</code> directory of the currently active Qt version "
+                                       "of your project.").arg(puppetName)
+        << "</p>"
+        << generatePuppetCompilingHelp(puppetName, pathToQt);
+}
+
 QString NodeInstanceServerProxy::missingQmlPuppetErrorMessage(const QString &pathToQt, const QString &preMessage) const
 {
     QString message;
@@ -408,29 +427,10 @@ QString NodeInstanceServerProxy::missingQmlPuppetErrorMessage(const QString &pat
     messageStream << "<html><head/><body><p>"
         << preMessage
         << "</p>";
-    if (hasQtQuick2(m_nodeInstanceView.data())) {
-        messageStream << "<p>"
-            << tr("You can build <code>qml2puppet</code> yourself with Qt 5.2.0 or higher. "
-                 "The source can be found in <code>%1</code>.").
-               arg(QDir::toNativeSeparators(sharedDirPath() + QLatin1String("/qml/qmlpuppet/qml2puppet/")))
-            << "</p><p>"
-            << tr("<code>qml2puppet</code> will be installed to the <code>bin</code> directory of your Qt version. "
-                  "Qt Quick Designer will check the <code>bin</code> directory of the currently active Qt version "
-                  "of your project.")
-            << "</p>"
-            << generatePuppetCompilingHelp(QStringLiteral("qml2puppet"), pathToQt);
-    } else if (hasQtQuick1(m_nodeInstanceView.data())) {
-        messageStream << "<p>"
-            << tr("You can build <code>qml2puppet</code> yourself with Qt 5.2.0 or higher. "
-                 "The source can be found in <code>%1</code>.").
-               arg(QDir::toNativeSeparators(sharedDirPath() + QLatin1String("/qml/qmlpuppet/qmlpuppet/")))
-            << "</p><p>"
-            << tr("<code>qmlpuppet</code> will be installed to the <code>bin</code> directory of your Qt version. "
-                  "Qt Quick Designer will check the <code>bin</code> directory of the currently active Qt version "
-                  "of your project.")
-            << "</p>"
-            << generatePuppetCompilingHelp(QStringLiteral("qmlpuppet"), pathToQt);
-    }
+    if (hasQtQuick2(m_nodeInstanceView.data()))
+        formatQmlPuppetCompilationMessage(QStringLiteral("qml2puppet"), sharedDirPath(), pathToQt, messageStream);
+    else if (hasQtQuick1(m_nodeInstanceView.data()))
+        formatQmlPuppetCompilationMessage(QStringLiteral("qmlpuppet"), sharedDirPath(), pathToQt, messageStream);
     messageStream << "</p></body></html>";
     return message;
 }
