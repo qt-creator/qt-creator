@@ -1513,6 +1513,20 @@ void CppToolsPlugin::test_completion_data()
         ) << _("nestedOfNestedAnonymousClass.") << (QStringList()
             << QLatin1String("memberOfNestedOfNestedAnonymousClass"));
 
+    QTest::newRow("nested_anonymous_class_inside_function") << _(
+            "void fun()\n"
+            "{\n"
+            "   union\n"
+            "   {\n"
+            "       int foo1;\n"
+            "       int foo2;\n"
+            "   };\n"
+            "   @\n"
+            "};\n"
+        ) << _("foo") << (QStringList()
+            << QLatin1String("foo1")
+            << QLatin1String("foo2"));
+
     QTest::newRow("crash_cloning_template_class_QTCREATORBUG9329") << _(
             "struct A {};\n"
             "template <typename T>\n"

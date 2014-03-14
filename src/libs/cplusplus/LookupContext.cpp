@@ -1630,7 +1630,8 @@ bool CreateBindings::visit(Block *block)
     // nested ClassOrNamespaces)
     if (! _currentClassOrNamespace->_blocks.empty()
             || ! _currentClassOrNamespace->_classOrNamespaces.empty()
-            || ! _currentClassOrNamespace->_enums.empty()) {
+            || ! _currentClassOrNamespace->_enums.empty()
+            || ! _currentClassOrNamespace->_anonymouses.empty()) {
         previous->_blocks[block] = binding;
         _entities.append(binding);
     } else {

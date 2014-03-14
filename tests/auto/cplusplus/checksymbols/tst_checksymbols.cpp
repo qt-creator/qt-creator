@@ -193,6 +193,7 @@ private slots:
     void test_checksymbols_QTCREATORBUG9098();
     void test_checksymbols_AnonymousClass();
     void test_checksymbols_AnonymousClass_insideNamespace();
+    void test_checksymbols_AnonymousClass_insideFunction();
     void test_checksymbols_AnonymousClass_QTCREATORBUG8963();
     void test_checksymbols_class_declaration_with_object_name_nested_in_function();
     void test_checksymbols_highlightingTypeWhenUsingNamespaceClass_QTCREATORBUG7903_globalNamespace();
@@ -1543,6 +1544,27 @@ void tst_CheckSymbols::test_checksymbols_AnonymousClass_insideNamespace()
             << Use(16, 19, 4, CppHighlightingSupport::FieldUse)
             << Use(18, 8, 4, CppHighlightingSupport::FunctionUse)
             << Use(20, 10, 4, CppHighlightingSupport::FieldUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_AnonymousClass_insideFunction()
+{
+    const QByteArray source =
+            "int foo()\n"
+            "{\n"
+            "    union\n"
+            "    {\n"
+            "        int foo1;\n"
+            "        int foo2;\n"
+            "    };\n"
+            "}\n"
+            ;
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 5, 3, CppHighlightingSupport::FunctionUse)
+            << Use(5, 13, 4, CppHighlightingSupport::FieldUse)
+            << Use(6, 13, 4, CppHighlightingSupport::FieldUse)
             ;
 
     TestData::check(source, expectedUses);
