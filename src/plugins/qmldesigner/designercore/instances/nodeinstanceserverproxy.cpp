@@ -280,7 +280,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
                                     missingQmlPuppetErrorMessage(pathToQt,
                                                                  tr("The executable of the QML Puppet process (%1) cannot be started. "
                                                                     "Please check your installation. "
-                                                                    "QML Puppet is a process which runs in the background to render the items.\n\n"
+                                                                    "QML Puppet is a process which runs in the background to render the items."
                                                                     ).arg(applicationPath)));
 
                QmlDesignerPlugin::instance()->switchToTextModeDeferred();
@@ -292,7 +292,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            QMessageBox::warning(Core::ICore::dialogParent(),
                                 tr("Wrong QML Puppet Executable Version"),
                                 missingQmlPuppetErrorMessage(pathToQt,
-                                                             tr("The QML Puppet version is incompatible with the Qt Creator version.\n\n")));
+                                                             tr("The QML Puppet version is incompatible with the Qt Creator version.")));
            QmlDesignerPlugin::instance()->switchToTextModeDeferred();
        }
    } else {
