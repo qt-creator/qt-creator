@@ -21,7 +21,6 @@ macro.QD                = "Qt Designer"
 macro.QL                = "Qt Linguist"
 macro.QMLD              = "Qt Quick Designer"
 macro.QQV               = "Qt QML Viewer"
-macro.QS                = "Qt Simulator"
 macro.QSDK              = "Qt"
 macro.qtcversion        = $QTC_VERSION
 macro.param             = "\\e"
