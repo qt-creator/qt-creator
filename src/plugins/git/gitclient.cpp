@@ -3027,6 +3027,16 @@ QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
     return settings()->gitBinaryPath(ok, errorMessage);
 }
 
+QString GitClient::commitEncoding(const QString &workingDirectory)
+{
+    QString encoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"));
+    if (!encoding.isEmpty())
+        return encoding;
+    // Set default commit encoding to 'UTF-8', when it's not set,
+    // to solve displaying error of commit log with non-latin characters.
+    return QLatin1String("UTF-8");
+}
+
 bool GitClient::getCommitData(const QString &workingDirectory,
                               QString *commitTemplate,
                               CommitData &commitData,
@@ -3106,12 +3116,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         }
     }
 
-    commitData.commitEncoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"));
-
-   // Set default commit encoding to 'UTF-8', when it's not set,
-   // to solve displaying error of commit log with non-latin characters.
-    if (commitData.commitEncoding.isEmpty())
-        commitData.commitEncoding = QLatin1String("UTF-8");
+    commitData.commitEncoding = commitEncoding(workingDirectory);
 
     // Get the commit template or the last commit message
     switch (commitData.commitType) {
