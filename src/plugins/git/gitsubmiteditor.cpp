@@ -153,7 +153,9 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
             unmergedFiles.push_back(fileName);
         else if (state & StagedFile)
             stagedFiles.push_back(fileName);
-        else if (state != UntrackedFile)
+        else if (state == UntrackedFile)
+            Core::EditorManager::openEditor(m_workingDirectory + QLatin1Char('/') + fileName);
+        else
             unstagedFiles.push_back(fileName);
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())
