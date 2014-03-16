@@ -46,6 +46,7 @@
 #include <QRegExp>
 #include <QSet>
 #include <QTemporaryFile>
+#include <QTextCodec>
 #include <QDir>
 
 #include <QTextCursor>
@@ -325,14 +326,16 @@ void GitEditor::addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk)
 
 bool GitEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    bool res = VcsBaseEditorWidget::open(errorString, fileName, realFileName);
     Core::Id editorId = editor()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
         QFileInfo fi(fileName);
-        setSource(fi.absolutePath());
+        const QString gitPath = fi.absolutePath();
+        setSource(gitPath);
+        const QString commitEncoding = GitPlugin::instance()->gitClient()->commitEncoding(gitPath);
+        baseTextDocument()->setCodec(QTextCodec::codecForName(commitEncoding.toLocal8Bit()));
     }
-    return res;
+    return VcsBaseEditorWidget::open(errorString, fileName, realFileName);
 }
 
 QString GitEditor::decorateVersion(const QString &revision) const
