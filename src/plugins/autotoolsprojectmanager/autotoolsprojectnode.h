@@ -57,7 +57,7 @@ class AutotoolsProjectNode : public ProjectExplorer::ProjectNode
 public:
     AutotoolsProjectNode(AutotoolsProject *project, Core::IDocument *projectFile);
 
-    bool hasBuildTargets() const;
+    bool showInSimpleTree() const;
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
     bool canAddSubProject(const QString &proFilePath) const;
     bool addSubProjects(const QStringList &proFilePaths);

@@ -175,11 +175,11 @@ FlatModel::FlatModel(SessionNode *rootNode, QObject *parent)
     NodesWatcher *watcher = new NodesWatcher(this);
     m_rootNode->registerWatcher(watcher);
 
-    connect(watcher, SIGNAL(aboutToChangeHasBuildTargets(ProjectExplorer::ProjectNode*)),
-            this, SLOT(aboutToHasBuildTargetsChanged(ProjectExplorer::ProjectNode*)));
+    connect(watcher, SIGNAL(aboutToChangeShowInSimpleTree(ProjectExplorer::FolderNode*)),
+            this, SLOT(aboutToShowInSimpleTreeChanged(ProjectExplorer::FolderNode*)));
 
-    connect(watcher, SIGNAL(hasBuildTargetsChanged(ProjectExplorer::ProjectNode*)),
-            this, SLOT(hasBuildTargetsChanged(ProjectExplorer::ProjectNode*)));
+    connect(watcher, SIGNAL(showInSimpleTreeChanged(ProjectExplorer::FolderNode*)),
+            this, SLOT(showInSimpleTreeChanged(ProjectExplorer::FolderNode*)));
 
     connect(watcher, SIGNAL(foldersAboutToBeAdded(FolderNode*,QList<FolderNode*>)),
             this, SLOT(foldersAboutToBeAdded(FolderNode*,QList<FolderNode*>)));
@@ -566,14 +566,9 @@ FolderNode *FlatModel::visibleFolderNode(FolderNode *node) const
 bool FlatModel::filter(Node *node) const
 {
     bool isHidden = false;
-    if (node->nodeType() == SessionNodeType) {
-        isHidden = false;
-    } else if (ProjectNode *projectNode = qobject_cast<ProjectNode*>(node)) {
-        if (m_filterProjects && projectNode->parentFolderNode() != m_rootNode)
-            isHidden = !projectNode->hasBuildTargets();
-    } else if (node->nodeType() == FolderNodeType || node->nodeType() == VirtualFolderNodeType) {
+    if (FolderNode *folderNode = qobject_cast<FolderNode*>(node)) {
         if (m_filterProjects)
-            isHidden = true;
+            isHidden = !folderNode->showInSimpleTree();
     } else if (FileNode *fileNode = qobject_cast<FileNode*>(node)) {
         if (m_filterGeneratedFiles)
             isHidden = fileNode->isGenerated();
@@ -762,7 +757,7 @@ void FlatModel::removed(FolderNode* parentNode, const QList<Node*> &newNodeList)
     }
 }
 
-void FlatModel::aboutToHasBuildTargetsChanged(ProjectExplorer::ProjectNode* node)
+void FlatModel::aboutToShowInSimpleTreeChanged(ProjectExplorer::FolderNode* node)
 {
     if (!m_filterProjects)
         return;
@@ -777,7 +772,7 @@ void FlatModel::aboutToHasBuildTargetsChanged(ProjectExplorer::ProjectNode* node
             m_childNodes.remove(fn);
 }
 
-void FlatModel::hasBuildTargetsChanged(ProjectExplorer::ProjectNode *node)
+void FlatModel::showInSimpleTreeChanged(ProjectExplorer::FolderNode *node)
 {
     if (!m_filterProjects)
         return;

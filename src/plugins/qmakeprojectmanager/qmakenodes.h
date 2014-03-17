@@ -147,7 +147,7 @@ public:
 // ProjectNode interface
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
 
-    bool hasBuildTargets() const { return false; }
+    bool showInSimpleTree() const { return false; }
 
     bool canAddSubProject(const QString &proFilePath) const;
 
@@ -366,7 +366,7 @@ public:
 
     bool isParent(QmakeProFileNode *node);
 
-    bool hasBuildTargets() const;
+    bool showInSimpleTree() const;
 
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
 
@@ -404,7 +404,7 @@ public:
     bool validParse() const;
     bool parseInProgress() const;
 
-    bool hasBuildTargets(QmakeProjectType projectType) const;
+    bool showInSimpleTree(QmakeProjectType projectType) const;
     bool isDebugAndRelease() const;
 
     void setParseInProgress(bool b);

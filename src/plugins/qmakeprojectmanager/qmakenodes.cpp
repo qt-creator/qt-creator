@@ -1567,9 +1567,9 @@ bool QmakeProFileNode::isParent(QmakeProFileNode *node)
     return false;
 }
 
-bool QmakeProFileNode::hasBuildTargets() const
+bool QmakeProFileNode::showInSimpleTree() const
 {
-    return hasBuildTargets(projectType());
+    return showInSimpleTree(projectType()) || m_project->rootProjectNode() == this;
 }
 
 ProjectExplorer::FolderNode::AddNewInformation QmakeProFileNode::addNewInformation(const QStringList &files, Node *context) const
@@ -1578,7 +1578,7 @@ ProjectExplorer::FolderNode::AddNewInformation QmakeProFileNode::addNewInformati
     return AddNewInformation(QFileInfo(path()).fileName(), context == this ? 120 : 100);
 }
 
-bool QmakeProFileNode::hasBuildTargets(QmakeProjectType projectType) const
+bool QmakeProFileNode::showInSimpleTree(QmakeProjectType projectType) const
 {
     return (projectType == ApplicationTemplate || projectType == LibraryTemplate);
 }
@@ -1788,15 +1788,15 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         removeProjectNodes(subProjectNodes());
         removeFolderNodes(subFolderNodes());
 
-        bool changesHasBuildTargets = hasBuildTargets() ^ hasBuildTargets(projectType);
+        bool changesShowInSimpleTree = showInSimpleTree() ^ showInSimpleTree(projectType);
 
-        if (changesHasBuildTargets)
-            aboutToChangeHasBuildTargets();
+        if (changesShowInSimpleTree)
+            aboutToChangeShowInSimpleTree();
 
         m_projectType = projectType;
 
-        if (changesHasBuildTargets)
-            hasBuildTargetsChanged();
+        if (changesShowInSimpleTree)
+            showInSimpleTreeChanged();
 
         // really emit here? or at the end? Nobody is connected to this signal at the moment
         // so we kind of can ignore that question for now

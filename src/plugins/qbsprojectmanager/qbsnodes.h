@@ -74,7 +74,7 @@ class QbsBaseProjectNode : public ProjectExplorer::ProjectNode
 public:
     explicit QbsBaseProjectNode(const QString &path);
 
-    bool hasBuildTargets() const;
+    bool showInSimpleTree() const;
 
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
 
@@ -138,7 +138,7 @@ public:
     explicit QbsProductNode(const qbs::ProductData &prd);
 
     bool isEnabled() const;
-    bool hasBuildTargets() const;
+    bool showInSimpleTree() const;
 
     void setQbsProductData(const qbs::ProductData prd);
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }

@@ -191,11 +191,18 @@ public:
 
     virtual AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
 
+
+    // determines if node will be shown in the flat view, by default folder and projects aren't shown
+    void aboutToChangeShowInSimpleTree();
+    void showInSimpleTreeChanged();
+    virtual bool showInSimpleTree() const;
+
     void addFileNodes(const QList<FileNode*> &files);
     void removeFileNodes(const QList<FileNode*> &files);
 
     void addFolderNodes(const QList<FolderNode*> &subFolders);
     void removeFolderNodes(const QList<FolderNode*> &subFolders);
+
 
 protected:
     QList<FolderNode*> m_subFolderNodes;
@@ -230,12 +237,6 @@ public:
 
     // all subFolders that are projects
     QList<ProjectNode*> subProjectNodes() const;
-
-    // determines if the project will be shown in the flat view
-    // TODO find a better name
-    void aboutToChangeHasBuildTargets();
-    void hasBuildTargetsChanged();
-    virtual bool hasBuildTargets() const = 0;
 
     virtual bool canAddSubProject(const QString &proFilePath) const = 0;
 
@@ -323,8 +324,8 @@ signals:
     void nodeUpdated(ProjectExplorer::Node *node);
 
     // projects
-    void aboutToChangeHasBuildTargets(ProjectExplorer::ProjectNode*);
-    void hasBuildTargetsChanged(ProjectExplorer::ProjectNode *node);
+    void aboutToChangeShowInSimpleTree(ProjectExplorer::FolderNode*);
+    void showInSimpleTreeChanged(ProjectExplorer::FolderNode *node);
 
     // folders & projects
     void foldersAboutToBeAdded(FolderNode *parentFolder,

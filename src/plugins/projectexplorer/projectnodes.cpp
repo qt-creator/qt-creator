@@ -509,6 +509,23 @@ void FolderNode::removeFolderNodes(const QList<FolderNode*> &subFolders)
         emit watcher->foldersRemoved();
 }
 
+void FolderNode::aboutToChangeShowInSimpleTree()
+{
+    foreach (NodesWatcher *watcher, projectNode()->watchers())
+        emit watcher->aboutToChangeShowInSimpleTree(this);
+}
+
+void FolderNode::showInSimpleTreeChanged()
+{
+    foreach (NodesWatcher *watcher, projectNode()->watchers())
+        emit watcher->showInSimpleTreeChanged(this);
+}
+
+bool FolderNode::showInSimpleTree() const
+{
+    return false;
+}
+
 /*!
   \class ProjectExplorer::VirtualFolderNode
 
@@ -570,18 +587,6 @@ QString ProjectNode::vcsTopic() const
 QList<ProjectNode*> ProjectNode::subProjectNodes() const
 {
     return m_subProjectNodes;
-}
-
-void ProjectNode::aboutToChangeHasBuildTargets()
-{
-    foreach (NodesWatcher *watcher, watchers())
-        emit watcher->aboutToChangeHasBuildTargets(this);
-}
-
-void ProjectNode::hasBuildTargetsChanged()
-{
-    foreach (NodesWatcher *watcher, watchers())
-        emit watcher->hasBuildTargetsChanged(this);
 }
 
 /*!
@@ -788,6 +793,11 @@ void SessionNode::accept(NodesVisitor *visitor)
     visitor->visitSessionNode(this);
     foreach (ProjectNode *project, m_projectNodes)
         project->accept(visitor);
+}
+
+bool SessionNode::showInSimpleTree() const
+{
+    return true;
 }
 
 QList<ProjectNode*> SessionNode::projectNodes() const

@@ -257,6 +257,11 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
     return AddNewInformation(name, p);
 }
 
+bool ResourceTopLevelNode::showInSimpleTree() const
+{
+    return true;
+}
+
 ResourceFolderNode::ResourceFolderNode(const QString &prefix, const QString &lang, ResourceTopLevelNode *parent)
     : ProjectExplorer::FolderNode(parent->path() + QLatin1Char('/') + prefix),
       // TOOD Why add existing directory doesn't work

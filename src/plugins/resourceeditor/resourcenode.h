@@ -60,6 +60,7 @@ public:
     bool removePrefix(const QString &prefix, const QString &lang);
 
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
+    bool showInSimpleTree() const;
 
 private:
     Internal::ResourceFileWatcher *m_document;

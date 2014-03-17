@@ -164,7 +164,7 @@ ProjectExplorer::FolderNode *QmlProjectNode::findOrCreateFolderByName(const QStr
     return findOrCreateFolderByName(components, components.length());
 }
 
-bool QmlProjectNode::hasBuildTargets() const
+bool QmlProjectNode::showInSimpleTree() const
 {
     return true;
 }

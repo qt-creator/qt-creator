@@ -51,7 +51,7 @@ public:
     Core::IDocument *projectFile() const;
     QString projectFilePath() const;
 
-    bool hasBuildTargets() const;
+    bool showInSimpleTree() const;
 
     QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
 
