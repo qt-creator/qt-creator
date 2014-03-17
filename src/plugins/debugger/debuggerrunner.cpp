@@ -193,26 +193,28 @@ void DebuggerRunControl::start()
     }
 
     if (d->m_engine->startParameters().startMode == StartInternal) {
+        QStringList unhandledIds;
         foreach (const BreakpointModelId &id, debuggerCore()->breakHandler()->allBreakpointIds()) {
             if (d->m_engine->breakHandler()->breakpointData(id).enabled
-                    && !d->m_engine->acceptsBreakpoint(id)) {
+                    && !d->m_engine->acceptsBreakpoint(id))
+                unhandledIds.append(id.toString());
+        }
+        if (!unhandledIds.isEmpty()) {
+            QString warningMessage =
+                    DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger "
+                                       "languages currently active, and will be ignored.\n"
+                                       "Affected are breakpoints %1")
+                    .arg(unhandledIds.join(QLatin1String(", ")));
 
-                QString warningMessage =
-                        DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger "
-                                           "languages currently active, and will be ignored.");
+            debuggerCore()->showMessage(warningMessage, LogWarning);
 
-                debuggerCore()->showMessage(warningMessage, LogWarning);
-
-                static bool checked = true;
-                if (!checked)
-                    break;
+            static bool checked = true;
+            if (checked)
                 CheckableMessageBox::information(Core::ICore::mainWindow(),
                                                  tr("Debugger"),
                                                  warningMessage,
                                                  tr("&Show this message again."),
                                                  &checked, QDialogButtonBox::Ok);
-                break;
-            }
         }
     }
 
