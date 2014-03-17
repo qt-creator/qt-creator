@@ -2687,6 +2687,8 @@ void ProjectExplorerPlugin::updateContextMenuActions()
 
     d->m_addExistingFilesAction->setVisible(true);
     d->m_addExistingDirectoryAction->setVisible(true);
+    d->m_addNewFileAction->setVisible(true);
+    d->m_addNewSubprojectAction->setVisible(true);
     d->m_removeFileAction->setVisible(true);
     d->m_deleteFileAction->setVisible(true);
     d->m_runActionContextMenu->setVisible(false);
@@ -2750,6 +2752,18 @@ void ProjectExplorerPlugin::updateContextMenuActions()
             d->m_openTerminalHere->setVisible(false);
             d->m_showInGraphicalShell->setVisible(false);
             d->m_searchOnFileSystem->setVisible(false);
+        }
+
+        if (actions.contains(ProjectExplorer::HideFileActions)) {
+            d->m_deleteFileAction->setVisible(false);
+            d->m_removeFileAction->setVisible(false);
+        }
+
+        if (actions.contains(ProjectExplorer::HideFolderActions)) {
+            d->m_addNewFileAction->setVisible(false);
+            d->m_addNewSubprojectAction->setVisible(false);
+            d->m_addExistingFilesAction->setVisible(false);
+            d->m_addExistingDirectoryAction->setVisible(false);
         }
     }
 }

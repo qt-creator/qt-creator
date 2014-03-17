@@ -89,6 +89,8 @@ enum ProjectAction {
     Rename,
     // hides actions that use the path(): Open containing folder, open terminal here and Find in Directory
     HidePathActions,
+    HideFileActions,
+    HideFolderActions,
     HasSubProjectRunConfigurations
 };
 
