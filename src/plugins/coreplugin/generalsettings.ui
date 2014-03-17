@@ -110,7 +110,7 @@
       <item row="3" column="0">
        <widget class="QPushButton" name="resetWarningsButton">
         <property name="toolTip">
-         <string>Re-enable warnings that were suppressed by selecting &quot;Don't show again&quot; (for example, missing highlighter).</string>
+         <string>Re-enable warnings that were suppressed by selecting &quot;Do Not Show Again&quot; (for example, missing highlighter).</string>
         </property>
         <property name="text">
          <string comment="Button text">Reset Warnings</string>
