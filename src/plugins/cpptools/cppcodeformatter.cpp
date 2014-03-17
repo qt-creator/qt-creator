@@ -169,6 +169,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case T_LESS:        enter(template_param); break;
             case T_GREATER:     leave(); break;
+            case T_GREATER_GREATER: leave(); leave(); break; // call leave twice to pop both template_param states
             } break;
 
         case operator_declaration:

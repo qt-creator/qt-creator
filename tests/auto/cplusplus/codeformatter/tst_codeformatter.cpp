@@ -1177,6 +1177,8 @@ void tst_CodeFormatter::templates()
          << Line("~           class F, class D>,")
          << Line("~       typename F>")
          << Line("class Foo { };")
+         << Line("template <class A = std::vector<int>>")
+         << Line("")
          ;
     checkIndent(data);
 }
