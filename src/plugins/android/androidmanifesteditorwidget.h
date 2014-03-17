@@ -39,6 +39,7 @@
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QDomDocument;
 class QDomElement;
 class QComboBox;
@@ -122,6 +123,7 @@ private slots:
     void setLDPIIcon();
     void setMDPIIcon();
     void setHDPIIcon();
+    void defaultPermissionCheckBoxClicked();
     void addPermission();
     void removePermission();
     void updateAddRemovePermissionButtons();
@@ -154,6 +156,7 @@ private:
     bool parseMetaData(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseUsesSdk(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     QString parseUsesPermission(QXmlStreamReader &reader, QXmlStreamWriter &writer, const QSet<QString> permissions);
+    QString parseComment(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer);
 
     bool m_dirty; // indicates that we need to call syncToEditor()
@@ -182,6 +185,7 @@ private:
     QString m_hIconPath;
 
     // Permissions
+    QCheckBox *m_defaultPermissonsCheckBox;
     PermissionsModel *m_permissionsModel;
     QListView *m_permissionsListView;
     QPushButton *m_addPermissionButton;
