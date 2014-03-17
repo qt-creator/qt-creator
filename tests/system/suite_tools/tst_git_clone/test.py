@@ -33,20 +33,22 @@ cloneUrl = "https://codereview.qt-project.org/p/qt-labs/jom"
 cloneDir = "myCloneOfJom"
 
 def verifyCloneLog(targetDir, canceled):
-    # Expect fails because of QTCREATORBUG-10531
-    cloneLog = waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit")
     finish = findObject(":Git Repository Clone.Finish_QPushButton")
     waitFor("canceled or finish.enabled", 30000)
     if canceled:
         summary = "Failed."
     else:
-        test.verify(not "Stopping..." in str(cloneLog.plainText),
+        cloneLog = str(waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit").plainText)
+        # test for QTCREATORBUG-10112
+        test.xcompare(cloneLog.count("remote: Counting objects:"), 1)
+        test.xcompare(cloneLog.count("remote: Finding sources:"), 1)
+        test.xcompare(cloneLog.count("Receiving objects:"), 1)
+        test.xcompare(cloneLog.count("Resolving deltas:"), 1)
+        test.verify(not "Stopping..." in cloneLog,
                     "Searching for 'Stopping...' in clone log")
-        test.verify(("'" + cloneDir + "'..." in str(cloneLog.plainText)),
+        test.verify(("'" + cloneDir + "'..." in cloneLog),
                     "Searching for clone directory in clone log")
         summary = "Succeeded."
-    # cloneLog.plainText holds escape as character which makes QDom fail while printing the result
-    # removing these for letting Jenkins continue execute the test suite
     resultLabel = findObject(":Git Repository Clone.Result._QLabel")
     test.verify(waitFor('str(resultLabel.text) == summary', 3000),
                 "Verifying expected result (%s)" % summary)
