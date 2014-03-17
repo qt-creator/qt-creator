@@ -64,7 +64,8 @@ struct CPPTOOLS_EXPORT Utils
 class CPPTOOLS_EXPORT Dumper
 {
 public:
-    explicit Dumper(const CPlusPlus::Snapshot &globalSnapshot);
+    explicit Dumper(const CPlusPlus::Snapshot &globalSnapshot,
+                    const QString &logFileId = QString());
     ~Dumper();
 
     void dumpProjectInfos(const QList<CppTools::CppModelManagerInterface::ProjectInfo> &projectInfos);

@@ -421,11 +421,25 @@ QList<CPlusPlus::Document::Ptr> Utils::snapshotToList(const CPlusPlus::Snapshot 
     return documents;
 }
 
-Dumper::Dumper(const CPlusPlus::Snapshot &globalSnapshot)
+Dumper::Dumper(const CPlusPlus::Snapshot &globalSnapshot, const QString &logFileId)
     : m_globalSnapshot(globalSnapshot), m_out(stderr)
 {
-    const QString logFileName = QDir::tempPath()
-        + QString::fromLatin1("/qtc-codemodelinspection.txt");
+    QString ideRevision;
+#ifdef IDE_REVISION
+     ideRevision = QString::fromLatin1(Core::Constants::IDE_REVISION_STR).left(10);
+#endif
+    QString ideRevision_ = ideRevision;
+    if (!ideRevision_.isEmpty())
+        ideRevision_.prepend(QLatin1Char('_'));
+    QString logFileId_ = logFileId;
+    if (!logFileId_.isEmpty())
+        logFileId_.prepend(QLatin1Char('_'));
+    const QString logFileName = QDir::tempPath() + QString::fromLatin1("/qtc-codemodelinspection")
+            + ideRevision_
+            + QDateTime::currentDateTime().toString(QLatin1String("_yyMMdd_hhmmss"))
+            + logFileId_
+            + QLatin1String(".txt");
+
     m_logFile.setFileName(logFileName);
     if (m_logFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         m_out << "Code model inspection log file is \"" << QDir::toNativeSeparators(logFileName)
@@ -433,12 +447,7 @@ Dumper::Dumper(const CPlusPlus::Snapshot &globalSnapshot)
         m_out.setDevice(&m_logFile);
     }
     m_out << "*** START Code Model Inspection Report for ";
-    QString ideRevision;
-#ifdef IDE_REVISION
-     ideRevision = QLatin1String(" from revision ")
-        + QString::fromLatin1(Core::Constants::IDE_REVISION_STR).left(10);
-#endif
-    m_out << Core::ICore::versionString() << ideRevision << "\n";
+    m_out << Core::ICore::versionString() << " from revision " << ideRevision << "\n";
     m_out << "Note: This file contains vim fold markers (\"{{{n\"). "
              "Make use of them via \":set foldmethod=marker\".\n";
 }

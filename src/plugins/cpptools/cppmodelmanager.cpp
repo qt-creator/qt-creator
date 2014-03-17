@@ -406,13 +406,13 @@ QByteArray CppModelManager::internalDefinedMacros() const
 }
 
 /// This function will acquire mutexes!
-void CppModelManager::dumpModelManagerConfiguration()
+void CppModelManager::dumpModelManagerConfiguration(const QString &logFileId)
 {
     const Snapshot globalSnapshot = snapshot();
     const QString globalSnapshotTitle
         = QString::fromLatin1("Global/Indexing Snapshot (%1 Documents)").arg(globalSnapshot.size());
 
-    CppCodeModelInspector::Dumper dumper(globalSnapshot);
+    CppCodeModelInspector::Dumper dumper(globalSnapshot, logFileId);
     dumper.dumpProjectInfos(projectInfos());
     dumper.dumpSnapshot(globalSnapshot, globalSnapshotTitle, /*isGlobalSnapshot=*/ true);
     dumper.dumpWorkingCopy(workingCopy());
@@ -742,7 +742,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
 
     // If requested, dump everything we got
     if (DumpProjectInfo)
-        dumpModelManagerConfiguration();
+        dumpModelManagerConfiguration(QLatin1String("updateProjectInfo"));
 
     // Remove files from snapshot that are not reachable any more
     if (filesRemoved)
