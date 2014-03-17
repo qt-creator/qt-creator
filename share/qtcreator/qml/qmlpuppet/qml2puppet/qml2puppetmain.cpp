@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     }
 
     if (application.arguments().count() == 2 && application.arguments().at(1) == "--version") {
-        std::cout << 3;
+        std::cout << 2;
         return 0;
     }
 

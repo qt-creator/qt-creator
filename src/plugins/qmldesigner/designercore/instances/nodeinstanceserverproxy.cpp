@@ -152,7 +152,7 @@ bool NodeInstanceServerProxy::checkPuppetVersion(const QString &qmlPuppetPath)
     bool canConvert;
     unsigned int versionNumber = versionString.toUInt(&canConvert);
 
-    return canConvert && versionNumber == 3;
+    return canConvert && versionNumber == 2;
 }
 
 NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus, const QString &pathToQt)
