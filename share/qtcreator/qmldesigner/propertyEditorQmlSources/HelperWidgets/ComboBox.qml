@@ -43,7 +43,10 @@ Controls.ComboBox {
         id: colorLogic
         backendValue: comboBox.backendValue
         onValueFromBackendChanged: {
-            comboBox.currentIndex = comboBox.find(comboBox.backendValue.enumeration);
+            var enumString = comboBox.backendValue.enumeration;
+            if (enumString === "")
+                enumString = comboBox.backendValue.value
+            comboBox.currentIndex = comboBox.find(enumString);
         }
     }
 
