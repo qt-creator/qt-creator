@@ -457,11 +457,6 @@ void BlackBerryConfigurationManager::loadSettings()
     loadAutoDetectedRuntimes();
     checkToolChainConfiguration();
 
-    // If no target was/is activated, activate one since it's needed by
-    // device connection and CSK code.
-    if (activeApiLevels().isEmpty() && !m_apiLevels.isEmpty())
-        m_apiLevels.first()->activate();
-
     emit settingsLoaded();
     emit settingsChanged();
 }
