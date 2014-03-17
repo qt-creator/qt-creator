@@ -117,11 +117,12 @@ void ArtisticStyle::formatFile()
     }
 
     if (cfgFileName.isEmpty() && m_settings->useHomeFile()) {
-        QString file = QDir::home().filePath(QLatin1String(".astylerc"));
+        const QDir homeDirectory = QDir::home();
+        QString file = homeDirectory.filePath(QLatin1String(".astylerc"));
         if (QFile::exists(file)) {
             cfgFileName = file;
         } else {
-            file = QDir::home().filePath(QLatin1String("astylerc"));
+            file = homeDirectory.filePath(QLatin1String("astylerc"));
             if (QFile::exists(file))
                 cfgFileName = file;
         }
