@@ -19,7 +19,7 @@
 ****************************************************************************/
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-developing-baremetal.html
     \page creator-developing-bb10.html
     \nextpage creator-developing-generic-linux.html

@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-valgrind-overview.html
     \page creator-analyzer.html
     \nextpage creator-cache-profiler.html
@@ -133,7 +133,7 @@
 
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-analyzer.html
     \page creator-cache-profiler.html
     \nextpage creator-running-valgrind-remotely.html
@@ -255,7 +255,7 @@
 
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-cache-profiler.html
     \page creator-running-valgrind-remotely.html
     \nextpage creator-advanced.html
