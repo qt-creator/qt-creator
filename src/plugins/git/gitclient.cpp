@@ -424,7 +424,8 @@ void GitDiffHandler::collectShowDescription(const QString &id)
 
     m_editorController->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
-    command->setCodec(Core::EditorManager::defaultTextCodec());
+    const QString encoding = GitPlugin::instance()->gitClient()->commitEncoding(m_workingDirectory);
+    command->setCodec(QTextCodec::codecForName(encoding.toLocal8Bit()));
     connect(command, SIGNAL(output(QString)), this, SLOT(slotShowDescriptionReceived(QString)));
     QStringList arguments;
     arguments << QLatin1String("show") << QLatin1String("-s")
