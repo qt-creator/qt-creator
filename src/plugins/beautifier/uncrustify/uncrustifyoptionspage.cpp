@@ -51,6 +51,9 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
     , m_settings(settings)
 {
     ui->setupUi(this);
+    ui->useHomeFile->setText(ui->useHomeFile->text().replace(
+                                 QLatin1String("HOME"),
+                                 QDir::toNativeSeparators(QDir::home().absolutePath())));
     ui->command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     ui->command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
                                           QLatin1String(Constants::Uncrustify::DISPLAY_NAME)));
