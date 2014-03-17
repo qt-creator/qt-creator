@@ -110,21 +110,21 @@ Row {
             iconSource: blueHighlight ? "images/alignmentleft-h-icon.png" : "images/alignmentleft-icon.png"
             onClicked: {
                 if (checked)
-                     backendValue.value = "AlignLeft"
+                    backendValue.setEnumeration("Text", "AlignLeft")
             }
         }
         ButtonRowButton {
             iconSource:  blueHighlight ? "images/alignmentcenterh-h-icon.png" : "images/alignmentcenterh-icon.png"
             onClicked: {
                 if (checked)
-                     backendValue.value = "AlignHCenter"
+                    backendValue.setEnumeration("Text", "AlignHCenter")
             }
         }
         ButtonRowButton {
             iconSource: blueHighlight ? "images/alignmentright-h-icon.png" : "images/alignmentright-icon.png"
             onClicked: {
                 if (checked)
-                     backendValue.value = "AlignRight"
+                    backendValue.setEnumeration("Text", "AlignRight")
             }
         }
     }
