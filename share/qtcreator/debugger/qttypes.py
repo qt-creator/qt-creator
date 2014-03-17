@@ -2230,6 +2230,40 @@ def qdump__QxXmlAttributes(d, value):
 
 #######################################################################
 #
+# V4
+#
+#######################################################################
+
+def qdump__QV4__String(d, value):
+    d.putStringValue(value["identifier"]["string"])
+    d.putNumChild(0)
+
+def qdump__QV4__TypedValue(d, value):
+    qdump__QV4__Value(d, d.directBaseObject(value))
+    d.putBetterType(value.type)
+
+def qdump__QV4__Value(d, value):
+    try:
+        if d.is64bit():
+            vtable = value["m"]["internalClass"]["vtable"]
+            if toInteger(vtable["isString"]):
+                d.putBetterType(d.qtNamespace() + "QV4::Value (String)")
+                d.putStringValue(value["s"]["identifier"]["string"])
+                d.putNumChild(0)
+                return
+    except:
+        pass
+
+    # Fall back for cases that we do not handle specifically.
+    d.putEmptyValue()
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            d.putFields(value)
+
+
+#######################################################################
+#
 # Webkit
 #
 #######################################################################

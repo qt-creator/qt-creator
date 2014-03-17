@@ -360,6 +360,9 @@ class DumperBase:
     def is32bit(self):
         return self.ptrSize() == 4
 
+    def is64bit(self):
+        return self.ptrSize() == 8
+
     def isQt3Support(self):
         # assume no Qt 3 support by default
         return False

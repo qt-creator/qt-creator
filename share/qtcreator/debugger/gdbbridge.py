@@ -664,6 +664,14 @@ class Dumper(DumperBase):
                 index -= 1;
         return None
 
+    def directBaseObject(self, value, index = 0):
+        for f in value.type.fields():
+            if f.is_base_class:
+                if index == 0:
+                    return value.cast(f.type)
+                index -= 1;
+        return None
+
     def checkPointer(self, p, align = 1):
         if not self.isNull(p):
             p.dereference()
