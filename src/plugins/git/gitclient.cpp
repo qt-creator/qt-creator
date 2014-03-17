@@ -1625,7 +1625,7 @@ QStringList GitClient::setupCheckoutArguments(const QString &workingDirectory,
         return arguments;
 
     if (QMessageBox::question(Core::ICore::mainWindow(), tr("Create Local Branch"),
-                              tr("Would you like to create local branch?"),
+                              tr("Would you like to create a local branch?"),
                               QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
         return arguments;
     }
