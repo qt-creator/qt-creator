@@ -1284,6 +1284,9 @@ void tst_CodeFormatter::functionReturnType()
          << Line("template <class T>")
          << Line("const QList<QMap<T, T> > &")
          << Line("A::B::foo() {}")
+         << Line("std::map<int,std::vector<int>> indent() {}")
+         << Line("std::map<int,std::vector<int> > indent() {}")
+         << Line("")
          ;
     checkIndent(data);
 }
