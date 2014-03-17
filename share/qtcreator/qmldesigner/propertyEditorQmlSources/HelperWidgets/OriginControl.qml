@@ -51,7 +51,10 @@ Item {
         id: colorLogic
         backendValue: originControl.backendValue
         onValueFromBackendChanged: {
-            grid.select(valueFromBackend);
+            var enumString = originControl.backendValue.enumeration;
+            if (enumString === "")
+                enumString = originControl.backendValue.value
+            grid.select(enumString);
         }
     }
 
@@ -63,7 +66,7 @@ Item {
         id: grid
 
         function setValue(myValue) {
-            originControl.backendValue.value = myValue
+            originControl.backendValue.setEnumeration("Item", myValue)
         }
 
         function select(myValue) {
