@@ -572,6 +572,28 @@ void Dumper::dumpWorkingCopy(const CppModelManagerInterface::WorkingCopy &workin
     }
 }
 
+void Dumper::dumpMergedEntities(const QStringList &mergedIncludePaths,
+                                const QStringList &mergedFrameworkPaths,
+                                const QByteArray &mergedMacros)
+{
+    m_out << "Merged Entities{{{1\n";
+    const QByteArray i2 = indent(2);
+    const QByteArray i3 = indent(3);
+
+    m_out << i2 << "Merged Include Paths{{{2\n";
+    dumpStringList(mergedIncludePaths, i3);
+    m_out << i2 << "Merged Framework Paths{{{2\n";
+    dumpStringList(mergedFrameworkPaths, i3);
+    m_out << i2 << "Merged Defines{{{2\n";
+    m_out << mergedMacros;
+}
+
+void Dumper::dumpStringList(const QStringList &list, const QByteArray &indent)
+{
+    foreach (const QString &item, list)
+        m_out << indent << item << "\n";
+}
+
 void Dumper::dumpDocuments(const QList<CPlusPlus::Document::Ptr> &documents, bool skipDetails)
 {
     const QByteArray i2 = indent(2);

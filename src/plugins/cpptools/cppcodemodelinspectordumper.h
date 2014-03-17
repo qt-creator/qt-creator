@@ -72,8 +72,12 @@ public:
                       const QString &title,
                       bool isGlobalSnapshot = false);
     void dumpWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy);
+    void dumpMergedEntities(const QStringList &mergedIncludePaths,
+                            const QStringList &mergedFrameworkPaths,
+                            const QByteArray &mergedMacros);
 
 private:
+    void dumpStringList(const QStringList &list, const QByteArray &indent);
     void dumpDocuments(const QList<CPlusPlus::Document::Ptr> &documents,
                        bool skipDetails = false);
     static QByteArray indent(int level);

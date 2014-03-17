@@ -34,7 +34,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <cpptools/cppcodemodelinspectordumper.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolseditorsupport.h>
 #include <projectexplorer/project.h>
 
@@ -1335,7 +1335,7 @@ void CppCodeModelInspectorDialog::onWorkingCopyDocumentSelected(const QModelInde
 
 void CppCodeModelInspectorDialog::refresh()
 {
-    CppModelManagerInterface *cmm = CppModelManagerInterface::instance();
+    CppTools::Internal::CppModelManager *cmm = CppTools::Internal::CppModelManager::instance();
 
     const int oldSnapshotIndex = m_ui->snapshotSelector->currentIndex();
     const bool selectEditorRelevant
@@ -1443,6 +1443,9 @@ void CppCodeModelInspectorDialog::refresh()
         }
         m_workingCopyView->selectIndex(index);
     }
+
+    // Merged entities
+    dumper.dumpMergedEntities(cmm->includePaths(), cmm->frameworkPaths(), cmm->definedMacros());
 }
 
 enum DocumentTabs {
