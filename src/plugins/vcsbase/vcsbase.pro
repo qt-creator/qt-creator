@@ -64,7 +64,6 @@ RESOURCES += vcsbase.qrc
 
 FORMS += commonsettingspage.ui \
     nicknamedialog.ui \
-    checkoutprogresswizardpage.ui \
     basecheckoutwizardpage.ui \
     cleandialog.ui \
     submiteditorwidget.ui
