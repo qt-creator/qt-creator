@@ -113,7 +113,7 @@ void QnxAnalyzeSupport::handleRemoteProcessFinished(bool success)
     if (!success)
         showMessage(tr("The %1 process closed unexpectedly.").arg(executable()),
                     Utils::NormalMessageFormat);
-    m_runControl->notifyRemoteFinished(success);
+    m_runControl->notifyRemoteFinished();
 
     m_slog2Info->stop();
 }

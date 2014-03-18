@@ -62,7 +62,7 @@ public slots:
     void stopEngine();
 
 private slots:
-    void notifyRemoteFinished(bool success = true);
+    void notifyRemoteFinished();
 
     void cancelProcess();
     void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
