@@ -63,11 +63,16 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 
 void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
 {
+    appendMessage(text, m_formats[format]);
+}
+
+void OutputFormatter::appendMessage(const QString &text, const QTextCharFormat &format)
+{
     QTextCursor cursor(m_plainTextEdit->document());
     cursor.movePosition(QTextCursor::End);
 
     foreach (const FormattedText &output,
-             m_escapeCodeHandler->parseText(FormattedText(text, m_formats[format]))) {
+             m_escapeCodeHandler->parseText(FormattedText(text, format))) {
         int startPos = 0;
         int crPos = -1;
         while ((crPos = output.text.indexOf(QLatin1Char('\r'), startPos)) >= 0)  {
