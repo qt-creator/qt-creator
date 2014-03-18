@@ -361,7 +361,7 @@ QVariantMap AddDeviceOperation::addDevice(const QVariantMap &map,
 QVariantMap AddDeviceOperation::initializeDevices()
 {
     QVariantMap dmData;
-    dmData.insert(QLatin1String(DEFAULT_DEVICES_ID), QVariant());
+    dmData.insert(QLatin1String(DEFAULT_DEVICES_ID), QVariantMap());
     dmData.insert(QLatin1String(DEVICE_LIST_ID), QVariantList());
 
     QVariantMap data;
