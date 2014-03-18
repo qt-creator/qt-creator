@@ -31,7 +31,7 @@
 
 namespace QmlDesigner {
 
-DesignerPropertyMap::DesignerPropertyMap(QObject *parent) : QQmlPropertyMap(parent), m_defaultValue(new PropertyEditorValue(this))
+DesignerPropertyMap::DesignerPropertyMap(QObject *parent) : QQmlPropertyMap(parent)
 {
 }
 
@@ -39,7 +39,7 @@ QVariant DesignerPropertyMap::value(const QString &key) const
 {
     if (contains(key))
         return QQmlPropertyMap::value(key);
-    return  QVariant::fromValue(m_defaultValue);
+    return QVariant();
 }
 
 void DesignerPropertyMap::registerDeclarativeType(const QString &name)

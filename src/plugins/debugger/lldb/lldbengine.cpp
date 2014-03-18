@@ -108,7 +108,7 @@ LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
     connect(debuggerCore()->action(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             SLOT(updateLocals()));
     connect(debuggerCore()->action(CreateFullBacktrace), SIGNAL(triggered()),
-            SLOT(updateAll()));
+            SLOT(createFullBacktrace()));
     connect(debuggerCore()->action(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
             SLOT(updateLocals()));
     connect(debuggerCore()->action(UseDynamicType), SIGNAL(valueChanged(QVariant)),
@@ -320,7 +320,6 @@ void LldbEngine::setupInferior()
     }
 
     runCommand(cmd);
-    updateLocals(); // update display options
 }
 
 void LldbEngine::runEngine()
@@ -433,6 +432,8 @@ void LldbEngine::handleResponse(const QByteArray &response)
             refreshMemory(item);
         else if (name == "continuation")
             runContinuation(item);
+        else if (name == "full-backtrace")
+            showFullBacktrace(item);
         else if (name == "statusmessage") {
             QString msg = QString::fromUtf8(item.data());
             if (msg.size())
@@ -440,6 +441,12 @@ void LldbEngine::handleResponse(const QByteArray &response)
             showStatusMessage(msg);
         }
     }
+}
+
+void LldbEngine::showFullBacktrace(const GdbMi &data)
+{
+    debuggerCore()->openTextEditor(_("Backtrace $"),
+        QString::fromUtf8(QByteArray::fromHex(data.data())));
 }
 
 void LldbEngine::runContinuation(const GdbMi &data)
@@ -493,6 +500,8 @@ void LldbEngine::activateFrame(int frameIndex)
     cmd.arg("thread", threadsHandler()->currentThread().raw());
     cmd.arg("stacklimit", limit);
     runCommand(cmd);
+
+    updateAll();
 }
 
 void LldbEngine::selectThread(ThreadId threadId)
@@ -872,6 +881,7 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
 
 void LldbEngine::updateAll()
 {
+    reloadRegisters();
     updateLocals();
 }
 
@@ -1181,6 +1191,8 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         if (m_continueAtNextSpontaneousStop) {
             m_continueAtNextSpontaneousStop = false;
             continueInferior();
+        } else {
+            updateAll();
         }
     } else if (newState == "inferiorstopok")
         notifyInferiorStopOk();
@@ -1248,6 +1260,10 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
     runCommand(cmd);
 }
 
+void LldbEngine::createFullBacktrace()
+{
+    runCommand("createFullBacktrace");
+}
 
 void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
         quint64 addr, quint64 length)

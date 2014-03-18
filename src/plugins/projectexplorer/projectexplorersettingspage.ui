@@ -175,7 +175,7 @@
       <item row="6" column="0">
        <widget class="QCheckBox" name="promptToStopRunControlCheckBox">
         <property name="toolTip">
-         <string>Ask before terminating the running application in response to clicking the stop button in Application Output.</string>
+         <string>Asks before terminating the running application in response to clicking the stop button in Application Output.</string>
         </property>
         <property name="text">
          <string>Always ask before stopping applications</string>

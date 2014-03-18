@@ -61,7 +61,7 @@
      <item>
       <widget class="QToolButton" name="eraseForegroundToolButton">
        <property name="toolTip">
-        <string>Erase foreground</string>
+        <string>Erase foreground.</string>
        </property>
        <property name="text">
         <string>x</string>
@@ -107,7 +107,7 @@
      <item>
       <widget class="QToolButton" name="eraseBackgroundToolButton">
        <property name="toolTip">
-        <string>Erase background</string>
+        <string>Erase background.</string>
        </property>
        <property name="text">
         <string>x</string>

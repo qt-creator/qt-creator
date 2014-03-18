@@ -281,10 +281,11 @@ public:
                               const QString &messge, QString *name,
                               QString *errorMessage = 0);
 
-    QString readConfig(const QString &workingDirectory, const QStringList &configVar) const;
+    QByteArray readConfig(const QString &workingDirectory, const QString &configVar) const;
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
+    QTextCodec *encoding(const QString &workingDirectory, const QByteArray &configVar) const;
     bool getCommitData(const QString &workingDirectory, QString *commitTemplate,
                        CommitData &commitData, QString *errorMessage);
 

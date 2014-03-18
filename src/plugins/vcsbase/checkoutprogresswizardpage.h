@@ -67,11 +67,14 @@ private slots:
     void slotError(const QString &text);
 
 private:
+    void outputText(const QString &text);
+
     Ui::CheckoutProgressWizardPage *ui;
 
     Command *m_command;
     QString m_startedStatus;
     QString m_error;
+    bool m_overwriteOutput;
 
     State m_state;
 };

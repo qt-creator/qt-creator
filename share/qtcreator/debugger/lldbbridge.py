@@ -408,7 +408,8 @@ class Dumper(DumperBase):
         return p.GetValueAsUnsigned() == 0
 
     def directBaseClass(self, typeobj, index = 0):
-        return typeobj.GetDirectBaseClassAtIndex(index)
+        result = typeobj.GetDirectBaseClassAtIndex(index).GetType()
+        return result if result.IsValid() else None
 
     def templateArgument(self, typeobj, index):
         type = typeobj.GetTemplateArgumentType(index)
@@ -428,55 +429,35 @@ class Dumper(DumperBase):
         return typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass)
 
     def qtVersionAndNamespace(self):
-        self.cachedQtNamespace = ""
-        self.cachedQtVersion = 0x0
+        for func in self.target.FindFunctions('qVersion'):
+            name = func.GetSymbol().GetName()
+            if name.count(':') > 2:
+                continue
 
-        coreExpression = re.compile(r"(lib)?Qt5?Core")
-        for n in range(0, self.target.GetNumModules()):
-            module = self.target.GetModuleAtIndex(n)
-            fileName = module.GetFileSpec().GetFilename()
-            if coreExpression.match(fileName):
-                # Extract version.
-                reverseVersion = module.GetVersion()
-                if len(reverseVersion):
-                    # Mac, Clang?
-                    reverseVersion.reverse()
-                    shift = 0
-                    for v in reverseVersion:
-                        self.cachedQtVersion += v << shift
-                        shift += 8
-                else:
-                    # Linux, gcc?
-                    if fileName.endswith(".5"):
-                        self.cachedQtVersion = 0x50000
-                    elif fileName.endswith(".4"):
-                        self.cachedQtVersion = 0x40800
-                    else:
-                        warn("CANNOT GUESS QT VERSION")
+            version = str(self.parseAndEvaluate('((const char*())%s)()' % name))
+            version.replace("'", '"') # Both seem possible
+            version = version[version.find('"')+1:version.rfind('"')]
 
+            if version.count('.') != 2:
+                continue
 
-                # Look for some Qt symbol to extract namespace.
-                for symbol in module.symbols:
-                    name = symbol.GetName()
-                    pos = name.find("QString")
-                    if pos >= 0:
-                        name = name[:pos]
-                        if name.endswith("::"):
-                            self.cachedQtNamespace = re.sub('^.*[^\w]([\w]+)::$', '\\1', name) + '::'
-                        break
-                break
+            qtNamespace = name[:name.find('qVersion')]
+            self.qtNamespace = lambda: qtNamespace
 
-        # Memoize good results.
-        self.qtNamespace = lambda: self.cachedQtNamespace
-        self.qtVersion = lambda: self.cachedQtVersion
+            (major, minor, patch) = version.split('.')
+            qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+            self.qtVersion = lambda: qtVersion
+
+            return (qtNamespace, qtVersion)
+
+        return ('', 0x50200)
 
     def qtNamespace(self):
-        self.qtVersionAndNamespace()
-        return self.cachedQtNamespace
+        return self.qtVersionAndNamespace()[0]
 
     def qtVersion(self):
         self.qtVersionAndNamespace()
-        return self.cachedQtVersion
+        return self.qtVersionAndNamespace()[1]
 
     def intSize(self):
         return 4
@@ -883,31 +864,8 @@ class Dumper(DumperBase):
             buf[i] = data.GetUnsignedInt8(error, i)
         return Blob(bytes(buf))
 
-    def extractStaticMetaObjectHelper(self, typeobj):
-        if typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass):
-            needle = typeobj.GetUnqualifiedType().GetName() + "::staticMetaObject"
-            options = lldb.SBExpressionOptions()
-            result = self.target.EvaluateExpression(needle, options)
-            # Surprising results include:
-            # (lldb) script print lldb.target.FindFirstGlobalVariable(
-            # '::QSharedDataPointer<QDirPrivate>::staticMetaObject')
-            # (const QMetaObject) QAbstractAnimation::staticMetaObject = { d = { ... } }
-            #if result.GetName() != needle:
-            if result is None or not result.IsValid():
-                result = 0
-        else:
-            result = 0
-        self.knownStaticMetaObjects[typeobj.GetName()] = result
-        return result
-
-    def extractStaticMetaObject(self, typeobj):
-        if not self.isGoodLldb:
-            return 0
-        result = self.extractStaticMetaObjectHelper(typeobj)
-        if result:
-            return result
-        base = typeobj.GetDirectBaseClassAtIndex(0).GetType()
-        return self.extractStaticMetaObjectHelper(base)
+    def findSymbol(self, symbolName):
+        return self.target.FindFirstGlobalVariable(symbolName)
 
     def stripNamespaceFromType(self, typeName):
         #type = stripClassTag(typeName)
@@ -1281,8 +1239,6 @@ class Dumper(DumperBase):
                 self.reportStackTop()
                 self.reportThreads()
                 self.reportLocation()
-                self.reportVariables()
-                self.reportRegisters()
                 self.reportChangedBreakpoints()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
@@ -1556,7 +1512,6 @@ class Dumper(DumperBase):
         state = self.process.GetState()
         if state == lldb.eStateStopped:
             self.reportStackPosition()
-            self.reportVariables()
 
     def selectThread(self, args):
         self.process.SetSelectedThreadByID(args['id'])
@@ -1564,6 +1519,12 @@ class Dumper(DumperBase):
 
     def requestModuleSymbols(self, frame):
         self.handleCommand("target module list " + frame)
+
+    def createFullBacktrace(self, _ = None):
+        command = "thread backtrace all"
+        result = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand(command, result)
+        self.report('full-backtrace="%s"' % self.hexencode(result.GetOutput()))
 
     def executeDebuggerCommand(self, args):
         result = lldb.SBCommandReturnObject()
@@ -1755,6 +1716,7 @@ def testit():
     db.report("@NS@%s@" % ns)
     #db.report("ENV=%s" % os.environ.items())
     #db.report("DUMPER=%s" % db.qqDumpers)
+    lldb.SBDebugger.Destroy(db.debugger)
 
 if __name__ == "__main__":
     if len(sys.argv) > 2:

@@ -1,5 +1,5 @@
 /*
- * See the IOSSIM_LICENSE file in this directory for the license on the source code in this file.
+ * See the LICENSE file for the license on the source code in this file.
  */
 
 #import "nsstringexpandpath.h"

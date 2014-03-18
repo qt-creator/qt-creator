@@ -802,6 +802,7 @@ ProjectPart::Ptr CppModelManager::projectPartForProjectFile(const QString &proje
 
 QList<ProjectPart::Ptr> CppModelManager::projectPart(const QString &fileName) const
 {
+    QMutexLocker locker(&m_projectMutex);
     return m_fileToProjectParts.value(fileName);
 }
 

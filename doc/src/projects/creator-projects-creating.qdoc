@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-project-managing.html
     \page creator-project-creating.html
     \nextpage creator-project-opening.html
@@ -65,8 +65,8 @@
     use \QC as a code editor and to fully control the steps and commands used to
     build the project.
 
-    You can install tools for mobile devices
-    as part of an SDK. The \l{glossary-buildandrun-kit}{kits} and build and run settings for the
+    You can install tools for mobile devices as part of Qt distributions.
+    The \l{glossary-buildandrun-kit}{kits} and build and run settings for the
     installed device types are set up automatically. However, you might need to
     install and configure some additional software on the devices to be able to
     connect to them from the development PC.

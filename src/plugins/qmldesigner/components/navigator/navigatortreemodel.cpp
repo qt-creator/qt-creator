@@ -41,6 +41,8 @@
 #include <modelnodecontextmenu.h>
 #include <qmlitemnode.h>
 
+#include <coreplugin/icore.h>
+
 #include <QMimeData>
 #include <QMessageBox>
 #include <QApplication>
@@ -326,7 +328,7 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
                  try {
                      node.setId(item->text());
                  } catch (InvalidIdException &e) { //better save then sorry
-                     QMessageBox::warning(0, tr("Invalid Id"), e.description());
+                     QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"), e.description());
                  }
              } else { //there is already an id, so we refactor
                  if (node.view()->rewriterView())
@@ -335,9 +337,9 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
         } else {
 
              if (!node.isValidId(item->text()))
-                 QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id.").arg(item->text()));
+                 QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"),  tr("%1 is an invalid id.").arg(item->text()));
              else
-                 QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 already exists.").arg(item->text()));
+                 QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"),  tr("%1 already exists.").arg(item->text()));
              bool blockSingals = blockItemChangedSignal(true);
              item->setText(node.id());
              blockItemChangedSignal(blockSingals);
@@ -535,7 +537,11 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
                                 continue;
                             if (propertyNode.isValid()) {
                                 QApplication::setOverrideCursor(Qt::ArrowCursor);
-                                if (QMessageBox::warning(0, tr("Warning"), tr("Reparenting the component %1 here will cause the component %2 to be deleted. Do you want to proceed?").arg(node.id(), propertyNode.id()), QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
+                                if (QMessageBox::warning(Core::ICore::dialogParent(), tr("Warning"),
+                                                         tr("Reparenting the component %1 here will cause the "
+                                                            "component %2 to be deleted. Do you want to proceed?")
+                                                            .arg(node.id(), propertyNode.id()),
+                                                         QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
                                     QApplication::restoreOverrideCursor();
                                     continue;
                                 }
@@ -574,7 +580,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
             }
         }
     }  catch (RewritingException &e) { //better safe than sorry! There always might be cases where we fail
-        QMessageBox::warning(0, "Error", e.description());
+        e.showException();
     }
 }
 

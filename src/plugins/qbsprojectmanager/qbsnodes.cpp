@@ -250,7 +250,7 @@ QbsBaseProjectNode::QbsBaseProjectNode(const QString &path) :
     ProjectExplorer::ProjectNode(path)
 { }
 
-bool QbsBaseProjectNode::hasBuildTargets() const
+bool QbsBaseProjectNode::showInSimpleTree() const
 {
     return false;
 }
@@ -493,7 +493,7 @@ bool QbsProductNode::isEnabled() const
     return m_qbsProductData.isEnabled();
 }
 
-bool QbsProductNode::hasBuildTargets() const
+bool QbsProductNode::showInSimpleTree() const
 {
     return true;
 }
@@ -664,6 +664,11 @@ const qbs::Project QbsProjectNode::qbsProject() const
 const qbs::ProjectData QbsProjectNode::qbsProjectData() const
 {
     return m_qbsProjectData;
+}
+
+bool QbsProjectNode::showInSimpleTree() const
+{
+    return true;
 }
 
 void QbsProjectNode::ctor()

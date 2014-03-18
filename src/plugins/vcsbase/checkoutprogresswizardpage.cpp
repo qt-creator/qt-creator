@@ -54,6 +54,7 @@ CheckoutProgressWizardPage::CheckoutProgressWizardPage(QWidget *parent) :
     QWizardPage(parent),
     ui(new Ui::CheckoutProgressWizardPage),
     m_startedStatus(tr("Checkout started...")),
+    m_overwriteOutput(false),
     m_state(Idle)
 {
     ui->setupUi(this);
@@ -86,6 +87,7 @@ void CheckoutProgressWizardPage::start(Command *command)
     connect(command, SIGNAL(finished(bool,int,QVariant)), this, SLOT(slotFinished(bool,int,QVariant)));
     QApplication::setOverrideCursor(Qt::WaitCursor);
     ui->logPlainTextEdit->clear();
+    m_overwriteOutput = false;
     ui->statusLabel->setText(m_startedStatus);
     ui->statusLabel->setPalette(QPalette());
     m_state = Running;
@@ -121,12 +123,37 @@ void CheckoutProgressWizardPage::slotFinished(bool ok, int exitCode, const QVari
 
 void CheckoutProgressWizardPage::slotOutput(const QString &text)
 {
-    ui->logPlainTextEdit->appendPlainText(text.trimmed());
+    int startPos = 0;
+    int crPos = -1;
+    const QString ansiEraseToEol = QLatin1String("\x1b[K");
+    while ((crPos = text.indexOf(QLatin1Char('\r'), startPos)) >= 0)  {
+        QString part = text.mid(startPos, crPos - startPos);
+        // Discard ANSI erase-to-eol
+        if (part.endsWith(ansiEraseToEol))
+            part.chop(ansiEraseToEol.length());
+        outputText(part);
+        startPos = crPos + 1;
+        m_overwriteOutput = true;
+    }
+    if (startPos < text.count())
+        outputText(text.mid(startPos));
 }
 
 void CheckoutProgressWizardPage::slotError(const QString &text)
 {
     m_error.append(text);
+}
+
+void CheckoutProgressWizardPage::outputText(const QString &text)
+{
+    if (m_overwriteOutput) {
+        QTextCursor cursor = ui->logPlainTextEdit->textCursor();
+        cursor.clearSelection();
+        cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+        ui->logPlainTextEdit->setTextCursor(cursor);
+        m_overwriteOutput = false;
+    }
+    ui->logPlainTextEdit->insertPlainText(text);
 }
 
 void CheckoutProgressWizardPage::terminate()

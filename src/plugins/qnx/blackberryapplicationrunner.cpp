@@ -42,14 +42,18 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
+#include <debugger/debuggerrunconfigurationaspect.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
 
 #include <QMessageBox>
 #include <QTimer>
 #include <QDir>
+#include <QTemporaryFile>
 
 namespace {
+enum { debugCheckQmlJSArgs = 0 };
+
 bool parseRunningState(const QString &line)
 {
     QTC_ASSERT(line.startsWith(QLatin1String("result::")), return false);
@@ -61,9 +65,9 @@ using namespace ProjectExplorer;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool cppDebugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent)
+BlackBerryApplicationRunner::BlackBerryApplicationRunner(const BlackBerryApplicationRunner::LaunchFlags &launchFlags, BlackBerryRunConfiguration *runConfiguration, QObject *parent)
     : QObject(parent)
-    , m_cppDebugMode(cppDebugMode)
+    , m_launchFlags(launchFlags)
     , m_pid(-1)
     , m_appId(QString())
     , m_running(false)
@@ -74,6 +78,8 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool cppDebugMode, Blac
     , m_logProcessRunner(0)
     , m_runningStateTimer(new QTimer(this))
     , m_runningStateProcess(0)
+    , m_qmlDebugServerPort(0)
+    , m_checkQmlJsDebugArgumentsProcess(0)
 {
     QTC_ASSERT(runConfiguration, return);
 
@@ -92,6 +98,11 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool cppDebugMode, Blac
     m_sshParams = m_device->sshParameters();
     m_sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationTypePublicKey;
 
+    Debugger::DebuggerRunConfigurationAspect *aspect =
+    runConfiguration->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    if (aspect)
+        m_qmlDebugServerPort = aspect->qmlDebugServerPort();
+
     m_runningStateTimer->setInterval(3000);
     m_runningStateTimer->setSingleShot(true);
     connect(m_runningStateTimer, SIGNAL(timeout()), this, SLOT(determineRunningState()));
@@ -105,14 +116,14 @@ void BlackBerryApplicationRunner::start()
 {
     if (!BlackBerryDeviceConnectionManager::instance()->isConnected(m_device->id())) {
         connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceConnected()),
-                this, SLOT(launchApplication()));
+                this, SLOT(checkDeployMode()));
         connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceDisconnected(Core::Id)),
                 this, SLOT(disconnectFromDeviceSignals(Core::Id)));
         connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id,QString)),
                 this, SLOT(displayConnectionOutput(Core::Id,QString)));
         BlackBerryDeviceConnectionManager::instance()->connectDevice(m_device->id());
     } else {
-        launchApplication();
+        checkDeployMode();
     }
 }
 
@@ -148,7 +159,7 @@ void BlackBerryApplicationRunner::checkDeviceRuntimeVersion(int status)
 
     if (m_bbApiLevelVersion.isEmpty()) {
         emit output(tr("Cannot determine API level version."), Utils::StdErrFormat);
-        launchApplication();
+        checkQmlJsDebugArguments();
         return;
     }
 
@@ -170,7 +181,7 @@ void BlackBerryApplicationRunner::checkDeviceRuntimeVersion(int status)
         }
     }
 
-    launchApplication();
+    checkQmlJsDebugArguments();
 }
 
 void BlackBerryApplicationRunner::queryDeviceInformation()
@@ -273,7 +284,7 @@ void BlackBerryApplicationRunner::disconnectFromDeviceSignals(Core::Id deviceId)
 {
     if (m_device->id() == deviceId) {
         disconnect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceConnected()),
-                   this, SLOT(launchApplication()));
+                   this, SLOT(checkDeployMode()));
         disconnect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceDisconnected(Core::Id)),
                    this, SLOT(disconnectFromDeviceSignals(Core::Id)));
         disconnect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id,QString)),
@@ -291,6 +302,105 @@ void BlackBerryApplicationRunner::setApplicationId(const QString &applicationId)
     m_appId = applicationId;
 }
 
+void BlackBerryApplicationRunner::checkQmlJsDebugArguments()
+{
+    if (!m_launchFlags.testFlag(QmlDebugLaunch)) {
+        // no need to change anytning in app manifest for this kind of run
+        launchApplication();
+    }
+
+    emit output(tr("Checking qmljsdebugger command line argument."), Utils::StdOutFormat);
+    QString nativePackagerCmd = m_environment.searchInPath(QLatin1String("blackberry-nativepackager"));
+    if (nativePackagerCmd.isEmpty()) {
+        emit output(tr("Cannot find Native Packager executable."), Utils::StdErrFormat);
+        return;
+    }
+
+    m_checkQmlJsDebugArgumentsProcess = new QProcess(this);
+    connect(m_checkQmlJsDebugArgumentsProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(checkQmlJsDebugArgumentsManifestLoaded()));
+    connect(m_checkQmlJsDebugArgumentsProcess, SIGNAL(finished(int)), this, SLOT(checkQmlJsDebugArgumentsManifestLoaded()));
+
+    QStringList args;
+    args << QLatin1String("-listManifest") << QDir::toNativeSeparators(m_barPackage);
+    if (debugCheckQmlJSArgs)
+        qDebug() << "get manifest:" << nativePackagerCmd << args.join(QLatin1String(" "));
+    m_checkQmlJsDebugArgumentsProcess->start(nativePackagerCmd, args);
+}
+
+void BlackBerryApplicationRunner::checkQmlJsDebugArgumentsManifestLoaded()
+{
+    m_checkQmlJsDebugArgumentsProcess->deleteLater();
+
+    if (m_checkQmlJsDebugArgumentsProcess->exitStatus() != QProcess::NormalExit) {
+        emit output(tr("Cannot read bar package manifest."), Utils::StdErrFormat);
+        qWarning() << "Cannot read bar package manifest:" << m_checkQmlJsDebugArgumentsProcess->errorString();
+        qWarning() << m_checkQmlJsDebugArgumentsProcess->readAllStandardError();
+        return;
+    }
+
+    QString manifestContent = QString::fromUtf8(m_checkQmlJsDebugArgumentsProcess->readAllStandardOutput());
+
+    QRegExp rxEoln(QLatin1String("(\\r\\n|\\n|\\r)"));
+    QStringList manifestLines = manifestContent.split(rxEoln);
+
+    QMutableListIterator<QString> it(manifestLines);
+    QLatin1String entryPoint("Entry-Point: ");
+    while (it.hasNext()) {
+        it.next();
+        if (it.value().startsWith(entryPoint)) {
+            while (it.hasNext() && it.peekNext().startsWith(QLatin1Char(' ')))
+                it.next();
+            QString qmljsdbgArg = QString::fromLatin1("-qmljsdebugger=port:%1%2")
+                .arg(m_qmlDebugServerPort)
+                .arg(m_launchFlags.testFlag(QmlDebugLaunchBlocking)? QLatin1String(",block"): QLatin1String(""));
+            it.insert(QLatin1String("  ") + qmljsdbgArg);
+            manifestContent = manifestLines.join(QLatin1String("\n"));
+            break;
+        }
+    }
+
+    m_checkQmlJsDebugArgumentsProcess = new QProcess(this);
+    connect(m_checkQmlJsDebugArgumentsProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(checkQmlJsDebugArgumentsManifestSaved()));
+    connect(m_checkQmlJsDebugArgumentsProcess, SIGNAL(finished(int)), this, SLOT(checkQmlJsDebugArgumentsManifestSaved()));
+
+    QTemporaryFile *manifestFile = new QTemporaryFile(m_checkQmlJsDebugArgumentsProcess);
+    if (!manifestFile->open()) {
+        emit output(tr("Internal error: Cannot create temporary manifest file '%1'")
+            .arg(manifestFile->fileName()), Utils::StdErrFormat);
+        delete manifestFile;
+        return;
+    }
+
+    manifestFile->write(manifestContent.toUtf8());
+    manifestFile->flush();
+
+    QStringList args;
+    args << QLatin1String("-device") << m_sshParams.host;
+    if (!m_sshParams.password.isEmpty())
+        args << QLatin1String("-password") << m_sshParams.password;
+    args << QLatin1String("-package") << QDir::toNativeSeparators(m_barPackage);
+    args << QLatin1String("-putFile");
+    args << manifestFile->fileName();
+    args << QLatin1String("app/META-INF/MANIFEST.MF");
+    if (debugCheckQmlJSArgs)
+        qDebug() << "set manifest:" << m_deployCmd << args.join(QLatin1String(" "));
+    m_checkQmlJsDebugArgumentsProcess->start(m_deployCmd, args);
+}
+
+void BlackBerryApplicationRunner::checkQmlJsDebugArgumentsManifestSaved()
+{
+    m_checkQmlJsDebugArgumentsProcess->deleteLater();
+
+    if (m_checkQmlJsDebugArgumentsProcess->exitStatus() != QProcess::NormalExit) {
+        emit output(tr("Cannot set command line arguments."), Utils::StdErrFormat);
+        qWarning() << "Cannot set command line arguments:" << m_checkQmlJsDebugArgumentsProcess->errorString();
+        qWarning() << m_checkQmlJsDebugArgumentsProcess->readAllStandardError();
+        return;
+    }
+
+    launchApplication();
+}
+
 void BlackBerryApplicationRunner::launchApplication()
 {
     // If original device connection fails before launching, this method maybe triggered
@@ -300,12 +410,12 @@ void BlackBerryApplicationRunner::launchApplication()
 
     QStringList args;
     args << QLatin1String("-launchApp");
-    if (m_cppDebugMode)
+    if (m_launchFlags.testFlag(CppDebugLaunch))
         args << QLatin1String("-debugNative");
     args << QLatin1String("-device") << m_sshParams.host;
     if (!m_sshParams.password.isEmpty())
         args << QLatin1String("-password") << m_sshParams.password;
-    args << QDir::toNativeSeparators(m_barPackage);
+    args << QLatin1String("-package") << QDir::toNativeSeparators(m_barPackage);
 
     if (!m_launchProcess) {
         m_launchProcess = new QProcess(this);
@@ -316,7 +426,8 @@ void BlackBerryApplicationRunner::launchApplication()
 
         m_launchProcess->setEnvironment(m_environment.toStringList());
     }
-
+    if (debugCheckQmlJSArgs)
+        qDebug() << "launch:" << m_deployCmd << args.join(QLatin1String(" "));
     m_launchProcess->start(m_deployCmd, args);
     m_runningStateTimer->start();
     m_running = true;
@@ -329,10 +440,10 @@ void BlackBerryApplicationRunner::checkDeployMode()
     if (!BlackBerryDeviceConnectionManager::instance()->isConnected(m_device->id()))
         return;
 
-    if (m_cppDebugMode)
+    if (m_launchFlags.testFlag(CppDebugLaunch))
         queryDeviceInformation(); // check API version vs Runtime version
     else
-        launchApplication();
+        checkQmlJsDebugArguments();
 }
 
 void BlackBerryApplicationRunner::startRunningStateTimer()

@@ -35,24 +35,30 @@
 #include <QStandardItemModel>
 #include <QStringList>
 #include <QXmlStreamReader>
+#include <qtsupport/baseqtversion.h>
 
 namespace QtSupport {
 namespace Internal {
+
+class ExamplesListModel;
 
 class QtVersionsModel : public QStandardItemModel
 {
     Q_OBJECT
 
 public:
-    QtVersionsModel(QObject *parent);
+    QtVersionsModel(ExamplesListModel *examplesModel, QObject *parent);
 
-    int findHighestQtVersion();
-    void setupQtVersions();
     int indexForUniqueId(int uniqueId);
 
 public slots:
+    void update();
+
     QVariant get(int i);
     QVariant getId(int i);
+
+private:
+    ExamplesListModel *examplesModel;
 };
 
 enum ExampleRoles
@@ -104,22 +110,33 @@ public:
     void beginReset() { beginResetModel(); }
     void endReset() { endResetModel(); }
 
-    void setUniqueQtId(int id);
-    void updateExamples();
+    void update();
+
+    int selectedQtVersion() const;
+    void selectQtVersion(int id);
+
+    QList<BaseQtVersion*> qtVersions() const { return m_qtVersions; }
 
 signals:
+    void qtVersionsUpdated();
+    void selectedQtVersionChanged();
     void tagsUpdated();
 
 private:
+    void updateQtVersions();
+    void updateExamples();
+
+    void updateSelectedQtVersion();
+    int findHighestQtVersion() const;
+
     void parseExamples(QXmlStreamReader *reader, const QString &projectsOffset,
                                      const QString &examplesInstallPath);
     void parseDemos(QXmlStreamReader *reader, const QString &projectsOffset,
                                   const QString &demosInstallPath);
     void parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset);
-    QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath,
-                               QString *examplesFallback, QString *demosFallback,
-                               QString *sourceFallback);
+    QStringList exampleSources(QString *examplesInstallPath, QString *demosInstallPath);
 
+    QList<BaseQtVersion*> m_qtVersions;
     QList<ExampleItem> m_exampleItems;
     QStringList m_tags;
     int m_uniqueQtId;

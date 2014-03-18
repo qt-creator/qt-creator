@@ -33,6 +33,7 @@
 #include "gitversioncontrol.h"
 
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/icore.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QMessageBox>
@@ -89,7 +90,8 @@ bool MergeTool::start(const QString &workingDirectory, const QStringList &files)
     arguments << QLatin1String("mergetool") << QLatin1String("-y");
     if (!files.isEmpty()) {
         if (m_gitClient->gitVersion() < 0x010708) {
-            QMessageBox::warning(0, tr("Error"), tr("File input for the merge tool requires Git 1.7.8, or later."));
+            QMessageBox::warning(Core::ICore::dialogParent(), tr("Error"),
+                                 tr("File input for the merge tool requires Git 1.7.8, or later."));
             return false;
         }
         arguments << files;
@@ -244,7 +246,7 @@ void MergeTool::readData()
             m_remoteState = waitAndReadStatus(m_remoteInfo);
             chooseAction();
         } else if (m_merging && line.startsWith("Continue merging")) {
-            if (QMessageBox::question(0, tr("Continue Merging"),
+            if (QMessageBox::question(Core::ICore::dialogParent(), tr("Continue Merging"),
                                       tr("Continue merging other unresolved paths?"),
                                       QMessageBox::Yes | QMessageBox::No,
                                       QMessageBox::No) == QMessageBox::Yes) {
@@ -262,7 +264,7 @@ void MergeTool::done()
     const QString workingDirectory = m_process->workingDirectory();
     int exitCode = m_process->exitCode();
     if (!exitCode) {
-        outputWindow->appendMessage(tr("Merge tool process finished successully."));
+        outputWindow->appendMessage(tr("Merge tool process finished successfully."));
         m_gitClient->continueCommandIfNeeded(workingDirectory);
     } else {
         outputWindow->appendError(tr("Merge tool process terminated with exit code %1")

@@ -17,7 +17,7 @@
 ****************************************************************************/
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-project-cmake.html
     \page creator-project-qbs.html
     \nextpage creator-projects-autotools.html

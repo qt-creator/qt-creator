@@ -24,7 +24,7 @@
 
 /*!
 
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage quick-scalable-image.html
     \page quick-screens.html
     \nextpage quick-export-to-qml.html
@@ -41,9 +41,8 @@
     You can also use ready-made Qt Quick 1 Components (for Qt 4) to create
     screens with a native look and feel for a particular target platform.
     Since Qt 5.1, a set of Qt Quick Controls is available for creating classic
-    desktop-style user interfaces using Qt Quick 2.1. You
-    can install Qt Quick 1 Components as part of the Qt 4 SDK and the Qt Quick
-    Controls as part of Qt 5.1, or later.
+    desktop-style user interfaces using Qt Quick 2.1. Qt Quick 1 Components are
+    a part of Qt 4, whereas Qt Quick Controls were added to Qt 5.1.
 
     \section1 Adding Components to Screens
 

@@ -58,7 +58,7 @@ CommonSettingsWidget::CommonSettingsWidget(QWidget *parent) :
     m_ui->nickNameMailMapChooser->setHistoryCompleter(QLatin1String("Vcs.NickMap.History"));
     m_ui->sshPromptChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->sshPromptChooser->setHistoryCompleter(QLatin1String("Vcs.SshPrompt.History"));
-    const QString patchToolTip = tr("Command used for reverting diff chunks");
+    const QString patchToolTip = tr("Command used for reverting diff chunks.");
     m_ui->patchCommandLabel->setToolTip(patchToolTip);
     m_ui->patchChooser->setToolTip(patchToolTip);
     m_ui->patchChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);

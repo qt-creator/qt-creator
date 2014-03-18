@@ -225,7 +225,7 @@ FolderNode *GenericProjectNode::findFolderByName(const QStringList &components, 
     return 0;
 }
 
-bool GenericProjectNode::hasBuildTargets() const
+bool GenericProjectNode::showInSimpleTree() const
 {
     return true;
 }

@@ -151,9 +151,9 @@ static inline QString debugCodec(const QTextCodec *c)
     return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
 }
 
-static inline bool messageBoxQuestion(const QString &title, const QString &question, QWidget *parent = 0)
+static inline bool messageBoxQuestion(const QString &title, const QString &question)
 {
-    return QMessageBox::question(parent, title, question, QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes;
+    return QMessageBox::question(ICore::dialogParent(), title, question, QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes;
 }
 
 // ------------- CVSPlugin
@@ -579,7 +579,8 @@ void CvsPlugin::revertAll()
     if (revertResponse.result == CvsResponse::Ok)
         cvsVersionControl()->emitRepositoryChanged(state.topLevel());
     else
-        QMessageBox::warning(0, title, tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
+        QMessageBox::warning(ICore::dialogParent(), title,
+                             tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
 }
 
 void CvsPlugin::revertCurrentFile()

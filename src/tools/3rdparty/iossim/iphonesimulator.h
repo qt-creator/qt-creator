@@ -6,7 +6,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "iphonesimulatorremoteclient/iphonesimulatorremoteclient.h"
+#import <dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h>
 #import "version.h"
 
 @interface iPhoneSimulator : NSObject <DTiPhoneSimulatorSessionDelegate> {
@@ -14,8 +14,7 @@
   DTiPhoneSimulatorSystemRoot *sdkRoot;
   NSFileHandle *stdoutFileHandle;
   NSFileHandle *stderrFileHandle;
-  DTiPhoneSimulatorSession *session;
-  NSTimer *pidCheckingTimer;
+  DTiPhoneSimulatorSession *mySession;
   BOOL startOnly;
   BOOL exitOnStartup;
   BOOL shouldWaitDebugger;
@@ -34,8 +33,7 @@
 - (void)createStdioFIFO:(NSFileHandle **)fileHandle ofType:(NSString *)type atPath:(NSString **)path;
 - (void)removeStdioFIFO:(NSFileHandle *)fileHandle atPath:(NSString *)path;
 - (void)stop;
-- (void)checkPid:(NSTimer *)timer;
 - (void)doExit:(int)errorCode;
-- (void)changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice;
+- (NSString*)changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice;
 
 @end

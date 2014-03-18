@@ -108,6 +108,7 @@ QList<Utils::FileName> QnxToolChain::suggestedMkspecList() const
     mkspecList << Utils::FileName::fromLatin1("qnx-armv7le-qcc");
     mkspecList << Utils::FileName::fromLatin1("qnx-x86-qcc");
     mkspecList << Utils::FileName::fromLatin1("blackberry-armv7le-qcc");
+    mkspecList << Utils::FileName::fromLatin1("blackberry-armle-v7-qcc");
     mkspecList << Utils::FileName::fromLatin1("blackberry-x86-qcc");
 
     return mkspecList;

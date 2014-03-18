@@ -54,6 +54,7 @@ const char SDK_PROVIDED_KEY[] = "PE.Profile.SDK";
 const char DATA_KEY[] = "PE.Profile.Data";
 const char ICON_KEY[] = "PE.Profile.Icon";
 const char MUTABLE_INFO_KEY[] = "PE.Profile.MutableInfo";
+const char STICKY_INFO_KEY[] = "PE.Profile.StickyInfo";
 
 } // namespace
 
@@ -151,6 +152,10 @@ Kit::Kit(const QVariantMap &data) :
     QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
     foreach (const QString &mutableInfo, mutableInfoList)
         d->m_mutable.insert(Core::Id::fromString(mutableInfo));
+
+    QStringList stickyInfoList = data.value(QLatin1String(STICKY_INFO_KEY)).toStringList();
+    foreach (const QString &stickyInfo, stickyInfoList)
+        d->m_sticky.insert(Core::Id::fromString(stickyInfo));
 }
 
 Kit::~Kit()
@@ -436,6 +441,11 @@ QVariantMap Kit::toMap() const
     foreach (const Core::Id &id, d->m_mutable)
         mutableInfo << id.toString();
     data.insert(QLatin1String(MUTABLE_INFO_KEY), mutableInfo);
+
+    QStringList stickyInfo;
+    foreach (const Core::Id &id, d->m_sticky)
+        stickyInfo << id.toString();
+    data.insert(QLatin1String(STICKY_INFO_KEY), stickyInfo);
 
     QVariantMap extra;
 

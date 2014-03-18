@@ -183,6 +183,7 @@ void AndroidRunner::checkPID()
             emit remoteProcessStarted(-1, -1);
         }
         m_wasStarted = true;
+        logcatReadStandardOutput();
     }
 }
 
@@ -350,22 +351,17 @@ void AndroidRunner::stop()
     m_adbLogcatProcess.waitForFinished();
 }
 
-void AndroidRunner::logcatReadStandardError()
+void AndroidRunner::logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError)
 {
-    emit remoteErrorOutput(m_adbLogcatProcess.readAllStandardError());
-}
-
-void AndroidRunner::logcatReadStandardOutput()
-{
-    QList<QByteArray> lines = m_adbLogcatProcess.readAllStandardOutput().split('\n');
+    QList<QByteArray> lines = text.split('\n');
     // lines always contains at least one item
-    lines[0].prepend(m_logcat);
+    lines[0].prepend(buffer);
     if (!lines.last().endsWith('\n')) {
         // incomplete line
-        m_logcat = lines.last();
+        buffer = lines.last();
         lines.removeLast();
     } else {
-        m_logcat.clear();
+        buffer.clear();
     }
 
     QByteArray pid(QString::fromLatin1("%1):").arg(m_processPID).toLatin1());
@@ -375,7 +371,8 @@ void AndroidRunner::logcatReadStandardOutput()
         if (line.endsWith('\r'))
             line.chop(1);
         line.append('\n');
-        if (line.startsWith("E/")
+        if (onlyError || line.startsWith("F/")
+                || line.startsWith("E/")
                 || line.startsWith("D/Qt")
                 || line.startsWith("W/"))
             emit remoteErrorOutput(line);
@@ -383,6 +380,18 @@ void AndroidRunner::logcatReadStandardOutput()
             emit remoteOutput(line);
 
     }
+}
+
+void AndroidRunner::logcatReadStandardError()
+{
+    if (m_processPID != -1)
+        logcatProcess(m_adbLogcatProcess.readAllStandardError(), m_stderrBuffer, true);
+}
+
+void AndroidRunner::logcatReadStandardOutput()
+{
+    if (m_processPID != -1)
+        logcatProcess(m_adbLogcatProcess.readAllStandardOutput(), m_stdoutBuffer, false);
 }
 
 void AndroidRunner::adbKill(qint64 pid)

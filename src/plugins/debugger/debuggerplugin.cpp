@@ -1739,7 +1739,7 @@ DebuggerRunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
 
     if (device->type() != PE::DESKTOP_DEVICE_TYPE) {
         QMessageBox::warning(ICore::mainWindow(), tr("Not a Desktop Device Type"),
-                             tr("It is only possible to attach to local running process."));
+                             tr("It is only possible to attach to a locally running process."));
         return 0;
     }
 

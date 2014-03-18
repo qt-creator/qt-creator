@@ -84,15 +84,13 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
         openItemContextMenu(treeview, addBranchWildcardToRoot(itemText), 5, 5, 0)
     # hack for Squish5/Qt5.2 problems of handling menus on Mac - remove asap
     if platform.system() == 'Darwin':
-        item = "Rename..."
-        if oldname.endswith(".qrc"):
-            item = "Rename File"
-        waitFor("macHackActivateContextMenuItem(item)", 5000)
+        waitFor("macHackActivateContextMenuItem('Rename...')", 5000)
     else:
         if oldname.endswith(".qrc"):
-            activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Folder_QMenu", "Rename File"))
+            menu = ":Qt Creator.Project.Menu.Folder_QMenu"
         else:
-            activateItem(waitForObjectItem(":Qt Creator.Project.Menu.File_QMenu", "Rename..."))
+            menu = ":Qt Creator.Project.Menu.File_QMenu"
+        activateItem(waitForObjectItem(menu, "Rename..."))
     type(waitForObject(":Qt Creator_Utils::NavigationTreeView::QExpandingLineEdit"), newname)
     type(waitForObject(":Qt Creator_Utils::NavigationTreeView::QExpandingLineEdit"), "<Return>")
     test.verify(waitFor("os.path.exists(newFilePath)", 1000),

@@ -58,15 +58,24 @@ class BlackBerryApplicationRunner : public QObject
 {
     Q_OBJECT
 public:
-    explicit BlackBerryApplicationRunner(bool cppDebugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent = 0);
+    enum LaunchFlag
+    {
+        CppDebugLaunch = 0x1,
+        QmlDebugLaunch = 0x2,
+        QmlDebugLaunchBlocking = 0x4,
+        QmlProfilerLaunch = 0x8
+    };
+    Q_DECLARE_FLAGS(LaunchFlags, LaunchFlag)
+
+public:
+    explicit BlackBerryApplicationRunner(const LaunchFlags &launchFlags, BlackBerryRunConfiguration *runConfiguration, QObject *parent = 0);
 
     bool isRunning() const;
     qint64 pid() const;
 
-    ProjectExplorer::RunControl::StopResult stop();
-
 public slots:
     void start();
+    ProjectExplorer::RunControl::StopResult stop();
 
 signals:
     void output(const QString &msg, Utils::OutputFormat format);
@@ -97,11 +106,15 @@ private slots:
     void displayConnectionOutput(Core::Id deviceId, const QString &output);
     void checkDeviceRuntimeVersion(int status);
 
+    void checkQmlJsDebugArguments();
+    void checkQmlJsDebugArgumentsManifestLoaded();
+    void checkQmlJsDebugArgumentsManifestSaved();
+
 private:
     void reset();
     void queryDeviceInformation();
 
-    bool m_cppDebugMode;
+    LaunchFlags m_launchFlags;
 
     qint64 m_pid;
     QString m_appId;
@@ -126,6 +139,9 @@ private:
     QProcess *m_runningStateProcess;
 
     BlackBerryVersionNumber m_bbApiLevelVersion;
+
+    int m_qmlDebugServerPort;
+    QProcess *m_checkQmlJsDebugArgumentsProcess;
 };
 
 } // namespace Internal

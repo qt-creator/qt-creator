@@ -631,3 +631,12 @@ def verifyItemOrder(items, text):
         index = text.find(item)
         test.verify(index > lastIndex, "'" + item + "' found at index " + str(index))
         lastIndex = index
+
+def openVcsLog():
+    if not object.exists(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"):
+        clickButton(waitForObject(":Qt Creator_Core::Internal::OutputPaneManageButton"))
+        if platform.system() == 'Darwin':
+            waitFor('macHackActivateContextMenuItem("Version Control")', 6000)
+        else:
+            activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Version Control"))
+    ensureChecked(waitForObject(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"))

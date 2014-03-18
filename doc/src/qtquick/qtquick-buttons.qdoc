@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage quick-components.html
     \page quick-buttons.html
     \nextpage quick-scalable-image.html
@@ -99,7 +99,7 @@
 
 /*!
 
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage quick-buttons.html
     \page quick-scalable-image.html
     \nextpage quick-screens.html

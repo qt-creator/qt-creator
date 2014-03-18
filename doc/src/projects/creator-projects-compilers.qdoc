@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-project-qmake.html
     \page creator-tool-chains.html
     \nextpage creator-debuggers.html
@@ -37,7 +37,7 @@
     application on a particular platform.
 
     \QC automatically detects the compilers that are registered by your system
-    or by an SDK. You can add compilers to build applications by using other
+    or by an installer. You can add compilers to build applications by using other
     compilers or by using additional versions of the automatically detected
     compilers:
 
@@ -49,7 +49,7 @@
         \li MinGW (Minimalist GNU for Windows) is a native software port of GCC
             and GNU Binutils for use in the development of native Microsoft
             Windows applications on Windows. MinGW is
-            distributed together with \QC and Qt SDK for Windows.
+            distributed together with \QC and Qt installers for Windows.
 
         \li Linux ICC (Intel C++ Compiler) is a group of C and C++ compilers
             for Linux.

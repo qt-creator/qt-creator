@@ -495,7 +495,7 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     QHBoxLayout *parserLayout = new QHBoxLayout(parserLayoutWidget);
     parserLayout->setContentsMargins(0, 0, 0, 0);
     m_predefinedMacros->setTabChangesFocus(true);
-    m_predefinedMacros->setToolTip(tr("Each line defines a macro. Format is MACRO[=VALUE]"));
+    m_predefinedMacros->setToolTip(tr("Each line defines a macro. Format is MACRO[=VALUE]."));
     m_headerPaths->setTabChangesFocus(true);
     m_headerPaths->setToolTip(tr("Each line adds a global header lookup path."));
     m_cxx11Flags->setToolTip(tr("Comma-separated list of flags that turn on C++11 support."));

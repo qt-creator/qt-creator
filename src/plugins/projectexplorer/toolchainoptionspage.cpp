@@ -34,6 +34,7 @@
 #include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"
 
+#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/detailswidget.h>
@@ -308,7 +309,7 @@ void ToolChainModel::apply()
     qDeleteAll(m_toAddList);
 
     if (removedTcs.count() == 1) {
-        QMessageBox::warning(0,
+        QMessageBox::warning(Core::ICore::dialogParent(),
                              tr("Duplicate Compilers Detected"),
                              tr("The following compiler was already configured:<br>"
                                 "&nbsp;%1<br>"
@@ -316,7 +317,7 @@ void ToolChainModel::apply()
                              .arg(removedTcs.at(0)));
 
     } else if (!removedTcs.isEmpty()) {
-        QMessageBox::warning(0,
+        QMessageBox::warning(Core::ICore::dialogParent(),
                              tr("Duplicate Compilers Detected"),
                              tr("The following compilers were already configured:<br>"
                                 "&nbsp;%1<br>"

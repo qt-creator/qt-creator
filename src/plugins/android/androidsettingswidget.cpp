@@ -216,7 +216,7 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
             m_javaState = NotSet;
         } else {
             Utils::FileName bin = m_androidConfig.openJDKLocation();
-            bin.appendPath(QLatin1String("bin"));
+            bin.appendPath(QLatin1String("bin/javac" QTC_HOST_EXE_SUFFIX));
             if (!m_androidConfig.openJDKLocation().toFileInfo().exists()
                     || !bin.toFileInfo().exists())
                 m_javaState = Error;

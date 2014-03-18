@@ -173,7 +173,7 @@
         <item>
          <widget class="QPushButton" name="trackButton">
           <property name="toolTip">
-           <string>Sets current branch to track the selected one.</string>
+           <string>Set current branch to track the selected one.</string>
           </property>
           <property name="text">
            <string>&amp;Track</string>

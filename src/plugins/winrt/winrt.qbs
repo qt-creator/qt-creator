@@ -1,4 +1,4 @@
-import qbs.base 1.0
+import qbs 1.0
 
 import QtcPlugin
 
@@ -21,6 +21,9 @@ QtcPlugin {
         "winrtdevicefactory.h",
         "winrtpackagedeploymentstep.cpp",
         "winrtpackagedeploymentstep.h",
+        "winrtpackagedeploymentstepwidget.cpp",
+        "winrtpackagedeploymentstepwidget.h",
+        "winrtpackagedeploymentstepwidget.ui",
         "winrtphoneqtversion.cpp",
         "winrtphoneqtversion.h",
         "winrtplugin.cpp",

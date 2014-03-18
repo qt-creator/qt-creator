@@ -66,6 +66,7 @@
 #include <QPushButton>
 #include <QFileDialog>
 #include <QTimer>
+#include <QCheckBox>
 
 using namespace ProjectExplorer;
 using namespace Android;
@@ -278,16 +279,21 @@ void AndroidManifestEditorWidget::initializePage()
     {
         QGridLayout *layout = new QGridLayout(permissionsGroupBox);
 
+        m_defaultPermissonsCheckBox = new QCheckBox(this);
+        m_defaultPermissonsCheckBox->setText(tr("Include default permissions and features for Qt modules."));
+        m_defaultPermissonsCheckBox->setTristate(true);
+        layout->addWidget(m_defaultPermissonsCheckBox, 0, 0);
+
         m_permissionsModel = new PermissionsModel(this);
 
         m_permissionsListView = new QListView(permissionsGroupBox);
         m_permissionsListView->setModel(m_permissionsModel);
         m_permissionsListView->setMinimumSize(QSize(0, 200));
-        layout->addWidget(m_permissionsListView, 0, 0, 3, 1);
+        layout->addWidget(m_permissionsListView, 1, 0, 3, 1);
 
         m_removePermissionButton = new QPushButton(permissionsGroupBox);
         m_removePermissionButton->setText(tr("Remove"));
-        layout->addWidget(m_removePermissionButton, 0, 1);
+        layout->addWidget(m_removePermissionButton, 1, 1);
 
         m_permissionsComboBox = new QComboBox(permissionsGroupBox);
         m_permissionsComboBox->insertItems(0, QStringList()
@@ -423,13 +429,16 @@ void AndroidManifestEditorWidget::initializePage()
          << QLatin1String("android.permission.WRITE_USER_DICTIONARY")
         );
         m_permissionsComboBox->setEditable(true);
-        layout->addWidget(m_permissionsComboBox, 4, 0);
+        layout->addWidget(m_permissionsComboBox, 5, 0);
 
         m_addPermissionButton = new QPushButton(permissionsGroupBox);
         m_addPermissionButton->setText(tr("Add"));
-        layout->addWidget(m_addPermissionButton, 4, 1);
+        layout->addWidget(m_addPermissionButton, 5, 1);
 
         permissionsGroupBox->setLayout(layout);
+
+        connect(m_defaultPermissonsCheckBox, SIGNAL(stateChanged(int)),
+                this, SLOT(defaultPermissionCheckBoxClicked()));
 
         connect(m_addPermissionButton, SIGNAL(clicked()),
                 this, SLOT(addPermission()));
@@ -791,6 +800,29 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     m_mIconPath.clear();
     m_hIconPath.clear();
 
+    disconnect(m_defaultPermissonsCheckBox, SIGNAL(stateChanged(int)),
+            this, SLOT(defaultPermissionCheckBoxClicked()));
+
+    m_defaultPermissonsCheckBox->setChecked(false);
+    QDomNodeList manifestChilds = manifest.childNodes();
+    bool foundPermissionComment = false;
+    bool foundFeatureComment = false;
+    for (int i = 0; i < manifestChilds.size(); ++i) {
+        const QDomNode &child = manifestChilds.at(i);
+        if (child.isComment()) {
+            QDomComment comment = child.toComment();
+            if (comment.data().trimmed() == QLatin1String("%%INSERT_PERMISSIONS"))
+                foundPermissionComment = true;
+            else if (comment.data().trimmed() == QLatin1String("%%INSERT_FEATURES"))
+                foundFeatureComment = true;
+        }
+    }
+
+    m_defaultPermissonsCheckBox->setCheckState(Qt::CheckState(foundFeatureComment + foundPermissionComment));
+
+    connect(m_defaultPermissonsCheckBox, SIGNAL(stateChanged(int)),
+            this, SLOT(defaultPermissionCheckBoxClicked()));
+
     QStringList permissions;
     QDomElement permissionElem = manifest.firstChildElement(QLatin1String("uses-permission"));
     while (!permissionElem.isNull()) {
@@ -803,53 +835,6 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
 
     m_stayClean = false;
     m_dirty = false;
-}
-
-void setUsesSdk(QDomDocument &doc, QDomElement &manifest, int minimumSdk, int targetSdk)
-{
-    QDomElement usesSdk = manifest.firstChildElement(QLatin1String("uses-sdk"));
-    if (usesSdk.isNull()) { // doesn't exist yet
-        if (minimumSdk == 0 && targetSdk == 0) {
-            // and doesn't need to exist
-        } else {
-            usesSdk = doc.createElement(QLatin1String("uses-sdk"));
-            if (minimumSdk != 0)
-                usesSdk.setAttribute(QLatin1String("android:minSdkVersion"), minimumSdk);
-            if (targetSdk != 0)
-                usesSdk.setAttribute(QLatin1String("android:targetSdkVersion"), targetSdk);
-            manifest.appendChild(usesSdk);
-        }
-    } else {
-        if (minimumSdk == 0 && targetSdk == 0) {
-            // We might be able to remove the whole element
-            // check if there are other attributes
-            QDomNamedNodeMap usesSdkAttributes = usesSdk.attributes();
-            bool keepNode = false;
-            for (int i = 0; i < usesSdkAttributes.size(); ++i) {
-                if (usesSdkAttributes.item(i).nodeName() != QLatin1String("android:minSdkVersion")
-                        && usesSdkAttributes.item(i).nodeName() != QLatin1String("android:targetSdkVersion")) {
-                    keepNode = true;
-                    break;
-                }
-            }
-            if (keepNode) {
-                usesSdk.removeAttribute(QLatin1String("android:minSdkVersion"));
-                usesSdk.removeAttribute(QLatin1String("android:targetSdkVersion"));
-            } else {
-                manifest.removeChild(usesSdk);
-            }
-        } else {
-            if (minimumSdk == 0)
-                usesSdk.removeAttribute(QLatin1String("android:minSdkVersion"));
-            else
-                usesSdk.setAttribute(QLatin1String("android:minSdkVersion"), minimumSdk);
-
-            if (targetSdk == 0)
-                usesSdk.removeAttribute(QLatin1String("android:targetSdkVersion"));
-            else
-                usesSdk.setAttribute(QLatin1String("android:targetSdkVersion"), targetSdk);
-        }
-    }
 }
 
 int extractVersion(const QString &string)
@@ -868,78 +853,360 @@ int extractVersion(const QString &string)
 
 void AndroidManifestEditorWidget::syncToEditor()
 {
-    QDomDocument doc;
-    if (!doc.setContent(m_textEditorWidget->toPlainText())) {
-        // This should not happen
-        updateInfoBar();
-        return;
+    QString result;
+    QXmlStreamReader reader(m_textEditorWidget->toPlainText());
+    reader.setNamespaceProcessing(false);
+    QXmlStreamWriter writer(&result);
+    writer.setAutoFormatting(true);
+    writer.setAutoFormattingIndent(4);
+    while (!reader.atEnd()) {
+        reader.readNext();
+        if (reader.hasError()) {
+            // This should not happen
+            updateInfoBar();
+            return;
+        } else {
+            if (reader.name() == QLatin1String("manifest"))
+                parseManifest(reader, writer);
+            else if (reader.isStartElement())
+                parseUnknownElement(reader, writer);
+            else
+                writer.writeCurrentToken(reader);
+        }
     }
 
-    QDomElement manifest = doc.documentElement();
-    manifest.setAttribute(QLatin1String("package"), m_packageNameLineEdit->text());
-    manifest.setAttribute(QLatin1String("android:versionCode"), m_versionCode->value());
-    manifest.setAttribute(QLatin1String("android:versionName"), m_versionNameLinedit->text());
-
-    if (!m_appNameInStringsXml) {
-        QDomElement application = manifest.firstChildElement(QLatin1String("application"));
-        application.setAttribute(QLatin1String("android:label"), m_appNameLineEdit->text());
-    }
-
-    setUsesSdk(doc, manifest, extractVersion(m_androidMinSdkVersion->currentText()),
-               extractVersion(m_androidTargetSdkVersion->currentText()));
-
-    setAndroidAppLibName(doc, manifest.firstChildElement(QLatin1String("application"))
-                                      .firstChildElement(QLatin1String("activity")),
-                         m_targetLineEdit->currentText());
-
-    // permissions
-    QDomElement permissionElem = manifest.firstChildElement(QLatin1String("uses-permission"));
-    while (!permissionElem.isNull()) {
-        manifest.removeChild(permissionElem);
-        permissionElem = manifest.firstChildElement(QLatin1String("uses-permission"));
-    }
-
-    foreach (const QString &permission, m_permissionsModel->permissions()) {
-        permissionElem = doc.createElement(QLatin1String("uses-permission"));
-        permissionElem.setAttribute(QLatin1String("android:name"), permission);
-        manifest.appendChild(permissionElem);
-    }
-
-    bool ensureIconAttribute =  !m_lIconPath.isEmpty()
-            || !m_mIconPath.isEmpty()
-            || !m_hIconPath.isEmpty();
-
-    if (ensureIconAttribute) {
-        QDomElement applicationElem = manifest.firstChildElement(QLatin1String("application"));
-        applicationElem.setAttribute(QLatin1String("android:icon"), QLatin1String("@drawable/icon"));
-    }
-
-
-    QString newText = doc.toString(4);
-    if (newText == m_textEditorWidget->toPlainText())
+    if (result == m_textEditorWidget->toPlainText())
         return;
 
-    m_textEditorWidget->setPlainText(newText);
+    m_textEditorWidget->setPlainText(result);
     m_textEditorWidget->document()->setModified(true);
 
     m_dirty = false;
 }
 
-bool AndroidManifestEditorWidget::setAndroidAppLibName(QDomDocument document, QDomElement activity, const QString &name)
+namespace {
+QXmlStreamAttributes modifyXmlStreamAttributes(const QXmlStreamAttributes &input, const QStringList &keys,
+                                               const QStringList values, const QStringList &remove = QStringList())
 {
-    QDomElement metadataElem = activity.firstChildElement(QLatin1String("meta-data"));
-    while (!metadataElem.isNull()) {
-        if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
-            metadataElem.setAttribute(QLatin1String("android:value"), name);
-            return true;
-        }
-        metadataElem = metadataElem.nextSiblingElement(QLatin1String("meta-data"));
+    Q_ASSERT(keys.size() == values.size());
+    QXmlStreamAttributes result;
+    result.reserve(input.size());
+    foreach (const QXmlStreamAttribute &attribute, input) {
+        const QString &name = attribute.qualifiedName().toString();
+        if (remove.contains(name))
+            continue;
+        int index = keys.indexOf(name);
+        if (index == -1)
+            result.push_back(attribute);
+        else
+            result.push_back(QXmlStreamAttribute(name,
+                                                 values.at(index)));
     }
-    QDomElement elem = document.createElement(QLatin1String("meta-data"));
-    elem.setAttribute(QLatin1String("android:name"), QLatin1String("android.app.lib_name"));
-    elem.setAttribute(QLatin1String("android:value"), name);
-    activity.appendChild(elem);
-    return true;
+
+    for (int i = 0; i < keys.size(); ++i) {
+        if (!result.hasAttribute(keys.at(i)))
+            result.push_back(QXmlStreamAttribute(keys.at(i), values.at(i)));
+    }
+    return result;
+}
+} // end namespace
+
+void AndroidManifestEditorWidget::parseManifest(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    Q_ASSERT(reader.isStartElement());
+    writer.writeStartElement(reader.name().toString());
+
+    QXmlStreamAttributes attributes = reader.attributes();
+    QStringList keys = QStringList()
+            << QLatin1String("package")
+            << QLatin1String("android:versionCode")
+            << QLatin1String("android:versionName");
+    QStringList values = QStringList()
+            << m_packageNameLineEdit->text()
+            << QString::number(m_versionCode->value())
+            << m_versionNameLinedit->text();
+
+    QXmlStreamAttributes result = modifyXmlStreamAttributes(attributes, keys, values);
+    writer.writeAttributes(result);
+
+    QSet<QString> permissions = m_permissionsModel->permissions().toSet();
+
+    bool foundUsesSdk = false;
+    bool foundPermissionComment = false;
+    bool foundFeatureComment = false;
+    reader.readNext();
+    while (!reader.atEnd()) {
+        if (reader.name() == QLatin1String("application")) {
+            parseApplication(reader, writer);
+        } else if (reader.name() == QLatin1String("uses-sdk")) {
+            parseUsesSdk(reader, writer);
+            foundUsesSdk = true;
+        } else if (reader.name() == QLatin1String("uses-permission")) {
+            permissions.remove(parseUsesPermission(reader, writer, permissions));
+        } else if (reader.isEndElement()) {
+            if (!foundUsesSdk) {
+                int minimumSdk = extractVersion(m_androidMinSdkVersion->currentText());
+                int targetSdk = extractVersion(m_androidTargetSdkVersion->currentText());
+                if (minimumSdk == 0 && targetSdk == 0) {
+                    // and doesn't need to exist
+                } else {
+                    writer.writeEmptyElement(QLatin1String("uses-sdk"));
+                    if (minimumSdk != 0)
+                        writer.writeAttribute(QLatin1String("android:minSdkVersion"),
+                                              QString::number(minimumSdk));
+                    if (targetSdk != 0)
+                        writer.writeAttribute(QLatin1String("android:targetSdkVersion"),
+                                              QString::number(targetSdk));
+                }
+            }
+
+            if (!foundPermissionComment && m_defaultPermissonsCheckBox->checkState() == Qt::Checked)
+                writer.writeComment(QLatin1String(" %%INSERT_PERMISSIONS "));
+
+            if (!foundFeatureComment && m_defaultPermissonsCheckBox->checkState() == Qt::Checked)
+                writer.writeComment(QLatin1String(" %%INSERT_FEATURES "));
+
+            if (!permissions.isEmpty()) {
+                foreach (const QString &permission, permissions) {
+                    writer.writeEmptyElement(QLatin1String("uses-permission"));
+                    writer.writeAttribute(QLatin1String("android:name"), permission);
+                }
+            }
+
+            writer.writeCurrentToken(reader);
+            return;
+        } else if (reader.isComment()) {
+            QString commentText = parseComment(reader, writer);
+            if (commentText == QLatin1String("%%INSERT_PERMISSIONS"))
+                foundPermissionComment = true;
+            else if (commentText == QLatin1String("%%INSERT_FEATURES"))
+                foundFeatureComment = true;
+        } else if (reader.isStartElement()) {
+            parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
+}
+
+void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    Q_ASSERT(reader.isStartElement());
+    writer.writeStartElement(reader.name().toString());
+
+    QXmlStreamAttributes attributes = reader.attributes();
+    QStringList keys;
+    QStringList values;
+    if (!m_appNameInStringsXml) {
+        keys << QLatin1String("android:label");
+        values << m_appNameLineEdit->text();
+    }
+    bool ensureIconAttribute =  !m_lIconPath.isEmpty()
+            || !m_mIconPath.isEmpty()
+            || !m_hIconPath.isEmpty();
+    if (ensureIconAttribute) {
+        keys << QLatin1String("android:icon");
+        values << QLatin1String("@drawable/icon");
+    }
+
+    QXmlStreamAttributes result = modifyXmlStreamAttributes(attributes, keys, values);
+    writer.writeAttributes(result);
+
+    reader.readNext();
+
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            writer.writeCurrentToken(reader);
+            return;
+        } else if (reader.isStartElement()) {
+            if (reader.name() == QLatin1String("activity"))
+                parseActivity(reader, writer);
+            else
+                parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+
+        reader.readNext();
+    }
+}
+
+void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    Q_ASSERT(reader.isStartElement());
+    writer.writeCurrentToken(reader);
+    reader.readNext();
+
+    bool found = false;
+
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            if (!found) {
+                writer.writeEmptyElement(QLatin1String("meta-data"));
+                writer.writeAttribute(QLatin1String("android:name"),
+                                      QLatin1String("android.app.lib_name"));
+                writer.writeAttribute(QLatin1String("android:value"),
+                                      m_targetLineEdit->currentText());
+            }
+            writer.writeCurrentToken(reader);
+            return;
+        } else if (reader.isStartElement()) {
+            if (reader.name() == QLatin1String("meta-data"))
+                found = parseMetaData(reader, writer) || found; // ORDER MATTERS
+            else
+                parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
+}
+
+bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    Q_ASSERT(reader.isStartElement());
+
+    bool found = false;
+    QXmlStreamAttributes attributes = reader.attributes();
+    QXmlStreamAttributes result;
+
+    if (attributes.value(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
+        QStringList keys = QStringList() << QLatin1String("android:value");
+        QStringList values = QStringList() << m_targetLineEdit->currentText();
+        result = modifyXmlStreamAttributes(attributes, keys, values);
+        found = true;
+    } else {
+        result = attributes;
+    }
+
+    writer.writeStartElement(QLatin1String("meta-data"));
+    writer.writeAttributes(result);
+
+    reader.readNext();
+
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            writer.writeCurrentToken(reader);
+            return found;
+        } else if (reader.isStartElement()) {
+            parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
+    return found; // should never be reached
+}
+
+void AndroidManifestEditorWidget::parseUsesSdk(QXmlStreamReader &reader, QXmlStreamWriter & writer)
+{
+    int minimumSdk = extractVersion(m_androidMinSdkVersion->currentText());
+    int targetSdk = extractVersion(m_androidTargetSdkVersion->currentText());
+
+    QStringList keys;
+    QStringList values;
+    QStringList remove;
+    if (minimumSdk == 0) {
+        remove << QLatin1String("android:minSdkVersion");
+    } else {
+        keys << QLatin1String("android:minSdkVersion");
+        values << QString::number(minimumSdk);
+    }
+    if (targetSdk == 0) {
+        remove << QLatin1String("android:targetSdkVersion");
+    } else {
+        keys << QLatin1String("android:targetSdkVersion");
+        values << QString::number(targetSdk);
+    }
+
+    QXmlStreamAttributes result = modifyXmlStreamAttributes(reader.attributes(),
+                                                            keys, values, remove);
+    bool removeUseSdk = result.isEmpty();
+    if (!removeUseSdk) {
+        writer.writeStartElement(reader.name().toString());
+        writer.writeAttributes(result);
+    }
+
+    reader.readNext();
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            if (!removeUseSdk)
+                writer.writeCurrentToken(reader);
+            return;
+        } else {
+            if (removeUseSdk) {
+                removeUseSdk = false;
+                writer.writeStartElement(QLatin1String("uses-sdk"));
+            }
+
+            if (reader.isStartElement())
+                parseUnknownElement(reader, writer);
+            else
+                writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
+}
+
+QString AndroidManifestEditorWidget::parseUsesPermission(QXmlStreamReader &reader, QXmlStreamWriter &writer, const QSet<QString> permissions)
+{
+    Q_ASSERT(reader.isStartElement());
+
+
+    QString permissionName = reader.attributes().value(QLatin1String("android:name")).toString();
+    bool writePermission = permissions.contains(permissionName);
+    if (writePermission)
+        writer.writeCurrentToken(reader);
+    reader.readNext();
+
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            if (writePermission)
+                writer.writeCurrentToken(reader);
+            return permissionName;
+        } else if (reader.isStartElement()) {
+            parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
+    return permissionName; // should not be reached
+}
+
+QString AndroidManifestEditorWidget::parseComment(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    QString commentText = reader.text().toString().trimmed();
+    if (commentText == QLatin1String("%%INSERT_PERMISSIONS")
+            || commentText == QLatin1String("%%INSERT_FEATURES")) {
+        if (m_defaultPermissonsCheckBox->checkState() == Qt::Unchecked)
+            return commentText;
+
+        writer.writeCurrentToken(reader);
+        return commentText;
+    }
+    writer.writeCurrentToken(reader);
+    return QString();
+}
+
+void AndroidManifestEditorWidget::parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer)
+{
+    Q_ASSERT(reader.isStartElement());
+    writer.writeCurrentToken(reader);
+    reader.readNext();
+
+    while (!reader.atEnd()) {
+        if (reader.isEndElement()) {
+            writer.writeCurrentToken(reader);
+            return;
+        } else if (reader.isStartElement()) {
+            parseUnknownElement(reader, writer);
+        } else {
+            writer.writeCurrentToken(reader);
+        }
+        reader.readNext();
+    }
 }
 
 QString AndroidManifestEditorWidget::iconPath(const QString &baseDir, IconDPI dpi)
@@ -1018,6 +1285,13 @@ void AndroidManifestEditorWidget::setHDPIIcon()
         return;
     m_hIconPath = file;
     m_hIconButton->setIcon(QIcon(file));
+    setDirty(true);
+}
+
+void AndroidManifestEditorWidget::defaultPermissionCheckBoxClicked()
+{
+    if (m_defaultPermissonsCheckBox->checkState() == Qt::PartiallyChecked)
+        m_defaultPermissonsCheckBox->setChecked(Qt::Checked);
     setDirty(true);
 }
 

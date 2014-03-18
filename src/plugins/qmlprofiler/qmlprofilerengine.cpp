@@ -258,7 +258,9 @@ void QmlProfilerRunControl::processIsRunning(quint16 port)
 {
     d->m_noDebugOutputTimer.stop();
 
-    if (port > 0 && startParameters().analyzerPort != 0)
+    if (port == 0)
+        port = startParameters().analyzerPort;
+    if (port != 0)
         emit processRunning(port);
 }
 

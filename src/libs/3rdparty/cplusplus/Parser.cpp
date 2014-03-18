@@ -541,7 +541,7 @@ bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
 
 
         if (TopLevelDeclarationProcessor *processor = _control->topLevelDeclarationProcessor()) {
-            if (processor->processDeclaration(declaration))
+            if (!processor->processDeclaration(declaration))
                 break;
         }
 

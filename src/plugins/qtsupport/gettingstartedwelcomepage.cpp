@@ -407,13 +407,12 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
     ProjectExplorer::ProjectExplorerPlugin *peplugin = ProjectExplorer::ProjectExplorerPlugin::instance();
     if (proFile.isEmpty())
         return;
-    if (ProjectExplorer::Project *project = peplugin->openProject(proFile, &errorMessage)) {
+    if (peplugin->openProject(proFile, &errorMessage)) {
         Core::ICore::openFiles(filesToOpen);
-        if (project->needsConfiguration())
-            project->configureAsExampleProject(platforms);
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         if (help.isValid())
             Core::HelpManager::handleHelpRequest(help.toString() + QLatin1String("?view=split"));
+        Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
     }
     if (!errorMessage.isEmpty())
         QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);

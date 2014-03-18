@@ -45,7 +45,7 @@ AutotoolsProjectNode::AutotoolsProjectNode(AutotoolsProject *project, Core::IDoc
 {
 }
 
-bool AutotoolsProjectNode::hasBuildTargets() const
+bool AutotoolsProjectNode::showInSimpleTree() const
 {
     return true;
 }

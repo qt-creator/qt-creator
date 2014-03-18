@@ -63,82 +63,30 @@ void setUniqueQtVersionIdSetting(int id)
     settings->setValue(QLatin1String(currentQtVersionFilterSettingsKeyC), id);
 }
 
-QtVersionsModel::QtVersionsModel(QObject *parent)
-    : QStandardItemModel(parent)
+QtVersionsModel::QtVersionsModel(ExamplesListModel *examplesModel, QObject *parent) :
+    QStandardItemModel(parent),
+    examplesModel(examplesModel)
 {
     QHash<int, QByteArray> roleNames;
     roleNames[Qt::UserRole + 1] = "text";
     roleNames[Qt::UserRole + 2] = "QtId";
     setRoleNames(roleNames);
+
+    connect(examplesModel, SIGNAL(qtVersionsUpdated()), this, SLOT(update()));
 }
 
-int QtVersionsModel::findHighestQtVersion()
-{
-    QList<BaseQtVersion *> qtVersions = QtVersionManager::validVersions();
-
-    BaseQtVersion *newVersion = 0;
-
-    foreach (BaseQtVersion *version, qtVersions) {
-
-        if (version->isValid() && version->hasDemos() && version->hasExamples()) {
-            if (!newVersion) {
-                newVersion = version;
-            } else {
-                if (version->qtVersion() > newVersion->qtVersion()) {
-                    newVersion = version;
-                } else if (version->qtVersion() == newVersion->qtVersion()
-                           && version->uniqueId() < newVersion->uniqueId()) {
-                    newVersion = version;
-                }
-            }
-        }
-    }
-
-    if (!newVersion && !qtVersions.isEmpty())
-        newVersion = qtVersions.first();
-
-    if (!newVersion)
-        return noQtVersionsId;
-
-    return newVersion->uniqueId();
-}
-
-void QtVersionsModel::setupQtVersions()
+void QtVersionsModel::update()
 {
     beginResetModel();
     clear();
 
-    // prioritize default qt version
-    QList<BaseQtVersion *> qtVersions = QtVersionManager::validVersions();
-    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
-    BaseQtVersion *defaultVersion = QtKitInformation::qtVersion(defaultKit);
-    if (defaultVersion && qtVersions.contains(defaultVersion))
-        qtVersions.move(qtVersions.indexOf(defaultVersion), 0);
-
-    int qtVersionSetting = uniqueQtVersionIdSetting();
-    int newQtVersionSetting = noQtVersionsId;
-    if (qtVersionSetting != noQtVersionsId) {
-        //ensure that the unique Qt id is valid
-        foreach (BaseQtVersion *version, qtVersions) {
-            if (version->uniqueId() == qtVersionSetting)
-                newQtVersionSetting = qtVersionSetting;
-        }
-    }
-
-    if (newQtVersionSetting == noQtVersionsId)
-        newQtVersionSetting = findHighestQtVersion();
-
-    if (newQtVersionSetting != qtVersionSetting)
-        setUniqueQtVersionIdSetting(newQtVersionSetting);
-
+    QList<BaseQtVersion *> qtVersions = examplesModel->qtVersions();
 
     foreach (BaseQtVersion *version, qtVersions) {
-        if (version->hasDemos() || version->hasExamples()) {
-            QStandardItem *newItem = new QStandardItem();
-            newItem->setData(version->displayName(), Qt::UserRole + 1);
-            newItem->setData(version->uniqueId(), Qt::UserRole + 2);
-            appendRow(newItem);
-        }
+        QStandardItem *newItem = new QStandardItem();
+        newItem->setData(version->displayName(), Qt::UserRole + 1);
+        newItem->setData(version->uniqueId(), Qt::UserRole + 2);
+        appendRow(newItem);
     }
     endResetModel();
 }
@@ -404,12 +352,8 @@ void ExamplesListModel::updateExamples()
 {
     QString examplesInstallPath;
     QString demosInstallPath;
-    QString examplesFallback;
-    QString demosFallback;
-    QString sourceFallback;
 
-    QStringList sources = exampleSources(&examplesInstallPath, &demosInstallPath,
-                            &examplesFallback, &demosFallback, &sourceFallback);
+    QStringList sources = exampleSources(&examplesInstallPath, &demosInstallPath);
 
     beginResetModel();
     m_tags.clear();
@@ -427,18 +371,6 @@ void ExamplesListModel::updateExamples()
         QString offsetPath = fi.path();
         QDir examplesDir(offsetPath);
         QDir demosDir(offsetPath);
-        if (!examplesFallback.isEmpty()) {
-            // Look at Qt source directory at first,
-            // since examplesPath() / demosPath() points at the build directory
-            examplesDir = sourceFallback + QLatin1String("/examples");
-            demosDir = sourceFallback + QLatin1String("/demos");
-            // if examples or demos don't exist in source, try the directories
-            // that qmake -query gave (i.e. in the build directory)
-            if (!examplesDir.exists() || !demosDir.exists()) {
-                examplesDir = examplesFallback;
-                demosDir = demosFallback;
-            }
-        }
 
         if (debugExamples())
             qWarning() << QString::fromLatin1("Reading file '%1'...").arg(fi.absoluteFilePath());
@@ -467,13 +399,81 @@ void ExamplesListModel::updateExamples()
     emit tagsUpdated();
 }
 
-QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QString *demosInstallPath,
-                                              QString *examplesFallback, QString *demosFallback,
-                                              QString *sourceFallback)
+void ExamplesListModel::updateQtVersions()
 {
-    QTC_CHECK(examplesFallback);
-    QTC_CHECK(demosFallback);
-    QTC_CHECK(sourceFallback);
+    QList<BaseQtVersion*> versions = QtVersionManager::validVersions();
+
+    QMutableListIterator<BaseQtVersion*> iter(versions);
+    while (iter.hasNext()) {
+        BaseQtVersion *version = iter.next();
+        if (!version->hasExamples()
+                && !version->hasDemos())
+            iter.remove();
+    }
+
+    // prioritize default qt version
+    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
+    BaseQtVersion *defaultVersion = QtKitInformation::qtVersion(defaultKit);
+    if (defaultVersion && versions.contains(defaultVersion))
+        versions.move(versions.indexOf(defaultVersion), 0);
+
+    if (m_qtVersions == versions)
+        return;
+
+    m_qtVersions = versions;
+    emit qtVersionsUpdated();
+
+    // determine Qt version to show
+    int newUniqueId = noQtVersionsId;
+    if (m_uniqueQtId != noQtVersionsId) {
+        //ensure that the unique Qt id is valid
+        foreach (BaseQtVersion *version, m_qtVersions) {
+            if (version->uniqueId() == m_uniqueQtId)
+                newUniqueId = m_uniqueQtId;
+        }
+    }
+
+    if (newUniqueId == noQtVersionsId)
+        newUniqueId = findHighestQtVersion();
+
+    if (newUniqueId != m_uniqueQtId) {
+        m_uniqueQtId = newUniqueId;
+        setUniqueQtVersionIdSetting(m_uniqueQtId);
+        emit selectedQtVersionChanged();
+    }
+
+}
+
+int ExamplesListModel::findHighestQtVersion() const
+{
+    QList<BaseQtVersion *> versions = qtVersions();
+
+    BaseQtVersion *newVersion = 0;
+
+    foreach (BaseQtVersion *version, versions) {
+        if (!newVersion) {
+            newVersion = version;
+        } else {
+            if (version->qtVersion() > newVersion->qtVersion()) {
+                newVersion = version;
+            } else if (version->qtVersion() == newVersion->qtVersion()
+                       && version->uniqueId() < newVersion->uniqueId()) {
+                newVersion = version;
+            }
+        }
+    }
+
+    if (!newVersion && !versions.isEmpty())
+        newVersion = versions.first();
+
+    if (!newVersion)
+        return noQtVersionsId;
+
+    return newVersion->uniqueId();
+}
+
+QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QString *demosInstallPath)
+{
     QStringList sources;
     QString resourceDir = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/");
 
@@ -502,83 +502,31 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
     if (size > 0)
         return sources;
 
-    // try to find a suitable Qt version
-    // fallbacks are passed back if no example manifest is found
-    // and we fallback to Qt Creator's shipped manifest (e.g. only old Qt Versions found)
-    QString potentialExamplesFallback;
-    QString potentialDemosFallback;
-    QString potentialSourceFallback;
-    const QStringList pattern(QLatin1String("*.xml"));
-
-    // prioritize default qt version
-    QList<BaseQtVersion *> qtVersions = QtVersionManager::validVersions();
-    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::defaultKit();
-    BaseQtVersion *defaultVersion = QtKitInformation::qtVersion(defaultKit);
-    if (defaultVersion && qtVersions.contains(defaultVersion))
-        qtVersions.move(qtVersions.indexOf(defaultVersion), 0);
-
-    foreach (BaseQtVersion *version, qtVersions) {
-
+    foreach (BaseQtVersion *version, qtVersions()) {
         //filter for qt versions
         if (version->uniqueId() != m_uniqueQtId && m_uniqueQtId != noQtVersionsId)
             continue;
 
-        // qt5 with examples OR demos manifest
-        if (version->qtVersion().majorVersion == 5 && (version->hasExamples() || version->hasDemos())) {
-            // examples directory in Qt5 is under the qtbase submodule,
-            // search other submodule directories for further manifest files
-            QDir qt5docPath = QDir(version->documentationPath());
-            const QStringList examplesPattern(QLatin1String("examples-manifest.xml"));
-            const QStringList demosPattern(QLatin1String("demos-manifest.xml"));
-            QFileInfoList fis;
-            foreach (QFileInfo subDir, qt5docPath.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-                if (version->hasExamples())
-                    fis << QDir(subDir.absoluteFilePath()).entryInfoList(examplesPattern);
-                if (version->hasDemos())
-                    fis << QDir(subDir.absoluteFilePath()).entryInfoList(demosPattern);
-            }
-            if (!fis.isEmpty()) {
-                foreach (const QFileInfo &fi, fis)
-                    sources.append(fi.filePath());
-                if (examplesInstallPath)
-                    *examplesInstallPath = version->examplesPath();
-                if (demosInstallPath)
-                    *demosInstallPath = version->demosPath();
-                return sources;
-            }
-        }
-
+        // search for examples-manifest.xml, demos-manifest.xml in doc/*/
+        QDir qt5docPath = QDir(version->documentationPath());
+        const QStringList examplesPattern(QLatin1String("examples-manifest.xml"));
+        const QStringList demosPattern(QLatin1String("demos-manifest.xml"));
         QFileInfoList fis;
-        if (version->hasExamples())
-            fis << QDir(version->examplesPath()).entryInfoList(pattern);
-        if (version->hasDemos())
-            fis << QDir(version->demosPath()).entryInfoList(pattern);
+        foreach (QFileInfo subDir, qt5docPath.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+            fis << QDir(subDir.absoluteFilePath()).entryInfoList(examplesPattern);
+            fis << QDir(subDir.absoluteFilePath()).entryInfoList(demosPattern);
+        }
         if (!fis.isEmpty()) {
             foreach (const QFileInfo &fi, fis)
                 sources.append(fi.filePath());
+            if (examplesInstallPath)
+                *examplesInstallPath = version->examplesPath();
+            if (demosInstallPath)
+                *demosInstallPath = version->demosPath();
             return sources;
-        }
-        // check if this Qt version would be the preferred fallback, Qt 4 only
-        if (version->qtVersion().majorVersion == 4 && version->hasExamples() && version->hasDemos()) { // cached, so no performance hit
-            if (potentialExamplesFallback.isEmpty()) {
-                potentialExamplesFallback = version->examplesPath();
-                potentialDemosFallback = version->demosPath();
-                potentialSourceFallback = version->sourcePath().toString();
-            }
         }
     }
 
-    if (!potentialExamplesFallback.isEmpty()) {
-        // We didn't find a manifest, use Creator-provided XML file with fall back Qt version
-        // qDebug() << Q_FUNC_INFO << "falling through to Creator-provided XML file";
-        sources << QString(resourceDir + QLatin1String("/examples_fallback.xml"));
-        if (examplesFallback)
-            *examplesFallback = potentialExamplesFallback;
-        if (demosFallback)
-            *demosFallback = potentialDemosFallback;
-        if (sourceFallback)
-            *sourceFallback = potentialSourceFallback;
-    }
     return sources;
 }
 
@@ -650,10 +598,25 @@ QStringList ExamplesListModel::tags() const
     return m_tags;
 }
 
-void ExamplesListModel::setUniqueQtId(int id)
+void ExamplesListModel::update()
 {
-    m_uniqueQtId = id;
+    updateQtVersions();
     updateExamples();
+}
+
+int ExamplesListModel::selectedQtVersion() const
+{
+    return m_uniqueQtId;
+}
+
+void ExamplesListModel::selectQtVersion(int id)
+{
+    if (m_uniqueQtId != id) {
+        m_uniqueQtId = id;
+        setUniqueQtVersionIdSetting(id);
+        updateExamples();
+        emit selectedQtVersionChanged();
+    }
 }
 
 ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, QObject *parent) :
@@ -661,7 +624,7 @@ ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel,
     m_showTutorialsOnly(true),
     m_sourceModel(sourceModel),
     m_timerId(0),
-    m_qtVersionModel(new QtVersionsModel(this)),
+    m_qtVersionModel(new QtVersionsModel(sourceModel, this)),
     m_blockIndexUpdate(false),
     m_qtVersionManagerInitialized(false),
     m_helpManagerInitialized(false),
@@ -675,6 +638,8 @@ ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel,
             this, SLOT(helpManagerInitialized()));
 
     connect(this, SIGNAL(showTutorialsOnlyChanged()), SLOT(updateFilter()));
+
+    connect(m_sourceModel, SIGNAL(selectedQtVersionChanged()), this, SIGNAL(qtVersionIndexChanged()));
 
     setSourceModel(m_sourceModel);
 }
@@ -764,8 +729,7 @@ void ExamplesListModelFilter::filterForQtById(int id)
     if (m_blockIndexUpdate || !m_initalized)
         return;
 
-    setUniqueQtVersionIdSetting(id);
-    m_sourceModel->setUniqueQtId(id);
+    m_sourceModel->selectQtVersion(id);
 }
 
 void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
@@ -777,9 +741,7 @@ void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
 void ExamplesListModelFilter::handleQtVersionsChanged()
 {
     m_blockIndexUpdate = true;
-    m_qtVersionModel->setupQtVersions();
-    m_sourceModel->updateExamples();
-    emit qtVersionIndexChanged();
+    m_sourceModel->update();
     m_blockIndexUpdate = false;
 }
 
@@ -812,7 +774,6 @@ void ExamplesListModelFilter::tryToInitialize()
         connect(ProjectExplorer::KitManager::instance(), SIGNAL(defaultkitChanged()),
                 this, SLOT(handleQtVersionsChanged()));
         handleQtVersionsChanged();
-        m_sourceModel->updateExamples();
     }
 }
 
@@ -826,8 +787,8 @@ void ExamplesListModelFilter::delayedUpdateFilter()
 
 int ExamplesListModelFilter::qtVersionIndex() const
 {
-    int id = uniqueQtVersionIdSetting();
-    int index =  m_qtVersionModel->indexForUniqueId(id);
+    int id = m_sourceModel->selectedQtVersion();
+    int index = m_qtVersionModel->indexForUniqueId(id);
     return index;
 }
 

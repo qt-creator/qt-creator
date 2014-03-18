@@ -52,7 +52,7 @@ static QString msgDeployConfigurationDisplayName(const Core::Id &id)
 {
     if (id == appxDeployConfigurationC) {
         return QCoreApplication::translate("WinRt::Internal::WinRtDeployConfiguration",
-                                           "Deploy locally");
+                                           "Run windeployqt");
     }
     if (id == phoneDeployConfigurationC) {
         return QCoreApplication::translate("WinRt::Internal::WinRtDeployConfiguration",
@@ -159,7 +159,7 @@ QString WinRtDeployStepFactory::displayNameForId(const Core::Id id) const
 {
     if (id == Constants::WINRT_BUILD_STEP_DEPLOY) {
         return QCoreApplication::translate("WinRt::Internal::WinRtDeployStepFactory",
-                                           "Deploy Qt binaries and application files");
+                                           "Run windeployqt");
     }
     return QString();
 }

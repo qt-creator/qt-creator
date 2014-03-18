@@ -32,8 +32,6 @@
 
 #include <rewritingexception.h>
 
-#include <QMessageBox>
-
 namespace QmlDesigner {
 
 ImportManagerView::ImportManagerView(QObject *parent) :
@@ -252,7 +250,7 @@ void ImportManagerView::removeImport(const Import &import)
             model()->changeImports(QList<Import>(), QList<Import>() << import);
     }
     catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+        e.showException();
     }
 }
 
@@ -263,7 +261,7 @@ void ImportManagerView::addImport(const Import &import)
             model()->changeImports(QList<Import>() << import, QList<Import>());
     }
     catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+        e.showException();
     }
 }
 

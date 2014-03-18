@@ -33,6 +33,7 @@
 
 #include <QPainter>
 #include <QStyledItemDelegate>
+#include <QToolTip>
 
 using namespace Android;
 using namespace Android::Internal;
@@ -386,6 +387,17 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, QWidg
 
     m_ui->defaultDeviceCheckBox->setText(tr("Always use this device for architecture %1").arg(abi));
 
+    m_ui->noDeviceFoundLabel->setText(tr("<p align=\"center\"><span style=\" font-size:16pt;\">"
+                                         "No Device Found</span></p>"
+                                         "<br/>"
+                                         "<p>Connect an Android device via USB and activate developer mode on it. "
+                                         "Some devices require the installation of a USB driver.</p>"
+                                         "<br/>"
+                                         "<p>The adb tool in the Android SDK lists all connected devices if run via &quot;adb devices&quot;.</p>"
+                                         ));
+    connect(m_ui->missingLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(showHelp()));
+
     connect(m_ui->refreshDevicesButton, SIGNAL(clicked()),
             this, SLOT(refreshDeviceList()));
 
@@ -445,6 +457,8 @@ void AndroidDeviceDialog::refreshDeviceList()
         newIndex = m_model->indexFor(devices.first().serialNumber);
 
     m_ui->deviceView->setCurrentIndex(newIndex);
+
+    m_ui->stackedWidget->setCurrentIndex(devices.isEmpty() ? 1 : 0);
 }
 
 void AndroidDeviceDialog::createAvd()
@@ -469,4 +483,14 @@ void AndroidDeviceDialog::clickedOnView(const QModelIndex &idx)
                 m_ui->deviceView->expand(idx);
         }
     }
+}
+
+void AndroidDeviceDialog::showHelp()
+{
+    QPoint pos = m_ui->missingLabel->pos();
+    pos = m_ui->missingLabel->parentWidget()->mapToGlobal(pos);
+    QToolTip::showText(pos, tr("<p>Connect an Android device via USB and activate developer mode on it. "
+                               "Some devices require the installation of a USB driver.</p>"
+                               "<p>The adb tool in the Android SDK lists all connected devices if run via &quot;adb devices&quot;.</p>"),
+                       this);
 }

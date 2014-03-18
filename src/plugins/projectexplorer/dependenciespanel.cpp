@@ -32,6 +32,7 @@
 #include "session.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <coreplugin/icore.h>
 #include <utils/detailswidget.h>
 
 #include <QDebug>
@@ -114,7 +115,7 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
                 emit dataChanged(index, index);
                 return true;
             } else {
-                QMessageBox::warning(0, QCoreApplication::translate("DependenciesModel", "Unable to Add Dependency"),
+                QMessageBox::warning(Core::ICore::dialogParent(), QCoreApplication::translate("DependenciesModel", "Unable to Add Dependency"),
                                      QCoreApplication::translate("DependenciesModel", "This would create a circular dependency."));
             }
         } else if (c == Qt::Unchecked) {

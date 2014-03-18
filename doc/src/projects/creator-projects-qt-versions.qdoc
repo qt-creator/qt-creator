@@ -23,7 +23,7 @@
 // **********************************************************************
 
 /*!
-    \contentspage index.html
+    \contentspage {Qt Creator Manual}
     \previouspage creator-targets.html
     \page creator-project-qmake.html
     \nextpage creator-tool-chains.html
@@ -32,11 +32,11 @@
 
     \QC allows you to have multiple versions of Qt installed on your development
     PC and use different versions to build your projects.
-    For example, Qt 4 SDK contains special Qt versions for developing applications
-    for mobile devices.
+    For example, device manufacturers provide special Qt versions for developing
+    applications for their devices.
 
     \QC automatically detects the Qt versions that are registered by
-    your system or by \QSDK. To view detailed information for each Qt
+    your system or by installers. To view detailed information for each Qt
     version, select it in the list and select \gui Details in the
     \gui {Qt version for} section. To add Qt versions, select
     \gui {Tools > Options > Build & Run > Qt Versions}.

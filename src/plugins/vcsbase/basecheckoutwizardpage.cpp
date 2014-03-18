@@ -30,6 +30,7 @@
 #include "basecheckoutwizardpage.h"
 #include "ui_basecheckoutwizardpage.h"
 
+#include <QDir>
 #include <QIcon>
 
 /*!
@@ -105,9 +106,14 @@ void BaseCheckoutWizardPage::addRepositoryControl(QWidget *w)
 
 bool BaseCheckoutWizardPage::checkIsValid() const
 {
-    return d->ui.pathChooser->isValid()
-            && !d->ui.checkoutDirectoryLineEdit->text().isEmpty()
-            && !d->ui.repositoryLineEdit->text().isEmpty();
+    if (!d->ui.pathChooser->isValid() || d->ui.repositoryLineEdit->text().isEmpty())
+        return false;
+
+    const QString checkoutDirectory = d->ui.checkoutDirectoryLineEdit->text();
+    if (checkoutDirectory.isEmpty())
+        return false;
+    const QDir dir(d->ui.pathChooser->path() + QLatin1Char('/') + checkoutDirectory);
+    return !dir.exists() || (dir.count() <= 2);
 }
 
 void BaseCheckoutWizardPage::addRepositoryControl(QString &description, QWidget *w)

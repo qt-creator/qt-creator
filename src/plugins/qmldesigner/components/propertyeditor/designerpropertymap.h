@@ -45,8 +45,6 @@ public:
     QVariant value(const QString &key) const;
 
     static void registerDeclarativeType(const QString &name);
-private:
-    PropertyEditorValue *m_defaultValue;
 };
 
 } //QmlDesigner

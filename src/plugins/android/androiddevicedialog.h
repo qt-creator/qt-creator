@@ -62,6 +62,7 @@ private slots:
     void refreshDeviceList();
     void createAvd();
     void clickedOnView(const QModelIndex &idx);
+    void showHelp();
 private:
     AndroidDeviceModel *m_model;
     Ui::AndroidDeviceDialog *m_ui;

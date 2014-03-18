@@ -324,7 +324,10 @@ def validateSearchResult(expectedCount):
             rect = resultTreeView.visualRect(chIndex)
             doubleClick(resultTreeView, rect.x+5, rect.y+5, 0, Qt.LeftButton)
             editor = getEditorForFileSuffix(itemText)
-            waitFor("lineUnderCursor(editor) == text", 2000)
+            timeout = 2000
+            if platform.system() == "Darwin":
+                timeout *= 2
+            waitFor("lineUnderCursor(editor) == text", timeout)
             test.compare(lineUnderCursor(editor), text)
 
 # this function invokes context menu and command from it

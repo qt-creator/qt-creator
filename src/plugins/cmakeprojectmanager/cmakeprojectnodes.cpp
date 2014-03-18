@@ -37,7 +37,7 @@ CMakeProjectNode::CMakeProjectNode(const QString &fileName)
 {
 }
 
-bool CMakeProjectNode::hasBuildTargets() const
+bool CMakeProjectNode::showInSimpleTree() const
 {
     // TODO
     return true;

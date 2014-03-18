@@ -35,7 +35,7 @@
 namespace DiffEditor {
 namespace Internal {
 
-static QList<TextLineData> assemblyRows(const QStringList &lines,
+static QList<TextLineData> assemblyRows(const QList<TextLineData> &lines,
                                         const QMap<int, int> &lineSpans)
 {
     QList<TextLineData> data;
@@ -50,49 +50,51 @@ static QList<TextLineData> assemblyRows(const QStringList &lines,
     return data;
 }
 
-static bool lastLinesEqual(const QStringList &leftLines,
-                           const QStringList &rightLines)
+static bool lastLinesEqual(const QList<TextLineData> &leftLines,
+                           const QList<TextLineData> &rightLines)
 {
     const bool leftLineEqual = leftLines.count()
-            ? leftLines.last().isEmpty()
+            ? leftLines.last().text.isEmpty()
             : true;
     const bool rightLineEqual = rightLines.count()
-            ? rightLines.last().isEmpty()
+            ? rightLines.last().text.isEmpty()
             : true;
     return leftLineEqual && rightLineEqual;
 }
 
 static void handleLine(const QStringList &newLines,
                        int line,
-                       QStringList *lines,
-                       int *lineNumber,
-                       int *charNumber)
+                       QList<TextLineData> *lines,
+                       int *lineNumber)
 {
     if (line < newLines.count()) {
         const QString text = newLines.at(line);
         if (lines->isEmpty() || line > 0) {
             if (line > 0)
                 ++*lineNumber;
-            lines->append(text);
+            lines->append(TextLineData(text));
         } else {
-            lines->last() += text;
+            lines->last().text += text;
         }
-        *charNumber += text.count();
     }
 }
 
 static void handleDifference(const QString &text,
-                             QStringList *lines,
-                             QMap<int, int> *changedPositions,
-                             int *lineNumber,
-                             int *charNumber)
+                             QList<TextLineData> *lines,
+                             int *lineNumber)
 {
-    const int oldPosition = *lineNumber + *charNumber;
-    const QStringList newLeftLines = text.split(QLatin1Char('\n'));
-    for (int line = 0; line < newLeftLines.count(); ++line)
-        handleLine(newLeftLines, line, lines, lineNumber, charNumber);
-    const int newPosition = *lineNumber + *charNumber;
-    changedPositions->insert(oldPosition, newPosition);
+    const QStringList newLines = text.split(QLatin1Char('\n'));
+    for (int line = 0; line < newLines.count(); ++line) {
+        const int startPos = line > 0
+                ? -1
+                : lines->isEmpty() ? 0 : lines->last().text.count();
+        handleLine(newLines, line, lines, lineNumber);
+        const int endPos = line < newLines.count() - 1
+                ? -1
+                : lines->isEmpty() ? 0 : lines->last().text.count();
+        if (!lines->isEmpty())
+            lines->last().changedPositions.insert(startPos, endPos);
+    }
 }
 
 /*
@@ -108,8 +110,8 @@ ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
     int i = 0;
     int j = 0;
 
-    QStringList leftLines;
-    QStringList rightLines;
+    QList<TextLineData> leftLines;
+    QList<TextLineData> rightLines;
 
     // <line number, span count>
     QMap<int, int> leftSpans;
@@ -119,8 +121,6 @@ ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
 
     int leftLineNumber = 0;
     int rightLineNumber = 0;
-    int leftCharNumber = 0;
-    int rightCharNumber = 0;
     int leftLineAligned = -1;
     int rightLineAligned = -1;
     bool lastLineEqual = true;
@@ -135,13 +135,13 @@ ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
 
         if (leftDiff.command == Diff::Delete) {
             // process delete
-            handleDifference(leftDiff.text, &leftLines, &chunkData.changedLeftPositions, &leftLineNumber, &leftCharNumber);
+            handleDifference(leftDiff.text, &leftLines, &leftLineNumber);
             lastLineEqual = lastLinesEqual(leftLines, rightLines);
             i++;
         }
         if (rightDiff.command == Diff::Insert) {
             // process insert
-            handleDifference(rightDiff.text, &rightLines, &chunkData.changedRightPositions, &rightLineNumber, &rightCharNumber);
+            handleDifference(rightDiff.text, &rightLines, &rightLineNumber);
             lastLineEqual = lastLinesEqual(leftLines, rightLines);
             j++;
         }
@@ -153,8 +153,8 @@ ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
             int line = 0;
 
             while (line < qMax(newLeftLines.count(), newRightLines.count())) {
-                handleLine(newLeftLines, line, &leftLines, &leftLineNumber, &leftCharNumber);
-                handleLine(newRightLines, line, &rightLines, &rightLineNumber, &rightCharNumber);
+                handleLine(newLeftLines, line, &leftLines, &leftLineNumber);
+                handleLine(newRightLines, line, &rightLines, &rightLineNumber);
 
                 const int commonLineCount = qMin(newLeftLines.count(), newRightLines.count());
                 if (line < commonLineCount) {
@@ -172,7 +172,7 @@ ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
 
                         if (line == commonLineCount - 1) {
                             // omit alignment when last lines of equalities are empty
-                            if (leftLines.last().isEmpty() || rightLines.last().isEmpty())
+                            if (leftLines.last().text.isEmpty() || rightLines.last().text.isEmpty())
                                 doAlign = false;
 
                             // unless it's the last dummy line (don't omit in that case)
@@ -283,70 +283,39 @@ FileData calculateContextData(const ChunkData &originalData, int contextLinesNum
         }
     }
     i = 0;
-    int leftCharCounter = 0;
-    int rightCharCounter = 0;
-    QMap<int, int>::ConstIterator leftChangedIt = originalData.changedLeftPositions.constBegin();
-    QMap<int, int>::ConstIterator rightChangedIt = originalData.changedRightPositions.constBegin();
-    const QMap<int, int>::ConstIterator leftChangedItEnd = originalData.changedLeftPositions.constEnd();
-    const QMap<int, int>::ConstIterator rightChangedItEnd = originalData.changedRightPositions.constEnd();
     while (i < originalData.rows.count()) {
-        if (!hiddenRows.contains(i)) {
-            ChunkData chunkData;
-            int leftOffset = leftCharCounter;
-            int rightOffset = rightCharCounter;
-            chunkData.contextChunk = false;
-            while (i < originalData.rows.count()) {
-                if (hiddenRows.contains(i))
-                    break;
-                RowData rowData = originalData.rows.at(i);
-                chunkData.rows.append(rowData);
-
-                if (rowData.leftLine.textLineType == TextLineData::TextLine)
-                    leftCharCounter += rowData.leftLine.text.count() + 1; // +1 for '\n'
-                if (rowData.rightLine.textLineType == TextLineData::TextLine)
-                    rightCharCounter += rowData.rightLine.text.count() + 1; // +1 for '\n'
-                i++;
-            }
-            while (leftChangedIt != leftChangedItEnd) {
-                if (leftChangedIt.key() < leftOffset
-                        || leftChangedIt.key() > leftCharCounter)
-                    break;
-
-                const int startPos = leftChangedIt.key();
-                const int endPos = leftChangedIt.value();
-                chunkData.changedLeftPositions.insert(startPos - leftOffset, endPos - leftOffset);
-                leftChangedIt++;
-            }
-            while (rightChangedIt != rightChangedItEnd) {
-                if (rightChangedIt.key() < rightOffset
-                        || rightChangedIt.key() > rightCharCounter)
-                    break;
-
-                const int startPos = rightChangedIt.key();
-                const int endPos = rightChangedIt.value();
-                chunkData.changedRightPositions.insert(startPos - rightOffset, endPos - rightOffset);
-                rightChangedIt++;
-            }
-            fileData.chunks.append(chunkData);
-        } else {
-            ChunkData chunkData;
-            chunkData.contextChunk = true;
-            while (i < originalData.rows.count()) {
-                if (!hiddenRows.contains(i))
-                    break;
-                RowData rowData = originalData.rows.at(i);
-                chunkData.rows.append(rowData);
-
-                if (rowData.leftLine.textLineType == TextLineData::TextLine)
-                    leftCharCounter += rowData.leftLine.text.count() + 1; // +1 for '\n'
-                if (rowData.rightLine.textLineType == TextLineData::TextLine)
-                    rightCharCounter += rowData.rightLine.text.count() + 1; // +1 for '\n'
-                i++;
-            }
-            fileData.chunks.append(chunkData);
+        const bool contextChunk = hiddenRows.contains(i);
+        ChunkData chunkData;
+        chunkData.contextChunk = contextChunk;
+        while (i < originalData.rows.count()) {
+            if (contextChunk != hiddenRows.contains(i))
+                break;
+            RowData rowData = originalData.rows.at(i);
+            chunkData.rows.append(rowData);
+            ++i;
         }
+        fileData.chunks.append(chunkData);
     }
+
     return fileData;
+}
+
+void addChangedPositions(int positionOffset, const QMap<int, int> &originalChangedPositions, QMap<int, int> *changedPositions)
+{
+    QMapIterator<int, int> it(originalChangedPositions);
+    while (it.hasNext()) {
+        it.next();
+        const int startPos = it.key();
+        const int endPos = it.value();
+        const int newStartPos = startPos < 0 ? -1 : startPos + positionOffset;
+        const int newEndPos = endPos < 0 ? -1 : endPos + positionOffset;
+        if (startPos < 0 && !changedPositions->isEmpty()) {
+           QMap<int, int>::iterator last = changedPositions->end();
+           --last;
+           last.value() = newEndPos;
+        } else
+            changedPositions->insert(newStartPos, newEndPos);
+    }
 }
 
 QList<QTextEdit::ExtraSelection> colorPositions(

@@ -1342,7 +1342,7 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
 
 bool NodeMetaInfo::isGraphicalItem() const
 {
-    return isSubclassOf("QtQuick.Item", -1, -1) || isSubclassOf("QtQuick.Window", -1, -1);
+    return isSubclassOf("QtQuick.Item", -1, -1) || isSubclassOf("QtQuick.Window.Window", -1, -1);
 }
 
 void NodeMetaInfo::clearCache()

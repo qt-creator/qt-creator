@@ -227,7 +227,7 @@ Utils::FileName IosRunConfiguration::bundleDir() const
             if (isDevice)
                 res.appendPath(QLatin1String("Release-iphoneos"));
             else
-                res.appendPath(QLatin1String("/Release-iphonesimulator"));
+                res.appendPath(QLatin1String("Release-iphonesimulator"));
             break;
         default:
             qDebug() << "IosBuildStep had an unknown buildType "

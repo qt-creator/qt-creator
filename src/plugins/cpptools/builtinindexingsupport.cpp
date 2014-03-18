@@ -47,6 +47,8 @@ static void parse(QFutureInterface<void> &future,
     const QString conf = CppModelManagerInterface::configurationFileName();
     bool processingHeaders = false;
 
+    CppModelManager *cmm = CppModelManager::instance();
+    const QStringList fallbackIncludePaths = cmm->includePaths();
     for (int i = 0; i < files.size(); ++i) {
         if (future.isPaused())
             future.waitForResume();
@@ -65,6 +67,11 @@ static void parse(QFutureInterface<void> &future,
             processingHeaders = true;
         }
 
+        QList<ProjectPart::Ptr> parts = cmm->projectPart(fileName);
+        QStringList includePaths = parts.isEmpty()
+                ? fallbackIncludePaths
+                : parts.first()->includePaths;
+        preproc->setIncludePaths(includePaths);
         preproc->run(fileName);
 
         future.setProgressValue(files.size() - preproc->todo().size());

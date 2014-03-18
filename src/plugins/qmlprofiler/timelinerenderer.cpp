@@ -317,21 +317,23 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
     if (m_endTime - m_startTime <=0 || m_lastEndTime - m_lastStartTime <= 0)
         return;
 
-    qint64 time = mouseX * (m_endTime - m_startTime) / width() + m_startTime;
+    // Make the "selected" area 3 pixels wide by adding/subtracting 1 to catch very narrow events.
+    qint64 startTime = (mouseX - 1) * (m_endTime - m_startTime) / width() + m_startTime;
+    qint64 endTime = (mouseX + 1) * (m_endTime - m_startTime) / width() + m_startTime;
     int row = (mouseY + y()) / DefaultRowHeight;
     int modelIndex = modelFromPosition(mouseY + y());
 
     // already covered? nothing to do
     if (m_currentSelection.eventIndex != -1 &&
-            time >= m_currentSelection.startTime &&
-            time <= m_currentSelection.endTime &&
+            endTime >= m_currentSelection.startTime &&
+            startTime <= m_currentSelection.endTime &&
             row == m_currentSelection.row) {
         return;
     }
 
     // find if there's items in the time range
-    int eventFrom = m_profilerModelProxy->findFirstIndex(modelIndex, time);
-    int eventTo = m_profilerModelProxy->findLastIndex(modelIndex, time);
+    int eventFrom = m_profilerModelProxy->findFirstIndex(modelIndex, startTime);
+    int eventTo = m_profilerModelProxy->findLastIndex(modelIndex, endTime);
     if (eventFrom == -1 ||
             eventTo < eventFrom || eventTo >= m_profilerModelProxy->count()) {
         m_currentSelection.eventIndex = -1;
@@ -345,9 +347,6 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
     // find if we are in the right column
     int itemRow;
     for (int i=eventTo; i>=eventFrom; --i) {
-        if (ceil(m_profilerModelProxy->getEndTime(modelIndex, i)*m_spacing) < floor(time*m_spacing))
-            continue;
-
         itemRow = modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i);
 
         if (itemRow == row) {

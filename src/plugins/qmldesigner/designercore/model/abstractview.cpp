@@ -35,6 +35,8 @@
 #include "nodeinstanceview.h"
 #include <qmlstate.h>
 
+#include <utils/qtcassert.h>
+
 namespace QmlDesigner {
 
 
@@ -326,9 +328,10 @@ ModelNode AbstractView::singleSelectedModelNode() const
 /*!
     Adds \a node to the selection list.
 */
-void AbstractView::selectModelNode(const ModelNode &node)
+void AbstractView::selectModelNode(const ModelNode &modelNode)
 {
-    model()->d->selectNode(node.internalNode());
+    QTC_ASSERT(modelNode.isInHierarchy(), return);
+    model()->d->selectNode(modelNode.internalNode());
 }
 
 /*!

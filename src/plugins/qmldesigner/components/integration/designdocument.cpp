@@ -52,7 +52,6 @@
 #include <QUrl>
 #include <QDebug>
 
-#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QApplication>
 
@@ -365,7 +364,7 @@ void DesignDocument::deleteSelected()
         }
 
     } catch (RewritingException &e) {
-        QMessageBox::warning(0, tr("Error"), e.description());
+        e.showException();
     }
 }
 

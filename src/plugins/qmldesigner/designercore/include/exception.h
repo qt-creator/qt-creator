@@ -47,6 +47,7 @@ public:
 
     virtual QString type() const = 0;
     virtual QString description() const;
+    virtual void showException(const QString &title = QString()) const;
 
     int line() const;
     QString function() const;

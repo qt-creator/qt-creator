@@ -48,7 +48,7 @@ using namespace ResourceEditor::Internal;
 static bool priority(const QStringList &files)
 {
     if (files.isEmpty())
-        return -1;
+        return false;
     Core::MimeType mt = Core::MimeDatabase::findByFile(files.at(0));
     QString type = mt.type();
     if (type.startsWith(QLatin1String("image/"))
@@ -219,8 +219,6 @@ bool ResourceTopLevelNode::addPrefix(const QString &prefix, const QString &lang)
     file.save();
     Core::DocumentManager::unexpectFileChange(path());
 
-    update();
-
     return true;
 }
 
@@ -236,8 +234,6 @@ bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &la
             Core::DocumentManager::expectFileChange(path());
             file.save();
             Core::DocumentManager::unexpectFileChange(path());
-
-            update();
             return true;
         }
     }
@@ -259,6 +255,11 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
     }
 
     return AddNewInformation(name, p);
+}
+
+bool ResourceTopLevelNode::showInSimpleTree() const
+{
+    return true;
 }
 
 ResourceFolderNode::ResourceFolderNode(const QString &prefix, const QString &lang, ResourceTopLevelNode *parent)
@@ -353,7 +354,7 @@ bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang
     ResourceFile file(m_topLevelNode->path());
     if (!file.load())
         return false;
-    int index = file.indexOfPrefix(prefix, lang);
+    int index = file.indexOfPrefix(m_prefix, m_lang);
     if (index == -1)
         return false;
 

@@ -144,7 +144,7 @@ Item {
     Image {
         source: expanded ? "arrow_down.png" : "arrow_right.png"
         x: parent.width - 12
-        y: root.singleRowHeight / 2 - height / 2
+        y: Math.floor((root.singleRowHeight - height) / 2)
         smooth: false
         MouseArea {
             anchors.fill: parent

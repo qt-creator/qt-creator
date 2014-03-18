@@ -317,6 +317,8 @@ void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
                     range.numericData1 = attributes.value(_("framerate")).toString().toLongLong();
                 if (attributes.hasAttribute(_("animationcount")))
                     range.numericData2 = attributes.value(_("animationcount")).toString().toLongLong();
+                if (attributes.hasAttribute(_("thread")))
+                    range.numericData3 = attributes.value(_("thread")).toString().toLongLong();
                 if (attributes.hasAttribute(_("width")))
                     range.numericData1 = attributes.value(_("width")).toString().toLongLong();
                 if (attributes.hasAttribute(_("height")))
@@ -483,6 +485,7 @@ void QmlProfilerFileWriter::save(QIODevice *device)
 
             stream.writeAttribute(_("framerate"), QString::number(range.numericData1));
             stream.writeAttribute(_("animationcount"), QString::number(range.numericData2));
+            stream.writeAttribute(_("thread"), QString::number(range.numericData3));
         }
 
         // special: pixmap cache event

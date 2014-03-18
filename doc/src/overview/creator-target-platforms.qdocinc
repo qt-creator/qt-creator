@@ -64,10 +64,6 @@
             \li Yes
     \endtable
 
-    \note Symbian support has been removed from \QC 2.6. To develop for Symbian,
-    install \QSDK 1.2.1 or \QSDK 1.1.2 (that contains the Qt 4.6.3 for Symbian
-    and Qt 4.7.3 for Symbian^3 and Symbian Anna targets) and use \QC 2.4.
-
     \note Madde support has been removed from \QC 3.0. To develop for Maemo or Harmattan,
-    install \QSDK 1.2.1 or \QSDK 1.1.2 and use \QC 2.8.
+    use \QC 2.8.
 

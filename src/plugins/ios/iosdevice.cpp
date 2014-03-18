@@ -34,6 +34,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <coreplugin/helpmanager.h>
+#include <utils/portlist.h>
 
 #include <QCoreApplication>
 #include <QVariant>
@@ -78,27 +79,32 @@ static QString CFStringRef2QString(CFStringRef s)
 namespace Ios {
 namespace Internal {
 
-const char extraInfoKey[] = "extraInfo";
-
 IosDevice::IosDevice()
     : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
                              IDevice::AutoDetected,
                              IDevice::Hardware,
-                             Constants::IOS_DEVICE_ID)
+                             Constants::IOS_DEVICE_ID),
+      m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setDisplayName(IosDevice::name());
     setDeviceState(DeviceDisconnected);
+    Utils::PortList ports;
+    ports.addRange(Constants::IOS_DEVICE_PORT_START,
+                   Constants::IOS_DEVICE_PORT_END);
+    setFreePorts(ports);
 }
 
 IosDevice::IosDevice(const IosDevice &other)
-    : IDevice(other), m_extraInfo(other.m_extraInfo), m_ignoreDevice(other.m_ignoreDevice)
+    : IDevice(other), m_extraInfo(other.m_extraInfo), m_ignoreDevice(other.m_ignoreDevice),
+      m_lastPort(other.m_lastPort)
 { }
 
 IosDevice::IosDevice(const QString &uid)
     : IDevice(Core::Id(Constants::IOS_DEVICE_TYPE),
                              IDevice::AutoDetected,
                              IDevice::Hardware,
-                             Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid))
+                             Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid)),
+    m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setDisplayName(IosDevice::name());
     setDeviceState(DeviceDisconnected);
@@ -158,7 +164,7 @@ IDevice::Ptr IosDevice::clone() const
 void IosDevice::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);
-    QVariantMap vMap = map.value(QLatin1String(extraInfoKey)).toMap();
+    QVariantMap vMap = map.value(QLatin1String(Constants::EXTRA_INFO_KEY)).toMap();
     QMapIterator<QString, QVariant> i(vMap);
     m_extraInfo.clear();
     while (i.hasNext()) {
@@ -176,7 +182,7 @@ QVariantMap IosDevice::toMap() const
         i.next();
         vMap.insert(i.key(), i.value());
     }
-    res.insert(QLatin1String(extraInfoKey), vMap);
+    res.insert(QLatin1String(Constants::EXTRA_INFO_KEY), vMap);
     return res;
 }
 
@@ -193,6 +199,19 @@ QString IosDevice::name()
 QString IosDevice::osVersion() const
 {
     return m_extraInfo.value(QLatin1String("osVersion"));
+}
+
+quint16 IosDevice::nextPort() const
+{
+    // use qrand instead?
+    if (++m_lastPort >= Constants::IOS_DEVICE_PORT_END)
+        m_lastPort = Constants::IOS_DEVICE_PORT_START;
+    return m_lastPort;
+}
+
+bool IosDevice::canAutoDetectPorts() const
+{
+    return true;
 }
 
 
@@ -260,7 +279,10 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
         qDebug() << "ignoring disconnection of ios device " << uid; // should neve happen
     } else {
         const IosDevice *iosDev = static_cast<const IosDevice *>(dev.data());
-        if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
+        if (iosDev->m_extraInfo.isEmpty()
+                || iosDev->m_extraInfo.value(QLatin1String("deviceName")) == QLatin1String("*unknown*")) {
+            devManager->removeDevice(iosDev->id());
+        } else if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
             if (debugDeviceDetection)
                 qDebug() << "disconnecting device " << iosDev->uniqueDeviceID();
             devManager->setDeviceState(iosDev->id(), IDevice::DeviceDisconnected);

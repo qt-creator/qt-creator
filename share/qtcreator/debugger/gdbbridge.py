@@ -657,8 +657,20 @@ class Dumper(DumperBase):
         return str(value)
 
     def directBaseClass(self, typeobj, index = 0):
-        # FIXME: Check it's really a base.
-        return typeobj.fields()[index]
+        for f in typeobj.fields():
+            if f.is_base_class:
+                if index == 0:
+                    return f.type
+                index -= 1;
+        return None
+
+    def directBaseObject(self, value, index = 0):
+        for f in value.type.fields():
+            if f.is_base_class:
+                if index == 0:
+                    return value.cast(f.type)
+                index -= 1;
+        return None
 
     def checkPointer(self, p, align = 1):
         if not self.isNull(p):
@@ -860,47 +872,6 @@ class Dumper(DumperBase):
             return self.createPointerValue(address, type)
         except:
             return 0
-
-    def extractStaticMetaObjectHelper(self, typeName):
-        """
-        Checks whether type has a Q_OBJECT macro.
-        Returns the staticMetaObject, or 0.
-        """
-        # No templates for now.
-        if typeName.find('<') >= 0:
-            return 0
-
-        staticMetaObjectName = typeName + "::staticMetaObject"
-        result = self.findSymbol(staticMetaObjectName)
-
-        # We need to distinguish Q_OBJECT from Q_GADGET:
-        # a Q_OBJECT SMO has a non-null superdata (unless it's QObject itself),
-        # a Q_GADGET SMO has a null superdata (hopefully)
-        if result and typeName != self.qtNamespace() + "QObject":
-            if not self.extractPointer(result):
-                # This looks like a Q_GADGET
-                result = 0
-
-        return result
-
-    def extractStaticMetaObject(self, typeobj):
-        """
-        Checks recursively whether a type derives from QObject.
-        """
-        typeName = str(typeobj)
-        result = self.knownStaticMetaObjects.get(typeName, None)
-        if result is not None: # Is 0 or the static metaobject.
-            return result
-
-        result = self.extractStaticMetaObjectHelper(typeName)
-        if not result:
-            fields = typeobj.fields()
-            if len(fields) and fields[0].is_base_class:
-                result = self.extractStaticMetaObject(fields[0].type)
-
-        self.knownStaticMetaObjects[typeName] = result
-        return result
-
 
     def put(self, value):
         self.output.append(value)
@@ -1146,6 +1117,9 @@ class Dumper(DumperBase):
             self.putType(typeName)
             if value.is_optimized_out:
                 self.putValue("<optimized out>")
+            elif type.sizeof == 1:
+                # Force unadorned value transport for char and Co.
+                self.putValue(int(value) & 0xff)
             else:
                 self.putValue(value)
             self.putNumChild(0)
@@ -1488,64 +1462,64 @@ class Dumper(DumperBase):
         result += ']'
         return result
 
-    def threadname(self, maximalStackDepth, objectPrivateType):
-        e = gdb.selected_frame()
-        out = ""
-        ns = self.qtNamespace()
-        while True:
-            maximalStackDepth -= 1
-            if maximalStackDepth < 0:
-                break
-            e = e.older()
-            if e == None or e.name() == None:
-                break
-            if e.name() == ns + "QThreadPrivate::start" \
-                    or e.name() == "_ZN14QThreadPrivate5startEPv@4":
-                try:
-                    thrptr = e.read_var("thr").dereference()
-                    d_ptr = thrptr["d_ptr"]["d"].cast(objectPrivateType).dereference()
-                    try:
-                        objectName = d_ptr["objectName"]
-                    except: # Qt 5
-                        p = d_ptr["extraData"]
-                        if not self.isNull(p):
-                            objectName = p.dereference()["objectName"]
-                    if not objectName is None:
-                        data, size, alloc = self.stringData(objectName)
-                        if size > 0:
-                             s = self.readMemory(data, 2 * size)
-
-                    thread = gdb.selected_thread()
-                    inner = '{valueencoded="';
-                    inner += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
-                    inner += str(thread.num) + '",value="'
-                    inner += s
-                    #inner += self.encodeString(objectName)
-                    inner += '"},'
-
-                    out += inner
-                except:
-                    pass
-        return out
+    #def threadname(self, maximalStackDepth, objectPrivateType):
+    #    e = gdb.selected_frame()
+    #    out = ""
+    #    ns = self.qtNamespace()
+    #    while True:
+    #        maximalStackDepth -= 1
+    #        if maximalStackDepth < 0:
+    #            break
+    #        e = e.older()
+    #        if e == None or e.name() == None:
+    #            break
+    #        if e.name() == ns + "QThreadPrivate::start" \
+    #                or e.name() == "_ZN14QThreadPrivate5startEPv@4":
+    #            try:
+    #                thrptr = e.read_var("thr").dereference()
+    #                d_ptr = thrptr["d_ptr"]["d"].cast(objectPrivateType).dereference()
+    #                try:
+    #                    objectName = d_ptr["objectName"]
+    #                except: # Qt 5
+    #                    p = d_ptr["extraData"]
+    #                    if not self.isNull(p):
+    #                        objectName = p.dereference()["objectName"]
+    #                if not objectName is None:
+    #                    data, size, alloc = self.stringData(objectName)
+    #                    if size > 0:
+    #                         s = self.readMemory(data, 2 * size)
+    #
+    #                thread = gdb.selected_thread()
+    #                inner = '{valueencoded="';
+    #                inner += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+    #                inner += str(thread.num) + '",value="'
+    #                inner += s
+    #                #inner += self.encodeString(objectName)
+    #                inner += '"},'
+    #
+    #                out += inner
+    #            except:
+    #                pass
+    #    return out
 
     def threadnames(self, maximalStackDepth):
         # FIXME: This needs a proper implementation for MinGW, and only there.
-        # Linux, Mac and QNX mirror the objectName()to the underlying threads,
+        # Linux, Mac and QNX mirror the objectName() to the underlying threads,
         # so we get the names already as part of the -thread-info output.
         return '[]'
-        out = '['
-        oldthread = gdb.selected_thread()
-        if oldthread:
-            try:
-                objectPrivateType = gdb.lookup_type(ns + "QObjectPrivate").pointer()
-                inferior = self.selectedInferior()
-                for thread in inferior.threads():
-                    thread.switch()
-                    out += self.threadname(maximalStackDepth, objectPrivateType)
-            except:
-                pass
-            oldthread.switch()
-        return out + ']'
+        #out = '['
+        #oldthread = gdb.selected_thread()
+        #if oldthread:
+        #    try:
+        #        objectPrivateType = gdb.lookup_type(ns + "QObjectPrivate").pointer()
+        #        inferior = self.selectedInferior()
+        #        for thread in inferior.threads():
+        #            thread.switch()
+        #            out += self.threadname(maximalStackDepth, objectPrivateType)
+        #    except:
+        #        pass
+        #    oldthread.switch()
+        #return out + ']'
 
 
     def importPlainDumper(self, printer):
@@ -1819,7 +1793,7 @@ registerCommand("threadnames", threadnames)
 
 def qmlb(args):
     # executeCommand(command, to_string=True).split("\n")
-    warm("RUNNING: break -f QScript::FunctionWrapper::proxyCall")
+    warn("RUNNING: break -f QScript::FunctionWrapper::proxyCall")
     output =  gdb.execute("rbreak -f QScript::FunctionWrapper::proxyCall", to_string=True).split("\n")
     warn("OUTPUT: %s " % output)
     bp = output[0]

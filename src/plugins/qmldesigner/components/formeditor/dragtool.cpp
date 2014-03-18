@@ -38,7 +38,6 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <QMimeData>
-#include <QMessageBox>
 #include <QTimer>
 
 namespace QmlDesigner {
@@ -275,7 +274,7 @@ void DragTool::commitTransaction()
     try {
         m_rewriterTransaction.commit();
     } catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+        e.showException();
     }
 }
 

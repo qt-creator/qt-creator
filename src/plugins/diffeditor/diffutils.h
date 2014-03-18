@@ -57,6 +57,13 @@ public:
     TextLineData(TextLineType t) : textLineType(t) {}
     TextLineType textLineType;
     QString text;
+    /*
+     * <start position, end position>
+     * <-1, n> means this is a continuation from the previous line
+     * <n, -1> means this will be continued in the next line
+     * <-1, -1> the whole line is a continuation (from the previous line to the next line)
+     */
+    QMap<int, int> changedPositions; // counting from the beginning of the line
 };
 
 class RowData {
@@ -76,9 +83,6 @@ public:
     ChunkData() : contextChunk(false) {}
     QList<RowData> rows;
     bool contextChunk;
-    // start position, end position, TextLineData::Separator lines not taken into account
-    QMap<int, int> changedLeftPositions; // counting from the beginning of the chunk
-    QMap<int, int> changedRightPositions; // counting from the beginning of the chunk
 };
 
 class FileData {
@@ -94,6 +98,9 @@ ChunkData calculateOriginalData(const QList<Diff> &leftDiffList,
                                 const QList<Diff> &rightDiffList);
 FileData calculateContextData(const ChunkData &originalData,
                               int contextLinesNumber);
+void addChangedPositions(int positionOffset,
+                         const QMap<int, int> &originalChangedPositions,
+                         QMap<int, int> *changedPositions);
 QList<QTextEdit::ExtraSelection> colorPositions(const QTextCharFormat &format,
         QTextCursor &cursor,
         const QMap<int, int> &positions);

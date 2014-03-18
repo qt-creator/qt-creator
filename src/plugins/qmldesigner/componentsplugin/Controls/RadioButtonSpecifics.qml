@@ -59,7 +59,7 @@ Column {
 
             Label {
                 text: qsTr("Checked")
-                toolTip: qsTr("Determines whether the radio button is checkable or not.")
+                toolTip: qsTr("Determines whether the radio button is checked or not.")
             }
 
             SecondColumnLayout {

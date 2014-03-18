@@ -105,7 +105,7 @@ def __iterateTree__(treeObj, additionalFunc, *additionalParameters):
             doneItems.append(itObj)
             if alreadyDone:
                 itObj = "%s occurrence='%d'}" % (itObj[:-1], alreadyDone + 1)
-            currentSelectedTreeItem = waitForObject(itObj, 3000)
+            currentSelectedTreeItem = findObject(itObj)
             mouseClick(currentSelectedTreeItem, 5, 5, 0, Qt.LeftButton)
             additionalFunc(indexName, *additionalParameters)
             currentSelectedTreeItem = None

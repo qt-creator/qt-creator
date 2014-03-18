@@ -73,7 +73,7 @@
     <widget class="QLabel" name="nickNameMailMapLabel">
      <property name="toolTip">
       <string>A file listing user names and email addresses in a 4-column mailmap format:
-name &lt;email&gt; alias &lt;email&gt;</string>
+'name &lt;email&gt; alias &lt;email&gt;'.</string>
      </property>
      <property name="text">
       <string>User/&amp;alias configuration file:</string>

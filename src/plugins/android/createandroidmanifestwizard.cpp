@@ -95,7 +95,7 @@ void ChooseProFilePage::nodeSelected(int index)
 // ChooseDirectoryPage
 //
 ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
-    : m_wizard(wizard), m_androidPackageSourceDir(0)
+    : m_wizard(wizard), m_androidPackageSourceDir(0), m_complete(true)
 {
     QString androidPackageDir = m_wizard->node()->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir);
 
@@ -104,26 +104,66 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     label->setWordWrap(true);
     fl->addRow(label);
 
+    m_sourceDirectoryWarning = new QLabel(this);
+    m_sourceDirectoryWarning->setVisible(false);
+    m_sourceDirectoryWarning->setText(tr("The Android package source directory can not be the same as the project directory."));
+    m_sourceDirectoryWarning->setWordWrap(true);
+    m_warningIcon = new QLabel(this);
+    m_warningIcon->setVisible(false);
+    m_warningIcon->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/compile_error.png")));
+    m_warningIcon->setWordWrap(true);
+    m_warningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    QHBoxLayout *hbox = new QHBoxLayout;
+    hbox->addWidget(m_warningIcon);
+    hbox->addWidget(m_sourceDirectoryWarning);
+    hbox->setAlignment(m_warningIcon, Qt::AlignTop);
+
+    fl->addRow(hbox);
+
     m_androidPackageSourceDir = new Utils::PathChooser(this);
     m_androidPackageSourceDir->setExpectedKind(Utils::PathChooser::Directory);
     fl->addRow(tr("Android package source directory:"), m_androidPackageSourceDir);
 
     if (androidPackageDir.isEmpty()) {
-        label->setText(tr("Select the Android package source directory. "
+        label->setText(tr("Select the Android package source directory.\n\n"
                           "The files in the Android package source directory are copied to the build directory's "
                           "Android directory and the default files are overwritten."));
 
         m_androidPackageSourceDir->setPath(QFileInfo(m_wizard->node()->path()).absolutePath().append(QLatin1String("/android")));
+        connect(m_androidPackageSourceDir, SIGNAL(changed(QString)),
+                this, SLOT(checkPackageSourceDir()));
     } else {
         label->setText(tr("The Android manifest file will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file."));
         m_androidPackageSourceDir->setPath(androidPackageDir);
         m_androidPackageSourceDir->setReadOnly(true);
     }
 
+
     m_wizard->setDirectory(m_androidPackageSourceDir->path());
 
     connect(m_androidPackageSourceDir, SIGNAL(pathChanged(QString)),
             m_wizard, SLOT(setDirectory(QString)));
+}
+
+void ChooseDirectoryPage::checkPackageSourceDir()
+{
+    QString projectDir = QFileInfo(m_wizard->node()->path()).absolutePath();
+    QString newDir = m_androidPackageSourceDir->path();
+    bool isComplete = QFileInfo(projectDir) != QFileInfo(newDir);
+
+    m_sourceDirectoryWarning->setVisible(!isComplete);
+    m_warningIcon->setVisible(!isComplete);
+
+    if (isComplete != m_complete) {
+        m_complete = isComplete;
+        emit completeChanged();
+    }
+}
+
+bool ChooseDirectoryPage::isComplete() const
+{
+    return m_complete;
 }
 
 //

@@ -132,7 +132,8 @@ void BaseFileFind::runNewSearch(const QString &txt, Core::FindFlags findFlags,
         updateComboEntries(d->m_filterCombo, true);
     SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(label(),
                            toolTip().arg(Core::IFindFilter::descriptionForFindFlags(findFlags)),
-                           txt, searchMode, QString::fromLatin1("TextEditor"));
+                           txt, searchMode, Core::SearchResultWindow::PreserveCaseEnabled,
+                           QString::fromLatin1("TextEditor"));
     search->setTextToReplace(txt);
     search->setSearchAgainSupported(true);
     FileFindParameters parameters;

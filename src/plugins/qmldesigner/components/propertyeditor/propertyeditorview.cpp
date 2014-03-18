@@ -45,6 +45,7 @@
 #include <nodeabstractproperty.h>
 #include <rewriterview.h>
 
+#include <coreplugin/icore.h>
 #include <utils/fileutils.h>
 
 #include <QCoreApplication>
@@ -155,7 +156,7 @@ void PropertyEditorView::changeValue(const QString &name)
                     m_locked = true;
                     value->setValue(m_selectedNode.id());
                     m_locked = false;
-                    QMessageBox::warning(0, tr("Invalid Id"), e.description());
+                    e.showException(tr("Invalid Id"));
                 }
             } else { //there is already an id, so we refactor
                 if (rewriterView())
@@ -166,9 +167,9 @@ void PropertyEditorView::changeValue(const QString &name)
             value->setValue(m_selectedNode.id());
             m_locked = false;
             if (!m_selectedNode.isValidId(newId))
-                QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
+                QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
             else
-                QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
+                QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
         }
         return;
     }
@@ -226,7 +227,7 @@ void PropertyEditorView::changeValue(const QString &name)
             }
         }
         catch (RewritingException &e) {
-            QMessageBox::warning(0, "Error", e.description());
+            e.showException();
         }
 }
 
@@ -302,7 +303,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     }
 
     catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+        e.showException();
     }
 }
 

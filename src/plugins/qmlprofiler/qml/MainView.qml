@@ -79,7 +79,6 @@ Rectangle {
 
             backgroundMarks.updateMarks(startTime, endTime);
             view.updateFlickRange(startTime, endTime);
-            flick.setContentWidth();
         }
     }
 
@@ -288,14 +287,12 @@ Rectangle {
         onInteractiveChanged: interactive = stayInteractive
         onStayInteractiveChanged: interactive = stayInteractive
 
-        function setContentWidth() {
+        onContentXChanged: view.updateZoomControl()
+        onWidthChanged: {
             var duration = Math.abs(zoomControl.endTime() - zoomControl.startTime());
             if (duration > 0)
                 contentWidth = qmlProfilerModelProxy.traceDuration() * width / duration;
         }
-
-        onContentXChanged: view.updateZoomControl()
-        onWidthChanged: setContentWidth()
 
         // ***** child items
         TimeMarks {
@@ -327,8 +324,15 @@ Rectangle {
             onEndTimeChanged: requestPaint()
             onYChanged: requestPaint()
             onHeightChanged: requestPaint()
+            property bool recursionGuard: false
 
             function updateZoomControl() {
+                // Don't updateZoomControl if we're just updating the flick range, _from_
+                // zoomControl. The other way round is OK. We _want_ the flick range to be updated
+                // on external changes to zoomControl.
+                if (recursionGuard)
+                    return;
+
                 var newStartTime = Math.round(flick.contentX * (endTime - startTime) / flick.width) +
                         qmlProfilerModelProxy.traceStartTime();
                 if (Math.abs(newStartTime - startTime) > 1) {
@@ -341,16 +345,27 @@ Rectangle {
             }
 
             function updateFlickRange(start, end) {
-                if (start !== startTime || end !== endTime) {
-                    startTime = start;
-                    endTime = end;
-                    if (!flick.flickingHorizontally) {
-                        var newStartX = (startTime - qmlProfilerModelProxy.traceStartTime()) *
-                                flick.width / (endTime-startTime);
-                        if (isFinite(newStartX) && Math.abs(newStartX - flick.contentX) >= 1)
-                            flick.contentX = newStartX;
-                    }
+                var duration = end - start;
+                if (recursionGuard || duration <= 0 || (start === startTime && end === endTime))
+                    return;
+
+                recursionGuard = true;
+
+                startTime = start;
+                endTime = end;
+                if (!flick.flickingHorizontally) {
+                    // This triggers an unwanted automatic change in contentX. We ignore that by
+                    // checking recursionGuard in this function and in updateZoomControl.
+                    flick.contentWidth = qmlProfilerModelProxy.traceDuration() * flick.width /
+                            duration;
+
+                    var newStartX = (startTime - qmlProfilerModelProxy.traceStartTime()) *
+                            flick.width / duration;
+
+                    if (isFinite(newStartX) && Math.abs(newStartX - flick.contentX) >= 1)
+                        flick.contentX = newStartX;
                 }
+                recursionGuard = false;
             }
 
             onSelectedItemChanged: {

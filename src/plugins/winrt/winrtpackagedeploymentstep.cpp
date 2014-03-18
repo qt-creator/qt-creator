@@ -28,29 +28,17 @@
 ****************************************************************************/
 
 #include "winrtpackagedeploymentstep.h"
-#include "winrtdevice.h"
+#include "winrtpackagedeploymentstepwidget.h"
 #include "winrtconstants.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/ioutputparser.h>
-#include <projectexplorer/kitinformation.h>
-#include <coreplugin/idocument.h>
-#include <utils/fileutils.h>
-#include <qtsupport/profilereader.h>
-#include <proparser/qmakevfs.h>
-#include <utils/hostosinfo.h>
-
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QRegularExpression>
-#include <QRegularExpressionMatchIterator>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
+using Utils::QtcProcess;
 
 namespace WinRt {
 namespace Internal {
@@ -58,21 +46,25 @@ namespace Internal {
 WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl)
     : AbstractProcessStep(bsl, Constants::WINRT_BUILD_STEP_DEPLOY)
 {
-    setDisplayName(tr("Deploy Qt binaries and application files to output directory"));
+    setDisplayName(tr("Run windeployqt"));
+    m_args = defaultWinDeployQtArguments();
 }
 
 bool WinRtPackageDeploymentStep::init()
 {
-    Utils::FileName proFile = Utils::FileName::fromString(project()->document()->filePath());
+    Utils::FileName proFile = Utils::FileName::fromString(project()->projectFilePath());
     const QString targetPath
             = target()->applicationTargets().targetForProject(proFile).toString()
                 + QLatin1String(".exe");
     // ### Actually, targetForProject is supposed to return the file path including the file
     // extension. Whenever this will eventually work, we have to remove the .exe suffix here.
 
+    QString args = QtcProcess::quoteArg(QDir::toNativeSeparators(targetPath));
+    args += QLatin1Char(' ') + m_args;
+
     ProcessParameters *params = processParameters();
     params->setCommand(QLatin1String("windeployqt.exe"));
-    params->setArguments(QDir::toNativeSeparators(targetPath));
+    params->setArguments(args);
     params->setEnvironment(target()->activeBuildConfiguration()->environment());
 
     return AbstractProcessStep::init();
@@ -80,7 +72,42 @@ bool WinRtPackageDeploymentStep::init()
 
 BuildStepConfigWidget *WinRtPackageDeploymentStep::createConfigWidget()
 {
-    return new SimpleBuildStepConfigWidget(this);
+    return new WinRtPackageDeploymentStepWidget(this);
+}
+
+void WinRtPackageDeploymentStep::setWinDeployQtArguments(const QString &args)
+{
+    m_args = args;
+}
+
+QString WinRtPackageDeploymentStep::winDeployQtArguments() const
+{
+    return m_args;
+}
+
+QString WinRtPackageDeploymentStep::defaultWinDeployQtArguments() const
+{
+    QString args;
+    QtcProcess::addArg(&args, QStringLiteral("--qmldir"));
+    QtcProcess::addArg(&args, QDir::toNativeSeparators(project()->projectDirectory()));
+    return args;
+}
+
+bool WinRtPackageDeploymentStep::fromMap(const QVariantMap &map)
+{
+    if (!AbstractProcessStep::fromMap(map))
+        return false;
+    QVariant v = map.value(QLatin1String(Constants::WINRT_BUILD_STEP_DEPLOY_ARGUMENTS));
+    if (v.isValid())
+        m_args = v.toString();
+    return true;
+}
+
+QVariantMap WinRtPackageDeploymentStep::toMap() const
+{
+    QVariantMap map = AbstractProcessStep::toMap();
+    map.insert(QLatin1String(Constants::WINRT_BUILD_STEP_DEPLOY_ARGUMENTS), m_args);
+    return map;
 }
 
 } // namespace Internal

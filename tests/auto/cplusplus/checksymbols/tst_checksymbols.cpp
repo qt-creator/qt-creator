@@ -1539,7 +1539,9 @@ void tst_CheckSymbols::test_checksymbols_AnonymousClass_insideNamespace()
             << Use(13, 11, 3, CppHighlightingSupport::TypeUse)
             << Use(15, 27, 4, CppHighlightingSupport::FieldUse)
             << Use(16, 10, 4, CppHighlightingSupport::FunctionUse)
+            << Use(16, 19, 4, CppHighlightingSupport::FieldUse)
             << Use(18, 8, 4, CppHighlightingSupport::FunctionUse)
+            << Use(20, 10, 4, CppHighlightingSupport::FieldUse)
             ;
 
     TestData::check(source, expectedUses);

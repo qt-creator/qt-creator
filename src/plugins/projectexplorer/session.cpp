@@ -395,7 +395,7 @@ bool SessionManager::save()
 
     bool result = d->m_writer->save(data, Core::ICore::mainWindow());
     if (!result) {
-        QMessageBox::warning(0, tr("Error while saving session"),
+        QMessageBox::warning(ICore::dialogParent(), tr("Error while saving session"),
             tr("Could not save session to file %1").arg(d->m_writer->fileName().toUserOutput()));
     }
 
@@ -864,7 +864,7 @@ bool SessionManager::loadSession(const QString &session)
     PersistentSettingsReader reader;
     if (fileName.toFileInfo().exists()) {
         if (!reader.load(fileName)) {
-            QMessageBox::warning(0, tr("Error while restoring session"),
+            QMessageBox::warning(ICore::dialogParent(), tr("Error while restoring session"),
                                  tr("Could not restore session %1").arg(fileName.toUserOutput()));
             return false;
         }

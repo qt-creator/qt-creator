@@ -33,34 +33,38 @@ cloneUrl = "https://codereview.qt-project.org/p/qt-labs/jom"
 cloneDir = "myCloneOfJom"
 
 def verifyCloneLog(targetDir, canceled):
-    # Expect fails because of QTCREATORBUG-10531
-    cloneLog = waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit")
     finish = findObject(":Git Repository Clone.Finish_QPushButton")
     waitFor("canceled or finish.enabled", 30000)
-    test.xverify(("Executing in " + targetDir + ":" in str(cloneLog.plainText)),
-                 "Searching for target directory in clone log")
-    test.xverify((" ".join(["clone", cloneUrl, cloneDir]) in str(cloneLog.plainText)),
-                 "Searching for git parameters in clone log")
     if canceled:
-        test.xverify("Stopping..." in str(cloneLog.plainText),
-                     "Searching for 'Stopping...' in clone log")
-        result = "The process terminated in an abnormal way."
         summary = "Failed."
     else:
-        test.verify(not "Stopping..." in str(cloneLog.plainText),
+        cloneLog = str(waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit").plainText)
+        # test for QTCREATORBUG-10112
+        test.compare(cloneLog.count("remote: Counting objects:"), 1)
+        test.compare(cloneLog.count("remote: Finding sources:"), 1)
+        test.compare(cloneLog.count("Receiving objects:"), 1)
+        test.compare(cloneLog.count("Resolving deltas:"), 1)
+        test.verify(not "Stopping..." in cloneLog,
                     "Searching for 'Stopping...' in clone log")
-        test.verify(("'" + cloneDir + "'..." in str(cloneLog.plainText)),
+        test.verify(("'" + cloneDir + "'..." in cloneLog),
                     "Searching for clone directory in clone log")
-        result = "The process terminated with exit code 0."
         summary = "Succeeded."
-    # cloneLog.plainText holds escape as character which makes QDom fail while printing the result
-    # removing these for letting Jenkins continue execute the test suite
-    test.xverify((result in str(cloneLog.plainText)),
-                 "Searching for result (%s) in clone log:\n%s"
-                % (result, str(cloneLog.plainText).replace(unicode("\x1b"), "")))
     resultLabel = findObject(":Git Repository Clone.Result._QLabel")
     test.verify(waitFor('str(resultLabel.text) == summary', 3000),
                 "Verifying expected result (%s)" % summary)
+
+def verifyVersionControlView(targetDir, canceled):
+    openVcsLog()
+    vcsLog = str(waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
+                               "window=':Qt Creator_Core::Internal::MainWindow'}").plainText)
+    test.log("Clone log is: %s" % vcsLog)
+    test.verify("Executing in " + targetDir + ":" in vcsLog,
+                "Searching for target directory in clone log")
+    test.verify(" ".join(["clone", "--progress", cloneUrl, cloneDir]) in vcsLog,
+                "Searching for git parameters in clone log")
+    test.verify(canceled == (" terminated abnormally" in vcsLog),
+                "Searching for result in clone log")
+    clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
 
 def verifyFiles(targetDir):
     for file in [".gitignore", "CMakeLists.txt", "jom.pro",
@@ -122,4 +126,5 @@ def main():
                         test.fail("The checked out project was not being opened.",
                                   waitForObject(":Cannot Open Project_QTextEdit").plainText)
                         clickButton(waitForObject(":Cannot Open Project.OK_QPushButton"))
+        verifyVersionControlView(targetDir, button == "Cancel immediately")
     invokeMenuItem("File", "Exit")

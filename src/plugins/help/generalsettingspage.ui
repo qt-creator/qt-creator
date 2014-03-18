@@ -268,7 +268,7 @@
           <item>
            <widget class="QPushButton" name="defaultPageButton">
             <property name="toolTip">
-             <string>Reset to default</string>
+             <string>Reset to default.</string>
             </property>
             <property name="text">
              <string>Reset</string>
@@ -291,7 +291,7 @@
       <item>
        <widget class="QCheckBox" name="m_returnOnClose">
         <property name="toolTip">
-         <string>Switch to editor context after last help page is closed.</string>
+         <string>Switches to editor context after last help page is closed.</string>
         </property>
         <property name="text">
          <string>Return to editor on closing the last page</string>

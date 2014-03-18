@@ -132,47 +132,30 @@ ColumnLayout {
             Column {
                 x: 14
                 spacing: 16
-                Row {
-                    spacing: 7
-                    Image {
-                        width: 16
-                        height: 15
-                        source: "images/icons/onlineCommunity.png"
-                    }
-                    LinkedText {
-                        text: qsTr("Online Community")
-                        font.pixelSize: 11
-                        color: "black"
-                        onClicked: gettingStarted.openUrl("http://qt-project.org/forums")
-                    }
+                IconAndLink {
+                    iconSource: "images/icons/qt_account.png"
+                    title: qsTr("Qt Account")
+                    openUrl: "https://login.qt.digia.com/qtaccount?utm_source=qtcreator31"
                 }
-                Row {
-                    spacing: 7
-                    Image {
-                        height: 15
-                        width: 15
-                        source: "images/icons/blogs.png"
-                    }
-                    LinkedText {
-                        text: qsTr("Blogs")
-                        font.pixelSize: 11
-                        color: "black"
-                        onClicked: gettingStarted.openUrl("http://planet.qt-project.org")
-                    }
+                IconAndLink {
+                    iconSource: "images/icons/qt_cloud.png"
+                    title: qsTr("Qt Cloud Services")
+                    openUrl: "https://developer.qtc.io?utm_source=qtcreator31"
                 }
-                Row {
-                    spacing: 7
-                    Image {
-                        width: 16
-                        height: 15
-                        source: "images/icons/userGuide.png"
-                    }
-                    LinkedText {
-                        text: qsTr("User Guide")
-                        font.pixelSize: 11
-                        color: "black"
-                        onClicked: gettingStarted.openHelp("qthelp://org.qt-project.qtcreator/doc/index.html")
-                    }
+                IconAndLink {
+                    iconSource: "images/icons/onlineCommunity.png"
+                    title: qsTr("Online Community")
+                    openUrl: "http://qt-project.org/forums"
+                }
+                IconAndLink {
+                    iconSource: "images/icons/blogs.png"
+                    title: qsTr("Blogs")
+                    openUrl: "http://planet.qt-project.org"
+                }
+                IconAndLink {
+                    iconSource: "images/icons/userGuide.png"
+                    title: qsTr("User Guide")
+                    openHelpUrl: "qthelp://org.qt-project.qtcreator/doc/index.html"
                 }
             }
         }

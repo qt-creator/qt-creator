@@ -5,69 +5,24 @@
  * See the IOSSIM_LICENSE file in this directory for the license on the source code in this file.
  */
 /* derived from https://github.com/phonegap/ios-sim */
-#import <AppKit/AppKit.h>
-#import "iphonesimulator.h"
-#include <QLibrary>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#include <QApplication>
-#else
-#include <QGuiApplication>
-#endif
-#include <QString>
-#include <QStringList>
 
-/* to do:
- * - try to stop inferior when killed (or communicate with creator to allow killing the inferior)
- * - remove unneeded functionality and streamline a bit
- */
+#import <AppKit/AppKit.h>
+
+#import "iphonesimulator.h"
 
 /*
  * Runs the iPhoneSimulator backed by a main runloop.
  */
 int main (int argc, char *argv[]) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QApplication a(argc, argv);
-#else
-    QGuiApplication a(argc, argv);
-#endif
-
-
-    //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-    QString xcodePath = QLatin1String("/Applications/Xcode.app/Contents/Developer/");
-    for (int i = 0; i + 1 < argc; ++i) {
-        if (strcmp(argv[i], "--developer-path") == 0)
-            xcodePath = QCoreApplication::arguments().at(i+1);
-    }
-    if (!xcodePath.endsWith(QLatin1Char('/')))
-        xcodePath.append(QLatin1Char('/'));
-
-    /* manual loading of the private deps */
-    QStringList deps = QStringList()
-        << QLatin1String("/System/Library/PrivateFrameworks/DebugSymbols.framework/Versions/A/DebugSymbols")
-        << QLatin1String("/System/Library/PrivateFrameworks/CoreSymbolication.framework/CoreSymbolication")
-        << (xcodePath + QLatin1String("../OtherFrameworks/DevToolsFoundation.framework/DevToolsFoundation"));
-    foreach (const QString &libPath, deps) {
-        QLibrary *lib = new QLibrary(libPath);
-        //lib->setLoadHints(QLibrary::ExportExternalSymbolsHint);
-        if (!lib->load())
-            printf("<msg>error loading %s</msg>", libPath.toUtf8().constData());
-    }
-    QLibrary *libIPhoneSimulatorRemoteClient = new QLibrary(xcodePath
-        + QLatin1String("Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/iPhoneSimulatorRemoteClient.framework/iPhoneSimulatorRemoteClient"));
-    //libIPhoneSimulatorRemoteClient->setLoadHints(QLibrary::ResolveAllSymbolsHint|QLibrary::ExportExternalSymbolsHint);
-    if (!libIPhoneSimulatorRemoteClient->load())
-        printf("<msg>error loading  iPhoneSimulatorRemoteClient</msg>");
-
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     iPhoneSimulator *sim = [[iPhoneSimulator alloc] init];
-
+    
     /* Execute command line handler */
     [sim runWithArgc: argc argv: argv];
 
     /* Run the loop to handle added input sources, if any */
+    [[NSRunLoop mainRunLoop] run];
 
-    int res = a.exec();
-    exit(res);
-    // [pool release];
+    [pool release];
     return 0;
 }

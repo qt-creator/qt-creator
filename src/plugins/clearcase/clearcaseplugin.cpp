@@ -1658,7 +1658,8 @@ bool ClearCasePlugin::vcsSetActivity(const QString &workingDir, const QString &t
     const ClearCaseResponse actResponse =
             runCleartool(workingDir, args, m_settings.timeOutMS(), ShowStdOutInLogWindow);
     if (actResponse.error) {
-        QMessageBox::warning(0, title, tr("Set current activity failed: %1").arg(actResponse.message), QMessageBox::Ok);
+        QMessageBox::warning(ICore::dialogParent(), title,
+                             tr("Set current activity failed: %1").arg(actResponse.message), QMessageBox::Ok);
         return false;
     }
     m_activity = activity;
@@ -1821,7 +1822,7 @@ bool ClearCasePlugin::vcsAdd(const QString &workingDir, const QString &fileName)
 bool ClearCasePlugin::vcsDelete(const QString &workingDir, const QString &fileName)
 {
     const QString title(tr("ClearCase Remove Element %1").arg(baseName(fileName)));
-    if (QMessageBox::warning(0, title, tr("This operation is irreversible. Are you sure?"),
+    if (QMessageBox::warning(ICore::dialogParent(), title, tr("This operation is irreversible. Are you sure?"),
                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
         return true;
 

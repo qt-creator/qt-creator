@@ -137,6 +137,11 @@ public:
         SearchAndReplace
     };
 
+    enum PreserveCaseMode {
+        PreserveCaseEnabled,
+        PreserveCaseDisabled
+    };
+
 
     SearchResultWindow(QWidget *newSearchPanel);
     virtual ~SearchResultWindow();
@@ -173,6 +178,7 @@ public:
                                  const QString &toolTip,
                                  const QString &searchTerm,
                                  SearchMode searchOrSearchAndReplace = SearchOnly,
+                                 PreserveCaseMode preserveCaseMode = PreserveCaseEnabled,
                                  const QString &cfgGroup = QString());
 
 public slots:

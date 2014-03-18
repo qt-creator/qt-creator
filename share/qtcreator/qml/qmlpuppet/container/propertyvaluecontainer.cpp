@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "propertyvaluecontainer.h"
+#include <enumeration.h>
 
 #include <QtDebug>
 
@@ -44,6 +45,8 @@ PropertyValueContainer::PropertyValueContainer(qint32 instanceId, const Property
     m_value(value),
     m_dynamicTypeName(dynamicTypeName)
 {
+    if (m_value.canConvert<Enumeration>())
+        m_value = QVariant::fromValue(value.value<Enumeration>().nameToString());
 }
 
 qint32 PropertyValueContainer::instanceId() const

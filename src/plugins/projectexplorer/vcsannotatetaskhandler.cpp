@@ -66,7 +66,7 @@ void VcsAnnotateTaskHandler::handle(const Task &task)
 QAction *VcsAnnotateTaskHandler::createAction(QObject *parent) const
 {
     QAction *vcsannotateAction = new QAction(tr("&Annotate"), parent);
-    vcsannotateAction->setToolTip(tr("Annotate using version control system"));
+    vcsannotateAction->setToolTip(tr("Annotate using version control system."));
     return vcsannotateAction;
 }
 

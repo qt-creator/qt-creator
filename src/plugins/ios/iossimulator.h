@@ -57,6 +57,8 @@ public:
     Utils::FileName simulatorPath() const;
     void fromMap(const QVariantMap &map) QTC_OVERRIDE;
     QVariantMap toMap() const QTC_OVERRIDE;
+    quint16 nextPort() const;
+    bool canAutoDetectPorts() const QTC_OVERRIDE;
 
     ProjectExplorer::IDevice::Ptr clone() const QTC_OVERRIDE;
 
@@ -68,6 +70,7 @@ protected:
     IosSimulator(const IosSimulator &other);
 private:
     Utils::FileName m_simulatorPath;
+    mutable quint16 m_lastPort;
 };
 
 namespace IosKitInformation {

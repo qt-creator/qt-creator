@@ -669,6 +669,15 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
 
         foreach (ClassOrNamespace *u, binding->usings())
             lookup_helper(name, u, result, processed, binding->_templateId);
+
+        Anonymouses::const_iterator cit = binding->_anonymouses.begin();
+        Anonymouses::const_iterator citEnd = binding->_anonymouses.end();
+        for (; cit != citEnd; ++cit) {
+            const AnonymousNameId *anonymousNameId = cit.key();
+            ClassOrNamespace *a = cit.value();
+            if (!binding->_declaredAnonymouses.contains(anonymousNameId))
+                lookup_helper(name, a, result, processed, binding->_templateId);
+        }
     }
 }
 
@@ -1567,8 +1576,12 @@ bool CreateBindings::visit(Declaration *decl)
                 }
             }
         }
+    } else if (Class *clazz = decl->type()->asClassType()) {
+        if (const Name *name = clazz->name()) {
+            if (const AnonymousNameId *anonymousNameId = name->asAnonymousNameId())
+                _currentClassOrNamespace->_declaredAnonymouses.insert(anonymousNameId);
+        }
     }
-
     return false;
 }
 

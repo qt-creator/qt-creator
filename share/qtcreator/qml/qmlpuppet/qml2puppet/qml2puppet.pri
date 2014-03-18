@@ -8,7 +8,7 @@ QT += core gui widgets qml quick network
     QT += v8
 }
 
-QT += core-private qml-private quick-private gui-private script-private
+QT += core-private qml-private quick-private gui-private
 
 !isEmpty(QT.v8.name) {
     QT += v8-private

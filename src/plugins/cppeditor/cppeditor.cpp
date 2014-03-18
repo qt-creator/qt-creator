@@ -963,7 +963,7 @@ void CPPEditorWidget::renameSymbolUnderCursor()
         return;
 
     CppEditorSupport *edSup = m_modelManager->cppEditorSupport(editor());
-    updateSemanticInfo(edSup->recalculateSemanticInfo(/* emitSignalWhenFinished = */ false));
+    updateSemanticInfo(edSup->recalculateSemanticInfo());
     abortRename();
 
     QTextCursor c = textCursor();
@@ -1157,11 +1157,6 @@ void CPPEditorWidget::updateOutlineToolTip()
 
 void CPPEditorWidget::updateUses()
 {
-    if (m_highlightWatcher) {
-        m_highlightWatcher->cancel();
-        m_highlightWatcher.reset();
-    }
-
     // Block premature semantic info calculation when editor is created.
     if (m_modelManager && m_modelManager->cppEditorSupport(editor())->initialized())
         m_updateUsesTimer->start();
@@ -1595,8 +1590,12 @@ bool CPPEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
 
 void CPPEditorWidget::semanticRehighlight(bool force)
 {
-    if (m_modelManager)
-        m_modelManager->cppEditorSupport(editor())->recalculateSemanticInfoDetached(force);
+    if (m_modelManager) {
+        const CppEditorSupport::ForceReason forceReason = force
+                ? CppEditorSupport::ForceDueEditorRequest
+                : CppEditorSupport::NoForce;
+        m_modelManager->cppEditorSupport(editor())->recalculateSemanticInfoDetached(forceReason);
+    }
 }
 
 void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,

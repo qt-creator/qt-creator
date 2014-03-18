@@ -134,7 +134,6 @@ bool BlackBerryCreatePackageStep::init()
             // If there is an error, prepareAppDescriptorFile() will raise it
             return false;
 
-
         QStringList args;
         if (m_packageMode == DevelopmentMode) {
             args << QLatin1String("-devMode");
@@ -164,39 +163,6 @@ bool BlackBerryCreatePackageStep::init()
         }
         args << QLatin1String("-package") << QnxUtils::addQuotes(QDir::toNativeSeparators(info.packagePath()));
         args << QnxUtils::addQuotes(QDir::toNativeSeparators(preparedFilePath));
-
-        if (m_packageMode == DevelopmentMode && m_bundleMode == BundleQt) {
-            BlackBerryQtVersion *qtVersion = dynamic_cast<BlackBerryQtVersion *>
-                    (QtSupport::QtKitInformation::qtVersion(target()->kit()));
-            if (!qtVersion) {
-                raiseError(tr("Qt version configured for BlackBerry kit "
-                              "is not a BlackBerry Qt version."));
-                return false;
-            }
-
-            QMap<QString, QString> qtFolders;
-            qtFolders[QLatin1String("lib")] =
-                    qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"));
-            qtFolders[QLatin1String("plugins")] =
-                    qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_PLUGINS"));
-            qtFolders[QLatin1String("imports")] =
-                    qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_IMPORTS"));
-            qtFolders[QLatin1String("qml")] =
-                    qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_QML"));
-
-            for (QMap<QString, QString>::const_iterator it = qtFolders.constBegin();
-                 it != qtFolders.constEnd(); ++it) {
-                const QString target = it.key();
-                const QString qtFolder = it.value();
-                if (QFileInfo(qtFolder).exists()) {
-                    args << QLatin1String("-e");
-                    args << qtFolder;
-                    args << target;
-                }
-            }
-
-            args << QLatin1String(".");
-        }
 
         addCommand(packageCmd, args);
     }
@@ -340,24 +306,12 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
         QDir::toNativeSeparators(target()->project()->projectDirectory());
     doc.expandPlaceHolders(placeHoldersHash);
 
-    // Add parameter for QML debugging (if enabled)
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = target()->activeRunConfiguration()->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    if (aspect->useQmlDebugger()) {
-        const QString qmlDebuggerArg = QString::fromLatin1("-qmljsdebugger=port:%1")
-                .arg(aspect->qmlDebugServerPort());
-
-        QStringList args = doc.value(BarDescriptorDocument::arg).toStringList();
-        if (!args.contains(qmlDebuggerArg))
-            args.append(qmlDebuggerArg);
-
-        doc.setValue(BarDescriptorDocument::arg, args);
-    }
-
     // Set up correct environment depending on using bundled/pre-installed Qt
     QList<Utils::EnvironmentItem> envItems =
             doc.value(BarDescriptorDocument::env).value<QList<Utils::EnvironmentItem> >();
     Utils::Environment env(Utils::EnvironmentItem::toStringList(envItems), Utils::OsTypeOtherUnix);
+    BarDescriptorAssetList assetList = doc.value(BarDescriptorDocument::asset)
+            .value<BarDescriptorAssetList>();
 
     if (m_packageMode == SigningPackageMode
             || (m_packageMode == DevelopmentMode && m_bundleMode == PreInstalledQt)) {
@@ -371,6 +325,29 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
         env.prependOrSetLibrarySearchPath(QString::fromLatin1("/usr/lib/qt%1/lib")
                                           .arg(versionNumber.majorVersion));
     } else if (m_packageMode == DevelopmentMode && m_bundleMode == BundleQt) {
+        QList<QPair<QString, QString> > qtFolders;
+        qtFolders.append(qMakePair(QString::fromLatin1("lib"),
+                                   qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"))));
+        qtFolders.append(qMakePair(QString::fromLatin1("plugins"),
+                                   qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_PLUGINS"))));
+        qtFolders.append(qMakePair(QString::fromLatin1("imports"),
+                                   qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_IMPORTS"))));
+        qtFolders.append(qMakePair(QString::fromLatin1("qml"),
+                                   qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_QML"))));
+
+        for (QList<QPair<QString, QString> >::const_iterator it = qtFolders.constBegin();
+             it != qtFolders.constEnd(); ++it) {
+            const QString target = it->first;
+            const QString qtFolder = it->second;
+            if (QFileInfo(qtFolder).exists()) {
+                BarDescriptorAsset asset;
+                asset.source = qtFolder;
+                asset.destination = target;
+                asset.entry = false;
+                assetList << asset;
+            }
+        }
+
         env.appendOrSet(QLatin1String("QML2_IMPORT_PATH"),
                         QLatin1String("app/native/imports:app/native/qml"), QLatin1String(":"));
         env.appendOrSet(QLatin1String("QML_IMPORT_PATH"),
@@ -389,6 +366,8 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
                         QString::fromLatin1("%1/plugins").arg(fullQtLibraryPath()), QLatin1String(":"));
         env.prependOrSetLibrarySearchPath(QString::fromLatin1("%1/lib").arg(fullQtLibraryPath()));
     }
+
+    doc.setValue(BarDescriptorDocument::asset, QVariant::fromValue(assetList));
 
     QVariant envVar;
     envVar.setValue(Utils::EnvironmentItem::fromStringList(env.toStringList()));

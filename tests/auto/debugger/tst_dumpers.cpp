@@ -3428,7 +3428,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&a, &b);\n")
 
                + ForceC()
-               + GdbVersion(70600)
+               + GdbVersion(70500)
 
                + Check("a", "0 + 0 * I", "complex double") % GdbEngine
                + Check("b", "0 + 0 * I", "complex double") % GdbEngine
@@ -4604,7 +4604,7 @@ GdbEngine
                + Check("d1", "43", "Ref1")
 
                + Check("a2", "\"hello\"", "std::string")
-               + Check("b2", "\"bababa\"", "std::string &")
+               + Check("b2", "\"bababa\"", Pattern("(std::)?string &")) // Clang...
                + Check("c2", "\"world\"", "std::string")
                + Check("d2", "\"hello\"", "Ref2")
 
@@ -4894,6 +4894,18 @@ GdbEngine
              + Check("p3", "Thu Jan 1 00:00:00 1970", "boost::posix_time::ptime");
 
 
+    QTest::newRow("BoostList")
+            << Data("#include <boost/container/list.hpp>\n",
+                    "typedef std::pair<int, double> p;\n"
+                    "boost::container::list<p> l;\n"
+                    "l.push_back(p(13, 61));\n"
+                    "l.push_back(p(14, 64));\n"
+                    "l.push_back(p(15, 65));\n"
+                    "l.push_back(p(16, 66));\n")
+             + BoostProfile()
+             + Check("l", "<4 items>", "boost::container::list<std::pair<int,double>>")
+             + Check("l.2.second", "65", "double");
+
 
 //    // This tests qdump__KRBase in share/qtcreator/debugger/qttypes.py which uses
 //    // a static typeflag to dispatch to subclasses");
@@ -4957,7 +4969,7 @@ GdbEngine
                 "byte f = '2';\n"
                 "int *x = (int*)&f;\n")
          + Check("f", "'2'", "byte") % LldbEngine
-         + Check("f", "50 '2'", "byte") % GdbEngine;
+         + Check("f", "50", "byte") % GdbEngine;
 
 
     // https://bugreports.qt-project.org/browse/QTCREATORBUG-4904

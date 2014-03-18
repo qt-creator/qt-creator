@@ -80,13 +80,20 @@ QtSupport::BaseQtVersion *WinRtQtVersionFactory::create(const Utils::FileName &q
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
 
+    bool isWinRt = false;
     bool isPhone = false;
     foreach (const QString &value, evaluator->values(QLatin1String("QMAKE_PLATFORM"))) {
-        if (value == QStringLiteral("winphone")) {
+        if (value == QStringLiteral("winrt")) {
+            isWinRt = true;
+        } else if (value == QStringLiteral("winphone")) {
+            isWinRt = true;
             isPhone = true;
             break;
         }
     }
+
+    if (!isWinRt)
+        return 0;
 
     return isPhone ? new WinRtPhoneQtVersion(qmakePath, isAutoDetected, autoDetectionSource)
                    : new WinRtQtVersion(qmakePath, isAutoDetected, autoDetectionSource);

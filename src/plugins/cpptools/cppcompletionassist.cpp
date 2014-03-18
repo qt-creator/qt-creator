@@ -1554,25 +1554,44 @@ void CppCompletionAssistProcessor::completeClass(CPlusPlus::ClassOrNamespace *b,
             if (staticLookup)
                 addCompletionItem(scope, InjectedClassNameOrder); // add a completion item for the injected class name.
 
-            for (Scope::iterator it = scope->firstMember(); it != scope->lastMember(); ++it) {
-                Symbol *member = *it;
-                if (member->isFriend()
-                        || member->isQtPropertyDeclaration()
-                        || member->isQtEnum()) {
-                    continue;
-                } else if (!staticLookup && (member->isTypedef() ||
-                                            member->isEnum()    ||
-                                            member->isClass())) {
-                    continue;
-                }
-
-                if (member->isPublic())
-                    addCompletionItem(member, PublicClassMemberOrder);
-                else
-                    addCompletionItem(member);
-            }
+            addClassMembersToCompletion(scope, staticLookup);
         }
     }
+}
+
+void CppCompletionAssistProcessor::addClassMembersToCompletion(Scope *scope, bool staticLookup)
+{
+    if (!scope)
+        return;
+
+    std::set<Class *> nestedAnonymouses;
+
+    for (Scope::iterator it = scope->firstMember(); it != scope->lastMember(); ++it) {
+        Symbol *member = *it;
+        if (member->isFriend()
+                || member->isQtPropertyDeclaration()
+                || member->isQtEnum()) {
+            continue;
+        } else if (!staticLookup && (member->isTypedef() ||
+                                    member->isEnum()    ||
+                                    member->isClass())) {
+            continue;
+        } else if (member->isClass() && member->name()->isAnonymousNameId()) {
+            nestedAnonymouses.insert(member->asClass());
+        } else if (member->isDeclaration()) {
+            Class *declTypeAsClass = member->asDeclaration()->type()->asClassType();
+            if (declTypeAsClass && declTypeAsClass->name()->isAnonymousNameId())
+                nestedAnonymouses.erase(declTypeAsClass);
+        }
+
+        if (member->isPublic())
+            addCompletionItem(member, PublicClassMemberOrder);
+        else
+            addCompletionItem(member);
+    }
+    std::set<Class *>::const_iterator citEnd = nestedAnonymouses.end();
+    for (std::set<Class *>::const_iterator cit = nestedAnonymouses.begin(); cit != citEnd; ++cit)
+        addClassMembersToCompletion(*cit, staticLookup);
 }
 
 bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::LookupItem> &results, bool wantSignals)

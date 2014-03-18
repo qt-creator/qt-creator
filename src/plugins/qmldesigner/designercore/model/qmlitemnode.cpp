@@ -42,7 +42,6 @@
 #include "modelmerger.h"
 #include "rewritingexception.h"
 
-#include <QMessageBox>
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QFileInfo>
@@ -174,7 +173,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
         Q_ASSERT(newQmlItemNode.isValid());
     }
     catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
+        e.showException();
     }
 
     Q_ASSERT(newQmlItemNode.isValid());

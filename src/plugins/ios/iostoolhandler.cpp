@@ -728,7 +728,13 @@ QString IosToolHandler::iosDeviceToolPath()
 
 QString IosToolHandler::iosSimulatorToolPath()
 {
+    Utils::FileName devPath = Internal::IosConfigurations::developerPath();
+    bool version182 = devPath.appendPath(QLatin1String(
+        "Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/iPhoneSimulatorRemoteClient.framework"))
+            .toFileInfo().exists();
     QString res = Core::ICore::libexecPath() + QLatin1String("/ios/iossim");
+    if (version182)
+        res = res.append(QLatin1String("_1_8_2"));
     return res;
 }
 

@@ -62,31 +62,6 @@ QWidget *AndroidSettingsPage::widget()
 void AndroidSettingsPage::apply()
 {
     m_widget->saveSettings();
-
-    QList<ToolChain *> existingToolChains = ToolChainManager::toolChains();
-    QList<ToolChain *> toolchains = AndroidToolChainFactory::createToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation());
-    foreach (ToolChain *tc, toolchains) {
-        bool found = false;
-        for (int i = 0; i < existingToolChains.count(); ++i) {
-            if (*(existingToolChains.at(i)) == *tc) {
-                found = true;
-                break;
-            }
-        }
-        if (found)
-            delete tc;
-        else
-            ToolChainManager::registerToolChain(tc);
-    }
-
-    foreach (ToolChain *tc, existingToolChains) {
-        if (tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)) {
-            if (!tc->isValid())
-                ToolChainManager::deregisterToolChain(tc);
-        }
-    }
-
-    AndroidConfigurations::updateAutomaticKitList();
 }
 
 void AndroidSettingsPage::finish()

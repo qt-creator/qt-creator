@@ -29,7 +29,7 @@
       <item>
        <widget class="QRadioButton" name="ministroOption">
         <property name="toolTip">
-         <string>Use the external Ministro application to download and maintain Qt libraries.</string>
+         <string>Uses the external Ministro application to download and maintain Qt libraries.</string>
         </property>
         <property name="text">
          <string>Use Ministro service to install Qt</string>
@@ -42,7 +42,7 @@
       <item>
        <widget class="QRadioButton" name="temporaryQtOption">
         <property name="toolTip">
-         <string>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
+         <string>Pushes local Qt libraries to device. You must have Qt libraries compiled for that platform.
 The APK will not be usable on any other device.</string>
         </property>
         <property name="text">
