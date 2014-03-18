@@ -45,6 +45,7 @@ Item {
         snapMode: ListView.SnapToItem
         spacing: 4
         clip: true
+        interactive: false
 
         delegate: SessionItem {
             function fullSessionName()
