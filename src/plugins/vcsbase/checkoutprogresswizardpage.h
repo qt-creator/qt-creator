@@ -38,6 +38,8 @@ class QPlainTextEdit;
 class QLabel;
 QT_END_NAMESPACE
 
+namespace Utils { class OutputFormatter; }
+
 namespace VcsBase {
 class Command;
 
@@ -70,9 +72,8 @@ private slots:
     void slotError(const QString &text);
 
 private:
-    void outputText(const QString &text);
-
     QPlainTextEdit *m_logPlainTextEdit;
+    Utils::OutputFormatter *m_formatter;
     QLabel *m_statusLabel;
 
     Command *m_command;

@@ -39,6 +39,7 @@ OutputFormatter::OutputFormatter()
     , m_plainTextEdit(0)
     , m_formats(0)
     , m_escapeCodeHandler(new AnsiEscapeCodeHandler)
+    , m_overwriteOutput(false)
 {
 
 }
@@ -67,13 +68,32 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
 
     foreach (const FormattedText &output,
              m_escapeCodeHandler->parseText(FormattedText(text, m_formats[format]))) {
-        cursor.insertText(output.text, output.format);
+        int startPos = 0;
+        int crPos = -1;
+        while ((crPos = output.text.indexOf(QLatin1Char('\r'), startPos)) >= 0)  {
+            append(cursor, output.text.mid(startPos, crPos - startPos), output.format);
+            startPos = crPos + 1;
+            m_overwriteOutput = true;
+        }
+        if (startPos < output.text.count())
+            append(cursor, output.text.mid(startPos), output.format);
     }
 }
 
 QTextCharFormat OutputFormatter::charFormat(OutputFormat format) const
 {
     return m_formats[format];
+}
+
+void OutputFormatter::append(QTextCursor &cursor, const QString &text,
+                             const QTextCharFormat &format)
+{
+    if (m_overwriteOutput) {
+        cursor.clearSelection();
+        cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
+        m_overwriteOutput = false;
+    }
+    cursor.insertText(text, format);
 }
 
 void OutputFormatter::clearLastLine()

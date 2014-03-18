@@ -37,9 +37,10 @@
 #include <QFont>
 
 QT_BEGIN_NAMESPACE
+class QColor;
 class QPlainTextEdit;
 class QTextCharFormat;
-class QColor;
+class QTextCursor;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -68,6 +69,7 @@ protected:
     void initFormats();
     virtual void clearLastLine();
     QTextCharFormat charFormat(OutputFormat format) const;
+    void append(QTextCursor &cursor, const QString &text, const QTextCharFormat &format);
 
     static QColor mixColors(const QColor &a, const QColor &b);
 
@@ -76,6 +78,7 @@ private:
     QTextCharFormat *m_formats;
     QFont m_font;
     AnsiEscapeCodeHandler *m_escapeCodeHandler;
+    bool m_overwriteOutput;
 };
 
 } // namespace Utils

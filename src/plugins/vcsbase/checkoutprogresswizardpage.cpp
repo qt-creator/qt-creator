@@ -31,6 +31,7 @@
 #include "command.h"
 #include "vcsbaseplugin.h"
 
+#include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -61,7 +62,9 @@ CheckoutProgressWizardPage::CheckoutProgressWizardPage(QWidget *parent) :
     resize(264, 200);
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     m_logPlainTextEdit = new QPlainTextEdit;
+    m_formatter = new Utils::OutputFormatter;
     m_logPlainTextEdit->setReadOnly(true);
+    m_formatter->setPlainTextEdit(m_logPlainTextEdit);
 
     verticalLayout->addWidget(m_logPlainTextEdit);
 
@@ -74,6 +77,7 @@ CheckoutProgressWizardPage::~CheckoutProgressWizardPage()
 {
     if (m_state == Running) // Paranoia!
         QApplication::restoreOverrideCursor();
+    delete m_formatter;
 }
 
 void CheckoutProgressWizardPage::setStartedStatus(const QString &startedStatus)
@@ -131,37 +135,12 @@ void CheckoutProgressWizardPage::slotFinished(bool ok, int exitCode, const QVari
 
 void CheckoutProgressWizardPage::slotOutput(const QString &text)
 {
-    int startPos = 0;
-    int crPos = -1;
-    const QString ansiEraseToEol = QLatin1String("\x1b[K");
-    while ((crPos = text.indexOf(QLatin1Char('\r'), startPos)) >= 0)  {
-        QString part = text.mid(startPos, crPos - startPos);
-        // Discard ANSI erase-to-eol
-        if (part.endsWith(ansiEraseToEol))
-            part.chop(ansiEraseToEol.length());
-        outputText(part);
-        startPos = crPos + 1;
-        m_overwriteOutput = true;
-    }
-    if (startPos < text.count())
-        outputText(text.mid(startPos));
+    m_formatter->appendMessage(text, Utils::StdOutFormat);
 }
 
 void CheckoutProgressWizardPage::slotError(const QString &text)
 {
     m_error.append(text);
-}
-
-void CheckoutProgressWizardPage::outputText(const QString &text)
-{
-    if (m_overwriteOutput) {
-        QTextCursor cursor = m_logPlainTextEdit->textCursor();
-        cursor.clearSelection();
-        cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
-        m_logPlainTextEdit->setTextCursor(cursor);
-        m_overwriteOutput = false;
-    }
-    m_logPlainTextEdit->insertPlainText(text);
 }
 
 void CheckoutProgressWizardPage::terminate()
