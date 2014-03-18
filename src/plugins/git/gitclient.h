@@ -281,7 +281,7 @@ public:
                               const QString &messge, QString *name,
                               QString *errorMessage = 0);
 
-    QString readConfig(const QString &workingDirectory, const QStringList &configVar) const;
+    QString readConfig(const QString &workingDirectory, const QString &configVar) const;
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 

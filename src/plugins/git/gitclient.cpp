@@ -2400,9 +2400,8 @@ SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory)
 
     if (cachedSubmoduleData.contains(workingDirectory))
         return cachedSubmoduleData.value(workingDirectory);
-    QStringList args(QLatin1String("-l"));
 
-    QStringList allConfigs = readConfig(workingDirectory, args).split(QLatin1Char('\n'));
+    QStringList allConfigs = readConfig(workingDirectory, QLatin1String("-l")).split(QLatin1Char('\n'));
     const QString submoduleLineStart = QLatin1String("submodule.");
     foreach (const QString &configLine, allConfigs) {
         if (!configLine.startsWith(submoduleLineStart))
@@ -3743,7 +3742,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     return true;
 }
 
-QString GitClient::readConfig(const QString &workingDirectory, const QStringList &configVar) const
+QString GitClient::readConfig(const QString &workingDirectory, const QString &configVar) const
 {
     QStringList arguments;
     arguments << QLatin1String("config") << configVar;
@@ -3761,7 +3760,7 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
 // Read a single-line config value, return trimmed
 QString GitClient::readConfigValue(const QString &workingDirectory, const QString &configVar) const
 {
-    return readConfig(workingDirectory, QStringList(configVar)).remove(QLatin1Char('\n'));
+    return readConfig(workingDirectory, configVar).remove(QLatin1Char('\n'));
 }
 
 bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
