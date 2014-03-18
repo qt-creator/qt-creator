@@ -148,8 +148,6 @@ void TargetSetupWidget::setKitSelected(bool b)
     m_detailsWidget->setChecked(b);
     m_detailsWidget->widget()->setEnabled(b);
     m_ignoreChange = false;
-
-    m_detailsWidget->setState(b ? Utils::DetailsWidget::Expanded : Utils::DetailsWidget::Collapsed);
 }
 
 void TargetSetupWidget::addBuildInfo(BuildInfo *info, bool isImport)
@@ -254,6 +252,11 @@ void TargetSetupWidget::setProjectPath(const QString &projectPath)
             = factory->availableSetups(m_kit, projectPath);
     foreach (BuildInfo *info, infoList)
         addBuildInfo(info, false);
+}
+
+void TargetSetupWidget::expandWidget()
+{
+    m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
 }
 
 void TargetSetupWidget::handleKitUpdate(Kit *k)
