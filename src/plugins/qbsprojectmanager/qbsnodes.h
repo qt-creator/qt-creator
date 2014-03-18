@@ -172,6 +172,7 @@ public:
     const qbs::Project qbsProject() const;
     const qbs::ProjectData qbsProjectData() const;
 
+    bool showInSimpleTree() const;
 private:
     void ctor();
 
