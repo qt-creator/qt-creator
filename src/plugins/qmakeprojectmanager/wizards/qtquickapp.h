@@ -71,7 +71,6 @@ class QtQuickApp : public AbstractMobileApp
 public:
     enum ExtendedFileType {
         MainQml = ExtendedFile,
-        MainQmlDeployed,
         MainQmlOrigin,
         MainQrc,
         MainQrcOrigin,
@@ -81,7 +80,6 @@ public:
         AppViewerCppOrigin,
         AppViewerH,
         AppViewerHOrigin,
-        QmlDirProFileRelative,
         QrcDeployment,
         QrcDeploymentOrigin
     };

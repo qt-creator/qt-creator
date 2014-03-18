@@ -35,9 +35,6 @@ public:
     void setOrientation(ScreenOrientation orientation);
 
     void showExpanded();
-
-private:
-    class QtQuick1ApplicationViewerPrivate *d;
 };
 
 #endif // QTQUICK1APPLICATIONVIEWER_H

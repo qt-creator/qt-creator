@@ -80,26 +80,6 @@ void AbstractMobileApp::setProjectPath(const QString &path)
     m_projectPath.setFile(path);
 }
 
-void AbstractMobileApp::setPngIcon64(const QString &icon)
-{
-    m_pngIcon64 = icon;
-}
-
-QString AbstractMobileApp::pngIcon64() const
-{
-    return path(PngIconOrigin64);
-}
-
-void AbstractMobileApp::setPngIcon80(const QString &icon)
-{
-    m_pngIcon80 = icon;
-}
-
-QString AbstractMobileApp::pngIcon80() const
-{
-    return path(PngIconOrigin80);
-}
-
 QString AbstractMobileApp::path(int fileType) const
 {
     const QString originsRootApp = originsRoot();
@@ -114,12 +94,6 @@ QString AbstractMobileApp::path(int fileType) const
         case DesktopOrigin:         return originsRootShared + QLatin1String("app.desktop");
         case DeploymentPri:         return outputPathBase() + DeploymentPriFileName;
         case DeploymentPriOrigin:   return originsRootShared + DeploymentPriFileName;
-        case PngIcon64:        return outputPathBase() + m_projectName +  QLatin1String("64.png");
-        case PngIconOrigin64:  return !m_pngIcon64.isEmpty() ? m_pngIcon64
-                                        : originsRootShared + QLatin1String("icon64.png");
-        case PngIcon80:        return outputPathBase() + m_projectName +  QLatin1String("80.png");
-        case PngIconOrigin80:  return !m_pngIcon80.isEmpty() ? m_pngIcon80
-                                        : originsRootShared + QLatin1String("icon80.png");
         default:                    return pathExtended(fileType);
     }
     return QString();
@@ -307,8 +281,6 @@ Core::GeneratedFiles AbstractMobileApp::generateFiles(QString *errorMessage) con
     files << file(generateFile(AbstractGeneratedFileInfo::AppProFile, errorMessage), path(AppPro));
     files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     files << file(generateFile(AbstractGeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp));
-    files << file(generateFile(AbstractGeneratedFileInfo::PngIcon64File, errorMessage), path(PngIcon64));
-    files << file(generateFile(AbstractGeneratedFileInfo::PngIcon80File, errorMessage), path(PngIcon80));
     return files;
 }
 #endif // CREATORLESSTEST
@@ -340,12 +312,6 @@ QByteArray AbstractMobileApp::generateFile(int fileType,
         case AbstractGeneratedFileInfo::AppProFile:
             data = generateProFile(errorMessage);
             comment = ProFileComment;
-            break;
-        case AbstractGeneratedFileInfo::PngIcon64File:
-            data = readBlob(path(PngIconOrigin64), errorMessage);
-            break;
-        case AbstractGeneratedFileInfo::PngIcon80File:
-            data = readBlob(path(PngIconOrigin80), errorMessage);
             break;
         case AbstractGeneratedFileInfo::DeploymentPriFile:
             data = readBlob(path(DeploymentPriOrigin), errorMessage);
