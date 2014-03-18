@@ -18,7 +18,7 @@ QtcTool {
         "nsprintf.h",
         "nsstringexpandpath.h",
         "version.h",
-        "iphonesimulatorremoteclient/iphonesimulatorremoteclient.h"
+        "dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h"
     ]
     cpp.linkerFlags: base.concat(["-sectcreate", "__TEXT", "__info_plist", path + "/Info.plist",
                                   "-fobjc-link-runtime"])
