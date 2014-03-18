@@ -424,7 +424,8 @@ void GitDiffHandler::collectShowDescription(const QString &id)
 
     m_editorController->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
-    command->setCodec(GitPlugin::instance()->gitClient()->commitEncoding(m_workingDirectory));
+    command->setCodec(GitPlugin::instance()->gitClient()->encoding(m_workingDirectory,
+                                                                   "i18n.commitEncoding"));
     connect(command, SIGNAL(output(QString)), this, SLOT(slotShowDescriptionReceived(QString)));
     QStringList arguments;
     arguments << QLatin1String("show") << QLatin1String("-s")
@@ -1132,14 +1133,10 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
             this, SLOT(slotBlameRevisionRequested(QString,QString,QString,int)));
     QTC_ASSERT(rc, return 0);
     rc->setSource(source);
-    if (codecType == CodecSource) {
+    if (codecType == CodecSource)
         rc->setCodec(getSourceCodec(source));
-    } else if (codecType == CodecLogOutput) {
-        QString encodingName = readConfigValue(source, QLatin1String("i18n.logOutputEncoding"));
-        if (encodingName.isEmpty())
-            encodingName = QLatin1String("utf-8");
-        rc->setCodec(QTextCodec::codecForName(encodingName.toLocal8Bit()));
-    }
+    else if (codecType == CodecLogOutput)
+        rc->setCodec(encoding(source, "i18n.logOutputEncoding"));
 
     rc->setForceReadOnly(true);
 
@@ -1556,12 +1553,8 @@ void GitClient::slotBlameRevisionRequested(const QString &workingDirectory, cons
 
 QTextCodec *GitClient::getSourceCodec(const QString &file) const
 {
-    if (QFileInfo(file).isFile())
-        return VcsBase::VcsBaseEditorWidget::getCodec(file);
-    QString encodingName = readConfigValue(file, QLatin1String("gui.encoding"));
-    if (encodingName.isEmpty())
-        encodingName = QLatin1String("utf-8");
-    return QTextCodec::codecForName(encodingName.toLocal8Bit());
+    return QFileInfo(file).isFile() ? VcsBase::VcsBaseEditorWidget::getCodec(file)
+                                    : encoding(file, "gui.encoding");
 }
 
 void GitClient::blame(const QString &workingDirectory,
@@ -1705,11 +1698,7 @@ bool GitClient::synchronousLog(const QString &workingDirectory, const QStringLis
     const bool rc = fullySynchronousGit(workingDirectory, allArguments, &outputText, &errorText,
                                         flags);
     if (rc) {
-        QString encodingName = readConfigValue(workingDirectory, QLatin1String("i18n.logOutputEncoding"));
-        if (encodingName.isEmpty())
-            encodingName = QLatin1String("utf-8");
-        QTextCodec *codec = QTextCodec::codecForName(encodingName.toLocal8Bit());
-        if (codec)
+        if (QTextCodec *codec = encoding(workingDirectory, "i18n.logOutputEncoding"))
             *output = codec->toUnicode(outputText);
         else
             *output = commandOutputFromLocal8Bit(outputText);
@@ -3027,15 +3016,15 @@ QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
     return settings()->gitBinaryPath(ok, errorMessage);
 }
 
-QTextCodec *GitClient::commitEncoding(const QString &workingDirectory)
+QTextCodec *GitClient::encoding(const QString &workingDirectory, const QByteArray &configVar) const
 {
-    QByteArray encoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"))
+    QByteArray codecName = readConfigValue(workingDirectory, QLatin1String(configVar))
             .toLocal8Bit();
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
-    if (encoding.isEmpty())
-        encoding = "UTF-8";
-    return QTextCodec::codecForName(encoding);
+    if (codecName.isEmpty())
+        codecName = "UTF-8";
+    return QTextCodec::codecForName(codecName);
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,
@@ -3117,7 +3106,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         }
     }
 
-    commitData.commitEncoding = commitEncoding(workingDirectory);
+    commitData.commitEncoding = encoding(workingDirectory, "i18n.commitEncoding");
 
     // Get the commit template or the last commit message
     switch (commitData.commitType) {

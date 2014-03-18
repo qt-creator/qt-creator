@@ -285,7 +285,7 @@ public:
 
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
-    QTextCodec *commitEncoding(const QString &workingDirectory);
+    QTextCodec *encoding(const QString &workingDirectory, const QByteArray &configVar) const;
     bool getCommitData(const QString &workingDirectory, QString *commitTemplate,
                        CommitData &commitData, QString *errorMessage);
 
