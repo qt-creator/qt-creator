@@ -2401,7 +2401,9 @@ SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory)
     if (cachedSubmoduleData.contains(workingDirectory))
         return cachedSubmoduleData.value(workingDirectory);
 
-    QStringList allConfigs = readConfig(workingDirectory, QLatin1String("-l")).split(QLatin1Char('\n'));
+    QStringList allConfigs =
+            commandOutputFromLocal8Bit(readConfig(workingDirectory, QLatin1String("-l")))
+            .split(QLatin1Char('\n'));
     const QString submoduleLineStart = QLatin1String("submodule.");
     foreach (const QString &configLine, allConfigs) {
         if (!configLine.startsWith(submoduleLineStart))
@@ -3017,8 +3019,7 @@ QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
 
 QTextCodec *GitClient::encoding(const QString &workingDirectory, const QByteArray &configVar) const
 {
-    QByteArray codecName = readConfigValue(workingDirectory, QLatin1String(configVar))
-            .toLocal8Bit();
+    QByteArray codecName = readConfig(workingDirectory, QLatin1String(configVar)).trimmed();
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
     if (codecName.isEmpty())
@@ -3742,7 +3743,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     return true;
 }
 
-QString GitClient::readConfig(const QString &workingDirectory, const QString &configVar) const
+QByteArray GitClient::readConfig(const QString &workingDirectory, const QString &configVar) const
 {
     QStringList arguments;
     arguments << QLatin1String("config") << configVar;
@@ -3751,16 +3752,16 @@ QString GitClient::readConfig(const QString &workingDirectory, const QString &co
     QByteArray errorText;
     if (!fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
                              VcsBasePlugin::SuppressCommandLogging))
-        return QString();
+        return QByteArray();
     if (Utils::HostOsInfo::isWindowsHost())
-        return Utils::SynchronousProcess::normalizeNewlines(QString::fromUtf8(outputText));
-    return commandOutputFromLocal8Bit(outputText);
+        outputText.replace("\r\n", "\n");
+    return outputText;
 }
 
 // Read a single-line config value, return trimmed
 QString GitClient::readConfigValue(const QString &workingDirectory, const QString &configVar) const
 {
-    return readConfig(workingDirectory, configVar).remove(QLatin1Char('\n'));
+    return commandOutputFromLocal8Bit(readConfig(workingDirectory, configVar).trimmed());
 }
 
 bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
