@@ -424,8 +424,7 @@ void GitDiffHandler::collectShowDescription(const QString &id)
 
     m_editorController->clear(m_waitMessage);
     VcsBase::Command *command = new VcsBase::Command(m_gitPath, m_workingDirectory, m_processEnvironment);
-    const QString encoding = GitPlugin::instance()->gitClient()->commitEncoding(m_workingDirectory);
-    command->setCodec(QTextCodec::codecForName(encoding.toLocal8Bit()));
+    command->setCodec(GitPlugin::instance()->gitClient()->commitEncoding(m_workingDirectory));
     connect(command, SIGNAL(output(QString)), this, SLOT(slotShowDescriptionReceived(QString)));
     QStringList arguments;
     arguments << QLatin1String("show") << QLatin1String("-s")
@@ -3028,14 +3027,15 @@ QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
     return settings()->gitBinaryPath(ok, errorMessage);
 }
 
-QString GitClient::commitEncoding(const QString &workingDirectory)
+QTextCodec *GitClient::commitEncoding(const QString &workingDirectory)
 {
-    QString encoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"));
-    if (!encoding.isEmpty())
-        return encoding;
+    QByteArray encoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"))
+            .toLocal8Bit();
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
-    return QLatin1String("UTF-8");
+    if (encoding.isEmpty())
+        encoding = "UTF-8";
+    return QTextCodec::codecForName(encoding);
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,
@@ -3125,8 +3125,8 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         // Amend: get last commit data as "SHA1<tab>author<tab>email<tab>message".
         QStringList args(QLatin1String("log"));
         args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h\t%an\t%ae\t%B");
-        QTextCodec *codec = QTextCodec::codecForName(commitData.commitEncoding.toLocal8Bit());
-        const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args, 0, codec);
+        const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args, 0,
+                                                                    commitData.commitEncoding);
         if (sp.result != Utils::SynchronousProcessResponse::Finished) {
             *errorMessage = tr("Cannot retrieve last commit data of repository \"%1\".").arg(repoDirectory);
             return false;

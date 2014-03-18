@@ -88,6 +88,7 @@ private:
 GitSubmitEditor::GitSubmitEditor(const VcsBase::VcsBaseSubmitEditorParameters *parameters, QWidget *parent) :
     VcsBaseSubmitEditor(parameters, new GitSubmitEditorWidget(parent)),
     m_model(0),
+    m_commitEncoding(0),
     m_commitType(SimpleCommit),
     m_forceClose(false)
 {
@@ -202,13 +203,10 @@ QByteArray GitSubmitEditor::fileContents() const
 {
     const QString &text = submitEditorWidget()->descriptionText();
 
-    if (!m_commitEncoding.isEmpty()) {
-        // Do the encoding convert, When use user-defined encoding
-        // e.g. git config --global i18n.commitencoding utf-8
-        QTextCodec *codec = QTextCodec::codecForName(m_commitEncoding.toLocal8Bit());
-        if (codec)
-            return codec->fromUnicode(text);
-    }
+    // Do the encoding convert, When use user-defined encoding
+    // e.g. git config --global i18n.commitencoding utf-8
+    if (m_commitEncoding)
+        return m_commitEncoding->fromUnicode(text);
 
     // Using utf-8 as the default encoding
     return text.toUtf8();

@@ -80,6 +80,7 @@ QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &data)
 
 CommitData::CommitData(CommitType type)
     : commitType(type)
+    , commitEncoding(0)
     , enablePush(false)
 {
 }

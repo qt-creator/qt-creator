@@ -111,7 +111,7 @@ public:
 
     CommitType commitType;
     QString amendSHA1;
-    QString commitEncoding;
+    QTextCodec *commitEncoding;
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
     bool enablePush;

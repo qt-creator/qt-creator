@@ -332,8 +332,7 @@ bool GitEditor::open(QString *errorString, const QString &fileName, const QStrin
         QFileInfo fi(fileName);
         const QString gitPath = fi.absolutePath();
         setSource(gitPath);
-        const QString commitEncoding = GitPlugin::instance()->gitClient()->commitEncoding(gitPath);
-        baseTextDocument()->setCodec(QTextCodec::codecForName(commitEncoding.toLocal8Bit()));
+        baseTextDocument()->setCodec(GitPlugin::instance()->gitClient()->commitEncoding(gitPath));
     }
     return VcsBaseEditorWidget::open(errorString, fileName, realFileName);
 }
