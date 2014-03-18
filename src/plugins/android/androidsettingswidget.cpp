@@ -172,6 +172,11 @@ void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
                 || !toolChainPath.appendPath(QLatin1String("toolchains")).toFileInfo().exists()
                 || !sourcesPath.appendPath(QLatin1String("sources/cxx-stl")).toFileInfo().exists()) {
             m_ndkState = Error;
+            m_ndkErrorMessage = tr("\"%1\" does not seem to be an Android NDK top folder.")
+                    .arg(m_androidConfig.ndkLocation().toUserOutput());
+        } else if (platformPath.toString().contains(QLatin1String(" "))) {
+            m_ndkState = Error;
+            m_ndkErrorMessage = tr("The Android NDK cannot be installed into a path with spaces.");
         } else {
             QList<AndroidToolChainFactory::AndroidToolChainInformation> compilerPaths
                     = AndroidToolChainFactory::toolchainPathsForNdk(m_androidConfig.ndkLocation());
@@ -242,14 +247,13 @@ void AndroidSettingsWidget::applyToUi(AndroidSettingsWidget::Mode mode)
     }
 
     if (mode & Ndk) {
-        Utils::FileName location = Utils::FileName::fromUserInput(m_ui->NDKLocationLineEdit->text());
         if (m_ndkState == NotSet) {
             m_ui->ndkWarningIconLabel->setVisible(false);
             m_ui->toolchainFoundLabel->setVisible(false);
             m_ui->kitWarningIconLabel->setVisible(false);
             m_ui->kitWarningLabel->setVisible(false);
         } else if (m_ndkState == Error) {
-            m_ui->toolchainFoundLabel->setText(tr("\"%1\" does not seem to be an Android NDK top folder.").arg(location.toUserOutput()));
+            m_ui->toolchainFoundLabel->setText(m_ndkErrorMessage);
             m_ui->toolchainFoundLabel->setVisible(true);
             m_ui->ndkWarningIconLabel->setVisible(true);
             m_ui->kitWarningIconLabel->setVisible(false);
