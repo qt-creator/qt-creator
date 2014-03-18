@@ -23,6 +23,7 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
+    Depends { name: "ProjectExplorer" }
 
     Depends { name: "app_version_header" }
 
@@ -59,6 +60,7 @@ QtcPlugin {
             "openpagesswitcher.cpp", "openpagesswitcher.h",
             "openpageswidget.cpp", "openpageswidget.h",
             "remotehelpfilter.cpp", "remotehelpfilter.h", "remotehelpfilter.ui",
+            "searchtaskhandler.cpp", "searchtaskhandler.h",
             "searchwidget.cpp", "searchwidget.h",
             "xbelsupport.cpp", "xbelsupport.h",
         ]

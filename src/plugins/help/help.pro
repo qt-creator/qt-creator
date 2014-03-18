@@ -36,7 +36,8 @@ HEADERS += \
     remotehelpfilter.h \
     searchwidget.h \
     xbelsupport.h \
-    externalhelpwindow.h
+    externalhelpwindow.h \
+    searchtaskhandler.h
 
 SOURCES += \
     centralwidget.cpp \
@@ -58,7 +59,8 @@ SOURCES += \
     remotehelpfilter.cpp \
     searchwidget.cpp \
     xbelsupport.cpp \
-    externalhelpwindow.cpp
+    externalhelpwindow.cpp \
+    searchtaskhandler.cpp
 
 FORMS += docsettingspage.ui \
     filtersettingspage.ui \

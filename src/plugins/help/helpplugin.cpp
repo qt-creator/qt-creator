@@ -44,6 +44,7 @@
 #include "openpagesmodel.h"
 #include "remotehelpfilter.h"
 #include "searchwidget.h"
+#include "searchtaskhandler.h"
 
 #include <bookmarkmanager.h>
 #include <contentwindow.h>
@@ -173,6 +174,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(m_docSettingsPage = new DocSettingsPage());
     addAutoReleasedObject(m_filterSettingsPage = new FilterSettingsPage());
     addAutoReleasedObject(m_generalSettingsPage = new GeneralSettingsPage());
+    addAutoReleasedObject(m_searchTaskHandler = new SearchTaskHandler);
 
     connect(m_generalSettingsPage, SIGNAL(fontChanged()), this,
         SLOT(fontChanged()));
@@ -182,6 +184,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         SLOT(updateCloseButton()));
     connect(HelpManager::instance(), SIGNAL(helpRequested(QUrl)), this,
         SLOT(handleHelpRequest(QUrl)));
+    connect(m_searchTaskHandler, SIGNAL(search(QUrl)), this,
+            SLOT(switchToHelpMode(QUrl)));
 
     connect(m_filterSettingsPage, SIGNAL(filtersChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));

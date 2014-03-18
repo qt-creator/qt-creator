@@ -63,6 +63,7 @@ class HelpViewer;
 class LocalHelpManager;
 class OpenPagesManager;
 class SearchWidget;
+class SearchTaskHandler;
 
 class HelpPlugin : public ExtensionSystem::IPlugin
 {
@@ -153,6 +154,7 @@ private:
     DocSettingsPage *m_docSettingsPage;
     FilterSettingsPage *m_filterSettingsPage;
     GeneralSettingsPage *m_generalSettingsPage;
+    SearchTaskHandler *m_searchTaskHandler;
 
     QComboBox *m_filterComboBox;
     Core::SideBar *m_sideBar;
