@@ -4276,9 +4276,9 @@ GdbEngine
 
 
     QTest::newRow("CharArrays")
-            << Data("const char s[] = \"aöa\";\n"
-                    "const char t[] = \"aöax\";\n"
-                    "const wchar_t w[] = L\"aöa\";\n"
+            << Data("char s[] = \"aöa\";\n"
+                    "char t[] = \"aöax\";\n"
+                    "wchar_t w[] = L\"aöa\";\n"
                     "unused(&s, &t, &w);\n")
 
                + CheckType("s", "char [5]")
@@ -4289,7 +4289,7 @@ GdbEngine
     QTest::newRow("CharPointers")
             << Data("const char *s = \"aöa\";\n"
                     "const char *t = \"a\\xc3\\xb6\";\n"
-                    "const unsigned char uu[] = { 'a', 153 /* ö Latin1 */, 'a' };\n"
+                    "unsigned char uu[] = { 'a', 153 /* ö Latin1 */, 'a' };\n"
                     "const unsigned char *u = uu;\n"
                     "const wchar_t *w = L\"aöa\";\n"
                     "unused(&s, &t, &uu, &u, &w);\n")
