@@ -252,6 +252,8 @@ void AndroidSettingsWidget::applyToUi(AndroidSettingsWidget::Mode mode)
             m_ui->toolchainFoundLabel->setText(tr("\"%1\" does not seem to be an Android NDK top folder.").arg(location.toUserOutput()));
             m_ui->toolchainFoundLabel->setVisible(true);
             m_ui->ndkWarningIconLabel->setVisible(true);
+            m_ui->kitWarningIconLabel->setVisible(false);
+            m_ui->kitWarningLabel->setVisible(false);
         } else {
             if (m_ndkCompilerCount > 0) {
                 m_ui->ndkWarningIconLabel->setVisible(false);
