@@ -1177,7 +1177,7 @@ QString AndroidManifestEditorWidget::parseUsesPermission(QXmlStreamReader &reade
 
 QString AndroidManifestEditorWidget::parseComment(QXmlStreamReader &reader, QXmlStreamWriter &writer)
 {
-    QString commentText = reader.text().trimmed().toString();
+    QString commentText = reader.text().toString().trimmed();
     if (commentText == QLatin1String("%%INSERT_PERMISSIONS")
             || commentText == QLatin1String("%%INSERT_FEATURES")) {
         if (m_defaultPermissonsCheckBox->checkState() == Qt::Unchecked)
