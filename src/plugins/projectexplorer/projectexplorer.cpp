@@ -330,6 +330,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         return false;
     addObject(this);
 
+    addAutoReleasedObject(new DeviceManager);
+
     // Add ToolChainFactories:
 #ifdef Q_OS_WIN
     addAutoReleasedObject(new WinDebugInterface);
