@@ -432,18 +432,26 @@ class Dumper(DumperBase):
     def qtVersionAndNamespace(self):
         for func in self.target.FindFunctions('qVersion'):
             name = func.GetSymbol().GetName()
+            if name.endswith('()'):
+                name = name[:-2]
             if name.count(':') > 2:
-                continue
-
-            version = str(self.parseAndEvaluate('((const char*())%s)()' % name))
-            version.replace("'", '"') # Both seem possible
-            version = version[version.find('"')+1:version.rfind('"')]
-
-            if version.count('.') != 2:
                 continue
 
             qtNamespace = name[:name.find('qVersion')]
             self.qtNamespace = lambda: qtNamespace
+
+            res = ""
+            try:
+                res = self.parseAndEvaluate(name + '()')
+            except:
+                res = self.parseAndEvaluate('((const char*())%s)()' % name)
+            version = str(res)
+
+            if version.count('.') != 2:
+                continue
+
+            version.replace("'", '"') # Both seem possible
+            version = version[version.find('"')+1:version.rfind('"')]
 
             (major, minor, patch) = version.split('.')
             qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
