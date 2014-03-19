@@ -925,14 +925,25 @@ class DumperBase:
             pass
 
 
-    def extractStaticMetaObjectHelper(self, typeName):
+    def extractStaticMetaObjectHelper(self, typeobj):
         """
         Checks whether type has a Q_OBJECT macro.
         Returns the staticMetaObject, or 0.
         """
-        # No templates for now.
-        if typeName.find('<') >= 0:
+
+        if self.isSimpleType(typeobj):
             return 0
+
+        typeName = str(typeobj)
+        isQObjectProper = typeName == self.qtNamespace() + "QObject"
+
+        if not isQObjectProper:
+            if self.directBaseClass(typeobj, 0) is None:
+                return 0
+
+            # No templates for now.
+            if typeName.find('<') >= 0:
+                return 0
 
         staticMetaObjectName = typeName + "::staticMetaObject"
         result = self.findSymbol(staticMetaObjectName)
@@ -940,8 +951,9 @@ class DumperBase:
         # We need to distinguish Q_OBJECT from Q_GADGET:
         # a Q_OBJECT SMO has a non-null superdata (unless it's QObject itself),
         # a Q_GADGET SMO has a null superdata (hopefully)
-        if result and typeName != self.qtNamespace() + "QObject":
-            if not self.extractPointer(result):
+        if result and not isQObjectProper:
+            superdata = self.extractPointer(result)
+            if toInteger(superdata) == 0:
                 # This looks like a Q_GADGET
                 result = 0
 
@@ -951,12 +963,15 @@ class DumperBase:
         """
         Checks recursively whether a type derives from QObject.
         """
+        if not self.useFancy:
+            return 0
+
         typeName = str(typeobj)
         result = self.knownStaticMetaObjects.get(typeName, None)
         if result is not None: # Is 0 or the static metaobject.
             return result
 
-        result = self.extractStaticMetaObjectHelper(typeName)
+        result = self.extractStaticMetaObjectHelper(typeobj)
         if not result:
             base = self.directBaseClass(typeobj, 0)
             if base:
