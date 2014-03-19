@@ -885,34 +885,34 @@ bool Check::visit(UiPublicMember *ast)
             if (name == QLatin1String("variant") || name == QLatin1String("var")) {
                 Evaluate evaluator(&_scopeChain);
                 const Value *init = evaluator(ast->statement);
-                QString preferedType;
+                QString preferredType;
                 if (init->asNumberValue())
-                    preferedType = tr("'int' or 'real'");
+                    preferredType = tr("'int' or 'real'");
                 else if (init->asStringValue())
-                    preferedType = QLatin1String("'string'");
+                    preferredType = QLatin1String("'string'");
                 else if (init->asBooleanValue())
-                    preferedType = QLatin1String("'bool'");
+                    preferredType = QLatin1String("'bool'");
                 else if (init->asColorValue())
-                    preferedType = QLatin1String("'color'");
+                    preferredType = QLatin1String("'color'");
                 else if (init == _context->valueOwner()->qmlPointObject())
-                    preferedType = QLatin1String("'point'");
+                    preferredType = QLatin1String("'point'");
                 else if (init == _context->valueOwner()->qmlRectObject())
-                    preferedType = QLatin1String("'rect'");
+                    preferredType = QLatin1String("'rect'");
                 else if (init == _context->valueOwner()->qmlSizeObject())
-                    preferedType = QLatin1String("'size'");
+                    preferredType = QLatin1String("'size'");
                 else if (init == _context->valueOwner()->qmlVector2DObject())
-                    preferedType = QLatin1String("'vector2d'");
+                    preferredType = QLatin1String("'vector2d'");
                 else if (init == _context->valueOwner()->qmlVector3DObject())
-                    preferedType = QLatin1String("'vector3d'");
+                    preferredType = QLatin1String("'vector3d'");
                 else if (init == _context->valueOwner()->qmlVector4DObject())
-                    preferedType = QLatin1String("'vector4d'");
+                    preferredType = QLatin1String("'vector4d'");
                 else if (init == _context->valueOwner()->qmlQuaternionObject())
-                    preferedType = QLatin1String("'quaternion'");
+                    preferredType = QLatin1String("'quaternion'");
                 else if (init == _context->valueOwner()->qmlMatrix4x4Object())
-                    preferedType = QLatin1String("'matrix4x4'");
+                    preferredType = QLatin1String("'matrix4x4'");
 
-                if (!preferedType.isEmpty())
-                    addMessage(HintPreferNonVarPropertyType, ast->typeToken, preferedType);
+                if (!preferredType.isEmpty())
+                    addMessage(HintPreferNonVarPropertyType, ast->typeToken, preferredType);
             }
         }
 

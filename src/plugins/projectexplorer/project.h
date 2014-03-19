@@ -109,7 +109,7 @@ public:
     // TODO: generalize to find source(s) of generated files?
     virtual QString generatedUiHeader(const QString &formFile) const;
 
-    static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
+    static QString makeUnique(const QString &preferredName, const QStringList &usedNames);
 
     virtual QVariantMap toMap() const;
 
