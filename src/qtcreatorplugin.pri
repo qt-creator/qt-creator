@@ -118,6 +118,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 #   Qt 5's plugin system by running a XSLT sheet on the
 #   pluginspec file before moc runs.
     XMLPATTERNS = $$targetPath($$[QT_INSTALL_BINS]/xmlpatterns)
+    !exists($$XMLPATTERNS): \
+        error("Cannot find the Qt command line tool 'xmlpatterns'!")
 
     pluginspec2json.name = Create Qt 5 plugin json file
     pluginspec2json.input = PLUGINSPEC
