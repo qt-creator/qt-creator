@@ -227,6 +227,7 @@ class Dumper(DumperBase):
 
         lldb.theDumper = self
 
+        self.outputLock = threading.Lock()
         self.debugger = lldb.SBDebugger.Create()
         #self.debugger.SetLoggingCallback(loggingCallback)
         #Same as: self.debugger.HandleCommand("log enable lldb dyld step")
@@ -1056,7 +1057,12 @@ class Dumper(DumperBase):
                 with SubItem(self, child):
                     self.putItem(child)
 
-    def reportVariables(self, _ = None):
+    def reportVariables(self, args = None):
+        with self.outputLock:
+            self.reportVariablesHelper(args)
+            sys.stdout.write("@\n")
+
+    def reportVariablesHelper(self, _ = None):
         frame = self.currentFrame()
         if frame is None:
             return
@@ -1138,7 +1144,6 @@ class Dumper(DumperBase):
                 self.putItem(value)
 
         self.put(']')
-        self.report('')
 
     def reportData(self, _ = None):
         if self.process is None:
@@ -1167,7 +1172,8 @@ class Dumper(DumperBase):
                 self.report(result)
 
     def report(self, stuff):
-        sys.stdout.write(stuff + "@\n")
+        with self.outputLock:
+            sys.stdout.write(stuff + "@\n")
 
     def reportStatus(self, msg):
         self.report('statusmessage="%s"' % msg)
