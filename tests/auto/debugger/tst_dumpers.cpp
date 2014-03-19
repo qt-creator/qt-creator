@@ -1454,6 +1454,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&dir, &s, &fi);\n")
 
                + CoreProfile()
+               + UseDebugImage()
                + QtVersion(0x50300)
 
                + Check("dir", tempDir, "@QDir")
