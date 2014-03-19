@@ -2823,7 +2823,7 @@ void ProjectExplorerPlugin::addNewFile()
     QString location = directoryFor(d->m_currentNode);
 
     QVariantMap map;
-    map.insert(QLatin1String(Constants::PREFERED_PROJECT_NODE), QVariant::fromValue(d->m_currentNode));
+    map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(d->m_currentNode));
     if (d->m_currentProject) {
         QList<Id> profileIds;
         foreach (Target *target, d->m_currentProject->targets())
@@ -2845,7 +2845,7 @@ void ProjectExplorerPlugin::addNewSubproject()
             && d->m_currentNode->supportedActions(
                 d->m_currentNode).contains(ProjectExplorer::AddSubProject)) {
         QVariantMap map;
-        map.insert(QLatin1String(Constants::PREFERED_PROJECT_NODE), QVariant::fromValue(d->m_currentNode));
+        map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(d->m_currentNode));
         if (d->m_currentProject) {
             QList<Id> profileIds;
             foreach (Target *target, d->m_currentProject->targets())

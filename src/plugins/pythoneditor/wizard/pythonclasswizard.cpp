@@ -101,7 +101,7 @@ Core::GeneratedFiles ClassWizard::generateFiles(const QWizard *w,
 
 Kit *ClassWizard::kitForWizard(const ClassWizardDialog *wizard) const
 {
-    const QString key = QLatin1String(ProjectExplorer::Constants::PREFERED_PROJECT_NODE);
+    const QString key = QLatin1String(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE);
     const QString nodePath = wizard->extraValues().value(key).toString();
 
     // projectForFile doesn't find project if project file path passed

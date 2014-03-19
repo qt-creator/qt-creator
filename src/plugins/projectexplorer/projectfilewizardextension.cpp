@@ -491,7 +491,7 @@ void ProjectFileWizardExtension::initProjectChoices(const QList<GeneratedFile> g
 
     getProjectChoicesAndToolTips(&projectChoices, &projectToolTips, &projectAction,
                                  generatedFiles, m_context,
-                                 extraValues.value(QLatin1String(Constants::PREFERED_PROJECT_NODE)).value<Node *>());
+                                 extraValues.value(QLatin1String(Constants::PREFERRED_PROJECT_NODE)).value<Node *>());
 
     m_context->page->setProjects(projectChoices);
     m_context->page->setProjectToolTips(projectToolTips);
