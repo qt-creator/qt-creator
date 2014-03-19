@@ -223,7 +223,7 @@ NSString* FindDeveloperDir() {
           arguments:[NSArray arrayWithObjects:@"-e", @"tell application \"iPhone Simulator\"  to activate", nil]];
       int pid  = [session simulatedApplicationPID];
       if (shouldStartDebugger) {
-        char*args[4] = { NULL, NULL, (char*)[[@(pid) description] UTF8String], NULL };
+        char*args[4] = { NULL, NULL, (char*)[[[NSNumber numberWithInt:pid] description] UTF8String], NULL };
         if (useGDB) {
           args[0] = strdup("gdb");
           args[1] = strdup("program");
@@ -609,11 +609,11 @@ NSString* FindDeveloperDir() {
         NSString *appName = [appPath lastPathComponent];
         NSString *executableName = [appName stringByDeletingPathExtension];
         NSString *injectionPath = @"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/IDEBundleInjection.framework/IDEBundleInjection";
-        [environment setValuesForKeysWithDictionary:@{
-                                                      @"DYLD_INSERT_LIBRARIES" : injectionPath,
-                                                      @"XCInjectBundle" : xctest,
-                                                      @"XCInjectBundleInto" : [appPath stringByAppendingFormat:@"/%@", executableName],
-                                                      }];
+        [environment setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+          injectionPath,@"DYLD_INSERT_LIBRARIES",
+          xctest, @"XCInjectBundle",
+          [appPath stringByAppendingFormat:@"/%@", executableName],@"XCInjectBundleInto",
+          nil]];
     }
 
     /* Don't exit, adds to runloop */
