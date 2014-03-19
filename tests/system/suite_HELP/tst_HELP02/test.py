@@ -65,6 +65,27 @@ def checkQtCreatorHelpVersion(expectedVersion):
     except:
         test.fail("Missing Qt Creator Manual.")
 
+def setKeyboardShortcutForAboutQtC():
+    invokeMenuItem("Tools", "Options...")
+    waitForObjectItem(":Options_QListView", "Environment")
+    clickItem(":Options_QListView", "Environment", 14, 15, 0, Qt.LeftButton)
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Keyboard")
+    filter = waitForObject("{container={title='Keyboard Shortcuts' type='QGroupBox' unnamed='1' "
+                           "visible='1'} type='Utils::FancyLineEdit' unnamed='1' visible='1' "
+                           "placeHolderText='Filter'}")
+    replaceEditorContent(filter, "about")
+    treewidget = waitForObject("{type='QTreeWidget' unnamed='1' visible='1'}")
+    modelIndex = waitForObject("{column='0' text='AboutQtCreator' type='QModelIndex' "
+                               "container={column='0' text='QtCreator' type='QModelIndex' "
+                               "container=%s}}" % objectMap.realName(treewidget))
+    mouseClick(modelIndex, 5, 5, 0, Qt.LeftButton)
+    shortcut = waitForObject("{container={title='Shortcut' type='QGroupBox' unnamed='1' "
+                             "visible='1'} type='Utils::FancyLineEdit' unnamed='1' visible='1' "
+                             "placeHolderText='Type to set shortcut'}")
+    mouseClick(shortcut, 5, 5, 0, Qt.LeftButton)
+    nativeType("<Ctrl+Alt+a>")
+    clickButton(waitForObject(":Options.OK_QPushButton"))
+
 def main():
     expectedVersion = getQtCreatorVersionFromFile()
     if not expectedVersion:
@@ -73,10 +94,13 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    if platform.system() == "Darwin":
-       invokeMenuItem("Help", "About Qt Creator")
-    else:
-       invokeMenuItem("Help", "About Qt Creator...")
+    setKeyboardShortcutForAboutQtC()
+    if platform.system() == 'Darwin':
+        try:
+            waitForObject(":Qt Creator.QtCreator.MenuBar_QMenuBar", 2000)
+        except:
+            nativeMouseClick(waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000), 20, 20, 0, Qt.LeftButton)
+    nativeType("<Ctrl+Alt+a>")
     # verify qt creator version
     waitForObject(":About Qt Creator_Core::Internal::VersionDialog")
     actualVersion = getQtCreatorVersionFromDialog()
