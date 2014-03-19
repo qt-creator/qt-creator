@@ -640,3 +640,14 @@ def openVcsLog():
         else:
             activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Version Control"))
     ensureChecked(waitForObject(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"))
+
+# function that retrieves a specific child object by its class
+# this is sometimes the best way to avoid using waitForObject() on objects that
+# occur more than once - but could easily be found by using a compound object
+# (e.g. search for Utils::PathChooser instead of Utils::FancyLineEdit and get the child)
+def getChildByClass(parent, classToSearchFor, occurrence=1):
+    children = [child for child in object.children(parent) if className(child) == classToSearchFor]
+    if len(children) < occurrence:
+        return None
+    else:
+        return children[occurrence - 1]
