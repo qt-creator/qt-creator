@@ -2634,6 +2634,7 @@ void tst_Dumpers::dumper_data()
                     "       << (new QStandardItem(\"aa\")));\n"
                     "unused(&i1, &i2, &i11, &m, &mi);\n")
 
+               + GdbEngine
                + GuiProfile()
 
                + Check("i1", "", "@QStandardItem")
