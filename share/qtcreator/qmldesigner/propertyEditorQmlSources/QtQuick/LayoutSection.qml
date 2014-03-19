@@ -57,356 +57,65 @@ Section {
         AnchorButtons {
         }
 
-        RowLayout {
-            anchors.left: parent.left
-            anchors.right: parent.right
+        AnchorRow {
             enabled: anchorBackend.topAnchored;
-            opacity: enabled ? 1 : 0.5
-
-            IconLabel {
-                source:  "../HelperWidgets/images/anchor-top.png"
-                Layout.alignment: Qt.AlignTop
-            }
-
-            GridLayout {
-                Layout.fillWidth: true
-                rows: 2
-                columns: 2
-
-                Text {
-                    text: qsTr("Target")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                TargetComboBox {
-                    targetName: anchorBackend.topTarget
-                    onCurrentTextChanged: {
-                        anchorBackend.topTarget = currentText
-                    }
-                }
-
-                Text {
-                    text: "Margin"
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                RowLayout {
-                    SpinBox {
-                        maximumValue: 0xffff
-                        minimumValue: -0xffff
-                        backendValue: backendValues.anchors_topMargin
-                    }
-
-//                    ButtonRow {
-//                        exclusive: true
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-top.png"
-
-//                        }
-
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-bottom.png"
-//                        }
-//                    }
-                }
+            iconSource: "../HelperWidgets/images/anchor-top.png"
+            anchorMargin: backendValues.anchors_topMargin
+            targetName: anchorBackend.topTarget
+            onTargetChanged: {
+                anchorBackend.topTarget = currentText
             }
         }
 
-        RowLayout {
+        AnchorRow {
             enabled: anchorBackend.bottomAnchored;
-            opacity: enabled ? 1 : 0.5
-            anchors.left: parent.left
-            anchors.right: parent.right
-
-            IconLabel {
-                source:  "../HelperWidgets/images/anchor-bottom.png"
-                Layout.alignment: Qt.AlignTop
-            }
-
-            GridLayout {
-                Layout.fillWidth: true
-                rows: 2
-                columns: 2
-
-                Text {
-                    text: qsTr("Target")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                TargetComboBox {
-                    targetName: anchorBackend.bottomTarget
-                    onCurrentTextChanged: {
-                        anchorBackend.bottomTarget = currentText
-                    }
-                }
-
-                Text {
-                    text: qsTr("Margin")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                RowLayout {
-                    SpinBox {
-                        maximumValue: 0xffff
-                        minimumValue: -0xffff
-                        backendValue: backendValues.anchors_bottomMargin
-
-                    }
-
-//                    ButtonRow {
-//                        exclusive: true
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-top.png"
-//                        }
-
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-bottom.png"
-//                        }
-//                    }
-                }
+            iconSource: "../HelperWidgets/images/anchor-bottom.png"
+            anchorMargin: backendValues.anchors_bottomMargin
+            targetName: anchorBackend.bottomTarget
+            onTargetChanged: {
+                anchorBackend.bottomTarget = currentText
             }
         }
 
-        RowLayout {
+        AnchorRow {
             enabled: anchorBackend.leftAnchored;
-            opacity: enabled ? 1 : 0.5
-            anchors.left: parent.left
-            anchors.right: parent.right
-
-            IconLabel {
-                source:  "../HelperWidgets/images/anchor-left.png"
-                Layout.alignment: Qt.AlignTop
-            }
-
-            GridLayout {
-                Layout.fillWidth: true
-                rows: 2
-                columns: 2
-
-                Text {
-                    text: qsTr("Target")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                TargetComboBox {
-                    targetName: anchorBackend.leftTarget
-                    onCurrentTextChanged: {
-                        anchorBackend.leftTarget = currentText
-                    }
-                }
-
-                Text {
-                    text: qsTr("Margin")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                RowLayout {
-                    SpinBox {
-                        maximumValue: 0xffff
-                        minimumValue: -0xffff
-                        backendValue: backendValues.anchors_leftMargin
-                    }
-
-//                    ButtonRow {
-//                        exclusive: true
-
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-left.png"
-//                        }
-
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-right.png"
-//                        }
-//                    }
-                }
+            iconSource: "../HelperWidgets/images/anchor-left.png"
+            anchorMargin: backendValues.anchors_leftMargin
+            targetName: anchorBackend.leftTarget
+            onTargetChanged: {
+                anchorBackend.leftTarget = currentText
             }
         }
 
-        RowLayout {
-            anchors.left: parent.left
-            anchors.right: parent.right
+        AnchorRow {
             enabled: anchorBackend.rightAnchored;
-            opacity: enabled ? 1 : 0.5
-
-            IconLabel {
-                source:  "../HelperWidgets/images/anchor-right.png"
-                Layout.alignment: Qt.AlignTop
-            }
-
-            GridLayout {
-                Layout.fillWidth: true
-                rows: 2
-                columns: 2
-
-                Text {
-                    text: qsTr("Target")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                TargetComboBox {
-                    targetName: anchorBackend.rightTarget
-                    onCurrentTextChanged: {
-                        anchorBackend.rightTarget = currentText
-                    }
-                }
-
-                Text {
-                    text: qsTr("Margin")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                RowLayout {
-                    SpinBox {
-                        maximumValue: 0xffff
-                        minimumValue: -0xffff
-                        backendValue: backendValues.anchors_rightMargin
-                    }
-
-//                    ButtonRow {
-//                        exclusive: true
-
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-left.png"
-//                        }
-
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-right.png"
-//                        }
-//                    }
-                }
+            iconSource: "../HelperWidgets/images/anchor-right.png"
+            anchorMargin: backendValues.anchors_rightMargin
+            targetName: anchorBackend.rightTarget
+            onTargetChanged: {
+                anchorBackend.rightTarget = currentText
             }
         }
-        RowLayout {
-            anchors.left: parent.left
-            anchors.right: parent.right
+
+        AnchorRow {
             enabled: anchorBackend.horizontalCentered;
-            opacity: enabled ? 1 : 0.5
-
-            IconLabel {
-                source:  "../HelperWidgets/images/anchor-horizontal.png"
-                Layout.alignment: Qt.AlignTop
-            }
-
-            GridLayout {
-                Layout.fillWidth: true
-                rows: 2
-                columns: 2
-
-                Text {
-                    text: qsTr("Target")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                TargetComboBox {
-                    targetName: anchorBackend.horizontalTarget
-                    onCurrentTextChanged: {
-                        anchorBackend.horizontalTarget = currentText
-                    }
-                }
-
-                Text {
-                    text: qsTr("Margin")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                RowLayout {
-                    SpinBox {
-                        maximumValue: 0xffff
-                        minimumValue: -0xffff
-                        backendValue: backendValues.anchors_horizontalCenterOffset
-                    }
-
-//                    ButtonRow {
-//                        exclusive: true
-
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-left.png"
-//                        }
-
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-right.png"
-//                        }
-//                    }
-                }
+            iconSource: "../HelperWidgets/images/anchor-horizontal.png"
+            anchorMargin: backendValues.anchors_horizontalCenterOffset
+            targetName: anchorBackend.horizontalTarget
+            onTargetChanged: {
+                anchorBackend.horizontalTarget = currentText
             }
         }
-        RowLayout {
-            anchors.left: parent.left
-            anchors.right: parent.right
+
+        AnchorRow {
             enabled: anchorBackend.verticalCentered;
-            opacity: enabled ? 1 : 0.5
-
-            IconLabel {
-                source:  "../HelperWidgets/images/anchor-vertical.png"
-                Layout.alignment: Qt.AlignTop
-            }
-
-            GridLayout {
-                Layout.fillWidth: true
-                rows: 2
-                columns: 2
-
-                Text {
-                    text: qsTr("Target")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                TargetComboBox {
-                    targetName: anchorBackend.verticalTarget
-                    onCurrentTextChanged: {
-                        anchorBackend.verticalTarget = currentText
-                    }
-                }
-
-                Text {
-                    text: qsTr("Margin")
-                    color: "#eee"
-                    elide: Text.ElideRight
-                    Layout.minimumWidth: 40
-                }
-
-                RowLayout {
-                    SpinBox {
-                        maximumValue: 0xffff
-                        minimumValue: -0xffff
-                        backendValue: backendValues.anchors_verticalCenterOffset
-                    }
-
-//                    ButtonRow {
-//                        exclusive: true
-
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-top.png"
-//                        }
-
-//                        ButtonRowButton {
-//                            iconSource: "../HelperWidgets/images/anchor-bottom.png"
-//                        }
-//                    }
-                }
+            iconSource: "../HelperWidgets/images/anchor-vertical.png"
+            anchorMargin: backendValues.anchors_verticalCenterOffset
+            targetName: anchorBackend.verticalTarget
+            onTargetChanged: {
+                 anchorBackend.verticalTarget = currentText
             }
         }
+
     }
 }
