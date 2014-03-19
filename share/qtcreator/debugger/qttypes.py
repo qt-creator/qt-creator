@@ -2076,15 +2076,24 @@ def qdump__QVariant(d, value):
     if variantType >= 31 and variantType <= 38 and d.qtVersion() >= 0x050000:
         blob = d.toBlob(value)
         qdumpHelper_QVariants_D[variantType - 31](d, blob)
+        d.putNumChild(0)
         return None
 
     # Extended Core type (Qt 4)
     if variantType >= 128 and variantType <= 135 and d.qtVersion() < 0x050000:
-        if variantType == 128 or variantType == 135: # No indirection for float.
-            blob = d.toBlob(value)
+        if variantType == 128:
+            p = d.extractPointer(value)
+            d.putBetterType("%sQVariant (void *)" % d.qtNamespace())
+            d.putValue("0x%x" % p)
         else:
-            blob = d.extractBlob(d.extractPointer(value["d"]["data"]["ptr"]), 8)
-        qdumpHelper_QVariants_D[variantType - 128](d, blob)
+            if variantType == 135:
+                blob = d.toBlob(value)
+            else:
+                p = d.extractPointer(value)
+                p = d.extractPointer(p)
+                blob = d.extractBlob(p, 8)
+            qdumpHelper_QVariants_D[variantType - 128](d, blob)
+        d.putNumChild(0)
         return None
 
     if variantType <= 86:
