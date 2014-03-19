@@ -605,10 +605,14 @@ bool QmlItemNode::hasAnySubModelNodes() const
 
 void QmlItemNode::setPosition(const QPointF &position)
 {
-    if (!hasBindingProperty("x") && !anchors().instanceHasAnchor(AnchorLine::Left))
+    if (!hasBindingProperty("x")
+            && !anchors().instanceHasAnchor(AnchorLine::Left)
+            && !anchors().instanceHasAnchor(AnchorLine::HorizontalCenter))
         setVariantProperty("x", qRound(position.x()));
 
-    if (!hasBindingProperty("y") && !anchors().instanceHasAnchor(AnchorLine::Top))
+    if (!hasBindingProperty("y")
+            && !anchors().instanceHasAnchor(AnchorLine::Top)
+            && !anchors().instanceHasAnchor(AnchorLine::VerticalCenter))
         setVariantProperty("y", qRound(position.y()));
 }
 
