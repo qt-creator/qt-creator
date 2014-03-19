@@ -524,11 +524,11 @@ static QWidget *createWidgetsInTabWidget(const QList<WidgetInfo> &widgetInfos)
     return tabWidget;
 }
 
-static QWidget *createTopSideBarWidget(const QList<WidgetInfo> &widgetInfo)
+static QWidget *createTopSideBarWidget(const QList<WidgetInfo> &widgetInfos)
 {
     //### we now own these here
     QList<WidgetInfo> topWidgetInfos;
-    foreach (const WidgetInfo &widgetInfo, widgetInfo) {
+    foreach (const WidgetInfo &widgetInfo, widgetInfos) {
         if (widgetInfo.placementHint == widgetInfo.TopPane)
             topWidgetInfos.append(widgetInfo);
     }
@@ -539,10 +539,10 @@ static QWidget *createTopSideBarWidget(const QList<WidgetInfo> &widgetInfo)
         return createWidgetsInTabWidget(topWidgetInfos);
 }
 
-static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widgetInfo)
+static Core::MiniSplitter *createCentralSplitter(const QList<WidgetInfo> &widgetInfos)
 {
     QList<WidgetInfo> centralWidgetInfos;
-    foreach (const WidgetInfo &widgetInfo, widgetInfo) {
+    foreach (const WidgetInfo &widgetInfo, widgetInfos) {
         if (widgetInfo.placementHint == widgetInfo.CentralPane)
             centralWidgetInfos.append(widgetInfo);
     }
