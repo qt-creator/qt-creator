@@ -68,27 +68,21 @@ BlackBerrySigningUtils::BlackBerrySigningUtils(QObject *parent) :
 
 bool BlackBerrySigningUtils::hasRegisteredKeys()
 {
-    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
-
-    QFileInfo cskFile(configuration.idTokenPath());
+    QFileInfo cskFile(BlackBerryConfigurationManager::instance()->idTokenPath());
 
     return cskFile.exists();
 }
 
 bool BlackBerrySigningUtils::hasLegacyKeys()
 {
-    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
-
-    QFileInfo cskFile(configuration.barsignerCskPath());
+    QFileInfo cskFile(BlackBerryConfigurationManager::instance()->barsignerCskPath());
 
     return cskFile.exists();
 }
 
 bool BlackBerrySigningUtils::hasDefaultCertificate()
 {
-    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
-
-    QFileInfo keystore(configuration.defaultKeystorePath());
+    QFileInfo keystore(BlackBerryConfigurationManager::instance()->defaultKeystorePath());
 
     return keystore.exists();
 }
@@ -146,12 +140,10 @@ void BlackBerrySigningUtils::openDefaultCertificate(QWidget *passwordPromptParen
         return;
     }
 
-    BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
-
     if (m_defaultCertificate)
         m_defaultCertificate->deleteLater();
 
-    m_defaultCertificate = new BlackBerryCertificate(configManager.defaultKeystorePath(),
+    m_defaultCertificate = new BlackBerryCertificate(BlackBerryConfigurationManager::instance()->defaultKeystorePath(),
             QString(), password, this);
 
     connect(m_defaultCertificate, SIGNAL(finished(int)), this, SLOT(certificateLoaded(int)));
@@ -186,9 +178,7 @@ void BlackBerrySigningUtils::deleteDefaultCertificate()
     m_defaultCertificate = 0;
     m_defaultCertificateStatus = NotOpened;
 
-    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
-
-    QFile::remove(configuration.defaultKeystorePath());
+    QFile::remove(BlackBerryConfigurationManager::instance()->defaultKeystorePath());
 }
 
 QStringList BlackBerrySigningUtils::debugTokens() const

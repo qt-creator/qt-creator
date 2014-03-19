@@ -62,6 +62,8 @@ using namespace ProjectExplorer;
 namespace Qnx {
 namespace Internal {
 
+BlackBerryConfigurationManager *BlackBerryConfigurationManager::m_instance = 0;
+
 namespace {
 const QLatin1String SettingsGroup("BlackBerryConfiguration");
 const QLatin1String NDKLocationKey("NDKLocation"); // For 10.1 NDK support (< QTC 3.0)
@@ -93,6 +95,7 @@ BlackBerryConfigurationManager::BlackBerryConfigurationManager(QObject *parent)
     m_writer = new Utils::PersistentSettingsWriter(bbConfigSettingsFileName(),
                                                    QLatin1String("BlackBerryConfigurations"));
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
+    m_instance = this;
 }
 
 void BlackBerryConfigurationManager::saveConfigurations()
@@ -466,15 +469,14 @@ void BlackBerryConfigurationManager::saveSettings()
     saveConfigurations();
 }
 
-BlackBerryConfigurationManager &BlackBerryConfigurationManager::instance()
+BlackBerryConfigurationManager *BlackBerryConfigurationManager::instance()
 {
-    static BlackBerryConfigurationManager instance;
-
-    return instance;
+    return m_instance;
 }
 
 BlackBerryConfigurationManager::~BlackBerryConfigurationManager()
 {
+    m_instance = 0;
     qDeleteAll(m_apiLevels);
     qDeleteAll(m_runtimes);
     delete m_writer;

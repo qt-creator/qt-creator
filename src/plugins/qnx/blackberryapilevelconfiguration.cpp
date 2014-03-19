@@ -445,7 +445,7 @@ bool BlackBerryApiLevelConfiguration::activate()
     if (qt5X86Version)
         createKit(qt5X86Version, x86ToolChain, x86DebuggerItemId);
 
-    BlackBerryConfigurationManager::instance().emitSettingsChanged();
+    BlackBerryConfigurationManager::instance()->emitSettingsChanged();
 
     return true;
 }
@@ -469,7 +469,7 @@ void BlackBerryApiLevelConfiguration::deactivate()
         }
     }
 
-    BlackBerryConfigurationManager::instance().emitSettingsChanged();
+    BlackBerryConfigurationManager::instance()->emitSettingsChanged();
 }
 
 #ifdef WITH_TESTS

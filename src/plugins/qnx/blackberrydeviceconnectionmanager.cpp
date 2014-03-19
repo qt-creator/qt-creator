@@ -114,9 +114,9 @@ void BlackBerryDeviceConnectionManager::connectDevice(Core::Id deviceId)
     // BlackBerry Device connection needs the Qnx environments to be set
     // in order to find the Connect.jar package.
     // Let's delay the device connections at startup till the Qnx settings are loaded.
-    if (BlackBerryConfigurationManager::instance().apiLevels().isEmpty()) {
+    if (BlackBerryConfigurationManager::instance()->apiLevels().isEmpty()) {
         m_pendingDeviceConnections << device;
-        connect(&BlackBerryConfigurationManager::instance(), SIGNAL(settingsLoaded()),
+        connect(BlackBerryConfigurationManager::instance(), SIGNAL(settingsLoaded()),
                 this, SLOT(processPendingDeviceConnections()), Qt::UniqueConnection);
         return;
     }
@@ -308,14 +308,14 @@ void BlackBerryDeviceConnectionManager::handleProcessOutput(const QString &outpu
 void BlackBerryDeviceConnectionManager::processPendingDeviceConnections()
 {
     if (m_pendingDeviceConnections.isEmpty()
-            || BlackBerryConfigurationManager::instance().apiLevels().isEmpty())
+            || BlackBerryConfigurationManager::instance()->apiLevels().isEmpty())
         return;
 
     foreach (ProjectExplorer::IDevice::ConstPtr device, m_pendingDeviceConnections)
         connectDevice(device);
 
     m_pendingDeviceConnections.clear();
-    disconnect(&BlackBerryConfigurationManager::instance(), SIGNAL(settingsLoaded()),
+    disconnect(BlackBerryConfigurationManager::instance(), SIGNAL(settingsLoaded()),
             this, SLOT(processPendingDeviceConnections()));
 }
 

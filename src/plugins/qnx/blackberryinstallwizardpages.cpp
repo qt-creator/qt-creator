@@ -485,7 +485,7 @@ void BlackBerryInstallWizardProcessPage::processTarget()
 
     // deactivate target if activated before uninstalling
     if (m_data.mode == BlackBerryInstallerDataHandler::UninstallMode) {
-        foreach (BlackBerryApiLevelConfiguration *config, BlackBerryConfigurationManager::instance().apiLevels()) {
+        foreach (BlackBerryApiLevelConfiguration *config, BlackBerryConfigurationManager::instance()->apiLevels()) {
             if (m_data.target.contains((config->targetName())) && config->isActive()) {
                 config->deactivate();
                 break;
@@ -521,13 +521,13 @@ void BlackBerryInstallWizardFinalPage::initializePage()
     layout->addWidget(label);
 
     if (m_data.mode == BlackBerryInstallerDataHandler::ManuallMode) {
-        BlackBerryConfigurationManager  &configManager = BlackBerryConfigurationManager::instance();
+        BlackBerryConfigurationManager *configManager = BlackBerryConfigurationManager::instance();
         BlackBerryApiLevelConfiguration *config =
-                configManager.apiLevelFromEnvFile(Utils::FileName::fromString(m_data.ndkPath));
+                configManager->apiLevelFromEnvFile(Utils::FileName::fromString(m_data.ndkPath));
 
         if (!config) {
             config = new BlackBerryApiLevelConfiguration(Utils::FileName::fromString(m_data.ndkPath));
-            if (!configManager.addApiLevel(config)) {
+            if (!configManager->addApiLevel(config)) {
                 delete config;
                 // TODO: more explicit error message!
                 label->setText(tr("An error has occurred while adding target from:\n %1").arg(m_data.ndkPath));

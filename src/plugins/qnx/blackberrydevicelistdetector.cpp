@@ -57,7 +57,7 @@ void BlackBerryDeviceListDetector::detectDeviceList()
         return;
 
     m_process->setEnvironment(Utils::EnvironmentItem::toStringList(
-             BlackBerryConfigurationManager::instance().defaultConfigurationEnv()));
+             BlackBerryConfigurationManager::instance()->defaultConfigurationEnv()));
     const QString command = BlackBerryNdkProcess::resolveNdkToolPath(QLatin1String("blackberry-deploy"));
     QStringList arguments;
     arguments << QLatin1String("-devices");

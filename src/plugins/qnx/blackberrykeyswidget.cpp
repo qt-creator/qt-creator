@@ -162,9 +162,7 @@ void BlackBerryKeysWidget::updateCertificateSection()
     if (m_utils.hasDefaultCertificate()) {
         setCreateCertificateVisible(false);
 
-        BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
-
-        m_ui->certificatePath->setText(configManager.defaultKeystorePath());
+        m_ui->certificatePath->setText(BlackBerryConfigurationManager::instance()->defaultKeystorePath());
 
         const BlackBerryCertificate *certificate = m_utils.defaultCertificate();
 
@@ -279,8 +277,6 @@ void BlackBerryKeysWidget::removeDebugToken()
 
 void BlackBerryKeysWidget::updateDebugToken(const QStringList &pins)
 {
-    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
-
     bool ok;
     const QString cskPassword = m_utils.cskPassword(this, &ok);
     if (!ok)
@@ -292,7 +288,7 @@ void BlackBerryKeysWidget::updateDebugToken(const QStringList &pins)
 
     const QString debugTokenPath = m_dtModel->item(m_ui->debugTokens->currentIndex().row(), 0)->text();
     m_requester->requestDebugToken(debugTokenPath,
-                                   cskPassword, configuration.defaultKeystorePath(),
+                                   cskPassword, BlackBerryConfigurationManager::instance()->defaultKeystorePath(),
                                    certificatePassword, pins.join(QLatin1String(",")));
 }
 
