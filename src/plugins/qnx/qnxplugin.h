@@ -41,14 +41,14 @@ QT_END_NAMESPACE
 namespace Qnx {
 namespace Internal {
 
-class QNXPlugin : public ExtensionSystem::IPlugin
+class QnxPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")
 
 public:
-    QNXPlugin();
-    ~QNXPlugin();
+    QnxPlugin();
+    ~QnxPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();

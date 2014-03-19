@@ -76,18 +76,18 @@
 
 using namespace Qnx::Internal;
 
-QNXPlugin::QNXPlugin()
+QnxPlugin::QnxPlugin()
     : m_debugSeparator(0)
     , m_attachToQnxApplication(0)
 {
 }
 
-QNXPlugin::~QNXPlugin()
+QnxPlugin::~QnxPlugin()
 {
     delete BlackBerryDeviceConnectionManager::instance();
 }
 
-bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
+bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
@@ -141,7 +141,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     return true;
 }
 
-void QNXPlugin::extensionsInitialized()
+void QnxPlugin::extensionsInitialized()
 {
     ProjectExplorer::TaskHub::addCategory(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR,
                                           tr("BAR Descriptor"));
@@ -164,12 +164,12 @@ void QNXPlugin::extensionsInitialized()
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(updateDebuggerActions()));
 }
 
-ExtensionSystem::IPlugin::ShutdownFlag QNXPlugin::aboutToShutdown()
+ExtensionSystem::IPlugin::ShutdownFlag QnxPlugin::aboutToShutdown()
 {
     return SynchronousShutdown;
 }
 
-void QNXPlugin::updateDebuggerActions()
+void QnxPlugin::updateDebuggerActions()
 {
     bool hasValidQnxKit = false;
     ProjectExplorer::DeviceTypeMatcher qnxTypeMatcher(Constants::QNX_QNX_OS_TYPE);
@@ -191,7 +191,7 @@ void QNXPlugin::updateDebuggerActions()
 
 #include "bardescriptordocument.h"
 
-void QNXPlugin::testBarDescriptorDocumentSetValue_data()
+void QnxPlugin::testBarDescriptorDocumentSetValue_data()
 {
     QTest::addColumn<BarDescriptorDocument::Tag>("tag");
     QTest::addColumn<QVariant>("value");
@@ -362,7 +362,7 @@ void QNXPlugin::testBarDescriptorDocumentSetValue_data()
                                   << true;
 }
 
-void QNXPlugin::testBarDescriptorDocumentSetValue()
+void QnxPlugin::testBarDescriptorDocumentSetValue()
 {
     QFETCH(BarDescriptorDocument::Tag, tag);
     QFETCH(QVariant, value);
@@ -381,7 +381,7 @@ void QNXPlugin::testBarDescriptorDocumentSetValue()
         QCOMPARE(doc.value(tag), value);
 }
 
-void QNXPlugin::testBarDescriptorDocumentSetBannerComment_data()
+void QnxPlugin::testBarDescriptorDocumentSetBannerComment_data()
 {
     QTest::addColumn<QString>("comment");
     QTest::addColumn<QString>("baseXml");
@@ -426,7 +426,7 @@ void QNXPlugin::testBarDescriptorDocumentSetBannerComment_data()
 
 }
 
-void QNXPlugin::testBarDescriptorDocumentSetBannerComment()
+void QnxPlugin::testBarDescriptorDocumentSetBannerComment()
 {
     QFETCH(QString, comment);
     QFETCH(QString, baseXml);
@@ -442,7 +442,7 @@ void QNXPlugin::testBarDescriptorDocumentSetBannerComment()
     QCOMPARE(doc.bannerComment(), comment);
 }
 
-void QNXPlugin::testConfigurationManager_data()
+void QnxPlugin::testConfigurationManager_data()
 {
     const QLatin1String NDKEnvFileKey("NDKEnvFile");
     const QLatin1String NDKPathKey("NDKPath");
@@ -479,7 +479,7 @@ void QNXPlugin::testConfigurationManager_data()
     QTest::newRow("configurations") << newerConfiguration << olderConfiguration;;
 }
 
-void QNXPlugin::testConfigurationManager()
+void QnxPlugin::testConfigurationManager()
 {
     BlackBerryConfigurationManager *manager = BlackBerryConfigurationManager::instance();
 

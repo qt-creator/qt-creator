@@ -45,7 +45,7 @@ namespace Internal {
 
 class BlackBerryApiLevelConfiguration;
 class BlackBerryRuntimeConfiguration;
-class QNXPlugin;
+class QnxPlugin;
 
 class BlackBerryConfigurationManager : public QObject
 {
@@ -112,7 +112,7 @@ private:
     void insertApiLevelByVersion(BlackBerryApiLevelConfiguration* apiLevel);
     void insertRuntimeByVersion(BlackBerryRuntimeConfiguration* runtime);
 
-    friend class QNXPlugin;
+    friend class QnxPlugin;
 };
 
 } // namespace Internal
