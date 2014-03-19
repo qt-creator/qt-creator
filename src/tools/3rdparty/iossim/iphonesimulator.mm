@@ -278,6 +278,7 @@ NSString* FindDeveloperDir() {
   } else {
     nsprintf(@"<app_output>%@</app_output>", str); // handle stderr differently?
   }
+  fflush(stdout);
 }
 
 
