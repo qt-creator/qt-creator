@@ -406,9 +406,9 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
     QStandardItem* cat = (m_model->itemFromIndex(sourceIndex));
     if (const IWizard *wizard = wizardOfItem(cat)) {
         QString desciption = wizard->description();
-        QStringList displayNamesForSupporttedPlatforms;
+        QStringList displayNamesForSupportedPlatforms;
         foreach (const QString &platform, wizard->supportedPlatforms())
-            displayNamesForSupporttedPlatforms << IWizard::displayNameForPlatform(platform);
+            displayNamesForSupportedPlatforms << IWizard::displayNameForPlatform(platform);
         if (!Qt::mightBeRichText(desciption))
             desciption.replace(QLatin1Char('\n'), QLatin1String("<br>"));
         desciption += QLatin1String("<br><br><b>");
@@ -417,7 +417,7 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
         else
             desciption += tr("Supported Platforms")
                     + QLatin1String("</b>: <tt>")
-                    + displayNamesForSupporttedPlatforms.join(QLatin1String(" "))
+                    + displayNamesForSupportedPlatforms.join(QLatin1String(" "))
                     + QLatin1String("</tt>");
 
         m_ui->templateDescription->setHtml(desciption);
