@@ -177,6 +177,8 @@ private:
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
     void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
 
+    QList<CppEditorSupport *> cppEditorSupportList() const;
+
     WorkingCopy buildWorkingCopyList();
 
     void ensureUpdated();

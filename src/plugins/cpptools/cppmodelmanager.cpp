@@ -472,15 +472,9 @@ void CppModelManager::replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot)
 
 CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
 {
-    QList<CppEditorSupport *> cppEditorSupports;
-
-    {
-        QMutexLocker locker(&m_cppEditorSupportsMutex);
-        cppEditorSupports = m_cppEditorSupports.values();
-    }
-
     WorkingCopy workingCopy;
-    foreach (const CppEditorSupport *editorSupport, cppEditorSupports) {
+
+    foreach (const CppEditorSupport *editorSupport, cppEditorSupportList()) {
         workingCopy.insert(editorSupport->fileName(), editorSupport->contents(),
                            editorSupport->editorRevision());
     }
@@ -546,6 +540,12 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
             m_snapshot.remove(cxxFile.path);
         }
     }
+}
+
+QList<CppEditorSupport *> CppModelManager::cppEditorSupportList() const
+{
+    QMutexLocker locker(&m_cppEditorSupportsMutex);
+    return m_cppEditorSupports.values();
 }
 
 /// \brief Remove all given files from the snapshot.
@@ -817,12 +817,7 @@ void CppModelManager::GC()
 
     // Collect files of CppEditorSupport and AbstractEditorSupport.
     QStringList filesInEditorSupports;
-    QList<CppEditorSupport *> cppEditorSupports;
-    {
-        QMutexLocker locker(&m_cppEditorSupportsMutex);
-        cppEditorSupports = m_cppEditorSupports.values();
-    }
-    foreach (const CppEditorSupport *cppEditorSupport, cppEditorSupports)
+    foreach (const CppEditorSupport *cppEditorSupport, cppEditorSupportList())
         filesInEditorSupports << cppEditorSupport->fileName();
 
     QSetIterator<AbstractEditorSupport *> jt(m_extraEditorSupports);
@@ -928,14 +923,7 @@ bool CppModelManager::setExtraDiagnostics(const QString &fileName,
                                           const QString &kind,
                                           const QList<Document::DiagnosticMessage> &diagnostics)
 {
-    QList<CppEditorSupport *> cppEditorSupports;
-
-    {
-        QMutexLocker locker(&m_cppEditorSupportsMutex);
-        cppEditorSupports = m_cppEditorSupports.values();
-    }
-
-    foreach (CppEditorSupport *editorSupport, cppEditorSupports) {
+    foreach (CppEditorSupport *editorSupport, cppEditorSupportList()) {
         if (editorSupport->fileName() == fileName) {
             editorSupport->setExtraDiagnostics(kind, diagnostics);
             return true;
@@ -947,14 +935,7 @@ bool CppModelManager::setExtraDiagnostics(const QString &fileName,
 void CppModelManager::setIfdefedOutBlocks(const QString &fileName,
                                           const QList<TextEditor::BlockRange> &ifdeffedOutBlocks)
 {
-    QList<CppEditorSupport *> cppEditorSupports;
-
-    {
-        QMutexLocker locker(&m_cppEditorSupportsMutex);
-        cppEditorSupports = m_cppEditorSupports.values();
-    }
-
-    foreach (CppEditorSupport *editorSupport, cppEditorSupports) {
+    foreach (CppEditorSupport *editorSupport, cppEditorSupportList()) {
         if (editorSupport->fileName() == fileName) {
             editorSupport->setIfdefedOutBlocks(ifdeffedOutBlocks);
             break;
