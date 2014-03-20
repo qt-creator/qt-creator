@@ -2175,6 +2175,7 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QObject2")
             << Data("#include <QWidget>\n"
                     "#include <QApplication>\n"
+                    "#include <QVariant>\n"
                     "namespace Bar {\n"
                     "    struct Ui { Ui() { w = 0; } QWidget *w; };\n"
                     "    class TestObject : public QObject\n"
@@ -2209,17 +2210,25 @@ void tst_Dumpers::dumper_data()
                     "Bar::TestObject test;\n"
                     "test.setMyProp1(\"Hello\");\n"
                     "test.setMyProp2(\"World\");\n"
+                    "test.setProperty(\"New\", QVariant(QByteArray(\"Stuff\")));\n"
+                    "test.setProperty(\"Old\", QVariant(QString(\"Cruft\")));\n"
                     "QString s = test.myProp1();\n"
                     "s += QString::fromLatin1(test.myProp2());\n"
                     "unused(&app, &test, &s);\n")
                + GuiProfile()
                + Check("s", "\"HelloWorld\"", "@QString")
                + Check("test", "", "Bar::TestObject")
-               + Check("test.[properties]", "<4 items>", "")
-               + Check("test.[properties].myProp1", "\"Hello\"", "@QVariant (QString)")
-               + Check("test.[properties].myProp2", "\"World\"", "@QVariant (QByteArray)")
+               + Check("test.[properties]", "<6 items>", "")
+               + Check("test.[properties].myProp1",
+                    "\"Hello\"", "@QVariant (QString)")
+               + Check("test.[properties].myProp2",
+                    "\"World\"", "@QVariant (QByteArray)")
                + Check("test.[properties].myProp3", "54", "@QVariant (long)")
-               + Check("test.[properties].myProp4", "44", "@QVariant (int)");
+               + Check("test.[properties].myProp4", "44", "@QVariant (int)")
+               + Check("test.[properties].4", "\"New\"",
+                    "\"Stuff\"", "@QVariant (QByteArray)")
+               + Check("test.[properties].5", "\"Old\"",
+                    "\"Cruft\"", "@QVariant (QString)");
 
     QTest::newRow("QObject3")
             << Data("#include <QWidget>\n"

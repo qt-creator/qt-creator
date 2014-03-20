@@ -1059,7 +1059,7 @@ class DumperBase:
                     # Static properties.
                     for i in range(propertyCount):
                         name = propertyNames[i]
-                        self.putCallItem(name, qobject, "property", '"' + name + '"')
+                        self.putCallItem(str(name), qobject, "property", '"' + name + '"')
 
                     # Dynamic properties.
                     if extraData:
