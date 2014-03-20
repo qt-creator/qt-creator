@@ -1017,25 +1017,24 @@ class DumperBase:
         return result
 
     def generateQListChildren(self, value):
-        dptr = self.childAt(value, 0)["d"]
-        private = dptr.dereference()
-        begin = int(private["begin"])
-        end = int(private["end"])
-        array = private["array"]
+        base = self.extractPointer(value)
+        begin = self.extractInt(base + 8)
+        end = self.extractInt(base + 12)
+        array = base + 16
+        if self.qtVersion() < 0x50000:
+            array += self.ptrSize()
         size = end - begin
         innerType = self.templateArgument(value.type, 0)
         innerSize = innerType.sizeof
-        stepSize = dptr.type.sizeof
-        addr = self.addressOf(array) + begin * stepSize
+        stepSize = self.ptrSize()
+        addr = array + begin * stepSize
         isInternal = innerSize <= stepSize and self.isMovableType(innerType)
-        if isInternal:
-            for i in range(size):
+        for i in range(size):
+            if isInternal:
                 yield self.createValue(addr + i * stepSize, innerType)
-        else:
-            p = self.createPointerValue(addr, innerType.pointer())
-            for i in range(size):
-                yield p.dereference().dereference()
-                p += 1
+            else:
+                p = self.extractPointer(addr + i * stepSize)
+                yield self.createValue(p, innerType)
 
 
     # This is called is when a QObject derived class is expanded
@@ -1044,8 +1043,10 @@ class DumperBase:
         ptrSize = self.ptrSize()
         # dd = value["d_ptr"]["d"] is just behind the vtable.
         dd = self.extractPointer(qobject, offset=ptrSize)
+        isQt5 = self.qtVersion() >= 0x50000
 
-        extraData = self.extractPointer(dd + 5 * ptrSize + 2 * intSize)
+        extraDataOffset = 5 * ptrSize + 8 if isQt5 else 6 * ptrSize + 8
+        extraData = self.extractPointer(dd + extraDataOffset)
         #with SubItem(self, "[extradata]"):
         #    self.putValue("0x%x" % toInteger(extraData))
 
