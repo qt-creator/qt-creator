@@ -35,18 +35,25 @@
 
 #include <private/qfile_p.h>
 #include <private/qfileinfo_p.h>
+#include <private/qobject_p.h>
 
 class tst_offsets : public QObject
 {
     Q_OBJECT
 
 public:
-    tst_offsets() {}
+    tst_offsets();
 
 private slots:
     void offsets();
     void offsets_data();
 };
+
+tst_offsets::tst_offsets()
+{
+    qDebug("Qt Version   : %s", qVersion());
+    qDebug("Pointer size : %d", int(sizeof(void *)));
+}
 
 void tst_offsets::offsets()
 {
@@ -67,7 +74,7 @@ void tst_offsets::offsets_data()
 
     {
         QFilePrivate *p = 0;
-        QTestData &data = QTest::newRow("File::fileName")
+        QTestData &data = QTest::newRow("QFilePrivate::fileName")
                 << int((char *)&p->fileName - (char *)p);
         if (qtVersion >= 0x50200)
             data << 176 << 272;
@@ -79,10 +86,35 @@ void tst_offsets::offsets_data()
 
     {
         QFileInfoPrivate *p = 0;
-        QTestData &data = QTest::newRow("FileInfo::filePath")
+        QTestData &data = QTest::newRow("QFileInfoPrivate::filePath")
                 << int((char *)&p->fileEntry.m_filePath - (char *)p);
         data << 4 << 8;
     }
+
+    {
+        QTestData &data = QTest::newRow("sizeof(QObjectData)")
+                << int(sizeof(QObjectData));
+        data << 28 << 48; // vptr + 3 ptr + 2 int + ptr
+    }
+
+    {
+        QObjectPrivate *p = 0;
+        QTestData &data = QTest::newRow("QObjectPrivate::extraData")
+                << int((char *)&p->extraData - (char *)p);
+        if (qtVersion >= 0x50000)
+            data << 28 << 48;    // sizeof(QObjectData)
+        else
+            data << 32 << 56;    // sizeof(QObjectData) + 1 ptr
+    }
+
+#if QT_VERSION < 0x50000
+    {
+        QObjectPrivate *p = 0;
+        QTestData &data = QTest::newRow("QObjectPrivate::objectName")
+                << int((char *)&p->objectName - (char *)p);
+        data << 28 << 48;    // sizeof(QObjectData)
+    }
+#endif
 }
 
 
