@@ -101,6 +101,7 @@ Item {
             height: expanded ? innerColumn.height + margin * 2 : 0
             width: delegate.ListView.view.width - 8 - margin * 2
             opacity: delegate.expanded ? 1 : 0
+            visible: delegate.expanded
 
             Behavior on height {
                 ParallelAnimation {
