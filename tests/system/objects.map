@@ -88,9 +88,9 @@
 :Git Repository Clone.Cancel_QPushButton	{text='Cancel' type='QPushButton' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
 :Git Repository Clone.Finish_QPushButton	{text~='(Finish|Done)' type='QPushButton' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
 :Git Repository Clone.Repository_QGroupBox	{name='repositoryGroupBox' title='Repository' type='QGroupBox' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
-:Git Repository Clone.Result._QLabel	{name='statusLabel' type='QLabel' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
+:Git Repository Clone.Result._QLabel	{type='QLabel' unnamed='1' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
 :Git Repository Clone.Working Copy_QGroupBox	{name='localGroupBox' title='Working Copy' type='QGroupBox' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
-:Git Repository Clone.logPlainTextEdit_QPlainTextEdit	{name='logPlainTextEdit' type='QPlainTextEdit' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
+:Git Repository Clone.logPlainTextEdit_QPlainTextEdit	{type='QPlainTextEdit' unnamed='1' visible='1' window=':Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog'}
 :Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog	{type='VcsBase::Internal::CheckoutWizardDialog' unnamed='1' visible='1' windowTitle='Git Repository Clone'}
 :Go to slot.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Go to slot_QDialog'}
 :Go to slot.Select signal_QGroupBox	{name='groupBox' title='Select signal' type='QGroupBox' visible='1' window=':Go to slot_QDialog'}
