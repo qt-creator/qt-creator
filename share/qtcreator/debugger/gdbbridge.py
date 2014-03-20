@@ -1293,14 +1293,6 @@ class Dumper(DumperBase):
                 if staticMetaObject:
                     self.putQObjectGuts(value, staticMetaObject)
 
-
-    def putPlainChildren(self, value):
-        self.putEmptyValue(-99)
-        self.putNumChild(1)
-        if self.currentIName in self.expandedINames:
-            with Children(self):
-               self.putFields(value)
-
     def toBlob(self, value):
         size = toInteger(value.type.sizeof)
         if value.address:

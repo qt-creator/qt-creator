@@ -363,14 +363,9 @@ if False:
 def qdump__KDSoapValue1(d, value):
     inner = value["d"]["d"].dereference()
     d.putStringValue(inner["m_name"])
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(inner)
+    d.putPlainChildren(inner)
 
 def qdump__KDSoapValue(d, value):
     p = (value.cast(lookupType("char*")) + 4).dereference().cast(lookupType("QString"))
     d.putStringValue(p)
-    if d.isExpanded():
-        with Children(d):
-            data = value["d"]["d"].dereference()
-            d.putFields(data)
+    d.putPlainChildren(value["d"]["d"].dereference())

@@ -156,7 +156,6 @@ def qdump__QModelIndex(d, value):
         rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
         columnCount = int(d.parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
     except:
-        d.putEmptyValue()
         d.putPlainChildren(value)
         return
 
@@ -1211,11 +1210,7 @@ def _qdump__QObject(d, value):
               with SubItem(d, "data"):
                 d.putEmptyValue()
                 d.putNoType()
-                d.putNumChild(1)
-                if d.isExpanded():
-                    with Children(d):
-                        d.putFields(d_ptr, False)
-
+                d.putPlainChildren(d_ptr, False)
 
         d.putFields(value)
         # Parent and children.
@@ -2273,11 +2268,7 @@ def qdump__QV4__Value(d, value):
         pass
 
     # Fall back for cases that we do not handle specifically.
-    d.putEmptyValue()
-    d.putNumChild(1)
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(value)
+    d.putPlainChildren(value)
 
 
 #######################################################################

@@ -550,6 +550,13 @@ class DumperBase:
                         self.putSubItem("first", key)
                         self.putSubItem("second", value)
 
+    def putPlainChildren(self, value, dumpBase = True):
+        self.putEmptyValue(-99)
+        self.putNumChild(1)
+        if self.isExpanded():
+            with Children(self):
+                self.putFields(value, dumpBase)
+
     def isMapCompact(self, keyType, valueType):
         format = self.currentItemFormat()
         if format == 2:
