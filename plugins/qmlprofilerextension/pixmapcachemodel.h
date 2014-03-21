@@ -38,6 +38,7 @@ public:
         int eventId;
         int pixmapEventType;
         int urlIndex;
+        int sizeIndex;
         qint64 cacheSize;
         int rowNumberExpanded;
         int rowNumberCollapsed;
