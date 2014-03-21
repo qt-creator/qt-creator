@@ -563,10 +563,16 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(ProjectExplorer
     if (!project || !project->qbsProject().isValid())
         return result;
 
-    // Create one RC per product. There is no information on what those products actually
-    // are or whether they are going to get installed before a project is built.
-    foreach (const qbs::ProductData &product, project->qbsProjectData().allProducts())
-        result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
+    // Before the first build, some information regarding the target artifacts is not yet
+    // present. Simply create run configs for all products in that case; the irrelevant ones
+    // will disapear again later.
+    foreach (const qbs::ProductData &product, project->qbsProjectData().allProducts()) {
+        const bool alreadyhasTargetInfo = !product.targetArtifacts().isEmpty();
+        if (!alreadyhasTargetInfo || !project->qbsProject()
+                .targetExecutable(product, qbs::InstallOptions()).isEmpty()) {
+            result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
+        }
+    }
 
     return result;
 }
