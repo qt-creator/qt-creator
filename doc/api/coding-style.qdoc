@@ -551,7 +551,7 @@
     \section2 Namespaces
 
     \list
-        \li Put the left curly brace on the same line as the \namespace keyword.
+        \li Put the left curly brace on the same line as the \c namespace keyword.
         \li Do not indent declarations or definitions inside.
         \li Optional, but recommended if the namespaces spans more than a few lines:
             Add a comment after the right curly brace repeating the namespace.
