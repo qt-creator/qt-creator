@@ -102,7 +102,16 @@ def main():
             nativeMouseClick(waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000), 20, 20, 0, Qt.LeftButton)
     nativeType("<Ctrl+Alt+a>")
     # verify qt creator version
-    waitForObject(":About Qt Creator_Core::Internal::VersionDialog")
+    try:
+        waitForObject(":About Qt Creator_Core::Internal::VersionDialog", 5000)
+    except:
+        test.warning("Using workaround of invoking menu entry "
+                     "(known issue when running on Win inside Jenkins)")
+        if platform.system() == "Darwin":
+            invokeMenuItem("Help", "About Qt Creator")
+        else:
+            invokeMenuItem("Help", "About Qt Creator...")
+        waitForObject(":About Qt Creator_Core::Internal::VersionDialog", 5000)
     actualVersion = getQtCreatorVersionFromDialog()
     test.verify(actualVersion == expectedVersion,
                 "Verifying version. Current version is '%s', expected version is '%s'"
