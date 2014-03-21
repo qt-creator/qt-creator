@@ -51,6 +51,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <debugger/debuggerkitinformation.h>
+#include <qmakeprojectmanager/qmakekitinformation.h>
 
 #include <QMessageBox>
 #include <QFileInfo>
@@ -261,14 +262,22 @@ void BlackBerryConfigurationManager::setKitsAutoDetectionSource()
 {
     foreach (Kit *kit, KitManager::kits()) {
         if (kit->isAutoDetected() &&
-                (DeviceTypeKitInformation::deviceTypeId(kit) ==  Constants::QNX_BB_CATEGORY_ICON) &&
+                (DeviceTypeKitInformation::deviceTypeId(kit) ==  Constants::QNX_BB_OS_TYPE) &&
                 kit->autoDetectionSource().isEmpty()) {
             QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
             foreach (BlackBerryApiLevelConfiguration *config, m_apiLevels) {
                 if ((version &&
                      (version->qmakeCommand() == config->qmake4BinaryFile() || version->qmakeCommand() == config->qmake5BinaryFile()))
-                        && (SysRootKitInformation::sysRoot(kit) == config->sysRoot()))
+                        && (SysRootKitInformation::sysRoot(kit) == config->sysRoot())) {
                     kit->setAutoDetectionSource(config->ndkEnvFile().toString());
+                    // Set stickyness since not necessary saved for those kits
+                    kit->setSticky(QtSupport::QtKitInformation::id(), true);
+                    kit->setSticky(ToolChainKitInformation::id(), true);
+                    kit->setSticky(DeviceTypeKitInformation::id(), true);
+                    kit->setSticky(SysRootKitInformation::id(), true);
+                    kit->setSticky(Debugger::DebuggerKitInformation::id(), true);
+                    kit->setSticky(QmakeProjectManager::QmakeKitInformation::id(), true);
+                }
             }
         }
     }
@@ -449,16 +458,16 @@ QList<Utils::EnvironmentItem> BlackBerryConfigurationManager::defaultConfigurati
 
 void BlackBerryConfigurationManager::loadSettings()
 {
-    // Backward compatibility: Set kit's auto detection source
-    // for existing BlackBerry kits that do not have it set yet.
-    setKitsAutoDetectionSource();
-
     restoreConfigurations();
     // For backward compatibility
     loadManualConfigurations();
     loadAutoDetectedApiLevels();
     loadAutoDetectedRuntimes();
     checkToolChainConfiguration();
+
+    // Backward compatibility: Set kit's auto detection source
+    // for existing BlackBerry kits that do not have it set yet.
+    setKitsAutoDetectionSource();
 
     emit settingsLoaded();
     emit settingsChanged();
