@@ -48,7 +48,7 @@ def main():
                            'onTriggered: console.log("Break here")'])
         invokeMenuItem("File", "Save All")
         filesAndLines = [
-                        { "%s.QML.qml.main\\.qml" % projectName : 'onTriggered.*' },
+                        { "%s.Resources.qml\.qrc./.qml/main\\.qml" % projectName : 'onTriggered.*' },
                         { "%s.Sources.main\\.cpp" % projectName : "viewer.setOrientation\\(.+\\);" }
                         ]
         test.log("Setting breakpoints")
