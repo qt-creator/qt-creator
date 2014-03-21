@@ -98,17 +98,10 @@ QColor PixmapCacheModel::getColor(int index) const
 float PixmapCacheModel::getHeight(int index) const
 {
     Q_D(const PixmapCacheModel);
-    if (d->range(index).pixmapEventType == PixmapCacheCountChanged) {
-        float scale = d->maxCacheSize - d->minCacheSize;
-        float fraction = 1.0f;
-        if (scale > 1)
-            fraction = (float)(d->range(index).cacheSize -
-                                d->minCacheSize) / scale;
-
-        return fraction * 0.85f + 0.15f;
-    }
-
-    return 1.0f;
+    if (d->range(index).pixmapEventType == PixmapCacheCountChanged)
+        return 0.15 + (float)d->range(index).cacheSize * 0.85 / (float)d->maxCacheSize;
+    else
+        return 1.0f;
 }
 
 QString getFilenameOnly(QString absUrl)
