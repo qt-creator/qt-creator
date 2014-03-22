@@ -61,7 +61,8 @@ QString textAt(QTextCursor tc, int pos, int length)
     tc.setPosition(pos);
     tc.setPosition(pos + length, QTextCursor::KeepAnchor);
 
-    return tc.selectedText();
+    // selectedText() returns U+2029 (PARAGRAPH SEPARATOR) instead of newline
+    return tc.selectedText().replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
 }
 
 } // Util
