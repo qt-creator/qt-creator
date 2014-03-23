@@ -387,7 +387,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
 }
 
 void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringList &additionalFilesToOpen,
-                                            const QUrl &help, const QStringList &dependencies, const QStringList &platforms)
+                                      const QUrl &help, const QStringList &dependencies, const QStringList &)
 {
     QString proFile = projectFile;
     if (proFile.isEmpty())
