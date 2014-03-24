@@ -33,6 +33,7 @@
 #include "crumblebar.h"
 
 #include <rewriterview.h>
+#include <nodeinstanceview.h>
 #include <itemlibrarywidget.h>
 
 #include <coreplugin/coreconstants.h>
@@ -181,6 +182,7 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_navigatorHistoryCounter(-1),
     m_keepNavigatorHistory(false)
 {
+    QObject::connect(viewManager().nodeInstanceView(), SIGNAL(qmlPuppetCrashed()), this, SLOT(qmlPuppetCrashed()));
 }
 
 DesignModeWidget::~DesignModeWidget()
