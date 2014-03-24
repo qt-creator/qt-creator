@@ -117,7 +117,7 @@ public:
 
 
     QString createAVD(QWidget *parent, int minApiLevel = 0, QString targetArch = QString()) const;
-    QString createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize) const;
+    QString createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize, QString *error) const;
     bool removeAVD(const QString &name) const;
 
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
