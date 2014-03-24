@@ -7,8 +7,8 @@
         \li Configure the device and specify a connection to it. For more
             information, see \l{Connecting QNX Devices}.
 
-        \li If you are running on a BlackBerry device, create an Application
-            Descriptor File if it does not already exist. For more information, see \l{Deploying Applications to QNX Devices}.
+        \li If you are running on a BlackBerry 10 device, create an Application
+            Descriptor File if it does not already exist. For more information, see \l{Deploying Applications to BlackBerry 10 Devices}.
 
         \li Make sure that your kit has your QNX or BlackBerry 10 device set.
 

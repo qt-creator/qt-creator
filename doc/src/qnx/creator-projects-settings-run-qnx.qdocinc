@@ -7,10 +7,12 @@
 
     \image qtcreator-qnx-run-settings.png "Run settings for QNX devices"
 
-    When you run the application on the BlackBerry device, \QC first creates a BAR package
-    using the settings in the Application Descriptor File. The default is to create the
-    BAR package in the build directory. The BAR package is then deployed to the
-    selected device. For more information, see \l{Deploying Applications to QNX Devices}.
-
     Specifying run settings for QNX Neutrino devices is very similar to
     \l{Specifying Run Settings for Linux-Based Devices}.
+
+    \section2 Specifying Run Settings for Blackberry 10 Devices
+
+    When you run the application on the BlackBerry 10 device, \QC first creates a BAR package
+    using the settings in the Application Descriptor File. The default is to create the
+    BAR package in the build directory. The BAR package is then deployed to the
+    selected device. For more information, see \l{Deploying Applications to BlackBerry 10 Devices}.

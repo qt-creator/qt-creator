@@ -30,40 +30,10 @@
     \page creator-deployment-qnx.html
     \nextpage creator-connecting-mobile.html
 
-    \title Deploying Applications to QNX Devices
+    \title Deploying Applications to QNX Neutrino Devices
 
-    You can deploy applications to BlackBerry and QNX Neutrino devices.
-
-    \section1 Deploying to BlackBerry Devices
-
-    For BlackBerry devices, \QC generates a BAR package in the build
-    directory and installs it on the connected device. The contents of the BAR
-    package are specified in the \gui{Application Descriptor File}.
-
-    \image qtcreator-playbook-deployment.png "Deploy to device"
-
-    The name of the generated BAR package is shown in the \gui{Package}
-    setting. If the package already exists, it will be overwritten without
-    prior notification.
-
-    \section2 Application Descriptor File
-
-    The application descriptor file needs to be created manually,
-    or you can use the \gui{Application Descriptor} wizard to have a generic
-    template generated. The wizard is available in \gui {File > New File or
-    Project > BlackBerry > Application descriptor}. This wizard will also
-    include a splashscreen.png and an icon.png file which are included in the
-    application descriptor file.
-
-    To tailor your BAR packages, you will have to manually edit the application
-    descriptor file. For a full reference, see
-    \l{http://bdsc.webapps.blackberry.com/native/documentation/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/r_blackberry_tablet_dtd_intro.html}
-    {Document Type Definition (DTD) for the application descriptor file}.
-
-    \section1 Deploying to QNX Neutrino Devices
-
-    Deploying applications to a QNX Neutrino device is very similar to
-    \l{Deploying Applications to Embedded Linux Devices}.
+    You can deploy applications to QNX Neutrino devices in the way that is described
+    in \l{Deploying Applications to Embedded Linux Devices}.
 
     \image qtcreator-qnx-deployment.png "Deploy to device"
 

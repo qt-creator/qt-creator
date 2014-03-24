@@ -52,7 +52,7 @@
             When you deploy the application to a generic Linux-based device, \QC
             copies the application files to the connected device. You
             can test and debug the application on the device.
-        \li  \l{Deploying Applications to QNX Devices}
+        \li  \l{Deploying Applications to QNX Neutrino Devices}
 
             When you deploy the application to a BlackBerry, \QC  generates a
             BAR package in the build directory and deploys it to the connected
