@@ -845,8 +845,13 @@ void ClearCasePlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
     const VcsBase::VcsBasePluginState state = currentState();
     const bool hasTopLevel = state.hasTopLevel();
     m_commandLocator->setEnabled(hasTopLevel);
-    if (hasTopLevel)
-        m_topLevel = state.topLevel();
+    if (hasTopLevel) {
+        const QString topLevel = state.topLevel();
+        if (m_topLevel != topLevel) {
+            m_topLevel = topLevel;
+            m_viewData = ccGetView(topLevel);
+        }
+    }
 
     m_updateViewAction->setParameter(m_viewData.isDynamic ? QString() : m_viewData.name);
 
