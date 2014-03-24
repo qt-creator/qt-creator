@@ -381,7 +381,8 @@ QString ClearCasePlugin::ccManagesDirectory(const QString &directory) const
 
     foreach (const QString &relativeVobDir, vobs) {
         const QString vobPath = QDir::cleanPath(rootDir + QDir::fromNativeSeparators(relativeVobDir));
-        const bool isManaged = Utils::FileName::fromString(directory).isChildOf(Utils::FileName::fromString(vobPath));
+        const bool isManaged = (vobPath == directory)
+                || Utils::FileName::fromString(directory).isChildOf(Utils::FileName::fromString(vobPath));
         if (isManaged)
             return vobPath;
     }
