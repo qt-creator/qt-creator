@@ -65,6 +65,17 @@ struct AndroidDeviceInfo
     static QStringList adbSelector(const QString &serialNumber);
 };
 
+class SdkPlatform
+{
+public:
+    SdkPlatform()
+        : apiLevel(-1)
+    {}
+    int apiLevel;
+    QString name;
+    QStringList abis;
+};
+
 class AndroidConfig
 {
 public:
@@ -73,7 +84,8 @@ public:
     void load(const QSettings &settings);
     void save(QSettings &settings) const;
 
-    QStringList sdkTargets(int minApiLevel = 0) const;
+    static QStringList apiLevelNamesFor(const QList<SdkPlatform> &platforms);
+    QList<SdkPlatform> sdkTargets(int minApiLevel = 0) const;
 
     Utils::FileName sdkLocation() const;
     void setSdkLocation(const Utils::FileName &sdkLocation);
@@ -137,8 +149,7 @@ public:
     bool waitForBooted(const QString &serialNumber, const QFutureInterface<bool> &fi) const;
     bool isConnected(const QString &serialNumber) const;
 
-    QString highestAndroidSdk() const;
-
+    SdkPlatform highestAndroidSdk() const;
 private:
     Utils::FileName toolPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKBinPath() const;
@@ -160,7 +171,8 @@ private:
 
     //caches
     mutable bool m_availableSdkPlatformsUpToDate;
-    mutable QVector<int> m_availableSdkPlatforms;
+    mutable QVector<SdkPlatform> m_availableSdkPlatforms;
+    static bool sortSdkPlatformByApiLevel(const SdkPlatform &a, const SdkPlatform &b);
 
     mutable bool m_NdkInformationUpToDate;
     mutable QString m_toolchainHost;

@@ -32,9 +32,9 @@
 #include "androidtoolchain.h"
 #include "androiddevice.h"
 #include "androidgdbserverkitinformation.h"
-#include "ui_addnewavddialog.h"
 #include "androidqtversion.h"
 #include "androiddevicedialog.h"
+#include "avddialog.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -60,6 +60,7 @@
 #include <QFileInfo>
 #include <QDirIterator>
 #include <QMetaObject>
+#include <QApplication>
 
 #include <QStringListModel>
 #include <QMessageBox>
@@ -260,6 +261,15 @@ void AndroidConfig::updateNdkInformation() const
     m_NdkInformationUpToDate = true;
 }
 
+bool AndroidConfig::sortSdkPlatformByApiLevel(const SdkPlatform &a, const SdkPlatform &b)
+{
+    if (a.apiLevel != b.apiLevel)
+        return a.apiLevel > b.apiLevel;
+    if (a.name != b.name)
+        return a.name < b.name;
+    return false;
+}
+
 void AndroidConfig::updateAvailableSdkPlatforms() const
 {
     if (m_availableSdkPlatformsUpToDate)
@@ -273,26 +283,47 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
         proc.terminate();
         return;
     }
+
+    SdkPlatform platform;
     while (proc.canReadLine()) {
         const QString line = QString::fromLocal8Bit(proc.readLine().trimmed());
-        int index = line.indexOf(QLatin1String("\"android-"));
-        if (index == -1)
-            continue;
-        QString androidTarget = line.mid(index + 1, line.length() - index - 2);
-        int apiLevel = androidTarget.mid(androidTarget.lastIndexOf(QLatin1Char('-')) + 1).toInt();
-        QVector<int>::iterator it = qLowerBound(m_availableSdkPlatforms.begin(), m_availableSdkPlatforms.end(), apiLevel, qGreater<int>());
-        m_availableSdkPlatforms.insert(it, apiLevel);
+        if (line.startsWith(QLatin1String("id:")) && line.contains(QLatin1String("android-"))) {
+            int index = line.indexOf(QLatin1String("\"android-"));
+            if (index == -1)
+                continue;
+            QString androidTarget = line.mid(index + 1, line.length() - index - 2);
+            platform.apiLevel = androidTarget.mid(androidTarget.lastIndexOf(QLatin1Char('-')) + 1).toInt();
+        } else if (line.startsWith(QLatin1String("Name:"))) {
+            platform.name = line.mid(6);
+        } else if (line.startsWith(QLatin1String("ABIs"))) {
+            platform.abis = line.mid(6).trimmed().split(QLatin1String(", "));
+        } else if (line.startsWith(QLatin1String("---")) || line.startsWith(QLatin1String("==="))) {
+            if (platform.apiLevel == -1)
+                continue;
+            auto it = qLowerBound(m_availableSdkPlatforms.begin(), m_availableSdkPlatforms.end(),
+                                  platform, sortSdkPlatformByApiLevel);
+            m_availableSdkPlatforms.insert(it, platform);
+            platform = SdkPlatform();
+        }
     }
     m_availableSdkPlatformsUpToDate = true;
 }
 
-QStringList AndroidConfig::sdkTargets(int minApiLevel) const
+QStringList AndroidConfig::apiLevelNamesFor(const QList<SdkPlatform> &platforms)
+{
+    QStringList results;
+    foreach (const SdkPlatform &platform, platforms)
+        results << QLatin1String("android-") + QString::number(platform.apiLevel);
+    return results;
+}
+
+QList<SdkPlatform> AndroidConfig::sdkTargets(int minApiLevel) const
 {
     updateAvailableSdkPlatforms();
-    QStringList result;
+    QList<SdkPlatform> result;
     for (int i = 0; i < m_availableSdkPlatforms.size(); ++i) {
-        if (m_availableSdkPlatforms.at(i) >= minApiLevel)
-            result << QLatin1String("android-") + QString::number(m_availableSdkPlatforms.at(i));
+        if (m_availableSdkPlatforms.at(i).apiLevel >= minApiLevel)
+            result << m_availableSdkPlatforms.at(i);
         else
             break;
     }
@@ -450,39 +481,12 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 
 QString AndroidConfig::createAVD(QWidget *parent, int minApiLevel, QString targetArch) const
 {
-    QDialog d(parent);
-    Ui::AddNewAVDDialog avdDialog;
-    avdDialog.setupUi(&d);
-    // NOTE: adb list targets does actually include information on which abis are supported per apilevel
-    // we aren't using that information here
-    avdDialog.targetComboBox->addItems(sdkTargets(minApiLevel));
-
-    if (targetArch.isEmpty())
-        avdDialog.abiComboBox->addItems(QStringList()
-                                        << QLatin1String("armeabi-v7a")
-                                        << QLatin1String("armeabi")
-                                        << QLatin1String("x86")
-                                        << QLatin1String("mips"));
-    else
-        avdDialog.abiComboBox->addItems(QStringList(targetArch));
-
-    if (!avdDialog.targetComboBox->count()) {
-        QMessageBox::critical(parent, QApplication::translate("AndroidConfig", "Error Creating AVD"),
-                              QApplication::translate("AndroidConfig", "Cannot create a new AVD. No sufficiently recent Android SDK available.\n"
-                                                      "Please install an SDK of at least API version %1.").
-                              arg(minApiLevel));
-        return QString();
-    }
-
-    QRegExp rx(QLatin1String("\\S+"));
-    QRegExpValidator v(rx, 0);
-    avdDialog.nameLineEdit->setValidator(&v);
-    if (d.exec() != QDialog::Accepted)
+    AvdDialog d(minApiLevel, targetArch, this, parent);
+    if (d.exec() != QDialog::Accepted || !d.isValid())
         return QString();
     QString error;
-    QString avd = createAVD(avdDialog.targetComboBox->currentText(), avdDialog.nameLineEdit->text(),
-                            avdDialog.abiComboBox->currentText(), avdDialog.sizeSpinBox->value(),
-                            &error);
+    QString avd = createAVD(d.target(), d.name(), d.abi(), d.sdcardSize(), &error);
+
     if (!error.isEmpty()) {
         QMessageBox::critical(parent, QApplication::translate("AndroidConfig", "Error Creating AVD"),
                               error);
@@ -787,12 +791,12 @@ QStringList AndroidConfig::getAbis(const QString &device) const
     return result;
 }
 
-QString AndroidConfig::highestAndroidSdk() const
+SdkPlatform AndroidConfig::highestAndroidSdk() const
 {
     updateAvailableSdkPlatforms();
     if (m_availableSdkPlatforms.isEmpty())
-        return QString();
-    return QLatin1String("android-") + QString::number(m_availableSdkPlatforms.first());
+        return SdkPlatform();
+    return m_availableSdkPlatforms.first();
 }
 
 QString AndroidConfig::bestNdkPlatformMatch(const QString &targetAPI) const

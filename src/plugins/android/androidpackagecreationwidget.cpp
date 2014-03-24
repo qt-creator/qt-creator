@@ -232,7 +232,7 @@ void AndroidPackageCreationWidget::updateAndroidProjectInfo()
         if (qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
             minApiLevel = 9;
 
-    QStringList targets = AndroidConfigurations::currentConfig().sdkTargets(minApiLevel);
+    QStringList targets = AndroidConfig::apiLevelNamesFor(AndroidConfigurations::currentConfig().sdkTargets(minApiLevel));
     m_ui->targetSDKComboBox->addItems(targets);
     m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(AndroidManager::buildTargetSDK(target)));
 

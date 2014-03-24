@@ -613,7 +613,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
         if (qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
             minApiLevel = 9;
 
-    QStringList sdks = AndroidConfigurations::currentConfig().sdkTargets(minApiLevel);
+    QStringList sdks = AndroidConfig::apiLevelNamesFor(AndroidConfigurations::currentConfig().sdkTargets(minApiLevel));
     if (sdks.isEmpty()) {
         raiseError(tr("No Qt for Android SDKs were found.\nPlease install at least one SDK."));
         return false;
