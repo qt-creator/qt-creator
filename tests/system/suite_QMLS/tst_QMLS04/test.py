@@ -56,8 +56,8 @@ def main():
         test.passes("Refactoring was properly applied in source file")
     else:
         test.fail("Refactoring of Text to MyComponent failed in source file. Content of editor:\n%s" % codeText)
-    myCompTE = "SampleApp.QML.qml.MyComponent\\.qml"
-    appeared = False
+    myCompTE = "SampleApp.Resources.qml\\.qrc./.qml/MyComponent\\.qml"
+    filePath = os.path.join(projectDir, "SampleApp", "qml", "MyComponent.qml")
     # there should be new QML file generated with name "MyComponent.qml"
     try:
         waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", myCompTE, 3000)
@@ -65,10 +65,15 @@ def main():
         try:
             waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", addBranchWildcardToRoot(myCompTE), 1000)
         except:
-            test.fail("Refactoring failed - file MyComponent.qml was not generated properly in project explorer")
-            #save and exit
-            invokeMenuItem("File", "Save All")
-            invokeMenuItem("File", "Exit")
+            test.xverify(False, "Refactoring failed - file MyComponent.qml was not generated "
+                         "properly in project explorer (QTCREATORBUG-11548")
+            try:
+                JIRA.performWorkaroundForBug(11548, JIRA.Bug.CREATOR, projectDir, "SampleApp", filePath)
+            except JIRA.JiraException:
+                #save and exit
+                invokeMenuItem("File", "Save All")
+                invokeMenuItem("File", "Exit")
+                return
     test.passes("Refactoring - file MyComponent.qml was generated properly in project explorer")
     # open MyComponent.qml file for verification
     if not openDocument(myCompTE):
@@ -86,7 +91,6 @@ def main():
     #save and exit
     invokeMenuItem("File", "Save All")
     # check if new file was created in file system
-    test.verify(os.path.exists(projectDir + "/SampleApp/qml/MyComponent.qml"),
+    test.verify(os.path.exists(filePath),
                 "Verifying if MyComponent.qml exists in file system after save")
     invokeMenuItem("File", "Exit")
-
