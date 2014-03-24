@@ -46,7 +46,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 };
 
 class CPLUSPLUS_EXPORT VoidType: public Type
@@ -62,7 +62,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 };
 
 class CPLUSPLUS_EXPORT IntegerType: public Type
@@ -96,7 +96,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     int _kind;
@@ -127,7 +127,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     int _kind;
@@ -151,7 +151,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     FullySpecifiedType _elementType;
@@ -176,7 +176,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     const Name *_memberName;
@@ -202,7 +202,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     FullySpecifiedType _elementType;
@@ -228,7 +228,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     FullySpecifiedType _elementType;
@@ -253,7 +253,7 @@ public:
 
 protected:
     virtual void accept0(TypeVisitor *visitor);
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const;
 
 private:
     const Name *_name;

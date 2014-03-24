@@ -1,6 +1,8 @@
 #ifndef CPLUSPLUS_ALREADYCONSIDEREDCLASSCONTAINER_H
 #define CPLUSPLUS_ALREADYCONSIDEREDCLASSCONTAINER_H
 
+#include <cplusplus/SafeMatcher.h>
+
 #include <QSet>
 
 namespace CPlusPlus {
@@ -21,8 +23,9 @@ public:
         if (_container.contains(item))
             return true;
 
+        SafeMatcher matcher;
         foreach (const T *existingItem, _container) {
-            if (existingItem->isEqualTo(item))
+            if (Matcher::match(existingItem, item, &matcher))
                 return true;
         }
 

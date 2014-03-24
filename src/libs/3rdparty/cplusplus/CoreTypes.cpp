@@ -20,7 +20,7 @@
 
 #include "CoreTypes.h"
 #include "TypeVisitor.h"
-#include "TypeMatcher.h"
+#include "Matcher.h"
 #include "Names.h"
 #include <algorithm>
 
@@ -37,7 +37,7 @@ bool UndefinedType::isEqualTo(const Type *other) const
 void UndefinedType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-bool UndefinedType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+bool UndefinedType::match0(const Type *otherType, Matcher *matcher) const
 {
     if (const UndefinedType *otherUndefinedTy = otherType->asUndefinedType())
         return matcher->match(this, otherUndefinedTy);
@@ -54,7 +54,7 @@ bool VoidType::isEqualTo(const Type *other) const
 void VoidType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-bool VoidType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+bool VoidType::match0(const Type *otherType, Matcher *matcher) const
 {
     if (const VoidType *otherVoidTy = otherType->asVoidType())
         return matcher->match(this, otherVoidTy);
@@ -89,7 +89,7 @@ bool PointerToMemberType::isEqualTo(const Type *other) const
 void PointerToMemberType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-bool PointerToMemberType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+bool PointerToMemberType::match0(const Type *otherType, Matcher *matcher) const
 {
     if (const PointerToMemberType *otherTy = otherType->asPointerToMemberType())
         return matcher->match(this, otherTy);
@@ -115,7 +115,7 @@ bool PointerType::isEqualTo(const Type *other) const
 void PointerType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-bool PointerType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+bool PointerType::match0(const Type *otherType, Matcher *matcher) const
 {
     if (const PointerType *otherTy = otherType->asPointerType())
         return matcher->match(this, otherTy);
@@ -146,7 +146,7 @@ bool ReferenceType::isEqualTo(const Type *other) const
 void ReferenceType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-bool ReferenceType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+bool ReferenceType::match0(const Type *otherType, Matcher *matcher) const
 {
     if (const ReferenceType *otherTy = otherType->asReferenceType())
         return matcher->match(this, otherTy);
@@ -178,7 +178,7 @@ bool IntegerType::isEqualTo(const Type *other) const
 void IntegerType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-bool IntegerType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+bool IntegerType::match0(const Type *otherType, Matcher *matcher) const
 {
     if (const IntegerType *otherTy = otherType->asIntegerType())
         return matcher->match(this, otherTy);
@@ -199,7 +199,7 @@ FloatType::~FloatType()
 void FloatType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-bool FloatType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+bool FloatType::match0(const Type *otherType, Matcher *matcher) const
 {
     if (const FloatType *otherTy = otherType->asFloatType())
         return matcher->match(this, otherTy);
@@ -238,7 +238,7 @@ bool ArrayType::isEqualTo(const Type *other) const
 void ArrayType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-bool ArrayType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+bool ArrayType::match0(const Type *otherType, Matcher *matcher) const
 {
     if (const ArrayType *otherTy = otherType->asArrayType())
         return matcher->match(this, otherTy);
@@ -282,7 +282,7 @@ bool NamedType::isEqualTo(const Type *other) const
 void NamedType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
-bool NamedType::matchType0(const Type *otherType, TypeMatcher *matcher) const
+bool NamedType::match0(const Type *otherType, Matcher *matcher) const
 {
     if (const NamedType *otherTy = otherType->asNamedType())
         return matcher->match(this, otherTy);

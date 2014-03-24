@@ -60,7 +60,7 @@ namespace Internal {
 CompletionTestHelper::CompletionTestHelper(QObject *parent) :
     QObject(parent),
     m_completer(new ClangCompleter()),
-    m_position(m_line),
+    m_position(0),
     m_line(0),
     m_column(0)
 {
