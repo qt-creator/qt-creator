@@ -114,7 +114,7 @@ void IosRunner::start()
     }
     m_cleanExit = false;
     m_qmlPort = 0;
-    if (!QFileInfo::exists(m_bundleDir)) {
+    if (!QFileInfo(m_bundleDir).exists()) {
         TaskHub::addTask(Task::Warning,
                          tr("Could not find %1.").arg(m_bundleDir),
                          ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
