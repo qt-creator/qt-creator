@@ -467,7 +467,7 @@ QString AndroidConfig::createAVD(QWidget *parent, int minApiLevel, QString targe
         avdDialog.abiComboBox->addItems(QStringList(targetArch));
 
     if (!avdDialog.targetComboBox->count()) {
-        QMessageBox::critical(0, QApplication::translate("AndroidConfig", "Error Creating AVD"),
+        QMessageBox::critical(parent, QApplication::translate("AndroidConfig", "Error Creating AVD"),
                               QApplication::translate("AndroidConfig", "Cannot create a new AVD. No sufficiently recent Android SDK available.\n"
                                                       "Please install an SDK of at least API version %1.").
                               arg(minApiLevel));
