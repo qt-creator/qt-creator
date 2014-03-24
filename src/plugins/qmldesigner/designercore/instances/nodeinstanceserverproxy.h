@@ -75,7 +75,8 @@ protected:
     void writeCommand(const QVariant &command);
     void dispatchCommand(const QVariant &command);
     NodeInstanceClientInterface *nodeInstanceClient() const;
-    QString missingQmlPuppetErrorMessage(const QString &pathToQt, const QString &preMessage) const;
+    QString missingQmlPuppetErrorMessage(const QString &preMessage) const;
+    QString copyAndPasterMessage(const QString &pathToQt) const;
     QString qmlPuppetApplicationName() const;
     QString macOSBundlePath(const QString &path) const;
     QString creatorQmlPuppetPath();
