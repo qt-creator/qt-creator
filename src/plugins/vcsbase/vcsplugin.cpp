@@ -90,6 +90,8 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         tr("Name of the version control system in use by the current project."));
     Core::VariableManager::registerVariable(Constants::VAR_VCS_TOPIC,
         tr("The current version control topic (branch or tag) identification of the current project."));
+    Core::VariableManager::registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
+        tr("The top level path to the repository the current project is in."));
 
     return true;
 }
@@ -165,6 +167,11 @@ void VcsPlugin::updateVariable(const QByteArray &variable)
     } else if (variable == Constants::VAR_VCS_TOPIC) {
         if (cachedVc)
             Core::VariableManager::insert(variable, cachedVc->vcsTopic(cachedTopLevel));
+        else
+            Core::VariableManager::remove(variable);
+    } else if (variable == Constants::VAR_VCS_TOPLEVELPATH) {
+        if (cachedVc)
+            Core::VariableManager::insert(variable, cachedTopLevel);
         else
             Core::VariableManager::remove(variable);
     }

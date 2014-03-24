@@ -51,6 +51,7 @@ const char VCS_ID_CVS[] = "Z.CVS";
 
 const char VAR_VCS_NAME[] = "CurrentProject:VcsName";
 const char VAR_VCS_TOPIC[] = "CurrentProject:VcsTopic";
+const char VAR_VCS_TOPLEVELPATH[] = "CurrentProject:VcsTopLevelPath";
 
 } // namespace Constants
 } // namespace VcsBase
