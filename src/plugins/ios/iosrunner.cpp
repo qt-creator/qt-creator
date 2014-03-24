@@ -211,17 +211,20 @@ void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
 void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 {
     Q_UNUSED(handler);
-    if (msg.contains(QLatin1String("AMDeviceStartService returned -402653150")))
+    QString res(msg);
+    QLatin1String lockedErr = QLatin1String("Unexpected reply: ELocked (454c6f636b6564) vs OK (4f4b)");
+    if (msg.contains(QLatin1String("AMDeviceStartService returned -402653150"))) {
         TaskHub::addTask(Task::Warning,
                          tr("Run failed. The settings in the Organizer window of Xcode might be incorrect."),
                          ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
-    else if (msg.contains(QLatin1String("Unexpected reply: ELocked (454c6f636b6564) vs OK (4f4b)")))
-        TaskHub::addTask(Task::Error,
-                         tr("The device is locked, please unlock."),
+    } else if (msg.contains(lockedErr)) {
+        QString message = tr("The device is locked, please unlock.");
+        TaskHub::addTask(Task::Error, message,
                          ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        res.replace(lockedErr, msg);
+    }
     QRegExp qmlPortRe(QLatin1String("QML Debugger: Waiting for connection on port ([0-9]+)..."));
     int index = qmlPortRe.indexIn(msg);
-    QString res(msg);
     if (index != -1 && m_qmlPort)
        res.replace(qmlPortRe.cap(1), QString::number(m_qmlPort));
     emit errorMsg(res);
