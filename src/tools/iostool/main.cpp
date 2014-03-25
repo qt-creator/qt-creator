@@ -60,7 +60,6 @@
 #endif
 
 // avoid utils dependency
-#define QTC_OVERRIDE override
 #define QTC_CHECK(cond) if (cond) {} else { qWarning() << "assert failed " << #cond << " " \
     << __FILE__ << ":" << __LINE__; } do {} while (0)
 

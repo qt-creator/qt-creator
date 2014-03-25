@@ -62,9 +62,6 @@
 #include "MobileDevice.h"
 #endif
 
-// avoid utils dependency
-#define QTC_OVERRIDE override
-
 static const bool debugGdbServer = false;
 static const bool debugAll = false;
 static const bool verbose = true;
