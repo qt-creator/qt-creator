@@ -3902,7 +3902,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         // cursor is on a non-blank - except if the cursor is on the last
         // character of a word: only the current word will be changed
         bool simple = input.is('W');
-        if (g.submode == ChangeSubMode) {
+        if (g.submode == ChangeSubMode && !document()->characterAt(position()).isSpace()) {
             moveToWordEnd(count, simple, true);
             g.movetype = MoveInclusive;
         } else {
