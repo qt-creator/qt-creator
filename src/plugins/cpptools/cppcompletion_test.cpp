@@ -2190,6 +2190,22 @@ void CppToolsPlugin::test_completion_data()
             "}\n"
         ) << _("mem") << (QStringList()
             << QLatin1String("member"));
+
+    QTest::newRow("no_binding_block_as_instantiationOrigin_QTCREATORBUG-11424") << _(
+            "template <typename T>\n"
+            "class QVector\n"
+            "{\n"
+            "public:\n"
+            "   inline const_iterator constBegin() const;\n"
+            "};\n"
+            "\n"
+            "typedef struct { double value; } V;\n"
+            "\n"
+            "double getValue(const QVector<V>& d) const {\n"
+            "   typedef QVector<V>::ConstIterator Iter;\n"
+            "   double val = @\n"
+            "}\n"
+        ) << _("d.constBegin()->") << (QStringList());
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()
