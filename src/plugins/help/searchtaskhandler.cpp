@@ -34,6 +34,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
+#include <QUrl>
 
 using namespace Help::Internal;
 
