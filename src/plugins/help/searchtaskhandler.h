@@ -32,6 +32,8 @@
 
 #include <projectexplorer/itaskhandler.h>
 
+QT_FORWARD_DECLARE_CLASS(QUrl)
+
 namespace Help {
 namespace Internal {
 
