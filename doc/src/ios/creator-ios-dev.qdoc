@@ -115,6 +115,11 @@
 
     \endlist
 
+    \note If you cannot deploy applications, because a provisioning profile is
+    missing, try refreshing the list of provisioning profiles in Xcode. Select
+    \gui Xcode > \gui Preferences > \gui Accounts > \gui {View Details}, and
+    then select the \gui Refresh button.
+
     \section1 Viewing Device Connection Status
 
     When you connect an iOS device to a Mac computer with USB, \QC
