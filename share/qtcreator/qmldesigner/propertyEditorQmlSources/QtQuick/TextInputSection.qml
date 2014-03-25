@@ -37,6 +37,9 @@ Section {
     anchors.right: parent.right
     caption: qsTr("Text Input")
 
+    property bool showEchoMode: false
+    id: textInputSection
+
     SectionLayout {
         rows: 4
         columns: 2
@@ -52,12 +55,12 @@ Section {
         }
 
         Label {
-            visible: showVerticalAlignment
-            text:  qsTr("Echo mode")
+            visible: textInputSection.showEchoMode
+            text: qsTr("Echo mode")
         }
 
         ComboBox {
-            visible: showVerticalAlignment
+            visible: textInputSection.showEchoMode
             Layout.fillWidth: true
             backendValue: backendValues.echoMode
             scope: "TextInput"
