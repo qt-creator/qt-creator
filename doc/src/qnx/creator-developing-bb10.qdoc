@@ -42,7 +42,9 @@
 
     \section1 Setting Up BlackBerry 10 Environment in Qt Creator
 
-    To set up your BlackBerry 10 environment in \QC:
+    To check your BlackBerry 10 configuration, including the API level, the Signing Keys and the Device registration, select \gui Tools > \gui Options > \gui BlackBerry > \gui Setup.
+
+    \image qtcreator-blackberry-setupage.png "BlackBerry setup page"
 
     \list 1
 
@@ -50,11 +52,12 @@
 
         \list 1
             \li Select \gui Tools > \gui Options > \gui BlackBerry >
-                \gui {API Level} to list all registered API Levels automatically
+                \gui {API Levels and Runtimes} to list all registered API Levels automatically
                 detected by \QC.
+                    \image qtcreator-blackberry-apilevels.png "BlackBerry API leves and Runtimes page"
             \li The API Levels printed with a bold font are active. Use \gui Activate and \gui Deactivate to change it. When an API Level is active, \QC registers kits, Qt versions, tool chains, and debuggers to enable BlackBerry 10 development against the API Level.
             \li Use \gui Add to install a new API Level or to register an existing one.
-            \li It is recommended to install the latest API Level too even though you are not going to use it. This will enable all \QC features including device auto-detection and the new BlackBerry Signing Keys process.
+            \li It is recommended to keep the newest version as the default API level. \QC will use the available BlackBerry tools from the default API level to implement several of the plugin functions including device management, deployment process and the BlackBerry Signing Keys support. Some of those functions require 10.2 version or newer.
         \endlist
 
         \li Set up your Signing Keys:
@@ -63,14 +66,25 @@
             \li Select \gui Tools > \gui Options > \gui BlackBerry > \gui Keys.
             \li Register a BlackBerry Signing Authority - if you do not have any, the page will guide you to an online web form to request one.
             \li Select \gui {Create Certificate} to create a Developer Certificate.
+            \li To package your application in development mode, select \gui Request to request a debug token or \gui Import to import a valid token.
+                \image qtcreator-blackberry-keys.png "BlackBerry Keys page"
+            You can also access the debug token list in \gui Tools \gui Tools > \gui Options > \gui Devices when you register a BlackBerry device. To use the same debug token for different devices, select \gui{Edit} to add, remove or update the debug token's device PINs.
         \endlist
+
 
         \li Register your device:
 
         \list 1
             \li On the device, select \gui Settings > \gui {Security and Privacy} > \gui {Development Mode} to switch the BlackBerry 10 device to development mode.
-            \li Select \gui Tools > \gui Options > \gui Devices > \gui Add > \gui {Blackberry Device} to add a BlackBerry Device. You can add either the physical device or the simulator.
+            \li Select \gui Tools > \gui Options > \gui Devices > \gui Add > \gui {Blackberry Device} to add a BlackBerry Device. \QC should auto detect your BlackBerry device if the default API level is set to 10.2 or newer.
+            \li In the \gui {Device password} field, enter the device password. \QC will query information from the device.
+                \image qtcreator-blackberry-add-device.png "BlackBerry Device Wizard"
+            \li Select \gui Import to import a valid debug token for the device or \gui Request to request a new token.
+                \image qtcreator-blackberry-device-debugToken.png "BlackBerry Device debug token"
+            \li If your device is successfully added, it should be listed in \gui Tools > \gui Options > \gui {Devices}.
+                \image qtcreator-blackberry-device.png "BlackBerry Device Configuration page"
             \li Select \gui Upload to upload your debug token to the device.
+            \li Select \gui {Connect to device} to connect to the device. You should close any other pending connections from a shell or other IDE to successfully connect your device in \QC.
             \li Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits to add your device to compatible BlackBerry 10 kits.
         \endlist
 

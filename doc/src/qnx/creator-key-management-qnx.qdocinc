@@ -9,7 +9,7 @@
 
     \section2 Registering Newly Obtained Keys
 
-    After a few hours, you should receive an email with bbidtoken.csk file. Once you stored it at the proper location as described in the email, you can check that signing keys are registered in \QC by visiting \gui Tools > \gui Options > \gui BlackBerry > \gui Keys.
+    After you register in the BlackBerry website, you should get a bbidtoken.csk file. Once you store it at the proper location as described in the email, you can check that signing keys are registered in \QC by selecting \gui Tools > \gui Options > \gui BlackBerry > \gui Keys.
 
     \image qtcreator-blackberry-registered-keys.png "Registered keys"
 
