@@ -60,12 +60,6 @@ Rectangle {
 
     signal changeToolTip(string text)
 
-    property bool recordingEnabled: false
-    property bool appKilled : false
-
-    property date recordingStartDate
-    property real elapsedTime
-
     color: "#dcdcdc"
 
     // ***** connections with external objects
@@ -114,7 +108,6 @@ Rectangle {
 
     function clearData() {
         view.clearData();
-        appKilled = false;
         hideRangeDetails();
         selectionRangeMode = false;
         updateRangeButton();
@@ -128,7 +121,6 @@ Rectangle {
 
     function clearAll() {
         clearDisplay();
-        elapsedTime = 0;
     }
 
     function nextEvent() {
@@ -218,15 +210,6 @@ Rectangle {
             var eventLocation = qmlProfilerModelProxy.getEventLocation(view.selectedModel, view.selectedItem);
             gotoSourceLocation(eventLocation.file, eventLocation.line, eventLocation.column);
             lockItemSelection = false;
-        }
-    }
-
-    onRecordingEnabledChanged: {
-        if (recordingEnabled) {
-            recordingStartDate = new Date();
-            elapsedTime = 0;
-        } else {
-            elapsedTime = (new Date() - recordingStartDate)/1000.0;
         }
     }
 

@@ -157,12 +157,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
                                                      d->m_modelProxy);
 
     d->m_profilerState = profilerState;
-    connect(d->m_profilerState, SIGNAL(stateChanged()),
-            this, SLOT(profilerStateChanged()));
-    connect(d->m_profilerState, SIGNAL(clientRecordingChanged()),
-            this, SLOT(clientRecordingChanged()));
-    connect(d->m_profilerState, SIGNAL(serverRecordingChanged()),
-            this, SLOT(serverRecordingChanged()));
 
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
@@ -455,21 +449,6 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     }
 }
 
-/////////////////////////////////////////////////
-// Tell QML the state of the profiler
-void QmlProfilerTraceView::setRecording(bool recording)
-{
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (rootObject)
-        rootObject->setProperty("recordingEnabled", QVariant(recording));
-}
-
-void QmlProfilerTraceView::setAppKilled()
-{
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (rootObject)
-        rootObject->setProperty("appKilled",QVariant(true));
-}
 ////////////////////////////////////////////////////////////////
 // Profiler State
 void QmlProfilerTraceView::profilerDataModelStateChanged()
@@ -489,30 +468,6 @@ void QmlProfilerTraceView::profilerDataModelStateChanged()
     default:
         break;
     }
-}
-
-void QmlProfilerTraceView::profilerStateChanged()
-{
-    switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::AppKilled : {
-        if (d->m_modelManager->state() == QmlProfilerDataState::AcquiringData)
-            setAppKilled();
-        break;
-    }
-    default:
-        // no special action needed for other states
-        break;
-    }
-}
-
-void QmlProfilerTraceView::clientRecordingChanged()
-{
-    // nothing yet
-}
-
-void QmlProfilerTraceView::serverRecordingChanged()
-{
-    setRecording(d->m_profilerState->serverRecording());
 }
 
 bool QmlProfilerQuickView::event(QEvent *ev)

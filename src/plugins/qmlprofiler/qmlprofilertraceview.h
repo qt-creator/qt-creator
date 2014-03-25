@@ -99,9 +99,6 @@ protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
 
 private slots:
-    void profilerStateChanged();
-    void clientRecordingChanged();
-    void serverRecordingChanged();
     void setZoomSliderEnabled(bool enabled);
     void setZoomSliderVisible(bool visible);
 
@@ -120,9 +117,6 @@ signals:
 
 private:
     QWidget *createToolbar();
-
-    void setRecording(bool recording);
-    void setAppKilled();
 
 private:
     class QmlProfilerTraceViewPrivate;
