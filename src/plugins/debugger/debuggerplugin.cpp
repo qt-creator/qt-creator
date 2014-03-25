@@ -2729,7 +2729,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_exitIcon.addFile(QLatin1String(":/debugger/images/debugger_stop.png"));
     m_continueIcon = QIcon(QLatin1String(":/debugger/images/debugger_continue_small.png"));
     m_continueIcon.addFile(QLatin1String(":/debugger/images/debugger_continue.png"));
-    m_interruptIcon = QIcon(_(":/debugger/images/debugger_interrupt_small.png"));
+    m_interruptIcon = QIcon(_(Core::Constants::ICON_PAUSE));
     m_interruptIcon.addFile(QLatin1String(":/debugger/images/debugger_interrupt.png"));
     m_locationMarkIcon = QIcon(_(":/debugger/images/location_16.png"));
 

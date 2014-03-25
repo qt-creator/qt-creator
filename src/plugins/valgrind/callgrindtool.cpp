@@ -696,7 +696,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // pause action
     action = new QAction(this);
     action->setCheckable(true);
-    action->setIcon(QIcon(QLatin1String(":/qml/images/pause-small.png")));
+    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_PAUSE)));
     //action->setText(tr("Ignore"));
     action->setToolTip(tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
     connect(action, SIGNAL(toggled(bool)), this, SIGNAL(pauseToggled(bool)));

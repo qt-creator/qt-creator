@@ -210,6 +210,7 @@ const char ICON_SIDE_BY_SIDE_DIFF[]  = ":/core/images/sidebysidediff.png";
 const char ICON_TEXT_DIFF[]          = ":/core/images/textdiff.png";
 const char ICON_FILTER[]             = ":/core/images/filtericon.png";
 const char ICON_LINK[]               = ":/core/images/linkicon.png";
+const char ICON_PAUSE[]              = ":/core/images/pause.png";
 const char ICON_QTLOGO_32[]          = ":/core/images/logo/32/QtProject-qtcreator.png";
 const char ICON_QTLOGO_64[]          = ":/core/images/logo/64/QtProject-qtcreator.png";
 const char ICON_QTLOGO_128[]         = ":/core/images/logo/128/QtProject-qtcreator.png";
