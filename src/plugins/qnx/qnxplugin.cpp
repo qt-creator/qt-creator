@@ -527,4 +527,4 @@ void QnxPlugin::testConfigurationManager()
 
 #endif
 
-Q_EXPORT_PLUGIN2(QNX, QNXPlugin)
+Q_EXPORT_PLUGIN2(QNX, QnxPlugin)
