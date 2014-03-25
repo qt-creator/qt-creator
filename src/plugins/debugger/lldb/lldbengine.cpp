@@ -156,6 +156,7 @@ void LldbEngine::shutdownEngine()
     m_lldbProc.kill();
     if (startParameters().useTerminal)
         m_stubProc.stop();
+    notifyEngineShutdownOk();
 }
 
 void LldbEngine::abortDebugger()
