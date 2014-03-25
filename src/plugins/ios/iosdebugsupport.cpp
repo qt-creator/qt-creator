@@ -50,6 +50,7 @@
 
 #include <QDir>
 #include <QTcpServer>
+#include <QSettings>
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -129,6 +130,34 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
             params.toolChainAbi = tc->targetAbi();
         params.executable = runConfig->exePath().toString();
         params.remoteChannel = QLatin1String("connect://localhost:0");
+
+        Utils::FileName xcodeInfo = IosConfigurations::developerPath().parentDir()
+                .appendPath(QLatin1String("Info.plist"));
+        bool buggyLldb = false;
+        if (xcodeInfo.toFileInfo().exists()) {
+            QSettings settings(xcodeInfo.toString(), QSettings::NativeFormat);
+            QStringList version = settings.value(QLatin1String("CFBundleShortVersionString")).toString()
+                    .split(QLatin1Char('.'));
+            if (version.value(0).toInt() == 5 && version.value(1, QString::number(1)).toInt() == 0)
+                buggyLldb = true;
+        }
+        QString bundlePath = runConfig->bundleDir().toString();
+        bundlePath.chop(4);
+        Utils::FileName dsymPath = Utils::FileName::fromString(
+                    bundlePath.append(QLatin1String(".dSYM")));
+        if (!dsymPath.toFileInfo().exists()) {
+            if (buggyLldb)
+                TaskHub::addTask(Task::Warning,
+                                 tr("Debugging with Xcode 5.0.x can be unreliable without a dSYM. "
+                                    "To create one, add a dsymutil deploystep."),
+                                 ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        } else if (dsymPath.toFileInfo().lastModified()
+                   < QFileInfo(runConfig->localExecutableFilePath()).lastModified()) {
+            TaskHub::addTask(Task::Warning,
+                             tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
+                             .arg(dsymPath.toUserOutput()),
+                             ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        }
     }
     if (qmlDebug) {
         params.languages |= QmlLanguage;
