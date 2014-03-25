@@ -366,8 +366,8 @@ void QmlProfilerTool::updateTimeDisplay()
     if (d->m_profilerState->serverRecording() &&
         d->m_profilerState->currentState() == QmlProfilerStateManager::AppRunning) {
             seconds = d->m_recordingElapsedTime.elapsed() / 1000.0;
-    } else if (d->m_profilerModelManager->state() != QmlProfilerDataState::Empty ) {
-        //seconds = d->m_profilerModelManager->traceDuration() / 1.0e9;
+    } else if (d->m_profilerModelManager->state() != QmlProfilerDataState::Empty &&
+               d->m_profilerModelManager->state() != QmlProfilerDataState::ClearingData) {
         seconds = d->m_profilerModelManager->traceTime()->duration() / 1.0e9;
     }
     QString timeString = QString::number(seconds,'f',1);
