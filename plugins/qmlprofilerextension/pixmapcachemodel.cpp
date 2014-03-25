@@ -67,7 +67,7 @@ class PixmapCacheModel::PixmapCacheModelPrivate :
                                    SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
 {
 public:
-    void computeCacheSizes();
+    void computeMaxCacheSize();
     void resizeUnfinishedLoads();
     void flattenLoads();
     void computeRowCounts();
@@ -79,7 +79,6 @@ public:
     int collapsedRowCount;
     void addVP(QVariantList &l, QString label, qint64 time) const;
 
-    qint64 minCacheSize;
     qint64 maxCacheSize;
 private:
     Q_DECLARE_PUBLIC(PixmapCacheModel)
@@ -93,6 +92,7 @@ PixmapCacheModel::PixmapCacheModel(QObject *parent)
     Q_D(PixmapCacheModel);
     d->collapsedRowCount = 1;
     d->expandedRowCount = 1;
+    d->maxCacheSize = 1;
 }
 
 int PixmapCacheModel::categoryDepth(int categoryIndex) const
@@ -484,7 +484,7 @@ void PixmapCacheModel::loadData()
 
     d->resizeUnfinishedLoads();
 
-    d->computeCacheSizes();
+    d->computeMaxCacheSize();
     d->flattenLoads();
     d->computeRowCounts();
     d->computeNesting();
@@ -499,20 +499,18 @@ void PixmapCacheModel::clear()
     d->pixmaps.clear();
     d->collapsedRowCount = 1;
     d->expandedRowCount = 1;
+    d->maxCacheSize = 1;
     d->expanded = false;
 
     d->modelManager->modelProxyCountUpdated(d->modelId, 0, 1);
 }
 
-void PixmapCacheModel::PixmapCacheModelPrivate::computeCacheSizes()
+void PixmapCacheModel::PixmapCacheModelPrivate::computeMaxCacheSize()
 {
-    minCacheSize = -1;
-    maxCacheSize = -1;
+    maxCacheSize = 1;
     foreach (const PixmapCacheModel::PixmapCacheEvent &event, ranges) {
         if (event.pixmapEventType == PixmapCacheModel::PixmapCacheCountChanged) {
-            if (minCacheSize == -1 || event.cacheSize < minCacheSize)
-                minCacheSize = event.cacheSize;
-            if (maxCacheSize == -1 || event.cacheSize > maxCacheSize)
+            if (event.cacheSize > maxCacheSize)
                 maxCacheSize = event.cacheSize;
         }
     }
