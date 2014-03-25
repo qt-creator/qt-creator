@@ -43,7 +43,7 @@ Canvas {
     property real endTime : 0
 
     // ***** functions
-    function clearDisplay()
+    function clear()
     {
         dataReady = false;
         requestPaint();

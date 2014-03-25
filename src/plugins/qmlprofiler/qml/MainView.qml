@@ -82,16 +82,14 @@ Rectangle {
         onStateChanged: {
             // Clear if model is empty.
             if (qmlProfilerModelProxy.getState() === 0)
-                root.clearAll();
+                root.clear();
         }
         onDataAvailable: {
             view.clearData();
-            zoomControl.setRange(0,0);
-            view.visible = true;
-            view.requestPaint();
             zoomControl.setRange(qmlProfilerModelProxy.traceStartTime(),
                                  qmlProfilerModelProxy.traceStartTime() +
                                  qmlProfilerModelProxy.traceDuration()/10);
+            view.requestPaint();
         }
     }
 
@@ -106,21 +104,18 @@ Rectangle {
         }
     }
 
-    function clearData() {
+    function clear() {
+        flick.contentY = 0;
+        flick.contentX = 0;
+        flick.contentWidth = 0;
         view.clearData();
+        view.startTime = view.endTime = 0;
         hideRangeDetails();
         selectionRangeMode = false;
         updateRangeButton();
         zoomControl.setRange(0,0);
-    }
-
-    function clearDisplay() {
-        clearData();
-        view.visible = false;
-    }
-
-    function clearAll() {
-        clearDisplay();
+        zoomSlider.externalUpdate = true;
+        zoomSlider.value = zoomSlider.minimumValue;
     }
 
     function nextEvent() {

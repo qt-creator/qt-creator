@@ -78,7 +78,7 @@ public:
     void showContextMenu(QPoint position);
 
 public slots:
-    void clearDisplay();
+    void clear();
     void selectNextEventByHash(const QString &eventHash);
     void selectNextEventByLocation(const QString &filename, const int line, const int column);
 

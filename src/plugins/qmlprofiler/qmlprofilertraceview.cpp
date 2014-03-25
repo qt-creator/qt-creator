@@ -292,13 +292,11 @@ qint64 QmlProfilerTraceView::selectionEnd() const
     return 0;
 }
 
-void QmlProfilerTraceView::clearDisplay()
+void QmlProfilerTraceView::clear()
 {
-    d->m_zoomControl->setRange(0,0);
-    d->m_mainView->rootObject()->setProperty("scrollY", QVariant(0));
-
-    QMetaObject::invokeMethod(d->m_mainView->rootObject(), "clearAll");
-    QMetaObject::invokeMethod(d->m_overview->rootObject(), "clearDisplay");
+    QMetaObject::invokeMethod(d->m_mainView->rootObject(), "clear");
+    QMetaObject::invokeMethod(d->m_overview->rootObject(), "clear");
+    QMetaObject::invokeMethod(d->m_timebar->rootObject(), "clear");
 }
 
 void QmlProfilerTraceView::selectNextEventByHash(const QString &hash)
