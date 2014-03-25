@@ -107,6 +107,11 @@
         \li Select \gui Tools > \gui Options > \gui Android to add paths to the
             Android NDK and SDK.
 
+            You can use the
+            \inlineimage qtcreator-options-android-download-button.png
+            (\gui Download) buttons to go to the sites where you can download
+            the Android NDK and SDK.
+
             \image qtcreator-options-android1.png "Android options"
 
         \li Select the \gui {Automatically create kits for Android tool chains}
