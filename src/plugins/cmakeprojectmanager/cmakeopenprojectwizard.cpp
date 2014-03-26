@@ -190,7 +190,8 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
             if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor) {
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor) {
                 if (hasCodeBlocks)
                     results << GeneratorInfo(k);
             } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
