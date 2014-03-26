@@ -11,6 +11,7 @@
 #import <sys/types.h>
 #import <sys/stat.h>
 #import <Foundation/NSTask.h>
+#import <Foundation/NSFileManager.h>
 @class DTiPhoneSimulatorSystemRoot;
 
 NSString *simulatorPrefrencesName = @"com.apple.iphonesimulator";
@@ -477,7 +478,19 @@ NSString* FindDeveloperDir() {
     nsprintf(@"Unable to find developer directory.");
     exit(EXIT_FAILURE);
   }
-
+  NSString* dvtFoundationPath = [developerDir stringByAppendingPathComponent:kDVTFoundationRelativePath];
+  if (![[NSFileManager defaultManager] fileExistsAtPath:dvtFoundationPath]) {
+      // execute old version
+      char *argNew = new char[strlen(argv[0] + 7)];
+      strcpy(argNew, argv[0]);
+      strcat(argNew, "_1_8_2");
+      char **argvNew = new char *[argc + 1];
+      argvNew[0] = argNew;
+      for (int iarg = 1; iarg < argc; ++iarg)
+          argvNew[iarg] = argv[iarg];
+      argvNew[argc] = 0;
+      execv(argNew, argvNew);
+  }
   if (strcmp(argv[1], "showsdks") == 0) {
 	[self LoadSimulatorFramework:developerDir];
     exit([self showSDKs]);
