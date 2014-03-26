@@ -63,9 +63,6 @@ public:
     virtual QWidget *toolBar() = 0;
 
     virtual bool isDesignModePreferred() const { return false; }
-
-private:
-    Core::Id m_id;
 };
 
 } // namespace Core
