@@ -71,8 +71,9 @@ public:
     QString displayName() const { return tr("Debugger Settings"); }
 
 private slots:
-    void useCppDebuggerToggled(bool on);
+    void useCppDebuggerClicked(bool on);
     void useQmlDebuggerToggled(bool on);
+    void useQmlDebuggerClicked(bool on);
     void qmlDebugServerPortChanged(int port);
     void useMultiProcessToggled(bool on);
     void update();
@@ -115,8 +116,10 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
             Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
     connect(m_useQmlDebugger, SIGNAL(toggled(bool)),
             SLOT(useQmlDebuggerToggled(bool)));
-    connect(m_useCppDebugger, SIGNAL(toggled(bool)),
-            SLOT(useCppDebuggerToggled(bool)));
+    connect(m_useQmlDebugger, SIGNAL(clicked(bool)),
+            SLOT(useQmlDebuggerClicked(bool)));
+    connect(m_useCppDebugger, SIGNAL(clicked(bool)),
+            SLOT(useCppDebuggerClicked(bool)));
     connect(m_debugServerPort, SIGNAL(valueChanged(int)),
             SLOT(qmlDebugServerPortChanged(int)));
     connect(m_useMultiProcess, SIGNAL(toggled(bool)),
@@ -160,7 +163,7 @@ void DebuggerRunConfigWidget::qmlDebugServerPortChanged(int port)
     m_aspect->m_qmlDebugServerPort = port;
 }
 
-void DebuggerRunConfigWidget::useCppDebuggerToggled(bool on)
+void DebuggerRunConfigWidget::useCppDebuggerClicked(bool on)
 {
     m_aspect->m_useCppDebugger = on
             ? DebuggerRunConfigurationAspect::EnabledLanguage
@@ -173,7 +176,10 @@ void DebuggerRunConfigWidget::useQmlDebuggerToggled(bool on)
 {
     m_debugServerPort->setEnabled(on);
     m_debugServerPortLabel->setEnabled(on);
+}
 
+void DebuggerRunConfigWidget::useQmlDebuggerClicked(bool on)
+{
     m_aspect->m_useQmlDebugger = on
             ? DebuggerRunConfigurationAspect::EnabledLanguage
             : DebuggerRunConfigurationAspect::DisabledLanguage;
