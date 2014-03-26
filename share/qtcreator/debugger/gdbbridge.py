@@ -1750,10 +1750,12 @@ theDumper = Dumper()
 #######################################################################
 
 def p1(args):
+    import tempfile
     import cProfile
-    cProfile.run('bb("%s")' % args, "/tmp/bbprof")
+    tempDir = tempfile.gettempdir() + "/bbprof"
+    cProfile.run('bb("%s")' % args, tempDir)
     import pstats
-    pstats.Stats('/tmp/bbprof').sort_stats('time').print_stats()
+    pstats.Stats(tempDir).sort_stats('time').print_stats()
     return ""
 
 registerCommand("p1", p1)
