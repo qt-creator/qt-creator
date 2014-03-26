@@ -41,17 +41,28 @@ class WinRtPackageDeploymentStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit WinRtPackageDeploymentStep(ProjectExplorer::BuildStepList *bsl);
     bool init();
+    bool processSucceeded(int exitCode, QProcess::ExitStatus status);
+    void stdOutput(const QString &line);
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
     void setWinDeployQtArguments(const QString &args);
     QString winDeployQtArguments() const;
     QString defaultWinDeployQtArguments() const;
 
+    void raiseError(const QString &errorMessage);
+
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
 private:
+    bool parseIconsAndExecutableFromManifest(QString manifestFileName, QStringList *items, QString *executable);
+
     QString m_args;
+    QString m_executablePathInManifest;
+    QString m_mappingFileContent;
+    QString m_manifestFileName;
+    bool m_isWinPhone;
+    bool m_createMappingFile;
 };
 
 } // namespace Internal
