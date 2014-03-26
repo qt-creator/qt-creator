@@ -350,10 +350,16 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
         itemRow = modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i);
 
         if (itemRow == row) {
+            // There can be small events that don't reach the cursor position after large events
+            // that do but are in a different row.
+            qint64 itemEnd = m_profilerModelProxy->getEndTime(modelIndex, i);
+            if (itemEnd < startTime)
+                continue;
+
             // match
             m_currentSelection.eventIndex = i;
             m_currentSelection.startTime = m_profilerModelProxy->getStartTime(modelIndex, i);
-            m_currentSelection.endTime = m_profilerModelProxy->getEndTime(modelIndex, i);
+            m_currentSelection.endTime = itemEnd;
             m_currentSelection.row = row;
             m_currentSelection.modelIndex = modelIndex;
             if (!m_selectionLocked) {
