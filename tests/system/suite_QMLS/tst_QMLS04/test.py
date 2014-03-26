@@ -74,13 +74,14 @@ def main():
                 invokeMenuItem("File", "Save All")
                 invokeMenuItem("File", "Exit")
                 return
-    test.passes("Refactoring - file MyComponent.qml was generated properly in project explorer")
-    # open MyComponent.qml file for verification
-    if not openDocument(myCompTE):
-        test.fatal("Could not open MyComponent.qml.")
-        invokeMenuItem("File", "Save All")
-        invokeMenuItem("File", "Exit")
-        return
+# following section is done by the workaround for 11548 already - uncomment when removing workaround
+#    test.passes("Refactoring - file MyComponent.qml was generated properly in project explorer")
+#    # open MyComponent.qml file for verification
+#    if not openDocument(myCompTE):
+#        test.fatal("Could not open MyComponent.qml.")
+#        invokeMenuItem("File", "Save All")
+#        invokeMenuItem("File", "Exit")
+#        return
     editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     codeText = str(editorArea.plainText)
     # there should be Text item in new file

@@ -301,8 +301,26 @@ class JIRA:
                                               "visible='1' window=%s}" % dlg))
                 except:
                     pass
-                # known issue with running inside Squish
-                setWindowState(waitForObject(":Qt Creator_Core::Internal::MainWindow"), WindowState.Normal)
+                try:
+                    openItemContextMenu(navigator, "%s.Resources.qml\.qrc" % pName, 5, 5, 0)
+                except:
+                    treeElement = addBranchWildcardToRoot("%s.Resources.qml\.qrc" % pName)
+                    openItemContextMenu(navigator, treeElement, 5, 5, 0)
+                if platform.system() == 'Darwin':
+                    waitFor("macHackActivateContextMenuItem('Open in Editor')", 6000)
+                else:
+                    activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Folder_QMenu",
+                                                   "Open in Editor"))
+                resourceEditorView = waitForObject("{type='ResourceEditor::Internal::ResourceView' "
+                                                   "unnamed='1' visible='1'}")
+                fileName = os.path.basename(fPath)
+                doubleClick(waitForObjectItem(resourceEditorView, "/.qml/%s"
+                                              % fileName.replace(".", "\\.").replace("_", "\\_")))
+                mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
+                if not waitFor("fileName in str(mainWindow.windowTitle)", 3000):
+                    raise JIRA.Exception("Could not open %s." % fileName)
+                else:
+                    test.passes("%s has been added to the qrc file." % fileName)
             except:
                 test.fatal("Failed to perform workaround for QTCREATORBUG-11548")
                 raise JIRA.JiraException("Failed to perform workaround for QTCREATORBUG-11548")
