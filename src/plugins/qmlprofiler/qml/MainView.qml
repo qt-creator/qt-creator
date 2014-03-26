@@ -40,8 +40,6 @@ Rectangle {
 
     property alias selectionLocked : view.selectionLocked
     signal updateLockButton
-    property alias selectedItem: view.selectedItem
-    signal selectedEventChanged(int eventId)
     property bool lockItemSelection : false
 
     property real mainviewTimePerPixel : 0
@@ -194,16 +192,6 @@ Rectangle {
 
     onSelectionLockedChanged: {
         updateLockButton();
-    }
-
-    onSelectedItemChanged: {
-        if (selectedItem != -1 && !lockItemSelection) {
-            lockItemSelection = true;
-            // update in other views
-            var eventLocation = qmlProfilerModelProxy.getEventLocation(view.selectedModel, view.selectedItem);
-            gotoSourceLocation(eventLocation.file, eventLocation.line, eventLocation.column);
-            lockItemSelection = false;
-        }
     }
 
     Flickable {
@@ -362,7 +350,16 @@ Rectangle {
                                             Math.max(0, Math.floor(center - windowLength/2)));
 
                         zoomControl.setRange(from, from + windowLength);
+                    }
 
+                    if (!lockItemSelection) {
+                        lockItemSelection = true;
+                        // update in other views
+                        var eventLocation = qmlProfilerModelProxy.getEventLocation(
+                                    view.selectedModel, view.selectedItem);
+                        gotoSourceLocation(eventLocation.file, eventLocation.line,
+                                           eventLocation.column);
+                        lockItemSelection = false;
                     }
                 } else {
                     root.hideRangeDetails();

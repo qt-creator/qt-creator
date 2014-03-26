@@ -104,7 +104,6 @@ private slots:
 
 signals:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columNumber);
-    void selectedEventChanged(int eventId);
 
     void jumpToPrev();
     void jumpToNext();

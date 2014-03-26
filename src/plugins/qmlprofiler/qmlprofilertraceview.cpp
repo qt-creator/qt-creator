@@ -186,7 +186,6 @@ void QmlProfilerTraceView::reset()
     connect(rootObject, SIGNAL(updateLockButton()), this, SLOT(updateLockButton()));
     connect(this, SIGNAL(jumpToPrev()), rootObject, SLOT(prevEvent()));
     connect(this, SIGNAL(jumpToNext()), rootObject, SLOT(nextEvent()));
-    connect(rootObject, SIGNAL(selectedEventChanged(int)), this, SIGNAL(selectedEventChanged(int)));
     connect(rootObject, SIGNAL(changeToolTip(QString)), this, SLOT(updateToolTip(QString)));
     connect(this, SIGNAL(enableToolbar(bool)), this, SLOT(setZoomSliderEnabled(bool)));
     connect(this, SIGNAL(showZoomSlider(bool)), this, SLOT(setZoomSliderVisible(bool)));
