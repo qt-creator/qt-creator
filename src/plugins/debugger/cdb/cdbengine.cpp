@@ -784,10 +784,13 @@ void CdbEngine::setupInferior()
 {
     if (debug)
         qDebug("setupInferior");
+    const DebuggerStartParameters &sp = startParameters();
+    if (!sp.commandsAfterConnect.isEmpty())
+        postCommand(sp.commandsAfterConnect, 0);
     // QmlCppEngine expects the QML engine to be connected before any breakpoints are hit
     // (attemptBreakpointSynchronization() will be directly called then)
     attemptBreakpointSynchronization();
-    if (startParameters().breakOnMain) {
+    if (sp.breakOnMain) {
         const BreakpointParameters bp(BreakpointAtMain);
         postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings,
                                             BreakpointModelId(quint16(-1)), true), 0);
