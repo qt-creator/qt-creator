@@ -34,6 +34,7 @@
 #include "iosrunconfiguration.h"
 #include "iosruncontrol.h"
 #include "iosmanager.h"
+#include "iosanalyzesupport.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -155,7 +156,8 @@ IosRunControlFactory::IosRunControlFactory(QObject *parent)
 bool IosRunControlFactory::canRun(RunConfiguration *runConfiguration,
                 ProjectExplorer::RunMode mode) const
 {
-    if (mode != NormalRunMode && mode != DebugRunMode)
+    if (mode != NormalRunMode && mode != DebugRunMode && mode != QmlProfilerRunMode
+            && mode != DebugRunModeWithBreakOnMain)
         return false;
     return qobject_cast<IosRunConfiguration *>(runConfiguration);
 }
@@ -176,6 +178,8 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
     }
     if (mode == NormalRunMode)
         res = new Ios::Internal::IosRunControl(rc);
+    else if (mode == QmlProfilerRunMode)
+        res = IosAnalyzeSupport::createAnalyzeRunControl(rc, errorMessage);
     else
         res = IosDebugSupport::createDebugRunControl(rc, errorMessage);
     if (devId.isValid())
