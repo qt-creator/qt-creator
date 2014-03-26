@@ -44,6 +44,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/kit.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
@@ -74,7 +75,7 @@ DesignDocument::DesignDocument(QObject *parent) :
         m_subComponentManager(new SubComponentManager(m_documentModel.data(), this)),
         m_rewriterView (new RewriterView(RewriterView::Amend, m_documentModel.data())),
         m_documentLoaded(false),
-        m_qtVersionId(-1)
+        m_currentKit(0)
 {
 }
 
@@ -98,17 +99,6 @@ Model *DesignDocument::documentModel() const
 QWidget *DesignDocument::centralWidget() const
 {
     return qobject_cast<QWidget*>(parent());
-}
-
-QString DesignDocument::pathToQt() const
-{
-    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::version(m_qtVersionId);
-    if (activeQtVersion && (activeQtVersion->qtVersion() >= QtSupport::QtVersionNumber(4, 7, 1))
-            && (activeQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-                || activeQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
-        return activeQtVersion->qmakeProperty("QT_INSTALL_DATA");
-
-    return QString();
 }
 
 const ViewManager &DesignDocument::viewManager() const
@@ -221,9 +211,9 @@ QString DesignDocument::fileName() const
     return editor()->document()->filePath();
 }
 
-int DesignDocument::qtVersionId() const
+ProjectExplorer::Kit *DesignDocument::currentKit() const
 {
-    return m_qtVersionId;
+    return m_currentKit;
 }
 
 bool DesignDocument::isDocumentLoaded() const
@@ -646,7 +636,7 @@ static bool isFileInProject(DesignDocument *designDocument, ProjectExplorer::Pro
     return false;
 }
 
-static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocument *designDocument)
+static inline ProjectExplorer::Kit *getActiveKit(DesignDocument *designDocument)
 {
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *currentProject = projectExplorer->currentProject();
@@ -672,24 +662,14 @@ static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocument *desig
         return 0;
 
     designDocument->connect(target, SIGNAL(kitChanged()), designDocument, SLOT(updateActiveQtVersion()));
-    return QtSupport::QtKitInformation::qtVersion(target->kit());
+
+    return target->kit();
 }
 
 void DesignDocument::updateActiveQtVersion()
 {
-    QtSupport::BaseQtVersion *newQtVersion = getActiveQtVersion(this);
-
-    if (!newQtVersion ) {
-        m_qtVersionId = -1;
-        return;
-    }
-
-    if (m_qtVersionId == newQtVersion->uniqueId())
-        return;
-
-    m_qtVersionId = newQtVersion->uniqueId();
-
-    viewManager().setNodeInstanceViewQtPath(pathToQt());
+    m_currentKit = getActiveKit(this);
+    viewManager().setNodeInstanceViewKit(m_currentKit);
 }
 
 QString DesignDocument::contextHelpId() const

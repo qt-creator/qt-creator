@@ -34,6 +34,10 @@
 
 #include <QWidgetAction>
 
+namespace ProjectExplorer {
+class Kit;
+}
+
 namespace QmlDesigner {
 
 class DesignDocument;
@@ -63,7 +67,7 @@ public:
     void setItemLibraryViewResourcePath(const QString &resourcePath);
     void setComponentNode(const ModelNode &componentNode);
     void setComponentViewToMaster();
-    void setNodeInstanceViewQtPath(const QString & qtPath);
+    void setNodeInstanceViewKit(ProjectExplorer::Kit *kit);
 
     void resetPropertyEditorView();
 

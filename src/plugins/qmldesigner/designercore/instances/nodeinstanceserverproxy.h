@@ -42,6 +42,10 @@ class QLocalSocket;
 class QProcess;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer {
+class Kit;
+}
+
 namespace QmlDesigner {
 
 class NodeInstanceClientInterface;
@@ -52,7 +56,7 @@ class NodeInstanceServerProxy : public NodeInstanceServerInterface
 {
     Q_OBJECT
 public:
-    explicit NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus = NormalModus, const QString &pathToQt = QString());
+    explicit NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus = NormalModus, ProjectExplorer::Kit *kit = 0);
     ~NodeInstanceServerProxy();
     void createInstances(const CreateInstancesCommand &command);
     void changeFileUrl(const ChangeFileUrlCommand &command);

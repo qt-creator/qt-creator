@@ -77,6 +77,10 @@
 
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
+#include <projectexplorer/kit.h>
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QMessageBox>
 
@@ -157,7 +161,18 @@ bool NodeInstanceServerProxy::checkPuppetVersion(const QString &qmlPuppetPath)
     return canConvert && versionNumber == 2;
 }
 
-NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus, const QString &pathToQt)
+static QString getPathToQt(ProjectExplorer::Kit *kit)
+{
+    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(kit);
+    if (currentQtVersion && (currentQtVersion->qtVersion() >= QtSupport::QtVersionNumber(4, 7, 1))
+            && (currentQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
+                || currentQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
+        return currentQtVersion->qmakeProperty("QT_INSTALL_DATA");
+
+    return QString();
+}
+
+NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus, ProjectExplorer::Kit *kit)
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
       m_nodeInstanceView(nodeInstanceView),
@@ -171,6 +186,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
       m_runModus(runModus),
       m_synchronizeId(-1)
 {
+   QString pathToQt = getPathToQt(kit);
+
    QString applicationPath =  pathToQt + QLatin1String("/bin");
    if (runModus == TestModus) {
        applicationPath = QCoreApplication::applicationDirPath()

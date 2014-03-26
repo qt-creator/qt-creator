@@ -51,6 +51,10 @@ class QFileSystemWatcher;
 class QPainter;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer {
+class Kit;
+}
+
 namespace QmlDesigner {
 
 class NodeInstanceServerInterface;
@@ -144,7 +148,7 @@ public:
 
     QImage statePreviewImage(const ModelNode &stateNode) const;
 
-    void setPathToQt(const QString &pathToQt);
+    void setKit(ProjectExplorer::Kit *kit);
 
     void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
@@ -212,7 +216,7 @@ private: //variables
     QImage m_baseStatePreviewImage;
     QTime m_lastCrashTime;
     NodeInstanceServerInterface::RunModus m_runModus;
-    QString m_pathToQt;
+    ProjectExplorer::Kit *m_currentKit;
 };
 
 } // namespace ProxyNodeInstanceView

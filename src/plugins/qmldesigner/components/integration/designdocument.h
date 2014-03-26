@@ -50,6 +50,10 @@ class QPlainTextEdit;
 class QDeclarativeError;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer {
+class Kit;
+}
+
 namespace QmlDesigner {
 
 class ModelNode;
@@ -92,7 +96,7 @@ public:
     TextEditor::ITextEditor *textEditor() const;
     QPlainTextEdit *plainTextEdit() const;
     QString fileName() const;
-    int qtVersionId() const; // maybe that is not working, because the id should be not cached!!!
+    ProjectExplorer::Kit *currentKit() const;
     bool isDocumentLoaded() const;
 
     void resetToDocumentModel();
@@ -151,7 +155,7 @@ private: // variables
     QScopedPointer<RewriterView> m_rewriterView;
 
     bool m_documentLoaded;
-    int m_qtVersionId;
+    ProjectExplorer::Kit *m_currentKit;
 };
 
 } // namespace QmlDesigner

@@ -102,7 +102,8 @@ namespace QmlDesigner {
 NodeInstanceView::NodeInstanceView(QObject *parent, NodeInstanceServerInterface::RunModus runModus)
         : AbstractView(parent),
           m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32),
-          m_runModus(runModus)
+          m_runModus(runModus),
+          m_currentKit(0)
 {
     m_baseStatePreviewImage.fill(0xFFFFFF);
 }
@@ -115,6 +116,7 @@ NodeInstanceView::~NodeInstanceView()
 {
     removeAllInstanceNodeRelationships();
     delete nodeInstanceServer();
+    m_currentKit = 0;
 }
 
 //\{
@@ -148,7 +150,7 @@ bool isSkippedNode(const ModelNode &node)
 void NodeInstanceView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus, m_pathToQt);
+    m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus, m_currentKit);
     m_lastCrashTime.start();
     connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
 
@@ -193,7 +195,7 @@ void NodeInstanceView::restartProcess()
     if (model()) {
         delete nodeInstanceServer();
 
-        m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus, m_pathToQt);
+        m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus, m_currentKit);
         connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
 
         if (!isSkippedRootNode(rootModelNode()))
@@ -1111,10 +1113,10 @@ QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const
     return m_statePreviewImage.value(stateNode);
 }
 
-void NodeInstanceView::setPathToQt(const QString &pathToQt)
+void NodeInstanceView::setKit(ProjectExplorer::Kit *newKit)
 {
-    if (m_pathToQt != pathToQt) {
-        m_pathToQt = pathToQt;
+    if (m_currentKit != newKit) {
+        m_currentKit = newKit;
         restartProcess();
     }
 }

@@ -18,8 +18,6 @@
 
 #include <qmldesigner/qmldesignerplugin.h>
 
-#include <qtsupport/qtversionmanager.h>
-#include <qtsupport/qtsupportconstants.h>
 
 namespace QmlDesigner {
 
@@ -63,20 +61,9 @@ DesignDocument *ViewManager::currentDesignDocument() const
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
-QString ViewManager::pathToQt() const
-{
-    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::version(currentDesignDocument()->qtVersionId());
-    if (activeQtVersion && (activeQtVersion->qtVersion() >= QtSupport::QtVersionNumber(4, 7, 1))
-            && (activeQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
-                || activeQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
-        return activeQtVersion->qmakeProperty("QT_INSTALL_DATA");
-
-    return QString();
-}
-
 void ViewManager::attachNodeInstanceView()
 {
-    setNodeInstanceViewQtPath(pathToQt());
+    setNodeInstanceViewKit(currentDesignDocument()->currentKit());
     currentModel()->setNodeInstanceView(&d->nodeInstanceView);
 }
 
@@ -206,9 +193,9 @@ void ViewManager::setComponentViewToMaster()
     d->componentView.setComponentToMaster();
 }
 
-void ViewManager::setNodeInstanceViewQtPath(const QString &qtPath)
+void ViewManager::setNodeInstanceViewKit(ProjectExplorer::Kit *kit)
 {
-    d->nodeInstanceView.setPathToQt(qtPath);
+    d->nodeInstanceView.setKit(kit);
 }
 
 static bool widgetInfoLessThan(const WidgetInfo &firstWidgetInfo, const WidgetInfo &secondWidgetInfo)
