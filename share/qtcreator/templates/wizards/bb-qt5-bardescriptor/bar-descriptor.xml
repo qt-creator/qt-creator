@@ -14,12 +14,9 @@
         <aspectRatio>landscape</aspectRatio>
     </initialWindow>
 
-    <env var="QML2_IMPORT_PATH" value="app/native/imports"/>
-    <env var="QT_PLUGIN_PATH" value="app/native/plugins"/>
-    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
-
-    <arg>-platform</arg>
-    <arg>qnx</arg>
+    <env var="QML2_IMPORT_PATH" value="app/native/runtime/qt/qml:/accounts/devuser/qt/qml:$QML2_IMPORT_PATH"/>
+    <env var="QT_PLUGIN_PATH" value="app/native/runtime/qt/plugins:/accounts/devuser/qt/plugins:$QT_PLUGIN_PATH"/>
+    <env var="LD_LIBRARY_PATH" value="app/native/runtime/qt/lib:/accounts/devuser/qt/lib:$LD_LIBRARY_PATH"/>
 
     <action system="true">run_native</action>
 

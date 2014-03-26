@@ -13,11 +13,9 @@
     </initialWindow>
     <publisher>PUBLISHER</publisher>
     <copyright>COPYRIGHT</copyright>
-    <env var="QML_IMPORT_PATH" value="app/native/imports:/usr/lib/qt4/imports"/>
-    <env var="QT_PLUGIN_PATH" value="app/native/plugins:/usr/lib/qt4/plugins"/>
-    <env var="LD_LIBRARY_PATH" value="app/native/lib:/usr/lib/qt4/lib/"/>
     <arg>-style</arg>
-    <arg>qnxlight</arg>
+    <!-- available styles are bb10dark and bb10bright -->
+    <arg>bb10dark</arg>
 
     <action system="true">run_native</action>
 
