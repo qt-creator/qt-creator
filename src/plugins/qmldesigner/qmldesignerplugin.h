@@ -57,6 +57,8 @@ namespace Core {
 
 namespace QmlDesigner {
 
+class QmlDesignerPluginData;
+
 namespace Internal {
 class DesignModeWidget;
 class DesignModeContext;
@@ -72,8 +74,8 @@ public:
     virtual ~QmlDesignerPlugin();
 
     //Plugin
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    virtual void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorMessage = 0);
+    void extensionsInitialized();
 
     static QmlDesignerPlugin *instance();
 
@@ -113,17 +115,9 @@ private: // functions
     void resetModelSelection();
 
 private: // variables
-    ViewManager m_viewManager;
-    DocumentManager m_documentManager;
-    ShortCutManager m_shortCutManager;
-
-    Internal::DesignModeWidget *m_mainWidget;
-
-    QmlDesigner::PluginManager m_pluginManager;
+    QmlDesignerPluginData *data;
     static QmlDesignerPlugin *m_instance;
-    DesignerSettings m_settings;
-    Internal::DesignModeContext *m_context;
-    bool m_isActive;
+
 };
 
 } // namespace QmlDesigner
