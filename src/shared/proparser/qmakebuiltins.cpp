@@ -1738,14 +1738,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         if (target == TargetSuper) {
             if (m_superfile.isEmpty()) {
                 m_superfile = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.super"));
-                printf("Info: creating super cache file %s\n", qPrintable(m_superfile));
+                printf("Info: creating super cache file %s\n", qPrintable(QDir::toNativeSeparators(m_superfile)));
                 valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
             }
             fn = m_superfile;
         } else if (target == TargetCache) {
             if (m_cachefile.isEmpty()) {
                 m_cachefile = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.cache"));
-                printf("Info: creating cache file %s\n", qPrintable(m_cachefile));
+                printf("Info: creating cache file %s\n", qPrintable(QDir::toNativeSeparators(m_cachefile)));
                 valuesRef(ProKey("_QMAKE_CACHE_")) << ProString(m_cachefile);
                 // We could update m_{source,build}Root and m_featureRoots here, or even
                 // "re-home" our rootEnv, but this doesn't sound too useful - if somebody
@@ -1759,7 +1759,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             if (fn.isEmpty())
                 fn = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.stash"));
             if (!m_vfs->exists(fn)) {
-                printf("Info: creating stash file %s\n", qPrintable(fn));
+                printf("Info: creating stash file %s\n", qPrintable(QDir::toNativeSeparators(fn)));
                 valuesRef(ProKey("_QMAKE_STASH_")) << ProString(fn);
             }
         }
