@@ -123,7 +123,7 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
 
     CMakeBuildInfo info(bc);
 
-    CMakeOpenProjectWizard copw(this, CMakeOpenProjectWizard::WantToUpdate, &info);
+    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), this, CMakeOpenProjectWizard::WantToUpdate, &info);
     if (copw.exec() == QDialog::Accepted)
         cmakeProject->parseCMakeLists();
 }

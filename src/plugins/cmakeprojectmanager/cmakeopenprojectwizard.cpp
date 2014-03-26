@@ -214,8 +214,9 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
 /// CMakeOpenProjectWizard
 //////////////
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, Utils::Environment env)
-    : m_cmakeManager(cmakeManager),
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager, const QString &sourceDirectory, Utils::Environment env)
+    : Utils::Wizard(parent),
+      m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_environment(env),
       m_useNinja(false),
@@ -240,9 +241,10 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     init();
 }
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, CMakeOpenProjectWizard::Mode mode,
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(QWidget *parent, CMakeManager *cmakeManager, CMakeOpenProjectWizard::Mode mode,
                                                const CMakeBuildInfo *info)
-    : m_cmakeManager(cmakeManager),
+    : Utils::Wizard(parent),
+      m_cmakeManager(cmakeManager),
       m_sourceDirectory(info->sourceDirectory),
       m_environment(info->environment),
       m_useNinja(info->useNinja),

@@ -173,7 +173,7 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
                                                                             parent->kit(),
                                                                             copy.displayName));
 
-    CMakeOpenProjectWizard copw(project->projectManager(), CMakeOpenProjectWizard::ChangeDirectory, &copy);
+    CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), project->projectManager(), CMakeOpenProjectWizard::ChangeDirectory, &copy);
     if (copw.exec() != QDialog::Accepted)
         return 0;
 
