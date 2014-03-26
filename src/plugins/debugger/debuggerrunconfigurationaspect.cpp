@@ -67,7 +67,7 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////
 
-class DebuggerRunConfigWidget : public ProjectExplorer::RunConfigWidget
+class DebuggerRunConfigWidget : public RunConfigWidget
 {
     Q_OBJECT
 
@@ -215,7 +215,7 @@ void DebuggerRunConfigWidget::useMultiProcessToggled(bool on)
 */
 
 DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(
-        ProjectExplorer::RunConfiguration *rc) :
+        RunConfiguration *rc) :
     IRunConfigurationAspect(rc),
     m_useCppDebugger(AutoEnabledLanguage),
     m_useQmlDebugger(AutoEnabledLanguage),
@@ -292,8 +292,8 @@ void DebuggerRunConfigurationAspect::setUseMultiProcess(bool value)
 
 bool DebuggerRunConfigurationAspect::isQmlDebuggingSpinboxSuppressed() const
 {
-    ProjectExplorer::Kit *k = runConfiguration()->target()->kit();
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(k);
+    Kit *k = runConfiguration()->target()->kit();
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     if (dev.isNull())
         return false;
     return dev->canAutoDetectPorts();
@@ -327,12 +327,12 @@ void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
 }
 
 DebuggerRunConfigurationAspect *DebuggerRunConfigurationAspect::create
-    (ProjectExplorer::RunConfiguration *runConfiguration) const
+    (RunConfiguration *runConfiguration) const
 {
     return new DebuggerRunConfigurationAspect(runConfiguration);
 }
 
-ProjectExplorer::RunConfigWidget *DebuggerRunConfigurationAspect::createConfigurationWidget()
+RunConfigWidget *DebuggerRunConfigurationAspect::createConfigurationWidget()
 {
     return new Internal::DebuggerRunConfigWidget(this);
 }
