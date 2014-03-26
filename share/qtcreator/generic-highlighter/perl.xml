@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="1.26" kateversion="2.4" section="Scripts" extensions="*.pl;*.pm" mimetype="application/x-perl;text/x-perl" author="Anders Lund (anders@alweb.dk)" license="LGPL">
+<language name="Perl" version="1.29" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPL">
   <highlighting>
     <list name="keywords">
       <item> if </item>
@@ -350,9 +350,12 @@
         <DetectSpaces />
         <DetectChar attribute="Comment" context="comment" char="#" />
 
-        <HlCOct attribute="Octal" context="slash_safe_escape" />
-        <HlCHex attribute="Hex" context="slash_safe_escape" />
-        <Float attribute="Float" context="slash_safe_escape" />
+        <!-- Numeric values. Note that we have to allow underscores between two digits (thus the creepy regular expressions). -->
+        <RegExpr attribute="Hex" String="\b\-?0[xX]([0-9a-fA-F]|_[0-9a-fA-F])+" context="slash_safe_escape"/>
+        <RegExpr attribute="Bin" String="\b\-?0[bB]([01]|_[01])+" context="slash_safe_escape"/>
+        <RegExpr attribute="Octal" String="\b\-?0[1-7]([0-7]|_[0-7])*" context="slash_safe_escape"/>
+        <RegExpr attribute="Float" String="\b\-?[0-9]([0-9]|_[0-9])*\.[0-9]([0-9]|_[0-9])*([eE]\-?[1-9]([0-9]|_[0-9])*(\.[0-9]*)?)?" context="slash_safe_escape"/>
+        <RegExpr attribute="Decimal" String="\b\-?[1-9]([0-9]|_[0-9])*\b" context="slash_safe_escape"/>
         <Int attribute="Decimal" context="slash_safe_escape" />
 
         <RegExpr attribute="Normal Text" context="#stay" String="\\([&quot;'])[^\1]" />
@@ -382,7 +385,7 @@
         <RegExpr attribute="Normal Text" context="#stay" String="[\w_]+\s*/" />
         <RegExpr attribute="Normal Text" context="#stay" String="[&lt;&gt;&quot;':]/" />
         <DetectChar attribute="Operator" context="pattern_slash" char="/" beginRegion="Pattern" />
-        <RegExpr attribute="Operator" context="#stay" String="-[rwxoRWXOeszfdlpSbctugkTBMAC]" />
+        <RegExpr attribute="Operator" context="#stay" String="-[rwxoRWXOeszfdlpSbctugkTBMAC]\b" />
 
         <DetectChar attribute="Normal Text" context="#stay" char="{" beginRegion="Block" />
         <DetectChar attribute="Normal Text" context="#stay" char="}" endRegion="Block" />
@@ -815,6 +818,7 @@
       <itemData name="Decimal"                   defStyleNum="dsDecVal" />
       <itemData name="Octal"                     defStyleNum="dsBaseN" />
       <itemData name="Hex"                       defStyleNum="dsBaseN" />
+      <itemData name="Bin"                       defStyleNum="dsBaseN" />
       <itemData name="Float"                     defStyleNum="dsFloat" />
       <itemData name="String"                    defStyleNum="dsString" color="#FF6C6C" selColor="#FF6C6C" bold="0" italic="0" />
       <itemData name="String (interpolated)"     defStyleNum="dsString" />

@@ -5,7 +5,8 @@
 
   Copyright 2004 Alexander Neundorf (neundorf@kde.org)
   Copyright 2005 Dominik Haumann (dhdev@gmx.de)
-  Copyright 2007,2008 Matthew Woehlke (mw_triad@users.sourceforge.net)
+  Copyright 2007,2008,2013,2014 Matthew Woehlke (mw_triad@users.sourceforge.net)
+  Copyright 2013,2014 Alex Turbov (i.zaufi@gmail.com)
 
  **********************************************************************
  * This library is free software; you can redistribute it and/or      *
@@ -24,12 +25,24 @@
  * Boston, MA  02110-1301, USA.                                       *
  **********************************************************************
  -->
-<!-- generated for "cmake version 2.8.10.2" -->
-<language name="CMake" version="1.14" kateversion="2.4" section="Other" extensions="CMakeLists.txt;*.cmake;" mimetype="" author="Alexander Neundorf (neundorf@kde.org)" license="LGPL">
+<!-- generated for "cmake version 2.8.12.1" -->
+<language
+    name="CMake"
+    version="1.29"
+    kateversion="2.4"
+    section="Other"
+    extensions="CMakeLists.txt;*.cmake;*.cmake.in"
+    style="CMake"
+    mimetype=""
+    author="Alexander Neundorf (neundorf@kde.org)"
+    license="LGPL"
+  >
   <highlighting>
 
+    <!-- ATTENTION Do not change the list name! Or change a generation script accordingly -->
     <list name = "commands">
       <!-- generated list -->
+      <item> add_compile_options </item>
       <item> add_custom_command </item>
       <item> add_custom_target </item>
       <item> add_definitions </item>
@@ -42,6 +55,7 @@
       <item> break </item>
       <item> build_command </item>
       <item> build_name </item>
+      <item> cmake_host_system_information </item>
       <item> cmake_minimum_required </item>
       <item> cmake_policy </item>
       <item> configure_file </item>
@@ -115,6 +129,9 @@
       <item> string </item>
       <item> subdir_depends </item>
       <item> subdirs </item>
+      <item> target_compile_definitions </item>
+      <item> target_compile_options </item>
+      <item> target_include_directories </item>
       <item> target_link_libraries </item>
       <item> try_compile </item>
       <item> try_run </item>
@@ -135,11 +152,11 @@
       <item> vtk_wrap_tcl </item>
     </list>
 
+    <!-- ATTENTION Do not change the list name! Or change a generation script accordingly -->
     <list name="special_args">
       <!-- generated list -->
-      <item> A </item>
-      <item> ABSOLUTE </item>
       <item> AFTER </item>
+      <item> ALIAS </item>
       <item> ALL </item>
       <item> ALPHABET </item>
       <item> AND </item>
@@ -149,11 +166,11 @@
       <item> ARGS </item>
       <item> ASCII </item>
       <item> AUTHOR_WARNING </item>
-      <item> B </item>
       <item> BEFORE </item>
       <item> BRIEF_DOCS </item>
       <item> BUNDLE </item>
       <item> CACHE </item>
+      <item> CACHED_VARIABLE </item>
       <item> CLEAR </item>
       <item> CMAKE_FIND_ROOT_PATH_BOTH </item>
       <item> CMAKE_FLAGS </item>
@@ -167,13 +184,17 @@
       <item> COMPILE_RESULT_VAR </item>
       <item> COMPONENT </item>
       <item> COMPONENTS </item>
+      <item> CONDITION </item>
       <item> CONFIG </item>
       <item> CONFIGS </item>
       <item> CONFIGURATION </item>
       <item> CONFIGURATIONS </item>
       <item> CONFIGURE </item>
+      <item> CONTENT </item>
+      <item> COPY </item>
       <item> COPYONLY </item>
       <item> COPY_FILE </item>
+      <item> COPY_FILE_ERROR </item>
       <item> CRLF </item>
       <item> DEFINED </item>
       <item> DEFINITION </item>
@@ -198,8 +219,8 @@
       <item> EXPECTED_HASH </item>
       <item> EXPECTED_MD5 </item>
       <item> EXPORT </item>
+      <item> EXPORT_LINK_INTERFACE_LIBRARIES </item>
       <item> EXPR </item>
-      <item> EXT </item>
       <item> EXTRA_INCLUDE </item>
       <item> FATAL_ERROR </item>
       <item> FILE </item>
@@ -208,11 +229,11 @@
       <item> FILE_PERMISSIONS </item>
       <item> FIND </item>
       <item> FOLLOW_SYMLINKS </item>
-      <item> FOO </item>
       <item> FORCE </item>
       <item> FRAMEWORK </item>
       <item> FULL_DOCS </item>
       <item> FUNCTION </item>
+      <item> GENERATE </item>
       <item> GET </item>
       <item> GLOB </item>
       <item> GLOBAL </item>
@@ -227,10 +248,14 @@
       <item> IMPORTED </item>
       <item> IN </item>
       <item> INACTIVITY_TIMEOUT </item>
+      <item> INCLUDES </item>
       <item> INCLUDE_INTERNALS </item>
       <item> INHERITED </item>
+      <item> INPUT </item>
       <item> INPUT_FILE </item>
       <item> INSERT </item>
+      <item> INSTALL </item>
+      <item> INTERFACE </item>
       <item> IS_ABSOLUTE </item>
       <item> IS_DIRECTORY </item>
       <item> IS_NEWER_THAN </item>
@@ -247,21 +272,26 @@
       <item> LIMIT_INPUT </item>
       <item> LIMIT_OUTPUT </item>
       <item> LINK_INTERFACE_LIBRARIES </item>
+      <item> LINK_LIBRARIES </item>
+      <item> LINK_PRIVATE </item>
+      <item> LINK_PUBLIC </item>
       <item> LISTS </item>
       <item> LOG </item>
       <item> MACOSX_BUNDLE </item>
       <item> MAIN_DEPENDENCY </item>
+      <item> MAKE_C_IDENTIFIER </item>
       <item> MAKE_DIRECTORY </item>
       <item> MATCH </item>
       <item> MATCHALL </item>
       <item> MATCHES </item>
+      <item> MD5 </item>
       <item> MODULE </item>
       <item> NAME </item>
       <item> NAMELINK_ONLY </item>
       <item> NAMELINK_SKIP </item>
       <item> NAMES </item>
       <item> NAMESPACE </item>
-      <item> NAME_WE </item>
+      <item> NAMES_PER_DIR </item>
       <item> NEW </item>
       <item> NEWLINE_CONSUME </item>
       <item> NEWLINE_STYLE </item>
@@ -298,7 +328,6 @@
       <item> OWNER_WRITE </item>
       <item> PACKAGE </item>
       <item> PARENT_SCOPE </item>
-      <item> PATH </item>
       <item> PATHS </item>
       <item> PATH_SUFFIXES </item>
       <item> PATH_TO_MESA </item>
@@ -311,6 +340,7 @@
       <item> PREORDER </item>
       <item> PRE_BUILD </item>
       <item> PRE_LINK </item>
+      <item> PRIVATE </item>
       <item> PRIVATE_HEADER </item>
       <item> PROGRAM </item>
       <item> PROGRAMS </item>
@@ -318,15 +348,16 @@
       <item> PROJECT_NAME </item>
       <item> PROPERTIES </item>
       <item> PROPERTY </item>
+      <item> PUBLIC </item>
       <item> PUBLIC_HEADER </item>
       <item> PUSH </item>
+      <item> QUERY </item>
       <item> QUIET </item>
       <item> RANDOM </item>
       <item> RANDOM_SEED </item>
       <item> RANGE </item>
       <item> READ </item>
       <item> READ_WITH_PREFIX </item>
-      <item> REALPATH </item>
       <item> REGEX </item>
       <item> REGULAR_EXPRESSION </item>
       <item> RELATIVE </item>
@@ -342,6 +373,7 @@
       <item> REQUIRED_VARIABLE1 </item>
       <item> REQUIRED_VARIABLE2 </item>
       <item> RESOURCE </item>
+      <item> RESULT </item>
       <item> RESULT_VAR </item>
       <item> RESULT_VARIABLE </item>
       <item> RETURN_VALUE </item>
@@ -357,6 +389,7 @@
       <item> SHA224 </item>
       <item> SHA256 </item>
       <item> SHA384 </item>
+      <item> SHA512 </item>
       <item> SHARED </item>
       <item> SHOW_PROGRESS </item>
       <item> SORT </item>
@@ -376,6 +409,7 @@
       <item> TEST </item>
       <item> TEST_VARIABLE </item>
       <item> TIMEOUT </item>
+      <item> TIMESTAMP </item>
       <item> TLS_CAINFO </item>
       <item> TLS_VERIFY </item>
       <item> TOLOWER </item>
@@ -384,11 +418,12 @@
       <item> TO_NATIVE_PATH </item>
       <item> TYPE </item>
       <item> UNIX </item>
+      <item> UNIX_COMMAND </item>
+      <item> UNKNOWN </item>
       <item> UPLOAD </item>
       <item> USE_SOURCE_PERMISSIONS </item>
+      <item> UTC </item>
       <item> VALUE </item>
-      <item> VAR </item>
-      <item> VAR2 </item>
       <item> VARIABLE </item>
       <item> VERBATIM </item>
       <item> VERSION </item>
@@ -397,21 +432,44 @@
       <item> VERSION_LESS </item>
       <item> WARNING </item>
       <item> WIN32 </item>
+      <item> WINDOWS_COMMAND </item>
       <item> WORKING_DIRECTORY </item>
       <item> WRITE </item>
     </list>
 
     <!-- these are "special" and don't show up in the generated lists -->
     <list name="extra_special_args">
-      <item> GLOBAL </item>
+      <!-- get_filename_component() has <COMP> placeholder for the following special args -->
+      <item> PATH </item>
+      <item> NAME </item>
+      <item> EXT </item>
+      <item> NAME_WE </item>
+      <item> ABSOLUTE </item>
+      <item> REALPATH </item>
+      <!-- set() has <type> placeholder for the following special args -->
+      <item> FILEPATH </item>
+      <!-- PATH already present above -->
+      <item> STRING </item>
+      <item> BOOL </item>
       <item> INTERNAL </item>
+      <!-- key values to the QUERY parameter of cmake_host_system_information() -->
+      <item> NUMBER_OF_LOGICAL_CORES </item>
+      <item> NUMBER_OF_PHYSICAL_CORES </item>
+      <item> HOSTNAME </item>
+      <item> FQDN </item>
+      <item> TOTAL_VIRTUAL_MEMORY </item>
+      <item> AVAILABLE_VIRTUAL_MEMORY </item>
+      <item> TOTAL_PHYSICAL_MEMORY </item>
+      <item> AVAILABLE_PHYSICAL_MEMORY </item>
     </list>
 
+    <!-- ATTENTION Do not change the list name! Or change a generation script accordingly -->
     <list name="properties">
       <!-- generated list -->
       <item> ABSTRACT </item>
       <item> ADDITIONAL_MAKE_CLEAN_FILES </item>
       <item> ADVANCED </item>
+      <item> ALIASED_TARGET </item>
       <item> ALLOW_DUPLICATE_CUSTOM_TARGETS </item>
       <item> ARCHIVE_OUTPUT_DIRECTORY </item>
       <item> ARCHIVE_OUTPUT_NAME </item>
@@ -419,13 +477,17 @@
       <item> ATTACHED_FILES_ON_FAIL </item>
       <item> AUTOMOC </item>
       <item> AUTOMOC_MOC_OPTIONS </item>
+      <item> AUTOMOC_TARGETS_FOLDER </item>
       <item> BUILD_WITH_INSTALL_RPATH </item>
       <item> BUNDLE </item>
       <item> BUNDLE_EXTENSION </item>
       <item> CACHE_VARIABLES </item>
       <item> CLEAN_NO_CUSTOM </item>
+      <item> COMPATIBLE_INTERFACE_BOOL </item>
+      <item> COMPATIBLE_INTERFACE_STRING </item>
       <item> COMPILE_DEFINITIONS </item>
       <item> COMPILE_FLAGS </item>
+      <item> COMPILE_OPTIONS </item>
       <item> COST </item>
       <item> DEBUG_CONFIGURATIONS </item>
       <item> DEBUG_POSTFIX </item>
@@ -438,6 +500,8 @@
       <item> ENABLE_EXPORTS </item>
       <item> ENVIRONMENT </item>
       <item> EXCLUDE_FROM_ALL </item>
+      <item> EXCLUDE_FROM_DEFAULT_BUILD </item>
+      <item> EXPORT_NAME </item>
       <item> EXTERNAL_OBJECT </item>
       <item> EchoString </item>
       <item> FAIL_REGULAR_EXPRESSION </item>
@@ -473,6 +537,12 @@
       <item> INSTALL_NAME_DIR </item>
       <item> INSTALL_RPATH </item>
       <item> INSTALL_RPATH_USE_LINK_PATH </item>
+      <item> INTERFACE_COMPILE_DEFINITIONS </item>
+      <item> INTERFACE_COMPILE_OPTIONS </item>
+      <item> INTERFACE_INCLUDE_DIRECTORIES </item>
+      <item> INTERFACE_LINK_LIBRARIES </item>
+      <item> INTERFACE_POSITION_INDEPENDENT_CODE </item>
+      <item> INTERFACE_SYSTEM_INCLUDE_DIRECTORIES </item>
       <item> INTERPROCEDURAL_OPTIMIZATION </item>
       <item> IN_TRY_COMPILE </item>
       <item> KEEP_EXTENSION </item>
@@ -482,10 +552,12 @@
       <item> LIBRARY_OUTPUT_NAME </item>
       <item> LINKER_LANGUAGE </item>
       <item> LINK_DEPENDS </item>
+      <item> LINK_DEPENDS_NO_SHARED </item>
       <item> LINK_DIRECTORIES </item>
       <item> LINK_FLAGS </item>
       <item> LINK_INTERFACE_LIBRARIES </item>
       <item> LINK_INTERFACE_MULTIPLICITY </item>
+      <item> LINK_LIBRARIES </item>
       <item> LINK_SEARCH_END_STATIC </item>
       <item> LINK_SEARCH_START_STATIC </item>
       <item> LISTFILE_STACK </item>
@@ -494,9 +566,11 @@
       <item> MACOSX_BUNDLE_INFO_PLIST </item>
       <item> MACOSX_FRAMEWORK_INFO_PLIST </item>
       <item> MACOSX_PACKAGE_LOCATION </item>
+      <item> MACOSX_RPATH </item>
       <item> MACROS </item>
       <item> MEASUREMENT </item>
       <item> MODIFIED </item>
+      <item> NAME </item>
       <item> NO_SONAME </item>
       <item> OBJECT_DEPENDS </item>
       <item> OBJECT_OUTPUTS </item>
@@ -544,9 +618,12 @@
       <item> VALUE </item>
       <item> VARIABLES </item>
       <item> VERSION </item>
+      <item> VISIBILITY_INLINES_HIDDEN </item>
       <item> VS_DOTNET_REFERENCES </item>
+      <item> VS_DOTNET_TARGET_FRAMEWORK_VERSION </item>
       <item> VS_GLOBAL_KEYWORD </item>
       <item> VS_GLOBAL_PROJECT_TYPES </item>
+      <item> VS_GLOBAL_ROOTNAMESPACE </item>
       <item> VS_KEYWORD </item>
       <item> VS_SCC_AUXPATH </item>
       <item> VS_SCC_LOCALPATH </item>
@@ -567,58 +644,382 @@
       <item> DEFINITION </item>
     </list>
 
+    <!-- ATTENTION Do not change the list name! Or change a generation script accordingly -->
+    <list name="cmake_vars">
+      <!-- generated list -->
+      <item> APPLE </item>
+      <item> BORLAND </item>
+      <item> BUILD_SHARED_LIBS </item>
+      <item> CMAKE_ABSOLUTE_DESTINATION_FILES </item>
+      <item> CMAKE_AR </item>
+      <item> CMAKE_ARCHIVE_OUTPUT_DIRECTORY </item>
+      <item> CMAKE_ARGC </item>
+      <item> CMAKE_ARGV0 </item>
+      <item> CMAKE_AUTOMOC </item>
+      <item> CMAKE_AUTOMOC_MOC_OPTIONS </item>
+      <item> CMAKE_AUTOMOC_RELAXED_MODE </item>
+      <item> CMAKE_BACKWARDS_COMPATIBILITY </item>
+      <item> CMAKE_BINARY_DIR </item>
+      <item> CMAKE_BUILD_TOOL </item>
+      <item> CMAKE_BUILD_TYPE </item>
+      <item> CMAKE_BUILD_WITH_INSTALL_RPATH </item>
+      <item> CMAKE_CACHEFILE_DIR </item>
+      <item> CMAKE_CACHE_MAJOR_VERSION </item>
+      <item> CMAKE_CACHE_MINOR_VERSION </item>
+      <item> CMAKE_CACHE_PATCH_VERSION </item>
+      <item> CMAKE_CFG_INTDIR </item>
+      <item> CMAKE_CL_64 </item>
+      <item> CMAKE_COLOR_MAKEFILE </item>
+      <item> CMAKE_COMMAND </item>
+      <item> CMAKE_COMPILER_2005 </item>
+      <item> CMAKE_CONFIGURATION_TYPES </item>
+      <item> CMAKE_CROSSCOMPILING </item>
+      <item> CMAKE_CTEST_COMMAND </item>
+      <item> CMAKE_CURRENT_BINARY_DIR </item>
+      <item> CMAKE_CURRENT_LIST_DIR </item>
+      <item> CMAKE_CURRENT_LIST_FILE </item>
+      <item> CMAKE_CURRENT_LIST_LINE </item>
+      <item> CMAKE_CURRENT_SOURCE_DIR </item>
+      <item> CMAKE_DEBUG_POSTFIX </item>
+      <item> CMAKE_DEBUG_TARGET_PROPERTIES </item>
+      <item> CMAKE_DL_LIBS </item>
+      <item> CMAKE_EDIT_COMMAND </item>
+      <item> CMAKE_ERROR_DEPRECATED </item>
+      <item> CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION </item>
+      <item> CMAKE_EXECUTABLE_SUFFIX </item>
+      <item> CMAKE_EXE_LINKER_FLAGS </item>
+      <item> CMAKE_EXTRA_GENERATOR </item>
+      <item> CMAKE_EXTRA_SHARED_LIBRARY_SUFFIXES </item>
+      <item> CMAKE_FIND_LIBRARY_PREFIXES </item>
+      <item> CMAKE_FIND_LIBRARY_SUFFIXES </item>
+      <item> CMAKE_FIND_PACKAGE_WARN_NO_MODULE </item>
+      <item> CMAKE_Fortran_FORMAT </item>
+      <item> CMAKE_Fortran_MODDIR_DEFAULT </item>
+      <item> CMAKE_Fortran_MODDIR_FLAG </item>
+      <item> CMAKE_Fortran_MODOUT_FLAG </item>
+      <item> CMAKE_Fortran_MODULE_DIRECTORY </item>
+      <item> CMAKE_GENERATOR </item>
+      <item> CMAKE_GENERATOR_TOOLSET </item>
+      <item> CMAKE_GNUtoMS </item>
+      <item> CMAKE_HOME_DIRECTORY </item>
+      <item> CMAKE_HOST_APPLE </item>
+      <item> CMAKE_HOST_SYSTEM </item>
+      <item> CMAKE_HOST_SYSTEM_NAME </item>
+      <item> CMAKE_HOST_SYSTEM_PROCESSOR </item>
+      <item> CMAKE_HOST_SYSTEM_VERSION </item>
+      <item> CMAKE_HOST_UNIX </item>
+      <item> CMAKE_HOST_WIN32 </item>
+      <item> CMAKE_IGNORE_PATH </item>
+      <item> CMAKE_IMPORT_LIBRARY_PREFIX </item>
+      <item> CMAKE_IMPORT_LIBRARY_SUFFIX </item>
+      <item> CMAKE_INCLUDE_CURRENT_DIR </item>
+      <item> CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE </item>
+      <item> CMAKE_INCLUDE_PATH </item>
+      <item> CMAKE_INSTALL_DEFAULT_COMPONENT_NAME </item>
+      <item> CMAKE_INSTALL_NAME_DIR </item>
+      <item> CMAKE_INSTALL_PREFIX </item>
+      <item> CMAKE_INSTALL_RPATH </item>
+      <item> CMAKE_INSTALL_RPATH_USE_LINK_PATH </item>
+      <item> CMAKE_INTERNAL_PLATFORM_ABI </item>
+      <item> CMAKE_LIBRARY_ARCHITECTURE </item>
+      <item> CMAKE_LIBRARY_ARCHITECTURE_REGEX </item>
+      <item> CMAKE_LIBRARY_OUTPUT_DIRECTORY </item>
+      <item> CMAKE_LIBRARY_PATH </item>
+      <item> CMAKE_LIBRARY_PATH_FLAG </item>
+      <item> CMAKE_LINK_DEF_FILE_FLAG   </item>
+      <item> CMAKE_LINK_DEPENDS_NO_SHARED </item>
+      <item> CMAKE_LINK_INTERFACE_LIBRARIES </item>
+      <item> CMAKE_LINK_LIBRARY_FILE_FLAG </item>
+      <item> CMAKE_LINK_LIBRARY_FLAG </item>
+      <item> CMAKE_LINK_LIBRARY_SUFFIX </item>
+      <item> CMAKE_MACOSX_BUNDLE </item>
+      <item> CMAKE_MAJOR_VERSION </item>
+      <item> CMAKE_MAKE_PROGRAM </item>
+      <item> CMAKE_MFC_FLAG </item>
+      <item> CMAKE_MINIMUM_REQUIRED_VERSION </item>
+      <item> CMAKE_MINOR_VERSION </item>
+      <item> CMAKE_MODULE_LINKER_FLAGS </item>
+      <item> CMAKE_MODULE_PATH </item>
+      <item> CMAKE_NOT_USING_CONFIG_FLAGS </item>
+      <item> CMAKE_NO_BUILTIN_CHRPATH </item>
+      <item> CMAKE_OBJECT_PATH_MAX </item>
+      <item> CMAKE_PARENT_LIST_FILE </item>
+      <item> CMAKE_PATCH_VERSION </item>
+      <item> CMAKE_PDB_OUTPUT_DIRECTORY </item>
+      <item> CMAKE_POSITION_INDEPENDENT_CODE </item>
+      <item> CMAKE_PREFIX_PATH </item>
+      <item> CMAKE_PROGRAM_PATH </item>
+      <item> CMAKE_PROJECT_NAME </item>
+      <item> CMAKE_RANLIB </item>
+      <item> CMAKE_ROOT </item>
+      <item> CMAKE_RUNTIME_OUTPUT_DIRECTORY </item>
+      <item> CMAKE_SCRIPT_MODE_FILE </item>
+      <item> CMAKE_SHARED_LIBRARY_PREFIX </item>
+      <item> CMAKE_SHARED_LIBRARY_SUFFIX </item>
+      <item> CMAKE_SHARED_LINKER_FLAGS </item>
+      <item> CMAKE_SHARED_MODULE_PREFIX </item>
+      <item> CMAKE_SHARED_MODULE_SUFFIX </item>
+      <item> CMAKE_SIZEOF_VOID_P </item>
+      <item> CMAKE_SKIP_BUILD_RPATH </item>
+      <item> CMAKE_SKIP_INSTALL_ALL_DEPENDENCY </item>
+      <item> CMAKE_SKIP_INSTALL_RPATH </item>
+      <item> CMAKE_SKIP_RPATH </item>
+      <item> CMAKE_SOURCE_DIR </item>
+      <item> CMAKE_STANDARD_LIBRARIES </item>
+      <item> CMAKE_STATIC_LIBRARY_PREFIX </item>
+      <item> CMAKE_STATIC_LIBRARY_SUFFIX </item>
+      <item> CMAKE_STATIC_LINKER_FLAGS </item>
+      <item> CMAKE_SYSTEM </item>
+      <item> CMAKE_SYSTEM_IGNORE_PATH </item>
+      <item> CMAKE_SYSTEM_INCLUDE_PATH </item>
+      <item> CMAKE_SYSTEM_LIBRARY_PATH </item>
+      <item> CMAKE_SYSTEM_NAME </item>
+      <item> CMAKE_SYSTEM_PREFIX_PATH </item>
+      <item> CMAKE_SYSTEM_PROCESSOR </item>
+      <item> CMAKE_SYSTEM_PROGRAM_PATH </item>
+      <item> CMAKE_SYSTEM_VERSION </item>
+      <item> CMAKE_TRY_COMPILE_CONFIGURATION </item>
+      <item> CMAKE_TWEAK_VERSION </item>
+      <item> CMAKE_USER_MAKE_RULES_OVERRIDE </item>
+      <item> CMAKE_USE_RELATIVE_PATHS </item>
+      <item> CMAKE_VERBOSE_MAKEFILE </item>
+      <item> CMAKE_VERSION </item>
+      <item> CMAKE_VISIBILITY_INLINES_HIDDEN </item>
+      <item> CMAKE_VS_PLATFORM_TOOLSET </item>
+      <item> CMAKE_WARN_DEPRECATED </item>
+      <item> CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION </item>
+      <item> CMAKE_WIN32_EXECUTABLE </item>
+      <item> CMAKE_XCODE_PLATFORM_TOOLSET </item>
+      <item> CYGWIN </item>
+      <item> ENV </item>
+      <item> EXECUTABLE_OUTPUT_PATH </item>
+      <item> LIBRARY_OUTPUT_PATH </item>
+      <item> MSVC </item>
+      <item> MSVC10 </item>
+      <item> MSVC11 </item>
+      <item> MSVC12 </item>
+      <item> MSVC60 </item>
+      <item> MSVC70 </item>
+      <item> MSVC71 </item>
+      <item> MSVC80 </item>
+      <item> MSVC90 </item>
+      <item> MSVC_IDE </item>
+      <item> MSVC_VERSION </item>
+      <item> PROJECT_BINARY_DIR </item>
+      <item> PROJECT_NAME </item>
+      <item> PROJECT_SOURCE_DIR </item>
+      <item> UNIX </item>
+      <item> WIN32 </item>
+      <item> XCODE_VERSION </item>
+    </list>
+
+    <list name="simple_generator_expr">
+      <item> CONFIGURATION </item>
+      <item> ANGLE-R </item>
+      <item> COMMA </item>
+      <item> SEMICOLON </item>
+      <item> INSTALL_PREFIX </item>
+    </list>
+
+    <list name="generator_expr">
+      <item> 0 </item>
+      <item> 1 </item>
+      <item> CONFIG </item>
+      <item> BOOL </item>
+      <item> STREQUAL </item>
+      <item> JOIN </item>
+      <item> TARGET_NAME </item>
+      <item> INSTALL_INTERFACE </item>
+      <item> BUILD_INTERFACE </item>
+      <item> C_COMPILER_ID </item>
+      <item> CXX_COMPILER_ID </item>
+      <item> VERSION_GREATER </item>
+      <item> VERSION_LESS </item>
+      <item> VERSION_EQUAL </item>
+      <item> C_COMPILER_VERSION </item>
+      <item> CXX_COMPILER_VERSION </item>
+      <item> TARGET_FILE </item>
+      <item> TARGET_LINKER_FILE </item>
+      <item> TARGET_SONAME_FILE </item>
+      <item> TARGET_FILE_DIR </item>
+      <item> TARGET_FILE_NAME </item>
+      <item> TARGET_DIR </item>
+      <item> TARGET_LINKER_FILE_DIR </item>
+      <item> TARGET_LINKER_FILE_NAME </item>
+      <item> TARGET_SONAME_FILE_DIR </item>
+      <item> TARGET_SONAME_FILE_NAME </item>
+      <item> TARGET_PROPERTY </item>
+      <item> TARGET_OBJECTS </item>
+      <item> TARGET_POLICY </item>
+      <item> AND </item>
+      <item> OR </item>
+      <item> NOT </item>
+    </list>
+
     <contexts>
       <context attribute="Normal Text" lineEndContext="#stay" name="Normal Text">
         <DetectSpaces/>
+
+        <!-- handle folding for if else elseif endif blocks -->
+        <RegExpr String="\bif\b" attribute="Commands" context="Command Args" beginRegion="ifthenelse" insensitive="true" />
+        <RegExpr String="\belse\b" attribute="Commands" context="Command Args" endRegion="ifthenelse" beginRegion="ifthenelse" insensitive="true" />
+        <RegExpr String="\belseif\b" attribute="Commands" context="Command Args" endRegion="ifthenelse" beginRegion="ifthenelse" insensitive="true" />
+        <RegExpr String="\bendif\b" attribute="Commands" context="Command Args" endRegion="ifthenelse" insensitive="true" />
+
+        <!-- handle folding for macro endmacro blocks -->
+        <RegExpr String="\bmacro\b" attribute="Commands" context="Command Args" beginRegion="macro" insensitive="true" />
+        <RegExpr String="\bendmacro\b" attribute="Commands" context="Command Args" endRegion="macro" insensitive="true" />
+
+        <!-- handle folding for foreach endforeach blocks -->
+        <RegExpr String="\bforeach\b" attribute="Commands" context="Command Args" beginRegion="foreach" insensitive="true" />
+        <RegExpr String="\bendforeach\b" attribute="Commands" context="Command Args" endRegion="foreach" insensitive="true" />
+
+        <!-- handle folding for while endwhile blocks -->
+        <RegExpr String="\bwhile\b" attribute="Commands" context="Command Args" beginRegion="while" insensitive="true" />
+        <RegExpr String="\bendwhile\b" attribute="Commands" context="Command Args" endRegion="while" insensitive="true" />
+
         <keyword attribute="Commands" context="Command Args" String="commands" insensitive="true"/>
         <keyword attribute="Third-Party Commands" context="#stay" String="itkvtk_commands" insensitive="true"/>
         <RegExpr attribute="Region Marker" context="#stay" String="#\s*BEGIN.*$" beginRegion="block" firstNonSpace="true"/>
         <RegExpr attribute="Region Marker" context="#stay" String="#\s*END.*$" endRegion="block" firstNonSpace="true"/>
+        <RegExpr attribute="Region Marker" context="RST Documentation" String="^#\[(=*)\[\.rst:" column="0" />
+        <RegExpr attribute="Comment" context="Bracketed Comment" String="^#\[(=*)\[" column="0" />
         <DetectChar attribute="Comment" context="Comment" char="#"/>
         <IncludeRules context="Detect Variables"/>
         <RegExpr attribute="Macros" context="Macro Args" String="\w+\s*(?=\()"/>
       </context>
+      <!-- ATTENTION Do not change the context name! Or change a generation script accordingly -->
+      <context attribute="Normal Text" lineEndContext="#stay" name="Detect More Builtin Variables">
+        <!-- generated rules -->
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_COMPILER_IS_GNU[A-Za-z_][A-Za-z_0-9]*\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_DISABLE_FIND_PACKAGE_[A-Za-z_][A-Za-z_0-9]*\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_EXE_LINKER_FLAGS_[A-Za-z_][A-Za-z_0-9]*\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_MODULE_LINKER_FLAGS_[A-Za-z_][A-Za-z_0-9]*\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_POLICY_DEFAULT_CMP[0-9]+\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_SHARED_LINKER_FLAGS_[A-Za-z_][A-Za-z_0-9]*\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_STATIC_LINKER_FLAGS_[A-Za-z_][A-Za-z_0-9]*\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_USER_MAKE_RULES_OVERRIDE_[A-Za-z_][A-Za-z_0-9]*\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_ARCHIVE_APPEND\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_ARCHIVE_CREATE\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_ARCHIVE_FINISH\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_COMPILER\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_COMPILER_ABI\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_COMPILER_ID\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_COMPILER_LOADED\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_COMPILER_VERSION\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_COMPILE_OBJECT\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_CREATE_SHARED_LIBRARY\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_CREATE_SHARED_MODULE\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_CREATE_STATIC_LIBRARY\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_FLAGS\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_FLAGS_DEBUG\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_FLAGS_MINSIZEREL\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_FLAGS_RELEASE\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_FLAGS_RELWITHDEBINFO\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_IGNORE_EXTENSIONS\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_IMPLICIT_INCLUDE_DIRECTORIES\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_IMPLICIT_LINK_DIRECTORIES\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_IMPLICIT_LINK_LIBRARIES\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_LIBRARY_ARCHITECTURE\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_LINKER_PREFERENCE\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_LINKER_PREFERENCE_PROPAGATES\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_LINK_EXECUTABLE \b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_OUTPUT_EXTENSION\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_PLATFORM_ID\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_POSTFIX\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_SIZEOF_DATA_PTR\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_SOURCE_FILE_EXTENSIONS\b" />
+        <RegExpr attribute="Builtin CMake Variable" context="#stay" String="\bCMAKE_[A-Za-z_][A-Za-z_0-9]*_VISIBILITY_PRESET\b" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Detect Builtin Variables">
+        <keyword attribute="Builtin CMake Variable" context="#stay" String="cmake_vars" insensitive="false"/>
+        <IncludeRules context="Detect More Builtin Variables" />
+      </context>
+      <context attribute="CMake Variable" lineEndContext="#pop" name="VarSubst">
+        <IncludeRules context="Detect Builtin Variables"/>
+        <DetectIdentifier />
+        <DetectChar attribute="CMake Variable" context="#pop" char="}"/>
+        <IncludeRules context="Detect Variables"/>
+      </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="Detect Variables">
-        <RegExpr attribute="Environment Variable" context="#stay" String="\$ENV\{\s*\w+\s*\}"/>
-        <RegExpr attribute="CMake Variable" context="#stay" String="\$\{\s*\w+\s*\}"/>
+        <RegExpr attribute="Environment Variable" context="#stay" String="\$ENV\{\s*[\w-]+\s*\}"/>
+        <Detect2Chars attribute="CMake Variable" context="VarSubst" char="$" char1="{" />
+      </context>
+      <context attribute="Generator Expression" lineEndContext="#pop#pop" name="DetectSimpleGEEnd">
+        <DetectChar attribute="Generator Expression" context="#pop#pop" char="&gt;"/>
+      </context>
+      <context attribute="Generator Expression" lineEndContext="#pop" name="Generator Expression">
+        <IncludeRules context="Detect Generator Expressions"/>
+        <DetectChar attribute="Generator Expression" context="#pop" char="&gt;"/>
+        <keyword attribute="Generator Expression Keyword" context="DetectSimpleGEEnd" String="simple_generator_expr" insensitive="false"/>
+        <keyword attribute="Generator Expression Keyword" context="#stay" String="generator_expr" insensitive="false"/>
+        <IncludeRules context="Detect Variables"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Detect Generator Expressions">
+        <Detect2Chars attribute="Generator Expression" context="Generator Expression" char="$" char1="&lt;" />
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="Command Args">
         <keyword attribute="Special Args" context="#stay" String="special_args"/>
         <keyword attribute="Special Args" context="#stay" String="extra_special_args"/>
+        <!-- NOTE Handle CMP<NNN> as a special arg -->
+        <RegExpr attribute="Special Args" context="#stay" String="\bCMP[0-9]+\b" />
         <keyword attribute="Properties" context="#stay" String="properties"/>
         <keyword attribute="Properties" context="#stay" String="extra_properties"/>
+        <IncludeRules context="Detect Builtin Variables"/>
         <IncludeRules context="Macro Args"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="Macro Args">
         <DetectChar attribute="Normal Text" context="#pop" char=")"/>
-        <StringDetect attribute="Escapes" context="#stay" String="\&quot;"/>
+        <RegExpr attribute="Escapes" context="#stay" String="\\[&quot;$n\\]"/>
         <DetectChar attribute="Strings" context="String" char="&quot;"/>
-        <RegExpr attribute="Comment" context="#stay" String="#.*$"/>
+        <RegExpr attribute="Strings" context="Bracketed String" String="\[(=*)\[" />
+        <DetectChar attribute="Comment" context="Comment" char="#"/>
+        <IncludeRules context="Detect Builtin Variables"/>
         <IncludeRules context="Detect Variables"/>
+        <IncludeRules context="Detect Generator Expressions"/>
       </context>
       <context attribute="Comment" lineEndContext="#pop" name="Comment">
         <IncludeRules context="##Alerts" />
+        <IncludeRules context="##Modelines" />
+      </context>
+      <context attribute="Comment" lineEndContext="#stay" name="RST Documentation" dynamic="true">
+        <RegExpr attribute="Region Marker" context="#pop" String="^#?\]%1\]" dynamic="true" column="0" />
+      </context>
+      <context attribute="Comment" lineEndContext="#stay" name="Bracketed Comment" dynamic="true">
+        <RegExpr attribute="Comment" context="#pop" String="^#?\]%1\]" dynamic="true" column="0" />
+        <IncludeRules context="##Alerts" />
+        <IncludeRules context="##Modelines" />
       </context>
       <context attribute="Strings" lineEndContext="#stay" name="String">
         <RegExpr attribute="Strings" context="#pop" String="&quot;(?=[ );]|$)" />
-        <RegExpr attribute="Escapes" context="#stay" String="\\[&quot;$n\\]" />
+        <RegExpr attribute="Escapes" context="#stay" String="\\[&quot;$nrt\\]" />
         <IncludeRules context="Detect Variables"/>
+        <IncludeRules context="Detect Generator Expressions"/>
+      </context>
+      <context attribute="Strings" lineEndContext="#stay" name="Bracketed String" dynamic="true">
+        <RegExpr attribute="Strings" context="#pop" String="\]%1\]" dynamic="true" />
       </context>
 
     </contexts>
     <itemDatas>
-      <itemData name="Normal Text" defStyleNum="dsNormal"/>
-      <itemData name="Special Args" defStyleNum="dsOthers"/>
-      <itemData name="Properties" defStyleNum="dsOthers"/>
-      <itemData name="Commands" defStyleNum="dsKeyword"/>
-      <itemData name="Third-Party Commands" defStyleNum="dsFunction"/>
-      <itemData name="Macros"  defStyleNum="dsFunction"/>
-      <itemData name="Strings" defStyleNum="dsString"/>
-      <itemData name="Escapes" defStyleNum="dsChar"/>
-      <itemData name="CMake Variable" defStyleNum="dsDecVal"/>
-      <itemData name="Environment Variable" defStyleNum="dsFloat"/>
-      <itemData name="Comment" defStyleNum="dsComment"/>
-      <itemData name="Region Marker" defStyleNum="dsRegionMarker"/>
+      <itemData name="Normal Text" defStyleNum="dsNormal" spellChecking="false" />
+      <itemData name="Special Args" defStyleNum="dsOthers" spellChecking="false" />
+      <itemData name="Properties" defStyleNum="dsOthers" spellChecking="false" />
+      <itemData name="Commands" defStyleNum="dsKeyword" spellChecking="false" />
+      <itemData name="Third-Party Commands" defStyleNum="dsFunction" spellChecking="false" />
+      <itemData name="Macros"  defStyleNum="dsFunction" spellChecking="false" />
+      <itemData name="Strings" defStyleNum="dsString" spellChecking="true" />
+      <itemData name="Escapes" defStyleNum="dsChar" spellChecking="false" />
+      <itemData name="Builtin CMake Variable" defStyleNum="dsDecVal" color="#c09050" selColor="#c09050" spellChecking="false" />
+      <!-- TODO Rename to "Variable Substitution" -->
+      <itemData name="CMake Variable" defStyleNum="dsDecVal" spellChecking="false" />
+      <!-- TODO Rename to "Environment Variable Substitution" -->
+      <itemData name="Environment Variable" defStyleNum="dsFloat" spellChecking="false" />
+      <itemData name="Generator Expression Keyword" defStyleNum="dsKeyword" color="#b84040" selColor="#b84040" spellChecking="false" />
+      <itemData name="Generator Expression" defStyleNum="dsOthers" color="#b86050" selColor="#b86050" spellChecking="false" />
+      <itemData name="Comment" defStyleNum="dsComment" spellChecking="true" />
+      <itemData name="Region Marker" defStyleNum="dsRegionMarker" spellChecking="false" />
     </itemDatas>
   </highlighting>
 

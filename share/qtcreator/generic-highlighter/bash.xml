@@ -8,7 +8,7 @@
         <!ENTITY noword   "(?![\w$+-])">                <!-- no word, $, + or - following -->
         <!ENTITY pathpart "([\w_@.&#37;*?+-]|\\ )">     <!-- valid character in a file name -->
 ]>
-<language name="Bash" version="2.16" kateversion="2.4" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
+<language name="Bash" version="2.17" kateversion="2.4" section="Scripts" extensions="*.sh;*.bash;*.ebuild;*.eclass;.bashrc;.bash_profile;.bash_login;.profile" mimetype="application/x-shellscript" casesensitive="1" author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL">
 
 <!-- (c) 2004 by Wilbert Berendsen (wilbert@kde.nl)
     Changes by Matthew Woehlke (mw_triad@users.sourceforge.net)
@@ -478,6 +478,7 @@
       </context>
       <context attribute="Comment" lineEndContext="#pop" name="Comment">
         <IncludeRules context="##Alerts" />
+        <IncludeRules context="##Modelines" />
       </context>
 
       <!-- FindCommentsParen consumes shell comments till EOL or a closing parenthese -->
@@ -632,6 +633,7 @@
         <RegExpr attribute="Variable" context="#stay" String="\$\{[*@#?$!_0-9-]\}" />
         <RegExpr attribute="Variable" context="#stay" String="\$\{#&varname;(\[[*@]\])?\}" />
         <RegExpr attribute="Variable" context="#stay" String="\$\{!&varname;(\[[*@]\]|[*@])?\}" />
+        <RegExpr attribute="Variable" context="#stay" String="\$\{#[0-9]+\}" />
         <RegExpr attribute="Variable" context="VarBrace" String="\$\{&varname;" />
         <RegExpr attribute="Variable" context="VarBrace" String="\$\{[*@#?$!_0-9-](?=[:#%/=?+-])" />
         <StringDetect attribute="Variable" context="ExprDblParenSubst" String="$((" beginRegion="expression" />

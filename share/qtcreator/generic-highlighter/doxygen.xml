@@ -8,7 +8,7 @@
 
   Copyright 2004 Dominik Haumann (dhdev@gmx.de)
   Copyright 2007 Matthew Woehlke (mw_triad@users.sourceforge.net)
-  Copyright 2009-2012 Alex Turbov (I.zaufi@gmail.com)
+  Copyright 2009-2013 Alex Turbov (I.zaufi@gmail.com)
 
  **********************************************************************
  * This library is free software; you can redistribute it and/or      *
@@ -29,7 +29,7 @@
  -->
 
 <language name="Doxygen"
-          version="1.33"
+          version="1.35"
           kateversion="2.4"
           section="Markup"
           extensions="*.dox;*.doxygen"
@@ -48,7 +48,6 @@
       <item> \author </item>           <item> @author </item>
       <item> \authors </item>          <item> @authors </item>
       <item> \brief </item>            <item> @brief </item>
-      <item> \bug </item>              <item> @bug </item>
       <item> \callgraph </item>        <item> @callgraph </item>
       <item> \callergraph </item>      <item> @callergraph </item>
       <item> \date </item>             <item> @date </item>
@@ -219,6 +218,7 @@
     </list>
     <list name="Attention">
       <item> \attention </item>        <item> @attention </item>
+      <item> \bug </item>              <item> @bug </item>
     </list>
     <list name="Todo">
       <item> \todo </item>             <item> @todo </item>
@@ -267,8 +267,8 @@
         <DetectSpaces />
         <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="BlockComment" />
         <IncludeRules context="##Alerts" />
-        <Detect2Chars attribute="Region" context="#stay" char="@" char1="{" />
-        <Detect2Chars attribute="Region" context="#stay" char="@" char1="}" />
+        <Detect2Chars attribute="Region" context="#stay" char="@" char1="{" beginRegion="Group" />
+        <Detect2Chars attribute="Region" context="#stay" char="@" char1="}" endRegion="Group" />
         <IncludeRules context="SL_DetectEnv" />
         <keyword attribute="Tags" context="#stay" String="TagOnly" />
         <keyword attribute="Tags" context="ML_TagWord" String="TagWord" />
