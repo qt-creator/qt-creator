@@ -100,6 +100,7 @@ void IosRunConfiguration::init()
     m_parseInProgress = project->parseInProgress(m_profilePath);
     m_lastIsEnabled = isEnabled();
     m_lastDisabledReason = disabledReason();
+    updateDisplayNames();
     connect(DeviceManager::instance(), SIGNAL(updated()),
             SLOT(deviceChanges()));
     connect(KitManager::instance(), SIGNAL(kitsChanged()),
@@ -120,7 +121,7 @@ void IosRunConfiguration::enabledCheck()
 }
 
 void IosRunConfiguration::deviceChanges() {
-    setDefaultDisplayName(defaultDisplayName());
+    updateDisplayNames();
     enabledCheck();
 }
 
@@ -131,6 +132,8 @@ void IosRunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProFileNode *
         return;
     m_parseSuccess = success;
     m_parseInProgress = parseInProgress;
+    if (success && !parseInProgress)
+        updateDisplayNames();
     enabledCheck();
 }
 
@@ -149,12 +152,13 @@ QStringList IosRunConfiguration::commandLineArguments()
     return m_arguments;
 }
 
-QString IosRunConfiguration::defaultDisplayName()
+void IosRunConfiguration::updateDisplayNames()
 {
     ProjectExplorer::IDevice::ConstPtr dev =
             ProjectExplorer::DeviceKitInformation::device(target()->kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
-    return tr("Run on %1").arg(devName);
+    setDefaultDisplayName(tr("Run on %1").arg(devName));
+    setDisplayName(tr("Run %1 on %2").arg(appName()).arg(devName));
 }
 
 IosDeployStep *IosRunConfiguration::deployStep() const
