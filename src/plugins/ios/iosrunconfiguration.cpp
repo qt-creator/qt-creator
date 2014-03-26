@@ -182,15 +182,16 @@ QString IosRunConfiguration::profilePath() const
 QString IosRunConfiguration::appName() const
 {
     QmakeProject *pro = qobject_cast<QmakeProject *>(target()->project());
-    if (pro) {
-        const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(profilePath());
-        if (node) {
-            TargetInformation ti = node->targetInformation();
-            if (ti.valid)
-                return ti.target;
-        }
+    const QmakeProFileNode *node = 0;
+    if (pro)
+        node = pro->rootQmakeProjectNode();
+    if (node)
+        node = node->findProFileFor(profilePath());
+    if (node) {
+        TargetInformation ti = node->targetInformation();
+        if (ti.valid)
+            return ti.target;
     }
-    qDebug() << "IosRunConfiguration::appName failed";
     return QString();
 }
 
@@ -207,7 +208,11 @@ Utils::FileName IosRunConfiguration::bundleDir() const
             qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
     if (bc) {
         QmakeProject *pro = qobject_cast<QmakeProject *>(target()->project());
-        const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(profilePath());
+        const QmakeProFileNode *node = 0;
+        if (pro)
+            node = pro->rootQmakeProjectNode();
+        if (node)
+            node = node->findProFileFor(profilePath());
         if (node) {
             TargetInformation ti = node->targetInformation();
             if (ti.valid)
