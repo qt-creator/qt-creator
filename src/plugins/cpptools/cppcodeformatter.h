@@ -180,7 +180,8 @@ public: // must be public to make Q_GADGET introspection work
         lambda_statement_expected,
         lambda_instroducer,              // when '=', '&' or ',' occurred within '[]'
         lambda_declarator,               // just after ']' when previous state is lambda_introducer
-        lambda_statement                 // just after '{' when previous state is lambda_declarator or lambda_declarator_or_expression
+        lambda_statement,                // just after '{' when previous state is lambda_declarator or lambda_declarator_or_expression
+        string_open
 
     };
     Q_ENUMS(StateType)

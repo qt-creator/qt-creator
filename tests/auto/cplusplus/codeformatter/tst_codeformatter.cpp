@@ -128,6 +128,7 @@ private Q_SLOTS:
     void attributeInAccessSpecifier();
     void braceReturn();
     void staticVarDeclWithTypeDecl();
+    void strings();
 };
 
 struct Line {
@@ -2150,6 +2151,23 @@ void tst_CodeFormatter::staticVarDeclWithTypeDecl()
          << Line("    green")
          << Line("} Loc;")
          << Line("")
+            ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::strings()
+{
+    QList<Line> data;
+    data << Line("char *a = \"foo\"")
+         << Line("          \"bar\" \"why\"")
+         << Line("          \"baz\";")
+         << Line("void foo()")
+         << Line("{")
+         << Line("    func(1, 2, \"foo\"")
+         << Line("               \"bar\"")
+         << Line("               \"baz\", 4,")
+         << Line("    ~    5, 6);")
+         << Line("}")
             ;
     checkIndent(data);
 }

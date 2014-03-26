@@ -564,6 +564,13 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case cpp_macro_cont:
             break;
 
+        case string_open:
+            if (!m_currentToken.isStringLiteral()) {
+                leave();
+                continue;
+            }
+            break;
+
         default:
             qWarning() << "Unhandled state" << m_currentState.top().type;
             break;
@@ -818,6 +825,9 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
         newState = lambda_instroducer_or_subscribtion;
         break;
     }
+
+    if (m_currentToken.isStringLiteral())
+        newState = string_open;
 
     if (newState != -1) {
         if (alsoExpression)
@@ -1424,6 +1434,11 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case cpp_macro:
     case cpp_macro_cont:
         *indentDepth = m_tabSettings.m_indentSize;
+        break;
+
+    case string_open:
+        *indentDepth = tokenPosition;
+        *paddingDepth = 0;
         break;
     }
 
