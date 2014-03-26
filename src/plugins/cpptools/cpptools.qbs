@@ -14,6 +14,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "app_version_header" }
 
     cpp.defines: base
     Properties {
