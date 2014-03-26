@@ -45,8 +45,8 @@ class TimelineRenderer : public QQuickPaintedItem
     Q_PROPERTY(qint64 endTime READ endTime WRITE setEndTime NOTIFY endTimeChanged)
     Q_PROPERTY(QObject *profilerModelProxy READ profilerModelProxy WRITE setProfilerModelProxy NOTIFY profilerModelProxyChanged)
     Q_PROPERTY(bool selectionLocked READ selectionLocked WRITE setSelectionLocked NOTIFY selectionLockedChanged)
-    Q_PROPERTY(int selectedItem READ selectedItem WRITE setSelectedItem NOTIFY selectedItemChanged)
-    Q_PROPERTY(int selectedModel READ selectedModel WRITE setSelectedModel NOTIFY selectedModelChanged)
+    Q_PROPERTY(int selectedItem READ selectedItem NOTIFY selectedItemChanged)
+    Q_PROPERTY(int selectedModel READ selectedModel NOTIFY selectedModelChanged)
     Q_PROPERTY(int startDragArea READ startDragArea WRITE setStartDragArea NOTIFY startDragAreaChanged)
     Q_PROPERTY(int endDragArea READ endDragArea WRITE setEndDragArea NOTIFY endDragAreaChanged)
 
@@ -97,6 +97,7 @@ public:
     Q_INVOKABLE void selectPrev();
     Q_INVOKABLE int nextItemFromId(int modelIndex, int eventId) const;
     Q_INVOKABLE int prevItemFromId(int modelIndex, int eventId) const;
+    Q_INVOKABLE void selectFromId(int modelIndex, int eventId);
     Q_INVOKABLE void selectNextFromId(int modelIndex, int eventId);
     Q_INVOKABLE void selectPrevFromId(int modelIndex, int eventId);
 
@@ -105,8 +106,9 @@ signals:
     void endTimeChanged(qint64 arg);
     void profilerModelProxyChanged(TimelineModelAggregator *list);
     void selectionLockedChanged(bool locked);
-    void selectedItemChanged(int modelIndex, int itemIndex);
+    void selectedItemChanged(int itemIndex);
     void selectedModelChanged(int modelIndex);
+    void selectionChanged(int modelIndex, int itemIndex);
     void startDragAreaChanged(int startDragArea);
     void endDragAreaChanged(int endDragArea);
     void itemPressed(int modelIndex, int pressedItem);
@@ -138,24 +140,6 @@ public slots:
             m_selectionLocked = locked;
             update();
             emit selectionLockedChanged(locked);
-        }
-    }
-
-    void setSelectedItem(int itemIndex)
-    {
-        if (m_selectedItem != itemIndex) {
-            m_selectedItem = itemIndex;
-            update();
-            emit selectedItemChanged(m_selectedModel, itemIndex);
-        }
-    }
-
-    void setSelectedModel(int modelIndex)
-    {
-        if (m_selectedModel != modelIndex) {
-            m_selectedModel = modelIndex;
-            update();
-            emit selectedModelChanged(modelIndex);
         }
     }
 
@@ -191,6 +175,24 @@ private:
 
     void manageClicked();
     void manageHovered(int mouseX, int mouseY);
+
+    void setSelectedItem(int itemIndex)
+    {
+        if (m_selectedItem != itemIndex) {
+            m_selectedItem = itemIndex;
+            update();
+            emit selectedItemChanged(itemIndex);
+        }
+    }
+
+    void setSelectedModel(int modelIndex)
+    {
+        if (m_selectedModel != modelIndex) {
+            m_selectedModel = modelIndex;
+            update();
+            emit selectedModelChanged(modelIndex);
+        }
+    }
 
 private:
     qint64 m_startTime;

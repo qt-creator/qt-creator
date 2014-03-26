@@ -172,13 +172,9 @@ Rectangle {
             var modelIndex = qmlProfilerModelProxy.basicModelIndex();
             var itemIndex = view.nextItemFromId(modelIndex, eventId);
             // select an item, lock to it, and recenter if necessary
-            if (view.selectedItem != itemIndex || view.selectedModel != modelIndex) {
-                view.selectedModel = modelIndex;
-                view.selectedItem = itemIndex;
-                if (itemIndex !== -1) {
-                    view.selectionLocked = true;
-                }
-            }
+            view.selectFromId(modelIndex, itemIndex); // triggers recentering
+            if (itemIndex !== -1)
+                view.selectionLocked = true;
             lockItemSelection = false;
         }
     }
@@ -331,7 +327,7 @@ Rectangle {
                 recursionGuard = false;
             }
 
-            onSelectedItemChanged: {
+            onSelectionChanged: {
                 if (selectedItem !== -1) {
                     // display details
                     rangeDetails.showInfo(qmlProfilerModelProxy.getEventDetails(selectedModel, selectedItem));

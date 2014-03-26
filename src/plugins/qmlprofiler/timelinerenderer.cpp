@@ -307,9 +307,7 @@ void TimelineRenderer::manageClicked()
     } else {
         setSelectionLocked(false);
     }
-    setSelectedModel(m_currentSelection.modelIndex);
-    setSelectedItem(m_currentSelection.eventIndex);
-
+    selectFromId(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
 }
 
 void TimelineRenderer::manageHovered(int mouseX, int mouseY)
@@ -362,10 +360,8 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
             m_currentSelection.endTime = itemEnd;
             m_currentSelection.row = row;
             m_currentSelection.modelIndex = modelIndex;
-            if (!m_selectionLocked) {
-                setSelectedModel(modelIndex);
-                setSelectedItem(i);
-            }
+            if (!m_selectionLocked)
+                selectFromId(modelIndex, i);
             return;
         }
     }
@@ -457,8 +453,7 @@ void TimelineRenderer::selectNext()
             }
     }
 
-    setSelectedModel(candidateModelIndex);
-    setSelectedItem(itemIndex);
+    selectFromId(candidateModelIndex, itemIndex);
 }
 
 void TimelineRenderer::selectPrev()
@@ -510,8 +505,7 @@ void TimelineRenderer::selectPrev()
             }
     }
 
-    setSelectedModel(candidateModelIndex);
-    setSelectedItem(itemIndex);
+    selectFromId(candidateModelIndex, itemIndex);
 }
 
 int TimelineRenderer::nextItemFromId(int modelIndex, int eventId) const
@@ -553,20 +547,21 @@ int TimelineRenderer::prevItemFromId(int modelIndex, int eventId) const
     return -1;
 }
 
-void TimelineRenderer::selectNextFromId(int modelIndex, int eventId)
+void TimelineRenderer::selectFromId(int modelIndex, int eventIndex)
 {
-    int eventIndex = nextItemFromId(modelIndex, eventId);
-    if (eventIndex != -1) {
+    if (modelIndex != m_selectedModel || eventIndex != m_selectedItem) {
         setSelectedModel(modelIndex);
         setSelectedItem(eventIndex);
+        emit selectionChanged(modelIndex, eventIndex);
     }
+}
+
+void TimelineRenderer::selectNextFromId(int modelIndex, int eventId)
+{
+    selectFromId(modelIndex, nextItemFromId(modelIndex, eventId));
 }
 
 void TimelineRenderer::selectPrevFromId(int modelIndex, int eventId)
 {
-    int eventIndex = prevItemFromId(modelIndex, eventId);
-    if (eventIndex != -1) {
-        setSelectedModel(modelIndex);
-        setSelectedItem(eventIndex);
-    }
+    selectFromId(modelIndex, prevItemFromId(modelIndex, eventId));
 }
