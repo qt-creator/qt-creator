@@ -439,12 +439,17 @@ void QmlProfilerFileWriter::save(QIODevice *device)
     stream.writeStartElement(_("eventData"));
     stream.writeAttribute(_("totalTime"), QString::number(m_measuredTime));
 
+    QMap<QString, QString> keys;
+    int i = 0;
+    foreach (const QString &key, m_qmlEvents.keys())
+        keys[key] = QString::number(i++);
+
     QHash<QString,QmlEvent>::const_iterator eventIter = m_qmlEvents.constBegin();
     for (; eventIter != m_qmlEvents.constEnd(); ++eventIter) {
         QmlEvent event = eventIter.value();
 
         stream.writeStartElement(_("event"));
-        stream.writeAttribute(_("index"), QString::number(m_qmlEvents.keys().indexOf(eventIter.key())));
+        stream.writeAttribute(_("index"), keys[eventIter.key()]);
         stream.writeTextElement(_("displayname"), event.displayName);
         stream.writeTextElement(_("type"), qmlEventTypeAsString(event.type));
         if (!event.filename.isEmpty()) {
@@ -476,7 +481,7 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         stream.writeAttribute(_("startTime"), QString::number(range.startTime));
         if (range.duration > 0) // no need to store duration of instantaneous events
             stream.writeAttribute(_("duration"), QString::number(range.duration));
-        stream.writeAttribute(_("eventIndex"), QString::number(m_qmlEvents.keys().indexOf(eventHash)));
+        stream.writeAttribute(_("eventIndex"), keys[eventHash]);
 
         QmlEvent event = m_qmlEvents.value(eventHash);
 
