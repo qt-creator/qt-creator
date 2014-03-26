@@ -177,7 +177,6 @@ Rectangle {
                 view.selectedItem = itemIndex;
                 if (itemIndex !== -1) {
                     view.selectionLocked = true;
-                    recenterOnItem(modelIndex, itemIndex);
                 }
             }
             lockItemSelection = false;
@@ -339,19 +338,7 @@ Rectangle {
                     rangeDetails.setLocation(qmlProfilerModelProxy.getEventLocation(selectedModel, selectedItem));
 
                     // center view (horizontally)
-                    var windowLength = view.endTime - view.startTime;
-                    var eventStartTime = qmlProfilerModelProxy.getStartTime(selectedModel, selectedItem);
-                    var eventEndTime = eventStartTime +
-                            qmlProfilerModelProxy.getDuration(selectedModel, selectedItem);
-
-                    if (eventEndTime < view.startTime || eventStartTime > view.endTime) {
-                        var center = (eventStartTime + eventEndTime)/2;
-                        var from = Math.min(qmlProfilerModelProxy.traceEndTime()-windowLength,
-                                            Math.max(0, Math.floor(center - windowLength/2)));
-
-                        zoomControl.setRange(from, from + windowLength);
-                    }
-
+                    recenterOnItem(selectedModel, selectedItem);
                     if (!lockItemSelection) {
                         lockItemSelection = true;
                         // update in other views
