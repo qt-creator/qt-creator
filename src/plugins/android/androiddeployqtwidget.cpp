@@ -289,6 +289,8 @@ void AndroidDeployQtWidget::updateKeyStorePath(const QString &path)
     Utils::FileName file = Utils::FileName::fromString(path);
     m_step->setKeystorePath(file);
     m_ui->signPackageCheckBox->setChecked(!file.isEmpty());
+    if (!file.isEmpty())
+        setCertificates();
 }
 
 void AndroidDeployQtWidget::certificatesAliasComboBoxActivated(const QString &alias)
