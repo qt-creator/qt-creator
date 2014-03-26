@@ -136,7 +136,7 @@ Rectangle {
         zoomControl.setRange(newStart, newStart + windowLength);
     }
 
-    function recenterOnItem( modelIndex, itemIndex )
+    function recenterOnItem(modelIndex, itemIndex)
     {
         if (itemIndex === -1)
             return;
@@ -147,7 +147,6 @@ Rectangle {
             recenter((qmlProfilerModelProxy.getStartTime(modelIndex, itemIndex) +
                       qmlProfilerModelProxy.getEndTime(modelIndex, itemIndex)) / 2);
         }
-
     }
 
     function hideRangeDetails() {
@@ -162,9 +161,8 @@ Rectangle {
 
     function selectNextByHash(hash) {
         var eventId = qmlProfilerModelProxy.getEventIdForHash(hash);
-        if (eventId !== -1) {
+        if (eventId !== -1)
             selectNextById(eventId);
-        }
     }
 
     function selectNextById(eventId)
@@ -174,7 +172,7 @@ Rectangle {
         if (!lockItemSelection) {
             lockItemSelection = true;
             var modelIndex = qmlProfilerModelProxy.basicModelIndex();
-            var itemIndex = view.nextItemFromId( modelIndex, eventId );
+            var itemIndex = view.nextItemFromId(modelIndex, eventId);
             // select an item, lock to it, and recenter if necessary
             if (view.selectedItem != itemIndex || view.selectedModel != modelIndex) {
                 view.selectedModel = modelIndex;
