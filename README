@@ -6,7 +6,7 @@ Supported Platforms
 ===================
 The standalone binary packages support the following platforms:
 
-Windows XP SP2 or later
+Windows XP SP3 or later
 (K)Ubuntu Linux 11.10 (32-bit and 64-bit) or later
 Mac OS 10.6 or later
 
@@ -50,20 +50,9 @@ dependency to the exact Qt version it was compiled with. Running Qt Creator
 against updated Qt libraries (also for patch releases) might lead to link time
 failures, or even crashes.
 
-If you want to disable the plugins on Linux and Mac OS X, you can pass
-"QT_PRIVATE_HEADERS=" to qmake:
+To disable the plugins, pass "QT_PRIVATE_HEADERS=" to qmake:
 
   qmake "QT_PRIVATE_HEADERS=" $SOURCE_DIRECTORY/qtcreator.pro
-
-The plugins are also automatically omitted if the private header files are
-not found. This might be the case when you use a Qt version from your
-distribution, or installed a self-compiled Qt to a separate directory via
-'make install'. You can fix this by either re-building your Qt with the
-"-developer-build" configure option, or by passing the include directory in
-the source directory to qmake. For example:
-
-  qmake "QT_PRIVATE_HEADERS=$$QT_BUILD_TREE/include" $SOURCE_DIRECTORY/qtcreator.pro
-
 
 Compiling Qt and Qt Creator on Windows
 --------------------------------------
@@ -71,7 +60,9 @@ Compiling Qt and Qt Creator on Windows
 This section provides step by step instructions for compiling the latest
 versions of Qt and Qt Creator on Windows. Alternatively, to avoid having to
 compile Qt yourself, you can use one of the versions of Qt shipped with the Qt
-SDK (release builds of Qt using MinGW and Visual C++ 2008).
+SDK (release builds of Qt using MinGW and Visual C++ 2010 or later).
+For detailed information on the supported compilers, see
+http://qt-project.org/wiki/Building_Qt_5_from_Git .
 
    1.  Decide which compiler to use: MinGW or Microsoft Visual Studio. If you
        plan to contribute to Qt Creator, you should compile your changes with
@@ -86,22 +77,24 @@ SDK (release builds of Qt using MinGW and Visual C++ 2008).
        for example, c:\work. If you plan to use MinGW and Microsoft Visual
        Studio simultaneously or mix different Qt versions, we recommend
        creating a directory structure which reflects that. For example:
-       C:\work\qt4.8.1-vs10, C:\work\qt4.8.4-mingw.
+       C:\work\qt5.2.1-vs10, C:\work\qt5.2.1-mingw.
 
    4.  Download and install Perl from http://www.activestate.com/activeperl
-       and check that perl.exe is added to the path.
+       and check that perl.exe is added to the path. Run perl -v to verify
+       that the version displayed is 5.10 or later. Note that git ships
+       an outdated version 5.8 which cannot be used for Qt.
 
    5.  In the working directory, check out the respective branch of Qt
-       (we recommend 4.8; see http://qt.gitorious.org/qt).
+       (we recommend the latest released version from the release branch,
+       5.2.1; see https://qt.gitorious.org/qt).
 
-   6.  Check out Qt Creator (master branch, see
-       http://qt.gitorious.org/qt-creator).
+   6.  Check out Qt Creator (master branch or latest version, see
+       https://qt.gitorious.org/qt-creator).
        You should now have the directories qt and creator under your working
        directory.
 
    7.  Install a compiler:
-       - For a MinGW toolchain for Qt 4, see http://www.mingw.org. For a MinGW
-         toolchain for Qt 5, see http://mingwbuilds.sourceforge.net.
+       - For a MinGW toolchain for Qt, see http://qt-project.org/wiki/MinGW .
 
        - For Microsoft Visual C++, install the Windows SDK and the "Debugging
          Tools for Windows" from the SDK image. We strongly recommend using the
@@ -114,7 +107,8 @@ SDK (release builds of Qt using MinGW and Visual C++ 2008).
          For the Visual C++ compilers, it is recommended to use the tool 'jom'.
          It is a replacement for nmake that utilizes all CPU cores and thus
          speeds up compilation significantly. Download it from
-         http://releases.qt-project.org/jom/ and add the executable to the path.
+         http://download.qt-project.org/official_releases/jom
+         and add the executable to the path.
 
    8.  For convenience, we recommend creating shell prompts with the correct
        environment. This can be done by creating a .bat-file
@@ -122,8 +116,7 @@ SDK (release builds of Qt using MinGW and Visual C++ 2008).
        variable settings.
        A .bat-file for MinGW looks like:
 
-         set QTDIR=<working_directory>\qt
-         set PATH=%QTDIR%\bin;<path_to_mingw>\bin;<working_directory>\creator\bin;%PATH%
+         set PATH=<path_to_qt>\[qtbase\]bin;<path_to_mingw>\bin;<working_directory>\creator\bin;%PATH%
          set QMAKESPEC=win32-g++
 
        For the Visual C++ compilers, call the .bat file that sets up the
@@ -131,8 +124,7 @@ SDK (release builds of Qt using MinGW and Visual C++ 2008).
        compiler):
 
          CALL "C:\Program Files (x86)\MSVC10\VC\vcvarsall.bat" amd64
-         set QTDIR=<working_directory>\qt
-         set PATH=%QTDIR%\bin;<working_directory>\creator\bin;%PATH%
+         set PATH=<path_to_qt>\[qtbase\]bin;<working_directory>\creator\bin;%PATH%
          set QMAKESPEC=win32-msvc2010
 
        You can create desktop links to the bat files using the working
@@ -149,17 +141,19 @@ SDK (release builds of Qt using MinGW and Visual C++ 2008).
        You have to remove it from the path.
 
   10.  You are now ready to configure and build Qt and Qt Creator.
+       Please see http://qt-project.org/wiki/Building_Qt_5_from_Git for
+       recommended configure-options for Qt 5.
        To use MinGW, open the the shell prompt and enter:
 
-         cd qt
-         configure -debug && mingw32-make -s
+         cd <path_to_qt>
+         configure <configure_options> && mingw32-make -s
          cd ..\creator
          qmake && mingw32-make -s
 
        To use the Visual C++ compilers, enter:
 
-         cd qt
-         configure -debug && jom
+         cd <path_to_qt>
+         configure <configure_options> && jom
          cd ..\creator
          qmake && jom
 
@@ -174,6 +168,28 @@ SDK (release builds of Qt using MinGW and Visual C++ 2008).
        "Debugging Tools for Windows" the library should also be built with
        a 64 bit compiler (rebuild src\libs\qtcreatorcdbext using a 64 bit
        compiler).
+
+       If you are building 32 bit and running on a 64 bit
+       Windows, you can obtain the 64 bit versions of the extension library
+       and the binary win64interrupt.exe, which is required for
+       debugging from the repository
+       https://qt.gitorious.org/qt-creator/binary-artifacts/source/ .
+
+   13. Qt Creator can be registered as a post-mortem debugger. This
+       can be done in the options page or by running the tool qtcdebugger
+       with administrative privileges passing the command line options
+       -register/unregister, respectively. Alternatively,
+       the required registry entries
+       HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AeDebug and
+       HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows NT\CurrentVersion\AeDebug
+       can be modified using the registry editor regedt32 to contain
+       <path>\qt-creator\bin\qtcdebugger %ld %ld
+
+       When using a self-built version of Qt Creator as post-mortem debugger, it needs to be
+       able to find all dependent Qt-libraries and plugins when being launched by the
+       system. The easiest way to provide them for Qt 5 is to run the tool windeployqt:
+
+       windeployqt -svg -xml -designercomponents -script -concurrent -network -quick -test -sql -printsupport -qthelp -qmldir share\qtcreator -qmldir src\plugins\qmlprofiler bin\qtcreator.exe
 
 Note that unlike on Unix, you cannot overwrite executables that are running.
 Thus, if you want to work on Qt Creator using Qt Creator, you need a
