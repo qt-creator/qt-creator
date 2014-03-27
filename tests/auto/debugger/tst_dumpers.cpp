@@ -1147,7 +1147,10 @@ void tst_Dumpers::dumper()
     QByteArray contents;
     if (m_debuggerEngine == GdbEngine) {
         int posDataStart = output.indexOf("data=");
-        QVERIFY(posDataStart != -1);
+        if (posDataStart == -1) {
+            qDebug() << "NO \"data=\" IN OUTPUT: " << output;
+            QVERIFY(posDataStart != -1);
+        }
         contents = output.mid(posDataStart);
         contents.replace("\\\"", "\"");
 
