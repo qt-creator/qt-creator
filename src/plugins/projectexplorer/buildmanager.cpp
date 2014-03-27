@@ -428,6 +428,8 @@ void BuildManager::progressChanged()
 
 void BuildManager::progressTextChanged()
 {
+    if (!d->m_progressFutureInterface)
+        return;
     int range = d->m_watcher.progressMaximum() - d->m_watcher.progressMinimum();
     int percent = 0;
     if (range != 0)
