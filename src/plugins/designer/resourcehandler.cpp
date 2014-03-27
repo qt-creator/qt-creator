@@ -35,6 +35,7 @@
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <resourceeditor/resourcenode.h>
 
 #if QT_VERSION >= 0x050000
 #    include <QDesignerFormWindowInterface>
@@ -78,6 +79,8 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
         if (fileNode->fileType() == ProjectExplorer::ResourceType)
             m_qrcFiles.append(fileNode->path());
     }
+    if (qobject_cast<ResourceEditor::ResourceTopLevelNode *>(folderNode))
+        m_qrcFiles.append(folderNode->path());
 }
 
 // ------------ ResourceHandler
