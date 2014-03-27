@@ -478,7 +478,8 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
         attachToApplication(executable)
     except:
         resetApplicationContextToCreator()
-        if "Loading Qt Wrapper failed" in str(output.plainText):
+        if ("Loading Qt Wrapper failed" in str(output.plainText)
+            or "Failed to assign process to job object" in str(output.plainText)):
             test.warning("Loading of Qt Wrapper failed - probably different Qt versions.",
                          "Resetting hook-into settings to continue.")
             # assuming we're still on the build settings of the current project (TODO)
