@@ -28,12 +28,11 @@
     \page creator-android-app-tutorial.html
     \nextpage creator-project-managing.html
 
-    \title Creating an Android Application
+    \title Creating a Mobile Application
 
-    This tutorial describes developing Qt Quick applications for Android devices
-    using Qt Quick Controls.
-
-    This tutorial describes how to use \QC to implement a Qt Quick application
+    This tutorial describes developing Qt Quick applications for Android and iOS
+    devices using Qt Quick Controls.
+    We use \QC to implement a Qt Quick application
     that accelerates an SVG (Scalable Vector Graphics) image based on the
     changing accelerometer values.
 
@@ -41,14 +40,22 @@
 
     \section1 Setting up the Development Environment
 
-    To be able to build and run the application, you must download and install
+    To be able to build and run the application on a mobile device, you must
+    set up the development environment for the device platform and configure a
+    connection between \QC and the mobile device.
+
+    To develop for Android  devices, you must download and install
     the latest Android NDK and SDK, and update the SDK to get the API and tools
-    packages needed for development. In addition, you must install the
+    needed for development. In addition, you must install the
     Java SE Development Kit (JDK) and Apache Ant. After you have installed all
     these tools, you must specify the paths to them in \QC.
-
     For detailed instructions, see \l{Qt for Android} and
     \l{Connecting Android Devices}.
+
+    To develop for iOS devices, you must install Xcode and use it to configure
+    a device. For this, you need an Apple developer account and iOS Developer
+    Program certificate that you receive from Apple. For more information, see
+    \l{Connecting iOS Devices}.
 
     \section1 Creating the Project
 
@@ -64,10 +71,10 @@
             \gui Continue on Mac OS X).
 
         \li In the \gui {Qt Quick component set} field, select
-            \gui {Qt Quick Controls 1.0}.
+            \gui {Qt Quick Controls 1.1}.
 
-        \li Select an Android \l{glossary-buildandrun-kit}{kit} for ARM,
-            and click \gui{Next}.
+        \li Select \l{glossary-buildandrun-kit}{kits} for Android ARM and iPhone
+            OS, and click \gui{Next}.
 
             \note Kits are listed if they have been specified in \gui Tools >
             \gui Options > \gui{Build & Run} > \gui Kits.
@@ -113,7 +120,7 @@
 
         \li Click \gui Design to open the file in \QMLD.
 
-        \li In the \gui Navigator pane, select \gui Button and press \key Delete
+        \li In the \gui Navigator pane, select \gui Text and press \key Delete
             to delete it.
 
         \li In the \gui Library view, \gui Resources tab, select Bluebubble.svg
@@ -143,16 +150,14 @@
 
     \quotefromfile accelbubble/main.qml
     \skipto import QtQuick
-    \printuntil 1.0
+    \printuntil 1.1
     \codeline
     \skipto ApplicationWindow
     \printuntil true
-
     \skipto Image
     \printuntil y:
     \skipto /^\}/
     \printuntil }
-
 
     \section1 Moving the Bubble
 
@@ -201,6 +206,19 @@
             \printuntil }
      \endlist
 
+     \section1 Locking Device Orientation
+
+     The device display is rotated by default when the device orientation
+     changes between portrait and landscape. For this example, it would be
+     better for the screen orientation to be fixed.
+
+    To lock the orientation to portrait or landscape on Android, specify it in
+    an AndroidManifest.xml that you can generate in \QC. For more information,
+    see \l{Editing Manifest Files}.
+
+    On iOS, you can lock the device orientation in a Info.plist file that you
+    specify in the .pro file as the value of the QMAKE_INFO_PLIST variable.
+
     \section1 Adding Dependencies
 
     Update the accelbubble.pro file with the following library dependency
@@ -210,13 +228,43 @@
     QT += quick sensors svg xml
     \endcode
 
-    \section1 Running the Application
+    On iOS, you must link to the above libraries statically, by adding the
+    plugin names explicitly as values of the QTPLUGIN variable. Specify a
+    qmake scope for iOS builds (which can also contain the QMAKE_INFO_PLIST
+    variable):
 
-    The application is complete and ready to be deployed to an Android device:
+    \code
+    ios {
+    QTPLUGIN += qsvg qsvgicon qtsensors_ios
+    QMAKE_INFO_PLIST = Info.plist
+    }
+    \endcode
+
+    After adding the dependencies, select \gui Build > \gui {Run qmake} to apply
+    the changes to the Makefile of the project.
+
+    \section1 Adding Resources
+
+    You need to add the Bluebubble.svg image file to the application resources
+    for deployment to mobile devices:
 
     \list 1
 
-        \li Enable \e{USB Debugging} on the device.
+        \li In the \gui Projects view, double-click the qml.qrc file to open it
+            in the resource editor.
+
+        \li Select \gui Add to add Bluebubble.svg.
+
+    \endlist
+
+    \section1 Running the Application
+
+    The application is complete and ready to be deployed to a device:
+
+    \list 1
+
+        \li Enable \e{USB Debugging} on the Android device or \e{developer mode}
+            on the iOS device.
 
         \li Connect the device to the development PC.
 

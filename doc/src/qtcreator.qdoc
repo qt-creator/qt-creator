@@ -133,7 +133,7 @@
             \list
                 \li \l{Creating a Qt Quick Application}
                 \li \l{Creating a Qt Widget Based Application}
-                \li \l{Creating an Android Application}
+                \li \l{Creating a Mobile Application}
             \endlist
         \endlist
         \li \l{Managing Projects}
