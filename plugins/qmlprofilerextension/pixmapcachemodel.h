@@ -35,13 +35,11 @@ class PixmapCacheModel : public QmlProfiler::SingleCategoryTimelineModel
 public:
 
     struct PixmapCacheEvent {
-        int eventId;
         int pixmapEventType;
         int urlIndex;
         int sizeIndex;
-        qint64 cacheSize;
-        int rowNumberExpanded;
         int rowNumberCollapsed;
+        qint64 cacheSize;
     };
 
     enum PixmapEventType {

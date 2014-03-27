@@ -70,12 +70,10 @@ public:
     void computeMaxCacheSize();
     void resizeUnfinishedLoads();
     void flattenLoads();
-    void computeRowCounts();
     int updateCacheCount(int lastCacheSizeEvent, qint64 startTime, qint64 pixSize,
                          PixmapCacheEvent &newEvent);
 
     QVector<Pixmap> pixmaps;
-    int expandedRowCount;
     int collapsedRowCount;
     void addVP(QVariantList &l, QString label, qint64 time) const;
 
@@ -91,7 +89,6 @@ PixmapCacheModel::PixmapCacheModel(QObject *parent)
 {
     Q_D(PixmapCacheModel);
     d->collapsedRowCount = 1;
-    d->expandedRowCount = 1;
     d->maxCacheSize = 1;
 }
 
@@ -102,7 +99,7 @@ int PixmapCacheModel::categoryDepth(int categoryIndex) const
     if (isEmpty())
         return 1;
     if (d->expanded)
-        return d->expandedRowCount;
+        return d->pixmaps.count() + 2;
     return d->collapsedRowCount;
 }
 
@@ -110,14 +107,15 @@ int PixmapCacheModel::getEventRow(int index) const
 {
     Q_D(const PixmapCacheModel);
     if (d->expanded)
-        return d->range(index).rowNumberExpanded;
+        return getEventId(index) + 1;
     return d->range(index).rowNumberCollapsed;
 }
 
 int PixmapCacheModel::getEventId(int index) const
 {
     Q_D(const PixmapCacheModel);
-    return d->range(index).eventId;
+    return d->range(index).pixmapEventType == PixmapCacheCountChanged ?
+                0 : d->range(index).urlIndex + 1;
 }
 
 QColor PixmapCacheModel::getColor(int index) const
@@ -296,9 +294,6 @@ void PixmapCacheModel::loadData()
             newEvent.urlIndex = d->pixmaps.count();
             d->pixmaps << Pixmap(event.location.filename);
         }
-
-        newEvent.eventId = newEvent.urlIndex + 1;
-        newEvent.rowNumberExpanded = newEvent.urlIndex + 2;
 
         Pixmap &pixmap = d->pixmaps[newEvent.urlIndex];
         switch (newEvent.pixmapEventType) {
@@ -486,7 +481,6 @@ void PixmapCacheModel::loadData()
 
     d->computeMaxCacheSize();
     d->flattenLoads();
-    d->computeRowCounts();
     d->computeNesting();
 
     d->modelManager->modelProxyCountUpdated(d->modelId, 1, 1);
@@ -498,7 +492,6 @@ void PixmapCacheModel::clear()
     d->SortedTimelineModel::clear();
     d->pixmaps.clear();
     d->collapsedRowCount = 1;
-    d->expandedRowCount = 1;
     d->maxCacheSize = 1;
     d->expanded = false;
 
@@ -530,6 +523,8 @@ void PixmapCacheModel::PixmapCacheModelPrivate::resizeUnfinishedLoads()
 
 void PixmapCacheModel::PixmapCacheModelPrivate::flattenLoads()
 {
+    collapsedRowCount = 0;
+
     // computes "compressed row"
     QVector <qint64> eventEndTimes;
     for (int i = 0; i < count(); i++) {
@@ -548,22 +543,11 @@ void PixmapCacheModel::PixmapCacheModelPrivate::flattenLoads()
             // readjust to account for category empty row and bargraph
             event.rowNumberCollapsed += 2;
         }
-    }
-}
-
-void PixmapCacheModel::PixmapCacheModelPrivate::computeRowCounts()
-{
-    expandedRowCount = 0;
-    collapsedRowCount = 0;
-    foreach (const PixmapCacheModel::PixmapCacheEvent &event, ranges) {
-        if (event.rowNumberExpanded > expandedRowCount)
-            expandedRowCount = event.rowNumberExpanded;
         if (event.rowNumberCollapsed > collapsedRowCount)
             collapsedRowCount = event.rowNumberCollapsed;
     }
 
     // Starting from 0, count is maxIndex+1
-    expandedRowCount++;
     collapsedRowCount++;
 }
 
@@ -571,8 +555,6 @@ int PixmapCacheModel::PixmapCacheModelPrivate::updateCacheCount(int lastCacheSiz
         qint64 startTime, qint64 pixSize, PixmapCacheEvent &newEvent)
 {
     newEvent.pixmapEventType = PixmapCacheCountChanged;
-    newEvent.eventId = 0;
-    newEvent.rowNumberExpanded = 1;
     newEvent.rowNumberCollapsed = 1;
 
     qint64 prevSize = 0;
