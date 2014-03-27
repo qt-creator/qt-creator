@@ -27,35 +27,33 @@
 **
 ****************************************************************************/
 
-#include "remotelinuxdeploymentdatamodel.h"
+#include "deploymentdatamodel.h"
 
-using namespace ProjectExplorer;
+namespace ProjectExplorer {
 
-namespace RemoteLinux {
-
-RemoteLinuxDeploymentDataModel::RemoteLinuxDeploymentDataModel(QObject *parent)
+DeploymentDataModel::DeploymentDataModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
 }
 
-void RemoteLinuxDeploymentDataModel::setDeploymentData(const DeploymentData &deploymentData)
+void DeploymentDataModel::setDeploymentData(const DeploymentData &deploymentData)
 {
     beginResetModel();
     m_deploymentData = deploymentData;
     endResetModel();
 }
 
-int RemoteLinuxDeploymentDataModel::rowCount(const QModelIndex &parent) const
+int DeploymentDataModel::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : m_deploymentData.fileCount();
 }
 
-int RemoteLinuxDeploymentDataModel::columnCount(const QModelIndex &parent) const
+int DeploymentDataModel::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : 2;
 }
 
-QVariant RemoteLinuxDeploymentDataModel::headerData(int section, Qt::Orientation orientation,
+QVariant DeploymentDataModel::headerData(int section, Qt::Orientation orientation,
         int role) const
 {
     if (orientation == Qt::Vertical || role != Qt::DisplayRole)
@@ -63,7 +61,7 @@ QVariant RemoteLinuxDeploymentDataModel::headerData(int section, Qt::Orientation
     return section == 0 ? tr("Local File Path") : tr("Remote Directory");
 }
 
-QVariant RemoteLinuxDeploymentDataModel::data(const QModelIndex &index, int role) const
+QVariant DeploymentDataModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= rowCount() || index.column() >= columnCount())
         return QVariant();
@@ -76,4 +74,4 @@ QVariant RemoteLinuxDeploymentDataModel::data(const QModelIndex &index, int role
     return QVariant();
 }
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

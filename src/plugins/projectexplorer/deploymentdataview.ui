@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RemoteLinux::Internal::RemoteLinuxDeployConfigurationWidget</class>
- <widget class="QWidget" name="RemoteLinux::Internal::RemoteLinuxDeployConfigurationWidget">
+ <class>ProjectExplorer::DeploymentDataView</class>
+ <widget class="QWidget" name="ProjectExplorer::DeploymentDataView">
   <property name="geometry">
    <rect>
     <x>0</x>

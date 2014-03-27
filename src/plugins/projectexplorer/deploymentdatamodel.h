@@ -26,35 +26,33 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
-#define REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#ifndef DEPLOYMENTDATAMODEL_H
+#define DEPLOYMENTDATAMODEL_H
 
-#include "remotelinux_export.h"
+#include "deploymentdata.h"
+#include "projectexplorer_export.h"
 
-#include <projectexplorer/namedwidget.h>
+#include <QAbstractTableModel>
 
-namespace RemoteLinux {
-class RemoteLinuxDeployConfiguration;
+namespace ProjectExplorer {
 
-namespace Internal { class RemoteLinuxDeployConfigurationWidgetPrivate; }
-
-class REMOTELINUX_EXPORT RemoteLinuxDeployConfigurationWidget
-    : public ProjectExplorer::NamedWidget
+class PROJECTEXPLORER_EXPORT DeploymentDataModel : public QAbstractTableModel
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationWidget(RemoteLinux::RemoteLinuxDeployConfiguration *dc,
-                                                  QWidget *parent = 0);
-    ~RemoteLinuxDeployConfigurationWidget();
+    explicit DeploymentDataModel(QObject *parent = 0);
 
-private slots:
-    void updateDeploymentDataModel();
+    void setDeploymentData(const DeploymentData &deploymentData);
 
 private:
-    Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+    DeploymentData m_deploymentData;
 };
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONWIDGET_H
+#endif // Include guard

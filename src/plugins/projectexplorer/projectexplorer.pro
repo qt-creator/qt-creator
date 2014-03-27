@@ -137,6 +137,8 @@ HEADERS += projectexplorer.h \
     devicesupport/desktopdeviceconfigurationwidget.h \
     devicesupport/desktopprocesssignaloperation.h \
     deploymentdata.h \
+    deploymentdatamodel.h \
+    deploymentdataview.h \
     buildtargetinfo.h \
     customtoolchain.h \
     projectmacroexpander.h \
@@ -268,6 +270,8 @@ SOURCES += projectexplorer.cpp \
     devicesupport/desktopdeviceconfigurationwidget.cpp \
     devicesupport/desktopprocesssignaloperation.cpp \
     deployablefile.cpp \
+    deploymentdatamodel.cpp \
+    deploymentdataview.cpp \
     customtoolchain.cpp \
     projectmacroexpander.cpp \
     customparser.cpp \
@@ -282,6 +286,7 @@ FORMS += processstep.ui \
     projectexplorersettingspage.ui \
     targetsettingswidget.ui \
     doubletabwidget.ui \
+    deploymentdataview.ui \
     codestylesettingspropertiespage.ui \
     devicesupport/devicefactoryselectiondialog.ui \
     devicesupport/devicesettingswidget.ui \

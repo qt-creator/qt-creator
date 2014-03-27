@@ -28,7 +28,7 @@
 ****************************************************************************/
 #include "remotelinuxdeployconfiguration.h"
 
-#include "remotelinuxdeployconfigurationwidget.h"
+#include <projectexplorer/deploymentdataview.h>
 
 using namespace ProjectExplorer;
 
@@ -50,7 +50,7 @@ RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::
 
 NamedWidget *RemoteLinuxDeployConfiguration::createConfigWidget()
 {
-    return new RemoteLinuxDeployConfigurationWidget(this);
+    return new DeploymentDataView(target());
 }
 
 } // namespace RemoteLinux

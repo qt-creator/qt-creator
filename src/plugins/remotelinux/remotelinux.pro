@@ -39,13 +39,11 @@ HEADERS += \
     sshkeydeployer.h \
     typespecificdeviceconfigurationlistmodel.h \
     remotelinuxutils.h \
-    remotelinuxdeployconfigurationwidget.h \
     remotelinuxcustomcommanddeployservice.h \
     remotelinuxcustomcommanddeploymentstep.h \
     genericlinuxdeviceconfigurationwidget.h \
     remotelinuxcheckforfreediskspaceservice.h \
     remotelinuxcheckforfreediskspacestep.h \
-    remotelinuxdeploymentdatamodel.h \
     remotelinuxanalyzesupport.h \
     abstractremotelinuxrunsupport.h \
     linuxdeviceprocess.h \
@@ -86,13 +84,11 @@ SOURCES += \
     sshkeydeployer.cpp \
     typespecificdeviceconfigurationlistmodel.cpp \
     remotelinuxutils.cpp \
-    remotelinuxdeployconfigurationwidget.cpp \
     remotelinuxcustomcommanddeployservice.cpp \
     remotelinuxcustomcommanddeploymentstep.cpp \
     genericlinuxdeviceconfigurationwidget.cpp \
     remotelinuxcheckforfreediskspaceservice.cpp \
     remotelinuxcheckforfreediskspacestep.cpp \
-    remotelinuxdeploymentdatamodel.cpp \
     remotelinuxanalyzesupport.cpp \
     abstractremotelinuxrunsupport.cpp \
     linuxdeviceprocess.cpp \
@@ -100,7 +96,6 @@ SOURCES += \
 
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \
-    remotelinuxdeployconfigurationwidget.ui \
     genericlinuxdeviceconfigurationwidget.ui \
     remotelinuxcheckforfreediskspacestepwidget.ui
 

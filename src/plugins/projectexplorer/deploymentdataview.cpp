@@ -26,34 +26,29 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "remotelinuxdeployconfigurationwidget.h"
-#include "ui_remotelinuxdeployconfigurationwidget.h"
+#include "deploymentdataview.h"
+#include "ui_deploymentdataview.h"
 
-#include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxdeploymentdatamodel.h"
+#include "deploymentdatamodel.h"
+#include "target.h"
 
-#include <projectexplorer/target.h>
-
-using namespace ProjectExplorer;
-
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
 
-class RemoteLinuxDeployConfigurationWidgetPrivate
+class DeploymentDataViewPrivate
 {
 public:
-    Ui::RemoteLinuxDeployConfigurationWidget ui;
-    RemoteLinuxDeployConfiguration *deployConfiguration;
-    RemoteLinuxDeploymentDataModel deploymentDataModel;
+    Ui::DeploymentDataView ui;
+    Target *target;
+    DeploymentDataModel deploymentDataModel;
 };
 
 } // namespace Internal
 
 using namespace Internal;
 
-RemoteLinuxDeployConfigurationWidget::RemoteLinuxDeployConfigurationWidget(RemoteLinuxDeployConfiguration *dc,
-                                                                           QWidget *parent) :
-    NamedWidget(parent), d(new RemoteLinuxDeployConfigurationWidgetPrivate)
+DeploymentDataView::DeploymentDataView(Target *target, QWidget *parent) :
+    NamedWidget(parent), d(new DeploymentDataViewPrivate)
 {
     d->ui.setupUi(this);
     d->ui.deploymentDataView->setTextElideMode(Qt::ElideMiddle);
@@ -61,21 +56,21 @@ RemoteLinuxDeployConfigurationWidget::RemoteLinuxDeployConfigurationWidget(Remot
     d->ui.deploymentDataView->setUniformRowHeights(true);
     d->ui.deploymentDataView->setModel(&d->deploymentDataModel);
 
-    d->deployConfiguration = dc;
+    d->target = target;
 
-    connect(dc->target(), SIGNAL(deploymentDataChanged()), SLOT(updateDeploymentDataModel()));
+    connect(target, SIGNAL(deploymentDataChanged()), SLOT(updateDeploymentDataModel()));
     updateDeploymentDataModel();
 }
 
-RemoteLinuxDeployConfigurationWidget::~RemoteLinuxDeployConfigurationWidget()
+DeploymentDataView::~DeploymentDataView()
 {
     delete d;
 }
 
-void RemoteLinuxDeployConfigurationWidget::updateDeploymentDataModel()
+void DeploymentDataView::updateDeploymentDataModel()
 {
-    d->deploymentDataModel.setDeploymentData(d->deployConfiguration->target()->deploymentData());
+    d->deploymentDataModel.setDeploymentData(d->target->deploymentData());
     d->ui.deploymentDataView->resizeColumnToContents(0);
 }
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

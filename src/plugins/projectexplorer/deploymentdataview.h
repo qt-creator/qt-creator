@@ -26,32 +26,32 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef REMOTELINUXDEPLOYMENTDATAMODEL_H
-#define REMOTELINUXDEPLOYMENTDATAMODEL_H
+#ifndef DEPLOYMENTDATAVIEW_H
+#define DEPLOYMENTDATAVIEW_H
 
-#include <projectexplorer/deploymentdata.h>
+#include "namedwidget.h"
+#include "projectexplorer_export.h"
 
-#include <QAbstractTableModel>
+namespace ProjectExplorer {
+class Target;
 
-namespace RemoteLinux {
+namespace Internal { class DeploymentDataViewPrivate; }
 
-class RemoteLinuxDeploymentDataModel : public QAbstractTableModel
+class PROJECTEXPLORER_EXPORT DeploymentDataView : public NamedWidget
 {
     Q_OBJECT
-public:
-    explicit RemoteLinuxDeploymentDataModel(QObject *parent = 0);
 
-    void setDeploymentData(const ProjectExplorer::DeploymentData &deploymentData);
+public:
+    explicit DeploymentDataView(Target *target, QWidget *parent = 0);
+    ~DeploymentDataView();
+
+private slots:
+    void updateDeploymentDataModel();
 
 private:
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-
-    ProjectExplorer::DeploymentData m_deploymentData;
+    Internal::DeploymentDataViewPrivate * const d;
 };
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
-#endif // REMOTELINUXDEPLOYMENTDATAMODEL_H
+#endif // Include guard
