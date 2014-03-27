@@ -1129,6 +1129,7 @@ void tst_Dumpers::dumper()
     debugger.write(cmds);
     QVERIFY(debugger.waitForFinished());
     output = debugger.readAllStandardOutput();
+    QByteArray fullOutput = output;
     //qDebug() << "stdout: " << output;
     error = debugger.readAllStandardError();
     if (!error.isEmpty())
@@ -1273,6 +1274,7 @@ void tst_Dumpers::dumper()
         m_keepTemp = false;
     } else {
         qDebug() << "CONTENTS     : " << contents;
+        qDebug() << "FULL OUTPUT  : " << fullOutput;
         qDebug() << "Qt VERSION   : " << qPrintable(QString::number(context.qtVersion, 16));
         if (m_debuggerEngine != CdbEngine)
             qDebug() << "GCC VERSION   : " << qPrintable(QString::number(context.gccVersion, 16));
