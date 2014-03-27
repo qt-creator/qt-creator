@@ -69,7 +69,7 @@ protected:
     virtual void accept0(NameVisitor *visitor) const = 0;
 
 protected: // for Matcher
-    friend Matcher;
+    friend class Matcher;
     virtual bool match0(const Name *otherName, Matcher *matcher) const = 0;
 };
 

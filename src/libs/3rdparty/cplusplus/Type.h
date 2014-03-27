@@ -106,7 +106,7 @@ protected:
     virtual void accept0(TypeVisitor *visitor) = 0;
 
 protected: // for Matcher
-    friend Matcher;
+    friend class Matcher;
     virtual bool match0(const Type *otherType, Matcher *matcher) const = 0;
 };
 
