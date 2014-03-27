@@ -45,7 +45,7 @@ QtcPlugin {
         "iosmanager.h",
         "iosplugin.cpp",
         "iosplugin.h",
-        "iosdpresetbuildstep.ui",
+        "iospresetbuildstep.ui",
         "iosprobe.cpp",
         "iosprobe.h",
         "iosqtversion.cpp",
