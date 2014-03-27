@@ -72,7 +72,6 @@ public:
 
 protected:
     IosRunConfiguration(ProjectExplorer::Target *parent, IosRunConfiguration *source);
-    QString defaultDisplayName();
 
 private slots:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
@@ -81,6 +80,7 @@ private:
     void init();
     void enabledCheck();
     friend class IosRunConfigurationWidget;
+    void updateDisplayNames();
 
     QString m_profilePath;
     QStringList m_arguments;

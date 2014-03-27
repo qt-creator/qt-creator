@@ -17,8 +17,6 @@
         <image>icon.png</image>
     </icon>
 
-    <env value="app/native/lib:/usr/lib/qt4/lib/" var="LD_LIBRARY_PATH"/>
-
     <action system="true">run_native</action>
 
     <!-- Application assets -->

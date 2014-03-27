@@ -201,8 +201,11 @@ bool CppPreprocessor::getFileContents(const QString &absoluteFilePath,
 
 bool CppPreprocessor::checkFile(const QString &absoluteFilePath) const
 {
-    if (absoluteFilePath.isEmpty() || m_included.contains(absoluteFilePath))
+    if (absoluteFilePath.isEmpty()
+            || m_included.contains(absoluteFilePath)
+            || m_workingCopy.contains(absoluteFilePath)) {
         return true;
+    }
 
     const QFileInfo fileInfo(absoluteFilePath);
     return fileInfo.isFile() && fileInfo.isReadable();

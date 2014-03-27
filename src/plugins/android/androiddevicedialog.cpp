@@ -370,6 +370,19 @@ QModelIndex AndroidDeviceModel::indexFor(const QString &serial)
 /////////////////
 // AndroidDeviceDialog
 /////////////////
+
+static inline QString msgConnect()
+{
+    return AndroidDeviceDialog::tr("<p>Connect an Android device via USB and activate developer mode on it. "
+                                   "Some devices require the installation of a USB driver.</p>");
+
+}
+
+static inline QString msgAdbListDevices()
+{
+    return AndroidDeviceDialog::tr("<p>The adb tool in the Android SDK lists all connected devices if run via &quot;adb devices&quot;.</p>");
+}
+
 AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, QWidget *parent) :
     QDialog(parent),
     m_model(new AndroidDeviceModel(apiLevel, abi)),
@@ -387,14 +400,10 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, QWidg
 
     m_ui->defaultDeviceCheckBox->setText(tr("Always use this device for architecture %1").arg(abi));
 
-    m_ui->noDeviceFoundLabel->setText(tr("<p align=\"center\"><span style=\" font-size:16pt;\">"
-                                         "No Device Found</span></p>"
-                                         "<br/>"
-                                         "<p>Connect an Android device via USB and activate developer mode on it. "
-                                         "Some devices require the installation of a USB driver.</p>"
-                                         "<br/>"
-                                         "<p>The adb tool in the Android SDK lists all connected devices if run via &quot;adb devices&quot;.</p>"
-                                         ));
+    m_ui->noDeviceFoundLabel->setText(QLatin1String("<p align=\"center\"><span style=\" font-size:16pt;\">")
+                                      + tr("No Device Found") + QLatin1String("</span></p><br/>")
+                                      + msgConnect() + QLatin1String("<br/>")
+                                      + msgAdbListDevices());
     connect(m_ui->missingLabel, SIGNAL(linkActivated(QString)),
             this, SLOT(showHelp()));
 
@@ -489,8 +498,5 @@ void AndroidDeviceDialog::showHelp()
 {
     QPoint pos = m_ui->missingLabel->pos();
     pos = m_ui->missingLabel->parentWidget()->mapToGlobal(pos);
-    QToolTip::showText(pos, tr("<p>Connect an Android device via USB and activate developer mode on it. "
-                               "Some devices require the installation of a USB driver.</p>"
-                               "<p>The adb tool in the Android SDK lists all connected devices if run via &quot;adb devices&quot;.</p>"),
-                       this);
+    QToolTip::showText(pos, msgConnect() + msgAdbListDevices(), this);
 }

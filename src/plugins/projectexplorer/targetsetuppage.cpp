@@ -458,6 +458,7 @@ void TargetSetupPage::import(const Utils::FileName &path, bool silent)
 
         widget->addBuildInfo(info, true);
         widget->setKitSelected(true);
+        widget->expandWidget();
     }
     emit completeChanged();
 }

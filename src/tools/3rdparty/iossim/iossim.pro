@@ -1,7 +1,8 @@
 CONFIG   += console
 
-QT       += core
-QT       += gui
+QT       -= core
+QT       -= gui
+QT       -= test
 
 CONFIG -= app_bundle
 

@@ -34,6 +34,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
@@ -81,11 +82,11 @@ DeviceManager *DeviceManagerPrivate::clonedInstance = 0;
 
 using namespace Internal;
 
+DeviceManager *DeviceManager::m_instance = 0;
 
 DeviceManager *DeviceManager::instance()
 {
-    static DeviceManager instance;
-    return &instance;
+    return m_instance;
 }
 
 int DeviceManager::deviceCount() const
@@ -337,14 +338,19 @@ const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
 
 DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
 {
-    if (isInstance)
+    if (isInstance) {
+        QTC_ASSERT(!m_instance, return);
+        m_instance = this;
         connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), SLOT(save()));
+    }
 }
 
 DeviceManager::~DeviceManager()
 {
     if (d->clonedInstance != this)
         delete d->writer;
+    if (m_instance == this)
+        m_instance = 0;
     delete d;
 }
 

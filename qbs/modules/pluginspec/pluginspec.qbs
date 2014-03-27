@@ -17,7 +17,7 @@ Module {
 
         prepare: {
             var cmd = new JavaScriptCommand();
-            cmd.description = "prepare " + FileInfo.fileName(output.fileName);
+            cmd.description = "prepare " + FileInfo.fileName(output.filePath);
             cmd.highlight = "codegen";
             cmd.pluginspecreplacements = product.pluginspecreplacements;
             cmd.plugin_depends = [];
@@ -36,7 +36,7 @@ Module {
             cmd.sourceCode = function() {
                 var i;
                 var vars = pluginspecreplacements || {};
-                var inf = new TextFile(input.fileName);
+                var inf = new TextFile(input.filePath);
                 var all = inf.readAll();
                 // replace quoted quotes
                 all = all.replace(/\\\"/g, '"');
@@ -58,7 +58,7 @@ Module {
                 for (i in vars) {
                     all = all.replace(new RegExp('\\\$\\\$' + i + '(?!\w)', 'g'), vars[i]);
                 }
-                var file = new TextFile(output.fileName, TextFile.WriteOnly);
+                var file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
                 file.write(all);
                 file.close();
@@ -85,12 +85,12 @@ Module {
             var args = [
                 "-no-format",
                 "-output",
-                output.fileName,
+                output.filePath,
                 xslFile,
-                input.fileName
+                input.filePath
             ];
             var cmd = new Command(xmlPatternsPath, args);
-            cmd.description = "generating " + FileInfo.fileName(output.fileName);
+            cmd.description = "generating " + FileInfo.fileName(output.filePath);
             cmd.highlight = "codegen";
             return cmd;
         }

@@ -187,7 +187,7 @@ private:
     QStringList internalFrameworkPaths() const;
     QByteArray internalDefinedMacros() const;
 
-    void dumpModelManagerConfiguration();
+    void dumpModelManagerConfiguration(const QString &logFileId);
 
 private:
     static QMutex m_instanceMutex;

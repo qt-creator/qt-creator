@@ -113,6 +113,7 @@ public:
 
 protected:
     virtual void accept0(NameVisitor *visitor) const;
+    virtual bool match0(const Name *otherName, Matcher *matcher) const;
 };
 
 } // namespace CPlusPlus

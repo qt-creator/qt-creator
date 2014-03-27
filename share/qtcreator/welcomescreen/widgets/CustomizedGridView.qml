@@ -52,9 +52,10 @@ GridView {
             property string sourcePrefix: isHelpImage ? "image://helpimage/" : ""
 
             property string mockupSource: model.imageSource
-            property string helpSource: model.imageUrl !== "" ? sourcePrefix + encodeURI(model.imageUrl) : ""
+            property string helpSource: (model.imageUrl !== "" && model.imageUrl !== undefined) ? sourcePrefix + encodeURI(model.imageUrl) : ""
 
-            imageSource: isVideo ? "" : (model.imageSource === undefined ? helpSource : mockupSource)
+            imageSource: isVideo ? "" : (model.imageSource === undefined ? delegate.helpSource : delegate.mockupSource)
+
             videoSource: isVideo ? (model.imageSource === undefined ? model.imageUrl : mockupSource) : ""
 
             caption: model.name;

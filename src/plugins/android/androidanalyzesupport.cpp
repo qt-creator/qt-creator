@@ -102,6 +102,13 @@ void AndroidAnalyzeSupport::handleRemoteProcessStarted(int qmlPort)
     m_qmlPort = qmlPort;
 }
 
+void AndroidAnalyzeSupport::handleRemoteProcessFinished(const QString &errorMsg)
+{
+    if (m_runControl)
+        m_runControl->notifyRemoteFinished();
+    AndroidRunSupport::handleRemoteProcessFinished(errorMsg);
+}
+
 void AndroidAnalyzeSupport::handleRemoteOutput(const QByteArray &output)
 {
     const QString msg = QString::fromUtf8(output);

@@ -372,6 +372,9 @@ void GraphicalNodeInstance::setPropertyBinding(const PropertyName &name, const Q
     if (name == "state")
         return; // states are only set by us
 
+    if (name.startsWith("anchors.") && isRootNodeInstance())
+        return;
+
     ObjectNodeInstance::setPropertyBinding(name, expression);
 
     quickItem()->update();

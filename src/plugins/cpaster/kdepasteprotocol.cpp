@@ -44,11 +44,11 @@ enum { debug = 0 };
 
 static inline QByteArray expiryParameter(int daysRequested)
 {
-    // Obtained by 'pastebin.kde.org/api/xml/parameter/expire' on 11.11.2013
-    static const int expiryTimesMin[] = {1800, 21600, 86400, 604800, 2592000};
-    const int *end = expiryTimesMin + sizeof(expiryTimesMin) / sizeof(expiryTimesMin[0]);
+    // Obtained by 'pastebin.kde.org/api/xml/parameter/expire' on 26.03.2014
+    static const int expiryTimesSec[] = {1800, 21600, 86400, 604800, 2592000, 31536000};
+    const int *end = expiryTimesSec + sizeof(expiryTimesSec) / sizeof(expiryTimesSec[0]);
     // Find the first element >= requested span, search up to n - 1 such that 'end' defaults to last value.
-    const int *match = std::lower_bound(expiryTimesMin, end - 1, 24 * 60 * daysRequested);
+    const int *match = std::lower_bound(expiryTimesSec, end - 1, 24 * 60 * 60 * daysRequested);
     return QByteArray("expire=") + QByteArray::number(*match);
 }
 

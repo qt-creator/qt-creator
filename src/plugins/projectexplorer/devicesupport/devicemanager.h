@@ -110,6 +110,8 @@ private:
 
     Internal::DeviceManagerPrivate * const d;
 
+    static DeviceManager *m_instance;
+
     friend class Internal::DeviceManagerPrivate;
     friend class ProjectExplorerPlugin;
 };

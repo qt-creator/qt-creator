@@ -53,7 +53,9 @@ public:
     virtual const QualifiedNameId *asQualifiedNameId() const { return 0; }
     virtual const SelectorNameId *asSelectorNameId() const { return 0; }
 
-    virtual bool isEqualTo(const Name *other) const = 0;
+    virtual bool isEqualTo(const Name *other) const = 0; // TODO: remove me
+
+    static bool match(const Name *name, const Name *otherName, Matcher *matcher);
 
     void accept(NameVisitor *visitor) const;
     static void accept(const Name *name, NameVisitor *visitor);
@@ -65,6 +67,10 @@ public:
 
 protected:
     virtual void accept0(NameVisitor *visitor) const = 0;
+
+protected: // for Matcher
+    friend class Matcher;
+    virtual bool match0(const Name *otherName, Matcher *matcher) const = 0;
 };
 
 } // namespace CPlusPlus

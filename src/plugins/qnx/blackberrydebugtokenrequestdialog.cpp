@@ -142,8 +142,6 @@ void BlackBerryDebugTokenRequestDialog::requestDebugToken()
         }
     }
 
-    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
-
     bool ok;
     const QString cskPassword = m_utils.cskPassword(this, &ok);
 
@@ -160,7 +158,7 @@ void BlackBerryDebugTokenRequestDialog::requestDebugToken()
     }
 
     m_requester->requestDebugToken(m_ui->debugTokenPath->path(),
-            cskPassword, configuration.defaultKeystorePath(),
+            cskPassword, BlackBerryConfigurationManager::instance()->defaultKeystorePath(),
             certificatePassword, m_ui->devicePin->text());
 }
 

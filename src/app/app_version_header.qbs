@@ -18,7 +18,7 @@ Product {
             cmd.highlight = "codegen";
             cmd.onWindows = (product.moduleProperty("qbs", "targetOS").contains("windows"));
             cmd.sourceCode = function() {
-                var file = new TextFile(input.fileName);
+                var file = new TextFile(input.filePath);
                 var content = file.readAll();
                 // replace quoted quotes
                 content = content.replace(/\\\"/g, '"');
@@ -30,7 +30,7 @@ Product {
                 content = content.replace(/(\n#define IDE_VERSION_MAJOR) .+\n/, "$1 " + project.ide_version_major + "\n")
                 content = content.replace(/(\n#define IDE_VERSION_MINOR) .+\n/, "$1 " + project.ide_version_minor + "\n")
                 content = content.replace(/(\n#define IDE_VERSION_RELEASE) .+\n/, "$1 " + project.ide_version_release + "\n")
-                file = new TextFile(output.fileName, TextFile.WriteOnly);
+                file = new TextFile(output.filePath, TextFile.WriteOnly);
                 file.truncate();
                 file.write(content);
                 file.close();

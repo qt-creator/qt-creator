@@ -124,6 +124,7 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    useInteger: true
                     backendValue: backendValues.echoMode
                     implicitWidth: 180
                     model:  ["Normal", "Password", "PasswordEchoOnEdit", "NoEcho"]

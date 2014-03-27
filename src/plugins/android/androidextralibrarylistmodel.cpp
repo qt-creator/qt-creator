@@ -40,9 +40,11 @@ AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(QmakeProjectManager::
     : QAbstractItemModel(parent)
     , m_project(project)
 {
-    reset();
+    QmakeProjectManager::QmakeProFileNode *node = m_project->rootQmakeProjectNode();
+    proFileUpdated(node, node->validParse(), node->parseInProgress());
 
-    connect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(reset()));
+    connect(m_project, SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)));
 }
 
 QModelIndex AndroidExtraLibraryListModel::index(int row, int column, const QModelIndex &) const
@@ -75,15 +77,40 @@ QVariant AndroidExtraLibraryListModel::data(const QModelIndex &index, int role) 
     };
 }
 
-void AndroidExtraLibraryListModel::reset()
+void AndroidExtraLibraryListModel::proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool success, bool parseInProgress)
 {
-    if (m_project->rootQmakeProjectNode()->projectType() != QmakeProjectManager::ApplicationTemplate)
+    QmakeProjectManager::QmakeProFileNode *root = m_project->rootQmakeProjectNode();
+    if (node != root)
         return;
 
+    if (parseInProgress) {
+        emit enabledChanged(false);
+        return;
+    }
+
+    bool enabled;
     beginResetModel();
-    QmakeProjectManager::QmakeProFileNode *node = m_project->rootQmakeProjectNode();
-    m_entries = node->variableValue(QmakeProjectManager::AndroidExtraLibs);
+    if (success && root->projectType() == QmakeProjectManager::ApplicationTemplate) {
+        m_entries = node->variableValue(QmakeProjectManager::AndroidExtraLibs);
+        enabled = true;
+    } else {
+        // parsing error or not a application template
+        m_entries.clear();
+        enabled = false;
+    }
     endResetModel();
+
+    emit enabledChanged(enabled);
+}
+
+bool AndroidExtraLibraryListModel::isEnabled() const
+{
+    QmakeProjectManager::QmakeProFileNode *root = m_project->rootQmakeProjectNode();
+    if (root->parseInProgress())
+        return false;
+    if (root->projectType() != QmakeProjectManager::ApplicationTemplate)
+        return false;
+    return true;
 }
 
 void AndroidExtraLibraryListModel::addEntries(const QStringList &list)

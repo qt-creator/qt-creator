@@ -925,14 +925,25 @@ class DumperBase:
             pass
 
 
-    def extractStaticMetaObjectHelper(self, typeName):
+    def extractStaticMetaObjectHelper(self, typeobj):
         """
         Checks whether type has a Q_OBJECT macro.
         Returns the staticMetaObject, or 0.
         """
-        # No templates for now.
-        if typeName.find('<') >= 0:
+
+        if self.isSimpleType(typeobj):
             return 0
+
+        typeName = str(typeobj)
+        isQObjectProper = typeName == self.qtNamespace() + "QObject"
+
+        if not isQObjectProper:
+            if self.directBaseClass(typeobj, 0) is None:
+                return 0
+
+            # No templates for now.
+            if typeName.find('<') >= 0:
+                return 0
 
         staticMetaObjectName = typeName + "::staticMetaObject"
         result = self.findSymbol(staticMetaObjectName)
@@ -940,8 +951,9 @@ class DumperBase:
         # We need to distinguish Q_OBJECT from Q_GADGET:
         # a Q_OBJECT SMO has a non-null superdata (unless it's QObject itself),
         # a Q_GADGET SMO has a null superdata (hopefully)
-        if result and typeName != self.qtNamespace() + "QObject":
-            if not self.extractPointer(result):
+        if result and not isQObjectProper:
+            superdata = self.extractPointer(result)
+            if toInteger(superdata) == 0:
                 # This looks like a Q_GADGET
                 result = 0
 
@@ -951,12 +963,15 @@ class DumperBase:
         """
         Checks recursively whether a type derives from QObject.
         """
+        if not self.useFancy:
+            return 0
+
         typeName = str(typeobj)
         result = self.knownStaticMetaObjects.get(typeName, None)
         if result is not None: # Is 0 or the static metaobject.
             return result
 
-        result = self.extractStaticMetaObjectHelper(typeName)
+        result = self.extractStaticMetaObjectHelper(typeobj)
         if not result:
             base = self.directBaseClass(typeobj, 0)
             if base:
@@ -1002,25 +1017,24 @@ class DumperBase:
         return result
 
     def generateQListChildren(self, value):
-        dptr = self.childAt(value, 0)["d"]
-        private = dptr.dereference()
-        begin = int(private["begin"])
-        end = int(private["end"])
-        array = private["array"]
+        base = self.extractPointer(value)
+        begin = self.extractInt(base + 8)
+        end = self.extractInt(base + 12)
+        array = base + 16
+        if self.qtVersion() < 0x50000:
+            array += self.ptrSize()
         size = end - begin
         innerType = self.templateArgument(value.type, 0)
         innerSize = innerType.sizeof
-        stepSize = dptr.type.sizeof
-        addr = self.addressOf(array) + begin * stepSize
+        stepSize = self.ptrSize()
+        addr = array + begin * stepSize
         isInternal = innerSize <= stepSize and self.isMovableType(innerType)
-        if isInternal:
-            for i in range(size):
+        for i in range(size):
+            if isInternal:
                 yield self.createValue(addr + i * stepSize, innerType)
-        else:
-            p = self.createPointerValue(addr, innerType.pointer())
-            for i in range(size):
-                yield p.dereference().dereference()
-                p += 1
+            else:
+                p = self.extractPointer(addr + i * stepSize)
+                yield self.createValue(p, innerType)
 
 
     # This is called is when a QObject derived class is expanded
@@ -1029,8 +1043,10 @@ class DumperBase:
         ptrSize = self.ptrSize()
         # dd = value["d_ptr"]["d"] is just behind the vtable.
         dd = self.extractPointer(qobject, offset=ptrSize)
+        isQt5 = self.qtVersion() >= 0x50000
 
-        extraData = self.extractPointer(dd + 5 * ptrSize + 2 * intSize)
+        extraDataOffset = 5 * ptrSize + 8 if isQt5 else 6 * ptrSize + 8
+        extraData = self.extractPointer(dd + extraDataOffset)
         #with SubItem(self, "[extradata]"):
         #    self.putValue("0x%x" % toInteger(extraData))
 
@@ -1043,7 +1059,7 @@ class DumperBase:
                     # Static properties.
                     for i in range(propertyCount):
                         name = propertyNames[i]
-                        self.putCallItem(name, qobject, "property", '"' + name + '"')
+                        self.putCallItem(str(name), qobject, "property", '"' + name + '"')
 
                     # Dynamic properties.
                     if extraData:

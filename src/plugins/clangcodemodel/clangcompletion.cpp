@@ -60,7 +60,7 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
-static const bool DebugTiming = !qgetenv("QTC_CLANG_VERBOSE").isEmpty();
+static const bool DebugTiming = qgetenv("QTC_CLANG_VERBOSE") == "1";
 
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;

@@ -63,7 +63,7 @@ private:
 class CrumbleBarInfo {
 public:
     QString fileName;
-    QString componentId;
+    QString displayName;
     ModelNode modelNode;
 };
 

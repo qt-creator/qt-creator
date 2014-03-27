@@ -106,6 +106,7 @@ void IosProbe::detectDeveloperPaths()
         qDebug() << QString::fromLatin1("Could not detect selected xcode with /usr/bin/xcode-select");
     } else {
         QString path = QString::fromLocal8Bit(selectedXcode.readAllStandardOutput());
+        path.chop(1);
         addDeveloperPath(path);
     }
     addDeveloperPath(QLatin1String("/Applications/Xcode.app/Contents/Developer"));

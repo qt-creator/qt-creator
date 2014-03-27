@@ -1058,6 +1058,10 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         instantiation->_name = templId;
 #endif // DEBUG_LOOKUP
         instantiation->_templateId = templId;
+
+        while (!origin->_symbols.isEmpty() && origin->_symbols[0]->isBlock())
+            origin = origin->parent();
+
         instantiation->_instantiationOrigin = origin;
 
         // The instantiation should have all symbols, enums, and usings from the reference.
@@ -1615,7 +1619,8 @@ bool CreateBindings::visit(Block *block)
     // nested ClassOrNamespaces)
     if (! _currentClassOrNamespace->_blocks.empty()
             || ! _currentClassOrNamespace->_classOrNamespaces.empty()
-            || ! _currentClassOrNamespace->_enums.empty()) {
+            || ! _currentClassOrNamespace->_enums.empty()
+            || ! _currentClassOrNamespace->_anonymouses.empty()) {
         previous->_blocks[block] = binding;
         _entities.append(binding);
     } else {

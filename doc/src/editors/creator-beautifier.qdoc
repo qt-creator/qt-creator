@@ -96,12 +96,14 @@
                 \li Select the \gui {Use self-defined style} option, and then
                     \gui Add to define your own style.
 
-                \li Define code formatting in the \gui {Edit Configuration}
+                    Define code formatting in the \gui {Edit Configuration}
                     dialog. It provides syntax highlighting, auto-completion,
                     and context-sensitive help. For these features, you must
                     have the tool installed.
 
                    \image beautifier_editor.png
+
+            \endlist
 
         \li Select \gui Tools > \gui Beautifier > \gui {Artistic Style},
             \gui ClangFormat, or \gui Uncrustify > \gui {Format Current File}

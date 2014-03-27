@@ -467,7 +467,7 @@ QString AndroidConfig::createAVD(QWidget *parent, int minApiLevel, QString targe
         avdDialog.abiComboBox->addItems(QStringList(targetArch));
 
     if (!avdDialog.targetComboBox->count()) {
-        QMessageBox::critical(0, QApplication::translate("AndroidConfig", "Error Creating AVD"),
+        QMessageBox::critical(parent, QApplication::translate("AndroidConfig", "Error Creating AVD"),
                               QApplication::translate("AndroidConfig", "Cannot create a new AVD. No sufficiently recent Android SDK available.\n"
                                                       "Please install an SDK of at least API version %1.").
                               arg(minApiLevel));
@@ -479,11 +479,19 @@ QString AndroidConfig::createAVD(QWidget *parent, int minApiLevel, QString targe
     avdDialog.nameLineEdit->setValidator(&v);
     if (d.exec() != QDialog::Accepted)
         return QString();
-    return createAVD(avdDialog.targetComboBox->currentText(), avdDialog.nameLineEdit->text(),
-                     avdDialog.abiComboBox->currentText(), avdDialog.sizeSpinBox->value());
+    QString error;
+    QString avd = createAVD(avdDialog.targetComboBox->currentText(), avdDialog.nameLineEdit->text(),
+                            avdDialog.abiComboBox->currentText(), avdDialog.sizeSpinBox->value(),
+                            &error);
+    if (!error.isEmpty()) {
+        QMessageBox::critical(parent, QApplication::translate("AndroidConfig", "Error Creating AVD"),
+                              error);
+    }
+
+    return avd;
 }
 
-QString AndroidConfig::createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize) const
+QString AndroidConfig::createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize, QString *error) const
 {
     QProcess proc;
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
@@ -518,12 +526,16 @@ QString AndroidConfig::createAVD(const QString &target, const QString &name, con
             break;
     }
 
-    Core::MessageManager::write(QString::fromLocal8Bit(question), Core::MessageManager::Flash);
-
     proc.waitForFinished();
 
-    if (proc.exitCode()) // error!
+    QString errorOutput = QString::fromLocal8Bit(proc.readAllStandardError());
+    // The exit code is always 0, so we need to check stderr
+    // For now assume that any output at all indicates a error
+    if (!errorOutput.isEmpty()) {
+        *error = errorOutput;
         return QString();
+    }
+
     return name;
 }
 
@@ -991,7 +1003,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     QList<Kit *> existingKits;
 
     foreach (Kit *k, KitManager::kits()) {
-        if (DeviceKitInformation::deviceId(k) != Core::Id(Constants::ANDROID_DEVICE_ID))
+        if (DeviceTypeKitInformation::deviceTypeId(k) != Core::Id(Constants::ANDROID_DEVICE_TYPE))
             continue;
         if (!k->isAutoDetected())
             continue;

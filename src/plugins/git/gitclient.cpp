@@ -2872,21 +2872,6 @@ QString GitClient::extendedShowDescription(const QString &workingDirectory, cons
         modText.insert(lastHeaderLine, QLatin1String("Precedes: ") + precedes + QLatin1Char('\n'));
     if (!follows.isEmpty())
         modText.insert(lastHeaderLine, QLatin1String("Follows: ") + follows + QLatin1Char('\n'));
-    QString moreBranches;
-    QStringList branches = synchronousBranchesForCommit(workingDirectory, commit);
-    const int branchCount = branches.count();
-    // If there are more than 20 branches, list first 10 followed by a hint
-    if (branchCount > 20) {
-        const int leave = 10;
-        //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'" in git show.
-        moreBranches = QLatin1Char(' ') + tr("and %n more", 0, branchCount - leave);
-        branches.erase(branches.begin() + leave, branches.end());
-    }
-    if (!branches.isEmpty()) {
-        modText.insert(lastHeaderLine, QLatin1String("Branches: ")
-                       + branches.join(QLatin1String(", ")) + moreBranches
-                       + QLatin1Char('\n'));
-    }
     return modText;
 }
 

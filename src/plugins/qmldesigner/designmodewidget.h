@@ -147,10 +147,9 @@ private: // variables
     QSplitter *m_mainSplitter;
     QScopedPointer<Core::SideBar> m_leftSideBar;
     QScopedPointer<Core::SideBar> m_rightSideBar;
+    QPointer<QWidget> m_topSideBar;
     Core::EditorToolBar *m_toolBar;
     CrumbleBar *m_crumbleBar;
-    Core::OutputPanePlaceHolder *m_outputPanePlaceholder;
-    Core::MiniSplitter *m_outputPlaceholderSplitter;
     bool m_isDisabled;
     bool m_showSidebars;
 

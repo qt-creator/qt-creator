@@ -129,7 +129,7 @@ APILevelSetupItem::APILevelSetupItem(QWidget *parent)
                " for building BlackBerry applications."), parent)
 {
     validate();
-    connect(&BlackBerryConfigurationManager::instance(), SIGNAL(settingsChanged()),
+    connect(BlackBerryConfigurationManager::instance(), SIGNAL(settingsChanged()),
             this, SLOT(validateLater()));
 }
 
@@ -158,7 +158,7 @@ void APILevelSetupItem::fix()
         installAPILevel();
     } else if (!found.testFlag(Active)) {
         foreach (BlackBerryApiLevelConfiguration *config,
-                BlackBerryConfigurationManager::instance().apiLevels()) {
+                BlackBerryConfigurationManager::instance()->apiLevels()) {
             if (config->isValid() && !config->isActive()) {
                 config->activate();
                 break;
@@ -168,7 +168,7 @@ void APILevelSetupItem::fix()
         // TODO: install filter for 10.2 only
         installAPILevel();
     } else if (!found.testFlag(V_10_2_AS_DEFAULT)) {
-        BlackBerryConfigurationManager::instance().setDefaultConfiguration(0);
+        BlackBerryConfigurationManager::instance()->setDefaultConfiguration(0);
     }
 }
 
@@ -179,7 +179,7 @@ APILevelSetupItem::FoundTypes APILevelSetupItem::resolvedFoundType()
     // TODO: for now, all Trunk versions are understood as 10.2 compliant
     BlackBerryVersionNumber version_10_2(QLatin1String("10.2.0.0"));
     foreach (BlackBerryApiLevelConfiguration *config,
-            BlackBerryConfigurationManager::instance().apiLevels()) {
+            BlackBerryConfigurationManager::instance()->apiLevels()) {
         found |= Any;
         if (config->isValid()) {
             found |= Valid;
@@ -191,7 +191,7 @@ APILevelSetupItem::FoundTypes APILevelSetupItem::resolvedFoundType()
     }
 
     BlackBerryApiLevelConfiguration *config =
-            BlackBerryConfigurationManager::instance().defaultApiLevel();
+            BlackBerryConfigurationManager::instance()->defaultApiLevel();
     if (config && config->version() > version_10_2)
         found |= V_10_2_AS_DEFAULT;
 
@@ -211,7 +211,7 @@ void APILevelSetupItem::handleInstallationFinished()
 {
     // manually-added API Levels are automatically registered by BlackBerryInstallWizard
     // auto-detected API Levels needs to reloaded explicitly
-    BlackBerryConfigurationManager::instance().loadAutoDetectedApiLevels();
+    BlackBerryConfigurationManager::instance()->loadAutoDetectedApiLevels();
     validate();
 }
 
@@ -231,7 +231,7 @@ void SigningKeysSetupItem::validate()
         set(Error, tr("Found legacy BlackBerry signing keys."), tr("Update"));
     else if (!utils.hasRegisteredKeys())
         set(Error, tr("Cannot find BlackBerry signing keys."), tr("Request"));
-    else if (!QFileInfo(BlackBerryConfigurationManager::instance().defaultKeystorePath()).exists())
+    else if (!QFileInfo(BlackBerryConfigurationManager::instance()->defaultKeystorePath()).exists())
         set(Error, tr("Cannot find developer certificate."), tr("Create"));
     else if (utils.defaultCertificateOpeningStatus() != BlackBerrySigningUtils::Opened)
         set(Info, tr("Developer certificate is not opened."), tr("Open"));
@@ -246,7 +246,7 @@ void SigningKeysSetupItem::fix()
         QDesktopServices::openUrl(QUrl(QLatin1String(Qnx::Constants::QNX_LEGACY_KEYS_URL)));
     } else if (!utils.hasRegisteredKeys()) {
         QDesktopServices::openUrl(QUrl(QLatin1String(Qnx::Constants::QNX_REGISTER_KEYS_URL)));
-    } else if (!QFileInfo(BlackBerryConfigurationManager::instance().defaultKeystorePath()).exists()) {
+    } else if (!QFileInfo(BlackBerryConfigurationManager::instance()->defaultKeystorePath()).exists()) {
         set(Info, tr("Opening certificate..."));
         utils.createCertificate();
     } else if (utils.defaultCertificateOpeningStatus() != BlackBerrySigningUtils::Opened) {

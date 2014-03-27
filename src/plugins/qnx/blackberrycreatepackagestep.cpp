@@ -326,13 +326,13 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
                                           .arg(versionNumber.majorVersion));
     } else if (m_packageMode == DevelopmentMode && m_bundleMode == BundleQt) {
         QList<QPair<QString, QString> > qtFolders;
-        qtFolders.append(qMakePair(QString::fromLatin1("lib"),
+        qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/lib"),
                                    qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"))));
-        qtFolders.append(qMakePair(QString::fromLatin1("plugins"),
+        qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/plugins"),
                                    qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_PLUGINS"))));
-        qtFolders.append(qMakePair(QString::fromLatin1("imports"),
+        qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/imports"),
                                    qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_IMPORTS"))));
-        qtFolders.append(qMakePair(QString::fromLatin1("qml"),
+        qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/qml"),
                                    qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_QML"))));
 
         for (QList<QPair<QString, QString> >::const_iterator it = qtFolders.constBegin();
@@ -349,12 +349,12 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
         }
 
         env.appendOrSet(QLatin1String("QML2_IMPORT_PATH"),
-                        QLatin1String("app/native/imports:app/native/qml"), QLatin1String(":"));
+                        QLatin1String("app/native/runtime/qt/qml"), QLatin1String(":"));
         env.appendOrSet(QLatin1String("QML_IMPORT_PATH"),
-                        QLatin1String("app/native/imports:app/native/qml"), QLatin1String(":"));
+                        QLatin1String("app/native/runtime/qt/imports"), QLatin1String(":"));
         env.appendOrSet(QLatin1String("QT_PLUGIN_PATH"),
-                        QLatin1String("app/native/plugins"), QLatin1String(":"));
-        env.prependOrSetLibrarySearchPath(QLatin1String("app/native/lib"));
+                        QLatin1String("app/native/runtime/qt/plugins"), QLatin1String(":"));
+        env.prependOrSetLibrarySearchPath(QLatin1String("app/native/runtime/qt/lib"));
     } else if (m_packageMode == DevelopmentMode && m_bundleMode == DeployedQt) {
         env.appendOrSet(QLatin1String("QML2_IMPORT_PATH"),
                         QString::fromLatin1("%1/qml:%1/imports").arg(fullQtLibraryPath()),

@@ -39,6 +39,27 @@
 static const char urlC[] = "http://pastebin.ca/";
 static const char protocolNameC[] = "Pastebin.Ca";
 
+static inline QByteArray expiryValue(int expiryDays)
+{
+    // pastebin.ca supports 1-3 days, 1-3 weeks, 1-6 months, 1 year
+    const int months = expiryDays / 30;
+    const int weeks = expiryDays / 7;
+
+    if (expiryDays == 1)
+        return "1 day";
+    if (expiryDays < 4)
+        return QByteArray::number(expiryDays) + " days";
+    if (weeks <= 1)
+        return "1 week";
+    if (weeks <= 3)
+        return QByteArray::number(weeks) + " weeks";
+    if (months <= 1)
+        return "1 month";
+    if (months <= 6)
+        return QByteArray::number(months) + " months";
+    return "1 year"; // using Never makes the post expire after 1 month
+}
+
 namespace CodePaster {
 PasteBinDotCaProtocol::PasteBinDotCaProtocol() :
     m_fetchReply(0),
@@ -109,8 +130,8 @@ void PasteBinDotCaProtocol::paste(const QString &text,
     data += "&description=";
     data += QUrl::toPercentEncoding(comment);
     data += "&expiry=";
-    data += QByteArray::number(expiryDays);
-    data += "%20day&name=";  // Title or name.
+    data += QUrl::toPercentEncoding(QLatin1String(expiryValue(expiryDays)));
+    data += "&name="; // Title or name.
     data += QUrl::toPercentEncoding(description);
     // fire request
     const QString link = QLatin1String(urlC) + QLatin1String("quiet-paste.php");

@@ -161,10 +161,17 @@ def __createProjectHandleQtQuickSelection__(qtQuickVersion, controlsVersion):
 def __selectQtVersionDesktop__(checks, available=None):
     checkedTargets = __chooseTargets__(Targets.desktopTargetClasses(), available)
     if checks:
-        cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "
-                    "container={type='Utils::DetailsWidget' visible='1' unnamed='1'}}")
-        verifyChecked(cbObject % "Debug")
-        verifyChecked(cbObject % "Release")
+        for target in checkedTargets:
+            detailsWidget = waitForObject("{type='Utils::DetailsWidget' unnamed='1' visible='1' "
+                                          "summaryText='%s'}" % Targets.getStringForTarget(target))
+            detailsButton = getChildByClass(detailsWidget, "Utils::DetailsButton")
+            if test.verify(detailsButton != None, "Verifying if 'Details' button could be found"):
+                clickButton(detailsButton)
+                cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "
+                            "container=%s}")
+                verifyChecked(cbObject % ("Debug", objectMap.realName(detailsWidget)))
+                verifyChecked(cbObject % ("Release", objectMap.realName(detailsWidget)))
+                clickButton(detailsButton)
     clickButton(waitForObject(":Next_QPushButton"))
     return checkedTargets
 

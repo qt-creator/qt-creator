@@ -40,6 +40,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/targetsetuppage.h>
 #include <projectexplorer/customwizard/customwizard.h>
+#include <projectexplorer/session.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 using namespace ProjectExplorer;
@@ -139,7 +140,9 @@ bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
         const QString fileToOpen = fileToOpenPostGeneration();
         if (!fileToOpen.isEmpty()) {
             Core::EditorManager::openEditor(fileToOpen);
-            ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, fileToOpen);
+            ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
+            ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(fileToOpen);
+            pe->setCurrentFile(project, fileToOpen);
         }
     }
     return success;

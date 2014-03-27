@@ -193,7 +193,9 @@ private slots:
     void test_checksymbols_QTCREATORBUG9098();
     void test_checksymbols_AnonymousClass();
     void test_checksymbols_AnonymousClass_insideNamespace();
+    void test_checksymbols_AnonymousClass_insideFunction();
     void test_checksymbols_AnonymousClass_QTCREATORBUG8963();
+    void test_checksymbols_class_declaration_with_object_name_nested_in_function();
     void test_checksymbols_highlightingTypeWhenUsingNamespaceClass_QTCREATORBUG7903_globalNamespace();
     void test_checksymbols_highlightingTypeWhenUsingNamespaceClass_QTCREATORBUG7903_namespace();
     void test_checksymbols_highlightingTypeWhenUsingNamespaceClass_QTCREATORBUG7903_insideFunction();
@@ -1547,6 +1549,27 @@ void tst_CheckSymbols::test_checksymbols_AnonymousClass_insideNamespace()
     TestData::check(source, expectedUses);
 }
 
+void tst_CheckSymbols::test_checksymbols_AnonymousClass_insideFunction()
+{
+    const QByteArray source =
+            "int foo()\n"
+            "{\n"
+            "    union\n"
+            "    {\n"
+            "        int foo1;\n"
+            "        int foo2;\n"
+            "    };\n"
+            "}\n"
+            ;
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 5, 3, CppHighlightingSupport::FunctionUse)
+            << Use(5, 13, 4, CppHighlightingSupport::FieldUse)
+            << Use(6, 13, 4, CppHighlightingSupport::FieldUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
 void tst_CheckSymbols::test_checksymbols_AnonymousClass_QTCREATORBUG8963()
 {
     const QByteArray source =
@@ -1581,6 +1604,31 @@ void tst_CheckSymbols::test_checksymbols_AnonymousClass_QTCREATORBUG8963()
             << Use(12, 7, 8, CppHighlightingSupport::FieldUse)
             << Use(13, 5, 5, CppHighlightingSupport::EnumerationUse)
                ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_class_declaration_with_object_name_nested_in_function()
+{
+    const QByteArray source =
+            "int foo()\n"
+            "{\n"
+            "    struct Nested\n"
+            "    {\n"
+            "        int i;\n"
+            "    } n;\n"
+            "    n.i = 42;\n"
+            "}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 5, 3, CppHighlightingSupport::FunctionUse)
+            << Use(3, 12, 6, CppHighlightingSupport::TypeUse)
+            << Use(5, 13, 1, CppHighlightingSupport::FieldUse)
+            << Use(6, 7, 1, CppHighlightingSupport::LocalUse)
+            << Use(7, 5, 1, CppHighlightingSupport::LocalUse)
+            << Use(7, 7, 1, CppHighlightingSupport::FieldUse)
+            ;
 
     TestData::check(source, expectedUses);
 }

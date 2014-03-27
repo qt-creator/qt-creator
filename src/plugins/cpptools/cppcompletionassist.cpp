@@ -1344,6 +1344,11 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
                     if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
                         if (ClassOrNamespace *b = binding->lookupType(u->name()))
                             usingBindings.append(b);
+                    } else if (Class *c = member->asClass()) {
+                        if (c->name()->isAnonymousNameId()) {
+                            if (ClassOrNamespace *b = binding->findBlock(block))
+                                completeClass(b);
+                        }
                     }
                 }
             }
@@ -1539,6 +1544,8 @@ void CppCompletionAssistProcessor::completeClass(CPlusPlus::ClassOrNamespace *b,
         foreach (Symbol *bb, binding->symbols()) {
             if (Class *k = bb->asClass())
                 scopesToVisit.append(k);
+            else if (Block *b = bb->asBlock())
+                scopesToVisit.append(b);
         }
 
         foreach (Enum *e, binding->unscopedEnums())

@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 
 #include "Literals.h"
+#include "Matcher.h"
 #include "Name.h"
 #include "Names.h"
 #include "NameVisitor.h"
@@ -56,6 +57,11 @@ bool Name::isQualifiedNameId() const
 
 bool Name::isSelectorNameId() const
 { return asSelectorNameId() != 0; }
+
+bool Name::match(const Name *name, const Name *otherName, Matcher *matcher)
+{
+    return Matcher::match(name, otherName, matcher);
+}
 
 void Name::accept(NameVisitor *visitor) const
 {

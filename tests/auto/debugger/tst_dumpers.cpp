@@ -1136,6 +1136,7 @@ void tst_Dumpers::dumper()
     debugger.write(cmds);
     QVERIFY(debugger.waitForFinished());
     output = debugger.readAllStandardOutput();
+    QByteArray fullOutput = output;
     //qDebug() << "stdout: " << output;
     error = debugger.readAllStandardError();
     if (!error.isEmpty())
@@ -1154,7 +1155,10 @@ void tst_Dumpers::dumper()
     QByteArray contents;
     if (m_debuggerEngine == GdbEngine) {
         int posDataStart = output.indexOf("data=");
-        QVERIFY(posDataStart != -1);
+        if (posDataStart == -1) {
+            qDebug() << "NO \"data=\" IN OUTPUT: " << output;
+            QVERIFY(posDataStart != -1);
+        }
         contents = output.mid(posDataStart);
         contents.replace("\\\"", "\"");
 
@@ -1277,6 +1281,7 @@ void tst_Dumpers::dumper()
         m_keepTemp = false;
     } else {
         qDebug() << "CONTENTS     : " << contents;
+        qDebug() << "FULL OUTPUT  : " << fullOutput;
         qDebug() << "Qt VERSION   : " << qPrintable(QString::number(context.qtVersion, 16));
         if (m_debuggerEngine != CdbEngine)
             qDebug() << "GCC VERSION   : " << qPrintable(QString::number(context.gccVersion, 16));
@@ -1461,6 +1466,7 @@ void tst_Dumpers::dumper_data()
                     "unused(&dir, &s, &fi);\n")
 
                + CoreProfile()
+               + UseDebugImage()
                + QtVersion(0x50300)
 
                + Check("dir", tempDir, "@QDir")
@@ -2181,6 +2187,7 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QObject2")
             << Data("#include <QWidget>\n"
                     "#include <QApplication>\n"
+                    "#include <QVariant>\n"
                     "namespace Bar {\n"
                     "    struct Ui { Ui() { w = 0; } QWidget *w; };\n"
                     "    class TestObject : public QObject\n"
@@ -2215,17 +2222,25 @@ void tst_Dumpers::dumper_data()
                     "Bar::TestObject test;\n"
                     "test.setMyProp1(\"Hello\");\n"
                     "test.setMyProp2(\"World\");\n"
+                    "test.setProperty(\"New\", QVariant(QByteArray(\"Stuff\")));\n"
+                    "test.setProperty(\"Old\", QVariant(QString(\"Cruft\")));\n"
                     "QString s = test.myProp1();\n"
                     "s += QString::fromLatin1(test.myProp2());\n"
                     "unused(&app, &test, &s);\n")
                + GuiProfile()
                + Check("s", "\"HelloWorld\"", "@QString")
                + Check("test", "", "Bar::TestObject")
-               + Check("test.[properties]", "<4 items>", "")
-               + Check("test.[properties].myProp1", "\"Hello\"", "@QVariant (QString)")
-               + Check("test.[properties].myProp2", "\"World\"", "@QVariant (QByteArray)")
+               + Check("test.[properties]", "<6 items>", "")
+               + Check("test.[properties].myProp1",
+                    "\"Hello\"", "@QVariant (QString)")
+               + Check("test.[properties].myProp2",
+                    "\"World\"", "@QVariant (QByteArray)")
                + Check("test.[properties].myProp3", "54", "@QVariant (long)")
-               + Check("test.[properties].myProp4", "44", "@QVariant (int)");
+               + Check("test.[properties].myProp4", "44", "@QVariant (int)")
+               + Check("test.[properties].4", "\"New\"",
+                    "\"Stuff\"", "@QVariant (QByteArray)")
+               + Check("test.[properties].5", "\"Old\"",
+                    "\"Cruft\"", "@QVariant (QString)");
 
     QTest::newRow("QObject3")
             << Data("#include <QWidget>\n"
@@ -2640,6 +2655,7 @@ void tst_Dumpers::dumper_data()
                     "       << (new QStandardItem(\"aa\")));\n"
                     "unused(&i1, &i2, &i11, &m, &mi);\n")
 
+               + GdbEngine
                + GuiProfile()
 
                + Check("i1", "", "@QStandardItem")
@@ -3375,23 +3391,22 @@ void tst_Dumpers::dumper_data()
                + CoreProfile()
                + Profile("QT += xml\n")
 
-               + Check("atts", "", "@QXmlAttributes")
-               + Check("atts.attList", "<3 items>", "@QXmlAttributes::AttributeList")
-               + Check("atts.attList.0", "[0]", "", "@QXmlAttributes::Attribute")
-               + Check("atts.attList.0.localname", "\"localPart1\"", "@QString")
-               + Check("atts.attList.0.qname", "\"name1\"", "@QString")
-               + Check("atts.attList.0.uri", "\"uri1\"", "@QString")
-               + Check("atts.attList.0.value", "\"value1\"", "@QString")
-               + Check("atts.attList.1", "[1]", "", "@QXmlAttributes::Attribute")
-               + Check("atts.attList.1.localname", "\"localPart2\"", "@QString")
-               + Check("atts.attList.1.qname", "\"name2\"", "@QString")
-               + Check("atts.attList.1.uri", "\"uri2\"", "@QString")
-               + Check("atts.attList.1.value", "\"value2\"", "@QString")
-               + Check("atts.attList.2", "[2]", "", "@QXmlAttributes::Attribute")
-               + Check("atts.attList.2.localname", "\"localPart3\"", "@QString")
-               + Check("atts.attList.2.qname", "\"name3\"", "@QString")
-               + Check("atts.attList.2.uri", "\"uri3\"", "@QString")
-               + Check("atts.attList.2.value", "\"value3\"", "@QString");
+               + Check("atts", "<3 items>", "@QXmlAttributes")
+               + Check("atts.0", "[0]", "", "@QXmlAttributes::Attribute")
+               + Check("atts.0.localname", "\"localPart1\"", "@QString")
+               + Check("atts.0.qname", "\"name1\"", "@QString")
+               + Check("atts.0.uri", "\"uri1\"", "@QString")
+               + Check("atts.0.value", "\"value1\"", "@QString")
+               + Check("atts.1", "[1]", "", "@QXmlAttributes::Attribute")
+               + Check("atts.1.localname", "\"localPart2\"", "@QString")
+               + Check("atts.1.qname", "\"name2\"", "@QString")
+               + Check("atts.1.uri", "\"uri2\"", "@QString")
+               + Check("atts.1.value", "\"value2\"", "@QString")
+               + Check("atts.2", "[2]", "", "@QXmlAttributes::Attribute")
+               + Check("atts.2.localname", "\"localPart3\"", "@QString")
+               + Check("atts.2.qname", "\"name3\"", "@QString")
+               + Check("atts.2.uri", "\"uri3\"", "@QString")
+               + Check("atts.2.value", "\"value3\"", "@QString");
 
 
     QTest::newRow("StdArray")
@@ -4283,9 +4298,9 @@ GdbEngine
 
 
     QTest::newRow("CharArrays")
-            << Data("const char s[] = \"aöa\";\n"
-                    "const char t[] = \"aöax\";\n"
-                    "const wchar_t w[] = L\"aöa\";\n"
+            << Data("char s[] = \"aöa\";\n"
+                    "char t[] = \"aöax\";\n"
+                    "wchar_t w[] = L\"aöa\";\n"
                     "unused(&s, &t, &w);\n")
 
                + CheckType("s", "char [5]")
@@ -4296,7 +4311,7 @@ GdbEngine
     QTest::newRow("CharPointers")
             << Data("const char *s = \"aöa\";\n"
                     "const char *t = \"a\\xc3\\xb6\";\n"
-                    "const unsigned char uu[] = { 'a', 153 /* ö Latin1 */, 'a' };\n"
+                    "unsigned char uu[] = { 'a', 153 /* ö Latin1 */, 'a' };\n"
                     "const unsigned char *u = uu;\n"
                     "const wchar_t *w = L\"aöa\";\n"
                     "unused(&s, &t, &uu, &u, &w);\n")

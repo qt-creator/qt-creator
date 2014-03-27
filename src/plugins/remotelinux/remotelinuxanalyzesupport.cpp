@@ -160,7 +160,7 @@ void RemoteLinuxAnalyzeSupport::handleAppRunnerFinished(bool success)
     reset();
     if (!success)
         showMessage(tr("Failure running remote process."), Utils::NormalMessageFormat);
-    d->runControl->notifyRemoteFinished(success);
+    d->runControl->notifyRemoteFinished();
 }
 
 void RemoteLinuxAnalyzeSupport::handleProfilingFinished()

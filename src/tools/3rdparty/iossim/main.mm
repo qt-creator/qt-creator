@@ -7,6 +7,7 @@
 /* derived from https://github.com/phonegap/ios-sim */
 
 #import <AppKit/AppKit.h>
+#import <Foundation/NSFileManager.h>
 
 #import "iphonesimulator.h"
 

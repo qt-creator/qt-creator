@@ -53,8 +53,6 @@ struct
         MainCppFile,
         AppProFile,
         DeploymentPriFile,
-        PngIcon64File,
-        PngIcon80File,
         ExtendedFile
     };
 
@@ -89,10 +87,6 @@ public:
         DesktopOrigin,
         DeploymentPri,
         DeploymentPriOrigin,
-        PngIcon64,
-        PngIconOrigin64,
-        PngIcon80,
-        PngIconOrigin80,
         ExtendedFile
     };
 
@@ -101,10 +95,6 @@ public:
     void setProjectName(const QString &name);
     QString projectName() const;
     void setProjectPath(const QString &path);
-    void setPngIcon64(const QString &icon);
-    QString pngIcon64() const;
-    void setPngIcon80(const QString &icon);
-    QString pngIcon80() const;
     QString path(int fileType) const;
     QString error() const;
 

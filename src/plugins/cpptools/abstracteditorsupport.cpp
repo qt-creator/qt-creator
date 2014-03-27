@@ -38,7 +38,7 @@
 namespace CppTools {
 
 AbstractEditorSupport::AbstractEditorSupport(CppModelManagerInterface *modelmanager) :
-    m_modelmanager(modelmanager), m_revision(0)
+    m_modelmanager(modelmanager), m_revision(1)
 {
 }
 

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Ios::Internal::IosPresetBuildStep</class>
+ <widget class="QWidget" name="Ios::Internal::IosPresetBuildStep">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>756</width>
+    <height>133</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="3">
+    <widget class="QPushButton" name="resetDefaultsButton">
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string>Reset to Default</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="commandLabel">
+     <property name="text">
+      <string>Command:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2" rowspan="2">
+    <widget class="QPlainTextEdit" name="argumentsTextEdit"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="argumentsLabel">
+     <property name="text">
+      <string>Arguments:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLineEdit" name="commandLineEdit"/>
+   </item>
+  </layout>
+  <zorder>argumentsTextEdit</zorder>
+  <zorder>resetDefaultsButton</zorder>
+  <zorder>argumentsLabel</zorder>
+  <zorder>commandLabel</zorder>
+  <zorder>commandLineEdit</zorder>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

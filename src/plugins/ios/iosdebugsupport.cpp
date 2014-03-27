@@ -50,6 +50,7 @@
 
 #include <QDir>
 #include <QTcpServer>
+#include <QSettings>
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -119,7 +120,9 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
 
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    if (aspect->useCppDebugger()) {
+    bool cppDebug = aspect->useCppDebugger();
+    bool qmlDebug = aspect->useQmlDebugger();
+    if (cppDebug) {
         params.languages |= CppLanguage;
         params.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
         params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
@@ -127,43 +130,65 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
             params.toolChainAbi = tc->targetAbi();
         params.executable = runConfig->exePath().toString();
         params.remoteChannel = QLatin1String("connect://localhost:0");
+
+        Utils::FileName xcodeInfo = IosConfigurations::developerPath().parentDir()
+                .appendPath(QLatin1String("Info.plist"));
+        bool buggyLldb = false;
+        if (xcodeInfo.toFileInfo().exists()) {
+            QSettings settings(xcodeInfo.toString(), QSettings::NativeFormat);
+            QStringList version = settings.value(QLatin1String("CFBundleShortVersionString")).toString()
+                    .split(QLatin1Char('.'));
+            if (version.value(0).toInt() == 5 && version.value(1, QString::number(1)).toInt() == 0)
+                buggyLldb = true;
+        }
+        QString bundlePath = runConfig->bundleDir().toString();
+        bundlePath.chop(4);
+        Utils::FileName dsymPath = Utils::FileName::fromString(
+                    bundlePath.append(QLatin1String(".dSYM")));
+        if (!dsymPath.toFileInfo().exists()) {
+            if (buggyLldb)
+                TaskHub::addTask(Task::Warning,
+                                 tr("Debugging with Xcode 5.0.x can be unreliable without a dSYM. "
+                                    "To create one, add a dsymutil deploystep."),
+                                 ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        } else if (dsymPath.toFileInfo().lastModified()
+                   < QFileInfo(runConfig->exePath().toUserOutput()).lastModified()) {
+            TaskHub::addTask(Task::Warning,
+                             tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
+                             .arg(dsymPath.toUserOutput()),
+                             ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        }
     }
-    if (aspect->useQmlDebugger()) {
+    if (qmlDebug) {
         params.languages |= QmlLanguage;
-        QTcpServer server;
-        QTC_ASSERT(server.listen(QHostAddress::LocalHost)
-                   || server.listen(QHostAddress::LocalHostIPv6), return 0);
-        params.qmlServerAddress = server.serverAddress().toString();
-        params.remoteSetupNeeded = true;
-        //TODO: Not sure if these are the right paths.
         params.projectSourceDirectory = project->projectDirectory();
         params.projectSourceFiles = project->files(QmakeProject::ExcludeGeneratedFiles);
         params.projectBuildDirectory = project->rootQmakeProjectNode()->buildDir();
+        if (!cppDebug)
+            params.startMode = AttachToRemoteServer;
     }
 
     DebuggerRunControl * const debuggerRunControl
         = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
     if (debuggerRunControl)
-        new IosDebugSupport(runConfig, debuggerRunControl);
+        new IosDebugSupport(runConfig, debuggerRunControl, cppDebug, qmlDebug);
     return debuggerRunControl;
 }
 
 IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
-    DebuggerRunControl *runControl)
+    DebuggerRunControl *runControl, bool cppDebug, bool qmlDebug)
     : QObject(runControl), m_runControl(runControl),
-      m_runner(new IosRunner(this, runConfig, true)),
-      m_qmlPort(0)
+      m_runner(new IosRunner(this, runConfig, cppDebug, qmlDebug))
 {
-
     connect(m_runControl->engine(), SIGNAL(requestRemoteSetup()),
             m_runner, SLOT(start()));
     connect(m_runControl, SIGNAL(finished()),
             m_runner, SLOT(stop()));
 
-    connect(m_runner, SIGNAL(gotGdbserverPort(int)),
-        SLOT(handleGdbServerPort(int)));
-    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID)),
-        SLOT(handleGotInferiorPid(Q_PID)));
+    connect(m_runner, SIGNAL(gotServerPorts(int,int)),
+        SLOT(handleServerPorts(int,int)));
+    connect(m_runner, SIGNAL(gotInferiorPid(Q_PID, int)),
+        SLOT(handleGotInferiorPid(Q_PID, int)));
     connect(m_runner, SIGNAL(finished(bool)),
         SLOT(handleRemoteProcessFinished(bool)));
 
@@ -177,22 +202,22 @@ IosDebugSupport::~IosDebugSupport()
 {
 }
 
-void IosDebugSupport::handleGdbServerPort(int gdbServerPort)
+void IosDebugSupport::handleServerPorts(int gdbServerPort, int qmlPort)
 {
-    if (gdbServerPort > 0) {
-        m_runControl->engine()->notifyEngineRemoteSetupDone(gdbServerPort, m_qmlPort);
+    if (gdbServerPort > 0 || (m_runner && !m_runner->cppDebug() && qmlPort > 0)) {
+        m_runControl->engine()->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
     } else {
         m_runControl->engine()->notifyEngineRemoteSetupFailed(
                     tr("Could not get debug server file descriptor."));
     }
 }
 
-void IosDebugSupport::handleGotInferiorPid(Q_PID pid)
+void IosDebugSupport::handleGotInferiorPid(Q_PID pid, int qmlPort)
 {
     if (pid > 0) {
         //m_runControl->engine()->notifyInferiorPid(pid);
 #ifndef Q_OS_WIN // Q_PID might be 64 bit pointer...
-        m_runControl->engine()->notifyEngineRemoteSetupDone(int(pid), m_qmlPort);
+        m_runControl->engine()->notifyEngineRemoteSetupDone(int(pid), qmlPort);
 #endif
     } else {
         m_runControl->engine()->notifyEngineRemoteSetupFailed(

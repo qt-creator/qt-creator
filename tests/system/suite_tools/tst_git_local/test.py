@@ -101,8 +101,7 @@ def verifyClickCommit():
     show = str(diffShow.plainText)
     expected = [{"commit %s" % commit:False},
                 {"Author: Nobody <nobody@nowhere.com>": False},
-                {"Date:\s+\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.*":True},
-                {"Branches: master":False}]
+                {"Date:\s+\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.*":True}]
     for line, exp in zip(show.splitlines(), expected):
         expLine = exp.keys()[0]
         isRegex = exp.values()[0]

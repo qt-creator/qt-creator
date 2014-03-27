@@ -100,12 +100,18 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
 
     const QChar semicolon       = QLatin1Char(';');
     const QChar colorTerminator = QLatin1Char('m');
+    const QChar eraseToEol      = QLatin1Char('K');
     // strippedText always starts with "\e["
     QString strippedText = input.text.mid(escapePos);
     while (!strippedText.isEmpty()) {
         while (strippedText.startsWith(escape)) {
             strippedText.remove(0, 2);
 
+            // \e[K is not supported. Just strip it.
+            if (strippedText.startsWith(eraseToEol)) {
+                strippedText.remove(0, 1);
+                continue;
+            }
             // get the number
             QString strNumber;
             QStringList numbers;

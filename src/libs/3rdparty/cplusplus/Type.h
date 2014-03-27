@@ -97,21 +97,17 @@ public:
     void accept(TypeVisitor *visitor);
     static void accept(Type *type, TypeVisitor *visitor);
 
-    static bool matchType(const Type *type, const Type *otherType, TypeMatcher *matcher)
-    {
-        if (! type)
-            return type == otherType;
+    static bool match(const Type *type, const Type *otherType, Matcher *matcher);
 
-        return type->matchType(otherType, matcher);
-    }
-
-    bool matchType(const Type *otherType, TypeMatcher *matcher) const;
 
     virtual bool isEqualTo(const Type *other) const = 0; // ### remove
 
 protected:
     virtual void accept0(TypeVisitor *visitor) = 0;
-    virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const = 0;
+
+protected: // for Matcher
+    friend class Matcher;
+    virtual bool match0(const Type *otherType, Matcher *matcher) const = 0;
 };
 
 } // namespace CPlusPlus

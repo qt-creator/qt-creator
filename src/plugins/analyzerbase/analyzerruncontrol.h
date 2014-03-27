@@ -82,7 +82,7 @@ public:
     StartMode mode() const { return m_sp.startMode; }
 
     virtual void notifyRemoteSetupDone(quint16) {}
-    virtual void notifyRemoteFinished(bool) {}
+    virtual void notifyRemoteFinished() {}
 
     bool m_isRunning;
 

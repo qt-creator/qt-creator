@@ -901,8 +901,13 @@ void DocumentManager::checkForReload()
 {
     if (d->m_changedFiles.isEmpty())
         return;
-    if (!QApplication::activeWindow() || QApplication::activeModalWidget())
+    if (!QApplication::activeWindow())
         return;
+
+    if (QApplication::activeModalWidget()) { // a modal dialog, recheck later
+        QTimer::singleShot(200, this, SLOT(checkForReload()));
+        return;
+    }
 
     if (d->m_blockActivated)
         return;

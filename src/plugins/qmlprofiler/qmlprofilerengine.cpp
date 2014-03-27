@@ -148,16 +148,13 @@ void QmlProfilerRunControl::stopEngine()
     }
 }
 
-void QmlProfilerRunControl::notifyRemoteFinished(bool success)
+void QmlProfilerRunControl::notifyRemoteFinished()
 {
     QTC_ASSERT(d->m_profilerState, return);
 
     switch (d->m_profilerState->currentState()) {
     case QmlProfilerStateManager::AppRunning : {
-        if (success)
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
-        else
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppKilled);
+        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
         AnalyzerManager::stopTool();
 
         runControlFinished();

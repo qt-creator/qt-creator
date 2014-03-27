@@ -1441,6 +1441,19 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("A")
             << QLatin1String("a"));
 
+    QTest::newRow("nested_class_declaration_with_object_name_inside_function") << _(
+            "int foo()\n"
+            "{\n"
+            "    struct Nested\n"
+            "    {\n"
+            "        int i;\n"
+            "    } n;\n"
+            "    @;\n"
+            "}\n"
+        ) << _("n.") << (QStringList()
+            << QLatin1String("Nested")
+            << QLatin1String("i"));
+
     QTest::newRow("nested_anonymous_class_QTCREATORBUG10876_1") << _(
             "struct EnclosingStruct\n"
             "{\n"
@@ -1499,6 +1512,20 @@ void CppToolsPlugin::test_completion_data()
             "};\n"
         ) << _("nestedOfNestedAnonymousClass.") << (QStringList()
             << QLatin1String("memberOfNestedOfNestedAnonymousClass"));
+
+    QTest::newRow("nested_anonymous_class_inside_function") << _(
+            "void fun()\n"
+            "{\n"
+            "   union\n"
+            "   {\n"
+            "       int foo1;\n"
+            "       int foo2;\n"
+            "   };\n"
+            "   @\n"
+            "};\n"
+        ) << _("foo") << (QStringList()
+            << QLatin1String("foo1")
+            << QLatin1String("foo2"));
 
     QTest::newRow("crash_cloning_template_class_QTCREATORBUG9329") << _(
             "struct A {};\n"
@@ -2190,6 +2217,22 @@ void CppToolsPlugin::test_completion_data()
             "}\n"
         ) << _("mem") << (QStringList()
             << QLatin1String("member"));
+
+    QTest::newRow("no_binding_block_as_instantiationOrigin_QTCREATORBUG-11424") << _(
+            "template <typename T>\n"
+            "class QVector\n"
+            "{\n"
+            "public:\n"
+            "   inline const_iterator constBegin() const;\n"
+            "};\n"
+            "\n"
+            "typedef struct { double value; } V;\n"
+            "\n"
+            "double getValue(const QVector<V>& d) const {\n"
+            "   typedef QVector<V>::ConstIterator Iter;\n"
+            "   double val = @\n"
+            "}\n"
+        ) << _("d.constBegin()->") << (QStringList());
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()

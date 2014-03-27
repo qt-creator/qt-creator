@@ -11,6 +11,7 @@
 #import <sys/types.h>
 #import <sys/stat.h>
 #import <Foundation/NSTask.h>
+#import <Foundation/NSFileManager.h>
 @class DTiPhoneSimulatorSystemRoot;
 
 NSString *simulatorPrefrencesName = @"com.apple.iphonesimulator";
@@ -223,7 +224,7 @@ NSString* FindDeveloperDir() {
           arguments:[NSArray arrayWithObjects:@"-e", @"tell application \"iPhone Simulator\"  to activate", nil]];
       int pid  = [session simulatedApplicationPID];
       if (shouldStartDebugger) {
-        char*args[4] = { NULL, NULL, (char*)[[@(pid) description] UTF8String], NULL };
+        char*args[4] = { NULL, NULL, (char*)[[[NSNumber numberWithInt:pid] description] UTF8String], NULL };
         if (useGDB) {
           args[0] = strdup("gdb");
           args[1] = strdup("program");
@@ -278,6 +279,7 @@ NSString* FindDeveloperDir() {
   } else {
     nsprintf(@"<app_output>%@</app_output>", str); // handle stderr differently?
   }
+  fflush(stdout);
 }
 
 
@@ -476,7 +478,19 @@ NSString* FindDeveloperDir() {
     nsprintf(@"Unable to find developer directory.");
     exit(EXIT_FAILURE);
   }
-
+  NSString* dvtFoundationPath = [developerDir stringByAppendingPathComponent:kDVTFoundationRelativePath];
+  if (![[NSFileManager defaultManager] fileExistsAtPath:dvtFoundationPath]) {
+      // execute old version
+      char *argNew = new char[strlen(argv[0] + 7)];
+      strcpy(argNew, argv[0]);
+      strcat(argNew, "_1_8_2");
+      char **argvNew = new char *[argc + 1];
+      argvNew[0] = argNew;
+      for (int iarg = 1; iarg < argc; ++iarg)
+          argvNew[iarg] = argv[iarg];
+      argvNew[argc] = 0;
+      execv(argNew, argvNew);
+  }
   if (strcmp(argv[1], "showsdks") == 0) {
 	[self LoadSimulatorFramework:developerDir];
     exit([self showSDKs]);
@@ -609,11 +623,11 @@ NSString* FindDeveloperDir() {
         NSString *appName = [appPath lastPathComponent];
         NSString *executableName = [appName stringByDeletingPathExtension];
         NSString *injectionPath = @"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/IDEBundleInjection.framework/IDEBundleInjection";
-        [environment setValuesForKeysWithDictionary:@{
-                                                      @"DYLD_INSERT_LIBRARIES" : injectionPath,
-                                                      @"XCInjectBundle" : xctest,
-                                                      @"XCInjectBundleInto" : [appPath stringByAppendingFormat:@"/%@", executableName],
-                                                      }];
+        [environment setValuesForKeysWithDictionary:[NSDictionary dictionaryWithObjectsAndKeys:
+          injectionPath,@"DYLD_INSERT_LIBRARIES",
+          xctest, @"XCInjectBundle",
+          [appPath stringByAppendingFormat:@"/%@", executableName],@"XCInjectBundleInto",
+          nil]];
     }
 
     /* Don't exit, adds to runloop */

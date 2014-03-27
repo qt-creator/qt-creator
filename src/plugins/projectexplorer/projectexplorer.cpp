@@ -330,6 +330,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         return false;
     addObject(this);
 
+    addAutoReleasedObject(new DeviceManager);
+
     // Add ToolChainFactories:
 #ifdef Q_OS_WIN
     addAutoReleasedObject(new WinDebugInterface);
@@ -999,7 +1001,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
     connect(buildManager, SIGNAL(buildQueueFinished(bool)),
-            this, SLOT(buildQueueFinished(bool)));
+            this, SLOT(buildQueueFinished(bool)), Qt::QueuedConnection);
 
     updateActions();
 

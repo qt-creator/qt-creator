@@ -13,10 +13,10 @@ Transformer {
             for (var index in inputs[tag]) {
                 var artifact = inputs[tag][index];
                 var cmd = new JavaScriptCommand();
-                cmd.sourceFile = artifact.fileName;
-                cmd.description = "Copying '" + cmd.sourceFile + "' to '" + output.fileName + "/'.";
+                cmd.sourceFile = artifact.filePath;
+                cmd.description = "Copying '" + cmd.sourceFile + "' to '" + output.filePath + "/'.";
                 cmd.highlight = "codegen";
-                cmd.targetFilePath = output.fileName + '/' + FileInfo.fileName(cmd.sourceFile);
+                cmd.targetFilePath = output.filePath + '/' + FileInfo.fileName(cmd.sourceFile);
                 cmd.sourceCode = function() { File.copy(sourceFile, targetFilePath); }
                 commands.push(cmd);
             }

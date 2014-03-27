@@ -16,6 +16,8 @@
 using namespace CppTools;
 using namespace CppTools::Internal;
 
+static const bool DumpFileNameWhileParsing = qgetenv("QTC_DUMP_FILENAME_WHILE_PARSING") == "1";
+
 namespace {
 
 static void parse(QFutureInterface<void> &future,
@@ -171,7 +173,7 @@ BuiltinIndexingSupport::BuiltinIndexingSupport()
     : m_revision(0)
 {
     m_synchronizer.setCancelOnWait(true);
-    m_dumpFileNameWhileParsing = !qgetenv("QTCREATOR_DUMP_FILENAME_WHILE_PARSING").isNull();
+    m_dumpFileNameWhileParsing = DumpFileNameWhileParsing;
 }
 
 BuiltinIndexingSupport::~BuiltinIndexingSupport()

@@ -61,7 +61,7 @@ static inline QString componentIdForModelNode(const ModelNode &modelNode)
 static CrumbleBarInfo createCrumbleBarInfoFromModelNode(const ModelNode &modelNode)
 {
     CrumbleBarInfo crumbleBarInfo;
-    crumbleBarInfo.componentId = componentIdForModelNode(modelNode);
+    crumbleBarInfo.displayName = componentIdForModelNode(modelNode);
     crumbleBarInfo.fileName = currentDesignDocument()->textEditor()->document()->filePath();
     crumbleBarInfo.modelNode = modelNode;
 
@@ -88,7 +88,7 @@ void CrumbleBar::pushFile(const QString &fileName)
     } else {
         CrumbleBarInfo lastElementCrumbleBarInfo = crumblePath()->dataForLastIndex().value<CrumbleBarInfo>();
 
-        if (!lastElementCrumbleBarInfo.componentId.isEmpty()
+        if (!lastElementCrumbleBarInfo.displayName.isEmpty()
                 && lastElementCrumbleBarInfo.fileName == fileName)
             crumblePath()->popElement();
     }
@@ -109,10 +109,10 @@ void CrumbleBar::pushInFileComponent(const ModelNode &modelNode)
     CrumbleBarInfo crumbleBarInfo = createCrumbleBarInfoFromModelNode(modelNode);
     CrumbleBarInfo lastElementCrumbleBarInfo = crumblePath()->dataForLastIndex().value<CrumbleBarInfo>();
 
-    if (!lastElementCrumbleBarInfo.componentId.isEmpty())
+    if (lastElementCrumbleBarInfo.modelNode.isValid())
         crumblePath()->popElement();
 
-    crumblePath()->pushElement(crumbleBarInfo.componentId, QVariant::fromValue(crumbleBarInfo));
+    crumblePath()->pushElement(crumbleBarInfo.displayName, QVariant::fromValue(crumbleBarInfo));
 
     m_isInternalCalled = false;
 
@@ -139,11 +139,11 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
     while (clickedCrumbleBarInfo != crumblePath()->dataForLastIndex().value<CrumbleBarInfo>())
         crumblePath()->popElement();
 
-    if (!crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().componentId.isEmpty())
+    if (crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isValid())
         crumblePath()->popElement();
 
     m_isInternalCalled = true;
-    if (clickedCrumbleBarInfo.componentId.isEmpty()
+    if (!clickedCrumbleBarInfo.modelNode.isValid()
             && clickedCrumbleBarInfo.fileName == currentDesignDocument()->fileName()) {
         nextFileIsCalledInternally();
         currentDesignDocument()->changeToDocumentModel();
@@ -153,10 +153,9 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
         nextFileIsCalledInternally();
         Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName, Core::Id(),
                                         Core::EditorManager::DoNotMakeVisible);
-        if (!clickedCrumbleBarInfo.componentId.isEmpty()) {
-            ModelNode componentNode = currentDesignDocument()->rewriterView()->modelNodeForId(clickedCrumbleBarInfo.componentId);
-            currentDesignDocument()->changeToSubComponent(componentNode);
-            QmlDesignerPlugin::instance()->viewManager().setComponentNode(componentNode);
+        if (clickedCrumbleBarInfo.modelNode.isValid()) {
+            currentDesignDocument()->changeToSubComponent(clickedCrumbleBarInfo.modelNode);
+            QmlDesignerPlugin::instance()->viewManager().setComponentNode(clickedCrumbleBarInfo.modelNode);
         } else {
             QmlDesignerPlugin::instance()->viewManager().setComponentViewToMaster();
         }
@@ -171,12 +170,12 @@ void CrumbleBar::updateVisibility()
 
 bool operator ==(const CrumbleBarInfo &first, const CrumbleBarInfo &second)
 {
-    return first.fileName == second.fileName && first.componentId == second.componentId;
+    return first.fileName == second.fileName && first.modelNode == second.modelNode;
 }
 
 bool operator !=(const CrumbleBarInfo &first, const CrumbleBarInfo &second)
 {
-    return first.fileName != second.fileName || first.componentId != second.componentId;
+    return first.fileName != second.fileName || first.modelNode != second.modelNode;
 }
 
 } // namespace QmlDesigner

@@ -866,8 +866,12 @@ ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &origina
     FullySpecifiedType ty = originalTy.simplified();
     ClassOrNamespace *binding = 0;
 
-    if (Class *klass = ty->asClassType())
-        binding = _context.lookupType(klass, enclosingTemplateInstantiation);
+    if (Class *klass = ty->asClassType()) {
+        if (scope->isBlock())
+            binding = _context.lookupType(klass->name(), scope, enclosingTemplateInstantiation);
+        if (!binding)
+            binding = _context.lookupType(klass, enclosingTemplateInstantiation);
+    }
 
     else if (NamedType *namedTy = ty->asNamedType())
         binding = _context.lookupType(namedTy->name(), scope, enclosingTemplateInstantiation);

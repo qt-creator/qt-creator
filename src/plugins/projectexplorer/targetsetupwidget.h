@@ -76,6 +76,7 @@ public:
 
     QList<const BuildInfo *> selectedBuildInfoList() const;
     void setProjectPath(const QString &projectPath);
+    void expandWidget();
 
 signals:
     void selectedToggled() const;

@@ -49,7 +49,7 @@
       <item>
        <widget class="QCheckBox" name="useHomeFile">
         <property name="text">
-         <string>Use $HOME/uncrustify.cfg</string>
+         <string extracomment="HOME is replaced by the user's home directory">Use file uncrustify.cfg in HOME</string>
         </property>
        </widget>
       </item>

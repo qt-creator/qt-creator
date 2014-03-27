@@ -1177,6 +1177,8 @@ void tst_CodeFormatter::templates()
          << Line("~           class F, class D>,")
          << Line("~       typename F>")
          << Line("class Foo { };")
+         << Line("template <class A = std::vector<int>>")
+         << Line("")
          ;
     checkIndent(data);
 }
@@ -1282,6 +1284,9 @@ void tst_CodeFormatter::functionReturnType()
          << Line("template <class T>")
          << Line("const QList<QMap<T, T> > &")
          << Line("A::B::foo() {}")
+         << Line("std::map<int,std::vector<int>> indent() {}")
+         << Line("std::map<int,std::vector<int> > indent() {}")
+         << Line("")
          ;
     checkIndent(data);
 }

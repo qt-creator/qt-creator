@@ -227,6 +227,7 @@ class Dumper(DumperBase):
 
         lldb.theDumper = self
 
+        self.outputLock = threading.Lock()
         self.debugger = lldb.SBDebugger.Create()
         #self.debugger.SetLoggingCallback(loggingCallback)
         #Same as: self.debugger.HandleCommand("log enable lldb dyld step")
@@ -431,18 +432,26 @@ class Dumper(DumperBase):
     def qtVersionAndNamespace(self):
         for func in self.target.FindFunctions('qVersion'):
             name = func.GetSymbol().GetName()
+            if name.endswith('()'):
+                name = name[:-2]
             if name.count(':') > 2:
-                continue
-
-            version = str(self.parseAndEvaluate('((const char*())%s)()' % name))
-            version.replace("'", '"') # Both seem possible
-            version = version[version.find('"')+1:version.rfind('"')]
-
-            if version.count('.') != 2:
                 continue
 
             qtNamespace = name[:name.find('qVersion')]
             self.qtNamespace = lambda: qtNamespace
+
+            res = ""
+            try:
+                res = self.parseAndEvaluate(name + '()')
+            except:
+                res = self.parseAndEvaluate('((const char*())%s)()' % name)
+            version = str(res)
+
+            if version.count('.') != 2:
+                continue
+
+            version.replace("'", '"') # Both seem possible
+            version = version[version.find('"')+1:version.rfind('"')]
 
             (major, minor, patch) = version.split('.')
             qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
@@ -666,24 +675,24 @@ class Dumper(DumperBase):
             attachInfo = lldb.SBAttachInfo(self.attachPid_)
             self.process = self.target.Attach(attachInfo, error)
             if not error.Success():
-                self.report('state="inferiorrunfailed"')
+                self.reportState("inferiorrunfailed")
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
-            # even if it stops it seems that lldb assumes it is running and later detects that
-            # it did stop after all, so it is be better to mirror that and wait for the spontaneous
-            # stop
-            self.report('state="enginerunandinferiorrunok"')
+            # Even if it stops it seems that LLDB assumes it is running
+            # and later detects that it did stop after all, so it is be
+            # better to mirror that and wait for the spontaneous stop.
+            self.reportState("enginerunandinferiorrunok")
         elif len(self.remoteChannel_) > 0:
             self.process = self.target.ConnectRemote(
             self.debugger.GetListener(),
             self.remoteChannel_, None, error)
             if not error.Success():
-                self.report('state="inferiorrunfailed"')
+                self.reportState("inferiorrunfailed")
                 return
-            # even if it stops it seems that lldb assumes it is running and later detects that
-            # it did stop after all, so it is be better to mirror that and wait for the spontaneous
-            # stop
-            self.report('state="enginerunandinferiorrunok"')
+            # Even if it stops it seems that LLDB assumes it is running
+            # and later detects that it did stop after all, so it is be
+            # better to mirror that and wait for the spontaneous stop.
+            self.reportState("enginerunandinferiorrunok")
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_)
             launchInfo.SetWorkingDirectory(os.getcwd())
@@ -694,10 +703,10 @@ class Dumper(DumperBase):
             self.process = self.target.Launch(launchInfo, error)
             if not error.Success():
                 self.reportError(error)
-                self.report('state="enginerunfailed"')
+                self.reportState("enginerunfailed")
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
-            self.report('state="enginerunandinferiorrunok"')
+            self.reportState("enginerunandinferiorrunok")
 
         event = lldb.SBEvent()
         while True:
@@ -731,7 +740,8 @@ class Dumper(DumperBase):
         frame = thread.GetSelectedFrame()
         file = fileName(frame.line_entry.file)
         line = frame.line_entry.line
-        self.report('location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc))
+        self.report('location={file="%s",line="%s",addr="%s"}'
+            % (file, line, frame.pc))
 
     def firstStoppedThread(self):
         for i in xrange(0, self.process.GetNumThreads()):
@@ -1056,7 +1066,12 @@ class Dumper(DumperBase):
                 with SubItem(self, child):
                     self.putItem(child)
 
-    def reportVariables(self, _ = None):
+    def reportVariables(self, args = None):
+        with self.outputLock:
+            self.reportVariablesHelper(args)
+            sys.stdout.write("@\n")
+
+    def reportVariablesHelper(self, _ = None):
         frame = self.currentFrame()
         if frame is None:
             return
@@ -1138,7 +1153,6 @@ class Dumper(DumperBase):
                 self.putItem(value)
 
         self.put(']')
-        self.report('')
 
     def reportData(self, _ = None):
         if self.process is None:
@@ -1167,7 +1181,8 @@ class Dumper(DumperBase):
                 self.report(result)
 
     def report(self, stuff):
-        sys.stdout.write(stuff + "@\n")
+        with self.outputLock:
+            sys.stdout.write(stuff + "@\n")
 
     def reportStatus(self, msg):
         self.report('statusmessage="%s"' % msg)
@@ -1196,7 +1211,7 @@ class Dumper(DumperBase):
             self.reportError(error)
 
     def quitDebugger(self, _ = None):
-        self.report('state="inferiorshutdownrequested"')
+        self.reportState("inferiorshutdownrequested")
         self.process.Kill()
 
     def handleEvent(self, event):
@@ -1213,22 +1228,22 @@ class Dumper(DumperBase):
             self.eventState = state
             if state == lldb.eStateExited:
                 if self.isShuttingDown_:
-                    self.report('state="inferiorshutdownok"')
+                    self.reportState("inferiorshutdownok")
                 else:
-                    self.report('state="inferiorexited"')
+                    self.reportState("inferiorexited")
                 self.report('exited={status="%s",desc="%s"}'
                     % (self.process.GetExitStatus(), self.process.GetExitDescription()))
             elif state == lldb.eStateStopped:
                 if self.isInterrupting_:
                     self.isInterrupting_ = False
-                    self.report('state="inferiorstopok"')
+                    self.reportState("inferiorstopok")
                 elif self.ignoreStops > 0:
                     self.ignoreStops -= 1
                     self.process.Continue()
                 else:
-                    self.report('state="stopped"')
+                    self.reportState("stopped")
             else:
-                self.report('state="%s"' % stateNames[state])
+                self.reportState(stateNames[state])
         if type == lldb.SBProcess.eBroadcastBitStateChanged:
             state = self.process.GetState()
             if state == lldb.eStateStopped:
@@ -1253,6 +1268,9 @@ class Dumper(DumperBase):
                 % self.hexencode(msg))
         elif type == lldb.SBProcess.eBroadcastBitProfileData:
             pass
+
+    def reportState(self, state):
+        self.report('state="%s"' % state)
 
     def describeBreakpoint(self, bp):
         isWatch = isinstance(bp, lldb.SBWatchpoint)
@@ -1451,7 +1469,7 @@ class Dumper(DumperBase):
         self.process.Kill()
 
     def quit(self, _ = None):
-        self.report('state="engineshutdownok"')
+        self.reportState("engineshutdownok")
         self.process.Kill()
 
     def executeStepI(self, _ = None):
@@ -1470,8 +1488,8 @@ class Dumper(DumperBase):
             line = int(args['line'])
             error = self.currentThread().StepOverUntil(frame, lldb.SBFileSpec(file), line)
         if error.GetType():
-            self.report('state="running"')
-            self.report('state="stopped"')
+            self.reportState("running")
+            self.reportState("stopped")
             self.reportError(error)
             self.reportLocation()
         else:
@@ -1479,7 +1497,7 @@ class Dumper(DumperBase):
 
     def executeJumpToLocation(self, args):
         frame = self.currentFrame()
-        self.report('state="stopped"')
+        self.reportState("stopped")
         if not frame:
             self.reportStatus("No frame available.")
             self.reportLocation()
@@ -1670,7 +1688,7 @@ def doit():
 
     db = Dumper()
     db.report('lldbversion="%s"' % lldb.SBDebugger.GetVersionString())
-    db.report('state="enginesetupok"')
+    db.reportState("enginesetupok")
 
     line = sys.stdin.readline()
     while line:

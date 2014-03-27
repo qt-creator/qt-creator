@@ -85,11 +85,11 @@ RemoteHelpFilter::RemoteHelpFilter()
     setIncludedByDefault(false);
     setShortcutString(QLatin1String("r"));
 
-    m_remoteUrls.append(QLatin1String("http://www.bing.com/search?q=%1"));
-    m_remoteUrls.append(QLatin1String("http://www.google.com/search?q=%1"));
-    m_remoteUrls.append(QLatin1String("http://search.yahoo.com/search?p=%1"));
-    m_remoteUrls.append(QLatin1String("http://www.cplusplus.com/reference/stl/%1"));
-    m_remoteUrls.append(QLatin1String("http://en.wikipedia.org/w/index.php?search=%1"));
+    m_remoteUrls.append(QLatin1String("https://www.bing.com/search?q=%1"));
+    m_remoteUrls.append(QLatin1String("https://www.google.com/search?q=%1"));
+    m_remoteUrls.append(QLatin1String("https://search.yahoo.com/search?p=%1"));
+    m_remoteUrls.append(QLatin1String("https://www.cplusplus.com/reference/stl/%1"));
+    m_remoteUrls.append(QLatin1String("https://en.wikipedia.org/w/index.php?search=%1"));
 }
 
 RemoteHelpFilter::~RemoteHelpFilter()

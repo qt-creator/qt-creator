@@ -10,6 +10,7 @@ HEADERS += \
     cppchecksymbols.h \
     cppclassesfilter.h \
     cppcodeformatter.h \
+    cppcodemodelinspectordumper.h \
     cppcodemodelsettings.h \
     cppcodemodelsettingspage.h \
     cppcodestylepreferences.h \
@@ -63,6 +64,7 @@ SOURCES += \
     cppchecksymbols.cpp \
     cppclassesfilter.cpp \
     cppcodeformatter.cpp \
+    cppcodemodelinspectordumper.cpp \
     cppcodemodelsettings.cpp \
     cppcodemodelsettingspage.cpp \
     cppcodestylepreferences.cpp \

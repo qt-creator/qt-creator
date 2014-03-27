@@ -28,13 +28,16 @@
 ****************************************************************************/
 
 #include "checkoutprogresswizardpage.h"
-#include "ui_checkoutprogresswizardpage.h"
 #include "command.h"
 #include "vcsbaseplugin.h"
 
+#include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QLabel>
+#include <QPlainTextEdit>
+#include <QVBoxLayout>
 
 /*!
     \class VcsBase::Internal::CheckoutProgressWizardPage
@@ -52,12 +55,21 @@ namespace Internal {
 
 CheckoutProgressWizardPage::CheckoutProgressWizardPage(QWidget *parent) :
     QWizardPage(parent),
-    ui(new Ui::CheckoutProgressWizardPage),
     m_startedStatus(tr("Checkout started...")),
     m_overwriteOutput(false),
     m_state(Idle)
 {
-    ui->setupUi(this);
+    resize(264, 200);
+    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    m_logPlainTextEdit = new QPlainTextEdit;
+    m_formatter = new Utils::OutputFormatter;
+    m_logPlainTextEdit->setReadOnly(true);
+    m_formatter->setPlainTextEdit(m_logPlainTextEdit);
+
+    verticalLayout->addWidget(m_logPlainTextEdit);
+
+    m_statusLabel = new QLabel;
+    verticalLayout->addWidget(m_statusLabel);
     setTitle(tr("Checkout"));
 }
 
@@ -65,7 +77,7 @@ CheckoutProgressWizardPage::~CheckoutProgressWizardPage()
 {
     if (m_state == Running) // Paranoia!
         QApplication::restoreOverrideCursor();
-    delete ui;
+    delete m_formatter;
 }
 
 void CheckoutProgressWizardPage::setStartedStatus(const QString &startedStatus)
@@ -76,7 +88,7 @@ void CheckoutProgressWizardPage::setStartedStatus(const QString &startedStatus)
 void CheckoutProgressWizardPage::start(Command *command)
 {
     if (!command) {
-        ui->logPlainTextEdit->setPlainText(tr("No job running, please abort."));
+        m_logPlainTextEdit->setPlainText(tr("No job running, please abort."));
         return;
     }
 
@@ -86,10 +98,10 @@ void CheckoutProgressWizardPage::start(Command *command)
     connect(command, SIGNAL(output(QString)), this, SLOT(slotOutput(QString)));
     connect(command, SIGNAL(finished(bool,int,QVariant)), this, SLOT(slotFinished(bool,int,QVariant)));
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    ui->logPlainTextEdit->clear();
+    m_logPlainTextEdit->clear();
     m_overwriteOutput = false;
-    ui->statusLabel->setText(m_startedStatus);
-    ui->statusLabel->setPalette(QPalette());
+    m_statusLabel->setText(m_startedStatus);
+    m_statusLabel->setPalette(QPalette());
     m_state = Running;
     command->execute();
 }
@@ -100,22 +112,22 @@ void CheckoutProgressWizardPage::slotFinished(bool ok, int exitCode, const QVari
         if (m_state == Running) {
             m_state = Succeeded;
             QApplication::restoreOverrideCursor();
-            ui->statusLabel->setText(tr("Succeeded."));
+            m_statusLabel->setText(tr("Succeeded."));
             QPalette palette;
             palette.setColor(QPalette::Active, QPalette::Text, Qt::green);
-            ui->statusLabel->setPalette(palette);
+            m_statusLabel->setPalette(palette);
             emit completeChanged();
             emit terminated(true);
         }
     } else {
-        ui->logPlainTextEdit->appendPlainText(m_error);
+        m_logPlainTextEdit->appendPlainText(m_error);
         if (m_state == Running) {
             m_state = Failed;
             QApplication::restoreOverrideCursor();
-            ui->statusLabel->setText(tr("Failed."));
+            m_statusLabel->setText(tr("Failed."));
             QPalette palette;
             palette.setColor(QPalette::Active, QPalette::Text, Qt::red);
-            ui->statusLabel->setPalette(palette);
+            m_statusLabel->setPalette(palette);
             emit terminated(false);
         }
     }
@@ -123,37 +135,12 @@ void CheckoutProgressWizardPage::slotFinished(bool ok, int exitCode, const QVari
 
 void CheckoutProgressWizardPage::slotOutput(const QString &text)
 {
-    int startPos = 0;
-    int crPos = -1;
-    const QString ansiEraseToEol = QLatin1String("\x1b[K");
-    while ((crPos = text.indexOf(QLatin1Char('\r'), startPos)) >= 0)  {
-        QString part = text.mid(startPos, crPos - startPos);
-        // Discard ANSI erase-to-eol
-        if (part.endsWith(ansiEraseToEol))
-            part.chop(ansiEraseToEol.length());
-        outputText(part);
-        startPos = crPos + 1;
-        m_overwriteOutput = true;
-    }
-    if (startPos < text.count())
-        outputText(text.mid(startPos));
+    m_formatter->appendMessage(text, Utils::StdOutFormat);
 }
 
 void CheckoutProgressWizardPage::slotError(const QString &text)
 {
     m_error.append(text);
-}
-
-void CheckoutProgressWizardPage::outputText(const QString &text)
-{
-    if (m_overwriteOutput) {
-        QTextCursor cursor = ui->logPlainTextEdit->textCursor();
-        cursor.clearSelection();
-        cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::KeepAnchor);
-        ui->logPlainTextEdit->setTextCursor(cursor);
-        m_overwriteOutput = false;
-    }
-    ui->logPlainTextEdit->insertPlainText(text);
 }
 
 void CheckoutProgressWizardPage::terminate()

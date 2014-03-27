@@ -103,6 +103,7 @@ private:
 
     State m_sdkState;
     State m_ndkState;
+    QString m_ndkErrorMessage;
     int m_ndkCompilerCount;
     QString m_ndkMissingQtArchs;
     State m_javaState;

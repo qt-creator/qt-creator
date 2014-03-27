@@ -457,16 +457,22 @@ void QmlEngine::connectionStartupFailed()
 
 void QmlEngine::appStartupFailed(const QString &errorMessage)
 {
-    QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
-    infoBox->setIcon(QMessageBox::Critical);
-    infoBox->setWindowTitle(tr("Qt Creator"));
-    infoBox->setText(tr("Could not connect to the in-process QML debugger."
-                        "\n%1").arg(errorMessage));
-    infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
-    infoBox->setDefaultButton(QMessageBox::Ok);
-    connect(infoBox, SIGNAL(finished(int)),
-            this, SLOT(errorMessageBoxFinished(int)));
-    infoBox->show();
+    QString error = tr("Could not connect to the in-process QML debugger."
+                       "\n%1").arg(errorMessage);
+
+    if (isMasterEngine()) {
+        QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
+        infoBox->setIcon(QMessageBox::Critical);
+        infoBox->setWindowTitle(tr("Qt Creator"));
+        infoBox->setText(error);
+        infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
+        infoBox->setDefaultButton(QMessageBox::Ok);
+        connect(infoBox, SIGNAL(finished(int)),
+                this, SLOT(errorMessageBoxFinished(int)));
+        infoBox->show();
+    } else {
+        showMessage(error, StatusBar);
+    }
 
     notifyEngineRunFailed();
 }

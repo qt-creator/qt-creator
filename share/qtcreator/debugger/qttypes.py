@@ -734,15 +734,16 @@ def qform__QList():
     return "Assume Direct Storage,Assume Indirect Storage"
 
 def qdump__QList(d, value):
-    dptr = d.childAt(value, 0)["d"]
-    private = dptr.dereference()
-    begin = int(private["begin"])
-    end = int(private["end"])
-    array = private["array"]
+    base = d.extractPointer(value)
+    begin = d.extractInt(base + 8)
+    end = d.extractInt(base + 12)
+    array = base + 16
+    if d.qtVersion() < 0x50000:
+        array += d.ptrSize()
     d.check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
     size = end - begin
     d.check(size >= 0)
-    d.checkRef(private["ref"])
+    #d.checkRef(private["ref"])
 
     innerType = d.templateArgument(value.type, 0)
 
@@ -750,8 +751,8 @@ def qdump__QList(d, value):
     d.putNumChild(size)
     if d.isExpanded():
         innerSize = innerType.sizeof
-        stepSize = dptr.type.sizeof
-        addr = d.addressOf(array) + begin * stepSize
+        stepSize = d.ptrSize()
+        addr = array + begin * stepSize
         # The exact condition here is:
         #  QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic
         # but this data is available neither in the compiled binary nor
@@ -774,12 +775,12 @@ def qdump__QList(d, value):
                         p = d.createValue(addr + i * stepSize, innerType)
                         d.putSubItem(i, p)
         else:
-            p = d.createPointerValue(addr, innerType.pointer())
             # about 0.5s / 1000 items
             with Children(d, size, maxNumChild=2000, childType=innerType):
                 for i in d.childRange():
-                    d.putSubItem(i, p.dereference().dereference())
-                    p += 1
+                    p = d.extractPointer(addr + i * stepSize)
+                    x = d.createValue(p, innerType)
+                    d.putSubItem(i, x)
 
 def qform__QImage():
     return "Normal,Displayed"
@@ -1009,7 +1010,7 @@ def qform__QMap():
     return mapForms()
 
 def qdump__QMap(d, value):
-    if d.fieldAt(value["d"].dereference().type, 0).name == "backward":
+    if d.qtVersion() < 0x50000:
         qdumpHelper__Qt4_QMap(d, value)
     else:
         qdumpHelper__Qt5_QMap(d, value)
@@ -2075,15 +2076,24 @@ def qdump__QVariant(d, value):
     if variantType >= 31 and variantType <= 38 and d.qtVersion() >= 0x050000:
         blob = d.toBlob(value)
         qdumpHelper_QVariants_D[variantType - 31](d, blob)
+        d.putNumChild(0)
         return None
 
     # Extended Core type (Qt 4)
     if variantType >= 128 and variantType <= 135 and d.qtVersion() < 0x050000:
-        if variantType == 128 or variantType == 135: # No indirection for float.
-            blob = d.toBlob(value)
+        if variantType == 128:
+            p = d.extractPointer(value)
+            d.putBetterType("%sQVariant (void *)" % d.qtNamespace())
+            d.putValue("0x%x" % p)
         else:
-            blob = d.extractBlob(d.extractPointer(value["d"]["data"]["ptr"]), 8)
-        qdumpHelper_QVariants_D[variantType - 128](d, blob)
+            if variantType == 135:
+                blob = d.toBlob(value)
+            else:
+                p = d.extractPointer(value)
+                p = d.extractPointer(p)
+                blob = d.extractBlob(p, 8)
+            qdumpHelper_QVariants_D[variantType - 128](d, blob)
+        d.putNumChild(0)
         return None
 
     if variantType <= 86:
@@ -2224,8 +2234,8 @@ def qdump__QWeakPointer(d, value):
             d.putIntItem("strongref", strongref)
 
 
-def qdump__QxXmlAttributes(d, value):
-    pass
+def qdump__QXmlAttributes(d, value):
+    qdump__QList(d, value["attList"])
 
 
 #######################################################################

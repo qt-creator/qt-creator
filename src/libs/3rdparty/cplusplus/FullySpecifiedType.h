@@ -106,7 +106,7 @@ public:
     bool operator != (const FullySpecifiedType &other) const;
     bool operator < (const FullySpecifiedType &other) const;
 
-    bool match(const FullySpecifiedType &otherTy, TypeMatcher *matcher) const;
+    bool match(const FullySpecifiedType &otherTy, Matcher *matcher) const;
 
     FullySpecifiedType simplified() const;
 

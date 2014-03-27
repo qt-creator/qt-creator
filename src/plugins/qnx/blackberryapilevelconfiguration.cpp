@@ -445,31 +445,47 @@ bool BlackBerryApiLevelConfiguration::activate()
     if (qt5X86Version)
         createKit(qt5X86Version, x86ToolChain, x86DebuggerItemId);
 
-    BlackBerryConfigurationManager::instance().emitSettingsChanged();
+    BlackBerryConfigurationManager::instance()->emitSettingsChanged();
 
     return true;
 }
 
 void BlackBerryApiLevelConfiguration::deactivate()
 {
+    QList<BaseQtVersion *> qtvToRemove;
+    QList<ToolChain *> tcToRemove;
+    QList<const DebuggerItem *> dbgToRemove;
+
     foreach (Kit *kit, KitManager::kits()) {
         if (kit->isAutoDetected() &&
                 kit->autoDetectionSource() == ndkEnvFile().toString()) {
             BaseQtVersion *version = QtKitInformation::qtVersion(kit);
             ToolChain *toolChain = ToolChainKitInformation::toolChain(kit);
             const DebuggerItem *debugger = DebuggerKitInformation::debugger(kit);
-            if (version)
-                QtVersionManager::removeVersion(version);
-            if (toolChain)
-                ToolChainManager::deregisterToolChain(toolChain);
-            if (debugger)
-                DebuggerItemManager::deregisterDebugger(debugger->id());
+            // Kit's Qt version, tool chain or debugger might be used by other BB kits
+            // generated for the same API level that are not yet unregistered. This triggers warning outputs.
+            // Let's unregistered/removed them later once all API level kits are unregistered.
+            if (version && !qtvToRemove.contains(version))
+                qtvToRemove << version;
+            if (toolChain && !tcToRemove.contains(toolChain))
+                tcToRemove << toolChain;
+            if (debugger && !dbgToRemove.contains(debugger))
+                dbgToRemove << debugger;
 
             KitManager::deregisterKit(kit);
         }
     }
 
-    BlackBerryConfigurationManager::instance().emitSettingsChanged();
+    foreach (BaseQtVersion *qtv, qtvToRemove)
+        QtVersionManager::removeVersion(qtv);
+
+    foreach (ToolChain *tc, tcToRemove)
+        ToolChainManager::deregisterToolChain(tc);
+
+    foreach (const DebuggerItem *debugger, dbgToRemove)
+        DebuggerItemManager::deregisterDebugger(debugger->id());
+
+    BlackBerryConfigurationManager::instance()->emitSettingsChanged();
 }
 
 #ifdef WITH_TESTS

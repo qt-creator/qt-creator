@@ -65,37 +65,34 @@ def __checkBuildAndRun__():
     foundCompilers = []
     foundCompilerNames = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Compilers")
-    compilerTV = waitForObject(":BuildAndRun_QTreeView")
-    __iterateTree__(compilerTV, __compFunc__, foundCompilers, foundCompilerNames)
+    __iterateTree__(":BuildAndRun_QTreeView", __compFunc__, foundCompilers, foundCompilerNames)
     test.verify(__compareCompilers__(foundCompilers, expectedCompilers),
                 "Verifying found and expected compilers are equal.")
     # check debugger
     expectedDebuggers = __getExpectedDebuggers__()
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Debuggers")
     foundDebugger = []
-    debuggerTV = waitForObject(":BuildAndRun_QTreeView")
-    __iterateTree__(debuggerTV, __dbgFunc__, foundDebugger)
+    __iterateTree__(":BuildAndRun_QTreeView", __dbgFunc__, foundDebugger)
     test.verify(__compareDebuggers__(foundDebugger, expectedDebuggers),
                 "Verifying found and expected debuggers are equal.")
     # check Qt versions
     qmakePath = which("qmake")
     foundQt = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
-    qtTW = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
-    __iterateTree__(qtTW, __qtFunc__, foundQt, qmakePath)
+    __iterateTree__(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget",
+                    __qtFunc__, foundQt, qmakePath)
     if foundQt:
         foundQt = foundQt[0]
     # check kits
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
-    kitsTV = waitForObject(":BuildAndRun_QTreeView")
-    __iterateTree__(kitsTV, __kitFunc__, foundQt, foundCompilerNames)
+    __iterateTree__(":BuildAndRun_QTreeView", __kitFunc__, foundQt, foundCompilerNames)
 
-def __iterateTree__(treeObj, additionalFunc, *additionalParameters):
+def __iterateTree__(treeObjStr, additionalFunc, *additionalParameters):
     global currentSelectedTreeItem
-    model = treeObj.model()
+    model = waitForObject(treeObjStr).model()
     # 1st row: Auto-detected, 2nd row: Manual
     for sect in dumpIndices(model):
-        sObj = "%s container=%s}" % (objectMap.realName(sect)[:-1], objectMap.realName(treeObj))
+        sObj = "%s container='%s'}" % (objectMap.realName(sect)[:-1], treeObjStr)
         items = dumpIndices(model, sect)
         doneItems = []
         for it in items:
@@ -105,7 +102,7 @@ def __iterateTree__(treeObj, additionalFunc, *additionalParameters):
             doneItems.append(itObj)
             if alreadyDone:
                 itObj = "%s occurrence='%d'}" % (itObj[:-1], alreadyDone + 1)
-            currentSelectedTreeItem = findObject(itObj)
+            currentSelectedTreeItem = waitForObject(itObj, 3000)
             mouseClick(currentSelectedTreeItem, 5, 5, 0, Qt.LeftButton)
             additionalFunc(indexName, *additionalParameters)
             currentSelectedTreeItem = None

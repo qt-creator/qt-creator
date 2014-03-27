@@ -75,7 +75,6 @@ private slots:
     void addAndroidExtraLib();
     void removeAndroidExtraLib();
     void checkEnableRemoveButton();
-    void checkProjectTemplate();
 
 private:
     virtual QString summaryText() const;

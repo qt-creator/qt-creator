@@ -25,7 +25,6 @@
 #include "CoreTypes.h"
 #include "Symbols.h"
 #include "Names.h"
-#include "TypeMatcher.h"
 #include <map>
 #include <set>
 #include <algorithm>
@@ -478,8 +477,6 @@ public:
     Control *control;
     TranslationUnit *translationUnit;
     DiagnosticClient *diagnosticClient;
-
-    TypeMatcher matcher;
 
     LiteralTable<Identifier> identifiers;
     LiteralTable<StringLiteral> stringLiterals;

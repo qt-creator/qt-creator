@@ -1056,6 +1056,16 @@ static bool isWindowMetaObject(const QMetaObject *metaObject)
     return false;
 }
 
+static bool isCrashingType(QQmlType *type)
+{
+    if (type) {
+        if (type->qmlTypeName() == QStringLiteral("QtMultimedia/MediaPlayer"))
+            return true;
+    }
+
+    return false;
+}
+
 static QObject *createDummyWindow(QQmlContext *context, const QUrl &sourceUrl)
 {
     QQmlComponent component(context->engine());
@@ -1086,7 +1096,9 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
     QObject *object = 0;
     QQmlType *type = getQmlType(typeName, majorNumber, minorNumber);
 
-    if (type) {
+    if (isCrashingType(type)) {
+        object = new QObject;
+    } else if (type) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)) // TODO remove hack later if we only support >= 5.2
         if ( type->isComposite()) {
              object = createComponent(type->sourceUrl(), context);

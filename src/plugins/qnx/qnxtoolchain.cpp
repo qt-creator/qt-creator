@@ -87,8 +87,8 @@ ToolChainConfigWidget *QnxToolChain::configurationWidget()
 
 void QnxToolChain::addToEnvironment(Utils::Environment &env) const
 {
-    foreach (BlackBerryApiLevelConfiguration* config,
-             BlackBerryConfigurationManager::instance().apiLevels()) {
+    foreach (BlackBerryApiLevelConfiguration *config,
+             BlackBerryConfigurationManager::instance()->apiLevels()) {
         if (config->gccCompiler() == compilerCommand()) {
             setQnxEnvironment(env, config->qnxEnv());
             break;

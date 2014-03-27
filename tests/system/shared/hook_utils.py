@@ -228,17 +228,6 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
     __invokeAddCustomExecutable__(startAUT, args)
     return True
 
-# function that retrieves a specific child object by its class
-# this is sometimes the best way to avoid using waitForObject() on objects that
-# occur more than once - but could easily be found by using a compound object
-# (e.g. search for Utils::PathChooser instead of Utils::FancyLineEdit and get the child)
-def getChildByClass(parent, classToSearchFor, occurence=1):
-    children = [child for child in object.children(parent) if className(child) == classToSearchFor]
-    if len(children) < occurence:
-        return None
-    else:
-        return children[occurence - 1]
-
 # get the Squish path that is needed to successfully hook into the compiled app
 def getSquishPath(mkspec, qmakev):
     # assuming major and minor version will be enough

@@ -45,12 +45,13 @@ namespace Internal {
 
 class BlackBerryApiLevelConfiguration;
 class BlackBerryRuntimeConfiguration;
+class QnxPlugin;
 
 class BlackBerryConfigurationManager : public QObject
 {
     Q_OBJECT
 public:
-    static BlackBerryConfigurationManager &instance();
+    static BlackBerryConfigurationManager *instance();
     ~BlackBerryConfigurationManager();
     bool addApiLevel(BlackBerryApiLevelConfiguration *config);
     void removeApiLevel(BlackBerryApiLevelConfiguration *config);
@@ -92,6 +93,9 @@ signals:
 
 private:
     BlackBerryConfigurationManager(QObject *parent = 0);
+
+    static BlackBerryConfigurationManager *m_instance;
+
     QList<BlackBerryApiLevelConfiguration*> m_apiLevels;
     QList<BlackBerryRuntimeConfiguration*> m_runtimes;
 
@@ -107,6 +111,8 @@ private:
 
     void insertApiLevelByVersion(BlackBerryApiLevelConfiguration* apiLevel);
     void insertRuntimeByVersion(BlackBerryRuntimeConfiguration* runtime);
+
+    friend class QnxPlugin;
 };
 
 } // namespace Internal

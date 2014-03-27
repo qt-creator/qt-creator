@@ -86,7 +86,7 @@ private:
                                          const QString& tagetVersion = QString());
 
     Ui_BlackBerryNDKSettingsWidget *m_ui;
-    BlackBerryConfigurationManager &m_bbConfigManager;
+    BlackBerryConfigurationManager *m_bbConfigManager;
 
     QTreeWidgetItem *m_apiLevels;
     QTreeWidgetItem *m_runtimes;

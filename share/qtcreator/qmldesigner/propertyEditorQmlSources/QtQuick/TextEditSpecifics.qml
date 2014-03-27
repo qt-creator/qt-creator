@@ -84,6 +84,6 @@ Column {
     }
 
     TextInputSection {
-
+        showEchoMode: false
     }
 }

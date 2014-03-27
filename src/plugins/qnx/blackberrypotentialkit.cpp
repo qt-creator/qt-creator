@@ -66,7 +66,7 @@ bool BlackBerryPotentialKit::isEnabled() const
 bool BlackBerryPotentialKit::shouldShow()
 {
     QList<BlackBerryApiLevelConfiguration *> configs =
-            BlackBerryConfigurationManager::instance().apiLevels();
+            BlackBerryConfigurationManager::instance()->apiLevels();
     if (configs.isEmpty())
         return false; // do not display when we do not have any BlackBerry API Level registered
     foreach (BlackBerryApiLevelConfiguration *config, configs) {
@@ -104,7 +104,7 @@ BlackBerryPotentialKitWidget::BlackBerryPotentialKitWidget(QWidget *parent)
     layout->addWidget(openOptions, 1, 1);
 
     connect(openOptions, SIGNAL(clicked()), this, SLOT(openOptions()));
-    connect(&BlackBerryConfigurationManager::instance(), SIGNAL(settingsChanged()),
+    connect(BlackBerryConfigurationManager::instance(), SIGNAL(settingsChanged()),
             this, SLOT(recheck()));
 }
 

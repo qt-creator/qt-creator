@@ -33,12 +33,17 @@
 #include <QSharedPointer>
 #include <QWizardPage>
 
+QT_BEGIN_NAMESPACE
+class QPlainTextEdit;
+class QLabel;
+QT_END_NAMESPACE
+
+namespace Utils { class OutputFormatter; }
+
 namespace VcsBase {
 class Command;
 
 namespace Internal {
-
-namespace Ui { class CheckoutProgressWizardPage; }
 
 class CheckoutProgressWizardPage : public QWizardPage
 {
@@ -67,9 +72,9 @@ private slots:
     void slotError(const QString &text);
 
 private:
-    void outputText(const QString &text);
-
-    Ui::CheckoutProgressWizardPage *ui;
+    QPlainTextEdit *m_logPlainTextEdit;
+    Utils::OutputFormatter *m_formatter;
+    QLabel *m_statusLabel;
 
     Command *m_command;
     QString m_startedStatus;

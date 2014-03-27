@@ -364,9 +364,7 @@ QAbstractItemModel *AndroidPackageCreationStep::keystoreCertificates()
         if (!m_keystorePasswd.length())
             return 0;
         params << m_keystorePasswd;
-        Utils::Environment env = Utils::Environment::systemEnvironment();
-        env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
-        keytoolProc.setProcessEnvironment(env.toProcessEnvironment());
+        params << QLatin1String("-J\"-Duser.language=en\"");
         keytoolProc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), params);
         if (!keytoolProc.waitForStarted() || !keytoolProc.waitForFinished()) {
             QMessageBox::critical(0, tr("Error"),

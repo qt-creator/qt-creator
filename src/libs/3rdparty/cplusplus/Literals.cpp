@@ -20,6 +20,7 @@
 
 #include "Literals.h"
 #include "NameVisitor.h"
+#include "Matcher.h"
 #include <cstring>
 #include <algorithm>
 #include <iostream>
@@ -199,6 +200,13 @@ Identifier::~Identifier()
 
 void Identifier::accept0(NameVisitor *visitor) const
 { visitor->visit(this); }
+
+bool Identifier::match0(const Name *otherName, Matcher *matcher) const
+{
+    if (const Identifier *id = otherName->asNameId())
+        return matcher->match(this, id);
+    return false;
+}
 
 bool Identifier::isEqualTo(const Name *other) const
 {

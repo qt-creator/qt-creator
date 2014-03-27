@@ -37,7 +37,7 @@ namespace QmlDesigner {
 ZoomAction::ZoomAction(QObject *parent)
     :  QWidgetAction(parent),
     m_zoomLevel(1.0),
-    m_currentComboBoxIndex(-1)
+    m_currentComboBoxIndex(3)
 {
 
 }

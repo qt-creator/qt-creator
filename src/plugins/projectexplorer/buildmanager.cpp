@@ -121,7 +121,7 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     d = new BuildManagerPrivate;
 
     connect(&d->m_watcher, SIGNAL(finished()),
-            this, SLOT(nextBuildQueue()));
+            this, SLOT(nextBuildQueue()), Qt::QueuedConnection);
 
     connect(&d->m_watcher, SIGNAL(progressValueChanged(int)),
             this, SLOT(progressChanged()));
@@ -428,6 +428,8 @@ void BuildManager::progressChanged()
 
 void BuildManager::progressTextChanged()
 {
+    if (!d->m_progressFutureInterface)
+        return;
     int range = d->m_watcher.progressMaximum() - d->m_watcher.progressMinimum();
     int percent = 0;
     if (range != 0)

@@ -81,8 +81,8 @@ signals:
                         const QString &deviceId, Ios::IosToolHandler::OpStatus status);
     void didStartApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                      const QString &deviceId, Ios::IosToolHandler::OpStatus status);
-    void gotGdbserverPort(Ios::IosToolHandler *handler, const QString &bundlePath,
-                            const QString &deviceId, int gdbPort);
+    void gotServerPorts(Ios::IosToolHandler *handler, const QString &bundlePath,
+                            const QString &deviceId, int gdbPort, int qmlPort);
     void gotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
                         const QString &deviceId, Q_PID pid);
     void deviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,

@@ -79,7 +79,7 @@ QString BlackBerryCreateCertificateDialog::author() const
 
 QString BlackBerryCreateCertificateDialog::certPath() const
 {
-    return BlackBerryConfigurationManager::instance().defaultKeystorePath();
+    return BlackBerryConfigurationManager::instance()->defaultKeystorePath();
 }
 
 QString BlackBerryCreateCertificateDialog::keystorePassword() const

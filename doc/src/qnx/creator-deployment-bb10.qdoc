@@ -39,7 +39,11 @@
         \li Select a BlackBerry 10 \l{glossary-buildandrun-kit}{kit} for either device or simulator. For more information about adding kits, see \l{Connecting BlackBerry 10 Devices}.
         \li When \QC prompts you to generate a bar descriptor file, answer \gui Yes to generate the file and enable the packaging process.
         \li You can use the BAR descriptor editor to customize the appearance and behavior of the application.
+        \li You can specify which Qt libraries your application should link to in the \gui {Create Packages} deployment step if you create a package in development mode.
     \endlist
+
+    The BAR application descriptor file in your project will serve as a template to generate the actual BAR application descriptor file in the build directory
+    that is used for packaging. The final BAR application descriptor file depends on the options you specify in the \gui {Create Packages} deployment step.
 
     If you have an existing Cascades project created by QNX Momentics IDE, you can import it to \QC:
 
