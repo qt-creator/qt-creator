@@ -152,7 +152,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
                                     "To create one, add a dsymutil deploystep."),
                                  ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
         } else if (dsymPath.toFileInfo().lastModified()
-                   < QFileInfo(runConfig->localExecutableFilePath()).lastModified()) {
+                   < QFileInfo(runConfig->exePath().toUserOutput()).lastModified()) {
             TaskHub::addTask(Task::Warning,
                              tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
                              .arg(dsymPath.toUserOutput()),
