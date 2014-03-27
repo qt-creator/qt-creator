@@ -1010,7 +1010,7 @@ def qform__QMap():
     return mapForms()
 
 def qdump__QMap(d, value):
-    if d.fieldAt(value["d"].dereference().type, 0).name == "backward":
+    if d.qtVersion() < 0x50000:
         qdumpHelper__Qt4_QMap(d, value)
     else:
         qdumpHelper__Qt5_QMap(d, value)
