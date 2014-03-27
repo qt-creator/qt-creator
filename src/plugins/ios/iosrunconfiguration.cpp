@@ -137,8 +137,10 @@ void IosRunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProFileNode *
         return;
     m_parseSuccess = success;
     m_parseInProgress = parseInProgress;
-    if (success && !parseInProgress)
+    if (success && !parseInProgress) {
         updateDisplayNames();
+        emit localExecutableChanged();
+    }
     enabledCheck();
 }
 
@@ -374,7 +376,7 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
             SLOT(setDeviceTypeIndex(int)));
     connect(m_ui->argumentsLineEdit, SIGNAL(editingFinished()),
             SLOT(argumentsLineEditTextEdited()));
-    connect(runConfiguration->target(), SIGNAL(buildDirectoryChanged()),
+    connect(runConfiguration, SIGNAL(localExecutableChanged()),
             SLOT(updateValues()));
 }
 

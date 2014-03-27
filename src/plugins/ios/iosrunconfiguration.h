@@ -88,6 +88,8 @@ protected:
 private slots:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
     void deviceChanges();
+signals:
+    void localExecutableChanged();
 private:
     void init();
     void enabledCheck();
