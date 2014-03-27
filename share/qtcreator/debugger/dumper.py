@@ -955,7 +955,7 @@ class DumperBase:
             superdata = self.extractPointer(result)
             if toInteger(superdata) == 0:
                 # This looks like a Q_GADGET
-                result = 0
+                return 0
 
         return result
 
@@ -971,7 +971,15 @@ class DumperBase:
         if result is not None: # Is 0 or the static metaobject.
             return result
 
-        result = self.extractStaticMetaObjectHelper(typeobj)
+        try:
+            result = self.extractStaticMetaObjectHelper(typeobj)
+        except RuntimeError as error:
+            warn("METAOBJECT EXTRACTION FAILED: %s" % error)
+            result = 0
+        except:
+            warn("METAOBJECT EXTRACTION FAILED FOR UNKNOWN REASON")
+            result = 0
+
         if not result:
             base = self.directBaseClass(typeobj, 0)
             if base:
