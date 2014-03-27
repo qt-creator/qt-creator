@@ -71,7 +71,7 @@ int AndroidExtraLibraryListModel::columnCount(const QModelIndex &) const
 QVariant AndroidExtraLibraryListModel::data(const QModelIndex &index, int role) const
 {
     Q_ASSERT(index.row() >= 0 && index.row() < m_entries.size());
-    const QString &entry = m_entries.at(index.row());
+    const QString &entry = QDir::cleanPath(m_entries.at(index.row()));
     switch (role) {
     case Qt::DisplayRole: return entry;
     default: return QVariant();
