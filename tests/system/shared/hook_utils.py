@@ -90,9 +90,9 @@ def batchEditRunEnvironment(kitCount, currentTarget, modifications, alreadyOnRun
     clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' visible='1' "
                               "window=':Edit Environment_ProjectExplorer::EnvironmentItemsDialog'}"))
 
-def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, port, quickVersion="1.1"):
+def modifyRunSettingsForHookIntoQtQuickUI(kitCount, kit, workingDir, projectName, port, quickVersion="1.1"):
     switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.RUN, True)
+    switchToBuildOrRunSettingsFor(kitCount, kit, ProjectSettings.RUN, True)
 
     qtVersion, mkspec, qtLibPath, qmake = getQtInformationForQmlProject()
     if None in (qtVersion, mkspec, qtLibPath, qmake):
