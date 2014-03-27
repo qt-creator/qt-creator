@@ -541,6 +541,7 @@ void CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::Source &so
         semanticInfo.forced = source.force;
 
         if (!source.force
+                && m_lastSemanticInfo.complete
                 && m_lastSemanticInfo.revision == source.revision
                 && m_lastSemanticInfo.doc
                 && m_lastSemanticInfo.doc->translationUnit()->ast()
