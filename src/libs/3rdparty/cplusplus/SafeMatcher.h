@@ -36,23 +36,23 @@
 
 namespace CPlusPlus {
 
-class SafeMatcher: public Matcher
+class SafeMatcher : public Matcher
 {
 public:
     SafeMatcher();
-    ~SafeMatcher() override;
+    ~SafeMatcher();
 
-    bool match(const PointerToMemberType *type, const PointerToMemberType *otherType) override;
-    bool match(const PointerType *type, const PointerType *otherType) override;
-    bool match(const ReferenceType *type, const ReferenceType *otherType) override;
-    bool match(const ArrayType *type, const ArrayType *otherType) override;
-    bool match(const NamedType *type, const NamedType *otherType) override;
+    bool match(const PointerToMemberType *type, const PointerToMemberType *otherType);
+    bool match(const PointerType *type, const PointerType *otherType);
+    bool match(const ReferenceType *type, const ReferenceType *otherType);
+    bool match(const ArrayType *type, const ArrayType *otherType);
+    bool match(const NamedType *type, const NamedType *otherType);
 
-    bool match(const TemplateNameId *name, const TemplateNameId *otherName) override;
-    bool match(const DestructorNameId *name, const DestructorNameId *otherName) override;
-    bool match(const ConversionNameId *name, const ConversionNameId *otherName) override;
-    bool match(const QualifiedNameId *name, const QualifiedNameId *otherName) override;
-    bool match(const SelectorNameId *name, const SelectorNameId *otherName) override;
+    bool match(const TemplateNameId *name, const TemplateNameId *otherName);
+    bool match(const DestructorNameId *name, const DestructorNameId *otherName);
+    bool match(const ConversionNameId *name, const ConversionNameId *otherName);
+    bool match(const QualifiedNameId *name, const QualifiedNameId *otherName);
+    bool match(const SelectorNameId *name, const SelectorNameId *otherName);
 
 private:
     std::vector<const Type *> _blockedTypes;
