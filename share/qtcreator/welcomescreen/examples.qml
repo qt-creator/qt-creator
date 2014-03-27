@@ -68,7 +68,7 @@ Rectangle {
         width: 200
         anchors.rightMargin: 80
         anchors.right: parent.right
-        model: qtVersionModel
+        model: exampleSetModel
         textRole: "text"
 
 
@@ -76,16 +76,16 @@ Rectangle {
             if (comboBox.model === undefined)
                 return;
 
-            examplesModel.filterForQtById(comboBox.model.getId(currentIndex))
+            examplesModel.filterForExampleSet(currentIndex)
         }
 
-        property int qtIndex: examplesModel.qtVersionIndex
+        property int theIndex: examplesModel.exampleSetIndex
 
-        onQtIndexChanged: {
+        onTheIndexChanged: {
             if (comboBox.model === undefined)
                 return;
-            if (qtIndex != currentIndex)
-                currentIndex = qtIndex;
+            if (theIndex != currentIndex)
+                currentIndex = theIndex;
         }
     }
 
