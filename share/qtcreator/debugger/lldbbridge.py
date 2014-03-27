@@ -1497,7 +1497,7 @@ class Dumper(DumperBase):
 
     def executeJumpToLocation(self, args):
         frame = self.currentFrame()
-        self.reportSate("stopped")
+        self.reportState("stopped")
         if not frame:
             self.reportStatus("No frame available.")
             self.reportLocation()
