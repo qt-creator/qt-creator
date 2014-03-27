@@ -305,9 +305,7 @@ public:
     CommandInProgress checkCommandInProgress(const QString &workingDirectory);
     QString commandInProgressDescription(const QString &workingDirectory);
 
-    void continueCommandIfNeeded(const QString &workingDirectory);
-    void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle, QString msgBoxText,
-                                    const QString &buttonName, const QString &gitCommand, bool requireChanges = true);
+    void continueCommandIfNeeded(const QString &workingDirectory, bool allowContinue = true);
 
     QString extendedShowDescription(const QString &workingDirectory, const QString &text);
 
@@ -404,6 +402,16 @@ private:
                          const QString &fileName,
                          const QString &gitBinDirectory);
     bool cleanList(const QString &workingDirectory, const QString &flag, QStringList *files, QString *errorMessage);
+
+    enum ContinueCommandMode {
+        ContinueOnly,
+        SkipOnly,
+        SkipIfNoChanges
+    };
+
+    void continuePreviousGitCommand(const QString &workingDirectory, const QString &msgBoxTitle,
+                                    QString msgBoxText, const QString &buttonName,
+                                    const QString &gitCommand, ContinueCommandMode continueMode);
 
     mutable QString m_gitVersionForBinary;
     mutable unsigned m_cachedGitVersion;

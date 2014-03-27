@@ -265,11 +265,11 @@ void MergeTool::done()
     int exitCode = m_process->exitCode();
     if (!exitCode) {
         outputWindow->appendMessage(tr("Merge tool process finished successfully."));
-        m_gitClient->continueCommandIfNeeded(workingDirectory);
     } else {
         outputWindow->appendError(tr("Merge tool process terminated with exit code %1")
                                   .arg(exitCode));
     }
+    m_gitClient->continueCommandIfNeeded(workingDirectory, exitCode == 0);
     GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
     deleteLater();
 }

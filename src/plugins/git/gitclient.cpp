@@ -2782,31 +2782,35 @@ GitClient::CommandInProgress GitClient::checkCommandInProgress(const QString &wo
         return NoCommand;
 }
 
-void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
+void GitClient::continueCommandIfNeeded(const QString &workingDirectory, bool allowContinue)
 {
     CommandInProgress command = checkCommandInProgress(workingDirectory);
+    ContinueCommandMode continueMode;
+    if (allowContinue)
+        continueMode = command == RebaseMerge ? ContinueOnly : SkipIfNoChanges;
+    else
+        continueMode = SkipOnly;
     switch (command) {
     case Rebase:
     case RebaseMerge:
         continuePreviousGitCommand(workingDirectory, tr("Continue Rebase"),
                                    tr("Rebase is in progress. What do you want to do?"),
-                                   tr("Continue"), QLatin1String("rebase"),
-                                   command != RebaseMerge);
+                                   tr("Continue"), QLatin1String("rebase"), continueMode);
         break;
     case Merge:
         continuePreviousGitCommand(workingDirectory, tr("Continue Merge"),
                 tr("You need to commit changes to finish merge.\nCommit now?"),
-                tr("Commit"), QLatin1String("merge"));
+                tr("Commit"), QLatin1String("merge"), continueMode);
         break;
     case Revert:
         continuePreviousGitCommand(workingDirectory, tr("Continue Revert"),
                 tr("You need to commit changes to finish revert.\nCommit now?"),
-                tr("Commit"), QLatin1String("revert"));
+                tr("Commit"), QLatin1String("revert"), continueMode);
         break;
     case CherryPick:
         continuePreviousGitCommand(workingDirectory, tr("Continue Cherry-Picking"),
                 tr("You need to commit changes to finish cherry-picking.\nCommit now?"),
-                tr("Commit"), QLatin1String("cherry-pick"));
+                tr("Commit"), QLatin1String("cherry-pick"), continueMode);
         break;
     default:
         break;
@@ -2816,18 +2820,25 @@ void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
 void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
                                            const QString &msgBoxTitle, QString msgBoxText,
                                            const QString &buttonName, const QString &gitCommand,
-                                           bool requireChanges)
+                                           ContinueCommandMode continueMode)
 {
     bool isRebase = gitCommand == QLatin1String("rebase");
-    bool hasChanges;
-    if (!requireChanges) {
+    bool hasChanges = false;
+    switch (continueMode) {
+    case ContinueOnly:
         hasChanges = true;
-    } else {
+        break;
+    case SkipIfNoChanges:
         hasChanges = gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules))
             == GitClient::StatusChanged;
+        if (!hasChanges)
+            msgBoxText.prepend(tr("No changes found.") + QLatin1Char(' '));
+        break;
+    case SkipOnly:
+        hasChanges = false;
+        break;
     }
-    if (!hasChanges)
-        msgBoxText.prepend(tr("No changes found.") + QLatin1Char(' '));
+
     QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText,
                        QMessageBox::NoButton, Core::ICore::mainWindow());
     if (hasChanges || isRebase)
