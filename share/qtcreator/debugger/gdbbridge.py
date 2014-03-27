@@ -378,6 +378,11 @@ class Dumper(DumperBase):
         self.useDynamicType = True
         self.expandedINames = {}
 
+        # The guess does not need to be updated during a run()
+        # as the result is fixed during that time (ignoring "active"
+        # dumpers causing loading of shared objects etc).
+        self.currentQtNamespaceGuess = None
+
         watchers = ""
         resultVarName = ""
         options = []
@@ -1534,6 +1539,9 @@ class Dumper(DumperBase):
                     self.importPlainDumper(printer)
 
     def qtNamespace(self):
+        if not self.currentQtNamespaceGuess is None:
+            return self.currentQtNamespaceGuess
+
         # This only works when called from a valid frame.
         try:
             cand = "QArrayData::shared_null"
@@ -1559,6 +1567,7 @@ class Dumper(DumperBase):
         except:
             pass
 
+        self.currentQtNamespaceGuess = ""
         return ""
 
     def bbedit(self, args):
