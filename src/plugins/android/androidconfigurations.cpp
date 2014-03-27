@@ -1003,7 +1003,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     QList<Kit *> existingKits;
 
     foreach (Kit *k, KitManager::kits()) {
-        if (DeviceKitInformation::deviceId(k) != Core::Id(Constants::ANDROID_DEVICE_ID))
+        if (DeviceTypeKitInformation::deviceTypeId(k) != Core::Id(Constants::ANDROID_DEVICE_TYPE))
             continue;
         if (!k->isAutoDetected())
             continue;
