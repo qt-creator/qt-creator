@@ -70,7 +70,12 @@ Rectangle {
             mainviewTimePerPixel = Math.abs(endTime - startTime) / root.width;
 
             backgroundMarks.updateMarks(startTime, endTime);
-            view.updateFlickRange(startTime, endTime);
+            view.startTime = startTime;
+            view.endTime = endTime;
+            view.updateWindow();
+        }
+        onWindowChanged: {
+            view.updateWindow();
         }
     }
 
@@ -250,7 +255,7 @@ Rectangle {
         onWidthChanged: {
             var duration = Math.abs(zoomControl.endTime() - zoomControl.startTime());
             if (duration > 0)
-                contentWidth = qmlProfilerModelProxy.traceDuration() * width / duration;
+                contentWidth = zoomControl.windowLength() * width / duration;
         }
 
         // ***** child items
@@ -293,33 +298,29 @@ Rectangle {
                     return;
 
                 var newStartTime = Math.round(flick.contentX * (endTime - startTime) / flick.width) +
-                        qmlProfilerModelProxy.traceStartTime();
+                                   zoomControl.windowStart();
                 if (Math.abs(newStartTime - startTime) > 1) {
                     var newEndTime = Math.round((flick.contentX + flick.width) *
                                                 (endTime - startTime) /
-                                                flick.width) +
-                                                qmlProfilerModelProxy.traceStartTime();
+                                                flick.width) + zoomControl.windowStart();
                     zoomControl.setRange(newStartTime, newEndTime);
                 }
             }
 
-            function updateFlickRange(start, end) {
-                var duration = end - start;
-                if (recursionGuard || duration <= 0 || (start === startTime && end === endTime))
+            function updateWindow() {
+                var duration = zoomControl.duration();
+                if (recursionGuard || duration <= 0)
                     return;
 
                 recursionGuard = true;
 
-                startTime = start;
-                endTime = end;
-                if (!flick.flickingHorizontally) {
+                if (!flick.movingHorizontally) {
                     // This triggers an unwanted automatic change in contentX. We ignore that by
                     // checking recursionGuard in this function and in updateZoomControl.
-                    flick.contentWidth = qmlProfilerModelProxy.traceDuration() * flick.width /
-                            duration;
+                    flick.contentWidth = zoomControl.windowLength() * flick.width / duration;
 
-                    var newStartX = (startTime - qmlProfilerModelProxy.traceStartTime()) *
-                            flick.width / duration;
+                    var newStartX = (startTime - zoomControl.windowStart()) * flick.width /
+                            duration;
 
                     if (isFinite(newStartX) && Math.abs(newStartX - flick.contentX) >= 1)
                         flick.contentX = newStartX;
@@ -418,7 +419,9 @@ Rectangle {
 
         function updateZoomLevel() {
             zoomSlider.externalUpdate = true;
-            zoomSlider.value = Math.pow((view.endTime - view.startTime) / qmlProfilerModelProxy.traceDuration(), 1 / zoomSlider.exponent) * zoomSlider.maximumValue;
+            zoomSlider.value = Math.pow((view.endTime - view.startTime) /
+                                        zoomControl.windowLength(),
+                                        1 / zoomSlider.exponent) * zoomSlider.maximumValue;
         }
 
 
@@ -434,7 +437,7 @@ Rectangle {
             property int minWindowLength: 1e5 // 0.1 ms
 
             onValueChanged: {
-                if (externalUpdate || qmlProfilerModelProxy.traceEndTime() <= qmlProfilerModelProxy.traceStartTime()) {
+                if (externalUpdate || zoomControl.windowEnd() <= zoomControl.windowStart()) {
                     // Zoom range is independently updated. We shouldn't mess
                     // with it here as otherwise we might introduce rounding
                     // or arithmetic errors.
@@ -443,7 +446,7 @@ Rectangle {
                 }
 
                 var windowLength = Math.max(
-                            Math.pow(value / maximumValue, exponent) * qmlProfilerModelProxy.traceDuration(),
+                            Math.pow(value / maximumValue, exponent) * zoomControl.windowLength(),
                             minWindowLength);
 
                 var fixedPoint = (view.startTime + view.endTime) / 2;
@@ -454,7 +457,7 @@ Rectangle {
                         fixedPoint = newFixedPoint;
                 }
 
-                var startTime = Math.max(qmlProfilerModelProxy.traceStartTime(), fixedPoint - windowLength / 2)
+                var startTime = Math.max(zoomControl.windowStart(), fixedPoint - windowLength / 2)
                 zoomControl.setRange(startTime, startTime + windowLength);
             }
         }
