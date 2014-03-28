@@ -129,10 +129,6 @@ RangeMover {
         if (!selectionRangeControl.pressed && selectionRange.creationState==3)
             return;
 
-        if (selectionRangeControl.pressed) {
-            selectionRange.setPos(selectionRangeControl.mouseX + flick.contentX);
-        } else {
-            selectionRange.setPos(selectionRangeControl.mouseX + flick.contentX);
-        }
+        selectionRange.setPos(selectionRangeControl.mouseX + flick.contentX);
     }
 }
