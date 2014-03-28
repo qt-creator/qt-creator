@@ -39,8 +39,8 @@ Canvas {
     // ***** properties
     height: 50
     property bool dataReady: false
-    property real startTime : 0
-    property real endTime : 0
+    property double startTime : 0
+    property double endTime : 0
 
     // ***** functions
     function clear()
