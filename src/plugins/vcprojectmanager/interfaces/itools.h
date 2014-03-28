@@ -47,6 +47,7 @@ public:
     virtual IConfigurationBuildTools *configurationBuildTools() const = 0;
     virtual IDeploymentTools *deploymentTools() const = 0;
     virtual IDebuggerTools *debuggerTools() const = 0;
+    virtual void copyFrom(const ITools &tools) = 0;
 };
 
 } // namespace Internal

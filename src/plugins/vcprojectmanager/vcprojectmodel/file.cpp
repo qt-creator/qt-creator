@@ -107,6 +107,8 @@ void File::processNode(const QDomNode &node)
     if (node.nodeType() == QDomNode::ElementNode)
         processNodeAttributes(node.toElement());
 
+    copyProjectConfigs();
+
     if (node.hasChildNodes()) {
         QDomNode firstChild = node.firstChild();
         if (!firstChild.isNull()) {
@@ -198,20 +200,24 @@ void File::processFileConfiguration(const QDomNode &fileConfigNode)
     IConfiguration *fileConfig = new FileBuildConfiguration(m_parentProjectDoc);
     fileConfig->processNode(fileConfigNode);
 
-    if (m_parentProjectDoc->configurations() && m_parentProjectDoc->configurations()->configurationContainer()) {
-        IConfiguration *projConf = m_parentProjectDoc->configurations()->configurationContainer()->configuration(fileConfig->fullName());
-        copyAllNonDefaultToolAtributes(fileConfig, projConf);
-    }
+    IConfiguration *projConfig = m_configurationContainer->configuration(fileConfig->fullName());
 
-    m_configurationContainer->addConfiguration(fileConfig);
+    if (projConfig) {
+        copyAllNonDefaultToolAtributes(fileConfig, projConfig);
 
-    // process next sibling
-    QDomNode nextSibling = fileConfigNode.nextSibling();
-    if (!nextSibling.isNull()) {
-        if (nextSibling.nodeName() == QLatin1String("FileConfiguration"))
-            processFileConfiguration(nextSibling);
-        else
-            processFile(nextSibling);
+        m_configurationContainer->removeConfiguration(projConfig->fullName());
+        m_configurationContainer->addConfiguration(fileConfig);
+
+        // process next sibling
+        QDomNode nextSibling = fileConfigNode.nextSibling();
+        if (!nextSibling.isNull()) {
+            if (nextSibling.nodeName() == QLatin1String("FileConfiguration"))
+                processFileConfiguration(nextSibling);
+            else
+                processFile(nextSibling);
+        }
+    } else {
+        delete fileConfig;
     }
 }
 
@@ -299,6 +305,44 @@ void File::copyAllNonDefaultToolAtributes(IToolSection *fileSec, IToolSection *p
                         toolAttr->setValue(projToolAttr->value());
                 }
             }
+        }
+    }
+}
+
+void File::leaveOnlyCppTool(IConfiguration *config)
+{
+    if (!config || !config->tools() || !config->tools()->configurationBuildTools())
+        return;
+
+    int i = 0;
+    while (config->tools()->configurationBuildTools()->toolCount() > 1)
+    {
+        IConfigurationBuildTool *tool = config->tools()->configurationBuildTools()->tool(i);
+
+        if (tool->toolDescription()->toolKey() != QLatin1String(ToolConstants::strVCCLCompilerTool)) {
+            config->tools()->configurationBuildTools()->removeTool(tool);
+            delete tool;
+        }
+
+        else
+            ++i;
+    }
+}
+
+void File::copyProjectConfigs()
+{
+    if (!m_parentProjectDoc || !m_parentProjectDoc->configurations() ||
+            !m_parentProjectDoc->configurations()->configurationContainer())
+        return;
+
+    ConfigurationContainer *configContainer = m_parentProjectDoc->configurations()->configurationContainer();
+    for (int i = 0; i < configContainer->configurationCount(); ++i) {
+        IConfiguration *config = configContainer->configuration(i);
+
+        if (config) {
+            FileBuildConfiguration *newConfig = FileBuildConfiguration::createFromProjectConfig(static_cast<Configuration*>(config), m_parentProjectDoc);
+            leaveOnlyCppTool(newConfig);
+            m_configurationContainer->addConfiguration(newConfig);
         }
     }
 }

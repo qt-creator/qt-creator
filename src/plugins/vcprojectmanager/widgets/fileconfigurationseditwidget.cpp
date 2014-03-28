@@ -291,7 +291,7 @@ void FileConfigurationsEditWidget::readFileBuildConfigurations(IFile *file)
     if (file != m_file)
         configCont = new ConfigurationContainer(*(file->configurationContainer()));
     else {
-        configCont = cloneFileConfigContainer(file);
+        configCont = new ConfigurationContainer(*(file->configurationContainer()));
         connect(configCont, SIGNAL(configurationAdded(IConfiguration*)), this, SLOT(addConfigWidget(IConfiguration*)));
     }
 

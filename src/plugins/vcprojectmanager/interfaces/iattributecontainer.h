@@ -50,6 +50,7 @@ public:
     virtual void setAttribute(const QString &attributeName, const QString &attributeValue) = 0;
     virtual int getAttributeCount() const = 0;
     virtual void appendToXMLNode(QDomElement &elementNode) const = 0;
+    virtual void copyFrom(const IAttributeContainer &container) = 0;
 };
 
 } // namespace Internal

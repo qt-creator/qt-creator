@@ -85,5 +85,11 @@ IDebuggerTools *Tools::debuggerTools() const
     return m_debuggerTools;
 }
 
+void Tools::copyFrom(const ITools &tools)
+{
+    const Tools &tls = static_cast<const Tools &>(tools);
+    *this = tls;
+}
+
 } // namespace Internal
 } // namespace VcProjectManager

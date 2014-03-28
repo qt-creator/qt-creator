@@ -46,6 +46,8 @@ public:
     FileBuildConfiguration(const FileBuildConfiguration &fileBuildConfig);
     FileBuildConfiguration &operator =(const FileBuildConfiguration &fileBuildConfig);
 
+    static FileBuildConfiguration *createFromProjectConfig(Configuration *config, IVisualStudioProject *parentProject);
+
     VcNodeWidget *createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
     IConfiguration *clone() const;
@@ -55,8 +57,9 @@ protected:
 
 private:
     void toXMLNode(IConfiguration *projectConfig, QDomElement &configurationNode, QDomDocument &domXMLDocument) const;
-    void toXMLNode(IConfigurationBuildTool *projectConfigTool, IConfigurationBuildTool *tool,
+    void writeTools(IConfigurationBuildTool *projectConfigTool, IConfigurationBuildTool *tool,
                    QDomElement &configurationNode,  QDomDocument &domXMLDocument) const;
+    void writeAttributes(IConfiguration *projectConfig, QDomElement &configurationNode) const;
 
     IVisualStudioProject *m_parentProjectDoc;
 };

@@ -79,6 +79,17 @@ FileBuildConfiguration &FileBuildConfiguration::operator =(const FileBuildConfig
     return *this;
 }
 
+FileBuildConfiguration *FileBuildConfiguration::createFromProjectConfig(Configuration *config, IVisualStudioProject *parentProject)
+{
+    FileBuildConfiguration *newFileConfig = new FileBuildConfiguration(parentProject);
+    newFileConfig->attributeContainer()->copyFrom(*config->attributeContainer());
+//    *(static_cast<GeneralAttributeContainer *>(newFileConfig->attributeContainer())) = *(static_cast<GeneralAttributeContainer *>(config->attributeContainer()));
+    newFileConfig->setFullName(config->fullName());
+//    *(static_cast<Tools *>(newFileConfig->tools())) = *(static_cast<Tools *>(config->tools()));
+    newFileConfig->tools()->copyFrom(*config->tools());
+    return newFileConfig;
+}
+
 VcNodeWidget *FileBuildConfiguration::createSettingsWidget()
 {
     return new FileConfigurationSettingsWidget(this, m_parentProjectDoc);
@@ -90,7 +101,6 @@ QDomNode FileBuildConfiguration::toXMLDomNode(QDomDocument &domXMLDocument) cons
         IConfigurations *configs = m_parentProjectDoc->configurations();
 
         QDomElement configurationNode = domXMLDocument.createElement(m_nodeName);
-        m_attributeContainer->appendToXMLNode(configurationNode);
 
         if (configs) {
             ConfigurationContainer *configContainer = m_parentProjectDoc->configurations()->configurationContainer();
@@ -160,6 +170,9 @@ void FileBuildConfiguration::toXMLNode(IConfiguration *projectConfig, QDomElemen
 {
     QTC_ASSERT(projectConfig, return);
 
+    writeAttributes(projectConfig, configurationNode);
+
+    // write tools
     ITools *projectTools = projectConfig->tools();
 
     if (projectTools && projectTools->configurationBuildTools()) {
@@ -169,14 +182,14 @@ void FileBuildConfiguration::toXMLNode(IConfiguration *projectConfig, QDomElemen
             IConfigurationBuildTool *projectTool = projectTools->configurationBuildTools()->tool(tool->toolDescription()->toolKey());
 
             if (projectTool && projectTool->toolDescription()) {
-                toXMLNode(projectTool, tool, configurationNode, domXMLDocument);
+                writeTools(projectTool, tool, configurationNode, domXMLDocument);
             }
         }
     }
 }
 
-void FileBuildConfiguration::toXMLNode(IConfigurationBuildTool *projectConfigTool, IConfigurationBuildTool *tool,
-                                       QDomElement &configurationNode, QDomDocument &domXMLDocument) const
+void FileBuildConfiguration::writeTools(IConfigurationBuildTool *projectConfigTool, IConfigurationBuildTool *tool,
+                                        QDomElement &configurationNode, QDomDocument &domXMLDocument) const
 {
     QTC_ASSERT(projectConfigTool && tool, return);
 
@@ -186,39 +199,55 @@ void FileBuildConfiguration::toXMLNode(IConfigurationBuildTool *projectConfigToo
     bool isNodeCreated = false;
     QDomElement toolNode;
 
-    if (projSecContainer && toolSecContainer) {
-        for (int i = 0; i < projSecContainer->sectionCount(); ++i) {
-            IToolSection *projToolSec = projSecContainer->section(i);
+    if (!toolSecContainer || !projSecContainer)
+        return;
 
-            if (projToolSec) {
-                IToolSection *toolSec = toolSecContainer->section(projToolSec->sectionDescription()->displayName());
+    for (int i = 0; i < toolSecContainer->sectionCount(); ++i) {
+        IToolSection *toolSec = toolSecContainer->section(i);
 
-                if (toolSec) {
-                    IToolAttributeContainer *projToolAttrContainer = projToolSec->attributeContainer();
-                    IToolAttributeContainer *toolAttrContainer = toolSec->attributeContainer();
+        if (!toolSec)
+            continue;
+        IToolSection *projSec = projSecContainer->section(toolSec->sectionDescription()->displayName());
 
-                    for (int j = 0; j < projToolAttrContainer->toolAttributeCount(); ++j) {
-                        IToolAttribute *projToolAttr = projToolAttrContainer->toolAttribute(j);
+        if (!projSec)
+            continue;
+        IToolAttributeContainer *toolAttrContainer = toolSec->attributeContainer();
+        IToolAttributeContainer *projAttrContainer = projSec->attributeContainer();
 
-                        if (projToolAttr && projToolAttr->descriptionDataItem()) {
-                            IToolAttribute *toolAttr = toolAttrContainer->toolAttribute(projToolAttr->descriptionDataItem()->key());
+        for (int j = 0; j < toolAttrContainer->toolAttributeCount(); ++j) {
+            IToolAttribute *toolAttr = toolAttrContainer->toolAttribute(j);
 
-                            if (toolAttr && toolAttr->value() != projToolAttr->value()) {
-                                if (!isNodeCreated) {
-                                    toolNode = domXMLDocument.createElement(QLatin1String("Tool"));
-                                    toolNode.setAttribute(QLatin1String("Name"), projectConfigTool->toolDescription()->toolKey());
-                                    configurationNode.appendChild(toolNode);
-                                    isNodeCreated = true;
-                                }
+            if (!toolAttr || !toolAttr->descriptionDataItem())
+                continue;
+            IToolAttribute *projToolAttr = projAttrContainer->toolAttribute(toolAttr->descriptionDataItem()->key());
 
-                                toolNode.setAttribute(toolAttr->descriptionDataItem()->key(),
-                                                      toolAttr->value());
-                            }
-                        }
-                    }
-                }
+            if (!projToolAttr || projToolAttr->value() == toolAttr->value())
+                continue;
+
+            if (!isNodeCreated) {
+                toolNode = domXMLDocument.createElement(QLatin1String("Tool"));
+                toolNode.setAttribute(QLatin1String("Name"), tool->toolDescription()->toolKey());
+                configurationNode.appendChild(toolNode);
+                isNodeCreated = true;
             }
+
+            toolNode.setAttribute(toolAttr->descriptionDataItem()->key(),
+                                  toolAttr->value());
         }
+    }
+}
+
+void FileBuildConfiguration::writeAttributes(IConfiguration *projectConfig, QDomElement &configurationNode) const
+{
+    IAttributeContainer *projConfigAttrContainer = projectConfig->attributeContainer();
+
+    for (int i = 0; i < m_attributeContainer->getAttributeCount(); ++i) {
+        QString attrName = m_attributeContainer->getAttributeName(i);
+        if (projConfigAttrContainer) {
+            if (projConfigAttrContainer->attributeValue(attrName) != m_attributeContainer->attributeValue(attrName))
+                configurationNode.setAttribute(attrName, m_attributeContainer->attributeValue(attrName));
+        } else
+            configurationNode.setAttribute(attrName, m_attributeContainer->attributeValue(attrName));
     }
 }
 

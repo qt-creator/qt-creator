@@ -106,5 +106,11 @@ void GeneralAttributeContainer::appendToXMLNode(QDomElement &elementNode) const
     }
 }
 
+void GeneralAttributeContainer::copyFrom(const IAttributeContainer &container)
+{
+    const GeneralAttributeContainer &cont = static_cast<const GeneralAttributeContainer &>(container);
+    *this = cont;
+}
+
 } // namespace Internal
 } // namespace VcProjectManager

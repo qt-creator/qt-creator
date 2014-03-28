@@ -72,6 +72,8 @@ private:
     void processNodeAttributes(const QDomElement &element);
     void copyAllNonDefaultToolAtributes(IConfiguration *fileConfig, IConfiguration *projConfig);
     void copyAllNonDefaultToolAtributes(IToolSection *fileSec, IToolSection *projSec);
+    void leaveOnlyCppTool(IConfiguration *config);
+    void copyProjectConfigs();
 
     QString m_relativePath; // required
     QList<File *> m_files;

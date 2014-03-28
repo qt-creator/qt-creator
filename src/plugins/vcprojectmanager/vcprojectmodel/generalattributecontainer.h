@@ -51,6 +51,7 @@ public:
     QString getAttributeName(int index) const;
     int getAttributeCount() const;
     void appendToXMLNode(QDomElement &elementNode) const;
+    void copyFrom(const IAttributeContainer &container);
 
 private:
     QHash<QString, QString> m_anyAttribute;

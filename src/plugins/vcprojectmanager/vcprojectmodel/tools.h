@@ -51,6 +51,7 @@ public:
     IConfigurationBuildTools *configurationBuildTools() const;
     IDeploymentTools *deploymentTools() const;
     IDebuggerTools *debuggerTools() const;
+    void copyFrom(const ITools &tools);
 
 private:
     ConfigurationBuildTools *m_configurationBuildTools;
