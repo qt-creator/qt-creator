@@ -55,9 +55,8 @@ Canvas {
             return;
         var newStartTime = Math.round(rangeMover.getLeft() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
         var newEndTime = Math.round(rangeMover.getRight() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
-        if ((startTime !== newStartTime || endTime !== newEndTime) && newEndTime - newStartTime > 500) {
-            zoomControl.setRange(newStartTime, newEndTime);
-        }
+        if (startTime !== newStartTime || endTime !== newEndTime)
+            zoomControl.setRange(newStartTime, Math.max(newEndTime, newStartTime + 500));
     }
 
     function clamp(val, min, max) {
