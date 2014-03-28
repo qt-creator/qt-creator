@@ -44,7 +44,7 @@ using namespace QmlProfiler::Internal;
 const int DefaultRowHeight = 30;
 
 TimelineRenderer::TimelineRenderer(QQuickPaintedItem *parent) :
-    QQuickPaintedItem(parent), m_startTime(0), m_endTime(0), m_spacing(0),
+    QQuickPaintedItem(parent), m_startTime(0), m_endTime(0), m_spacing(0), m_spacedDuration(0),
     m_lastStartTime(0), m_lastEndTime(0)
   , m_profilerModelProxy(0)
 {
@@ -82,6 +82,20 @@ void TimelineRenderer::requestPaint()
     update();
 }
 
+inline void TimelineRenderer::getItemXExtent(int modelIndex, int i, int &currentX, int &itemWidth)
+{
+    qint64 start = m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime;
+    if (start > 0) {
+        currentX = start * m_spacing;
+        itemWidth = qMax(1.0, (qMin(m_profilerModelProxy->getDuration(modelIndex, i) *
+                                    m_spacing, m_spacedDuration)));
+    } else {
+        currentX = -OutOfScreenMargin;
+        itemWidth = qMax(1.0, (qMin((m_profilerModelProxy->getDuration(modelIndex, i) + start) *
+                                    m_spacing + OutOfScreenMargin, m_spacedDuration)));
+    }
+}
+
 void TimelineRenderer::paint(QPainter *p)
 {
     qint64 windowDuration = m_endTime - m_startTime;
@@ -89,6 +103,7 @@ void TimelineRenderer::paint(QPainter *p)
         return;
 
     m_spacing = qreal(width()) / windowDuration;
+    m_spacedDuration = (m_endTime - m_startTime) * m_spacing + 2 * OutOfScreenMargin;
 
     p->setPen(Qt::transparent);
 
@@ -119,21 +134,18 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
 
     for (int i = fromIndex; i <= toIndex; i++) {
         int currentX, currentY, itemWidth, itemHeight;
-        currentX = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
 
         int rowNumber = m_profilerModelProxy->getEventRow(modelIndex, i);
         currentY = (modelRowStart + rowNumber) * DefaultRowHeight - y();
         if (currentY >= height())
             continue;
 
-        itemWidth = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
-        if (itemWidth < 1)
-            itemWidth = 1;
-
         itemHeight = DefaultRowHeight * m_profilerModelProxy->getHeight(modelIndex, i);
         currentY += DefaultRowHeight - itemHeight;
         if (currentY + itemHeight < 0)
             continue;
+
+        getItemXExtent(modelIndex, i, currentX, itemWidth);
 
         // normal events
         p->setBrush(m_profilerModelProxy->getColor(modelIndex, i));
@@ -171,14 +183,11 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
         if (m_profilerModelProxy->getEventId(modelIndex, i) != id)
             continue;
 
-        currentX = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
         currentY = (modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i)) * DefaultRowHeight - y();
         if (currentY + DefaultRowHeight < 0 || height() < currentY)
             continue;
 
-        itemWidth = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
-        if (itemWidth < 1)
-            itemWidth = 1;
+        getItemXExtent(modelIndex, i, currentX, itemWidth);
 
         if (i == m_selectedItem)
             selectedItemRect = QRect(currentX, currentY - 1, itemWidth, DefaultRowHeight + 1);
@@ -198,7 +207,7 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
 void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int fromIndex, int toIndex)
 {
     int destindex;
-    int xfrom, xto;
+    int xfrom, xto, width;
     int yfrom, yto;
     int radius = DefaultRowHeight / 3;
     QPen shadowPen = QPen(QColor("grey"),2);
@@ -210,23 +219,20 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
     for (int i = fromIndex; i <= toIndex; i++) {
         destindex = m_profilerModelProxy->getBindingLoopDest(modelIndex, i);
         if (destindex >= 0) {
-            // from
-            xfrom = (m_profilerModelProxy->getStartTime(modelIndex, i) +
-                     m_profilerModelProxy->getDuration(modelIndex, i)/2 -
-                     m_startTime) * m_spacing;
-            yfrom = getYPosition(modelIndex, i) + DefaultRowHeight / 2 - y();
-
             // to
-            xto = (m_profilerModelProxy->getStartTime(modelIndex, destindex) +
-                   m_profilerModelProxy->getDuration(modelIndex, destindex)/2 -
-                   m_startTime) * m_spacing;
+            getItemXExtent(modelIndex, destindex, xto, width);
+            xto += width / 2;
             yto = getYPosition(modelIndex, destindex) + DefaultRowHeight / 2 - y();
 
-            // radius
-            int eventWidth = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
+            // from
+            getItemXExtent(modelIndex, i, xfrom, width);
+            xfrom += width / 2;
+            yfrom = getYPosition(modelIndex, i) + DefaultRowHeight / 2 - y();
+
+            // radius (derived from width of origin event)
             radius = 5;
-            if (radius * 2 > eventWidth)
-                radius = eventWidth / 2;
+            if (radius * 2 > width)
+                radius = width / 2;
             if (radius < 2)
                 radius = 2;
 

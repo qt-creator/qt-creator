@@ -195,9 +195,14 @@ private:
     }
 
 private:
+    static const int OutOfScreenMargin = 3; // margin to make sure the rectangles stay invisible
+    inline void getItemXExtent(int modelIndex, int i, int &currentX, int &itemWidth);
+
     qint64 m_startTime;
     qint64 m_endTime;
     qreal m_spacing;
+    qreal m_spacedDuration;
+
     qint64 m_lastStartTime;
     qint64 m_lastEndTime;
 
