@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>571</width>
-    <height>76</height>
+    <height>106</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,6 +23,13 @@
    <item row="1" column="1">
     <widget class="QLineEdit" name="argumentsLineEdit"/>
    </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="executableLineEdit">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="argumentsLabel">
      <property name="text">
@@ -37,10 +44,34 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="executableLineEdit">
-     <property name="readOnly">
-      <bool>true</bool>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="deviceTypeComboBox">
+     <item>
+      <property name="text">
+       <string>iPhone 3.5-inch Retina display</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>iPhone 4-inch Retina display</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>iPad</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>iPad Retina display</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="deviceTypeLabel">
+     <property name="text">
+      <string>Device Type:</string>
      </property>
     </widget>
    </item>

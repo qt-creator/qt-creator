@@ -30,6 +30,8 @@
 #ifndef IOSTOOLHANDLER_H
 #define IOSTOOLHANDLER_H
 
+#include "iosconstants.h"
+
 #include <QObject>
 #include <QMap>
 #include <QString>
@@ -54,19 +56,11 @@ public:
         Unknown = 1,
         Failure = 2
     };
-    enum DeviceType {
-        IosDeviceType,
-        IosSimulatedIphoneType,
-        IosSimulatedIpadType,
-        IosSimulatedIphoneRetina4InchType,
-        IosSimulatedIphoneRetina3_5InchType,
-        IosSimulatedIpadRetinaType
-    };
 
     static QString iosDeviceToolPath();
     static QString iosSimulatorToolPath();
 
-    explicit IosToolHandler(DeviceType = IosDeviceType, QObject *parent = 0);
+    explicit IosToolHandler(IosDeviceType::Enum = IosDeviceType::IosDevice, QObject *parent = 0);
     ~IosToolHandler();
     void requestTransferApp(const QString &bundlePath, const QString &deviceId, int timeout = 1000);
     void requestRunApp(const QString &bundlePath, const QStringList &extraArgs, RunKind runType,

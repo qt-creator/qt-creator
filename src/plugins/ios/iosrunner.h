@@ -30,14 +30,16 @@
 #define IOSRUNNER_H
 
 #include "iosconfigurations.h"
+#include "iostoolhandler.h"
+#include "iosconstants.h"
+
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <QObject>
 #include <QTimer>
 #include <QThread>
 #include <QProcess>
 #include <QMutex>
-#include "iostoolhandler.h"
-#include <projectexplorer/devicesupport/idevice.h>
 
 namespace Ios {
 namespace Internal {
@@ -87,6 +89,7 @@ private:
     QString m_bundleDir;
     QStringList m_arguments;
     ProjectExplorer::IDevice::ConstPtr m_device;
+    IosDeviceType::Enum m_deviceType;
     bool m_cppDebug;
     bool m_qmlDebug;
     bool m_cleanExit;

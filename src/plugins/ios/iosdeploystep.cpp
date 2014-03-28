@@ -113,7 +113,7 @@ void IosDeployStep::run(QFutureInterface<bool> &fi)
     }
     m_transferStatus = TransferInProgress;
     QTC_CHECK(m_toolHandler == 0);
-    m_toolHandler = new IosToolHandler(IosToolHandler::IosDeviceType, this);
+    m_toolHandler = new IosToolHandler(IosDeviceType::IosDevice, this);
     m_futureInterface.setProgressRange(0, 200);
     m_futureInterface.setProgressValueAndText(0, QLatin1String("Transferring application"));
     m_futureInterface.reportStarted();
