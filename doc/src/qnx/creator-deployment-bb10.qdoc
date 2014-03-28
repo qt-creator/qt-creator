@@ -37,9 +37,16 @@
     \list 1
         \li Select \gui File > \gui {New File or Project} > \gui {Applications} to create a \gui {Qt Quick Application}, \gui {Qt Widgets Application}, or \gui {BlackBerry Cascades Application}.
         \li Select a BlackBerry 10 \l{glossary-buildandrun-kit}{kit} for either device or simulator. For more information about adding kits, see \l{Connecting BlackBerry 10 Devices}.
-        \li When \QC prompts you to generate a bar descriptor file, answer \gui Yes to generate the file and enable the packaging process.
+        \li When \QC prompts you to generate a BAR descriptor file, answer \gui Yes to generate the file and enable the packaging process.
         \li You can use the BAR descriptor editor to customize the appearance and behavior of the application.
-        \li You can specify which Qt libraries your application should link to in the \gui {Create Packages} deployment step if you create a package in development mode.
+        \li You can specify which Qt libraries your application should link to in the \gui {Create Packages} deployment step, \gui {Package in development mode} option, if you create a package in development mode:
+        \list
+            \li Select \gui {Use Pre-installed Qt} to use Qt libraries shipped with the device.
+            \li Select \gui{Bundle Qt in Package} to package and use the Qt version from the active BlackBerry kit.
+            This will significantly increase the size of your package.
+            \li To use a deployed Qt version in the device, select \gui{Use Deployed Qt} and set the path under /accounts/devuser/ where Qt is deployed. To deploy a Qt version select \gui {Deploy Now}.
+            \image qtcreator-blackberry-deployQt.png "Use deployed Qt."
+        \endlist
     \endlist
 
     The BAR application descriptor file in your project will serve as a template to generate the actual BAR application descriptor file in the build directory
