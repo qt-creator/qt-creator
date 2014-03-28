@@ -1,4 +1,3 @@
-QTC_LIB_DEPENDS += utils
 QT -= gui widgets
 include(../qttest.pri)
 include(../../../src/private_headers.pri)
