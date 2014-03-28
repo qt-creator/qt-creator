@@ -41,6 +41,7 @@ Canvas {
     property bool dataReady: false
     property double startTime : 0
     property double endTime : 0
+    property bool recursionGuard: false
 
     // ***** functions
     function clear()
@@ -50,6 +51,8 @@ Canvas {
     }
 
     function updateRange() {
+        if (recursionGuard)
+            return;
         var newStartTime = Math.round(rangeMover.getLeft() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
         var newEndTime = Math.round(rangeMover.getRight() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
         if ((startTime !== newStartTime || endTime !== newEndTime) && newEndTime - newStartTime > 500) {
@@ -66,6 +69,7 @@ Canvas {
         target: zoomControl
         onRangeChanged: {
             if (qmlProfilerModelProxy) {
+                recursionGuard = true;
                 startTime = clamp(zoomControl.startTime(), qmlProfilerModelProxy.traceStartTime(), qmlProfilerModelProxy.traceEndTime());
                 endTime = clamp(zoomControl.endTime(), startTime, qmlProfilerModelProxy.traceEndTime());
                 var newRangeX = (startTime - qmlProfilerModelProxy.traceStartTime()) * width / qmlProfilerModelProxy.traceDuration();
@@ -77,6 +81,7 @@ Canvas {
 
                 if (leftChanged || widthChanged)
                     rangeMover.setRight(newRangeX + newWidth);
+                recursionGuard = false;
             }
         }
     }
