@@ -79,10 +79,8 @@ void tst_offsets::offsets_data()
                 << int((char *)&p->fileName - (char *)p);
         if (qtVersion > 0x50200)
             data << 176 << 272;
-        else if (qtVersion == 0x50200)
-            data << 176 << 280;
         else if (qtVersion >= 0x50000)
-            data << 180 << 280;
+            data << 176 << 280;
         else
             data << 140 << 232;
     }
