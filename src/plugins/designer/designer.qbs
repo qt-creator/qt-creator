@@ -12,6 +12,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "CppTools" }
+    Depends { name: "ResourceEditor" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
 
