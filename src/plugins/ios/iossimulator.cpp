@@ -40,14 +40,11 @@ using namespace ProjectExplorer;
 namespace Ios {
 namespace Internal {
 
-const char *SIMULATOR_PATH_KEY = "SIMULATOR_PATH";
-
-IosSimulator::IosSimulator(Core::Id id, Utils::FileName simulatorPath)
+IosSimulator::IosSimulator(Core::Id id)
     : IDevice(Core::Id(Constants::IOS_SIMULATOR_TYPE),
               IDevice::AutoDetected,
               IDevice::Emulator,
               id),
-      m_simulatorPath(simulatorPath),
       m_lastPort(Constants::IOS_SIMULATOR_PORT_START)
 {
     setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
@@ -110,11 +107,6 @@ DeviceProcessSignalOperation::Ptr IosSimulator::signalOperation() const
     return DeviceProcessSignalOperation::Ptr();
 }
 
-Utils::FileName IosSimulator::simulatorPath() const
-{
-    return m_simulatorPath;
-}
-
 IDevice::Ptr IosSimulator::clone() const
 {
     return IDevice::Ptr(new IosSimulator(*this));
@@ -123,14 +115,11 @@ IDevice::Ptr IosSimulator::clone() const
 void IosSimulator::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);
-    m_simulatorPath = Utils::FileName::fromString(map.value(QLatin1String(SIMULATOR_PATH_KEY))
-                                                  .toString());
 }
 
 QVariantMap IosSimulator::toMap() const
 {
     QVariantMap res = IDevice::toMap();
-    res.insert(QLatin1String(SIMULATOR_PATH_KEY), simulatorPath().toString());
     return res;
 }
 

@@ -54,7 +54,6 @@ public:
     QString displayNameForActionId(Core::Id actionId) const QTC_OVERRIDE;
     void executeAction(Core::Id actionId, QWidget *parent = 0) QTC_OVERRIDE;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const QTC_OVERRIDE;
-    Utils::FileName simulatorPath() const;
     void fromMap(const QVariantMap &map) QTC_OVERRIDE;
     QVariantMap toMap() const QTC_OVERRIDE;
     quint16 nextPort() const;
@@ -66,10 +65,9 @@ protected:
     friend class IosSimulatorFactory;
     friend class IosConfigurations;
     IosSimulator();
-    IosSimulator(Core::Id id, Utils::FileName simulatorPath);
+    IosSimulator(Core::Id id);
     IosSimulator(const IosSimulator &other);
 private:
-    Utils::FileName m_simulatorPath;
     mutable quint16 m_lastPort;
 };
 
