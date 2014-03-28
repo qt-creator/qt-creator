@@ -51,10 +51,10 @@ Rectangle {
 
         y: 52
 
-        anchors.right: comboBox.left
-        anchors.rightMargin: 20
-        anchors.left: parent.left
-        anchors.leftMargin: 60
+        anchors.left: comboBox.right
+        anchors.rightMargin: 52
+        anchors.right: parent.right
+        anchors.leftMargin: 18
 
         placeholderText: qsTr("Search in Examples...")
         onTextChanged: examplesModel.parseSearchString(text)
@@ -66,8 +66,8 @@ Rectangle {
         anchors.verticalCenter: searchBar.verticalCenter
 
         width: 200
-        anchors.rightMargin: 80
-        anchors.right: parent.right
+        anchors.leftMargin: 46
+        anchors.left: parent.left
         model: exampleSetModel
         textRole: "text"
 
