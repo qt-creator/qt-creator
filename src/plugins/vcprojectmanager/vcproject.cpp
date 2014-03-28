@@ -28,6 +28,8 @@
 **
 ****************************************************************************/
 #include "vcproject.h"
+
+#include "vcmakestep.h"
 #include "vcprojectbuildconfiguration.h"
 #include "vcprojectfile.h"
 #include "vcprojectkitinformation.h"
@@ -53,6 +55,8 @@
 
 #include <coreplugin/icontext.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <projectexplorer/buildinfo.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -135,17 +139,6 @@ QStringList VcProject::files(Project::FilesMode fileMode) const
     return sl;
 }
 
-QString VcProject::defaultBuildDirectory() const
-{
-    VcProjectFile* vcFile = static_cast<VcProjectFile *>(document());
-    return defaultBuildDirectory(vcFile->filePath());
-}
-
-QString VcProject::defaultBuildDirectory(const QString &fileName)
-{
-    return QFileInfo(fileName).absolutePath() /* + QLatin1String("-build")*/;
-}
-
 bool VcProject::needsConfiguration() const
 {
     return targets().isEmpty() || !activeTarget() || activeTarget()->buildConfigurations().isEmpty();
@@ -218,14 +211,6 @@ bool VcProject::fromMap(const QVariantMap &map)
         return false;
 
     updateCodeModels();
-    return true;
-}
-
-bool VcProject::setupTarget(ProjectExplorer::Target *t)
-{
-    t->updateDefaultBuildConfigurations();
-    t->updateDefaultDeployConfigurations();
-
     return true;
 }
 
@@ -329,21 +314,6 @@ void VcProject::importBuildConfigurations()
     addTarget(createTarget(kit));
     if (!activeTarget() && kit)
         addTarget(createTarget(kit));
-}
-
-VcProjectBuildConfiguration *VcProject::findBuildConfiguration(Target *target, const QString &buildConfigurationName) const
-{
-    if (target) {
-        QList<ProjectExplorer::BuildConfiguration *> buildConfigurationList = target->buildConfigurations();
-
-        foreach (ProjectExplorer::BuildConfiguration *bc, buildConfigurationList) {
-            VcProjectBuildConfiguration *vcBc = qobject_cast<VcProjectBuildConfiguration *>(bc);
-            if (vcBc && vcBc->displayName() == buildConfigurationName)
-                return vcBc;
-        }
-    }
-
-    return 0;
 }
 
 void VcProject::allProjectFile(QStringList &allFiles) const

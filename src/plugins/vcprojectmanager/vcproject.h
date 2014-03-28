@@ -63,8 +63,6 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
-    QString defaultBuildDirectory() const;
-    static QString defaultBuildDirectory(const QString &fileName);
     bool needsConfiguration() const;
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
 
@@ -76,14 +74,13 @@ private slots:
 
 protected:
     bool fromMap(const QVariantMap &map);
-    bool setupTarget(ProjectExplorer::Target *t);
 
 private:
     void addCxxModelFiles(const ProjectExplorer::FolderNode *node, QStringList &sourceFiles);
     void updateCodeModels();
     void importBuildConfigurations();
-    VcProjectBuildConfiguration *findBuildConfiguration(ProjectExplorer::Target *target, const QString &buildConfigurationName) const;
     void allProjectFile(QStringList &allFiles) const;
+
     VcManager *m_projectManager;
     VcProjectFile *m_projectFile;
     VcDocProjectNode *m_rootNode;

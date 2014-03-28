@@ -196,14 +196,10 @@ QString VcMakeStepConfigWidget::displayName() const
 
 QString VcMakeStepConfigWidget::summaryText() const
 {
-    VcProjectBuildConfiguration *bc = m_makeStep->vcProjectBuildConfiguration();
-    ProjectExplorer::Project *project = bc->target()->project();
-    VcProjectFile* document = static_cast<VcProjectFile *>(project->document());
     MsBuildInformation *msBuild = VcProjectKitInformation::msBuildInfo(m_makeStep->target()->kit());
 
     QFileInfo fileInfo(msBuild->m_executable);
-    return QString(QLatin1String("<b>MsBuild:</b> %1 %2 %3")).arg(fileInfo.fileName())
-            .arg(document->filePath())
+    return QString(QLatin1String("<b>MsBuild:</b> %1 %2")).arg(fileInfo.fileName())
             .arg(m_makeStep->buildArgumentsToString());
 }
 

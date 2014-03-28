@@ -27,40 +27,21 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_H
-#define VCPROJECTMANAGER_H
+#ifndef VCPROJECTMANAGER_INTERNAL_UTILS_H
+#define VCPROJECTMANAGER_INTERNAL_UTILS_H
 
-#include <projectexplorer/iprojectmanager.h>
-#include <projectexplorer/projectnodes.h>
+#include "vcprojectmodel/vcprojectdocument_constants.h"
+
+#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {
+namespace Utils {
 
-class VcProjectBuildOptionsPage;
+VcDocConstants::DocumentVersion getProjectVersion(const QString &projectPath);
 
-class VcManager : public ProjectExplorer::IProjectManager
-{
-    Q_OBJECT
-
-public:
-    VcManager(VcProjectBuildOptionsPage *configPage);
-
-    QString mimeType() const;
-    ProjectExplorer::Project *openProject(const QString &fileName, QString *errorString);
-
-private slots:
-    void updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node *node);
-
-private:
-    ProjectExplorer::Project *m_contextProject;
-    VcProjectBuildOptionsPage *m_configPage;
-
-    QString m_vc2003Schema;
-    QString m_vc2005Schema;
-    QString m_vc2008Schema;
-};
-
+} // namespace Utils
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_H
+#endif // VCPROJECTMANAGER_INTERNAL_UTILS_H

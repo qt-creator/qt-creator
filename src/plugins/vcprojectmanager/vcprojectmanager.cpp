@@ -32,6 +32,7 @@
 #include "vcprojectmanager.h"
 #include "vcprojectmanagerconstants.h"
 #include "vcschemamanager.h"
+#include "utils.h"
 #include "vcprojectmodel/vcprojectdocument_constants.h"
 
 #include <QtXmlPatterns/QXmlSchema>
@@ -65,14 +66,7 @@ ProjectExplorer::Project *VcManager::openProject(const QString &fileName, QStrin
 
     // check if project is a valid vc project
     // versions supported are 2003, 2005 and 2008
-    VcDocConstants::DocumentVersion docVersion = VcDocConstants::DV_UNRECOGNIZED;
-
-    if (checkIfVersion2003(canonicalFilePath))
-        docVersion = VcDocConstants::DV_MSVC_2003;
-    else if (checkIfVersion2005(canonicalFilePath))
-        docVersion = VcDocConstants::DV_MSVC_2005;
-    else if (checkIfVersion2008(canonicalFilePath))
-        docVersion = VcDocConstants::DV_MSVC_2008;
+    VcDocConstants::DocumentVersion docVersion = Utils::getProjectVersion(canonicalFilePath);
 
     if (docVersion != VcDocConstants::DV_UNRECOGNIZED)
         return new VcProject(this, canonicalFilePath, docVersion);
@@ -85,83 +79,6 @@ void VcManager::updateContextMenu(Project *project, ProjectExplorer::Node *node)
 {
     Q_UNUSED(node);
     m_contextProject = project;
-}
-
-bool VcManager::checkIfVersion2003(const QString &filePath) const
-{
-    VcSchemaManager *schemaMgr = VcSchemaManager::instance();
-    QString vc2003Schema = schemaMgr->documentSchema(Constants::SV_2003);
-
-    if (vc2003Schema.isEmpty()) {
-        return false;
-    }
-
-    QFile schemaFile(vc2003Schema);
-    schemaFile.open(QIODevice::ReadOnly);
-
-    QXmlSchema schema;
-    schema.load(&schemaFile, QUrl::fromLocalFile(schemaFile.fileName()));
-
-    if (schema.isValid()) {
-        QFile file(filePath);
-        file.open(QIODevice::ReadOnly);
-
-        QXmlSchemaValidator validator(schema);
-        if (validator.validate(&file, QUrl::fromLocalFile(file.fileName())))
-            return true;
-    }
-
-    return false;
-}
-
-bool VcManager::checkIfVersion2005(const QString &filePath) const
-{
-    VcSchemaManager *schemaMgr = VcSchemaManager::instance();
-    QString vc2005Schema = schemaMgr->documentSchema(Constants::SV_2005);
-    if (vc2005Schema.isEmpty())
-        return false;
-
-    QFile schemaFile(vc2005Schema);
-    schemaFile.open(QIODevice::ReadOnly);
-
-    QXmlSchema schema;
-    schema.load(&schemaFile, QUrl::fromLocalFile(schemaFile.fileName()));
-
-    if (schema.isValid()) {
-        QFile file(filePath);
-        file.open(QIODevice::ReadOnly);
-
-        QXmlSchemaValidator validator(schema);
-        if (validator.validate(&file, QUrl::fromLocalFile(file.fileName())))
-            return true;
-    }
-
-    return false;
-}
-
-bool VcManager::checkIfVersion2008(const QString &filePath) const
-{
-    VcSchemaManager *schemaMgr = VcSchemaManager::instance();
-    QString vc2008Schema = schemaMgr->documentSchema(Constants::SV_2008);
-    if (vc2008Schema.isEmpty())
-        return false;
-
-    QFile schemaFile(vc2008Schema);
-    schemaFile.open(QIODevice::ReadOnly);
-
-    QXmlSchema schema;
-    schema.load(&schemaFile, QUrl::fromLocalFile(schemaFile.fileName()));
-
-    if (schema.isValid()) {
-        QFile file(filePath);
-        file.open(QIODevice::ReadOnly);
-
-        QXmlSchemaValidator validator(schema);
-        if (validator.validate(&file, QUrl::fromLocalFile(file.fileName())))
-            return true;
-    }
-
-    return false;
 }
 
 } // namespace Internal

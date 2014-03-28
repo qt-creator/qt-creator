@@ -28,8 +28,19 @@
 **
 ****************************************************************************/
 #include "vcmakestep.h"
+
+#include "interfaces/ivisualstudioproject.h"
+#include "interfaces/iconfiguration.h"
+#include "interfaces/iconfigurations.h"
+#include "interfaces/ifile.h"
+#include "interfaces/ifilecontainer.h"
+
 #include "vcprojectbuildconfiguration.h"
+#include "vcprojectfile.h"
 #include "vcprojectmanagerconstants.h"
+#include "utils.h"
+#include "vcprojectmodel/configurationcontainer.h"
+#include "vcprojectmodel/vcdocumentmodel.h"
 
 #include <coreplugin/mimedatabase.h>
 #include <projectexplorer/buildinfo.h>
@@ -59,7 +70,8 @@ namespace Internal {
 VcProjectBuildConfiguration::VcProjectBuildConfiguration(Target *parent) :
     BuildConfiguration(parent, Core::Id(VC_PROJECT_BC_ID))
 {
-    m_buildDirectory = static_cast<VcProject *>(parent->project())->defaultBuildDirectory();
+    QFileInfo info(static_cast<VcProjectFile *>(parent->project()->document())->documentModel()->vcProjectDocument()->filePath());
+    m_buildDirectory = info.canonicalPath() + QLatin1String("-build");
 }
 
 VcProjectBuildConfiguration::~VcProjectBuildConfiguration()
@@ -131,20 +143,46 @@ int VcProjectBuildConfigurationFactory::priority(const Kit *k, const QString &pr
 QList<BuildInfo *> VcProjectBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<BuildInfo *> result;
-    result << createBuildInfo(parent->kit(),
-                              parent->project()->projectDirectory());
+
+    VcProjectFile *vcProjectFile = qobject_cast<VcProjectFile *>(parent->project()->document());
+    QTC_ASSERT(vcProjectFile, return result);
+
+    IVisualStudioProject *vsProject = vcProjectFile->documentModel()->vcProjectDocument();
+    QTC_ASSERT(vsProject, return result);
+
+    QTC_ASSERT(vsProject->configurations(), return result);
+    QTC_ASSERT(vsProject->configurations()->configurationContainer(), return result);
+
+    for (int i = 0; i < vsProject->configurations()->configurationContainer()->configurationCount(); ++i) {
+        IConfiguration *config = vsProject->configurations()->configurationContainer()->configuration(i);
+        QTC_ASSERT(config, continue);
+
+        result << createBuildInfo(parent->kit(), config);
+    }
     return result;
 }
 
 QList<BuildInfo *> VcProjectBuildConfigurationFactory::availableSetups(
         const Kit *k, const QString &projectPath) const
 {
+    Q_UNUSED(k);
     QList<BuildInfo *> result;
-    // TODO: Populate from Configuration
-    BuildInfo *info = createBuildInfo(k,
-                                      Utils::FileName::fromString(VcProject::defaultBuildDirectory(projectPath)));
-    info->displayName = tr("Default");
-    result << info;
+
+    VcDocConstants::DocumentVersion docVersion = Utils::getProjectVersion(projectPath);
+    VcDocumentModel documentModel = VcDocumentModel(projectPath, docVersion);
+    IVisualStudioProject *vsProject = documentModel.vcProjectDocument();
+    QTC_ASSERT(vsProject, return result);
+
+    QTC_ASSERT(vsProject->configurations(), return result);
+    QTC_ASSERT(vsProject->configurations()->configurationContainer(), return result);
+
+    for (int i = 0; i < vsProject->configurations()->configurationContainer()->configurationCount(); ++i) {
+        IConfiguration *config = vsProject->configurations()->configurationContainer()->configuration(i);
+        QTC_ASSERT(config, continue);
+
+        result << createBuildInfo(k, config);
+    }
+
     return result;
 }
 
@@ -155,10 +193,29 @@ VcProjectBuildConfiguration *VcProjectBuildConfigurationFactory::create(Target *
     QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
     QTC_ASSERT(!info->displayName.isEmpty(), return 0);
 
+    VcProjectFile *vcProjectFile = qobject_cast<VcProjectFile *>(parent->project()->document());
+    QTC_ASSERT(vcProjectFile, return 0);
+
     VcProjectBuildConfiguration *bc = new VcProjectBuildConfiguration(parent);
     bc->setDisplayName(info->displayName);
     bc->setDefaultDisplayName(info->displayName);
-    bc->setBuildDirectory(info->buildDirectory);
+
+    BuildStepList *buildSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
+    BuildStepList *cleanSteps = bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    QTC_ASSERT(buildSteps, return 0);
+    QTC_ASSERT(cleanSteps, return 0);
+
+    VcMakeStep *makeStep = new VcMakeStep(buildSteps);
+    QString argument(QLatin1String("/p:configuration=\"") + info->displayName + QLatin1String("\""));
+    makeStep->addBuildArgument(vcProjectFile->filePath());
+    makeStep->addBuildArgument(argument);
+    buildSteps->insertStep(0, makeStep);
+
+    makeStep = new VcMakeStep(cleanSteps);
+    argument = QLatin1String("/p:configuration=\"") + info->displayName + QLatin1String("\" /t:Clean");
+    makeStep->addBuildArgument(vcProjectFile->filePath());
+    makeStep->addBuildArgument(argument);
+    cleanSteps->insertStep(0, makeStep);
 
     return bc;
 }
@@ -203,15 +260,15 @@ bool VcProjectBuildConfigurationFactory::canHandle(const Target *t) const
 }
 
 BuildInfo *VcProjectBuildConfigurationFactory::createBuildInfo(const ProjectExplorer::Kit *k,
-                                                               const Utils::FileName &buildDir) const
+                                                               IConfiguration *config) const
 {
-    BuildInfo *info = new BuildInfo(this);
-    info->typeName = tr("Build");
-    info->buildDirectory = buildDir;
-    info->kitId = k->id();
-    info->supportsShadowBuild = true;
+    ProjectExplorer::BuildInfo *buildInfo = new ProjectExplorer::BuildInfo(this);
+    buildInfo->displayName = config->fullName();
+    buildInfo->kitId = k->id();
+    buildInfo->supportsShadowBuild = true;
+    buildInfo->typeName = config->fullName();
 
-    return info;
+    return buildInfo;
 }
 
 } // namespace Internal

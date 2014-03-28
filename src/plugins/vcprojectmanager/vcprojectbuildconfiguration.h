@@ -74,7 +74,6 @@ class VcProjectBuildConfigurationFactory : public ProjectExplorer::IBuildConfigu
 public:
     explicit VcProjectBuildConfigurationFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(const ProjectExplorer::Target *parent) const;
     QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const;
     QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k, const QString &projectPath) const;
     bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
@@ -89,7 +88,7 @@ public:
 private:
     bool canHandle(const ProjectExplorer::Target *t) const;
     ProjectExplorer::BuildInfo *createBuildInfo(const ProjectExplorer::Kit *k,
-                                                const Utils::FileName &buildDir) const;
+                                                IConfiguration *config) const;
 };
 
 } // namespace Internal
