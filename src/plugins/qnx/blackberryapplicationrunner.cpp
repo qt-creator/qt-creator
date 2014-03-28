@@ -168,8 +168,8 @@ void BlackBerryApplicationRunner::checkDeviceRuntimeVersion(int status)
         const QMessageBox::StandardButton answer =
                 QMessageBox::question(Core::ICore::mainWindow(),
                                       tr("Confirmation"),
-                                      tr("The device runtime version(%1) does not match "
-                                         "the API level version(%2).\n"
+                                      tr("The device runtime version (%1) does not match "
+                                         "the API level version (%2).\n"
                                          "This may cause unexpected behavior when debugging.\n"
                                          "Do you want to continue anyway?")
                                       .arg(runtimeVersion, m_bbApiLevelVersion.toString()),

@@ -187,7 +187,7 @@ bool BlackBerryCheckDeviceStatusStep::handleVersionMismatch(const QString &runti
     // TODO: Check if a matching API level exists in the user configurations,
     // otherwise let the user download the matching device runtime.
     const QMessageBox::StandardButton answer = QMessageBox::question(Core::ICore::mainWindow(), tr("Confirmation"),
-                                                                     tr("The device runtime version(%1) does not match the API level version(%2).\n"
+                                                                     tr("The device runtime version (%1) does not match the API level version (%2).\n"
                                                                         "Do you want to continue anyway?").arg(runtimeVersion, apiLevelVersion),
                                                                      QMessageBox::Yes | QMessageBox::No);
     return answer == QMessageBox::Yes;
