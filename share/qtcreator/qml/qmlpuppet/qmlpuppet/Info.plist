@@ -1,6 +1,6 @@
-<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
 <dict>
         <key>NSHumanReadableCopyright</key>
         <string>(C) 2014 Digia Plc
@@ -14,15 +14,11 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
-	<string>@TYPEINFO@</string>
+	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>@EXECUTABLE@</string>
+	<string>qmlpuppet</string>
 	<key>CFBundleIdentifier</key>
-        <string>org.qt-project.qtcreator.qml2puppet</string>
-	<key>CFBundleVersion</key>
-	<string>$$QTCREATOR_VERSION</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$$QTCREATOR_VERSION</string>
+    <string>org.qt-project.qtcreator.qmlpuppet</string>
     <key>LSUIElement</key>
     <string>1</string>
 </dict>
