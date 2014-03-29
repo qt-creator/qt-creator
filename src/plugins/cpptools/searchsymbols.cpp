@@ -97,7 +97,7 @@ bool SearchSymbols::visit(Function *symbol)
         return false;
     QString name = symbolName(symbol);
     QString type = overview.prettyType(symbol->type());
-    appendItem(name, type, _scope, ModelItemInfo::Method, symbol);
+    appendItem(name, type, _scope, ModelItemInfo::Function, symbol);
     return false;
 }
 
@@ -130,7 +130,7 @@ bool SearchSymbols::visit(Declaration *symbol)
     QString name = symbolName(symbol);
     QString type = overview.prettyType(symbol->type());
     appendItem(name, type, _scope,
-               symbol->type()->asFunctionType() ? ModelItemInfo::Method
+               symbol->type()->asFunctionType() ? ModelItemInfo::Function
                                                 : ModelItemInfo::Declaration,
                symbol);
     return false;

@@ -132,7 +132,7 @@ void CppLocatorData::flushPendingDocument(bool force)
             case ModelItemInfo::Class:
                 resultsClasses.append(info);
                 break;
-            case ModelItemInfo::Method:
+            case ModelItemInfo::Function:
                 resultsFunctions.append(info);
                 break;
             default:
