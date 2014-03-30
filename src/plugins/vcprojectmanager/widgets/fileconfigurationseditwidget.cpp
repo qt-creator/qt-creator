@@ -30,6 +30,7 @@
 #include "configurationbasewidget.h"
 #include "configurationswidget.h"
 #include "fileconfigurationseditwidget.h"
+
 #include "../interfaces/iattributecontainer.h"
 #include "../interfaces/iattributedescriptiondataitem.h"
 #include "../interfaces/iconfiguration.h"
@@ -54,6 +55,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <QMessageBox>
 #include <QVBoxLayout>
 
 namespace VcProjectManager {
@@ -124,6 +126,8 @@ void FileConfigurationsEditWidget::onAddNewConfig(QString newConfigName, QString
     IPlatforms *platforms = m_vsProject->platforms();
     QString copyFromConfigName = copyFrom.split(QLatin1Char('|')).at(0);
 
+    QStringList errorMessages;
+
     for (int i = 0; i < platforms->platformCount(); ++i) {
         IPlatform *platform = platforms->platform(i);
 
@@ -131,12 +135,34 @@ void FileConfigurationsEditWidget::onAddNewConfig(QString newConfigName, QString
             QString newFullConfigName = newConfigName + QLatin1Char('|') + platform->displayName();
             QString copyFromFullConfigName;
 
-            if (!copyFromConfigName.isEmpty())
-                copyFromFullConfigName = copyFromConfigName + QLatin1Char('|') + platform->displayName();
+            if (m_vsProject->configurations()->configurationContainer()->configuration(newFullConfigName)) {
+                QString message = tr("Configuration %1 already exists.");
+                message = message.arg(newFullConfigName);
+                errorMessages.append(message);
+            }
+            else {
+                if (!copyFromConfigName.isEmpty())
+                    copyFromFullConfigName = copyFromConfigName + QLatin1Char('|') + platform->displayName();
 
-            addConfigToProjectBuild(newFullConfigName, copyFromFullConfigName);
-            addConfigToFiles(newFullConfigName, copyFromFullConfigName);
+                addConfigToProjectBuild(newFullConfigName, copyFromFullConfigName);
+                addConfigToFiles(newFullConfigName, copyFromFullConfigName);
+            }
         }
+    }
+
+    if (errorMessages.size()) {
+        QString message = errorMessages.join(QLatin1Char('\n'));
+        QMessageBox msg(this);
+        msg.setStandardButtons(QMessageBox::Ok);
+        msg.setDefaultButton(QMessageBox::Ok);
+
+        if (errorMessages.size() == 1)
+            msg.setWindowTitle(tr("Cannot Add Configuration"));
+        else
+            msg.setWindowTitle(tr("Cannot Add Configurations"));
+        msg.setText(message);
+
+        msg.exec();
     }
 }
 
