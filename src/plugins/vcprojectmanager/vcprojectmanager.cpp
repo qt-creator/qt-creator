@@ -68,10 +68,15 @@ ProjectExplorer::Project *VcManager::openProject(const QString &fileName, QStrin
     // versions supported are 2003, 2005 and 2008
     VcDocConstants::DocumentVersion docVersion = Utils::getProjectVersion(canonicalFilePath);
 
-    if (docVersion != VcDocConstants::DV_UNRECOGNIZED)
+    if (docVersion != VcDocConstants::DV_UNRECOGNIZED) {
+        if (errorString)
+            errorString->clear();
         return new VcProject(this, canonicalFilePath, docVersion);
+    }
 
-    qDebug() << "VcManager::openProject: Unrecognized file version";
+    if (errorString)
+        *errorString = tr("Could not open project %1").arg(fileName);
+
     return 0;
 }
 
