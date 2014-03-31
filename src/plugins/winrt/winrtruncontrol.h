@@ -78,6 +78,7 @@ private:
     bool m_uninstallAfterStop;
     bool m_isWinPhone;
     Utils::QtcProcess *m_process;
+    Utils::Environment m_environment;
 };
 
 } // namespace Internal
