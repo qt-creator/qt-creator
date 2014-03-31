@@ -150,14 +150,19 @@ void ResourceTopLevelNode::update()
             int filecount = file.fileCount(i);
             for (int j = 0; j < filecount; ++j) {
                 const QString &fileName = file.file(i, j);
+                QString alias = file.alias(i, j);
+                if (alias.isEmpty()) {
+                    alias = QFileInfo(path()).absoluteDir().relativeFilePath(fileName);
+                }
                 if (fileNames.contains(fileName)) {
                     // The file name is duplicated, skip it
                     // Note: this is wrong, but the qrceditor doesn't allow it either
                     // only aliases need to be unique
                 } else {
+                    const QString qrcPath = QDir::cleanPath(prefix + QLatin1Char('/') + alias);
                     fileNames.insert(fileName);
                     filesToAdd[qMakePair(prefix, lang)]
-                            << new ResourceFileNode(fileName, this);
+                            << new ResourceFileNode(fileName, qrcPath, this);
                 }
 
             }
@@ -478,9 +483,10 @@ bool ResourceFileWatcher::reload(QString *errorString, ReloadFlag flag, ChangeTy
     return true;
 }
 
-ResourceFileNode::ResourceFileNode(const QString &filePath, ResourceTopLevelNode *topLevel)
+ResourceFileNode::ResourceFileNode(const QString &filePath, const QString &qrcPath, ResourceTopLevelNode *topLevel)
     : ProjectExplorer::FileNode(filePath, ProjectExplorer::UnknownFileType, false),
-      m_topLevel(topLevel)
+      m_topLevel(topLevel),
+      m_qrcPath(qrcPath)
 
 {
     QString baseDir = QFileInfo(topLevel->path()).absolutePath();
@@ -490,4 +496,9 @@ ResourceFileNode::ResourceFileNode(const QString &filePath, ResourceTopLevelNode
 QString ResourceFileNode::displayName() const
 {
     return m_displayName;
+}
+
+QString ResourceFileNode::qrcPath() const
+{
+    return m_qrcPath;
 }

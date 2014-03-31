@@ -41,6 +41,8 @@ class Node;
 class Project;
 }
 
+namespace Utils { class ParameterAction; }
+
 namespace ResourceEditor {
 namespace Internal {
 
@@ -74,6 +76,9 @@ private slots:
     void openEditorContextMenu();
     void openTextEditorContextMenu();
 
+    void copyPathContextMenu();
+    void copyUrlContextMenu();
+
     void updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*);
 
 public:
@@ -97,6 +102,10 @@ private:
 
     QAction *m_openInEditor;
     QAction *m_openInTextEditor;
+
+    // file context menu
+    Utils::ParameterAction *m_copyPath;
+    Utils::ParameterAction *m_copyUrl;
 };
 
 } // namespace Internal

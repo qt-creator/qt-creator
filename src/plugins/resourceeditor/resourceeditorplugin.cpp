@@ -48,6 +48,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
 #include <QtPlugin>
@@ -58,8 +59,13 @@
 #include <QMessageBox>
 #include <QFormLayout>
 #include <QDialogButtonBox>
+#include <QClipboard>
+#include <QApplication>
 
 using namespace ResourceEditor::Internal;
+
+static const char resourcePrefix[] = ":";
+static const char urlPrefix[] = "qrc://";
 
 class PrefixLangDialog : public QDialog
 {
@@ -145,6 +151,8 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     Core::Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
     Core::ActionContainer *folderContextMenu =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_FOLDERCONTEXT);
+    Core::ActionContainer *fileContextMenu =
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_FILECONTEXT);
     Core::Command *command = 0;
 
     m_addPrefix = new QAction(tr("Add Prefix..."), this);
@@ -181,6 +189,18 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     command = Core::ActionManager::registerAction(m_openInTextEditor, Constants::C_OPEN_TEXT_EDITOR, projectTreeContext);
     folderContextMenu->addAction(command, ProjectExplorer::Constants::G_FOLDER_FILES);
     connect(m_openInTextEditor, SIGNAL(triggered()), this, SLOT(openTextEditorContextMenu()));
+
+    m_copyPath = new Utils::ParameterAction(QString(), tr("Copy path \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    command = Core::ActionManager::registerAction(m_copyPath, Constants::C_COPY_PATH, projectTreeContext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    fileContextMenu->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
+    connect(m_copyPath, SIGNAL(triggered()), this, SLOT(copyPathContextMenu()));
+
+    m_copyUrl = new Utils::ParameterAction(QString(), tr("Copy url \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    command = Core::ActionManager::registerAction(m_copyUrl, Constants::C_COPY_URL, projectTreeContext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    fileContextMenu->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
+    connect(m_copyUrl, SIGNAL(triggered()), this, SLOT(copyUrlContextMenu()));
 
     m_addPrefix->setEnabled(false);
     m_removePrefix->setEnabled(false);
@@ -268,6 +288,18 @@ void ResourceEditorPlugin::openTextEditorContextMenu()
     Core::EditorManager::openEditor(path, Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
 }
 
+void ResourceEditorPlugin::copyPathContextMenu()
+{
+    ResourceFileNode *node = static_cast<ResourceFileNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
+    QApplication::clipboard()->setText(QLatin1String(resourcePrefix) + node->qrcPath());
+}
+
+void ResourceEditorPlugin::copyUrlContextMenu()
+{
+    ResourceFileNode *node = static_cast<ResourceFileNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
+    QApplication::clipboard()->setText(QLatin1String(urlPrefix) + node->qrcPath());
+}
+
 void ResourceEditorPlugin::renamePrefixContextMenu()
 {
     ResourceFolderNode *rfn = static_cast<ResourceFolderNode *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode());
@@ -314,6 +346,18 @@ void ResourceEditorPlugin::updateContextActions(ProjectExplorer::Node *node, Pro
 
     m_renamePrefix->setEnabled(isResourceFolder);
     m_renamePrefix->setVisible(isResourceFolder);
+
+    bool isResourceFile = qobject_cast<ResourceFileNode *>(node);
+    m_copyPath->setEnabled(isResourceFile);
+    m_copyPath->setVisible(isResourceFile);
+    m_copyUrl->setEnabled(isResourceFile);
+    m_copyUrl->setVisible(isResourceFile);
+    if (isResourceFile) {
+        ResourceFileNode *fileNode = static_cast<ResourceFileNode *>(node);
+        QString qrcPath = fileNode->qrcPath();
+        m_copyPath->setParameter(QLatin1String(resourcePrefix) + qrcPath);
+        m_copyUrl->setParameter(QLatin1String(urlPrefix) + qrcPath);
+    }
 }
 
 void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,

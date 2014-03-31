@@ -101,13 +101,15 @@ class ResourceFileNode : public ProjectExplorer::FileNode
 {
     Q_OBJECT
 public:
-    ResourceFileNode(const QString &filePath, ResourceTopLevelNode *topLevel);
+    ResourceFileNode(const QString &filePath, const QString &qrcPath, ResourceTopLevelNode *topLevel);
 
     QString displayName() const;
+    QString qrcPath() const;
 
 private:
-    QString m_displayName;
     ResourceTopLevelNode *m_topLevel;
+    QString m_displayName;
+    QString m_qrcPath;
 };
 
 class ResourceFileWatcher : public Core::IDocument
