@@ -522,12 +522,6 @@ void QmakeProject::updateCppCodeModel()
         else
             part->qtVersion = ProjectPart::NoQt;
 
-        const QStringList cxxflags = pro->variableValue(CppFlagsVar);
-        part->evaluateToolchain(ToolChainKitInformation::toolChain(k),
-                                cxxflags,
-                                cxxflags,
-                                SysRootKitInformation::sysRoot(k));
-
         // part->defines
         part->projectDefines += pro->cxxDefines();
 
@@ -581,6 +575,12 @@ void QmakeProject::updateCppCodeModel()
             allFiles << file;
             part->files << ProjectFile(file, ProjectFile::ObjCXXHeader);
         }
+
+        const QStringList cxxflags = pro->variableValue(CppFlagsVar);
+        part->evaluateToolchain(ToolChainKitInformation::toolChain(k),
+                                cxxflags,
+                                cxxflags,
+                                SysRootKitInformation::sysRoot(k));
 
         pinfo.appendProjectPart(part);
     }
