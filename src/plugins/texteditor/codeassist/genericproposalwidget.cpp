@@ -36,7 +36,6 @@
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <utils/elidinglabel.h>
 #include <utils/faketooltip.h>
 #include <utils/hostosinfo.h>
 
@@ -151,7 +150,7 @@ class GenericProposalInfoFrame : public Utils::FakeToolTip
 {
 public:
     GenericProposalInfoFrame(QWidget *parent = 0)
-        : Utils::FakeToolTip(parent), m_label(new Utils::ElidingLabel(this))
+        : Utils::FakeToolTip(parent), m_label(new QLabel(this))
     {
         QVBoxLayout *layout = new QVBoxLayout(this);
         layout->setMargin(0);
