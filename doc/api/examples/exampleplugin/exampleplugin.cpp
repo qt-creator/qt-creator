@@ -75,7 +75,7 @@ ExtensionSystem::IPlugin::ShutdownFlag ExamplePlugin::aboutToShutdown()
 //! [slot implementation]
 void ExamplePlugin::triggerAction()
 {
-    QMessageBox::information(Core::ICore::instance()->mainWindow(),
+    QMessageBox::information(Core::ICore::mainWindow(),
                              tr("Action triggered"),
                              tr("This is an action from Example."));
 }
