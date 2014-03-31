@@ -248,7 +248,7 @@
       <item>
        <widget class="QRadioButton" name="ministroOption">
         <property name="toolTip">
-         <string>Uses the external Ministro application to download and maintain Qt libraries.</string>
+         <string>Uses the external Ministro application to download and maintain Qt libraries.&lt;br/&gt;&lt;br/&gt;Ministro is a third-party tool which provides the open source Qt libraries on demand. These libraries are compatible with the default open source binary package and will not always be up-to-date.</string>
         </property>
         <property name="text">
          <string>Use Ministro service to install Qt</string>
