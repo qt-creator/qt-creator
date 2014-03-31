@@ -104,6 +104,7 @@ private Q_SLOTS:
     void templateFunctionParameters();
 
     void anonymousClass_QTCREATORBUG8963();
+    void anonymousClass_QTCREATORBUG11859();
     void using_insideGlobalNamespace();
     void using_insideNamespace();
     void using_insideFunction();
@@ -560,6 +561,49 @@ void tst_FindUsages::anonymousClass_QTCREATORBUG8963()
     findUsages(isNotIntDeclaration);
 
     QCOMPARE(findUsages.usages().size(), 2);
+}
+
+void tst_FindUsages::anonymousClass_QTCREATORBUG11859()
+{
+    const QByteArray src =
+            "struct Foo {\n"
+            "};\n"
+            "typedef struct {\n"
+            " int Foo;\n"
+            "} Struct;\n"
+            "void foo()\n"
+            "{\n"
+            " Struct s;\n"
+            " s.Foo;\n"
+            "}\n"
+            ;
+
+    Document::Ptr doc = Document::create("anonymousClass_QTCREATORBUG11859");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 4U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *fooAsStruct = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(fooAsStruct);
+    Class *structSymbol = doc->globalSymbolAt(1)->asClass();
+    QVERIFY(structSymbol);
+    QCOMPARE(structSymbol->memberCount(), 1U);
+    Declaration *fooAsMemberOfAnonymousStruct = structSymbol->memberAt(0)->asDeclaration();
+    QVERIFY(fooAsMemberOfAnonymousStruct);
+    QCOMPARE(fooAsMemberOfAnonymousStruct->name()->identifier()->chars(), "Foo");
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(fooAsStruct);
+    QCOMPARE(findUsages.references().size(), 1);
+
+    findUsages(fooAsMemberOfAnonymousStruct);
+    QCOMPARE(findUsages.references().size(), 2);
 }
 
 void tst_FindUsages::using_insideGlobalNamespace()
