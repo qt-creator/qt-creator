@@ -270,6 +270,10 @@ bool IosRunConfiguration::fromMap(const QVariantMap &map)
             valid = true;
     if (valid)
         m_deviceType = deviceType;
+    else if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) == Constants::IOS_DEVICE_TYPE)
+        m_deviceType = IosDeviceType::IosDevice;
+    else
+        m_deviceType = IosDeviceType::SimulatedIphoneRetina4Inch;
 
     return RunConfiguration::fromMap(map);
 }
