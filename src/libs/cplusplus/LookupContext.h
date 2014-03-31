@@ -143,7 +143,7 @@ private:
     TemplateNameIdTable _specializations;
     QMap<const TemplateNameId *, ClassOrNamespace *> _instantiations;
     Anonymouses _anonymouses;
-    QSet<const AnonymousNameId *> _declaredAnonymouses;
+    QSet<const AnonymousNameId *> _declaredOrTypedefedAnonymouses;
 
     QHash<Internal::FullyQualifiedName, Symbol *> *_scopeLookupCache;
 
