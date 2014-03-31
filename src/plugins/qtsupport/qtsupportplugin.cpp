@@ -96,6 +96,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     ProjectExplorer::KitManager::registerKitInformation(new QtKitInformation);
 
+    QtVersionManager::initialized();
+
     return true;
 }
 
@@ -108,8 +110,6 @@ void QtSupportPlugin::extensionsInitialized()
            " You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)));
     connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
-
-    QtVersionManager::extensionsInitialized();
 }
 
 bool QtSupportPlugin::delayedInitialize()

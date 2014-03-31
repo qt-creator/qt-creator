@@ -40,6 +40,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/toolchainmanager.h>
+
 #include <utils/buildablehelperlibrary.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/hostosinfo.h>
@@ -159,8 +161,11 @@ QtVersionManager::QtVersionManager()
     connect(m_fileWatcherTimer, SIGNAL(timeout()), SLOT(updateFromInstaller()));
 }
 
-void QtVersionManager::extensionsInitialized()
+void QtVersionManager::triggerQtVersionRestore()
 {
+    disconnect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsLoaded()),
+               this, SLOT(triggerQtVersionRestore()));
+
     bool success = restoreQtVersions();
     m_instance->updateFromInstaller(false);
     if (!success) {
@@ -200,6 +205,12 @@ QtVersionManager::~QtVersionManager()
     delete m_writer;
     qDeleteAll(m_versions);
     m_versions.clear();
+}
+
+void QtVersionManager::initialized()
+{
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsLoaded()),
+            QtVersionManager::instance(), SLOT(triggerQtVersionRestore()));
 }
 
 QObject *QtVersionManager::instance()
