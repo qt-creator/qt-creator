@@ -106,7 +106,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
 
     m_sourceDirectoryWarning = new QLabel(this);
     m_sourceDirectoryWarning->setVisible(false);
-    m_sourceDirectoryWarning->setText(tr("The Android package source directory can not be the same as the project directory."));
+    m_sourceDirectoryWarning->setText(tr("The Android package source directory cannot be the same as the project directory."));
     m_sourceDirectoryWarning->setWordWrap(true);
     m_warningIcon = new QLabel(this);
     m_warningIcon->setVisible(false);
