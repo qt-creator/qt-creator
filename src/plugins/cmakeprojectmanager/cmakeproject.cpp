@@ -342,11 +342,6 @@ bool CMakeProject::parseCMakeLists()
         part->displayName = displayName();
         part->projectFile = projectFilePath();
 
-        part->evaluateToolchain(tc,
-                                cxxflags,
-                                cxxflags,
-                                SysRootKitInformation::sysRoot(k));
-
         // This explicitly adds -I. to the include paths
         part->includePaths += projectDirectory();
 
@@ -370,6 +365,11 @@ bool CMakeProject::parseCMakeLists()
         CppTools::ProjectFileAdder adder(part->files);
         foreach (const QString &file, m_files)
             adder.maybeAdd(file);
+
+        part->evaluateToolchain(tc,
+                                cxxflags,
+                                cxxflags,
+                                SysRootKitInformation::sysRoot(k));
 
         pinfo.appendProjectPart(part);
         m_codeModelFuture.cancel();
