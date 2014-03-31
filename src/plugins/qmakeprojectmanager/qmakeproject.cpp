@@ -653,8 +653,6 @@ void QmakeProject::updateQmlJSCodeModel()
     projectInfo.activeResourceFiles.removeDuplicates();
     projectInfo.allResourceFiles.removeDuplicates();
 
-    setProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS, !projectInfo.sourceFiles.isEmpty());
-
     modelManager->updateProjectInfo(projectInfo, this);
 }
 
