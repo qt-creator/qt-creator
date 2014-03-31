@@ -19,8 +19,8 @@ QtcPlugin {
 
     files: [
         "ios.qrc",
-        "iosanalyzersupport.cpp",
-        "iosanalyzersupport.h",
+        "iosanalyzesupport.cpp",
+        "iosanalyzesupport.h",
         "iosbuildstep.cpp",
         "iosbuildstep.h",
         "iosbuildstep.ui",
