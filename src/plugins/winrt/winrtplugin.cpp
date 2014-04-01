@@ -67,15 +67,7 @@ bool WinRtPlugin::initialize(const QStringList &arguments, QString *errorMessage
 
 void WinRtPlugin::extensionsInitialized()
 {
-    WinRtDeviceFactory *deviceFactory = new Internal::WinRtDeviceFactory;
-    addAutoReleasedObject(deviceFactory);
-    DeviceManager *deviceManager = DeviceManager::instance();
-    if (deviceManager->isLoaded()) {
-        deviceFactory->onDevicesLoaded();
-    } else {
-        connect(deviceManager, &DeviceManager::devicesLoaded,
-                deviceFactory, &WinRtDeviceFactory::onDevicesLoaded);
-    }
+    addAutoReleasedObject(new Internal::WinRtDeviceFactory);
 }
 
 } // namespace Internal

@@ -51,7 +51,17 @@ namespace Internal {
 
 WinRtDeviceFactory::WinRtDeviceFactory()
     : m_process(0)
+    , m_initialized(false)
 {
+    if (allPrerequisitesLoaded()) {
+        onPrerequisitesLoaded();
+    } else {
+        connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
+                this, &WinRtDeviceFactory::onPrerequisitesLoaded, Qt::QueuedConnection);
+        connect(static_cast<QtVersionManager *>(QtVersionManager::instance()),
+                &QtVersionManager::qtVersionsLoaded,
+                this, &WinRtDeviceFactory::onPrerequisitesLoaded, Qt::QueuedConnection);
+    }
 }
 
 QString WinRtDeviceFactory::displayNameForId(Core::Id type) const
@@ -107,13 +117,21 @@ void WinRtDeviceFactory::autoDetect()
     m_process->start();
 }
 
-void WinRtDeviceFactory::onDevicesLoaded()
+void WinRtDeviceFactory::onPrerequisitesLoaded()
 {
+    if (!allPrerequisitesLoaded() || m_initialized)
+        return;
+
+    m_initialized = true;
+    disconnect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
+               this, &WinRtDeviceFactory::onPrerequisitesLoaded);
+    QtVersionManager *qtVersionManager
+            = static_cast<QtVersionManager *>(QtVersionManager::instance());
+    disconnect(qtVersionManager, &QtVersionManager::qtVersionsLoaded,
+               this, &WinRtDeviceFactory::onPrerequisitesLoaded);
     autoDetect();
-    connect(QtSupport::QtVersionManager::instance(),
-            SIGNAL(qtVersionsChanged(const QList<int>&, const QList<int>&,
-                                                       const QList<int>&)),
-            SLOT(autoDetect()));
+    connect(qtVersionManager, &QtVersionManager::qtVersionsChanged,
+            this, &WinRtDeviceFactory::autoDetect);
 }
 
 void WinRtDeviceFactory::onProcessError()
@@ -136,6 +154,11 @@ void WinRtDeviceFactory::onProcessFinished(int exitCode, QProcess::ExitStatus ex
     }
 
     parseRunnerOutput(m_process->readAllStandardOutput());
+}
+
+bool WinRtDeviceFactory::allPrerequisitesLoaded()
+{
+    return QtVersionManager::isLoaded() && DeviceManager::instance()->isLoaded();
 }
 
 QString WinRtDeviceFactory::findRunnerFilePath() const

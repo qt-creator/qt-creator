@@ -50,17 +50,19 @@ public:
 
 public slots:
     void autoDetect();
-    void onDevicesLoaded();
+    void onPrerequisitesLoaded();
 
 private slots:
     void onProcessError();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
+    static bool allPrerequisitesLoaded();
     QString findRunnerFilePath() const;
     void parseRunnerOutput(const QByteArray &output) const;
 
     Utils::QtcProcess *m_process;
+    bool m_initialized;
 };
 
 } // Internal
