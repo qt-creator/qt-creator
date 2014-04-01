@@ -124,6 +124,9 @@ int ExampleSetModel::indexForQtVersion(BaseQtVersion *qtVersion) const
 {
     // return either the entry with the same QtId, or an extra example set with same path
 
+    if (!qtVersion)
+        return -1;
+
     // check for Qt version
     for (int i = 0; i < rowCount(); ++i) {
         if (getType(i) == QtExampleSet && getQtId(i) == qtVersion->uniqueId())
