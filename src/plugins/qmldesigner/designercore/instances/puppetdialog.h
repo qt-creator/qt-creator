@@ -32,9 +32,11 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
 class PuppetDialog;
 }
+QT_END_NAMESPACE
 
 class PuppetDialog : public QDialog
 {
