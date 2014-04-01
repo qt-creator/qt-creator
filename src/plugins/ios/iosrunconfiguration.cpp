@@ -101,10 +101,7 @@ void IosRunConfiguration::init()
     m_parseInProgress = project->parseInProgress(m_profilePath);
     m_lastIsEnabled = isEnabled();
     m_lastDisabledReason = disabledReason();
-    if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) == Constants::IOS_DEVICE_TYPE)
-        m_deviceType = IosDeviceType::IosDevice;
-    else
-        m_deviceType = IosDeviceType::SimulatedIphoneRetina4Inch;
+    m_deviceType = IosDeviceType::IosDevice;
     updateDisplayNames();
     connect(DeviceManager::instance(), SIGNAL(updated()),
             SLOT(deviceChanges()));
@@ -161,6 +158,10 @@ QStringList IosRunConfiguration::commandLineArguments()
 
 void IosRunConfiguration::updateDisplayNames()
 {
+    if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) == Constants::IOS_DEVICE_TYPE)
+        m_deviceType = IosDeviceType::IosDevice;
+    else if (m_deviceType == IosDeviceType::IosDevice)
+        m_deviceType = IosDeviceType::SimulatedIphoneRetina4Inch;
     ProjectExplorer::IDevice::ConstPtr dev =
             ProjectExplorer::DeviceKitInformation::device(target()->kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
@@ -370,10 +371,6 @@ IosRunConfigurationWidget::IosRunConfigurationWidget(IosRunConfiguration *runCon
     m_ui(new Ui::IosRunConfiguration), m_runConfiguration(runConfiguration)
 {
     m_ui->setupUi(this);
-    if (m_runConfiguration->deviceType() == IosDeviceType::IosDevice) {
-        m_ui->deviceTypeLabel->setVisible(false);
-        m_ui->deviceTypeComboBox->setVisible(false);
-    }
 
     updateValues();
     connect(m_ui->deviceTypeComboBox, SIGNAL(currentIndexChanged(int)),
@@ -447,6 +444,9 @@ void IosRunConfigurationWidget::setDeviceTypeIndex(int devIndex)
 
 void IosRunConfigurationWidget::updateValues()
 {
+    bool showDeviceSelector = m_runConfiguration->deviceType() != IosDeviceType::IosDevice;
+    m_ui->deviceTypeLabel->setVisible(showDeviceSelector);
+    m_ui->deviceTypeComboBox->setVisible(showDeviceSelector);
     QStringList args = m_runConfiguration->commandLineArguments();
     QString argsString = argListToString(args);
 
