@@ -42,7 +42,7 @@ class QTSUPPORT_EXPORT QtVersionManager : public QObject
     friend class BaseQtVersion;
     friend class Internal::QtOptionsPageWidget;
 public:
-    static QObject *instance();
+    static QtVersionManager *instance();
     QtVersionManager();
     ~QtVersionManager();
     static void extensionsInitialized();

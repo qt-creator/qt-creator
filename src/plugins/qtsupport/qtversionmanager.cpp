@@ -202,7 +202,7 @@ QtVersionManager::~QtVersionManager()
     m_versions.clear();
 }
 
-QObject *QtVersionManager::instance()
+QtVersionManager *QtVersionManager::instance()
 {
     return m_instance;
 }
