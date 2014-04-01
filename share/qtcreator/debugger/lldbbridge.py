@@ -429,6 +429,15 @@ class Dumper(DumperBase):
     def isStructType(self, typeobj):
         return typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass)
 
+    def isWindowsTarget(self):
+        return False
+
+    def isQnxTarget(self):
+        return False
+
+    def isArmArchitecture(self):
+        return False
+
     def qtVersionAndNamespace(self):
         for func in self.target.FindFunctions('qVersion'):
             name = func.GetSymbol().GetName()

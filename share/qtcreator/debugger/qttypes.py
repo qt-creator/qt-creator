@@ -249,7 +249,7 @@ def qdump__QDateTime(d, value):
     base = d.extractPointer(value)
     is32bit = d.is32bit()
     if qtVersion >= 0x050200:
-        if platform.system() in ("Microsoft", "Windows"):
+        if d.isWindowsTarget():
             msecsOffset = 8
             specOffset = 16
             offsetFromUtcOffset = 20

@@ -351,12 +351,6 @@ class DumperBase:
     #def toBlob(self, value):
     #    """Abstract"""
 
-    def isArmArchitecture(self):
-        return False
-
-    def isQnxTarget(self):
-        return False
-
     def is32bit(self):
         return self.ptrSize() == 4
 
