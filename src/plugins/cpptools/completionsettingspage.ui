@@ -245,7 +245,7 @@
       <item>
        <widget class="QCheckBox" name="leadingAsterisksCheckBox">
         <property name="toolTip">
-         <string>Adds leading asterisks when continuing Qt '/*!' and Java '/**' style comments on new lines.</string>
+         <string>Adds leading asterisks when continuing C/C++ &quot;/*&quot;, Qt &quot;/*!&quot; and Java &quot;/**&quot; style comments on new lines.</string>
         </property>
         <property name="text">
          <string>Add leading asterisks</string>
