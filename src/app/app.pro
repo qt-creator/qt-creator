@@ -2,6 +2,7 @@ include(../../qtcreator.pri)
 include(../shared/qtsingleapplication/qtsingleapplication.pri)
 
 TEMPLATE = app
+CONFIG += qtc_runnable
 TARGET = $$IDE_APP_TARGET
 DESTDIR = $$IDE_APP_PATH
 
