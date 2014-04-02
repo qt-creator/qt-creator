@@ -64,7 +64,6 @@ private:
     Utils::PathChooser *m_repositoryChooser;
     QSpinBox *m_portSpinBox;
     QCheckBox *m_httpsCheckBox;
-    QCheckBox *m_promptPathCheckBox;
 };
 
 class GerritOptionsPage : public VcsBase::VcsBaseOptionsPage

@@ -432,10 +432,8 @@ void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &c
 
     QString repository;
     bool verifiedRepository = false;
-    if (!m_dialog.isNull() && !m_parameters.isNull() && !m_parameters->promptPath
-            && QFile::exists(m_dialog->repositoryPath())) {
+    if (!m_dialog.isNull() && !m_parameters.isNull() && QFile::exists(m_dialog->repositoryPath()))
         repository = client->findRepositoryForDirectory(m_dialog->repositoryPath());
-    }
 
     if (!repository.isEmpty()) {
         // Check if remote from a working dir is the same as remote from patch

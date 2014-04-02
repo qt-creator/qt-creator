@@ -58,7 +58,6 @@ public:
     QString repositoryPath;
     QStringList savedQueries;
     bool https;
-    bool promptPath;
     QString portFlag;
 };
 

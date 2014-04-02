@@ -164,9 +164,9 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     repoPathLayout->addWidget(m_repositoryChooser);
     detailsLayout->addLayout(repoPathLayout);
 
-    m_displayButton = addActionButton(QString(), SLOT(slotFetchDisplay()));
-    m_cherryPickButton = addActionButton(QString(), SLOT(slotFetchCherryPick()));
-    m_checkoutButton = addActionButton(QString(), SLOT(slotFetchCheckout()));
+    m_displayButton = addActionButton(tr("&Show"), SLOT(slotFetchDisplay()));
+    m_cherryPickButton = addActionButton(tr("Cherry &Pick"), SLOT(slotFetchCherryPick()));
+    m_checkoutButton = addActionButton(tr("&Checkout"), SLOT(slotFetchCheckout()));
     m_refreshButton = addActionButton(tr("&Refresh"), SLOT(slotRefresh()));
 
     connect(m_model, SIGNAL(refreshStateChanged(bool)),
@@ -200,19 +200,8 @@ QString GerritDialog::repositoryPath() const
 void GerritDialog::displayRepositoryPath()
 {
     QTC_ASSERT(m_parameters, return);
-    m_repositoryChooser->setVisible(!m_parameters->promptPath);
-    m_repositoryChooserLabel->setVisible(!m_parameters->promptPath);
     if (m_repositoryChooser->path().isEmpty())
         m_repositoryChooser->setPath(m_parameters->repositoryPath);
-    if (m_parameters->promptPath) {
-        m_displayButton->setText(tr("&Show..."));
-        m_cherryPickButton->setText(tr("Cherry &Pick..."));
-        m_checkoutButton->setText(tr("&Checkout..."));
-    } else {
-        m_displayButton->setText(tr("&Show"));
-        m_cherryPickButton->setText(tr("Cherry &Pick"));
-        m_checkoutButton->setText(tr("&Checkout"));
-    }
 }
 
 void GerritDialog::showEvent(QShowEvent *event)
