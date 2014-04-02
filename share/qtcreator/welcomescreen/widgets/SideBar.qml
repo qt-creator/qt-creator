@@ -140,7 +140,7 @@ ColumnLayout {
                 IconAndLink {
                     iconSource: "images/icons/qt_cloud.png"
                     title: qsTr("Qt Cloud Services")
-                    openUrl: "https://developer.qtc.io?utm_source=qtcreator31"
+                    openUrl: "https://developer.qtcloudservices.com?utm_source=qtcreator31"
                 }
                 IconAndLink {
                     iconSource: "images/icons/onlineCommunity.png"
