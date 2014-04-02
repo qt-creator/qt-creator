@@ -197,17 +197,9 @@ QString GerritDialog::repositoryPath() const
     return m_repositoryChooser->path();
 }
 
-void GerritDialog::displayRepositoryPath()
+void GerritDialog::setCurrentPath(const QString &path)
 {
-    QTC_ASSERT(m_parameters, return);
-    if (m_repositoryChooser->path().isEmpty())
-        m_repositoryChooser->setPath(m_parameters->repositoryPath);
-}
-
-void GerritDialog::showEvent(QShowEvent *event)
-{
-    displayRepositoryPath();
-    QDialog::showEvent(event);
+    m_repositoryChooser->setPath(path);
 }
 
 QPushButton *GerritDialog::addActionButton(const QString &text, const char *buttonSlot)

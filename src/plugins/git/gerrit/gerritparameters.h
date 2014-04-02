@@ -55,7 +55,6 @@ public:
     unsigned short port;
     QString user;
     QString ssh;
-    QString repositoryPath;
     QStringList savedQueries;
     bool https;
     QString portFlag;

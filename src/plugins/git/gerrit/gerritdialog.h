@@ -80,6 +80,7 @@ public:
                           QWidget *parent = 0);
     ~GerritDialog();
     QString repositoryPath() const;
+    void setCurrentPath(const QString &path);
 
 signals:
     void fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &);
@@ -90,9 +91,6 @@ public slots:
     void fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change);
     void fetchFinished();
 
-protected:
-    void showEvent(QShowEvent *event);
-
 private slots:
     void slotCurrentChanged();
     void slotDoubleClicked(const QModelIndex &);
@@ -101,7 +99,6 @@ private slots:
     void slotFetchCherryPick();
     void slotFetchCheckout();
     void slotRefresh();
-    void displayRepositoryPath();
 
 private:
     const QStandardItem *itemAt(const QModelIndex &i, int column = 0) const;

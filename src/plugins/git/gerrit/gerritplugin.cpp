@@ -301,6 +301,7 @@ bool GerritPlugin::initialize(ActionContainer *ac)
 
 void GerritPlugin::updateActions(bool hasTopLevel)
 {
+    m_gerritCommand->action()->setEnabled(hasTopLevel);
     m_pushToGerritPair.first->setEnabled(hasTopLevel);
 }
 
@@ -377,6 +378,8 @@ void GerritPlugin::openView()
         connect(this, SIGNAL(fetchFinished()), gd, SLOT(fetchFinished()));
         m_dialog = gd;
     }
+    if (!m_dialog->isVisible())
+        m_dialog->setCurrentPath(GitPlugin::instance()->currentState().topLevel());
     const Qt::WindowStates state = m_dialog->windowState();
     if (state & Qt::WindowMinimized)
         m_dialog->setWindowState(state & ~Qt::WindowMinimized);
