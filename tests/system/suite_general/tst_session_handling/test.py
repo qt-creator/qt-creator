@@ -42,7 +42,7 @@ def main():
     test.verify(waitFor("sessionName in str(mainWindow.windowTitle)", 2000),
                 "Verifying window title contains created session name.")
     for project in projects:
-        openQmakeProject(project)
+        openQmakeProject(project, Targets.DESKTOP_480_GCC)
     progressBarWait(20000)
     checkNavigator(68, "Verifying whether all projects have been opened.")
     openDocument("propertyanimation.QML.qml.color-animation\\.qml")

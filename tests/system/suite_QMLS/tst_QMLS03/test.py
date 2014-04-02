@@ -79,7 +79,7 @@ def main():
     if not startedWithoutPluginError():
         return
     # open example project
-    openQmakeProject(examplePath)
+    openQmakeProject(examplePath, Targets.DESKTOP_480_GCC)
     # open qml file
     openDocument("propertyanimation.QML.qml.color-animation\\.qml")
     # get editor

@@ -43,7 +43,7 @@ def main():
     addHelpDocumentation([os.path.join(sdkPath, "Documentation", "qt.qch")])
     templateDir = prepareTemplate(sourceExample)
     installLazySignalHandler("{type='Core::FutureProgress' unnamed='1'}", "finished()", "__handleFutureProgress__")
-    openQmakeProject(os.path.join(templateDir,proFile))
+    openQmakeProject(os.path.join(templateDir,proFile), Targets.DESKTOP_480_GCC)
     openDocument("focus.QML.qml.focus\\.qml")
     testRenameId()
     testFindUsages()

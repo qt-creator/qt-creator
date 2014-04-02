@@ -42,11 +42,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    targets = openQmakeProject(os.path.join(templateDir, proFile))
-    # make sure we use the 474 kit for having QtQuick 1.0 support
-    switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(len(targets), 0, ProjectSettings.BUILD)
-    switchViewTo(ViewConstants.EDIT)
+    openQmakeProject(os.path.join(templateDir, proFile), Targets.DESKTOP_480_GCC)
     qmlFiles = ["focus.QML.qml.focus\\.qml", "focus.QML.qml.Core.ListMenu\\.qml"]
     checkOutlineFor(qmlFiles)
     testModify()
