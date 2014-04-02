@@ -108,6 +108,8 @@ QtcPlugin {
         "androidsignaloperation.h",
         "androidtoolchain.cpp",
         "androidtoolchain.h",
+        "avddialog.cpp",
+        "avddialog.h",
         "certificatesmodel.cpp",
         "certificatesmodel.h",
         "createandroidmanifestwizard.cpp",
