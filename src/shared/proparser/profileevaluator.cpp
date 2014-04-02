@@ -100,7 +100,8 @@ QString ProFileEvaluator::sysrootify(const QString &path, const QString &baseDir
 #endif
     const bool isHostSystemPath =
         option->sysroot.isEmpty() || path.startsWith(option->sysroot, cs)
-        || path.startsWith(baseDir, cs) || path.startsWith(d->m_outputDir, cs);
+        || path.startsWith(baseDir, cs) || path.startsWith(d->m_outputDir, cs)
+        || !QFileInfo(option->sysroot + path).exists();
 
     return isHostSystemPath ? path : option->sysroot + path;
 }
