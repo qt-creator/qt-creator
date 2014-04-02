@@ -185,6 +185,8 @@ public:
     QAbstractItemModel* exampleSetModel();
 
     Q_INVOKABLE void filterForExampleSet(int index);
+    Q_INVOKABLE void writeSearchStringToSettings(const QString &string);
+    Q_INVOKABLE QString readSearchStringsFromSettings();
 
 public slots:
     void setFilterTags(const QStringList &arg)
