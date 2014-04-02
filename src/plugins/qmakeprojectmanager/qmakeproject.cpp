@@ -989,6 +989,20 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
         m_qmakeGlobals->setCommandLineArguments(m_rootProjectNode->buildDir(), qmakeArgs);
 
         QtSupport::ProFileCacheManager::instance()->incRefCount();
+
+        // On ios, qmake is called recursively, and the second call with a different
+        // spec.
+        // macx-ios-clang just creates supporting makefiles, and to avoid being
+        // slow does not evaluate everything, and contains misleading information
+        // (that is never used).
+        // macx-xcode correctly evaluates the variables and generates the xcodeproject
+        // that is actually used to build the application.
+        //
+        // It is important to override the spec file only for the creator evaluator,
+        // and not the qmake buildstep used to build the app (as we use the makefiles).
+        const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // from Ios::Constants
+        if (qtVersion->type() == QLatin1String(IOSQT))
+            m_qmakeGlobals->xqmakespec = QLatin1String("macx-xcode");
     }
     ++m_qmakeGlobalsRefCnt;
 
