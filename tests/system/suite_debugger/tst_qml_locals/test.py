@@ -53,7 +53,7 @@ def main():
     exe, target = getExecutableAndTargetFromToolTip(str(waitForObject(fancyConfButton).toolTip))
     if not (test.verify(fancyRunButton.enabled and fancyDebugButton.enabled,
                         "Verifying Run and Debug are enabled (Qt5 is available).")
-            and test.compare(target, Targets.getStringForTarget(Targets.DESKTOP_501_DEFAULT),
+            and test.compare(target, Targets.getStringForTarget(Targets.DESKTOP_521_DEFAULT),
                              "Verifying selected Target is Qt5.")
             and test.compare(exe, "QML Scene", "Verifying selected executable is QML Scene.")):
         earlyExit("Something went wrong opening Qml project - probably missing Qt5.")

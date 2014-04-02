@@ -9,9 +9,7 @@
     <url>http://www.mycompany.com</url>
 //! [2]
 //! [3]
-    <dependencyList>
-        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
-    </dependencyList>
+    $$dependencyList
 //! [3]
 </plugin>
 

@@ -268,7 +268,7 @@ void ExamplesWelcomePage::facilitateQml(QQmlEngine *engine)
     if (m_showExamples) {
         proxy->setShowTutorialsOnly(false);
         rootContenxt->setContextProperty(QLatin1String("examplesModel"), proxy);
-        rootContenxt->setContextProperty(QLatin1String("qtVersionModel"), proxy->qtVersionModel());
+        rootContenxt->setContextProperty(QLatin1String("exampleSetModel"), proxy->exampleSetModel());
     } else {
         rootContenxt->setContextProperty(QLatin1String("tutorialsModel"), proxy);
     }

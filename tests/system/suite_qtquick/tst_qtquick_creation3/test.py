@@ -38,7 +38,7 @@ def main():
         workingDir = tempDir()
         projectName = createNewQtQuickUI(workingDir, quickVersion)
         test.log("Running project Qt Quick %s UI" % quickVersion)
-        qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(1, workingDir, projectName, 11223, quickVersion)
+        qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(1, 0, workingDir, projectName, 11223, quickVersion)
         if qmlViewer!=None:
             qmlViewerPath = os.path.dirname(qmlViewer)
             qmlViewer = os.path.basename(qmlViewer)

@@ -157,12 +157,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
                                                      d->m_modelProxy);
 
     d->m_profilerState = profilerState;
-    connect(d->m_profilerState, SIGNAL(stateChanged()),
-            this, SLOT(profilerStateChanged()));
-    connect(d->m_profilerState, SIGNAL(clientRecordingChanged()),
-            this, SLOT(clientRecordingChanged()));
-    connect(d->m_profilerState, SIGNAL(serverRecordingChanged()),
-            this, SLOT(serverRecordingChanged()));
 
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
@@ -192,7 +186,6 @@ void QmlProfilerTraceView::reset()
     connect(rootObject, SIGNAL(updateLockButton()), this, SLOT(updateLockButton()));
     connect(this, SIGNAL(jumpToPrev()), rootObject, SLOT(prevEvent()));
     connect(this, SIGNAL(jumpToNext()), rootObject, SLOT(nextEvent()));
-    connect(rootObject, SIGNAL(selectedEventChanged(int)), this, SIGNAL(selectedEventChanged(int)));
     connect(rootObject, SIGNAL(changeToolTip(QString)), this, SLOT(updateToolTip(QString)));
     connect(this, SIGNAL(enableToolbar(bool)), this, SLOT(setZoomSliderEnabled(bool)));
     connect(this, SIGNAL(showZoomSlider(bool)), this, SLOT(setZoomSliderVisible(bool)));
@@ -298,13 +291,11 @@ qint64 QmlProfilerTraceView::selectionEnd() const
     return 0;
 }
 
-void QmlProfilerTraceView::clearDisplay()
+void QmlProfilerTraceView::clear()
 {
-    d->m_zoomControl->setRange(0,0);
-    d->m_mainView->rootObject()->setProperty("scrollY", QVariant(0));
-
-    QMetaObject::invokeMethod(d->m_mainView->rootObject(), "clearAll");
-    QMetaObject::invokeMethod(d->m_overview->rootObject(), "clearDisplay");
+    QMetaObject::invokeMethod(d->m_mainView->rootObject(), "clear");
+    QMetaObject::invokeMethod(d->m_overview->rootObject(), "clear");
+    QMetaObject::invokeMethod(d->m_timebar->rootObject(), "clear");
 }
 
 void QmlProfilerTraceView::selectNextEventByHash(const QString &hash)
@@ -455,21 +446,6 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     }
 }
 
-/////////////////////////////////////////////////
-// Tell QML the state of the profiler
-void QmlProfilerTraceView::setRecording(bool recording)
-{
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (rootObject)
-        rootObject->setProperty("recordingEnabled", QVariant(recording));
-}
-
-void QmlProfilerTraceView::setAppKilled()
-{
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (rootObject)
-        rootObject->setProperty("appKilled",QVariant(true));
-}
 ////////////////////////////////////////////////////////////////
 // Profiler State
 void QmlProfilerTraceView::profilerDataModelStateChanged()
@@ -489,30 +465,6 @@ void QmlProfilerTraceView::profilerDataModelStateChanged()
     default:
         break;
     }
-}
-
-void QmlProfilerTraceView::profilerStateChanged()
-{
-    switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::AppKilled : {
-        if (d->m_modelManager->state() == QmlProfilerDataState::AcquiringData)
-            setAppKilled();
-        break;
-    }
-    default:
-        // no special action needed for other states
-        break;
-    }
-}
-
-void QmlProfilerTraceView::clientRecordingChanged()
-{
-    // nothing yet
-}
-
-void QmlProfilerTraceView::serverRecordingChanged()
-{
-    setRecording(d->m_profilerState->serverRecording());
 }
 
 bool QmlProfilerQuickView::event(QEvent *ev)

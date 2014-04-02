@@ -32,7 +32,8 @@ HEADERS += \
     iosdeployconfiguration.h \
     iosdeploystep.h \
     iosdeploystepfactory.h \
-    iosdeploystepwidget.h
+    iosdeploystepwidget.h \
+    iosanalyzesupport.h
 
 
 SOURCES += \
@@ -59,7 +60,8 @@ SOURCES += \
     iosdeployconfiguration.cpp \
     iosdeploystep.cpp \
     iosdeploystepfactory.cpp \
-    iosdeploystepwidget.cpp
+    iosdeploystepwidget.cpp \
+    iosanalyzesupport.cpp
 
 FORMS += \
     iossettingswidget.ui \

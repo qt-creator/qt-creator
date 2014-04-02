@@ -433,29 +433,11 @@ void IosConfigurations::updateSimulators()
     QMap<QString, Platform> platforms = IosProbe::detectPlatforms();
     QMapIterator<QString, Platform> iter(platforms);
     Utils::FileName simulatorPath;
-    while (iter.hasNext()) {
-        iter.next();
-        const Platform &p = iter.value();
-        if (p.name.startsWith(QLatin1String("iphonesimulator-"))) {
-            simulatorPath = p.platformPath;
-            simulatorPath.appendPath(QLatin1String(
-                "/Developer/Applications/iPhone Simulator.app/Contents/MacOS/iPhone Simulator"));
-            if (simulatorPath.toFileInfo().exists())
-                break;
-        }
-    }
     IDevice::ConstPtr dev = devManager->find(devId);
-    if (!simulatorPath.isEmpty() && simulatorPath.toFileInfo().exists()) {
-        if (!dev.isNull()) {
-            if (static_cast<const IosSimulator*>(dev.data())->simulatorPath() == simulatorPath)
-                return;
-            devManager->removeDevice(devId);
-        }
-        IosSimulator *newDev = new IosSimulator(devId, simulatorPath);
-        devManager->addDevice(IDevice::ConstPtr(newDev));
-    } else if (!dev.isNull()) {
-        devManager->removeDevice(devId);
-    }
+    if (!dev.isNull())
+        return;
+    IosSimulator *newDev = new IosSimulator(devId);
+    devManager->addDevice(IDevice::ConstPtr(newDev));
 }
 
 void IosConfigurations::setDeveloperPath(const FileName &devPath)

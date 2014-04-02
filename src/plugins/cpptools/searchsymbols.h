@@ -50,7 +50,7 @@ namespace CppTools {
 
 struct CPPTOOLS_EXPORT ModelItemInfo
 {
-    enum ItemType { Enum, Class, Method, Declaration };
+    enum ItemType { Enum, Class, Function, Declaration };
 
     ModelItemInfo()
         : type(Declaration),

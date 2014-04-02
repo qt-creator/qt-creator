@@ -34,6 +34,7 @@
 #include <utils/qtcassert.h>
 #include <QUrl>
 #include <QDebug>
+#include <algorithm>
 
 namespace QmlProfiler {
 
@@ -105,11 +106,6 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event)
 }
 
 
-bool compareStartTimes(const QmlProfilerDataModel::QmlEventData &t1, const QmlProfilerDataModel::QmlEventData &t2)
-{
-    return t1.startTime < t2.startTime;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 QmlProfilerDataModel::QmlProfilerDataModel(Utils::FileInProjectFinder *fileFinder,
@@ -147,13 +143,19 @@ bool QmlProfilerDataModel::isEmpty() const
     return d->eventList.isEmpty();
 }
 
+inline static bool operator<(const QmlProfilerDataModel::QmlEventData &t1,
+                             const QmlProfilerDataModel::QmlEventData &t2)
+{
+    return t1.startTime < t2.startTime;
+}
+
 void QmlProfilerDataModel::complete()
 {
     Q_D(QmlProfilerDataModel);
     // post-processing
 
-    // sort events by start time
-    qSort(d->eventList.begin(), d->eventList.end(), compareStartTimes);
+    // sort events by start time, using above operator<
+    std::sort(d->eventList.begin(), d->eventList.end());
 
     // rewrite strings
     int n = d->eventList.count();

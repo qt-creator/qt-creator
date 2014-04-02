@@ -39,22 +39,24 @@ Canvas {
     // ***** properties
     height: 50
     property bool dataReady: false
-    property real startTime : 0
-    property real endTime : 0
+    property double startTime : 0
+    property double endTime : 0
+    property bool recursionGuard: false
 
     // ***** functions
-    function clearDisplay()
+    function clear()
     {
         dataReady = false;
         requestPaint();
     }
 
     function updateRange() {
+        if (recursionGuard)
+            return;
         var newStartTime = Math.round(rangeMover.getLeft() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
         var newEndTime = Math.round(rangeMover.getRight() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
-        if ((startTime !== newStartTime || endTime !== newEndTime) && newEndTime - newStartTime > 500) {
-            zoomControl.setRange(newStartTime, newEndTime);
-        }
+        if (startTime !== newStartTime || endTime !== newEndTime)
+            zoomControl.setRange(newStartTime, Math.max(newEndTime, newStartTime + 500));
     }
 
     function clamp(val, min, max) {
@@ -66,6 +68,7 @@ Canvas {
         target: zoomControl
         onRangeChanged: {
             if (qmlProfilerModelProxy) {
+                recursionGuard = true;
                 startTime = clamp(zoomControl.startTime(), qmlProfilerModelProxy.traceStartTime(), qmlProfilerModelProxy.traceEndTime());
                 endTime = clamp(zoomControl.endTime(), startTime, qmlProfilerModelProxy.traceEndTime());
                 var newRangeX = (startTime - qmlProfilerModelProxy.traceStartTime()) * width / qmlProfilerModelProxy.traceDuration();
@@ -77,6 +80,7 @@ Canvas {
 
                 if (leftChanged || widthChanged)
                     rangeMover.setRight(newRangeX + newWidth);
+                recursionGuard = false;
             }
         }
     }

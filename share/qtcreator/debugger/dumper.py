@@ -351,12 +351,6 @@ class DumperBase:
     #def toBlob(self, value):
     #    """Abstract"""
 
-    def isArmArchitecture(self):
-        return False
-
-    def isQnxTarget(self):
-        return False
-
     def is32bit(self):
         return self.ptrSize() == 4
 
@@ -555,6 +549,13 @@ class DumperBase:
                     else:
                         self.putSubItem("first", key)
                         self.putSubItem("second", value)
+
+    def putPlainChildren(self, value, dumpBase = True):
+        self.putEmptyValue(-99)
+        self.putNumChild(1)
+        if self.isExpanded():
+            with Children(self):
+                self.putFields(value, dumpBase)
 
     def isMapCompact(self, keyType, valueType):
         format = self.currentItemFormat()
@@ -955,7 +956,7 @@ class DumperBase:
             superdata = self.extractPointer(result)
             if toInteger(superdata) == 0:
                 # This looks like a Q_GADGET
-                result = 0
+                return 0
 
         return result
 
@@ -971,7 +972,15 @@ class DumperBase:
         if result is not None: # Is 0 or the static metaobject.
             return result
 
-        result = self.extractStaticMetaObjectHelper(typeobj)
+        try:
+            result = self.extractStaticMetaObjectHelper(typeobj)
+        except RuntimeError as error:
+            warn("METAOBJECT EXTRACTION FAILED: %s" % error)
+            result = 0
+        except:
+            warn("METAOBJECT EXTRACTION FAILED FOR UNKNOWN REASON")
+            result = 0
+
         if not result:
             base = self.directBaseClass(typeobj, 0)
             if base:

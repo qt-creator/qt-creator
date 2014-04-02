@@ -33,6 +33,7 @@
 #define protected public
 #define private public
 
+#include <private/qdatetime_p.h>
 #include <private/qfile_p.h>
 #include <private/qfileinfo_p.h>
 #include <private/qobject_p.h>
@@ -78,10 +79,8 @@ void tst_offsets::offsets_data()
                 << int((char *)&p->fileName - (char *)p);
         if (qtVersion > 0x50200)
             data << 176 << 272;
-        else if (qtVersion == 0x50200)
-            data << 176 << 280;
         else if (qtVersion >= 0x50000)
-            data << 180 << 280;
+            data << 176 << 280;
         else
             data << 140 << 232;
     }
@@ -117,6 +116,65 @@ void tst_offsets::offsets_data()
         data << 28 << 48;    // sizeof(QObjectData)
     }
 #endif
+
+    {
+        QDateTimePrivate *p = 0;
+#if QT_VERSION < 0x50000
+        QTest::newRow("QDateTimePrivate::date")
+            << int((char *)&p->date - (char *)p) << 4 << 4;
+        QTest::newRow("QDateTimePrivate::time")
+            << int((char *)&p->time - (char *)p) << 8 << 8;
+        QTest::newRow("QDateTimePrivate::spec")
+            << int((char *)&p->spec - (char *)p) << 12 << 12;
+        QTest::newRow("QDateTimePrivate::utcOffset")
+            << int((char *)&p->utcOffset - (char *)p) << 16 << 16;
+#elif QT_VERSION < 0x50200
+#   ifdef Q_OS_WIN
+        QTest::newRow("QDateTimePrivate::date")
+            << int((char *)&p->date - (char *)p) << 8 << 8;
+        QTest::newRow("QDateTimePrivate::time")
+            << int((char *)&p->time - (char *)p) << 16 << 16;
+        QTest::newRow("QDateTimePrivate::spec")
+            << int((char *)&p->spec - (char *)p) << 20 << 20;
+        QTest::newRow("QDateTimePrivate::utcOffset")
+            << int((char *)&p->utcOffset - (char *)p) << 24 << 24;
+#   else
+        QTest::newRow("QDateTimePrivate::date")
+            << int((char *)&p->date - (char *)p) << 4 << 8;
+        QTest::newRow("QDateTimePrivate::time")
+            << int((char *)&p->time - (char *)p) << 12 << 16;
+        QTest::newRow("QDateTimePrivate::spec")
+            << int((char *)&p->spec - (char *)p) << 16 << 20;
+        QTest::newRow("QDateTimePrivate::utcOffset")
+            << int((char *)&p->utcOffset - (char *)p) << 20 << 24;
+#   endif
+#else
+#   ifdef Q_OS_WIN
+        QTest::newRow("QDateTimePrivate::m_msecs")
+            << int((char *)&p->m_msecs - (char *)p) << 8 << 8;
+        QTest::newRow("QDateTimePrivate::m_spec")
+            << int((char *)&p->m_spec - (char *)p) << 16 << 16;
+        QTest::newRow("QDateTimePrivate::m_offsetFromUtc")
+            << int((char *)&p->m_offsetFromUtc - (char *)p) << 20 << 20;
+        QTest::newRow("QDateTimePrivate::m_timeZone")
+            << int((char *)&p->m_timeZone - (char *)p) << 24 << 24;
+        QTest::newRow("QDateTimePrivate::m_status")
+            << int((char *)&p->m_status - (char *)p) << 28 << 32;
+#   else
+        QTest::newRow("QDateTimePrivate::m_msecs")
+            << int((char *)&p->m_msecs - (char *)p) << 4 << 8;
+        QTest::newRow("QDateTimePrivate::m_spec")
+            << int((char *)&p->m_spec - (char *)p) << 12 << 16;
+        QTest::newRow("QDateTimePrivate::m_offsetFromUtc")
+            << int((char *)&p->m_offsetFromUtc - (char *)p) << 16 << 20;
+        QTest::newRow("QDateTimePrivate::m_timeZone")
+            << int((char *)&p->m_timeZone - (char *)p) << 20 << 24;
+        QTest::newRow("QDateTimePrivate::m_status")
+            << int((char *)&p->m_status - (char *)p) << 24 << 32;
+#   endif
+#endif
+    }
+
 }
 
 

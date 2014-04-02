@@ -78,7 +78,7 @@ public:
     void showContextMenu(QPoint position);
 
 public slots:
-    void clearDisplay();
+    void clear();
     void selectNextEventByHash(const QString &eventHash);
     void selectNextEventByLocation(const QString &filename, const int line, const int column);
 
@@ -99,15 +99,11 @@ protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
 
 private slots:
-    void profilerStateChanged();
-    void clientRecordingChanged();
-    void serverRecordingChanged();
     void setZoomSliderEnabled(bool enabled);
     void setZoomSliderVisible(bool visible);
 
 signals:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columNumber);
-    void selectedEventChanged(int eventId);
 
     void jumpToPrev();
     void jumpToNext();
@@ -120,9 +116,6 @@ signals:
 
 private:
     QWidget *createToolbar();
-
-    void setRecording(bool recording);
-    void setAppKilled();
 
 private:
     class QmlProfilerTraceViewPrivate;

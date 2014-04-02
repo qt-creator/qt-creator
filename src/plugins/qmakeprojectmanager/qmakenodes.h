@@ -31,6 +31,7 @@
 #define QMAKENODES_H
 
 #include "qmakeprojectmanager_global.h"
+#include "proparser/prowriter.h"
 
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectnodes.h>
@@ -160,7 +161,9 @@ public:
     bool renameFile(const QString &filePath, const QString &newFilePath);
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const;
 
-    bool setProVariable(const QString &var, const QString &value);
+    bool setProVariable(const QString &var, const QStringList &values,
+                        const QString &scope = QString(),
+                        int flags = QmakeProjectManager::Internal::ProWriter::ReplaceValues);
 
     bool folderChanged(const QString &changedFolder, const QSet<Utils::FileName> &newFiles);
 
@@ -199,6 +202,7 @@ private slots:
 private:
     static bool ensureWriteableProFile(const QString &file);
     static QPair<ProFile *, QStringList> readProFile(const QString &file);
+    static QPair<ProFile *, QStringList> readProFileFromContents(const QString &contents);
     void save(const QStringList &lines);
     bool priFileWritable(const QString &path);
     bool saveModifiedEditors();

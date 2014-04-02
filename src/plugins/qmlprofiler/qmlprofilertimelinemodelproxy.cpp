@@ -119,6 +119,8 @@ void BasicTimelineModel::loadData()
 
     d->prepare();
 
+    QMap<QString, int> eventIdsByHash;
+
     // collect events
     const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
@@ -130,7 +132,9 @@ void BasicTimelineModel::loadData()
         QString eventHash = QmlProfilerDataModel::getHashString(event);
 
         // store in dictionary
-        if (!d->eventHashes.contains(eventHash)) {
+        int eventId;
+        QMap<QString, int>::const_iterator i = eventIdsByHash.constFind(eventHash);
+        if (i == eventIdsByHash.cend()) {
             QmlRangeEventData rangeEventData = {
                 event.displayName,
                 event.data.join(QLatin1String(" ")),
@@ -139,11 +143,15 @@ void BasicTimelineModel::loadData()
                 lastEventId++ // event id
             };
             d->eventDict << rangeEventData;
+            eventId = d->eventHashes.size();
+            eventIdsByHash.insert(eventHash, eventId);
             d->eventHashes << eventHash;
+        } else {
+            eventId = i.value();
         }
 
         // store starttime-based instance
-        d->insert(event.startTime, event.duration, QmlRangeEventStartInstance(d->eventHashes.indexOf(eventHash)));
+        d->insert(event.startTime, event.duration, QmlRangeEventStartInstance(eventId));
 
         d->modelManager->modelProxyCountUpdated(d->modelId, d->count(), eventList.count() * 6);
     }

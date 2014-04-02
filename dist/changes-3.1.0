@@ -99,6 +99,7 @@ Version Control Systems
       * Added completion in change selection dialog
       * Fixed freeze after resolving conflict with cherry-pick or revert
       * Added support for local branch selection in the Push to Gerrit dialog
+      * Removed branch list from "Git Show" header (QTCREATORBUG-11293)
    * ClearCase
       * Improved performance of indexing dynamic views
       * Added warning when editing Derived Objects

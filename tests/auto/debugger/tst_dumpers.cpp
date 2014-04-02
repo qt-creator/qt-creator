@@ -1090,7 +1090,7 @@ void tst_Dumpers::dumper()
         cmds = "set confirm off\n"
                 "file doit\n"
                 "set print object on\n"
-                "set auto-load python-scripts no\n";
+                "set auto-load python-scripts off\n";
 
         cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
                 "python sys.path.append('" + uninstalledData + "')\n"

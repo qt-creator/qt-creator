@@ -89,7 +89,7 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInte
         QString matchString = info.symbolName;
         if (info.type == ModelItemInfo::Declaration)
             matchString = ModelItemInfo::representDeclaration(info.symbolName, info.symbolType);
-        else if (info.type == ModelItemInfo::Method)
+        else if (info.type == ModelItemInfo::Function)
             matchString += info.symbolType;
 
         if ((hasWildcard && regexp.exactMatch(matchString))
@@ -98,7 +98,7 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInte
             QVariant id = qVariantFromValue(info);
             QString name = matchString;
             QString extraInfo = info.symbolScope;
-            if (info.type == ModelItemInfo::Method) {
+            if (info.type == ModelItemInfo::Function) {
                 if (info.unqualifiedNameAndScope(matchString, &name, &extraInfo))
                     name += info.symbolType;
             }

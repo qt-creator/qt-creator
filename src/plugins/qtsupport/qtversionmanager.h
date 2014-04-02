@@ -45,7 +45,7 @@ public:
     static QtVersionManager *instance();
     QtVersionManager();
     ~QtVersionManager();
-    static void extensionsInitialized();
+    static void initialized();
     static bool delayedInitialize();
 
     static bool isLoaded();
@@ -83,6 +83,7 @@ public slots:
 
 private slots:
     void updateFromInstaller(bool emitSignal = true);
+    void triggerQtVersionRestore();
 
 private:
     // Used by QtOptionsPage

@@ -27,6 +27,7 @@
 #
 #############################################################################
 
+import platform
 from dumper import *
 
 
@@ -155,7 +156,6 @@ def qdump__QModelIndex(d, value):
         rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
         columnCount = int(d.parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
     except:
-        d.putEmptyValue()
         d.putPlainChildren(value)
         return
 
@@ -246,20 +246,27 @@ def qdump__QDateTime(d, value):
     # This relies on the Qt4/Qt5 internal structure layout:
     # {sharedref(4), ...
     base = d.extractPointer(value)
+    is32bit = d.is32bit()
     if qtVersion >= 0x050200:
-        dateBase = base + d.ptrSize() # Only QAtomicInt, but will be padded.
-        # qint64 m_msecs
-        # Qt::TimeSpec m_spec
-        # int m_offsetFromUtc
-        # QTimeZone m_timeZone // only #ifndef QT_BOOTSTRAPPED
-        # StatusFlags m_status
-        status = d.extractInt(dateBase + 16 + d.ptrSize())
+        if d.isWindowsTarget():
+            msecsOffset = 8
+            specOffset = 16
+            offsetFromUtcOffset = 20
+            timeZoneOffset = 24
+            statusOffset = 28 if is32bit else 32
+        else:
+            msecsOffset = 4 if is32bit else 8
+            specOffset = 12 if is32bit else 16
+            offsetFromUtcOffset = 16 if is32bit else 20
+            timeZoneOffset = 20 if is32bit else 24
+            statusOffset = 24 if is32bit else 32
+        status = d.extractInt(base + statusOffset)
         if int(status & 0x0c == 0x0c): # ValidDate and ValidTime
             isValid = True
-            msecs = d.extractInt64(dateBase)
-            spec = d.extractInt(dateBase + 8)
-            offset = d.extractInt(dateBase + 12)
-            tzp = d.extractPointer(dateBase + 16)
+            msecs = d.extractInt64(base + msecsOffset)
+            spec = d.extractInt(base + specOffset)
+            offset = d.extractInt(base + offsetFromUtcOffset)
+            tzp = d.extractPointer(base + timeZoneOffset)
             if tzp == 0:
                 tz = ""
             else:
@@ -1203,11 +1210,7 @@ def _qdump__QObject(d, value):
               with SubItem(d, "data"):
                 d.putEmptyValue()
                 d.putNoType()
-                d.putNumChild(1)
-                if d.isExpanded():
-                    with Children(d):
-                        d.putFields(d_ptr, False)
-
+                d.putPlainChildren(d_ptr, False)
 
         d.putFields(value)
         # Parent and children.
@@ -2265,11 +2268,7 @@ def qdump__QV4__Value(d, value):
         pass
 
     # Fall back for cases that we do not handle specifically.
-    d.putEmptyValue()
-    d.putNumChild(1)
-    if d.isExpanded():
-        with Children(d):
-            d.putFields(value)
+    d.putPlainChildren(value)
 
 
 #######################################################################

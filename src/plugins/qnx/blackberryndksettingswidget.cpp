@@ -165,6 +165,10 @@ void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentItem)
 
 void BlackBerryNDKSettingsWidget::updateConfigurationList()
 {
+    m_activatedApiLevel.clear();
+    m_activatedApiLevel << m_bbConfigManager->activeApiLevels();
+    m_deactivatedApiLevel.clear();
+
     qDeleteAll(m_autoDetectedNdks->takeChildren());
     qDeleteAll(m_manualApiLevel->takeChildren());
     qDeleteAll(m_runtimes->takeChildren());

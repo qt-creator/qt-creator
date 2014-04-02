@@ -68,6 +68,7 @@ private slots:
 private:
     QmakeProjectManager::QmakeProject *m_project;
     QStringList m_entries;
+    QString m_scope;
 };
 
 } // namespace Internal

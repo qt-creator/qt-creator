@@ -183,7 +183,7 @@ Rectangle {
 
     MouseArea {
         id: dragArea
-        property int origWidth: 0
+        property double origWidth: 0
 
         anchors.fill: selectedRange
         drag.target: leftRange

@@ -47,75 +47,157 @@
 namespace QtSupport {
 namespace Internal {
 
-const int noQtVersionsId = -0xff;
-static const char currentQtVersionFilterSettingsKeyC[] = "WelcomePageQtVersionFilter";
-
-int uniqueQtVersionIdSetting()
+static bool debugExamples()
 {
-    QSettings *settings = Core::ICore::settings();
-    int id =  settings->value(QLatin1String(currentQtVersionFilterSettingsKeyC), noQtVersionsId).toInt();
-    return id;
+    static bool isDebugging = !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty();
+    return isDebugging;
 }
 
-void setUniqueQtVersionIdSetting(int id)
+static const char kSelectedExampleSetKey[] = "WelcomePage/SelectedExampleSet";
+
+void ExampleSetModel::writeCurrentIdToSettings(int currentIndex) const
 {
     QSettings *settings = Core::ICore::settings();
-    settings->setValue(QLatin1String(currentQtVersionFilterSettingsKeyC), id);
+    settings->setValue(QLatin1String(kSelectedExampleSetKey), getId(currentIndex));
 }
 
-QtVersionsModel::QtVersionsModel(ExamplesListModel *examplesModel, QObject *parent) :
+int ExampleSetModel::readCurrentIndexFromSettings() const
+{
+    QVariant id = Core::ICore::settings()->value(QLatin1String(kSelectedExampleSetKey));
+    for (int i=0; i < rowCount(); i++) {
+        if (id == getId(i))
+            return i;
+    }
+    return -1;
+}
+
+ExampleSetModel::ExampleSetModel(ExamplesListModel *examplesModel, QObject *parent) :
     QStandardItemModel(parent),
     examplesModel(examplesModel)
 {
     QHash<int, QByteArray> roleNames;
     roleNames[Qt::UserRole + 1] = "text";
     roleNames[Qt::UserRole + 2] = "QtId";
+    roleNames[Qt::UserRole + 3] = "extraSetIndex";
     setRoleNames(roleNames);
-
-    connect(examplesModel, SIGNAL(qtVersionsUpdated()), this, SLOT(update()));
 }
 
-void QtVersionsModel::update()
+void ExampleSetModel::update()
 {
     beginResetModel();
     clear();
 
+    QSet<QString> extraManifestDirs;
+    QList<ExamplesListModel::ExtraExampleSet> extraExampleSets = examplesModel->extraExampleSets();
+    for (int i = 0; i < extraExampleSets.size(); ++i)  {
+        ExamplesListModel::ExtraExampleSet set = extraExampleSets.at(i);
+        QStandardItem *newItem = new QStandardItem();
+        newItem->setData(set.displayName, Qt::UserRole + 1);
+        newItem->setData(QVariant(), Qt::UserRole + 2);
+        newItem->setData(i, Qt::UserRole + 3);
+        appendRow(newItem);
+
+        extraManifestDirs.insert(set.manifestPath);
+    }
+
     QList<BaseQtVersion *> qtVersions = examplesModel->qtVersions();
 
     foreach (BaseQtVersion *version, qtVersions) {
+        // sanitize away qt versions that have already been added through extra sets
+        if (extraManifestDirs.contains(version->documentationPath())) {
+            if (debugExamples()) {
+                qWarning() << "Not showing Qt version because manifest path is already added through InstalledExamples settings:"
+                           << version->displayName();
+            }
+            continue;
+        }
         QStandardItem *newItem = new QStandardItem();
         newItem->setData(version->displayName(), Qt::UserRole + 1);
         newItem->setData(version->uniqueId(), Qt::UserRole + 2);
+        newItem->setData(QVariant(), Qt::UserRole + 3);
         appendRow(newItem);
     }
     endResetModel();
 }
 
-int QtVersionsModel::indexForUniqueId(int uniqueId) {
-    for (int i=0; i < rowCount(); i++) {
-        if (uniqueId == getId(i).toInt())
+int ExampleSetModel::indexForQtVersion(BaseQtVersion *qtVersion) const
+{
+    // return either the entry with the same QtId, or an extra example set with same path
+
+    if (!qtVersion)
+        return -1;
+
+    // check for Qt version
+    for (int i = 0; i < rowCount(); ++i) {
+        if (getType(i) == QtExampleSet && getQtId(i) == qtVersion->uniqueId())
             return i;
     }
-    return 0;
+    // check for extra set
+    const QList<ExamplesListModel::ExtraExampleSet> &extraExamples
+            = examplesModel->extraExampleSets();
+    const QString &documentationPath = qtVersion->documentationPath();
+    for (int i = 0; i < rowCount(); ++i) {
+        if (getType(i) == ExtraExampleSet
+                && extraExamples.at(getExtraExampleSetIndex(i)).manifestPath == documentationPath)
+            return i;
+    }
+    return -1;
 }
 
-QVariant QtVersionsModel::get(int i)
+QVariant ExampleSetModel::getDisplayName(int i) const
 {
-    QModelIndex modelIndex = index(i,0);
-    QVariant variant =  data(modelIndex, Qt::UserRole + 1);
-    return variant;
+    if (i < 0 || i >= rowCount())
+        return QVariant();
+    return data(index(i, 0), Qt::UserRole + 1);
 }
 
-QVariant QtVersionsModel::getId(int i)
+// id is either the Qt version uniqueId, or the display name of the extra example set
+QVariant ExampleSetModel::getId(int i) const
 {
-    QModelIndex modelIndex = index(i,0);
+    if (i < 0 || i >= rowCount())
+        return QVariant();
+    QModelIndex modelIndex = index(i, 0);
     QVariant variant = data(modelIndex, Qt::UserRole + 2);
-    return variant;
+    if (variant.isValid()) // set from qt version
+        return variant;
+    return getDisplayName(i);
+}
+
+ExampleSetModel::ExampleSetType ExampleSetModel::getType(int i) const
+{
+    if (i < 0 || i >= rowCount())
+        return InvalidExampleSet;
+    QModelIndex modelIndex = index(i, 0);
+    QVariant variant = data(modelIndex, Qt::UserRole + 2); /*Qt version uniqueId*/
+    if (variant.isValid())
+        return QtExampleSet;
+    return ExtraExampleSet;
+}
+
+int ExampleSetModel::getQtId(int i) const
+{
+    QTC_ASSERT(i >= 0, return -1);
+    QModelIndex modelIndex = index(i, 0);
+    QVariant variant = data(modelIndex, Qt::UserRole + 2);
+    QTC_ASSERT(variant.isValid(), return -1);
+    QTC_ASSERT(variant.canConvert<int>(), return -1);
+    return variant.toInt();
+}
+
+int ExampleSetModel::getExtraExampleSetIndex(int i) const
+{
+    QTC_ASSERT(i >= 0, return -1);
+    QModelIndex modelIndex = index(i, 0);
+    QVariant variant = data(modelIndex, Qt::UserRole + 3);
+    QTC_ASSERT(variant.isValid(), return -1);
+    QTC_ASSERT(variant.canConvert<int>(), return -1);
+    return variant.toInt();
 }
 
 ExamplesListModel::ExamplesListModel(QObject *parent) :
     QAbstractListModel(parent),
-    m_uniqueQtId(uniqueQtVersionIdSetting())
+    m_exampleSetModel(new ExampleSetModel(this, this)),
+    m_selectedExampleSetIndex(-1)
 {
     QHash<int, QByteArray> roleNames;
     roleNames[Name] = "name";
@@ -135,6 +217,37 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
     roleNames[Platforms] = "platforms";
     roleNames[IsHighlighted] = "isHighlighted";
     setRoleNames(roleNames);
+
+    // read extra example sets settings
+    QSettings *settings = Core::ICore::settings();
+    QStringList list = settings->value(QLatin1String("Help/InstalledExamples"),
+                                       QStringList()).toStringList();
+    if (debugExamples())
+        qWarning() << "Reading Help/InstalledExamples from settings:" << list;
+    foreach (const QString &item, list) {
+        const QStringList &parts = item.split(QLatin1Char('|'));
+        if (parts.size() < 3) {
+            if (debugExamples())
+                qWarning() << "Item" << item << "has less than 3 parts (separated by '|'):" << parts;
+            continue;
+        }
+        ExtraExampleSet set;
+        set.displayName = parts.at(0);
+        set.manifestPath = parts.at(1);
+        set.examplesPath = parts.at(2);
+        QFileInfo fi(set.manifestPath);
+        if (!fi.isDir() || !fi.isReadable()) {
+            if (debugExamples())
+                qWarning() << "Manifest path " << set.manifestPath << "is not a readable directory, ignoring";
+            continue;
+        }
+        m_extraExampleSets.append(set);
+        if (debugExamples()) {
+            qWarning() << "Adding examples set displayName=" << set.displayName
+                       << ", manifestPath=" << set.manifestPath
+                       << ", examplesPath=" << set.examplesPath;
+        }
+    }
 }
 
 static QString fixStringForTags(const QString &string)
@@ -168,12 +281,6 @@ static QString relativeOrInstallPath(const QString &path, const QString &manifes
         return installResolvedPath;
     // doesn't exist, just return relative
     return relativeResolvedPath;
-}
-
-static bool debugExamples()
-{
-    static bool isDebugging = !qgetenv("QTC_DEBUG_EXAMPLESMODEL").isEmpty();
-    return isDebugging;
 }
 
 static bool isValidExampleOrDemo(ExampleItem &item)
@@ -417,34 +524,43 @@ void ExamplesListModel::updateQtVersions()
     if (defaultVersion && versions.contains(defaultVersion))
         versions.move(versions.indexOf(defaultVersion), 0);
 
-    if (m_qtVersions == versions)
+    if (m_qtVersions == versions && m_selectedExampleSetIndex >= 0)
         return;
 
     m_qtVersions = versions;
-    emit qtVersionsUpdated();
 
-    // determine Qt version to show
-    int newUniqueId = noQtVersionsId;
-    if (m_uniqueQtId != noQtVersionsId) {
-        //ensure that the unique Qt id is valid
+    m_exampleSetModel->update();
+
+    int currentIndex = m_selectedExampleSetIndex;
+    if (currentIndex < 0) // reset from settings
+        currentIndex = m_exampleSetModel->readCurrentIndexFromSettings();
+
+    ExampleSetModel::ExampleSetType currentType
+            = m_exampleSetModel->getType(currentIndex);
+
+    if (currentType == ExampleSetModel::InvalidExampleSet) {
+        // select examples corresponding to 'highest' Qt version
+        BaseQtVersion *highestQt = findHighestQtVersion();
+        currentIndex = m_exampleSetModel->indexForQtVersion(highestQt);
+    } else if (currentType == ExampleSetModel::QtExampleSet) {
+        // try to select the previously selected Qt version, or
+        // select examples corresponding to 'highest' Qt version
+        int currentQtId = m_exampleSetModel->getQtId(currentIndex);
+        BaseQtVersion *newQtVersion = 0;
         foreach (BaseQtVersion *version, m_qtVersions) {
-            if (version->uniqueId() == m_uniqueQtId)
-                newUniqueId = m_uniqueQtId;
+            if (version->uniqueId() == currentQtId) {
+                newQtVersion = version;
+                break;
+            }
         }
-    }
-
-    if (newUniqueId == noQtVersionsId)
-        newUniqueId = findHighestQtVersion();
-
-    if (newUniqueId != m_uniqueQtId) {
-        m_uniqueQtId = newUniqueId;
-        setUniqueQtVersionIdSetting(m_uniqueQtId);
-        emit selectedQtVersionChanged();
-    }
-
+        if (!newQtVersion)
+            newQtVersion = findHighestQtVersion();
+        currentIndex = m_exampleSetModel->indexForQtVersion(newQtVersion);
+    } // nothing to do for extra example sets
+    selectExampleSet(currentIndex);
 }
 
-int ExamplesListModel::findHighestQtVersion() const
+BaseQtVersion *ExamplesListModel::findHighestQtVersion() const
 {
     QList<BaseQtVersion *> versions = qtVersions();
 
@@ -467,9 +583,9 @@ int ExamplesListModel::findHighestQtVersion() const
         newVersion = versions.first();
 
     if (!newVersion)
-        return noQtVersionsId;
+        return 0;
 
-    return newVersion->uniqueId();
+    return newVersion;
 }
 
 QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QString *demosInstallPath)
@@ -477,55 +593,49 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
     QStringList sources;
     QString resourceDir = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/");
 
-    // overriding examples with a custom XML file
-    QString exampleFileEnvKey = QLatin1String("QTC_EXAMPLE_FILE");
-    if (Utils::Environment::systemEnvironment().hasKey(exampleFileEnvKey)) {
-        QString filePath = Utils::Environment::systemEnvironment().value(exampleFileEnvKey);
-        if (filePath.endsWith(QLatin1String(".xml")) && QFileInfo(filePath).exists()) {
-            sources.append(filePath);
-            return sources;
-        }
-    }
-
     // Qt Creator shipped tutorials
     sources << (resourceDir + QLatin1String("/qtcreator_tutorials.xml"));
 
-    // Read keys from SDK installer
-    QSettings *settings = Core::ICore::settings(QSettings::SystemScope);
-    int size = settings->beginReadArray(QLatin1String("ExampleManifests"));
-    for (int i = 0; i < size; ++i) {
-        settings->setArrayIndex(i);
-        sources.append(settings->value(QLatin1String("Location")).toString());
+    QString examplesPath;
+    QString demosPath;
+    QString manifestScanPath;
+
+    ExampleSetModel::ExampleSetType currentType
+            = m_exampleSetModel->getType(m_selectedExampleSetIndex);
+    if (currentType == ExampleSetModel::ExtraExampleSet) {
+        int index = m_exampleSetModel->getExtraExampleSetIndex(m_selectedExampleSetIndex);
+        ExtraExampleSet exampleSet = m_extraExampleSets.at(index);
+        manifestScanPath = exampleSet.manifestPath;
+        examplesPath = exampleSet.examplesPath;
+        demosPath = exampleSet.examplesPath;
+    } else if (currentType == ExampleSetModel::QtExampleSet) {
+        int qtId = m_exampleSetModel->getQtId(m_selectedExampleSetIndex);
+        foreach (BaseQtVersion *version, qtVersions()) {
+            if (version->uniqueId() == qtId) {
+                manifestScanPath = version->documentationPath();
+                examplesPath = version->examplesPath();
+                demosPath = version->demosPath();
+                break;
+            }
+        }
     }
-    settings->endArray();
-    // if the installer set something, that's enough for us
-    if (size > 0)
-        return sources;
-
-    foreach (BaseQtVersion *version, qtVersions()) {
-        //filter for qt versions
-        if (version->uniqueId() != m_uniqueQtId && m_uniqueQtId != noQtVersionsId)
-            continue;
-
-        // search for examples-manifest.xml, demos-manifest.xml in doc/*/
-        QDir qt5docPath = QDir(version->documentationPath());
+    if (!manifestScanPath.isEmpty()) {
+        // search for examples-manifest.xml, demos-manifest.xml in <path>/*/
+        QDir dir = QDir(manifestScanPath);
         const QStringList examplesPattern(QLatin1String("examples-manifest.xml"));
         const QStringList demosPattern(QLatin1String("demos-manifest.xml"));
         QFileInfoList fis;
-        foreach (QFileInfo subDir, qt5docPath.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        foreach (QFileInfo subDir, dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
             fis << QDir(subDir.absoluteFilePath()).entryInfoList(examplesPattern);
             fis << QDir(subDir.absoluteFilePath()).entryInfoList(demosPattern);
         }
-        if (!fis.isEmpty()) {
-            foreach (const QFileInfo &fi, fis)
-                sources.append(fi.filePath());
-            if (examplesInstallPath)
-                *examplesInstallPath = version->examplesPath();
-            if (demosInstallPath)
-                *demosInstallPath = version->demosPath();
-            return sources;
-        }
+        foreach (const QFileInfo &fi, fis)
+            sources.append(fi.filePath());
     }
+    if (examplesInstallPath)
+        *examplesInstallPath = examplesPath;
+    if (demosInstallPath)
+        *demosInstallPath = demosPath;
 
     return sources;
 }
@@ -604,18 +714,18 @@ void ExamplesListModel::update()
     updateExamples();
 }
 
-int ExamplesListModel::selectedQtVersion() const
+int ExamplesListModel::selectedExampleSet() const
 {
-    return m_uniqueQtId;
+    return m_selectedExampleSetIndex;
 }
 
-void ExamplesListModel::selectQtVersion(int id)
+void ExamplesListModel::selectExampleSet(int index)
 {
-    if (m_uniqueQtId != id) {
-        m_uniqueQtId = id;
-        setUniqueQtVersionIdSetting(id);
+    if (index != m_selectedExampleSetIndex) {
+        m_selectedExampleSetIndex = index;
+        m_exampleSetModel->writeCurrentIdToSettings(m_selectedExampleSetIndex);
         updateExamples();
-        emit selectedQtVersionChanged();
+        emit selectedExampleSetChanged();
     }
 }
 
@@ -624,7 +734,6 @@ ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel,
     m_showTutorialsOnly(true),
     m_sourceModel(sourceModel),
     m_timerId(0),
-    m_qtVersionModel(new QtVersionsModel(sourceModel, this)),
     m_blockIndexUpdate(false),
     m_qtVersionManagerInitialized(false),
     m_helpManagerInitialized(false),
@@ -639,7 +748,7 @@ ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel,
 
     connect(this, SIGNAL(showTutorialsOnlyChanged()), SLOT(updateFilter()));
 
-    connect(m_sourceModel, SIGNAL(selectedQtVersionChanged()), this, SIGNAL(qtVersionIndexChanged()));
+    connect(m_sourceModel, SIGNAL(selectedExampleSetChanged()), this, SIGNAL(exampleSetIndexChanged()));
 
     setSourceModel(m_sourceModel);
 }
@@ -719,17 +828,17 @@ QVariant ExamplesListModelFilter::data(const QModelIndex &index, int role) const
     return QSortFilterProxyModel::data(index, role);
 }
 
-QAbstractItemModel* ExamplesListModelFilter::qtVersionModel()
+QAbstractItemModel* ExamplesListModelFilter::exampleSetModel()
 {
-    return m_qtVersionModel;
+    return m_sourceModel->exampleSetModel();
 }
 
-void ExamplesListModelFilter::filterForQtById(int id)
+void ExamplesListModelFilter::filterForExampleSet(int index)
 {
     if (m_blockIndexUpdate || !m_initalized)
         return;
 
-    m_sourceModel->selectQtVersion(id);
+    m_sourceModel->selectExampleSet(index);
 }
 
 void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
@@ -785,11 +894,9 @@ void ExamplesListModelFilter::delayedUpdateFilter()
     m_timerId = startTimer(320);
 }
 
-int ExamplesListModelFilter::qtVersionIndex() const
+int ExamplesListModelFilter::exampleSetIndex() const
 {
-    int id = m_sourceModel->selectedQtVersion();
-    int index = m_qtVersionModel->indexForUniqueId(id);
-    return index;
+    return m_sourceModel->selectedExampleSet();
 }
 
 void ExamplesListModelFilter::timerEvent(QTimerEvent *timerEvent)

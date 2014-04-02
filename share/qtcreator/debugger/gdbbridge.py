@@ -892,6 +892,10 @@ class Dumper(DumperBase):
     def isQnxTarget(self):
         return 'qnx' in gdb.TARGET_CONFIG.lower()
 
+    def isWindowsTarget(self):
+        # We get i686-w64-mingw32
+        return 'mingw' in gdb.TARGET_CONFIG.lower()
+
     def qtVersionString(self):
         try:
             return str(gdb.lookup_symbol("qVersion")[0].value()())
@@ -1288,14 +1292,6 @@ class Dumper(DumperBase):
                 self.putFields(value)
                 if staticMetaObject:
                     self.putQObjectGuts(value, staticMetaObject)
-
-
-    def putPlainChildren(self, value):
-        self.putEmptyValue(-99)
-        self.putNumChild(1)
-        if self.currentIName in self.expandedINames:
-            with Children(self):
-               self.putFields(value)
 
     def toBlob(self, value):
         size = toInteger(value.type.sizeof)

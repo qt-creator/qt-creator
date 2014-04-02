@@ -37,7 +37,6 @@ Canvas {
 
     property real startTime : 0
     property real endTime : 0
-    property real timePerPixel: 0
 
     Connections {
         target: zoomControl
@@ -55,7 +54,7 @@ Canvas {
         context.fillRect(0, 0, width, height);
 
         var realWidth = width - 1; // account for left border
-        var totalTime = endTime - startTime;
+        var totalTime = Math.max(1, endTime - startTime);
         var spacing = realWidth / totalTime;
 
         var initialBlockLength = 120;
@@ -67,7 +66,7 @@ Canvas {
         var realStartTime = Math.floor(startTime/timePerBlock) * timePerBlock;
         var realStartPos = (startTime - realStartTime) * spacing - 1;
 
-        timePerPixel = timePerBlock/pixelsPerBlock;
+        var timePerPixel = timePerBlock/pixelsPerBlock;
 
         var initialColor = Math.floor(realStartTime/timePerBlock) % 2;
 
@@ -98,6 +97,12 @@ Canvas {
         // left border
         context.fillStyle = "#858585";
         context.fillRect(0, 0, 1, height);
+    }
+
+    function clear()
+    {
+        startTime = endTime = 0;
+        requestPaint();
     }
 
     function prettyPrintTime( t )

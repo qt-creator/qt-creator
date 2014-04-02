@@ -40,6 +40,9 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsutils.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/project.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -107,6 +110,16 @@ public:
         // stop if we can't create the new file
         if (!refactoring.createFile(newFileName, txt))
             return;
+
+        if (path == QFileInfo(fileName()).path()) {
+            // hack for the common case, next version should use the wizard
+            ProjectExplorer::Node * oldFileNode = ProjectExplorer::SessionManager::nodeForFile(fileName());
+            if (oldFileNode) {
+                ProjectExplorer::FolderNode *containingFolder = oldFileNode->parentFolderNode();
+                if (containingFolder)
+                    containingFolder->addFiles(QStringList(newFileName));
+            }
+        }
 
         Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(path);
         if (versionControl

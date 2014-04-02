@@ -27,66 +27,35 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import widgets 1.0
+#ifndef PUPPETDIALOG_H
+#define PUPPETDIALOG_H
 
-Rectangle {
-    id: rectangle1
-    width: 1024
-    height: grid.contentHeight + 100
+#include <QDialog>
 
-    CustomizedGridView {
-        id: grid
-        y: 82
-        height: grid.contentHeight
-        anchors.rightMargin: 38
-        anchors.leftMargin: 38
-        anchors.left: parent.left
-        anchors.right: parent.right
-        model: examplesModel
-    }
-
-    SearchBar {
-        id: searchBar
-
-        y: 52
-
-        anchors.left: comboBox.right
-        anchors.rightMargin: 52
-        anchors.right: parent.right
-        anchors.leftMargin: 18
-
-        placeholderText: qsTr("Search in Examples...")
-        onTextChanged: examplesModel.parseSearchString(text)
-    }
-
-    ComboBox {
-        id: comboBox
-
-        anchors.verticalCenter: searchBar.verticalCenter
-
-        width: 200
-        anchors.leftMargin: 46
-        anchors.left: parent.left
-        model: exampleSetModel
-        textRole: "text"
-
-
-        onCurrentIndexChanged: {
-            if (comboBox.model === undefined)
-                return;
-
-            examplesModel.filterForExampleSet(currentIndex)
-        }
-
-        property int theIndex: examplesModel.exampleSetIndex
-
-        onTheIndexChanged: {
-            if (comboBox.model === undefined)
-                return;
-            if (theIndex != currentIndex)
-                currentIndex = theIndex;
-        }
-    }
-
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class PuppetDialog;
 }
+QT_END_NAMESPACE
+
+class PuppetDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit PuppetDialog(QWidget *parent = 0);
+    ~PuppetDialog();
+
+    void setDescription(const QString &description);
+    void setCopyAndPasteCode(const QString &text);
+
+    static void warning(QWidget *parent,
+                   const QString &title,
+                   const QString &description,
+                   const QString &copyAndPasteCode);
+
+private:
+    Ui::PuppetDialog *ui;
+};
+
+#endif // PUPPETDIALOG_H

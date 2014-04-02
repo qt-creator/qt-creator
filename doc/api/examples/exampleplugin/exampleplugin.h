@@ -14,6 +14,7 @@ namespace Internal {
 class ExamplePlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Example.json")
 //! [base class]
 
 public:

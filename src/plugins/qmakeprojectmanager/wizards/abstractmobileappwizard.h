@@ -36,10 +36,7 @@
 
 namespace ProjectExplorer { class TargetSetupPage; }
 
-namespace QtSupport {
-class QtVersionNumber;
-class QtVersionManager;
-} // QtSupport
+namespace QtSupport { class QtVersionNumber; }
 
 namespace QmakeProjectManager {
 

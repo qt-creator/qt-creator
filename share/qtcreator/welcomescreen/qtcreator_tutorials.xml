@@ -17,8 +17,8 @@
       <description><![CDATA[Using basic QML elements and learning about basic concepts of Qt Quick.]]></description>
       <tags>qt creator,qt quick designer,qt quick,qml,states,transitions</tags>
     </tutorial>
-    <tutorial imageUrl="images/icons/androidapp.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-android-app-tutorial.html" projectPath="" name="Creating an Android Application">
-      <description><![CDATA[Developing Qt Quick applications for Android devices using Qt Quick Controls.]]></description>
+    <tutorial imageUrl="images/icons/androidapp.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-android-app-tutorial.html" projectPath="" name="Creating a Mobile Application">
+      <description><![CDATA[Developing Qt Quick applications for Android and iOS devices using Qt Quick Controls.]]></description>
       <tags>qt creator,qt quick designer,qml,android</tags>
     </tutorial>
     <tutorial imageUrl="images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtdoc/qtdoc/gettingstartedqml.html" projectPath="" name="Getting Started Programming with Qt Quick">

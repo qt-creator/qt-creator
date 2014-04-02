@@ -128,6 +128,7 @@ void QbsBuildStep::run(QFutureInterface<bool> &fi)
     QbsProject *pro = static_cast<QbsProject *>(project());
     qbs::BuildOptions options(m_qbsBuildOptions);
     options.setChangedFiles(m_changedFiles);
+    options.setFilesToConsider(m_changedFiles);
     options.setActiveFileTags(m_activeFileTags);
 
     m_job = pro->build(options, m_products);

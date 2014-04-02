@@ -40,8 +40,6 @@ Rectangle {
 
     property alias selectionLocked : view.selectionLocked
     signal updateLockButton
-    property alias selectedItem: view.selectedItem
-    signal selectedEventChanged(int eventId)
     property bool lockItemSelection : false
 
     property real mainviewTimePerPixel : 0
@@ -59,12 +57,6 @@ Rectangle {
     property real selectionRangeEnd: selectionRange.startTime + selectionRange.duration
 
     signal changeToolTip(string text)
-
-    property bool recordingEnabled: false
-    property bool appKilled : false
-
-    property date recordingStartDate
-    property real elapsedTime
 
     color: "#dcdcdc"
 
@@ -88,16 +80,14 @@ Rectangle {
         onStateChanged: {
             // Clear if model is empty.
             if (qmlProfilerModelProxy.getState() === 0)
-                root.clearAll();
+                root.clear();
         }
         onDataAvailable: {
             view.clearData();
-            zoomControl.setRange(0,0);
-            view.visible = true;
-            view.requestPaint();
             zoomControl.setRange(qmlProfilerModelProxy.traceStartTime(),
                                  qmlProfilerModelProxy.traceStartTime() +
                                  qmlProfilerModelProxy.traceDuration()/10);
+            view.requestPaint();
         }
     }
 
@@ -112,23 +102,18 @@ Rectangle {
         }
     }
 
-    function clearData() {
+    function clear() {
+        flick.contentY = 0;
+        flick.contentX = 0;
+        flick.contentWidth = 0;
         view.clearData();
-        appKilled = false;
+        view.startTime = view.endTime = 0;
         hideRangeDetails();
         selectionRangeMode = false;
         updateRangeButton();
         zoomControl.setRange(0,0);
-    }
-
-    function clearDisplay() {
-        clearData();
-        view.visible = false;
-    }
-
-    function clearAll() {
-        clearDisplay();
-        elapsedTime = 0;
+        zoomSlider.externalUpdate = true;
+        zoomSlider.value = zoomSlider.minimumValue;
     }
 
     function nextEvent() {
@@ -149,7 +134,7 @@ Rectangle {
         zoomControl.setRange(newStart, newStart + windowLength);
     }
 
-    function recenterOnItem( modelIndex, itemIndex )
+    function recenterOnItem(modelIndex, itemIndex)
     {
         if (itemIndex === -1)
             return;
@@ -160,7 +145,6 @@ Rectangle {
             recenter((qmlProfilerModelProxy.getStartTime(modelIndex, itemIndex) +
                       qmlProfilerModelProxy.getEndTime(modelIndex, itemIndex)) / 2);
         }
-
     }
 
     function hideRangeDetails() {
@@ -175,9 +159,8 @@ Rectangle {
 
     function selectNextByHash(hash) {
         var eventId = qmlProfilerModelProxy.getEventIdForHash(hash);
-        if (eventId !== -1) {
+        if (eventId !== -1)
             selectNextById(eventId);
-        }
     }
 
     function selectNextById(eventId)
@@ -187,16 +170,11 @@ Rectangle {
         if (!lockItemSelection) {
             lockItemSelection = true;
             var modelIndex = qmlProfilerModelProxy.basicModelIndex();
-            var itemIndex = view.nextItemFromId( modelIndex, eventId );
+            var itemIndex = view.nextItemFromId(modelIndex, eventId);
             // select an item, lock to it, and recenter if necessary
-            if (view.selectedItem != itemIndex || view.selectedModel != modelIndex) {
-                view.selectedModel = modelIndex;
-                view.selectedItem = itemIndex;
-                if (itemIndex !== -1) {
-                    view.selectionLocked = true;
-                    recenterOnItem(modelIndex, itemIndex);
-                }
-            }
+            view.selectFromId(modelIndex, itemIndex); // triggers recentering
+            if (itemIndex !== -1)
+                view.selectionLocked = true;
             lockItemSelection = false;
         }
     }
@@ -209,25 +187,6 @@ Rectangle {
 
     onSelectionLockedChanged: {
         updateLockButton();
-    }
-
-    onSelectedItemChanged: {
-        if (selectedItem != -1 && !lockItemSelection) {
-            lockItemSelection = true;
-            // update in other views
-            var eventLocation = qmlProfilerModelProxy.getEventLocation(view.selectedModel, view.selectedItem);
-            gotoSourceLocation(eventLocation.file, eventLocation.line, eventLocation.column);
-            lockItemSelection = false;
-        }
-    }
-
-    onRecordingEnabledChanged: {
-        if (recordingEnabled) {
-            recordingStartDate = new Date();
-            elapsedTime = 0;
-        } else {
-            elapsedTime = (new Date() - recordingStartDate)/1000.0;
-        }
     }
 
     Flickable {
@@ -368,25 +327,22 @@ Rectangle {
                 recursionGuard = false;
             }
 
-            onSelectedItemChanged: {
+            onSelectionChanged: {
                 if (selectedItem !== -1) {
                     // display details
                     rangeDetails.showInfo(qmlProfilerModelProxy.getEventDetails(selectedModel, selectedItem));
                     rangeDetails.setLocation(qmlProfilerModelProxy.getEventLocation(selectedModel, selectedItem));
 
                     // center view (horizontally)
-                    var windowLength = view.endTime - view.startTime;
-                    var eventStartTime = qmlProfilerModelProxy.getStartTime(selectedModel, selectedItem);
-                    var eventEndTime = eventStartTime +
-                            qmlProfilerModelProxy.getDuration(selectedModel, selectedItem);
-
-                    if (eventEndTime < view.startTime || eventStartTime > view.endTime) {
-                        var center = (eventStartTime + eventEndTime)/2;
-                        var from = Math.min(qmlProfilerModelProxy.traceEndTime()-windowLength,
-                                            Math.max(0, Math.floor(center - windowLength/2)));
-
-                        zoomControl.setRange(from, from + windowLength);
-
+                    recenterOnItem(selectedModel, selectedItem);
+                    if (!lockItemSelection) {
+                        lockItemSelection = true;
+                        // update in other views
+                        var eventLocation = qmlProfilerModelProxy.getEventLocation(
+                                    view.selectedModel, view.selectedItem);
+                        gotoSourceLocation(eventLocation.file, eventLocation.line,
+                                           eventLocation.column);
+                        lockItemSelection = false;
                     }
                 } else {
                     root.hideRangeDetails();

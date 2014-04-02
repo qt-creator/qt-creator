@@ -27,66 +27,38 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import widgets 1.0
+#include "puppetdialog.h"
+#include "ui_puppetdialog.h"
 
-Rectangle {
-    id: rectangle1
-    width: 1024
-    height: grid.contentHeight + 100
+PuppetDialog::PuppetDialog(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::PuppetDialog)
+{
+    ui->setupUi(this);
+}
 
-    CustomizedGridView {
-        id: grid
-        y: 82
-        height: grid.contentHeight
-        anchors.rightMargin: 38
-        anchors.leftMargin: 38
-        anchors.left: parent.left
-        anchors.right: parent.right
-        model: examplesModel
-    }
+PuppetDialog::~PuppetDialog()
+{
+    delete ui;
+}
 
-    SearchBar {
-        id: searchBar
+void PuppetDialog::setDescription(const QString &description)
+{
+    ui->descriptionLabel->setText(description);
+}
 
-        y: 52
+void PuppetDialog::setCopyAndPasteCode(const QString &text)
+{
+    ui->copyAndPasteTextEdit->setText(text);
+}
 
-        anchors.left: comboBox.right
-        anchors.rightMargin: 52
-        anchors.right: parent.right
-        anchors.leftMargin: 18
+void PuppetDialog::warning(QWidget *parent, const QString &title, const QString &description, const QString &copyAndPasteCode)
+{
+    PuppetDialog dialog(parent);
 
-        placeholderText: qsTr("Search in Examples...")
-        onTextChanged: examplesModel.parseSearchString(text)
-    }
+    dialog.setWindowTitle(title);
+    dialog.setDescription(description);
+    dialog.setCopyAndPasteCode(copyAndPasteCode);
 
-    ComboBox {
-        id: comboBox
-
-        anchors.verticalCenter: searchBar.verticalCenter
-
-        width: 200
-        anchors.leftMargin: 46
-        anchors.left: parent.left
-        model: exampleSetModel
-        textRole: "text"
-
-
-        onCurrentIndexChanged: {
-            if (comboBox.model === undefined)
-                return;
-
-            examplesModel.filterForExampleSet(currentIndex)
-        }
-
-        property int theIndex: examplesModel.exampleSetIndex
-
-        onTheIndexChanged: {
-            if (comboBox.model === undefined)
-                return;
-            if (theIndex != currentIndex)
-                currentIndex = theIndex;
-        }
-    }
-
+    dialog.exec();
 }

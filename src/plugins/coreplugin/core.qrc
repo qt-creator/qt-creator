@@ -76,5 +76,6 @@
         <file>images/panel_manage_button.png</file>
         <file>images/sidebysidediff.png</file>
         <file>images/textdiff.png</file>
+        <file>images/pause.png</file>
     </qresource>
 </RCC>

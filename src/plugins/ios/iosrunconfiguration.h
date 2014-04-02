@@ -43,6 +43,16 @@ class QmakeProFileNode;
 namespace Ios {
 namespace Internal {
 
+enum { nSimulatedDevices = 4 };
+static const IosDeviceType::Enum simulatedDevices[nSimulatedDevices] = {
+    // skip iPhone as it does not support iOS7
+    // TODO: clean solution would be to check also sdk version or make it configurable
+    IosDeviceType::SimulatedIphoneRetina3_5Inch,
+    IosDeviceType::SimulatedIphoneRetina4Inch,
+    IosDeviceType::SimulatedIpad,
+    IosDeviceType::SimulatedIpadRetina
+};
+
 class IosDeployStep;
 class IosRunConfigurationFactory;
 class IosRunConfigurationWidget;
@@ -66,6 +76,8 @@ public:
     Utils::FileName exePath() const;
     bool isEnabled() const;
     QString disabledReason() const;
+    IosDeviceType::Enum deviceType() const;
+    void setDeviceType(IosDeviceType::Enum deviceType);
 
     bool fromMap(const QVariantMap &map) QTC_OVERRIDE;
     QVariantMap toMap() const QTC_OVERRIDE;
@@ -76,6 +88,8 @@ protected:
 private slots:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
     void deviceChanges();
+signals:
+    void localExecutableChanged();
 private:
     void init();
     void enabledCheck();
@@ -88,6 +102,7 @@ private:
     bool m_lastIsEnabled;
     bool m_parseInProgress;
     bool m_parseSuccess;
+    IosDeviceType::Enum m_deviceType;
 };
 
 } // namespace Internal

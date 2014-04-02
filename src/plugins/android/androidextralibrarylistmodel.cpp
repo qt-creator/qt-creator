@@ -31,6 +31,7 @@
 #include "androidextralibrarylistmodel.h"
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
+#include <proparser/prowriter.h>
 
 using namespace Android;
 using namespace Internal;
@@ -70,7 +71,7 @@ int AndroidExtraLibraryListModel::columnCount(const QModelIndex &) const
 QVariant AndroidExtraLibraryListModel::data(const QModelIndex &index, int role) const
 {
     Q_ASSERT(index.row() >= 0 && index.row() < m_entries.size());
-    const QString &entry = m_entries.at(index.row());
+    const QString &entry = QDir::cleanPath(m_entries.at(index.row()));
     switch (role) {
     case Qt::DisplayRole: return entry;
     default: return QVariant();
@@ -82,6 +83,10 @@ void AndroidExtraLibraryListModel::proFileUpdated(QmakeProjectManager::QmakeProF
     QmakeProjectManager::QmakeProFileNode *root = m_project->rootQmakeProjectNode();
     if (node != root)
         return;
+
+    m_scope = QLatin1String("contains(ANDROID_TARGET_ARCH,")
+            + node->singleVariableValue(QmakeProjectManager::AndroidArchVar)
+            + QLatin1Char(')');
 
     if (parseInProgress) {
         emit enabledChanged(false);
@@ -120,11 +125,13 @@ void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
 
-    foreach (QString path, list)
-        m_entries += QDir(m_project->projectDirectory()).relativeFilePath(path);
+    foreach (const QString &path, list)
+        m_entries += QLatin1String("$$PWD/") + QDir(m_project->projectDirectory()).relativeFilePath(path);
 
     QmakeProjectManager::QmakeProFileNode *node = m_project->rootQmakeProjectNode();
-    node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries.join(QLatin1String(" ")));
+    node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries, m_scope,
+                         QmakeProjectManager::Internal::ProWriter::ReplaceValues
+                         | QmakeProjectManager::Internal::ProWriter::MultiLine);
 
     endInsertRows();
 }
@@ -156,5 +163,5 @@ void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
     }
 
     QmakeProjectManager::QmakeProFileNode *node = m_project->rootQmakeProjectNode();
-    node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries.join(QLatin1String(" ")));
+    node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries, m_scope);
 }

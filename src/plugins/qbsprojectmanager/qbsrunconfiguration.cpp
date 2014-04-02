@@ -221,7 +221,6 @@ bool QbsRunConfiguration::isConsoleApplication() const
             return !ta.properties().getProperty(QLatin1String("consoleApplication")).toBool();
     }
 
-    QTC_ASSERT(!pro->qbsProjectData().isValid(), qDebug("No executable target in product '%s'", qPrintable(product.name())));
     return false;
 }
 

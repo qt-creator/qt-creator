@@ -34,15 +34,18 @@
 namespace Ios {
 namespace Internal {
 
-enum IosQemuStatus {
-    IosQemuStarting,
-    IosQemuFailedToStart,
-    IosQemuFinished,
-    IosQemuCrashed,
-    IosQemuUserReason
-};
-
 } // namespace Internal
+
+namespace IosDeviceType {
+enum Enum {
+    IosDevice,
+    SimulatedIphone,
+    SimulatedIpad,
+    SimulatedIphoneRetina4Inch,
+    SimulatedIphoneRetina3_5Inch,
+    SimulatedIpadRetina
+};
+}
 
 namespace Constants {
 const char IOS_SETTINGS_ID[] = "ZZ.Ios Configurations";

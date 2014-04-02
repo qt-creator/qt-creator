@@ -170,11 +170,8 @@
 
     \snippet exampleplugin/example.pro 1
 
-    The first section of the .pro file defines the very basic properties of your project,
-    the name (\c{TARGET}), and that a library should be generated,
-    since plugins are actually libraries that are dynamically loaded (\c{TEMPLATE = lib}).
-    The section also lets the compiler pass an \c EXAMPLE_LIBRARY define to the compiled
-    code, which is used in the \c{example_global.h} header, but is not really of interest
+    The first section of the .pro file lets the compiler pass an \c EXAMPLE_LIBRARY define to the
+    compiled code, which is used in the \c{example_global.h} header, but is not really of interest
     for now. You should not need to change that section of the .pro file.
 
     \snippet exampleplugin/example.pro 2
@@ -213,14 +210,20 @@
 
     \snippet exampleplugin/example.pro 6
 
-    This section includes the necessary parts from the \QC sources and makes your
-    plugin find the \QC libraries and plugins. The included file
-    \c{qtcreatorplugin.pri} makes sure that you build a plugin that is suitable
-    for use in \QC. The file \c{plugins/coreplugin/coreplugin.pri} makes your
-    plugin dependent on the Core plugin and makes sure that you can access its
-    public API.
-    If you want to use or extend functionality from other plugins, you
-    need to add the corresponding .pri file of the plugin here.
+    This section defines the name and dependencies of your plugin.
+    The \c{QTC_PLUGIN_NAME} variable defines the name of your plugin, and the name of the
+    dynamic library that is created for it. The \c{QTC_LIB_DEPENDS} variable is a list of
+    library names of the \QC utility libraries that your plugin depends on.
+    Typical values would be \c{aggregation}, \c{extensionsystem} and \c{utils}.
+    The \c{QTC_PLUGIN_DEPENDS} variable defines the \QC plugins that your plugin depends on.
+    Almost all \QC plugins will depend on the \c{coreplugin}. The \c{QTC_PLUGIN_RECOMMENDS}
+    variable defines the \QC plugins that your plugin optionally depends on. For more information,
+    see \l{Optional Dependencies}.
+
+    \snippet exampleplugin/example.pro 7
+
+    The included file \c{qtcreatorplugin.pri} makes sure that you build a plugin that is suitable
+    for use in \QC, by using the information you gave above.
 
     For more information about qmake, and writing .pro files in general,
     see the \l{http://qt-project.org/doc/qt-4.8/qmake-manual.html}{qmake Manual}.
@@ -252,8 +255,8 @@
 
     \snippet exampleplugin/Example.pluginspec.in 3
 
-    The last section tells the plugin manager about the dependencies of this
-    plugin. Most \QC plugins will at least depend on the \c{Core} plugin.
+    The \c{$$dependencyList} variable is automatically replaced by the dependency information
+    in \c{QTC_PLUGIN_DEPENDS} and \c{QTC_PLUGIN_RECOMMENDS} from your plugin's .pro file.
 
     \section1 Plugin Class
 
@@ -274,7 +277,7 @@
     \snippet exampleplugin/exampleplugin.h base class
 
     All \QC plugins must be derived from \l{ExtensionSystem::IPlugin} and
-    are QObjects.
+    are QObjects. The \c{Q_PLUGIN_METADATA} macro is necessary to create a valid Qt plugin.
 
     \snippet exampleplugin/exampleplugin.h plugin functions
 

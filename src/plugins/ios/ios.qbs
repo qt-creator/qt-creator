@@ -11,6 +11,7 @@ QtcPlugin {
     Depends { name: "QmakeProjectManager" }
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
+    Depends { name: "AnalyzerBase" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     cpp.includePaths: base.concat("../../shared")
@@ -18,6 +19,8 @@ QtcPlugin {
 
     files: [
         "ios.qrc",
+        "iosanalyzesupport.cpp",
+        "iosanalyzesupport.h",
         "iosbuildstep.cpp",
         "iosbuildstep.h",
         "iosbuildstep.ui",

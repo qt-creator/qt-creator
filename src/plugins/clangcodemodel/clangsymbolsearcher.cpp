@@ -112,7 +112,7 @@ void ClangSymbolSearcher::search(const QLinkedList<Symbol> &allSymbols)
         case Symbol::Constructor:
         case Symbol::Destructor:
             if (m_parameters.types & SymbolSearcher::Functions) {
-                info.type = CppTools::ModelItemInfo::Method;
+                info.type = CppTools::ModelItemInfo::Function;
                 break;
             } else {
                 continue;

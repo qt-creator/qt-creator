@@ -59,8 +59,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/uicodemodelsupport.h>
 #include <qmljstools/qmljsmodelmanager.h>
-
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <utils/hostosinfo.h>
 
 #include <qbs.h>
 
@@ -726,8 +726,12 @@ QString QbsProject::pluginsBaseDirectory() const
     const QString qbsInstallDir = QLatin1String(QBS_INSTALL_DIR);
     if (!qbsInstallDir.isEmpty())
         return qbsInstallDir + QLatin1String("/lib/");
-    return QDir::cleanPath(QCoreApplication::applicationDirPath()
-                           + QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator"));
+    if (Utils::HostOsInfo::isMacHost())
+        return QDir::cleanPath(QCoreApplication::applicationDirPath()
+                               + QLatin1String("/../PlugIns"));
+    else
+        return QDir::cleanPath(QCoreApplication::applicationDirPath()
+                               + QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator"));
 }
 
 } // namespace Internal

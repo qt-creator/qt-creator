@@ -303,10 +303,10 @@ void DesignModeWidget::setCurrentDesignDocument(DesignDocument *newDesignDocumen
 
 }
 
-static void deleteToolButtons(QList<QToolButton*> &buttons)
+static void hideToolButtons(QList<QToolButton*> &buttons)
 {
-    qDeleteAll(buttons);
-    buttons.clear();
+    foreach (QToolButton *button, buttons)
+        button->hide();
 }
 
 void DesignModeWidget::setup()
@@ -324,17 +324,17 @@ void DesignModeWidget::setup()
         if (factory->id() == "Projects") {
             navigationView = factory->createWidget();
             projectsExplorer = navigationView.widget;
-            deleteToolButtons(navigationView.dockToolBarWidgets);
+            hideToolButtons(navigationView.dockToolBarWidgets);
             projectsExplorer->setWindowTitle(tr("Projects"));
         } else if (factory->id() == "File System") {
             navigationView = factory->createWidget();
             fileSystemExplorer = navigationView.widget;
-            deleteToolButtons(navigationView.dockToolBarWidgets);
+            hideToolButtons(navigationView.dockToolBarWidgets);
             fileSystemExplorer->setWindowTitle(tr("File System"));
         } else if (factory->id() == "Open Documents") {
             navigationView = factory->createWidget();
             openDocumentsWidget = navigationView.widget;
-            deleteToolButtons(navigationView.dockToolBarWidgets);
+            hideToolButtons(navigationView.dockToolBarWidgets);
             openDocumentsWidget->setWindowTitle(tr("Open Documents"));
         }
 

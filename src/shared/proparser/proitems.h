@@ -333,6 +333,7 @@ public:
     const QString &items() const { return m_proitems; }
     QString *itemsRef() { return &m_proitems; }
     const ushort *tokPtr() const { return (const ushort *)m_proitems.constData(); }
+    const ushort *tokPtrEnd() const { return (const ushort *)m_proitems.constData() + m_proitems.size(); }
 
     void ref() { m_refCount.ref(); }
     void deref() { if (!m_refCount.deref()) delete this; }

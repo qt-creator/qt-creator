@@ -498,11 +498,6 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
         return QVariantMap();
     }
 
-    if (!tc.isEmpty() && !AddToolChainOperation::exists(tcMap, tc)) {
-        std::cerr << "Error: Toolchain " << qPrintable(tc) << " does not exist." << std::endl;
-        return QVariantMap();
-    }
-
     QString qtId = qt;
     if (!qtId.isEmpty() && !qtId.startsWith(QLatin1String("SDK.")))
         qtId = QString::fromLatin1("SDK.") + qt;

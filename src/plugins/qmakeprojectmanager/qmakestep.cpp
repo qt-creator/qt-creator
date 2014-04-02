@@ -44,6 +44,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 #include <qtsupport/debugginghelperbuildtask.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
@@ -366,6 +367,10 @@ bool QMakeStep::linkQmlDebuggingLibrary() const
     if (m_linkQmlDebuggingLibrary == DoLink)
         return true;
     if (m_linkQmlDebuggingLibrary == DoNotLink)
+        return false;
+
+    const Core::Context languages = project()->projectLanguages();
+    if (!languages.contains(ProjectExplorer::Constants::LANG_QMLJS))
         return false;
     return (qmakeBuildConfiguration()->buildType() & BuildConfiguration::Debug);
 }

@@ -26,55 +26,53 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef IOSSIMULATOR_H
-#define IOSSIMULATOR_H
+#ifndef IOSANALYZESUPPORT_H
+#define IOSANALYZESUPPORT_H
 
-#include <projectexplorer/devicesupport/idevice.h>
-#include <utils/fileutils.h>
-#include <utils/qtcoverride.h>
+#include "iosrunconfiguration.h"
 
-#include <QSharedPointer>
+#include <qmldebug/qmloutputparser.h>
 
-namespace ProjectExplorer { class Kit; }
+#include <QProcess>
+#include <QObject>
+
+namespace Analyzer { class AnalyzerRunControl; }
+
 namespace Ios {
 namespace Internal {
-class IosConfigurations;
-class IosSimulatorFactory;
 
-class IosSimulator : public ProjectExplorer::IDevice
+class IosRunConfiguration;
+class IosRunner;
+
+class IosAnalyzeSupport : public QObject
 {
+    Q_OBJECT
+
 public:
-    typedef QSharedPointer<const IosSimulator> ConstPtr;
-    typedef QSharedPointer<IosSimulator> Ptr;
-    ProjectExplorer::IDevice::DeviceInfo deviceInformation() const QTC_OVERRIDE;
+    static ProjectExplorer::RunControl *createAnalyzeRunControl(IosRunConfiguration *runConfig,
+                                                                QString *errorMessage);
 
-    QString displayType() const QTC_OVERRIDE;
-    ProjectExplorer::IDeviceWidget *createWidget() QTC_OVERRIDE;
-    QList<Core::Id> actionIds() const QTC_OVERRIDE;
-    QString displayNameForActionId(Core::Id actionId) const QTC_OVERRIDE;
-    void executeAction(Core::Id actionId, QWidget *parent = 0) QTC_OVERRIDE;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const QTC_OVERRIDE;
-    void fromMap(const QVariantMap &map) QTC_OVERRIDE;
-    QVariantMap toMap() const QTC_OVERRIDE;
-    quint16 nextPort() const;
-    bool canAutoDetectPorts() const QTC_OVERRIDE;
+    IosAnalyzeSupport(IosRunConfiguration *runConfig,
+                      Analyzer::AnalyzerRunControl *runControl, bool cppDebug, bool qmlDebug);
+    ~IosAnalyzeSupport();
 
-    ProjectExplorer::IDevice::Ptr clone() const QTC_OVERRIDE;
+private slots:
+    void qmlServerReady();
+    void handleServerPorts(int gdbServerFd, int qmlPort);
+    void handleGotInferiorPid(Q_PID, int qmlPort);
+    void handleRemoteProcessFinished(bool cleanEnd);
 
-protected:
-    friend class IosSimulatorFactory;
-    friend class IosConfigurations;
-    IosSimulator();
-    IosSimulator(Core::Id id);
-    IosSimulator(const IosSimulator &other);
+    void handleRemoteOutput(const QString &output);
+    void handleRemoteErrorOutput(const QString &output);
+
 private:
-    mutable quint16 m_lastPort;
+    Analyzer::AnalyzerRunControl *m_runControl;
+    IosRunner * const m_runner;
+    QmlDebug::QmlOutputParser m_outputParser;
+    int m_qmlPort;
 };
 
-namespace IosKitInformation {
-IosSimulator::ConstPtr simulator(ProjectExplorer::Kit *kit);
-} // namespace IosKitInformation
 } // namespace Internal
 } // namespace Ios
 
-#endif // IOSSIMULATOR_H
+#endif // IOSANALYZESUPPORT_H

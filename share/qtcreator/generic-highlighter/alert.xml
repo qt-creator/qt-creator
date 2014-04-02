@@ -30,7 +30,7 @@
   Introduce 3 alert levels and sort keywords according importance.
   Few more keywords has been added.
 -->
-<language version="1.08" kateversion="2.3" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhdev@gmx.de)" license="LGPL" hidden="true">
+<language version="1.09" kateversion="2.3" name="Alerts" section="Other" extensions="" mimetype="" author="Dominik Haumann (dhdev@gmx.de)" license="LGPL" hidden="true">
   <highlighting>
     <list name="alerts_hi">
       <item> ALERT </item>
@@ -47,6 +47,7 @@
       <item> TODO </item>
       <item> TBD </item>
       <item> WARNING </item>
+      <item> CAUTION </item>
       <item> NOLINT </item>
     </list>
     <list name="alerts_lo">

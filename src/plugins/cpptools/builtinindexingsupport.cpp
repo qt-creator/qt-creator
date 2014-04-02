@@ -130,7 +130,7 @@ public:
                     if (index != -1) {
                         QString text = info.symbolName;
                         QString scope = info.symbolScope;
-                        if (info.type == ModelItemInfo::Method) {
+                        if (info.type == ModelItemInfo::Function) {
                             QString name;
                             info.unqualifiedNameAndScope(info.symbolName, &name, &scope);
                             text = name + info.symbolType;

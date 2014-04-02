@@ -34,6 +34,7 @@
 #include "iosrunconfiguration.h"
 #include "iosrunner.h"
 #include "iossimulator.h"
+#include "iosconstants.h"
 
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
@@ -61,6 +62,7 @@ IosRunner::IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool cppDe
       m_cppDebug(cppDebug), m_qmlDebug(qmlDebug), m_cleanExit(false),
       m_qmlPort(0), m_pid(0)
 {
+    m_deviceType = runConfig->deviceType();
 }
 
 IosRunner::~IosRunner()
@@ -121,7 +123,6 @@ void IosRunner::start()
         emit finished(m_cleanExit);
         return;
     }
-    IosToolHandler::DeviceType devType = IosToolHandler::IosDeviceType;
     if (m_device->type() == Ios::Constants::IOS_DEVICE_TYPE) {
         IosDevice::ConstPtr iosDevice = m_device.dynamicCast<const IosDevice>();
         if (m_device.isNull()) {
@@ -136,12 +137,11 @@ void IosRunner::start()
             emit finished(m_cleanExit);
             return;
         }
-        devType = IosToolHandler::IosSimulatedIphoneRetina4InchType; // store type in sim?
         if (m_qmlDebug)
             m_qmlPort = sim->nextPort();
     }
 
-    m_toolHandler = new IosToolHandler(devType, this);
+    m_toolHandler = new IosToolHandler(m_deviceType, this);
     connect(m_toolHandler, SIGNAL(appOutput(Ios::IosToolHandler*,QString)),
             SLOT(handleAppOutput(Ios::IosToolHandler*,QString)));
     connect(m_toolHandler,

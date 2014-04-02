@@ -20,7 +20,7 @@ NSString *deviceIphoneRetina3_5Inch = @"iPhone Retina (3.5-inch)";
 NSString *deviceIphoneRetina4_0Inch = @"iPhone Retina (4-inch)";
 NSString *deviceIphone = @"iPhone";
 NSString *deviceIpad = @"iPad";
-NSString *deviceIpadRetina = @"iPad (Retina)";
+NSString *deviceIpadRetina = @"iPad Retina";
 
 // The path within the developer dir of the private Simulator frameworks.
 NSString* const kSimulatorFrameworkRelativePath = @"Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTiPhoneSimulatorRemoteClient.framework";

@@ -170,7 +170,7 @@ void QmlProfilerViewManager::getStatisticsInRange(qint64 rangeStart, qint64 rang
 
 void QmlProfilerViewManager::clear()
 {
-    d->traceView->clearDisplay();
+    d->traceView->clear();
     d->eventsView->clear();
     d->v8profilerView->clear();
 }

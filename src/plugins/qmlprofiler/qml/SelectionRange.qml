@@ -38,11 +38,11 @@ RangeMover {
     property string endTimeString: detailedPrintTime(startTime+duration)
     property string durationString: detailedPrintTime(duration)
 
-    property real startTime: getLeft() * viewTimePerPixel + qmlProfilerModelProxy.traceStartTime()
-    property real duration: Math.max(getWidth() * viewTimePerPixel, 500)
-    property real viewTimePerPixel: 1
+    property double startTime: getLeft() * viewTimePerPixel + qmlProfilerModelProxy.traceStartTime()
+    property double duration: Math.max(getWidth() * viewTimePerPixel, 500)
+    property double viewTimePerPixel: 1
+    property double creationReference : 0
     property int creationState : 0
-    property int creationReference : 0
 
     Connections {
         target: zoomControl
@@ -129,10 +129,6 @@ RangeMover {
         if (!selectionRangeControl.pressed && selectionRange.creationState==3)
             return;
 
-        if (selectionRangeControl.pressed) {
-            selectionRange.setPos(selectionRangeControl.mouseX + flick.contentX);
-        } else {
-            selectionRange.setPos(selectionRangeControl.mouseX + flick.contentX);
-        }
+        selectionRange.setPos(selectionRangeControl.mouseX + flick.contentX);
     }
 }
