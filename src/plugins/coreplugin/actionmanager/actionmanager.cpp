@@ -49,6 +49,7 @@ namespace {
 }
 
 static const char kKeyboardSettingsKey[] = "KeyboardShortcuts";
+static const char kKeyboardSettingsTransferredKey[] = "OldSettingsTransferred";
 
 using namespace Core;
 using namespace Core::Internal;
@@ -603,10 +604,16 @@ static const char oldSequenceKey[] = "Keysequence";
 void ActionManagerPrivate::initialize()
 {
     // TODO remove me after some period after 3.1
+    // TODO also remove the old settings after some period after 3.1
+    // settings->remove(QLatin1String(oldSettingsGroup));
+    // settings->contains(QLatin1String(kKeyboardSettingsKey) + QLatin1Char('/')
+    //                    + QLatin1String(kKeyboardSettingsTransferredKey))
     // check if settings in old style (pre 3.1) exist
     QSettings *settings = Core::ICore::settings();
-    if (settings->contains(QLatin1String(kKeyboardSettingsKey)))
+    if (settings->contains(QLatin1String(kKeyboardSettingsKey) + QLatin1Char('/')
+                           + QLatin1String(kKeyboardSettingsTransferredKey))) {
         return;
+    }
     // move old settings style to new settings style
     QMap<Id, QKeySequence> shortcutMap;
     const int shortcuts = settings->beginReadArray(QLatin1String(oldSettingsGroup));
@@ -619,14 +626,13 @@ void ActionManagerPrivate::initialize()
     settings->endArray();
     // write settings in new style
     settings->beginGroup(QLatin1String(kKeyboardSettingsKey));
+    settings->setValue(QLatin1String(kKeyboardSettingsTransferredKey), true);
     QMapIterator<Id, QKeySequence> it(shortcutMap);
     while (it.hasNext()) {
         it.next();
         settings->setValue(it.key().toString(), it.value().toString());
     }
     settings->endGroup();
-    // remove old settings
-    settings->remove(QLatin1String(oldSettingsGroup));
 }
 
 void ActionManagerPrivate::saveSettings(QSettings *settings)
