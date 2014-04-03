@@ -299,7 +299,7 @@ bool BuildManager::tasksAvailable()
     return count > 0;
 }
 
-void BuildManager::startBuildQueue(const QStringList &preambleMessage)
+void BuildManager::startBuildQueue()
 {
     if (d->m_buildQueue.isEmpty()) {
         emit m_instance->buildQueueFinished(true);
@@ -310,11 +310,6 @@ void BuildManager::startBuildQueue(const QStringList &preambleMessage)
         // Progress Reporting
         d->m_progressFutureInterface = new QFutureInterface<void>;
         d->m_progressWatcher.setFuture(d->m_progressFutureInterface->future());
-        foreach (const QString &str, preambleMessage)
-            addToOutputWindow(str, BuildStep::MessageOutput, BuildStep::DontAppendNewline);
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
         ProgressManager::setApplicationLabel(QString());
         d->m_futureProgress = ProgressManager::addTask(d->m_progressFutureInterface->future(),
               QString(), "ProjectExplorer.Task.Build",
@@ -483,9 +478,18 @@ void BuildManager::nextStep()
     }
 }
 
-bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names)
+bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names, const QStringList &preambleMessage)
 {
-    d->m_outputWindow->clearContents();
+    if (!d->m_running) {
+        d->m_outputWindow->clearContents();
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
+        TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
+
+        foreach (const QString &str, preambleMessage)
+            addToOutputWindow(str, BuildStep::MessageOutput, BuildStep::DontAppendNewline);
+    }
+
     int count = steps.size();
     bool init = true;
     int i = 0;
@@ -549,7 +553,7 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &st
         }
     }
 
-    bool success = buildQueueAppend(steps, names);
+    bool success = buildQueueAppend(steps, names, preambelMessage);
     if (!success) {
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
         return false;
@@ -557,7 +561,7 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &st
 
     if (ProjectExplorerPlugin::projectExplorerSettings().showCompilerOutput)
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
-    startBuildQueue(preambelMessage);
+    startBuildQueue();
     return true;
 }
 
