@@ -196,12 +196,34 @@ public:
         // Compare
         const Document::Ptr cppDocument
             = m_modelManager->cppEditorSupport(cppFileEditor)->snapshotUpdater()->document();
+        QVERIFY(checkDiagsnosticMessages(cppDocument));
         const Document::Ptr hDocument
             = m_modelManager->cppEditorSupport(hFileEditor)->snapshotUpdater()->document();
+        QVERIFY(checkDiagsnosticMessages(hDocument));
+
         QVERIFY(documentContainsFunctionDefinition(cppDocument,
             QLatin1String("Form::on_pushButton_clicked")));
         QVERIFY(documentContainsMemberFunctionDeclaration(hDocument,
             QLatin1String("Form::on_pushButton_clicked")));
+    }
+
+    static bool checkDiagsnosticMessages(const Document::Ptr &document)
+    {
+        if (!document)
+            return false;
+
+        // Since no project is opened and the ui_*.h is not generated,
+        // the following diagnostic messages will be ignored.
+        const QStringList ignoreList = QStringList()
+            << QLatin1String("ui_form.h: No such file or directory")
+            << QLatin1String("QWidget: No such file or directory");
+        QList<Document::DiagnosticMessage> cleanedDiagnosticMessages;
+        foreach (const Document::DiagnosticMessage &message, document->diagnosticMessages()) {
+            if (!ignoreList.contains(message.text()))
+                cleanedDiagnosticMessages << message;
+        }
+
+        return cleanedDiagnosticMessages.isEmpty();
     }
 };
 

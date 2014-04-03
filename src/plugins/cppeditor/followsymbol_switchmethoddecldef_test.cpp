@@ -272,8 +272,10 @@ F2TestCase::F2TestCase(CppEditorAction action,
         // that is the function bodies are processed.
         forever {
             const Document::Ptr document = waitForFileInGlobalSnapshot(testFile->filePath());
-            if (document->checkMode() == Document::FullCheck)
+            if (document->checkMode() == Document::FullCheck) {
+                QVERIFY(document->diagnosticMessages().isEmpty());
                 break;
+            }
         }
 
         // Rehighlight
@@ -1132,7 +1134,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             "void CD2::virt() {}\n"
             "\n"
             "int f(A *o) { o->$@virt(); }\n"
-            "}\n")
+            "\n")
         << (OverrideItemList()
             << OverrideItem(QLatin1String("A::virt = 0"), 2)
             << OverrideItem(QLatin1String("B::virt"), 5)
@@ -1158,7 +1160,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             "void CD2::virt() {}\n"
             "\n"
             "int f(B *o) { o->$@virt(); }\n"
-            "}\n")
+            "\n")
         << (OverrideItemList()
             << OverrideItem(QLatin1String("B::virt"), 5)
             << OverrideItem(QLatin1String("C::virt"), 8)

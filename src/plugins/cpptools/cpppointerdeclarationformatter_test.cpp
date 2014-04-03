@@ -99,6 +99,7 @@ public:
         document->setUtf8Source(preprocessedSource);
         document->parse(parseMode);
         document->check();
+        QVERIFY(document->diagnosticMessages().isEmpty());
         AST *ast = document->translationUnit()->ast();
         QVERIFY(ast);
 
@@ -614,25 +615,25 @@ void CppToolsPlugin::test_format_pointerdeclaration_macros_data()
 
     source = QLatin1String(
         "#define FOO int*\n"
-        "FOO @f() {};\n");
+        "FOO @f() {}\n");
     QTest::newRow("macro-in-function-definition-returntype")
         << source << stripCursor(source);
 
     source = QLatin1String(
         "#define FOO int*\n"
-        "int f(FOO @a) {};\n");
+        "int f(FOO @a) {}\n");
     QTest::newRow("macro-in-function-definition-param")
         << source << stripCursor(source);
 
     source = QLatin1String(
         "#define FOO int*\n"
-        "while (FOO @s = 0);\n");
+        "void f() { while (FOO @s = 0) {} }\n");
     QTest::newRow("macro-in-if-while-for")
         << source << stripCursor(source);
 
     source = QLatin1String(
         "#define FOO int*\n"
-        "foreach (FOO @s, list);\n");
+        "void f() { foreach (FOO @s, list) {} }\n");
     QTest::newRow("macro-in-foreach")
         << source << stripCursor(source);
 

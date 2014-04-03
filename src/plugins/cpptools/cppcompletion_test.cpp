@@ -87,6 +87,8 @@ public:
         // Get Document
         waitForFileInGlobalSnapshot(fileName);
         const Document::Ptr document = globalSnapshot().document(fileName);
+        QVERIFY(document);
+        QVERIFY(document->diagnosticMessages().isEmpty());
 
         m_snapshot.insert(document);
 
@@ -344,7 +346,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "    Base *b = new Derived;\n"
             "    if (1)\n"
-            "        @\n"
+            "        @;\n"
             "}\n"
         ) << _("((Derived *)b)->") << (QStringList()
             << QLatin1String("Derived")
@@ -367,7 +369,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "    Base *b = new Derived;\n"
             "    if (1)\n"
-            "        @\n"
+            "        @;\n"
             "}\n"
         ) << _("(static_cast<Derived *>(b))->") << (QStringList()
             << QLatin1String("Derived")
@@ -1522,7 +1524,7 @@ void CppToolsPlugin::test_completion_data()
             "       int foo2;\n"
             "   };\n"
             "   @\n"
-            "};\n"
+            "}\n"
         ) << _("foo") << (QStringList()
             << QLatin1String("foo1")
             << QLatin1String("foo2"));
@@ -1704,6 +1706,7 @@ void CppToolsPlugin::test_completion_data()
             "        int m;\n"
             "    };\n"
             "}\n"
+            "}\n"
             "void foo()\n"
             "{\n"
             "   namespace NS = NS1::NS2;\n"
@@ -1724,6 +1727,7 @@ void CppToolsPlugin::test_completion_data()
             "    {\n"
             "        int m;\n"
             "    };\n"
+            "}\n"
             "}\n"
             "void foo()\n"
             "{\n"
@@ -1823,7 +1827,6 @@ void CppToolsPlugin::test_completion_data()
             "   enum E { val1, val2, val3 };\n"
             "   @\n"
             "};\n"
-            "@\n"
         ) << _("Foo::v") << (QStringList()
             << QLatin1String("val1")
             << QLatin1String("val2")
@@ -1835,7 +1838,6 @@ void CppToolsPlugin::test_completion_data()
             "   enum E { val1, val2, val3 };\n"
             "   @\n"
             "};\n"
-            "@\n"
         ) << _("Foo::E::") << (QStringList()
             << QLatin1String("E")
             << QLatin1String("val1")
@@ -1848,7 +1850,6 @@ void CppToolsPlugin::test_completion_data()
             "   enum { val1, val2, val3 };\n"
             "   @\n"
             "};\n"
-            "@\n"
         ) << _("Foo::v") << (QStringList()
             << QLatin1String("val1")
             << QLatin1String("val2")
@@ -1859,8 +1860,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "   enum E { val1, val2, val3 };\n"
             "   @\n"
-            "};\n"
-            "@\n"
+            "}\n"
         ) << _("Ns::v") << (QStringList()
             << QLatin1String("val1")
             << QLatin1String("val2")
@@ -1871,8 +1871,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "   enum E { val1, val2, val3 };\n"
             "   @\n"
-            "};\n"
-            "@\n"
+            "}\n"
         ) << _("Ns::E::") << (QStringList()
             << QLatin1String("E")
             << QLatin1String("val1")
@@ -1884,8 +1883,7 @@ void CppToolsPlugin::test_completion_data()
             "{\n"
             "   enum { val1, val2, val3 };\n"
             "   @\n"
-            "};\n"
-            "@\n"
+            "}\n"
         ) << _("Ns::v") << (QStringList()
             << QLatin1String("val1")
             << QLatin1String("val2")
@@ -2186,9 +2184,9 @@ void CppToolsPlugin::test_completion_data()
             "void client()\n"
             "{\n"
             "    Timer *timer = new Timer;\n"
-            "    connect(timer, SIGNAL(@\n"
+            "    @\n"
             "}\n"
-        ) << _() << (QStringList()
+        ) << _("connect(timer, SIGNAL(") << (QStringList()
             << QLatin1String("timeout()"));
 
     QTest::newRow("member_of_class_accessed_by_using_QTCREATORBUG9037_1") << _(
@@ -2230,9 +2228,9 @@ void CppToolsPlugin::test_completion_data()
             "\n"
             "double getValue(const QVector<V>& d) const {\n"
             "   typedef QVector<V>::ConstIterator Iter;\n"
-            "   double val = @\n"
+            "   @\n"
             "}\n"
-        ) << _("d.constBegin()->") << (QStringList());
+        ) << _("double val = d.constBegin()->") << (QStringList());
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()
@@ -2277,7 +2275,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef S SType;\n"
             "SType p;\n"
             "@\n"
-            "}\n"
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
@@ -2288,7 +2285,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef S *SType;\n"
             "SType *p;\n"
             "@\n"
-            "}\n"
         ) << _("p.") << (QStringList())
         << false;
 
@@ -2297,7 +2293,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef S SType;\n"
             "SType *p;\n"
             "@\n"
-            "}\n"
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
@@ -2308,7 +2303,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef S* SPtr;\n"
             "SPtr p;\n"
             "@\n"
-            "}\n"
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
@@ -2319,7 +2313,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "struct S { int m; };\n"
             "SType *p;\n"
             "@\n"
-            "}\n"
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
@@ -2330,7 +2323,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "struct S { int m; };\n"
             "SType p;\n"
             "@\n"
-            "}\n"
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
@@ -2341,7 +2333,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "struct S { int m; };\n"
             "SType *p;\n"
             "@\n"
-            "}\n"
         ) << _("p.") << (QStringList())
         << false;
 
@@ -2350,7 +2341,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "struct S { int m; };\n"
             "SType p;\n"
             "@\n"
-            "}\n"
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
@@ -2362,7 +2352,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef struct SType *STypePtr;\n"
             "STypePtr p;\n"
             "@\n"
-            "}\n"
         ) << _("p.") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))
@@ -2374,7 +2363,6 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             "typedef struct SType *STypePtr;\n"
             "STypePtr p;\n"
             "@\n"
-            "}\n"
         ) << _("p->") << (QStringList()
             << QLatin1String("S")
             << QLatin1String("m"))

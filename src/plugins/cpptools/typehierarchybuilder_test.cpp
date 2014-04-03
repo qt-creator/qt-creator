@@ -117,6 +117,8 @@ public:
 
         // Get class for which to generate the hierarchy
         const Document::Ptr firstDocument = snapshot.document(filePaths.first());
+        QVERIFY(firstDocument);
+        QVERIFY(firstDocument->diagnosticMessages().isEmpty());
         Class *clazz = FindFirstClassInDocument()(firstDocument);
         QVERIFY(clazz);
 
