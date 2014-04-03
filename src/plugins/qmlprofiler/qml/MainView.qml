@@ -162,14 +162,12 @@ Rectangle {
         rangeDetails.isBindingLoop = false;
     }
 
-    function selectNextByHash(hash) {
-        var eventId = qmlProfilerModelProxy.getEventIdForHash(hash);
-        if (eventId !== -1)
-            selectNextById(eventId);
-    }
-
-    function selectNextById(eventId)
+    function selectById(eventId)
     {
+        if (eventId === -1 ||
+                eventId === qmlProfilerModelProxy.getEventId(view.selectedModel, view.selectedItem))
+            return;
+
         // this is a slot responding to events from the other pane
         // which tracks only events from the basic model
         if (!lockItemSelection) {

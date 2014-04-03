@@ -309,11 +309,15 @@ void TimelineRenderer::manageClicked()
             setSelectionLocked(!m_selectionLocked);
         else
             setSelectionLocked(true);
+
+        // itemPressed() will trigger an update of the events and JavaScript views. Make sure the
+        // correct event is already selected when that happens, to prevent confusion.
+        selectFromId(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
         emit itemPressed(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
     } else {
         setSelectionLocked(false);
+        selectFromId(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
     }
-    selectFromId(m_currentSelection.modelIndex, m_currentSelection.eventIndex);
 }
 
 void TimelineRenderer::manageHovered(int mouseX, int mouseY)

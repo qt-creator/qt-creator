@@ -371,24 +371,23 @@ void QmlProfilerTraceView::clear()
     QMetaObject::invokeMethod(d->m_timebar->rootObject(), "clear");
 }
 
-void QmlProfilerTraceView::selectNextEventByHash(const QString &hash)
+void QmlProfilerTraceView::selectByHash(const QString &hash)
 {
     QQuickItem *rootObject = d->m_mainView->rootObject();
 
     if (rootObject)
-        QMetaObject::invokeMethod(rootObject, "selectNextByHash",
-                                  Q_ARG(QVariant,QVariant(hash)));
+        QMetaObject::invokeMethod(rootObject, "selectById",
+                Q_ARG(QVariant,QVariant(d->m_modelProxy->getEventIdForHash(hash))));
 }
 
-void QmlProfilerTraceView::selectNextEventByLocation(const QString &filename, const int line, const int column)
+void QmlProfilerTraceView::selectBySourceLocation(const QString &filename, int line, int column)
 {
     int eventId = d->m_modelProxy->getEventIdForLocation(filename, line, column);
 
     if (eventId != -1) {
         QQuickItem *rootObject = d->m_mainView->rootObject();
         if (rootObject)
-            QMetaObject::invokeMethod(rootObject, "selectNextById",
-                                      Q_ARG(QVariant,QVariant(eventId)));
+            QMetaObject::invokeMethod(rootObject, "selectById", Q_ARG(QVariant,QVariant(eventId)));
     }
 }
 

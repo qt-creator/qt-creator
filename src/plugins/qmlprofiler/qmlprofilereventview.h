@@ -143,6 +143,7 @@ private slots:
     void profilerDataModelStateChanged();
 
 private:
+    void selectItem(const QStandardItem *item);
     void setHeaderLabels();
     void parseModelProxy();
 

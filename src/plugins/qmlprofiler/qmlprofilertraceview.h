@@ -100,8 +100,8 @@ public:
 
 public slots:
     void clear();
-    void selectNextEventByHash(const QString &eventHash);
-    void selectNextEventByLocation(const QString &filename, const int line, const int column);
+    void selectByHash(const QString &eventHash);
+    void selectBySourceLocation(const QString &filename, int line, int column);
 
 private slots:
     void updateCursorPosition();

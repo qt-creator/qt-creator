@@ -105,8 +105,8 @@ void QmlProfilerViewManager::createViews()
                                                 d->profilerModelManager);
     connect(d->eventsView, SIGNAL(gotoSourceLocation(QString,int,int)), this,
             SIGNAL(gotoSourceLocation(QString,int,int)));
-    connect(d->eventsView, SIGNAL(eventSelectedByHash(QString)), d->traceView,
-            SLOT(selectNextEventByHash(QString)));
+    connect(d->eventsView, SIGNAL(eventSelectedByHash(QString)),
+            d->traceView, SLOT(selectByHash(QString)));
     connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
             d->eventsView, SLOT(selectBySourceLocation(QString,int,int)));
 
@@ -117,7 +117,7 @@ void QmlProfilerViewManager::createViews()
     connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
             d->v8profilerView, SLOT(selectBySourceLocation(QString,int,int)));
     connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)),
-            d->traceView, SLOT(selectNextEventByLocation(QString,int,int)));
+            d->traceView, SLOT(selectBySourceLocation(QString,int,int)));
     connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)),
             d->eventsView, SLOT(selectBySourceLocation(QString,int,int)));
     connect(d->eventsView, SIGNAL(gotoSourceLocation(QString,int,int)),

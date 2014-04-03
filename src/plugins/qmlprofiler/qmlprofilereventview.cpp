@@ -699,13 +699,22 @@ void QmlProfilerEventsMainView::jumpToItem(const QModelIndex &index)
     d->m_preventSelectBounce = false;
 }
 
+void QmlProfilerEventsMainView::selectItem(const QStandardItem *item)
+{
+    // If the same item is already selected, don't reselect it.
+    QModelIndex index = d->m_model->indexFromItem(item);
+    if (index != currentIndex()) {
+        setCurrentIndex(index);
+        jumpToItem(index);
+    }
+}
+
 void QmlProfilerEventsMainView::selectEvent(const QString &eventHash)
 {
     for (int i=0; i<d->m_model->rowCount(); i++) {
         QStandardItem *infoItem = d->m_model->item(i, 0);
         if (infoItem->data(EventHashStrRole).toString() == eventHash) {
-            setCurrentIndex(d->m_model->indexFromItem(infoItem));
-            jumpToItem(currentIndex());
+            selectItem(infoItem);
             return;
         }
     }
@@ -718,13 +727,11 @@ void QmlProfilerEventsMainView::selectEventByLocation(const QString &filename, i
 
     for (int i=0; i<d->m_model->rowCount(); i++) {
         QStandardItem *infoItem = d->m_model->item(i, 0);
-        if (currentIndex() != d->m_model->indexFromItem(infoItem) &&
-                infoItem->data(FilenameRole).toString() == filename &&
+        if (infoItem->data(FilenameRole).toString() == filename &&
                 infoItem->data(LineRole).toInt() == line &&
                 (column == -1 ||
                 infoItem->data(ColumnRole).toInt() == column)) {
-            setCurrentIndex(d->m_model->indexFromItem(infoItem));
-            jumpToItem(currentIndex());
+            selectItem(infoItem);
             return;
         }
     }
