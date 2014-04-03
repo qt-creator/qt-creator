@@ -145,7 +145,7 @@ GitPlugin::GitPlugin() :
     Q_UNUSED(mid)
     m_fileActions.reserve(10);
     m_projectActions.reserve(10);
-    m_repositoryActions.reserve(15);
+    m_repositoryActions.reserve(50);
 }
 
 GitPlugin::~GitPlugin()
