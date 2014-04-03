@@ -44,7 +44,7 @@ def qdump__QBasicAtomicInt(d, value):
 def qdump__QAtomicPointer(d, value):
     d.putType(value.type)
     q = value["_q_value"]
-    p = int(q)
+    p = toInteger(q)
     d.putValue("@0x%x" % p)
     d.putNumChild(1 if p else 0)
     if d.isExpanded():
@@ -1329,45 +1329,6 @@ def _qdump__QObject(d, value):
                     d.putItemCount(pp)
 
 
-        # Signals.
-        signalCount = int(metaData[13])
-        with SubItem(d, "signals"):
-            d.putItemCount(signalCount)
-            d.putNoType()
-            d.putNumChild(signalCount)
-            if signalCount:
-                # FIXME: empty type does not work for childtype
-                #d.putField("childtype", ".")
-                d.putField("childnumchild", "0")
-            if d.isExpanded():
-                with Children(d):
-                    for signal in xrange(signalCount):
-                        with SubItem(d, signal):
-                            offset = metaData[14 + 5 * signal]
-                            d.putName("signal %d" % signal)
-                            d.putNoType()
-                            d.putValue(extractCString(metaStringData, offset))
-                            d.putNumChild(0)  # FIXME: List the connections here.
-
-        # Slots.
-        with SubItem(d, "slots"):
-            slotCount = int(metaData[4]) - signalCount
-            d.putItemCount(slotCount)
-            d.putNoType()
-            d.putNumChild(slotCount)
-            if slotCount:
-                #d.putField("childtype", ".")
-                d.putField("childnumchild", "0")
-            if d.isExpanded():
-                with Children(d):
-                    for slot in xrange(slotCount):
-                        with SubItem(d, slot):
-                            offset = metaData[14 + 5 * (signalCount + slot)]
-                            d.putName("slot %d" % slot)
-                            d.putNoType()
-                            d.putValue(extractCString(metaStringData, offset))
-                            d.putNumChild(0)  # FIXME: List the connections here.
-
         # Active connection.
         with SubItem(d, "currentSender"):
             d.putNoType()
@@ -2207,25 +2168,11 @@ def qform__QVector():
 
 
 def qdump__QVector(d, value):
-    innerType = d.templateArgument(value.type, 0)
-    if d.qtVersion() >= 0x050000:
-        private = value["d"]
-        d.checkRef(private["ref"])
-        alloc = int(private["alloc"])
-        size = int(private["size"])
-        offset = int(private["offset"])
-        data = d.pointerValue(private) + offset
-    else:
-        anon = d.childAt(value, 0)
-        private = anon["d"]
-        d.checkRef(private["ref"])
-        alloc = int(private["alloc"])
-        size = int(private["size"])
-        data = d.addressOf(anon["p"]["array"])
-
+    data, size, alloc = d.vectorDataHelper(d.extractPointer(value))
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
+    innerType = d.templateArgument(value.type, 0)
     d.putPlotData(innerType, data, size)
 
 

@@ -368,6 +368,17 @@ class DumperBase:
             return min(size, self.stringCutOff)
         return min(size, limit)
 
+    def vectorDataHelper(self, addr):
+        if self.qtVersion() >= 0x050000:
+            size = self.extractInt(addr + 4)
+            alloc = self.extractInt(addr + 8) & 0x7ffffff
+            data = addr + self.extractPointer(addr + 8 + self.ptrSize())
+        else:
+            alloc = self.extractInt(addr + 4)
+            size = self.extractInt(addr + 8)
+            data = addr + 16
+        return data, size, alloc
+
     def byteArrayDataHelper(self, addr):
         if self.qtVersion() >= 0x050000:
             # QTypedArray:
@@ -1001,31 +1012,40 @@ class DumperBase:
         self.knownStaticMetaObjects[typeName] = result
         return result
 
-    def staticQObjectPropertyNames(self, metaobject):
-        properties = []
+    def staticQObjectMetaData(self, metaobject, offset1, offset2, step):
+        items = []
         dd = metaobject["d"]
         data = self.extractPointer(dd["data"])
         sd = self.extractPointer(dd["stringdata"])
 
         metaObjectVersion = self.extractInt(data)
-        propertyCount = self.extractInt(data + 24)
-        propertyData = self.extractInt(data + 28)
+        itemCount = self.extractInt(data + offset1)
+        itemData = -offset2 if offset2 < 0 else self.extractInt(data + offset2)
 
         if metaObjectVersion >= 7: # Qt 5.
             byteArrayDataType = self.lookupType(self.qtNamespace() + "QByteArrayData")
             byteArrayDataSize = byteArrayDataType.sizeof
-            for i in range(propertyCount):
-                x = data + (propertyData + 3 * i) * 4
+            for i in range(itemCount):
+                x = data + (itemData + step * i) * 4
                 literal = sd + self.extractInt(x) * byteArrayDataSize
                 ldata, lsize, lalloc = self.byteArrayDataHelper(literal)
-                properties.append(self.extractBlob(ldata, lsize).toString())
+                items.append(self.extractBlob(ldata, lsize).toString())
         else: # Qt 4.
-            for i in range(propertyCount):
-                x = data + (propertyData + 3 * i) * 4
+            for i in range(itemCount):
+                x = data + (itemData + step * i) * 4
                 ldata = sd + self.extractInt(x)
-                properties.append(self.extractCString(ldata).decode("utf8"))
+                items.append(self.extractCString(ldata).decode("utf8"))
 
-        return properties
+        return items
+
+    def staticQObjectPropertyNames(self, metaobject):
+        return self.staticQObjectMetaData(metaobject, 24, 28, 3)
+
+    def staticQObjectMethodNames(self, metaobject):
+        return self.staticQObjectMetaData(metaobject, 16, 20, 5)
+
+    def staticQObjectSignalNames(self, metaobject):
+        return self.staticQObjectMetaData(metaobject, 52, -14, 5)
 
     def extractCString(self, addr):
         result = bytearray()
@@ -1071,6 +1091,14 @@ class DumperBase:
         #with SubItem(self, "[extradata]"):
         #    self.putValue("0x%x" % toInteger(extraData))
 
+        # Parent and children.
+        try:
+            d_ptr = qobject["d_ptr"]["d"]
+            self.putSubItem("[parent]", d_ptr["parent"])
+            self.putSubItem("[children]", d_ptr["children"])
+        except:
+            pass
+
         with SubItem(self, "[properties]"):
             propertyCount = 0
             if self.isExpanded():
@@ -1096,6 +1124,65 @@ class DumperBase:
             self.putValue('<%s items>' % propertyCount if propertyCount else '<>0 items>')
             self.putNumChild(1)
 
+        with SubItem(self, "[methods]"):
+            methodCount = 0
+            if self.isExpanded():
+                methodNames = self.staticQObjectMethodNames(smo)
+                methodCount = len(methodNames)
+                with Children(self):
+                    for i in range(methodCount):
+                        k = methodNames[i]
+                        with SubItem(self, k):
+                            self.putEmptyValue()
+            self.putValue('<%s items>' % methodCount if methodCount else ' ')
+            self.putNumChild(1)
+
+        with SubItem(self, "[signals]"):
+            signalCount = 0
+            if self.isExpanded():
+                signalNames = self.staticQObjectSignalNames(smo)
+                signalCount = len(signalNames)
+                with Children(self):
+                    for i in range(signalCount):
+                        k = signalNames[i]
+                        with SubItem(self, k):
+                            self.putEmptyValue()
+            self.putValue('<%s items>' % signalCount if signalCount else ' ')
+            self.putNumChild(1)
+
+        with SubItem(self, "[connections]"):
+            self.putNoType()
+            ns = self.qtNamespace()
+            privateTypeName = ns + "QObjectPrivate"
+            privateType = self.lookupType(privateTypeName)
+            dd = qobject["d_ptr"]["d"]
+            d_ptr = dd.cast(privateType.pointer()).dereference()
+            connections = d_ptr["connectionLists"]
+            connectionListCount = 0
+            if not self.isNull(connections):
+                connectionListCount = connections["d"]["size"]
+            self.putItemCount(connectionListCount, 0)
+            self.putNumChild(connectionListCount)
+            if self.isExpanded():
+                pp = 0
+                with Children(self):
+                    vectorType = self.fieldAt(connections.type.target(), 0).type
+                    innerType = self.templateArgument(vectorType, 0)
+                    # Should check:  innerType == ns::QObjectPrivate::ConnectionList
+                    base = self.extractPointer(connections.dereference())
+                    data, size, alloc = self.vectorDataHelper(base)
+                    connectionType = self.lookupType(ns + "QObjectPrivate::Connection")
+                    for i in xrange(size):
+                        first = self.extractPointer(data + i * 2 * ptrSize)
+                        while not self.isNull(first):
+                            self.putSubItem("%s" % pp, self.createPointerValue(first, connectionType))
+                            first = self.extractPointer(first + 3 * ptrSize)
+                            # We need to enforce some upper limit.
+                            pp += 1
+                            if pp > 1000:
+                                break
+                if pp < 1000:
+                    self.putItemCount(pp)
 
     def isKnownMovableType(self, type):
         if type in (
