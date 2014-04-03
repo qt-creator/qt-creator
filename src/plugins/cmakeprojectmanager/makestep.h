@@ -112,7 +112,6 @@ private:
     QString m_ninjaProgressString;
     QStringList m_buildTargets;
     QString m_additionalArguments;
-    QList<ProjectExplorer::Task> m_tasks;
     bool m_useNinja;
     CMakeBuildConfiguration *m_activeConfiguration;
 };
