@@ -1037,15 +1037,15 @@ class DumperBase:
             addr += 1
         return result
 
-    def generateQListChildren(self, value):
-        base = self.extractPointer(value)
+    def listChildrenGenerator(self, addr, typeName):
+        innerType = self.lookupType(self.qtNamespace() + typeName)
+        base = self.extractPointer(addr)
         begin = self.extractInt(base + 8)
         end = self.extractInt(base + 12)
         array = base + 16
         if self.qtVersion() < 0x50000:
             array += self.ptrSize()
         size = end - begin
-        innerType = self.templateArgument(value.type, 0)
         innerSize = innerType.sizeof
         stepSize = self.ptrSize()
         addr = array + begin * stepSize
@@ -1084,19 +1084,9 @@ class DumperBase:
 
                     # Dynamic properties.
                     if extraData:
-                        propertyNames = extraData + ptrSize
-                        propertyValues = extraData + 2 * ptrSize
-
-                        ns = self.qtNamespace()
-
-                        typ = self.lookupType(ns + "QList<" + ns + "QByteArray>")
-                        names = self.createValue(propertyNames, typ)
-
-                        typ = self.lookupType(ns + "QList<" + ns + "QVariant>")
-                        values = self.createValue(propertyValues, typ)
-
-                        for (k, v) in zip(self.generateQListChildren(names),
-                                self.generateQListChildren(values)) :
+                        names = self.listChildrenGenerator(extraData + ptrSize, "QByteArray")
+                        values = self.listChildrenGenerator(extraData + 2 * ptrSize, "QVariant")
+                        for (k, v) in zip(names, values):
                             with SubItem(self, propertyCount):
                                 self.put('key="%s",' % self.encodeByteArray(k))
                                 self.put('keyencoded="%s",' % Hex2EncodedLatin1)
