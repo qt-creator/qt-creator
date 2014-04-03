@@ -135,7 +135,6 @@ private:
     QString m_userArgs;
     QmlLibraryLink m_linkQmlDebuggingLibrary;
     bool m_scriptTemplate;
-    QList<ProjectExplorer::Task> m_tasks;
 };
 
 

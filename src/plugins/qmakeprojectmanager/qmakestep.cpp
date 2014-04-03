@@ -274,8 +274,21 @@ bool QMakeStep::init()
         node = qt4bc->subNodeBuild();
     QString proFile = node->path();
 
-    m_tasks = qtVersion->reportIssues(proFile, workingDirectory);
-    qSort(m_tasks);
+    QList<ProjectExplorer::Task> tasks = qtVersion->reportIssues(proFile, workingDirectory);
+    qSort(tasks);
+
+    if (!tasks.isEmpty()) {
+        bool canContinue = true;
+        foreach (const ProjectExplorer::Task &t, tasks) {
+            addTask(t);
+            if (t.type == Task::Error)
+                canContinue = false;
+        }
+        if (!canContinue) {
+            emit addOutput(tr("Configuration is faulty, please check the Issues view for details."), BuildStep::MessageOutput);
+            return false;
+        }
+    }
 
     m_scriptTemplate = node->projectType() == ScriptTemplate;
 
@@ -286,20 +299,6 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
 {
     if (m_scriptTemplate) {
         fi.reportResult(true);
-        return;
-    }
-
-    // Warn on common error conditions:
-    bool canContinue = true;
-    foreach (const ProjectExplorer::Task &t, m_tasks) {
-        addTask(t);
-        if (t.type == Task::Error)
-            canContinue = false;
-    }
-    if (!canContinue) {
-        emit addOutput(tr("Configuration is faulty, please check the Issues view for details."), BuildStep::MessageOutput);
-        fi.reportResult(false);
-        emit finished();
         return;
     }
 

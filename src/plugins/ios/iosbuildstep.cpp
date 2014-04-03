@@ -111,14 +111,14 @@ bool IosBuildStep::init()
     if (!bc)
         bc = target()->activeBuildConfiguration();
 
-    m_tasks.clear();
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     if (!tc) {
         Task t = Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the kit preferences."),
                       Utils::FileName(), -1,
                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        m_tasks.append(t);
         emit addTask(t);
+        emit addOutput(tr("Configuration is faulty. Check the Issues output pane for details."),
+                       BuildStep::MessageOutput);
         return false;
     }
     ProcessParameters *pp = processParameters();
@@ -217,19 +217,6 @@ QString IosBuildStep::buildCommand() const
 
 void IosBuildStep::run(QFutureInterface<bool> &fi)
 {
-    bool canContinue = true;
-    foreach (const Task &t, m_tasks) {
-        addTask(t);
-        canContinue = false;
-    }
-    if (!canContinue) {
-        emit addOutput(tr("Configuration is faulty. Check the Issues output pane for details."),
-                       BuildStep::MessageOutput);
-        fi.reportResult(false);
-        emit finished();
-        return;
-    }
-
     AbstractProcessStep::run(fi);
 }
 

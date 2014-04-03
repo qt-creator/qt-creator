@@ -83,7 +83,6 @@ private:
     QString m_buildCommand;
     bool m_useDefaultArguments;
     bool m_clean;
-    QList<ProjectExplorer::Task> m_tasks;
 };
 
 class IosBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

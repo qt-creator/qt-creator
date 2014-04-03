@@ -113,7 +113,6 @@ private:
     QString m_makeFileToCheck;
     QString m_userArgs;
     QString m_makeCmd;
-    QList<ProjectExplorer::Task> m_tasks;
 };
 
 class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

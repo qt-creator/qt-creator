@@ -120,7 +120,6 @@ private:
     QStringList m_buildTargets;
     QString m_additionalArguments;
     bool m_clean;
-    QList<ProjectExplorer::Task> m_tasks;
 };
 
 ///////////////////////////////
