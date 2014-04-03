@@ -72,7 +72,7 @@ private slots:
     void connectionStateChanged();
     void retryMessageBoxFinished(int result);
 
-    void qmlComplete();
+    void qmlComplete(qint64 maximumTime);
     void v8Complete();
 
     void profilerStateChanged();

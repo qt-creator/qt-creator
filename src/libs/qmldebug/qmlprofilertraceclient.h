@@ -97,7 +97,7 @@ public slots:
     void sendRecordingStatus();
 
 signals:
-    void complete();
+    void complete(qint64 maximumTime);
     void gap(qint64 time);
     void event(int event, qint64 time);
     void traceFinished( qint64 time );
