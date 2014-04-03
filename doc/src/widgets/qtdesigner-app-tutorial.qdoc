@@ -26,7 +26,7 @@
     \contentspage {Qt Creator Manual}
     \previouspage creator-qml-application.html
     \page creator-writing-program.html
-    \nextpage creator-android-app-tutorial.html
+    \nextpage creator-mobile-app-tutorial.html
 
     \title Creating a Qt Widget Based Application
 
