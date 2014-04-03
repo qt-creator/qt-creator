@@ -617,13 +617,16 @@ def qdump__QHash(d, value):
     d.putNumChild(size)
     if d.isExpanded():
         numBuckets = int(d_ptr.dereference()["numBuckets"])
-        nodePtr = hashDataFirstNode(d_ptr, numBuckets)
         innerType = e_ptr.dereference().type
         isCompact = d.isMapCompact(keyType, valueType)
         childType = valueType if isCompact else innerType
         with Children(d, size, maxNumChild=1000, childType=childType):
             for i in d.childRange():
-                it = nodePtr.dereference().cast(innerType)
+                if i == 0:
+                    node = hashDataFirstNode(d_ptr, numBuckets)
+                else:
+                    node = hashDataNextNode(node, numBuckets)
+                it = node.dereference().cast(innerType)
                 with SubItem(d, i):
                     if isCompact:
                         key = it["key"]
@@ -636,7 +639,6 @@ def qdump__QHash(d, value):
                         d.putType(valueType)
                     else:
                         d.putItem(it)
-                nodePtr = hashDataNextNode(nodePtr, numBuckets)
 
 
 def qdump__QHashNode(d, value):
@@ -1690,10 +1692,13 @@ def qdump__QSet(d, value):
         hashDataType = d_ptr.type
         nodeTypePtr = d_ptr.dereference()["fakeNext"].type
         numBuckets = int(d_ptr.dereference()["numBuckets"])
-        node = hashDataFirstNode(d_ptr, numBuckets)
         innerType = e_ptr.dereference().type
         with Children(d, size, maxNumChild=1000, childType=innerType):
             for i in d.childRange():
+                if i == 0:
+                    node = hashDataFirstNode(d_ptr, numBuckets)
+                else:
+                    node = hashDataNextNode(node, numBuckets)
                 it = node.dereference().cast(innerType)
                 with SubItem(d, i):
                     key = it["key"]
@@ -1702,7 +1707,6 @@ def qdump__QSet(d, value):
                         # for Qt4 optimized int keytype
                         key = it[1]["key"]
                     d.putItem(key)
-                node = hashDataNextNode(node, numBuckets)
 
 
 def qdump__QSharedData(d, value):
