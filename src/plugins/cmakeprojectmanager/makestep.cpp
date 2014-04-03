@@ -96,14 +96,12 @@ void MakeStep::ctor()
 
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
     if (bc) {
-        m_useNinja = bc->useNinja();
         m_activeConfiguration = 0;
-        connect(bc, SIGNAL(useNinjaChanged(bool)), this, SLOT(setUseNinja(bool)));
+        connect(bc, SIGNAL(useNinjaChanged(bool)), this, SLOT(setUseNinja()));
     } else {
         // That means the step is in the deploylist, so we listen to the active build config
         // changed signal and react to the activeBuildConfigurationChanged() signal of the buildconfiguration
         m_activeConfiguration = targetsActiveBuildConfiguration();
-        m_useNinja = m_activeConfiguration->useNinja();
         connect (target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
                  this, SLOT(activeBuildConfigurationChanged()));
         activeBuildConfigurationChanged();
@@ -134,10 +132,10 @@ void MakeStep::activeBuildConfigurationChanged()
 
     m_activeConfiguration = targetsActiveBuildConfiguration();
 
-    if (m_activeConfiguration) {
+    if (m_activeConfiguration)
         connect(m_activeConfiguration, SIGNAL(useNinjaChanged(bool)), this, SLOT(setUseNinja(bool)));
-        setUseNinja(m_activeConfiguration->useNinja());
-    }
+
+    emit makeCommandChanged();
 }
 
 void MakeStep::buildTargetsChanged()
@@ -161,7 +159,6 @@ QVariantMap MakeStep::toMap() const
     map.insert(QLatin1String(CLEAN_KEY), m_clean);
     map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
     map.insert(QLatin1String(ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
-    map.insert(QLatin1String(USE_NINJA_KEY), m_useNinja);
     return map;
 }
 
@@ -170,7 +167,6 @@ bool MakeStep::fromMap(const QVariantMap &map)
     m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
     m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
     m_additionalArguments = map.value(QLatin1String(ADDITIONAL_ARGUMENTS_KEY)).toString();
-    m_useNinja = map.value(QLatin1String(USE_NINJA_KEY)).toBool();
 
     return BuildStep::fromMap(map);
 }
@@ -199,6 +195,8 @@ bool MakeStep::init()
         emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
         return false;
     }
+
+    m_useNinja = bc->useNinja();
 
     QString arguments = Utils::QtcProcess::joinArgs(m_buildTargets);
     Utils::QtcProcess::addArgs(&arguments, additionalArguments());
@@ -312,20 +310,21 @@ void MakeStep::setAdditionalArguments(const QString &list)
 
 QString MakeStep::makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const
 {
-    if (m_useNinja)
+    CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
+    if (!bc)
+        bc = targetsActiveBuildConfiguration();
+    if (bc && bc->useNinja())
         return QLatin1String("ninja");
+
     if (tc)
         return tc->makeCommand(env);
 
     return QLatin1String("make");
 }
 
-void MakeStep::setUseNinja(bool useNinja)
+void MakeStep::setUseNinja()
 {
-    if (m_useNinja != useNinja) {
-        m_useNinja = useNinja;
-        emit makeCommandChanged();
-    }
+    emit makeCommandChanged();
 }
 
 //

@@ -80,7 +80,7 @@ public:
     QVariantMap toMap() const;
 
 public slots:
-    void setUseNinja(bool);
+    void setUseNinja();
     void activeBuildConfigurationChanged();
 
 private slots:
