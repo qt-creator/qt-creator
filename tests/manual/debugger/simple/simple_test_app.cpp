@@ -4285,8 +4285,9 @@ namespace qthread {
 Q_DECLARE_METATYPE(QHostAddress)
 Q_DECLARE_METATYPE(QList<int>)
 Q_DECLARE_METATYPE(QStringList)
-#define COMMA ,
-Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
+
+typedef QMap<uint, QStringList> QMapUIntQStringList;
+Q_DECLARE_METATYPE(QMapUIntQStringList)
 
 namespace qvariant {
 
