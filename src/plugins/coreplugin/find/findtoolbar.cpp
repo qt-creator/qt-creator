@@ -353,6 +353,8 @@ void FindToolBar::updateFindAction()
     m_findInDocumentAction->setEnabled(enabled);
     m_findNextSelectedAction->setEnabled(enabled);
     m_findPreviousSelectedAction->setEnabled(enabled);
+    if (QApplication::clipboard()->supportsFindBuffer())
+        m_enterFindStringAction->setEnabled(enabled);
 }
 
 void FindToolBar::updateToolBar()
@@ -371,8 +373,6 @@ void FindToolBar::updateToolBar()
     m_wholeWordAction->setEnabled(enabled);
     m_regularExpressionAction->setEnabled(enabled);
     m_preserveCaseAction->setEnabled(replaceEnabled && !hasFindFlag(FindRegularExpression));
-    if (QApplication::clipboard()->supportsFindBuffer())
-        m_enterFindStringAction->setEnabled(enabled);
     bool replaceFocus = m_ui.replaceEdit->hasFocus();
     m_ui.findEdit->setEnabled(enabled);
     m_ui.findLabel->setEnabled(enabled);
@@ -529,6 +529,7 @@ void FindToolBar::invokeResetIncrementalSearch()
 
 void FindToolBar::putSelectionToFindClipboard()
 {
+    openFind(false);
     const QString text = m_currentDocumentFind->currentFindString();
     QApplication::clipboard()->setText(text, QClipboard::FindBuffer);
     setFindText(text);
