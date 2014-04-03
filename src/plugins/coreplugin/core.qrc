@@ -2,6 +2,7 @@
     <qresource prefix="/core">
         <file>images/clean_pane_small.png</file>
         <file>images/clear.png</file>
+        <file>images/clear@2x.png</file>
         <file>images/closebutton.png</file>
         <file>images/compile_error_taskbar.png</file>
         <file>images/dir.png</file>
@@ -19,8 +20,11 @@
         <file>images/inputfield.png</file>
         <file>images/inputfield_disabled.png</file>
         <file>images/linkicon.png</file>
+        <file>images/linkicon@2x.png</file>
         <file>images/locked.png</file>
+        <file>images/locked@2x.png</file>
         <file>images/magnifier.png</file>
+        <file>images/magnifier@2x.png</file>
         <file>images/minus.png</file>
         <file>images/next.png</file>
         <file>images/panel_button.png</file>
@@ -39,12 +43,14 @@
         <file>images/sidebaricon.png</file>
         <file>images/topbaricon.png</file>
         <file>images/splitbutton_horizontal.png</file>
+        <file>images/splitbutton_horizontal@2x.png</file>
         <file>images/statusbar.png</file>
         <file>images/undo.png</file>
         <file>images/unknownfile.png</file>
         <file>images/unlocked.png</file>
         <file>images/extension.png</file>
         <file>images/darkclosebutton.png</file>
+        <file>images/darkclosebutton@2x.png</file>
         <file>images/category_debug.png</file>
         <file>images/category_core.png</file>
         <file>images/category_texteditor.png</file>
@@ -54,11 +60,17 @@
         <file>images/progressbar.png</file>
         <file>images/help.png</file>
         <file>images/editclear.png</file>
+        <file>images/editclear@2x.png</file>
         <file>images/darkarrowdown.png</file>
+        <file>images/darkarrowdown@2x.png</file>
         <file>images/darkarrowup.png</file>
+        <file>images/darkarrowup@2x.png</file>
         <file>images/darkclose.png</file>
+        <file>images/darkclose@2x.png</file>
         <file>images/arrowdown.png</file>
+        <file>images/arrowdown@2x.png</file>
         <file>images/arrowup.png</file>
+        <file>images/arrowup@2x.png</file>
         <file>images/category_fakevim.png</file>
         <file>images/category_locator.png</file>
         <file>images/category_cpaster.png</file>
@@ -66,12 +78,18 @@
         <file>images/category_vcs.png</file>
         <file>images/category_qml.png</file>
         <file>images/filtericon.png</file>
+        <file>images/filtericon@2x.png</file>
         <file>images/category_buildrun.png</file>
         <file>images/button_close.png</file>
+        <file>images/button_close@2x.png</file>
         <file>images/splitbutton_closebottom.png</file>
+        <file>images/splitbutton_closebottom@2x.png</file>
         <file>images/splitbutton_closeleft.png</file>
+        <file>images/splitbutton_closeleft@2x.png</file>
         <file>images/splitbutton_closeright.png</file>
+        <file>images/splitbutton_closeright@2x.png</file>
         <file>images/splitbutton_closetop.png</file>
+        <file>images/splitbutton_closetop@2x.png</file>
         <file>images/splitbutton_vertical.png</file>
         <file>images/panel_manage_button.png</file>
         <file>images/sidebysidediff.png</file>

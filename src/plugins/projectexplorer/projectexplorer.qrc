@@ -5,11 +5,13 @@
         <file>images/clean_small.png</file>
         <file>images/closetab.png</file>
         <file>images/debugger_start.png</file>
+        <file>images/debugger_start@2x.png</file>
         <file>images/debugger_start_small.png</file>
         <file>images/projectexplorer.png</file>
         <file>images/rebuild.png</file>
         <file>images/rebuild_small.png</file>
         <file>images/run.png</file>
+        <file>images/run@2x.png</file>
         <file>images/run_small.png</file>
         <file>images/session.png</file>
         <file>images/stop.png</file>
@@ -33,6 +35,7 @@
         <file>images/DeviceDisconnected.png</file>
         <file>images/DeviceReadyToUse.png</file>
         <file>images/build.png</file>
+        <file>images/build@2x.png</file>
         <file>images/targetpanel_bottom.png</file>
         <file>images/targetpanel_gradient.png</file>
         <file>images/window.png</file>
