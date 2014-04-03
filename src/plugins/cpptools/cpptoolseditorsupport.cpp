@@ -224,17 +224,12 @@ bool CppEditorSupport::initialized()
 SemanticInfo CppEditorSupport::recalculateSemanticInfo()
 {
     m_futureSemanticInfo.cancel();
-
-    SemanticInfo::Source source = currentSource(false);
-    recalculateSemanticInfoNow(source, /*emitSignalWhenFinished=*/ false);
-    return m_lastSemanticInfo;
+    return recalculateSemanticInfoNow(currentSource(false), /*emitSignalWhenFinished=*/ false);
 }
 
 Document::Ptr CppEditorSupport::lastSemanticInfoDocument() const
 {
-    QMutexLocker locker(&m_lastSemanticInfoLock);
-
-    return m_lastSemanticInfo.doc;
+    return semanticInfo().doc;
 }
 
 void CppEditorSupport::recalculateSemanticInfoDetached(ForceReason forceReason)
@@ -348,17 +343,13 @@ void CppEditorSupport::onDocumentUpdated(Document::Ptr doc)
         setExtraDiagnostics(key, doc->diagnosticMessages());
     }
 
-    // update semantic info in a future
-    if (!m_initialized ||
-            (m_textEditor->widget()->isVisible()
-             && (m_lastSemanticInfo.doc.isNull()
-                 || m_lastSemanticInfo.doc->translationUnit()->ast() == 0
-                 || m_lastSemanticInfo.doc->fileName() != fileName()))) {
+    // Update semantic info if necessary
+    if (!m_initialized || (m_textEditor->widget()->isVisible() && !isSemanticInfoValid())) {
         m_initialized = true;
-        recalculateSemanticInfoDetached(ForceDueToMissingSemanticInfo);
+        recalculateSemanticInfoDetached(ForceDueToInvalidSemanticInfo);
     }
 
-    // notify the editor that the document is updated
+    // Notify the editor that the document is updated
     emit documentUpdated();
 }
 
@@ -368,34 +359,18 @@ void CppEditorSupport::startHighlighting(ForceReason forceReason)
         return;
 
     if (m_highlightingSupport->requiresSemanticInfo()) {
-        Snapshot snapshot;
-        Document::Ptr doc;
-        unsigned revision;
-        bool forced;
-        bool complete;
-
-        {
-            QMutexLocker locker(&m_lastSemanticInfoLock);
-            snapshot = m_lastSemanticInfo.snapshot;
-            doc = m_lastSemanticInfo.doc;
-            revision = m_lastSemanticInfo.revision;
-            forced = m_lastSemanticInfo.forced;
-            complete = m_lastSemanticInfo.complete;
-        }
-
-        if (doc.isNull())
+        const SemanticInfo info = semanticInfo();
+        if (info.doc.isNull())
             return;
 
-        if (!m_lastHighlightOnCompleteSemanticInfo)
-            forced = true;
-
-        if (!forced && m_lastHighlightRevision == revision)
+        const bool forced = info.forced || !m_lastHighlightOnCompleteSemanticInfo;
+        if (!forced && m_lastHighlightRevision == info.revision)
             return;
 
         m_highlighter.cancel();
-        m_highlighter = m_highlightingSupport->highlightingFuture(doc, snapshot);
-        m_lastHighlightRevision = revision;
-        m_lastHighlightOnCompleteSemanticInfo = complete;
+        m_highlighter = m_highlightingSupport->highlightingFuture(info.doc, info.snapshot);
+        m_lastHighlightRevision = info.revision;
+        m_lastHighlightOnCompleteSemanticInfo = info.complete;
         emit highlighterStarted(&m_highlighter, m_lastHighlightRevision);
     } else {
         const unsigned revision = editorRevision();
@@ -496,8 +471,7 @@ void CppEditorSupport::onCurrentEditorChanged()
         m_editorVisible = editorVisible;
         if (editorVisible) {
             m_editorGCTimer->stop();
-            QMutexLocker locker(&m_lastSemanticInfoLock);
-            if (!m_lastSemanticInfo.doc)
+            if (!lastSemanticInfoDocument())
                 updateDocumentNow();
         } else {
             m_editorGCTimer->start(EditorHiddenGCTimeout);
@@ -510,8 +484,7 @@ void CppEditorSupport::releaseResources()
     m_highlighter.cancel();
     m_highlighter = QFuture<TextEditor::HighlightingResult>();
     snapshotUpdater()->releaseSnapshot();
-    QMutexLocker semanticLocker(&m_lastSemanticInfoLock);
-    m_lastSemanticInfo = SemanticInfo();
+    setSemanticInfo(SemanticInfo(), /*emitSignal=*/ false);
     m_lastHighlightOnCompleteSemanticInfo = true;
 }
 
@@ -524,72 +497,84 @@ SemanticInfo::Source CppEditorSupport::currentSource(bool force)
                                 force);
 }
 
-void CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::Source &source,
-                                                  bool emitSignalWhenFinished,
-                                                  FuturizedTopLevelDeclarationProcessor *processor)
+SemanticInfo CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::Source &source,
+    bool emitSignalWhenFinished,
+    FuturizedTopLevelDeclarationProcessor *processor)
 {
-    SemanticInfo semanticInfo;
+    const SemanticInfo lastSemanticInfo = semanticInfo();
+    SemanticInfo newSemanticInfo;
 
-    {
-        QMutexLocker locker(&m_lastSemanticInfoLock);
-        semanticInfo.revision = m_lastSemanticInfo.revision;
-        semanticInfo.forced = source.force;
+    newSemanticInfo.forced = source.force;
+    newSemanticInfo.revision = source.revision;
 
-        if (!source.force
-                && m_lastSemanticInfo.complete
-                && m_lastSemanticInfo.revision == source.revision
-                && m_lastSemanticInfo.doc
-                && m_lastSemanticInfo.doc->translationUnit()->ast()
-                && m_lastSemanticInfo.doc->fileName() == source.fileName) {
-            semanticInfo.snapshot = m_lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
-            semanticInfo.doc = m_lastSemanticInfo.doc;
-        }
-    }
+    // Try to reuse as much as possible from the last semantic info
+    if (!source.force
+            && lastSemanticInfo.complete
+            && lastSemanticInfo.revision == source.revision
+            && lastSemanticInfo.doc
+            && lastSemanticInfo.doc->translationUnit()->ast()
+            && lastSemanticInfo.doc->fileName() == source.fileName) {
+        newSemanticInfo.snapshot = lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
+        newSemanticInfo.doc = lastSemanticInfo.doc;
 
-    if (semanticInfo.doc.isNull()) {
+    // Otherwise reprocess document
+    } else {
         const QSharedPointer<SnapshotUpdater> snapshotUpdater = snapshotUpdater_internal();
-        QTC_ASSERT(snapshotUpdater, return);
-        semanticInfo.snapshot = snapshotUpdater->snapshot();
-
-        if (semanticInfo.snapshot.contains(source.fileName)) {
-            Document::Ptr doc = semanticInfo.snapshot.preprocessedDocument(source.code,
-                                                                           source.fileName);
-            if (processor)
-                doc->control()->setTopLevelDeclarationProcessor(processor);
-            doc->check();
-            if (processor && processor->isCanceled())
-                semanticInfo.complete = false;
-            semanticInfo.doc = doc;
-        } else {
-            return;
-        }
+        QTC_ASSERT(snapshotUpdater, return newSemanticInfo);
+        newSemanticInfo.snapshot = snapshotUpdater->snapshot();
+        QTC_ASSERT(newSemanticInfo.snapshot.contains(source.fileName), return newSemanticInfo);
+        Document::Ptr doc = newSemanticInfo.snapshot.preprocessedDocument(source.code,
+                                                                          source.fileName);
+        if (processor)
+            doc->control()->setTopLevelDeclarationProcessor(processor);
+        doc->check();
+        if (processor && processor->isCanceled())
+            newSemanticInfo.complete = false;
+        newSemanticInfo.doc = doc;
     }
 
-    if (semanticInfo.doc) {
-        TranslationUnit *translationUnit = semanticInfo.doc->translationUnit();
-        AST * ast = translationUnit->ast();
+    // Update local uses for the document
+    TranslationUnit *translationUnit = newSemanticInfo.doc->translationUnit();
+    AST *ast = translationUnit->ast();
+    FunctionDefinitionUnderCursor functionDefinitionUnderCursor(newSemanticInfo.doc->translationUnit());
+    const LocalSymbols useTable(newSemanticInfo.doc,
+                                functionDefinitionUnderCursor(ast, source.line, source.column));
+    newSemanticInfo.localUses = useTable.uses;
 
-        FunctionDefinitionUnderCursor functionDefinitionUnderCursor(semanticInfo.doc->translationUnit());
-        DeclarationAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
+    // Update semantic info
+    setSemanticInfo(newSemanticInfo, emitSignalWhenFinished);
 
-        const LocalSymbols useTable(semanticInfo.doc, currentFunctionDefinition);
-        semanticInfo.revision = source.revision;
-        semanticInfo.localUses = useTable.uses;
-    }
-
-    {
-        QMutexLocker locker(&m_lastSemanticInfoLock);
-        m_lastSemanticInfo = semanticInfo;
-    }
-
-    if (emitSignalWhenFinished)
-        emit semanticInfoUpdated(semanticInfo);
+    return newSemanticInfo;
 }
 
 void CppEditorSupport::recalculateSemanticInfoDetached_helper(QFutureInterface<void> &future, SemanticInfo::Source source)
 {
     FuturizedTopLevelDeclarationProcessor processor(future);
     recalculateSemanticInfoNow(source, true, &processor);
+}
+
+bool CppEditorSupport::isSemanticInfoValid() const
+{
+    const Document::Ptr document = lastSemanticInfoDocument();
+    return document
+            && document->translationUnit()->ast()
+            && document->fileName() == fileName();
+}
+
+SemanticInfo CppEditorSupport::semanticInfo() const
+{
+    QMutexLocker locker(&m_lastSemanticInfoLock);
+    return m_lastSemanticInfo;
+}
+
+void CppEditorSupport::setSemanticInfo(const SemanticInfo &semanticInfo, bool emitSignal)
+{
+    {
+        QMutexLocker locker(&m_lastSemanticInfoLock);
+        m_lastSemanticInfo = semanticInfo;
+    }
+    if (emitSignal)
+        emit semanticInfoUpdated(semanticInfo);
 }
 
 QSharedPointer<SnapshotUpdater> CppEditorSupport::snapshotUpdater_internal() const
