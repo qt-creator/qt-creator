@@ -180,13 +180,22 @@ bool MakeStep::init()
 {
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
     if (!bc)
-        bc = static_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
+        bc = targetsActiveBuildConfiguration();
+
+    if (!bc) {
+        emit addTask(Task(Task::Error, tr("Qt Creator needs a build configuration set up to build. Configure a build configuration in the project settings."),
+                          Utils::FileName(), -1,
+                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    }
 
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     if (!tc) {
         emit addTask(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the kit options."),
                           Utils::FileName(), -1,
                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    }
+
+    if (!bc || !tc) {
         emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
         return false;
     }
