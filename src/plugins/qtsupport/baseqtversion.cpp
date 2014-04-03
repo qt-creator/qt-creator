@@ -1172,7 +1172,7 @@ QList<Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QStrin
     const QChar slash = QLatin1Char('/');
     if (!sourcePath.endsWith(slash))
         sourcePath.append(slash);
-    if ((tmpBuildDir.startsWith(sourcePath)) && (tmpBuildDir != sourcePath)) {
+    if ((tmpBuildDir.startsWith(sourcePath)) && (tmpBuildDir != sourcePath) && qtVersion() < QtVersionNumber(5, 2, 0)) {
         const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
                                                         "Qmake does not support build directories below the source directory.");
         results.append(Task(Task::Warning, msg, FileName(), -1,
