@@ -575,7 +575,7 @@ class Dumper(DumperBase):
     def parseAndEvaluate(self, exp):
         return gdb.parse_and_eval(exp)
 
-    def call2(self, value, func, args):
+    def callHelper(self, value, func, args):
         # args is a tuple.
         arg = ""
         for i in range(len(args)):
@@ -601,9 +601,6 @@ class Dumper(DumperBase):
         if not value.address:
             gdb.parse_and_eval("free(0x%x)" % ptr)
         return result
-
-    def call(self, value, func, *args):
-        return self.call2(value, func, args)
 
     def childWithName(self, value, name):
         try:
@@ -1053,11 +1050,6 @@ class Dumper(DumperBase):
                 for i in self.childRange():
                     i = toInteger(i)
                     self.putSubItem(i, (base + i).dereference())
-
-    def putCallItem(self, name, value, func, *args):
-        result = self.call2(value, func, args)
-        with SubItem(self, name):
-            self.putItem(result)
 
     def isFunctionType(self, type):
         return type.code == MethodCode or type.code == FunctionCode

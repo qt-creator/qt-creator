@@ -372,7 +372,7 @@ class Dumper(DumperBase):
         return ns + "Qt::" + enumType + "(" \
             + ns + "Qt::" + enumType + "::" + enumValue + ")"
 
-    def call2(self, value, func, args):
+    def callHelper(self, value, func, args):
         # args is a tuple.
         arg = ','.join(args)
         #warn("CALL: %s -> %s(%s)" % (value, func, arg))
@@ -397,9 +397,6 @@ class Dumper(DumperBase):
         thread = self.currentThread()
         frame = thread.GetFrameAtIndex(0)
         return frame.EvaluateExpression(expr)
-
-    def call(self, value, func, *args):
-        return self.call2(value, func, args)
 
     def checkPointer(self, p, align = 1):
         if not self.isNull(p):
@@ -603,11 +600,6 @@ class Dumper(DumperBase):
     def createValue(self, address, referencedType):
         addr = int(address) & 0xFFFFFFFFFFFFFFFF
         return self.context.CreateValueFromAddress(None, addr, referencedType)
-
-    def putCallItem(self, name, value, func, *args):
-        result = self.call2(value, func, args)
-        with SubItem(self, name):
-            self.putItem(result)
 
     def childRange(self):
         if self.currentMaxNumChild is None:

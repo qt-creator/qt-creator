@@ -500,6 +500,18 @@ class DumperBase:
             self.putType(type)
             self.putNumChild(0)
 
+    def putCallItem(self, name, value, func, *args):
+        try:
+            result = self.callHelper(value, func, args)
+            with SubItem(self, name):
+                self.putItem(result)
+        except:
+            with SubItem(self, name):
+                self.putValue("<not callable>")
+                self.putNumChild(0)
+
+    def call(self, value, func, *args):
+        return self.callHelper(value, func, args)
 
     def putMapName(self, value, index = -1):
         ns = self.qtNamespace()

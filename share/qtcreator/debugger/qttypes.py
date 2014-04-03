@@ -179,6 +179,7 @@ def qdump__QModelIndex(d, value):
                             % (mm_, row, column, mi_))
                         d.putItem(mi2)
                         i = i + 1
+            d.putFields(value)
             #d.putCallItem("parent", val, "parent")
             #with SubItem(d, "model"):
             #    d.putValue(m)
@@ -203,6 +204,7 @@ def qdump__QDate(d, value):
                     d.enumExpression("DateFormat", "SystemLocaleDate"))
                 d.putCallItem("(Locale)", value, "toString",
                     d.enumExpression("DateFormat", "LocaleDate"))
+                d.putFields(value)
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -224,6 +226,7 @@ def qdump__QTime(d, value):
                     d.enumExpression("DateFormat", "SystemLocaleDate"))
                 d.putCallItem("(Locale)", value, "toString",
                     d.enumExpression("DateFormat", "LocaleDate"))
+                d.putFields(value)
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -312,6 +315,7 @@ def qdump__QDateTime(d, value):
                     d.enumExpression("TimeSpec", "UTC"))
                 d.putCallItem("toLocalTime", value, "toTimeSpec",
                     d.enumExpression("TimeSpec", "LocalTime"))
+                d.putFields(value)
     else:
         d.putValue("(invalid)")
         d.putNumChild(0)
@@ -404,6 +408,7 @@ def qdump__QDir(d, value):
             with SubItem(d, "entryList"):
                 typ = d.lookupType(ns + "QStringList")
                 d.putItem(d.createValue(privAddress + filesOffset, typ))
+            d.putFields(value)
 
 
 def qdump__QFile(d, value):
@@ -510,6 +515,7 @@ def qdump__QFileInfo(d, value):
             d.putCallItem("created", value, "created")
             d.putCallItem("lastModified", value, "lastModified")
             d.putCallItem("lastRead", value, "lastRead")
+            d.putFields(value)
 
 
 def qdump__QFixed(d, value):
@@ -919,6 +925,7 @@ def qdump__QLocale(d, value):
             d.putCallItem("zeroDigit", value, "zeroDigit")
             d.putCallItem("groupSeparator", value, "groupSeparator")
             d.putCallItem("negativeSign", value, "negativeSign")
+            d.putFields(value)
 
 
 def qdump__QMapNode(d, value):
@@ -1804,6 +1811,7 @@ def qdump__QTextCodec(d, value):
         with Children(d):
             d.putCallItem("name", value, "name")
             d.putCallItem("mibEnum", value, "mibEnum")
+            d.putFields(value)
 
 
 def qdump__QTextCursor(d, value):
@@ -1821,6 +1829,7 @@ def qdump__QTextCursor(d, value):
             d.putIntItem("position", d.extractInt(positionAddress))
             d.putIntItem("anchor", d.extractInt(positionAddress + d.intSize()))
             d.putCallItem("selected", value, "selectedText")
+            d.putFields(value)
 
 
 def qdump__QTextDocument(d, value):
@@ -1833,6 +1842,7 @@ def qdump__QTextDocument(d, value):
             d.putCallItem("lineCount", value, "lineCount")
             d.putCallItem("revision", value, "revision")
             d.putCallItem("toPlainText", value, "toPlainText")
+            d.putFields(value)
 
 
 def qform__QUrl():
@@ -1861,6 +1871,7 @@ def qdump__QUrl(d, value):
                 d.putCallItem("query", value, "encodedQuery")
                 d.putCallItem("fragment", value, "fragment")
                 d.putCallItem("port", value, "port")
+                d.putFields(value)
     else:
         # QUrlPrivate:
         # - QAtomicInt ref;
