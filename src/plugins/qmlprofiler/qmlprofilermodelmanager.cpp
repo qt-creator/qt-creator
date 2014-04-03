@@ -112,18 +112,24 @@ qint64 QmlProfilerTraceTime::duration() const
 
 void QmlProfilerTraceTime::clear()
 {
-    m_startTime = -1;
-    m_endTime = -1;
+    setStartTime(-1);
+    setEndTime(-1);
 }
 
 void QmlProfilerTraceTime::setStartTime(qint64 time)
 {
-    m_startTime = time;
+    if (time != m_startTime) {
+        m_startTime = time;
+        emit startTimeChanged(time);
+    }
 }
 
 void QmlProfilerTraceTime::setEndTime(qint64 time)
 {
-    m_endTime = time;
+    if (time != m_endTime) {
+        m_endTime = time;
+        emit endTimeChanged(time);
+    }
 }
 
 

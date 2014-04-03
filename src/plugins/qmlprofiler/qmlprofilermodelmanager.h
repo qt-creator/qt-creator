@@ -84,6 +84,10 @@ public:
     qint64 endTime() const;
     qint64 duration() const;
 
+signals:
+    void startTimeChanged(qint64);
+    void endTimeChanged(qint64);
+
 public slots:
     void clear();
     void setStartTime(qint64 time);

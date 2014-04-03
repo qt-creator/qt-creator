@@ -243,17 +243,11 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
                                                         const QString &batchArgs,
                                                         QMap<QString, QString> &envPairs)
 {
+    const QByteArray marker = "####################\r\n";
     // Create a temporary file name for the output. Use a temporary file here
     // as I don't know another way to do this in Qt...
     // Note, can't just use a QTemporaryFile all the way through as it remains open
     // internally so it can't be streamed to later.
-    QString tempOutFile;
-    QTemporaryFile* pVarsTempFile = new QTemporaryFile(QDir::tempPath() + QLatin1String("/XXXXXX.txt"));
-    pVarsTempFile->setAutoRemove(false);
-    pVarsTempFile->open();
-    pVarsTempFile->close();
-    tempOutFile = pVarsTempFile->fileName();
-    delete pVarsTempFile;
 
     // Create a batch file to create and save the env settings
     Utils::TempFileSaver saver(QDir::tempPath() + QLatin1String("/XXXXXX.bat"));
@@ -265,10 +259,9 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
         call += batchArgs.toLocal8Bit();
     }
     saver.write(call + "\r\n");
-
-    const QByteArray redirect = "set > " + Utils::QtcProcess::quoteArg(
-                                    QDir::toNativeSeparators(tempOutFile)).toLocal8Bit() + "\r\n";
-    saver.write(redirect);
+    saver.write("@echo " + marker);
+    saver.write("set\r\n");
+    saver.write("@echo " + marker);
     if (!saver.finalize()) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
         return false;
@@ -304,19 +297,31 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
         return false;
     }
     // The SDK/MSVC scripts do not return exit codes != 0. Check on stdout.
-    const QByteArray stdOut = run.readAllStandardOutput();
+    QByteArray stdOut = run.readAllStandardOutput();
     if (!stdOut.isEmpty() && (stdOut.contains("Unknown") || stdOut.contains("Error")))
         qWarning("%s: '%s' reports:\n%s", Q_FUNC_INFO, call.constData(), stdOut.constData());
 
     //
     // Now parse the file to get the environment settings
-    QFile varsFile(tempOutFile);
-    if (!varsFile.open(QIODevice::ReadOnly))
+    int start = stdOut.indexOf(marker);
+    if (start == -1) {
+        qWarning("Could not find start marker in stdout output.");
         return false;
+    }
 
+    stdOut = stdOut.mid(start + marker.size());
+
+    int end = stdOut.indexOf(marker);
+    if (end == -1) {
+        qWarning("Could not find end marker in stdout output.");
+        return false;
+    }
+
+    stdOut = stdOut.left(end);
+
+    QStringList lines = QString::fromLocal8Bit(stdOut).split(QLatin1String("\r\n"));
     QRegExp regexp(QLatin1String("(\\w*)=(.*)"));
-    while (!varsFile.atEnd()) {
-        const QString line = QString::fromLocal8Bit(varsFile.readLine()).trimmed();
+    foreach (const QString &line, lines) {
         if (regexp.exactMatch(line)) {
             const QString varName = regexp.cap(1);
             const QString varValue = regexp.cap(2);
@@ -325,10 +330,6 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
                 envPairs.insert(varName, varValue);
         }
     }
-
-    // Tidy up and remove the file
-    varsFile.close();
-    varsFile.remove();
 
     return true;
 }

@@ -1763,6 +1763,13 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
         showMessage(_("ENGINE SUCCESSFULLY STARTED"));
         notifyEngineSetupOk();
     } else {
+        QByteArray msg = response.data["msg"].data();
+        if (msg.contains("Python scripting is not supported in this copy of GDB.")) {
+            QString out1 = _("The selected build of GDB does not support Python scripting.");
+            QString out2 = _("It cannot be used in Qt Creator.");
+            showStatusMessage(out1 + QLatin1Char(' ') + out2);
+            showMessageBox(QMessageBox::Critical, tr("Execution Error"), out1 + _("<br>") + out2);
+        }
         notifyEngineSetupFailed();
     }
 }

@@ -38,7 +38,7 @@ RangeMover {
     property string endTimeString: detailedPrintTime(startTime+duration)
     property string durationString: detailedPrintTime(duration)
 
-    property double startTime: getLeft() * viewTimePerPixel + qmlProfilerModelProxy.traceStartTime()
+    property double startTime: getLeft() * viewTimePerPixel + zoomControl.windowStart()
     property double duration: Math.max(getWidth() * viewTimePerPixel, 500)
     property double viewTimePerPixel: 1
     property double creationReference : 0

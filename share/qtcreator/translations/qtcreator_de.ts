@@ -7213,7 +7213,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Error while building/deploying project %1 (kit: %2)</source>
-        <translation>Fehler beim Erstellen/Deployment des Projekts %1(Kit: %2)</translation>
+        <translation>Fehler beim Erstellen/Deployment des Projekts %1 (Kit: %2)</translation>
     </message>
     <message>
         <source>When executing step &apos;%1&apos;</source>

@@ -26,6 +26,7 @@ Editing
 Managing and Building Projects
    * Re-added option to import existing builds even after project configuration (QTCREATORBUG-7836)
    * Fixed that compiler output in issues list was not using monospace font (QTCREATORBUG-11345)
+   * Fixed crash when removing run configuration that was about to be run (QTCREATORBUG-11594)
 
 QMake Projects
    * Added context menu item "Add Existing Directory" that adds all
@@ -46,20 +47,24 @@ Debugging
    * Removed support for GDB without Python
    * Added context menu item for saving backtrace as tasks-file
    * GDB, LLDB
-      * Added pretty printer for std::unordered_set
+      * Added pretty printers for std::unordered_set and boost::container::list
       * Fixed various pretty printers
    * CDB
       * Added pretty printer for std::complex and C++11 std::array
    * LLDB
+      * Added support for debugging applications that run in terminal (QTCREATORBUG-9650)
+      * Added support for "Create Full Backtrace" (QTCREATORBUG-11642)
       * Fixed that debugging was not possible with MallocScribble environment variable set
         (QTCREATORBUG-11371)
       * Fixed "Jump to Line", "Run to Line" and "Jump to Address"
+      * Fixed updating breakpoint locations while debugging (QTCREATORBUG-11564)
 
 QML Profiler
    * Improved performance (QTCREATORBUG-10950)
    * Improved layout of details views
    * Added JavaScript calls in Events view and Timeline view
    * Fixed opening files from JavaScript profiling output (QTCREATORBUG-11094)
+   * Fixed hovering over narrow items in Timeline view (QTCREATORBUG-11692)
 
 C++ Support
    * Added code model inspector
@@ -72,6 +77,7 @@ C++ Support
    * Fixed syntax highlighting of multiline strings and comments (QTCREATORBUG-662)
    * Fixed that symbol dropdown was jumping to the wrong editor (QTCREATORBUG-11157)
    * Fixed highlighting when #undef is used (QTCREATORBUG-10454)
+   * Fixed issue with follow symbol and overloaded functions (QTCREATORBUG-10295)
    * Improved the Insert Virtual Functions refactoring action:
        * Check only pure virtual functions by default
        * Display all overrides of a function
@@ -131,6 +137,7 @@ QNX
    * Added support for attaching debugger to running applications
    * Fixed several issues with certificate password dialog in BlackBerry
      options (QTCREATORBUG-10948)
+   * Fixed mkspec setting in the qmake build step (QTCREATORBUG-11674)
 
 Android
    * Made it possible to cancel waiting for an AVD to boot up
@@ -146,8 +153,13 @@ Android
    * Fixed that Qt Creator restart was required after configuring Android SDK (QTCREATORBUG-10936)
 
 iOS
+   * Enabled iOS support by default
+   * Added support for QML debugging
    * Added check for already running application on device
    * Added automatic detection that developer mode becomes activated on connected device
+
+WinRT
+   * Added experimental support
 
 Credits for these changes go to:
 

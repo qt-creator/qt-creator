@@ -2123,6 +2123,7 @@ void FakeVimPluginPrivate::showExtraInformation(const QString &text)
     IEditor *iedit = EditorManager::openEditorWithContents(Id(), &title, text.toUtf8());
     EditorManager::activateEditor(iedit);
     FakeVimHandler *handler = m_editorToHandler.value(iedit, 0);
+    QTC_ASSERT(handler, return);
     handler->handleCommand(_("0"));
 }
 
