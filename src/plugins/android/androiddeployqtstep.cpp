@@ -527,7 +527,7 @@ QAbstractItemModel *AndroidDeployQtStep::keystoreCertificates()
         if (!m_keystorePasswd.length())
             return 0;
         params << m_keystorePasswd;
-        params << QLatin1String("-J\"-Duser.language=en\"");
+        params << QLatin1String("-J-Duser.language=en");
         keytoolProc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), params);
         if (!keytoolProc.waitForStarted() || !keytoolProc.waitForFinished()) {
             QMessageBox::critical(0, tr("Error"),
