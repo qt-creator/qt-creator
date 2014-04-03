@@ -409,12 +409,19 @@ def qdump__QDir(d, value):
 def qdump__QFile(d, value):
     # 9fc0965 changes the layout of the private structure
     qtVersion = d.qtVersion()
-    if qtVersion >= 0x050200:
-        offset = 176 if d.is32bit() else 272
+    is32bit = d.is32bit()
+    if qtVersion > 0x050200:
+        if d.isWindowsTarget():
+            offset = 180 if is32bit else 272
+        else:
+            offset = 176 if is32bit else 272
     elif qtVersion >= 0x050000:
-        offset = 180 if d.is32bit() else 280
+        offset = 176 if is32bit else 280
     else:
-        offset = 140 if d.is32bit() else 232
+        if d.isWindowsTarget():
+            offset = 144 if is32bit else 232
+        else:
+            offset = 140 if is32bit else 232
     privAddress = d.extractPointer(d.addressOf(value) + d.ptrSize())
     fileNameAddress = privAddress + offset
     d.putStringValueByAddress(fileNameAddress)
