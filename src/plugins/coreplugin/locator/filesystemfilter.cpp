@@ -31,6 +31,7 @@
 #include "locatorwidget.h"
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/fileutils.h>
 
 #include <QDir>
 
@@ -120,6 +121,16 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Core::Lo
         }
     }
     betterEntries.append(goodEntries);
+
+    // "create and open" functionality
+    const QString fullFilePath = dirInfo.filePath(name);
+    if (!QFileInfo(fullFilePath).exists() && dirInfo.exists()) {
+        LocatorFilterEntry createAndOpen(this, tr("Create and Open \"%1\"").arg(entry), fullFilePath);
+        createAndOpen.extraInfo = Utils::FileUtils::shortNativePath(
+                    Utils::FileName::fromString(dirInfo.absolutePath()));
+        betterEntries.append(createAndOpen);
+    }
+
     return betterEntries;
 }
 
@@ -133,6 +144,10 @@ void FileSystemFilter::accept(LocatorFilterEntry selection) const
         value += QDir::toNativeSeparators(info.absoluteFilePath() + QLatin1Char('/'));
         m_locatorWidget->show(value, value.length());
         return;
+    } else if (!info.exists()) {
+        QFile file(selection.internalData.toString());
+        file.open(QFile::WriteOnly);
+        file.close();
     }
     EditorManager::openEditor(selection.internalData.toString(), Id(),
                               EditorManager::CanContainLineNumber);
