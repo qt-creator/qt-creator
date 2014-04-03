@@ -981,7 +981,18 @@ private:
                 visited.insert(declaration);
 
                 // continue working with the typedefed type and scope
-                *type = declaration->type();
+                if (type->type()->isPointerType()) {
+                    *type = FullySpecifiedType(
+                            _context.bindings()->control()->pointerType(declaration->type()));
+                } else if (type->type()->isReferenceType()) {
+                    *type = FullySpecifiedType(
+                            _context.bindings()->control()->referenceType(
+                                declaration->type(),
+                                declaration->type()->asReferenceType()->isRvalueReference()));
+                } else {
+                    *type = declaration->type();
+                }
+
                 *scope = it.scope();
                 _binding = it.binding();
                 foundTypedef = true;
@@ -1039,20 +1050,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 #endif // DEBUG_LOOKUP
 
         if (accessOp == T_ARROW) {
-            if (PointerType *ptrTy = originalType->asPointerType()) {
-                FullySpecifiedType type = ptrTy->elementType();
-                if (! ty->isPointerType())
-                    type = ty;
-
-                if (ClassOrNamespace *binding
-                        = findClassForTemplateParameterInExpressionScope(r.binding(),
-                                                                         type)) {
-                    return binding;
-                }
-                if (ClassOrNamespace *binding = findClass(type, scope))
-                    return binding;
-
-            } else if (PointerType *ptrTy = ty->asPointerType()) {
+            if (PointerType *ptrTy = ty->asPointerType()) {
                 FullySpecifiedType type = ptrTy->elementType();
                 if (ClassOrNamespace *binding
                         = findClassForTemplateParameterInExpressionScope(r.binding(),
@@ -1122,12 +1120,9 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
             }
         } else if (accessOp == T_DOT) {
             if (replacedDotOperator) {
-                if (! isTypeTypedefed(originalType, ty)
-                        || ! areOriginalAndTypedefedTypePointer(originalType, ty)) {
-                    *replacedDotOperator = originalType->isPointerType() || ty->isPointerType();
-                    if (PointerType *ptrTy = ty->asPointerType())
-                        ty = ptrTy->elementType();
-                }
+                *replacedDotOperator = originalType->isPointerType() || ty->isPointerType();
+                if (PointerType *ptrTy = ty->asPointerType())
+                    ty = ptrTy->elementType();
             }
 
             if (ClassOrNamespace *binding

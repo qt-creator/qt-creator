@@ -2355,4 +2355,28 @@ void CppToolsPlugin::test_completion_member_access_operator_data()
             << QLatin1String("S")
             << QLatin1String("m"))
         << true;
+
+    QTest::newRow("typedef_of_pointer_of_type_replace_access_operator") << _(
+            "struct S { int m; };\n"
+            "typedef struct S SType;\n"
+            "typedef struct SType *STypePtr;\n"
+            "STypePtr p;\n"
+            "@\n"
+            "}\n"
+        ) << _("p.") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("m"))
+        << true;
+
+    QTest::newRow("typedef_of_pointer_of_type_no_replace_access_operator") << _(
+            "struct S { int m; };\n"
+            "typedef struct S SType;\n"
+            "typedef struct SType *STypePtr;\n"
+            "STypePtr p;\n"
+            "@\n"
+            "}\n"
+        ) << _("p->") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("m"))
+        << false;
 }
