@@ -11,7 +11,8 @@ QtcLibrary {
         cpp.dynamicLibraries: [
             "user32",
             "iphlpapi",
-            "ws2_32"
+            "ws2_32",
+            "shell32",
         ]
     }
     Properties {

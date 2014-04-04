@@ -24,6 +24,7 @@ DynamicLibrary {
             : ["$ORIGIN", "$ORIGIN/.."]
     property string libIncludeBase: ".." // #include <lib/header.h>
     cpp.includePaths: [libIncludeBase]
+    cpp.minimumWindowsVersion: "5.1"
 
     Export {
         Depends { name: "cpp" }
