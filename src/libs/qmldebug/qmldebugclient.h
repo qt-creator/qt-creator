@@ -38,7 +38,7 @@
 namespace QmlDebug {
 
 class QmlDebugConnectionPrivate;
-class QMLDEBUG_EXPORT QmlDebugConnection : public QIODevice
+class QMLDEBUG_EXPORT QmlDebugConnection : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(QmlDebugConnection)
@@ -48,25 +48,16 @@ public:
 
     void connectToHost(const QString &hostName, quint16 port);
 
-    qint64 bytesAvailable() const;
     bool isConnected() const;
     QAbstractSocket::SocketState state() const;
     void flush();
-    bool isSequential() const;
     void close();
-    bool waitForConnected(int msecs = 30000);
+    QString errorString() const;
 
 signals:
     void connected();
     void stateChanged(QAbstractSocket::SocketState socketState);
     void error(QAbstractSocket::SocketError socketError);
-
-protected:
-    qint64 readData(char *data, qint64 maxSize);
-    qint64 writeData(const char *data, qint64 maxSize);
-
-private slots:
-    void internalError(QAbstractSocket::SocketError error);
 
 private:
     QmlDebugConnectionPrivate *d;

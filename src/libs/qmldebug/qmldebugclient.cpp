@@ -67,7 +67,6 @@ public:
     QHash<QString, QmlDebugClient *> plugins;
 
     void advertisePlugins();
-    void connectDeviceSignals();
 
 public Q_SLOTS:
     void connected();
@@ -78,9 +77,7 @@ public Q_SLOTS:
 QmlDebugConnectionPrivate::QmlDebugConnectionPrivate(QmlDebugConnection *c)
     : QObject(c), q(c), protocol(0), device(0), gotHello(false)
 {
-    protocol = new QPacketProtocol(q, this);
     QObject::connect(c, SIGNAL(connected()), this, SLOT(connected()));
-    QObject::connect(protocol, SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 
 void QmlDebugConnectionPrivate::advertisePlugins()
@@ -219,15 +216,8 @@ void QmlDebugConnectionPrivate::readyRead()
     }
 }
 
-void QmlDebugConnectionPrivate::deviceAboutToClose()
-{
-    // This is nasty syntax but we want to emit our own aboutToClose signal (by calling QIODevice::close())
-    // without calling the underlying device close fn as that would cause an infinite loop
-    q->QIODevice::close();
-}
-
 QmlDebugConnection::QmlDebugConnection(QObject *parent)
-    : QIODevice(parent), d(new QmlDebugConnectionPrivate(this))
+    : QObject(parent), d(new QmlDebugConnectionPrivate(this))
 {
 }
 
@@ -245,36 +235,9 @@ bool QmlDebugConnection::isConnected() const
     return state() == QAbstractSocket::ConnectedState;
 }
 
-qint64 QmlDebugConnection::readData(char *data, qint64 maxSize)
-{
-    return d->device->read(data, maxSize);
-}
-
-qint64 QmlDebugConnection::writeData(const char *data, qint64 maxSize)
-{
-    return d->device->write(data, maxSize);
-}
-
-void QmlDebugConnection::internalError(QAbstractSocket::SocketError socketError)
-{
-    setErrorString(d->device->errorString());
-    emit error(socketError);
-}
-
-qint64 QmlDebugConnection::bytesAvailable() const
-{
-    return d->device->bytesAvailable();
-}
-
-bool QmlDebugConnection::isSequential() const
-{
-    return true;
-}
-
 void QmlDebugConnection::close()
 {
-    if (isOpen()) {
-        QIODevice::close();
+    if (d->device->isOpen()) {
         d->device->close();
         emit stateChanged(QAbstractSocket::UnconnectedState);
 
@@ -285,12 +248,9 @@ void QmlDebugConnection::close()
     }
 }
 
-bool QmlDebugConnection::waitForConnected(int msecs)
+QString QmlDebugConnection::errorString() const
 {
-    QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(d->device);
-    if (socket)
-        return socket->waitForConnected(msecs);
-    return false;
+    return d->device->errorString();
 }
 
 // For ease of refactoring we use QAbstractSocket's states even if we're actually using a OstChannel underneath
@@ -318,20 +278,13 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
     QTcpSocket *socket = new QTcpSocket(d);
     socket->setProxy(QNetworkProxy::NoProxy);
     d->device = socket;
-    d->connectDeviceSignals();
+    d->protocol = new QPacketProtocol(d->device, this);
+    connect(d->protocol, SIGNAL(readyRead()), d, SLOT(readyRead()));
     d->gotHello = false;
     connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(internalError(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SIGNAL(error(QAbstractSocket::SocketError)));
     connect(socket, SIGNAL(connected()), this, SIGNAL(connected()));
     socket->connectToHost(hostName, port);
-    QIODevice::open(ReadWrite | Unbuffered);
-}
-
-void QmlDebugConnectionPrivate::connectDeviceSignals()
-{
-    connect(device, SIGNAL(bytesWritten(qint64)), q, SIGNAL(bytesWritten(qint64)));
-    connect(device, SIGNAL(readyRead()), q, SIGNAL(readyRead()));
-    connect(device, SIGNAL(aboutToClose()), this, SLOT(deviceAboutToClose()));
 }
 
 //
