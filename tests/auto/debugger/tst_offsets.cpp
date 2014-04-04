@@ -79,7 +79,11 @@ void tst_offsets::offsets_data()
                 << int((char *)&p->fileName - (char *)p);
         if (qtVersion > 0x50200)
 #ifdef Q_OS_WIN
+#   ifdef Q_CC_MSVC
+            data << 184 << 272;
+#   else // MinGW
             data << 180 << 272;
+#   endif
 #else
             data << 176 << 272;
 #endif
