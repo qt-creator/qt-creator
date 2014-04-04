@@ -446,13 +446,21 @@ class Dumper(DumperBase):
             qtNamespace = name[:name.find('qVersion')]
             self.qtNamespace = lambda: qtNamespace
 
-            res = ""
-            try:
-                res = self.parseAndEvaluate(name + '()')
-            except:
-                res = self.parseAndEvaluate('((const char*())%s)()' % name)
-            version = str(res)
+            options = lldb.SBExpressionOptions()
+            res = self.target.EvaluateExpression(name + '()', options)
 
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                exp = '((const char*())%s)()' % name
+                res = self.target.EvaluateExpression(exp, options)
+
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                exp = '((const char*())_Z8qVersionv)()'
+                res = self.target.EvaluateExpression(exp, options)
+
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                continue
+
+            version = str(res)
             if version.count('.') != 2:
                 continue
 
