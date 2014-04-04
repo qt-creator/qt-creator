@@ -305,7 +305,7 @@ void GerritDialog::slotCurrentChanged()
     updateButtons();
 }
 
-void GerritDialog::fetchStarted(const QSharedPointer<Gerrit::Internal::GerritChange> &change)
+void GerritDialog::fetchStarted(const QSharedPointer<GerritChange> &change)
 {
     // Disable buttons to prevent parallel gerrit operations which can cause mix-ups.
     m_fetchRunning = true;

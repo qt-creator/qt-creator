@@ -52,8 +52,6 @@ class GerritChange;
 class GerritParameters;
 class GerritDialog;
 
-typedef QPair<QAction *, Core::Command *> ActionCommandPair;
-
 class GerritPlugin : public QObject
 {
     Q_OBJECT
@@ -84,12 +82,12 @@ private slots:
 
 private:
     QString findLocalRepository(QString project, const QString &branch) const;
-    void fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &change, int mode);
+    void fetch(const QSharedPointer<GerritChange> &change, int mode);
 
     QSharedPointer<GerritParameters> m_parameters;
     QPointer<GerritDialog> m_dialog;
     Core::Command *m_gerritCommand;
-    ActionCommandPair m_pushToGerritPair;
+    Core::Command *m_pushToGerritCommand;
     QString m_reviewers;
 };
 

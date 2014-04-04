@@ -287,13 +287,11 @@ bool GerritPlugin::initialize(ActionContainer *ac)
 
     QAction *pushAction = new QAction(tr("Push to Gerrit..."), this);
 
-    Command *pushCommand =
+    m_pushToGerritCommand =
         ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH,
                            Context(Core::Constants::C_GLOBAL));
     connect(pushAction, SIGNAL(triggered()), this, SLOT(push()));
-    ac->addAction(pushCommand);
-
-    m_pushToGerritPair = ActionCommandPair(pushAction, pushCommand);
+    ac->addAction(m_pushToGerritCommand);
 
     GitPlugin::instance()->addAutoReleasedObject(new GerritOptionsPage(m_parameters));
     return true;
@@ -302,13 +300,13 @@ bool GerritPlugin::initialize(ActionContainer *ac)
 void GerritPlugin::updateActions(bool hasTopLevel)
 {
     m_gerritCommand->action()->setEnabled(hasTopLevel);
-    m_pushToGerritPair.first->setEnabled(hasTopLevel);
+    m_pushToGerritCommand->action()->setEnabled(hasTopLevel);
 }
 
 void GerritPlugin::addToLocator(Core::CommandLocator *locator)
 {
     locator->appendCommand(m_gerritCommand);
-    locator->appendCommand(m_pushToGerritPair.second);
+    locator->appendCommand(m_pushToGerritCommand);
 }
 
 void GerritPlugin::push(const QString &topLevel)
@@ -328,8 +326,7 @@ void GerritPlugin::push(const QString &topLevel)
     QStringList args;
 
     m_reviewers = dialog.reviewers();
-    const QStringList reviewers = m_reviewers.split(QLatin1Char(','),
-                                                            QString::SkipEmptyParts);
+    const QStringList reviewers = m_reviewers.split(QLatin1Char(','), QString::SkipEmptyParts);
     if (!reviewers.isEmpty()) {
         QString reviewersFlag(QLatin1String("--receive-pack=git receive-pack"));
         foreach (const QString &reviewer, reviewers) {
@@ -409,22 +406,22 @@ QString GerritPlugin::branch(const QString &repository)
     return gitClient()->synchronousCurrentLocalBranch(repository);
 }
 
-void GerritPlugin::fetchDisplay(const QSharedPointer<Gerrit::Internal::GerritChange> &change)
+void GerritPlugin::fetchDisplay(const QSharedPointer<GerritChange> &change)
 {
     fetch(change, FetchDisplay);
 }
 
-void GerritPlugin::fetchCherryPick(const QSharedPointer<Gerrit::Internal::GerritChange> &change)
+void GerritPlugin::fetchCherryPick(const QSharedPointer<GerritChange> &change)
 {
     fetch(change, FetchCherryPick);
 }
 
-void GerritPlugin::fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &change)
+void GerritPlugin::fetchCheckout(const QSharedPointer<GerritChange> &change)
 {
     fetch(change, FetchCheckout);
 }
 
-void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &change, int mode)
+void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
 {
     // Locate git.
     const QString git = gitBinary();
