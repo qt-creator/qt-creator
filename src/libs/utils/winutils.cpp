@@ -172,4 +172,22 @@ QTCREATOR_UTILS_EXPORT bool is64BitWindowsBinary(const QString &binaryIn)
 #endif
 }
 
+WindowsCrashDialogBlocker::WindowsCrashDialogBlocker()
+#ifdef Q_OS_WIN
+    : silenceErrorMode(SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS),
+    originalErrorMode(SetErrorMode(silenceErrorMode))
+#endif
+{
+}
+
+WindowsCrashDialogBlocker::~WindowsCrashDialogBlocker()
+{
+#ifdef Q_OS_WIN
+    unsigned int errorMode = SetErrorMode(originalErrorMode);
+    // someone else messed with the error mode in between? Better not touch ...
+    QTC_ASSERT(errorMode == silenceErrorMode, SetErrorMode(errorMode));
+#endif
+}
+
+
 } // namespace Utils
