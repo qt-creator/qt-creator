@@ -940,8 +940,9 @@ def qdump__QMapNode(d, value):
 
 
 def qdumpHelper__Qt4_QMap(d, value):
-    d_ptr = value["d"].dereference()
-    e_ptr = value["e"].dereference()
+    anon = d.childAt(value, 0)
+    d_ptr = anon["d"].dereference()
+    e_ptr = anon["e"].dereference()
     n = int(d_ptr["size"])
     d.check(0 <= n and n <= 100*1000*1000)
     d.checkRef(d_ptr["ref"])
