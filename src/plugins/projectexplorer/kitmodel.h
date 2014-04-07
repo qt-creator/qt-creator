@@ -35,7 +35,6 @@
 #include <QAbstractItemModel>
 
 QT_BEGIN_NAMESPACE
-class QTreeWidgetItem;
 class QBoxLayout;
 QT_END_NAMESPACE
 

@@ -41,7 +41,6 @@
 
 #include <QDialog>
 #include <QStandardItemModel>
-#include <QTreeView>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

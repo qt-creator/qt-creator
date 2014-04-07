@@ -30,7 +30,6 @@
 #ifndef QMLPROFILEREVENTVIEW_H
 #define QMLPROFILEREVENTVIEW_H
 
-#include <QTreeView>
 #include <QStandardItemModel>
 #include <qmldebug/qmlprofilereventtypes.h>
 #include "qmlprofilermodelmanager.h"

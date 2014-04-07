@@ -56,7 +56,6 @@
 #include <QPushButton>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include <QTreeView>
 #include <QUuid>
 
 using namespace ProjectExplorer;

@@ -41,7 +41,6 @@
 #include <QClipboard>
 #include <QComboBox>
 #include <QMenu>
-#include <QTreeView>
 
 #include <QHelpEngine>
 

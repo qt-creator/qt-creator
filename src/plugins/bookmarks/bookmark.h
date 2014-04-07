@@ -33,10 +33,6 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetextmark.h>
 
-QT_BEGIN_NAMESPACE
-class QTreeWidgetItem;
-QT_END_NAMESPACE
-
 #include <QFileInfo>
 
 namespace Bookmarks {

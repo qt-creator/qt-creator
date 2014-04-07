@@ -47,7 +47,6 @@
 #include <QMessageBox>
 
 #include <QStandardItemModel>
-#include <QTreeWidgetItem>
 
 namespace Qnx {
 namespace Internal {
