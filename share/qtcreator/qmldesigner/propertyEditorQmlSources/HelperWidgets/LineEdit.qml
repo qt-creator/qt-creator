@@ -86,7 +86,7 @@ Controls.TextField {
         padding.top: 3
         padding.bottom: 1
         padding.left: 16
-        padding.right: 16
+        padding.right: lineEdit.showTranslateCheckBox ? 16 : 1
         placeholderTextColor: "gray"
         background: Rectangle {
             implicitWidth: 100

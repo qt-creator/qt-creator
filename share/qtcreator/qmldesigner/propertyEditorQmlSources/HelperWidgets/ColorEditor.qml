@@ -138,7 +138,7 @@ Column {
                 onAccepted: {
                     colorEditor.color = textField.text
                 }
-                Layout.preferredWidth: 80
+                Layout.fillWidth: true
             }
             ColorCheckButton {
                 id: checkButton
