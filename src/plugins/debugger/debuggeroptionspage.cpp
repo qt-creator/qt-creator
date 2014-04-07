@@ -71,7 +71,6 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
     m_binaryChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_binaryChooser->setMinimumWidth(400);
     m_binaryChooser->setHistoryCompleter(QLatin1String("DebuggerPaths"));
-    connect(m_binaryChooser, SIGNAL(changed(QString)), this, SLOT(commandWasChanged()));
 
     m_cdbLabel = new QLabel(this);
     m_cdbLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
@@ -87,6 +86,8 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
     formLayout->addRow(m_cdbLabel);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
     formLayout->addRow(new QLabel(tr("ABIs:")), m_abis);
+
+    connect(m_binaryChooser, SIGNAL(changed(QString)), this, SLOT(binaryPathHasChanged()));
 }
 
 DebuggerItem DebuggerItemConfigWidget::item() const
@@ -123,12 +124,37 @@ void DebuggerItemConfigWidget::setAbis(const QStringList &abiNames)
     m_abis->setText(abiNames.join(QLatin1String(", ")));
 }
 
+void DebuggerItemConfigWidget::handleCommandChange()
+{
+    // Use DebuggerItemManager as a cache:
+    const DebuggerItem *existing
+            = DebuggerItemManager::findByCommand(m_binaryChooser->fileName());
+    if (existing) {
+        setAbis(existing->abiNames());
+        m_engineType = existing->engineType();
+    } else {
+        QFileInfo fi = QFileInfo(m_binaryChooser->path());
+        if (fi.isExecutable()) {
+            DebuggerItem tmp = item();
+            tmp.reinitializeFromFile();
+            setAbis(tmp.abiNames());
+            m_engineType = tmp.engineType();
+        } else {
+            setAbis(QStringList());
+            m_engineType = NoEngineType;
+        }
+    }
+    m_model->updateDebugger(item());
+}
+
 void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
 {
     store(); // store away the (changed) settings for future use
 
+    m_id = QVariant(); // reset Id to avoid intermediate signal handling
+
+    // Set values:
     m_autodetected = item.isAutoDetected();
-    m_id = item.id();
 
     m_displayNameLineEdit->setEnabled(!item.isAutoDetected());
     m_displayNameLineEdit->setText(item.displayName());
@@ -157,6 +183,7 @@ void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
 
     setAbis(item.abiNames());
     m_engineType = item.engineType();
+    m_id = item.id();
 }
 
 void DebuggerItemConfigWidget::apply()
@@ -169,27 +196,13 @@ void DebuggerItemConfigWidget::apply()
     setItem(item());
 }
 
-void DebuggerItemConfigWidget::commandWasChanged()
+void DebuggerItemConfigWidget::binaryPathHasChanged()
 {
-    // Use DebuggerItemManager as a cache:
-    const DebuggerItem *existing
-            = DebuggerItemManager::findByCommand(m_binaryChooser->fileName());
-    if (existing) {
-        setAbis(existing->abiNames());
-        m_engineType = existing->engineType();
-    } else {
-        QFileInfo fi = QFileInfo(m_binaryChooser->path());
-        if (fi.isExecutable()) {
-            DebuggerItem tmp = item();
-            tmp.reinitializeFromFile();
-            setAbis(tmp.abiNames());
-            m_engineType = tmp.engineType();
-        } else {
-            setAbis(QStringList());
-            m_engineType = NoEngineType;
-        }
-    }
-    m_model->updateDebugger(item());
+    // Ignore change if this is no valid DebuggerItem
+    if (!m_id.isValid())
+        return;
+
+    handleCommandChange();
 }
 
 // --------------------------------------------------------------------------

@@ -70,12 +70,14 @@ public:
     void apply();
 
 private slots:
-    void commandWasChanged();
+    void binaryPathHasChanged();
 
 private:
     DebuggerItem item() const;
     void store() const;
     void setAbis(const QStringList &abiNames);
+
+    void handleCommandChange();
 
     QLineEdit *m_displayNameLineEdit;
     QLabel *m_cdbLabel;
