@@ -144,7 +144,7 @@ def impl_SBValue__add__(self, offset):
 def impl_SBValue__sub__(self, other):
     if self.GetType().IsPointerType():
         if isinstance(other, int) or isinstance(other, long):
-            address = self.GetValueAsUnsigned() - offset.GetValueAsSigned()
+            address = self.GetValueAsUnsigned() - other
             address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
             return self.CreateValueFromAddress(None, address, self.GetType())
         if other.GetType().IsPointerType():
