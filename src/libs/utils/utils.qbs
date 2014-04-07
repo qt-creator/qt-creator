@@ -99,6 +99,8 @@ QtcLibrary {
         "htmldocextractor.h",
         "ipaddresslineedit.cpp",
         "ipaddresslineedit.h",
+        "itemviews.cpp",
+        "itemviews.h",
         "iwelcomepage.cpp",
         "iwelcomepage.h",
         "json.cpp",

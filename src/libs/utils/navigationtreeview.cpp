@@ -49,7 +49,7 @@
 namespace Utils {
 
 NavigationTreeView::NavigationTreeView(QWidget *parent)
-    : QTreeView(parent)
+    : TreeView(parent)
 {
     setFrameStyle(QFrame::NoFrame);
     setIndentation(indentation() * 9/10);
@@ -70,34 +70,19 @@ NavigationTreeView::NavigationTreeView(QWidget *parent)
 void NavigationTreeView::focusInEvent(QFocusEvent *event)
 {
     if (event->reason() != Qt::PopupFocusReason)
-        QTreeView::focusInEvent(event);
+        TreeView::focusInEvent(event);
 }
 
 void NavigationTreeView::focusOutEvent(QFocusEvent *event)
 {
     if (event->reason() != Qt::PopupFocusReason)
-        QTreeView::focusOutEvent(event);
+        TreeView::focusOutEvent(event);
 }
 
 void NavigationTreeView::resizeEvent(QResizeEvent *event)
 {
     header()->setMinimumSectionSize(viewport()->width());
-    QTreeView::resizeEvent(event);
+    TreeView::resizeEvent(event);
 }
-
-#ifdef Q_OS_MAC
-void NavigationTreeView::keyPressEvent(QKeyEvent *event)
-{
-    if ((event->key() == Qt::Key_Return
-            || event->key() == Qt::Key_Enter)
-            && event->modifiers() == 0
-            && currentIndex().isValid()
-            && state() != QAbstractItemView::EditingState) {
-        emit activated(currentIndex());
-        return;
-    }
-    QTreeView::keyPressEvent(event);
-}
-#endif
 
 } // namespace Utils

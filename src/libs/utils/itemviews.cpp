@@ -27,27 +27,44 @@
 **
 ****************************************************************************/
 
-#ifndef NAVIGATIONTREEVIEW_H
-#define NAVIGATIONTREEVIEW_H
-
-#include "utils_global.h"
-
 #include "itemviews.h"
 
-namespace Utils {
+/*!
+   \class Utils::TreeView
 
-class QTCREATOR_UTILS_EXPORT NavigationTreeView : public Utils::TreeView
-{
-    Q_OBJECT
-public:
-    explicit NavigationTreeView(QWidget *parent = 0);
+    \brief The TreeView adds setActivationMode to QTreeView
+    to allow for single click/double click behavior on
+    platforms where the default is different. Use with care.
 
-protected:
-    void focusInEvent(QFocusEvent *event);
-    void focusOutEvent(QFocusEvent *event);
-    void resizeEvent(QResizeEvent *event);
-};
+    Also adds sane keyboard navigation for mac.
+ */
 
-} // Utils
+/*!
+   \class Utils::TreeWidget
 
-#endif // NAVIGATIONTREEVIEW_H
+    \brief The TreeWidget adds setActivationMode to QTreeWidget
+    to allow for single click/double click behavior on
+    platforms where the default is different. Use with care.
+
+    Also adds sane keyboard navigation for mac.
+ */
+
+/*!
+   \class Utils::ListView
+
+    \brief The ListView adds setActivationMode to QListView
+    to allow for single click/double click behavior on
+    platforms where the default is different. Use with care.
+
+    Also adds sane keyboard navigation for mac.
+ */
+
+/*!
+   \class Utils::ListWidget
+
+    \brief The ListWidget adds setActivationMode to QListWidget
+    to allow for single click/double click behavior on
+    platforms where the default is different. Use with care.
+
+    Also adds sane keyboard navigation for mac.
+ */

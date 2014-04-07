@@ -360,6 +360,13 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
     case QStyle::SH_ItemView_ArrowKeysNavigateIntoChildren:
         ret = true;
         break;
+    case QStyle::SH_ItemView_ActivateItemOnSingleClick:
+        // default depends on the style
+        if (widget) {
+            QVariant activationMode = widget->property("ActivationMode");
+            if (activationMode.isValid())
+                ret = activationMode.toBool();
+        }
     default:
         break;
     }
