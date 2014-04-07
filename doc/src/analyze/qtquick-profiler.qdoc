@@ -62,14 +62,13 @@
     the QML Profiler immediately begins to collect data. This is indicated by
     the time running in the \gui Elapsed field.
 
-    Data is collected until you select the
-    \inlineimage qtcreator-debug-button-stop.png
-    (\gui Stop) button. Data collection
+    Data is collected until you select the \gui {Enable Profiling} button. Data
+    collection
     takes time, and therefore, there might be a delay
     before the data is displayed.
 
     Do not use application commands to exit the application, because data is
-    sent to the QML Profiler when you select the \gui Stop button.
+    sent to the QML Profiler when you select the \gui {Enable Profiling} button.
     The application continues to run for some seconds, after which it is stopped
     automatically. If you exit the application, the data is not sent.
 
@@ -113,6 +112,8 @@
         \li Binding evaluations
 
         \li Signal handling
+
+        \li Executing JavaScript behind bindings and signal handlers
 
         \li Summary of the recorded period
 
@@ -171,13 +172,35 @@
     Click the binding to move the cursor in the code editor to the part of the
     code where the binding is called.
 
+    \section2 Evaluating JavaScript Events
+
+    On the \gui JavaScript row, you can see the time spent executing the actual
+    JavaScript behind bindings and signal handlers. It lists all the JavaScript
+    functions you may be using to evaluate bindings or handle signals.
+
+    This information is displayed for applications that use the V4 engine and
+    are built with Qt 5.3, or later.
+
+    For applications that use the V8 engine and are built with Qt 5.0 or 5.1,
+    you can view information about JavaScript events in the \gui JavaScript
+    view.
+
     \section1 Viewing Events
 
-    The \gui Events view displays the number of times each binding is called
-    and the time the calls take. This allows you to examine which events you
-    need to optimize. A high number of calls might indicate that a binding is
-    called unnecessarily. Click on a binding to move to it in the source code
+    The \gui Events view displays the number of times each binding, create,
+    compile, JavaScript, or signal event is triggered and the average time it
+    takes. This allows you to examine which events you need to optimize. A high
+    number of occurrences might indicate that an event is triggered
+    unnecessarily. To view the median, longest, and shortest time for the
+    occurrences, select \gui {Extended Event Statistics} in the context menu.
+
+    Click on an event to move to it in the source code
     in the code editor.
+
+    JavaScript events often duplicate bindings or signals, so you can show and
+    hide them by selecting \gui {Show JavaScript Events} in the context menu.
+    To show and hide QML events (\gui Create, \gui Compile, and \gui Signal),
+    select \gui {Show QML Events}.
 
     \image qtcreator-analyzer-bindings.png "Events view"
 
@@ -188,7 +211,7 @@
     The \gui Callees pane summarizes the QML events that a binding triggers.
     This tells you which QML events are affected if you change a binding.
 
-    Click on a binding to move to it in the source code in the code editor.
+    Click on an event to move to it in the source code in the code editor.
 
     When you select an event in the \gui Timeline view, information about it is
     displayed in the \gui Events view. To view an event range in the \gui Events
@@ -197,11 +220,6 @@
 
     To copy the contents of one view or row to the clipboard, select
     \gui {Copy Table} or \gui {Copy Row} in the context menu.
-
-    You can view similar information about JavaScript events in the
-    \gui JavaScript view.
-
-    \image qml-profiler-javascript.png "JavaScript view"
 
     \section2 Viewing More Data
 
