@@ -226,10 +226,13 @@ void IosDebugSupport::handleGotInferiorPid(Q_PID pid, int qmlPort)
 
 void IosDebugSupport::handleRemoteProcessFinished(bool cleanEnd)
 {
-    if (!cleanEnd && m_runControl)
-        m_runControl->showMessage(tr("Run failed unexpectedly."), AppStuff);
-    //m_runControl->engine()->notifyInferiorIll();
-    m_runControl->engine()->abortDebugger();
+    if (m_runControl) {
+        if (!cleanEnd)
+            m_runControl->showMessage(tr("Run ended with error."), AppStuff);
+        else
+            m_runControl->showMessage(tr("Run ended."), AppStuff);
+        m_runControl->engine()->abortDebugger();
+    }
 }
 
 void IosDebugSupport::handleRemoteOutput(const QString &output)

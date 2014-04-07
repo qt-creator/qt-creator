@@ -77,7 +77,9 @@ RunControl::StopResult IosRunControl::stop()
 void IosRunControl::handleRemoteProcessFinished(bool cleanEnd)
 {
     if (!cleanEnd)
-        appendMessage(tr("Run ended unexpectedly."), Utils::ErrorMessageFormat);
+        appendMessage(tr("Run ended with error."), Utils::ErrorMessageFormat);
+    else
+        appendMessage(tr("Run ended."), Utils::NormalMessageFormat);
     disconnect(m_runner, 0, this, 0);
     m_running = false;
     emit finished();

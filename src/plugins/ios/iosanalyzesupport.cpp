@@ -150,9 +150,11 @@ void IosAnalyzeSupport::handleGotInferiorPid(Q_PID pid, int qmlPort)
 
 void IosAnalyzeSupport::handleRemoteProcessFinished(bool cleanEnd)
 {
-    Q_UNUSED(cleanEnd)
     if (m_runControl) {
-        m_runControl->logApplicationMessage(tr("Run ended."), Utils::NormalMessageFormat);
+        if (!cleanEnd)
+            m_runControl->logApplicationMessage(tr("Run ended with error."), Utils::ErrorMessageFormat);
+        else
+            m_runControl->logApplicationMessage(tr("Run ended."), Utils::NormalMessageFormat);
         m_runControl->notifyRemoteFinished();
     }
 }
