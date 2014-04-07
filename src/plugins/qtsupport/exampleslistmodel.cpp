@@ -341,7 +341,6 @@ void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
                 item.dependencies.append(projectsOffset + slash + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("tags")) {
                 item.tags = trimStringList(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(QLatin1Char(','), QString::SkipEmptyParts));
-                m_tags.append(item.tags);
             } else if (reader->name() == QLatin1String("platforms")) {
                 item.platforms = trimStringList(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement).split(QLatin1Char(','), QString::SkipEmptyParts));
         }
@@ -463,7 +462,6 @@ void ExamplesListModel::updateExamples()
     QStringList sources = exampleSources(&examplesInstallPath, &demosInstallPath);
 
     beginResetModel();
-    m_tags.clear();
     m_exampleItems.clear();
 
     foreach (const QString &exampleSource, sources) {
@@ -500,10 +498,6 @@ void ExamplesListModel::updateExamples()
             qWarning() << QString::fromLatin1("ERROR: Could not parse file as XML document (%1)").arg(exampleSource);
     }
     endResetModel();
-
-    m_tags.sort();
-    m_tags.erase(std::unique(m_tags.begin(), m_tags.end()), m_tags.end());
-    emit tagsUpdated();
 }
 
 void ExamplesListModel::updateQtVersions()
@@ -700,12 +694,6 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
         qDebug() << Q_FUNC_INFO << "role type not supported";
         return QVariant();
     }
-}
-
-// TODO global tag list is unused, remove
-QStringList ExamplesListModel::tags() const
-{
-    return m_tags;
 }
 
 void ExamplesListModel::update()

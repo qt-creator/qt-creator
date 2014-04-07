@@ -58,18 +58,13 @@ public:
     bool hasSearchBar() const;
     void facilitateQml(QQmlEngine *);
     Id id() const;
-    Q_INVOKABLE QStringList tagList() const;
     Q_INVOKABLE void openUrl(const QUrl &url);
-
-signals:
-    void tagsUpdated();
 
 public slots:
     void openSplitHelp(const QUrl &help);
     void openHelp(const QUrl &help);
     void openProject(const QString& projectFile, const QStringList& additionalFilesToOpen,
                      const QUrl& help, const QStringList &dependencies, const QStringList &platforms);
-    void updateTagsModel();
 
 private:
     ExamplesListModel *examplesModel() const;

@@ -121,8 +121,6 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    QStringList tags() const;
-
     void beginReset() { beginResetModel(); }
     void endReset() { endResetModel(); }
 
@@ -137,7 +135,6 @@ public:
 
 signals:
     void selectedExampleSetChanged();
-    void tagsUpdated();
 
 private:
     void updateQtVersions();
@@ -157,7 +154,6 @@ private:
     QList<BaseQtVersion*> m_qtVersions;
     QList<ExtraExampleSet> m_extraExampleSets;
     QList<ExampleItem> m_exampleItems;
-    QStringList m_tags;
     int m_selectedExampleSetIndex;
 };
 

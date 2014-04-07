@@ -257,7 +257,6 @@ void ExamplesWelcomePage::facilitateQml(QQmlEngine *engine)
 {
     m_engine = engine;
     m_engine->addImageProvider(QLatin1String("helpimage"), new HelpImageProvider);
-    connect (examplesModel(), SIGNAL(tagsUpdated()), SLOT(updateTagsModel()));
     ExamplesListModelFilter *proxy = new ExamplesListModelFilter(examplesModel(), this);
 
     proxy->setDynamicSortFilter(true);
@@ -293,11 +292,6 @@ void ExamplesWelcomePage::openHelp(const QUrl &help)
 void ExamplesWelcomePage::openUrl(const QUrl &url)
 {
     QDesktopServices::openUrl(url);
-}
-
-QStringList ExamplesWelcomePage::tagList() const
-{
-    return examplesModel()->tags();
 }
 
 QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileInfo, QStringList &filesToOpen, const QStringList& dependencies)
@@ -415,12 +409,6 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
     }
     if (!errorMessage.isEmpty())
         QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);
-}
-
-void ExamplesWelcomePage::updateTagsModel()
-{
-    m_engine->rootContext()->setContextProperty(QLatin1String("tagsList"), examplesModel()->tags());
-    emit tagsUpdated();
 }
 
 ExamplesListModel *ExamplesWelcomePage::examplesModel() const
