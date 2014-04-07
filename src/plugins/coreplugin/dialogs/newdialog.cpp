@@ -206,16 +206,17 @@ NewDialog::NewDialog(QWidget *parent) :
     m_ui->templateCategoryView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_ui->templateCategoryView->setItemDelegate(new FancyTopLevelDelegate);
 
+    m_ui->templatesView->setModel(m_filterProxyModel);
     m_ui->templatesView->setIconSize(QSize(ICON_SIZE, ICON_SIZE));
-
-    connect(m_ui->templateCategoryView, SIGNAL(clicked(QModelIndex)),
-        this, SLOT(currentCategoryChanged(QModelIndex)));
-    connect(m_ui->templatesView, SIGNAL(clicked(QModelIndex)),
-        this, SLOT(currentItemChanged(QModelIndex)));
 
     connect(m_ui->templateCategoryView->selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(currentCategoryChanged(QModelIndex)));
+
+    connect(m_ui->templatesView->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(currentItemChanged(QModelIndex)));
+
     connect(m_ui->templatesView,
             SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(okButtonClicked()));
@@ -387,16 +388,11 @@ void NewDialog::addItem(QStandardItem *topLEvelCategoryItem, IWizard *wizard)
 void NewDialog::currentCategoryChanged(const QModelIndex &index)
 {
     if (index.parent() != m_model->invisibleRootItem()->index()) {
-        m_ui->templatesView->setModel(m_filterProxyModel);
         QModelIndex sourceIndex = m_twoLevelProxyModel->mapToSource(index);
         sourceIndex = m_filterProxyModel->mapFromSource(sourceIndex);
         m_ui->templatesView->setRootIndex(sourceIndex);
         // Focus the first item by default
         m_ui->templatesView->setCurrentIndex(m_ui->templatesView->rootIndex().child(0,0));
-
-        connect(m_ui->templatesView->selectionModel(),
-                SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                this, SLOT(currentItemChanged(QModelIndex)));
     }
 }
 
