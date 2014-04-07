@@ -1008,18 +1008,6 @@ private:
     ClassOrNamespace *_binding;
 };
 
-static bool isTypeTypedefed(const FullySpecifiedType &originalTy,
-                            const FullySpecifiedType &typedefedTy)
-{
-    return ! originalTy.isEqualTo(typedefedTy);
-}
-
-static bool areOriginalAndTypedefedTypePointer(const FullySpecifiedType &originalTy,
-                                               const FullySpecifiedType &typedefedTy)
-{
-    return originalTy->isPointerType() && typedefedTy->isPointerType();
-}
-
 ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &baseResults,
                                                     int accessOp,
                                                     bool *replacedDotOperator) const
