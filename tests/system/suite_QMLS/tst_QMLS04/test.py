@@ -56,7 +56,7 @@ def main():
         test.passes("Refactoring was properly applied in source file")
     else:
         test.fail("Refactoring of Text to MyComponent failed in source file. Content of editor:\n%s" % codeText)
-    myCompTE = "SampleApp.Resources.qml\\.qrc./.qml/MyComponent\\.qml"
+    myCompTE = "SampleApp.Resources.qml\\.qrc./.MyComponent\\.qml"
     # there should be new QML file generated with name "MyComponent.qml"
     try:
         waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", myCompTE, 3000)
@@ -86,6 +86,6 @@ def main():
     #save and exit
     invokeMenuItem("File", "Save All")
     # check if new file was created in file system
-    test.verify(os.path.exists(os.path.join(projectDir, "SampleApp", "qml", "MyComponent.qml")),
+    test.verify(os.path.exists(os.path.join(projectDir, "SampleApp", "MyComponent.qml")),
                 "Verifying if MyComponent.qml exists in file system after save")
     invokeMenuItem("File", "Exit")

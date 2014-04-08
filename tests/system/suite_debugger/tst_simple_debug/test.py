@@ -48,14 +48,14 @@ def main():
                            'onTriggered: console.log("Break here")'])
         invokeMenuItem("File", "Save All")
         filesAndLines = [
-                        { "%s.Resources.qml\.qrc./.qml/main\\.qml" % projectName : 'onTriggered.*' },
+                        { "%s.Resources.qml\.qrc./.main\\.qml" % projectName : 'onTriggered.*' },
                         { "%s.Sources.main\\.cpp" % projectName : "viewer.setOrientation\\(.+\\);" }
                         ]
         test.log("Setting breakpoints")
         result = setBreakpointsForCurrentProject(filesAndLines)
         if result:
             expectedBreakpointsOrder = [{os.path.join(workingDir, projectName, "main.cpp"):10},
-                                        {os.path.join(workingDir, projectName, "qml", "main.qml"):10}]
+                                        {os.path.join(workingDir, projectName, "main.qml"):10}]
             # Only use 4.7.4 to work around QTBUG-25187
             availableConfigs = iterateBuildConfigs(len(checkedTargets), "Debug")
             progressBarWait()
