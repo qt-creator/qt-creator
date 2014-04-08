@@ -25,6 +25,8 @@ QtcPlugin {
         "abstractremotelinuxdeploystep.h",
         "abstractremotelinuxrunsupport.cpp",
         "abstractremotelinuxrunsupport.h",
+        "abstractremotelinuxrunconfiguration.h",
+        "abstractremotelinuxrunconfiguration.cpp",
         "abstractuploadandinstallpackageservice.cpp",
         "abstractuploadandinstallpackageservice.h",
         "embeddedlinuxqtversion.cpp",
@@ -109,7 +111,7 @@ QtcPlugin {
         "typespecificdeviceconfigurationlistmodel.h",
         "uploadandinstalltarpackagestep.cpp",
         "uploadandinstalltarpackagestep.h",
-        "images/embeddedtarget.png",
+        "images/embeddedtarget.png"
     ]
 
     Export {

@@ -73,9 +73,9 @@ Utils::Environment RemoteLinuxEnvironmentAspect::baseEnvironment() const
     return Utils::Environment();
 }
 
-RemoteLinuxRunConfiguration *RemoteLinuxEnvironmentAspect::runConfiguration() const
+AbstractRemoteLinuxRunConfiguration *RemoteLinuxEnvironmentAspect::runConfiguration() const
 {
-    return qobject_cast<RemoteLinuxRunConfiguration *>(EnvironmentAspect::runConfiguration());
+    return qobject_cast<AbstractRemoteLinuxRunConfiguration *>(EnvironmentAspect::runConfiguration());
 }
 
 Utils::Environment RemoteLinuxEnvironmentAspect::remoteEnvironment() const

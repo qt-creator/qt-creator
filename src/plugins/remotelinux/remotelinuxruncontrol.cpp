@@ -29,7 +29,7 @@
 
 #include "remotelinuxruncontrol.h"
 
-#include "remotelinuxrunconfiguration.h"
+#include "abstractremotelinuxrunconfiguration.h"
 
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
@@ -60,7 +60,7 @@ RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
 {
     d->running = false;
     d->device = DeviceKitInformation::device(rc->target()->kit());
-    const RemoteLinuxRunConfiguration * const lrc = qobject_cast<RemoteLinuxRunConfiguration *>(rc);
+    const AbstractRemoteLinuxRunConfiguration * const lrc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(rc);
     d->remoteExecutable = lrc->remoteExecutableFilePath();
     d->arguments = lrc->arguments();
     d->environment = lrc->environment();

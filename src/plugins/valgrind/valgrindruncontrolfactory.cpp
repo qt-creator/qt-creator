@@ -37,7 +37,7 @@
 #include <analyzerbase/analyzerruncontrol.h>
 #include <analyzerbase/analyzerrunconfigwidget.h>
 
-#include <remotelinux/remotelinuxrunconfiguration.h>
+#include <remotelinux/abstractremotelinuxrunconfiguration.h>
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/environmentaspect.h>
@@ -94,8 +94,8 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         sp.connParams.host = server.serverAddress().toString();
         sp.connParams.port = server.serverPort();
         sp.startMode = StartLocal;
-    } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc2 =
-               qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
+    } else if (RemoteLinux::AbstractRemoteLinuxRunConfiguration *rc2 =
+               qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.startMode = StartRemote;
         sp.debuggee = rc2->remoteExecutableFilePath();
         sp.connParams = DeviceKitInformation::device(rc2->target()->kit())->sshParameters();

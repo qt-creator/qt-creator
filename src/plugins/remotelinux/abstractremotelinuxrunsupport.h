@@ -42,7 +42,7 @@ namespace Utils { class Environment; }
 
 namespace RemoteLinux {
 
-class RemoteLinuxRunConfiguration;
+class AbstractRemoteLinuxRunConfiguration;
 
 namespace Internal { class AbstractRemoteLinuxRunSupportPrivate; }
 
@@ -58,7 +58,7 @@ protected:
         Running
     };
 public:
-    AbstractRemoteLinuxRunSupport(RemoteLinuxRunConfiguration *runConfig,
+    AbstractRemoteLinuxRunSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
                           QObject *parent = 0);
     ~AbstractRemoteLinuxRunSupport();
 

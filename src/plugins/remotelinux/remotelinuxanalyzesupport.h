@@ -41,7 +41,7 @@ class AnalyzerRunControl;
 }
 
 namespace RemoteLinux {
-class RemoteLinuxRunConfiguration;
+class AbstractRemoteLinuxRunConfiguration;
 
 namespace Internal { class RemoteLinuxAnalyzeSupportPrivate; }
 
@@ -49,10 +49,10 @@ class REMOTELINUX_EXPORT RemoteLinuxAnalyzeSupport : public AbstractRemoteLinuxR
 {
     Q_OBJECT
 public:
-    static Analyzer::AnalyzerStartParameters startParameters(const RemoteLinuxRunConfiguration *runConfig,
+    static Analyzer::AnalyzerStartParameters startParameters(const AbstractRemoteLinuxRunConfiguration *runConfig,
                                                              ProjectExplorer::RunMode runMode);
 
-    RemoteLinuxAnalyzeSupport(RemoteLinuxRunConfiguration *runConfig,
+    RemoteLinuxAnalyzeSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
             Analyzer::AnalyzerRunControl *engine, ProjectExplorer::RunMode runMode);
     ~RemoteLinuxAnalyzeSupport();
 

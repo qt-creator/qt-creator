@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "abstractremotelinuxrunsupport.h"
-#include "remotelinuxrunconfiguration.h"
+#include "abstractremotelinuxrunconfiguration.h"
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitinformation.h>
@@ -45,7 +45,7 @@ namespace Internal {
 class AbstractRemoteLinuxRunSupportPrivate
 {
 public:
-    AbstractRemoteLinuxRunSupportPrivate(const RemoteLinuxRunConfiguration *runConfig)
+    AbstractRemoteLinuxRunSupportPrivate(const AbstractRemoteLinuxRunConfiguration *runConfig)
         : state(AbstractRemoteLinuxRunSupport::Inactive),
           device(DeviceKitInformation::device(runConfig->target()->kit())),
           remoteFilePath(runConfig->remoteExecutableFilePath()),
@@ -70,7 +70,7 @@ public:
 
 using namespace Internal;
 
-AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(RemoteLinuxRunConfiguration *runConfig, QObject *parent)
+AbstractRemoteLinuxRunSupport::AbstractRemoteLinuxRunSupport(AbstractRemoteLinuxRunConfiguration *runConfig, QObject *parent)
     : QObject(parent),
       d(new AbstractRemoteLinuxRunSupportPrivate(runConfig))
 {

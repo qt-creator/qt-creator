@@ -38,7 +38,7 @@ class DebuggerStartParameters;
 }
 
 namespace RemoteLinux {
-class RemoteLinuxRunConfiguration;
+class AbstractRemoteLinuxRunConfiguration;
 
 namespace Internal { class LinuxDeviceDebugSupportPrivate; }
 
@@ -46,9 +46,9 @@ class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public AbstractRemoteLinuxRun
 {
     Q_OBJECT
 public:
-    static Debugger::DebuggerStartParameters startParameters(const RemoteLinuxRunConfiguration *runConfig);
+    static Debugger::DebuggerStartParameters startParameters(const AbstractRemoteLinuxRunConfiguration *runConfig);
 
-    LinuxDeviceDebugSupport(RemoteLinuxRunConfiguration *runConfig,
+    LinuxDeviceDebugSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
             Debugger::DebuggerEngine *engine);
     ~LinuxDeviceDebugSupport();
 

@@ -84,7 +84,7 @@ using namespace Internal;
 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, const Core::Id id,
         const QString &proFilePath)
-    : RunConfiguration(parent, id),
+    : AbstractRemoteLinuxRunConfiguration(parent, id),
       d(new RemoteLinuxRunConfigurationPrivate(proFilePath))
 {
     init();
@@ -92,7 +92,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *parent, const C
 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
         RemoteLinuxRunConfiguration *source)
-    : RunConfiguration(parent, source),
+    : AbstractRemoteLinuxRunConfiguration(parent, source),
       d(new RemoteLinuxRunConfigurationPrivate(source->d))
 {
     init();

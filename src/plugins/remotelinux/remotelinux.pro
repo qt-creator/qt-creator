@@ -10,6 +10,7 @@ HEADERS += \
     remotelinuxplugin.h \
     remotelinux_export.h \
     linuxdevice.h \
+    abstractremotelinuxrunconfiguration.h \
     remotelinuxrunconfiguration.h \
     publickeydeploymentdialog.h \
     genericlinuxdeviceconfigurationwizard.h \
@@ -56,6 +57,7 @@ SOURCES += \
     remotelinuxenvironmentaspectwidget.cpp \
     remotelinuxplugin.cpp \
     linuxdevice.cpp \
+    abstractremotelinuxrunconfiguration.cpp \
     remotelinuxrunconfiguration.cpp \
     publickeydeploymentdialog.cpp \
     genericlinuxdeviceconfigurationwizard.cpp \

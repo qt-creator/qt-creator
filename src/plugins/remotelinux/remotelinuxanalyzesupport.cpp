@@ -73,7 +73,7 @@ public:
 
 using namespace Internal;
 
-AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RemoteLinuxRunConfiguration *runConfig,
+AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const AbstractRemoteLinuxRunConfiguration *runConfig,
                                                                    RunMode runMode)
 {
     AnalyzerStartParameters params;
@@ -88,7 +88,7 @@ AnalyzerStartParameters RemoteLinuxAnalyzeSupport::startParameters(const RemoteL
     return params;
 }
 
-RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(RemoteLinuxRunConfiguration *runConfig,
+RemoteLinuxAnalyzeSupport::RemoteLinuxAnalyzeSupport(AbstractRemoteLinuxRunConfiguration *runConfig,
                                                      AnalyzerRunControl *engine, RunMode runMode)
     : AbstractRemoteLinuxRunSupport(runConfig, engine),
       d(new RemoteLinuxAnalyzeSupportPrivate(engine, runMode))

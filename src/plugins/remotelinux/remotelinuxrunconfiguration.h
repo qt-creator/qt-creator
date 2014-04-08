@@ -31,6 +31,7 @@
 #define REMOTELINUXRUNCONFIGURATION_H
 
 #include "remotelinux_export.h"
+#include "abstractremotelinuxrunconfiguration.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -50,7 +51,7 @@ class RemoteLinuxRunConfigurationPrivate;
 class RemoteLinuxRunConfigurationFactory;
 } // namespace Internal
 
-class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
+class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public AbstractRemoteLinuxRunConfiguration
 {
     Q_OBJECT
     Q_DISABLE_COPY(RemoteLinuxRunConfiguration)
