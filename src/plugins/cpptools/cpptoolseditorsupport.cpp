@@ -518,13 +518,8 @@ SemanticInfo::Source CppEditorSupport::currentSource(bool force)
     int line = 0, column = 0;
     m_textEditor->convertPosition(m_textEditor->editorWidget()->position(), &line, &column);
 
-    QByteArray code;
-    if (force || m_lastSemanticInfo.revision != editorRevision())
-        code = contents(); // get the source code only when needed.
-
-    const unsigned revision = editorRevision();
-    SemanticInfo::Source source(Snapshot(), fileName(), code, line, column, revision, force);
-    return source;
+    return SemanticInfo::Source(Snapshot(), fileName(), contents(), line, column, editorRevision(),
+                                force);
 }
 
 void CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::Source &source,
