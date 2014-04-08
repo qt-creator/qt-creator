@@ -294,8 +294,9 @@ void QbsProjectManagerPlugin::updateBuildActions()
     QString subprojectName;
 
     if (m_editorNode) {
-        enabled = !BuildManager::isBuilding(m_editorProject)
-                && m_selectedProject && !m_selectedProject->isParsing();
+        enabled = m_editorProject
+                && !BuildManager::isBuilding(m_editorProject)
+                && !m_editorProject->isParsing();
 
         fileName = QFileInfo(m_editorNode->path()).fileName();
         fileVisible = m_editorProject && m_editorNode && qobject_cast<QbsBaseProjectNode *>(m_editorNode->projectNode());
@@ -332,10 +333,11 @@ void QbsProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *projec
     if (project == m_currentProject)
         updateReparseQbsAction();
 
-    if (project == m_selectedProject) {
+    if (project == m_selectedProject)
         updateContextActions();
+
+    if (project == m_editorProject)
         updateBuildActions();
-    }
 }
 
 void QbsProjectManagerPlugin::parsingStateChanged()
