@@ -66,12 +66,14 @@ public:
     void extensionsInitialized();
 
 private slots:
+    void projectWasAdded(ProjectExplorer::Project *project);
     void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void updateReparseQbsAction();
     void updateBuildActions();
     void activeTargetChanged();
     void buildStateChanged(ProjectExplorer::Project *project);
     void parsingStateChanged();
+
     void buildFileContextMenu();
     void buildFile();
     void buildProductContextMenu();

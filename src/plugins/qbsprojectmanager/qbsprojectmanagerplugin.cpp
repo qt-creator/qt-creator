@@ -192,6 +192,9 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateBuildActions()));
 
+    connect(SessionManager::instance(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(projectWasAdded(ProjectExplorer::Project*)));
+
     // Run initial setup routines
     updateContextActions(0, 0);
     updateReparseQbsAction();
@@ -203,15 +206,22 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 void QbsProjectManagerPlugin::extensionsInitialized()
 { }
 
+void QbsProjectManagerPlugin::projectWasAdded(Project *project)
+{
+    QbsProject *qbsProject = qobject_cast<QbsProject *>(project);
+
+    if (!qbsProject)
+        return;
+
+    connect(qbsProject, SIGNAL(projectParsingStarted()), this, SLOT(parsingStateChanged()));
+    connect(qbsProject, SIGNAL(projectParsingDone(bool)), this, SLOT(parsingStateChanged()));
+}
+
 void QbsProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project)
 {
     if (m_selectedProject) {
         disconnect(m_selectedProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
                    this, SLOT(activeTargetChanged()));
-        disconnect(m_selectedProject, SIGNAL(projectParsingStarted()),
-                   this, SLOT(parsingStateChanged()));
-        disconnect(m_selectedProject, SIGNAL(projectParsingDone(bool)),
-                   this, SLOT(parsingStateChanged()));
     }
 
     m_selectedNode = node;
@@ -219,10 +229,6 @@ void QbsProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     if (m_selectedProject) {
         connect(m_selectedProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
                 this, SLOT(activeTargetChanged()));
-        connect(m_selectedProject, SIGNAL(projectParsingStarted()),
-                this, SLOT(parsingStateChanged()));
-        connect(m_selectedProject, SIGNAL(projectParsingDone(bool)),
-                this, SLOT(parsingStateChanged()));
     }
 
     activeTargetChanged();
