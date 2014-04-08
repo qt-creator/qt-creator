@@ -374,17 +374,10 @@ void QbsProjectManagerPlugin::buildFileContextMenu()
 
 void QbsProjectManagerPlugin::buildFile()
 {
-    QString file;
-    QbsProject *project = 0;
-    if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        file = currentDocument->filePath();
-        project = qobject_cast<QbsProject *>(SessionManager::projectForFile(file));
-    }
-
-    if (!project || file.isEmpty())
+    if (!m_editorProject || !m_editorNode)
         return;
 
-    buildSingleFile(project, file);
+    buildSingleFile(m_editorProject, m_editorNode->path());
 }
 
 void QbsProjectManagerPlugin::buildProductContextMenu()
@@ -397,19 +390,15 @@ void QbsProjectManagerPlugin::buildProductContextMenu()
 
 void QbsProjectManagerPlugin::buildProduct()
 {
-    QbsProject *project = 0;
-    QbsProductNode *product = 0;
-    if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        const QString file = currentDocument->filePath();
-
-        project = qobject_cast<QbsProject *>(SessionManager::projectForFile(file));
-        product = qobject_cast<QbsProductNode *>(SessionManager::nodeForFile(file)->projectNode());
-    }
-
-    if (!project || !product)
+    if (!m_editorProject || !m_editorNode)
         return;
 
-    buildProducts(project, QStringList(product->displayName()));
+    QbsProductNode *product = qobject_cast<QbsProductNode *>(m_editorNode->projectNode());
+
+    if (!product)
+        return;
+
+    buildProducts(m_editorProject, QStringList(product->displayName()));
 }
 
 void QbsProjectManagerPlugin::buildSubprojectContextMenu()
@@ -429,31 +418,28 @@ void QbsProjectManagerPlugin::buildSubprojectContextMenu()
 
 void QbsProjectManagerPlugin::buildSubproject()
 {
-    QbsProject *project = 0;
-    QbsProjectNode *subproject = 0;
-    if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        const QString file = currentDocument->filePath();
+    if (!m_editorNode || !m_editorProject)
+        return;
 
-        project = qobject_cast<QbsProject *>(SessionManager::projectForFile(file));
-        QbsBaseProjectNode *start = qobject_cast<QbsBaseProjectNode *>(SessionManager::nodeForFile(file)->projectNode());
-        while (start && start != project->rootProjectNode()) {
-            QbsProjectNode *tmp = qobject_cast<QbsProjectNode *>(start);
-            if (tmp) {
-                subproject = tmp;
-                break;
-            }
-            start = qobject_cast<QbsProjectNode *>(start->parentFolderNode());
+    QbsProjectNode *subproject = 0;
+    QbsBaseProjectNode *start = qobject_cast<QbsBaseProjectNode *>(m_editorNode->projectNode());
+    while (start && start != m_editorProject->rootProjectNode()) {
+        QbsProjectNode *tmp = qobject_cast<QbsProjectNode *>(start);
+        if (tmp) {
+            subproject = tmp;
+            break;
         }
+        start = qobject_cast<QbsProjectNode *>(start->parentFolderNode());
     }
 
-    if (!project || !subproject)
+    if (!subproject)
         return;
 
     QStringList toBuild;
     foreach (const qbs::ProductData &data, subproject->qbsProjectData().allProducts())
         toBuild << data.name();
 
-    buildProducts(project, toBuild);
+    buildProducts(m_editorProject, toBuild);
 }
 
 void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList &files,
