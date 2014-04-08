@@ -126,13 +126,13 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     command = Core::ActionManager::registerAction(m_reparseQbs, Constants::ACTION_REPARSE_QBS, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_reparseQbs, SIGNAL(triggered()), this, SLOT(reparseCurrentProject()));
+    connect(m_reparseQbs, SIGNAL(triggered()), this, SLOT(reparseSelectedProject()));
 
     m_reparseQbsCtx = new QAction(tr("Reparse Qbs"), this);
     command = Core::ActionManager::registerAction(m_reparseQbsCtx, Constants::ACTION_REPARSE_QBS_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(m_reparseQbsCtx, SIGNAL(triggered()), this, SLOT(reparseCurrentProject()));
+    connect(m_reparseQbsCtx, SIGNAL(triggered()), this, SLOT(reparseSelectedProject()));
 
     m_buildFileCtx = new QAction(tr("Build"), this);
     command = Core::ActionManager::registerAction(m_buildFileCtx, Constants::ACTION_BUILD_FILE_CONTEXT, projectContext);
@@ -474,7 +474,7 @@ void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringLi
     bc->setProducts(QStringList());
 }
 
-void QbsProjectManagerPlugin::reparseCurrentProject()
+void QbsProjectManagerPlugin::reparseSelectedProject()
 {
     if (!m_selectedProject || BuildManager::isBuilding(m_selectedProject)) {
         // Qbs does update the build graph during the build. So we cannot

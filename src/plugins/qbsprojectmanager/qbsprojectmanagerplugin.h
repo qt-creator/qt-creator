@@ -79,7 +79,7 @@ private slots:
     void buildSubprojectContextMenu();
     void buildSubproject();
 
-    void reparseCurrentProject();
+    void reparseSelectedProject();
 
 private:
     void buildFiles(QbsProject *project, const QStringList &files,
