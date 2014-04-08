@@ -70,7 +70,6 @@ private slots:
     void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void updateReparseQbsAction();
     void updateBuildActions();
-    void activeTargetChanged();
     void buildStateChanged(ProjectExplorer::Project *project);
     void parsingStateChanged();
 
@@ -102,7 +101,6 @@ private:
     Utils::ParameterAction *m_buildSubproject;
 
     Internal::QbsProject *m_selectedProject;
-    ProjectExplorer::Target *m_selectedTarget;
     ProjectExplorer::Node *m_selectedNode;
 };
 

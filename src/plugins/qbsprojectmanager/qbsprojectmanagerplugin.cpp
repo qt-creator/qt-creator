@@ -80,7 +80,6 @@ QbsProjectManagerPlugin::QbsProjectManagerPlugin() :
     m_manager(0),
     m_projectExplorer(0),
     m_selectedProject(0),
-    m_selectedTarget(0),
     m_selectedNode(0)
 { }
 
@@ -219,19 +218,8 @@ void QbsProjectManagerPlugin::projectWasAdded(Project *project)
 
 void QbsProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project)
 {
-    if (m_selectedProject) {
-        disconnect(m_selectedProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                   this, SLOT(activeTargetChanged()));
-    }
-
     m_selectedNode = node;
     m_selectedProject = qobject_cast<Internal::QbsProject *>(project);
-    if (m_selectedProject) {
-        connect(m_selectedProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                this, SLOT(activeTargetChanged()));
-    }
-
-    activeTargetChanged();
 
     bool isBuilding = BuildManager::isBuilding(project);
     bool isFile = m_selectedProject && node && (node->nodeType() == ProjectExplorer::FileNodeType);
@@ -294,21 +282,6 @@ void QbsProjectManagerPlugin::updateBuildActions()
 
     m_buildSubproject->setEnabled(enabled);
     m_buildSubproject->setVisible(subprojectVisible);
-}
-
-void QbsProjectManagerPlugin::activeTargetChanged()
-{
-    if (m_selectedTarget)
-        disconnect(m_selectedTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                   this, SLOT(updateReparseQbsAction()));
-
-    m_selectedTarget = m_selectedProject ? m_selectedProject->activeTarget() : 0;
-
-    if (m_selectedTarget)
-        connect(m_selectedTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                this, SLOT(updateReparseQbsAction()));
-
-    updateReparseQbsAction();
 }
 
 void QbsProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *project)
