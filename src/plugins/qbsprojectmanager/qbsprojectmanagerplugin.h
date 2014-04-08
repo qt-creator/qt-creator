@@ -92,9 +92,9 @@ private:
 
     QAction *m_reparseQbs;
     QAction *m_reparseQbsCtx;
-    QAction *m_buildFileContextMenu;
-    QAction *m_buildProductContextMenu;
-    QAction *m_buildSubprojectContextMenu;
+    QAction *m_buildFileCtx;
+    QAction *m_buildProductCtx;
+    QAction *m_buildSubprojectCtx;
     Utils::ParameterAction *m_buildFile;
     Utils::ParameterAction *m_buildProduct;
     Utils::ParameterAction *m_buildSubproject;

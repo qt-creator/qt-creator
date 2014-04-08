@@ -134,11 +134,11 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_reparseQbsCtx, SIGNAL(triggered()), this, SLOT(reparseCurrentProject()));
 
-    m_buildFileContextMenu = new QAction(tr("Build"), this);
-    command = Core::ActionManager::registerAction(m_buildFileContextMenu, Constants::ACTION_BUILD_FILE_CONTEXT, projectContext);
+    m_buildFileCtx = new QAction(tr("Build"), this);
+    command = Core::ActionManager::registerAction(m_buildFileCtx, Constants::ACTION_BUILD_FILE_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mfile->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
-    connect(m_buildFileContextMenu, SIGNAL(triggered()), this, SLOT(buildFileContextMenu()));
+    connect(m_buildFileCtx, SIGNAL(triggered()), this, SLOT(buildFileContextMenu()));
 
     m_buildFile = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
                                                    Utils::ParameterAction::AlwaysEnabled, this);
@@ -150,11 +150,11 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_buildFile, SIGNAL(triggered()), this, SLOT(buildFile()));
 
-    m_buildProductContextMenu = new QAction(tr("Build"), this);
-    command = Core::ActionManager::registerAction(m_buildProductContextMenu, Constants::ACTION_BUILD_PRODUCT_CONTEXT, projectContext);
+    m_buildProductCtx = new QAction(tr("Build"), this);
+    command = Core::ActionManager::registerAction(m_buildProductCtx, Constants::ACTION_BUILD_PRODUCT_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(m_buildProductContextMenu, SIGNAL(triggered()), this, SLOT(buildProductContextMenu()));
+    connect(m_buildProductCtx, SIGNAL(triggered()), this, SLOT(buildProductContextMenu()));
 
     m_buildProduct = new Utils::ParameterAction(tr("Build Product"), tr("Build Product \"%1\""),
                                                 Utils::ParameterAction::AlwaysEnabled, this);
@@ -166,11 +166,11 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_buildProduct, SIGNAL(triggered()), this, SLOT(buildProduct()));
 
-    m_buildSubprojectContextMenu = new QAction(tr("Build"), this);
-    command = Core::ActionManager::registerAction(m_buildSubprojectContextMenu, Constants::ACTION_BUILD_SUBPROJECT_CONTEXT, projectContext);
+    m_buildSubprojectCtx = new QAction(tr("Build"), this);
+    command = Core::ActionManager::registerAction(m_buildSubprojectCtx, Constants::ACTION_BUILD_SUBPROJECT_CONTEXT, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(m_buildSubprojectContextMenu, SIGNAL(triggered()), this, SLOT(buildSubprojectContextMenu()));
+    connect(m_buildSubprojectCtx, SIGNAL(triggered()), this, SLOT(buildSubprojectContextMenu()));
 
     m_buildSubproject = new Utils::ParameterAction(tr("Build Subproject"), tr("Build Subproject \"%1\""),
                                                 Utils::ParameterAction::AlwaysEnabled, this);
@@ -235,9 +235,9 @@ void QbsProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     bool isFileEnabled = isFile && node->isEnabled();
 
     m_reparseQbsCtx->setEnabled(!isBuilding && m_currentProject && !m_currentProject->isParsing());
-    m_buildFileContextMenu->setEnabled(isFileEnabled);
-    m_buildProductContextMenu->setVisible(isProduct);
-    m_buildSubprojectContextMenu->setVisible(isSubproject);
+    m_buildFileCtx->setEnabled(isFileEnabled);
+    m_buildProductCtx->setVisible(isProduct);
+    m_buildSubprojectCtx->setVisible(isSubproject);
 }
 
 void QbsProjectManagerPlugin::updateReparseQbsAction()
