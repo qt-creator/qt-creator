@@ -304,6 +304,8 @@ void CppToolsPlugin::test_completion()
     expectedCompletions.sort();
 
     QEXPECT_FAIL("enum_in_function_in_struct_in_function", "doesn't work", Abort);
+    QEXPECT_FAIL("nested_class_in_template_class_QTCREATORBUG-11752",
+                 "related to infiniteLoopLocalTypedef_QTCREATORBUG-11999", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 
