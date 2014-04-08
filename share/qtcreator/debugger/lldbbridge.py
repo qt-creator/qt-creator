@@ -144,7 +144,7 @@ def impl_SBValue__add__(self, offset):
 def impl_SBValue__sub__(self, other):
     if self.GetType().IsPointerType():
         if isinstance(other, int) or isinstance(other, long):
-            address = self.GetValueAsUnsigned() - offset.GetValueAsSigned()
+            address = self.GetValueAsUnsigned() - other
             address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
             return self.CreateValueFromAddress(None, address, self.GetType())
         if other.GetType().IsPointerType():
@@ -372,7 +372,7 @@ class Dumper(DumperBase):
         return ns + "Qt::" + enumType + "(" \
             + ns + "Qt::" + enumType + "::" + enumValue + ")"
 
-    def call2(self, value, func, args):
+    def callHelper(self, value, func, args):
         # args is a tuple.
         arg = ','.join(args)
         #warn("CALL: %s -> %s(%s)" % (value, func, arg))
@@ -397,9 +397,6 @@ class Dumper(DumperBase):
         thread = self.currentThread()
         frame = thread.GetFrameAtIndex(0)
         return frame.EvaluateExpression(expr)
-
-    def call(self, value, func, *args):
-        return self.call2(value, func, args)
 
     def checkPointer(self, p, align = 1):
         if not self.isNull(p):
@@ -449,13 +446,21 @@ class Dumper(DumperBase):
             qtNamespace = name[:name.find('qVersion')]
             self.qtNamespace = lambda: qtNamespace
 
-            res = ""
-            try:
-                res = self.parseAndEvaluate(name + '()')
-            except:
-                res = self.parseAndEvaluate('((const char*())%s)()' % name)
-            version = str(res)
+            options = lldb.SBExpressionOptions()
+            res = self.target.EvaluateExpression(name + '()', options)
 
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                exp = '((const char*())%s)()' % name
+                res = self.target.EvaluateExpression(exp, options)
+
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                exp = '((const char*())_Z8qVersionv)()'
+                res = self.target.EvaluateExpression(exp, options)
+
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                continue
+
+            version = str(res)
             if version.count('.') != 2:
                 continue
 
@@ -603,11 +608,6 @@ class Dumper(DumperBase):
     def createValue(self, address, referencedType):
         addr = int(address) & 0xFFFFFFFFFFFFFFFF
         return self.context.CreateValueFromAddress(None, addr, referencedType)
-
-    def putCallItem(self, name, value, func, *args):
-        result = self.call2(value, func, args)
-        with SubItem(self, name):
-            self.putItem(result)
 
     def childRange(self):
         if self.currentMaxNumChild is None:

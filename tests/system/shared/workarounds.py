@@ -260,7 +260,6 @@ class JIRA:
         def __initBugDict__(self):
             self.__bugs__= {
                             'QTCREATORBUG-6853':self._workaroundCreator6853_,
-                            'QTCREATORBUG-11548':self._workaroundCreator11548_
                             }
         # helper function - will be called if no workaround for the requested bug is deposited
         def _exitFatal_(self, bugType, number):
@@ -271,56 +270,3 @@ class JIRA:
         def _workaroundCreator6853_(self, *args):
             if "Release" in args[0] and platform.system() == "Linux":
                 snooze(2)
-
-        def _workaroundCreator11548_(self, *args):
-            if len(args) != 3:
-                test.fatal("Need 3 arguments (project directory, project name, path to the file to "
-                           "be added to the qrc file) to perform workaround.")
-                raise JIRA.JiraException("Wrong invocation of _workaroundCreator11548_().")
-            (pDir, pName, fPath) = args
-            try:
-                selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Projects")
-                navigator = waitForObject(":Qt Creator_Utils::NavigationTreeView")
-                try:
-                    openItemContextMenu(navigator, "%s.Resources.qml\.qrc" % pName, 5, 5, 0)
-                except:
-                    treeElement = addBranchWildcardToRoot("%s.Resources.qml\.qrc" % pName)
-                    openItemContextMenu(navigator, treeElement, 5, 5, 0)
-                if platform.system() == 'Darwin':
-                    waitFor("macHackActivateContextMenuItem('Add Existing Files...')", 6000)
-                else:
-                    activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Folder_QMenu",
-                                                   "Add Existing Files..."))
-                selectFromFileDialog(fPath)
-                # handle version control if necessary
-                try:
-                    dlg = ("{name='Core__Internal__AddToVcsDialog' type='Core::Internal::AddToVcsDialog' "
-                           "visible='1' windowTitle='Add to Version Control'}")
-                    waitForObject(dlg, 3000)
-                    clickButton(waitForObject("{text='No' type='QPushButton' unnamed='1' "
-                                              "visible='1' window=%s}" % dlg))
-                except:
-                    pass
-                try:
-                    openItemContextMenu(navigator, "%s.Resources.qml\.qrc" % pName, 5, 5, 0)
-                except:
-                    treeElement = addBranchWildcardToRoot("%s.Resources.qml\.qrc" % pName)
-                    openItemContextMenu(navigator, treeElement, 5, 5, 0)
-                if platform.system() == 'Darwin':
-                    waitFor("macHackActivateContextMenuItem('Open in Editor')", 6000)
-                else:
-                    activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Folder_QMenu",
-                                                   "Open in Editor"))
-                resourceEditorView = waitForObject("{type='ResourceEditor::Internal::ResourceView' "
-                                                   "unnamed='1' visible='1'}")
-                fileName = os.path.basename(fPath)
-                doubleClick(waitForObjectItem(resourceEditorView, "/.qml/%s"
-                                              % fileName.replace(".", "\\.").replace("_", "\\_")))
-                mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
-                if not waitFor("fileName in str(mainWindow.windowTitle)", 3000):
-                    raise JIRA.Exception("Could not open %s." % fileName)
-                else:
-                    test.passes("%s has been added to the qrc file." % fileName)
-            except:
-                test.fatal("Failed to perform workaround for QTCREATORBUG-11548")
-                raise JIRA.JiraException("Failed to perform workaround for QTCREATORBUG-11548")

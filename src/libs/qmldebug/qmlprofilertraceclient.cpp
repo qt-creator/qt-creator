@@ -186,7 +186,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             d->maximumTime = qMax(time, d->maximumTime);
         }
     } else if (messageType == Complete) {
-        emit complete();
+        emit complete(d->maximumTime);
     } else if (messageType == SceneGraphFrame) {
         int sgEventType;
         int count = 0;

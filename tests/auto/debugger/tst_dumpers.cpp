@@ -811,7 +811,22 @@ void tst_Dumpers::initTestCase()
         extractGdbVersion(version, &m_gdbVersion,
             &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
         m_env = QProcessEnvironment::systemEnvironment();
-        m_makeBinary = QLatin1String("make");
+        m_makeBinary = QString::fromLocal8Bit(qgetenv("QTC_MAKE_PATH_FOR_TEST"));
+#ifdef Q_OS_WIN
+        if (m_makeBinary.isEmpty()) {
+            m_makeBinary = QLatin1String("mingw32-make");
+        // if qmake is not in PATH make sure the correct libs for inferior are prepended to PATH
+        if (m_qmakeBinary != "qmake") {
+            Utils::Environment env = Utils::Environment::systemEnvironment();
+            env.prependOrSetPath(QDir::toNativeSeparators(QFileInfo(QLatin1String(m_qmakeBinary)).absolutePath()));
+            m_env = env.toProcessEnvironment();
+        }
+#else
+        if (m_makeBinary.isEmpty()) {
+            m_makeBinary = QLatin1String("make");
+#endif
+        }
+        qDebug() << "Make path          : " << m_makeBinary;
         qDebug() << "Gdb version        : " << m_gdbVersion;
     } else if (m_debuggerEngine == CdbEngine) {
         setupCdb(&m_makeBinary, &m_env);
@@ -1088,7 +1103,11 @@ void tst_Dumpers::dumper()
         QByteArray nograb = "-nograb";
 
         cmds = "set confirm off\n"
+#ifdef Q_OS_WIN
+                "file debug/doit\n"
+#else
                 "file doit\n"
+#endif
                 "set print object on\n"
                 "set auto-load python-scripts off\n";
 

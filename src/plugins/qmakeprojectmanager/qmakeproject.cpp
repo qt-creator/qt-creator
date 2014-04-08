@@ -1002,7 +1002,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFileNo
         // It is important to override the spec file only for the creator evaluator,
         // and not the qmake buildstep used to build the app (as we use the makefiles).
         const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // from Ios::Constants
-        if (qtVersion->type() == QLatin1String(IOSQT))
+        if (qtVersion && qtVersion->type() == QLatin1String(IOSQT))
             m_qmakeGlobals->xqmakespec = QLatin1String("macx-xcode");
     }
     ++m_qmakeGlobalsRefCnt;

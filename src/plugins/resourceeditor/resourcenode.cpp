@@ -257,6 +257,12 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
             p = 125;
         else if (projectNode() == context)
             p = 150; // steal from our project node
+        // The ResourceFolderNode '/' defers to us, as otherwise
+        // two nodes would be responsible for '/'
+        // Thus also return a high priority for it
+        if (ResourceFolderNode *rfn = qobject_cast<ResourceFolderNode *>(context))
+            if (rfn->prefix() == QLatin1String("/"))
+                p = 150;
     }
 
     return AddNewInformation(name, p);

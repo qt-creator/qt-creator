@@ -2231,6 +2231,22 @@ void CppToolsPlugin::test_completion_data()
             "   @\n"
             "}\n"
         ) << _("double val = d.constBegin()->") << (QStringList());
+
+    QTest::newRow("nested_class_in_template_class_QTCREATORBUG-11752") << _(
+            "template <typename T>\n"
+            "struct Temp\n"
+            "{\n"
+            "   struct Nested1 { T t; };\n"
+            "   struct Nested2 { Nested1 n1; };\n"
+            "};\n"
+            "struct Foo { int foo; };\n"
+            "void fun() {\n"
+            "   Temp<Foo>::Nested2 n2;\n"
+            "   @\n"
+            "}\n"
+        ) << _("n2.n1.t.") << (QStringList()
+            << QLatin1String("foo")
+            << QLatin1String("Foo"));
 }
 
 void CppToolsPlugin::test_completion_member_access_operator()

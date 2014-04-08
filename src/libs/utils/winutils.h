@@ -49,6 +49,23 @@ QTCREATOR_UTILS_EXPORT bool is64BitWindowsSystem();
 // Check for a 64bit binary.
 QTCREATOR_UTILS_EXPORT bool is64BitWindowsBinary(const QString &binary);
 
+//
+// RAII class to temporarily prevent windows crash messages from popping up using the
+// application-global (!) error mode.
+//
+// Useful primarily for QProcess launching, since the setting will be inherited.
+//
+class QTCREATOR_UTILS_EXPORT WindowsCrashDialogBlocker {
+public:
+    WindowsCrashDialogBlocker();
+    ~WindowsCrashDialogBlocker();
+#ifdef Q_OS_WIN
+private:
+    const unsigned int silenceErrorMode;
+    const unsigned int originalErrorMode;
+#endif // Q_OS_WIN
+};
+
 } // namespace Utils
 
 #endif // WINUTILS_H

@@ -47,6 +47,7 @@
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/fileutils.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QTcpServer>
@@ -216,9 +217,7 @@ void IosDebugSupport::handleGotInferiorPid(Q_PID pid, int qmlPort)
 {
     if (pid > 0) {
         //m_runControl->engine()->notifyInferiorPid(pid);
-#ifndef Q_OS_WIN // Q_PID might be 64 bit pointer...
-        m_runControl->engine()->notifyEngineRemoteSetupDone(int(pid), qmlPort);
-#endif
+        m_runControl->engine()->notifyEngineRemoteSetupDone(int(Utils::qPidToPid(pid)), qmlPort);
     } else {
         m_runControl->engine()->notifyEngineRemoteSetupFailed(
                     tr("Got an invalid process id."));

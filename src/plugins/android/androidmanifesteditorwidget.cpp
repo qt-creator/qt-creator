@@ -1291,7 +1291,7 @@ void AndroidManifestEditorWidget::setHDPIIcon()
 void AndroidManifestEditorWidget::defaultPermissionCheckBoxClicked()
 {
     if (m_defaultPermissonsCheckBox->checkState() == Qt::PartiallyChecked)
-        m_defaultPermissonsCheckBox->setChecked(Qt::Checked);
+        m_defaultPermissonsCheckBox->setChecked(true);
     setDirty(true);
 }
 

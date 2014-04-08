@@ -172,8 +172,8 @@ void QmlProfilerClientManager::connectClientSignals()
 {
     QTC_ASSERT(d->profilerState, return);
     if (d->qmlclientplugin) {
-        connect(d->qmlclientplugin.data(), SIGNAL(complete()),
-                this, SLOT(qmlComplete()));
+        connect(d->qmlclientplugin.data(), SIGNAL(complete(qint64)),
+                this, SLOT(qmlComplete(qint64)));
         connect(d->qmlclientplugin.data(),
                 SIGNAL(rangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
                              qint64,qint64,qint64,qint64,qint64)),
@@ -354,8 +354,10 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
     }
 }
 
-void QmlProfilerClientManager::qmlComplete()
+void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
 {
+    if (maximumTime > d->modelManager->traceTime()->endTime())
+        d->modelManager->traceTime()->setEndTime(maximumTime);
     d->qmlDataReady = true;
     if (!d->v8clientplugin || d->v8clientplugin.data()->status() != QmlDebug::Enabled || d->v8DataReady) {
         emit dataReadyForProcessing();

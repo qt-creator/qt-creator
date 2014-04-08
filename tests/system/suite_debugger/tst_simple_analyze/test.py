@@ -66,6 +66,9 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def performTest(workingDir, projectName, targetCount, availableConfigs, disableOptimizer):
+    def __elapsedTime__(elapsedTimeLabelText):
+        return float(re.search("Elapsed:\s+(-?\d+\.\d+) s", elapsedTimeLabelText).group(1))
+
     for kit, config in availableConfigs:
         # switching from MSVC to MinGW build will fail on the clean step of 'Rebuild All' because
         # of differences between MSVC's and MinGW's Makefile (so clean before switching kits)
@@ -91,11 +94,19 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
         if not test.verify(recordButton.checked, "Verifying recording is enabled."):
             test.log("Enabling recording for the test run")
             clickButton(recordButton)
-        clickButton(waitForObject(":Analyzer Toolbar.Start_QToolButton"))
+        startButton = waitForObject(":Analyzer Toolbar.Start_QToolButton")
+        clickButton(startButton)
         stopButton = waitForObject(":Qt Creator.Stop_QToolButton")
         elapsedLabel = waitForObject(":Analyzer Toolbar.Elapsed:_QLabel", 3000)
         waitFor('"Elapsed:    5" in str(elapsedLabel.text)', 20000)
         clickButton(stopButton)
+        test.verify(waitFor("not stopButton.enabled", 5000), "stopButton should be disabled")
+        test.verify(waitFor("startButton.enabled", 2000), "startButton should be enabled")
+        try:
+            test.verify(waitFor("__elapsedTime__(str(elapsedLabel.text)) > 0", 2000),
+                        "Elapsed time should be positive in string '%s'" % str(elapsedLabel.text))
+        except:
+            test.fatal("Could not read elapsed time from '%s'" % str(elapsedLabel.text))
         if safeClickTab("JavaScript"):
             model = findObject(":JavaScript.QmlProfilerEventsTable_QmlProfiler::"
                                "Internal::QV8ProfilerEventsMainView").model()

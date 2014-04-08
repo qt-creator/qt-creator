@@ -8,8 +8,12 @@ conditions by using environment variables as follows:
 
    QTC_QMAKE_PATH_FOR_TEST - path to a Qt version
 
+   QTC_MAKE_PATH_FOR_TEST - path to a "make".
+      Used for GDB only, defaults to "make" except on Windows,
+      where it defaults to "mingw32-make"
+
    QTC_USE_GLIBCXXDEBUG_FOR_TEST - (0/1) to switch between GCC's
-       "normal" standard library, and the "debug" version
+      "normal" standard library, and the "debug" version
       (this will add DEFINES += _GLIBCXX_DEBUG) to the .pro
 
   (QTC_MSVC_ENV_BAT - to set up MSVC)

@@ -57,7 +57,6 @@ def main():
     else:
         test.fail("Refactoring of Text to MyComponent failed in source file. Content of editor:\n%s" % codeText)
     myCompTE = "SampleApp.Resources.qml\\.qrc./.qml/MyComponent\\.qml"
-    filePath = os.path.join(projectDir, "SampleApp", "qml", "MyComponent.qml")
     # there should be new QML file generated with name "MyComponent.qml"
     try:
         waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", myCompTE, 3000)
@@ -65,23 +64,18 @@ def main():
         try:
             waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", addBranchWildcardToRoot(myCompTE), 1000)
         except:
-            test.xverify(False, "Refactoring failed - file MyComponent.qml was not generated "
-                         "properly in project explorer (QTCREATORBUG-11548")
-            try:
-                JIRA.performWorkaroundForBug(11548, JIRA.Bug.CREATOR, projectDir, "SampleApp", filePath)
-            except JIRA.JiraException:
-                #save and exit
-                invokeMenuItem("File", "Save All")
-                invokeMenuItem("File", "Exit")
-                return
-# following section is done by the workaround for 11548 already - uncomment when removing workaround
-#    test.passes("Refactoring - file MyComponent.qml was generated properly in project explorer")
-#    # open MyComponent.qml file for verification
-#    if not openDocument(myCompTE):
-#        test.fatal("Could not open MyComponent.qml.")
-#        invokeMenuItem("File", "Save All")
-#        invokeMenuItem("File", "Exit")
-#        return
+            test.fail("Refactoring failed - file MyComponent.qml was not generated properly in project explorer")
+            #save and exit
+            invokeMenuItem("File", "Save All")
+            invokeMenuItem("File", "Exit")
+            return
+    test.passes("Refactoring - file MyComponent.qml was generated properly in project explorer")
+    # open MyComponent.qml file for verification
+    if not openDocument(myCompTE):
+        test.fatal("Could not open MyComponent.qml.")
+        invokeMenuItem("File", "Save All")
+        invokeMenuItem("File", "Exit")
+        return
     editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     codeText = str(editorArea.plainText)
     # there should be Text item in new file
@@ -92,6 +86,6 @@ def main():
     #save and exit
     invokeMenuItem("File", "Save All")
     # check if new file was created in file system
-    test.verify(os.path.exists(filePath),
+    test.verify(os.path.exists(os.path.join(projectDir, "SampleApp", "qml", "MyComponent.qml")),
                 "Verifying if MyComponent.qml exists in file system after save")
     invokeMenuItem("File", "Exit")

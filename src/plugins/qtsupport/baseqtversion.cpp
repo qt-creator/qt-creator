@@ -48,6 +48,7 @@
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
+#include <utils/winutils.h>
 
 #include <QDir>
 #include <QUrl>
@@ -1205,6 +1206,9 @@ static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
     QTC_ASSERT(error, return QByteArray());
 
     const int timeOutMS = 30000; // Might be slow on some machines.
+
+    // Prevent e.g. qmake 4.x on MinGW to show annoying errors about missing dll's.
+    WindowsCrashDialogBlocker crashDialogBlocker;
 
     QProcess process;
     process.setEnvironment(env.toStringList());

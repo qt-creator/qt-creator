@@ -40,6 +40,8 @@
 
 #include "settings.h"
 
+#include <QRegExp>
+
 #include <iostream>
 
 // Qt version file stuff:
@@ -298,6 +300,25 @@ bool AddKitOperation::test() const
                                KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
     if (!empty.isEmpty())
         return false;
+    // Do not fail if TC is an ABI:
+    empty = addKit(map, tcMap, qtMap, devMap,
+                   QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
+                   QString(), 1, QLatin1String("/usr/bin/gdb-test"),
+                   QByteArray("Desktop"), QLatin1String("{dev-id}"), QString(),
+                   QLatin1String("x86-linux-generic-elf-64bit"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
+                   KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
+    if (empty.isEmpty())
+        return false;
+    // QTCREATORBUG-11983, mach_o was not covered by the first attempt to fix this.
+    empty = addKit(map, tcMap, qtMap, devMap,
+                   QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
+                   QString(), 1, QLatin1String("/usr/bin/gdb-test"),
+                   QByteArray("Desktop"), QLatin1String("{dev-id}"), QString(),
+                   QLatin1String("x86-macos-generic-mach_o-64bit"), QLatin1String("{qt-id}"), QLatin1String("unsupported/mkspec"),
+                   KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
+    if (empty.isEmpty())
+        return false;
+
     // Fail if Qt is not there:
     empty = addKit(map, tcMap, qtMap, devMap,
                    QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
@@ -496,6 +517,14 @@ QVariantMap AddKitOperation::addKit(const QVariantMap &map, const QVariantMap &t
     if (hasId) {
         std::cerr << "Error: Id " << qPrintable(id) << " already defined as kit." << std::endl;
         return QVariantMap();
+    }
+
+    if (!tc.isEmpty() && !AddToolChainOperation::exists(tcMap, tc)) {
+        QRegExp abiRegExp = QRegExp(QLatin1String("[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-[a-z0-9_]+-(8|16|32|64|128)bit"));
+        if (!abiRegExp.exactMatch(tc)) {
+            std::cerr << "Error: Toolchain " << qPrintable(tc) << " does not exist." << std::endl;
+            return QVariantMap();
+        }
     }
 
     QString qtId = qt;
