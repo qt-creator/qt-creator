@@ -197,9 +197,8 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     }
 
     m_process = new Utils::QtcProcess();
-#ifdef Q_OS_WIN
-    m_process->setUseCtrlCStub(true);
-#endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        m_process->setUseCtrlCStub(true);
     m_process->setWorkingDirectory(wd.absolutePath());
     m_process->setEnvironment(m_param.environment());
 
