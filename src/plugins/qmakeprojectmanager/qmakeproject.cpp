@@ -1514,6 +1514,15 @@ void QmakeProject::collectApplicationData(const QmakeProFileNode *node, Deployme
                                DeployableFile::TypeExecutable);
 }
 
+static QString destDirFor(const TargetInformation &ti)
+{
+    if (ti.destDir.isEmpty())
+        return ti.buildDir;
+    if (QDir::isRelativePath(ti.destDir))
+        return QDir::cleanPath(ti.buildDir + QLatin1Char('/') + ti.destDir);
+    return ti.destDir;
+}
+
 void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentData &deploymentData)
 {
     const QString targetPath = node->installsList().targetPath;
@@ -1597,15 +1606,6 @@ void QmakeProject::collectLibraryData(const QmakeProFileNode *node, DeploymentDa
     default:
         break;
     }
-}
-
-QString QmakeProject::destDirFor(const TargetInformation &ti)
-{
-    if (ti.destDir.isEmpty())
-        return ti.buildDir;
-    if (QDir::isRelativePath(ti.destDir))
-        return QDir::cleanPath(ti.buildDir + QLatin1Char('/') + ti.destDir);
-    return ti.destDir;
 }
 
 QString QmakeProject::executableFor(const QmakeProFileNode *node)

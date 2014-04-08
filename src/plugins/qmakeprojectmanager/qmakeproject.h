@@ -49,18 +49,13 @@ namespace ProjectExplorer { class DeploymentData; }
 namespace QtSupport { class ProFileReader; }
 
 namespace QmakeProjectManager {
-class MakeStep;
-class QMakeStep;
 class QmakeBuildConfiguration;
 class QmakeManager;
 class QmakePriFileNode;
 class QmakeProFileNode;
-class TargetInformation;
 
 namespace Internal {
 class CentralizedFolderWatcher;
-class FileItem;
-class GCCPreprocessor;
 class QmakeProjectFiles;
 class QmakeProjectConfigWidget;
 class QmakeProjectFile;
@@ -180,7 +175,6 @@ private:
                                 ProjectExplorer::DeploymentData &deploymentData);
     void collectLibraryData(const QmakeProFileNode *node,
             ProjectExplorer::DeploymentData &deploymentData);
-    QString destDirFor(const TargetInformation &ti);
 
     QmakeManager *m_manager;
     QmakeProFileNode *m_rootProjectNode;
