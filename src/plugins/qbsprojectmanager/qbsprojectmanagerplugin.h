@@ -68,7 +68,8 @@ public:
 private slots:
     void projectWasAdded(ProjectExplorer::Project *project);
     void currentProjectWasChanged(ProjectExplorer::Project *project);
-    void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
+    void nodeSelectionChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
+    void updateContextActions();
     void updateReparseQbsAction();
     void updateBuildActions();
     void buildStateChanged(ProjectExplorer::Project *project);

@@ -184,7 +184,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     // Connect
     connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
-            this, SLOT(updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*)));
+            this, SLOT(nodeSelectionChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)));
 
     connect(BuildManager::instance(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
@@ -198,7 +198,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             this, SLOT(currentProjectWasChanged(ProjectExplorer::Project*)));
 
     // Run initial setup routines
-    updateContextActions(0, 0);
+    updateContextActions();
     updateReparseQbsAction();
     updateBuildActions();
 
@@ -226,17 +226,22 @@ void QbsProjectManagerPlugin::currentProjectWasChanged(Project *project)
     updateReparseQbsAction();
 }
 
-void QbsProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project)
+void QbsProjectManagerPlugin::nodeSelectionChanged(Node *node, Project *project)
 {
     m_selectedNode = node;
     m_selectedProject = qobject_cast<Internal::QbsProject *>(project);
 
-    bool isBuilding = BuildManager::isBuilding(project);
-    bool isFile = m_selectedProject && node && (node->nodeType() == ProjectExplorer::FileNodeType);
-    bool isProduct = m_selectedProject && node && qobject_cast<QbsProductNode *>(node->projectNode());
-    QbsProjectNode *subproject = qobject_cast<QbsProjectNode *>(node);
+    updateContextActions();
+}
+
+void QbsProjectManagerPlugin::updateContextActions()
+{
+    bool isBuilding = BuildManager::isBuilding(m_selectedProject);
+    bool isFile = m_selectedProject && m_selectedNode && (m_selectedNode->nodeType() == ProjectExplorer::FileNodeType);
+    bool isProduct = m_selectedProject && m_selectedNode && qobject_cast<QbsProductNode *>(m_selectedNode->projectNode());
+    QbsProjectNode *subproject = qobject_cast<QbsProjectNode *>(m_selectedNode);
     bool isSubproject = m_selectedProject && subproject && subproject != m_selectedProject->rootProjectNode();
-    bool isFileEnabled = isFile && node->isEnabled();
+    bool isFileEnabled = isFile && m_selectedNode->isEnabled();
 
     m_reparseQbsCtx->setEnabled(!isBuilding && m_selectedProject && !m_selectedProject->isParsing());
     m_buildFileCtx->setEnabled(isFileEnabled);
@@ -300,7 +305,7 @@ void QbsProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *projec
         updateReparseQbsAction();
 
     if (project == m_selectedProject) {
-        updateContextActions(m_selectedNode, m_selectedProject);
+        updateContextActions();
         updateBuildActions();
     }
 }
@@ -313,7 +318,7 @@ void QbsProjectManagerPlugin::parsingStateChanged()
         updateReparseQbsAction();
 
     if (!project || project == m_selectedProject)
-        updateContextActions(m_selectedNode, m_selectedProject);
+        updateContextActions();
 }
 
 void QbsProjectManagerPlugin::buildFileContextMenu()
