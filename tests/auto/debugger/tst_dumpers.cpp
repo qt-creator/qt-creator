@@ -762,8 +762,13 @@ private:
 void tst_Dumpers::initTestCase()
 {
     m_debuggerBinary = qgetenv("QTC_DEBUGGER_PATH_FOR_TEST");
-    if (m_debuggerBinary.isEmpty())
+    if (m_debuggerBinary.isEmpty()) {
+#ifdef Q_OS_MAC
+        m_debuggerBinary = "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb";
+#else
         m_debuggerBinary = "gdb";
+#endif
+    }
     qDebug() << "Debugger           : " << m_debuggerBinary.constData();
 
     m_debuggerEngine = GdbEngine;
