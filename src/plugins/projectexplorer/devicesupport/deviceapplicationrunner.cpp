@@ -88,19 +88,19 @@ void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
 
     d->state = Run;
     if (!device) {
-        emit reportError(tr("Cannot run: No device."));
+        doReportError(tr("Cannot run: No device."));
         setFinished();
         return;
     }
 
     if (!device->canCreateProcess()) {
-        emit reportError(tr("Cannot run: Device is not able to create processes."));
+        doReportError(tr("Cannot run: Device is not able to create processes."));
         setFinished();
         return;
     }
 
     if (command.isEmpty()) {
-        emit reportError(tr("Cannot run: No command given."));
+        doReportError(tr("Cannot run: No command given."));
         setFinished();
         return;
     }
@@ -139,7 +139,7 @@ void DeviceApplicationRunner::stop()
 void DeviceApplicationRunner::handleApplicationError(QProcess::ProcessError error)
 {
     if (error == QProcess::FailedToStart) {
-        emit reportError(tr("Application failed to start: %1")
+        doReportError(tr("Application failed to start: %1")
                          .arg(d->deviceProcess->errorString()));
         setFinished();
     }
@@ -165,13 +165,11 @@ void DeviceApplicationRunner::handleApplicationFinished()
     QTC_ASSERT(d->state == Run, return);
 
     if (d->deviceProcess->exitStatus() == QProcess::CrashExit) {
-        emit reportError(d->deviceProcess->errorString());
-        d->success = false;
+        doReportError(d->deviceProcess->errorString());
     } else {
         const int exitCode = d->deviceProcess->exitCode();
         if (exitCode != 0) {
-            emit reportError(tr("Application finished with exit code %1.").arg(exitCode));
-            d->success = false;
+            doReportError(tr("Application finished with exit code %1.").arg(exitCode));
         } else {
             emit reportProgress(tr("Application finished with exit code 0."));
         }
@@ -189,6 +187,12 @@ void DeviceApplicationRunner::handleRemoteStderr()
 {
     QTC_ASSERT(d->state == Run, return);
     emit remoteStderr(d->deviceProcess->readAllStandardError());
+}
+
+void DeviceApplicationRunner::doReportError(const QString &message)
+{
+    d->success = false;
+    emit reportError(message);
 }
 
 } // namespace ProjectExplorer
