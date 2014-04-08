@@ -359,20 +359,17 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
     case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
         return QList<Utils::FileName>() << Utils::FileName::fromLatin1("win32-msvc2010");
     case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
-        QList<Utils::FileName>()
-            << Utils::FileName::fromLatin1("win32-msvc2012")
-            << Utils::FileName::fromLatin1("win32-msvc2010");
-        break;
+        return QList<Utils::FileName>()
+                << Utils::FileName::fromLatin1("win32-msvc2012")
+                << Utils::FileName::fromLatin1("win32-msvc2010");
     case ProjectExplorer::Abi::WindowsMsvc2013Flavor:
-        QList<Utils::FileName>()
-            << Utils::FileName::fromLatin1("win32-msvc2013")
-            << Utils::FileName::fromLatin1("win32-msvc2012")
-            << Utils::FileName::fromLatin1("win32-msvc2010");
-        break;
+        return QList<Utils::FileName>()
+                << Utils::FileName::fromLatin1("win32-msvc2013")
+                << Utils::FileName::fromLatin1("win32-msvc2012")
+                << Utils::FileName::fromLatin1("win32-msvc2010");
     default:
-        break;
+        return QList<Utils::FileName>();
     }
-    return QList<Utils::FileName>();
 }
 
 QVariantMap MsvcToolChain::toMap() const
