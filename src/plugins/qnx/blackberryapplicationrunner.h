@@ -34,7 +34,7 @@
 
 #include "blackberrydeviceconfiguration.h"
 #include "blackberryprocessparser.h"
-#include "blackberryversionnumber.h"
+#include "qnxversionnumber.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -138,7 +138,7 @@ private:
     QTimer *m_runningStateTimer;
     QProcess *m_runningStateProcess;
 
-    BlackBerryVersionNumber m_bbApiLevelVersion;
+    QnxVersionNumber m_bbApiLevelVersion;
 
     int m_qmlDebugServerPort;
     QProcess *m_checkQmlJsDebugArgumentsProcess;

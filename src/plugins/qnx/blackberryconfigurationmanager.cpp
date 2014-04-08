@@ -210,7 +210,7 @@ void BlackBerryConfigurationManager::loadManualConfigurations()
 
 void BlackBerryConfigurationManager::loadAutoDetectedApiLevels()
 {
-    foreach (const NdkInstallInformation &ndkInfo, QnxUtils::installedNdks()) {
+    foreach (const ConfigInstallInformation &ndkInfo, QnxUtils::installedConfigs()) {
         BlackBerryApiLevelConfiguration *config = new BlackBerryApiLevelConfiguration(ndkInfo);
         if (!addApiLevel(config)) {
             delete config;
@@ -502,27 +502,27 @@ BlackBerryConfigurationManager::~BlackBerryConfigurationManager()
 
 QString BlackBerryConfigurationManager::barsignerCskPath() const
 {
-    return QnxUtils::dataDirPath() + QLatin1String("/barsigner.csk");
+    return QnxUtils::bbDataDirPath() + QLatin1String("/barsigner.csk");
 }
 
 QString BlackBerryConfigurationManager::idTokenPath() const
 {
-    return QnxUtils::dataDirPath() + QLatin1String("/bbidtoken.csk");
+    return QnxUtils::bbDataDirPath() + QLatin1String("/bbidtoken.csk");
 }
 
 QString BlackBerryConfigurationManager::barsignerDbPath() const
 {
-    return QnxUtils::dataDirPath() + QLatin1String("/barsigner.db");
+    return QnxUtils::bbDataDirPath() + QLatin1String("/barsigner.db");
 }
 
 QString BlackBerryConfigurationManager::defaultKeystorePath() const
 {
-    return QnxUtils::dataDirPath() + QLatin1String("/author.p12");
+    return QnxUtils::bbDataDirPath() + QLatin1String("/author.p12");
 }
 
 QString BlackBerryConfigurationManager::defaultDebugTokenPath() const
 {
-    return QnxUtils::dataDirPath() + QLatin1String("/debugtoken.bar");
+    return QnxUtils::bbDataDirPath() + QLatin1String("/debugtoken.bar");
 }
 
 } // namespace Internal

@@ -48,12 +48,14 @@
 #include "qnxqtversionfactory.h"
 #include "blackberrysetuppage.h"
 #include "blackberryndksettingspage.h"
+#include "qnxsettingspage.h"
 #include "bardescriptoreditorfactory.h"
 #include "bardescriptormagicmatcher.h"
 #include "blackberrykeyspage.h"
 #include "blackberrycheckdevicestatusstepfactory.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "blackberryconfigurationmanager.h"
+#include "qnxconfigurationmanager.h"
 #include "blackberryapilevelconfiguration.h"
 #include "cascadesimport/cascadesimportwizard.h"
 #include "qnxtoolchain.h"
@@ -112,12 +114,14 @@ bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
     BlackBerryDeviceConnectionManager::instance()->initialize();
 
     // Handles QNX
+    addAutoReleasedObject(new QnxConfigurationManager);
     addAutoReleasedObject(new QnxQtVersionFactory);
     addAutoReleasedObject(new QnxDeviceConfigurationFactory);
     addAutoReleasedObject(new QnxRunControlFactory);
     addAutoReleasedObject(new QnxDeployStepFactory);
     addAutoReleasedObject(new QnxDeployConfigurationFactory);
     addAutoReleasedObject(new QnxRunConfigurationFactory);
+    addAutoReleasedObject(new QnxSettingsPage);
 
     // Handle Qcc Compiler
     addAutoReleasedObject(new QnxToolChainFactory);

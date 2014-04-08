@@ -29,7 +29,7 @@
 **
 ****************************************************************************/
 
-#include "blackberryversionnumber.h"
+#include "qnxversionnumber.h"
 
 #include <QDir>
 
@@ -38,26 +38,26 @@ namespace Internal {
 
 static const char NONDIGIT_SEGMENT_REGEXP[] = "(?<=\\d)(?=\\D)|(?<=\\D)(?=\\d)";
 
-BlackBerryVersionNumber::BlackBerryVersionNumber(const QStringList &listNumber)
+QnxVersionNumber::QnxVersionNumber(const QStringList &listNumber)
     : m_segments(listNumber)
 {
 }
 
-BlackBerryVersionNumber::BlackBerryVersionNumber(const QString &version)
+QnxVersionNumber::QnxVersionNumber(const QString &version)
 {
     m_segments = version.split(QLatin1Char('.'));
 }
 
-BlackBerryVersionNumber::BlackBerryVersionNumber()
+QnxVersionNumber::QnxVersionNumber()
 {
 }
 
-QString BlackBerryVersionNumber::toString() const
+QString QnxVersionNumber::toString() const
 {
     return m_segments.join(QLatin1String("."));
 }
 
-bool BlackBerryVersionNumber::operator >(const BlackBerryVersionNumber &b) const
+bool QnxVersionNumber::operator >(const QnxVersionNumber &b) const
 {
     int minSize = size() > b.size() ? b.size() : size();
     for (int i = 0; i < minSize; i++) {
@@ -84,7 +84,7 @@ bool BlackBerryVersionNumber::operator >(const BlackBerryVersionNumber &b) const
     return false;
 }
 
-QString BlackBerryVersionNumber::segment(int index) const
+QString QnxVersionNumber::segment(int index) const
 {
     if (index < m_segments.length())
         return m_segments.at(index);
@@ -92,31 +92,31 @@ QString BlackBerryVersionNumber::segment(int index) const
     return QString();
 }
 
-BlackBerryVersionNumber BlackBerryVersionNumber::fromNdkEnvFileName(const QString &ndkEnvFileName)
+QnxVersionNumber QnxVersionNumber::fromNdkEnvFileName(const QString &ndkEnvFileName)
 {
     return fromFileName(ndkEnvFileName, QRegExp(QLatin1String("^bbndk-env_(.*)$")));
 }
 
-BlackBerryVersionNumber BlackBerryVersionNumber::fromTargetName(const QString &targetName)
+QnxVersionNumber QnxVersionNumber::fromTargetName(const QString &targetName)
 {
     return fromFileName(targetName, QRegExp(QLatin1String("^target_(.*)$")));
 }
 
-BlackBerryVersionNumber BlackBerryVersionNumber::fromFileName(const QString &fileName, const QRegExp &regExp)
+QnxVersionNumber QnxVersionNumber::fromFileName(const QString &fileName, const QRegExp &regExp)
 {
     QStringList segments;
     if (regExp.exactMatch(fileName) && regExp.captureCount() == 1)
         segments << regExp.cap(1).split(QLatin1Char('_'));
 
-    return BlackBerryVersionNumber(segments);
+    return QnxVersionNumber(segments);
 }
 
-int BlackBerryVersionNumber::size() const
+int QnxVersionNumber::size() const
 {
     return m_segments.length();
 }
 
-bool BlackBerryVersionNumber::isEmpty() const
+bool QnxVersionNumber::isEmpty() const
 {
     return m_segments.isEmpty();
 }

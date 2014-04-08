@@ -32,7 +32,7 @@
 #ifndef BLACKBERRYRUNTIMECONFIGURATION_H
 #define BLACKBERRYRUNTIMECONFIGURATION_H
 
-#include "blackberryversionnumber.h"
+#include "qnxversionnumber.h"
 
 #include <QVariantMap>
 
@@ -42,18 +42,18 @@ class BlackBerryRuntimeConfiguration
 {
 public:
     BlackBerryRuntimeConfiguration(const QString &path,
-                                   const BlackBerryVersionNumber &version = BlackBerryVersionNumber());
+                                   const QnxVersionNumber &version = QnxVersionNumber());
     BlackBerryRuntimeConfiguration(const QVariantMap &data);
 
     QString path() const;
     QString displayName() const;
-    BlackBerryVersionNumber version() const;
+    QnxVersionNumber version() const;
     QVariantMap toMap() const;
 
 private:
     QString m_path;
     QString m_displayName;
-    BlackBerryVersionNumber m_version;
+    QnxVersionNumber m_version;
 };
 
 }

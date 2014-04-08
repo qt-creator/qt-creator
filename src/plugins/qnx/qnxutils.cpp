@@ -186,7 +186,7 @@ Utils::FileName QnxUtils::executableWithExtension(const Utils::FileName &fileNam
     return result;
 }
 
-QString QnxUtils::dataDirPath()
+QString QnxUtils::bbDataDirPath()
 {
     const QString homeDir = QDir::homePath();
 
@@ -208,17 +208,17 @@ QString QnxUtils::dataDirPath()
     return QString();
 }
 
-QString QnxUtils::qConfigPath()
+QString QnxUtils::bbqConfigPath()
 {
     if (Utils::HostOsInfo::isMacHost() || Utils::HostOsInfo::isWindowsHost())
-        return dataDirPath() + QLatin1String("/BlackBerry Native SDK/qconfig");
+        return bbDataDirPath() + QLatin1String("/BlackBerry Native SDK/qconfig");
     else
-        return dataDirPath() + QLatin1String("/bbndk/qconfig");
+        return bbDataDirPath() + QLatin1String("/bbndk/qconfig");
 }
 
 QString QnxUtils::defaultTargetVersion(const QString &ndkPath)
 {
-    foreach (const NdkInstallInformation &ndkInfo, installedNdks()) {
+    foreach (const ConfigInstallInformation &ndkInfo, installedConfigs()) {
         if (!ndkInfo.path.compare(ndkPath, Utils::HostOsInfo::fileNameCaseSensitivity()))
             return ndkInfo.version;
     }
@@ -226,10 +226,13 @@ QString QnxUtils::defaultTargetVersion(const QString &ndkPath)
     return QString();
 }
 
-QList<NdkInstallInformation> QnxUtils::installedNdks()
+QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &configPath)
 {
-    QList<NdkInstallInformation> ndkList;
-    QString ndkConfigPath = qConfigPath();
+    QList<ConfigInstallInformation> ndkList;
+    QString ndkConfigPath = configPath;
+    if (ndkConfigPath.isEmpty())
+        ndkConfigPath = bbqConfigPath();
+
     if (!QDir(ndkConfigPath).exists())
         return ndkList;
 
@@ -252,7 +255,7 @@ QList<NdkInstallInformation> QnxUtils::installedNdks()
         // The file contains only one installation node
         if (!childElt.isNull()) {
             // The file contains only one base node
-            NdkInstallInformation ndkInfo;
+            ConfigInstallInformation ndkInfo;
             ndkInfo.path = childElt.firstChildElement(QLatin1String("base")).text();
             ndkInfo.name = childElt.firstChildElement(QLatin1String("name")).text();
             ndkInfo.host = childElt.firstChildElement(QLatin1String("host")).text();

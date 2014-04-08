@@ -177,7 +177,7 @@ APILevelSetupItem::FoundTypes APILevelSetupItem::resolvedFoundType()
     FoundTypes found;
 
     // TODO: for now, all Trunk versions are understood as 10.2 compliant
-    BlackBerryVersionNumber version_10_2(QLatin1String("10.2.0.0"));
+    QnxVersionNumber version_10_2(QLatin1String("10.2.0.0"));
     foreach (BlackBerryApiLevelConfiguration *config,
             BlackBerryConfigurationManager::instance()->apiLevels()) {
         found |= Any;

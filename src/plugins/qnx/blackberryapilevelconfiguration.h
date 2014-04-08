@@ -33,7 +33,7 @@
 #define BLACKBERRYCONFIGURATIONS_H
 
 #include "qnxutils.h"
-#include "blackberryversionnumber.h"
+#include "qnxversionnumber.h"
 #include "qnxbaseconfiguration.h"
 #include "qnxconstants.h"
 
@@ -59,7 +59,7 @@ class BlackBerryApiLevelConfiguration : public QnxBaseConfiguration
 {
     Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::BlackBerryApiLevelConfiguration)
 public:
-    BlackBerryApiLevelConfiguration(const NdkInstallInformation &ndkInstallInfo);
+    BlackBerryApiLevelConfiguration(const ConfigInstallInformation &ndkInstallInfo);
     BlackBerryApiLevelConfiguration(const Utils::FileName &ndkEnvFile);
     BlackBerryApiLevelConfiguration(const QVariantMap &data);
     bool activate();
@@ -67,7 +67,6 @@ public:
     QString ndkPath() const;
     QString displayName() const;
     QString targetName() const;
-    BlackBerryVersionNumber version() const;
     bool isAutoDetected() const;
     Utils::FileName autoDetectionSource() const;
     bool isActive() const;
@@ -92,7 +91,6 @@ protected:
 private:
     QString m_displayName;
     QString m_targetName;
-    BlackBerryVersionNumber m_version;
     Utils::FileName m_autoDetectionSource;
     Utils::FileName m_qmake4BinaryFile;
     Utils::FileName m_qmake5BinaryFile;

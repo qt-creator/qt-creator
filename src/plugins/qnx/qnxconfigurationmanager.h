@@ -3,7 +3,6 @@
 ** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
 **
 ** Contact: BlackBerry (qt@blackberry.com)
-** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
 **
@@ -29,36 +28,46 @@
 **
 ****************************************************************************/
 
-#ifndef BLACKBERRY_VERSION_NUMBER_H
-#define BLACKBERRY_VERSION_NUMBER_H
+#ifndef QNXCONFIGURATIONMANAGER_H
+#define QNXCONFIGURATIONMANAGER_H
 
-#include <QStringList>
+#include <utils/fileutils.h>
 
+namespace Utils { class PersistentSettingsWriter; }
 namespace Qnx {
 namespace Internal {
-class BlackBerryVersionNumber
+
+class QnxConfiguration;
+class QnxPlugin;
+
+class QnxConfigurationManager: public QObject
 {
+    Q_OBJECT
 public:
-    BlackBerryVersionNumber(const QStringList &segments);
-    BlackBerryVersionNumber(const QString &version);
-    BlackBerryVersionNumber();
+    static QnxConfigurationManager *instance();
+    ~QnxConfigurationManager();
+    QList<QnxConfiguration*> configurations() const;
+    void removeConfiguration(QnxConfiguration *config);
+    bool addConfiguration(QnxConfiguration *config);
+    QnxConfiguration* configurationFromEnvFile(const Utils::FileName &envFile) const;
 
-    int size() const;
-    bool isEmpty() const;
-    QString segment(int index) const;
-    QString toString() const;
+protected slots:
+    void saveConfigs();
 
-    static BlackBerryVersionNumber fromNdkEnvFileName(const QString &ndkEnvFileName);
-    static BlackBerryVersionNumber fromTargetName(const QString &targetName);
-    static BlackBerryVersionNumber fromFileName(const QString &fileName, const QRegExp &regExp);
-
-    bool operator >(const BlackBerryVersionNumber &b) const;
+signals:
+    void configurationsListUpdated();
 
 private:
-    QStringList m_segments;
+    QnxConfigurationManager(QObject *parent = 0);
+    static QnxConfigurationManager *m_instance;
+    QList<QnxConfiguration*> m_configurations;
+    Utils::PersistentSettingsWriter *m_writer;
+    void restoreConfigurations();
+
+    friend class QnxPlugin;
 };
 
-} // namespace Internal
-} // namespace Qnx
+}
+}
 
-#endif // VERSIONNUMBER_H
+#endif // QNXCONFIGURATIONMANAGER_H

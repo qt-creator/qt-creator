@@ -71,7 +71,6 @@ const QLatin1String NDKPathKey("NDKPath");
 const QLatin1String NDKDisplayNameKey("NDKDisplayName");
 const QLatin1String NDKTargetKey("NDKTarget");
 const QLatin1String NDKHostKey("NDKHost");
-const QLatin1String NDKVersionKey("NDKVersion");
 const QLatin1String NDKAutoDetectionSourceKey("NDKAutoDetectionSource");
 const QLatin1String NDKAutoDetectedKey("NDKAutoDetectedKey");
 
@@ -79,7 +78,7 @@ const QLatin1String NDKAutoDetectedKey("NDKAutoDetectedKey");
 bool BlackBerryApiLevelConfiguration::m_fakeConfig = false;
 #endif
 
-BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const NdkInstallInformation &ndkInstallInfo)
+BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const ConfigInstallInformation &ndkInstallInfo)
     : QnxBaseConfiguration(FileName::fromString(
                                QnxUtils::envFilePath(ndkInstallInfo.path, ndkInstallInfo.version)))
 {
@@ -88,8 +87,8 @@ BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const NdkInstal
     // The QNX_TARGET value is using Unix-like separator on all platforms.
     m_targetName = ndkInstallInfo.target.split(sep).first().split(QLatin1Char('/')).last();
     m_sysRoot = FileName::fromString(ndkInstallInfo.target);
-    m_version = BlackBerryVersionNumber(ndkInstallInfo.version);
     m_autoDetectionSource = Utils::FileName::fromString(ndkInstallInfo.installationXmlFilePath);
+    setVersion(QnxVersionNumber(ndkInstallInfo.version));
     ctor();
 }
 
@@ -104,9 +103,9 @@ BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const FileName 
     if (QDir(ndkTarget).exists())
         m_sysRoot = FileName::fromString(ndkTarget);
 
-    m_version = BlackBerryVersionNumber::fromNdkEnvFileName(QFileInfo(envFile().toString()).baseName());
-    if (m_version.isEmpty())
-        m_version = BlackBerryVersionNumber::fromTargetName(m_targetName);
+    setVersion(QnxVersionNumber::fromNdkEnvFileName(QFileInfo(envFile().toString()).baseName()));
+    if (version().isEmpty())
+        setVersion(QnxVersionNumber::fromTargetName(m_targetName));
 
     ctor();
 }
@@ -119,7 +118,6 @@ BlackBerryApiLevelConfiguration::BlackBerryApiLevelConfiguration(const QVariantM
     // The QNX_TARGET value is using Unix-like separator on all platforms.
     m_targetName = data.value(NDKTargetKey).toString().split(sep).first().split(QLatin1Char('/')).last();
     m_sysRoot = FileName::fromString(data.value(NDKTargetKey).toString());
-    m_version = BlackBerryVersionNumber(data.value(NDKVersionKey).toString());
     if (data.value(QLatin1String(NDKAutoDetectedKey)).toBool())
         m_autoDetectionSource = Utils::FileName::fromString(data.value(NDKAutoDetectionSourceKey).toString());
 
@@ -151,11 +149,6 @@ QString BlackBerryApiLevelConfiguration::displayName() const
 QString BlackBerryApiLevelConfiguration::targetName() const
 {
     return m_targetName;
-}
-
-BlackBerryVersionNumber BlackBerryApiLevelConfiguration::version() const
-{
-    return m_version;
 }
 
 bool BlackBerryApiLevelConfiguration::isAutoDetected() const
@@ -217,7 +210,6 @@ QVariantMap BlackBerryApiLevelConfiguration::toMap() const
     data.insert(QLatin1String(NDKDisplayNameKey), m_displayName);
     data.insert(QLatin1String(NDKPathKey), ndkPath());
     data.insert(QLatin1String(NDKTargetKey), m_sysRoot.toString());
-    data.insert(QLatin1String(NDKVersionKey), m_version.toString());
     data.insert(QLatin1String(NDKAutoDetectionSourceKey), m_autoDetectionSource.toString());
     data.insert(QLatin1String(NDKAutoDetectedKey), isAutoDetected());
     return data;
@@ -310,8 +302,8 @@ bool BlackBerryApiLevelConfiguration::activate()
 
     deactivate(); // cleaning-up artifacts autodetected by old QtCreator versions
 
-    QString armVersionName = tr("BlackBerry %1 Device").arg(m_version.toString());
-    QString x86VersionName = tr("BlackBerry %1 Simulator").arg(m_version.toString());
+    QString armVersionName = tr("BlackBerry %1 Device").arg(version().toString());
+    QString x86VersionName = tr("BlackBerry %1 Simulator").arg(version().toString());
 
     // create versions
     QnxAbstractQtVersion *qt4ArmVersion = 0;

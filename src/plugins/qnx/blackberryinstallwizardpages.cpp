@@ -208,7 +208,7 @@ void BlackBerryInstallWizardNdkPage::initializePage()
     QFont font;
     font.setItalic(true);
     m_manual->setFont(font);
-    foreach (const NdkInstallInformation &ndk, QnxUtils::installedNdks()) {
+    foreach (const ConfigInstallInformation &ndk, QnxUtils::installedConfigs()) {
         bool found = false;
         for (int i = 0; i < m_ui->ndkPathListWidget->count(); i++) {
             QListWidgetItem* item = m_ui->ndkPathListWidget->item(i);
@@ -421,7 +421,7 @@ void BlackBerryInstallWizardProcessPage::initializePage()
             return;
         }
 
-        foreach (const NdkInstallInformation &ndk, QnxUtils::installedNdks()) {
+        foreach (const ConfigInstallInformation &ndk, QnxUtils::installedConfigs()) {
             if (ndk.version == m_data.version) {
                 m_data.ndkPath = ndk.path;
                 m_data.target = ndk.name;

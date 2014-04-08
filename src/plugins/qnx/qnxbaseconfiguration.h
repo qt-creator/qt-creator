@@ -33,6 +33,7 @@
 
 #include "qnxconstants.h"
 #include "qnxutils.h"
+#include "qnxversionnumber.h"
 
 #include <utils/fileutils.h>
 #include <utils/environment.h>
@@ -64,6 +65,7 @@ public:
     Utils::FileName armDebuggerPath() const;
     Utils::FileName x86DebuggerPath() const;
     QList<Utils::EnvironmentItem> qnxEnv() const;
+    QnxVersionNumber version() const;
     QVariantMap toMap() const;
 
     virtual bool isValid() const;
@@ -80,6 +82,7 @@ protected:
                                   const QString &ndkPath);
 
      virtual QStringList validationErrors() const;
+     void setVersion(const QnxVersionNumber& version);
 private:
     Utils::FileName m_envFile;
     Utils::FileName m_qnxTarget;
@@ -88,8 +91,10 @@ private:
     Utils::FileName m_armlev7Debugger;
     Utils::FileName m_x86Debugger;
     QList<Utils::EnvironmentItem> m_qnxEnv;
+    QnxVersionNumber m_version;
 
     void ctor(const Utils::FileName &envFile);
+
 };
 
 }

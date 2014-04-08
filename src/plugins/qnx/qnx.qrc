@@ -6,5 +6,7 @@
         <file>images/info.png</file>
         <file>images/warning.png</file>
         <file>images/error.png</file>
+        <file>images/qnx-target.png</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

@@ -47,8 +47,10 @@ namespace Qnx {
 namespace Internal {
 
 const QLatin1String QNXEnvFileKey("EnvFile");
+const QLatin1String QNXVersionKey("QNXVersion");
 // For backward compatibility
 const QLatin1String NDKEnvFileKey("NDKEnvFile");
+
 
 using namespace Utils;
 using namespace ProjectExplorer;
@@ -68,6 +70,7 @@ QnxBaseConfiguration::QnxBaseConfiguration(const QVariantMap &data)
     if (envFilePath.isEmpty())
         envFilePath = data.value(NDKEnvFileKey).toString();
 
+    m_version = QnxVersionNumber(data.value(QNXVersionKey).toString());
     ctor(FileName::fromString(envFilePath));
 }
 
@@ -110,10 +113,16 @@ QList<EnvironmentItem> QnxBaseConfiguration::qnxEnv() const
     return m_qnxEnv;
 }
 
+QnxVersionNumber QnxBaseConfiguration::version() const
+{
+    return m_version;
+}
+
 QVariantMap QnxBaseConfiguration::toMap() const
 {
     QVariantMap data;
     data.insert(QLatin1String(QNXEnvFileKey), m_envFile.toString());
+    data.insert(QLatin1String(QNXVersionKey), m_version.toString());
     return data;
 }
 
@@ -199,6 +208,11 @@ QStringList QnxBaseConfiguration::validationErrors() const
         errorStrings << tr("- No GDB debugger found for x86.");
 
     return errorStrings;
+}
+
+void QnxBaseConfiguration::setVersion(const QnxVersionNumber &version)
+{
+    m_version = version;
 }
 
 }

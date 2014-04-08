@@ -28,46 +28,49 @@
 **
 ****************************************************************************/
 
-#ifndef QNXCONFIGURATION_H
-#define QNXCONFIGURATION_H
+#include "qnxsettingspage.h"
+#include "qnxconfiguration.h"
+#include "qnxconfigurationmanager.h"
+#include "qnxconstants.h"
 
-#include "qnxbaseconfiguration.h"
-#include "qnxversionnumber.h"
+#include <qnxsettingswidget.h>
 
-namespace ProjectExplorer { class Kit; }
+#include <coreplugin/icore.h>
+
+#include <QCoreApplication>
+
+#include <QMessageBox>
 
 namespace Qnx {
 namespace Internal {
-class QnxQtVersion;
-class QnxConfiguration : public QnxBaseConfiguration
+
+QnxSettingsPage::QnxSettingsPage(QObject* parent) :
+    Core::IOptionsPage(parent)
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxConfiguration)
+    setId(Core::Id(Constants::QNX_SETTINGS_ID));
+    setDisplayName(tr("QNX"));
+    setCategory(Constants::QNX_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("QNX",
+                Constants::QNX_CATEGORY_TR));
+    setCategoryIcon(QLatin1String(Constants::QNX_CATEGORY_ICON));
+}
 
-public:
-    QnxConfiguration(const Utils::FileName &sdpEnvFile);
-    QnxConfiguration(const QVariantMap &data);
-    QString displayName() const;
-    bool activate();
-    void deactivate();
-    bool isActive() const;
-    bool canCreateKits() const;
-    Utils::FileName sdpPath() const;
-    QnxQtVersion* qnxQtVersion(QnxArchitecture arch) const;
+QWidget* QnxSettingsPage::widget()
+{
+    if (!m_widget)
+        m_widget = new QnxSettingsWidget;
+    return m_widget;
+}
 
-private:
-    QString m_configName;
-    QnxQtVersion *m_qtVersion;
+void QnxSettingsPage::apply()
+{
+    m_widget->applyChanges();
+}
 
-    ProjectExplorer::Kit *createKit(QnxArchitecture arch,
-                                    QnxToolChain *toolChain,
-                                    const QVariant &debuggerItemId,
-                                    const QString &displayName);
+void QnxSettingsPage::finish()
+{
+    delete m_widget;
+}
 
-    void readInformation();
-
-};
-
-} // Internal
-} // Qnx
-
-#endif // QNXCONFIGURATION_H
+}
+}

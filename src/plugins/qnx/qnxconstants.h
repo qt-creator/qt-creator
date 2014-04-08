@@ -94,10 +94,14 @@ const char QNX_TOOLCHAIN_ID[] = "Qnx.QccToolChain";
 
 // BlackBerry settings constants
 const char QNX_BB_CATEGORY[] = "XF.BlackBerry";
+const char QNX_CATEGORY[] = "XF.Qnx";
 const char QNX_BB_CATEGORY_TR[] = QT_TRANSLATE_NOOP("BlackBerry", "BlackBerry");
+const char QNX_CATEGORY_TR[] = QT_TRANSLATE_NOOP("QNX", "QNX");
 const char QNX_BB_CATEGORY_ICON[] = ":/qnx/images/target.png";
+const char QNX_CATEGORY_ICON[] = ":/qnx/images/qnx-target.png";
 const char QNX_BB_SETUP_ID[] = "ZA.BlackBerry Setup";
 const char QNX_BB_NDK_SETTINGS_ID[] = "ZZ.BlackBerry NDK Configuration";
+const char QNX_SETTINGS_ID[] = "ZZ.Qnx Configuration";
 const char QNX_BB_SIGNING_ID[] = "ZZ.BlackBerry Signing Infrastructure Configuration";
 
 const char QNX_BAR_DESCRIPTOR_MIME_TYPE[] = "application/vnd.rim.qnx.bar_descriptor";
@@ -115,6 +119,7 @@ const char QNX_BLACKBERRY_DEPLOY_CMD[] = "blackberry-deploy";
 const char QNX_BLACKBERRY_CASCADESIMPORTER_VERSION[] = "0.0.1";
 
 const char QNX_BLACKBERRY_CONFIGS_FILENAME[] = "bbndkconfigurations.xml";
+const char QNX_CONFIGS_FILENAME[] = "qnxconfigurations.xml";
 
 const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
 

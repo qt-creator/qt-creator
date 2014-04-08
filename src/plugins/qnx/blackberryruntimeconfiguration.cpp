@@ -46,13 +46,13 @@ const QLatin1String VersionKey("Version");
 
 BlackBerryRuntimeConfiguration::BlackBerryRuntimeConfiguration(
         const QString &path,
-        const BlackBerryVersionNumber &version)
+        const QnxVersionNumber &version)
     : m_path(path)
 {
     if (!version.isEmpty())
         m_version = version;
     else
-        m_version = BlackBerryVersionNumber::fromFileName(QFileInfo(path).baseName(),
+        m_version = QnxVersionNumber::fromFileName(QFileInfo(path).baseName(),
                                                           QRegExp(QLatin1String("^runtime_(.*)$")));
 
     m_displayName = QCoreApplication::translate("Qnx::Internal::BlackBerryRuntimeConfiguration", "Runtime %1").arg(m_version.toString());
@@ -62,7 +62,7 @@ BlackBerryRuntimeConfiguration::BlackBerryRuntimeConfiguration(const QVariantMap
 {
     m_path = data.value(QLatin1String(PathKey)).toString();
     m_displayName = data.value(QLatin1String(DisplayNameKey)).toString();
-    m_version = BlackBerryVersionNumber(data.value(QLatin1String(VersionKey)).toString());
+    m_version = QnxVersionNumber(data.value(QLatin1String(VersionKey)).toString());
 }
 
 QString BlackBerryRuntimeConfiguration::path() const
@@ -75,7 +75,7 @@ QString BlackBerryRuntimeConfiguration::displayName() const
     return m_displayName;
 }
 
-BlackBerryVersionNumber BlackBerryRuntimeConfiguration::version() const
+QnxVersionNumber BlackBerryRuntimeConfiguration::version() const
 {
     return m_version;
 }

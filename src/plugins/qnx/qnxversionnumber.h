@@ -3,6 +3,7 @@
 ** Copyright (C) 2014 BlackBerry Limited. All rights reserved.
 **
 ** Contact: BlackBerry (qt@blackberry.com)
+** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
 **
@@ -28,46 +29,36 @@
 **
 ****************************************************************************/
 
-#ifndef QNXCONFIGURATION_H
-#define QNXCONFIGURATION_H
+#ifndef QNX_VERSION_NUMBER_H
+#define QNX_VERSION_NUMBER_H
 
-#include "qnxbaseconfiguration.h"
-#include "qnxversionnumber.h"
-
-namespace ProjectExplorer { class Kit; }
+#include <QStringList>
 
 namespace Qnx {
 namespace Internal {
-class QnxQtVersion;
-class QnxConfiguration : public QnxBaseConfiguration
+class QnxVersionNumber
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxConfiguration)
-
 public:
-    QnxConfiguration(const Utils::FileName &sdpEnvFile);
-    QnxConfiguration(const QVariantMap &data);
-    QString displayName() const;
-    bool activate();
-    void deactivate();
-    bool isActive() const;
-    bool canCreateKits() const;
-    Utils::FileName sdpPath() const;
-    QnxQtVersion* qnxQtVersion(QnxArchitecture arch) const;
+    QnxVersionNumber(const QStringList &segments);
+    QnxVersionNumber(const QString &version);
+    QnxVersionNumber();
+
+    int size() const;
+    bool isEmpty() const;
+    QString segment(int index) const;
+    QString toString() const;
+
+    static QnxVersionNumber fromNdkEnvFileName(const QString &ndkEnvFileName);
+    static QnxVersionNumber fromTargetName(const QString &targetName);
+    static QnxVersionNumber fromFileName(const QString &fileName, const QRegExp &regExp);
+
+    bool operator >(const QnxVersionNumber &b) const;
 
 private:
-    QString m_configName;
-    QnxQtVersion *m_qtVersion;
-
-    ProjectExplorer::Kit *createKit(QnxArchitecture arch,
-                                    QnxToolChain *toolChain,
-                                    const QVariant &debuggerItemId,
-                                    const QString &displayName);
-
-    void readInformation();
-
+    QStringList m_segments;
 };
 
-} // Internal
-} // Qnx
+} // namespace Internal
+} // namespace Qnx
 
-#endif // QNXCONFIGURATION_H
+#endif // QNX_VERSION_NUMBER_H

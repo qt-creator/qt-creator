@@ -89,7 +89,7 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(const BlackBerryApplica
     m_deployCmd = m_environment.searchInPath(QLatin1String(Constants::QNX_BLACKBERRY_DEPLOY_CMD));
 
     QFileInfo fi(target->kit()->autoDetectionSource());
-    m_bbApiLevelVersion = BlackBerryVersionNumber::fromNdkEnvFileName(fi.baseName());
+    m_bbApiLevelVersion = QnxVersionNumber::fromNdkEnvFileName(fi.baseName());
 
     m_device = BlackBerryDeviceConfiguration::device(target->kit());
     m_barPackage = runConfiguration->barPackage();

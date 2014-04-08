@@ -33,7 +33,7 @@
 
 #include "blackberrycheckdevicestatusstepconfigwidget.h"
 #include "blackberrydeviceinformation.h"
-#include "blackberryversionnumber.h"
+#include "qnxversionnumber.h"
 #include "qnxconstants.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -131,7 +131,7 @@ void BlackBerryCheckDeviceStatusStep::checkDeviceInfo(int status)
     }
 
     if (m_runtimeCheckEnabled) {
-        BlackBerryVersionNumber deviceRuntimeVersion(m_deviceInfo->scmBundle());
+        QnxVersionNumber deviceRuntimeVersion(m_deviceInfo->scmBundle());
         QFileInfo fi(target()->kit()->autoDetectionSource());
 
         if (deviceRuntimeVersion.isEmpty()) {
@@ -141,7 +141,7 @@ void BlackBerryCheckDeviceStatusStep::checkDeviceInfo(int status)
             return;
         }
 
-        BlackBerryVersionNumber apiLevelVersion = BlackBerryVersionNumber::fromNdkEnvFileName(fi.baseName());
+        QnxVersionNumber apiLevelVersion = QnxVersionNumber::fromNdkEnvFileName(fi.baseName());
         if (apiLevelVersion.isEmpty()) {
             // Skip the check if device API level version is not determined
             m_eventLoop->exit(true);

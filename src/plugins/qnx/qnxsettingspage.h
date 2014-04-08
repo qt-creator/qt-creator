@@ -28,46 +28,32 @@
 **
 ****************************************************************************/
 
-#ifndef QNXCONFIGURATION_H
-#define QNXCONFIGURATION_H
+#ifndef QNXSETTINGSPAGE_H
+#define QNXSETTINGSPAGE_H
 
-#include "qnxbaseconfiguration.h"
-#include "qnxversionnumber.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-namespace ProjectExplorer { class Kit; }
+#include <QPointer>
 
 namespace Qnx {
 namespace Internal {
-class QnxQtVersion;
-class QnxConfiguration : public QnxBaseConfiguration
-{
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxConfiguration)
 
+class QnxSettingsWidget;
+
+class QnxSettingsPage : public Core::IOptionsPage
+{
+    Q_OBJECT
 public:
-    QnxConfiguration(const Utils::FileName &sdpEnvFile);
-    QnxConfiguration(const QVariantMap &data);
-    QString displayName() const;
-    bool activate();
-    void deactivate();
-    bool isActive() const;
-    bool canCreateKits() const;
-    Utils::FileName sdpPath() const;
-    QnxQtVersion* qnxQtVersion(QnxArchitecture arch) const;
+    explicit QnxSettingsPage(QObject *parent = 0);
+    QWidget *widget();
+    void apply();
+    void finish();
 
 private:
-    QString m_configName;
-    QnxQtVersion *m_qtVersion;
-
-    ProjectExplorer::Kit *createKit(QnxArchitecture arch,
-                                    QnxToolChain *toolChain,
-                                    const QVariant &debuggerItemId,
-                                    const QString &displayName);
-
-    void readInformation();
-
+    QPointer<QnxSettingsWidget> m_widget;
 };
 
-} // Internal
-} // Qnx
+} // namespace Internal
+} // namespace Qnx
 
-#endif // QNXCONFIGURATION_H
+#endif // QNXSETTINGSPAGE_H

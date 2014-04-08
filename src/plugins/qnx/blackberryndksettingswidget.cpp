@@ -391,7 +391,7 @@ void BlackBerryNDKSettingsWidget::handleUninstallationFinished()
 
     const QString targetName = current->text(0);
     // Check if the target is corrrecly uninstalled
-    foreach (const NdkInstallInformation &ndk, QnxUtils::installedNdks()) {
+    foreach (const ConfigInstallInformation &ndk, QnxUtils::installedConfigs()) {
         if (ndk.name == targetName)
             return;
     }

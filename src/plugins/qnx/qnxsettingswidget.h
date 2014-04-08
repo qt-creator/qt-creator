@@ -28,46 +28,71 @@
 **
 ****************************************************************************/
 
-#ifndef QNXCONFIGURATION_H
-#define QNXCONFIGURATION_H
+#ifndef QNXSETTINGSWIDGET_H
+#define QNXSETTINGSWIDGET_H
 
-#include "qnxbaseconfiguration.h"
-#include "qnxversionnumber.h"
-
-namespace ProjectExplorer { class Kit; }
+#include <QWidget>
 
 namespace Qnx {
 namespace Internal {
-class QnxQtVersion;
-class QnxConfiguration : public QnxBaseConfiguration
+
+class Ui_QnxSettingsWidget;
+class QnxConfiguration;
+class QnxConfigurationManager;
+
+class QnxSettingsWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxConfiguration)
+    Q_OBJECT
 
 public:
-    QnxConfiguration(const Utils::FileName &sdpEnvFile);
-    QnxConfiguration(const QVariantMap &data);
-    QString displayName() const;
-    bool activate();
-    void deactivate();
-    bool isActive() const;
-    bool canCreateKits() const;
-    Utils::FileName sdpPath() const;
-    QnxQtVersion* qnxQtVersion(QnxArchitecture arch) const;
+    enum State {
+        Activated,
+        Deactivated,
+        Added,
+        Removed
+    };
+
+    class ConfigState {
+    public:
+        ConfigState(QnxConfiguration *config, State state)
+        {
+            this->config = config;
+            this->state = state;
+        }
+
+        bool operator ==(const ConfigState& cs)
+        {
+            return config == cs.config && state == cs.state;
+        }
+
+        QnxConfiguration *config;
+        State state;
+    };
+
+    explicit QnxSettingsWidget(QWidget *parent = 0);
+    ~QnxSettingsWidget();
+    QList<ConfigState> changedConfigs();
+
+protected slots:
+    void addConfiguration();
+    void removeConfiguration();
+    void generateKits(bool checked);
+    void updateInformation();
+    void populateConfigsCombo();
 
 private:
-    QString m_configName;
-    QnxQtVersion *m_qtVersion;
+    Ui_QnxSettingsWidget *m_ui;
+    QnxConfigurationManager *m_qnxConfigManager;
+    QList<ConfigState> m_changedConfigs;
 
-    ProjectExplorer::Kit *createKit(QnxArchitecture arch,
-                                    QnxToolChain *toolChain,
-                                    const QVariant &debuggerItemId,
-                                    const QString &displayName);
+    void setConfigState(QnxConfiguration *config, State state);
 
-    void readInformation();
+    void applyChanges();
+    friend class QnxSettingsPage;
 
 };
 
-} // Internal
-} // Qnx
+}
+}
 
-#endif // QNXCONFIGURATION_H
+#endif // QNXSETTINGSWIDGET_H

@@ -46,7 +46,7 @@ namespace Internal {
 
 class QnxAbstractQtVersion;
 
-class NdkInstallInformation
+class ConfigInstallInformation
 {
 public:
     QString path;
@@ -70,10 +70,10 @@ public:
     static bool isValidNdkPath(const QString & ndkPath);
     static QString envFilePath(const QString & ndkPath, const QString& targetVersion = QString());
     static Utils::FileName executableWithExtension(const Utils::FileName &fileName);
-    static QString dataDirPath();
-    static QString qConfigPath();
+    static QString bbDataDirPath();
+    static QString bbqConfigPath();
     static QString defaultTargetVersion(const QString& ndkPath);
-    static QList<NdkInstallInformation> installedNdks();
+    static QList<ConfigInstallInformation> installedConfigs(const QString &configPath = QString());
     static QString sdkInstallerPath(const QString& ndkPath);
     static QString qdeInstallProcess(const QString& ndkPath, const QString &target,
                                      const QString &option, const QString &version = QString());
