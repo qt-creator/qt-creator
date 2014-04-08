@@ -67,6 +67,7 @@ public:
 
 private slots:
     void projectWasAdded(ProjectExplorer::Project *project);
+    void currentProjectWasChanged(ProjectExplorer::Project *project);
     void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void updateReparseQbsAction();
     void updateBuildActions();
@@ -81,6 +82,8 @@ private slots:
     void buildSubproject();
 
     void reparseSelectedProject();
+    void reparseCurrentProject();
+    void reparseProject(QbsProject *project);
 
 private:
     void buildFiles(QbsProject *project, const QStringList &files,
@@ -102,6 +105,8 @@ private:
 
     Internal::QbsProject *m_selectedProject;
     ProjectExplorer::Node *m_selectedNode;
+
+    Internal::QbsProject *m_currentProject;
 };
 
 } // namespace Internal
