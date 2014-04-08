@@ -65,6 +65,18 @@ using namespace ProjectExplorer;
 namespace QbsProjectManager {
 namespace Internal {
 
+static Node *currentEditorNode()
+{
+    Core::IDocument *doc = Core::EditorManager::currentDocument();
+    return doc ? SessionManager::nodeForFile(doc->filePath()) : 0;
+}
+
+static QbsProject *currentEditorProject()
+{
+    Core::IDocument *doc = Core::EditorManager::currentDocument();
+    return doc ? qobject_cast<QbsProject *>(SessionManager::projectForFile(doc->filePath())) : 0;
+}
+
 class QbsFeatureProvider : public Core::IFeatureProvider
 {
     Core::FeatureSet availableFeatures(const QString & /* platform */) const {
@@ -81,7 +93,9 @@ QbsProjectManagerPlugin::QbsProjectManagerPlugin() :
     m_projectExplorer(0),
     m_selectedProject(0),
     m_selectedNode(0),
-    m_currentProject(0)
+    m_currentProject(0),
+    m_editorProject(0),
+    m_editorNode(0)
 { }
 
 bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -190,10 +204,12 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(updateBuildActions()));
+            this, SLOT(currentEditorChanged()));
 
     connect(SessionManager::instance(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(projectWasAdded(ProjectExplorer::Project*)));
+    connect(SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(projectWasRemoved()));
     connect(SessionManager::instance(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(currentProjectWasChanged(ProjectExplorer::Project*)));
 
@@ -224,6 +240,14 @@ void QbsProjectManagerPlugin::currentProjectWasChanged(Project *project)
     m_currentProject = qobject_cast<QbsProject *>(project);
 
     updateReparseQbsAction();
+}
+
+void QbsProjectManagerPlugin::projectWasRemoved()
+{
+    m_editorNode = currentEditorNode();
+    m_editorProject = currentEditorProject();
+
+    updateBuildActions();
 }
 
 void QbsProjectManagerPlugin::nodeSelectionChanged(Node *node, Project *project)
@@ -265,27 +289,21 @@ void QbsProjectManagerPlugin::updateBuildActions()
     bool productVisible = false;
     bool subprojectVisible = false;
 
-    QString file;
-
-    if (Core::IDocument *currentDocument = Core::EditorManager::currentDocument()) {
-        file = currentDocument->filePath();
-        Node *node  = SessionManager::nodeForFile(file);
-        Project *project = qobject_cast<QbsProject *>(SessionManager::projectForFile(file));
-
-        m_buildFile->setParameter(QFileInfo(file).fileName());
-        fileVisible = project && node && qobject_cast<QbsBaseProjectNode *>(node->projectNode());
-        enabled = !BuildManager::isBuilding(project)
+    if (m_editorNode) {
+        m_buildFile->setParameter(QFileInfo(m_editorNode->path()).fileName());
+        fileVisible = m_editorProject && m_editorNode && qobject_cast<QbsBaseProjectNode *>(m_editorNode->projectNode());
+        enabled = !BuildManager::isBuilding(m_editorProject)
                 && m_selectedProject && !m_selectedProject->isParsing();
 
         QbsProductNode *productNode
-                = qobject_cast<QbsProductNode *>(node ? node->projectNode() : 0);
+                = qobject_cast<QbsProductNode *>(m_editorNode ? m_editorNode->projectNode() : 0);
         if (productNode) {
             productVisible = true;
             m_buildProduct->setParameter(productNode->displayName());
         }
         QbsProjectNode *subprojectNode
                 = qobject_cast<QbsProjectNode *>(productNode ? productNode->parentFolderNode() : 0);
-        if (subprojectNode && subprojectNode != project->rootProjectNode()) {
+        if (subprojectNode && subprojectNode != m_editorProject->rootProjectNode()) {
             subprojectVisible = true;
             m_buildSubproject->setParameter(subprojectNode->displayName());
         }
@@ -321,6 +339,19 @@ void QbsProjectManagerPlugin::parsingStateChanged()
 
     if (!project || project == m_selectedProject)
         updateContextActions();
+
+    m_editorNode = currentEditorNode();
+    m_editorProject = currentEditorProject();
+    if (!project || project == m_editorProject)
+        updateBuildActions();
+}
+
+void QbsProjectManagerPlugin::currentEditorChanged()
+{
+    m_editorNode = currentEditorNode();
+    m_editorProject = currentEditorProject();
+
+    updateBuildActions();
 }
 
 void QbsProjectManagerPlugin::buildFileContextMenu()

@@ -68,9 +68,11 @@ public:
 private slots:
     void projectWasAdded(ProjectExplorer::Project *project);
     void currentProjectWasChanged(ProjectExplorer::Project *project);
+    void projectWasRemoved();
     void nodeSelectionChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void buildStateChanged(ProjectExplorer::Project *project);
     void parsingStateChanged();
+    void currentEditorChanged();
 
     void buildFileContextMenu();
     void buildFile();
@@ -109,6 +111,9 @@ private:
     ProjectExplorer::Node *m_selectedNode;
 
     Internal::QbsProject *m_currentProject;
+
+    Internal::QbsProject *m_editorProject;
+    ProjectExplorer::Node *m_editorNode;
 };
 
 } // namespace Internal
