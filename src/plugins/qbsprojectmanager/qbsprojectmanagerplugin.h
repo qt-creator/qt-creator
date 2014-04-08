@@ -69,9 +69,6 @@ private slots:
     void projectWasAdded(ProjectExplorer::Project *project);
     void currentProjectWasChanged(ProjectExplorer::Project *project);
     void nodeSelectionChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
-    void updateContextActions();
-    void updateReparseQbsAction();
-    void updateBuildActions();
     void buildStateChanged(ProjectExplorer::Project *project);
     void parsingStateChanged();
 
@@ -87,6 +84,10 @@ private slots:
     void reparseProject(QbsProject *project);
 
 private:
+    void updateContextActions();
+    void updateReparseQbsAction();
+    void updateBuildActions();
+
     void buildFiles(QbsProject *project, const QStringList &files,
                     const QStringList &activeFileTags);
     void buildSingleFile(QbsProject *project, const QString &file);
