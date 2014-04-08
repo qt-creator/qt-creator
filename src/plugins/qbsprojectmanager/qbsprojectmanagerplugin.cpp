@@ -79,9 +79,9 @@ class QbsFeatureProvider : public Core::IFeatureProvider
 QbsProjectManagerPlugin::QbsProjectManagerPlugin() :
     m_manager(0),
     m_projectExplorer(0),
-    m_currentProject(0),
-    m_currentTarget(0),
-    m_currentNode(0)
+    m_selectedProject(0),
+    m_selectedTarget(0),
+    m_selectedNode(0)
 { }
 
 bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -205,36 +205,36 @@ void QbsProjectManagerPlugin::extensionsInitialized()
 
 void QbsProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project)
 {
-    if (m_currentProject) {
-        disconnect(m_currentProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+    if (m_selectedProject) {
+        disconnect(m_selectedProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
                    this, SLOT(activeTargetChanged()));
-        disconnect(m_currentProject, SIGNAL(projectParsingStarted()),
+        disconnect(m_selectedProject, SIGNAL(projectParsingStarted()),
                    this, SLOT(parsingStateChanged()));
-        disconnect(m_currentProject, SIGNAL(projectParsingDone(bool)),
+        disconnect(m_selectedProject, SIGNAL(projectParsingDone(bool)),
                    this, SLOT(parsingStateChanged()));
     }
 
-    m_currentNode = node;
-    m_currentProject = qobject_cast<Internal::QbsProject *>(project);
-    if (m_currentProject) {
-        connect(m_currentProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+    m_selectedNode = node;
+    m_selectedProject = qobject_cast<Internal::QbsProject *>(project);
+    if (m_selectedProject) {
+        connect(m_selectedProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
                 this, SLOT(activeTargetChanged()));
-        connect(m_currentProject, SIGNAL(projectParsingStarted()),
+        connect(m_selectedProject, SIGNAL(projectParsingStarted()),
                 this, SLOT(parsingStateChanged()));
-        connect(m_currentProject, SIGNAL(projectParsingDone(bool)),
+        connect(m_selectedProject, SIGNAL(projectParsingDone(bool)),
                 this, SLOT(parsingStateChanged()));
     }
 
     activeTargetChanged();
 
     bool isBuilding = BuildManager::isBuilding(project);
-    bool isFile = m_currentProject && node && (node->nodeType() == ProjectExplorer::FileNodeType);
-    bool isProduct = m_currentProject && node && qobject_cast<QbsProductNode *>(node->projectNode());
+    bool isFile = m_selectedProject && node && (node->nodeType() == ProjectExplorer::FileNodeType);
+    bool isProduct = m_selectedProject && node && qobject_cast<QbsProductNode *>(node->projectNode());
     QbsProjectNode *subproject = qobject_cast<QbsProjectNode *>(node);
-    bool isSubproject = m_currentProject && subproject && subproject != m_currentProject->rootProjectNode();
+    bool isSubproject = m_selectedProject && subproject && subproject != m_selectedProject->rootProjectNode();
     bool isFileEnabled = isFile && node->isEnabled();
 
-    m_reparseQbsCtx->setEnabled(!isBuilding && m_currentProject && !m_currentProject->isParsing());
+    m_reparseQbsCtx->setEnabled(!isBuilding && m_selectedProject && !m_selectedProject->isParsing());
     m_buildFileCtx->setEnabled(isFileEnabled);
     m_buildProductCtx->setVisible(isProduct);
     m_buildSubprojectCtx->setVisible(isSubproject);
@@ -242,9 +242,9 @@ void QbsProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
 
 void QbsProjectManagerPlugin::updateReparseQbsAction()
 {
-    m_reparseQbs->setEnabled(m_currentProject
-                             && !BuildManager::isBuilding(m_currentProject)
-                             && !m_currentProject->isParsing());
+    m_reparseQbs->setEnabled(m_selectedProject
+                             && !BuildManager::isBuilding(m_selectedProject)
+                             && !m_selectedProject->isParsing());
 }
 
 void QbsProjectManagerPlugin::updateBuildActions()
@@ -264,7 +264,7 @@ void QbsProjectManagerPlugin::updateBuildActions()
         m_buildFile->setParameter(QFileInfo(file).fileName());
         fileVisible = project && node && qobject_cast<QbsBaseProjectNode *>(node->projectNode());
         enabled = !BuildManager::isBuilding(project)
-                && m_currentProject && !m_currentProject->isParsing();
+                && m_selectedProject && !m_selectedProject->isParsing();
 
         QbsProductNode *productNode
                 = qobject_cast<QbsProductNode *>(node ? node->projectNode() : 0);
@@ -292,14 +292,14 @@ void QbsProjectManagerPlugin::updateBuildActions()
 
 void QbsProjectManagerPlugin::activeTargetChanged()
 {
-    if (m_currentTarget)
-        disconnect(m_currentTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+    if (m_selectedTarget)
+        disconnect(m_selectedTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
                    this, SLOT(updateReparseQbsAction()));
 
-    m_currentTarget = m_currentProject ? m_currentProject->activeTarget() : 0;
+    m_selectedTarget = m_selectedProject ? m_selectedProject->activeTarget() : 0;
 
-    if (m_currentTarget)
-        connect(m_currentTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+    if (m_selectedTarget)
+        connect(m_selectedTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
                 this, SLOT(updateReparseQbsAction()));
 
     updateReparseQbsAction();
@@ -307,27 +307,27 @@ void QbsProjectManagerPlugin::activeTargetChanged()
 
 void QbsProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *project)
 {
-    if (project == m_currentProject) {
+    if (project == m_selectedProject) {
         updateReparseQbsAction();
-        updateContextActions(m_currentNode, m_currentProject);
+        updateContextActions(m_selectedNode, m_selectedProject);
         updateBuildActions();
     }
 }
 
 void QbsProjectManagerPlugin::parsingStateChanged()
 {
-    if (m_currentProject) {
+    if (m_selectedProject) {
         updateReparseQbsAction();
-        updateContextActions(m_currentNode, m_currentProject);
+        updateContextActions(m_selectedNode, m_selectedProject);
     }
 }
 
 void QbsProjectManagerPlugin::buildFileContextMenu()
 {
-    QTC_ASSERT(m_currentNode, return);
-    QTC_ASSERT(m_currentProject, return);
+    QTC_ASSERT(m_selectedNode, return);
+    QTC_ASSERT(m_selectedProject, return);
 
-    buildSingleFile(m_currentProject, m_currentNode->path());
+    buildSingleFile(m_selectedProject, m_selectedNode->path());
 }
 
 void QbsProjectManagerPlugin::buildFile()
@@ -347,10 +347,10 @@ void QbsProjectManagerPlugin::buildFile()
 
 void QbsProjectManagerPlugin::buildProductContextMenu()
 {
-    QTC_ASSERT(m_currentNode, return);
-    QTC_ASSERT(m_currentProject, return);
+    QTC_ASSERT(m_selectedNode, return);
+    QTC_ASSERT(m_selectedProject, return);
 
-    buildProducts(m_currentProject, QStringList(m_currentNode->displayName()));
+    buildProducts(m_selectedProject, QStringList(m_selectedNode->displayName()));
 }
 
 void QbsProjectManagerPlugin::buildProduct()
@@ -372,17 +372,17 @@ void QbsProjectManagerPlugin::buildProduct()
 
 void QbsProjectManagerPlugin::buildSubprojectContextMenu()
 {
-    QTC_ASSERT(m_currentNode, return);
-    QTC_ASSERT(m_currentProject, return);
+    QTC_ASSERT(m_selectedNode, return);
+    QTC_ASSERT(m_selectedProject, return);
 
-    QbsProjectNode *subProject = qobject_cast<QbsProjectNode *>(m_currentNode);
+    QbsProjectNode *subProject = qobject_cast<QbsProjectNode *>(m_selectedNode);
     QTC_ASSERT(subProject, return);
 
     QStringList toBuild;
     foreach (const qbs::ProductData &data, subProject->qbsProjectData().allProducts())
         toBuild << data.name();
 
-    buildProducts(m_currentProject, toBuild);
+    buildProducts(m_selectedProject, toBuild);
 }
 
 void QbsProjectManagerPlugin::buildSubproject()
@@ -476,14 +476,14 @@ void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringLi
 
 void QbsProjectManagerPlugin::reparseCurrentProject()
 {
-    if (!m_currentProject || BuildManager::isBuilding(m_currentProject)) {
+    if (!m_selectedProject || BuildManager::isBuilding(m_selectedProject)) {
         // Qbs does update the build graph during the build. So we cannot
         // start to parse while a build is running or we will lose information.
         // Just return since the qbsbuildstep will trigger a reparse after the build.
         return;
     }
 
-    m_currentProject->parseCurrentBuildConfiguration(true);
+    m_selectedProject->parseCurrentBuildConfiguration(true);
 }
 
 } // namespace Internal

@@ -99,9 +99,9 @@ private:
     Utils::ParameterAction *m_buildProduct;
     Utils::ParameterAction *m_buildSubproject;
 
-    Internal::QbsProject *m_currentProject;
-    ProjectExplorer::Target *m_currentTarget;
-    ProjectExplorer::Node *m_currentNode;
+    Internal::QbsProject *m_selectedProject;
+    ProjectExplorer::Target *m_selectedTarget;
+    ProjectExplorer::Node *m_selectedNode;
 };
 
 } // namespace Internal
