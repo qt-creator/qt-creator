@@ -386,15 +386,21 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
 
 QList<ToolChain*> QtOptionsPageWidget::toolChains(const BaseQtVersion *version)
 {
-    QHash<QString,ToolChain*> toolChains;
+    QList<ToolChain*> toolChains;
     if (!version)
-        return toolChains.values();
+        return toolChains;
 
-    foreach (const Abi &a, version->qtAbis())
-        foreach (ToolChain *tc, ToolChainManager::findToolChains(a))
-            toolChains.insert(tc->id(), tc);
+    QSet<QString> ids;
+    foreach (const Abi &a, version->qtAbis()) {
+        foreach (ToolChain *tc, ToolChainManager::findToolChains(a)) {
+            if (ids.contains(tc->id()))
+                continue;
+            ids.insert(tc->id());
+            toolChains.append(tc);
+        }
+    }
 
-    return toolChains.values();
+    return toolChains;
 }
 
 QString QtOptionsPageWidget::defaultToolChainId(const BaseQtVersion *version)

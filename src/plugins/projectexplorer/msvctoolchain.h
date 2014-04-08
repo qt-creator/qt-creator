@@ -49,8 +49,12 @@ public:
     enum Type { WindowsSDK, VS };
     enum Platform { x86,
                     amd64,
+                    x86_amd64,
                     ia64,
-                    arm
+                    x86_ia64,
+                    arm,
+                    x86_arm,
+                    amd64_arm
                   };
 
     MsvcToolChain(const QString &name, const Abi &abi,
@@ -104,6 +108,7 @@ public:
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
     static QString vcVarsBatFor(const QString &basePath, const QString &toolchainName);
+    static QString vcVarsBatFor(const QString &basePath, MsvcToolChain::Platform platform);
 private:
     static bool checkForVisualStudioInstallation(const QString &vsName);
 };

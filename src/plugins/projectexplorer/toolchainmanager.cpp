@@ -77,7 +77,7 @@ public:
     QMap<QString, FileName> m_abiToDebugger;
     PersistentSettingsWriter *m_writer;
 
-    QList<ToolChain *> m_toolChains;
+    QList<ToolChain *> m_toolChains; // prioritized List
 };
 
 ToolChainManagerPrivate::~ToolChainManagerPrivate()
