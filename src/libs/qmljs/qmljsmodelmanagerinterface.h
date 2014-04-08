@@ -244,6 +244,7 @@ protected:
                                   CPlusPlus::Snapshot snapshot,
                                   QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > documents);
 
+    void maybeScan(const QStringList &importPaths, Language::Enum defaultLanguage);
     void updateImportPaths();
     void loadQmlTypeDescriptionsInternal(const QString &path);
 

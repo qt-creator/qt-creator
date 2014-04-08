@@ -963,6 +963,41 @@ QmlLanguageBundles ModelManagerInterface::extendedBundles() const
     return m_extendedBundles;
 }
 
+void ModelManagerInterface::maybeScan(const QStringList &importPaths,
+                                      Language::Enum defaultLanguage)
+{
+    QStringList pathToScan;
+    {
+        QMutexLocker l(&m_mutex);
+        foreach (QString importPath, importPaths)
+            if (!m_scannedPaths.contains(importPath)) {
+                pathToScan.append(importPath);
+            }
+    }
+
+    if (pathToScan.count() > 1) {
+        QFuture<void> result = QtConcurrent::run(&ModelManagerInterface::importScan,
+                                                  workingCopyInternal(), pathToScan,
+                                                  this, defaultLanguage,
+                                                  true);
+
+        if (m_synchronizer.futures().size() > 10) {
+            QList<QFuture<void> > futures = m_synchronizer.futures();
+
+            m_synchronizer.clearFutures();
+
+            foreach (const QFuture<void> &future, futures) {
+                if (! (future.isFinished() || future.isCanceled()))
+                    m_synchronizer.addFuture(future);
+            }
+        }
+
+        m_synchronizer.addFuture(result);
+
+        addTaskInternal(result, tr("QML import scan"), Constants::TASK_IMPORT_SCAN);
+    }
+}
+
 void ModelManagerInterface::updateImportPaths()
 {
     QStringList allImportPaths;
@@ -1026,36 +1061,7 @@ void ModelManagerInterface::updateImportPaths()
 
     if (!m_shouldScanImports)
         return;
-    QStringList pathToScan;
-    {
-        QMutexLocker l(&m_mutex);
-        foreach (QString importPath, allImportPaths)
-            if (!m_scannedPaths.contains(importPath)) {
-                pathToScan.append(importPath);
-            }
-    }
-
-    if (pathToScan.count() > 1) {
-        QFuture<void> result = QtConcurrent::run(&ModelManagerInterface::importScan,
-                                                  workingCopyInternal(), pathToScan,
-                                                  this, Language::Qml,
-                                                  true);
-
-        if (m_synchronizer.futures().size() > 10) {
-            QList<QFuture<void> > futures = m_synchronizer.futures();
-
-            m_synchronizer.clearFutures();
-
-            foreach (const QFuture<void> &future, futures) {
-                if (! (future.isFinished() || future.isCanceled()))
-                    m_synchronizer.addFuture(future);
-            }
-        }
-
-        m_synchronizer.addFuture(result);
-
-        addTaskInternal(result, tr("QML import scan"), Constants::TASK_IMPORT_SCAN);
-    }
+    maybeScan(allImportPaths, Language::Qml);
 }
 
 ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() const
