@@ -289,34 +289,42 @@ void QbsProjectManagerPlugin::updateBuildActions()
     bool productVisible = false;
     bool subprojectVisible = false;
 
+    QString fileName;
+    QString productName;
+    QString subprojectName;
+
     if (m_editorNode) {
-        m_buildFile->setParameter(QFileInfo(m_editorNode->path()).fileName());
-        fileVisible = m_editorProject && m_editorNode && qobject_cast<QbsBaseProjectNode *>(m_editorNode->projectNode());
         enabled = !BuildManager::isBuilding(m_editorProject)
                 && m_selectedProject && !m_selectedProject->isParsing();
+
+        fileName = QFileInfo(m_editorNode->path()).fileName();
+        fileVisible = m_editorProject && m_editorNode && qobject_cast<QbsBaseProjectNode *>(m_editorNode->projectNode());
 
         QbsProductNode *productNode
                 = qobject_cast<QbsProductNode *>(m_editorNode ? m_editorNode->projectNode() : 0);
         if (productNode) {
             productVisible = true;
-            m_buildProduct->setParameter(productNode->displayName());
+            productName = productNode->displayName();
         }
         QbsProjectNode *subprojectNode
                 = qobject_cast<QbsProjectNode *>(productNode ? productNode->parentFolderNode() : 0);
         if (subprojectNode && subprojectNode != m_editorProject->rootProjectNode()) {
             subprojectVisible = true;
-            m_buildSubproject->setParameter(subprojectNode->displayName());
+            subprojectName = subprojectNode->displayName();
         }
     }
 
     m_buildFile->setEnabled(enabled);
     m_buildFile->setVisible(fileVisible);
+    m_buildFile->setParameter(fileName);
 
     m_buildProduct->setEnabled(enabled);
     m_buildProduct->setVisible(productVisible);
+    m_buildProduct->setParameter(productName);
 
     m_buildSubproject->setEnabled(enabled);
     m_buildSubproject->setVisible(subprojectVisible);
+    m_buildSubproject->setParameter(subprojectName);
 }
 
 void QbsProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *project)
