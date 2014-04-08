@@ -236,17 +236,19 @@ void QbsProjectManagerPlugin::nodeSelectionChanged(Node *node, Project *project)
 
 void QbsProjectManagerPlugin::updateContextActions()
 {
-    bool isBuilding = BuildManager::isBuilding(m_selectedProject);
+    bool isEnabled = !BuildManager::isBuilding(m_selectedProject)
+            && m_selectedProject && !m_selectedProject->isParsing()
+            && m_selectedNode && m_selectedNode->isEnabled();
+
     bool isFile = m_selectedProject && m_selectedNode && (m_selectedNode->nodeType() == ProjectExplorer::FileNodeType);
     bool isProduct = m_selectedProject && m_selectedNode && qobject_cast<QbsProductNode *>(m_selectedNode->projectNode());
     QbsProjectNode *subproject = qobject_cast<QbsProjectNode *>(m_selectedNode);
     bool isSubproject = m_selectedProject && subproject && subproject != m_selectedProject->rootProjectNode();
-    bool isFileEnabled = isFile && m_selectedNode->isEnabled();
 
-    m_reparseQbsCtx->setEnabled(!isBuilding && m_selectedProject && !m_selectedProject->isParsing());
-    m_buildFileCtx->setEnabled(isFileEnabled);
-    m_buildProductCtx->setVisible(isProduct);
-    m_buildSubprojectCtx->setVisible(isSubproject);
+    m_reparseQbsCtx->setEnabled(isEnabled);
+    m_buildFileCtx->setEnabled(isEnabled && isFile);
+    m_buildProductCtx->setVisible(isEnabled && isProduct);
+    m_buildSubprojectCtx->setVisible(isEnabled && isSubproject);
 }
 
 void QbsProjectManagerPlugin::updateReparseQbsAction()
