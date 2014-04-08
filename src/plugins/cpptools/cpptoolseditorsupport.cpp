@@ -261,10 +261,10 @@ CppCompletionAssistProvider *CppEditorSupport::completionAssistProvider() const
 
 QSharedPointer<SnapshotUpdater> CppEditorSupport::snapshotUpdater()
 {
-    QSharedPointer<SnapshotUpdater> updater = m_snapshotUpdater;
+    QSharedPointer<SnapshotUpdater> updater = snapshotUpdater_internal();
     if (!updater || updater->fileInEditor() != fileName()) {
         updater = QSharedPointer<SnapshotUpdater>(new SnapshotUpdater(fileName()));
-        m_snapshotUpdater = updater;
+        setSnapshotUpdater_internal(updater);
 
         QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
         updater->setUsePrecompiledHeaders(cms->pchUsage() != CppCodeModelSettings::PchUse_None);
@@ -518,14 +518,12 @@ SemanticInfo::Source CppEditorSupport::currentSource(bool force)
     int line = 0, column = 0;
     m_textEditor->convertPosition(m_textEditor->editorWidget()->position(), &line, &column);
 
-    const Snapshot snapshot = snapshotUpdater()->snapshot();
-
     QByteArray code;
     if (force || m_lastSemanticInfo.revision != editorRevision())
         code = contents(); // get the source code only when needed.
 
     const unsigned revision = editorRevision();
-    SemanticInfo::Source source(snapshot, fileName(), code, line, column, revision, force);
+    SemanticInfo::Source source(Snapshot(), fileName(), code, line, column, revision, force);
     return source;
 }
 
@@ -552,9 +550,13 @@ void CppEditorSupport::recalculateSemanticInfoNow(const SemanticInfo::Source &so
     }
 
     if (semanticInfo.doc.isNull()) {
-        semanticInfo.snapshot = source.snapshot;
-        if (source.snapshot.contains(source.fileName)) {
-            Document::Ptr doc = source.snapshot.preprocessedDocument(source.code, source.fileName);
+        const QSharedPointer<SnapshotUpdater> snapshotUpdater = snapshotUpdater_internal();
+        QTC_ASSERT(snapshotUpdater, return);
+        semanticInfo.snapshot = snapshotUpdater->snapshot();
+
+        if (semanticInfo.snapshot.contains(source.fileName)) {
+            Document::Ptr doc = semanticInfo.snapshot.preprocessedDocument(source.code,
+                                                                           source.fileName);
             if (processor)
                 doc->control()->setTopLevelDeclarationProcessor(processor);
             doc->check();
@@ -591,6 +593,18 @@ void CppEditorSupport::recalculateSemanticInfoDetached_helper(QFutureInterface<v
 {
     FuturizedTopLevelDeclarationProcessor processor(future);
     recalculateSemanticInfoNow(source, true, &processor);
+}
+
+QSharedPointer<SnapshotUpdater> CppEditorSupport::snapshotUpdater_internal() const
+{
+    QMutexLocker locker(&m_snapshotUpdaterLock);
+    return m_snapshotUpdater;
+}
+
+void CppEditorSupport::setSnapshotUpdater_internal(const QSharedPointer<SnapshotUpdater> &updater)
+{
+    QMutexLocker locker(&m_snapshotUpdaterLock);
+    m_snapshotUpdater = updater;
 }
 
 void CppEditorSupport::onMimeTypeChanged()
