@@ -79,6 +79,9 @@ ApplicationWindow {
             var newX = (bubble.x + calcRoll(accel.reading.x, accel.reading.y, accel.reading.z) * 0.1)
             var newY = (bubble.y - calcPitch(accel.reading.x, accel.reading.y, accel.reading.z) * 0.1)
 
+            if (isNaN(newX) || isNaN(newY))
+                return;
+
             if (newX < 0)
                 newX = 0
 
