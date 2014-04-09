@@ -18,6 +18,8 @@ QT += core-private qml-private quick-private gui-private
     CONFIG += c++11
 }
 
+
+
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
 DEFINES -= QT_CREATOR
 
@@ -37,9 +39,12 @@ SOURCES +=  $$PWD/qml2puppetmain.cpp
 RESOURCES +=  $$PWD/../qmlpuppet.qrc
 DEFINES -= QT_NO_CAST_FROM_ASCII
 
-OTHER_FILES += Info.plist.in
+OTHER_FILES += Info.plist
+
+
 macx {
-    QMAKE_INFO_PLIST = $$PWD/Info.plist
+    CONFIG -= app_bundle
+    QMAKE_LFLAGS += -sectcreate __TEXT __info_plist $$system_quote($$PWD/Info.plist)
 } else {
     target.path  = $$QTC_PREFIX/bin
     INSTALLS    += target
