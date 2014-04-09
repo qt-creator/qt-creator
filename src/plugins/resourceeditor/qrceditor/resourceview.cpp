@@ -188,7 +188,7 @@ using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
 ResourceView::ResourceView(QUndoStack *history, QWidget *parent) :
-    QTreeView(parent),
+    Utils::TreeView(parent),
     m_qrcModel(new RelativeResourceModel(m_qrcFile, this)),
     m_history(history),
     m_mergeId(-1)
@@ -337,7 +337,7 @@ void ResourceView::keyPressEvent(QKeyEvent *e)
     if (e->key() == Qt::Key_Delete)
         removeItem();
     else
-        QTreeView::keyPressEvent(e);
+        Utils::TreeView::keyPressEvent(e);
 }
 
 QModelIndex ResourceView::addPrefix()

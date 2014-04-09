@@ -32,7 +32,8 @@
 
 #include "resourcefile_p.h"
 
-#include <QTreeView>
+#include <utils/itemviews.h>
+
 #include <QPoint>
 
 QT_BEGIN_NAMESPACE
@@ -67,7 +68,7 @@ public:
 
 class RelativeResourceModel;
 
-class ResourceView : public QTreeView
+class ResourceView : public Utils::TreeView
 {
     Q_OBJECT
 
