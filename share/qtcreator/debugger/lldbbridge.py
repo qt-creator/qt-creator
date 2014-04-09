@@ -1169,7 +1169,6 @@ class Dumper(DumperBase):
         else:
             state = self.process.GetState()
             if state == lldb.eStateStopped:
-                self.reportStack()
                 self.reportStackPosition()
                 self.reportThreads()
                 self.reportVariables()
@@ -1259,7 +1258,6 @@ class Dumper(DumperBase):
                 stoppedThread = self.firstStoppedThread()
                 if stoppedThread:
                     self.process.SetSelectedThread(stoppedThread)
-                self.reportStack({'stacklimit': 20})
                 self.reportStackTop()
                 self.reportThreads()
                 self.reportLocation()

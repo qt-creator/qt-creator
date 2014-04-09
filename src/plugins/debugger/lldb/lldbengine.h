@@ -134,7 +134,7 @@ private:
     void reloadModules();
     void reloadRegisters();
     void reloadSourceFiles() {}
-    void reloadFullStack() {}
+    void reloadFullStack();
     void fetchDisassembler(Internal::DisassemblerAgent *);
     void refreshDisassembly(const GdbMi &data);
 
@@ -161,6 +161,7 @@ private:
     Q_SLOT void handleResponse(const QByteArray &data);
     Q_SLOT void runEngine2();
     Q_SLOT void updateAll();
+    Q_SLOT void updateStack();
     Q_SLOT void updateLocals();
     Q_SLOT void createFullBacktrace();
     void doUpdateLocals(UpdateParameters params);

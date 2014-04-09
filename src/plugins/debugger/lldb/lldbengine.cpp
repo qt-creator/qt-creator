@@ -491,15 +491,17 @@ void LldbEngine::activateFrame(int frameIndex)
     if (state() != InferiorStopOk && state() != InferiorUnrunnable)
         return;
 
-    int limit = debuggerCore()->action(MaximalStackDepth)->value().toInt();
-    int n = stackHandler()->stackSize();
-    if (frameIndex == n)
-        limit = n * 10 + 3;
+    const int n = stackHandler()->stackSize();
+    if (frameIndex == n) {
+        Command cmd("reportStack");
+        cmd.arg("stacklimit", n * 10 + 3);
+        runCommand(cmd);
+        return;
+    }
 
     Command cmd("activateFrame");
     cmd.arg("index", frameIndex);
     cmd.arg("thread", threadsHandler()->currentThread().raw());
-    cmd.arg("stacklimit", limit);
     runCommand(cmd);
 
     updateAll();
@@ -883,7 +885,22 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
 void LldbEngine::updateAll()
 {
     reloadRegisters();
+    updateStack();
     updateLocals();
+}
+
+void LldbEngine::reloadFullStack()
+{
+    Command cmd("reportStack");
+    cmd.arg("stacklimit", -1);
+    runCommand(cmd);
+}
+
+void LldbEngine::updateStack()
+{
+    Command cmd("reportStack");
+    cmd.arg("stacklimit", 20);
+    runCommand(cmd);
 }
 
 //////////////////////////////////////////////////////////////////////
