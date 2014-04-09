@@ -33,6 +33,7 @@
 #include <projectexplorer/kitinformation.h>
 
 #include <utils/fancylineedit.h>
+#include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 
 #include <QDialogButtonBox>
@@ -44,7 +45,6 @@
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QTextBrowser>
-#include <QTreeView>
 #include <QVBoxLayout>
 
 using namespace Utils;
@@ -113,7 +113,7 @@ public:
     QLabel *kitLabel;
     KitChooser *kitChooser;
 
-    QTreeView *procView;
+    Utils::TreeView *procView;
     QTextBrowser *errorText;
     FancyLineEdit *processFilterLineEdit;
     QPushButton *updateListButton;
@@ -143,7 +143,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 
     kitChooser->populate();
 
-    procView = new QTreeView(q);
+    procView = new Utils::TreeView(q);
     procView->setModel(&proxyModel);
     procView->setSelectionBehavior(QAbstractItemView::SelectRows);
     procView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -154,6 +154,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     procView->header()->setDefaultSectionSize(100);
     procView->header()->setStretchLastSection(true);
     procView->sortByColumn(1, Qt::AscendingOrder);
+    procView->setActivationMode(Utils::DoubleClickActivation);
 
     errorText = new QTextBrowser(q);
 
@@ -331,8 +332,8 @@ void DeviceProcessesDialog::addAcceptButton(const QString &label)
 {
     d->acceptButton = new QPushButton(label);
     d->buttonBox->addButton(d->acceptButton, QDialogButtonBox::AcceptRole);
-    connect(d->procView, SIGNAL(doubleClicked(QModelIndex)),
-            d->acceptButton, SLOT(animateClick()));
+    connect(d->procView, SIGNAL(activated(QModelIndex)),
+            d->acceptButton, SLOT(click()));
     d->buttonBox->addButton(QDialogButtonBox::Cancel);
 }
 
