@@ -212,7 +212,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 }
 
 BookmarkView::BookmarkView(QWidget *parent)  :
-    QListView(parent),
+    Utils::ListView(parent),
     m_bookmarkContext(new BookmarkContext(this)),
     m_manager(0)
 {
@@ -290,7 +290,7 @@ void BookmarkView::keyPressEvent(QKeyEvent *event)
         event->accept();
         return;
     }
-    QListView::keyPressEvent(event);
+    Utils::ListView::keyPressEvent(event);
 }
 
 void BookmarkView::removeAll()
@@ -314,7 +314,7 @@ void BookmarkView::setModel(QAbstractItemModel *model)
     BookmarkManager *manager = qobject_cast<BookmarkManager *>(model);
     QTC_ASSERT(manager, return);
     m_manager = manager;
-    QListView::setModel(model);
+    Utils::ListView::setModel(model);
     setSelectionModel(manager->selectionModel());
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);

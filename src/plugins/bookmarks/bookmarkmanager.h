@@ -30,6 +30,7 @@
 #ifndef BOOKMARKMANAGER_H
 #define BOOKMARKMANAGER_H
 
+#include <utils/itemviews.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
@@ -137,7 +138,7 @@ private:
     QItemSelectionModel *m_selectionModel;
 };
 
-class BookmarkView : public QListView
+class BookmarkView : public Utils::ListView
 {
     Q_OBJECT
 public:
