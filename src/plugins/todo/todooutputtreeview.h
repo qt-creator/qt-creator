@@ -30,12 +30,12 @@
 #ifndef TODO_INTERNAL_TODOOUTPUTTREEVIEW_H
 #define TODO_INTERNAL_TODOOUTPUTTREEVIEW_H
 
-#include <QTreeView>
+#include <utils/itemviews.h>
 
 namespace Todo {
 namespace Internal {
 
-class TodoOutputTreeView : public QTreeView
+class TodoOutputTreeView : public Utils::TreeView
 {
     Q_OBJECT
 public:
@@ -43,7 +43,6 @@ public:
     ~TodoOutputTreeView();
 
     void resizeEvent(QResizeEvent *event);
-    void keyPressEvent(QKeyEvent *e);
 
 private slots:
     void todoColumnResized(int column, int oldSize, int newSize);

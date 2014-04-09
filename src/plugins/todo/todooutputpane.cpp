@@ -182,7 +182,7 @@ void TodoOutputPane::createTreeView()
     m_todoTreeView = new TodoOutputTreeView();
     m_todoTreeView->setModel(m_todoItemsModel);
 
-    connect(m_todoTreeView, SIGNAL(clicked(QModelIndex)), SLOT(todoTreeViewClicked(QModelIndex)));
+    connect(m_todoTreeView, SIGNAL(activated(QModelIndex)), SLOT(todoTreeViewClicked(QModelIndex)));
 }
 
 void TodoOutputPane::freeTreeView()
