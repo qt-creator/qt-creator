@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmlprofilertreeview.h"
+#include <utils/itemviews.h>
 #include <QCoreApplication>
 #include <QHeaderView>
 
@@ -35,7 +36,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 QmlProfilerTreeView::QmlProfilerTreeView(QWidget *parent)
-    : QTreeView(parent)
+    : Utils::TreeView(parent)
 {
     setFrameStyle(QFrame::NoFrame);
     header()->setResizeMode(QHeaderView::Interactive);

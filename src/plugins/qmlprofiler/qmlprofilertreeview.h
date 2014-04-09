@@ -30,12 +30,12 @@
 #ifndef QMLPROFILERTREEVIEW
 #define QMLPROFILERTREEVIEW
 
-#include <QTreeView>
+#include <utils/itemviews.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerTreeView : public QTreeView
+class QmlProfilerTreeView : public Utils::TreeView
 {
     Q_OBJECT
 

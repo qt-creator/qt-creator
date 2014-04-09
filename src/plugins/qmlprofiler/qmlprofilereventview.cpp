@@ -381,7 +381,7 @@ QmlProfilerEventsMainView::QmlProfilerEventsMainView(QWidget *parent,
 
     d->m_model = new QStandardItemModel(this);
     setModel(d->m_model);
-    connect(this,SIGNAL(clicked(QModelIndex)), this,SLOT(jumpToItem(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(jumpToItem(QModelIndex)));
 
     d->modelProxy = modelProxy;
     connect(d->modelProxy,SIGNAL(dataAvailable()), this, SLOT(buildModel()));
@@ -831,7 +831,7 @@ QmlProfilerEventRelativesView::QmlProfilerEventRelativesView(QmlProfilerModelMan
     setRootIsDecorated(false);
     updateHeader();
 
-    connect(this,SIGNAL(clicked(QModelIndex)), this,SLOT(jumpToItem(QModelIndex)));
+    connect(this,SIGNAL(activated(QModelIndex)), this,SLOT(jumpToItem(QModelIndex)));
 
     // Clear when new data available as the selection may be invalid now.
     connect(d->modelProxy, SIGNAL(dataAvailable()), this, SLOT(clear()));

@@ -291,7 +291,7 @@ QV8ProfilerEventsMainView::QV8ProfilerEventsMainView(QWidget *parent,
 
     d->m_model = new QStandardItemModel(this);
     setModel(d->m_model);
-    connect(this,SIGNAL(clicked(QModelIndex)), this,SLOT(jumpToItem(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(jumpToItem(QModelIndex)));
 
     d->m_v8Model = v8Model;
     connect(d->m_v8Model, SIGNAL(changed()), this, SLOT(buildModel()));
@@ -631,7 +631,7 @@ QV8ProfilerEventRelativesView::QV8ProfilerEventRelativesView(QV8ProfilerDataMode
     updateHeader();
     setSortingEnabled(false);
 
-    connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(jumpToItem(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(jumpToItem(QModelIndex)));
 }
 
 QV8ProfilerEventRelativesView::~QV8ProfilerEventRelativesView()
