@@ -592,6 +592,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 
         case Qt::Key_Tab:
         case Qt::Key_Return:
+        case Qt::Key_Enter:
             abort();
             activateCurrentProposalItem();
             return true;
@@ -612,7 +613,6 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
             }
             return false;
 
-        case Qt::Key_Enter:
         case Qt::Key_PageDown:
         case Qt::Key_PageUp:
             return false;
