@@ -168,6 +168,7 @@ void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
             newWidget->setCursorSynchronization(m_syncWithEditor);
             addWidget(newWidget);
             setCurrentWidget(newWidget);
+            setFocusProxy(newWidget);
         }
 
         updateFilterMenu();

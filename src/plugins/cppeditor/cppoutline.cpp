@@ -46,8 +46,6 @@ enum {
 CppOutlineTreeView::CppOutlineTreeView(QWidget *parent) :
     Utils::NavigationTreeView(parent)
 {
-    // see also QmlJSOutlineTreeView
-    setFocusPolicy(Qt::NoFocus);
     setExpandsOnDoubleClick(false);
 }
 
@@ -105,6 +103,7 @@ CppOutlineWidget::CppOutlineWidget(CPPEditorWidget *editor) :
     setLayout(layout);
 
     m_treeView->setModel(m_proxyModel);
+    setFocusProxy(m_treeView);
 
     connect(m_model, SIGNAL(modelReset()), this, SLOT(modelUpdated()));
     modelUpdated();
@@ -113,8 +112,8 @@ CppOutlineWidget::CppOutlineWidget(CPPEditorWidget *editor) :
             this, SLOT(updateSelectionInTree(QModelIndex)));
     connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateSelectionInText(QItemSelection)));
-    connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(updateTextCursor(QModelIndex)));
+    connect(m_treeView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(focusEditor()));
 }
 
 QList<QAction*> CppOutlineWidget::filterMenuActions() const
@@ -145,7 +144,7 @@ void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
     if (debug)
         qDebug() << "CppOutline - updating selection due to cursor move";
 
-    m_treeView->selectionModel()->select(proxyIndex, QItemSelectionModel::ClearAndSelect);
+    m_treeView->setCurrentIndex(proxyIndex);
     m_treeView->scrollTo(proxyIndex);
     m_blockCursorSync = false;
 }
@@ -176,9 +175,13 @@ void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 
         // line has to be 1 based, column 0 based!
         m_editor->gotoLine(symbol->line(), symbol->column() - 1);
-        m_editor->setFocus();
         m_blockCursorSync = false;
     }
+}
+
+void CppOutlineWidget::focusEditor()
+{
+    m_editor->setFocus();
 }
 
 bool CppOutlineWidget::syncCursor()

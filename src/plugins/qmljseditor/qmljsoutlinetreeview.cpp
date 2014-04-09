@@ -39,8 +39,6 @@ namespace Internal {
 QmlJSOutlineTreeView::QmlJSOutlineTreeView(QWidget *parent) :
     Utils::NavigationTreeView(parent)
 {
-    // see also CppOutlineTreeView
-    setFocusPolicy(Qt::NoFocus);
     setExpandsOnDoubleClick(false);
 
     setDragEnabled(true);

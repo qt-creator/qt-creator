@@ -104,6 +104,7 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent) :
     m_filterModel->setFilterBindings(false);
 
     m_treeView->setModel(m_filterModel);
+    setFocusProxy(m_treeView);
 
     QVBoxLayout *layout = new QVBoxLayout;
 
@@ -130,8 +131,8 @@ void QmlJSOutlineWidget::setEditor(QmlJSTextEditorWidget *editor)
     connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateSelectionInText(QItemSelection)));
 
-    connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(updateTextCursor(QModelIndex)));
+    connect(m_treeView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(focusEditor()));
 
     connect(m_editor, SIGNAL(outlineModelIndexChanged(QModelIndex)),
             this, SLOT(updateSelectionInTree(QModelIndex)));
@@ -187,7 +188,7 @@ void QmlJSOutlineWidget::updateSelectionInTree(const QModelIndex &index)
         filterIndex = m_filterModel->mapFromSource(baseIndex);
     }
 
-    m_treeView->selectionModel()->select(filterIndex, QItemSelectionModel::ClearAndSelect);
+    m_treeView->setCurrentIndex(filterIndex);
     m_treeView->scrollTo(filterIndex);
     m_blockCursorSync = false;
 }
@@ -226,8 +227,12 @@ void QmlJSOutlineWidget::updateTextCursor(const QModelIndex &index)
     textCursor.setPosition(location.offset);
     m_editor->setTextCursor(textCursor);
     m_editor->centerCursor();
-    m_editor->setFocus();
     m_blockCursorSync = false;
+}
+
+void QmlJSOutlineWidget::focusEditor()
+{
+    m_editor->setFocus();
 }
 
 void QmlJSOutlineWidget::setShowBindings(bool showBindings)
