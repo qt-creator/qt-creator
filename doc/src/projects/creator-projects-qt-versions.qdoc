@@ -66,11 +66,9 @@
             \li In the \gui{qmake location} field, you can change the qmake
                 location.
 
-            \li In the \gui Helpers section, select \gui Details to build the debugging
-                helpers that are available for the Qt version. This is
-                necessary, because the internal data structures of Qt can
-                change between versions. For more information, see
-                \l{Using Debugging Helpers}.
+            \li In the \gui Helpers section, select \gui Details to view the
+                QML Dumper that has been built for the Qt version. For more
+                information, see \l{Using Debugging Helpers}.
 
                 \image qt-creator-debugging-helpers.png
 
