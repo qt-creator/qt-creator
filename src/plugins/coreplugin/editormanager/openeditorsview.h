@@ -30,6 +30,7 @@
 #ifndef OPENEDITORSVIEW_H
 #define OPENEDITORSVIEW_H
 
+#include <utils/itemviews.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <QAbstractProxyModel>
@@ -80,7 +81,7 @@ public:
     mutable QModelIndex pressedIndex;
 };
 
-class OpenEditorsWidget : public QTreeView
+class OpenEditorsWidget : public Utils::TreeView
 {
     Q_OBJECT
 
@@ -91,7 +92,7 @@ public:
     bool eventFilter(QObject *obj, QEvent *event);
 
 private slots:
-    void handleClicked(const QModelIndex &);
+    void handleActivated(const QModelIndex &);
     void handlePressed(const QModelIndex &);
     void updateCurrentItem(Core::IEditor*);
     void contextMenuRequested(QPoint pos);

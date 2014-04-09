@@ -101,6 +101,7 @@ OpenEditorsWidget::OpenEditorsWidget()
     setModel(m_model);
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
+    setActivationMode(Utils::SingleClickActivation);
     header()->setStretchLastSection(false);
     header()->setResizeMode(0, QHeaderView::Stretch);
     header()->setResizeMode(1, QHeaderView::Fixed);
@@ -111,8 +112,8 @@ OpenEditorsWidget::OpenEditorsWidget()
 
     connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateCurrentItem(Core::IEditor*)));
-    connect(this, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(handleClicked(QModelIndex)));
+    connect(this, SIGNAL(activated(QModelIndex)),
+            this, SLOT(handleActivated(QModelIndex)));
     connect(this, SIGNAL(pressed(QModelIndex)),
             this, SLOT(handlePressed(QModelIndex)));
 
@@ -143,12 +144,7 @@ bool OpenEditorsWidget::eventFilter(QObject *obj, QEvent *event)
     if (obj == this && event->type() == QEvent::KeyPress
             && currentIndex().isValid()) {
         QKeyEvent *ke = static_cast<QKeyEvent*>(event);
-        if ((ke->key() == Qt::Key_Return
-                || ke->key() == Qt::Key_Enter)
-                && ke->modifiers() == 0) {
-            activateEditor(currentIndex());
-            return true;
-        } else if ((ke->key() == Qt::Key_Delete
+        if ((ke->key() == Qt::Key_Delete
                    || ke->key() == Qt::Key_Backspace)
                 && ke->modifiers() == 0) {
             closeEditor(currentIndex());
@@ -174,7 +170,7 @@ void OpenEditorsWidget::handlePressed(const QModelIndex &index)
         m_delegate->pressedIndex = index;
 }
 
-void OpenEditorsWidget::handleClicked(const QModelIndex &index)
+void OpenEditorsWidget::handleActivated(const QModelIndex &index)
 {
     if (index.column() == 0) {
         activateEditor(index);
