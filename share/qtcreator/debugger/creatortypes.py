@@ -74,7 +74,7 @@ def qdump__CPlusPlus__IntegerType(d, value):
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__NamedType(d, value):
-    literal = downcast(value["_name"])
+    literal = d.downcast(value["_name"])
     d.putValue(d.encodeCharArray(literal["_chars"]), Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
