@@ -59,7 +59,7 @@ enum Columns
 };
 
 LogChangeWidget::LogChangeWidget(QWidget *parent)
-    : QTreeView(parent)
+    : Utils::TreeView(parent)
     , m_model(new QStandardItemModel(0, ColumnCount, this))
     , m_hasCustomDelegate(false)
 {
@@ -71,7 +71,8 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     setUniformRowHeights(true);
     setRootIsDecorated(false);
     setSelectionBehavior(QAbstractItemView::SelectRows);
-    connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(emitDoubleClicked(QModelIndex)));
+    setActivationMode(Utils::DoubleClickActivation);
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(emitActivated(QModelIndex)));
 }
 
 bool LogChangeWidget::init(const QString &repository, const QString &commit, LogFlags flags)
@@ -114,23 +115,23 @@ QString LogChangeWidget::earliestCommit() const
 
 void LogChangeWidget::setItemDelegate(QAbstractItemDelegate *delegate)
 {
-    QTreeView::setItemDelegate(delegate);
+    Utils::TreeView::setItemDelegate(delegate);
     m_hasCustomDelegate = true;
 }
 
-void LogChangeWidget::emitDoubleClicked(const QModelIndex &index)
+void LogChangeWidget::emitActivated(const QModelIndex &index)
 {
     if (index.isValid()) {
         QString commit = index.sibling(index.row(), Sha1Column).data().toString();
         if (!commit.isEmpty())
-            emit doubleClicked(commit);
+            emit activated(commit);
     }
 }
 
 void LogChangeWidget::selectionChanged(const QItemSelection &selected,
                                        const QItemSelection &deselected)
 {
-    QTreeView::selectionChanged(selected, deselected);
+    Utils::TreeView::selectionChanged(selected, deselected);
     if (!m_hasCustomDelegate)
         return;
     const QModelIndexList previousIndexes = deselected.indexes();

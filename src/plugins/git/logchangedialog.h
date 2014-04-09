@@ -30,10 +30,11 @@
 #ifndef LOGCHANGEDDIALOG_H
 #define LOGCHANGEDDIALOG_H
 
+#include <utils/itemviews.h>
+
 #include <QDialog>
 #include <QIcon>
 #include <QStyledItemDelegate>
-#include <QTreeView>
 
 QT_BEGIN_NAMESPACE
 class QDialogButtonBox;
@@ -48,7 +49,7 @@ namespace Internal {
 // A widget that lists SHA1 and subject of the changes
 // Used for reset and interactive rebase
 
-class LogChangeWidget : public QTreeView
+class LogChangeWidget : public Utils::TreeView
 {
     Q_OBJECT
 
@@ -70,10 +71,10 @@ public:
     void setItemDelegate(QAbstractItemDelegate *delegate);
 
 signals:
-    void doubleClicked(const QString &commit);
+    void activated(const QString &commit);
 
 private slots:
-    void emitDoubleClicked(const QModelIndex &index);
+    void emitActivated(const QModelIndex &index);
 
 private:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
