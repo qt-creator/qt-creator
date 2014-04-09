@@ -42,6 +42,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include "puppetbuildprogressdialog.h"
+
 #include <QtDebug>
 
 namespace QmlDesigner {
@@ -156,6 +158,8 @@ QProcess *PuppetCreator::qml2puppetProcess(const QString &puppetMode,
 
 bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
 {
+    PuppetBuildProgressDialog progressDialog;
+
     m_compileLog.clear();
 
     QTemporaryDir buildDirectory;
@@ -169,8 +173,11 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             qmakeArguments.append(QStringLiteral("DESTDIR=") + qmlpuppetDirectory(UserSpacePuppet));
             qmakeArguments.append(qmlPuppetProjectFilePath);
             buildSucceeded = startBuildProcess(buildDirectory.path(), qmakeCommand(), qmakeArguments);
-            if (buildSucceeded)
-                buildSucceeded = startBuildProcess(buildDirectory.path(), buildCommand());
+            if (buildSucceeded) {
+                progressDialog.show();
+                buildSucceeded = startBuildProcess(buildDirectory.path(), buildCommand(), QStringList(), &progressDialog);
+                progressDialog.hide();
+            }
         } else {
             buildSucceeded = true;
         }
@@ -246,7 +253,8 @@ QString PuppetCreator::compileLog() const
 
 bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
                                       const QString &command,
-                                      const QStringList &processArguments) const
+                                      const QStringList &processArguments,
+                                      PuppetBuildProgressDialog *progressDialog) const
 {
     if (command.isEmpty())
         return false;
@@ -256,8 +264,19 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     process.setProcessEnvironment(processEnvironment());
     process.setWorkingDirectory(buildDirectoryPath);
     process.start(command, processArguments);
-    process.waitForFinished(-1);
-    m_compileLog.append(process.readAllStandardOutput());
+    process.waitForStarted();
+    while (true) {
+        if (process.waitForReadyRead(100)) {
+            QByteArray newOutput = process.readAllStandardOutput();
+            if (progressDialog)  {
+                progressDialog->newBuildOutput(newOutput);
+                m_compileLog.append(newOutput);
+            }
+        }
+
+        if (process.state() == QProcess::NotRunning)
+            break;
+    }
 
     if (process.exitStatus() == QProcess::NormalExit || process.exitCode() == 0)
         return true;

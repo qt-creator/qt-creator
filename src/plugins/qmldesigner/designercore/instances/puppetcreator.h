@@ -39,6 +39,8 @@ class Kit;
 
 namespace QmlDesigner {
 
+class PuppetBuildProgressDialog;
+
 class PuppetCreator
 {
     enum Puppetype {
@@ -73,7 +75,8 @@ protected:
 
     bool startBuildProcess(const QString &buildDirectoryPath,
                            const QString &command,
-                           const QStringList &processArguments = QStringList()) const;
+                           const QStringList &processArguments = QStringList(),
+                           PuppetBuildProgressDialog *progressDialog = 0) const;
     static QString puppetSourceDirectoryPath();
     static QString qml2puppetProjectFile();
     static QString qmlpuppetProjectFile();
