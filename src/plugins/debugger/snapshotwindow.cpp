@@ -77,7 +77,7 @@ void SnapshotTreeView::keyPressEvent(QKeyEvent *ev)
             if (idx.column() == 0)
                 removeSnapshot(idx.row());
     }
-    QTreeView::keyPressEvent(ev);
+    BaseTreeView::keyPressEvent(ev);
 }
 
 void SnapshotTreeView::contextMenuEvent(QContextMenuEvent *ev)

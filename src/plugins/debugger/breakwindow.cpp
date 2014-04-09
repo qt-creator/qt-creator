@@ -714,7 +714,7 @@ void BreakTreeView::keyPressEvent(QKeyEvent *ev)
                 update(id);
         }
     }
-    QTreeView::keyPressEvent(ev);
+    BaseTreeView::keyPressEvent(ev);
 }
 
 void BreakTreeView::mouseDoubleClickEvent(QMouseEvent *ev)

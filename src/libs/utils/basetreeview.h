@@ -32,11 +32,11 @@
 
 #include "utils_global.h"
 
-#include <QTreeView>
+#include "itemviews.h"
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT BaseTreeView : public QTreeView
+class QTCREATOR_UTILS_EXPORT BaseTreeView : public Utils::TreeView
 {
     Q_OBJECT
 

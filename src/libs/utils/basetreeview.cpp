@@ -56,7 +56,7 @@ public:
 };
 
 BaseTreeView::BaseTreeView(QWidget *parent)
-    : QTreeView(parent)
+    : Utils::TreeView(parent)
 {
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
@@ -114,14 +114,14 @@ bool BaseTreeView::handleBaseContextAction(QAction *act)
 
 void BaseTreeView::setModel(QAbstractItemModel *model)
 {
-    QTreeView::setModel(model);
+    Utils::TreeView::setModel(model);
     if (header() && m_alwaysAdjustColumnsAction)
         setAlwaysResizeColumnsToContents(m_alwaysAdjustColumnsAction->isChecked());
 }
 
 void BaseTreeView::mousePressEvent(QMouseEvent *ev)
 {
-    QTreeView::mousePressEvent(ev);
+    Utils::TreeView::mousePressEvent(ev);
     if (!indexAt(ev->pos()).isValid())
         resizeColumnsToContents();
 }
@@ -147,7 +147,7 @@ void BaseTreeView::headerSectionClicked(int logicalIndex)
 
 void BaseTreeView::reset()
 {
-    QTreeView::reset();
+    Utils::TreeView::reset();
     if (header() && m_alwaysAdjustColumnsAction
             && m_alwaysAdjustColumnsAction->isChecked())
         resizeColumnsToContents();
