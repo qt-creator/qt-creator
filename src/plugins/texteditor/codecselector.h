@@ -35,6 +35,8 @@
 #include <QDialogButtonBox>
 #include <QListWidget>
 
+namespace Utils { class ListWidget; }
+
 namespace TextEditor {
 
 class BaseTextDocument;
@@ -65,7 +67,7 @@ private:
     bool m_hasDecodingError;
     bool m_isModified;
     QLabel *m_label;
-    QListWidget *m_listWidget;
+    Utils::ListWidget *m_listWidget;
     QDialogButtonBox *m_dialogButtonBox;
     QAbstractButton *m_reloadButton;
     QAbstractButton *m_saveButton;

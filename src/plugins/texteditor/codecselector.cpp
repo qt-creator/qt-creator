@@ -30,6 +30,8 @@
 #include "codecselector.h"
 #include "basetextdocument.h"
 
+#include <utils/itemviews.h>
+
 #include <QDebug>
 #include <QFileInfo>
 #include <QTextCodec>
@@ -45,10 +47,10 @@ namespace Internal {
 
 /* custom class to make sure the width is wide enough for the
  * contents. Should be easier with Qt. */
-class CodecListWidget : public QListWidget
+class CodecListWidget : public Utils::ListWidget
 {
 public:
-    CodecListWidget(QWidget *parent):QListWidget(parent){}
+    CodecListWidget(QWidget *parent) : Utils::ListWidget(parent){}
     QSize sizeHint() const {
         return QListWidget::sizeHint().expandedTo(
             QSize(sizeHintForColumn(0) + verticalScrollBar()->sizeHint().width() + 4, 0));
@@ -77,6 +79,7 @@ CodecSelector::CodecSelector(QWidget *parent, BaseTextDocument *doc)
     m_label->setText(tr("Select encoding for \"%1\".%2").arg(QFileInfo(doc->filePath()).fileName()).arg(decodingErrorHint));
 
     m_listWidget = new CodecListWidget(this);
+    m_listWidget->setActivationMode(Utils::DoubleClickActivation);
 
     QStringList encodings;
 
@@ -122,7 +125,7 @@ CodecSelector::CodecSelector(QWidget *parent, BaseTextDocument *doc)
     m_saveButton =  m_dialogButtonBox->addButton(tr("Save with Encoding"), QDialogButtonBox::DestructiveRole);
     m_dialogButtonBox->addButton(QDialogButtonBox::Cancel);
     connect(m_dialogButtonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonClicked(QAbstractButton*)));
-    connect(m_listWidget, SIGNAL(doubleClicked(QModelIndex)), m_reloadButton, SLOT(animateClick()));
+    connect(m_listWidget, SIGNAL(activated(QModelIndex)), m_reloadButton, SLOT(click()));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->addWidget(m_label);
