@@ -46,13 +46,13 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/elidinglabel.h>
+#include <utils/itemviews.h>
 
 #include <QDebug>
 #include <QSize>
 #include <QFileSystemModel>
 #include <QVBoxLayout>
 #include <QToolButton>
-#include <QListView>
 #include <QSortFilterProxyModel>
 #include <QAction>
 #include <QMenu>
@@ -115,7 +115,7 @@ QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
   */
 FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     : QWidget(parent),
-      m_listView(new QListView(this)),
+      m_listView(new Utils::ListView(this)),
       m_fileSystemModel(new FolderNavigationModel(this)),
       m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
       m_filterModel(new DotRemovalFilter(this)),

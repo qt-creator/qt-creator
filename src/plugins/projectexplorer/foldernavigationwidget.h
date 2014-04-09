@@ -34,9 +34,10 @@
 
 #include <QWidget>
 
+namespace Utils { class ListView; }
+
 QT_BEGIN_NAMESPACE
 class QLabel;
-class QListView;
 class QSortFilterProxyModel;
 class QModelIndex;
 class QFileSystemModel;
@@ -82,7 +83,7 @@ private:
     QModelIndex currentItem() const;
     QString currentDirectory() const;
 
-    QListView *m_listView;
+    Utils::ListView *m_listView;
     QFileSystemModel *m_fileSystemModel;
     QAction *m_filterHiddenFilesAction;
     QSortFilterProxyModel *m_filterModel;
