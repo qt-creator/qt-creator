@@ -44,7 +44,23 @@ maemo5 {
 
 exists($$QMAKE_INCDIR_QT/QtCore/private/qobject_p.h):DEFINES += HAS_PRIVATE
 exists(/usr/include/boost/optional.hpp): DEFINES += HAS_BOOST
-exists(/usr/include/eigen2/Eigen/Core): DEFINES += HAS_EIGEN
+
+exists(/usr/include/eigen2/Eigen/Core) {
+    DEFINES += HAS_EIGEN2
+    INCLUDEPATH += /usr/include/eigen2
+}
+exists(/usr/include/eigen3/Eigen/Core) {
+    DEFINES += HAS_EIGEN3
+    INCLUDEPATH += /usr/include/eigen3
+}
+exists(/usr/local/include/eigen2/Eigen/Core) {
+    DEFINES += HAS_EIGEN2
+    INCLUDEPATH += /usr/local/include/eigen2
+}
+exists(/usr/local/include/eigen3/Eigen/Core) {
+    DEFINES += HAS_EIGEN3
+    INCLUDEPATH += /usr/local/include/eigen3
+}
 
 win32-msvc*:DEFINES += _CRT_SECURE_NO_WARNINGS
 # Use for semi-automated testing

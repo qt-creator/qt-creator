@@ -108,7 +108,11 @@
 #define USE_PRIVATE 1
 #endif
 
-#ifdef HAS_EIGEN
+#ifdef HAS_EIGEN2
+#define USE_EIGEN 1
+#endif
+
+#ifdef HAS_EIGEN3
 #define USE_EIGEN 1
 #endif
 
@@ -231,7 +235,7 @@ void dummyStatement(...) {}
 #endif
 
 #if USE_EIGEN
-#include <eigen2/Eigen/Core>
+#include <Eigen/Core>
 #endif
 
 #if USE_PRIVATE
