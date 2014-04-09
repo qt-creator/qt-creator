@@ -489,7 +489,7 @@ void PixmapCacheModel::loadData()
 void PixmapCacheModel::clear()
 {
     Q_D(PixmapCacheModel);
-    d->SortedTimelineModel::clear();
+    d->clear();
     d->pixmaps.clear();
     d->collapsedRowCount = 1;
     d->maxCacheSize = 1;
