@@ -31,6 +31,7 @@
 #include "pluginmanager.h"
 #include "pluginspec.h"
 #include "plugincollection.h"
+#include <utils/itemviews.h>
 
 #include <QDebug>
 #include <QDir>
@@ -78,7 +79,7 @@ PluginView::PluginView(QWidget *parent)
       m_allowCheckStateUpdate(true),
       C_LOAD(1)
 {
-    m_categoryWidget = new QTreeWidget(this);
+    m_categoryWidget = new Utils::TreeWidget(this);
     m_categoryWidget->setAlternatingRowColors(true);
     m_categoryWidget->setIndentation(20);
     m_categoryWidget->setUniformRowHeights(true);
@@ -87,6 +88,7 @@ PluginView::PluginView(QWidget *parent)
     m_categoryWidget->setColumnWidth(C_LOAD, 40);
     m_categoryWidget->header()->setDefaultSectionSize(120);
     m_categoryWidget->header()->setMinimumSectionSize(35);
+    m_categoryWidget->setActivationMode(Utils::DoubleClickActivation);
 
     QTreeWidgetItem *headerItem = m_categoryWidget->headerItem();
     headerItem->setText(0, tr("Name"));

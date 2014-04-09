@@ -11,6 +11,7 @@ QtcLibrary {
 
     Depends { name: "Qt"; submodules: ["core", "widgets"] }
     Depends { name: "Aggregation" }
+    Depends { name: "Utils" }
 
     files: [
         "extensionsystem_global.h",

@@ -37,9 +37,10 @@
 #include <QIcon>
 
 QT_BEGIN_NAMESPACE
-class QTreeWidget;
 class QTreeWidgetItem;
 QT_END_NAMESPACE
+
+namespace Utils { class TreeWidget; }
 
 namespace ExtensionSystem {
 
@@ -74,7 +75,7 @@ private:
     void updatePluginDependencies();
     int parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins);
 
-    QTreeWidget *m_categoryWidget;
+    Utils::TreeWidget *m_categoryWidget;
     QList<QTreeWidgetItem*> m_items;
     QHash<PluginSpec*, QTreeWidgetItem*> m_specToItem;
 
