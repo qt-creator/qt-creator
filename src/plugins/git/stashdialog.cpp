@@ -133,6 +133,7 @@ StashDialog::StashDialog(QWidget *parent) :
     m_proxyModel->setSourceModel(m_model);
     m_proxyModel->setFilterKeyColumn(-1);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    ui->stashView->setActivationMode(Utils::DoubleClickActivation);
     ui->stashView->setModel(m_proxyModel);
     ui->stashView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->stashView->setAllColumnsShowFocus(true);
@@ -142,7 +143,7 @@ StashDialog::StashDialog(QWidget *parent) :
             this, SLOT(enableButtons()));
     connect(ui->stashView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(enableButtons()));
-    connect(ui->stashView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showCurrent()));
+    connect(ui->stashView, SIGNAL(activated(QModelIndex)), this, SLOT(showCurrent()));
     ui->stashView->setFocus();
 }
 
