@@ -48,6 +48,8 @@ class QDialogButtonBox;
 class QTextBrowser;
 QT_END_NAMESPACE
 
+namespace Utils { class TreeView; }
+
 namespace Gerrit {
 namespace Internal {
 class GerritParameters;
@@ -93,7 +95,7 @@ public slots:
 
 private slots:
     void slotCurrentChanged();
-    void slotDoubleClicked(const QModelIndex &);
+    void slotActivated(const QModelIndex &);
     void slotRefreshStateChanged(bool);
     void slotFetchDisplay();
     void slotFetchCherryPick();
@@ -111,7 +113,7 @@ private:
     QSortFilterProxyModel *m_filterModel;
     GerritModel *m_model;
     QStringListModel *m_queryModel;
-    QTreeView *m_treeView;
+    Utils::TreeView *m_treeView;
     QTextBrowser *m_detailsBrowser;
     QueryValidatingLineEdit *m_queryLineEdit;
     Utils::FancyLineEdit *m_filterLineEdit;

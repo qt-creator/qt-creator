@@ -32,6 +32,7 @@
 #include "gerritparameters.h"
 
 #include <utils/qtcassert.h>
+#include <utils/itemviews.h>
 #include <coreplugin/icore.h>
 
 #include <QVBoxLayout>
@@ -96,7 +97,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_filterModel(new QSortFilterProxyModel(this))
     , m_model(new GerritModel(p, this))
     , m_queryModel(new QStringListModel(this))
-    , m_treeView(new QTreeView)
+    , m_treeView(new Utils::TreeView)
     , m_detailsBrowser(new QTextBrowser)
     , m_queryLineEdit(new QueryValidatingLineEdit)
     , m_filterLineEdit(new Utils::FancyLineEdit)
@@ -143,12 +144,13 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_treeView->setRootIsDecorated(false);
     m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeView->setSortingEnabled(true);
+    m_treeView->setActivationMode(Utils::DoubleClickActivation);
 
     QItemSelectionModel *selectionModel = m_treeView->selectionModel();
     connect(selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(slotCurrentChanged()));
-    connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(slotDoubleClicked(QModelIndex)));
+    connect(m_treeView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(slotActivated(QModelIndex)));
 
     QGroupBox *detailsGroup = new QGroupBox(tr("Details"));
     QVBoxLayout *detailsLayout = new QVBoxLayout(detailsGroup);
@@ -224,7 +226,7 @@ GerritDialog::~GerritDialog()
 {
 }
 
-void GerritDialog::slotDoubleClicked(const QModelIndex &i)
+void GerritDialog::slotActivated(const QModelIndex &i)
 {
     if (const QStandardItem *item = itemAt(i))
         QDesktopServices::openUrl(QUrl(m_model->change(item->row())->url));
