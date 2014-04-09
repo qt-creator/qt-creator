@@ -87,7 +87,6 @@ private:
 
     QVariantMap readUserSettings(QWidget *parent) const;
     QVariantMap readSharedSettings(QWidget *parent) const;
-    SettingsData findBestSettings(const QStringList &candidates) const;
     QVariantMap mergeSettings(const QVariantMap &userMap, const QVariantMap &sharedMap) const;
 
     bool readFile(SettingsData *settings) const;

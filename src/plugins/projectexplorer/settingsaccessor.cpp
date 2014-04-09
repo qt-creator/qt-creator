@@ -412,6 +412,8 @@ public:
         delete m_writer;
     }
 
+    SettingsAccessor::SettingsData bestSettings(const SettingsAccessor *accessor, const QStringList &candidates) const;
+
     QMap<int, Internal::VersionUpgrader *> m_upgraders;
     Utils::PersistentSettingsWriter *m_writer;
 };
@@ -747,7 +749,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
     if (fileList.isEmpty()) // No settings found at all.
         return result.m_map;
 
-    result = findBestSettings(fileList);
+    result = d->bestSettings(this, fileList);
 
     const QByteArray resultEnvironmentId = environmentIdFromMap(result.m_map);
 
@@ -840,42 +842,42 @@ QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
     return sharedSettings.m_map;
 }
 
-SettingsAccessor::SettingsData SettingsAccessor::findBestSettings(const QStringList &candidates) const
+SettingsAccessor::SettingsData SettingsAccessorPrivate::bestSettings(const SettingsAccessor *accessor, const QStringList &candidates) const
 {
-    SettingsData newestNonMatching;
-    SettingsData newestMatching;
-    SettingsData tmp;
+    SettingsAccessor::SettingsData newestNonMatching;
+    SettingsAccessor::SettingsData newestMatching;
+    SettingsAccessor::SettingsData tmp;
 
     foreach (const QString &file, candidates) {
         tmp.clear();
         tmp.m_fileName = FileName::fromString(file);
-        if (!readFile(&tmp))
+        if (!accessor->readFile(&tmp))
             continue;
 
-        const int tmpVersion = versionFromMap(tmp.m_map);
+        const int tmpVersion = SettingsAccessor::versionFromMap(tmp.m_map);
 
-        if (tmpVersion > currentVersion()) {
+        if (tmpVersion > accessor->currentVersion()) {
             qWarning() << "Skipping settings file" << tmp.fileName().toUserOutput() << "(too new).";
             continue;
         }
-        if (tmpVersion < m_firstVersion) {
+        if (tmpVersion < accessor->m_firstVersion) {
             qWarning() << "Skipping settings file" << tmp.fileName().toUserOutput() << "(too old).";
             continue;
         }
 
-        const QByteArray tmpEnvironmentId = environmentIdFromMap(tmp.m_map);
-        if (tmpEnvironmentId.isEmpty() || tmpEnvironmentId == creatorId()) {
-            if (tmpVersion > versionFromMap(newestMatching.m_map))
+        const QByteArray tmpEnvironmentId = SettingsAccessor::environmentIdFromMap(tmp.m_map);
+        if (tmpEnvironmentId.isEmpty() || tmpEnvironmentId == SettingsAccessor::creatorId()) {
+            if (tmpVersion > SettingsAccessor::versionFromMap(newestMatching.m_map))
                 newestMatching = tmp;
         } else {
-            if (tmpVersion > versionFromMap(newestNonMatching.m_map))
+            if (tmpVersion > SettingsAccessor::versionFromMap(newestNonMatching.m_map))
                 newestNonMatching = tmp;
         }
-        if (versionFromMap(newestMatching.m_map) == m_lastVersion + 1)
+        if (SettingsAccessor::versionFromMap(newestMatching.m_map) == accessor->m_lastVersion + 1)
             break;
     }
 
-    SettingsData result;
+    SettingsAccessor::SettingsData result;
     if (newestMatching.isValid())
         result = newestMatching;
     else if (newestNonMatching.isValid())
