@@ -79,7 +79,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 QmlConsoleView::QmlConsoleView(QWidget *parent) :
-    QTreeView(parent)
+    Utils::TreeView(parent)
 {
     setFrameStyle(QFrame::NoFrame);
     setHeaderHidden(true);
@@ -160,28 +160,18 @@ void QmlConsoleView::mousePressEvent(QMouseEvent *event)
             }
         }
         if (!handled)
-            QTreeView::mousePressEvent(event);
+            Utils::TreeView::mousePressEvent(event);
     } else {
         selectionModel()->setCurrentIndex(model()->index(model()->rowCount() - 1, 0),
                                           QItemSelectionModel::ClearAndSelect);
     }
 }
 
-void QmlConsoleView::keyPressEvent(QKeyEvent *e)
-{
-    if (!e->modifiers() && e->key() == Qt::Key_Return) {
-        emit activated(currentIndex());
-        e->accept();
-        return;
-    }
-    QTreeView::keyPressEvent(e);
-}
-
 void QmlConsoleView::resizeEvent(QResizeEvent *e)
 {
     static_cast<QmlConsoleItemDelegate *>(itemDelegate())->emitSizeHintChanged(
                 selectionModel()->currentIndex());
-    QTreeView::resizeEvent(e);
+    Utils::TreeView::resizeEvent(e);
 }
 
 void QmlConsoleView::drawBranches(QPainter *painter, const QRect &rect,
@@ -189,7 +179,7 @@ void QmlConsoleView::drawBranches(QPainter *painter, const QRect &rect,
 {
     static_cast<QmlConsoleItemDelegate *>(itemDelegate())->drawBackground(painter, rect, index,
                                                                             false);
-    QTreeView::drawBranches(painter, rect, index);
+    Utils::TreeView::drawBranches(painter, rect, index);
 }
 
 void QmlConsoleView::contextMenuEvent(QContextMenuEvent *event)

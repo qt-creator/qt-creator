@@ -30,12 +30,12 @@
 #ifndef QMLCONSOLEVIEW_H
 #define QMLCONSOLEVIEW_H
 
-#include <QTreeView>
+#include <utils/itemviews.h>
 
 namespace QmlJSTools {
 namespace Internal {
 
-class QmlConsoleView : public QTreeView
+class QmlConsoleView : public Utils::TreeView
 {
     Q_OBJECT
 public:
@@ -46,7 +46,6 @@ public slots:
 
 protected:
     void mousePressEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *e);
     void resizeEvent(QResizeEvent *e);
     void drawBranches(QPainter *painter, const QRect &rect,
                       const QModelIndex &index) const;
