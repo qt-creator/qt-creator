@@ -74,7 +74,7 @@ PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
 void PaintEventsModelProxy::clear()
 {
     Q_D(PaintEventsModelProxy);
-    d->SortedTimelineModel::clear();
+    d->clear();
     d->maxGuiThreadAnimations = d->maxRenderThreadAnimations = 0;
     d->expanded = false;
     d->seenForeignPaintEvent = false;
