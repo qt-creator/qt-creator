@@ -103,8 +103,7 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget() :
     m_treeView->setModel(m_model);
     m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_treeView->setItemDelegate(m_delegate);
-
-    connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
+    connect(m_treeView, SIGNAL(activated(QModelIndex)), this, SLOT(onItemActivated(QModelIndex)));
 
     m_includeHierarchyInfoLabel = new QLabel(tr("No include hierarchy available"), this);
     m_includeHierarchyInfoLabel->setAlignment(Qt::AlignCenter);
@@ -157,7 +156,7 @@ void CppIncludeHierarchyWidget::perform()
     showIncludeHierarchy();
 }
 
-void CppIncludeHierarchyWidget::onItemClicked(const QModelIndex &index)
+void CppIncludeHierarchyWidget::onItemActivated(const QModelIndex &index)
 {
     const TextEditor::BaseTextEditorWidget::Link link
             = index.data(LinkRole).value<TextEditor::BaseTextEditorWidget::Link>();

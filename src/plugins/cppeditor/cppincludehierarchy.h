@@ -71,7 +71,7 @@ public slots:
     void perform();
 
 private slots:
-    void onItemClicked(const QModelIndex &index);
+    void onItemActivated(const QModelIndex &index);
     void editorsClosed(QList<Core::IEditor *> editors);
 
 private:
