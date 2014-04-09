@@ -212,7 +212,7 @@ void NickNameDialog::slotCurrentItemChanged(const QModelIndex &index)
 void NickNameDialog::slotDoubleClicked(const QModelIndex &)
 {
     if (okButton()->isEnabled())
-        okButton()->animateClick();
+        okButton()->click();
 }
 
 QString NickNameDialog::nickName() const
