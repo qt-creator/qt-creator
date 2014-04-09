@@ -114,7 +114,8 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
                 setVisible(false);
                 return true;
             }
-            if (ke->key() == Qt::Key_Return) {
+            if (ke->key() == Qt::Key_Return
+                    || ke->key() == Qt::Key_Enter) {
                 selectEditor(m_editorList->currentItem());
                 return true;
             }
