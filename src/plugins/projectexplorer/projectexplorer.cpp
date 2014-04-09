@@ -1994,9 +1994,10 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
                                                         tr("Always save files before build"), &alwaysSave)) {
                 if (cancelled)
                     return false;
-                if (alwaysSave)
-                    d->m_projectExplorerSettings.saveBeforeBuild = true;
             }
+
+            if (alwaysSave)
+                d->m_projectExplorerSettings.saveBeforeBuild = true;
         }
     }
     return true;
