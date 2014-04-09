@@ -93,7 +93,7 @@ private:
     bool readFile(SettingsData *settings) const;
     bool writeFile(const SettingsData *settings, QWidget *parent) const;
 
-    QByteArray environmentIdFromMap(const QVariantMap &data) const;
+    static QByteArray environmentIdFromMap(const QVariantMap &data);
 
     int m_firstVersion;
     int m_lastVersion;

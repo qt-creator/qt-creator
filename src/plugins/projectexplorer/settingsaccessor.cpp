@@ -619,7 +619,7 @@ void trackUserStickySettings(QVariantMap &userMap, const QVariantMap &sharedMap)
 
 } // Anonymous
 
-QByteArray SettingsAccessor::environmentIdFromMap(const QVariantMap &data) const
+QByteArray SettingsAccessor::environmentIdFromMap(const QVariantMap &data)
 {
     return data.value(QLatin1String(ENVIRONMENT_ID_KEY)).toByteArray();
 }
