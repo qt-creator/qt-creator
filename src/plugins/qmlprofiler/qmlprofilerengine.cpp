@@ -115,7 +115,7 @@ bool QmlProfilerRunControl::startEngine()
 
     if (startParameters().startMode == StartLocal)
         d->m_noDebugOutputTimer.start();
-    else
+    else if (startParameters().analyzerPort != 0)
         emit processRunning(startParameters().analyzerPort);
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
