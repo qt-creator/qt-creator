@@ -32,7 +32,7 @@
 
 #include "searchresultwindow.h"
 
-#include <QTreeView>
+#include <utils/itemviews.h>
 
 namespace Core {
 namespace Internal {
@@ -40,7 +40,7 @@ namespace Internal {
 class SearchResultTreeModel;
 class SearchResultColor;
 
-class SearchResultTreeView : public QTreeView
+class SearchResultTreeView : public Utils::TreeView
 {
     Q_OBJECT
 
@@ -61,8 +61,6 @@ public slots:
     void emitJumpToSearchResult(const QModelIndex &index);
 
 protected:
-    void keyPressEvent(QKeyEvent *e);
-
     SearchResultTreeModel *m_model;
     bool m_autoExpandResults;
 };

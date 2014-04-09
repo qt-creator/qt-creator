@@ -39,7 +39,7 @@ namespace Core {
 namespace Internal {
 
 SearchResultTreeView::SearchResultTreeView(QWidget *parent)
-    : QTreeView(parent)
+    : Utils::TreeView(parent)
     , m_model(new SearchResultTreeModel(this))
     , m_autoExpandResults(false)
 {
@@ -88,16 +88,6 @@ void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
     SearchResultItem item = model()->data(index, ItemDataRoles::ResultItemRole).value<SearchResultItem>();
 
     emit jumpToSearchResult(item);
-}
-
-void SearchResultTreeView::keyPressEvent(QKeyEvent *e)
-{
-    if (!e->modifiers() && e->key() == Qt::Key_Return) {
-        emit activated(currentIndex());
-        e->accept();
-        return;
-    }
-    QTreeView::keyPressEvent(e);
 }
 
 SearchResultTreeModel *SearchResultTreeView::model() const
