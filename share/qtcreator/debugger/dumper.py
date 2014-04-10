@@ -1156,8 +1156,11 @@ class DumperBase:
                         k = signalNames[i]
                         with SubItem(self, k):
                             self.putEmptyValue()
+                    self.putQObjectConnections(qobject)
 
+    def putQObjectConnections(self, qobject):
         with SubItem(self, "[connections]"):
+            ptrSize = self.ptrSize()
             self.putNoType()
             ns = self.qtNamespace()
             privateTypeName = ns + "QObjectPrivate"
@@ -1165,31 +1168,32 @@ class DumperBase:
             dd = qobject["d_ptr"]["d"]
             d_ptr = dd.cast(privateType.pointer()).dereference()
             connections = d_ptr["connectionLists"]
-            connectionListCount = 0
-            if not self.isNull(connections):
-                connectionListCount = connections["d"]["size"]
-            self.putItemCount(connectionListCount, 0)
-            self.putNumChild(connectionListCount)
+            if self.isNull(connections):
+                self.putItemCount(0)
+                self.putNumChild(0)
+            else:
+                connections = connections.dereference()
+                connections = connections.cast(self.directBaseClass(connections.type))
+                self.putValue('<>0 items>')
+                self.putNumChild(1)
             if self.isExpanded():
                 pp = 0
                 with Children(self):
-                    vectorType = self.fieldAt(connections.type.target(), 0).type
-                    innerType = self.templateArgument(vectorType, 0)
+                    innerType = self.templateArgument(connections.type, 0)
                     # Should check:  innerType == ns::QObjectPrivate::ConnectionList
-                    base = self.extractPointer(connections.dereference())
+                    base = self.extractPointer(connections)
                     data, size, alloc = self.vectorDataHelper(base)
                     connectionType = self.lookupType(ns + "QObjectPrivate::Connection")
                     for i in xrange(size):
                         first = self.extractPointer(data + i * 2 * ptrSize)
-                        while not self.isNull(first):
-                            self.putSubItem("%s" % pp, self.createPointerValue(first, connectionType))
+                        while first:
+                            self.putSubItem("%s" % pp,
+                                self.createPointerValue(first, connectionType))
                             first = self.extractPointer(first + 3 * ptrSize)
                             # We need to enforce some upper limit.
                             pp += 1
                             if pp > 1000:
                                 break
-                if pp < 1000:
-                    self.putItemCount(pp)
 
     def isKnownMovableType(self, type):
         if type in (
