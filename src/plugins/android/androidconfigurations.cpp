@@ -112,6 +112,19 @@ namespace {
 
         return dev1.serialNumber < dev2.serialNumber;
     }
+
+    static QStringList cleanAndroidABIs(const QStringList &abis)
+    {
+        QStringList res;
+        foreach (const QString &abi, abis) {
+            int index = abi.lastIndexOf(QLatin1Char('/'));
+            if (index == -1)
+                res << abi;
+            else
+                res << abi.mid(index + 1);
+        }
+        return res;
+    }
 }
 
 //////////////////////////////////
@@ -295,8 +308,10 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
             platform.apiLevel = androidTarget.mid(androidTarget.lastIndexOf(QLatin1Char('-')) + 1).toInt();
         } else if (line.startsWith(QLatin1String("Name:"))) {
             platform.name = line.mid(6);
+        } else if (line.startsWith(QLatin1String("Tag/ABIs :"))) {
+            platform.abis = cleanAndroidABIs(line.mid(10).trimmed().split(QLatin1String(", ")));
         } else if (line.startsWith(QLatin1String("ABIs"))) {
-            platform.abis = line.mid(6).trimmed().split(QLatin1String(", "));
+            platform.abis = cleanAndroidABIs(line.mid(6).trimmed().split(QLatin1String(", ")));
         } else if (line.startsWith(QLatin1String("---")) || line.startsWith(QLatin1String("==="))) {
             if (platform.apiLevel == -1)
                 continue;
