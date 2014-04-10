@@ -12,7 +12,7 @@ defineReplace(findLLVMConfig) {
 
     # Prefer llvm-config* from LLVM_INSTALL_DIR
     !isEmpty(LLVM_INSTALL_DIR) {
-        for (variant, LLVM_CONFIG_VARIANTS) {
+        for(variant, LLVM_CONFIG_VARIANTS) {
             variant=$$LLVM_INSTALL_DIR/bin/$$variant
             exists($$variant) {
                 return($$variant)
@@ -27,8 +27,8 @@ defineReplace(findLLVMConfig) {
     } else {
         ENV_PATH = $$split(ENV_PATH, :)
     }
-    for (variant, LLVM_CONFIG_VARIANTS) {
-        for (path, ENV_PATH) {
+    for(variant, LLVM_CONFIG_VARIANTS) {
+        for(path, ENV_PATH) {
             subvariant = $$path/$$variant
             exists($$subvariant) {
                 return($$subvariant)
