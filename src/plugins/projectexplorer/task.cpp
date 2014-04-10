@@ -29,6 +29,8 @@
 
 #include "task.h"
 
+#include <utils/qtcassert.h>
+
 namespace ProjectExplorer
 {
 
@@ -68,6 +70,8 @@ Task::Task(TaskType type_, const QString &description_,
 
 void Task::addMark(TextEditor::BaseTextMark *mark)
 {
+    QTC_ASSERT(m_mark.isNull(), return);
+
     m_mark = QSharedPointer<TextEditor::BaseTextMark>(mark);
 }
 
