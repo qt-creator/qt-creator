@@ -73,7 +73,7 @@ using namespace Android;
 using namespace Android::Internal;
 
 namespace {
-const QLatin1String packageNameRegExp("^([a-z_]{1}[a-z0-9_]+(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$");
+const QLatin1String packageNameRegExp("^([a-z]{1}[a-z0-9_]+(\\.[a-zA-Z]{1}[a-zA-Z0-9_]*)*)$");
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
 const char androidManifestEditorGeneralPaneContextId[] = "AndroidManifestEditorWidget.GeneralWidget";
 
