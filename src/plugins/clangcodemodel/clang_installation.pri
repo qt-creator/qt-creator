@@ -65,7 +65,7 @@ unix {
 
     LLVM_VERSION = $$system($$LLVM_CONFIG --version)
     LLVM_VERSION = $$replace(LLVM_VERSION, ^(\\d+\\.\\d+).*$, \\1)
-    message("... version $$LLVM_VERSION");
+    message("... version $$LLVM_VERSION")
 
     LLVM_INCLUDEPATH = $$system($$LLVM_CONFIG --includedir)
     isEmpty(LLVM_INCLUDEPATH):LLVM_INCLUDEPATH=$$LLVM_INSTALL_DIR/include
