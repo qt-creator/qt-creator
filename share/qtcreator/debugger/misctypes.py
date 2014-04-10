@@ -133,9 +133,7 @@ def qdump__Eigen__PlainObjectBase(d, value):
     storage = value["m_storage"]
     nrows = toInteger(storage["m_rows"] if argRow == -1 else argRow)
     ncols = toInteger(storage["m_cols"] if argCol == -1 else argCol)
-    p = storage["m_data"]
-    if d.isStructType(p.type): # Static
-        p = p["array"].cast(innerType.pointer())
+    p = d.createPointerValue(d.addressOf(value), innerType)
     d.putValue("(%s x %s), %s" % (nrows, ncols, ["ColumnMajor", "RowMajor"][rowMajor]))
     d.putField("keeporder", "1")
     d.putNumChild(nrows * ncols)
