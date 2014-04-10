@@ -89,7 +89,7 @@ bool IosDeployStep::init()
     IosRunConfiguration * runConfig = qobject_cast<IosRunConfiguration *>(
                 this->target()->activeRunConfiguration());
     QTC_CHECK(runConfig);
-    m_bundlePath = runConfig->bundleDir().toString();
+    m_bundlePath = runConfig->bundleDirectory().toString();
     if (m_device.isNull()) {
         emit addOutput(tr("Error: no device available, deploy failed."),
                        BuildStep::ErrorMessageOutput);

@@ -436,7 +436,7 @@ QStringList IosDsymBuildStep::defaultCleanCmdList() const
     IosRunConfiguration *runConf =
             qobject_cast<IosRunConfiguration *>(target()->activeRunConfiguration());
     QTC_ASSERT(runConf, return QStringList(QLatin1String("echo")));
-    QString dsymPath = runConf->bundleDir().toUserOutput();
+    QString dsymPath = runConf->bundleDirectory().toUserOutput();
     dsymPath.chop(4);
     dsymPath.append(QLatin1String(".dSYM"));
     return QStringList()
@@ -455,14 +455,14 @@ QStringList IosDsymBuildStep::defaultCmdList() const
     IosRunConfiguration *runConf =
             qobject_cast<IosRunConfiguration *>(target()->activeRunConfiguration());
     QTC_ASSERT(runConf, return QStringList(QLatin1String("echo")));
-    QString dsymPath = runConf->bundleDir().toUserOutput();
+    QString dsymPath = runConf->bundleDirectory().toUserOutput();
     dsymPath.chop(4);
     dsymPath.append(QLatin1String(".dSYM"));
     return QStringList()
             << dsymutilCmd
             << QLatin1String("-o")
             << dsymPath
-            << runConf->exePath().toUserOutput();
+            << runConf->localExecutable().toUserOutput();
 }
 
 

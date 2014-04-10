@@ -71,9 +71,9 @@ public:
 
     QStringList commandLineArguments();
     QString profilePath() const;
-    QString appName() const;
-    Utils::FileName bundleDir() const;
-    Utils::FileName exePath() const;
+    QString applicationName() const;
+    Utils::FileName bundleDirectory() const;
+    Utils::FileName localExecutable() const;
     bool isEnabled() const;
     QString disabledReason() const;
     IosDeviceType::Enum deviceType() const;

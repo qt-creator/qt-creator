@@ -166,7 +166,7 @@ void IosRunConfiguration::updateDisplayNames()
             ProjectExplorer::DeviceKitInformation::device(target()->kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     setDefaultDisplayName(tr("Run on %1").arg(devName));
-    setDisplayName(tr("Run %1 on %2").arg(appName()).arg(devName));
+    setDisplayName(tr("Run %1 on %2").arg(applicationName()).arg(devName));
 }
 
 IosDeployStep *IosRunConfiguration::deployStep() const
@@ -191,7 +191,7 @@ QString IosRunConfiguration::profilePath() const
     return m_profilePath;
 }
 
-QString IosRunConfiguration::appName() const
+QString IosRunConfiguration::applicationName() const
 {
     QmakeProject *pro = qobject_cast<QmakeProject *>(target()->project());
     const QmakeProFileNode *node = 0;
@@ -207,7 +207,7 @@ QString IosRunConfiguration::appName() const
     return QString();
 }
 
-Utils::FileName IosRunConfiguration::bundleDir() const
+Utils::FileName IosRunConfiguration::bundleDirectory() const
 {
     Utils::FileName res;
     Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
@@ -251,13 +251,13 @@ Utils::FileName IosRunConfiguration::bundleDir() const
                      << target()->activeBuildConfiguration()->buildType();
         }
     }
-    res.appendPath(appName() + QLatin1String(".app"));
+    res.appendPath(applicationName() + QLatin1String(".app"));
     return res;
 }
 
-Utils::FileName IosRunConfiguration::exePath() const
+Utils::FileName IosRunConfiguration::localExecutable() const
 {
-    return bundleDir().appendPath(appName());
+    return bundleDirectory().appendPath(applicationName());
 }
 
 bool IosRunConfiguration::fromMap(const QVariantMap &map)
@@ -455,7 +455,7 @@ void IosRunConfigurationWidget::updateValues()
             if (simulatedDevices[i] == m_runConfiguration->deviceType())
                 m_ui->deviceTypeComboBox->setCurrentIndex(i);
     m_ui->argumentsLineEdit->setText(argsString);
-    m_ui->executableLineEdit->setText(m_runConfiguration->exePath().toUserOutput());
+    m_ui->executableLineEdit->setText(m_runConfiguration->localExecutable().toUserOutput());
 }
 
 } // namespace Internal

@@ -56,7 +56,7 @@ namespace Ios {
 namespace Internal {
 
 IosRunner::IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool cppDebug, bool qmlDebug)
-    : QObject(parent), m_toolHandler(0), m_bundleDir(runConfig->bundleDir().toString()),
+    : QObject(parent), m_toolHandler(0), m_bundleDir(runConfig->bundleDirectory().toString()),
       m_arguments(runConfig->commandLineArguments()),
       m_device(ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit())),
       m_cppDebug(cppDebug), m_qmlDebug(qmlDebug), m_cleanExit(false),

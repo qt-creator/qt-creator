@@ -114,7 +114,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
         params.startMode = AttachExternal;
         params.platform = QLatin1String("ios-simulator");
     }
-    params.displayName = runConfig->appName();
+    params.displayName = runConfig->applicationName();
     params.remoteSetupNeeded = true;
     if (!params.breakOnMain)
         params.continueAfterAttach = true;
@@ -129,7 +129,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
         params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
             params.toolChainAbi = tc->targetAbi();
-        params.executable = runConfig->exePath().toString();
+        params.executable = runConfig->localExecutable().toString();
         params.remoteChannel = QLatin1String("connect://localhost:0");
 
         Utils::FileName xcodeInfo = IosConfigurations::developerPath().parentDir()
@@ -142,7 +142,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
             if (version.value(0).toInt() == 5 && version.value(1, QString::number(1)).toInt() == 0)
                 buggyLldb = true;
         }
-        QString bundlePath = runConfig->bundleDir().toString();
+        QString bundlePath = runConfig->bundleDirectory().toString();
         bundlePath.chop(4);
         Utils::FileName dsymPath = Utils::FileName::fromString(
                     bundlePath.append(QLatin1String(".dSYM")));
@@ -153,7 +153,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
                                     "To create one, add a dsymutil deploystep."),
                                  ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
         } else if (dsymPath.toFileInfo().lastModified()
-                   < QFileInfo(runConfig->exePath().toUserOutput()).lastModified()) {
+                   < QFileInfo(runConfig->localExecutable().toUserOutput()).lastModified()) {
             TaskHub::addTask(Task::Warning,
                              tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
                              .arg(dsymPath.toUserOutput()),
