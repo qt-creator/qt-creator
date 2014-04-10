@@ -1038,11 +1038,20 @@ class DumperBase:
 
         return items
 
+    def staticQObjectPropertyCount(self, metaobject):
+        return self.extractInt(self.extractPointer(metaobject["d"]["data"]) + 24)
+
     def staticQObjectPropertyNames(self, metaobject):
         return self.staticQObjectMetaData(metaobject, 24, 28, 3)
 
+    def staticQObjectMethodCount(self, metaobject):
+        return self.extractInt(self.extractPointer(metaobject["d"]["data"]) + 16)
+
     def staticQObjectMethodNames(self, metaobject):
         return self.staticQObjectMetaData(metaobject, 16, 20, 5)
+
+    def staticQObjectSignalCount(self, metaobject):
+        return self.extractInt(self.extractPointer(metaobject["d"]["data"]) + 52)
 
     def staticQObjectSignalNames(self, metaobject):
         return self.staticQObjectMetaData(metaobject, 52, -14, 5)
@@ -1125,20 +1134,21 @@ class DumperBase:
             self.putNumChild(1)
 
         with SubItem(self, "[methods]"):
-            methodCount = 0
+            methodCount = self.staticQObjectMethodCount(smo)
+            self.putItemCount(methodCount)
+            self.putNumChild(methodCount)
             if self.isExpanded():
                 methodNames = self.staticQObjectMethodNames(smo)
-                methodCount = len(methodNames)
                 with Children(self):
                     for i in range(methodCount):
                         k = methodNames[i]
                         with SubItem(self, k):
                             self.putEmptyValue()
-            self.putValue('<%s items>' % methodCount if methodCount else ' ')
-            self.putNumChild(1)
 
         with SubItem(self, "[signals]"):
-            signalCount = 0
+            signalCount = self.staticQObjectSignalCount(smo)
+            self.putItemCount(signalCount)
+            self.putNumChild(signalCount)
             if self.isExpanded():
                 signalNames = self.staticQObjectSignalNames(smo)
                 signalCount = len(signalNames)
@@ -1147,8 +1157,6 @@ class DumperBase:
                         k = signalNames[i]
                         with SubItem(self, k):
                             self.putEmptyValue()
-            self.putValue('<%s items>' % signalCount if signalCount else ' ')
-            self.putNumChild(1)
 
         with SubItem(self, "[connections]"):
             self.putNoType()
