@@ -39,6 +39,9 @@ def verifyCloneLog(targetDir, canceled):
         summary = "Failed."
     else:
         cloneLog = str(waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit").plainText)
+        if "fatal: The remote end hung up unexpectedly" in cloneLog:
+            test.warning("Remote end hung up unexpectedly.")
+            return False
         # test for QTCREATORBUG-10112
         test.compare(cloneLog.count("remote: Counting objects:"), 1)
         test.compare(cloneLog.count("remote: Finding sources:"), 1)
@@ -52,6 +55,7 @@ def verifyCloneLog(targetDir, canceled):
     resultLabel = findObject(":Git Repository Clone.Result._QLabel")
     test.verify(waitFor('str(resultLabel.text) == summary', 3000),
                 "Verifying expected result (%s)" % summary)
+    return True
 
 def verifyVersionControlView(targetDir, canceled):
     openVcsLog()
@@ -100,7 +104,9 @@ def main():
             verifyCloneLog(targetDir, True)
             clickButton(":Git Repository Clone.Cancel_QPushButton")
         else:
-            verifyCloneLog(targetDir, False)
+            if not verifyCloneLog(targetDir, False):
+                clickButton(":Git Repository Clone.Cancel_QPushButton")
+                continue
             verifyFiles(targetDir)
             try:
                 clickButton(waitForObject(button))
