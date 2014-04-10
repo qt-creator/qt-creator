@@ -417,8 +417,16 @@ class Dumper(DumperBase):
         return self.lookupType(inner)
 
     def numericTemplateArgument(self, typeobj, index):
+        # There seems no API to extract the numeric value.
         inner = self.extractTemplateArgument(typeobj.GetName(), index)
-        return int(inner)
+        innerType = typeobj.GetTemplateArgumentType(index)
+        basicType = innerType.GetBasicType()
+        value = toInteger(inner)
+        # Clang writes 'int' and '0xfffffff' into the debug info
+        # LLDB manages to read a value of 0xfffffff...
+        if basicType == lldb.eBasicTypeInt and value >= 0x8000000:
+            value -= 0x100000000
+        return value
 
     def isReferenceType(self, typeobj):
         return typeobj.IsReferenceType()
