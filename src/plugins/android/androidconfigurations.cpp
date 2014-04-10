@@ -306,6 +306,13 @@ void AndroidConfig::updateAvailableSdkPlatforms() const
             platform = SdkPlatform();
         }
     }
+
+    if (platform.apiLevel != -1) {
+        auto it = qLowerBound(m_availableSdkPlatforms.begin(), m_availableSdkPlatforms.end(),
+                              platform, sortSdkPlatformByApiLevel);
+        m_availableSdkPlatforms.insert(it, platform);
+    }
+
     m_availableSdkPlatformsUpToDate = true;
 }
 
