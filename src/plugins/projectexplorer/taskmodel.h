@@ -179,7 +179,6 @@ private:
     QList<Core::Id> m_categoryIds;
 
     mutable QList<int> m_mapping;
-    mutable bool m_mappingUpToDate;
 
     TaskModel *m_sourceModel;
 };
