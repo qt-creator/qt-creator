@@ -282,7 +282,8 @@ void CppEditorSupport::updateDocument()
     m_updateDocumentTimer->start(m_updateDocumentInterval);
 }
 
-static void parse(QFutureInterface<void> &future, QSharedPointer<SnapshotUpdater> updater)
+static void parse(QFutureInterface<void> &future, QSharedPointer<SnapshotUpdater> updater,
+                  CppModelManagerInterface::WorkingCopy workingCopy)
 {
     future.setProgressRange(0, 1);
     if (future.isCanceled()) {
@@ -291,7 +292,7 @@ static void parse(QFutureInterface<void> &future, QSharedPointer<SnapshotUpdater
     }
 
     CppModelManager *cmm = qobject_cast<CppModelManager *>(CppModelManager::instance());
-    updater->update(cmm->workingCopy());
+    updater->update(workingCopy);
     cmm->finishedRefreshingSourceFiles(QStringList(updater->fileInEditor()));
 
     future.setProgressValue(1);
@@ -310,7 +311,8 @@ void CppEditorSupport::updateDocumentNow()
         if (m_highlightingSupport && !m_highlightingSupport->requiresSemanticInfo())
             startHighlighting();
 
-        m_documentParser = QtConcurrent::run(&parse, snapshotUpdater());
+        m_documentParser = QtConcurrent::run(&parse, snapshotUpdater(),
+                                             CppModelManager::instance()->workingCopy());
     }
 }
 
