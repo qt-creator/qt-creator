@@ -42,8 +42,10 @@ class QMLJS_EXPORT ViewerContext
 public:
     enum Flags {
         Complete,
+        AddAllPathsAndDefaultSelectors,
         AddAllPaths,
-        AddQtPath
+        AddDefaultPaths,
+        AddDefaultPathsAndSelectors
     };
 
     ViewerContext();
@@ -52,6 +54,7 @@ public:
                   Flags flags = AddAllPaths);
 
     bool languageIsCompatible(Language::Enum l) const;
+    void maybeAddPath(const QString &path);
 
     QStringList selectors;
     QStringList paths;

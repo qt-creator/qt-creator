@@ -177,7 +177,7 @@ public:
     void updateLibraryInfo(const QString &path, const QmlJS::LibraryInfo &info);
     void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
     void updateQrcFile(const QString &path);
-    ProjectInfo projectInfoForPath(QString path);
+    ProjectInfo projectInfoForPath(QString path) const;
 
     QStringList importPaths() const;
     QmlJS::QmlLanguageBundles activeBundles() const;
@@ -188,17 +188,16 @@ public:
 
     CppDataHash cppData() const;
     LibraryInfo builtins(const Document::Ptr &doc) const;
-    virtual ViewerContext completeVContext(const ViewerContext &vCtx,
-                                           const Document::Ptr &doc = Document::Ptr(0)) const;
-    virtual ViewerContext defaultVContext(bool autoComplete = true,
-                                          const Document::Ptr &doc = Document::Ptr(0)) const;
-    virtual void setDefaultVContext(const ViewerContext &vContext);
+    ViewerContext completeVContext(const ViewerContext &vCtx,
+                                   const Document::Ptr &doc = Document::Ptr(0)) const;
+    ViewerContext defaultVContext(Language::Enum language = Language::Qml,
+                                  const Document::Ptr &doc = Document::Ptr(0),
+                                  bool autoComplete = true) const;
+    void setDefaultVContext(const ViewerContext &vContext);
+    virtual ProjectInfo defaultProjectInfo() const;
 
     // Blocks until all parsing threads are done. Used for testing.
     void joinAllThreads();
-
-    virtual ModelManagerInterface::ProjectInfo defaultProjectInfo() const;
-
 public slots:
     virtual void resetCodeModel();
     void removeProjectInfo(ProjectExplorer::Project *project);
@@ -256,7 +255,7 @@ private:
     QStringList m_defaultImportPaths;
     QmlJS::QmlLanguageBundles m_activeBundles;
     QmlJS::QmlLanguageBundles m_extendedBundles;
-    QmlJS::ViewerContext m_vContext;
+    QHash<Language::Enum, QmlJS::ViewerContext> m_defaultVContexts;
     bool m_shouldScanImports;
     QSet<QString> m_scannedPaths;
 

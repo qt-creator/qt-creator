@@ -161,7 +161,7 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
     QFuture<FileErrorMessages> future =
             QtConcurrent::run<FileErrorMessages>(
                 &collectMessages, modelManager->newestSnapshot(), modelManager->projectInfos(),
-                modelManager->defaultVContext(), updateSemantic);
+                modelManager->defaultVContext(Language::Unknown), updateSemantic);
     m_messageCollector.setFuture(future);
 }
 
