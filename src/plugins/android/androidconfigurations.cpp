@@ -61,6 +61,7 @@
 #include <QDirIterator>
 #include <QMetaObject>
 #include <QApplication>
+#include <QtConcurrentRun>
 
 #include <QStringListModel>
 #include <QMessageBox>
@@ -501,34 +502,41 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
     return devices;
 }
 
-QString AndroidConfig::createAVD(QWidget *parent, int minApiLevel, QString targetArch) const
+AndroidConfig::CreateAvdInfo AndroidConfig::gatherCreateAVDInfo(QWidget *parent, int minApiLevel, QString targetArch) const
 {
+    CreateAvdInfo result;
     AvdDialog d(minApiLevel, targetArch, this, parent);
     if (d.exec() != QDialog::Accepted || !d.isValid())
-        return QString();
-    QString error;
-    QString avd = createAVD(d.target(), d.name(), d.abi(), d.sdcardSize(), &error);
+        return result;
 
-    if (!error.isEmpty()) {
-        QMessageBox::critical(parent, QApplication::translate("AndroidConfig", "Error Creating AVD"),
-                              error);
-    }
-
-    return avd;
+    result.target = d.target();
+    result.name = d.name();
+    result.abi = d.abi();
+    result.sdcardSize = d.sdcardSize();
+    return result;
 }
 
-QString AndroidConfig::createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize, QString *error) const
+QFuture<AndroidConfig::CreateAvdInfo> AndroidConfig::createAVD(CreateAvdInfo info) const
+{
+    return QtConcurrent::run(&AndroidConfig::createAVDImpl, info, androidToolPath(), androidToolEnvironment());
+}
+
+AndroidConfig::CreateAvdInfo AndroidConfig::createAVDImpl(CreateAvdInfo info, Utils::FileName androidToolPath, Utils::Environment env)
 {
     QProcess proc;
-    proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
-    proc.start(androidToolPath().toString(),
-               QStringList() << QLatin1String("create") << QLatin1String("avd")
-               << QLatin1String("-t") << target
-               << QLatin1String("-n") << name
-               << QLatin1String("-b") << abi
-               << QLatin1String("-c") << QString::fromLatin1("%1M").arg(sdcardSize));
-    if (!proc.waitForStarted())
-        return QString();
+    proc.setProcessEnvironment(env.toProcessEnvironment());
+    QStringList arguments;
+    arguments << QLatin1String("create") << QLatin1String("avd")
+              << QLatin1String("-t") << info.target
+              << QLatin1String("-n") << info.name
+              << QLatin1String("-b") << info.abi
+              << QLatin1String("-c") << QString::fromLatin1("%1M").arg(info.sdcardSize);
+    proc.start(androidToolPath.toString(), arguments);
+    if (!proc.waitForStarted()) {
+        info.error = QApplication::translate("AndroidConfig", "Could not start process \"%1 %2\"")
+                .arg(androidToolPath.toString(), arguments.join(QLatin1String(" ")));
+        return info;
+    }
 
     proc.write(QByteArray("yes\n")); // yes to "Do you wish to create a custom hardware profile"
 
@@ -558,11 +566,10 @@ QString AndroidConfig::createAVD(const QString &target, const QString &name, con
     // The exit code is always 0, so we need to check stderr
     // For now assume that any output at all indicates a error
     if (!errorOutput.isEmpty()) {
-        *error = errorOutput;
-        return QString();
+        info.error = errorOutput;
     }
 
-    return name;
+    return info;
 }
 
 bool AndroidConfig::removeAVD(const QString &name) const

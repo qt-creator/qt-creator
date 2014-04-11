@@ -53,6 +53,7 @@
 #include <QMessageBox>
 #include <QModelIndex>
 #include <QtCore/QUrl>
+#include <QtConcurrentRun>
 
 namespace Android {
 namespace Internal {
@@ -62,6 +63,15 @@ void AvdModel::setAvdList(const QVector<AndroidDeviceInfo> &list)
     beginResetModel();
     m_list = list;
     endResetModel();
+}
+
+QModelIndex AvdModel::indexForAvdName(const QString &avdName) const
+{
+    for (int i = 0; i < m_list.size(); ++i) {
+        if (m_list.at(i).serialNumber == avdName)
+            return index(i, 0);
+    }
+    return QModelIndex();
 }
 
 QString AvdModel::avdName(const QModelIndex &index) const
@@ -144,11 +154,15 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
 
     check(All);
     applyToUi(All);
+
+    connect(&m_futureWatcher, SIGNAL(finished()),
+            this, SLOT(avdAdded()));
 }
 
 AndroidSettingsWidget::~AndroidSettingsWidget()
 {
     delete m_ui;
+    m_futureWatcher.waitForFinished();
 }
 
 void AndroidSettingsWidget::check(AndroidSettingsWidget::Mode mode)
@@ -468,9 +482,28 @@ void AndroidSettingsWidget::openOpenJDKDownloadUrl()
 
 void AndroidSettingsWidget::addAVD()
 {
-    m_androidConfig.createAVD(this);
+    m_ui->AVDAddPushButton->setEnabled(false);
+    AndroidConfig::CreateAvdInfo info = m_androidConfig.gatherCreateAVDInfo(this);
+
+    if (info.target.isEmpty()) {
+        m_ui->AVDAddPushButton->setEnabled(true);
+        return;
+    }
+
+    m_futureWatcher.setFuture(m_androidConfig.createAVD(info));
+}
+
+void AndroidSettingsWidget::avdAdded()
+{
+    m_ui->AVDAddPushButton->setEnabled(true);
+    AndroidConfig::CreateAvdInfo info = m_futureWatcher.result();
+    if (!info.error.isEmpty()) {
+        QMessageBox::critical(this, QApplication::translate("AndroidConfig", "Error Creating AVD"), info.error);
+        return;
+    }
+
     m_AVDModel.setAvdList(m_androidConfig.androidVirtualDevices());
-    avdActivated(m_ui->AVDTableView->currentIndex());
+    m_ui->AVDTableView->setCurrentIndex(m_AVDModel.indexForAvdName(info.name));
 }
 
 void AndroidSettingsWidget::removeAVD()

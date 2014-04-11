@@ -31,9 +31,11 @@
 #include "androidmanager.h"
 #include "ui_androiddevicedialog.h"
 
+#include <QMessageBox>
 #include <QPainter>
 #include <QStyledItemDelegate>
 #include <QToolTip>
+#include <QtConcurrentRun>
 
 using namespace Android;
 using namespace Android::Internal;
@@ -413,12 +415,16 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, QWidg
     connect(m_ui->createAVDButton, SIGNAL(clicked()),
             this, SLOT(createAvd()));
 
+    connect(&m_futureWatcher, SIGNAL(finished()),
+            this, SLOT(avdAdded()));
+
     refreshDeviceList();
 }
 
 AndroidDeviceDialog::~AndroidDeviceDialog()
 {
     delete m_ui;
+    m_futureWatcher.waitForFinished();
 }
 
 AndroidDeviceInfo AndroidDeviceDialog::device()
@@ -472,11 +478,28 @@ void AndroidDeviceDialog::refreshDeviceList()
 
 void AndroidDeviceDialog::createAvd()
 {
-    QString avd = AndroidConfigurations::currentConfig().createAVD(this, m_apiLevel, m_abi);
-    if (avd.isEmpty())
+    m_ui->createAVDButton->setEnabled(false);
+    AndroidConfig::CreateAvdInfo info = AndroidConfigurations::currentConfig().gatherCreateAVDInfo(this, m_apiLevel, m_abi);
+
+    if (info.target.isEmpty()) {
+        m_ui->createAVDButton->setEnabled(true);
         return;
+    }
+
+    m_futureWatcher.setFuture(AndroidConfigurations::currentConfig().createAVD(info));
+}
+
+void AndroidDeviceDialog::avdAdded()
+{
+    m_ui->createAVDButton->setEnabled(true);
+    AndroidConfig::CreateAvdInfo info = m_futureWatcher.result();
+    if (!info.error.isEmpty()) {
+        QMessageBox::critical(this, QApplication::translate("AndroidConfig", "Error Creating AVD"), info.error);
+        return;
+    }
+
     refreshDeviceList();
-    QModelIndex index = m_model->indexFor(avd);
+    QModelIndex index = m_model->indexFor(info.name);
     m_ui->deviceView->setCurrentIndex(index);
 }
 

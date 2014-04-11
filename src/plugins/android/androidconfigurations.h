@@ -127,9 +127,18 @@ public:
     Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
 
+    class CreateAvdInfo
+    {
+    public:
+        QString target;
+        QString name;
+        QString abi;
+        int sdcardSize;
+        QString error; // only used in the return value of createAVD
+    };
 
-    QString createAVD(QWidget *parent, int minApiLevel = 0, QString targetArch = QString()) const;
-    QString createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize, QString *error) const;
+    CreateAvdInfo gatherCreateAVDInfo(QWidget *parent, int minApiLevel = 0, QString targetArch = QString()) const;
+    QFuture<CreateAvdInfo> createAVD(CreateAvdInfo info) const;
     bool removeAVD(const QString &name) const;
 
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
@@ -151,6 +160,8 @@ public:
 
     SdkPlatform highestAndroidSdk() const;
 private:
+    static CreateAvdInfo createAVDImpl(CreateAvdInfo info, Utils::FileName androidToolPath, Utils::Environment env);
+
     Utils::FileName toolPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName openJDKBinPath() const;
     int getSDKVersion(const QString &device) const;

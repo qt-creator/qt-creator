@@ -36,6 +36,7 @@
 #include <QString>
 #include <QWidget>
 #include <QAbstractTableModel>
+#include <QFutureWatcher>
 
 QT_BEGIN_NAMESPACE
 class Ui_AndroidSettingsWidget;
@@ -50,6 +51,7 @@ class AvdModel: public QAbstractTableModel
 public:
     void setAvdList(const QVector<AndroidDeviceInfo> &list);
     QString avdName(const QModelIndex &index) const;
+    QModelIndex indexForAvdName(const QString &avdName) const;
 
 protected:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -86,6 +88,7 @@ private slots:
     void openAntDownloadUrl();
     void openOpenJDKDownloadUrl();
     void addAVD();
+    void avdAdded();
     void removeAVD();
     void startAVD();
     void avdActivated(QModelIndex);
@@ -111,6 +114,7 @@ private:
     Ui_AndroidSettingsWidget *m_ui;
     AndroidConfig m_androidConfig;
     AvdModel m_AVDModel;
+    QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
 };
 
 } // namespace Internal

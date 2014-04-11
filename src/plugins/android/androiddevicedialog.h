@@ -34,6 +34,7 @@
 
 #include <QVector>
 #include <QDialog>
+#include <QFutureWatcher>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -63,11 +64,13 @@ private slots:
     void createAvd();
     void clickedOnView(const QModelIndex &idx);
     void showHelp();
+    void avdAdded();
 private:
     AndroidDeviceModel *m_model;
     Ui::AndroidDeviceDialog *m_ui;
     int m_apiLevel;
     QString m_abi;
+    QFutureWatcher<AndroidConfig::CreateAvdInfo> m_futureWatcher;
 };
 
 }
