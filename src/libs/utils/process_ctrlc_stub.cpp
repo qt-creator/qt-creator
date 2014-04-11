@@ -165,6 +165,7 @@ DWORD WINAPI processWatcherThread(LPVOID lpParameter)
     DWORD dwExitCode;
     if (!GetExitCodeProcess(hProcess, &dwExitCode))
         dwExitCode = -1;
+    CloseHandle(hProcess);
     PostMessage(hwndMain, WM_DESTROY, dwExitCode, 0);
     return 0;
 }
@@ -185,6 +186,7 @@ bool startProcess(wchar_t *pCommandLine)
         fwprintf(stderr, L"qtcreator_ctrlc_stub: Command line failed: %s\n", pCommandLine);
         return false;
     }
+    CloseHandle(pi.hThread);
 
     HANDLE hThread = CreateThread(NULL, 0, processWatcherThread, reinterpret_cast<void*>(pi.hProcess), 0, NULL);
     if (!hThread) {
