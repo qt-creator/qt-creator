@@ -40,6 +40,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
       </widget>
      </item>
      <item row="1" column="1" colspan="2">
@@ -116,8 +119,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>373</width>
-        <height>104</height>
+        <width>379</width>
+        <height>136</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
