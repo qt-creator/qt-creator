@@ -475,7 +475,14 @@ void AndroidSettingsWidget::addAVD()
 
 void AndroidSettingsWidget::removeAVD()
 {
-    m_androidConfig.removeAVD(m_AVDModel.avdName(m_ui->AVDTableView->currentIndex()));
+    QString avdName = m_AVDModel.avdName(m_ui->AVDTableView->currentIndex());
+    if (QMessageBox::question(this, tr("Remove Android Virtual Device"),
+                              tr("Remove device \"%1\"? This cannot be undone.").arg(avdName),
+                              QMessageBox::Yes | QMessageBox::No)
+            == QMessageBox::No)
+        return;
+
+    m_androidConfig.removeAVD(avdName);
     m_AVDModel.setAvdList(m_androidConfig.androidVirtualDevices());
     avdActivated(m_ui->AVDTableView->currentIndex());
 }
