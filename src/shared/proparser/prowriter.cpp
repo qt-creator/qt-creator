@@ -343,12 +343,15 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines,
     }
 }
 
-void ProWriter::addFiles(ProFile *profile, QStringList *lines,
-    const QDir &proFileDir, const QStringList &values, const QString &var)
+void ProWriter::addFiles(ProFile *profile, QStringList *lines, const QStringList &values, const QString &var)
 {
     QStringList valuesToWrite;
+    QString prefixPwd;
+    QDir baseDir = QFileInfo(profile->fileName()).absoluteDir();
+    if (profile->fileName().endsWith(QLatin1String(".pri")))
+        prefixPwd = QLatin1String("$$PWD/");
     foreach (const QString &v, values)
-        valuesToWrite << proFileDir.relativeFilePath(v);
+        valuesToWrite << (prefixPwd + baseDir.relativeFilePath(v));
 
     putVarValues(profile, lines, valuesToWrite, var, AppendValues | MultiLine | AppendOperator);
 }
@@ -508,8 +511,25 @@ QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
     foreach (const QString &absoluteFilePath, values)
         valuesToFind << proFileDir.relativeFilePath(absoluteFilePath);
 
+    QStringList notYetChanged;
+    foreach (int i, removeVarValues(profile, lines, valuesToFind, vars))
+        notYetChanged.append(values.at(i));
+
+    if (!profile->fileName().endsWith(QLatin1String(".pri")))
+        return notYetChanged;
+
+    // If we didn't find them with a relative path to the .pro file
+    // maybe those files can be found via $$PWD/relativeToPriFile
+
+    valuesToFind.clear();
+    QDir baseDir = QFileInfo(profile->fileName()).absoluteDir();
+    QString prefixPwd = QLatin1String("$$PWD/");
+    foreach (const QString &absoluteFilePath, notYetChanged)
+        valuesToFind << (prefixPwd + baseDir.relativeFilePath(absoluteFilePath));
+
     QStringList notChanged;
     foreach (int i, removeVarValues(profile, lines, valuesToFind, vars))
-        notChanged.append(values.at(i));
+        notChanged.append(notYetChanged.at(i));
+
     return notChanged;
 }

@@ -1200,13 +1200,13 @@ void QmakePriFileNode::changeFiles(const QString &mimeType,
     if (!includeFile)
         return;
 
-    QDir priFileDir = QDir(m_qmakeProFileNode->m_projectDir);
 
     if (change == AddToProFile) {
         // Use the first variable for adding.
-        ProWriter::addFiles(includeFile, &lines, priFileDir, filePaths, varNameForAdding(mimeType));
+        ProWriter::addFiles(includeFile, &lines, filePaths, varNameForAdding(mimeType));
         notChanged->clear();
     } else { // RemoveFromProFile
+        QDir priFileDir = QDir(m_qmakeProFileNode->m_projectDir);
         *notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir, filePaths, varNamesForRemoving());
     }
 
