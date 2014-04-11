@@ -44,9 +44,8 @@ namespace Internal {
 
 class DisassemblerLine
 {
-    //DisassemblerLine(const QString &unparsed);
 public:
-    DisassemblerLine() : address(0), offset(0), lineNumber(0) {}
+    DisassemblerLine() : address(0), offset(0), lineNumber(0), hunk(0) {}
     bool isAssembler() const { return address != 0; }
     bool isCode() const { return lineNumber != 0; }
     bool isComment() const { return lineNumber == 0 && address == 0; }
@@ -61,6 +60,7 @@ public:
     QString function; // (ass) Function to which current instruction belongs.
     uint offset;      // (ass) Offset of instruction in relation to current function.
     uint lineNumber;  // (src) Line number in source.
+    uint hunk;        // (src) Number of hunk if source line was split
     QByteArray rawData;  // (ass) Raw bytes of the instruction
     QString data;     // (ass) Instruction text, (src) source text, (cmt) arbitrary.
 };
@@ -80,6 +80,7 @@ public:
     int size() const { return m_data.size(); }
     const DisassemblerLine &at(int i) const { return m_data.at(i); }
     int lineForAddress(quint64 address) const;
+    QVector<DisassemblerLine> data() const { return m_data; }
 
     quint64 startAddress() const;
     quint64 endAddress() const;

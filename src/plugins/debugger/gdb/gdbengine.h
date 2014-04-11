@@ -354,29 +354,17 @@ private: ////////// View & Data Stuff //////////
     // Disassembler specific stuff
     //
     // Chain of fallbacks: PointMixed -> PointPlain -> RangeMixed -> RangePlain.
-    // The Mi versions are not used right now.
     void fetchDisassembler(DisassemblerAgent *agent);
     void fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &ac);
-    void fetchDisassemblerByCliPointPlain(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac);
     void fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac);
-    //void fetchDisassemblerByMiPointMixed(const DisassemblerAgentCookie &ac);
-    //void fetchDisassemblerByMiPointPlain(const DisassemblerAgentCookie &ac);
-    //void fetchDisassemblerByMiRangeMixed(const DisassemblerAgentCookie &ac);
-    //void fetchDisassemblerByMiRangePlain(const DisassemblerAgentCookie &ac);
     void handleFetchDisassemblerByCliPointMixed(const GdbResponse &response);
-    void handleFetchDisassemblerByCliPointPlain(const GdbResponse &response);
     void handleFetchDisassemblerByCliRangeMixed(const GdbResponse &response);
     void handleFetchDisassemblerByCliRangePlain(const GdbResponse &response);
-    //void handleFetchDisassemblerByMiPointMixed(const GdbResponse &response);
-    //void handleFetchDisassemblerByMiPointPlain(const GdbResponse &response);
-    //void handleFetchDisassemblerByMiRangeMixed(const GdbResponse &response);
-    //void handleFetchDisassemblerByMiRangePlain(const GdbResponse &response);
-    void handleBreakOnQFatal(const GdbResponse &response);
-    DisassemblerLines parseDisassembler(const GdbResponse &response);
-    DisassemblerLines parseCliDisassembler(const QByteArray &response);
-    DisassemblerLines parseMiDisassembler(const GdbMi &response);
+    bool handleCliDisassemblerResult(const QByteArray &response, DisassemblerAgent *agent);
     Q_SLOT void reloadDisassembly();
+
+    void handleBreakOnQFatal(const GdbResponse &response);
 
     //
     // Source file specific stuff

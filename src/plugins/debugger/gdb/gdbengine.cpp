@@ -3968,67 +3968,11 @@ public:
 
 void GdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
-    // As of 7.2 the MI output is often less informative then the CLI version.
-    // So globally fall back to CLI.
-    if (agent->isMixed())
-        fetchDisassemblerByCliPointMixed(agent);
-    else
-        fetchDisassemblerByCliPointPlain(agent);
-#if 0
-    if (agent->isMixed())
-        fetchDisassemblerByMiRangeMixed(agent)
-    else
-        fetchDisassemblerByMiRangePlain(agent);
-#endif
+    // Doing that unconditionally seems to be the most robust
+    // solution given the richest output. Looks like GDB is
+    // a command line tool after all...
+    fetchDisassemblerByCliPointMixed(agent);
 }
-
-#if 0
-void GdbEngine::fetchDisassemblerByMiRangePlain(const DisassemblerAgentCookie &ac0)
-{
-    // Disassemble full function:
-    const StackFrame &frame = agent->frame();
-    DisassemblerAgentCookie ac = ac0;
-    QTC_ASSERT(ac.agent, return);
-    const quint64 address = ac.agent->address();
-    QByteArray cmd = "-data-disassemble"
-        " -f " + frame.file.toLocal8Bit() +
-        " -l " + QByteArray::number(frame.line) + " -n -1 -- 1";
-    postCommand(cmd, Discardable, CB(handleFetchDisassemblerByMiPointMixed),
-        QVariant::fromValue(DisassemblerAgentCookie(agent)));
-}
-#endif
-
-#if 0
-void GdbEngine::fetchDisassemblerByMiRangeMixed(const DisassemblerAgentCookie &ac0)
-{
-    DisassemblerAgentCookie ac = ac0;
-    QTC_ASSERT(ac.agent, return);
-    const quint64 address = ac.agent->address();
-    QByteArray start = QByteArray::number(address - 20, 16);
-    QByteArray end = QByteArray::number(address + 100, 16);
-    // -data-disassemble [ -s start-addr -e end-addr ]
-    //  | [ -f filename -l linenum [ -n lines ] ] -- mode
-    postCommand("-data-disassemble -s 0x" + start + " -e 0x" + end + " -- 1",
-        Discardable, CB(handleFetchDisassemblerByMiRangeMixed),
-        QVariant::fromValue(ac));
-}
-#endif
-
-#if 0
-void GdbEngine::fetchDisassemblerByMiRangePlain(const DisassemblerAgentCookie &ac0)
-{
-    DisassemblerAgentCookie ac = ac0;
-    QTC_ASSERT(ac.agent, return);
-    const quint64 address = ac.agent->address();
-    QByteArray start = QByteArray::number(address - 20, 16);
-    QByteArray end = QByteArray::number(address + 100, 16);
-    // -data-disassemble [ -s start-addr -e end-addr ]
-    //  | [ -f filename -l linenum [ -n lines ] ] -- mode
-    postCommand("-data-disassemble -s 0x" + start + " -e 0x" + end + " -- 0",
-        Discardable, CB(handleFetchDisassemblerByMiRangePlain),
-        QVariant::fromValue(ac));
-}
-#endif
 
 static inline QByteArray disassemblerCommand(const Location &location, bool mixed)
 {
@@ -4055,19 +3999,6 @@ void GdbEngine::fetchDisassemblerByCliPointMixed(const DisassemblerAgentCookie &
         QVariant::fromValue(ac));
 }
 
-void GdbEngine::fetchDisassemblerByCliPointPlain(const DisassemblerAgentCookie &ac0)
-{
-    // This here
-    //    DisassemblerAgentCookie ac = ac0;
-    //    QTC_ASSERT(ac.agent, return);
-    //    postCommand(disassemblerCommand(ac.agent->location(), false), Discardable,
-    //        CB(handleFetchDisassemblerByCliPointPlain),
-    //        QVariant::fromValue(ac));
-    // takes far too long if function boundaries are not hit.
-    // Skip this feature and immediately fall back to the 'range' version:
-    fetchDisassemblerByCliRangePlain(ac0);
-}
-
 void GdbEngine::fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &ac0)
 {
     DisassemblerAgentCookie ac = ac0;
@@ -4079,6 +4010,7 @@ void GdbEngine::fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &
     postCommand(cmd, Discardable|ConsoleCommand,
         CB(handleFetchDisassemblerByCliRangeMixed), QVariant::fromValue(ac));
 }
+
 
 void GdbEngine::fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &ac0)
 {
@@ -4092,72 +4024,56 @@ void GdbEngine::fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &
         CB(handleFetchDisassemblerByCliRangePlain), QVariant::fromValue(ac));
 }
 
-static DisassemblerLine parseLine(const GdbMi &line)
+struct LineData
 {
-    DisassemblerLine dl;
-    QByteArray address = line["address"].data();
-    dl.address = address.toULongLong(0, 0);
-    dl.data = _(line["inst"].data());
-    dl.function = _(line["func-name"].data());
-    dl.offset = line["offset"].data().toUInt();
-    return dl;
-}
+    LineData() {}
+    LineData(int i, int f) : index(i), function(f) {}
+    int index;
+    int function;
+};
 
-DisassemblerLines GdbEngine::parseMiDisassembler(const GdbMi &lines)
-{
-    // ^done,data={asm_insns=[src_and_asm_line={line="1243",file=".../app.cpp",
-    // line_asm_insn=[{address="0x08054857",func-name="main",offset="27",
-    // inst="call 0x80545b0 <_Z13testQFileInfov>"}]},
-    // src_and_asm_line={line="1244",file=".../app.cpp",
-    // line_asm_insn=[{address="0x0805485c",func-name="main",offset="32",
-    //inst="call 0x804cba1 <_Z11testObject1v>"}]}]}
-    // - or - (non-Mac)
-    // ^done,asm_insns=[
-    // {address="0x0805acf8",func-name="...",offset="25",inst="and $0xe8,%al"},
-    // {address="0x0805acfa",func-name="...",offset="27",inst="pop %esp"}, ..]
-    // - or - (MAC)
-    // ^done,asm_insns={
-    // {address="0x0d8f69e0",func-name="...",offset="1952",inst="add $0x0,%al"},..}
-
-    DisassemblerLines result;
-
-    // FIXME: Performance?
-    foreach (const GdbMi &child, lines.children()) {
-        if (child.hasName("src_and_asm_line")) {
-            const QString fileName = QFile::decodeName(child["file"].data());
-            const uint line = child["line"].data().toUInt();
-            result.appendSourceLine(fileName, line);
-            GdbMi insn = child["line_asm_insn"];
-            foreach (const GdbMi &item, insn.children())
-                result.appendLine(parseLine(item));
-        } else {
-            // The non-mixed version.
-            result.appendLine(parseLine(child));
-        }
-    }
-    return result;
-}
-
-DisassemblerLines GdbEngine::parseCliDisassembler(const QByteArray &output)
+bool GdbEngine::handleCliDisassemblerResult(const QByteArray &output, DisassemblerAgent *agent)
 {
     // First line is something like
     // "Dump of assembler code from 0xb7ff598f to 0xb7ff5a07:"
     DisassemblerLines dlines;
     foreach (const QByteArray &line, output.split('\n'))
         dlines.appendUnparsed(_(line));
-    return dlines;
-}
 
-DisassemblerLines GdbEngine::parseDisassembler(const GdbResponse &response)
-{
-    // Apple's gdb produces MI output even for CLI commands.
-    // FIXME: Check whether wrapping this into -interpreter-exec console
-    // (i.e. usgind the 'ConsoleCommand' GdbCommandFlag makes a
-    // difference.
-    GdbMi lines = response.data["asm_insns"];
-    if (lines.isValid())
-        return parseMiDisassembler(lines);
-    return parseCliDisassembler(response.consoleStreamOutput);
+    QVector<DisassemblerLine> lines = dlines.data();
+
+    typedef QMap<quint64, LineData> LineMap;
+    LineMap lineMap;
+    int currentFunction = -1;
+    for (int i = 0, n = lines.size(); i != n; ++i) {
+        const DisassemblerLine &line = lines.at(i);
+        if (line.address)
+            lineMap.insert(line.address, LineData(i, currentFunction));
+        else
+            currentFunction = i;
+    }
+
+    currentFunction = -1;
+    DisassemblerLines result;
+    for (LineMap::const_iterator it = lineMap.begin(), et = lineMap.end(); it != et; ++it) {
+        LineData d = *it;
+        if (d.function != currentFunction) {
+            if (d.function != -1) {
+                DisassemblerLine &line = lines[d.function];
+                ++line.hunk;
+                result.appendLine(line);
+                currentFunction = d.function;
+            }
+        }
+        result.appendLine(lines.at(d.index));
+    }
+
+    if (result.coversAddress(agent->address())) {
+        agent->setContents(result);
+        return true;
+    }
+
+    return false;
 }
 
 void GdbEngine::reloadDisassembly()
@@ -4171,35 +4087,13 @@ void GdbEngine::handleFetchDisassemblerByCliPointMixed(const GdbResponse &respon
     DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
     QTC_ASSERT(ac.agent, return);
 
-    if (response.resultClass == GdbResultDone) {
-        DisassemblerLines dlines = parseDisassembler(response);
-        if (dlines.coversAddress(ac.agent->address())) {
-            ac.agent->setContents(dlines);
+    if (response.resultClass == GdbResultDone)
+        if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
             return;
-        }
-    }
-    fetchDisassemblerByCliPointPlain(ac);
-}
 
-void GdbEngine::handleFetchDisassemblerByCliPointPlain(const GdbResponse &response)
-{
-    DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
-    QTC_ASSERT(ac.agent, return);
-    // Agent address is 0 when disassembling a function name only
-    const quint64 agentAddress = ac.agent->address();
-    if (response.resultClass == GdbResultDone) {
-        DisassemblerLines dlines = parseDisassembler(response);
-        if (!agentAddress || dlines.coversAddress(agentAddress)) {
-            ac.agent->setContents(dlines);
-            return;
-        }
-    }
-    if (agentAddress) {
-        if (ac.agent->isMixed())
-            fetchDisassemblerByCliRangeMixed(ac);
-        else
-            fetchDisassemblerByCliRangePlain(ac);
-    }
+    // 'point, plain' can take far too long.
+    // Skip this feature and immediately fall back to the 'range' version:
+    fetchDisassemblerByCliRangeMixed(ac);
 }
 
 void GdbEngine::handleFetchDisassemblerByCliRangeMixed(const GdbResponse &response)
@@ -4207,13 +4101,10 @@ void GdbEngine::handleFetchDisassemblerByCliRangeMixed(const GdbResponse &respon
     DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
     QTC_ASSERT(ac.agent, return);
 
-    if (response.resultClass == GdbResultDone) {
-        DisassemblerLines dlines = parseDisassembler(response);
-        if (dlines.coversAddress(ac.agent->address())) {
-            ac.agent->setContents(dlines);
+    if (response.resultClass == GdbResultDone)
+        if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
             return;
-        }
-    }
+
     fetchDisassemblerByCliRangePlain(ac);
 }
 
@@ -4222,13 +4113,9 @@ void GdbEngine::handleFetchDisassemblerByCliRangePlain(const GdbResponse &respon
     DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
     QTC_ASSERT(ac.agent, return);
 
-    if (response.resultClass == GdbResultDone) {
-        DisassemblerLines dlines = parseDisassembler(response);
-        if (dlines.size()) {
-            ac.agent->setContents(dlines);
+    if (response.resultClass == GdbResultDone)
+        if (handleCliDisassemblerResult(response.consoleStreamOutput, ac.agent))
             return;
-        }
-    }
 
     // Finally, give up.
     //76^error,msg="No function contains program counter for selected..."

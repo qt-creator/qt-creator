@@ -227,6 +227,8 @@ QString DisassemblerLine::toString() const
         str += _("        ");
         str += data;
     } else if (isCode()) {
+        if (hunk)
+            str += _("[%1]").arg(hunk);
         str += someSpace;
         str += data;
     } else {
