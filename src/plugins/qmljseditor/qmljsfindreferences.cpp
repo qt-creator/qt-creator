@@ -831,7 +831,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
 
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
-    Link link(snapshot, modelManager->defaultVContext(), modelManager->builtins(doc));
+    Link link(snapshot, modelManager->defaultVContext(doc->language(), doc), modelManager->builtins(doc));
     ContextPtr context = link();
 
     ScopeChain scopeChain(doc, context);

@@ -76,4 +76,10 @@ bool ViewerContext::languageIsCompatible(Language::Enum l) const
     return true;
 }
 
+void ViewerContext::maybeAddPath(const QString &path)
+{
+    if (!path.isEmpty() && !paths.contains(path))
+        paths.append(path);
+}
+
 } // namespace QmlJS
