@@ -49,7 +49,7 @@ class AvdModel: public QAbstractTableModel
     Q_OBJECT
 public:
     void setAvdList(const QVector<AndroidDeviceInfo> &list);
-    QString avdName(const QModelIndex &index);
+    QString avdName(const QModelIndex &index) const;
 
 protected:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

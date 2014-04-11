@@ -64,9 +64,9 @@ void AvdModel::setAvdList(const QVector<AndroidDeviceInfo> &list)
     endResetModel();
 }
 
-QString AvdModel::avdName(const QModelIndex &index)
+QString AvdModel::avdName(const QModelIndex &index) const
 {
-    return m_list[index.row()].serialNumber;
+    return m_list.at(index.row()).serialNumber;
 }
 
 QVariant AvdModel::data(const QModelIndex &index, int role) const
