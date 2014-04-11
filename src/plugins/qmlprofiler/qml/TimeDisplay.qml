@@ -50,6 +50,8 @@ Canvas {
     onPaint: {
         if (context === null)
             return; // canvas isn't ready
+
+        context.reset();
         context.fillStyle = "white";
         context.fillRect(0, 0, width, height);
 
