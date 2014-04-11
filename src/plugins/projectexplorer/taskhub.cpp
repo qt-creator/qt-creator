@@ -35,7 +35,7 @@
 using namespace ProjectExplorer;
 
 TaskHub *m_instance = 0;
-QSet<Core::Id> TaskHub::m_registededCategories;
+QSet<Core::Id> TaskHub::m_registeredCategories;
 
 class TaskMark : public TextEditor::BaseTextMark
 {
@@ -100,7 +100,8 @@ TaskHub::~TaskHub()
 void TaskHub::addCategory(Core::Id categoryId, const QString &displayName, bool visible)
 {
     QTC_CHECK(!displayName.isEmpty());
-    QTC_ASSERT(!m_registededCategories.contains(categoryId), return);
+    QTC_ASSERT(!m_registeredCategories.contains(categoryId), return);
+    m_registeredCategories.insert(categoryId);
     emit m_instance->categoryAdded(categoryId, displayName, visible);
 }
 
@@ -116,7 +117,7 @@ void TaskHub::addTask(Task::TaskType type, const QString &description, Core::Id 
 
 void TaskHub::addTask(Task task)
 {
-    QTC_ASSERT(m_registededCategories.contains(task.category), return);
+    QTC_ASSERT(m_registeredCategories.contains(task.category), return);
     QTC_ASSERT(!task.description.isEmpty(), return);
 
     if (task.file.isEmpty())
@@ -140,7 +141,7 @@ void TaskHub::addTask(Task task)
 
 void TaskHub::clearTasks(Core::Id categoryId)
 {
-    QTC_ASSERT(m_registededCategories.contains(categoryId), return);
+    QTC_ASSERT(!categoryId.isValid() || m_registeredCategories.contains(categoryId), return);
     emit m_instance->tasksCleared(categoryId);
 }
 
@@ -171,7 +172,7 @@ void TaskHub::showTaskInEditor(unsigned int id)
 
 void TaskHub::setCategoryVisibility(const Core::Id &categoryId, bool visible)
 {
-    QTC_ASSERT(m_registededCategories.contains(categoryId), return);
+    QTC_ASSERT(m_registeredCategories.contains(categoryId), return);
     emit m_instance->categoryVisibilityChanged(categoryId, visible);
 }
 

@@ -85,7 +85,7 @@ private:
     const QIcon m_errorIcon;
     const QIcon m_warningIcon;
 
-    static QSet<Core::Id> m_registededCategories;
+    static QSet<Core::Id> m_registeredCategories;
 
     friend class ProjectExplorerPlugin;
 };
