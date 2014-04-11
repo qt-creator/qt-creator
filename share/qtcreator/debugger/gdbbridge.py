@@ -861,6 +861,9 @@ class Dumper(DumperBase):
     def extractByte(self, addr):
         return struct.unpack("b", self.readRawMemory(addr, 1))[0]
 
+    def findStaticMetaObject(self, typeName):
+        return self.findSymbol(typeName + "::staticMetaObject")
+
     def findSymbol(self, symbolName):
         try:
             result = gdb.lookup_global_symbol(symbolName)

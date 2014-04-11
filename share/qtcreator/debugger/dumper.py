@@ -969,8 +969,7 @@ class DumperBase:
             if typeName.find('<') >= 0:
                 return 0
 
-        staticMetaObjectName = typeName + "::staticMetaObject"
-        result = self.findSymbol(staticMetaObjectName)
+        result = self.findStaticMetaObject(typeName)
 
         # We need to distinguish Q_OBJECT from Q_GADGET:
         # a Q_OBJECT SMO has a non-null superdata (unless it's QObject itself),

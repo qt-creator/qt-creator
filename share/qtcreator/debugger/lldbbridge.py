@@ -883,6 +883,13 @@ class Dumper(DumperBase):
             buf[i] = data.GetUnsignedInt8(error, i)
         return Blob(bytes(buf))
 
+    def mangleName(self, typeName):
+        return '_ZN%sE' % ''.join(map(lambda x: "%d%s" % (len(x), x), typeName.split('::')))
+
+    def findStaticMetaObject(self, typeName):
+        symbolName = self.mangleName(typeName + '::staticMetaObject')
+        return self.target.FindFirstGlobalVariable(symbolName)
+
     def findSymbol(self, symbolName):
         return self.target.FindFirstGlobalVariable(symbolName)
 
