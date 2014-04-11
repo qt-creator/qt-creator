@@ -62,7 +62,6 @@ const char MS_ID[] = "CMakeProjectManager.MakeStep";
 const char CLEAN_KEY[] = "CMakeProjectManager.MakeStep.Clean";
 const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
 const char ADDITIONAL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
-const char USE_NINJA_KEY[] = "CMakeProjectManager.MakeStep.UseNinja";
 }
 
 MakeStep::MakeStep(BuildStepList *bsl) :
