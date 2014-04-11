@@ -289,6 +289,32 @@ QString FileUtils::normalizePathName(const QString &name)
 #endif
 }
 
+bool FileUtils::isRelativePath(const QString &path)
+{
+    if (path.startsWith(QLatin1Char('/')))
+        return false;
+#ifdef Q_OS_WIN
+    if (path.startsWith(QLatin1Char('\\')))
+        return false;
+    // Unlike QFileInfo, this won't accept a relative path with a drive letter.
+    // Such paths result in a royal mess anyway ...
+    if (path.length() >= 3 && path.at(1) == QLatin1Char(':') && path.at(0).isLetter()
+        && (path.at(2) == QLatin1Char('/') || path.at(2) == QLatin1Char('\\')))
+        return false;
+#endif
+    return true;
+}
+
+QString FileUtils::resolvePath(const QString &baseDir, const QString &fileName)
+{
+    if (fileName.isEmpty())
+        return QString();
+    if (isAbsolutePath(fileName))
+        return QDir::cleanPath(fileName);
+    return QDir::cleanPath(baseDir + QLatin1Char('/') + fileName);
+}
+
+
 QByteArray FileReader::fetchQrc(const QString &fileName)
 {
     QTC_ASSERT(fileName.startsWith(QLatin1Char(':')), return QByteArray());

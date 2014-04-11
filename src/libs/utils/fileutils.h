@@ -107,6 +107,10 @@ public:
     static QString qmakeFriendlyName(const QString &name);
     static bool makeWritable(const FileName &path);
     static QString normalizePathName(const QString &name);
+
+    static bool isRelativePath(const QString &fileName);
+    static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
+    static QString resolvePath(const QString &baseDir, const QString &fileName);
 };
 
 class QTCREATOR_UTILS_EXPORT FileReader
