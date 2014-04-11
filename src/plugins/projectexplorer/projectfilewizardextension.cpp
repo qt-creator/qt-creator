@@ -288,19 +288,16 @@ static int findMatchingProject(const QList<FolderEntry> &projects,
         const FolderEntry &entry = projects.at(p);
         const QString &projectDirectory = entry.directory;
         const int projectDirectorySize = projectDirectory.size();
-        if (entry.priority > bestMatchPriority) {
-            if (commonPath.startsWith(projectDirectory)) {
-                bestMatchPriority = entry.priority;
-                bestMatchLength = projectDirectory.size();
-                bestMatch = p;
-            }
-        } else if (entry.priority == bestMatchPriority) {
-            if (projectDirectorySize > bestMatchLength
-                    && commonPath.startsWith(projectDirectory)) {
-                bestMatchPriority = entry.priority;
-                bestMatchLength = projectDirectory.size();
-                bestMatch = p;
-            }
+        if (!commonPath.startsWith(projectDirectory))
+            continue;
+
+        bool betterMatch = projectDirectorySize > bestMatchLength
+                || (projectDirectorySize == bestMatchLength && entry.priority > bestMatchPriority);
+
+        if (betterMatch) {
+            bestMatchPriority = entry.priority;
+            bestMatchLength = projectDirectory.size();
+            bestMatch = p;
         }
     }
     return bestMatch;
