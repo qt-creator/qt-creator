@@ -4852,7 +4852,6 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
     const QList<AST *> &path = interface.path();
     AST *outerAST = 0;
     SimpleNameAST *nameAST = 0;
-    SimpleNameAST *visibleNameAST = 0;
 
     for (int i = path.size() - 3; i >= 0; --i) {
         if (CallAST *callAST = path.at(i)->asCall()) {
@@ -4866,6 +4865,10 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
                     return;
                 if (path.at(idx)->asMemInitializer())
                     return;
+                if (path.at(idx)->asCall()) { // Fallback if we have a->b()->c()...
+                    --i;
+                    continue;
+                }
             }
             for (int a = i - 1; a > 0; --a) {
                 if (path.at(a)->asBinaryExpression())
@@ -4877,21 +4880,15 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
             }
 
             if (MemberAccessAST *member = path.at(i + 1)->asMemberAccess()) { // member
-                if (member->base_expression) {
-                    if (IdExpressionAST *idex = member->base_expression->asIdExpression()) {
-                        nameAST = idex->name->asSimpleName();
-                        visibleNameAST = member->member_name->asSimpleName();
-                    }
-                }
+                if (NameAST *name = member->member_name)
+                    nameAST = name->asSimpleName();
             } else if (QualifiedNameAST *qname = path.at(i + 2)->asQualifiedName()) { // static or
                 nameAST = qname->unqualified_name->asSimpleName();                    // func in ns
-                visibleNameAST = nameAST;
             } else { // normal
                 nameAST = path.at(i + 2)->asSimpleName();
-                visibleNameAST = nameAST;
             }
 
-            if (nameAST && visibleNameAST) {
+            if (nameAST) {
                 outerAST = callAST;
                 break;
             }
@@ -4916,14 +4913,13 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
 
             if (NamedTypeSpecifierAST *ts = path.at(i + 2)->asNamedTypeSpecifier()) {
                 nameAST = ts->name->asSimpleName();
-                visibleNameAST = nameAST;
                 outerAST = newexp;
                 break;
             }
         }
     }
 
-    if (outerAST && nameAST && visibleNameAST) {
+    if (outerAST && nameAST) {
         const CppRefactoringFilePtr file = interface.currentFile();
         QList<LookupItem> items;
         TypeOfExpression typeOfExpression;
@@ -4962,7 +4958,7 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
                 }
             }
 
-            const Name *name = visibleNameAST->name;
+            const Name *name = nameAST->name;
             const int insertPos = interface.currentFile()->startOf(outerAST);
             result.append(new AssignToLocalVariableOperation(interface, insertPos, outerAST, name));
             return;

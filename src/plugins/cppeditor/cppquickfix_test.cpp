@@ -1050,6 +1050,42 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Check: Add local variable for a member function, cursor in the middle (QTCREATORBUG-10355)
+    QTest::newRow("AssignToLocalVariable_memberFunction2ndGrade1")
+        << CppQuickFixFactoryPtr(new AssignToLocalVariable) << _(
+        "struct Foo {int* func();};\n"
+        "struct Baz {Foo* foo();};\n"
+        "void bar() {\n"
+        "    Baz *b = new Baz;\n"
+        "    b->foo@()->func();\n"
+        "}"
+        ) << _(
+        "struct Foo {int* func();};\n"
+        "struct Baz {Foo* foo();};\n"
+        "void bar() {\n"
+        "    Baz *b = new Baz;\n"
+        "    int *localFunc = b->foo()->func();\n"
+        "}"
+    );
+
+    // Check: Add local variable for a member function, cursor on function call (QTCREATORBUG-10355)
+    QTest::newRow("AssignToLocalVariable_memberFunction2ndGrade2")
+        << CppQuickFixFactoryPtr(new AssignToLocalVariable) << _(
+        "struct Foo {int* func();};\n"
+        "struct Baz {Foo* foo();};\n"
+        "void bar() {\n"
+        "    Baz *b = new Baz;\n"
+        "    b->foo()->f@unc();\n"
+        "}"
+        ) << _(
+        "struct Foo {int* func();};\n"
+        "struct Baz {Foo* foo();};\n"
+        "void bar() {\n"
+        "    Baz *b = new Baz;\n"
+        "    int *localFunc = b->foo()->func();\n"
+        "}"
+    );
+
     // Check: Add local variable for a static member function.
     QTest::newRow("AssignToLocalVariable_staticMemberFunction")
         << CppQuickFixFactoryPtr(new AssignToLocalVariable) << _(
