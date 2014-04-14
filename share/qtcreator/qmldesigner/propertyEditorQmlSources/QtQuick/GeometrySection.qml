@@ -102,7 +102,7 @@ Section {
             SpinBox {
                 backendValue: backendValues.width
                 maximumValue: 0xffff
-                minimumValue: -0xffff
+                minimumValue: 0
                 decimals: 0
             }
 
@@ -119,7 +119,7 @@ Section {
             SpinBox {
                 backendValue: backendValues.height
                 maximumValue: 0xffff
-                minimumValue: -0xffff
+                minimumValue: 0
                 decimals: 0
             }
             ExpandingSpacer {
