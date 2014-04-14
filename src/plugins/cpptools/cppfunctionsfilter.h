@@ -45,8 +45,8 @@ public:
     ~CppFunctionsFilter();
 
 private:
-    QList<QList<ModelItemInfo::Ptr> > itemsToMatchUserInputAgainst() const;
-    Core::LocatorFilterEntry filterEntryFromModelItemInfo(ModelItemInfo::Ptr info);
+    QList<QList<IndexItem::Ptr> > itemsToMatchUserInputAgainst() const;
+    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info);
 };
 
 } // namespace Internal

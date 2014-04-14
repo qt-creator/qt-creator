@@ -53,22 +53,22 @@ CppLocatorData::CppLocatorData(CppModelManager *modelManager)
             this, SLOT(onAboutToRemoveFiles(QStringList)));
 }
 
-QList<ModelItemInfo::Ptr> CppLocatorData::enums()
+QList<IndexItem::Ptr> CppLocatorData::enums()
 {
     flushPendingDocument(true);
-    return allModelItemInfos(m_allEnums);
+    return allIndexItems(m_allEnums);
 }
 
-QList<ModelItemInfo::Ptr> CppLocatorData::classes()
+QList<IndexItem::Ptr> CppLocatorData::classes()
 {
     flushPendingDocument(true);
-    return allModelItemInfos(m_allClasses);
+    return allIndexItems(m_allClasses);
 }
 
-QList<ModelItemInfo::Ptr> CppLocatorData::functions()
+QList<IndexItem::Ptr> CppLocatorData::functions()
 {
     flushPendingDocument(true);
-    return allModelItemInfos(m_allFunctions);
+    return allIndexItems(m_allFunctions);
 }
 
 void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
@@ -120,21 +120,19 @@ void CppLocatorData::flushPendingDocument(bool force)
     foreach (CPlusPlus::Document::Ptr doc, m_pendingDocuments) {
         const QString fileName = findOrInsertFilePath(doc->fileName());
 
-        QList<ModelItemInfo::Ptr> resultsEnums;
-        QList<ModelItemInfo::Ptr> resultsClasses;
-        QList<ModelItemInfo::Ptr> resultsFunctions;
+        QList<IndexItem::Ptr> resultsEnums;
+        QList<IndexItem::Ptr> resultsClasses;
+        QList<IndexItem::Ptr> resultsFunctions;
 
-        const int sizeHint = m_allEnums[fileName].size() + m_allClasses[fileName].size()
-                + m_allFunctions[fileName].size() + 10;
-        m_search(doc, sizeHint)->visitAllChildren([&](const ModelItemInfo::Ptr &info) {
+        m_search(doc)->visitAllChildren([&](const IndexItem::Ptr &info) {
             switch (info->type()) {
-            case ModelItemInfo::Enum:
+            case IndexItem::Enum:
                 resultsEnums.append(info);
                 break;
-            case ModelItemInfo::Class:
+            case IndexItem::Class:
                 resultsClasses.append(info);
                 break;
-            case ModelItemInfo::Function:
+            case IndexItem::Function:
                 resultsFunctions.append(info);
                 break;
             default:
@@ -151,11 +149,11 @@ void CppLocatorData::flushPendingDocument(bool force)
     m_pendingDocuments.reserve(MaxPendingDocuments);
 }
 
-QList<ModelItemInfo::Ptr> CppLocatorData::allModelItemInfos(const QHash<QString,
-                                                            QList<ModelItemInfo::Ptr>> &items) const
+QList<IndexItem::Ptr> CppLocatorData::allIndexItems(
+        const QHash<QString, QList<IndexItem::Ptr>> &items) const
 {
-    QList<ModelItemInfo::Ptr> result;
-    QHashIterator<QString, QList<ModelItemInfo::Ptr> > it(items);
+    QList<IndexItem::Ptr> result;
+    QHashIterator<QString, QList<IndexItem::Ptr> > it(items);
     while (it.hasNext()) {
         it.next();
         result.append(it.value());

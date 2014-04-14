@@ -1920,7 +1920,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     QList<Core::LocatorFilterEntry> matches = classesFilter->matchesFor(dummyInterface, className);
     bool classExists = false;
     foreach (const Core::LocatorFilterEntry &entry, matches) {
-        ModelItemInfo::Ptr info = entry.internalData.value<ModelItemInfo::Ptr>();
+        IndexItem::Ptr info = entry.internalData.value<IndexItem::Ptr>();
         if (info->symbolName() != className)
             continue;
         classExists = true;

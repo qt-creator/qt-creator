@@ -26,46 +26,30 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CPPCURRENTDOCUMENTFILTER_H
-#define CPPCURRENTDOCUMENTFILTER_H
 
-#include "searchsymbols.h"
+#include "indexitem.h"
 
-#include <coreplugin/locator/ilocatorfilter.h>
+#include <utils/fileutils.h>
 
-namespace Core { class IEditor; }
+using namespace CppTools;
 
-namespace CppTools {
-namespace Internal {
-
-class CppModelManager;
-
-class CppCurrentDocumentFilter : public  Core::ILocatorFilter
+QString IndexItem::shortNativeFilePath() const
 {
-    Q_OBJECT
+    return Utils::FileUtils::shortNativePath(Utils::FileName::fromString(m_fileName));
+}
 
-public:
-    explicit CppCurrentDocumentFilter(CppModelManager *manager,
-                                      StringTable &stringTable);
-    ~CppCurrentDocumentFilter() {}
+void IndexItem::squeeze()
+{
+    m_children.squeeze();
+    for (int i = 0, ei = m_children.size(); i != ei; ++i)
+        m_children[i]->squeeze();
+}
 
-    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry);
-    void accept(Core::LocatorFilterEntry selection) const;
-    void refresh(QFutureInterface<void> &future);
-
-private slots:
-    void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
-    void onCurrentEditorChanged(Core::IEditor * currentEditor);
-    void onEditorAboutToClose(Core::IEditor * currentEditor);
-
-private:
-    CppModelManager * m_modelManager;
-    QString m_currentFileName;
-    QList<IndexItem::Ptr> m_itemsOfCurrentDoc;
-    SearchSymbols search;
-};
-
-} // namespace Internal
-} // namespace CppTools
-
-#endif // CPPCURRENTDOCUMENTFILTER_H
+void IndexItem::visitAllChildren(std::function<void (const IndexItem::Ptr &)> f) const
+{
+    foreach (const IndexItem::Ptr &child, m_children) {
+        f(child);
+        if (!child->m_children.isEmpty())
+            child->visitAllChildren(f);
+    }
+}

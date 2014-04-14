@@ -50,6 +50,7 @@ HEADERS += \
     doxygengenerator.h \
     functionutils.h \
     includeutils.h \
+    indexitem.h \
     insertionpointlocator.h \
     searchsymbols.h \
     stringtable.h \
@@ -103,6 +104,7 @@ SOURCES += \
     doxygengenerator.cpp \
     functionutils.cpp \
     includeutils.cpp \
+    indexitem.cpp \
     insertionpointlocator.cpp \
     searchsymbols.cpp \
     stringtable.cpp \

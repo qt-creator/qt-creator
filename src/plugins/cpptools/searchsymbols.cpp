@@ -38,7 +38,7 @@
 using namespace CPlusPlus;
 using namespace CppTools;
 
-typedef Utils::ScopedSwap<ModelItemInfo::Ptr> ScopedModelItemInfoPtr;
+typedef Utils::ScopedSwap<IndexItem::Ptr> ScopedIndexItemPtr;
 typedef Utils::ScopedSwap<QString> ScopedScope;
 
 SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
@@ -58,19 +58,19 @@ void SearchSymbols::setSymbolsToSearchFor(const SymbolTypes &types)
     symbolsToSearchFor = types;
 }
 
-ModelItemInfo::Ptr SearchSymbols::operator()(Document::Ptr doc, int sizeHint, const QString &scope)
+IndexItem::Ptr SearchSymbols::operator()(Document::Ptr doc, const QString &scope)
 {
-    ModelItemInfo::Ptr root = ModelItemInfo::create(findOrInsert(doc->fileName()), sizeHint);
+    IndexItem::Ptr root = IndexItem::create(findOrInsert(doc->fileName()), 100);
 
     { // RAII scope
-        ScopedModelItemInfoPtr parentRaii(_parent, root);
+        ScopedIndexItemPtr parentRaii(_parent, root);
         QString newScope = scope;
         ScopedScope scopeRaii(_scope, newScope);
 
-        QTC_ASSERT(_parent, return ModelItemInfo::Ptr());
-        QTC_ASSERT(root, return ModelItemInfo::Ptr());
+        QTC_ASSERT(_parent, return IndexItem::Ptr());
+        QTC_ASSERT(root, return IndexItem::Ptr());
         QTC_ASSERT(_parent->fileName() == findOrInsert(doc->fileName()),
-                   return ModelItemInfo::Ptr());
+                   return IndexItem::Ptr());
 
         for (unsigned i = 0, ei = doc->globalSymbolCount(); i != ei; ++i)
             accept(doc->globalSymbolAt(i));
@@ -89,11 +89,10 @@ bool SearchSymbols::visit(Enum *symbol)
         return false;
 
     QString name = overview.prettyName(symbol->name());
-    ModelItemInfo::Ptr newParent =
-            addChildItem(name, QString(), _scope, ModelItemInfo::Enum, symbol);
+    IndexItem::Ptr newParent = addChildItem(name, QString(), _scope, IndexItem::Enum, symbol);
     if (!newParent)
         newParent = _parent;
-    ScopedModelItemInfoPtr parentRaii(_parent, newParent);
+    ScopedIndexItemPtr parentRaii(_parent, newParent);
 
     QString newScope = scopedSymbolName(name, symbol);
     ScopedScope scopeRaii(_scope, newScope);
@@ -110,7 +109,7 @@ bool SearchSymbols::visit(Function *symbol)
         return false;
     QString name = overview.prettyName(symbol->name());
     QString type = overview.prettyType(symbol->type());
-    addChildItem(name, type, _scope, ModelItemInfo::Function, symbol);
+    addChildItem(name, type, _scope, IndexItem::Function, symbol);
     return false;
 }
 
@@ -144,8 +143,8 @@ bool SearchSymbols::visit(Declaration *symbol)
         QString name = overview.prettyName(symbol->name());
         QString type = overview.prettyType(symbol->type());
         addChildItem(name, type, _scope,
-                     symbol->type()->asFunctionType() ? ModelItemInfo::Function
-                                                      : ModelItemInfo::Declaration,
+                     symbol->type()->asFunctionType() ? IndexItem::Function
+                                                      : IndexItem::Declaration,
                      symbol);
     }
 
@@ -156,12 +155,12 @@ bool SearchSymbols::visit(Class *symbol)
 {
     QString name = overview.prettyName(symbol->name());
 
-    ModelItemInfo::Ptr newParent;
+    IndexItem::Ptr newParent;
     if (symbolsToSearchFor & SymbolSearcher::Classes)
-        newParent = addChildItem(name, QString(), _scope, ModelItemInfo::Class, symbol);
+        newParent = addChildItem(name, QString(), _scope, IndexItem::Class, symbol);
     if (!newParent)
         newParent = _parent;
-    ScopedModelItemInfoPtr parentRaii(_parent, newParent);
+    ScopedIndexItemPtr parentRaii(_parent, newParent);
 
     QString newScope = scopedSymbolName(name, symbol);
     ScopedScope scopeRaii(_scope, newScope);
@@ -291,13 +290,12 @@ QString SearchSymbols::scopeName(const QString &name, const Symbol *symbol) cons
     }
 }
 
-ModelItemInfo::Ptr SearchSymbols::addChildItem(const QString &symbolName, const QString &symbolType,
-                                               const QString &symbolScope,
-                                               ModelItemInfo::ItemType itemType,
-                                               Symbol *symbol)
+IndexItem::Ptr SearchSymbols::addChildItem(const QString &symbolName, const QString &symbolType,
+                                           const QString &symbolScope, IndexItem::ItemType itemType,
+                                           Symbol *symbol)
 {
     if (!symbol->name() || symbol->isGenerated())
-        return ModelItemInfo::Ptr();
+        return IndexItem::Ptr();
 
     QString path = m_paths.value(symbol->fileId(), QString());
     if (path.isEmpty()) {
@@ -306,30 +304,14 @@ ModelItemInfo::Ptr SearchSymbols::addChildItem(const QString &symbolName, const 
     }
 
     const QIcon icon = icons.iconForSymbol(symbol);
-    ModelItemInfo::Ptr newItem = ModelItemInfo::create(findOrInsert(symbolName),
-                                                       findOrInsert(symbolType),
-                                                       findOrInsert(symbolScope),
-                                                       itemType,
-                                                       findOrInsert(path),
-                                                       symbol->line(),
-                                                       symbol->column() - 1, // 1-based vs 0-based column
-                                                       icon);
+    IndexItem::Ptr newItem = IndexItem::create(findOrInsert(symbolName),
+                                               findOrInsert(symbolType),
+                                               findOrInsert(symbolScope),
+                                               itemType,
+                                               findOrInsert(path),
+                                               symbol->line(),
+                                               symbol->column() - 1, // 1-based vs 0-based column
+                                               icon);
     _parent->addChild(newItem);
     return newItem;
-}
-
-void ModelItemInfo::squeeze()
-{
-    m_children.squeeze();
-    for (int i = 0, ei = m_children.size(); i != ei; ++i)
-        m_children[i]->squeeze();
-}
-
-void ModelItemInfo::visitAllChildren(std::function<void (const ModelItemInfo::Ptr &)> f) const
-{
-    foreach (const ModelItemInfo::Ptr &child, m_children) {
-        f(child);
-        if (!child->m_children.isEmpty())
-            child->visitAllChildren(f);
-    }
 }

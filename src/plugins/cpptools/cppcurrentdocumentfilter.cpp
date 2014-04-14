@@ -79,22 +79,22 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
         Snapshot snapshot = m_modelManager->snapshot();
         Document::Ptr thisDocument = snapshot.document(m_currentFileName);
         if (thisDocument)
-            search(thisDocument)->visitAllChildren([&](const ModelItemInfo::Ptr &info){
+            search(thisDocument)->visitAllChildren([&](const IndexItem::Ptr &info){
                 m_itemsOfCurrentDoc.append(info);
             });
     }
 
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
-    foreach (ModelItemInfo::Ptr info, m_itemsOfCurrentDoc) {
+    foreach (IndexItem::Ptr info, m_itemsOfCurrentDoc) {
         if (future.isCanceled())
             break;
 
         QString matchString = info->symbolName();
-        if (info->type() == ModelItemInfo::Declaration)
-            matchString = ModelItemInfo::representDeclaration(info->symbolName(),
-                                                              info->symbolType());
-        else if (info->type() == ModelItemInfo::Function)
+        if (info->type() == IndexItem::Declaration)
+            matchString = IndexItem::representDeclaration(info->symbolName(),
+                                                          info->symbolType());
+        else if (info->type() == IndexItem::Function)
             matchString += info->symbolType();
 
         if ((hasWildcard && regexp.exactMatch(matchString))
@@ -103,7 +103,7 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
             QVariant id = qVariantFromValue(info);
             QString name = matchString;
             QString extraInfo = info->symbolScope();
-            if (info->type() == ModelItemInfo::Function) {
+            if (info->type() == IndexItem::Function) {
                 if (info->unqualifiedNameAndScope(matchString, &name, &extraInfo))
                     name += info->symbolType();
             }
@@ -125,7 +125,7 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
 
 void CppCurrentDocumentFilter::accept(Core::LocatorFilterEntry selection) const
 {
-    ModelItemInfo::Ptr info = qvariant_cast<CppTools::ModelItemInfo::Ptr>(selection.internalData);
+    IndexItem::Ptr info = qvariant_cast<CppTools::IndexItem::Ptr>(selection.internalData);
     Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }
 

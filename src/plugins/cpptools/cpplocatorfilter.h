@@ -54,8 +54,8 @@ public:
     void refresh(QFutureInterface<void> &future);
 
 protected:
-    virtual QList<QList<ModelItemInfo::Ptr> > itemsToMatchUserInputAgainst() const;
-    virtual Core::LocatorFilterEntry filterEntryFromModelItemInfo(ModelItemInfo::Ptr info);
+    virtual QList<QList<IndexItem::Ptr> > itemsToMatchUserInputAgainst() const;
+    virtual Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info);
 
 protected:
     CppLocatorData *m_data;

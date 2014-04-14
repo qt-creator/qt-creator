@@ -45,12 +45,12 @@ CppFunctionsFilter::~CppFunctionsFilter()
 {
 }
 
-QList<QList<CppTools::ModelItemInfo::Ptr> > CppFunctionsFilter::itemsToMatchUserInputAgainst() const
+QList<QList<CppTools::IndexItem::Ptr> > CppFunctionsFilter::itemsToMatchUserInputAgainst() const
 {
-    return QList<QList<CppTools::ModelItemInfo::Ptr> >() << m_data->functions();
+    return QList<QList<CppTools::IndexItem::Ptr> >() << m_data->functions();
 }
 
-Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromModelItemInfo(ModelItemInfo::Ptr info)
+Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
     const QVariant id = qVariantFromValue(info);
 

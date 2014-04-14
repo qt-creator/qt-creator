@@ -48,11 +48,11 @@ CppLocatorFilter::~CppLocatorFilter()
 {
 }
 
-Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromModelItemInfo(ModelItemInfo::Ptr info)
+Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
     const QVariant id = qVariantFromValue(info);
     Core::LocatorFilterEntry filterEntry(this, info->scopedSymbolName(), id, info->icon());
-    if (info->type() == ModelItemInfo::Class || info->type() == ModelItemInfo::Enum)
+    if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
         filterEntry.extraInfo = info->shortNativeFilePath();
     else
         filterEntry.extraInfo = info->symbolType();
@@ -65,9 +65,9 @@ void CppLocatorFilter::refresh(QFutureInterface<void> &future)
     Q_UNUSED(future)
 }
 
-QList<QList<CppTools::ModelItemInfo::Ptr> > CppLocatorFilter::itemsToMatchUserInputAgainst() const
+QList<QList<CppTools::IndexItem::Ptr> > CppLocatorFilter::itemsToMatchUserInputAgainst() const
 {
-    return QList<QList<CppTools::ModelItemInfo::Ptr> >()
+    return QList<QList<CppTools::IndexItem::Ptr> >()
         << m_data->classes()
         << m_data->functions()
         << m_data->enums();
@@ -94,16 +94,16 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
     bool hasColonColon = entry.contains(QLatin1String("::"));
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
-    const QList<QList<CppTools::ModelItemInfo::Ptr> > itemLists = itemsToMatchUserInputAgainst();
-    foreach (const QList<CppTools::ModelItemInfo::Ptr> &items, itemLists) {
-        foreach (ModelItemInfo::Ptr info, items) {
+    const QList<QList<CppTools::IndexItem::Ptr> > itemLists = itemsToMatchUserInputAgainst();
+    foreach (const QList<CppTools::IndexItem::Ptr> &items, itemLists) {
+        foreach (IndexItem::Ptr info, items) {
             if (future.isCanceled())
                 break;
             const QString matchString = hasColonColon ? info->scopedSymbolName()
                                                       : info->symbolName();
             if ((hasWildcard && regexp.exactMatch(matchString))
                 || (!hasWildcard && matcher.indexIn(matchString) != -1)) {
-                const Core::LocatorFilterEntry filterEntry = filterEntryFromModelItemInfo(info);
+                const Core::LocatorFilterEntry filterEntry = filterEntryFromIndexItem(info);
                 if (matchString.startsWith(entry, caseSensitivityForPrefix))
                     betterEntries.append(filterEntry);
                 else
@@ -123,6 +123,6 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
 
 void CppLocatorFilter::accept(Core::LocatorFilterEntry selection) const
 {
-    ModelItemInfo::Ptr info = qvariant_cast<CppTools::ModelItemInfo::Ptr>(selection.internalData);
+    IndexItem::Ptr info = qvariant_cast<CppTools::IndexItem::Ptr>(selection.internalData);
     Core::EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }

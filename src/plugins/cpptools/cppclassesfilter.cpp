@@ -45,12 +45,12 @@ CppClassesFilter::~CppClassesFilter()
 {
 }
 
-QList<QList<ModelItemInfo::Ptr> > CppClassesFilter::itemsToMatchUserInputAgainst() const
+QList<QList<IndexItem::Ptr> > CppClassesFilter::itemsToMatchUserInputAgainst() const
 {
-    return QList<QList<CppTools::ModelItemInfo::Ptr> >() << m_data->classes();
+    return QList<QList<CppTools::IndexItem::Ptr> >() << m_data->classes();
 }
 
-Core::LocatorFilterEntry CppClassesFilter::filterEntryFromModelItemInfo(ModelItemInfo::Ptr info)
+Core::LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
     const QVariant id = qVariantFromValue(info);
     Core::LocatorFilterEntry filterEntry(this, info->symbolName(), id, info->icon());

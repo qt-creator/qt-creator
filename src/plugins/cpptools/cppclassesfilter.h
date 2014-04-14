@@ -45,8 +45,8 @@ public:
     ~CppClassesFilter();
 
 private:
-    QList<QList<CppTools::ModelItemInfo::Ptr> > itemsToMatchUserInputAgainst() const;
-    Core::LocatorFilterEntry filterEntryFromModelItemInfo(ModelItemInfo::Ptr info);
+    QList<QList<CppTools::IndexItem::Ptr> > itemsToMatchUserInputAgainst() const;
+    Core::LocatorFilterEntry filterEntryFromIndexItem(IndexItem::Ptr info);
 };
 
 } // namespace CppTools

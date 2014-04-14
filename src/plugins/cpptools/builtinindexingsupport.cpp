@@ -125,16 +125,16 @@ public:
                 break;
             if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->fileName())) {
                 QVector<Core::SearchResultItem> resultItems;
-                search(it.value())->visitAllChildren([&](const ModelItemInfo::Ptr &info) {
+                search(it.value())->visitAllChildren([&](const IndexItem::Ptr &info) {
                     if (matcher.indexIn(info->symbolName()) != -1) {
                         QString text = info->symbolName();
                         QString scope = info->symbolScope();
-                        if (info->type() == ModelItemInfo::Function) {
+                        if (info->type() == IndexItem::Function) {
                             QString name;
                             info->unqualifiedNameAndScope(info->symbolName(), &name, &scope);
                             text = name + info->symbolType();
-                        } else if (info->type() == ModelItemInfo::Declaration){
-                            text = ModelItemInfo::representDeclaration(info->symbolName(),
+                        } else if (info->type() == IndexItem::Declaration){
+                            text = IndexItem::representDeclaration(info->symbolName(),
                                                                        info->symbolType());
                         }
 

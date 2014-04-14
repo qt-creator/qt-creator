@@ -88,12 +88,12 @@ void ClangSymbolSearcher::search(const QLinkedList<Symbol> &allSymbols)
         }
         ++symbolNr;
 
-        CppTools::ModelItemInfo info;
+        CppTools::IndexItem info;
 
         switch (s.m_kind) {
         case Symbol::Enum:
             if (m_parameters.types & SymbolSearcher::Enums) {
-                info.type = CppTools::ModelItemInfo::Enum;
+                info.type = CppTools::IndexItem::Enum;
                 info.symbolType = QLatin1String("enum");
                 break;
             } else {
@@ -101,7 +101,7 @@ void ClangSymbolSearcher::search(const QLinkedList<Symbol> &allSymbols)
             }
         case Symbol::Class:
             if (m_parameters.types & SymbolSearcher::Classes) {
-                info.type = CppTools::ModelItemInfo::Class;
+                info.type = CppTools::IndexItem::Class;
                 info.symbolType = QLatin1String("class");
                 break;
             } else {
@@ -112,14 +112,14 @@ void ClangSymbolSearcher::search(const QLinkedList<Symbol> &allSymbols)
         case Symbol::Constructor:
         case Symbol::Destructor:
             if (m_parameters.types & SymbolSearcher::Functions) {
-                info.type = CppTools::ModelItemInfo::Function;
+                info.type = CppTools::IndexItem::Function;
                 break;
             } else {
                 continue;
             }
         case Symbol::Declaration:
             if (m_parameters.types & SymbolSearcher::Declarations) {
-                info.type = CppTools::ModelItemInfo::Declaration;
+                info.type = CppTools::IndexItem::Declaration;
                 break;
             } else {
                 continue;

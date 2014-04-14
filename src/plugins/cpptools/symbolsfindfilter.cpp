@@ -181,9 +181,9 @@ void SymbolsFindFilter::finish()
 
 void SymbolsFindFilter::openEditor(const Core::SearchResultItem &item)
 {
-    if (!item.userData.canConvert<ModelItemInfo::Ptr>())
+    if (!item.userData.canConvert<IndexItem::Ptr>())
         return;
-    ModelItemInfo::Ptr info = item.userData.value<ModelItemInfo::Ptr>();
+    IndexItem::Ptr info = item.userData.value<IndexItem::Ptr>();
     EditorManager::openEditorAt(info->fileName(), info->line(), info->column());
 }
 

@@ -32,136 +32,18 @@
 
 #include "cpptools_global.h"
 #include "cppindexingsupport.h"
+#include "indexitem.h"
 #include "stringtable.h"
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
 
-#include <utils/fileutils.h>
-#include <utils/function.h>
-
-#include <QIcon>
 #include <QString>
 #include <QSet>
-#include <QSharedPointer>
 #include <QHash>
 
 namespace CppTools {
-
-class CPPTOOLS_EXPORT ModelItemInfo
-{
-    Q_DISABLE_COPY(ModelItemInfo)
-
-public:
-    enum ItemType { Enum, Class, Function, Declaration };
-
-private:
-    ModelItemInfo(const QString &symbolName,
-                  const QString &symbolType,
-                  const QString &symbolScope,
-                  ItemType type,
-                  const QString &fileName,
-                  int line,
-                  int column,
-                  const QIcon &icon)
-        : m_symbolName(symbolName),
-          m_symbolType(symbolType),
-          m_symbolScope(symbolScope),
-          m_fileName(fileName),
-          m_icon(icon),
-          m_type(type),
-          m_line(line),
-          m_column(column)
-    {}
-
-    ModelItemInfo(const QString &fileName, int sizeHint)
-        : m_fileName(fileName)
-        , m_type(Declaration)
-        , m_line(0)
-        , m_column(0)
-    { m_children.reserve(sizeHint); }
-
-public:
-    typedef QSharedPointer<ModelItemInfo> Ptr;
-    static Ptr create(const QString &symbolName,
-                      const QString &symbolType,
-                      const QString &symbolScope,
-                      ItemType type,
-                      const QString &fileName,
-                      int line,
-                      int column,
-                      const QIcon &icon)
-    {
-        return Ptr(new ModelItemInfo(
-                       symbolName, symbolType, symbolScope, type, fileName, line, column, icon));
-    }
-
-    static Ptr create(const QString &fileName, int sizeHint)
-    {
-        return Ptr(new ModelItemInfo(fileName, sizeHint));
-    }
-
-    QString scopedSymbolName() const
-    {
-        return m_symbolScope.isEmpty()
-                ? m_symbolName
-                : m_symbolScope +  QLatin1String("::") + m_symbolName;
-    }
-
-    bool unqualifiedNameAndScope(const QString &defaultName, QString *name, QString *scope) const
-    {
-        *name = defaultName;
-        *scope = m_symbolScope;
-        const QString qualifiedName = scopedSymbolName();
-        const int colonColonPosition = qualifiedName.lastIndexOf(QLatin1String("::"));
-        if (colonColonPosition != -1) {
-            *name = qualifiedName.mid(colonColonPosition + 2);
-            *scope = qualifiedName.left(colonColonPosition);
-            return true;
-        }
-        return false;
-    }
-
-    static QString representDeclaration(const QString &name, const QString &type)
-    {
-        if (type.isEmpty())
-            return QString();
-
-        const QString padding = type.endsWith(QLatin1Char('*'))
-            ? QString()
-            : QString(QLatin1Char(' '));
-        return type + padding + name;
-    }
-
-    QString shortNativeFilePath() const
-    { return Utils::FileUtils::shortNativePath(Utils::FileName::fromString(m_fileName)); }
-
-    QString symbolName() const { return m_symbolName; }
-    QString symbolType() const { return m_symbolType; }
-    QString symbolScope() const { return m_symbolScope; }
-    QString fileName() const { return m_fileName; }
-    QIcon icon() const { return m_icon; }
-    ItemType type() const { return m_type; }
-    int line() const { return m_line; }
-    int column() const { return m_column; }
-
-    void addChild(ModelItemInfo::Ptr childItem) { m_children.append(childItem); }
-    void squeeze();
-
-    void visitAllChildren(std::function<void (const ModelItemInfo::Ptr &)> f) const;
-
-private:
-    QString m_symbolName; // as found in the code, therefore might be qualified
-    QString m_symbolType;
-    QString m_symbolScope;
-    QString m_fileName;
-    QIcon m_icon;
-    ItemType m_type;
-    int m_line;
-    int m_column;
-    QVector<ModelItemInfo::Ptr> m_children;
-};
 
 class SearchSymbols: protected CPlusPlus::SymbolVisitor
 {
@@ -174,10 +56,10 @@ public:
 
     void setSymbolsToSearchFor(const SymbolTypes &types);
 
-    ModelItemInfo::Ptr operator()(CPlusPlus::Document::Ptr doc, int sizeHint = 500)
-    { return operator()(doc, sizeHint, QString()); }
+    IndexItem::Ptr operator()(CPlusPlus::Document::Ptr doc)
+    { return operator()(doc, QString()); }
 
-    ModelItemInfo::Ptr operator()(CPlusPlus::Document::Ptr doc, int sizeHint, const QString &scope);
+    IndexItem::Ptr operator()(CPlusPlus::Document::Ptr doc, const QString &scope);
 
 protected:
     using SymbolVisitor::visit;
@@ -213,11 +95,9 @@ protected:
     QString scopedSymbolName(const QString &symbolName, const CPlusPlus::Symbol *symbol) const;
     QString scopedSymbolName(const CPlusPlus::Symbol *symbol) const;
     QString scopeName(const QString &name, const CPlusPlus::Symbol *symbol) const;
-    ModelItemInfo::Ptr addChildItem(const QString &symbolName,
-                                    const QString &symbolType,
-                                    const QString &symbolScope,
-                                    ModelItemInfo::ItemType type,
-                                    CPlusPlus::Symbol *symbol);
+    IndexItem::Ptr addChildItem(const QString &symbolName, const QString &symbolType,
+                                const QString &symbolScope, IndexItem::ItemType type,
+                                CPlusPlus::Symbol *symbol);
 
 private:
     QString findOrInsert(const QString &s)
@@ -225,7 +105,7 @@ private:
 
     Internal::StringTable &strings;            // Used to avoid QString duplication
 
-    ModelItemInfo::Ptr _parent;
+    IndexItem::Ptr _parent;
     QString _scope;
     CPlusPlus::Overview overview;
     CPlusPlus::Icons icons;
@@ -236,6 +116,5 @@ private:
 } // namespace CppTools
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CppTools::SearchSymbols::SymbolTypes)
-Q_DECLARE_METATYPE(CppTools::ModelItemInfo::Ptr)
 
 #endif // SEARCHSYMBOLS_H
