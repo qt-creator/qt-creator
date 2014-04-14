@@ -675,7 +675,7 @@ void tst_ProFileWriter::addFiles()
     QMakeParser parser(0, &vfs, &parseHandler);
     ProFile *proFile = parser.parsedProBlock(input, QLatin1String(BASE_DIR "/test.pro"), 1);
     QVERIFY(proFile);
-    QmakeProjectManager::Internal::ProWriter::addFiles(proFile, &lines, QDir(BASE_DIR),
+    QmakeProjectManager::Internal::ProWriter::addFiles(proFile, &lines,
             QStringList() << QString::fromLatin1(BASE_DIR "/sub/bar.cpp"),
             QLatin1String("SOURCES"));
     proFile->deref();
