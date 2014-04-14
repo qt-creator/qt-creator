@@ -68,14 +68,6 @@ Controls.ComboBox {
         }
     }
 
-    onFocusChanged: {
-        if (focus) {
-            transaction.start();
-        } else {
-            transaction.end();
-        }
-    }
-
     style: CustomComboBoxStyle {
         textColor: comboBox.textColor
     }
