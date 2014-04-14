@@ -47,7 +47,9 @@ Controls.ComboBox {
     id: comboBox
 
     property variant backendValue
-    property color textColor: "white"
+    property color textColor: colorLogic.textColor
+
+    onTextColorChanged: setColor()
 
     editable: true
     model: ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"]
@@ -60,9 +62,13 @@ Controls.ComboBox {
         textColor: comboBox.textColor
     }
 
-    property string textValue: backendValue.value
-    onTextValueChanged: {
-        comboBox.editText = textValue
+    ColorLogic {
+        id: colorLogic
+        backendValue: comboBox.backendValue
+        property string textValue: backendValue.value
+        onTextValueChanged: {
+            comboBox.editText = textValue
+        }
     }
 
     Layout.fillWidth: true
@@ -85,11 +91,18 @@ Controls.ComboBox {
     Component.onCompleted: {
         //Hack to style the text input
         for (var i = 0; i < comboBox.children.length; i++) {
-            print(comboBox.children[i])
             if (comboBox.children[i].text !== undefined) {
                 comboBox.children[i].color = comboBox.textColor
                 comboBox.children[i].anchors.rightMargin = 34
                 comboBox.children[i].anchors.leftMargin = 18
+            }
+        }
+    }
+    function setColor() {
+        //Hack to style the text input
+        for (var i = 0; i < comboBox.children.length; i++) {
+            if (comboBox.children[i].text !== undefined) {
+                comboBox.children[i].color = comboBox.textColor
             }
         }
     }
