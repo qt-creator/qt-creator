@@ -148,17 +148,21 @@ def qdump____m512i(d, value):
 #    return "Transposed"
 
 def qdump__Eigen__Matrix(d, value):
-    innerType = d.templateArgument(value.type, 0)
-    storage = value["m_storage"]
-    options = d.numericTemplateArgument(value.type, 3)
+    listType = d.directBaseClass(value.type)
+    d.putItem(value.cast(listType))
+    d.putBetterType(value.type)
+
+def qdump__Eigen__PlainObjectBase(d, value):
+    matrixType = d.templateArgument(value.type, 0)
+    innerType = d.templateArgument(matrixType, 0)
+    options = d.numericTemplateArgument(matrixType, 3)
     rowMajor = (int(options) & 0x1)
-    argRow = d.numericTemplateArgument(value.type, 1)
-    argCol = d.numericTemplateArgument(value.type, 2)
-    nrows = value["m_storage"]["m_rows"] if argRow == -1 else int(argRow)
-    ncols = value["m_storage"]["m_cols"] if argCol == -1 else int(argCol)
-    p = storage["m_data"]
-    if d.isStructType(p.type): # Static
-        p = p["array"].cast(innerType.pointer())
+    argRow = d.numericTemplateArgument(matrixType, 1)
+    argCol = d.numericTemplateArgument(matrixType, 2)
+    storage = value["m_storage"]
+    nrows = toInteger(storage["m_rows"] if argRow == -1 else argRow)
+    ncols = toInteger(storage["m_cols"] if argCol == -1 else argCol)
+    p = d.createPointerValue(d.addressOf(value), innerType)
     d.putValue("(%s x %s), %s" % (nrows, ncols, ["ColumnMajor", "RowMajor"][rowMajor]))
     d.putField("keeporder", "1")
     d.putNumChild(nrows * ncols)

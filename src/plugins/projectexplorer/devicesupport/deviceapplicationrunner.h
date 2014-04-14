@@ -73,6 +73,7 @@ private slots:
     void handleRemoteStderr();
 
 private:
+    void doReportError(const QString &message);
     void setFinished();
 
     class DeviceApplicationRunnerPrivate;

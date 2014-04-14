@@ -111,6 +111,8 @@
                 devices that are suitable for publishing to application stores
                 and other channels. You must make sure that the package contents
                 meet the requirements for publishing on the channel.
-    \endtable
+
+                For more information, see \l{Publishing to Google Play}.
+\endtable
 
 */

@@ -33,6 +33,7 @@
 namespace QmlDesigner {
 namespace Constants {
 
+const char C_BACKSPACE[]            = "QmlDesigner.Backspace";
 const char C_DELETE[]               = "QmlDesigner.Delete";
 
 // Context

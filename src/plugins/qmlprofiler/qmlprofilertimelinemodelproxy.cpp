@@ -80,7 +80,7 @@ BasicTimelineModel::BasicTimelineModel(QObject *parent)
 void BasicTimelineModel::clear()
 {
     Q_D(BasicTimelineModel);
-    d->SortedTimelineModel::clear();
+    d->clear();
     d->eventDict.clear();
     d->eventHashes.clear();
     d->categorySpan.clear();

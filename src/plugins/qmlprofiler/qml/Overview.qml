@@ -98,6 +98,8 @@ Canvas {
     onPaint: {
         if (context === null)
             return; // canvas isn't ready
+
+        context.reset();
         Plotter.qmlProfilerModelProxy = qmlProfilerModelProxy;
         if (dataReady) {
             Plotter.plot(canvas, context, region);

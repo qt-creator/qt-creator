@@ -54,7 +54,6 @@ static bool debugExamples()
 }
 
 static const char kSelectedExampleSetKey[] = "WelcomePage/SelectedExampleSet";
-static const char kExamplesSearchStringKey[] = "WelcomePage/ExamplesSearchString";
 
 void ExampleSetModel::writeCurrentIdToSettings(int currentIndex) const
 {
@@ -840,16 +839,6 @@ void ExamplesListModelFilter::filterForExampleSet(int index)
         return;
 
     m_sourceModel->selectExampleSet(index);
-}
-
-void ExamplesListModelFilter::writeSearchStringToSettings(const QString &string)
-{
-    Core::ICore::settings()->setValue(QLatin1String(kExamplesSearchStringKey), string);
-}
-
-QString ExamplesListModelFilter::readSearchStringsFromSettings()
-{
-    return Core::ICore::settings()->value(QLatin1String(kExamplesSearchStringKey)).toString();
 }
 
 void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)

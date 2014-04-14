@@ -12,7 +12,7 @@ defineReplace(findLLVMConfig) {
 
     # Prefer llvm-config* from LLVM_INSTALL_DIR
     !isEmpty(LLVM_INSTALL_DIR) {
-        for (variant, LLVM_CONFIG_VARIANTS) {
+        for(variant, LLVM_CONFIG_VARIANTS) {
             variant=$$LLVM_INSTALL_DIR/bin/$$variant
             exists($$variant) {
                 return($$variant)
@@ -23,12 +23,12 @@ defineReplace(findLLVMConfig) {
     # Find llvm-config* in PATH
     ENV_PATH = $$(PATH)
     win32 {
-        ENV_PATH = $$split($$ENV_PATH, ;)
+        ENV_PATH = $$split(ENV_PATH, ;)
     } else {
-        ENV_PATH = $$split($$ENV_PATH, :)
+        ENV_PATH = $$split(ENV_PATH, :)
     }
-    for (variant, LLVM_CONFIG_VARIANTS) {
-        for (path, ENV_PATH) {
+    for(variant, LLVM_CONFIG_VARIANTS) {
+        for(path, ENV_PATH) {
             subvariant = $$path/$$variant
             exists($$subvariant) {
                 return($$subvariant)
@@ -65,7 +65,7 @@ unix {
 
     LLVM_VERSION = $$system($$LLVM_CONFIG --version)
     LLVM_VERSION = $$replace(LLVM_VERSION, ^(\\d+\\.\\d+).*$, \\1)
-    message("... version $$LLVM_VERSION");
+    message("... version $$LLVM_VERSION")
 
     LLVM_INCLUDEPATH = $$system($$LLVM_CONFIG --includedir)
     isEmpty(LLVM_INCLUDEPATH):LLVM_INCLUDEPATH=$$LLVM_INSTALL_DIR/include

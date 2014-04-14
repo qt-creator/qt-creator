@@ -108,7 +108,11 @@
 #define USE_PRIVATE 1
 #endif
 
-#ifdef HAS_EIGEN
+#ifdef HAS_EIGEN2
+#define USE_EIGEN 1
+#endif
+
+#ifdef HAS_EIGEN3
 #define USE_EIGEN 1
 #endif
 
@@ -231,7 +235,7 @@ void dummyStatement(...) {}
 #endif
 
 #if USE_EIGEN
-#include <eigen2/Eigen/Core>
+#include <Eigen/Core>
 #endif
 
 #if USE_PRIVATE
@@ -1781,7 +1785,9 @@ namespace qobject {
         QObject child(&parent);
         child.setObjectName("A Child");
         QObject::connect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));
+        QObject::connect(&child, SIGNAL(destroyed()), &child, SLOT(deleteLater()));
         QObject::disconnect(&child, SIGNAL(destroyed()), &parent, SLOT(deleteLater()));
+        QObject::disconnect(&child, SIGNAL(destroyed()), &child, SLOT(deleteLater()));
         child.setObjectName("A renamed Child");
         BREAK_HERE;
         // Check child "A renamed Child" QObject.
@@ -1813,6 +1819,7 @@ namespace qobject {
             Q_PROPERTY(QString myProp1 READ myProp1 WRITE setMyProp1)
             QString myProp1() const { return m_myProp1; }
             Q_SLOT void setMyProp1(const QString&mt) { m_myProp1 = mt; }
+            Q_INVOKABLE void foo() {}
 
             Q_PROPERTY(QString myProp2 READ myProp2 WRITE setMyProp2)
             QString myProp2() const { return m_myProp2; }
@@ -1823,6 +1830,9 @@ namespace qobject {
 
             Q_PROPERTY(long myProp4 READ myProp4)
             long myProp4() const { return 44; }
+
+            Q_SIGNAL void sigFoo();
+            Q_SIGNAL void sigBar(int);
 
         public:
             Ui *m_ui;

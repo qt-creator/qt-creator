@@ -327,9 +327,11 @@ void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
 /////
 
 TaskFilterModel::TaskFilterModel(TaskModel *sourceModel, QObject *parent) : QAbstractItemModel(parent),
-    m_mappingUpToDate(false), m_sourceModel(sourceModel)
+    m_sourceModel(sourceModel)
 {
     Q_ASSERT(m_sourceModel);
+    updateMapping();
+
     connect(m_sourceModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this, SLOT(handleNewRows(QModelIndex,int,int)));
     connect(m_sourceModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
@@ -472,15 +474,12 @@ QModelIndex TaskFilterModel::mapToSource(const QModelIndex &index) const
 void TaskFilterModel::invalidateFilter()
 {
     beginResetModel();
-    m_mappingUpToDate = false;
+    updateMapping();
     endResetModel();
 }
 
 void TaskFilterModel::updateMapping() const
 {
-    if (m_mappingUpToDate)
-        return;
-
     m_mapping.clear();
     for (int i = 0; i < m_sourceModel->rowCount(); ++i) {
         QModelIndex index = m_sourceModel->index(i, 0);
@@ -488,8 +487,6 @@ void TaskFilterModel::updateMapping() const
         if (filterAcceptsTask(task))
             m_mapping.append(i);
     }
-
-    m_mappingUpToDate = true;
 }
 
 bool TaskFilterModel::filterAcceptsTask(const Task &task) const

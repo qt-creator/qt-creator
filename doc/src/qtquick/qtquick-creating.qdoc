@@ -75,7 +75,7 @@
 
         \list
 
-            \li Select \gui {Qt Quick Controls 1.0} or \gui {Qt Quick 2.0} to
+            \li Select \gui {Qt Quick Controls 1.1} or \gui {Qt Quick 2.2} to
                 develop for platforms that run Qt 5.
 
             \li Select \gui {Qt Quick 1.1} to develop for platforms that run

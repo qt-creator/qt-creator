@@ -49,6 +49,8 @@ Canvas {
     onPaint: {
         if (context === null)
             return; // canvas isn't ready
+
+        context.reset();
         drawBackgroundBars( context, region );
 
         var totalTime = endTime - startTime;

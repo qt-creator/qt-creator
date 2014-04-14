@@ -39,6 +39,7 @@ Product {
 
     property string pluginIncludeBase: ".." // #include <plugin/header.h>
     cpp.includePaths: [pluginIncludeBase]
+    cpp.minimumWindowsVersion: "5.1"
 
     Group {
         name: "PluginSpec"

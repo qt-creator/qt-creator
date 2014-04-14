@@ -1257,7 +1257,6 @@ void ClassOrNamespace::NestedClassInstantiator::instantiate(ClassOrNamespace *en
             }
         }
 
-        nestedClassOrNamespaceInstantiation->_parent = enclosingTemplateClassInstantiation;
         instantiate(nestedClassOrNamespace, nestedClassOrNamespaceInstantiation);
 
         enclosingTemplateClassInstantiation->_classOrNamespaces[nestedName] =

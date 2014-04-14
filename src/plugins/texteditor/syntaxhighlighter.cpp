@@ -232,83 +232,32 @@ void SyntaxHighlighterPrivate::reformatBlock(const QTextBlock &block, int from, 
 
 /*!
     \class SyntaxHighlighter
-    \reentrant
 
-    \brief The SyntaxHighlighter class allows you to define syntax
-    highlighting rules, and in addition you can use the class to query
+    \brief The SyntaxHighlighter class allows you to define syntax highlighting rules and to query
     a document's current formatting or user data.
 
-    \since 4.1
+    The SyntaxHighlighter class is a copied and forked version of the QSyntaxHighlighter. There are
+    a couple of binary incompatible changes that prevent doing this directly in Qt.
 
-    \ingroup richtext-processing
+    The main difference from the QSyntaxHighlighter is the addition of setExtraAdditionalFormats.
+    This method prevents redoing syntax highlighting when setting the additionalFormats on the
+    layout and subsequently marking the document contents dirty. It thus prevents the redoing of the
+    semantic highlighting, which sets extra additionalFormats, and so on.
 
-    The SyntaxHighlighter class is a base class for implementing
-    QTextEdit syntax highlighters.  A syntax highligher automatically
-    highlights parts of the text in a QTextEdit, or more generally in
-    a QTextDocument. Syntax highlighters are often used when the user
-    is entering text in a specific format (for example source code)
-    and help the user to read the text and identify syntax errors.
+    Another way to implement the semantic highlighting is to use ExtraSelections on
+    Q(Plain)TextEdit. The drawback of QTextEdit::setExtraSelections is that ExtraSelection uses a
+    QTextCursor for positioning. That means that with every document change (that is, every
+    keystroke), a whole bunch of cursors can be re-checked or re-calculated. This is not needed in
+    our situation, because the next thing that will happen is that the highlighting will come up
+    with new ranges, meaning that it destroys the cursors. To make things worse, QTextCursor
+    calculates the pixel position in the line it's in. The calculations are done with
+    QTextLine::cursorTo, which is very expensive and is not optimized for fixed-width fonts. Another
+    reason not to use ExtraSelections is that those selections belong to the editor, not to the
+    document. This means that every editor needs a highlighter, instead of every document. This
+    could become expensive when multiple editors with the same document are opened.
 
-    To provide your own syntax highlighting, you must subclass
-    SyntaxHighlighter and reimplement highlightBlock().
-
-    When you create an instance of your SyntaxHighlighter subclass,
-    pass it the QTextEdit or QTextDocument that you want the syntax
-    highlighting to be applied to. For example:
-
-    \snippet doc/src/snippets/code/src_gui_text_SyntaxHighlighter.cpp 0
-
-    After this your highlightBlock() function will be called
-    automatically whenever necessary. Use your highlightBlock()
-    function to apply formatting (e.g. setting the font and color) to
-    the text that is passed to it. SyntaxHighlighter provides the
-    setFormat() function which applies a given QTextCharFormat on
-    the current text block. For example:
-
-    \snippet doc/src/snippets/code/src_gui_text_SyntaxHighlighter.cpp 1
-
-    Some syntaxes can have constructs that span several text
-    blocks. For example, a C++ syntax highlighter should be able to
-    cope with \c{/}\c{*...*}\c{/} multiline comments. To deal with
-    these cases it is necessary to know the end state of the previous
-    text block (e.g. "in comment").
-
-    Inside your highlightBlock() implementation you can query the end
-    state of the previous text block using the previousBlockState()
-    function. After parsing the block you can save the last state
-    using setCurrentBlockState().
-
-    The currentBlockState() and previousBlockState() functions return
-    an int value. If no state is set, the returned value is -1. You
-    can designate any other value to identify any given state using
-    the setCurrentBlockState() function. Once the state is set the
-    QTextBlock keeps that value until it is set set again or until the
-    corresponding paragraph of text is deleted.
-
-    For example, if you're writing a simple C++ syntax highlighter,
-    you might designate 1 to signify "in comment":
-
-    \snippet doc/src/snippets/code/src_gui_text_SyntaxHighlighter.cpp 2
-
-    In the example above, we first set the current block state to
-    0. Then, if the previous block ended within a comment, we higlight
-    from the beginning of the current block (\c {startIndex =
-    0}). Otherwise, we search for the given start expression. If the
-    specified end expression cannot be found in the text block, we
-    change the current block state by calling setCurrentBlockState(),
-    and make sure that the rest of the block is higlighted.
-
-    In addition you can query the current formatting and user data
-    using the format() and currentBlockUserData() functions
-    respectively. You can also attach user data to the current text
-    block using the setCurrentBlockUserData() function.
-    QTextBlockUserData can be used to store custom settings. In the
-    case of syntax highlighting, it is in particular interesting as
-    cache storage for information that you may figure out while
-    parsing the paragraph's text. For an example, see the
-    setCurrentBlockUserData() documentation.
-
-    \sa QTextEdit, {Syntax Highlighter Example}
+    So, we use AdditionalFormats, because all those highlights should get removed or redone soon
+    after the change happens.
 */
 
 /*!

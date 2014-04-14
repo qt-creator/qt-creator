@@ -34,12 +34,14 @@
 
 #include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/kitinformation.h>
 #include <qtsupport/qtkitinformation.h>
 
+using ProjectExplorer::BuildConfiguration;
 using ProjectExplorer::DeviceKitInformation;
 using ProjectExplorer::IDevice;
 using ProjectExplorer::RunControl;
@@ -82,6 +84,9 @@ WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, RunMod
 
     m_arguments = runConfiguration->arguments();
     m_uninstallAfterStop = runConfiguration->uninstallAfterStop();
+
+    if (BuildConfiguration *bc = target->activeBuildConfiguration())
+        m_environment = bc->environment();
 }
 
 void WinRtRunControl::start()
@@ -196,6 +201,7 @@ bool WinRtRunControl::startWinRtRunner()
     m_state = StartingState;
     m_process->setUseCtrlCStub(true);
     m_process->setCommand(m_runnerFilePath, runnerArgs);
+    m_process->setEnvironment(m_environment);
     m_process->setWorkingDirectory(QFileInfo(m_executableFilePath).absolutePath());
     m_process->start();
     return true;

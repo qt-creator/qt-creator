@@ -56,13 +56,8 @@ Rectangle {
         anchors.right: parent.right
         anchors.leftMargin: 18
 
-        text: examplesModel.readSearchStringsFromSettings()
-
         placeholderText: qsTr("Search in Examples...")
-        onTextChanged: {
-            examplesModel.parseSearchString(text);
-            examplesModel.writeSearchStringToSettings(text);
-        }
+        onTextChanged: examplesModel.parseSearchString(text)
     }
 
     ComboBox {

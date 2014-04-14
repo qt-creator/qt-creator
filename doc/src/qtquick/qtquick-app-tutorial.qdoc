@@ -33,8 +33,8 @@
     This tutorial uses built-in QML types and illustrates basic concepts of
     \l{Qt Quick}.
 
-    This tutorial describes how to use \QC to implement Qt states and transitions. We use
-    \l{Animation}{Qt example code} to
+    This tutorial describes how to use \QC to implement Qt Quick states and
+    transitions. We
     create an application that displays a Qt logo that moves between three rectangles on the
     page when you click them.
 
@@ -57,11 +57,7 @@
             Windows and Linux) or \gui Continue (on Mac OS).
 
         \li In the \gui {Qt Quick component set} field, select
-            \gui {Qt Quick 2.0}.
-
-            \note The QML types used in this example are also supported in
-            Qt Quick 1.1. To create this example application for platforms that
-            run Qt 4, select \gui {Qt Quick 1.1}.
+            \gui {Qt Quick 2.1}.
 
         \li Select \l{glossary-buildandrun-kit}{kits} for running and building your project,
             and then click \gui{Next}.
@@ -92,7 +88,8 @@
     To use the states.png image in your application, you must copy it to the
     project directory (same subdirectory as the QML file) from the examples
     directory in the Qt installation directory. For example:
-    \c {C:\Qt\Qt5.0.1\5.0.1\msvc2010\examples\declarative\animation\states}. The image appears
+    \c {C:\Qt\Qt5.3.0\5.3.0\msvc2010\examples\declarative\animation\states}. The
+    image appears
     in the \gui Resources pane. You can also use any other image or a QML
     type, instead.
 
@@ -108,18 +105,22 @@
         \li In the \gui Navigator pane, select \gui Text and press \key Delete to
             delete it.
 
-        \li Select \gui Rectangle to edit its properties.
+        \li Select \gui Window to edit its properties.
 
             \image qmldesigner-tutorial-page.png "Page properties"
 
         \list a
 
             \li In the \gui Id field, enter \e page, to be able to reference the
-                rectangle from other places.
+                window from other places.
 
-            \li In the \gui Color field, set the color to #343434.
+            \li In the code editor, set the window background color to #343434:
 
-            \li In the code editor, delete the \c {Qt.quit();} command.
+            \quotefromfile transitions/main.qml
+            \skipto Window {
+            \printuntil color
+
+            \li Delete the \c {Qt.quit();} command.
 
         \endlist
 
@@ -136,7 +137,13 @@
 
         \endlist
 
-        \li In the \gui Library view, \gui {QML Types} tab, select \gui Rectangle,
+        \li Double-click the resource file, qml.qrc, in the \gui Projects view
+            to add states.png to the resource file for deployment.
+
+        \li Click \gui Add and select states.png.
+
+        \li In the \gui Design mode, \gui Library view, \gui {QML Types} tab,
+            select \gui Rectangle,
             drag and drop it to the canvas, and edit its properties.
 
             \image qmldesigner-tutorial-topleftrect.png "Rectangle properties"
@@ -194,21 +201,24 @@
                 in the mouse area, as illustrated by the following code
                 snippet:
 
-                \qml
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: page.state = ''
-                }
-                \endqml
+                \quotefromfile transitions/main.qml
+                \skipto MouseArea
+                \printuntil }
 
                 The expression sets the state to the base state and returns the
                 image to its initial position.
+                You will create stateGroup later.
 
         \endlist
 
             The qml.main file should now look as follows:
 
-            \snippet transitions/main.qml 0
+            \quotefromfile transitions/main.qml
+            \skipto Window {
+            \printuntil onClicked
+            \printuntil }
+            \printuntil }
+            \printuntil }
 
         \li In the \gui Navigator pane, copy topLeftRect (by pressing
             \key {Ctrl+C}) and paste it to the canvas twice (by pressing
@@ -232,7 +242,7 @@
                 mouse area. The following expression sets the state to
                 \e State1:
 
-                \c {onClicked: page.state = 'State1'}
+                \c {onClicked: stateGroup.state = 'State1'}
 
                 You will create State1 later.
 
@@ -254,13 +264,18 @@
                 mouse area. The following expression sets the state to
                 \e State2:
 
-                \c {onClicked: page.state = 'State2'}
+                \c {onClicked: stateGroup.state = 'State2'}
 
                 You will create State2 later.
 
             The qml.main file should now look as follows:
 
-            \snippet transitions/main.qml 1
+            \quotefromfile transitions/main.qml
+            \skipto Window {
+            \printuntil State2
+            \printuntil }
+            \printuntil }
+            \printuntil }
 
         \endlist
 
@@ -280,26 +295,21 @@
     \section1 Adding Views
 
     In the .qml file, you already created pointers to two additional states:
-    State1 and State2. To create the states:
+    State1 and State2. You cannot use the \QMLD to add states for a Window QML
+    type. Use the code editor to add the states inside a StateGroup QML type and
+    refer to them by using the id of the state group:
 
     \list 1
 
-        \li Click the empty slot in the \gui States pane to create State1.
-
-        \li Click the empty slot in the \gui States pane to create State2.
-
-        \li In the code editor, bind the position of the Qt logo to the
+        \li Bind the position of the Qt logo to the
             rectangle to make sure that the logo is displayed within the
             rectangle when the view is scaled on different sizes of screens. Set
             expressions for the x and y properties, as illustrated by the
             following code snippet:
 
-            \snippet qml/states-properties.qml states
-
-            \image qmldesigner-tutorial-state1.png "States"
-
-            \note When you set the expressions, drag and drop is disabled for
-            the icon in \QMLD.
+            \quotefromfile transitions/main.qml
+            \skipto StateGroup {
+            \printuntil ]
 
         \li Press \key {Ctrl+R} to run the application.
 
@@ -309,7 +319,8 @@
 
     \section1 Adding Animation to the View
 
-    Add transitions to define how the properties change when the Qt logo moves
+    Add transitions inside the state group to define how the properties change
+    when the Qt logo moves
     between states. The transitions apply animations to the Qt logo. For example,
     the Qt logo bounces back when it moves to the middleRightRect and eases into
     bottomLeftRect. Add the transitions in the code editor.
@@ -320,7 +331,9 @@
             moving to State1, the x and y coordinates of the Qt logo change
             linearly over a duration of 1 second:
 
-            \snippet qml/list-of-transitions.qml first transition
+            \dots
+            \skipto transitions
+            \printuntil },
 
         \li You can use the Qt Quick toolbar for animation to change the easing
             curve type from linear to OutBounce:
@@ -343,13 +356,15 @@
             and y coordinates of the Qt logo change over a duration of 2
             seconds, and an InOutQuad easing function is used:
 
-            \snippet qml/list-of-transitions.qml second transition
+            \dots
+            \printuntil },
 
         \li Add the following code to specify that for any other state changes,
             the x and y coordinates of the Qt logo change linearly over a
             duration of 200 milliseconds:
 
-            \snippet qml/list-of-transitions.qml default transition
+            \dots
+            \printuntil ]
 
         \li Press \key {Ctrl+R} to run the application.
 
@@ -361,6 +376,8 @@
 
     When you have completed the steps, the main.qml file should look as follows:
 
-    \snippet transitions/main.qml 2
+            \quotefromfile transitions/main.qml
+            \skipto Window {
+            \printuntil /^\}/
 
 */

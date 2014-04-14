@@ -57,12 +57,16 @@
         \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
             LLVM compiler for Windows, Linux, and Mac OS X.
 
+        \li QCC is the interface for compiling C++ applications for QNX.
+
     \endlist
 
-    To build an application using GCC, MinGW, or Clang, specify the path
+    To build an application using GCC, MinGW, Clang, or QCC, specify the path
     to the directory where the compiler is located and select
     the application binary interface (ABI) version from the list of available
     versions. You can also create a custom ABI definition.
+    For QCC, also specify the path to the BlackBerry NDK or the QNX Software
+    Development Platform (SDP).
 
     You specify the compiler to use for each kit in \gui Tools >
     \gui Options > \gui {Build & Run} > \gui Kits.

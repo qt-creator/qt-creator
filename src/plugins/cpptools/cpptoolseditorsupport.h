@@ -197,6 +197,9 @@ private:
     void recalculateSemanticInfoDetached_helper(QFutureInterface<void> &future,
                                                 SemanticInfo::Source source);
 
+    QSharedPointer<SnapshotUpdater> snapshotUpdater_internal() const;
+    void setSnapshotUpdater_internal(const QSharedPointer<SnapshotUpdater> &updater);
+
 private:
     Internal::CppModelManager *m_modelManager;
     QPointer<TextEditor::BaseTextEditor> m_textEditor;
@@ -225,6 +228,7 @@ private:
     mutable QMutex m_lastSemanticInfoLock;
     SemanticInfo m_lastSemanticInfo;
     QFuture<void> m_futureSemanticInfo;
+    mutable QMutex m_snapshotUpdaterLock;
     QSharedPointer<SnapshotUpdater> m_snapshotUpdater;
 
     // Highlighting:

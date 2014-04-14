@@ -903,6 +903,17 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "    void foo();\n"
         "};\n"
     );
+
+    QTest::newRow("infiniteLoopLocalTypedef_QTCREATORBUG-11999") << _(
+        "template<class MyTree>\n"
+        "class TreeConstIterator\n"
+        "{\n"
+        "    typedef TreeConstIterator<MyTree> MyIter;\n"
+        "    void f() { return this->@$g(); }\n"
+        "};\n"
+        "\n"
+        "void h() { typedef TreeConstIterator<MyBase> const_iterator; }\n"
+    );
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor()

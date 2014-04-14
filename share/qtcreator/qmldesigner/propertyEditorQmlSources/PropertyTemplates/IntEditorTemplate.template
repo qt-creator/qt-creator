@@ -6,4 +6,6 @@ SpinBox {
     maximumValue: 9999999
     minimumValue: -9999999
     backendValue: backendValues.%2
+    Layout.fillWidth: true
+    Layout.maximumWidth: 100
 }

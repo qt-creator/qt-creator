@@ -2059,13 +2059,15 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor,
     if (kind != ITextEditor::BreakpointRequest)
         return;
 
-    if (editor->property("DisassemblerView").toBool()) {
-        QString line = editor->textDocument()->plainText()
-            .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
-        quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
-        toggleBreakpointByAddress(address);
-    } else if (editor->document()) {
-        toggleBreakpointByFileAndLine(editor->document()->filePath(), lineNumber);
+    if (IDocument *document = editor->document()) {
+        if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
+            QString line = editor->textDocument()->plainText()
+                .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
+            quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
+            toggleBreakpointByAddress(address);
+        } else {
+            toggleBreakpointByFileAndLine(document->filePath(), lineNumber);
+        }
     }
 }
 

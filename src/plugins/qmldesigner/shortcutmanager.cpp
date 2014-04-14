@@ -115,11 +115,19 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     //Edit Menu
 
+    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_BACKSPACE, qmlDesignerFormEditorContext);
+    command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_BACKSPACE, qmlDesignerNavigatorContext);
+    command->setDefaultKeySequence(QKeySequence(Qt::Key_Backspace));
+    command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
+    if (Utils::HostOsInfo::isMacHost())
+        editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
+
     command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_deleteAction, QmlDesigner::Constants::C_DELETE, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Delete);
     command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
-    editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
+    if (!Utils::HostOsInfo::isMacHost())
+        editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     command = Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerFormEditorContext);
     command = Core::ActionManager::registerAction(&m_cutAction, Core::Constants::CUT, qmlDesignerNavigatorContext);
@@ -159,16 +167,6 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     viewsMenu->addAction(command);
 
     command = Core::ActionManager::registerAction(&m_hideSidebarsAction, Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
-
-    if (Utils::HostOsInfo::isMacHost()) {
-        // add second shortcut to trigger delete
-        QAction *deleteAction = new QAction(this);
-        deleteAction->setShortcut(QKeySequence(QLatin1String("Backspace")));
-        connect(deleteAction,
-                SIGNAL(triggered()),
-                &m_deleteAction,
-                SIGNAL(triggered()));
-    }
 }
 
 void ShortCutManager::updateActions(Core::IEditor* currentEditor)

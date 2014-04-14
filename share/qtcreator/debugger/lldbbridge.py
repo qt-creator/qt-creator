@@ -417,8 +417,16 @@ class Dumper(DumperBase):
         return self.lookupType(inner)
 
     def numericTemplateArgument(self, typeobj, index):
+        # There seems no API to extract the numeric value.
         inner = self.extractTemplateArgument(typeobj.GetName(), index)
-        return int(inner)
+        innerType = typeobj.GetTemplateArgumentType(index)
+        basicType = innerType.GetBasicType()
+        value = toInteger(inner)
+        # Clang writes 'int' and '0xfffffff' into the debug info
+        # LLDB manages to read a value of 0xfffffff...
+        if basicType == lldb.eBasicTypeInt and value >= 0x8000000:
+            value -= 0x100000000
+        return value
 
     def isReferenceType(self, typeobj):
         return typeobj.IsReferenceType()
@@ -883,6 +891,13 @@ class Dumper(DumperBase):
             buf[i] = data.GetUnsignedInt8(error, i)
         return Blob(bytes(buf))
 
+    def mangleName(self, typeName):
+        return '_ZN%sE' % ''.join(map(lambda x: "%d%s" % (len(x), x), typeName.split('::')))
+
+    def findStaticMetaObject(self, typeName):
+        symbolName = self.mangleName(typeName + '::staticMetaObject')
+        return self.target.FindFirstGlobalVariable(symbolName)
+
     def findSymbol(self, symbolName):
         return self.target.FindFirstGlobalVariable(symbolName)
 
@@ -1169,7 +1184,6 @@ class Dumper(DumperBase):
         else:
             state = self.process.GetState()
             if state == lldb.eStateStopped:
-                self.reportStack()
                 self.reportStackPosition()
                 self.reportThreads()
                 self.reportVariables()
@@ -1259,7 +1273,6 @@ class Dumper(DumperBase):
                 stoppedThread = self.firstStoppedThread()
                 if stoppedThread:
                     self.process.SetSelectedThread(stoppedThread)
-                self.reportStack({'stacklimit': 20})
                 self.reportStackTop()
                 self.reportThreads()
                 self.reportLocation()

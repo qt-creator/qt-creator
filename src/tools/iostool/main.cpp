@@ -907,7 +907,6 @@ GdbRunner::GdbRunner(IosTool *iosTool, int gdbFd) :
 
 void GdbRunner::run()
 {
-    m_iosTool->errorMsg(QString::fromLatin1("GdbRunner in thread %1").arg((quintptr)(void *)QThread::currentThread()));
     {
         QMutexLocker l(&m_iosTool->m_xmlMutex);
         if (!m_iosTool->splitAppOutput) {

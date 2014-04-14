@@ -31,6 +31,7 @@
 #define CPPCOMPLETIONASSIST_H
 
 #include "cppcompletionassistprovider.h"
+#include "cppmodelmanagerinterface.h"
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/TypeOfExpression.h>
@@ -175,11 +176,13 @@ public:
     CppCompletionAssistInterface(TextEditor::BaseTextEditor *editor,
                                  QTextDocument *textDocument,
                                  int position,
-                                 TextEditor::AssistReason reason)
+                                 TextEditor::AssistReason reason,
+                                 const CppModelManagerInterface::WorkingCopy &workingCopy)
         : TextEditor::DefaultAssistInterface(textDocument, position, editor->document()->filePath(),
                                              reason)
         , m_editor(editor)
         , m_gotCppSpecifics(false)
+        , m_workingCopy(workingCopy)
     {}
 
     CppCompletionAssistInterface(QTextDocument *textDocument,
@@ -206,6 +209,7 @@ private:
 
     TextEditor::BaseTextEditor *m_editor;
     mutable bool m_gotCppSpecifics;
+    CppModelManagerInterface::WorkingCopy m_workingCopy;
     mutable CPlusPlus::Snapshot m_snapshot;
     mutable QStringList m_includePaths;
     mutable QStringList m_frameworkPaths;
