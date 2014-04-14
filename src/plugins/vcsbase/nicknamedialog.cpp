@@ -179,6 +179,7 @@ NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
     m_filterModel->setSourceModel(model);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_ui->filterTreeView->setModel(m_filterModel);
+    m_ui->filterTreeView->setActivationMode(Utils::DoubleClickActivation);
     const int columnCount = m_filterModel->columnCount();
     int treeWidth = 0;
     for (int c = 0; c < columnCount; c++) {
@@ -186,8 +187,8 @@ NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
         treeWidth += m_ui->filterTreeView->columnWidth(c);
     }
     m_ui->filterTreeView->setMinimumWidth(treeWidth + 20);
-    connect(m_ui->filterTreeView, SIGNAL(doubleClicked(QModelIndex)), this,
-            SLOT(slotDoubleClicked(QModelIndex)));
+    connect(m_ui->filterTreeView, SIGNAL(activated(QModelIndex)), this,
+            SLOT(slotActivated(QModelIndex)));
     connect(m_ui->filterTreeView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             this, SLOT(slotCurrentItemChanged(QModelIndex)));
     connect(m_ui->filterLineEdit, SIGNAL(filterChanged(QString)),
@@ -209,7 +210,7 @@ void NickNameDialog::slotCurrentItemChanged(const QModelIndex &index)
     okButton()->setEnabled(index.isValid());
 }
 
-void NickNameDialog::slotDoubleClicked(const QModelIndex &)
+void NickNameDialog::slotActivated(const QModelIndex &)
 {
     if (okButton()->isEnabled())
         okButton()->click();

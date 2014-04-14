@@ -65,7 +65,7 @@ public:
 
 private slots:
     void slotCurrentItemChanged(const QModelIndex &);
-    void slotDoubleClicked(const QModelIndex &);
+    void slotActivated(const QModelIndex &);
 
 private:
     QPushButton *okButton() const;
