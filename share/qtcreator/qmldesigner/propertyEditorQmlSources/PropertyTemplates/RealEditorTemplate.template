@@ -7,4 +7,6 @@ SpinBox {
     minimumValue: -9999999
     decimals: 2
     backendValue: backendValues.%2
+    Layout.fillWidth: true
+    Layout.maximumWidth: 100
 }
