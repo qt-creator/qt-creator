@@ -818,7 +818,7 @@ void tst_Dumpers::initTestCase()
         m_env = QProcessEnvironment::systemEnvironment();
         m_makeBinary = QString::fromLocal8Bit(qgetenv("QTC_MAKE_PATH_FOR_TEST"));
 #ifdef Q_OS_WIN
-        if (m_makeBinary.isEmpty()) {
+        if (m_makeBinary.isEmpty())
             m_makeBinary = QLatin1String("mingw32-make");
         // if qmake is not in PATH make sure the correct libs for inferior are prepended to PATH
         if (m_qmakeBinary != "qmake") {
@@ -827,10 +827,9 @@ void tst_Dumpers::initTestCase()
             m_env = env.toProcessEnvironment();
         }
 #else
-        if (m_makeBinary.isEmpty()) {
+        if (m_makeBinary.isEmpty())
             m_makeBinary = QLatin1String("make");
 #endif
-        }
         qDebug() << "Make path          : " << m_makeBinary;
         qDebug() << "Gdb version        : " << m_gdbVersion;
     } else if (m_debuggerEngine == CdbEngine) {
