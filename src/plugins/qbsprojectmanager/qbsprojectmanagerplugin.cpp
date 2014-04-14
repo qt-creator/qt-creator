@@ -440,6 +440,7 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
     BuildManager::buildList(bc->stepList(buildStep), name);
 
     bc->setChangedFiles(QStringList());
+    bc->setActiveFileTags(QStringList());
 }
 
 void QbsProjectManagerPlugin::buildSingleFile(QbsProject *project, const QString &file)
