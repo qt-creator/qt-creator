@@ -445,7 +445,7 @@ QString NodeInstanceServerProxy::copyAndPasterMessage(const QString &pathToQt) c
     messageStream << QStringLiteral("<html><head/><body>");
 
     if (hasQtQuick2(m_nodeInstanceView.data()))
-        messageStream << generatePuppetCompilingHelp(QStringLiteral("qmlpuppet2"), pathToQt);
+        messageStream << generatePuppetCompilingHelp(QStringLiteral("qml2puppet"), pathToQt);
     else if (hasQtQuick1(m_nodeInstanceView.data()))
         messageStream << generatePuppetCompilingHelp(QStringLiteral("qmlpuppet"), pathToQt);
 
