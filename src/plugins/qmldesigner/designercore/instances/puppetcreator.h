@@ -110,6 +110,9 @@ protected:
     QString buildCommand() const;
     QString qmakeCommand() const;
 
+    QByteArray qtHash() const;
+    QDateTime qtLastModified() const;
+
 private:
     QString m_qtCreatorVersion;
     mutable QString m_compileLog;

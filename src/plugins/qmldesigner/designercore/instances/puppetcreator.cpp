@@ -33,6 +33,7 @@
 #include <QTemporaryDir>
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QDateTime>
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/toolchain.h>
@@ -50,13 +51,26 @@ namespace QmlDesigner {
 
 bool PuppetCreator::m_useOnlyFallbackPuppet = !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty();
 
-static QByteArray getQtHash(ProjectExplorer::Kit *kit)
+QByteArray PuppetCreator::qtHash() const
 {
-    QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(kit);
-    if (currentQtVersion)
-        return QCryptographicHash::hash(currentQtVersion->qmakeProperty("QT_INSTALL_DATA").toUtf8(), QCryptographicHash::Sha1).toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+    if (m_kit) {
+        QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
+        if (currentQtVersion)
+            return QCryptographicHash::hash(currentQtVersion->qmakeProperty("QT_INSTALL_DATA").toUtf8(), QCryptographicHash::Sha1).toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+    }
 
     return QByteArray();
+}
+
+QDateTime PuppetCreator::qtLastModified() const
+{
+    if (m_kit) {
+        QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitInformation::qtVersion(m_kit);
+        if (currentQtVersion)
+            return QFileInfo(currentQtVersion->qmakeProperty("QT_INSTALL_LIBS")).lastModified();
+    }
+
+    return QDateTime();
 }
 
 PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion)
@@ -195,7 +209,7 @@ QString PuppetCreator::qmlpuppetDirectory(Puppetype puppetType) const
         return Core::ICore::userResourcePath()
                 + QStringLiteral("/qmlpuppet/")
                 + QCoreApplication::applicationVersion() + QStringLiteral("/")
-                + getQtHash(m_kit);
+                + qtHash();
 
 
     return qmlpuppetFallbackDirectory();
@@ -305,7 +319,7 @@ bool PuppetCreator::checkPuppetIsReady(const QString &puppetPath) const
 {
     QFileInfo puppetFileInfo(puppetPath);
 
-    return puppetFileInfo.exists(); // && checkPuppetVersion(puppetPath);
+    return puppetFileInfo.exists() && puppetFileInfo.lastModified() > qtLastModified();
 }
 
 bool PuppetCreator::checkQml2puppetIsReady() const
