@@ -889,9 +889,9 @@ void TypeFormatsDialog::addTypeFormats(const QString &type0,
     m_ui->pages[pos]->addTypeFormats(type, typeFormats, current);
 }
 
-TypeFormats TypeFormatsDialog::typeFormats() const
+DumperTypeFormats TypeFormatsDialog::typeFormats() const
 {
-    return TypeFormats();
+    return DumperTypeFormats();
 }
 
 } // namespace Internal

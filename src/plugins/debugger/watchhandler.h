@@ -32,10 +32,75 @@
 
 #include "watchdata.h"
 
-#include <QPointer>
 #include <QAbstractItemModel>
+#include <QPointer>
+#include <QVector>
 
 QT_FORWARD_DECLARE_CLASS(QTabWidget)
+
+namespace Debugger {
+namespace Internal {
+
+// Special formats. Keep in sync with dumper.py.
+enum DisplayFormat
+{
+    AutomaticFormat = -1, // Based on type for individuals, dumper default for types.
+    RawFormat = 0,
+
+    // Values between 1 and 99 refer to dumper provided custom formats.
+
+    // Values between 100 and 199 refer to well-known formats handled in dumpers.
+    KnownDumperFormatBase = 100,
+    Latin1StringFormat,
+    Utf8StringFormat,
+    Local8BitStringFormat,
+    Utf16StringFormat,
+    Ucs4StringFormat,
+
+    Array10Format,
+    Array100Format,
+    Array1000Format,
+    Array10000Format,
+
+
+    // Values above 200 refer to format solely handled in the WatchHandler code
+    ArtificialFormatBase = 200,
+
+    BoolTextFormat,
+    BoolIntegerFormat,
+
+    DecimalIntegerFormat,
+    HexadecimalIntegerFormat,
+    BinaryIntegerFormat,
+    OctalIntegerFormat,
+
+    CompactFloatFormat,
+    ScientificFloatFormat,
+};
+
+
+class TypeFormatItem
+{
+public:
+    TypeFormatItem() : format(-1) {}
+    TypeFormatItem(const QString &display, int format);
+
+    QString display;
+    int format;
+};
+
+class TypeFormatList : public QVector<TypeFormatItem>
+{
+public:
+    using QVector::append;
+    void append(int format);
+    TypeFormatItem find(int format) const;
+};
+
+} // namespace Internal
+} // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::TypeFormatList)
 
 namespace Debugger {
 
@@ -55,15 +120,7 @@ public:
     QByteArray varList;
 };
 
-typedef QHash<QString, QStringList> TypeFormats;
-
-enum IntegerFormat
-{
-    DecimalFormat = 0, // Keep that at 0 as default.
-    HexadecimalFormat,
-    BinaryFormat,
-    OctalFormat
-};
+typedef QHash<QString, QStringList> DumperTypeFormats; // Type name -> Dumper Formats
 
 class WatchHandler : public QObject
 {
@@ -104,8 +161,8 @@ public:
     int format(const QByteArray &iname) const;
 
     void addTypeFormats(const QByteArray &type, const QStringList &formats);
-    void setTypeFormats(const TypeFormats &typeFormats);
-    TypeFormats typeFormats() const;
+    void setTypeFormats(const DumperTypeFormats &typeFormats);
+    DumperTypeFormats typeFormats() const;
 
     void setUnprintableBase(int base);
     static int unprintableBase();

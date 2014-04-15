@@ -79,7 +79,6 @@ static QHash<QByteArray, int> theTypeFormats;
 static QHash<QByteArray, int> theIndividualFormats;
 static int theUnprintableBase = -1;
 
-
 static QByteArray stripForFormat(const QByteArray &ba)
 {
     QByteArray res;
@@ -175,6 +174,9 @@ public:
     int rowCount(const QModelIndex &idx = QModelIndex()) const;
     int columnCount(const QModelIndex &idx) const;
 
+    static QString nameForFormat(int format);
+    TypeFormatList typeFormatList(const WatchData &value) const;
+
 signals:
     void currentIndexRequested(const QModelIndex &idx);
     void itemIsExpanded(const QModelIndex &idx);
@@ -247,8 +249,9 @@ private:
     QSet<QByteArray> m_expandedINames;
     QSet<QByteArray> m_fetchTriggered;
 
-    QStringList typeFormatList(const WatchData &data) const;
-    TypeFormats m_reportedTypeFormats;
+    TypeFormatList builtinTypeFormatList(const WatchData &data) const;
+    QStringList dumperTypeFormatList(const WatchData &data) const;
+    DumperTypeFormats m_reportedTypeFormats;
 
     // QWidgets and QProcesses taking care of special displays.
     typedef QMap<QByteArray, QPointer<QObject> > EditHandlers;
@@ -498,43 +501,24 @@ QString WatchModel::removeNamespaces(QString str) const
 static int formatToIntegerBase(int format)
 {
     switch (format) {
-        case HexadecimalFormat:
+        case HexadecimalIntegerFormat:
             return 16;
-        case BinaryFormat:
+        case BinaryIntegerFormat:
             return 2;
-        case OctalFormat:
+        case OctalIntegerFormat:
             return 8;
     }
     return 10;
 }
 
-static bool isIntegralValue(const QString &value)
-{
-    if (value.startsWith(QLatin1Char('-')))
-        return isIntegralValue(value.mid(1));
-
-    bool ok;
-    value.toULongLong(&ok, 10);
-    if (ok)
-        return true;
-    value.toULongLong(&ok, 16);
-    if (ok)
-        return true;
-    value.toULongLong(&ok, 8);
-    if (ok)
-        return true;
-
-    return false;
-}
-
 template <class IntType> QString reformatInteger(IntType value, int format)
 {
     switch (format) {
-        case HexadecimalFormat:
+        case HexadecimalIntegerFormat:
             return QLatin1String("(hex) ") + QString::number(value, 16);
-        case BinaryFormat:
+        case BinaryIntegerFormat:
             return QLatin1String("(bin) ") + QString::number(value, 2);
-        case OctalFormat:
+        case OctalIntegerFormat:
             return QLatin1String("(oct) ") + QString::number(value, 8);
     }
     return QString::number(value, 10); // not reached
@@ -543,7 +527,7 @@ template <class IntType> QString reformatInteger(IntType value, int format)
 static QString reformatInteger(quint64 value, int format, int size, bool isSigned)
 {
     // Follow convention and don't show negative non-decimal numbers.
-    if (format != DecimalFormat)
+    if (format != AutomaticFormat)
         isSigned = false;
 
     switch (size) {
@@ -671,21 +655,32 @@ QString WatchModel::formattedValue(const WatchData &data) const
         return value;
     }
 
-    if (isIntegralValue(value)) {
-        // Append quoted, printable character also for decimal.
-        const int format = itemFormat(data);
-        if (data.type.endsWith("char") || data.type.endsWith("QChar")) {
-            bool ok;
-            const int code = value.toInt(&ok);
-            return ok ? reformatCharacter(code, format) : value;
-        }
-        // Rest: Leave decimal as is
-        if (format <= 0)
-            return value;
+    const int format = itemFormat(data);
 
+    // Append quoted, printable character also for decimal.
+    if (data.type.endsWith("char") || data.type.endsWith("QChar")) {
+        bool ok;
+        const int code = value.toInt(&ok);
+        return ok ? reformatCharacter(code, format) : value;
+    }
+
+    if (format == HexadecimalIntegerFormat
+            || format == DecimalIntegerFormat
+            || format == OctalIntegerFormat
+            || format == BinaryIntegerFormat) {
         bool isSigned = value.startsWith(QLatin1Char('-'));
         quint64 raw = isSigned ? quint64(value.toLongLong()): value.toULongLong();
         return reformatInteger(raw, format, data.size, isSigned);
+    }
+
+    if (format == ScientificFloatFormat) {
+        double d = value.toDouble();
+        return QString::number(d, 'e');
+    }
+
+    if (format == CompactFloatFormat) {
+        double d = value.toDouble();
+        return QString::number(d, 'g');
     }
 
     if (data.type == "va_list")
@@ -918,10 +913,10 @@ static QString truncateValue(QString v)
 
 int WatchModel::itemFormat(const WatchData &data) const
 {
-    const int individualFormat = theIndividualFormats.value(data.iname, -1);
-    if (individualFormat != -1)
+    const int individualFormat = theIndividualFormats.value(data.iname, AutomaticFormat);
+    if (individualFormat != AutomaticFormat)
         return individualFormat;
-    return theTypeFormats.value(stripForFormat(data.type), -1);
+    return theTypeFormats.value(stripForFormat(data.type), AutomaticFormat);
 }
 
 bool WatchModel::contentIsValid() const
@@ -1089,7 +1084,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return m_expandedINames.contains(data.iname);
 
         case LocalsTypeFormatListRole:
-            return typeFormatList(data);
+            return QVariant::fromValue(typeFormatList(data));
 
         case LocalsTypeRole:
             return removeNamespaces(displayType(data));
@@ -1098,10 +1093,10 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return QString::fromLatin1(data.type);
 
         case LocalsTypeFormatRole:
-            return theTypeFormats.value(stripForFormat(data.type), -1);
+            return theTypeFormats.value(stripForFormat(data.type), AutomaticFormat);
 
         case LocalsIndividualFormatRole:
-            return theIndividualFormats.value(data.iname, -1);
+            return theIndividualFormats.value(data.iname, AutomaticFormat);
 
         case LocalsRawValueRole:
             return data.value;
@@ -1171,7 +1166,7 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 
         case LocalsIndividualFormatRole: {
             const int format = value.toInt();
-            if (format == -1)
+            if (format == AutomaticFormat)
                 theIndividualFormats.remove(data.iname);
             else
                 theIndividualFormats[data.iname] = format;
@@ -1246,31 +1241,36 @@ static inline QString msgArrayFormat(int n)
     return WatchModel::tr("Array of %n items", 0, n);
 }
 
-QStringList WatchModel::typeFormatList(const WatchData &data) const
+QString WatchModel::nameForFormat(int format)
 {
-    if (data.origaddr || isPointerType(data.type))
-        return QStringList()
-            << tr("Raw pointer")
-            << tr("Latin1 string")
-            << tr("UTF8 string")
-            << tr("Local 8bit string")
-            << tr("UTF16 string")
-            << tr("UCS4 string")
-            << msgArrayFormat(10)
-            << msgArrayFormat(100)
-            << msgArrayFormat(1000)
-            << msgArrayFormat(10000);
-    if (data.type.contains("char[") || data.type.contains("char ["))
-        return QStringList()
-            << tr("Latin1 string")
-            << tr("UTF8 string")
-            << tr("Local 8bit string");
-    if (isIntegralValue(data.value))
-        return QStringList()
-            << tr("Decimal")
-            << tr("Hexadecimal")
-            << tr("Binary")
-            << tr("Octal");
+    switch (format) {
+        case RawFormat: return tr("Raw Data");
+        case Latin1StringFormat: return tr("Latin1 String");
+        case Utf8StringFormat: return tr("UTF-8 String");
+        case Local8BitStringFormat: return tr("Local 8-Bit String");
+        case Utf16StringFormat: return tr("UTF-16 String");
+        case Ucs4StringFormat: return tr("UCS-4 String");
+        case Array10Format: return msgArrayFormat(10);
+        case Array100Format: return msgArrayFormat(100);
+        case Array1000Format: return msgArrayFormat(1000);
+        case Array10000Format: return msgArrayFormat(10000);
+        case DecimalIntegerFormat: return tr("Decimal Integer");
+        case HexadecimalIntegerFormat: return tr("Hexadecimal Integer");
+        case BinaryIntegerFormat: return tr("Binary Integer");
+        case OctalIntegerFormat: return tr("Octal Integer");
+        case CompactFloatFormat: return tr("Compact Float");
+        case ScientificFloatFormat: return tr("Scientific Float");
+    }
+
+    QTC_CHECK(false);
+    return QString();
+}
+
+TypeFormatList WatchModel::typeFormatList(const WatchData &data) const
+{
+    TypeFormatList formats;
+
+    // Types supported by dumpers:
     // Hack: Compensate for namespaces.
     QString type = QLatin1String(stripForFormat(data.type));
     int pos = type.indexOf(QLatin1String("::Q"));
@@ -1280,7 +1280,50 @@ QStringList WatchModel::typeFormatList(const WatchData &data) const
     if (pos >= 0)
         type.truncate(pos);
     type.replace(QLatin1Char(':'), QLatin1Char('_'));
-    return m_reportedTypeFormats.value(type);
+    QStringList reported = m_reportedTypeFormats.value(type);
+    for (int i = 0, n = reported.size(); i != n; ++i)
+        formats.append(TypeFormatItem(reported.at(i), i));
+
+    // Fixed artificial string and pointer types.
+    if (data.origaddr || isPointerType(data.type)) {
+        formats.append(RawFormat);
+        formats.append(Latin1StringFormat);
+        formats.append(Utf8StringFormat);
+        formats.append(Local8BitStringFormat);
+        formats.append(Utf16StringFormat);
+        formats.append(Ucs4StringFormat);
+        formats.append(Array10Format);
+        formats.append(Array100Format);
+        formats.append(Array1000Format);
+        formats.append(Array10000Format);
+    } else if (data.type.contains("char[") || data.type.contains("char [")) {
+        formats.append(Latin1StringFormat);
+        formats.append(Utf8StringFormat);
+        formats.append(Ucs4StringFormat);
+    }
+
+    // Fixed artificial floating point types.
+    bool ok = false;
+    data.value.toDouble(&ok);
+    if (ok) {
+        formats.append(CompactFloatFormat);
+        formats.append(ScientificFloatFormat);
+    }
+
+    // Fixed artificial integral types.
+    data.value.toULongLong(&ok, 10);
+    if (!ok)
+        data.value.toULongLong(&ok, 16);
+    if (!ok)
+        data.value.toULongLong(&ok, 8);
+    if (ok) {
+        formats.append(DecimalIntegerFormat);
+        formats.append(HexadecimalIntegerFormat);
+        formats.append(BinaryIntegerFormat);
+        formats.append(OctalIntegerFormat);
+    }
+
+    return formats;
 }
 
 // Determine sort order of watch items by sort order or alphabetical inames
@@ -1439,10 +1482,10 @@ QDebug operator<<(QDebug d, const WatchModel &m)
 
 void WatchModel::formatRequests(QByteArray *out, const WatchItem *item) const
 {
-    int format = theIndividualFormats.value(item->iname, -1);
-    if (format == -1)
-        format = theTypeFormats.value(stripForFormat(item->type), -1);
-    if (format != -1)
+    int format = theIndividualFormats.value(item->iname, AutomaticFormat);
+    if (format == AutomaticFormat)
+        format = theTypeFormats.value(stripForFormat(item->type), AutomaticFormat);
+    if (format != AutomaticFormat)
         *out += item->iname + ":format=" + QByteArray::number(format) + ',';
     foreach (const WatchItem *child, item->children)
         formatRequests(out, child);
@@ -1869,7 +1912,7 @@ void WatchHandler::saveFormats()
     while (it.hasNext()) {
         it.next();
         const int format = it.value();
-        if (format != DecimalFormat) {
+        if (format != AutomaticFormat) {
             const QByteArray key = it.key().trimmed();
             if (!key.isEmpty())
                 formats.insert(QString::fromLatin1(key), format);
@@ -1948,7 +1991,7 @@ bool WatchHandler::hasItem(const QByteArray &iname) const
 void WatchHandler::setFormat(const QByteArray &type0, int format)
 {
     const QByteArray type = stripForFormat(type0);
-    if (format == -1)
+    if (format == AutomaticFormat)
         theTypeFormats.remove(type);
     else
         theTypeFormats[type] = format;
@@ -1958,11 +2001,11 @@ void WatchHandler::setFormat(const QByteArray &type0, int format)
 
 int WatchHandler::format(const QByteArray &iname) const
 {
-    int result = -1;
+    int result = AutomaticFormat;
     if (const WatchData *item = m_model->findItem(iname)) {
-        int result = theIndividualFormats.value(item->iname, -1);
-        if (result == -1)
-            result = theTypeFormats.value(stripForFormat(item->type), -1);
+        int result = theIndividualFormats.value(item->iname, AutomaticFormat);
+        if (result == AutomaticFormat)
+            result = theTypeFormats.value(stripForFormat(item->type), AutomaticFormat);
     }
     return result;
 }
@@ -1990,10 +2033,13 @@ QByteArray WatchHandler::typeFormatRequests() const
         QHashIterator<QByteArray, int> it(theTypeFormats);
         while (it.hasNext()) {
             it.next();
-            ba.append(it.key().toHex());
-            ba.append('=');
-            ba.append(QByteArray::number(it.value()));
-            ba.append(',');
+            const int format = it.value();
+            if (format >= RawFormat && format < ArtificialFormatBase) {
+                ba.append(it.key().toHex());
+                ba.append('=');
+                ba.append(QByteArray::number(format));
+                ba.append(',');
+            }
         }
         ba.chop(1);
     }
@@ -2007,10 +2053,13 @@ QByteArray WatchHandler::individualFormatRequests() const
         QHashIterator<QByteArray, int> it(theIndividualFormats);
         while (it.hasNext()) {
             it.next();
-            ba.append(it.key());
-            ba.append('=');
-            ba.append(QByteArray::number(it.value()));
-            ba.append(',');
+            const int format = it.value();
+            if (format >= RawFormat && format < ArtificialFormatBase) {
+                ba.append(it.key());
+                ba.append('=');
+                ba.append(QByteArray::number(it.value()));
+                ba.append(',');
+            }
         }
         ba.chop(1);
     }
@@ -2029,12 +2078,12 @@ QString WatchHandler::editorContents()
     return contents;
 }
 
-void WatchHandler::setTypeFormats(const TypeFormats &typeFormats)
+void WatchHandler::setTypeFormats(const DumperTypeFormats &typeFormats)
 {
     m_model->m_reportedTypeFormats = typeFormats;
 }
 
-TypeFormats WatchHandler::typeFormats() const
+DumperTypeFormats WatchHandler::typeFormats() const
 {
     return m_model->m_reportedTypeFormats;
 }
@@ -2048,7 +2097,7 @@ void WatchHandler::editTypeFormats(bool includeLocals, const QByteArray &iname)
     QList<QString> l = m_model->m_reportedTypeFormats.keys();
     qSort(l.begin(), l.end());
     foreach (const QString &ba, l) {
-        int f = iname.isEmpty() ? -1 : format(iname);
+        int f = iname.isEmpty() ? AutomaticFormat : format(iname);
         dlg.addTypeFormats(ba, m_model->m_reportedTypeFormats.value(ba), f);
     }
     if (dlg.exec())
@@ -2105,6 +2154,30 @@ bool WatchHandler::isExpandedIName(const QByteArray &iname) const
 QSet<QByteArray> WatchHandler::expandedINames() const
 {
     return m_model->m_expandedINames;
+}
+
+
+////////////////////////////////////////////////////////////////////
+//
+// TypeFormatItem/List
+//
+////////////////////////////////////////////////////////////////////
+
+TypeFormatItem::TypeFormatItem(const QString &display, int format)
+    : display(display), format(format)
+{}
+
+void TypeFormatList::append(int format)
+{
+    append(TypeFormatItem(WatchModel::nameForFormat(format), format));
+}
+
+TypeFormatItem TypeFormatList::find(int format) const
+{
+    for (int i = 0; i != size(); ++i)
+        if (at(i).format == format)
+            return at(i);
+    return TypeFormatItem();
 }
 
 } // namespace Internal

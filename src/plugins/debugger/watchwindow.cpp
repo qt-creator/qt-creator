@@ -59,6 +59,8 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
+Q_DECLARE_METATYPE(QModelIndex)
+
 /////////////////////////////////////////////////////////////////////
 //
 // WatchDelegate
@@ -67,6 +69,8 @@
 
 namespace Debugger {
 namespace Internal {
+
+const char CurrentIndex[] = "CurrentIndex";
 
 static DebuggerEngine *currentEngine()
 {
@@ -584,12 +588,150 @@ static void copyToClipboard(const QString &clipboardText)
     clipboard->setText(clipboardText, QClipboard::Clipboard);
 }
 
+void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
+{
+    QTC_CHECK(mi.isValid());
+
+    DebuggerEngine *engine = currentEngine();
+    WatchHandler *handler = engine->watchHandler();
+
+    const QModelIndex mi2 = mi.sibling(mi.row(), 2);
+    const QString type = mi2.data().toString();
+
+    const TypeFormatList alternativeFormats =
+        mi.data(LocalsTypeFormatListRole).value<TypeFormatList>();
+    int typeFormat =
+        mi.data(LocalsTypeFormatRole).toInt();
+    const int individualFormat =
+        mi.data(LocalsIndividualFormatRole).toInt();
+    const int unprintableBase = handler->unprintableBase();
+
+    QAction *showUnprintableUnicode = 0;
+    QAction *showUnprintableEscape = 0;
+    QAction *showUnprintableOctal = 0;
+    QAction *showUnprintableHexadecimal = 0;
+    formatMenu->setTitle(tr("Change Local Display Format..."));
+    showUnprintableUnicode =
+        formatMenu->addAction(tr("Treat All Characters as Printable"));
+    showUnprintableUnicode->setCheckable(true);
+    showUnprintableUnicode->setChecked(unprintableBase == 0);
+    showUnprintableUnicode->setData(0);
+    showUnprintableEscape =
+        formatMenu->addAction(tr("Show Unprintable Characters as Escape Sequences"));
+    showUnprintableEscape->setCheckable(true);
+    showUnprintableEscape->setChecked(unprintableBase == -1);
+    showUnprintableEscape->setData(-1);
+    showUnprintableOctal =
+        formatMenu->addAction(tr("Show Unprintable Characters as Octal"));
+    showUnprintableOctal->setCheckable(true);
+    showUnprintableOctal->setChecked(unprintableBase == 8);
+    showUnprintableOctal->setData(8);
+    showUnprintableHexadecimal =
+        formatMenu->addAction(tr("Show Unprintable Characters as Hexadecimal"));
+    showUnprintableHexadecimal->setCheckable(true);
+    showUnprintableHexadecimal->setChecked(unprintableBase == 16);
+    showUnprintableHexadecimal->setData(16);
+
+    connect(showUnprintableUnicode, SIGNAL(triggered()), SLOT(onShowUnprintable()));
+    connect(showUnprintableEscape, SIGNAL(triggered()), SLOT(onShowUnprintable()));
+    connect(showUnprintableOctal, SIGNAL(triggered()), SLOT(onShowUnprintable()));
+    connect(showUnprintableHexadecimal, SIGNAL(triggered()), SLOT(onShowUnprintable()));
+
+
+    const QString spacer = QLatin1String("     ");
+    formatMenu->addSeparator();
+    QAction *dummy = formatMenu->addAction(
+        tr("Change Display for Object Named \"%1\":").arg(mi.data().toString()));
+    dummy->setEnabled(false);
+    QString msg = (individualFormat == AutomaticFormat && typeFormat != AutomaticFormat)
+        ? tr("Use Format for Type (Currently %1)")
+            .arg(alternativeFormats.find(typeFormat).display)
+        : tr("Use Display Format Based on Type") + QLatin1Char(' ');
+
+    QAction *clearIndividualFormatAction = formatMenu->addAction(spacer + msg);
+    clearIndividualFormatAction->setCheckable(true);
+    clearIndividualFormatAction->setChecked(individualFormat == AutomaticFormat);
+    connect(clearIndividualFormatAction, SIGNAL(triggered()),
+        SLOT(onClearIndividualFormat()));
+
+    for (int i = 0; i != alternativeFormats.size(); ++i) {
+        const QString display = spacer + alternativeFormats.at(i).display;
+        const int format = alternativeFormats.at(i).format;
+        QAction *act = new QAction(display, formatMenu);
+        act->setData(format);
+        act->setCheckable(true);
+        act->setChecked(format == individualFormat);
+        act->setProperty(CurrentIndex, QVariant::fromValue(mi));
+        formatMenu->addAction(act);
+        connect(act, SIGNAL(triggered()), SLOT(onIndividualFormatChange()));
+    }
+
+    formatMenu->addSeparator();
+    dummy = formatMenu->addAction(tr("Change Display for Type \"%1\":").arg(type));
+    dummy->setEnabled(false);
+
+    QAction *clearTypeFormatAction = formatMenu->addAction(spacer + tr("Automatic"));
+    clearTypeFormatAction->setCheckable(true);
+    clearTypeFormatAction->setChecked(typeFormat == AutomaticFormat);
+    connect(clearTypeFormatAction, SIGNAL(triggered()), SLOT(onClearTypeFormat()));
+
+    for (int i = 0; i != alternativeFormats.size(); ++i) {
+        const QString display = spacer + alternativeFormats.at(i).display;
+        QAction *act = new QAction(display, formatMenu);
+        const int format = alternativeFormats.at(i).format;
+        act->setData(format);
+        act->setCheckable(true);
+        act->setChecked(format == typeFormat);
+        act->setProperty(CurrentIndex, QVariant::fromValue(mi));
+        formatMenu->addAction(act);
+        connect(act, SIGNAL(triggered()), SLOT(onTypeFormatChange()));
+    }
+}
+
+void WatchTreeView::onClearTypeFormat()
+{
+    const QModelIndexList active = activeRows();
+    foreach (const QModelIndex &idx, active)
+        setModelData(LocalsTypeFormatRole, AutomaticFormat, idx);
+}
+
+void WatchTreeView::onClearIndividualFormat()
+{
+    const QModelIndexList active = activeRows();
+    foreach (const QModelIndex &idx, active)
+        setModelData(LocalsIndividualFormatRole, AutomaticFormat, idx);
+}
+
+void WatchTreeView::onShowUnprintable()
+{
+    QAction *act = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(act, return);
+    DebuggerEngine *engine = currentEngine();
+    WatchHandler *handler = engine->watchHandler();
+    handler->setUnprintableBase(act->data().toInt());
+}
+
+void WatchTreeView::onTypeFormatChange()
+{
+    QAction *act = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(act, return);
+    QModelIndex idx = act->property(CurrentIndex).value<QModelIndex>();
+    setModelData(LocalsTypeFormatRole, act->data(), idx);
+}
+
+void WatchTreeView::onIndividualFormatChange()
+{
+    QAction *act = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(act, return);
+    QModelIndex idx = act->property(CurrentIndex).value<QModelIndex>();
+    setModelData(LocalsIndividualFormatRole, act->data(), idx);
+}
+
 void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     DebuggerEngine *engine = currentEngine();
     WatchHandler *handler = engine->watchHandler();
 
-    const QModelIndexList active = activeRows();
     const QModelIndex idx = indexAt(ev->pos());
     const QModelIndex mi0 = idx.sibling(idx.row(), 0);
     const QModelIndex mi1 = idx.sibling(idx.row(), 1);
@@ -603,89 +745,6 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     // Offer to open address pointed to or variable address.
     const bool createPointerActions = pointerAddress && pointerAddress != address;
-
-    const QStringList alternativeFormats =
-        mi0.data(LocalsTypeFormatListRole).toStringList();
-    int typeFormat =
-        mi0.data(LocalsTypeFormatRole).toInt();
-    if (typeFormat >= alternativeFormats.size())
-        typeFormat = -1;
-    const int individualFormat =
-        mi0.data(LocalsIndividualFormatRole).toInt();
-    const int unprintableBase = handler->unprintableBase();
-
-    QMenu formatMenu;
-    QList<QAction *> typeFormatActions;
-    QList<QAction *> individualFormatActions;
-    QAction *clearTypeFormatAction = 0;
-    QAction *clearIndividualFormatAction = 0;
-    QAction *showUnprintableUnicode = 0;
-    QAction *showUnprintableEscape = 0;
-    QAction *showUnprintableOctal = 0;
-    QAction *showUnprintableHexadecimal = 0;
-    formatMenu.setTitle(tr("Change Local Display Format..."));
-    showUnprintableUnicode =
-        formatMenu.addAction(tr("Treat All Characters as Printable"));
-    showUnprintableUnicode->setCheckable(true);
-    showUnprintableUnicode->setChecked(unprintableBase == 0);
-    showUnprintableEscape =
-        formatMenu.addAction(tr("Show Unprintable Characters as Escape Sequences"));
-    showUnprintableEscape->setCheckable(true);
-    showUnprintableEscape->setChecked(unprintableBase == -1);
-    showUnprintableOctal =
-        formatMenu.addAction(tr("Show Unprintable Characters as Octal"));
-    showUnprintableOctal->setCheckable(true);
-    showUnprintableOctal->setChecked(unprintableBase == 8);
-    showUnprintableHexadecimal =
-        formatMenu.addAction(tr("Show Unprintable Characters as Hexadecimal"));
-    showUnprintableHexadecimal->setCheckable(true);
-    showUnprintableHexadecimal->setChecked(unprintableBase == 16);
-    if (idx.isValid() /*&& !alternativeFormats.isEmpty() */) {
-        const QString spacer = QLatin1String("     ");
-        formatMenu.addSeparator();
-        QAction *dummy = formatMenu.addAction(
-            tr("Change Display for Object Named \"%1\":").arg(mi0.data().toString()));
-        dummy->setEnabled(false);
-        QString msg = (individualFormat == -1 && typeFormat != -1)
-            ? tr("Use Format for Type (Currently %1)")
-                .arg(alternativeFormats.at(typeFormat))
-            : tr("Use Display Format Based on Type") + QLatin1Char(' ');
-        clearIndividualFormatAction = formatMenu.addAction(spacer + msg);
-        clearIndividualFormatAction->setCheckable(true);
-        clearIndividualFormatAction->setChecked(individualFormat == -1);
-        for (int i = 0; i != alternativeFormats.size(); ++i) {
-            const QString format = spacer + alternativeFormats.at(i);
-            QAction *act = new QAction(format, &formatMenu);
-            act->setCheckable(true);
-            if (i == individualFormat)
-                act->setChecked(true);
-            formatMenu.addAction(act);
-            individualFormatActions.append(act);
-        }
-        formatMenu.addSeparator();
-        dummy = formatMenu.addAction(
-            tr("Change Display for Type \"%1\":").arg(type));
-        dummy->setEnabled(false);
-        clearTypeFormatAction = formatMenu.addAction(spacer + tr("Automatic"));
-        //clearTypeFormatAction->setEnabled(typeFormat != -1);
-        //clearTypeFormatAction->setEnabled(individualFormat != -1);
-        clearTypeFormatAction->setCheckable(true);
-        clearTypeFormatAction->setChecked(typeFormat == -1);
-        for (int i = 0; i != alternativeFormats.size(); ++i) {
-            const QString format = spacer + alternativeFormats.at(i);
-            QAction *act = new QAction(format, &formatMenu);
-            act->setCheckable(true);
-            //act->setEnabled(individualFormat != -1);
-            if (i == typeFormat)
-                act->setChecked(true);
-            formatMenu.addAction(act);
-            typeFormatActions.append(act);
-        }
-    } else {
-        QAction *dummy = formatMenu.addAction(
-            tr("Change Display for Type or Item..."));
-        dummy->setEnabled(false);
-    }
 
     const bool actionsEnabled = engine->debuggerActionsEnabled();
     const bool canHandleWatches = engine->hasCapability(AddWatcherCapability);
@@ -782,6 +841,14 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         menu.addAction(actRemoveWatches);
     }
 
+    QMenu formatMenu;
+    if (mi0.isValid()) {
+        fillFormatMenu(&formatMenu, mi0);
+    } else {
+        QAction *dummy = formatMenu.addAction(tr("Change Display for Type or Item..."));
+        dummy->setEnabled(false);
+    }
+
     QMenu memoryMenu;
     memoryMenu.setTitle(tr("Open Memory Editor..."));
     QAction *actOpenMemoryEditAtObjectAddress = new QAction(&memoryMenu);
@@ -838,7 +905,6 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actCopy = new QAction(tr("Copy Contents to Clipboard"), &menu);
     QAction *actCopyValue = new QAction(tr("Copy Value to Clipboard"), &menu);
     actCopyValue->setEnabled(idx.isValid());
-
 
     menu.addAction(actInsertNewWatchItem);
     menu.addAction(actSelectWidgetToWatch);
@@ -914,43 +980,11 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         copyToClipboard(mi1.data().toString());
     } else if (act == actRemoveWatches) {
         handler->clearWatches();
-    } else if (act == clearTypeFormatAction) {
-        foreach (const QModelIndex &idx, active)
-            setModelData(LocalsTypeFormatRole, -1, idx);
-    } else if (act == clearIndividualFormatAction) {
-        foreach (const QModelIndex &idx, active)
-            setModelData(LocalsIndividualFormatRole, -1, idx);
     } else if (act == actShowInEditor) {
         QString contents = handler->editorContents();
         debuggerCore()->openTextEditor(tr("Locals & Expressions"), contents);
-    } else if (act == showUnprintableUnicode) {
-        handler->setUnprintableBase(0);
-    } else if (act == showUnprintableEscape) {
-        handler->setUnprintableBase(-1);
-    } else if (act == showUnprintableOctal) {
-        handler->setUnprintableBase(8);
-    } else if (act == showUnprintableHexadecimal) {
-        handler->setUnprintableBase(16);
     } else if (act == actCloseEditorToolTips) {
         DebuggerToolTipManager::closeAllToolTips();
-    } else if (handleBaseContextAction(act)) {
-        ;
-    } else {
-        // Restrict multiple changes to items of the same type
-        // to avoid assigning illegal formats.
-        const QVariant currentType = mi1.data(LocalsTypeRole);
-        for (int i = 0; i != typeFormatActions.size(); ++i) {
-            if (act == typeFormatActions.at(i))
-                foreach (const QModelIndex &idx, active)
-                    if (idx.data(LocalsTypeRole) == currentType)
-                        setModelData(LocalsTypeFormatRole, i, idx);
-        }
-        for (int i = 0; i != individualFormatActions.size(); ++i) {
-            if (act == individualFormatActions.at(i))
-                foreach (const QModelIndex &idx, active)
-                    if (idx.data(LocalsTypeRole) == currentType)
-                        setModelData(LocalsIndividualFormatRole, i, idx);
-        }
     }
 }
 

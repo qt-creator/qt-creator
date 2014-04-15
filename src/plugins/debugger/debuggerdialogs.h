@@ -159,7 +159,7 @@ private:
      QDialogButtonBox *m_box;
 };
 
-typedef QHash<QString, QStringList> TypeFormats;
+typedef QHash<QString, QStringList> DumperTypeFormats;
 
 class StartRemoteEngineDialog : public QDialog
 {
@@ -190,7 +190,7 @@ public:
 
     void addTypeFormats(const QString &type, const QStringList &formats,
         int currentFormat);
-    TypeFormats typeFormats() const;
+    DumperTypeFormats typeFormats() const;
 
 private:
     TypeFormatsDialogUi *m_ui;

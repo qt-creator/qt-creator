@@ -42,6 +42,19 @@ else:
 verbosity = 0
 verbosity = 1
 
+# Known special formats. Keep in sync with DisplayFormat in watchhandler.h
+KnownDumperFormatBase, \
+Latin1StringFormat, \
+Utf8StringFormat, \
+Local8BitStringFormat, \
+Utf16StringFormat, \
+Ucs4StringFormat, \
+Array10Format, \
+Array100Format, \
+Array1000Format, \
+Array10000Format \
+    = range(100, 110)
+
 def hasPlot():
     fileName = "/usr/bin/gnuplot"
     return os.path.isfile(fileName) and os.access(fileName, os.X_OK)
@@ -805,44 +818,45 @@ class DumperBase:
                         self.putItem(value.dereference())
             return
 
-        if format == 1:
+        if format == Latin1StringFormat:
             # Explicitly requested Latin1 formatting.
             self.putType(typeName)
             self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
             self.putNumChild(0)
             return
 
-        if format == 2:
+        if format == Utf8StringFormat:
             # Explicitly requested UTF-8 formatting.
             self.putType(typeName)
             self.putValue(self.encodeCharArray(value), Hex2EncodedUtf8)
             self.putNumChild(0)
             return
 
-        if format == 3:
+        if format == Local8BitStringFormat:
             # Explicitly requested local 8 bit formatting.
             self.putType(typeName)
             self.putValue(self.encodeCharArray(value), Hex2EncodedLocal8Bit)
             self.putNumChild(0)
             return
 
-        if format == 4:
+        if format == Utf16StringFormat:
             # Explicitly requested UTF-16 formatting.
             self.putType(typeName)
             self.putValue(self.encodeChar2Array(value), Hex4EncodedLittleEndian)
             self.putNumChild(0)
             return
 
-        if format == 5:
+        if format == Ucs4StringFormat:
             # Explicitly requested UCS-4 formatting.
             self.putType(typeName)
             self.putValue(self.encodeChar4Array(value), Hex8EncodedLittleEndian)
             self.putNumChild(0)
             return
 
-        if not format is None and format >= 6 and format <= 9:
+        if not format is None \
+            and format >= Array10Format and format <= Array1000Format:
             # Explicitly requested formatting as array of n items.
-            n = (10, 100, 1000, 10000)[format - 6]
+            n = (10, 100, 1000, 10000)[format - Array10Format]
             self.putType(typeName)
             self.putItemCount(n)
             self.putNumChild(n)

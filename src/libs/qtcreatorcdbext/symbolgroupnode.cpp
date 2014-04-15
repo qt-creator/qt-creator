@@ -352,13 +352,15 @@ int DumpParameters::format(const std::string &type, const std::string &iname) co
     return -1;
 }
 
-enum PointerFormats // Watch data pointer format requests
+// Watch data pointer format requests. This should match the values
+// in DisplayFormat in watchhandler.h.
+enum PointerFormats
 {
     FormatAuto = 0,
-    FormatLatin1String = 1,
-    FormatUtf8String = 2,
-    FormatUtf16String = 3,
-    FormatUcs4String = 4
+    FormatLatin1String = 101,
+    FormatUtf8String = 102,
+    FormatUtf16String = 104,
+    FormatUcs4String = 105
 };
 
 enum DumpEncoding // WatchData encoding of GDBMI values
