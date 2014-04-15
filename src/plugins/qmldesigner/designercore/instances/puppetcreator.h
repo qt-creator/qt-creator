@@ -55,6 +55,7 @@ public:
     };
 
     PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion);
+    ~PuppetCreator();
 
     QProcess *createPuppetProcess(QmlPuppetVersion puppetVersion,
                                   const QString &puppetMode,

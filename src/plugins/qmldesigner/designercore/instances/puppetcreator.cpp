@@ -79,6 +79,11 @@ PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreator
 {
 }
 
+PuppetCreator::~PuppetCreator()
+{
+    m_useOnlyFallbackPuppet = !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty();
+}
+
 QProcess *PuppetCreator::createPuppetProcess(PuppetCreator::QmlPuppetVersion puppetVersion, const QString &puppetMode, const QString &socketToken, QObject *handlerObject, const char *outputSlot, const char *finishSlot) const
 {
     if (puppetVersion == Qml1Puppet)
