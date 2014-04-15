@@ -287,6 +287,9 @@ void MultiHighlighter::highlightBlock(const QString &text)
     QTextBlock documentBlock = currentDocument->findBlockByNumber(
                 block.blockNumber() - m_editor->blockNumberForFileIndex(fileIndex));
 
+    if (!documentBlock.isValid())
+        return;
+
     QList<QTextLayout::FormatRange> formats = documentBlock.layout()->additionalFormats();
     setExtraAdditionalFormats(block, formats);
 }
@@ -960,6 +963,8 @@ void SideBySideDiffEditorWidget::showDiff()
                 blockNumber++;
             }
         }
+        leftText.replace(QChar::CarriageReturn, QChar::Space);
+        rightText.replace(QChar::CarriageReturn, QChar::Space);
         leftTexts += leftText;
         rightTexts += rightText;
         leftDocs.append(qMakePair(contextFileData.leftFileInfo, leftText));
