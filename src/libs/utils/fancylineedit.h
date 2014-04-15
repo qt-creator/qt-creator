@@ -61,6 +61,8 @@ public:
     void setAutoHide(bool hide) { m_autoHide = hide; }
     bool hasAutoHide() const { return m_autoHide; }
 
+    QSize sizeHint() const;
+
 protected:
     void keyPressEvent(QKeyEvent *ke);
     void keyReleaseEvent(QKeyEvent *ke);

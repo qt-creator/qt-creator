@@ -216,8 +216,8 @@ void FancyLineEdit::updateMargins()
     Side realLeft = (leftToRight ? Left : Right);
     Side realRight = (leftToRight ? Right : Left);
 
-    int leftMargin = d->m_iconbutton[realLeft]->pixmap().width() + 8;
-    int rightMargin = d->m_iconbutton[realRight]->pixmap().width() + 8;
+    int leftMargin = d->m_iconbutton[realLeft]->sizeHint().width() + 8;
+    int rightMargin = d->m_iconbutton[realRight]->sizeHint().width() + 8;
     // Note KDE does not reserve space for the highlight color
     if (style()->inherits("OxygenStyle")) {
         leftMargin = qMax(24, leftMargin);
@@ -486,8 +486,12 @@ IconButton::IconButton(QWidget *parent)
 
 void IconButton::paintEvent(QPaintEvent *)
 {
+    qreal pixmapRatio = 1.0;
+#if QT_VERSION >= 0x050100
+    pixmapRatio = m_pixmap.devicePixelRatio();
+#endif
     QStylePainter painter(this);
-    QRect pixmapRect = QRect(0, 0, m_pixmap.width(), m_pixmap.height());
+    QRect pixmapRect = QRect(0, 0, m_pixmap.width()/pixmapRatio, m_pixmap.height()/pixmapRatio);
     pixmapRect.moveCenter(rect().center());
 
     if (m_autoHide)
@@ -521,6 +525,15 @@ void IconButton::animateShow(bool visible)
         animation->setEndValue(0.0);
         animation->start(QAbstractAnimation::DeleteWhenStopped);
     }
+}
+
+QSize IconButton::sizeHint() const
+{
+    qreal pixmapRatio = 1.0;
+#if QT_VERSION >= 0x050100
+    pixmapRatio = m_pixmap.devicePixelRatio();
+#endif
+    return QSize(m_pixmap.width()/pixmapRatio, m_pixmap.height()/pixmapRatio);
 }
 
 void IconButton::keyPressEvent(QKeyEvent *ke)
