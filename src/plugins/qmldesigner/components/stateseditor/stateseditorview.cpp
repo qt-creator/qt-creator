@@ -83,7 +83,7 @@ void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> 
 
 void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    checkForApplicationWindow();
+    checkForWindow();
 }
 
 void StatesEditorView::instancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
@@ -249,10 +249,10 @@ void StatesEditorView::duplicateCurrentState()
     setCurrentState(newState);
 }
 
-void StatesEditorView::checkForApplicationWindow()
+void StatesEditorView::checkForWindow()
 {
     if (m_statesEditorWidget)
-        m_statesEditorWidget->showAddNewStatesButton(!rootModelNode().metaInfo().isSubclassOf("QtQuick.Controls.ApplicationWindow", -1, -1));
+        m_statesEditorWidget->showAddNewStatesButton(!rootModelNode().metaInfo().isSubclassOf("QtQuick.Window.Window", -1, -1));
 }
 
 void StatesEditorView::setCurrentState(const QmlModelState &state)
@@ -320,7 +320,7 @@ void StatesEditorView::modelAttached(Model *model)
     if (m_statesEditorWidget)
         m_statesEditorWidget->setNodeInstanceView(nodeInstanceView());
 
-    checkForApplicationWindow();
+    checkForWindow();
 
     resetModel();
 }

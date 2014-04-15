@@ -22,11 +22,7 @@ defineReplace(findLLVMConfig) {
 
     # Find llvm-config* in PATH
     ENV_PATH = $$(PATH)
-    win32 {
-        ENV_PATH = $$split(ENV_PATH, ;)
-    } else {
-        ENV_PATH = $$split(ENV_PATH, :)
-    }
+    ENV_PATH = $$split(ENV_PATH, $$QMAKE_DIRLIST_SEP)
     for(variant, LLVM_CONFIG_VARIANTS) {
         for(path, ENV_PATH) {
             subvariant = $$path/$$variant
