@@ -158,6 +158,15 @@ Rectangle {
                 anchors.right: parent.right
                 frameVisible: false
 
+                id: tabView
+                height: Math.max(layoutSectionHeight, specficsHeight)
+
+                property int layoutSectionHeight
+                property int specficsOneHeight: 0
+                property int specficsTwoHeight: 0
+
+                property int specficsHeight: Math.max(specficsOneHeight, specficsTwoHeight)
+
                 Tab {
                     title: backendValues.className.value
 
@@ -178,6 +187,10 @@ Rectangle {
                                 active = false
                                 active = true
                             }
+
+                            onLoaded: {
+                                tabView.specficsTwoHeight = specificsTwo.item.height + 40
+                            }
                         }
 
                         Loader {
@@ -186,6 +199,10 @@ Rectangle {
 
                             id: specificsOne;
                             source: specificsUrl;
+
+                            onLoaded: {
+                                tabView.specficsOneHeight = specificsOne.item.height + 40
+                            }
                         }
                     }
                 }
@@ -197,6 +214,10 @@ Rectangle {
                         anchors.right: parent.right
 
                         LayoutSection {
+
+                            Component.onCompleted: {
+                                tabView.layoutSectionHeight = childrenRect.height
+                            }
                         }
                     }
                 }
