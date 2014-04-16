@@ -23,7 +23,6 @@ HEADERS += $$PWD/qmltransitionnodeinstance.h
 HEADERS += $$PWD/servernodeinstance.h
 HEADERS += $$PWD/anchorchangesnodeinstance.h
 HEADERS += $$PWD/positionernodeinstance.h
-HEADERS += $$PWD/quickwindownodeinstance.h
 HEADERS += $$PWD/layoutnodeinstance.h
 
 SOURCES += $$PWD/qt5nodeinstanceserver.cpp
@@ -49,5 +48,4 @@ SOURCES += $$PWD/qmltransitionnodeinstance.cpp
 SOURCES += $$PWD/servernodeinstance.cpp
 SOURCES += $$PWD/anchorchangesnodeinstance.cpp
 SOURCES += $$PWD/positionernodeinstance.cpp
-SOURCES += $$PWD/quickwindownodeinstance.cpp
 SOURCES += $$PWD/layoutnodeinstance.cpp
