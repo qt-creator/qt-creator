@@ -963,8 +963,8 @@ void SideBySideDiffEditorWidget::showDiff()
                 blockNumber++;
             }
         }
-        leftText.replace(QChar::CarriageReturn, QChar::Space);
-        rightText.replace(QChar::CarriageReturn, QChar::Space);
+        leftText.replace(QLatin1Char('\r'), QLatin1Char(' '));
+        rightText.replace(QLatin1Char('\r'), QLatin1Char(' '));
         leftTexts += leftText;
         rightTexts += rightText;
         leftDocs.append(qMakePair(contextFileData.leftFileInfo, leftText));
