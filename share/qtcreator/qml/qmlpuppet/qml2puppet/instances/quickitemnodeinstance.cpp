@@ -138,6 +138,28 @@ void QuickItemNodeInstance::doComponentComplete()
         m_contentItem = contentItemProperty.read().value<QQuickItem*>();
 }
 
+static QList<QQuickItem *> allItems(QQuickItem *parentItem)
+{
+     QList<QQuickItem *> itemList;
+
+     itemList.append(parentItem);
+     itemList.append(parentItem->childItems());
+
+     foreach (QQuickItem *childItem, parentItem->childItems()) {
+         itemList.append(allItems(childItem));
+     }
+
+     return itemList;
+}
+
+QList<QQuickItem *> QuickItemNodeInstance::allItemsRecursive() const
+{
+    if (quickItem())
+        return allItems(quickItem());
+
+    return QList<QQuickItem *>();
+}
+
 QRectF QuickItemNodeInstance::contentItemBoundingBox() const
 {
     if (contentItem()) {

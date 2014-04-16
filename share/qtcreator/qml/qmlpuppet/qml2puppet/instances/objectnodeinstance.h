@@ -139,6 +139,7 @@ public:
     PropertyNameList propertyNames() const;
 
     virtual QList<ServerNodeInstance> childItems() const;
+    virtual QList<QQuickItem*> allItemsRecursive() const;
 
     void createDynamicProperty(const QString &PropertyName, const QString &typeName);
     void setDeleteHeldInstance(bool deleteInstance);

@@ -730,6 +730,11 @@ QList<ServerNodeInstance> ObjectNodeInstance::childItems() const
     return QList<ServerNodeInstance>();
 }
 
+QList<QQuickItem *> ObjectNodeInstance::allItemsRecursive() const
+{
+    return QList<QQuickItem *>();
+}
+
 QList<ServerNodeInstance>  ObjectNodeInstance::stateInstances() const
 {
     return QList<ServerNodeInstance>();

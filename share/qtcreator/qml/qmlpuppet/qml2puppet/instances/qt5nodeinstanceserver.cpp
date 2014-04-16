@@ -117,14 +117,10 @@ QList<QQuickItem*> subItems(QQuickItem *parentItem)
 
 QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
 {
-    QList<QQuickItem*> itemList;
+    if (rootNodeInstance().isValid())
+        return rootNodeInstance().allItemsRecursive();
 
-    if (quickView()) {
-        itemList.append(quickView()->rootObject());
-        itemList.append(subItems(quickView()->rootObject()));
-    }
-
-    return itemList;
+    return QList<QQuickItem*>();
 }
 
 void Qt5NodeInstanceServer::refreshBindings()

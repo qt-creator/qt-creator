@@ -638,6 +638,11 @@ QQuickItem *ServerNodeInstance::rootQuickItem() const
     return qobject_cast<QQuickItem*>(internalObject());
 }
 
+QList<QQuickItem *> ServerNodeInstance::allItemsRecursive() const
+{
+    return m_nodeInstance->allItemsRecursive();
+}
+
 QString ServerNodeInstance::id() const
 {
     return m_nodeInstance->id();

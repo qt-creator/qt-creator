@@ -68,6 +68,8 @@ public:
 
     void doComponentComplete();
 
+    QList<QQuickItem*> allItemsRecursive() const;
+
 protected:
     QuickItemNodeInstance(QQuickItem*);
     QQuickItem *quickItem() const;
