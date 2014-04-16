@@ -87,6 +87,8 @@
 
         \li  Use quotation marks ("") around variable values. For example,
              \gui {Close Project "qtcreator"}.
+             For consistency, use double quotes to emphasize or set apart file
+             names, directory names, URLs, and so on, in user visible strings.
 
         \li  Do not use leading, trailing, or multiple spaces to align text in
              messages, as translation tools might not handle them correctly.
@@ -252,6 +254,22 @@
     \c {QObject::tr()}, which is confusing because the messages appear grouped
     by class context in Qt Linguist and messages tied to QObject do not have a
     class context.
+
+    Use \c{QDir::toNativeSeparators()} for file and directory names that you
+    pass to \c{tr().arg()}.
+
+    Do not use markup that spans the whole string, because that can be confusing
+    for translators. For example, instead of:
+
+    \code
+    tr("<html><head/><body><span>UI Text</span></body></html>")
+    \endcode
+
+    use
+
+    \code
+    QLatin1String("<html><head/><body><span>") + tr("UI Text") + QLatin1String("/span></body></html>")
+    \endcode
 
     \section2 Features of Languages or Writing Systems
 
