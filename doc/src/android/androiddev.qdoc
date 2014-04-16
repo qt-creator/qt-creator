@@ -53,13 +53,11 @@
         \li \l{http://ant.apache.org/bindownload.cgi}{Apache Ant} 1.8.0, or
             later
 
-        \li A tool chain for building applications for Android devices. You have
-            several options, such as the
+        \li A tool chain for building applications for Android devices provided
+            by the
             \l{http://developer.android.com/sdk/index.html}{Android SDK} and
             \l{http://developer.android.com/tools/sdk/ndk/index.html}
-            {Android NDK} from Google (supported for development with Qt 5) or the
-            \l{http://necessitas.kde.org/necessitas/necessitas_sdk_installer.php}
-            {Necessitas SDK} (supported for development with Qt 4).
+            {Android NDK} from Google.
 
         \li On Windows, you also need the following:
 
@@ -92,7 +90,7 @@
         ./android update sdk
         \endcode
 
-    \section1 Developing with Qt 5
+    \section1 Setting Up the Development Environment
 
     You must download and install the latest Android NDK and SDK, and update the
     SDK to get the API and tools packages needed for development. In addition,
@@ -142,50 +140,6 @@
             \gui {Select Android Devices} dialog.
     \endlist
 
-    \section1 Developing with Qt 4
-
-    The Necessitas SDK automatically sets the paths to the required software
-    in \QC, but you need to add the Qt version. \QC can then create the
-    necessary kits for you.
-
-    To configure connections between \QC and Android devices:
-
-    \list 1
-
-        \li Select \gui Tools > \gui Options > \gui {Build & Run} >
-            \gui {Qt Versions} > \gui Add to add the path to \c qmake path in
-            the Qt for Android SDK.
-
-        \li Select \gui Tools > \gui Options > \gui Android to check the paths
-            to the required software.
-
-            \image qtcreator-options-android.png "Android options"
-
-        \li Select the \gui {Automatically create kits for Android tool chains}
-            check box to allow \QC to create the kits for you. \QC displays a
-            warning if it cannot find a suitable Qt version.
-
-        \li To create an application, select \gui File >
-            \gui {New File or Project} > \gui Applications >
-            \gui {Qt Quick Application} > \gui Choose, and
-            follow the instructions of the wizard. For more information, see
-            \l{Creating Qt Quick Projects}.
-
-        \li To specify information for the Android manifest file, select
-            \gui Projects > \gui Run for the \gui Android kit.
-
-        \li Select \gui Details to view the
-            \gui {Package configurations}. For more information about the
-            options you have, see
-            \l{Specifying Settings for Qt 4 Packages}.
-
-        \li To specify settings for deploying applications to Android, select
-            \gui Details to view the \gui {Deploy configurations}. For more
-            information about the options you have, see
-            \l{Deploying Applications to Android Devices}.
-
-    \endlist
-
     \section1 Selecting Android Devices
 
     When you deploy an application to an Android device with Android
@@ -230,10 +184,6 @@
     manually by running the \c {emulator-arm} command from the command line.
 
     \section1 Debugging on Android Devices
-
-    \QC is integrated with the GDB and GDB server that are delivered with the
-    Necessitas SDK. It provides GDB with Python support that enables \QC to
-    display custom Qt types, such as QString, QObject, and so on.
 
     Android devices support debugging multi-thread applications in version
     2.2.1 and later. If you use AVD, select Android 2.3, or later. For more

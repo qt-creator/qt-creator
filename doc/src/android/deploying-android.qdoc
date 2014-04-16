@@ -45,18 +45,13 @@
 
     \endlist
 
-    The default option depends on whether you are developing with Qt 4 or Qt 5.
-    The Necessitas SDK does not support bundling Qt libraries with applications,
-    so you must use Ministro when developing with Qt 4. To specify the
-    deployment method, select \gui Projects > \gui Run >
-    \gui {Deploy configurations} > \gui Details
+    To specify the deployment method, select \gui Projects > \gui Run >
+    \gui {Deploy configurations} > \gui Details.
 
     \section1 Creating Distributable APK Packages
 
     To copy Qt libraries and files to the project directory and to bundle them
     as part of the APK, select the \gui {Bundle Qt libraries in APK} option.
-    This is the default option when developing with Qt 5. It is not supported
-    when developing with Qt 4.
 
     \section1 Using Ministro to Install Qt Libraries
 
@@ -74,8 +69,6 @@
 
     To use Ministro to install the Qt libraries, select the
     \gui {Use Ministro service to install Qt} option.
-
-    This is the default option when developing with Qt 4.
 
     \section1 Deploying Qt Libraries for Debugging
 
@@ -97,13 +90,13 @@
     \gui {Clean Temporary Libraries Directory on Device}. The next time you
     deploy the application, Qt libraries are copied to the device again.
 
-    \section1 Packaging Qt 4 Applications
+    \section1 Packaging Applications
 
-    When you select a \gui {Qt for Android Kit} that specifies Qt 4 for a
-    project, \QC creates and maintains a set of files that are required to make
-    your application run on Android devices.
-
-    \QC adds the following files to your project:
+    Because bundling applications as APK packages is not
+    trivial, Qt 5 provides a deployment tool called \c androiddeployqt.
+    When you deploy an application using a \gui {Qt for Android Kit}, \QC uses
+    the \c androiddeployqt tool to create the necessary files and to bundle them
+    into an APK:
 
     \list
 
@@ -123,28 +116,6 @@
 
     \endlist
 
-    \QC adds the files to the project to a subdirectory called \c android. The
-    contents of the \c android folder are used to create a distributable
-    application package.
-
-    To view the packages that \QC created, select the
-    \gui {Open package location after is complete} check box.
-
-    To specify information for the Android manifest file, open it in \QC. For
-    more information, see \l{Editing Manifest Files}.
-
-    \section2 Specifying Settings for Qt 4 Packages
-
-    \include creator-projects-settings-run-android.qdocinc
-
-    \section1 Packaging Qt 5 Applications
-
-    Because bundling applications as APK packages is not
-    trivial, Qt 5 provides a deployment tool called \c androiddeployqt.
-    When you deploy an application using a \gui {Qt for Android Kit}, \QC uses
-    the \c androiddeployqt tool to create the necessary files and to bundle them
-    into an APK.
-
     To view the packages that the \c androiddeployqt tool created, select the
     \gui {Open package location after build} check box.
 
@@ -156,7 +127,7 @@
     For more information about the \c androiddeployqt tool, see
     \l{Deploying an Application on Android}.
 
-    \section2 Specifying Settings for Qt 5 Packages
+    \section2 Specifying Settings for Packages
 
     You can specify settings for the \c androiddeployqt tool in \QC and in the
     project .pro file. To specify settings in \QC, select
@@ -220,10 +191,7 @@
 
     \section1 Editing Manifest Files
 
-    When you develop with Qt 4, \QC creates the Android manifest file for you,
-    and you can open it for editing in the Android Manifest Editor.
-
-    When you develop with Qt 5, you can use the qmake variables to specify all
+    You can use the qmake variables to specify all
     the settings you need for the \c androiddeployqt tool and you do not need an
     Android manifest file until you want to publish the package in an
     application store. To specify additional settings for APK packages, you can
@@ -248,12 +216,9 @@
     field, specify the version number that is shown to users.
 
     In the \gui {Minimum required SDK} field, select the minimum API level
-    required to run the application. The minimum API level is android-4 for
-    Necessitas and android-9 for Qt 5. \QC does not allow you to select an API
+    required to run the application. The minimum supported API level is
+    android-9. \QC does not allow you to select an API
     level that the Qt version specified for the kit does not support.
-
-    \note The android-4 API level does not support multitouch. If your
-    application needs multitouch, select a higher API level.
 
     In the \gui {Target SDK} field, select the targeted API level of the
     application. This affects the activation of some compatibility features in
