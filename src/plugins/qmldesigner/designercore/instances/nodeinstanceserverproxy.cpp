@@ -198,13 +198,13 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
     if (m_firstSocket)
-        m_firstSocket->close();
+        m_firstSocket->abort();
 
     if (m_secondSocket)
-        m_secondSocket->close();
+        m_secondSocket->abort();
 
     if (m_thirdSocket)
-        m_thirdSocket->close();
+        m_thirdSocket->abort();
 
 
     if (m_qmlPuppetEditorProcess)
@@ -318,11 +318,11 @@ void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitSt
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
     if (m_firstSocket)
-        m_firstSocket->close();
+        m_firstSocket->abort();
     if (m_secondSocket)
-        m_secondSocket->close();
+        m_secondSocket->abort();
     if (m_thirdSocket)
-        m_thirdSocket->close();
+        m_thirdSocket->abort();
 
     if (exitStatus == QProcess::CrashExit)
         emit processCrashed();
