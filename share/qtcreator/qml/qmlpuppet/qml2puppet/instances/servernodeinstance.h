@@ -157,6 +157,7 @@ public:
 
     QList<ServerNodeInstance> childItems() const;
 
+    QQuickItem *rootQuickItem() const;
     QString id() const;
     qint32 instanceId() const;
 

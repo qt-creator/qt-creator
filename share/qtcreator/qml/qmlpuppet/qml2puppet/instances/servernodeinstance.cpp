@@ -633,6 +633,11 @@ QList<ServerNodeInstance> ServerNodeInstance::childItems() const
     return m_nodeInstance->childItems();
 }
 
+QQuickItem *ServerNodeInstance::rootQuickItem() const
+{
+    return qobject_cast<QQuickItem*>(internalObject());
+}
+
 QString ServerNodeInstance::id() const
 {
     return m_nodeInstance->id();
