@@ -70,7 +70,6 @@ Column {
    }
 
    TextInputSection {
-       showEchoMode: true
-
+       isTextInput: true
    }
 }
