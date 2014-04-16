@@ -113,6 +113,8 @@ QList<ServerNodeInstance>  NodeInstanceServer::createInstances(const QVector<Ins
         instance.internalObject()->installEventFilter(childrenChangeEventFilter());
         if (instanceContainer.instanceId() == 0) {
             m_rootNodeInstance = instance;
+            if (quickView())
+                quickView()->setContent(fileUrl(), m_importComponent, m_rootNodeInstance.rootQuickItem());
             resizeCanvasSizeToRootItemSize();
         }
 
