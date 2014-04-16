@@ -100,7 +100,6 @@ public:
     virtual bool isPositioner() const;
     virtual bool isQuickItem() const;
     virtual bool isQuickWindow() const;
-    virtual bool isGraphical() const;
     virtual bool isLayoutable() const;
 
     virtual bool equalGraphicsItem(QGraphicsItem *item) const;

@@ -2,7 +2,6 @@ INCLUDEPATH += $$PWD/
 
 HEADERS += $$PWD/qt5nodeinstanceserver.h
 HEADERS += $$PWD/qt5testnodeinstanceserver.h
-HEADERS += $$PWD/graphicalnodeinstance.h
 HEADERS += $$PWD/qt5informationnodeinstanceserver.h
 HEADERS += $$PWD/qt5rendernodeinstanceserver.h
 HEADERS += $$PWD/qt5previewnodeinstanceserver.h
@@ -27,7 +26,6 @@ HEADERS += $$PWD/layoutnodeinstance.h
 
 SOURCES += $$PWD/qt5nodeinstanceserver.cpp
 SOURCES += $$PWD/qt5testnodeinstanceserver.cpp
-SOURCES += $$PWD/graphicalnodeinstance.cpp
 SOURCES += $$PWD/qt5informationnodeinstanceserver.cpp
 SOURCES += $$PWD/qt5rendernodeinstanceserver.cpp
 SOURCES += $$PWD/qt5previewnodeinstanceserver.cpp

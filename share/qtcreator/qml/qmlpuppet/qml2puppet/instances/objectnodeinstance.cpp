@@ -202,11 +202,6 @@ bool ObjectNodeInstance::isQuickWindow() const
     return false;
 }
 
-bool ObjectNodeInstance::isGraphical() const
-{
-    return false;
-}
-
 bool ObjectNodeInstance::isLayoutable() const
 {
     return false;

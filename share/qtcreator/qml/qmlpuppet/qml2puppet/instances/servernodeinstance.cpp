@@ -152,7 +152,7 @@ void ServerNodeInstance::setNodeSource(const QString &source)
 
 bool ServerNodeInstance::holdsGraphical() const
 {
-    return m_nodeInstance->isGraphical();
+    return m_nodeInstance->isQuickItem();
 }
 
 void ServerNodeInstance::updateDirtyNodeRecursive()
