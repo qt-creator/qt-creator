@@ -840,6 +840,7 @@ QString AndroidConfig::bestNdkPlatformMatch(const QString &targetAPI) const
 {
     updateNdkInformation();
     int target = targetAPI.mid(targetAPI.lastIndexOf(QLatin1Char('-')) + 1).toInt();
+    target = std::max(9, target);
     foreach (int apiLevel, m_availableNdkPlatforms) {
         if (apiLevel <= target)
             return QString::fromLatin1("android-%1").arg(apiLevel);
