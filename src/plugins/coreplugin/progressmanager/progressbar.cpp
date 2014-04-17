@@ -40,8 +40,9 @@
 using namespace Core;
 using namespace Core::Internal;
 
-#define PROGRESSBAR_HEIGHT 12
-#define CANCELBUTTON_SIZE 15
+static const int PROGRESSBAR_HEIGHT = 12;
+static const int CANCELBUTTON_SIZE = 15;
+static const int SEPARATOR_HEIGHT = 2;
 
 ProgressBar::ProgressBar(QWidget *parent)
     : QWidget(parent), m_titleVisible(true), m_separatorVisible(true), m_cancelEnabled(true),
@@ -130,6 +131,7 @@ bool ProgressBar::hasError() const
 void ProgressBar::setTitle(const QString &title)
 {
     m_title = title;
+    updateGeometry();
     update();
 }
 
@@ -138,6 +140,7 @@ void ProgressBar::setTitleVisible(bool visible)
     if (m_titleVisible == visible)
         return;
     m_titleVisible = visible;
+    updateGeometry();
     update();
 }
 
@@ -180,10 +183,16 @@ void ProgressBar::setError(bool on)
 
 QSize ProgressBar::sizeHint() const
 {
-    QSize s;
-    s.setWidth(50);
-    s.setHeight(fontMetrics().height() + PROGRESSBAR_HEIGHT + 6);
-    return s;
+    int width = 50;
+    int height = PROGRESSBAR_HEIGHT + 6;
+    if (m_titleVisible) {
+        QFontMetrics fm(titleFont());
+        width = qMax(width, fm.width(m_title) + 16);
+        height += fm.height() + 4;
+    }
+    if (m_separatorVisible)
+        height += SEPARATOR_HEIGHT;
+    return QSize(width, height);
 }
 
 namespace { const int INDENT = 6; }
@@ -191,12 +200,9 @@ namespace { const int INDENT = 6; }
 void ProgressBar::mousePressEvent(QMouseEvent *event)
 {
     if (m_cancelEnabled) {
-        QFont boldFont(font());
-        boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
-        boldFont.setBold(true);
-        QFontMetrics fm(boldFont);
+        QFontMetrics fm(titleFont());
         int titleHeight = m_titleVisible ? fm.height() : 0;
-        int separatorHeight = m_separatorVisible ? 2 : 0;
+        int separatorHeight = m_separatorVisible ? SEPARATOR_HEIGHT : 0;
         QRect rect(INDENT - 1, titleHeight + separatorHeight + 6, size().width()-2*INDENT + 1, m_progressHeight-1);
         QRect cancelRect(rect.adjusted(rect.width() - CANCELBUTTON_SIZE, 1, -1, 0));
 
@@ -208,6 +214,14 @@ void ProgressBar::mousePressEvent(QMouseEvent *event)
         }
     }
     QWidget::mousePressEvent(event);
+}
+
+QFont ProgressBar::titleFont() const
+{
+    QFont boldFont(font());
+    boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
+    boldFont.setBold(true);
+    return boldFont;
 }
 
 void ProgressBar::mouseMoveEvent(QMouseEvent *)
@@ -236,16 +250,14 @@ void ProgressBar::paintEvent(QPaintEvent *)
         percent = 1;
 
     QPainter p(this);
-    QFont boldFont(p.font());
-    boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
-    boldFont.setBold(true);
-    p.setFont(boldFont);
-    QFontMetrics fm(boldFont);
+    QFont fnt(titleFont());
+    p.setFont(fnt);
+    QFontMetrics fm(fnt);
 
     int titleHeight = m_titleVisible ? fm.height() : 0;
 
     // Draw separator
-    int separatorHeight = m_separatorVisible ? 2 : 0;
+    int separatorHeight = m_separatorVisible ? SEPARATOR_HEIGHT : 0;
     if (m_separatorVisible) {
         p.setPen(Utils::StyleHelper::sidebarShadow());
         p.drawLine(0,0, size().width(), 0);

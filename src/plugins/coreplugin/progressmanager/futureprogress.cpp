@@ -142,6 +142,8 @@ FutureProgress::FutureProgress(QWidget *parent) :
     connect(&d->m_watcher, SIGNAL(progressTextChanged(QString)),
             this, SLOT(setProgressText(QString)));
     connect(d->m_progress, SIGNAL(clicked()), this, SLOT(cancel()));
+    setMinimumWidth(100);
+    setMaximumWidth(300);
 }
 
 /*!
@@ -356,7 +358,7 @@ bool FutureProgress::isFading() const
 
 QSize FutureProgress::sizeHint() const
 {
-    return QSize(100, minimumHeight());
+    return QSize(QWidget::sizeHint().width(), minimumHeight());
 }
 
 void FutureProgressPrivate::fadeAway()

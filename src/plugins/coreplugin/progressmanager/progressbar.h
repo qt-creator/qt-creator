@@ -78,6 +78,8 @@ protected:
     void mousePressEvent(QMouseEvent *event);
 
 private:
+    QFont titleFont() const;
+
     QImage bar;
     QString m_text;
     QString m_title;
