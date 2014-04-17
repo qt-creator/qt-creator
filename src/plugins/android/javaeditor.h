@@ -81,6 +81,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace Android
 
 #endif // JAVAEDITOR_H
