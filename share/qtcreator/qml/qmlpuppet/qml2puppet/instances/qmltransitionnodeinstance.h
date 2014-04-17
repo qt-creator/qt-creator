@@ -47,9 +47,9 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
-
     bool isTransition() const Q_DECL_OVERRIDE;
+
+    PropertyNameList ignoredProperties() const Q_DECL_OVERRIDE;
 
 protected:
     QQuickTransition *qmlTransition() const;

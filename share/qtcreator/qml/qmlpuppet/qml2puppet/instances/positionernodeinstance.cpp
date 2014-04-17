@@ -52,22 +52,6 @@ bool PositionerNodeInstance::isResizable() const
     return true;
 }
 
-void PositionerNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
-{
-    if (name == "move" || name == "add" || name == "populate")
-        return;
-
-    QuickItemNodeInstance::setPropertyVariant(name, value);
-}
-
-void PositionerNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
-{
-    if (name == "move" || name == "add" || name == "populate")
-        return;
-
-    QuickItemNodeInstance::setPropertyBinding(name, expression);
-}
-
 PositionerNodeInstance::Pointer PositionerNodeInstance::create(QObject *object)
 { 
     QQuickBasePositioner *positioner = qobject_cast<QQuickBasePositioner*>(object);
@@ -97,6 +81,11 @@ void PositionerNodeInstance::refreshLayoutable()
     bool success = QMetaObject::invokeMethod(positioner(), "prePositioning");
     Q_ASSERT(success);
     Q_UNUSED(success)
+}
+
+PropertyNameList PositionerNodeInstance::ignoredProperties() const
+{
+    return PropertyNameList() << "move" << "add" << "populate";
 }
 
 }

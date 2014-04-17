@@ -189,6 +189,8 @@ public:
 
     virtual void updateAllDirtyNodesRecursive();
 
+    virtual PropertyNameList ignoredProperties() const;
+
 protected:
     explicit ObjectNodeInstance(QObject *object);
     void doResetProperty(const PropertyName &propertyName);

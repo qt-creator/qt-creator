@@ -558,21 +558,26 @@ bool QuickItemNodeInstance::childItemsHaveContent(QQuickItem *quickItem)
     return false;
 }
 
+static bool instanceIsValidLayoutable(const ObjectNodeInstance::Pointer &instance, const PropertyName &propertyName)
+{
+    return instance && instance->isLayoutable() && !instance->ignoredProperties().contains(propertyName);
+}
+
 void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty)
 {
-    if (oldParentInstance && oldParentInstance->isLayoutable()) {
+    if (instanceIsValidLayoutable(oldParentInstance, oldParentProperty)) {
         setInLayoutable(false);
         setMovable(true);
     }
 
     ObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
 
-    if (newParentInstance && newParentInstance->isLayoutable()) {
+    if (instanceIsValidLayoutable(newParentInstance, newParentProperty)) {
         setInLayoutable(true);
         setMovable(false);
     }
 
-    if (oldParentInstance && oldParentInstance->isLayoutable() && !(newParentInstance && newParentInstance->isLayoutable())) {
+    if (instanceIsValidLayoutable(oldParentInstance, oldParentProperty) && !instanceIsValidLayoutable(newParentInstance, newParentProperty)) {
         if (!hasBindingForProperty("x"))
             setPropertyVariant("x", x());
 
@@ -583,12 +588,18 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
     refresh();
     DesignerSupport::updateDirtyNode(quickItem());
 
-    if (parentInstance() && isInLayoutable())
-        parentInstance()->refreshLayoutable();
+    if (instanceIsValidLayoutable(oldParentInstance, oldParentProperty))
+        oldParentInstance->refreshLayoutable();
+
+    if (instanceIsValidLayoutable(newParentInstance, newParentProperty))
+        newParentInstance->refreshLayoutable();
 }
 
 void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
+    if (ignoredProperties().contains(name))
+        return;
+
     if (name == "state")
         return; // states are only set by us
 
@@ -626,6 +637,9 @@ void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const Q
 
 void QuickItemNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
+    if (ignoredProperties().contains(name))
+        return;
+
     if (name == "state")
         return; // states are only set by us
 
@@ -644,6 +658,9 @@ void QuickItemNodeInstance::setPropertyBinding(const PropertyName &name, const Q
 
 QVariant QuickItemNodeInstance::property(const PropertyName &name) const
 {
+    if (ignoredProperties().contains(name))
+        return QVariant();
+
     if (name == "visible")
         return quickItem()->isVisible();
 
@@ -652,6 +669,9 @@ QVariant QuickItemNodeInstance::property(const PropertyName &name) const
 
 void QuickItemNodeInstance::resetProperty(const PropertyName &name)
 {
+    if (ignoredProperties().contains(name))
+        return;
+
     if (name == "height") {
         m_hasHeight = false;
         m_height = 0.0;

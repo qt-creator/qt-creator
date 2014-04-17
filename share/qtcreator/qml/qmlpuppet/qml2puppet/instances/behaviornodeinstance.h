@@ -45,12 +45,10 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
-    void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
-
-
     QVariant property(const PropertyName &name) const Q_DECL_OVERRIDE;
     void resetProperty(const PropertyName &name) Q_DECL_OVERRIDE;
+
+    PropertyNameList ignoredProperties() const Q_DECL_OVERRIDE;
 
 private:
     bool m_isEnabled;

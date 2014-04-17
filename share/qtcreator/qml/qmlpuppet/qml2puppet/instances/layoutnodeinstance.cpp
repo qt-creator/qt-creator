@@ -46,22 +46,6 @@ bool LayoutNodeInstance::isResizable() const
     return true;
 }
 
-void LayoutNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
-{
-    if (name == "move" || name == "add" || name == "populate")
-        return;
-
-    QuickItemNodeInstance::setPropertyVariant(name, value);
-}
-
-void LayoutNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
-{
-    if (name == "move" || name == "add" || name == "populate")
-        return;
-
-    QuickItemNodeInstance::setPropertyBinding(name, expression);
-}
-
 LayoutNodeInstance::Pointer LayoutNodeInstance::create(QObject *object)
 {
     QQuickItem *item = qobject_cast<QQuickItem*>(object);
@@ -85,6 +69,11 @@ void LayoutNodeInstance::refreshLayoutable()
     if (quickItem()->parent())
         QCoreApplication::postEvent(quickItem(), new QEvent(QEvent::LayoutRequest));
 
+}
+
+PropertyNameList LayoutNodeInstance::ignoredProperties() const
+{
+    return PropertyNameList() << "move" << "add" << "populate";
 }
 
 }

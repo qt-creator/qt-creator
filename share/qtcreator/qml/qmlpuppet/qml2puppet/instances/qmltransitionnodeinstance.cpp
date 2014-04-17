@@ -59,12 +59,9 @@ bool QmlTransitionNodeInstance::isTransition() const
     return true;
 }
 
-void QmlTransitionNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
+PropertyNameList QmlTransitionNodeInstance::ignoredProperties() const
 {
-    if (name == "from" || name == "to")
-        return;
-
-    ObjectNodeInstance::setPropertyVariant(name, value);
+    return PropertyNameList() << "from" << "to";
 }
 
 QQuickTransition *QmlTransitionNodeInstance::qmlTransition() const

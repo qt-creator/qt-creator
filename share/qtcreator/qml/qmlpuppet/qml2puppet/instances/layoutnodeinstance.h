@@ -44,14 +44,13 @@ public:
 
     static Pointer create(QObject *objectToBeWrapped);
 
-    void setPropertyVariant(const PropertyName &name, const QVariant &value) Q_DECL_OVERRIDE;
-    void setPropertyBinding(const PropertyName &name, const QString &expression) Q_DECL_OVERRIDE;
-
     bool isLayoutable() const Q_DECL_OVERRIDE;
 
     bool isResizable() const Q_DECL_OVERRIDE;
 
     void refreshLayoutable() Q_DECL_OVERRIDE;
+
+    PropertyNameList ignoredProperties() const Q_DECL_OVERRIDE;
 
 protected:
     LayoutNodeInstance(QQuickItem *item);

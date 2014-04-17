@@ -381,16 +381,17 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
 
 void ObjectNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty)
 {
-    if (oldParentInstance) {
+    if (oldParentInstance && !oldParentInstance->ignoredProperties().contains(oldParentProperty)) {
         removeFromOldProperty(object(), oldParentInstance->object(), oldParentProperty);
         m_parentProperty.clear();
     }
 
-    if (newParentInstance) {
+    if (newParentInstance && !newParentInstance->ignoredProperties().contains(newParentProperty)) {
         m_parentProperty = newParentProperty;
         addToNewProperty(object(), newParentInstance->object(), newParentProperty);
     }
 }
+
 QVariant ObjectNodeInstance::convertSpecialCharacter(const QVariant& value) const
 {
     QVariant specialCharacterConvertedValue = value;
@@ -458,8 +459,16 @@ void ObjectNodeInstance::updateAllDirtyNodesRecursive()
 {
 }
 
+PropertyNameList ObjectNodeInstance::ignoredProperties() const
+{
+    return PropertyNameList();
+}
+
 void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
+    if (ignoredProperties().contains(name))
+        return;
+
     QQmlProperty property(object(), name, context());
 
     if (!property.isValid())
@@ -498,6 +507,9 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
 
 void ObjectNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
+    if (ignoredProperties().contains(name))
+        return;
+
     QQmlProperty property(object(), name, context());
 
     if (!property.isValid())
@@ -541,6 +553,9 @@ void ObjectNodeInstance::deleteObjectsInList(const QQmlProperty &property)
 
 void ObjectNodeInstance::resetProperty(const PropertyName &name)
 {
+    if (ignoredProperties().contains(name))
+        return;
+
     doResetProperty(name);
 
     if (name == "font.pixelSize")
@@ -641,6 +656,9 @@ void ObjectNodeInstance::doResetProperty(const PropertyName &propertyName)
 
 QVariant ObjectNodeInstance::property(const PropertyName &name) const
 {
+    if (ignoredProperties().contains(name))
+        return QVariant();
+
     if (m_modelAbstractPropertyHash.contains(name))
         return QVariant::fromValue(m_modelAbstractPropertyHash.value(name));
 
