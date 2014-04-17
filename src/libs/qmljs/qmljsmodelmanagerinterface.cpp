@@ -290,7 +290,7 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourc
     m_synchronizer.addFuture(result);
 
     if (sourceFiles.count() > 1)
-         addTaskInternal(result, tr("Indexing"), Constants::TASK_INDEX);
+         addTaskInternal(result, tr("Parsing QML Files"), Constants::TASK_INDEX);
 
     if (sourceFiles.count() > 1 && !m_shouldScanImports) {
         bool scan = false;
@@ -1054,7 +1054,7 @@ void ModelManagerInterface::updateImportPaths()
 
         m_synchronizer.addFuture(result);
 
-        addTaskInternal(result, tr("QML import scan"), Constants::TASK_IMPORT_SCAN);
+        addTaskInternal(result, tr("Scanning QML Imports"), Constants::TASK_IMPORT_SCAN);
     }
 }
 

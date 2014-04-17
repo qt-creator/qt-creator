@@ -372,7 +372,7 @@ void CppFindReferences::findAll_helper(Core::SearchResult *search, CPlusPlus::Sy
     result = QtConcurrent::run(&find_helper, workingCopy, context, this, symbol);
     createWatcher(result, search);
 
-    FutureProgress *progress = ProgressManager::addTask(result, tr("Searching"),
+    FutureProgress *progress = ProgressManager::addTask(result, tr("Searching for Usages"),
                                                               CppTools::Constants::TASK_SEARCH);
 
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
@@ -672,7 +672,7 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     result = QtConcurrent::run(&findMacroUses_helper, workingCopy, snapshot, this, macro);
     createWatcher(result, search);
 
-    FutureProgress *progress = ProgressManager::addTask(result, tr("Searching"),
+    FutureProgress *progress = ProgressManager::addTask(result, tr("Searching for Usages"),
                                                               CppTools::Constants::TASK_SEARCH);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }

@@ -514,7 +514,7 @@ void QbsProject::prepareForParsing()
     m_qbsUpdateFutureInterface = new QFutureInterface<void>();
     m_qbsUpdateFutureInterface->setProgressRange(0, 0);
     ProgressManager::addTask(m_qbsUpdateFutureInterface->future(),
-        tr("Evaluating"), "Qbs.QbsEvaluate");
+        tr("Reading Project \"%1\"").arg(displayName()), "Qbs.QbsEvaluate");
     m_qbsUpdateFutureInterface->reportStarted();
 }
 

@@ -172,7 +172,7 @@ FetchContext::~FetchContext()
 void FetchContext::start()
 {
     m_progress.setProgressRange(0, 2);
-    FutureProgress *fp = ProgressManager::addTask(m_progress.future(), tr("Gerrit Fetch"),
+    FutureProgress *fp = ProgressManager::addTask(m_progress.future(), tr("Fetching from Gerrit"),
                                            "gerrit-fetch");
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     m_progress.reportStarted();

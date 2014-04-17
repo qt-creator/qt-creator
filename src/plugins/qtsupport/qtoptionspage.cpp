@@ -448,7 +448,7 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
             this, SLOT(debuggingHelperBuildFinished(int,QString,DebuggingHelperBuildTask::Tools)),
             Qt::QueuedConnection);
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
-    const QString taskName = tr("Building helpers");
+    const QString taskName = tr("Building Helpers");
 
     Core::ProgressManager::addTask(task, taskName, "QmakeProjectManager::BuildHelpers");
 }

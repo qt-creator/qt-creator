@@ -489,7 +489,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 
     d->m_progress.setProgressRange(0, 1000);
     FutureProgress *fp = ProgressManager::addTask(d->m_progress.future(),
-        tr("Launching"), "Debugger.Launcher");
+        tr("Launching Debugger"), "Debugger.Launcher");
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     d->m_progress.reportStarted();
 

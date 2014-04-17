@@ -322,7 +322,7 @@ QueryContext::~QueryContext()
 
 void QueryContext::start()
 {
-    Core::FutureProgress *fp = Core::ProgressManager::addTask(m_progress.future(), tr("Gerrit"),
+    Core::FutureProgress *fp = Core::ProgressManager::addTask(m_progress.future(), tr("Querying Gerrit"),
                                            "gerrit-query");
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress.reportStarted();

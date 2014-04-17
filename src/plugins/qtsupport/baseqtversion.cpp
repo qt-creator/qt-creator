@@ -1452,7 +1452,7 @@ void BaseQtVersion::buildDebuggingHelper(ToolChain *tc, int tools)
     buildTask->showOutputOnError(true);
 
     QFuture<void> task = QtConcurrent::run(&QtSupport::DebuggingHelperBuildTask::run, buildTask);
-    const QString taskName = QCoreApplication::translate("BaseQtVersion", "Building helpers");
+    const QString taskName = QCoreApplication::translate("BaseQtVersion", "Building Debugging Helpers");
     ProgressManager::addTask(task, taskName, "Qt::BuildHelpers");
 }
 

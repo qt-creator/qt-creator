@@ -326,7 +326,7 @@ void QmlDumpTool::pathAndEnvironment(Project *project, BaseQtVersion *version,
             QmlDumpBuildTask *buildTask = new QmlDumpBuildTask(version, toolChain);
             buildTask->updateProjectWhenDone(project, preferDebug);
             QFuture<void> task = QtConcurrent::run(&QmlDumpBuildTask::run, buildTask);
-            const QString taskName = QmlDumpBuildTask::tr("Building helper");
+            const QString taskName = QmlDumpBuildTask::tr("Building QML Helpers");
             Core::ProgressManager::addTask(task, taskName, "QmakeProjectManager::BuildHelpers");
         }
         return;

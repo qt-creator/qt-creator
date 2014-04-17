@@ -942,7 +942,7 @@ void FindReferences::displayResults(int first, int last)
         Core::SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
 
         FutureProgress *progress = ProgressManager::addTask(
-                    m_watcher.future(), tr("Searching"),
+                    m_watcher.future(), tr("Searching for Usages"),
                     QmlJSEditor::Constants::TASK_SEARCH);
         connect(progress, SIGNAL(clicked()), m_currentSearch, SLOT(popup()));
 

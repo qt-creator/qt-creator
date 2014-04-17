@@ -2062,7 +2062,7 @@ void ClearCasePlugin::updateIndex()
     QFuture<void> result = QtConcurrent::run(&sync,
                project->files(Project::ExcludeGeneratedFiles));
     if (!m_settings.disableIndexer)
-        ProgressManager::addTask(result, tr("CC Indexing"), ClearCase::Constants::TASK_INDEX);
+        ProgressManager::addTask(result, tr("Updating ClearCase Index"), ClearCase::Constants::TASK_INDEX);
 }
 
 /*! retrieve a \a file (usually of the form path\to\filename.cpp@@\main\ver)

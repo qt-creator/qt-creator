@@ -182,7 +182,7 @@ void BaseFileFind::runSearch(Core::SearchResult *search)
             ITextEditorDocument::openedTextDocumentContents()));
     }
     FutureProgress *progress =
-        ProgressManager::addTask(watcher->future(), tr("Search"), Constants::TASK_SEARCH);
+        ProgressManager::addTask(watcher->future(), tr("Searching"), Constants::TASK_SEARCH);
     progress->setWidget(label);
     progress->setStatusBarWidget(statusLabel);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));

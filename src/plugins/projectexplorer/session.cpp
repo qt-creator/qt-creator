@@ -901,7 +901,7 @@ bool SessionManager::loadSession(const QString &session)
     if (fileName.toFileInfo().exists()) {
         d->m_virginSession = false;
 
-        ProgressManager::addTask(d->m_future.future(), tr("Session"),
+        ProgressManager::addTask(d->m_future.future(), tr("Loading Session"),
            "ProjectExplorer.SessionFile.Load");
 
         d->m_future.setProgressRange(0, 1);

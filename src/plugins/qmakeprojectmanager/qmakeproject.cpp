@@ -840,8 +840,9 @@ void QmakeProject::asyncUpdate()
     m_asyncUpdateFutureInterface = new QFutureInterface<void>();
 
     m_asyncUpdateFutureInterface->setProgressRange(0, 0);
-    Core::ProgressManager::addTask(m_asyncUpdateFutureInterface->future(), tr("Evaluating"),
-                             Constants::PROFILE_EVALUATE);
+    Core::ProgressManager::addTask(m_asyncUpdateFutureInterface->future(),
+                                   tr("Reading Project \"%1\"").arg(displayName()),
+                                   Constants::PROFILE_EVALUATE);
     if (debug)
         qDebug()<<"  adding task";
 
