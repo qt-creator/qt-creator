@@ -48,10 +48,7 @@
 
 using namespace CPlusPlus;
 
-namespace {
-const bool debug = ! qgetenv("CPLUSPLUS_LOOKUPCONTEXT_DEBUG").isEmpty();
-} // end of anonymous namespace
-
+static const bool debug = ! qgetenv("QTC_LOOKUPCONTEXT_DEBUG").isEmpty();
 
 static void addNames(const Name *name, QList<const Name *> *names, bool addAllNames = false)
 {
@@ -314,10 +311,10 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
             } else if (Declaration *d = m->asDeclaration()) {
                 if (d->name() && d->name()->match(name->asNameId())) {
                     if (d->isTypedef() && d->type()) {
-#ifdef DEBUG_LOOKUP
-                        Overview oo;
-                        qDebug() << "Looks like" << oo(name) << "is a typedef for" << oo(d->type());
-#endif // DEBUG_LOOKUP
+                        if (Q_UNLIKELY(debug)) {
+                            Overview oo;
+                            qDebug() << "Looks like" << oo(name) << "is a typedef for" << oo(d->type());
+                        }
                         if (const NamedType *namedTy = d->type()->asNamedType()) {
                             // Stop on recursive typedef declarations
                             if (typedefsBeingResolved.contains(d))
@@ -517,9 +514,7 @@ ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *pa
     , _templateId(0)
     , _instantiationOrigin(0)
     , _rootClass(0)
-#ifdef DEBUG_LOOKUP
     , _name(0)
-#endif // DEBUG_LOOKUP
 {
     Q_ASSERT(factory);
 }
@@ -715,11 +710,11 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             else if (s->name()->isQualifiedNameId())
                 continue; // skip qualified ids.
 
-#ifdef DEBUG_LOOKUP
-            Overview oo;
-            qDebug() << "Found" << id->chars() << "in"
-                     << (binding ? oo(binding->_name) : QString::fromLatin1("<null>"));
-#endif // DEBUG_LOOKUP
+            if (Q_UNLIKELY(debug)) {
+                Overview oo;
+                qDebug() << "Found" << id->chars() << "in"
+                         << (binding ? oo(binding->_name) : QString::fromLatin1("<null>"));
+            }
 
             LookupItem item;
             item.setDeclaration(s);
@@ -833,10 +828,10 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                                                       bool searchInEnclosingScope,
                                                       ClassOrNamespace *origin)
 {
-#ifdef DEBUG_LOOKUP
-    Overview oo;
-    qDebug() << "Looking up" << oo(name) << "in" << oo(_name);
-#endif // DEBUG_LOOKUP
+    if (Q_UNLIKELY(debug)) {
+        Overview oo;
+        qDebug() << "Looking up" << oo(name) << "in" << oo(_name);
+    }
 
     if (const QualifiedNameId *q = name->asQualifiedNameId()) {
 
@@ -878,10 +873,9 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                                                                           /*searchInEnclosingScope = */ true,
                                                                           origin))
                         return r;
-                } else {
-                    if (debug)
-                        qWarning() << "expected one using declaration. Number of using declarations is:"
-                                   << _usings.size();
+                } else if (Q_UNLIKELY(debug)) {
+                    qWarning() << "expected one using declaration. Number of using declarations is:"
+                               << _usings.size();
                 }
             }
 
@@ -950,9 +944,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             return cit.value();
         } else {
             ClassOrNamespace *newAnonymous = _factory->allocClassOrNamespace(this);
-#ifdef DEBUG_LOOKUP
-            newAnonymous->_name = anonymousNameId;
-#endif // DEBUG_LOOKUP
+            if (Q_UNLIKELY(debug))
+                newAnonymous->_name = anonymousNameId;
             _anonymouses[anonymousNameId] = newAnonymous;
             return newAnonymous;
         }
@@ -985,9 +978,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                 return cit->second;
             } else {
                 ClassOrNamespace *newSpecialization = _factory->allocClassOrNamespace(reference);
-#ifdef DEBUG_LOOKUP
-                newSpecialization->_name = templId;
-#endif // DEBUG_LOOKUP
+                if (Q_UNLIKELY(debug))
+                    newSpecialization->_name = templId;
                 reference->_specializations[templId] = newSpecialization;
                 return newSpecialization;
             }
@@ -1054,9 +1046,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     if (templId) {
         _alreadyConsideredTemplates.insert(templId);
         ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(baseTemplateClassReference);
-#ifdef DEBUG_LOOKUP
-        instantiation->_name = templId;
-#endif // DEBUG_LOOKUP
+        if (Q_UNLIKELY(debug))
+            instantiation->_name = templId;
         instantiation->_templateId = templId;
 
         while (!origin->_symbols.isEmpty() && origin->_symbols[0]->isBlock())
@@ -1100,22 +1091,23 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     Symbol *clone = cloner.symbol(s, &subst);
                     clone->setEnclosingScope(s->enclosingScope());
                     instantiation->_symbols.append(clone);
-#ifdef DEBUG_LOOKUP
-                    Overview oo;oo.showFunctionSignatures = true;
-                    oo.showReturnTypes = true;
-                    oo.showTemplateParameters = true;
-                    qDebug()<<"cloned"<<oo(clone->type());
-                    if (Class *klass = s->asClass()) {
-                        const unsigned klassMemberCount = klass->memberCount();
-                        for (unsigned i = 0; i < klassMemberCount; ++i){
-                            Symbol *klassMemberAsSymbol = klass->memberAt(i);
-                            if (klassMemberAsSymbol->isTypedef()) {
-                                if (Declaration *declaration = klassMemberAsSymbol->asDeclaration())
-                                    qDebug() << "Member: " << oo(declaration->type(), declaration->name());
+                    if (Q_UNLIKELY(debug)) {
+                        Overview oo;
+                        oo.showFunctionSignatures = true;
+                        oo.showReturnTypes = true;
+                        oo.showTemplateParameters = true;
+                        qDebug() << "cloned" << oo(clone->type());
+                        if (Class *klass = s->asClass()) {
+                            const unsigned klassMemberCount = klass->memberCount();
+                            for (unsigned i = 0; i < klassMemberCount; ++i){
+                                Symbol *klassMemberAsSymbol = klass->memberAt(i);
+                                if (klassMemberAsSymbol->isTypedef()) {
+                                    if (Declaration *declaration = klassMemberAsSymbol->asDeclaration())
+                                        qDebug() << "Member: " << oo(declaration->type(), declaration->name());
+                                }
                             }
                         }
                     }
-#endif // DEBUG_LOOKUP
                 }
                 instantiateNestedClasses(reference, cloner, subst, instantiation);
             } else {
@@ -1369,9 +1361,8 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNa
         if (! e) {
             e = _factory->allocClassOrNamespace(this);
             e->_rootClass = clazz;
-#ifdef DEBUG_LOOKUP
-            e->_name = name;
-#endif // DEBUG_LOOKUP
+            if (Q_UNLIKELY(debug))
+                e->_name = name;
             _classOrNamespaces[name] = e;
         }
 

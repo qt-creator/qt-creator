@@ -54,6 +54,8 @@
 
 using namespace CPlusPlus;
 
+static const bool debug = ! qgetenv("QTC_LOOKUPCONTEXT_DEBUG").isEmpty();
+
 namespace {
 
 template <typename _Tp>
@@ -898,9 +900,8 @@ public:
         for (NamedType *namedTy = 0; maxDepth && (namedTy = getNamedType(*type)); --maxDepth) {
             QList<LookupItem> namedTypeItems = getNamedTypeItems(namedTy->name(), *scope, _binding);
 
-#ifdef DEBUG_LOOKUP
-            qDebug() << "-- we have" << namedTypeItems.size() << "candidates";
-#endif // DEBUG_LOOKUP
+            if (Q_UNLIKELY(debug))
+                qDebug() << "-- we have" << namedTypeItems.size() << "candidates";
 
             if (!findTypedef(namedTypeItems, type, scope, visited))
                 break;
@@ -1012,11 +1013,10 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                                                     int accessOp,
                                                     bool *replacedDotOperator) const
 {
-#ifdef DEBUG_LOOKUP
-    qDebug() << "In ResolveExpression::baseExpression with" << baseResults.size() << "results...";
+    if (Q_UNLIKELY(debug))
+        qDebug() << "In ResolveExpression::baseExpression with" << baseResults.size() << "results...";
     int i = 0;
     Overview oo;
-#endif // DEBUG_LOOKUP
     TypedefsResolver typedefsResolver(_context);
 
     foreach (const LookupItem &r, baseResults) {
@@ -1026,16 +1026,15 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
         FullySpecifiedType originalType = ty;
         Scope *scope = r.scope();
 
-#ifdef DEBUG_LOOKUP
-        qDebug("trying result #%d", ++i);
-        qDebug()<<"- before typedef resolving we have:"<<oo(ty);
-#endif // DEBUG_LOOKUP
+        if (Q_UNLIKELY(debug)) {
+            qDebug("trying result #%d", ++i);
+            qDebug() << "- before typedef resolving we have:" << oo(ty);
+        }
 
         typedefsResolver.resolve(&ty, &scope, r.binding());
 
-#ifdef DEBUG_LOOKUP
-        qDebug()<<"-  after typedef resolving:"<<oo(ty);
-#endif // DEBUG_LOOKUP
+        if (Q_UNLIKELY(debug))
+            qDebug() << "-  after typedef resolving:" << oo(ty);
 
         if (accessOp == T_ARROW) {
             if (PointerType *ptrTy = ty->asPointerType()) {

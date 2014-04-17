@@ -178,10 +178,8 @@ private:
         Subst &_subst;
     };
 
-#ifdef DEBUG_LOOKUP
 public:
-    const Name *_name;
-#endif // DEBUG_LOOKUP
+    const Name *_name; // For debug
 
     friend class CreateBindings;
 };
