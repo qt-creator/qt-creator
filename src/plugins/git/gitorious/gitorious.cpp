@@ -462,7 +462,7 @@ void Gitorious::listProjectsReply(int hostIndex, int page, const QByteArray &dat
     }
 
     if (!errorMessage.isEmpty()) {
-        emitError(tr("Error parsing reply from '%1': %2").arg(hostName(hostIndex), errorMessage));
+        emitError(tr("Error parsing reply from \"%1\": %2").arg(hostName(hostIndex), errorMessage));
         if (projects.empty())
             m_hosts[hostIndex].state = GitoriousHost::Error;
     }
@@ -507,7 +507,7 @@ void Gitorious::slotReplyFinished()
 
             } // switch protocol
         } else {
-            const QString msg = tr("Request failed for '%1': %2").arg(m_hosts.at(hostIndex).hostName, reply->errorString());
+            const QString msg = tr("Request failed for \"%1\": %2").arg(m_hosts.at(hostIndex).hostName, reply->errorString());
             emitError(msg);
         }
         reply->deleteLater();

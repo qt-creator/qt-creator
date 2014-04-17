@@ -131,7 +131,7 @@ void BlackBerryDebugTokenRequestDialog::requestDebugToken()
 
     if (file.exists()) {
         const int result = QMessageBox::question(this, tr("Are you sure?"),
-                tr("The file '%1' will be overwritten. Do you want to proceed?")
+                tr("The file \"%1\" will be overwritten. Do you want to proceed?")
                 .arg(file.fileName()), QMessageBox::Yes | QMessageBox::No);
 
         if (result & QMessageBox::Yes) {

@@ -83,7 +83,7 @@ namespace Internal {
 
 static inline QString msgCannotFindTopLevel(const QString &f)
 {
-    return CvsPlugin::tr("Cannot find repository for '%1'").
+    return CvsPlugin::tr("Cannot find repository for \"%1\"").
             arg(QDir::toNativeSeparators(f));
 }
 
@@ -858,8 +858,8 @@ bool CvsPlugin::unedit(const QString &topLevel, const QStringList &files)
         return false;
     if (modified) {
         const QString question = files.isEmpty() ?
-                      tr("Would you like to discard your changes to the repository '%1'?").arg(topLevel) :
-                      tr("Would you like to discard your changes to the file '%1'?").arg(files.front());
+                      tr("Would you like to discard your changes to the repository \"%1\"?").arg(topLevel) :
+                      tr("Would you like to discard your changes to the file \"%1\"?").arg(files.front());
         if (!messageBoxQuestion(tr("Unedit"), question))
             return false;
     }
@@ -1032,7 +1032,7 @@ bool CvsPlugin::describe(const QString &toplevel, const QString &file, const
         // Describe all files found, pass on dir to obtain correct absolute paths.
         const QList<CvsLogEntry> repoEntries = parseLogEntries(repoLogResponse.stdOut, QString(), commitId);
         if (repoEntries.empty()) {
-            *errorMessage = tr("Could not find commits of id '%1' on %2.").arg(commitId, dateS);
+            *errorMessage = tr("Could not find commits of id \"%1\" on %2.").arg(commitId, dateS);
             return false;
         }
         return describe(toplevel, repoEntries, errorMessage);

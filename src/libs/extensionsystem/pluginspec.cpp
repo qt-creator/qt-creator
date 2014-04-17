@@ -588,22 +588,22 @@ bool PluginSpecPrivate::reportError(const QString &err)
 
 static inline QString msgAttributeMissing(const char *elt, const char *attribute)
 {
-    return QCoreApplication::translate("PluginSpec", "'%1' misses attribute '%2'").arg(QLatin1String(elt), QLatin1String(attribute));
+    return QCoreApplication::translate("PluginSpec", "\"%1\" misses attribute \"%2\"").arg(QLatin1String(elt), QLatin1String(attribute));
 }
 
 static inline QString msgInvalidFormat(const char *content)
 {
-    return QCoreApplication::translate("PluginSpec", "'%1' has invalid format").arg(QLatin1String(content));
+    return QCoreApplication::translate("PluginSpec", "\"%1\" has invalid format").arg(QLatin1String(content));
 }
 
 static inline QString msgInvalidElement(const QString &name)
 {
-    return QCoreApplication::translate("PluginSpec", "Invalid element '%1'").arg(name);
+    return QCoreApplication::translate("PluginSpec", "Invalid element \"%1\"").arg(name);
 }
 
 static inline QString msgUnexpectedClosing(const QString &name)
 {
-    return QCoreApplication::translate("PluginSpec", "Unexpected closing element '%1'").arg(name);
+    return QCoreApplication::translate("PluginSpec", "Unexpected closing element \"%1\"").arg(name);
 }
 
 static inline QString msgUnexpectedToken()
@@ -617,7 +617,7 @@ static inline QString msgUnexpectedToken()
 void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
 {
     if (reader.name() != QLatin1String(PLUGIN)) {
-        reader.raiseError(QCoreApplication::translate("PluginSpec", "Expected element '%1' as top level element")
+        reader.raiseError(QCoreApplication::translate("PluginSpec", "Expected element \"%1\" as top level element")
                           .arg(QLatin1String(PLUGIN)));
         return;
     }

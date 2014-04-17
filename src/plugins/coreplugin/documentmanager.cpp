@@ -693,7 +693,7 @@ QString DocumentManager::getSaveFileName(const QString &title, const QString &pa
             }
             if (QFile::exists(fileName)) {
                 if (QMessageBox::warning(ICore::dialogParent(), tr("Overwrite?"),
-                    tr("An item named '%1' already exists at this location. "
+                    tr("An item named \"%1\" already exists at this location. "
                        "Do you want to overwrite it?").arg(fileName),
                     QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
                     repeat = true;

@@ -92,7 +92,7 @@ void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
     quint64 freeSpace = processOutput.toULongLong(&isNumber);
     quint64 requiredSpaceInMegaBytes = d->requiredSpaceInBytes / (1024 * 1024);
     if (!isNumber) {
-        emit errorMessage(tr("Unexpected output from remote process: '%1'.")
+        emit errorMessage(tr("Unexpected output from remote process: \"%1\"")
                 .arg(QString::fromUtf8(processOutput)));
         stopDeployment();
         return;
@@ -117,7 +117,7 @@ bool RemoteLinuxCheckForFreeDiskSpaceService::isDeploymentPossible(QString *whyN
         return false;
     if (!d->pathToCheck.startsWith(QLatin1Char('/'))) {
         if (whyNot) {
-            *whyNot = tr("Cannot check for free disk space: '%1' is not an absolute path.")
+            *whyNot = tr("Cannot check for free disk space: \"%1\" is not an absolute path.")
                     .arg(d->pathToCheck);
         }
         return false;

@@ -53,7 +53,7 @@ GitoriousProjectWizardPage::GitoriousProjectWizardPage(const GitoriousHostWizard
 
 static inline QString msgChooseProject(const QString &h)
 {
-    return GitoriousProjectWizardPage::tr("Choose a project from '%1'").arg((h));
+    return GitoriousProjectWizardPage::tr("Choose a project from \"%1\"").arg((h));
 }
 
 QString GitoriousProjectWizardPage::selectedHostName() const

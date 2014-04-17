@@ -123,7 +123,7 @@ void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const Q
     const QString projectFile = openProject(checkoutPath, &errorMessage);
     if (projectFile.isEmpty()) {
         QMessageBox msgBox(QMessageBox::Warning, tr("Cannot Open Project"),
-                           tr("Failed to open project in '%1'.").arg(QDir::toNativeSeparators(checkoutPath)));
+                           tr("Failed to open project in \"%1\".").arg(QDir::toNativeSeparators(checkoutPath)));
         msgBox.setDetailedText(errorMessage);
         msgBox.addButton(QMessageBox::Ok);
         msgBox.exec();
@@ -132,7 +132,7 @@ void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const Q
 
 static inline QString msgNoProjectFiles(const QDir &dir, const QStringList &patterns)
 {
-    return BaseCheckoutWizard::tr("Could not find any project files matching (%1) in the directory '%2'.").arg(patterns.join(QLatin1String(", ")), QDir::toNativeSeparators(dir.absolutePath()));
+    return BaseCheckoutWizard::tr("Could not find any project files matching (%1) in the directory \"%2\".").arg(patterns.join(QLatin1String(", ")), QDir::toNativeSeparators(dir.absolutePath()));
 }
 
 // Try to find the project files in a project directory with some smartness
@@ -169,7 +169,7 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
     // Search the directory for project files
     const QDir dir(path);
     if (!dir.exists()) {
-        *errorMessage = tr("'%1' does not exist.").
+        *errorMessage = tr("\"%1\" does not exist.").
                         arg(QDir::toNativeSeparators(path)); // Should not happen
         return QString();
     }

@@ -194,7 +194,7 @@ void tst_PluginManager::plugins()
                 break;
             }
         }
-        QVERIFY2(found, QString("plugin '%1' not found").arg(expected).toLocal8Bit().constData());
+        QVERIFY2(found, QString("plugin \"%1\" not found").arg(expected).toLocal8Bit().constData());
     }
 }
 

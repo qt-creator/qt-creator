@@ -265,7 +265,7 @@ Core::GeneratedFiles CascadesImportWizard::generateFiles(const QWizard *w, QStri
                         files << file;
                 }
                 if (!errorMessage.isEmpty()) {
-                    errorMessage = tr("Error generating file '%1': %2").arg(filePath).arg(errorMessage);
+                    errorMessage = tr("Error generating file \"%1\": %2").arg(filePath).arg(errorMessage);
                     break;
                 }
             }

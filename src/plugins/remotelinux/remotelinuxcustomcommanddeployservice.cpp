@@ -97,7 +97,7 @@ void RemoteLinuxCustomCommandDeployService::doDeploy()
     connect(d->runner, SIGNAL(readyReadStandardError()), SLOT(handleStderr()));
     connect(d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
 
-    emit progressMessage(tr("Starting remote command '%1'...").arg(d->commandLine));
+    emit progressMessage(tr("Starting remote command \"%1\"...").arg(d->commandLine));
     d->state = Running;
     d->runner->run(d->commandLine.toUtf8(), deviceConfiguration()->sshParameters());
 }

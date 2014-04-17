@@ -248,7 +248,7 @@ static bool runBuildProcess(QProcess &proc,
         }
         *errorMessage =
                 QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                            "Error running '%1' in %2: %3").
+                                            "Error running \"%1\" in %2: %3").
                                             arg(cmd, proc.workingDirectory(), *errorMessage);
         qWarning("%s", qPrintable(*errorMessage));
     }
@@ -267,7 +267,7 @@ bool BuildableHelperLibrary::buildHelper(const BuildHelperArguments &arguments,
     proc.setProcessChannelMode(QProcess::MergedChannels);
 
     log->append(QCoreApplication::translate("ProjectExplorer::BuildableHelperLibrary",
-                                          "Building helper '%1' in %2\n").arg(arguments.helperName,
+                                          "Building helper \"%1\" in %2\n").arg(arguments.helperName,
                                                                               arguments.directory));
     log->append(newline);
 

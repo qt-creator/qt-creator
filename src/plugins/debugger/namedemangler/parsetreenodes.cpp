@@ -1180,7 +1180,7 @@ void OperatorNameNode::parse()
         } else if (id == "az") {
             m_type = AlignofExprType;
         } else {
-            throw ParseException(QString::fromLatin1("Invalid operator encoding '%1'")
+            throw ParseException(QString::fromLatin1("Invalid operator encoding \"%1\"")
                     .arg(QString::fromLocal8Bit(id)));
         }
     }

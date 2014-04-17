@@ -682,19 +682,19 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     checkProcess.start(checkScript, QStringList(saver.fileName()));
     checkProcess.closeWriteChannel();
     if (!checkProcess.waitForStarted()) {
-        *errorMessage = tr("The check script '%1' could not be started: %2").arg(checkScript, checkProcess.errorString());
+        *errorMessage = tr("The check script \"%1\" could not be started: %2").arg(checkScript, checkProcess.errorString());
         return false;
     }
     QByteArray stdOutData;
     QByteArray stdErrData;
     if (!SynchronousProcess::readDataFromProcess(checkProcess, 30000, &stdOutData, &stdErrData, false)) {
         SynchronousProcess::stopProcess(checkProcess);
-        *errorMessage = tr("The check script '%1' timed out.").
+        *errorMessage = tr("The check script \"%1\" timed out.").
                         arg(QDir::toNativeSeparators(checkScript));
         return false;
     }
     if (checkProcess.exitStatus() != QProcess::NormalExit) {
-        *errorMessage = tr("The check script '%1' crashed.").
+        *errorMessage = tr("The check script \"%1\" crashed.").
                         arg(QDir::toNativeSeparators(checkScript));
         return false;
     }

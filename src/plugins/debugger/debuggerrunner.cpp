@@ -512,7 +512,7 @@ DebuggerEngine *DebuggerRunControlFactory::createEngine(DebuggerEngineType et,
     default:
         break;
     }
-    *errorMessage = DebuggerPlugin::tr("Unable to create a debugger engine of the type '%1'").
+    *errorMessage = DebuggerPlugin::tr("Unable to create a debugger engine of the type \"%1\"").
                     arg(_(engineTypeName(et)));
     return 0;
 }

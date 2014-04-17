@@ -84,6 +84,6 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     }
     ProFileCacheManager::instance()->decRefCount();
     if (error)
-        *error = tr("No factory found for qmake: '%1'").arg(qmakePath.toUserOutput());
+        *error = tr("No factory found for qmake: \"%1\"").arg(qmakePath.toUserOutput());
     return 0;
 }

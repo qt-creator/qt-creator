@@ -142,7 +142,7 @@ ElfData ElfReader::readHeaders()
 
 static inline QString msgInvalidElfObject(const QString &binary, const QString &why)
 {
-    return ElfReader::tr("'%1' is an invalid ELF object (%2)")
+    return ElfReader::tr("\"%1\" is an invalid ELF object (%2)")
            .arg(QDir::toNativeSeparators(binary), why);
 }
 
@@ -160,12 +160,12 @@ ElfReader::Result ElfReader::readIt()
     const quint64 fdlen = mapper.fdlen;
 
     if (fdlen < 64) {
-        m_errorString = tr("'%1' is not an ELF object (file too small)").arg(QDir::toNativeSeparators(m_binary));
+        m_errorString = tr("\"%1\" is not an ELF object (file too small)").arg(QDir::toNativeSeparators(m_binary));
         return NotElf;
     }
 
     if (strncmp(mapper.start, "\177ELF", 4) != 0) {
-        m_errorString = tr("'%1' is not an ELF object").arg(QDir::toNativeSeparators(m_binary));
+        m_errorString = tr("\"%1\" is not an ELF object").arg(QDir::toNativeSeparators(m_binary));
         return NotElf;
     }
 
@@ -184,7 +184,7 @@ ElfReader::Result ElfReader::readIt()
     // if ((sizeof(void*) == 4 && bits != 32)
     //     || (sizeof(void*) == 8 && bits != 64)) {
     //     if (errorString)
-    //         *errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
+    //         *errorString = QLibrary::tr("\"%1\" is an invalid ELF object (%2)")
     //         .arg(m_binary).arg(QLatin1String("wrong cpu architecture"));
     //     return Corrupt;
     // }
@@ -238,7 +238,7 @@ ElfReader::Result ElfReader::readIt()
     quint64 soff = e_shoff + e_shentsize * e_shtrndx;
 
 //    if ((soff + e_shentsize) > fdlen || soff % 4 || soff == 0) {
-//        m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
+//        m_errorString = QLibrary::tr("\"%1\" is an invalid ELF object (%2)")
 //           .arg(m_binary)
 //           .arg(QLatin1String("shstrtab section header seems to be at %1"))
 //           .arg(QString::number(soff, 16));

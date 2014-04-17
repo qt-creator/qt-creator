@@ -365,7 +365,7 @@ void BlackBerryApplicationRunner::checkQmlJsDebugArgumentsManifestLoaded()
 
     QTemporaryFile *manifestFile = new QTemporaryFile(m_checkQmlJsDebugArgumentsProcess);
     if (!manifestFile->open()) {
-        emit output(tr("Internal error: Cannot create temporary manifest file '%1'")
+        emit output(tr("Internal error: Cannot create temporary manifest file \"%1\"")
             .arg(manifestFile->fileName()), Utils::StdErrFormat);
         delete manifestFile;
         return;

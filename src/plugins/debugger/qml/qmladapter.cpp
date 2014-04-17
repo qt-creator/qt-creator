@@ -247,18 +247,18 @@ void QmlAdapter::logServiceStatusChange(const QString &service, float version,
 {
     switch (newStatus) {
     case QmlDebug::Unavailable: {
-        showConnectionStatusMessage(_("Status of '%1' Version: %2 changed to 'unavailable'.").
+        showConnectionStatusMessage(_("Status of \"%1\" Version: %2 changed to \"unavailable\".").
                                     arg(service).arg(QString::number(version)));
         break;
     }
     case QmlDebug::Enabled: {
-        showConnectionStatusMessage(_("Status of '%1' Version: %2 changed to 'enabled'.").
+        showConnectionStatusMessage(_("Status of \"%1\" Version: %2 changed to \"enabled\".").
                                     arg(service).arg(QString::number(version)));
         break;
     }
 
     case QmlDebug::NotConnected: {
-        showConnectionStatusMessage(_("Status of '%1' Version: %2 changed to 'not connected'.").
+        showConnectionStatusMessage(_("Status of \"%1\" Version: %2 changed to \"not connected\".").
                                     arg(service).arg(QString::number(version)));
         break;
     }

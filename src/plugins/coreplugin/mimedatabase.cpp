@@ -1031,7 +1031,7 @@ static bool parseNumber(const QString &n, int *target, QString *errorMessage)
     bool ok;
     *target = n.toInt(&ok);
     if (!ok) {
-        *errorMessage = QString::fromLatin1("Not a number '%1'.").arg(n);
+        *errorMessage = QString::fromLatin1("Not a number \"%1\".").arg(n);
         return false;
     }
     return true;

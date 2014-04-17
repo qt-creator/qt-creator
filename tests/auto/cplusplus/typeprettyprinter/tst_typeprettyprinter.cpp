@@ -130,7 +130,7 @@ static void addRow(const FullySpecifiedType &f, Overview::StarBindFlags starBind
             const QString &result, const QString &name = QString())
 {
     const QString dataTag
-        = QString::fromLatin1("'%1' with star binding '%2'").arg(result, toString(starBindFlags));
+        = QString::fromLatin1("\"%1\" with star binding \"%2\"").arg(result, toString(starBindFlags));
     QTest::newRow(dataTag.toLatin1().constData()) << f << starBindFlags << name << result;
 }
 

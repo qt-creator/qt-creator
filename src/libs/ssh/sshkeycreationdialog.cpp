@@ -115,7 +115,7 @@ void SshKeyCreationDialog::saveKeys()
     const QString parentDir = QFileInfo(privateKeyFilePath()).dir().path();
     if (!QDir::root().mkpath(parentDir)) {
         QMessageBox::critical(this, tr("Cannot Save Key File"),
-            tr("Failed to create directory: '%1'.").arg(parentDir));
+            tr("Failed to create directory: \"%1\".").arg(parentDir));
         return;
     }
 

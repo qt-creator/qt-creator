@@ -797,14 +797,14 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
         QMessageBox msgBox(
             QMessageBox::Question,
             QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                    "Settings File for '%1' from a different Environment?")
+                                    "Settings File for \"%1\" from a different Environment?")
                     .arg(project()->displayName()),
             QApplication::translate("ProjectExplorer::SettingsAccessor",
                                     "<p>No .user settings file created by this instance "
                                     "of Qt Creator was found.</p>"
                                     "<p>Did you work with this project on another machine or "
                                     "using a different settings path before?</p>"
-                                    "<p>Do you still want to load the settings file '%1'?</p>")
+                                    "<p>Do you still want to load the settings file \"%1\"?</p>")
                     .arg(result.path.toUserOutput()),
             QMessageBox::Yes | QMessageBox::No,
             parent);
@@ -819,7 +819,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
                     QApplication::translate("ProjectExplorer::SettingsAccessor",
                                             "Using Old Settings"),
                     QApplication::translate("ProjectExplorer::SettingsAccessor",
-                                            "<p>The versioned backup '%1' of the .user settings "
+                                            "<p>The versioned backup \"%1\" of the .user settings "
                                             "file is used, because the non-versioned file was "
                                             "created by an incompatible version of Qt Creator.</p>"
                                             "<p>Project settings changes made since "

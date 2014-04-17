@@ -634,7 +634,7 @@ void VcsBasePlugin::promptToDeleteCurrentFile()
     const bool rc = Core::VcsManager::promptToDelete(versionControl(), state.currentFile());
     if (!rc)
         QMessageBox::warning(Core::ICore::dialogParent(), tr("Version Control"),
-                             tr("The file '%1' could not be deleted.").
+                             tr("The file \"%1\" could not be deleted.").
                              arg(QDir::toNativeSeparators(state.currentFile())),
                              QMessageBox::Ok);
 }
@@ -662,7 +662,7 @@ void VcsBasePlugin::createRepository()
         const Core::IVersionControl *managingControl = Core::VcsManager::findVersionControlForDirectory(directory);
         if (managingControl == 0)
             break;
-        const QString question = tr("The directory '%1' is already managed by a version control system (%2)."
+        const QString question = tr("The directory \"%1\" is already managed by a version control system (%2)."
                                     " Would you like to specify another directory?").arg(directory, managingControl->displayName());
 
         if (!ask(mw, tr("Repository already under version control"), question))
@@ -803,7 +803,7 @@ bool VcsBasePlugin::runPatch(const QByteArray &input, const QString &workingDire
     ow->appendCommand(workingDirectory, patch, args);
     patchProcess.start(patch, args);
     if (!patchProcess.waitForStarted()) {
-        ow->appendError(tr("Unable to launch '%1': %2").arg(patch, patchProcess.errorString()));
+        ow->appendError(tr("Unable to launch \"%1\": %2").arg(patch, patchProcess.errorString()));
         return false;
     }
     patchProcess.write(input);
@@ -812,7 +812,7 @@ bool VcsBasePlugin::runPatch(const QByteArray &input, const QString &workingDire
     QByteArray stdErr;
     if (!SynchronousProcess::readDataFromProcess(patchProcess, 30000, &stdOut, &stdErr, true)) {
         SynchronousProcess::stopProcess(patchProcess);
-        ow->appendError(tr("A timeout occurred running '%1'").arg(patch));
+        ow->appendError(tr("A timeout occurred running \"%1\"").arg(patch));
         return false;
 
     }
@@ -822,11 +822,11 @@ bool VcsBasePlugin::runPatch(const QByteArray &input, const QString &workingDire
         ow->appendError(QString::fromLocal8Bit(stdErr));
 
     if (patchProcess.exitStatus() != QProcess::NormalExit) {
-        ow->appendError(tr("'%1' crashed.").arg(patch));
+        ow->appendError(tr("\"%1\" crashed.").arg(patch));
         return false;
     }
     if (patchProcess.exitCode() != 0) {
-        ow->appendError(tr("'%1' failed (exit code %2).").arg(patch).arg(patchProcess.exitCode()));
+        ow->appendError(tr("\"%1\" failed (exit code %2).").arg(patch).arg(patchProcess.exitCode()));
         return false;
     }
     return true;

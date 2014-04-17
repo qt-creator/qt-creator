@@ -99,7 +99,7 @@ bool FileUtils::removeRecursively(const FileName &filePath, QString *error)
         }
         if (!QDir::root().rmdir(dir.path())) {
             if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove directory '%1'.")
+                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove directory \"%1\".")
                         .arg(filePath.toUserOutput());
             }
             return false;
@@ -107,7 +107,7 @@ bool FileUtils::removeRecursively(const FileName &filePath, QString *error)
     } else {
         if (!QFile::remove(filePath.toString())) {
             if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove file '%1'.")
+                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove file \"%1\".")
                         .arg(filePath.toUserOutput());
             }
             return false;
@@ -142,7 +142,7 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
         targetDir.cdUp();
         if (!targetDir.mkdir(tgtFilePath.toFileInfo().fileName())) {
             if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to create directory '%1'.")
+                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to create directory \"%1\".")
                         .arg(tgtFilePath.toUserOutput());
             }
             return false;
@@ -161,7 +161,7 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
     } else {
         if (!QFile::copy(srcFilePath.toString(), tgtFilePath.toString())) {
             if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Could not copy file '%1' to '%2'.")
+                *error = QCoreApplication::translate("Utils::FileUtils", "Could not copy file \"%1\" to \"%2\".")
                         .arg(srcFilePath.toUserOutput(), tgtFilePath.toUserOutput());
             }
             return false;

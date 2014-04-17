@@ -106,7 +106,7 @@ public:
             if (killAllFailed) {
                 if (logger)
                     logger->appendError(ErrorMessage::WarningLevel,
-                                        ZConfLib::tr("%1 failed to kill other daemons with '%2'.")
+                                        ZConfLib::tr("%1 failed to kill other daemons with \"%2\".")
                                         .arg(name()).arg(cmd));
                 if (DEBUG_ZEROCONF)
                     qDebug() << name() << " had an error trying to kill other daemons with " << cmd;
@@ -126,7 +126,7 @@ public:
                 if (logger) {
                     QByteArray logBA = oldLog.readAll();
                     logger->appendError(ErrorMessage::NoteLevel,
-                                        ZConfLib::tr("%1: log of previous daemon run is: '%2'.")
+                                        ZConfLib::tr("%1: log of previous daemon run is: \"%2\".")
                                         .arg(name(), QString::fromLatin1(logBA.constData(), logBA.size())) + QLatin1Char('\n'));
                     qDebug()<<logBA.size()<<oldLog.error()<<oldLog.errorString();
                 }

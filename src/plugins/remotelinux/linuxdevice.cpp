@@ -73,7 +73,7 @@ private:
                 "cat $dir/cmdline;echo;" // cmdline does not end in newline
                 "cat $dir/stat;"
                 "readlink $dir/exe;"
-                "printf '%1''%2';"
+                "printf '%1''%2'';"
             "done").arg(QLatin1String(Delimiter0)).arg(QLatin1String(Delimiter1));
     }
 

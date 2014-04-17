@@ -535,7 +535,7 @@ bool ProjectFileWizardExtension::processProject(
     FolderNode *folder = m_context->projects.at(folderIndex).node;
     if (m_context->wizard->kind() == IWizard::ProjectWizard) {
         if (!static_cast<ProjectNode *>(folder)->addSubProjects(QStringList(generatedProject))) {
-            *errorMessage = tr("Failed to add subproject '%1'\nto project '%2'.")
+            *errorMessage = tr("Failed to add subproject \"%1\"\nto project \"%2\".")
                             .arg(generatedProject).arg(folder->path());
             return false;
         }
@@ -545,7 +545,7 @@ bool ProjectFileWizardExtension::processProject(
         foreach (const GeneratedFile &generatedFile, files)
             filePaths << generatedFile.path();
         if (!folder->addFiles(filePaths)) {
-            *errorMessage = tr("Failed to add one or more files to project\n'%1' (%2).").
+            *errorMessage = tr("Failed to add one or more files to project\n\"%1\" (%2).").
                     arg(folder->path(), filePaths.join(QString(QLatin1Char(','))));
             return false;
         }
@@ -565,7 +565,7 @@ bool ProjectFileWizardExtension::processVersionControl(const QList<GeneratedFile
     if (!m_context->repositoryExists) {
         QTC_ASSERT(versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return false);
         if (!versionControl->vcsCreateRepository(m_context->commonDirectory)) {
-            *errorMessage = tr("A version control system repository could not be created in '%1'.").arg(m_context->commonDirectory);
+            *errorMessage = tr("A version control system repository could not be created in \"%1\".").arg(m_context->commonDirectory);
             return false;
         }
     }
@@ -573,7 +573,7 @@ bool ProjectFileWizardExtension::processVersionControl(const QList<GeneratedFile
     if (versionControl->supportsOperation(IVersionControl::AddOperation)) {
         foreach (const GeneratedFile &generatedFile, files) {
             if (!versionControl->vcsAdd(generatedFile.path())) {
-                *errorMessage = tr("Failed to add '%1' to the version control system.").arg(generatedFile.path());
+                *errorMessage = tr("Failed to add \"%1\" to the version control system.").arg(generatedFile.path());
                 return false;
             }
         }

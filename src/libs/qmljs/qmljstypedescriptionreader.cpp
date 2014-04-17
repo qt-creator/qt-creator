@@ -197,7 +197,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 readEnum(component, fmo);
             else
                 addWarning(component->firstSourceLocation(),
-                           tr("Expected only Property, Method, Signal and Enum object definitions, not '%1'.")
+                           tr("Expected only Property, Method, Signal and Enum object definitions, not \"%1\".")
                            .arg(name));
         } else if (script) {
             QString name = toString(script->qualifiedId);
@@ -223,7 +223,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
                 addWarning(script->firstSourceLocation(),
                            tr("Expected only name, prototype, defaultProperty, attachedType, exports "
                               "isSingleton, isCreatable, isComposite and exportMetaObjectRevisions "
-                              "script bindings, not '%1'.").arg(name));
+                              "script bindings, not \"%1\".").arg(name));
             }
         } else {
             addWarning(member->firstSourceLocation(), tr("Expected only script bindings and object definitions."));

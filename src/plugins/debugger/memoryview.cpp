@@ -154,7 +154,7 @@ void RegisterMemoryView::slotRegisterSet(const QModelIndex &index)
 
 QString RegisterMemoryView::title(const QString &registerName, quint64 a)
 {
-    return tr("Memory at Register '%1' (0x%2)").arg(registerName).arg(a, 0, 16);
+    return tr("Memory at Register \"%1\" (0x%2)").arg(registerName).arg(a, 0, 16);
 }
 
 void RegisterMemoryView::setRegisterAddress(quint64 v)
@@ -174,7 +174,7 @@ QList<MemoryMarkup> RegisterMemoryView::registerMarkup(quint64 a, const QString 
 {
     QList<MemoryMarkup> result;
     result.push_back(MemoryMarkup(a, 1, QColor(Qt::blue).lighter(),
-                                  tr("Register '%1'").arg(name)));
+                                  tr("Register \"%1\"").arg(name)));
     return result;
 }
 

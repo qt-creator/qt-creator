@@ -1387,7 +1387,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
             }
         }
         if (found) {
-            appendError(errorString, tr("Failed opening project '%1': Project already open.")
+            appendError(errorString, tr("Failed opening project \"%1\": Project already open.")
                         .arg(QDir::toNativeSeparators(fileName)));
             SessionManager::reportProjectLoadingProgress();
             continue;
@@ -1408,7 +1408,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
                                 setCurrentNode(pro->rootProjectNode());
                             openedPro += pro;
                         } else {
-                            appendError(errorString, tr("Failed opening project '%1': Settings could not be restored.")
+                            appendError(errorString, tr("Failed opening project \"%1\": Settings could not be restored.")
                                         .arg(QDir::toNativeSeparators(fileName)));
                             delete pro;
                         }
@@ -1419,12 +1419,12 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
                 }
             }
             if (!foundProjectManager) {
-                appendError(errorString, tr("Failed opening project '%1': No plugin can open project type '%2'.")
+                appendError(errorString, tr("Failed opening project \"%1\": No plugin can open project type \"%2\".")
                             .arg(QDir::toNativeSeparators(fileName))
                             .arg((mt.type())));
             }
         } else {
-            appendError(errorString, tr("Failed opening project '%1': Unknown project type.")
+            appendError(errorString, tr("Failed opening project \"%1\": Unknown project type.")
                         .arg(QDir::toNativeSeparators(fileName)));
         }
         SessionManager::reportProjectLoadingProgress();
@@ -2236,7 +2236,7 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabled(Project *pro)
                     && project->activeTarget()->activeBuildConfiguration()
                     && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
                 result.first = false;
-                result.second += tr("Building '%1' is disabled: %2<br>")
+                result.second += tr("Building \"%1\" is disabled: %2<br>")
                         .arg(project->displayName(),
                              project->activeTarget()->activeBuildConfiguration()->disabledReason());
             }
@@ -2265,7 +2265,7 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabledForSession()
                     && project->activeTarget()->activeBuildConfiguration()
                     && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
                 result.first = false;
-                result.second += tr("Building '%1' is disabled: %2")
+                result.second += tr("Building \"%1\" is disabled: %2")
                         .arg(project->displayName(),
                              project->activeTarget()->activeBuildConfiguration()->disabledReason());
                 result.second += QLatin1Char('\n');
@@ -2532,10 +2532,10 @@ QString ProjectExplorerPlugin::cannotRunReason(Project *project, RunMode runMode
         return tr("The project %1 is not configured.").arg(project->displayName());
 
     if (!project->activeTarget())
-        return tr("The project '%1' has no active kit.").arg(project->displayName());
+        return tr("The project \"%1\" has no active kit.").arg(project->displayName());
 
     if (!project->activeTarget()->activeRunConfiguration())
-        return tr("The kit '%1' for the project '%2' has no active run configuration.")
+        return tr("The kit \"%1\" for the project \"%2\" has no active run configuration.")
                 .arg(project->activeTarget()->displayName(), project->displayName());
 
 
@@ -2554,7 +2554,7 @@ QString ProjectExplorerPlugin::cannotRunReason(Project *project, RunMode runMode
 
     // shouldn't actually be shown to the user...
     if (!findRunControlFactory(activeRC, runMode))
-        return tr("Cannot run '%1'.").arg(activeRC->displayName());
+        return tr("Cannot run \"%1\".").arg(activeRC->displayName());
 
     if (BuildManager::isBuilding())
         return tr("A build is still in progress.");

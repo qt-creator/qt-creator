@@ -144,7 +144,7 @@ bool evaluateBooleanJavaScriptExpression(QScriptEngine &engine, const QString &e
     engine.clearExceptions();
     const QScriptValue value = engine.evaluate(expression);
     if (engine.hasUncaughtException()) {
-        *errorMessage = QString::fromLatin1("Error in '%1': %2").
+        *errorMessage = QString::fromLatin1("Error in \"%1\": %2").
                         arg(expression, engine.uncaughtException().toString());
         return false;
     }
@@ -161,7 +161,7 @@ bool evaluateBooleanJavaScriptExpression(QScriptEngine &engine, const QString &e
         *result = !value.toString().isEmpty();
         return true;
     }
-    *errorMessage = QString::fromLatin1("Cannot convert result of '%1' ('%2'to bool.").
+    *errorMessage = QString::fromLatin1("Cannot convert result of \"%1\" (\"%2\"to bool.").
                         arg(expression, value.toString());
     return false;
 }

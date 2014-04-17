@@ -358,7 +358,7 @@ void SftpFileSystemModel::handleSftpJobFinished(SftpJobId jobId, const QString &
     if (jobId == d->statJobId) {
         d->statJobId = SftpInvalidJob;
         if (!errorMessage.isEmpty())
-            emit sftpOperationFailed(tr("Error getting 'stat' info about '%1': %2")
+            emit sftpOperationFailed(tr("Error getting \"stat\" info about \"%1\": %2")
                 .arg(rootDirectory(), errorMessage));
         return;
     }
@@ -368,7 +368,7 @@ void SftpFileSystemModel::handleSftpJobFinished(SftpJobId jobId, const QString &
         QSSH_ASSERT(it.value()->lsState == SftpDirNode::LsRunning);
         it.value()->lsState = SftpDirNode::LsFinished;
         if (!errorMessage.isEmpty())
-            emit sftpOperationFailed(tr("Error listing contents of directory '%1': %2")
+            emit sftpOperationFailed(tr("Error listing contents of directory \"%1\": %2")
                 .arg(it.value()->path, errorMessage));
         d->lsOps.erase(it);
         return;

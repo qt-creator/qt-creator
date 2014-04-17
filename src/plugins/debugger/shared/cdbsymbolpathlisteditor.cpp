@@ -98,14 +98,14 @@ void CacheDirectoryDialog::accept()
     // Does a file of the same name exist?
     if (fi.exists()) {
         QMessageBox::warning(this, tr("Already Exists"),
-                             tr("A file named '%1' already exists.").arg(cache));
+                             tr("A file named \"%1\" already exists.").arg(cache));
         return;
     }
     // Create
     QDir root(QDir::root());
     if (!root.mkpath(cache)) {
         QMessageBox::warning(this, tr("Cannot Create"),
-                             tr("The folder '%1' could not be created.").arg(cache));
+                             tr("The folder \"%1\" could not be created.").arg(cache));
         return;
     }
     QDialog::accept();

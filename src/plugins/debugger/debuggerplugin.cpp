@@ -1355,7 +1355,7 @@ DebuggerCore *debuggerCore()
 
 static QString msgParameterMissing(const QString &a)
 {
-    return DebuggerPlugin::tr("Option '%1' is missing the parameter.").arg(a);
+    return DebuggerPlugin::tr("Option \"%1\" is missing the parameter.").arg(a);
 }
 
 bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
@@ -1440,7 +1440,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         sp.displayName = tr("Crashed process %1").arg(sp.attachPID);
         sp.startMessage = tr("Attaching to crashed process %1").arg(sp.attachPID);
         if (!sp.attachPID) {
-            *errorMessage = DebuggerPlugin::tr("The parameter '%1' of option '%2' "
+            *errorMessage = DebuggerPlugin::tr("The parameter \"%1\" of option \"%2\" "
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);
             return false;
         }
@@ -2398,7 +2398,7 @@ void DebuggerPluginPrivate::updateDebugActions()
         QString toolTip;
         if (canRunAndBreakMain) {
             QTC_ASSERT(project, return ; );
-            toolTip = tr("Start '%1' and break at function 'main()'")
+            toolTip = tr("Start \"%1\" and break at function \"main()\"")
                       .arg(project->displayName());
         } else {
             // Do not display long tooltip saying run mode is not supported

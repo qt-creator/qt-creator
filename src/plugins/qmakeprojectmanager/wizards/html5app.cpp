@@ -193,7 +193,7 @@ QByteArray Html5App::appViewerCppFileCode(QString *errorMessage) const
         if (!touchNavigavigationFile.open(QIODevice::ReadOnly)) {
             if (errorMessage)
                 *errorMessage = QCoreApplication::translate("QmakeProjectManager::AbstractMobileApp",
-                    "Could not open template file '%1'.").arg(QLatin1String(touchNavigavigationFiles[i]));
+                    "Could not open template file \"%1\".").arg(QLatin1String(touchNavigavigationFiles[i]));
             return QByteArray();
         }
         QTextStream touchNavigavigationFileIn(&touchNavigavigationFile);
@@ -214,7 +214,7 @@ QByteArray Html5App::appViewerCppFileCode(QString *errorMessage) const
     if (!appViewerCppFile.open(QIODevice::ReadOnly)) {
         if (errorMessage)
             *errorMessage = QCoreApplication::translate("QmakeProjectManager::AbstractMobileApp",
-                "Could not open template file '%1'.").arg(path(AppViewerCppOrigin));
+                "Could not open template file \"%1\".").arg(path(AppViewerCppOrigin));
         return QByteArray();
     }
     QTextStream in(&appViewerCppFile);

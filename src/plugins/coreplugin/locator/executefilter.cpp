@@ -106,7 +106,7 @@ void ExecuteFilter::accept(LocatorFilterEntry selection) const
     }
 
     if (m_process->state() != QProcess::NotRunning) {
-        const QString info(tr("Previous command is still running ('%1').\nDo you want to kill it?")
+        const QString info(tr("Previous command is still running (\"%1\").\nDo you want to kill it?")
                            .arg(p->headCommand()));
         int r = QMessageBox::question(ICore::dialogParent(), tr("Kill Previous Process?"), info,
                                       QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
@@ -127,9 +127,9 @@ void ExecuteFilter::finished(int exitCode, QProcess::ExitStatus status)
     const QString commandName = headCommand();
     QString message;
     if (status == QProcess::NormalExit && exitCode == 0)
-        message = tr("Command '%1' finished.").arg(commandName);
+        message = tr("Command \"%1\" finished.").arg(commandName);
     else
-        message = tr("Command '%1' failed.").arg(commandName);
+        message = tr("Command \"%1\" failed.").arg(commandName);
     MessageManager::write(message);
 
     m_taskQueue.dequeue();
@@ -158,12 +158,12 @@ void ExecuteFilter::runHeadCommand()
         const ExecuteData &d = m_taskQueue.head();
         const QString fullPath = Utils::Environment::systemEnvironment().searchInPath(d.executable);
         if (fullPath.isEmpty()) {
-            MessageManager::write(tr("Could not find executable for '%1'.").arg(d.executable));
+            MessageManager::write(tr("Could not find executable for \"%1\".").arg(d.executable));
             m_taskQueue.dequeue();
             runHeadCommand();
             return;
         }
-        MessageManager::write(tr("Starting command '%1'.").arg(headCommand()));
+        MessageManager::write(tr("Starting command \"%1\".").arg(headCommand()));
         m_process->setWorkingDirectory(d.workingDirectory);
         m_process->setCommand(fullPath, d.arguments);
         m_process->start();

@@ -190,7 +190,7 @@ void MergeTool::chooseAction()
     msgBox.setWindowTitle(tr("Merge Conflict"));
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setStandardButtons(QMessageBox::Abort);
-    msgBox.setText(tr("%1 merge conflict for '%2'\nLocal: %3\nRemote: %4")
+    msgBox.setText(tr("%1 merge conflict for \"%2\"\nLocal: %3\nRemote: %4")
                    .arg(mergeTypeName())
                    .arg(m_fileName)
                    .arg(stateName(m_localState, m_localInfo))

@@ -213,7 +213,7 @@ bool BarDescriptorConverter::convertFile(Core::GeneratedFile &file, QString &err
     if (errorMessage.isEmpty()) {
         QDomDocument doc;
         if (!doc.setContent(file.binaryContents(), &errorMessage)) {
-            errorMessage = tr("Error parsing XML file '%1': %2").arg(file.path()).arg(errorMessage);
+            errorMessage = tr("Error parsing XML file \"%1\": %2").arg(file.path()).arg(errorMessage);
             return false;
         }
 

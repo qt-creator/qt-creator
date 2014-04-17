@@ -55,7 +55,7 @@ static QString winErrorMessage(unsigned long error)
 
 QString msgFunctionFailed(const char *f, unsigned long error)
 {
-    return QString::fromLatin1("'%1' failed: %2").arg(QLatin1String(f), winErrorMessage(error));
+    return QString::fromLatin1("\"%1\" failed: %2").arg(QLatin1String(f), winErrorMessage(error));
 }
 
 static bool registryReadBinaryKey(HKEY handle, // HKEY_LOCAL_MACHINE, etc.

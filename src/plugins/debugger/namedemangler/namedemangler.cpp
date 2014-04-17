@@ -78,7 +78,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
         m_demangledName = QLatin1String(m_parseState.stackTop()->toByteArray());
         success = true;
     } catch (const ParseException &p) {
-        m_errorString = QString::fromLatin1("Parse error at index %1 of mangled name '%2': %3.")
+        m_errorString = QString::fromLatin1("Parse error at index %1 of mangled name \"%2\": %3.")
                 .arg(m_parseState.m_pos).arg(mangledName, p.error);
         success = false;
     } catch (const InternalDemanglerException &e) {

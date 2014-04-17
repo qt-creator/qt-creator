@@ -92,7 +92,7 @@ Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
 QString CurrentProjectFind::label() const
 {
     QTC_ASSERT(ProjectExplorerPlugin::currentProject(), return QString());
-    return tr("Project '%1':").arg(ProjectExplorerPlugin::currentProject()->displayName());
+    return tr("Project \"%1\":").arg(ProjectExplorerPlugin::currentProject()->displayName());
 }
 
 void CurrentProjectFind::handleProjectChanged()

@@ -230,7 +230,7 @@ void DisassemblerAgent::setLocation(const Location &loc)
     if (index != -1) {
         const FrameKey &key = d->cache.at(index).first;
         const QString msg =
-            _("Using cached disassembly for 0x%1 (0x%2-0x%3) in '%4'/ '%5'")
+            _("Using cached disassembly for 0x%1 (0x%2-0x%3) in \"%4\"/ \"%5\"")
                 .arg(loc.address(), 0, 16)
                 .arg(key.startAddress, 0, 16).arg(key.endAddress, 0, 16)
                 .arg(loc.functionName(), QDir::toNativeSeparators(loc.fileName()));

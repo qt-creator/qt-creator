@@ -120,7 +120,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
     }
 
     if (!QFile::exists(d->updaterProgram)) {
-        *errorMessage = tr("Could not find maintenance tool at '%1'. Check your installation.")
+        *errorMessage = tr("Could not find maintenance tool at \"%1\". Check your installation.")
             .arg(d->updaterProgram);
         return false;
     }

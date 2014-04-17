@@ -133,7 +133,7 @@ public:
         // dynamic linking
         if (!nativeLib.load()) {
             setError(true,
-                     ZConfLib::tr("AvahiZConfLib could not load the native library '%1': %2").arg(libName, nativeLib.errorString()));
+                     ZConfLib::tr("AvahiZConfLib could not load the native library \"%1\": %2").arg(libName, nativeLib.errorString()));
         }
         m_simplePollGet = reinterpret_cast<AvahiSimplePollGet>(nativeLib.resolve("avahi_simple_poll_get"));
         m_simplePollNew = reinterpret_cast<AvahiSimplePollNewPtr>(nativeLib.resolve("avahi_simple_poll_new"));

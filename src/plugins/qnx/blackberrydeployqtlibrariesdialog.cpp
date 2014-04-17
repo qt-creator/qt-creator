@@ -195,7 +195,7 @@ void BlackBerryDeployQtLibrariesDialog::handleRemoteProcessCompleted()
         // Directory exists
         if (m_processRunner->processExitCode() == 0) {
             int answer = QMessageBox::question(this, windowTitle(),
-                                               tr("The remote directory '%1' already exists. "
+                                               tr("The remote directory \"%1\" already exists. "
                                                   "Deploying to that directory will remove any files "
                                                   "already present.\n\n"
                                                   "Are you sure you want to continue?")
@@ -278,7 +278,7 @@ void BlackBerryDeployQtLibrariesDialog::checkRemoteDirectoryExistance()
 
     m_state = CheckingRemoteDirectory;
 
-    m_ui->deployLogWindow->appendPlainText(tr("Checking existence of '%1'")
+    m_ui->deployLogWindow->appendPlainText(tr("Checking existence of \"%1\"")
                                            .arg(fullRemoteDirectory()));
 
     const QByteArray cmd = "test -d " + fullRemoteDirectory().toLatin1();
@@ -291,7 +291,7 @@ void BlackBerryDeployQtLibrariesDialog::removeRemoteDirectory()
 
     m_state = RemovingRemoteDirectory;
 
-    m_ui->deployLogWindow->appendPlainText(tr("Removing '%1'").arg(fullRemoteDirectory()));
+    m_ui->deployLogWindow->appendPlainText(tr("Removing \"%1\"").arg(fullRemoteDirectory()));
 
     const QByteArray cmd = "rm -rf " + fullRemoteDirectory().toLatin1();
     m_processRunner->run(cmd, m_device->sshParameters());

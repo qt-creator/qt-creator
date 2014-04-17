@@ -135,7 +135,7 @@ public:
                              "//       Check all uses of 'parent' inside the root element of the component.")
                           + QLatin1Char('\n');
         if (idBinding) {
-            comment += tr("//       Rename all outer uses of the id '%1' to '%2.item'.").arg(
+            comment += tr("//       Rename all outer uses of the id \"%1\" to \"%2.item\".").arg(
                         id, loaderId) + QLatin1Char('\n');
         }
 
@@ -145,7 +145,7 @@ public:
         while (it.hasNext()) {
             it.next();
             const QString innerId = it.key();
-            comment += tr("//       Rename all outer uses of the id '%1' to '%2.item.%1'.\n").arg(
+            comment += tr("//       Rename all outer uses of the id \"%1\" to \"%2.item.%1\".\n").arg(
                         innerId, loaderId);
             changes.replace(it.value().begin(), it.value().end(), QString::fromLatin1("inner_%1").arg(innerId));
             innerIdForwarders += QString::fromLatin1("\nproperty alias %1: inner_%1").arg(innerId);

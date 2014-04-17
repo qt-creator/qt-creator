@@ -535,7 +535,7 @@ bool Command::runFullySynchronous(const QStringList &arguments, int timeoutMS,
     process.closeWriteChannel();
     if (!process.waitForStarted()) {
         if (errorData) {
-            const QString msg = QString::fromLatin1("Unable to execute '%1': %2:")
+            const QString msg = QString::fromLatin1("Unable to execute \"%1\": %2:")
                                 .arg(d->m_binaryPath, process.errorString());
             *errorData = msg.toLocal8Bit();
         }

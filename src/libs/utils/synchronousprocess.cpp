@@ -127,15 +127,15 @@ QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeo
 {
     switch (result) {
     case Finished:
-        return SynchronousProcess::tr("The command '%1' finished successfully.").arg(QDir::toNativeSeparators(binary));
+        return SynchronousProcess::tr("The command \"%1\" finished successfully.").arg(QDir::toNativeSeparators(binary));
     case FinishedError:
-        return SynchronousProcess::tr("The command '%1' terminated with exit code %2.").arg(QDir::toNativeSeparators(binary)).arg(exitCode);
+        return SynchronousProcess::tr("The command \"%1\" terminated with exit code %2.").arg(QDir::toNativeSeparators(binary)).arg(exitCode);
     case TerminatedAbnormally:
-        return SynchronousProcess::tr("The command '%1' terminated abnormally.").arg(QDir::toNativeSeparators(binary));
+        return SynchronousProcess::tr("The command \"%1\" terminated abnormally.").arg(QDir::toNativeSeparators(binary));
     case StartFailed:
-        return SynchronousProcess::tr("The command '%1' could not be started.").arg(QDir::toNativeSeparators(binary));
+        return SynchronousProcess::tr("The command \"%1\" could not be started.").arg(QDir::toNativeSeparators(binary));
     case Hang:
-        return SynchronousProcess::tr("The command '%1' did not respond within the timeout limit (%2 ms).").
+        return SynchronousProcess::tr("The command \"%1\" did not respond within the timeout limit (%2 ms).").
                 arg(QDir::toNativeSeparators(binary)).arg(timeoutMS);
     }
     return QString();
@@ -432,7 +432,7 @@ static inline bool askToKill(const QString &binary = QString())
     const QString title = SynchronousProcess::tr("Process not Responding");
     QString msg = binary.isEmpty() ?
                   SynchronousProcess::tr("The process is not responding.") :
-                  SynchronousProcess::tr("The process '%1' is not responding.").arg(QDir::toNativeSeparators(binary));
+                  SynchronousProcess::tr("The process \"%1\" is not responding.").arg(QDir::toNativeSeparators(binary));
     msg += QLatin1Char(' ');
     msg += SynchronousProcess::tr("Would you like to terminate it?");
     // Restore the cursor that is set to wait while running.

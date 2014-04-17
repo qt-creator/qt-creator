@@ -398,7 +398,7 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
         QList<ModuleApiInfo> newModuleApis;
         CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &newObjects, &newModuleApis, &error, &warning, qmltypesFilePath);
         if (!error.isEmpty()) {
-            errors += tr("Failed to parse '%1'.\nError: %2").arg(qmltypesFilePath, error);
+            errors += tr("Failed to parse \"%1\".\nError: %2").arg(qmltypesFilePath, error);
         } else {
             objects += newObjects.values();
             moduleApis += newModuleApis;

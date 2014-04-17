@@ -87,7 +87,7 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
             *ok = false;
         if (errorMessage)
             *errorMessage = QCoreApplication::translate("Git::Internal::GitSettings",
-                                                        "The binary '%1' could not be located in the path '%2'")
+                                                        "The binary \"%1\" could not be located in the path \"%2\"")
                 .arg(stringValue(binaryPathKey), stringValue(pathKey));
     }
     return binPath;

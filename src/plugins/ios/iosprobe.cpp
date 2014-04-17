@@ -115,7 +115,7 @@ void IosProbe::detectDeveloperPaths()
 void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xcodeName)
 {
     if (debugProbe)
-        qDebug() << QString::fromLatin1("Setting up platform '%1'.").arg(xcodeName);
+        qDebug() << QString::fromLatin1("Setting up platform \"%1\".").arg(xcodeName);
     QString indent = QLatin1String("  ");
 
     // detect clang (default toolchain)

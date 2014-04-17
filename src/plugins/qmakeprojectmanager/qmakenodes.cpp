@@ -2191,7 +2191,7 @@ QStringList QmakeProFileNode::subDirsPaths(QtSupport::ProFileReader *reader, QSt
             }
         } else {
             if (!silent)
-                QmakeProject::proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
+                QmakeProject::proFileParseError(tr("Could not find .pro file for sub dir \"%1\" in \"%2\"")
                                               .arg(subDirVar).arg(realDir));
         }
     }

@@ -280,7 +280,7 @@ QString QmlApp::readAndAdaptTemplateFile(const QString &filePath, bool &ok) cons
             const QString replaceWhat = replaceXWithY.at(0).trimmed();
             const QString replaceWith = replaceXWithY.at(1).trimmed();
             if (!m_replacementVariables.contains(replaceWith)) {
-                qWarning().nospace() << QString::fromLatin1("Error in %1:%2. Unknown %3 option '%4'.")
+                qWarning().nospace() << QString::fromLatin1("Error in %1:%2. Unknown %3 option \"%4\".")
                               .arg(QDir::toNativeSeparators(filePath)).arg(lineNr).arg(markerQtcReplace).arg(replaceWith);
                 ok = false;
                 return QString();
@@ -288,7 +288,7 @@ QString QmlApp::readAndAdaptTemplateFile(const QString &filePath, bool &ok) cons
             line = tsIn.readLine(); // Following line which is to be patched.
             lineNr++;
             if (line.indexOf(replaceWhat) < 0) {
-                qWarning().nospace() << QString::fromLatin1("Error in %1:%2. Replacement '%3' not found.")
+                qWarning().nospace() << QString::fromLatin1("Error in %1:%2. Replacement \"%3\" not found.")
                               .arg(QDir::toNativeSeparators(filePath)).arg(lineNr).arg(replaceWhat);
                 ok = false;
                 return QString();

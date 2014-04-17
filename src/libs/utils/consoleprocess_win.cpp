@@ -146,7 +146,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         delete d->m_tempFile;
         d->m_tempFile = 0;
         stubServerShutdown();
-        emit processError(tr("The process '%1' could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
+        emit processError(tr("The process \"%1\" could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
         return false;
     }
 

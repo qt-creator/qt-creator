@@ -960,7 +960,7 @@ PerforcePlugin::createTemporaryArgumentFile(const QStringList &extraArgs,
 
 static inline QString msgNotStarted(const QString &cmd)
 {
-    return PerforcePlugin::tr("Could not start perforce '%1'. Please check your settings in the preferences.").arg(cmd);
+    return PerforcePlugin::tr("Could not start perforce \"%1\". Please check your settings in the preferences.").arg(cmd);
 }
 
 static inline QString msgTimeout(int timeOut)

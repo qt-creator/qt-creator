@@ -70,7 +70,7 @@ static QString msgClassNotFound(const QString &uiClassName, const QList<Document
         files += QDir::toNativeSeparators(doc->fileName());
     }
     return QtCreatorIntegration::tr(
-        "The class containing '%1' could not be found in %2.\n"
+        "The class containing \"%1\" could not be found in %2.\n"
         "Please verify the #include-directives.")
         .arg(uiClassName, files);
 }
@@ -578,7 +578,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << objectName << signalSignature << "Looking for " << uicedName << " returned " << docList.size();
     if (docMap.isEmpty()) {
-        *errorMessage = tr("No documents matching '%1' could be found.\nRebuilding the project might help.").arg(uicedName);
+        *errorMessage = tr("No documents matching \"%1\" could be found.\nRebuilding the project might help.").arg(uicedName);
         return false;
     }
 

@@ -51,7 +51,7 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName, QString 
 {
     if (!QFileInfo(fileName).isFile()) {
         if (errorString)
-            *errorString = tr("Failed opening project '%1': Project is not a file")
+            *errorString = tr("Failed opening project \"%1\": Project is not a file.")
                 .arg(fileName);
         return 0;
     }

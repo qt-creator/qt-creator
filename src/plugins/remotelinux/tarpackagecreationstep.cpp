@@ -180,7 +180,7 @@ bool TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi)
 
     foreach (const DeployableFile &d, m_files) {
         if (d.remoteDirectory().isEmpty()) {
-            emit addOutput(tr("No remote path specified for file '%1', skipping.")
+            emit addOutput(tr("No remote path specified for file \"%1\", skipping.")
                 .arg(d.localFilePath().toUserOutput()), ErrorMessageOutput);
             continue;
         }
@@ -193,7 +193,7 @@ bool TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi)
 
     const QByteArray eofIndicator(2*sizeof(TarFileHeader), 0);
     if (tarFile.write(eofIndicator) != eofIndicator.length()) {
-        raiseError(tr("Error writing tar file '%1': %2.")
+        raiseError(tr("Error writing tar file \"%1\": %2.")
             .arg(QDir::toNativeSeparators(tarFile.fileName()), tarFile.errorString()));
         return false;
     }
@@ -221,7 +221,7 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
     const QString nativePath = QDir::toNativeSeparators(fileInfo.filePath());
     QFile file(fileInfo.filePath());
     if (!file.open(QIODevice::ReadOnly)) {
-        const QString message = tr("Error reading file '%1': %2.")
+        const QString message = tr("Error reading file \"%1\": %2.")
                                 .arg(nativePath, file.errorString());
         if (m_ignoreMissingFiles) {
             raiseWarning(message);
@@ -234,7 +234,7 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
 
     const int chunkSize = 1024*1024;
 
-    emit addOutput(tr("Adding file '%1' to tarball...").arg(nativePath), MessageOutput);
+    emit addOutput(tr("Adding file \"%1\" to tarball...").arg(nativePath), MessageOutput);
 
     // TODO: Wasteful. Work with fixed-size buffer.
     while (!file.atEnd() && file.error() == QFile::NoError && tarFile.error() == QFile::NoError) {
@@ -244,7 +244,7 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
             return false;
     }
     if (file.error() != QFile::NoError) {
-        raiseError(tr("Error reading file '%1': %2.").arg(nativePath, file.errorString()));
+        raiseError(tr("Error reading file \"%1\": %2.").arg(nativePath, file.errorString()));
         return false;
     }
 
@@ -253,7 +253,7 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
         tarFile.write(QByteArray(TarBlockSize - blockModulo, 0));
 
     if (tarFile.error() != QFile::NoError) {
-        raiseError(tr("Error writing tar file '%1': %2.")
+        raiseError(tr("Error writing tar file \"%1\": %2.")
             .arg(QDir::toNativeSeparators(tarFile.fileName()), tarFile.errorString()));
         return false;
     }
@@ -268,7 +268,7 @@ bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileIn
     const QByteArray &filePath = remoteFilePath.toUtf8();
     const int maxFilePathLength = sizeof header.fileNamePrefix + sizeof header.fileName;
     if (filePath.count() > maxFilePathLength) {
-        raiseError(tr("Cannot add file '%1' to tar-archive: path too long.")
+        raiseError(tr("Cannot add file \"%1\" to tar-archive: path too long.")
             .arg(QDir::toNativeSeparators(remoteFilePath)));
         return false;
     }
@@ -319,7 +319,7 @@ bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileIn
     std::memcpy(&header.chksum, checksumString.data(), checksumString.length());
     header.chksum[sizeof header.chksum-1] = 0;
     if (!tarFile.write(reinterpret_cast<char *>(&header), sizeof header)) {
-        raiseError(tr("Error writing tar file '%1': %2")
+        raiseError(tr("Error writing tar file \"%1\": %2")
            .arg(QDir::toNativeSeparators(cachedPackageFilePath()), tarFile.errorString()));
         return false;
     }

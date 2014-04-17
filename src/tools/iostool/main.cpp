@@ -575,7 +575,7 @@ void IosTool::run(const QStringList &args)
         } else if (arg == QLatin1String("-help") || arg == QLatin1String("--help")) {
             printHelp = true;
         } else {
-            writeMsg(QString::fromLatin1("unexpected argument '%1'").arg(arg));
+            writeMsg(QString::fromLatin1("unexpected argument \"%1\"").arg(arg));
         }
     }
     if (printHelp) {

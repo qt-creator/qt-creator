@@ -381,7 +381,7 @@ void SshRemoteProcessPrivate::handleExitSignal(const SshChannelExitSignal &signa
     }
 
     throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR, "Invalid signal",
-        tr("Server sent invalid signal '%1'").arg(QString::fromUtf8(signal.signal)));
+        tr("Server sent invalid signal \"%1\"").arg(QString::fromUtf8(signal.signal)));
 }
 
 } // namespace Internal

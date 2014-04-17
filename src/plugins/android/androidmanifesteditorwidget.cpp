@@ -706,9 +706,9 @@ void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int
     Core::InfoBar *infoBar = m_textEditorWidget->baseTextDocument()->infoBar();
     QString text;
     if (line < 0)
-        text = tr("Could not parse file: '%1'.").arg(errorMessage);
+        text = tr("Could not parse file: \"%1\".").arg(errorMessage);
     else
-        text = tr("%2: Could not parse file: '%1'.").arg(errorMessage).arg(line);
+        text = tr("%2: Could not parse file: \"%1\".").arg(errorMessage).arg(line);
     Core::InfoBarEntry infoBarEntry(infoBarId, text);
     infoBarEntry.setCustomButtonInfo(tr("Goto error"), this, SLOT(gotoError()));
     infoBar->removeInfo(infoBarId);

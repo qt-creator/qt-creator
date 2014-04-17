@@ -269,10 +269,10 @@ QList<Task> DebuggerKitInformation::validateDebugger(const Kit *k)
         result << Task(Task::Warning, tr("No debugger set up."), FileName(), -1, id);
 
     if (errors & DebuggerNotFound)
-        result << Task(Task::Error, tr("Debugger '%1' not found.").arg(path),
+        result << Task(Task::Error, tr("Debugger \"%1\" not found.").arg(path),
                        FileName(), -1, id);
     if (errors & DebuggerNotExecutable)
-        result << Task(Task::Error, tr("Debugger '%1' not executable.").arg(path), FileName(), -1, id);
+        result << Task(Task::Error, tr("Debugger \"%1\" not executable.").arg(path), FileName(), -1, id);
 
     if (errors & DebuggerNeedsAbsolutePath) {
         const QString message =

@@ -939,7 +939,7 @@ static bool startsWithWhitespace(const QString &str, int col)
 
 inline QString msgMarkNotSet(const QString &text)
 {
-    return FakeVimHandler::tr("Mark '%1' not set.").arg(text);
+    return FakeVimHandler::tr("Mark \"%1\" not set.").arg(text);
 }
 
 class Input

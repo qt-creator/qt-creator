@@ -502,14 +502,14 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
     const QString &remoteDir = dirIt.value().remoteDir;
     if (response.status == SSH_FX_OK) {
         emit dataAvailable(op->parentJob->jobId,
-            tr("Created remote directory '%1'.").arg(remoteDir));
+            tr("Created remote directory \"%1\".").arg(remoteDir));
     } else if (response.status == SSH_FX_FAILURE) {
         emit dataAvailable(op->parentJob->jobId,
-            tr("Remote directory '%1' already exists.").arg(remoteDir));
+            tr("Remote directory \"%1\" already exists.").arg(remoteDir));
     } else {
         op->parentJob->setError();
         emit finished(op->parentJob->jobId,
-            tr("Error creating directory '%1': %2")
+            tr("Error creating directory \"%1\": %2")
             .arg(remoteDir, response.errorString));
         m_jobs.erase(it);
         return;
@@ -533,7 +533,7 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
         if (!localFile->open(QIODevice::ReadOnly)) {
             op->parentJob->setError();
             emit finished(op->parentJob->jobId,
-                tr("Could not open local file '%1': %2")
+                tr("Could not open local file \"%1\": %2")
                 .arg(fileInfo.absoluteFilePath(), localFile->errorString()));
             m_jobs.erase(it);
             return;

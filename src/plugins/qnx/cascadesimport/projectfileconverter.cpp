@@ -159,7 +159,7 @@ bool ProjectFileConverter::convertFile(Core::GeneratedFile &file, QString &error
             // include all the content of the src directory
             otherFiles << filePath;
         else if (ext.compare(QLatin1String("log"), Qt::CaseInsensitive) != 0)
-                log.logWarning(tr("File '%1' not listed in '%2' file, should it be?")
+                log.logWarning(tr("File \"%1\" not listed in \"%2\" file, should it be?")
                         .arg(filePath).arg(file.path()));
     }
 

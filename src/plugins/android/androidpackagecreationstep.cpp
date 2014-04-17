@@ -162,7 +162,7 @@ static inline QString msgCannotFindElfInformation()
 
 static inline QString msgCannotFindExecutable(const QString &appPath)
 {
-    return AndroidPackageCreationStep::tr("Cannot find '%1'.\n"
+    return AndroidPackageCreationStep::tr("Cannot find \"%1\".\n"
         "Please make sure your application is "
         "built successfully and is selected in Application tab ('Run option').").arg(appPath);
 }
@@ -621,7 +621,7 @@ bool AndroidPackageCreationStep::createPackage()
         QDir dir;
         dir.mkpath(m_gdbServerDestination.toFileInfo().absolutePath());
         if (!QFile::copy(m_gdbServerSource.toString(), m_gdbServerDestination.toString())) {
-            raiseError(tr("Can't copy gdbserver from '%1' to '%2'").arg(m_gdbServerSource.toUserOutput())
+            raiseError(tr("Can't copy gdbserver from \"%1\" to \"%2\"").arg(m_gdbServerSource.toUserOutput())
                        .arg(m_gdbServerDestination.toUserOutput()));
             return false;
         }

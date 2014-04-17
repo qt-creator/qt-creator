@@ -63,7 +63,7 @@ public:
 
 static inline QString msgInvalidConstructor(const char *what)
 {
-    return StaticAnalysisMessages::tr("Do not use '%1' as a constructor.").arg(QLatin1String(what));
+    return StaticAnalysisMessages::tr("Do not use \"%1\" as a constructor.").arg(QLatin1String(what));
 }
 
 StaticAnalysisMessages::StaticAnalysisMessages()
@@ -97,11 +97,11 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(ErrDuplicateId, Error,
            tr("Duplicate id."));
     newMsg(ErrInvalidPropertyName, Error,
-           tr("Invalid property name '%1'."), 1);
+           tr("Invalid property name \"%1\"."), 1);
     newMsg(ErrDoesNotHaveMembers, Error,
-           tr("'%1' does not have members."), 1);
+           tr("\"%1\" does not have members."), 1);
     newMsg(ErrInvalidMember, Error,
-           tr("'%1' is not a member of '%2'."), 2);
+           tr("\"%1\" is not a member of \"%2\"."), 2);
     newMsg(WarnAssignmentInCondition, Warning,
            tr("Assignment in condition."));
     newMsg(WarnCaseWithoutFlowControl, Warning,
@@ -115,19 +115,19 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(WarnComma, Warning,
            tr("Do not use comma expressions."));
     newMsg(WarnAlreadyFormalParameter, Warning,
-           tr("'%1' already is a formal parameter."), 1);
+           tr("\"%1\" already is a formal parameter."), 1);
     newMsg(WarnUnnecessaryMessageSuppression, Warning,
            tr("Unnecessary message suppression."));
     newMsg(WarnAlreadyFunction, Warning,
-           tr("'%1' already is a function."), 1);
+           tr("\"%1\" already is a function."), 1);
     newMsg(WarnVarUsedBeforeDeclaration, Warning,
-           tr("var '%1' is used before its declaration."), 1);
+           tr("var \"%1\" is used before its declaration."), 1);
     newMsg(WarnAlreadyVar, Warning,
-           tr("'%1' already is a var."), 1);
+           tr("\"%1\" already is a var."), 1);
     newMsg(WarnDuplicateDeclaration, Warning,
-           tr("'%1' is declared more than once."), 1);
+           tr("\"%1\" is declared more than once."), 1);
     newMsg(WarnFunctionUsedBeforeDeclaration, Warning,
-           tr("Function '%1' is used before its declaration."), 1);
+           tr("Function \"%1\" is used before its declaration."), 1);
     newMsg(WarnBooleanConstructor, Warning,
            msgInvalidConstructor("Boolean"));
     newMsg(WarnStringConstructor, Warning,
@@ -163,13 +163,13 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(ErrUnknownComponent, Error,
            tr("Unknown component."));
     newMsg(ErrCouldNotResolvePrototypeOf, Error,
-           tr("Could not resolve the prototype '%1' of '%2'."), 2);
+           tr("Could not resolve the prototype \"%1\" of \"%2\"."), 2);
     newMsg(ErrCouldNotResolvePrototype, Error,
-           tr("Could not resolve the prototype '%1'."), 1);
+           tr("Could not resolve the prototype \"%1\"."), 1);
     newMsg(ErrPrototypeCycle, Error,
-           tr("Prototype cycle, the last non-repeated component is '%1'."), 1);
+           tr("Prototype cycle, the last non-repeated component is \"%1\"."), 1);
     newMsg(ErrInvalidPropertyType, Error,
-           tr("Invalid property type '%1'."), 1);
+           tr("Invalid property type \"%1\"."), 1);
     newMsg(WarnEqualityTypeCoercion, Error,
            tr("== and != perform type coercion, use === or !== to avoid it."));
     newMsg(WarnExpectedNewWithUppercaseFunction, Error,
@@ -185,7 +185,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
     newMsg(HintPreferNonVarPropertyType, Hint,
            tr("Use %1 instead of 'var' or 'variant' to improve performance."), 1);
     newMsg(ErrMissingRequiredProperty, Error,
-           tr("Missing property '%1'."), 1);
+           tr("Missing property \"%1\"."), 1);
     newMsg(ErrObjectValueExpected, Error,
            tr("Object value expected."));
     newMsg(ErrArrayValueExpected, Error,

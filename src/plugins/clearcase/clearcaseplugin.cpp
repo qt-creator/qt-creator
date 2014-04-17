@@ -913,7 +913,7 @@ void ClearCasePlugin::undoCheckOutCurrent()
         Ui::UndoCheckOut uncoUi;
         QDialog uncoDlg;
         uncoUi.setupUi(&uncoDlg);
-        uncoUi.lblMessage->setText(tr("Do you want to undo the check out of '%1'?").arg(fileName));
+        uncoUi.lblMessage->setText(tr("Do you want to undo the check out of \"%1\"?").arg(fileName));
         if (uncoDlg.exec() != QDialog::Accepted)
             return;
         keep = uncoUi.chkKeep->isChecked();
@@ -994,7 +994,7 @@ void ClearCasePlugin::undoHijackCurrent()
         QDialog unhijackDlg;
         unhijackUi.setupUi(&unhijackDlg);
         unhijackDlg.setWindowTitle(tr("Undo Hijack File"));
-        unhijackUi.lblMessage->setText(tr("Do you want to undo hijack of '%1'?")
+        unhijackUi.lblMessage->setText(tr("Do you want to undo hijack of \"%1\"?")
                                        .arg(QDir::toNativeSeparators(fileName)));
         if (unhijackDlg.exec() != QDialog::Accepted)
             return;

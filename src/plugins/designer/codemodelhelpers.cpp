@@ -115,13 +115,13 @@ bool navigateToSlot(const QString &uiFileName,
     // Find the generated header.
     const QString generatedHeaderFile = generatedHeaderOf(uiFileName);
     if (generatedHeaderFile.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("Designer", "The generated header of the form '%1' could not be found.\nRebuilding the project might help.").arg(uiFileName);
+        *errorMessage = QCoreApplication::translate("Designer", "The generated header of the form \"%1\" could not be found.\nRebuilding the project might help.").arg(uiFileName);
         return false;
     }
     const CPlusPlus::Snapshot snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
     const DocumentPtr generatedHeaderDoc = snapshot.document(generatedHeaderFile);
     if (!generatedHeaderDoc) {
-        *errorMessage = QCoreApplication::translate("Designer", "The generated header '%1' could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile);
+        *errorMessage = QCoreApplication::translate("Designer", "The generated header \"%1\" could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile);
         return false;
     }
 
@@ -129,7 +129,7 @@ bool navigateToSlot(const QString &uiFileName,
     SearchFunction searchFunc(setupUiC);
     const SearchFunction::FunctionList funcs = searchFunc(generatedHeaderDoc);
     if (funcs.size() != 1) {
-        *errorMessage = QString::fromLatin1("Internal error: The function '%1' could not be found in in %2").arg(QLatin1String(setupUiC), generatedHeaderFile);
+        *errorMessage = QString::fromLatin1("Internal error: The function \"%1\" could not be found in %2").arg(QLatin1String(setupUiC), generatedHeaderFile);
         return false;
     }
     return true;

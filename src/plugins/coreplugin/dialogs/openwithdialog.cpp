@@ -40,7 +40,7 @@ OpenWithDialog::OpenWithDialog(const QString &fileName, QWidget *parent)
 {
     setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    label->setText(tr("Open file '%1' with:").arg(QFileInfo(fileName).fileName()));
+    label->setText(tr("Open file \"%1\" with:").arg(QFileInfo(fileName).fileName()));
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()),

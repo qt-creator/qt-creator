@@ -120,7 +120,7 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
                 if (qc.isSpace())
                     *errorMessage = tr("Name contains white space.");
                 else
-                    *errorMessage = tr("Invalid character '%1'.").arg(qc);
+                    *errorMessage = tr("Invalid character \"%1\".").arg(qc);
             }
             return false;
         }
@@ -130,7 +130,7 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
         const QLatin1String notAllowedSubString(notAllowedSubStrings[s]);
         if (name.contains(notAllowedSubString)) {
             if (errorMessage)
-                *errorMessage = tr("Invalid characters '%1'.").arg(QString(notAllowedSubString));
+                *errorMessage = tr("Invalid characters \"%1\".").arg(QString(notAllowedSubString));
             return false;
         }
     }

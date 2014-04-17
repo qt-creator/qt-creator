@@ -1415,17 +1415,17 @@ bool QmakeProject::supportsNoTargetPanel() const
 QString QmakeProject::disabledReasonForRunConfiguration(const QString &proFilePath)
 {
     if (!QFileInfo(proFilePath).exists())
-        return tr("The .pro file '%1' does not exist.")
+        return tr("The .pro file \"%1\" does not exist.")
                 .arg(QFileInfo(proFilePath).fileName());
 
     if (!m_rootProjectNode) // Shutting down
         return QString();
 
     if (!m_rootProjectNode->findProFileFor(proFilePath))
-        return tr("The .pro file '%1' is not part of the project.")
+        return tr("The .pro file \"%1\" is not part of the project.")
                 .arg(QFileInfo(proFilePath).fileName());
 
-    return tr("The .pro file '%1' could not be parsed.")
+    return tr("The .pro file \"%1\" could not be parsed.")
             .arg(QFileInfo(proFilePath).fileName());
 }
 

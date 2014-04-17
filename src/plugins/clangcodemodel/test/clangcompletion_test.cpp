@@ -180,7 +180,7 @@ void ClangCodeModelPlugin::test_CXX_snippets()
         const QString snippetError =
                 QLatin1String("Text and snippet mismatch: text '") + text
                 + QLatin1String("', snippet '") + snippet
-                + QLatin1String("', got snippet '%1'");
+                + QLatin1String("', got snippet \"%1\"");
 
         bool hasText = false;
         foreach (const CodeCompletionResult &ccr, proposals) {
@@ -285,11 +285,11 @@ void ClangCodeModelPlugin::test_ObjC_hints()
         const QString snippetError =
                 QLatin1String("Text and snippet mismatch: text '") + text
                 + QLatin1String("', snippet '") + snippet
-                + QLatin1String("', got snippet '%1'");
+                + QLatin1String("', got snippet \"%1\"");
         const QString hintError =
                 QLatin1String("Text and hint mismatch: text '") + text
                 + QLatin1String("', hint\n'") + hint
-                + QLatin1String(", got hint\n'%1'");
+                + QLatin1String(", got hint\n\"%1\"");
 
         bool hasText = false;
         QStringList texts;
@@ -301,7 +301,7 @@ void ClangCodeModelPlugin::test_ObjC_hints()
             QVERIFY2(snippet == ccr.snippet(), snippetError.arg(ccr.snippet()).toAscii());
             QVERIFY2(hint == ccr.hint(), hintError.arg(ccr.hint()).toAscii());
         }
-        const QString textError(QString::fromLatin1("Text '%1' not found in set %2")
+        const QString textError(QString::fromLatin1("Text \"%1\" not found in set %2")
                                 .arg(text).arg(texts.join(QLatin1Char(','))));
         QVERIFY2(hasText, textError.toAscii());
     }

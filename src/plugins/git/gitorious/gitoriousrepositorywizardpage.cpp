@@ -151,7 +151,7 @@ void GitoriousRepositoryWizardPage::initializePage()
     ui->filterLineEdit->clear();
     // fill model
     const QSharedPointer<GitoriousProject> proj = m_projectPage->project();
-    setSubTitle(tr("Choose a repository of the project '%1'.").arg(proj->name));
+    setSubTitle(tr("Choose a repository of the project \"%1\".").arg(proj->name));
     // Create a hierarchical list by repository type, sort by type
     QList<GitoriousRepository> repositories = proj->repositories;
     QStandardItem *firstEntry = 0;

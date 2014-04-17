@@ -303,7 +303,7 @@ bool IosRunConfiguration::isEnabled() const
 QString IosRunConfiguration::disabledReason() const
 {
     if (m_parseInProgress)
-        return tr("The .pro file '%1' is currently being parsed.")
+        return tr("The .pro file \"%1\" is currently being parsed.")
                 .arg(QFileInfo(m_profilePath).fileName());
     if (!m_parseSuccess)
         return static_cast<QmakeProject *>(target()->project())

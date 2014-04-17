@@ -118,7 +118,7 @@ bool DesktopQmakeRunConfiguration::isEnabled() const
 QString DesktopQmakeRunConfiguration::disabledReason() const
 {
     if (m_parseInProgress)
-        return tr("The .pro file '%1' is currently being parsed.")
+        return tr("The .pro file \"%1\" is currently being parsed.")
                 .arg(QFileInfo(m_proFilePath).fileName());
 
     if (!m_parseSuccess)

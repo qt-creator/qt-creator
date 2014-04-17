@@ -970,7 +970,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         QByteArray buffer = m_scheduledTestResponses.value(token);
         buffer.replace("@TOKEN@", QByteArray::number(token));
         m_scheduledTestResponses.remove(token);
-        showMessage(_("FAKING TEST RESPONSE (TOKEN: %2, RESPONSE: '%3')")
+        showMessage(_("FAKING TEST RESPONSE (TOKEN: %2, RESPONSE: %3)")
             .arg(token).arg(_(buffer)));
         QMetaObject::invokeMethod(this, "handleResponse",
             Q_ARG(QByteArray, buffer));
@@ -1998,7 +1998,7 @@ int GdbEngine::currentFrame() const
 
 static QString msgNoGdbBinaryForToolChain(const Abi &tc)
 {
-    return GdbEngine::tr("There is no GDB binary available for binaries in format '%1'")
+    return GdbEngine::tr("There is no GDB binary available for binaries in format \"%1\"")
         .arg(tc.toString());
 }
 
@@ -4466,7 +4466,7 @@ void GdbEngine::loadInitScript()
         } else {
             showMessageBox(QMessageBox::Warning,
             tr("Cannot find debugger initialization script"),
-            tr("The debugger settings point to a script file at '%1' "
+            tr("The debugger settings point to a script file at \"%1\" "
                "which is not accessible. If a script file is not needed, "
                "consider clearing that entry to avoid this warning. "
               ).arg(script));
@@ -4803,7 +4803,7 @@ void GdbEngine::scheduleTestResponse(int testCase, const QByteArray &response)
         return;
 
     int token = currentToken() + 1;
-    showMessage(_("SCHEDULING TEST RESPONSE (CASE: %1, TOKEN: %2, RESPONSE: '%3')")
+    showMessage(_("SCHEDULING TEST RESPONSE (CASE: %1, TOKEN: %2, RESPONSE: %3)")
         .arg(testCase).arg(token).arg(_(response)));
     m_scheduledTestResponses[token] = response;
 }

@@ -552,7 +552,7 @@ bool CdbEngine::startConsole(const DebuggerStartParameters &sp, QString *errorMe
     if (sp.environment.size())
         m_consoleStub->setEnvironment(sp.environment);
     if (!m_consoleStub->start(sp.executable, sp.processArgs)) {
-        *errorMessage = tr("The console process '%1' could not be started.").arg(sp.executable);
+        *errorMessage = tr("The console process \"%1\" could not be started.").arg(sp.executable);
         return false;
     }
     return true;
@@ -1057,7 +1057,7 @@ void CdbEngine::handleAddWatch(const CdbExtensionCommandPtr &reply)
     } else {
         item.setError(tr("Unable to add expression"));
         watchHandler()->insertIncompleteData(item);
-        showMessage(QString::fromLatin1("Unable to add watch item '%1'/'%2': %3").
+        showMessage(QString::fromLatin1("Unable to add watch item \"%1\"/\"%2\": %3").
                     arg(QString::fromLatin1(item.iname), QString::fromLatin1(item.exp),
                         QString::fromLocal8Bit(reply->errorMessage)), LogError);
     }
@@ -1397,7 +1397,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd, unsigned flags,
                                    const QVariant &cookie)
 {
     if (!m_accessible) {
-        const QString msg = QString::fromLatin1("Attempt to issue builtin command '%1' to non-accessible session (%2)")
+        const QString msg = QString::fromLatin1("Attempt to issue builtin command \"%1\" to non-accessible session (%2)")
                 .arg(QString::fromLocal8Bit(cmd), QString::fromLatin1(stateName(state())));
         showMessage(msg, LogError);
         return;
@@ -1434,7 +1434,7 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
                                      const QVariant &cookie)
 {
     if (!m_accessible) {
-        const QString msg = QString::fromLatin1("Attempt to issue extension command '%1' to non-accessible session (%2)")
+        const QString msg = QString::fromLatin1("Attempt to issue extension command \"%1\" to non-accessible session (%2)")
                 .arg(QString::fromLocal8Bit(cmd), QString::fromLatin1(stateName(state())));
         showMessage(msg, LogError);
         return;
@@ -2053,7 +2053,7 @@ static inline QString msgCheckingConditionalBreakPoint(BreakpointModelId id, con
                                                        const QByteArray &condition,
                                                        const QString &threadId)
 {
-    return CdbEngine::tr("Conditional breakpoint %1 (%2) in thread %3 triggered, examining expression '%4'.")
+    return CdbEngine::tr("Conditional breakpoint %1 (%2) in thread %3 triggered, examining expression \"%4\".")
             .arg(id.toString()).arg(number).arg(threadId, QString::fromLatin1(condition));
 }
 
@@ -3257,7 +3257,7 @@ void CdbEngine::watchPoint(const QPoint &p)
         showMessage(tr("\"Select Widget to Watch\": Please stop the application first."), LogWarning);
         break;
     default:
-        showMessage(tr("\"Select Widget to Watch\": Not supported in state '%1'.").
+        showMessage(tr("\"Select Widget to Watch\": Not supported in state \"%1\".").
                     arg(QString::fromLatin1(stateName(state()))), LogWarning);
         break;
     }

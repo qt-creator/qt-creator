@@ -544,7 +544,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
         QJsonParseError error;
         const QJsonDocument doc = QJsonDocument::fromJson(line, &error);
         if (doc.isNull()) {
-            QString errorMessage = GerritModel::tr("Parse error: '%1' -> %2")
+            QString errorMessage = GerritModel::tr("Parse error: \"%1\" -> %2")
                     .arg(QString::fromLocal8Bit(line))
                     .arg(error.errorString());
             qWarning() << errorMessage;
@@ -597,7 +597,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
         } else {
             qWarning("%s: Parse error: '%s'.", Q_FUNC_INFO, line.constData());
             VcsBase::VcsBaseOutputWindow::instance()
-                    ->appendError(GerritModel::tr("Parse error: '%1'")
+                    ->appendError(GerritModel::tr("Parse error: \"%1\"")
                                   .arg(QString::fromLocal8Bit(line)));
             res = false;
         }
@@ -669,7 +669,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
             continue;
         Utils::JsonValue *objectValue = Utils::JsonValue::create(QString::fromUtf8(line), &pool);
         if (!objectValue) {
-            QString errorMessage = GerritModel::tr("Parse error: '%1'")
+            QString errorMessage = GerritModel::tr("Parse error: \"%1\"")
                     .arg(QString::fromLocal8Bit(line));
             qWarning() << errorMessage;
             VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
@@ -740,7 +740,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
         if (change->isValid()) {
             result.push_back(change);
         } else {
-            QString errorMessage = GerritModel::tr("Parse error in line '%1'")
+            QString errorMessage = GerritModel::tr("Parse error in line \"%1\"")
                     .arg(QString::fromLocal8Bit(line));
             VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
             qWarning("%s: Parse error in line '%s'.", Q_FUNC_INFO, line.constData());

@@ -315,10 +315,10 @@ QList<Task> BaseQtVersion::validateKit(const Kit *k)
         if (!fullMatch) {
             if (!fuzzyMatch)
                 message = QCoreApplication::translate("BaseQtVersion",
-                                                      "The compiler '%1' (%2) cannot produce code for the Qt version '%3' (%4).");
+                                                      "The compiler \"%1\" (%2) cannot produce code for the Qt version \"%3\" (%4).");
             else
                 message = QCoreApplication::translate("BaseQtVersion",
-                                                      "The compiler '%1' (%2) may not produce code compatible with the Qt version '%3' (%4).");
+                                                      "The compiler \"%1\" (%2) may not produce code compatible with the Qt version \"%3\" (%4).");
             message = message.arg(tc->displayName(), targetAbi.toString(),
                                   version->displayName(), qtAbiString);
             result << Task(fuzzyMatch ? Task::Warning : Task::Error, message, FileName(), -1,
@@ -1215,16 +1215,16 @@ static QByteArray runQmakeQuery(const FileName &binary, const Environment &env,
     process.start(binary.toString(), QStringList(QLatin1String("-query")), QIODevice::ReadOnly);
 
     if (!process.waitForStarted()) {
-        *error = QCoreApplication::translate("QtVersion", "Cannot start '%1': %2").arg(binary.toUserOutput()).arg(process.errorString());
+        *error = QCoreApplication::translate("QtVersion", "Cannot start \"%1\": %2").arg(binary.toUserOutput()).arg(process.errorString());
         return QByteArray();
     }
     if (!process.waitForFinished(timeOutMS)) {
         SynchronousProcess::stopProcess(process);
-        *error = QCoreApplication::translate("QtVersion", "Timeout running '%1' (%2 ms).").arg(binary.toUserOutput()).arg(timeOutMS);
+        *error = QCoreApplication::translate("QtVersion", "Timeout running \"%1\" (%2 ms).").arg(binary.toUserOutput()).arg(timeOutMS);
         return QByteArray();
     }
     if (process.exitStatus() != QProcess::NormalExit) {
-        *error = QCoreApplication::translate("QtVersion", "'%1' crashed.").arg(binary.toUserOutput());
+        *error = QCoreApplication::translate("QtVersion", "\"%1\" crashed.").arg(binary.toUserOutput());
         return QByteArray();
     }
 
@@ -1241,7 +1241,7 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
 
     const QFileInfo qmake = binary.toFileInfo();
     if (!qmake.exists() || !qmake.isExecutable() || qmake.isDir()) {
-        *error = QCoreApplication::translate("QtVersion", "qmake '%1' is not an executable.").arg(binary.toUserOutput());
+        *error = QCoreApplication::translate("QtVersion", "qmake \"%1\" is not an executable.").arg(binary.toUserOutput());
         return false;
     }
 

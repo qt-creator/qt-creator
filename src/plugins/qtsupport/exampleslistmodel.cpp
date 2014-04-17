@@ -291,22 +291,22 @@ static bool isValidExampleOrDemo(ExampleItem &item)
     bool ok = true;
     if (!item.hasSourceCode || !QFileInfo(item.projectPath).exists()) {
         ok = false;
-        reason = QString::fromLatin1("projectPath '%1' empty or does not exist").arg(item.projectPath);
+        reason = QString::fromLatin1("projectPath \"%1\" empty or does not exist").arg(item.projectPath);
     } else if (item.imageUrl.startsWith(invalidPrefix) || !QUrl(item.imageUrl).isValid()) {
         ok = false;
-        reason = QString::fromLatin1("imageUrl '%1' not valid").arg(item.imageUrl);
+        reason = QString::fromLatin1("imageUrl \"%1\" not valid").arg(item.imageUrl);
     } else if (!item.docUrl.isEmpty()
              && (item.docUrl.startsWith(invalidPrefix) || !QUrl(item.docUrl).isValid())) {
         ok = false;
-        reason = QString::fromLatin1("docUrl '%1' non-empty but not valid").arg(item.docUrl);
+        reason = QString::fromLatin1("docUrl \"%1\" non-empty but not valid").arg(item.docUrl);
     }
     if (!ok) {
         item.tags.append(QLatin1String("broken"));
         if (debugExamples())
-            qWarning() << QString::fromLatin1("ERROR: Item '%1' broken: %2").arg(item.name, reason);
+            qWarning() << QString::fromLatin1("ERROR: Item \"%1\" broken: %2").arg(item.name, reason);
     }
     if (debugExamples() && item.description.isEmpty())
-        qWarning() << QString::fromLatin1("WARNING: Item '%1' has no description").arg(item.name);
+        qWarning() << QString::fromLatin1("WARNING: Item \"%1\" has no description").arg(item.name);
     return ok || debugExamples();
 }
 
@@ -480,7 +480,7 @@ void ExamplesListModel::updateExamples()
         QDir demosDir(offsetPath);
 
         if (debugExamples())
-            qWarning() << QString::fromLatin1("Reading file '%1'...").arg(fi.absoluteFilePath());
+            qWarning() << QString::fromLatin1("Reading file \"%1\"...").arg(fi.absoluteFilePath());
         QXmlStreamReader reader(&exampleFile);
         while (!reader.atEnd())
             switch (reader.readNext()) {
@@ -497,7 +497,7 @@ void ExamplesListModel::updateExamples()
             }
 
         if (reader.hasError() && debugExamples())
-            qWarning() << QString::fromLatin1("ERROR: Could not parse file as XML document ('%1')").arg(exampleSource);
+            qWarning() << QString::fromLatin1("ERROR: Could not parse file as XML document (%1)").arg(exampleSource);
     }
     endResetModel();
 

@@ -158,7 +158,7 @@ void checkIndent(QList<Line> data, int style = 0)
         if (l.expectedIndent != DontCheck) {
             int actualIndent = formatter.indentFor(b);
             if (actualIndent != l.expectedIndent) {
-                QFAIL(QString("Wrong indent in line %1 with text '%2', expected indent %3, got %4").arg(
+                QFAIL(QString("Wrong indent in line %1 with text \"%2\", expected indent %3, got %4").arg(
                         QString::number(i+1), l.line, QString::number(l.expectedIndent), QString::number(actualIndent)).toLatin1().constData());
             }
         }

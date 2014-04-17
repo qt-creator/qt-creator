@@ -176,7 +176,7 @@ void PdbEngine::setupEngine()
     m_pdbProc.start(m_pdb, QStringList() << _("-i"));
 
     if (!m_pdbProc.waitForStarted()) {
-        const QString msg = tr("Unable to start pdb '%1': %2")
+        const QString msg = tr("Unable to start pdb \"%1\": %2")
             .arg(m_pdb, m_pdbProc.errorString());
         notifyEngineSetupFailed();
         showMessage(_("ADAPTER START FAILED"));
@@ -488,7 +488,7 @@ bool PdbEngine::setToolTipExpression(const QPoint &mousePos,
     }
 
     if (!hasLetterOrNumber(exp)) {
-        QToolTip::showText(m_toolTipPos, tr("'%1' contains no identifier").arg(exp));
+        QToolTip::showText(m_toolTipPos, tr("\"%1\" contains no identifier").arg(exp));
         return true;
     }
 
@@ -508,7 +508,7 @@ bool PdbEngine::setToolTipExpression(const QPoint &mousePos,
 
     if (hasSideEffects(exp)) {
         QToolTip::showText(m_toolTipPos,
-            tr("Cowardly refusing to evaluate expression '%1' "
+            tr("Cowardly refusing to evaluate expression \"%1\" "
                "with potential side effects").arg(exp));
         return true;
     }
@@ -578,7 +578,7 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
     switch (error) {
         case QProcess::FailedToStart:
             return tr("The Pdb process failed to start. Either the "
-                "invoked program '%1' is missing, or you may have insufficient "
+                "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
                 .arg(m_pdb);
         case QProcess::Crashed:

@@ -256,11 +256,11 @@ void BranchDialog::remove()
     const bool wasMerged = isTag ? true : m_model->branchIsMerged(selected);
     QString message;
     if (isTag)
-        message = tr("Would you like to delete the tag '%1'?").arg(branchName);
+        message = tr("Would you like to delete the tag \"%1\"?").arg(branchName);
     else if (wasMerged)
-        message = tr("Would you like to delete the branch '%1'?").arg(branchName);
+        message = tr("Would you like to delete the branch \"%1\"?").arg(branchName);
     else
-        message = tr("Would you like to delete the <b>unmerged</b> branch '%1'?").arg(branchName);
+        message = tr("Would you like to delete the <b>unmerged</b> branch \"%1\"?").arg(branchName);
 
     if (QMessageBox::question(this, isTag ? tr("Delete Tag") : tr("Delete Branch"),
                               message, QMessageBox::Yes | QMessageBox::No,
@@ -329,7 +329,7 @@ void BranchDialog::reset()
     if (currentName.isEmpty() || branchName.isEmpty())
         return;
 
-    if (QMessageBox::question(this, tr("Git Reset"), tr("Hard reset branch '%1' to '%2'?")
+    if (QMessageBox::question(this, tr("Git Reset"), tr("Hard reset branch \"%1\" to \"%2\"?")
                               .arg(currentName).arg(branchName),
                               QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
         GitPlugin::instance()->gitClient()->reset(QString(m_repository), QLatin1String("--hard"),

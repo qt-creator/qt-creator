@@ -267,7 +267,7 @@ bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorM
         if (CustomWizardPrivate::verbose)
             qDebug("Creating directory %s", qPrintable(scriptWorkingDir));
         if (!scriptWorkingDirDir.mkpath(scriptWorkingDir)) {
-            *errorMessage = QString::fromLatin1("Unable to create the target directory '%1'").arg(scriptWorkingDir);
+            *errorMessage = QString::fromLatin1("Unable to create the target directory \"%1\"").arg(scriptWorkingDir);
             return false;
         }
     }
@@ -407,7 +407,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
 
     const QDir templateDir(templateDirName);
     if (CustomWizardPrivate::verbose)
-        verboseLog = QString::fromLatin1("### CustomWizard: Checking '%1'\n").arg(templateDirName);
+        verboseLog = QString::fromLatin1("### CustomWizard: Checking \"%1\"\n").arg(templateDirName);
     if (!templateDir.exists()) {
         if (CustomWizardPrivate::verbose)
            qWarning("Custom project template path %s does not exist.", qPrintable(templateDir.absolutePath()));
@@ -416,14 +416,14 @@ QList<CustomWizard*> CustomWizard::createWizards()
 
     const QDir userTemplateDir(userTemplateDirName);
     if (CustomWizardPrivate::verbose)
-        verboseLog = QString::fromLatin1("### CustomWizard: Checking '%1'\n").arg(userTemplateDirName);
+        verboseLog = QString::fromLatin1("### CustomWizard: Checking \"%1\"\n").arg(userTemplateDirName);
 
     const QDir::Filters filters = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
     const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
     QList<QFileInfo> dirs = templateDir.entryInfoList(filters, sortflags);
     if (userTemplateDir.exists()) {
         if (CustomWizardPrivate::verbose)
-            verboseLog = QString::fromLatin1("### CustomWizard: userTemplateDir '%1' found, adding\n").arg(userTemplateDirName);
+            verboseLog = QString::fromLatin1("### CustomWizard: userTemplateDir \"%1\" found, adding\n").arg(userTemplateDirName);
         dirs += userTemplateDir.entryInfoList(filters, sortflags);
     }
 
@@ -468,7 +468,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
                 dirs.swap(subDirs);
                 dirs.append(subDirs);
             } else if (CustomWizardPrivate::verbose) {
-                verboseLog += QString::fromLatin1("CustomWizard: '%1' not found\n").arg(configFile);
+                verboseLog += QString::fromLatin1("CustomWizard: \"%1\" not found\n").arg(configFile);
             }
         }
     }

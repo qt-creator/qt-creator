@@ -502,13 +502,13 @@ bool NewClassWidget::isValid(QString *error) const
 
     if (isHeaderInputVisible() && !d->m_ui.headerFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid header file name: '%1'").arg(d->m_ui.headerFileLineEdit->errorMessage());
+            *error = tr("Invalid header file name: \"%1\"").arg(d->m_ui.headerFileLineEdit->errorMessage());
         return false;
     }
 
     if (isSourceInputVisible() && !d->m_ui.sourceFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid source file name: '%1'").arg(d->m_ui.sourceFileLineEdit->errorMessage());
+            *error = tr("Invalid source file name: \"%1\"").arg(d->m_ui.sourceFileLineEdit->errorMessage());
         return false;
     }
 
@@ -516,7 +516,7 @@ bool NewClassWidget::isValid(QString *error) const
         (!d->m_formInputCheckable || d->m_ui.generateFormCheckBox->isChecked())) {
         if (!d->m_ui.formFileLineEdit->isValid()) {
             if (error)
-                *error = tr("Invalid form file name: '%1'").arg(d->m_ui.formFileLineEdit->errorMessage());
+                *error = tr("Invalid form file name: \"%1\"").arg(d->m_ui.formFileLineEdit->errorMessage());
             return false;
         }
     }

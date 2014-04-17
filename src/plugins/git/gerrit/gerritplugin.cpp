@@ -491,7 +491,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
     if (!verifiedRepository) {
         // Ask the user for a repository to retrieve the change.
         const QString title =
-                tr("Enter Local Repository for '%1' (%2)").arg(change->project, change->branch);
+                tr("Enter Local Repository for \"%1\" (%2)").arg(change->project, change->branch);
         const QString suggestedRespository =
                 findLocalRepository(change->project, change->branch);
         repository = QFileDialog::getExistingDirectory(m_dialog.data(),

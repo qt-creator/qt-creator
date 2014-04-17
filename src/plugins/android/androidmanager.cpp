@@ -580,7 +580,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
     forceUpdate &= androidPath.toFileInfo().exists();
 
     if (!dirPath(target).toFileInfo().exists() && !projectDir.mkdir(AndroidDirName)) {
-        raiseError(tr("Error creating Android directory '%1'.").arg(AndroidDirName));
+        raiseError(tr("Error creating Android directory \"%1\".").arg(AndroidDirName));
         return false;
     }
 
@@ -1046,7 +1046,7 @@ bool AndroidManager::openXmlFile(QDomDocument &doc, const Utils::FileName &fileN
         return false;
 
     if (!doc.setContent(f.readAll())) {
-        raiseError(tr("Cannot parse '%1'.").arg(fileName.toUserOutput()));
+        raiseError(tr("Cannot parse \"%1\".").arg(fileName.toUserOutput()));
         return false;
     }
     return true;
@@ -1059,7 +1059,7 @@ bool AndroidManager::saveXmlFile(ProjectExplorer::Target *target, QDomDocument &
 
     QFile f(fileName.toString());
     if (!f.open(QIODevice::WriteOnly)) {
-        raiseError(tr("Cannot open '%1'.").arg(fileName.toUserOutput()));
+        raiseError(tr("Cannot open \"%1\".").arg(fileName.toUserOutput()));
         return false;
     }
     return f.write(doc.toByteArray(4)) >= 0;

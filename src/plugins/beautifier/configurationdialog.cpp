@@ -147,7 +147,7 @@ void ConfigurationDialog::updateDocumentation(const QString &word, const QString
     if (word.isEmpty())
         ui->documentationHeader->setText(tr("Documentation"));
     else
-        ui->documentationHeader->setText(tr("Documentation for '%1'").arg(word));
+        ui->documentationHeader->setText(tr("Documentation for \"%1\"").arg(word));
     ui->documentation->setHtml(docu);
 }
 

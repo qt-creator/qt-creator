@@ -384,14 +384,14 @@ void SshConnectionPrivate::handleServerId()
     if (!versionIdpattern.exactMatch(QString::fromLatin1(m_serverId))) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Identification string is invalid.",
-            tr("Server Identification string '%1' is invalid.")
+            tr("Server Identification string \"%1\" is invalid.")
                     .arg(QString::fromLatin1(m_serverId)));
     }
     const QString serverProtoVersion = versionIdpattern.cap(1);
     if (serverProtoVersion != QLatin1String("2.0") && serverProtoVersion != QLatin1String("1.99")) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED,
             "Invalid protocol version.",
-            tr("Server protocol version is '%1', but needs to be 2.0 or 1.99.")
+            tr("Server protocol version is \"%1\", but needs to be 2.0 or 1.99.")
                     .arg(serverProtoVersion));
     }
 

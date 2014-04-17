@@ -290,7 +290,7 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
     vcsProcess.start(binary, args);
 
     if (!vcsProcess.waitForStarted()) {
-        ::vcsOutputWindow()->appendError(tr("Unable to start process '%1': %2")
+        ::vcsOutputWindow()->appendError(tr("Unable to start process \"%1\": %2")
                                          .arg(QDir::toNativeSeparators(binary), vcsProcess.errorString()));
         return false;
     }

@@ -121,7 +121,7 @@ QString ConsoleProcess::msgCannotWriteTempFile()
 
 QString ConsoleProcess::msgCannotCreateTempDir(const QString & dir, const QString &why)
 {
-    return tr("Cannot create temporary directory '%1': %2").arg(dir, why);
+    return tr("Cannot create temporary directory \"%1\": %2").arg(dir, why);
 }
 
 QString ConsoleProcess::msgUnexpectedOutput(const QByteArray &what)
@@ -131,12 +131,12 @@ QString ConsoleProcess::msgUnexpectedOutput(const QByteArray &what)
 
 QString ConsoleProcess::msgCannotChangeToWorkDir(const QString & dir, const QString &why)
 {
-    return tr("Cannot change to working directory '%1': %2").arg(dir, why);
+    return tr("Cannot change to working directory \"%1\": %2").arg(dir, why);
 }
 
 QString ConsoleProcess::msgCannotExecute(const QString & p, const QString &why)
 {
-    return tr("Cannot execute '%1': %2").arg(p, why);
+    return tr("Cannot execute \"%1\": %2").arg(p, why);
 }
 
 QString ConsoleProcess::terminalEmulator(const QSettings *settings, bool nonEmpty)

@@ -78,7 +78,7 @@ QVariant FindInCurrentFile::additionalParameters() const
 
 QString FindInCurrentFile::label() const
 {
-    return tr("File '%1':").arg(QFileInfo(m_currentDocument->filePath()).fileName());
+    return tr("File \"%1\":").arg(QFileInfo(m_currentDocument->filePath()).fileName());
 }
 
 QString FindInCurrentFile::toolTip() const

@@ -95,7 +95,7 @@ bool BlackBerryCreatePackageStep::init()
 
     const QString packageCmd = target()->activeBuildConfiguration()->environment().searchInPath(QLatin1String(PACKAGER_CMD));
     if (packageCmd.isEmpty()) {
-        raiseError(tr("Could not find packager command '%1' in the build environment.")
+        raiseError(tr("Could not find packager command \"%1\" in the build environment.")
                    .arg(QLatin1String(PACKAGER_CMD)));
         return false;
     }
@@ -124,7 +124,7 @@ bool BlackBerryCreatePackageStep::init()
         QDir dir(buildDir);
         if (!dir.exists()) {
             if (!dir.mkpath(buildDir)) {
-                raiseError(tr("Could not create build directory '%1'.").arg(buildDir));
+                raiseError(tr("Could not create build directory \"%1\".").arg(buildDir));
                 return false;
             }
         }
@@ -290,7 +290,7 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
     BarDescriptorDocument doc;
     QString errorString;
     if (!doc.open(&errorString, appDescriptorPath)) {
-        raiseError(tr("Error opening BAR application descriptor file '%1' - %2")
+        raiseError(tr("Error opening BAR application descriptor file \"%1\" - %2")
             .arg(QDir::toNativeSeparators(appDescriptorPath))
             .arg(errorString));
         return false;
@@ -375,7 +375,7 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
 
     doc.setFilePath(preparedFilePath);
     if (!doc.save(&errorString)) {
-        raiseError(tr("Error saving prepared BAR application descriptor file '%1' - %2")
+        raiseError(tr("Error saving prepared BAR application descriptor file \"%1\" - %2")
             .arg(QDir::toNativeSeparators(preparedFilePath))
             .arg(errorString));
         return false;

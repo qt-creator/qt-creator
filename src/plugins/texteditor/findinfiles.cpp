@@ -96,7 +96,7 @@ QString FindInFiles::label() const
     const QChar slash = QLatin1Char('/');
     const QStringList &nonEmptyComponents = path().toFileInfo().absoluteFilePath()
             .split(slash, QString::SkipEmptyParts);
-    return tr("Directory '%1':").arg(nonEmptyComponents.isEmpty() ? QString(slash) : nonEmptyComponents.last());
+    return tr("Directory \"%1\":").arg(nonEmptyComponents.isEmpty() ? QString(slash) : nonEmptyComponents.last());
 }
 
 QString FindInFiles::toolTip() const

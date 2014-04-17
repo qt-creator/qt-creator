@@ -285,7 +285,7 @@ void AndroidRunner::asyncStart()
     }
     if (!adb.waitForFinished(5000)) {
         adb.terminate();
-        emit remoteProcessFinished(tr("Unable to start '%1'.").arg(m_packageName));
+        emit remoteProcessFinished(tr("Unable to start \"%1\".").arg(m_packageName));
         return;
     }
 
@@ -308,7 +308,7 @@ void AndroidRunner::asyncStart()
                 break;
 
             if (i == 20) {
-                emit remoteProcessFinished(tr("Unable to start '%1'.").arg(m_packageName));
+                emit remoteProcessFinished(tr("Unable to start \"%1\".").arg(m_packageName));
                 return;
             }
             qDebug() << "WAITING FOR " << tmp.fileName();
