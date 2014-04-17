@@ -176,12 +176,6 @@ void CMakeManager::createXmlFile(Utils::QtcProcess *proc, const QString &argumen
                                  const QString &sourceDirectory, const QDir &buildDirectory,
                                  const Utils::Environment &env, const QString &generator)
 {
-    // We create a cbp file, only if we didn't find a cbp file in the base directory
-    // Yet that can still override cbp files in subdirectories
-    // And we are creating tons of files in the source directories
-    // All of that is not really nice.
-    // The mid term plan is to move away from the CodeBlocks Generator and use our own
-    // QtCreator generator, which actually can be very similar to the CodeBlock Generator
     QString buildDirectoryPath = buildDirectory.absolutePath();
     buildDirectory.mkpath(buildDirectoryPath);
     proc->setWorkingDirectory(buildDirectoryPath);
