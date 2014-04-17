@@ -44,6 +44,7 @@ leave room for the Qt 4 target page.
     <displaycategory>Non-Qt Project</displaycategory>
     <files>
         <file source="../common/main.cpp" target="main.cpp" openeditor="true"/>
+        <file source="../../../shared/deployment.pri" target="deployment.pri"/>
         <file source="project.pro" target="%ProjectName%.pro" openproject="true"/>
     </files>
 </wizard>
