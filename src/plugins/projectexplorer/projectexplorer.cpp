@@ -1533,7 +1533,7 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
 }
 
 // Return a list of glob patterns for project files ("*.pro", etc), use first, main pattern only.
-static inline QStringList projectFileGlobs()
+QStringList ProjectExplorerPlugin::projectFileGlobs()
 {
     QStringList result;
     foreach (const IProjectManager *ipm, ExtensionSystem::PluginManager::getObjects<IProjectManager>()) {
@@ -1572,7 +1572,7 @@ void ProjectExplorerPlugin::restoreSession()
     //   "filename+45"   and "filename:23".
     if (!arguments.isEmpty()) {
         const QStringList sessions = SessionManager::sessions();
-        QStringList projectGlobs = projectFileGlobs();
+        QStringList projectGlobs = ProjectExplorerPlugin::projectFileGlobs();
         for (int a = 0; a < arguments.size(); ) {
             const QString &arg = arguments.at(a);
             const QFileInfo fi(arg);

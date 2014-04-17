@@ -128,6 +128,7 @@ public:
 
     static QString directoryFor(Node *node);
     static QString pathFor(Node *node);
+    static QStringList projectFileGlobs();
 
 signals:
     void runControlStarted(ProjectExplorer::RunControl *rc);

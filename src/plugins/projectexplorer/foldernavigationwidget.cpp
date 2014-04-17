@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "foldernavigationwidget.h"
+#include "projectexplorer.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -58,6 +59,8 @@
 #include <QMenu>
 #include <QFileDialog>
 #include <QContextMenuEvent>
+#include <QDir>
+#include <QFileInfo>
 
 enum { debug = 0 };
 
@@ -252,7 +255,7 @@ void FolderNavigationWidget::slotOpenItem(const QModelIndex &viewIndex)
         openItem(m_filterModel->mapToSource(viewIndex));
 }
 
-void FolderNavigationWidget::openItem(const QModelIndex &srcIndex)
+void FolderNavigationWidget::openItem(const QModelIndex &srcIndex, bool openDirectoryAsProject)
 {
     const QString fileName = m_fileSystemModel->fileName(srcIndex);
     if (fileName == QLatin1String("."))
@@ -263,14 +266,27 @@ void FolderNavigationWidget::openItem(const QModelIndex &srcIndex)
         setCurrentDirectory(parentPath);
         return;
     }
-    if (m_fileSystemModel->isDir(srcIndex)) { // Change to directory
+    const QString path = m_fileSystemModel->filePath(srcIndex);
+    if (m_fileSystemModel->isDir(srcIndex)) {
         const QFileInfo fi = m_fileSystemModel->fileInfo(srcIndex);
-        if (fi.isReadable() && fi.isExecutable())
-            setCurrentDirectory(m_fileSystemModel->filePath(srcIndex));
+        if (!fi.isReadable() || !fi.isExecutable())
+            return;
+        // Try to find project files in directory and open those.
+        if (openDirectoryAsProject) {
+            QDir dir(path);
+            QStringList proFiles;
+            foreach (const QFileInfo &i, dir.entryInfoList(ProjectExplorerPlugin::projectFileGlobs(), QDir::Files))
+                proFiles.append(i.absoluteFilePath());
+            if (!proFiles.isEmpty())
+                Core::ICore::instance()->openFiles(proFiles);
+            return;
+        }
+        // Change to directory
+        setCurrentDirectory(path);
         return;
     }
     // Open file.
-    Core::EditorManager::openEditor(m_fileSystemModel->filePath(srcIndex));
+    Core::ICore::instance()->openFiles(QStringList(path));
 }
 
 void FolderNavigationWidget::setCurrentTitle(QString dirName, const QString &fullPath)
@@ -310,6 +326,13 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     const bool hasCurrentItem = current.isValid();
     QAction *actionOpen = menu.addAction(actionOpenText(m_fileSystemModel, current));
     actionOpen->setEnabled(hasCurrentItem);
+    const bool isDirectory = hasCurrentItem && m_fileSystemModel->isDir(current);
+    QAction *actionOpenDirectoryAsProject = 0;
+    if (isDirectory && m_fileSystemModel->fileName(current) != QLatin1String("..")) {
+        actionOpenDirectoryAsProject =
+            menu.addAction(tr("Open Project in \"%1\"")
+                           .arg(m_fileSystemModel->fileName(current)));
+    }
     // Explorer & teminal
     QAction *actionExplorer = menu.addAction(Core::FileUtils::msgGraphicalShellAction());
     actionExplorer->setEnabled(hasCurrentItem);
@@ -319,7 +342,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actionFind = menu.addAction(Core::FileUtils::msgFindInDirectory());
     actionFind->setEnabled(hasCurrentItem);
     // open with...
-    if (!m_fileSystemModel->isDir(current)) {
+    if (hasCurrentItem && !isDirectory) {
         QMenu *openWith = menu.addMenu(tr("Open with"));
         Core::DocumentManager::populateOpenWithMenu(openWith,
                                                 m_fileSystemModel->filePath(current));
@@ -335,6 +358,10 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     ev->accept();
     if (action == actionOpen) { // Handle open file.
         openItem(current);
+        return;
+    }
+    if (action == actionOpenDirectoryAsProject) {
+        openItem(current, true);
         return;
     }
     if (action == actionChooseFolder) { // Open file dialog
