@@ -41,8 +41,6 @@ static const char submitMessageCheckScriptKeyC[] = "SubmitMessageCheckScript";
 static const char lineWrapKeyC[] = "LineWrap";
 static const char lineWrapWidthKeyC[] = "LineWrapWidth";
 static const char sshPasswordPromptKeyC[] = "SshPasswordPrompt";
-static const char patchCommandKeyC[] = "PatchCommand";
-static const char patchCommandDefaultC[] = "patch";
 
 static const int lineWrapWidthDefault = 72;
 static const bool lineWrapDefault = true;
@@ -63,7 +61,6 @@ namespace Internal {
 
 CommonVcsSettings::CommonVcsSettings() :
     sshPasswordPrompt(sshPasswordPromptDefault()),
-    patchCommand(QLatin1String(patchCommandDefaultC)),
     lineWrap(lineWrapDefault),
     lineWrapWidth(lineWrapWidthDefault)
 {
@@ -77,7 +74,6 @@ void CommonVcsSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(submitMessageCheckScriptKeyC), submitMessageCheckScript);
     s->setValue(QLatin1String(lineWrapKeyC), lineWrap);
     s->setValue(QLatin1String(lineWrapWidthKeyC), lineWrapWidth);
-    s->setValue(QLatin1String(patchCommandKeyC), patchCommand);
     // Do not store the default setting to avoid clobbering the environment.
     if (sshPasswordPrompt != sshPasswordPromptDefault())
         s->setValue(QLatin1String(sshPasswordPromptKeyC), sshPasswordPrompt);
@@ -95,7 +91,6 @@ void CommonVcsSettings::fromSettings(QSettings *s)
     lineWrap = s->value(QLatin1String(lineWrapKeyC), lineWrapDefault).toBool();
     lineWrapWidth = s->value(QLatin1String(lineWrapWidthKeyC), lineWrapWidthDefault).toInt();
     sshPasswordPrompt = s->value(QLatin1String(sshPasswordPromptKeyC), sshPasswordPromptDefault()).toString();
-    patchCommand = s->value(QLatin1String(patchCommandKeyC), QLatin1String(patchCommandDefaultC)).toString();
     s->endGroup();
 }
 
@@ -106,8 +101,7 @@ bool CommonVcsSettings::equals(const CommonVcsSettings &rhs) const
            && nickNameMailMap == rhs.nickNameMailMap
            && nickNameFieldListFile == rhs.nickNameFieldListFile
            && submitMessageCheckScript == rhs.submitMessageCheckScript
-           && sshPasswordPrompt == rhs.sshPasswordPrompt
-           && patchCommand == rhs.patchCommand;
+           && sshPasswordPrompt == rhs.sshPasswordPrompt;
 }
 
 QDebug operator<<(QDebug d,const CommonVcsSettings& s)
@@ -118,7 +112,6 @@ QDebug operator<<(QDebug d,const CommonVcsSettings& s)
             << "' nickNameFieldListFile='" << s.nickNameFieldListFile
             << "'submitMessageCheckScript='" << s.submitMessageCheckScript
             << "'sshPasswordPrompt='" << s.sshPasswordPrompt
-            << "'patchCommand='" << s.patchCommand
             << "'\n";
     return d;
 }

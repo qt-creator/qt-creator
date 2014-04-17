@@ -31,6 +31,8 @@
 #include "coreconstants.h"
 #include "icore.h"
 #include "infobar.h"
+#include "patchtool.h"
+#include "vcsmanager.h"
 #include "editormanager/editormanager.h"
 
 #include <utils/checkablemessagebox.h>
@@ -38,6 +40,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 #include <utils/unixutils.h>
+#include <utils/environment.h>
 
 #include <QMessageBox>
 
@@ -136,6 +139,12 @@ QWidget *GeneralSettings::widget()
             m_page->helpExternalFileBrowserButton->hide();
         }
 
+        const QString patchToolTip = tr("Command used for reverting diff chunks.");
+        m_page->patchCommandLabel->setToolTip(patchToolTip);
+        m_page->patchChooser->setToolTip(patchToolTip);
+        m_page->patchChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        m_page->patchChooser->setHistoryCompleter(QLatin1String("General.PatchCommand.History"));
+        m_page->patchChooser->setPath(Core::PatchTool::patchCommand());
         m_page->autoSaveCheckBox->setChecked(EditorManager::autoSaveEnabled());
         m_page->autoSaveInterval->setValue(EditorManager::autoSaveInterval());
         m_page->resetWarningsButton->setEnabled(Core::InfoBar::anyGloballySuppressed()
@@ -153,6 +162,11 @@ QWidget *GeneralSettings::widget()
                         this, SLOT(showHelpForFileBrowser()));
             }
         }
+
+        updatePath();
+
+        connect(Core::VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
+                this, SLOT(updatePath()));
     }
     return m_widget;
 }
@@ -174,6 +188,7 @@ void GeneralSettings::apply()
                                              m_page->externalFileBrowserEdit->text());
         }
     }
+    Core::PatchTool::setPatchCommand(m_page->patchChooser->path());
     EditorManager::setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
     EditorManager::setAutoSaveInterval(m_page->autoSaveInterval->value());
 }
@@ -211,6 +226,13 @@ void GeneralSettings::resetFileBrowser()
         m_page->externalFileBrowserEdit->setText(UnixUtils::defaultFileBrowser());
 }
 
+void GeneralSettings::updatePath()
+{
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    QStringList toAdd = Core::VcsManager::additionalToolsPath();
+    env.appendOrSetPath(toAdd.join(QString(Utils::HostOsInfo::pathListSeparator())));
+    m_page->patchChooser->setEnvironment(env);
+}
 
 void GeneralSettings::variableHelpDialogCreator(const QString &helpText)
 {

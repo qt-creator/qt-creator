@@ -36,6 +36,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
+#include <coreplugin/patchtool.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1449,7 +1450,7 @@ bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 // (passing '-R' for revert), assuming we got absolute paths from the VCS plugins.
 bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, bool revert) const
 {
-    return VcsBasePlugin::runPatch(dc.asPatch(d->m_workingDirectory),
+    return Core::PatchTool::runPatch(dc.asPatch(d->m_workingDirectory),
                                    d->m_workingDirectory, 0, revert);
 }
 

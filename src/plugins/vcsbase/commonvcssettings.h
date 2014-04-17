@@ -54,8 +54,6 @@ public:
     // Executable run to graphically prompt for a SSH-password.
     QString sshPasswordPrompt;
 
-    QString patchCommand;
-
     bool lineWrap;
     int lineWrapWidth;
 

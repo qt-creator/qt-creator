@@ -97,7 +97,8 @@ SOURCES += mainwindow.cpp \
     iversioncontrol.cpp \
     dialogs/addtovcsdialog.cpp \
     icorelistener.cpp \
-    ioutputpane.cpp
+    ioutputpane.cpp \
+    patchtool.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -194,7 +195,8 @@ HEADERS += mainwindow.h \
     textdocument.h \
     documentmanager.h \
     removefiledialog.h \
-    dialogs/addtovcsdialog.h
+    dialogs/addtovcsdialog.h \
+    patchtool.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/saveitemsdialog.ui \

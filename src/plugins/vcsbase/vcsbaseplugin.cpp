@@ -784,54 +784,6 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
     return command.runVcs(arguments, timeOutMS);
 }
 
-bool VcsBasePlugin::runPatch(const QByteArray &input, const QString &workingDirectory,
-                             int strip, bool reverse)
-{
-    VcsBaseOutputWindow *ow = VcsBaseOutputWindow::instance();
-    const QString patch = Internal::VcsPlugin::instance()->settings().patchCommand;
-    if (patch.isEmpty()) {
-        ow->appendError(tr("There is no patch-command configured in the common 'Version Control' settings."));
-        return false;
-    }
-
-    QProcess patchProcess;
-    if (!workingDirectory.isEmpty())
-        patchProcess.setWorkingDirectory(workingDirectory);
-    QStringList args(QLatin1String("-p") + QString::number(strip));
-    if (reverse)
-        args << QLatin1String("-R");
-    ow->appendCommand(workingDirectory, patch, args);
-    patchProcess.start(patch, args);
-    if (!patchProcess.waitForStarted()) {
-        ow->appendError(tr("Unable to launch \"%1\": %2").arg(patch, patchProcess.errorString()));
-        return false;
-    }
-    patchProcess.write(input);
-    patchProcess.closeWriteChannel();
-    QByteArray stdOut;
-    QByteArray stdErr;
-    if (!SynchronousProcess::readDataFromProcess(patchProcess, 30000, &stdOut, &stdErr, true)) {
-        SynchronousProcess::stopProcess(patchProcess);
-        ow->appendError(tr("A timeout occurred running \"%1\"").arg(patch));
-        return false;
-
-    }
-    if (!stdOut.isEmpty())
-        ow->append(QString::fromLocal8Bit(stdOut));
-    if (!stdErr.isEmpty())
-        ow->appendError(QString::fromLocal8Bit(stdErr));
-
-    if (patchProcess.exitStatus() != QProcess::NormalExit) {
-        ow->appendError(tr("\"%1\" crashed.").arg(patch));
-        return false;
-    }
-    if (patchProcess.exitCode() != 0) {
-        ow->appendError(tr("\"%1\" failed (exit code %2).").arg(patch).arg(patchProcess.exitCode()));
-        return false;
-    }
-    return true;
-}
-
 } // namespace VcsBase
 
 #include "vcsbaseplugin.moc"

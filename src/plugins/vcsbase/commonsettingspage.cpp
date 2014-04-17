@@ -58,11 +58,6 @@ CommonSettingsWidget::CommonSettingsWidget(QWidget *parent) :
     m_ui->nickNameMailMapChooser->setHistoryCompleter(QLatin1String("Vcs.NickMap.History"));
     m_ui->sshPromptChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->sshPromptChooser->setHistoryCompleter(QLatin1String("Vcs.SshPrompt.History"));
-    const QString patchToolTip = tr("Command used for reverting diff chunks.");
-    m_ui->patchCommandLabel->setToolTip(patchToolTip);
-    m_ui->patchChooser->setToolTip(patchToolTip);
-    m_ui->patchChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_ui->patchChooser->setHistoryCompleter(QLatin1String("Vcs.PatchCommand.History"));
 
     updatePath();
 
@@ -84,7 +79,6 @@ CommonVcsSettings CommonSettingsWidget::settings() const
     rc.lineWrap= m_ui->lineWrapCheckBox->isChecked();
     rc.lineWrapWidth = m_ui->lineWrapSpinBox->value();
     rc.sshPasswordPrompt = m_ui->sshPromptChooser->path();
-    rc.patchCommand = m_ui->patchChooser->path();
     return rc;
 }
 
@@ -96,21 +90,6 @@ void CommonSettingsWidget::setSettings(const CommonVcsSettings &s)
     m_ui->lineWrapCheckBox->setChecked(s.lineWrap);
     m_ui->lineWrapSpinBox->setValue(s.lineWrapWidth);
     m_ui->sshPromptChooser->setPath(s.sshPasswordPrompt);
-    m_ui->patchChooser->setPath(s.patchCommand);
-}
-
-QString CommonSettingsWidget::searchKeyWordMatchString() const
-{
-    const QChar blank = QLatin1Char(' ');
-    QString rc = m_ui->lineWrapCheckBox->text()
-            + blank + m_ui->submitMessageCheckScriptLabel->text()
-            + blank + m_ui->nickNameMailMapLabel->text()
-            + blank + m_ui->nickNameFieldsFileLabel->text()
-            + blank + m_ui->sshPromptLabel->text()
-            + blank + m_ui->patchCommandLabel->text()
-            ;
-    rc.remove(QLatin1Char('&')); // Strip buddy markers.
-    return rc;
 }
 
 void CommonSettingsWidget::updatePath()
@@ -118,7 +97,6 @@ void CommonSettingsWidget::updatePath()
     Utils::Environment env = Utils::Environment::systemEnvironment();
     QStringList toAdd = Core::VcsManager::additionalToolsPath();
     env.appendOrSetPath(toAdd.join(QString(Utils::HostOsInfo::pathListSeparator())));
-    m_ui->patchChooser->setEnvironment(env);
     m_ui->sshPromptChooser->setEnvironment(env);
 }
 

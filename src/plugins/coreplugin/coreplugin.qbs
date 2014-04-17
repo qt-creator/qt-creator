@@ -75,6 +75,7 @@ QtcPlugin {
             "outputpane.cpp", "outputpane.h",
             "outputpanemanager.cpp", "outputpanemanager.h",
             "outputwindow.cpp", "outputwindow.h",
+            "patchtool.cpp" "patchtool.h"
             "plugindialog.cpp", "plugindialog.h",
             "removefiledialog.cpp", "removefiledialog.h", "removefiledialog.ui",
             "rightpane.cpp", "rightpane.h",

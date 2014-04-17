@@ -181,7 +181,17 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="4">
+      <item row="2" column="0">
+       <widget class="QLabel" name="patchCommandLabel">
+        <property name="text">
+         <string>Patch command:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="2">
+       <widget class="Utils::PathChooser" name="patchChooser" native="true"/>
+      </item>
+      <item row="3" column="0" colspan="4">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QLabel" name="modifiedLabel">
@@ -227,7 +237,7 @@
         </item>
        </layout>
       </item>
-      <item row="3" column="0" colspan="4">
+      <item row="4" column="0" colspan="4">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <widget class="QCheckBox" name="autoSaveCheckBox">
@@ -313,6 +323,16 @@
    <class>Utils::QtColorButton</class>
    <extends>QToolButton</extends>
    <header location="global">utils/qtcolorbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources>

@@ -60,6 +60,7 @@ private slots:
     void showHelpForFileBrowser();
     void resetFileBrowser();
     void resetTerminal();
+    void updatePath();
 
 private:
     void variableHelpDialogCreator(const QString &helpText);

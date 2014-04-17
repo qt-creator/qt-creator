@@ -187,10 +187,6 @@ public:
                                                     QTextCodec *outputCodec = 0,
                                                     const QProcessEnvironment &env = QProcessEnvironment());
 
-    // Utility to run the 'patch' command
-    static bool runPatch(const QByteArray &input, const QString &workingDirectory = QString(),
-                         int strip = 0, bool reverse = false);
-
 public slots:
     // Convenience slot for "Delete current file" action. Prompts to
     // delete the file via VcsManager.

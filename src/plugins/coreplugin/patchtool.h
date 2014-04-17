@@ -27,61 +27,26 @@
 **
 ****************************************************************************/
 
-#ifndef COMMONSETTINGSPAGE_H
-#define COMMONSETTINGSPAGE_H
+#ifndef CORE_PATCHTOOL_H
+#define CORE_PATCHTOOL_H
 
-#include "commonvcssettings.h"
+#include "coreplugin/core_global.h"
 
-#include "vcsbaseoptionspage.h"
+#include <QString>
 
-#include <QPointer>
-#include <QWidget>
+namespace Core {
 
-namespace VcsBase {
-namespace Internal {
-
-namespace Ui { class CommonSettingsPage; }
-
-class CommonSettingsWidget : public QWidget
+class CORE_EXPORT PatchTool
 {
-    Q_OBJECT
-
 public:
-    explicit CommonSettingsWidget(QWidget *parent = 0);
-    ~CommonSettingsWidget();
+    static QString patchCommand();
+    static void setPatchCommand(const QString &newCommand);
 
-    CommonVcsSettings settings() const;
-    void setSettings(const CommonVcsSettings &s);
-
-private slots:
-    void updatePath();
-
-private:
-    Ui::CommonSettingsPage *m_ui;
+    // Utility to run the 'patch' command
+    static bool runPatch(const QByteArray &input, const QString &workingDirectory = QString(),
+                         int strip = 0, bool reverse = false);
 };
 
-class CommonOptionsPage : public VcsBaseOptionsPage
-{
-    Q_OBJECT
+} // namespace Core
 
-public:
-    explicit CommonOptionsPage(QObject *parent = 0);
-
-    QWidget *widget();
-    void apply();
-    void finish();
-
-    CommonVcsSettings settings() const { return m_settings; }
-
-signals:
-    void settingsChanged(const VcsBase::Internal::CommonVcsSettings &s);
-
-private:
-    QPointer<CommonSettingsWidget> m_widget;
-    CommonVcsSettings m_settings;
-};
-
-} // namespace Internal
-} // namespace VcsBase
-
-#endif // COMMONSETTINGSPAGE_H
+#endif // CORE_PATCHTOOL_H
