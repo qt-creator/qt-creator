@@ -197,15 +197,20 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
 
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
-    if (m_firstSocket)
+    if (m_firstSocket) {
+        m_firstSocket->waitForBytesWritten(1000);
         m_firstSocket->abort();
+    }
 
-    if (m_secondSocket)
+    if (m_secondSocket) {
+        m_secondSocket->waitForBytesWritten(1000);
         m_secondSocket->abort();
+    }
 
-    if (m_thirdSocket)
+    if (m_thirdSocket) {
+        m_thirdSocket->waitForBytesWritten(1000);
         m_thirdSocket->abort();
-
+    }
 
     if (m_qmlPuppetEditorProcess)
         QTimer::singleShot(3000, m_qmlPuppetEditorProcess.data(), SLOT(terminate()));
@@ -317,12 +322,20 @@ void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitSt
 
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
-    if (m_firstSocket)
+    if (m_firstSocket) {
+        m_firstSocket->waitForBytesWritten(1000);
         m_firstSocket->abort();
-    if (m_secondSocket)
+    }
+
+    if (m_secondSocket) {
+        m_secondSocket->waitForBytesWritten(1000);
         m_secondSocket->abort();
-    if (m_thirdSocket)
+    }
+
+    if (m_thirdSocket) {
+        m_thirdSocket->waitForBytesWritten(1000);
         m_thirdSocket->abort();
+    }
 
     if (exitStatus == QProcess::CrashExit)
         emit processCrashed();
