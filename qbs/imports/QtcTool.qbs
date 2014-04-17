@@ -14,7 +14,7 @@ Application {
     cpp.rpaths: qbs.targetOS.contains("osx")
             ? ["@executable_path/../" + project.ide_library_path]
             : ["$ORIGIN/../" + project.ide_library_path]
-    cpp.minimumWindowsVersion: "5.1"
+    cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"
 
     Group {
         fileTagsFilter: product.type

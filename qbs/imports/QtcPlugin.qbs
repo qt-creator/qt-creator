@@ -36,7 +36,7 @@ Product {
 
     property string pluginIncludeBase: ".." // #include <plugin/header.h>
     cpp.includePaths: [pluginIncludeBase]
-    cpp.minimumWindowsVersion: "5.1"
+    cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"
 
     Group {
         name: "PluginSpec"
