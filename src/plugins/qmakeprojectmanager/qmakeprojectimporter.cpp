@@ -181,7 +181,7 @@ QList<ProjectExplorer::BuildInfo *> QmakeProjectImporter::import(const Utils::Fi
         QMessageBox::critical(Core::ICore::mainWindow(),
                               QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "No Build Found"),
                               QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "No build found in %1 matching project %2.")
-                .arg(importPath.toUserOutput()).arg(projectFilePath()));
+                .arg(importPath.toUserOutput()).arg(QDir::toNativeSeparators(projectFilePath())));
 
     return result;
 }
