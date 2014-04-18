@@ -118,6 +118,11 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
         Utils::FileName cxx = tc->compilerCommand();
         data.insert(QLatin1String(CPP_TOOLCHAINPATH), cxx.toFileInfo().absolutePath());
         data.insert(QLatin1String(CPP_COMPILERNAME), cxx.toFileInfo().fileName());
+        if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor) {
+            const QLatin1String flags("/FS");
+            data.insert(QLatin1String(CPP_PLATFORMCFLAGS), flags);
+            data.insert(QLatin1String(CPP_PLATFORMCXXFLAGS), flags);
+        }
     }
     return data;
 }
