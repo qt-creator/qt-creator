@@ -211,7 +211,8 @@ void APILevelSetupItem::handleInstallationFinished()
 {
     // manually-added API Levels are automatically registered by BlackBerryInstallWizard
     // auto-detected API Levels needs to reloaded explicitly
-    BlackBerryConfigurationManager::instance()->loadAutoDetectedApiLevels();
+    BlackBerryConfigurationManager::instance()->loadAutoDetectedConfigurations(
+            BlackBerryConfigurationManager::ApiLevel);
     validate();
 }
 

@@ -456,6 +456,15 @@ QList<Utils::EnvironmentItem> BlackBerryConfigurationManager::defaultConfigurati
     return QList<Utils::EnvironmentItem>();
 }
 
+void BlackBerryConfigurationManager::loadAutoDetectedConfigurations(QFlags<ConfigurationType> types)
+{
+    if (types.testFlag(ApiLevel))
+        loadAutoDetectedApiLevels();
+    if (types.testFlag(Runtime))
+        loadAutoDetectedRuntimes();
+    emit settingsChanged();
+}
+
 void BlackBerryConfigurationManager::loadSettings()
 {
     restoreConfigurations();

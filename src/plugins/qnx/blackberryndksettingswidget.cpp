@@ -370,9 +370,8 @@ void BlackBerryNDKSettingsWidget::cleanUp()
 
 void BlackBerryNDKSettingsWidget::handleInstallationFinished()
 {
-    m_bbConfigManager->loadAutoDetectedApiLevels();
-    m_bbConfigManager->loadAutoDetectedRuntimes();
-    updateConfigurationList();
+    m_bbConfigManager->loadAutoDetectedConfigurations(
+            BlackBerryConfigurationManager::ApiLevel | BlackBerryConfigurationManager::Runtime);
 }
 
 void BlackBerryNDKSettingsWidget::handleUninstallationFinished()
