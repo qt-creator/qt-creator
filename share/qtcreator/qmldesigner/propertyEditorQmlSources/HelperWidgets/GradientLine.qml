@@ -90,7 +90,10 @@ Item {
 
             repeater.itemAt(index).item.highlighted = true
             colorLine.selectedIndex = index
+
+            gradientModel.lock()
             currentColor = repeater.itemAt(index).item.color
+            gradientModel.unlock()
         }
 
         function invalidate() {
