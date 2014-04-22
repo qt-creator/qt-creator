@@ -86,12 +86,6 @@ void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
                                   : tr("Add to &project:"));
 }
 
-void ProjectWizardPage::setProjectComoBoxVisible(bool visible)
-{
-    m_ui->projectComboBox->setVisible(visible);
-    m_ui->projectLabel->setVisible(visible);
-}
-
 int ProjectWizardPage::currentProjectIndex() const
 {
     return m_ui->projectComboBox->currentIndex();

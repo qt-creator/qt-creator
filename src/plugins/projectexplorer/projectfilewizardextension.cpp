@@ -635,11 +635,6 @@ void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
     file->setContents(doc.toPlainText());
 }
 
-void ProjectFileWizardExtension::hideProjectComboBox()
-{
-    m_context->page->setProjectComoBoxVisible(false);
-}
-
 void ProjectFileWizardExtension::setProjectIndex(int i)
 {
     m_context->page->setCurrentProjectIndex(i);

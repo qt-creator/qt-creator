@@ -52,8 +52,6 @@ public:
                  bool *removeOpenProjectAttribute, QString *errorMessage);
     void applyCodeStyle(Core::GeneratedFile *file) const;
 
-    void hideProjectComboBox();
-
     void setProjectIndex(int i);
 
 public slots:

@@ -65,8 +65,6 @@ public:
 
     void setAddingSubProject(bool addingSubProject);
 
-    void setProjectComoBoxVisible(bool visible);
-
 private slots:
     void slotProjectChanged(int);
     void slotManageVcs();
