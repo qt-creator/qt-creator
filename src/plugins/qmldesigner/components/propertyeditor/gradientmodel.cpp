@@ -259,6 +259,15 @@ void GradientModel::deleteGradient()
     }
 }
 
+void GradientModel::lock()
+{
+    m_lock = true;
+}
+
+void GradientModel::unlock()
+{
+    m_lock = false;
+}
 
 void GradientModel::registerDeclarativeType()
 {

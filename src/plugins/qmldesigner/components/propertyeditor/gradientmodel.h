@@ -65,6 +65,9 @@ public:
     Q_INVOKABLE void removeStop(int index);
     Q_INVOKABLE void deleteGradient();
 
+    Q_INVOKABLE void lock();
+    Q_INVOKABLE void unlock();
+
     static void registerDeclarativeType();
 
 signals:
