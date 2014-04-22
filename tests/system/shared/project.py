@@ -665,6 +665,25 @@ def prepareTemplate(sourceExample):
         return None
     return templateDir
 
+# check and copy files of given dataset to an existing templateDir
+def checkAndCopyFiles(dataSet, fieldName, templateDir):
+    files = map(lambda record:
+                os.path.normpath(os.path.join(srcPath, testData.field(record, fieldName))),
+                dataSet)
+    for currentFile in files:
+        if not neededFilePresent(currentFile):
+            return []
+    return copyFilesToDir(files, templateDir)
+
+# copy a list of files to an existing targetDir
+def copyFilesToDir(files, targetDir):
+    result = []
+    for filepath in files:
+        dst = os.path.join(targetDir, os.path.basename(filepath))
+        shutil.copyfile(filepath, dst)
+        result.append(dst)
+    return result
+
 def __sortFilenamesOSDependent__(filenames):
     if platform.system() in ('Windows', 'Microsoft'):
         filenames.sort(key=str.lower)
