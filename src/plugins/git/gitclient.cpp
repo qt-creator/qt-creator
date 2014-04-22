@@ -2401,8 +2401,7 @@ SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory)
     if (cachedSubmoduleData.contains(workingDirectory))
         return cachedSubmoduleData.value(workingDirectory);
 
-    QStringList allConfigs =
-            commandOutputFromLocal8Bit(readConfig(workingDirectory, QLatin1String("-l")))
+    QStringList allConfigs = readConfigValue(workingDirectory, QLatin1String("-l"))
             .split(QLatin1Char('\n'));
     const QString submoduleLineStart = QLatin1String("submodule.");
     foreach (const QString &configLine, allConfigs) {
@@ -3004,7 +3003,7 @@ QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
 
 QTextCodec *GitClient::encoding(const QString &workingDirectory, const QByteArray &configVar) const
 {
-    QByteArray codecName = readConfig(workingDirectory, QLatin1String(configVar)).trimmed();
+    QByteArray codecName = readConfigBytes(workingDirectory, QLatin1String(configVar)).trimmed();
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
     if (codecName.isEmpty())
@@ -3728,7 +3727,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     return true;
 }
 
-QByteArray GitClient::readConfig(const QString &workingDirectory, const QString &configVar) const
+QByteArray GitClient::readConfigBytes(const QString &workingDirectory, const QString &configVar) const
 {
     QStringList arguments;
     arguments << QLatin1String("config") << configVar;
@@ -3746,7 +3745,13 @@ QByteArray GitClient::readConfig(const QString &workingDirectory, const QString 
 // Read a single-line config value, return trimmed
 QString GitClient::readConfigValue(const QString &workingDirectory, const QString &configVar) const
 {
-    return commandOutputFromLocal8Bit(readConfig(workingDirectory, configVar).trimmed());
+    // msysGit always uses UTF-8 for configuration:
+    // https://github.com/msysgit/msysgit/wiki/Git-for-Windows-Unicode-Support#convert-config-files
+    static QTextCodec *codec = Utils::HostOsInfo::isWindowsHost()
+            ? QTextCodec::codecForName("UTF-8")
+            : QTextCodec::codecForLocale();
+    const QByteArray value = readConfigBytes(workingDirectory, configVar).trimmed();
+    return Utils::SynchronousProcess::normalizeNewlines(codec->toUnicode(value));
 }
 
 bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)

@@ -281,8 +281,6 @@ public:
                               const QString &messge, QString *name,
                               QString *errorMessage = 0);
 
-    QByteArray readConfig(const QString &workingDirectory, const QString &configVar) const;
-
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
     QTextCodec *encoding(const QString &workingDirectory, const QByteArray &configVar) const;
@@ -347,6 +345,7 @@ private slots:
     void fetchFinished(const QVariant &cookie);
 
 private:
+    QByteArray readConfigBytes(const QString &workingDirectory, const QString &configVar) const;
     QTextCodec *getSourceCodec(const QString &file) const;
     VcsBase::VcsBaseEditorWidget *findExistingVCSEditor(const char *registerDynamicProperty,
                                                         const QString &dynamicPropertyValue) const;
