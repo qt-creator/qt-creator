@@ -80,6 +80,7 @@ private:
     QString m_amendSHA1;
     bool m_forceClose;
     QString m_workingDirectory;
+    bool m_firstUpdate;
 };
 
 } // namespace Internal
