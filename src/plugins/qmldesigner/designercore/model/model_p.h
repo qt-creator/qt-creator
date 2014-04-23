@@ -172,6 +172,7 @@ public:
                              const QList<InternalNodePointer> &oldSelectedsNodeList);
 
     void setAuxiliaryData(const InternalNodePointer& node, const PropertyName &name, const QVariant &data);
+    void removeAuxiliaryData(const InternalNodePointer& node, const PropertyName &name);
     void resetModelByRewriter(const QString &description);
 
 

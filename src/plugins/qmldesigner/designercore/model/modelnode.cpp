@@ -920,6 +920,12 @@ void ModelNode::setAuxiliaryData(const PropertyName &name, const QVariant &data)
     m_model.data()->d->setAuxiliaryData(internalNode(), name, data);
 }
 
+void ModelNode::removeAuxiliaryData(const PropertyName &name)
+{
+    Internal::WriteLocker locker(m_model.data());
+    m_model.data()->d->removeAuxiliaryData(internalNode(), name);
+}
+
 bool ModelNode::hasAuxiliaryData(const PropertyName &name) const
 {
     if (!isValid())

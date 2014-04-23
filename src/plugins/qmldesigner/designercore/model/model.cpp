@@ -1322,6 +1322,13 @@ void ModelPrivate::clearSelectedNodes()
     changeSelectedNodes(m_selectedInternalNodeList, lastSelectedNodeList);
 }
 
+void ModelPrivate::removeAuxiliaryData(const InternalNodePointer &node, const PropertyName &name)
+{
+    node->removeAuxiliaryData(name);
+
+    notifyAuxiliaryDataChanged(node, name, QVariant());
+}
+
 QList<ModelNode> ModelPrivate::toModelNodeList(const QList<InternalNode::Pointer> &internalNodeList, AbstractView *view) const
 {
     QList<ModelNode> newNodeList;
