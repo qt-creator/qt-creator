@@ -3283,6 +3283,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             setTargetColumn();
         endEditBlock();
     } else if (g.submode == YankSubMode) {
+        bool isVisualModeYank = isVisualMode();
+        leaveVisualMode();
         const QTextCursor tc = m_cursor;
         if (g.rangemode == RangeBlockMode) {
             const int pos1 = tc.block().position();
@@ -3292,11 +3294,10 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         } else {
             setPosition(qMin(position(), anchor()));
             if (g.rangemode == RangeLineMode) {
-                if (isVisualMode())
+                if (isVisualModeYank)
                     moveToStartOfLine();
             }
         }
-        leaveVisualMode();
         setTargetColumn();
     } else if (g.submode == InvertCaseSubMode
         || g.submode == UpCaseSubMode
