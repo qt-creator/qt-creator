@@ -92,7 +92,7 @@ Qt::DropActions NavigatorTreeModel::supportedDropActions() const
 QStringList NavigatorTreeModel::mimeTypes() const
 {
      QStringList types;
-     types << "application/vnd.modelnode.list";
+     types.append("application/vnd.modelnode.list");
      return types;
 }
 
@@ -568,16 +568,16 @@ QList<ModelNode> NavigatorTreeModel::modelNodeChildren(const ModelNode &parentNo
     PropertyNameList properties;
 
     if (parentNode.metaInfo().hasDefaultProperty())
-        properties << parentNode.metaInfo().defaultPropertyName();
+        properties.append(parentNode.metaInfo().defaultPropertyName());
 
-    properties << visibleProperties(parentNode);
+    properties.append(visibleProperties(parentNode));
 
     foreach (const PropertyName &propertyName, properties) {
         AbstractProperty property(parentNode.property(propertyName));
         if (property.isNodeProperty())
-            children << property.toNodeProperty().modelNode();
+            children.append(property.toNodeProperty().modelNode());
         else if (property.isNodeListProperty())
-            children << property.toNodeListProperty().toModelNodeList();
+            children.append(property.toNodeListProperty().toModelNodeList());
     }
 
     return children;
