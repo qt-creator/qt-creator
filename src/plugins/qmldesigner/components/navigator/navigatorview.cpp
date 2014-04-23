@@ -220,17 +220,19 @@ void NavigatorView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVer
         m_treeModel->updateItemRow(rootModelNode());
 }
 
-void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName & /*name*/, const QVariant & /*data*/)
+void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode, const PropertyName & name, const QVariant & /*data*/)
 {
-    if (m_treeModel->isInTree(node))
+    if (name == "invisible" && m_treeModel->isInTree(modelNode))
     {
         // update model
-        m_treeModel->updateItemRow(node);
+        m_treeModel->updateItemRow(modelNode);
 
         // repaint row (id and icon)
-        QModelIndex index = m_treeModel->indexForNode(node);
-        treeWidget()->update( index );
-        treeWidget()->update( index.sibling(index.row(),index.column()+1) );
+        foreach (const ModelNode &currentModelNode, modelNode.allSubModelNodesAndThisNode()) {
+            QModelIndex index = m_treeModel->indexForNode(currentModelNode);
+            treeWidget()->update(index);
+            treeWidget()->update(index.sibling(index.row(),index.column()+1));
+        }
     }
 }
 

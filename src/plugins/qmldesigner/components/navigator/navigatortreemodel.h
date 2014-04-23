@@ -102,7 +102,6 @@ public:
     ModelNode nodeForIndex(const QModelIndex &index) const;
 
     bool isInTree(const ModelNode &node) const;
-    void propagateInvisible(const ModelNode &node, const bool &invisible);
     bool isNodeInvisible(const QModelIndex &index) const;
     bool isNodeInvisible(const ModelNode &node) const;
 
