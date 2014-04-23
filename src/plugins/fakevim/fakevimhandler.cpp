@@ -6102,7 +6102,7 @@ bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)
     commitCursor();
     emit q->handleExCommandRequested(&handled, cmd);
     //qDebug() << "HANDLER REQUEST: " << cmd.cmd << handled;
-    if (handled) {
+    if (handled && (m_textedit || m_plaintextedit)) {
         pullCursor();
         if (m_cursor.position() != pos)
             recordJump(pos);
