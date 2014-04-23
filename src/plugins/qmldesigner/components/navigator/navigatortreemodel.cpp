@@ -490,6 +490,15 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
 
 }
 
+static void removePosition(const ModelNode &node)
+{
+    ModelNode modelNode = node;
+    if (modelNode.hasProperty("x"))
+        modelNode.removeProperty("x");
+    if (modelNode.hasProperty("y"))
+        modelNode.removeProperty("y");
+}
+
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
 {
     try {
@@ -529,12 +538,8 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
                         }
 
                         if (parentProperty.isDefaultProperty() && parentProperty.parentModelNode().metaInfo().isLayoutable()) {
-                             ModelNode currentNode = node;
-                             if (currentNode.hasProperty("x"))
-                                 currentNode.removeProperty("x");
-                             if (currentNode.hasProperty("y"))
-                                 currentNode.removeProperty("y");
-                             parentProperty.reparentHere(currentNode);
+                             removePosition(node);
+                             parentProperty.reparentHere(node);
                         } else {
                             if (QmlItemNode(node).isValid()) {
                                 QPointF scenePos = QmlItemNode(node).instanceScenePosition();
