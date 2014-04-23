@@ -7447,15 +7447,14 @@ int FakeVimHandler::Private::lineForPosition(int pos) const
 
 void FakeVimHandler::Private::toggleVisualMode(VisualMode visualMode)
 {
-    if (isVisualMode()) {
+    if (visualMode == g.visualMode) {
         leaveVisualMode();
     } else {
+        emit q->requestSetBlockSelection(false);
         m_positionPastEnd = false;
         m_anchorPastEnd = false;
         g.visualMode = visualMode;
         m_lastVisualMode = visualMode;
-        const int pos = position();
-        setAnchorAndPosition(pos, pos);
         updateMiniBuffer();
     }
 }
