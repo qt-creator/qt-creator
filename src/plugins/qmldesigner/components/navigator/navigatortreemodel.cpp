@@ -48,16 +48,6 @@
 #include <QApplication>
 #include <QPointF>
 
-static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)
-{
-    if (modelNode.hasParentProperty() && QmlDesigner::QmlItemNode::isValidQmlItemNode(modelNode.parentProperty().parentModelNode())) {
-        QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
-        QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
-        modelNode.variantProperty("x").setValue(localPos.toPoint().x());
-        modelNode.variantProperty("y").setValue(localPos.toPoint().y());
-    }
-}
-
 namespace QmlDesigner {
 
 const int NavigatorTreeModel::NavigatorRole = Qt::UserRole;
@@ -499,6 +489,16 @@ static void removePosition(const ModelNode &node)
         modelNode.removeProperty("y");
 }
 
+static void setScenePosition(const QmlDesigner::ModelNode &modelNode,const QPointF &positionInSceneSpace)
+{
+    if (modelNode.hasParentProperty() && QmlDesigner::QmlItemNode::isValidQmlItemNode(modelNode.parentProperty().parentModelNode())) {
+        QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
+        QPointF positionInLocalSpace = parentNode.instanceSceneContentItemTransform().inverted().map(positionInSceneSpace);
+        modelNode.variantProperty("x").setValue(positionInLocalSpace.toPoint().x());
+        modelNode.variantProperty("y").setValue(positionInLocalSpace.toPoint().y());
+    }
+}
+
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
 {
     try {
@@ -541,11 +541,11 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
                              removePosition(node);
                              parentProperty.reparentHere(node);
                         } else {
-                            if (QmlItemNode(node).isValid()) {
-                                QPointF scenePos = QmlItemNode(node).instanceScenePosition();
+                            if (QmlItemNode::isValidQmlItemNode(node)) {
+                                QPointF scenePosition = QmlItemNode(node).instanceScenePosition();
                                 parentProperty.reparentHere(node);
-                                if (!scenePos.isNull())
-                                    setScenePos(node, scenePos);
+                                if (!scenePosition.isNull())
+                                    setScenePosition(node, scenePosition);
                             } else {
                                 parentProperty.reparentHere(node);
                             }
