@@ -4,23 +4,22 @@
     <name>%ProjectName%</name>
     <versionNumber>1.0.0</versionNumber>
     <description>DESCRIPTION</description>
-
     <initialWindow>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
         <autoOrients>true</autoOrients>
         <aspectRatio>landscape</aspectRatio>
     </initialWindow>
-
     <!--  The icon for the application, which should be 114x114. -->
     <icon>
         <image>icon.png</image>
     </icon>
-
     <action system="true">run_native</action>
-
     <!-- Application assets -->
-    <asset path="%SRC_DIR%/icon.png">icon.png</asset>
-    <asset path="%SRC_DIR%/assets">assets</asset>
-    <asset path="%ProjectName%" type="Qnx/Elf" entry="true">%ProjectName%</asset>
+    <env var="LD_LIBRARY_PATH" value="/usr/lib/qt4/lib:$LD_LIBRARY_PATH"/>
+    <env var="QT_PLUGIN_PATH" value="/usr/lib/qt4/plugins:$QT_PLUGIN_PATH"/>
+    <env var="QML_IMPORT_PATH" value="/usr/lib/qt4/imports:$QML_IMPORT_PATH"/>
+    <asset path="icon.png">icon.png</asset>
+    <asset path="assets">assets</asset>
+    <asset type="Qnx/Elf" path="${BUILD_DIR}/TARGETNAME" entry="true">%ProjectName%</asset>
 </qnx>

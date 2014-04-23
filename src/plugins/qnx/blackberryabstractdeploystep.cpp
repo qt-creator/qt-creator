@@ -82,6 +82,8 @@ bool BlackBerryAbstractDeployStep::init()
 
     m_environment = target()->activeBuildConfiguration()->environment();
     m_buildDirectory = target()->activeBuildConfiguration()->buildDirectory().toString();
+    // The bar descriptor is using BUILD_DIR variable to set the target path
+    m_environment.appendOrSet(QLatin1String("BUILD_DIR"), m_buildDirectory);
 
     return true;
 }

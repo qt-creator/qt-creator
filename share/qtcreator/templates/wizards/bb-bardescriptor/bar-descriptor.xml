@@ -1,24 +1,23 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<?xml version='1.0' encoding='utf-8' standalone='no'?>
 <qnx xmlns="http://www.qnx.com/schemas/application/1.0">
     <id>ID</id>
     <name>PROJECTNAME</name>
     <versionNumber>1.0.0</versionNumber>
     <description>DESCRIPTION</description>
-
     <initialWindow>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
         <autoOrients>true</autoOrients>
         <aspectRatio>landscape</aspectRatio>
     </initialWindow>
-    <publisher>PUBLISHER</publisher>
+    <author>PUBLISHER</author>
     <copyright>COPYRIGHT</copyright>
     <arg>-style</arg>
     <!-- available styles are bb10dark and bb10bright -->
     <arg>bb10dark</arg>
-
+    <env var="LD_LIBRARY_PATH" value="/usr/lib/qt4/lib:$LD_LIBRARY_PATH"/>
+    <env var="QT_PLUGIN_PATH" value="/usr/lib/qt4/plugins:$QT_PLUGIN_PATH"/>
+    <env var="QML_IMPORT_PATH" value="/usr/lib/qt4/imports:$QML_IMPORT_PATH"/>
     <action system="true">run_native</action>
-
-    <!-- PROJECTPATH should point to the project binary, path can be relative -->
-    <asset entry="true" path="PROJECTPATH" type="Qnx/Elf">PROJECTNAME</asset>
+    <asset type="Qnx/Elf" path="${BUILD_DIR}/TARGETNAME" entry="true">PROJECTNAME</asset>
 </qnx>

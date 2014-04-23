@@ -51,6 +51,10 @@
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/icore.h>
+
+#include <QMessageBox>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -66,16 +70,132 @@ const char BUNDLE_MODE_KEY[]       = "Qt4ProjectManager.BlackBerryCreatePackageS
 const char QT_LIBRARY_PATH_KEY[]   = "Qt4ProjectManager.BlackBerryCreatePackageStep.QtLibraryPath";
 }
 
-static void appendOrSetQtEnvironment(Utils::Environment &env,
+static void prependOrSetQtEnvironment(Utils::Environment &env,
                                      const QString &key,
-                                     const QString &value)
+                                     const QString &value,
+                                     bool &updated)
 {
-    QStringList currentValues = env.value(key).split(QLatin1String(":"));
-    if (!currentValues.contains(value))
-        env.appendOrSet(key, value, QLatin1String(":"));
+    const QString currentValue = env.value(key);
+    const QString newValue = value + QLatin1String(":$") + key;
+    if (!currentValue.isEmpty()) {
+        if (currentValue == newValue)
+            return;
+        else
+            env.unset(key);
+    }
 
-    if (!currentValues.contains(QLatin1String("$") + key))
-        env.appendOrSet(key, QLatin1String("$") + key, QLatin1String(":"));
+    env.prependOrSet(key, newValue);
+    updated = true;
+}
+
+static void setQtEnvironment(Utils::Environment &env, const QString &qtPath,
+                             bool &updated, bool isQt5)
+{
+    prependOrSetQtEnvironment(env, QLatin1String("LD_LIBRARY_PATH"),
+                             QString::fromLatin1("%1/lib").arg(qtPath),
+                              updated);
+    prependOrSetQtEnvironment(env, QLatin1String("QML_IMPORT_PATH"),
+                             QString::fromLatin1("%1/imports").arg(qtPath),
+                              updated);
+    prependOrSetQtEnvironment(env, QLatin1String("QT_PLUGIN_PATH"),
+                             QString::fromLatin1("%1/plugins").arg(qtPath),
+                              updated);
+    if (isQt5) {
+        prependOrSetQtEnvironment(env, QLatin1String("QML2_IMPORT_PATH"),
+                                  QString::fromLatin1("%1/qml").arg(qtPath),
+                                  updated);
+    }
+}
+
+static bool removeQtAssets(BarDescriptorAssetList &assetList)
+{
+    bool assetsRemoved = false;
+    foreach (const BarDescriptorAsset &a, assetList) {
+        if (a.destination == QLatin1String("runtime/qt/lib") ||
+                a.destination == QLatin1String("runtime/qt/plugins") ||
+                a.destination == QLatin1String("runtime/qt/imports") ||
+                a.destination == QLatin1String("runtime/qt/qml")) {
+            assetList.removeOne(a);
+            assetsRemoved = true;
+        }
+    }
+
+    return assetsRemoved;
+}
+
+static bool addQtAssets(BarDescriptorAssetList &assetList, BlackBerryQtVersion *qtVersion)
+{
+    const bool isQt5 = qtVersion->qtVersion().majorVersion == 5;
+    bool libAssetExists = false;
+    bool pluginAssetExists = false;
+    bool importAssetExists = false;
+    bool qmlAssetExists = false;
+    const QString qtInstallLibsPath =
+            qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"));
+    const QString qtInstallPluginPath =
+            qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_PLUGINS"));
+    const QString qtInstallImportsPath =
+            qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_IMPORTS"));
+    const QString qtInstallQmlPath =
+            qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_QML"));
+    foreach (const BarDescriptorAsset &a, assetList) {
+        // TODO: Also check if the asset's source is correct
+        if (a.destination == QLatin1String("runtime/qt/lib")) {
+            if (a.source == qtInstallLibsPath)
+                libAssetExists = true;
+            else
+                assetList.removeOne(a);
+        } else if (a.destination == QLatin1String("runtime/qt/plugins")) {
+            if (a.source == qtInstallPluginPath)
+                pluginAssetExists = true;
+            else
+                assetList.removeOne(a);
+        } else if (a.destination == QLatin1String("runtime/qt/imports")) {
+            if (a.source == qtInstallImportsPath)
+                importAssetExists = true;
+            else
+                assetList.removeOne(a);
+        } else if (isQt5 && a.destination == QLatin1String("runtime/qt/qml")) {
+            if (a.destination == qtInstallQmlPath)
+                qmlAssetExists = true;
+            else
+                assetList.removeOne(a);
+        }
+    }
+
+    // return false if all assets already exist
+    if (libAssetExists && pluginAssetExists && importAssetExists) {
+        if (!isQt5 || qmlAssetExists)
+            return false;
+    }
+
+    QList<QPair<QString, QString> > qtFolders;
+    qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/lib"),
+                               qtInstallLibsPath));
+    qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/plugins"),
+                               qtInstallPluginPath));
+    qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/imports"),
+                               qtInstallImportsPath));
+
+    if (isQt5) {
+        qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/qml"),
+                                   qtInstallQmlPath));
+    }
+
+    for (QList<QPair<QString, QString> >::const_iterator it = qtFolders.constBegin();
+         it != qtFolders.constEnd(); ++it) {
+        const QString target = it->first;
+        const QString qtFolder = it->second;
+        if (QFileInfo(qtFolder).exists()) {
+            BarDescriptorAsset asset;
+            asset.source = qtFolder;
+            asset.destination = target;
+            asset.entry = false;
+            assetList << asset;
+        }
+    }
+
+    return true;
 }
 
 BlackBerryCreatePackageStep::BlackBerryCreatePackageStep(ProjectExplorer::BuildStepList *bsl)
@@ -141,8 +261,8 @@ bool BlackBerryCreatePackageStep::init()
             }
         }
 
-        const QString preparedFilePath =  buildDir + QLatin1String("/bar-descriptor-") + project()->displayName() + QLatin1String("-qtc-generated.xml");
-        if (!prepareAppDescriptorFile(info.appDescriptorPath(), preparedFilePath))
+        const QString appDescriptorPath =  info.appDescriptorPath();
+        if (!doUpdateAppDescriptorFile(appDescriptorPath, EditMode::PlaceHolders))
             // If there is an error, prepareAppDescriptorFile() will raise it
             return false;
 
@@ -174,7 +294,7 @@ bool BlackBerryCreatePackageStep::init()
             args << m_keystorePassword;
         }
         args << QLatin1String("-package") << QnxUtils::addQuotes(QDir::toNativeSeparators(info.packagePath()));
-        args << QnxUtils::addQuotes(QDir::toNativeSeparators(preparedFilePath));
+        args << QnxUtils::addQuotes(QDir::toNativeSeparators(appDescriptorPath));
 
         addCommand(packageCmd, args);
     }
@@ -184,7 +304,9 @@ bool BlackBerryCreatePackageStep::init()
 
 ProjectExplorer::BuildStepConfigWidget *BlackBerryCreatePackageStep::createConfigWidget()
 {
-    return new BlackBerryCreatePackageStepConfigWidget(this);
+    BlackBerryCreatePackageStepConfigWidget *config = new BlackBerryCreatePackageStepConfigWidget(this);
+    connect(config, SIGNAL(bundleModeChanged()), this, SLOT(updateAppDescriptorFile()));
+    return config;
 }
 
 QString BlackBerryCreatePackageStep::debugToken() const
@@ -256,7 +378,7 @@ QString BlackBerryCreatePackageStep::qtLibraryPath() const
     return m_qtLibraryPath;
 }
 
-QString BlackBerryCreatePackageStep::fullQtLibraryPath() const
+QString BlackBerryCreatePackageStep::fullDeployedQtLibraryPath() const
 {
     return QLatin1String(Constants::QNX_BLACKBERRY_DEFAULT_DEPLOY_QT_BASEPATH) + m_qtLibraryPath;
 }
@@ -291,14 +413,22 @@ void BlackBerryCreatePackageStep::setQtLibraryPath(const QString &qtLibraryPath)
     m_qtLibraryPath = qtLibraryPath;
 }
 
-bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDescriptorPath, const QString &preparedFilePath)
+void BlackBerryCreatePackageStep::updateAppDescriptorFile()
 {
-    BlackBerryQtVersion *qtVersion = dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtKitInformation::qtVersion(target()->kit()));
-    if (!qtVersion) {
-        raiseError(tr("Error preparing BAR application descriptor file."));
-        return false;
-    }
+    BlackBerryDeployConfiguration *deployConfig = qobject_cast<BlackBerryDeployConfiguration *>(deployConfiguration());
+    QTC_ASSERT(deployConfig, return);
 
+    QList<BarPackageDeployInformation> packagesToDeploy = deployConfig->deploymentInfo()->enabledPackages();
+    if (packagesToDeploy.isEmpty())
+        return;
+
+    foreach (const BarPackageDeployInformation &info, packagesToDeploy)
+        doUpdateAppDescriptorFile(info.appDescriptorPath(), EditMode::QtEnvironment);
+}
+
+bool BlackBerryCreatePackageStep::doUpdateAppDescriptorFile(const QString &appDescriptorPath, QFlags<EditMode> types)
+{
+    Core::FileChangeBlocker fb(appDescriptorPath);
     BarDescriptorDocument doc;
     QString errorString;
     if (!doc.open(&errorString, appDescriptorPath)) {
@@ -307,104 +437,113 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
             .arg(errorString));
         return false;
     }
-    // Add Warning text
-    const QString warningText = QString::fromLatin1("This file is autogenerated,"
-                " any changes will get overwritten if deploying with Qt Creator");
-    doc.setBannerComment(warningText);
 
-    //Replace Source path placeholder
-    QHash<QString, QString> placeHoldersHash;
-    placeHoldersHash[QLatin1String("%SRC_DIR%")] = target()->project()->projectDirectory().toUserOutput();
-    doc.expandPlaceHolders(placeHoldersHash);
-
-    // Set up correct environment depending on using bundled/pre-installed Qt
-    QList<Utils::EnvironmentItem> envItems =
-            doc.value(BarDescriptorDocument::env).value<QList<Utils::EnvironmentItem> >();
-    Utils::Environment env(Utils::EnvironmentItem::toStringList(envItems), Utils::OsTypeOtherUnix);
     BarDescriptorAssetList assetList = doc.value(BarDescriptorDocument::asset)
             .value<BarDescriptorAssetList>();
+    bool updated = false;
+    if (types.testFlag(EditMode::PlaceHolders)) {
 
-    const bool isQt5 = qtVersion->qtVersion().majorVersion == 5;
-    if (m_packageMode == SigningPackageMode
-            || (m_packageMode == DevelopmentMode && m_bundleMode == PreInstalledQt)) {
-        QtSupport::QtVersionNumber versionNumber = qtVersion->qtVersion();
-        appendOrSetQtEnvironment(env, QLatin1String("QML_IMPORT_PATH"),
-                                 QString::fromLatin1("/usr/lib/qt%1/imports")
-                                 .arg(versionNumber.majorVersion));
+        foreach (const BarDescriptorAsset &a, assetList) {
+            if (a.source.contains(QLatin1String("%SRC_DIR%"))) {
+                // Keep backward compatibility with older templates
+                QHash<QString, QString> placeHoldersHash;
+                placeHoldersHash[QLatin1String("%SRC_DIR%")] = QString();
+                doc.expandPlaceHolders(placeHoldersHash);
+                updated = true;
+            }
 
-        if (isQt5) {
-            appendOrSetQtEnvironment(env, QLatin1String("QML2_IMPORT_PATH"),
-                                     QString::fromLatin1("/usr/lib/qt5/qml"));
+            // Update the entry point source path to make use of the BUILD_DIR variable
+            // if not set
+            if (a.entry) {
+                BarDescriptorAsset asset = a;
+                if (asset.source.contains(QLatin1String("${BUILD_DIR}/")))
+                    break;
+                asset.source = QLatin1String("${BUILD_DIR}/") + asset.destination;
+                assetList.removeOne(a);
+                assetList << asset;
+                updated = true;
+                break;
+            }
+        }
+    }
+
+    if (types.testFlag(EditMode::QtEnvironment)) {
+        bool environmentUpdated = false;
+        bool assetsUpdated = false;
+        // Set up correct environment depending on using bundled/pre-installed Qt
+        QList<Utils::EnvironmentItem> envItems =
+                doc.value(BarDescriptorDocument::env).value<QList<Utils::EnvironmentItem> >();
+        Utils::Environment env(Utils::EnvironmentItem::toStringList(envItems), Utils::OsTypeOtherUnix);
+        BlackBerryQtVersion *qtVersion = dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtKitInformation::qtVersion(target()->kit()));
+        const bool isQt5 = qtVersion->qtVersion().majorVersion == 5;
+        if (!qtVersion) {
+            raiseError(tr("Error preparing BAR application descriptor file."));
+            return false;
         }
 
-        appendOrSetQtEnvironment(env, QLatin1String("QT_PLUGIN_PATH"),
-                                 QString::fromLatin1("/usr/lib/qt%1/plugins")
-                                 .arg(versionNumber.majorVersion));
-        appendOrSetQtEnvironment(env, QLatin1String("LD_LIBRARY_PATH"),
-                                 QString::fromLatin1("/usr/lib/qt%1/lib")
-                                 .arg(versionNumber.majorVersion));
-    } else if (m_packageMode == DevelopmentMode && m_bundleMode == BundleQt) {
-        QList<QPair<QString, QString> > qtFolders;
-        qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/lib"),
-                                   qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS"))));
-        qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/plugins"),
-                                   qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_PLUGINS"))));
-        qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/imports"),
-                                   qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_IMPORTS"))));
-        qtFolders.append(qMakePair(QString::fromLatin1("runtime/qt/qml"),
-                                   qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_QML"))));
+        if (m_packageMode == SigningPackageMode
+                || (m_packageMode == DevelopmentMode && m_bundleMode == PreInstalledQt)) {
+            QtSupport::QtVersionNumber versionNumber = qtVersion->qtVersion();
+            setQtEnvironment(env, QString::fromLatin1("/usr/lib/qt%1").arg(versionNumber.majorVersion),
+                             environmentUpdated, isQt5);
+            // remove qt assets if existing since not needed
+            assetsUpdated = removeQtAssets(assetList);
+        } else if (m_packageMode == DevelopmentMode && m_bundleMode == BundleQt) {
+            assetsUpdated = addQtAssets(assetList, qtVersion);
+            // TODO: Check for every Qt environment if the corresponding
+            // assets exist for broken/internal builds(?)
+            setQtEnvironment(env, QLatin1String("app/native/runtime/qt"),
+                             environmentUpdated, isQt5);
+        } else if (m_packageMode == DevelopmentMode && m_bundleMode == DeployedQt) {
+            setQtEnvironment(env, fullDeployedQtLibraryPath(),
+                             environmentUpdated, isQt5);
+            // remove qt assets if existing since not needed
+            assetsUpdated = removeQtAssets(assetList);
+        }
 
-        for (QList<QPair<QString, QString> >::const_iterator it = qtFolders.constBegin();
-             it != qtFolders.constEnd(); ++it) {
-            const QString target = it->first;
-            const QString qtFolder = it->second;
-            if (QFileInfo(qtFolder).exists()) {
-                BarDescriptorAsset asset;
-                asset.source = qtFolder;
-                asset.destination = target;
-                asset.entry = false;
-                assetList << asset;
+        if (environmentUpdated) {
+            QString confirmationText = tr("In order to link to the correct Qt library specified in the deployment settings "
+                                                "Qt Creator needs to update the Qt environment variables "
+                                                "in the BAR application file as follows:\n\n"
+                                                "<env var=\"LD_LIBRARY_PATH\" value=\"%1\"/>\n"
+                                                "<env var=\"QT_PLUGIN_PATH\" value=\"%2\"/>\n"
+                                                "<env var=\"QML_IMPORT_PATH\" value=\"%3\"/>\n")
+                                                .arg(env.value(QLatin1String("LD_LIBRARY_PATH")),
+                                                                                 env.value(QLatin1String("QT_PLUGIN_PATH")),
+                                                                                 env.value(QLatin1String("QML_IMPORT_PATH")));
+
+            if (isQt5)
+                confirmationText.append(QString::fromLatin1("<env var=\"QML2_IMPORT_PATH\" value=\"%1\"/>\n")
+                        .arg(env.value(QLatin1String("QML2_IMPORT_PATH"))));
+
+            confirmationText.append(tr("\nDo you want to update it?"));
+            QMessageBox::StandardButton answer =
+                    QMessageBox::question(Core::ICore::mainWindow(), tr("Confirmation"),
+                                          confirmationText,
+                                          QMessageBox::Yes | QMessageBox::No);
+
+            if (answer == QMessageBox::Yes) {
+                QVariant envVar;
+                envVar.setValue(Utils::EnvironmentItem::fromStringList(env.toStringList()));
+                doc.setValue(BarDescriptorDocument::env, envVar);
+                updated = true;
             }
         }
 
-        if (isQt5) {
-            appendOrSetQtEnvironment(env, QLatin1String("QML2_IMPORT_PATH"),
-                                     QString::fromLatin1("app/native/runtime/qt/qml"));
+        if (assetsUpdated) {
+            doc.setValue(BarDescriptorDocument::asset, QVariant::fromValue(assetList));
+            updated = true;
         }
-
-        appendOrSetQtEnvironment(env, QLatin1String("QML_IMPORT_PATH"),
-                                 QString::fromLatin1("app/native/runtime/qt/imports"));
-        appendOrSetQtEnvironment(env, QLatin1String("QT_PLUGIN_PATH"),
-                                 QString::fromLatin1("app/native/runtime/qt/plugins"));
-        appendOrSetQtEnvironment(env, QLatin1String("LD_LIBRARY_PATH"),
-                                 QString::fromLatin1("app/native/runtime/qt/lib"));
-    } else if (m_packageMode == DevelopmentMode && m_bundleMode == DeployedQt) {
-        if (isQt5) {
-            appendOrSetQtEnvironment(env, QLatin1String("QML2_IMPORT_PATH"),
-                                     QString::fromLatin1("%1/qml").arg(fullQtLibraryPath()));
-        }
-
-        appendOrSetQtEnvironment(env, QLatin1String("QML_IMPORT_PATH"),
-                                 QString::fromLatin1("%1/imports").arg(fullQtLibraryPath()));
-
-        appendOrSetQtEnvironment(env, QLatin1String("QT_PLUGIN_PATH"),
-                                 QString::fromLatin1("%1/plugins").arg(fullQtLibraryPath()));
-
-        appendOrSetQtEnvironment(env, QLatin1String("LD_LIBRARY_PATH"),
-                                 QString::fromLatin1("%1/lib").arg(fullQtLibraryPath()));
     }
 
-    doc.setValue(BarDescriptorDocument::asset, QVariant::fromValue(assetList));
+    // Skip unnecessary saving
+    if (!updated)
+        return true;
 
-    QVariant envVar;
-    envVar.setValue(Utils::EnvironmentItem::fromStringList(env.toStringList()));
-    doc.setValue(BarDescriptorDocument::env, envVar);
-
-    doc.setFilePath(preparedFilePath);
     if (!doc.save(&errorString)) {
-        raiseError(tr("Error saving prepared BAR application descriptor file \"%1\" - %2")
-            .arg(QDir::toNativeSeparators(preparedFilePath))
-            .arg(errorString));
+        raiseError(tr("Error saving BAR application descriptor file \"%1\" - %2")
+                   .arg(QDir::toNativeSeparators(appDescriptorPath))
+                   .arg(errorString));
         return false;
     }
 

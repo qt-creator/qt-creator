@@ -34,14 +34,20 @@
 #include "bardescriptorfilenode.h"
 #include "blackberrydeployconfiguration.h"
 #include "blackberrydeployinformation.h"
+#include "blackberrycreatepackagestep.h"
+#include "blackberryqtversion.h"
+#include "bardescriptordocument.h"
 #include "qnxconstants.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -137,6 +143,9 @@ void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Pro
 
             if (!createBarDescriptor(project, package.appDescriptorPath(), projectNode))
                 continue;
+        } else {
+            // Update the Qt environment if not matching the one in the deployment settings
+            updateBarDescriptor(package.appDescriptorPath(), project->activeTarget());
         }
 
         BarDescriptorFileNode *existingNode = findBarDescriptorFileNode(projectNode);
@@ -218,12 +227,12 @@ bool BarDescriptorFileNodeManager::createBarDescriptor(ProjectExplorer::Project 
 
     QString content = QString::fromUtf8(reader.data());
     content.replace(QLatin1String("PROJECTNAME"), projectName);
-    content.replace(QLatin1String("PROJECTPATH"), targetName);
+    content.replace(QLatin1String("TARGETNAME"), targetName);
     content.replace(QLatin1String("ID"), QLatin1String("com.example.") + projectName);
 
     if (project->projectDirectory().appendPath(QLatin1String("qml")).toFileInfo().exists())
         content.replace(QLatin1String("</qnx>"),
-                        QLatin1String("    <asset path=\"%SRC_DIR%/qml\">qml</asset>\n</qnx>"));
+                        QLatin1String("    <asset path=\"qml\">qml</asset>\n</qnx>"));
 
     Utils::FileSaver writer(barDescriptorFile.fileName(), QIODevice::WriteOnly);
     writer.write(content.toUtf8());
@@ -234,6 +243,36 @@ bool BarDescriptorFileNodeManager::createBarDescriptor(ProjectExplorer::Project 
     }
 
     return true;
+}
+
+void BarDescriptorFileNodeManager::updateBarDescriptor(const QString &barDescriptorPath,
+                                                       ProjectExplorer::Target *target)
+{
+    BarDescriptorDocument doc;
+    QString errorString;
+    if (!doc.open(&errorString, barDescriptorPath)) {
+        QMessageBox::warning(Core::ICore::mainWindow(), tr("Error"),
+                             tr("Cannot open BAR application descriptor file"));
+        return;
+    }
+
+    QList<Utils::EnvironmentItem> envItems =
+            doc.value(BarDescriptorDocument::env).value<QList<Utils::EnvironmentItem> >();
+    Utils::Environment env(Utils::EnvironmentItem::toStringList(envItems), Utils::OsTypeOtherUnix);
+
+    BlackBerryQtVersion *qtVersion =
+            dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtKitInformation::qtVersion(target->kit()));
+    if (!qtVersion)
+        return;
+
+    ProjectExplorer::BuildStepList *stepList = target->activeDeployConfiguration()->stepList();
+    foreach (ProjectExplorer::BuildStep *step, stepList->steps()) {
+        BlackBerryCreatePackageStep *createPackageStep = dynamic_cast<BlackBerryCreatePackageStep *>(step);
+        if (createPackageStep) {
+            createPackageStep->doUpdateAppDescriptorFile(barDescriptorPath,
+                                                         BlackBerryCreatePackageStep::EditMode::QtEnvironment);
+        }
+    }
 }
 
 void BarDescriptorFileNodeManager::removeBarDescriptorNodes(ProjectExplorer::Project *project)

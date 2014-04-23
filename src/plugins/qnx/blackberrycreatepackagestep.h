@@ -45,6 +45,7 @@ class BlackBerryCreatePackageStep : public BlackBerryAbstractDeployStep
 {
     Q_OBJECT
     friend class BlackBerryCreatePackageStepFactory;
+    friend class BarDescriptorFileNodeManager;
 
 public:
     enum PackageMode {
@@ -57,6 +58,12 @@ public:
         BundleQt,
         DeployedQt
     };
+
+    enum EditMode {
+        PlaceHolders = 0x01,
+        QtEnvironment = 0x02
+    };
+    Q_DECLARE_FLAGS(EditModes, EditMode)
 
     explicit BlackBerryCreatePackageStep(ProjectExplorer::BuildStepList *bsl);
 
@@ -84,6 +91,7 @@ public slots:
 
     void setBundleMode(BundleMode bundleMode);
     void setQtLibraryPath(const QString &qtLibraryPath);
+    void updateAppDescriptorFile();
 
 signals:
     void cskPasswordChanged(QString);
@@ -97,8 +105,10 @@ protected:
 private:
     void ctor();
 
-    bool prepareAppDescriptorFile(const QString &appDescriptorPath, const QString &preparedFilePath);
-    QString fullQtLibraryPath() const;
+    bool doUpdateAppDescriptorFile(const QString &appDescriptorPath,
+                                   QFlags<EditMode> types);
+
+    QString fullDeployedQtLibraryPath() const;
 
     PackageMode m_packageMode;
     QString m_cskPassword;
@@ -110,5 +120,7 @@ private:
 
 } // namespace Internal
 } // namespace Qnx
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qnx::Internal::BlackBerryCreatePackageStep::EditModes)
 
 #endif // QNX_INTERNAL_BLACKBERRYCREATEPACKAGESTEP_H

@@ -1,20 +1,21 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<?xml version='1.0' encoding='utf-8' standalone='no'?>
 <qnx xmlns="http://www.qnx.com/schemas/application/1.0">
     <id>ID</id>
     <name>PROJECTNAME</name>
     <versionNumber>1.0.0</versionNumber>
     <description>DESCRIPTION</description>
-    <publisher>PUBLISHER</publisher>
     <copyright>COPYRIGHT</copyright>
-
     <initialWindow>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
         <autoOrients>true</autoOrients>
         <aspectRatio>landscape</aspectRatio>
     </initialWindow>
-
+    <env value="/usr/lib/qt5/lib:$LD_LIBRARY_PATH" var="LD_LIBRARY_PATH"/>
+    <env value="/usr/lib/qt5/plugins:$QT_PLUGIN_PATH" var="QT_PLUGIN_PATH"/>
+    <env value="/usr/lib/qt5/imports:$QML_IMPORT_PATH" var="QML_IMPORT_PATH"/>
+    <env value="/usr/lib/qt5/qml:$QML2_IMPORT_PATH" var="QML2_IMPORT_PATH"/>
     <action system="true">run_native</action>
-
-    <asset entry="true" path="PROJECTPATH" type="Qnx/Elf">PROJECTNAME</asset>
+    <asset path="${BUILD_DIR}/TARGETNAME" entry="true" type="Qnx/Elf">PROJECTNAME</asset>
+    <author>PUBLISHER</author>
 </qnx>

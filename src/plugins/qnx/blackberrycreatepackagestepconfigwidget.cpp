@@ -135,6 +135,8 @@ void BlackBerryCreatePackageStepConfigWidget::setBundleMode(int qtLibraryIndex)
     m_ui->qtLibraryExplanationLabel->setText(m_qtLibraryExplanations[qtLibraryIndex]);
     m_ui->qtLibraryPath->setVisible(bundleMode == BlackBerryCreatePackageStep::DeployedQt);
     m_ui->qtLibraryLabel->setVisible(bundleMode == BlackBerryCreatePackageStep::DeployedQt);
+
+    emit bundleModeChanged();
 }
 
 void BlackBerryCreatePackageStepConfigWidget::updateDeployWidgetsState()

@@ -60,6 +60,9 @@ private slots:
     void updateDeployWidgetsState();
     void deployLibraries();
 
+signals:
+    void bundleModeChanged();
+
 private:
     BlackBerryCreatePackageStep *m_step;
     Ui::BlackBerryCreatePackageStepConfigWidget *m_ui;
