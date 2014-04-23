@@ -23,16 +23,18 @@ Project {
 
         property bool enableUnitTests: false
         property bool installApiHeaders: false
-        property path libInstallDir: project.ide_library_path
-        property path libRPaths:  qbs.targetOS.contains("osx")
-            ? ["@loader_path/.."] : ["$ORIGIN/.."]
-        property path resourcesInstallDir: project.ide_data_path + "/qbs"
+        property string libInstallDir: project.ide_library_path
+        property stringList libRPaths:  qbs.targetOS.contains("osx")
+            ? ["@loader_path/.."] : ["$ORIGIN/..", "$ORIGIN/../" + project.ide_library_path]
+        property string resourcesInstallDir: project.ide_data_path + "/qbs"
         property string pluginsInstallDir: project.libDirName + "/qtcreator"
+        property string appInstallDir: project.ide_libexec_path
 
         references: [
             qbsBaseDir + "/src/lib/libs.qbs",
             qbsBaseDir + "/src/plugins/plugins.qbs",
-            qbsBaseDir + "/share/share.qbs"
+            qbsBaseDir + "/share/share.qbs",
+            qbsBaseDir + "/src/app/apps.qbs",
         ]
     }
 }
