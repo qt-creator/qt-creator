@@ -119,7 +119,6 @@ private slots:
     void handleChangedItem(QStandardItem *item);
 
 private:
-    bool containsNodeHash(uint hash) const;
     ModelNode nodeForHash(uint hash) const;
 
     bool containsNode(const ModelNode &node) const;
@@ -139,7 +138,6 @@ private:
 
 private:
     QHash<ModelNode, ItemRow> m_nodeItemHash;
-    QHash<uint, ModelNode> m_nodeHash;
     QWeakPointer<AbstractView> m_view;
 
     bool m_blockItemChangedSignal;

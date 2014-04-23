@@ -168,12 +168,10 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
 
     QList<ModelNode> nodeList;
     while (!stream.atEnd()) {
-        uint nodeHash;
-        stream >> nodeHash;
-        if (containsNodeHash(nodeHash)) {
-            ModelNode node(nodeForHash(nodeHash));
-            nodeList.append(node);
-        }
+        qint32 internalId;
+        stream >> internalId;
+        if (m_view->hasModelNodeForInternalId(internalId))
+            nodeList.append(m_view->modelNodeForInternalId(internalId));
     }
 
     ModelNode parentNode(nodeForIndex(parentItemIndex));
@@ -317,9 +315,8 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
     if (!data(item->index(), NavigatorRole).isValid())
         return;
 
-    uint nodeHash = item->data(NavigatorRole).toUInt();
-    Q_ASSERT(containsNodeHash(nodeHash));
-    ModelNode node = nodeForHash(nodeHash);
+    qint32 internalId = item->data(NavigatorRole).toUInt();
+    ModelNode node = m_view->modelNodeForInternalId(internalId);
 
     ItemRow itemRow = itemRowForNode(node);
     if (item == itemRow.idItem) {
@@ -362,18 +359,6 @@ void NavigatorTreeModel::propagateInvisible(const ModelNode &node, const bool &i
     }
 }
 
-ModelNode NavigatorTreeModel::nodeForHash(uint hash) const
-{
-    ModelNode node = m_nodeHash.value(hash);
-    Q_ASSERT(node.isValid());
-    return node;
-}
-
-bool NavigatorTreeModel::containsNodeHash(uint hash) const
-{
-    return m_nodeHash.contains(hash);
-}
-
 bool NavigatorTreeModel::containsNode(const ModelNode &node) const
 {
     return m_nodeItemHash.contains(node);
@@ -399,7 +384,6 @@ void NavigatorTreeModel::clearView()
 {
     setView(0);
     m_view.clear();
-    m_nodeHash.clear();
     m_nodeItemHash.clear();
 }
 
@@ -414,15 +398,13 @@ QModelIndex NavigatorTreeModel::indexForNode(const ModelNode &node) const
 
 ModelNode NavigatorTreeModel::nodeForIndex(const QModelIndex &index) const
 {
-    Q_ASSERT(index.isValid());
-    uint hash = index.data(NavigatorRole).toUInt();
-    Q_ASSERT(containsNodeHash(hash));
-    return nodeForHash(hash);
+    qint32 internalId = index.data(NavigatorRole).toUInt();
+    return m_view->modelNodeForInternalId(internalId);
 }
 
 bool NavigatorTreeModel::isInTree(const ModelNode &node) const
 {
-    return m_nodeHash.contains(node.internalId());
+    return m_nodeItemHash.contains(node);
 }
 
 bool NavigatorTreeModel::isNodeInvisible(const QModelIndex &index) const
@@ -446,7 +428,7 @@ bool NavigatorTreeModel::isNodeInvisible(const ModelNode &node) const
 void NavigatorTreeModel::addSubTree(const ModelNode &node)
 {
     Q_ASSERT(node.isValid());
-    if (!containsNodeHash(node.internalId())) {
+    if (!containsNode(node)) {
 
         //updateItemRow(node, newRow);
 
@@ -455,7 +437,6 @@ void NavigatorTreeModel::addSubTree(const ModelNode &node)
                 && (node.isRootNode() || modelNodeChildren(node.parentProperty().parentModelNode()).contains(node))) {
 
             ItemRow newRow = createItemRow(node);
-            m_nodeHash.insert(node.internalId(), node);
             m_nodeItemHash.insert(node, newRow);
 
             updateItemRow(node, newRow);
@@ -506,8 +487,6 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
 
     qDeleteAll(rowList);
 
-
-    m_nodeHash.remove(node.internalId());
     m_nodeItemHash.remove(node);
 
 }
