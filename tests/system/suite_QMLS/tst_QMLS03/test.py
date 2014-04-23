@@ -28,7 +28,6 @@
 #############################################################################
 
 source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
 
 class ExpectedResult:
     def __init__(self, file, lineNumber, lineContent):

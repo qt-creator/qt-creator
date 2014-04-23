@@ -28,7 +28,6 @@
 #############################################################################
 
 source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
 
 def startQtCreatorWithNewAppAtQMLEditor(projectDir, projectName, line = None):
     startApplication("qtcreator" + SettingsPath)

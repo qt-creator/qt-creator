@@ -28,6 +28,7 @@
 #############################################################################
 
 source("../shared/qmls.py")
+source("../../shared/suites_qtta.py")
 
 # go to proper line, make backup, type needed text
 def __beginTestSuggestions__(editorArea, lineText, textToType):

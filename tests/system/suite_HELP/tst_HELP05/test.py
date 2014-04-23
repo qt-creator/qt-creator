@@ -28,7 +28,6 @@
 #############################################################################
 
 source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
 
 # test context sensitive help in edit mode
 # place cursor to <lineText> keyword, in <editorArea>, and verify help to contain <helpText>

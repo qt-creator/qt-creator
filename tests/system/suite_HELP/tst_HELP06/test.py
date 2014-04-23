@@ -28,7 +28,6 @@
 #############################################################################
 
 source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
 
 # test bookmark functionality
 def renameBookmarkFolder(view, item, newName):
