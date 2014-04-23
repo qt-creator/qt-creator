@@ -206,7 +206,7 @@ public:
     bool synchronousForEachRefCmd(const QString &workingDirectory, QStringList args,
                                QString *output, QString *errorMessage = 0);
     bool synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
-                              QString *output, QString *errorMessage);
+                              QString *output, QString *errorMessage, bool silent = false);
 
     QMap<QString,QString> synchronousRemotesList(const QString &workingDirectory,
                                                  QString *errorMessage = 0);

@@ -2331,13 +2331,13 @@ bool GitClient::synchronousForEachRefCmd(const QString &workingDirectory, QStrin
 }
 
 bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
-                                     QString *output, QString *errorMessage)
+                                     QString *output, QString *errorMessage, bool silent)
 {
     remoteArgs.push_front(QLatin1String("remote"));
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, remoteArgs, &outputText, &errorText);
-    if (!rc) {
+    if (!fullySynchronousGit(workingDirectory, remoteArgs, &outputText, &errorText,
+                             silent ? VcsBasePlugin::SuppressCommandLogging : 0)) {
         msgCannotRun(remoteArgs, workingDirectory, errorText, errorMessage);
         return false;
     }
@@ -2352,7 +2352,7 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const QString &workingDi
     QString output;
     QString error;
     QStringList args(QLatin1String("-v"));
-    if (!synchronousRemoteCmd(workingDirectory, args, &output, &error)) {
+    if (!synchronousRemoteCmd(workingDirectory, args, &output, &error, true)) {
         msgCannotRun(error, errorMessage);
         return result;
     }
