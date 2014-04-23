@@ -192,14 +192,9 @@ void ComponentView::nodeCreated(const ModelNode &createdNode)
 
 void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
 {
-    QList<ModelNode> nodeList;
-    nodeList.append(node);
-    nodeList.append(node.allSubModelNodes());
-
-
     bool masterNotAdded = true;
 
-    foreach (const ModelNode &node, nodeList) {
+    foreach (const ModelNode &node, node.allSubModelNodesAndThisNode()) {
         if (node.nodeSourceType() == ModelNode::NodeWithComponentSource) {
             if (masterNotAdded) {
                 masterNotAdded = true;

@@ -97,9 +97,7 @@ static void splitIdInBaseNameAndNumber(const QString &id, QString *baseId, int *
 
 static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QString> &idRenamingHash, AbstractView *view)
 {
-    QList<ModelNode> allNodes(modelNode.allSubModelNodes());
-    allNodes.append(modelNode);
-    foreach (const ModelNode &node, allNodes) {
+    foreach (const ModelNode &node, modelNode.allSubModelNodesAndThisNode()) {
         if (!node.id().isEmpty()) {
             QString newId = node.id();
             QString baseId;
