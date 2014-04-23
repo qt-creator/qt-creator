@@ -98,28 +98,28 @@ void AnchorIndicator::setItems(const QList<FormEditorItem *> &itemList)
         if (!sourceQmlItemNode.modelNode().isRootNode()) {
             QmlAnchors qmlAnchors = sourceQmlItemNode.anchors();
 
-            if (qmlAnchors.modelHasAnchor(AnchorLine::Top)) {
+            if (qmlAnchors.modelHasAnchor(AnchorLineTop)) {
                 m_indicatorTopShape = new AnchorIndicatorGraphicsItem(m_layerItem.data());
-                m_indicatorTopShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLine::Top),
-                                                           qmlAnchors.modelAnchor(AnchorLine::Top));
+                m_indicatorTopShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLineTop),
+                                                           qmlAnchors.modelAnchor(AnchorLineTop));
             }
 
-            if (qmlAnchors.modelHasAnchor(AnchorLine::Bottom)) {
+            if (qmlAnchors.modelHasAnchor(AnchorLineBottom)) {
                 m_indicatorBottomShape = new AnchorIndicatorGraphicsItem(m_layerItem.data());
-                m_indicatorBottomShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLine::Bottom),
-                                                              qmlAnchors.modelAnchor(AnchorLine::Bottom));
+                m_indicatorBottomShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLineBottom),
+                                                              qmlAnchors.modelAnchor(AnchorLineBottom));
             }
 
-            if (qmlAnchors.modelHasAnchor(AnchorLine::Left)) {
+            if (qmlAnchors.modelHasAnchor(AnchorLineLeft)) {
                 m_indicatorLeftShape = new AnchorIndicatorGraphicsItem(m_layerItem.data());
-                m_indicatorLeftShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLine::Left),
-                                                            qmlAnchors.modelAnchor(AnchorLine::Left));
+                m_indicatorLeftShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLineLeft),
+                                                            qmlAnchors.modelAnchor(AnchorLineLeft));
             }
 
-            if (qmlAnchors.modelHasAnchor(AnchorLine::Right)) {
+            if (qmlAnchors.modelHasAnchor(AnchorLineRight)) {
                 m_indicatorRightShape = new AnchorIndicatorGraphicsItem(m_layerItem.data());
-                m_indicatorRightShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLine::Right),
-                                                             qmlAnchors.modelAnchor(AnchorLine::Right));
+                m_indicatorRightShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLineRight),
+                                                             qmlAnchors.modelAnchor(AnchorLineRight));
             }
         }
     }
@@ -133,38 +133,38 @@ void AnchorIndicator::updateItems(const QList<FormEditorItem *> &itemList)
             if (!sourceQmlItemNode.modelNode().isRootNode()) {
                 QmlAnchors qmlAnchors = formEditorItem->qmlItemNode().anchors();
 
-                if (qmlAnchors.modelHasAnchor(AnchorLine::Top)) {
+                if (qmlAnchors.modelHasAnchor(AnchorLineTop)) {
                     if (m_indicatorTopShape.isNull())
                         m_indicatorTopShape = new AnchorIndicatorGraphicsItem(m_layerItem.data());
-                    m_indicatorTopShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLine::Top),
-                                                               qmlAnchors.modelAnchor(AnchorLine::Top));
+                    m_indicatorTopShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLineTop),
+                                                               qmlAnchors.modelAnchor(AnchorLineTop));
                 } else {
                     delete m_indicatorTopShape;
                 }
 
-                if (qmlAnchors.modelHasAnchor(AnchorLine::Bottom)) {
+                if (qmlAnchors.modelHasAnchor(AnchorLineBottom)) {
                     if (m_indicatorBottomShape.isNull())
                         m_indicatorBottomShape = new AnchorIndicatorGraphicsItem(m_layerItem.data());
-                    m_indicatorBottomShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLine::Bottom),
-                                                                  qmlAnchors.modelAnchor(AnchorLine::Bottom));
+                    m_indicatorBottomShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLineBottom),
+                                                                  qmlAnchors.modelAnchor(AnchorLineBottom));
                 } else {
                     delete m_indicatorBottomShape;
                 }
 
-                if (qmlAnchors.modelHasAnchor(AnchorLine::Left)) {
+                if (qmlAnchors.modelHasAnchor(AnchorLineLeft)) {
                     if (m_indicatorLeftShape.isNull())
                         m_indicatorLeftShape = new AnchorIndicatorGraphicsItem(m_layerItem.data());
-                    m_indicatorLeftShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLine::Left),
-                                                                qmlAnchors.modelAnchor(AnchorLine::Left));
+                    m_indicatorLeftShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLineLeft),
+                                                                qmlAnchors.modelAnchor(AnchorLineLeft));
                 } else {
                     delete m_indicatorLeftShape;
                 }
 
-                if (qmlAnchors.modelHasAnchor(AnchorLine::Right)) {
+                if (qmlAnchors.modelHasAnchor(AnchorLineRight)) {
                     if (m_indicatorRightShape.isNull())
                         m_indicatorRightShape = new AnchorIndicatorGraphicsItem(m_layerItem.data());
-                    m_indicatorRightShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLine::Right),
-                                                                 qmlAnchors.modelAnchor(AnchorLine::Right));
+                    m_indicatorRightShape->updateAnchorIndicator(AnchorLine(sourceQmlItemNode, AnchorLineRight),
+                                                                 qmlAnchors.modelAnchor(AnchorLineRight));
                 } else {
                     delete m_indicatorRightShape;
                 }

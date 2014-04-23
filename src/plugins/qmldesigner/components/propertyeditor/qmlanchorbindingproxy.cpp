@@ -84,37 +84,37 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
         setDefaultAnchorTarget(ModelNode());
 
     if (topAnchored()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::Top).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineTop).qmlItemNode();
         if (targetNode.isValid())
             m_topTarget = targetNode;
     }
 
     if (bottomAnchored()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::Bottom).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineBottom).qmlItemNode();
         if (targetNode.isValid())
             m_bottomTarget = targetNode;
     }
 
     if (leftAnchored()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::Left).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineLeft).qmlItemNode();
         if (targetNode.isValid())
             m_leftTarget = targetNode;
     }
 
     if (rightAnchored()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::Right).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineRight).qmlItemNode();
         if (targetNode.isValid())
             m_rightTarget = targetNode;
     }
 
     if (verticalCentered()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::VerticalCenter).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineVerticalCenter).qmlItemNode();
         if (targetNode.isValid())
             m_verticalTarget = targetNode;
     }
 
     if (horizontalCentered()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::HorizontalCenter).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineHorizontalCenter).qmlItemNode();
         if (targetNode.isValid())
             m_horizontalTarget = targetNode;
     }
@@ -156,37 +156,37 @@ void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
     m_verticalTarget = m_horizontalTarget = m_topTarget = m_bottomTarget = m_leftTarget = m_rightTarget = m_qmlItemNode.modelNode().parentProperty().parentModelNode();
 
     if (topAnchored()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::Top).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineTop).qmlItemNode();
         if (targetNode.isValid())
             m_topTarget = targetNode;
     }
 
     if (bottomAnchored()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::Bottom).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineBottom).qmlItemNode();
         if (targetNode.isValid())
             m_bottomTarget = targetNode;
     }
 
     if (leftAnchored()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::Left).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineLeft).qmlItemNode();
         if (targetNode.isValid())
             m_leftTarget = targetNode;
     }
 
     if (rightAnchored()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::Right).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineRight).qmlItemNode();
         if (targetNode.isValid())
             m_rightTarget = targetNode;
     }
 
     if (verticalCentered()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::VerticalCenter).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineVerticalCenter).qmlItemNode();
         if (targetNode.isValid())
             m_verticalTarget = targetNode;
     }
 
     if (horizontalCentered()) {
-        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::HorizontalCenter).qmlItemNode();
+        ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLineHorizontalCenter).qmlItemNode();
         if (targetNode.isValid())
             m_horizontalTarget = targetNode;
     }
@@ -230,22 +230,22 @@ bool QmlAnchorBindingProxy::isFilled()
 
 bool QmlAnchorBindingProxy::topAnchored()
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLine::Top);
+    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineTop);
 }
 
 bool QmlAnchorBindingProxy::bottomAnchored()
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLine::Bottom);
+    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineBottom);
 }
 
 bool QmlAnchorBindingProxy::leftAnchored()
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLine::Left);
+    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineLeft);
 }
 
 bool QmlAnchorBindingProxy::rightAnchored()
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLine::Right);
+    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineRight);
 }
 
 bool QmlAnchorBindingProxy::hasAnchors()
@@ -359,7 +359,7 @@ void QmlAnchorBindingProxy::setVerticalTarget(const QString &target)
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::setVerticalTarget"));
 
     m_verticalTarget = newTarget;
-    m_qmlItemNode.anchors().setAnchor(AnchorLine::VerticalCenter, m_verticalTarget, AnchorLine::VerticalCenter);
+    m_qmlItemNode.anchors().setAnchor(AnchorLineVerticalCenter, m_verticalTarget, AnchorLineVerticalCenter);
 
     emit verticalTargetChanged();
 }
@@ -380,7 +380,7 @@ void QmlAnchorBindingProxy::setHorizontalTarget(const QString &target)
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::setHorizontalTarget"));
 
     m_horizontalTarget = newTarget;
-    m_qmlItemNode.anchors().setAnchor(AnchorLine::HorizontalCenter, m_horizontalTarget, AnchorLine::HorizontalCenter);
+    m_qmlItemNode.anchors().setAnchor(AnchorLineHorizontalCenter, m_horizontalTarget, AnchorLineHorizontalCenter);
 
     emit horizontalTargetChanged();
 }
@@ -536,12 +536,12 @@ void QmlAnchorBindingProxy::calcTopMargin()
 
     if (m_topTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal topMargin = transformedBoundingBox().top() - parentBoundingBox().top();
-        m_qmlItemNode.anchors().setMargin( AnchorLine::Top, topMargin);
-        m_qmlItemNode.anchors().setAnchor(AnchorLine::Top, m_topTarget, AnchorLine::Top);
+        m_qmlItemNode.anchors().setMargin( AnchorLineTop, topMargin);
+        m_qmlItemNode.anchors().setAnchor(AnchorLineTop, m_topTarget, AnchorLineTop);
     } else {
         qreal topMargin = boundingBox(m_qmlItemNode).top() - boundingBox(m_topTarget).bottom();
-        m_qmlItemNode.anchors().setMargin( AnchorLine::Top, topMargin);
-        m_qmlItemNode.anchors().setAnchor(AnchorLine::Top, m_topTarget, AnchorLine::Bottom);
+        m_qmlItemNode.anchors().setMargin( AnchorLineTop, topMargin);
+        m_qmlItemNode.anchors().setAnchor(AnchorLineTop, m_topTarget, AnchorLineBottom);
     }
 
     m_locked = false;
@@ -553,12 +553,12 @@ void QmlAnchorBindingProxy::calcBottomMargin()
 
     if (m_bottomTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal bottomMargin =  parentBoundingBox().bottom() - transformedBoundingBox().bottom();
-        m_qmlItemNode.anchors().setMargin( AnchorLine::Bottom, bottomMargin);
-        m_qmlItemNode.anchors().setAnchor(AnchorLine::Bottom, m_bottomTarget, AnchorLine::Bottom);
+        m_qmlItemNode.anchors().setMargin( AnchorLineBottom, bottomMargin);
+        m_qmlItemNode.anchors().setAnchor(AnchorLineBottom, m_bottomTarget, AnchorLineBottom);
     } else {
         qreal bottomMargin = boundingBox(m_bottomTarget).top()- boundingBox(m_qmlItemNode).bottom();
-        m_qmlItemNode.anchors().setMargin( AnchorLine::Bottom, bottomMargin);
-        m_qmlItemNode.anchors().setAnchor(AnchorLine::Bottom, m_bottomTarget, AnchorLine::Top);
+        m_qmlItemNode.anchors().setMargin( AnchorLineBottom, bottomMargin);
+        m_qmlItemNode.anchors().setAnchor(AnchorLineBottom, m_bottomTarget, AnchorLineTop);
     }
 
     m_locked = false;
@@ -570,12 +570,12 @@ void QmlAnchorBindingProxy::calcLeftMargin()
 
     if (m_leftTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal leftMargin = transformedBoundingBox().left() - parentBoundingBox().left();
-        m_qmlItemNode.anchors().setMargin(AnchorLine::Left, leftMargin);
-        m_qmlItemNode.anchors().setAnchor(AnchorLine::Left, m_leftTarget, AnchorLine::Left);
+        m_qmlItemNode.anchors().setMargin(AnchorLineLeft, leftMargin);
+        m_qmlItemNode.anchors().setAnchor(AnchorLineLeft, m_leftTarget, AnchorLineLeft);
     } else {
         qreal leftMargin = boundingBox(m_qmlItemNode).left() - boundingBox(m_leftTarget).right();
-        m_qmlItemNode.anchors().setMargin( AnchorLine::Left, leftMargin);
-        m_qmlItemNode.anchors().setAnchor(AnchorLine::Left, m_leftTarget, AnchorLine::Right);
+        m_qmlItemNode.anchors().setMargin( AnchorLineLeft, leftMargin);
+        m_qmlItemNode.anchors().setAnchor(AnchorLineLeft, m_leftTarget, AnchorLineRight);
     }
 
     m_locked = false;
@@ -587,12 +587,12 @@ void QmlAnchorBindingProxy::calcRightMargin()
 
     if (m_rightTarget.modelNode() == m_qmlItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal rightMargin = parentBoundingBox().right() - transformedBoundingBox().right();
-        m_qmlItemNode.anchors().setMargin( AnchorLine::Right, rightMargin);
-        m_qmlItemNode.anchors().setAnchor(AnchorLine::Right, m_rightTarget, AnchorLine::Right);
+        m_qmlItemNode.anchors().setMargin( AnchorLineRight, rightMargin);
+        m_qmlItemNode.anchors().setAnchor(AnchorLineRight, m_rightTarget, AnchorLineRight);
     } else {
         qreal rightMargin = boundingBox(m_rightTarget).left() - boundingBox(m_qmlItemNode).right();
-        m_qmlItemNode.anchors().setMargin( AnchorLine::Right, rightMargin);
-        m_qmlItemNode.anchors().setAnchor(AnchorLine::Right, m_rightTarget, AnchorLine::Left);
+        m_qmlItemNode.anchors().setMargin( AnchorLineRight, rightMargin);
+        m_qmlItemNode.anchors().setAnchor(AnchorLineRight, m_rightTarget, AnchorLineLeft);
     }
 
     m_locked = false;
@@ -652,8 +652,8 @@ void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
 void QmlAnchorBindingProxy::removeTopAnchor() {
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::removeTopAnchor"));
 
-    m_qmlItemNode.anchors().removeAnchor(AnchorLine::Top);
-    m_qmlItemNode.anchors().removeMargin(AnchorLine::Top);
+    m_qmlItemNode.anchors().removeAnchor(AnchorLineTop);
+    m_qmlItemNode.anchors().removeMargin(AnchorLineTop);
 
     restoreProperty(modelNode(), "y");
     restoreProperty(modelNode(), "height");
@@ -663,8 +663,8 @@ void QmlAnchorBindingProxy::removeTopAnchor() {
 void QmlAnchorBindingProxy::removeBottomAnchor() {
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::removeBottomAnchor"));
 
-    m_qmlItemNode.anchors().removeAnchor(AnchorLine::Bottom);
-    m_qmlItemNode.anchors().removeMargin(AnchorLine::Bottom);
+    m_qmlItemNode.anchors().removeAnchor(AnchorLineBottom);
+    m_qmlItemNode.anchors().removeMargin(AnchorLineBottom);
 
 
     restoreProperty(modelNode(), "height");
@@ -673,8 +673,8 @@ void QmlAnchorBindingProxy::removeBottomAnchor() {
 void QmlAnchorBindingProxy::removeLeftAnchor() {
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::removeLeftAnchor"));
 
-    m_qmlItemNode.anchors().removeAnchor(AnchorLine::Left);
-    m_qmlItemNode.anchors().removeMargin(AnchorLine::Left);
+    m_qmlItemNode.anchors().removeAnchor(AnchorLineLeft);
+    m_qmlItemNode.anchors().removeMargin(AnchorLineLeft);
 
     restoreProperty(modelNode(), "x");
     restoreProperty(modelNode(), "width");
@@ -683,8 +683,8 @@ void QmlAnchorBindingProxy::removeLeftAnchor() {
 void QmlAnchorBindingProxy::removeRightAnchor() {
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::removeRightAnchor"));
 
-    m_qmlItemNode.anchors().removeAnchor(AnchorLine::Right);
-    m_qmlItemNode.anchors().removeMargin(AnchorLine::Right);
+    m_qmlItemNode.anchors().removeAnchor(AnchorLineRight);
+    m_qmlItemNode.anchors().removeMargin(AnchorLineRight);
 
     restoreProperty(modelNode(), "width");
 }
@@ -702,10 +702,10 @@ void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::setVerticalCentered"));
 
     if (!centered) {
-        m_qmlItemNode.anchors().removeAnchor(AnchorLine::VerticalCenter);
-        m_qmlItemNode.anchors().removeMargin(AnchorLine::VerticalCenter);
+        m_qmlItemNode.anchors().removeAnchor(AnchorLineVerticalCenter);
+        m_qmlItemNode.anchors().removeMargin(AnchorLineVerticalCenter);
     } else {
-        m_qmlItemNode.anchors().setAnchor(AnchorLine::VerticalCenter, m_qmlItemNode.modelNode().parentProperty().parentModelNode(), AnchorLine::VerticalCenter);
+        m_qmlItemNode.anchors().setAnchor(AnchorLineVerticalCenter, m_qmlItemNode.modelNode().parentProperty().parentModelNode(), AnchorLineVerticalCenter);
     }
 
     m_locked = false;
@@ -726,10 +726,10 @@ void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchorBindingProxy::setHorizontalCentered"));
 
     if (!centered) {
-        m_qmlItemNode.anchors().removeAnchor(AnchorLine::HorizontalCenter);
-        m_qmlItemNode.anchors().removeMargin(AnchorLine::HorizontalCenter);
+        m_qmlItemNode.anchors().removeAnchor(AnchorLineHorizontalCenter);
+        m_qmlItemNode.anchors().removeMargin(AnchorLineHorizontalCenter);
     } else {
-        m_qmlItemNode.anchors().setAnchor(AnchorLine::HorizontalCenter, m_qmlItemNode.modelNode().parentProperty().parentModelNode(), AnchorLine::HorizontalCenter);
+        m_qmlItemNode.anchors().setAnchor(AnchorLineHorizontalCenter, m_qmlItemNode.modelNode().parentProperty().parentModelNode(), AnchorLineHorizontalCenter);
     }
 
     m_locked = false;
@@ -739,7 +739,7 @@ void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
 
 bool QmlAnchorBindingProxy::verticalCentered()
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLine::VerticalCenter);
+    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineVerticalCenter);
 }
 
 QString QmlAnchorBindingProxy::topTarget() const
@@ -774,7 +774,7 @@ QString QmlAnchorBindingProxy::horizontalTarget() const
 
 bool QmlAnchorBindingProxy::horizontalCentered()
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLine::HorizontalCenter);
+    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineHorizontalCenter);
 }
 
 void QmlAnchorBindingProxy::fill()
@@ -793,10 +793,10 @@ void QmlAnchorBindingProxy::fill()
     setHorizontalCentered(false);
     setVerticalCentered(false);
 
-    m_qmlItemNode.anchors().removeMargin(AnchorLine::Right);
-    m_qmlItemNode.anchors().removeMargin(AnchorLine::Left);
-    m_qmlItemNode.anchors().removeMargin(AnchorLine::Top);
-    m_qmlItemNode.anchors().removeMargin(AnchorLine::Bottom);
+    m_qmlItemNode.anchors().removeMargin(AnchorLineRight);
+    m_qmlItemNode.anchors().removeMargin(AnchorLineLeft);
+    m_qmlItemNode.anchors().removeMargin(AnchorLineTop);
+    m_qmlItemNode.anchors().removeMargin(AnchorLineBottom);
 
     emit topAnchorChanged();
     emit bottomAnchorChanged();

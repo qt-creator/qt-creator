@@ -27,47 +27,34 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ANCHORINDICATORGRAPHICSITEM_H
-#define QMLDESIGNER_ANCHORINDICATORGRAPHICSITEM_H
 
-#include <QGraphicsObject>
+#ifndef QMLDESIGNER_ANCHORLINE_H
+#define QMLDESIGNER_ANCHORLINE_H
 
-#include <qmlanchors.h>
+#include <qmldesignercorelib_global.h>
+
+#include "qmlitemnode.h"
 
 namespace QmlDesigner {
 
-class AnchorIndicatorGraphicsItem : public QGraphicsObject
+class QMLDESIGNERCORE_EXPORT AnchorLine
 {
-    Q_OBJECT
 public:
-    explicit AnchorIndicatorGraphicsItem(QGraphicsItem *parent = 0);
+    AnchorLine();
+    AnchorLine(const QmlItemNode &qmlItemNode, AnchorLineType type);
+    AnchorLineType type() const;
+    bool isValid() const;
 
+    static bool isHorizontalAnchorLine(AnchorLineType anchorline);
+    static bool isVerticalAnchorLine(AnchorLineType anchorline);
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    QRectF boundingRect() const;
-
-    void updateAnchorIndicator(const AnchorLine &sourceAnchorLine, const AnchorLine targetAnchorLine);
-
-    AnchorLineType sourceAnchorLineType() const;
-    void setSourceAnchorLineType(const AnchorLineType &sourceAnchorLineType);
-
-protected:
-    void updateBoundingRect();
+    QmlItemNode qmlItemNode() const;
 
 private:
-    QPointF m_startPoint;
-    QPointF m_firstControlPoint;
-    QPointF m_secondControlPoint;
-    QPointF m_endPoint;
-    QPointF m_sourceAnchorLineFirstPoint;
-    QPointF m_sourceAnchorLineSecondPoint;
-    QPointF m_targetAnchorLineFirstPoint;
-    QPointF m_targetAnchorLineSecondPoint;
-    AnchorLineType m_sourceAnchorLineType;
-    AnchorLineType m_targetAnchorLineType;
-    QRectF m_boundingRect;
+    QmlItemNode m_qmlItemNode;
+    AnchorLineType m_type;
 };
 
 } // namespace QmlDesigner
 
-#endif // QMLDESIGNER_ANCHORINDICATORGRAPHICSITEM_H
+#endif // QMLDESIGNER_ANCHORLINE_H

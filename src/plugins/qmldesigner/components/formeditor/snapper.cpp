@@ -563,20 +563,20 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QRectF &boundingRect,
     return generateSnappingLines(boundingRectList, layerItem, transform);
 }
 
-static QmlItemNode findItemOnSnappingLine(const QmlItemNode &sourceQmlItemNode, const SnapLineMap &snappingLines, double anchorLine, AnchorLine::Type anchorLineType)
+static QmlItemNode findItemOnSnappingLine(const QmlItemNode &sourceQmlItemNode, const SnapLineMap &snappingLines, double anchorLine, AnchorLineType anchorLineType)
 {
     QmlItemNode targetQmlItemNode;
     double targetAnchorLine =  0.0;
 
     targetAnchorLine = std::numeric_limits<double>::max();
 
-    AnchorLine::Type compareAnchorLineType;
+    AnchorLineType compareAnchorLineType;
 
-    if (anchorLineType == AnchorLine::Left
-            || anchorLineType == AnchorLine::Right)
-        compareAnchorLineType = AnchorLine::Top;
+    if (anchorLineType == AnchorLineLeft
+            || anchorLineType == AnchorLineRight)
+        compareAnchorLineType = AnchorLineTop;
     else
-        compareAnchorLineType = AnchorLine::Left;
+        compareAnchorLineType = AnchorLineLeft;
 
     SnapLineMapIterator  snapLineIterator(snappingLines);
     while (snapLineIterator.hasNext()) {
@@ -608,8 +608,8 @@ static void adjustAnchorLine(const QmlItemNode &sourceQmlItemNode,
                              const QmlItemNode &containerQmlItemNode,
                              const SnapLineMap &snappingLines,
                              const SnapLineMap &snappingOffsets,
-                             AnchorLine::Type lineAnchorLineType,
-                             AnchorLine::Type offsetAnchorLineType)
+                             AnchorLineType lineAnchorLineType,
+                             AnchorLineType offsetAnchorLineType)
 {
     QmlAnchors qmlAnchors = sourceQmlItemNode.anchors();
 
@@ -624,13 +624,13 @@ static void adjustAnchorLine(const QmlItemNode &sourceQmlItemNode,
              boundingRect = targetQmlItemNode.instanceBoundingRect();
 
         if (targetQmlItemNode == containerQmlItemNode) {
-            if (lineAnchorLineType == AnchorLine::Left)
+            if (lineAnchorLineType == AnchorLineLeft)
                 margin = fromAnchorLine - boundingRect.left();
-            else if (lineAnchorLineType == AnchorLine::Top)
+            else if (lineAnchorLineType == AnchorLineTop)
                 margin =  fromAnchorLine - boundingRect.top();
-            else if (lineAnchorLineType == AnchorLine::Right)
+            else if (lineAnchorLineType == AnchorLineRight)
                 margin = boundingRect.right() - fromAnchorLine;
-            else if (lineAnchorLineType == AnchorLine::Bottom)
+            else if (lineAnchorLineType == AnchorLineBottom)
                 margin = boundingRect.bottom() - fromAnchorLine;
 
         }
@@ -644,8 +644,8 @@ static void adjustAnchorLine(const QmlItemNode &sourceQmlItemNode,
         if (targetQmlItemNode.isValid() && !targetQmlItemNode.anchors().checkForCycle(lineAnchorLineType, sourceQmlItemNode)) {
             double margin = fromAnchorLine - targetQmlItemNode.anchors().instanceAnchorLine(offsetAnchorLineType);
 
-            if (lineAnchorLineType == AnchorLine::Right
-                    || lineAnchorLineType == AnchorLine::Bottom)
+            if (lineAnchorLineType == AnchorLineRight
+                    || lineAnchorLineType == AnchorLineBottom)
                     margin *= -1.;
 
 
@@ -662,58 +662,58 @@ void Snapper::adjustAnchoringOfItem(FormEditorItem *formEditorItem)
     QmlItemNode qmlItemNode = formEditorItem->qmlItemNode();
     QmlAnchors qmlAnchors = qmlItemNode.anchors();
 
-    if (!qmlAnchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+    if (!qmlAnchors.instanceHasAnchor(AnchorLineHorizontalCenter)) {
         adjustAnchorLine(qmlItemNode,
                          containerFormEditorItem()->qmlItemNode(),
                          containerFormEditorItem()->leftSnappingLines(),
                          containerFormEditorItem()->rightSnappingOffsets(),
-                         AnchorLine::Left,
-                         AnchorLine::Right);
+                         AnchorLineLeft,
+                         AnchorLineRight);
     }
 
-    if (!qmlAnchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+    if (!qmlAnchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
         adjustAnchorLine(qmlItemNode,
                          containerFormEditorItem()->qmlItemNode(),
                          containerFormEditorItem()->topSnappingLines(),
                          containerFormEditorItem()->bottomSnappingOffsets(),
-                         AnchorLine::Top,
-                         AnchorLine::Bottom);
+                         AnchorLineTop,
+                         AnchorLineBottom);
     }
 
-    if (!qmlAnchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+    if (!qmlAnchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
         adjustAnchorLine(qmlItemNode,
                          containerFormEditorItem()->qmlItemNode(),
                          containerFormEditorItem()->bottomSnappingLines(),
                          containerFormEditorItem()->topSnappingOffsets(),
-                         AnchorLine::Bottom,
-                         AnchorLine::Top);
+                         AnchorLineBottom,
+                         AnchorLineTop);
     }
 
-    if (!qmlAnchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+    if (!qmlAnchors.instanceHasAnchor(AnchorLineHorizontalCenter)) {
         adjustAnchorLine(qmlItemNode,
                          containerFormEditorItem()->qmlItemNode(),
                          containerFormEditorItem()->rightSnappingLines(),
                          containerFormEditorItem()->leftSnappingOffsets(),
-                         AnchorLine::Right,
-                         AnchorLine::Left);
+                         AnchorLineRight,
+                         AnchorLineLeft);
     }
 
-    if (!qmlAnchors.instanceHasAnchor(AnchorLine::Left) && !qmlAnchors.instanceHasAnchor(AnchorLine::Right)) {
+    if (!qmlAnchors.instanceHasAnchor(AnchorLineLeft) && !qmlAnchors.instanceHasAnchor(AnchorLineRight)) {
         adjustAnchorLine(qmlItemNode,
                          containerFormEditorItem()->qmlItemNode(),
                          containerFormEditorItem()->verticalCenterSnappingLines(),
                          SnapLineMap(),
-                         AnchorLine::HorizontalCenter,
-                         AnchorLine::HorizontalCenter);
+                         AnchorLineHorizontalCenter,
+                         AnchorLineHorizontalCenter);
     }
 
-    if (!qmlAnchors.instanceHasAnchor(AnchorLine::Top) && !qmlAnchors.instanceHasAnchor(AnchorLine::Bottom)) {
+    if (!qmlAnchors.instanceHasAnchor(AnchorLineTop) && !qmlAnchors.instanceHasAnchor(AnchorLineBottom)) {
         adjustAnchorLine(qmlItemNode,
                          containerFormEditorItem()->qmlItemNode(),
                          containerFormEditorItem()->horizontalCenterSnappingLines(),
                          SnapLineMap(),
-                         AnchorLine::VerticalCenter,
-                         AnchorLine::VerticalCenter);
+                         AnchorLineVerticalCenter,
+                         AnchorLineVerticalCenter);
     }
 }
 

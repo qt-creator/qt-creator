@@ -40,16 +40,16 @@ AnchorIndicatorGraphicsItem::AnchorIndicatorGraphicsItem(QGraphicsItem *parent) 
     setZValue(-3);
 }
 
-int startAngleForAnchorLine(const AnchorLine::Type &anchorLineType)
+int startAngleForAnchorLine(const AnchorLineType &anchorLineType)
 {
     switch (anchorLineType) {
-    case AnchorLine::Top:
+    case AnchorLineTop:
         return 0;
-    case AnchorLine::Bottom:
+    case AnchorLineBottom:
         return 180 * 16;
-    case AnchorLine::Left:
+    case AnchorLineLeft:
         return 90 * 16;
-    case AnchorLine::Right:
+    case AnchorLineRight:
         return 270 * 16;
     default:
         return 0;
@@ -107,7 +107,7 @@ QRectF AnchorIndicatorGraphicsItem::boundingRect() const
     return m_boundingRect;
 }
 
-static QPointF createParentAnchorPoint(const QmlItemNode &parentQmlItemNode, AnchorLine::Type anchorLineType, const QmlItemNode &childQmlItemNode)
+static QPointF createParentAnchorPoint(const QmlItemNode &parentQmlItemNode, AnchorLineType anchorLineType, const QmlItemNode &childQmlItemNode)
 {
     QRectF parentBoundingRect = parentQmlItemNode.instanceSceneTransform().mapRect(parentQmlItemNode.instanceBoundingRect().adjusted(0., 0., 1., 1.));
     QRectF childBoundingRect = childQmlItemNode.instanceSceneTransform().mapRect(childQmlItemNode.instanceBoundingRect().adjusted(0., 0., 1., 1.));
@@ -115,16 +115,16 @@ static QPointF createParentAnchorPoint(const QmlItemNode &parentQmlItemNode, Anc
     QPointF anchorPoint;
 
     switch (anchorLineType) {
-    case AnchorLine::Top:
+    case AnchorLineTop:
         anchorPoint = QPointF(childBoundingRect.center().x(), parentBoundingRect.top());
         break;
-    case AnchorLine::Bottom:
+    case AnchorLineBottom:
         anchorPoint = QPointF(childBoundingRect.center().x(), parentBoundingRect.bottom());
         break;
-    case AnchorLine::Left:
+    case AnchorLineLeft:
         anchorPoint = QPointF(parentBoundingRect.left(), childBoundingRect.center().y());
         break;
-    case AnchorLine::Right:
+    case AnchorLineRight:
         anchorPoint = QPointF(parentBoundingRect.right(), childBoundingRect.center().y());
         break;
     default:
@@ -134,23 +134,23 @@ static QPointF createParentAnchorPoint(const QmlItemNode &parentQmlItemNode, Anc
     return anchorPoint;
 }
 
-static QPointF createAnchorPoint(const QmlItemNode &qmlItemNode, AnchorLine::Type anchorLineType)
+static QPointF createAnchorPoint(const QmlItemNode &qmlItemNode, AnchorLineType anchorLineType)
 {
     QRectF boundingRect = qmlItemNode.instanceBoundingRect().adjusted(0., 0., 1., 1.);
 
     QPointF anchorPoint;
 
     switch (anchorLineType) {
-    case AnchorLine::Top:
+    case AnchorLineTop:
         anchorPoint = QPointF(boundingRect.center().x(), boundingRect.top());
         break;
-    case AnchorLine::Bottom:
+    case AnchorLineBottom:
         anchorPoint = QPointF(boundingRect.center().x(), boundingRect.bottom());
         break;
-    case AnchorLine::Left:
+    case AnchorLineLeft:
         anchorPoint = QPointF(boundingRect.left(), boundingRect.center().y());
         break;
-    case AnchorLine::Right:
+    case AnchorLineRight:
         anchorPoint = QPointF(boundingRect.right(), boundingRect.center().y());
         break;
     default:
@@ -160,17 +160,17 @@ static QPointF createAnchorPoint(const QmlItemNode &qmlItemNode, AnchorLine::Typ
     return qmlItemNode.instanceSceneTransform().map(anchorPoint);
 }
 
-static QPointF createControlPoint(const QPointF &firstEditPoint, AnchorLine::Type anchorLineType, const QPointF &secondEditPoint)
+static QPointF createControlPoint(const QPointF &firstEditPoint, AnchorLineType anchorLineType, const QPointF &secondEditPoint)
 {
     QPointF controlPoint = firstEditPoint;
 
     switch (anchorLineType) {
-    case AnchorLine::Top:
-    case AnchorLine::Bottom:
+    case AnchorLineTop:
+    case AnchorLineBottom:
         controlPoint.ry() += (secondEditPoint.y() - firstEditPoint.y()) / 2.0;
         break;
-    case AnchorLine::Left:
-    case AnchorLine::Right:
+    case AnchorLineLeft:
+    case AnchorLineRight:
         controlPoint.rx() += (secondEditPoint.x() - firstEditPoint.x()) / 2.0;
         break;
     default:
@@ -185,19 +185,19 @@ static void updateAnchorLinePoints(QPointF *firstPoint, QPointF *secondPoint, co
     QRectF boundingRectangle = anchorLine.qmlItemNode().instanceBoundingRect().adjusted(0., 0., 1., 1.);
 
     switch (anchorLine.type()) {
-    case AnchorLine::Top:
+    case AnchorLineTop:
         *firstPoint = boundingRectangle.topLeft();
         *secondPoint = boundingRectangle.topRight();
         break;
-    case AnchorLine::Bottom:
+    case AnchorLineBottom:
         *firstPoint = boundingRectangle.bottomLeft();
         *secondPoint = boundingRectangle.bottomRight();
         break;
-    case AnchorLine::Left:
+    case AnchorLineLeft:
         *firstPoint = boundingRectangle.topLeft();
         *secondPoint = boundingRectangle.bottomLeft();
         break;
-    case AnchorLine::Right:
+    case AnchorLineRight:
         *firstPoint = boundingRectangle.topRight();
         *secondPoint = boundingRectangle.bottomRight();
         break;
@@ -248,12 +248,12 @@ void AnchorIndicatorGraphicsItem::updateBoundingRect()
 
     m_boundingRect = controlPolygon.boundingRect().adjusted(-10., -10., 10., 10.);
 }
-AnchorLine::Type AnchorIndicatorGraphicsItem::sourceAnchorLineType() const
+AnchorLineType AnchorIndicatorGraphicsItem::sourceAnchorLineType() const
 {
     return m_sourceAnchorLineType;
 }
 
-void AnchorIndicatorGraphicsItem::setSourceAnchorLineType(const AnchorLine::Type &sourceAnchorLineType)
+void AnchorIndicatorGraphicsItem::setSourceAnchorLineType(const AnchorLineType &sourceAnchorLineType)
 {
     m_sourceAnchorLineType = sourceAnchorLineType;
 }

@@ -49,6 +49,24 @@ typedef QByteArray PropertyName;
 typedef QList<PropertyName> PropertyNameList;
 typedef QByteArray TypeName;
 typedef QByteArray IdName;
+
+enum AnchorLineType {
+    AnchorLineInvalid = 0x0,
+    AnchorLineNoAnchor = AnchorLineInvalid,
+    AnchorLineLeft = 0x01,
+    AnchorLineRight = 0x02,
+    AnchorLineTop = 0x04,
+    AnchorLineBottom = 0x08,
+    AnchorLineHorizontalCenter = 0x10,
+    AnchorLineVerticalCenter = 0x20,
+    AnchorLineBaseline = 0x40,
+
+    AnchorLineFill =  AnchorLineLeft | AnchorLineRight | AnchorLineTop | AnchorLineBottom,
+    AnchorLineCenter = AnchorLineVerticalCenter | AnchorLineHorizontalCenter,
+    AnchorLineHorizontalMask = AnchorLineLeft | AnchorLineRight | AnchorLineHorizontalCenter,
+    AnchorLineVerticalMask = AnchorLineTop | AnchorLineBottom | AnchorLineVerticalCenter | AnchorLineBaseline,
+    AnchorLineAllMask = AnchorLineVerticalMask | AnchorLineHorizontalMask
+};
 }
 //#if defined(TEST_EXPORTS)
 //#if defined(CORE_LIBRARY)

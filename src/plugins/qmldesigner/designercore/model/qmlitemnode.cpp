@@ -606,13 +606,13 @@ bool QmlItemNode::hasAnySubModelNodes() const
 void QmlItemNode::setPosition(const QPointF &position)
 {
     if (!hasBindingProperty("x")
-            && !anchors().instanceHasAnchor(AnchorLine::Left)
-            && !anchors().instanceHasAnchor(AnchorLine::HorizontalCenter))
+            && !anchors().instanceHasAnchor(AnchorLineLeft)
+            && !anchors().instanceHasAnchor(AnchorLineHorizontalCenter))
         setVariantProperty("x", qRound(position.x()));
 
     if (!hasBindingProperty("y")
-            && !anchors().instanceHasAnchor(AnchorLine::Top)
-            && !anchors().instanceHasAnchor(AnchorLine::VerticalCenter))
+            && !anchors().instanceHasAnchor(AnchorLineTop)
+            && !anchors().instanceHasAnchor(AnchorLineVerticalCenter))
         setVariantProperty("y", qRound(position.y()));
 }
 
@@ -624,10 +624,10 @@ void QmlItemNode::setPostionInBaseState(const QPointF &position)
 
 void QmlItemNode::setSize(const QSizeF &size)
 {
-    if (!hasBindingProperty("width") && !anchors().instanceHasAnchor(AnchorLine::Right))
+    if (!hasBindingProperty("width") && !anchors().instanceHasAnchor(AnchorLineRight))
         setVariantProperty("width", qRound(size.width()));
 
-    if (!hasBindingProperty("height") && !anchors().instanceHasAnchor(AnchorLine::Bottom))
+    if (!hasBindingProperty("height") && !anchors().instanceHasAnchor(AnchorLineBottom))
         setVariantProperty("height", qRound(size.height()));
 }
 

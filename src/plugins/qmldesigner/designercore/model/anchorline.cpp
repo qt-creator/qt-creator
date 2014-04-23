@@ -27,47 +27,43 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ANCHORINDICATORGRAPHICSITEM_H
-#define QMLDESIGNER_ANCHORINDICATORGRAPHICSITEM_H
-
-#include <QGraphicsObject>
-
-#include <qmlanchors.h>
+#include "anchorline.h"
 
 namespace QmlDesigner {
 
-class AnchorIndicatorGraphicsItem : public QGraphicsObject
+AnchorLine::AnchorLine()
+    : m_qmlItemNode(QmlItemNode())
+    , m_type(AnchorLineInvalid)
+{}
+
+AnchorLine::AnchorLine(const QmlItemNode &qmlItemNode, AnchorLineType type)
+    : m_qmlItemNode(qmlItemNode),
+      m_type(type)
+{}
+
+AnchorLineType AnchorLine::type() const
 {
-    Q_OBJECT
-public:
-    explicit AnchorIndicatorGraphicsItem(QGraphicsItem *parent = 0);
+    return m_type;
+}
 
+bool AnchorLine::isValid() const
+{
+    return m_type != AnchorLineInvalid && m_qmlItemNode.isValid();
+}
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    QRectF boundingRect() const;
+bool AnchorLine::isHorizontalAnchorLine(AnchorLineType anchorline)
+{
+    return anchorline & AnchorLineHorizontalMask;
+}
 
-    void updateAnchorIndicator(const AnchorLine &sourceAnchorLine, const AnchorLine targetAnchorLine);
+bool AnchorLine::isVerticalAnchorLine(AnchorLineType anchorline)
+{
+     return anchorline & AnchorLineVerticalMask;
+}
 
-    AnchorLineType sourceAnchorLineType() const;
-    void setSourceAnchorLineType(const AnchorLineType &sourceAnchorLineType);
-
-protected:
-    void updateBoundingRect();
-
-private:
-    QPointF m_startPoint;
-    QPointF m_firstControlPoint;
-    QPointF m_secondControlPoint;
-    QPointF m_endPoint;
-    QPointF m_sourceAnchorLineFirstPoint;
-    QPointF m_sourceAnchorLineSecondPoint;
-    QPointF m_targetAnchorLineFirstPoint;
-    QPointF m_targetAnchorLineSecondPoint;
-    AnchorLineType m_sourceAnchorLineType;
-    AnchorLineType m_targetAnchorLineType;
-    QRectF m_boundingRect;
-};
+QmlItemNode AnchorLine::qmlItemNode() const
+{
+    return m_qmlItemNode;
+}
 
 } // namespace QmlDesigner
-
-#endif // QMLDESIGNER_ANCHORINDICATORGRAPHICSITEM_H

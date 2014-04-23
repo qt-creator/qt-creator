@@ -74,6 +74,7 @@ public:
 
     bool hasChildren() const;
     bool hasResources() const;
+    bool instanceHasAnchor(AnchorLineType sourceAnchorLineType) const;
     bool instanceHasAnchors() const;
     bool instanceHasShowContent() const;
 

@@ -78,6 +78,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/viewmanager.cpp \
     $$PWD/model/signalhandlerproperty.cpp \
     $$PWD/model/internalsignalhandlerproperty.cpp \
+    $$PWD/model/anchorline.cpp \
     $$PWD/instances/puppetdialog.cpp
 
 HEADERS += $$PWD/include/qmldesignercorelib_global.h \
@@ -150,6 +151,7 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/viewmanager.h \
     $$PWD/include/signalhandlerproperty.h \
     $$PWD/model/internalsignalhandlerproperty.h \
+    $$PWD/include/anchorline.h \
     $$PWD/instances/puppetdialog.h
 
 FORMS += \
