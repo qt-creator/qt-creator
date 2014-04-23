@@ -712,6 +712,15 @@ const QList<ModelNode> ModelNode::allSubModelNodes() const
     return toModelNodeList(internalNode()->allSubNodes(), view());
 }
 
+const QList<ModelNode> ModelNode::allSubModelNodesAndThisNode() const
+{
+    QList<ModelNode> modelNodeList;
+    modelNodeList.append(*this);
+    modelNodeList.append(allSubModelNodes());
+
+    return modelNodeList;
+}
+
 /*!
 \brief returns if this ModelNode has any child ModelNodes.
 

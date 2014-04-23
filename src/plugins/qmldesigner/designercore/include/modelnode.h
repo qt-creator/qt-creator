@@ -112,6 +112,7 @@ public:
 
     const QList<ModelNode> allDirectSubModelNodes() const;
     const QList<ModelNode> allSubModelNodes() const;
+    const QList<ModelNode> allSubModelNodesAndThisNode() const;
     bool hasAnySubModelNodes() const;
 
     //###
