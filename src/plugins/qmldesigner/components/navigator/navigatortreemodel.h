@@ -79,8 +79,6 @@ class NavigatorTreeModel : public QStandardItemModel
 {
     Q_OBJECT
 
-
-
     static const int NavigatorRole;
 
 public:
