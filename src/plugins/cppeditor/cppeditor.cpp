@@ -119,13 +119,41 @@ public:
     OverviewCombo(QWidget *parent = 0)
         : QComboBox(parent), m_skipNextHide(false)
     {
-        OverviewTreeView *outlineView = new OverviewTreeView;
-        outlineView->setHeaderHidden(true);
-        outlineView->setItemsExpandable(true);
-        setView(outlineView);
-        outlineView->viewport()->installEventFilter(this);
+        m_view = new OverviewTreeView;
+        m_view->setHeaderHidden(true);
+        m_view->setItemsExpandable(true);
+        setView(m_view);
+        m_view->viewport()->installEventFilter(this);
     }
 
+    void wheelEvent(QWheelEvent *e)
+    {
+        QModelIndex index = m_view->currentIndex();
+        if (e->delta() > 0) {
+            do
+                index = m_view->indexAbove(index);
+            while (index.isValid() && !(model()->flags(index) & Qt::ItemIsSelectable));
+        } else if (e->delta() < 0) {
+            do
+                index = m_view->indexBelow(index);
+            while (index.isValid() && !(model()->flags(index) & Qt::ItemIsSelectable));
+        }
+        e->accept();
+        if (!index.isValid())
+            return;
+
+        setCurrentIndex(index);
+
+        // for compatibility we emit activated with a useless row parameter
+        emit activated(index.row());
+    }
+    void setCurrentIndex(const QModelIndex &index)
+    {
+        setRootModelIndex(model()->parent(index));
+        QComboBox::setCurrentIndex(index.row());
+        setRootModelIndex(QModelIndex());
+        m_view->setCurrentIndex(index);
+    }
     bool eventFilter(QObject* object, QEvent* event)
     {
         if (event->type() == QEvent::MouseButtonPress && object == view()->viewport()) {
@@ -136,14 +164,12 @@ public:
         }
         return false;
     }
-
     void showPopup()
     {
-        static_cast<OverviewTreeView *>(view())->adjustWidth(topLevelWidget()->geometry().width());
+        m_view->adjustWidth(topLevelWidget()->geometry().width());
         QComboBox::showPopup();
     }
-
-    virtual void hidePopup()
+    void hidePopup()
     {
         if (m_skipNextHide)
             m_skipNextHide = false;
@@ -151,7 +177,13 @@ public:
             QComboBox::hidePopup();
     }
 
+    OverviewTreeView *view() const
+    {
+        return m_view;
+    }
+
 private:
+    OverviewTreeView *m_view;
     bool m_skipNextHide;
 };
 
@@ -643,7 +675,7 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     connect(m_updateFunctionDeclDefLinkTimer, SIGNAL(timeout()),
             this, SLOT(updateFunctionDeclDefLinkNow()));
 
-    connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
+    connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement()));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateOutlineIndex()));
     connect(m_outlineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateOutlineToolTip()));
 
@@ -1015,20 +1047,9 @@ void CPPEditorWidget::updatePreprocessorButtonTooltip()
     m_preprocessorButton->setToolTip(cmd->action()->toolTip());
 }
 
-void CPPEditorWidget::jumpToOutlineElement(int index)
+void CPPEditorWidget::jumpToOutlineElement()
 {
     QModelIndex modelIndex = m_outlineCombo->view()->currentIndex();
-    // When the user clicks on an item in the combo box,
-    // the view's currentIndex is updated, so we want to use that.
-    // When the scroll wheel was used on the combo box,
-    // the view's currentIndex is not updated,
-    // but the passed index to this function is correct.
-    // So, if the view has a current index, we reset it, to be able
-    // to distinguish wheel events later
-    if (modelIndex.isValid())
-        m_outlineCombo->view()->setCurrentIndex(QModelIndex());
-    else
-        modelIndex = m_proxyModel->index(index, 0); // toplevel index
     QModelIndex sourceIndex = m_proxyModel->mapToSource(modelIndex);
     Symbol *symbol = m_outlineModel->symbolFromIndex(sourceIndex);
     if (!symbol)
@@ -1076,8 +1097,7 @@ void CPPEditorWidget::updateOutlineNow()
 
     m_outlineModel->rebuild(document);
 
-    OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_outlineCombo->view());
-    treeView->expandAll();
+    static_cast<OverviewTreeView *>(m_outlineCombo->view())->expandAll();
     updateOutlineIndexNow();
 }
 
@@ -1133,10 +1153,7 @@ void CPPEditorWidget::updateOutlineIndexNow()
     if (comboIndex.isValid()) {
         bool blocked = m_outlineCombo->blockSignals(true);
 
-        // There is no direct way to select a non-root item
-        m_outlineCombo->setRootModelIndex(m_proxyModel->mapFromSource(comboIndex.parent()));
-        m_outlineCombo->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex).row());
-        m_outlineCombo->setRootModelIndex(QModelIndex());
+        static_cast<OverviewCombo *>(m_outlineCombo)->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex));
 
         updateOutlineToolTip();
 

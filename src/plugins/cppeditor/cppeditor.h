@@ -176,7 +176,7 @@ protected slots:
     void slotCodeStyleSettingsChanged(const QVariant &);
 
 private slots:
-    void jumpToOutlineElement(int index);
+    void jumpToOutlineElement();
     void updateOutlineNow();
     void updateOutlineIndex();
     void updateOutlineIndexNow();
