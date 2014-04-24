@@ -316,7 +316,7 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
   */
 void NavigatorTreeModel::updateItemRow(const ModelNode &node)
 {
-    if (!containsNode(node))
+    if (!isInTree(node))
         return;
 
     updateItemRow(node, itemRowForNode(node));
@@ -329,7 +329,7 @@ void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty
 {
     Q_UNUSED(oldIndex);
 
-    if (!containsNode(node))
+    if (!isInTree(node))
         return;
 
     ItemRow itemRow = itemRowForNode(node);
@@ -339,7 +339,7 @@ void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty
     Q_ASSERT(newRow >= 0);
 
     QStandardItem *parentIdItem = 0;
-    if (containsNode(listProperty.parentModelNode())) {
+    if (isInTree(listProperty.parentModelNode())) {
         ItemRow parentRow = itemRowForNode(listProperty.parentModelNode());
         parentIdItem = parentRow.propertyItems.value(listProperty.name());
         if (!parentIdItem) {
@@ -402,11 +402,6 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
     }
 }
 
-bool NavigatorTreeModel::containsNode(const ModelNode &node) const
-{
-    return m_nodeItemHash.contains(node);
-}
-
 ItemRow NavigatorTreeModel::itemRowForNode(const ModelNode &node)
 {
     Q_ASSERT(node.isValid());
@@ -430,7 +425,7 @@ void NavigatorTreeModel::clearView()
 QModelIndex NavigatorTreeModel::indexForNode(const ModelNode &node) const
 {
     Q_ASSERT(node.isValid());
-    if (!containsNode(node))
+    if (!isInTree(node))
         return QModelIndex();
     ItemRow row = m_nodeItemHash.value(node);
     return row.idItem->index();
@@ -511,7 +506,7 @@ void NavigatorTreeModel::addSubTree(const ModelNode &modelNode)
 
 void NavigatorTreeModel::removeSubTree(const ModelNode &node)
 {
-    if (!containsNode(node))
+    if (!isInTree(node))
         return;
 
     QList<QStandardItem*> rowList;

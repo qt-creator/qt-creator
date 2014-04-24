@@ -123,8 +123,6 @@ private slots:
 private:
     ModelNode nodeForHash(uint hash) const;
 
-    bool containsNode(const ModelNode &node) const;
-
     ItemRow createItemRow(const ModelNode &node);
     void updateItemRow(const ModelNode &node, ItemRow row);
 
