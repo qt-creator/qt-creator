@@ -52,6 +52,65 @@ namespace QmlDesigner {
 
 const int NavigatorTreeModel::NavigatorRole = Qt::UserRole;
 
+static TypeName qmlTypeInQtContainer(const TypeName &qtContainerType)
+{
+    TypeName typeName = qtContainerType;
+
+    if (typeName.startsWith("QDeclarativeListProperty<")
+        && typeName.endsWith('>')) {
+        typeName.remove(0, 25);
+        typeName.chop(1);
+    }
+
+    if (typeName.endsWith('*'))
+        typeName.chop(1);
+
+    return typeName;
+}
+
+static PropertyNameList visibleProperties(const ModelNode &node)
+{
+    PropertyNameList propertyList;
+
+    foreach (const PropertyName &propertyName, node.metaInfo().propertyNames()) {
+        if (!propertyName.contains('.') //do not show any dot properties, since they are tricky and unlikely to make sense
+                && node.metaInfo().propertyIsWritable(propertyName)
+                && propertyName != "parent"
+                && node.metaInfo().propertyTypeName(propertyName) != TypeName("Component")
+                && !node.metaInfo().propertyIsEnumType(propertyName) //Some enums have the same name as Qml types (e. g. Flow)
+                && !node.metaInfo().propertyIsPrivate(propertyName) //Do not show private properties
+                && propertyName != node.metaInfo().defaultPropertyName()) { // TODO: ask the node instances
+
+            TypeName qmlType = qmlTypeInQtContainer(node.metaInfo().propertyTypeName(propertyName));
+            if (node.model()->metaInfo(qmlType).isValid() &&
+                node.model()->metaInfo(qmlType).isSubclassOf("QtQuick.Item", -1, -1)) {
+                propertyList.append(propertyName);
+            }
+        }
+    }
+
+    return propertyList;
+}
+
+static QList<ModelNode> acceptedModelNodeChildren(const ModelNode &parentNode)
+{
+    QList<ModelNode> children;
+    PropertyNameList properties;
+
+    if (parentNode.metaInfo().hasDefaultProperty())
+        properties.append(parentNode.metaInfo().defaultPropertyName());
+
+    properties.append(visibleProperties(parentNode));
+
+    foreach (const PropertyName &propertyName, properties) {
+        AbstractProperty property(parentNode.property(propertyName));
+        if (property.isNodeAbstractProperty())
+            children.append(property.toNodeAbstractProperty().directSubNodes());
+    }
+
+    return children;
+}
+
 NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
     : QStandardItemModel(parent),
       m_blockItemChangedSignal(false)
@@ -182,7 +241,7 @@ static inline QString msgUnknownItem(const QString &t)
     return NavigatorTreeModel::tr("Unknown item: %1").arg(t);
 }
 
-NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &node)
+ItemRow NavigatorTreeModel::createItemRow(const ModelNode &node)
 {
     Q_ASSERT(node.isValid());
 
@@ -227,10 +286,15 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     }
 
 #   ifdef _LOCK_ITEMS_
-    return ItemRow(idItem, lockItem, visibilityItem, propertyItems);
+    ItemRow newRow =  ItemRow(idItem, lockItem, visibilityItem, propertyItems);
 #   else
-    return ItemRow(idItem, visibilityItem, propertyItems);
+    ItemRow newRow = ItemRow(idItem, visibilityItem, propertyItems);
 #   endif
+
+    m_nodeItemHash.insert(node, newRow);
+    updateItemRow(node, newRow);
+
+    return newRow;
 }
 
 void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
@@ -343,7 +407,7 @@ bool NavigatorTreeModel::containsNode(const ModelNode &node) const
     return m_nodeItemHash.contains(node);
 }
 
-NavigatorTreeModel::ItemRow NavigatorTreeModel::itemRowForNode(const ModelNode &node)
+ItemRow NavigatorTreeModel::itemRowForNode(const ModelNode &node)
 {
     Q_ASSERT(node.isValid());
     return m_nodeItemHash.value(node);
@@ -352,11 +416,8 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::itemRowForNode(const ModelNode &
 void NavigatorTreeModel::setView(AbstractView *view)
 {
     m_view = view;
-    m_hiddenProperties.clear();
-    if (view) {
-        m_hiddenProperties.append("parent");
+    if (view)
         addSubTree(view->rootModelNode());
-    }
 }
 
 void NavigatorTreeModel::clearView()
@@ -407,55 +468,49 @@ bool NavigatorTreeModel::isNodeInvisible(const ModelNode &modelNode) const
     return isInvisbleInHierachy(modelNode);
 }
 
-/**
-  Adds node & all children to the visible tree hierarchy (if node should be visible at all).
-
-  It always adds the node to the _end_ of the list of items.
-  */
-void NavigatorTreeModel::addSubTree(const ModelNode &node)
+static bool isRootNodeOrAcceptedChild(const ModelNode &modelNode)
 {
-    Q_ASSERT(node.isValid());
-    if (!containsNode(node)) {
+    return modelNode.isRootNode() || acceptedModelNodeChildren(modelNode.parentProperty().parentModelNode()).contains(modelNode);
+}
 
-        //updateItemRow(node, newRow);
+static bool nodeCanBeHandled(const ModelNode &modelNode)
+{
+    return modelNode.metaInfo().isGraphicalItem() && isRootNodeOrAcceptedChild(modelNode);
+}
 
-        // only add items that are in the modelNodeChildren list (that means, visible in the editor)
-        if (node.metaInfo().isGraphicalItem()
-                && (node.isRootNode() || modelNodeChildren(node.parentProperty().parentModelNode()).contains(node))) {
-
-            ItemRow newRow = createItemRow(node);
-            m_nodeItemHash.insert(node, newRow);
-
-            updateItemRow(node, newRow);
-
-            foreach (const ModelNode &childNode, modelNodeChildren(node))
-                addSubTree(childNode);
-
-            // We assume that the node is always added to the _end_ of the property list.
-            if (node.hasParentProperty()) {
-                AbstractProperty property(node.parentProperty());
-                ItemRow parentRow = itemRowForNode(property.parentModelNode());
-                QStandardItem *parentItem = parentRow.propertyItems.value(property.name());
-                if (!parentItem) {
-                    // Child nodes in the default property are added directly under the
-                    // parent.
-                    parentItem = parentRow.idItem;
-                }
-                if (parentItem)
-                    parentItem->appendRow(newRow.toList());
-            } else {
-                appendRow(newRow.toList());
-            }
+static void appendNodeToEndOfTheRow(const ModelNode &modelNode, const ItemRow &newItemRow, NavigatorTreeModel *treeModel)
+{
+    if (modelNode.hasParentProperty()) {
+        AbstractProperty property(modelNode.parentProperty());
+        ItemRow parentRow = treeModel->itemRowForNode(property.parentModelNode());
+        QStandardItem *parentItem = parentRow.propertyItems.value(property.name());
+        if (!parentItem) {
+            // Child nodes in the default property are added directly under the
+            // parent.
+            parentItem = parentRow.idItem;
         }
+        if (parentItem)
+            parentItem->appendRow(newItemRow.toList());
+    } else {
+        treeModel->appendRow(newItemRow.toList());
     }
 }
-/**
-  Deletes visual representation for the node (subtree).
-  */
+
+void NavigatorTreeModel::addSubTree(const ModelNode &modelNode)
+{
+    if (nodeCanBeHandled(modelNode)) {
+
+        ItemRow newItemRow = createItemRow(modelNode);
+
+        foreach (const ModelNode &childNode, acceptedModelNodeChildren(modelNode))
+            addSubTree(childNode);
+
+        appendNodeToEndOfTheRow(modelNode, newItemRow, this);
+    }
+}
+
 void NavigatorTreeModel::removeSubTree(const ModelNode &node)
 {
-    Q_ASSERT(node.isValid());
-
     if (!containsNode(node))
         return;
 
@@ -468,7 +523,7 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
     }
 
 
-    foreach (const ModelNode &childNode, modelNodeChildren(node)) {
+    foreach (const ModelNode &childNode, acceptedModelNodeChildren(node)) {
         removeSubTree(childNode);
     }
 
@@ -563,65 +618,6 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
     }  catch (RewritingException &e) { //better safe than sorry! There always might be cases where we fail
         e.showException();
     }
-}
-
-QList<ModelNode> NavigatorTreeModel::modelNodeChildren(const ModelNode &parentNode)
-{
-    QList<ModelNode> children;
-    PropertyNameList properties;
-
-    if (parentNode.metaInfo().hasDefaultProperty())
-        properties.append(parentNode.metaInfo().defaultPropertyName());
-
-    properties.append(visibleProperties(parentNode));
-
-    foreach (const PropertyName &propertyName, properties) {
-        AbstractProperty property(parentNode.property(propertyName));
-        if (property.isNodeProperty())
-            children.append(property.toNodeProperty().modelNode());
-        else if (property.isNodeListProperty())
-            children.append(property.toNodeListProperty().toModelNodeList());
-    }
-
-    return children;
-}
-
-TypeName NavigatorTreeModel::qmlTypeInQtContainer(const TypeName &qtContainerType) const
-{
-    TypeName typeName(qtContainerType);
-    if (typeName.startsWith("QDeclarativeListProperty<") &&
-        typeName.endsWith('>')) {
-        typeName.remove(0, 25);
-        typeName.chop(1);
-    }
-    if (typeName.endsWith('*'))
-        typeName.chop(1);
-
-    return typeName;
-}
-
-
-PropertyNameList NavigatorTreeModel::visibleProperties(const ModelNode &node) const
-{
-    PropertyNameList propertyList;
-
-    foreach (const PropertyName &propertyName, node.metaInfo().propertyNames()) {
-        if (!propertyName.contains('.') && //do not show any dot properties, since they are tricky and unlikely to make sense
-            node.metaInfo().propertyIsWritable(propertyName) && !m_hiddenProperties.contains(propertyName) &&
-            node.metaInfo().propertyTypeName(propertyName) != TypeName("Component") &&
-            !node.metaInfo().propertyIsEnumType(propertyName) && //Some enums have the same name as Qml types (e. g. Flow)
-            !node.metaInfo().propertyIsPrivate(propertyName) && //Do not show private properties
-            propertyName != node.metaInfo().defaultPropertyName()) { // TODO: ask the node instances
-
-            TypeName qmlType = qmlTypeInQtContainer(node.metaInfo().propertyTypeName(propertyName));
-            if (node.model()->metaInfo(qmlType).isValid() &&
-                node.model()->metaInfo(qmlType).isSubclassOf("QtQuick.Item", -1, -1)) {
-                propertyList.append(propertyName);
-            }
-        }
-    }
-
-    return propertyList;
 }
 
 // along the lines of QObject::blockSignals

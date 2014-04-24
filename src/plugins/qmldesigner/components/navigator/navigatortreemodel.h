@@ -42,10 +42,6 @@ class Model;
 class AbstractView;
 class ModelNode;
 
-class NavigatorTreeModel : public QStandardItemModel
-{
-    Q_OBJECT
-
 #ifdef _LOCK_ITEMS_
     struct ItemRow {
         ItemRow()
@@ -78,6 +74,12 @@ class NavigatorTreeModel : public QStandardItemModel
         QMap<QString, QStandardItem *> propertyItems;
     };
 #endif
+
+class NavigatorTreeModel : public QStandardItemModel
+{
+    Q_OBJECT
+
+
 
     static const int NavigatorRole;
 
@@ -114,6 +116,9 @@ public:
     void setVisible(const QModelIndex &index, bool visible);
 
     void openContextMenu(const QPoint &p);
+
+    ItemRow itemRowForNode(const ModelNode &node);
+
 private slots:
     void handleChangedItem(QStandardItem *item);
 
@@ -121,17 +126,11 @@ private:
     ModelNode nodeForHash(uint hash) const;
 
     bool containsNode(const ModelNode &node) const;
-    ItemRow itemRowForNode(const ModelNode &node);
 
     ItemRow createItemRow(const ModelNode &node);
     void updateItemRow(const ModelNode &node, ItemRow row);
 
     void moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);
-
-    QList<ModelNode> modelNodeChildren(const ModelNode &parentNode);
-
-    TypeName qmlTypeInQtContainer(const TypeName &qtContainerType) const;
-    PropertyNameList visibleProperties(const ModelNode &node) const;
 
     bool blockItemChangedSignal(bool block);
 
@@ -140,8 +139,6 @@ private:
     QWeakPointer<AbstractView> m_view;
 
     bool m_blockItemChangedSignal;
-
-    QStringList m_hiddenProperties;
 };
 
 } // namespace QmlDesigner
