@@ -198,6 +198,8 @@ static QString relativeToPath()
 static QString errorLocation(const QModelIndex &index, const Error &error,
                       bool link = false, const QString &linkAttr = QString())
 {
+    if (!index.isValid())
+        return QString();
     const ErrorListModel *model = 0;
     const QAbstractProxyModel *proxy = qobject_cast<const QAbstractProxyModel *>(index.model());
     while (!model && proxy) {
