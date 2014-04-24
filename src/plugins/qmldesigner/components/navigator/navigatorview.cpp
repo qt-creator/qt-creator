@@ -170,8 +170,7 @@ void NavigatorView::signalHandlerPropertiesChanged(const QVector<SignalHandlerPr
 
 void NavigatorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    if (m_treeModel->isInTree(removedNode))
-        m_treeModel->removeSubTree(removedNode);
+    m_treeModel->removeSubTree(removedNode);
 }
 
 void NavigatorView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
@@ -182,8 +181,8 @@ void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProp
 {
     bool blocked = blockSelectionChangedSignal(true);
 
-    if (m_treeModel->isInTree(node))
-        m_treeModel->removeSubTree(node);
+    m_treeModel->removeSubTree(node);
+
     if (node.isInHierarchy())
         m_treeModel->addSubTree(node);
 
