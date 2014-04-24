@@ -159,3 +159,18 @@ class QtInformation:
     QT_VERSION = 0
     QT_BINPATH = 1
     QT_LIBPATH = 2
+
+class LibType:
+    SHARED = 0
+    STATIC = 1
+    QT_PLUGIN = 2
+
+    @staticmethod
+    def getStringForLib(libType):
+        if libType == LibType.SHARED:
+            return "Shared Library"
+        if libType == LibType.STATIC:
+            return "Statically Linked Library"
+        if libType == LibType.QT_PLUGIN:
+            return "Qt Plugin"
+        return None

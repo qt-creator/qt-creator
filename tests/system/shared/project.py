@@ -110,7 +110,7 @@ def __createProjectOrFileSelectType__(category, template, fromWelcome = False, i
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}"))
     return __getSupportedPlatforms__(str(text), template)[0]
 
-def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
+def __createProjectSetNameAndPath__(path, projectName = None, checks = True, libType = None):
     directoryEdit = waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
                                   "toolTip?='Full path: *'}")
     replaceEditorContent(directoryEdit, path)
@@ -126,6 +126,10 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
         test.verify(labelCheck, "Project name and base directory without warning or error")
     # make sure this is not set as default location
     ensureChecked("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", False)
+    if libType != None:
+        selectFromCombo(waitForObject("{leftWidget={text='Type' type='QLabel' unnamed='1' "
+                                      "visible='1'} type='QComboBox' unnamed='1' visible='1'}"),
+                        LibType.getStringForLib(libType))
     clickButton(waitForObject(":Next_QPushButton"))
     return str(projectName)
 
@@ -356,6 +360,37 @@ def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESK
         __createProjectHandleLastPage__()
     return projectName
 
+def createNewCPPLib(projectDir = None, projectName = None, className = None, fromWelcome = False,
+                    target = Targets.DESKTOP_474_GCC, isStatic = False, modules = ["QtCore"]):
+    available = __createProjectOrFileSelectType__("  Libraries", "C++ Library", fromWelcome, True)
+    if isStatic:
+        libType = LibType.STATIC
+    else:
+        libType = LibType.SHARED
+    if projectDir == None:
+        projectDir = tempDir()
+    projectName = __createProjectSetNameAndPath__(projectDir, projectName, False, libType)
+    checkedTargets = __chooseTargets__(target, available)
+    snooze(1)
+    clickButton(waitForObject(":Next_QPushButton"))
+    __createProjectHandleModuleSelection__(modules)
+    className = __createProjectHandleClassInformation__(className)
+    __createProjectHandleLastPage__()
+    return checkedTargets, projectName, className
+
+def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWelcome=False,
+                      target=Targets.DESKTOP_474_GCC, baseClass="QGenericPlugin"):
+    available = __createProjectOrFileSelectType__("  Libraries", "C++ Library", fromWelcome, True)
+    if projectDir == None:
+        projectDir = tempDir()
+    projectName = __createProjectSetNameAndPath__(projectDir, projectName, False, LibType.QT_PLUGIN)
+    checkedTargets = __chooseTargets__(target, available)
+    snooze(1)
+    clickButton(waitForObject(":Next_QPushButton"))
+    className = __createProjectHandleClassInformation__(className, baseClass)
+    __createProjectHandleLastPage__()
+    return checkedTargets, projectName, className
+
 # parameter target can be an OR'd value of Targets
 # parameter availableTargets should be the result of __createProjectOrFileSelectType__()
 #           or use None as a fallback
@@ -389,6 +424,37 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
                 if current != Targets.SIMULATOR:
                     test.warning("Target '%s' is not set up correctly." % Targets.getStringForTarget(current))
     return checkedTargets
+
+def __createProjectHandleModuleSelection__(modules):
+    modulesPage = waitForObject("{type='QmakeProjectManager::Internal::ModulesPage' unnamed='1' "
+                                "visible='1'}")
+    chckBoxes = filter(lambda x: className(x) == 'QCheckBox', object.children(modulesPage))
+    chckBoxLabels = set([str(cb.text) for cb in chckBoxes])
+    if not set(modules).issubset(chckBoxLabels):
+        test.fatal("You want to check module(s) not available at 'Module Selection' page.",
+                   "Not available: %s" % str(set(modules).difference(chckBoxLabels)))
+    for checkBox in chckBoxes:
+        test.log("(Un)Checking module checkbox '%s'" % str(checkBox.text))
+        ensureChecked(checkBox, str(checkBox.text) in modules, 3000)
+    clickButton(waitForObject(":Next_QPushButton"))
+
+def __createProjectHandleClassInformation__(className, baseClass=None):
+    if baseClass:
+        selectFromCombo("{name='baseClassComboBox' type='QComboBox' visible='1'}", baseClass)
+    classLineEd = waitForObject("{name='classLineEdit' type='Utils::ClassNameValidatingLineEdit' "
+                                "visible='1'}")
+    result = str(classLineEd.text)
+    if className:
+        replaceEditorContent(classLineEd, className)
+    try:
+        waitForObject("{text='The class name contains invalid characters.' type='QLabel' "
+                     "unnamed='1' visible='1'}", 1000)
+        test.fatal("Class name contains invalid characters - using default.")
+        replaceEditorContent(classLineEd, result)
+    except:
+        result = className
+    clickButton(waitForObject(":Next_QPushButton"))
+    return result
 
 def waitForProcessRunning(running=True):
     outputButton = waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
