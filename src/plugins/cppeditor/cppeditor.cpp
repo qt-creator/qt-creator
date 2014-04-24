@@ -118,7 +118,13 @@ class OverviewCombo : public QComboBox
 public:
     OverviewCombo(QWidget *parent = 0)
         : QComboBox(parent), m_skipNextHide(false)
-    {}
+    {
+        OverviewTreeView *outlineView = new OverviewTreeView;
+        outlineView->setHeaderHidden(true);
+        outlineView->setItemsExpandable(true);
+        setView(outlineView);
+        outlineView->viewport()->installEventFilter(this);
+    }
 
     bool eventFilter(QObject* object, QEvent* event)
     {
@@ -596,13 +602,7 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     QSizePolicy policy = m_outlineCombo->sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
-
-    QTreeView *outlineView = new OverviewTreeView;
-    outlineView->header()->hide();
-    outlineView->setItemsExpandable(true);
-    m_outlineCombo->setView(outlineView);
     m_outlineCombo->setMaxVisibleItems(40);
-    outlineView->viewport()->installEventFilter(m_outlineCombo);
 
     m_outlineModel = new OverviewModel(this);
     m_proxyModel = new OverviewProxyModel(m_outlineModel, this);
