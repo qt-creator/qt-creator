@@ -504,27 +504,27 @@ void NavigatorTreeModel::addSubTree(const ModelNode &modelNode)
     }
 }
 
+static QList<QStandardItem*> takeWholeRow(const ItemRow &itemRow)
+{
+    if (itemRow.idItem->parent())
+        return  itemRow.idItem->parent()->takeRow(itemRow.idItem->row());
+    else
+        return itemRow.idItem->model()->takeRow(itemRow.idItem->row());
+}
+
 void NavigatorTreeModel::removeSubTree(const ModelNode &node)
 {
-    if (!isInTree(node))
-        return;
+    if (isInTree(node)) {
+        ItemRow itemRow = itemRowForNode(node);
 
-    QList<QStandardItem*> rowList;
-    ItemRow itemRow = itemRowForNode(node);
-    if (itemRow.idItem->parent()) {
-        rowList = itemRow.idItem->parent()->takeRow(itemRow.idItem->row());
-    } else {
-        rowList = takeRow(itemRow.idItem->row());
+        QList<QStandardItem*> rowList = takeWholeRow(itemRow);
+
+        foreach (const ModelNode &childNode, acceptedModelNodeChildren(node))
+            removeSubTree(childNode);
+
+        qDeleteAll(rowList);
+        m_nodeItemHash.remove(node);
     }
-
-
-    foreach (const ModelNode &childNode, acceptedModelNodeChildren(node)) {
-        removeSubTree(childNode);
-    }
-
-    qDeleteAll(rowList);
-
-    m_nodeItemHash.remove(node);
 
 }
 
