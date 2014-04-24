@@ -191,6 +191,9 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
             qmakeArguments.append(QStringLiteral("-r"));
             qmakeArguments.append(QStringLiteral("-after"));
             qmakeArguments.append(QStringLiteral("DESTDIR=") + qmlpuppetDirectory(UserSpacePuppet));
+#ifndef QT_DEBUG
+            qmakeArguments.append(QStringLiteral("CONFIG+=release"));
+#endif
             qmakeArguments.append(qmlPuppetProjectFilePath);
             buildSucceeded = startBuildProcess(buildDirectory.path(), qmakeCommand(), qmakeArguments);
             if (buildSucceeded) {
