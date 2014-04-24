@@ -162,8 +162,8 @@ QString Exception::description() const
 */
 void Exception::showException(const QString &title) const
 {
-    QString t = title.isEmpty() ? QCoreApplication::translate("QmlDesigner", "Error") : title;
-    showAsyncWarning(t, description());
+    QString composedTitle = title.isEmpty() ? QCoreApplication::translate("QmlDesigner", "Error") : title;
+    showAsyncWarning(composedTitle, description());
 }
 
 /*!
