@@ -202,13 +202,10 @@ void NavigatorView::nodeIdChanged(const ModelNode& node, const QString & /*newId
 void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
     foreach (const AbstractProperty &property, propertyList) {
-        if (property.isNodeProperty()) {
-            NodeProperty nodeProperty(property.toNodeProperty());
-            m_treeModel->removeSubTree(nodeProperty.modelNode());
-        } else if (property.isNodeListProperty()) {
-            NodeListProperty nodeListProperty(property.toNodeListProperty());
-            foreach (const ModelNode &node, nodeListProperty.toModelNodeList()) {
-                m_treeModel->removeSubTree(node);
+        if (property.isNodeAbstractProperty()) {
+            NodeAbstractProperty nodeAbstractProperty(property.toNodeListProperty());
+            foreach (const ModelNode &childNode, nodeAbstractProperty.directSubNodes()) {
+                m_treeModel->removeSubTree(childNode);
             }
         }
     }
