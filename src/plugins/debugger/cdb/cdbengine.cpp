@@ -796,6 +796,7 @@ void CdbEngine::setupInferior()
                                             BreakpointModelId(quint16(-1)), true), 0);
     }
     postCommand("sxn 0x4000001f", 0); // Do not break on WowX86 exceptions.
+    postCommand("sxn ibp", 0); // Do not break on initial breakpoints.
     postCommand(".asm source_line", 0); // Source line in assembly
     postCommand(m_extensionCommandPrefixBA + "setparameter maxStringLength="
                 + debuggerCore()->action(MaximalStringLength)->value().toByteArray()
