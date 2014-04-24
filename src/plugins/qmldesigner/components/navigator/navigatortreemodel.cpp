@@ -186,15 +186,13 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
 {
     Q_ASSERT(node.isValid());
 
-    uint hash = node.internalId();
-
     const bool dropEnabled = node.metaInfo().isValid();
 
     QStandardItem *idItem = new QStandardItem;
     idItem->setDragEnabled(true);
     idItem->setDropEnabled(dropEnabled);
     idItem->setEditable(true);
-    idItem->setData(hash, NavigatorRole);
+    idItem->setData(node.internalId(), NavigatorRole);
     if (node.metaInfo().isValid())
         idItem->setToolTip(node.type());
     else
@@ -212,7 +210,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     visibilityItem->setDropEnabled(dropEnabled);
     visibilityItem->setCheckable(true);
     visibilityItem->setEditable(false);
-    visibilityItem->setData(hash, NavigatorRole);
+    visibilityItem->setData(node.internalId(), NavigatorRole);
     if (node.isRootNode())
         visibilityItem->setCheckable(false);
 
