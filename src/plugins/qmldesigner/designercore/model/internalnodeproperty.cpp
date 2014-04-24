@@ -111,7 +111,7 @@ QList<InternalNode::Pointer> InternalNodeProperty::allSubNodes() const
     return nodeList;
 }
 
-QList<InternalNodePointer> InternalNodeProperty::allDirectSubNodes() const
+QList<InternalNodePointer> InternalNodeProperty::directSubNodes() const
 {
     QList<InternalNode::Pointer> nodeList;
 

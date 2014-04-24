@@ -57,7 +57,8 @@ public:
     int count() const;
     int indexOf(const ModelNode &node) const;
 
-    QList<ModelNode> allSubNodes();
+    const QList<ModelNode> allSubNodes();
+    const QList<ModelNode> directSubNodes() const;
 
 protected:
     NodeAbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model *model, AbstractView *view);

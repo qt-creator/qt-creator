@@ -47,7 +47,7 @@ public:
     bool isNodeAbstractProperty() const;
 
     virtual QList<InternalNodePointer> allSubNodes() const = 0;
-    virtual QList<InternalNodePointer> allDirectSubNodes() const = 0;
+    virtual QList<InternalNodePointer> directSubNodes() const = 0;
 
     virtual bool isEmpty() const = 0;
     virtual int count() const = 0;

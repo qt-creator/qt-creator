@@ -330,7 +330,7 @@ QList<InternalNode::Pointer> InternalNode::allDirectSubNodes() const
 {
     QList<InternalNode::Pointer> nodeList;
     foreach (const InternalNodeAbstractProperty::Pointer &property, nodeAbstractPropertyList()) {
-        nodeList.append(property->allDirectSubNodes());
+        nodeList.append(property->directSubNodes());
     }
 
     return nodeList;

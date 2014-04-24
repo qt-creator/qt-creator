@@ -55,7 +55,7 @@ public:
     bool isNodeListProperty() const;
 
     QList<InternalNodePointer> allSubNodes() const;
-    QList<InternalNodePointer> allDirectSubNodes() const;
+    QList<InternalNodePointer> directSubNodes() const;
     const QList<InternalNodePointer> &nodeList() const;
     void slide(int from, int to);
 

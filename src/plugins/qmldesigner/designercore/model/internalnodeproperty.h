@@ -49,7 +49,7 @@ public:
     bool isNodeProperty() const;
 
     QList<InternalNodePointer> allSubNodes() const;
-    QList<InternalNodePointer> allDirectSubNodes() const;
+    QList<InternalNodePointer> directSubNodes() const;
 
     InternalNodePointer node() const;
 
