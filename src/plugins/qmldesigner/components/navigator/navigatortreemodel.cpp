@@ -610,8 +610,8 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
                     }
             }
         }
-    }  catch (RewritingException &e) { //better safe than sorry! There always might be cases where we fail
-        e.showException();
+    }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
+        exception.showException();
     }
 }
 
