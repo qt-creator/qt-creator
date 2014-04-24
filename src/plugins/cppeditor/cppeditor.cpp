@@ -39,7 +39,6 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/icore.h>
 #include <cpptools/cpptoolseditorsupport.h>
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cpptoolsconstants.h>
@@ -112,11 +111,10 @@ public:
         expandAll();
     }
 
-    void adjustWidth()
+    void adjustWidth(int width)
     {
-        const int w = Core::ICore::mainWindow()->geometry().width();
-        setMaximumWidth(w);
-        setMinimumWidth(qMin(qMax(sizeHintForColumn(0), minimumSizeHint().width()), w));
+        setMaximumWidth(width);
+        setMinimumWidth(qMin(qMax(sizeHintForColumn(0), minimumSizeHint().width()), width));
     }
 };
 
@@ -139,7 +137,7 @@ public:
 
     void showPopup()
     {
-        static_cast<OverviewTreeView *>(view())->adjustWidth();
+        static_cast<OverviewTreeView *>(view())->adjustWidth(topLevelWidget()->geometry().width());
         QComboBox::showPopup();
     }
 
