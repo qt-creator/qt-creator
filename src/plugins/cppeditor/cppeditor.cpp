@@ -116,7 +116,8 @@ public:
 class OverviewCombo : public QComboBox
 {
 public:
-    OverviewCombo(QWidget *parent = 0) : QComboBox(parent), m_skipNextHide(false)
+    OverviewCombo(QWidget *parent = 0)
+        : QComboBox(parent), m_skipNextHide(false)
     {}
 
     bool eventFilter(QObject* object, QEvent* event)
