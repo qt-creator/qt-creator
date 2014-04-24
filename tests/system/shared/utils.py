@@ -81,7 +81,7 @@ def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
 # param expectedState is the expected enable state of the object
 def verifyEnabled(objectSpec, expectedState = True):
     if isinstance(objectSpec, (str, unicode)):
-        waitFor("object.exists('" + objectSpec + "')", 20000)
+        waitFor("object.exists('" + str(objectSpec).replace("'", "\\'") + "')", 20000)
         foundObject = findObject(objectSpec)
     else:
         foundObject = objectSpec
