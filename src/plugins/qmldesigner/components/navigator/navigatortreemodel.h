@@ -121,8 +121,6 @@ private slots:
     void handleChangedItem(QStandardItem *item);
 
 private:
-    ModelNode nodeForHash(uint hash) const;
-
     ItemRow createItemRow(const ModelNode &node);
     void updateItemRow(const ModelNode &node, ItemRow row);
 
