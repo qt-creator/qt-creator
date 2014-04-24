@@ -707,7 +707,7 @@ void NodeInstanceView::removeRecursiveChildRelationship(const ModelNode &removed
 //        instanceForNode(removedNode).setId(QString());
 //    }
 
-    foreach (const ModelNode &childNode, removedNode.allDirectSubModelNodes())
+    foreach (const ModelNode &childNode, removedNode.directSubModelNodes())
         removeRecursiveChildRelationship(childNode);
 
     removeInstanceNodeRelationship(removedNode);

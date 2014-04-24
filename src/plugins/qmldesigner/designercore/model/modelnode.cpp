@@ -572,8 +572,8 @@ void ModelNode::removeProperty(const PropertyName &name)
 
 static QList<ModelNode> descendantNodes(const ModelNode &parent)
 {
-    QList<ModelNode> descendants(parent.allDirectSubModelNodes());
-    foreach (const ModelNode &child, parent.allDirectSubModelNodes()) {
+    QList<ModelNode> descendants(parent.directSubModelNodes());
+    foreach (const ModelNode &child, parent.directSubModelNodes()) {
         descendants += descendantNodes(child);
     }
     return descendants;
@@ -694,7 +694,7 @@ The list contains every ModelNode that belongs to one of this ModelNodes
 properties.
 \return a list of all ModelNodes that are direct children
 */
-const QList<ModelNode> ModelNode::allDirectSubModelNodes() const
+const QList<ModelNode> ModelNode::directSubModelNodes() const
 {
     return toModelNodeList(internalNode()->allDirectSubNodes(), view());
 }

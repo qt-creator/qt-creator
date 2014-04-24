@@ -261,7 +261,7 @@ static void removeStateOperationsForChildren(const QmlObjectNode &node)
             stateOperation.modelNode().destroy(); //remove of belonging StatesOperations
         }
 
-        foreach (const QmlObjectNode &childNode, node.modelNode().allDirectSubModelNodes()) {
+        foreach (const QmlObjectNode &childNode, node.modelNode().directSubModelNodes()) {
             removeStateOperationsForChildren(childNode);
         }
     }
@@ -328,7 +328,7 @@ static QList<QmlItemNode> allQmlItemsRecursive(const QmlItemNode &qmlItemNode)
     if (qmlItemNode.isValid()) {
         qmlItemNodeList.append(qmlItemNode);
 
-        foreach (const ModelNode &modelNode, qmlItemNode.modelNode().allDirectSubModelNodes()) {
+        foreach (const ModelNode &modelNode, qmlItemNode.modelNode().directSubModelNodes()) {
             if (QmlItemNode::isValidQmlItemNode(modelNode))
                 qmlItemNodeList.append(allQmlItemsRecursive(modelNode));
         }

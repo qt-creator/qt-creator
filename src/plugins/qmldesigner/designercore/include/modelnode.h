@@ -110,7 +110,7 @@ public:
     void setParentProperty(const ModelNode &newParentNode, const PropertyName &propertyName);
     bool hasParentProperty() const;
 
-    const QList<ModelNode> allDirectSubModelNodes() const;
+    const QList<ModelNode> directSubModelNodes() const;
     const QList<ModelNode> allSubModelNodes() const;
     const QList<ModelNode> allSubModelNodesAndThisNode() const;
     bool hasAnySubModelNodes() const;

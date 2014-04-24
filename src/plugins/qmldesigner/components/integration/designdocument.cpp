@@ -401,7 +401,7 @@ void DesignDocument::copySelected()
         currentModel()->detachView(&view);
         copyModel->attachView(&view);
 
-        foreach (ModelNode node, view.rootModelNode().allDirectSubModelNodes()) {
+        foreach (ModelNode node, view.rootModelNode().directSubModelNodes()) {
             node.destroy();
         }
         view.changeRootNodeType("QtQuick.Rectangle", 1, 0);
@@ -426,7 +426,7 @@ static void scatterItem(ModelNode pastedNode, const ModelNode targetNode, int of
 {
 
     bool scatter = false;
-    foreach (const ModelNode &childNode, targetNode.allDirectSubModelNodes()) {
+    foreach (const ModelNode &childNode, targetNode.directSubModelNodes()) {
         if ((childNode.variantProperty("x").value() == pastedNode.variantProperty("x").value()) &&
             (childNode.variantProperty("y").value() == pastedNode.variantProperty("y").value()))
             scatter = true;
@@ -475,7 +475,7 @@ void DesignDocument::paste()
         return;
 
     if (rootNode.id() == "designer__Selection") {
-        QList<ModelNode> selectedNodes = rootNode.allDirectSubModelNodes();
+        QList<ModelNode> selectedNodes = rootNode.directSubModelNodes();
         pasteModel->detachView(&view);
         currentModel()->attachView(&view);
 

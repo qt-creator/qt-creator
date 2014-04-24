@@ -394,7 +394,7 @@ QStringList QmlAnchorBindingProxy::possibleTargetItems() const
     QList<QmlItemNode> itemList;
 
     if (m_qmlItemNode.instanceParent().modelNode().isValid())
-        itemList = toQmlItemNodeList(m_qmlItemNode.instanceParent().modelNode().allDirectSubModelNodes());
+        itemList = toQmlItemNodeList(m_qmlItemNode.instanceParent().modelNode().directSubModelNodes());
     itemList.removeOne(m_qmlItemNode);
     //We currently have no instanceChildren().
     //So we double check here if the instanceParents are equal.

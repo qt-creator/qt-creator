@@ -330,7 +330,7 @@ QList<QmlObjectNode> QmlItemNode::resources() const
 
 QList<QmlObjectNode> QmlItemNode::allDirectSubNodes() const
 {
-    return toQmlObjectNodeList(modelNode().allDirectSubModelNodes());
+    return toQmlObjectNodeList(modelNode().directSubModelNodes());
 }
 
 QmlAnchors QmlItemNode::anchors() const
@@ -590,7 +590,7 @@ QList<QmlItemNode> toQmlItemNodeList(const QList<ModelNode> &modelNodeList)
 
 const QList<QmlItemNode> QmlItemNode::allDirectSubModelNodes() const
 {
-    return toQmlItemNodeList(modelNode().allDirectSubModelNodes());
+    return toQmlItemNodeList(modelNode().directSubModelNodes());
 }
 
 const QList<QmlItemNode> QmlItemNode::allSubModelNodes() const
