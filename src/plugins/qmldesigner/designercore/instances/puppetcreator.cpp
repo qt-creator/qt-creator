@@ -189,6 +189,7 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
         if (buildDirectory.isValid()) {
             QStringList qmakeArguments;
             qmakeArguments.append(QStringLiteral("-r"));
+            qmakeArguments.append(QStringLiteral("-after"));
             qmakeArguments.append(QStringLiteral("DESTDIR=") + qmlpuppetDirectory(UserSpacePuppet));
             qmakeArguments.append(qmlPuppetProjectFilePath);
             buildSucceeded = startBuildProcess(buildDirectory.path(), qmakeCommand(), qmakeArguments);
