@@ -39,6 +39,7 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT TreeViewComboBoxView : public QTreeView
 {
+    Q_OBJECT
 public:
     TreeViewComboBoxView(QWidget *parent = 0);
     void adjustWidth(int width);
@@ -46,6 +47,7 @@ public:
 
 class QTCREATOR_UTILS_EXPORT TreeViewComboBox : public QComboBox
 {
+    Q_OBJECT
 public:
     TreeViewComboBox(QWidget *parent = 0);
 
