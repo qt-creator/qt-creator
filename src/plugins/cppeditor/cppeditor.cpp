@@ -106,11 +106,6 @@ public:
         setRootIsDecorated(false);
     }
 
-    void sync()
-    {
-        expandAll();
-    }
-
     void adjustWidth(int width)
     {
         setMaximumWidth(width);
@@ -1081,7 +1076,7 @@ void CPPEditorWidget::updateOutlineNow()
     m_outlineModel->rebuild(document);
 
     OverviewTreeView *treeView = static_cast<OverviewTreeView *>(m_outlineCombo->view());
-    treeView->sync();
+    treeView->expandAll();
     updateOutlineIndexNow();
 }
 
