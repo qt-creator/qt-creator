@@ -39,6 +39,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <qtsupport/qtsupportconstants.h>
+
 #include <QFileInfo>
 #include <QTextStream>
 
@@ -144,6 +146,8 @@ Core::FeatureSet BlackBerryQtVersion::availableFeatures() const
 {
     Core::FeatureSet features = QnxAbstractQtVersion::availableFeatures();
     features |= Core::FeatureSet(Constants::QNX_BB_FEATURE);
+    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
+    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT));
     return features;
 }
 

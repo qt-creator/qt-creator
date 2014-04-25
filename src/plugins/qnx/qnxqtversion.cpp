@@ -38,6 +38,8 @@
 #include <coreplugin/featureprovider.h>
 #include <utils/hostosinfo.h>
 
+#include <qtsupport/qtsupportconstants.h>
+
 using namespace Qnx;
 using namespace Qnx::Internal;
 
@@ -76,6 +78,8 @@ Core::FeatureSet QnxQtVersion::availableFeatures() const
 {
     Core::FeatureSet features = QnxAbstractQtVersion::availableFeatures();
     features |= Core::FeatureSet(Constants::QNX_QNX_FEATURE);
+    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
+    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT));
     return features;
 }
 
