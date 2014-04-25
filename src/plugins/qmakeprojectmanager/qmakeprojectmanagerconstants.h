@@ -70,7 +70,6 @@ const char QMAKEPROJECT_ID[] = "Qt4ProjectManager.Qt4Project";
 
 // ICONS
 const char ICON_QTQUICK_APP[] = ":/wizards/images/qtquickapp.png";
-const char ICON_HTML5_APP[] = ":/wizards/images/html5app.png";
 
 // Env variables
 const char QMAKEVAR_QMLJSDEBUGGER_PATH[] = "QMLJSDEBUGGER_PATH";

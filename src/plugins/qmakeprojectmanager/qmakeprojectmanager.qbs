@@ -100,10 +100,6 @@ QtcPlugin {
             "filespage.cpp", "filespage.h",
             "guiappwizard.cpp", "guiappwizard.h",
             "guiappwizarddialog.cpp", "guiappwizarddialog.h",
-            "html5app.cpp", "html5app.h",
-            "html5appwizard.cpp", "html5appwizard.h",
-            "html5appwizardpages.cpp", "html5appwizardpages.h",
-            "html5appwizardsourcespage.ui",
             "libraryparameters.cpp", "libraryparameters.h",
             "librarywizard.cpp", "librarywizard.h",
             "librarywizarddialog.cpp", "librarywizarddialog.h",
@@ -129,7 +125,6 @@ QtcPlugin {
         files: [
             "console.png",
             "gui.png",
-            "html5app.png",
             "lib.png",
             "qtquickapp.png",
         ]

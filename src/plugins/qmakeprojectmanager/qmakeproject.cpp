@@ -39,7 +39,6 @@
 #include "findqmakeprofiles.h"
 #include "wizards/abstractmobileapp.h"
 #include "wizards/qtquickapp.h"
-#include "wizards/html5app.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -427,7 +426,6 @@ bool QmakeProject::fromMap(const QVariantMap &map)
 
     // // Update boiler plate code for subprojects.
     QtQuickApp qtQuickApp;
-    const Html5App html5App;
 
     foreach (QmakeProFileNode *node, applicationProFiles(QmakeProject::ExactAndCumulativeParse)) {
         const QString path = node->path();
@@ -436,7 +434,6 @@ bool QmakeProject::fromMap(const QVariantMap &map)
             qtQuickApp.setTemplateInfo(info);
             updateBoilerPlateCodeFiles(&qtQuickApp, path);
         }
-        updateBoilerPlateCodeFiles(&html5App, path);
     }
     return true;
 }

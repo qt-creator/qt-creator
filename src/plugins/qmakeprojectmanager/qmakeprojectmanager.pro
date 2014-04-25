@@ -38,9 +38,6 @@ HEADERS += \
     wizards/qtquickapp.h \
     wizards/qtquickappwizard.h \
     wizards/qtquickappwizardpages.h \
-    wizards/html5app.h \
-    wizards/html5appwizard.h \
-    wizards/html5appwizardpages.h \
     wizards/abstractmobileapp.h \
     wizards/abstractmobileappwizard.h \
     wizards/subdirsprojectwizard.h \
@@ -93,9 +90,6 @@ SOURCES += \
     wizards/qtquickapp.cpp \
     wizards/qtquickappwizard.cpp \
     wizards/qtquickappwizardpages.cpp \
-    wizards/html5app.cpp \
-    wizards/html5appwizard.cpp \
-    wizards/html5appwizardpages.cpp \
     wizards/abstractmobileapp.cpp \
     wizards/abstractmobileappwizard.cpp \
     wizards/subdirsprojectwizard.cpp \
@@ -117,8 +111,7 @@ FORMS += makestep.ui \
     qmakestep.ui \
     qmakeprojectconfigwidget.ui \
     librarydetailswidget.ui \
-    wizards/testwizardpage.ui \
-    wizards/html5appwizardsourcespage.ui
+    wizards/testwizardpage.ui
 
 RESOURCES += qmakeprojectmanager.qrc \
     wizards/wizards.qrc

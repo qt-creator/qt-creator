@@ -42,7 +42,6 @@
 #include "wizards/emptyprojectwizard.h"
 #include "wizards/subdirsprojectwizard.h"
 #include "wizards/qtquickappwizard.h"
-#include "wizards/html5appwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
 #include "profileeditorfactory.h"
 #include "profilehoverhandler.h"
@@ -122,7 +121,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     addAutoReleasedObject(new GuiAppWizard);
     addAutoReleasedObject(new ConsoleAppWizard);
     addAutoReleasedObject(new QtQuickAppWizard);
-    addAutoReleasedObject(new Html5AppWizard);
     addAutoReleasedObject(new LibraryWizard);
     addAutoReleasedObject(new TestWizard);
     addAutoReleasedObject(new CustomWidgetWizard);

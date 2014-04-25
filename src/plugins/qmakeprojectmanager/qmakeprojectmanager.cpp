@@ -38,7 +38,6 @@
 #include "qmakebuildconfiguration.h"
 #include "addlibrarywizard.h"
 #include "wizards/qtquickapp.h"
-#include "wizards/html5app.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
