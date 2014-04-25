@@ -150,7 +150,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action = new ValgrindAction(this);
     action->setId("Memcheck.Remote");
     action->setTool(m_memcheckTool);
-    action->setText(tr("Valgrind Memory Analyzer (Remote)"));
+    action->setText(tr("Valgrind Memory Analyzer (External Remote Application)"));
     action->setToolTip(memcheckToolTip);
     action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
     action->setStartMode(StartRemote);
@@ -159,7 +159,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action = new ValgrindAction(this);
     action->setId("Callgrind.Remote");
     action->setTool(m_callgrindTool);
-    action->setText(tr("Valgrind Function Profiler (Remote)"));
+    action->setText(tr("Valgrind Function Profiler (External Remote Application)"));
     action->setToolTip(callgrindToolTip);
     action->setMenuGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
     action->setStartMode(StartRemote);
