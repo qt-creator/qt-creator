@@ -2,6 +2,7 @@ include(../../qtcreatorplugin.pri)
 
 HEADERS += \
     winrtconstants.h \
+    winrtdebugsupport.h \
     winrtdeployconfiguration.h \
     winrtdevice.h \
     winrtdevicefactory.h \
@@ -14,9 +15,11 @@ HEADERS += \
     winrtrunconfiguration.h \
     winrtrunconfigurationwidget.h \
     winrtruncontrol.h \
-    winrtrunfactories.h
+    winrtrunfactories.h \
+    winrtrunnerhelper.h
 
 SOURCES += \
+    winrtdebugsupport.cpp \
     winrtdeployconfiguration.cpp \
     winrtdevice.cpp \
     winrtdevicefactory.cpp \
@@ -29,7 +32,8 @@ SOURCES += \
     winrtrunconfiguration.cpp \
     winrtrunconfigurationwidget.cpp \
     winrtruncontrol.cpp \
-    winrtrunfactories.cpp
+    winrtrunfactories.cpp \
+    winrtrunnerhelper.cpp
 
 DEFINES += WINRT_LIBRARY
 

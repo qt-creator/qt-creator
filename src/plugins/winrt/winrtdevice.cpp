@@ -30,6 +30,7 @@
 #include "winrtdevice.h"
 #include "winrtconstants.h"
 
+#include <projectexplorer/devicesupport/desktopprocesssignaloperation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <utils/qtcassert.h>
@@ -84,9 +85,16 @@ void WinRtDevice::executeAction(Core::Id actionId, QWidget *parent)
     Q_UNUSED(parent);
 }
 
-ProjectExplorer::DeviceProcessSignalOperation::Ptr WinRtDevice::signalOperation() const
+DeviceProcessSignalOperation::Ptr WinRtDevice::signalOperation() const
 {
-    return DeviceProcessSignalOperation::Ptr();
+    class WinRtDesktopSignalOperation : public ProjectExplorer::DesktopProcessSignalOperation
+    {
+    public:
+        WinRtDesktopSignalOperation() {}
+        ~WinRtDesktopSignalOperation() {}
+    };
+
+    return DeviceProcessSignalOperation::Ptr(new WinRtDesktopSignalOperation());
 }
 
 void WinRtDevice::fromMap(const QVariantMap &map)

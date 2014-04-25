@@ -31,15 +31,23 @@
 #include "winrtrunconfiguration.h"
 #include "winrtruncontrol.h"
 #include "winrtconstants.h"
+#include "winrtdebugsupport.h"
 
-#include <projectexplorer/target.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
+#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
+#include <debugger/debuggerstartparameters.h>
 
 #include <utils/qtcassert.h>
+
+#include <QLocalServer>
+#include <QLocalSocket>
 
 using namespace ProjectExplorer;
 
@@ -80,7 +88,6 @@ QString WinRtRunConfigurationFactory::displayNameForId(const Core::Id id) const
 
 bool WinRtRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
-    Q_UNUSED(parent);
     return id == winrtConfigurationIdC && isKitCompatible(parent->kit());
 }
 
@@ -91,7 +98,6 @@ RunConfiguration *WinRtRunConfigurationFactory::doCreate(Target *parent, const C
 
 bool WinRtRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    Q_UNUSED(parent);
     return ProjectExplorer::idFromMap(map) == winrtConfigurationIdC && isKitCompatible(parent->kit());
 }
 
@@ -123,9 +129,23 @@ WinRtRunControlFactory::WinRtRunControlFactory()
 bool WinRtRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration,
         ProjectExplorer::RunMode mode) const
 {
-    if (mode != NormalRunMode)
+    if (!runConfiguration)
         return false;
-    return qobject_cast<WinRtRunConfiguration *>(runConfiguration);
+    IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
+    if (!device)
+        return false;
+
+    switch (mode) {
+    case DebugRunMode:
+    case DebugRunModeWithBreakOnMain:
+        if (device->type() != Constants::WINRT_DEVICE_TYPE_LOCAL)
+            return false;
+        // fall through
+    case NormalRunMode:
+        return qobject_cast<WinRtRunConfiguration *>(runConfiguration);
+    default:
+        return false;
+    }
 }
 
 ProjectExplorer::RunControl *WinRtRunControlFactory::create(
@@ -137,6 +157,9 @@ ProjectExplorer::RunControl *WinRtRunControlFactory::create(
     switch (mode) {
     case NormalRunMode:
         return new WinRtRunControl(rc, mode);
+    case DebugRunMode:
+    case DebugRunModeWithBreakOnMain:
+        return WinRtDebugSupport::createDebugRunControl(rc, mode, errorMessage);
     default:
         break;
     }

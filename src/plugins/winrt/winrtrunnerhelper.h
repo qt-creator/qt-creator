@@ -27,55 +27,73 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTRUNCONTROL_H
-#define WINRTRUNCONTROL_H
+
+#ifndef WINRTRUNNERHELPER_H
+#define WINRTRUNNERHELPER_H
 
 #include "winrtdevice.h"
 
-#include <projectexplorer/runconfiguration.h>
-#include <utils/qtcprocess.h>
+#include <utils/environment.h>
+#include <utils/outputformat.h>
 
-namespace QtSupport {
-class BaseQtVersion;
-} // namespace QtSupport
+#include <QObject>
+#include <QProcess>
 
-namespace ProjectExplorer {
-class Target;
-} // namespace ProjectExplorer
+
+namespace Utils { class QtcProcess; }
+namespace ProjectExplorer { class RunControl; }
 
 namespace WinRt {
 namespace Internal {
 
 class WinRtRunConfiguration;
-class WinRtRunnerHelper;
 
-class WinRtRunControl : public ProjectExplorer::RunControl
+class WinRtRunnerHelper : public QObject
 {
     Q_OBJECT
 public:
-    explicit WinRtRunControl(WinRtRunConfiguration *runConfiguration, ProjectExplorer::RunMode mode);
+    WinRtRunnerHelper(ProjectExplorer::RunControl *runControl);
+    WinRtRunnerHelper(WinRtRunConfiguration *runConfiguration, QString *errormessage);
 
+    void debug(const QString &debuggerExecutable, const QString &debuggerArguments = QString());
     void start();
-    StopResult stop();
-    bool isRunning() const;
-    QIcon icon() const;
+
+    void stop();
+
+    bool waitForStarted(int msecs = 10000);
+    void setRunControl(ProjectExplorer::RunControl *runControl);
+
+signals:
+    void started();
+    void finished(int exitCode, QProcess::ExitStatus exitStatus);
+    void error(QProcess::ProcessError error);
 
 private slots:
-    void onProcessStarted();
-    void onProcessFinished();
-    void onProcessError();
+    void onProcessReadyReadStdOut();
+    void onProcessReadyReadStdErr();
+    void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void onProcessError(QProcess::ProcessError processError);
 
 private:
-    enum State { StartingState, StartedState, StoppedState };
-    bool startWinRtRunner();
+    enum RunConf { Start, Stop, Debug };
+    void startWinRtRunner(const RunConf &conf);
+    bool init(WinRtRunConfiguration *runConfiguration, QString *errorMessage);
 
+    ProjectExplorer::RunControl *m_messenger;
     WinRtRunConfiguration *m_runConfiguration;
-    State m_state;
+    WinRtDevice::ConstPtr m_device;
+    Utils::Environment m_environment;
+    QString m_runnerFilePath;
+    QString m_executableFilePath;
+    QString m_debuggerExecutable;
+    QString m_debuggerArguments;
+    QString m_arguments;
+    bool m_uninstallAfterStop;
+    bool m_isWinPhone;
     Utils::QtcProcess *m_process;
-    WinRtRunnerHelper *m_runner;
 };
 
-} // namespace Internal
 } // namespace WinRt
+} // namespace Internal
 
-#endif // WINRTRUNCONTROL_H
+#endif // WINRTRUNNERHELPER_H

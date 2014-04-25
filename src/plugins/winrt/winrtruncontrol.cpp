@@ -28,9 +28,10 @@
 ****************************************************************************/
 
 #include "winrtruncontrol.h"
-#include "winrtrunconfiguration.h"
-#include "winrtconstants.h"
+
 #include "winrtdevice.h"
+#include "winrtrunconfiguration.h"
+#include "winrtrunnerhelper.h"
 
 #include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
@@ -41,7 +42,8 @@
 #include <projectexplorer/kitinformation.h>
 #include <qtsupport/qtkitinformation.h>
 
-using ProjectExplorer::BuildConfiguration;
+#include <QTimer>
+
 using ProjectExplorer::DeviceKitInformation;
 using ProjectExplorer::IDevice;
 using ProjectExplorer::RunControl;
@@ -54,39 +56,10 @@ namespace Internal {
 
 WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, RunMode mode)
     : RunControl(runConfiguration, mode)
+    , m_runConfiguration(runConfiguration)
     , m_state(StoppedState)
-    , m_process(0)
+    , m_runner(0)
 {
-    Target *target = runConfiguration->target();
-    IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
-    m_device = device.dynamicCast<const WinRtDevice>();
-
-    const QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target->kit());
-    if (!qt) {
-        appendMessage(tr("The current kit has no Qt version."),
-                      Utils::ErrorMessageFormat);
-        return;
-    }
-
-    m_isWinPhone = (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT));
-    m_runnerFilePath = qt->binPath().toString() + QStringLiteral("/winrtrunner.exe");
-    if (!QFile::exists(m_runnerFilePath)) {
-        appendMessage(tr("Cannot find winrtrunner.exe in \"%1\".").arg(
-                          QDir::toNativeSeparators(qt->binPath().toString())),
-                      Utils::ErrorMessageFormat);
-        return;
-    }
-
-    const Utils::FileName proFile = Utils::FileName::fromString(
-                target->project()->document()->filePath());
-    m_executableFilePath = target->applicationTargets().targetForProject(proFile).toString()
-                + QStringLiteral(".exe");   // ### we should not need to append ".exe" here.
-
-    m_arguments = runConfiguration->arguments();
-    m_uninstallAfterStop = runConfiguration->uninstallAfterStop();
-
-    if (BuildConfiguration *bc = target->activeBuildConfiguration())
-        m_environment = bc->environment();
 }
 
 void WinRtRunControl::start()
@@ -99,13 +72,10 @@ void WinRtRunControl::start()
 
 RunControl::StopResult WinRtRunControl::stop()
 {
-    if (m_state != StartedState) {
-        m_state = StoppedState;
+    if (m_state == StoppedState)
         return StoppedSynchronously;
-    }
 
-    QTC_ASSERT(m_process, return StoppedSynchronously);
-    m_process->interrupt();
+    m_runner->stop();
     return AsynchronousStop;
 }
 
@@ -126,84 +96,31 @@ void WinRtRunControl::onProcessStarted()
     emit started();
 }
 
-void WinRtRunControl::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void WinRtRunControl::onProcessFinished()
 {
-    QTC_ASSERT(m_process, return);
     QTC_CHECK(m_state == StartedState);
-
-    if (exitStatus == QProcess::CrashExit) {
-        appendMessage(tr("winrtrunner crashed.") + QLatin1Char('\n'), Utils::ErrorMessageFormat);
-    } else if (exitCode != 0) {
-        appendMessage(tr("winrtrunner returned with exit code %1.").arg(exitCode)
-                      + QLatin1Char('\n'), Utils::ErrorMessageFormat);
-    } else {
-        appendMessage(tr("winrtrunner finished successfully.")
-                      + QLatin1Char('\n'), Utils::NormalMessageFormat);
-    }
-
-    m_process->disconnect();
-    m_process->deleteLater();
-    m_process = 0;
-    m_state = StoppedState;
-    emit finished();
+    onProcessError();
 }
 
 void WinRtRunControl::onProcessError()
 {
-    QTC_ASSERT(m_process, return);
-    appendMessage(tr("Error while executing winrtrunner: %1\n").arg(m_process->errorString()),
-            Utils::ErrorMessageFormat);
-    m_process->disconnect();
-    m_process->deleteLater();
-    m_process = 0;
+    QTC_ASSERT(m_runner, return);
+    m_runner->disconnect();
+    m_runner->deleteLater();
+    m_runner = 0;
     m_state = StoppedState;
     emit finished();
 }
 
-void WinRtRunControl::onProcessReadyReadStdOut()
-{
-    QTC_ASSERT(m_process, return);
-    appendMessage(QString::fromLocal8Bit(m_process->readAllStandardOutput()), Utils::StdOutFormat);
-}
-
-void WinRtRunControl::onProcessReadyReadStdErr()
-{
-    QTC_ASSERT(m_process, return);
-    appendMessage(QString::fromLocal8Bit(m_process->readAllStandardError()), Utils::StdErrFormat);
-}
-
 bool WinRtRunControl::startWinRtRunner()
 {
-    QString runnerArgs;
-    QtcProcess::addArg(&runnerArgs, QStringLiteral("--profile"));
-    QtcProcess::addArg(&runnerArgs, m_isWinPhone ? QStringLiteral("xap") : QStringLiteral("appx"));
-    if (m_device) {
-        QtcProcess::addArg(&runnerArgs, QStringLiteral("--device"));
-        QtcProcess::addArg(&runnerArgs, QString::number(m_device->deviceId()));
-    }
-    QtcProcess::addArgs(&runnerArgs, QStringLiteral("--install --start --stop --wait 0"));
-    QtcProcess::addArg(&runnerArgs, m_executableFilePath);
-    if (!m_arguments.isEmpty())
-        QtcProcess::addArgs(&runnerArgs, m_arguments);
-
-    appendMessage(QStringLiteral("winrtrunner ") + runnerArgs + QLatin1Char('\n'),
-                  Utils::NormalMessageFormat);
-
-    QTC_ASSERT(!m_process, m_process->deleteLater());
-    m_process = new QtcProcess(this);
-    connect(m_process, SIGNAL(started()), SLOT(onProcessStarted()));
-    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
-            SLOT(onProcessFinished(int,QProcess::ExitStatus)));
-    connect(m_process, SIGNAL(error(QProcess::ProcessError)), SLOT(onProcessError()));
-    connect(m_process, SIGNAL(readyReadStandardOutput()), SLOT(onProcessReadyReadStdOut()));
-    connect(m_process, SIGNAL(readyReadStandardError()), SLOT(onProcessReadyReadStdErr()));
-
+    QTC_ASSERT(!m_runner, return false);
+    m_runner = new WinRtRunnerHelper(this);
+    connect(m_runner, SIGNAL(started()), SLOT(onProcessStarted()));
+    connect(m_runner, SIGNAL(finished(int,QProcess::ExitStatus)), SLOT(onProcessFinished()));
+    connect(m_runner, SIGNAL(error(QProcess::ProcessError)), SLOT(onProcessError()));
     m_state = StartingState;
-    m_process->setUseCtrlCStub(true);
-    m_process->setCommand(m_runnerFilePath, runnerArgs);
-    m_process->setEnvironment(m_environment);
-    m_process->setWorkingDirectory(QFileInfo(m_executableFilePath).absolutePath());
-    m_process->start();
+    m_runner->start();
     return true;
 }
 

@@ -2699,8 +2699,7 @@ void CdbEngine::parseOutputLine(QByteArray line)
                 m_autoBreakPointCorrection = major > 6 || (major == 6 && minor >= 2 && minor < 10);
                 showMessage(QString::fromLocal8Bit(line), LogMisc);
                 showMessage(QString::fromLatin1("Using ")
-                            + m_autoBreakPointCorrection ? QLatin1String("CDB ")
-                                                         : QLatin1String("codemodel ")
+                            + QLatin1String(m_autoBreakPointCorrection ? "CDB " : "codemodel ")
                             + QString::fromLatin1("based breakpoint correction."), LogMisc);
             }
         }

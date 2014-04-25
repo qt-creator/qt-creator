@@ -9,8 +9,9 @@ SUBDIRS = qtpromaker \
      buildoutputparser
 
 win32 {
-    SUBDIRS += qtcdebugger
-    SUBDIRS += wininterrupt
+    SUBDIRS += qtcdebugger \
+        wininterrupt \
+        winrtdebughelper
 }
 
 mac {

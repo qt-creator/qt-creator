@@ -27,55 +27,52 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTRUNCONTROL_H
-#define WINRTRUNCONTROL_H
+#include <Windows.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "winrtdevice.h"
-
-#include <projectexplorer/runconfiguration.h>
-#include <utils/qtcprocess.h>
-
-namespace QtSupport {
-class BaseQtVersion;
-} // namespace QtSupport
-
-namespace ProjectExplorer {
-class Target;
-} // namespace ProjectExplorer
-
-namespace WinRt {
-namespace Internal {
-
-class WinRtRunConfiguration;
-class WinRtRunnerHelper;
-
-class WinRtRunControl : public ProjectExplorer::RunControl
+int main(int argc, char *argv[])
 {
-    Q_OBJECT
-public:
-    explicit WinRtRunControl(WinRtRunConfiguration *runConfiguration, ProjectExplorer::RunMode mode);
+    int pid = -1;
+    const size_t maxPipeNameSize = 256;
+    wchar_t pipeName[maxPipeNameSize] = { 0 };
 
-    void start();
-    StopResult stop();
-    bool isRunning() const;
-    QIcon icon() const;
+    for (int i = 0; i < argc - 1; ++i) {
+        if (!strcmp(argv[i], "-t")) {
+            ++i;
+            if (swprintf(pipeName, maxPipeNameSize, L"%hs", argv[i]) < 0)
+                return 0; // Pipe name too long
+        } else if (!strcmp(argv[i], "-p")) {
+            ++i;
 
-private slots:
-    void onProcessStarted();
-    void onProcessFinished();
-    void onProcessError();
+            // check if -p is followed by a number
+            const char *pidString = argv[i];
+            char *end;
+            pid = strtoul(pidString, &end, 0);
+            if (*end != 0)
+                return 0;
+        }
+    }
 
-private:
-    enum State { StartingState, StartedState, StoppedState };
-    bool startWinRtRunner();
+    if (pid < 0)
+        return 0;
 
-    WinRtRunConfiguration *m_runConfiguration;
-    State m_state;
-    Utils::QtcProcess *m_process;
-    WinRtRunnerHelper *m_runner;
-};
+    if (*pipeName == 0)
+        swprintf(pipeName, maxPipeNameSize, L"\\\\.\\pipe\\QtCreatorWinRtDebugPIDPipe");
+    HANDLE pipe;
+    while (true) {
+        pipe = CreateFile(pipeName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+        if (pipe != INVALID_HANDLE_VALUE)
+            break;
+        if ((GetLastError() != ERROR_PIPE_BUSY) || (!WaitNamedPipe(pipeName, 10000)))
+            return 0;
+    }
 
-} // namespace Internal
-} // namespace WinRt
+    const size_t msgBufferSize = 15;
+    char pidMessageBuffer[msgBufferSize];
+    int length = sprintf_s(pidMessageBuffer, msgBufferSize, "PID:%d", pid);
+    if (length >= 0)
+        WriteFile(pipe, pidMessageBuffer, length, NULL, NULL);
 
-#endif // WINRTRUNCONTROL_H
+    return 0;
+}

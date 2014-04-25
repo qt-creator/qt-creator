@@ -136,18 +136,6 @@ int breakPointIdToCdbId(const BreakpointModelId &id)
 }
 
 template <class ModelId>
-inline ModelId cdbIdToBreakpointId(const GdbMi &data)
-{
-    if (data.isValid()) { // Might not be valid if there is not id
-        bool ok;
-        const int id = data.data().toInt(&ok);
-        if (ok)
-            return cdbIdToBreakpointId<ModelId>(id);
-    }
-    return ModelId();
-}
-
-template <class ModelId>
 inline ModelId cdbIdToBreakpointId(const int &id)
 {
     if (id >= cdbBreakPointStartId) {
@@ -157,6 +145,18 @@ inline ModelId cdbIdToBreakpointId(const int &id)
             return ModelId(major, minor);
         else
             return ModelId(major);
+    }
+    return ModelId();
+}
+
+template <class ModelId>
+inline ModelId cdbIdToBreakpointId(const GdbMi &data)
+{
+    if (data.isValid()) { // Might not be valid if there is not id
+        bool ok;
+        const int id = data.data().toInt(&ok);
+        if (ok)
+            return cdbIdToBreakpointId<ModelId>(id);
     }
     return ModelId();
 }

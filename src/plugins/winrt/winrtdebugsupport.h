@@ -27,21 +27,13 @@
 **
 ****************************************************************************/
 
-#ifndef WINRTRUNCONTROL_H
-#define WINRTRUNCONTROL_H
 
-#include "winrtdevice.h"
+#ifndef WINRT_INTERNAL_WINRTDEBUGSUPPORT_H
+#define WINRT_INTERNAL_WINRTDEBUGSUPPORT_H
 
 #include <projectexplorer/runconfiguration.h>
-#include <utils/qtcprocess.h>
 
-namespace QtSupport {
-class BaseQtVersion;
-} // namespace QtSupport
-
-namespace ProjectExplorer {
-class Target;
-} // namespace ProjectExplorer
+#include <QObject>
 
 namespace WinRt {
 namespace Internal {
@@ -49,33 +41,25 @@ namespace Internal {
 class WinRtRunConfiguration;
 class WinRtRunnerHelper;
 
-class WinRtRunControl : public ProjectExplorer::RunControl
+class WinRtDebugSupport : public QObject
 {
     Q_OBJECT
 public:
-    explicit WinRtRunControl(WinRtRunConfiguration *runConfiguration, ProjectExplorer::RunMode mode);
-
-    void start();
-    StopResult stop();
-    bool isRunning() const;
-    QIcon icon() const;
-
-private slots:
-    void onProcessStarted();
-    void onProcessFinished();
-    void onProcessError();
+    static ProjectExplorer::RunControl *createDebugRunControl(WinRtRunConfiguration *runConfig,
+                                                              ProjectExplorer::RunMode mode,
+                                                              QString *errorMessage);
 
 private:
-    enum State { StartingState, StartedState, StoppedState };
-    bool startWinRtRunner();
+    WinRtDebugSupport(ProjectExplorer::RunControl *runControl, WinRtRunnerHelper *runner);
 
-    WinRtRunConfiguration *m_runConfiguration;
-    State m_state;
-    Utils::QtcProcess *m_process;
+    ProjectExplorer::RunControl *m_debugRunControl;
     WinRtRunnerHelper *m_runner;
+
+private slots:
+    void finish();
 };
 
 } // namespace Internal
 } // namespace WinRt
 
-#endif // WINRTRUNCONTROL_H
+#endif // WINRT_INTERNAL_WINRTDEBUGSUPPORT_H
