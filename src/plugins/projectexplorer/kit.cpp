@@ -48,6 +48,7 @@ namespace {
 
 const char ID_KEY[] = "PE.Profile.Id";
 const char DISPLAYNAME_KEY[] = "PE.Profile.Name";
+const char FILESYSTEMFRIENDLYNAME_KEY[] = "PE.Profile.FileSystemFriendlyName";
 const char AUTODETECTED_KEY[] = "PE.Profile.AutoDetected";
 const char AUTODETECTIONSOURCE_KEY[] = "PE.Profile.AutoDetectionSource";
 const char SDK_PROVIDED_KEY[] = "PE.Profile.SDK";
@@ -89,6 +90,7 @@ public:
     }
 
     QString m_displayName;
+    QString m_fileSystemFriendlyName;
     Id m_id;
     int m_nestedBlockingLevel;
     bool m_autodetected;
@@ -139,6 +141,7 @@ Kit::Kit(const QVariantMap &data) :
 
     d->m_displayName = data.value(QLatin1String(DISPLAYNAME_KEY),
                                   d->m_displayName).toString();
+    d->m_fileSystemFriendlyName = data.value(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY)).toString();
     d->m_iconPath = Utils::FileName::fromString(data.value(QLatin1String(ICON_KEY),
                                                            d->m_iconPath.toString()).toString());
     d->m_icon = icon(d->m_iconPath);
@@ -191,6 +194,7 @@ Kit *Kit::clone(bool keepName) const
                 .arg(d->m_displayName);
     k->d->m_autodetected = false;
     k->d->m_data = d->m_data;
+    // Do not clone m_fileSystemFriendlyName, needs to be unique
     k->d->m_isValid = d->m_isValid;
     k->d->m_icon = d->m_icon;
     k->d->m_iconPath = d->m_iconPath;
@@ -208,6 +212,7 @@ void Kit::copyFrom(const Kit *k)
     d->m_autodetected = k->d->m_autodetected;
     d->m_autoDetectionSource = k->d->m_autoDetectionSource;
     d->m_displayName = k->d->m_displayName;
+    d->m_fileSystemFriendlyName = k->d->m_fileSystemFriendlyName;
     d->m_mustNotify = true;
     d->m_mustNotifyAboutDisplayName = true;
     d->m_sticky = k->d->m_sticky;
@@ -310,9 +315,21 @@ QStringList Kit::candidateNameList(const QString &base) const
     return result;
 }
 
+void Kit::setCustomFileSystemFriendlyName(const QString &fileSystemFriendlyName)
+{
+    d->m_fileSystemFriendlyName = fileSystemFriendlyName;
+}
+
+QString Kit::customFileSystemFriendlyName() const
+{
+    return d->m_fileSystemFriendlyName;
+}
+
 QString Kit::fileSystemFriendlyName() const
 {
-    QString name = Utils::FileUtils::qmakeFriendlyName(displayName());
+    QString name = customFileSystemFriendlyName();
+    if (name.isEmpty())
+        name = Utils::FileUtils::qmakeFriendlyName(displayName());
     foreach (Kit *i, KitManager::kits()) {
         if (i == this)
             continue;
@@ -421,6 +438,7 @@ bool Kit::isEqual(const Kit *other) const
     return isDataEqual(other)
             && d->m_iconPath == other->d->m_iconPath
             && d->m_displayName == other->d->m_displayName
+            && d->m_fileSystemFriendlyName == other->d->m_fileSystemFriendlyName
             && d->m_mutable == other->d->m_mutable;
 
 }
@@ -433,6 +451,8 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(ID_KEY), QString::fromLatin1(d->m_id.name()));
     data.insert(QLatin1String(DISPLAYNAME_KEY), d->m_displayName);
     data.insert(QLatin1String(AUTODETECTED_KEY), d->m_autodetected);
+    if (!d->m_fileSystemFriendlyName.isEmpty())
+        data.insert(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY), d->m_fileSystemFriendlyName);
     data.insert(QLatin1String(AUTODETECTIONSOURCE_KEY), d->m_autoDetectionSource);
     data.insert(QLatin1String(SDK_PROVIDED_KEY), d->m_sdkProvided);
     data.insert(QLatin1String(ICON_KEY), d->m_iconPath.toString());

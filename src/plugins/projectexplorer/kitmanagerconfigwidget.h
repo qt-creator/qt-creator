@@ -78,6 +78,7 @@ signals:
 private slots:
     void setIcon();
     void setDisplayName();
+    void setFileSystemFriendlyName();
     void workingCopyWasUpdated(ProjectExplorer::Kit *k);
     void kitWasUpdated(ProjectExplorer::Kit *k);
     void updateMutableState();
@@ -95,6 +96,7 @@ private:
     QGridLayout *m_layout;
     QToolButton *m_iconButton;
     QLineEdit *m_nameEdit;
+    QLineEdit *m_fileSystemFriendlyNameLineEdit;
     QList<KitConfigWidget *> m_widgets;
     QList<QLabel *> m_labels;
     Kit *m_kit;

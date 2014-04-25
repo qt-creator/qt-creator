@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "kitmanagerconfigwidget.h"
+#include "projectexplorerconstants.h"
 
 #include "kit.h"
 #include "kitmanager.h"
@@ -36,6 +37,8 @@
 #include <utils/qtcassert.h>
 
 #include <QAction>
+#include <QRegExp>
+#include <QRegExpValidator>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
@@ -55,13 +58,31 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     m_layout(new QGridLayout),
     m_iconButton(new QToolButton),
     m_nameEdit(new QLineEdit),
+    m_fileSystemFriendlyNameLineEdit(new QLineEdit),
     m_kit(k),
     m_modifiedKit(new Kit(Core::Id(WORKING_COPY_KIT_ID))),
     m_fixingKit(false)
 {
+    static const Qt::Alignment alignment
+            = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+
     m_layout->addWidget(m_nameEdit, 0, WidgetColumn);
     m_layout->addWidget(m_iconButton, 0, ButtonColumn);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+    QString toolTip =
+        tr("<html><head/><body><p>The name of the kit suitable for generating "
+           "directory names. This value is used for the variable <i>%1</i>, "
+           "which for example determines the name of the shadow build directory."
+           "</p></body></html>").arg(QLatin1String(Constants::VAR_CURRENTKIT_FILESYSTEMNAME));
+    QLabel *label = createLabel(tr("File system name:"), toolTip);
+    m_layout->addWidget(label, 1, LabelColumn, alignment);
+    m_fileSystemFriendlyNameLineEdit->setToolTip(toolTip);
+    QRegExp fileSystemFriendlyNameRegexp(QLatin1String("^[A-Za-z0-9_-]*$"));
+    Q_ASSERT(fileSystemFriendlyNameRegexp.isValid());
+    m_fileSystemFriendlyNameLineEdit->setValidator(new QRegExpValidator(fileSystemFriendlyNameRegexp, m_fileSystemFriendlyNameLineEdit));
+    m_layout->addWidget(m_fileSystemFriendlyNameLineEdit, 1, WidgetColumn);
+    connect(m_fileSystemFriendlyNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(setFileSystemFriendlyName()));
 
     QWidget *inner = new QWidget;
     inner->setLayout(m_layout);
@@ -76,10 +97,8 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     mainLayout->setMargin(1);
     mainLayout->addWidget(scroll, 0, 0);
 
-    static const Qt::Alignment alignment
-            = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
-    QString toolTip = tr("Kit name and icon.");
-    QLabel *label = createLabel(tr("Name:"), toolTip);
+    toolTip = tr("Kit name and icon.");
+    label = createLabel(tr("Name:"), toolTip);
     m_layout->addWidget(label, 0, LabelColumn, alignment);
     m_iconButton->setToolTip(toolTip);
 
@@ -144,6 +163,7 @@ void KitManagerConfigWidget::discard()
     }
     m_iconButton->setIcon(m_modifiedKit->icon());
     m_nameEdit->setText(m_modifiedKit->displayName());
+    m_fileSystemFriendlyNameLineEdit->setText(m_modifiedKit->customFileSystemFriendlyName());
     emit dirty();
 }
 
@@ -276,6 +296,13 @@ void KitManagerConfigWidget::setDisplayName()
     m_nameEdit->setCursorPosition(pos);
 }
 
+void KitManagerConfigWidget::setFileSystemFriendlyName()
+{
+    const int pos = m_fileSystemFriendlyNameLineEdit->cursorPosition();
+    m_modifiedKit->setCustomFileSystemFriendlyName(m_fileSystemFriendlyNameLineEdit->text());
+    m_fileSystemFriendlyNameLineEdit->setCursorPosition(pos);
+}
+
 void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
 {
     if (k != m_modifiedKit || m_fixingKit)
@@ -288,6 +315,7 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
     foreach (KitConfigWidget *w, m_widgets)
         w->refresh();
     m_nameEdit->setText(k->displayName());
+    m_fileSystemFriendlyNameLineEdit->setText(k->customFileSystemFriendlyName());
     m_iconButton->setIcon(k->icon());
     updateVisibility();
     emit dirty();

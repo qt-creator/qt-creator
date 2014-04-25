@@ -74,6 +74,8 @@ public:
     QStringList candidateNameList(const QString &base) const;
 
     QString fileSystemFriendlyName() const;
+    QString customFileSystemFriendlyName() const;
+    void setCustomFileSystemFriendlyName(const QString &fileSystemFriendlyName);
 
     bool isAutoDetected() const;
     QString autoDetectionSource() const;
