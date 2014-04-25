@@ -117,6 +117,8 @@ Core::FeatureSet IosQtVersion::availableFeatures() const
 {
     Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
     features |= Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
+    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
+    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT));
     return features;
 }
 
