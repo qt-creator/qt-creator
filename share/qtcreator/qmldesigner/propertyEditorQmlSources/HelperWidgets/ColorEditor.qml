@@ -142,7 +142,7 @@ Column {
             }
             ColorCheckButton {
                 id: checkButton
-                color: colorButton.color
+                color: backendendValue.value
             }
 
             ButtonRow {
