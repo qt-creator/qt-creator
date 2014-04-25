@@ -33,6 +33,7 @@
 #include "../xmlprotocol/error.h"
 #include "../xmlprotocol/status.h"
 #include "../xmlprotocol/threadedparser.h"
+#include "../valgrindprocess.h"
 
 #include <utils/qtcassert.h>
 
@@ -96,98 +97,11 @@ bool MemcheckRunner::start()
 {
     QTC_ASSERT(d->parser, return false);
 
-    QString ip;
-    QHostAddress hostAddr;
-
+    // The remote case is handled in localHostAddressRetrieved().
     if (startMode() == Analyzer::StartLocal) {
-        ip = QLatin1String("127.0.0.1");
-        hostAddr = QHostAddress(QHostAddress::LocalHost);
+        startServers(QHostAddress(QHostAddress::LocalHost));
+        setValgrindArguments(memcheckLogArguments() + valgrindArguments());
     }
-
-    if (startMode() == Analyzer::StartRemote) {
-
-        QList<QHostAddress> possibleHostAddresses;
-        //NOTE: ::allAddresses does not seem to work for usb interfaces...
-        foreach (const QNetworkInterface &iface, QNetworkInterface::allInterfaces()) {
-            foreach (const QNetworkAddressEntry &entry, iface.addressEntries()) {
-                const QHostAddress addr = entry.ip();
-                if (addr.toString() != QLatin1String("127.0.0.1")
-                        && addr.toString() != QLatin1String("0:0:0:0:0:0:0:1"))
-                {
-                    possibleHostAddresses << addr;
-                    break;
-                }
-            }
-        }
-
-        if (possibleHostAddresses.isEmpty()) {
-            emit processErrorReceived(tr("No network interface found for remote analysis."),
-                                      QProcess::FailedToStart);
-            return false;
-        } else if (possibleHostAddresses.size() > 1) {
-            QDialog dlg;
-            dlg.setWindowTitle(tr("Select Network Interface"));
-            QVBoxLayout *layout = new QVBoxLayout;
-            QLabel *description = new QLabel;
-            description->setWordWrap(true);
-            description->setText(tr("More than one network interface was found on your machine. Please select the one you want to use for remote analysis."));
-            layout->addWidget(description);
-            QListWidget *list = new QListWidget;
-            foreach (const QHostAddress &address, possibleHostAddresses)
-                list->addItem(address.toString());
-
-            list->setSelectionMode(QAbstractItemView::SingleSelection);
-            list->setCurrentRow(0);
-            layout->addWidget(list);
-
-            QDialogButtonBox *buttons = new QDialogButtonBox;
-            buttons->addButton(QDialogButtonBox::Ok);
-            buttons->addButton(QDialogButtonBox::Cancel);
-            connect(buttons, SIGNAL(accepted()),
-                    &dlg, SLOT(accept()));
-            connect(buttons, SIGNAL(rejected()),
-                    &dlg, SLOT(reject()));
-            layout->addWidget(buttons);
-
-            dlg.setLayout(layout);
-            if (dlg.exec() != QDialog::Accepted) {
-                emit processErrorReceived(tr("No network interface was chosen for remote analysis."), QProcess::FailedToStart);
-                return false;
-            }
-
-            QTC_ASSERT(list->currentRow() >= 0, return false);
-            QTC_ASSERT(list->currentRow() < possibleHostAddresses.size(), return false);
-            hostAddr = possibleHostAddresses.at(list->currentRow());
-        } else {
-            hostAddr = possibleHostAddresses.first();
-        }
-
-        ip = hostAddr.toString();
-        QTC_ASSERT(!ip.isEmpty(), return false);
-        hostAddr = QHostAddress(ip);
-    }
-
-    bool check = d->xmlServer.listen(hostAddr);
-    if (!check) emit processErrorReceived( tr("XmlServer on %1:").arg(ip) + QLatin1Char(' ') + d->xmlServer.errorString(), QProcess::FailedToStart );
-    QTC_ASSERT(check, return false);
-    d->xmlServer.setMaxPendingConnections(1);
-    const quint16 xmlPortNumber = d->xmlServer.serverPort();
-    connect(&d->xmlServer, SIGNAL(newConnection()), SLOT(xmlSocketConnected()));
-
-    check = d->logServer.listen(hostAddr);
-    if (!check) emit processErrorReceived( tr("LogServer on %1:").arg(ip) + QLatin1Char(' ') + d->logServer.errorString(), QProcess::FailedToStart );
-    QTC_ASSERT(check, return false);
-    d->logServer.setMaxPendingConnections(1);
-    const quint16 logPortNumber = d->logServer.serverPort();
-    connect(&d->logServer, SIGNAL(newConnection()), SLOT(logSocketConnected()));
-
-    QStringList memcheckLogArguments;
-    memcheckLogArguments << QLatin1String("--xml=yes")
-                      << QString::fromLatin1("--xml-socket=%1:%2").arg(ip).arg(xmlPortNumber)
-                      << QLatin1String("--child-silent-after-fork=yes")
-                      << QString::fromLatin1("--log-socket=%1:%2").arg(ip).arg(logPortNumber);
-    setValgrindArguments(memcheckLogArguments + valgrindArguments());
-
     return ValgrindRunner::start();
 }
 
@@ -212,6 +126,48 @@ void MemcheckRunner::readLogSocket()
 {
     QTC_ASSERT(d->logSocket, return);
     emit logMessageReceived(d->logSocket->readAll());
+}
+
+// Note: The callers of this function cannot handle errors, so they will ignore the return value.
+// We still provide it in case the surrounding infrastructure will improve.
+bool MemcheckRunner::startServers(const QHostAddress &localHostAddress)
+{
+    bool check = d->xmlServer.listen(localHostAddress);
+    const QString ip = localHostAddress.toString();
+    if (!check) {
+        emit processErrorReceived( tr("XmlServer on %1:").arg(ip) + QLatin1Char(' ')
+                                   + d->xmlServer.errorString(), QProcess::FailedToStart );
+        return false;
+    }
+    d->xmlServer.setMaxPendingConnections(1);
+    connect(&d->xmlServer, SIGNAL(newConnection()), SLOT(xmlSocketConnected()));
+    check = d->logServer.listen(localHostAddress);
+    if (!check) {
+        emit processErrorReceived( tr("LogServer on %1:").arg(ip) + QLatin1Char(' ')
+                                   + d->logServer.errorString(), QProcess::FailedToStart );
+        return false;
+    }
+    d->logServer.setMaxPendingConnections(1);
+    connect(&d->logServer, SIGNAL(newConnection()), SLOT(logSocketConnected()));
+    return true;
+}
+
+QStringList MemcheckRunner::memcheckLogArguments() const
+{
+    return QStringList()
+            << QLatin1String("--xml=yes")
+            << QString::fromLatin1("--xml-socket=%1:%2")
+               .arg(d->xmlServer.serverAddress().toString()).arg(d->xmlServer.serverPort())
+            << QLatin1String("--child-silent-after-fork=yes")
+            << QString::fromLatin1("--log-socket=%1:%2")
+               .arg(d->logServer.serverAddress().toString()).arg(d->logServer.serverPort());
+}
+
+void MemcheckRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)
+{
+    startServers(localHostAddress);
+    setValgrindArguments(memcheckLogArguments() + valgrindArguments());
+    valgrindProcess()->setValgrindArguments(fullValgrindArguments());
 }
 
 } // namespace Memcheck

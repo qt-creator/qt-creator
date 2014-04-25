@@ -58,6 +58,7 @@ public:
     QString valgrindExecutable() const;
     void setValgrindExecutable(const QString &executable);
     QStringList valgrindArguments() const;
+    QStringList fullValgrindArguments() const;
     void setValgrindArguments(const QStringList &toolArguments);
     QString debuggeeExecutable() const;
     void setDebuggeeExecutable(const QString &executable);
@@ -97,6 +98,7 @@ protected slots:
     virtual void processError(QProcess::ProcessError);
     virtual void processStarted();
     virtual void processFinished(int, QProcess::ExitStatus);
+    virtual void localHostAddressRetrieved(const QHostAddress &localHostAddress);
 
 private:
     class Private;

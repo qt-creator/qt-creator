@@ -89,12 +89,6 @@ void ValgrindRunner::Private::run(ValgrindProcess *_process)
     process->setProcessChannelMode(channelMode);
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
-    QStringList valgrindArgs = valgrindArguments;
-    valgrindArgs << QString::fromLatin1("--tool=%1").arg(q->tool());
-
-    if (Utils::HostOsInfo::isMacHost())
-        // May be slower to start but without it we get no filenames for symbols.
-        valgrindArgs << QLatin1String("--dsymutil=yes");
 
     QObject::connect(process, SIGNAL(processOutput(QString,Utils::OutputFormat)),
             q, SIGNAL(processOutputReceived(QString,Utils::OutputFormat)));
@@ -104,8 +98,14 @@ void ValgrindRunner::Private::run(ValgrindProcess *_process)
             q, SLOT(processFinished(int,QProcess::ExitStatus)));
     QObject::connect(process, SIGNAL(error(QProcess::ProcessError)),
             q, SLOT(processError(QProcess::ProcessError)));
+    QObject::connect(process, SIGNAL(localHostAddressRetrieved(QHostAddress)), q,
+                     SLOT(localHostAddressRetrieved(QHostAddress)));
 
-    process->run(valgrindExecutable, valgrindArgs, debuggeeExecutable, debuggeeArguments);
+    process->setValgrindExecutable(valgrindExecutable);
+    process->setValgrindArguments(q->fullValgrindArguments());
+    process->setDebuggeeExecutable(debuggeeExecutable);
+    process->setDebugeeArguments(debuggeeArguments);
+    process->run();
 }
 
 ValgrindRunner::ValgrindRunner(QObject *parent)
@@ -142,6 +142,16 @@ void ValgrindRunner::setValgrindArguments(const QStringList &toolArguments)
 QStringList ValgrindRunner::valgrindArguments() const
 {
     return d->valgrindArguments;
+}
+
+QStringList ValgrindRunner::fullValgrindArguments() const
+{
+    QStringList fullArgs = valgrindArguments();
+    fullArgs << QString::fromLatin1("--tool=%1").arg(tool());
+    if (Utils::HostOsInfo::isMacHost())
+        // May be slower to start but without it we get no filenames for symbols.
+        fullArgs << QLatin1String("--dsymutil=yes");
+    return fullArgs;
 }
 
 QString ValgrindRunner::debuggeeExecutable() const
@@ -244,6 +254,11 @@ void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
 
     if (ret != 0 || status == QProcess::CrashExit)
         emit processErrorReceived(errorString(), d->process->error());
+}
+
+void ValgrindRunner::localHostAddressRetrieved(const QHostAddress &localHostAddress)
+{
+    Q_UNUSED(localHostAddress);
 }
 
 void ValgrindRunner::processStarted()

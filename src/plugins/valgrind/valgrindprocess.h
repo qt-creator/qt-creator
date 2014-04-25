@@ -34,6 +34,7 @@
 #include <utils/qtcprocess.h>
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
+#include <utils/osspecificaspects.h>
 #include <utils/outputformat.h>
 
 namespace Valgrind {
@@ -63,8 +64,12 @@ public:
 
     bool isRunning() const;
 
-    void run(const QString &valgrindExecutable, const QStringList &valgrindArguments,
-             const QString &debuggeeExecutable, const QString &debuggeeArguments);
+    void setValgrindExecutable(const QString &valgrindExecutable);
+    void setValgrindArguments(const QStringList &valgrindArguments);
+    void setDebuggeeExecutable(const QString &debuggeeExecutable);
+    void setDebugeeArguments(const QString &debuggeeArguments);
+
+    void run();
     void close();
 
     QString errorString() const;
@@ -84,6 +89,7 @@ signals:
     void finished(int, QProcess::ExitStatus);
     void error(QProcess::ProcessError);
     void processOutput(const QString &, Utils::OutputFormat format);
+    void localHostAddressRetrieved(const QHostAddress &localHostAddress);
 
 private slots:
     void handleReadyReadStandardError();
@@ -96,11 +102,16 @@ private slots:
     void findPIDOutputReceived();
 
 private:
+    QString argumentString(Utils::OsType osType) const;
+
     Utils::QtcProcess m_localProcess;
     qint64 m_pid;
 
     Remote m_remote;
-    QString m_arguments;
+    QString m_valgrindExecutable;
+    QStringList m_valgrindArguments;
+    QString m_debuggeeExecutable;
+    QString m_debuggeeArguments;
     bool m_isLocal;
 };
 
