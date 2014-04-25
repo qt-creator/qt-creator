@@ -65,8 +65,12 @@ QString WinRtQtVersion::description() const
 
 Core::FeatureSet WinRtQtVersion::availableFeatures() const
 {
-    return QtSupport::BaseQtVersion::availableFeatures()
-            | Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
+    Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
+    features |= Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
+    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
+    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1));
+    features.remove(Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT));
+    return features;
 }
 
 QString WinRtQtVersion::platformName() const
