@@ -700,6 +700,19 @@ void FakeVimPlugin::test_vim_fFtT()
     KEYS("f .", "abc def" N "g" X " jkl");
     KEYS("u", "abc def" N "g" X "hi jkl");
     KEYS("rg$;", "abc def" N "gg" X "i jkl");
+
+    // repeat with ;
+    data.setText("int main() { return (x > 0) ? 0 : (x - 1); }");
+    KEYS("f(", "int main" X "() { return (x > 0) ? 0 : (x - 1); }");
+    KEYS(";", "int main() { return " X "(x > 0) ? 0 : (x - 1); }");
+    KEYS(";", "int main() { return (x > 0) ? 0 : " X "(x - 1); }");
+    KEYS(";", "int main() { return (x > 0) ? 0 : " X "(x - 1); }");
+    KEYS("02;", "int main() { return " X "(x > 0) ? 0 : (x - 1); }");
+    KEYS("2;", "int main() { return " X "(x > 0) ? 0 : (x - 1); }");
+    KEYS("0t(", "int mai" X "n() { return (x > 0) ? 0 : (x - 1); }");
+    KEYS(";", "int main() { return" X " (x > 0) ? 0 : (x - 1); }");
+    KEYS("3;", "int main() { return" X " (x > 0) ? 0 : (x - 1); }");
+    KEYS("2;", "int main() { return (x > 0) ? 0 :" X " (x - 1); }");
 }
 
 void FakeVimPlugin::test_vim_transform_numbers()

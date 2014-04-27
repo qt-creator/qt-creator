@@ -1793,7 +1793,7 @@ public:
     bool moveToPreviousParagraph(int count) { return moveToNextParagraph(-count); }
     bool moveToNextParagraph(int count);
 
-    bool handleFfTt(QString key);
+    bool handleFfTt(const QString &key, bool repeats = false);
 
     void enterVisualInsertMode(QChar command);
     void enterReplaceMode();
@@ -3657,12 +3657,12 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         g.subsubmode = FtSubSubMode;
         // HACK: toggle 'f' <-> 'F', 't' <-> 'T'
         //g.subsubdata = g.semicolonType ^ 32;
-        handleFfTt(g.semicolonKey);
+        handleFfTt(g.semicolonKey, true);
         g.subsubmode = NoSubSubMode;
     } else if (input.is(';')) {
         g.subsubmode = FtSubSubMode;
         g.subsubdata = g.semicolonType;
-        handleFfTt(g.semicolonKey);
+        handleFfTt(g.semicolonKey, true);
         g.subsubmode = NoSubSubMode;
     } else if (input.is('/') || input.is('?')) {
         g.lastSearchForward = input.is('/');
@@ -6574,7 +6574,7 @@ void FakeVimHandler::Private::moveToWordEnd(int count, bool simple, bool forward
     moveToNextWordEnd(atWordEnd(simple) ? count - 1 : count, simple, forward, emptyLines);
 }
 
-bool FakeVimHandler::Private::handleFfTt(QString key)
+bool FakeVimHandler::Private::handleFfTt(const QString &key, bool repeats)
 {
     int key0 = key.size() == 1 ? key.at(0).unicode() : 0;
     // g.subsubmode \in { 'f', 'F', 't', 'T' }
@@ -6583,26 +6583,20 @@ bool FakeVimHandler::Private::handleFfTt(QString key)
     int repeat = count();
     int n = block().position() + (forward ? block().length() : - 1);
     QTextDocument *doc = document();
+    const int d = forward ? 1 : -1;
+    // FIXME: This also depends on whether 'cpositions' Vim option contains ';'.
+    const int skip = (repeats && repeat == 1 && exclusive) ? d : 0;
+    int pos = position() + d + skip;
 
-    for (int d = forward ? 1 : -1, pos = position() + d; pos != n; pos += d) {
-        int uc = doc->characterAt(pos).unicode();
-        if (uc == ParagraphSeparator)
-            break;
-        if (uc == key0) {
+    for (; repeat > 0 && (forward ? pos < n : pos > n); pos += d) {
+        if (doc->characterAt(pos).unicode() == key0)
             --repeat;
-            if (repeat == 0) {
-                if (exclusive)
-                    pos -= d;
+    }
 
-                if (forward)
-                    moveRight(pos - position());
-                else
-                    moveLeft(position() - pos);
-
-                setTargetColumn();
-                return true;
-            }
-        }
+    if (repeat == 0) {
+        setPosition(pos - d - (exclusive ? d : 0));
+        setTargetColumn();
+        return true;
     }
 
     return false;
