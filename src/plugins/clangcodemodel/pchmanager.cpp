@@ -322,7 +322,7 @@ void PchManager::doPchInfoUpdateFuzzy(QFutureInterface<void> &future,
                 getPrefixFileKind(objc.value(pch, false), cplusplus.value(pch, false));
 
         QStringList options = Utils::createClangOptions(projectPart, prefixFileKind);
-        projectPart.reset();
+        projectPart.clear();
 
         PchManager *pchManager = PchManager::instance();
         PchInfo::Ptr pchInfo = pchManager->findMatchingPCH(pch, options, true);
