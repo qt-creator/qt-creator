@@ -189,7 +189,8 @@ enum SubMode
     CapitalZSubMode,     // Used for Z
     ReplaceSubMode,      // Used for r
     MacroRecordSubMode,  // Used for q
-    MacroExecuteSubMode  // Used for @
+    MacroExecuteSubMode, // Used for @
+    CtrlVSubMode         // Used for Ctrl-v in insert mode
 };
 
 /*! A \e SubSubMode is used for things that require one more data item
@@ -206,7 +207,8 @@ enum SubSubMode
     ZSubSubMode,           // Used for zj, zk
     OpenSquareSubSubMode,  // Used for [{, {(, [z
     CloseSquareSubSubMode, // Used for ]}, ]), ]z
-    SearchSubSubMode
+    SearchSubSubMode,
+    CtrlVUnicodeSubSubMode // Used for Ctrl-v based unicode input
 };
 
 enum VisualMode
@@ -1078,6 +1080,22 @@ public:
     QChar asChar() const
     {
         return (m_text.size() == 1 ? m_text.at(0) : QChar());
+    }
+
+    int toInt(bool *ok, int base) const
+    {
+        const int uc = asChar().unicode();
+        int res;
+        if ('0' <= uc && uc <= '9')
+            res = uc -'0';
+        else if ('a' <= uc && uc <= 'z')
+            res = 10 + uc - 'a';
+        else if ('A' <= uc && uc <= 'Z')
+            res = 10 + uc - 'A';
+        else
+            res = base;
+        *ok = res < base;
+        return *ok ? res : 0;
     }
 
     int key() const { return m_key; }
@@ -2054,7 +2072,10 @@ public:
     void setupCharClass();
     int charClass(QChar c, bool simple) const;
     signed char m_charClass[256];
-    bool m_ctrlVActive;
+
+    int m_ctrlVAccumulator;
+    int m_ctrlVLength;
+    int m_ctrlVBase;
 
     void miniBufferTextEdited(const QString &text, int cursorPos, int anchorPos);
 
@@ -2188,7 +2209,6 @@ void FakeVimHandler::Private::init()
     m_targetColumn = 0;
     m_visualTargetColumn = 0;
     m_targetColumnWrapped = 0;
-    m_ctrlVActive = false;
     m_oldInternalAnchor = -1;
     m_oldInternalPosition = -1;
     m_oldExternalAnchor = -1;
@@ -2199,6 +2219,9 @@ void FakeVimHandler::Private::init()
     m_searchFromScreenLine = 0;
     m_editBlockLevel = 0;
     m_firstVisibleLine = 0;
+    m_ctrlVAccumulator = 0;
+    m_ctrlVLength = 0;
+    m_ctrlVBase = 0;
 
     setupCharClass();
 }
@@ -4851,19 +4874,71 @@ void FakeVimHandler::Private::finishInsertMode()
 
     enterCommandMode();
     setTargetColumn();
-    m_ctrlVActive = false;
 }
 
 void FakeVimHandler::Private::handleInsertMode(const Input &input)
 {
     if (input.isEscape()) {
         finishInsertMode();
-    } else if (m_ctrlVActive) {
-        insertInInsertMode(input.raw());
+    } else if (g.submode == CtrlVSubMode) {
+        if (g.subsubmode == NoSubSubMode) {
+            g.subsubmode = CtrlVUnicodeSubSubMode;
+            m_ctrlVAccumulator = 0;
+            if (input.is('x') || input.is('X')) {
+                // ^VXnn or ^Vxnn with 00 <= nn <= FF
+                // BMP Unicode codepoints ^Vunnnn with 0000 <= nnnn <= FFFF
+                // any Unicode codepoint ^VUnnnnnnnn with 00000000 <= nnnnnnnn <= 7FFFFFFF
+                // ^Vnnn with 000 <= nnn <= 255
+                // ^VOnnn or ^Vonnn with 000 <= nnn <= 377
+                m_ctrlVLength = 2;
+                m_ctrlVBase = 16;
+            } else if (input.is('O') || input.is('o')) {
+                m_ctrlVLength = 3;
+                m_ctrlVBase = 8;
+            } else if (input.is('u')) {
+                m_ctrlVLength = 4;
+                m_ctrlVBase = 16;
+            } else if (input.is('U')) {
+                m_ctrlVLength = 8;
+                m_ctrlVBase = 16;
+            } else if (input.isDigit()) {
+                bool ok;
+                m_ctrlVAccumulator = input.toInt(&ok, 10);
+                m_ctrlVLength = 2;
+                m_ctrlVBase = 10;
+            } else {
+                insertInInsertMode(input.raw());
+                g.submode = NoSubMode;
+                g.subsubmode = NoSubSubMode;
+            }
+        } else {
+            bool ok;
+            int current = input.toInt(&ok, m_ctrlVBase);
+            if (ok)
+                m_ctrlVAccumulator = m_ctrlVAccumulator * m_ctrlVBase + current;
+            --m_ctrlVLength;
+            if (m_ctrlVLength == 0 || !ok) {
+                QString s;
+                if (QChar::requiresSurrogates(m_ctrlVAccumulator)) {
+                    s.append(QChar(QChar::highSurrogate(m_ctrlVAccumulator)));
+                    s.append(QChar(QChar::lowSurrogate(m_ctrlVAccumulator)));
+                } else {
+                    s.append(QChar(m_ctrlVAccumulator));
+                }
+                insertInInsertMode(s);
+                g.submode = NoSubMode;
+                g.subsubmode = NoSubSubMode;
+
+                // Try again without Ctrl-V interpretation.
+                if (!ok)
+                    handleInsertMode(input);
+            }
+        }
     } else if (input.isControl('o')) {
         enterCommandMode(InsertMode);
     } else if (input.isControl('v')) {
-        m_ctrlVActive = true;
+        g.submode = CtrlVSubMode;
+        g.subsubmode = NoSubSubMode;
     } else if (input.isControl('w')) {
         const int blockNumber = m_cursor.blockNumber();
         const int endPos = position();
@@ -5010,7 +5085,7 @@ void FakeVimHandler::Private::insertInInsertMode(const QString &text)
     }
     setTargetColumn();
     endEditBlock();
-    m_ctrlVActive = false;
+    g.submode = NoSubMode;
 }
 
 bool FakeVimHandler::Private::startRecording(const Input &input)
@@ -5066,12 +5141,13 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
     if (input.isEscape()) {
         g.commandBuffer.clear();
         resetCommandMode();
-        m_ctrlVActive = false;
-    } else if (m_ctrlVActive) {
+        g.submode = NoSubMode;
+    } else if (g.submode == CtrlVSubMode) {
         g.commandBuffer.insertChar(input.raw());
-        m_ctrlVActive = false;
+        g.submode = NoSubMode;
     } else if (input.isControl('v')) {
-        m_ctrlVActive = true;
+        g.submode = CtrlVSubMode;
+        g.subsubmode = NoSubSubMode;
         return EventHandled;
     } else if (input.isBackspace()) {
         if (g.commandBuffer.isEmpty()) {
