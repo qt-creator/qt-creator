@@ -469,17 +469,16 @@ static bool nodeCanBeHandled(const ModelNode &modelNode)
 static void appendNodeToEndOfTheRow(const ModelNode &modelNode, const ItemRow &newItemRow, NavigatorTreeModel *treeModel)
 {
     if (modelNode.hasParentProperty()) {
-        AbstractProperty property(modelNode.parentProperty());
-        ItemRow parentRow = treeModel->itemRowForNode(property.parentModelNode());
-        QStandardItem *parentItem = parentRow.propertyItems.value(property.name());
-        if (!parentItem) {
-            // Child nodes in the default property are added directly under the
-            // parent.
-            parentItem = parentRow.idItem;
+        NodeAbstractProperty parentProperty(modelNode.parentProperty());
+        ItemRow parentRow = treeModel->itemRowForNode(parentProperty.parentModelNode());
+        if (parentRow.propertyItems.contains(parentProperty.name())) {
+            QStandardItem *parentPropertyItem = parentRow.propertyItems.value(parentProperty.name());
+            parentPropertyItem->appendRow(newItemRow.toList());
+        } else {
+            QStandardItem *parentDefaultPropertyItem = parentRow.idItem;
+            parentDefaultPropertyItem->appendRow(newItemRow.toList());
         }
-        if (parentItem)
-            parentItem->appendRow(newItemRow.toList());
-    } else {
+    } else { // root node
         treeModel->appendRow(newItemRow.toList());
     }
 }
