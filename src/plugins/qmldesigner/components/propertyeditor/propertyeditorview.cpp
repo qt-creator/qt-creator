@@ -148,20 +148,8 @@ void PropertyEditorView::changeValue(const QString &name)
         if (newId == m_selectedNode.id())
             return;
 
-        if (m_selectedNode.isValidId(newId)  && !modelNodeForId(newId).isValid() ) {
-            if (m_selectedNode.id().isEmpty() || newId.isEmpty()) { //no id
-                try {
-                    m_selectedNode.setIdWithoutRefactoring(newId);
-                } catch (InvalidIdException &e) { //better save then sorry
-                    m_locked = true;
-                    value->setValue(m_selectedNode.id());
-                    m_locked = false;
-                    e.showException(tr("Invalid Id"));
-                }
-            } else { //there is already an id, so we refactor
-                if (rewriterView())
-                    rewriterView()->renameId(m_selectedNode.id(), newId);
-            }
+        if (m_selectedNode.isValidId(newId)  && !hasId(newId)) {
+            m_selectedNode.setIdWithRefactoring(newId);
         } else {
             m_locked = true;
             value->setValue(m_selectedNode.id());
