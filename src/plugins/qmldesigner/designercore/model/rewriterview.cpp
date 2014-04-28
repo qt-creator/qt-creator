@@ -353,12 +353,10 @@ void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty, const 
     if (textToModelMerger()->isActive())
         return;
 
-    const QList<ModelNode> nodes = listProperty.toModelNodeList();
-
     ModelNode trailingNode;
-    int newIndex = nodes.indexOf(movedNode);
-    if (newIndex + 1 < nodes.size())
-        trailingNode = nodes.at(newIndex + 1);
+    int newIndex = listProperty.indexOf(movedNode);
+    if (newIndex + 1 < listProperty.count())
+        trailingNode = listProperty.at(newIndex + 1);
     modelToTextMerger()->nodeSlidAround(movedNode, trailingNode);
 
     if (!isModificationGroupActive())
