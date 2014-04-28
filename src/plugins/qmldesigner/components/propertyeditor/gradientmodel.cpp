@@ -179,7 +179,7 @@ void GradientModel::setColor(int index, const QColor &color)
 
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
-        QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
+        QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").at(index);
         if (stop.isValid())
             stop.setVariantProperty("color", color);
         setupModel();
@@ -193,7 +193,7 @@ void GradientModel::setPosition(int index, qreal positition)
 
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
-        QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
+        QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").at(index);
         if (stop.isValid())
             stop.setVariantProperty("position", positition);
         setupModel();
@@ -204,7 +204,7 @@ QColor GradientModel::getColor(int index) const
 {
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
-        QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
+        QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").at(index);
         if (stop.isValid())
             return stop.modelValue("color").value<QColor>();
     }
@@ -216,7 +216,7 @@ qreal GradientModel::getPosition(int index) const
 {
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
-        QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
+        QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").at(index);
         if (stop.isValid())
             return stop.modelValue("position").toReal();
     }
@@ -229,7 +229,7 @@ void GradientModel::removeStop(int index)
     if (index < rowCount() - 1 && index != 0) {
         QmlDesigner::RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction(QByteArrayLiteral("GradientModel::removeStop"));
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
-        QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
+        QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").at(index);
         if (stop.isValid()) {
             stop.destroy();
             setupModel();
