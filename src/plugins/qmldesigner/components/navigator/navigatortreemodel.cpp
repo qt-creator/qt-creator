@@ -334,7 +334,7 @@ void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty
 
     ItemRow itemRow = itemRowForNode(node);
     int currentRow = itemRow.idItem->row();
-    int newRow = listProperty.toModelNodeList().indexOf(node);
+    int newRow = listProperty.indexOf(node);
 
     Q_ASSERT(newRow >= 0);
 
