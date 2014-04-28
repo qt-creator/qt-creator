@@ -601,7 +601,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
                     }
 
                     if (parentProperty.isNodeListProperty()) {
-                        int index = parentProperty.toNodeListProperty().toModelNodeList().indexOf(node);
+                        int index = parentProperty.indexOf(node);
                         if (index < targetIndex) { // item is first removed from oldIndex, then inserted at new index
                             --targetIndex;
                         }
