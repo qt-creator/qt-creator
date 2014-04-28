@@ -95,7 +95,7 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
                     << m_valueText << ") **"
                     << info();
         }
-    } else if (m_property.isNodeListProperty() && m_property.toNodeListProperty().toModelNodeList().size() > 1) {
+    } else if (m_property.isNodeListProperty() && m_property.toNodeListProperty().count() > 1) {
         result = refactoring.addToArrayMemberList(nodeLocation, m_property.name(), m_valueText);
 
         if (!result) {
