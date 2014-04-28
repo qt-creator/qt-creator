@@ -83,11 +83,7 @@ enum { debugSourceMapping = 0 };
 enum { debugWatches = 0 };
 enum { debugBreakpoints = 0 };
 
-enum HandleLocalsFlags
-{
-    PartialLocalsUpdate = 0x1,
-    LocalsUpdateForNewFrame = 0x2
-};
+enum { LocalsUpdateForNewFrame = 0x1 };
 
 #if 0
 #  define STATE_DEBUG(state, func, line, notifyFunc) qDebug("%s in %s at %s:%d", notifyFunc, stateName(state), func, line);
@@ -1096,9 +1092,7 @@ void CdbEngine::updateLocalVariable(const QByteArray &iname)
     }
     str << blankSeparator << iname;
     postExtensionCommand(isWatch ? "watches" : "locals",
-                         localsArguments, 0,
-                         &CdbEngine::handleLocals,
-                         0, QVariant(int(PartialLocalsUpdate)));
+                         localsArguments, 0, &CdbEngine::handleLocals);
 }
 
 bool CdbEngine::hasCapability(unsigned cap) const
@@ -1503,6 +1497,8 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
         watchHandler()->removeAllData();
         return;
     }
+    if (forNewStackFrame)
+        watchHandler()->resetValueCache();
     /* Watchers: Forcibly discard old symbol group as switching from
      * thread 0/frame 0 -> thread 1/assembly -> thread 0/frame 0 will otherwise re-use it
      * and cause errors as it seems to go 'stale' when switching threads.
@@ -1934,8 +1930,6 @@ void CdbEngine::handleRegisters(const CdbExtensionCommandPtr &reply)
 void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
 {
     const int flags = reply->cookie.toInt();
-    if (!(flags & PartialLocalsUpdate))
-        watchHandler()->removeAllData();
     if (reply->success) {
         if (debuggerCore()->boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(reply->reply), LogDebug);
