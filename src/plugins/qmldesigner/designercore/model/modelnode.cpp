@@ -175,7 +175,7 @@ void ModelNode::setId(const QString& id)
     if (!isValidId(id))
         throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id, InvalidIdException::InvalidCharacters);
 
-    if (id == ModelNode::id())
+    if (id == m_internalNode->id())
         return;
 
     if (view()->hasId(id))
