@@ -153,7 +153,7 @@ void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstract
         if (oldPropertyParent.isNodeProperty()) {
             // ignore, the subsequent remove property will take care of all
         } else if (oldPropertyParent.isNodeListProperty()) {
-            if (!oldPropertyParent.isDefaultProperty() && oldPropertyParent.toNodeListProperty().toModelNodeList().size() == 0)
+            if (!oldPropertyParent.isDefaultProperty() && oldPropertyParent.count() == 0)
                 schedule(new RemovePropertyRewriteAction(oldPropertyParent));
             else
                 schedule(new RemoveNodeRewriteAction(node));
