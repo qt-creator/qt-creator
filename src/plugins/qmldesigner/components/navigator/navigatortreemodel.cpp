@@ -325,37 +325,30 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node)
 /**
   Updates the sibling position of the item, depending on the position in the model.
   */
-void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
+void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty, const ModelNode &modelNode, int /*oldIndex*/)
 {
-    Q_UNUSED(oldIndex);
+    if (isInTree(modelNode)) {
+        ItemRow itemRow = itemRowForNode(modelNode);
+        int currentRowIndex = itemRow.idItem->row();
+        int newRowIndex = listProperty.indexOf(modelNode);
 
-    if (!isInTree(node))
-        return;
-
-    ItemRow itemRow = itemRowForNode(node);
-    int currentRow = itemRow.idItem->row();
-    int newRow = listProperty.indexOf(node);
-
-    Q_ASSERT(newRow >= 0);
-
-    QStandardItem *parentIdItem = 0;
-    if (isInTree(listProperty.parentModelNode())) {
-        ItemRow parentRow = itemRowForNode(listProperty.parentModelNode());
-        parentIdItem = parentRow.propertyItems.value(listProperty.name());
-        if (!parentIdItem) {
-            parentIdItem = parentRow.idItem;
-            newRow += visibleProperties(listProperty.parentModelNode()).count();
+        QStandardItem *targetItem = 0;
+        if (isInTree(listProperty.parentModelNode())) {
+            ItemRow parentRow = itemRowForNode(listProperty.parentModelNode());
+            if (parentRow.propertyItems.contains(listProperty.name())) {
+                targetItem = parentRow.propertyItems.value(listProperty.name());
+            } else  { // default property
+                targetItem = parentRow.idItem;
+                newRowIndex += visibleProperties(listProperty.parentModelNode()).count();
+            }
+        } else {
+            targetItem = itemRow.idItem->parent();
         }
-    } else {
-        parentIdItem = itemRow.idItem->parent();
-    }
 
-    if (!parentIdItem) //### Items without a parent should not exist
-        return;
-
-    if (currentRow != newRow) {
-        QList<QStandardItem*> items = parentIdItem->takeRow(currentRow);
-        parentIdItem->insertRow(newRow, items);
+        if (targetItem && currentRowIndex != newRowIndex) {//### Items without a parent should not exist
+            QList<QStandardItem*> items = targetItem->takeRow(currentRowIndex);
+            targetItem->insertRow(newRowIndex, items);
+        }
     }
 }
 
