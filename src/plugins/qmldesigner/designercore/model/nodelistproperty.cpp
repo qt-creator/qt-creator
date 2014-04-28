@@ -100,7 +100,7 @@ void NodeListProperty::slide(int from, int to) const
     Internal::WriteLocker locker(model());
     if (!isValid())
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list property>");
-    if (to > toModelNodeList().count() - 1)
+    if (to > count() - 1)
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list sliding>");
 
      model()->d->changeNodeOrder(internalNode(), name(), from, to);
