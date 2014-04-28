@@ -455,16 +455,3 @@ void SavedActionSet::finish()
         action->disconnectWidget();
 }
 
-QString SavedActionSet::searchKeyWords() const
-{
-    const QChar blank = QLatin1Char(' ');
-    QString rc;
-    foreach (SavedAction *action, m_list) {
-        if (!rc.isEmpty())
-            rc += blank;
-        rc += action->text();
-    }
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-

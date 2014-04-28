@@ -113,9 +113,6 @@ public:
     void finish();
     void clear() { m_list.clear(); }
 
-    // Search keywords for options dialog search.
-    QString searchKeyWords() const;
-
 private:
     QList<SavedAction *> m_list;
 };
