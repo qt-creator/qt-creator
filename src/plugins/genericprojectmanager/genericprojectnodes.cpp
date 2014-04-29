@@ -284,11 +284,5 @@ bool GenericProjectNode::renameFile(const QString &filePath, const QString &newF
     return m_project->renameFile(filePath, newFilePath);
 }
 
-QList<RunConfiguration *> GenericProjectNode::runConfigurationsFor(Node *node)
-{
-    Q_UNUSED(node)
-    return QList<RunConfiguration *>();
-}
-
 } // namespace Internal
 } // namespace GenericProjectManager

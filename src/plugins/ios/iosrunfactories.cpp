@@ -127,7 +127,7 @@ bool IosRunConfigurationFactory::canHandle(Target *t) const
     return IosManager::supportsIos(t);
 }
 
-QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, ProjectExplorer::Node *n)
+QList<RunConfiguration *> IosRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)
 {
     QList<ProjectExplorer::RunConfiguration *> result;
     foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations())

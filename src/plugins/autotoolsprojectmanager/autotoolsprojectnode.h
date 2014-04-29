@@ -67,7 +67,6 @@ public:
     bool deleteFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath,
                     const QString &newFilePath);
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
 private:
     AutotoolsProject *m_project;

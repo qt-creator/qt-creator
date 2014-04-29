@@ -131,7 +131,7 @@ bool AndroidRunConfigurationFactory::canHandle(Target *t) const
     return AndroidManager::supportsAndroid(t);
 }
 
-QList<RunConfiguration *> AndroidRunConfigurationFactory::runConfigurationsForNode(Target *t, ProjectExplorer::Node *n)
+QList<RunConfiguration *> AndroidRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)
 {
     QList<ProjectExplorer::RunConfiguration *> result;
     foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations())

@@ -65,8 +65,6 @@ public:
     virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = 0);
     virtual bool deleteFiles(const QStringList &filePaths);
     virtual bool renameFile(const QString &filePath, const QString &newFilePath);
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
-
 
     void refresh();
 

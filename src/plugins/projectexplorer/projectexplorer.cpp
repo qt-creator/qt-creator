@@ -2711,7 +2711,7 @@ void ProjectExplorerPlugin::updateContextMenuActions()
             if (pn == d->m_currentProject->rootProjectNode()) {
                 d->m_runActionContextMenu->setVisible(true);
             } else {
-                QList<RunConfiguration *> runConfigs = pn->runConfigurationsFor(pn);
+                QList<RunConfiguration *> runConfigs = pn->runConfigurations();
                 if (runConfigs.count() == 1) {
                     d->m_runActionContextMenu->setVisible(true);
                     d->m_runActionContextMenu->setData(QVariant::fromValue(runConfigs.first()));

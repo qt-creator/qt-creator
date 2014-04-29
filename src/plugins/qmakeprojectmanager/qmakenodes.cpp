@@ -817,11 +817,11 @@ bool QmakePriFileNode::deploysFolder(const QString &folder) const
     return false;
 }
 
-QList<ProjectExplorer::RunConfiguration *> QmakePriFileNode::runConfigurationsFor(Node *node)
+QList<ProjectExplorer::RunConfiguration *> QmakePriFileNode::runConfigurations() const
 {
     QmakeRunConfigurationFactory *factory = QmakeRunConfigurationFactory::find(m_project->activeTarget());
     if (factory)
-        return factory->runConfigurationsForNode(m_project->activeTarget(), node);
+        return factory->runConfigurationsForNode(m_project->activeTarget(), this);
     return QList<ProjectExplorer::RunConfiguration *>();
 }
 

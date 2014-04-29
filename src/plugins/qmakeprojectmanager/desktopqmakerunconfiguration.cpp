@@ -695,7 +695,7 @@ bool DesktopQmakeRunConfigurationFactory::canHandle(Target *t) const
     return devType == Constants::DESKTOP_DEVICE_TYPE;
 }
 
-QList<RunConfiguration *> DesktopQmakeRunConfigurationFactory::runConfigurationsForNode(Target *t, ProjectExplorer::Node *n)
+QList<RunConfiguration *> DesktopQmakeRunConfigurationFactory::runConfigurationsForNode(Target *t, const Node *n)
 {
     QList<RunConfiguration *> result;
     foreach (RunConfiguration *rc, t->runConfigurations())

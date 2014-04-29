@@ -168,7 +168,7 @@ public:
     bool folderChanged(const QString &changedFolder, const QSet<Utils::FileName> &newFiles);
 
     bool deploysFolder(const QString &folder) const;
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
+    QList<ProjectExplorer::RunConfiguration *> runConfigurations() const;
 
     QmakeProFileNode *proFileNode() const;
     QList<QmakePriFileNode*> subProjectNodesExact() const;

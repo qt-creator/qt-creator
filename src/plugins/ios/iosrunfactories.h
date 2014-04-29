@@ -64,7 +64,7 @@ public:
 
     bool canHandle(ProjectExplorer::Target *t) const QTC_OVERRIDE;
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                        ProjectExplorer::Node *n
+                                                                        const ProjectExplorer::Node *n
                                                                         ) QTC_OVERRIDE;
 private:
     ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent,

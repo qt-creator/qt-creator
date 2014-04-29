@@ -249,8 +249,7 @@ public:
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
 
-    // TODO node parameter not really needed
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node) = 0;
+    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurations() const;
 
 
     QList<NodesWatcher*> watchers() const;

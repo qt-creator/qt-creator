@@ -306,12 +306,6 @@ bool QbsBaseProjectNode::renameFile(const QString &filePath, const QString &newF
     return false;
 }
 
-QList<ProjectExplorer::RunConfiguration *> QbsBaseProjectNode::runConfigurationsFor(ProjectExplorer::Node *node)
-{
-    Q_UNUSED(node);
-    return QList<ProjectExplorer::RunConfiguration *>();
-}
-
 // --------------------------------------------------------------------
 // QbsGroupNode:
 // --------------------------------------------------------------------
@@ -548,9 +542,8 @@ void QbsProductNode::setQbsProductData(const qbs::ProductData prd)
         emitNodeUpdated();
 }
 
-QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurationsFor(ProjectExplorer::Node *node)
+QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurations() const
 {
-    Q_UNUSED(node);
     QList<ProjectExplorer::RunConfiguration *> result;
     QbsProjectNode *pn = qobject_cast<QbsProjectNode *>(projectNode());
     if (!isEnabled() || !pn || !pn->qbsProject().isValid()

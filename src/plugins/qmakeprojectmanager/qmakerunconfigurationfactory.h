@@ -47,7 +47,7 @@ public:
 
     virtual bool canHandle(ProjectExplorer::Target *t) const = 0;
     virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                                ProjectExplorer::Node *n) = 0;
+                                                                                const ProjectExplorer::Node *n) = 0;
 
     static QmakeRunConfigurationFactory *find(ProjectExplorer::Target *t);
 };

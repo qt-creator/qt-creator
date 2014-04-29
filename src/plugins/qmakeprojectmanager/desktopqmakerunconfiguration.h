@@ -197,7 +197,7 @@ public:
     QString displayNameForId(const Core::Id id) const;
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                        ProjectExplorer::Node *n);
+                                                                        const ProjectExplorer::Node *n);
 
 private:
     bool canHandle(ProjectExplorer::Target *t) const;

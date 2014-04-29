@@ -65,8 +65,6 @@ public:
     bool deleteFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
 
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
-
     void refresh(QSet<QString> oldFileList = QSet<QString>());
 
 private:

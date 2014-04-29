@@ -89,8 +89,6 @@ public:
     bool deleteFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
 
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
-
 private:
     friend class QbsGroupNode;
 };
@@ -143,7 +141,7 @@ public:
     void setQbsProductData(const qbs::ProductData prd);
     const qbs::ProductData qbsProductData() const { return m_qbsProductData; }
 
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
+    QList<ProjectExplorer::RunConfiguration *> runConfigurations() const;
 
 private:
     QbsGroupNode *findGroupNode(const QString &name);

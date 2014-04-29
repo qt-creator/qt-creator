@@ -55,7 +55,6 @@ public:
     virtual bool deleteFiles(const QStringList &filePaths);
     virtual bool renameFile(const QString &filePath,
                             const QString &newFilePath);
-    virtual QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 };
 
 } // namespace Internal

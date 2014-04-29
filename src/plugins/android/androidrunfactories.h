@@ -61,7 +61,7 @@ public:
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                        ProjectExplorer::Node *n);
+                                                                        const ProjectExplorer::Node *n);
 
 private:
     bool canHandle(ProjectExplorer::Target *t) const;

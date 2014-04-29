@@ -615,6 +615,16 @@ bool ProjectNode::deploysFolder(const QString &folder) const
     return false;
 }
 
+/*!
+  \function bool ProjectNode::runConfigurations() const
+
+  Returns a list of \c RunConfiguration suitable for this node.
+  */
+QList<RunConfiguration *> ProjectNode::runConfigurations() const
+{
+    return QList<RunConfiguration *>();
+}
+
 QList<NodesWatcher*> ProjectNode::watchers() const
 {
     return m_watchers;

@@ -103,9 +103,3 @@ bool AutotoolsProjectNode::renameFile(const QString &filePath,
     Q_UNUSED(newFilePath);
     return false;
 }
-
-QList<RunConfiguration *> AutotoolsProjectNode::runConfigurationsFor(Node *node)
-{
-    Q_UNUSED(node);
-    return QList<RunConfiguration *>();
-}
