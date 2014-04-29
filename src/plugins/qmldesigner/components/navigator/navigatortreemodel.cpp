@@ -50,22 +50,6 @@
 
 namespace QmlDesigner {
 
-static TypeName qmlTypeInQtContainer(const TypeName &qtContainerType)
-{
-    TypeName typeName = qtContainerType;
-
-    if (typeName.startsWith("QDeclarativeListProperty<")
-        && typeName.endsWith('>')) {
-        typeName.remove(0, 25);
-        typeName.chop(1);
-    }
-
-    if (typeName.endsWith('*'))
-        typeName.chop(1);
-
-    return typeName;
-}
-
 static PropertyNameList visibleProperties(const ModelNode &node)
 {
     PropertyNameList propertyList;
@@ -79,7 +63,7 @@ static PropertyNameList visibleProperties(const ModelNode &node)
                 && !node.metaInfo().propertyIsPrivate(propertyName) //Do not show private properties
                 && propertyName != node.metaInfo().defaultPropertyName()) { // TODO: ask the node instances
 
-            TypeName qmlType = qmlTypeInQtContainer(node.metaInfo().propertyTypeName(propertyName));
+            TypeName qmlType = node.metaInfo().propertyTypeName(propertyName);
             if (node.model()->metaInfo(qmlType).isValid() &&
                 node.model()->metaInfo(qmlType).isSubclassOf("QtQuick.Item", -1, -1)) {
                 propertyList.append(propertyName);
@@ -542,7 +526,7 @@ static void setScenePosition(const QmlDesigner::ModelNode &modelNode,const QPoin
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
 {
     try {
-        TypeName propertyQmlType = qmlTypeInQtContainer(parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name()));
+        TypeName propertyQmlType = parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name());
 
         RewriterTransaction transaction = m_view->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel::moveNodesInteractive"));
         foreach (const ModelNode &node, modelNodes) {
