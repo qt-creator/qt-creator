@@ -60,6 +60,11 @@ Core::IDocument *TaskFileFactory::open(const QString &fileName)
 
 Core::IDocument *TaskFileFactory::open(const QString &base, const QString &fileName)
 {
+    foreach (TaskFile *doc, m_openFiles) {
+        if (doc->filePath() == fileName)
+            return doc;
+    }
+
     TaskFile *file = new TaskFile(this);
     file->setBaseDir(base);
 
