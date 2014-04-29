@@ -160,7 +160,7 @@ QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &indexList) const
              continue;
 
          rowAlreadyUsedSet.insert(idIndex);
-         stream << idIndex.data(InternalIdRole).toUInt();
+         stream << idIndex.data(InternalIdRole).toInt();
      }
 
      mimeData->setData("application/vnd.modelnode.list", encodedData);
@@ -426,7 +426,7 @@ QModelIndex NavigatorTreeModel::indexForNode(const ModelNode &node) const
 
 ModelNode NavigatorTreeModel::nodeForIndex(const QModelIndex &index) const
 {
-    qint32 internalId = index.data(InternalIdRole).toUInt();
+    qint32 internalId = index.data(InternalIdRole).toInt();
     return m_view->modelNodeForInternalId(internalId);
 }
 
