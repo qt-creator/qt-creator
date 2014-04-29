@@ -156,6 +156,7 @@ public:
     QmlJS::Snapshot snapshot() const;
     QmlJS::Snapshot newestSnapshot() const;
 
+    void activateScan();
     void updateSourceFiles(const QStringList &files,
                            bool emitDocumentOnDiskChanged);
     void fileChangedOnDisk(const QString &path);

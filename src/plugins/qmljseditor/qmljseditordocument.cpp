@@ -448,6 +448,8 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     m_updateOutlineModelTimer.setInterval(UPDATE_OUTLINE_INTERVAL);
     m_updateOutlineModelTimer.setSingleShot(true);
     connect(&m_updateOutlineModelTimer, SIGNAL(timeout()), this, SLOT(updateOutlineModel()));
+
+    modelManager->updateSourceFiles(QStringList(parent->filePath()), false);
 }
 
 QmlJSEditorDocumentPrivate::~QmlJSEditorDocumentPrivate()

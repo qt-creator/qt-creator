@@ -189,6 +189,14 @@ ModelManagerInterface::WorkingCopy ModelManagerInterface::workingCopy()
     return WorkingCopy();
 }
 
+void ModelManagerInterface::activateScan()
+{
+    if (!m_shouldScanImports) {
+        m_shouldScanImports = true;
+        updateImportPaths();
+    }
+}
+
 QHash<QString, Language::Enum> ModelManagerInterface::languageForSuffix() const
 {
     return defaultLanguageMapping();
