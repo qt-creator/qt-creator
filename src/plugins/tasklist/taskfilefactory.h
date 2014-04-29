@@ -38,6 +38,8 @@ namespace ProjectExplorer { class Project; }
 namespace TaskList {
 namespace Internal {
 
+class TaskFile;
+
 class TaskFileFactory : public Core::IDocumentFactory
 {
     Q_OBJECT
@@ -51,7 +53,7 @@ public:
     void closeAllFiles();
 
 private:
-    QList<Core::IDocument *> m_openFiles;
+    QList<TaskFile *> m_openFiles;
 };
 
 } // namespace Internal

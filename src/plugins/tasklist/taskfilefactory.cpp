@@ -80,7 +80,7 @@ Core::IDocument *TaskFileFactory::open(const QString &base, const QString &fileN
 
 void TaskFileFactory::closeAllFiles()
 {
-    foreach (Core::IDocument *document, m_openFiles)
+    foreach (TaskFile *document, m_openFiles)
         document->deleteLater();
     m_openFiles.clear();
 }
