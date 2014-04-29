@@ -523,67 +523,91 @@ static void setScenePosition(const QmlDesigner::ModelNode &modelNode,const QPoin
     }
 }
 
-void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
+static bool removeModelNodeFromNodeProperty(NodeAbstractProperty &parentProperty, const ModelNode &modelNode)
+{
+
+    if (parentProperty.isNodeProperty()) {
+        bool removeNodeInPropertySucceeded = true;
+        ModelNode propertyNode = parentProperty.toNodeProperty().modelNode();
+        // Destruction of ancestors is not allowed
+        if (!propertyNode.isAncestorOf(modelNode)) {
+            QApplication::setOverrideCursor(Qt::ArrowCursor);
+
+            QMessageBox::StandardButton selectedButton = QMessageBox::warning(Core::ICore::dialogParent(),
+                                                                              QCoreApplication::translate("NavigatorTreeModel", "Warning"),
+                                                                              QCoreApplication::translate("NavigatorTreeModel","Reparenting the component %1 here will cause the "
+                                                                                                          "component %2 to be deleted. Do you want to proceed?")
+                                                                              .arg(modelNode.id(), propertyNode.id()),
+                                                                              QMessageBox::Ok | QMessageBox::Cancel);
+            if (selectedButton == QMessageBox::Ok) {
+                propertyNode.destroy();
+                removeNodeInPropertySucceeded = true;
+            }
+
+            QApplication::restoreOverrideCursor();
+        }
+
+        return removeNodeInPropertySucceeded;
+    }
+
+    return true;
+}
+
+static void slideModelNodeInList(NodeAbstractProperty &parentProperty, const ModelNode &modelNode, int targetIndex)
+{
+    if (parentProperty.isNodeListProperty()) {
+        int index = parentProperty.indexOf(modelNode);
+        if (index < targetIndex) { // item is first removed from oldIndex, then inserted at new index
+            --targetIndex;
+        }
+        if (index != targetIndex)
+            parentProperty.toNodeListProperty().slide(index, targetIndex);
+    }
+}
+
+static bool isInLayoutable(NodeAbstractProperty &parentProperty)
+{
+    return parentProperty.isDefaultProperty() && parentProperty.parentModelNode().metaInfo().isLayoutable();
+}
+
+static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty, const ModelNode &modelNode)
+{
+    if (isInLayoutable(parentProperty)) {
+        removePosition(modelNode);
+        parentProperty.reparentHere(modelNode);
+    } else {
+        if (QmlItemNode::isValidQmlItemNode(modelNode)) {
+            QPointF scenePosition = QmlItemNode(modelNode).instanceScenePosition();
+            parentProperty.reparentHere(modelNode);
+            if (!scenePosition.isNull())
+                setScenePosition(modelNode, scenePosition);
+        } else {
+            parentProperty.reparentHere(modelNode);
+        }
+    }
+}
+
+void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
 {
     try {
         TypeName propertyQmlType = parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name());
 
         RewriterTransaction transaction = m_view->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel::moveNodesInteractive"));
-        foreach (const ModelNode &node, modelNodes) {
-            if (!node.isValid())
-                continue;
+        foreach (const ModelNode &modelNode, modelNodes) {
+            if (modelNode.isValid()
+                    && modelNode != parentProperty.parentModelNode()
+                    && !modelNode.isAncestorOf(parentProperty.parentModelNode())
+                    && (modelNode.metaInfo().isSubclassOf(propertyQmlType, -1, -1) || propertyQmlType == "alias")) {
+                //### todo: allowing alias is just a heuristic
+                //once the MetaInfo is part of instances we can do this right
 
-            if (node != parentProperty.parentModelNode() &&
-                !node.isAncestorOf(parentProperty.parentModelNode()) &&
-                (node.metaInfo().isSubclassOf(propertyQmlType, -1, -1) || propertyQmlType == "alias")) {
-                    //### todo: allowing alias is just a heuristic
-                    //once the MetaInfo is part of instances we can do this right
+                bool nodeCanBeMovedToParentProperty = removeModelNodeFromNodeProperty(parentProperty, modelNode);
 
-                    if (node.parentProperty() != parentProperty) {
+                if (nodeCanBeMovedToParentProperty) {
+                    reparentModelNodeToNodeProperty(parentProperty, modelNode);
+                }
 
-                        if (parentProperty.isNodeProperty()) {
-                            ModelNode propertyNode = parentProperty.toNodeProperty().modelNode();
-                            // Destruction of ancestors is not allowed
-                            if (propertyNode.isAncestorOf(node))
-                                continue;
-                            if (propertyNode.isValid()) {
-                                QApplication::setOverrideCursor(Qt::ArrowCursor);
-                                if (QMessageBox::warning(Core::ICore::dialogParent(), tr("Warning"),
-                                                         tr("Reparenting the component %1 here will cause the "
-                                                            "component %2 to be deleted. Do you want to proceed?")
-                                                            .arg(node.id(), propertyNode.id()),
-                                                         QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
-                                    QApplication::restoreOverrideCursor();
-                                    continue;
-                                }
-                                QApplication::restoreOverrideCursor();
-                                propertyNode.destroy();
-                            }
-                        }
-
-                        if (parentProperty.isDefaultProperty() && parentProperty.parentModelNode().metaInfo().isLayoutable()) {
-                             removePosition(node);
-                             parentProperty.reparentHere(node);
-                        } else {
-                            if (QmlItemNode::isValidQmlItemNode(node)) {
-                                QPointF scenePosition = QmlItemNode(node).instanceScenePosition();
-                                parentProperty.reparentHere(node);
-                                if (!scenePosition.isNull())
-                                    setScenePosition(node, scenePosition);
-                            } else {
-                                parentProperty.reparentHere(node);
-                            }
-                        }
-                    }
-
-                    if (parentProperty.isNodeListProperty()) {
-                        int index = parentProperty.indexOf(node);
-                        if (index < targetIndex) { // item is first removed from oldIndex, then inserted at new index
-                            --targetIndex;
-                        }
-                        if (index != targetIndex)
-                            parentProperty.toNodeListProperty().slide(index, targetIndex);
-                    }
+                slideModelNodeInList(parentProperty, modelNode, targetIndex);
             }
         }
     }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail

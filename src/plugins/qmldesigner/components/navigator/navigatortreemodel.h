@@ -129,7 +129,7 @@ private:
     void handleChangedIdItem(QStandardItem *idItem, ModelNode &modelNode);
     void handleChangedVisibilityItem(QStandardItem *visibilityItem, ModelNode &modelNode);
 
-    void moveNodesInteractive(NodeAbstractProperty parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);
+    void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);
 
 
 private:
