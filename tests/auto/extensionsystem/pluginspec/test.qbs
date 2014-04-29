@@ -1,9 +1,9 @@
 import qbs
 
-import "../../autotest.qbs" as Autotest
+import QtcAutotest
 import "../copytransformer.qbs" as CopyTransformer
 
-Autotest {
+QtcAutotest {
     name: "ExtensionSystem pluginspec autotest"
     Depends { name: "Aggregation" }
     Depends { name: "ExtensionSystem" }

@@ -1,7 +1,7 @@
 import qbs
-import "../../../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "Memcheck " + testName + " autotest"
     property string testName
     targetName: testName // Test runner hardcodes the names of the executables

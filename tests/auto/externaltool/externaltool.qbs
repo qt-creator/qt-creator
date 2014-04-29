@@ -1,7 +1,7 @@
 import qbs
-import "../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "ExternalTool autotest"
     property path corePluginDir: project.ide_source_tree + "/src/plugins/coreplugin"
     // TODO: This should be all that is needed here: Depends { name: "Core" }

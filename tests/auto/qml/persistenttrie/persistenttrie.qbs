@@ -1,7 +1,7 @@
 import qbs
-import "../../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "QML persistenttrie autotest"
     Depends { name: "QmlJS" }
     Depends { name: "Qt.widgets" } // TODO: Remove when qbs bug is fixed

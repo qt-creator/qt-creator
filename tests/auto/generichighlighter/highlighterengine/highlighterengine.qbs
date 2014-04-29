@@ -1,7 +1,7 @@
 import qbs
-import "../../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "Highlighter engine autotest"
     Depends { name: "Utils" }
     Depends { name: "Qt.widgets" }

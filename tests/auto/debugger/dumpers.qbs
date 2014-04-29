@@ -1,7 +1,7 @@
 import qbs
-import "../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "Debugger dumpers autotest"
     Depends { name: "Utils" }
     Depends { name: "Qt.network" } // For QHostAddress

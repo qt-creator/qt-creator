@@ -1,7 +1,7 @@
 import qbs
-import "../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "simplifytypes autotest"
     Depends { name: "Qt.network" } // For QHostAddress
     Group {

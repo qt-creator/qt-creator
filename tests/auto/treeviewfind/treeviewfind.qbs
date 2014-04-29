@@ -1,7 +1,7 @@
 import qbs
-import "../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "TreeViewFind autotest"
     Depends { name: "Core" }
     Depends { name: "Qt.widgets" } // For QTextDocument

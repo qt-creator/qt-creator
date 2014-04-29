@@ -1,7 +1,7 @@
 import qbs
-import "../../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "ANSI autotest"
     Depends { name: "Utils" }
     Depends { name: "Qt.widgets" } // TODO: Remove when qbs bug is fixed

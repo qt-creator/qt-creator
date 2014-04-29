@@ -1,7 +1,7 @@
 import qbs
-import "../../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "Differ autotest"
     Depends { name: "DiffEditor" }
     Depends { name: "Qt.widgets" } // For QTextDocument

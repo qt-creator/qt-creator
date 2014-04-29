@@ -1,7 +1,7 @@
 import qbs
-import "../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "Name demangler autotest"
     Group {
         name: "Sources from Debugger plugin"

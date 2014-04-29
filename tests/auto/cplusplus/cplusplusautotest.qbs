@@ -1,7 +1,7 @@
 import qbs
-import "../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     Depends { name: "CppTools" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }

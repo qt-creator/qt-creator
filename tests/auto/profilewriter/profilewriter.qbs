@@ -1,7 +1,7 @@
 import qbs
-import "../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "ProFileWriter autotest"
     Depends { name: "Qt.xml" }
     Group {

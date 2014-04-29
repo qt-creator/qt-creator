@@ -1,7 +1,7 @@
 import qbs
-import "../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "Aggregation autotest"
     Depends { name: "Aggregation" }
     files: "tst_aggregate.cpp"

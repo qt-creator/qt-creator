@@ -1,7 +1,7 @@
 import qbs
-import "../autotest.qbs" as Autotest
+import QtcAutotest
 
-Autotest {
+QtcAutotest {
     name: "File search autotest"
     Depends { name: "Utils" }
     Depends { name: "Qt.widgets" } // For QTextDocument
