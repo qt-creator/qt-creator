@@ -721,6 +721,7 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
         else
             possibleCommands << QLatin1String("qmlscene");
     }
+        break;
     case QmlViewer: {
         if (HostOsInfo::isWindowsHost())
             possibleCommands << QLatin1String("qmlviewer.exe");

@@ -67,10 +67,12 @@ QString DesktopQtVersion::type() const
 QStringList DesktopQtVersion::warningReason() const
 {
     QStringList ret = BaseQtVersion::warningReason();
-    if (qtVersion() >= QtVersionNumber(5, 0, 0) && qmlsceneCommand().isEmpty())
-        ret << QCoreApplication::translate("QtVersion", "No qmlscene installed.");
-    if (qtVersion() >= QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty())
+    if (qtVersion() >= QtVersionNumber(5, 0, 0)) {
+        if (qmlsceneCommand().isEmpty())
+            ret << QCoreApplication::translate("QtVersion", "No qmlscene installed.");
+    } else if (qtVersion() >= QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty()) {
         ret << QCoreApplication::translate("QtVersion", "No qmlviewer installed.");
+    }
     return ret;
 }
 
