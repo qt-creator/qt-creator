@@ -350,46 +350,48 @@ void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty
     }
 }
 
+static void handleWrongId(QStandardItem *item, const ModelNode &modelNode, const QString &errorTitle, const QString &errorMessage, NavigatorTreeModel *treeModel)
+{
+    QMessageBox::warning(Core::ICore::dialogParent(), errorTitle,  errorMessage);
+    bool blockSingals = treeModel->blockItemChangedSignal(true);
+    item->setText(modelNode.id());
+    treeModel->blockItemChangedSignal(blockSingals);
+}
+
+
+void NavigatorTreeModel::handleChangedIdItem(QStandardItem *idItem, ModelNode &modelNode)
+{
+    const QString newId = idItem->text();
+    if (!modelNode.isValidId(newId)) {
+        handleWrongId(idItem, modelNode, tr("Invalid Id"), tr("%1 is an invalid id.").arg(newId), this);
+    } else if (modelNode.view()->hasId(newId)) {
+        handleWrongId(idItem, modelNode, tr("Invalid Id"), tr("%1 already exists.").arg(newId), this);
+    } else  {
+        modelNode.setIdWithRefactoring(newId);
+    }
+}
+
+void NavigatorTreeModel::handleChangedVisibilityItem(QStandardItem *visibilityItem, ModelNode &modelNode)
+{
+    bool invisible = (visibilityItem->checkState() == Qt::Unchecked);
+
+    if (invisible)
+        modelNode.setAuxiliaryData("invisible", invisible);
+    else
+        modelNode.removeAuxiliaryData("invisible");
+}
+
 void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
 {
-    if (m_blockItemChangedSignal)
-        return;
-    if (!data(item->index(), InternalIdRole).isValid())
-        return;
-
-    qint32 internalId = item->data(InternalIdRole).toUInt();
-    ModelNode node = m_view->modelNodeForInternalId(internalId);
-
-    ItemRow itemRow = itemRowForNode(node);
-    if (item == itemRow.idItem) {
-         if (node.isValidId(item->text())  && !node.view()->modelNodeForId(item->text()).isValid()) {
-             if (node.id().isEmpty() || item->text().isEmpty()) { //no id
-                 try {
-                     node.setIdWithoutRefactoring(item->text());
-                 } catch (InvalidIdException &e) { //better save then sorry
-                     QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"), e.description());
-                 }
-             } else { //there is already an id, so we refactor
-                 if (node.view()->rewriterView())
-                     node.view()->rewriterView()->renameId(node.id(), item->text());
-             }
-        } else {
-
-             if (!node.isValidId(item->text()))
-                 QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"),  tr("%1 is an invalid id.").arg(item->text()));
-             else
-                 QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"),  tr("%1 already exists.").arg(item->text()));
-             bool blockSingals = blockItemChangedSignal(true);
-             item->setText(node.id());
-             blockItemChangedSignal(blockSingals);
+    QVariant internalIdVariant = data(item->index(), InternalIdRole);
+    if (!m_blockItemChangedSignal && internalIdVariant.isValid()) {
+        ModelNode modelNode = m_view->modelNodeForInternalId(internalIdVariant.toInt());
+        ItemRow itemRow = itemRowForNode(modelNode);
+        if (item == itemRow.idItem) {
+            handleChangedIdItem(item, modelNode);
+        } else if (item == itemRow.visibilityItem) {
+            handleChangedVisibilityItem(item, modelNode);
         }
-    } else if (item == itemRow.visibilityItem) {
-        bool invisible = (item->checkState() == Qt::Unchecked);
-
-        if (invisible)
-            node.setAuxiliaryData("invisible", invisible);
-        else
-            node.removeAuxiliaryData("invisible");
     }
 }
 
