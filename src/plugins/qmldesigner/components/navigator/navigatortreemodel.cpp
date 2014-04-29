@@ -50,8 +50,6 @@
 
 namespace QmlDesigner {
 
-const int NavigatorTreeModel::NavigatorRole = Qt::UserRole;
-
 static TypeName qmlTypeInQtContainer(const TypeName &qtContainerType)
 {
     TypeName typeName = qtContainerType;
@@ -162,7 +160,7 @@ QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &indexList) const
              continue;
 
          rowAlreadyUsedSet.insert(idIndex);
-         stream << idIndex.data(NavigatorRole).toUInt();
+         stream << idIndex.data(InternalIdRole).toUInt();
      }
 
      mimeData->setData("application/vnd.modelnode.list", encodedData);
@@ -194,7 +192,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
     parentIndex = dropIndex.sibling(dropIndex.row(), 0);
     targetIndex = (row > -1)? row : rowCount(parentIndex);
 
-    if (this->data(parentIndex, NavigatorRole).isValid()) {
+    if (this->data(parentIndex, InternalIdRole).isValid()) {
         parentItemIndex = parentIndex;
         ModelNode parentNode = nodeForIndex(parentItemIndex);
         if (!parentNode.metaInfo().hasDefaultProperty())
@@ -251,7 +249,7 @@ ItemRow NavigatorTreeModel::createItemRow(const ModelNode &node)
     idItem->setDragEnabled(true);
     idItem->setDropEnabled(dropEnabled);
     idItem->setEditable(true);
-    idItem->setData(node.internalId(), NavigatorRole);
+    idItem->setData(node.internalId(), InternalIdRole);
     if (node.metaInfo().isValid())
         idItem->setToolTip(node.type());
     else
@@ -269,7 +267,7 @@ ItemRow NavigatorTreeModel::createItemRow(const ModelNode &node)
     visibilityItem->setDropEnabled(dropEnabled);
     visibilityItem->setCheckable(true);
     visibilityItem->setEditable(false);
-    visibilityItem->setData(node.internalId(), NavigatorRole);
+    visibilityItem->setData(node.internalId(), InternalIdRole);
     if (node.isRootNode())
         visibilityItem->setCheckable(false);
 
@@ -356,10 +354,10 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
 {
     if (m_blockItemChangedSignal)
         return;
-    if (!data(item->index(), NavigatorRole).isValid())
+    if (!data(item->index(), InternalIdRole).isValid())
         return;
 
-    qint32 internalId = item->data(NavigatorRole).toUInt();
+    qint32 internalId = item->data(InternalIdRole).toUInt();
     ModelNode node = m_view->modelNodeForInternalId(internalId);
 
     ItemRow itemRow = itemRowForNode(node);
@@ -426,7 +424,7 @@ QModelIndex NavigatorTreeModel::indexForNode(const ModelNode &node) const
 
 ModelNode NavigatorTreeModel::nodeForIndex(const QModelIndex &index) const
 {
-    qint32 internalId = index.data(NavigatorRole).toUInt();
+    qint32 internalId = index.data(InternalIdRole).toUInt();
     return m_view->modelNodeForInternalId(internalId);
 }
 
