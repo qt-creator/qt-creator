@@ -398,9 +398,9 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
                                        const QModelIndex &previous)
 {
     if (previous.isValid()) {
-        if (m_mimeForPatternSync == previous.row())
+        if (m_mimeForPatternSync == m_filterModel->mapToSource(previous).row())
             syncMimePattern();
-        if (m_mimeForMagicSync == previous.row())
+        if (m_mimeForMagicSync == m_filterModel->mapToSource(previous).row())
             syncMimeMagic();
         clearSyncData();
 
@@ -439,7 +439,7 @@ void MimeTypeSettingsPrivate::handlePatternEdited()
     if (m_mimeForPatternSync == -1) {
         const QModelIndex &modelIndex = m_ui.mimeTypesTableView->selectionModel()->currentIndex();
         if (modelIndex.isValid())
-            markMimeForPatternSync(modelIndex.row());
+            markMimeForPatternSync(m_filterModel->mapToSource(modelIndex).row());
     }
 }
 
@@ -491,7 +491,8 @@ void MimeTypeSettingsPrivate::addMagicHeader()
     MimeTypeMagicDialog dlg;
     if (dlg.exec()) {
         addMagicHeaderRow(dlg.magicData());
-        markMimeForMagicSync(m_ui.mimeTypesTableView->selectionModel()->currentIndex().row());
+        markMimeForMagicSync(m_filterModel->mapToSource(
+            m_ui.mimeTypesTableView->selectionModel()->currentIndex()).row());
     }
 }
 
@@ -501,7 +502,8 @@ void MimeTypeSettingsPrivate::removeMagicHeader()
         return;
 
     m_ui.magicHeadersTableWidget->removeRow(m_ui.magicHeadersTableWidget->currentRow());
-    markMimeForMagicSync(m_ui.mimeTypesTableView->selectionModel()->currentIndex().row());
+    markMimeForMagicSync(m_filterModel->mapToSource(
+        m_ui.mimeTypesTableView->selectionModel()->currentIndex()).row());
 }
 
 void MimeTypeSettingsPrivate::editMagicHeader()
@@ -513,7 +515,8 @@ void MimeTypeSettingsPrivate::editMagicHeader()
     dlg.setMagicData(getMagicHeaderRowData(m_ui.magicHeadersTableWidget->currentRow()));
     if (dlg.exec()) {
         editMagicHeaderRowData(m_ui.magicHeadersTableWidget->currentRow(), dlg.magicData());
-        markMimeForMagicSync(m_ui.mimeTypesTableView->selectionModel()->currentIndex().row());
+        markMimeForMagicSync(m_filterModel->mapToSource(
+            m_ui.mimeTypesTableView->selectionModel()->currentIndex()).row());
     }
 }
 
@@ -602,9 +605,9 @@ void MimeTypeSettings::apply()
         const QModelIndex &modelIndex =
             d->m_ui.mimeTypesTableView->selectionModel()->currentIndex();
         if (modelIndex.isValid()) {
-            if (d->m_mimeForPatternSync == modelIndex.row())
+            if (d->m_mimeForPatternSync == d->m_filterModel->mapToSource(modelIndex).row())
                 d->syncMimePattern();
-            if (d->m_mimeForMagicSync == modelIndex.row())
+            if (d->m_mimeForMagicSync == d->m_filterModel->mapToSource(modelIndex).row())
                 d->syncMimeMagic();
         }
         d->clearSyncData();
