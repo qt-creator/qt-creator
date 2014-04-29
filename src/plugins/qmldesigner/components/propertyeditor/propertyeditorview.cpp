@@ -151,7 +151,7 @@ void PropertyEditorView::changeValue(const QString &name)
         if (m_selectedNode.isValidId(newId)  && !modelNodeForId(newId).isValid() ) {
             if (m_selectedNode.id().isEmpty() || newId.isEmpty()) { //no id
                 try {
-                    m_selectedNode.setId(newId);
+                    m_selectedNode.setIdWithoutRefactoring(newId);
                 } catch (InvalidIdException &e) { //better save then sorry
                     m_locked = true;
                     value->setValue(m_selectedNode.id());

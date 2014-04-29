@@ -365,7 +365,7 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
          if (node.isValidId(item->text())  && !node.view()->modelNodeForId(item->text()).isValid()) {
              if (node.id().isEmpty() || item->text().isEmpty()) { //no id
                  try {
-                     node.setId(item->text());
+                     node.setIdWithoutRefactoring(item->text());
                  } catch (InvalidIdException &e) { //better save then sorry
                      QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"), e.description());
                  }

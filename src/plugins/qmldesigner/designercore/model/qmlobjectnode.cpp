@@ -500,7 +500,7 @@ QmlItemNode QmlObjectNode::instanceParentItem() const
 
 void QmlObjectNode::setId(const QString &id)
 {
-    modelNode().setId(id);
+    modelNode().setIdWithRefactoring(id);
 }
 
 QString QmlObjectNode::id() const

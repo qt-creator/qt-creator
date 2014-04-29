@@ -140,7 +140,7 @@ QString ModelNode::id() const
 QString ModelNode::validId()
 {
     if (id().isEmpty())
-        setId(view()->generateNewId(QString::fromUtf8(simplifiedTypeName())));
+        setIdWithRefactoring(view()->generateNewId(QString::fromUtf8(simplifiedTypeName())));
 
     return id();
 }
@@ -164,7 +164,18 @@ bool ModelNode::isValidId(const QString &id)
     return id.isEmpty() || (!idContainsWrongLetter(id) && !idIsQmlKeyWord(id));
 }
 
-void ModelNode::setId(const QString& id)
+void ModelNode::setIdWithRefactoring(const QString& id)
+{
+    if (model()->rewriterView()
+            && !id.isEmpty()
+            && !m_internalNode->id().isEmpty()) { // refactor the id if they are not empty
+        model()->rewriterView()->renameId(m_internalNode->id(), id);
+    } else {
+        setIdWithoutRefactoring(id);
+    }
+}
+
+void ModelNode::setIdWithoutRefactoring(const QString &id)
 {
     Internal::WriteLocker locker(m_model.data());
     if (!isValid()) {

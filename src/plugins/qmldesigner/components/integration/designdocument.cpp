@@ -405,7 +405,7 @@ void DesignDocument::copySelected()
             node.destroy();
         }
         view.changeRootNodeType("QtQuick.Rectangle", 1, 0);
-        view.rootModelNode().setId("designer__Selection");
+        view.rootModelNode().setIdWithRefactoring("designer__Selection");
 
         foreach (const ModelNode &selectedNode, selectedNodes) {
             ModelNode newNode(view.insertModel(selectedNode));

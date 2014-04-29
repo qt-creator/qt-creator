@@ -74,7 +74,7 @@ static void syncBindingProperties(ModelNode &outputNode, const ModelNode &inputN
 static void syncId(ModelNode &outputNode, const ModelNode &inputNode, const QHash<QString, QString> &idRenamingHash)
 {
     if (!inputNode.id().isEmpty())
-        outputNode.setId(idRenamingHash.value(inputNode.id()));
+        outputNode.setIdWithoutRefactoring(idRenamingHash.value(inputNode.id()));
 }
 
 static void splitIdInBaseNameAndNumber(const QString &id, QString *baseId, int *number)

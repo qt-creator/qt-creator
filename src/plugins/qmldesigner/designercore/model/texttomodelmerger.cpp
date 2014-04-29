@@ -1243,14 +1243,14 @@ void TextToModelMerger::syncNodeId(ModelNode &modelNode, const QString &astObjec
         if (!modelNode.id().isEmpty()) {
             ModelNode existingNodeWithId = m_rewriterView->modelNodeForId(astObjectId);
             if (existingNodeWithId.isValid())
-                existingNodeWithId.setId(QString());
+                existingNodeWithId.setIdWithoutRefactoring(QString());
             differenceHandler.idsDiffer(modelNode, astObjectId);
         }
     } else {
         if (modelNode.id() != astObjectId) {
             ModelNode existingNodeWithId = m_rewriterView->modelNodeForId(astObjectId);
             if (existingNodeWithId.isValid())
-                existingNodeWithId.setId(QString());
+                existingNodeWithId.setIdWithoutRefactoring(QString());
             differenceHandler.idsDiffer(modelNode, astObjectId);
         }
     }
@@ -1809,7 +1809,7 @@ void ModelAmender::propertyAbsentFromQml(AbstractProperty &modelProperty)
 
 void ModelAmender::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 {
-    modelNode.setId(qmlId);
+    modelNode.setIdWithoutRefactoring(qmlId);
 }
 
 void TextToModelMerger::setupComponent(const ModelNode &node)

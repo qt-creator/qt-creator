@@ -152,7 +152,8 @@ public:
 
     QString id() const;
     QString validId();
-    void setId(const QString &id);
+    void setIdWithRefactoring(const QString &id);
+    void setIdWithoutRefactoring(const QString &id);
     static bool isValidId(const QString &id);
 
     Model *model() const;
