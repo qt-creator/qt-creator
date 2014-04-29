@@ -199,16 +199,6 @@ static inline bool isCreatorConsole(const DebuggerStartParameters &sp)
            && (sp.startMode == StartInternal || sp.startMode == StartExternal);
 }
 
-static QMessageBox *
-nonModalMessageBox(QMessageBox::Icon icon, const QString &title, const QString &text)
-{
-    QMessageBox *mb = new QMessageBox(icon, title, text, QMessageBox::Ok,
-                                      Core::ICore::mainWindow());
-    mb->setAttribute(Qt::WA_DeleteOnClose);
-    mb->show();
-    return mb;
-}
-
 // Base data structure for command queue entries with callback
 struct CdbCommandBase
 {
@@ -565,7 +555,7 @@ void CdbEngine::consoleStubError(const QString &msg)
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineIll")
         notifyEngineIll();
     }
-    nonModalMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
+    showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
 }
 
 void CdbEngine::consoleStubProcessStarted()
