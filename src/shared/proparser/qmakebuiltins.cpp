@@ -1053,10 +1053,18 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             evalError(fL1S("shell_path(path) requires one argument."));
         } else {
             QString rstr = args.at(0).toQString(m_tmp1);
-            if (m_dirSep.startsWith(QLatin1Char('\\')))
+            if (m_dirSep.startsWith(QLatin1Char('\\'))) {
                 rstr.replace(QLatin1Char('/'), QLatin1Char('\\'));
-            else
+            } else {
                 rstr.replace(QLatin1Char('\\'), QLatin1Char('/'));
+#ifdef Q_OS_WIN
+                // Convert d:/foo/bar to msys-style /d/foo/bar.
+                if (rstr.length() > 2 && rstr.at(1) == QLatin1Char(':') && rstr.at(2) == QLatin1Char('/')) {
+                    rstr[1] = rstr.at(0);
+                    rstr[0] = QLatin1Char('/');
+                }
+#endif
+            }
             ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
         }
         break;
