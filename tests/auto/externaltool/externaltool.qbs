@@ -70,6 +70,12 @@ Autotest {
     }
 
     Group {
+        name: "Find"
+        prefix: product.corePluginDir + "/find/"
+        files: [ "*.cpp", "*.h" ]
+    }
+
+    Group {
         name: "Progress Manager"
         prefix: product.corePluginDir + "/progressmanager/"
         files: [

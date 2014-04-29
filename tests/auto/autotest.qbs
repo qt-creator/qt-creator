@@ -1,5 +1,6 @@
 import qbs
 import qbs.FileInfo
+import QtcFunctions
 
 CppApplication {
     type: "application"
@@ -10,6 +11,7 @@ CppApplication {
     destinationDirectory: buildDirectory + '/'
                           + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
 
+    cpp.cxxFlags: QtcFunctions.commonCxxFlags(qbs)
     cpp.rpaths: [
         buildDirectory + '/' + project.ide_library_path,
         buildDirectory + '/' + project.ide_library_path + "/..", // OSX
