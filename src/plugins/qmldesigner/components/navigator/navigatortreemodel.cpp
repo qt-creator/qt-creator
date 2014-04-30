@@ -443,9 +443,9 @@ ModelNode NavigatorTreeModel::nodeForIndex(const QModelIndex &index) const
 
 bool NavigatorTreeModel::hasNodeForIndex(const QModelIndex &index) const
 {
-    QVariant internalIdVaraint = index.data(InternalIdRole);
-    if (internalIdVaraint.isValid()) {
-        qint32 internalId = internalIdVaraint.toInt();
+    QVariant internalIdVariant = index.data(InternalIdRole);
+    if (internalIdVariant.isValid()) {
+        qint32 internalId = internalIdVariant.toInt();
         return m_view->hasModelNodeForInternalId(internalId);
     }
 
