@@ -35,6 +35,7 @@
 
 #include <QStandardItem>
 #include <QStandardItemModel>
+#include <QPointer>
 
 namespace QmlDesigner {
 
@@ -135,7 +136,7 @@ private:
 
 private:
     QHash<ModelNode, ItemRow> m_nodeItemHash;
-    QWeakPointer<AbstractView> m_view;
+    QPointer<AbstractView> m_view;
 
     bool m_blockItemChangedSignal;
 };
