@@ -152,68 +152,95 @@ QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &indexList) const
      return mimeData;
 }
 
-bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
-                  Qt::DropAction action,
-                  int row,
-                  int column,
-                  const QModelIndex &dropIndex)
+static QList<ModelNode> modelNodesFromMimeData(const QMimeData *mineData, AbstractView *view)
 {
-    if (action == Qt::IgnoreAction)
-        return true;
-    if (action != Qt::LinkAction)
-        return false;
-    if (!data->hasFormat("application/vnd.modelnode.list"))
-        return false;
-    if (column > 1)
-        return false;
-    if (dropIndex.model() != this)
-        return false;
+    QByteArray encodedModelNodeData = mineData->data("application/vnd.modelnode.list");
+    QDataStream modelNodeStream(&encodedModelNodeData, QIODevice::ReadOnly);
 
-    QModelIndex parentIndex, parentItemIndex;
-    PropertyName parentPropertyName;
-    int targetIndex;
+    QList<ModelNode> modelNodeList;
+    while (!modelNodeStream.atEnd()) {
+        qint32 internalId;
+        modelNodeStream >> internalId;
+        if (view->hasModelNodeForInternalId(internalId))
+            modelNodeList.append(view->modelNodeForInternalId(internalId));
+    }
 
-    parentIndex = dropIndex.sibling(dropIndex.row(), 0);
-    targetIndex = (row > -1)? row : rowCount(parentIndex);
+    return modelNodeList;
+}
 
-    if (this->data(parentIndex, InternalIdRole).isValid()) {
-        parentItemIndex = parentIndex;
-        ModelNode parentNode = nodeForIndex(parentItemIndex);
-        if (!parentNode.metaInfo().hasDefaultProperty())
+bool fitsToTargetProperty(const NodeAbstractProperty &targetProperty,
+                          const QList<ModelNode> &modelNodeList)
+{
+    return !(targetProperty.isNodeProperty() &&
+            modelNodeList.count() > 1);
+}
+
+static bool computeTarget(const QModelIndex &rowModelIndex,
+                          NavigatorTreeModel *navigatorTreeModel,
+                          NodeAbstractProperty  *targetProperty,
+                          int *targetRowNumber)
+{
+    QModelIndex targetItemIndex;
+    PropertyName targetPropertyName;
+
+    if (*targetRowNumber < 0 || *targetRowNumber > navigatorTreeModel->rowCount(rowModelIndex))
+        *targetRowNumber = navigatorTreeModel->rowCount(rowModelIndex);
+
+    if (navigatorTreeModel->hasNodeForIndex(rowModelIndex)) {
+        targetItemIndex = rowModelIndex;
+        ModelNode targetNode = navigatorTreeModel->nodeForIndex(targetItemIndex);
+        if (!targetNode.metaInfo().hasDefaultProperty())
             return false;
-        targetIndex -= visibleProperties(parentNode).count();
-        parentPropertyName = parentNode.metaInfo().defaultPropertyName();
+        *targetRowNumber -= visibleProperties(targetNode).count();
+        targetPropertyName = targetNode.metaInfo().defaultPropertyName();
     } else {
-        parentItemIndex = parentIndex.parent();
-        parentPropertyName = parentIndex.data(Qt::DisplayRole).toByteArray();
+        targetItemIndex = rowModelIndex.parent();
+        targetPropertyName = rowModelIndex.data(Qt::DisplayRole).toByteArray();
     }
 
     // Disallow dropping items between properties, which are listed first.
-    if (targetIndex < 0)
+    if (*targetRowNumber < 0)
         return false;
 
-    Q_ASSERT(parentItemIndex.isValid());
+    ModelNode targetNode(navigatorTreeModel->nodeForIndex(targetItemIndex));
+    *targetProperty = targetNode.nodeAbstractProperty(targetPropertyName);
 
-    QByteArray encodedData = data->data("application/vnd.modelnode.list");
-    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+    return true;
+}
 
-    QList<ModelNode> nodeList;
-    while (!stream.atEnd()) {
-        qint32 internalId;
-        stream >> internalId;
-        if (m_view->hasModelNodeForInternalId(internalId))
-            nodeList.append(m_view->modelNodeForInternalId(internalId));
-    }
+bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
+                  Qt::DropAction action,
+                  int rowNumber,
+                  int columnNumber,
+                  const QModelIndex &dropModelIndex)
+{
+    if (action == Qt::IgnoreAction)
+        return true;
 
-    ModelNode parentNode(nodeForIndex(parentItemIndex));
-    NodeAbstractProperty parentProperty = parentNode.nodeAbstractProperty(parentPropertyName);
-
-    if (parentProperty.isNodeProperty() &&
-        nodeList.count() > 1) {
+    if (action != Qt::LinkAction)
         return false;
-    }
 
-    moveNodesInteractive(parentProperty, nodeList, targetIndex);
+    if (!mimeData->hasFormat("application/vnd.modelnode.list"))
+        return false;
+
+    if (columnNumber > 1)
+        return false;
+
+    if (dropModelIndex.model() != this)
+        return false;
+
+    QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
+    int targetRowNumber = rowNumber;
+    NodeAbstractProperty targetProperty;
+
+    bool foundTarget = computeTarget(rowModelIndex, this, &targetProperty, &targetRowNumber);
+
+    if (foundTarget) {
+        QList<ModelNode> modelNodeList = modelNodesFromMimeData(mimeData, m_view);
+
+        if (fitsToTargetProperty(targetProperty, modelNodeList))
+            moveNodesInteractive(targetProperty, modelNodeList, targetRowNumber);
+    }
 
     return false; // don't let the view do drag&drop on its own
 }
