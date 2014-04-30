@@ -59,7 +59,6 @@ public:
     ~DeviceSettingsWidget();
 
     void saveSettings();
-    QString searchKeywords() const;
 
 private slots:
     void handleDeviceUpdated(Core::Id id);

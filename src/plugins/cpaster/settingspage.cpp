@@ -45,15 +45,6 @@ SettingsWidget::SettingsWidget(const QStringList &protocols, QWidget *parent) :
     m_ui.defaultProtocol->addItems(protocols);
 }
 
-QString SettingsWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream(&rc) << m_ui.protocolLabel->text() << ' '
-            << m_ui.userNameLabel->text();
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 void SettingsWidget::setSettings(const Settings &settings)
 {
     m_ui.userEdit->setText(settings.username);

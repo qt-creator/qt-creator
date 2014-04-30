@@ -109,16 +109,6 @@ DeviceSettingsWidget::~DeviceSettingsWidget()
     delete m_ui;
 }
 
-QString DeviceSettingsWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream(&rc) << m_ui->configurationLabel->text()
-        << ' ' << m_ui->deviceNameLabel->text()
-        << ' ' << m_ui->nameLineEdit->text()
-        << ' ' << m_ui->autoDetectionKeyLabel->text();
-    return rc.remove(QLatin1Char('&'));
-}
-
 void DeviceSettingsWidget::initGui()
 {
     m_ui->setupUi(this);

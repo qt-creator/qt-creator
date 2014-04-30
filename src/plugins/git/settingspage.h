@@ -70,7 +70,6 @@ public:
     void finish();
 
 private:
-    QString m_searchKeywords;
     QPointer<SettingsPageWidget> m_widget;
 };
 

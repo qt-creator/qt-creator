@@ -52,8 +52,6 @@ public:
     void setSettings(const Settings &);
     Settings settings();
 
-    QString searchKeywords() const;
-
 private:
     Internal::Ui::SettingsPage m_ui;
 };

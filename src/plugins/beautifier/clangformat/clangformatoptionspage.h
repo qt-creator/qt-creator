@@ -51,7 +51,6 @@ class ClangFormatOptionsPageWidget : public QWidget
 public:
     explicit ClangFormatOptionsPageWidget(ClangFormatSettings *settings, QWidget *parent = 0);
     virtual ~ClangFormatOptionsPageWidget();
-    QString searchKeywords() const;
     void restore();
     void apply();
 
@@ -69,12 +68,10 @@ public:
     QWidget *widget() QTC_OVERRIDE;
     void apply() QTC_OVERRIDE;
     void finish() QTC_OVERRIDE;
-    bool matches(const QString &searchKeywords) const QTC_OVERRIDE;
 
 private:
     QPointer<ClangFormatOptionsPageWidget> m_widget;
     ClangFormatSettings *m_settings;
-    QString m_searchKeywords;
 };
 
 } // namespace ClangFormat

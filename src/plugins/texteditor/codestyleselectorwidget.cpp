@@ -432,10 +432,4 @@ QString CodeStyleSelectorWidget::displayName(ICodeStylePreferences *codeStyle) c
     return name;
 }
 
-QString CodeStyleSelectorWidget::searchKeywords() const
-{
-    // no useful keywords here
-    return QString();
-}
-
 #include "codestyleselectorwidget.moc"

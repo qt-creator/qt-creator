@@ -448,21 +448,6 @@ ExternalToolConfig::~ExternalToolConfig()
     delete ui;
 }
 
-QString ExternalToolConfig::searchKeywords() const
-{
-    QString keywords;
-    QTextStream(&keywords)
-            << ui->descriptionLabel->text()
-            << ui->executableLabel->text()
-            << ui->argumentsLabel->text()
-            << ui->workingDirectoryLabel->text()
-            << ui->outputLabel->text()
-            << ui->errorOutputLabel->text()
-            << ui->modifiesDocumentCheckbox->text()
-            << ui->inputLabel->text();
-    return keywords;
-}
-
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)
 {
     QMap<QString, QList<ExternalTool *> > toolsCopy;

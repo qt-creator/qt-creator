@@ -65,20 +65,6 @@ ClangFormatOptionsPageWidget::~ClangFormatOptionsPageWidget()
     delete ui;
 }
 
-QString ClangFormatOptionsPageWidget::searchKeywords() const
-{
-    QString keywords;
-    const QLatin1Char sep(' ');
-    QTextStream(&keywords) << sep << ui->configuration->title()
-                           << sep << ui->commandLabel->text()
-                           << sep << ui->options->title()
-                           << sep << ui->usePredefinedStyle->text()
-                           << sep << ui->useCustomizedStyle->text()
-                           << sep << ui->formatEntireFileFallback->text();
-    keywords.remove(QLatin1Char('&'));
-    return keywords;
-}
-
 void ClangFormatOptionsPageWidget::restore()
 {
     ui->command->setPath(m_settings->command());
@@ -110,8 +96,7 @@ void ClangFormatOptionsPageWidget::apply()
 ClangFormatOptionsPage::ClangFormatOptionsPage(ClangFormatSettings *settings, QObject *parent) :
     IOptionsPage(parent),
     m_widget(0),
-    m_settings(settings),
-    m_searchKeywords()
+    m_settings(settings)
 {
     setId(Constants::ClangFormat::OPTION_ID);
     setDisplayName(tr("Clang Format"));
@@ -124,11 +109,8 @@ QWidget *ClangFormatOptionsPage::widget()
 {
     m_settings->read();
 
-    if (!m_widget) {
+    if (!m_widget)
         m_widget = new ClangFormatOptionsPageWidget(m_settings);
-        if (m_searchKeywords.isEmpty())
-            m_searchKeywords = m_widget->searchKeywords();
-    }
     m_widget->restore();
 
     return m_widget;
@@ -142,11 +124,6 @@ void ClangFormatOptionsPage::apply()
 
 void ClangFormatOptionsPage::finish()
 {
-}
-
-bool ClangFormatOptionsPage::matches(const QString &searchKeyWord) const
-{
-    return m_searchKeywords.contains(searchKeyWord, Qt::CaseInsensitive);
 }
 
 } // namespace ClangFormat

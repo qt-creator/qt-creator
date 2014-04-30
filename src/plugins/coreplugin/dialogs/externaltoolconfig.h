@@ -94,8 +94,6 @@ public:
     QMap<QString, QList<ExternalTool *> > tools() const;
     void apply();
 
-    QString searchKeywords() const;
-
 private slots:
     void handleCurrentChanged(const QModelIndex &now, const QModelIndex &previous);
     void showInfoForItem(const QModelIndex &index);

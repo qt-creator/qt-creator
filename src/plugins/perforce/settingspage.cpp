@@ -116,27 +116,6 @@ void SettingsPageWidget::setStatusError(const QString &t)
     m_ui.errorLabel->setText(t);
 }
 
-QString SettingsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream(&rc)
-            << sep << m_ui.configGroupBox->title()
-            << sep << m_ui.commandLabel->text()
-            << sep << m_ui.environmentGroupBox->title()
-            << sep << m_ui.portLabel->text()
-            << sep << m_ui.clientLabel->text()
-            << sep << m_ui.userLabel->text()
-            << sep << m_ui.miscGroupBox->title()
-            << sep << m_ui.logCountLabel->text()
-            << sep << m_ui.timeOutLabel->text()
-            << sep << m_ui.promptToSubmitCheckBox->text()
-            << sep << m_ui.autoOpenCheckBox->text()
-               ;
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 SettingsPage::SettingsPage()
 {
     setId(VcsBase::Constants::VCS_ID_PERFORCE);

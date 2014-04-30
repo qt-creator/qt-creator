@@ -66,20 +66,6 @@ UncrustifyOptionsPageWidget::~UncrustifyOptionsPageWidget()
     delete ui;
 }
 
-QString UncrustifyOptionsPageWidget::searchKeywords() const
-{
-    QString keywords;
-    const QLatin1Char sep(' ');
-    QTextStream(&keywords) << sep << ui->configuration->title()
-                           << sep << ui->commandLabel->text()
-                           << sep << ui->options->title()
-                           << sep << ui->useOtherFiles->text()
-                           << sep << ui->useHomeFile->text()
-                           << sep << ui->useCustomStyle->text();
-    keywords.remove(QLatin1Char('&'));
-    return keywords;
-}
-
 void UncrustifyOptionsPageWidget::restore()
 {
     ui->command->setPath(m_settings->command());
@@ -104,8 +90,7 @@ void UncrustifyOptionsPageWidget::apply()
 UncrustifyOptionsPage::UncrustifyOptionsPage(UncrustifySettings *settings, QObject *parent) :
     IOptionsPage(parent),
     m_widget(0),
-    m_settings(settings),
-    m_searchKeywords()
+    m_settings(settings)
 {
     setId(Constants::Uncrustify::OPTION_ID);
     setDisplayName(tr("Uncrustify"));
@@ -118,11 +103,8 @@ QWidget *UncrustifyOptionsPage::widget()
 {
     m_settings->read();
 
-    if (!m_widget) {
+    if (!m_widget)
         m_widget = new UncrustifyOptionsPageWidget(m_settings);
-        if (m_searchKeywords.isEmpty())
-            m_searchKeywords = m_widget->searchKeywords();
-    }
     m_widget->restore();
 
     return m_widget;
@@ -136,11 +118,6 @@ void UncrustifyOptionsPage::apply()
 
 void UncrustifyOptionsPage::finish()
 {
-}
-
-bool UncrustifyOptionsPage::matches(const QString &searchKeyWord) const
-{
-    return m_searchKeywords.contains(searchKeyWord, Qt::CaseInsensitive);
 }
 
 } // namespace Uncrustify

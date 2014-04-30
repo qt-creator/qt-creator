@@ -51,7 +51,6 @@ class ArtisticStyleOptionsPageWidget : public QWidget
 public:
     explicit ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings, QWidget *parent = 0);
     virtual ~ArtisticStyleOptionsPageWidget();
-    QString searchKeywords() const;
     void restore();
     void apply();
 
@@ -69,12 +68,10 @@ public:
     QWidget *widget() QTC_OVERRIDE;
     void apply() QTC_OVERRIDE;
     void finish() QTC_OVERRIDE;
-    bool matches(const QString &searchKeywords) const QTC_OVERRIDE;
 
 private:
     QPointer<ArtisticStyleOptionsPageWidget> m_widget;
     ArtisticStyleSettings *m_settings;
-    QString m_searchKeywords;
 };
 
 } // namespace ArtisticStyle

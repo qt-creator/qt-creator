@@ -54,8 +54,6 @@ public:
     void setSettings(const PerforceSettings &);
     Settings settings() const;
 
-    QString searchKeywords() const;
-
 private slots:
     void slotTest();
     void setStatusText(const QString &);

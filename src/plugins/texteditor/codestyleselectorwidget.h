@@ -57,7 +57,6 @@ public:
     ~CodeStyleSelectorWidget();
 
     void setCodeStyle(TextEditor::ICodeStylePreferences *codeStyle);
-    QString searchKeywords() const;
 
 private slots:
     void slotComboBoxActivated(int index);
