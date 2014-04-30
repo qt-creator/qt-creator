@@ -80,11 +80,12 @@ class NavigatorTreeModel : public QStandardItemModel
 {
     Q_OBJECT
 
+public:
     enum {
         InternalIdRole = Qt::UserRole
     };
 
-public:
+
     NavigatorTreeModel(QObject *parent = 0);
     ~NavigatorTreeModel();
 
