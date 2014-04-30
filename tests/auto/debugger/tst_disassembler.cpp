@@ -56,6 +56,7 @@ void tst_disassembler::parse()
 {
     QFETCH(QString, raw);
     QFETCH(QString, cooked);
+    QFETCH(int, bytes);
     QFETCH(Debugger::Internal::DisassemblerLine, line);
 
     lines.appendUnparsed(raw);
@@ -68,7 +69,7 @@ void tst_disassembler::parse()
     QCOMPARE(parsed.rawData, line.rawData);
     QCOMPARE(parsed.data, line.data);
 
-    QString out___ = parsed.toString();
+    QString out___ = parsed.toString(bytes);
     QCOMPARE(out___, cooked);
 }
 
@@ -76,6 +77,7 @@ void tst_disassembler::parse_data()
 {
     QTest::addColumn<QString>("raw");
     QTest::addColumn<QString>("cooked");
+    QTest::addColumn<int>("bytes");
     QTest::addColumn<Debugger::Internal::DisassemblerLine>("line");
 
     DisassemblerLine line;
@@ -86,15 +88,17 @@ void tst_disassembler::parse_data()
     QTest::newRow("plain")
            << "0x000000000040f39e <+18>:\tmov    %rax,%rdi"
            << "0x40f39e  <+0x0012>         mov    %rax,%rdi"
-           << line;
+           << 0 << line;
 
     line.address = 0x40f3a1;
     line.offset  = 21;
     line.data    = "callq  0x420d2c <_ZN7qobject5Names3Bar10TestObjectC2EPN4Myns7QObjectE>";
     QTest::newRow("call")
-           << "0x000000000040f3a1 <+21>:\tcallq  0x420d2c <_ZN7qobject5Names3Bar10TestObjectC2EPN4Myns7QObjectE>"
-           << "0x40f3a1  <+0x0015>         callq  0x420d2c <_ZN7qobject5Names3Bar10TestObjectC2EPN4Myns7QObjectE>"
-           << line;
+           << "0x000000000040f3a1 <+21>:\tcallq  "
+                "0x420d2c <_ZN7qobject5Names3Bar10TestObjectC2EPN4Myns7QObjectE>"
+           << "0x40f3a1  <+0x0015>         callq  "
+                "0x420d2c <_ZN7qobject5Names3Bar10TestObjectC2EPN4Myns7QObjectE>"
+           << 0 << line;
 
 
     line.address = 0x000000000041cd73;
@@ -103,7 +107,7 @@ void tst_disassembler::parse_data()
     QTest::newRow("set print max-symbolic-offset 1, plain")
             << "0x000000000041cd73:\tmov    %rax,%rdi"
             << "0x41cd73                    mov    %rax,%rdi"
-            << line;
+            << 0 << line;
 
     line.address = 0x000000000041cd73;
     line.offset  = 0;
@@ -111,7 +115,19 @@ void tst_disassembler::parse_data()
     QTest::newRow("set print max-symbolic-offset 1, call")
             << "0x00000000041cd73:\tcallq  0x420d2c <_ZN4Myns12QApplicationC1ERiPPci@plt>"
             << "0x41cd73                    callq  0x420d2c <_ZN4Myns12QApplicationC1ERiPPci@plt>"
-            << line;
+            << 0 << line;
+
+    // With raw bytes:
+    line.address  = 0x00000000004010d3;
+    line.offset   = 0;
+    line.function = "main()";
+    line.offset   = 132;
+    line.bytes    = "48 89 c7";
+    line.data     = "mov    %rax,%rdi";
+    QTest::newRow("with raw bytes")
+            << "   0x00000000004010d3 <main()+132>:\t48 89 c7\tmov    %rax,%rdi"
+            << "0x4010d3  <+0x0084>        48 89 c7   mov    %rax,%rdi"
+            << 10 << line;
  }
 
 

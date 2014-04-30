@@ -170,17 +170,22 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
         line = line.mid(3);
     if (line.startsWith(QLatin1String("0x"))) {
         // Address line. Split at the tab.
-        int tab = line.indexOf(QLatin1Char('\t'));
-        if (tab == -1) {
+        int tab1 = line.indexOf(QLatin1Char('\t'));
+        if (tab1 == -1) {
             appendComment(line);
             return;
         }
-        QString address = line.left(tab);
+        int tab2 = line.indexOf(QLatin1Char('\t'), tab1 + 1);
+        if (tab2 == -1)
+            tab2 = tab1;
+        QString address = line.left(tab1);
         if (address.endsWith(QLatin1Char(':')))
             address.chop(1);
         int pos1 = address.indexOf(QLatin1Char('<')) + 1;
         DisassemblerLine dl;
-        dl.data = line.mid(tab).trimmed();
+        dl.bytes = line.mid(tab1, tab2 - tab1).trimmed();
+        m_bytesLength = qMax(m_bytesLength, tab2 - tab1);
+        dl.data = line.mid(tab2).trimmed();
         if (pos1 && address.indexOf(QLatin1String("<UNDEFINED> instruction:")) == -1) {
             if (address.endsWith(QLatin1Char('>')))
                 address.chop(1);
@@ -213,7 +218,7 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
     }
 }
 
-QString DisassemblerLine::toString() const
+QString DisassemblerLine::toString(int maxOp) const
 {
     const QString someSpace = _("        ");
     QString str;
@@ -224,7 +229,8 @@ QString DisassemblerLine::toString() const
             str += _("<+0x%2> ").arg(offset, 4, 16, QLatin1Char('0'));
         else
             str += _("          ");
-        str += _("        ");
+        str += _("       %1 ").arg(bytes);
+        str += QString(maxOp - bytes.size(), QLatin1Char(' '));
         str += data;
     } else if (isCode()) {
         if (hunk)
@@ -234,6 +240,16 @@ QString DisassemblerLine::toString() const
     } else {
         str += someSpace;
         str += data;
+    }
+    return str;
+}
+
+QString DisassemblerLines::toString() const
+{
+    QString str;
+    for (int i = 0, n = size(); i != n; ++i) {
+        str += m_data.at(i).toString(m_bytesLength);
+        str += QLatin1Char('\n');
     }
     return str;
 }

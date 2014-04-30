@@ -324,12 +324,7 @@ void DisassemblerAgent::setContentsToEditor(const DisassemblerLines &contents)
         qobject_cast<QPlainTextEdit *>(d->editor->widget());
     QTC_ASSERT(plainTextEdit, return);
 
-    QString str;
-    for (int i = 0, n = contents.size(); i != n; ++i) {
-        str += contents.at(i).toString();
-        str += QLatin1Char('\n');
-    }
-    plainTextEdit->setPlainText(str);
+    plainTextEdit->setPlainText(contents.toString());
     plainTextEdit->setReadOnly(true);
 
     d->editor->document()->setDisplayName(_("Disassembler (%1)")

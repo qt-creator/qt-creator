@@ -3976,7 +3976,7 @@ void GdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 
 static inline QByteArray disassemblerCommand(const Location &location, bool mixed)
 {
-    QByteArray command = "disassemble ";
+    QByteArray command = "disassemble /r ";
     if (mixed)
         command += "/m ";
     if (const quint64 address = location.address()) {
@@ -4006,7 +4006,7 @@ void GdbEngine::fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &
     const quint64 address = ac.agent->address();
     QByteArray start = QByteArray::number(address - 20, 16);
     QByteArray end = QByteArray::number(address + 100, 16);
-    QByteArray cmd = "disassemble /m 0x" + start + ",0x" + end;
+    QByteArray cmd = "disassemble /r /m 0x" + start + ",0x" + end;
     postCommand(cmd, Discardable|ConsoleCommand,
         CB(handleFetchDisassemblerByCliRangeMixed), QVariant::fromValue(ac));
 }
@@ -4019,7 +4019,7 @@ void GdbEngine::fetchDisassemblerByCliRangePlain(const DisassemblerAgentCookie &
     const quint64 address = ac.agent->address();
     QByteArray start = QByteArray::number(address - 20, 16);
     QByteArray end = QByteArray::number(address + 100, 16);
-    QByteArray cmd = "disassemble 0x" + start + ",0x" + end;
+    QByteArray cmd = "disassemble /r 0x" + start + ",0x" + end;
     postCommand(cmd, Discardable,
         CB(handleFetchDisassemblerByCliRangePlain), QVariant::fromValue(ac));
 }
@@ -4055,6 +4055,7 @@ bool GdbEngine::handleCliDisassemblerResult(const QByteArray &output, Disassembl
 
     currentFunction = -1;
     DisassemblerLines result;
+    result.setBytesLength(dlines.bytesLength());
     for (LineMap::const_iterator it = lineMap.begin(), et = lineMap.end(); it != et; ++it) {
         LineData d = *it;
         if (d.function != currentFunction) {

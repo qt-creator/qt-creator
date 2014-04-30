@@ -49,7 +49,7 @@ public:
     bool isAssembler() const { return address != 0; }
     bool isCode() const { return lineNumber != 0; }
     bool isComment() const { return lineNumber == 0 && address == 0; }
-    QString toString() const;
+    QString toString(int maxOp = 0) const;
     void fromString(const QString &unparsed);
 
     // Return address of an assembly line "0x0dfd  bla".
@@ -63,12 +63,13 @@ public:
     uint hunk;        // (src) Number of hunk if source line was split
     QByteArray rawData;  // (ass) Raw bytes of the instruction
     QString data;     // (ass) Instruction text, (src) source text, (cmt) arbitrary.
+    QString bytes;    // (ass) The instruction in raw bytes
 };
 
 class DisassemblerLines
 {
 public:
-    DisassemblerLines() {}
+    DisassemblerLines() : m_bytesLength(0) {}
 
     bool coversAddress(quint64 address) const;
     void appendUnparsed(const QString &line);
@@ -76,6 +77,9 @@ public:
     void appendComment(const QString &line);
     // Mixed source/assembly: Retrieve contents of source (cached)
     void appendSourceLine(const QString &fileName, uint line);
+    QString toString() const;
+    void setBytesLength(int x) { m_bytesLength = x; }
+    int bytesLength() const  { return m_bytesLength; }
 
     int size() const { return m_data.size(); }
     const DisassemblerLine &at(int i) const { return m_data.at(i); }
@@ -87,6 +91,7 @@ public:
 
 private:
     QString m_lastFunction;
+    int m_bytesLength;
     QVector<DisassemblerLine> m_data;
     QHash<quint64, int> m_rowCache;
 };
