@@ -429,6 +429,9 @@ void CMakeRunPage::initWidgets()
     m_generatorComboBox = new QComboBox(this);
     fl->addRow(tr("Generator:"), m_generatorComboBox);
 
+    m_generatorExtraText = new QLabel(this);
+    fl->addRow(m_generatorExtraText);
+
     m_runCMake = new QPushButton(this);
     m_runCMake->setText(tr("Run CMake"));
     connect(m_runCMake, SIGNAL(clicked()), this, SLOT(runCMake()));
@@ -548,6 +551,15 @@ void CMakeRunPage::initializePage()
             foreach (const GeneratorInfo &info, infos)
                 if (cachedGenerator.isEmpty() || info.generator() == cachedGenerator)
                     m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
+        }
+
+
+        if (!m_generatorComboBox->count()) {
+            m_generatorExtraText->setVisible(true);
+            m_generatorExtraText->setText(tr("The cached generator %1 is incompatible with the configured kits.")
+                                          .arg(QString::fromLatin1(cachedGenerator)));
+        } else {
+            m_generatorExtraText->setVisible(false);
         }
 
         m_generatorComboBox->setCurrentIndex(defaultIndex);

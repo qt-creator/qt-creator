@@ -180,6 +180,7 @@ private:
     Utils::QtcProcess *m_cmakeProcess;
     Utils::FancyLineEdit *m_argumentsLineEdit;
     QComboBox *m_generatorComboBox;
+    QLabel *m_generatorExtraText;
     QLabel *m_descriptionLabel;
     QLabel *m_exitCodeLabel;
     bool m_haveCbpFile;
