@@ -58,30 +58,39 @@ bool CppQtStyleIndenter::isElectricCharacter(const QChar &ch) const
     case '}':
     case ':':
     case '#':
+    case '<':
+    case '>':
         return true;
     }
     return false;
 }
 
-static bool colonIsElectric(const QString &text)
+static bool isElectricInLine(const QChar ch, const QString &text)
 {
-    // switch cases and access declarations should be reindented
-    if (text.contains(QLatin1String("case"))
-            || text.contains(QLatin1String("default"))
-            || text.contains(QLatin1String("public"))
-            || text.contains(QLatin1String("private"))
-            || text.contains(QLatin1String("protected"))
-            || text.contains(QLatin1String("signals"))
-            || text.contains(QLatin1String("Q_SIGNALS"))) {
-        return true;
+    switch (ch.toLatin1()) {
+    case ':':
+        // switch cases and access declarations should be reindented
+        if (text.contains(QLatin1String("case"))
+                || text.contains(QLatin1String("default"))
+                || text.contains(QLatin1String("public"))
+                || text.contains(QLatin1String("private"))
+                || text.contains(QLatin1String("protected"))
+                || text.contains(QLatin1String("signals"))
+                || text.contains(QLatin1String("Q_SIGNALS"))) {
+            return true;
+        }
+
+        // fall-through
+        // lines that start with : might have a constructor initializer list
+    case '<':
+    case '>': {
+        // Electrical if at line beginning (after space indentation)
+        const QString trimmedtext = text.trimmed();
+        return !trimmedtext.isEmpty() && trimmedtext.at(0) == ch;
+    }
     }
 
-    // lines that start with : might have a constructor initializer list
-    const QString trimmedtext = text.trimmed();
-    if (!trimmedtext.isEmpty() && trimmedtext.at(0) == QLatin1Char(':'))
-        return true;
-
-    return false;
+    return true;
 }
 
 void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
@@ -100,7 +109,7 @@ void CppQtStyleIndenter::indentBlock(QTextDocument *doc,
 
     if (isElectricCharacter(typedChar)) {
         // : should not be electric for labels
-        if (typedChar == QLatin1Char(':') && !colonIsElectric(block.text()))
+        if (!isElectricInLine(typedChar, block.text()))
             return;
 
         // only reindent the current line when typing electric characters if the
