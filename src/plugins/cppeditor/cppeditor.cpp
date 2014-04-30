@@ -65,6 +65,7 @@
 #include <texteditor/refactoroverlay.h>
 
 #include <utils/qtcassert.h>
+#include <utils/treeviewcombobox.h>
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -79,8 +80,6 @@
 #include <QHeaderView>
 #include <QMenu>
 #include <QTextEdit>
-#include <QComboBox>
-#include <QTreeView>
 #include <QSortFilterProxyModel>
 #include <QToolButton>
 
@@ -95,97 +94,6 @@ using namespace CppTools;
 using namespace CppEditor::Internal;
 
 namespace {
-
-class OverviewTreeView : public QTreeView
-{
-public:
-    OverviewTreeView(QWidget *parent = 0)
-        : QTreeView(parent)
-    {
-        // TODO: Disable the root for all items (with a custom delegate?)
-        setRootIsDecorated(false);
-    }
-
-    void adjustWidth(int width)
-    {
-        setMaximumWidth(width);
-        setMinimumWidth(qMin(qMax(sizeHintForColumn(0), minimumSizeHint().width()), width));
-    }
-};
-
-class OverviewCombo : public QComboBox
-{
-public:
-    OverviewCombo(QWidget *parent = 0)
-        : QComboBox(parent), m_skipNextHide(false)
-    {
-        m_view = new OverviewTreeView;
-        m_view->setHeaderHidden(true);
-        m_view->setItemsExpandable(true);
-        setView(m_view);
-        m_view->viewport()->installEventFilter(this);
-    }
-
-    void wheelEvent(QWheelEvent *e)
-    {
-        QModelIndex index = m_view->currentIndex();
-        if (e->delta() > 0) {
-            do
-                index = m_view->indexAbove(index);
-            while (index.isValid() && !(model()->flags(index) & Qt::ItemIsSelectable));
-        } else if (e->delta() < 0) {
-            do
-                index = m_view->indexBelow(index);
-            while (index.isValid() && !(model()->flags(index) & Qt::ItemIsSelectable));
-        }
-        e->accept();
-        if (!index.isValid())
-            return;
-
-        setCurrentIndex(index);
-
-        // for compatibility we emit activated with a useless row parameter
-        emit activated(index.row());
-    }
-    void setCurrentIndex(const QModelIndex &index)
-    {
-        setRootModelIndex(model()->parent(index));
-        QComboBox::setCurrentIndex(index.row());
-        setRootModelIndex(QModelIndex());
-        m_view->setCurrentIndex(index);
-    }
-    bool eventFilter(QObject* object, QEvent* event)
-    {
-        if (event->type() == QEvent::MouseButtonPress && object == view()->viewport()) {
-            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-            QModelIndex index = view()->indexAt(mouseEvent->pos());
-            if (!view()->visualRect(index).contains(mouseEvent->pos()))
-                m_skipNextHide = true;
-        }
-        return false;
-    }
-    void showPopup()
-    {
-        m_view->adjustWidth(topLevelWidget()->geometry().width());
-        QComboBox::showPopup();
-    }
-    void hidePopup()
-    {
-        if (m_skipNextHide)
-            m_skipNextHide = false;
-        else
-            QComboBox::hidePopup();
-    }
-
-    OverviewTreeView *view() const
-    {
-        return m_view;
-    }
-
-private:
-    OverviewTreeView *m_view;
-    bool m_skipNextHide;
-};
 
 class OverviewProxyModel : public QSortFilterProxyModel
 {
@@ -627,7 +535,7 @@ TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
 
 void CPPEditorWidget::createToolBar(CPPEditor *editor)
 {
-    m_outlineCombo = new OverviewCombo;
+    m_outlineCombo = new Utils::TreeViewComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
 
     // Make the combo box prefer to expand
@@ -1097,7 +1005,7 @@ void CPPEditorWidget::updateOutlineNow()
 
     m_outlineModel->rebuild(document);
 
-    static_cast<OverviewTreeView *>(m_outlineCombo->view())->expandAll();
+    m_outlineCombo->view()->expandAll();
     updateOutlineIndexNow();
 }
 
@@ -1153,7 +1061,7 @@ void CPPEditorWidget::updateOutlineIndexNow()
     if (comboIndex.isValid()) {
         bool blocked = m_outlineCombo->blockSignals(true);
 
-        static_cast<OverviewCombo *>(m_outlineCombo)->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex));
+        m_outlineCombo->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex));
 
         updateOutlineToolTip();
 

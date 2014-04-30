@@ -171,6 +171,8 @@ QtcLibrary {
         "tcpportsgatherer.h",
         "textfileformat.cpp",
         "textfileformat.h",
+        "treeviewcombobox.cpp",
+        "treeviewcombobox.h",
         "headerviewstretcher.cpp",
         "headerviewstretcher.h",
         "uncommentselection.cpp",

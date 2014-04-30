@@ -88,7 +88,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/execmenu.cpp \
     $$PWD/completinglineedit.cpp \
     $$PWD/winutils.cpp \
-    $$PWD/itemviews.cpp
+    $$PWD/itemviews.cpp \
+    $$PWD/treeviewcombobox.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
@@ -180,7 +181,8 @@ HEADERS += \
     $$PWD/completinglineedit.h \
     $$PWD/logging.h \
     $$PWD/winutils.h \
-    $$PWD/itemviews.h
+    $$PWD/itemviews.h \
+    $$PWD/treeviewcombobox.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

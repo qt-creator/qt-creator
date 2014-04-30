@@ -65,6 +65,7 @@ class CppRefactoringFile;
 }
 
 namespace TextEditor { class FontSettings; }
+namespace Utils { class TreeViewComboBox; }
 
 namespace CppEditor {
 namespace Internal {
@@ -235,7 +236,7 @@ private:
     QPointer<CppTools::CppModelManagerInterface> m_modelManager;
 
     CPPEditorDocument *m_cppEditorDocument;
-    QComboBox *m_outlineCombo;
+    Utils::TreeViewComboBox *m_outlineCombo;
     CPlusPlus::OverviewModel *m_outlineModel;
     QModelIndex m_outlineModelIndex;
     QSortFilterProxyModel *m_proxyModel;
