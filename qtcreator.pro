@@ -45,15 +45,15 @@ exists(src/shared/qbs/qbs.pro) {
     system("echo QBS_RESOURCES_INSTALL_DIR = $${QTC_PREFIX}/share/qtcreator/qbs >> $$qmake_cache")
     macx {
         system("echo QBS_PLUGINS_BUILD_DIR = $${maybe_backslash}\"$${IDE_LIBRARY_PATH}$${maybe_backslash}\" >> $$qmake_cache")
+        system("echo QBS_APPS_RPATH_DIR = @loader_path/../PlugIns >> $$qmake_cache")
     } else {
         system("echo QBS_PLUGINS_BUILD_DIR = $${maybe_backslash}\"$${IDE_BUILD_TREE}/$${IDE_LIBRARY_BASENAME}/qtcreator/$${maybe_backslash}\" >> $$qmake_cache")
+        system("echo QBS_APPS_RPATH_DIR = '\\\$\\\$ORIGIN/../'/lib/qtcreator >> $$qmake_cache")
     }
     system("echo QBS_PLUGINS_INSTALL_DIR = $${QTC_PREFIX}/$${IDE_LIBRARY_BASENAME}/qtcreator >> $$qmake_cache")
     system("echo QBS_LIBRARY_DIRNAME = $${IDE_LIBRARY_BASENAME} >> $$qmake_cache")
     system("echo QBS_APPS_DESTDIR = $${IDE_BIN_PATH} >> $$qmake_cache")
     system("echo QBS_APPS_INSTALL_DIR = $${QTC_PREFIX}/bin >> $$qmake_cache")
-    system("echo macx:QBS_APPS_RPATH_DIR = @loader_path/../PlugIns >> $$qmake_cache")
-    system("echo else:QBS_APPS_RPATH_DIR = '\\\$\\\$ORIGIN/../'/lib/qtcreator >> $$qmake_cache")
     system("echo CONFIG += qbs_no_dev_install >> $$qmake_cache")
 }
 
