@@ -102,6 +102,7 @@ public:
 
     QModelIndex indexForNode(const ModelNode &node) const;
     ModelNode nodeForIndex(const QModelIndex &index) const;
+    bool hasNodeForIndex(const QModelIndex &index) const;
 
     bool isInTree(const ModelNode &node) const;
     bool isNodeInvisible(const QModelIndex &index) const;

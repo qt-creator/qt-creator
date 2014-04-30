@@ -414,6 +414,17 @@ ModelNode NavigatorTreeModel::nodeForIndex(const QModelIndex &index) const
     return m_view->modelNodeForInternalId(internalId);
 }
 
+bool NavigatorTreeModel::hasNodeForIndex(const QModelIndex &index) const
+{
+    QVariant internalIdVaraint = index.data(InternalIdRole);
+    if (internalIdVaraint.isValid()) {
+        qint32 internalId = internalIdVaraint.toInt();
+        return m_view->hasModelNodeForInternalId(internalId);
+    }
+
+    return false;
+}
+
 bool NavigatorTreeModel::isInTree(const ModelNode &node) const
 {
     return m_nodeItemHash.contains(node);
