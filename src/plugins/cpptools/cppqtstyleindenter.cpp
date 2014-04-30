@@ -53,10 +53,11 @@ CppQtStyleIndenter::~CppQtStyleIndenter()
 
 bool CppQtStyleIndenter::isElectricCharacter(const QChar &ch) const
 {
-    if (ch == QLatin1Char('{') ||
-        ch == QLatin1Char('}') ||
-        ch == QLatin1Char(':') ||
-        ch == QLatin1Char('#')) {
+    switch (ch.toLatin1()) {
+    case '{':
+    case '}':
+    case ':':
+    case '#':
         return true;
     }
     return false;
