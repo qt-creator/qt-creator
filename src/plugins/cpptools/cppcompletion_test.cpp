@@ -306,8 +306,6 @@ void CppToolsPlugin::test_completion()
     expectedCompletions.sort();
 
     QEXPECT_FAIL("enum_in_function_in_struct_in_function", "doesn't work", Abort);
-    QEXPECT_FAIL("nested_class_in_template_class_QTCREATORBUG-11752",
-                 "related to infiniteLoopLocalTypedef_QTCREATORBUG-11999", Abort);
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 
@@ -2261,6 +2259,26 @@ void CppToolsPlugin::test_completion_data()
             "   @\n"
             "}\n"
         ) << _("n2.n1.t.") << (QStringList()
+            << QLatin1String("foo")
+            << QLatin1String("Foo"));
+
+    QTest::newRow("infiniteLoopLocalTypedef_QTCREATORBUG-11999") << _(
+            "template <typename T>\n"
+            "struct Temp\n"
+            "{\n"
+            "   struct Nested\n"
+            "   {\n"
+            "       typedef Temp<T> TempT;\n"
+            "       T t;\n"
+            "   };\n"
+            "   Nested nested;\n"
+            "};\n"
+            "struct Foo { int foo; };\n"
+            "void fun() {\n"
+            "   Temp<Foo> tempFoo;\n"
+            "   @\n"
+            "}\n"
+        ) << _("tempFoo.nested.t.") << (QStringList()
             << QLatin1String("foo")
             << QLatin1String("Foo"));
 

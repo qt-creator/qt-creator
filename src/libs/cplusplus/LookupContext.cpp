@@ -88,6 +88,19 @@ static void path_helper(Symbol *symbol, QList<const Name *> *names)
     }
 }
 
+static bool isNestedInstantiationEnclosingTemplate(
+        ClassOrNamespace *nestedClassOrNamespaceInstantiation,
+        ClassOrNamespace *enclosingTemplateClassInstantiation)
+{
+    while (enclosingTemplateClassInstantiation) {
+        if (enclosingTemplateClassInstantiation == nestedClassOrNamespaceInstantiation)
+            return false;
+        enclosingTemplateClassInstantiation = enclosingTemplateClassInstantiation->parent();
+    }
+
+    return true;
+}
+
 namespace CPlusPlus {
 
 static inline bool compareName(const Name *name, const Name *other)
@@ -1282,6 +1295,10 @@ void ClassOrNamespace::NestedClassInstantiator::instantiate(ClassOrNamespace *en
             }
         }
 
+        if (isNestedInstantiationEnclosingTemplate(nestedClassOrNamespaceInstantiation,
+                                                   enclosingTemplateClass)) {
+            nestedClassOrNamespaceInstantiation->_parent = enclosingTemplateClassInstantiation;
+        }
         instantiate(nestedClassOrNamespace, nestedClassOrNamespaceInstantiation);
 
         enclosingTemplateClassInstantiation->_classOrNamespaces[nestedName] =
