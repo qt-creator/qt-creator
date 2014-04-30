@@ -127,27 +127,32 @@ QStringList NavigatorTreeModel::mimeTypes() const
      return types;
 }
 
-QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &indexList) const
+QByteArray encodeModelNodes(const QModelIndexList &modelIndexList)
+{
+    QByteArray encodedModelNodeData;
+    QDataStream encodedModelNodeDataStream(&encodedModelNodeData, QIODevice::WriteOnly);
+    QSet<QModelIndex> rowAlreadyUsedSet;
+
+    foreach (const QModelIndex &modelIndex, modelIndexList) {
+        if (modelIndex.isValid()) {
+            QModelIndex idModelIndex = modelIndex.sibling(modelIndex.row(), 0);
+            if (!rowAlreadyUsedSet.contains(idModelIndex)) {
+                rowAlreadyUsedSet.insert(idModelIndex);
+                encodedModelNodeDataStream << idModelIndex.data(NavigatorTreeModel::InternalIdRole).toInt();
+            }
+        }
+    }
+
+    return encodedModelNodeData;
+}
+
+QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &modelIndexList) const
 {
      QMimeData *mimeData = new QMimeData();
-     QByteArray encodedData;
 
-     QSet<QModelIndex> rowAlreadyUsedSet;
+     QByteArray encodedModelNodeData = encodeModelNodes(modelIndexList);
 
-     QDataStream stream(&encodedData, QIODevice::WriteOnly);
-
-     foreach (const QModelIndex &index, indexList) {
-         if (!index.isValid())
-             continue;
-         QModelIndex idIndex = index.sibling(index.row(), 0);
-         if (rowAlreadyUsedSet.contains(idIndex))
-             continue;
-
-         rowAlreadyUsedSet.insert(idIndex);
-         stream << idIndex.data(InternalIdRole).toInt();
-     }
-
-     mimeData->setData("application/vnd.modelnode.list", encodedData);
+     mimeData->setData("application/vnd.modelnode.list", encodedModelNodeData);
 
      return mimeData;
 }
