@@ -563,7 +563,7 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(ProjectExplorer
         return result;
 
     foreach (const qbs::ProductData &product, project->qbsProjectData().allProducts()) {
-        if (product.isRunnable())
+        if (product.isRunnable() && product.isEnabled())
             result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
     }
 
