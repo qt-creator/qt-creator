@@ -1339,6 +1339,15 @@ void FakeVimPlugin::test_vim_block_selection()
     KEYS("u", "\"" X "abc\"\"def\"");
     KEYS("<c-r>", "\"" X "\"\"def\"");
 
+    /* QTCREATORBUG-12128 */
+    data.setText("abc \"def\" ghi \"jkl\" mno");
+    KEYS("di\"", "abc \"" X "\" ghi \"jkl\" mno");
+    KEYS("u", "abc \"" X "def\" ghi \"jkl\" mno");
+    KEYS("3l" "di\"", "abc \"" X "\" ghi \"jkl\" mno");
+    KEYS("di\"", "abc \"" X "\" ghi \"jkl\" mno");
+    KEYS("tj" "di\"", "abc \"\" ghi \"" X "\" mno");
+    KEYS("l" "di\"", "abc \"\" ghi \"\"" X " mno");
+
     NOT_IMPLEMENTED
     // quoted string with escaped character
     data.setText("\"abc\"");

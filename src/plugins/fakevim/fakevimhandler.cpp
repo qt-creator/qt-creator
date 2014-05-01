@@ -8229,7 +8229,7 @@ bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
     QTextCursor tc2(document());
     while (tc2 <= tc) {
         tc1 = document()->find(quote, tc2);
-        if (tc1.isNull() || tc1.anchor() > tc.position())
+        if (tc1.isNull())
             return false;
         tc2 = document()->find(quote, tc1);
         if (tc2.isNull())
