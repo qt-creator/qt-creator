@@ -92,7 +92,6 @@ public:
     bool hasParseResult() const;
     void parseCurrentBuildConfiguration(bool force);
 
-    Utils::FileName defaultBuildDirectory() const;
     static Utils::FileName defaultBuildDirectory(const QString &path);
 
     qbs::Project qbsProject() const;

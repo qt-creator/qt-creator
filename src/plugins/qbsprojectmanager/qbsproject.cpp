@@ -247,11 +247,6 @@ bool QbsProject::hasParseResult() const
     return qbsProject().isValid();
 }
 
-FileName QbsProject::defaultBuildDirectory() const
-{
-    return defaultBuildDirectory(m_fileName);
-}
-
 Utils::FileName QbsProject::defaultBuildDirectory(const QString &path)
 {
     QFileInfo fi(path);
