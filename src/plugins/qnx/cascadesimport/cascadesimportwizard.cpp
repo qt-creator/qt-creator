@@ -124,11 +124,6 @@ CascadesImportWizard::CascadesImportWizard()
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
 }
 
-Core::BaseFileWizard::ExtensionList CascadesImportWizard::extensions() const
-{
-    return Core::BaseFileWizard::ExtensionList();
-}
-
 QWizard *CascadesImportWizard::createWizardDialog(QWidget *parent,
         const Core::WizardDialogParameters &wizardDialogParameters) const
 {
