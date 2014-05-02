@@ -121,7 +121,7 @@ public:
 
     enum ForceReason {
         NoForce,
-        ForceDueToMissingSemanticInfo,
+        ForceDueToInvalidSemanticInfo,
         ForceDueEditorRequest
     };
 
@@ -192,10 +192,15 @@ private:
     };
 
     SemanticInfo::Source currentSource(bool force);
-    void recalculateSemanticInfoNow(const SemanticInfo::Source &source, bool emitSignalWhenFinished,
-                                    FuturizedTopLevelDeclarationProcessor *processor = 0);
+    SemanticInfo recalculateSemanticInfoNow(const SemanticInfo::Source &source,
+                                            bool emitSignalWhenFinished,
+                                            FuturizedTopLevelDeclarationProcessor *processor = 0);
     void recalculateSemanticInfoDetached_helper(QFutureInterface<void> &future,
                                                 SemanticInfo::Source source);
+
+    bool isSemanticInfoValid() const;
+    SemanticInfo semanticInfo() const;
+    void setSemanticInfo(const SemanticInfo &semanticInfo, bool emitSignal = true);
 
     QSharedPointer<SnapshotUpdater> snapshotUpdater_internal() const;
     void setSnapshotUpdater_internal(const QSharedPointer<SnapshotUpdater> &updater);

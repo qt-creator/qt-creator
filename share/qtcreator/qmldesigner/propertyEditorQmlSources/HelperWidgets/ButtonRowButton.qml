@@ -30,6 +30,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0 as Controls
 import QtQuick.Layouts 1.0
+import QtQuick.Controls.Private 1.0
 
 Item {
     id: buttonRowButton
@@ -40,6 +41,8 @@ Item {
     property alias iconSource: image.source
 
     signal clicked()
+
+    property string tooltip: ""
 
     width: 24 + leftPadding
     height: 24
@@ -94,6 +97,7 @@ Item {
     }
 
     MouseArea {
+        id: mouseArea
         anchors.fill: parent
         anchors.leftMargin: leftPadding
         onClicked: {
@@ -103,6 +107,17 @@ Item {
                 buttonRowButton.parent.__checkButton(index())
             }
             buttonRowButton.clicked()
+        }
+
+        onExited: Tooltip.hideText()
+        onCanceled: Tooltip.hideText()
+
+        hoverEnabled: true
+
+        Timer {
+            interval: 1000
+            running: mouseArea.containsMouse && tooltip.length
+            onTriggered: Tooltip.showText(mouseArea, Qt.point(mouseArea.mouseX, mouseArea.mouseY), tooltip)
         }
     }
 }

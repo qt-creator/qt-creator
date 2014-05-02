@@ -150,6 +150,12 @@ void QbsManager::addQtProfileFromKit(const QString &profileName, const ProjectEx
         return;
 
     qbs::QtEnvironment qtEnv;
+    const QList<ProjectExplorer::Abi> abi = qt->qtAbis();
+    if (!abi.empty()) {
+        qtEnv.architecture = ProjectExplorer::Abi::toString(abi.first().architecture());
+        if (abi.first().wordWidth() == 64)
+            qtEnv.architecture.append(QLatin1String("_64"));
+    }
     qtEnv.binaryPath = qt->binPath().toString();
     if (qt->hasDebugBuild())
         qtEnv.buildVariant << QLatin1String("debug");

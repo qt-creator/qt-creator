@@ -362,7 +362,6 @@ int TaskFilterModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    updateMapping();
     return m_mapping.count();
 }
 
@@ -455,7 +454,6 @@ void TaskFilterModel::handleReset()
 
 QModelIndex TaskFilterModel::mapFromSource(const QModelIndex &idx) const
 {
-    updateMapping();
     QList<int>::const_iterator it = qBinaryFind(m_mapping.constBegin(), m_mapping.constEnd(), idx.row());
     if (it == m_mapping.constEnd())
         return QModelIndex();
@@ -464,7 +462,6 @@ QModelIndex TaskFilterModel::mapFromSource(const QModelIndex &idx) const
 
 QModelIndex TaskFilterModel::mapToSource(const QModelIndex &index) const
 {
-    updateMapping();
     int row = index.row();
     if (row >= m_mapping.count())
         return QModelIndex();

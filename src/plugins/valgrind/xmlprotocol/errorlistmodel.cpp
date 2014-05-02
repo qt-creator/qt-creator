@@ -239,7 +239,7 @@ int ErrorListModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return qMax(1, d->errors.count());
+    return d->errors.count();
 }
 
 int ErrorListModel::columnCount(const QModelIndex &parent) const

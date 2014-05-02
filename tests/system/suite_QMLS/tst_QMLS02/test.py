@@ -28,6 +28,7 @@
 #############################################################################
 
 source("../shared/qmls.py")
+source("../../shared/suites_qtta.py")
 
 def main():
     editorArea = startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp", "Text {")

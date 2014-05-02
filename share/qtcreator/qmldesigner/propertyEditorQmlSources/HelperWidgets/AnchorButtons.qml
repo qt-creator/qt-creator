@@ -156,8 +156,6 @@ ButtonRow {
 
         onClicked: {
             if (checked) {
-                anchorBackend.leftAnchored = false;
-                anchorBackend.rightAnchored = false;
                 anchorBackend.topAnchored = false;
                 anchorBackend.bottomAnchored = false;
                 anchorBackend.verticalCentered = true;

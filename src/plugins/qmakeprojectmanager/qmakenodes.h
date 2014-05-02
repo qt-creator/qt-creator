@@ -442,7 +442,7 @@ private:
     QStringList libDirectories(QtSupport::ProFileReader *reader) const;
     QStringList subDirsPaths(QtSupport::ProFileReader *reader, QStringList *subProjectsNotToDeploy, bool silent) const;
 
-    TargetInformation targetInformation(QtSupport::ProFileReader *reader) const;
+    TargetInformation targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass) const;
     void setupInstallsList(const QtSupport::ProFileReader *reader);
 
     bool m_isDeployable;

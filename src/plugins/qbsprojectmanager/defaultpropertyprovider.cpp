@@ -42,6 +42,18 @@
 namespace QbsProjectManager {
 using namespace Constants;
 
+static QString extractToolchainPrefix(QString *compilerName)
+{
+    QString prefix;
+    if (compilerName->endsWith(QLatin1String("-g++"))
+            || compilerName->endsWith(QLatin1String("-clang++"))) {
+        const int idx = compilerName->lastIndexOf(QLatin1Char('-')) + 1;
+        prefix = compilerName->left(idx);
+        compilerName->remove(0, idx);
+    }
+    return prefix;
+}
+
 QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, const QVariantMap &defaultData) const
 {
     QTC_ASSERT(k, return defaultData);
@@ -116,8 +128,18 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
             }
         }
         Utils::FileName cxx = tc->compilerCommand();
-        data.insert(QLatin1String(CPP_TOOLCHAINPATH), cxx.toFileInfo().absolutePath());
-        data.insert(QLatin1String(CPP_COMPILERNAME), cxx.toFileInfo().fileName());
+        const QFileInfo cxxFileInfo = cxx.toFileInfo();
+        QString compilerName = cxxFileInfo.fileName();
+        const QString toolchainPrefix = extractToolchainPrefix(&compilerName);
+        if (!toolchainPrefix.isEmpty())
+            data.insert(QLatin1String(CPP_TOOLCHAINPREFIX), toolchainPrefix);
+        data.insert(QLatin1String(CPP_COMPILERNAME), compilerName);
+        data.insert(QLatin1String(CPP_TOOLCHAINPATH), cxxFileInfo.absolutePath());
+        if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2013Flavor) {
+            const QLatin1String flags("/FS");
+            data.insert(QLatin1String(CPP_PLATFORMCFLAGS), flags);
+            data.insert(QLatin1String(CPP_PLATFORMCXXFLAGS), flags);
+        }
     }
     return data;
 }

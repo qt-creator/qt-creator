@@ -196,6 +196,9 @@
             \skipto onReadingChanged
             \printuntil }
 
+            We want to ensure that the position of the bubble is always within
+            the bounds of the screen. If the Accelerometer returns not a number
+            (NaN), the value is ignored and the bubble position is not updated.
         \li Add SmoothedAnimation behavior on the \a x and \a y properties of
             the bubble to make its movement look smoother.
 

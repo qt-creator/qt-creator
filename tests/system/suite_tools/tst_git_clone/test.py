@@ -33,14 +33,14 @@ cloneUrl = "https://codereview.qt-project.org/p/qt-labs/jom"
 cloneDir = "myCloneOfJom"
 
 def verifyCloneLog(targetDir, canceled):
-    finish = findObject(":Git Repository Clone.Finish_QPushButton")
-    waitFor("canceled or finish.enabled", 30000)
     if canceled:
         summary = "Failed."
     else:
+        finish = findObject(":Git Repository Clone.Finish_QPushButton")
+        waitFor("finish.enabled", 30000)
         cloneLog = str(waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit").plainText)
-        if "fatal: The remote end hung up unexpectedly" in cloneLog:
-            test.warning("Remote end hung up unexpectedly.")
+        if "fatal: " in cloneLog:
+            test.warning("Cloning failed outside Creator.")
             return False
         # test for QTCREATORBUG-10112
         test.compare(cloneLog.count("remote: Counting objects:"), 1)
@@ -52,9 +52,17 @@ def verifyCloneLog(targetDir, canceled):
         test.verify(("'" + cloneDir + "'..." in cloneLog),
                     "Searching for clone directory in clone log")
         summary = "Succeeded."
-    resultLabel = findObject(":Git Repository Clone.Result._QLabel")
-    test.verify(waitFor('str(resultLabel.text) == summary', 3000),
-                "Verifying expected result (%s)" % summary)
+    try:
+        resultLabel = findObject(":Git Repository Clone.Result._QLabel")
+        test.verify(waitFor('str(resultLabel.text) == summary', 3000),
+                    "Verifying expected result (%s)" % summary)
+    except:
+        if canceled:
+            test.warning("Could not find resultLabel",
+                         "Cloning might have failed before clicking 'Cancel'")
+            return object.exists(":Git Repository Clone_VcsBase::Internal::CheckoutWizardDialog")
+        else:
+            test.fail("Could not find resultLabel")
     return True
 
 def verifyVersionControlView(targetDir, canceled):
@@ -101,7 +109,8 @@ def main():
             # wait for cloning to have started
             waitFor('len(str(cloneLog.plainText)) > 20 + len(cloneDir)')
             clickButton(":Git Repository Clone.Cancel_QPushButton")
-            verifyCloneLog(targetDir, True)
+            if not verifyCloneLog(targetDir, True):
+                continue
             clickButton(":Git Repository Clone.Cancel_QPushButton")
         else:
             if not verifyCloneLog(targetDir, False):

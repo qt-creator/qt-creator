@@ -37,10 +37,11 @@ def main():
     unsortedFile = os.path.join(os.getcwd(), "testdata", "unsorted.txt")
     sorted = getOutputFromCmdline("sort %s" % unsortedFile).replace("\r", "")
     selectFromFileDialog(unsortedFile)
-    invokeMenuItem("Edit", "Select All")
-    invokeMenuItem("Tools", "External", "Text", "Sort Selection")
     editor = waitForObject("{type='TextEditor::PlainTextEditorWidget' unnamed='1' "
                            "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 3000)
+    placeCursorToLine(editor, "bbb")
+    invokeMenuItem("Edit", "Select All")
+    invokeMenuItem("Tools", "External", "Text", "Sort Selection")
     test.verify(waitFor("str(editor.plainText) == sorted", 2000),
                 "Verify that sorted text\n%s\nmatches the expected text\n%s" % (editor.plainText, sorted))
     invokeMenuItem('File', 'Revert "unsorted.txt" to Saved')

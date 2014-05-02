@@ -48,6 +48,7 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
@@ -144,6 +145,11 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         foreach (Project *project, SessionManager::projects()) {
             validFolders << project->projectDirectory();
             foreach (Target *target, project->targets()) {
+                foreach (const ProjectExplorer::DeployableFile &file,
+                         target->deploymentData().allFiles()) {
+                    if (file.isExecutable())
+                        validFolders << file.remoteDirectory();
+                }
                 foreach (BuildConfiguration *config, target->buildConfigurations())
                     validFolders << config->buildDirectory().toString();
             }

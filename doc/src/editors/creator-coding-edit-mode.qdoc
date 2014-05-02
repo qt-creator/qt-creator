@@ -176,4 +176,18 @@
     reparsed automatically. For all other files, you can use \gui{Tools} >
     \gui{C++} > \gui{Reparse Externally Changed Files} to update the code
     model.
+
+    \section1 Inspecting the Code Model
+
+    When you report a bug that is related to the C++ code model, the \QC
+    developers might ask you to write information about the internal state of
+    the code model into a log file and to deliver the file to them for
+    inspection.
+
+    To view information about the C++ code model in the
+    \gui {C++ Code Model Inspector} dialog and write it to a log file, select
+    \gui Tools > \gui C++ > \gui {Inspect C++ Code Model} or press
+    \key {Ctrl+Shift+F12}.
+
+    \QC generates the code model inspection log file in a temporary folder.
 */

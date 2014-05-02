@@ -81,7 +81,7 @@ def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
 # param expectedState is the expected enable state of the object
 def verifyEnabled(objectSpec, expectedState = True):
     if isinstance(objectSpec, (str, unicode)):
-        waitFor("object.exists('" + objectSpec + "')", 20000)
+        waitFor("object.exists('" + str(objectSpec).replace("'", "\\'") + "')", 20000)
         foundObject = findObject(objectSpec)
     else:
         foundObject = objectSpec
@@ -633,13 +633,17 @@ def verifyItemOrder(items, text):
         lastIndex = index
 
 def openVcsLog():
-    if not object.exists(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"):
-        clickButton(waitForObject(":Qt Creator_Core::Internal::OutputPaneManageButton"))
-        if platform.system() == 'Darwin':
-            waitFor('macHackActivateContextMenuItem("Version Control")', 6000)
-        else:
-            activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Version Control"))
-    ensureChecked(waitForObject(":Qt Creator_VersionControl_Core::Internal::OutputPaneToggleButton"))
+    try:
+        foundObj = waitForObject("{type='QPlainTextEdit' unnamed='1' visible='1' "
+                                 "window=':Qt Creator_Core::Internal::MainWindow'}", 2000)
+        if className(foundObj) != 'QPlainTextEdit':
+            raise Exception("Found derived class, but not a pure QPlainTextEdit.")
+    except:
+        invokeMenuItem("Window", "Output Panes", "Version Control")
+
+def openGeneralMessages():
+    if not object.exists(":Qt Creator_Core::OutputWindow"):
+        invokeMenuItem("Window", "Output Panes", "General Messages")
 
 # function that retrieves a specific child object by its class
 # this is sometimes the best way to avoid using waitForObject() on objects that

@@ -614,6 +614,12 @@
     view, making it seem like the program was interrupted before entering the
     function.
 
+    To find out which QML file is causing a Qt Quick 2 application to crash,
+    select \gui {Load QML Stack} in the context menu in the \gui{Stack} view.
+    The debugger tries to retrieve the JavaScript stack from the stopped
+    executable and prepends the frames to the C++ frames, should it find any.
+    You can click a frame in the QML stack to open the QML file in the editor.
+
     \section1 Locals and Expressions
 
     Whenever a program stops under the control of the debugger, it retrieves

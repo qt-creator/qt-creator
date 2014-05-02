@@ -1990,13 +1990,46 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
     m_validParse = (evalResult == EvalOk);
     if (m_validParse) {
+        // create build_pass reader
+        QtSupport::ProFileReader *readerBuildPass = 0;
+        QStringList builds = m_readerExact->values(QLatin1String("BUILDS"));
+        if (builds.isEmpty()) {
+            readerBuildPass = m_readerExact;
+        } else {
+            QString build = builds.first();
+            QHash<QString, QStringList> basevars;
+            QStringList basecfgs = m_readerExact->values(build + QLatin1String(".CONFIG"));
+            basecfgs += build;
+            basecfgs += QLatin1String("build_pass");
+            basevars[QLatin1String("BUILD_PASS")] = QStringList(build);
+            QStringList buildname = m_readerExact->values(build + QLatin1String(".name"));
+            basevars[QLatin1String("BUILD_NAME")] = (buildname.isEmpty() ? QStringList(build) : buildname);
+
+            readerBuildPass = m_project->createProFileReader(this);
+            readerBuildPass->setExtraVars(basevars);
+            readerBuildPass->setExtraConfigs(basecfgs);
+
+            EvalResult evalResult = EvalOk;
+            if (ProFile *pro = readerBuildPass->parsedProFile(m_projectFilePath)) {
+                if (!readerBuildPass->accept(pro, QMakeEvaluator::LoadAll))
+                    evalResult = EvalPartial;
+                pro->deref();
+            } else {
+                evalResult = EvalFail;
+            }
+
+            if (evalResult != EvalOk) {
+                m_project->destroyProFileReader(readerBuildPass);
+                readerBuildPass = 0;
+            }
+        }
 
         // update TargetInformation
-        m_qmakeTargetInformation = targetInformation(m_readerExact);
+        m_qmakeTargetInformation = targetInformation(m_readerExact, readerBuildPass);
         m_resolvedMkspecPath = m_readerExact->resolvedMkSpec();
 
         m_subProjectsNotToDeploy = subProjectsNotToDeploy;
-        setupInstallsList(m_readerExact);
+        setupInstallsList(readerBuildPass);
 
         QString buildDirectory = buildDir();
         // update other variables
@@ -2055,6 +2088,9 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                 }
             }
         }
+
+        if (readerBuildPass && readerBuildPass != m_readerExact)
+            m_project->destroyProFileReader(readerBuildPass);
 
         if (m_varValues != newVarValues) {
             QmakeVariablesHash oldValues = m_varValues;
@@ -2200,60 +2236,30 @@ QStringList QmakeProFileNode::subDirsPaths(QtSupport::ProFileReader *reader, QSt
     return subProjectPaths;
 }
 
-TargetInformation QmakeProFileNode::targetInformation(QtSupport::ProFileReader *reader) const
+TargetInformation QmakeProFileNode::targetInformation(QtSupport::ProFileReader *reader, QtSupport::ProFileReader *readerBuildPass) const
 {
     TargetInformation result;
-    if (!reader)
+    if (!reader || !readerBuildPass)
         return result;
 
-    QtSupport::ProFileReader *readerBP = 0;
     QStringList builds = reader->values(QLatin1String("BUILDS"));
     if (!builds.isEmpty()) {
         QString build = builds.first();
         result.buildTarget = reader->value(build + QLatin1String(".target"));
-
-        QHash<QString, QStringList> basevars;
-        QStringList basecfgs = reader->values(build + QLatin1String(".CONFIG"));
-        basecfgs += build;
-        basecfgs += QLatin1String("build_pass");
-        basevars[QLatin1String("BUILD_PASS")] = QStringList(build);
-        QStringList buildname = reader->values(build + QLatin1String(".name"));
-        basevars[QLatin1String("BUILD_NAME")] = (buildname.isEmpty() ? QStringList(build) : buildname);
-
-        readerBP = m_project->createProFileReader(this);
-        readerBP->setExtraVars(basevars);
-        readerBP->setExtraConfigs(basecfgs);
-
-        EvalResult evalResult = EvalOk;
-        if (ProFile *pro = readerBP->parsedProFile(m_projectFilePath)) {
-            if (!readerBP->accept(pro, QMakeEvaluator::LoadAll))
-                evalResult = EvalPartial;
-            pro->deref();
-        } else {
-            evalResult = EvalFail;
-        }
-
-        if (evalResult != EvalOk)
-            return result;
-
-        reader = readerBP;
     }
 
     // BUILD DIR
     result.buildDir = buildDir();
 
-    if (reader->contains(QLatin1String("DESTDIR")))
-        result.destDir = reader->value(QLatin1String("DESTDIR"));
+    if (readerBuildPass->contains(QLatin1String("DESTDIR")))
+        result.destDir = readerBuildPass->value(QLatin1String("DESTDIR"));
 
     // Target
-    result.target = reader->value(QLatin1String("TARGET"));
+    result.target = readerBuildPass->value(QLatin1String("TARGET"));
     if (result.target.isEmpty())
         result.target = QFileInfo(m_projectFilePath).baseName();
 
     result.valid = true;
-
-    if (readerBP)
-        m_project->destroyProFileReader(readerBP);
 
     return result;
 }

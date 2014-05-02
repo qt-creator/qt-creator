@@ -14902,7 +14902,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Find in This Directory...</source>
-        <translation>このディレクトを検索...</translation>
+        <translation>このディレクトリを検索...</translation>
     </message>
     <message>
         <source>Show in Explorer</source>

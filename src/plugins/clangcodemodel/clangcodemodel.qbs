@@ -11,7 +11,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
-    property string llvmInstallDir: qbs.getenv("LLVM_INSTALL_DIR")
+    property string llvmInstallDir: qbs.getEnv("LLVM_INSTALL_DIR")
     condition: llvmInstallDir && !llvmInstallDir.isEmpty
 
     property bool clangCompletion: true
@@ -33,7 +33,7 @@ QtcPlugin {
         }
 
         // Find llvm-config* in PATH
-        var pathListString = qbs.getenv("PATH");
+        var pathListString = qbs.getEnv("PATH");
         var separator = qbs.hostOS.contains("windows") ? ";" : ":";
         var pathList = pathListString.split(separator);
         for (var i = 0; i < llvmConfigVariants.length; ++i) {

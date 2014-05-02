@@ -52,6 +52,7 @@ ListView {
     }
 
     delegate:  Item {
+        width: 80
         height: 40
         x: 5
         Row {

@@ -2401,8 +2401,7 @@ SubmoduleDataMap GitClient::submoduleList(const QString &workingDirectory)
     if (cachedSubmoduleData.contains(workingDirectory))
         return cachedSubmoduleData.value(workingDirectory);
 
-    QStringList allConfigs =
-            commandOutputFromLocal8Bit(readConfig(workingDirectory, QLatin1String("-l")))
+    QStringList allConfigs = readConfigValue(workingDirectory, QLatin1String("-l"))
             .split(QLatin1Char('\n'));
     const QString submoduleLineStart = QLatin1String("submodule.");
     foreach (const QString &configLine, allConfigs) {
@@ -3015,12 +3014,21 @@ QString GitClient::gitBinaryPath(bool *ok, QString *errorMessage) const
 
 QTextCodec *GitClient::encoding(const QString &workingDirectory, const QByteArray &configVar) const
 {
-    QByteArray codecName = readConfig(workingDirectory, QLatin1String(configVar)).trimmed();
+    QByteArray codecName = readConfigBytes(workingDirectory, QLatin1String(configVar)).trimmed();
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
     if (codecName.isEmpty())
         codecName = "UTF-8";
     return QTextCodec::codecForName(codecName);
+}
+
+// returns first line from log and removes it
+static QByteArray shiftLogLine(QByteArray &logText)
+{
+    const int index = logText.indexOf('\n');
+    const QByteArray res = logText.left(index);
+    logText.remove(0, index + 1);
+    return res;
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,
@@ -3109,19 +3117,20 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     case AmendCommit: {
         // Amend: get last commit data as "SHA1<tab>author<tab>email<tab>message".
         QStringList args(QLatin1String("log"));
-        args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h\t%an\t%ae\t%B");
-        const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args, 0,
-                                                                    commitData.commitEncoding);
-        if (sp.result != Utils::SynchronousProcessResponse::Finished) {
+        args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h\n%an\n%ae\n%B");
+        QByteArray outputText;
+        if (!fullySynchronousGit(repoDirectory, args, &outputText, 0,
+                                 VcsBasePlugin::SuppressCommandLogging)) {
             *errorMessage = tr("Cannot retrieve last commit data of repository \"%1\".").arg(repoDirectory);
             return false;
         }
-        QStringList values = sp.stdOut.split(QLatin1Char('\t'));
-        QTC_ASSERT(values.size() >= 4, return false);
-        commitData.amendSHA1 = values.takeFirst();
-        commitData.panelData.author = values.takeFirst();
-        commitData.panelData.email = values.takeFirst();
-        *commitTemplate = values.join(QLatin1String("\t"));
+        QTextCodec *authorCodec = Utils::HostOsInfo::isWindowsHost()
+                ? QTextCodec::codecForName("UTF-8")
+                : commitData.commitEncoding;
+        commitData.amendSHA1 = QString::fromLatin1(shiftLogLine(outputText));
+        commitData.panelData.author = authorCodec->toUnicode(shiftLogLine(outputText));
+        commitData.panelData.email = authorCodec->toUnicode(shiftLogLine(outputText));
+        *commitTemplate = commitData.commitEncoding->toUnicode(outputText);
         break;
     }
     case SimpleCommit: {
@@ -3739,7 +3748,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     return true;
 }
 
-QByteArray GitClient::readConfig(const QString &workingDirectory, const QString &configVar) const
+QByteArray GitClient::readConfigBytes(const QString &workingDirectory, const QString &configVar) const
 {
     QStringList arguments;
     arguments << QLatin1String("config") << configVar;
@@ -3757,7 +3766,13 @@ QByteArray GitClient::readConfig(const QString &workingDirectory, const QString 
 // Read a single-line config value, return trimmed
 QString GitClient::readConfigValue(const QString &workingDirectory, const QString &configVar) const
 {
-    return commandOutputFromLocal8Bit(readConfig(workingDirectory, configVar).trimmed());
+    // msysGit always uses UTF-8 for configuration:
+    // https://github.com/msysgit/msysgit/wiki/Git-for-Windows-Unicode-Support#convert-config-files
+    static QTextCodec *codec = Utils::HostOsInfo::isWindowsHost()
+            ? QTextCodec::codecForName("UTF-8")
+            : QTextCodec::codecForLocale();
+    const QByteArray value = readConfigBytes(workingDirectory, configVar).trimmed();
+    return Utils::SynchronousProcess::normalizeNewlines(codec->toUnicode(value));
 }
 
 bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)

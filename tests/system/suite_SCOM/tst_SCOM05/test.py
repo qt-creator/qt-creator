@@ -28,7 +28,6 @@
 #############################################################################
 
 source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
 
 def verifyChangeProject(projectName):
     projItem = invokeContextMenuOnProject(projectName, 'Set "%s" as Active Project' % projectName)

@@ -27,7 +27,6 @@
 ##
 #############################################################################
 
-source("../../shared/suites_qtta.py")
 source("../../shared/qtcreator.py")
 
 # entry of test

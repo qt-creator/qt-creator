@@ -28,7 +28,6 @@
 #############################################################################
 
 source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
 
 # test Qt Creator version information from file and dialog
 def getQtCreatorVersionFromDialog():
