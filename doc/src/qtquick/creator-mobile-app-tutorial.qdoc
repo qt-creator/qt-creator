@@ -68,7 +68,7 @@
 
         \li In the \gui {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \gui{Next} (or
-            \gui Continue on Mac OS X).
+            \gui Continue on OS X).
 
         \li In the \gui {Qt Quick component set} field, select
             \gui {Qt Quick Controls 1.1}.
@@ -83,7 +83,7 @@
             settings.
 
         \li Review the project settings, and click \gui{Finish} (or \gui Done on
-            Mac OS X).
+            OS X).
 
     \endlist
 

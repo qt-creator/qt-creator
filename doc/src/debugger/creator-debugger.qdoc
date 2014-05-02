@@ -514,7 +514,7 @@
             \list
 
                 \li In the code editor, click the left margin or press \key F9
-                    (\key F8 for Mac OS X) at a particular line you want the
+                    (\key F8 for OS X) at a particular line you want the
                     program to stop.
 
                 \li In the \gui Breakpoints view, double-click in the empty
@@ -641,8 +641,8 @@
             \li \b{Note:}
 
         \row
-            \li GDB, and therefore \QC's debugger works for optimized
-                builds on Linux and Mac OS X. Optimization can lead to
+            \li GDB and LLDB, and therefore \QC's debugger, work for optimized
+                builds on Linux and OS X. Optimization can lead to
                 re-ordering of instructions or removal of some local variables,
                 causing the \gui{Locals and Expressions} view to show unexpected
                 data.
@@ -736,11 +736,11 @@
 
     For more information, see \l{Using Command Line Options}.
 
-    \section2 Stepping into Frameworks in Mac OS
+    \section2 Stepping into Frameworks in OS X
 
-    In Mac OS X, external libraries are usually built into so-called Frameworks,
+    In OS X, external libraries are usually built into so-called Frameworks,
     which may contain both release and debug versions of the library. When you run
-    applications on the Mac OS desktop, the release version of Frameworks is used
+    applications on the OS X desktop, the release version of Frameworks is used
     by default. To step into Frameworks, select the \gui {Use debug versions of
     Frameworks} option in the project run settings.
 
@@ -756,7 +756,7 @@
     The \gui{Modules} view displays information that the debugger plugin has
     about modules included in the application that is being debugged. A module
     is a dynamic link library (.dll) in Windows, a shared object (.so) in
-    Linux, and a dynamic shared library (.dylib) in Mac OS.
+    Linux, and a dynamic shared library (.dylib) in OS X.
 
     In addition, the view displays symbols within the modules and indicates
     where each module was loaded.
@@ -1215,21 +1215,6 @@
     all breakpoints need to be inserted and removed again for each step)
     and the evaluation of expressions after each step. We recommend that
     you minimize the number of breakpoints and watched expressions.
-
-    \section1 Application Crashes when Debugging on Mac OS X Snow Leopard
-
-    You must use a workaround to use the DYLD_IMAGE_SUFFIX option in the
-    \gui Projects tab on Mac OS X  Snow Leopard. For more information on the
-    issue, see
-    \l{http://wimleers.com/blog/dyld-image-suffix-causing-havoc-on-mac-os-x-snow-leopard}
-    {DYLD_IMAGE_SUFFIX causing havoc on Mac OS X Snow Leopard}.
-
-    To use the option, enter the following commands in the Terminal
-    application:
-           \code
-           sudo mv /usr/lib/libSystem.B_debug.dylib /usr/lib/libSystem.B_debug.dylib.backup
-           sudo cp /usr/lib/libSystem.B.dylib /usr/lib/libSystem.B_debug.dylib.backup
-           \endcode
 
      \section1 Debugger Cannot Attach to Running Process on Linux
 

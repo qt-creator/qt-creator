@@ -160,7 +160,7 @@
     If you cannot find words that you know are there, indexing might not have
     been completed for some reason. Remove the \c {.helpcollection} folder and
     open the \gui Search pane again to recreate the index. The folder is located
-    in \c { ~/.config/QtProject/qtcreator/.helpcollection} on Linux and Mac OS X and
+    in \c { ~/.config/QtProject/qtcreator/.helpcollection} on Linux and OS X and
     in \c {\AppData\Roaming\QtProject\qtcreator\} on Windows.
 
     Punctuation is not included in indexed terms. To find terms that contain

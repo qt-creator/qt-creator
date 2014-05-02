@@ -144,7 +144,7 @@
 
         \li To toggle the sidebar, click \inlineimage qtcreator-togglebutton.png
             (\gui {Hide Sidebar/Show Sidebar}) or press \key Alt+0
-            (\key Cmd+0 on Mac OS X).
+            (\key Cmd+0 on OS X).
 
         \li To split the sidebar, click \inlineimage qtcreator-splitbar.png
             (\gui {Split}). Select new content to view in the split view.

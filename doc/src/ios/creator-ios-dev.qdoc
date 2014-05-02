@@ -28,7 +28,7 @@
     You can connect iOS devices to a Mac computer with a USB cable to
     build and run applications on them from \QC.
 
-    To be able to use \QC on Mac OS X, you must install Xcode, and therefore,
+    To be able to use \QC on OS X, you must install Xcode, and therefore,
     you already have the tool chain for building applications for iOS. \QC
     automatically detects the tool chain and creates the necessary
     \l{glossary-buildandrun-kit}{kits} for building and running applications on

@@ -44,7 +44,7 @@
     \list
 
         \li GNU Compiler Collection (GCC) is a compiler for Linux and
-            Mac OS X.
+            OS X.
 
         \li MinGW (Minimalist GNU for Windows) is a native software port of GCC
             and GNU Binutils for use in the development of native Microsoft
@@ -55,7 +55,7 @@
             for Linux.
 
         \li Clang is a C, C++, Objective C, and Objective C++ front-end for the
-            LLVM compiler for Windows, Linux, and Mac OS X.
+            LLVM compiler for Windows, Linux, and OS X.
 
         \li QCC is the interface for compiling C++ applications for QNX.
 

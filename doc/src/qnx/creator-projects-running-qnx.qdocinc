@@ -24,7 +24,7 @@
     application views are displayed on the device. Standard output is
     visible in the \QC \gui {Application Output} view.
 
-    \note Debugging is currently only fully supported on Linux and Mac OS.
+    \note Debugging is currently only fully supported on Linux and OS X.
     It is not possible to insert breakpoints during runtime on Windows.
 
     \section2 Troubleshooting Errors

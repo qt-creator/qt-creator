@@ -184,19 +184,19 @@
             \li  Ctrl+7
         \row
             \li  Toggle \gui{Issues} pane
-            \li  Alt+1 (Cmd+1 on Mac OS X)
+            \li  Alt+1 (Cmd+1 on OS X)
         \row
             \li  Toggle \gui{Search Results} pane
-            \li  Alt+2 (Cmd+2 on Mac OS X)
+            \li  Alt+2 (Cmd+2 on OS X)
         \row
             \li  Toggle \gui{Application Output} pane
-            \li  Alt+3 (Cmd+3 on Mac OS X)
+            \li  Alt+3 (Cmd+3 on OS X)
         \row
             \li  Toggle \gui{Compile Output} pane
-            \li  Alt+4 (Cmd+4 on Mac OS X)
+            \li  Alt+4 (Cmd+4 on OS X)
         \row
             \li  Toggle other output panes
-            \li  Alt+number (Cmd+number on Mac OS X)
+            \li  Alt+number (Cmd+number on OS X)
 
             Where the number is the number of the output pane.
         \row
@@ -225,7 +225,7 @@
             \li  Ctrl+Shift+F11
         \row
             \li  Toggle the sidebar
-            \li  Alt+0 (Cmd+0 on Mac OS X)
+            \li  Alt+0 (Cmd+0 on OS X)
         \row
             \li  Undo
             \li  Ctrl+Z

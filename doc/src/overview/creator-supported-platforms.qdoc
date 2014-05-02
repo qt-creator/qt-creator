@@ -102,13 +102,12 @@
 
             \endlist
 
-        \li Mac OS X 10.7 or later with the following:
+        \li OS X 10.7 or later with the following:
 
             \list
 
-                \li Xcode tools for your Mac OS X version available from your
-                    Mac OS X installation DVDs or at
-                    \l http://developer.apple.com.
+                \li Xcode tools for your OS X version available on the
+                    Mac App Store.
 
             \endlist
 

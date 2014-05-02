@@ -54,7 +54,7 @@
 
         \li In the \gui {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \gui{Next} (on
-            Windows and Linux) or \gui Continue (on Mac OS).
+            Windows and Linux) or \gui Continue (on OS X).
 
         \li In the \gui {Qt Quick component set} field, select
             \gui {Qt Quick 2.1}.
@@ -69,7 +69,7 @@
             settings.
 
         \li Review the project settings, and click \gui{Finish} (on Windows and
-            Linux) or \gui Done (on Mac OS) to create the project.
+            Linux) or \gui Done (on OS X) to create the project.
 
         \li Press \key {Ctrl+R} (or \key {Cmd+R}) to run the application.
 

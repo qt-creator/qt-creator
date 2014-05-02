@@ -34,7 +34,7 @@
     Valgrind tool suite to detect
     problems that are related to memory management in applications.
 
-    \note Memcheck is supported locally on Linux and Mac OS. You can run it on
+    \note Memcheck is supported locally on Linux and OS X. You can run it on
     a remote host from Windows.
 
     After you download and install Valgrind tools, you can use Memcheck from
@@ -147,7 +147,7 @@
     After you download and install Valgrind tools, you can use Callgrind from
     \QC.
 
-    \note Callgrind is supported locally on Linux and Mac OS. You can run
+    \note Callgrind is supported locally on Linux and OS X. You can run
     it on a remote Linux machine or device from any development machine.
 
     To analyze applications:
@@ -264,7 +264,7 @@
 
     \QC integrates Valgrind code analysis tools for detecting memory
     leaks and profiling function execution. These tools are supported locally
-    only on Linux and Mac OS, but you can run them on a remote host from
+    only on Linux and OS X, but you can run them on a remote host from
     Windows.
 
     To run the Valgrind tools on a remote host over SSH:

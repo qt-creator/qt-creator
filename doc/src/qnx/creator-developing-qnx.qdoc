@@ -50,7 +50,7 @@
 
     To enable access over USB, change \gui{Preferences > Storage & Sharing >
     USB Connections} to \gui{Connect to Windows} if you are deploying from
-    Windows, or \gui{Connect to Mac} if you are deploying from Linux or Mac OS.
+    Windows, or \gui{Connect to Mac} if you are deploying from Linux or OS X.
 
     \image qtcreator-qnx-playbook-storage-sharing.png
 

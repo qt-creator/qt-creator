@@ -58,7 +58,7 @@
     order.
 
     To jump to a line and column in the current file, select the line and column
-    indicator (3) or press \key {Ctrl+L} (or \key {Cmd+L} on Mac OS X) to open
+    indicator (3) or press \key {Ctrl+L} (or \key {Cmd+L} on OS X) to open
     the locator. Enter the line number and column number in the locator,
     separated by a colon (:).
 

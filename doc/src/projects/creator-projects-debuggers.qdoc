@@ -58,7 +58,7 @@
 
                 \li For GDB, specify the path to the GDB executable. The
                     executable must be built with Python scripting support
-                    enabled (except when debugging on Mac OS). The options you
+                    enabled. The options you
                     have depend on the development and target platform:
 
                 \list

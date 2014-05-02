@@ -58,7 +58,8 @@
     Server in Windows}.
 
     \note To use the Free Software Foundation (FSF) version of GDB on
-    Mac OS, you must sign it and modify your \l{glossary-buildandrun-kit}{kit} settings.
+    OS X, you must sign it and modify your \l{glossary-buildandrun-kit}{kit}
+    settings.
 
     This section explains the options you have for debugging C++ code
     and provides installation notes for the supported native debuggers.
@@ -73,7 +74,7 @@
     Qt Creator supports native debuggers when working with
     compiled code. On most supported platforms, the GNU Symbolic Debugger
     GDB can be used. On Microsoft Windows, when using the Microsoft tool chain
-    the Microsoft Console Debugger CDB, is needed. On Mac OS X, the LLDB
+    the Microsoft Console Debugger CDB, is needed. On OS X, the LLDB
     debugger can be used. Basic support for LLDB is also available on Linux,
     but it is restricted by LLDB's capabilities there, and considered
     experimental.
@@ -94,7 +95,7 @@
             \li GCC, ICC
             \li GDB
         \row
-            \li Mac OS X
+            \li OS X
             \li GCC, Clang
             \li LLDB, FSF GDB (experimental)
         \row
@@ -122,7 +123,7 @@
     \section2 Supported LLDB Versions
 
     The LLDB native debugger has similar functionality to the GDB debugger.
-    LLDB is the default debugger in Xcode on Mac OS X for supporting C++ on the
+    LLDB is the default debugger in Xcode on OS X for supporting C++ on the
     desktop. LLDB is typically used with the Clang compiler (even though you
     can use it with GCC, too).
 
@@ -178,7 +179,7 @@
                 also build your own. Follow the instructions in
                 \l{http://qt-project.org/wiki/QtCreatorBuildGdb}
                 {Building GDB}.
-                Builds of GDB shipped with Xcode on Mac OS X are no longer
+                Builds of GDB shipped with Xcode on OS X are no longer
                 supported.
 
         \row
@@ -205,7 +206,7 @@
                 \l{Setting the Symbol Server in Windows}.
 
        \row
-            \li Debugging tools for Mac OS X
+            \li Debugging tools for OS X
             \li The Qt binary distribution contains both debug and release
                 variants of the libraries. But you have to explicitly tell the
                 runtime linker that you want to use the debug libraries even if
@@ -217,13 +218,9 @@
                 \gui Projects mode. In the run configuration, select
                 \gui{Use debug version of frameworks}.
 
-                For more detailed information about debugging on the Mac OS X,
+                For more detailed information about debugging on OS X,
                 see: \l{http://developer.apple.com/library/mac/#technotes/tn2124/_index.html#//apple_ref/doc/uid/DTS10003391}
                 {Mac OS X Debugging Magic}.
-
-              \note The Mac OS X Snow Leopard (10.6) has a bug that might cause the
-              application to crash. For a workaround, see:
-              \l{http://bugreports.qt-project.org/browse/QTBUG-4962}{QTBUG-4962}.
 
        \row
             \li LLDB
@@ -276,9 +273,9 @@
     \note The first time you start debugging by using the Debugging tools for
     Windows, \QC prompts you to add the Symbol Server.
 
-    \section1 Setting up FSF GDB for Mac OS
+    \section1 Setting up FSF GDB for OS X
 
-    To use FSF GDB on Mac OS, you must sign it and add it to the \QC
+    To use FSF GDB on OS X, you must sign it and add it to the \QC
     \l{glossary-buildandrun-kit}{kits}.
 
     \list 1

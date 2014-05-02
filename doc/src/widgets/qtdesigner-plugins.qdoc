@@ -52,7 +52,7 @@
 
     The integrated \QD fetches plugins from the \c {%SDK%\bin\designer} folder
     on Windows and Linux. For information about how to configure plugins on
-    Mac OS, see \l{Configuring Qt Designer Plugins on Mac OS}.
+    OS X, see \l{Configuring Qt Designer Plugins on OS X}.
 
     To check which plugins
     were loaded successfully and which failed, choose \gui{Tools > Form Editor >
@@ -64,7 +64,7 @@
     were loaded successfully and which failed, choose \gui{Help >
     About Plugins}.
 
-    \section2 Configuring Qt Designer Plugins on Mac OS
+    \section2 Configuring Qt Designer Plugins on OS X
 
     On the Mac, a GUI application must be built and run from a bundle. A bundle
     is a directory structure that appears as a single entity when viewed in the

@@ -57,7 +57,7 @@
     The location depends on the platform. On Linux and other Unix platforms, the files
     are located in \c {~/.config/QtProject} and \c {~/.local/share/data/QtProject/qtcreator}.
 
-    On Mac OS, the files are located in \c {~/.config/QtProject} and
+    On OS X, the files are located in \c {~/.config/QtProject} and
     \c {~/Library/Application Support/QtProject/Qt Creator}.
 
     On Windows XP, the files are located in
@@ -80,7 +80,7 @@
     for the application. Many plugins specify either the path to the tool they
     need or the environment they run in.
 
-    This is especially relevant for the Mac OS where \c {/usr/local/bin} might
+    This is especially relevant for the OS X where \c {/usr/local/bin} might
     not be in the path when \QC is started.
 
     \b {How do I change the interface language for \QC?}
@@ -121,7 +121,7 @@
     \b {If I have a choice of GDB versions, which should I use?}
 
     On Linux and Windows, use the Python-enabled GDB versions that are
-    installed when you install \QC and \QSDK. On Mac OS X, GDB is no longer
+    installed when you install \QC and \QSDK. On OS X, GDB is no longer
     officially supported. To build your own Python-enabled GDB, follow the
     instructions in
     \l{http://qt-project.org/wiki/QtCreatorBuildGdb}{Building GDB}.
@@ -146,7 +146,7 @@
 
     \b {How can I make use of my multi-core CPU with \QC?}
 
-    On Linux and Mac OS X, go to \gui Project mode, select your configuration
+    On Linux and OS X, go to \gui Project mode, select your configuration
     in the \gui {Build Settings}, locate the \gui {Build Steps}, and add the
     following value, where \c{<num>} is the amount of cores in your CPU:
     \c{-j <num>}
@@ -187,7 +187,7 @@
 
     \b {Where is application output shown in \QC?}
 
-    \b {On Unix (Linux and Mac OS):} \c qDebug() and related functions use
+    \b {On Unix (Linux and OS X):} \c qDebug() and related functions use
     the standard output and error output. When you run or debug the
     application, you can view the output in the \gui{Application Output} pane.
 

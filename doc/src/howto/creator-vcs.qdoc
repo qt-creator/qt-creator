@@ -622,7 +622,7 @@
     To start a graphical interface to Git, select \gui Tools > \gui Git >
     \gui {Git Tools} > \gui {Git Gui}.
 
-    \note On Mac OS X, the default Git installation does not contain Git Gui. To
+    \note On OS X, the default Git installation does not contain Git Gui. To
     use Git Gui, install it separately. To start Git Gui from \QC, select
     \gui Preferences > \gui {Version Control} > \gui Git, and set the path to
     the environment that contains Git Gui in the \gui {Prepend to PATH} field.
