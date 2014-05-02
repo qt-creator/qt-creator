@@ -346,17 +346,16 @@ QVariantMap Project::toMap() const
     return map;
 }
 
-QString Project::projectDirectory() const
+Utils::FileName Project::projectDirectory() const
 {
-    return projectDirectory(document()->filePath());
+    return projectDirectory(projectFilePath());
 }
 
-QString Project::projectDirectory(const QString &top)
+Utils::FileName Project::projectDirectory(const Utils::FileName &top)
 {
     if (top.isEmpty())
-        return QString();
-    QFileInfo info(top);
-    return info.absoluteDir().path();
+        return Utils::FileName();
+    return Utils::FileName::fromString(top.toFileInfo().absoluteDir().path());
 }
 
 

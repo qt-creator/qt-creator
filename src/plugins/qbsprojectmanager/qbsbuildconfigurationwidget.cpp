@@ -65,7 +65,7 @@ QbsBuildConfigurationWidget::QbsBuildConfigurationWidget(QbsProjectManager::Inte
 
     m_buildDirChooser = new Utils::PathChooser;
     m_buildDirChooser->setExpectedKind(Utils::PathChooser::Directory);
-    m_buildDirChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
+    m_buildDirChooser->setBaseFileName(bc->target()->project()->projectDirectory());
     m_buildDirChooser->setEnvironment(bc->environment());
     layout->addWidget(m_buildDirChooser, 0, 1);
 

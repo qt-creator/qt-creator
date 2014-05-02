@@ -95,7 +95,7 @@ int GenericBuildConfigurationFactory::priority(const Target *parent) const
 QList<BuildInfo *> GenericBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
-    BuildInfo *info = createBuildInfo(parent->kit(), Utils::FileName::fromString(parent->project()->projectDirectory()));
+    BuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectDirectory());
     result << info;
     return result;
 }
@@ -109,7 +109,7 @@ int GenericBuildConfigurationFactory::priority(const Kit *k, const QString &proj
 QList<BuildInfo *> GenericBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<BuildInfo *> result;
-    BuildInfo *info = createBuildInfo(k, Utils::FileName::fromString(ProjectExplorer::Project::projectDirectory(projectPath)));
+    BuildInfo *info = createBuildInfo(k, ProjectExplorer::Project::projectDirectory(Utils::FileName::fromString(projectPath)));
     //: The name of the build configuration created by default for a generic project.
     info->displayName = tr("Default");
     result << info;
@@ -217,7 +217,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericBuildConfiguration
     connect(m_pathChooser, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
 
     m_buildConfiguration = bc;
-    m_pathChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
+    m_pathChooser->setBaseFileName(bc->target()->project()->projectDirectory());
     m_pathChooser->setEnvironment(bc->environment());
     m_pathChooser->setPath(m_buildConfiguration->rawBuildDirectory().toString());
     setDisplayName(tr("Generic Manager"));

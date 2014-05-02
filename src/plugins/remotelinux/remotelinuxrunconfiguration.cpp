@@ -135,7 +135,7 @@ QVariantMap RemoteLinuxRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
     map.insert(QLatin1String(ArgumentsKey), d->arguments);
-    const QDir dir = QDir(target()->project()->projectDirectory());
+    const QDir dir = QDir(target()->project()->projectDirectory().toString());
     map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(d->projectFilePath));
     map.insert(QLatin1String(UseAlternateExeKey), d->useAlternateRemoteExecutable);
     map.insert(QLatin1String(AlternateExeKey), d->alternateRemoteExecutable);
@@ -149,7 +149,7 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     d->arguments = map.value(QLatin1String(ArgumentsKey)).toStringList();
-    const QDir dir = QDir(target()->project()->projectDirectory());
+    const QDir dir = QDir(target()->project()->projectDirectory().toString());
     d->projectFilePath
             = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
     d->useAlternateRemoteExecutable = map.value(QLatin1String(UseAlternateExeKey), false).toBool();

@@ -59,13 +59,13 @@ AutotoolsBuildSettingsWidget::AutotoolsBuildSettingsWidget(AutotoolsBuildConfigu
     m_pathChooser = new Utils::PathChooser(this);
     m_pathChooser->setEnabled(true);
     m_pathChooser->setExpectedKind(Utils::PathChooser::Directory);
-    m_pathChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
+    m_pathChooser->setBaseFileName(bc->target()->project()->projectDirectory());
     m_pathChooser->setEnvironment(bc->environment());
     m_pathChooser->setHistoryCompleter(QLatin1String("AutoTools.BuildDir.History"));
     fl->addRow(tr("Build directory:"), m_pathChooser);
     connect(m_pathChooser, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
 
-    m_pathChooser->setBaseDirectory(bc->target()->project()->projectDirectory());
+    m_pathChooser->setBaseFileName(bc->target()->project()->projectDirectory());
     m_pathChooser->setPath(m_buildConfiguration->rawBuildDirectory().toString());
     setDisplayName(tr("Autotools Manager"));
 

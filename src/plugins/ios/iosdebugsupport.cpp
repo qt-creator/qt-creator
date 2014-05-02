@@ -162,7 +162,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     }
     if (qmlDebug) {
         params.languages |= QmlLanguage;
-        params.projectSourceDirectory = project->projectDirectory();
+        params.projectSourceDirectory = project->projectDirectory().toString();
         params.projectSourceFiles = project->files(QmakeProject::ExcludeGeneratedFiles);
         params.projectBuildDirectory = project->rootQmakeProjectNode()->buildDir();
         if (!cppDebug)

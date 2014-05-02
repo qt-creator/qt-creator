@@ -1817,7 +1817,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
         sourceFiles << project->files(Project::ExcludeGeneratedFiles);
 
     sp.projectSourceDirectory =
-            !projects.isEmpty() ? projects.first()->projectDirectory() : QString();
+            !projects.isEmpty() ? projects.first()->projectDirectory().toString() : QString();
     sp.projectSourceFiles = sourceFiles;
     sp.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
     DebuggerRunControlFactory::createAndScheduleRun(sp);

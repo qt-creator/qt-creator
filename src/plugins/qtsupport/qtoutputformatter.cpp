@@ -53,7 +53,7 @@ QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
 {
     if (project) {
         m_projectFinder.setProjectFiles(project->files(Project::ExcludeGeneratedFiles));
-        m_projectFinder.setProjectDirectory(project->projectDirectory());
+        m_projectFinder.setProjectDirectory(project->projectDirectory().toString());
 
         connect(project, SIGNAL(fileListChanged()),
                 this, SLOT(updateProjectFileList()));

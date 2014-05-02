@@ -285,7 +285,7 @@ void StateListener::slotStateChanged()
     // Check for project, find the control
     Core::IVersionControl *projectControl = 0;
     if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject()) {
-        state.currentProjectPath = currentProject->projectDirectory();
+        state.currentProjectPath = currentProject->projectDirectory().toString();
         state.currentProjectName = currentProject->displayName();
         projectControl = Core::VcsManager::findVersionControlForDirectory(state.currentProjectPath,
                                                                     &state.currentProjectTopLevel);

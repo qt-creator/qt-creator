@@ -147,7 +147,7 @@ void VcsPlugin::updateVariable(const QByteArray &variable)
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
     if (cachedProject != project) {
-        cachedVc = Core::VcsManager::findVersionControlForDirectory(project->projectDirectory(),
+        cachedVc = Core::VcsManager::findVersionControlForDirectory(project->projectDirectory().toString(),
                                                                     &cachedTopLevel);
         cachedProject = project;
     }

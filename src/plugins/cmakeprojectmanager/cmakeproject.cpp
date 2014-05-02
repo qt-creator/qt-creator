@@ -184,7 +184,7 @@ QString CMakeProject::shadowBuildDirectory(const QString &projectFilePath, const
 
     const QString projectName = QFileInfo(info.absolutePath()).fileName();
     ProjectExplorer::ProjectMacroExpander expander(projectFilePath, projectName, k, bcName);
-    QDir projectDir = QDir(projectDirectory(projectFilePath));
+    QDir projectDir = QDir(projectDirectory(Utils::FileName::fromString(projectFilePath)).toString());
     QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
     return QDir::cleanPath(projectDir.absoluteFilePath(buildPath));
 }
@@ -239,7 +239,7 @@ bool CMakeProject::parseCMakeLists()
             projectFiles.insert(node->path());
     } else {
         // Manually add the CMakeLists.txt file
-        QString cmakeListTxt = projectDirectory() + QLatin1String("/CMakeLists.txt");
+        QString cmakeListTxt = projectDirectory().toString() + QLatin1String("/CMakeLists.txt");
         bool generated = false;
         fileList.append(new ProjectExplorer::FileNode(cmakeListTxt, ProjectExplorer::ProjectFileType, generated));
         projectFiles.insert(cmakeListTxt);
@@ -343,7 +343,7 @@ bool CMakeProject::parseCMakeLists()
         part->projectFile = projectFilePath().toString();
 
         // This explicitly adds -I. to the include paths
-        part->includePaths += projectDirectory();
+        part->includePaths += projectDirectory().toString();
 
         foreach (const QString &includeFile, cbpparser.includeFiles()) {
             // CodeBlocks is utterly ignorant of frameworks on Mac, and won't report framework
@@ -531,7 +531,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
     bool hasUserFile = activeTarget();
     if (!hasUserFile) {
-        CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, projectDirectory(), Utils::Environment::systemEnvironment());
+        CMakeOpenProjectWizard copw(Core::ICore::mainWindow(), m_manager, projectDirectory().toString(), Utils::Environment::systemEnvironment());
         if (copw.exec() != QDialog::Accepted)
             return false;
         Kit *k = copw.kit();
@@ -614,7 +614,7 @@ CMakeBuildTarget CMakeProject::buildTargetForTitle(const QString &title)
 QString CMakeProject::uiHeaderFile(const QString &uiFile)
 {
     QFileInfo fi(uiFile);
-    Utils::FileName project = Utils::FileName::fromString(projectDirectory());
+    Utils::FileName project = projectDirectory();
     Utils::FileName baseDirectory = Utils::FileName::fromString(fi.absolutePath());
 
     while (baseDirectory.isChildOf(project)) {
@@ -710,7 +710,7 @@ void CMakeProject::updateApplicationAndDeploymentTargets()
     QString deploymentPrefix;
     QDir sourceDir;
 
-    sourceDir.setPath(t->project()->projectDirectory());
+    sourceDir.setPath(t->project()->projectDirectory().toString());
     deploymentFile.setFileName(sourceDir.filePath(QLatin1String("QtCreatorDeployment.txt")));
     if (deploymentFile.open(QFile::ReadOnly | QFile::Text)) {
         deploymentStream.setDevice(&deploymentFile);
@@ -845,7 +845,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     m_buildConfiguration = bc;
     m_pathLineEdit->setText(m_buildConfiguration->rawBuildDirectory().toString());
-    if (m_buildConfiguration->buildDirectory().toString() == bc->target()->project()->projectDirectory())
+    if (m_buildConfiguration->buildDirectory() == bc->target()->project()->projectDirectory())
         m_changeButton->setEnabled(false);
     else
         m_changeButton->setEnabled(true);

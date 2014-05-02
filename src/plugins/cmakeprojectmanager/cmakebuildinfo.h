@@ -57,7 +57,7 @@ public:
         useNinja = bc->useNinja();
 
         QTC_ASSERT(bc->target()->project(), return);
-        sourceDirectory = bc->target()->project()->projectDirectory();
+        sourceDirectory = bc->target()->project()->projectDirectory().toString();
     }
 
     Utils::Environment environment;

@@ -208,7 +208,7 @@ AnalyzerRunControl *QmlProfilerTool::createRunControl(const AnalyzerStartParamet
     QString projectDirectory;
     if (runConfiguration) {
         Project *project = runConfiguration->target()->project();
-        projectDirectory = project->projectDirectory();
+        projectDirectory = project->projectDirectory().toString();
     }
 
     populateFileFinder(projectDirectory, sp.sysroot);
@@ -298,7 +298,7 @@ void QmlProfilerTool::populateFileFinder(QString projectDirectory, QString activ
 
     if (!projects.isEmpty()) {
         if (projectDirectory.isEmpty())
-            projectDirectory = projects.first()->projectDirectory();
+            projectDirectory = projects.first()->projectDirectory().toString();
 
         if (activeSysroot.isEmpty()) {
             if (Target *target = projects.first()->activeTarget())

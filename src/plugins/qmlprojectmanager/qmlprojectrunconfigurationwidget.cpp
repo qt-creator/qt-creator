@@ -97,7 +97,7 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 void QmlProjectRunConfigurationWidget::updateFileComboBox()
 {
     ProjectExplorer::Project *project = m_runConfiguration->target()->project();
-    QDir projectDir(project->projectDirectory());
+    QDir projectDir(project->projectDirectory().toString());
 
     if (m_runConfiguration->mainScriptSource() == QmlProjectRunConfiguration::FileInProjectFile) {
         const QString mainScriptInFilePath

@@ -476,7 +476,7 @@ void QbsRunConfigurationWidget::targetInformationHasChanged()
     m_executableLineEdit->setText(m_rc->executable());
 
     m_workingDirectoryEdit->setPath(m_rc->baseWorkingDirectory());
-    m_workingDirectoryEdit->setBaseDirectory(m_rc->target()->project()->projectDirectory());
+    m_workingDirectoryEdit->setBaseFileName(m_rc->target()->project()->projectDirectory());
     m_ignoreChange = false;
 }
 

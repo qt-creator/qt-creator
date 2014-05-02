@@ -90,7 +90,7 @@ Project *androidProject(const QString &file)
             continue;
         Kit *kit = project->activeTarget()->kit();
         if (DeviceTypeKitInformation::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE
-                && fileName.isChildOf(Utils::FileName::fromString(project->projectDirectory())))
+                && fileName.isChildOf(project->projectDirectory()))
             return project;
     }
     return 0;

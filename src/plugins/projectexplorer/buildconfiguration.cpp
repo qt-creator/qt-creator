@@ -65,7 +65,7 @@ private:
 bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
     if (name == QLatin1String("sourceDir")) {
-        *ret = QDir::toNativeSeparators(m_bc->target()->project()->projectDirectory());
+        *ret = m_bc->target()->project()->projectDirectory().toUserOutput();
         return true;
     }
     if (name == QLatin1String("buildDir")) {
@@ -125,7 +125,7 @@ BuildConfiguration::~BuildConfiguration()
 Utils::FileName BuildConfiguration::buildDirectory() const
 {
     QString path = QDir::cleanPath(environment().expandVariables(m_buildDirectory.toString()));
-    return Utils::FileName::fromString(QDir::cleanPath(QDir(target()->project()->projectDirectory()).absoluteFilePath(path)));
+    return Utils::FileName::fromString(QDir::cleanPath(QDir(target()->project()->projectDirectory().toString()).absoluteFilePath(path)));
 }
 
 Utils::FileName BuildConfiguration::rawBuildDirectory() const

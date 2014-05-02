@@ -302,8 +302,7 @@ bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDes
 
     //Replace Source path placeholder
     QHash<QString, QString> placeHoldersHash;
-    placeHoldersHash[QLatin1String("%SRC_DIR%")] =
-        QDir::toNativeSeparators(target()->project()->projectDirectory());
+    placeHoldersHash[QLatin1String("%SRC_DIR%")] = target()->project()->projectDirectory().toUserOutput();
     doc.expandPlaceHolders(placeHoldersHash);
 
     // Set up correct environment depending on using bundled/pre-installed Qt

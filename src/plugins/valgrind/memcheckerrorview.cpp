@@ -188,7 +188,7 @@ static QString relativeToPath()
     // The project for which we insert the snippet.
     const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
 
-    QString relativeTo(project ? project->projectDirectory() : QDir::homePath());
+    QString relativeTo(project ? project->projectDirectory().toString() : QDir::homePath());
     if (!relativeTo.endsWith(QDir::separator()))
         relativeTo.append(QDir::separator());
 

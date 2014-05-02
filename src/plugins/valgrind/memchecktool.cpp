@@ -143,7 +143,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         // assume this error was created by an external library
         QSet<QString> validFolders;
         foreach (Project *project, SessionManager::projects()) {
-            validFolders << project->projectDirectory();
+            validFolders << project->projectDirectory().toString();
             foreach (Target *target, project->targets()) {
                 foreach (const ProjectExplorer::DeployableFile &file,
                          target->deploymentData().allFiles()) {
@@ -463,7 +463,7 @@ void MemcheckTool::engineStarting(const AnalyzerRunControl *engine)
 
     QString dir;
     if (RunConfiguration *rc = engine->runConfiguration())
-        dir = rc->target()->project()->projectDirectory() + QDir::separator();
+        dir = rc->target()->project()->projectDirectory().toString() + QDir::separator();
 
     const MemcheckRunControl *mEngine = dynamic_cast<const MemcheckRunControl *>(engine);
     QTC_ASSERT(mEngine, return);

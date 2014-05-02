@@ -97,8 +97,7 @@ int AutotoolsBuildConfigurationFactory::priority(const Target *parent) const
 QList<BuildInfo *> AutotoolsBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<BuildInfo *> result;
-    result << createBuildInfo(parent->kit(),
-                              Utils::FileName::fromString(parent->project()->projectDirectory()));
+    result << createBuildInfo(parent->kit(), parent->project()->projectDirectory());
     return result;
 }
 
@@ -135,7 +134,7 @@ BuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *parent, c
 
     // ### Build Steps Build ###
     // autogen.sh or autoreconf
-    QFile autogenFile(parent->project()->projectDirectory() + QLatin1String("/autogen.sh"));
+    QFile autogenFile(parent->project()->projectDirectory().toString() + QLatin1String("/autogen.sh"));
     if (autogenFile.exists()) {
         AutogenStep *autogenStep = new AutogenStep(buildSteps);
         buildSteps->insertStep(0, autogenStep);

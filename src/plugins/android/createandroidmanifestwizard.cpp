@@ -250,7 +250,7 @@ void CreateAndroidManifestWizard::createAndroidManifestFile()
         // and now time for some magic
         QString dir = QFileInfo(fileName).absolutePath();
         QString value = QLatin1String("$$PWD/")
-                + QDir(m_target->project()->projectDirectory()).relativeFilePath(dir);
+                + QDir(m_target->project()->projectDirectory().toString()).relativeFilePath(dir);
         bool result =
                 m_node->setProVariable(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"), QStringList(value));
         QStringList unChanged;

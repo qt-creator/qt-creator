@@ -211,7 +211,7 @@ void QmlProjectRunConfiguration::setScriptSource(MainScriptSource source,
     } else { // FileInSettings
         m_scriptFile = settingsPath;
         m_mainScriptFilename
-                = target()->project()->projectDirectory() + QLatin1Char('/') + m_scriptFile;
+                = target()->project()->projectDirectory().toString() + QLatin1Char('/') + m_scriptFile;
     }
     updateEnabled();
 

@@ -59,7 +59,7 @@ RunControl *AndroidAnalyzeSupport::createAnalyzeRunControl(AndroidRunConfigurati
     params.displayName = AndroidManager::packageName(target);
     params.sysroot = SysRootKitInformation::sysRoot(target->kit()).toString();
     // TODO: Not sure if these are the right paths.
-    params.workingDirectory = target->project()->projectDirectory();
+    params.workingDirectory = target->project()->projectDirectory().toString();
     if (runMode == ProjectExplorer::QmlProfilerRunMode) {
         QTcpServer server;
         QTC_ASSERT(server.listen(QHostAddress::LocalHost)

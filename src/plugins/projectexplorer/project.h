@@ -116,8 +116,8 @@ public:
     virtual QVariantMap toMap() const;
 
     // The directory that holds the project. This includes the absolute path.
-    QString projectDirectory() const;
-    static QString projectDirectory(const QString &top);
+    Utils::FileName projectDirectory() const;
+    static Utils::FileName projectDirectory(const Utils::FileName &top);
 
     Core::Context projectContext() const;
     Core::Context projectLanguages() const;

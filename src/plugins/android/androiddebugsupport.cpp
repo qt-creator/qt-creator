@@ -119,7 +119,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.qmlServerAddress = server.serverAddress().toString();
         params.remoteSetupNeeded = true;
         //TODO: Not sure if these are the right paths.
-        params.projectSourceDirectory = project->projectDirectory();
+        params.projectSourceDirectory = project->projectDirectory().toString();
         params.projectSourceFiles = project->files(QmakeProject::ExcludeGeneratedFiles);
         params.projectBuildDirectory = project->rootQmakeProjectNode()->buildDir();
     }

@@ -133,7 +133,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
         if (const ProjectExplorer::Target *target = project->activeTarget()) {
             if (const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit())) {
                 data->binary = (qtVersion->*commandAccessor)();
-                data->workingDirectory = project->projectDirectory();
+                data->workingDirectory = project->projectDirectory().toString();
             }
         }
     }

@@ -52,7 +52,7 @@ private:
 bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
     if (name == QLatin1String("sourceDir")) {
-        *ret = QDir::toNativeSeparators(m_target->project()->projectDirectory());
+        *ret = m_target->project()->projectDirectory().toUserOutput();
         return true;
     }
     *ret = Core::VariableManager::value(name.toUtf8());

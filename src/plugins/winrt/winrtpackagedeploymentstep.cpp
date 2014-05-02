@@ -192,7 +192,7 @@ QString WinRtPackageDeploymentStep::defaultWinDeployQtArguments() const
 {
     QString args;
     QtcProcess::addArg(&args, QStringLiteral("--qmldir"));
-    QtcProcess::addArg(&args, QDir::toNativeSeparators(project()->projectDirectory()));
+    QtcProcess::addArg(&args, project()->projectDirectory().toUserOutput());
     return args;
 }
 

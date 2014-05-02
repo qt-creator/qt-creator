@@ -2028,7 +2028,7 @@ void ClearCasePlugin::projectChanged(Project *project)
     disconnect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
     ProgressManager::cancelTasks(ClearCase::Constants::TASK_INDEX);
     if (project) {
-        QString projDir = project->projectDirectory();
+        QString projDir = project->projectDirectory().toString();
         QString topLevel = findTopLevel(projDir);
         m_topLevel = topLevel;
         if (topLevel.isEmpty())

@@ -309,7 +309,7 @@ ProjectExplorer::BuildConfiguration *QbsBuildConfigurationFactory::create(Projec
 
     Utils::FileName buildDir = info->buildDirectory;
     if (buildDir.isEmpty())
-        buildDir = QbsProject::defaultBuildDirectory(parent->project()->projectDirectory(),
+        buildDir = QbsProject::defaultBuildDirectory(parent->project()->projectDirectory().toString(),
                                                      parent->kit(), info->displayName);
 
     ProjectExplorer::BuildConfiguration *bc

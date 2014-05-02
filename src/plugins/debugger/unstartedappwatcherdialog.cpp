@@ -174,7 +174,7 @@ void UnstartedAppWatcherDialog::selectExecutable()
                 project->activeTarget()->activeBuildConfiguration()) {
             path = project->activeTarget()->activeBuildConfiguration()->buildDirectory().toString();
         } else if (project) {
-            path = project->projectDirectory();
+            path = project->projectDirectory().toString();
         }
     }
     m_pathChooser->setInitialBrowsePathBackup(path);

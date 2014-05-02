@@ -712,7 +712,7 @@ void SettingsAccessor::addVersionUpgrader(VersionUpgrader *handler)
 QStringList SettingsAccessor::findSettingsFiles(const QString &suffix) const
 {
     const QString defaultName = defaultFileName(suffix);
-    QDir projectDir = QDir(project()->projectDirectory());
+    QDir projectDir = QDir(project()->projectDirectory().toString());
 
     QStringList result;
     if (QFileInfo(defaultName).exists())
@@ -1991,7 +1991,7 @@ QVariantMap UserFileVersion11Upgrader::upgrade(const QVariantMap &map)
 
                 addBuildConfiguration(k, bc, bcPos, activeBc);
                 addDeployConfiguration(k, dc, dcPos, activeDc);
-                addRunConfigurations(k, rcs, activeRc, m_accessor->project()->projectDirectory());
+                addRunConfigurations(k, rcs, activeRc, m_accessor->project()->projectDirectory().toString());
                 if (targetPos == activeTarget && bcPos == activeBc && dcPos == activeDc)
                     m_targets[k].insert(QLatin1String("Update.IsActive"), true);
             } // dcs

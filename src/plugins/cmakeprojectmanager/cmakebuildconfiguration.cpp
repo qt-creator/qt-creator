@@ -132,7 +132,7 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableBui
     QList<ProjectExplorer::BuildInfo *> result;
 
     CMakeBuildInfo *info = createBuildInfo(parent->kit(),
-                                           parent->project()->projectDirectory());
+                                           parent->project()->projectDirectory().toString());
     result << info;
     return result;
 }
@@ -147,7 +147,7 @@ QList<ProjectExplorer::BuildInfo *> CMakeBuildConfigurationFactory::availableSet
                                                                                     const QString &projectPath) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
-    CMakeBuildInfo *info = createBuildInfo(k, ProjectExplorer::Project::projectDirectory(projectPath));
+    CMakeBuildInfo *info = createBuildInfo(k, ProjectExplorer::Project::projectDirectory(Utils::FileName::fromString(projectPath)).toString());
     //: The name of the build configuration created by default for a cmake project.
     info->displayName = tr("Default");
     info->buildDirectory

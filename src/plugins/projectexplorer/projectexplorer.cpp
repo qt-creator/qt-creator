@@ -1791,7 +1791,7 @@ void ProjectExplorerPlugin::updateExternalFileWarning()
     if (!d->m_currentProject || !infoBar->canInfoBeAdded(externalFileId))
         return;
     Utils::FileName fileName = Utils::FileName::fromString(document->filePath());
-    Utils::FileName projectDir = Utils::FileName::fromString(d->m_currentProject->projectDirectory());
+    Utils::FileName projectDir = d->m_currentProject->projectDirectory();
     if (projectDir.isEmpty() || fileName.isChildOf(projectDir))
         return;
     // External file. Test if it under the same VCS

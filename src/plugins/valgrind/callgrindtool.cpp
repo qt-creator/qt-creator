@@ -401,7 +401,7 @@ void CallgrindToolPrivate::handleFilterProjectCosts()
     QTC_ASSERT(pro, return);
 
     if (m_filterProjectCosts->isChecked()) {
-        const QString projectDir = pro->projectDirectory();
+        const QString projectDir = pro->projectDirectory().toString();
         m_proxyModel->setFilterBaseDir(projectDir);
     } else {
         m_proxyModel->setFilterBaseDir(QString());

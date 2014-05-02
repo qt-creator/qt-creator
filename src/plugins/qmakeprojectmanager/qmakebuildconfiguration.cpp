@@ -68,7 +68,7 @@ static Utils::FileName defaultBuildDirectory(bool supportsShadowBuild,
 {
     if (supportsShadowBuild)
         return Utils::FileName::fromString(QmakeProject::shadowBuildDirectory(projectPath, k, suffix));
-    return Utils::FileName::fromString(ProjectExplorer::Project::projectDirectory(projectPath));
+    return ProjectExplorer::Project::projectDirectory(Utils::FileName::fromString(projectPath));
 }
 
 using namespace Internal;
@@ -186,7 +186,7 @@ void QmakeBuildConfiguration::updateShadowBuild()
     bool currentShadowBuild = supportsShadowBuilds();
     if (currentShadowBuild != m_qtVersionSupportsShadowBuilds) {
         if (!currentShadowBuild)
-            setBuildDirectory(Utils::FileName::fromString(target()->project()->projectDirectory()));
+            setBuildDirectory(target()->project()->projectDirectory());
         m_qtVersionSupportsShadowBuilds = currentShadowBuild;
     }
 }
@@ -244,7 +244,7 @@ void QmakeBuildConfiguration::setFileNodeBuild(FileNode *node)
 /// still is a in-source build
 bool QmakeBuildConfiguration::isShadowBuild() const
 {
-    return buildDirectory().toString() != target()->project()->projectDirectory();
+    return buildDirectory() != target()->project()->projectDirectory();
 }
 
 void QmakeBuildConfiguration::setBuildDirectory(const FileName &directory)
@@ -254,7 +254,7 @@ void QmakeBuildConfiguration::setBuildDirectory(const FileName &directory)
     BuildConfiguration::setBuildDirectory(directory);
     QTC_CHECK(supportsShadowBuilds()
               || (!supportsShadowBuilds()
-                  && buildDirectory().toString() == target()->project()->projectDirectory()));
+                  && buildDirectory() == target()->project()->projectDirectory()));
     emitProFileEvaluateNeeded();
 }
 

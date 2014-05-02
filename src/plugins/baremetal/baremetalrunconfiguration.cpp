@@ -131,7 +131,7 @@ QVariantMap BareMetalRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
     map.insert(QLatin1String(ArgumentsKey), d->arguments);
-    const QDir dir = QDir(target()->project()->projectDirectory());
+    const QDir dir = QDir(target()->project()->projectDirectory().toString());
     map.insert(QLatin1String(ProFileKey), dir.relativeFilePath(d->projectFilePath));
     map.insert(QLatin1String(WorkingDirectoryKey), d->workingDirectory);
     return map;
@@ -143,7 +143,7 @@ bool BareMetalRunConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     d->arguments = map.value(QLatin1String(ArgumentsKey)).toString();
-    const QDir dir = QDir(target()->project()->projectDirectory());
+    const QDir dir = QDir(target()->project()->projectDirectory().toString());
     d->projectFilePath
             = QDir::cleanPath(dir.filePath(map.value(QLatin1String(ProFileKey)).toString()));
     d->workingDirectory = map.value(QLatin1String(WorkingDirectoryKey)).toString();

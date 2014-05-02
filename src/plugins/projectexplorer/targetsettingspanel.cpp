@@ -639,7 +639,7 @@ void TargetSettingsPanelWidget::openTargetPreferences()
 
 void TargetSettingsPanelWidget::importTarget()
 {
-    QString toImport = QFileDialog::getExistingDirectory(this, tr("Import directory"), m_project->projectDirectory());
+    QString toImport = QFileDialog::getExistingDirectory(this, tr("Import directory"), m_project->projectDirectory().toString());
     importTarget(Utils::FileName::fromString(toImport));
 }
 

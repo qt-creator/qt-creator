@@ -55,7 +55,7 @@ TaskFileFactory::TaskFileFactory(QObject * parent) :
 Core::IDocument *TaskFileFactory::open(const QString &fileName)
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    return open(project ? project->projectDirectory() : QString(), fileName);
+    return open(project ? project->projectDirectory().toString() : QString(), fileName);
 }
 
 Core::IDocument *TaskFileFactory::open(const QString &base, const QString &fileName)

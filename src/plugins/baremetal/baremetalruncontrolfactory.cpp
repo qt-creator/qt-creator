@@ -93,7 +93,7 @@ DebuggerStartParameters BareMetalRunControlFactory::startParameters(const BareMe
     params.remoteSetupNeeded = false; //FIXME probably start debugserver with that, how?
     params.displayName = runConfig->displayName();
     if (const Project *project = target->project()) {
-        params.projectSourceDirectory = project->projectDirectory();
+        params.projectSourceDirectory = project->projectDirectory().toString();
         if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
             params.projectBuildDirectory = buildConfig->buildDirectory().toString();
         params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);

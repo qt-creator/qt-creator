@@ -98,6 +98,7 @@ public:
 
     QString baseDirectory() const;
     void setBaseDirectory(const QString &directory);
+
     Utils::FileName baseFileName() const;
     void setBaseFileName(const Utils::FileName &base);
 

@@ -221,8 +221,7 @@ bool BarDescriptorFileNodeManager::createBarDescriptor(ProjectExplorer::Project 
     content.replace(QLatin1String("PROJECTPATH"), targetName);
     content.replace(QLatin1String("ID"), QLatin1String("com.example.") + projectName);
 
-    if (Utils::FileName::fromString(project->projectDirectory())
-             .appendPath(QLatin1String("qml")).toFileInfo().exists())
+    if (project->projectDirectory().appendPath(QLatin1String("qml")).toFileInfo().exists())
         content.replace(QLatin1String("</qnx>"),
                         QLatin1String("    <asset path=\"%SRC_DIR%/qml\">qml</asset>\n</qnx>"));
 

@@ -202,7 +202,7 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
         params.languages |= Debugger::CppLanguage;
 
     if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
-        params.projectSourceDirectory = project->projectDirectory();
+        params.projectSourceDirectory = project->projectDirectory().toString();
         if (const ProjectExplorer::BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
             params.projectBuildDirectory = buildConfig->buildDirectory().toString();
         params.projectSourceFiles = project->files(ProjectExplorer::Project::ExcludeGeneratedFiles);

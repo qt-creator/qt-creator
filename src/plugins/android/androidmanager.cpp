@@ -274,7 +274,8 @@ Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber(5, 2, 0))
         return target->activeBuildConfiguration()->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY));
-    return Utils::FileName::fromString(target->project()->projectDirectory()).appendPath(AndroidDirName);
+    Utils::FileName dir = target->project()->projectDirectory();
+    return dir.appendPath(AndroidDirName);
 }
 
 Utils::FileName AndroidManager::manifestPath(ProjectExplorer::Target *target)
@@ -539,7 +540,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
     Utils::FileName javaSrcPath
             = Utils::FileName::fromString(version->qmakeProperty("QT_INSTALL_PREFIX"))
             .appendPath(QLatin1String("src/android/java"));
-    QDir projectDir(qmakeProject->projectDirectory());
+    QDir projectDir(qmakeProject->projectDirectory().toString());
     Utils::FileName androidPath = dirPath(target);
 
     QStringList m_ignoreFiles;

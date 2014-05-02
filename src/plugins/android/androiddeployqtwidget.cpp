@@ -98,7 +98,7 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
     m_ui->verboseOutputCheckBox->setChecked(m_step->verboseOutput());
     m_ui->openPackageLocationCheckBox->setChecked(m_step->openPackageLocation());
 
-    bool oldFiles = AndroidManager::checkForQt51Files(m_step->project()->projectDirectory());
+    bool oldFiles = AndroidManager::checkForQt51Files(m_step->project()->projectDirectory().toString());
     m_ui->oldFilesWarningIcon->setVisible(oldFiles);
     m_ui->oldFilesWarningLabel->setVisible(oldFiles);
 
@@ -346,7 +346,7 @@ void AndroidDeployQtWidget::addAndroidExtraLib()
 {
     QStringList fileNames = QFileDialog::getOpenFileNames(this,
                                                           tr("Select additional libraries"),
-                                                          m_currentBuildConfiguration->target()->project()->projectDirectory(),
+                                                          m_currentBuildConfiguration->target()->project()->projectDirectory().toString(),
                                                           tr("Libraries (*.so)"));
 
     if (!fileNames.isEmpty())
