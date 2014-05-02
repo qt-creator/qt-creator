@@ -455,9 +455,8 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     m_settings.fromSettings(ICore::settings());
 
     // update view name when changing active project
-    if (ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance())
-        connect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-                this, SLOT(projectChanged(ProjectExplorer::Project*)));
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(projectChanged(ProjectExplorer::Project*)));
 
     addAutoReleasedObject(new SettingsPage);
 

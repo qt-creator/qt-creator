@@ -213,9 +213,9 @@ StateListener::StateListener(QObject *parent) :
     connect(Core::VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(slotStateChanged()));
 
-    if (ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance())
-        connect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-                this, SLOT(slotStateChanged()));
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+            SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(slotStateChanged()));
 }
 
 static inline QString displayNameOfEditor(const QString &fileName)
