@@ -128,7 +128,6 @@ public:
 private:
     bool canHandle(const ProjectExplorer::Target *t) const;
     ProjectExplorer::BuildInfo *createBuildInfo(const ProjectExplorer::Kit *k,
-                                                const Utils::FileName &buildDirectory,
                                                 ProjectExplorer::BuildConfiguration::BuildType type) const;
 };
 
