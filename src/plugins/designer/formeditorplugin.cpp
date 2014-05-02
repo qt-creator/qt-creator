@@ -126,8 +126,8 @@ void FormEditorPlugin::extensionsInitialized()
 
 void FormEditorPlugin::initializeTemplates()
 {
-    IWizard *wizard = new FormWizard;
-    wizard->setWizardKind(IWizard::FileWizard);
+    IWizardFactory *wizard = new FormWizard;
+    wizard->setWizardKind(IWizardFactory::FileWizard);
     wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
     wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
     wizard->setDisplayName(tr("Qt Designer Form"));
@@ -138,7 +138,7 @@ void FormEditorPlugin::initializeTemplates()
 
 #ifdef CPP_ENABLED
     wizard = new FormClassWizard;
-    wizard->setWizardKind(IWizard::ClassWizard);
+    wizard->setWizardKind(IWizardFactory::ClassWizard);
     wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
     wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
     wizard->setDisplayName(tr("Qt Designer Form Class"));

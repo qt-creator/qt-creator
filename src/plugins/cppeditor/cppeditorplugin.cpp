@@ -172,8 +172,8 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
     QString trCat = QCoreApplication::translate(Constants::WIZARD_CATEGORY, Constants::WIZARD_TR_CATEGORY);
 
-    IWizard *wizard = new CppClassWizard;
-    wizard->setWizardKind(IWizard::ClassWizard);
+    IWizardFactory *wizard = new CppClassWizard;
+    wizard->setWizardKind(IWizardFactory::ClassWizard);
     wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY));
     wizard->setDisplayCategory(trCat);
     wizard->setDisplayName(tr("C++ Class"));
@@ -182,7 +182,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addAutoReleasedObject(wizard);
 
     wizard = new CppFileWizard(Source);
-    wizard->setWizardKind(IWizard::FileWizard);
+    wizard->setWizardKind(IWizardFactory::FileWizard);
     wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY));
     wizard->setDisplayCategory(trCat);
     wizard->setDisplayName(tr("C++ Class"));
@@ -192,7 +192,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     addAutoReleasedObject(wizard);
 
     wizard = new CppFileWizard(Header);
-    wizard->setWizardKind(IWizard::FileWizard);
+    wizard->setWizardKind(IWizardFactory::FileWizard);
     wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY));
     wizard->setDisplayCategory(trCat);
     wizard->setDescription(tr("Creates a C++ header file that you can add to a C++ project."));

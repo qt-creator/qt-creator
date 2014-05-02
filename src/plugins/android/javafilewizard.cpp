@@ -39,7 +39,7 @@ using namespace Android::Internal;
 
 JavaFileWizard::JavaFileWizard()
 {
-    setWizardKind(Core::IWizard::FileWizard);
+    setWizardKind(Core::IWizardFactory::FileWizard);
     setCategory(QLatin1String(Constants::JAVA_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("Android", Constants::JAVA_DISPLAY_CATEGORY));
     setDescription(tr("Creates a Java file with boilerplate code."));

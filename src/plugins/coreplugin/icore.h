@@ -44,7 +44,7 @@ template <class T> class QList;
 QT_END_NAMESPACE
 
 namespace Core {
-class IWizard;
+class IWizardFactory;
 class Context;
 class IContext;
 class ProgressManager;
@@ -68,7 +68,7 @@ public:
     static ICore *instance();
 
     static void showNewItemDialog(const QString &title,
-                                  const QList<IWizard *> &wizards,
+                                  const QList<IWizardFactory *> &factories,
                                   const QString &defaultLocation = QString(),
                                   const QVariantMap &extraVariables = QVariantMap());
 

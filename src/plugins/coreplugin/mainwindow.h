@@ -53,7 +53,7 @@ class ExternalToolManager;
 class DocumentManager;
 class HelpManager;
 class IDocument;
-class IWizard;
+class IWizardFactory;
 class MessageManager;
 class MimeDatabase;
 class ModeManager;
@@ -117,7 +117,7 @@ public slots:
     void setFullScreen(bool on);
 
     void showNewItemDialog(const QString &title,
-                           const QList<IWizard *> &wizards,
+                           const QList<IWizardFactory *> &factories,
                            const QString &defaultLocation = QString(),
                            const QVariantMap &extraVariables = QVariantMap());
 

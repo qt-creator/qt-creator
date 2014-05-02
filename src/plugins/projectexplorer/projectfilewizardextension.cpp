@@ -238,11 +238,11 @@ static inline AddNewTree *buildAddFilesTree(SessionNode *root, const QStringList
 }
 
 static inline AddNewTree *getChoices(const QStringList &generatedFiles,
-                                     IWizard::WizardKind wizardKind,
+                                     IWizardFactory::WizardKind wizardKind,
                                      Node *contextNode,
                                      BestNodeSelector *selector)
 {
-    if (wizardKind == IWizard::ProjectWizard)
+    if (wizardKind == IWizardFactory::ProjectWizard)
         return buildAddProjectTree(SessionManager::sessionNode(), generatedFiles.first(), contextNode, selector);
     else
         return buildAddFilesTree(SessionManager::sessionNode(), generatedFiles, contextNode, selector);
@@ -259,7 +259,7 @@ struct ProjectWizardContext
     QPointer<ProjectWizardPage> page; // this is managed by the wizard!
     bool repositoryExists; // Is VCS 'add' sufficient, or should a repository be created?
     QString commonDirectory;
-    const IWizard *wizard;
+    const IWizardFactory *wizard;
 };
 
 ProjectWizardContext::ProjectWizardContext() :
@@ -312,7 +312,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 
     QStringList filePaths;
     ProjectExplorer::ProjectAction projectAction;
-    if (m_context->wizard->kind()== IWizard::ProjectWizard) {
+    if (m_context->wizard->kind()== IWizardFactory::ProjectWizard) {
         projectAction = ProjectExplorer::AddSubProject;
         filePaths << generatedProjectFilePath(files);
     } else {
@@ -392,7 +392,7 @@ void ProjectFileWizardExtension::initializeVersionControlChoices()
     }
 }
 
-QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const IWizard *wizard)
+QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const IWizardFactory *wizard)
 {
     if (!m_context)
         m_context = new ProjectWizardContext;
@@ -437,7 +437,7 @@ bool ProjectFileWizardExtension::processProject(
     FolderNode *folder = m_context->page->currentNode();
     if (!folder)
         return true;
-    if (m_context->wizard->kind() == IWizard::ProjectWizard) {
+    if (m_context->wizard->kind() == IWizardFactory::ProjectWizard) {
         if (!static_cast<ProjectNode *>(folder)->addSubProjects(QStringList(generatedProject))) {
             *errorMessage = tr("Failed to add subproject \"%1\"\nto project \"%2\".")
                             .arg(generatedProject).arg(folder->path());

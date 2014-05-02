@@ -30,7 +30,7 @@
 #ifndef NEWDIALOG_H
 #define NEWDIALOG_H
 
-#include "iwizard.h"
+#include "../iwizardfactory.h"
 
 #include <QDialog>
 #include <QIcon>
@@ -60,9 +60,9 @@ public:
     explicit NewDialog(QWidget *parent);
     virtual ~NewDialog();
 
-    void setWizards(QList<IWizard*> wizards);
+    void setWizardFactories(QList<IWizardFactory*> factories);
 
-    Core::IWizard *showDialog();
+    Core::IWizardFactory *showDialog();
     QString selectedPlatform() const;
 
 private slots:
@@ -73,8 +73,8 @@ private slots:
     void setSelectedPlatform(const QString &platform);
 
 private:
-    Core::IWizard *currentWizard() const;
-    void addItem(QStandardItem *topLevelCategoryItem, IWizard *wizard);
+    Core::IWizardFactory *currentWizardFactory() const;
+    void addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory);
 
     Ui::NewDialog *m_ui;
     QStandardItemModel *m_model;

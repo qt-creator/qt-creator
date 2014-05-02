@@ -48,7 +48,7 @@ public:
     explicit ProjectFileWizardExtension();
     ~ProjectFileWizardExtension();
 
-    QList<QWizardPage *> extensionPages(const Core::IWizard *wizard);
+    QList<QWizardPage *> extensionPages(const Core::IWizardFactory *wizard);
     bool processFiles(const QList<Core::GeneratedFile> &files,
                  bool *removeOpenProjectAttribute, QString *errorMessage);
     void applyCodeStyle(Core::GeneratedFile *file) const;

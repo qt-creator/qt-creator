@@ -42,7 +42,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class IWizard;
+class IWizardFactory;
 class GeneratedFile;
 
 /*!
@@ -55,7 +55,7 @@ class CORE_EXPORT IFileWizardExtension : public QObject
 public:
     /* Return a list of pages to be added to the Wizard (empty list if not
      * applicable). */
-    virtual QList<QWizardPage *> extensionPages(const IWizard *wizard) = 0;
+    virtual QList<QWizardPage *> extensionPages(const IWizardFactory *wizard) = 0;
 
     /* Process the files using the extension parameters */
     virtual bool processFiles(const QList<GeneratedFile> &files,

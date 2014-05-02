@@ -41,27 +41,27 @@
 #include <QPainter>
 #include <QDebug>
 
-Q_DECLARE_METATYPE(Core::IWizard*)
+Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
 
 namespace {
 
 const int ICON_SIZE = 22;
 
-class WizardContainer
+class WizardFactoryContainer
 {
 public:
-    WizardContainer() : wizard(0), wizardOption(0) {}
-    WizardContainer(Core::IWizard *w, int i): wizard(w), wizardOption(i) {}
-    Core::IWizard *wizard;
+    WizardFactoryContainer() : wizard(0), wizardOption(0) {}
+    WizardFactoryContainer(Core::IWizardFactory *w, int i): wizard(w), wizardOption(i) {}
+    Core::IWizardFactory *wizard;
     int wizardOption;
 };
 
-inline Core::IWizard *wizardOfItem(const QStandardItem *item = 0)
+inline Core::IWizardFactory *factoryOfItem(const QStandardItem *item = 0)
 {
     if (!item)
         return 0;
-    return item->data(Qt::UserRole).value<WizardContainer>().wizard;
+    return item->data(Qt::UserRole).value<WizardFactoryContainer>().wizard;
 }
 
 class PlatformFilterProxyModel : public QSortFilterProxyModel
@@ -82,7 +82,7 @@ public:
             return true;
 
         QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
-        Core::IWizard *wizard = wizardOfItem(qobject_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(sourceIndex));
+        Core::IWizardFactory *wizard = factoryOfItem(qobject_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(sourceIndex));
         if (wizard)
             return m_platform.isEmpty() || wizard->isAvailable(m_platform);
 
@@ -178,7 +178,7 @@ public:
 
 }
 
-Q_DECLARE_METATYPE(WizardContainer)
+Q_DECLARE_METATYPE(WizardFactoryContainer)
 
 using namespace Core;
 using namespace Core::Internal;
@@ -229,25 +229,25 @@ NewDialog::NewDialog(QWidget *parent) :
 }
 
 // Sort by category. id
-bool wizardLessThan(const IWizard *w1, const IWizard *w2)
+static bool wizardFactoryLessThan(const IWizardFactory *f1, const IWizardFactory *f2)
 {
-    if (const int cc = w1->category().compare(w2->category()))
+    if (const int cc = f1->category().compare(f2->category()))
         return cc < 0;
-    return w1->id().compare(w2->id()) < 0;
+    return f1->id().compare(f2->id()) < 0;
 }
 
-void NewDialog::setWizards(QList<IWizard*> wizards)
+void NewDialog::setWizardFactories(QList<IWizardFactory*> factories)
 {
-    qStableSort(wizards.begin(), wizards.end(), wizardLessThan);
+    qStableSort(factories.begin(), factories.end(), wizardFactoryLessThan);
 
     m_model->clear();
     QStandardItem *parentItem = m_model->invisibleRootItem();
 
     QStandardItem *projectKindItem = new QStandardItem(tr("Projects"));
-    projectKindItem->setData(IWizard::ProjectWizard, Qt::UserRole);
+    projectKindItem->setData(IWizardFactory::ProjectWizard, Qt::UserRole);
     projectKindItem->setFlags(0); // disable item to prevent focus
     QStandardItem *filesClassesKindItem = new QStandardItem(tr("Files and Classes"));
-    filesClassesKindItem->setData(IWizard::FileWizard, Qt::UserRole);
+    filesClassesKindItem->setData(IWizardFactory::FileWizard, Qt::UserRole);
     filesClassesKindItem->setFlags(0); // disable item to prevent focus
 
     parentItem->appendRow(projectKindItem);
@@ -256,11 +256,11 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
     if (m_dummyIcon.isNull())
         m_dummyIcon = QIcon(QLatin1String(Core::Constants::ICON_NEWFILE));
 
-    QStringList availablePlatforms = IWizard::allAvailablePlatforms();
+    QStringList availablePlatforms = IWizardFactory::allAvailablePlatforms();
     m_ui->comboBox->addItem(tr("All Templates"), QString());
 
     foreach (const QString &platform, availablePlatforms) {
-        const QString displayNameForPlatform = IWizard::displayNameForPlatform(platform);
+        const QString displayNameForPlatform = IWizardFactory::displayNameForPlatform(platform);
         m_ui->comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform);
     }
 
@@ -269,25 +269,25 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
     else
         m_ui->comboBox->setDisabled(true);
 
-    foreach (IWizard *wizard, wizards) {
+    foreach (IWizardFactory *factory, factories) {
         QStandardItem *kindItem;
-        switch (wizard->kind()) {
-        case IWizard::ProjectWizard:
+        switch (factory->kind()) {
+        case IWizardFactory::ProjectWizard:
             kindItem = projectKindItem;
             break;
-        case IWizard::ClassWizard:
-        case IWizard::FileWizard:
+        case IWizardFactory::ClassWizard:
+        case IWizardFactory::FileWizard:
         default:
             kindItem = filesClassesKindItem;
             break;
         }
-        addItem(kindItem, wizard);
+        addItem(kindItem, factory);
     }
     if (projectKindItem->columnCount() == 0)
         parentItem->removeRow(0);
 }
 
-Core::IWizard *NewDialog::showDialog()
+Core::IWizardFactory *NewDialog::showDialog()
 {
     static QString lastCategory;
     QModelIndex idx;
@@ -323,7 +323,7 @@ Core::IWizard *NewDialog::showDialog()
     if (retVal != Accepted)
         return 0;
 
-    return currentWizard();
+    return currentWizardFactory();
 }
 
 QString NewDialog::selectedPlatform() const
@@ -338,15 +338,15 @@ NewDialog::~NewDialog()
     delete m_ui;
 }
 
-IWizard *NewDialog::currentWizard() const
+IWizardFactory *NewDialog::currentWizardFactory() const
 {
     QModelIndex index = m_filterProxyModel->mapToSource(m_ui->templatesView->currentIndex());
-    return wizardOfItem(m_model->itemFromIndex(index));
+    return factoryOfItem(m_model->itemFromIndex(index));
 }
 
-void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizard *wizard)
+void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory)
 {
-    const QString categoryName = wizard->category();
+    const QString categoryName = factory->category();
     QStandardItem *categoryItem = 0;
     for (int i = 0; i < topLevelCategoryItem->rowCount(); i++) {
         if (topLevelCategoryItem->child(i, 0)->data(Qt::UserRole) == categoryName)
@@ -357,20 +357,20 @@ void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizard *wizard)
         topLevelCategoryItem->appendRow(categoryItem);
         m_categoryItems.append(categoryItem);
         categoryItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-        categoryItem->setText(QLatin1String("  ") + wizard->displayCategory());
-        categoryItem->setData(wizard->category(), Qt::UserRole);
+        categoryItem->setText(QLatin1String("  ") + factory->displayCategory());
+        categoryItem->setData(factory->category(), Qt::UserRole);
     }
 
-    QStandardItem *wizardItem = new QStandardItem(wizard->displayName());
+    QStandardItem *wizardItem = new QStandardItem(factory->displayName());
     QIcon wizardIcon;
 
     // spacing hack. Add proper icons instead
-    if (wizard->icon().isNull())
+    if (factory->icon().isNull())
         wizardIcon = m_dummyIcon;
     else
-        wizardIcon = wizard->icon();
+        wizardIcon = factory->icon();
     wizardItem->setIcon(wizardIcon);
-    wizardItem->setData(QVariant::fromValue(WizardContainer(wizard, 0)), Qt::UserRole);
+    wizardItem->setData(QVariant::fromValue(WizardFactoryContainer(factory, 0)), Qt::UserRole);
     wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
     categoryItem->appendRow(wizardItem);
 
@@ -391,15 +391,15 @@ void NewDialog::currentItemChanged(const QModelIndex &index)
 {
     QModelIndex sourceIndex = m_filterProxyModel->mapToSource(index);
     QStandardItem* cat = (m_model->itemFromIndex(sourceIndex));
-    if (const IWizard *wizard = wizardOfItem(cat)) {
+    if (const IWizardFactory *wizard = factoryOfItem(cat)) {
         QString desciption = wizard->description();
         QStringList displayNamesForSupportedPlatforms;
         foreach (const QString &platform, wizard->supportedPlatforms())
-            displayNamesForSupportedPlatforms << IWizard::displayNameForPlatform(platform);
+            displayNamesForSupportedPlatforms << IWizardFactory::displayNameForPlatform(platform);
         if (!Qt::mightBeRichText(desciption))
             desciption.replace(QLatin1Char('\n'), QLatin1String("<br>"));
         desciption += QLatin1String("<br><br><b>");
-        if (wizard->flags().testFlag(IWizard::PlatformIndependent))
+        if (wizard->flags().testFlag(IWizardFactory::PlatformIndependent))
             desciption += tr("Platform independent") + QLatin1String("</b>");
         else
             desciption += tr("Supported Platforms")
@@ -430,7 +430,7 @@ void NewDialog::okButtonClicked()
 
 void NewDialog::updateOkButton()
 {
-    m_okButton->setEnabled(currentWizard() != 0);
+    m_okButton->setEnabled(currentWizardFactory() != 0);
 }
 
 void NewDialog::setSelectedPlatform(const QString & /*platform*/)

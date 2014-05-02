@@ -35,7 +35,7 @@
 #include <QDir>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/dialogs/iwizard.h>
+#include <coreplugin/iwizardfactory.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/sessiondialog.h>
@@ -243,7 +243,7 @@ void ProjectWelcomePage::reloadWelcomeScreenData()
 void ProjectWelcomePage::newProject()
 {
     Core::ICore::showNewItemDialog(tr("New Project"),
-                                   Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
+                                   Core::IWizardFactory::wizardFactoriesOfKind(Core::IWizardFactory::ProjectWizard));
 }
 
 void ProjectWelcomePage::openProject()

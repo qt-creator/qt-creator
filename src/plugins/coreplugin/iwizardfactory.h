@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef IWIZARD_H
-#define IWIZARD_H
+#ifndef IWIZARDFACTORY_H
+#define IWIZARDFACTORY_H
 
 #include <coreplugin/core_global.h>
 #include <coreplugin/id.h>
@@ -40,7 +40,7 @@
 
 namespace Core {
 
-class CORE_EXPORT IWizard
+class CORE_EXPORT IWizardFactory
     : public QObject
 {
     Q_OBJECT
@@ -60,9 +60,9 @@ public:
     class CORE_EXPORT Data
     {
     public:
-        Data() : kind(IWizard::FileWizard) {}
+        Data() : kind(IWizardFactory::FileWizard) {}
 
-        IWizard::WizardKind kind;
+        IWizardFactory::WizardKind kind;
         QIcon icon;
         QString description;
         QString displayName;
@@ -70,11 +70,11 @@ public:
         QString category;
         QString displayCategory;
         FeatureSet requiredFeatures;
-        IWizard::WizardFlags flags;
+        IWizardFactory::WizardFlags flags;
         QString descriptionImage;
     };
 
-    IWizard() { }
+    IWizardFactory() { }
 
     QString id() const { return m_data.id; }
     WizardKind kind() const { return m_data.kind; }
@@ -106,9 +106,9 @@ public:
     QStringList supportedPlatforms() const;
 
     // Utility to find all registered wizards
-    static QList<IWizard*> allWizards();
+    static QList<IWizardFactory*> allWizardFactories();
     // Utility to find all registered wizards of a certain kind
-    static QList<IWizard*> wizardsOfKind(WizardKind kind);
+    static QList<IWizardFactory*> wizardFactoriesOfKind(WizardKind kind);
     static QStringList allAvailablePlatforms();
     static QString displayNameForPlatform(const QString &string);
 
@@ -118,7 +118,7 @@ private:
 
 } // namespace Core
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizard::WizardKinds)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizard::WizardFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizardFactory::WizardKinds)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizardFactory::WizardFlags)
 
-#endif // IWIZARD_H
+#endif // IWIZARDFACTORY_H

@@ -273,7 +273,7 @@ static bool parseCustomProjectElement(QXmlStreamReader &reader,
                                       const QString &configFileFullPath,
                                       const QString &language,
                                       CustomWizardParameters *p,
-                                      IWizard::Data *bp)
+                                      IWizardFactory::Data *bp)
 {
     const QStringRef elementName = reader.name();
     if (elementName == QLatin1String(iconElementC)) {
@@ -448,16 +448,16 @@ static ParseState nextClosingState(ParseState in, const QStringRef &name)
 }
 
 // Parse kind attribute
-static inline IWizard::WizardKind kindAttribute(const QXmlStreamReader &r)
+static inline IWizardFactory::WizardKind kindAttribute(const QXmlStreamReader &r)
 {
     const QStringRef value = r.attributes().value(QLatin1String(kindAttributeC));
     if (!value.isEmpty()) {
         if (value == QLatin1String("file"))
-            return IWizard::FileWizard;
+            return IWizardFactory::FileWizard;
         if (value == QLatin1String("class"))
-            return IWizard::ClassWizard;
+            return IWizardFactory::ClassWizard;
     }
-    return IWizard::ProjectWizard;
+    return IWizardFactory::ProjectWizard;
 }
 
 static inline FeatureSet requiredFeatures(const QXmlStreamReader &reader)
@@ -472,13 +472,13 @@ static inline FeatureSet requiredFeatures(const QXmlStreamReader &reader)
     return features;
 }
 
-static inline IWizard::WizardFlags wizardFlags(const QXmlStreamReader &reader)
+static inline IWizardFactory::WizardFlags wizardFlags(const QXmlStreamReader &reader)
 {
-    IWizard::WizardFlags flags;
+    IWizardFactory::WizardFlags flags;
     const QStringRef value = reader.attributes().value(QLatin1String(platformIndependentC));
 
     if (!value.isEmpty() && value == QLatin1String("true"))
-        flags |= IWizard::PlatformIndependent;
+        flags |= IWizardFactory::PlatformIndependent;
 
     return flags;
 }
@@ -552,7 +552,7 @@ GeneratorScriptArgument::GeneratorScriptArgument(const QString &v) :
 CustomWizardParameters::ParseResult
      CustomWizardParameters::parse(QIODevice &device,
                                    const QString &configFileFullPath,
-                                   IWizard::Data *bp,
+                                   IWizardFactory::Data *bp,
                                    QString *errorMessage)
 {
     int comboEntryCount = 0;
@@ -560,8 +560,8 @@ CustomWizardParameters::ParseResult
     QXmlStreamReader::TokenType token = QXmlStreamReader::EndDocument;
     ParseState state = ParseBeginning;
     clear();
-    *bp = IWizard::Data();
-    bp->kind = IWizard::ProjectWizard;
+    *bp = IWizardFactory::Data();
+    bp->kind = IWizardFactory::ProjectWizard;
     const QString language = languageSetting();
     CustomWizardField field;
     do {
@@ -705,7 +705,7 @@ CustomWizardParameters::ParseResult
 
 CustomWizardParameters::ParseResult
      CustomWizardParameters::parse(const QString &configFileFullPath,
-                                   IWizard::Data *bp,
+                                   IWizardFactory::Data *bp,
                                    QString *errorMessage)
 {
     QFile configFile(configFileFullPath);

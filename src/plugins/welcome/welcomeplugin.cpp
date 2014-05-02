@@ -35,6 +35,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/iwizardfactory.h>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>

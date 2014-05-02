@@ -34,7 +34,7 @@
 #include "generatedfile.h"
 #include "featureprovider.h"
 
-#include <coreplugin/dialogs/iwizard.h>
+#include <coreplugin/iwizardfactory.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -103,7 +103,7 @@ private:
     QVariantMap m_extraValues;
 };
 
-class CORE_EXPORT BaseFileWizard : public IWizard
+class CORE_EXPORT BaseFileWizard : public IWizardFactory
 {
     Q_OBJECT
 

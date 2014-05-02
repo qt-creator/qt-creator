@@ -97,7 +97,7 @@ static inline QString wizardDisplayCategory()
 
 // A wizard that quickly creates a scratch buffer
 // based on a temporary file without prompting for a path.
-class ScratchFileWizard : public Core::IWizard
+class ScratchFileWizard : public Core::IWizardFactory
 {
     Q_OBJECT
 
@@ -110,7 +110,7 @@ public:
         setId(QLatin1String("Z.ScratchFile"));
         setCategory(QLatin1String(wizardCategoryC));
         setDisplayCategory(wizardDisplayCategory());
-        setFlags(Core::IWizard::PlatformIndependent);
+        setFlags(Core::IWizardFactory::PlatformIndependent);
     }
 
     void runWizard(const QString &, QWidget *, const QString &, const QVariantMap &)
@@ -143,13 +143,13 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     TextFileWizard *wizard = new TextFileWizard(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT),
                                                 QLatin1String("text$"));
-    wizard->setWizardKind(Core::IWizard::FileWizard);
+    wizard->setWizardKind(Core::IWizardFactory::FileWizard);
     wizard->setDescription(tr("Creates a text file. The default file extension is <tt>.txt</tt>. "
                                        "You can specify a different extension as part of the filename."));
     wizard->setDisplayName(tr("Text File"));
     wizard->setCategory(QLatin1String(wizardCategoryC));
     wizard->setDisplayCategory(wizardDisplayCategory());
-    wizard->setFlags(Core::IWizard::PlatformIndependent);
+    wizard->setFlags(Core::IWizardFactory::PlatformIndependent);
 
     // Add text file wizard
     addAutoReleasedObject(wizard);

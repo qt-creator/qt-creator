@@ -167,8 +167,8 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_VERT_ES);
     FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_FRAG_ES);
 
-    IWizard *wizard = new GLSLFileWizard(GLSLFileWizard::FragmentShaderES);
-    wizard->setWizardKind(IWizard::FileWizard);
+    IWizardFactory *wizard = new GLSLFileWizard(GLSLFileWizard::FragmentShaderES);
+    wizard->setWizardKind(IWizardFactory::FileWizard);
     wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
     wizard->setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
     wizard->setDescription
@@ -181,7 +181,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     addAutoReleasedObject(wizard);
 
     wizard = new GLSLFileWizard(GLSLFileWizard::VertexShaderES);
-    wizard->setWizardKind(IWizard::FileWizard);
+    wizard->setWizardKind(IWizardFactory::FileWizard);
     wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
     wizard->setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
     wizard->setDescription
@@ -194,7 +194,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     addAutoReleasedObject(wizard);
 
     wizard = new GLSLFileWizard(GLSLFileWizard::FragmentShaderDesktop);
-    wizard->setWizardKind(IWizard::FileWizard);
+    wizard->setWizardKind(IWizardFactory::FileWizard);
     wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
     wizard->setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
     wizard->setDescription
@@ -207,7 +207,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     addAutoReleasedObject(wizard);
 
     wizard = new GLSLFileWizard(GLSLFileWizard::VertexShaderDesktop);
-    wizard->setWizardKind(IWizard::FileWizard);
+    wizard->setWizardKind(IWizardFactory::FileWizard);
     wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
     wizard->setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
     wizard->setDescription

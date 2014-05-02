@@ -333,7 +333,7 @@ CustomWizard::CustomWizardContextPtr CustomWizard::context() const
 }
 
 CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p,
-                                         const Core::IWizard::Data &b)
+                                         const Core::IWizardFactory::Data &b)
 {
     ICustomWizardFactory * factory = ExtensionSystem::PluginManager::getObject<ICustomWizardFactory>(
         [&p, &b](ICustomWizardFactory *factory) {
@@ -358,20 +358,20 @@ CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizard
 // Format all wizards for display
 static QString listWizards()
 {
-    typedef QMultiMap<QString, const Core::IWizard *> CategoryWizardMap;
+    typedef QMultiMap<QString, const Core::IWizardFactory *> CategoryWizardMap;
 
     // Sort by category via multimap
     QString rc;
     QTextStream str(&rc);
     CategoryWizardMap categoryWizardMap;
-    foreach (const Core::IWizard *w, Core::IWizard::allWizards())
+    foreach (const Core::IWizardFactory *w, Core::IWizardFactory::allWizardFactories())
         categoryWizardMap.insert(w->category(), w);
     str << "### Registered wizards (" << categoryWizardMap.size() << ")\n";
     // Format
     QString lastCategory;
     const CategoryWizardMap::const_iterator cend = categoryWizardMap.constEnd();
     for (CategoryWizardMap::const_iterator it = categoryWizardMap.constBegin(); it != cend; ++it) {
-        const Core::IWizard *wizard = it.value();
+        const Core::IWizardFactory *wizard = it.value();
         if (it.key() != lastCategory) {
             lastCategory = it.key();
             str << "\nCategory: '" << lastCategory << "' / '" << wizard->displayCategory() << "'\n";
@@ -438,7 +438,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
             verboseLog += QString::fromLatin1("CustomWizard: Scanning %1\n").arg(dirFi.absoluteFilePath());
         if (dir.exists(configFile)) {
             CustomWizardParametersPtr parameters(new Internal::CustomWizardParameters);
-            IWizard::Data data;
+            IWizardFactory::Data data;
             switch (parameters->parse(dir.absoluteFilePath(configFile), &data, &errorMessage)) {
             case Internal::CustomWizardParameters::ParseOk:
                 parameters->directory = dir.absolutePath();

@@ -55,7 +55,7 @@ using namespace GLSLEditor;
 GLSLFileWizard::GLSLFileWizard(ShaderType shaderType)
     : m_shaderType(shaderType)
 {
-    setFlags(Core::IWizard::PlatformIndependent);
+    setFlags(Core::IWizardFactory::PlatformIndependent);
 }
 
 Core::GeneratedFiles GLSLFileWizard::generateFiles(const QWizard *w,

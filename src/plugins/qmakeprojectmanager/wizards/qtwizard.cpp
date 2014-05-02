@@ -57,7 +57,7 @@ using namespace QmakeProjectManager::Internal;
 // -------------------- QtWizard
 QtWizard::QtWizard()
 {
-    setWizardKind(Core::IWizard::ProjectWizard);
+    setWizardKind(Core::IWizardFactory::ProjectWizard);
 }
 
 QString QtWizard::sourceSuffix()

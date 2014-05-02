@@ -14,6 +14,7 @@ include(../../shared/scriptwrapper/scriptwrapper.pri)
 win32-msvc*:QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
 SOURCES += mainwindow.cpp \
     editmode.cpp \
+    iwizardfactory.cpp \
     tabpositionindicator.cpp \
     fancyactionbar.cpp \
     fancytabwidget.cpp \
@@ -71,7 +72,6 @@ SOURCES += mainwindow.cpp \
     infobar.cpp \
     editormanager/ieditor.cpp \
     dialogs/ioptionspage.cpp \
-    dialogs/iwizard.cpp \
     settingsdatabase.cpp \
     imode.cpp \
     editormanager/systemeditor.cpp \
@@ -102,6 +102,7 @@ SOURCES += mainwindow.cpp \
 
 HEADERS += mainwindow.h \
     editmode.h \
+    iwizardfactory.h \
     tabpositionindicator.h \
     fancyactionbar.h \
     fancytabwidget.h \
@@ -136,7 +137,6 @@ HEADERS += mainwindow.h \
     dialogs/readonlyfilesdialog.h \
     dialogs/shortcutsettings.h \
     dialogs/openwithdialog.h \
-    dialogs/iwizard.h \
     dialogs/ioptionspage.h \
     progressmanager/progressmanager_p.h \
     progressmanager/progressview.h \

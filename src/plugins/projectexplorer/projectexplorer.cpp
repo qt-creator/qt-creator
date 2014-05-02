@@ -398,9 +398,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(sessionManager, SIGNAL(sessionLoaded(QString)),
             this, SLOT(updateWelcomePage()));
 
-    addAutoReleasedObject(new CustomWizardFactory<CustomProjectWizard>(Core::IWizard::ProjectWizard));
-    addAutoReleasedObject(new CustomWizardFactory<CustomWizard>(Core::IWizard::FileWizard));
-    addAutoReleasedObject(new CustomWizardFactory<CustomWizard>(Core::IWizard::ClassWizard));
+    addAutoReleasedObject(new CustomWizardFactory<CustomProjectWizard>(Core::IWizardFactory::ProjectWizard));
+    addAutoReleasedObject(new CustomWizardFactory<CustomWizard>(Core::IWizardFactory::FileWizard));
+    addAutoReleasedObject(new CustomWizardFactory<CustomWizard>(Core::IWizardFactory::ClassWizard));
 
     d->m_proWindow = new ProjectWindow;
     addAutoReleasedObject(d->m_proWindow);
@@ -1144,7 +1144,7 @@ void ProjectExplorerPlugin::loadCustomWizards()
     static bool firstTime = true;
     if (firstTime) {
         firstTime = false;
-        foreach (IWizard *cpw, ProjectExplorer::CustomWizard::createWizards())
+        foreach (IWizardFactory *cpw, ProjectExplorer::CustomWizard::createWizards())
             addAutoReleasedObject(cpw);
     }
 }
@@ -1237,7 +1237,7 @@ void ProjectExplorerPlugin::newProject()
         qDebug() << "ProjectExplorerPlugin::newProject";
 
     ICore::showNewItemDialog(tr("New Project", "Title of dialog"),
-                              IWizard::wizardsOfKind(IWizard::ProjectWizard));
+                              IWizardFactory::wizardFactoriesOfKind(IWizardFactory::ProjectWizard));
     updateActions();
 }
 
@@ -2833,8 +2833,8 @@ void ProjectExplorerPlugin::addNewFile()
         map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
     }
     ICore::showNewItemDialog(tr("New File", "Title of dialog"),
-                               IWizard::wizardsOfKind(IWizard::FileWizard)
-                               + IWizard::wizardsOfKind(IWizard::ClassWizard),
+                               IWizardFactory::wizardFactoriesOfKind(IWizardFactory::FileWizard)
+                               + IWizardFactory::wizardFactoriesOfKind(IWizardFactory::ClassWizard),
                                location, map);
 }
 
@@ -2856,7 +2856,7 @@ void ProjectExplorerPlugin::addNewSubproject()
         }
 
         ICore::showNewItemDialog(tr("New Subproject", "Title of dialog"),
-                              IWizard::wizardsOfKind(IWizard::ProjectWizard),
+                              IWizardFactory::wizardFactoriesOfKind(IWizardFactory::ProjectWizard),
                               location, map);
     }
 }

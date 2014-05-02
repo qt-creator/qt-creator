@@ -136,8 +136,8 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_editor = new QmlJSEditorFactory(this);
     addObject(m_editor);
 
-    IWizard *wizard = new QmlFileWizard;
-    wizard->setWizardKind(Core::IWizard::FileWizard);
+    IWizardFactory *wizard = new QmlFileWizard;
+    wizard->setWizardKind(Core::IWizardFactory::FileWizard);
     wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
     wizard->setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
     wizard->setDescription(tr("Creates a QML file with boilerplate code, starting with \"import QtQuick 1.1\"."));
@@ -146,7 +146,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     addAutoReleasedObject(wizard);
 
     wizard = new QmlFileWizard;
-    wizard->setWizardKind(Core::IWizard::FileWizard);
+    wizard->setWizardKind(Core::IWizardFactory::FileWizard);
     wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
     wizard->setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
     wizard->setDescription(tr("Creates a QML file with boilerplate code, starting with \"import QtQuick 2.0\"."));
@@ -155,7 +155,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     addAutoReleasedObject(wizard);
 
     wizard = new JsFileWizard;
-    wizard->setWizardKind(Core::IWizard::FileWizard);
+    wizard->setWizardKind(Core::IWizardFactory::FileWizard);
     wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
     wizard->setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
     wizard->setDescription(tr("Creates a JavaScript file."));

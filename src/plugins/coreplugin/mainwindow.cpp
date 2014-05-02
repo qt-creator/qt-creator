@@ -785,7 +785,7 @@ void MainWindow::registerDefaultActions()
 
 void MainWindow::newFile()
 {
-    showNewItemDialog(tr("New", "Title of dialog"), IWizard::allWizards(), QString());
+    showNewItemDialog(tr("New", "Title of dialog"), IWizardFactory::allWizardFactories(), QString());
 }
 
 void MainWindow::openFile()
@@ -865,23 +865,23 @@ void MainWindow::setFocusToEditor()
 }
 
 void MainWindow::showNewItemDialog(const QString &title,
-                                          const QList<IWizard *> &wizards,
+                                          const QList<IWizardFactory *> &factories,
                                           const QString &defaultLocation,
                                           const QVariantMap &extraVariables)
 {
     // Scan for wizards matching the filter and pick one. Don't show
     // dialog if there is only one.
-    IWizard *wizard = 0;
+    IWizardFactory *wizard = 0;
     QString selectedPlatform;
-    switch (wizards.size()) {
+    switch (factories.size()) {
     case 0:
         break;
     case 1:
-        wizard = wizards.front();
+        wizard = factories.front();
         break;
     default: {
         NewDialog dlg(this);
-        dlg.setWizards(wizards);
+        dlg.setWizardFactories(factories);
         dlg.setWindowTitle(title);
         wizard = dlg.showDialog();
         selectedPlatform = dlg.selectedPlatform();
@@ -895,7 +895,7 @@ void MainWindow::showNewItemDialog(const QString &title,
     QString path = defaultLocation;
     if (path.isEmpty()) {
         switch (wizard->kind()) {
-        case IWizard::ProjectWizard:
+        case IWizardFactory::ProjectWizard:
             // Project wizards: Check for projects directory or
             // use last visited directory of file dialog. Never start
             // at current.

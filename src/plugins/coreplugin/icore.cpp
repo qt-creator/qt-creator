@@ -327,11 +327,11 @@ ICore::~ICore()
 }
 
 void ICore::showNewItemDialog(const QString &title,
-                              const QList<IWizard *> &wizards,
+                              const QList<IWizardFactory *> &factories,
                               const QString &defaultLocation,
                               const QVariantMap &extraVariables)
 {
-    m_mainwindow->showNewItemDialog(title, wizards, defaultLocation, extraVariables);
+    m_mainwindow->showNewItemDialog(title, factories, defaultLocation, extraVariables);
 }
 
 bool ICore::showOptionsDialog(const Id group, const Id page, QWidget *parent)

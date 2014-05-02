@@ -87,11 +87,11 @@ void BaseCheckoutWizardPrivate::clear()
 BaseCheckoutWizard::BaseCheckoutWizard() :
     d(new Internal::BaseCheckoutWizardPrivate)
 {
-    setWizardKind(IWizard::ProjectWizard);
+    setWizardKind(IWizardFactory::ProjectWizard);
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
-    setFlags(Core::IWizard::PlatformIndependent);
+    setFlags(Core::IWizardFactory::PlatformIndependent);
 }
 
 BaseCheckoutWizard::~BaseCheckoutWizard()

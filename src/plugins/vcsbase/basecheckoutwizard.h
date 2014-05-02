@@ -31,7 +31,7 @@
 #define BASECHECKOUTWIZARD_H
 
 #include "vcsbase_global.h"
-#include <coreplugin/dialogs/iwizard.h>
+#include <coreplugin/iwizardfactory.h>
 
 #include <QSharedPointer>
 #include <QList>
@@ -45,7 +45,7 @@ namespace Internal { class BaseCheckoutWizardPrivate; }
 
 class Command;
 
-class VCSBASE_EXPORT BaseCheckoutWizard : public Core::IWizard
+class VCSBASE_EXPORT BaseCheckoutWizard : public Core::IWizardFactory
 {
     Q_OBJECT
 

@@ -47,7 +47,7 @@ namespace PythonEditor {
  */
 FileWizard::FileWizard()
 {
-    setWizardKind(Core::IWizard::FileWizard);
+    setWizardKind(Core::IWizardFactory::FileWizard);
     setId(QLatin1String(Constants::C_PY_SOURCE_WIZARD_ID));
     setCategory(QLatin1String(Constants::C_PY_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(Constants::C_PY_DISPLAY_CATEGORY));

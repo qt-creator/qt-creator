@@ -129,7 +129,7 @@ GenericProjectWizard::GenericProjectWizard()
                       "This allows you to use Qt Creator as a code editor."));
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
-    setFlags(Core::IWizard::PlatformIndependent);
+    setFlags(Core::IWizardFactory::PlatformIndependent);
 }
 
 QWizard *GenericProjectWizard::createWizardDialog(QWidget *parent,

@@ -60,7 +60,7 @@ class PROJECTEXPLORER_EXPORT ICustomWizardFactory : public QObject
     Q_OBJECT
 
 public:
-    ICustomWizardFactory(const QString &klass, Core::IWizard::WizardKind kind) :
+    ICustomWizardFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) :
         m_klass(klass), m_kind(kind)
     { }
 
@@ -70,15 +70,15 @@ public:
 
 private:
     QString m_klass;
-    Core::IWizard::WizardKind m_kind;
+    Core::IWizardFactory::WizardKind m_kind;
 };
 
 // Convenience template to create wizard factory classes.
 template <class Wizard> class CustomWizardFactory : public ICustomWizardFactory
 {
 public:
-    CustomWizardFactory(const QString &klass, Core::IWizard::WizardKind kind) : ICustomWizardFactory(klass, kind) { }
-    CustomWizardFactory(Core::IWizard::WizardKind kind) : ICustomWizardFactory(QString(), kind) { }
+    CustomWizardFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) : ICustomWizardFactory(klass, kind) { }
+    CustomWizardFactory(Core::IWizardFactory::WizardKind kind) : ICustomWizardFactory(QString(), kind) { }
     CustomWizard *create() const { return new Wizard; }
 };
 
@@ -124,7 +124,7 @@ protected:
     CustomWizardParametersPtr parameters() const;
     CustomWizardContextPtr context() const;
 
-    static CustomWizard *createWizard(const CustomWizardParametersPtr &p, const Core::IWizard::Data &b);
+    static CustomWizard *createWizard(const CustomWizardParametersPtr &p, const Core::IWizardFactory::Data &b);
 
 private:
     void setParameters(const CustomWizardParametersPtr &p);

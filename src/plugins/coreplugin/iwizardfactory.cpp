@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "iwizard.h"
+#include "iwizardfactory.h"
 #include <coreplugin/icore.h>
 #include <coreplugin/featureprovider.h>
 
@@ -36,10 +36,10 @@
 #include <QStringList>
 
 /*!
-    \class Core::IWizard
+    \class Core::IWizardFactory
     \mainclass
 
-    \brief The class IWizard is the base class for all wizards
+    \brief The class IWizardFactory is the base class for all wizard factories
     (for example shown in \gui {File | New}).
 
     The wizard interface is a very thin abstraction for the \gui{New...} wizards.
@@ -50,13 +50,13 @@
     creating files. Often it is not necessary to create your own wizard from scratch,
     instead use one of the predefined wizards and adapt it to your needs.
 
-    To make your wizard known to the system, add your IWizard instance to the
+    To make your wizard known to the system, add your IWizardFactory instance to the
     plugin manager's object pool in your plugin's initialize function:
     \code
         bool MyPlugin::initialize(const QStringList &arguments, QString *errorString)
         {
             // ... do setup
-            addAutoReleasedObject(new MyWizard);
+            addAutoReleasedObject(new MyWizardFactory);
             // ... do more setup
         }
     \endcode
@@ -65,7 +65,7 @@
 */
 
 /*!
-    \enum Core::IWizard::WizardKind
+    \enum Core::IWizardFactory::WizardKind
     Used to specify what kind of objects the wizard creates. This information is used
     to show e.g. only wizards that create projects when selecting a \gui{New Project}
     menu item.
@@ -78,57 +78,57 @@
 */
 
 /*!
-    \fn IWizard::IWizard(QObject *parent)
+    \fn IWizardFactory::IWizardFactory(QObject *parent)
     \internal
 */
 
 /*!
-    \fn IWizard::~IWizard()
+    \fn IWizardFactory::~IWizardFactory()
     \internal
 */
 
 /*!
-    \fn Kind IWizard::kind() const
+    \fn Kind IWizardFactory::kind() const
     Returns what kind of objects are created by the wizard.
     \sa Kind
 */
 
 /*!
-    \fn QIcon IWizard::icon() const
+    \fn QIcon IWizardFactory::icon() const
     Returns an icon to show in the wizard selection dialog.
 */
 
 /*!
-    \fn QString IWizard::description() const
+    \fn QString IWizardFactory::description() const
     Returns a translated description to show when this wizard is selected
     in the dialog.
 */
 
 /*!
-    \fn QString IWizard::displayName() const
+    \fn QString IWizardFactory::displayName() const
     Returns the translated name of the wizard, how it should appear in the
     dialog.
 */
 
 /*!
-    \fn QString IWizard::id() const
+    \fn QString IWizardFactory::id() const
     Returns an arbitrary id that is used for sorting within the category.
 */
 
 
 /*!
-    \fn QString IWizard::category() const
+    \fn QString IWizardFactory::category() const
     Returns a category ID to add the wizard to.
 */
 
 /*!
-    \fn QString IWizard::displayCategory() const
+    \fn QString IWizardFactory::displayCategory() const
     Returns the translated string of the category, how it should appear
     in the dialog.
 */
 
 /*!
-    \fn void IWizard::runWizard(const QString &path,
+    \fn void IWizardFactory::runWizard(const QString &path,
                                       QWidget *parent,
                                       const QString &platform,
                                       const QVariantMap &variables)
@@ -144,43 +144,43 @@ using namespace Core;
 
 /* A utility to find all wizards supporting a view mode and matching a predicate */
 template <class Predicate>
-    QList<IWizard*> findWizards(Predicate predicate)
+    QList<IWizardFactory*> findWizardFactories(Predicate predicate)
 {
     // Hack: Trigger delayed creation of wizards
     ICore::emitNewItemsDialogRequested();
     // Filter all wizards
-    const QList<IWizard*> allWizards = IWizard::allWizards();
-    QList<IWizard*> rc;
-    const QList<IWizard*>::const_iterator cend = allWizards.constEnd();
-    for (QList<IWizard*>::const_iterator it = allWizards.constBegin(); it != cend; ++it)
+    const QList<IWizardFactory*> allFactories = IWizardFactory::allWizardFactories();
+    QList<IWizardFactory*> rc;
+    const QList<IWizardFactory*>::const_iterator cend = allFactories.constEnd();
+    for (QList<IWizardFactory*>::const_iterator it = allFactories.constBegin(); it != cend; ++it)
         if (predicate(*(*it)))
             rc.push_back(*it);
     return rc;
 }
 
-QList<IWizard*> IWizard::allWizards()
+QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 {
     // Hack: Trigger delayed creation of wizards
     ICore::emitNewItemsDialogRequested();
-    return ExtensionSystem::PluginManager::getObjects<IWizard>();
+    return ExtensionSystem::PluginManager::getObjects<IWizardFactory>();
 }
 
 // Utility to find all registered wizards of a certain kind
 
 class WizardKindPredicate {
 public:
-    WizardKindPredicate(IWizard::WizardKind kind) : m_kind(kind) {}
-    bool operator()(const IWizard &w) const { return w.kind() == m_kind; }
+    WizardKindPredicate(IWizardFactory::WizardKind kind) : m_kind(kind) {}
+    bool operator()(const IWizardFactory &w) const { return w.kind() == m_kind; }
 private:
-    const IWizard::WizardKind m_kind;
+    const IWizardFactory::WizardKind m_kind;
 };
 
-QList<IWizard*> IWizard::wizardsOfKind(WizardKind kind)
+QList<IWizardFactory*> IWizardFactory::wizardFactoriesOfKind(WizardKind kind)
 {
-    return findWizards(WizardKindPredicate(kind));
+    return findWizardFactories(WizardKindPredicate(kind));
 }
 
-bool IWizard::isAvailable(const QString &platformName) const
+bool IWizardFactory::isAvailable(const QString &platformName) const
 {
     FeatureSet availableFeatures;
 
@@ -192,7 +192,7 @@ bool IWizard::isAvailable(const QString &platformName) const
     return availableFeatures.contains(requiredFeatures());
 }
 
-QStringList IWizard::supportedPlatforms() const
+QStringList IWizardFactory::supportedPlatforms() const
 {
     QStringList stringList;
 
@@ -204,7 +204,7 @@ QStringList IWizard::supportedPlatforms() const
     return stringList;
 }
 
-QStringList IWizard::allAvailablePlatforms()
+QStringList IWizardFactory::allAvailablePlatforms()
 {
     QStringList platforms;
 
@@ -217,7 +217,7 @@ QStringList IWizard::allAvailablePlatforms()
     return platforms;
 }
 
-QString IWizard::displayNameForPlatform(const QString &string)
+QString IWizardFactory::displayNameForPlatform(const QString &string)
 {
     const QList<Core::IFeatureProvider*> featureManagers =
             ExtensionSystem::PluginManager::getObjects<Core::IFeatureProvider>();
