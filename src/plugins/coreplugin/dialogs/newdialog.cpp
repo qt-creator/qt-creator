@@ -337,12 +337,6 @@ QString NewDialog::selectedPlatform() const
     return m_ui->comboBox->itemData(index).toString();
 }
 
-int NewDialog::selectedWizardOption() const
-{
-    QStandardItem *item = m_model->itemFromIndex(m_ui->templatesView->currentIndex());
-    return item->data(Qt::UserRole).value<WizardContainer>().wizardOption;
-}
-
 NewDialog::~NewDialog()
 {
     delete m_ui;

@@ -64,7 +64,6 @@ public:
 
     Core::IWizard *showDialog();
     QString selectedPlatform() const;
-    int selectedWizardOption() const;
 
 private slots:
     void currentCategoryChanged(const QModelIndex &);
