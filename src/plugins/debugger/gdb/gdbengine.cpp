@@ -3976,9 +3976,10 @@ void GdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 
 static inline QByteArray disassemblerCommand(const Location &location, bool mixed)
 {
-    QByteArray command = "disassemble /r ";
+    QByteArray command = "disassemble /r";
     if (mixed)
-        command += "/m ";
+        command += 'm';
+    command += ' ';
     if (const quint64 address = location.address()) {
         command += "0x";
         command += QByteArray::number(address, 16);
@@ -4006,7 +4007,7 @@ void GdbEngine::fetchDisassemblerByCliRangeMixed(const DisassemblerAgentCookie &
     const quint64 address = ac.agent->address();
     QByteArray start = QByteArray::number(address - 20, 16);
     QByteArray end = QByteArray::number(address + 100, 16);
-    QByteArray cmd = "disassemble /r /m 0x" + start + ",0x" + end;
+    QByteArray cmd = "disassemble /rm 0x" + start + ",0x" + end;
     postCommand(cmd, Discardable|ConsoleCommand,
         CB(handleFetchDisassemblerByCliRangeMixed), QVariant::fromValue(ac));
 }
