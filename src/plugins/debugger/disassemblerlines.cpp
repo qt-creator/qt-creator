@@ -31,8 +31,9 @@
 #include "debuggerstringutils.h"
 
 #include <QDebug>
-#include <QRegExp>
 #include <QFile>
+#include <QRegExp>
+#include <QTextStream>
 
 namespace Debugger {
 namespace Internal {
@@ -211,9 +212,11 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
         m_rowCache[dl.address] = m_data.size() + 1;
         m_data.append(dl);
     } else {
-        // Comment line.
+        // Comment or code line.
+        QTextStream ts(&line);
         DisassemblerLine dl;
-        dl.data = line;
+        ts >> dl.lineNumber;
+        dl.data = line.mid(ts.pos());
         m_data.append(dl);
     }
 }
@@ -233,9 +236,12 @@ QString DisassemblerLine::toString(int maxOp) const
         str += QString(maxOp - bytes.size(), QLatin1Char(' '));
         str += data;
     } else if (isCode()) {
-        if (hunk)
-            str += _("[%1]").arg(hunk);
         str += someSpace;
+        str += QString::number(lineNumber);
+        if (hunk)
+            str += _(" [%1]").arg(hunk);
+        else
+            str += _("    ").arg(hunk);
         str += data;
     } else {
         str += someSpace;
