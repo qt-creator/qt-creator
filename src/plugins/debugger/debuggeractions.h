@@ -93,6 +93,7 @@ enum DebuggerActionCode
     SwitchModeOnExit,
     BreakpointsFullPathByDefault,
     RaiseOnInterrupt,
+    StationaryEditorWhileStepping,
 
     UseDebuggingHelpers,
 

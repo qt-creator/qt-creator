@@ -1963,7 +1963,7 @@ void BaseTextEditorWidget::setTextCursor(const QTextCursor &cursor)
         slotSelectionChanged();
 }
 
-void BaseTextEditorWidget::gotoLine(int line, int column)
+void BaseTextEditorWidget::gotoLine(int line, int column, bool centerLine)
 {
     d->m_lastCursorChangeWasInteresting = false; // avoid adding the previous position to history
     const int blockNumber = line - 1;
@@ -1980,7 +1980,11 @@ void BaseTextEditorWidget::gotoLine(int line, int column)
             cursor.setPosition(pos);
         }
         setTextCursor(cursor);
-        centerCursor();
+
+        if (centerLine)
+            centerCursor();
+        else
+            ensureCursorVisible();
     }
     saveCurrentCursorPositionForNavigation();
 }

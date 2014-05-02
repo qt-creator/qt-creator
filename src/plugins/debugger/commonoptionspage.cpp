@@ -98,6 +98,13 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     checkBoxWarnOnReleaseBuilds->setToolTip(tr("Shows a warning when starting the debugger "
                                             "on a binary with insufficient debug information."));
 
+    checkBoxKeepEditorStationaryWhileStepping = new QCheckBox(behaviorBox);
+    checkBoxKeepEditorStationaryWhileStepping->setText(tr("Keep editor stationary when stepping"));
+    checkBoxKeepEditorStationaryWhileStepping->setToolTip(tr("Scrolls the editor only when it is necessary "
+                                                             "to keep the current line in view, "
+                                                             "instead of keeping the next statement centered at "
+                                                             "all times."));
+
     labelMaximalStackDepth = new QLabel(tr("Maximum stack depth:"), behaviorBox);
 
     spinBoxMaximalStackDepth = new QSpinBox(behaviorBox);
@@ -139,7 +146,8 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     gridLayout->addWidget(checkBoxListSourceFiles, 1, 1, 1, 1);
     gridLayout->addWidget(checkBoxSwitchModeOnExit, 2, 1, 1, 1);
     gridLayout->addWidget(checkBoxShowQmlObjectTree, 3, 1, 1, 1);
-    gridLayout->addWidget(checkBoxRegisterForPostMortem, 4, 1, 1, 1);
+    gridLayout->addWidget(checkBoxKeepEditorStationaryWhileStepping, 4, 1, 1, 1);
+    gridLayout->addWidget(checkBoxRegisterForPostMortem, 5, 1, 1, 1);
     gridLayout->addLayout(horizontalLayout2, 6, 1, 1, 2);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
@@ -168,6 +176,8 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
         checkBoxShowQmlObjectTree);
     m_group->insert(dc->action(WarnOnReleaseBuilds),
         checkBoxWarnOnReleaseBuilds);
+    m_group->insert(dc->action(StationaryEditorWhileStepping),
+        checkBoxKeepEditorStationaryWhileStepping);
     m_group->insert(dc->action(FontSizeFollowsEditor),
         checkBoxFontSizeFollowsEditor);
     m_group->insert(dc->action(AutoDerefPointers), 0);

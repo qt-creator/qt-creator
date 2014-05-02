@@ -58,7 +58,7 @@ public:
 
     virtual int currentLine() const { return 0; }
     virtual int currentColumn() const { return 0; }
-    virtual void gotoLine(int line, int column = 0) { Q_UNUSED(line) Q_UNUSED(column) }
+    virtual void gotoLine(int line, int column = 0, bool centerLine = true) { Q_UNUSED(line) Q_UNUSED(column) Q_UNUSED(centerLine) }
 
     virtual QWidget *toolBar() = 0;
 

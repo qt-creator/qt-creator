@@ -540,7 +540,9 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     IEditor *editor = EditorManager::openEditor(file, Id(),
                                                 EditorManager::IgnoreNavigationHistory, &newEditor);
     QTC_ASSERT(editor, return); // Unreadable file?
-    editor->gotoLine(line, 0);
+
+    editor->gotoLine(line, 0, !debuggerCore()->boolSetting(StationaryEditorWhileStepping));
+
     if (newEditor)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
 

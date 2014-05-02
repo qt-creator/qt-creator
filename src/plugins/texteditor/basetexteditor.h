@@ -141,7 +141,7 @@ public:
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
-    void gotoLine(int line, int column = 0);
+    void gotoLine(int line, int column = 0, bool centerLine = true);
     int position(ITextEditor::PositionOperation posOp = ITextEditor::Current,
          int at = -1) const;
     void convertPosition(int pos, int *line, int *column) const;
@@ -584,7 +584,7 @@ public:
     // ITextEditor
     int currentLine() const;
     int currentColumn() const;
-    void gotoLine(int line, int column = 0) { m_editorWidget->gotoLine(line, column); }
+    void gotoLine(int line, int column = 0, bool centerLine = true) { m_editorWidget->gotoLine(line, column, centerLine); }
     int columnCount() const;
     int rowCount() const;
 
