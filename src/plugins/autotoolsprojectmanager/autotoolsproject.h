@@ -75,7 +75,6 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
-    QString defaultBuildDirectory() const;
     static QString defaultBuildDirectory(const QString &projectPath);
     QStringList buildTargets() const;
 

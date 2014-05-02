@@ -119,11 +119,6 @@ IProjectManager *AutotoolsProject::projectManager() const
     return m_manager;
 }
 
-QString AutotoolsProject::defaultBuildDirectory() const
-{
-    return defaultBuildDirectory(projectFilePath());
-}
-
 QString AutotoolsProject::defaultBuildDirectory(const QString &projectPath)
 {
     return QFileInfo(projectPath).absolutePath();
