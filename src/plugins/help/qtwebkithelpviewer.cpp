@@ -27,23 +27,27 @@
 **
 ****************************************************************************/
 
-#include "helpviewer.h"
+#include "qtwebkithelpviewer.h"
 
 #if !defined(QT_NO_WEBKIT)
 
-#include "centralwidget.h"
 #include "helpconstants.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
+#include <coreplugin/find/findplugin.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
+#include <QAction>
 #include <QDebug>
-#include <QFileInfo>
 #include <QString>
 #include <QStringBuilder>
 #include <QTimer>
+#include <QVBoxLayout>
+#include <QWebElement>
 #include <QWebFrame>
+#include <QWebHistory>
 
 #include <QApplication>
 #include <QDesktopServices>
@@ -205,8 +209,10 @@ HelpPage::HelpPage(QObject *parent)
 
 QWebPage *HelpPage::createWindow(QWebPage::WebWindowType)
 {
-    HelpPage* newPage = static_cast<HelpPage*>(OpenPagesManager::instance()
-        .createPage()->page());
+    // TODO: ensure that we'll get a QtWebKitHelpViewer here
+    QtWebKitHelpViewer* viewer = static_cast<QtWebKitHelpViewer *>(OpenPagesManager::instance()
+        .createPage());
+    HelpPage *newPage = viewer->page();
     newPage->closeNewTabIfNeeded = closeNewTabIfNeeded;
     closeNewTabIfNeeded = false;
     return newPage;
@@ -299,8 +305,9 @@ void HelpPage::onHandleUnsupportedContent(QNetworkReply *reply)
 
 // -- HelpViewer
 
-HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
-    : QWebView(parent)
+QtWebKitHelpWidget::QtWebKitHelpWidget(qreal zoom, QtWebKitHelpViewer *parent)
+    : QWebView(parent),
+      m_parent(parent)
 {
     setAcceptDrops(false);
     installEventFilter(this);
@@ -326,21 +333,129 @@ HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
         SLOT(actionChanged()));
     connect(pageAction(QWebPage::Forward), SIGNAL(changed()), this,
         SLOT(actionChanged()));
-    connect(this, SIGNAL(urlChanged(QUrl)), this, SIGNAL(sourceChanged(QUrl)));
-    connect(this, SIGNAL(loadStarted()), this, SLOT(slotLoadStarted()));
-    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotLoadFinished(bool)));
-    connect(this, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged()));
-    connect(page(), SIGNAL(printRequested(QWebFrame*)), this, SIGNAL(printRequested()));
 
-    setViewerFont(viewerFont());
     setZoomFactor(zoom == 0.0 ? 1.0 : zoom);
 }
 
-HelpViewer::~HelpViewer()
+QtWebKitHelpWidget::~QtWebKitHelpWidget()
 {
 }
 
-QFont HelpViewer::viewerFont() const
+void QtWebKitHelpWidget::scaleUp()
+{
+    setZoomFactor(zoomFactor() + 0.1);
+}
+
+void QtWebKitHelpWidget::scaleDown()
+{
+    setZoomFactor(qMax(qreal(0.0), zoomFactor() - qreal(0.1)));
+}
+
+// -- public slots
+
+void QtWebKitHelpWidget::copy()
+{
+    triggerPageAction(QWebPage::Copy);
+}
+
+// -- protected
+
+void QtWebKitHelpWidget::keyPressEvent(QKeyEvent *e)
+{
+    // TODO: remove this once we support multiple keysequences per command
+    if (e->key() == Qt::Key_Insert && e->modifiers() == Qt::CTRL) {
+        if (!selectedText().isEmpty())
+            copy();
+    }
+    QWebView::keyPressEvent(e);
+}
+
+void QtWebKitHelpWidget::wheelEvent(QWheelEvent *event)
+{
+    if (event->modifiers()& Qt::ControlModifier) {
+        event->accept();
+        event->delta() > 0 ? scaleUp() : scaleDown();
+    } else {
+        QWebView::wheelEvent(event);
+    }
+}
+
+void QtWebKitHelpWidget::mousePressEvent(QMouseEvent *event)
+{
+    if (Utils::HostOsInfo::isLinuxHost() && m_parent->handleForwardBackwardMouseButtons(event))
+        return;
+
+    if (HelpPage *currentPage = static_cast<HelpPage*>(page())) {
+        currentPage->m_pressedButtons = event->buttons();
+        currentPage->m_keyboardModifiers = event->modifiers();
+    }
+
+    QWebView::mousePressEvent(event);
+}
+
+void QtWebKitHelpWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (!Utils::HostOsInfo::isLinuxHost() && m_parent->handleForwardBackwardMouseButtons(event))
+        return;
+
+    QWebView::mouseReleaseEvent(event);
+}
+
+// -- private slots
+
+void QtWebKitHelpWidget::actionChanged()
+{
+    QAction *a = qobject_cast<QAction *>(sender());
+    if (a == pageAction(QWebPage::Back))
+        emit backwardAvailable(a->isEnabled());
+    else if (a == pageAction(QWebPage::Forward))
+        emit forwardAvailable(a->isEnabled());
+}
+
+void QtWebKitHelpWidget::slotNetworkReplyFinished(QNetworkReply *reply)
+{
+    if (reply && reply->error() != QNetworkReply::NoError) {
+        load(QUrl(Help::Constants::AboutBlank));
+        setHtml(QString::fromLatin1(g_htmlPage).arg(g_percent1, reply->errorString(),
+            HelpViewer::tr("Error loading: %1").arg(reply->url().toString()), g_percent4, g_percent6, g_percent7,
+            QString()));
+    }
+}
+
+// -- private
+
+bool QtWebKitHelpWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress) {
+        if (QKeyEvent *keyEvent = static_cast<QKeyEvent*> (event)) {
+            if (keyEvent->key() == Qt::Key_Slash)
+                Core::FindPlugin::instance()->openFindToolBar(Core::FindPlugin::FindForwardDirection);
+        }
+    }
+    return QWebView::eventFilter(obj, event);
+}
+
+QtWebKitHelpViewer::QtWebKitHelpViewer(qreal zoom, QWidget *parent)
+    : HelpViewer(parent),
+      m_webView(new QtWebKitHelpWidget(zoom, this))
+{
+    QVBoxLayout *layout = new QVBoxLayout;
+    setLayout(layout);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(m_webView, 10);
+
+    connect(m_webView, SIGNAL(urlChanged(QUrl)), this, SIGNAL(sourceChanged(QUrl)));
+    connect(m_webView, SIGNAL(loadStarted()), this, SLOT(slotLoadStarted()));
+    connect(m_webView, SIGNAL(loadFinished(bool)), this, SLOT(slotLoadFinished()));
+    connect(m_webView, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged()));
+    connect(m_webView->page(), SIGNAL(printRequested(QWebFrame*)), this, SIGNAL(printRequested()));
+    connect(m_webView, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
+    connect(m_webView, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
+
+    setViewerFont(viewerFont());
+}
+
+QFont QtWebKitHelpViewer::viewerFont() const
 {
     QWebSettings* webSettings = QWebSettings::globalSettings();
     QFont font(QApplication::font().family(),
@@ -350,69 +465,140 @@ QFont HelpViewer::viewerFont() const
         font));
 }
 
-void HelpViewer::setViewerFont(const QFont &font)
+void QtWebKitHelpViewer::setViewerFont(const QFont &font)
 {
-    QWebSettings *webSettings = settings();
+    QWebSettings *webSettings = m_webView->settings();
     webSettings->setFontFamily(QWebSettings::StandardFont, font.family());
     webSettings->setFontSize(QWebSettings::DefaultFontSize, font.pointSize());
 }
 
-void HelpViewer::scaleUp()
+void QtWebKitHelpViewer::scaleUp()
 {
-    setZoomFactor(zoomFactor() + 0.1);
+    m_webView->scaleUp();
 }
 
-void HelpViewer::scaleDown()
+void QtWebKitHelpViewer::scaleDown()
 {
-    setZoomFactor(qMax(qreal(0.0), zoomFactor() - qreal(0.1)));
+    m_webView->scaleDown();
 }
 
-void HelpViewer::resetScale()
+void QtWebKitHelpViewer::resetScale()
 {
-    setZoomFactor(1.0);
+    m_webView->setZoomFactor(1.0);
 }
 
-qreal HelpViewer::scale() const
+qreal QtWebKitHelpViewer::scale() const
 {
-    return zoomFactor();
+    return m_webView->zoomFactor();
 }
 
-QString HelpViewer::title() const
+QString QtWebKitHelpViewer::title() const
 {
-    return QWebView::title();
+    return m_webView->title();
 }
 
-void HelpViewer::setTitle(const QString &title)
+void QtWebKitHelpViewer::setTitle(const QString &title)
 {
     Q_UNUSED(title)
 }
 
-QUrl HelpViewer::source() const
+QUrl QtWebKitHelpViewer::source() const
 {
-    return url();
+    return m_webView->url();
 }
 
-void HelpViewer::setSource(const QUrl &url)
+void QtWebKitHelpViewer::setSource(const QUrl &url)
 {
-    load(url);
+    m_webView->load(url);
 }
 
-QString HelpViewer::selectedText() const
+void QtWebKitHelpViewer::scrollToAnchor(const QString &anchor)
 {
-    return QWebView::selectedText();
+    m_webView->page()->mainFrame()->scrollToAnchor(anchor);
 }
 
-bool HelpViewer::isForwardAvailable() const
+void QtWebKitHelpViewer::highlightId(const QString &id)
 {
-    return pageAction(QWebPage::Forward)->isEnabled();
+    const QWebElement &document = m_webView->page()->mainFrame()->documentElement();
+    const QWebElementCollection &collection = document.findAll(QLatin1String("h3.fn a"));
+
+    const QLatin1String property("background-color");
+    foreach (const QWebElement &element, collection) {
+        const QString &name = element.attribute(QLatin1String("name"));
+        if (name.isEmpty())
+            continue;
+
+        if (m_oldHighlightId == name
+                || name.startsWith(m_oldHighlightId + QLatin1Char('-'))) {
+            QWebElement parent = element.parent();
+            parent.setStyleProperty(property, m_oldHighlightStyle);
+        }
+
+        if (id == name
+                || name.startsWith(id + QLatin1Char('-'))) {
+            QWebElement parent = element.parent();
+            m_oldHighlightStyle = parent.styleProperty(property,
+                                                   QWebElement::ComputedStyle);
+            parent.setStyleProperty(property, QLatin1String("yellow"));
+        }
+    }
+    m_oldHighlightId = id;
 }
 
-bool HelpViewer::isBackwardAvailable() const
+void QtWebKitHelpViewer::setHtml(const QString &html)
 {
-    return pageAction(QWebPage::Back)->isEnabled();
+    m_webView->setHtml(html);
 }
 
-bool HelpViewer::findText(const QString &text, Core::FindFlags flags,
+QString QtWebKitHelpViewer::selectedText() const
+{
+    return m_webView->selectedText();
+}
+
+bool QtWebKitHelpViewer::isForwardAvailable() const
+{
+    return m_webView->pageAction(QWebPage::Forward)->isEnabled();
+}
+
+bool QtWebKitHelpViewer::isBackwardAvailable() const
+{
+    return m_webView->pageAction(QWebPage::Back)->isEnabled();
+}
+
+void QtWebKitHelpViewer::addBackHistoryItems(QMenu *backMenu)
+{
+    if (QWebHistory *history = m_webView->history()) {
+        QList<QWebHistoryItem> items = history->backItems(history->count());
+        for (int i = items.count() - 1; i >= 0; --i) {
+            QAction *action = new QAction(backMenu);
+            action->setText(items.at(i).title());
+            action->setData(i);
+            connect(action, SIGNAL(triggered()), this, SLOT(goToBackHistoryItem()));
+            backMenu->addAction(action);
+        }
+    }
+}
+
+void QtWebKitHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
+{
+    if (QWebHistory *history = m_webView->history()) {
+        QList<QWebHistoryItem> items = history->forwardItems(history->count());
+        for (int i = 0; i < items.count(); ++i) {
+            QAction *action = new QAction(forwardMenu);
+            action->setText(items.at(i).title());
+            action->setData(i);
+            connect(action, SIGNAL(triggered()), this, SLOT(goToForwardHistoryItem()));
+            forwardMenu->addAction(action);
+        }
+    }
+}
+
+void QtWebKitHelpViewer::setOpenInNewWindowActionVisible(bool visible)
+{
+    m_webView->pageAction(QWebPage::OpenLinkInNewWindow)->setVisible(visible);
+}
+
+bool QtWebKitHelpViewer::findText(const QString &text, Core::FindFlags flags,
     bool incremental, bool fromSearch, bool *wrapped)
 {
     Q_UNUSED(incremental);
@@ -425,121 +611,72 @@ bool HelpViewer::findText(const QString &text, Core::FindFlags flags,
     if (flags & Core::FindCaseSensitively)
         options |= QWebPage::FindCaseSensitively;
 
-    bool found = QWebView::findText(text, options);
+    bool found = m_webView->findText(text, options);
     if (!found) {
         options |= QWebPage::FindWrapsAroundDocument;
-        found = QWebView::findText(text, options);
+        found = m_webView->findText(text, options);
         if (found && wrapped)
             *wrapped = true;
     }
     options = QWebPage::HighlightAllOccurrences;
-    QWebView::findText(QLatin1String(""), options); // clear first
-    QWebView::findText(text, options); // force highlighting of all other matches
+    m_webView->findText(QLatin1String(""), options); // clear first
+    m_webView->findText(text, options); // force highlighting of all other matches
     return found;
 }
 
-// -- public slots
-
-void HelpViewer::copy()
+HelpPage *QtWebKitHelpViewer::page() const
 {
-    triggerPageAction(QWebPage::Copy);
+    return static_cast<HelpPage *>(m_webView->page());
 }
 
-void HelpViewer::stop()
+void QtWebKitHelpViewer::copy()
 {
-    triggerPageAction(QWebPage::Stop);
+    m_webView->copy();
 }
 
-void HelpViewer::forward()
+void QtWebKitHelpViewer::stop()
 {
-    QWebView::forward();
+    m_webView->triggerPageAction(QWebPage::Stop);
 }
 
-void HelpViewer::backward()
+void QtWebKitHelpViewer::forward()
 {
-    back();
+    m_webView->forward();
 }
 
-// -- protected
-
-void HelpViewer::keyPressEvent(QKeyEvent *e)
+void QtWebKitHelpViewer::backward()
 {
-    // TODO: remove this once we support multiple keysequences per command
-    if (e->key() == Qt::Key_Insert && e->modifiers() == Qt::CTRL) {
-        if (!selectedText().isEmpty())
-            copy();
-    }
-    QWebView::keyPressEvent(e);
+    m_webView->back();
 }
 
-void HelpViewer::wheelEvent(QWheelEvent *event)
+void QtWebKitHelpViewer::print(QPrinter *printer)
 {
-    if (event->modifiers()& Qt::ControlModifier) {
-        event->accept();
-        event->delta() > 0 ? scaleUp() : scaleDown();
-    } else {
-        QWebView::wheelEvent(event);
-    }
+    m_webView->print(printer);
 }
 
-void HelpViewer::mousePressEvent(QMouseEvent *event)
+void QtWebKitHelpViewer::goToBackHistoryItem()
 {
-    if (Utils::HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(event))
-        return;
-
-    if (HelpPage *currentPage = static_cast<HelpPage*> (page())) {
-        currentPage->m_pressedButtons = event->buttons();
-        currentPage->m_keyboardModifiers = event->modifiers();
-    }
-
-    QWebView::mousePressEvent(event);
+    goToHistoryItem(/*forward=*/false);
 }
 
-void HelpViewer::mouseReleaseEvent(QMouseEvent *event)
+void QtWebKitHelpViewer::goToForwardHistoryItem()
 {
-    if (!Utils::HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(event))
-        return;
-
-    QWebView::mouseReleaseEvent(event);
+    goToHistoryItem(/*forward=*/true);
 }
 
-// -- private slots
-
-void HelpViewer::actionChanged()
+void QtWebKitHelpViewer::goToHistoryItem(bool forward)
 {
-    QAction *a = qobject_cast<QAction *>(sender());
-    if (a == pageAction(QWebPage::Back))
-        emit backwardAvailable(a->isEnabled());
-    else if (a == pageAction(QWebPage::Forward))
-        emit forwardAvailable(a->isEnabled());
-}
-
-void HelpViewer::slotNetworkReplyFinished(QNetworkReply *reply)
-{
-    if (reply && reply->error() != QNetworkReply::NoError) {
-        setSource(QUrl(Help::Constants::AboutBlank));
-        setHtml(QString::fromLatin1(g_htmlPage).arg(g_percent1, reply->errorString(),
-            HelpViewer::tr("Error loading: %1").arg(reply->url().toString()), g_percent4, g_percent6, g_percent7,
-            QString()));
-    }
-}
-
-// -- private
-
-bool HelpViewer::eventFilter(QObject *obj, QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress) {
-        if (QKeyEvent *keyEvent = static_cast<QKeyEvent*> (event)) {
-            if (keyEvent->key() == Qt::Key_Slash)
-                emit openFindToolBar();
-        }
-    }
-    return QWebView::eventFilter(obj, event);
-}
-
-void HelpViewer::contextMenuEvent(QContextMenuEvent *event)
-{
-    QWebView::contextMenuEvent(event);
+    QAction *action = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(action, return);
+    QWebHistory *history = m_webView->history();
+    QTC_ASSERT(history, return);
+    bool ok = false;
+    int index = action->data().toInt(&ok);
+    QTC_ASSERT(ok, return);
+    if (forward)
+        history->goToItem(history->forwardItems(history->count()).at(index));
+    else
+        history->goToItem(history->backItems(history->count()).at(index));
 }
 
 #endif  // !QT_NO_WEBKIT

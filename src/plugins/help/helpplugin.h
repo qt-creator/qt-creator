@@ -78,6 +78,8 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
+    static HelpViewer *createHelpViewer(qreal zoom);
+
 private slots:
     void unregisterOldQtCreatorDocumentation();
 
@@ -114,11 +116,9 @@ private slots:
 
     void slotAboutToShowBackMenu();
     void slotAboutToShowNextMenu();
-    void slotOpenActionUrl(QAction *action);
     void slotOpenSupportPage();
     void slotReportBug();
 
-    void openFindToolBar();
     void onSideBarVisibilityChanged();
 
     void scaleRightPaneUp();
@@ -166,8 +166,6 @@ private:
 
     QToolButton *m_closeButton;
 
-    QString m_oldAttrValue;
-    QString m_styleProperty;
     QString m_idFromContext;
 
     Core::IMode* m_oldMode;

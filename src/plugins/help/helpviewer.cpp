@@ -85,6 +85,11 @@ struct ExtensionMap {
     { 0, 0 }
 };
 
+HelpViewer::HelpViewer(QWidget *parent)
+    : QWidget(parent)
+{
+}
+
 bool HelpViewer::isLocalUrl(const QUrl &url)
 {
     return url.scheme() == QLatin1String("about") // "No documenation available"
@@ -155,11 +160,11 @@ void HelpViewer::slotLoadStarted()
     qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
-void HelpViewer::slotLoadFinished(bool ok)
+void HelpViewer::slotLoadFinished()
 {
-    Q_UNUSED(ok)
-    emit sourceChanged(source());
     qApp->restoreOverrideCursor();
+    emit sourceChanged(source());
+    emit loadFinished();
 }
 
 bool HelpViewer::handleForwardBackwardMouseButtons(QMouseEvent *event)

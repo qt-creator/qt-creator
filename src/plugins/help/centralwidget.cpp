@@ -132,7 +132,7 @@ void CentralWidget::addPage(HelpViewer *page, bool fromSearch)
     connectSignals(page);
     m_stackedWidget->addWidget(page);
     if (fromSearch) {
-        connect(currentHelpViewer(), SIGNAL(loadFinished(bool)), this,
+        connect(currentHelpViewer(), SIGNAL(loadFinished()), this,
             SLOT(highlightSearchTerms()));
      }
 }
@@ -255,7 +255,7 @@ void CentralWidget::setSource(const QUrl &url)
 void CentralWidget::setSourceFromSearch(const QUrl &url)
 {
     if (HelpViewer* viewer = currentHelpViewer()) {
-        connect(viewer, SIGNAL(loadFinished(bool)), this,
+        connect(viewer, SIGNAL(loadFinished()), this,
             SLOT(highlightSearchTerms()));
         viewer->setSource(url);
         viewer->setFocus(Qt::OtherFocusReason);
@@ -309,7 +309,7 @@ void CentralWidget::highlightSearchTerms()
 
         foreach (const QString& term, terms)
             viewer->findText(term, 0, false, true);
-        disconnect(viewer, SIGNAL(loadFinished(bool)), this,
+        disconnect(viewer, SIGNAL(loadFinished()), this,
             SLOT(highlightSearchTerms()));
     }
 }
@@ -347,7 +347,6 @@ void CentralWidget::connectSignals(HelpViewer *page)
     connect(page, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
     connect(page, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
     connect(page, SIGNAL(printRequested()), this, SLOT(print()));
-    connect(page, SIGNAL(openFindToolBar()), this, SIGNAL(openFindToolBar()));
 }
 
 bool CentralWidget::eventFilter(QObject *object, QEvent *e)
@@ -359,10 +358,8 @@ bool CentralWidget::eventFilter(QObject *object, QEvent *e)
     QKeyEvent *keyEvent = static_cast<QKeyEvent*> (e);
     if (viewer == object && keyEvent->key() == Qt::Key_Backspace) {
         if (viewer->isBackwardAvailable()) {
-#if !defined(QT_NO_WEBKIT)
             // this helps in case there is an html <input> field
             if (!viewer->hasFocus())
-#endif
                 viewer->backward();
         }
     }

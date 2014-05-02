@@ -61,6 +61,7 @@ GeneralSettingsPage::GeneralSettingsPage()
     : m_ui(0)
 {
     m_font = qApp->font();
+    // TODO remove QT_NO_WEBKIT
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();
     m_font.setPointSize(webSettings->fontSize(QWebSettings::DefaultFontSize));

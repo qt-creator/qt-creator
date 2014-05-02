@@ -42,9 +42,11 @@
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 #include "openpagesmodel.h"
+#include "qtwebkithelpviewer.h"
 #include "remotehelpfilter.h"
 #include "searchwidget.h"
 #include "searchtaskhandler.h"
+#include "textbrowserhelpviewer.h"
 
 #include <bookmarkmanager.h>
 #include <contentwindow.h>
@@ -87,13 +89,6 @@
 #include <QSplitter>
 
 #include <QHelpEngine>
-
-#if !defined(QT_NO_WEBKIT)
-#include <QWebElement>
-#include <QWebElementCollection>
-#include <QWebFrame>
-#include <QWebHistory>
-#endif
 
 using namespace Help::Internal;
 
@@ -200,9 +195,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     m_centralWidget = new Help::Internal::CentralWidget();
     connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
         SLOT(updateSideBarSource(QUrl)));
-    connect(m_centralWidget, SIGNAL(openFindToolBar()), this,
-        SLOT(openFindToolBar()));
-
     // Add Home, Previous and Next actions (used in the toolbar)
     QAction *action = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")),
         tr("Home"), this);
@@ -564,12 +556,8 @@ void HelpPlugin::createRightPaneContextViewer()
     layout->addWidget(toolButton(close));
 
     m_rightPaneSideBarWidget = new QWidget;
-    m_helpViewerForSideBar = new HelpViewer(qreal(0.0));
-    connect(m_helpViewerForSideBar, SIGNAL(openFindToolBar()), this,
-        SLOT(openFindToolBar()));
-#if !defined(QT_NO_WEBKIT)
-    m_helpViewerForSideBar->pageAction(QWebPage::OpenLinkInNewWindow)->setVisible(false);
-#endif
+    m_helpViewerForSideBar = createHelpViewer(qreal(0.0));
+    m_helpViewerForSideBar->setOpenInNewWindowActionVisible(false);
 
     QVBoxLayout *rightPaneLayout = new QVBoxLayout(m_rightPaneSideBarWidget);
     rightPaneLayout->setMargin(0);
@@ -646,6 +634,18 @@ void HelpPlugin::resetRightPaneScale()
 {
     if (m_helpViewerForSideBar)
         m_helpViewerForSideBar->resetScale();
+}
+
+HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
+{
+#ifndef QT_NO_WEBKIT
+    if (qgetenv("QTC_FORCE_TEXTBROWSER").isEmpty())
+        return new QtWebKitHelpViewer(zoom);
+    else
+        return new TextBrowserHelpViewer(zoom);
+#else
+    return new TextBrowserHelpViewer(zoom);
+#endif
 }
 
 void HelpPlugin::activateHelpMode()
@@ -910,9 +910,7 @@ void HelpPlugin::activateContext()
 
             const QUrl &oldSource = viewer->source();
             if (source != oldSource) {
-#if !defined(QT_NO_WEBKIT)
                 viewer->stop();
-#endif
                 const QString &fragment = source.fragment();
                 const bool isQtRefDoc = source.authority().startsWith(qtRefDoc);
                 if (isQtRefDoc) {
@@ -920,7 +918,7 @@ void HelpPlugin::activateContext()
                     m_idFromContext = fragment;
 
                     if (!m_idFromContext.isEmpty()) {
-                        connect(viewer, SIGNAL(loadFinished(bool)), this,
+                        connect(viewer, SIGNAL(loadFinished()), this,
                             SLOT(highlightSearchTerms()));
                     }
                 }
@@ -934,9 +932,7 @@ void HelpPlugin::activateContext()
                     }
                 }
             } else {
-#if !defined(QT_NO_WEBKIT)
-                viewer->page()->mainFrame()->scrollToAnchor(source.fragment());
-#endif
+                viewer->scrollToAnchor(source.fragment());
             }
             viewer->setFocus();
         }
@@ -1089,35 +1085,9 @@ void HelpPlugin::addBookmark()
 void HelpPlugin::highlightSearchTerms()
 {
     if (HelpViewer* viewer = viewerForContextMode()) {
-        disconnect(viewer, SIGNAL(loadFinished(bool)), this,
+        disconnect(viewer, SIGNAL(loadFinished()), this,
             SLOT(highlightSearchTerms()));
-
-#if !defined(QT_NO_WEBKIT)
-        const QWebElement &document = viewer->page()->mainFrame()->documentElement();
-        const QWebElementCollection &collection = document.findAll(QLatin1String("h3.fn a"));
-
-        const QLatin1String property("background-color");
-        foreach (const QWebElement &element, collection) {
-            const QString &name = element.attribute(QLatin1String("name"));
-            if (name.isEmpty())
-                continue;
-
-            if (m_oldAttrValue == name
-                || name.startsWith(m_oldAttrValue + QLatin1Char('-'))) {
-                QWebElement parent = element.parent();
-                parent.setStyleProperty(property, m_styleProperty);
-            }
-
-            if (m_idFromContext == name
-                || name.startsWith(m_idFromContext + QLatin1Char('-'))) {
-                QWebElement parent = element.parent();
-                m_styleProperty = parent.styleProperty(property,
-                    QWebElement::ComputedStyle);
-                parent.setStyleProperty(property, QLatin1String("yellow"));
-            }
-        }
-        m_oldAttrValue = m_idFromContext;
-#endif
+        viewer->highlightId(m_idFromContext);
     }
 }
 
@@ -1152,54 +1122,16 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
 
 void HelpPlugin::slotAboutToShowBackMenu()
 {
-#if !defined(QT_NO_WEBKIT)
     m_backMenu->clear();
-    if (QWebHistory *history = viewerForContextMode()->history()) {
-        const int currentItemIndex = history->currentItemIndex();
-        QList<QWebHistoryItem> items = history->backItems(history->count());
-        for (int i = items.count() - 1; i >= 0; --i) {
-            QAction *action = new QAction(this);
-            action->setText(items.at(i).title());
-            action->setData(-1 * (currentItemIndex - i));
-            m_backMenu->addAction(action);
-        }
-    }
-#endif
+    if (HelpViewer *viewer = m_centralWidget->currentHelpViewer())
+        viewer->addBackHistoryItems(m_backMenu);
 }
 
 void HelpPlugin::slotAboutToShowNextMenu()
 {
-#if !defined(QT_NO_WEBKIT)
     m_nextMenu->clear();
-    if (QWebHistory *history = viewerForContextMode()->history()) {
-        const int count = history->count();
-        QList<QWebHistoryItem> items = history->forwardItems(count);
-        for (int i = 0; i < items.count(); ++i) {
-            QAction *action = new QAction(this);
-            action->setData(count - i);
-            action->setText(items.at(i).title());
-            m_nextMenu->addAction(action);
-        }
-    }
-#endif
-}
-
-void HelpPlugin::slotOpenActionUrl(QAction *action)
-{
-#if !defined(QT_NO_WEBKIT)
-    if (HelpViewer* viewer = viewerForContextMode()) {
-        const int offset = action->data().toInt();
-        QWebHistory *history = viewer->history();
-        if (offset > 0) {
-            history->goToItem(history->forwardItems(history->count()
-                - offset + 1).back());  // forward
-        } else if (offset < 0) {
-            history->goToItem(history->backItems(-1 * offset).first()); // back
-        }
-    }
-#else
-    Q_UNUSED(action)
-#endif
+    if (HelpViewer *viewer = m_centralWidget->currentHelpViewer())
+        viewer->addForwardHistoryItems(m_nextMenu);
 }
 
 void HelpPlugin::slotOpenSupportPage()
@@ -1210,12 +1142,6 @@ void HelpPlugin::slotOpenSupportPage()
 void HelpPlugin::slotReportBug()
 {
     QDesktopServices::openUrl(QUrl(QLatin1String("https://bugreports.qt-project.org")));
-}
-
-void HelpPlugin::openFindToolBar()
-{
-    if (FindPlugin::instance())
-        FindPlugin::instance()->openFindToolBar(FindPlugin::FindForwardDirection);
 }
 
 void  HelpPlugin::onSideBarVisibilityChanged()
@@ -1273,30 +1199,20 @@ void HelpPlugin::connectExternalHelpWindow()
 
 void HelpPlugin::setupNavigationMenus(QAction *back, QAction *next, QWidget *parent)
 {
-#if !defined(QT_NO_WEBKIT)
     if (!m_backMenu) {
         m_backMenu = new QMenu(parent);
         connect(m_backMenu, SIGNAL(aboutToShow()), this,
             SLOT(slotAboutToShowBackMenu()));
-        connect(m_backMenu, SIGNAL(triggered(QAction*)), this,
-            SLOT(slotOpenActionUrl(QAction*)));
     }
 
     if (!m_nextMenu) {
         m_nextMenu = new QMenu(parent);
         connect(m_nextMenu, SIGNAL(aboutToShow()), this,
             SLOT(slotAboutToShowNextMenu()));
-        connect(m_nextMenu, SIGNAL(triggered(QAction*)), this,
-            SLOT(slotOpenActionUrl(QAction*)));
     }
 
     back->setMenu(m_backMenu);
     next->setMenu(m_nextMenu);
-#else
-    Q_UNUSED(back)
-    Q_UNUSED(next)
-    Q_UNUSED(parent)
-#endif
 }
 
 Q_EXPORT_PLUGIN(HelpPlugin)

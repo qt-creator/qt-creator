@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "openpagesmodel.h"
+#include "helpplugin.h"
 #include "helpviewer.h"
 
 #include <QUrl>
@@ -72,7 +73,7 @@ QVariant OpenPagesModel::data(const QModelIndex &index, int role) const
 void OpenPagesModel::addPage(const QUrl &url, qreal zoom)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    HelpViewer *page = new HelpViewer(zoom);
+    HelpViewer *page = HelpPlugin::createHelpViewer(zoom);
     connect(page, SIGNAL(titleChanged()), this, SLOT(handleTitleChanged()));
     m_pages << page;
     endInsertRows();

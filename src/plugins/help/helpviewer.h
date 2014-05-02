@@ -30,60 +30,56 @@
 #ifndef HELPVIEWER_H
 #define HELPVIEWER_H
 
-#include <coreplugin/find/ifindsupport.h>
+#include <coreplugin/find/textfindconstants.h>
 
-#include <qglobal.h>
+#include <QFont>
+#include <QMenu>
+#include <QPrinter>
 #include <QString>
 #include <QUrl>
-#include <QVariant>
-
-#include <QAction>
-#include <QFont>
-
-#if defined(QT_NO_WEBKIT)
-#include <QTextBrowser>
-#else
-#include <QWebPage>
-#include <QWebView>
-#endif
+#include <QWidget>
 
 namespace Help {
 namespace Internal {
 
-#if !defined(QT_NO_WEBKIT)
-class HelpViewer : public QWebView
-#else
-class HelpViewer : public QTextBrowser
-#endif
+class HelpViewer : public QWidget
 {
     Q_OBJECT
-    class HelpViewerPrivate;
 
 public:
-    explicit HelpViewer(qreal zoom, QWidget *parent = 0);
-    ~HelpViewer();
+    explicit HelpViewer(QWidget *parent = 0);
+    ~HelpViewer() { }
 
-    QFont viewerFont() const;
-    void setViewerFont(const QFont &font);
+    virtual QFont viewerFont() const = 0;
+    virtual void setViewerFont(const QFont &font) = 0;
 
-    void scaleUp();
-    void scaleDown();
+    virtual void scaleUp() = 0;
+    virtual void scaleDown() = 0;
+    virtual void resetScale() = 0;
 
-    void resetScale();
-    qreal scale() const;
+    virtual qreal scale() const = 0;
 
-    QString title() const;
-    void setTitle(const QString &title);
+    virtual QString title() const = 0;
+    virtual void setTitle(const QString &title) = 0;
 
-    QUrl source() const;
-    void setSource(const QUrl &url);
+    virtual QUrl source() const = 0;
+    virtual void setSource(const QUrl &url) = 0;
+    virtual void scrollToAnchor(const QString &anchor) = 0;
+    virtual void highlightId(const QString &id) { Q_UNUSED(id) }
 
-    QString selectedText() const;
-    bool isForwardAvailable() const;
-    bool isBackwardAvailable() const;
+    virtual void setHtml(const QString &html) = 0;
 
-    bool findText(const QString &text, Core::FindFlags flags,
-        bool incremental, bool fromSearch, bool *wrapped = 0);
+    virtual QString selectedText() const = 0;
+    virtual bool isForwardAvailable() const = 0;
+    virtual bool isBackwardAvailable() const = 0;
+    virtual void addBackHistoryItems(QMenu *backMenu) = 0;
+    virtual void addForwardHistoryItems(QMenu *forwardMenu) = 0;
+    virtual void setOpenInNewWindowActionVisible(bool visible) = 0;
+
+    virtual bool findText(const QString &text, Core::FindFlags flags,
+        bool incremental, bool fromSearch, bool *wrapped = 0) = 0;
+
+    bool handleForwardBackwardMouseButtons(QMouseEvent *e);
 
     static bool isLocalUrl(const QUrl &url);
     static bool canOpenPage(const QString &url);
@@ -91,76 +87,26 @@ public:
     static bool launchWithExternalApp(const QUrl &url);
 
 public slots:
-    void copy();
     void home();
-    void stop();
 
-    void forward();
-    void backward();
+    virtual void copy() = 0;
+    virtual void stop() = 0;
+    virtual void forward() = 0;
+    virtual void backward() = 0;
+    virtual void print(QPrinter *printer) = 0;
 
 signals:
+    void sourceChanged(const QUrl &);
     void titleChanged();
     void printRequested();
-    void openFindToolBar();
+    void forwardAvailable(bool);
+    void backwardAvailable(bool);
+    void loadFinished();
 
-#if !defined(QT_NO_WEBKIT)
-    void sourceChanged(const QUrl &);
-    void forwardAvailable(bool enabled);
-    void backwardAvailable(bool enabled);
-#else
-    void loadFinished(bool finished);
-#endif
-
-protected:
-    void keyPressEvent(QKeyEvent *e);
-    void wheelEvent(QWheelEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-
-private slots:
-    void actionChanged();
+protected slots:
     void slotLoadStarted();
-    void slotLoadFinished(bool ok);
-#if !defined(QT_NO_WEBKIT)
-    void slotNetworkReplyFinished(QNetworkReply *reply);
-#endif
-
-private:
-    bool eventFilter(QObject *obj, QEvent *event);
-    void contextMenuEvent(QContextMenuEvent *event);
-    QVariant loadResource(int type, const QUrl &name);
-    bool handleForwardBackwardMouseButtons(QMouseEvent *e);
-
-private:
-    HelpViewerPrivate *d;
+    void slotLoadFinished();
 };
-
-#ifndef QT_NO_WEBKIT
-class HelpPage : public QWebPage
-{
-    Q_OBJECT
-public:
-    HelpPage(QObject *parent);
-
-protected:
-    virtual QWebPage *createWindow(QWebPage::WebWindowType);
-    virtual void triggerAction(WebAction action, bool checked = false);
-
-    virtual bool acceptNavigationRequest(QWebFrame *frame,
-        const QNetworkRequest &request, NavigationType type);
-
-private slots:
-    void onHandleUnsupportedContent(QNetworkReply *reply);
-
-private:
-    QUrl m_loadingUrl;
-    bool closeNewTabIfNeeded;
-
-    friend class Help::Internal::HelpViewer;
-    Qt::MouseButtons m_pressedButtons;
-    Qt::KeyboardModifiers m_keyboardModifiers;
-};
-#endif // QT_NO_WEBKIT
 
 }   // namespace Internal
 }   // namespace Help

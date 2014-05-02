@@ -28,7 +28,6 @@ HEADERS += \
     helpmode.h \
     helpplugin.h \
     helpviewer.h \
-    helpviewer_p.h \
     openpagesmanager.h \
     openpagesmodel.h \
     openpagesswitcher.h \
@@ -37,7 +36,9 @@ HEADERS += \
     searchwidget.h \
     xbelsupport.h \
     externalhelpwindow.h \
-    searchtaskhandler.h
+    searchtaskhandler.h \
+    qtwebkithelpviewer.h \
+    textbrowserhelpviewer.h
 
 SOURCES += \
     centralwidget.cpp \
@@ -50,8 +51,6 @@ SOURCES += \
     helpmode.cpp \
     helpplugin.cpp \
     helpviewer.cpp \
-    helpviewer_qtb.cpp \
-    helpviewer_qwv.cpp \
     openpagesmanager.cpp \
     openpagesmodel.cpp \
     openpagesswitcher.cpp \
@@ -60,7 +59,9 @@ SOURCES += \
     searchwidget.cpp \
     xbelsupport.cpp \
     externalhelpwindow.cpp \
-    searchtaskhandler.cpp
+    searchtaskhandler.cpp \
+    qtwebkithelpviewer.cpp \
+    textbrowserhelpviewer.cpp
 
 FORMS += docsettingspage.ui \
     filtersettingspage.ui \
