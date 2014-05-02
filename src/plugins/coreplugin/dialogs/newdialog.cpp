@@ -354,17 +354,17 @@ IWizard *NewDialog::currentWizard() const
     return wizardOfItem(m_model->itemFromIndex(index));
 }
 
-void NewDialog::addItem(QStandardItem *topLEvelCategoryItem, IWizard *wizard)
+void NewDialog::addItem(QStandardItem *topLevelCategoryItem, IWizard *wizard)
 {
     const QString categoryName = wizard->category();
     QStandardItem *categoryItem = 0;
-    for (int i = 0; i < topLEvelCategoryItem->rowCount(); i++) {
-        if (topLEvelCategoryItem->child(i, 0)->data(Qt::UserRole) == categoryName)
-            categoryItem = topLEvelCategoryItem->child(i, 0);
+    for (int i = 0; i < topLevelCategoryItem->rowCount(); i++) {
+        if (topLevelCategoryItem->child(i, 0)->data(Qt::UserRole) == categoryName)
+            categoryItem = topLevelCategoryItem->child(i, 0);
     }
     if (!categoryItem) {
         categoryItem = new QStandardItem();
-        topLEvelCategoryItem->appendRow(categoryItem);
+        topLevelCategoryItem->appendRow(categoryItem);
         m_categoryItems.append(categoryItem);
         categoryItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         categoryItem->setText(QLatin1String("  ") + wizard->displayCategory());
