@@ -48,8 +48,9 @@ namespace {
 
 const int ICON_SIZE = 22;
 
-struct WizardContainer
+class WizardContainer
 {
+public:
     WizardContainer() : wizard(0), wizardOption(0) {}
     WizardContainer(Core::IWizard *w, int i): wizard(w), wizardOption(i) {}
     Core::IWizard *wizard;
