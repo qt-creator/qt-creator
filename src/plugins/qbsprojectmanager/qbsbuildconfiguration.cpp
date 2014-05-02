@@ -260,11 +260,8 @@ QList<ProjectExplorer::BuildInfo *> QbsBuildConfigurationFactory::availableBuild
 {
     QList<ProjectExplorer::BuildInfo *> result;
 
-    const Utils::FileName buildDirectory = QbsProject::defaultBuildDirectory(parent->project()->projectFilePath());
-
     ProjectExplorer::BuildInfo *info = createBuildInfo(parent->kit(),
                                                        ProjectExplorer::BuildConfiguration::Debug);
-    info->buildDirectory = buildDirectory;
     result << info;
 
     return result;
@@ -312,9 +309,13 @@ ProjectExplorer::BuildConfiguration *QbsBuildConfigurationFactory::create(Projec
                       ? QLatin1String(Constants::QBS_VARIANT_RELEASE)
                       : QLatin1String(Constants::QBS_VARIANT_DEBUG));
 
+    Utils::FileName buildDir = info->buildDirectory;
+    if (buildDir.isEmpty())
+        buildDir = QbsProject::defaultBuildDirectory(parent->project()->projectDirectory());
+
     ProjectExplorer::BuildConfiguration *bc
             = QbsBuildConfiguration::setup(parent, info->displayName, info->displayName,
-                                           configData, info->buildDirectory);
+                                           configData, buildDir);
 
     return bc;
 }
