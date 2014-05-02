@@ -96,7 +96,6 @@ private:
     void buildProducts(QbsProject *project, const QStringList &products);
 
     QbsManager *m_manager;
-    ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
 
     QAction *m_reparseQbs;
     QAction *m_reparseQbsCtx;

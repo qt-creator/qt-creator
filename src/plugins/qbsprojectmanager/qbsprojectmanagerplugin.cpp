@@ -90,7 +90,6 @@ class QbsFeatureProvider : public Core::IFeatureProvider
 
 QbsProjectManagerPlugin::QbsProjectManagerPlugin() :
     m_manager(0),
-    m_projectExplorer(0),
     m_selectedProject(0),
     m_selectedNode(0),
     m_currentProject(0),
@@ -104,7 +103,6 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     Q_UNUSED(errorMessage);
 
     m_manager = new QbsManager(this);
-    m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
     const Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
@@ -197,7 +195,8 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_buildSubproject, SIGNAL(triggered()), this, SLOT(buildSubproject()));
 
     // Connect
-    connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+            SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
             this, SLOT(nodeSelectionChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)));
 
     connect(BuildManager::instance(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
