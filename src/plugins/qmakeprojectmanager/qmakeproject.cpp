@@ -1402,7 +1402,7 @@ void QmakeProject::configureAsExampleProject(const QStringList &platforms)
     }
     setup(infoList);
     qDeleteAll(infoList);
-    ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(this);
+    ProjectExplorerPlugin::instance()->requestProjectModeUpdate(this);
 }
 
 bool QmakeProject::supportsNoTargetPanel() const

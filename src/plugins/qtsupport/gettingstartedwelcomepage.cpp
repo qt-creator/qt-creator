@@ -404,10 +404,9 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
 
     // don't try to load help and files if loading the help request is being cancelled
     QString errorMessage;
-    ProjectExplorer::ProjectExplorerPlugin *peplugin = ProjectExplorer::ProjectExplorerPlugin::instance();
     if (proFile.isEmpty())
         return;
-    if (peplugin->openProject(proFile, &errorMessage)) {
+    if (ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile, &errorMessage)) {
         Core::ICore::openFiles(filesToOpen);
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         if (help.isValid())

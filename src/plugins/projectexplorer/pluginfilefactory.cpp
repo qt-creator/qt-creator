@@ -58,9 +58,8 @@ ProjectFileFactory::ProjectFileFactory(IProjectManager *manager)
 
 Core::IDocument *ProjectFileFactory::open(const QString &fileName)
 {
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     QString errorMessage;
-    pe->openProject(fileName, &errorMessage);
+    ProjectExplorerPlugin::instance()->openProject(fileName, &errorMessage);
     if (!errorMessage.isEmpty())
         QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errorMessage);
     return 0;

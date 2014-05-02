@@ -140,7 +140,7 @@ void QmakeManager::addLibrary()
 
 void QmakeManager::addLibraryContextMenu()
 {
-    ProjectExplorer::Node *node = ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode();
+    ProjectExplorer::Node *node = ProjectExplorerPlugin::instance()->currentNode();
     if (qobject_cast<QmakeProFileNode *>(node))
         addLibrary(node->path());
 }
@@ -183,7 +183,7 @@ void QmakeManager::runQMakeContextMenu()
 
 void QmakeManager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
 {
-    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
+    if (!ProjectExplorerPlugin::instance()->saveModifiedFiles())
         return;
     QmakeProject *qmakeProject = qobject_cast<QmakeProject *>(p);
     QTC_ASSERT(qmakeProject, return);

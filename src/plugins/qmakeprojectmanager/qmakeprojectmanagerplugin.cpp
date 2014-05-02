@@ -105,7 +105,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qmakeprojectmanager/QmakeProjectManager.mimetypes.xml"), errorMessage))
         return false;
 
-    m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+    m_projectExplorer = ProjectExplorerPlugin::instance();
 
     //create and register objects
     m_qmakeProjectManager = new QmakeManager(this);
