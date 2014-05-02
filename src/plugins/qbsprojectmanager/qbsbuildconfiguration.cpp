@@ -277,18 +277,16 @@ QList<ProjectExplorer::BuildInfo *> QbsBuildConfigurationFactory::availableSetup
 {
     QList<ProjectExplorer::BuildInfo *> result;
 
-    const Utils::FileName buildDirectory = QbsProject::defaultBuildDirectory(projectPath);
-
     ProjectExplorer::BuildInfo *info = createBuildInfo(k, ProjectExplorer::BuildConfiguration::Debug);
     //: The name of the debug build configuration created by default for a qbs project.
     info->displayName = tr("Debug");
-    info->buildDirectory = buildDirectory;
+    info->buildDirectory = QbsProject::defaultBuildDirectory(projectPath, k, info->displayName);
     result << info;
 
     info = createBuildInfo(k, ProjectExplorer::BuildConfiguration::Release);
     //: The name of the release build configuration created by default for a qbs project.
     info->displayName = tr("Release");
-    info->buildDirectory = buildDirectory;
+    info->buildDirectory = QbsProject::defaultBuildDirectory(projectPath, k, info->displayName);
     result << info;
 
     return result;
@@ -311,7 +309,8 @@ ProjectExplorer::BuildConfiguration *QbsBuildConfigurationFactory::create(Projec
 
     Utils::FileName buildDir = info->buildDirectory;
     if (buildDir.isEmpty())
-        buildDir = QbsProject::defaultBuildDirectory(parent->project()->projectDirectory());
+        buildDir = QbsProject::defaultBuildDirectory(parent->project()->projectDirectory(),
+                                                     parent->kit(), info->displayName);
 
     ProjectExplorer::BuildConfiguration *bc
             = QbsBuildConfiguration::setup(parent, info->displayName, info->displayName,

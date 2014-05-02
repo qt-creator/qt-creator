@@ -52,6 +52,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -247,11 +248,14 @@ bool QbsProject::hasParseResult() const
     return qbsProject().isValid();
 }
 
-Utils::FileName QbsProject::defaultBuildDirectory(const QString &path)
+Utils::FileName QbsProject::defaultBuildDirectory(const QString &projectFilePath, const Kit *k,
+                                                  const QString &bcName)
 {
-    QFileInfo fi(path);
-    const QString buildDir = QDir(fi.canonicalPath()).absoluteFilePath(QString::fromLatin1("../%1-build").arg(fi.baseName()));
-    return FileName::fromString(QDir::cleanPath(buildDir));
+    const QString projectName = QFileInfo(projectFilePath).completeBaseName();
+    ProjectExplorer::ProjectMacroExpander expander(projectFilePath, projectName, k, bcName);
+    QString projectDir = projectDirectory(projectFilePath);
+    QString buildPath = Utils::expandMacros(Core::DocumentManager::buildDirectory(), &expander);
+    return Utils::FileName::fromString(Utils::FileUtils::resolvePath(projectDir, buildPath));
 }
 
 qbs::Project QbsProject::qbsProject() const
