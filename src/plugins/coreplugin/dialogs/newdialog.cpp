@@ -242,8 +242,6 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
 
     qStableSort(wizards.begin(), wizards.end(), wizardLessThan);
 
-    CategoryItemMap platformMap;
-
     m_model->clear();
     QStandardItem *parentItem = m_model->invisibleRootItem();
 
