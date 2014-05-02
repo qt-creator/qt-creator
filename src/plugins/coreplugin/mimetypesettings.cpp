@@ -304,7 +304,6 @@ void MimeTypeSettingsPrivate::configureTable(QTableView *tableView)
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     tableView->verticalHeader()->setVisible(false);
-    tableView->verticalHeader()->setDefaultSectionSize(20);
     tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     tableView->horizontalHeader()->setResizeMode(0, QHeaderView::Interactive);
     tableView->horizontalHeader()->resizeSection(

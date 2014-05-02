@@ -346,7 +346,6 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     m_ui.snippetsTable->horizontalHeader()->setStretchLastSection(true);
     m_ui.snippetsTable->horizontalHeader()->setHighlightSections(false);
     m_ui.snippetsTable->verticalHeader()->setVisible(false);
-    m_ui.snippetsTable->verticalHeader()->setDefaultSectionSize(20);
     m_ui.snippetsTable->setModel(m_model);
 
     m_ui.revertButton->setEnabled(false);

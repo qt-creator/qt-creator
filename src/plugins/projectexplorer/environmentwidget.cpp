@@ -100,8 +100,6 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     d->m_environmentView->horizontalHeader()->setHighlightSections(false);
     new Utils::HeaderViewStretcher(d->m_environmentView->horizontalHeader(), 1);
     d->m_environmentView->verticalHeader()->hide();
-    QFontMetrics fm(font());
-    d->m_environmentView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
     d->m_environmentView->setSelectionMode(QAbstractItemView::SingleSelection);
     horizontalLayout->addWidget(d->m_environmentView);
 

@@ -96,8 +96,6 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
     m_ui->remoteView->setModel(m_remoteModel);
     m_ui->remoteView->horizontalHeader()->setStretchLastSection(true);
     m_ui->remoteView->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
-    QFontMetrics fm(font());
-    m_ui->remoteView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
 
     connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(addRemote()));
     connect(m_ui->fetchButton, SIGNAL(clicked()), this, SLOT(fetchFromRemote()));
