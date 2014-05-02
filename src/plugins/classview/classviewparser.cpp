@@ -287,7 +287,7 @@ ParserTreeItem::ConstPtr Parser::parse()
         QString prjName(prj->displayName());
         QString prjType(prjName);
         if (prj->document())
-            prjType = prj->projectFilePath();
+            prjType = prj->projectFilePath().toString();
         SymbolInformation inf(prjName, prjType);
 
         QStringList projectList = addProjectNode(item, prj->rootProjectNode());

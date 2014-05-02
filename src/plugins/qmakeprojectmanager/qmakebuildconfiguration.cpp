@@ -199,8 +199,8 @@ NamedWidget *QmakeBuildConfiguration::createConfigWidget()
 QString QmakeBuildConfiguration::defaultShadowBuildDirectory() const
 {
     // todo displayName isn't ideal
-    return QmakeProject::shadowBuildDirectory(target()->project()->projectFilePath(),
-                                            target()->kit(), displayName());
+    return QmakeProject::shadowBuildDirectory(target()->project()->projectFilePath().toString(),
+                                              target()->kit(), displayName());
 }
 
 bool QmakeBuildConfiguration::supportsShadowBuilds()
@@ -341,7 +341,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
         if (!version)
             return MakefileForWrongProject;
-        if (QtSupport::QtVersionManager::makefileIsFor(makefile, qs->project()->projectFilePath())
+        if (QtSupport::QtVersionManager::makefileIsFor(makefile, qs->project()->projectFilePath().toString())
                 != QtSupport::QtVersionManager::SameProject) {
             if (debug) {
                 qDebug() << "different profile used to generate the Makefile:"
@@ -591,7 +591,7 @@ int QmakeBuildConfigurationFactory::priority(const Target *parent) const
 QList<BuildInfo *> QmakeBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
-    QmakeBuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectFilePath(),
+    QmakeBuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectFilePath().toString(),
                                            BuildConfiguration::Debug);
     info->displayName.clear(); // ask for a name
     info->buildDirectory.clear(); // This depends on the displayName
@@ -666,7 +666,7 @@ BuildConfiguration *QmakeBuildConfigurationFactory::create(Target *parent, const
     Utils::FileName directory = qmakeInfo->buildDirectory;
     if (directory.isEmpty()) {
         directory = defaultBuildDirectory(qmakeInfo->supportsShadowBuild,
-                                          parent->project()->projectFilePath(),
+                                          parent->project()->projectFilePath().toString(),
                                           parent->kit(), info->displayName);
     }
 

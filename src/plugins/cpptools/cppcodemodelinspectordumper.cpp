@@ -467,8 +467,8 @@ void Dumper::dumpProjectInfos( const QList<CppModelManagerInterface::ProjectInfo
     m_out << "Projects loaded: " << projectInfos.size() << "{{{1\n";
     foreach (const CppModelManagerInterface::ProjectInfo &info, projectInfos) {
         const QPointer<ProjectExplorer::Project> project = info.project();
-        m_out << i1 << "Project " << project->displayName() << " (" << project->projectFilePath()
-              << "){{{2\n";
+        m_out << i1 << "Project " << project->displayName()
+              << " (" << project->projectFilePath().toUserOutput() << "){{{2\n";
 
         const QList<ProjectPart::Ptr> projectParts = info.projectParts();
         foreach (const ProjectPart::Ptr &part, projectParts) {
@@ -476,7 +476,7 @@ void Dumper::dumpProjectInfos( const QList<CppModelManagerInterface::ProjectInfo
             QString projectFilePath = QLatin1String("<None>");
             if (ProjectExplorer::Project *project = part->project) {
                 projectName = project->displayName();
-                projectFilePath = project->projectFilePath();
+                projectFilePath = project->projectFilePath().toUserOutput();
             }
             if (!part->projectConfigFile.isEmpty())
                 m_out << i3 << "Project Config File: " << part->projectConfigFile << "\n";

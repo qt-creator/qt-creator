@@ -120,9 +120,9 @@ Core::Id Project::id() const
     return d->m_id;
 }
 
-QString Project::projectFilePath() const
+Utils::FileName Project::projectFilePath() const
 {
-    return document()->filePath();
+    return Utils::FileName::fromString(document()->filePath());
 }
 
 bool Project::hasActiveBuildSettings() const

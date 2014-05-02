@@ -110,7 +110,7 @@ void GenericProjectPlugin::updateContextMenu(ProjectExplorer::Project *project, 
 void GenericProjectPlugin::editFiles()
 {
     GenericProject *genericProject = static_cast<GenericProject *>(m_contextMenuProject);
-    ProjectExplorer::SelectableFilesDialogEditFiles sfd(QFileInfo(genericProject->projectFilePath()).path(), genericProject->files(),
+    ProjectExplorer::SelectableFilesDialogEditFiles sfd(genericProject->projectFilePath().toFileInfo().path(), genericProject->files(),
                               Core::ICore::mainWindow());
     if (sfd.exec() == QDialog::Accepted)
         genericProject->setFiles(sfd.selectedFiles());

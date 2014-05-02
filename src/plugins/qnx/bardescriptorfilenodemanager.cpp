@@ -191,7 +191,7 @@ bool BarDescriptorFileNodeManager::createBarDescriptor(ProjectExplorer::Project 
                                                 tr("Setup Application Descriptor File"),
                                                 tr("You need to set up a bar descriptor file to enable "
                                                    "packaging.\nDo you want Qt Creator to generate it for your project (%1)?")
-                                                .arg(project->projectFilePath()),
+                                                .arg(project->projectFilePath().toUserOutput()),
                                                 tr("Don't ask again for this project"), &skipFileCreation);
 
     if (button != QDialogButtonBox::Yes) {

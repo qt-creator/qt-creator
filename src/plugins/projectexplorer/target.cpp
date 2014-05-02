@@ -530,7 +530,7 @@ void Target::updateDefaultBuildConfigurations()
         qWarning("No build configuration factory found for target id '%s'.", qPrintable(id().toString()));
         return;
     }
-    QList<BuildInfo *> infoList = bcFactory->availableSetups(this->kit(), project()->projectFilePath());
+    QList<BuildInfo *> infoList = bcFactory->availableSetups(this->kit(), project()->projectFilePath().toString());
     foreach (BuildInfo *info, infoList) {
         BuildConfiguration *bc = bcFactory->create(this, info);
         if (!bc)

@@ -244,7 +244,7 @@ void GenericProject::refresh(RefreshOptions options)
         CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
         part->project = this;
         part->displayName = displayName();
-        part->projectFile = projectFilePath();
+        part->projectFile = projectFilePath().toString();
 
         part->includePaths += projectIncludePaths();
 

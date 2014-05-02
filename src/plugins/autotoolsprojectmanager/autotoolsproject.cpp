@@ -415,7 +415,7 @@ void AutotoolsProject::updateCppCodeModel()
     CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
     part->project = this;
     part->displayName = displayName();
-    part->projectFile = projectFilePath();
+    part->projectFile = projectFilePath().toString();
 
     if (activeTarget()) {
         ProjectExplorer::Kit *k = activeTarget()->kit();

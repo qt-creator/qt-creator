@@ -1612,15 +1612,14 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Ptr &
     QString projectFilePath = QLatin1String("<None>");
     if (ProjectExplorer::Project *project = part->project) {
         projectName = project->displayName();
-        projectFilePath = project->projectFilePath();
+        projectFilePath = project->projectFilePath().toUserOutput();
     }
     KeyValueModel::Table table = KeyValueModel::Table()
         << qMakePair(QString::fromLatin1("Project Part Name"), part->displayName)
         << qMakePair(QString::fromLatin1("Project Part File"),
                      QDir::toNativeSeparators(part->projectFile))
         << qMakePair(QString::fromLatin1("Project Name"), projectName)
-        << qMakePair(QString::fromLatin1("Project File"),
-                     QDir::toNativeSeparators(projectFilePath))
+        << qMakePair(QString::fromLatin1("Project File"), projectFilePath)
         << qMakePair(QString::fromLatin1("C Version"),
                      CMI::Utils::toString(part->cVersion))
         << qMakePair(QString::fromLatin1("CXX Version"),

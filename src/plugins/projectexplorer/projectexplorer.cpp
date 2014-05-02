@@ -1381,7 +1381,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
             filePath = fi.canonicalFilePath();
         bool found = false;
         foreach (Project *pi, SessionManager::projects()) {
-            if (filePath == pi->projectFilePath()) {
+            if (filePath == pi->projectFilePath().toString()) {
                 found = true;
                 break;
             }
@@ -2370,7 +2370,7 @@ void ProjectExplorerPlugin::projectRemoved(ProjectExplorer::Project * pro)
 
 void ProjectExplorerPlugin::projectDisplayNameChanged(Project *pro)
 {
-    addToRecentProjects(pro->projectFilePath(), pro->displayName());
+    addToRecentProjects(pro->projectFilePath().toString(), pro->displayName());
     updateActions();
 }
 

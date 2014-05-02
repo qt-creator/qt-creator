@@ -34,6 +34,8 @@
 
 #include <coreplugin/id.h>
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 #include <QFileSystemModel>
 
@@ -77,7 +79,7 @@ public:
     virtual Core::IDocument *document() const = 0;
     virtual IProjectManager *projectManager() const = 0;
 
-    QString projectFilePath() const;
+    Utils::FileName projectFilePath() const;
 
     bool hasActiveBuildSettings() const;
 

@@ -261,7 +261,7 @@ QListWidgetItem *ProjectListWidget::itemForProject(Project *project)
 
 QString ProjectListWidget::fullName(ProjectExplorer::Project *project)
 {
-    return tr("%1 (%2)").arg(project->displayName(), project->projectFilePath());
+    return tr("%1 (%2)").arg(project->displayName(), project->projectFilePath().toUserOutput());
 }
 
 void ProjectListWidget::addProject(Project *project)
@@ -1512,7 +1512,7 @@ void MiniProjectTargetSelector::updateActionAndSummary()
         projectName = project->displayName();
         foreach (Project *p, SessionManager::projects()) {
             if (p != project && p->displayName() == projectName) {
-                fileName = project->projectFilePath();
+                fileName = project->projectFilePath().toUserOutput();
                 break;
             }
         }

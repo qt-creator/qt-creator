@@ -340,7 +340,7 @@ bool CMakeProject::parseCMakeLists()
         CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
         part->project = this;
         part->displayName = displayName();
-        part->projectFile = projectFilePath();
+        part->projectFile = projectFilePath().toString();
 
         // This explicitly adds -I. to the include paths
         part->includePaths += projectDirectory();

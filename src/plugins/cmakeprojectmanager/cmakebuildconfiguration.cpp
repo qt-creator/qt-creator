@@ -56,7 +56,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
     BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID)), m_useNinja(false)
 {
     CMakeProject *project = static_cast<CMakeProject *>(parent->project());
-    setBuildDirectory(Utils::FileName::fromString(project->shadowBuildDirectory(project->projectFilePath(),
+    setBuildDirectory(Utils::FileName::fromString(project->shadowBuildDirectory(project->projectFilePath().toString(),
                                                                                 parent->kit(),
                                                                                 displayName())));
 }
@@ -169,7 +169,7 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
 
     if (copy.buildDirectory.isEmpty())
         copy.buildDirectory
-                = Utils::FileName::fromString(project->shadowBuildDirectory(project->projectFilePath(),
+                = Utils::FileName::fromString(project->shadowBuildDirectory(project->projectFilePath().toString(),
                                                                             parent->kit(),
                                                                             copy.displayName));
 

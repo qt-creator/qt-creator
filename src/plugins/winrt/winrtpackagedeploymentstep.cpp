@@ -59,7 +59,7 @@ WinRtPackageDeploymentStep::WinRtPackageDeploymentStep(BuildStepList *bsl)
 
 bool WinRtPackageDeploymentStep::init()
 {
-    Utils::FileName proFile = Utils::FileName::fromString(project()->projectFilePath());
+    Utils::FileName proFile = project()->projectFilePath();
     const QString targetPath
             = target()->applicationTargets().targetForProject(proFile).toString()
                 + QLatin1String(".exe");
@@ -115,7 +115,7 @@ bool WinRtPackageDeploymentStep::init()
 bool WinRtPackageDeploymentStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
 {
     if (m_createMappingFile) {
-        Utils::FileName proFile = Utils::FileName::fromString(project()->projectFilePath());
+        Utils::FileName proFile = project()->projectFilePath();
         QString targetPath
                 = target()->applicationTargets().targetForProject(proFile).toString();
         QString targetDir = targetPath.left(targetPath.lastIndexOf(QLatin1Char('/')) + 1);

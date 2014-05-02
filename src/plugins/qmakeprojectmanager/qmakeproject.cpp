@@ -891,7 +891,7 @@ bool QmakeProject::supportsKit(Kit *k, QString *errorMessage) const
 
 QString QmakeProject::displayName() const
 {
-    return QFileInfo(projectFilePath()).completeBaseName();
+    return projectFilePath().toFileInfo().completeBaseName();
 }
 
 Core::IDocument *QmakeProject::document() const
@@ -1394,10 +1394,10 @@ void QmakeProject::configureAsExampleProject(const QStringList &platforms)
         if (!platforms.isEmpty() && !platforms.contains(version->platformName()))
             continue;
 
-        IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(k, projectFilePath());
+        IBuildConfigurationFactory *factory = IBuildConfigurationFactory::find(k, projectFilePath().toString());
         if (!factory)
             continue;
-        foreach (BuildInfo *info, factory->availableSetups(k, projectFilePath()))
+        foreach (BuildInfo *info, factory->availableSetups(k, projectFilePath().toString()))
             infoList << info;
     }
     setup(infoList);
@@ -1648,7 +1648,7 @@ void QmakeProject::emitBuildDirectoryInitialized()
 
 ProjectImporter *QmakeProject::createProjectImporter() const
 {
-    return new QmakeProjectImporter(projectFilePath());
+    return new QmakeProjectImporter(projectFilePath().toString());
 }
 
 KitMatcher *QmakeProject::createRequiredKitMatcher() const

@@ -200,7 +200,7 @@ bool SessionManagerPrivate::recursiveDependencyCheck(const QString &newDep, cons
 
 QList<Project *> SessionManager::dependencies(const Project *project)
 {
-    const QString proName = project->projectFilePath();
+    const QString proName = project->projectFilePath().toString();
     const QStringList proDeps = d->m_depMap.value(proName);
 
     QList<Project *> projects;
@@ -214,8 +214,8 @@ QList<Project *> SessionManager::dependencies(const Project *project)
 
 bool SessionManager::hasDependency(const Project *project, const Project *depProject)
 {
-    const QString proName = project->projectFilePath();
-    const QString depName = depProject->projectFilePath();
+    const QString proName = project->projectFilePath().toString();
+    const QString depName = depProject->projectFilePath().toString();
 
     const QStringList proDeps = d->m_depMap.value(proName);
     return proDeps.contains(depName);
@@ -223,16 +223,16 @@ bool SessionManager::hasDependency(const Project *project, const Project *depPro
 
 bool SessionManager::canAddDependency(const Project *project, const Project *depProject)
 {
-    const QString newDep = project->projectFilePath();
-    const QString checkDep = depProject->projectFilePath();
+    const QString newDep = project->projectFilePath().toString();
+    const QString checkDep = depProject->projectFilePath().toString();
 
     return d->recursiveDependencyCheck(newDep, checkDep);
 }
 
 bool SessionManager::addDependency(Project *project, Project *depProject)
 {
-    const QString proName = project->projectFilePath();
-    const QString depName = depProject->projectFilePath();
+    const QString proName = project->projectFilePath().toString();
+    const QString depName = depProject->projectFilePath().toString();
 
     // check if this dependency is valid
     if (!d->recursiveDependencyCheck(proName, depName))
@@ -250,8 +250,8 @@ bool SessionManager::addDependency(Project *project, Project *depProject)
 
 void SessionManager::removeDependency(Project *project, Project *depProject)
 {
-    const QString proName = project->projectFilePath();
-    const QString depName = depProject->projectFilePath();
+    const QString proName = project->projectFilePath().toString();
+    const QString depName = depProject->projectFilePath().toString();
 
     QStringList proDeps = d->m_depMap.value(proName);
     proDeps.removeAll(depName);
@@ -347,7 +347,7 @@ bool SessionManager::save()
     QVariantMap data;
     // save the startup project
     if (d->m_startupProject)
-        data.insert(QLatin1String("StartupProject"), d->m_startupProject->projectFilePath());
+        data.insert(QLatin1String("StartupProject"), d->m_startupProject->projectFilePath().toString());
 
     QColor c = StyleHelper::requestedBaseColor();
     if (c.isValid()) {
@@ -360,7 +360,7 @@ bool SessionManager::save()
 
     QStringList projectFiles;
     foreach (Project *pro, d->m_projects)
-        projectFiles << pro->projectFilePath();
+        projectFiles << pro->projectFilePath().toString();
 
     // Restore infromation on projects that failed to load:
     // don't readd projects to the list, which the user loaded
@@ -449,7 +449,7 @@ QStringList SessionManagerPrivate::dependenciesOrder() const
 
     // copy the map to a temporary list
     foreach (Project *pro, m_projects) {
-        const QString &proName = pro->projectFilePath();
+        const QString &proName = pro->projectFilePath().toString();
         unordered << QPair<QString, QStringList>(proName, m_depMap.value(proName));
     }
 
@@ -481,13 +481,13 @@ QList<Project *> SessionManager::projectOrder(Project *project)
 
     QStringList pros;
     if (project)
-        pros = d->dependencies(project->projectFilePath());
+        pros = d->dependencies(project->projectFilePath().toString());
     else
         pros = d->dependenciesOrder();
 
     foreach (const QString &proFile, pros) {
         foreach (Project *pro, projects()) {
-            if (pro->projectFilePath() == proFile) {
+            if (pro->projectFilePath().toString() == proFile) {
                 result << pro;
                 break;
             }
@@ -605,7 +605,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
     QSet<QString> projectFiles;
     foreach (Project *pro, projects()) {
         if (!remove.contains(pro))
-            projectFiles.insert(pro->projectFilePath());
+            projectFiles.insert(pro->projectFilePath().toString());
     }
 
     QSet<QString>::const_iterator i = projectFiles.begin();
@@ -807,7 +807,7 @@ void SessionManagerPrivate::restoreStartupProject(const PersistentSettingsReader
     const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
     if (!startupProject.isEmpty()) {
         foreach (Project *pro, d->m_projects) {
-            if (QDir::cleanPath(pro->projectFilePath()) == startupProject) {
+            if (pro->projectFilePath().toString() == startupProject) {
                 m_instance->setStartupProject(pro);
                 break;
             }
@@ -844,7 +844,7 @@ void SessionManagerPrivate::restoreProjects(const QStringList &fileList)
         if (!errors.isEmpty())
             QMessageBox::critical(Core::ICore::mainWindow(), SessionManager::tr("Failed to open project"), errors);
         foreach (Project *p, projects)
-            m_failedProjects.removeAll(p->projectFilePath());
+            m_failedProjects.removeAll(p->projectFilePath().toString());
     }
 }
 

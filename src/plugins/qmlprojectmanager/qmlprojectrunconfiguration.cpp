@@ -141,8 +141,7 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
 
 QString QmlProjectRunConfiguration::workingDirectory() const
 {
-    QFileInfo projectFile(target()->project()->projectFilePath());
-    return canonicalCapsPath(projectFile.absolutePath());
+    return canonicalCapsPath(target()->project()->projectFilePath().toFileInfo().absolutePath());
 }
 
 /* QtDeclarative checks explicitly that the capitalization for any URL / path

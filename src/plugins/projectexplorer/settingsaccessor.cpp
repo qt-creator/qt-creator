@@ -736,7 +736,7 @@ QByteArray SettingsAccessor::creatorId()
 
 QString SettingsAccessor::defaultFileName(const QString &suffix) const
 {
-    return project()->projectFilePath() + suffix;
+    return project()->projectFilePath().toString() + suffix;
 }
 
 int SettingsAccessor::currentVersion() const
@@ -836,7 +836,7 @@ QVariantMap SettingsAccessor::readUserSettings(QWidget *parent) const
 QVariantMap SettingsAccessor::readSharedSettings(QWidget *parent) const
 {
     SettingsAccessorPrivate::Settings sharedSettings;
-    QString fn = project()->projectFilePath() + m_sharedSuffix;
+    QString fn = project()->projectFilePath().toString() + m_sharedSuffix;
     sharedSettings.path = FileName::fromString(fn);
     sharedSettings.map = readFile(sharedSettings.path);
 

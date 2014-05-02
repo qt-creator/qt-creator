@@ -123,9 +123,9 @@ QString QMakeStep::allArguments(bool shorted)
     if (bc->subNodeBuild())
         arguments << QDir::toNativeSeparators(bc->subNodeBuild()->path());
     else if (shorted)
-        arguments << QDir::toNativeSeparators(QFileInfo(project()->projectFilePath()).fileName());
+        arguments << project()->projectFilePath().toFileInfo().fileName();
     else
-        arguments << QDir::toNativeSeparators(project()->projectFilePath());
+        arguments << project()->projectFilePath().toUserOutput();
 
     arguments << QLatin1String("-r");
     bool userProvidedMkspec = false;

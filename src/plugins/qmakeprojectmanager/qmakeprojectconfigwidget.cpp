@@ -49,7 +49,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
       m_ignoreChange(false)
 {
     m_defaultShadowBuildDir
-            = QmakeProject::shadowBuildDirectory(bc->target()->project()->projectFilePath(),
+            = QmakeProject::shadowBuildDirectory(bc->target()->project()->projectFilePath().toString(),
                                                bc->target()->kit(),
                                                Utils::FileUtils::qmakeFriendlyName(bc->displayName()));
 
@@ -193,7 +193,7 @@ void QmakeProjectConfigWidget::updateProblemLabel()
 {
     m_ui->shadowBuildDirEdit->triggerChanged();
     ProjectExplorer::Kit *k = m_buildConfiguration->target()->kit();
-    const QString proFileName = m_buildConfiguration->target()->project()->projectFilePath();
+    const QString proFileName = m_buildConfiguration->target()->project()->projectFilePath().toString();
 
     // Check for Qt version:
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
