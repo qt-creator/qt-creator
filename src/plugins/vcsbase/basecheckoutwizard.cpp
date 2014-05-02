@@ -160,12 +160,6 @@ static QFileInfoList findProjectFiles(const QDir &projectDir, QString *errorMess
 
 QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessage)
 {
-    ProjectExplorer::ProjectExplorerPlugin *pe  = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (!pe) {
-        *errorMessage = tr("The Project Explorer is not available.");
-        return QString();
-    }
-
     // Search the directory for project files
     const QDir dir(path);
     if (!dir.exists()) {
@@ -178,7 +172,7 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
         return QString();
     // Open. Do not use a busy cursor here as additional wizards might pop up
     const QString projectFile = projectFiles.front().absoluteFilePath();
-    if (!pe->openProject(projectFile, errorMessage))
+    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(projectFile, errorMessage))
         return QString();
 
     return projectFile;
