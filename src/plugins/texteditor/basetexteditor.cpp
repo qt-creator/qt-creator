@@ -3765,6 +3765,8 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                 f.setItalic(currentLineNumberFormat.font().italic());
                 painter.setFont(f);
                 painter.setPen(currentLineNumberFormat.foreground().color());
+                if (currentLineNumberFormat.background() != Qt::NoBrush)
+                  painter.fillRect(QRect(0, top, extraAreaWidth, height), currentLineNumberFormat.background().color());
             }
             painter.drawText(QRectF(markWidth, top, extraAreaWidth - markWidth - 4, height), Qt::AlignRight, number);
             if (selected)
