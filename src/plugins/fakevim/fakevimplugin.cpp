@@ -1762,15 +1762,15 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     connect(handler, SIGNAL(highlightMatches(QString)),
         SLOT(highlightMatches(QString)));
     connect(handler, SIGNAL(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)),
-        SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
+        SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)), Qt::DirectConnection);
     connect(handler, SIGNAL(indentRegion(int,int,QChar)),
         SLOT(indentRegion(int,int,QChar)));
     connect(handler, SIGNAL(checkForElectricCharacter(bool*,QChar)),
-        SLOT(checkForElectricCharacter(bool*,QChar)));
+        SLOT(checkForElectricCharacter(bool*,QChar)), Qt::DirectConnection);
     connect(handler, SIGNAL(requestSetBlockSelection(bool)),
         SLOT(setBlockSelection(bool)));
     connect(handler, SIGNAL(requestHasBlockSelection(bool*)),
-        SLOT(hasBlockSelection(bool*)));
+        SLOT(hasBlockSelection(bool*)), Qt::DirectConnection);
     connect(handler, SIGNAL(completionRequested()),
         SLOT(triggerCompletions()));
     connect(handler, SIGNAL(simpleCompletionRequested(QString,bool)),
@@ -1793,7 +1793,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         SLOT(jumpToGlobalMark(QChar,bool,QString)));
 
     connect(handler, SIGNAL(handleExCommandRequested(bool*,ExCommand)),
-        SLOT(handleExCommand(bool*,ExCommand)));
+        SLOT(handleExCommand(bool*,ExCommand)), Qt::DirectConnection);
 
     connect(ICore::instance(), SIGNAL(saveSettingsRequested()),
         SLOT(writeSettings()));
