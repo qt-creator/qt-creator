@@ -238,8 +238,6 @@ bool wizardLessThan(const IWizard *w1, const IWizard *w2)
 
 void NewDialog::setWizards(QList<IWizard*> wizards)
 {
-    typedef QMap<QString, QStandardItem *> CategoryItemMap;
-
     qStableSort(wizards.begin(), wizards.end(), wizardLessThan);
 
     m_model->clear();
