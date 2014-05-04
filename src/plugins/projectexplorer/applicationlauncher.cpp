@@ -184,20 +184,13 @@ bool ApplicationLauncher::isRunning() const
 
 qint64 ApplicationLauncher::applicationPID() const
 {
-    qint64 result = 0;
     if (!isRunning())
-        return result;
+        return 0;
 
-    if (d->m_currentMode == Console) {
-        result = d->m_consoleProcess.applicationPID();
-    } else {
-#ifdef Q_OS_WIN
-        result = (qint64)d->m_guiProcess.pid()->dwProcessId;
-#else
-        result = (qint64)d->m_guiProcess.pid();
-#endif
-    }
-    return result;
+    if (d->m_currentMode == Console)
+        return d->m_consoleProcess.applicationPID();
+    else
+        return Utils::qPidToPid(d->m_guiProcess.pid());
 }
 
 void ApplicationLauncher::guiProcessError()
