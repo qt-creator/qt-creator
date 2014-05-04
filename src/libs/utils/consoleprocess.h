@@ -57,6 +57,9 @@ public:
     void setEnvironment(const Environment &env);
     Environment environment() const;
 
+    QProcess::ProcessError error() const;
+    QString errorString() const;
+
     bool start(const QString &program, const QString &args);
 public slots:
     void stop();
@@ -95,7 +98,8 @@ public:
     static void setTerminalEmulator(QSettings *settings, const QString &term);
 
 signals:
-    void processError(const QString &error);
+    void error(QProcess::ProcessError error);
+    void processError(const QString &errorString);
     // These reflect the state of the actual client process
     void processStarted();
     void processStopped(int, QProcess::ExitStatus);
@@ -123,6 +127,7 @@ private:
     static QString msgCannotChangeToWorkDir(const QString & dir, const QString &why);
     static QString msgCannotExecute(const QString & p, const QString &why);
 
+    void emitError(QProcess::ProcessError err, const QString &errorString);
     QString stubServerListen();
     void stubServerShutdown();
 #ifdef Q_OS_WIN

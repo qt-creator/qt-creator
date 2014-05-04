@@ -67,6 +67,8 @@ struct ConsoleProcessPrivate {
     QLocalServer m_stubServer;
     QLocalSocket *m_stubSocket;
     QTemporaryFile *m_tempFile;
+    QProcess::ProcessError m_error;
+    QString m_errorString;
 
 #ifdef Q_OS_UNIX
     QProcess m_process;

@@ -45,6 +45,7 @@ ConsoleProcessPrivate::ConsoleProcessPrivate() :
     m_appPid(0),
     m_stubSocket(0),
     m_tempFile(0),
+    m_error(QProcess::UnknownError),
     m_appMainThreadId(0),
     m_pid(0),
     m_hInferior(NULL),
@@ -69,6 +70,9 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     if (isRunning())
         return false;
 
+    d->m_errorString.clear();
+    d->m_error = QProcess::UnknownError;
+
     QString pcmd;
     QString pargs;
     if (d->m_mode != Run) { // The debugger engines already pre-process the arguments.
@@ -83,7 +87,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
 
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processError(msgCommChannelFailed(err));
+        emitError(QProcess::FailedToStart, msgCommChannelFailed(err));
         return false;
     }
 
@@ -92,7 +96,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
             stubServerShutdown();
-            emit processError(msgCannotCreateTempFile(d->m_tempFile->errorString()));
+            emitError(QProcess::FailedToStart, msgCannotCreateTempFile(d->m_tempFile->errorString()));
             delete d->m_tempFile;
             d->m_tempFile = 0;
             return false;
@@ -106,7 +110,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         out.flush();
         if (out.status() != QTextStream::Ok) {
             stubServerShutdown();
-            emit processError(msgCannotWriteTempFile());
+            emitError(QProcess::FailedToStart, msgCannotWriteTempFile());
             delete d->m_tempFile;
             d->m_tempFile = 0;
             return false;
@@ -146,7 +150,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         delete d->m_tempFile;
         d->m_tempFile = 0;
         stubServerShutdown();
-        emit processError(tr("The process \"%1\" could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
+        emitError(QProcess::FailedToStart, tr("The process \"%1\" could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
         return false;
     }
 
@@ -214,9 +218,9 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = d->m_stubSocket->readLine();
         out.chop(2); // \r\n
         if (out.startsWith("err:chdir ")) {
-            emit processError(msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
+            emitError(QProcess::FailedToStart, msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emit processError(msgCannotExecute(d->m_executable, winErrorMessage(out.mid(9).toInt())));
+            emitError(QProcess::FailedToStart, msgCannotExecute(d->m_executable, winErrorMessage(out.mid(9).toInt())));
         } else if (out.startsWith("thread ")) { // Windows only
             d->m_appMainThreadId = out.mid(7).toLongLong();
         } else if (out.startsWith("pid ")) {
@@ -229,7 +233,7 @@ void ConsoleProcess::readStubOutput()
                     SYNCHRONIZE | PROCESS_QUERY_INFORMATION | PROCESS_TERMINATE,
                     FALSE, d->m_appPid);
             if (d->m_hInferior == NULL) {
-                emit processError(tr("Cannot obtain a handle to the inferior: %1")
+                emitError(QProcess::FailedToStart, tr("Cannot obtain a handle to the inferior: %1")
                                   .arg(winErrorMessage(GetLastError())));
                 // Uhm, and now what?
                 continue;
@@ -238,7 +242,7 @@ void ConsoleProcess::readStubOutput()
             connect(d->inferiorFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(inferiorExited()));
             emit processStarted();
         } else {
-            emit processError(msgUnexpectedOutput(out));
+            emitError(QProcess::UnknownError, msgUnexpectedOutput(out));
             TerminateProcess(d->m_pid->hProcess, (unsigned)-1);
             break;
         }
@@ -259,7 +263,7 @@ void ConsoleProcess::inferiorExited()
     DWORD chldStatus;
 
     if (!GetExitCodeProcess(d->m_hInferior, &chldStatus))
-        emit processError(tr("Cannot obtain exit status from inferior: %1")
+        emitError(QProcess::UnknownError, tr("Cannot obtain exit status from inferior: %1")
                           .arg(winErrorMessage(GetLastError())));
     cleanupInferior();
     d->m_appStatus = QProcess::NormalExit;

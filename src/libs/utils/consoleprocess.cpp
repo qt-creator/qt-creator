@@ -97,6 +97,16 @@ Environment ConsoleProcess::environment() const
     return d->m_environment;
 }
 
+QProcess::ProcessError ConsoleProcess::error() const
+{
+    return d->m_error;
+}
+
+QString ConsoleProcess::errorString() const
+{
+    return d->m_errorString;
+}
+
 QString ConsoleProcess::msgCommChannelFailed(const QString &error)
 {
     return tr("Cannot set up communication channel: %1").arg(error);
@@ -137,6 +147,14 @@ QString ConsoleProcess::msgCannotChangeToWorkDir(const QString & dir, const QStr
 QString ConsoleProcess::msgCannotExecute(const QString & p, const QString &why)
 {
     return tr("Cannot execute \"%1\": %2").arg(p, why);
+}
+
+void ConsoleProcess::emitError(QProcess::ProcessError err, const QString &errorString)
+{
+    d->m_error = err;
+    d->m_errorString = errorString;
+    emit error(err);
+    emit processError(errorString);
 }
 
 QString ConsoleProcess::terminalEmulator(const QSettings *settings, bool nonEmpty)

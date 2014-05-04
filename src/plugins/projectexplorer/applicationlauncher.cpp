@@ -103,6 +103,8 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
             this, SLOT(processDone(int,QProcess::ExitStatus)));
     connect(&d->m_guiProcess, SIGNAL(started()),
             this, SLOT(bringToForeground()));
+    connect(&d->m_guiProcess, SIGNAL(error(QProcess::ProcessError)),
+            this, SIGNAL(error(QProcess::ProcessError)));
 
 #ifdef Q_OS_UNIX
     d->m_consoleProcess.setSettings(Core::ICore::settings());
@@ -113,6 +115,8 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
             this, SLOT(consoleProcessError(QString)));
     connect(&d->m_consoleProcess, SIGNAL(processStopped(int,QProcess::ExitStatus)),
             this, SLOT(processDone(int,QProcess::ExitStatus)));
+    connect(&d->m_consoleProcess, SIGNAL(error(QProcess::ProcessError)),
+            this, SIGNAL(error(QProcess::ProcessError)));
 
 #ifdef Q_OS_WIN
     connect(WinDebugInterface::instance(), SIGNAL(cannotRetrieveDebugOutput()),
@@ -135,10 +139,20 @@ void ApplicationLauncher::setWorkingDirectory(const QString &dir)
     d->m_consoleProcess.setWorkingDirectory(fixedPath);
 }
 
+QString ApplicationLauncher::workingDirectory() const
+{
+    return d->m_guiProcess.workingDirectory();
+}
+
 void ApplicationLauncher::setEnvironment(const Utils::Environment &env)
 {
     d->m_guiProcess.setEnvironment(env);
     d->m_consoleProcess.setEnvironment(env);
+}
+
+void ApplicationLauncher::setProcessChannelMode(QProcess::ProcessChannelMode mode)
+{
+    d->m_guiProcess.setProcessChannelMode(mode);
 }
 
 void ApplicationLauncher::start(Mode mode, const QString &program, const QString &args)
@@ -191,6 +205,22 @@ qint64 ApplicationLauncher::applicationPID() const
         return d->m_consoleProcess.applicationPID();
     else
         return Utils::qPidToPid(d->m_guiProcess.pid());
+}
+
+QString ApplicationLauncher::errorString() const
+{
+    if (d->m_currentMode == Gui)
+        return d->m_guiProcess.errorString();
+    else
+        return d->m_consoleProcess.errorString();
+}
+
+QProcess::ProcessError ApplicationLauncher::error() const
+{
+    if (d->m_currentMode == Gui)
+        return d->m_guiProcess.error();
+    else
+        return d->m_consoleProcess.error();
 }
 
 void ApplicationLauncher::guiProcessError()

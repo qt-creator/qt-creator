@@ -56,13 +56,19 @@ public:
     ~ApplicationLauncher();
 
     void setWorkingDirectory(const QString &dir);
+    QString workingDirectory() const;
     void setEnvironment(const Utils::Environment &env);
+
+    void setProcessChannelMode(QProcess::ProcessChannelMode mode);
 
     void start(Mode mode, const QString &program,
                const QString &args = QString());
     void stop();
     bool isRunning() const;
     qint64 applicationPID() const;
+
+    QString errorString() const;
+    QProcess::ProcessError error() const;
 
     static QString msgWinCannotRetrieveDebuggingOutput();
 
@@ -71,6 +77,7 @@ signals:
     void processStarted();
     void processExited(int exitCode, QProcess::ExitStatus);
     void bringToForegroundRequested(qint64 pid);
+    void error(QProcess::ProcessError error);
 
 private slots:
     void guiProcessError();
