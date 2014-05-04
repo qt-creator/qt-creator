@@ -83,7 +83,7 @@ signals:
     void started();
     void finished(int, QProcess::ExitStatus);
     void error(QProcess::ProcessError);
-    void processOutput(const QByteArray &, Utils::OutputFormat format);
+    void processOutput(const QString &, Utils::OutputFormat format);
 
 private slots:
     void handleReadyReadStandardError();

@@ -96,8 +96,8 @@ void ValgrindRunner::Private::run(ValgrindProcess *_process)
         // May be slower to start but without it we get no filenames for symbols.
         valgrindArgs << QLatin1String("--dsymutil=yes");
 
-    QObject::connect(process, SIGNAL(processOutput(QByteArray,Utils::OutputFormat)),
-            q, SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)));
+    QObject::connect(process, SIGNAL(processOutput(QString,Utils::OutputFormat)),
+            q, SIGNAL(processOutputReceived(QString,Utils::OutputFormat)));
     QObject::connect(process, SIGNAL(started()),
             q, SLOT(processStarted()));
     QObject::connect(process, SIGNAL(finished(int,QProcess::ExitStatus)),

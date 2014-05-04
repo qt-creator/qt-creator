@@ -70,7 +70,7 @@ private slots:
     void handleProgressFinished();
     void runnerFinished();
 
-    void receiveProcessOutput(const QByteArray &output, Utils::OutputFormat format);
+    void receiveProcessOutput(const QString &output, Utils::OutputFormat format);
     void receiveProcessError(const QString &message, QProcess::ProcessError error);
 
 private:

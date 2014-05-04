@@ -88,7 +88,7 @@ protected:
     virtual QString tool() const = 0;
 
 signals:
-    void processOutputReceived(const QByteArray &, Utils::OutputFormat);
+    void processOutputReceived(const QString &, Utils::OutputFormat);
     void processErrorReceived(const QString &, QProcess::ProcessError);
     void started();
     void finished();

@@ -197,7 +197,7 @@ void ValgrindProcess::handleReadyReadStandardError()
     else
         b = m_remote.m_process->readAllStandardError();
     if (!b.isEmpty())
-        emit processOutput(b, Utils::StdErrFormat);
+        emit processOutput(QString::fromLocal8Bit(b), Utils::StdErrFormat);
 }
 
 void ValgrindProcess::handleReadyReadStandardOutput()
@@ -208,7 +208,7 @@ void ValgrindProcess::handleReadyReadStandardOutput()
     else
         b = m_remote.m_process->readAllStandardOutput();
     if (!b.isEmpty())
-        emit processOutput(b, Utils::StdOutFormat);
+        emit processOutput(QString::fromLocal8Bit(b), Utils::StdOutFormat);
 }
 
 /// Remote
