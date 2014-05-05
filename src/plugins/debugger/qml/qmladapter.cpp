@@ -119,7 +119,7 @@ void QmlAdapter::clientStateChanged(QmlDebugClient::State state)
     float version = 0;
     if (QmlDebugClient *client = qobject_cast<QmlDebugClient*>(sender())) {
         serviceName = client->name();
-        version = client->serviceVersion();
+        version = client->remoteVersion();
     }
 
     logServiceStateChange(serviceName, version, state);

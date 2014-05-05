@@ -78,7 +78,7 @@ public:
     ~QmlDebugClient();
 
     QString name() const;
-    float serviceVersion() const;
+    int remoteVersion() const;
     State state() const;
 
     virtual void sendMessage(const QByteArray &);

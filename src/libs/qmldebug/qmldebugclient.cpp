@@ -329,11 +329,15 @@ QString QmlDebugClient::name() const
     return d->name;
 }
 
-float QmlDebugClient::serviceVersion() const
+int QmlDebugClient::remoteVersion() const
 {
     Q_D(const QmlDebugClient);
+    // The version is internally saved as float for compatibility reasons. Exposing that to clients
+    // is a bad idea because floats cannot be properly compared. IEEE 754 floats represent integers
+    // exactly up to about 2^24, so the cast shouldn't be a problem for any realistic version
+    // numbers.
     if (d->connection && d->connection->d->serverPlugins.contains(d->name))
-        return d->connection->d->serverPlugins.value(d->name);
+        return static_cast<int>(d->connection->d->serverPlugins.value(d->name));
     return -1;
 }
 
