@@ -29,8 +29,8 @@
 ****************************************************************************/
 
 #include "qnxbaseconfiguration.h"
-#include <qnxutils.h>
-#include <qnxtoolchain.h>
+#include "qnxutils.h"
+#include "qnxtoolchain.h"
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>

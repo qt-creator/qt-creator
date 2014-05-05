@@ -31,7 +31,7 @@
 #ifndef QNXCONFIGURATION_H
 #define QNXCONFIGURATION_H
 
-#include <qnxbaseconfiguration.h>
+#include "qnxbaseconfiguration.h"
 
 namespace Qnx {
 namespace Internal {

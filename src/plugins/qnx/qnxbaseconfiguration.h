@@ -31,8 +31,8 @@
 #ifndef QNXBASECONFIGURATION_H
 #define QNXBASECONFIGURATION_H
 
-#include <qnxconstants.h>
-#include <qnxutils.h>
+#include "qnxconstants.h"
+#include "qnxutils.h"
 
 #include <utils/fileutils.h>
 #include <utils/environment.h>
