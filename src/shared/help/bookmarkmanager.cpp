@@ -781,8 +781,9 @@ void BookmarkManager::setupBookmarkModels()
                 }
             }
             parents.last()->appendRow(item);
-            if (type == QLatin1String("Folder"))
+            if (type == QLatin1String("Folder")) {
                 parents << item; lastDepths << depth;
+            }
         }
 
         if (type != QLatin1String("Folder")) {
