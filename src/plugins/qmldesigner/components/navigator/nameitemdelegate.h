@@ -27,55 +27,35 @@
 **
 ****************************************************************************/
 
-
-#ifndef NAVIGATORTREEVIEW_H
-#define NAVIGATORTREEVIEW_H
-
-#include <QTreeView>
+#ifndef QMLDESIGNER_NAMEITEMDELEGATE_H
+#define QMLDESIGNER_NAMEITEMDELEGATE_H
 
 #include <QStyledItemDelegate>
 
-#include <QPainter>
-
-QT_BEGIN_NAMESPACE
-class QTreeView;
-class QStandardItem;
-class QItemSelection;
-class QModelIndex;
-QT_END_NAMESPACE
-
 namespace QmlDesigner {
 
-class NavigatorWidget;
 class NavigatorTreeModel;
 
-void drawSelectionBackground(QPainter *painter, const QStyleOption &option);
-
-class IconCheckboxItemDelegate : public QStyledItemDelegate
+class NameItemDelegate : public QStyledItemDelegate
 {
-    public:
-    explicit IconCheckboxItemDelegate(QObject *parent = 0, QString checkedPixmapURL="", QString uncheckedPixmapURL="", NavigatorTreeModel *treeModel=NULL)
-            : QStyledItemDelegate(parent),offPix(uncheckedPixmapURL),onPix(checkedPixmapURL),m_TreeModel(treeModel)
-    {}
-
-    QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const;
+public:
+    explicit NameItemDelegate(QObject *parent, NavigatorTreeModel *treeModel);
 
     void paint(QPainter *painter,
                const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-    private:
-    QPixmap offPix;
-    QPixmap onPix;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+
+protected:
+    bool editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index );
+    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+private:
     NavigatorTreeModel *m_TreeModel;
-
 };
 
-class NavigatorTreeView : public QTreeView
-{
-public:
-    NavigatorTreeView(QWidget *parent = 0);
-};
-}
+} // namespace QmlDesigner
 
-#endif // NAVIGATORTREEVIEW_H
+#endif // QMLDESIGNER_NAMEITEMDELEGATE_H
