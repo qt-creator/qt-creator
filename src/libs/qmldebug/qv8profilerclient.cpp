@@ -87,7 +87,7 @@ void QV8ProfilerClient::clearData()
 
 bool QV8ProfilerClient::isEnabled() const
 {
-    return status() == Enabled;
+    return state() == Enabled;
 }
 
 void QV8ProfilerClient::sendRecordingStatus()
@@ -107,7 +107,7 @@ void QV8ProfilerClient::setRecording(bool v)
 
     d->recording = v;
 
-    if (status() == Enabled)
+    if (state() == Enabled)
         sendRecordingStatus();
 
     emit recordingChanged(v);
@@ -123,7 +123,7 @@ void QV8ProfilerClient::setRecordingFromServer(bool v)
     emit recordingChanged(v);
 }
 
-void QV8ProfilerClient::statusChanged(ClientStatus /*status*/)
+void QV8ProfilerClient::stateChanged(State /*status*/)
 {
     emit enabledChanged();
 }

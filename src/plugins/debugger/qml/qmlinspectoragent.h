@@ -103,7 +103,7 @@ signals:
     void jumpToObjectDefinition(const QmlDebug::FileReference &objSource, int debugId);
 
 private slots:
-    void updateStatus();
+    void updateState();
     void onResult(quint32 queryId, const QVariant &value, const QByteArray &type);
     void newObject(int engineId, int objectId, int parentId);
     void onValueChanged(int debugId, const QByteArray &propertyName, const QVariant &value);

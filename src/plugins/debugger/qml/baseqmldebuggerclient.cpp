@@ -56,14 +56,14 @@ bool BaseQmlDebuggerClient::acceptsBreakpoint(const BreakpointModelId &/*id*/)
     return false;
 }
 
-void BaseQmlDebuggerClient::statusChanged(QmlDebug::ClientStatus status)
+void BaseQmlDebuggerClient::stateChanged(State state)
 {
-    emit newStatus(status);
+    emit newState(state);
 }
 
 void BaseQmlDebuggerClient::sendMessage(const QByteArray &msg)
 {
-    if (status() == QmlDebug::Enabled)
+    if (state() == Enabled)
         QmlDebugClient::sendMessage(msg);
     else
         d->sendBuffer.append(msg);
@@ -71,7 +71,7 @@ void BaseQmlDebuggerClient::sendMessage(const QByteArray &msg)
 
 void BaseQmlDebuggerClient::flushSendBuffer()
 {
-    QTC_ASSERT(status() == QmlDebug::Enabled, return);
+    QTC_ASSERT(state() == Enabled, return);
     foreach (const QByteArray &msg, d->sendBuffer)
        QmlDebugClient::sendMessage(msg);
     d->sendBuffer.clear();

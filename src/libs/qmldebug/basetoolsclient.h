@@ -70,7 +70,7 @@ public:
     virtual void clearComponentCache() = 0;
 
 signals:
-    void newStatus(QmlDebug::ClientStatus status);
+    void newState(QmlDebug::QmlDebugClient::State status);
 
     void currentObjectsChanged(const QList<int> &debugIds);
     void selectToolActivated();
@@ -86,7 +86,7 @@ signals:
     void logActivity(QString client, QString message);
 
 protected:
-    void statusChanged(ClientStatus status);
+    void stateChanged(State status);
 
     void recurseObjectIdList(const ObjectReference &ref,
                              QList<int> &debugIds, QList<QString> &objectIds);

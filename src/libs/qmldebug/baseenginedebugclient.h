@@ -78,14 +78,14 @@ public:
                                             int columnNumber);
 
 signals:
-    void newStatus(QmlDebug::ClientStatus status);
+    void newState(QmlDebug::QmlDebugClient::State status);
     void newObject(int engineId, int objectId, int parentId);
     void valueChanged(int debugId, const QByteArray &name,
                       const QVariant &value);
     void result(quint32 queryId, const QVariant &result, const QByteArray &type);
 
 protected:
-    virtual void statusChanged(ClientStatus status);
+    virtual void stateChanged(State status);
     virtual void messageReceived(const QByteArray &);
 
     quint32 getId() { return m_nextId++; }

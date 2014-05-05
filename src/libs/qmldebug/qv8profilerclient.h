@@ -81,7 +81,7 @@ private:
     void setRecordingFromServer(bool);
 
 protected:
-    virtual void statusChanged(ClientStatus);
+    virtual void stateChanged(State);
     virtual void messageReceived(const QByteArray &);
 
 private:

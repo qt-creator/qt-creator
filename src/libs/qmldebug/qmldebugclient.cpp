@@ -150,10 +150,10 @@ void QmlDebugConnectionPrivate::readyRead()
 
         QHash<QString, QmlDebugClient *>::Iterator iter = plugins.begin();
         for (; iter != plugins.end(); ++iter) {
-            ClientStatus newStatus = Unavailable;
+            QmlDebugClient::State newState = QmlDebugClient::Unavailable;
             if (serverPlugins.contains(iter.key()))
-                newStatus = Enabled;
-            iter.value()->statusChanged(newStatus);
+                newState = QmlDebugClient::Enabled;
+            iter.value()->stateChanged(newState);
         }
     }
 
@@ -189,13 +189,13 @@ void QmlDebugConnectionPrivate::readyRead()
                 QHash<QString, QmlDebugClient *>::Iterator iter = plugins.begin();
                 for (; iter != plugins.end(); ++iter) {
                     const QString pluginName = iter.key();
-                    ClientStatus newStatus = Unavailable;
+                    QmlDebugClient::State newState = QmlDebugClient::Unavailable;
                     if (serverPlugins.contains(pluginName))
-                        newStatus = Enabled;
+                        newState = QmlDebugClient::Enabled;
 
                     if (oldServerPlugins.contains(pluginName)
                             != serverPlugins.contains(pluginName)) {
-                        iter.value()->statusChanged(newStatus);
+                        iter.value()->stateChanged(newState);
                     }
                 }
             } else {
@@ -225,24 +225,24 @@ QmlDebugConnection::~QmlDebugConnection()
     QHash<QString, QmlDebugClient*>::iterator iter = d->plugins.begin();
     for (; iter != d->plugins.end(); ++iter) {
         iter.value()->d_func()->connection = 0;
-        iter.value()->statusChanged(NotConnected);
+        iter.value()->stateChanged(QmlDebugClient::NotConnected);
     }
 }
 
 bool QmlDebugConnection::isConnected() const
 {
-    return state() == QAbstractSocket::ConnectedState;
+    return socketState() == QAbstractSocket::ConnectedState;
 }
 
 void QmlDebugConnection::close()
 {
     if (d->device->isOpen()) {
         d->device->close();
-        emit stateChanged(QAbstractSocket::UnconnectedState);
+        emit socketStateChanged(QAbstractSocket::UnconnectedState);
 
         QHash<QString, QmlDebugClient*>::iterator iter = d->plugins.begin();
         for (; iter != d->plugins.end(); ++iter) {
-            iter.value()->statusChanged(NotConnected);
+            iter.value()->stateChanged(QmlDebugClient::NotConnected);
         }
     }
 }
@@ -254,7 +254,7 @@ QString QmlDebugConnection::errorString() const
 
 // For ease of refactoring we use QAbstractSocket's states even if we're actually using a OstChannel underneath
 // since serial ports have a subset of the socket states afaics
-QAbstractSocket::SocketState QmlDebugConnection::state() const
+QAbstractSocket::SocketState QmlDebugConnection::socketState() const
 {
     QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(d->device);
     if (socket)
@@ -280,7 +280,7 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
     d->protocol = new QPacketProtocol(d->device, this);
     connect(d->protocol, SIGNAL(readyRead()), d, SLOT(readyRead()));
     d->gotHello = false;
-    connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
+    connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SIGNAL(socketStateChanged(QAbstractSocket::SocketState)));
     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SIGNAL(error(QAbstractSocket::SocketError)));
     connect(socket, SIGNAL(connected()), this, SIGNAL(connected()));
     socket->connectToHost(hostName, port);
@@ -336,7 +336,7 @@ float QmlDebugClient::serviceVersion() const
     return -1;
 }
 
-ClientStatus QmlDebugClient::status() const
+QmlDebugClient::State QmlDebugClient::state() const
 {
     Q_D(const QmlDebugClient);
     if (!d->connection
@@ -353,7 +353,7 @@ ClientStatus QmlDebugClient::status() const
 void QmlDebugClient::sendMessage(const QByteArray &message)
 {
     Q_D(QmlDebugClient);
-    if (status() != Enabled)
+    if (state() != Enabled)
         return;
 
     QPacket pack;
@@ -362,7 +362,7 @@ void QmlDebugClient::sendMessage(const QByteArray &message)
     d->connection->flush();
 }
 
-void QmlDebugClient::statusChanged(ClientStatus)
+void QmlDebugClient::stateChanged(State)
 {
 }
 

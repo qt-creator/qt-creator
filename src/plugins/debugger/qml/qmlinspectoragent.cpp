@@ -64,7 +64,7 @@ QmlInspectorAgent::QmlInspectorAgent(DebuggerEngine *engine, QObject *parent)
 {
     m_debugIdToIname.insert(-1, QByteArray("inspect"));
     connect(debuggerCore()->action(ShowQmlObjectTree),
-            SIGNAL(valueChanged(QVariant)), SLOT(updateStatus()));
+            SIGNAL(valueChanged(QVariant)), SLOT(updateState()));
     m_delayQueryTimer.setSingleShot(true);
     m_delayQueryTimer.setInterval(100);
     connect(&m_delayQueryTimer, SIGNAL(timeout()), SLOT(queryEngineContext()));
@@ -393,8 +393,8 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
         return;
 
     if (m_engineClient) {
-        disconnect(m_engineClient, SIGNAL(newStatus(QmlDebug::ClientStatus)),
-                   this, SLOT(updateStatus()));
+        disconnect(m_engineClient, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
+                   this, SLOT(updateState()));
         disconnect(m_engineClient, SIGNAL(result(quint32,QVariant,QByteArray)),
                    this, SLOT(onResult(quint32,QVariant,QByteArray)));
         disconnect(m_engineClient, SIGNAL(newObject(int,int,int)),
@@ -406,8 +406,8 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
     m_engineClient = client;
 
     if (m_engineClient) {
-        connect(m_engineClient, SIGNAL(newStatus(QmlDebug::ClientStatus)),
-                this, SLOT(updateStatus()));
+        connect(m_engineClient, SIGNAL(newState(QmlDebug::QmlDebugClient::State)),
+                this, SLOT(updateState()));
         connect(m_engineClient, SIGNAL(result(quint32,QVariant,QByteArray)),
                 this, SLOT(onResult(quint32,QVariant,QByteArray)));
         connect(m_engineClient, SIGNAL(newObject(int,int,int)),
@@ -416,7 +416,7 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
                 this, SLOT(onValueChanged(int,QByteArray,QVariant)));
     }
 
-    updateStatus();
+    updateState();
 }
 
 QString QmlInspectorAgent::displayName(int objectDebugId) const
@@ -434,10 +434,10 @@ QString QmlInspectorAgent::displayName(int objectDebugId) const
     return QString();
 }
 
-void QmlInspectorAgent::updateStatus()
+void QmlInspectorAgent::updateState()
 {
     if (m_engineClient
-            && (m_engineClient->status() == QmlDebug::Enabled)
+            && (m_engineClient->state() == QmlDebugClient::Enabled)
             && debuggerCore()->boolSetting(ShowQmlObjectTree)) {
         reloadEngines();
     } else {
@@ -870,7 +870,7 @@ void QmlInspectorAgent::log(QmlInspectorAgent::LogDirection direction,
 bool QmlInspectorAgent::isConnected() const
 {
     return m_engineClient
-            && (m_engineClient->status() == QmlDebug::Enabled);
+            && (m_engineClient->state() == QmlDebugClient::Enabled);
 }
 
 void QmlInspectorAgent::clearObjectTree()

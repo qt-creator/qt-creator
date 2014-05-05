@@ -149,7 +149,7 @@ void QmlProfilerClientManager::connectClient(quint16 port)
         delete d->connection;
     d->connection = new QmlDebugConnection;
     enableServices();
-    connect(d->connection, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+    connect(d->connection, SIGNAL(socketStateChanged(QAbstractSocket::SocketState)),
             this, SLOT(connectionStateChanged()));
     d->connectionTimer.start();
     d->tcpPort = port;
@@ -237,7 +237,7 @@ void QmlProfilerClientManager::disconnectClientSignals()
 
 void QmlProfilerClientManager::connectToClient()
 {
-    if (!d->connection || d->connection->state() != QAbstractSocket::UnconnectedState)
+    if (!d->connection || d->connection->socketState() != QAbstractSocket::UnconnectedState)
         return;
 
     d->connection->connectToHost(d->tcpHost, d->tcpPort);
@@ -293,7 +293,7 @@ void QmlProfilerClientManager::connectionStateChanged()
 {
     if (!d->connection)
         return;
-    switch (d->connection->state()) {
+    switch (d->connection->socketState()) {
     case QAbstractSocket::UnconnectedState:
     {
         if (QmlProfilerPlugin::debugOutput)
@@ -359,7 +359,9 @@ void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
     if (maximumTime > d->modelManager->traceTime()->endTime())
         d->modelManager->traceTime()->setEndTime(maximumTime);
     d->qmlDataReady = true;
-    if (!d->v8clientplugin || d->v8clientplugin.data()->status() != QmlDebug::Enabled || d->v8DataReady) {
+    if (!d->v8clientplugin ||
+            d->v8clientplugin.data()->state() != QmlDebug::QmlDebugClient::Enabled ||
+            d->v8DataReady) {
         emit dataReadyForProcessing();
         // once complete is sent, reset the flags
         d->qmlDataReady = false;
@@ -370,7 +372,9 @@ void QmlProfilerClientManager::qmlComplete(qint64 maximumTime)
 void QmlProfilerClientManager::v8Complete()
 {
     d->v8DataReady = true;
-    if (!d->qmlclientplugin || d->qmlclientplugin.data()->status() != QmlDebug::Enabled || d->qmlDataReady) {
+    if (!d->qmlclientplugin ||
+            d->qmlclientplugin.data()->state() != QmlDebug::QmlDebugClient::Enabled ||
+            d->qmlDataReady) {
         emit dataReadyForProcessing();
         // once complete is sent, reset the flags
         d->v8DataReady = false;

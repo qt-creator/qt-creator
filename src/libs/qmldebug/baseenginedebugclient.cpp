@@ -174,9 +174,9 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
     }
 }
 
-void BaseEngineDebugClient::statusChanged(ClientStatus status)
+void BaseEngineDebugClient::stateChanged(State state)
 {
-    emit newStatus(status);
+    emit newState(state);
 }
 
 void BaseEngineDebugClient::messageReceived(const QByteArray &data)
@@ -251,7 +251,7 @@ BaseEngineDebugClient::BaseEngineDebugClient(const QString &clientName,
 quint32 BaseEngineDebugClient::addWatch(const PropertyReference &property)
 {
     quint32 id = 0;
-    if (status() == Enabled) {
+    if (state() == Enabled) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -273,7 +273,7 @@ quint32 BaseEngineDebugClient::addWatch(const ObjectReference &object,
                                        const QString &expr)
 {
     quint32 id = 0;
-    if (status() == Enabled) {
+    if (state() == Enabled) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -286,7 +286,7 @@ quint32 BaseEngineDebugClient::addWatch(const ObjectReference &object,
 quint32 BaseEngineDebugClient::addWatch(int objectDebugId)
 {
     quint32 id = 0;
-    if (status() == Enabled) {
+    if (state() == Enabled) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -304,7 +304,7 @@ quint32 BaseEngineDebugClient::addWatch(const FileReference &/*file*/)
 
 void BaseEngineDebugClient::removeWatch(quint32 id)
 {
-    if (status() == Enabled) {
+    if (state() == Enabled) {
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
         ds << QByteArray("NO_WATCH") << id;
@@ -315,7 +315,7 @@ void BaseEngineDebugClient::removeWatch(quint32 id)
 quint32 BaseEngineDebugClient::queryAvailableEngines()
 {
     quint32 id = 0;
-    if (status() == Enabled) {
+    if (state() == Enabled) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -328,7 +328,7 @@ quint32 BaseEngineDebugClient::queryAvailableEngines()
 quint32 BaseEngineDebugClient::queryRootContexts(const EngineReference &engine)
 {
     quint32 id = 0;
-    if (status() == Enabled && engine.m_debugId != -1) {
+    if (state() == Enabled && engine.m_debugId != -1) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -341,7 +341,7 @@ quint32 BaseEngineDebugClient::queryRootContexts(const EngineReference &engine)
 quint32 BaseEngineDebugClient::queryObject(int objectId)
 {
     quint32 id = 0;
-    if (status() == Enabled && objectId != -1) {
+    if (state() == Enabled && objectId != -1) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -355,7 +355,7 @@ quint32 BaseEngineDebugClient::queryObject(int objectId)
 quint32 BaseEngineDebugClient::queryObjectRecursive(int objectId)
 {
     quint32 id = 0;
-    if (status() == Enabled && objectId != -1) {
+    if (state() == Enabled && objectId != -1) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -371,7 +371,7 @@ quint32 BaseEngineDebugClient::queryExpressionResult(int objectDebugId,
                                                      int engineId)
 {
     quint32 id = 0;
-    if (status() == Enabled && objectDebugId != -1) {
+    if (state() == Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -390,7 +390,7 @@ quint32 BaseEngineDebugClient::setBindingForObject(
         QString source, int line)
 {
     quint32 id = 0;
-    if (status() == Enabled && objectDebugId != -1) {
+    if (state() == Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -406,7 +406,7 @@ quint32 BaseEngineDebugClient::resetBindingForObject(
         const QString &propertyName)
 {
     quint32 id = 0;
-    if (status() == Enabled && objectDebugId != -1) {
+    if (state() == Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -421,7 +421,7 @@ quint32 BaseEngineDebugClient::setMethodBody(
         const QString &methodBody)
 {
     quint32 id = 0;
-    if (status() == Enabled && objectDebugId != -1) {
+    if (state() == Enabled && objectDebugId != -1) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);
@@ -436,7 +436,7 @@ quint32 BaseEngineDebugClient::queryObjectsForLocation(
         const QString &fileName, int lineNumber, int columnNumber)
 {
     quint32 id = 0;
-    if (status() == Enabled) {
+    if (state() == Enabled) {
         id = getId();
         QByteArray message;
         QmlDebugStream ds(&message, QIODevice::WriteOnly);

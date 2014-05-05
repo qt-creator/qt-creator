@@ -91,11 +91,11 @@ public:
     void flushSendBuffer();
 
 signals:
-    void newStatus(QmlDebug::ClientStatus status);
+    void newState(QmlDebug::QmlDebugClient::State state);
     void stackFrameCompleted();
 
 protected:
-    virtual void statusChanged(QmlDebug::ClientStatus status);
+    virtual void stateChanged(State state);
     void sendMessage(const QByteArray &msg);
 
 private:

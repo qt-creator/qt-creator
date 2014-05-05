@@ -103,7 +103,7 @@ void QmlProfilerTraceClient::sendRecordingStatus()
 
 bool QmlProfilerTraceClient::isEnabled() const
 {
-    return status() == Enabled;
+    return state() == Enabled;
 }
 
 bool QmlProfilerTraceClient::isRecording() const
@@ -118,7 +118,7 @@ void QmlProfilerTraceClient::setRecording(bool v)
 
     d->recording = v;
 
-    if (status() == Enabled)
+    if (state() == Enabled)
         sendRecordingStatus();
 
     emit recordingChanged(v);
@@ -132,7 +132,7 @@ void QmlProfilerTraceClient::setRecordingFromServer(bool v)
     emit recordingChanged(v);
 }
 
-void QmlProfilerTraceClient::statusChanged(ClientStatus /*status*/)
+void QmlProfilerTraceClient::stateChanged(State /*status*/)
 {
     emit enabledChanged();
 }

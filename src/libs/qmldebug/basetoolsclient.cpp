@@ -37,9 +37,9 @@ BaseToolsClient::BaseToolsClient(QmlDebugConnection* client, QLatin1String clien
     setObjectName(clientName);
 }
 
-void BaseToolsClient::statusChanged(ClientStatus status)
+void BaseToolsClient::stateChanged(State state)
 {
-    emit newStatus(status);
+    emit newState(state);
 }
 
 void BaseToolsClient::recurseObjectIdList(const ObjectReference &ref,

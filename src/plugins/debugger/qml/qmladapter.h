@@ -69,8 +69,8 @@ public:
     QmlDebug::QDebugMessageClient *messageClient() const;
 
 public slots:
-    void logServiceStatusChange(const QString &service, float version,
-                                QmlDebug::ClientStatus newStatus);
+    void logServiceStateChange(const QString &service, float version,
+                               QmlDebug::QmlDebugClient::State newState);
     void logServiceActivity(const QString &service, const QString &logMessage);
 
 signals:
@@ -82,15 +82,15 @@ signals:
 
 private slots:
     void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
-    void clientStatusChanged(QmlDebug::ClientStatus status);
-    void debugClientStatusChanged(QmlDebug::ClientStatus status);
+    void clientStateChanged(QmlDebug::QmlDebugClient::State state);
+    void debugClientStateChanged(QmlDebug::QmlDebugClient::State state);
     void connectionStateChanged();
     void checkConnectionState();
 
 private:
     bool isConnected() const;
     void createDebuggerClients();
-    void showConnectionStatusMessage(const QString &message);
+    void showConnectionStateMessage(const QString &message);
     void showConnectionErrorMessage(const QString &message);
 
 private:

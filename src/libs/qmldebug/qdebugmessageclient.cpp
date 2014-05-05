@@ -42,9 +42,9 @@ QDebugMessageClient::~QDebugMessageClient()
 {
 }
 
-void QDebugMessageClient::statusChanged(ClientStatus status)
+void QDebugMessageClient::stateChanged(State state)
 {
-    emit newStatus(status);
+    emit newState(state);
 }
 
 void QDebugMessageClient::messageReceived(const QByteArray &data)

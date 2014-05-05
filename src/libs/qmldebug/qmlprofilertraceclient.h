@@ -111,7 +111,7 @@ signals:
     void cleared();
 
 protected:
-    virtual void statusChanged(ClientStatus status);
+    virtual void stateChanged(State status);
     virtual void messageReceived(const QByteArray &);
 
 private:

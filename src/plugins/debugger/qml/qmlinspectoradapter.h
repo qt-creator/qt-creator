@@ -78,9 +78,9 @@ signals:
 private slots:
     void onEngineStateChanged(const Debugger::DebuggerState);
 
-    void clientStatusChanged(QmlDebug::ClientStatus status);
-    void toolsClientStatusChanged(QmlDebug::ClientStatus status);
-    void engineClientStatusChanged(QmlDebug::ClientStatus status);
+    void clientStateChanged(QmlDebug::QmlDebugClient::State state);
+    void toolsClientStateChanged(QmlDebug::QmlDebugClient::State state);
+    void engineClientStateChanged(QmlDebug::QmlDebugClient::State state);
 
     void selectObjectsFromToolsClient(const QList<int> &debugIds);
     void onObjectFetched(const QmlDebug::ObjectReference &ref);
@@ -102,7 +102,7 @@ private:
     void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);
 
     void initializePreviews();
-    void showConnectionStatusMessage(const QString &message);
+    void showConnectionStateMessage(const QString &message);
 
     enum SelectionTarget { NoTarget, ToolTarget, EditorTarget };
     void selectObject(
