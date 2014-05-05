@@ -164,7 +164,7 @@ void BranchDialog::add()
     branchAddDialog.setBranchName(suggestedName);
     branchAddDialog.setTrackedBranchName(isTag ? QString() : trackedBranch, !isLocal);
 
-    if (branchAddDialog.exec() == QDialog::Accepted && m_model) {
+    if (branchAddDialog.exec() == QDialog::Accepted) {
         QModelIndex idx = m_model->addBranch(branchAddDialog.branchName(), branchAddDialog.track(), trackedIndex);
         if (!idx.isValid())
             return;
