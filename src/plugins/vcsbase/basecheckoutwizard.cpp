@@ -84,7 +84,7 @@ void BaseCheckoutWizardPrivate::clear()
 
 } // namespace Internal
 
-BaseCheckoutWizard::BaseCheckoutWizard() :
+BaseCheckoutWizardFactory::BaseCheckoutWizardFactory() :
     d(new Internal::BaseCheckoutWizardPrivate)
 {
     setWizardKind(IWizardFactory::ProjectWizard);
@@ -94,12 +94,12 @@ BaseCheckoutWizard::BaseCheckoutWizard() :
     setFlags(Core::IWizardFactory::PlatformIndependent);
 }
 
-BaseCheckoutWizard::~BaseCheckoutWizard()
+BaseCheckoutWizardFactory::~BaseCheckoutWizardFactory()
 {
     delete d;
 }
 
-void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const QString &platform,
+void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform,
                                    const QVariantMap &extraValues)
 {
     Q_UNUSED(platform);
@@ -132,7 +132,7 @@ void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const Q
 
 static inline QString msgNoProjectFiles(const QDir &dir, const QStringList &patterns)
 {
-    return BaseCheckoutWizard::tr("Could not find any project files matching (%1) in the directory \"%2\".").arg(patterns.join(QLatin1String(", ")), QDir::toNativeSeparators(dir.absolutePath()));
+    return BaseCheckoutWizardFactory::tr("Could not find any project files matching (%1) in the directory \"%2\".").arg(patterns.join(QLatin1String(", ")), QDir::toNativeSeparators(dir.absolutePath()));
 }
 
 // Try to find the project files in a project directory with some smartness
@@ -158,7 +158,7 @@ static QFileInfoList findProjectFiles(const QDir &projectDir, QString *errorMess
     return projectFiles;
 }
 
-QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessage)
+QString BaseCheckoutWizardFactory::openProject(const QString &path, QString *errorMessage)
 {
     // Search the directory for project files
     const QDir dir(path);
@@ -178,13 +178,13 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
     return projectFile;
 }
 
-void BaseCheckoutWizard::setCustomLabels(const QString &progressTitle, const QString &startedStatus)
+void BaseCheckoutWizardFactory::setCustomLabels(const QString &progressTitle, const QString &startedStatus)
 {
     d->progressTitle = progressTitle;
     d->startedStatus = startedStatus;
 }
 
-void BaseCheckoutWizard::slotProgressPageShown()
+void BaseCheckoutWizardFactory::slotProgressPageShown()
 {
     Command *command = createCommand(d->parameterPages, &(d->checkoutPath));
     d->dialog->start(command);

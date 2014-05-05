@@ -37,7 +37,7 @@
 namespace Bazaar {
 namespace Internal {
 
-class CloneWizard : public VcsBase::BaseCheckoutWizard
+class CloneWizard : public VcsBase::BaseCheckoutWizardFactory
 {
     Q_OBJECT
 

@@ -35,7 +35,7 @@
 namespace Cvs {
 namespace Internal {
 
-class CheckoutWizard : public VcsBase::BaseCheckoutWizard
+class CheckoutWizard : public VcsBase::BaseCheckoutWizardFactory
 {
     Q_OBJECT
 

@@ -45,13 +45,13 @@ namespace Internal { class BaseCheckoutWizardPrivate; }
 
 class Command;
 
-class VCSBASE_EXPORT BaseCheckoutWizard : public Core::IWizardFactory
+class VCSBASE_EXPORT BaseCheckoutWizardFactory : public Core::IWizardFactory
 {
     Q_OBJECT
 
 public:
-    BaseCheckoutWizard();
-    ~BaseCheckoutWizard();
+    BaseCheckoutWizardFactory();
+    ~BaseCheckoutWizardFactory();
 
     void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
 
