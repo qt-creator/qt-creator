@@ -398,7 +398,6 @@ void Delta::update(UiObjectMember* oldObject, const QmlJS::Document::Ptr& oldDoc
                    const QList<DebugId>& debugReferences)
 {
     Q_ASSERT (oldObject && newObject);
-    QSet<QString> presentBinding;
 
     const QHash<QString, UiObjectMember *> oldProperties = extractProperties(oldObject);
     const QHash<QString, UiObjectMember *> newProperties = extractProperties(newObject);
