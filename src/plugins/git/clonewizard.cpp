@@ -71,8 +71,7 @@ VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage*> &p
     // Collect parameters for the clone command.
     const CloneWizardPage *cwp = 0;
     foreach (QWizardPage *wp, parameterPages) {
-        cwp = qobject_cast<const CloneWizardPage *>(wp);
-        if (cwp)
+        if ((cwp = qobject_cast<const CloneWizardPage *>(wp)))
             break;
     }
 

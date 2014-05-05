@@ -102,7 +102,11 @@ QList<QWizardPage*> GitoriousCloneWizardFactory::createParameterPages(const QStr
 VcsBase::Command *GitoriousCloneWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
                                                       QString *checkoutPath)
 {
-    const Git::CloneWizardPage *cwp = qobject_cast<const Git::CloneWizardPage *>(parameterPages.back());
+    const Git::CloneWizardPage *cwp = 0;
+    foreach (QWizardPage *p, parameterPages) {
+        if ((cwp = qobject_cast<const Git::CloneWizardPage *>(p)))
+            break;
+    }
     QTC_ASSERT(cwp, return 0);
     return cwp->createCheckoutJob(checkoutPath);
 }

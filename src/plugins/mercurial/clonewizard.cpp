@@ -68,7 +68,11 @@ QList<QWizardPage *> CloneWizardFactory::createParameterPages(const QString &pat
 Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &parameterPages,
                                     QString *checkoutPath)
 {
-    const CloneWizardPage *page = qobject_cast<const CloneWizardPage *>(parameterPages.front());
+    const CloneWizardPage *page = 0;
+    foreach (QWizardPage *p, parameterPages) {
+        if ((page = qobject_cast<const CloneWizardPage *>(p)))
+            break;
+    }
 
     if (!page)
         return 0;

@@ -70,7 +70,11 @@ VcsBase::Command *CheckoutWizardFactory::createCommand(const QList<QWizardPage*>
 {
     // Collect parameters for the checkout command.
     // CVS does not allow for checking out into a different directory.
-    const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
+    const CheckoutWizardPage *cwp = 0;
+    foreach (QWizardPage *p, parameterPages) {
+        if ((cwp = qobject_cast<const CheckoutWizardPage *>(p)))
+            break;
+    }
     QTC_ASSERT(cwp, return 0);
     const CvsSettings settings = CvsPlugin::instance()->settings();
     const QString binary = settings.binaryPath();

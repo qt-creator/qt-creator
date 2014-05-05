@@ -67,7 +67,11 @@ VcsBase::Command *CheckoutWizardFactory::createCommand(const QList<QWizardPage*>
                                                 QString *checkoutPath)
 {
     // Collect parameters for the checkout command.
-    const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
+    const CheckoutWizardPage *cwp = 0;
+    foreach (const QWizardPage *p, parameterPages) {
+        if ((cwp = qobject_cast<const CheckoutWizardPage *>(p)))
+            break;
+    }
     QTC_ASSERT(cwp, return 0);
     const SubversionSettings settings = SubversionPlugin::instance()->settings();
     const QString binary = settings.binaryPath();
