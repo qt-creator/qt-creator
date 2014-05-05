@@ -701,12 +701,12 @@ class DumperBase:
 
     def putCStyleArray(self, value):
         type = value.type.unqualified()
-        targetType = value[0].type
+        innerType = value[0].type
         #self.putAddress(value.address)
         self.putType(type)
         self.putNumChild(1)
         format = self.currentItemFormat()
-        isDefault = format == None and str(targetType.unqualified()) == "char"
+        isDefault = format == None and str(innerType.unqualified()) == "char"
         if isDefault or format == 0 or format == 1 or format == 2:
             blob = self.readMemory(self.addressOf(value), type.sizeof)
 
@@ -724,7 +724,7 @@ class DumperBase:
             self.putValue(blob, Hex2EncodedLocal8Bit)
         else:
             try:
-                self.putValue("@0x%x" % self.pointerValue(value.cast(targetType.pointer())))
+                self.putValue("@0x%x" % self.pointerValue(value.cast(innerType.pointer())))
             except:
                 self.putEmptyValue()
 
@@ -732,13 +732,13 @@ class DumperBase:
             try:
                 # May fail on artificial items like xmm register data.
                 p = self.addressOf(value)
-                ts = targetType.sizeof
-                if not self.tryPutArrayContents(targetType, p, int(type.sizeof / ts)):
-                    with Children(self, childType=targetType,
+                ts = innerType.sizeof
+                if not self.tryPutArrayContents(p, int(type.sizeof / ts), innerType):
+                    with Children(self, childType=innerType,
                             addrBase=p, addrStep=ts):
                         self.putFields(value)
             except:
-                with Children(self, childType=targetType):
+                with Children(self, childType=innerType):
                     self.putFields(value)
 
     def cleanAddress(self, addr):
@@ -754,14 +754,14 @@ class DumperBase:
             warn("CANNOT CONVERT TYPE: %s" % type(addr))
             return str(addr)
 
-    def tryPutArrayContents(self, typeobj, base, n):
-        enc = self.simpleEncoding(typeobj)
+    def tryPutArrayContents(self, base, n, innerType):
+        enc = self.simpleEncoding(innerType)
         if not enc:
             return False
-        size = n * typeobj.sizeof;
-        self.put('childtype="%s",' % typeobj)
+        size = n * innerType.sizeof;
+        self.put('childtype="%s",' % innerType)
         self.put('addrbase="0x%x",' % toInteger(base))
-        self.put('addrstep="0x%x",' % toInteger(typeobj.sizeof))
+        self.put('addrstep="0x%x",' % toInteger(innerType.sizeof))
         self.put('arrayencoding="%s",' % enc)
         self.put('arraydata="')
         self.put(self.readMemory(base, size))
@@ -860,7 +860,7 @@ class DumperBase:
             self.putType(typeName)
             self.putItemCount(n)
             self.putNumChild(n)
-            self.putArrayData(innerType, value, n)
+            self.putArrayData(value, n, innerType)
             return
 
         if self.isFunctionType(innerType):
@@ -1209,8 +1209,8 @@ class DumperBase:
                             if pp > 1000:
                                 break
 
-    def isKnownMovableType(self, type):
-        if type in (
+    def isKnownMovableType(self, typeName):
+        if typeName in (
                 "QBrush", "QBitArray", "QByteArray", "QCustomTypeInfo", "QChar", "QDate",
                 "QDateTime", "QFileInfo", "QFixed", "QFixedPoint", "QFixedSize",
                 "QHashDummyValue", "QIcon", "QImage", "QLine", "QLineF", "QLatin1Char",
@@ -1222,7 +1222,7 @@ class DumperBase:
                 ):
             return True
 
-        return type == "QStringList" and self.qtVersion() >= 0x050000
+        return typeName == "QStringList" and self.qtVersion() >= 0x050000
 
     def currentItemFormat(self, type = None):
         format = self.formats.get(self.currentIName)
@@ -1233,12 +1233,31 @@ class DumperBase:
             format = self.typeformats.get(needle)
         return format
 
-    def putPlotData(self, type, base, n, plotFormat = 2):
+    def putArrayData(self, base, n, innerType = None,
+            childNumChild = None, maxNumChild = 10000):
+        if innerType is None:
+            innerType = base.dereference().type
+        if not self.tryPutArrayContents(base, n, innerType):
+            base = self.createPointerValue(base, innerType)
+            with Children(self, n, innerType, childNumChild, maxNumChild,
+                    base, innerType.sizeof):
+                for i in self.childRange():
+                    i = toInteger(i)
+                    self.putSubItem(i, (base + i).dereference())
+
+    def putArrayItem(self, name, addr, n, typeName, plotFormat = 2):
+        with SubItem(self, name):
+            self.putEmptyValue()
+            self.putType("%s [%d]" % (typeName, n))
+            self.putArrayData(addr, n, self.lookupType(typeName))
+            self.putAddress(addr)
+
+    def putPlotData(self, base, n, typeobj, plotFormat = 2):
         if self.isExpanded():
-            self.putArrayData(type, base, n)
+            self.putArrayData(base, n, typeobj)
         if not hasPlot():
             return
-        if not self.isSimpleType(type):
+        if not self.isSimpleType(typeobj):
             #self.putValue(self.currentValue + " (not plottable)")
             self.putValue(self.currentValue)
             self.putField("plottable", "0")
@@ -1254,7 +1273,7 @@ class DumperBase:
                 gnuplotPipe[iname].terminate()
                 del gnuplotPipe[iname]
             return
-        base = self.createPointerValue(base, type)
+        base = self.createPointerValue(base, typeobj)
         if not iname in gnuplotPipe:
             gnuplotPipe[iname] = subprocess.Popen(["gnuplot"],
                     stdin=subprocess.PIPE)

@@ -68,7 +68,7 @@ def qdump__QByteArray(d, value):
         d.putField("editformat", DisplayUtf8String)
         d.putField("editvalue", d.encodeByteArray(value))
     if d.isExpanded():
-        d.putArrayData(d.charType(), data, size)
+        d.putArrayData(data, size, d.charType())
 
 def qdump__QByteArrayData(d, value):
     data, size, alloc = d.byteArrayDataHelper(d.addressOf(value))
@@ -534,8 +534,7 @@ def qdump__QFiniteStack(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        innerType = d.templateArgument(value.type, 0)
-        d.putPlotData(innerType, value["_array"], size)
+        d.putPlotData(value["_array"], size, d.templateArgument(value.type, 0))
 
 # Stock gdb 7.2 seems to have a problem with types here:
 #
@@ -789,8 +788,7 @@ def qdump__QList(d, value):
             isInternal = innerSize <= stepSize and d.isMovableType(innerType)
         if isInternal:
             if innerSize == stepSize:
-                p = d.createPointerValue(addr, innerType)
-                d.putArrayData(innerType, p, size)
+                d.putArrayData(addr, size, innerType)
             else:
                 with Children(d, size, childType=innerType):
                     for i in d.childRange():
@@ -2172,8 +2170,7 @@ def qdump__QVector(d, value):
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
-    innerType = d.templateArgument(value.type, 0)
-    d.putPlotData(innerType, data, size)
+    d.putPlotData(data, size, d.templateArgument(value.type, 0))
 
 
 def qdump__QWeakPointer(d, value):

@@ -5935,6 +5935,9 @@ namespace sse {
         __m128 sseA, sseB;
         sseA = _mm_loadu_ps(a);
         sseB = _mm_loadu_ps(b);
+
+        __m128i sseAi;
+        sseAi = _mm_set_epi32(1, 3, 5, 7);
         BREAK_HERE;
         // Expand a b.
         // CheckType sseA __m128.

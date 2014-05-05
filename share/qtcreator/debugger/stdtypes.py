@@ -37,8 +37,7 @@ def qdump__std__array(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        innerType = d.templateArgument(value.type, 0)
-        d.putPlotData(innerType, d.addressOf(value), size)
+        d.putPlotData(d.addressOf(value), size, d.templateArgument(value.type, 0))
 
 
 def qform__std____1__array():
@@ -724,10 +723,10 @@ def qdump__std__vector(d, value):
                     q = base + int(i / 8)
                     d.putBoolItem(str(i), (int(d.extractPointer(q)) >> (i % 8)) & 1)
         else:
-            d.putPlotData(type, start, size)
+            d.putPlotData(start, size, type)
 
 def qdump__std__vector__QNX(d, value):
-    type = d.templateArgument(value.type, 0)
+    innerType = d.templateArgument(value.type, 0)
     isBool = str(type) == 'bool'
     if isBool:
         impl = value['_Myvec']
@@ -753,12 +752,12 @@ def qdump__std__vector__QNX(d, value):
     d.putNumChild(size)
     if d.isExpanded():
         if isBool:
-            with Children(d, size, maxNumChild=10000, childType=type):
+            with Children(d, size, maxNumChild=10000, childType=innerType):
                 for i in d.childRange():
                     q = start + int(i / storagesize)
                     d.putBoolItem(str(i), (q.dereference() >> (i % storagesize)) & 1)
         else:
-            d.putArrayData(type, start, size)
+            d.putArrayData(start, size, innerType)
 
 def qdump__std____1__vector(d, value):
     innerType = d.templateArgument(value.type, 0)
@@ -775,7 +774,7 @@ def qdump__std____1__vector(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        d.putPlotData(innerType, begin, size)
+        d.putPlotData(begin, size, innerType)
 
 
 def qform__std____debug__vector():

@@ -1044,16 +1044,6 @@ class Dumper(DumperBase):
     def isStructType(self, typeobj):
         return typeobj.code == gdb.TYPE_CODE_STRUCT
 
-    def putArrayData(self, typeobj, base, n,
-            childNumChild = None, maxNumChild = 10000):
-        if not self.tryPutArrayContents(typeobj, base, n):
-            base = self.createPointerValue(base, typeobj)
-            with Children(self, n, typeobj, childNumChild, maxNumChild,
-                    base, typeobj.sizeof):
-                for i in self.childRange():
-                    i = toInteger(i)
-                    self.putSubItem(i, (base + i).dereference())
-
     def isFunctionType(self, type):
         return type.code == MethodCode or type.code == FunctionCode
 

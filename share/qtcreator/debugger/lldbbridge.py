@@ -600,15 +600,6 @@ class Dumper(DumperBase):
                     return Hex2EncodedInt8
         return None
 
-    def putArrayData(self, type, base, n,
-            childNumChild = None, maxNumChild = 10000):
-        if not self.tryPutArrayContents(type, base, n):
-            base = self.createPointerValue(base, type)
-            with Children(self, n, type, childNumChild, maxNumChild,
-                    base, type.GetByteSize()):
-                for i in self.childRange():
-                    self.putSubItem(i, (base + i).dereference())
-
     def createPointerValue(self, address, pointeeType):
         addr = int(address) & 0xFFFFFFFFFFFFFFFF
         return self.context.CreateValueFromAddress(None, addr, pointeeType).AddressOf()
