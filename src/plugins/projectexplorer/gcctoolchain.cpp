@@ -791,7 +791,6 @@ ToolChain *GccToolChainFactory::restore(const QVariantMap &data)
     GccToolChain *tc = new GccToolChain(ToolChain::ManualDetection);
     // Updating from 2.5:
     QVariantMap updated = data;
-    QString id = idFromMap(updated);
     if (tc->fromMap(updated))
         return tc;
 
