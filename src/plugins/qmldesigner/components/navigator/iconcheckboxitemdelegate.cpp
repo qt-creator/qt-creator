@@ -50,46 +50,53 @@ IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent,
                                                    QString uncheckedPixmapURL,
                                                    NavigatorTreeModel *treeModel)
     : QStyledItemDelegate(parent),
-      offPix(uncheckedPixmapURL),
-      onPix(checkedPixmapURL),
-      m_TreeModel(treeModel)
+      offPixmap(uncheckedPixmapURL),
+      onPixmap(checkedPixmapURL),
+      m_navigatorTreeModel(treeModel)
 {}
 
-QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                         const QModelIndex &index) const
+static bool indexIsHolingModelNode(const QModelIndex &modelIndex)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(index);
+   return modelIndex.data(NavigatorTreeModel::InternalIdRole).isValid();
+}
 
-    if (!index.data(Qt::UserRole).isValid())
-        return QSize();
+QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem & /*option*/,
+                                         const QModelIndex &modelIndex) const
+{
+    if (indexIsHolingModelNode(modelIndex))
+        return QSize(15, 20);
 
-    return QSize(15, 20);
+    return QSize();
+}
+
+static bool isChecked(NavigatorTreeModel *navigatorTreeMode, const QModelIndex &modelIndex)
+{
+    return navigatorTreeMode->itemFromIndex(modelIndex)->checkState() == Qt::Checked;
 }
 
 void IconCheckboxItemDelegate::paint(QPainter *painter,
-                                     const QStyleOptionViewItem &option, const QModelIndex &index) const
+                                     const QStyleOptionViewItem &styleOption,
+                                     const QModelIndex &modelIndex) const
 {
-    if (!index.data(Qt::UserRole).isValid())
-        return;
+    const int offset = 2;
+    if (indexIsHolingModelNode(modelIndex)) {
+        painter->save();
+        if (styleOption.state & QStyle::State_Selected)
+            drawSelectionBackground(painter, styleOption);
 
-    painter->save();
-    if (option.state & QStyle::State_Selected)
-        drawSelectionBackground(painter, option);
+        if (!m_navigatorTreeModel->nodeForIndex(modelIndex).isRootNode()) {
 
-    if (!m_TreeModel->nodeForIndex(index).isRootNode()) {
+            if (m_navigatorTreeModel->isNodeInvisible(modelIndex))
+                painter->setOpacity(0.5);
 
-        bool isChecked= (m_TreeModel->itemFromIndex(index)->checkState() == Qt::Checked);
+            if (isChecked(m_navigatorTreeModel, modelIndex))
+                painter->drawPixmap(styleOption.rect.x() + offset, styleOption.rect.y() + offset, onPixmap);
+            else
+                painter->drawPixmap(styleOption.rect.x() + offset, styleOption.rect.y() + offset, offPixmap);
+        }
 
-        if (m_TreeModel->isNodeInvisible( index ))
-            painter->setOpacity(0.5);
-
-        if (isChecked)
-            painter->drawPixmap(option.rect.x()+2,option.rect.y()+2,onPix);
-        else
-            painter->drawPixmap(option.rect.x()+2,option.rect.y()+2,offPix);
+        painter->restore();
     }
-    painter->restore();
 }
 
 } // namespace QmlDesigner

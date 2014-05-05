@@ -52,9 +52,9 @@ public:
                const QModelIndex &index) const;
 
 private:
-    QPixmap offPix;
-    QPixmap onPix;
-    NavigatorTreeModel *m_TreeModel;
+    QPixmap offPixmap;
+    QPixmap onPixmap;
+    NavigatorTreeModel *m_navigatorTreeModel;
 };
 } // namespace QmlDesigner
 
