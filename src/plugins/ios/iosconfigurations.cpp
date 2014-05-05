@@ -430,9 +430,6 @@ void IosConfigurations::updateSimulators()
     // currently we have just one simulator
     DeviceManager *devManager = DeviceManager::instance();
     Core::Id devId = Constants::IOS_SIMULATOR_DEVICE_ID;
-    QMap<QString, Platform> platforms = IosProbe::detectPlatforms();
-    QMapIterator<QString, Platform> iter(platforms);
-    Utils::FileName simulatorPath;
     IDevice::ConstPtr dev = devManager->find(devId);
     if (!dev.isNull())
         return;
