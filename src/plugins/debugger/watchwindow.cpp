@@ -735,13 +735,11 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     const QModelIndex idx = indexAt(ev->pos());
     const QModelIndex mi0 = idx.sibling(idx.row(), 0);
     const QModelIndex mi1 = idx.sibling(idx.row(), 1);
-    const QModelIndex mi2 = idx.sibling(idx.row(), 2);
     const quint64 address = addressOf(mi0);
     const uint size = sizeOf(mi0);
     const quint64 pointerAddress = pointerAddressOf(mi0);
     const QString exp = mi0.data(LocalsExpressionRole).toString();
     const QString name = mi0.data(LocalsNameRole).toString();
-    const QString type = mi2.data().toString();
 
     // Offer to open address pointed to or variable address.
     const bool createPointerActions = pointerAddress && pointerAddress != address;
