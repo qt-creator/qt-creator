@@ -57,10 +57,6 @@ MemcheckRunControl::MemcheckRunControl(const AnalyzerStartParameters &sp,
             SIGNAL(suppressionCount(QString,qint64)));
     connect(&m_parser, SIGNAL(internalError(QString)),
             SIGNAL(internalParserError(QString)));
-    connect(&m_parser, SIGNAL(status(Valgrind::XmlProtocol::Status)),
-            SLOT(status(Valgrind::XmlProtocol::Status)));
-
-    m_progress->setProgressRange(0, XmlProtocol::Status::Finished + 1);
 }
 
 QString MemcheckRunControl::progressTitle() const
@@ -130,11 +126,6 @@ QStringList MemcheckRunControl::toolArguments() const
 QStringList MemcheckRunControl::suppressionFiles() const
 {
     return m_settings->suppressionFiles();
-}
-
-void MemcheckRunControl::status(const Status &status)
-{
-    m_progress->setProgressValue(status.state() + 1);
 }
 
 } // namespace Internal

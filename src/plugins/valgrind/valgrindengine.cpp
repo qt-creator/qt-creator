@@ -53,8 +53,6 @@ using namespace ProjectExplorer;
 namespace Valgrind {
 namespace Internal {
 
-const int progressMaximum  = 1000000;
-
 ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)
     : AnalyzerRunControl(sp, runConfiguration),
@@ -80,14 +78,11 @@ bool ValgrindRunControl::startEngine()
 {
     emit starting(this);
 
-    FutureProgress *fp = ProgressManager::addTask(m_progress->future(),
-                                                        progressTitle(), "valgrind");
+    FutureProgress *fp = ProgressManager::addTimedTask(m_progress, progressTitle(), "valgrind", 100);
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     connect(fp, SIGNAL(canceled()), this, SLOT(handleProgressCanceled()));
     connect(fp, SIGNAL(finished()), this, SLOT(handleProgressFinished()));
-    m_progress->setProgressRange(0, progressMaximum);
     m_progress->reportStarted();
-    m_progress->setProgressValue(progressMaximum / 10);
 
     const AnalyzerStartParameters &sp = startParameters();
 #if VALGRIND_DEBUG_OUTPUT
@@ -183,12 +178,6 @@ void ValgrindRunControl::runnerFinished()
 
 void ValgrindRunControl::receiveProcessOutput(const QString &output, OutputFormat format)
 {
-    int progress = m_progress->progressValue();
-    if (progress < 5 * progressMaximum / 10)
-        progress += progress / 100;
-    else if (progress < 9 * progressMaximum / 10)
-        progress += progress / 1000;
-    m_progress->setProgressValue(progress);
     appendMessage(output, format);
 }
 

@@ -62,9 +62,6 @@ protected:
     virtual QStringList toolArguments() const;
     virtual ValgrindRunner *runner();
 
-private slots:
-    void status(const Valgrind::XmlProtocol::Status &status);
-
 private:
     XmlProtocol::ThreadedParser m_parser;
     Memcheck::MemcheckRunner m_runner;

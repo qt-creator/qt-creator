@@ -75,7 +75,6 @@ signals:
 
 private slots:
     void slotFinished();
-    void slotStarted();
     void showStatusMessage(const QString &msg);
 
 private:

@@ -54,6 +54,8 @@
 #include <QTimer>
 #include <QVariant>
 
+#include <math.h>
+
 static const char kSettingsGroup[] = "Progress";
 static const char kDetailsPinned[] = "DetailsPinned";
 
@@ -737,6 +739,24 @@ FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QStr
     return m_instance->doAddTask(future, title, type, flags);
 }
 
+/*!
+    Shows a progress indicator for task given by the QFuture given by
+    the QFutureInterface \a futureInterface.
+    The progress indicator shows the specified \a title along with the progress bar.
+    The progress indicator will increase monotonically with time, at \a expectedSeconds
+    it will reach about 80%, and continue to increase with a decreasingly slower rate.
+
+    \sa addTask
+*/
+
+FutureProgress *ProgressManager::addTimedTask(QFutureInterface<void> *futureInterface, const QString &title,
+                                              Id type, int expectedSeconds, ProgressFlags flags)
+{
+    FutureProgress *fp = m_instance->doAddTask(futureInterface->future(), title, type, flags);
+    (void) new ProgressTimer(fp, futureInterface, expectedSeconds);
+    return fp;
+}
+
 void ProgressManager::setApplicationLabel(const QString &text)
 {
     m_instance->doSetApplicationLabel(text);
@@ -747,3 +767,35 @@ void ProgressManager::cancelTasks(const Id type)
     if (m_instance)
         m_instance->doCancelTasks(type);
 }
+
+
+ProgressTimer::ProgressTimer(QObject *parent,
+                             QFutureInterface<void> *futureInterface,
+                             int expectedSeconds)
+    : QTimer(parent),
+      m_futureInterface(futureInterface),
+      m_expectedTime(expectedSeconds),
+      m_currentTime(0)
+{
+    m_futureWatcher.setFuture(futureInterface->future());
+
+    m_futureInterface->setProgressRange(0, 100);
+    m_futureInterface->setProgressValue(0);
+
+    setInterval(1000); // 1 second
+    connect(this, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+    connect(&m_futureWatcher, SIGNAL(started()), this, SLOT(start()));
+}
+
+void ProgressTimer::handleTimeout()
+{
+    ++m_currentTime;
+
+    // This maps expectation to atan(1) to Pi/4 ~= 0.78, i.e. snaps
+    // from 78% to 100% when expectations are met at the time the
+    // future finishes. That's not bad for a random choice.
+    const double mapped = atan2(m_currentTime, m_expectedTime);
+    const double progress = 100 * 2 * mapped / 3.14;
+    m_futureInterface->setProgressValue(int(progress));
+}
+

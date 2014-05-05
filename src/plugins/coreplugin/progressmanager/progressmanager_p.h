@@ -38,6 +38,7 @@
 #include <QHBoxLayout>
 #include <QPointer>
 #include <QPropertyAnimation>
+#include <QTimer>
 #include <QToolButton>
 
 namespace Core {
@@ -123,6 +124,24 @@ public:
     ToggleButton(QWidget *parent);
     QSize sizeHint() const;
     void paintEvent(QPaintEvent *event);
+};
+
+
+class ProgressTimer : public QTimer
+{
+    Q_OBJECT
+
+public:
+    ProgressTimer(QObject *parent, QFutureInterface<void> *futureInterface, int expectedSeconds);
+
+private slots:
+    void handleTimeout();
+
+private:
+    QFutureInterface<void> *m_futureInterface;
+    QFutureWatcher<void> m_futureWatcher;
+    int m_expectedTime;
+    int m_currentTime;
 };
 
 } // namespace Internal
