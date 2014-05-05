@@ -432,10 +432,11 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
 
     // Move to end of identifier
     QTextCursor tc = cursor;
-    QChar ch = m_widget->document()->characterAt(tc.position());
+    QTextDocument *document = m_widget->document();
+    QChar ch = document->characterAt(tc.position());
     while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
         tc.movePosition(QTextCursor::NextCharacter);
-        ch = m_widget->document()->characterAt(tc.position());
+        ch = document->characterAt(tc.position());
     }
 
     // Try to macth decl/def. For this we need the semantic doc with the AST.
@@ -443,9 +444,9 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
             && documentFromSemanticInfo->translationUnit()
             && documentFromSemanticInfo->translationUnit()->ast()) {
         int pos = tc.position();
-        while (m_widget->document()->characterAt(pos).isSpace())
+        while (document->characterAt(pos).isSpace())
             ++pos;
-        if (m_widget->document()->characterAt(pos) == QLatin1Char('(')) {
+        if (document->characterAt(pos) == QLatin1Char('(')) {
             link = attemptFuncDeclDef(cursor, m_widget, snapshot, documentFromSemanticInfo,
                                       symbolFinder);
             if (link.hasValidLinkText())
@@ -553,7 +554,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     if (!recognizedQtMethod) {
         const QTextBlock block = tc.block();
         int pos = cursor.positionInBlock();
-        QChar ch = m_widget->document()->characterAt(cursor.position());
+        QChar ch = document->characterAt(cursor.position());
         if (pos > 0 && !(ch.isLetterOrNumber() || ch == QLatin1Char('_')))
             --pos; // positionInBlock points to a delimiter character.
         const Token tk = SimpleLexer::tokenAt(block.text(), pos,
@@ -612,7 +613,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     QString expression = expressionUnderCursor(tc);
 
     for (int pos = tc.position();; ++pos) {
-        const QChar ch = m_widget->document()->characterAt(pos);
+        const QChar ch = document->characterAt(pos);
         if (ch.isSpace())
             continue;
         if (ch == QLatin1Char('(') && !expression.isEmpty()) {

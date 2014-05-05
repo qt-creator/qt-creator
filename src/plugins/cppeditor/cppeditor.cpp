@@ -852,10 +852,11 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
 
         //Other macro uses
         foreach (const Document::MacroUse &use, info.doc->macroUses()) {
-            if (use.macro().line() != macro->line()
-                    || use.macro().offset() != macro->offset()
-                    || use.macro().length() != macro->length()
-                    || use.macro().fileName() != macro->fileName())
+            const Macro &useMacro = use.macro();
+            if (useMacro.line() != macro->line()
+                    || useMacro.offset() != macro->offset()
+                    || useMacro.length() != macro->length()
+                    || useMacro.fileName() != macro->fileName())
                 continue;
 
             QTextCursor cursor(document());
