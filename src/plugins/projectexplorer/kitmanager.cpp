@@ -494,10 +494,12 @@ void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 bool KitManager::registerKit(ProjectExplorer::Kit *k)
 {
     QTC_ASSERT(isLoaded(), return false);
-    QTC_ASSERT(k->id().isValid(), return false);
 
     if (!k)
         return true;
+
+    QTC_ASSERT(k->id().isValid(), return false);
+
     foreach (Kit *current, kits()) {
         if (k == current)
             return false;
