@@ -1777,6 +1777,32 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findImplementationFile()
     QuickFixTestCase(testFiles, &factory);
 }
 
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_unicodeIdentifier()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    original =
+            "class Foo {\n"
+            "    void @\u00FC\u4E8C\U00010302();\n"
+            "};\n";
+            ;
+    expected = original;
+    expected +=
+            "\n"
+            "\n"
+            "void Foo::\u00FC\u4E8C\U00010302()\n"
+            "{\n"
+            "\n"
+            "}\n";
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    InsertDefFromDecl factory;
+    QuickFixTestCase(testFiles, &factory);
+}
+
 // Function for one of InsertDeclDef section cases
 void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 {

@@ -2823,7 +2823,7 @@ public:
             m_offerQuickFix = false;
             return;
         }
-        m_variableString = QString::fromLatin1(variableId->chars(), variableId->size());
+        m_variableString = QString::fromUtf8(variableId->chars(), variableId->size());
 
         m_baseName = m_variableString;
         if (m_baseName.startsWith(QLatin1String("m_")))
@@ -2850,7 +2850,7 @@ public:
                 Symbol *symbol = klass->memberAt(i);
                 if (const Name *symbolName = symbol->name()) {
                     if (const Identifier *id = symbolName->identifier()) {
-                        const QString memberName = QString::fromLatin1(id->chars(), id->size());
+                        const QString memberName = QString::fromUtf8(id->chars(), id->size());
                         if (memberName == m_getterName || memberName == m_setterName) {
                             m_offerQuickFix = false;
                             return;
@@ -2886,7 +2886,7 @@ public:
             Symbol *s = symbols->value;
             if (const Name *name = s->name()) {
                 if (const Identifier *id = name->identifier()) {
-                    const QString symbolName = QString::fromLatin1(id->chars(), id->size());
+                    const QString symbolName = QString::fromUtf8(id->chars(), id->size());
                     if (symbolName == m_variableString) {
                         symbol = s;
                         break;
@@ -2911,7 +2911,7 @@ public:
         QTC_ASSERT(className, return);
         const Identifier *classId = className->identifier();
         QTC_ASSERT(classId, return);
-        QString classString = QString::fromLatin1(classId->chars(), classId->size());
+        QString classString = QString::fromUtf8(classId->chars(), classId->size());
 
         bool wasHeader = true;
         QString declFileName = currentFile->fileName();

@@ -120,7 +120,8 @@ public:
         // Preprocess source
         Environment env;
         Preprocessor preprocess(0, &env);
-        const QByteArray preprocessedSource = preprocess.run(filePath, QLatin1String(source));
+        const QByteArray preprocessedSource = preprocess.run(filePath, source);
+
         document->setUtf8Source(preprocessedSource);
         QVERIFY(document->parse(parseMode));
         document->check();
@@ -207,6 +208,17 @@ private slots:
     void test_completion_enum_inside_block_inside_function_QTCREATORBUG5456();
     void test_completion_enum_inside_function_QTCREATORBUG5456();
     void test_completion_using_inside_different_namespace_QTCREATORBUG7978();
+
+    //
+    // The following "non-latin1" code points are used in the next tests:
+    //
+    //   U+00FC  - 2 code units in UTF8, 1 in UTF16 - LATIN SMALL LETTER U WITH DIAERESIS
+    //   U+4E8C  - 3 code units in UTF8, 1 in UTF16 - CJK UNIFIED IDEOGRAPH-4E8C
+    //   U+10302 - 4 code units in UTF8, 2 in UTF16 - OLD ITALIC LETTER KE
+    //
+
+    void test_checksymbols_unicodeIdentifier1();
+    void test_checksymbols_unicodeIdentifier2();
 };
 
 void tst_CheckSymbols::test_checksymbols_TypeUse()
@@ -1908,6 +1920,56 @@ void tst_CheckSymbols::test_completion_using_inside_different_namespace_QTCREATO
             << Use(12, 9, 10, CppHighlightingSupport::TypeUse)
             << Use(12, 20, 1, CppHighlightingSupport::TypeUse)
             << Use(12, 23, 1, CppHighlightingSupport::LocalUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_unicodeIdentifier1()
+{
+    const QByteArray source =
+            "class My\u00FC\u4E8C\U00010302Type { int \u00FC\u4E8C\U00010302Member; };\n"
+            "void f(My\u00FC\u4E8C\U00010302Type var\u00FC\u4E8C\U00010302)\n"
+            "{ var\u00FC\u4E8C\U00010302.\u00FC\u4E8C\U00010302Member = 0; }\n";
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 7, 10, CppHighlightingSupport::TypeUse)
+            << Use(1, 24, 10, CppHighlightingSupport::FieldUse)
+            << Use(2, 6, 1, CppHighlightingSupport::FunctionUse)
+            << Use(2, 8, 10, CppHighlightingSupport::TypeUse)
+            << Use(2, 19, 7, CppHighlightingSupport::LocalUse)
+            << Use(3, 3, 7, CppHighlightingSupport::LocalUse)
+            << Use(3, 11, 10, CppHighlightingSupport::FieldUse)
+            ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_unicodeIdentifier2()
+{
+    const QByteArray source =
+            "class v\u00FC\u4E8C\U00010302\n"
+            "{\n"
+            "public:\n"
+            "    v\u00FC\u4E8C\U00010302();\n"
+            "    ~v\u00FC\u4E8C\U00010302();\n"
+            "};\n"
+            "\n"
+            "v\u00FC\u4E8C\U00010302::v\u00FC\u4E8C\U00010302() {}\n"
+            "v\u00FC\u4E8C\U00010302::~v\u00FC\u4E8C\U00010302() {}\n"
+            ;
+
+    const QList<Use> expectedUses = QList<Use>()
+            << Use(1, 7, 5, CppHighlightingSupport::TypeUse)
+            << Use(4, 5, 5, CppHighlightingSupport::TypeUse)
+            << Use(5, 6, 5, CppHighlightingSupport::TypeUse)
+            << Use(5, 6, 5, CppHighlightingSupport::TypeUse)
+            << Use(8, 1, 5, CppHighlightingSupport::TypeUse)
+            << Use(8, 8, 5, CppHighlightingSupport::FunctionUse)
+            << Use(9, 1, 5, CppHighlightingSupport::TypeUse)
+            << Use(9, 1, 5, CppHighlightingSupport::TypeUse)
+            << Use(9, 9, 5, CppHighlightingSupport::TypeUse)
             ;
 
     TestData::check(source, expectedUses);

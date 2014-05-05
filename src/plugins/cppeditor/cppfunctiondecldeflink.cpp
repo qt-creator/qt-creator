@@ -802,7 +802,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
 
                 // don't change the name if it's in a comment
                 if (hasCommentedName(targetFile->cppDocument()->translationUnit(),
-                                     QLatin1String(targetFile->cppDocument()->utf8Source()),
+                                     QString::fromUtf8(targetFile->cppDocument()->utf8Source()),
                                      targetFunctionDeclarator, existingParamIndex))
                     replacementName = 0;
 

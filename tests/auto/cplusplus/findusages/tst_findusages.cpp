@@ -111,6 +111,8 @@ private Q_SLOTS:
     void templatedFunction_QTCREATORBUG9749();
 
     void usingInDifferentNamespace_QTCREATORBUG7978();
+
+    void unicodeIdentifier();
 };
 
 void tst_FindUsages::dump(const QList<Usage> &usages) const
@@ -949,6 +951,43 @@ void tst_FindUsages::usingInDifferentNamespace_QTCREATORBUG7978()
     FindUsages findUsages(src, doc, snapshot);
     findUsages(templateClass);
     QCOMPARE(findUsages.usages().size(), 3);
+}
+
+void tst_FindUsages::unicodeIdentifier()
+{
+    //
+    // The following "non-latin1" code points are used:
+    //
+    //   U+00FC  - 2 code units in UTF8, 1 in UTF16 - LATIN SMALL LETTER U WITH DIAERESIS
+    //   U+4E8C  - 3 code units in UTF8, 1 in UTF16 - CJK UNIFIED IDEOGRAPH-4E8C
+    //   U+10302 - 4 code units in UTF8, 2 in UTF16 - OLD ITALIC LETTER KE
+    //
+
+    const QByteArray src = "\n"
+            "int var\u00FC\u4E8C\U00010302;\n"
+            "void f() { var\u00FC\u4E8C\U00010302 = 1; }\n";
+            ;
+
+    Document::Ptr doc = Document::create("u");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 2U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Declaration *declaration = doc->globalSymbolAt(0)->asDeclaration();
+    QVERIFY(declaration);
+
+    FindUsages findUsages(src, doc, snapshot);
+    findUsages(declaration);
+    const QList<Usage> usages = findUsages.usages();
+    QCOMPARE(usages.size(), 2);
+    QCOMPARE(usages.at(0).len, 7);
+    QCOMPARE(usages.at(1).len, 7);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)

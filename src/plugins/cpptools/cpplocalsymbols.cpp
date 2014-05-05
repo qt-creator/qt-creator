@@ -86,11 +86,11 @@ protected:
                     continue;
                 if (!member->isGenerated() && (member->isDeclaration() || member->isArgument())) {
                     if (member->name() && member->name()->isNameId()) {
-                        const Identifier *id = member->identifier();
+                        const Token token = tokenAt(member->sourceLocation());
                         unsigned line, column;
-                        getTokenStartPosition(member->sourceLocation(), &line, &column);
+                        getPosition(token.utf16charsBegin(), &line, &column);
                         localUses[member].append(
-                                    HighlightingResult(line, column, id->size(),
+                                    HighlightingResult(line, column, token.utf16chars(),
                                                        CppHighlightingSupport::LocalUse));
                     }
                 }
@@ -101,7 +101,8 @@ protected:
     bool checkLocalUse(NameAST *nameAst, unsigned firstToken)
     {
         if (SimpleNameAST *simpleName = nameAst->asSimpleName()) {
-            if (tokenAt(simpleName->identifier_token).generated())
+            const Token token = tokenAt(simpleName->identifier_token);
+            if (token.generated())
                 return false;
             const Identifier *id = identifier(simpleName->identifier_token);
             for (int i = _scopeStack.size() - 1; i != -1; --i) {
@@ -113,7 +114,7 @@ protected:
                         unsigned line, column;
                         getTokenStartPosition(simpleName->identifier_token, &line, &column);
                         localUses[member].append(
-                                    HighlightingResult(line, column, id->size(),
+                                    HighlightingResult(line, column, token.utf16chars(),
                                                        CppHighlightingSupport::LocalUse));
                         return false;
                     }

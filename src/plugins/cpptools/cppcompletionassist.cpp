@@ -530,7 +530,7 @@ protected:
     void visit(const TemplateNameId *name)
     {
         _item = newCompletionItem(name);
-        _item->setText(QLatin1String(name->identifier()->chars()));
+        _item->setText(QString::fromUtf8(name->identifier()->chars(), name->identifier()->size()));
     }
 
     void visit(const DestructorNameId *name)
@@ -1682,9 +1682,9 @@ bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::Looku
                     signature += QLatin1Char(')');
 
                     const QByteArray normalized =
-                            QMetaObject::normalizedSignature(signature.toLatin1());
+                            QMetaObject::normalizedSignature(signature.toUtf8());
 
-                    signature = QString::fromLatin1(normalized, normalized.size());
+                    signature = QString::fromUtf8(normalized, normalized.size());
 
                     if (!signatures.contains(signature)) {
                         BasicProposalItem *ci = toCompletionItem(fun);
@@ -1884,7 +1884,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
             QString possibleDecl = bs.mid(lineStartToken).trimmed().append(QLatin1String("();"));
 
             Document::Ptr doc = Document::create(QLatin1String("<completion>"));
-            doc->setUtf8Source(possibleDecl.toLatin1());
+            doc->setUtf8Source(possibleDecl.toUtf8());
             if (doc->parse(Document::ParseDeclaration)) {
                 doc->check();
                 if (SimpleDeclarationAST *sd = doc->translationUnit()->ast()->asSimpleDeclaration()) {

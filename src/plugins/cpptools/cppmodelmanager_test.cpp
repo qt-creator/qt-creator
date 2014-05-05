@@ -784,7 +784,7 @@ QString nameOfFirstDeclaration(const Document::Ptr &doc)
             if (CPlusPlus::Declaration *decl = s->asDeclaration()) {
                 if (const CPlusPlus::Name *name = decl->name()) {
                     if (const CPlusPlus::Identifier *identifier = name->identifier())
-                        return QString::fromLatin1(identifier->chars(), identifier->size());
+                        return QString::fromUtf8(identifier->chars(), identifier->size());
                 }
             }
         }

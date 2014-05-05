@@ -95,7 +95,7 @@ static QByteArray typeId(Symbol *symbol)
     } else if (symbol->asDeclaration()) {
         QByteArray temp("d,");
         Overview pretty;
-        temp.append(pretty.prettyType(symbol->type()).toLatin1());
+        temp.append(pretty.prettyType(symbol->type()).toUtf8());
         return temp;
     } else if (symbol->asArgument()) {
         return QByteArray("a");

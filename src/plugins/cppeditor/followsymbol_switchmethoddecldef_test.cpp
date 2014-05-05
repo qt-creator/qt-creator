@@ -499,6 +499,11 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
         "    void foo();\n"
         "};\n"
     ) << _();
+
+    QTest::newRow("unicodeIdentifier") << _(
+        "class Foo { void $\u00FC\u4E8C\U00010302(); };\n"
+        "void Foo::@\u00FC\u4E8C\U00010302() {}\n"
+    ) << _();
 }
 
 void CppEditorPlugin::test_SwitchMethodDeclarationDefinition()

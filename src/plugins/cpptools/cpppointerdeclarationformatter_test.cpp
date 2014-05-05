@@ -89,7 +89,7 @@ public:
         // Write source to temprorary file
         const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
         Document::Ptr document = Document::create(filePath);
-        QVERIFY(writeFile(document->fileName(), sourceWithoutCursorMarker.toLatin1()));
+        QVERIFY(writeFile(document->fileName(), sourceWithoutCursorMarker.toUtf8()));
 
         // Preprocess source
         Environment env;
@@ -145,7 +145,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_simpledeclarations()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    PointerDeclarationFormatterTestCase(source.toLatin1(),
+    PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
                                         Document::ParseDeclaration,
                                         PointerDeclarationFormatter::RespectCursor);
@@ -369,7 +369,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_in_controlflowstatements()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    PointerDeclarationFormatterTestCase(source.toLatin1(),
+    PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
                                         Document::ParseStatement,
                                         PointerDeclarationFormatter::RespectCursor);
@@ -444,7 +444,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_declarators()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    PointerDeclarationFormatterTestCase(source.toLatin1(),
+    PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
                                         Document::ParseDeclaration,
                                         PointerDeclarationFormatter::RespectCursor);
@@ -499,7 +499,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_multiple_matches()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    PointerDeclarationFormatterTestCase(source.toLatin1(),
+    PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
                                         Document::ParseTranlationUnit,
                                         PointerDeclarationFormatter::IgnoreCursor);
@@ -582,7 +582,7 @@ void CppToolsPlugin::test_format_pointerdeclaration_macros()
     QFETCH(QString, source);
     QFETCH(QString, reformattedSource);
 
-    PointerDeclarationFormatterTestCase(source.toLatin1(),
+    PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
                                         Document::ParseTranlationUnit,
                                         PointerDeclarationFormatter::RespectCursor);

@@ -429,8 +429,8 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
             "No pointer or references in rewritten declaration");
 
     if (DEBUG_OUTPUT) {
-        qDebug("==> Rewritten: \"%s\" --> \"%s\"", originalDeclaration.toLatin1().constData(),
-               rewrittenDeclaration.toLatin1().constData());
+        qDebug("==> Rewritten: \"%s\" --> \"%s\"", originalDeclaration.toUtf8().constData(),
+               rewrittenDeclaration.toUtf8().constData());
     }
 
     // Creating the replacement in the changeset may fail due to operations

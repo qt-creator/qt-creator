@@ -67,7 +67,7 @@ void NamePrettyPrinter::visit(const Identifier *name)
 {
     const Identifier *id = name->identifier();
     if (id)
-        _name = QString::fromLatin1(id->chars(), id->size());
+        _name = QString::fromUtf8(id->chars(), id->size());
     else
         _name = QLatin1String("anonymous");
 }
@@ -76,7 +76,7 @@ void NamePrettyPrinter::visit(const TemplateNameId *name)
 {
     const Identifier *id = name->identifier();
     if (id)
-        _name = QString::fromLatin1(id->chars(), id->size());
+        _name = QString::fromUtf8(id->chars(), id->size());
     else
         _name = QLatin1String("anonymous");
     _name += QLatin1Char('<');
@@ -100,7 +100,7 @@ void NamePrettyPrinter::visit(const DestructorNameId *name)
 {
     const Identifier *id = name->identifier();
     _name += QLatin1Char('~');
-    _name += QString::fromLatin1(id->chars(), id->size());
+    _name += QString::fromUtf8(id->chars(), id->size());
 }
 
 void NamePrettyPrinter::visit(const OperatorNameId *name)
@@ -263,7 +263,7 @@ void NamePrettyPrinter::visit(const SelectorNameId *name)
             continue;
 
         if (const Identifier *id = n->identifier()) {
-            _name += QString::fromLatin1(id->chars(), id->size());
+            _name += QString::fromUtf8(id->chars(), id->size());
 
             if (name->hasArguments() || name->nameCount() > 1)
                 _name += QLatin1Char(':');
