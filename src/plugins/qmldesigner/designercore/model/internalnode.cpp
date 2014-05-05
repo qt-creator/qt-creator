@@ -155,6 +155,11 @@ void InternalNode::setId(const QString& id)
     m_id = id;
 }
 
+bool InternalNode::hasId() const
+{
+    return !m_id.isEmpty();
+}
+
 
 uint qHash(const InternalNodePointer& node)
 {

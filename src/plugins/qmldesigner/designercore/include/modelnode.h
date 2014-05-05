@@ -155,6 +155,7 @@ public:
     void setIdWithRefactoring(const QString &id);
     void setIdWithoutRefactoring(const QString &id);
     static bool isValidId(const QString &id);
+    bool hasId() const;
 
     Model *model() const;
     AbstractView *view() const;

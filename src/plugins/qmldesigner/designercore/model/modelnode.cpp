@@ -164,6 +164,14 @@ bool ModelNode::isValidId(const QString &id)
     return id.isEmpty() || (!idContainsWrongLetter(id) && !idIsQmlKeyWord(id));
 }
 
+bool ModelNode::hasId() const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return m_internalNode->hasId();
+}
+
 void ModelNode::setIdWithRefactoring(const QString& id)
 {
     if (model()->rewriterView()

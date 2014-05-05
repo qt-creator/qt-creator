@@ -86,6 +86,7 @@ public:
 
     QString id() const;
     void setId(const QString& id);
+    bool hasId() const;
 
     QVariant auxiliaryData(const PropertyName &name) const;
     void setAuxiliaryData(const PropertyName &name, const QVariant &data);
