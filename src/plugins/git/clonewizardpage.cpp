@@ -118,12 +118,12 @@ QString CloneWizardPage::directoryFromRepository(const QString &urlIn) const
     return url;
 }
 
-VcsBase::Command *CloneWizardPage::createCheckoutJob(QString *checkoutPath) const
+VcsBase::Command *CloneWizardPage::createCheckoutJob(Utils::FileName *checkoutPath) const
 {
      const Internal::GitClient *client = Internal::GitPlugin::instance()->gitClient();
      const QString workingDirectory = path();
      const QString checkoutDir = directory();
-     *checkoutPath = workingDirectory + QLatin1Char('/') + checkoutDir;
+     *checkoutPath = Utils::FileName::fromString(workingDirectory + QLatin1Char('/') + checkoutDir);
 
      const QString checkoutBranch = branch();
 

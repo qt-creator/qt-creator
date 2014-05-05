@@ -32,7 +32,7 @@
 
 #include <vcsbase/basecheckoutwizardpage.h>
 
-#include <QSharedPointer>
+#include <utils/fileutils.h>
 
 namespace VcsBase { class Command; }
 
@@ -48,7 +48,7 @@ public:
     explicit CloneWizardPage(QWidget *parent = 0);
     ~CloneWizardPage();
 
-    VcsBase::Command *createCheckoutJob(QString *checkoutPath) const;
+    VcsBase::Command *createCheckoutJob(Utils::FileName *checkoutPath) const;
 
 protected:
     QString directoryFromRepository(const QString &r) const;

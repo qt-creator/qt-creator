@@ -77,7 +77,7 @@ GitoriousCloneWizardFactory::GitoriousCloneWizardFactory()
     setDisplayName(tr("Gitorious Repository Clone"));
 }
 
-VcsBase::BaseCheckoutWizard *GitoriousCloneWizardFactory::create(const QString &path, QWidget *parent) const
+VcsBase::BaseCheckoutWizard *GitoriousCloneWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
 {
     return new GitoriousCloneWizard(path, parent);
 }
@@ -86,7 +86,7 @@ VcsBase::BaseCheckoutWizard *GitoriousCloneWizardFactory::create(const QString &
 // GitoriousCloneWizard:
 // --------------------------------------------------------------------
 
-GitoriousCloneWizard::GitoriousCloneWizard(const QString &path, QWidget *parent) :
+GitoriousCloneWizard::GitoriousCloneWizard(const Utils::FileName &path, QWidget *parent) :
     VcsBase::BaseCheckoutWizard(path, parent)
 {
     setTitle(tr("Cloning"));
@@ -100,7 +100,7 @@ GitoriousCloneWizard::GitoriousCloneWizard(const QString &path, QWidget *parent)
     GitoriousProjectWizardPage *projectPage = new GitoriousProjectWizardPage(hostPage);
     GitoriousRepositoryWizardPage *repoPage = new GitoriousRepositoryWizardPage(projectPage);
     GitoriousCloneWizardPage *clonePage = new GitoriousCloneWizardPage(repoPage);
-    clonePage->setPath(path);
+    clonePage->setPath(path.toString());
 
     addPage(hostPage);
     addPage(projectPage);
@@ -108,7 +108,7 @@ GitoriousCloneWizard::GitoriousCloneWizard(const QString &path, QWidget *parent)
     addPage(clonePage);
 }
 
-VcsBase::Command *GitoriousCloneWizard::createCommand(QString *checkoutDir)
+VcsBase::Command *GitoriousCloneWizard::createCommand(Utils::FileName *checkoutDir)
 {
     const Git::CloneWizardPage *cwp = 0;
     foreach (int pageId, pageIds()) {

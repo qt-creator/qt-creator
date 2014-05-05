@@ -43,7 +43,7 @@ class CheckoutWizardFactory : public VcsBase::BaseCheckoutWizardFactory
 public:
     CheckoutWizardFactory();
 
-    VcsBase::BaseCheckoutWizard *create(const QString &path, QWidget *parent = 0) const;
+    VcsBase::BaseCheckoutWizard *create(const Utils::FileName &path, QWidget *parent = 0) const;
 };
 
 class CheckoutWizard : public VcsBase::BaseCheckoutWizard
@@ -51,10 +51,10 @@ class CheckoutWizard : public VcsBase::BaseCheckoutWizard
     Q_OBJECT
 
 public:
-    CheckoutWizard(const QString &path, QWidget *parent = 0);
+    CheckoutWizard(const Utils::FileName &path, QWidget *parent = 0);
 
 protected:
-    VcsBase::Command *createCommand(QString *checkoutDir);
+    VcsBase::Command *createCommand(Utils::FileName *checkoutDir);
 };
 
 } // namespace Internal

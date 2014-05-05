@@ -33,12 +33,7 @@
 #include "vcsbase_global.h"
 #include <coreplugin/iwizardfactory.h>
 
-#include <QSharedPointer>
-#include <QList>
-
-QT_BEGIN_NAMESPACE
-class QWizardPage;
-QT_END_NAMESPACE
+#include <utils/fileutils.h>
 
 namespace VcsBase {
 class BaseCheckoutWizard;
@@ -53,9 +48,9 @@ public:
 
     void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
 
-    static QString openProject(const QString &path, QString *errorMessage);
+    static QString openProject(const Utils::FileName &path, QString *errorMessage);
 
-    virtual BaseCheckoutWizard *create(const QString &path, QWidget *parent = 0) const = 0;
+    virtual BaseCheckoutWizard *create(const Utils::FileName &path, QWidget *parent = 0) const = 0;
 };
 
 } // namespace VcsBase

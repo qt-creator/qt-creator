@@ -32,7 +32,7 @@
 
 #include "vcsbase_global.h"
 
-#include <QList>
+#include <utils/fileutils.h>
 #include <utils/wizard.h>
 
 namespace VcsBase {
@@ -45,15 +45,15 @@ class VCSBASE_EXPORT BaseCheckoutWizard : public Utils::Wizard
     Q_OBJECT
 
 public:
-    explicit BaseCheckoutWizard(const QString &path, QWidget *parent = 0);
+    explicit BaseCheckoutWizard(const Utils::FileName &path, QWidget *parent = 0);
 
     void setTitle(const QString &title);
     void setStartedStatus(const QString &title);
 
-    QString run();
+    Utils::FileName run();
 
 protected:
-    virtual VcsBase::Command *createCommand(QString *checkoutDir) = 0;
+    virtual VcsBase::Command *createCommand(Utils::FileName *checkoutDir) = 0;
 
 private slots:
     void slotPageChanged(int id);
@@ -63,7 +63,7 @@ private slots:
 private:
     Internal::CheckoutProgressWizardPage *m_progressPage;
     int m_progressPageId;
-    QString m_checkoutDir;
+    Utils::FileName m_checkoutDir;
 };
 
 } // namespace VcsBase

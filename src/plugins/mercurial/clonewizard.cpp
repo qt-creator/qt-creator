@@ -48,7 +48,7 @@ CloneWizardFactory::CloneWizardFactory()
     setDisplayName(tr("Mercurial Clone"));
 }
 
-BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWidget *parent) const
+BaseCheckoutWizard *CloneWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
 {
     return new CloneWizard(path, parent);
 }
@@ -57,7 +57,7 @@ BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWidget *par
 // CloneWizard:
 // --------------------------------------------------------------------
 
-CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
+CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
     VcsBase::BaseCheckoutWizard(path, parent)
 {
     setTitle(tr("Cloning"));
@@ -67,11 +67,11 @@ CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
     if (!vc->isConfigured())
         addPage(new VcsConfigurationPage(vc));
     CloneWizardPage *page = new CloneWizardPage;
-    page->setPath(path);
+    page->setPath(path.toString());
     addPage(page);
 }
 
-Command *CloneWizard::createCommand(QString *checkoutDir)
+Command *CloneWizard::createCommand(Utils::FileName *checkoutDir)
 {
     const CloneWizardPage *cwp = 0;
     foreach (int pageId, pageIds()) {
@@ -89,7 +89,7 @@ Command *CloneWizard::createCommand(QString *checkoutDir)
 
     QStringList args;
     args << QLatin1String("clone") << cwp->repository() << directory;
-    *checkoutDir = path + QLatin1Char('/') + directory;
+    *checkoutDir = Utils::FileName::fromString(path + QLatin1Char('/') + directory);
     VcsBase::Command *command = new VcsBase::Command(settings.binaryPath(), path,
                                                      QProcessEnvironment::systemEnvironment());
     command->addJob(args, -1);

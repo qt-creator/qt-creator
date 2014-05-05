@@ -34,11 +34,13 @@
 
 #include <projectexplorer/projectexplorer.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDir>
 #include <QMessageBox>
+#include <QScopedPointer>
 
 /*!
     \class VcsBase::BaseCheckoutWizard
@@ -79,9 +81,9 @@ void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, 
     Q_UNUSED(extraValues);
     // Create dialog and launch
 
-    QString checkoutPath;
+    Utils::FileName checkoutPath;
     {
-        QScopedPointer<BaseCheckoutWizard> wizard(create(path, parent));
+        QScopedPointer<BaseCheckoutWizard> wizard(create(Utils::FileName::fromString(path), parent));
         wizard->setWindowTitle(displayName());
         checkoutPath = wizard->run();
     }
@@ -94,7 +96,7 @@ void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, 
     const QString projectFile = openProject(checkoutPath, &errorMessage);
     if (projectFile.isEmpty()) {
         QMessageBox msgBox(QMessageBox::Warning, tr("Cannot Open Project"),
-                           tr("Failed to open project in \"%1\".").arg(QDir::toNativeSeparators(checkoutPath)));
+                           tr("Failed to open project in \"%1\".").arg(checkoutPath.toUserOutput()));
         msgBox.setDetailedText(errorMessage);
         msgBox.addButton(QMessageBox::Ok);
         msgBox.exec();
@@ -129,13 +131,13 @@ static QFileInfoList findProjectFiles(const QDir &projectDir, QString *errorMess
     return projectFiles;
 }
 
-QString BaseCheckoutWizardFactory::openProject(const QString &path, QString *errorMessage)
+QString BaseCheckoutWizardFactory::openProject(const Utils::FileName &path, QString *errorMessage)
 {
     // Search the directory for project files
-    const QDir dir(path);
+    const QDir dir(path.toString());
     if (!dir.exists()) {
         *errorMessage = tr("\"%1\" does not exist.").
-                        arg(QDir::toNativeSeparators(path)); // Should not happen
+                        arg(path.toUserOutput()); // Should not happen
         return QString();
     }
     QFileInfoList projectFiles = findProjectFiles(dir, errorMessage);

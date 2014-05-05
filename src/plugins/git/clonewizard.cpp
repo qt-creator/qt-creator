@@ -48,7 +48,7 @@ CloneWizardFactory::CloneWizardFactory()
     setDisplayName(tr("Git Repository Clone"));
 }
 
-VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWidget *parent) const
+VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
 {
     return new CloneWizard(path, parent);
 }
@@ -57,7 +57,7 @@ VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWi
 // CloneWizard:
 // --------------------------------------------------------------------
 
-CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
+CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
     VcsBase::BaseCheckoutWizard(path, parent)
 {
     setTitle(tr("Cloning"));
@@ -67,11 +67,11 @@ CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
     if (!vc->isConfigured())
         addPage(new VcsBase::VcsConfigurationPage(vc));
     CloneWizardPage *cwp = new CloneWizardPage;
-    cwp->setPath(path);
+    cwp->setPath(path.toString());
     addPage(cwp);
 }
 
-VcsBase::Command *CloneWizard::createCommand(QString *checkoutDir)
+VcsBase::Command *CloneWizard::createCommand(Utils::FileName *checkoutDir)
 {
     // Collect parameters for the clone command.
     const CloneWizardPage *cwp = 0;

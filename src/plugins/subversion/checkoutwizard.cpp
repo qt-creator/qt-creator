@@ -51,7 +51,7 @@ CheckoutWizardFactory::CheckoutWizardFactory()
     setDisplayName(tr("Subversion Checkout"));
 }
 
-VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const QString &path, QWidget *parent) const
+VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
 {
     return new CheckoutWizard(path, parent);
 }
@@ -60,18 +60,18 @@ VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const QString &path, 
 // CheckoutWizard:
 // --------------------------------------------------------------------
 
-CheckoutWizard::CheckoutWizard(const QString &path, QWidget *parent) :
+CheckoutWizard::CheckoutWizard(const Utils::FileName &path, QWidget *parent) :
     VcsBase::BaseCheckoutWizard(path, parent)
 {
     const Core::IVersionControl *vc = SubversionPlugin::instance()->versionControl();
     if (!vc->isConfigured())
         addPage(new VcsBase::VcsConfigurationPage(vc));
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
-    cwp->setPath(path);
+    cwp->setPath(path.toString());
     addPage(cwp);
 }
 
-VcsBase::Command *CheckoutWizard::createCommand(QString *checkoutDir)
+VcsBase::Command *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
 {
     // Collect parameters for the checkout command.
     const CheckoutWizardPage *cwp = 0;
@@ -88,7 +88,7 @@ VcsBase::Command *CheckoutWizard::createCommand(QString *checkoutDir)
     args << QLatin1String("checkout") << cwp->repository() << directory;
     const QString workingDirectory = cwp->path();
 
-    *checkoutDir = workingDirectory + QLatin1Char('/') + directory;
+    *checkoutDir = Utils::FileName::fromString(workingDirectory + QLatin1Char('/') + directory);
 
     if (settings.hasAuthentication()) {
         const QString user = settings.stringValue(SubversionSettings::userKey);

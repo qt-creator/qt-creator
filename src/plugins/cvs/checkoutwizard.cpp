@@ -48,7 +48,7 @@ CheckoutWizardFactory::CheckoutWizardFactory()
     setDisplayName(tr("CVS Checkout"));
 }
 
-VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const QString &path, QWidget *parent) const
+VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
 {
     return new CheckoutWizard(path, parent);
 }
@@ -57,18 +57,18 @@ VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const QString &path, 
 // CheckoutWizard:
 // --------------------------------------------------------------------
 
-CheckoutWizard::CheckoutWizard(const QString &path, QWidget *parent) :
+CheckoutWizard::CheckoutWizard(const Utils::FileName &path, QWidget *parent) :
     VcsBase::BaseCheckoutWizard(path, parent)
 {
     const Core::IVersionControl *vc = CvsPlugin::instance()->versionControl();
     if (!vc->isConfigured())
         addPage(new VcsBase::VcsConfigurationPage(vc));
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
-    cwp->setPath(path);
+    cwp->setPath(path.toString());
     addPage(cwp);
 }
 
-VcsBase::Command *CheckoutWizard::createCommand(QString *checkoutDir)
+VcsBase::Command *CheckoutWizard::createCommand(Utils::FileName *checkoutDir)
 {
     // Collect parameters for the checkout command.
     // CVS does not allow for checking out into a different directory.
@@ -86,7 +86,7 @@ VcsBase::Command *CheckoutWizard::createCommand(QString *checkoutDir)
     const QString repository = cwp->repository();
     args << QLatin1String("checkout") << repository;
     const QString workingDirectory = cwp->path();
-    *checkoutDir = workingDirectory + QLatin1Char('/') + repository;
+    *checkoutDir = Utils::FileName::fromString(workingDirectory + QLatin1Char('/') + repository);
 
     VcsBase::Command *command = new VcsBase::Command(binary, workingDirectory,
                                                      QProcessEnvironment::systemEnvironment());

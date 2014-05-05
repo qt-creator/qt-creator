@@ -45,7 +45,7 @@ class CloneWizardFactory : public VcsBase::BaseCheckoutWizardFactory
 public:
     CloneWizardFactory();
 
-    VcsBase::BaseCheckoutWizard *create(const QString &path, QWidget *parent = 0) const;
+    VcsBase::BaseCheckoutWizard *create(const Utils::FileName &path, QWidget *parent = 0) const;
 
 private:
     const QIcon m_icon;
@@ -56,10 +56,10 @@ class CloneWizard : public VcsBase::BaseCheckoutWizard
     Q_OBJECT
 
 public:
-    CloneWizard(const QString &path, QWidget *parent = 0);
+    CloneWizard(const Utils::FileName &path, QWidget *parent = 0);
 
 protected:
-    VcsBase::Command *createCommand(QString *checkoutDir);
+    VcsBase::Command *createCommand(Utils::FileName *checkoutDir);
 };
 
 } //namespace Internal

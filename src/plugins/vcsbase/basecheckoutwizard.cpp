@@ -46,7 +46,7 @@
 
 namespace VcsBase {
 
-BaseCheckoutWizard::BaseCheckoutWizard(const QString &path, QWidget *parent) :
+BaseCheckoutWizard::BaseCheckoutWizard(const Utils::FileName &path, QWidget *parent) :
     Utils::Wizard(parent),
     m_progressPage(new Internal::CheckoutProgressWizardPage),
     m_progressPageId(-1)
@@ -86,13 +86,13 @@ void BaseCheckoutWizard::slotTerminated(bool success)
         button(QWizard::BackButton)->setEnabled(true);
 }
 
-QString BaseCheckoutWizard::run()
+Utils::FileName BaseCheckoutWizard::run()
 {
     m_progressPageId = addPage(m_progressPage);
     if (Utils::Wizard::exec() == QDialog::Accepted)
         return m_checkoutDir;
     else
-        return QString();
+        return Utils::FileName();
 }
 
 void BaseCheckoutWizard::reject()

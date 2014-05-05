@@ -51,7 +51,7 @@ CloneWizardFactory::CloneWizardFactory()
     setDisplayName(tr("Bazaar Clone (Or Branch)"));
 }
 
-VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWidget *parent) const
+VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const Utils::FileName &path, QWidget *parent) const
 {
     return new CloneWizard(path, parent);
 }
@@ -60,7 +60,7 @@ VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWi
 // CloneWizard:
 // --------------------------------------------------------------------
 
-CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
+CloneWizard::CloneWizard(const Utils::FileName &path, QWidget *parent) :
     VcsBase::BaseCheckoutWizard(path, parent)
 {
     setTitle(tr("Cloning"));
@@ -70,11 +70,11 @@ CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
     if (!vc->isConfigured())
         addPage(new VcsBase::VcsConfigurationPage(vc));
     CloneWizardPage *page = new CloneWizardPage;
-    page->setPath(path);
+    page->setPath(path.toString());
     addPage(page);
 }
 
-VcsBase::Command *CloneWizard::createCommand(QString *checkoutDir)
+VcsBase::Command *CloneWizard::createCommand(Utils::FileName *checkoutDir)
 {
     const CloneWizardPage *cwp = 0;
     foreach (int pageId, pageIds()) {
@@ -86,7 +86,7 @@ VcsBase::Command *CloneWizard::createCommand(QString *checkoutDir)
         return 0;
 
     const BazaarSettings &settings = BazaarPlugin::instance()->settings();
-    *checkoutDir = cwp->path() + QLatin1Char('/') + cwp->directory();
+    *checkoutDir = Utils::FileName::fromString(cwp->path() + QLatin1Char('/') + cwp->directory());
 
     const CloneOptionsPanel *panel = cwp->cloneOptionsPanel();
     QStringList extraOptions;

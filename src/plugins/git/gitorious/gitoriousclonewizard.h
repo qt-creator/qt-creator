@@ -45,7 +45,7 @@ class GitoriousCloneWizardFactory : public VcsBase::BaseCheckoutWizardFactory
 public:
     GitoriousCloneWizardFactory();
 
-    VcsBase::BaseCheckoutWizard *create(const QString &path, QWidget *parent = 0) const;
+    VcsBase::BaseCheckoutWizard *create(const Utils::FileName &path, QWidget *parent = 0) const;
 };
 
 class GitoriousCloneWizard : public VcsBase::BaseCheckoutWizard
@@ -53,10 +53,10 @@ class GitoriousCloneWizard : public VcsBase::BaseCheckoutWizard
     Q_OBJECT
 
 public:
-    GitoriousCloneWizard(const QString &path, QWidget *parent = 0);
+    GitoriousCloneWizard(const Utils::FileName &path, QWidget *parent = 0);
 
 protected:
-    VcsBase::Command *createCommand(QString *checkoutDir);
+    VcsBase::Command *createCommand(Utils::FileName *checkoutDir);
 };
 
 
