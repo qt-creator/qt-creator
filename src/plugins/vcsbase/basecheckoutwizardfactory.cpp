@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "basecheckoutwizardfactory.h"
-#include "checkoutwizarddialog.h"
+#include "basecheckoutwizard.h"
 
 #include <coreplugin/featureprovider.h>
 
