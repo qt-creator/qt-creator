@@ -128,8 +128,7 @@ SymbolGroupValue SymbolGroupValue::operator[](unsigned index) const
     if (isValid() && SymbolGroupValue::verbose) {
         DebugPrint dp;
         dp << name() << "::operator[](#" << index << ") failed. ";
-        if (m_node)
-            formatNodeError(m_node, dp);
+        formatNodeError(m_node, dp);
     }
     return SymbolGroupValue(m_errorMessage);
 }
@@ -178,8 +177,7 @@ SymbolGroupValue SymbolGroupValue::operator[](const char *name) const
     if (isValid() && SymbolGroupValue::verbose) { // Do not report subsequent errors
         DebugPrint dp;
         dp << this->name() << "::operator[](\"" << name << "\") failed. ";
-        if (m_node)
-            formatNodeError(m_node, dp);
+        formatNodeError(m_node, dp);
     }
     return SymbolGroupValue(m_errorMessage);
 }
