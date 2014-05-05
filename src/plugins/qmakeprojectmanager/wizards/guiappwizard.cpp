@@ -144,7 +144,6 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
     const QtProjectParameters projectParams = dialog->projectParameters();
     const QString projectPath = projectParams.projectPath();
     const GuiAppParameters params = dialog->parameters();
-    const QString license = CppTools::AbstractEditorSupport::licenseTemplate();
 
     // Generate file names. Note that the path for the project files is the
     // newly generated project directory.

@@ -67,7 +67,6 @@ void LibraryParameters::generateCode(QtProjectParameters:: Type t,
                                      QString *header,
                                      QString *source) const
 {
-    QString rc;
     QTextStream headerStr(header);
 
     const QString indent = QString(indentation, QLatin1Char(' '));
