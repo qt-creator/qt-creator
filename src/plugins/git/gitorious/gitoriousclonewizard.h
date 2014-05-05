@@ -31,6 +31,7 @@
 #define GITORIOUSCLONEWIZARD_H
 
 #include <vcsbase/basecheckoutwizardfactory.h>
+#include <vcsbase/basecheckoutwizard.h>
 
 namespace Gitorious {
 namespace Internal {
@@ -44,12 +45,23 @@ class GitoriousCloneWizardFactory : public VcsBase::BaseCheckoutWizardFactory
 public:
     GitoriousCloneWizardFactory();
 
+    VcsBase::BaseCheckoutWizard *create(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0) const;
+
 private:
     // BaseCheckoutWizard
     QList<QWizardPage*> createParameterPages(const QString &path);
     VcsBase::Command *createCommand(const QList<QWizardPage*> &parameterPages,
                                     QString *checkoutPath);
 };
+
+class GitoriousCloneWizard : public VcsBase::BaseCheckoutWizard
+{
+    Q_OBJECT
+
+public:
+    GitoriousCloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0);
+};
+
 
 } // namespace Internal
 } // namespace Gitorious

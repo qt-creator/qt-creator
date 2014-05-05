@@ -31,6 +31,7 @@
 #define CLONEWIZARD_H
 
 #include <vcsbase/basecheckoutwizardfactory.h>
+#include <vcsbase/basecheckoutwizard.h>
 
 #include <QIcon>
 
@@ -44,10 +45,20 @@ class CloneWizardFactory : public VcsBase::BaseCheckoutWizardFactory
 public:
     CloneWizardFactory();
 
+    VcsBase::BaseCheckoutWizard *create(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0) const;
+
 private:
     QList<QWizardPage *> createParameterPages(const QString &path);
     VcsBase::Command *createCommand(const QList<QWizardPage *> &parameterPages,
                                     QString *checkoutPath);
+};
+
+class CloneWizard : public VcsBase::BaseCheckoutWizard
+{
+    Q_OBJECT
+
+public:
+    CloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0);
 };
 
 } // namespace Internal

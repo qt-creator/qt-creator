@@ -77,6 +77,11 @@ GitoriousCloneWizardFactory::GitoriousCloneWizardFactory()
     setDisplayName(tr("Gitorious Repository Clone"));
 }
 
+VcsBase::BaseCheckoutWizard *GitoriousCloneWizardFactory::create(const QList<QWizardPage *> &parameterPages, QWidget *parent) const
+{
+    return new GitoriousCloneWizard(parameterPages, parent);
+}
+
 QList<QWizardPage*> GitoriousCloneWizardFactory::createParameterPages(const QString &path)
 {
     QList<QWizardPage*> rc;
@@ -101,6 +106,14 @@ VcsBase::Command *GitoriousCloneWizardFactory::createCommand(const QList<QWizard
     QTC_ASSERT(cwp, return 0);
     return cwp->createCheckoutJob(checkoutPath);
 }
+
+// --------------------------------------------------------------------
+// GitoriousCloneWizard:
+// --------------------------------------------------------------------
+
+GitoriousCloneWizard::GitoriousCloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(parameterPages, parent)
+{ }
 
 } // namespace Internal
 } // namespace Gitorius

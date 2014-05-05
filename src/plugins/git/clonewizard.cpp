@@ -49,6 +49,11 @@ CloneWizardFactory::CloneWizardFactory()
     setDisplayName(tr("Git Repository Clone"));
 }
 
+VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QList<QWizardPage *> &parameterPages, QWidget *parent) const
+{
+    return new CloneWizard(parameterPages, parent);
+}
+
 QList<QWizardPage*> CloneWizardFactory::createParameterPages(const QString &path)
 {
     QList<QWizardPage*> rc;
@@ -75,6 +80,14 @@ VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage*> &p
     QTC_ASSERT(cwp, return 0);
     return cwp->createCheckoutJob(checkoutPath);
 }
+
+// --------------------------------------------------------------------
+// CloneWizard:
+// --------------------------------------------------------------------
+
+CloneWizard::CloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(parameterPages, parent)
+{ }
 
 } // namespace Internal
 } // namespace Git

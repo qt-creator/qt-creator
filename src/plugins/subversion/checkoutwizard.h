@@ -31,6 +31,7 @@
 #define CHECKOUTWIZARD_H
 
 #include <vcsbase/basecheckoutwizardfactory.h>
+#include <vcsbase/basecheckoutwizard.h>
 
 namespace Subversion {
 namespace Internal {
@@ -42,11 +43,21 @@ class CheckoutWizardFactory : public VcsBase::BaseCheckoutWizardFactory
 public:
     CheckoutWizardFactory();
 
+    VcsBase::BaseCheckoutWizard *create(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0) const;
+
 private:
     // BaseCheckoutWizard
     QList<QWizardPage*> createParameterPages(const QString &path);
     VcsBase::Command *createCommand(const QList<QWizardPage*> &parameterPage,
                                     QString *checkoutPath);
+};
+
+class CheckoutWizard : public VcsBase::BaseCheckoutWizard
+{
+    Q_OBJECT
+
+public:
+    CheckoutWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0);
 };
 
 } // namespace Internal

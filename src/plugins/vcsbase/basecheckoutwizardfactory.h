@@ -43,6 +43,7 @@ QT_END_NAMESPACE
 namespace VcsBase {
 namespace Internal { class BaseCheckoutWizardFactoryPrivate; }
 
+class BaseCheckoutWizard;
 class Command;
 
 class VCSBASE_EXPORT BaseCheckoutWizardFactory : public Core::IWizardFactory
@@ -56,6 +57,8 @@ public:
     void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
 
     static QString openProject(const QString &path, QString *errorMessage);
+
+    virtual BaseCheckoutWizard *create(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0) const = 0;
 
 protected:
     void setCustomLabels(const QString &progressTitle, const QString &startedStatus);

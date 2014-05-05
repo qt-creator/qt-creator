@@ -48,6 +48,11 @@ CheckoutWizardFactory::CheckoutWizardFactory()
     setDisplayName(tr("CVS Checkout"));
 }
 
+VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const QList<QWizardPage *> &parameterPages, QWidget *parent) const
+{
+    return new CheckoutWizard(parameterPages, parent);
+}
+
 QList<QWizardPage*> CheckoutWizardFactory::createParameterPages(const QString &path)
 {
     QList<QWizardPage*> rc;
@@ -80,6 +85,14 @@ VcsBase::Command *CheckoutWizardFactory::createCommand(const QList<QWizardPage*>
     command->addJob(settings.addOptions(args), -1);
     return command;
 }
+
+// --------------------------------------------------------------------
+// CheckoutWizard:
+// --------------------------------------------------------------------
+
+CheckoutWizard::CheckoutWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(parameterPages, parent)
+{ }
 
 } // namespace Internal
 } // namespace Cvs

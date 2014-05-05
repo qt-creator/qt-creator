@@ -87,5 +87,13 @@ VcsBase::Command *CheckoutWizardFactory::createCommand(const QList<QWizardPage*>
     return command;
 }
 
+// --------------------------------------------------------------------
+// CheckoutWizard:
+// --------------------------------------------------------------------
+
+CheckoutWizard::CheckoutWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(parameterPages, parent)
+{ }
+
 } // namespace Internal
 } // namespace Subversion

@@ -52,6 +52,11 @@ CloneWizardFactory::CloneWizardFactory()
     setDisplayName(tr("Bazaar Clone (Or Branch)"));
 }
 
+VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QList<QWizardPage *> &parameterPages, QWidget *parent) const
+{
+    return new CloneWizard(parameterPages, parent);
+}
+
 QList<QWizardPage *> CloneWizardFactory::createParameterPages(const QString &path)
 {
     QList<QWizardPage *> wizardPageList;
@@ -103,3 +108,11 @@ VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &
     command->addJob(args, -1);
     return command;
 }
+
+// --------------------------------------------------------------------
+// CloneWizard:
+// --------------------------------------------------------------------
+
+CloneWizard::CloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(parameterPages, parent)
+{ }
