@@ -169,8 +169,7 @@ QProcess::ProcessError ValgrindProcess::error() const
 
 void ValgrindProcess::handleError(QSsh::SshError error)
 {
-    if (isLocal()) {
-    } else {
+    if (!isLocal()) {
         switch (error) {
             case QSsh::SshTimeoutError:
                 m_remote.m_error = QProcess::Timedout;
