@@ -48,7 +48,7 @@ public:
 
     void connectToHost(const QString &hostName, quint16 port);
 
-    bool isConnected() const;
+    bool isOpen() const;
     QAbstractSocket::SocketState socketState() const;
     void close();
     QString errorString() const;

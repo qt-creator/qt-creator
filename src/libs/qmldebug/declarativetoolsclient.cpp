@@ -235,7 +235,7 @@ QList<int> DeclarativeToolsClient::currentObjects() const
 
 void DeclarativeToolsClient::setCurrentObjects(const QList<int> &debugIds)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     if (debugIds == m_currentDebugIds)
@@ -289,7 +289,7 @@ void DeclarativeToolsClient::setObjectIdList(
 
 void DeclarativeToolsClient::clearComponentCache()
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -308,7 +308,7 @@ void DeclarativeToolsClient::reload(const QHash<QString,
 {
     Q_UNUSED(changesHash);
 
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -324,7 +324,7 @@ void DeclarativeToolsClient::reload(const QHash<QString,
 
 void DeclarativeToolsClient::setDesignModeBehavior(bool inDesignMode)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -341,7 +341,7 @@ void DeclarativeToolsClient::setDesignModeBehavior(bool inDesignMode)
 
 void DeclarativeToolsClient::setAnimationSpeed(qreal slowDownFactor)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -359,7 +359,7 @@ void DeclarativeToolsClient::setAnimationSpeed(qreal slowDownFactor)
 
 void DeclarativeToolsClient::setAnimationPaused(bool paused)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -376,7 +376,7 @@ void DeclarativeToolsClient::setAnimationPaused(bool paused)
 
 void DeclarativeToolsClient::changeToSelectTool()
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -394,7 +394,7 @@ void DeclarativeToolsClient::changeToSelectTool()
 
 void DeclarativeToolsClient::changeToSelectMarqueeTool()
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -412,7 +412,7 @@ void DeclarativeToolsClient::changeToSelectMarqueeTool()
 
 void DeclarativeToolsClient::changeToZoomTool()
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -430,7 +430,7 @@ void DeclarativeToolsClient::changeToZoomTool()
 
 void DeclarativeToolsClient::showAppOnTop(bool showOnTop)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -449,7 +449,7 @@ void DeclarativeToolsClient::createQmlObject(const QString &qmlText,
                                            const QStringList &imports,
                                            const QString &filename, int order)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -472,7 +472,7 @@ void DeclarativeToolsClient::createQmlObject(const QString &qmlText,
 
 void DeclarativeToolsClient::destroyQmlObject(int debugId)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -487,7 +487,7 @@ void DeclarativeToolsClient::destroyQmlObject(int debugId)
 
 void DeclarativeToolsClient::reparentQmlObject(int debugId, int newParent)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -506,7 +506,7 @@ void DeclarativeToolsClient::reparentQmlObject(int debugId, int newParent)
 
 void DeclarativeToolsClient::applyChangesToQmlFile()
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     // TODO
@@ -514,7 +514,7 @@ void DeclarativeToolsClient::applyChangesToQmlFile()
 
 void DeclarativeToolsClient::applyChangesFromQmlFile()
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     // TODO

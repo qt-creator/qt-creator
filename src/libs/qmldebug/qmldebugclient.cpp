@@ -82,7 +82,7 @@ QmlDebugConnectionPrivate::QmlDebugConnectionPrivate(QmlDebugConnection *c)
 
 void QmlDebugConnectionPrivate::advertisePlugins()
 {
-    if (!q->isConnected() || !gotHello)
+    if (!q->isOpen())
         return;
 
     QPacket pack;
@@ -230,9 +230,9 @@ QmlDebugConnection::~QmlDebugConnection()
     }
 }
 
-bool QmlDebugConnection::isConnected() const
+bool QmlDebugConnection::isOpen() const
 {
-    return socketState() == QAbstractSocket::ConnectedState;
+    return socketState() == QAbstractSocket::ConnectedState && d->gotHello;
 }
 
 void QmlDebugConnection::close()
@@ -340,9 +340,7 @@ float QmlDebugClient::serviceVersion() const
 QmlDebugClient::State QmlDebugClient::state() const
 {
     Q_D(const QmlDebugClient);
-    if (!d->connection
-            || !d->connection->isConnected()
-            || !d->connection->d->gotHello)
+    if (!d->connection || !d->connection->isOpen())
         return NotConnected;
 
     if (d->connection->d->serverPlugins.contains(d->name))

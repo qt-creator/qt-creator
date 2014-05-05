@@ -243,7 +243,7 @@ void QmlProfilerClientManager::connectToClient()
 
 bool QmlProfilerClientManager::isConnected() const
 {
-    return d->connection && d->connection->isConnected();
+    return d->connection && d->connection->isOpen();
 }
 
 void QmlProfilerClientManager::disconnectClient()
@@ -260,7 +260,7 @@ void QmlProfilerClientManager::tryToConnect()
 {
     ++d->connectionAttempts;
 
-    if (d->connection && d->connection->isConnected()) {
+    if (d->connection && d->connection->isOpen()) {
         d->connectionTimer.stop();
         d->connectionAttempts = 0;
     } else if (d->connectionAttempts == 50) {

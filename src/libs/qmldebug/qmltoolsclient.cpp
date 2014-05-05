@@ -127,7 +127,7 @@ QList<int> QmlToolsClient::currentObjects() const
 
 void QmlToolsClient::setCurrentObjects(const QList<int> &debugIds)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     if (debugIds == m_currentDebugIds)
@@ -153,7 +153,7 @@ void QmlToolsClient::setObjectIdList(
 
 void QmlToolsClient::clearComponentCache()
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -168,7 +168,7 @@ void QmlToolsClient::clearComponentCache()
 
 void QmlToolsClient::reload(const QHash<QString, QByteArray> &changesHash)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     m_reloadQueryId = m_requestId;
@@ -185,7 +185,7 @@ void QmlToolsClient::reload(const QHash<QString, QByteArray> &changesHash)
 
 void QmlToolsClient::setDesignModeBehavior(bool inDesignMode)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -203,7 +203,7 @@ void QmlToolsClient::setDesignModeBehavior(bool inDesignMode)
 
 void QmlToolsClient::setAnimationSpeed(qreal slowDownFactor)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -244,7 +244,7 @@ void QmlToolsClient::changeToZoomTool()
 
 void QmlToolsClient::showAppOnTop(bool showOnTop)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -262,7 +262,7 @@ void QmlToolsClient::createQmlObject(const QString &qmlText,
                                            const QStringList &imports,
                                            const QString &filename, int order)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     QByteArray message;
@@ -284,7 +284,7 @@ void QmlToolsClient::createQmlObject(const QString &qmlText,
 
 void QmlToolsClient::destroyQmlObject(int debugId)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -299,7 +299,7 @@ void QmlToolsClient::destroyQmlObject(int debugId)
 
 void QmlToolsClient::reparentQmlObject(int debugId, int newParent)
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -315,7 +315,7 @@ void QmlToolsClient::reparentQmlObject(int debugId, int newParent)
 
 void QmlToolsClient::applyChangesToQmlFile()
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     // TODO
@@ -323,7 +323,7 @@ void QmlToolsClient::applyChangesToQmlFile()
 
 void QmlToolsClient::applyChangesFromQmlFile()
 {
-    if (!m_connection || !m_connection->isConnected())
+    if (!m_connection || !m_connection->isOpen())
         return;
 
     // TODO
