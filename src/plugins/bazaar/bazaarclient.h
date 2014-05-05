@@ -55,7 +55,7 @@ public:
     void commit(const QString &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile, const QStringList &extraOptions = QStringList());
     void annotate(const QString &workingDir, const QString &file,
-                  const QString revision = QString(), int lineNumber = -1,
+                  const QString &revision = QString(), int lineNumber = -1,
                   const QStringList &extraOptions = QStringList());
     void view(const QString &source, const QString &id,
               const QStringList &extraOptions = QStringList());

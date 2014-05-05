@@ -325,7 +325,7 @@ Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(
 }
 
 void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
-                             const QString revision /* = QString() */,
+                             const QString &revision /* = QString() */,
                              int lineNumber /* = -1 */,
                              const QStringList &extraOptions)
 {

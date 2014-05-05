@@ -129,7 +129,7 @@ void BazaarClient::commit(const QString &repositoryRoot, const QStringList &file
 }
 
 void BazaarClient::annotate(const QString &workingDir, const QString &file,
-                            const QString revision, int lineNumber,
+                            const QString &revision, int lineNumber,
                             const QStringList &extraOptions)
 {
     VcsBaseClient::annotate(workingDir, file, revision, lineNumber,

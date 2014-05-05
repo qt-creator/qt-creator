@@ -306,7 +306,7 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
 }
 
 void MercurialClient::annotate(const QString &workingDir, const QString &file,
-                               const QString revision, int lineNumber,
+                               const QString &revision, int lineNumber,
                                const QStringList &extraOptions)
 {
     QStringList args(extraOptions);

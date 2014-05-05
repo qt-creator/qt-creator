@@ -66,7 +66,7 @@ public:
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 
     void annotate(const QString &workingDir, const QString &file,
-                  const QString revision = QString(), int lineNumber = -1,
+                  const QString &revision = QString(), int lineNumber = -1,
                   const QStringList &extraOptions = QStringList());
     void commit(const QString &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile,

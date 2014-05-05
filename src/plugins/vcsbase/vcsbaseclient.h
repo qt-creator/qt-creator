@@ -92,7 +92,7 @@ public:
                                  const QString &dstLocation,
                                  const QStringList &extraOptions = QStringList());
     virtual void annotate(const QString &workingDir, const QString &file,
-                          const QString revision = QString(), int lineNumber = -1,
+                          const QString &revision = QString(), int lineNumber = -1,
                           const QStringList &extraOptions = QStringList());
     virtual void diff(const QString &workingDir, const QStringList &files = QStringList(),
                       const QStringList &extraOptions = QStringList());
