@@ -62,27 +62,8 @@
 */
 
 namespace VcsBase {
-namespace Internal {
 
-class BaseCheckoutWizardFactoryPrivate
-{
-public:
-    BaseCheckoutWizardFactoryPrivate() : wizard(0) {}
-    void clear();
-
-    BaseCheckoutWizard *wizard;
-};
-
-void BaseCheckoutWizardFactoryPrivate::clear()
-{
-    delete wizard;
-    wizard = 0;
-}
-
-} // namespace Internal
-
-BaseCheckoutWizardFactory::BaseCheckoutWizardFactory() :
-    d(new Internal::BaseCheckoutWizardFactoryPrivate)
+BaseCheckoutWizardFactory::BaseCheckoutWizardFactory()
 {
     setWizardKind(IWizardFactory::ProjectWizard);
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
@@ -91,28 +72,24 @@ BaseCheckoutWizardFactory::BaseCheckoutWizardFactory() :
     setFlags(Core::IWizardFactory::PlatformIndependent);
 }
 
-BaseCheckoutWizardFactory::~BaseCheckoutWizardFactory()
-{
-    delete d;
-}
-
 void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform,
                                    const QVariantMap &extraValues)
 {
     Q_UNUSED(platform);
     Q_UNUSED(extraValues);
-    QTC_ASSERT(!d->wizard, return);
     // Create dialog and launch
 
-    d->wizard = create(path, parent);
-    d->wizard->setWindowTitle(displayName());
-    const QString checkoutPath = d->wizard->run();
-    if (checkoutPath.isEmpty()) {
-        d->clear();
-        return;
+    QString checkoutPath;
+    {
+        QScopedPointer<BaseCheckoutWizard> wizard(create(path, parent));
+        wizard->setWindowTitle(displayName());
+        checkoutPath = wizard->run();
     }
+
+    if (checkoutPath.isEmpty())
+        return;
+
     // Now try to find the project file and open
-    d->clear();
     QString errorMessage;
     const QString projectFile = openProject(checkoutPath, &errorMessage);
     if (projectFile.isEmpty()) {
