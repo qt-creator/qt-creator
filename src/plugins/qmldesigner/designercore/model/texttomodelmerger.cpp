@@ -889,9 +889,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
             if (!warnings.isEmpty() && differenceHandler.isValidator() && !m_rewriterView->inErrorState()) {
 
-                QString title = QCoreApplication::translate("QmlDesigner::TextToModelMerger", "This .qml file contains features "
-                                                            "which are not supported by Qt Quick Designer");
-
                 QStringList message;
 
                 foreach (const RewriterView::Error &warning, warnings) {
@@ -1723,7 +1720,6 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
         return ModelNode();
 
     QString typeNameString;
-    QString fullTypeName;
     QString dummy;
     int majorVersion;
     int minorVersion;
