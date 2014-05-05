@@ -127,7 +127,7 @@ public:
 
     static void deleteKit(Kit *k);
 
-    static QString uniqueKitName(const Kit *k, const QString name, const QList<Kit *> &allKits);
+    static QString uniqueKitName(const Kit *k, const QString &name, const QList<Kit *> &allKits);
 
     static bool registerKit(ProjectExplorer::Kit *k);
     static void deregisterKit(ProjectExplorer::Kit *k);

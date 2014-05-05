@@ -352,7 +352,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     return k;
 }
 
-QString KitModel::findNameFor(Kit *k, const QString baseName)
+QString KitModel::findNameFor(Kit *k, const QString &baseName)
 {
     QList<Kit *> kits = kitList(m_root);
     return KitManager::uniqueKitName(k, baseName, kits);

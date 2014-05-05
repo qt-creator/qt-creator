@@ -438,7 +438,7 @@ void TaskFilterModel::handleRowsAboutToBeRemoved(const QModelIndex &index, int f
     endRemoveRows();
 }
 
-void TaskFilterModel::handleDataChanged(QModelIndex top, QModelIndex bottom)
+void TaskFilterModel::handleDataChanged(const QModelIndex &top, const QModelIndex &bottom)
 {
     const QPair<int, int> range = findFilteredRange(top.row(), bottom.row(), m_mapping);
     if (range.first > range.second)

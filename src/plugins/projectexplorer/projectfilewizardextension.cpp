@@ -480,7 +480,7 @@ static inline void getProjectChoicesAndToolTips(QStringList *projectChoicesParam
     *projectActionParam = projectAction;
 }
 
-void ProjectFileWizardExtension::initProjectChoices(const QList<GeneratedFile> generatedFiles, const QVariantMap &extraValues)
+void ProjectFileWizardExtension::initProjectChoices(const QList<GeneratedFile> &generatedFiles, const QVariantMap &extraValues)
 {
     QStringList projectChoices;
     QStringList projectToolTips;

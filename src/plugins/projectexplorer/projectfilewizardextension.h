@@ -59,7 +59,7 @@ public slots:
     void initializeVersionControlChoices();
 
 private:
-    void initProjectChoices(const QList<Core::GeneratedFile> generatedFiles, const QVariantMap &extraValues);
+    void initProjectChoices(const QList<Core::GeneratedFile> &generatedFiles, const QVariantMap &extraValues);
     bool processProject(const QList<Core::GeneratedFile> &files,
                         bool *removeOpenProjectAttribute, QString *errorMessage);
     bool processVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage);

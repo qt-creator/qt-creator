@@ -442,7 +442,7 @@ void KitManager::deleteKit(Kit *k)
     delete k;
 }
 
-QString KitManager::uniqueKitName(const Kit *k, const QString name, const QList<Kit *> &allKits)
+QString KitManager::uniqueKitName(const Kit *k, const QString &name, const QList<Kit *> &allKits)
 {
     QStringList nameList;
     nameList << QString(); // Disallow empty kit names!
