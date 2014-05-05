@@ -43,7 +43,6 @@ namespace Internal {
 CloneWizardFactory::CloneWizardFactory()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
-    setCustomLabels(tr("Cloning"), tr("Cloning started..."));
     setIcon(QIcon(QLatin1String(":/git/images/git.png")));
     setDescription(tr("Clones a Git repository and tries to load the contained project."));
     setDisplayName(tr("Git Repository Clone"));
@@ -87,7 +86,10 @@ VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage*> &p
 
 CloneWizard::CloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
     VcsBase::BaseCheckoutWizard(parameterPages, parent)
-{ }
+{
+    setTitle(tr("Cloning"));
+    setStartedStatus(tr("Cloning started..."));
+}
 
 } // namespace Internal
 } // namespace Git

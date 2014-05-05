@@ -61,7 +61,6 @@ public:
     virtual BaseCheckoutWizard *create(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0) const = 0;
 
 protected:
-    void setCustomLabels(const QString &progressTitle, const QString &startedStatus);
     virtual QList<QWizardPage *> createParameterPages(const QString &path) = 0;
     virtual Command *createCommand(const QList<QWizardPage *> &parameterPages,
                                    QString *checkoutPath) = 0;

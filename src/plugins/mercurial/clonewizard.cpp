@@ -43,7 +43,6 @@ using namespace VcsBase;
 CloneWizardFactory::CloneWizardFactory()
 {
     setId(QLatin1String(Constants::VCS_ID_MERCURIAL));
-    setCustomLabels(tr("Cloning"), tr("Cloning started..."));
     setIcon(QIcon(QLatin1String(":/mercurial/images/hg.png")));
     setDescription(tr("Clones a Mercurial repository and tries to load the contained project."));
     setDisplayName(tr("Mercurial Clone"));
@@ -94,4 +93,7 @@ Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &parameter
 
 CloneWizard::CloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
     VcsBase::BaseCheckoutWizard(parameterPages, parent)
-{ }
+{
+    setTitle(tr("Cloning"));
+    setStartedStatus(tr("Cloning started..."));
+}

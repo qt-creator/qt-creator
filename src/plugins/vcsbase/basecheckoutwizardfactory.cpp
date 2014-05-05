@@ -34,6 +34,8 @@
 
 #include <projectexplorer/projectexplorer.h>
 
+#include <utils/qtcassert.h>
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QMessageBox>
@@ -71,8 +73,6 @@ public:
     BaseCheckoutWizard *wizard;
     QList<QWizardPage *> parameterPages;
     QString checkoutPath;
-    QString progressTitle;
-    QString startedStatus;
 };
 
 void BaseCheckoutWizardFactoryPrivate::clear()
@@ -105,18 +105,14 @@ void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, 
 {
     Q_UNUSED(platform);
     Q_UNUSED(extraValues);
+    QTC_ASSERT(!d->wizard, return);
     // Create dialog and launch
 
     d->parameterPages = createParameterPages(path);
-    BaseCheckoutWizard *wizard = create(d->parameterPages, parent);
-    if (!d->progressTitle.isEmpty())
-        wizard->setTitle(d->progressTitle);
-    if (!d->startedStatus.isEmpty())
-        wizard->setStartedStatus(d->startedStatus);
-    d->wizard = wizard;
-    connect(wizard, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
-    wizard->setWindowTitle(displayName());
-    if (wizard->exec() != QDialog::Accepted)
+    d->wizard = create(d->parameterPages, parent);
+    connect(d->wizard, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
+    d->wizard->setWindowTitle(displayName());
+    if (d->wizard->exec() != QDialog::Accepted)
         return;
     // Now try to find the project file and open
     const QString checkoutPath = d->checkoutPath;
@@ -178,12 +174,6 @@ QString BaseCheckoutWizardFactory::openProject(const QString &path, QString *err
         return QString();
 
     return projectFile;
-}
-
-void BaseCheckoutWizardFactory::setCustomLabels(const QString &progressTitle, const QString &startedStatus)
-{
-    d->progressTitle = progressTitle;
-    d->startedStatus = startedStatus;
 }
 
 void BaseCheckoutWizardFactory::slotProgressPageShown()
