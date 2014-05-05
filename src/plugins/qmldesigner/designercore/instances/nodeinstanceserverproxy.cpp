@@ -387,15 +387,15 @@ static QString generatePuppetCompilingHelp(const QString &puppetName, const QStr
 {
 
     QString buildDirectory =  QDir::toNativeSeparators(QDir::cleanPath(QDir::tempPath() + QStringLiteral("/") + puppetName));
-    QString qmakePath = QDir::toNativeSeparators(QDir::cleanPath(pathToQt + QStringLiteral("/bin/qmake -r ")));
-    QString projectPath = QDir::toNativeSeparators(QDir::cleanPath(sharedDirPath() + QStringLiteral("/qml/qmlpuppet/%1/%1.pro\n")));
+    QString qmakePath = QStringLiteral("\"") +QDir::toNativeSeparators(QDir::cleanPath(pathToQt + QStringLiteral("/bin/qmake\" -r ")));
+    QString projectPath = QStringLiteral("\"") + QDir::toNativeSeparators(QDir::cleanPath(sharedDirPath() + QStringLiteral("/qml/qmlpuppet/%1/%1.pro\"\n")));
 
     QString puppetCompileHelp;
 
     puppetCompileHelp.append(QStringLiteral("<p><code><pre>"));
     puppetCompileHelp.append(QStringLiteral("<form><input></input></form>"));
-    puppetCompileHelp.append(QStringLiteral("mkdir ") + buildDirectory+ QStringLiteral("\n"));
-    puppetCompileHelp.append(QStringLiteral("cd ") + buildDirectory + QStringLiteral("\n"));
+    puppetCompileHelp.append(QStringLiteral("mkdir \"") + buildDirectory+ QStringLiteral("\"\n"));
+    puppetCompileHelp.append(QStringLiteral("cd \"") + buildDirectory + QStringLiteral("\"\n"));
     puppetCompileHelp.append(qmakePath + projectPath);
     puppetCompileHelp.append(QStringLiteral("make"));
     puppetCompileHelp.append(QStringLiteral("</pre></code></p>"));
