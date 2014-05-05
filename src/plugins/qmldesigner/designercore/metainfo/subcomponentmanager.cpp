@@ -230,7 +230,7 @@ void SubComponentManager::parseDirectories()
 
 void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool addToLibrary, const TypeName& qualification)
 {
-    if (!model()->rewriterView())
+    if (!model() || !model()->rewriterView())
         return;
 
     QDir designerDir(canonicalDirPath + Constants::QML_DESIGNER_SUBFOLDER);
