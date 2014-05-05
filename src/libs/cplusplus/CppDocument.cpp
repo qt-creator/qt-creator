@@ -87,12 +87,10 @@ public:
 protected:
     bool preVisit(Symbol *s)
     {
-        if (s->asBlock()) {
-            if (s->line() < line || (s->line() == line && s->column() <= column))
-                return true;
+        if (s->line() < line || (s->line() == line && s->column() <= column)) {
             // skip blocks
-        } if (s->line() < line || (s->line() == line && s->column() <= column)) {
-            symbol = s;
+            if (!s->asBlock())
+                symbol = s;
             return true;
         }
 
