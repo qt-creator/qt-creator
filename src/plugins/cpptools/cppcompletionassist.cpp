@@ -1205,7 +1205,7 @@ bool CppCompletionAssistProcessor::objcKeywordsWanted() const
             || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
 }
 
-int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName,
+int CppCompletionAssistProcessor::startCompletionInternal(const QString &fileName,
                                                           unsigned line, unsigned column,
                                                           const QString &expr,
                                                           int endOfExpression)
