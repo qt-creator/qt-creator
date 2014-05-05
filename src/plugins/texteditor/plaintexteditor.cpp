@@ -159,7 +159,7 @@ void PlainTextEditorWidget::configure(const MimeType &mimeType)
 
                 setCodeFoldingSupported(true);
             }
-        } else if (baseTextDocument()) {
+        } else {
             const QString &fileName = baseTextDocument()->filePath();
             if (TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName))
                 m_isMissingSyntaxDefinition = false;
