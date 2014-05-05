@@ -125,7 +125,6 @@ bool ProjectFileConverter::convertFile(Core::GeneratedFile &file, QString &error
     QStringList resources;
     QStringList otherFiles;
 
-    QSet<QString> entries;
     foreach (const QString &filePath, convertedProjectContext().collectedFiles()) {
         QString ext = filePath.section(QLatin1Char('.'), -1);
         if (ext.compare(QLatin1String("c"), Qt::CaseInsensitive) == 0)
