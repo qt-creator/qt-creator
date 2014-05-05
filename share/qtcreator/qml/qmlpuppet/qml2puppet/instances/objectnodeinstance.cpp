@@ -947,8 +947,7 @@ QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, cons
     QObject *object = component;
     tweakObjects(object);
 
-    if (object && context)
-        QQmlEngine::setContextForObject(object, context);
+    QQmlEngine::setContextForObject(object, context);
 
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
 
@@ -1143,7 +1142,7 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
 
     tweakObjects(object);
 
-    if (object && context)
+    if (object)
         QQmlEngine::setContextForObject(object, context);
 
     QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
