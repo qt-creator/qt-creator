@@ -35,6 +35,13 @@
 
 #include <QDataStream>
 
+namespace QDebugSupport {
+enum Error {
+    RemoteClosedConnectionError,
+    UnknownError
+};
+}
+
 namespace QmlDebug {
 
 class QmlDebugConnectionPrivate;
@@ -49,14 +56,14 @@ public:
     void connectToHost(const QString &hostName, quint16 port);
 
     bool isOpen() const;
-    QAbstractSocket::SocketState socketState() const;
     void close();
-    QString errorString() const;
 
 signals:
-    void connected();
-    void socketStateChanged(QAbstractSocket::SocketState state);
-    void error(QAbstractSocket::SocketError socketError);
+    void opened();
+    void error(QDebugSupport::Error);
+    void closed();
+    void stateMessage(const QString &message);
+    void errorMessage(const QString &message);
 
 private:
     QmlDebugConnectionPrivate *d;

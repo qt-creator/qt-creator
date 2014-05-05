@@ -147,8 +147,10 @@ void QmlProfilerClientManager::connectClient(quint16 port)
         delete d->connection;
     d->connection = new QmlDebugConnection;
     enableServices();
-    connect(d->connection, SIGNAL(socketStateChanged(QAbstractSocket::SocketState)),
-            this, SLOT(connectionStateChanged()));
+    connect(d->connection, SIGNAL(stateMessage(QString)), this, SLOT(logState(QString)));
+    connect(d->connection, SIGNAL(errorMessage(QString)), this, SLOT(logState(QString)));
+    connect(d->connection, SIGNAL(opened()), this, SLOT(qmlDebugConnectionOpened()));
+    connect(d->connection, SIGNAL(closed()), this, SLOT(qmlDebugConnectionClosed()));
     d->connectionTimer.start();
     d->tcpPort = port;
 }
@@ -235,7 +237,7 @@ void QmlProfilerClientManager::disconnectClientSignals()
 
 void QmlProfilerClientManager::connectToClient()
 {
-    if (!d->connection || d->connection->socketState() != QAbstractSocket::UnconnectedState)
+    if (!d->connection || d->connection->isOpen())
         return;
 
     d->connection->connectToHost(d->tcpHost, d->tcpPort);
@@ -287,45 +289,25 @@ void QmlProfilerClientManager::tryToConnect()
     }
 }
 
-void QmlProfilerClientManager::connectionStateChanged()
+void QmlProfilerClientManager::qmlDebugConnectionOpened()
 {
-    if (!d->connection)
-        return;
-    switch (d->connection->socketState()) {
-    case QAbstractSocket::UnconnectedState:
-    {
-        if (QmlProfilerPlugin::debugOutput)
-            qWarning("QML Profiler: disconnected");
-        disconnectClient();
-        emit connectionClosed();
-        break;
-    }
-    case QAbstractSocket::HostLookupState:
-        break;
-    case QAbstractSocket::ConnectingState: {
-        if (QmlProfilerPlugin::debugOutput)
-            qWarning("QML Profiler: Connecting to debug server ...");
-        QmlProfilerTool::logState(tr("QML Profiler: Connecting to %1:%2 ...")
-            .arg(d->tcpHost, QString::number(d->tcpPort)));
-        break;
-    }
-    case QAbstractSocket::ConnectedState:
-    {
-        if (QmlProfilerPlugin::debugOutput)
-            qWarning("QML Profiler: connected and running");
-        // notify the client recording status
-        clientRecordingChanged();
-        QmlProfilerTool::logState(tr("QML Profiler: connected and running"));
-        break;
-    }
-    case QAbstractSocket::ClosingState:
-        if (QmlProfilerPlugin::debugOutput)
-            qWarning("QML Profiler: closing ...");
-        break;
-    case QAbstractSocket::BoundState:
-    case QAbstractSocket::ListeningState:
-        break;
-    }
+    logState(tr("Debug connection opened"));
+    clientRecordingChanged();
+}
+
+void QmlProfilerClientManager::qmlDebugConnectionClosed()
+{
+    logState(tr("Debug connection closed"));
+    disconnectClient();
+    emit connectionClosed();
+}
+
+void QmlProfilerClientManager::logState(const QString &msg)
+{
+    QString state = QLatin1String("QML Profiler: ") + msg;
+    if (QmlProfilerPlugin::debugOutput)
+        qWarning() << state;
+    QmlProfilerTool::logState(state);
 }
 
 void QmlProfilerClientManager::retryMessageBoxFinished(int result)
@@ -341,11 +323,8 @@ void QmlProfilerClientManager::retryMessageBoxFinished(int result)
         // fall through
     }
     default: {
-        if (d->connection)
-            QmlProfilerTool::logState(QLatin1String("QML Profiler: Failed to connect! ") + d->connection->errorString());
-        else
-            QmlProfilerTool::logState(QLatin1String("QML Profiler: Failed to connect!"));
-
+        // The actual error message has already been logged.
+        logState(tr("Failed to connect!"));
         emit connectionFailed();
         break;
     }

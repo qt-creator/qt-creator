@@ -59,10 +59,13 @@ QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
     connect(&m_connectionTimer, SIGNAL(timeout()), SLOT(checkConnectionState()));
 
     m_conn = new QmlDebugConnection(this);
-    connect(m_conn, SIGNAL(socketStateChanged(QAbstractSocket::SocketState)),
-            SLOT(connectionStateChanged()));
-    connect(m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
-            SLOT(connectionErrorOccurred(QAbstractSocket::SocketError)));
+    connect(m_conn, SIGNAL(stateMessage(QString)), SLOT(showConnectionStateMessage(QString)));
+    connect(m_conn, SIGNAL(errorMessage(QString)), SLOT(showConnectionErrorMessage(QString)));
+    connect(m_conn, SIGNAL(error(QDebugSupport::Error)),
+            SLOT(connectionErrorOccurred(QDebugSupport::Error)));
+    connect(m_conn, SIGNAL(opened()), &m_connectionTimer, SLOT(stop()));
+    connect(m_conn, SIGNAL(opened()), SIGNAL(connected()));
+    connect(m_conn, SIGNAL(closed()), SIGNAL(disconnected()));
 
     createDebuggerClients();
     m_msgClient = new QDebugMessageClient(m_conn);
@@ -77,12 +80,9 @@ QmlAdapter::~QmlAdapter()
 
 void QmlAdapter::beginConnectionTcp(const QString &address, quint16 port)
 {
-    if (m_engine.isNull()
-            || (m_conn && m_conn->socketState() != QAbstractSocket::UnconnectedState))
+    if (m_engine.isNull() || (m_conn && m_conn->isOpen()))
         return;
 
-    showConnectionStateMessage(tr("Connecting to debug server %1:%2").arg(address).arg(
-                                    QString::number(port)));
     m_conn->connectToHost(address, port);
 
     //A timeout to check the connection state
@@ -99,14 +99,11 @@ void QmlAdapter::closeConnection()
     }
 }
 
-void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketError)
+void QmlAdapter::connectionErrorOccurred(QDebugSupport::Error error)
 {
-    showConnectionStateMessage(tr("Error: (%1) %2", "%1=error code, %2=error message")
-                                .arg(socketError).arg(m_conn->errorString()));
-
     // this is only an error if we are already connected and something goes wrong.
     if (isConnected()) {
-        emit connectionError(socketError);
+        emit connectionError(error);
     } else {
         m_connectionTimer.stop();
         emit connectionStartupFailed();
@@ -136,41 +133,6 @@ void QmlAdapter::debugClientStateChanged(QmlDebugClient::State state)
     m_qmlClient->startSession();
 }
 
-void QmlAdapter::connectionStateChanged()
-{
-    switch (m_conn->socketState()) {
-    case QAbstractSocket::UnconnectedState:
-    {
-        showConnectionStateMessage(tr("Disconnected.") + QLatin1String("\n\n"));
-        emit disconnected();
-
-        break;
-    }
-    case QAbstractSocket::HostLookupState:
-        showConnectionStateMessage(tr("Resolving host."));
-        break;
-    case QAbstractSocket::ConnectingState:
-        showConnectionStateMessage(tr("Connecting to debug server."));
-        break;
-    case QAbstractSocket::ConnectedState:
-    {
-        showConnectionStateMessage(tr("Connected.") + QLatin1Char('\n'));
-
-        m_connectionTimer.stop();
-
-        //reloadEngines();
-        emit connected();
-        break;
-    }
-    case QAbstractSocket::ClosingState:
-        showConnectionStateMessage(tr("Closing."));
-        break;
-    case QAbstractSocket::BoundState:
-    case QAbstractSocket::ListeningState:
-        break;
-    }
-}
-
 void QmlAdapter::checkConnectionState()
 {
     if (!isConnected()) {
@@ -181,7 +143,7 @@ void QmlAdapter::checkConnectionState()
 
 bool QmlAdapter::isConnected() const
 {
-    return m_conn && m_qmlClient && m_conn->socketState() == QAbstractSocket::ConnectedState;
+    return m_conn && m_qmlClient && m_conn->isOpen();
 }
 
 void QmlAdapter::createDebuggerClients()

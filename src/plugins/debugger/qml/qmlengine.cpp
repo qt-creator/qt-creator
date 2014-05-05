@@ -266,8 +266,8 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters, DebuggerEng
     if (masterEngine)
         setMasterEngine(masterEngine);
 
-    connect(&m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
-        SLOT(connectionError(QAbstractSocket::SocketError)));
+    connect(&m_adapter, SIGNAL(connectionError(QDebugSupport::Error)),
+        SLOT(connectionError(QDebugSupport::Error)));
     connect(&m_adapter, SIGNAL(serviceConnectionError(QString)),
         SLOT(serviceConnectionError(QString)));
     connect(&m_adapter, SIGNAL(connected()),
@@ -499,9 +499,9 @@ void QmlEngine::errorMessageBoxFinished(int result)
     }
 }
 
-void QmlEngine::connectionError(QAbstractSocket::SocketError socketError)
+void QmlEngine::connectionError(QDebugSupport::Error error)
 {
-    if (socketError == QAbstractSocket::RemoteHostClosedError)
+    if (error == QDebugSupport::RemoteClosedConnectionError)
         showMessage(tr("QML Debugger: Remote host closed connection."), StatusBar);
 
     if (!isSlaveEngine()) { // normal flow for slave engine when gdb exits

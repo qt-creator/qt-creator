@@ -107,7 +107,7 @@ private slots:
     void connectionEstablished();
     void connectionStartupFailed();
     void appStartupFailed(const QString &errorMessage);
-    void connectionError(QAbstractSocket::SocketError error);
+    void connectionError(QDebugSupport::Error error);
     void serviceConnectionError(const QString &service);
     void appendMessage(const QString &msg, Utils::OutputFormat);
 

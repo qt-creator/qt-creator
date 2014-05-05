@@ -77,21 +77,20 @@ signals:
     void connected();
     void disconnected();
     void connectionStartupFailed();
-    void connectionError(QAbstractSocket::SocketError socketError);
+    void connectionError(QDebugSupport::Error error);
     void serviceConnectionError(const QString serviceName);
 
 private slots:
-    void connectionErrorOccurred(QAbstractSocket::SocketError socketError);
+    void connectionErrorOccurred(QDebugSupport::Error socketError);
     void clientStateChanged(QmlDebug::QmlDebugClient::State state);
     void debugClientStateChanged(QmlDebug::QmlDebugClient::State state);
-    void connectionStateChanged();
     void checkConnectionState();
+    void showConnectionStateMessage(const QString &message);
+    void showConnectionErrorMessage(const QString &message);
 
 private:
     bool isConnected() const;
     void createDebuggerClients();
-    void showConnectionStateMessage(const QString &message);
-    void showConnectionErrorMessage(const QString &message);
 
 private:
     QPointer<DebuggerEngine> m_engine;
