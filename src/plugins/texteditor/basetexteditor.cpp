@@ -5639,10 +5639,10 @@ QMimeData *BaseTextEditorWidget::createMimeDataFromSelection() const
                     foreach (const QTextLayout::FormatRange &range, layout->additionalFormats()) {
                         const int startPosition = current.position() + range.start - selectionStart - removedCount;
                         const int endPosition = startPosition + range.length;
-                        if (endPosition <= 0 || startPosition >= endOfDocument)
+                        if (endPosition <= 0 || startPosition >= endOfDocument - removedCount)
                             continue;
                         tempCursor.setPosition(qMax(startPosition, 0));
-                        tempCursor.setPosition(qMin(endPosition, endOfDocument), QTextCursor::KeepAnchor);
+                        tempCursor.setPosition(qMin(endPosition, endOfDocument - removedCount), QTextCursor::KeepAnchor);
                         tempCursor.setCharFormat(range.format);
                     }
                 } else {
