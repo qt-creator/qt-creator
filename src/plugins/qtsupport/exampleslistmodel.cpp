@@ -953,7 +953,8 @@ struct SearchStringLexer
                 if (yychar == quote) {
                     yyinp();
                     break;
-                } if (yychar == QLatin1Char('\\')) {
+                }
+                if (yychar == QLatin1Char('\\')) {
                     yyinp();
                     switch (yychar.unicode()) {
                     case '"': yytext += QLatin1Char('"'); yyinp(); break;
