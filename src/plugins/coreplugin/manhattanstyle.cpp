@@ -789,11 +789,12 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             bool horizontal = option->state & State_Horizontal;
 
             // Map offset for global window gradient
-            QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
-                            widget->mapToGlobal(option->rect.topLeft());
             QRect gradientSpan;
-            if (widget)
+            if (widget) {
+                QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
+                                widget->mapToGlobal(option->rect.topLeft());
                 gradientSpan = QRect(offset, widget->window()->size());
+            }
 
             bool drawLightColored = lightColored(widget);
             if (horizontal)
