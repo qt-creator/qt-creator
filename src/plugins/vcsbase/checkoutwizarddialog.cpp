@@ -43,12 +43,11 @@
  */
 
 namespace VcsBase {
-namespace Internal {
 
 CheckoutWizardDialog::CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
                                            QWidget *parent) :
     Utils::Wizard(parent),
-    m_progressPage(new CheckoutProgressWizardPage),
+    m_progressPage(new Internal::CheckoutProgressWizardPage),
     m_progressPageId(-1)
 {
     foreach (QWizardPage *wp, parameterPages)
@@ -98,5 +97,4 @@ void CheckoutWizardDialog::reject()
         QWizard::reject();
 }
 
-} // namespace Internal
 } // namespace VcsBase

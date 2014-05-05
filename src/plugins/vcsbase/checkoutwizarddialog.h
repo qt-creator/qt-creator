@@ -30,17 +30,17 @@
 #ifndef CHECKOUTWIZARDDIALOG_H
 #define CHECKOUTWIZARDDIALOG_H
 
-#include <QSharedPointer>
+#include "vcsbase_global.h"
+
 #include <QList>
 #include <utils/wizard.h>
 
 namespace VcsBase {
 class Command;
 
-namespace Internal {
-class CheckoutProgressWizardPage;
+namespace Internal { class CheckoutProgressWizardPage; }
 
-class CheckoutWizardDialog : public Utils::Wizard
+class VCSBASE_EXPORT CheckoutWizardDialog : public Utils::Wizard
 {
     Q_OBJECT
 
@@ -61,11 +61,10 @@ private slots:
     virtual void reject();
 
 private:
-    CheckoutProgressWizardPage *m_progressPage;
+    Internal::CheckoutProgressWizardPage *m_progressPage;
     int m_progressPageId;
 };
 
-} // namespace Internal
 } // namespace VcsBase
 
 #endif // CHECKOUTWIZARDDIALOG_H

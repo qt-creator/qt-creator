@@ -68,7 +68,7 @@ public:
     BaseCheckoutWizardPrivate() : dialog(0) {}
     void clear();
 
-    Internal::CheckoutWizardDialog *dialog;
+    CheckoutWizardDialog *dialog;
     QList<QWizardPage *> parameterPages;
     QString checkoutPath;
     QString progressTitle;
@@ -106,7 +106,7 @@ void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, 
     Q_UNUSED(extraValues);
     // Create dialog and launch
     d->parameterPages = createParameterPages(path);
-    Internal::CheckoutWizardDialog dialog(d->parameterPages, parent);
+    CheckoutWizardDialog dialog(d->parameterPages, parent);
     if (!d->progressTitle.isEmpty())
         dialog.setTitle(d->progressTitle);
     if (!d->startedStatus.isEmpty())
