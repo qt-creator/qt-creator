@@ -43,7 +43,7 @@
 
 using namespace Bazaar::Internal;
 
-CloneWizard::CloneWizard()
+CloneWizardFactory::CloneWizardFactory()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_BAZAAR));
     setCustomLabels(tr("Cloning"), tr("Cloning started..."));
@@ -52,7 +52,7 @@ CloneWizard::CloneWizard()
     setDisplayName(tr("Bazaar Clone (Or Branch)"));
 }
 
-QList<QWizardPage *> CloneWizard::createParameterPages(const QString &path)
+QList<QWizardPage *> CloneWizardFactory::createParameterPages(const QString &path)
 {
     QList<QWizardPage *> wizardPageList;
     const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
@@ -64,7 +64,7 @@ QList<QWizardPage *> CloneWizard::createParameterPages(const QString &path)
     return wizardPageList;
 }
 
-VcsBase::Command *CloneWizard::createCommand(const QList<QWizardPage *> &parameterPages,
+VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &parameterPages,
                                              QString *checkoutPath)
 {
     const CloneWizardPage *page = qobject_cast<const CloneWizardPage *>(parameterPages.front());

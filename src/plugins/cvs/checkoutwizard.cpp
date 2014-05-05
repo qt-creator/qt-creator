@@ -40,7 +40,7 @@
 namespace Cvs {
 namespace Internal {
 
-CheckoutWizard::CheckoutWizard()
+CheckoutWizardFactory::CheckoutWizardFactory()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_CVS));
     setIcon(QIcon(QLatin1String(":/cvs/images/cvs.png")));
@@ -48,7 +48,7 @@ CheckoutWizard::CheckoutWizard()
     setDisplayName(tr("CVS Checkout"));
 }
 
-QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
+QList<QWizardPage*> CheckoutWizardFactory::createParameterPages(const QString &path)
 {
     QList<QWizardPage*> rc;
     const Core::IVersionControl *vc = CvsPlugin::instance()->versionControl();
@@ -60,7 +60,7 @@ QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
     return rc;
 }
 
-VcsBase::Command *CheckoutWizard::createCommand(const QList<QWizardPage*> &parameterPages,
+VcsBase::Command *CheckoutWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
                                                 QString *checkoutPath)
 {
     // Collect parameters for the checkout command.

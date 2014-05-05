@@ -268,7 +268,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new SubversionEditorFactory(editorParameters + i, this, describeSlot));
 
-    addAutoReleasedObject(new CheckoutWizard);
+    addAutoReleasedObject(new CheckoutWizardFactory);
 
     const QString prefix = QLatin1String("svn");
     m_commandLocator = new CommandLocator("Subversion", prefix, prefix);

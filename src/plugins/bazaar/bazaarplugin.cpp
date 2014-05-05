@@ -145,7 +145,7 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     addAutoReleasedObject(new VcsBase::VcsSubmitEditorFactory<CommitEditor>(&submitEditorParameters));
 
-    addAutoReleasedObject(new CloneWizard);
+    addAutoReleasedObject(new CloneWizardFactory);
 
     const QString prefix = QLatin1String("bzr");
     m_commandLocator = new Core::CommandLocator("Bazaar", prefix, prefix);

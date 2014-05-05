@@ -37,12 +37,12 @@ namespace Internal {
 
 // GitoriousCloneWizard: A wizard allowing for browsing
 // Gitorious-hosted projects.
-class GitoriousCloneWizard : public VcsBase::BaseCheckoutWizardFactory
+class GitoriousCloneWizardFactory : public VcsBase::BaseCheckoutWizardFactory
 {
     Q_OBJECT
 
 public:
-    GitoriousCloneWizard();
+    GitoriousCloneWizardFactory();
 
 private:
     // BaseCheckoutWizard

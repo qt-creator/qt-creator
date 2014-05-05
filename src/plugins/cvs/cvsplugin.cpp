@@ -248,7 +248,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     for (int i = 0; i < editorCount; i++)
         addAutoReleasedObject(new CVSEditorFactory(editorParameters + i, this, describeSlotC));
 
-    addAutoReleasedObject(new CheckoutWizard);
+    addAutoReleasedObject(new CheckoutWizardFactory);
 
     const QString prefix = QLatin1String("cvs");
     m_commandLocator = new Core::CommandLocator("CVS", prefix, prefix);

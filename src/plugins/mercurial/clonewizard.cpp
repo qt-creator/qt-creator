@@ -40,7 +40,7 @@
 using namespace Mercurial::Internal;
 using namespace VcsBase;
 
-CloneWizard::CloneWizard()
+CloneWizardFactory::CloneWizardFactory()
 {
     setId(QLatin1String(Constants::VCS_ID_MERCURIAL));
     setCustomLabels(tr("Cloning"), tr("Cloning started..."));
@@ -49,7 +49,7 @@ CloneWizard::CloneWizard()
     setDisplayName(tr("Mercurial Clone"));
 }
 
-QList<QWizardPage *> CloneWizard::createParameterPages(const QString &path)
+QList<QWizardPage *> CloneWizardFactory::createParameterPages(const QString &path)
 {
     QList<QWizardPage *> wizardPageList;
     const Core::IVersionControl *vc = MercurialPlugin::instance()->versionControl();
@@ -61,7 +61,7 @@ QList<QWizardPage *> CloneWizard::createParameterPages(const QString &path)
     return wizardPageList;
 }
 
-Command *CloneWizard::createCommand(const QList<QWizardPage *> &parameterPages,
+Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &parameterPages,
                                     QString *checkoutPath)
 {
     const CloneWizardPage *page = qobject_cast<const CloneWizardPage *>(parameterPages.front());

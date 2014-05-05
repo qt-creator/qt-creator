@@ -76,7 +76,7 @@ protected:
     StatusItem parseStatusLine(const QString &line) const;
 
 private:
-    friend class CloneWizard;
+    friend class CloneWizardFactory;
 };
 
 } // namespace Internal

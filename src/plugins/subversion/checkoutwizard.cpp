@@ -43,7 +43,7 @@
 namespace Subversion {
 namespace Internal {
 
-CheckoutWizard::CheckoutWizard()
+CheckoutWizardFactory::CheckoutWizardFactory()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_SUBVERSION));
     setIcon(QIcon(QLatin1String(":/subversion/images/subversion.png")));
@@ -51,7 +51,7 @@ CheckoutWizard::CheckoutWizard()
     setDisplayName(tr("Subversion Checkout"));
 }
 
-QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
+QList<QWizardPage*> CheckoutWizardFactory::createParameterPages(const QString &path)
 {
     QList<QWizardPage*> rc;
     const Core::IVersionControl *vc = SubversionPlugin::instance()->versionControl();
@@ -63,7 +63,7 @@ QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
     return rc;
 }
 
-VcsBase::Command *CheckoutWizard::createCommand(const QList<QWizardPage*> &parameterPages,
+VcsBase::Command *CheckoutWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
                                                 QString *checkoutPath)
 {
     // Collect parameters for the checkout command.

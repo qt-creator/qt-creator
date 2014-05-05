@@ -35,12 +35,12 @@
 namespace Git {
 namespace Internal {
 
-class CloneWizard : public VcsBase::BaseCheckoutWizardFactory
+class CloneWizardFactory : public VcsBase::BaseCheckoutWizardFactory
 {
     Q_OBJECT
 
 public:
-    CloneWizard();
+    CloneWizardFactory();
 
 private:
     // BaseCheckoutWizard

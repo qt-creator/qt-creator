@@ -149,7 +149,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
 
     addAutoReleasedObject(new VcsSubmitEditorFactory<CommitEditor>(&submitEditorParameters));
 
-    addAutoReleasedObject(new CloneWizard);
+    addAutoReleasedObject(new CloneWizardFactory);
 
     const QString prefix = QLatin1String("hg");
     m_commandLocator = new Core::CommandLocator("Mercurial", prefix, prefix);

@@ -69,7 +69,7 @@ void GitoriousCloneWizardPage::initializePage()
 }
 
 // -------- GitoriousCloneWizard
-GitoriousCloneWizard::GitoriousCloneWizard()
+GitoriousCloneWizardFactory::GitoriousCloneWizardFactory()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
     setIcon(QIcon(QLatin1String(":/git/images/gitorious.png")));
@@ -77,7 +77,7 @@ GitoriousCloneWizard::GitoriousCloneWizard()
     setDisplayName(tr("Gitorious Repository Clone"));
 }
 
-QList<QWizardPage*> GitoriousCloneWizard::createParameterPages(const QString &path)
+QList<QWizardPage*> GitoriousCloneWizardFactory::createParameterPages(const QString &path)
 {
     QList<QWizardPage*> rc;
     const Core::IVersionControl *vc = Git::Internal::GitPlugin::instance()->versionControl();
@@ -94,7 +94,7 @@ QList<QWizardPage*> GitoriousCloneWizard::createParameterPages(const QString &pa
     return rc;
 }
 
-VcsBase::Command *GitoriousCloneWizard::createCommand(const QList<QWizardPage*> &parameterPages,
+VcsBase::Command *GitoriousCloneWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
                                                       QString *checkoutPath)
 {
     const Git::CloneWizardPage *cwp = qobject_cast<const Git::CloneWizardPage *>(parameterPages.back());

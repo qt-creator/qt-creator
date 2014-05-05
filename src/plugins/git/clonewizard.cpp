@@ -40,7 +40,7 @@
 namespace Git {
 namespace Internal {
 
-CloneWizard::CloneWizard()
+CloneWizardFactory::CloneWizardFactory()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
     setCustomLabels(tr("Cloning"), tr("Cloning started..."));
@@ -49,7 +49,7 @@ CloneWizard::CloneWizard()
     setDisplayName(tr("Git Repository Clone"));
 }
 
-QList<QWizardPage*> CloneWizard::createParameterPages(const QString &path)
+QList<QWizardPage*> CloneWizardFactory::createParameterPages(const QString &path)
 {
     QList<QWizardPage*> rc;
     const Internal::GitVersionControl *vc = Internal::GitPlugin::instance()->gitVersionControl();
@@ -61,7 +61,7 @@ QList<QWizardPage*> CloneWizard::createParameterPages(const QString &path)
     return rc;
 }
 
-VcsBase::Command *CloneWizard::createCommand(const QList<QWizardPage*> &parameterPages,
+VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
                                              QString *checkoutPath)
 {
     // Collect parameters for the clone command.
