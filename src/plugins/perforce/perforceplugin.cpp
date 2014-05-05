@@ -1169,10 +1169,11 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
     return response;
 }
 
-Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QString output,
-                                                   int editorType,
-                                                   const QString &source,
-                                                   QTextCodec *codec)
+Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title,
+                                                  const QString &output,
+                                                  int editorType,
+                                                  const QString &source,
+                                                  QTextCodec *codec)
 {
     const VcsBase::VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);

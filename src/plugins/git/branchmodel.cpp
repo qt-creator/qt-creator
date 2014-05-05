@@ -141,7 +141,7 @@ public:
         return fn;
     }
 
-    void insert(const QStringList path, BranchNode *n)
+    void insert(const QStringList &path, BranchNode *n)
     {
         BranchNode *current = this;
         for (int i = 0; i < path.count(); ++i) {

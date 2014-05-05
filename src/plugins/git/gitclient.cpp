@@ -1096,9 +1096,9 @@ VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *regis
     return rc;
 }
 
-DiffEditor::DiffEditorDocument *GitClient::createDiffEditor(const QString documentId,
-                                                    const QString &source,
-                                                    const QString &title) const
+DiffEditor::DiffEditorDocument *GitClient::createDiffEditor(const QString &documentId,
+                                                            const QString &source,
+                                                            const QString &title) const
 {
     DiffEditor::DiffEditorDocument *diffEditorDocument = DiffEditor::DiffEditorManager::findOrCreate(documentId, title);
     QTC_ASSERT(diffEditorDocument, return 0);

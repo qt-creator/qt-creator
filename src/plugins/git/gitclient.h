@@ -356,7 +356,7 @@ private:
                                             const char *registerDynamicProperty,
                                             const QString &dynamicPropertyValue,
                                             VcsBase::VcsBaseEditorParameterWidget *configWidget) const;
-    DiffEditor::DiffEditorDocument *createDiffEditor(const QString documentId,
+    DiffEditor::DiffEditorDocument *createDiffEditor(const QString &documentId,
                                              const QString &source,
                                              const QString &title) const;
 

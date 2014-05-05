@@ -146,7 +146,7 @@ protected:
 private:
     typedef QHash<QString, bool> ManagedDirectoryCache;
 
-    Core::IEditor *showOutputInEditor(const QString& title, const QString output,
+    Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
                                       int editorType, const QString &source,
                                       QTextCodec *codec = 0);
 
