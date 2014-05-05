@@ -60,13 +60,6 @@ public:
 
     virtual BaseCheckoutWizard *create(const QString &path, QWidget *parent = 0) const = 0;
 
-protected:
-    virtual Command *createCommand(const QList<QWizardPage *> &parameterPages,
-                                   QString *checkoutPath) = 0;
-
-private slots:
-    void slotProgressPageShown();
-
 private:
     Internal::BaseCheckoutWizardFactoryPrivate *const d;
 };

@@ -71,14 +71,12 @@ public:
     void clear();
 
     BaseCheckoutWizard *wizard;
-    QString checkoutPath;
 };
 
 void BaseCheckoutWizardFactoryPrivate::clear()
 {
     delete wizard;
     wizard = 0;
-    checkoutPath.clear();
 }
 
 } // namespace Internal
@@ -107,14 +105,13 @@ void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, 
     // Create dialog and launch
 
     d->wizard = create(path, parent);
-    connect(d->wizard, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
     d->wizard->setWindowTitle(displayName());
-    if (d->wizard->exec() != QDialog::Accepted) {
+    const QString checkoutPath = d->wizard->run();
+    if (checkoutPath.isEmpty()) {
         d->clear();
         return;
     }
     // Now try to find the project file and open
-    const QString checkoutPath = d->checkoutPath;
     d->clear();
     QString errorMessage;
     const QString projectFile = openProject(checkoutPath, &errorMessage);
@@ -173,15 +170,6 @@ QString BaseCheckoutWizardFactory::openProject(const QString &path, QString *err
         return QString();
 
     return projectFile;
-}
-
-void BaseCheckoutWizardFactory::slotProgressPageShown()
-{
-    QList<QWizardPage *> pages;
-    foreach (int id, d->wizard->pageIds())
-        pages << d->wizard->page(id);
-    Command *command = createCommand(pages, &(d->checkoutPath));
-    d->wizard->start(command);
 }
 
 } // namespace VcsBase

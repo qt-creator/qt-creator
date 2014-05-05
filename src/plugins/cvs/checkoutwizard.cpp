@@ -53,31 +53,6 @@ VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const QString &path, 
     return new CheckoutWizard(path, parent);
 }
 
-VcsBase::Command *CheckoutWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
-                                                QString *checkoutPath)
-{
-    // Collect parameters for the checkout command.
-    // CVS does not allow for checking out into a different directory.
-    const CheckoutWizardPage *cwp = 0;
-    foreach (QWizardPage *p, parameterPages) {
-        if ((cwp = qobject_cast<const CheckoutWizardPage *>(p)))
-            break;
-    }
-    QTC_ASSERT(cwp, return 0);
-    const CvsSettings settings = CvsPlugin::instance()->settings();
-    const QString binary = settings.binaryPath();
-    QStringList args;
-    const QString repository = cwp->repository();
-    args << QLatin1String("checkout") << repository;
-    const QString workingDirectory = cwp->path();
-    *checkoutPath = workingDirectory + QLatin1Char('/') + repository;
-
-    VcsBase::Command *command = new VcsBase::Command(binary, workingDirectory,
-                                                     QProcessEnvironment::systemEnvironment());
-    command->addJob(settings.addOptions(args), -1);
-    return command;
-}
-
 // --------------------------------------------------------------------
 // CheckoutWizard:
 // --------------------------------------------------------------------
@@ -91,6 +66,32 @@ CheckoutWizard::CheckoutWizard(const QString &path, QWidget *parent) :
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path);
     addPage(cwp);
+}
+
+VcsBase::Command *CheckoutWizard::createCommand(QString *checkoutDir)
+{
+    // Collect parameters for the checkout command.
+    // CVS does not allow for checking out into a different directory.
+    const CheckoutWizardPage *cwp = 0;
+    foreach (int pageId, pageIds()) {
+        if ((cwp = qobject_cast<const CheckoutWizardPage *>(page(pageId))))
+            break;
+    }
+
+    QTC_ASSERT(cwp, return 0);
+    const CvsSettings settings = CvsPlugin::instance()->settings();
+    const QString binary = settings.binaryPath();
+    QStringList args;
+
+    const QString repository = cwp->repository();
+    args << QLatin1String("checkout") << repository;
+    const QString workingDirectory = cwp->path();
+    *checkoutDir = workingDirectory + QLatin1Char('/') + repository;
+
+    VcsBase::Command *command = new VcsBase::Command(binary, workingDirectory,
+                                                     QProcessEnvironment::systemEnvironment());
+    command->addJob(settings.addOptions(args), -1);
+    return command;
 }
 
 } // namespace Internal

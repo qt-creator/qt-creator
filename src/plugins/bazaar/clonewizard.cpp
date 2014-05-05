@@ -56,22 +56,39 @@ VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWi
     return new CloneWizard(path, parent);
 }
 
-VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &parameterPages,
-                                             QString *checkoutPath)
+// --------------------------------------------------------------------
+// CloneWizard:
+// --------------------------------------------------------------------
+
+CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(path, parent)
 {
-    const CloneWizardPage *page = 0;
-    foreach (QWizardPage *p, parameterPages) {
-        if ((page = qobject_cast<const CloneWizardPage *>(p)))
+    setTitle(tr("Cloning"));
+    setStartedStatus(tr("Cloning started..."));
+
+    const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
+    if (!vc->isConfigured())
+        addPage(new VcsBase::VcsConfigurationPage(vc));
+    CloneWizardPage *page = new CloneWizardPage;
+    page->setPath(path);
+    addPage(page);
+}
+
+VcsBase::Command *CloneWizard::createCommand(QString *checkoutDir)
+{
+    const CloneWizardPage *cwp = 0;
+    foreach (int pageId, pageIds()) {
+        if ((cwp = qobject_cast<const CloneWizardPage *>(page(pageId))))
             break;
     }
 
-    if (!page)
+    if (!cwp)
         return 0;
 
     const BazaarSettings &settings = BazaarPlugin::instance()->settings();
-    *checkoutPath = page->path() + QLatin1Char('/') + page->directory();
+    *checkoutDir = cwp->path() + QLatin1Char('/') + cwp->directory();
 
-    const CloneOptionsPanel *panel = page->cloneOptionsPanel();
+    const CloneOptionsPanel *panel = cwp->cloneOptionsPanel();
     QStringList extraOptions;
     if (panel->isUseExistingDirectoryOptionEnabled())
         extraOptions += QLatin1String("--use-existing-dir");
@@ -92,28 +109,10 @@ VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &
     const BazaarClient *client = BazaarPlugin::instance()->client();
     QStringList args;
     args << client->vcsCommandString(BazaarClient::CloneCommand)
-         << extraOptions << page->repository() << page->directory();
+         << extraOptions << cwp->repository() << cwp->directory();
 
-    VcsBase::Command *command = new VcsBase::Command(settings.binaryPath(), page->path(),
+    VcsBase::Command *command = new VcsBase::Command(settings.binaryPath(), cwp->path(),
                                                      client->processEnvironment());
     command->addJob(args, -1);
     return command;
-}
-
-// --------------------------------------------------------------------
-// CloneWizard:
-// --------------------------------------------------------------------
-
-CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(path, parent)
-{
-    setTitle(tr("Cloning"));
-    setStartedStatus(tr("Cloning started..."));
-
-    const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
-    if (!vc->isConfigured())
-        addPage(new VcsBase::VcsConfigurationPage(vc));
-    CloneWizardPage *page = new CloneWizardPage;
-    page->setPath(path);
-    addPage(page);
 }

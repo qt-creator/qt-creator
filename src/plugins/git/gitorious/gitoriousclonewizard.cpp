@@ -82,18 +82,6 @@ VcsBase::BaseCheckoutWizard *GitoriousCloneWizardFactory::create(const QString &
     return new GitoriousCloneWizard(path, parent);
 }
 
-VcsBase::Command *GitoriousCloneWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
-                                                      QString *checkoutPath)
-{
-    const Git::CloneWizardPage *cwp = 0;
-    foreach (QWizardPage *p, parameterPages) {
-        if ((cwp = qobject_cast<const Git::CloneWizardPage *>(p)))
-            break;
-    }
-    QTC_ASSERT(cwp, return 0);
-    return cwp->createCheckoutJob(checkoutPath);
-}
-
 // --------------------------------------------------------------------
 // GitoriousCloneWizard:
 // --------------------------------------------------------------------
@@ -118,6 +106,17 @@ GitoriousCloneWizard::GitoriousCloneWizard(const QString &path, QWidget *parent)
     addPage(projectPage);
     addPage(repoPage);
     addPage(clonePage);
+}
+
+VcsBase::Command *GitoriousCloneWizard::createCommand(QString *checkoutDir)
+{
+    const Git::CloneWizardPage *cwp = 0;
+    foreach (int pageId, pageIds()) {
+        if ((cwp = qobject_cast<const Git::CloneWizardPage *>(page(pageId))))
+            break;
+    }
+    QTC_ASSERT(cwp, return 0);
+    return cwp->createCheckoutJob(checkoutDir);
 }
 
 } // namespace Internal

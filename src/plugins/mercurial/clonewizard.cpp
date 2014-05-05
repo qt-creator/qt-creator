@@ -53,32 +53,6 @@ BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWidget *par
     return new CloneWizard(path, parent);
 }
 
-Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &parameterPages,
-                                    QString *checkoutPath)
-{
-    const CloneWizardPage *page = 0;
-    foreach (QWizardPage *p, parameterPages) {
-        if ((page = qobject_cast<const CloneWizardPage *>(p)))
-            break;
-    }
-
-    if (!page)
-        return 0;
-
-    const MercurialSettings &settings = MercurialPlugin::settings();
-
-    QString path = page->path();
-    QString directory = page->directory();
-
-    QStringList args;
-    args << QLatin1String("clone") << page->repository() << directory;
-    *checkoutPath = path + QLatin1Char('/') + directory;
-    VcsBase::Command *command = new VcsBase::Command(settings.binaryPath(), path,
-                                                     QProcessEnvironment::systemEnvironment());
-    command->addJob(args, -1);
-    return command;
-}
-
 // --------------------------------------------------------------------
 // CloneWizard:
 // --------------------------------------------------------------------
@@ -95,4 +69,29 @@ CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
     CloneWizardPage *page = new CloneWizardPage;
     page->setPath(path);
     addPage(page);
+}
+
+Command *CloneWizard::createCommand(QString *checkoutDir)
+{
+    const CloneWizardPage *cwp = 0;
+    foreach (int pageId, pageIds()) {
+        if ((cwp = qobject_cast<const CloneWizardPage *>(page(pageId))))
+            break;
+    }
+
+    if (!cwp)
+        return 0;
+
+    const MercurialSettings &settings = MercurialPlugin::settings();
+
+    QString path = cwp->path();
+    QString directory = cwp->directory();
+
+    QStringList args;
+    args << QLatin1String("clone") << cwp->repository() << directory;
+    *checkoutDir = path + QLatin1Char('/') + directory;
+    VcsBase::Command *command = new VcsBase::Command(settings.binaryPath(), path,
+                                                     QProcessEnvironment::systemEnvironment());
+    command->addJob(args, -1);
+    return command;
 }

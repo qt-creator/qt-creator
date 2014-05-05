@@ -33,6 +33,8 @@
 
 #include <coreplugin/basefilewizard.h>
 
+#include <utils/qtcassert.h>
+
 #include <QPushButton>
 
 /*!
@@ -66,8 +68,15 @@ void BaseCheckoutWizard::setStartedStatus(const QString &title)
 
 void BaseCheckoutWizard::slotPageChanged(int id)
 {
-    if (id == m_progressPageId)
-        emit progressPageShown();
+    if (id != m_progressPageId)
+        return;
+
+    VcsBase::Command *cmd = createCommand(&m_checkoutDir);
+    QTC_ASSERT(cmd, done(QDialog::Rejected));
+
+    // No "back" available while running.
+    button(QWizard::BackButton)->setEnabled(false);
+    m_progressPage->start(cmd);
 }
 
 void BaseCheckoutWizard::slotTerminated(bool success)
@@ -77,17 +86,13 @@ void BaseCheckoutWizard::slotTerminated(bool success)
         button(QWizard::BackButton)->setEnabled(true);
 }
 
-void BaseCheckoutWizard::start(Command *command)
-{
-    // No "back" available while running.
-    button(QWizard::BackButton)->setEnabled(false);
-    m_progressPage->start(command);
-}
-
-int BaseCheckoutWizard::exec()
+QString BaseCheckoutWizard::run()
 {
     m_progressPageId = addPage(m_progressPage);
-    return Utils::Wizard::exec();
+    if (Utils::Wizard::exec() == QDialog::Accepted)
+        return m_checkoutDir;
+    else
+        return QString();
 }
 
 void BaseCheckoutWizard::reject()

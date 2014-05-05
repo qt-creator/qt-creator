@@ -56,34 +56,6 @@ VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const QString &path, 
     return new CheckoutWizard(path, parent);
 }
 
-VcsBase::Command *CheckoutWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
-                                                QString *checkoutPath)
-{
-    // Collect parameters for the checkout command.
-    const CheckoutWizardPage *cwp = 0;
-    foreach (const QWizardPage *p, parameterPages) {
-        if ((cwp = qobject_cast<const CheckoutWizardPage *>(p)))
-            break;
-    }
-    QTC_ASSERT(cwp, return 0);
-    const SubversionSettings settings = SubversionPlugin::instance()->settings();
-    const QString binary = settings.binaryPath();
-    const QString directory = cwp->directory();
-    QStringList args;
-    args << QLatin1String("checkout") << cwp->repository() << directory;
-    const QString workingDirectory = cwp->path();
-    *checkoutPath = workingDirectory + QLatin1Char('/') + directory;
-    if (settings.hasAuthentication()) {
-        const QString user = settings.stringValue(SubversionSettings::userKey);
-        const QString pwd = settings.stringValue(SubversionSettings::passwordKey);
-        args = SubversionClient::addAuthenticationOptions(args, user, pwd);
-    }
-    VcsBase::Command *command = new VcsBase::Command(binary, workingDirectory,
-                                                     QProcessEnvironment::systemEnvironment());
-    command->addJob(args, -1);
-    return command;
-}
-
 // --------------------------------------------------------------------
 // CheckoutWizard:
 // --------------------------------------------------------------------
@@ -97,6 +69,36 @@ CheckoutWizard::CheckoutWizard(const QString &path, QWidget *parent) :
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path);
     addPage(cwp);
+}
+
+VcsBase::Command *CheckoutWizard::createCommand(QString *checkoutDir)
+{
+    // Collect parameters for the checkout command.
+    const CheckoutWizardPage *cwp = 0;
+    foreach (int pageId, pageIds()) {
+        if ((cwp = qobject_cast<const CheckoutWizardPage *>(page(pageId))))
+            break;
+    }
+    QTC_ASSERT(cwp, return 0);
+
+    const SubversionSettings settings = SubversionPlugin::instance()->settings();
+    const QString binary = settings.binaryPath();
+    const QString directory = cwp->directory();
+    QStringList args;
+    args << QLatin1String("checkout") << cwp->repository() << directory;
+    const QString workingDirectory = cwp->path();
+
+    *checkoutDir = workingDirectory + QLatin1Char('/') + directory;
+
+    if (settings.hasAuthentication()) {
+        const QString user = settings.stringValue(SubversionSettings::userKey);
+        const QString pwd = settings.stringValue(SubversionSettings::passwordKey);
+        args = SubversionClient::addAuthenticationOptions(args, user, pwd);
+    }
+    VcsBase::Command *command = new VcsBase::Command(binary, workingDirectory,
+                                                     QProcessEnvironment::systemEnvironment());
+    command->addJob(args, -1);
+    return command;
 }
 
 } // namespace Internal

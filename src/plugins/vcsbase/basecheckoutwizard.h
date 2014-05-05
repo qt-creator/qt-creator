@@ -49,13 +49,11 @@ public:
 
     void setTitle(const QString &title);
     void setStartedStatus(const QString &title);
-    void start(VcsBase::Command *command);
 
-public slots:
-    int exec();
+    QString run();
 
-signals:
-    void progressPageShown();
+protected:
+    virtual VcsBase::Command *createCommand(QString *checkoutDir) = 0;
 
 private slots:
     void slotPageChanged(int id);
@@ -65,6 +63,7 @@ private slots:
 private:
     Internal::CheckoutProgressWizardPage *m_progressPage;
     int m_progressPageId;
+    QString m_checkoutDir;
 };
 
 } // namespace VcsBase

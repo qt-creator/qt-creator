@@ -53,20 +53,6 @@ VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWi
     return new CloneWizard(path, parent);
 }
 
-VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
-                                             QString *checkoutPath)
-{
-    // Collect parameters for the clone command.
-    const CloneWizardPage *cwp = 0;
-    foreach (QWizardPage *wp, parameterPages) {
-        if ((cwp = qobject_cast<const CloneWizardPage *>(wp)))
-            break;
-    }
-
-    QTC_ASSERT(cwp, return 0);
-    return cwp->createCheckoutJob(checkoutPath);
-}
-
 // --------------------------------------------------------------------
 // CloneWizard:
 // --------------------------------------------------------------------
@@ -83,6 +69,19 @@ CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
     CloneWizardPage *cwp = new CloneWizardPage;
     cwp->setPath(path);
     addPage(cwp);
+}
+
+VcsBase::Command *CloneWizard::createCommand(QString *checkoutDir)
+{
+    // Collect parameters for the clone command.
+    const CloneWizardPage *cwp = 0;
+    foreach (int pageId, pageIds()) {
+        if ((cwp = qobject_cast<const CloneWizardPage *>(page(pageId))))
+            break;
+    }
+
+    QTC_ASSERT(cwp, return 0);
+    return cwp->createCheckoutJob(checkoutDir);
 }
 
 } // namespace Internal
