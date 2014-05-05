@@ -938,7 +938,6 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString id = diffArg + source;
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, source, QStringList(), changeNr);
     if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->document()->setContents(description.toUtf8());

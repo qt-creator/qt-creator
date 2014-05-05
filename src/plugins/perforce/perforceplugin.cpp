@@ -719,7 +719,6 @@ void PerforcePlugin::annotate(const QString &workingDir,
     if (!result.error) {
         if (lineNumber < 1)
             lineNumber = VcsBase::VcsBaseEditorWidget::lineNumberOfCurrentEditor();
-        const QFileInfo fi(fileName);
         Core::IEditor *ed = showOutputInEditor(tr("p4 annotate %1").arg(id),
                                                result.stdOut, VcsBase::AnnotateOutput,
                                                source, codec);
