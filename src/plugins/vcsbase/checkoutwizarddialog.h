@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef CHECKOUTWIZARDDIALOG_H
-#define CHECKOUTWIZARDDIALOG_H
+#ifndef BASECHECKOUTWIZARD_H
+#define BASECHECKOUTWIZARD_H
 
 #include "vcsbase_global.h"
 
@@ -40,12 +40,12 @@ class Command;
 
 namespace Internal { class CheckoutProgressWizardPage; }
 
-class VCSBASE_EXPORT CheckoutWizardDialog : public Utils::Wizard
+class VCSBASE_EXPORT BaseCheckoutWizard : public Utils::Wizard
 {
     Q_OBJECT
 
 public:
-    explicit CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
+    explicit BaseCheckoutWizard(const QList<QWizardPage *> &parameterPages,
                                   QWidget *parent = 0);
 
     void setTitle(const QString &title);
@@ -67,4 +67,4 @@ private:
 
 } // namespace VcsBase
 
-#endif // CHECKOUTWIZARDDIALOG_H
+#endif // BASECHECKOUTWIZARD_H

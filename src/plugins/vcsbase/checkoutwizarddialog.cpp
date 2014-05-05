@@ -44,7 +44,7 @@
 
 namespace VcsBase {
 
-CheckoutWizardDialog::CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
+BaseCheckoutWizard::BaseCheckoutWizard(const QList<QWizardPage *> &parameterPages,
                                            QWidget *parent) :
     Utils::Wizard(parent),
     m_progressPage(new Internal::CheckoutProgressWizardPage),
@@ -58,37 +58,37 @@ CheckoutWizardDialog::CheckoutWizardDialog(const QList<QWizardPage *> &parameter
     connect(m_progressPage, SIGNAL(terminated(bool)), this, SLOT(slotTerminated(bool)));
 }
 
-void CheckoutWizardDialog::setTitle(const QString &title)
+void BaseCheckoutWizard::setTitle(const QString &title)
 {
     m_progressPage->setTitle(title);
 }
 
-void CheckoutWizardDialog::setStartedStatus(const QString &title)
+void BaseCheckoutWizard::setStartedStatus(const QString &title)
 {
     m_progressPage->setStartedStatus(title);
 }
 
-void CheckoutWizardDialog::slotPageChanged(int id)
+void BaseCheckoutWizard::slotPageChanged(int id)
 {
     if (id == m_progressPageId)
         emit progressPageShown();
 }
 
-void CheckoutWizardDialog::slotTerminated(bool success)
+void BaseCheckoutWizard::slotTerminated(bool success)
 {
     // Allow to correct parameters
     if (!success)
         button(QWizard::BackButton)->setEnabled(true);
 }
 
-void CheckoutWizardDialog::start(Command *command)
+void BaseCheckoutWizard::start(Command *command)
 {
     // No "back" available while running.
     button(QWizard::BackButton)->setEnabled(false);
     m_progressPage->start(command);
 }
 
-void CheckoutWizardDialog::reject()
+void BaseCheckoutWizard::reject()
 {
     // First click kills, 2nd closes
     if (currentId() == m_progressPageId && m_progressPage->isRunning())
