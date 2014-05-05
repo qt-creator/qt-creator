@@ -2378,3 +2378,9 @@ def qdump__QScriptValue(d, value):
         with Children(d):
            d.putSubItem("jscValue", dd["jscValue"])
 
+
+def qdump__QQmlAccessorProperties__Properties(d, value):
+    size = int(value["count"])
+    d.putItemCount(size)
+    if d.isExpanded():
+        d.putArrayData(value["properties"], size)
