@@ -40,6 +40,7 @@
 #include <QPen>
 #include <QPixmapCache>
 #include <QMouseEvent>
+#include <QPainter>
 
 
 namespace QmlDesigner {
@@ -123,43 +124,6 @@ NavigatorTreeView::NavigatorTreeView(QWidget *parent)
     TreeViewStyle *style = new TreeViewStyle;
     setStyle(style);
     style->setParent(this);
-}
-
-QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                         const QModelIndex &index) const
-{
-    Q_UNUSED(option);
-    Q_UNUSED(index);
-
-    if (!index.data(Qt::UserRole).isValid())
-        return QSize();
-
-    return QSize(15, 20);
-}
-
-void IconCheckboxItemDelegate::paint(QPainter *painter,
-                                     const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    if (!index.data(Qt::UserRole).isValid())
-        return;
-
-    painter->save();
-    if (option.state & QStyle::State_Selected)
-        drawSelectionBackground(painter, option);
-
-    if (!m_TreeModel->nodeForIndex(index).isRootNode()) {
-
-        bool isChecked= (m_TreeModel->itemFromIndex(index)->checkState() == Qt::Checked);
-
-        if (m_TreeModel->isNodeInvisible( index ))
-            painter->setOpacity(0.5);
-
-        if (isChecked)
-            painter->drawPixmap(option.rect.x()+2,option.rect.y()+2,onPix);
-        else
-            painter->drawPixmap(option.rect.x()+2,option.rect.y()+2,offPix);
-    }
-    painter->restore();
 }
 
 }

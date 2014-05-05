@@ -31,6 +31,7 @@
 #include "navigatortreemodel.h"
 #include "navigatorwidget.h"
 #include "nameitemdelegate.h"
+#include "iconcheckboxitemdelegate.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -74,9 +75,12 @@ NavigatorView::NavigatorView(QObject* parent) :
 
     treeWidget()->setIndentation(treeWidget()->indentation() * 0.5);
 
-    NameItemDelegate *idDelegate = new NameItemDelegate(this,m_treeModel.data());
-    IconCheckboxItemDelegate *showDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/eye_open.png",
-                                                          ":/qmldesigner/images/placeholder.png",m_treeModel.data());
+    NameItemDelegate *idDelegate = new NameItemDelegate(this,
+                                                        m_treeModel.data());
+    IconCheckboxItemDelegate *showDelegate = new IconCheckboxItemDelegate(this,
+                                                                          ":/qmldesigner/images/eye_open.png",
+                                                                          ":/qmldesigner/images/placeholder.png",
+                                                                          m_treeModel.data());
 
 #ifdef _LOCK_ITEMS_
     IconCheckboxItemDelegate *lockDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/lock.png",

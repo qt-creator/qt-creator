@@ -27,21 +27,35 @@
 **
 ****************************************************************************/
 
+#ifndef QMLDESIGNER_ICONCHECKBOXITEMDELEGATE_H
+#define QMLDESIGNER_ICONCHECKBOXITEMDELEGATE_H
 
-#ifndef NAVIGATORTREEVIEW_H
-#define NAVIGATORTREEVIEW_H
-
-#include <QTreeView>
+#include <QStyledItemDelegate>
 
 namespace QmlDesigner {
 
-void drawSelectionBackground(QPainter *painter, const QStyleOption &option);
+class NavigatorTreeModel;
 
-class NavigatorTreeView : public QTreeView
+class IconCheckboxItemDelegate : public QStyledItemDelegate
 {
 public:
-    NavigatorTreeView(QWidget *parent = 0);
-};
-}
+    explicit IconCheckboxItemDelegate(QObject *parent,
+                                      QString checkedPixmapURL,
+                                      QString uncheckedPixmapURL,
+                                      NavigatorTreeModel *treeModel);
 
-#endif // NAVIGATORTREEVIEW_H
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const;
+
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
+
+private:
+    QPixmap offPix;
+    QPixmap onPix;
+    NavigatorTreeModel *m_TreeModel;
+};
+} // namespace QmlDesigner
+
+#endif // QMLDESIGNER_ICONCHECKBOXITEMDELEGATE_H
