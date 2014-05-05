@@ -59,3 +59,5 @@ SOURCES += $$PWD/xmlprotocol/error.cpp \
     $$PWD/memcheck/memcheckrunner.cpp \
     $$PWD/valgrindrunner.cpp \
     $$PWD/valgrindprocess.cpp
+
+LIBS += -L$$IDE_PLUGIN_PATH/QtProject

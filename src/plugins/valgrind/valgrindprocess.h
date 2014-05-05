@@ -31,7 +31,8 @@
 #ifndef VALGRINDPROCESS_H
 #define VALGRINDPROCESS_H
 
-#include <utils/qtcprocess.h>
+#include <projectexplorer/applicationlauncher.h>
+
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
 #include <utils/osspecificaspects.h>
@@ -79,6 +80,7 @@ public:
     void setWorkingDirectory(const QString &path);
     QString workingDirectory() const;
     void setEnvironment(const Utils::Environment &environment);
+    void setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode);
 
     qint64 pid() const;
     QSsh::SshConnection *connection() const;
@@ -92,19 +94,21 @@ signals:
     void localHostAddressRetrieved(const QHostAddress &localHostAddress);
 
 private slots:
-    void handleReadyReadStandardError();
-    void handleReadyReadStandardOutput();
+    void handleRemoteStderr();
+    void handleRemoteStdout();
     void handleError(QSsh::SshError);
 
     void closed(int);
     void connected();
-    void processStarted();
+    void localProcessStarted();
+    void remoteProcessStarted();
     void findPIDOutputReceived();
 
 private:
     QString argumentString(Utils::OsType osType) const;
 
-    Utils::QtcProcess m_localProcess;
+    ProjectExplorer::ApplicationLauncher m_localProcess;
+
     qint64 m_pid;
 
     Remote m_remote;
@@ -113,6 +117,7 @@ private:
     QString m_debuggeeExecutable;
     QString m_debuggeeArguments;
     bool m_isLocal;
+    ProjectExplorer::ApplicationLauncher::Mode m_localRunMode;
 };
 
 

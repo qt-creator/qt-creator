@@ -108,6 +108,7 @@ bool ValgrindRunControl::startEngine()
     run->setEnvironment(sp.environment);
     run->setConnectionParameters(sp.connParams);
     run->setStartMode(sp.startMode);
+    run->setLocalRunMode(sp.localRunMode);
 
     connect(run, SIGNAL(processOutputReceived(QString,Utils::OutputFormat)),
             SLOT(receiveProcessOutput(QString,Utils::OutputFormat)));

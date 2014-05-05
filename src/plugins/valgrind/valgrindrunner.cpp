@@ -50,7 +50,8 @@ public:
           process(0),
           channelMode(QProcess::SeparateChannels),
           finished(false),
-          startMode(Analyzer::StartLocal)
+          startMode(Analyzer::StartLocal),
+          localRunMode(ProjectExplorer::ApplicationLauncher::Gui)
     {
     }
 
@@ -67,6 +68,7 @@ public:
     QString debuggeeArguments;
     QString workingdir;
     Analyzer::StartMode startMode;
+    ProjectExplorer::ApplicationLauncher::Mode localRunMode;
     QSsh::SshConnectionParameters connParams;
 };
 
@@ -87,6 +89,7 @@ void ValgrindRunner::Private::run(ValgrindProcess *_process)
 
     process->setWorkingDirectory(workingdir);
     process->setProcessChannelMode(channelMode);
+    process->setLocalRunMode(localRunMode);
     // consider appending our options last so they override any interfering user-supplied options
     // -q as suggested by valgrind manual
 
@@ -177,6 +180,16 @@ void ValgrindRunner::setDebuggeeArguments(const QString &arguments)
 Analyzer::StartMode ValgrindRunner::startMode() const
 {
     return d->startMode;
+}
+
+void ValgrindRunner::setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode)
+{
+    d->localRunMode = localRunMode;
+}
+
+ProjectExplorer::ApplicationLauncher::Mode ValgrindRunner::localRunMode() const
+{
+    return d->localRunMode;
 }
 
 void ValgrindRunner::setStartMode(Analyzer::StartMode startMode)

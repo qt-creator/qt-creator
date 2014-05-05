@@ -1,4 +1,5 @@
 QTC_LIB_DEPENDS += utils ssh
+QTC_PLUGIN_DEPENDS += projectexplorer
 include(../../qttest.pri)
 include($$IDE_SOURCE_TREE/src/plugins/valgrind/valgrind_test.pri)
 

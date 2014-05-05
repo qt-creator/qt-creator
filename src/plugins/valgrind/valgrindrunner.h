@@ -32,6 +32,7 @@
 #define VALGRIND_RUNNER_H
 
 #include <analyzerbase/analyzerconstants.h>
+#include <projectexplorer/applicationlauncher.h>
 
 #include <utils/outputformat.h>
 #include <ssh/sshconnection.h>
@@ -72,6 +73,9 @@ public:
 
     void setStartMode(Analyzer::StartMode startMode);
     Analyzer::StartMode startMode() const;
+
+    void setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode);
+    ProjectExplorer::ApplicationLauncher::Mode localRunMode() const;
 
     void setConnectionParameters(const QSsh::SshConnectionParameters &connParams);
     const QSsh::SshConnectionParameters &connectionParameters() const;

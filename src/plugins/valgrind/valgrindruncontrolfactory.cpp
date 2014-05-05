@@ -94,6 +94,7 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
         sp.connParams.host = server.serverAddress().toString();
         sp.connParams.port = server.serverPort();
         sp.startMode = StartLocal;
+        sp.localRunMode = static_cast<ProjectExplorer::ApplicationLauncher::Mode>(rc1->runMode());
     } else if (RemoteLinux::AbstractRemoteLinuxRunConfiguration *rc2 =
                qobject_cast<RemoteLinux::AbstractRemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.startMode = StartRemote;

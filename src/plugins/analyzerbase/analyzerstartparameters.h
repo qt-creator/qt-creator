@@ -38,6 +38,7 @@
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/applicationlauncher.h>
 
 namespace Analyzer {
 
@@ -47,12 +48,15 @@ namespace Analyzer {
 class ANALYZER_EXPORT AnalyzerStartParameters
 {
 public:
-    AnalyzerStartParameters() : analyzerPort(0)
+    AnalyzerStartParameters()
+        : localRunMode(ProjectExplorer::ApplicationLauncher::Gui)
+        , analyzerPort(0)
     {}
 
     StartMode startMode;
     ProjectExplorer::RunMode runMode;
     QSsh::SshConnectionParameters connParams;
+    ProjectExplorer::ApplicationLauncher::Mode localRunMode;
 
     QString debuggee;
     QString debuggeeArgs;

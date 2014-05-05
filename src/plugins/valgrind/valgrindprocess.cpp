@@ -35,6 +35,7 @@
 #include <QFileInfo>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 namespace Valgrind {
 
@@ -74,7 +75,7 @@ QString ValgrindProcess::workingDirectory() const
 bool ValgrindProcess::isRunning() const
 {
     if (isLocal())
-        return m_localProcess.state() != QProcess::NotRunning;
+        return m_localProcess.isRunning();
     else
         return m_remote.m_process && m_remote.m_process->isRunning();
 }
@@ -106,10 +107,15 @@ void ValgrindProcess::setEnvironment(const Utils::Environment &environment)
     ///TODO: remote anything that should/could be done here?
 }
 
+void ValgrindProcess::setLocalRunMode(ProjectExplorer::ApplicationLauncher::Mode localRunMode)
+{
+    m_localRunMode = localRunMode;
+}
+
 void ValgrindProcess::close()
 {
     if (isLocal()) {
-        m_localProcess.terminate();
+        m_localProcess.stop();
     } else {
         QTC_ASSERT(m_remote.m_connection->state() == QSsh::SshConnection::Connected, return);
         if (m_remote.m_process) {
@@ -131,22 +137,18 @@ void ValgrindProcess::close()
 void ValgrindProcess::run()
 {
     if (isLocal()) {
-        connect(&m_localProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+        connect(&m_localProcess, SIGNAL(processExited(int,QProcess::ExitStatus)),
                 this, SIGNAL(finished(int,QProcess::ExitStatus)));
-        connect(&m_localProcess, SIGNAL(started()),
-                this, SIGNAL(started()));
+        connect(&m_localProcess, SIGNAL(processStarted()),
+                this, SLOT(localProcessStarted()));
         connect(&m_localProcess, SIGNAL(error(QProcess::ProcessError)),
                 this, SIGNAL(error(QProcess::ProcessError)));
-        connect(&m_localProcess, SIGNAL(readyReadStandardError()),
-                this, SLOT(handleReadyReadStandardError()));
-        connect(&m_localProcess, SIGNAL(readyReadStandardOutput()),
-                this, SLOT(handleReadyReadStandardOutput()));
+        connect(&m_localProcess, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+                this, SIGNAL(processOutput(QString,Utils::OutputFormat)));
 
-        m_localProcess.setCommand(m_valgrindExecutable,
-                                  argumentString(Utils::HostOsInfo::hostOs()));
-        m_localProcess.start();
-        m_localProcess.waitForStarted();
-        m_pid = Utils::qPidToPid(m_localProcess.pid());
+        m_localProcess.start(m_localRunMode, m_valgrindExecutable,
+                             argumentString(Utils::HostOsInfo::hostOs()));
+
     } else {
         m_remote.m_valgrindExe = m_valgrindExecutable;
         m_remote.m_debuggee = m_debuggeeExecutable;
@@ -204,26 +206,18 @@ qint64 ValgrindProcess::pid() const
     return m_pid;
 }
 
-void ValgrindProcess::handleReadyReadStandardError()
+void ValgrindProcess::handleRemoteStderr()
 {
-    QByteArray b;
-    if (isLocal())
-        b = m_localProcess.readAllStandardError();
-    else
-        b = m_remote.m_process->readAllStandardError();
+    const QString b = QString::fromLocal8Bit(m_remote.m_process->readAllStandardError());
     if (!b.isEmpty())
-        emit processOutput(QString::fromLocal8Bit(b), Utils::StdErrFormat);
+        emit processOutput(b, Utils::StdErrFormat);
 }
 
-void ValgrindProcess::handleReadyReadStandardOutput()
+void ValgrindProcess::handleRemoteStdout()
 {
-    QByteArray b;
-    if (isLocal())
-        b = m_localProcess.readAllStandardOutput();
-    else
-        b = m_remote.m_process->readAllStandardOutput();
+    const QString b = QString::fromLocal8Bit(m_remote.m_process->readAllStandardOutput());
     if (!b.isEmpty())
-        emit processOutput(QString::fromLocal8Bit(b), Utils::StdOutFormat);
+        emit processOutput(b, Utils::StdOutFormat);
 }
 
 /// Remote
@@ -243,23 +237,28 @@ void ValgrindProcess::connected()
 
     m_remote.m_process = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
     connect(m_remote.m_process.data(), SIGNAL(readyReadStandardError()),
-            this, SLOT(handleReadyReadStandardError()));
+            this, SLOT(handleRemoteStderr()));
     connect(m_remote.m_process.data(), SIGNAL(readyReadStandardOutput()),
-            this, SLOT(handleReadyReadStandardOutput()));
+            this, SLOT(handleRemoteStdout()));
     connect(m_remote.m_process.data(), SIGNAL(closed(int)),
             this, SLOT(closed(int)));
     connect(m_remote.m_process.data(), SIGNAL(started()),
-            this, SLOT(processStarted()));
+            this, SLOT(remoteProcessStarted()));
     m_remote.m_process->start();
 }
-
 
 QSsh::SshConnection *ValgrindProcess::connection() const
 {
     return m_remote.m_connection;
 }
 
-void ValgrindProcess::processStarted()
+void ValgrindProcess::localProcessStarted()
+{
+    m_pid = m_localProcess.applicationPID();
+    emit started();
+}
+
+void ValgrindProcess::remoteProcessStarted()
 {
     QTC_ASSERT(m_remote.m_connection->state() == QSsh::SshConnection::Connected, return);
 
@@ -284,7 +283,7 @@ void ValgrindProcess::processStarted()
 
     m_remote.m_findPID = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
     connect(m_remote.m_findPID.data(), SIGNAL(readyReadStandardError()),
-            this, SLOT(handleReadyReadStandardError()));
+            this, SLOT(handleRemoteStderr()));
     connect(m_remote.m_findPID.data(), SIGNAL(readyReadStandardOutput()),
             this, SLOT(findPIDOutputReceived()));
     m_remote.m_findPID->start();
