@@ -41,7 +41,7 @@ class QWizardPage;
 QT_END_NAMESPACE
 
 namespace VcsBase {
-namespace Internal { class BaseCheckoutWizardPrivate; }
+namespace Internal { class BaseCheckoutWizardFactoryPrivate; }
 
 class Command;
 
@@ -67,7 +67,7 @@ private slots:
     void slotProgressPageShown();
 
 private:
-    Internal::BaseCheckoutWizardPrivate *const d;
+    Internal::BaseCheckoutWizardFactoryPrivate *const d;
 };
 
 } // namespace VcsBase

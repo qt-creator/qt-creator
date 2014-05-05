@@ -62,30 +62,30 @@
 namespace VcsBase {
 namespace Internal {
 
-class BaseCheckoutWizardPrivate
+class BaseCheckoutWizardFactoryPrivate
 {
 public:
-    BaseCheckoutWizardPrivate() : dialog(0) {}
+    BaseCheckoutWizardFactoryPrivate() : wizard(0) {}
     void clear();
 
-    BaseCheckoutWizard *dialog;
+    BaseCheckoutWizard *wizard;
     QList<QWizardPage *> parameterPages;
     QString checkoutPath;
     QString progressTitle;
     QString startedStatus;
 };
 
-void BaseCheckoutWizardPrivate::clear()
+void BaseCheckoutWizardFactoryPrivate::clear()
 {
     parameterPages.clear();
-    dialog = 0;
+    wizard = 0;
     checkoutPath.clear();
 }
 
 } // namespace Internal
 
 BaseCheckoutWizardFactory::BaseCheckoutWizardFactory() :
-    d(new Internal::BaseCheckoutWizardPrivate)
+    d(new Internal::BaseCheckoutWizardFactoryPrivate)
 {
     setWizardKind(IWizardFactory::ProjectWizard);
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
@@ -112,7 +112,7 @@ void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, 
         wizard.setTitle(d->progressTitle);
     if (!d->startedStatus.isEmpty())
         wizard.setStartedStatus(d->startedStatus);
-    d->dialog = &wizard;
+    d->wizard = &wizard;
     connect(&wizard, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
     wizard.setWindowTitle(displayName());
     if (wizard.exec() != QDialog::Accepted)
@@ -188,7 +188,7 @@ void BaseCheckoutWizardFactory::setCustomLabels(const QString &progressTitle, co
 void BaseCheckoutWizardFactory::slotProgressPageShown()
 {
     Command *command = createCommand(d->parameterPages, &(d->checkoutPath));
-    d->dialog->start(command);
+    d->wizard->start(command);
 }
 
 } // namespace VcsBase
