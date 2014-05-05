@@ -83,6 +83,7 @@ QFuture<TextEditor::HighlightingResult> CppHighlightingSupportInternal::highligh
         // FIXME: Check default values or get from document.
         LanguageFeatures features;
         features.cxx11Enabled = true;
+        features.c99Enabled = true;
 
         SimpleLexer tokenize;
         tokenize.setLanguageFeatures(features);

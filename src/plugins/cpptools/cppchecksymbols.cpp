@@ -495,6 +495,13 @@ bool CheckSymbols::visit(EnumeratorAST *ast)
     return true;
 }
 
+bool CheckSymbols::visit(DesignatorAST *ast)
+{
+    if (ast->type == DesignatorAST::Dot)
+        addUse(ast->u.dot.identifier_token, CppHighlightingSupport::FieldUse);
+    return true;
+}
+
 bool CheckSymbols::visit(SimpleDeclarationAST *ast)
 {
     NameAST *declrIdNameAST = 0;

@@ -1762,3 +1762,21 @@ BracedInitializerAST *BracedInitializerAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+DesignatorAST *DesignatorAST::clone(MemoryPool *pool) const
+{
+    DesignatorAST *ast = new (pool) DesignatorAST;
+    return ast;
+}
+
+DesignatedInitializerAST *DesignatedInitializerAST::clone(MemoryPool *pool) const
+{
+    DesignatedInitializerAST *ast = new (pool) DesignatedInitializerAST;
+    for (DesignatorListAST *iter = designator_list, **ast_iter = &ast->designator_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) DesignatorListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->equal_token = equal_token;
+    if (initializer)
+        ast->initializer = initializer->clone(pool);
+    return ast;
+}
+

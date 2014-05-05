@@ -1147,6 +1147,20 @@ public:
         return __ast;
     }
 
+    DesignatorAST *Designator()
+    {
+        DesignatorAST *__ast = new (&pool) DesignatorAST;
+        return __ast;
+    }
+
+    DesignatedInitializerAST *DesignatedInitializer(DesignatorListAST *designator_list = 0, ExpressionAST *initializer = 0)
+    {
+        DesignatedInitializerAST *__ast = new (&pool) DesignatedInitializerAST;
+        __ast->designator_list = designator_list;
+        __ast->initializer = initializer;
+        return __ast;
+    }
+
     AttributeListAST *AttributeList(AttributeAST *value, AttributeListAST *next = 0)
     {
         AttributeListAST *__list = new (&pool) AttributeListAST;
@@ -1190,6 +1204,14 @@ public:
     DeclaratorListAST *DeclaratorList(DeclaratorAST *value, DeclaratorListAST *next = 0)
     {
         DeclaratorListAST *__list = new (&pool) DeclaratorListAST;
+        __list->next = next;
+        __list->value = value;
+        return __list;
+    }
+
+    DesignatorListAST *DesignatorList(DesignatorAST *value, DesignatorListAST *next = 0)
+    {
+        DesignatorListAST *__list = new (&pool) DesignatorListAST;
         __list->next = next;
         __list->value = value;
         return __list;

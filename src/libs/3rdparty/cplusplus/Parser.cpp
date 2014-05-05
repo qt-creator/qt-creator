@@ -2664,7 +2664,7 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
     ExpressionListAST **expression_list_ptr = &node;
     ExpressionAST *expression = 0;
 
-    if (parseInitializerClause0x(expression)) {
+    if (parseDesignatedInitializer(expression)) {
         *expression_list_ptr = new (_pool) ExpressionListAST;
         (*expression_list_ptr)->value = expression;
         expression_list_ptr = &(*expression_list_ptr)->next;
@@ -2675,7 +2675,7 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
         while (LA() == T_COMMA && LA(2) != T_RBRACE) {
             consumeToken(); // consume T_COMMA
 
-            if (parseInitializerClause0x(expression)) {
+            if (parseDesignatedInitializer(expression)) {
                 *expression_list_ptr = new (_pool) ExpressionListAST;
                 (*expression_list_ptr)->value = expression;
 
@@ -5482,6 +5482,50 @@ bool Parser::lookAtObjCSelector() const
     } // switch
 
     return false;
+}
+
+// designated-initializer ::= designator* T_EQUAL initializer-clause
+//
+bool Parser::parseDesignatedInitializer(ExpressionAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (!_languageFeatures.c99Enabled || (LA() != T_DOT && LA() != T_LBRACKET))
+        return parseInitializerClause0x(node);
+
+    DesignatedInitializerAST *ast = new (_pool) DesignatedInitializerAST;
+    DesignatorListAST **designator_list_ptr = &ast->designator_list;
+    DesignatorAST *designator = 0;
+    while (parseDesignator(designator)) {
+        *designator_list_ptr = new (_pool) DesignatorListAST;
+        (*designator_list_ptr)->value = designator;
+        designator_list_ptr = &(*designator_list_ptr)->next;
+    }
+    match(T_EQUAL, &ast->equal_token);
+    parseInitializerClause0x(ast->initializer);
+    node = ast;
+    return true;
+}
+
+// designator ::= T_DOT T_IDENTIFIER
+//                T_LBRACKET constant-expression T_BRACKET
+//
+bool Parser::parseDesignator(DesignatorAST *&node)
+{
+    DesignatorAST *ast = new (_pool) DesignatorAST;
+    if (LA() == T_DOT) {
+        ast->type = DesignatorAST::Dot;
+        ast->u.dot.dot_token = consumeToken();
+        match(T_IDENTIFIER, &ast->u.dot.identifier_token);
+    } else if (LA() == T_LBRACKET) {
+        ast->type = DesignatorAST::Bracket;
+        ast->u.bracket.lbracket_token = consumeToken();
+        parseConstantExpression(ast->u.bracket.expression);
+        match(T_RBRACKET, &ast->u.bracket.rbracket_token);
+    } else {
+        return false;
+    }
+    node = ast;
+    return true;
 }
 
 // objc-class-declaraton ::= T_AT_CLASS (T_IDENTIFIER @ T_COMMA) T_SEMICOLON

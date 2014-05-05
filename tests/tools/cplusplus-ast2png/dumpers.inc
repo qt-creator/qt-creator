@@ -1698,3 +1698,18 @@ virtual bool visit(BracedInitializerAST *ast)
     return false;
 }
 
+virtual bool visit(DesignatorAST *ast)
+{
+    return false;
+}
+
+virtual bool visit(DesignatedInitializerAST *ast)
+{
+    for (DesignatorListAST *iter = ast->designator_list; iter; iter = iter->next)
+        nonterminal(iter->value);
+    if (ast->equal_token)
+        terminal(ast->equal_token, ast);
+    nonterminal(ast->initializer);
+    return false;
+}
+

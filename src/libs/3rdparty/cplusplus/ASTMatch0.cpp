@@ -1192,3 +1192,19 @@ bool BracedInitializerAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool DesignatorAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (DesignatorAST *_other = pattern->asDesignator())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool DesignatedInitializerAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (DesignatedInitializerAST *_other = pattern->asDesignatedInitializer())
+        return matcher->match(this, _other);
+
+    return false;
+}
+

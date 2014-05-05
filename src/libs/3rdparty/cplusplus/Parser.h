@@ -246,6 +246,11 @@ public:
 
     bool lookAtObjCSelector() const;
 
+    // c99
+    bool parseDesignatedInitializerList(ExpressionListAST *&node);
+    bool parseDesignatedInitializer(ExpressionAST *&node);
+    bool parseDesignator(DesignatorAST *&node);
+
     bool skipUntil(int token);
     void skipUntilDeclaration();
     bool skipUntilStatement();

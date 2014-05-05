@@ -1279,3 +1279,19 @@ void BracedInitializerAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void DesignatorAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
+void DesignatedInitializerAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(designator_list, visitor);
+        accept(initializer, visitor);
+    }
+    visitor->endVisit(this);
+}
+

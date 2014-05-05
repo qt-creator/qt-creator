@@ -4450,3 +4450,69 @@ unsigned AliasDeclarationAST::lastToken() const
     return 1;
 }
 
+/** \generated */
+unsigned DesignatedInitializerAST::firstToken() const
+{
+    if (designator_list)
+        if (unsigned candidate = designator_list->firstToken())
+            return candidate;
+    if (equal_token)
+        return equal_token;
+    if (initializer)
+        if (unsigned candidate = initializer->firstToken())
+            return candidate;
+    return 0;
+}
+
+/** \generated */
+unsigned DesignatedInitializerAST::lastToken() const
+{
+    if (initializer)
+        if (unsigned candidate = initializer->lastToken())
+            return candidate;
+    if (equal_token)
+        return equal_token + 1;
+    if (designator_list)
+        if (unsigned candidate = designator_list->lastToken())
+            return candidate;
+    return 1;
+}
+
+unsigned DesignatorAST::firstToken() const
+{
+    if (type == DesignatorAST::Dot) {
+        if (u.dot.dot_token)
+            return u.dot.dot_token;
+        if (u.dot.identifier_token)
+            return u.dot.identifier_token;
+    } else if (type == DesignatorAST::Bracket) {
+        if (u.bracket.lbracket_token)
+            return u.bracket.lbracket_token;
+        if (u.bracket.expression)
+            if (unsigned candidate = u.bracket.expression->firstToken())
+                return candidate;
+        if (u.bracket.rbracket_token)
+            return u.bracket.rbracket_token;
+    }
+    return 0;
+}
+
+unsigned DesignatorAST::lastToken() const
+{
+    if (type == DesignatorAST::Dot) {
+        if (u.dot.identifier_token)
+            return u.dot.identifier_token + 1;
+        if (u.dot.dot_token)
+            return u.dot.dot_token + 1;
+    } else if (type == DesignatorAST::Bracket) {
+        if (u.bracket.rbracket_token)
+            return u.bracket.rbracket_token + 1;
+        if (u.bracket.expression)
+            if (unsigned candidate = u.bracket.expression->lastToken())
+                return candidate;
+        if (u.bracket.lbracket_token)
+            return u.bracket.lbracket_token + 1;
+    }
+    return 1;
+}
+

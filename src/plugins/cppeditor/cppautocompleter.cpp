@@ -106,6 +106,7 @@ bool CppAutoCompleter::isInCommentHelper(const QTextCursor &cursor, Token *retTo
     features.qtKeywordsEnabled = false;
     features.qtMocRunEnabled = false;
     features.cxx11Enabled = true;
+    features.c99Enabled = true;
 
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);

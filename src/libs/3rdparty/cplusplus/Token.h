@@ -390,6 +390,7 @@ struct LanguageFeatures
             unsigned int qtKeywordsEnabled : 1; // If Qt is used but QT_NO_KEYWORDS defined
             unsigned int cxx11Enabled : 1;
             unsigned int objCEnabled : 1;
+            unsigned int c99Enabled : 1;
         };
     };
 };

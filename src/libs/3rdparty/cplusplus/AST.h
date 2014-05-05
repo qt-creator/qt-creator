@@ -161,6 +161,8 @@ public:
     virtual DeclaratorIdAST *asDeclaratorId() { return 0; }
     virtual DecltypeSpecifierAST *asDecltypeSpecifier() { return 0; }
     virtual DeleteExpressionAST *asDeleteExpression() { return 0; }
+    virtual DesignatedInitializerAST *asDesignatedInitializer() { return 0; }
+    virtual DesignatorAST *asDesignator() { return 0; }
     virtual DestructorNameAST *asDestructorName() { return 0; }
     virtual DoStatementAST *asDoStatement() { return 0; }
     virtual DynamicExceptionSpecificationAST *asDynamicExceptionSpecification() { return 0; }
@@ -4521,6 +4523,72 @@ public:
     virtual unsigned lastToken() const;
 
     virtual BracedInitializerAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class DesignatorAST: public AST
+{
+public:
+    enum Type
+    {
+        Invalid,
+        Dot,
+        Bracket
+    };
+    Type type;
+    union Designator
+    {
+        struct DotDesignator
+        {
+            unsigned dot_token;
+            unsigned identifier_token;
+        } dot;
+        struct BracketDesignator
+        {
+            unsigned lbracket_token;
+            ExpressionAST *expression;
+            unsigned rbracket_token;
+        } bracket;
+    } u;
+
+public:
+    DesignatorAST()
+        : type(Invalid)
+    {}
+
+    virtual DesignatorAST *asDesignator() { return this; }
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual DesignatorAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class DesignatedInitializerAST: public ExpressionAST
+{
+public:
+    DesignatorListAST *designator_list;
+    unsigned equal_token;
+    ExpressionAST *initializer;
+
+public:
+    DesignatedInitializerAST()
+        : designator_list(0)
+        , equal_token(0)
+        , initializer(0)
+    {}
+
+    virtual DesignatedInitializerAST *asDesignatedInitializer() { return this; }
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual DesignatedInitializerAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

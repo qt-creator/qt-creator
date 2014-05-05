@@ -108,6 +108,8 @@ public:
     virtual bool visit(DeclaratorIdAST *) { return true; }
     virtual bool visit(DecltypeSpecifierAST *) { return true; }
     virtual bool visit(DeleteExpressionAST *) { return true; }
+    virtual bool visit(DesignatedInitializerAST *) { return true; }
+    virtual bool visit(DesignatorAST *) { return true; }
     virtual bool visit(DestructorNameAST *) { return true; }
     virtual bool visit(DoStatementAST *) { return true; }
     virtual bool visit(DynamicExceptionSpecificationAST *) { return true; }
@@ -254,6 +256,8 @@ public:
     virtual void endVisit(DeclaratorIdAST *) {}
     virtual void endVisit(DecltypeSpecifierAST *) {}
     virtual void endVisit(DeleteExpressionAST *) {}
+    virtual void endVisit(DesignatedInitializerAST *) {}
+    virtual void endVisit(DesignatorAST *) {}
     virtual void endVisit(DestructorNameAST *) {}
     virtual void endVisit(DoStatementAST *) {}
     virtual void endVisit(DynamicExceptionSpecificationAST *) {}

@@ -160,6 +160,8 @@ protected:
     virtual bool visit(CPlusPlus::MemInitializerAST *ast);
     virtual bool visit(CPlusPlus::EnumeratorAST *ast);
 
+    virtual bool visit(CPlusPlus::DesignatorAST *ast);
+
     CPlusPlus::NameAST *declaratorId(CPlusPlus::DeclaratorAST *ast) const;
 
     static unsigned referenceToken(CPlusPlus::NameAST *name);

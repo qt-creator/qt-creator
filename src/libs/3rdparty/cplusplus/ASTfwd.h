@@ -68,6 +68,8 @@ class DeclaratorAST;
 class DeclaratorIdAST;
 class DecltypeSpecifierAST;
 class DeleteExpressionAST;
+class DesignatedInitializerAST;
+class DesignatorAST;
 class DestructorNameAST;
 class DoStatementAST;
 class DynamicExceptionSpecificationAST;
@@ -214,6 +216,8 @@ typedef List<ObjCSelectorArgumentAST *> ObjCSelectorArgumentListAST;
 typedef List<ObjCPropertyAttributeAST *> ObjCPropertyAttributeListAST;
 typedef List<ObjCMessageArgumentDeclarationAST *> ObjCMessageArgumentDeclarationListAST;
 typedef List<ObjCSynthesizedPropertyAST *> ObjCSynthesizedPropertyListAST;
+
+typedef List<DesignatorAST *> DesignatorListAST;
 
 } // namespace CPlusPlus
 
