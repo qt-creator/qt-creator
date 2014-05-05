@@ -105,16 +105,17 @@ void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, 
     Q_UNUSED(platform);
     Q_UNUSED(extraValues);
     // Create dialog and launch
+
     d->parameterPages = createParameterPages(path);
-    BaseCheckoutWizard dialog(d->parameterPages, parent);
+    BaseCheckoutWizard wizard(d->parameterPages, parent);
     if (!d->progressTitle.isEmpty())
-        dialog.setTitle(d->progressTitle);
+        wizard.setTitle(d->progressTitle);
     if (!d->startedStatus.isEmpty())
-        dialog.setStartedStatus(d->startedStatus);
-    d->dialog = &dialog;
-    connect(&dialog, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
-    dialog.setWindowTitle(displayName());
-    if (dialog.exec() != QDialog::Accepted)
+        wizard.setStartedStatus(d->startedStatus);
+    d->dialog = &wizard;
+    connect(&wizard, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
+    wizard.setWindowTitle(displayName());
+    if (wizard.exec() != QDialog::Accepted)
         return;
     // Now try to find the project file and open
     const QString checkoutPath = d->checkoutPath;
