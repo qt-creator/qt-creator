@@ -193,7 +193,7 @@ void BlackBerryAbstractDeployStep::raiseError(const QString &errorMessage)
 void BlackBerryAbstractDeployStep::processReadyReadStdOutput()
 {
     m_process->setReadChannel(QProcess::StandardOutput);
-    while (m_process && m_process->canReadLine()) {
+    while (m_process->canReadLine()) {
         const QString line = QString::fromLocal8Bit(m_process->readLine());
         stdOutput(line);
     }
@@ -208,7 +208,7 @@ void BlackBerryAbstractDeployStep::stdOutput(const QString &line)
 void BlackBerryAbstractDeployStep::processReadyReadStdError()
 {
     m_process->setReadChannel(QProcess::StandardError);
-    while (m_process && m_process->canReadLine()) {
+    while (m_process->canReadLine()) {
         const QString line = QString::fromLocal8Bit(m_process->readLine());
         stdError(line);
     }
