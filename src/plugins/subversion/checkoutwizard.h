@@ -43,11 +43,10 @@ class CheckoutWizardFactory : public VcsBase::BaseCheckoutWizardFactory
 public:
     CheckoutWizardFactory();
 
-    VcsBase::BaseCheckoutWizard *create(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0) const;
+    VcsBase::BaseCheckoutWizard *create(const QString &path, QWidget *parent = 0) const;
 
 private:
     // BaseCheckoutWizard
-    QList<QWizardPage*> createParameterPages(const QString &path);
     VcsBase::Command *createCommand(const QList<QWizardPage*> &parameterPage,
                                     QString *checkoutPath);
 };
@@ -57,7 +56,7 @@ class CheckoutWizard : public VcsBase::BaseCheckoutWizard
     Q_OBJECT
 
 public:
-    CheckoutWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0);
+    CheckoutWizard(const QString &path, QWidget *parent = 0);
 };
 
 } // namespace Internal

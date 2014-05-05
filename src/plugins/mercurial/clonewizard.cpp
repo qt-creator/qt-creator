@@ -48,21 +48,9 @@ CloneWizardFactory::CloneWizardFactory()
     setDisplayName(tr("Mercurial Clone"));
 }
 
-BaseCheckoutWizard *CloneWizardFactory::create(const QList<QWizardPage *> &parameterPages, QWidget *parent) const
+BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWidget *parent) const
 {
-    return new CloneWizard(parameterPages, parent);
-}
-
-QList<QWizardPage *> CloneWizardFactory::createParameterPages(const QString &path)
-{
-    QList<QWizardPage *> wizardPageList;
-    const Core::IVersionControl *vc = MercurialPlugin::instance()->versionControl();
-    if (!vc->isConfigured())
-        wizardPageList.append(new VcsConfigurationPage(vc));
-    CloneWizardPage *page = new CloneWizardPage;
-    page->setPath(path);
-    wizardPageList.append(page);
-    return wizardPageList;
+    return new CloneWizard(path, parent);
 }
 
 Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &parameterPages,
@@ -95,9 +83,16 @@ Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &parameter
 // CloneWizard:
 // --------------------------------------------------------------------
 
-CloneWizard::CloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(parameterPages, parent)
+CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(path, parent)
 {
     setTitle(tr("Cloning"));
     setStartedStatus(tr("Cloning started..."));
+
+    const Core::IVersionControl *vc = MercurialPlugin::instance()->versionControl();
+    if (!vc->isConfigured())
+        addPage(new VcsConfigurationPage(vc));
+    CloneWizardPage *page = new CloneWizardPage;
+    page->setPath(path);
+    addPage(page);
 }

@@ -51,21 +51,9 @@ CloneWizardFactory::CloneWizardFactory()
     setDisplayName(tr("Bazaar Clone (Or Branch)"));
 }
 
-VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QList<QWizardPage *> &parameterPages, QWidget *parent) const
+VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWidget *parent) const
 {
-    return new CloneWizard(parameterPages, parent);
-}
-
-QList<QWizardPage *> CloneWizardFactory::createParameterPages(const QString &path)
-{
-    QList<QWizardPage *> wizardPageList;
-    const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
-    if (!vc->isConfigured())
-        wizardPageList.append(new VcsBase::VcsConfigurationPage(vc));
-    CloneWizardPage *page = new CloneWizardPage;
-    page->setPath(path);
-    wizardPageList.append(page);
-    return wizardPageList;
+    return new CloneWizard(path, parent);
 }
 
 VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &parameterPages,
@@ -116,9 +104,16 @@ VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage *> &
 // CloneWizard:
 // --------------------------------------------------------------------
 
-CloneWizard::CloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(parameterPages, parent)
+CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(path, parent)
 {
     setTitle(tr("Cloning"));
     setStartedStatus(tr("Cloning started..."));
+
+    const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
+    if (!vc->isConfigured())
+        addPage(new VcsBase::VcsConfigurationPage(vc));
+    CloneWizardPage *page = new CloneWizardPage;
+    page->setPath(path);
+    addPage(page);
 }

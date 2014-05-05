@@ -71,13 +71,11 @@ public:
     void clear();
 
     BaseCheckoutWizard *wizard;
-    QList<QWizardPage *> parameterPages;
     QString checkoutPath;
 };
 
 void BaseCheckoutWizardFactoryPrivate::clear()
 {
-    parameterPages.clear();
     delete wizard;
     wizard = 0;
     checkoutPath.clear();
@@ -108,8 +106,7 @@ void BaseCheckoutWizardFactory::runWizard(const QString &path, QWidget *parent, 
     QTC_ASSERT(!d->wizard, return);
     // Create dialog and launch
 
-    d->parameterPages = createParameterPages(path);
-    d->wizard = create(d->parameterPages, parent);
+    d->wizard = create(path, parent);
     connect(d->wizard, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
     d->wizard->setWindowTitle(displayName());
     if (d->wizard->exec() != QDialog::Accepted) {
@@ -180,7 +177,10 @@ QString BaseCheckoutWizardFactory::openProject(const QString &path, QString *err
 
 void BaseCheckoutWizardFactory::slotProgressPageShown()
 {
-    Command *command = createCommand(d->parameterPages, &(d->checkoutPath));
+    QList<QWizardPage *> pages;
+    foreach (int id, d->wizard->pageIds())
+        pages << d->wizard->page(id);
+    Command *command = createCommand(pages, &(d->checkoutPath));
     d->wizard->start(command);
 }
 

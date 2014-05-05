@@ -44,16 +44,12 @@
 
 namespace VcsBase {
 
-BaseCheckoutWizard::BaseCheckoutWizard(const QList<QWizardPage *> &parameterPages,
-                                           QWidget *parent) :
+BaseCheckoutWizard::BaseCheckoutWizard(const QString &path, QWidget *parent) :
     Utils::Wizard(parent),
     m_progressPage(new Internal::CheckoutProgressWizardPage),
     m_progressPageId(-1)
 {
-    foreach (QWizardPage *wp, parameterPages)
-        addPage(wp);
-    m_progressPageId = parameterPages.size();
-    setPage(m_progressPageId, m_progressPage);
+    Q_UNUSED(path);
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotPageChanged(int)));
     connect(m_progressPage, SIGNAL(terminated(bool)), this, SLOT(slotTerminated(bool)));
 }
@@ -86,6 +82,12 @@ void BaseCheckoutWizard::start(Command *command)
     // No "back" available while running.
     button(QWizard::BackButton)->setEnabled(false);
     m_progressPage->start(command);
+}
+
+int BaseCheckoutWizard::exec()
+{
+    m_progressPageId = addPage(m_progressPage);
+    return Utils::Wizard::exec();
 }
 
 void BaseCheckoutWizard::reject()

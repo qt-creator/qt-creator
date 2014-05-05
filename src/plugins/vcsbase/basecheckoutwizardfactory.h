@@ -58,10 +58,9 @@ public:
 
     static QString openProject(const QString &path, QString *errorMessage);
 
-    virtual BaseCheckoutWizard *create(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0) const = 0;
+    virtual BaseCheckoutWizard *create(const QString &path, QWidget *parent = 0) const = 0;
 
 protected:
-    virtual QList<QWizardPage *> createParameterPages(const QString &path) = 0;
     virtual Command *createCommand(const QList<QWizardPage *> &parameterPages,
                                    QString *checkoutPath) = 0;
 

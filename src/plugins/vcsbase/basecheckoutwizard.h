@@ -45,11 +45,14 @@ class VCSBASE_EXPORT BaseCheckoutWizard : public Utils::Wizard
     Q_OBJECT
 
 public:
-    explicit BaseCheckoutWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0);
+    explicit BaseCheckoutWizard(const QString &path, QWidget *parent = 0);
 
     void setTitle(const QString &title);
     void setStartedStatus(const QString &title);
     void start(VcsBase::Command *command);
+
+public slots:
+    int exec();
 
 signals:
     void progressPageShown();

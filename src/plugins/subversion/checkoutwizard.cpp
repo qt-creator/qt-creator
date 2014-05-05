@@ -51,16 +51,9 @@ CheckoutWizardFactory::CheckoutWizardFactory()
     setDisplayName(tr("Subversion Checkout"));
 }
 
-QList<QWizardPage*> CheckoutWizardFactory::createParameterPages(const QString &path)
+VcsBase::BaseCheckoutWizard *CheckoutWizardFactory::create(const QString &path, QWidget *parent) const
 {
-    QList<QWizardPage*> rc;
-    const Core::IVersionControl *vc = SubversionPlugin::instance()->versionControl();
-    if (!vc->isConfigured())
-        rc.append(new VcsBase::VcsConfigurationPage(vc));
-    CheckoutWizardPage *cwp = new CheckoutWizardPage;
-    cwp->setPath(path);
-    rc.append(cwp);
-    return rc;
+    return new CheckoutWizard(path, parent);
 }
 
 VcsBase::Command *CheckoutWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
@@ -95,9 +88,16 @@ VcsBase::Command *CheckoutWizardFactory::createCommand(const QList<QWizardPage*>
 // CheckoutWizard:
 // --------------------------------------------------------------------
 
-CheckoutWizard::CheckoutWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(parameterPages, parent)
-{ }
+CheckoutWizard::CheckoutWizard(const QString &path, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(path, parent)
+{
+    const Core::IVersionControl *vc = SubversionPlugin::instance()->versionControl();
+    if (!vc->isConfigured())
+        addPage(new VcsBase::VcsConfigurationPage(vc));
+    CheckoutWizardPage *cwp = new CheckoutWizardPage;
+    cwp->setPath(path);
+    addPage(cwp);
+}
 
 } // namespace Internal
 } // namespace Subversion

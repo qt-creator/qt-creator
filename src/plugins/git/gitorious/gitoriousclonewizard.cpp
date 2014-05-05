@@ -77,26 +77,9 @@ GitoriousCloneWizardFactory::GitoriousCloneWizardFactory()
     setDisplayName(tr("Gitorious Repository Clone"));
 }
 
-VcsBase::BaseCheckoutWizard *GitoriousCloneWizardFactory::create(const QList<QWizardPage *> &parameterPages, QWidget *parent) const
+VcsBase::BaseCheckoutWizard *GitoriousCloneWizardFactory::create(const QString &path, QWidget *parent) const
 {
-    return new GitoriousCloneWizard(parameterPages, parent);
-}
-
-QList<QWizardPage*> GitoriousCloneWizardFactory::createParameterPages(const QString &path)
-{
-    QList<QWizardPage*> rc;
-    const Core::IVersionControl *vc = Git::Internal::GitPlugin::instance()->versionControl();
-    if (!vc->isConfigured())
-        rc.append(new VcsBase::VcsConfigurationPage(vc));
-
-    GitoriousHostWizardPage *hostPage = new GitoriousHostWizardPage;
-    GitoriousProjectWizardPage *projectPage = new GitoriousProjectWizardPage(hostPage);
-    GitoriousRepositoryWizardPage *repoPage = new GitoriousRepositoryWizardPage(projectPage);
-    GitoriousCloneWizardPage *clonePage = new GitoriousCloneWizardPage(repoPage);
-    clonePage->setPath(path);
-
-    rc << hostPage << projectPage << repoPage << clonePage;
-    return rc;
+    return new GitoriousCloneWizard(path, parent);
 }
 
 VcsBase::Command *GitoriousCloneWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
@@ -115,9 +98,27 @@ VcsBase::Command *GitoriousCloneWizardFactory::createCommand(const QList<QWizard
 // GitoriousCloneWizard:
 // --------------------------------------------------------------------
 
-GitoriousCloneWizard::GitoriousCloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(parameterPages, parent)
-{ }
+GitoriousCloneWizard::GitoriousCloneWizard(const QString &path, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(path, parent)
+{
+    setTitle(tr("Cloning"));
+    setStartedStatus(tr("Cloning started..."));
+
+    const Core::IVersionControl *vc = Git::Internal::GitPlugin::instance()->versionControl();
+    if (!vc->isConfigured())
+        addPage(new VcsBase::VcsConfigurationPage(vc));
+
+    GitoriousHostWizardPage *hostPage = new GitoriousHostWizardPage;
+    GitoriousProjectWizardPage *projectPage = new GitoriousProjectWizardPage(hostPage);
+    GitoriousRepositoryWizardPage *repoPage = new GitoriousRepositoryWizardPage(projectPage);
+    GitoriousCloneWizardPage *clonePage = new GitoriousCloneWizardPage(repoPage);
+    clonePage->setPath(path);
+
+    addPage(hostPage);
+    addPage(projectPage);
+    addPage(repoPage);
+    addPage(clonePage);
+}
 
 } // namespace Internal
 } // namespace Gitorius

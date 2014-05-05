@@ -48,21 +48,9 @@ CloneWizardFactory::CloneWizardFactory()
     setDisplayName(tr("Git Repository Clone"));
 }
 
-VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QList<QWizardPage *> &parameterPages, QWidget *parent) const
+VcsBase::BaseCheckoutWizard *CloneWizardFactory::create(const QString &path, QWidget *parent) const
 {
-    return new CloneWizard(parameterPages, parent);
-}
-
-QList<QWizardPage*> CloneWizardFactory::createParameterPages(const QString &path)
-{
-    QList<QWizardPage*> rc;
-    const Internal::GitVersionControl *vc = Internal::GitPlugin::instance()->gitVersionControl();
-    if (!vc->isConfigured())
-        rc.append(new VcsBase::VcsConfigurationPage(vc));
-    CloneWizardPage *cwp = new CloneWizardPage;
-    cwp->setPath(path);
-    rc.push_back(cwp);
-    return rc;
+    return new CloneWizard(path, parent);
 }
 
 VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage*> &parameterPages,
@@ -83,11 +71,18 @@ VcsBase::Command *CloneWizardFactory::createCommand(const QList<QWizardPage*> &p
 // CloneWizard:
 // --------------------------------------------------------------------
 
-CloneWizard::CloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent) :
-    VcsBase::BaseCheckoutWizard(parameterPages, parent)
+CloneWizard::CloneWizard(const QString &path, QWidget *parent) :
+    VcsBase::BaseCheckoutWizard(path, parent)
 {
     setTitle(tr("Cloning"));
     setStartedStatus(tr("Cloning started..."));
+
+    const Internal::GitVersionControl *vc = Internal::GitPlugin::instance()->gitVersionControl();
+    if (!vc->isConfigured())
+        addPage(new VcsBase::VcsConfigurationPage(vc));
+    CloneWizardPage *cwp = new CloneWizardPage;
+    cwp->setPath(path);
+    addPage(cwp);
 }
 
 } // namespace Internal

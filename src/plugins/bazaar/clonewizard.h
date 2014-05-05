@@ -45,10 +45,9 @@ class CloneWizardFactory : public VcsBase::BaseCheckoutWizardFactory
 public:
     CloneWizardFactory();
 
-    VcsBase::BaseCheckoutWizard *create(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0) const;
+    VcsBase::BaseCheckoutWizard *create(const QString &path, QWidget *parent = 0) const;
 
 private:
-    QList<QWizardPage *> createParameterPages(const QString &path);
     VcsBase::Command *createCommand(const QList<QWizardPage *> &parameterPages,
                                     QString *checkoutPath);
 };
@@ -58,7 +57,7 @@ class CloneWizard : public VcsBase::BaseCheckoutWizard
     Q_OBJECT
 
 public:
-    CloneWizard(const QList<QWizardPage *> &parameterPages, QWidget *parent = 0);
+    CloneWizard(const QString &path, QWidget *parent = 0);
 };
 
 } // namespace Internal
