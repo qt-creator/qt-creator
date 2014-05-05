@@ -1065,7 +1065,7 @@ void GitPlugin::submitCurrentLog()
 bool GitPlugin::submitEditorAboutToClose()
 {
     if (!isCommitEditorOpen())
-        return false;
+        return true;
     GitSubmitEditor *editor = qobject_cast<GitSubmitEditor *>(submitEditor());
     QTC_ASSERT(editor, return true);
     Core::IDocument *editorDocument = editor->document();
