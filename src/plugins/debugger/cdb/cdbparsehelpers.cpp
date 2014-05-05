@@ -481,7 +481,7 @@ bool parseCdbDisassemblerFunctionLine(const QString &l,
     const int linePos = l.indexOf(QLatin1String(" @ "), filePos + 1);
     if (linePos == -1)
         return false;
-        *sourceFile = l.mid(filePos + 1, linePos - filePos - 1).trimmed();
+    *sourceFile = l.mid(filePos + 1, linePos - filePos - 1).trimmed();
     if (debugDisAsm)
         qDebug() << "Function with source: " << l << currentFunction
                  << functionOffset << sourceFile;
