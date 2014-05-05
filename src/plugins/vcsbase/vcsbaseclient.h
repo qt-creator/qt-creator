@@ -194,9 +194,9 @@ private:
     VcsBaseClientPrivate *d;
 
     Q_PRIVATE_SLOT(d, void statusParser(QString))
-    Q_PRIVATE_SLOT(d, void annotateRevision(QString, QString, QString, int))
+    Q_PRIVATE_SLOT(d, void annotateRevision(QString,QString,QString,int))
     Q_PRIVATE_SLOT(d, void saveSettings())
-    Q_PRIVATE_SLOT(d, void commandFinishedGotoLine(QWidget *))
+    Q_PRIVATE_SLOT(d, void commandFinishedGotoLine(QWidget*))
 };
 
 } //namespace VcsBase
