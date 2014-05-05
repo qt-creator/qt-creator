@@ -50,7 +50,6 @@ public:
 
     bool isConnected() const;
     QAbstractSocket::SocketState socketState() const;
-    void flush();
     void close();
     QString errorString() const;
 

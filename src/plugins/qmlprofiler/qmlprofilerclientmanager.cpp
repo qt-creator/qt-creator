@@ -136,8 +136,6 @@ void QmlProfilerClientManager::clearBufferedData()
 
 void QmlProfilerClientManager::discardPendingData()
 {
-    if (d->connection)
-        d->connection->flush();
     clearBufferedData();
 }
 

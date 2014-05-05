@@ -67,6 +67,7 @@ public:
     QHash<QString, QmlDebugClient *> plugins;
 
     void advertisePlugins();
+    void flush();
 
 public Q_SLOTS:
     void connected();
@@ -87,7 +88,7 @@ void QmlDebugConnectionPrivate::advertisePlugins()
     QPacket pack;
     pack << serverId << 1 << plugins.keys();
     protocol->send(pack);
-    q->flush();
+    flush();
 }
 
 void QmlDebugConnectionPrivate::connected()
@@ -96,7 +97,7 @@ void QmlDebugConnectionPrivate::connected()
     QDataStream str;
     pack << serverId << 0 << protocolVersion << plugins.keys() << QDataStream().version();
     protocol->send(pack);
-    q->flush();
+    flush();
 }
 
 void QmlDebugConnectionPrivate::readyRead()
@@ -263,9 +264,9 @@ QAbstractSocket::SocketState QmlDebugConnection::socketState() const
     return QAbstractSocket::UnconnectedState;
 }
 
-void QmlDebugConnection::flush()
+void QmlDebugConnectionPrivate::flush()
 {
-    QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(d->device);
+    QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(device);
     if (socket) {
         socket->flush();
         return;
@@ -359,7 +360,7 @@ void QmlDebugClient::sendMessage(const QByteArray &message)
     QPacket pack;
     pack << d->name << message;
     d->connection->d->protocol->send(pack);
-    d->connection->flush();
+    d->connection->d->flush();
 }
 
 void QmlDebugClient::stateChanged(State)
