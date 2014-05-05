@@ -103,7 +103,7 @@ QDebug operator<<(QDebug d, const Scope &scope)
         str << " block";
     if (scope.isFunction())
         str << " function";
-    if (scope.isFunction())
+    if (scope.isDeclaration())
         str << " prototype";
 #if 0 // ### port me
     if (const Symbol *owner = &scope) {
