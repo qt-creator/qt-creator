@@ -17,7 +17,7 @@ HEADERS += vcsbase_global.h \
     commonvcssettings.h \
     commonsettingspage.h \
     nicknamedialog.h \
-    basecheckoutwizard.h \
+    basecheckoutwizardfactory.h \
     checkoutwizarddialog.h \
     checkoutprogresswizardpage.h \
     basecheckoutwizardpage.h \
@@ -46,7 +46,7 @@ SOURCES += vcsplugin.cpp \
     commonvcssettings.cpp \
     commonsettingspage.cpp \
     nicknamedialog.cpp \
-    basecheckoutwizard.cpp \
+    basecheckoutwizardfactory.cpp \
     checkoutwizarddialog.cpp \
     checkoutprogresswizardpage.cpp \
     basecheckoutwizardpage.cpp \

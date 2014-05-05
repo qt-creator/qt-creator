@@ -30,7 +30,7 @@
 #ifndef CLONEWIZARD_H
 #define CLONEWIZARD_H
 
-#include <vcsbase/basecheckoutwizard.h>
+#include <vcsbase/basecheckoutwizardfactory.h>
 
 namespace Git {
 namespace Internal {

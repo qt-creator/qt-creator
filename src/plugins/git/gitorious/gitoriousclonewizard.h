@@ -30,7 +30,7 @@
 #ifndef GITORIOUSCLONEWIZARD_H
 #define GITORIOUSCLONEWIZARD_H
 
-#include <vcsbase/basecheckoutwizard.h>
+#include <vcsbase/basecheckoutwizardfactory.h>
 
 namespace Gitorious {
 namespace Internal {

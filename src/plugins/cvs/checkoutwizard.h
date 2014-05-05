@@ -30,7 +30,7 @@
 #ifndef CHECKOUTWIZARD_H
 #define CHECKOUTWIZARD_H
 
-#include <vcsbase/basecheckoutwizard.h>
+#include <vcsbase/basecheckoutwizardfactory.h>
 
 namespace Cvs {
 namespace Internal {

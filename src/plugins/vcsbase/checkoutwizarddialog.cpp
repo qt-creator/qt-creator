@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "checkoutwizarddialog.h"
-#include "basecheckoutwizard.h"
+#include "basecheckoutwizardfactory.h"
 #include "checkoutprogresswizardpage.h"
 
 #include <coreplugin/basefilewizard.h>

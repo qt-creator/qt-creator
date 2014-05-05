@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef BASECHECKOUTWIZARD_H
-#define BASECHECKOUTWIZARD_H
+#ifndef BASECHECKOUTWIZARDFACTORY_H
+#define BASECHECKOUTWIZARDFACTORY_H
 
 #include "vcsbase_global.h"
 #include <coreplugin/iwizardfactory.h>
@@ -72,4 +72,4 @@ private:
 
 } // namespace VcsBase
 
-#endif // BASECHECKOUTWIZARD_H
+#endif // BASECHECKOUTWIZARDFACTORY_H
