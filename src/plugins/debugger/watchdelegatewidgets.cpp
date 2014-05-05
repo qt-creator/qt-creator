@@ -271,7 +271,6 @@ void FloatWatchLineEdit::setModelData(const QVariant &v)
         qDebug("FloatWatchLineEdit::setModelData(%s, '%s')",
                v.typeName(), qPrintable(v.toString()));
     switch (v.type()) {
-        break;
     case QVariant::Double:
     case QVariant::String:
         setText(v.toString());
