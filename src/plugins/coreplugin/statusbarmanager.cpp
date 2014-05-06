@@ -103,7 +103,7 @@ void StatusBarManager::init()
 
 void StatusBarManager::objectAdded(QObject *obj)
 {
-    StatusBarWidget *view = Aggregation::query<StatusBarWidget>(obj);
+    StatusBarWidget *view = qobject_cast<StatusBarWidget *>(obj);
     if (!view)
         return;
 
@@ -116,7 +116,7 @@ void StatusBarManager::objectAdded(QObject *obj)
 
 void StatusBarManager::aboutToRemoveObject(QObject *obj)
 {
-    StatusBarWidget *view = Aggregation::query<StatusBarWidget>(obj);
+    StatusBarWidget *view = qobject_cast<StatusBarWidget *>(obj);
     if (!view)
         return;
     m_mainWnd->removeContextObject(view);
