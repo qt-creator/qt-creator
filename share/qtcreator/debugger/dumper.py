@@ -646,6 +646,7 @@ class DumperBase:
             self.putValue('<>%s items>' % maximum)
         else:
             self.putValue('<%s items>' % count)
+        self.putNumChild(count)
 
     def putField(self, name, value):
         self.put('%s="%s",' % (name, value))
@@ -859,7 +860,6 @@ class DumperBase:
             n = (10, 100, 1000, 10000)[format - Array10Format]
             self.putType(typeName)
             self.putItemCount(n)
-            self.putNumChild(n)
             self.putArrayData(value, n, innerType)
             return
 
@@ -1149,7 +1149,6 @@ class DumperBase:
         with SubItem(self, "[methods]"):
             methodCount = self.staticQObjectMethodCount(smo)
             self.putItemCount(methodCount)
-            self.putNumChild(methodCount)
             if self.isExpanded():
                 methodNames = self.staticQObjectMethodNames(smo)
                 with Children(self):
@@ -1161,7 +1160,6 @@ class DumperBase:
         with SubItem(self, "[signals]"):
             signalCount = self.staticQObjectSignalCount(smo)
             self.putItemCount(signalCount)
-            self.putNumChild(signalCount)
             if self.isExpanded():
                 signalNames = self.staticQObjectSignalNames(smo)
                 signalCount = len(signalNames)
@@ -1184,7 +1182,6 @@ class DumperBase:
             connections = d_ptr["connectionLists"]
             if self.isNull(connections):
                 self.putItemCount(0)
-                self.putNumChild(0)
             else:
                 connections = connections.dereference()
                 connections = connections.cast(self.directBaseClass(connections.type))
@@ -1311,7 +1308,6 @@ class DumperBase:
             self.put('iname="local.argv",name="argv",')
             self.putItemCount(n, 100)
             self.putType('char **')
-            self.putNumChild(n)
             if self.currentIName in self.expandedINames:
                 p = value
                 with Children(self, n):

@@ -34,7 +34,6 @@ def qdump__boost__bimaps__bimap(d, value):
     #rightType = d.templateArgument(value.type, 1)
     size = int(value["core"]["node_count"])
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         d.putPlainChildren(value)
 
@@ -99,7 +98,6 @@ def qdump__boost__container__list(d, value):
     r = value["members_"]["m_icont"]["data_"]["root_plus_size_"]
     n = toInteger(r["size_"])
     d.putItemCount(n)
-    d.putNumChild(n)
     if d.isExpanded():
         innerType = d.templateArgument(value.type, 0)
         offset = 2 * d.ptrSize()

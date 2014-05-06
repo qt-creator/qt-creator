@@ -532,7 +532,6 @@ def qdump__QFiniteStack(d, value):
     size = int(value["_size"])
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         d.putPlotData(value["_array"], size, d.templateArgument(value.type, 0))
 
@@ -613,7 +612,6 @@ def qdump__QHash(d, value):
     d.checkRef(d_ptr["ref"])
 
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         numBuckets = int(d_ptr.dereference()["numBuckets"])
         innerType = e_ptr.dereference().type
@@ -769,7 +767,6 @@ def qdump__QList(d, value):
     innerType = d.templateArgument(value.type, 0)
 
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         innerSize = innerType.sizeof
         stepSize = d.ptrSize()
@@ -873,7 +870,6 @@ def qdump__QLinkedList(d, value):
     d.check(0 <= n and n <= 100*1000*1000)
     d.check(-1 <= ref and ref <= 1000)
     d.putItemCount(n)
-    d.putNumChild(n)
     if d.isExpanded():
         innerType = d.templateArgument(value.type, 0)
         with Children(d, n, maxNumChild=1000, childType=innerType):
@@ -946,7 +942,6 @@ def qdumpHelper__Qt4_QMap(d, value):
     d.checkRef(d_ptr["ref"])
 
     d.putItemCount(n)
-    d.putNumChild(n)
     if d.isExpanded():
         if n > 10000:
             n = 10000
@@ -989,7 +984,6 @@ def qdumpHelper__Qt5_QMap(d, value):
     d.checkRef(d_ptr["ref"])
 
     d.putItemCount(n)
-    d.putNumChild(n)
     if d.isExpanded():
         if n > 10000:
             n = 10000
@@ -1257,7 +1251,6 @@ def _qdump__QObject(d, value):
 
             d.putNoType()
             d.putItemCount(dynamicPropertyCount)
-            d.putNumChild(dynamicPropertyCount)
 
             if d.isExpanded() and d.isGdb:
                 import gdb
@@ -1302,7 +1295,6 @@ def _qdump__QObject(d, value):
             if not d.isNull(connections):
                 connectionListCount = connections["d"]["size"]
             d.putItemCount(connectionListCount, 0)
-            d.putNumChild(connectionListCount)
             if d.isExpanded():
                 pp = 0
                 with Children(d):
@@ -1582,7 +1574,6 @@ def qdump__QRegion(d, value):
         pp = d.extractPointer(p)
         n = d.extractInt(pp)
         d.putItemCount(n)
-        d.putNumChild(n)
         if d.isExpanded():
             with Children(d):
                 v = d.ptrSize()
@@ -1647,7 +1638,6 @@ def qdump__QSet(d, value):
     d.checkRef(d_ptr["ref"])
 
     d.putItemCount(size)
-    d.putNumChild(size)
     if d.isExpanded():
         hashDataType = d_ptr.type
         nodeTypePtr = d_ptr.dereference()["fakeNext"].type
@@ -2169,7 +2159,6 @@ def qdump__QVector(d, value):
     data, size, alloc = d.vectorDataHelper(d.extractPointer(value))
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
-    d.putNumChild(size)
     d.putPlotData(data, size, d.templateArgument(value.type, 0))
 
 
