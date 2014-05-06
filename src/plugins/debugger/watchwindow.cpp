@@ -592,9 +592,6 @@ void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
 {
     QTC_CHECK(mi.isValid());
 
-    DebuggerEngine *engine = currentEngine();
-    WatchHandler *handler = engine->watchHandler();
-
     const QModelIndex mi2 = mi.sibling(mi.row(), 2);
     const QString type = mi2.data().toString();
 
@@ -604,7 +601,7 @@ void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
         mi.data(LocalsTypeFormatRole).toInt();
     const int individualFormat =
         mi.data(LocalsIndividualFormatRole).toInt();
-    const int unprintableBase = handler->unprintableBase();
+    const int unprintableBase = WatchHandler::unprintableBase();
 
     QAction *showUnprintableUnicode = 0;
     QAction *showUnprintableEscape = 0;
