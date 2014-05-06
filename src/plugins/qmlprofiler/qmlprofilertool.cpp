@@ -448,7 +448,7 @@ void QmlProfilerTool::startTool(StartMode mode)
     }
 }
 
-void QmlProfilerTool::logStatus(const QString &msg)
+void QmlProfilerTool::logState(const QString &msg)
 {
     MessageManager::write(msg, Core::MessageManager::Flash);
 }
