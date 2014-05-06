@@ -53,7 +53,7 @@ protected:
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 private:
-    NavigatorTreeModel *m_TreeModel;
+    NavigatorTreeModel *m_navigatorTreeModel;
 };
 
 } // namespace QmlDesigner

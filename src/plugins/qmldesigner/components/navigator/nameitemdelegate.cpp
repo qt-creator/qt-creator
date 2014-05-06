@@ -47,14 +47,9 @@ namespace QmlDesigner {
 
 static QPixmap generateWavyPixmap(qreal maxRadius, const QPen &pen)
 {
-    const qreal radiusBase = qMax(qreal(1), maxRadius);
-
-    QString key = QLatin1String("WaveUnderline-Bauhaus");
-
     QPixmap pixmap;
-    if (QPixmapCache::find(key, pixmap))
-        return pixmap;
 
+    const qreal radiusBase = qMax(qreal(1), maxRadius);
     const qreal halfPeriod = qMax(qreal(2), qreal(radiusBase * 1.61803399)); // the golden ratio
     const int width = qCeil(100 / (2 * halfPeriod)) * (2 * halfPeriod);
     const int radius = qFloor(radiusBase);
@@ -89,95 +84,153 @@ static QPixmap generateWavyPixmap(qreal maxRadius, const QPen &pen)
         imgPainter.drawPath(path);
     }
 
-    QPixmapCache::insert(key, pixmap);
+    return pixmap;
+}
+
+static QPixmap getWavyPixmap(qreal maxRadius, const QPen &pen)
+{
+    const QString pixmapKey = QStringLiteral("WaveUnderline-Bauhaus");
+
+    QPixmap pixmap;
+    if (QPixmapCache::find(pixmapKey, pixmap))
+        return pixmap;
+
+    pixmap = generateWavyPixmap(maxRadius, pen);
+
+    QPixmapCache::insert(pixmapKey, pixmap);
 
     return pixmap;
 }
 
 NameItemDelegate::NameItemDelegate(QObject *parent, NavigatorTreeModel *treeModel)
     : QStyledItemDelegate(parent),
-      m_TreeModel(treeModel)
+      m_navigatorTreeModel(treeModel)
 {
 }
 
-void NameItemDelegate::paint(QPainter *painter,
-                             const QStyleOptionViewItem &option,
-                             const QModelIndex &index) const
+static QIcon getIcon(const ModelNode &modelNode)
 {
-    if (option.state & QStyle::State_Selected)
-        drawSelectionBackground(painter, option);
+    QIcon icon;
 
-    QString displayString;
-    QPoint displayStringOffset;
+    if (modelNode.isValid()) {
+        // if node has no own icon, search for it in the itemlibrary
+        const ItemLibraryInfo *libraryInfo = modelNode.model()->metaInfo().itemLibraryInfo();
+        QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(modelNode.type(),
+                                                                        modelNode.majorVersion(),
+                                                                        modelNode.minorVersion());
+        if (!itemLibraryEntryList.isEmpty())
+            return  itemLibraryEntryList.first().icon();
+        else if (modelNode.metaInfo().isValid())
+            return QIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
+        else
+            return QIcon(QLatin1String(":/ItemLibrary/images/item-invalid-icon.png"));
+    }
 
-    painter->save();
-    QFontMetrics fm(option.font);
-    int width = 0;
-    if (index.data(Qt::UserRole).isValid()) {
+    return QIcon(QLatin1String(":/ItemLibrary/images/item-invalid-icon.png"));
+}
 
-        int pixmapSide = 16;
+static int drawIcon(QPainter *painter,
+                    const QStyleOptionViewItem &styleOption,
+                    const QModelIndex &modelIndex,
+                    NavigatorTreeModel *navigatorTreeModel
+                    )
+{
+    int pixmapSize = 16;
 
-        if (m_TreeModel->isNodeInvisible( index ))
-            painter->setOpacity(0.5);
-
-        ModelNode node = m_TreeModel->nodeForIndex(index);
-
-        QIcon icon;
-        if (node.isValid()) {
-            // if node has no own icon, search for it in the itemlibrary
-            const ItemLibraryInfo *libraryInfo = node.model()->metaInfo().itemLibraryInfo();
-            QList <ItemLibraryEntry> infoList = libraryInfo->entriesForType(node.type(),
-                                                                            node.majorVersion(),
-                                                                            node.minorVersion());
-            foreach (const ItemLibraryEntry &entry, infoList) {
-                if (icon.isNull()) {
-                    icon = entry.icon();
-                    break;
-                }
-            }
-        }
-        // if the library was also empty, use the default icon
-        if (icon.isNull())
-            icon = QIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
-        if (!node.metaInfo().isValid())
-            icon = QIcon(QLatin1String(":/ItemLibrary/images/item-invalid-icon.png"));
+    if (navigatorTreeModel->hasNodeForIndex(modelIndex)) {
+        ModelNode modelNode = navigatorTreeModel->nodeForIndex(modelIndex);
 
         // If no icon is present, leave an empty space of 24 pixels anyway
-        QPixmap pixmap = icon.pixmap(pixmapSide, pixmapSide);
-        painter->drawPixmap(option.rect.x()+1,option.rect.y()+2,pixmap);
+        QPixmap pixmap = getIcon(modelNode).pixmap(pixmapSize, pixmapSize);
+        painter->drawPixmap(styleOption.rect.x() +1 , styleOption.rect.y() + 2, pixmap);
+    }
 
-        displayString = node.id();
-        if (displayString.isEmpty())
-            displayString = node.simplifiedTypeName();
+    return pixmapSize;
+}
+
+static QString getDisplayString(const QModelIndex &modelIndex, NavigatorTreeModel *navigatorTreeModel)
+{
+    ModelNode modelNode = navigatorTreeModel->nodeForIndex(modelIndex);
+    if (modelNode.hasId())
+        return modelNode.id();
+
+    return modelNode.simplifiedTypeName();
+}
+
+static QRect drawText(QPainter *painter,
+                     const QStyleOptionViewItem &styleOption,
+                     const QModelIndex &modelIndex,
+                     int iconOffset,
+                     NavigatorTreeModel *navigatorTreeModel)
+{
+    QString displayString;
+    QPoint displayStringOffset;
+    int width = 0;
+
+    if (navigatorTreeModel->hasNodeForIndex(modelIndex)) {
+        if (navigatorTreeModel->isNodeInvisible( modelIndex ))
+            painter->setOpacity(0.5);
+
+        displayString = getDisplayString(modelIndex, navigatorTreeModel);
 
         // Check text length does not exceed available space
-        int extraSpace=12+pixmapSide;
+        int extraSpace = 12 + iconOffset;
 
-        displayString = fm.elidedText(displayString,Qt::ElideMiddle,option.rect.width()-extraSpace);
-        displayStringOffset = QPoint(5+pixmapSide,-5);
-        width = fm.width(displayString);
+        displayString = styleOption.fontMetrics.elidedText(displayString, Qt::ElideMiddle, styleOption.rect.width() - extraSpace);
+        displayStringOffset = QPoint(5 + iconOffset, -5);
+        width = styleOption.fontMetrics.width(displayString);
     } else {
-        displayString = index.data(Qt::DisplayRole).toString();
+        displayString = modelIndex.data(Qt::DisplayRole).toString();
         displayStringOffset = QPoint(0, -2);
     }
 
-    QPoint pos = option.rect.bottomLeft() + displayStringOffset;
-    painter->drawText(pos, displayString);
+    QPoint textPosition = styleOption.rect.bottomLeft() + displayStringOffset;
+    painter->drawText(textPosition, displayString);
 
-    ModelNode node = m_TreeModel->nodeForIndex(index);
+    QRect textFrame;
+    textFrame.setTopLeft(textPosition);
+    textFrame.setWidth(width);
 
-    if (!node.isValid() ||!node.metaInfo().isValid()) {
-        painter->translate(0, pos.y() + 1);
-        QPen pen;
-        pen.setColor(Qt::red);
+    return textFrame;
+}
 
-        const qreal underlineOffset = fm.underlinePos();
-        const QPixmap wave = generateWavyPixmap(qMax(underlineOffset, pen.widthF()), pen);
-        const int descent = fm.descent();
+static void drawRedWavyUnderLine(QPainter *painter,
+                                 const QStyleOptionViewItem &styleOption,
+                                 const QModelIndex &modelIndex,
+                                 const QRect &textFrame ,
+                                 NavigatorTreeModel *navigatorTreeModel)
+{
+    if (navigatorTreeModel->hasNodeForIndex(modelIndex)) {
+        ModelNode modelNode = navigatorTreeModel->nodeForIndex(modelIndex);
 
-        painter->setBrushOrigin(painter->brushOrigin().x(), 0);
-        painter->fillRect(pos.x(), 0, qCeil(width), qMin(wave.height(), descent), wave);
+        if (!modelNode.metaInfo().isValid()) {
+            painter->translate(0, textFrame.y() + 1);
+            QPen pen;
+            pen.setColor(Qt::red);
+            const qreal underlineOffset = styleOption.fontMetrics.underlinePos();
+            const QPixmap wave = getWavyPixmap(qMax(underlineOffset, pen.widthF()), pen);
+            const int descent = styleOption.fontMetrics.descent();
+
+            painter->setBrushOrigin(painter->brushOrigin().x(), 0);
+            painter->fillRect(textFrame.x(), 0, qCeil(textFrame.width()), qMin(wave.height(), descent), wave);
+        }
     }
+}
+
+void NameItemDelegate::paint(QPainter *painter,
+                             const QStyleOptionViewItem &styleOption,
+                             const QModelIndex &modelIndex) const
+{
+    painter->save();
+
+    if (styleOption.state & QStyle::State_Selected)
+        drawSelectionBackground(painter, styleOption);
+
+    int iconOffset = drawIcon(painter, styleOption, modelIndex, m_navigatorTreeModel);
+
+    QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset, m_navigatorTreeModel);
+
+    drawRedWavyUnderLine(painter, styleOption, modelIndex, textFrame, m_navigatorTreeModel);
 
     painter->restore();
 }
@@ -187,7 +240,7 @@ bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QS
     if (event->type() == QEvent::MouseButtonRelease) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::RightButton) {
-            m_TreeModel->openContextMenu(mouseEvent->globalPos());
+            m_navigatorTreeModel->openContextMenu(mouseEvent->globalPos());
             mouseEvent->accept();
             return true;
         }
@@ -196,11 +249,10 @@ bool NameItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *, const QS
 }
 
 QWidget *NameItemDelegate::createEditor(QWidget *parent,
-                                        const QStyleOptionViewItem &option,
+                                        const QStyleOptionViewItem & /*option*/,
                                         const QModelIndex &index) const
 {
-    Q_UNUSED(option);
-    if (!index.data(Qt::UserRole).isValid())
+    if (!m_navigatorTreeModel->hasNodeForIndex(index))
         return 0;
 
     return new QLineEdit(parent);
@@ -208,7 +260,7 @@ QWidget *NameItemDelegate::createEditor(QWidget *parent,
 
 void NameItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    ModelNode node = m_TreeModel->nodeForIndex(index);
+    ModelNode node = m_navigatorTreeModel->nodeForIndex(index);
     QString value = node.id();
 
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
@@ -219,15 +271,14 @@ void NameItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
 {
     Q_UNUSED(model);
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
-    m_TreeModel->setId(index,lineEdit->text());
+    m_navigatorTreeModel->setId(index,lineEdit->text());
     lineEdit->clearFocus();
 }
 
 void NameItemDelegate::updateEditorGeometry(QWidget *editor,
                                             const QStyleOptionViewItem &option,
-                                            const QModelIndex &index) const
+                                            const QModelIndex & /*index*/) const
 {
-    Q_UNUSED(index);
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
     lineEdit->setGeometry(option.rect);
 }
