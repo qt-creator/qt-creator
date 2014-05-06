@@ -138,6 +138,9 @@ void tst_PluginManager::getObject()
 {
     MyClass2 *object2 = new MyClass2;
     MyClass11 *object11 = new MyClass11;
+    MyClass2 *object2b = new MyClass2;
+    const QString objectName = QLatin1String("OBJECTNAME");
+    object2b->setObjectName(objectName);
     m_pm->addObject(object2);
     QCOMPARE(m_pm->getObject<MyClass11>(), (MyClass11*)0);
     QCOMPARE(m_pm->getObject<MyClass1>(), (MyClass1*)0);
@@ -146,10 +149,17 @@ void tst_PluginManager::getObject()
     QCOMPARE(m_pm->getObject<MyClass11>(), object11);
     QCOMPARE(m_pm->getObject<MyClass1>(), qobject_cast<MyClass1*>(object11));
     QCOMPARE(m_pm->getObject<MyClass2>(), object2);
+    QCOMPARE(m_pm->getObjectByName(objectName), (QObject*)0);
+    m_pm->addObject(object2b);
+    QCOMPARE(m_pm->getObjectByName(objectName), object2b);
+    QCOMPARE(m_pm->getObject<MyClass2>(
+                    [&objectName](MyClass2 *obj) { return obj->objectName() == objectName;}), object2b);
     m_pm->removeObject(object2);
     m_pm->removeObject(object11);
+    m_pm->removeObject(object2b);
     delete object2;
     delete object11;
+    delete object2b;
 }
 
 void tst_PluginManager::getObjects()
@@ -172,6 +182,12 @@ void tst_PluginManager::getObjects()
     QCOMPARE(m_pm->getObjects<MyClass1>(), QList<MyClass1*>() << object11 << object1);
     QCOMPARE(m_pm->getObjects<MyClass2>(), QList<MyClass2*>() << object2);
     QCOMPARE(m_pm->allObjects(), QList<QObject*>() << object2 << object11 << object1);
+
+    QCOMPARE(m_pm->getObjects<MyClass1>(
+                 [](MyClass1 *o){
+                    return !qobject_cast<MyClass11 *>(o);} ),
+             QList<MyClass1 *>() << object1);
+
     m_pm->removeObject(object2);
     m_pm->removeObject(object11);
     m_pm->removeObject(object1);

@@ -220,7 +220,21 @@ enum { debugLeaks = 0 };
 
     This function uses \c qobject_cast to determine the type of an object.
     If there are more than one object of the given type in
-    the object pool, this function will choose an arbitrary one of them.
+    the object pool, this function will arbitrarily choose one of them.
+
+    \sa addObject()
+*/
+
+/*!
+    \fn T *PluginManager::getObject(Predicate predicate)
+
+    Retrieves the object of a given type from the object pool that matches
+    the \a predicate.
+
+    This function uses \c qobject_cast to determine the type of an object.
+    The predicate must be a function taking T * and returning a bool.
+    If there is more than one object matching the type and predicate,
+    this function will arbitrarily choose one of them.
 
     \sa addObject()
 */
@@ -234,6 +248,20 @@ enum { debugLeaks = 0 };
 
     \sa addObject()
 */
+
+/*!
+    \fn QList<T *> PluginManager::getObjects(Predicate predicate)
+
+    Retrieves all objects of a given type from the object pool that
+    match the \a predicate.
+
+    This function uses \c qobject_cast to determine the type of an object.
+    The predicate should be a unary function taking a T* parameter and
+    returning a bool.
+
+    \sa addObject()
+*/
+
 
 using namespace ExtensionSystem;
 using namespace ExtensionSystem::Internal;

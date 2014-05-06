@@ -75,6 +75,19 @@ public:
         }
         return results;
     }
+    template <typename T, typename Predicate>
+    static QList<T *> getObjects(Predicate predicate)
+    {
+        QReadLocker lock(listLock());
+        QList<T *> results;
+        QList<QObject *> all = allObjects();
+        foreach (QObject *obj, all) {
+            T *result = qobject_cast<T *>(obj);
+            if (result && predicate(result))
+                results += result;
+        }
+        return results;
+    }
     template <typename T> static T *getObject()
     {
         QReadLocker lock(listLock());
@@ -82,6 +95,17 @@ public:
         foreach (QObject *obj, all) {
             if (T *result = qobject_cast<T *>(obj))
                 return result;
+        }
+        return 0;
+    }
+    template <typename T, typename Predicate> static T *getObject(Predicate predicate)
+    {
+        QReadLocker lock(listLock());
+        QList<QObject *> all = allObjects();
+        foreach (QObject *obj, all) {
+            if (T *result = qobject_cast<T *>(obj))
+                if (predicate(result))
+                    return result;
         }
         return 0;
     }
