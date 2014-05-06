@@ -98,7 +98,7 @@ void CppTodoItemsScanner::processDocument(CPlusPlus::Document::Ptr doc)
         const QStringList commentLines =
             QString::fromUtf8(source).split(QLatin1Char('\n'), QString::SkipEmptyParts);
         unsigned lineNumber = 0;
-        translationUnit->getPosition(token.bytesBegin(), &lineNumber);
+        translationUnit->getPosition(token.utf16charsBegin(), &lineNumber);
         for (int j = 0; j < commentLines.count(); ++j) {
             const QString &commentLine = commentLines.at(j);
             processCommentLine(doc->fileName(), commentLine, lineNumber + j, itemList);

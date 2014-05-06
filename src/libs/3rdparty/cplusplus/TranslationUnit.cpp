@@ -348,10 +348,10 @@ void TranslationUnit::pushPreprocessorLine(unsigned offset,
                                            const StringLiteral *fileName)
 { _ppLines.push_back(PPLine(offset, line, fileName)); }
 
-unsigned TranslationUnit::findLineNumber(unsigned offset) const
+unsigned TranslationUnit::findLineNumber(unsigned utf16charOffset) const
 {
     std::vector<unsigned>::const_iterator it =
-        std::lower_bound(_lineOffsets.begin(), _lineOffsets.end(), offset);
+        std::lower_bound(_lineOffsets.begin(), _lineOffsets.end(), utf16charOffset);
 
     if (it != _lineOffsets.begin())
         --it;
@@ -370,31 +370,31 @@ TranslationUnit::PPLine TranslationUnit::findPreprocessorLine(unsigned offset) c
     return *it;
 }
 
-unsigned TranslationUnit::findColumnNumber(unsigned offset, unsigned lineNumber) const
+unsigned TranslationUnit::findColumnNumber(unsigned utf16CharOffset, unsigned lineNumber) const
 {
-    if (! offset)
+    if (! utf16CharOffset)
         return 0;
 
-    return offset - _lineOffsets[lineNumber];
+    return utf16CharOffset - _lineOffsets[lineNumber];
 }
 
 void TranslationUnit::getTokenPosition(unsigned index,
                                        unsigned *line,
                                        unsigned *column,
                                        const StringLiteral **fileName) const
-{ return getPosition(tokenAt(index).bytesBegin(), line, column, fileName); }
+{ return getPosition(tokenAt(index).utf16charsBegin(), line, column, fileName); }
 
 void TranslationUnit::getTokenStartPosition(unsigned index, unsigned *line,
                                             unsigned *column,
                                             const StringLiteral **fileName) const
-{ return getPosition(tokenAt(index).bytesBegin(), line, column, fileName); }
+{ return getPosition(tokenAt(index).utf16charsBegin(), line, column, fileName); }
 
 void TranslationUnit::getTokenEndPosition(unsigned index, unsigned *line,
                                           unsigned *column,
                                           const StringLiteral **fileName) const
-{ return getPosition(tokenAt(index).bytesEnd(), line, column, fileName); }
+{ return getPosition(tokenAt(index).utf16charsEnd(), line, column, fileName); }
 
-void TranslationUnit::getPosition(unsigned tokenOffset,
+void TranslationUnit::getPosition(unsigned utf16charOffset,
                                   unsigned *line,
                                   unsigned *column,
                                   const StringLiteral **fileName) const
@@ -405,20 +405,20 @@ void TranslationUnit::getPosition(unsigned tokenOffset,
 
     // If this token is expanded we already have the information directly from the expansion
     // section header. Otherwise, we need to calculate it.
-    TokenLineColumn::const_iterator it = _expandedLineColumn.find(tokenOffset);
+    TokenLineColumn::const_iterator it = _expandedLineColumn.find(utf16charOffset);
     if (it != _expandedLineColumn.end()) {
         lineNumber = it->second.first;
         columnNumber = it->second.second + 1;
         file = _fileId;
     } else {
         // Identify line within the entire translation unit.
-        lineNumber = findLineNumber(tokenOffset);
+        lineNumber = findLineNumber(utf16charOffset);
 
         // Identify column.
-        columnNumber = findColumnNumber(tokenOffset, lineNumber);
+        columnNumber = findColumnNumber(utf16charOffset, lineNumber);
 
         // Adjust the line in regards to the preprocessing markers.
-        const PPLine ppLine = findPreprocessorLine(tokenOffset);
+        const PPLine ppLine = findPreprocessorLine(utf16charOffset);
         lineNumber -= findLineNumber(ppLine.offset) + 1;
         lineNumber += ppLine.line;
 
@@ -508,7 +508,7 @@ void TranslationUnit::fatal(unsigned index, const char *format, ...)
 
 unsigned TranslationUnit::findPreviousLineOffset(unsigned tokenIndex) const
 {
-    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(tokenIndex).bytesBegin())];
+    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(tokenIndex).utf16charsBegin())];
     return lineOffset;
 }
 
@@ -522,13 +522,16 @@ bool TranslationUnit::maybeSplitGreaterGreaterToken(unsigned tokenIndex)
 
     tok.f.kind = T_GREATER;
     tok.f.bytes = 1;
+    tok.f.utf16chars = 1;
 
     Token newGreater;
     newGreater.f.kind = T_GREATER;
     newGreater.f.expanded = tok.expanded();
     newGreater.f.generated = tok.generated();
     newGreater.f.bytes = 1;
+    newGreater.f.utf16chars = 1;
     newGreater.byteOffset = tok.byteOffset + 1;
+    newGreater.utf16charOffset = tok.utf16charOffset + 1;
 
     _tokens->insert(_tokens->begin() + tokenIndex + 1, newGreater);
 
@@ -551,7 +554,7 @@ void TranslationUnit::releaseTokensAndComments()
 
 void TranslationUnit::showErrorLine(unsigned index, unsigned column, FILE *out)
 {
-    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(index).bytesBegin())];
+    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(index).utf16charsBegin())];
     for (const char *cp = _firstSourceChar + lineOffset + 1; *cp && *cp != '\n'; ++cp) {
         fputc(*cp, out);
     }

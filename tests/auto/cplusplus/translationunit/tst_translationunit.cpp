@@ -36,6 +36,15 @@
 #include <QtTest>
 #include <QDebug>
 
+struct LineColumn
+{
+    LineColumn(unsigned line = 0, unsigned column = 0) : line(line), column(column) {}
+    unsigned line;
+    unsigned column;
+};
+typedef QList<LineColumn> LineColumnList;
+Q_DECLARE_METATYPE(LineColumnList)
+
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 
@@ -57,6 +66,9 @@ private slots:
 
     void unicodeStringLiteral();
     void unicodeStringLiteral_data();
+
+    void locationOfUtf16CharOffset();
+    void locationOfUtf16CharOffset_data();
 
 private:
     class Document
@@ -132,7 +144,48 @@ private:
             }
         } m_diagnosticClient;
     };
+
+    class TokenGetter
+    {
+    public:
+        typedef QSharedPointer<TokenGetter> Ptr;
+    public:
+        TokenGetter(TranslationUnit *translationUnit) : m_translationUnit(translationUnit) {}
+        virtual ~TokenGetter() {}
+        virtual unsigned tokenCount() { return m_translationUnit->tokenCount(); }
+        virtual Token tokenAt(unsigned index) { return m_translationUnit->tokenAt(index); }
+    protected:
+        TranslationUnit *m_translationUnit;
+    };
+
+    class CommentTokenGetter : public TokenGetter
+    {
+    public:
+        CommentTokenGetter(TranslationUnit *translationUnit) : TokenGetter(translationUnit) {}
+        unsigned tokenCount() { return m_translationUnit->commentCount(); }
+        Token tokenAt(unsigned index) { return m_translationUnit->commentAt(index); }
+    };
+
+    static void compareTokenLocations(TranslationUnit *translationUnit,
+                                      tst_TranslationUnit::TokenGetter *tokenGetter,
+                                      const LineColumnList &expectedLinesColumns);
 };
+
+void tst_TranslationUnit::compareTokenLocations(TranslationUnit *translationUnit,
+                                                tst_TranslationUnit::TokenGetter *tokenGetter,
+                                                const LineColumnList &expectedLinesColumns)
+{
+    QCOMPARE(tokenGetter->tokenCount(), (unsigned) expectedLinesColumns.count());
+    for (unsigned i = 0, tokenCount = tokenGetter->tokenCount(); i < tokenCount; ++i) {
+        const LineColumn expected = expectedLinesColumns.at(i);
+        const unsigned utf16CharOffset = tokenGetter->tokenAt(i).utf16charsBegin();
+        unsigned line, column;
+        translationUnit->getPosition(utf16CharOffset, &line, &column);
+//        qDebug("%d: LineColumn(%u, %u)", i, line, column);
+        QCOMPARE(line, expected.line);
+        QCOMPARE(column, expected.column);
+    }
+}
 
 void tst_TranslationUnit::unicodeIdentifier()
 {
@@ -219,6 +272,232 @@ void tst_TranslationUnit::unicodeStringLiteral_data()
     QTest::newRow("non-latin1 literal 8") << _("u8\"\U00010302\u00FC\u4E8C\"");
     QTest::newRow("non-latin1 literal 9") << _("u\"\U00010302\u00FC\u4E8C\"");
     QTest::newRow("non-latin1 literal 10") << _("U\"\U00010302\u00FC\u4E8C\"");
+}
+
+void tst_TranslationUnit::locationOfUtf16CharOffset()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(LineColumnList, expectedNonCommentLinesColumns);
+    QFETCH(LineColumnList, expectedCommentLinesColumns);
+
+    Document::Ptr document = Document::create(source);
+    TranslationUnit *translationUnit = document->translationUnit();
+
+    const TokenGetter::Ptr nonCommentTokenGetter(new TokenGetter(translationUnit));
+    compareTokenLocations(translationUnit, nonCommentTokenGetter.data(),
+                          expectedNonCommentLinesColumns);
+
+    const TokenGetter::Ptr commentTokenGetter(new CommentTokenGetter(translationUnit));
+    compareTokenLocations(translationUnit, commentTokenGetter.data(), expectedCommentLinesColumns);
+}
+
+void tst_TranslationUnit::locationOfUtf16CharOffset_data()
+{
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<LineColumnList>("expectedNonCommentLinesColumns");
+    QTest::addColumn<LineColumnList>("expectedCommentLinesColumns");
+
+    typedef QByteArray _;
+
+    QTest::newRow("empty")
+        << _("")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(0, 0)
+           )
+        << LineColumnList();
+
+    // --- Identifiers ---------------------------------------------------------------------------
+
+    QTest::newRow("latin1 identifiers")
+        << _("int i;")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(1, 1) // int
+            << LineColumn(1, 5) // i
+            << LineColumn(1, 6) // ;
+            << LineColumn(1, 7)
+           )
+        << LineColumnList();
+
+    QTest::newRow("latin1 identifiers")
+        << _("int i;\n"
+             "int jj;\n")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(1, 1) // int 1
+            << LineColumn(1, 5) // i
+            << LineColumn(1, 6) // ;
+            << LineColumn(2, 1) // int 2
+            << LineColumn(2, 5) // jj
+            << LineColumn(2, 7) // ;
+            << LineColumn(3, 1)
+           )
+        << LineColumnList();
+
+    QTest::newRow("non-latin1 identifier")
+        << _("int \u00FC;")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(1, 1) // int
+            << LineColumn(1, 5) // non-latin1 identifier
+            << LineColumn(1, 6) // ;
+            << LineColumn(1, 7)
+           )
+        << LineColumnList();
+
+    QTest::newRow("non-latin1 identifiers 1")
+        << _("int \u00FC;\n"
+             "int \u00FC;")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(1, 1) // int 1
+            << LineColumn(1, 5) // non-latin1 identifier 1
+            << LineColumn(1, 6) // ;
+            << LineColumn(2, 1) // int 2
+            << LineColumn(2, 5) // non-latin1 identifier 2
+            << LineColumn(2, 6) // ;
+            << LineColumn(2, 7) // ;
+           )
+        << LineColumnList();
+
+    QTest::newRow("non-latin1 identifiers 2")
+        << _("int \u00FC\u4E8C\U00010302;\n"
+             "int v;\n"
+             "int \U00010302\u4E8C;")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(1, 1) // int 1
+            << LineColumn(1, 5) // non-latin1 identifier 1
+            << LineColumn(1, 9) // ;
+            << LineColumn(2, 1) // int 2
+            << LineColumn(2, 5) // non-latin1 identifier 2
+            << LineColumn(2, 6) // ;
+            << LineColumn(3, 1) // int 3
+            << LineColumn(3, 5) // non-latin1 identifier 3
+            << LineColumn(3, 8) // ;
+            << LineColumn(3, 9)
+           )
+        << LineColumnList();
+
+    // --- String literals -----------------------------------------------------------------------
+
+    QTest::newRow("latin1 string literal")
+        << _("char t[] = \"foo\";")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(1, 1)  // char
+            << LineColumn(1, 6)  // t
+            << LineColumn(1, 7)  // [
+            << LineColumn(1, 8)  // ]
+            << LineColumn(1, 10) // =
+            << LineColumn(1, 12) // latin1 string literal
+            << LineColumn(1, 17) // ;
+            << LineColumn(1, 18)
+           )
+        << LineColumnList();
+
+    QTest::newRow("non-latin1 string literal")
+        << _("char t[] = \"i\u00FC\u4E8C\U00010302\";")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(1, 1)  // char
+            << LineColumn(1, 6)  // t
+            << LineColumn(1, 7)  // [
+            << LineColumn(1, 8)  // ]
+            << LineColumn(1, 10) // =
+            << LineColumn(1, 12) // non-latin1 string literal
+            << LineColumn(1, 19) // ;
+            << LineColumn(1, 20)
+           )
+        << LineColumnList();
+
+    QTest::newRow("non-latin1 string literal multiple lines")
+        << _("char t[] = \"i\u00FC\u4E8C\U00010302 \\\n"
+             "\";")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(1, 1)  // char
+            << LineColumn(1, 6)  // t
+            << LineColumn(1, 7)  // [
+            << LineColumn(1, 8)  // ]
+            << LineColumn(1, 10) // =
+            << LineColumn(1, 12) // non-latin1 string literal
+            << LineColumn(2, 2)  // ;
+            << LineColumn(2, 3)
+           )
+        << LineColumnList();
+
+    // --- Comments ------------------------------------------------------------------------------
+
+    QTest::newRow("latin1 c++ comment line")
+        << _("// comment line\n"
+             "int i;")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(2, 1) // int
+            << LineColumn(2, 5) // i
+            << LineColumn(2, 6) // ;
+            << LineColumn(2, 7)
+           )
+        << (LineColumnList()
+            << LineColumn(1, 1) // comment
+           );
+
+    QTest::newRow("latin1 c comment line")
+        << _("/* comment line */ int i;")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(1, 20) // int
+            << LineColumn(1, 24) // i
+            << LineColumn(1, 25) // ;
+            << LineColumn(1, 26)
+           )
+        << (LineColumnList()
+            << LineColumn(1, 1)  // comment
+           );
+
+    QTest::newRow("latin1 c comment lines")
+        << _("/* comment line 1\n"
+             "   comment line 2 */ int i;")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(2, 22) // int
+            << LineColumn(2, 26) // i
+            << LineColumn(2, 27) // ;
+            << LineColumn(2, 28)
+           )
+        << (LineColumnList()
+            << LineColumn(1, 1)  // comment
+           );
+
+    QTest::newRow("non-latin1 c++ comment line")
+        << _("// comment line \u00FC\u4E8C\U00010302\n"
+             "int i;")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(2, 1) // int
+            << LineColumn(2, 5) // i
+            << LineColumn(2, 6) // ;
+            << LineColumn(2, 7)
+           )
+        << (LineColumnList()
+            << LineColumn(1, 1) // comment
+           );
+
+    QTest::newRow("non-latin1 c comment lines")
+        << _("/* comment line 1\n"
+             "   comment line 2 */ int i;")
+        << (LineColumnList()
+            << LineColumn(0, 0)
+            << LineColumn(2, 22) // int
+            << LineColumn(2, 26) // i
+            << LineColumn(2, 27) // ;
+            << LineColumn(2, 28)
+           )
+        << (LineColumnList()
+            << LineColumn(1, 1)  // comment
+           );
 }
 
 QTEST_APPLESS_MAIN(tst_TranslationUnit)

@@ -1094,8 +1094,8 @@ void Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
 
 
     Function *fun = control()->newFunction(0, 0);
-    fun->setStartOffset(tokenAt(ast->firstToken()).bytesBegin());
-    fun->setEndOffset(tokenAt(ast->lastToken() - 1).bytesEnd());
+    fun->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
+    fun->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     if (ast->trailing_return_type)
         _type = this->trailingReturnType(ast->trailing_return_type, _type);
     fun->setReturnType(_type);
@@ -1192,8 +1192,8 @@ bool Bind::visit(CompoundStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
     unsigned startScopeToken = ast->lbrace_token ? ast->lbrace_token : ast->firstToken();
-    block->setStartOffset(tokenAt(startScopeToken).bytesEnd());
-    block->setEndOffset(tokenAt(ast->lastToken() - 1).bytesEnd());
+    block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
+    block->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     ast->symbol = block;
     _scope->addMember(block);
     Scope *previousScope = switchScope(block);
@@ -1235,8 +1235,8 @@ bool Bind::visit(ForeachStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
     const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
-    block->setStartOffset(tokenAt(startScopeToken).bytesEnd());
-    block->setEndOffset(tokenAt(ast->lastToken()).bytesBegin());
+    block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
+    block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
     ast->symbol = block;
 
@@ -1285,8 +1285,8 @@ bool Bind::visit(RangeBasedForStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
     const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
-    block->setStartOffset(tokenAt(startScopeToken).bytesEnd());
-    block->setEndOffset(tokenAt(ast->lastToken()).bytesBegin());
+    block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
+    block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
     ast->symbol = block;
 
@@ -1334,8 +1334,8 @@ bool Bind::visit(ForStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
     const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
-    block->setStartOffset(tokenAt(startScopeToken).bytesEnd());
-    block->setEndOffset(tokenAt(ast->lastToken()).bytesBegin());
+    block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
+    block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
     ast->symbol = block;
 
@@ -1354,8 +1354,8 @@ bool Bind::visit(IfStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
     const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
-    block->setStartOffset(tokenAt(startScopeToken).bytesEnd());
-    block->setEndOffset(tokenAt(ast->lastToken()).bytesBegin());
+    block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
+    block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
     ast->symbol = block;
 
@@ -1410,8 +1410,8 @@ bool Bind::visit(SwitchStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
     const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
-    block->setStartOffset(tokenAt(startScopeToken).bytesEnd());
-    block->setEndOffset(tokenAt(ast->lastToken()).bytesBegin());
+    block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
+    block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
     ast->symbol = block;
 
@@ -1436,8 +1436,8 @@ bool Bind::visit(CatchClauseAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
     const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
-    block->setStartOffset(tokenAt(startScopeToken).bytesEnd());
-    block->setEndOffset(tokenAt(ast->lastToken()).bytesBegin());
+    block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
+    block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
     ast->symbol = block;
 
@@ -1453,8 +1453,8 @@ bool Bind::visit(WhileStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
     const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
-    block->setStartOffset(tokenAt(startScopeToken).bytesEnd());
-    block->setEndOffset(tokenAt(ast->lastToken()).bytesBegin());
+    block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
+    block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
     ast->symbol = block;
 
@@ -1469,8 +1469,8 @@ bool Bind::visit(ObjCFastEnumerationAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
     const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
-    block->setStartOffset(tokenAt(startScopeToken).bytesEnd());
-    block->setEndOffset(tokenAt(ast->lastToken()).bytesBegin());
+    block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
+    block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
     ast->symbol = block;
 
@@ -2139,7 +2139,7 @@ bool Bind::visit(FunctionDefinitionAST *ast)
 
     if (fun) {
         setDeclSpecifiers(fun, declSpecifiers);
-        fun->setEndOffset(tokenAt(ast->lastToken() - 1).bytesEnd());
+        fun->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
 
         if (_scope->isClass()) {
             fun->setVisibility(_visibility);
@@ -2201,8 +2201,8 @@ bool Bind::visit(NamespaceAST *ast)
     }
 
     Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
-    ns->setStartOffset(tokenAt(sourceLocation).bytesEnd()); // the scope starts after the namespace or the identifier token.
-    ns->setEndOffset(tokenAt(ast->lastToken() - 1).bytesEnd());
+    ns->setStartOffset(tokenAt(sourceLocation).utf16charsEnd()); // the scope starts after the namespace or the identifier token.
+    ns->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     ns->setInline(ast->inline_token != 0);
     ast->symbol = ns;
     _scope->addMember(ns);
@@ -2261,8 +2261,8 @@ bool Bind::visit(ParameterDeclarationAST *ast)
 bool Bind::visit(TemplateDeclarationAST *ast)
 {
     Template *templ = control()->newTemplate(ast->firstToken(), 0);
-    templ->setStartOffset(tokenAt(ast->firstToken()).bytesBegin());
-    templ->setEndOffset(tokenAt(ast->lastToken() - 1).bytesEnd());
+    templ->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
+    templ->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     ast->symbol = templ;
     Scope *previousScope = switchScope(templ);
 
@@ -2375,34 +2375,34 @@ unsigned Bind::calculateScopeStart(ObjCClassDeclarationAST *ast) const
 {
     if (ast->inst_vars_decl)
         if (unsigned pos = ast->inst_vars_decl->lbrace_token)
-            return tokenAt(pos).bytesEnd();
+            return tokenAt(pos).utf16charsEnd();
 
     if (ast->protocol_refs)
         if (unsigned pos = ast->protocol_refs->lastToken())
-            return tokenAt(pos - 1).bytesEnd();
+            return tokenAt(pos - 1).utf16charsEnd();
 
     if (ast->superclass)
         if (unsigned pos = ast->superclass->lastToken())
-            return tokenAt(pos - 1).bytesEnd();
+            return tokenAt(pos - 1).utf16charsEnd();
 
     if (ast->colon_token)
-        return tokenAt(ast->colon_token).bytesEnd();
+        return tokenAt(ast->colon_token).utf16charsEnd();
 
     if (ast->rparen_token)
-        return tokenAt(ast->rparen_token).bytesEnd();
+        return tokenAt(ast->rparen_token).utf16charsEnd();
 
     if (ast->category_name)
         if (unsigned pos = ast->category_name->lastToken())
-            return tokenAt(pos - 1).bytesEnd();
+            return tokenAt(pos - 1).utf16charsEnd();
 
     if (ast->lparen_token)
-        return tokenAt(ast->lparen_token).bytesEnd();
+        return tokenAt(ast->lparen_token).utf16charsEnd();
 
     if (ast->class_name)
         if (unsigned pos = ast->class_name->lastToken())
-            return tokenAt(pos - 1).bytesEnd();
+            return tokenAt(pos - 1).utf16charsEnd();
 
-    return tokenAt(ast->firstToken()).bytesBegin();
+    return tokenAt(ast->firstToken()).utf16charsBegin();
 }
 
 bool Bind::visit(ObjCClassDeclarationAST *ast)
@@ -2420,7 +2420,7 @@ bool Bind::visit(ObjCClassDeclarationAST *ast)
     _scope->addMember(klass);
 
     klass->setStartOffset(calculateScopeStart(ast));
-    klass->setEndOffset(tokenAt(ast->lastToken() - 1).bytesEnd());
+    klass->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
 
     if (ast->interface_token)
         klass->setInterface(true);
@@ -2479,12 +2479,12 @@ unsigned Bind::calculateScopeStart(ObjCProtocolDeclarationAST *ast) const
 {
     if (ast->protocol_refs)
         if (unsigned pos = ast->protocol_refs->lastToken())
-            return tokenAt(pos - 1).bytesEnd();
+            return tokenAt(pos - 1).utf16charsEnd();
     if (ast->name)
         if (unsigned pos = ast->name->lastToken())
-            return tokenAt(pos - 1).bytesEnd();
+            return tokenAt(pos - 1).utf16charsEnd();
 
-    return tokenAt(ast->firstToken()).bytesBegin();
+    return tokenAt(ast->firstToken()).utf16charsBegin();
 }
 
 bool Bind::visit(ObjCProtocolDeclarationAST *ast)
@@ -2499,7 +2499,7 @@ bool Bind::visit(ObjCProtocolDeclarationAST *ast)
     const unsigned sourceLocation = location(ast->name, ast->firstToken());
     ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, name);
     protocol->setStartOffset(calculateScopeStart(ast));
-    protocol->setEndOffset(tokenAt(ast->lastToken() - 1).bytesEnd());
+    protocol->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     ast->symbol = protocol;
     _scope->addMember(protocol);
 
@@ -2920,7 +2920,7 @@ bool Bind::visit(ClassSpecifierAST *ast)
 {
     // unsigned classkey_token = ast->classkey_token;
     unsigned sourceLocation = ast->firstToken();
-    unsigned startScopeOffset = tokenAt(sourceLocation).bytesEnd(); // at the end of the class key
+    unsigned startScopeOffset = tokenAt(sourceLocation).utf16charsEnd(); // at the end of the class key
 
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         _type = this->specifier(it->value, _type);
@@ -2930,12 +2930,12 @@ bool Bind::visit(ClassSpecifierAST *ast)
 
     if (ast->name && ! ast->name->asAnonymousName()) {
         sourceLocation = location(ast->name, sourceLocation);
-        startScopeOffset = tokenAt(sourceLocation).bytesEnd(); // at the end of the class name
+        startScopeOffset = tokenAt(sourceLocation).utf16charsEnd(); // at the end of the class name
 
         if (QualifiedNameAST *q = ast->name->asQualifiedName()) {
             if (q->unqualified_name) {
                 sourceLocation = q->unqualified_name->firstToken();
-                startScopeOffset = tokenAt(q->unqualified_name->lastToken() - 1).bytesEnd(); // at the end of the unqualified name
+                startScopeOffset = tokenAt(q->unqualified_name->lastToken() - 1).utf16charsEnd(); // at the end of the unqualified name
             }
         }
 
@@ -2944,7 +2944,7 @@ bool Bind::visit(ClassSpecifierAST *ast)
 
     Class *klass = control()->newClass(sourceLocation, className);
     klass->setStartOffset(startScopeOffset);
-    klass->setEndOffset(tokenAt(ast->lastToken() - 1).bytesEnd());
+    klass->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     _scope->addMember(klass);
 
     if (_scope->isClass())
@@ -3003,8 +3003,8 @@ bool Bind::visit(EnumSpecifierAST *ast)
     const Name *enumName = this->name(ast->name);
 
     Enum *e = control()->newEnum(sourceLocation, enumName);
-    e->setStartOffset(tokenAt(sourceLocation).bytesEnd()); // at the end of the enum or identifier token.
-    e->setEndOffset(tokenAt(ast->lastToken() - 1).bytesEnd());
+    e->setStartOffset(tokenAt(sourceLocation).utf16charsEnd()); // at the end of the enum or identifier token.
+    e->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     if (ast->key_token)
         e->setScoped(true);
     ast->symbol = e;
@@ -3126,8 +3126,8 @@ bool Bind::visit(NestedDeclaratorAST *ast)
 bool Bind::visit(FunctionDeclaratorAST *ast)
 {
     Function *fun = control()->newFunction(0, 0);
-    fun->setStartOffset(tokenAt(ast->firstToken()).bytesBegin());
-    fun->setEndOffset(tokenAt(ast->lastToken() - 1).bytesEnd());
+    fun->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
+    fun->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     if (ast->trailing_return_type)
         _type = this->trailingReturnType(ast->trailing_return_type, _type);
     fun->setReturnType(_type);

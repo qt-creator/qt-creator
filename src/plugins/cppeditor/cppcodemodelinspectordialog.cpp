@@ -852,7 +852,7 @@ void TokensModel::configure(CPlusPlus::TranslationUnit *translationUnit)
     for (int i = 0, total = translationUnit->tokenCount(); i < total; ++i) {
         TokenInfo info;
         info.token = translationUnit->tokenAt(i);
-        translationUnit->getPosition(info.token.bytesBegin(), &info.line, &info.column);
+        translationUnit->getPosition(info.token.utf16charsBegin(), &info.line, &info.column);
         m_tokenInfos.append(info);
     }
     emit layoutChanged();

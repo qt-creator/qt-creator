@@ -199,7 +199,7 @@ ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
 {
     const Token &token = tokenAt(tokenIndex);
     unsigned line, column;
-    cppDocument()->translationUnit()->getPosition(token.bytesBegin(), &line, &column);
+    cppDocument()->translationUnit()->getPosition(token.utf16charsBegin(), &line, &column);
     const int start = document()->findBlockByNumber(line - 1).position() + column - 1;
     return ChangeSet::Range(start, start + token.bytes());
 }
@@ -212,7 +212,7 @@ ChangeSet::Range CppRefactoringFile::range(AST *ast) const
 int CppRefactoringFile::startOf(unsigned index) const
 {
     unsigned line, column;
-    cppDocument()->translationUnit()->getPosition(tokenAt(index).bytesBegin(), &line, &column);
+    cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsBegin(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
@@ -224,7 +224,7 @@ int CppRefactoringFile::startOf(const AST *ast) const
 int CppRefactoringFile::endOf(unsigned index) const
 {
     unsigned line, column;
-    cppDocument()->translationUnit()->getPosition(tokenAt(index).bytesEnd(), &line, &column);
+    cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsEnd(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
@@ -239,7 +239,7 @@ void CppRefactoringFile::startAndEndOf(unsigned index, int *start, int *end) con
 {
     unsigned line, column;
     Token token(tokenAt(index));
-    cppDocument()->translationUnit()->getPosition(token.bytesBegin(), &line, &column);
+    cppDocument()->translationUnit()->getPosition(token.utf16charsBegin(), &line, &column);
     *start = document()->findBlockByNumber(line - 1).position() + column - 1;
     *end = *start + token.bytes();
 }

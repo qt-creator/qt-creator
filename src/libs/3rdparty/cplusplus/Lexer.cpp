@@ -109,7 +109,7 @@ void Lexer::pushLineStartOffset()
     ++_currentLine;
 
     if (_translationUnit)
-        _translationUnit->pushLineOffset(_currentChar - _firstChar);
+        _translationUnit->pushLineOffset(_currentCharUtf16);
 }
 
 void Lexer::scan(Token *tok)

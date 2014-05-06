@@ -127,7 +127,7 @@ public:
                              unsigned *column = 0,
                              const StringLiteral **fileName = 0) const;
 
-    void getPosition(unsigned offset,
+    void getPosition(unsigned utf16charOffset,
                      unsigned *line,
                      unsigned *column = 0,
                      const StringLiteral **fileName = 0) const;
@@ -172,8 +172,8 @@ private:
     };
 
     void releaseTokensAndComments();
-    unsigned findLineNumber(unsigned offset) const;
-    unsigned findColumnNumber(unsigned offset, unsigned lineNumber) const;
+    unsigned findLineNumber(unsigned utf16charOffset) const;
+    unsigned findColumnNumber(unsigned utf16CharOffset, unsigned lineNumber) const;
     PPLine findPreprocessorLine(unsigned offset) const;
     void showErrorLine(unsigned index, unsigned column, FILE *out);
 
