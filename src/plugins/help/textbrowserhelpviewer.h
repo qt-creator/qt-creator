@@ -70,8 +70,8 @@ public:
     QString selectedText() const;
     bool isForwardAvailable() const;
     bool isBackwardAvailable() const;
-    void addBackHistoryItems(QMenu *backMenu) { Q_UNUSED(backMenu) }
-    void addForwardHistoryItems(QMenu *forwardMenu) { Q_UNUSED(forwardMenu) }
+    void addBackHistoryItems(QMenu *backMenu);
+    void addForwardHistoryItems(QMenu *forwardMenu);
     void setOpenInNewWindowActionVisible(bool visible);
 
     bool findText(const QString &text, Core::FindFlags flags,
@@ -83,6 +83,9 @@ public slots:
     void forward();
     void backward();
     void print(QPrinter *printer);
+
+private slots:
+    void goToHistoryItem();
 
 private:
     QVariant loadResource(int type, const QUrl &name);

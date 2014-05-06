@@ -34,6 +34,7 @@
 
 #include <coreplugin/find/findplugin.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -193,6 +194,28 @@ bool TextBrowserHelpViewer::isBackwardAvailable() const
     return m_textBrowser->isBackwardAvailable();
 }
 
+void TextBrowserHelpViewer::addBackHistoryItems(QMenu *backMenu)
+{
+    for (int i = 1; i <= m_textBrowser->backwardHistoryCount(); ++i) {
+        QAction *action = new QAction(backMenu);
+        action->setText(m_textBrowser->historyTitle(-i));
+        action->setData(-i);
+        connect(action, SIGNAL(triggered()), this, SLOT(goToHistoryItem()));
+        backMenu->addAction(action);
+    }
+}
+
+void TextBrowserHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
+{
+    for (int i = 1; i <= m_textBrowser->forwardHistoryCount(); ++i) {
+        QAction *action = new QAction(forwardMenu);
+        action->setText(m_textBrowser->historyTitle(i));
+        action->setData(i);
+        connect(action, SIGNAL(triggered()), this, SLOT(goToHistoryItem()));
+        forwardMenu->addAction(action);
+    }
+}
+
 void TextBrowserHelpViewer::setOpenInNewWindowActionVisible(bool visible)
 {
     m_textBrowser->showOpenInNewWindowAction = visible;
@@ -275,6 +298,25 @@ void TextBrowserHelpViewer::backward()
 void TextBrowserHelpViewer::print(QPrinter *printer)
 {
     m_textBrowser->print(printer);
+}
+
+void TextBrowserHelpViewer::goToHistoryItem()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(action, return);
+    bool ok = false;
+    int index = action->data().toInt(&ok);
+    QTC_ASSERT(ok, return);
+    // go back?
+    while (index < 0) {
+        m_textBrowser->backward();
+        ++index;
+    }
+    // go forward?
+    while (index > 0) {
+        m_textBrowser->forward();
+        --index;
+    }
 }
 
 // -- private
