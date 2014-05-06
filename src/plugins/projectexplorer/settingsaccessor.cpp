@@ -412,9 +412,10 @@ QVariantMap UserFileAccessor::prepareSettings(const QVariantMap &data) const
     // This can not be done in a normal upgrader since the version information is needed
     // to decide which upgraders to run
     QVariantMap result = SettingsAccessor::prepareSettings(data);
-    if (data.contains(QLatin1String(OBSOLETE_VERSION_KEY))) {
-        result = setVersionInMap(result, data.value(key, versionFromMap(data)).toInt());
-        result.remove(key);
+    const QString obsoleteKey = QLatin1String(OBSOLETE_VERSION_KEY);
+    if (data.contains(obsoleteKey)) {
+        result = setVersionInMap(result, data.value(obsoleteKey, versionFromMap(data)).toInt());
+        result.remove(obsoleteKey);
     }
     return result;
 }
