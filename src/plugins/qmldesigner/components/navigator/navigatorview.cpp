@@ -315,11 +315,11 @@ void NavigatorView::leftButtonClicked()
         if (!node.isRootNode() && !node.parentProperty().parentModelNode().isRootNode()) {
             if (QmlItemNode::isValidQmlItemNode(node)) {
                 QPointF scenePos = QmlItemNode(node).instanceScenePosition();
-                node.parentProperty().parentModelNode().parentProperty().reparentHere(node);
+                node.parentProperty().parentProperty().reparentHere(node);
                 if (!scenePos.isNull())
                     setScenePos(node, scenePos);
             } else {
-                node.parentProperty().parentModelNode().parentProperty().reparentHere(node);
+                node.parentProperty().parentProperty().reparentHere(node);
             }
         }
     }
@@ -334,8 +334,8 @@ void NavigatorView::rightButtonClicked()
 
     bool blocked = blockSelectionChangedSignal(true);
     foreach (const ModelNode &node, selectedModelNodes()) {
-        if (!node.isRootNode() && node.parentProperty().isNodeListProperty() && node.parentProperty().toNodeListProperty().count() > 1) {
-            int index = node.parentProperty().toNodeListProperty().indexOf(node);
+        if (!node.isRootNode() && node.parentProperty().isNodeListProperty() && node.parentProperty().count() > 1) {
+            int index = node.parentProperty().indexOf(node);
             index--;
             if (index >= 0) { //for the first node the semantics are not clear enough. Wrapping would be irritating.
                 ModelNode newParent = node.parentProperty().toNodeListProperty().at(index);
@@ -363,11 +363,11 @@ void NavigatorView::upButtonClicked()
     bool blocked = blockSelectionChangedSignal(true);
     foreach (const ModelNode &node, selectedModelNodes()) {
         if (!node.isRootNode() && node.parentProperty().isNodeListProperty()) {
-            int oldIndex = node.parentProperty().toNodeListProperty().indexOf(node);
+            int oldIndex = node.parentProperty().indexOf(node);
             int index = oldIndex;
             index--;
             if (index < 0)
-                index = node.parentProperty().toNodeListProperty().count() - 1; //wrap around
+                index = node.parentProperty().count() - 1; //wrap around
             node.parentProperty().toNodeListProperty().slide(oldIndex, index);
         }
     }
@@ -380,10 +380,10 @@ void NavigatorView::downButtonClicked()
     bool blocked = blockSelectionChangedSignal(true);
     foreach (const ModelNode &node, selectedModelNodes()) {
         if (!node.isRootNode() && node.parentProperty().isNodeListProperty()) {
-            int oldIndex = node.parentProperty().toNodeListProperty().indexOf(node);
+            int oldIndex = node.parentProperty().indexOf(node);
             int index = oldIndex;
             index++;
-            if (index >= node.parentProperty().toNodeListProperty().count())
+            if (index >= node.parentProperty().count())
                 index = 0; //wrap around
             node.parentProperty().toNodeListProperty().slide(oldIndex, index);
         }
