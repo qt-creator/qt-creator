@@ -178,12 +178,7 @@ Environment RemoteLinuxRunConfiguration::environment() const
 {
     RemoteLinuxEnvironmentAspect *aspect = extraAspect<RemoteLinuxEnvironmentAspect>();
     QTC_ASSERT(aspect, return Environment());
-    Environment env(OsTypeLinux);
-    env.modify(aspect->userEnvironmentChanges());
-    const QString displayKey = QLatin1String("DISPLAY");
-    if (!env.hasKey(displayKey))
-        env.appendOrSet(displayKey, QLatin1String(":0.0"));
-    return env;
+    return aspect->environment();
 }
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const

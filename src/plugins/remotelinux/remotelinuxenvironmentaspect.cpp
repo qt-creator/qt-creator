@@ -68,9 +68,13 @@ QString RemoteLinuxEnvironmentAspect::baseEnvironmentDisplayName(int base) const
 
 Utils::Environment RemoteLinuxEnvironmentAspect::baseEnvironment() const
 {
+    Utils::Environment env;
     if (baseEnvironmentBase() == static_cast<int>(RemoteBaseEnvironment))
-        return m_remoteEnvironment;
-    return Utils::Environment();
+        env = m_remoteEnvironment;
+    const QString displayKey = QLatin1String("DISPLAY");
+    if (!env.hasKey(displayKey))
+        env.appendOrSet(displayKey, QLatin1String(":0.0"));
+    return env;
 }
 
 AbstractRemoteLinuxRunConfiguration *RemoteLinuxEnvironmentAspect::runConfiguration() const
