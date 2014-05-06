@@ -61,7 +61,13 @@ QString LinuxDeviceProcess::fullCommandLine() const
         fullCommandLine.append(QLatin1String("cd ")).append(quote(m_workingDir))
                 .append(QLatin1String(" && "));
     }
-    const QString envString = environment().toStringList().join(QLatin1String(" "));
+    QString envString;
+    for (auto it = environment().constBegin(); it != environment().constEnd(); ++it) {
+        if (!envString.isEmpty())
+            envString += QLatin1Char(' ');
+        envString.append(it.key()).append(QLatin1String("='")).append(it.value())
+                .append(QLatin1Char('\''));
+    }
     if (!envString.isEmpty())
         fullCommandLine.append(QLatin1Char(' ')).append(envString);
     if (!fullCommandLine.isEmpty())
