@@ -71,7 +71,6 @@ public:
 public Q_SLOTS:
     void connected();
     void readyRead();
-    void deviceAboutToClose();
 };
 
 QmlDebugConnectionPrivate::QmlDebugConnectionPrivate(QmlDebugConnection *c)
