@@ -160,7 +160,7 @@ void ModeManager::activateMode(Id id)
 
 void ModeManager::objectAdded(QObject *obj)
 {
-    IMode *mode = Aggregation::query<IMode>(obj);
+    IMode *mode = qobject_cast<IMode *>(obj);
     if (!mode)
         return;
 
@@ -235,7 +235,7 @@ void ModeManager::enabledStateChanged()
 
 void ModeManager::aboutToRemoveObject(QObject *obj)
 {
-    IMode *mode = Aggregation::query<IMode>(obj);
+    IMode *mode = qobject_cast<IMode *>(obj);
     if (!mode)
         return;
 
