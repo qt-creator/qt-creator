@@ -289,10 +289,10 @@ void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
 
 void QmlDesignerPlugin::selectModelNodeUnderTextCursor()
 {
-    const int cursorPos = currentDesignDocument()->plainTextEdit()->textCursor().position();
-    ModelNode node = currentDesignDocument()->rewriterView()->nodeAtTextCursorPosition(cursorPos);
-    if (currentDesignDocument()->rewriterView() && node.isValid())
-        currentDesignDocument()->rewriterView()->setSelectedModelNodes(QList<ModelNode>() << node);
+    const int cursorPosition = currentDesignDocument()->plainTextEdit()->textCursor().position();
+    ModelNode modelNode = currentDesignDocument()->rewriterView()->nodeAtTextCursorPosition(cursorPosition);
+    if (modelNode.isValid())
+        currentDesignDocument()->rewriterView()->setSelectedModelNode(modelNode);
 }
 
 void QmlDesignerPlugin::activateAutoSynchronization()
