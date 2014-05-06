@@ -52,9 +52,6 @@ bool ImageViewerPlugin::initialize(const QStringList &arguments, QString *errorM
         return false;
 
     m_factory = new ImageViewerFactory(this);
-    Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
-    aggregate->add(m_factory);
-
     addAutoReleasedObject(m_factory);
     return true;
 }
