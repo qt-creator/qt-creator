@@ -108,9 +108,7 @@ enum { debugLeaks = 0 };
     Plugins (and everybody else) can add objects to a common 'pool' that is located in
     the plugin manager. Objects in the pool must derive from QObject, there are no other
     prerequisites. All objects of a specified type can be retrieved from the object pool
-    via the getObjects() and getObject() functions. They are aware of Aggregation::Aggregate, i.e.
-    these functions use the Aggregation::query functions instead of a qobject_cast to determine
-    the matching objects.
+    via the getObjects() and getObject() functions.
 
     Whenever the state of the object pool changes a corresponding signal is emitted by the plugin manager.
 
@@ -220,9 +218,7 @@ enum { debugLeaks = 0 };
 
     Retrieves the object of a given type from the object pool.
 
-    This function is aware of Aggregation::Aggregate. That is, it uses
-    the \c Aggregation::query functions instead of \c qobject_cast to
-    determine the type of an object.
+    This function uses \c qobject_cast to determine the type of an object.
     If there are more than one object of the given type in
     the object pool, this function will choose an arbitrary one of them.
 
@@ -234,9 +230,7 @@ enum { debugLeaks = 0 };
 
     Retrieves all objects of a given type from the object pool.
 
-    This function is aware of Aggregation::Aggregate. That is, it uses
-    the \c Aggregation::query functions instead of \c qobject_cast to
-    determine the type of an object.
+    This function uses \c qobject_cast to determine the type of an object.
 
     \sa addObject()
 */

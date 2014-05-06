@@ -68,10 +68,9 @@ public:
         QReadLocker lock(listLock());
         QList<T *> results;
         QList<QObject *> all = allObjects();
-        QList<T *> result;
         foreach (QObject *obj, all) {
-            result = Aggregation::query_all<T>(obj);
-            if (!result.isEmpty())
+            T *result = qobject_cast<T *>(obj);
+            if (result)
                 results += result;
         }
         return results;
@@ -80,12 +79,11 @@ public:
     {
         QReadLocker lock(listLock());
         QList<QObject *> all = allObjects();
-        T *result = 0;
         foreach (QObject *obj, all) {
-            if ((result = Aggregation::query<T>(obj)) != 0)
-                break;
+            if (T *result = qobject_cast<T *>(obj))
+                return result;
         }
-        return result;
+        return 0;
     }
 
     static QObject *getObjectByName(const QString &name);
