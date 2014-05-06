@@ -28,6 +28,8 @@
 ****************************************************************************/
 #include "abstractremotelinuxrunconfiguration.h"
 
+#include <debugger/debuggerrunconfigurationaspect.h>
+
 namespace RemoteLinux {
 
 AbstractRemoteLinuxRunConfiguration::AbstractRemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
@@ -45,6 +47,19 @@ AbstractRemoteLinuxRunConfiguration::AbstractRemoteLinuxRunConfiguration(Project
         AbstractRemoteLinuxRunConfiguration *source): RunConfiguration(parent, source)
 {
 
+}
+
+int AbstractRemoteLinuxRunConfiguration::portsUsedByDebuggers() const
+{
+    int ports = 0;
+    Debugger::DebuggerRunConfigurationAspect *aspect
+            = extraAspect<Debugger::DebuggerRunConfigurationAspect>();
+    if (aspect->useQmlDebugger())
+        ++ports;
+    if (aspect->useCppDebugger())
+        ++ports;
+
+    return ports;
 }
 
 } // namespace RemoteLinux

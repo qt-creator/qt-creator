@@ -32,7 +32,6 @@
 #include "remotelinuxenvironmentaspect.h"
 #include "remotelinuxrunconfigurationwidget.h"
 
-#include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
@@ -238,19 +237,6 @@ void RemoteLinuxRunConfiguration::setAlternateRemoteExecutable(const QString &ex
 QString RemoteLinuxRunConfiguration::alternateRemoteExecutable() const
 {
     return d->alternateRemoteExecutable;
-}
-
-int RemoteLinuxRunConfiguration::portsUsedByDebuggers() const
-{
-    int ports = 0;
-    Debugger::DebuggerRunConfigurationAspect *aspect
-            = extraAspect<Debugger::DebuggerRunConfigurationAspect>();
-    if (aspect->useQmlDebugger())
-        ++ports;
-    if (aspect->useCppDebugger())
-        ++ports;
-
-    return ports;
 }
 
 void RemoteLinuxRunConfiguration::handleBuildSystemDataUpdated()

@@ -31,6 +31,7 @@
 
 #include "remotelinuxanalyzesupport.h"
 #include "remotelinuxdebugsupport.h"
+#include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxruncontrol.h"
 
@@ -69,8 +70,10 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
         return false;
     }
 
-    const QByteArray idStr = runConfiguration->id().name();
-    return runConfiguration->isEnabled() && idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix);
+    const Core::Id id = runConfiguration->id();
+    return runConfiguration->isEnabled()
+            && (id == RemoteLinuxCustomRunConfiguration::runConfigId()
+                || id.name().startsWith(RemoteLinuxRunConfiguration::IdPrefix));
 }
 
 RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode,
@@ -78,7 +81,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
 {
     QTC_ASSERT(canRun(runConfig, mode), return 0);
 
-    RemoteLinuxRunConfiguration *rc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig);
+    auto * const rc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(runConfig);
     QTC_ASSERT(rc, return 0);
     switch (mode) {
     case NormalRunMode:
@@ -94,6 +97,12 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
             *errorMessage = tr("Cannot debug: Not enough free ports available.");
             return 0;
         }
+        auto *crc = qobject_cast<RemoteLinuxCustomRunConfiguration *>(rc);
+        if (crc && crc->localExecutableFilePath().isEmpty()) {
+            *errorMessage = tr("Cannot debug: Local executable is not set.");
+            return 0;
+        }
+
         DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
         if (mode == ProjectExplorer::DebugRunModeWithBreakOnMain)
             params.breakOnMain = true;

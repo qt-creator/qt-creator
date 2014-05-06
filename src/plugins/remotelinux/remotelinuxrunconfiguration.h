@@ -83,8 +83,6 @@ public:
 
     QVariantMap toMap() const;
 
-    int portsUsedByDebuggers() const;
-
     QString projectFilePath() const;
 
     static const char *IdPrefix;

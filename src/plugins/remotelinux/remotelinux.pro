@@ -48,6 +48,7 @@ HEADERS += \
     remotelinuxanalyzesupport.h \
     abstractremotelinuxrunsupport.h \
     linuxdeviceprocess.h \
+    remotelinuxcustomrunconfiguration.h \
     remotelinuxsignaloperation.h
 
 SOURCES += \
@@ -94,12 +95,14 @@ SOURCES += \
     remotelinuxanalyzesupport.cpp \
     abstractremotelinuxrunsupport.cpp \
     linuxdeviceprocess.cpp \
+    remotelinuxcustomrunconfiguration.cpp \
     remotelinuxsignaloperation.cpp
 
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \
     genericlinuxdeviceconfigurationwidget.ui \
-    remotelinuxcheckforfreediskspacestepwidget.ui
+    remotelinuxcheckforfreediskspacestepwidget.ui \
+    remotelinuxcustomrunconfigurationwidget.ui
 
 RESOURCES += remotelinux.qrc
 

@@ -55,6 +55,8 @@ public:
     virtual QString workingDirectory() const = 0;
     virtual Utils::Environment environment() const = 0;
 
+    int portsUsedByDebuggers() const;
+
 protected:
     AbstractRemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
         AbstractRemoteLinuxRunConfiguration *source);
