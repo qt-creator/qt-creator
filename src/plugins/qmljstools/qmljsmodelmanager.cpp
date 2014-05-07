@@ -224,11 +224,6 @@ void ModelManager::delayedInitialization()
 
     connect(ProjectExplorer::SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(removeProjectInfo(ProjectExplorer::Project*)));
-
-    QmlJS::ViewerContext qbsVContext;
-    qbsVContext.language = Language::QmlQbs;
-    qbsVContext.maybeAddPath(ICore::resourcePath() + QLatin1String("/qbs"));
-    setDefaultVContext(qbsVContext);
 }
 
 void ModelManager::loadDefaultQmlTypeDescriptions()
