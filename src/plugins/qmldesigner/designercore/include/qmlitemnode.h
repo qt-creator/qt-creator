@@ -69,6 +69,10 @@ public:
                                                   const QString &imageName,
                                                   const QPointF &position,
                                                   QmlItemNode parentQmlItemNode);
+    static QmlItemNode createQmlItemNodeFromImage(AbstractView *view,
+                                                  const QString &imageName,
+                                                  const QPointF &position,
+                                                  NodeAbstractProperty parentproperty);
 
     QmlModelStateGroup states() const;
     QList<QmlItemNode> children() const;

@@ -162,11 +162,19 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
 
 QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, QmlItemNode parentQmlItemNode)
 {
-    QmlItemNode newQmlItemNode;
     if (!parentQmlItemNode.isValid())
         parentQmlItemNode = QmlItemNode(view->rootModelNode());
 
-    if (parentQmlItemNode.isValid()) {
+    NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
+
+    return QmlItemNode::createQmlItemNodeFromImage(view, imageName, position, parentProperty);
+}
+
+QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, NodeAbstractProperty parentproperty)
+{
+    QmlItemNode newQmlItemNode;
+
+    if (parentproperty.isValid()) {
         RewriterTransaction transaction = view->beginRewriterTransaction(QByteArrayLiteral("QmlItemNode::createQmlItemNodeFromImage"));
 
         if (view->model()->hasNodeMetaInfo("QtQuick.Image")) {
@@ -185,7 +193,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
             }
 
             newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Image", metaInfo.majorVersion(), metaInfo.minorVersion(), propertyPairList));
-            parentQmlItemNode.defaultNodeAbstractProperty().reparentHere(newQmlItemNode);
+            parentproperty.reparentHere(newQmlItemNode);
 
             newQmlItemNode.setId(view->generateNewId("image"));
 
@@ -198,7 +206,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
         }
         Q_ASSERT(newQmlItemNode.isValid());
     }
-
 
     return newQmlItemNode;
 }
