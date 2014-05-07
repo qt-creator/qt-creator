@@ -52,7 +52,7 @@ const char IOS_SETTINGS_ID[] = "ZZ.Ios Configurations";
 const char IOS_SETTINGS_CATEGORY[] = "XA.Ios";
 const char IOS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Ios", "iOS");
 const char IOS_SETTINGS_CATEGORY_ICON[] = ":/ios/images/iossettings.png";
-const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios";
+const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // this literal is replicated to avoid dependencies
 
 const char IOS_DEVICE_TYPE[] = "Ios.Device.Type";
 const char IOS_SIMULATOR_TYPE[] = "Ios.Simulator.Type";
