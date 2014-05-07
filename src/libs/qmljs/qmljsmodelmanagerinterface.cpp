@@ -1361,9 +1361,7 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() c
 {
     ProjectInfo res;
     res.qtImportsPath = QLibraryInfo::location(QLibraryInfo::ImportsPath);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     res.qtQmlPath = QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath);
-#endif
     return res;
 }
 
