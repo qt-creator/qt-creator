@@ -181,25 +181,6 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
     return newQmlItemNode;
 }
 
-static void checkImageImport(AbstractView *view)
-{
-    const QString newImportUrl = QLatin1String("QtQuick");
-    const QString newImportVersion = QLatin1String("1.1");
-    Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
-
-    foreach (const Import &import, view->model()->imports()) {
-        if (import.isLibraryImport()
-            && import.url() == newImport.url()) {
-            // reuse this import
-            newImport = import;
-            break;
-        }
-    }
-
-    if (!view->model()->hasImport(newImport, true, true))
-        view->model()->changeImports(QList<Import>() << newImport, QList<Import>());
-}
-
 QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, QmlItemNode parentQmlItemNode)
 {
     QmlItemNode newQmlItemNode;
@@ -208,8 +189,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
 
     if (parentQmlItemNode.isValid()) {
         RewriterTransaction transaction = view->beginRewriterTransaction(QByteArrayLiteral("QmlItemNode::createQmlItemNodeFromImage"));
-
-        checkImageImport(view);
 
         if (view->model()->hasNodeMetaInfo("QtQuick.Image")) {
             NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
