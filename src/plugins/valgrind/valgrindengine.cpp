@@ -60,7 +60,6 @@ ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
     : AnalyzerRunControl(sp, runConfiguration),
       m_settings(0),
       m_progress(new QFutureInterface<void>()),
-      m_progressWatcher(new QFutureWatcher<void>()),
       m_isStopping(false)
 {
     if (runConfiguration)
@@ -70,10 +69,6 @@ ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
     if (!m_settings)
         m_settings = ValgrindPlugin::globalSettings();
 
-    connect(m_progressWatcher, SIGNAL(canceled()),
-            this, SLOT(handleProgressCanceled()));
-    connect(m_progressWatcher, SIGNAL(finished()),
-            this, SLOT(handleProgressFinished()));
 }
 
 ValgrindRunControl::~ValgrindRunControl()
@@ -88,9 +83,10 @@ bool ValgrindRunControl::startEngine()
     FutureProgress *fp = ProgressManager::addTask(m_progress->future(),
                                                         progressTitle(), "valgrind");
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
+    connect(fp, SIGNAL(canceled()), this, SLOT(handleProgressCanceled()));
+    connect(fp, SIGNAL(finished()), this, SLOT(handleProgressFinished()));
     m_progress->setProgressRange(0, progressMaximum);
     m_progress->reportStarted();
-    m_progressWatcher->setFuture(m_progress->future());
     m_progress->setProgressValue(progressMaximum / 10);
 
     const AnalyzerStartParameters &sp = startParameters();

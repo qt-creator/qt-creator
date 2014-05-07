@@ -63,7 +63,6 @@ protected:
 
     ValgrindBaseSettings *m_settings;
     QFutureInterface<void> *m_progress;
-    QFutureWatcher<void> *m_progressWatcher;
 
 private slots:
     void handleProgressCanceled();
