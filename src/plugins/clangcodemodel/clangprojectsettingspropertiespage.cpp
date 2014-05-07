@@ -150,7 +150,7 @@ void ClangProjectSettingsWidget::customPchButtonClicked()
     d.setNameFilters(QStringList() << tr("Header Files (*.h)")
                      << tr("All Files (*)"));
     d.setFileMode(QFileDialog::ExistingFile);
-    d.setDirectory(m_project->projectDirectory());
+    d.setDirectory(m_project->projectDirectory().toString());
     if (!d.exec())
         return;
     const QStringList fileNames = d.selectedFiles();
