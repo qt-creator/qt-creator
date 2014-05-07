@@ -45,7 +45,6 @@ namespace Core {
 
 class IDocument;
 class IEditor;
-class DocumentModel;
 
 namespace Internal {
 
@@ -60,7 +59,7 @@ public:
 
     explicit OpenEditorsWindow(QWidget *parent = 0);
 
-    void setEditors(const QList<EditLocation> &globalHistory, EditorView *view, DocumentModel *model);
+    void setEditors(const QList<EditLocation> &globalHistory, EditorView *view);
 
     bool eventFilter(QObject *src, QEvent *e);
     void focusInEvent(QFocusEvent *);
@@ -76,9 +75,8 @@ private slots:
     void selectEditor(QTreeWidgetItem *item);
 
 private:
-    void addHistoryItems(const QList<EditLocation> &history, EditorView *view,
-                         DocumentModel *model, QSet<IDocument*> &documentsDone);
-    void addRestoredItems(DocumentModel *model);
+    void addHistoryItems(const QList<EditLocation> &history, EditorView *view, QSet<IDocument*> &documentsDone);
+    void addRestoredItems();
     void ensureCurrentVisible();
     bool isCentering();
     void centerOnItem(int selectedIndex);

@@ -220,7 +220,7 @@ StateListener::StateListener(QObject *parent) :
 
 static inline QString displayNameOfEditor(const QString &fileName)
 {
-    Core::IDocument *document = Core::EditorManager::documentModel()->documentForFilePath(fileName);
+    Core::IDocument *document = Core::DocumentModel::documentForFilePath(fileName);
     if (document)
         return document->displayName();
     return QString();

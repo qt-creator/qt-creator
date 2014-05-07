@@ -32,6 +32,7 @@
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/id.h>
 #include <utils/qtcassert.h>
 
@@ -70,11 +71,10 @@ void DiffEditorManager::slotEditorsClosed(const QList<Core::IEditor *> &editors)
             editorsForDocument[document]++;
         }
     }
-    Core::DocumentModel *documentModel = Core::EditorManager::documentModel();
     QMapIterator<Core::IDocument *, int> it(editorsForDocument);
     while (it.hasNext()) {
         it.next();
-        if (documentModel->editorsForDocument(it.key()).count() == 0) { // no other editors use that document
+        if (Core::DocumentModel::editorsForDocument(it.key()).count() == 0) { // no other editors use that document
             DiffEditorDocument *document
                     = qobject_cast<DiffEditorDocument *>(it.key());
             if (document) {

@@ -59,9 +59,8 @@ BaseTextMarkRegistry::BaseTextMarkRegistry(QObject *parent)
 void BaseTextMarkRegistry::add(BaseTextMark *mark)
 {
     m_marks[FileName::fromString(mark->fileName())].insert(mark);
-    DocumentModel *documentModel = EditorManager::documentModel();
     ITextEditorDocument *document
-            = qobject_cast<ITextEditorDocument*>(documentModel->documentForFilePath(mark->fileName()));
+            = qobject_cast<ITextEditorDocument*>(DocumentModel::documentForFilePath(mark->fileName()));
     if (!document)
         return;
     document->markableInterface()->addMark(mark);

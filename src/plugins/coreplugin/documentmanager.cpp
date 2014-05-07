@@ -1434,7 +1434,7 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
     if (entry.editorFactory) {
         // close any open editors that have this file open, but have a different type.
         QList<IEditor *> editorsOpenForFile
-                = EditorManager::documentModel()->editorsForFilePath(entry.fileName);
+                = DocumentModel::editorsForFilePath(entry.fileName);
         if (!editorsOpenForFile.isEmpty()) {
             foreach (IEditor *openEditor, editorsOpenForFile) {
                 if (entry.editorFactory->id() == openEditor->document()->id())

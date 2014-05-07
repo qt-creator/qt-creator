@@ -113,7 +113,7 @@ public:
 private:
     void doBeforeLocatorRun()
     {
-        QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
+        QVERIFY(DocumentModel::openedDocuments().isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
 
         m_editor = EditorManager::openEditor(m_fileName);
@@ -126,7 +126,7 @@ private:
     {
         QVERIFY(closeEditorWithoutGarbageCollectorInvocation(m_editor));
         QCoreApplication::processEvents();
-        QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
+        QVERIFY(DocumentModel::openedDocuments().isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
     }
 

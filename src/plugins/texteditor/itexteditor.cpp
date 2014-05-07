@@ -58,7 +58,7 @@ ITextEditorDocument::ITextEditorDocument(QObject *parent)
 QMap<QString, QString> ITextEditorDocument::openedTextDocumentContents()
 {
     QMap<QString, QString> workingCopy;
-    foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments()) {
+    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
         ITextEditorDocument *textEditorDocument = qobject_cast<ITextEditorDocument *>(document);
         if (!textEditorDocument)
             continue;
@@ -71,7 +71,7 @@ QMap<QString, QString> ITextEditorDocument::openedTextDocumentContents()
 QMap<QString, QTextCodec *> ITextEditorDocument::openedTextDocumentEncodings()
 {
     QMap<QString, QTextCodec *> workingCopy;
-    foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments()) {
+    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
         ITextEditorDocument *textEditorDocument = qobject_cast<ITextEditorDocument *>(document);
         if (!textEditorDocument)
             continue;

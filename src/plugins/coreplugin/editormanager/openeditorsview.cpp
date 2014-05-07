@@ -97,7 +97,7 @@ OpenEditorsWidget::OpenEditorsWidget()
     setFrameStyle(QFrame::NoFrame);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     m_model = new ProxyModel(this);
-    m_model->setSourceModel(EditorManager::documentModel());
+    m_model->setSourceModel(DocumentModel::model());
     setModel(m_model);
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -128,7 +128,7 @@ OpenEditorsWidget::~OpenEditorsWidget()
 void OpenEditorsWidget::updateCurrentItem(Core::IEditor *editor)
 {
     IDocument *document = editor ? editor->document() : 0;
-    QModelIndex index = m_model->index(EditorManager::documentModel()->indexOfDocument(document), 0);
+    QModelIndex index = m_model->index(DocumentModel::indexOfDocument(document), 0);
     if (!index.isValid()) {
         clearSelection();
         return;
@@ -189,13 +189,13 @@ void OpenEditorsWidget::activateEditor(const QModelIndex &index)
 {
     selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     EditorManager::activateEditorForEntry(
-                EditorManager::documentModel()->documentAtRow(m_model->mapToSource(index).row()));
+                DocumentModel::documentAtRow(m_model->mapToSource(index).row()));
 }
 
 void OpenEditorsWidget::closeEditor(const QModelIndex &index)
 {
     EditorManager::closeEditor(
-                EditorManager::documentModel()->documentAtRow(m_model->mapToSource(index).row()));
+                DocumentModel::documentAtRow(m_model->mapToSource(index).row()));
     // work around selection changes
     updateCurrentItem(EditorManager::currentEditor());
 }
@@ -204,7 +204,7 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
 {
     QMenu contextMenu;
     QModelIndex editorIndex = indexAt(pos);
-    DocumentModel::Entry *entry = EditorManager::documentModel()->documentAtRow(
+    DocumentModel::Entry *entry = DocumentModel::documentAtRow(
                 m_model->mapToSource(editorIndex).row());
     EditorManager::addSaveAndCloseEditorActions(&contextMenu, entry);
     contextMenu.addSeparator();

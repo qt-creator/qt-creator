@@ -203,8 +203,6 @@ public:
     QMap<QString, QVariant> m_editorStates;
     Internal::OpenEditorsViewFactory *m_openEditorsFactory;
 
-    DocumentModel *m_documentModel;
-
     IDocument::ReloadSetting m_reloadSetting;
 
     QString m_titleAddition;
@@ -244,12 +242,13 @@ EditorManagerPrivate::EditorManagerPrivate(QWidget *parent) :
     m_autoSaveEnabled(true),
     m_autoSaveInterval(5)
 {
-    m_documentModel = new DocumentModel(parent);
+    DocumentModel::init();
 }
 
 EditorManagerPrivate::~EditorManagerPrivate()
 {
 //    clearNavigationHistory();
+    DocumentModel::destroy();
 }
 
 static EditorManager *m_instance = 0;
@@ -503,7 +502,7 @@ EditorToolBar *EditorManager::createToolBar(QWidget *parent)
 void EditorManager::removeEditor(IEditor *editor)
 {
     bool lastOneForDocument = false;
-    d->m_documentModel->removeEditor(editor, &lastOneForDocument);
+    DocumentModel::removeEditor(editor, &lastOneForDocument);
     if (lastOneForDocument)
         DocumentManager::removeDocument(editor->document());
     ICore::removeContextObject(editor);
@@ -639,7 +638,7 @@ void EditorManager::emptyView(Core::Internal::EditorView *view)
 
     QList<IEditor *> editors = view->editors();
     foreach (IEditor *editor, editors) {
-        if (d->m_documentModel->editorsForDocument(editor->document()).size() == 1) {
+        if (DocumentModel::editorsForDocument(editor->document()).size() == 1) {
             // it's the only editor for that file
             // so we need to keep it around (--> in the editor model)
             if (currentEditor() == editor) {
@@ -720,16 +719,16 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
 
 bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
-    d->m_documentModel->removeAllRestoredDocuments();
-    if (closeDocuments(d->m_documentModel->openedDocuments(), askAboutModifiedEditors))
+    DocumentModel::removeAllRestoredDocuments();
+    if (closeDocuments(DocumentModel::openedDocuments(), askAboutModifiedEditors))
         return true;
     return false;
 }
 
 void EditorManager::closeAllEditorsExceptVisible()
 {
-    d->m_documentModel->removeAllRestoredDocuments();
-    QList<IDocument *> documentsToClose = d->m_documentModel->openedDocuments();
+    DocumentModel::removeAllRestoredDocuments();
+    QList<IDocument *> documentsToClose = DocumentModel::openedDocuments();
     foreach (IEditor *editor, visibleEditors())
         documentsToClose.removeAll(editor->document());
     closeDocuments(documentsToClose, true);
@@ -737,8 +736,8 @@ void EditorManager::closeAllEditorsExceptVisible()
 
 void EditorManager::closeOtherEditors(IDocument *document)
 {
-    d->m_documentModel->removeAllRestoredDocuments();
-    QList<IDocument *> documentsToClose = d->m_documentModel->openedDocuments();
+    DocumentModel::removeAllRestoredDocuments();
+    QList<IDocument *> documentsToClose = DocumentModel::openedDocuments();
     documentsToClose.removeAll(document);
     closeDocuments(documentsToClose, true);
 }
@@ -799,8 +798,8 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
                                                    : tr("Close Other Editors"));
     d->m_closeCurrentEditorContextAction->setEnabled(entry != 0);
     d->m_closeOtherEditorsContextAction->setEnabled(entry != 0);
-    d->m_closeAllEditorsContextAction->setEnabled(!d->m_documentModel->documents().isEmpty());
-    d->m_closeAllEditorsExceptVisibleContextAction->setEnabled(visibleDocumentsCount() < d->m_documentModel->documents().count());
+    d->m_closeAllEditorsContextAction->setEnabled(!DocumentModel::documents().isEmpty());
+    d->m_closeAllEditorsExceptVisibleContextAction->setEnabled(visibleDocumentsCount() < DocumentModel::documents().count());
     contextMenu->addAction(d->m_closeCurrentEditorContextAction);
     contextMenu->addAction(d->m_closeAllEditorsContextAction);
     contextMenu->addAction(d->m_closeOtherEditorsContextAction);
@@ -944,7 +943,7 @@ void EditorManager::closeEditorFromContextMenu()
 {
     IDocument *document = d->m_contextMenuEntry ? d->m_contextMenuEntry->document : 0;
     if (document)
-        closeEditors(d->m_documentModel->editorsForDocument(document));
+        closeEditors(DocumentModel::editorsForDocument(document));
 }
 
 void EditorManager::closeOtherEditorsFromContextMenu()
@@ -1042,9 +1041,9 @@ void EditorManager::closeEditor(DocumentModel::Entry *entry)
     if (!entry)
         return;
     if (entry->document)
-        closeEditors(d->m_documentModel->editorsForDocument(entry->document));
+        closeEditors(DocumentModel::editorsForDocument(entry->document));
     else
-        d->m_documentModel->removeEntry(entry);
+        DocumentModel::removeEntry(entry);
 }
 
 bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
@@ -1070,7 +1069,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
             }
         }
         if (editorAccepted) {
-            acceptedEditors += d->m_documentModel->editorsForDocument(editor->document()).toSet();
+            acceptedEditors += DocumentModel::editorsForDocument(editor->document()).toSet();
             acceptedDocuments.insert(editor->document());
         }
     }
@@ -1087,7 +1086,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         if (!list.isEmpty()) {
             closingFailed = true;
             acceptedDocuments.subtract(list.toSet());
-            QSet<IEditor*> skipSet = d->m_documentModel->editorsForDocuments(list).toSet();
+            QSet<IEditor*> skipSet = DocumentModel::editorsForDocuments(list).toSet();
             acceptedEditors = acceptedEditors.subtract(skipSet);
         }
     }
@@ -1135,12 +1134,12 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         if (newCurrent) {
             activateEditor(view, newCurrent, flags);
         } else {
-            DocumentModel::Entry *entry = d->m_documentModel->firstRestoredDocument();
+            DocumentModel::Entry *entry = DocumentModel::firstRestoredDocument();
             if (entry) {
                 activateEditorForEntry(view, entry, flags);
             } else {
                 // no "restored" ones, so any entry left should have a document
-                const QList<DocumentModel::Entry *> documents = d->m_documentModel->documents();
+                const QList<DocumentModel::Entry *> documents = DocumentModel::documents();
                 if (!documents.isEmpty()) {
                     IDocument *document = documents.last()->document;
                     if (document)
@@ -1173,8 +1172,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
 
 Core::IEditor *EditorManager::pickUnusedEditor(EditorView **foundView)
 {
-    foreach (IEditor *editor,
-             d->m_documentModel->editorsForDocuments(d->m_documentModel->openedDocuments())) {
+    foreach (IEditor *editor, DocumentModel::editorsForOpenedDocuments()) {
         EditorView *view = viewForEditor(editor);
         if (!view || view->currentEditor() != editor) {
             if (foundView)
@@ -1206,7 +1204,7 @@ void EditorManager::activateEditorForEntry(Internal::EditorView *view, DocumentM
     }
 
     if (!openEditor(view, entry->fileName(), entry->id(), flags))
-        d->m_documentModel->removeEntry(entry);
+        DocumentModel::removeEntry(entry);
 }
 
 void EditorManager::activateView(EditorView *view)
@@ -1312,7 +1310,7 @@ Core::IEditor *EditorManager::activateEditorForDocument(Core::Internal::EditorVi
     Q_ASSERT(view);
     IEditor *editor = view->editorForDocument(document);
     if (!editor) {
-        const QList<IEditor*> editors = d->m_documentModel->editorsForDocument(document);
+        const QList<IEditor*> editors = DocumentModel::editorsForDocument(document);
         if (editors.isEmpty())
             return 0;
         editor = editors.first();
@@ -1433,7 +1431,7 @@ void EditorManager::addEditor(IEditor *editor)
     ICore::addContextObject(editor);
 
     bool isNewDocument = false;
-    d->m_documentModel->addEditor(editor, &isNewDocument);
+    DocumentModel::addEditor(editor, &isNewDocument);
     if (isNewDocument) {
         const bool isTemporary = editor->document()->isTemporary();
         const bool addWatcher = !isTemporary;
@@ -1591,7 +1589,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     if (newEditor)
         *newEditor = false;
 
-    const QList<IEditor *> editors = d->m_documentModel->editorsForFilePath(fn);
+    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(fn);
     if (!editors.isEmpty()) {
         IEditor *editor = editors.first();
         editor = activateEditor(view, editor, flags);
@@ -1688,7 +1686,7 @@ IEditor *EditorManager::openEditorWithContents(const Id &editorId,
         if (base.contains(dollar)) {
             int i = 1;
             QSet<QString> docnames;
-            foreach (DocumentModel::Entry *entry, d->m_documentModel->documents()) {
+            foreach (DocumentModel::Entry *entry, DocumentModel::documents()) {
                 QString name = entry->fileName();
                 if (name.isEmpty())
                     name = entry->displayName();
@@ -1786,7 +1784,7 @@ void EditorManager::autoSave()
 {
     QStringList errors;
     // FIXME: the saving should be staggered
-    foreach (IDocument *document, d->m_documentModel->openedDocuments()) {
+    foreach (IDocument *document, DocumentModel::openedDocuments()) {
         if (!document->isModified() || !document->shouldAutoSave())
             continue;
         if (document->filePath().isEmpty()) // FIXME: save them to a dedicated directory
@@ -1836,7 +1834,7 @@ bool EditorManager::saveDocumentAs(IDocument *documentParam)
 
     if (absoluteFilePath != document->filePath()) {
         // close existing editors for the new file name
-        IDocument *otherDocument = d->m_documentModel->documentForFilePath(absoluteFilePath);
+        IDocument *otherDocument = DocumentModel::documentForFilePath(absoluteFilePath);
         if (otherDocument)
             closeDocuments(QList<IDocument *>() << otherDocument, false);
     }
@@ -1862,7 +1860,7 @@ void EditorManager::addDocumentToRecentFiles(IDocument *document)
 {
     if (document->isTemporary())
         return;
-    DocumentModel::Entry *entry = d->m_documentModel->entryForDocument(document);
+    DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
     if (!entry)
         return;
     DocumentManager::addToRecentFiles(document->filePath(), entry->id());
@@ -1875,7 +1873,7 @@ void EditorManager::gotoNextDocHistory()
         dialog->selectNextEditor();
     } else {
         EditorView *view = currentEditorView();
-        dialog->setEditors(d->m_globalHistory, view, d->m_documentModel);
+        dialog->setEditors(d->m_globalHistory, view);
         dialog->selectNextEditor();
         showPopupOrSelectDocument();
     }
@@ -1888,7 +1886,7 @@ void EditorManager::gotoPreviousDocHistory()
         dialog->selectPreviousEditor();
     } else {
         EditorView *view = currentEditorView();
-        dialog->setEditors(d->m_globalHistory, view, d->m_documentModel);
+        dialog->setEditors(d->m_globalHistory, view);
         dialog->selectPreviousEditor();
         showPopupOrSelectDocument();
     }
@@ -2021,7 +2019,7 @@ void EditorManager::setupSaveActions(IDocument *document, QAction *saveAction, Q
 void EditorManager::updateActions()
 {
     IDocument *curDocument = currentDocument();
-    int openedCount = d->m_documentModel->documentCount();
+    const int openedCount = DocumentModel::documentCount();
 
     if (curDocument) {
         if (HostOsInfo::isMacHost())
@@ -2045,10 +2043,10 @@ void EditorManager::updateActions()
     d->m_closeOtherEditorsAction->setEnabled(openedCount > 1);
     d->m_closeOtherEditorsAction->setText((openedCount > 1 ? tr("Close All Except %1").arg(quotedName) : tr("Close Others")));
 
-    d->m_closeAllEditorsExceptVisibleAction->setEnabled(visibleDocumentsCount() < d->m_documentModel->documents().count());
+    d->m_closeAllEditorsExceptVisibleAction->setEnabled(visibleDocumentsCount() < openedCount);
 
-    d->m_gotoNextDocHistoryAction->setEnabled(d->m_documentModel->rowCount() != 0);
-    d->m_gotoPreviousDocHistoryAction->setEnabled(d->m_documentModel->rowCount() != 0);
+    d->m_gotoNextDocHistoryAction->setEnabled(openedCount != 0);
+    d->m_gotoPreviousDocHistoryAction->setEnabled(openedCount != 0);
     EditorView *view  = currentEditorView();
     d->m_goBackAction->setEnabled(view ? view->canGoBack() : false);
     d->m_goForwardAction->setEnabled(view ? view->canGoForward() : false);
@@ -2121,14 +2119,9 @@ int EditorManager::visibleDocumentsCount()
     return visibleDocuments.count();
 }
 
-DocumentModel *EditorManager::documentModel()
-{
-    return d->m_documentModel;
-}
-
 bool EditorManager::closeDocuments(const QList<IDocument *> &document, bool askAboutModifiedEditors)
 {
-    return m_instance->closeEditors(d->m_documentModel->editorsForDocuments(document), askAboutModifiedEditors);
+    return m_instance->closeEditors(DocumentModel::editorsForDocuments(document), askAboutModifiedEditors);
 }
 
 void EditorManager::addCurrentPositionToNavigationHistory(IEditor *editor, const QByteArray &saveState)
@@ -2200,10 +2193,10 @@ QByteArray EditorManager::saveState()
     stream << QByteArray("EditorManagerV4");
 
     // TODO: In case of split views it's not possible to restore these for all correctly with this
-    QList<IDocument *> documents = d->m_documentModel->openedDocuments();
+    QList<IDocument *> documents = DocumentModel::openedDocuments();
     foreach (IDocument *document, documents) {
         if (!document->filePath().isEmpty() && !document->isTemporary()) {
-            IEditor *editor = d->m_documentModel->editorsForDocument(document).first();
+            IEditor *editor = DocumentModel::editorsForDocument(document).first();
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
                 d->m_editorStates.insert(document->filePath(), QVariant(state));
@@ -2212,7 +2205,7 @@ QByteArray EditorManager::saveState()
 
     stream << d->m_editorStates;
 
-    QList<DocumentModel::Entry *> entries = d->m_documentModel->documents();
+    QList<DocumentModel::Entry *> entries = DocumentModel::documents();
     int entriesCount = 0;
     foreach (DocumentModel::Entry *entry, entries) {
         // The editor may be 0 if it was not loaded yet: In that case it is not temporary
@@ -2270,7 +2263,7 @@ bool EditorManager::restoreState(const QByteArray &state)
             if (rfi.exists() && fi.lastModified() < rfi.lastModified())
                 openEditor(fileName, id, DoNotMakeVisible);
             else
-                d->m_documentModel->addRestoredDocument(fileName, displayName, id);
+                DocumentModel::addRestoredDocument(fileName, displayName, id);
         }
     }
 

@@ -710,10 +710,10 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
     helper.resetRefreshedSourceFiles();
 
     // Open a file in the editor
-    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 0);
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
     Core::IEditor *editor = Core::EditorManager::openEditor(file);
     QVERIFY(editor);
-    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(mm->isCppEditor(editor));
     QVERIFY(mm->workingCopy().contains(file));
 
@@ -741,10 +741,10 @@ void CppToolsPlugin::test_modelmanager_dont_gc_opened_files()
     helper.resetRefreshedSourceFiles();
 
     // Open a file in the editor
-    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 0);
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
     Core::IEditor *editor = Core::EditorManager::openEditor(file);
     QVERIFY(editor);
-    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(mm->isCppEditor(editor));
 
     // Wait until the file is refreshed and check whether it is in the working copy
@@ -832,7 +832,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     QCOMPARE(mm->snapshot().size(), 4);
 
     // Open a file in the editor
-    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 0);
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
 
     struct Data {
         QString firstDeclarationName;
@@ -849,7 +849,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
         Core::IEditor *editor = Core::EditorManager::openEditor(fileName);
         EditorCloser closer(editor);
         QVERIFY(editor);
-        QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
+        QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
         CppEditorSupport *sup = mm->cppEditorSupport(
@@ -903,7 +903,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
     QCOMPARE(mm->snapshot().size(), 4);
 
     // Open a file in the editor
-    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 0);
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
 
     struct Data {
         QString firstDeclarationName;
@@ -920,7 +920,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
         Core::IEditor *editor = Core::EditorManager::openEditor(fileName);
         EditorCloser closer(editor);
         QVERIFY(editor);
-        QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
+        QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
         CppEditorSupport *sup = mm->cppEditorSupport(
@@ -972,7 +972,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
     QCOMPARE(mm->snapshot().size(), 4);
 
     // Open a file in the editor
-    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 0);
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
 
     struct Data {
         QString editorDefines;
@@ -989,7 +989,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
         Core::IEditor *editor = Core::EditorManager::openEditor(main1File);
         EditorCloser closer(editor);
         QVERIFY(editor);
-        QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
+        QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
         CppEditorSupport *sup = mm->cppEditorSupport(

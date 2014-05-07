@@ -354,7 +354,7 @@ void QmlInspectorAdapter::updatePendingPreviewDocuments(QmlJS::Document::Ptr doc
         return;
 
     QList<Core::IEditor *> editors
-            = Core::EditorManager::documentModel()->editorsForFilePath(doc->fileName());
+            = Core::DocumentModel::editorsForFilePath(doc->fileName());
 
     if (editors.isEmpty())
         return;
@@ -456,9 +456,8 @@ void QmlInspectorAdapter::initializePreviews()
         }
 
         // initial update
-        Core::DocumentModel *documentModel = Core::EditorManager::documentModel();
-        foreach (Core::IDocument *document, documentModel->openedDocuments()) {
-            QList<Core::IEditor *> editors = documentModel->editorsForDocument(document);
+        foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
+            QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
             createPreviewForEditor(editors.takeFirst());
             QmlLiveTextPreview *preview
                     = m_textPreviews.value(document->filePath());

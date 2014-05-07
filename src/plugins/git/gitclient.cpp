@@ -157,8 +157,7 @@ GitDiffSwitcher::GitDiffSwitcher(Core::IDocument *parentDocument, GitClient *git
       m_gitClient(gitClient),
       m_signalMapper(new QSignalMapper(this))
 {
-    Core::DocumentModel *documentModel = Core::EditorManager::documentModel();
-    QList<Core::IEditor *> editors = documentModel->editorsForDocument(m_document);
+    QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(m_document);
     for (int i = 0; i < editors.count(); i++)
         attachAction(editors.at(i));
 
@@ -938,9 +937,9 @@ private:
 
 Core::IEditor *locateEditor(const char *property, const QString &entry)
 {
-    foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments())
+    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
         if (document->property(property).toString() == entry)
-            return Core::EditorManager::documentModel()->editorsForDocument(document).first();
+            return Core::DocumentModel::editorsForDocument(document).first();
     return 0;
 }
 

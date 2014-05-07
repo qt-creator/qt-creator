@@ -39,11 +39,31 @@
 
 namespace Core {
 
-struct DocumentModelPrivate
+class DocumentModelPrivate : public QAbstractItemModel
 {
+    Q_OBJECT
+
+public:
     DocumentModelPrivate();
     ~DocumentModelPrivate();
 
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QModelIndex parent(const QModelIndex &/*index*/) const { return QModelIndex(); }
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
+
+    void addEntry(DocumentModel::Entry *entry);
+    void removeDocument(int idx);
+
+    int indexOfFilePath(const QString &filePath) const;
+    int indexOfDocument(IDocument *document) const;
+
+private slots:
+    friend class DocumentModel;
+    void itemChanged();
+
+private:
     const QIcon m_lockedIcon;
     const QIcon m_unlockedIcon;
 
@@ -62,36 +82,49 @@ DocumentModelPrivate::~DocumentModelPrivate()
     qDeleteAll(m_documents);
 }
 
+static DocumentModelPrivate *d;
+
 DocumentModel::Entry::Entry() :
     document(0)
 {
 }
 
-DocumentModel::DocumentModel(QObject *parent) :
-    QAbstractItemModel(parent), d(new DocumentModelPrivate)
+DocumentModel::DocumentModel()
 {
 }
 
-DocumentModel::~DocumentModel()
+void DocumentModel::init()
+{
+    d = new DocumentModelPrivate;
+}
+
+void DocumentModel::destroy()
 {
     delete d;
 }
 
-QIcon DocumentModel::lockedIcon() const
+QIcon DocumentModel::lockedIcon()
 {
     return d->m_lockedIcon;
 }
 
-QIcon DocumentModel::unlockedIcon() const
+QIcon DocumentModel::unlockedIcon()
 {
     return d->m_unlockedIcon;
 }
 
-QString DocumentModel::Entry::fileName() const {
+QAbstractItemModel *DocumentModel::model()
+{
+    return d;
+}
+
+QString DocumentModel::Entry::fileName() const
+{
     return document ? document->filePath() : m_fileName;
 }
 
-QString DocumentModel::Entry::displayName() const {
+QString DocumentModel::Entry::displayName() const
+{
     return document ? document->displayName() : m_displayName;
 }
 
@@ -100,22 +133,22 @@ Id DocumentModel::Entry::id() const
     return m_id;
 }
 
-int DocumentModel::columnCount(const QModelIndex &parent) const
+int DocumentModelPrivate::columnCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return 2;
     return 0;
 }
 
-int DocumentModel::rowCount(const QModelIndex &parent) const
+int DocumentModelPrivate::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return d->m_documents.count() + 1/*<no document>*/;
+        return m_documents.count() + 1/*<no document>*/;
     return 0;
 }
 
 // TODO remove
-QList<IEditor *> DocumentModel::oneEditorForEachOpenedDocument() const
+QList<IEditor *> DocumentModel::oneEditorForEachOpenedDocument()
 {
     QList<IEditor *> result;
     QMapIterator<IDocument *, QList<IEditor *> > it(d->m_editors);
@@ -138,7 +171,7 @@ void DocumentModel::addEditor(IEditor *editor, bool *isNewDocument)
         Entry *entry = new Entry;
         entry->document = editor->document();
         entry->m_id = editor->document()->id();
-        addEntry(entry);
+        d->addEntry(entry);
     }
 }
 
@@ -148,10 +181,10 @@ void DocumentModel::addRestoredDocument(const QString &fileName, const QString &
     entry->m_fileName = fileName;
     entry->m_displayName = displayName;
     entry->m_id = id;
-    addEntry(entry);
+    d->addEntry(entry);
 }
 
-DocumentModel::Entry *DocumentModel::firstRestoredDocument() const
+DocumentModel::Entry *DocumentModel::firstRestoredDocument()
 {
     for (int i = 0; i < d->m_documents.count(); ++i)
         if (!d->m_documents.at(i)->document)
@@ -159,16 +192,16 @@ DocumentModel::Entry *DocumentModel::firstRestoredDocument() const
     return 0;
 }
 
-void DocumentModel::addEntry(Entry *entry)
+void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
 {
     QString fileName = entry->fileName();
 
     // replace a non-loaded entry (aka 'restored') if possible
     int previousIndex = indexOfFilePath(fileName);
     if (previousIndex >= 0) {
-        if (entry->document && d->m_documents.at(previousIndex)->document == 0) {
-            Entry *previousEntry = d->m_documents.at(previousIndex);
-            d->m_documents[previousIndex] = entry;
+        if (entry->document && m_documents.at(previousIndex)->document == 0) {
+            DocumentModel::Entry *previousEntry = m_documents.at(previousIndex);
+            m_documents[previousIndex] = entry;
             delete previousEntry;
             connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
         } else {
@@ -179,19 +212,24 @@ void DocumentModel::addEntry(Entry *entry)
 
     int index;
     QString displayName = entry->displayName();
-    for (index = 0; index < d->m_documents.count(); ++index) {
-        if (displayName < d->m_documents.at(index)->displayName())
+    for (index = 0; index < m_documents.count(); ++index) {
+        if (displayName < m_documents.at(index)->displayName())
             break;
     }
     int row = index + 1/*<no document>*/;
     beginInsertRows(QModelIndex(), row, row);
-    d->m_documents.insert(index, entry);
+    m_documents.insert(index, entry);
     if (entry->document)
         connect(entry->document, SIGNAL(changed()), this, SLOT(itemChanged()));
     endInsertRows();
 }
 
-int DocumentModel::indexOfFilePath(const QString &filePath) const
+int DocumentModel::indexOfFilePath(const QString &filePath)
+{
+    return d->indexOfFilePath(filePath);
+}
+
+int DocumentModelPrivate::indexOfFilePath(const QString &filePath) const
 {
     if (filePath.isEmpty())
         return -1;
@@ -207,7 +245,7 @@ void DocumentModel::removeEntry(DocumentModel::Entry *entry)
 {
     QTC_ASSERT(!entry->document, return); // we wouldn't know what to do with the associated editors
     int index = d->m_documents.indexOf(entry);
-    removeDocument(index);
+    d->removeDocument(index);
 }
 
 void DocumentModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
@@ -222,7 +260,7 @@ void DocumentModel::removeEditor(IEditor *editor, bool *lastOneForDocument)
         if (lastOneForDocument)
             *lastOneForDocument = true;
         d->m_editors.remove(document);
-        removeDocument(indexOfDocument(document));
+        d->removeDocument(indexOfDocument(document));
     }
 }
 
@@ -230,10 +268,10 @@ void DocumentModel::removeDocument(const QString &fileName)
 {
     int index = indexOfFilePath(fileName);
     QTC_ASSERT(!d->m_documents.at(index)->document, return); // we wouldn't know what to do with the associated editors
-    removeDocument(index);
+    d->removeDocument(index);
 }
 
-void DocumentModel::removeDocument(int idx)
+void DocumentModelPrivate::removeDocument(int idx)
 {
     if (idx < 0)
         return;
@@ -252,19 +290,24 @@ void DocumentModel::removeAllRestoredDocuments()
     for (int i = d->m_documents.count()-1; i >= 0; --i) {
         if (!d->m_documents.at(i)->document) {
             int row = i + 1/*<no document>*/;
-            beginRemoveRows(QModelIndex(), row, row);
+            d->beginRemoveRows(QModelIndex(), row, row);
             delete d->m_documents.takeAt(i);
-            endRemoveRows();
+            d->endRemoveRows();
         }
     }
 }
 
-QList<IEditor *> DocumentModel::editorsForDocument(IDocument *document) const
+QList<IEditor *> DocumentModel::editorsForDocument(IDocument *document)
 {
     return d->m_editors.value(document);
 }
 
-QList<IEditor *> DocumentModel::editorsForDocuments(const QList<IDocument *> &documents) const
+QList<IEditor *> DocumentModel::editorsForOpenedDocuments()
+{
+    return editorsForDocuments(openedDocuments());
+}
+
+QList<IEditor *> DocumentModel::editorsForDocuments(const QList<IDocument *> &documents)
 {
     QList<IEditor *> result;
     foreach (IDocument *document, documents)
@@ -272,15 +315,20 @@ QList<IEditor *> DocumentModel::editorsForDocuments(const QList<IDocument *> &do
     return result;
 }
 
-int DocumentModel::indexOfDocument(IDocument *document) const
+int DocumentModel::indexOfDocument(IDocument *document)
 {
-    for (int i = 0; i < d->m_documents.count(); ++i)
-        if (d->m_documents.at(i)->document == document)
+    return d->indexOfDocument(document);
+}
+
+int DocumentModelPrivate::indexOfDocument(IDocument *document) const
+{
+    for (int i = 0; i < m_documents.count(); ++i)
+        if (m_documents.at(i)->document == document)
             return i;
     return -1;
 }
 
-DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document) const
+DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document)
 {
     int index = indexOfDocument(document);
     if (index < 0)
@@ -288,12 +336,12 @@ DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document) const
     return d->m_documents.at(index);
 }
 
-QList<IDocument *> DocumentModel::openedDocuments() const
+QList<IDocument *> DocumentModel::openedDocuments()
 {
     return d->m_editors.keys();
 }
 
-IDocument *DocumentModel::documentForFilePath(const QString &filePath) const
+IDocument *DocumentModel::documentForFilePath(const QString &filePath)
 {
     int index = indexOfFilePath(filePath);
     if (index < 0)
@@ -301,7 +349,7 @@ IDocument *DocumentModel::documentForFilePath(const QString &filePath) const
     return d->m_documents.at(index)->document;
 }
 
-QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath) const
+QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath)
 {
     IDocument *document = documentForFilePath(filePath);
     if (document)
@@ -309,15 +357,15 @@ QList<IEditor *> DocumentModel::editorsForFilePath(const QString &filePath) cons
     return QList<IEditor *>();
 }
 
-QModelIndex DocumentModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex DocumentModelPrivate::index(int row, int column, const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    if (column < 0 || column > 1 || row < 0 || row >= d->m_documents.count() + 1/*<no document>*/)
+    if (column < 0 || column > 1 || row < 0 || row >= m_documents.count() + 1/*<no document>*/)
         return QModelIndex();
     return createIndex(row, column);
 }
 
-DocumentModel::Entry *DocumentModel::documentAtRow(int row) const
+DocumentModel::Entry *DocumentModel::documentAtRow(int row)
 {
     int entryIndex = row - 1/*<no document>*/;
     if (entryIndex < 0)
@@ -325,12 +373,12 @@ DocumentModel::Entry *DocumentModel::documentAtRow(int row) const
     return d->m_documents[entryIndex];
 }
 
-int DocumentModel::documentCount() const
+int DocumentModel::documentCount()
 {
     return d->m_documents.count();
 }
 
-QVariant DocumentModel::data(const QModelIndex &index, int role) const
+QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || (index.column() != 0 && role < Qt::UserRole))
         return QVariant();
@@ -346,7 +394,7 @@ QVariant DocumentModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     }
-    const Entry *e = d->m_documents.at(entryIndex);
+    const DocumentModel::Entry *e = m_documents.at(entryIndex);
     switch (role) {
     case Qt::DisplayRole:
         return (e->document && e->document->isModified())
@@ -362,7 +410,7 @@ QVariant DocumentModel::data(const QModelIndex &index, int role) const
         } else {
             showLock = !QFileInfo(e->m_fileName).isWritable();
         }
-        return showLock ? d->m_lockedIcon : QIcon();
+        return showLock ? m_lockedIcon : QIcon();
     }
     case Qt::ToolTipRole:
         return e->fileName().isEmpty()
@@ -374,14 +422,14 @@ QVariant DocumentModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-int DocumentModel::rowOfDocument(IDocument *document) const
+int DocumentModel::rowOfDocument(IDocument *document)
 {
     if (!document)
         return 0 /*<no document>*/;
     return indexOfDocument(document) + 1/*<no document>*/;
 }
 
-void DocumentModel::itemChanged()
+void DocumentModelPrivate::itemChanged()
 {
     IDocument *document = qobject_cast<IDocument *>(sender());
 
@@ -392,9 +440,11 @@ void DocumentModel::itemChanged()
     emit dataChanged(mindex, mindex);
 }
 
-QList<DocumentModel::Entry *> DocumentModel::documents() const
+QList<DocumentModel::Entry *> DocumentModel::documents()
 {
     return d->m_documents;
 }
 
 } // namespace Core
+
+#include "documentmodel.moc"

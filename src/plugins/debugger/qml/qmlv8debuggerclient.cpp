@@ -1777,7 +1777,7 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
                                                  const QString &filePath,
                                                  const QString &errorMessage)
 {
-    QList<IEditor *> editors = EditorManager::documentModel()->editorsForFilePath(filePath);
+    QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
 
     // set up the format for the errors
     QTextCharFormat errorFormat;
@@ -1816,11 +1816,9 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
 
 void QmlV8DebuggerClient::clearExceptionSelection()
 {
-    DocumentModel *documentModel = EditorManager::documentModel();
-    QList<IEditor *> openedEditors = documentModel->editorsForDocuments(documentModel->openedDocuments());
     QList<QTextEdit::ExtraSelection> selections;
 
-    foreach (IEditor *editor, openedEditors) {
+    foreach (IEditor *editor, DocumentModel::editorsForOpenedDocuments()) {
         TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
         if (!ed)
             continue;

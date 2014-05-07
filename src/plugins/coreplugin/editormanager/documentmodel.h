@@ -39,26 +39,19 @@ QT_FORWARD_DECLARE_CLASS(QIcon)
 
 namespace Core {
 
-struct DocumentModelPrivate;
 class IEditor;
 class IDocument;
 
-class CORE_EXPORT DocumentModel : public QAbstractItemModel
+class CORE_EXPORT DocumentModel
 {
-    Q_OBJECT
-
 public:
-    explicit DocumentModel(QObject *parent);
-    virtual ~DocumentModel();
+    static void init();
+    static void destroy();
 
-    QIcon lockedIcon() const;
-    QIcon unlockedIcon() const;
+    static QIcon lockedIcon();
+    static QIcon unlockedIcon();
 
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QModelIndex parent(const QModelIndex &/*index*/) const { return QModelIndex(); }
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
+    static QAbstractItemModel *model();
 
     struct CORE_EXPORT Entry {
         Entry();
@@ -71,39 +64,34 @@ public:
         Id m_id;
     };
 
-    Entry *documentAtRow(int row) const;
-    int rowOfDocument(IDocument *document) const;
+    static Entry *documentAtRow(int row);
+    static int rowOfDocument(IDocument *document);
 
-    int documentCount() const;
-    QList<Entry *> documents() const;
-    int indexOfDocument(IDocument *document) const;
-    int indexOfFilePath(const QString &filePath) const;
-    Entry *entryForDocument(IDocument *document) const;
-    QList<IDocument *> openedDocuments() const;
+    static int documentCount();
+    static QList<Entry *> documents();
+    static int indexOfDocument(IDocument *document);
+    static int indexOfFilePath(const QString &filePath);
+    static Entry *entryForDocument(IDocument *document);
+    static QList<IDocument *> openedDocuments();
 
-    IDocument *documentForFilePath(const QString &filePath) const;
-    QList<IEditor *> editorsForFilePath(const QString &filePath) const;
-    QList<IEditor *> editorsForDocument(IDocument *document) const;
-    QList<IEditor *> editorsForDocuments(const QList<IDocument *> &documents) const;
-    QList<IEditor *> oneEditorForEachOpenedDocument() const;
+    static IDocument *documentForFilePath(const QString &filePath);
+    static QList<IEditor *> editorsForFilePath(const QString &filePath);
+    static QList<IEditor *> editorsForDocument(IDocument *document);
+    static QList<IEditor *> editorsForDocuments(const QList<IDocument *> &documents);
+    static QList<IEditor *> oneEditorForEachOpenedDocument();
+    static QList<IEditor *> editorsForOpenedDocuments();
 
     // editor manager related functions, nobody else should call it
-    void addEditor(IEditor *editor, bool *isNewDocument);
-    void addRestoredDocument(const QString &fileName, const QString &displayName, const Id &id);
-    Entry *firstRestoredDocument() const;
-    void removeEditor(IEditor *editor, bool *lastOneForDocument);
-    void removeDocument(const QString &fileName);
-    void removeEntry(Entry *entry);
-    void removeAllRestoredDocuments();
-
-private slots:
-    void itemChanged();
+    static void addEditor(IEditor *editor, bool *isNewDocument);
+    static void addRestoredDocument(const QString &fileName, const QString &displayName, const Id &id);
+    static Entry *firstRestoredDocument();
+    static void removeEditor(IEditor *editor, bool *lastOneForDocument);
+    static void removeDocument(const QString &fileName);
+    static void removeEntry(Entry *entry);
+    static void removeAllRestoredDocuments();
 
 private:
-    void addEntry(Entry *entry);
-    void removeDocument(int idx);
-
-    DocumentModelPrivate *d;
+    DocumentModel();
 };
 
 } // namespace Core

@@ -1380,8 +1380,7 @@ void DebuggerToolTipManager::debugModeEntered()
                 this, SLOT(slotUpdateVisibleToolTips()));
         connect(em, SIGNAL(editorOpened(Core::IEditor*)),
                 this, SLOT(slotEditorOpened(Core::IEditor*)));
-        DocumentModel *documentModel = EditorManager::documentModel();
-        foreach (IEditor *e, documentModel->editorsForDocuments(documentModel->openedDocuments()))
+        foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments())
             slotEditorOpened(e);
         // Position tooltips delayed once all the editor placeholder layouting is done.
         if (!d->m_tooltips.isEmpty())
@@ -1400,8 +1399,7 @@ void DebuggerToolTipManager::leavingDebugMode()
         hide();
         if (QWidget *topLevel = ICore::mainWindow()->topLevelWidget())
             topLevel->removeEventFilter(this);
-        DocumentModel *documentModel = EditorManager::documentModel();
-        foreach (IEditor *e, documentModel->editorsForDocuments(documentModel->openedDocuments())) {
+        foreach (IEditor *e, DocumentModel::editorsForOpenedDocuments()) {
             DebuggerToolTipEditor toolTipEditor = DebuggerToolTipEditor(e);
             if (toolTipEditor.isValid()) {
                 toolTipEditor.widget->verticalScrollBar()->disconnect(this);

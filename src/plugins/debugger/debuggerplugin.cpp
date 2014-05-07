@@ -2144,7 +2144,7 @@ void DebuggerPluginPrivate::cleanupViews()
         return;
 
     QList<IDocument *> toClose;
-    foreach (IDocument *document, EditorManager::documentModel()->openedDocuments()) {
+    foreach (IDocument *document, DocumentModel::openedDocuments()) {
         if (document->property(Constants::OPENED_BY_DEBUGGER).toBool()) {
             bool keepIt = true;
             if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool())

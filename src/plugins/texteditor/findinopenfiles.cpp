@@ -68,7 +68,7 @@ Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
     QStringList fileNames;
     QList<QTextCodec *> codecs;
     foreach (Core::DocumentModel::Entry *entry,
-             Core::EditorManager::documentModel()->documents()) {
+             Core::DocumentModel::documents()) {
         QString fileName = entry->fileName();
         if (!fileName.isEmpty()) {
             fileNames.append(fileName);
@@ -100,7 +100,7 @@ QString FindInOpenFiles::toolTip() const
 
 bool FindInOpenFiles::isEnabled() const
 {
-    return Core::EditorManager::documentModel()->documentCount() > 0;
+    return Core::DocumentModel::documentCount() > 0;
 }
 
 void FindInOpenFiles::writeSettings(QSettings *settings)

@@ -194,18 +194,18 @@ void OpenEditorsWindow::centerOnItem(int selectedIndex)
     }
 }
 
-void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, EditorView *view, DocumentModel *model)
+void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, EditorView *view)
 {
     m_editorList->clear();
 
     QSet<IDocument*> documentsDone;
-    addHistoryItems(view->editorHistory(), view, model, documentsDone);
+    addHistoryItems(view->editorHistory(), view, documentsDone);
 
     // add missing editors from the global history
-    addHistoryItems(globalHistory, view, model, documentsDone);
+    addHistoryItems(globalHistory, view, documentsDone);
 
     // add purely restored editors which are not initialised yet
-    addRestoredItems(model);
+    addRestoredItems();
 }
 
 
@@ -219,7 +219,7 @@ void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
     } else {
         if (!EditorManager::openEditor(
                     item->toolTip(0), item->data(0, Qt::UserRole+2).value<Core::Id>())) {
-            EditorManager::documentModel()->removeDocument(item->toolTip(0));
+            DocumentModel::removeDocument(item->toolTip(0));
             delete item;
         }
     }
@@ -239,7 +239,7 @@ void OpenEditorsWindow::ensureCurrentVisible()
 
 
 void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, EditorView *view,
-                                        DocumentModel *model, QSet<IDocument *> &documentsDone)
+                                        QSet<IDocument *> &documentsDone)
 {
     foreach (const EditLocation &hi, history) {
         if (hi.document.isNull() || documentsDone.contains(hi.document))
@@ -251,7 +251,7 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
         if (hi.document->isModified())
             title += tr("*");
         item->setIcon(0, !hi.document->filePath().isEmpty() && hi.document->isFileReadOnly()
-                      ? model->lockedIcon() : m_emptyIcon);
+                      ? DocumentModel::lockedIcon() : m_emptyIcon);
         item->setText(0, title);
         item->setToolTip(0, hi.document->filePath());
         item->setData(0, Qt::UserRole, QVariant::fromValue(hi.document.data()));
@@ -265,9 +265,9 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
     }
 }
 
-void OpenEditorsWindow::addRestoredItems(DocumentModel *model)
+void OpenEditorsWindow::addRestoredItems()
 {
-    foreach (DocumentModel::Entry *entry, model->documents()) {
+    foreach (DocumentModel::Entry *entry, DocumentModel::documents()) {
         if (entry->document)
             continue;
         QTreeWidgetItem *item = new QTreeWidgetItem();

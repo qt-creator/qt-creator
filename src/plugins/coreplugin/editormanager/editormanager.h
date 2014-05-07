@@ -132,7 +132,6 @@ public:
     static IEditor *activateEditorForDocument(IDocument *document, OpenEditorFlags flags = 0);
     static IEditor *activateEditorForDocument(Internal::EditorView *view, IDocument *document, OpenEditorFlags flags = 0);
 
-    static DocumentModel *documentModel();
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
     static void closeEditor(DocumentModel::Entry *entry);
     static void closeOtherEditors(IDocument *document);

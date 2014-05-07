@@ -197,7 +197,7 @@ bool CMakeProject::parseCMakeLists()
     }
 
     CMakeBuildConfiguration *activeBC = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
-    foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments())
+    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments())
         if (isProjectFile(document->filePath()))
             document->infoBar()->removeInfo("CMakeEditor.RunCMake");
 

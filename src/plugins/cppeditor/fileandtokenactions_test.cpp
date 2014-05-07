@@ -183,12 +183,12 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
         undoAllChangesAndCloseAllEditors();
 
         // Open editor
-        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 0);
+        QCOMPARE(DocumentModel::openedDocuments().size(), 0);
         CPPEditor *editor;
         CPPEditorWidget *editorWidget;
         QVERIFY(openCppEditor(filePath, &editor, &editorWidget));
 
-        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 1);
+        QCOMPARE(DocumentModel::openedDocuments().size(), 1);
         QVERIFY(m_modelManager->isCppEditor(editor));
         QVERIFY(m_modelManager->workingCopy().contains(filePath));
 
@@ -268,7 +268,7 @@ void TestActionsTestCase::undoChangesInDocument(BaseTextDocument *editorDocument
 
 void TestActionsTestCase::undoChangesInAllEditorWidgets()
 {
-    foreach (IDocument *document, EditorManager::documentModel()->openedDocuments()) {
+    foreach (IDocument *document, DocumentModel::openedDocuments()) {
         BaseTextDocument *baseTextDocument = qobject_cast<BaseTextDocument *>(document);
         undoChangesInDocument(baseTextDocument);
     }
@@ -309,7 +309,7 @@ void TestActionsTestCase::undoAllChangesAndCloseAllEditors()
     undoChangesInAllEditorWidgets();
     EditorManager::closeAllEditors(/*askAboutModifiedEditors =*/ false);
     QApplication::processEvents();
-    QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 0);
+    QCOMPARE(DocumentModel::openedDocuments().size(), 0);
 }
 
 void TestActionsTestCase::configureAllProjects(const QList<QPointer<ProjectExplorer::Project> >

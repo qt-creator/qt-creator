@@ -54,10 +54,10 @@ enum {
 
 namespace Core {
 
-struct EditorToolBarPrivate {
+struct EditorToolBarPrivate
+{
     explicit EditorToolBarPrivate(QWidget *parent, EditorToolBar *q);
 
-    Core::DocumentModel *m_editorsListModel;
     QComboBox *m_editorList;
     QToolButton *m_closeEditorButton;
     QToolButton *m_lockButton;
@@ -115,7 +115,6 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_lockButton->setAutoRaise(true);
     d->m_lockButton->setEnabled(false);
 
-    d->m_editorsListModel = EditorManager::documentModel();
     connect(d->m_goBackAction, SIGNAL(triggered()), this, SIGNAL(goBackClicked()));
     connect(d->m_goForwardAction, SIGNAL(triggered()), this, SIGNAL(goForwardClicked()));
 
@@ -123,7 +122,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_editorList->setProperty("notelideasterisk", true);
     d->m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     d->m_editorList->setMinimumContentsLength(20);
-    d->m_editorList->setModel(d->m_editorsListModel);
+    d->m_editorList->setModel(DocumentModel::model());
     d->m_editorList->setMaxVisibleItems(40);
     d->m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -291,7 +290,7 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 void EditorToolBar::setCurrentEditor(IEditor *editor)
 {
     IDocument *document = editor ? editor->document() : 0;
-    d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfDocument(document));
+    d->m_editorList->setCurrentIndex(DocumentModel::rowOfDocument(document));
 
     // If we never added the toolbar from the editor,  we will never change
     // the editor, so there's no need to update the toolbar either.
@@ -304,17 +303,17 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
 void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
 {
     if (newSelection)
-        d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfDocument(newSelection->document()));
+        d->m_editorList->setCurrentIndex(DocumentModel::rowOfDocument(newSelection->document()));
 }
 
 void EditorToolBar::changeActiveEditor(int row)
 {
-    EditorManager::activateEditorForEntry(d->m_editorsListModel->documentAtRow(row));
+    EditorManager::activateEditorForEntry(DocumentModel::documentAtRow(row));
 }
 
 void EditorToolBar::listContextMenu(QPoint pos)
 {
-    DocumentModel::Entry *entry = EditorManager::documentModel()->documentAtRow(
+    DocumentModel::Entry *entry = DocumentModel::documentAtRow(
                 d->m_editorList->currentIndex());
     QString fileName = entry ? entry->fileName() : QString();
     QString shortFileName = entry ? QFileInfo(fileName).fileName() : QString();
@@ -362,7 +361,7 @@ void EditorToolBar::checkDocumentStatus()
 {
     IDocument *document = qobject_cast<IDocument *>(sender());
     QTC_ASSERT(document, return);
-    DocumentModel::Entry *entry = EditorManager::documentModel()->documentAtRow(
+    DocumentModel::Entry *entry = DocumentModel::documentAtRow(
                 d->m_editorList->currentIndex());
 
     if (entry && entry->document && entry->document == document)
@@ -381,18 +380,18 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
         return;
     }
 
-    d->m_editorList->setCurrentIndex(d->m_editorsListModel->rowOfDocument(document));
+    d->m_editorList->setCurrentIndex(DocumentModel::rowOfDocument(document));
 
     if (document->filePath().isEmpty()) {
         d->m_lockButton->setIcon(QIcon());
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(QString());
     } else if (document->isFileReadOnly()) {
-        d->m_lockButton->setIcon(QIcon(d->m_editorsListModel->lockedIcon()));
+        d->m_lockButton->setIcon(DocumentModel::lockedIcon());
         d->m_lockButton->setEnabled(true);
         d->m_lockButton->setToolTip(tr("Make Writable"));
     } else {
-        d->m_lockButton->setIcon(QIcon(d->m_editorsListModel->unlockedIcon()));
+        d->m_lockButton->setIcon(DocumentModel::unlockedIcon());
         d->m_lockButton->setEnabled(false);
         d->m_lockButton->setToolTip(tr("File is writable"));
     }

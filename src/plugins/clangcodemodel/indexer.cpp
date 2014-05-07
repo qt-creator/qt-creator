@@ -716,7 +716,7 @@ void IndexerPrivate::runCore(const QHash<QString, FileData> & /*headers*/,
     QHash<ProjectPart::Ptr, QList<IndexerPrivate::FileData> > parts;
     typedef QHash<ProjectPart::Ptr, QList<IndexerPrivate::FileData> >::Iterator PartIter;
 
-    QList<Core::IDocument *> docs = Core::EditorManager::documentModel()->openedDocuments();
+    QList<Core::IDocument *> docs = Core::DocumentModel::openedDocuments();
     QSet<QString> openDocs;
     foreach (Core::IDocument *doc, docs)
         openDocs.insert(doc->filePath());

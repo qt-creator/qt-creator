@@ -1083,7 +1083,7 @@ bool QmakePriFileNode::priFileWritable(const QString &path)
 bool QmakePriFileNode::saveModifiedEditors()
 {
     Core::IDocument *document
-            = Core::EditorManager::documentModel()->documentForFilePath(m_projectFilePath);
+            = Core::DocumentModel::documentForFilePath(m_projectFilePath);
     if (!document || !document->isModified())
         return true;
 
@@ -1250,7 +1250,7 @@ void QmakePriFileNode::save(const QStringList &lines)
     // We manually tell each editor to reload it's file.
     // (The .pro files are notified by the file system watcher.)
     QStringList errorStrings;
-    Core::IDocument *document = Core::EditorManager::documentModel()->documentForFilePath(m_projectFilePath);
+    Core::IDocument *document = Core::DocumentModel::documentForFilePath(m_projectFilePath);
     if (document) {
         QString errorString;
         if (!document->reload(&errorString, Core::IDocument::FlagReload, Core::IDocument::TypeContents))

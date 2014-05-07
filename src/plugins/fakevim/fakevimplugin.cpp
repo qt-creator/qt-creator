@@ -2149,17 +2149,17 @@ int FakeVimPluginPrivate::currentFile() const
     IEditor *editor = EditorManager::currentEditor();
     if (!editor)
         return -1;
-    return EditorManager::documentModel()->indexOfDocument(editor->document());
+    return DocumentModel::indexOfDocument(editor->document());
 }
 
 void FakeVimPluginPrivate::switchToFile(int n)
 {
-    int size = EditorManager::documentModel()->documentCount();
+    int size = DocumentModel::documentCount();
     QTC_ASSERT(size, return);
     n = n % size;
     if (n < 0)
         n += size;
-    EditorManager::activateEditorForEntry(EditorManager::documentModel()->documents().at(n));
+    EditorManager::activateEditorForEntry(DocumentModel::documents().at(n));
 }
 
 ExCommandMap &FakeVimExCommandsPage::exCommandMap()

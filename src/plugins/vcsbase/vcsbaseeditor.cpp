@@ -1201,7 +1201,7 @@ const VcsBaseEditorParameters *VcsBaseEditorWidget::findType(const VcsBaseEditor
 // Find the codec used for a file querying the editor.
 static QTextCodec *findFileCodec(const QString &source)
 {
-    Core::IDocument *document = Core::EditorManager::documentModel()->documentForFilePath(source);
+    Core::IDocument *document = Core::DocumentModel::documentForFilePath(source);
     if (Core::TextDocument *textDocument = qobject_cast<Core::TextDocument *>(document))
         return const_cast<QTextCodec *>(textDocument->codec());
     return 0;
@@ -1555,10 +1555,10 @@ void VcsBaseEditorWidget::tagEditor(Core::IEditor *e, const QString &tag)
 
 Core::IEditor* VcsBaseEditorWidget::locateEditorByTag(const QString &tag)
 {
-    foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments()) {
+    foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
         const QVariant tagPropertyValue = document->property(tagPropertyC);
         if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag)
-            return Core::EditorManager::documentModel()->editorsForDocument(document).first();
+            return Core::DocumentModel::editorsForDocument(document).first();
     }
     return 0;
 }

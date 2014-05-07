@@ -542,7 +542,7 @@ void QmlEngine::gotoLocation(const Location &location)
 
         QString titlePattern = tr("JS Source for %1").arg(fileName);
         //Check if there are open documents with the same title
-        foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments()) {
+        foreach (Core::IDocument *document, Core::DocumentModel::openedDocuments()) {
             if (document->displayName() == titlePattern) {
                 Core::EditorManager::activateEditorForDocument(document);
                 return;
@@ -1310,7 +1310,7 @@ void QmlEngine::updateScriptSource(const QString &fileName, int lineOffset, int 
     //update open editors
     QString titlePattern = tr("JS Source for %1").arg(fileName);
     //Check if there are open editors with the same title
-    foreach (Core::IDocument *doc, Core::EditorManager::documentModel()->openedDocuments()) {
+    foreach (Core::IDocument *doc, Core::DocumentModel::openedDocuments()) {
         if (doc->displayName() == titlePattern) {
             updateDocument(doc, document);
             break;

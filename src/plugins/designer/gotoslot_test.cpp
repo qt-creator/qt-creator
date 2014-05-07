@@ -172,7 +172,7 @@ public:
         const QString cppFile = files.at(0);
         const QString hFile = files.at(1);
 
-        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), files.size());
+        QCOMPARE(DocumentModel::openedDocuments().size(), files.size());
         waitForFilesInGlobalSnapshot(QStringList() << cppFile << hFile);
 
         // Execute "Go To Slot"

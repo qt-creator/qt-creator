@@ -177,7 +177,7 @@ RefactoringFile::RefactoringFile(const QString &fileName, const QSharedPointer<R
     , m_editorCursorPosition(-1)
     , m_appliedOnce(false)
 {
-    QList<Core::IEditor *> editors = Core::EditorManager::documentModel()->editorsForFilePath(fileName);
+    QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(fileName);
     if (!editors.isEmpty())
         m_editor = qobject_cast<TextEditor::BaseTextEditorWidget *>(editors.first()->widget());
 }

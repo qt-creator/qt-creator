@@ -143,7 +143,7 @@ void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Pro
         if (existingNode) {
             if (existingNode->path() != package.appDescriptorPath()) {
                 // Reload the new bar-descriptor document in the existing editor (if there is one)
-                Core::IDocument *oldDocument = Core::EditorManager::documentModel()->documentForFilePath(existingNode->path());
+                Core::IDocument *oldDocument = Core::DocumentModel::documentForFilePath(existingNode->path());
                 if (oldDocument) {
                     QString errorMessage;
 

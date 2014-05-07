@@ -249,7 +249,7 @@ void DisassemblerAgentPrivate::configureMimeType()
 
     MimeType mtype = MimeDatabase::findByType(mimeType);
     if (mtype) {
-        foreach (IEditor *editor, EditorManager::documentModel()->editorsForDocument(document))
+        foreach (IEditor *editor, DocumentModel::editorsForDocument(document))
             if (PlainTextEditorWidget *widget = qobject_cast<PlainTextEditorWidget *>(editor->widget()))
                 widget->configure(mtype);
     } else {

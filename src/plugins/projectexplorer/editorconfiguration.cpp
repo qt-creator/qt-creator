@@ -272,9 +272,7 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     d->m_useGlobal = use;
     d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal
                     ? TextEditorSettings::codeStyle() : 0);
-    QList<Core::IEditor *> opened = Core::EditorManager::documentModel()->editorsForDocuments(
-                Core::EditorManager::documentModel()->openedDocuments());
-    foreach (Core::IEditor *editor, opened) {
+    foreach (Core::IEditor *editor, Core::DocumentModel::editorsForOpenedDocuments()) {
         if (BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
             Project *project = SessionManager::projectForFile(editor->document()->filePath());
             if (project && project->editorConfiguration() == this)
@@ -386,9 +384,7 @@ void EditorConfiguration::slotAboutToRemoveProject(ProjectExplorer::Project *pro
     if (project->editorConfiguration() != this)
         return;
 
-    Core::DocumentModel *model = Core::EditorManager::documentModel();
-    QList<Core::IEditor *> editors = model->editorsForDocuments(model->openedDocuments());
-    foreach (Core::IEditor *editor, editors) {
+    foreach (Core::IEditor *editor, Core::DocumentModel::editorsForOpenedDocuments()) {
         if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
             Core::IDocument *document = editor->document();
             if (document) {

@@ -91,7 +91,7 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Core:
 void OpenDocumentsFilter::refreshInternally()
 {
     m_editors.clear();
-    foreach (DocumentModel::Entry *e, EditorManager::documentModel()->documents()) {
+    foreach (DocumentModel::Entry *e, DocumentModel::documents()) {
         DocumentModel::Entry entry;
         // create copy with only the information relevant to use
         // to avoid model deleting entries behind our back
