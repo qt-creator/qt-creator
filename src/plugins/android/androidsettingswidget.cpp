@@ -134,8 +134,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->AVDTableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     m_ui->AVDTableView->horizontalHeader()->setResizeMode(1, QHeaderView::ResizeToContents);
 
-    m_ui->downloadAntToolButton->setVisible(Utils::HostOsInfo::isWindowsHost());
-    m_ui->downloadOpenJDKToolButton->setVisible(Utils::HostOsInfo::isWindowsHost());
+    m_ui->downloadAntToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
+    m_ui->downloadOpenJDKToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
 
     m_ui->SDKLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
     m_ui->NDKLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
