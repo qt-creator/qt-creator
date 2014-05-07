@@ -12,7 +12,7 @@ DynamicLibrary {
     destinationDirectory: FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
     cpp.rpaths: [
         buildDirectory + "/" + project.libDirName + "/qtcreator",
-        buildDirectory + "/" + project.libDirName + "/qtcreator/plugins/QtProject"
+        buildDirectory + "/" + project.libDirName + "/qtcreator/plugins"
     ].concat(additionalRPaths)
     property pathList filesToCopy
     property pathList additionalRPaths: []

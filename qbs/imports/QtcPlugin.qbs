@@ -4,7 +4,6 @@ import QtcFunctions
 
 Product {
     type: ["dynamiclibrary", "pluginSpec"]
-    property string provider: 'QtProject'
     property var pluginspecreplacements
     property var pluginRecommends: []
 
@@ -13,7 +12,7 @@ Product {
     condition: QtcFunctions.versionIsAtLeast(Qt.core.version, minimumQtVersion)
 
     targetName: QtcFunctions.qtLibraryName(qbs, name)
-    destinationDirectory: project.ide_plugin_path + '/' + provider
+    destinationDirectory: project.ide_plugin_path
 
     Depends { name: "ExtensionSystem" }
     Depends { name: "pluginspec" }
@@ -24,9 +23,9 @@ Product {
     }
 
     cpp.defines: project.generalDefines.concat([name.toUpperCase() + "_LIBRARY"])
-    cpp.installNamePrefix: "@rpath/PlugIns/" + provider + "/"
-    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@loader_path/../..", "@executable_path/.."]
-                                      : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../.."]
+    cpp.installNamePrefix: "@rpath/PlugIns/"
+    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@loader_path/..", "@executable_path/.."]
+                                      : ["$ORIGIN", "$ORIGIN/.."]
     cpp.cxxFlags: QtcFunctions.commonCxxFlags(qbs)
     cpp.linkerFlags: {
         var flags = QtcFunctions.commonLinkerFlags(qbs);
@@ -56,7 +55,7 @@ Product {
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: project.ide_plugin_path + "/" + provider
+        qbs.installDir: project.ide_plugin_path
     }
 
     Export {

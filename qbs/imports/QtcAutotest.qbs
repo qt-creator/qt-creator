@@ -16,7 +16,7 @@ CppApplication {
     cpp.rpaths: [
         buildDirectory + '/' + project.ide_library_path,
         buildDirectory + '/' + project.ide_library_path + "/..", // OSX
-        buildDirectory + '/' + project.ide_plugin_path + "/QtProject"
+        buildDirectory + '/' + project.ide_plugin_path
     ]
 
     // The following would be conceptually right, but does not work currently as some autotests
@@ -25,7 +25,7 @@ CppApplication {
 //    cpp.rpaths: qbs.targetOS.contains("osx")
 //            ? ["@executable_path/.."]
 //            : ["$ORIGIN/../" + project.libDirName + "/qtcreator",
-//               "$ORIGIN/../" project.libDirName + "/qtcreator/plugins/QtProject"]
+//               "$ORIGIN/../" project.libDirName + "/qtcreator/plugins"]
 //    Group {
 //        fileTagsFilter: product.type
 //        qbs.install: true

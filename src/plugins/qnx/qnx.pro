@@ -1,5 +1,4 @@
 QT += network xml
-PROVIDER = BlackBerry
 
 include(../../qtcreatorplugin.pri)
 

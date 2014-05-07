@@ -12,8 +12,8 @@ CONFIG += console
 CONFIG -= app_bundle
 QT += network
 
-LIBS *= -L$$IDE_PLUGIN_PATH/QtProject -l$$qtLibraryName(Core)
-QMAKE_RPATHDIR *= $$IDE_PLUGIN_PATH/QtProject
+LIBS *= -L$$IDE_PLUGIN_PATH -l$$qtLibraryName(Core)
+QMAKE_RPATHDIR *= $$IDE_PLUGIN_PATH
 
 DESTDIR=$$IDE_LIBEXEC_PATH
 

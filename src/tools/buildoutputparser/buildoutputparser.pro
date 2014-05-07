@@ -10,7 +10,7 @@ CONFIG -= app_bundle
 include(../../../qtcreator.pri)
 include(../../rpath.pri)
 
-LIBS += -L$$IDE_PLUGIN_PATH/QtProject
+LIBS += -L$$IDE_PLUGIN_PATH
 win32|equals(TEST, 1):DEFINES += HAS_MSVC_PARSER
 
 DESTDIR = $$IDE_BIN_PATH

@@ -48,14 +48,8 @@ dependencyList = $$join(dependencyList, $$escape_expand(\\n))
 # use gui precompiled header for plugins by default
 isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_gui_pch.h
 
-isEmpty(PROVIDER) {
-    PROVIDER = QtProject
-} else {
-    LIBS += -L$$IDE_PLUGIN_PATH/QtProject
-}
-
 isEmpty(USE_USER_DESTDIR) {
-    DESTDIR = $$IDE_PLUGIN_PATH/$$PROVIDER
+    DESTDIR = $$IDE_PLUGIN_PATH
 } else {
     win32 {
         DESTDIRAPPNAME = "qtcreator"
@@ -70,7 +64,7 @@ isEmpty(USE_USER_DESTDIR) {
         isEmpty(DESTDIRBASE):DESTDIRBASE = "$$(HOME)/.local/share/data"
         else:DESTDIRBASE = "$$DESTDIRBASE/data"
     }
-    DESTDIR = "$$DESTDIRBASE/QtProject/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION/$$PROVIDER"
+    DESTDIR = "$$DESTDIRBASE/QtProject/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION"
 }
 LIBS += -L$$DESTDIR
 
@@ -130,13 +124,12 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 macx {
-    QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/PlugIns/$${PROVIDER}/
-    QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../../,-rpath,@executable_path/../
+    QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/PlugIns/
+    QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../,-rpath,@executable_path/../
 } else:linux-* {
     #do the rpath by hand since it's not possible to use ORIGIN in QMAKE_RPATHDIR
     QMAKE_RPATHDIR += \$\$ORIGIN
     QMAKE_RPATHDIR += \$\$ORIGIN/..
-    QMAKE_RPATHDIR += \$\$ORIGIN/../..
     IDE_PLUGIN_RPATH = $$join(QMAKE_RPATHDIR, ":")
     QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$${IDE_PLUGIN_RPATH}\'
     QMAKE_RPATHDIR =
@@ -149,9 +142,9 @@ CONFIG += plugin plugin_with_soname
 linux*:QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
 
 !macx {
-    target.path = $$QTC_PREFIX/$$IDE_LIBRARY_BASENAME/qtcreator/plugins/$$PROVIDER
+    target.path = $$QTC_PREFIX/$$IDE_LIBRARY_BASENAME/qtcreator/plugins
     pluginspec.files += $${TARGET}.pluginspec
-    pluginspec.path = $$QTC_PREFIX/$$IDE_LIBRARY_BASENAME/qtcreator/plugins/$$PROVIDER
+    pluginspec.path = $$QTC_PREFIX/$$IDE_LIBRARY_BASENAME/qtcreator/plugins
     INSTALLS += target pluginspec
 }
 

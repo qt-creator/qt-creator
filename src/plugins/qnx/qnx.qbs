@@ -4,7 +4,6 @@ import QtcPlugin
 
 QtcPlugin {
     name: "Qnx"
-    provider: "BlackBerry"
 
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
     Depends { name: "QtcSsh" }

@@ -4,7 +4,7 @@ include(../../../qttest.pri)
 
 SRCDIR = $$IDE_SOURCE_TREE/src
 
-LIBS += -L$$IDE_PLUGIN_PATH/QtProject
+LIBS *= -L$$IDE_PLUGIN_PATH
 
 SOURCES += \
     tst_qmlcodeformatter.cpp

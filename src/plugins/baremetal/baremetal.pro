@@ -1,5 +1,4 @@
 QT += network
-PROVIDER = Sander
 include(../../qtcreatorplugin.pri)
 
 # BareMetal files

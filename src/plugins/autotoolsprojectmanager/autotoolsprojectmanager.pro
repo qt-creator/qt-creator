@@ -1,5 +1,3 @@
-#PROVIDER = Openismus
-
 include(../../qtcreatorplugin.pri)
 
 HEADERS = autotoolsprojectplugin.h\

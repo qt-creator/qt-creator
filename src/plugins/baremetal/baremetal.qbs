@@ -4,7 +4,6 @@ import QtcPlugin
 
 QtcPlugin {
     name: "BareMetal"
-    provider: "Sander"
 
     Depends { name: "Qt"; submodules: ["network", "widgets"]; }
     Depends { name: "QtcSsh" }

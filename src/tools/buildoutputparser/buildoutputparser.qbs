@@ -14,7 +14,7 @@ QtcTool {
     ]
     cpp.rpaths: base.concat(qbs.targetOS.contains("osx")
             ? ["@executable_path/../"]
-            : ["$ORIGIN/../" + project.ide_plugin_path + "/QtProject"])
+            : ["$ORIGIN/../" + project.ide_plugin_path])
     cpp.defines: base.concat(qbs.targetOS.contains("windows") || project.testsEnabled
                              ? ["HAS_MSVC_PARSER"] : [])
 }

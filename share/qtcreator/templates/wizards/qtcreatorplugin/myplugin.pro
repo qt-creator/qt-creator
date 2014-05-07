@@ -26,8 +26,6 @@ isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=%QtCreatorBuild%
 ##    "~/Library/Application Support/QtProject/Qt Creator" on Mac
 %DestDir%USE_USER_DESTDIR = yes
 
-PROVIDER = %VendorName%
-
 ###### If the plugin can be depended upon by other plugins, this code needs to be outsourced to
 ###### <dirname>_dependencies.pri, where <dirname> is the name of the directory containing the
 ###### plugin's sources.

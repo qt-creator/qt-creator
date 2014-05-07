@@ -7,8 +7,8 @@ win32-msvc* {
 include(../qttest.pri)
 
 win32-msvc* {
-    LIBS += -L$$IDE_PLUGIN_PATH/QtProject
-    DEFINES += Q_PLUGIN_PATH=\"\\\"$$IDE_PLUGIN_PATH/QtProject\\\"\"
+    LIBS *= -L$$IDE_PLUGIN_PATH
+    DEFINES += Q_PLUGIN_PATH=\"\\\"$$IDE_PLUGIN_PATH\\\"\"
 
     CDBEXT_PATH = $$IDE_BUILD_TREE\\$$IDE_LIBRARY_BASENAME
     # replace '\' with '\\'
