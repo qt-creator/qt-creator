@@ -718,7 +718,23 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
 
 void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex)
 {
+    QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
+    int targetRowNumber = rowNumber;
+    NodeAbstractProperty targetProperty;
 
+    bool foundTarget = computeTarget(rowModelIndex, this, &targetProperty, &targetRowNumber);
+
+    if (foundTarget) {
+        QString imageFileName = QString::fromUtf8(mimeData->data("application/vnd.bauhaus.libraryresource"));
+        QmlItemNode newQmlItemNode = QmlItemNode::createQmlItemNodeFromImage(m_view, imageFileName, QPointF(0., 0.), targetProperty);
+
+        if (newQmlItemNode.isValid()) {
+            QList<ModelNode> newModelNodeList;
+            newModelNodeList.append(newQmlItemNode);
+
+            moveNodesInteractive(targetProperty, newModelNodeList, targetRowNumber);
+        }
+    }
 }
 
 // along the lines of QObject::blockSignals
