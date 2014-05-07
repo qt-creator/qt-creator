@@ -164,7 +164,6 @@ MetaInfoReader::ParserSate MetaInfoReader::readTypeElement(const QString &name)
 {
     if (name == QLatin1String(ItemLibraryEntryElementName)) {
         m_currentEntry = ItemLibraryEntry();
-        m_currentEntry.setForceImport(false);
         m_currentEntry.setType(m_currentClassName, -1, -1);
         m_currentEntry.setIcon(QIcon(m_currentIcon));
         return ParsingItemLibrary;
@@ -227,8 +226,6 @@ void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVa
         setVersion(value.toString());
     } else if (name == QLatin1String("requiredImport")) {
         m_currentEntry.setRequiredImport(value.toString());
-    } else if (name == QLatin1String("forceImport")) {
-        m_currentEntry.setForceImport(value.toBool());
     } else {
         addError(tr("Unknown property for ItemLibraryEntry %1").arg(name), currentSourceLocation());
         setParserState(Error);

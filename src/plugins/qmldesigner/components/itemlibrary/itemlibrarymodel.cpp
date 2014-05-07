@@ -508,9 +508,9 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
          NodeMetaInfo metaInfo = model->metaInfo(entry.typeName(), -1, -1);
          bool valid = metaInfo.isValid() && metaInfo.majorVersion() == entry.majorVersion();
 
-         if ((valid || entry.forceImport())
+         if (valid
                  && (entry.requiredImport().isEmpty()
-                     || model->hasImport(entryToImport(entry), true, true) || entry.forceImport())) {
+                     || model->hasImport(entryToImport(entry), true, true))) {
             QString itemSectionName = entry.category();
             ItemLibrarySectionModel *sectionModel;
             ItemLibraryItemModel *itemModel;

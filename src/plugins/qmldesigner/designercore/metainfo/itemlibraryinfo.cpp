@@ -55,7 +55,6 @@ public:
     QString qml;
     QString qmlSource;
     QString requiredImport;
-    bool forceImport;
 };
 
 } // namespace Internal
@@ -136,11 +135,6 @@ QString ItemLibraryEntry::requiredImport() const
     return m_data->requiredImport;
 }
 
-bool ItemLibraryEntry::forceImport() const
-{
-    return m_data->forceImport;
-}
-
 int ItemLibraryEntry::majorVersion() const
 {
     return m_data->majorVersion;
@@ -210,11 +204,6 @@ void ItemLibraryEntry::setRequiredImport(const QString &requiredImport)
     m_data->requiredImport = requiredImport;
 }
 
-void ItemLibraryEntry::setForceImport(bool b)
-{
-    m_data->forceImport = b;
-}
-
 void ItemLibraryEntry::addProperty(PropertyName &name, QString &type, QVariant &value)
 {
     Property property;
@@ -233,7 +222,6 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.category();
     stream << itemLibraryEntry.dragIcon();
     stream << itemLibraryEntry.requiredImport();
-    stream << itemLibraryEntry.forceImport();
 
     stream << itemLibraryEntry.m_data->properties;
     stream << itemLibraryEntry.m_data->qml;
@@ -253,7 +241,6 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->category;
     stream >> itemLibraryEntry.m_data->dragIcon;
     stream >> itemLibraryEntry.m_data->requiredImport;
-    stream >> itemLibraryEntry.m_data->forceImport;
 
     stream >> itemLibraryEntry.m_data->properties;
     stream >> itemLibraryEntry.m_data->qml;
@@ -273,7 +260,6 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
     debug << itemLibraryEntry.m_data->category;
     debug << itemLibraryEntry.m_data->dragIcon;
     debug << itemLibraryEntry.m_data->requiredImport;
-    debug << itemLibraryEntry.m_data->forceImport;
 
     debug << itemLibraryEntry.m_data->properties;
     debug << itemLibraryEntry.m_data->qml;

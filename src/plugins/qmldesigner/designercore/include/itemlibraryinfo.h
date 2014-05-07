@@ -72,7 +72,6 @@ public:
     QString qmlPath() const;
     QString qmlSource() const;
     QString requiredImport() const;
-    bool forceImport() const;
 
     ItemLibraryEntry(const ItemLibraryEntry &other);
     ItemLibraryEntry& operator=(const ItemLibraryEntry &other);
@@ -91,7 +90,7 @@ public:
     void setCategory(const QString &category);
     void setQmlPath(const QString &qml);
     void setRequiredImport(const QString &requiredImport);
-    void setForceImport(bool b);
+
 private:
     QExplicitlySharedDataPointer<Internal::ItemLibraryEntryData> m_data;
 };
