@@ -27,6 +27,7 @@ DynamicLibrary {
             : ["$ORIGIN", "$ORIGIN/.."]
     property string libIncludeBase: ".." // #include <lib/header.h>
     cpp.includePaths: [libIncludeBase]
+    cpp.minimumOsxVersion: "10.7"
     cpp.minimumWindowsVersion: qbs.architecture === "x86" ? "5.1" : "5.2"
 
     Export {
