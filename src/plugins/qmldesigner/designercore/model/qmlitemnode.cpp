@@ -106,34 +106,6 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
         int minorVersion = metaInfo.minorVersion();
         int majorVersion = metaInfo.majorVersion();
 
-        if (itemLibraryEntry.typeName().contains('.')) {
-
-            const QString newImportUrl = itemLibraryEntry.requiredImport();
-
-            if (!itemLibraryEntry.requiredImport().isEmpty()) {
-                const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
-
-                Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
-                if (itemLibraryEntry.majorVersion() == -1 && itemLibraryEntry.minorVersion() == -1)
-                    newImport = Import::createFileImport(newImportUrl, QString());
-                else
-                    newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
-
-                foreach (const Import &import, view->model()->imports()) {
-                    if (import.isLibraryImport()
-                            && import.url() == newImport.url()
-                            && import.version() == newImport.version()) {
-                        // reuse this import
-                        newImport = import;
-                        break;
-                    }
-                }
-
-                if (!view->model()->hasImport(newImport, true, true))
-                    view->model()->changeImports(QList<Import>() << newImport, QList<Import>());
-            }
-        }
-
         typedef QPair<PropertyName, QString> PropertyBindingEntry;
         QList<PropertyBindingEntry> propertyBindingList;
         if (itemLibraryEntry.qmlSource().isEmpty()) {
