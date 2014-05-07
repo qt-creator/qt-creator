@@ -119,21 +119,26 @@ def qdump____m256i(d, value):
 #    return "Transposed"
 
 def qdump__Eigen__Matrix(d, value):
-    listType = d.directBaseClass(value.type)
-    d.putItem(value.cast(listType))
-    d.putBetterType(value.type)
-
-def qdump__Eigen__PlainObjectBase(d, value):
-    matrixType = d.templateArgument(value.type, 0)
-    innerType = d.templateArgument(matrixType, 0)
-    options = d.numericTemplateArgument(matrixType, 3)
+    innerType = d.templateArgument(value.type, 0)
+    options = d.numericTemplateArgument(value.type, 3)
     rowMajor = (int(options) & 0x1)
-    argRow = d.numericTemplateArgument(matrixType, 1)
-    argCol = d.numericTemplateArgument(matrixType, 2)
-    storage = value["m_storage"]
-    nrows = toInteger(storage["m_rows"] if argRow == -1 else argRow)
-    ncols = toInteger(storage["m_cols"] if argCol == -1 else argCol)
-    p = d.createPointerValue(d.addressOf(value), innerType)
+    argRow = d.numericTemplateArgument(value.type, 1)
+    argCol = d.numericTemplateArgument(value.type, 2)
+    # The magic dimension value is -1 in Eigen3, but 10000 in Eigen2.
+    # 10000 x 10000 matrices are rare, vectors of dim 10000 less so.
+    # So "fix" only the matrix case:
+    if argCol == 10000 and argRow == 10000:
+        argCol = -1
+        argRow = -1
+    if argCol != -1 and argRow != -1:
+        nrows = argRow
+        ncols = argCol
+        p = d.createPointerValue(d.addressOf(value), innerType)
+    else:
+        storage = value["m_storage"]
+        nrows = toInteger(storage["m_rows"]) if argRow == -1 else argRow
+        ncols = toInteger(storage["m_cols"]) if argCol == -1 else argCol
+        p = d.createValue(d.addressOf(value), innerType.pointer())
     d.putValue("(%s x %s), %s" % (nrows, ncols, ["ColumnMajor", "RowMajor"][rowMajor]))
     d.putField("keeporder", "1")
     d.putNumChild(nrows * ncols)
