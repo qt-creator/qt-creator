@@ -68,7 +68,7 @@ public:
     bool isMixed() const;
 
 private:
-    void setContentsToEditor(const DisassemblerLines &contents);
+    void setContentsToDocument(const DisassemblerLines &contents);
     int indexOf(const Location &loc) const;
 
     DisassemblerAgentPrivate *d;
