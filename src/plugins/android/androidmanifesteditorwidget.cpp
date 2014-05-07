@@ -690,8 +690,7 @@ void AndroidManifestEditorWidget::updateInfoBar()
 void AndroidManifestEditorWidget::updateSdkVersions()
 {
     const QString docPath(m_textEditorWidget->baseTextDocument()->filePath());
-    Project *project = androidProject(docPath);
-    QPair<int, int> apiLevels = AndroidManager::apiLevelRange(project ? project->activeTarget() : 0);
+    QPair<int, int> apiLevels = AndroidManager::apiLevelRange();
     for (int i = apiLevels.first; i < apiLevels.second + 1; ++i)
         m_androidMinSdkVersion->addItem(tr("API %1: %2")
                                         .arg(i)

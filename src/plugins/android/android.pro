@@ -17,12 +17,6 @@ HEADERS += \
     androidtoolchain.h \
     androidpackageinstallationstep.h \
     androidpackageinstallationfactory.h \
-    androidpackagecreationstep.h \
-    androidpackagecreationfactory.h \
-    androidpackagecreationwidget.h \
-    androiddeploystep.h \
-    androiddeploystepwidget.h \
-    androiddeploystepfactory.h \
     androiderrormessage.h \
     androidglobal.h \
     androidrunner.h \
@@ -69,12 +63,6 @@ SOURCES += \
     androidtoolchain.cpp \
     androidpackageinstallationstep.cpp \
     androidpackageinstallationfactory.cpp \
-    androidpackagecreationstep.cpp \
-    androidpackagecreationfactory.cpp \
-    androidpackagecreationwidget.cpp \
-    androiddeploystep.cpp \
-    androiddeploystepwidget.cpp \
-    androiddeploystepfactory.cpp \
     androiderrormessage.cpp \
     androidrunner.cpp \
     androiddebugsupport.cpp \
@@ -111,8 +99,6 @@ SOURCES += \
 
 FORMS += \
     androidsettingswidget.ui \
-    androidpackagecreationwidget.ui \
-    androiddeploystepwidget.ui \
     addnewavddialog.ui \
     androidcreatekeystorecertificate.ui \
     androiddevicedialog.ui \

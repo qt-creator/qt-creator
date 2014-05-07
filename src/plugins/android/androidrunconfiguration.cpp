@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "androidrunconfiguration.h"
-#include "androiddeploystep.h"
 #include "androidglobal.h"
 #include "androidtoolchain.h"
 #include "androidmanager.h"

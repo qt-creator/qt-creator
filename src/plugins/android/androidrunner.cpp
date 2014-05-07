@@ -29,7 +29,6 @@
 
 #include "androidrunner.h"
 
-#include "androiddeploystep.h"
 #include "androiddeployqtstep.h"
 #include "androidconfigurations.h"
 #include "androidglobal.h"

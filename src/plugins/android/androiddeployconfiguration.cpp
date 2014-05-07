@@ -29,9 +29,7 @@
 
 #include "androiddeployconfiguration.h"
 #include "androidconstants.h"
-#include "androiddeploystep.h"
 #include "androidpackageinstallationstep.h"
-#include "androidpackagecreationstep.h"
 #include "androiddeployqtstep.h"
 #include "androidmanager.h"
 
@@ -76,14 +74,8 @@ DeployConfiguration *AndroidDeployConfigurationFactory::create(Target *parent, C
 {
     AndroidDeployConfiguration *dc = new AndroidDeployConfiguration(parent, id);
 
-    if (id == ANDROID_DEPLOYCONFIGURATION_ID) {
-        dc->stepList()->insertStep(0, new AndroidPackageInstallationStep(AndroidPackageInstallationStep::ProjectDirectory, dc->stepList()));
-        dc->stepList()->insertStep(1, new AndroidPackageCreationStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new AndroidDeployStep(dc->stepList()));
-    } else {
-        dc->stepList()->insertStep(0, new AndroidPackageInstallationStep(AndroidPackageInstallationStep::BuildDirectory, dc->stepList()));
-        dc->stepList()->insertStep(1, new AndroidDeployQtStep(dc->stepList()));
-    }
+    dc->stepList()->insertStep(0, new AndroidPackageInstallationStep(AndroidPackageInstallationStep::BuildDirectory, dc->stepList()));
+    dc->stepList()->insertStep(1, new AndroidDeployQtStep(dc->stepList()));
     return dc;
 }
 
@@ -136,17 +128,13 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(parent->kit());
     if (qt->type() != QLatin1String(Constants::ANDROIDQT))
         return ids;
-    if (qt->qtVersion() < QtSupport::QtVersionNumber(5, 2, 0))
-        ids << Core::Id(ANDROID_DEPLOYCONFIGURATION_ID);
-    else
-        ids << Core::Id(ANDROID_DEPLOYCONFIGURATION2_ID);
+    ids << Core::Id(ANDROID_DEPLOYCONFIGURATION_ID);
     return ids;
 }
 
 QString AndroidDeployConfigurationFactory::displayNameForId(Core::Id id) const
 {
-    if (id.name().startsWith(ANDROID_DC_PREFIX)
-            || id.name().startsWith(ANDROID_DC2_PREFIX))
+    if (id.name().startsWith(ANDROID_DC_PREFIX))
         return tr("Deploy on Android");
     return QString();
 }

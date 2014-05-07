@@ -844,7 +844,7 @@ QString AndroidConfig::bestNdkPlatformMatch(const QString &targetAPI) const
         if (apiLevel <= target)
             return QString::fromLatin1("android-%1").arg(apiLevel);
     }
-    return QLatin1String("android-8");
+    return QLatin1String("android-9");
 }
 
 FileName AndroidConfig::sdkLocation() const

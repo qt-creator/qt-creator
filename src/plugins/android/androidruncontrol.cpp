@@ -29,7 +29,6 @@
 
 #include "androidruncontrol.h"
 
-#include "androiddeploystep.h"
 #include "androidglobal.h"
 #include "androidrunconfiguration.h"
 #include "androidrunner.h"

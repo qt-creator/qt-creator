@@ -57,26 +57,17 @@ public:
     static bool supportsAndroid(ProjectExplorer::Target *target);
 
     static QString packageName(ProjectExplorer::Target *target);
-    static bool setPackageName(ProjectExplorer::Target *target, const QString &name);
-
-    static QString applicationName(ProjectExplorer::Target *target);
-    static bool setApplicationName(ProjectExplorer::Target *target, const QString &name);
 
     static QString intentName(ProjectExplorer::Target *target);
     static QString activityName(ProjectExplorer::Target *target);
 
     static QStringList availableTargetApplications(ProjectExplorer::Target *target);
-    static QString targetApplication(ProjectExplorer::Target *target);
-    static bool setTargetApplication(ProjectExplorer::Target *target, const QString &name);
-    static QString targetApplicationPath(ProjectExplorer::Target *target);
 
-    static bool updateDeploymentSettings(ProjectExplorer::Target *target);
     static bool bundleQt(ProjectExplorer::Target *target);
     static bool useLocalLibs(ProjectExplorer::Target *target);
     static QString deviceSerialNumber(ProjectExplorer::Target *target);
 
     static QString buildTargetSDK(ProjectExplorer::Target *target);
-    static bool setBuildTargetSDK(ProjectExplorer::Target *target, const QString &sdk);
     static int minimumSDK(ProjectExplorer::Target *target);
 
     static QString targetArch(ProjectExplorer::Target *target);
@@ -84,22 +75,15 @@ public:
     static Utils::FileName dirPath(ProjectExplorer::Target *target);
     static Utils::FileName manifestPath(ProjectExplorer::Target *target);
     static Utils::FileName libsPath(ProjectExplorer::Target *target);
-    static Utils::FileName stringsPath(ProjectExplorer::Target *target);
     static Utils::FileName defaultPropertiesPath(ProjectExplorer::Target *target);
-    static Utils::FileName srcPath(ProjectExplorer::Target *target);
     static Utils::FileName apkPath(ProjectExplorer::Target *target, BuildType buildType);
-
-    static bool createAndroidTemplatesIfNecessary(ProjectExplorer::Target *target);
-    static void updateTarget(ProjectExplorer::Target *target, const QString &buildTargetSDK,
-                             const QString &name = QString());
 
     static Utils::FileName localLibsRulesFilePath(ProjectExplorer::Target *target);
     static QString loadLocalLibs(ProjectExplorer::Target *target, int apiLevel = -1);
     static QString loadLocalJars(ProjectExplorer::Target *target, int apiLevel = -1);
-    static QString loadLocalBundledFiles(ProjectExplorer::Target *target, int apiLevel = -1);
     static QString loadLocalJarsInitClasses(ProjectExplorer::Target *target, int apiLevel = -1);
 
-    static QPair<int, int> apiLevelRange(ProjectExplorer::Target *target);
+    static QPair<int, int> apiLevelRange();
     static QString androidNameForApiLevel(int x);
 
     class Library
@@ -113,22 +97,8 @@ public:
     };
     typedef QMap<QString, Library> LibrariesMap;
 
-    static QVector<AndroidManager::Library> availableQtLibsWithDependencies(ProjectExplorer::Target *target);
-    static QStringList availableQtLibs(ProjectExplorer::Target *target);
     static QStringList qtLibs(ProjectExplorer::Target *target);
-    static bool setQtLibs(ProjectExplorer::Target *target, const QStringList &libs);
-
-    static bool setBundledInLib(ProjectExplorer::Target *target,
-                                const QStringList &fileList);
-    static bool setBundledInAssets(ProjectExplorer::Target *target,
-                                   const QStringList &fileList);
-
-    static QStringList availablePrebundledLibs(ProjectExplorer::Target *target);
     static QStringList prebundledLibs(ProjectExplorer::Target *target);
-    static bool setPrebundledLibs(ProjectExplorer::Target *target, const QStringList &libs);
-
-    static QString libGnuStl(const QString &arch, const QString &ndkToolChainVersion);
-    static QString libraryPrefix();
 
     static void cleanLibsOnDevice(ProjectExplorer::Target *target);
     static void installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath);
@@ -139,7 +109,7 @@ public:
 private:
     static void raiseError(const QString &reason);
     static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
-    static bool saveXmlFile(ProjectExplorer::Target *target, QDomDocument &doc, const Utils::FileName &fileName);
+    static bool saveXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
     static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
     static bool saveManifest(ProjectExplorer::Target *target, QDomDocument &doc);
     static bool openLibsXml(ProjectExplorer::Target *target, QDomDocument &doc);

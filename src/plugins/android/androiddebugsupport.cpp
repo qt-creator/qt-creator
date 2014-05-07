@@ -29,7 +29,6 @@
 
 #include "androiddebugsupport.h"
 
-#include "androiddeploystep.h"
 #include "androidglobal.h"
 #include "androidrunner.h"
 #include "androidmanager.h"
