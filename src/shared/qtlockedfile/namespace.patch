@@ -26,7 +26,7 @@
 +
  class QT_QTLOCKEDFILE_EXPORT QtLockedFile : public QFile
  {
- public:    
+ public:
 @@ -41,4 +43,6 @@
      LockMode m_lock_mode;
  };

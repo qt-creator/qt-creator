@@ -201,7 +201,7 @@ unix {
     UI_DIR = $${OUT_PWD}/.uic
 }
 
-win32-msvc* { 
+win32-msvc* {
     #Don't warn about sprintf, fopen etc being 'unsafe'
     DEFINES += _CRT_SECURE_NO_WARNINGS
     # Speed up startup time when debugging with cdb
