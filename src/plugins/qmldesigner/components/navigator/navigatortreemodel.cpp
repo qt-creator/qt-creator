@@ -332,19 +332,18 @@ static void findTargetItem(const NodeListProperty &listProperty,
                            const ItemRow &currentItemRow,
                            NavigatorTreeModel *navigatorTreeModel,
                            int *newRowNumber,
-                           QStandardItem *targetItem)
+                           QStandardItem **targetItem)
 {
-
     if (navigatorTreeModel->isInTree(listProperty.parentModelNode())) {
         ItemRow parentRow = navigatorTreeModel->itemRowForNode(listProperty.parentModelNode());
         if (parentRow.propertyItems.contains(listProperty.name())) {
-            targetItem = parentRow.propertyItems.value(listProperty.name());
+            *targetItem = parentRow.propertyItems.value(listProperty.name());
         } else  { // default property
-            targetItem = parentRow.idItem;
+            *targetItem = parentRow.idItem;
             newRowNumber += visibleProperties(listProperty.parentModelNode()).count();
         }
     } else {
-        targetItem = currentItemRow.idItem->parent();
+        *targetItem = currentItemRow.idItem->parent();
     }
 }
 
@@ -369,7 +368,7 @@ void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty
         int newRowNumber = listProperty.indexOf(modelNode);
         QStandardItem *targetItem = 0;
 
-        findTargetItem(listProperty, currentItemRow, this, &newRowNumber, targetItem);
+        findTargetItem(listProperty, currentItemRow, this, &newRowNumber, &targetItem);
         moveItemRow(targetItem, currentRowNumber, newRowNumber);
 
     }
