@@ -697,7 +697,23 @@ static ItemLibraryEntry itemLibraryEntryFromData(const QByteArray &data)
 
 void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex)
 {
+    QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
+    int targetRowNumber = rowNumber;
+    NodeAbstractProperty targetProperty;
 
+    bool foundTarget = computeTarget(rowModelIndex, this, &targetProperty, &targetRowNumber);
+
+    if (foundTarget) {
+        ItemLibraryEntry itemLibraryEntry = itemLibraryEntryFromData(mimeData->data("application/vnd.bauhaus.itemlibraryinfo"));
+        QmlItemNode newQmlItemNode = QmlItemNode::createQmlItemNode(m_view, itemLibraryEntry, QPointF(0., 0.), targetProperty);
+
+        if (newQmlItemNode.isValid()) {
+            QList<ModelNode> newModelNodeList;
+            newModelNodeList.append(newQmlItemNode);
+
+            moveNodesInteractive(targetProperty, newModelNodeList, targetRowNumber);
+        }
+    }
 }
 
 void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex)
