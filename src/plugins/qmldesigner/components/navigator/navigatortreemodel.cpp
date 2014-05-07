@@ -48,6 +48,8 @@
 #include <QApplication>
 #include <QPointF>
 
+#include <QtDebug>
+
 namespace QmlDesigner {
 
 static PropertyNameList visibleProperties(const ModelNode &node)
@@ -117,13 +119,16 @@ NavigatorTreeModel::~NavigatorTreeModel()
 
 Qt::DropActions NavigatorTreeModel::supportedDropActions() const
 {
-    return Qt::LinkAction;
+    return Qt::LinkAction | Qt::MoveAction;
 }
 
 QStringList NavigatorTreeModel::mimeTypes() const
 {
      QStringList types;
      types.append("application/vnd.modelnode.list");
+     types.append("application/vnd.bauhaus.itemlibraryinfo");
+     types.append("application/vnd.bauhaus.libraryresource");
+
      return types;
 }
 
@@ -213,38 +218,25 @@ static bool computeTarget(const QModelIndex &rowModelIndex,
     return true;
 }
 
+
+
 bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
-                  Qt::DropAction action,
-                  int rowNumber,
-                  int columnNumber,
-                  const QModelIndex &dropModelIndex)
+                                      Qt::DropAction action,
+                                      int rowNumber,
+                                      int columnNumber,
+                                      const QModelIndex &dropModelIndex)
 {
     if (action == Qt::IgnoreAction)
         return true;
 
-    if (action != Qt::LinkAction)
-        return false;
-
-    if (!mimeData->hasFormat("application/vnd.modelnode.list"))
-        return false;
-
-    if (columnNumber > 1)
-        return false;
-
-    if (dropModelIndex.model() != this)
-        return false;
-
-    QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
-    int targetRowNumber = rowNumber;
-    NodeAbstractProperty targetProperty;
-
-    bool foundTarget = computeTarget(rowModelIndex, this, &targetProperty, &targetRowNumber);
-
-    if (foundTarget) {
-        QList<ModelNode> modelNodeList = modelNodesFromMimeData(mimeData, m_view);
-
-        if (fitsToTargetProperty(targetProperty, modelNodeList))
-            moveNodesInteractive(targetProperty, modelNodeList, targetRowNumber);
+    if (dropModelIndex.model() == this) {
+        if (mimeData->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
+            handleItemLibraryItemDrop(mimeData, rowNumber, dropModelIndex);
+        } else if (mimeData->hasFormat("application/vnd.bauhaus.libraryresource")) {
+            handleItemLibraryImageDrop(mimeData, rowNumber, dropModelIndex);
+        } else if (mimeData->hasFormat("application/vnd.modelnode.list")) {
+            handleInternalDrop(mimeData, rowNumber, dropModelIndex);
+        }
     }
 
     return false; // don't let the view do drag&drop on its own
@@ -673,6 +665,44 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
     }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
         exception.showException();
     }
+}
+
+void NavigatorTreeModel::handleInternalDrop(const QMimeData *mimeData,
+                                            int rowNumber,
+                                            const QModelIndex &dropModelIndex)
+{
+    QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
+    int targetRowNumber = rowNumber;
+    NodeAbstractProperty targetProperty;
+
+    bool foundTarget = computeTarget(rowModelIndex, this, &targetProperty, &targetRowNumber);
+
+    if (foundTarget) {
+        QList<ModelNode> modelNodeList = modelNodesFromMimeData(mimeData, m_view);
+
+        if (fitsToTargetProperty(targetProperty, modelNodeList))
+            moveNodesInteractive(targetProperty, modelNodeList, targetRowNumber);
+    }
+}
+
+static ItemLibraryEntry itemLibraryEntryFromData(const QByteArray &data)
+{
+    QDataStream stream(data);
+
+    ItemLibraryEntry itemLibraryEntry;
+    stream >> itemLibraryEntry;
+
+    return itemLibraryEntry;
+}
+
+void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex)
+{
+
+}
+
+void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex)
+{
+
 }
 
 // along the lines of QObject::blockSignals

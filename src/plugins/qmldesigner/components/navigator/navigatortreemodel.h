@@ -133,7 +133,9 @@ private:
     void handleChangedVisibilityItem(QStandardItem *visibilityItem, ModelNode &modelNode);
 
     void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex);
-
+    void handleInternalDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
+    void handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
+    void handleItemLibraryImageDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
 
 private:
     QHash<ModelNode, ItemRow> m_nodeItemHash;
