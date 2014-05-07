@@ -61,8 +61,6 @@
 #include <QTimer>
 #include <QRegExp>
 #include <QtAlgorithms>
-#include <QLibraryInfo>
-#include <qglobal.h>
 
 #include <QDebug>
 
@@ -89,8 +87,8 @@ ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
             globs.append(MimeGlobPattern(QLatin1String("*.qmltypes")));
             globs.append(MimeGlobPattern(QLatin1String("*.qmlproject")));
         }
-        foreach (const QString &filePath,
-                 project->files(ProjectExplorer::Project::ExcludeGeneratedFiles))
+        foreach (const QString &filePath
+                 , project->files(ProjectExplorer::Project::ExcludeGeneratedFiles))
             foreach (const MimeGlobPattern &glob, globs)
                 if (glob.matches(filePath))
                     projectInfo.sourceFiles << filePath;
@@ -119,10 +117,6 @@ ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
         projectInfo.qtQmlPath = qtVersion->qmakeProperty("QT_INSTALL_QML");
         projectInfo.qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
         projectInfo.qtVersionString = qtVersion->qtVersionString();
-    } else {
-        projectInfo.qtQmlPath = QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath);
-        projectInfo.qtImportsPath = QLibraryInfo::location(QLibraryInfo::ImportsPath);
-        projectInfo.qtVersionString = QLatin1String(qVersion());
     }
 
     if (projectInfo.tryQmlDump) {
@@ -257,9 +251,11 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
 
 ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfo() const
 {
-    // needs to be performed in the ui therad (change?)
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    return defaultProjectInfoForProject(currentProject);
+    ProjectExplorer::Project *activeProject = ProjectExplorer::SessionManager::startupProject();
+    if (!activeProject)
+        return ModelManagerInterface::ProjectInfo();
+
+    return projectInfo(activeProject);
 }
 
 // Check whether fileMimeType is the same or extends knownMimeType
@@ -283,3 +279,4 @@ void ModelManager::addTaskInternal(QFuture<void> result, const QString &msg, con
 {
     ProgressManager::addTask(result, msg, taskId);
 }
+

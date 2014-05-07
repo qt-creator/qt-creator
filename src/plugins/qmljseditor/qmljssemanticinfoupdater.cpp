@@ -122,7 +122,7 @@ QmlJSTools::SemanticInfo SemanticInfoUpdater::makeNewSemanticInfo(const QmlJS::D
 
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
-    Link link(semanticInfo.snapshot, modelManager->defaultVContext(doc->language(), doc), modelManager->builtins(doc));
+    Link link(semanticInfo.snapshot, modelManager->defaultVContext(), modelManager->builtins(doc));
     semanticInfo.context = link(doc, &semanticInfo.semanticMessages);
 
     ScopeChain *scopeChain = new ScopeChain(doc, semanticInfo.context);
