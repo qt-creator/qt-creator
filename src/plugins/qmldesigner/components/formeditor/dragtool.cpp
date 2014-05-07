@@ -203,24 +203,6 @@ FormEditorItem* DragTool::calculateContainer(const QPointF &point, FormEditorIte
     return 0;
 }
 
- QList<Import> DragTool::missingImportList(const ItemLibraryEntry &itemLibraryEntry)
-{
-    QList<Import> importToBeAddedList;
-
-    if (!itemLibraryEntry.requiredImport().isEmpty()) {
-        const QString newImportUrl = itemLibraryEntry.requiredImport();
-        const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
-        Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
-
-        if (itemLibraryEntry.majorVersion() == -1 && itemLibraryEntry.minorVersion() == -1)
-            newImport = Import::createFileImport(newImportUrl, QString());
-        else
-            newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
-    }
-    return importToBeAddedList;
-}
-
-
 void DragTool::formEditorItemsChanged(const QList<FormEditorItem*> & itemList)
 {
     if (m_movingItem && itemList.contains(m_movingItem.data())) {
@@ -317,12 +299,7 @@ void DragTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
             view()->widgetInfo().widget->setFocus();
             m_Aborted = false;
             Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo").isEmpty());
-
-            importToBeAddedList = missingImportList(
-                        itemLibraryEntryFromData(event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo")));
         }
-
-        view()->model()->changeImports(importToBeAddedList, QList<Import>());
 
         if (!m_rewriterTransaction.isValid()) {
             view()->clearSelectedModelNodes();

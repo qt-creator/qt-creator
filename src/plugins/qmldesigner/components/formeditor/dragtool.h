@@ -113,7 +113,6 @@ private:
     void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlItemNode parentNode, QPointF scenePos);
     void createQmlItemNodeFromImage(const QString &imageName, QmlItemNode parentNode, QPointF scenePos);
     FormEditorItem* calculateContainer(const QPointF &point, FormEditorItem * currentItem = 0);
-    QList<Import> missingImportList(const ItemLibraryEntry &itemLibraryEntry);
 
     void begin(QPointF scenePos);
     void end();
