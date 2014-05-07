@@ -96,6 +96,13 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
 
     Q_ASSERT(parentQmlItemNode.isValid());
 
+    NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
+
+    return  QmlItemNode::createQmlItemNode(view, itemLibraryEntry, position, parentProperty);
+}
+
+QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, NodeAbstractProperty parentproperty)
+{
     QmlItemNode newQmlItemNode;
 
     try {
@@ -126,8 +133,8 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
             newQmlItemNode = createQmlItemNodeFromSource(view, itemLibraryEntry.qmlSource(), position);
         }
 
-        if (parentQmlItemNode.hasDefaultPropertyName())
-            parentQmlItemNode.nodeAbstractProperty(parentQmlItemNode.defaultPropertyName()).reparentHere(newQmlItemNode);
+        if (parentproperty.isValid())
+            parentproperty.reparentHere(newQmlItemNode);
 
         if (!newQmlItemNode.isValid())
             return newQmlItemNode;
