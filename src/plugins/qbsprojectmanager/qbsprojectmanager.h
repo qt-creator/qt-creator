@@ -53,7 +53,6 @@ namespace QbsProjectManager {
 namespace Internal {
 class QbsLogSink;
 class QbsProject;
-class QbsProjectManagerPlugin;
 } // namespace Internal
 
 class DefaultPropertyProvider;
@@ -63,7 +62,7 @@ class QbsManager : public ProjectExplorer::IProjectManager
     Q_OBJECT
 
 public:
-    QbsManager(Internal::QbsProjectManagerPlugin *plugin);
+    QbsManager();
     ~QbsManager();
 
     QString mimeType() const;
@@ -85,7 +84,6 @@ private:
     void addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k);
     void addProfileFromKit(const ProjectExplorer::Kit *k);
 
-    Internal::QbsProjectManagerPlugin *m_plugin;
     Internal::QbsLogSink *m_logSink;
     static qbs::Settings *m_settings;
 

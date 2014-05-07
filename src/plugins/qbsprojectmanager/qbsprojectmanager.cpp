@@ -60,8 +60,7 @@ namespace QbsProjectManager {
 
 qbs::Settings *QbsManager::m_settings = 0;
 
-QbsManager::QbsManager(Internal::QbsProjectManagerPlugin *plugin) :
-    m_plugin(plugin),
+QbsManager::QbsManager() :
     m_defaultPropertyProvider(new DefaultPropertyProvider)
 {
     m_settings = new qbs::Settings(Core::ICore::userResourcePath());

@@ -95,8 +95,6 @@ private:
     void buildSingleFile(QbsProject *project, const QString &file);
     void buildProducts(QbsProject *project, const QStringList &products);
 
-    QbsManager *m_manager;
-
     QAction *m_reparseQbs;
     QAction *m_reparseQbsCtx;
     QAction *m_buildFileCtx;
