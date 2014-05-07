@@ -120,7 +120,9 @@ ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
         projectInfo.qtImportsPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
         projectInfo.qtVersionString = qtVersion->qtVersionString();
     } else {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         projectInfo.qtQmlPath = QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath);
+#endif
         projectInfo.qtImportsPath = QLibraryInfo::location(QLibraryInfo::ImportsPath);
         projectInfo.qtVersionString = QLatin1String(qVersion());
     }
