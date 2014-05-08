@@ -424,6 +424,10 @@ void AndroidSettingsWidget::browseAntLocation()
     if (Utils::HostOsInfo::isWindowsHost()) {
         dir = QDir::homePath() + QLatin1String("/ant.bat");
         filter = QLatin1String("ant (ant.bat)");
+    } else if (Utils::HostOsInfo::isMacHost()) {
+        // work around QTBUG-7739 that prohibits filters that don't start with *
+        dir = QLatin1String("/usr/bin/ant");
+        filter = QLatin1String("ant (*ant)");
     } else {
         dir = QLatin1String("/usr/bin/ant");
         filter = QLatin1String("ant (ant)");
