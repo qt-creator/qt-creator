@@ -1,4 +1,4 @@
-QT += network quick
+QT += quick
 
 include(../../qtcreatorplugin.pri)
 

@@ -35,34 +35,20 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/dialogs/iwizard.h>
-
-#include <projectexplorer/projectexplorer.h>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
 #include <utils/iwelcomepage.h>
-#include <utils/networkaccessmanager.h>
 
-#include <QScrollArea>
-#include <QDesktopServices>
-#include <QPainter>
 #include <QVBoxLayout>
 #include <QMessageBox>
 
-#include <QCoreApplication>
 #include <QDir>
-#include <QSettings>
-#include <QDebug>
-#include <QUrl>
-#include <QtPlugin>
 
 #include <QtQuick/QQuickView>
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
-#include <QtQml/QQmlNetworkAccessManagerFactory>
 
 enum { debug = 0 };
 
@@ -73,14 +59,6 @@ static const char currentPageSettingsKeyC[] = "WelcomeTab";
 
 namespace Welcome {
 namespace Internal {
-
-class NetworkAccessManagerFactory : public QQmlNetworkAccessManagerFactory
-{
-public:
-    NetworkAccessManagerFactory(): QQmlNetworkAccessManagerFactory() {}
-    QNetworkAccessManager* create(QObject *parent) { return new Utils::NetworkAccessManager(parent); }
-};
-
 
 struct WelcomeModePrivate
 {
@@ -128,13 +106,11 @@ private:
     QQuickView *m_welcomePage;
     QList<QObject*> m_pluginList;
     int m_activePlugin;
-    NetworkAccessManagerFactory *m_networkAccessManagerFactory;
 };
 
 // ---  WelcomeMode
 WelcomeMode::WelcomeMode() :
     m_activePlugin(0)
-    , m_networkAccessManagerFactory(new NetworkAccessManagerFactory)
 {
     setDisplayName(tr("Welcome"));
     QIcon qtLogo;
@@ -192,7 +168,6 @@ WelcomeMode::~WelcomeMode()
     QSettings *settings = Core::ICore::settings();
     settings->setValue(QLatin1String(currentPageSettingsKeyC), activePlugin());
     delete m_modeWidget;
-    delete m_networkAccessManagerFactory;
 }
 
 #if QT_VERSION >= 0x050300
@@ -268,7 +243,6 @@ void WelcomeMode::initPlugins()
     engine->setImportPathList(importPathList);
     if (!debug)
         engine->setOutputWarningsToStandardError(false);
-    engine->setNetworkAccessManagerFactory(m_networkAccessManagerFactory);
     QString pluginPath = applicationDirPath();
     if (HostOsInfo::isMacHost())
         pluginPath += QLatin1String("/../PlugIns");
