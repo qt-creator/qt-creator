@@ -36,7 +36,6 @@
 
 QT_BEGIN_NAMESPACE
 class QTreeView;
-class QStandardItem;
 class QItemSelection;
 class QModelIndex;
 QT_END_NAMESPACE
@@ -45,8 +44,6 @@ namespace QmlDesigner {
 
 class NavigatorWidget;
 class NavigatorTreeModel;
-class IconCheckboxItemDelegate;
-class IdItemDelegate;
 
 class NavigatorView : public AbstractView
 {
@@ -101,7 +98,6 @@ public:
     void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector) QTC_OVERRIDE;
 
 private slots:
-//    void handleChangedItem(QStandardItem * item);
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
     void updateItemSelection();
     void changeToComponent(const QModelIndex &index);
