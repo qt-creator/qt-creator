@@ -79,8 +79,12 @@ QuickFixTestDocument::QuickFixTestDocument(const QByteArray &fileName,
     : TestDocument(fileName, source)
     , m_expectedSource(expectedSource)
 {
-    m_source.remove(m_cursorPosition, 1);
-    m_expectedSource.remove(expectedSource.indexOf(m_cursorMarker), 1);
+    if (m_cursorPosition > -1)
+        m_source.remove(m_cursorPosition, 1);
+
+    const int cursorPositionInExpectedSource = m_expectedSource.indexOf(m_cursorMarker);
+    if (cursorPositionInExpectedSource > -1)
+        m_expectedSource.remove(cursorPositionInExpectedSource, 1);
 }
 
 QList<QuickFixTestDocument::Ptr> singleDocument(const QByteArray &original,
