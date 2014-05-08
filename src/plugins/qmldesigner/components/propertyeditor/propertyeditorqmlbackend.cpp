@@ -38,20 +38,18 @@
 #include <variantproperty.h>
 #include <bindingproperty.h>
 
+#include <coreplugin/icore.h>
+#include <qmljs/qmljssimplereader.h>
+#include <utils/fileutils.h>
+
 #include <QApplication>
 #include <QDir>
 #include <QFileInfo>
 
-#include <qmljs/qmljssimplereader.h>
-
-#include <utils/fileutils.h>
 
 enum {
     debug = false
 };
-
-const char propertyEditorPath[] = "/propertyEditorQmlSources";
-const char resourcePropertyEditorPath[] = ":/propertyEditorQmlSources";
 
 static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration = QmlJS::SimpleReaderNode::Ptr();
 
@@ -95,19 +93,6 @@ static QString applicationDirPath()
 {
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
     return Utils::FileUtils::normalizePathName(QCoreApplication::applicationDirPath());
-}
-
-#ifdef Q_OS_MAC
-#  define SHARE_PATH "/../Resources/qmldesigner"
-#else
-#  define SHARE_PATH "/../share/qtcreator/qmldesigner"
-#endif
-
-static inline QString sharedDirPath()
-{
-    QString appPath = applicationDirPath();
-
-    return QFileInfo(appPath + SHARE_PATH).absoluteFilePath();
 }
 
 namespace QmlDesigner {
@@ -339,7 +324,7 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 }
 
 QString PropertyEditorQmlBackend::propertyEditorResourcesPath() {
-    return sharedDirPath() + QLatin1String(propertyEditorPath);
+    return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/propertyEditorQmlSources");
 }
 
 QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
@@ -474,7 +459,7 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
 {
     QDir fileSystemDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
 
-    static QDir resourcesDir(resourcePropertyEditorPath);
+    static QDir resourcesDir(QStringLiteral(":/propertyEditorQmlSources"));
     QDir importDir(info.importDirectoryPath() + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
 
     const QString versionString = QLatin1String("_") + QString::number(info.majorVersion())

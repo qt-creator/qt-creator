@@ -58,8 +58,6 @@ public:
     PropertyEditorView(QWidget *parent = 0);
     ~PropertyEditorView();
 
-    void setQmlDir(const QString &qmlDirPath);
-
     bool hasWidget() const;
     WidgetInfo widgetInfo();
 

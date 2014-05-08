@@ -75,6 +75,7 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
         m_setupCompleted(false),
         m_singleShotTimer(new QTimer(this))
 {
+    m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
     m_updateShortcut = new QShortcut(QKeySequence("F3"), m_stackedWidget);
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
 
@@ -87,7 +88,6 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
     m_stackedWidget->insertWidget(0, new QWidget(m_stackedWidget));
 
     Quick2PropertyEditorView::registerQmlTypes();
-    setQmlDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
     m_stackedWidget->setWindowTitle(tr("Properties"));
 }
 
@@ -313,16 +313,6 @@ void PropertyEditorView::setupPanes()
         m_setupCompleted = true;
         QApplication::restoreOverrideCursor();
     }
-}
-
-void PropertyEditorView::setQmlDir(const QString &qmlDir)
-{
-    m_qmlDir = qmlDir;
-
-
-    QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
-    watcher->addPath(m_qmlDir);
-    connect(watcher, SIGNAL(directoryChanged(QString)), this, SLOT(reloadQml()));
 }
 
 void PropertyEditorView::delayedResetView()
