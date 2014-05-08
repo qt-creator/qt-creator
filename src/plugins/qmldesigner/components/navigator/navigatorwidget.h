@@ -50,7 +50,7 @@ public:
     virtual ~NavigatorWidget();
 
     void setTreeModel(QAbstractItemModel *model);
-    QTreeView *treeView() const { return m_treeView; }
+    QTreeView *treeView() const;
     QList<QToolButton *> createToolBarWidgets();
     QString contextHelpId() const;
 

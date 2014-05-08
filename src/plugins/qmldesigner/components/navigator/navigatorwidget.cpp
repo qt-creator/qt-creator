@@ -77,6 +77,11 @@ void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
     m_treeView->setModel(model);
 }
 
+QTreeView *NavigatorWidget::treeView() const
+{
+    return m_treeView;
+}
+
 QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
 {
     QList<QToolButton *> buttons;
