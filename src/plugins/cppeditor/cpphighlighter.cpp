@@ -412,7 +412,7 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
             ++it;
 
             const QChar *start = it;
-            while (it->isLetterOrNumber() || it->unicode() == '_')
+            while (CppTools::isValidAsciiIdentifierChar(*it))
                 ++it;
 
             int k = CppTools::classifyDoxygenTag(start, it - start);

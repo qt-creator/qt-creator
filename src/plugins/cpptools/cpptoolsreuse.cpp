@@ -50,7 +50,7 @@ static void moveCursorToStartOrEndOfIdentifier(QTextCursor *tc,
         return;
 
     QChar ch = doc->characterAt(tc->position() - posDiff);
-    while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
+    while (isValidIdentifierChar(ch)) {
         tc->movePosition(op);
         ch = doc->characterAt(tc->position() - posDiff);
     }
@@ -111,16 +111,31 @@ bool isOwnershipRAIIType(CPlusPlus::Symbol *symbol, const LookupContext &context
     return false;
 }
 
+bool isValidAsciiIdentifierChar(const QChar &ch)
+{
+    return ch.isLetterOrNumber() || ch == QLatin1Char(' ');
+}
+
+bool isValidFirstIdentifierChar(const QChar &ch)
+{
+    return ch.isLetter() || ch == QLatin1Char('_') || ch.isHighSurrogate() || ch.isLowSurrogate();
+}
+
+bool isValidIdentifierChar(const QChar &ch)
+{
+    return isValidFirstIdentifierChar(ch) || ch.isNumber();
+}
+
 bool isValidIdentifier(const QString &s)
 {
     const int length = s.length();
     for (int i = 0; i < length; ++i) {
         const QChar &c = s.at(i);
         if (i == 0) {
-            if (!c.isLetter() && c != QLatin1Char('_'))
+            if (!isValidFirstIdentifierChar(c))
                 return false;
         } else {
-            if (!c.isLetterOrNumber() && c != QLatin1Char('_'))
+            if (!isValidIdentifierChar(c))
                 return false;
         }
     }

@@ -176,11 +176,6 @@ struct CanonicalSymbol
         return typeOfExpression.context();
     }
 
-    static inline bool isIdentifierChar(const QChar &ch)
-    {
-        return ch.isLetterOrNumber() || ch == QLatin1Char('_');
-    }
-
     Scope *getScopeAndExpression(const QTextCursor &cursor, QString *code)
     {
         return getScopeAndExpression(editor, info, cursor, code);
@@ -202,11 +197,11 @@ struct CanonicalSymbol
 
         int pos = tc.position();
 
-        if (!isIdentifierChar(document->characterAt(pos)))
-            if (!(pos > 0 && isIdentifierChar(document->characterAt(pos - 1))))
+        if (!isValidIdentifierChar(document->characterAt(pos)))
+            if (!(pos > 0 && isValidIdentifierChar(document->characterAt(pos - 1))))
                 return 0;
 
-        while (isIdentifierChar(document->characterAt(pos)))
+        while (isValidIdentifierChar(document->characterAt(pos)))
             ++pos;
         tc.setPosition(pos);
 

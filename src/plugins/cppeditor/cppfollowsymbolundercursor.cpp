@@ -40,6 +40,7 @@
 #include <cplusplus/TypeOfExpression.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/functionutils.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <cpptools/symbolfinder.h>
 #include <texteditor/basetextdocumentlayout.h>
 #include <utils/qtcassert.h>
@@ -434,7 +435,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     QTextCursor tc = cursor;
     QTextDocument *document = m_widget->document();
     QChar ch = document->characterAt(tc.position());
-    while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
+    while (CppTools::isValidIdentifierChar(ch)) {
         tc.movePosition(QTextCursor::NextCharacter);
         ch = document->characterAt(tc.position());
     }
@@ -559,7 +560,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
         const QTextBlock block = tc.block();
         int pos = cursor.positionInBlock();
         QChar ch = document->characterAt(cursor.position());
-        if (pos > 0 && !(ch.isLetterOrNumber() || ch == QLatin1Char('_')))
+        if (pos > 0 && !isValidIdentifierChar(ch))
             --pos; // positionInBlock points to a delimiter character.
         const Token tk = SimpleLexer::tokenAt(block.text(), pos,
                                               BackwardsScanner::previousBlockState(block), true);

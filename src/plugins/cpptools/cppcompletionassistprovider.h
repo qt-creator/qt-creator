@@ -58,6 +58,7 @@ public:
     bool supportsEditor(const Core::Id &editorId) const QTC_OVERRIDE;
     int activationCharSequenceLength() const QTC_OVERRIDE;
     bool isActivationCharSequence(const QString &sequence) const QTC_OVERRIDE;
+    bool isContinuationChar(const QChar &c) const QTC_OVERRIDE;
 
     virtual TextEditor::IAssistInterface *createAssistInterface(
             ProjectExplorer::Project *project, TextEditor::BaseTextEditor *editor,

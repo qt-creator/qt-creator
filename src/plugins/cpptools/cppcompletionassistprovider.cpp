@@ -29,6 +29,8 @@
 
 #include "cppcompletionassistprovider.h"
 
+#include "cpptoolsreuse.h"
+
 #include <cppeditor/cppeditorconstants.h>
 
 #include <cplusplus/Token.h>
@@ -57,6 +59,11 @@ bool CppCompletionAssistProvider::isActivationCharSequence(const QString &sequen
     if (activationSequenceChar(ch, ch2, ch3, 0, true) != 0)
         return true;
     return false;
+}
+
+bool CppCompletionAssistProvider::isContinuationChar(const QChar &c) const
+{
+    return isValidIdentifierChar(c);
 }
 
 int CppCompletionAssistProvider::activationSequenceChar(const QChar &ch,

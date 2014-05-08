@@ -32,6 +32,7 @@
 
 #include "cpptools_global.h"
 
+QT_FORWARD_DECLARE_CLASS(QChar)
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
 QT_FORWARD_DECLARE_CLASS(QStringRef)
 
@@ -48,6 +49,9 @@ void CPPTOOLS_EXPORT moveCursorToStartOfIdentifier(QTextCursor *tc);
 bool CPPTOOLS_EXPORT isOwnershipRAIIType(CPlusPlus::Symbol *symbol,
                                          const CPlusPlus::LookupContext &context);
 
+bool CPPTOOLS_EXPORT isValidAsciiIdentifierChar(const QChar &ch);
+bool CPPTOOLS_EXPORT isValidFirstIdentifierChar(const QChar &ch);
+bool CPPTOOLS_EXPORT isValidIdentifierChar(const QChar &ch);
 bool CPPTOOLS_EXPORT isValidIdentifier(const QString &s);
 
 bool CPPTOOLS_EXPORT isQtKeyword(const QStringRef &text);

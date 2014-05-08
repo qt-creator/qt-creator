@@ -35,6 +35,7 @@
 #include "cppsnapshotupdater.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
+#include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -314,8 +315,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
         while (preserveLength > 0) {
             if (inEditor.startsWith(toInsert.right(preserveLength))
                     && (inEditorLength == preserveLength
-                        || (!inEditor.at(preserveLength).isLetterOrNumber()
-                            && inEditor.at(preserveLength) != QLatin1Char('_')))) {
+                        || !CppTools::isValidIdentifierChar(inEditor.at(preserveLength)))) {
                 break;
             }
             --preserveLength;
@@ -671,11 +671,12 @@ bool CppCompletionAssistProcessor::accepts() const
     } else {
         // Trigger completion after three characters of a name have been typed, when not editing an existing name
         QChar characterUnderCursor = m_interface->characterAt(pos);
-        if (!characterUnderCursor.isLetterOrNumber() && characterUnderCursor != QLatin1Char('_')) {
+
+        if (!isValidIdentifierChar(characterUnderCursor)) {
             const int startOfName = findStartOfName(pos);
             if (pos - startOfName >= 3) {
                 const QChar firstCharacter = m_interface->characterAt(startOfName);
-                if (firstCharacter.isLetter() || firstCharacter == QLatin1Char('_')) {
+                if (isValidFirstIdentifierChar(firstCharacter)) {
                     // Finally check that we're not inside a comment or string (code copied from startOfOperator)
                     QTextCursor tc(m_interface->textDocument());
                     tc.setPosition(pos);
@@ -875,7 +876,7 @@ int CppCompletionAssistProcessor::findStartOfName(int pos) const
     // Skip to the start of a name
     do {
         chr = m_interface->characterAt(--pos);
-    } while (chr.isLetterOrNumber() || chr == QLatin1Char('_'));
+    } while (CppTools::isValidIdentifierChar(chr));
 
     return pos + 1;
 }

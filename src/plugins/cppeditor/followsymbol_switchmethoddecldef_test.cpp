@@ -919,6 +919,11 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
         "\n"
         "void h() { typedef TreeConstIterator<MyBase> const_iterator; }\n"
     );
+
+    QTest::newRow("unicodeIdentifier") << _(
+        "class Foo { void $\u00FC\u4E8C\U00010302(); };\n"
+        "void Foo::@\u00FC\u4E8C\U00010302() {}\n"
+    );
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor()

@@ -66,8 +66,10 @@ QString cleanText(const QString &original)
     int ignore = 0;
     for (int i = clean.length() - 1; i >= 0; --i, ++ignore) {
         const QChar &c = clean.at(i);
-        if (c.isLetterOrNumber() || c == QLatin1Char('_'))
+        if (c.isLetterOrNumber() || c == QLatin1Char('_')
+                || c.isHighSurrogate() || c.isLowSurrogate()) {
             break;
+        }
     }
     if (ignore)
         clean.chop(ignore);
