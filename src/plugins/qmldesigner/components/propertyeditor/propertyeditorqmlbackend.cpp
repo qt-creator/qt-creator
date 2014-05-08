@@ -338,7 +338,7 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
 
     QString qmlTemplate = imports.join(QLatin1String("\n")) + QLatin1Char('\n');
     qmlTemplate += QLatin1String("Section {\n");
-    qmlTemplate += QString(QLatin1String("caption: \"%1\"\n")).arg(QString::fromUtf8(objectNode.modelNode().simplifiedTypeName()));
+    qmlTemplate += QStringLiteral("caption: \"%1\"\n").arg(QString::fromUtf8(objectNode.modelNode().simplifiedTypeName()));
     qmlTemplate += QLatin1String("SectionLayout {\n");
 
     QList<PropertyName> orderedList = type.propertyNames();

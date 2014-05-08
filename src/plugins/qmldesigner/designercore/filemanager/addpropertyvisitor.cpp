@@ -149,7 +149,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     }
 
     if (!m_dynamicTypeName.isEmpty())
-        newPropertyTemplate.prepend(QString(QLatin1String("property %1 ")).arg(QString::fromUtf8(m_dynamicTypeName)));
+        newPropertyTemplate.prepend(QStringLiteral("property %1 ").arg(QString::fromUtf8(m_dynamicTypeName)));
 
     if (isOneLiner) {
         if (needsPreceedingSemicolon)

@@ -57,12 +57,12 @@ static inline QString toInfo(const Import &import)
     }
 
     if (import.hasVersion())
-        txt += QString::fromUtf8("with version \"%1\"").arg(import.version());
+        txt += QStringLiteral("with version \"%1\"").arg(import.version());
     else
         txt += QLatin1String("without version");
 
     if (import.hasAlias())
-        txt += QString::fromUtf8("aliassed as \"%1\"").arg(import.alias());
+        txt += QStringLiteral("aliassed as \"%1\"").arg(import.alias());
     else
         txt += QLatin1String("unaliassed");
 
@@ -123,7 +123,7 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
 
 QString AddPropertyRewriteAction::info() const
 {
-    return QString("AddPropertyRewriteAction for property \"%1\" (type: %2)").arg(m_property.name(), toString(m_propertyType));
+    return QStringLiteral("AddPropertyRewriteAction for property \"%1\" (type: %2)").arg(m_property.name(), toString(m_propertyType));
 }
 
 bool ChangeIdRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -281,7 +281,7 @@ bool RemovePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactori
 
 QString RemovePropertyRewriteAction::info() const
 {
-    return QString("RemovePropertyRewriteAction for property \"%1\"").arg(QLatin1String(m_property.name()));
+    return QStringLiteral("RemovePropertyRewriteAction for property \"%1\"").arg(QLatin1String(m_property.name()));
 }
 
 bool ReparentNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)

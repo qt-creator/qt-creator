@@ -131,7 +131,7 @@ static inline bool checkIfDerivedFromItem(const QString &fileName)
 }
 
 namespace QmlDesigner {
-static const QString s_qmlFilePattern = QString(QLatin1String("*.qml"));
+static const QString s_qmlFilePattern = QStringLiteral("*.qml");
 
 SubComponentManager::SubComponentManager(Model *model, QObject *parent)
     : QObject(parent),

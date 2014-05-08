@@ -125,7 +125,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
                     return QLatin1String("false");
 
             case QVariant::Color:
-                return QString(QLatin1String("\"%1\"")).arg(properColorName(value.value<QColor>()));
+                return QStringLiteral("\"%1\"").arg(properColorName(value.value<QColor>()));
 
             case static_cast<QVariant::Type>(QMetaType::Float):
             case QVariant::Double:
@@ -137,7 +137,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
                 return stringValue;
 
             default:
-                return QString(QLatin1String("\"%1\"")).arg(escape(stringValue));
+                return QStringLiteral("\"%1\"").arg(escape(stringValue));
             }
         }
     } else {
