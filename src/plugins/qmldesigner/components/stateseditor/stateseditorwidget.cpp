@@ -113,14 +113,6 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
 
     m_quickView->rootContext()->setContextProperty("canAddNewStates", true);
 
-    // Work around ASSERT in the internal QGraphicsScene that happens when
-    // the scene is created + items set dirty in one event loop run (BAUHAUS-459)
-    //QApplication::processEvents();
-
-
-    QEvent event(QEvent::WindowActivate);
-    QApplication::sendEvent(m_quickView.data(), &event);
-
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
 
     setWindowTitle(tr("States", "Title of Editor widget"));
