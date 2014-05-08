@@ -204,8 +204,8 @@ void QmlProfilerClientManager::connectClientSignals()
 void QmlProfilerClientManager::disconnectClientSignals()
 {
     if (d->qmlclientplugin) {
-        disconnect(d->qmlclientplugin.data(), SIGNAL(complete()),
-                   this, SLOT(qmlComplete()));
+        disconnect(d->qmlclientplugin.data(), SIGNAL(complete(qint64)),
+                   this, SLOT(qmlComplete(qint64)));
         disconnect(d->qmlclientplugin.data(),
                    SIGNAL(rangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
                                 qint64,qint64,qint64,qint64,qint64)),
@@ -216,8 +216,6 @@ void QmlProfilerClientManager::disconnectClientSignals()
                 d->modelManager->traceTime(), SLOT(setEndTime(qint64)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),
                 d->modelManager->traceTime(), SLOT(setStartTime(qint64)));
-        disconnect(d->qmlclientplugin.data(), SIGNAL(frame(qint64,int,int)),
-                   d->modelManager, SLOT(addFrameEvent(qint64,int,int)));
         disconnect(d->qmlclientplugin.data(), SIGNAL(enabledChanged()),
                    d->qmlclientplugin.data(), SLOT(sendRecordingStatus()));
         // fixme: this should be unified for both clients
