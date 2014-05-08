@@ -48,6 +48,7 @@ GLSLEditorEditable::GLSLEditorEditable(GLSLTextEditorWidget *editor)
 {
     setContext(Core::Context(GLSLEditor::Constants::C_GLSLEDITOR_ID,
                              TextEditor::Constants::C_TEXTEDITOR));
+    setDuplicateSupported(true);
 }
 
 } // namespace Internal

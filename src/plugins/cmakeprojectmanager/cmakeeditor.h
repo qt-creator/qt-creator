@@ -52,7 +52,6 @@ class CMakeEditor : public TextEditor::BaseTextEditor
 public:
     CMakeEditor(CMakeEditorWidget *);
 
-    bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate();
     TextEditor::CompletionAssistProvider *completionAssistProvider();
 

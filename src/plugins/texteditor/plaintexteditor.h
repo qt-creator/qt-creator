@@ -47,7 +47,6 @@ class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
 public:
     PlainTextEditor(PlainTextEditorWidget *);
 
-    bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate();
 };
 

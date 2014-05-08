@@ -45,7 +45,6 @@ public:
     explicit PythonEditor(EditorWidget *editorWidget);
     virtual ~PythonEditor();
 
-    bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate();
 
     /**

@@ -52,6 +52,7 @@ PythonEditor::PythonEditor(EditorWidget *editorWidget)
 {
     setContext(Core::Context(Constants::C_PYTHONEDITOR_ID,
                              TextEditor::Constants::C_TEXTEDITOR));
+    setDuplicateSupported(true);
 }
 
 PythonEditor::~PythonEditor()

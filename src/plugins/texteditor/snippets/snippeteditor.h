@@ -48,7 +48,6 @@ class TEXTEDITOR_EXPORT SnippetEditor : public BaseTextEditor
 public:
     SnippetEditor(SnippetEditorWidget *editorWidget);
 
-    bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate() { return 0; }
 };
 

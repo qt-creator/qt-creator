@@ -44,7 +44,6 @@ class GLSLEditorEditable : public TextEditor::BaseTextEditor
 public:
     explicit GLSLEditorEditable(GLSLTextEditorWidget *);
 
-    bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate();
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     TextEditor::CompletionAssistProvider *completionAssistProvider();

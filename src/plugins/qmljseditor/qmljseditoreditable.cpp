@@ -53,6 +53,7 @@ QmlJSEditor::QmlJSEditor(QmlJSTextEditorWidget *editor)
     m_context.add(Constants::C_QMLJSEDITOR_ID);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
     m_context.add(ProjectExplorer::Constants::LANG_QMLJS);
+    setDuplicateSupported(true);
 }
 
 bool QmlJSEditor::isDesignModePreferred() const

@@ -447,6 +447,7 @@ CPPEditor::CPPEditor(CPPEditorWidget *editor)
     m_context.add(CppEditor::Constants::C_CPPEDITOR);
     m_context.add(ProjectExplorer::Constants::LANG_CXX);
     m_context.add(TextEditor::Constants::C_TEXTEDITOR);
+    setDuplicateSupported(true);
 }
 
 Q_GLOBAL_STATIC(CppTools::SymbolFinder, symbolFinder)

@@ -61,6 +61,7 @@ CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
 {
     setContext(Core::Context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
+    setDuplicateSupported(true);
     connect(document(), SIGNAL(changed()), this, SLOT(markAsChanged()));
 }
 

@@ -80,11 +80,7 @@ ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
 {
     document()->setId(Constants::FILES_EDITOR_ID);
     setContext(Core::Context(Constants::C_FILESEDITOR));
-}
-
-bool ProjectFilesEditor::duplicateSupported() const
-{
-    return true;
+    setDuplicateSupported(true);
 }
 
 Core::IEditor *ProjectFilesEditor::duplicate()

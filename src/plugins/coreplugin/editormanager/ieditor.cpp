@@ -56,3 +56,21 @@
   \sa Core::EditorFactoryInterface Core::IContext
 
 */
+
+namespace Core {
+
+IEditor::IEditor(QObject *parent)
+    : IContext(parent), m_duplicateSupported(false)
+{}
+
+bool IEditor::duplicateSupported() const
+{
+    return m_duplicateSupported;
+}
+
+void IEditor::setDuplicateSupported(bool duplicatesSupported)
+{
+    m_duplicateSupported = duplicatesSupported;
+}
+
+} // namespace Core

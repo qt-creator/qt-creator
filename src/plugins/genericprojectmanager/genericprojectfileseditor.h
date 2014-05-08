@@ -59,7 +59,6 @@ class ProjectFilesEditor : public TextEditor::BaseTextEditor
 public:
     ProjectFilesEditor(ProjectFilesEditorWidget *editorWidget);
 
-    bool duplicateSupported() const;
     Core::IEditor *duplicate();
 };
 

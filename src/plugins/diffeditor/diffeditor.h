@@ -62,7 +62,6 @@ public:
     DiffEditorController *controller() const;
 
     // Core::IEditor
-    bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate();
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);

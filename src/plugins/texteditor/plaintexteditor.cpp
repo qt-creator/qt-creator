@@ -65,6 +65,7 @@ PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
 {
     setContext(Core::Context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                              TextEditor::Constants::C_TEXTEDITOR));
+    setDuplicateSupported(true);
 }
 
 PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)

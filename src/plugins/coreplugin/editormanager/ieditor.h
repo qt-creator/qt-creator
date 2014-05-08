@@ -44,13 +44,15 @@ class CORE_EXPORT IEditor : public IContext
     Q_OBJECT
 
 public:
-    IEditor(QObject *parent = 0) : IContext(parent) {}
+    IEditor(QObject *parent = 0);
     virtual ~IEditor() {}
+
+    bool duplicateSupported() const;
+    void setDuplicateSupported(bool duplicateSupported);
 
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName) = 0;
     virtual IDocument *document() = 0;
 
-    virtual bool duplicateSupported() const { return false; }
     virtual IEditor *duplicate() { return 0; }
 
     virtual QByteArray saveState() const { return QByteArray(); }
@@ -63,6 +65,9 @@ public:
     virtual QWidget *toolBar() = 0;
 
     virtual bool isDesignModePreferred() const { return false; }
+
+private:
+    bool m_duplicateSupported;
 };
 
 } // namespace Core

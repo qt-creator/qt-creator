@@ -57,6 +57,7 @@ ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
 {
     setContext(Core::Context(Constants::C_PROFILEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
+    setDuplicateSupported(true);
 }
 
 Core::IEditor *ProFileEditor::duplicate()

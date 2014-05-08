@@ -97,7 +97,6 @@ class CPPEditor : public TextEditor::BaseTextEditor
 public:
     CPPEditor(CPPEditorWidget *);
 
-    bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate();
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);

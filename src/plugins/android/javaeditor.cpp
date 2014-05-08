@@ -54,6 +54,7 @@ JavaEditor::JavaEditor(JavaEditorWidget *editor)
 {
     setContext(Core::Context(Constants::C_JAVA_EDITOR,
               TextEditor::Constants::C_TEXTEDITOR));
+    setDuplicateSupported(true);
 }
 
 Core::IEditor *JavaEditor::duplicate()

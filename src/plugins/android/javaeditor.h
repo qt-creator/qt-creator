@@ -47,7 +47,6 @@ class JavaEditor : public TextEditor::BaseTextEditor
 public:
     JavaEditor(JavaEditorWidget *);
 
-    bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate();
     TextEditor::CompletionAssistProvider *completionAssistProvider();
 };

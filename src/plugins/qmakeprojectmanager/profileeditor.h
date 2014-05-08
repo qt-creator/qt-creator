@@ -47,7 +47,6 @@ class ProFileEditor : public TextEditor::BaseTextEditor
 public:
     ProFileEditor(ProFileEditorWidget *);
 
-    bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate();
     TextEditor::CompletionAssistProvider *completionAssistProvider();
 };
