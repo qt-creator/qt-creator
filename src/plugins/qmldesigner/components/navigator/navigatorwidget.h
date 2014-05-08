@@ -59,8 +59,10 @@ signals:
     void upButtonClicked();
     void downButtonClicked();
 
-private:
+private: // functions
     NavigatorView *navigatorView() const;
+
+private: // variables
     NavigatorTreeView *m_treeView;
     QWeakPointer<NavigatorView> m_navigatorView;
 };
