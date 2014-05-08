@@ -67,11 +67,6 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view) :
             QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 }
 
-NavigatorWidget::~NavigatorWidget()
-{
-
-}
-
 void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
 {
     m_treeView->setModel(model);

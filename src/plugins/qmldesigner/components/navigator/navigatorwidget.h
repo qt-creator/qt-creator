@@ -47,7 +47,6 @@ class NavigatorWidget: public QFrame
     Q_OBJECT
 public:
     NavigatorWidget(NavigatorView *view);
-    virtual ~NavigatorWidget();
 
     void setTreeModel(QAbstractItemModel *model);
     QTreeView *treeView() const;
