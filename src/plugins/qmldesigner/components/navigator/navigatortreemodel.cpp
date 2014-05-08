@@ -223,7 +223,7 @@ static bool computeTarget(const QModelIndex &rowModelIndex,
 bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                                       Qt::DropAction action,
                                       int rowNumber,
-                                      int columnNumber,
+                                      int /*columnNumber*/,
                                       const QModelIndex &dropModelIndex)
 {
     if (action == Qt::IgnoreAction)
