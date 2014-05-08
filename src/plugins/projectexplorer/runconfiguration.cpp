@@ -429,36 +429,26 @@ RunConfiguration *IRunConfigurationFactory::restore(Target *parent, const QVaria
 
 IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
-    QList<IRunConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
-    foreach (IRunConfigurationFactory *factory, factories) {
-        if (factory->canRestore(parent, map))
-            return factory;
-    }
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<IRunConfigurationFactory>(
+        [&parent, &map](IRunConfigurationFactory *factory) {
+            return factory->canRestore(parent, map);
+        });
 }
 
 IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, RunConfiguration *rc)
 {
-    QList<IRunConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
-    foreach (IRunConfigurationFactory *factory, factories) {
-        if (factory->canClone(parent, rc))
-            return factory;
-    }
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<IRunConfigurationFactory>(
+        [&parent, rc](IRunConfigurationFactory *factory) {
+            return factory->canClone(parent, rc);
+        });
 }
 
 QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 {
-    QList<IRunConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
-    QList<IRunConfigurationFactory *> result;
-    foreach (IRunConfigurationFactory *factory, factories) {
-        if (!factory->availableCreationIds(parent).isEmpty())
-            result << factory;
-    }
-    return result;
+    return ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>(
+        [&parent](IRunConfigurationFactory *factory) {
+            return !factory->availableCreationIds(parent).isEmpty();
+        });
 }
 
 /*!

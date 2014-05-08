@@ -227,36 +227,26 @@ DeployConfiguration *DeployConfigurationFactory::clone(Target *parent, DeployCon
 
 DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
-    QList<DeployConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
-    foreach (DeployConfigurationFactory *factory, factories) {
-        if (factory->canRestore(parent, map))
-            return factory;
-    }
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>(
+        [&parent, &map](DeployConfigurationFactory *factory) {
+            return factory->canRestore(parent, map);
+        });
 }
 
 QList<DeployConfigurationFactory *> DeployConfigurationFactory::find(Target *parent)
 {
-    QList<DeployConfigurationFactory *> result;
-    QList<DeployConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
-    foreach (DeployConfigurationFactory *factory, factories) {
-        if (!factory->availableCreationIds(parent).isEmpty())
-            result << factory;
-    }
-    return result;
+    return ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>(
+        [&parent](DeployConfigurationFactory *factory) {
+            return !factory->availableCreationIds(parent).isEmpty();
+        });
 }
 
 DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, DeployConfiguration *dc)
 {
-    QList<DeployConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
-    foreach (DeployConfigurationFactory *factory, factories) {
-        if (factory->canClone(parent, dc))
-            return factory;
-    }
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<DeployConfigurationFactory>(
+        [&parent, &dc](DeployConfigurationFactory *factory) {
+            return factory->canClone(parent, dc);
+        });
 }
 
 bool DeployConfigurationFactory::canHandle(Target *parent) const

@@ -335,15 +335,16 @@ CustomWizard::CustomWizardContextPtr CustomWizard::context() const
 CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p,
                                          const Core::IWizard::Data &b)
 {
+    ICustomWizardFactory * factory = ExtensionSystem::PluginManager::getObject<ICustomWizardFactory>(
+        [&p, &b](ICustomWizardFactory *factory) {
+            return ((p->klass.isEmpty() && b.kind == factory->kind())
+                    || (!p->klass.isEmpty() && p->klass == factory->klass()));
+        });
+
     CustomWizard *rc = 0;
-    QList<ICustomWizardFactory *> factories = ExtensionSystem::PluginManager::getObjects<ICustomWizardFactory>();
-    foreach (ICustomWizardFactory *tmp, factories) {
-        if ((p->klass.isEmpty() && b.kind == tmp->kind())
-                || (!p->klass.isEmpty() && p->klass == tmp->klass())) {
-            rc = tmp->create();
-            break;
-        }
-    }
+    if (factory)
+        rc = factory->create();
+
     if (!rc) {
         qWarning("Unable to create custom wizard for class %s.", qPrintable(p->klass));
         return 0;

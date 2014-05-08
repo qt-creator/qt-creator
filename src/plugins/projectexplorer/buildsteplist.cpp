@@ -44,20 +44,18 @@ namespace {
 
 IBuildStepFactory *findCloneFactory(BuildStepList *parent, BuildStep *source)
 {
-    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::getObjects<IBuildStepFactory>();
-    foreach (IBuildStepFactory *factory, factories)
-        if (factory->canClone(parent, source))
-            return factory;
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<IBuildStepFactory>(
+        [&parent, &source](IBuildStepFactory *factory) {
+            return factory->canClone(parent, source);
+        });
 }
 
 IBuildStepFactory *findRestoreFactory(BuildStepList *parent, const QVariantMap &map)
 {
-    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::getObjects<IBuildStepFactory>();
-    foreach (IBuildStepFactory *factory, factories)
-        if (factory->canRestore(parent, map))
-            return factory;
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<IBuildStepFactory>(
+        [&parent, &map](IBuildStepFactory *factory) {
+            return factory->canRestore(parent, map);
+        });
 }
 
 const char STEPS_COUNT_KEY[] = "ProjectExplorer.BuildStepList.StepsCount";

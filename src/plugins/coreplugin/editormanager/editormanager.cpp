@@ -1380,11 +1380,10 @@ EditorManager::ExternalEditorList
 template <class EditorFactoryLike>
 EditorFactoryLike *findById(const Core::Id &id)
 {
-    const QList<EditorFactoryLike *> factories = ExtensionSystem::PluginManager::getObjects<EditorFactoryLike>();
-    foreach (EditorFactoryLike *efl, factories)
-        if (id == efl->id())
-            return efl;
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<EditorFactoryLike>(
+        [&id](EditorFactoryLike *efl) {
+            return id == efl->id();
+        });
 }
 
 IEditor *EditorManager::createEditor(const Id &editorId, const QString &fileName)

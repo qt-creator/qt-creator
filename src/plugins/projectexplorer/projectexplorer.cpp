@@ -2445,11 +2445,10 @@ void ProjectExplorerPlugin::activeRunConfigurationChanged()
 // NBS TODO implement more than one runner
 IRunControlFactory *ProjectExplorerPlugin::findRunControlFactory(RunConfiguration *config, RunMode mode)
 {
-    const QList<IRunControlFactory *> factories = ExtensionSystem::PluginManager::getObjects<IRunControlFactory>();
-    foreach (IRunControlFactory *f, factories)
-        if (f->canRun(config, mode))
-            return f;
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<IRunControlFactory>(
+        [&config, &mode](IRunControlFactory *factory) {
+            return factory->canRun(config, mode);
+        });
 }
 
 void ProjectExplorerPlugin::updateDeployActions()

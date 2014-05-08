@@ -324,16 +324,16 @@ void DeviceManager::setDefaultDevice(Core::Id id)
 
 const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
 {
-    const QList<IDeviceFactory *> &factories
-        = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
-    foreach (const IDeviceFactory * const factory, factories) {
-        if (factory->canRestore(map))
-            return factory;
-    }
-    qWarning("Warning: No factory found for device '%s' of type '%s'.",
-             qPrintable(IDevice::idFromMap(map).toString()),
-             qPrintable(IDevice::typeFromMap(map).toString()));
-    return 0;
+    IDeviceFactory *factory = ExtensionSystem::PluginManager::getObject<IDeviceFactory>(
+        [&map](IDeviceFactory *factory) {
+            return factory->canRestore(map);
+        });
+
+    if (!factory)
+        qWarning("Warning: No factory found for device '%s' of type '%s'.",
+                 qPrintable(IDevice::idFromMap(map).toString()),
+                 qPrintable(IDevice::typeFromMap(map).toString()));
+    return factory;
 }
 
 DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)

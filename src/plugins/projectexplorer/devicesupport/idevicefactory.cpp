@@ -89,13 +89,10 @@ bool IDeviceFactory::canCreate() const
 
 IDeviceFactory *IDeviceFactory::find(Core::Id type)
 {
-    QList<IDeviceFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
-    foreach (IDeviceFactory *factory, factories) {
-        if (factory->availableCreationIds().contains(type))
-            return factory;
-    }
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<IDeviceFactory>(
+        [&type](IDeviceFactory *factory) {
+            return factory->availableCreationIds().contains(type);
+        });
 }
 
 IDeviceFactory::IDeviceFactory(QObject *parent) : QObject(parent)

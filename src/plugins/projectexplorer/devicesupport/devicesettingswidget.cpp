@@ -125,15 +125,12 @@ void DeviceSettingsWidget::initGui()
     m_ui->configurationComboBox->setModel(m_deviceManagerModel);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
 
-    bool hasDeviceFactories = false;
     const QList<IDeviceFactory *> &factories
         = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
-    foreach (const IDeviceFactory *f, factories) {
-        if (f->canCreate()) {
-            hasDeviceFactories = true;
-            break;
-        }
-    }
+
+    bool hasDeviceFactories = std::any_of(factories.constBegin(), factories.constEnd(),
+                                          [](IDeviceFactory *factory) { return factory->canCreate(); });
+
     m_ui->addConfigButton->setEnabled(hasDeviceFactories);
 
     int lastIndex = Core::ICore::settings()

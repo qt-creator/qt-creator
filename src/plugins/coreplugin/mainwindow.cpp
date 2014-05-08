@@ -795,14 +795,10 @@ void MainWindow::openFile()
 
 static QList<IDocumentFactory*> getNonEditorDocumentFactories()
 {
-    const QList<IDocumentFactory*> allFileFactories =
-        ExtensionSystem::PluginManager::getObjects<IDocumentFactory>();
-    QList<IDocumentFactory*> nonEditorFileFactories;
-    foreach (IDocumentFactory *factory, allFileFactories) {
-        if (!qobject_cast<IEditorFactory *>(factory))
-            nonEditorFileFactories.append(factory);
-    }
-    return nonEditorFileFactories;
+    return ExtensionSystem::PluginManager::getObjects<IDocumentFactory>(
+        [](IDocumentFactory *factory) {
+            return !qobject_cast<IEditorFactory *>(factory);
+        });
 }
 
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,

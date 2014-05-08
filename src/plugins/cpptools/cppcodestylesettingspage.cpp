@@ -486,15 +486,10 @@ void CppCodeStylePreferencesWidget::updatePreview()
 
 void CppCodeStylePreferencesWidget::decorateEditors(const TextEditor::FontSettings &fontSettings)
 {
-    const ISnippetProvider *provider = 0;
-    const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::getObjects<ISnippetProvider>();
-    foreach (const ISnippetProvider *current, providers) {
-        if (current->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID)) {
-            provider = current;
-            break;
-        }
-    }
+    const ISnippetProvider *provider = ExtensionSystem::PluginManager::getObject<ISnippetProvider>(
+        [](ISnippetProvider *current) {
+            return current->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
+        });
 
     foreach (TextEditor::SnippetEditorWidget *editor, m_previews) {
         editor->baseTextDocument()->setFontSettings(fontSettings);

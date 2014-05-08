@@ -42,13 +42,10 @@ QmakeRunConfigurationFactory *QmakeRunConfigurationFactory::find(ProjectExplorer
     if (!t)
         return 0;
 
-    QList<QmakeRunConfigurationFactory *> factories
-            = ExtensionSystem::PluginManager::getObjects<QmakeRunConfigurationFactory>();
-    foreach (QmakeRunConfigurationFactory *factory, factories) {
-        if (factory->canHandle(t))
-            return factory;
-    }
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<QmakeRunConfigurationFactory>(
+        [&t](QmakeRunConfigurationFactory *factory) {
+            return factory->canHandle(t);
+        });
 }
 
 } // namespace QmakeProjectManager

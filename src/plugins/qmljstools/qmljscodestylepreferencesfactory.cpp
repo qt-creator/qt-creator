@@ -92,12 +92,10 @@ TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter() const
 
 TextEditor::ISnippetProvider *QmlJSCodeStylePreferencesFactory::snippetProvider() const
 {
-    const QList<TextEditor::ISnippetProvider *> &providers =
-    ExtensionSystem::PluginManager::getObjects<TextEditor::ISnippetProvider>();
-    foreach (TextEditor::ISnippetProvider *provider, providers)
-        if (provider->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID))
-            return provider;
-    return 0;
+    return ExtensionSystem::PluginManager::getObject<TextEditor::ISnippetProvider>(
+        [](TextEditor::ISnippetProvider *provider) {
+            return provider->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
+        });
 }
 
 QString QmlJSCodeStylePreferencesFactory::previewText() const

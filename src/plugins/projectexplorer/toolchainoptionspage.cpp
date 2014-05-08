@@ -501,7 +501,8 @@ QWidget *ToolChainOptionsPage::widget()
                 this, SLOT(toolChainSelectionChanged()));
 
         // Get toolchainfactories:
-        m_factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
+        m_factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>(
+                    [](ToolChainFactory *factory) { return factory->canCreate();});
 
         // Set up add menu:
         QMenu *addMenu = new QMenu(m_addButton);
@@ -509,14 +510,12 @@ QWidget *ToolChainOptionsPage::widget()
         connect(mapper, SIGNAL(mapped(QObject*)), this, SLOT(createToolChain(QObject*)));
 
         foreach (ToolChainFactory *factory, m_factories) {
-            if (factory->canCreate()) {
-                QAction *action = new QAction(addMenu);
-                action->setText(factory->displayName());
-                connect(action, SIGNAL(triggered()), mapper, SLOT(map()));
-                mapper->setMapping(action, static_cast<QObject *>(factory));
+            QAction *action = new QAction(addMenu);
+            action->setText(factory->displayName());
+            connect(action, SIGNAL(triggered()), mapper, SLOT(map()));
+            mapper->setMapping(action, static_cast<QObject *>(factory));
 
-                addMenu->addAction(action);
-            }
+            addMenu->addAction(action);
         }
         connect(m_cloneButton, SIGNAL(clicked()), mapper, SLOT(map()));
         mapper->setMapping(m_cloneButton, static_cast<QObject *>(0));
