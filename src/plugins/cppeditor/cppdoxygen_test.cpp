@@ -99,8 +99,7 @@ public:
         QCOMPARE(QLatin1String(result), QLatin1String(expected));
 
         testDocument.m_editorWidget->undo();
-        const QByteArray contentsAfterUndo
-                = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
+        const QString contentsAfterUndo = testDocument.m_editorWidget->document()->toPlainText();
         QCOMPARE(contentsAfterUndo, testDocument.m_source);
     }
 };

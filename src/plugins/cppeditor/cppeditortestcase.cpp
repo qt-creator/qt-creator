@@ -43,7 +43,7 @@ namespace Tests {
 
 TestDocument::TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker)
     : CppTools::Tests::TestDocument(fileName, source, cursorMarker)
-    , m_cursorPosition(source.indexOf(m_cursorMarker))
+    , m_cursorPosition(m_source.indexOf(QLatin1Char(m_cursorMarker)))
     , m_editor(0)
     , m_editorWidget(0)
 {

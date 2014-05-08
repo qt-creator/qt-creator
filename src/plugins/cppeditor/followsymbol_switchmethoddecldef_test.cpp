@@ -175,7 +175,7 @@ class TestDocument : public CppEditor::Internal::Tests::TestDocument
 public:
     TestDocument(const QByteArray &source, const QByteArray &fileName)
         : CppEditor::Internal::Tests::TestDocument(fileName, source)
-        , m_targetCursorPosition(source.indexOf('$'))
+        , m_targetCursorPosition(m_source.indexOf(QLatin1Char('$')))
     {
         if (m_cursorPosition != -1 || m_targetCursorPosition != -1)
             QVERIFY(m_cursorPosition != m_targetCursorPosition);

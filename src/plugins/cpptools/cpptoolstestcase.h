@@ -56,8 +56,8 @@ public:
     bool writeToDisk() const;
 
 public:
-    QByteArray m_fileName;
-    QByteArray m_source;
+    QString m_fileName;
+    QString m_source;
     char m_cursorMarker;
 };
 

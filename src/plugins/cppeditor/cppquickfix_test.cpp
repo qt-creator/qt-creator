@@ -77,12 +77,13 @@ QuickFixTestDocument::QuickFixTestDocument(const QByteArray &fileName,
                                            const QByteArray &source,
                                            const QByteArray &expectedSource)
     : TestDocument(fileName, source)
-    , m_expectedSource(expectedSource)
+    , m_expectedSource(QString::fromUtf8(expectedSource))
 {
     if (m_cursorPosition > -1)
         m_source.remove(m_cursorPosition, 1);
 
-    const int cursorPositionInExpectedSource = m_expectedSource.indexOf(m_cursorMarker);
+    const int cursorPositionInExpectedSource
+        = m_expectedSource.indexOf(QLatin1Char(m_cursorMarker));
     if (cursorPositionInExpectedSource > -1)
         m_expectedSource.remove(cursorPositionInExpectedSource, 1);
 }
@@ -96,15 +97,15 @@ QList<QuickFixTestDocument::Ptr> singleDocument(const QByteArray &original,
 
 /// Leading whitespace is not removed, so we can check if the indetation ranges
 /// have been set correctly by the quick-fix.
-static QByteArray &removeTrailingWhitespace(QByteArray &input)
+static QString &removeTrailingWhitespace(QString &input)
 {
-    QList<QByteArray> lines = input.split('\n');
+    const QStringList lines = input.split(QLatin1Char('\n'));
     input.resize(0);
     for (int i = 0, total = lines.size(); i < total; ++i) {
-        QByteArray line = lines.at(i);
+        QString line = lines.at(i);
         while (line.length() > 0) {
-            char lastChar = line[line.length() - 1];
-            if (lastChar == ' ' || lastChar == '\t')
+            QChar lastChar = line[line.length() - 1];
+            if (lastChar == QLatin1Char(' ') || lastChar == QLatin1Char('\t'))
                 line.chop(1);
             else
                 break;
@@ -113,7 +114,7 @@ static QByteArray &removeTrailingWhitespace(QByteArray &input)
 
         const bool isLastLine = i == lines.size() - 1;
         if (!isLastLine)
-            input.append('\n');
+            input.append(QLatin1Char('\n'));
     }
     return input;
 }
@@ -197,14 +198,14 @@ QuickFixTestCase::QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTe
     // Compare all files
     foreach (const QuickFixTestDocument::Ptr testFile, m_testFiles) {
         // Check
-        QByteArray result = testFile->m_editorWidget->document()->toPlainText().toUtf8();
+        QString result = testFile->m_editorWidget->document()->toPlainText();
         removeTrailingWhitespace(result);
-        QCOMPARE(QLatin1String(result), QLatin1String(testFile->m_expectedSource));
+        QCOMPARE(result, testFile->m_expectedSource);
 
         // Undo the change
         for (int i = 0; i < 100; ++i)
             testFile->m_editorWidget->undo();
-        result = testFile->m_editorWidget->document()->toPlainText().toUtf8();
+        result = testFile->m_editorWidget->document()->toPlainText();
         QCOMPARE(result, testFile->m_source);
     }
 }

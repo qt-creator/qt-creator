@@ -62,7 +62,7 @@ public:
                                   const QByteArray &expectedSource);
 
 public:
-    QByteArray m_expectedSource;
+    QString m_expectedSource;
 };
 
 /**

@@ -61,20 +61,21 @@ namespace CppTools {
 namespace Tests {
 
 TestDocument::TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker)
-    : m_fileName(fileName), m_source(source), m_cursorMarker(cursorMarker)
+    : m_fileName(QString::fromUtf8(fileName))
+    , m_source(QString::fromUtf8(source))
+    , m_cursorMarker(cursorMarker)
 {}
 
 QString TestDocument::filePath() const
 {
-    const QString fileNameAsString = QString::fromUtf8(m_fileName);
-    if (!QFileInfo(fileNameAsString).isAbsolute())
-        return QDir::tempPath() + QLatin1Char('/') + fileNameAsString;
-    return fileNameAsString;
+    if (!QFileInfo(m_fileName).isAbsolute())
+        return QDir::tempPath() + QLatin1Char('/') + m_fileName;
+    return m_fileName;
 }
 
 bool TestDocument::writeToDisk() const
 {
-    return TestCase::writeFile(filePath(), m_source);
+    return TestCase::writeFile(filePath(), m_source.toUtf8());
 }
 
 TestCase::TestCase(bool runGarbageCollector)
