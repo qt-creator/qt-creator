@@ -1136,7 +1136,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int virtualFuncA() = 0;\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1158,7 +1158,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int virtualFuncA() = 0;\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1192,7 +1192,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int g() = 0;\n"
         "};\n\n"
         "class Der@ived : public BaseA {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1242,7 +1242,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int b() = 0;\n"
         "};\n\n"
         "class Der@ived : public BaseB {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1277,7 +1277,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int a() = 0;\n"
         "};\n\n"
         "class Der@ived : public BaseB {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1303,7 +1303,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int virtualFuncA() = 0;\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1325,7 +1325,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int virtualFuncA() = 0;\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1349,7 +1349,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int virtualFuncA() = 0;\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1373,7 +1373,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int virtualFuncA() = 0;\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1400,7 +1400,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "class Derived : public Bas@eA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1421,7 +1421,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int virtualFuncB();\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1448,7 +1448,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int a() = 0;\n"
         "};\n\n"
         "class Der@ived : public BaseB {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1479,7 +1479,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int b() = 0;\n"
         "};\n\n"
         "class Der@ived : public BaseB {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1513,7 +1513,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int c() = 0;\n"
         "};\n\n"
         "class Der@ived : public BaseB {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1551,7 +1551,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int a() final = 0;\n"
         "};\n\n"
         "class Der@ived : public BaseB {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1589,7 +1589,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
         "    virtual int d() = 0;\n"
         "};\n\n"
         "class Der@ived : public BaseC {\n"
-        "};"
+        "};\n"
         ) << _(
         "class BaseA {\n"
         "public:\n"
@@ -1651,7 +1651,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
         "class Derived : public Bas@eA {\n"
         "public:\n"
         "    Derived();\n"
-        "};";
+        "};\n";
     expected =
         "class BaseA {\n"
         "public:\n"
@@ -1673,7 +1673,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
         "#include \"file.h\"\n"
         "\n\n"
         "int Derived::a()\n"
-        "{\n}\n";
+        "{\n}";
     testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
 
     InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
@@ -1700,7 +1700,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
         "class Deri@ved : public BaseNS::Base {\n"
         "public:\n"
         "    Derived();\n"
-        "};";
+        "};\n";
     expected =
         "namespace BaseNS {enum BaseEnum {EnumA = 1};}\n"
         "namespace BaseNS {\n"
@@ -1725,7 +1725,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
         "#include \"file.h\"\n"
         "\n\n"
         "BaseNS::BaseEnum Derived::a(BaseNS::BaseEnum e)\n"
-        "{\n}\n";
+        "{\n}";
     testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
 
     InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
