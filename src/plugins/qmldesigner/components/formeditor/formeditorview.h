@@ -103,7 +103,6 @@ public:
 
     void registerTool(AbstractCustomTool *tool);
 
-    void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) QTC_OVERRIDE;
 
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) QTC_OVERRIDE;

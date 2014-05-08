@@ -439,21 +439,6 @@ void FormEditorView::registerTool(AbstractCustomTool *tool)
     m_customToolList.append(tool);
 }
 
-void FormEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int /*newIndex*/, int /*oldIndex*/)
-{
-    QList<ModelNode> newOrderModelNodeList = listProperty.toModelNodeList();
-    foreach (const ModelNode &node, newOrderModelNodeList) {
-        FormEditorItem *item = m_scene->itemForQmlItemNode(QmlItemNode(node));
-        if (item) {
-            FormEditorItem *oldParentItem = item->parentItem();
-            item->setParentItem(0);
-            item->setParentItem(oldParentItem);
-        }
-    }
-
-    m_currentTool->formEditorItemsChanged(scene()->allFormEditorItems());
-}
-
 void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
 {
     AbstractView::auxiliaryDataChanged(node, name, data);
