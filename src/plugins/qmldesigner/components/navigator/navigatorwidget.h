@@ -39,7 +39,6 @@ QT_FORWARD_DECLARE_CLASS(QAbstractItemModel)
 
 namespace QmlDesigner {
 
-class Model;
 class NavigatorView;
 
 class NavigatorWidget: public QFrame
