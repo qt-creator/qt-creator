@@ -109,12 +109,13 @@ QtcLibrary {
     // For Botan.
     Properties {
         condition: qbs.toolchain.contains("mingw")
-        cpp.cxxFlags: [
+        cpp.cxxFlags: base.concat([
             "-fpermissive",
             "-finline-functions",
             "-Wno-long-long"
-        ]
+        ])
     }
+    cpp.cxxFlags: base
 
     Export {
         Depends { name: "Qt"; submodules: ["widgets", "network"] }
