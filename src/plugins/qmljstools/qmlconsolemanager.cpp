@@ -141,7 +141,7 @@ ConsoleItem *constructLogItemTree(ConsoleItem *parent, const QVariant &result,
         if (key.isEmpty())
             item->setText(QLatin1String("List"));
         else
-            item->setText(QString(QLatin1String("[%1] : List")).arg(key));
+            item->setText(QString::fromLatin1("[%1] : List").arg(key));
         QVariantList resultList = result.toList();
         for (int i = 0; i < resultList.count(); i++) {
             ConsoleItem *child = constructLogItemTree(item, resultList.at(i),

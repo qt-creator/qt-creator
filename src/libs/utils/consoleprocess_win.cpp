@@ -307,13 +307,13 @@ QStringList ConsoleProcess::fixWinEnvironment(const QStringList &env)
     if (envStrings.filter(QRegExp(QLatin1String("^PATH="),Qt::CaseInsensitive)).isEmpty()) {
         QByteArray path = qgetenv("PATH");
         if (!path.isEmpty())
-            envStrings.prepend(QString(QLatin1String("PATH=%1")).arg(QString::fromLocal8Bit(path)));
+            envStrings.prepend(QString::fromLatin1("PATH=%1").arg(QString::fromLocal8Bit(path)));
     }
     // add systemroot if needed
     if (envStrings.filter(QRegExp(QLatin1String("^SystemRoot="),Qt::CaseInsensitive)).isEmpty()) {
         QByteArray systemRoot = qgetenv("SystemRoot");
         if (!systemRoot.isEmpty())
-            envStrings.prepend(QString(QLatin1String("SystemRoot=%1")).arg(QString::fromLocal8Bit(systemRoot)));
+            envStrings.prepend(QString::fromLatin1("SystemRoot=%1").arg(QString::fromLocal8Bit(systemRoot)));
     }
     return envStrings;
 }

@@ -87,7 +87,7 @@ static QStringList pluginDependencies(const PluginBaseClasses *plb)
     const QChar blank = QLatin1Char(' ');
     // Find the module names and convert to ids
     QStringList pluginModules= plb->dependentModules ?
-                               QString(QLatin1String(plb->dependentModules)).split(blank) :
+                               QString::fromLatin1(plb->dependentModules).split(blank) :
                                QStringList();
     pluginModules.push_back(QLatin1String(plb->module));
     foreach (const QString &module, pluginModules) {

@@ -109,7 +109,7 @@ QUrl SrcDestDialog::getRepoUrl() const
         m_workingdir = fileLoc;
     if (!projectLoc.isEmpty() && fileLoc.startsWith(projectLoc + QLatin1Char('/')))
         m_workingdir = projectLoc;
-    QSettings settings(QString(QLatin1String("%1/.hg/hgrc")).arg(m_workingdir), QSettings::IniFormat);
+    QSettings settings(QString::fromLatin1("%1/.hg/hgrc").arg(m_workingdir), QSettings::IniFormat);
     QUrl url;
     if (m_direction == outgoing)
         url = settings.value(QLatin1String("paths/default-push")).toUrl();

@@ -171,11 +171,11 @@ void tst_Lookup::document_functionAt_1()
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
     QCOMPARE(doc->functionAt(1,  2), QString());
-    QCOMPARE(doc->functionAt(1, 11), QString(QLatin1String("Foo::Bar")));
-    QCOMPARE(doc->functionAt(2,  2), QString(QLatin1String("Foo::Bar")));
-    QCOMPARE(doc->functionAt(3, 10), QString(QLatin1String("Foo::Bar")));
-    QCOMPARE(doc->functionAt(4, 3), QString(QLatin1String("Foo::Bar")));
-    QCOMPARE(doc->functionAt(6, 1), QString(QLatin1String("Foo::Bar")));
+    QCOMPARE(doc->functionAt(1, 11), QString::fromLatin1("Foo::Bar"));
+    QCOMPARE(doc->functionAt(2,  2), QString::fromLatin1("Foo::Bar"));
+    QCOMPARE(doc->functionAt(3, 10), QString::fromLatin1("Foo::Bar"));
+    QCOMPARE(doc->functionAt(4, 3), QString::fromLatin1("Foo::Bar"));
+    QCOMPARE(doc->functionAt(6, 1), QString::fromLatin1("Foo::Bar"));
 }
 
 void tst_Lookup::simple_class_1()

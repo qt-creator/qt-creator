@@ -447,13 +447,13 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
     QTest::newRow("rm false positive")
             << QString::fromLatin1("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
             << OutputParserTester::STDERR
-            << QString() << QString(QLatin1String("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory\n"))
+            << QString() << QString::fromLatin1("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory\n")
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("ranlib false positive")
             << QString::fromLatin1("ranlib: file: libSupport.a(HashTable.o) has no symbols")
             << OutputParserTester::STDERR
-            << QString() << QString(QLatin1String("ranlib: file: libSupport.a(HashTable.o) has no symbols\n"))
+            << QString() << QString::fromLatin1("ranlib: file: libSupport.a(HashTable.o) has no symbols\n")
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("ld: missing library")

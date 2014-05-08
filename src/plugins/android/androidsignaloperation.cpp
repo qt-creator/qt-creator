@@ -76,7 +76,7 @@ void Android::Internal::AndroidSignalOperation::adbFindRunAsFinished(int exitCod
                             << QLatin1String("run-as")
                             << runAs
                             << QLatin1String("kill")
-                            << QString(QLatin1String("-%1")).arg(m_signal)
+                            << QString::fromLatin1("-%1").arg(m_signal)
                             << QString::number(m_pid));
     }
 }
@@ -127,7 +127,7 @@ void Android::Internal::AndroidSignalOperation::signalOperationViaADB(int pid, i
     m_adbProcess->start(m_adbPath, QStringList()
                         << QLatin1String("shell")
                         << QLatin1String("cat")
-                        << QString(QLatin1String("/proc/%1/cmdline")).arg(m_pid));
+                        << QString::fromLatin1("/proc/%1/cmdline").arg(m_pid));
 }
 
 void Android::Internal::AndroidSignalOperation::killProcess(int pid)

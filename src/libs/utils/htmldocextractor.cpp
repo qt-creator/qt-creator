@@ -122,7 +122,7 @@ QString HtmlDocExtractor::getFunctionDescription(const QString &html,
         // So I try to find the link to this property in the list of properties, extract its
         // anchor and then follow by the name found.
         const QString &pattern =
-            QString(QLatin1String("<a href=\"[a-z\\.]+#([A-Za-z]+)-prop\">%1</a>")).arg(cleanMark);
+            QString::fromLatin1("<a href=\"[a-z\\.]+#([A-Za-z]+)-prop\">%1</a>").arg(cleanMark);
         QRegExp exp = createMinimalExp(pattern);
         if (exp.indexIn(html) != -1) {
             const QString &prop = exp.cap(1);

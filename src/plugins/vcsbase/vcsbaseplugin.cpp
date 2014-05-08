@@ -306,7 +306,7 @@ void StateListener::slotStateChanged()
         Core::EditorManager::setWindowTitleVcsTopic(QString());
     }
     if (debug)
-        qDebug() << state << (vc ? vc->displayName() : QString(QLatin1String("No version control")));
+        qDebug() << state << (vc ? vc->displayName() : QLatin1String("No version control"));
     emit stateChanged(state, vc);
 }
 

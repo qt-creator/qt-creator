@@ -244,7 +244,7 @@ void QmlConsoleView::copyToClipboard(const QModelIndex &index)
     if (fileUrl.isLocalFile())
         filePath = fileUrl.toLocalFile();
     if (!filePath.isEmpty()) {
-        contents = QString(QLatin1String("%1 %2: %3")).arg(contents).arg(filePath).arg(
+        contents = QString::fromLatin1("%1 %2: %3").arg(contents).arg(filePath).arg(
                     model()->data(index, QmlConsoleItemModel::LineRole).toString());
     }
     QClipboard *cb = QApplication::clipboard();

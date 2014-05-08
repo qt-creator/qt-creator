@@ -274,7 +274,7 @@ int MagicRule::endPos() const
 
 QString MagicRule::toOffset(const QPair<int, int> &startEnd)
 {
-    return QString(QLatin1String("%1:%2")).arg(startEnd.first).arg(startEnd.second);
+    return QString::fromLatin1("%1:%2").arg(startEnd.first).arg(startEnd.second);
 }
 
 QPair<int, int> MagicRule::fromOffset(const QString &offset)
@@ -386,7 +386,7 @@ QString MagicByteRule::matchValue() const
 {
     QString value;
     foreach (int byte, m_bytes)
-        value.append(QString(QLatin1String("\\0x%1")).arg(byte, 0, 16));
+        value.append(QString::fromLatin1("\\0x%1").arg(byte, 0, 16));
     return value;
 }
 

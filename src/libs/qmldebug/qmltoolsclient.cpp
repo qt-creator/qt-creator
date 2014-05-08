@@ -94,7 +94,7 @@ void QmlToolsClient::messageReceived(const QByteArray &message)
             emit destroyedObject(objectDebugId);
         }
 
-        log(LogReceive, type, QString(QLatin1String("requestId: %1 success: %2"))
+        log(LogReceive, type, QString::fromLatin1("requestId: %1 success: %2")
             .arg(QString::number(requestId)).arg(QString::number(success)));
     } else if (type == QByteArray(EVENT)) {
         QByteArray event;
