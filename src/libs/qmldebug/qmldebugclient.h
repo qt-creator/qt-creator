@@ -66,6 +66,7 @@ signals:
     void errorMessage(const QString &message);
 
 private:
+    friend class QmlDebugConnectionPrivate;
     QmlDebugConnectionPrivate *d;
     friend class QmlDebugClient;
     friend class QmlDebugClientPrivate;
