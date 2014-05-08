@@ -34,6 +34,7 @@
 
 QT_BEGIN_NAMESPACE
 class QQuickView;
+class QShortcut;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -62,10 +63,15 @@ public:
 
     void showAddNewStatesButton(bool showAddNewStatesButton);
 
+    static QString statesEditorResourcesPath();
+
+private slots:
+    void reloadQmlSource();
 private:
     QWeakPointer<QQuickView> m_quickView;
     QWeakPointer<StatesEditorView> m_statesEditorView;
     Internal::StatesEditorImageProvider *m_imageProvider;
+    QShortcut *m_qmlSourceUpdateShortcut;
 };
 
 }

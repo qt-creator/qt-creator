@@ -34,9 +34,15 @@
 
 #include <invalidqmlsourceexception.h>
 
-#include <qapplication.h>
+#include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
+#include <QApplication>
+
+#include <QFileInfo>
+#include <QShortcut>
 #include <QBoxLayout>
+#include <QKeySequence>
 
 #include <QQuickView>
 #include <QQmlContext>
@@ -72,18 +78,23 @@ void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
     m_quickView->rootContext()->setContextProperty("canAddNewStates", showAddNewStatesButton);
 }
 
-StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel):
-        QWidget(),
-    m_quickView(new QQuickView()),
-    m_statesEditorView(statesEditorView),
-    m_imageProvider(0)
+StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel)
+    : QWidget(),
+      m_quickView(new QQuickView()),
+      m_statesEditorView(statesEditorView),
+      m_imageProvider(0),
+      m_qmlSourceUpdateShortcut(0)
 {
     m_imageProvider = new Internal::StatesEditorImageProvider;
     m_imageProvider->setNodeInstanceView(statesEditorView->nodeInstanceView());
-    m_quickView->engine()->addImageProvider(
-            QLatin1String("qmldesigner_stateseditor"), m_imageProvider);
+
+    m_quickView->engine()->addImageProvider(QLatin1String("qmldesigner_stateseditor"), m_imageProvider);
+    m_quickView->engine()->addImportPath(statesEditorResourcesPath());
 
     //m_quickView->setAcceptDrops(false);
+
+    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
+    connect(m_qmlSourceUpdateShortcut, SIGNAL(activated()), this, SLOT(reloadQmlSource()));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     setMinimumHeight(160);
@@ -106,29 +117,37 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     // the scene is created + items set dirty in one event loop run (BAUHAUS-459)
     //QApplication::processEvents();
 
-    m_quickView->setSource(QUrl("qrc:/stateseditor/stateslist.qml"));
-
-    if (!m_quickView->rootObject())
-        throw InvalidQmlSourceException(__LINE__, __FUNCTION__, __FILE__);
-
 
     QEvent event(QEvent::WindowActivate);
     QApplication::sendEvent(m_quickView.data(), &event);
 
-
-    connect(m_quickView->rootObject(), SIGNAL(currentStateInternalIdChanged()), statesEditorView, SLOT(synchonizeCurrentStateFromWidget()));
-    connect(m_quickView->rootObject(), SIGNAL(createNewState()), statesEditorView, SLOT(createNewState()));
-    connect(m_quickView->rootObject(), SIGNAL(deleteState(int)), statesEditorView, SLOT(removeState(int)));
-
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
 
     setWindowTitle(tr("States", "Title of Editor widget"));
+
+    // init the first load of the QML UI elements
+    reloadQmlSource();
 }
 
 StatesEditorWidget::~StatesEditorWidget()
 {
 }
 
+QString StatesEditorWidget::statesEditorResourcesPath() {
+    return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/statesEditorQmlSources");
+}
+void StatesEditorWidget::reloadQmlSource()
+{
+    QString statesListQmlFilePath = statesEditorResourcesPath() + QStringLiteral("/stateslist.qml");
+    QTC_ASSERT(QFileInfo::exists(statesListQmlFilePath), return);
+    m_quickView->engine()->clearComponentCache();
+    m_quickView->setSource(QUrl::fromLocalFile(statesListQmlFilePath));
+
+    QTC_ASSERT(m_quickView->rootObject(), return);
+    connect(m_quickView->rootObject(), SIGNAL(currentStateInternalIdChanged()), m_statesEditorView.data(), SLOT(synchonizeCurrentStateFromWidget()));
+    connect(m_quickView->rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
+    connect(m_quickView->rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
+}
 
 QSize StatesEditorWidget::sizeHint() const
 {
