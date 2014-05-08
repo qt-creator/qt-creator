@@ -181,9 +181,4 @@ void StatesEditorModel::renameState(int nodeId, const QString &newName)
 
 }
 
-void StatesEditorModel::emitChangedToState(int n)
-{
-    emit changedToState(n);
-}
-
 } // namespace QmlDesigner

@@ -62,7 +62,6 @@ public:
     void removeState(int stateIndex);
     void updateState(int beginIndex, int endIndex);
     Q_INVOKABLE void renameState(int nodeId, const QString &newName);
-    void emitChangedToState(int n);
 
     void reset();
 
