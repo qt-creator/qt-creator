@@ -76,7 +76,8 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
         m_singleShotTimer(new QTimer(this))
 {
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
-    m_updateShortcut = new QShortcut(QKeySequence("F3"), m_stackedWidget);
+
+    m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F3), m_stackedWidget);
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
 
     m_stackedWidget->setStyleSheet(
