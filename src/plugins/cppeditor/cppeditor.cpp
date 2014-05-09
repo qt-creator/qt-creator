@@ -717,7 +717,7 @@ const Macro *CPPEditorWidget::findCanonicalMacro(const QTextCursor &cursor, Docu
 
     if (const Macro *macro = doc->findMacroDefinitionAt(line)) {
         QTextCursor macroCursor = cursor;
-        const QByteArray name = identifierUnderCursor(&macroCursor).toLatin1();
+        const QByteArray name = identifierUnderCursor(&macroCursor).toUtf8();
         if (macro->name() == name)
             return macro;
     } else if (const Document::MacroUse *use = doc->findMacroUseAt(cursor.position())) {
@@ -836,9 +836,9 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
         //Macro definition
         if (macro->fileName() == info.doc->fileName()) {
             QTextCursor cursor(document());
-            cursor.setPosition(macro->offset());
+            cursor.setPosition(macro->utf16CharOffset());
             cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor,
-                                macro->name().length());
+                                macro->nameToQString().size());
 
             QTextEdit::ExtraSelection sel;
             sel.format = occurrencesFormat;
@@ -850,14 +850,14 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
         foreach (const Document::MacroUse &use, info.doc->macroUses()) {
             const Macro &useMacro = use.macro();
             if (useMacro.line() != macro->line()
-                    || useMacro.offset() != macro->offset()
+                    || useMacro.utf16CharOffset() != macro->utf16CharOffset()
                     || useMacro.length() != macro->length()
                     || useMacro.fileName() != macro->fileName())
                 continue;
 
             QTextCursor cursor(document());
-            cursor.setPosition(use.begin());
-            cursor.setPosition(use.end(), QTextCursor::KeepAnchor);
+            cursor.setPosition(use.utf16charsBegin());
+            cursor.setPosition(use.utf16charsEnd(), QTextCursor::KeepAnchor);
 
             QTextEdit::ExtraSelection sel;
             sel.format = occurrencesFormat;

@@ -59,15 +59,15 @@ QFuture<TextEditor::HighlightingResult> CppHighlightingSupportInternal::highligh
     // Get macro definitions
     foreach (const CPlusPlus::Macro& macro, doc->definedMacros()) {
         int line, column;
-        editor()->convertPosition(macro.offset(), &line, &column);
+        editor()->convertPosition(macro.utf16CharOffset(), &line, &column);
         ++column; //Highlighting starts at (column-1) --> compensate here
-        Result use(line, column, macro.name().size(), MacroUse);
+        Result use(line, column, macro.nameToQString().size(), MacroUse);
         macroUses.append(use);
     }
 
     // Get macro uses
     foreach (const Document::MacroUse &macro, doc->macroUses()) {
-        const QString name = QString::fromUtf8(macro.macro().name());
+        const QString name = macro.macro().nameToQString();
 
         //Filter out QtKeywords
         if (isQtKeyword(QStringRef(&name)))
@@ -86,7 +86,7 @@ QFuture<TextEditor::HighlightingResult> CppHighlightingSupportInternal::highligh
             continue;
 
         int line, column;
-        editor()->convertPosition(macro.begin(), &line, &column);
+        editor()->convertPosition(macro.utf16charsBegin(), &line, &column);
         ++column; //Highlighting starts at (column-1) --> compensate here
         Result use(line, column, name.size(), MacroUse);
         macroUses.append(use);

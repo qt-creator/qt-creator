@@ -61,12 +61,13 @@ public:
 
     virtual void macroAdded(const Macro &);
 
-    virtual void passedMacroDefinitionCheck(unsigned, unsigned, const Macro &);
-    virtual void failedMacroDefinitionCheck(unsigned, const ByteArrayRef &);
+    virtual void passedMacroDefinitionCheck(unsigned, unsigned, unsigned, const Macro &);
+    virtual void failedMacroDefinitionCheck(unsigned, unsigned, const ByteArrayRef &);
 
-    virtual void notifyMacroReference(unsigned, unsigned, const Macro &);
+    virtual void notifyMacroReference(unsigned, unsigned, unsigned, const Macro &);
 
     virtual void startExpandingMacro(unsigned,
+                                     unsigned,
                                      unsigned,
                                      const Macro &,
                                      const QVector<MacroArgumentReference> &);

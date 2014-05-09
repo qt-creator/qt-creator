@@ -365,25 +365,31 @@ void Document::appendMacro(const Macro &macro)
     _definedMacros.append(macro);
 }
 
-void Document::addMacroUse(const Macro &macro, unsigned offset, unsigned length,
+void Document::addMacroUse(const Macro &macro,
+                           unsigned bytesOffset, unsigned bytesLength,
+                           unsigned utf16charsOffset, unsigned utf16charLength,
                            unsigned beginLine,
                            const QVector<MacroArgumentReference> &actuals)
 {
-    MacroUse use(macro, offset, offset + length, beginLine);
+    MacroUse use(macro,
+                 bytesOffset, bytesOffset + bytesLength,
+                 utf16charsOffset, utf16charsOffset + utf16charLength,
+                 beginLine);
 
     foreach (const MacroArgumentReference &actual, actuals) {
-        const Block arg(actual.position(), actual.position() + actual.length());
-
+        const Block arg(0, 0, actual.utf16charsOffset(),
+                        actual.utf16charsOffset() + actual.utf16charsLength());
         use.addArgument(arg);
     }
 
     _macroUses.append(use);
 }
 
-void Document::addUndefinedMacroUse(const QByteArray &name, unsigned offset)
+void Document::addUndefinedMacroUse(const QByteArray &name,
+                                    unsigned bytesOffset, unsigned utf16charsOffset)
 {
     QByteArray copy(name.data(), name.size());
-    UndefinedMacroUse use(copy, offset);
+    UndefinedMacroUse use(copy, bytesOffset, utf16charsOffset);
     _undefinedMacroUses.append(use);
 }
 
@@ -548,19 +554,23 @@ const Macro *Document::findMacroDefinitionAt(unsigned line) const
     return 0;
 }
 
-const Document::MacroUse *Document::findMacroUseAt(unsigned offset) const
+const Document::MacroUse *Document::findMacroUseAt(unsigned utf16charsOffset) const
 {
     foreach (const Document::MacroUse &use, _macroUses) {
-        if (use.contains(offset) && (offset < use.begin() + use.macro().name().length()))
+        if (use.containsUtf16charOffset(utf16charsOffset)
+                && (utf16charsOffset < use.utf16charsBegin() + use.macro().nameToQString().size())) {
             return &use;
+        }
     }
     return 0;
 }
 
-const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(unsigned offset) const
+const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(unsigned utf16charsOffset) const
 {
     foreach (const Document::UndefinedMacroUse &use, _undefinedMacroUses) {
-        if (use.contains(offset) && (offset < use.begin() + use.name().length()))
+        if (use.containsUtf16charOffset(utf16charsOffset)
+                && (utf16charsOffset < use.utf16charsBegin()
+                    + QString::fromUtf8(use.name(), use.name().size()).length()))
             return &use;
     }
     return 0;
@@ -581,21 +591,21 @@ void Document::setUtf8Source(const QByteArray &source)
     _translationUnit->setSource(_source.constBegin(), _source.size());
 }
 
-void Document::startSkippingBlocks(unsigned start)
+void Document::startSkippingBlocks(unsigned utf16charsOffset)
 {
-    _skippedBlocks.append(Block(start, 0));
+    _skippedBlocks.append(Block(0, 0, utf16charsOffset, 0));
 }
 
-void Document::stopSkippingBlocks(unsigned stop)
+void Document::stopSkippingBlocks(unsigned utf16charsOffset)
 {
     if (_skippedBlocks.isEmpty())
         return;
 
-    unsigned start = _skippedBlocks.back().begin();
-    if (start > stop)
+    unsigned start = _skippedBlocks.back().utf16charsBegin();
+    if (start > utf16charsOffset)
         _skippedBlocks.removeLast(); // Ignore this block, it's invalid.
     else
-        _skippedBlocks.back() = Block(start, stop);
+        _skippedBlocks.back() = Block(0, 0, start, utf16charsOffset);
 }
 
 bool Document::isTokenized() const

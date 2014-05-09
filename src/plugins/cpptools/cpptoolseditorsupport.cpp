@@ -333,7 +333,7 @@ void CppEditorSupport::onDocumentUpdated(Document::Ptr doc)
         QList<BlockRange> ifdefedOutBlocks;
         ifdefedOutBlocks.reserve(skippedBlocks.size());
         foreach (const Document::Block &block, skippedBlocks)
-            ifdefedOutBlocks.append(BlockRange(block.begin(), block.end()));
+            ifdefedOutBlocks.append(BlockRange(block.utf16charsBegin(), block.utf16charsEnd()));
         setIfdefedOutBlocks(ifdefedOutBlocks);
     }
 

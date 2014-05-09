@@ -36,6 +36,21 @@ using namespace CPlusPlus;
     \sa Token
 */
 
+/*!
+    \fn static void Lexer::yyinp_utf8(const char *&currentSourceChar, unsigned char &yychar, unsigned &utf16charCounter)
+
+    Process a single unicode code point in an UTF-8 encoded source.
+
+    \a currentSourceChar points to the UTF-8 encoded source.
+    \a yychar must be the byte pointed to by \a currentSourceChar.
+
+    Points \a currentSourceChar to the byte of the next code point
+    and modifies \a yychar to the value pointed by the updated
+    \a currentSourceChar. \a utf16charCounter will be incremented by
+    the number of UTF-16 code units that were needed for that code
+    point.
+*/
+
 Lexer::Lexer(TranslationUnit *unit)
     : _translationUnit(unit),
       _control(unit->control()),

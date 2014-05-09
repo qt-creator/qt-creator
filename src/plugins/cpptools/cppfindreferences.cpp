@@ -572,10 +572,10 @@ restart_search:
                 }
 
                 if (macro.name() == useMacro.name()) {
-                    unsigned lineStart;
-                    const QByteArray &lineSource = matchingLine(use.begin(), source, &lineStart);
-                    usages.append(Usage(fileName, QString::fromUtf8(lineSource), use.beginLine(),
-                                        use.begin() - lineStart, useMacro.name().length()));
+                    unsigned column;
+                    const QString &lineSource = matchingLine(use.bytesBegin(), source, &column);
+                    usages.append(Usage(fileName, lineSource, use.beginLine(), column,
+                                        useMacro.nameToQString().size()));
                 }
             }
         }
@@ -585,19 +585,26 @@ restart_search:
         return usages;
     }
 
-    static QByteArray matchingLine(unsigned position, const QByteArray &source,
-                                   unsigned *lineStart = 0)
+    static QString matchingLine(unsigned bytesOffsetOfUseStart, const QByteArray &utf8Source,
+                                unsigned *columnOfUseStart = 0)
     {
-        int lineBegin = source.lastIndexOf('\n', position) + 1;
-        int lineEnd = source.indexOf('\n', position);
+        int lineBegin = utf8Source.lastIndexOf('\n', bytesOffsetOfUseStart) + 1;
+        int lineEnd = utf8Source.indexOf('\n', bytesOffsetOfUseStart);
         if (lineEnd == -1)
-            lineEnd = source.length();
+            lineEnd = utf8Source.length();
 
-        if (lineStart)
-            *lineStart = lineBegin;
+        if (columnOfUseStart) {
+            *columnOfUseStart = 0;
+            const char *startOfUse = utf8Source.constData() + bytesOffsetOfUseStart;
+            QTC_ASSERT(startOfUse < utf8Source.constData() + lineEnd, return QString());
+            const char *currentSourceByte = utf8Source.constData() + lineBegin;
+            unsigned char yychar = *currentSourceByte;
+            while (currentSourceByte != startOfUse)
+                Lexer::yyinp_utf8(currentSourceByte, yychar, *columnOfUseStart);
+        }
 
-        const QByteArray matchingLine = source.mid(lineBegin, lineEnd - lineBegin);
-        return matchingLine;
+        const QByteArray matchingLine = utf8Source.mid(lineBegin, lineEnd - lineBegin);
+        return QString::fromUtf8(matchingLine, matchingLine.size());
     }
 };
 
@@ -638,7 +645,7 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
                 tr("C++ Macro Usages:"),
                 QString(),
-                QString::fromUtf8(macro.name()),
+                macro.nameToQString(),
                 replace ? Core::SearchResultWindow::SearchAndReplace
                         : Core::SearchResultWindow::SearchOnly,
                 Core::SearchResultWindow::PreserveCaseDisabled,
@@ -661,11 +668,11 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     // add the macro definition itself
     {
         const QByteArray &source = getSource(macro.fileName(), workingCopy);
-        unsigned lineStart;
-        const QByteArray line = FindMacroUsesInFile::matchingLine(macro.offset(), source,
-                                                                  &lineStart);
-        search->addResult(macro.fileName(), macro.line(), QString::fromUtf8(line),
-                          macro.offset() - lineStart, macro.name().length());
+        unsigned column;
+        const QString line = FindMacroUsesInFile::matchingLine(macro.bytesOffset(), source,
+                                                               &column);
+        search->addResult(macro.fileName(), macro.line(), line, column,
+                          macro.nameToQString().length());
     }
 
     QFuture<Usage> result;
@@ -679,7 +686,7 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
 
 void CppFindReferences::renameMacroUses(const Macro &macro, const QString &replacement)
 {
-    const QString textToReplace = replacement.isEmpty() ? QString::fromUtf8(macro.name()) : replacement;
+    const QString textToReplace = replacement.isEmpty() ? macro.nameToQString() : replacement;
     findMacroUses(macro, textToReplace, true);
 }
 

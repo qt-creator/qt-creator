@@ -1751,7 +1751,7 @@ void CppCompletionAssistProcessor::addMacros_helper(const CPlusPlus::Snapshot &s
         addMacros_helper(snapshot, i.resolvedFileName(), processed, definedMacros);
 
     foreach (const Macro &macro, doc->definedMacros()) {
-        const QString macroName = QString::fromUtf8(macro.name().constData(), macro.name().length());
+        const QString macroName = macro.nameToQString();
         if (!macro.isHidden())
             definedMacros->insert(macroName);
         else

@@ -116,7 +116,8 @@ public:
         m_definedMacrosLine.append(macro.line());
     }
 
-    virtual void passedMacroDefinitionCheck(unsigned /*offset*/,
+    virtual void passedMacroDefinitionCheck(unsigned /*bytesOffset*/,
+                                            unsigned /*utf16charsOffset*/,
                                             unsigned line,
                                             const Macro &macro)
     {
@@ -124,36 +125,39 @@ public:
     }
 
     virtual void failedMacroDefinitionCheck(unsigned /*offset*/,
+                                            unsigned /*utf16charsOffset*/,
                                             const ByteArrayRef &name)
     {
         m_unresolvedDefines.insert(name.toByteArray());
     }
 
-    virtual void notifyMacroReference(unsigned offset, unsigned line, const Macro &macro)
+    virtual void notifyMacroReference(unsigned bytesOffset, unsigned /*utf16charsOffset*/,
+                                      unsigned line, const Macro &macro)
     {
         m_macroUsesLine[macro.name()].append(line);
-        m_expandedMacrosOffset.append(offset);
+        m_expandedMacrosOffset.append(bytesOffset);
     }
 
-    virtual void startExpandingMacro(unsigned offset,
+    virtual void startExpandingMacro(unsigned bytesOffset,
+                                     unsigned /*utf16charsOffset*/,
                                      unsigned line,
                                      const Macro &macro,
                                      const QVector<MacroArgumentReference> &actuals
                                             = QVector<MacroArgumentReference>())
     {
         m_expandedMacros.append(macro.name());
-        m_expandedMacrosOffset.append(offset);
+        m_expandedMacrosOffset.append(bytesOffset);
         m_macroUsesLine[macro.name()].append(line);
         m_macroArgsCount.append(actuals.size());
     }
 
     virtual void stopExpandingMacro(unsigned /*offset*/, const Macro &/*macro*/) {}
 
-    virtual void startSkippingBlocks(unsigned offset)
-    { m_skippedBlocks.append(Block(offset)); }
+    virtual void startSkippingBlocks(unsigned utf16charsOffset)
+    { m_skippedBlocks.append(Block(utf16charsOffset)); }
 
-    virtual void stopSkippingBlocks(unsigned offset)
-    { m_skippedBlocks.last().end = offset; }
+    virtual void stopSkippingBlocks(unsigned utf16charsOffset)
+    { m_skippedBlocks.last().end = utf16charsOffset; }
 
     virtual void sourceNeeded(unsigned line, const QString &includedFileName, IncludeType mode)
     {
@@ -1762,22 +1766,22 @@ void tst_Preprocessor::undef()
     QCOMPARE(env.macroCount(), 4U);
     Macro *macro = env.macroAt(0);
     QCOMPARE(macro->name(), QByteArray("FOO"));
-    QCOMPARE(macro->offset(), 8U);
+    QCOMPARE(macro->bytesOffset(), 8U);
     QCOMPARE(macro->line(), 1U);
     QVERIFY(!macro->isHidden());
     macro = env.macroAt(1);
     QCOMPARE(macro->name(), QByteArray("FOO2"));
-    QCOMPARE(macro->offset(), 20U);
+    QCOMPARE(macro->bytesOffset(), 20U);
     QCOMPARE(macro->line(), 2U);
     QVERIFY(!macro->isHidden());
     macro = env.macroAt(2);
     QCOMPARE(macro->name(), QByteArray("FOO"));
-    QCOMPARE(macro->offset(), 32U);
+    QCOMPARE(macro->bytesOffset(), 32U);
     QCOMPARE(macro->line(), 3U);
     QVERIFY(macro->isHidden());
     macro = env.macroAt(3);
     QCOMPARE(macro->name(), QByteArray("BAR"));
-    QCOMPARE(macro->offset(), 43U);
+    QCOMPARE(macro->bytesOffset(), 43U);
     QCOMPARE(macro->line(), 4U);
     QVERIFY(macro->isHidden());
     QList<QByteArray> macros = client.definedMacros();

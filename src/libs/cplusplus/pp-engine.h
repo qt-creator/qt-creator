@@ -95,7 +95,8 @@ private:
     void preprocess(const QString &filename, const QByteArray &source,
                     QByteArray *result, QByteArray *includeGuardMacroName,
                     bool noLines, bool markGeneratedTokens, bool inCondition,
-                    unsigned offsetRef = 0, unsigned lineRef = 1);
+                    unsigned bytesOffsetRef = 0, unsigned utf16charOffsetRef = 0,
+                    unsigned lineRef = 1);
 
     enum { MAX_LEVEL = 512 };
 
@@ -128,7 +129,8 @@ private:
         bool m_noLines;
         bool m_inCondition;
 
-        unsigned m_offsetRef;
+        unsigned m_bytesOffsetRef;
+        unsigned m_utf16charsOffsetRef;
         QByteArray *m_result;
         unsigned m_lineRef;
 

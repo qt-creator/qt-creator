@@ -58,5 +58,6 @@ void Internal::PPToken::squeezeSource()
         m_src = m_src.mid(byteOffset, f.bytes);
         m_src.squeeze();
         byteOffset = 0;
+        utf16charOffset = 0;
     }
 }

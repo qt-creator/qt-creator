@@ -55,7 +55,8 @@ Macro::Macro()
       _hashcode(0),
       _fileRevision(0),
       _line(0),
-      _offset(0),
+      _bytesOffset(0),
+      _utf16charsOffset(0),
       _length(0),
       _state(0)
 { }

@@ -660,8 +660,9 @@ void Dumper::dumpDocuments(const QList<CPlusPlus::Document::Ptr> &documents, boo
                 const QString type = use.isFunctionLike()
                         ? QLatin1String("function-like") : QLatin1String("object-like");
                 m_out << i4 << "at line " << use.beginLine() << ", "
-                      << QString::fromUtf8(use.macro().name()) << ", begin=" << use.begin()
-                      << ", end=" << use.end() << ", " << type << ", args="
+                      << use.macro().nameToQString().size()
+                      << ", begin=" << use.utf16charsBegin() << ", end=" << use.utf16charsEnd()
+                      << ", " << type << ", args="
                       << use.arguments().size() << "\n";
             }
         }

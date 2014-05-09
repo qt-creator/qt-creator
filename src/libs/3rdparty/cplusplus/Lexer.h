@@ -61,6 +61,28 @@ public:
     LanguageFeatures languageFeatures() const { return _languageFeatures; }
     void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
 
+public:
+    static void yyinp_utf8(const char *&currentSourceChar, unsigned char &yychar,
+                           unsigned &utf16charCounter)
+    {
+        ++utf16charCounter;
+
+        // Process multi-byte UTF-8 code point (non-latin1)
+        if (CPLUSPLUS_UNLIKELY(isByteOfMultiByteCodePoint(yychar))) {
+            unsigned trailingBytesCurrentCodePoint = 1;
+            for (unsigned char c = yychar << 2; isByteOfMultiByteCodePoint(c); c <<= 1)
+                ++trailingBytesCurrentCodePoint;
+            // Code points >= 0x00010000 are represented by two UTF-16 code units
+            if (trailingBytesCurrentCodePoint >= 3)
+                ++utf16charCounter;
+            yychar = *(currentSourceChar += trailingBytesCurrentCodePoint + 1);
+
+            // Process single-byte UTF-8 code point (latin1)
+        } else {
+            yychar = *++currentSourceChar;
+        }
+    }
+
 private:
     void pushLineStartOffset();
     void scan_helper(Token *tok);
@@ -83,23 +105,7 @@ private:
 
     void yyinp()
     {
-        ++_currentCharUtf16;
-
-        // Process multi-byte UTF-8 code point (non-latin1)
-        if (CPLUSPLUS_UNLIKELY(isByteOfMultiByteCodePoint(_yychar))) {
-            unsigned trailingBytesCurrentCodePoint = 1;
-            for (unsigned char c = _yychar << 2; isByteOfMultiByteCodePoint(c); c <<= 1)
-                ++trailingBytesCurrentCodePoint;
-            // Code points >= 0x00010000 are represented by two UTF16 code units
-            if (trailingBytesCurrentCodePoint >= 3)
-                ++_currentCharUtf16;
-            _yychar = *(_currentChar += trailingBytesCurrentCodePoint + 1);
-
-        // Process single-byte UTF-8 code point (latin1)
-        } else {
-            _yychar = *++_currentChar;
-        }
-
+        yyinp_utf8(_currentChar, _yychar, _currentCharUtf16);
         if (CPLUSPLUS_UNLIKELY(_yychar == '\n'))
             pushLineStartOffset();
     }

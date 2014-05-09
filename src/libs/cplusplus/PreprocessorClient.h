@@ -46,19 +46,19 @@ class Macro;
 
 class CPLUSPLUS_EXPORT MacroArgumentReference
 {
-  unsigned _position;
-  unsigned _length;
+  unsigned _utf16charsOffset;
+  unsigned _utf16charsLength;
 
 public:
-  explicit MacroArgumentReference(unsigned position = 0, unsigned length = 0)
-    : _position(position), _length(length)
+  explicit MacroArgumentReference(unsigned utf16charsOffset = 0, unsigned utf16charsLength = 0)
+    : _utf16charsOffset(utf16charsOffset), _utf16charsLength(utf16charsLength)
   { }
 
-  unsigned position() const
-  { return _position; }
+  unsigned utf16charsOffset() const
+  { return _utf16charsOffset; }
 
-  unsigned length() const
-  { return _length; }
+  unsigned utf16charsLength() const
+  { return _utf16charsLength; }
 };
 
 class CPLUSPLUS_EXPORT Client
@@ -79,24 +79,26 @@ public:
 
   virtual void macroAdded(const Macro &macro) = 0;
 
-  virtual void passedMacroDefinitionCheck(unsigned offset, unsigned line, const Macro &macro) = 0;
-  virtual void failedMacroDefinitionCheck(unsigned offset, const ByteArrayRef &name) = 0;
+  virtual void passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
+                                          unsigned line, const Macro &macro) = 0;
+  virtual void failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
+                                          const ByteArrayRef &name) = 0;
 
-  virtual void notifyMacroReference(unsigned offset, unsigned line, const Macro &macro) = 0;
+  virtual void notifyMacroReference(unsigned bytesOffset, unsigned utf16charsOffset,
+                                    unsigned line, const Macro &macro) = 0;
 
-  virtual void startExpandingMacro(unsigned offset,
-                                   unsigned line,
-                                   const Macro &macro,
+  virtual void startExpandingMacro(unsigned bytesOffset, unsigned utf16charsOffset,
+                                   unsigned line, const Macro &macro,
                                    const QVector<MacroArgumentReference> &actuals
                                             = QVector<MacroArgumentReference>()) = 0;
-  virtual void stopExpandingMacro(unsigned offset, const Macro &macro) = 0;
+  virtual void stopExpandingMacro(unsigned bytesOffset, const Macro &macro) = 0; // TODO: ?!
 
   /// Mark the given macro name as the include guard for the current file.
   virtual void markAsIncludeGuard(const QByteArray &macroName) = 0;
 
-  /// Start skipping from the given offset.
-  virtual void startSkippingBlocks(unsigned offset) = 0;
-  virtual void stopSkippingBlocks(unsigned offset) = 0;
+  /// Start skipping from the given utf16charsOffset.
+  virtual void startSkippingBlocks(unsigned utf16charsOffset) = 0;
+  virtual void stopSkippingBlocks(unsigned utf16charsOffset) = 0;
 
   virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode) = 0;
 

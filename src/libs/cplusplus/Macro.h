@@ -71,6 +71,9 @@ public:
     QByteArray name() const
     { return _name; }
 
+    QString nameToQString() const
+    { return QString::fromUtf8(_name, _name.size()); }
+
     void setName(const QByteArray &name)
     { _name = name; }
 
@@ -107,11 +110,17 @@ public:
     void setLine(unsigned line)
     { _line = line; }
 
-    unsigned offset() const
-    { return _offset; }
+    unsigned bytesOffset() const
+    { return _bytesOffset; }
 
-    void setOffset(unsigned offset)
-    { _offset = offset; }
+    void setBytesOffset(unsigned bytesOffset)
+    { _bytesOffset = bytesOffset; }
+
+    unsigned utf16CharOffset() const
+    { return _utf16charsOffset; }
+
+    void setUtf16charOffset(unsigned utf16charOffset)
+    { _utf16charsOffset = utf16charOffset; }
 
     unsigned length() const
     { return _length; }
@@ -161,7 +170,8 @@ private:
     unsigned _hashcode;
     unsigned _fileRevision;
     unsigned _line;
-    unsigned _offset;
+    unsigned _bytesOffset;
+    unsigned _utf16charsOffset;
     unsigned _length;
 
     union

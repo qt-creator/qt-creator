@@ -291,41 +291,51 @@ static inline const Macro revision(const CppModelManagerInterface::WorkingCopy &
     return newMacro;
 }
 
-void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, unsigned line, const Macro &macro)
+void CppPreprocessor::passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
+                                                 unsigned line, const Macro &macro)
 {
     if (!m_currentDoc)
         return;
 
-    m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line,
-                              QVector<MacroArgumentReference>());
+    m_currentDoc->addMacroUse(revision(m_workingCopy, macro),
+                              bytesOffset, macro.name().length(),
+                              utf16charsOffset, macro.nameToQString().size(),
+                              line, QVector<MacroArgumentReference>());
 }
 
-void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const ByteArrayRef &name)
+void CppPreprocessor::failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charOffset,
+                                                 const ByteArrayRef &name)
 {
     if (!m_currentDoc)
         return;
 
-    m_currentDoc->addUndefinedMacroUse(QByteArray(name.start(), name.size()), offset);
+    m_currentDoc->addUndefinedMacroUse(QByteArray(name.start(), name.size()),
+                                       bytesOffset, utf16charOffset);
 }
 
-void CppPreprocessor::notifyMacroReference(unsigned offset, unsigned line, const Macro &macro)
+void CppPreprocessor::notifyMacroReference(unsigned bytesOffset, unsigned utf16charOffset,
+                                           unsigned line, const Macro &macro)
 {
     if (!m_currentDoc)
         return;
 
-    m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line,
-                              QVector<MacroArgumentReference>());
+    m_currentDoc->addMacroUse(revision(m_workingCopy, macro),
+                              bytesOffset, macro.name().length(),
+                              utf16charOffset, macro.nameToQString().size(),
+                              line, QVector<MacroArgumentReference>());
 }
 
-void CppPreprocessor::startExpandingMacro(unsigned offset, unsigned line,
-                                          const Macro &macro,
+void CppPreprocessor::startExpandingMacro(unsigned bytesOffset, unsigned utf16charOffset,
+                                          unsigned line, const Macro &macro,
                                           const QVector<MacroArgumentReference> &actuals)
 {
     if (!m_currentDoc)
         return;
 
-    m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line,
-                              actuals);
+    m_currentDoc->addMacroUse(revision(m_workingCopy, macro),
+                              bytesOffset, macro.name().length(),
+                              utf16charOffset, macro.nameToQString().size(),
+                              line, actuals);
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
@@ -366,16 +376,16 @@ void CppPreprocessor::mergeEnvironment(Document::Ptr doc)
     m_env.addMacros(doc->definedMacros());
 }
 
-void CppPreprocessor::startSkippingBlocks(unsigned offset)
+void CppPreprocessor::startSkippingBlocks(unsigned utf16charsOffset)
 {
     if (m_currentDoc)
-        m_currentDoc->startSkippingBlocks(offset);
+        m_currentDoc->startSkippingBlocks(utf16charsOffset);
 }
 
-void CppPreprocessor::stopSkippingBlocks(unsigned offset)
+void CppPreprocessor::stopSkippingBlocks(unsigned utf16charsOffset)
 {
     if (m_currentDoc)
-        m_currentDoc->stopSkippingBlocks(offset);
+        m_currentDoc->stopSkippingBlocks(utf16charsOffset);
 }
 
 void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType type)

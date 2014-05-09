@@ -77,10 +77,12 @@ public:
     QString fileName() const;
 
     void appendMacro(const Macro &macro);
-    void addMacroUse(const Macro &macro, unsigned offset, unsigned length,
-                     unsigned beginLine,
-                     const QVector<MacroArgumentReference> &range);
-    void addUndefinedMacroUse(const QByteArray &name, unsigned offset);
+    void addMacroUse(const Macro &macro,
+                     unsigned bytesOffset, unsigned bytesLength,
+                     unsigned utf16charsOffset, unsigned utf16charLength,
+                     unsigned beginLine, const QVector<MacroArgumentReference> &range);
+    void addUndefinedMacroUse(const QByteArray &name,
+                              unsigned bytesOffset, unsigned utf16charsOffset);
 
     Control *control() const;
     TranslationUnit *translationUnit() const;
@@ -108,8 +110,8 @@ public:
     void setFingerprint(const QByteArray &fingerprint)
     { m_fingerprint = fingerprint; }
 
-    void startSkippingBlocks(unsigned offset);
-    void stopSkippingBlocks(unsigned offset);
+    void startSkippingBlocks(unsigned utf16charsOffset);
+    void stopSkippingBlocks(unsigned utf16charsOffset);
 
     enum ParseMode { // ### keep in sync with CPlusPlus::TranslationUnit
         ParseTranlationUnit,
@@ -207,22 +209,34 @@ public:
 
     class Block
     {
-        unsigned _begin;
-        unsigned _end;
+        unsigned _bytesBegin;
+        unsigned _bytesEnd;
+        unsigned _utf16charsBegin;
+        unsigned _utf16charsEnd;
 
     public:
-        inline Block(unsigned begin = 0, unsigned end = 0)
-            : _begin(begin), _end(end)
-        { }
+        inline Block(unsigned bytesBegin = 0, unsigned bytesEnd = 0,
+                     unsigned utf16charsBegin = 0, unsigned utf16charsEnd = 0)
+            : _bytesBegin(bytesBegin),
+              _bytesEnd(bytesEnd),
+              _utf16charsBegin(utf16charsBegin),
+              _utf16charsEnd(utf16charsEnd)
+        {}
 
-        inline unsigned begin() const
-        { return _begin; }
+        inline unsigned bytesBegin() const
+        { return _bytesBegin; }
 
-        inline unsigned end() const
-        { return _end; }
+        inline unsigned bytesEnd() const
+        { return _bytesEnd; }
 
-        bool contains(unsigned pos) const
-        { return pos >= _begin && pos < _end; }
+        inline unsigned utf16charsBegin() const
+        { return _utf16charsBegin; }
+
+        inline unsigned utf16charsEnd() const
+        { return _utf16charsEnd; }
+
+        bool containsUtf16charOffset(unsigned utf16charOffset) const
+        { return utf16charOffset >= _utf16charsBegin && utf16charOffset < _utf16charsEnd; }
     };
 
     class Include {
@@ -259,8 +273,11 @@ public:
         unsigned _beginLine;
 
     public:
-        inline MacroUse(const Macro &macro, unsigned begin, unsigned end, unsigned beginLine)
-            : Block(begin, end),
+        inline MacroUse(const Macro &macro,
+                        unsigned bytesBegin, unsigned bytesEnd,
+                        unsigned utf16charsBegin, unsigned utf16charsEnd,
+                        unsigned beginLine)
+            : Block(bytesBegin, bytesEnd, utf16charsBegin, utf16charsEnd),
               _macro(macro),
               _beginLine(beginLine)
         { }
@@ -293,8 +310,12 @@ public:
     public:
         inline UndefinedMacroUse(
                 const QByteArray &name,
-                unsigned begin)
-            : Block(begin, begin + name.length()),
+                unsigned bytesBegin,
+                unsigned utf16charsBegin)
+            : Block(bytesBegin,
+                    bytesBegin + name.length(),
+                    utf16charsBegin,
+                    utf16charsBegin + QString::fromUtf8(name, name.size()).size()),
               _name(name)
         { }
 
@@ -328,8 +349,8 @@ public:
     { return _includeGuardMacroName; }
 
     const Macro *findMacroDefinitionAt(unsigned line) const;
-    const MacroUse *findMacroUseAt(unsigned offset) const;
-    const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned offset) const;
+    const MacroUse *findMacroUseAt(unsigned utf16charsOffset) const;
+    const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned utf16charsOffset) const;
 
     void keepSourceAndAST();
     void releaseSourceAndAST();

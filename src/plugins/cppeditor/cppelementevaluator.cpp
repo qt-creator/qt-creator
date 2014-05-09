@@ -142,9 +142,9 @@ bool CppElementEvaluator::matchIncludeFile(const CPlusPlus::Document::Ptr &docum
 bool CppElementEvaluator::matchMacroInUse(const CPlusPlus::Document::Ptr &document, unsigned pos)
 {
     foreach (const Document::MacroUse &use, document->macroUses()) {
-        if (use.contains(pos)) {
-            const unsigned begin = use.begin();
-            if (pos < begin + use.macro().name().length()) {
+        if (use.containsUtf16charOffset(pos)) {
+            const unsigned begin = use.utf16charsBegin();
+            if (pos < begin + use.macro().nameToQString().size()) {
                 m_element = QSharedPointer<CppElement>(new CppMacro(use.macro()));
                 return true;
             }
@@ -270,7 +270,7 @@ CppInclude::CppInclude(const Document::Include &includeFile) :
 CppMacro::CppMacro(const Macro &macro)
 {
     helpCategory = TextEditor::HelpItem::Macro;
-    const QString macroName = QLatin1String(macro.name());
+    const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
     helpIdCandidates = QStringList(macroName);
     helpMark = macroName;
     link = CPPEditorWidget::Link(macro.fileName(), macro.line());

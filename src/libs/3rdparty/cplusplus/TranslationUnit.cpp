@@ -264,7 +264,7 @@ void TranslationUnit::tokenize()
             currentExpanded = true;
             const std::pair<unsigned, unsigned> &p = lineColumn[lineColumnIdx];
             if (p.first)
-                _expandedLineColumn.insert(std::make_pair(tk.bytesBegin(), p));
+                _expandedLineColumn.insert(std::make_pair(tk.utf16charsBegin(), p));
             else
                 currentGenerated = true;
 

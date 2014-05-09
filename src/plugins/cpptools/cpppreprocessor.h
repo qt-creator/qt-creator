@@ -64,19 +64,21 @@ protected:
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
     virtual void macroAdded(const CPlusPlus::Macro &macro);
-    virtual void passedMacroDefinitionCheck(unsigned offset, unsigned line,
-                                            const CPlusPlus::Macro &macro);
-    virtual void failedMacroDefinitionCheck(unsigned offset, const CPlusPlus::ByteArrayRef &name);
-    virtual void notifyMacroReference(unsigned offset, unsigned line,
-                                      const CPlusPlus::Macro &macro);
-    virtual void startExpandingMacro(unsigned offset,
+    virtual void passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
+                                            unsigned line, const CPlusPlus::Macro &macro);
+    virtual void failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charOffset,
+                                            const CPlusPlus::ByteArrayRef &name);
+    virtual void notifyMacroReference(unsigned bytesOffset, unsigned utf16charOffset,
+                                      unsigned line, const CPlusPlus::Macro &macro);
+    virtual void startExpandingMacro(unsigned bytesOffset,
+                                     unsigned utf16charOffset,
                                      unsigned line,
                                      const CPlusPlus::Macro &macro,
                                      const QVector<CPlusPlus::MacroArgumentReference> &actuals);
-    virtual void stopExpandingMacro(unsigned offset, const CPlusPlus::Macro &macro);
+    virtual void stopExpandingMacro(unsigned bytesOffset, const CPlusPlus::Macro &macro);
     virtual void markAsIncludeGuard(const QByteArray &macroName);
-    virtual void startSkippingBlocks(unsigned offset);
-    virtual void stopSkippingBlocks(unsigned offset);
+    virtual void startSkippingBlocks(unsigned utf16charsOffset);
+    virtual void stopSkippingBlocks(unsigned utf16charsOffset);
     virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType type);
 
 private:
