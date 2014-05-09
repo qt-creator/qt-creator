@@ -85,7 +85,7 @@ protected:
     QVariantMap renameKeys(const QList<Change> &changes, QVariantMap map) const;
 };
 
-/**
+/*!
  * Performs a simple renaming of the listed keys in \a changes recursively on \a map.
  */
 QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMap map) const
@@ -574,30 +574,29 @@ QVariantMap SettingsAccessor::setVersionInMap(const QVariantMap &data, int versi
     return result;
 }
 
-/**
- * @brief Run directly after reading the data
+/*!
+ * Run directly after reading the \a data.
  *
  * This method is called right after reading the data before any attempt at interpreting the data
  * is made.
  *
- * @param data The input data
- * @return The prepared data.
+ * Returns the prepared data.
  */
 QVariantMap SettingsAccessor::prepareSettings(const QVariantMap &data) const
 {
     return data;
 }
 
-/**
- * @brief Check which of two sets of data are a better match to load.
+/*!
+ * Check which of two sets of data are a better match to load.
  *
  * This method is used to compare data extracted from two XML settings files.
  * It will never be called with a version too old or too new to be read by
  * the current instance of Qt Creator.
  *
- * @param origData The basis for the compare.
- * @param newData The new value to compare against the basis.
- * @return True if newData is a better match than origData and false otherwise.
+ * Compares \a newData against \a origData.
+ *
+ * Returns \c true if \a newData is a better match than \a origData and \c false otherwise.
  */
 bool SettingsAccessor::isBetterMatch(const QVariantMap &origData, const QVariantMap &newData) const
 {
@@ -620,11 +619,10 @@ bool SettingsAccessor::isBetterMatch(const QVariantMap &origData, const QVariant
     return newVersion > origVersion;
 }
 
-/**
- * @brief Upgrade the settings to a target version
- * @param data The settings to upgrade
- * @param toVersion The target version
- * @return Settings of the requested version.
+/*!
+ * Upgrade the settings in \a data to the version \a toVersion.
+ *
+ * Returns settings of the requested version.
  */
 QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int toVersion) const
 {
@@ -654,7 +652,7 @@ QVariantMap SettingsAccessor::upgradeSettings(const QVariantMap &data, int toVer
     return result;
 }
 
-/**
+/*!
  * Find issues with the settings file and warn the user about them.
  *
  * \a data is the data from the settings file.
@@ -690,7 +688,7 @@ SettingsAccessor::ProceedInfo SettingsAccessor::reportIssues(const QVariantMap &
     return issue.buttons.value(static_cast<QMessageBox::StandardButton>(boxAction));
 }
 
-/**
+/*!
  * Checks \a data located at \a path for issues to be displayed with reportIssues.
  *
  * Returns a IssueInfo object which is then used by reportIssues.
