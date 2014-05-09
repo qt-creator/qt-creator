@@ -246,7 +246,7 @@ void CallgrindController::sftpInitialized()
     dataFile.setAutoRemove(false);
     dataFile.close();
 
-    m_downloadJob = m_sftp->downloadFile(QString::fromLocal8Bit(m_remoteFile), m_tempDataFile, QSsh::SftpOverwriteExisting);
+    m_downloadJob = m_sftp->downloadFile(QString::fromUtf8(m_remoteFile), m_tempDataFile, QSsh::SftpOverwriteExisting);
 }
 
 void CallgrindController::sftpJobFinished(QSsh::SftpJobId job, const QString &error)

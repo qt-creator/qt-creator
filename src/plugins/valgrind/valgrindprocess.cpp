@@ -208,14 +208,14 @@ qint64 ValgrindProcess::pid() const
 
 void ValgrindProcess::handleRemoteStderr()
 {
-    const QString b = QString::fromLocal8Bit(m_remote.m_process->readAllStandardError());
+    const QString b = QString::fromUtf8(m_remote.m_process->readAllStandardError());
     if (!b.isEmpty())
         emit processOutput(b, Utils::StdErrFormat);
 }
 
 void ValgrindProcess::handleRemoteStdout()
 {
-    const QString b = QString::fromLocal8Bit(m_remote.m_process->readAllStandardOutput());
+    const QString b = QString::fromUtf8(m_remote.m_process->readAllStandardOutput());
     if (!b.isEmpty())
         emit processOutput(b, Utils::StdOutFormat);
 }
