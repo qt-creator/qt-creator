@@ -132,7 +132,7 @@ def createTasksFile(buildIssues):
             tData = "warning"
         else:
             tData = "unknown"
-        if fData.strip() == "" and lData == "-1" and dData.strip() == "":
+        if str(fData).strip() == "" and lData == "-1" and str(dData).strip() == "":
             test.fatal("Found empty task.")
         file.write("%s\t%s\t%s\t%s\n" % (fData, lData, tData, dData))
     file.close()
