@@ -58,7 +58,7 @@ public:
 
     int currentLine() const;
     int currentColumn() const;
-    void gotoLine(int line, int column = 0) { textEditor()->gotoLine(line, column); }
+    void gotoLine(int line, int column = 0, bool centerLine = true) { textEditor()->gotoLine(line, column, centerLine); }
 
 private slots:
     void changeEditorPage(QAction *action);
