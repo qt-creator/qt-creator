@@ -137,33 +137,5 @@ void MemcheckRunControl::status(const Status &status)
     m_progress->setProgressValue(status.state() + 1);
 }
 
-void MemcheckRunControl::receiveLogMessage(const QByteArray &b)
-{
-    QString error = QString::fromLocal8Bit(b);
-    // workaround https://bugs.kde.org/show_bug.cgi?id=255888
-    error.remove(QRegExp(QLatin1String("==*== </valgrindoutput>"), Qt::CaseSensitive, QRegExp::Wildcard));
-
-    error = error.trimmed();
-
-    if (error.isEmpty())
-        return;
-
-    stopEngine();
-
-    QString file;
-    int line = -1;
-
-    QRegExp suppressionError(QLatin1String("in suppressions file \"([^\"]+)\" near line (\\d+)"),
-                             Qt::CaseSensitive, QRegExp::RegExp2);
-    if (suppressionError.indexIn(error) != -1) {
-        file = suppressionError.cap(1);
-        line = suppressionError.cap(2).toInt();
-    }
-
-    TaskHub::addTask(Task(Task::Error, error, Utils::FileName::fromUserInput(file), line,
-                          Analyzer::Constants::ANALYZERTASK_ID));
-    TaskHub::requestPopup();
-}
-
 } // namespace Internal
 } // namespace Valgrind

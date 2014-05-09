@@ -63,7 +63,6 @@ protected:
     virtual ValgrindRunner *runner();
 
 private slots:
-    void receiveLogMessage(const QByteArray &);
     void status(const Valgrind::XmlProtocol::Status &status);
 
 private:
