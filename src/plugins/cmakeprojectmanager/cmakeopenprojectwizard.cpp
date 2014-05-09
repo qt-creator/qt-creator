@@ -44,6 +44,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <texteditor/fontsettings.h>
 #include <remotelinux/remotelinux_constants.h>
+#include <qnx/qnxconstants.h>
 
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -184,7 +185,9 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
         return results;
     Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
     if (deviceType !=  ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
-            && deviceType != RemoteLinux::Constants::GenericLinuxOsType)
+            && deviceType != RemoteLinux::Constants::GenericLinuxOsType
+            && deviceType != Qnx::Constants::QNX_QNX_OS_TYPE
+            && deviceType != Qnx::Constants::QNX_BB_OS_TYPE)
         return results;
     ProjectExplorer::Abi targetAbi = tc->targetAbi();
     if (n != ForceNinja) {
