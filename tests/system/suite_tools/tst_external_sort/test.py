@@ -35,7 +35,10 @@ def main():
         return
     invokeMenuItem("File", "Open File or Project...")
     unsortedFile = os.path.join(os.getcwd(), "testdata", "unsorted.txt")
-    sorted = getOutputFromCmdline("sort %s" % unsortedFile).replace("\r", "")
+    locale = ""
+    if not platform.system() in ('Windows', 'Microsoft'):
+        locale = "LC_ALL=C "
+    sorted = getOutputFromCmdline("%ssort %s" % (locale, unsortedFile)).replace("\r", "")
     selectFromFileDialog(unsortedFile)
     editor = waitForObject("{type='TextEditor::PlainTextEditorWidget' unnamed='1' "
                            "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 3000)
