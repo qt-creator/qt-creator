@@ -51,6 +51,8 @@ Item {
     property Component trackDelegate
     property string handleSource: "images/slider_handle.png"
 
+    signal clicked
+
     width: 20
     height: 100
 
@@ -131,6 +133,8 @@ Item {
                     var realValue = (maximum - minimum) * handleY / mouseArea.height + minimum;
                     value = colorSlider.integer ? Math.round(realValue) : realValue;
                 }
+
+                onReleased: colorSlider.clicked()
 
                 onPositionChanged: {
                     if (pressed) {

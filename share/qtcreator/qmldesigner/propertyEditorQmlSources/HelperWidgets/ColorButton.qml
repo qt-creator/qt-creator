@@ -49,6 +49,8 @@ Item {
         invalidateColor();
     }
 
+    signal clicked
+
     onAlphaChanged: invalidateColor();
 
     onSaturationChanged: invalidateColor();
@@ -67,12 +69,17 @@ Item {
     function invalidateColor() {
         if (block)
             return;
+
+        block = true
+
         colorButton.color = Qt.hsla(hue, saturation, lightness, alpha);
         hueSlider.value = hue
         hueSlider2.value = hue
         saturationSlider.value = saturation
         lightnessSlider.value = lightness
         alphaSlider.value = alpha
+
+        block = false
     }
 
     function rgbToHsl(color) {
@@ -244,6 +251,8 @@ Item {
                 }
             }
             onPressed: positionChanged(mouse)
+
+            onClicked: colorButton.clicked()
         }
         Rectangle {
             anchors.fill: parent
@@ -266,6 +275,7 @@ Item {
             if (colorButton.hue !== value)
                 colorButton.hue = value
         }
+        onClicked: colorButton.clicked()
 
     }
     Column {
@@ -292,8 +302,10 @@ Item {
                 minimumValue: 0
                 maximumValue: 1
                 onValueChanged: {
-                    if (colorButton.hue !== value)
+                    if (colorButton.hue !== value  && !colorButton.block) {
                         colorButton.hue = value
+                        colorButton.clicked()
+                    }
                 }
             }
         }
@@ -317,8 +329,10 @@ Item {
                 minimumValue: 0
                 maximumValue: 1
                 onValueChanged: {
-                    if (colorButton.saturation !== value)
+                    if (colorButton.saturation !== value  && !colorButton.block) {
                         colorButton.saturation = value
+                        colorButton.clicked()
+                    }
                 }
             }
         }
@@ -341,8 +355,10 @@ Item {
                 minimumValue: 0
                 maximumValue: 1
                 onValueChanged: {
-                    if (colorButton.lightness !== value)
+                    if (colorButton.lightness !== value && !colorButton.block) {
                         colorButton.lightness = value
+                        colorButton.clicked()
+                    }
                 }
             }
         }
@@ -366,8 +382,10 @@ Item {
                 minimumValue: 0
                 maximumValue: 1
                 onValueChanged: {
-                    if (colorButton.alpha !== value)
+                    if (colorButton.alpha !== value  && !colorButton.block) {
                         colorButton.alpha = value
+                        colorButton.clicked()
+                    }
                 }
             }
         }

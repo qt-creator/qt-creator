@@ -37,7 +37,7 @@ Column {
 
     width: parent.width - 8
 
-    property alias color: colorButton.color
+    property color color
 
     property bool supportGradient: false
 
@@ -183,6 +183,7 @@ Column {
         }
 
         ColorButton {
+            color: colorEditor.color
             enabled: buttonRow.checkedIndex !== 2
             opacity: checkButton.checked ? 1 : 0
             id: colorButton
@@ -194,6 +195,7 @@ Column {
 
             sliderMargins: Math.max(0, label.width - colorButton.width) + 4
 
+            onClicked: colorEditor.color = colorButton.color
         }
 
         SecondColumnLayout {
