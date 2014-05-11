@@ -7,6 +7,7 @@ HEADERS += \
     beautifierabstracttool.h \
     beautifierconstants.h \
     beautifierplugin.h \
+    command.h \
     configurationdialog.h \
     configurationeditor.h \
     configurationpanel.h \
@@ -26,6 +27,7 @@ HEADERS += \
 SOURCES += \
     abstractsettings.cpp \
     beautifierplugin.cpp \
+    command.cpp \
     configurationdialog.cpp \
     configurationeditor.cpp \
     configurationpanel.cpp \

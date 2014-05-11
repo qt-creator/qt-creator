@@ -27,50 +27,45 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_BEAUTIFIER_H
-#define BEAUTIFIER_BEAUTIFIER_H
+#ifndef BEAUTIFIER_COMMAND_H
+#define BEAUTIFIER_COMMAND_H
 
-#include <extensionsystem/iplugin.h>
-#include <utils/qtcoverride.h>
-
-namespace Core { class IEditor; }
+#include <QString>
+#include <QStringList>
 
 namespace Beautifier {
 namespace Internal {
 
-class BeautifierAbstractTool;
-class Command;
-
-class BeautifierPlugin : public ExtensionSystem::IPlugin
+class Command
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Beautifier.json")
-
 public:
-    BeautifierPlugin();
-    ~BeautifierPlugin();
-    bool initialize(const QStringList &arguments, QString *errorString) QTC_OVERRIDE;
-    void extensionsInitialized() QTC_OVERRIDE;
-    ShutdownFlag aboutToShutdown() QTC_OVERRIDE;
+    enum Processing {
+        FileProcessing,
+        PipeProcessing
+    };
 
-    static QString format(const QString &text, const Command &command, const QString &fileName);
-    static void formatCurrentFile(const Command &command);
-    static void showError(const QString &error);
+    Command();
 
-    static QString msgCannotGetConfigurationFile(const QString &command);
-    static QString msgFormatCurrentFile();
-    static QString msgFormatSelectedText();
-    static QString msgCommandPromptDialogTitle(const QString &command);
+    QString executable() const;
+    void setExecutable(const QString &executable);
 
-private slots:
-    void updateActions(Core::IEditor *editor = 0);
+    QStringList options() const;
+    void addOption(const QString &option);
+
+    Processing processing() const;
+    void setProcessing(const Processing &processing);
+
+    bool pipeAddsNewline() const;
+    void setPipeAddsNewline(bool pipeAddsNewline);
 
 private:
-    QList<BeautifierAbstractTool *> m_tools;
+    QString m_executable;
+    QStringList m_options;
+    Processing m_processing;
+    bool m_pipeAddsNewline;
 };
 
 } // namespace Internal
 } // namespace Beautifier
 
-#endif // BEAUTIFIER_BEAUTIFIER_H
-
+#endif // BEAUTIFIER_COMMAND_H

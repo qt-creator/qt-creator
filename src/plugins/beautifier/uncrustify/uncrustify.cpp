@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+// Tested with version 0.59 and 0.60
+
 #include "uncrustify.h"
 
 #include "uncrustifyconstants.h"
@@ -35,6 +37,7 @@
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../command.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -130,16 +133,16 @@ void Uncrustify::formatFile()
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
                                         QLatin1String(Constants::Uncrustify::DISPLAY_NAME)));
     } else {
-        BeautifierPlugin::formatCurrentFile(QStringList()
-                                            << m_settings->command()
-                                            << QLatin1String("-l")
-                                            << QLatin1String("cpp")
-                                            << QLatin1String("-L")
-                                            << QLatin1String("1-2")
-                                            << QLatin1String("--no-backup")
-                                            << QLatin1String("-c")
-                                            << cfgFileName
-                                            << QLatin1String("%file"));
+        Command command;
+        command.setExecutable(m_settings->command());
+        command.setProcessing(Command::PipeProcessing);
+        command.addOption(QLatin1String("-l"));
+        command.addOption(QLatin1String("cpp"));
+        command.addOption(QLatin1String("-L"));
+        command.addOption(QLatin1String("1-2"));
+        command.addOption(QLatin1String("-c"));
+        command.addOption(cfgFileName);
+        BeautifierPlugin::formatCurrentFile(command);
     }
 }
 

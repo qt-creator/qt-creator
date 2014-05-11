@@ -67,6 +67,8 @@ public:
 
     QString command() const;
     void setCommand(const QString &command);
+    int version() const;
+    virtual void updateVersion();
 
     QStringList options();
     QString documentation(const QString &option) const;
@@ -74,6 +76,7 @@ public:
 protected:
     QMap<QString, QString> m_styles;
     QMap<QString, QVariant> m_settings;
+    int m_version;
 
     void readDocumentation();
 

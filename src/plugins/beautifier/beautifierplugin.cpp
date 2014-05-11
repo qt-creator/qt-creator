@@ -30,6 +30,8 @@
 #include "beautifierplugin.h"
 
 #include "beautifierconstants.h"
+#include "command.h"
+
 #include "artisticstyle/artisticstyle.h"
 #include "clangformat/clangformat.h"
 #include "uncrustify/uncrustify.h"
@@ -116,47 +118,83 @@ void BeautifierPlugin::updateActions(Core::IEditor *editor)
         m_tools.at(i)->updateActions(editor);
 }
 
-QString BeautifierPlugin::format(const QString &text, QStringList command, const QString &fileName)
+QString BeautifierPlugin::format(const QString &text, const Command &command, const QString &fileName)
 {
-    if (command.isEmpty())
+    const QString executable = command.executable();
+    if (executable.isEmpty())
         return QString();
 
-    // Save text to temporary file
-    QFileInfo fi(fileName);
-    Utils::TempFileSaver sourceFile(fi.absolutePath() + QLatin1String("/qtc_beautifier_XXXXXXXX.")
-                                    + fi.suffix());
-    sourceFile.setAutoRemove(true);
-    sourceFile.write(text.toUtf8());
-    if (!sourceFile.finalize()) {
-        showError(tr("Cannot create temporary file \"%1\": %2.")
-                  .arg(sourceFile.fileName()).arg(sourceFile.errorString()));
-        return QString();
+    switch (command.processing()) {
+    case Command::FileProcessing: {
+        // Save text to temporary file
+        QFileInfo fi(fileName);
+        Utils::TempFileSaver sourceFile(QDir::tempPath() + QLatin1String("/qtc_beautifier_XXXXXXXX.")
+                                        + fi.suffix());
+        sourceFile.setAutoRemove(true);
+        sourceFile.write(text.toUtf8());
+        if (!sourceFile.finalize()) {
+            showError(tr("Cannot create temporary file \"%1\": %2.")
+                      .arg(sourceFile.fileName()).arg(sourceFile.errorString()));
+            return QString();
+        }
+
+        // Format temporary file
+        QProcess process;
+        QStringList options = command.options();
+        options.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
+        process.start(executable, options);
+        if (!process.waitForFinished()) {
+            showError(tr("Cannot call %1 or some other error occurred.").arg(executable));
+            return QString();
+        }
+        const QByteArray output = process.readAllStandardError();
+        if (!output.isEmpty())
+            showError(executable + QLatin1String(": ") + QString::fromUtf8(output));
+
+        // Read text back
+        Utils::FileReader reader;
+        if (!reader.fetch(sourceFile.fileName(), QIODevice::Text)) {
+            showError(tr("Cannot read file \"%1\": %2.")
+                      .arg(sourceFile.fileName()).arg(reader.errorString()));
+            return QString();
+        }
+        return QString::fromUtf8(reader.data());
+    } break;
+
+    case Command::PipeProcessing: {
+        QProcess process;
+        QStringList options = command.options();
+        options.replaceInStrings(QLatin1String("%file"), fileName);
+        process.start(executable, options);
+        if (!process.waitForStarted()) {
+            showError(tr("Cannot call %1 or some other error occurred.").arg(executable));
+            return QString();
+        }
+        process.write(text.toUtf8());
+        process.closeWriteChannel();
+        if (!process.waitForFinished()) {
+            showError(tr("Cannot call %1 or some other error occurred.").arg(executable));
+            return QString();
+        }
+        const QByteArray error = process.readAllStandardError();
+        if (!error.isEmpty()) {
+            showError(executable + QLatin1String(": ") + QString::fromUtf8(error));
+            return QString();
+        }
+
+        if (command.pipeAddsNewline()) {
+            QString formatted = QString::fromUtf8(process.readAllStandardOutput());
+            formatted.remove(QRegExp(QLatin1String("(\\r\\n|\\n)$")));
+            return formatted;
+        }
+        return QString::fromUtf8(process.readAllStandardOutput());
+    }
     }
 
-    // Format temporary file
-    QProcess process;
-    command.replaceInStrings(QLatin1String("%file"), sourceFile.fileName());
-    const QString processProgram = command.takeFirst();
-    process.start(processProgram, command);
-    if (!process.waitForFinished()) {
-        showError(tr("Cannot call %1 or some other error occurred.").arg(processProgram));
-        return QString();
-    }
-    const QByteArray output = process.readAllStandardError();
-    if (!output.isEmpty())
-        showError(processProgram + QLatin1String(": ") + QString::fromLocal8Bit(output));
-
-    // Read text back
-    Utils::FileReader reader;
-    if (!reader.fetch(sourceFile.fileName(), QIODevice::Text)) {
-        showError(tr("Cannot read file \"%1\": %2.")
-                  .arg(sourceFile.fileName()).arg(reader.errorString()));
-        return QString();
-    }
-    return QString::fromUtf8(reader.data());
+    return QString();
 }
 
-void BeautifierPlugin::formatCurrentFile(QStringList command)
+void BeautifierPlugin::formatCurrentFile(const Command &command)
 {
     QPlainTextEdit *textEditor = 0;
     if (TextEditor::BaseTextEditor *editor

@@ -31,6 +31,7 @@
 #define BEAUTIFIER_CLANGFORMAT_H
 
 #include "../beautifierabstracttool.h"
+#include "../command.h"
 
 #include <utils/qtcoverride.h>
 
@@ -61,7 +62,7 @@ private:
     QAction *m_formatFile;
     QAction *m_formatRange;
     ClangFormatSettings *m_settings;
-    QStringList command(int offset = -1, int length = -1) const;
+    Command command(int offset = -1, int length = -1) const;
 };
 
 } // namespace ClangFormat

@@ -34,14 +34,25 @@
 
 #include <utils/qtcoverride.h>
 
+#include <QFuture>
+#include <QFutureWatcher>
+
 namespace Beautifier {
 namespace Internal {
 namespace ArtisticStyle {
 
-class ArtisticStyleSettings : public AbstractSettings
+class ArtisticStyleSettings : public QObject, public AbstractSettings
 {
+    Q_OBJECT
+
 public:
+    enum ArtisticStyleVersion {
+        Version_2_03 = 203
+    };
+
     ArtisticStyleSettings();
+
+    void updateVersion() QTC_OVERRIDE;
 
     bool useOtherFiles() const;
     void setUseOtherFiles(bool useOtherFiles);
@@ -57,6 +68,14 @@ public:
 
     QString documentationFilePath() const QTC_OVERRIDE;
     void createDocumentationFile() const QTC_OVERRIDE;
+
+private slots:
+    void helperSetVersion();
+
+private:
+    QFuture<int> m_versionFuture;
+    QFutureWatcher<int> m_versionWatcher;
+    int helperUpdateVersion() const;
 };
 
 } // namespace ArtisticStyle

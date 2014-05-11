@@ -44,7 +44,8 @@ namespace Beautifier {
 namespace Internal {
 
 AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
-    : m_name(name)
+    : m_version(0)
+    , m_name(name)
     , m_ending(ending)
     , m_styleDir(Core::ICore::userResourcePath() + QLatin1Char('/')
                  + QLatin1String(Beautifier::Constants::SETTINGS_DIRNAME) + QLatin1Char('/')
@@ -135,6 +136,18 @@ void AbstractSettings::setCommand(const QString &command)
         return;
 
     m_command = command;
+    updateVersion();
+}
+
+int AbstractSettings::version() const
+{
+    return m_version;
+}
+
+void AbstractSettings::updateVersion()
+{
+    // If a beautifier needs to know the current tool's version, reimplement and store the version
+    // in m_version.
 }
 
 QStringList AbstractSettings::options()

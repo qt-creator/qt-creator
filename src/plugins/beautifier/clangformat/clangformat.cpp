@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+// Tested with version 3.3, 3.4 and 3.4.1
+
 #include "clangformat.h"
 
 #include "clangformatconstants.h"
@@ -125,22 +127,24 @@ void ClangFormat::formatSelectedText()
     }
 }
 
-QStringList ClangFormat::command(int offset, int length) const
+Command ClangFormat::command(int offset, int length) const
 {
-    QStringList command;
-    command << m_settings->command();
-    command << QLatin1String("-i");
+    Command command;
+    command.setExecutable(m_settings->command());
+    command.setProcessing(Command::PipeProcessing);
+
     if (m_settings->usePredefinedStyle()) {
-        command << QLatin1String("-style=") + m_settings->predefinedStyle();
+        command.addOption(QLatin1String("-style=") + m_settings->predefinedStyle());
     } else {
-        command << QLatin1String("-style={") + m_settings->style(
-                       m_settings->customStyle()).remove(QLatin1Char('\n')) + QLatin1String("}");
+        command.addOption(QLatin1String("-style={")
+                          + m_settings->style(m_settings->customStyle()).remove(QLatin1Char('\n'))
+                          + QLatin1String("}"));
     }
+
     if (offset != -1) {
-        command << QLatin1String("-offset=") + QString::number(offset);
-        command << QLatin1String("-length=") + QString::number(length);
+        command.addOption(QLatin1String("-offset=") + QString::number(offset));
+        command.addOption(QLatin1String("-length=") + QString::number(length));
     }
-    command << QLatin1String("%file");
 
     return command;
 }

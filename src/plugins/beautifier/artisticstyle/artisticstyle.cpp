@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+// Tested with version 2.01, 2.02, 2.02.1, 2.03 and 2.04
+
 #include "artisticstyle.h"
 
 #include "artisticstyleconstants.h"
@@ -35,6 +37,7 @@
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../command.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -136,11 +139,19 @@ void ArtisticStyle::formatFile()
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
                                         QLatin1String(Constants::ArtisticStyle::DISPLAY_NAME)));
     } else {
-        BeautifierPlugin::formatCurrentFile(QStringList()
-                                            << m_settings->command()
-                                            << QLatin1String("-q")
-                                            << QLatin1String("--options=") + cfgFileName
-                                            << QLatin1String("%file"));
+        Command command;
+        command.setExecutable(m_settings->command());
+        command.addOption(QLatin1String("-q"));
+        command.addOption(QLatin1String("--options=") + cfgFileName);
+
+        if (m_settings->version() > ArtisticStyleSettings::Version_2_03) {
+            command.setProcessing(Command::PipeProcessing);
+            command.setPipeAddsNewline(true);
+        } else {
+            command.addOption(QLatin1String("%file"));
+        }
+
+        BeautifierPlugin::formatCurrentFile(command);
     }
 }
 

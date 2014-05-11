@@ -27,50 +27,56 @@
 **
 ****************************************************************************/
 
-#ifndef BEAUTIFIER_BEAUTIFIER_H
-#define BEAUTIFIER_BEAUTIFIER_H
-
-#include <extensionsystem/iplugin.h>
-#include <utils/qtcoverride.h>
-
-namespace Core { class IEditor; }
+#include "command.h"
 
 namespace Beautifier {
 namespace Internal {
 
-class BeautifierAbstractTool;
-class Command;
-
-class BeautifierPlugin : public ExtensionSystem::IPlugin
+Command::Command()
+    : m_processing(FileProcessing)
+    , m_pipeAddsNewline(false)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Beautifier.json")
+}
 
-public:
-    BeautifierPlugin();
-    ~BeautifierPlugin();
-    bool initialize(const QStringList &arguments, QString *errorString) QTC_OVERRIDE;
-    void extensionsInitialized() QTC_OVERRIDE;
-    ShutdownFlag aboutToShutdown() QTC_OVERRIDE;
+QString Command::executable() const
+{
+    return m_executable;
+}
 
-    static QString format(const QString &text, const Command &command, const QString &fileName);
-    static void formatCurrentFile(const Command &command);
-    static void showError(const QString &error);
+void Command::setExecutable(const QString &executable)
+{
+    m_executable = executable;
+}
 
-    static QString msgCannotGetConfigurationFile(const QString &command);
-    static QString msgFormatCurrentFile();
-    static QString msgFormatSelectedText();
-    static QString msgCommandPromptDialogTitle(const QString &command);
+QStringList Command::options() const
+{
+    return m_options;
+}
 
-private slots:
-    void updateActions(Core::IEditor *editor = 0);
+void Command::addOption(const QString &option)
+{
+    m_options << option;
+}
 
-private:
-    QList<BeautifierAbstractTool *> m_tools;
-};
+Command::Processing Command::processing() const
+{
+    return m_processing;
+}
+
+void Command::setProcessing(const Processing &processing)
+{
+    m_processing = processing;
+}
+
+bool Command::pipeAddsNewline() const
+{
+    return m_pipeAddsNewline;
+}
+
+void Command::setPipeAddsNewline(bool pipeAddsNewline)
+{
+    m_pipeAddsNewline = pipeAddsNewline;
+}
 
 } // namespace Internal
 } // namespace Beautifier
-
-#endif // BEAUTIFIER_BEAUTIFIER_H
-

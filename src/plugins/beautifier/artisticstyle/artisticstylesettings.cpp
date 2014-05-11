@@ -39,6 +39,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
+#include <QtConcurrent>
 #include <QTextDocument> // Qt::escape() in Qt 4
 #include <QXmlStreamWriter>
 
@@ -57,12 +58,48 @@ ArtisticStyleSettings::ArtisticStyleSettings() :
     AbstractSettings(QLatin1String(Constants::ArtisticStyle::SETTINGS_NAME),
                      QLatin1String(".astyle"))
 {
+    connect(&m_versionWatcher, SIGNAL(finished()), this, SLOT(helperSetVersion()));
+
     setCommand(QLatin1String("astyle"));
     m_settings.insert(QLatin1String(kUseOtherFiles), QVariant(true));
     m_settings.insert(QLatin1String(kUseHomeFile), QVariant(false));
     m_settings.insert(QLatin1String(kUseCustomStyle), QVariant(false));
     m_settings.insert(QLatin1String(kCustomStyle), QVariant());
     read();
+}
+
+void ArtisticStyleSettings::updateVersion()
+{
+    if (m_versionFuture.isRunning())
+        m_versionFuture.cancel();
+
+    m_versionFuture = QtConcurrent::run(this, &ArtisticStyleSettings::helperUpdateVersion);
+    m_versionWatcher.setFuture(m_versionFuture);
+}
+
+int ArtisticStyleSettings::helperUpdateVersion() const
+{
+    QProcess process;
+    process.start(command(), QStringList() << QLatin1String("--version"));
+    if (!process.waitForFinished()) {
+        process.kill();
+        return 0;
+    }
+
+    // The version in Artistic Style is printed like "Artistic Style Version 2.04"
+    const QString version = QString::fromUtf8(process.readAllStandardError()).trimmed();
+    const QRegExp rx(QLatin1String("([2-9]{1})\\.([0-9]{2})(\\.[1-9]{1})?$"));
+    if (rx.indexIn(version) != -1) {
+        const int major = rx.cap(1).toInt() * 100;
+        const int minor = rx.cap(2).toInt();
+        return major + minor;
+    }
+    return 0;
+}
+
+void ArtisticStyleSettings::helperSetVersion()
+{
+    m_version = m_versionWatcher.result();
 }
 
 bool ArtisticStyleSettings::useOtherFiles() const
