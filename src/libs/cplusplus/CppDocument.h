@@ -215,15 +215,6 @@ public:
             : _begin(begin), _end(end)
         { }
 
-        inline bool isNull() const
-        { return length() == 0; }
-
-        inline unsigned position() const
-        { return _begin; }
-
-        inline unsigned length() const
-        { return _end - _begin; }
-
         inline unsigned begin() const
         { return _begin; }
 
