@@ -31,6 +31,7 @@ import os
 import struct
 import sys
 import base64
+import re
 
 if sys.version_info[0] >= 3:
     xrange = range
@@ -1327,6 +1328,84 @@ class DumperBase:
             bytes = self.toBlob(thing).toBytes()
         code = "I" if self.ptrSize() == 4 else "Q"
         return struct.unpack_from(code, bytes, offset)[0]
+
+
+    # Parses a..b and  a.(s).b
+    def parseRange(self, exp):
+        match = re.search("\[(.+?)\.(\(.+?\))?\.(.+?)\]", exp)
+        if match:
+            a = match.group(1)
+            s = match.group(2)
+            b = match.group(3)
+            try:
+                step = toInteger(s[1:len(s)-1]) if s else 1
+                template = exp[:match.start(1)] + '%s' +  exp[match.end(3):]
+                return True, toInteger(a), step, toInteger(b) + 1, template
+            except:
+                pass
+        return False, 0, 1, 1, exp
+
+    def handleWatch(self, origexp, exp, iname):
+        exp = str(exp).strip()
+        escapedExp = self.hexencode(exp)
+        #warn("HANDLING WATCH %s -> %s, INAME: '%s'" % (origexp, exp, iname))
+
+        # Grouped items separated by semicolon
+        if exp.find(";") >= 0:
+            exps = exp.split(';')
+            n = len(exps)
+            with TopLevelItem(self, iname):
+                self.put('iname="%s",' % iname)
+                #self.put('wname="%s",' % escapedExp)
+                self.put('name="%s",' % exp)
+                self.put('exp="%s",' % exp)
+                self.putItemCount(n)
+                self.putNoType()
+            for i in xrange(n):
+                self.handleWatch(exps[i], exps[i], "%s.%d" % (iname, i))
+            return
+
+        # Special array index: e.g a[1..199] or a[1.(3).199] for stride 3.
+        isRange, begin, step, end, template = self.parseRange(exp)
+        if isRange:
+            #warn("RANGE: %s %s %s in %s" % (begin, step, end, template))
+            r = range(begin, end, step)
+            n = len(r)
+            with TopLevelItem(self, iname):
+                self.put('iname="%s",' % iname)
+                #self.put('wname="%s",' % escapedExp)
+                self.put('name="%s",' % exp)
+                self.put('exp="%s",' % exp)
+                self.putItemCount(n)
+                self.putNoType()
+                with Children(self, n):
+                    for i in r:
+                        e = template % i
+                        self.handleWatch(e, e, "%s.%s" % (iname, i))
+            return
+
+            # Fall back to less special syntax
+            #return self.handleWatch(origexp, exp, iname)
+
+        with TopLevelItem(self, iname):
+            self.put('iname="%s",' % iname)
+            self.put('name="%s",' % exp)
+            self.put('wname="%s",' % escapedExp)
+            if len(exp) == 0: # The <Edit> case
+                self.putValue(" ")
+                self.putNoType()
+                self.putNumChild(0)
+            else:
+                try:
+                    value = self.parseAndEvaluate(exp)
+                    self.putItem(value)
+                except RuntimeError:
+                    self.currentType = " "
+                    self.currentValue = "<no such value>"
+                    self.currentChildNumChild = -1
+                    self.currentNumChild = 0
+                    self.putNumChild(0)
+
 
 # Some "Enums"
 

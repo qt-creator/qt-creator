@@ -1153,19 +1153,7 @@ class Dumper(DumperBase):
             # could be 'watch.0' or 'tooltip.deadbead'
             (base, component) = iname.split('.')
             exp = self.hexdecode(watcher['exp'])
-            if exp == "":
-                self.put('type="",value="",exp=""')
-                continue
-
-            options = lldb.SBExpressionOptions()
-            value = self.target.EvaluateExpression(exp, options)
-            #value = self.target.EvaluateExpression(iname, exp)
-            self.currentIName = base
-            with SubItem(self, component):
-                self.put('exp="%s",' % exp)
-                self.put('wname="%s",' % self.hexencode(exp))
-                self.put('iname="%s",' % iname)
-                self.putItem(value)
+            self.handleWatch(exp, exp, iname)
 
         self.put(']')
 

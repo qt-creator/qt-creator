@@ -492,7 +492,7 @@ class Dumper(DumperBase):
             if len(watchers) > 0:
                 for watcher in watchers.split("##"):
                     (exp, iname) = watcher.split("#")
-                    self.handleWatch(exp, iname)
+                    self.handleWatch(exp, exp, iname)
 
         #print('data=[' + locals + sep + watchers + ']\n')
 
@@ -719,52 +719,6 @@ class Dumper(DumperBase):
             if msg[-1] == 'u':
                msg = msg[0:-1]
             return int(msg)
-
-    def handleWatch(self, exp, iname):
-        exp = str(exp)
-        escapedExp = self.hexencode(exp);
-        #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
-        if exp.startswith("[") and exp.endswith("]"):
-            #warn("EVAL: EXP: %s" % exp)
-            with TopLevelItem(self, iname):
-                self.put('iname="%s",' % iname)
-                self.put('wname="%s",' % escapedExp)
-                try:
-                    list = eval(exp)
-                    self.putValue("")
-                    self.putNoType()
-                    self.putNumChild(len(list))
-                    # This is a list of expressions to evaluate
-                    with Children(self, len(list)):
-                        itemNumber = 0
-                        for item in list:
-                            self.handleWatch(item, "%s.%d" % (iname, itemNumber))
-                            itemNumber += 1
-                except RuntimeError as error:
-                    warn("EVAL: ERROR CAUGHT %s" % error)
-                    self.putValue("<syntax error>")
-                    self.putNoType()
-                    self.putNumChild(0)
-                    self.put("children=[],")
-            return
-
-        with TopLevelItem(self, iname):
-            self.put('iname="%s",' % iname)
-            self.put('wname="%s",' % escapedExp)
-            if len(exp) == 0: # The <Edit> case
-                self.putValue(" ")
-                self.putNoType()
-                self.putNumChild(0)
-            else:
-                try:
-                    value = self.parseAndEvaluate(exp)
-                    self.putItem(value)
-                except RuntimeError:
-                    self.currentType = " "
-                    self.currentValue = "<no such value>"
-                    self.currentChildNumChild = -1
-                    self.currentNumChild = 0
-                    self.putNumChild(0)
 
     def intType(self):
         self.cachedIntType = self.lookupType('int')
