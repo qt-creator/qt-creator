@@ -145,6 +145,7 @@ Command ClangFormat::command(int offset, int length) const
         command.addOption(QLatin1String("-offset=") + QString::number(offset));
         command.addOption(QLatin1String("-length=") + QString::number(length));
     }
+    command.addOption(QLatin1String("-assume-filename=%file"));
 
     return command;
 }
