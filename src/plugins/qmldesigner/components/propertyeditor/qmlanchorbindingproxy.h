@@ -57,6 +57,14 @@ class QmlAnchorBindingProxy : public QObject
     Q_PROPERTY(QString leftTarget READ leftTarget WRITE setLeftTarget NOTIFY leftTargetChanged)
     Q_PROPERTY(QString rightTarget READ rightTarget WRITE setRightTarget NOTIFY rightTargetChanged)
 
+    Q_PROPERTY(RelativeAnchorTarget relativeAnchorTargetTop READ relativeAnchorTargetTop WRITE setRelativeAnchorTargetTop NOTIFY relativeAnchorTargetTopChanged)
+    Q_PROPERTY(RelativeAnchorTarget relativeAnchorTargetBottom READ relativeAnchorTargetBottom WRITE setRelativeAnchorTargetBottom NOTIFY relativeAnchorTargetBottomChanged)
+    Q_PROPERTY(RelativeAnchorTarget relativeAnchorTargetLeft READ relativeAnchorTargetLeft WRITE setRelativeAnchorTargetLeft NOTIFY relativeAnchorTargetLeftChanged)
+    Q_PROPERTY(RelativeAnchorTarget relativeAnchorTargetRight READ relativeAnchorTargetRight WRITE setRelativeAnchorTargetRight NOTIFY relativeAnchorTargetRightChanged)
+
+    Q_PROPERTY(RelativeAnchorTarget relativeAnchorTargetVertical READ relativeAnchorTargetVertical WRITE setRelativeAnchorTargetVertical NOTIFY relativeAnchorTargetVerticalChanged)
+    Q_PROPERTY(RelativeAnchorTarget relativeAnchorTargetHorizontal READ relativeAnchorTargetHorizontal WRITE setRelativeAnchorTargetHorizontal NOTIFY relativeAnchorTargetHorizontalChanged)
+
     Q_PROPERTY(QString verticalTarget READ verticalTarget WRITE setVerticalTarget NOTIFY verticalTargetChanged)
     Q_PROPERTY(QString horizontalTarget READ horizontalTarget WRITE setHorizontalTarget NOTIFY horizontalTargetChanged)
 
@@ -69,7 +77,15 @@ class QmlAnchorBindingProxy : public QObject
 
     Q_PROPERTY(QStringList possibleTargetItems READ possibleTargetItems NOTIFY itemNodeChanged)
 
+    Q_ENUMS(RelativeAnchorTarget)
+
 public:
+    enum RelativeAnchorTarget {
+        SameEdge = 0,
+        Center = 1,
+        OppositeEdge = 2
+    };
+
     //only enable if node has parent
 
     QmlAnchorBindingProxy(QObject *parent = 0);
@@ -101,6 +117,14 @@ public:
     QString leftTarget() const;
     QString rightTarget() const;
 
+    RelativeAnchorTarget relativeAnchorTargetTop() const;
+    RelativeAnchorTarget relativeAnchorTargetBottom() const;
+    RelativeAnchorTarget relativeAnchorTargetLeft() const;
+    RelativeAnchorTarget relativeAnchorTargetRight() const;
+
+    RelativeAnchorTarget relativeAnchorTargetVertical() const;
+    RelativeAnchorTarget relativeAnchorTargetHorizontal() const;
+
     QString verticalTarget() const;
     QString horizontalTarget() const;
 
@@ -114,9 +138,18 @@ public:
     void setVerticalTarget(const QString &target);
     void setHorizontalTarget(const QString &target);
 
+    void setRelativeAnchorTargetTop(RelativeAnchorTarget target);
+    void setRelativeAnchorTargetBottom(RelativeAnchorTarget target);
+    void setRelativeAnchorTargetLeft(RelativeAnchorTarget target);
+    void setRelativeAnchorTargetRight(RelativeAnchorTarget target);
+
+    void setRelativeAnchorTargetVertical(RelativeAnchorTarget target);
+    void setRelativeAnchorTargetHorizontal(RelativeAnchorTarget target);
+
     QStringList possibleTargetItems() const;
     Q_INVOKABLE int indexOfPossibleTargetItem(const QString &targetName) const;
 
+    static void registerDeclarativeType();
 
 public slots:
     void resetLayout();
@@ -149,14 +182,30 @@ signals:
     void verticalTargetChanged();
     void horizontalTargetChanged();
 
+    void relativeAnchorTargetTopChanged();
+    void relativeAnchorTargetBottomChanged();
+    void relativeAnchorTargetLeftChanged();
+    void relativeAnchorTargetRightChanged();
+
+    void relativeAnchorTargetVerticalChanged();
+    void relativeAnchorTargetHorizontalChanged();
+
     void invalidated();
 
 private:
     void setDefaultAnchorTarget(const ModelNode &modelNode);
-    void calcTopMargin();
-    void calcBottomMargin();
-    void calcLeftMargin();
-    void calcRightMargin();
+    void anchorTop();
+    void anchorBottom();
+    void anchorLeft();
+    void anchorRight();
+
+    void anchorVertical();
+    void anchorHorizontal();
+
+    void setupAnchorTargets();
+    void emitAnchorSignals();
+
+
     QmlItemNode targetIdToNode(const QString &id) const;
     QString idForNode(const QmlItemNode &qmlItemNode) const;
 
@@ -177,6 +226,14 @@ private:
 
     QmlItemNode m_verticalTarget;
     QmlItemNode m_horizontalTarget;
+
+    RelativeAnchorTarget m_relativeTopTarget;
+    RelativeAnchorTarget m_relativeBottomTarget;
+    RelativeAnchorTarget m_relativeLeftTarget;
+    RelativeAnchorTarget m_relativeRightTarget;
+
+    RelativeAnchorTarget m_relativeVerticalTarget;
+    RelativeAnchorTarget m_relativeHorizontalTarget;
 
     bool m_locked;
     bool m_ignoreQml;

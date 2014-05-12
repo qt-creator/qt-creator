@@ -65,6 +65,19 @@ Section {
             onTargetChanged: {
                 anchorBackend.topTarget = currentText
             }
+            relativeTarget: anchorBackend.relativeAnchorTargetTop
+            verticalAnchor: true
+
+            onSameEdgeButtonClicked: {
+                anchorBackend.relativeAnchorTargetTop = AnchorBindingProxy.SameEdge
+            }
+            onOppositeEdgeButtonClicked: {
+                anchorBackend.relativeAnchorTargetTop = AnchorBindingProxy.OppositeEdge
+            }
+
+            onCenterButtonClicked: {
+                anchorBackend.relativeAnchorTargetTop = AnchorBindingProxy.Center
+            }
         }
 
         AnchorRow {
@@ -74,6 +87,20 @@ Section {
             targetName: anchorBackend.bottomTarget
             onTargetChanged: {
                 anchorBackend.bottomTarget = currentText
+            }
+            relativeTarget: anchorBackend.relativeAnchorTargetBottom
+            verticalAnchor: true
+            invertRelativeTargets: true
+
+            onSameEdgeButtonClicked: {
+                anchorBackend.relativeAnchorTargetBottom = AnchorBindingProxy.SameEdge
+            }
+            onOppositeEdgeButtonClicked: {
+                anchorBackend.relativeAnchorTargetBottom = AnchorBindingProxy.OppositeEdge
+            }
+
+            onCenterButtonClicked: {
+                anchorBackend.relativeAnchorTargetBottom = AnchorBindingProxy.Center
             }
         }
 
@@ -85,6 +112,19 @@ Section {
             onTargetChanged: {
                 anchorBackend.leftTarget = currentText
             }
+            relativeTarget: anchorBackend.relativeAnchorTargetLeft
+            verticalAnchor: false
+
+            onSameEdgeButtonClicked: {
+                anchorBackend.relativeAnchorTargetLeft = AnchorBindingProxy.SameEdge
+            }
+            onOppositeEdgeButtonClicked: {
+                anchorBackend.relativeAnchorTargetLeft = AnchorBindingProxy.OppositeEdge
+            }
+
+            onCenterButtonClicked: {
+                anchorBackend.relativeAnchorTargetLeft = AnchorBindingProxy.Center
+            }
         }
 
         AnchorRow {
@@ -95,9 +135,24 @@ Section {
             onTargetChanged: {
                 anchorBackend.rightTarget = currentText
             }
+            relativeTarget: anchorBackend.relativeAnchorTargetRight
+            verticalAnchor: false
+            invertRelativeTargets: true
+
+            onSameEdgeButtonClicked: {
+                anchorBackend.relativeAnchorTargetRight = AnchorBindingProxy.SameEdge
+            }
+            onOppositeEdgeButtonClicked: {
+                anchorBackend.relativeAnchorTargetRight = AnchorBindingProxy.OppositeEdge
+            }
+
+            onCenterButtonClicked: {
+                anchorBackend.relativeAnchorTargetRight = AnchorBindingProxy.Center
+            }
         }
 
         AnchorRow {
+            showAlternativeTargets: false
             enabled: anchorBackend.horizontalCentered;
             iconSource: "../HelperWidgets/images/anchor-horizontal.png"
             anchorMargin: backendValues.anchors_horizontalCenterOffset
@@ -105,9 +160,11 @@ Section {
             onTargetChanged: {
                 anchorBackend.horizontalTarget = currentText
             }
+            verticalAnchor: true
         }
 
         AnchorRow {
+            showAlternativeTargets: false
             enabled: anchorBackend.verticalCentered;
             iconSource: "../HelperWidgets/images/anchor-vertical.png"
             anchorMargin: backendValues.anchors_verticalCenterOffset
@@ -115,6 +172,7 @@ Section {
             onTargetChanged: {
                  anchorBackend.verticalTarget = currentText
             }
+            verticalAnchor: false
         }
 
     }

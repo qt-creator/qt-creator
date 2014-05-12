@@ -32,6 +32,7 @@
 #include "propertyeditorvalue.h"
 #include "fileresourcesmodel.h"
 #include "gradientmodel.h"
+#include "qmlanchorbindingproxy.h"
 
 #include <QVBoxLayout>
 
@@ -110,6 +111,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         PropertyEditorValue::registerDeclarativeTypes();
         FileResourcesModel::registerDeclarativeType();
         GradientModel::registerDeclarativeType();
+        Internal::QmlAnchorBindingProxy::registerDeclarativeType();
     }
 }
 
