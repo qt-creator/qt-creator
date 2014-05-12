@@ -212,14 +212,20 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
         m_thirdSocket->abort();
     }
 
-    if (m_qmlPuppetEditorProcess)
+    if (m_qmlPuppetEditorProcess) {
         QTimer::singleShot(3000, m_qmlPuppetEditorProcess.data(), SLOT(terminate()));
+        QTimer::singleShot(6000, m_qmlPuppetEditorProcess.data(), SLOT(kill()));
+    }
 
-    if (m_qmlPuppetPreviewProcess)
+    if (m_qmlPuppetPreviewProcess) {
         QTimer::singleShot(3000, m_qmlPuppetPreviewProcess.data(), SLOT(terminate()));
+        QTimer::singleShot(6000, m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
+    }
 
-    if (m_qmlPuppetRenderProcess)
+    if (m_qmlPuppetRenderProcess) {
          QTimer::singleShot(3000, m_qmlPuppetRenderProcess.data(), SLOT(terminate()));
+         QTimer::singleShot(6000, m_qmlPuppetRenderProcess.data(), SLOT(kill()));
+    }
 }
 
 void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
