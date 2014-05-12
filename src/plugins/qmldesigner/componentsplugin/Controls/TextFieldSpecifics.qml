@@ -88,21 +88,6 @@ Column {
             }
 
             Label {
-                text: qsTr("Password mode")
-                toolTip: qsTr("Determines whether the text field is in password mode.")
-            }
-
-            SecondColumnLayout {
-                CheckBox {
-                    backendValue: backendValues.passwordMode
-                    implicitWidth: 180
-                }
-                ExpandingSpacer {
-
-                }
-            }
-
-            Label {
                 text: qsTr("Input mask")
                 toolTip: qsTr("Restricts the valid text in the text field.")
             }
