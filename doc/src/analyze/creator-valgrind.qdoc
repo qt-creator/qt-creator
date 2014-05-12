@@ -260,20 +260,19 @@
     \page creator-running-valgrind-remotely.html
     \nextpage creator-advanced.html
 
-    \title Running Valgrind Tools Remotely
+    \title Running Valgrind Tools on External Applications
 
     \QC integrates Valgrind code analysis tools for detecting memory
-    leaks and profiling function execution. These tools are supported locally
-    only on Linux and OS X. However, according to Valgrind.org, support on
-    OS X 10.8 and 10.9 is experimental and mostly broken. You can run the tools
-    on a remote Linux machine or device from any development machine.
+    leaks and profiling function execution.
 
-    To run the Valgrind tools on a remote host over SSH:
+    To run the Valgrind tools to analyze external applications for which
+    you do not have a \QC project:
 
     \list 1
 
-        \li Select \gui {Analyze > Valgrind Memory Analyzer (Remote)} or
-            \gui {Valgrind Function Profiler (Remote)}.
+        \li Select \gui Analyze > \gui {Valgrind Memory Analyzer (External
+            Remote Application)} or
+            \gui {Valgrind Function Profiler (External Remote Application)}.
 
             \image qtcreator-valgrind-remote-settings.png "Start Analyzer dialog"
 

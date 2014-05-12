@@ -35,9 +35,22 @@
     profiling function execution. You must download and install them separately
     to use them from \QC.
 
-    To run the Valgrind tools on a remote host over SSH, select \gui {Analyze
-    > Valgrind Memory Analyzer (Remote)} or \gui {Valgrind Function Profiler
-    (Remote)}.
+    You can run the Valgrind tools either \e locally on the development host or
+    \e remotely on another host. You can use them to analyze both applications
+    for which you set up a project in \QC and applications for which you do not
+    have a project.
+
+    Valgrind tools are supported locally only on Linux and OS X. However,
+    according to Valgrind.org, support on OS X 10.8 and 10.9 is experimental and
+    mostly broken. You can run the tools on a remote Linux machine or device
+    from any development host.
+
+    To run the Valgrind tools to analyze an application for which you have a
+    project, open the project in \QC and select the kit to run the project. The
+    kit specifies whether the Valgrind tools are run locally or remotely.
+
+    For more information about analyzing applications for which you do not have
+    a project, see \l{Running Valgrind Tools on External Applications}.
 
     To stop the currently running analyzer, select \gui {Analyze
     > Stop}.
@@ -53,8 +66,6 @@
         \li \l{Detecting Memory Leaks}
 
         \li \l{Profiling Function Execution}
-
-        \li \l{Running Valgrind Tools Remotely}
 
     \endlist
 

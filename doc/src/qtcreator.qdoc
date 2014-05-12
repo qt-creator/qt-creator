@@ -251,7 +251,7 @@
                 \list
                     \li \l{Detecting Memory Leaks}
                     \li \l{Profiling Function Execution}
-                    \li \l{Running Valgrind Tools Remotely}
+                    \li \l{Running Valgrind Tools on External Applications}
                 \endlist
             \endlist
 
