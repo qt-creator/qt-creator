@@ -175,15 +175,15 @@ Column {
 
             Label {
                 text: qsTr("Preferred begin")
-                toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
+                toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred end. Note that the user has to add a highlight component.")
             }
 
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.preferredHighlightBegin
                     minimumValue: 0;
-                    maximumValue: 1000;
-                    decimals: 0
+                    maximumValue: 1;
+                    decimals: 2
                 }
 
                 ExpandingSpacer {
@@ -193,15 +193,15 @@ Column {
 
             Label {
                 text: qsTr("Preferred end")
-                toolTip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
+                toolTip: qsTr("Preferred highlight end - must be larger than Preferred begin. Note that the user has to add a highlight component.")
             }
 
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.preferredHighlightEnd
                     minimumValue: 0;
-                    maximumValue: 1000;
-                    decimals: 0
+                    maximumValue: 1;
+                    decimals: 2
                 }
 
                 ExpandingSpacer {
