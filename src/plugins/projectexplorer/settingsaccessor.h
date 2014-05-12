@@ -32,6 +32,7 @@
 
 #include <utils/fileutils.h>
 
+#include <QHash>
 #include <QVariantMap>
 #include <QMessageBox>
 
