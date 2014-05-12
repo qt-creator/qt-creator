@@ -66,10 +66,11 @@ static inline void restoreProperty(ModelNode node, const PropertyName &propertyN
 namespace Internal {
 
 QmlAnchorBindingProxy::QmlAnchorBindingProxy(QObject *parent) :
-    QObject(parent), m_locked(false), m_ignoreQml(false),
+    QObject(parent),
     m_relativeTopTarget(SameEdge), m_relativeBottomTarget(SameEdge),
     m_relativeLeftTarget(SameEdge), m_relativeRightTarget(SameEdge),
-    m_relativeVerticalTarget(Center), m_relativeHorizontalTarget(Center)
+    m_relativeVerticalTarget(Center), m_relativeHorizontalTarget(Center),
+    m_locked(false), m_ignoreQml(false)
 {
 }
 
