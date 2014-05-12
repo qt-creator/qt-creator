@@ -79,7 +79,8 @@ QtSupport::BaseQtVersion *BlackBerryQtVersionFactory::create(const Utils::FileNa
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
 
-    if (evaluator->values(QLatin1String("CONFIG")).contains(QLatin1String("blackberry"))) {
+    if (evaluator->values(QLatin1String("CONFIG")).contains(QLatin1String("blackberry")) ||
+            evaluator->values(QLatin1String("QMAKE_PLATFORM")).contains(QLatin1String("blackberry"))) {
         QString cpuDir = evaluator->value(QLatin1String("QNX_CPUDIR"));
         return new BlackBerryQtVersion(QnxUtils::cpudirToArch(cpuDir), qmakePath,
                                 isAutoDetected, autoDetectionSource);
