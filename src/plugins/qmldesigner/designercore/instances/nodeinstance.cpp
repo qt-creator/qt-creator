@@ -334,10 +334,8 @@ QPixmap NodeInstance::blurredRenderPixmap() const
 
 void NodeInstance::setRenderPixmap(const QImage &image)
 {
-    if (!image.isNull()) {
-        d->renderPixmap = QPixmap::fromImage(image);
-        d->blurredRenderPixmap = QPixmap();
-    }
+    d->renderPixmap = QPixmap::fromImage(image);
+    d->blurredRenderPixmap = QPixmap();
 }
 
 void NodeInstance::setParentId(qint32 instanceId)
