@@ -89,12 +89,6 @@ static QObject *variantToQObject(const QVariant &value)
     return 0;
 }
 
-static QString applicationDirPath()
-{
-    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Utils::FileUtils::normalizePathName(QCoreApplication::applicationDirPath());
-}
-
 namespace QmlDesigner {
 
 PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyEditor) :
