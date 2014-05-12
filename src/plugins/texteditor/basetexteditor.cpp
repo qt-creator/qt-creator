@@ -346,7 +346,7 @@ void BaseTextEditorWidgetPrivate::print(QPrinter *printer)
     QTextDocument *doc = q->document();
 
     QString title = m_document->displayName();
-    if (title.isEmpty())
+    if (!title.isEmpty())
         printer->setDocName(title);
 
 
