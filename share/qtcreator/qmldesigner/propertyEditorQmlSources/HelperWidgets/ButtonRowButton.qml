@@ -42,7 +42,7 @@ Item {
 
     signal clicked()
 
-    property string tooltip: ""
+    property alias toolTip: toolTipArea.toolTip
 
     width: 24 + leftPadding
     height: 24
@@ -96,28 +96,8 @@ Item {
         anchors.leftMargin: leftPadding
     }
 
-    MouseArea {
-        id: mouseArea
+    ToolTipArea {
         anchors.fill: parent
-        anchors.leftMargin: leftPadding
-        onClicked: {
-            if (buttonRowButton.checked) {
-                buttonRowButton.parent.__unCheckButton(index())
-            } else {
-                buttonRowButton.parent.__checkButton(index())
-            }
-            buttonRowButton.clicked()
-        }
-
-        onExited: Tooltip.hideText()
-        onCanceled: Tooltip.hideText()
-
-        hoverEnabled: true
-
-        Timer {
-            interval: 1000
-            running: mouseArea.containsMouse && tooltip.length
-            onTriggered: Tooltip.showText(mouseArea, Qt.point(mouseArea.mouseX, mouseArea.mouseY), tooltip)
-        }
+        id: toolTipArea
     }
 }

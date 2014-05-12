@@ -156,7 +156,7 @@ Column {
                         colorEditor.backendendValue.resetValue()
                         gradientLine.deleteGradient()
                     }
-                    tooltip: qsTr("Solid Color")
+                    toolTip: qsTr("Solid Color")
                 }
                 ButtonRowButton {
                     visible: supportGradient
@@ -166,7 +166,7 @@ Column {
                         gradientLine.addGradient()
                     }
 
-                    tooltip: qsTr("Gradient")
+                    toolTip: qsTr("Gradient")
                 }
                 ButtonRowButton {
                     iconSource: "images/icon_color_none.png"
@@ -174,7 +174,7 @@ Column {
                         colorEditor.color = "#00000000"
                         gradientLine.deleteGradient()
                     }
-                    tooltip: qsTr("Transparent")
+                    toolTip: qsTr("Transparent")
                 }
             }
 
