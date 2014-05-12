@@ -32,22 +32,19 @@ import QtQuick.Controls 1.1 as Controls
 import QtQuick.Layouts 1.0
 import QtQuick.Controls.Private 1.0
 
-Controls.Label {
-    id: label
+MouseArea {
+    id: mouseArea
 
-    property alias toolTip: toolTipArea.toolTip
+    onExited: Tooltip.hideText()
+    onCanceled: Tooltip.hideText()
 
-    width:  parent.width < 300 ? 80 : Math.min(140, parent.width - 220)
-    color: "#eee"
-    elide: Text.ElideRight
+    hoverEnabled: true
 
-    Layout.preferredWidth: width
-    Layout.minimumWidth: width
-    Layout.maximumWidth: width
+    property string toolTip
 
-    ToolTipArea {
-        id: toolTipArea
-        anchors.fill: parent
-        toolTip: label.text
+    Timer {
+        interval: 1000
+        running: mouseArea.containsMouse && toolTip.length
+        onTriggered: Tooltip.showText(mouseArea, Qt.point(mouseArea.mouseX, mouseArea.mouseY), toolTip)
     }
 }
