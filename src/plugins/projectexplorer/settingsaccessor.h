@@ -68,14 +68,14 @@ public:
     bool addVersionUpgrader(Internal::VersionUpgrader *upgrader); // takes ownership of upgrader
 
     enum ProceedInfo { Continue, DiscardAndContinue };
+    typedef QHash<QMessageBox::StandardButton, ProceedInfo> ButtonMap;
     class IssueInfo {
     public:
         IssueInfo() : defaultButton(QMessageBox::NoButton), escapeButton(QMessageBox::NoButton) { }
         IssueInfo(const QString &t, const QString &m,
                   QMessageBox::StandardButton d = QMessageBox::NoButton,
                   QMessageBox::StandardButton e = QMessageBox::NoButton,
-                  const QHash<QMessageBox::StandardButton, ProceedInfo> &b
-                      = QHash<QMessageBox::StandardButton, ProceedInfo>()) :
+                  const ButtonMap &b = ButtonMap()) :
             title(t), message(m), defaultButton(d), escapeButton(e), buttons(b)
         { }
         IssueInfo(const IssueInfo &other) :
