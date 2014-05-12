@@ -64,6 +64,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.checked.valueToString
                     backendValue: backendValues.checked
                     implicitWidth: 180
                 }
@@ -81,6 +82,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.activeFocusOnPress.valueToString
                     backendValue: backendValues.activeFocusOnPress
                     implicitWidth: 180
                 }

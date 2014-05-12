@@ -64,6 +64,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.checked.valueToString
                     backendValue: backendValues.checked
                     implicitWidth: 180
                 }
@@ -79,6 +80,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.checkable.valueToString
                     backendValue: backendValues.checkable
                     implicitWidth: 180
                 }
@@ -94,6 +96,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.enabled.valueToString
                     backendValue: backendValues.enabled
                     implicitWidth: 180
                 }
@@ -110,7 +113,8 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    backendValue: backendValues.defaultbutton
+                    text: backendValues.isDefault.valueToString
+                    backendValue: backendValues.isDefault
                     implicitWidth: 180
                 }
                 ExpandingSpacer {
@@ -140,6 +144,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.activeFocusOnPress.valueToString
                     backendValue: backendValues.activeFocusOnPress
                     implicitWidth: 180
                 }

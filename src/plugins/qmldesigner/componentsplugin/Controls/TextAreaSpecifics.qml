@@ -78,6 +78,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.readOnly.valueToString
                     backendValue: backendValues.readOnly
                     implicitWidth: 180
                 }
@@ -130,7 +131,8 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
-                    backendValue: backendValues.frameAroundContents
+                    text: backendValues.frameVisible.valueToString
+                    backendValue: backendValues.frameVisible
                     implicitWidth: 180
                 }
                 ExpandingSpacer {
@@ -161,6 +163,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.highlightOnFocus.valueToString
                     backendValue: backendValues.highlightOnFocus
                     implicitWidth: 180
                 }
@@ -176,6 +179,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.tabChangesFocus.valueToString
                     backendValue: backendValues.tabChangesFocus
                     implicitWidth: 180
                 }
@@ -191,6 +195,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.activeFocusOnPress.valueToString
                     backendValue: backendValues.activeFocusOnPress
                     implicitWidth: 180
                 }

@@ -4,6 +4,6 @@ Label {
 }
 
 CheckBox {
-    text: backendValues.%2.value
+    text: backendValues.%2.valueToString
     backendValue: backendValues.%2
 }

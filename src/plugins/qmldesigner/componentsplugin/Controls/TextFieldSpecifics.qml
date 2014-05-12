@@ -79,6 +79,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.readOnly.valueToString
                     backendValue: backendValues.readOnly
                     implicitWidth: 180
                 }

@@ -64,6 +64,7 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    text: backendValues.activeFocusOnPress.valueToString
                     backendValue: backendValues.activeFocusOnPress
                     implicitWidth: 180
                 }
