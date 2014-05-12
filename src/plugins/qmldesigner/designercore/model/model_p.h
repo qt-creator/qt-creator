@@ -31,7 +31,7 @@
 #define MODEL_P_H
 
 #include <QList>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QSet>
 #include <QUrl>
 
@@ -80,7 +80,7 @@ public:
     WriteLocker(ModelPrivate *model);
     WriteLocker(Model *model);
 private: // variables
-    QWeakPointer<ModelPrivate> m_model;
+    QPointer<ModelPrivate> m_model;
 };
 
 class ModelPrivate : public QObject {
@@ -239,7 +239,7 @@ private:
     QList<Import> m_imports;
     QList<Import> m_possibleImportList;
     QList<Import> m_usedImportList;
-    QList<QWeakPointer<AbstractView> > m_viewList;
+    QList<QPointer<AbstractView> > m_viewList;
     QList<InternalNodePointer> m_selectedInternalNodeList;
     QHash<QString,InternalNodePointer> m_idNodeHash;
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;
@@ -247,10 +247,10 @@ private:
     InternalNodePointer m_currentStateNode;
     InternalNodePointer m_rootInternalNode;
     QUrl m_fileUrl;
-    QWeakPointer<RewriterView> m_rewriterView;
-    QWeakPointer<NodeInstanceView> m_nodeInstanceView;
-    QWeakPointer<TextModifier> m_textModifier;
-    QWeakPointer<Model> m_metaInfoProxyModel;
+    QPointer<RewriterView> m_rewriterView;
+    QPointer<NodeInstanceView> m_nodeInstanceView;
+    QPointer<TextModifier> m_textModifier;
+    QPointer<Model> m_metaInfoProxyModel;
     bool m_writeLock;
     qint32 m_internalIdCounter;
 };

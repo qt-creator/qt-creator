@@ -32,7 +32,7 @@
 
 
 #include <QGraphicsScene>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QHash>
 #include <qmlitemnode.h>
 #include "abstractformeditortool.h"
@@ -124,8 +124,8 @@ private:
     FormEditorView *m_editorView;
     AbstractFormEditorTool *m_currentTool;
     QHash<QmlItemNode, FormEditorItem*> m_qmlItemNodeItemHash;
-    QWeakPointer<LayerItem> m_formLayerItem;
-    QWeakPointer<LayerItem> m_manipulatorLayerItem;
+    QPointer<LayerItem> m_formLayerItem;
+    QPointer<LayerItem> m_manipulatorLayerItem;
     ModelNode m_dragNode;
     bool m_showBoundingRects;
 };

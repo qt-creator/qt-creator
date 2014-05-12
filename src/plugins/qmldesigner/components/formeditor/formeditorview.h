@@ -143,8 +143,8 @@ private: //functions
     void hideNodeFromScene(const QmlItemNode &qmlItemNode);
 
 private: //variables
-    QWeakPointer<FormEditorWidget> m_formEditorWidget;
-    QWeakPointer<FormEditorScene> m_scene;
+    QPointer<FormEditorWidget> m_formEditorWidget;
+    QPointer<FormEditorScene> m_scene;
     QList<AbstractCustomTool*> m_customToolList;
     MoveTool *m_moveTool;
     SelectionTool *m_selectionTool;

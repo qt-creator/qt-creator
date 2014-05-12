@@ -116,8 +116,8 @@ private:
     void checkForWindow();
 
 private:
-    QWeakPointer<StatesEditorModel> m_statesEditorModel;
-    QWeakPointer<StatesEditorWidget> m_statesEditorWidget;
+    QPointer<StatesEditorModel> m_statesEditorModel;
+    QPointer<StatesEditorWidget> m_statesEditorWidget;
     int m_lastIndex;
 };
 

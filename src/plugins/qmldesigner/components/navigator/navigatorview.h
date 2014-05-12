@@ -32,7 +32,7 @@
 
 #include <abstractview.h>
 
-#include <QWeakPointer>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QTreeView;
@@ -116,8 +116,8 @@ protected: //functions
 private:
     bool m_blockSelectionChangedSignal;
 
-    QWeakPointer<NavigatorWidget> m_widget;
-    QWeakPointer<NavigatorTreeModel> m_treeModel;
+    QPointer<NavigatorWidget> m_widget;
+    QPointer<NavigatorTreeModel> m_treeModel;
 
     friend class TestNavigator;
 };

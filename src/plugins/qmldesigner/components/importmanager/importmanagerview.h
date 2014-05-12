@@ -31,7 +31,7 @@
 #define QMLDESIGNER_IMPORTMANAGERVIEW_H
 
 #include <abstractview.h>
-#include <QWeakPointer>
+#include <QPointer>
 
 namespace QmlDesigner {
 
@@ -98,7 +98,7 @@ private slots:
     void addImport(const Import &import);
 
 private:
-    ImportsWidget *m_importsWidget;
+    QPointer<ImportsWidget> m_importsWidget;
 };
 
 } // namespace QmlDesigner

@@ -31,7 +31,7 @@
 #define MODELMERGER_H
 
 
-#include <QWeakPointer>
+#include <QPointer>
 
 namespace QmlDesigner {
 
@@ -51,7 +51,7 @@ protected:
     { return m_view.data(); }
 
 private:
-    QWeakPointer<AbstractView> m_view;
+    QPointer<AbstractView> m_view;
 };
 
 } //namespace QmlDesigner

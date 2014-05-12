@@ -39,6 +39,7 @@
 #include <commondefines.h>
 
 #include <QObject>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QStyle;
@@ -116,7 +117,6 @@ class QMLDESIGNERCORE_EXPORT AbstractView : public QObject
     Q_OBJECT
 public:
     Q_FLAGS(PropertyChangeFlag PropertyChangeFlags)
-    typedef QWeakPointer<AbstractView> Pointer;
 
     enum PropertyChangeFlag {
       NoAdditionalChanges = 0x0,
@@ -261,7 +261,7 @@ private: //functions
 
 
 private:
-    QWeakPointer<Model> m_model;
+    QPointer<Model> m_model;
 };
 
 QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);

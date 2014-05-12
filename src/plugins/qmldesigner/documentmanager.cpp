@@ -171,7 +171,7 @@ DocumentManager::DocumentManager()
 
 DocumentManager::~DocumentManager()
 {
-    foreach (const QWeakPointer<DesignDocument> &designDocument, m_designDocumentHash)
+    foreach (const QPointer<DesignDocument> &designDocument, m_designDocumentHash)
         delete designDocument.data();
 }
 

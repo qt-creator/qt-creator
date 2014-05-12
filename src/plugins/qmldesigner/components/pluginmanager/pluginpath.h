@@ -31,7 +31,7 @@
 #define PLUGINPATH_H
 
 #include <QObject>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QList>
 #include <QDir>
 
@@ -56,7 +56,7 @@ struct PluginData {
     QString path;
     bool failed;
     QString errorMessage;
-    QWeakPointer<QObject> instanceGuard;
+    QPointer<QObject> instanceGuard;
     IPlugin *instance;
 };
 

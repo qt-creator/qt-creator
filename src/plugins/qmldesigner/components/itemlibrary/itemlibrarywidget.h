@@ -125,18 +125,18 @@ private:
     QSize m_itemIconSize;
     QSize m_resIconSize;
 
-    QWeakPointer<ItemLibraryInfo> m_itemLibraryInfo;
+    QPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
-    QWeakPointer<Internal::ItemLibraryModel> m_itemLibraryModel;
-    QWeakPointer<QFileSystemModel> m_resourcesFileSystemModel;
+    QPointer<Internal::ItemLibraryModel> m_itemLibraryModel;
+    QPointer<QFileSystemModel> m_resourcesFileSystemModel;
 
-    QWeakPointer<QStackedWidget> m_stackedWidget;
+    QPointer<QStackedWidget> m_stackedWidget;
 
-    QWeakPointer<Utils::FancyLineEdit> m_filterLineEdit;
+    QPointer<Utils::FancyLineEdit> m_filterLineEdit;
     QScopedPointer<QQuickView> m_itemsView;
     QScopedPointer<Internal::ItemLibraryTreeView> m_resourcesView;
 
-    QWeakPointer<Model> m_model;
+    QPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;
     int m_itemLibraryId;
 };

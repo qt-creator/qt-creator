@@ -35,6 +35,7 @@
 #include <QQuickView>
 #include <QQmlEngine>
 #include <QQmlContext>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QQmlError;
@@ -75,7 +76,7 @@ private:
      QWidget *m_containerWidget;
      QUrl m_source;
      QQuickView m_view;
-     QWeakPointer<QQmlComponent> m_component;
+     QPointer<QQmlComponent> m_component;
 
 };
 

@@ -30,6 +30,7 @@
 #include <qmldesignercorelib_global.h>
 #include <abstractview.h>
 #include <QPointF>
+#include <QPointer>
 
 #ifndef SELECTIONCONTEXT_H
 #define SELECTIONCONTEXT_H
@@ -67,7 +68,7 @@ public:
     bool isValid() const;
 
 private:
-    QWeakPointer<AbstractView> m_view;
+    QPointer<AbstractView> m_view;
     ModelNode m_targetNode;
     bool m_showSelectionTools;
     QPointF m_scenePosition;

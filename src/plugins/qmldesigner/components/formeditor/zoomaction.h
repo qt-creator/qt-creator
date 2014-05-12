@@ -31,6 +31,7 @@
 #define ZOOMACTION_H
 
 #include <QWidgetAction>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -60,7 +61,7 @@ private slots:
     void emitZoomLevelChanged(int index);
 
 private:
-    QWeakPointer<QAbstractItemModel> m_comboBoxModel;
+    QPointer<QAbstractItemModel> m_comboBoxModel;
     double m_zoomLevel;
     int m_currentComboBoxIndex;
 };

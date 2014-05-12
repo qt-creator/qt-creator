@@ -30,7 +30,7 @@
 #ifndef RESIZEMANIPULATOR_H
 #define RESIZEMANIPULATOR_H
 
-#include <QWeakPointer>
+#include <QPointer>
 #include "resizehandleitem.h"
 #include <snapper.h>
 #include "rewritertransaction.h"
@@ -67,7 +67,7 @@ protected:
 
 private:
     Snapper m_snapper;
-    QWeakPointer<FormEditorView> m_view;
+    QPointer<FormEditorView> m_view;
     QList<QGraphicsItem*> m_graphicsLineList;
     ResizeController m_resizeController; // hold the controller so that the handle cant be deleted
     QTransform m_beginFromSceneToContentItemTransform;
@@ -80,7 +80,7 @@ private:
     double m_beginLeftMargin;
     double m_beginRightMargin;
     double m_beginBottomMargin;
-    QWeakPointer<LayerItem> m_layerItem;
+    QPointer<LayerItem> m_layerItem;
     ResizeHandleItem *m_resizeHandle;
     RewriterTransaction m_rewriterTransaction;
     bool m_isActive;

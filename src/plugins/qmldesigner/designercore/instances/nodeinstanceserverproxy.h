@@ -32,7 +32,7 @@
 
 #include "nodeinstanceserverinterface.h"
 
-#include <QWeakPointer>
+#include <QPointer>
 #include <QProcess>
 #include <QFile>
 
@@ -94,14 +94,14 @@ private slots:
     void printRenderProcessOutput();
 private:
     QFile m_captureFileForTest;
-    QWeakPointer<QLocalServer> m_localServer;
-    QWeakPointer<QLocalSocket> m_firstSocket;
-    QWeakPointer<QLocalSocket> m_secondSocket;
-    QWeakPointer<QLocalSocket> m_thirdSocket;
-    QWeakPointer<NodeInstanceView> m_nodeInstanceView;
-    QWeakPointer<QProcess> m_qmlPuppetEditorProcess;
-    QWeakPointer<QProcess> m_qmlPuppetPreviewProcess;
-    QWeakPointer<QProcess> m_qmlPuppetRenderProcess;
+    QPointer<QLocalServer> m_localServer;
+    QPointer<QLocalSocket> m_firstSocket;
+    QPointer<QLocalSocket> m_secondSocket;
+    QPointer<QLocalSocket> m_thirdSocket;
+    QPointer<NodeInstanceView> m_nodeInstanceView;
+    QPointer<QProcess> m_qmlPuppetEditorProcess;
+    QPointer<QProcess> m_qmlPuppetPreviewProcess;
+    QPointer<QProcess> m_qmlPuppetRenderProcess;
     quint32 m_firstBlockSize;
     quint32 m_secondBlockSize;
     quint32 m_thirdBlockSize;

@@ -147,7 +147,7 @@ private: // functions
 private: // variables
     QScopedPointer<Model> m_documentModel;
     QScopedPointer<Model> m_inFileComponentModel;
-    QWeakPointer<Core::IEditor> m_textEditor;
+    QPointer<Core::IEditor> m_textEditor;
     QScopedPointer<BaseTextEditModifier> m_documentTextModifier;
     QScopedPointer<ComponentTextModifier> m_inFileComponentTextModifier;
     QScopedPointer<SubComponentManager> m_subComponentManager;

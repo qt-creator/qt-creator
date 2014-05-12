@@ -31,7 +31,7 @@
 #define WIDGETPLUGINPATH_H
 
 #include <QObject>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QList>
 #include <QDir>
 #include <QStandardItem>
@@ -48,8 +48,8 @@ namespace Internal {
 
 
 // Dumb plugin data structure. Note that whereas QObjects can
-// casted to an interface, QWeakPointer does not work with the
-// interface class, so, we need a separate QWeakPointer as a guard
+// casted to an interface, QPointer does not work with the
+// interface class, so, we need a separate QPointer as a guard
 // to detect the deletion of a plugin instance which can happen
 // in theory.
 struct WidgetPluginData {
@@ -58,7 +58,7 @@ struct WidgetPluginData {
     QString path;
     bool failed;
     QString errorMessage;
-    QWeakPointer<QObject> instanceGuard;
+    QPointer<QObject> instanceGuard;
     IWidgetPlugin *instance;
 };
 

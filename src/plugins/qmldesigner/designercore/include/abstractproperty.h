@@ -30,7 +30,7 @@
 #ifndef ABSTRACTPROPERTY_H
 #define ABSTRACTPROPERTY_H
 
-#include <QWeakPointer>
+#include <QPointer>
 #include <QSharedPointer>
 #include "qmldesignercorelib_global.h"
 
@@ -115,8 +115,8 @@ protected:
 private:
     PropertyName m_propertyName;
     Internal::InternalNodePointer m_internalNode;
-    QWeakPointer<Model> m_model;
-    QWeakPointer<AbstractView> m_view;
+    QPointer<Model> m_model;
+    QPointer<AbstractView> m_view;
 };
 
 QMLDESIGNERCORE_EXPORT bool operator ==(const AbstractProperty &property1, const AbstractProperty &property2);

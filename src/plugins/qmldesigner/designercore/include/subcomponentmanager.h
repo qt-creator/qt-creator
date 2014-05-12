@@ -38,7 +38,7 @@
 #include <QString>
 #include <QUrl>
 #include <QFileSystemWatcher>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QFileInfo>
 
 namespace QmlDesigner {
@@ -76,7 +76,7 @@ private: // variables
     // key: canonical directory path
     QMultiHash<QString,QString> m_dirToQualifier;
     QUrl m_filePath;
-    QWeakPointer<Model> m_model;
+    QPointer<Model> m_model;
 };
 
 } // namespace QmlDesigner

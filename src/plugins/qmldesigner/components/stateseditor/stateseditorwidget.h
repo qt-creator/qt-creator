@@ -31,6 +31,7 @@
 #define STATESEDITORWIDGET_H
 
 #include <QWidget>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QQuickView;
@@ -68,8 +69,8 @@ public:
 private slots:
     void reloadQmlSource();
 private:
-    QWeakPointer<QQuickView> m_quickView;
-    QWeakPointer<StatesEditorView> m_statesEditorView;
+    QPointer<QQuickView> m_quickView;
+    QPointer<StatesEditorView> m_statesEditorView;
     Internal::StatesEditorImageProvider *m_imageProvider;
     QShortcut *m_qmlSourceUpdateShortcut;
 };

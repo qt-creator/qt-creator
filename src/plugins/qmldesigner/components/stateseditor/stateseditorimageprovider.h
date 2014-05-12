@@ -33,7 +33,7 @@
 #include"abstractview.h"
 
 #include <QQuickImageProvider>
-#include <QWeakPointer>
+#include <QPointer>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -50,7 +50,7 @@ public:
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
 
 private:
-    QWeakPointer<NodeInstanceView> m_nodeInstanceView;
+    QPointer<NodeInstanceView> m_nodeInstanceView;
 };
 
 } // namespace Internal

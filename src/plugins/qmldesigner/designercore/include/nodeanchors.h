@@ -31,7 +31,7 @@
 #define NODEANCHORS_H
 
 
-#include <QWeakPointer>
+#include <QPointer>
 #include <QSharedPointer>
 #include "corelib_global.h"
 #include <anchorline.h>
@@ -103,7 +103,7 @@ private: // functions
 private: //variables
     Internal::InternalNodePointer m_internalNode;
     Internal::InternalNodeStatePointer m_internalNodeState;
-    QWeakPointer<Model> m_model;
+    QPointer<Model> m_model;
 };
 
 CORESHARED_EXPORT QDebug operator<<(QDebug debug, const NodeAnchors &anchors);

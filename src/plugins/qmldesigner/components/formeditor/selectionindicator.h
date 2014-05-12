@@ -30,7 +30,7 @@
 #ifndef SELECTIONINDICATOR_H
 #define SELECTIONINDICATOR_H
 
-#include <QWeakPointer>
+#include <QPointer>
 #include <QGraphicsPolygonItem>
 #include "layeritem.h"
 #include "formeditoritem.h"
@@ -58,7 +58,7 @@ public:
 
 private:
     QHash<FormEditorItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
-    QWeakPointer<LayerItem> m_layerItem;
+    QPointer<LayerItem> m_layerItem;
     QCursor m_cursor;
 
 };

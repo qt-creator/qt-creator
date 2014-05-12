@@ -40,7 +40,7 @@
 
 #include <QHash>
 #include <QImage>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QRectF>
 #include <QTime>
 
@@ -212,7 +212,7 @@ private: //variables
     QHash<ModelNode, QImage> m_statePreviewImage;
 
     uint m_blockUpdates;
-    QWeakPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
+    QPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
     QTime m_lastCrashTime;
     NodeInstanceServerInterface::RunModus m_runModus;

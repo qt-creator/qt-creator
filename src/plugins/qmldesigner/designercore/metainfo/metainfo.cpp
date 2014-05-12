@@ -53,10 +53,6 @@ class MetaInfoPrivate
 {
     Q_DISABLE_COPY(MetaInfoPrivate)
 public:
-    typedef QSharedPointer<MetaInfoPrivate> Pointer;
-    typedef QWeakPointer<MetaInfoPrivate> WeakPointer;
-
-
     MetaInfoPrivate(MetaInfo *q);
     void clear();
 

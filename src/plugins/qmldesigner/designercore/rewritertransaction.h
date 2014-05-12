@@ -32,7 +32,7 @@
 
 #include <qmldesignercorelib_global.h>
 
-#include <QWeakPointer>
+#include <QPointer>
 
 namespace QmlDesigner {
 
@@ -54,7 +54,7 @@ public:
 protected:
     AbstractView *view();
 private:
-   QWeakPointer<AbstractView> m_view;
+   QPointer<AbstractView> m_view;
    QByteArray m_identifier;
    mutable bool m_valid;
    int m_identifierNumber;

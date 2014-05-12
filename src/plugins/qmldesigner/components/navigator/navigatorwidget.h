@@ -31,6 +31,7 @@
 #define NAVIGATORWIDGET_H
 
 #include <QFrame>
+#include <QPointer>
 
 #include "navigatortreeview.h"
 
@@ -63,7 +64,7 @@ private: // functions
 
 private: // variables
     NavigatorTreeView *m_treeView;
-    QWeakPointer<NavigatorView> m_navigatorView;
+    QPointer<NavigatorView> m_navigatorView;
 };
 
 }

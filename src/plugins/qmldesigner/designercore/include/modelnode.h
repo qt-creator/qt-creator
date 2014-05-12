@@ -31,7 +31,7 @@
 #define MODELNODE_H
 
 #include "qmldesignercorelib_global.h"
-#include <QWeakPointer>
+#include <QPointer>
 #include <QList>
 #include <QVariant>
 
@@ -196,8 +196,8 @@ private: // functions
 
 private: // variables
     Internal::InternalNodePointer m_internalNode;
-    QWeakPointer<Model> m_model;
-    QWeakPointer<AbstractView> m_view;
+    QPointer<Model> m_model;
+    QPointer<AbstractView> m_view;
 };
 
 QMLDESIGNERCORE_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);

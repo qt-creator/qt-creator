@@ -45,7 +45,7 @@ template <class ViewType>
 class ForwardView : public AbstractView
 {
 public:
-    typedef QWeakPointer<ForwardView> Pointer;
+    typedef QPointer<ForwardView> Pointer;
     typedef typename ViewType::Pointer ViewTypePointer;
 
     ForwardView(QObject *parent);

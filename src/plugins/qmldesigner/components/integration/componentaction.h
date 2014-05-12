@@ -31,7 +31,7 @@
 #define COMPONENTACTION_H
 
 #include <QWidgetAction>
-#include <QWeakPointer>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -63,7 +63,7 @@ public slots:
     void emitCurrentComponentChanged(int index);
 
 private:
-    QWeakPointer<ComponentView> m_componentView;
+    QPointer<ComponentView> m_componentView;
     bool dontEmitCurrentComponentChanged;
 };
 

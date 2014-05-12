@@ -30,7 +30,7 @@
 #ifndef FORMEDITORITEM_H
 #define FORMEDITORITEM_H
 
-#include <QWeakPointer>
+#include <QPointer>
 #include <QGraphicsWidget>
 #include <qmlitemnode.h>
 #include "snappinglinecreator.h"
@@ -125,7 +125,7 @@ private: // functions
 private: // variables
     SnappingLineCreator m_snappingLineCreator;
     QmlItemNode m_qmlItemNode;
-    QWeakPointer<QTimeLine> m_attentionTimeLine;
+    QPointer<QTimeLine> m_attentionTimeLine;
     QTransform m_inverseAttentionTransform;
     QRectF m_boundingRect;
     QRectF m_paintedBoundingRect;

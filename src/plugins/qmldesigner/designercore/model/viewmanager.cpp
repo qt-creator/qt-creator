@@ -35,7 +35,7 @@ public:
     NodeInstanceView nodeInstanceView;
     DesignerActionManagerView designerActionManagerView;
 
-    QList<QWeakPointer<AbstractView> > additionalViews;
+    QList<QPointer<AbstractView> > additionalViews;
 };
 
 
@@ -50,7 +50,7 @@ ViewManager::ViewManager()
 
 ViewManager::~ViewManager()
 {
-    foreach (const QWeakPointer<AbstractView> &view, d->additionalViews)
+    foreach (const QPointer<AbstractView> &view, d->additionalViews)
         delete view.data();
 
     delete d;
@@ -137,13 +137,13 @@ void ViewManager::attachItemLibraryView()
 
 void ViewManager::attachAdditionalViews()
 {
-    foreach (const QWeakPointer<AbstractView> &view, d->additionalViews)
+    foreach (const QPointer<AbstractView> &view, d->additionalViews)
         currentModel()->attachView(view.data());
 }
 
 void ViewManager::detachAdditionalViews()
 {
-    foreach (const QWeakPointer<AbstractView> &view, d->additionalViews)
+    foreach (const QPointer<AbstractView> &view, d->additionalViews)
         currentModel()->detachView(view.data());
 }
 
@@ -215,7 +215,7 @@ QList<WidgetInfo> ViewManager::widgetInfos()
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());
 
-    foreach (const QWeakPointer<AbstractView> &abstractView, d->additionalViews) {
+    foreach (const QPointer<AbstractView> &abstractView, d->additionalViews) {
         if (abstractView && abstractView->hasWidget())
             widgetInfoList.append(abstractView->widgetInfo());
     }

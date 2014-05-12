@@ -56,8 +56,8 @@ public:
     static void goIntoComponent(const ModelNode &modelNode);
 
 private:
-    QHash<Core::IEditor *,QWeakPointer<DesignDocument> > m_designDocumentHash;
-    QWeakPointer<DesignDocument> m_currentDesignDocument;
+    QHash<Core::IEditor *,QPointer<DesignDocument> > m_designDocumentHash;
+    QPointer<DesignDocument> m_currentDesignDocument;
 };
 
 } // namespace QmlDesigner

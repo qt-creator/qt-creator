@@ -36,7 +36,7 @@
 
 #include <QObject>
 #include <QScopedPointer>
-
+#include <QPointer>
 
 namespace QmlDesigner {
 
@@ -121,7 +121,7 @@ private:
 
     MoveManipulator m_moveManipulator;
     SelectionIndicator m_selectionIndicator;
-    QWeakPointer<FormEditorItem> m_movingItem;
+    QPointer<FormEditorItem> m_movingItem;
     RewriterTransaction m_rewriterTransaction;
     QmlItemNode m_dragNode;
     QScopedPointer<Internal::TimerHandler> m_timerHandler;

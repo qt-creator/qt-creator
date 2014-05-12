@@ -30,7 +30,7 @@
 #ifndef SELECTIONRECTANGLE_H
 #define SELECTIONRECTANGLE_H
 
-#include <QWeakPointer>
+#include <QPointer>
 #include <QGraphicsRectItem>
 #include "layeritem.h"
 
@@ -55,7 +55,7 @@ public:
 
 private:
     QGraphicsRectItem *m_controlShape;
-    QWeakPointer<LayerItem> m_layerItem;
+    QPointer<LayerItem> m_layerItem;
 };
 
 }

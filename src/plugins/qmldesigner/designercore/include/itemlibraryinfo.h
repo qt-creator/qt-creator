@@ -33,7 +33,8 @@
 #include "qmldesignercorelib_global.h"
 
 #include "propertycontainer.h"
-#include <QSharedPointer>
+#include <QPointer>
+
 
 namespace QmlDesigner {
 
@@ -119,7 +120,7 @@ private: // functions
 
 private: // variables
     QHash<QString, ItemLibraryEntry> m_nameToEntryHash;
-    QWeakPointer<ItemLibraryInfo> m_baseInfo;
+    QPointer<ItemLibraryInfo> m_baseInfo;
 };
 
 } // namespace QmlDesigner

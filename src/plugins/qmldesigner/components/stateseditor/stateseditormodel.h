@@ -31,7 +31,7 @@
 #define STATESEDITORMODEL_H
 
 #include <QAbstractListModel>
-#include <QWeakPointer>
+#include <QPointer>
 
 
 namespace QmlDesigner {
@@ -70,7 +70,7 @@ signals:
     void changedToState(int n);
 
 private:
-    QWeakPointer<StatesEditorView> m_statesEditorView;
+    QPointer<StatesEditorView> m_statesEditorView;
     int m_updateCounter;
 };
 

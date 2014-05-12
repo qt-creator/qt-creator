@@ -31,6 +31,7 @@
 #define FORMEDITORWIDGET_H
 
 #include <QWidget>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QActionGroup;
@@ -89,20 +90,20 @@ private slots:
     void resetNodeInstanceView();
 
 private:
-    QWeakPointer<FormEditorView> m_formEditorView;
-    QWeakPointer<FormEditorGraphicsView> m_graphicsView;
-    QWeakPointer<ZoomAction> m_zoomAction;
-    QWeakPointer<ToolBox> m_toolBox;
-    QWeakPointer<QAction> m_transformToolAction;
-    QWeakPointer<QActionGroup> m_toolActionGroup;
-    QWeakPointer<QAction> m_snappingAction;
-    QWeakPointer<QAction> m_snappingAndAnchoringAction;
-    QWeakPointer<QAction> m_noSnappingAction;
-    QWeakPointer<QAction> m_showBoundingRectAction;
-    QWeakPointer<QAction> m_selectOnlyContentItemsAction;
-    QWeakPointer<LineEditAction> m_rootWidthAction;
-    QWeakPointer<LineEditAction> m_rootHeightAction;
-    QWeakPointer<QAction> m_resetAction;
+    QPointer<FormEditorView> m_formEditorView;
+    QPointer<FormEditorGraphicsView> m_graphicsView;
+    QPointer<ZoomAction> m_zoomAction;
+    QPointer<ToolBox> m_toolBox;
+    QPointer<QAction> m_transformToolAction;
+    QPointer<QActionGroup> m_toolActionGroup;
+    QPointer<QAction> m_snappingAction;
+    QPointer<QAction> m_snappingAndAnchoringAction;
+    QPointer<QAction> m_noSnappingAction;
+    QPointer<QAction> m_showBoundingRectAction;
+    QPointer<QAction> m_selectOnlyContentItemsAction;
+    QPointer<LineEditAction> m_rootWidthAction;
+    QPointer<LineEditAction> m_rootHeightAction;
+    QPointer<QAction> m_resetAction;
 };
 
 

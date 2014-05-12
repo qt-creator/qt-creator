@@ -31,6 +31,7 @@
 #define NUMBERSERIESACTION_H
 
 #include <QWidgetAction>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
@@ -59,7 +60,7 @@ private slots:
     void emitValueChanged(int index);
 
 private:
-    QWeakPointer<QStandardItemModel> m_comboBoxModel;
+    QPointer<QStandardItemModel> m_comboBoxModel;
     int m_comboBoxModelIndex;
 };
 

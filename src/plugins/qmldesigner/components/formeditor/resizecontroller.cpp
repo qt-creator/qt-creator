@@ -47,8 +47,8 @@ public:
     ~ResizeControllerData();
 
 
-    QWeakPointer<LayerItem> layerItem;
-    QWeakPointer<FormEditorItem> formEditorItem;
+    QPointer<LayerItem> layerItem;
+    QPointer<FormEditorItem> formEditorItem;
     QSharedPointer<ResizeHandleItem> topLeftItem;
     QSharedPointer<ResizeHandleItem> topRightItem;
     QSharedPointer<ResizeHandleItem> bottomLeftItem;

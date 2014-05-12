@@ -30,7 +30,7 @@
 #ifndef MOVEMANIPULATOR_H
 #define MOVEMANIPULATOR_H
 
-#include <QWeakPointer>
+#include <QPointer>
 #include <QGraphicsItem>
 #include <QHash>
 #include <QPointF>
@@ -99,8 +99,8 @@ protected:
 
 private:
     Snapper m_snapper;
-    QWeakPointer<LayerItem> m_layerItem;
-    QWeakPointer<FormEditorView> m_view;
+    QPointer<LayerItem> m_layerItem;
+    QPointer<FormEditorView> m_view;
     QList<FormEditorItem*> m_itemList;
     QHash<FormEditorItem*, QRectF> m_beginItemRectInSceneSpaceHash;
     QHash<FormEditorItem*, QPointF> m_beginPositionInSceneSpaceHash;

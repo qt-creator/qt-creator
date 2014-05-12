@@ -32,7 +32,7 @@
 
 #include <abstractview.h>
 
-#include <QWeakPointer>
+#include <QPointer>
 
 
 namespace QmlDesigner {
@@ -106,7 +106,7 @@ protected:
     void updateImports();
 
 private:
-    QWeakPointer<ItemLibraryWidget> m_widget;
+    QPointer<ItemLibraryWidget> m_widget;
     ImportManagerView *m_importManagerView;
 };
 
