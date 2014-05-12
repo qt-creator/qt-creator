@@ -62,9 +62,8 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view) :
 
     setWindowTitle(tr("Navigator", "Title of navigator view"));
 
-    setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
-    m_treeView->setStyleSheet(
-            QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
+    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
+    m_treeView->setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 }
 
 void NavigatorWidget::setTreeModel(QAbstractItemModel* model)

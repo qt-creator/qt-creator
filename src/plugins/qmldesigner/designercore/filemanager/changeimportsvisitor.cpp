@@ -61,9 +61,9 @@ bool ChangeImportsVisitor::add(QmlJS::AST::UiProgram *ast, const Import &import)
             if (!c.isSpace() && c != QLatin1Char(';'))
                 break;
         }
-        replace(insertionPoint+1, 0, QLatin1String("\n") + import.toImportString());
+        replace(insertionPoint+1, 0, QStringLiteral("\n") + import.toImportString());
     } else {
-        replace(0, 0, import.toImportString() + QLatin1String("\n\n"));
+        replace(0, 0, import.toImportString() + QStringLiteral("\n\n"));
     }
 
     setDidRewriting(true);

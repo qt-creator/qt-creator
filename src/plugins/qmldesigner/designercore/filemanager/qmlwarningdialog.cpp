@@ -28,7 +28,7 @@ QmlWarningDialog::QmlWarningDialog(QWidget *parent, const QStringList &warnings)
 
     QString warningText;
     foreach (const QString &string, warnings)
-        warningText += QLatin1String(" ") + string + QLatin1String("\n");
+        warningText += QStringLiteral(" ") + string + QStringLiteral("\n");
     ui->warnings->setText(warningText);
 }
 

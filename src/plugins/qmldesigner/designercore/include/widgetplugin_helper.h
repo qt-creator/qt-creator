@@ -30,8 +30,8 @@
 #ifndef WIDGETPLUGIN_HELPER_H
 #define WIDGETPLUGIN_HELPER_H
 
-#define QMLDESIGNER_REGISTER_WIDGET(TYPE) uiEngine->addObjectCreator(new QUiWidgetCreator<TYPE>(QLatin1String(#TYPE)));
-#define QMLDESIGNER_REGISTER_GRAPHICSWIDGET(TYPE) uiEngine->addObjectCreator(new QUiGraphicsWidgetCreator<TYPE>(QLatin1String(#TYPE)));
+#define QMLDESIGNER_REGISTER_WIDGET(TYPE) uiEngine->addObjectCreator(new QUiWidgetCreator<TYPE>(QStringLiteral(#TYPE)));
+#define QMLDESIGNER_REGISTER_GRAPHICSWIDGET(TYPE) uiEngine->addObjectCreator(new QUiGraphicsWidgetCreator<TYPE>(QStringLiteral(#TYPE)));
 
 #endif //WIDGETPLUGIN_HELPER
 

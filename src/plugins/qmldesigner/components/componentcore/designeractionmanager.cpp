@@ -249,7 +249,7 @@ bool selectionCanBeLayouted(const SelectionContext &context)
 bool hasQtQuickLayoutImport(const SelectionContext &context)
 {
     if (context.view() && context.view()->model()) {
-        Import import = Import::createLibraryImport(QLatin1String("QtQuick.Layouts"), QLatin1String("1.0"));
+        Import import = Import::createLibraryImport(QStringLiteral("QtQuick.Layouts"), QStringLiteral("1.0"));
         return context.view()->model()->hasImport(import, true, true);
     }
 

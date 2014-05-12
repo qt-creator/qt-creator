@@ -213,21 +213,21 @@ void ModelToTextMerger::applyChanges()
     if (m_rewriteActions.isEmpty())
         return;
 
-    dumpRewriteActions(QLatin1String("Before compression"));
+    dumpRewriteActions(QStringLiteral("Before compression"));
     RewriteActionCompressor compress(getPropertyOrder());
     compress(m_rewriteActions);
-    dumpRewriteActions(QLatin1String("After compression"));
+    dumpRewriteActions(QStringLiteral("After compression"));
 
     if (m_rewriteActions.isEmpty())
         return;
 
-    Document::MutablePtr tmpDocument(Document::create(QLatin1String("<ModelToTextMerger>"), Language::Qml));
+    Document::MutablePtr tmpDocument(Document::create(QStringLiteral("<ModelToTextMerger>"), Language::Qml));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
     if (!tmpDocument->parseQml()) {
         qDebug() << "*** Possible problem: QML file wasn't parsed correctly.";
         qDebug() << "*** QML text:" << m_rewriterView->textModifier()->text();
 
-        QString errorMessage = QLatin1String("Error while rewriting");
+        QString errorMessage = QStringLiteral("Error while rewriting");
         if (!tmpDocument->diagnosticMessages().isEmpty())
             errorMessage = tmpDocument->diagnosticMessages().first().message;
 
@@ -261,7 +261,7 @@ void ModelToTextMerger::applyChanges()
             // don't merge these two if statements, because the previous then-part changes the value
             // of "success" !
             if (!success) {
-                m_rewriterView->enterErrorState(QLatin1String("Error rewriting document"));
+                m_rewriterView->enterErrorState(QStringLiteral("Error rewriting document"));
 
                 if (true || DebugRewriteActions) {
                     qDebug() << "*** QML source code: ***";

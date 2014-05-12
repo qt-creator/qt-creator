@@ -135,7 +135,7 @@ ModelNode BindingProperty::resolveToModelNode() const
 
 static inline QStringList commaSeparatedSimplifiedStringList(const QString &string)
 {
-    QStringList stringList = string.split(QLatin1String(","));
+    QStringList stringList = string.split(QStringLiteral(","));
     QStringList simpleList;
     foreach (const QString &simpleString, stringList)
         simpleList.append(simpleString.simplified());

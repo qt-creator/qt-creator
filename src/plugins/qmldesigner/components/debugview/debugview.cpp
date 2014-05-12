@@ -38,7 +38,7 @@
 #include <variantproperty.h>
 
 namespace   {
-const QLatin1String lineBreak = QLatin1String("<br>");
+const QString lineBreak = QStringLiteral("<br>");
 
 bool isDebugViewEnabled()
 {
@@ -204,9 +204,9 @@ void DebugView::rootNodeTypeChanged(const QString &type, int majorVersion, int m
     if (isDebugViewEnabled()) {
         QString message;
         message += type;
-        message += QLatin1String(" ");
+        message += QStringLiteral(" ");
         message += QString::number(majorVersion);
-        message += QLatin1String(" ");
+        message += QStringLiteral(" ");
         message += QString::number(minorVersion);
         log(tr("Node id changed:"), message);
     }
@@ -263,7 +263,7 @@ void DebugView::rewriterEndTransaction()
 
 WidgetInfo DebugView::widgetInfo()
 {
-    return createWidgetInfo(m_debugViewWidget.data(), 0, QLatin1String("DebugView"), WidgetInfo::LeftPane, 0, tr("Debug View"));
+    return createWidgetInfo(m_debugViewWidget.data(), 0, QStringLiteral("DebugView"), WidgetInfo::LeftPane, 0, tr("Debug View"));
 }
 
 bool DebugView::hasWidget() const

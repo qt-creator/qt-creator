@@ -128,7 +128,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
             otherArrayMember = cur;
         }
         Q_ASSERT(arrayMember && otherArrayMember);
-        separator = QLatin1String(",");
+        separator = QStringLiteral(",");
     }
 
     moveInfo.objectStart = movingObject->firstSourceLocation().offset;
@@ -153,7 +153,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
         includeSurroundingWhitespace(moveInfo.destination, dummy);
 
         moveInfo.prefixToInsert = QString(moveInfo.leadingCharsToRemove, QLatin1Char(' '));
-        moveInfo.suffixToInsert = separator + QLatin1String("\n\n");
+        moveInfo.suffixToInsert = separator + QStringLiteral("\n\n");
     } else {
         const SourceLocation insertionPoint = lastParentLocation();
         Q_ASSERT(insertionPoint.isValid());
@@ -162,7 +162,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
         includeSurroundingWhitespace(moveInfo.destination, dummy);
 
         moveInfo.prefixToInsert = separator + QString(moveInfo.leadingCharsToRemove, QLatin1Char(' '));
-        moveInfo.suffixToInsert = QLatin1String("\n");
+        moveInfo.suffixToInsert = QStringLiteral("\n");
     }
 
     move(moveInfo);

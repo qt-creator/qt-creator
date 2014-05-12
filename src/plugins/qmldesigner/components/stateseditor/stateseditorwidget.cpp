@@ -88,7 +88,7 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     m_imageProvider = new Internal::StatesEditorImageProvider;
     m_imageProvider->setNodeInstanceView(statesEditorView->nodeInstanceView());
 
-    m_quickView->engine()->addImageProvider(QLatin1String("qmldesigner_stateseditor"), m_imageProvider);
+    m_quickView->engine()->addImageProvider(QStringLiteral("qmldesigner_stateseditor"), m_imageProvider);
     m_quickView->engine()->addImportPath(statesEditorResourcesPath());
 
     //m_quickView->setAcceptDrops(false);
@@ -105,11 +105,11 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
 
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
-    m_quickView->rootContext()->setContextProperty(QLatin1String("statesEditorModel"), statesEditorModel);
+    m_quickView->rootContext()->setContextProperty(QStringLiteral("statesEditorModel"), statesEditorModel);
     QColor highlightColor = palette().highlight().color();
     if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
         highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
-    m_quickView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
+    m_quickView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), highlightColor);
 
     m_quickView->rootContext()->setContextProperty("canAddNewStates", true);
 

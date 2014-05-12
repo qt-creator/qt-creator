@@ -178,12 +178,12 @@ QString DesignDocumentView::toText() const
     QString imports;
     foreach (const Import &import, model()->imports()) {
         if (import.isFileImport())
-            imports += QLatin1String("import ") + QLatin1String("\"") + import.file() + QLatin1String("\"")+ QLatin1String(";\n");
+            imports += QStringLiteral("import ") + QStringLiteral("\"") + import.file() + QStringLiteral("\"")+ QStringLiteral(";\n");
         else
-            imports += QLatin1String("import ") + import.url() + QLatin1String(" ") + import.version() + QLatin1String(";\n");
+            imports += QStringLiteral("import ") + import.url() + QStringLiteral(" ") + import.version() + QStringLiteral(";\n");
     }
 
-    textEdit.setPlainText(imports +  QLatin1String("Item {\n}\n"));
+    textEdit.setPlainText(imports +  QStringLiteral("Item {\n}\n"));
     NotIndentingTextEditModifier modifier(&textEdit);
 
     QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
@@ -208,7 +208,7 @@ void DesignDocumentView::fromText(QString text)
     QPlainTextEdit textEdit;
     QString imports;
     foreach (const Import &import, model()->imports())
-        imports += QLatin1String("import ") + import.toString(true) + QLatin1Char(';') + QLatin1Char('\n');
+        imports += QStringLiteral("import ") + import.toString(true) + QLatin1Char(';') + QLatin1Char('\n');
 
     textEdit.setPlainText(imports + text);
     NotIndentingTextEditModifier modifier(&textEdit);

@@ -45,26 +45,26 @@ static inline QString toInfo(const Import &import)
     QString txt;
 
     if (import.isEmpty()) {
-        return QLatin1String("empty import");
+        return QStringLiteral("empty import");
     } else if (import.isFileImport()) {
-        txt = QLatin1String("import file \"%1\"");
+        txt = QStringLiteral("import file \"%1\"");
         txt = txt.arg(import.url());
     } else if (import.isLibraryImport()) {
-        txt = QLatin1String("import library \"%1\"");
+        txt = QStringLiteral("import library \"%1\"");
         txt = txt.arg(import.file());
     } else {
-        return QLatin1String("unknown type of import");
+        return QStringLiteral("unknown type of import");
     }
 
     if (import.hasVersion())
         txt += QStringLiteral("with version \"%1\"").arg(import.version());
     else
-        txt += QLatin1String("without version");
+        txt += QStringLiteral("without version");
 
     if (import.hasAlias())
         txt += QStringLiteral("aliassed as \"%1\"").arg(import.alias());
     else
-        txt += QLatin1String("unaliassed");
+        txt += QStringLiteral("unaliassed");
 
     return txt;
 }
@@ -72,10 +72,10 @@ static inline QString toInfo(const Import &import)
 static inline QString toString(QmlRefactoring::PropertyType type)
 {
     switch (type) {
-        case QmlRefactoring::ArrayBinding:  return QLatin1String("array binding");
-        case QmlRefactoring::ObjectBinding: return QLatin1String("object binding");
-        case QmlRefactoring::ScriptBinding: return QLatin1String("script binding");
-        default:                            return QLatin1String("UNKNOWN");
+        case QmlRefactoring::ArrayBinding:  return QStringLiteral("array binding");
+        case QmlRefactoring::ObjectBinding: return QStringLiteral("object binding");
+        case QmlRefactoring::ScriptBinding: return QStringLiteral("script binding");
+        default:                            return QStringLiteral("UNKNOWN");
     }
 }
 

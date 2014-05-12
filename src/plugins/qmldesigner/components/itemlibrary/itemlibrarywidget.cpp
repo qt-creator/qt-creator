@@ -79,14 +79,14 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_itemLibraryModel->setItemIconSize(m_itemIconSize);
 
     QQmlContext *rootContext = m_itemsView->rootContext();
-    rootContext->setContextProperty(QLatin1String("itemLibraryModel"), m_itemLibraryModel.data());
-    rootContext->setContextProperty(QLatin1String("itemLibraryIconWidth"), m_itemIconSize.width());
-    rootContext->setContextProperty(QLatin1String("itemLibraryIconHeight"), m_itemIconSize.height());
+    rootContext->setContextProperty(QStringLiteral("itemLibraryModel"), m_itemLibraryModel.data());
+    rootContext->setContextProperty(QStringLiteral("itemLibraryIconWidth"), m_itemIconSize.width());
+    rootContext->setContextProperty(QStringLiteral("itemLibraryIconHeight"), m_itemIconSize.height());
 
     QColor highlightColor = palette().highlight().color();
     if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
         highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
-    m_itemsView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
+    m_itemsView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), highlightColor);
 
     // loading the qml has to come after all needed context properties are set
     m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
@@ -104,7 +104,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_resourcesView->setIconSize(m_resIconSize);
 
     /* create image provider for loading item icons */
-    m_itemsView->engine()->addImageProvider(QLatin1String("qmldesigner_itemlibrary"), new Internal::ItemLibraryImageProvider);
+    m_itemsView->engine()->addImageProvider(QStringLiteral("qmldesigner_itemlibrary"), new Internal::ItemLibraryImageProvider);
 
     /* other widgets */
     QTabBar *tabBar = new QTabBar(this);
@@ -116,14 +116,14 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     connect(tabBar, SIGNAL(currentChanged(int)), this, SLOT(updateSearch()));
 
     m_filterLineEdit = new Utils::FancyLineEdit(this);
-    m_filterLineEdit->setObjectName(QLatin1String("itemLibrarySearchInput"));
+    m_filterLineEdit->setObjectName(QStringLiteral("itemLibrarySearchInput"));
     m_filterLineEdit->setPlaceholderText(tr("<Filter>", "Library search input hint text"));
     m_filterLineEdit->setDragEnabled(false);
     m_filterLineEdit->setMinimumWidth(75);
     m_filterLineEdit->setTextMargins(0, 0, 20, 0);
     m_filterLineEdit->setFiltering(true);
     QWidget *lineEditFrame = new QWidget(this);
-    lineEditFrame->setObjectName(QLatin1String("itemLibrarySearchInputFrame"));
+    lineEditFrame->setObjectName(QStringLiteral("itemLibrarySearchInputFrame"));
     QGridLayout *lineEditLayout = new QGridLayout(lineEditFrame);
     lineEditLayout->setMargin(2);
     lineEditLayout->setSpacing(0);
@@ -139,7 +139,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_stackedWidget->addWidget(m_resourcesView.data());
 
     QWidget *spacer = new QWidget(this);
-    spacer->setObjectName(QLatin1String("itemLibrarySearchInputSpacer"));
+    spacer->setObjectName(QStringLiteral("itemLibrarySearchInputSpacer"));
     spacer->setFixedHeight(4);
 
     QGridLayout *layout = new QGridLayout(this);
@@ -154,8 +154,8 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     setSearchFilter(QString());
 
     /* style sheets */
-    setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
-    m_resourcesView->setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
+    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
+    m_resourcesView->setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 }
 
 void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
@@ -316,9 +316,9 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
     try {
         block = true;
         if (flag == QtBasic)
-            removeImport(QLatin1String("com.nokia.meego"));
+            removeImport(QStringLiteral("com.nokia.meego"));
         else if (flag == Meego)
-            addImport(QLatin1String("com.nokia.meego"), QLatin1String("1.0"));
+            addImport(QStringLiteral("com.nokia.meego"), QStringLiteral("1.0"));
         QApplication::restoreOverrideCursor();
         block = false;
         m_filterFlag = flag;

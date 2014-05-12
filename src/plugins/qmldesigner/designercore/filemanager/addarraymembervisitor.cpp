@@ -97,7 +97,7 @@ void AddArrayMemberVisitor::insertInto(QmlJS::AST::UiArrayBinding *arrayBinding)
     const int insertionPoint = lastMember->lastSourceLocation().end();
     const int indentDepth = calculateIndentDepth(lastMember->firstSourceLocation());
 
-    replace(insertionPoint, 0, QLatin1String(",\n") + addIndentation(m_content, indentDepth));
+    replace(insertionPoint, 0, QStringLiteral(",\n") + addIndentation(m_content, indentDepth));
 
     setDidRewriting(true);
 }
@@ -105,13 +105,13 @@ void AddArrayMemberVisitor::insertInto(QmlJS::AST::UiArrayBinding *arrayBinding)
 void AddArrayMemberVisitor::convertAndAdd(QmlJS::AST::UiObjectBinding *objectBinding)
 {
     const int indentDepth = calculateIndentDepth(objectBinding->firstSourceLocation());
-    const QString arrayPrefix = QLatin1String("[\n") + addIndentation(QString(), indentDepth);
+    const QString arrayPrefix = QStringLiteral("[\n") + addIndentation(QString(), indentDepth);
     replace(objectBinding->qualifiedTypeNameId->identifierToken.offset, 0, arrayPrefix);
     const int insertionPoint = objectBinding->lastSourceLocation().end();
     replace(insertionPoint, 0,
-            QLatin1String(",\n")
+            QStringLiteral(",\n")
             + addIndentation(m_content, indentDepth) + QLatin1Char('\n')
-            + addIndentation(QLatin1String("]"), indentDepth)
+            + addIndentation(QStringLiteral("]"), indentDepth)
             );
 
     setDidRewriting(true);

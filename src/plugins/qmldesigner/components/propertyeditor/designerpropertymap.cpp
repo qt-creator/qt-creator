@@ -44,7 +44,7 @@ QVariant DesignerPropertyMap::value(const QString &key) const
 
 void DesignerPropertyMap::registerDeclarativeType(const QString &name)
 {
-    qmlRegisterType<DesignerPropertyMap>("Bauhaus",1,0,name.toLatin1());
+    qmlRegisterType<DesignerPropertyMap>("Bauhaus",1,0,name.toUtf8());
 }
 
 } //QmlDesigner

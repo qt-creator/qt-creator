@@ -113,7 +113,7 @@ QString RewriterView::Error::toString() const
     }
 
     if (!str.isEmpty())
-        QLatin1String(": ");
+        QStringLiteral(": ");
     str += description();
 
     return str;

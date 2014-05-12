@@ -367,12 +367,12 @@ QString AbstractView::generateNewId(const QString prefixName) const
     int counter = 1;
 
     QString newId = QString("%1%2").arg(firstCharToLower(prefixName)).arg(counter);
-    newId.remove(QRegExp(QLatin1String("[^a-zA-Z0-9_]")));
+    newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
 
     while (hasId(newId)) {
         counter += 1;
         newId = QString("%1%2").arg(firstCharToLower(prefixName)).arg(counter);
-        newId.remove(QRegExp(QLatin1String("[^a-zA-Z0-9_]")));
+        newId.remove(QRegExp(QStringLiteral("[^a-zA-Z0-9_]")));
     }
 
     return newId;
@@ -534,10 +534,10 @@ QmlModelState AbstractView::currentState() const
 static int getMajorVersionFromImport(const Model *model)
 {
     foreach (const Import &import, model->imports()) {
-        if (import.isLibraryImport() && import.url() == QLatin1String("QtQuick")) {
+        if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick")) {
             const QString versionString = import.version();
-            if (versionString.contains(QLatin1String("."))) {
-                const QString majorVersionString = versionString.split(QLatin1String(".")).first();
+            if (versionString.contains(QStringLiteral("."))) {
+                const QString majorVersionString = versionString.split(QStringLiteral(".")).first();
                 return majorVersionString.toInt();
             }
         }

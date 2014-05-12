@@ -144,11 +144,11 @@ static ModelNode findTabViewModelNode(const ModelNode &currentModelNode)
 
 void TabViewDesignerAction::addNewTab()
 {
-    QString tabName = AddTabToTabViewDialog::create(QLatin1String("Tab"), Core::ICore::mainWindow());
+    QString tabName = AddTabToTabViewDialog::create(QStringLiteral("Tab"), Core::ICore::mainWindow());
 
     if (!tabName.isEmpty()) {
         QString directoryPath = QFileInfo(selectionContext().view()->model()->fileUrl().toLocalFile()).absolutePath();
-        QString newFilePath = directoryPath +QLatin1String("/") + tabName + QLatin1String(".qml");
+        QString newFilePath = directoryPath +QStringLiteral("/") + tabName + QStringLiteral(".qml");
 
         if (QFileInfo(newFilePath).exists()) {
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Naming Error"), tr("Component already exists."));
@@ -161,7 +161,7 @@ void TabViewDesignerAction::addNewTab()
                 ModelNode tabViewModelNode = findTabViewModelNode(selectionContext().currentSingleSelectedNode());
 
                 PropertyListType propertyList;
-                propertyList.append(QPair<PropertyName, QVariant>("source", QString(tabName + QLatin1String(".qml"))));
+                propertyList.append(QPair<PropertyName, QVariant>("source", QString(tabName + QStringLiteral(".qml"))));
                 propertyList.append(QPair<PropertyName, QVariant>("title", tabName));
 
                 ModelNode newTabModelNode = selectionContext().view()->createModelNode("QtQuick.Controls.Tab",

@@ -754,7 +754,7 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const PropertyName &propertyName)
         return QString();
 
     if (propertyType(propertyName).contains("Qt::"))
-        return QLatin1String("Qt");
+        return QStringLiteral("Qt");
 
     if (propertyName.contains('.')) {
         const PropertyNameList parts = propertyName.split('.');
@@ -780,7 +780,7 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const PropertyName &propertyName)
     if (definedIn) {
         QString nonCppPackage;
         foreach (const LanguageUtils::FakeMetaObject::Export &qmlExport, definedIn->metaObject()->exports()) {
-            if (qmlExport.package != QLatin1String("<cpp>"))
+            if (qmlExport.package != QStringLiteral("<cpp>"))
                 nonCppPackage = qmlExport.package;
         }
 
@@ -810,7 +810,7 @@ static QString getPackage(const QString &name)
         return QString();
     nameComponents.removeLast();
 
-    return nameComponents.join(QLatin1String("."));
+    return nameComponents.join(QStringLiteral("."));
 }
 
 bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
@@ -974,7 +974,7 @@ QString NodeMetaInfoPrivate::lookupName() const
     QStringList packageClassName = className.split(QLatin1Char('.'));
     if (packageClassName.size() > 1) {
         className = packageClassName.takeLast();
-        packageName = packageClassName.join(QLatin1String("."));
+        packageName = packageClassName.join(QStringLiteral("."));
     }
 
     return CppQmlTypes::qualifiedName(
@@ -1061,7 +1061,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
 
                 if (importInfo.isValid()) {
                     QString uri = importInfo.name();
-                    uri.replace(QLatin1String(","), QLatin1String("."));
+                    uri.replace(QStringLiteral(","), QStringLiteral("."));
                     if (!uri.isEmpty())
                         description.className = QString(uri + QString::fromLatin1(".") + QString::fromLatin1(description.className)).toLatin1();
                 }
@@ -1210,11 +1210,11 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
 
     if (variant.type() == QVariant::UserType && variant.userType() == ModelNode::variantUserType()) {
         return variant;
-    } else if (typeId == QVariant::UserType && typeName == QLatin1String("QVariant")) {
+    } else if (typeId == QVariant::UserType && typeName == QStringLiteral("QVariant")) {
         return variant;
-    } else if (typeId == QVariant::UserType && typeName == QLatin1String("variant")) {
+    } else if (typeId == QVariant::UserType && typeName == QStringLiteral("variant")) {
         return variant;
-    } else if (typeId == QVariant::UserType && typeName == QLatin1String("var")) {
+    } else if (typeId == QVariant::UserType && typeName == QStringLiteral("var")) {
         return variant;
     } else if (variant.type() == QVariant::List && variant.type() == QVariant::List) {
         // TODO: check the contents of the list

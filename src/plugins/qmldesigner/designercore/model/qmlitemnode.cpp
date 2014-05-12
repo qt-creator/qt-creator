@@ -121,7 +121,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
             propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
 
             foreach (const PropertyContainer &property, itemLibraryEntry.properties()) {
-                if (property.type() == QLatin1String("binding")) {
+                if (property.type() == QStringLiteral("binding")) {
                     propertyBindingList.append(PropertyBindingEntry(property.name(), property.value().toString()));
                 } else {
                     propertyPairList.append(qMakePair(property.name(), property.value()));

@@ -80,7 +80,7 @@ bool RemoveUIObjectMemberVisitor::visitObjectMember(QmlJS::AST::UiObjectMember *
             includeSurroundingWhitespace(start, end);
 
         includeLeadingEmptyLine(start);
-        replace(start, end - start, QLatin1String(""));
+        replace(start, end - start, QStringLiteral(""));
 
         setDidRewriting(true);
 

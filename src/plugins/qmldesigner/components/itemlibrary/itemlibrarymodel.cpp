@@ -276,7 +276,7 @@ QString ItemLibraryItemModel::itemName() const
 QString ItemLibraryItemModel::itemLibraryIconPath() const
 {
     //Prepend image provider prefix
-    return QLatin1String("image://qmldesigner_itemlibrary/")+ m_iconPath;
+    return QStringLiteral("image://qmldesigner_itemlibrary/")+ m_iconPath;
 }
 
 QVariant ItemLibraryItemModel::sortingRole() const
@@ -325,8 +325,8 @@ bool ItemLibrarySectionModel::sectionExpanded() const
 QVariant ItemLibrarySectionModel::sortingRole() const
 {
 
-    if (sectionName() == QLatin1String("QML Components")) //Qml Components always come first
-        return QVariant(QLatin1String("AA.this_comes_first"));
+    if (sectionName() == QStringLiteral("QML Components")) //Qml Components always come first
+        return QVariant(QStringLiteral("AA.this_comes_first"));
 
     return sectionName();
 }
@@ -532,7 +532,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
             // delayed creation of (default) icons
             if (entry.iconPath().isEmpty())
-                entry.setIconPath(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
+                entry.setIconPath(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
             if (entry.dragIcon().isNull())
                 entry.setDragIcon(createDragPixmap(getWidth(entry), getHeight(entry)));
 
@@ -560,7 +560,7 @@ QMimeData *ItemLibraryModel::getMimeData(int libId)
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << m_itemInfos.value(libId);
-    mimeData->setData(QLatin1String("application/vnd.bauhaus.itemlibraryinfo"), data);
+    mimeData->setData(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"), data);
 
     const QIcon icon = m_itemInfos.value(libId).dragIcon();
     if (!icon.isNull()) {
@@ -569,7 +569,7 @@ QMimeData *ItemLibraryModel::getMimeData(int libId)
             mimeData->setImageData(icon.pixmap(sizes.front()).toImage());
     }
 
-    mimeData->removeFormat(QLatin1String("text/plain"));
+    mimeData->removeFormat(QStringLiteral("text/plain"));
 
     return mimeData;
 }

@@ -547,7 +547,7 @@ QStringList QmlAnchorBindingProxy::possibleTargetItems() const
     QmlItemNode parent(m_qmlItemNode.instanceParent().toQmlItemNode());
 
     if (parent.isValid())
-        stringList.append(QLatin1String("parent"));
+        stringList.append(QStringLiteral("parent"));
 
     return stringList;
 }
@@ -818,7 +818,7 @@ QmlItemNode QmlAnchorBindingProxy::targetIdToNode(const QString &id) const
 
         itemNode = m_qmlItemNode.view()->modelNodeForId(id);
 
-        if (id == QLatin1String("parent"))
+        if (id == QStringLiteral("parent"))
             itemNode = m_qmlItemNode.instanceParent().modelNode();
     }
 
@@ -828,7 +828,7 @@ QmlItemNode QmlAnchorBindingProxy::targetIdToNode(const QString &id) const
 QString QmlAnchorBindingProxy::idForNode(const QmlItemNode &qmlItemNode) const
 {
     if (m_qmlItemNode.instanceParent().modelNode() == qmlItemNode)
-        return QLatin1String("parent");
+        return QStringLiteral("parent");
 
     return qmlItemNode.id();
 }

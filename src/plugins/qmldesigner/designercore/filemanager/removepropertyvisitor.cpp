@@ -130,7 +130,7 @@ void RemovePropertyVisitor::removeMember(UiObjectMember *member)
 
     includeSurroundingWhitespace(start, end);
 
-    replace(start, end - start, QLatin1String(""));
+    replace(start, end - start, QStringLiteral(""));
     setDidRewriting(true);
 }
 

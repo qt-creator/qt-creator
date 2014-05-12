@@ -65,14 +65,14 @@ namespace {
 static inline QStringList supportedVersionsList()
 {
     QStringList list;
-    list << QLatin1String("1.0") << QLatin1String("1.1") << QLatin1String("2.0") << QLatin1String("2.1") << QLatin1String("2.2");
+    list << QStringLiteral("1.0") << QStringLiteral("1.1") << QStringLiteral("2.0") << QStringLiteral("2.1") << QStringLiteral("2.2");
     return list;
 }
 
 static inline QStringList globalQtEnums()
 {
-    static QStringList list = QStringList() << QLatin1String("Horizontal") << QLatin1String("Vertical") << QLatin1String("AlignVCenter")
-         << QLatin1String("AlignLeft") << QLatin1String("LeftToRight") << QLatin1String("RightToLeft");
+    static QStringList list = QStringList() << QStringLiteral("Horizontal") << QStringLiteral("Vertical") << QStringLiteral("AlignVCenter")
+         << QStringLiteral("AlignLeft") << QStringLiteral("LeftToRight") << QStringLiteral("RightToLeft");
     return list;
 }
 
@@ -96,11 +96,11 @@ static inline QString deEscape(const QString &value)
 {
     QString result = value;
 
-    result.replace(QLatin1String("\\\\"), QLatin1String("\\"));
-    result.replace(QLatin1String("\\\""), QLatin1String("\""));
-    result.replace(QLatin1String("\\t"), QLatin1String("\t"));
-    result.replace(QLatin1String("\\r"), QLatin1String("\\\r"));
-    result.replace(QLatin1String("\\n"), QLatin1String("\n"));
+    result.replace(QStringLiteral("\\\\"), QStringLiteral("\\"));
+    result.replace(QStringLiteral("\\\""), QStringLiteral("\""));
+    result.replace(QStringLiteral("\\t"), QStringLiteral("\t"));
+    result.replace(QStringLiteral("\\r"), QStringLiteral("\\\r"));
+    result.replace(QStringLiteral("\\n"), QStringLiteral("\n"));
 
     return result;
 }
@@ -143,7 +143,7 @@ static inline QString fixEscapedUnicodeChar(const QString &value) //convert "\u2
 static inline bool isSignalPropertyName(const QString &signalName)
 {
     // see QmlCompiler::isSignalPropertyName
-    return signalName.length() >= 3 && signalName.startsWith(QLatin1String("on")) &&
+    return signalName.length() >= 3 && signalName.startsWith(QStringLiteral("on")) &&
            signalName.at(2).isLetter();
 }
 
@@ -200,23 +200,23 @@ static inline bool isLiteralValue(UiScriptBinding *script)
 
 static inline int propertyType(const QString &typeName)
 {
-    if (typeName == QLatin1String("bool"))
+    if (typeName == QStringLiteral("bool"))
         return QMetaType::type("bool");
-    else if (typeName == QLatin1String("color"))
+    else if (typeName == QStringLiteral("color"))
         return QMetaType::type("QColor");
-    else if (typeName == QLatin1String("date"))
+    else if (typeName == QStringLiteral("date"))
         return QMetaType::type("QDate");
-    else if (typeName == QLatin1String("int"))
+    else if (typeName == QStringLiteral("int"))
         return QMetaType::type("int");
-    else if (typeName == QLatin1String("real"))
+    else if (typeName == QStringLiteral("real"))
         return QMetaType::type("double");
-    else if (typeName == QLatin1String("double"))
+    else if (typeName == QStringLiteral("double"))
         return QMetaType::type("double");
-    else if (typeName == QLatin1String("string"))
+    else if (typeName == QStringLiteral("string"))
         return QMetaType::type("QString");
-    else if (typeName == QLatin1String("url"))
+    else if (typeName == QStringLiteral("url"))
         return QMetaType::type("QUrl");
-    else if (typeName == QLatin1String("var") || typeName == QLatin1String("variant"))
+    else if (typeName == QStringLiteral("var") || typeName == QStringLiteral("variant"))
         return QMetaType::type("QVariant");
     else
         return -1;
@@ -339,7 +339,7 @@ public:
 
         const CppComponentValue * qmlValue = value_cast<CppComponentValue>(value);
         if (qmlValue) {
-            typeName = qmlValue->moduleName() + QLatin1String(".") + qmlValue->className();
+            typeName = qmlValue->moduleName() + QStringLiteral(".") + qmlValue->className();
 
             majorVersion = qmlValue->componentVersion().majorVersion();
             minorVersion = qmlValue->componentVersion().minorVersion();
@@ -408,7 +408,7 @@ public:
         if (name)
             *name = propertyName;
 
-        if (propertyName == QLatin1String("id") && ! id->next)
+        if (propertyName == QStringLiteral("id") && ! id->next)
             return false; // ### should probably be a special value
 
         // attached properties
@@ -509,7 +509,7 @@ public:
 
     QVariant convertToVariant(const QString &astValue, const QString &propertyPrefix, UiQualifiedId *propertyId)
     {
-        const bool hasQuotes = astValue.trimmed().left(1) == QLatin1String("\"") && astValue.trimmed().right(1) == QLatin1String("\"");
+        const bool hasQuotes = astValue.trimmed().left(1) == QStringLiteral("\"") && astValue.trimmed().right(1) == QStringLiteral("\"");
         const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
         const Value *property = 0;
         const ObjectValue *containingObject = 0;
@@ -561,10 +561,10 @@ public:
 
     QVariant convertToEnum(Statement *rhs, const QString &propertyPrefix, UiQualifiedId *propertyId, const QString &astValue)
     {
-        QStringList astValueList = astValue.split(QLatin1String("."));
+        QStringList astValueList = astValue.split(QStringLiteral("."));
 
         if (astValueList.count() == 2 //Check for global Qt enums
-                && astValueList.first() == QLatin1String("Qt")
+                && astValueList.first() == QStringLiteral("Qt")
                 && globalQtEnums().contains(astValueList.last()))
             return QVariant::fromValue(Enumeration(astValue));
 
@@ -711,9 +711,9 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
                 differenceHandler.modelMissesImport(newImport);
         } else {
             QString importUri = toString(import->importUri);
-            if (importUri == QLatin1String("Qt") && version == QLatin1String("4.7")) {
-                importUri = QLatin1String("QtQuick");
-                version = QLatin1String("1.0");
+            if (importUri == QStringLiteral("Qt") && version == QStringLiteral("4.7")) {
+                importUri = QStringLiteral("QtQuick");
+                version = QStringLiteral("1.0");
             }
 
             const Import newImport =
@@ -743,10 +743,10 @@ void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, co
         filteredPossibleImportKeys.insert(importKey.path(), importKey);
     }
 
-    filteredPossibleImportKeys.remove(QLatin1String("<cpp>"));
-    filteredPossibleImportKeys.remove(QLatin1String("QML"));
-    filteredPossibleImportKeys.remove(QLatin1String("QtQml"));
-    filteredPossibleImportKeys.remove(QLatin1String("QtQuick/PrivateWidgets"));
+    filteredPossibleImportKeys.remove(QStringLiteral("<cpp>"));
+    filteredPossibleImportKeys.remove(QStringLiteral("QML"));
+    filteredPossibleImportKeys.remove(QStringLiteral("QtQml"));
+    filteredPossibleImportKeys.remove(QStringLiteral("QtQuick/PrivateWidgets"));
 
     QList<QmlJS::Import> allImports = m_scopeChain->context()->imports(m_document.data())->all();
 
@@ -801,7 +801,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->getSnapshot();
         const QString fileName = url.toLocalFile();
-        Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QLatin1String("<internal>") : fileName, Language::Qml);
+        Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QStringLiteral("<internal>") : fileName, Language::Qml);
         doc->setSource(data);
         doc->parseQml();
 
@@ -840,7 +840,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         }
 
         foreach (const QmlDesigner::Import &import, m_rewriterView->model()->imports()) {
-            if (import.isLibraryImport() && import.url() == QLatin1String("QtQuick") && !supportedQtQuickVersion(import.version())) {
+            if (import.isLibraryImport() && import.url() == QStringLiteral("QtQuick") && !supportedQtQuickVersion(import.version())) {
                 const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0),
                                                                  QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
                 errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
@@ -892,8 +892,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 QStringList message;
 
                 foreach (const RewriterView::Error &warning, warnings) {
-                    QString string = QLatin1String("Line: ") +  QString::number(warning.line()) + QLatin1String(": ")  + warning.description();
-                    //string += QLatin1String(" <a href=\"") + QString::number(warning.line()) + QLatin1String("\">Go to error</a>") + QLatin1String("<p>");
+                    QString string = QStringLiteral("Line: ") +  QString::number(warning.line()) + QStringLiteral(": ")  + warning.description();
+                    //string += QStringLiteral(" <a href=\"") + QString::number(warning.line()) + QStringLiteral("\">Go to error</a>") + QStringLiteral("<p>");
                     message << string;
                 }
 
@@ -1179,7 +1179,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         astValue = astValue.trimmed();
     }
 
-    if (astPropertyName == QLatin1String("id")) {
+    if (astPropertyName == QStringLiteral("id")) {
         syncNodeId(modelNode, astValue, differenceHandler);
         return astPropertyName.toUtf8();
     }

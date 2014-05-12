@@ -54,7 +54,7 @@ Import Import::empty()
 
 QString Import::toImportString() const
 {
-    QString result = QLatin1String("import ");
+    QString result = QStringLiteral("import ");
 
     result += toString(false);
 

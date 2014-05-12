@@ -30,12 +30,12 @@
 #ifndef CUSTOMNOTIFICATIONS_H
 #define CUSTOMNOTIFICATIONS_H
 
-#include <QLatin1String>
+#include <QString>
 
 namespace QmlDesigner {
 
-const QLatin1String StartRewriterAmend("__start rewriter amend__");
-const QLatin1String EndRewriterAmend("__end rewriter amend__");
+const QString StartRewriterAmend = QStringLiteral("__start rewriter amend__");
+const QString EndRewriterAmend = QStringLiteral("__end rewriter amend__");
 
 }
 

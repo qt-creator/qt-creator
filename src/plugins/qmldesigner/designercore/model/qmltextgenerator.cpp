@@ -85,13 +85,13 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
             QString result;
             for (int i = 0; i < nodes.length(); ++i) {
                 if (i > 0)
-                    result += QLatin1String("\n\n");
+                    result += QStringLiteral("\n\n");
                 result += QString(indentDepth, QLatin1Char(' '));
                 result += toQml(nodes.at(i), indentDepth);
             }
             return result;
         } else {
-            QString result = QLatin1String("[");
+            QString result = QStringLiteral("[");
             const int arrayContentDepth = indentDepth + 4;
             const QString arrayContentIndentation(arrayContentDepth, QLatin1Char(' '));
             for (int i = 0; i < nodes.length(); ++i) {
@@ -120,9 +120,9 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
             switch (value.type()) {
             case QVariant::Bool:
                 if (value.value<bool>())
-                    return QLatin1String("true");
+                    return QStringLiteral("true");
                 else
-                    return QLatin1String("false");
+                    return QStringLiteral("false");
 
             case QVariant::Color:
                 return QStringLiteral("\"%1\"").arg(properColorName(value.value<QColor>()));
@@ -176,7 +176,7 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
         result = alias + '.';
 
     result += type;
-    result += QLatin1String(" {\n");
+    result += QStringLiteral(" {\n");
 
     const int propertyIndentDepth = indentDepth + 4;
 
@@ -198,7 +198,7 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
             // the model handles the id property special, so:
             if (!node.id().isEmpty()) {
                 QString idLine(indentDepth, QLatin1Char(' '));
-                idLine += QLatin1String("id: ");
+                idLine += QStringLiteral("id: ");
                 idLine += node.id();
                 idLine += QLatin1Char('\n');
 
@@ -235,14 +235,14 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
     } else {
         if (property.isDynamic()) {
             result = QString(indentDepth, QLatin1Char(' '))
-                    + QLatin1String("property ")
+                    + QStringLiteral("property ")
                     + property.dynamicTypeName()
-                    + QLatin1String(" ")
+                    + QStringLiteral(" ")
                     + property.name()
-                    + QLatin1String(": ")
+                    + QStringLiteral(": ")
                     + toQml(property, indentDepth);
         } else {
-            result = QString(indentDepth, QLatin1Char(' ')) + property.name() + QLatin1String(": ") + toQml(property, indentDepth);
+            result = QString(indentDepth, QLatin1Char(' ')) + property.name() + QStringLiteral(": ") + toQml(property, indentDepth);
         }
     }
 
@@ -255,12 +255,12 @@ QString QmlTextGenerator::escape(const QString &value)
 {
     QString result = value;
 
-    result.replace(QLatin1String("\\"), QLatin1String("\\\\"));
+    result.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
 
-    result.replace(QLatin1String("\""), QLatin1String("\\\""));
-    result.replace(QLatin1String("\t"), QLatin1String("\\t"));
-    result.replace(QLatin1String("\r"), QLatin1String("\\r"));
-    result.replace(QLatin1String("\n"), QLatin1String("\\n"));
+    result.replace(QStringLiteral("\""), QStringLiteral("\\\""));
+    result.replace(QStringLiteral("\t"), QStringLiteral("\\t"));
+    result.replace(QStringLiteral("\r"), QStringLiteral("\\r"));
+    result.replace(QStringLiteral("\n"), QStringLiteral("\\n"));
 
     return result;
 }

@@ -95,7 +95,7 @@ static inline bool checkIfDerivedFromItem(const QString &fileName)
 
     QmlJS::Document::MutablePtr document =
             QmlJS::Document::create(fileName.isEmpty() ?
-                                        QLatin1String("<internal>") : fileName, QmlJS::Language::Qml);
+                                        QStringLiteral("<internal>") : fileName, QmlJS::Language::Qml);
     document->setSource(source);
     document->parseQml();
 
@@ -250,7 +250,7 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
                     reader.readMetaInfoFile(metaInfoFile.absoluteFilePath(), true);
                 } catch (InvalidMetaInfoException &e) {
                     qWarning() << e.description();
-                    const QString errorMessage = metaInfoFile.absoluteFilePath() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QLatin1String("\n"));
+                    const QString errorMessage = metaInfoFile.absoluteFilePath() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QStringLiteral("\n"));
                     QmlDesignerWarning::show(QCoreApplication::translate("SubComponentManager::parseDirectory", "Invalid meta info"),
                                           errorMessage);
                 }
@@ -381,7 +381,7 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
     QString fixedQualifier = qualifier;
     if (!qualifier.isEmpty()) {
         fixedQualifier = qualifier;
-        if (qualifier.right(1) == QLatin1String("."))
+        if (qualifier.right(1) == QStringLiteral("."))
             fixedQualifier.chop(1); //remove last char if it is a dot
         componentName = fixedQualifier + '.' + componentName;
     }

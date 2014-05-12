@@ -512,7 +512,7 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node, const Propert
 
 void NodeInstanceView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &, const QList<QVariant> &)
 {
-    if (view && identifier == QLatin1String("reset QmlPuppet"))
+    if (view && identifier == QStringLiteral("reset QmlPuppet"))
         restartProcess();
 }
 
@@ -1049,7 +1049,7 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
         }
     }
 
-    nodeInstanceServer()->removeSharedMemory(createRemoveSharedMemoryCommand(QLatin1String("Values"), command.keyNumber()));
+    nodeInstanceServer()->removeSharedMemory(createRemoveSharedMemoryCommand(QStringLiteral("Values"), command.keyNumber()));
 
     if (!valuePropertyChangeList.isEmpty())
         emitInstancePropertyChange(valuePropertyChangeList);

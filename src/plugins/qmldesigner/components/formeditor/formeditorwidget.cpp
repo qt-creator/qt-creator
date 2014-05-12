@@ -49,7 +49,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     : QWidget(),
     m_formEditorView(view)
 {
-    setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/formeditorstylesheet.css")));
+    setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/formeditorstylesheet.css")));
 
     QVBoxLayout *fillLayout = new QVBoxLayout(this);
     fillLayout->setMargin(0);
@@ -146,7 +146,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_graphicsView = new FormEditorGraphicsView(this);
 
     fillLayout->addWidget(m_graphicsView.data());
-    m_graphicsView.data()->setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
+    m_graphicsView.data()->setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 }
 
 void FormEditorWidget::changeTransformTool(bool checked)
@@ -179,7 +179,7 @@ void FormEditorWidget::changeRootItemHeight(const QString &heighText)
 void FormEditorWidget::resetNodeInstanceView()
 {
     m_formEditorView->setCurrentStateNode(m_formEditorView->rootModelNode());
-    m_formEditorView->emitCustomNotification(QLatin1String("reset QmlPuppet"));
+    m_formEditorView->emitCustomNotification(QStringLiteral("reset QmlPuppet"));
 }
 
 void FormEditorWidget::wheelEvent(QWheelEvent *event)

@@ -132,16 +132,16 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     QString newPropertyTemplate;
     switch (m_propertyType) {
     case QmlRefactoring::ArrayBinding:
-        newPropertyTemplate = QLatin1String("%1: [\n%2\n]");
+        newPropertyTemplate = QStringLiteral("%1: [\n%2\n]");
         m_value = addIndentation(m_value, 4);
         break;
 
     case QmlRefactoring::ObjectBinding:
-        newPropertyTemplate = QLatin1String("%1: %2");
+        newPropertyTemplate = QStringLiteral("%1: %2");
         break;
 
     case QmlRefactoring::ScriptBinding:
-        newPropertyTemplate = QLatin1String("%1: %2");
+        newPropertyTemplate = QStringLiteral("%1: %2");
         break;
 
     default:

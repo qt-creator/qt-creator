@@ -61,7 +61,7 @@ WidgetInfo ItemLibraryView::widgetInfo()
 
     return createWidgetInfo(m_widget.data(),
                             new WidgetInfo::ToolBarWidgetDefaultFactory<ItemLibraryWidget>(m_widget.data()),
-                            QLatin1String("Library"),
+                            QStringLiteral("Library"),
                             WidgetInfo::LeftPane,
                             0);
 }

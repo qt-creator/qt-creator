@@ -121,12 +121,12 @@ static QIcon getIcon(const ModelNode &modelNode)
         if (!itemLibraryEntryList.isEmpty())
             return  itemLibraryEntryList.first().icon();
         else if (modelNode.metaInfo().isValid())
-            return QIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
+            return QIcon(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
         else
-            return QIcon(QLatin1String(":/ItemLibrary/images/item-invalid-icon.png"));
+            return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
     }
 
-    return QIcon(QLatin1String(":/ItemLibrary/images/item-invalid-icon.png"));
+    return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
 }
 
 static int drawIcon(QPainter *painter,

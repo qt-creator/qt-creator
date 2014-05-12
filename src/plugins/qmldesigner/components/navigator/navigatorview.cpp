@@ -113,7 +113,7 @@ WidgetInfo NavigatorView::widgetInfo()
 {
     return createWidgetInfo(m_widget.data(),
                             new WidgetInfo::ToolBarWidgetDefaultFactory<NavigatorWidget>(m_widget.data()),
-                            QLatin1String("Navigator"),
+                            QStringLiteral("Navigator"),
                             WidgetInfo::LeftPane,
                             0);
 }

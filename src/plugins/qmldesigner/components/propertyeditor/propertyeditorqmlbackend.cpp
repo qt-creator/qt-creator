@@ -55,14 +55,14 @@ static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration = QmlJS::SimpleReade
 
 static inline QString propertyTemplatesPath()
 {
-    return QmlDesigner::PropertyEditorQmlBackend::propertyEditorResourcesPath() + QLatin1String("/PropertyTemplates/");
+    return QmlDesigner::PropertyEditorQmlBackend::propertyEditorResourcesPath() + QStringLiteral("/PropertyTemplates/");
 }
 
 QmlJS::SimpleReaderNode::Ptr templateConfiguration()
 {
     if (!s_templateConfiguration) {
         QmlJS::SimpleReader reader;
-        const QString fileName = propertyTemplatesPath() + QLatin1String("TemplateTypes.qml");
+        const QString fileName = propertyTemplatesPath() + QStringLiteral("TemplateTypes.qml");
         s_templateConfiguration = reader.readFile(fileName);
 
         if (!s_templateConfiguration)
@@ -308,11 +308,11 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 
     contextObject()->setSpecificsUrl(qmlSpecificsFile);
 
-    contextObject()->setStateName(QLatin1String("basestate"));
+    contextObject()->setStateName(QStringLiteral("basestate"));
 
     contextObject()->setIsBaseState(true);
 
-    contextObject()->setSpecificQmlData(QLatin1String(""));
+    contextObject()->setSpecificQmlData(QStringLiteral(""));
 
     contextObject()->setGlobalBaseUrl(QUrl());
 }
@@ -328,12 +328,12 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
     if (!templateConfiguration() || !templateConfiguration()->isValid())
         return QString();
 
-    QStringList imports = variantToStringList(templateConfiguration()->property(QLatin1String("imports")));
+    QStringList imports = variantToStringList(templateConfiguration()->property(QStringLiteral("imports")));
 
-    QString qmlTemplate = imports.join(QLatin1String("\n")) + QLatin1Char('\n');
-    qmlTemplate += QLatin1String("Section {\n");
+    QString qmlTemplate = imports.join(QStringLiteral("\n")) + QLatin1Char('\n');
+    qmlTemplate += QStringLiteral("Section {\n");
     qmlTemplate += QStringLiteral("caption: \"%1\"\n").arg(QString::fromUtf8(objectNode.modelNode().simplifiedTypeName()));
-    qmlTemplate += QLatin1String("SectionLayout {\n");
+    qmlTemplate += QStringLiteral("SectionLayout {\n");
 
     QList<PropertyName> orderedList = type.propertyNames();
     qSort(orderedList);
@@ -350,13 +350,13 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
 
         QString typeName = type.propertyTypeName(name);
         //alias resolution only possible with instance
-        if (typeName == QLatin1String("alias") && objectNode.isValid())
+        if (typeName == QStringLiteral("alias") && objectNode.isValid())
             typeName = objectNode.instanceType(name);
 
         if (!superType.hasProperty(name) && type.propertyIsWritable(name) && !name.contains(".")) {
             foreach (const QmlJS::SimpleReaderNode::Ptr &node, templateConfiguration()->children())
-                if (variantToStringList(node->property(QLatin1String("typeNames"))).contains(typeName)) {
-                    const QString fileName = propertyTemplatesPath() + node->property(QLatin1String("sourceFile")).toString();
+                if (variantToStringList(node->property(QStringLiteral("typeNames"))).contains(typeName)) {
+                    const QString fileName = propertyTemplatesPath() + node->property(QStringLiteral("sourceFile")).toString();
                     QFile file(fileName);
                     if (file.open(QIODevice::ReadOnly)) {
                         QString source = file.readAll();
@@ -369,8 +369,8 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
                 }
         }
     }
-    qmlTemplate += QLatin1String("}\n"); //Section
-    qmlTemplate += QLatin1String("}\n"); //SectionLayout
+    qmlTemplate += QStringLiteral("}\n"); //Section
+    qmlTemplate += QStringLiteral("}\n"); //SectionLayout
 
     if (emptyTemplate)
         return QString();
@@ -380,7 +380,7 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
 
 QUrl PropertyEditorQmlBackend::getQmlFileUrl(const QString &relativeTypeName, const NodeMetaInfo &info)
 {
-    return fileToUrl(locateQmlFile(info, fixTypeNameForPanes(relativeTypeName) + QLatin1String(".qml")));
+    return fileToUrl(locateQmlFile(info, fixTypeNameForPanes(relativeTypeName) + QStringLiteral(".qml")));
 }
 
 QString PropertyEditorQmlBackend::fixTypeNameForPanes(const QString &typeName)
@@ -395,7 +395,7 @@ QString PropertyEditorQmlBackend::qmlFileName(const NodeMetaInfo &nodeInfo)
     if (nodeInfo.typeName().split('.').last() == "QDeclarativeItem")
         return "QtQuick/ItemPane.qml";
     const QString fixedTypeName = fixTypeNameForPanes(nodeInfo.typeName());
-    return fixedTypeName + QLatin1String("Pane.qml");
+    return fixedTypeName + QStringLiteral("Pane.qml");
 }
 
 QUrl PropertyEditorQmlBackend::fileToUrl(const QString &filePath)  {
@@ -418,9 +418,9 @@ QUrl PropertyEditorQmlBackend::fileToUrl(const QString &filePath)  {
 
 QString PropertyEditorQmlBackend::fileFromUrl(const QUrl &url)
 {
-    if (url.scheme() == QLatin1String("qrc")) {
+    if (url.scheme() == QStringLiteral("qrc")) {
         const QString &path = url.path();
-        return QLatin1String(":") + path;
+        return QStringLiteral(":") + path;
     }
 
     return url.toLocalFile();
@@ -456,16 +456,16 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
     static QDir resourcesDir(QStringLiteral(":/propertyEditorQmlSources"));
     QDir importDir(info.importDirectoryPath() + QLatin1String(Constants::QML_DESIGNER_SUBFOLDER));
 
-    const QString versionString = QLatin1String("_") + QString::number(info.majorVersion())
-            + QLatin1String("_")
+    const QString versionString = QStringLiteral("_") + QString::number(info.majorVersion())
+            + QStringLiteral("_")
             + QString::number(info.minorVersion());
 
     QString relativePathWithoutEnding = relativePath;
     relativePathWithoutEnding.chop(4);
-    const QString relativePathWithVersion = relativePathWithoutEnding + versionString + QLatin1String(".qml");
+    const QString relativePathWithVersion = relativePathWithoutEnding + versionString + QStringLiteral(".qml");
 
     //Check for qml files with versions first
-    const QString withoutDirWithVersion = relativePathWithVersion.split(QLatin1String("/")).last();
+    const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).last();
     if (importDir.exists(relativePathWithVersion))
         return importDir.absoluteFilePath(relativePathWithVersion);
     if (importDir.exists(withoutDirWithVersion)) //Since we are in a subfolder of the import we do not require the directory
@@ -475,7 +475,7 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
     if (resourcesDir.exists(relativePathWithVersion))
         return resourcesDir.absoluteFilePath(relativePathWithVersion);
 
-    const QString withoutDir = relativePath.split(QLatin1String("/")).last();
+    const QString withoutDir = relativePath.split(QStringLiteral("/")).last();
     if (importDir.exists(relativePath))
         return importDir.absoluteFilePath(relativePath);
     if (importDir.exists(withoutDir)) //Since we are in a subfolder of the import we do not require the directory

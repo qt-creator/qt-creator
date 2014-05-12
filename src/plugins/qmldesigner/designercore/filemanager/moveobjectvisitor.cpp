@@ -87,10 +87,10 @@ private:
 
             if (insertAfter && insertAfter->member) {
                 moveInfo.destination = insertAfter->member->lastSourceLocation().end();
-                moveInfo.prefixToInsert = QLatin1String("\n\n");
+                moveInfo.prefixToInsert = QStringLiteral("\n\n");
             } else {
                 moveInfo.destination = ast->lbraceToken.end();
-                moveInfo.prefixToInsert = QLatin1String("\n");
+                moveInfo.prefixToInsert = QStringLiteral("\n");
             }
 
             move(moveInfo);
@@ -115,8 +115,8 @@ private:
 
         { // insert (create) a UiObjectBinding:
             UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, targetPropertyName, propertyOrder);
-            moveInfo.prefixToInsert = QLatin1String("\n") + targetPropertyName + (targetIsArrayBinding ? QLatin1String(": [") : QLatin1String(": "));
-            moveInfo.suffixToInsert = targetIsArrayBinding ? QLatin1String("\n]") : QLatin1String("");
+            moveInfo.prefixToInsert = QStringLiteral("\n") + targetPropertyName + (targetIsArrayBinding ? QStringLiteral(": [") : QStringLiteral(": "));
+            moveInfo.suffixToInsert = targetIsArrayBinding ? QStringLiteral("\n]") : QStringLiteral("");
 
             if (insertAfter && insertAfter->member)
                 moveInfo.destination = insertAfter->member->lastSourceLocation().end();
@@ -142,8 +142,8 @@ private:
             Q_ASSERT(!"Invalid QML: empty array found.");
 
         moveInfo.destination = lastMember->lastSourceLocation().end();
-        moveInfo.prefixToInsert = QLatin1String(",\n");
-        moveInfo.suffixToInsert = QLatin1String("\n");
+        moveInfo.prefixToInsert = QStringLiteral(",\n");
+        moveInfo.suffixToInsert = QStringLiteral("\n");
         move(moveInfo);
     }
 

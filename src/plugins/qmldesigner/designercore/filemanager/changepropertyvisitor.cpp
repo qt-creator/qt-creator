@@ -152,7 +152,7 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
             endOffset = startOffset;
             if (publicMember->semicolonToken.isValid())
                 startOffset = publicMember->semicolonToken.offset;
-            replacement.prepend(QLatin1String(": "));
+            replacement.prepend(QStringLiteral(": "));
         }
     } else {
         return;
@@ -207,6 +207,6 @@ void ChangePropertyVisitor::insertIntoArray(QmlJS::AST::UiArrayBinding *ast)
     const int insertionPoint = lastMember->lastSourceLocation().end();
     const int depth = calculateIndentDepth(lastMember->firstSourceLocation());
     const QString indentedArrayMember = addIndentation(m_value, depth);
-    replace(insertionPoint, 0, QLatin1String(",\n") + indentedArrayMember);
+    replace(insertionPoint, 0, QStringLiteral(",\n") + indentedArrayMember);
     setDidRewriting(true);
 }

@@ -83,7 +83,7 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
 
     m_stackedWidget->setStyleSheet(
-            QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
+            QString::fromUtf8(Utils::FileReader::fetchQrc(QStringLiteral(":/qmldesigner/stylesheet.css"))));
     m_stackedWidget->setMinimumWidth(320);
     m_stackedWidget->move(0, 0);
     connect(m_stackedWidget, SIGNAL(resized()), this, SLOT(updateSize()));
@@ -103,7 +103,7 @@ void PropertyEditorView::setupPane(const TypeName &typeName)
 {
     NodeMetaInfo metaInfo = model()->metaInfo(typeName);
 
-    QUrl qmlFile = PropertyEditorQmlBackend::getQmlFileUrl(QLatin1String("Qt/ItemPane"), metaInfo);
+    QUrl qmlFile = PropertyEditorQmlBackend::getQmlFileUrl(QStringLiteral("Qt/ItemPane"), metaInfo);
     QUrl qmlSpecificsFile;
 
     qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(typeName + "Specifics", metaInfo);
@@ -373,7 +373,7 @@ void PropertyEditorView::setupQmlBackend()
         foreach (const NodeMetaInfo &metaInfo, hierarchy) {
             if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;
-            qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + QLatin1String("Specifics"), metaInfo);
+            qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + QStringLiteral("Specifics"), metaInfo);
             diffClassName = metaInfo.typeName();
         }
     }
@@ -388,7 +388,7 @@ void PropertyEditorView::setupQmlBackend()
 
     PropertyEditorQmlBackend *currentQmlBackend = m_qmlBackendHash.value(qmlFile.toString());
 
-    QString currentStateName = currentState().isBaseState() ? currentState().name() : QLatin1String("invalid state");
+    QString currentStateName = currentState().isBaseState() ? currentState().name() : QStringLiteral("invalid state");
 
     if (!currentQmlBackend) {
         currentQmlBackend = new PropertyEditorQmlBackend(this);
@@ -593,7 +593,7 @@ bool PropertyEditorView::hasWidget() const
 
 WidgetInfo PropertyEditorView::widgetInfo()
 {
-    return createWidgetInfo(m_stackedWidget, 0, QLatin1String("Properties"), WidgetInfo::RightPane, 0);
+    return createWidgetInfo(m_stackedWidget, 0, QStringLiteral("Properties"), WidgetInfo::RightPane, 0);
 }
 
 void PropertyEditorView::currentStateChanged(const ModelNode &node)

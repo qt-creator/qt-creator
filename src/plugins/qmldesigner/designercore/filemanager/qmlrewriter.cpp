@@ -313,7 +313,7 @@ UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *m
         else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
             orderedMembers[toString(scriptBinding->qualifiedId)] = iter;
         else if (cast<UiPublicMember*>(member))
-            orderedMembers[QLatin1String("property")] = iter;
+            orderedMembers[QStringLiteral("property")] = iter;
     }
 
     int idx = propertyOrder.indexOf(propertyName);

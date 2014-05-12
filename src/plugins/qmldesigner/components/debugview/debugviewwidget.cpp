@@ -46,24 +46,24 @@ DebugViewWidget::DebugViewWidget(QWidget *parent) : QWidget(parent)
 void DebugViewWidget::addLogMessage(const QString &topic, const QString &message, bool highlight)
 {
     if (highlight) {
-        m_ui.modelLog->appendHtml(QLatin1String("<b><font color=\"blue\">")
+        m_ui.modelLog->appendHtml(QStringLiteral("<b><font color=\"blue\">")
                                   + topic
-                                  + QLatin1String("</b><br>")
+                                  + QStringLiteral("</b><br>")
                                   + message);
 
     } else {
-        m_ui.modelLog->appendHtml(QLatin1String("<b>")
+        m_ui.modelLog->appendHtml(QStringLiteral("<b>")
                                   + topic
-                                  + QLatin1String("</b><br>")
+                                  + QStringLiteral("</b><br>")
                                   + message);
     }
 }
 
 void DebugViewWidget::addErrorMessage(const QString &topic, const QString &message)
 {
-    m_ui.instanceErrorLog->appendHtml(QLatin1String("<b><font color=\"red\">")
+    m_ui.instanceErrorLog->appendHtml(QStringLiteral("<b><font color=\"red\">")
                               + topic
-                              + QLatin1String("</font></b><br>")
+                              + QStringLiteral("</font></b><br>")
                               + message
                                       );
 }
@@ -71,15 +71,15 @@ void DebugViewWidget::addErrorMessage(const QString &topic, const QString &messa
 void DebugViewWidget::addLogInstanceMessage(const QString &topic, const QString &message, bool highlight)
 {
     if (highlight) {
-        m_ui.instanceLog->appendHtml(QLatin1String("<b><font color=\"blue\">")
+        m_ui.instanceLog->appendHtml(QStringLiteral("<b><font color=\"blue\">")
                                   + topic
-                                  + QLatin1String("</b><br>")
+                                  + QStringLiteral("</b><br>")
                                   + message);
 
     } else {
-        m_ui.instanceLog->appendHtml(QLatin1String("<b>")
+        m_ui.instanceLog->appendHtml(QStringLiteral("<b>")
                                   + topic
-                                  + QLatin1String("</b><br>")
+                                  + QStringLiteral("</b><br>")
                                   + message);
     }
 }

@@ -232,8 +232,8 @@ void DesignModeWidget::readSettings()
     QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup("Bauhaus");
-    m_leftSideBar->readSettings(settings, QLatin1String("LeftSideBar"));
-    m_rightSideBar->readSettings(settings, QLatin1String("RightSideBar"));
+    m_leftSideBar->readSettings(settings, QStringLiteral("LeftSideBar"));
+    m_rightSideBar->readSettings(settings, QStringLiteral("RightSideBar"));
     if (settings->contains("MainSplitter")) {
         const QByteArray splitterState = settings->value("MainSplitter").toByteArray();
         m_mainSplitter->restoreState(splitterState);
@@ -247,8 +247,8 @@ void DesignModeWidget::saveSettings()
     QSettings *settings = Core::ICore::settings();
 
     settings->beginGroup("Bauhaus");
-    m_leftSideBar->saveSettings(settings, QLatin1String("LeftSideBar"));
-    m_rightSideBar->saveSettings(settings, QLatin1String("RightSideBar"));
+    m_leftSideBar->saveSettings(settings, QStringLiteral("LeftSideBar"));
+    m_rightSideBar->saveSettings(settings, QStringLiteral("RightSideBar"));
     settings->setValue("MainSplitter", m_mainSplitter->saveState());
     settings->endGroup();
 }

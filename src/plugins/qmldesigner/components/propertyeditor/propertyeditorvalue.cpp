@@ -101,7 +101,7 @@ static void fixAmbigousColorNames(const QmlDesigner::ModelNode &modelNode, const
             color = QColor(color.name());
             color.setAlpha(alpha);
             *value = color;
-        } else if (value->toString() != QLatin1String("transparent")) {
+        } else if (value->toString() != QStringLiteral("transparent")) {
             *value = QColor(value->toString()).name();
         }
     }
@@ -113,7 +113,7 @@ static void fixUrl(const QmlDesigner::ModelNode &modelNode, const QmlDesigner::P
             && (modelNode.metaInfo().propertyTypeName(name) == "QUrl"
                 || modelNode.metaInfo().propertyTypeName(name) == "url")) {
         if (!value->isValid())
-            *value = QString(QLatin1String(""));
+            *value = QStringLiteral("");
     }
 }
 

@@ -54,23 +54,23 @@ static PropertyName lineTypeToString(AnchorLineType lineType)
 
 static AnchorLineType propertyNameToLineType(const QString & string)
 {
-    if (string == QLatin1String("left"))
+    if (string == QStringLiteral("left"))
         return AnchorLineLeft;
-    else if (string == QLatin1String("top"))
+    else if (string == QStringLiteral("top"))
         return AnchorLineTop;
-    else if (string == QLatin1String("right"))
+    else if (string == QStringLiteral("right"))
         return AnchorLineRight;
-    else if (string == QLatin1String("bottom"))
+    else if (string == QStringLiteral("bottom"))
         return AnchorLineBottom;
-    else if (string == QLatin1String("horizontalCenter"))
+    else if (string == QStringLiteral("horizontalCenter"))
         return AnchorLineHorizontalCenter;
-    else if (string == QLatin1String("verticalCenter"))
+    else if (string == QStringLiteral("verticalCenter"))
         return AnchorLineVerticalCenter;
-    else if (string == QLatin1String("baseline"))
+    else if (string == QStringLiteral("baseline"))
         return AnchorLineVerticalCenter;
-    else if (string == QLatin1String("centerIn"))
+    else if (string == QStringLiteral("centerIn"))
         return AnchorLineCenter;
-    else if (string == QLatin1String("fill"))
+    else if (string == QStringLiteral("fill"))
         return AnchorLineFill;
 
     return AnchorLineInvalid;
