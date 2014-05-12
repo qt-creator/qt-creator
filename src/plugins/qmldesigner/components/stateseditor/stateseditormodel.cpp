@@ -30,6 +30,8 @@
 #include "stateseditormodel.h"
 #include "stateseditorview.h"
 
+#include <qmldesignerwarning.h>
+
 #include <QDebug>
 #include <QMessageBox>
 
@@ -171,7 +173,7 @@ void StatesEditorModel::renameState(int nodeId, const QString &newName)
         return;
 
     if (newName.isEmpty() ||! m_statesEditorView->validStateName(newName)) {
-        QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid state name"),
+        QmlDesignerWarning::show(tr("Invalid state name"),
                              newName.isEmpty() ?
                                  tr("The empty string as a name is reserved for the base state.") :
                                  tr("Name already used in another state"));

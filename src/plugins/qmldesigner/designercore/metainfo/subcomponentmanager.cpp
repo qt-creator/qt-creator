@@ -34,6 +34,8 @@
 #include "model.h"
 #include "metainforeader.h"
 
+#include <qmldesignerwarning.h>
+
 #include <utils/hostosinfo.h>
 
 #include <QDir>
@@ -249,8 +251,7 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
                 } catch (InvalidMetaInfoException &e) {
                     qWarning() << e.description();
                     const QString errorMessage = metaInfoFile.absoluteFilePath() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QLatin1String("\n"));
-                    QMessageBox::critical(0,
-                                          QCoreApplication::translate("SubComponentManager::parseDirectory", "Invalid meta info"),
+                    QmlDesignerWarning::show(QCoreApplication::translate("SubComponentManager::parseDirectory", "Invalid meta info"),
                                           errorMessage);
                 }
             }

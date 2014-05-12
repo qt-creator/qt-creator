@@ -33,6 +33,8 @@
 #include "metainforeader.h"
 #include "iwidgetplugin.h"
 
+#include <qmldesignerwarning.h>
+
 #include "pluginmanager/widgetpluginmanager.h"
 
 
@@ -102,8 +104,7 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
         } catch (InvalidMetaInfoException &e) {
             qWarning() << e.description();
             const QString errorMessage = plugin->metaInfo() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QLatin1String("\n"));
-            QMessageBox::critical(0,
-                                  QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate", "Invalid meta info"),
+            QmlDesignerWarning::show(QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate", "Invalid meta info"),
                                   errorMessage);
         }
     }

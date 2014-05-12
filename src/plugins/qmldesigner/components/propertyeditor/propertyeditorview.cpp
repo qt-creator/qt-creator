@@ -45,6 +45,8 @@
 #include <nodeabstractproperty.h>
 #include <rewriterview.h>
 
+#include <qmldesignerwarning.h>
+
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
 
@@ -156,9 +158,9 @@ void PropertyEditorView::changeValue(const QString &name)
             value->setValue(m_selectedNode.id());
             m_locked = false;
             if (!m_selectedNode.isValidId(newId))
-                QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
+                QmlDesignerWarning::show(tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
             else
-                QMessageBox::warning(Core::ICore::dialogParent(), tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
+                QmlDesignerWarning::show(tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
         }
         return;
     }
