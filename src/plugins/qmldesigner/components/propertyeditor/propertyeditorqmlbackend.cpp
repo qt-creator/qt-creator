@@ -47,10 +47,6 @@
 #include <QFileInfo>
 
 
-enum {
-    debug = false
-};
-
 static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration = QmlJS::SimpleReaderNode::Ptr();
 
 static inline QString propertyTemplatesPath()
@@ -97,7 +93,9 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
 {
     Q_ASSERT(QFileInfo(":/images/button_normal.png").exists());
 
-    m_view->engine()->setOutputWarningsToStandardError(debug);
+    m_view->engine()->setOutputWarningsToStandardError(
+                !qgetenv("QTCREATOR_QTQUICKDESIGNER_PROPERTYEDITOR_SHOW_WARNINGS").isEmpty());
+
     m_view->engine()->addImportPath(propertyEditorResourcesPath());
     m_dummyPropertyEditorValue->setValue("#000000");
     context()->setContextProperty("dummyBackendValue", m_dummyPropertyEditorValue.data());
