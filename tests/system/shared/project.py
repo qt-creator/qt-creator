@@ -63,18 +63,12 @@ def openCmakeProject(projectPath, buildDir):
 
 def __handleCmakeWizardPage__():
     generatorCombo = waitForObject(":Generator:_QComboBox")
-    mkspec = __getMkspecFromQmake__("qmake")
-    test.log("Using mkspec '%s'" % mkspec)
-
-    generatorText = "Unix Generator (Desktop 474 GCC)"
-    if "win32-" in mkspec:
-        generatorName = {"win32-g++" : "MinGW Generator (Desktop 474 GCC)",
-                         "win32-msvc2010" : "NMake Generator (Desktop 480 MSVC2010)"}
-        if mkspec in generatorName:
-            generatorText = generatorName[mkspec]
+    generatorText = "Unix Generator (Desktop 480 GCC)"
+    if platform.system() in ('Windows', 'Microsoft'):
+        generatorText = "MinGW Generator (Desktop 480 GCC)"
     index = generatorCombo.findText(generatorText)
     if index == -1:
-        test.warning("No matching CMake generator for mkspec '%s' found." % mkspec)
+        test.warning("No matching CMake generator for found.")
     else:
         generatorCombo.setCurrentIndex(index)
 

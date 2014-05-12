@@ -46,7 +46,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    suitableKits = Targets.DESKTOP_474_GCC | Targets.DESKTOP_480_GCC
+    suitableKits = Targets.DESKTOP_480_GCC
     if platform.system() in ('Windows', 'Microsoft'):
         suitableKits |= Targets.DESKTOP_480_MSVC2010
     checkedTargets = openQmakeProject(SpeedCrunchPath, suitableKits)

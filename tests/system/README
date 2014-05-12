@@ -20,11 +20,10 @@ You can also just provide them inside a different folder and specify the folder 
 This folder must contain the following:
  * a QtCreator repository (or source copy) of tag v2.5.0 named 'creator'
  * a subfolder called 'creator-test-data'
- * a speedcrunch repository (or source copy) inside 'creator-test-data' named 'speedcrunch'
+ * a speedcrunch 0.11 repository (or source copy) inside 'creator-test-data' named 'speedcrunch'
  * additional Squish versions for hooking into subprocesses inside different folders inside 'creator-test-data' following the information below
 
 Fifth - you'll have to make sure that some needed tools are available (no matter on which OS you're on).
- * qmake
  * cmake
  * wget or curl, capable of HTTPS
 Normally it should be okay to just install them as usual and add their executables' path(s) to the PATH variable.
