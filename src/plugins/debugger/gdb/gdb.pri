@@ -19,5 +19,3 @@ SOURCES += \
     $$PWD/gdbprocess.cpp \
     $$PWD/gdbplainengine.cpp \
     $$PWD/startgdbserverdialog.cpp
-
-RESOURCES += $$PWD/gdb.qrc
