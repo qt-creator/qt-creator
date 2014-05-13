@@ -1045,7 +1045,12 @@ void tst_Dumpers::dumper()
     qmake.setWorkingDirectory(t->buildPath);
     cmd = QString::fromLatin1(m_qmakeBinary);
     //qDebug() << "Starting qmake: " << cmd;
-    qmake.start(cmd);
+    QStringList options;
+#ifdef Q_OS_MAC
+    if (m_qtVersion < 0x050000)
+        options << QLatin1String("-spec") << QLatin1String("unsupported/macx-clang");
+#endif
+    qmake.start(cmd, options);
     QVERIFY(qmake.waitForFinished());
     output = qmake.readAllStandardOutput();
     error = qmake.readAllStandardError();
