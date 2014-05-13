@@ -72,7 +72,7 @@ QVariant CurrentProjectFind::additionalParameters() const
 {
     Project *project = ProjectExplorerPlugin::currentProject();
     if (project && project->document())
-        return qVariantFromValue(project->projectFilePath());
+        return qVariantFromValue(project->projectFilePath().toString());
     return QVariant();
 }
 
