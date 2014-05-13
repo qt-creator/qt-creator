@@ -83,9 +83,9 @@ public:
     void pushInFileComponentOnCrumbleBar(const ModelNode &modelNode);
     void nextFileIsCalledInternally();
 
-    NodeInstanceView *nodeInstanceView();
+    NodeInstanceView *nodeInstanceView() const;
 
-    QWidgetAction *componentViewAction();
+    QWidgetAction *componentViewAction() const;
 
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;

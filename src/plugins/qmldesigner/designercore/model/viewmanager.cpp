@@ -252,12 +252,12 @@ void ViewManager::nextFileIsCalledInternally()
     crumbleBar()->nextFileIsCalledInternally();
 }
 
-NodeInstanceView *ViewManager::nodeInstanceView()
+NodeInstanceView *ViewManager::nodeInstanceView() const
 {
     return &d->nodeInstanceView;
 }
 
-QWidgetAction *ViewManager::componentViewAction()
+QWidgetAction *ViewManager::componentViewAction() const
 {
     return d->componentView.action();
 }
