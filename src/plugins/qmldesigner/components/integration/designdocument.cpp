@@ -674,17 +674,10 @@ void DesignDocument::updateActiveQtVersion()
 
 QString DesignDocument::contextHelpId() const
 {
-    DesignDocumentView view;
-    currentModel()->attachView(&view);
+    if (view())
+        view()->contextHelpId();
 
-    QList<ModelNode> nodes = view.selectedModelNodes();
-    QString helpId;
-    if (!nodes.isEmpty()) {
-        helpId = nodes.first().type();
-        helpId.replace("QtQuick", "QML");
-    }
-
-    return helpId;
+    return QString();
 }
 
 } // namespace QmlDesigner

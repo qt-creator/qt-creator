@@ -292,17 +292,10 @@ double FormEditorWidget::containerPadding() const
 
 QString FormEditorWidget::contextHelpId() const
 {
-    if (!m_formEditorView)
-        return QString();
+    if (m_formEditorView)
+        return m_formEditorView->contextHelpId();
 
-    QList<ModelNode> nodes = m_formEditorView->selectedModelNodes();
-    QString helpId;
-    if (!nodes.isEmpty()) {
-        helpId = nodes.first().type();
-        helpId.replace("QtQuick", "QML");
-    }
-
-    return helpId;
+    return QString();
 }
 
 void FormEditorWidget::setRootItemRect(const QRectF &rect)

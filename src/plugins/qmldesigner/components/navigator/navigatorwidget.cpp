@@ -34,7 +34,7 @@
 #include <QToolButton>
 #include <QAbstractItemModel>
 #include <QHeaderView>
-
+#include <QtDebug>
 #include <utils/fileutils.h>
 
 
@@ -108,17 +108,10 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
 
 QString NavigatorWidget::contextHelpId() const
 {
-    if (!navigatorView())
-        return QString();
+    if (navigatorView())
+        return  navigatorView()->contextHelpId();
 
-    QList<ModelNode> nodes = navigatorView()->selectedModelNodes();
-    QString helpId;
-    if (!nodes.isEmpty()) {
-        helpId = nodes.first().type();
-        helpId.replace("QtQuick", "QML");
-    }
-
-    return helpId;
+    return QString();
 }
 
 NavigatorView *NavigatorWidget::navigatorView() const

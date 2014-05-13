@@ -424,6 +424,18 @@ WidgetInfo AbstractView::widgetInfo()
     return createWidgetInfo();
 }
 
+QString AbstractView::contextHelpId() const
+{
+    QString helpId;
+
+    if (hasSelectedModelNodes()) {
+        helpId = firstSelectedModelNode().type();
+        helpId.replace(QStringLiteral("QtQuick"), QStringLiteral("QML"));
+    }
+
+    return helpId;
+}
+
 QList<ModelNode> AbstractView::allModelNodes() const
 {
    return toModelNodeList(model()->d->allNodes());
