@@ -459,7 +459,6 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
     foreach (const ModelNode &node, completedNodeList) {
         QmlItemNode qmlItemNode(node);
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
-            scene()->synchronizeParent(qmlItemNode);
             itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
         }
     }
