@@ -151,7 +151,7 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
     return true;
 }
 
-AbstractView *DesignDocument::view()
+AbstractView *DesignDocument::view() const
 {
     return viewManager().nodeInstanceView();
 }

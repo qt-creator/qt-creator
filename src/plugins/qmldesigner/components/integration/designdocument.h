@@ -140,7 +140,7 @@ private: // functions
 
     bool loadInFileComponent(const ModelNode &componentNode);
 
-    AbstractView *view();
+    AbstractView *view() const;
 
     Model *createInFileComponentModel();
 
