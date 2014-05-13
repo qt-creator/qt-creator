@@ -214,6 +214,7 @@ void DragTool::formEditorItemsChanged(const QList<FormEditorItem*> & itemList)
 
 void DragTool::instancesCompleted(const QList<FormEditorItem*> &itemList)
 {
+    m_moveManipulator.synchronizeInstanceParent(itemList);
     foreach (FormEditorItem* item, itemList)
         if (item->qmlItemNode() == m_dragNode)
             clearMoveDelay();

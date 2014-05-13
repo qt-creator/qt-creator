@@ -177,14 +177,14 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             if (!propertyChangedList.isEmpty())
                 nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
 
-            if (!m_completedComponentList.isEmpty()) {
-                nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(m_completedComponentList));
-                m_completedComponentList.clear();
-            }
-
             if (!m_parentChangedSet.isEmpty()) {
                 sendChildrenChangedCommand(m_parentChangedSet.toList());
                 m_parentChangedSet.clear();
+            }
+
+            if (!m_completedComponentList.isEmpty()) {
+                nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(m_completedComponentList));
+                m_completedComponentList.clear();
             }
 
             slowDownRenderTimer();
