@@ -33,6 +33,9 @@
 #include <valgrind/xmlprotocol/stack.h>
 #include <valgrind/xmlprotocol/suppression.h>
 
+#include <projectexplorer/projectexplorer.h>
+#include <extensionsystem/pluginmanager.h>
+
 #include "parsertests.h"
 
 #include <QCoreApplication>
@@ -101,6 +104,8 @@ static QString dataFile(const QLatin1String &file)
 
 void ParserTests::initTestCase()
 {
+    new ExtensionSystem::PluginManager;
+    new ProjectExplorer::ProjectExplorerPlugin;
     m_server = new QTcpServer(this);
     QVERIFY(m_server->listen());
 

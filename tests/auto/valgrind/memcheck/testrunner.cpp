@@ -37,6 +37,9 @@
 #include <valgrind/xmlprotocol/parser.h>
 #include <valgrind/memcheck/memcheckrunner.h>
 
+#include <projectexplorer/projectexplorer.h>
+#include <extensionsystem/pluginmanager.h>
+
 #include <QDebug>
 #include <QTest>
 #include <QDir>
@@ -116,6 +119,12 @@ void TestRunner::cleanup()
     m_logMessages.clear();
     m_errors.clear();
     m_expectCrash = false;
+}
+
+void TestRunner::initTestCase()
+{
+    new ExtensionSystem::PluginManager;
+    new ProjectExplorer::ProjectExplorerPlugin;
 }
 
 void TestRunner::init()

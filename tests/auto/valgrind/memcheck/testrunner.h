@@ -54,6 +54,7 @@ public:
     explicit TestRunner(QObject *parent = 0);
 
 private Q_SLOTS:
+    void initTestCase();
     void init();
     void cleanup();
 
