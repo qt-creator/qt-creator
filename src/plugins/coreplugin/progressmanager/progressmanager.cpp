@@ -794,7 +794,7 @@ void ProgressTimer::handleTimeout()
     // This maps expectation to atan(1) to Pi/4 ~= 0.78, i.e. snaps
     // from 78% to 100% when expectations are met at the time the
     // future finishes. That's not bad for a random choice.
-    const double mapped = atan2(m_currentTime, m_expectedTime);
+    const double mapped = atan2(double(m_currentTime), double(m_expectedTime));
     const double progress = 100 * 2 * mapped / 3.14;
     m_futureInterface->setProgressValue(int(progress));
 }
