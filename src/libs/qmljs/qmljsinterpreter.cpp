@@ -197,8 +197,15 @@ CppComponentValue::~CppComponentValue()
 static QString generatedSlotName(const QString &base)
 {
     QString slotName = QLatin1String("on");
-    slotName += base.at(0).toUpper();
-    slotName += base.midRef(1);
+    int firstChar=0;
+    while (firstChar < base.size()) {
+        QChar c = base.at(firstChar);
+        slotName += c.toUpper();
+        ++firstChar;
+        if (c != QLatin1Char('_'))
+            break;
+    }
+    slotName += base.midRef(firstChar);
     return slotName;
 }
 
