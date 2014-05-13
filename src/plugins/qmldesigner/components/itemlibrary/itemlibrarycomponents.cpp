@@ -28,12 +28,12 @@
 ****************************************************************************/
 
 #include "itemlibrarycomponents.h"
-#include "customdraganddrop.h"
 
 #include <QMimeData>
 #include <QDebug>
 
 #include <QPixmap>
+#include <QDrag>
 #include <QPainter>
 #include <QFileSystemModel>
 #include <QProxyStyle>
@@ -118,8 +118,7 @@ void ItemLibraryTreeView::startDrag(Qt::DropActions /* supportedActions */)
     QFileInfo fileInfo = fileSystemModel->fileInfo(selectedIndexes().front());
     QPixmap pixmap(fileInfo.absoluteFilePath());
     if (!pixmap.isNull()) {
-        CustomItemLibraryDrag *drag = new CustomItemLibraryDrag(this);
-        drag->setPreview(pixmap);
+        QDrag *drag = new QDrag(this);
         drag->setPixmap(QIcon(pixmap).pixmap(128, 128));
         QMimeData *mimeData = new QMimeData;
         mimeData->setData("application/vnd.bauhaus.libraryresource", fileInfo.absoluteFilePath().toUtf8());

@@ -33,7 +33,6 @@
 #include <coreplugin/coreconstants.h>
 #include "itemlibrarymodel.h"
 #include "itemlibraryimageprovider.h"
-#include "customdraganddrop.h"
 #include <model.h>
 #include <metainfo.h>
 #include "rewritingexception.h"

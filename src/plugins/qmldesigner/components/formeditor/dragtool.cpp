@@ -31,7 +31,6 @@
 
 #include "formeditorscene.h"
 #include "formeditorview.h"
-#include <customdraganddrop.h>
 #include <metainfo.h>
 #include <rewritingexception.h>
 
@@ -39,6 +38,7 @@
 #include <QDebug>
 #include <QMimeData>
 #include <QTimer>
+#include <QWidget>
 
 namespace QmlDesigner {
 
@@ -217,7 +217,6 @@ void DragTool::instancesCompleted(const QList<FormEditorItem*> &itemList)
     foreach (FormEditorItem* item, itemList)
         if (item->qmlItemNode() == m_dragNode)
             clearMoveDelay();
-    QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 }
 
 void DragTool::instancesParentChanged(const QList<FormEditorItem *> &itemList)
@@ -247,8 +246,6 @@ void DragTool::abort()
 
     if (m_dragNode.isValid())
         m_dragNode.destroy();
-
-    QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 }
 
 void DragTool::commitTransaction()
@@ -321,7 +318,6 @@ void DragTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
 
         commitTransaction();
 
-        QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::show();
         QList<QmlItemNode> nodeList;
         view()->setSelectedModelNodes(toModelNodeList(nodeList));
         view()->changeToSelectionTool();
@@ -337,8 +333,7 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
         event->ignore();
         return;
     }
-    if (QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::isAnimated())
-        return;
+
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
        event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
         event->accept();
@@ -348,7 +343,6 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
             FormEditorItem *parentItem = calculateContainer(event->scenePos() + QPoint(2, 2));
             if (!parentItem) {      //if there is no parent any more - the use left the scene
                 end();
-                QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::show();
                 m_dragNode.destroy(); //delete the node then
                 return;
             }

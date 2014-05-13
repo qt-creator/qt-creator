@@ -1,8 +1,8 @@
 VPATH += $$PWD
 
 # Input
-HEADERS += itemlibraryview.h itemlibrarywidget.h customdraganddrop.h itemlibrarymodel.h itemlibrarycomponents.h itemlibraryimageprovider.h
-SOURCES += itemlibraryview.cpp itemlibrarywidget.cpp customdraganddrop.cpp itemlibrarymodel.cpp itemlibrarycomponents.cpp itemlibraryimageprovider.cpp
+HEADERS += itemlibraryview.h itemlibrarywidget.h itemlibrarymodel.h itemlibrarycomponents.h itemlibraryimageprovider.h
+SOURCES += itemlibraryview.cpp itemlibrarywidget.cpp itemlibrarymodel.cpp itemlibrarycomponents.cpp itemlibraryimageprovider.cpp
 RESOURCES += itemlibrary.qrc
 
 OTHER_FILES += \
