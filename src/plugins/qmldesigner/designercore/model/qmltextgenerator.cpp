@@ -117,23 +117,23 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
             return variantProperty.enumeration().toString();
         } else {
 
-            switch (value.type()) {
-            case QVariant::Bool:
+            switch (value.userType()) {
+            case QMetaType::Bool:
                 if (value.value<bool>())
                     return QStringLiteral("true");
                 else
                     return QStringLiteral("false");
 
-            case QVariant::Color:
+            case QMetaType::QColor:
                 return QStringLiteral("\"%1\"").arg(properColorName(value.value<QColor>()));
 
-            case static_cast<QVariant::Type>(QMetaType::Float):
-            case QVariant::Double:
+            case QMetaType::Float:
+            case QMetaType::Double:
                 return doubleToString(value.toDouble());
-            case QVariant::Int:
-            case QVariant::LongLong:
-            case QVariant::UInt:
-            case QVariant::ULongLong:
+            case QMetaType::Int:
+            case QMetaType::LongLong:
+            case QMetaType::UInt:
+            case QMetaType::ULongLong:
                 return stringValue;
 
             default:
