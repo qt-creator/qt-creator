@@ -48,6 +48,7 @@ QtcAutotest {
             "mimedatabase.h", "mimedatabase.cpp",
             "mimetypemagicdialog.*",
             "mimetypesettings.h", "mimetypesettings.cpp",
+            "mimetypesettingspage.ui",
             "minisplitter.h", "minisplitter.cpp",
             "modemanager.h", "modemanager.cpp",
             "navigationsubwidget.h", "navigationsubwidget.cpp",
@@ -62,7 +63,7 @@ QtcAutotest {
             "statusbarwidget.h", "statusbarwidget.cpp",
             "styleanimator.h", "styleanimator.cpp",
             "toolsettings.h", "toolsettings.cpp",
-            "variablechooser.h", "variablechooser.cpp",
+            "variablechooser.h", "variablechooser.cpp", "variablechooser.ui",
             "variablemanager.h", "variablemanager.cpp",
             "vcsmanager.h", "vcsmanager.cpp",
             "versiondialog.h", "versiondialog.cpp",
@@ -72,7 +73,7 @@ QtcAutotest {
     Group {
         name: "Find"
         prefix: product.corePluginDir + "/find/"
-        files: [ "*.cpp", "*.h" ]
+        files: [ "*.cpp", "*.h", "*.ui" ]
     }
 
     Group {
