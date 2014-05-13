@@ -27,47 +27,62 @@
 **
 ****************************************************************************/
 
-#ifndef TREEVIEWCOMBOBOX_H
-#define TREEVIEWCOMBOBOX_H
+#ifndef ADDNEWMODEL_H
+#define ADDNEWMODEL_H
 
-#include "utils_global.h"
+#include "projectnodes.h"
 
-#include <QComboBox>
-#include <QTreeView>
+#include <QAbstractItemModel>
 
-namespace Utils {
+namespace ProjectExplorer {
+class FolderNode;
 
-class QTCREATOR_UTILS_EXPORT TreeViewComboBoxView : public QTreeView
+namespace Internal {
+
+class AddNewTree
 {
-    Q_OBJECT
 public:
-    TreeViewComboBoxView(QWidget *parent = 0);
-    void adjustWidth(int width);
+    AddNewTree(const QString &displayName);
+    AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QString &displayName);
+    AddNewTree(FolderNode *node, QList<AddNewTree *> children, const FolderNode::AddNewInformation &info);
+    ~AddNewTree();
+
+    AddNewTree *parent() const;
+    QList<AddNewTree *> children() const;
+
+    bool canAdd() const;
+    QString displayName() const;
+    QString toolTip() const;
+    FolderNode *node() const;
+    int priority() const;
+private:
+    AddNewTree *m_parent;
+    QList<AddNewTree *> m_children;
+    QString m_displayName;
+    QString m_toolTip;
+    FolderNode *m_node;
+    bool m_canAdd;
+    int m_priority;
 };
 
-class QTCREATOR_UTILS_EXPORT TreeViewComboBox : public QComboBox
+class AddNewModel : public QAbstractItemModel
 {
-    Q_OBJECT
 public:
-    TreeViewComboBox(QWidget *parent = 0);
+    AddNewModel(AddNewTree *root);
+    ~AddNewModel();
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    void wheelEvent(QWheelEvent *e);
-    void keyPressEvent(QKeyEvent *e);
-    void setCurrentIndex(const QModelIndex &index);
-    bool eventFilter(QObject* object, QEvent* event);
-    void showPopup();
-    void hidePopup();
-
-    TreeViewComboBoxView *view() const;
-
+    FolderNode *nodeForIndex(const QModelIndex &index) const;
+    QModelIndex indexForTree(AddNewTree *tree) const;
 private:
-    QModelIndex indexBelow(QModelIndex index);
-    QModelIndex indexAbove(QModelIndex index);
-    QModelIndex lastIndex(const QModelIndex index);
-
-    TreeViewComboBoxView *m_view;
-    bool m_skipNextHide;
+    AddNewTree *m_root;
 };
 }
+}
 
-#endif // TREEVIEWCOMBOBOX_H
+#endif // ADDNEWMODEL_H

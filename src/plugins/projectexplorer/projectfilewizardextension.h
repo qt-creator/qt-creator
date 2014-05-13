@@ -35,6 +35,7 @@
 #include <coreplugin/ifilewizardextension.h>
 
 namespace ProjectExplorer {
+class FolderNode;
 
 namespace Internal {
 
@@ -52,14 +53,11 @@ public:
                  bool *removeOpenProjectAttribute, QString *errorMessage);
     void applyCodeStyle(Core::GeneratedFile *file) const;
 
-    void setProjectIndex(int i);
-
 public slots:
     void firstExtensionPageShown(const QList<Core::GeneratedFile> &files, const QVariantMap &extraValues);
     void initializeVersionControlChoices();
 
 private:
-    void initProjectChoices(const QList<Core::GeneratedFile> &generatedFiles, const QVariantMap &extraValues);
     bool processProject(const QList<Core::GeneratedFile> &files,
                         bool *removeOpenProjectAttribute, QString *errorMessage);
     bool processVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage);

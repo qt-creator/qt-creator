@@ -27,6 +27,7 @@
 **
 ****************************************************************************/
 
+#include "addnewmodel.h"
 #include "projectwizardpage.h"
 #include "ui_projectwizardpage.h"
 
@@ -36,6 +37,7 @@
 
 #include <QDir>
 #include <QTextStream>
+#include <QTreeView>
 
 /*!
     \class ProjectExplorer::Internal::ProjectWizardPage
@@ -51,7 +53,8 @@ using namespace Internal;
 
 ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     QWizardPage(parent),
-    m_ui(new Ui::WizardPage)
+    m_ui(new Ui::WizardPage),
+    m_model(0)
 {
     m_ui->setupUi(this);
     m_ui->vcsManageButton->setText(Core::ICore::msgShowOptionsDialog());
@@ -64,19 +67,64 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
 ProjectWizardPage::~ProjectWizardPage()
 {
     delete m_ui;
+    delete m_model;
 }
 
-void ProjectWizardPage::setProjects(const QStringList &p)
+void ProjectWizardPage::setModel(AddNewModel *model)
 {
-    m_ui->projectComboBox->clear();
-    m_ui->projectComboBox->addItems(p);
-    m_ui->projectComboBox->setEnabled(p.size() > 1);
-    m_ui->projectLabel->setEnabled(p.size() > 1);
+    delete m_model;
+    m_model = model;
+
+    // TODO see OverViewCombo and OverView for click event filter
+    m_ui->projectComboBox->setModel(model);
+    bool enabled = m_model->rowCount(QModelIndex()) > 1;
+    m_ui->projectComboBox->setEnabled(enabled);
+
+    expandTree(QModelIndex());
 }
 
-void ProjectWizardPage::setProjectToolTips(const QStringList &t)
+bool ProjectWizardPage::expandTree(const QModelIndex &root)
 {
-    m_projectToolTips = t;
+    bool expand = false;
+    if (!root.isValid()) // always expand root
+        expand = true;
+
+    // Check children
+    int count = m_model->rowCount(root);
+    for (int i = 0; i < count; ++i) {
+        if (expandTree(m_model->index(i, 0, root)))
+            expand = true;
+    }
+
+    // Apply to self
+    if (expand)
+        m_ui->projectComboBox->view()->expand(root);
+    else
+        m_ui->projectComboBox->view()->collapse(root);
+
+    // if we are a high priority node, our *parent* needs to be expanded
+    AddNewTree *tree = static_cast<AddNewTree *>(root.internalPointer());
+    if (tree && tree->priority() >= 100)
+        expand = true;
+
+    return expand;
+}
+
+void ProjectWizardPage::setBestNode(AddNewTree *tree)
+{
+    QModelIndex index = m_model->indexForTree(tree);
+    m_ui->projectComboBox->setCurrentIndex(index);
+
+    while (index.isValid()) {
+        m_ui->projectComboBox->view()->expand(index);
+        index = index.parent();
+    }
+}
+
+FolderNode *ProjectWizardPage::currentNode() const
+{
+    QModelIndex index = m_ui->projectComboBox->view()->currentIndex();
+    return m_model->nodeForIndex(index);
 }
 
 void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
@@ -84,16 +132,6 @@ void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
     m_ui->projectLabel->setText(addingSubProject ?
                                     tr("Add as a subproject to project:")
                                   : tr("Add to &project:"));
-}
-
-int ProjectWizardPage::currentProjectIndex() const
-{
-    return m_ui->projectComboBox->currentIndex();
-}
-
-void ProjectWizardPage::setCurrentProjectIndex(int idx)
-{
-    m_ui->projectComboBox->setCurrentIndex(idx);
 }
 
 void ProjectWizardPage::setNoneLabel(const QString &label)

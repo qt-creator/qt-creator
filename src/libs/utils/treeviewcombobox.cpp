@@ -57,18 +57,41 @@ TreeViewComboBox::TreeViewComboBox(QWidget *parent)
     m_view->viewport()->installEventFilter(this);
 }
 
+QModelIndex TreeViewComboBox::indexAbove(QModelIndex index)
+{
+    do
+        index = m_view->indexAbove(index);
+    while (index.isValid() && !(model()->flags(index) & Qt::ItemIsSelectable));
+    return index;
+}
+
+QModelIndex TreeViewComboBox::indexBelow(QModelIndex index)
+{
+    do
+        index = m_view->indexBelow(index);
+    while (index.isValid() && !(model()->flags(index) & Qt::ItemIsSelectable));
+    return index;
+}
+
+QModelIndex TreeViewComboBox::lastIndex(const QModelIndex index)
+{
+    if (index.isValid() && !m_view->isExpanded(index))
+        return index;
+
+    int rows = m_view->model()->rowCount(index);
+    if (rows == 0)
+        return index;
+    return lastIndex(m_view->model()->index(rows - 1, 0, index));
+}
+
 void TreeViewComboBox::wheelEvent(QWheelEvent *e)
 {
     QModelIndex index = m_view->currentIndex();
-    if (e->delta() > 0) {
-        do
-            index = m_view->indexAbove(index);
-        while (index.isValid() && !(model()->flags(index) & Qt::ItemIsSelectable));
-    } else if (e->delta() < 0) {
-        do
-            index = m_view->indexBelow(index);
-        while (index.isValid() && !(model()->flags(index) & Qt::ItemIsSelectable));
-    }
+    if (e->delta() > 0)
+        index = indexAbove(index);
+    else if (e->delta() < 0)
+        index = indexBelow(index);
+
     e->accept();
     if (!index.isValid())
         return;
@@ -79,8 +102,34 @@ void TreeViewComboBox::wheelEvent(QWheelEvent *e)
     emit activated(index.row());
 }
 
+void TreeViewComboBox::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Up || e->key() == Qt::Key_PageUp) {
+        setCurrentIndex(indexAbove(m_view->currentIndex()));
+    } else if (e->key() == Qt::Key_Down || e->key() == Qt::Key_PageDown) {
+        setCurrentIndex(indexBelow(m_view->currentIndex()));
+    } else if (e->key() == Qt::Key_Home) {
+        QModelIndex index = m_view->model()->index(0, 0);
+        if (index.isValid() && !model()->flags(index) & Qt::ItemIsSelectable)
+            index = indexBelow(index);
+        setCurrentIndex(index);
+    } else if (e->key() == Qt::Key_End) {
+        QModelIndex index = lastIndex(m_view->rootIndex());
+        if (index.isValid() && !model()->flags(index) & Qt::ItemIsSelectable)
+            index = indexAbove(index);
+        setCurrentIndex(index);
+    } else {
+        QComboBox::keyPressEvent(e);
+        return;
+    }
+
+    e->accept();
+}
+
 void TreeViewComboBox::setCurrentIndex(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
     setRootModelIndex(model()->parent(index));
     QComboBox::setCurrentIndex(index.row());
     setRootModelIndex(QModelIndex());

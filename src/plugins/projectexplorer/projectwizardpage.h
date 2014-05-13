@@ -32,8 +32,15 @@
 
 #include <QWizardPage>
 
+QT_BEGIN_NAMESPACE
+class QTreeView;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
+class FolderNode;
 namespace Internal {
+class AddNewModel;
+class AddNewTree;
 
 namespace Ui { class WizardPage; }
 
@@ -46,11 +53,9 @@ public:
     explicit ProjectWizardPage(QWidget *parent = 0);
     virtual ~ProjectWizardPage();
 
-    void setProjects(const QStringList &);
-    void setProjectToolTips(const QStringList &);
-
-    int currentProjectIndex() const;
-    void setCurrentProjectIndex(int);
+    void setModel(AddNewModel *model);
+    void setBestNode(ProjectExplorer::Internal::AddNewTree *tree);
+    FolderNode *currentNode() const;
 
     void setNoneLabel(const QString &label);
     void setAdditionalInfo(const QString &text);
@@ -71,9 +76,11 @@ private slots:
 
 private:
     void setProjectToolTip(const QString &);
+    bool expandTree(const QModelIndex &root);
 
     Ui::WizardPage *m_ui;
     QStringList m_projectToolTips;
+    AddNewModel *m_model;
 };
 
 } // namespace Internal

@@ -145,7 +145,8 @@ HEADERS += projectexplorer.h \
     customparser.h \
     customparserconfigdialog.h \
     ipotentialkit.h \
-    selectablefilesmodel.h
+    selectablefilesmodel.h \
+    addnewmodel.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -277,7 +278,8 @@ SOURCES += projectexplorer.cpp \
     customparser.cpp \
     customparserconfigdialog.cpp \
     ipotentialkit.cpp \
-    selectablefilesmodel.cpp
+    selectablefilesmodel.cpp \
+    addnewmodel.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
