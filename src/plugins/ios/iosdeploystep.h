@@ -73,9 +73,6 @@ public:
 
     void run(QFutureInterface<bool> &fi) QTC_OVERRIDE;
     void cleanup();
-    ProjectExplorer::IDevice::ConstPtr device() const;
-    IosDevice::ConstPtr iosdevice() const;
-    IosSimulator::ConstPtr iossimulator() const;
     void cancel();
 signals:
     //void done();
@@ -89,7 +86,7 @@ private slots:
                         Ios::IosToolHandler::OpStatus status);
     void handleFinished(Ios::IosToolHandler *handler);
     void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
-
+    void updateDisplayNames();
 private:
     IosDeployStep(ProjectExplorer::BuildStepList *bc,
         IosDeployStep *other);
@@ -97,6 +94,9 @@ private:
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() QTC_OVERRIDE;
     bool immutable() const QTC_OVERRIDE { return true; }
     bool runInGuiThread() const QTC_OVERRIDE { return true; }
+    ProjectExplorer::IDevice::ConstPtr device() const;
+    IosDevice::ConstPtr iosdevice() const;
+    IosSimulator::ConstPtr iossimulator() const;
 
     void ctor();
     QString deviceId() const;

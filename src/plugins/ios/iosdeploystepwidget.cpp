@@ -46,6 +46,7 @@ IosDeployStepWidget::IosDeployStepWidget(IosDeployStep *step) :
     m_step(step)
 {
     ui->setupUi(this);
+    connect(m_step, SIGNAL(displayNameChanged()), SIGNAL(updateSummary()));
 }
 
 IosDeployStepWidget::~IosDeployStepWidget()
@@ -55,8 +56,7 @@ IosDeployStepWidget::~IosDeployStepWidget()
 
 QString IosDeployStepWidget::displayName() const
 {
-    const QString deviceName = m_step->device().isNull() ? IosDevice::name() : m_step->device()->displayName();
-    return tr("<b>Deploy to %1</b>").arg(deviceName);
+    return QString::fromLatin1("<b>%1</b>").arg(m_step->displayName());
 }
 
 QString IosDeployStepWidget::summaryText() const

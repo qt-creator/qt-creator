@@ -40,6 +40,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
@@ -82,14 +85,26 @@ void IosDeployStep::ctor()
 {
     m_toolHandler = 0;
     m_transferStatus = NoTransfer;
-    m_device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
-    const QString devName = m_device.isNull() ? IosDevice::name() : m_device->displayName();
+    cleanup();
+    updateDisplayNames();
+    connect(DeviceManager::instance(), SIGNAL(updated()),
+            SLOT(updateDisplayNames()));
+    connect(target(), SIGNAL(kitChanged()),
+            SLOT(updateDisplayNames()));
+}
+
+void IosDeployStep::updateDisplayNames()
+{
+    ProjectExplorer::IDevice::ConstPtr dev =
+            ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     setDefaultDisplayName(tr("Deploy to %1").arg(devName));
+    setDisplayName(tr("Deploy to %1").arg(devName));
 }
 
 bool IosDeployStep::init()
 {
-    QTC_CHECK(m_transferStatus == NoTransfer);
+    QTC_ASSERT(m_transferStatus == NoTransfer, return false);
     m_device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
     IosRunConfiguration * runConfig = qobject_cast<IosRunConfiguration *>(
                 this->target()->activeRunConfiguration());
