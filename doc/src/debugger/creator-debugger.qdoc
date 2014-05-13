@@ -452,6 +452,8 @@
 
        \li To step into a function or a subfunction, press \key{F11}.
 
+       \li To leave the current function or subfunction, press \key{Shift+F11}.
+
        \li To continue running the program, press \key{F5}.
 
        \li To run to the selected function when you are stepping into a nested
@@ -622,17 +624,53 @@
 
     \section1 Locals and Expressions
 
-    Whenever a program stops under the control of the debugger, it retrieves
-    information about the topmost stack frame and displays it in the
-    \gui{Locals and Expressions} view. The \gui{Locals and Expressions} view
-    typically includes information about parameters of the function in that
-    frame as well as the local variables.
+    The Locals and Expressions view consists of three parts: the
+    \gui{Locals} pane at the top, the \gui{Return Value} pane in the middle,
+    and the \gui{Expressions} pane at the bottom. The \gui{Return Value}
+    and \gui{Expression} panes are only visible if they are not empty.
 
     \image qtcreator-locals-expressions.png "Locals and Expressions view"
 
+    Whenever a program stops under the control of the debugger, it retrieves
+    information about the topmost stack frame and displays it in the
+    \gui{Locals and Expressions} view. The \gui{Locals} pane shows
+    information about parameters of the function in that
+    frame as well as the local variables. If the last operation in
+    the debugger was returning from a function after pressing
+    \key{Shift+F11}, the \gui{Return Value} pane displays the value
+    returned by the function.
+
+    To compute values of arithmetic expressions or function
+    calls, use expression evaluators in the \gui{Expressions} pane.
+    To insert a new expression evaluator, either double-click on an
+    empty part of the \gui{Locals and Expressions} view, or select
+    \gui{Insert New Expression Evaluator} from the context menu, or
+    drag and drop an expression from the code editor.
+
+    \note Expression evaluators are powerful, but slow down debugger
+    operation significantly. It is advisable to not use them excessively,
+    and to remove unneeded expression evaluators as soon as possible.
+
+    Expression evaluators are re-evaluated whenever the current
+    frame changes. Note that functions used in the expressions are
+    called each time, even if they have side-effects.
+
+    All backends support simple C and C++ expressions. Functions
+    can be called only if they are actually compiled into the
+    debugged executable or a library used by the executable.
+    Most notably, inlined functions such as most \c{operator[]}
+    implementations of standard containers are typically \e{not}
+    available.
+
+    When using GDB or LLDB as backend, a special ranged
+    syntax can be used to display multiple values with one
+    expression. A sub-expression of form \c{foo[a..b]} is
+    split into a sequence of individually evaluated expressions
+    \c{foo[a], ..., foo[b]}.
+
     Compound variables of struct or class type are displayed as
-    expandable in the view. Expand entries to show
-    all members. Together with the display of value and type, you can
+    expandable in the view. Expand entries to show all members.
+    Together with the display of value and type, you can
     examine and traverse the low-level layout of object data.
 
 

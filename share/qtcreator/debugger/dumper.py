@@ -1332,15 +1332,50 @@ class DumperBase:
 
     # Parses a..b and  a.(s).b
     def parseRange(self, exp):
-        match = re.search("\[(.+?)\.(\(.+?\))?\.(.+?)\]", exp)
+
+        # Search for the first unbalanced delimiter in s
+        def searchUnbalanced(s, upwards):
+            paran = 0
+            bracket = 0
+            if upwards:
+                open_p, close_p, open_b, close_b = '(', ')', '[', ']'
+            else:
+                open_p, close_p, open_b, close_b = ')', '(', ']', '['
+            for i in range(len(s)):
+                c = s[i]
+                if c == open_p:
+                    paran += 1
+                elif c == open_b:
+                    bracket += 1
+                elif c == close_p:
+                    paran -= 1
+                    if paran < 0:
+                        return i
+                elif c == close_b:
+                    bracket -= 1
+                    if bracket < 0:
+                        return i
+            return len(s)
+
+        match = re.search("(\.)(\(.+?\))?(\.)", exp)
         if match:
-            a = match.group(1)
             s = match.group(2)
-            b = match.group(3)
+            left_e = match.start(1)
+            left_s =  1 + left_e - searchUnbalanced(exp[left_e::-1], False)
+            right_s = match.end(3)
+            right_e = right_s + searchUnbalanced(exp[right_s:], True)
+            template = exp[:left_s] + '%s' +  exp[right_e:]
+
+            a = exp[left_s:left_e]
+            b = exp[right_s:right_e]
+
             try:
-                step = toInteger(s[1:len(s)-1]) if s else 1
-                template = exp[:match.start(1)] + '%s' +  exp[match.end(3):]
-                return True, toInteger(a), step, toInteger(b) + 1, template
+                # Allow integral expressions.
+                ss = toInteger(self.parseAndEvaluate(s[1:len(s)-1]) if s else 1)
+                aa = toInteger(self.parseAndEvaluate(a))
+                bb = toInteger(self.parseAndEvaluate(b))
+                if aa < bb and ss > 0:
+                    return True, aa, ss, bb + 1, template
             except:
                 pass
         return False, 0, 1, 1, exp
