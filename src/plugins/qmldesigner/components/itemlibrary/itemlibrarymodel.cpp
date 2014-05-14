@@ -40,13 +40,11 @@
 #include <qdebug.h>
 
 static bool inline registerItemLibrarySortedModel() {
-    qmlRegisterType<QmlDesigner::Internal::ItemLibrarySortedModel>();
+    qmlRegisterType<QmlDesigner::ItemLibrarySortedModel>();
     return true;
 }
 
 namespace QmlDesigner {
-
-namespace Internal {
 
 static QHash<QString, bool> collapsedStateHash;
 
@@ -659,6 +657,5 @@ void registerQmlTypes()
     registerItemLibrarySortedModel();
 }
 
-} // namespace Internal
 } // namespace QmlDesigner
 

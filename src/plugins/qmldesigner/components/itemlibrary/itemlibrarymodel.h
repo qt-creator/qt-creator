@@ -43,8 +43,6 @@ class ItemLibraryInfo;
 class ItemLibraryEntry;
 class Model;
 
-namespace Internal {
-
 void registerQmlTypes();
 
 class ItemLibrarySortedModel: public QAbstractListModel {
@@ -217,10 +215,9 @@ private:
     int m_nextLibId;
 };
 
-} // namespace Internal
 } // namespace QmlDesigner
 
-QML_DECLARE_TYPE(QmlDesigner::Internal::ItemLibrarySortedModel)
+QML_DECLARE_TYPE(QmlDesigner::ItemLibrarySortedModel)
 
 #endif // ITEMLIBRARYMODEL_H
 

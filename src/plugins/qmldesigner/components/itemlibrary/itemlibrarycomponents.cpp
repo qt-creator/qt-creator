@@ -42,8 +42,6 @@ enum { debug = 0 };
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 static void drawSelectionBackground(QPainter *painter, const QStyleOption &option)
 {
     painter->save();
@@ -197,8 +195,6 @@ void ResourceItemDelegate::setModel(QFileSystemModel *model)
 {
     m_model = model;
 }
-
-} // namespace Internal
 
 } // namespace QmlDesigner
 

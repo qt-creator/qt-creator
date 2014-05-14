@@ -40,8 +40,6 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 class ResourceItemDelegate;
 
 // ItemLibraryTreeView with Drag implementation
@@ -80,8 +78,6 @@ public:
 private:
     QFileSystemModel *m_model;
 };
-
-} // namespace Internal
 
 } // namespace QmlDesigner
 

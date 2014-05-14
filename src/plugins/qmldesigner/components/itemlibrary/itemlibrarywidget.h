@@ -51,10 +51,10 @@ class MetaInfo;
 class ItemLibraryEntry;
 class Model;
 
-namespace Internal {
-    class ItemLibraryModel;
-    class ItemLibraryTreeView;
-}
+
+class ItemLibraryModel;
+class ItemLibraryTreeView;
+
 
 class ItemLibraryFileIconProvider : public QFileIconProvider
 {
@@ -127,14 +127,14 @@ private:
 
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
-    QPointer<Internal::ItemLibraryModel> m_itemLibraryModel;
+    QPointer<ItemLibraryModel> m_itemLibraryModel;
     QPointer<QFileSystemModel> m_resourcesFileSystemModel;
 
     QPointer<QStackedWidget> m_stackedWidget;
 
     QPointer<Utils::FancyLineEdit> m_filterLineEdit;
     QScopedPointer<QQuickView> m_itemsView;
-    QScopedPointer<Internal::ItemLibraryTreeView> m_resourcesView;
+    QScopedPointer<ItemLibraryTreeView> m_resourcesView;
 
     QPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;

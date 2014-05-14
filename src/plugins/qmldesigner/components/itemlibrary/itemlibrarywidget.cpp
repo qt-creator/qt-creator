@@ -63,18 +63,18 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_resIconSize(24, 24),
     m_iconProvider(m_resIconSize),
     m_itemsView(new QQuickView()),
-    m_resourcesView(new Internal::ItemLibraryTreeView(this)),
+    m_resourcesView(new ItemLibraryTreeView(this)),
     m_filterFlag(QtBasic),
     m_itemLibraryId(-1)
 {
-    Internal::registerQmlTypes();
+    registerQmlTypes();
 
     setWindowTitle(tr("Library", "Title of library view"));
 
     /* create Items view and its model */
     m_itemsView->setResizeMode(QQuickView::SizeRootObjectToView);
     m_itemsView->engine()->setOutputWarningsToStandardError(debug);
-    m_itemLibraryModel = new Internal::ItemLibraryModel(this);
+    m_itemLibraryModel = new ItemLibraryModel(this);
     m_itemLibraryModel->setItemIconSize(m_itemIconSize);
 
     QQmlContext *rootContext = m_itemsView->rootContext();
