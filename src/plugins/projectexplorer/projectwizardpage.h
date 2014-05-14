@@ -34,6 +34,7 @@
 
 QT_BEGIN_NAMESPACE
 class QTreeView;
+class QModelIndex;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
