@@ -114,7 +114,6 @@ QtcPlugin {
         files: [
             "attachgdbadapter.cpp", "attachgdbadapter.h",
             "coregdbadapter.cpp", "coregdbadapter.h",
-            "gdb.qrc",
             "gdbengine.cpp", "gdbengine.h",
             "gdboptionspage.cpp", "gdboptionspage.h",
             "gdbprocess.cpp", "gdbprocess.h",
