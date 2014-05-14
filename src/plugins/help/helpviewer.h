@@ -60,7 +60,6 @@ public:
     virtual qreal scale() const = 0;
 
     virtual QString title() const = 0;
-    virtual void setTitle(const QString &title) = 0;
 
     virtual QUrl source() const = 0;
     virtual void setSource(const QUrl &url) = 0;

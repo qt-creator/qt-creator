@@ -48,11 +48,17 @@ public:
     LocalHelpManager(QObject *parent = 0);
     ~LocalHelpManager();
 
+    static LocalHelpManager *instance();
+
     void setupGuiHelpEngine();
     void setEngineNeedsUpdate();
 
     static QHelpEngine& helpEngine();
     static BookmarkManager& bookmarkManager();
+
+    static QVariant engineFontSettings();
+
+    Q_INVOKABLE QByteArray helpData(const QUrl &url);
 
 private:
     bool m_guiNeedsSetup;

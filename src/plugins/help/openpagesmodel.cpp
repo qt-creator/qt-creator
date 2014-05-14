@@ -77,7 +77,8 @@ void OpenPagesModel::addPage(const QUrl &url, qreal zoom)
     connect(page, SIGNAL(titleChanged()), this, SLOT(handleTitleChanged()));
     m_pages << page;
     endInsertRows();
-    page->setSource(url);
+    if (url.isValid())
+        page->setSource(url);
 }
 
 void OpenPagesModel::removePage(int index)

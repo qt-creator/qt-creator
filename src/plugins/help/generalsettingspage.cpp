@@ -82,7 +82,9 @@ QWidget *GeneralSettingsPage::widget()
         m_ui->sizeComboBox->setEditable(false);
         m_ui->styleComboBox->setEditable(false);
 
-        m_font = qvariant_cast<QFont>(HelpManager::customValue(QLatin1String("font"), m_font));
+        QVariant fontSetting = LocalHelpManager::engineFontSettings();
+        if (fontSetting.isValid())
+            m_font = fontSetting.value<QFont>();
 
         updateFontSize();
         updateFontStyle();
@@ -155,7 +157,7 @@ void GeneralSettingsPage::apply()
 
     if (newFont != m_font) {
         m_font = newFont;
-        HelpManager::setCustomValue(QLatin1String("font"), newFont);
+        HelpManager::setCustomValue(Constants::FontKey, newFont);
         emit fontChanged();
     }
 

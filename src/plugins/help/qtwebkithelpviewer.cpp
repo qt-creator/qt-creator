@@ -451,18 +451,13 @@ QtWebKitHelpViewer::QtWebKitHelpViewer(qreal zoom, QWidget *parent)
     connect(m_webView->page(), SIGNAL(printRequested(QWebFrame*)), this, SIGNAL(printRequested()));
     connect(m_webView, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
     connect(m_webView, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
-
-    setViewerFont(viewerFont());
 }
 
 QFont QtWebKitHelpViewer::viewerFont() const
 {
-    QWebSettings* webSettings = QWebSettings::globalSettings();
-    QFont font(QApplication::font().family(),
+    QWebSettings* webSettings = m_webView->settings();
+    return QFont(webSettings->fontFamily(QWebSettings::StandardFont),
         webSettings->fontSize(QWebSettings::DefaultFontSize));
-    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    return qvariant_cast<QFont>(engine.customValue(QLatin1String("font"),
-        font));
 }
 
 void QtWebKitHelpViewer::setViewerFont(const QFont &font)
@@ -495,11 +490,6 @@ qreal QtWebKitHelpViewer::scale() const
 QString QtWebKitHelpViewer::title() const
 {
     return m_webView->title();
-}
-
-void QtWebKitHelpViewer::setTitle(const QString &title)
-{
-    Q_UNUSED(title)
 }
 
 QUrl QtWebKitHelpViewer::source() const

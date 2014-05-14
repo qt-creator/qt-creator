@@ -196,7 +196,7 @@ HelpViewer *OpenPagesManager::createPageFromSearch(const QUrl &url)
 
 HelpViewer *OpenPagesManager::createPage(const QUrl &url, bool fromSearch)
 {
-    if (HelpViewer::launchWithExternalApp(url))
+    if (url.isValid() && HelpViewer::launchWithExternalApp(url))
         return 0;
 
     m_model->addPage(url);

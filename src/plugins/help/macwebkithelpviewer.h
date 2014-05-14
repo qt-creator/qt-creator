@@ -27,35 +27,70 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTBROWSERHELPVIEWER_H
-#define TEXTBROWSERHELPVIEWER_H
+#ifndef MACWEBKITHELPVIEWER_H
+#define MACWEBKITHELPVIEWER_H
 
-#include "centralwidget.h"
 #include "helpviewer.h"
-#include "openpagesmanager.h"
 
-#include <QTextBrowser>
+#include <QMacCocoaViewContainer>
+
+Q_FORWARD_DECLARE_OBJC_CLASS(DOMNode);
+Q_FORWARD_DECLARE_OBJC_CLASS(DOMRange);
+Q_FORWARD_DECLARE_OBJC_CLASS(NSString);
+Q_FORWARD_DECLARE_OBJC_CLASS(WebView);
 
 namespace Help {
 namespace Internal {
 
-class TextBrowserHelpWidget;
+class MacWebKitHelpViewer;
+class MacWebKitHelpWidgetPrivate;
 
-class TextBrowserHelpViewer : public HelpViewer
+class MacResponderHack : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit TextBrowserHelpViewer(qreal zoom, QWidget *parent = 0);
-    ~TextBrowserHelpViewer();
+    MacResponderHack(QObject *parent);
+
+private slots:
+    void responderHack(QWidget *old, QWidget *now);
+};
+
+class MacWebKitHelpWidget : public QMacCocoaViewContainer
+{
+    Q_OBJECT
+
+public:
+    MacWebKitHelpWidget(MacWebKitHelpViewer *parent);
+    ~MacWebKitHelpWidget();
+
+    void setOpenInNewWindowActionVisible(bool visible);
+
+    WebView *webView() const;
+
+protected:
+    void hideEvent(QHideEvent *);
+    void showEvent(QShowEvent *);
+
+private:
+    MacWebKitHelpWidgetPrivate *d;
+};
+
+class MacWebKitHelpViewer : public HelpViewer
+{
+    Q_OBJECT
+
+public:
+    explicit MacWebKitHelpViewer(qreal zoom, QWidget *parent = 0);
+    ~MacWebKitHelpViewer();
 
     QFont viewerFont() const;
     void setViewerFont(const QFont &font);
 
     void scaleUp();
     void scaleDown();
-
     void resetScale();
+
     qreal scale() const;
 
     QString title() const;
@@ -63,6 +98,7 @@ public:
     QUrl source() const;
     void setSource(const QUrl &url);
     void scrollToAnchor(const QString &anchor);
+    void highlightId(const QString &id) { Q_UNUSED(id) }
 
     void setHtml(const QString &html);
 
@@ -74,7 +110,9 @@ public:
     void setOpenInNewWindowActionVisible(bool visible);
 
     bool findText(const QString &text, Core::FindFlags flags,
-                  bool incremental, bool fromSearch, bool *wrapped = 0);
+        bool incremental, bool fromSearch, bool *wrapped = 0);
+
+    MacWebKitHelpWidget *widget() const { return m_widget; }
 
 public slots:
     void copy();
@@ -83,49 +121,20 @@ public slots:
     void backward();
     void print(QPrinter *printer);
 
+public slots:
+    void slotLoadStarted();
+    void slotLoadFinished();
+
 private slots:
     void goToHistoryItem();
 
 private:
-    QVariant loadResource(int type, const QUrl &name);
-
-    TextBrowserHelpWidget *m_textBrowser;
-};
-
-class TextBrowserHelpWidget : public QTextBrowser
-{
-    Q_OBJECT
-
-public:
-    TextBrowserHelpWidget(int zoom, TextBrowserHelpViewer *parent);
-
-    QVariant loadResource(int type, const QUrl &name);
-
-    bool hasAnchorAt(const QPoint& pos);
-    void openLink(bool newPage);
-    void scaleUp();
-    void scaleDown();
-
-public slots:
-    void openLink();
-    void openLinkInNewPage();
-
-protected:
-    void contextMenuEvent(QContextMenuEvent *event);
-    bool eventFilter(QObject *obj, QEvent *event);
-    void wheelEvent(QWheelEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-
-public:
-    int zoomCount;
-    bool forceFont;
-    QString lastAnchor;
-    bool showOpenInNewWindowAction;
-    TextBrowserHelpViewer *m_parent;
+    DOMRange *findText(NSString *text, bool forward, bool caseSensitive, DOMNode *startNode,
+                       int startOffset);
+    MacWebKitHelpWidget *m_widget;
 };
 
 }   // namespace Internal
 }   // namespace Help
 
-#endif // TEXTBROWSERHELPVIEWER_H
+#endif // MACWEBKITHELPVIEWER_H

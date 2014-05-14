@@ -29,7 +29,8 @@
 
 #include "localhelpmanager.h"
 
-#include <bookmarkmanager.h>
+#include "bookmarkmanager.h"
+#include "helpconstants.h"
 
 #include <app/app_version.h>
 #include <coreplugin/helpmanager.h>
@@ -39,6 +40,8 @@
 #include <QHelpEngine>
 
 using namespace Help::Internal;
+
+static LocalHelpManager *m_instance = 0;
 
 QMutex LocalHelpManager::m_guiMutex;
 QHelpEngine* LocalHelpManager::m_guiEngine = 0;
@@ -51,6 +54,7 @@ LocalHelpManager::LocalHelpManager(QObject *parent)
     , m_guiNeedsSetup(true)
     , m_needsCollectionFile(true)
 {
+    m_instance = this;
 }
 
 LocalHelpManager::~LocalHelpManager()
@@ -63,6 +67,11 @@ LocalHelpManager::~LocalHelpManager()
 
     delete m_guiEngine;
     m_guiEngine = 0;
+}
+
+LocalHelpManager *LocalHelpManager::instance()
+{
+    return m_instance;
 }
 
 void LocalHelpManager::setupGuiHelpEngine()
@@ -109,4 +118,17 @@ BookmarkManager& LocalHelpManager::bookmarkManager()
         }
     }
     return *m_bookmarkManager;
+}
+
+QVariant LocalHelpManager::engineFontSettings()
+{
+    return helpEngine().customValue(Constants::FontKey, QVariant());
+}
+
+QByteArray LocalHelpManager::helpData(const QUrl &url)
+{
+    const QHelpEngineCore &engine = helpEngine();
+
+    return engine.findFile(url).isValid() ? engine.fileData(url)
+            : tr("Could not load \"%1\".").arg(url.toString()).toUtf8();
 }

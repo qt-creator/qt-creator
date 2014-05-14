@@ -48,6 +48,10 @@
 #include "searchtaskhandler.h"
 #include "textbrowserhelpviewer.h"
 
+#ifdef QTC_MAC_NATIVE_HELPVIEWER
+#include "macwebkithelpviewer.h"
+#endif
+
 #include <bookmarkmanager.h>
 #include <contentwindow.h>
 #include <indexwindow.h>
@@ -638,14 +642,27 @@ void HelpPlugin::resetRightPaneScale()
 
 HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
 {
-#ifndef QT_NO_WEBKIT
-    if (qgetenv("QTC_FORCE_TEXTBROWSER").isEmpty())
-        return new QtWebKitHelpViewer(zoom);
-    else
-        return new TextBrowserHelpViewer(zoom);
-#else
-    return new TextBrowserHelpViewer(zoom);
+    HelpViewer *viewer = 0;
+    const QString backend = QLatin1String(qgetenv("QTC_HELPVIEWER_BACKEND"));
+    if (backend.compare(QLatin1String("native"), Qt::CaseInsensitive) == 0) {
+#ifdef QTC_MAC_NATIVE_HELPVIEWER
+        viewer = new MacWebKitHelpViewer(zoom);
 #endif
+    } else if (backend.compare(QLatin1String("textbrowser"), Qt::CaseInsensitive) == 0) {
+        viewer = new TextBrowserHelpViewer(zoom);
+    } else {
+#ifndef QT_NO_WEBKIT
+        viewer = new QtWebKitHelpViewer(zoom);
+#else
+        viewer = new TextBrowserHelpViewer(zoom);
+#endif
+    }
+
+    // initialize font
+    QVariant fontSetting = LocalHelpManager::engineFontSettings();
+    if (fontSetting.isValid())
+        viewer->setViewerFont(fontSetting.value<QFont>());
+    return viewer;
 }
 
 void HelpPlugin::activateHelpMode()
@@ -729,11 +746,11 @@ void HelpPlugin::fontChanged()
     if (!m_helpViewerForSideBar)
         createRightPaneContextViewer();
 
-    const QHelpEngine &engine = LocalHelpManager::helpEngine();
-    QFont font = qvariant_cast<QFont>(engine.customValue(QLatin1String("font"),
-        m_helpViewerForSideBar->viewerFont()));
+    QVariant fontSetting = LocalHelpManager::engineFontSettings();
+    QFont font = fontSetting.isValid() ? fontSetting.value<QFont>()
+                                       : m_helpViewerForSideBar->viewerFont();
 
-    m_helpViewerForSideBar->setFont(font);
+    m_helpViewerForSideBar->setViewerFont(font);
     const int count = OpenPagesManager::instance().pageCount();
     for (int i = 0; i < count; ++i) {
         if (HelpViewer *viewer = CentralWidget::instance()->viewerAt(i))

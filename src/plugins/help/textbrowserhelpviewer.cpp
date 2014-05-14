@@ -64,11 +64,6 @@ TextBrowserHelpViewer::TextBrowserHelpViewer(qreal zoom, QWidget *parent)
         p.color(QPalette::Active, QPalette::HighlightedText));
     setPalette(p);
 
-    // ???
-    QFont font = viewerFont();
-    font.setPointSize(int(font.pointSize() + zoom));
-    setViewerFont(font);
-
     connect(m_textBrowser, SIGNAL(sourceChanged(QUrl)), this, SIGNAL(titleChanged()));
     connect(m_textBrowser, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
     connect(m_textBrowser, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
@@ -80,18 +75,14 @@ TextBrowserHelpViewer::~TextBrowserHelpViewer()
 
 QFont TextBrowserHelpViewer::viewerFont() const
 {
-    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    return qvariant_cast<QFont>(engine.customValue(QLatin1String("font"),
-        qApp->font()));
+    return m_textBrowser->font();
 }
 
 void TextBrowserHelpViewer::setViewerFont(const QFont &newFont)
 {
-    if (font() != newFont) {
-        m_textBrowser->forceFont = true;
-        m_textBrowser->setFont(newFont);
-        m_textBrowser->forceFont = false;
-    }
+    m_textBrowser->forceFont = true;
+    m_textBrowser->setFont(newFont);
+    m_textBrowser->forceFont = false;
 }
 
 void TextBrowserHelpViewer::scaleUp()
@@ -122,11 +113,6 @@ qreal TextBrowserHelpViewer::scale() const
 QString TextBrowserHelpViewer::title() const
 {
     return m_textBrowser->documentTitle();
-}
-
-void TextBrowserHelpViewer::setTitle(const QString &title)
-{
-    m_textBrowser->setDocumentTitle(title);
 }
 
 QUrl TextBrowserHelpViewer::source() const

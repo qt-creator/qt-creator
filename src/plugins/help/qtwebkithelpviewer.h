@@ -59,7 +59,6 @@ public:
     qreal scale() const;
 
     QString title() const;
-    void setTitle(const QString &title);
 
     QUrl source() const;
     void setSource(const QUrl &url);
