@@ -62,7 +62,8 @@ public:
 
     virtual TextEditor::IAssistInterface *createAssistInterface(
             ProjectExplorer::Project *project, TextEditor::BaseTextEditor *editor,
-            QTextDocument *document, int position, TextEditor::AssistReason reason) const = 0;
+            QTextDocument *document, bool isObjCEnabled, int position,
+            TextEditor::AssistReason reason) const = 0;
 
     static int activationSequenceChar(const QChar &ch, const QChar &ch2,
                                       const QChar &ch3, unsigned *kind,

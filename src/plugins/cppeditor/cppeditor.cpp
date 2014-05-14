@@ -1621,7 +1621,8 @@ TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
         if (cap) {
             return cap->createAssistInterface(
                             ProjectExplorer::ProjectExplorerPlugin::currentProject(),
-                            editor(), document(), position(), reason);
+                            editor(), document(), cppEditorDocument()->isObjCEnabled(), position(),
+                            reason);
         }
     } else if (kind == TextEditor::QuickFix) {
         if (!semanticInfo().doc || isOutdated())

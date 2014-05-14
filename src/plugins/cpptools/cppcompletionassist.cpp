@@ -422,14 +422,15 @@ IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
 
 TextEditor::IAssistInterface *InternalCompletionAssistProvider::createAssistInterface(
         ProjectExplorer::Project *project, BaseTextEditor *editor, QTextDocument *document,
-        int position, TextEditor::AssistReason reason) const
+        bool isObjCEnabled, int position, TextEditor::AssistReason reason) const
 {
     Q_UNUSED(project);
     QTC_ASSERT(editor, return 0);
     QTC_ASSERT(document, return 0);
 
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-    return new CppTools::Internal::CppCompletionAssistInterface(editor, document, position, reason,
+    return new CppTools::Internal::CppCompletionAssistInterface(editor, document, isObjCEnabled,
+                                                                position, reason,
                                                                 modelManager->workingCopy());
 }
 
@@ -1409,10 +1410,14 @@ bool CppCompletionAssistProcessor::completeMember(const QList<CPlusPlus::LookupI
 
     ResolveExpression resolveExpression(context);
 
+    bool *replaceDotForArrow = 0;
+    if (!m_interface->isObjCEnabled())
+        replaceDotForArrow = &m_model->m_replaceDotForArrow;
+
     if (ClassOrNamespace *binding =
             resolveExpression.baseExpression(baseResults,
                                              m_model->m_completionOperator,
-                                             &m_model->m_replaceDotForArrow)) {
+                                             replaceDotForArrow)) {
         if (binding)
             completeClass(binding, /*static lookup = */ true);
 

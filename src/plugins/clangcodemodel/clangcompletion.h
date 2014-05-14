@@ -58,7 +58,8 @@ public:
     virtual TextEditor::IAssistProcessor *createProcessor() const;
     virtual TextEditor::IAssistInterface *createAssistInterface(
             ProjectExplorer::Project *project, TextEditor::BaseTextEditor *editor,
-            QTextDocument *document, int position, TextEditor::AssistReason reason) const;
+            QTextDocument *document, bool isObjCEnabled, int position,
+            TextEditor::AssistReason reason) const;
 
 private:
     ClangCodeModel::ClangCompleter::Ptr m_clangCompletionWrapper;

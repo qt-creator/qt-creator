@@ -94,13 +94,12 @@ class InternalCompletionAssistProvider : public CppCompletionAssistProvider
 public:
     TextEditor::IAssistProcessor *createProcessor() const QTC_OVERRIDE;
 
-    TextEditor::IAssistInterface *createAssistInterface(
-            ProjectExplorer::Project *project,
+    TextEditor::IAssistInterface *createAssistInterface(ProjectExplorer::Project *project,
             TextEditor::BaseTextEditor *editor,
             QTextDocument *document,
+            bool isObjCEnabled,
             int position,
             TextEditor::AssistReason reason) const QTC_OVERRIDE;
-
 };
 
 class CppCompletionAssistProcessor : public TextEditor::IAssistProcessor
@@ -175,12 +174,14 @@ class CppCompletionAssistInterface : public TextEditor::DefaultAssistInterface
 public:
     CppCompletionAssistInterface(TextEditor::BaseTextEditor *editor,
                                  QTextDocument *textDocument,
+                                 bool isObjCEnabled,
                                  int position,
                                  TextEditor::AssistReason reason,
                                  const CppModelManagerInterface::WorkingCopy &workingCopy)
         : TextEditor::DefaultAssistInterface(textDocument, position, editor->document()->filePath(),
                                              reason)
         , m_editor(editor)
+        , m_isObjCEnabled(isObjCEnabled)
         , m_gotCppSpecifics(false)
         , m_workingCopy(workingCopy)
     {}
@@ -194,11 +195,14 @@ public:
                                  const QStringList &frameworkPaths)
         : TextEditor::DefaultAssistInterface(textDocument, position, fileName, reason)
         , m_editor(0)
+        , m_isObjCEnabled(false)
         , m_gotCppSpecifics(true)
         , m_snapshot(snapshot)
         , m_includePaths(includePaths)
         , m_frameworkPaths(frameworkPaths)
     {}
+
+    bool isObjCEnabled() const { return m_isObjCEnabled; }
 
     const CPlusPlus::Snapshot &snapshot() const { getCppSpecifics(); return m_snapshot; }
     const QStringList &includePaths() const { getCppSpecifics(); return m_includePaths; }
@@ -208,6 +212,7 @@ private:
     void getCppSpecifics() const;
 
     TextEditor::BaseTextEditor *m_editor;
+    mutable bool m_isObjCEnabled;
     mutable bool m_gotCppSpecifics;
     CppModelManagerInterface::WorkingCopy m_workingCopy;
     mutable CPlusPlus::Snapshot m_snapshot;

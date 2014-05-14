@@ -201,9 +201,10 @@ IAssistProcessor *ClangCompletionAssistProvider::createProcessor() const
 
 IAssistInterface *ClangCompletionAssistProvider::createAssistInterface(
         ProjectExplorer::Project *project, TextEditor::BaseTextEditor *editor,
-        QTextDocument *document, int position, AssistReason reason) const
+        QTextDocument *document, bool isObjCEnabled, int position, AssistReason reason) const
 {
     Q_UNUSED(project);
+    Q_UNUSED(isObjCEnabled);
 
     QString fileName = editor->document()->filePath();
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
