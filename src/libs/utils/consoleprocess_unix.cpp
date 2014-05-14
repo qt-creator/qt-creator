@@ -162,6 +162,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
               << msgPromptToClose()
               << workingDirectory()
               << (d->m_tempFile ? d->m_tempFile->fileName() : QString())
+              << QString::number(getpid())
               << pcmd << pargs.toUnixArgs();
 
     QString xterm = allArgs.takeFirst();

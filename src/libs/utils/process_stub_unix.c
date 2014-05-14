@@ -47,6 +47,16 @@
 #include <errno.h>
 #include <assert.h>
 
+#ifdef __linux__
+#include <sys/prctl.h>
+
+// Enable compilation with older header that doesn't contain this constant
+// for running on newer libraries that do support it
+#ifndef PR_SET_PTRACER
+#define PR_SET_PTRACER 0x59616d61
+#endif
+#endif
+
 /* For OpenBSD */
 #ifndef EPROTO
 # define EPROTO EINVAL
@@ -90,6 +100,7 @@ enum {
     ArgMsg,
     ArgDir,
     ArgEnv,
+    ArgPid,
     ArgExe
 };
 
@@ -289,6 +300,7 @@ int main(int argc, char *argv[])
 
             /* Get a SIGTRAP after exec() has loaded the new program. */
 #ifdef __linux__
+            prctl(PR_SET_PTRACER, atoi(argv[ArgPid]));
             ptrace(PTRACE_TRACEME);
 #else
             ptrace(PT_TRACE_ME, 0, 0, 0);
