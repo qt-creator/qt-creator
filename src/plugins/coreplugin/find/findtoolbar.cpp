@@ -334,7 +334,7 @@ void FindToolBar::adaptToCandidate()
 void FindToolBar::updateFindAction()
 {
     bool enabled = m_currentDocumentFind->candidateIsEnabled();
-    m_findInDocumentAction->setEnabled(enabled);
+    m_findInDocumentAction->setEnabled((toolBarHasFocus() && isEnabled()) || enabled);
     m_findNextSelectedAction->setEnabled(enabled);
     m_findPreviousSelectedAction->setEnabled(enabled);
     if (QApplication::clipboard()->supportsFindBuffer())
@@ -631,6 +631,11 @@ Core::FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const
     return 0;
 }
 
+bool FindToolBar::toolBarHasFocus() const
+{
+    return qApp->focusWidget() == focusWidget();
+}
+
 void FindToolBar::openFind(bool focus)
 {
     setBackward(false);
@@ -640,24 +645,29 @@ void FindToolBar::openFind(bool focus)
 void FindToolBar::openFindToolBar(bool focus)
 {
     installEventFilters();
-    if (!m_currentDocumentFind->candidateIsEnabled())
-        return;
     Core::FindToolBarPlaceHolder *holder = findToolBarPlaceHolder();
     if (!holder)
         return;
     Core::FindToolBarPlaceHolder *previousHolder = Core::FindToolBarPlaceHolder::getCurrent();
-    if (previousHolder)
-        previousHolder->setWidget(0);
-    Core::FindToolBarPlaceHolder::setCurrent(holder);
+    if (previousHolder != holder) {
+        if (previousHolder)
+            previousHolder->setWidget(0);
+        holder->setWidget(this);
+        Core::FindToolBarPlaceHolder::setCurrent(holder);
+    }
     m_currentDocumentFind->acceptCandidate();
-    holder->setWidget(this);
     holder->setVisible(true);
     setVisible(true);
+    // We do not want to change the text when we currently have the focus and user presses the
+    // find shortcut
+    if (!focus || !toolBarHasFocus()) {
+        QString text = m_currentDocumentFind->currentFindString();
+        QWidget *w = qApp->focusWidget();
+        if (!text.isEmpty())
+            setFindText(text);
+    }
     if (focus)
         setFocus();
-    QString text = m_currentDocumentFind->currentFindString();
-    if (!text.isEmpty())
-        setFindText(text);
     m_currentDocumentFind->defineFindScope();
     m_currentDocumentFind->highlightAll(getFindText(), effectiveFindFlags());
     if (focus)

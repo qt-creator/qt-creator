@@ -131,6 +131,7 @@ private:
     bool hasFindFlag(FindFlag flag);
     FindFlags effectiveFindFlags();
     Core::FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
+    bool toolBarHasFocus() const;
 
     bool eventFilter(QObject *obj, QEvent *event);
     void setFindText(const QString &text);
