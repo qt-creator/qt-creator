@@ -224,6 +224,7 @@ private:
     void handleExpression(const CdbExtensionCommandPtr &);
     void handleResolveSymbol(const CdbBuiltinCommandPtr &command);
     void handleResolveSymbol(const QList<quint64> &addresses, const QVariant &cookie);
+    void handleBreakInsert(const CdbBuiltinCommandPtr &cmd);
     void handleCheckWow64(const CdbBuiltinCommandPtr &cmd);
     void ensureUsing32BitStackInWow64(const CdbBuiltinCommandPtr &cmd);
     void handleSwitchWow64Stack(const CdbBuiltinCommandPtr &cmd);
@@ -286,6 +287,8 @@ private:
     int m_watchPointX;
     int m_watchPointY;
     PendingBreakPointMap m_pendingBreakpointMap;
+    PendingBreakPointMap m_insertSubBreakpointMap;
+    PendingBreakPointMap m_pendingSubBreakpointMap;
     bool m_autoBreakPointCorrection;
     QHash<QString, QString> m_fileNameModuleHash;
     QMultiHash<QString, quint64> m_symbolAddressCache;

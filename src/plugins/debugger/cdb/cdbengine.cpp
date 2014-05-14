@@ -384,6 +384,8 @@ void CdbEngine::init()
     m_extensionCommandQueue.clear();
     m_extensionMessageBuffer.clear();
     m_pendingBreakpointMap.clear();
+    m_insertSubBreakpointMap.clear();
+    m_pendingSubBreakpointMap.clear();
     m_customSpecialStopData.clear();
     m_symbolAddressCache.clear();
     m_coreStopReason.reset();
@@ -780,8 +782,9 @@ void CdbEngine::setupInferior()
     attemptBreakpointSynchronization();
     if (sp.breakOnMain) {
         const BreakpointParameters bp(BreakpointAtMain);
-        postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings,
-                                            BreakpointModelId(quint16(-1)), true), 0);
+        postBuiltinCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings,
+                                            BreakpointModelId(quint16(-1)), true), 0,
+                           &CdbEngine::handleBreakInsert);
     }
     postCommand("sxn 0x4000001f", 0); // Do not break on WowX86 exceptions.
     postCommand("sxn ibp", 0); // Do not break on initial breakpoints.
@@ -838,18 +841,26 @@ void CdbEngine::runEngine()
         const QByteArray module = msvcRunTime(startParameters().toolChainAbi.osFlavor());
         const QByteArray debugModule = module + 'D';
         const QByteArray wideFunc = QByteArray(CdbOptionsPage::crtDbgReport).append('W');
-        postCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, module), 0);
-        postCommand(breakAtFunctionCommand(wideFunc, module), 0);
-        postCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, debugModule), 0);
-        postCommand(breakAtFunctionCommand(wideFunc, debugModule), 0);
+        postBuiltinCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, module), 0,
+                           &CdbEngine::handleBreakInsert);
+        postBuiltinCommand(breakAtFunctionCommand(wideFunc, module), 0,
+                           &CdbEngine::handleBreakInsert);
+        postBuiltinCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, debugModule), 0,
+                           &CdbEngine::handleBreakInsert);
+        postBuiltinCommand(breakAtFunctionCommand(wideFunc, debugModule), 0,
+                           &CdbEngine::handleBreakInsert);
     }
     if (debuggerCore()->boolSetting(BreakOnWarning)) {
-        postCommand("bm /( QtCored4!qWarning", 0); // 'bm': All overloads.
-        postCommand("bm /( Qt5Cored!QMessageLogger::warning", 0);
+        postBuiltinCommand("bm /( QtCored4!qWarning", 0,
+                           &CdbEngine::handleBreakInsert); // 'bm': All overloads.
+        postBuiltinCommand("bm /( Qt5Cored!QMessageLogger::warning", 0,
+                           &CdbEngine::handleBreakInsert);
     }
     if (debuggerCore()->boolSetting(BreakOnFatal)) {
-        postCommand("bm /( QtCored4!qFatal", 0); // 'bm': All overloads.
-        postCommand("bm /( Qt5Cored!QMessageLogger::fatal", 0);
+        postBuiltinCommand("bm /( QtCored4!qFatal", 0,
+                           &CdbEngine::handleBreakInsert); // 'bm': All overloads.
+        postBuiltinCommand("bm /( Qt5Cored!QMessageLogger::fatal", 0,
+                           &CdbEngine::handleBreakInsert);
     }
     if (startParameters().startMode == AttachCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
@@ -1218,7 +1229,8 @@ void CdbEngine::executeRunToLine(const ContextData &data)
         bp.fileName = data.fileName;
         bp.lineNumber = data.lineNumber;
     }
-    postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(), true), 0);
+    postBuiltinCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(), true),
+                       0, &CdbEngine::handleBreakInsert);
     continueInferior();
 }
 
@@ -1228,7 +1240,8 @@ void CdbEngine::executeRunToFunction(const QString &functionName)
     BreakpointParameters bp(BreakpointByFunction);
     bp.functionName = functionName;
 
-    postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(), true), 0);
+    postBuiltinCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(), true),
+                       0, &CdbEngine::handleBreakInsert);
     continueInferior();
 }
 
@@ -2272,7 +2285,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
             showMessage(QString::fromLatin1(stopReason["threaderror"].data()), LogError);
         }
         // Fire off remaining commands asynchronously
-        if (!m_pendingBreakpointMap.isEmpty())
+        if (!m_pendingBreakpointMap.isEmpty() && !m_pendingSubBreakpointMap.isEmpty())
             postCommandSequence(CommandListBreakPoints);
         if (debuggerCore()->isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
             postCommandSequence(CommandListRegisters);
@@ -2283,6 +2296,69 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
     // pop up a message box for exceptions.
     if (stopFlags & StopShowExceptionMessageBox)
         showStoppedByExceptionMessageBox(exceptionBoxMessage);
+}
+
+void CdbEngine::handleBreakInsert(const CdbBuiltinCommandPtr &cmd)
+{
+    const QList<QByteArray> &reply = cmd->reply;
+    if (reply.isEmpty())
+        return;
+    foreach (const QByteArray &line, reply)
+        showMessage(QString::fromLocal8Bit(line));
+    if (!reply.last().startsWith("Ambiguous symbol error") &&
+            (reply.length() < 2 || !reply.at(reply.length() - 2).startsWith("Ambiguous symbol error"))) {
+        return;
+    }
+    // *** WARNING: Unable to verify checksum for C:\dev\builds\qt5\qtbase\lib\Qt5Cored.dll
+    // *** WARNING: Unable to verify checksum for untitled2.exe", "Matched: untitled2!main+0xc (000007f6`a103241c)
+    // Matched: untitled123!main+0x1b6 (000007f6`be2f25c6)
+    // Matched: untitled123!<lambda_4956dbaf7bce78acbc6759af75f3884a>::operator() (000007f6`be2f26b0)
+    // Matched: untitled123!<lambda_4956dbaf7bce78acbc6759af75f3884a>::<helper_func_cdecl> (000007f6`be2f2730)
+    // Matched: untitled123!<lambda_4956dbaf7bce78acbc6759af75f3884a>::operator QString (__cdecl*)(void) (000007f6`be2f27b0)
+    // Matched: untitled123!<lambda_4956dbaf7bce78acbc6759af75f3884a>::<helper_func_vectorcall> (000007f6`be2f27d0)
+    // Matched: untitled123!<lambda_4956dbaf7bce78acbc6759af75f3884a>::operator QString (__vectorcall*)(void) (000007f6`be2f2850)
+    // Ambiguous symbol error at '`untitled2!C:\dev\src\tmp\untitled2\main.cpp:18`'
+    //               ^ Extra character error in 'bu1004 `untitled2!C:\dev\src\tmp\untitled2\main.cpp:18`'
+
+    // extract break point model id from command
+    QRegExp numberRegEx(QLatin1String("\\d"));
+    const int numberStart = numberRegEx.indexIn(QLatin1String(cmd->command));
+    if (numberStart == -1)
+        return;
+    const int numberEnd = cmd->command.indexOf(' ', numberStart);
+    bool ok = true;
+    const int cdbBreakPointId = cmd->command.mid(numberStart, numberEnd - numberStart).toInt(&ok);
+    if (!ok)
+        return;
+    const BreakpointModelId &originalId = cdbIdToBreakpointModelId(cdbBreakPointId);
+    // add break point for every match
+    const QList<QByteArray>::const_iterator &end = reply.cend();
+    int subBreakPointID = 0;
+    for (QList<QByteArray>::const_iterator line = reply.cbegin(); line != end; ++line) {
+        if (!line->startsWith("Matched: "))
+            continue;
+        const int addressStartPos = line->lastIndexOf('(') + 1;
+        const int addressEndPos = line->indexOf(')', addressStartPos);
+        if (addressStartPos == 0 || addressEndPos == -1)
+            continue;
+
+        QByteArray addressString = line->mid(addressStartPos, addressEndPos - addressStartPos);
+        addressString.replace("`", "");
+        bool ok = true;
+        quint64 address = addressString.toULongLong(&ok, 16);
+        if (!ok)
+            continue;
+
+        BreakpointModelId id(originalId.majorPart(), ++subBreakPointID);
+        BreakpointResponse res = breakHandler()->response(originalId);
+        res.type = BreakpointByAddress;
+        res.address = address;
+        m_insertSubBreakpointMap.insert(id, res);
+    }
+    if (subBreakPointID == 0)
+        return;
+
+    attemptBreakpointSynchronization();
 }
 
 void CdbEngine::handleCheckWow64(const CdbBuiltinCommandPtr &cmd)
@@ -2781,25 +2857,27 @@ void CdbEngine::attemptBreakpointSynchronization()
             handler->setEngine(id, this);
 
     // Quick check: is there a need to change something? - Populate module cache
-    bool changed = false;
+    bool changed = !m_insertSubBreakpointMap.isEmpty();
     const BreakpointModelIds ids = handler->engineBreakpointIds(this);
-    foreach (BreakpointModelId id, ids) {
-        switch (handler->state(id)) {
-        case BreakpointInsertRequested:
-        case BreakpointRemoveRequested:
-        case BreakpointChangeRequested:
-            changed = true;
-            break;
-        case BreakpointInserted: {
-            // Collect the new modules matching the files.
-            // In the future, that information should be obtained from the build system.
-            const BreakpointParameters &data = handler->breakpointData(id);
-            if (data.type == BreakpointByFileAndLine && !data.module.isEmpty())
-                m_fileNameModuleHash.insert(data.fileName, data.module);
-        }
-        break;
-        default:
-            break;
+    if (!changed) {
+        foreach (BreakpointModelId id, ids) {
+            switch (handler->state(id)) {
+            case BreakpointInsertRequested:
+            case BreakpointRemoveRequested:
+            case BreakpointChangeRequested:
+                changed = true;
+                break;
+            case BreakpointInserted: {
+                // Collect the new modules matching the files.
+                // In the future, that information should be obtained from the build system.
+                const BreakpointParameters &data = handler->breakpointData(id);
+                if (data.type == BreakpointByFileAndLine && !data.module.isEmpty())
+                    m_fileNameModuleHash.insert(data.fileName, data.module);
+            }
+                break;
+            default:
+                break;
+            }
         }
     }
 
@@ -2840,9 +2918,13 @@ void CdbEngine::attemptBreakpointSynchronization()
                     lineCorrection.reset(new BreakpointCorrectionContext(debuggerCore()->cppCodeModelSnapshot(),
                                                                          CppTools::CppModelManagerInterface::instance()->workingCopy()));
                 response.lineNumber = lineCorrection->fixLineNumber(parameters.fileName, parameters.lineNumber);
-                postCommand(cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false), 0);
+                postBuiltinCommand(
+                            cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false), 0,
+                            &CdbEngine::handleBreakInsert);
             } else {
-                postCommand(cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0);
+                postBuiltinCommand(
+                            cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0,
+                            &CdbEngine::handleBreakInsert);
             }
             if (!parameters.enabled)
                 postCommand("bd " + QByteArray::number(breakPointIdToCdbId(id)), 0);
@@ -2872,14 +2954,16 @@ void CdbEngine::attemptBreakpointSynchronization()
             } else {
                 // Delete and re-add, triggering update
                 addedChanged = true;
-                postCommand("bc " + QByteArray::number(breakPointIdToCdbId(id)), 0);
-                postCommand(cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0);
+                postCommand(cdbClearBreakpointCommand(id), 0);
+                postBuiltinCommand(
+                            cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0,
+                            &CdbEngine::handleBreakInsert);
                 m_pendingBreakpointMap.insert(id, response);
             }
             handler->notifyBreakpointChangeOk(id);
             break;
         case BreakpointRemoveRequested:
-            postCommand("bc " + QByteArray::number(breakPointIdToCdbId(id)), 0);
+            postCommand(cdbClearBreakpointCommand(id), 0);
             handler->notifyBreakpointRemoveProceeding(id);
             handler->notifyBreakpointRemoveOk(id);
             m_pendingBreakpointMap.remove(id);
@@ -2887,6 +2971,13 @@ void CdbEngine::attemptBreakpointSynchronization()
         default:
             break;
         }
+    }
+    foreach (BreakpointModelId id, m_insertSubBreakpointMap.keys()) {
+        addedChanged = true;
+        const BreakpointResponse &response = m_insertSubBreakpointMap.value(id);
+        postCommand(cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false), 0);
+        m_insertSubBreakpointMap.remove(id);
+        m_pendingSubBreakpointMap.insert(id, response);
     }
     // List breakpoints and send responses
     if (addedChanged)
@@ -3222,9 +3313,14 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
                 continue; // Breakpoints from options, CrtDbgReport() and others.
             QTC_ASSERT(mid.isValid(), continue);
             const PendingBreakPointMap::iterator it = m_pendingBreakpointMap.find(mid);
-            if (it != m_pendingBreakpointMap.end()) {
+            const PendingBreakPointMap::iterator subIt = m_pendingSubBreakpointMap.find(
+                        BreakpointModelId(reportedResponse.id.majorPart(),
+                                          reportedResponse.id.minorPart()));
+            if (it != m_pendingBreakpointMap.end() || subIt != m_pendingSubBreakpointMap.end()) {
                 // Complete the response and set on handler.
-                BreakpointResponse &currentResponse = it.value();
+                BreakpointResponse currentResponse = it != m_pendingBreakpointMap.end()
+                        ? it.value()
+                        : subIt.value();
                 currentResponse.id = reportedResponse.id;
                 currentResponse.address = reportedResponse.address;
                 currentResponse.module = reportedResponse.module;
@@ -3235,9 +3331,15 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
                 formatCdbBreakPointResponse(mid, currentResponse, str);
                 if (debugBreakpoints)
                     qDebug("  Setting for %d: %s\n", currentResponse.id.majorPart(),
-                        qPrintable(currentResponse.toString()));
-                handler->setResponse(mid, currentResponse);
-                m_pendingBreakpointMap.erase(it);
+                           qPrintable(currentResponse.toString()));
+                if (it != m_pendingBreakpointMap.end()) {
+                    handler->setResponse(mid, currentResponse);
+                    m_pendingBreakpointMap.erase(it);
+                }
+                if (subIt != m_pendingSubBreakpointMap.end()) {
+                    handler->insertSubBreakpoint(mid, currentResponse);
+                    m_pendingSubBreakpointMap.erase(subIt);
+                }
             }
         } // not pending reported
     } // foreach

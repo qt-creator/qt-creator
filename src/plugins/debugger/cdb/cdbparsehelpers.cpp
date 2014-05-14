@@ -132,7 +132,7 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
 
 int breakPointIdToCdbId(const BreakpointModelId &id)
 {
-    return cdbBreakPointStartId +  id.majorPart();
+    return cdbBreakPointStartId + id.majorPart() * cdbBreakPointIdMinorPart + id.minorPart();
 }
 
 template <class ModelId>
@@ -141,8 +141,22 @@ inline ModelId cdbIdToBreakpointId(const GdbMi &data)
     if (data.isValid()) { // Might not be valid if there is not id
         bool ok;
         const int id = data.data().toInt(&ok);
-        if (ok && id >= cdbBreakPointStartId)
-            return ModelId(id - cdbBreakPointStartId);
+        if (ok)
+            return cdbIdToBreakpointId<ModelId>(id);
+    }
+    return ModelId();
+}
+
+template <class ModelId>
+inline ModelId cdbIdToBreakpointId(const int &id)
+{
+    if (id >= cdbBreakPointStartId) {
+        int major = (id - cdbBreakPointStartId) / cdbBreakPointIdMinorPart;
+        int minor = id % cdbBreakPointIdMinorPart;
+        if (minor)
+            return ModelId(major, minor);
+        else
+            return ModelId(major);
     }
     return ModelId();
 }
@@ -152,7 +166,17 @@ BreakpointModelId cdbIdToBreakpointModelId(const GdbMi &id)
     return cdbIdToBreakpointId<BreakpointModelId>(id);
 }
 
+BreakpointModelId cdbIdToBreakpointModelId(int id)
+{
+    return cdbIdToBreakpointId<BreakpointModelId>(id);
+}
+
 BreakpointResponseId cdbIdToBreakpointResponseId(const GdbMi &id)
+{
+    return cdbIdToBreakpointId<BreakpointResponseId>(id);
+}
+
+BreakpointResponseId cdbIdToBreakpointResponseId(int id)
 {
     return cdbIdToBreakpointId<BreakpointResponseId>(id);
 }
@@ -218,6 +242,16 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     if (!bp.command.isEmpty())
         str << " \"" << bp.command << '"';
     return rc;
+}
+
+QByteArray cdbClearBreakpointCommand(const BreakpointModelId &id)
+{
+    const int firstBreakPoint = breakPointIdToCdbId(id);
+    if (id.isMinor())
+        return "bc " + QByteArray::number(firstBreakPoint);
+    // If this is a major break point we also want to delete all sub break points
+    const int lastBreakPoint = firstBreakPoint + cdbBreakPointIdMinorPart - 1;
+    return "bc " + QByteArray::number(firstBreakPoint) + '-' + QByteArray::number(lastBreakPoint);
 }
 
 // Fix a CDB integer value: '00000000`0012a290' -> '12a290', '0n10' ->'10'

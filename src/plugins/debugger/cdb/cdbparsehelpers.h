@@ -56,16 +56,20 @@ QString cdbSourcePathMapping(QString fileName,
                              SourcePathMode mode);
 
 // Ensure unique 'namespace' for breakpoints of the breakhandler.
-enum { cdbBreakPointStartId = 1000 };
+enum { cdbBreakPointStartId = 100000,
+       cdbBreakPointIdMinorPart = 100};
 
 int breakPointIdToCdbId(const BreakpointModelId &id);
 BreakpointModelId cdbIdToBreakpointModelId(const GdbMi &id);
+BreakpointModelId cdbIdToBreakpointModelId(int id);
 BreakpointResponseId cdbIdToBreakpointResponseId(const GdbMi &id);
+BreakpointResponseId cdbIdToBreakpointResponseId(int id);
 
 // Convert breakpoint in CDB syntax (applying source path mappings using native paths).
 QByteArray cdbAddBreakpointCommand(const BreakpointParameters &d,
                                    const QList<QPair<QString, QString> > &sourcePathMapping,
                                    BreakpointModelId id = BreakpointModelId(quint16(-1)), bool oneshot = false);
+QByteArray cdbClearBreakpointCommand(const BreakpointModelId &id);
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
