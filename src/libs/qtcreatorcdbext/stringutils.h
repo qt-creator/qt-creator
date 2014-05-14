@@ -134,6 +134,7 @@ bool integerFromWString(const std::wstring &s, Integer *v)
 }
 
 void replace(std::wstring &s, wchar_t before, wchar_t after);
+void replace(std::string &s, char before, char after);
 
 // Stream  a string onto a char stream doing backslash & octal escaping
 // suitable for GDBMI usable as 'str << gdbmiStringFormat(wstring)'

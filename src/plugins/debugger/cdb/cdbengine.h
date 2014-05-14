@@ -286,6 +286,7 @@ private:
     int m_watchPointX;
     int m_watchPointY;
     PendingBreakPointMap m_pendingBreakpointMap;
+    bool m_autoBreakPointCorrection;
     QHash<QString, QString> m_fileNameModuleHash;
     QMultiHash<QString, quint64> m_symbolAddressCache;
     QHash<QByteArray, QString> m_watchInameToName;

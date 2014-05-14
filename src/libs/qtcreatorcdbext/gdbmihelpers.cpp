@@ -742,6 +742,14 @@ static bool gdbmiFormatBreakpoint(std::ostream &str,
                 const std::string module = moduleNameByOffset(symbols, memoryRange.first);
                 if (!module.empty())
                     str << ",module=\"" << module << '"';
+                ULONG lineNumber = 0;
+                std::string srcFile = sourceFileNameByOffset(symbols, memoryRange.first, &lineNumber);
+                if (!srcFile.empty()) {
+                    // replace all backslashes with slashes
+                    replace(srcFile, '\\', '/');
+                    str << ",srcfile=\"" << srcFile << '"';
+                    str << ",srcline=\"" << lineNumber << '"';
+                }
             } // symbols
             // Report the memory of watchpoints for comparing bitfields
             if (dataSpaces && memoryRange.second > 0) {
@@ -755,7 +763,7 @@ static bool gdbmiFormatBreakpoint(std::ostream &str,
     // Expression
     if (verbose > 1) {
         char buf[BufSize];
-        if (SUCCEEDED(bp->GetOffsetExpression(buf, BUFSIZ, 0)))
+        if (SUCCEEDED(bp->GetOffsetExpression(buf, BufSize, 0)))
             str << ",expression=\"" << gdbmiStringFormat(buf) << '"';
     }
     return true;

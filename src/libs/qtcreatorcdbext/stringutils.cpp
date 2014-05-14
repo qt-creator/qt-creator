@@ -102,6 +102,14 @@ void replace(std::wstring &s, wchar_t before, wchar_t after)
             s[i] = after;
 }
 
+void replace(std::string &s, char before, char after)
+{
+    const std::string::size_type size = s.size();
+    for (std::string::size_type i = 0; i < size; ++i)
+        if (s.at(i) == before)
+            s[i] = after;
+}
+
 bool endsWith(const std::string &haystack, const char *needle)
 {
     const size_t needleLen = strlen(needle);

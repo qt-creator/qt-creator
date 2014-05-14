@@ -136,3 +136,14 @@ std::string moduleNameByOffset(CIDebugSymbols *symbols, ULONG64 offset)
         return std::string();
     return std::string(buf);
 }
+
+std::string sourceFileNameByOffset(CIDebugSymbols *symbols, ULONG64 offset, PULONG lineNumber)
+{
+    enum { BufSize = 512 };
+    char buf[BufSize];
+    buf[0] = '\0';
+    HRESULT hr = symbols->GetLineByOffset(offset, lineNumber, buf, BufSize, NULL, NULL);
+    if (FAILED(hr))
+        return std::string();
+    return std::string(buf);
+}

@@ -375,6 +375,7 @@ void CdbEngine::init()
     m_sourceStepInto = false;
     m_watchPointX = m_watchPointY = 0;
     m_ignoreCdbOutput = false;
+    m_autoBreakPointCorrection = false;
     m_watchInameToName.clear();
     m_wow64State = wow64Uninitialized;
 
@@ -733,6 +734,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     showMessage(msg, LogMisc);
 
     m_outputBuffer.clear();
+    m_autoBreakPointCorrection = false;
     const QStringList environment = sp.environment.size() == 0 ?
                                     QProcessEnvironment::systemEnvironment().toStringList() :
                                     sp.environment.toStringList();
@@ -2609,7 +2611,24 @@ void CdbEngine::parseOutputLine(QByteArray line)
             qDebug("### Gathering output for '%s' token %d", currentCommand->command.constData(), currentCommand->token);
         return;
     }
-
+    const char versionString[] = "Microsoft (R) Windows Debugger Version";
+    if (line.startsWith(versionString)) {
+        QRegExp versionRegEx(QLatin1String("(\\d+)\\.(\\d+)\\.\\d+\\.\\d+"));
+        if (versionRegEx.indexIn(QLatin1String(line)) > -1) {
+            bool ok = true;
+            int major = versionRegEx.cap(1).toInt(&ok);
+            int minor = versionRegEx.cap(2).toInt(&ok);
+            if (ok) {
+                // for some incomprehensible reasons Microsoft cdb version 6.2 is newer than 6.12
+                m_autoBreakPointCorrection = major > 6 || (major == 6 && minor >= 2 && minor < 10);
+                showMessage(QString::fromLocal8Bit(line), LogMisc);
+                showMessage(QString::fromLatin1("Using ")
+                            + m_autoBreakPointCorrection ? QLatin1String("CDB ")
+                                                         : QLatin1String("codemodel ")
+                            + QString::fromLatin1("based breakpoint correction."), LogMisc);
+            }
+        }
+    }
     showMessage(QString::fromLocal8Bit(line), LogMisc);
 }
 
@@ -2814,8 +2833,9 @@ void CdbEngine::attemptBreakpointSynchronization()
         }
         switch (handler->state(id)) {
         case BreakpointInsertRequested:
-            if (parameters.type == BreakpointByFileAndLine
-                && debuggerCore()->boolSetting(CdbBreakPointCorrection)) {
+            if (!m_autoBreakPointCorrection
+                    && parameters.type == BreakpointByFileAndLine
+                    && debuggerCore()->boolSetting(CdbBreakPointCorrection)) {
                 if (lineCorrection.isNull())
                     lineCorrection.reset(new BreakpointCorrectionContext(debuggerCore()->cppCodeModelSnapshot(),
                                                                          CppTools::CppModelManagerInterface::instance()->workingCopy()));
@@ -3210,6 +3230,8 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
                 currentResponse.module = reportedResponse.module;
                 currentResponse.pending = reportedResponse.pending;
                 currentResponse.enabled = reportedResponse.enabled;
+                currentResponse.fileName = reportedResponse.fileName;
+                currentResponse.lineNumber = reportedResponse.lineNumber;
                 formatCdbBreakPointResponse(mid, currentResponse, str);
                 if (debugBreakpoints)
                     qDebug("  Setting for %d: %s\n", currentResponse.id.majorPart(),

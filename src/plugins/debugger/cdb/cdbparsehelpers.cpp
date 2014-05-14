@@ -300,6 +300,13 @@ void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     const GdbMi moduleG = gdbmi["module"];
     if (moduleG.isValid())
         r->module = QString::fromLocal8Bit(moduleG.data());
+    const GdbMi sourceFileName = gdbmi["srcfile"];
+    if (sourceFileName.isValid()) {
+        r->fileName = QString::fromLocal8Bit(sourceFileName.data());
+        const GdbMi lineNumber = gdbmi["srcline"];
+        if (lineNumber.isValid())
+            r->lineNumber = lineNumber.data().toULongLong(0, 0);
+    }
     if (expression) {
         const GdbMi expressionG = gdbmi["expression"];
         if (expressionG.isValid())
