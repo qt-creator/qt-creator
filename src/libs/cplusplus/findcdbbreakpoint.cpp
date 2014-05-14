@@ -128,8 +128,11 @@ bool FindCdbBreakpoint::visit(DoStatementAST *ast)
 
 bool FindCdbBreakpoint::visit(ExpressionStatementAST *ast)
 {
-    if (ast->expression)
-        foundLine(ast->semicolon_token);
+    if (ast->expression) {
+        accept(ast->expression);
+        if (m_breakpointLine == NO_LINE_FOUND)
+            foundLine(ast->semicolon_token);
+    }
     return false;
 }
 
