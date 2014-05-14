@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
 
     if (*argv[ArgEnv]) {
         FILE *envFd;
-        char *envdata, *edp;
+        char *envdata, *edp, *termEnv;
         long size;
         int count;
         if (!(envFd = fopen(argv[ArgEnv], "r"))) {
@@ -225,11 +225,13 @@ int main(int argc, char *argv[])
         fclose(envFd);
         for (count = 0, edp = envdata; edp < envdata + size; ++count)
             edp += strlen(edp) + 1;
-        env = malloc((count + 1) * sizeof(char *));
+        env = malloc((count + 2) * sizeof(char *));
         for (count = 0, edp = envdata; edp < envdata + size; ++count) {
             env[count] = edp;
             edp += strlen(edp) + 1;
         }
+        if ((termEnv = getenv("TERM")))
+            env[count++] = termEnv - 5;
         env[count] = 0;
     }
 

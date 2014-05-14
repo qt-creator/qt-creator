@@ -124,6 +124,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         return false;
     }
 
+    d->m_environment.unset(QLatin1String("TERM"));
     QStringList env = d->m_environment.toStringList();
     if (!env.isEmpty()) {
         d->m_tempFile = new QTemporaryFile();
