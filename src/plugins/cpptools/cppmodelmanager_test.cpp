@@ -269,7 +269,7 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     QCoreApplication::processEvents();
 
     QVERIFY(mm->snapshot().contains(source));
-    Document::Ptr doc = mm->snapshot().document(source);
+    Document::Ptr doc = mm->document(source);
     QVERIFY(!doc.isNull());
     CPlusPlus::Namespace *ns = doc->globalNamespace();
     QVERIFY(ns);
@@ -857,7 +857,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
         while (sup->lastSemanticInfoDocument().isNull())
             QCoreApplication::processEvents();
 
-        Document::Ptr doc = mm->snapshot().document(fileName);
+        Document::Ptr doc = mm->document(fileName);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
     }
 }
@@ -931,7 +931,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
         sup->snapshotUpdater()->setUsePrecompiledHeaders(true);
         sup->snapshotUpdater()->update(mm->workingCopy());
 
-        Document::Ptr doc = mm->snapshot().document(fileName);
+        Document::Ptr doc = mm->document(fileName);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
     }
 }
@@ -1000,7 +1000,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
         sup->snapshotUpdater()->setEditorDefines(editorDefines.toUtf8());
         sup->snapshotUpdater()->update(mm->workingCopy());
 
-        Document::Ptr doc = mm->snapshot().document(main1File);
+        Document::Ptr doc = mm->document(main1File);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
     }
 }

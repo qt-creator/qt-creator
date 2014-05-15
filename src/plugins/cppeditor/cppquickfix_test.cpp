@@ -1863,7 +1863,7 @@ QList<Include> includesForSource(const QByteArray &source)
     pp.setIncludePaths(QStringList(TestIncludePaths::globalIncludePath()));
     pp.run(fileName);
 
-    Document::Ptr document = cmm->snapshot().document(fileName);
+    Document::Ptr document = cmm->document(fileName);
     return document->resolvedIncludes();
 }
 

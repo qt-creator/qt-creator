@@ -73,7 +73,7 @@ public:
         pp.setIncludePaths(QStringList(TestIncludePaths::directoryOfTestFile()));
         pp.run(fileName);
 
-        Document::Ptr document = m_cmm->snapshot().document(fileName);
+        Document::Ptr document = m_cmm->document(fileName);
         QFile(fileName).remove();
         return document;
     }
