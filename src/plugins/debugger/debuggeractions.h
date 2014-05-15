@@ -148,6 +148,7 @@ enum DebuggerActionCode
     AutoDerefPointers,
     AlwaysAdjustLocalsColumnWidths,
     MaximalStringLength,
+    DisplayStringLimit,
 
     // Source List
     ListSourceFiles,

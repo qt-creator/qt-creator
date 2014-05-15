@@ -367,11 +367,8 @@ class Dumper(DumperBase):
         self.currentChildNumChild = -1
         self.currentMaxNumChild = -1
         self.currentNumChild = -1
-        self.currentValue = None
-        self.currentValuePriority = -100
-        self.currentValueEncoding = None
-        self.currentType = None
-        self.currentTypePriority = -100
+        self.currentValue = ReportItem()
+        self.currentType = ReportItem()
         self.currentAddress = None
         self.typeformats = {}
         self.formats = {}
@@ -402,6 +399,8 @@ class Dumper(DumperBase):
                 self.expandedINames = set(arg[pos:].split(","))
             elif arg.startswith("stringcutoff:"):
                 self.stringCutOff = int(arg[pos:])
+            elif arg.startswith("displaystringlimit:"):
+                self.displayStringLimit = int(arg[pos:])
             elif arg.startswith("typeformats:"):
                 for f in arg[pos:].split(","):
                     pos = f.find("=")
@@ -525,39 +524,39 @@ class Dumper(DumperBase):
             self.put('name="%s",' % item.name)
         item.savedIName = self.currentIName
         item.savedValue = self.currentValue
-        item.savedValuePriority = self.currentValuePriority
-        item.savedValueEncoding = self.currentValueEncoding
         item.savedType = self.currentType
-        item.savedTypePriority = self.currentTypePriority
         item.savedCurrentAddress = self.currentAddress
         self.currentIName = item.iname
-        self.currentValuePriority = -100
-        self.currentValueEncoding = None
-        self.currentType = ""
-        self.currentTypePriority = -100
+        self.currentValue = ReportItem();
+        self.currentType = ReportItem();
         self.currentAddress = None
 
     def exitSubItem(self, item, exType, exValue, exTraceBack):
-        #warn(" CURRENT VALUE: %s %s %s" % (self.currentValue,
-        #    self.currentValueEncoding, self.currentValuePriority))
+        #warn("CURRENT VALUE: %s: %s %s %s %s" % (
+        #    self.currentIName,
+        #    self.currentValue.value,
+        #    self.currentValue.elided,
+        #    self.currentValue.encoding,
+        #    self.currentValue.priority))
         if not exType is None:
             if self.passExceptions:
                 showException("SUBITEM", exType, exValue, exTraceBack)
             self.putNumChild(0)
             self.putValue("<not accessible>")
         try:
-            #warn("TYPE VALUE: %s" % self.currentValue)
-            typeName = stripClassTag(self.currentType)
-            #warn("TYPE: '%s'  DEFAULT: '%s' % (typeName, self.currentChildType))
+            #warn("CURRENT TYPE: %s" % self.currentType.value)
+            typeName = stripClassTag(self.currentType.value)
 
             if len(typeName) > 0 and typeName != self.currentChildType:
                 self.put('type="%s",' % typeName) # str(type.unqualified()) ?
-            if  self.currentValue is None:
+            if  self.currentValue.value is None:
                 self.put('value="<not accessible>",numchild="0",')
             else:
-                if not self.currentValueEncoding is None:
-                    self.put('valueencoded="%d",' % self.currentValueEncoding)
-                self.put('value="%s",' % self.currentValue)
+                if not self.currentValue.encoding is None:
+                    self.put('valueencoded="%d",' % self.currentValue.encoding)
+                if self.currentValue.elided:
+                    self.put('valueelided="%d",' % self.currentValue.elided)
+                self.put('value="%s",' % self.currentValue.value)
         except:
             pass
         if not self.currentAddress is None:
@@ -565,10 +564,7 @@ class Dumper(DumperBase):
         self.put('},')
         self.currentIName = item.savedIName
         self.currentValue = item.savedValue
-        self.currentValuePriority = item.savedValuePriority
-        self.currentValueEncoding = item.savedValueEncoding
         self.currentType = item.savedType
-        self.currentTypePriority = item.savedTypePriority
         self.currentAddress = item.savedCurrentAddress
         return True
 
@@ -887,10 +883,6 @@ class Dumper(DumperBase):
         # Memoize good results.
         self.isQt3Support = lambda: self.cachedIsQt3Suport
         return self.cachedIsQt3Suport
-
-    def putBetterType(self, type):
-        self.currentType = str(type)
-        self.currentTypePriority = self.currentTypePriority + 1
 
     def putAddress(self, addr):
         if self.currentPrintsAddress:

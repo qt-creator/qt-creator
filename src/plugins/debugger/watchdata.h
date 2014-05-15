@@ -126,7 +126,6 @@ public:
     QString    value;        // Displayed value
     QByteArray editvalue;    // Displayed value
     qint32     editformat;   // Format of displayed value
-    QString    valuetooltip; // Tooltip in value column
     QString    typeFormats;  // Selection of formats of displayed value
     QByteArray type;         // Type for further processing
     QString    displayedType;// Displayed type (optional)
@@ -135,6 +134,7 @@ public:
     uint       size;         // Size
     uint       bitpos;       // Position within bit fields
     uint       bitsize;      // Size in case of bit fields
+    int        elided;       // Full size if value was cut off, -1 if cut on unknown size, 0 otherwise
     bool hasChildren;
     bool valueEnabled;       // Value will be enabled or not
     bool valueEditable;      // Value will be editable

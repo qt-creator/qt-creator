@@ -121,12 +121,25 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     spinBoxMaximalStringLength->setSingleStep(1000);
     spinBoxMaximalStringLength->setValue(10000);
 
+    labelDisplayStringLimit = new QLabel(tr("Display string limit:"), behaviorBox);
+
+    spinBoxDisplayStringLimit = new QSpinBox(behaviorBox);
+    spinBoxDisplayStringLimit->setSpecialValueText(tr("<unlimited>"));
+    spinBoxDisplayStringLimit->setMaximum(10000);
+    spinBoxDisplayStringLimit->setSingleStep(10);
+    spinBoxDisplayStringLimit->setValue(100);
+
     sourcesMappingWidget = new DebuggerSourcePathMappingWidget(this);
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     horizontalLayout->addWidget(labelMaximalStackDepth);
     horizontalLayout->addWidget(spinBoxMaximalStackDepth);
     horizontalLayout->addStretch();
+
+    QHBoxLayout *horizontalLayout1 = new QHBoxLayout();
+    horizontalLayout1->addWidget(labelDisplayStringLimit);
+    horizontalLayout1->addWidget(spinBoxDisplayStringLimit);
+    horizontalLayout1->addStretch();
 
     QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
     horizontalLayout2->addWidget(labelMaximalStringLength);
@@ -148,7 +161,8 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     gridLayout->addWidget(checkBoxShowQmlObjectTree, 3, 1, 1, 1);
     gridLayout->addWidget(checkBoxKeepEditorStationaryWhileStepping, 4, 1, 1, 1);
     gridLayout->addWidget(checkBoxRegisterForPostMortem, 5, 1, 1, 1);
-    gridLayout->addLayout(horizontalLayout2, 6, 1, 1, 2);
+    gridLayout->addLayout(horizontalLayout1, 6, 1, 1, 2);
+    gridLayout->addLayout(horizontalLayout2, 7, 1, 1, 2);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addWidget(behaviorBox);
@@ -193,6 +207,7 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     m_group->insert(dc->action(UseAddressInStackView), 0);
     m_group->insert(dc->action(AlwaysAdjustStackColumnWidths), 0);
     m_group->insert(dc->action(MaximalStackDepth), spinBoxMaximalStackDepth);
+    m_group->insert(dc->action(DisplayStringLimit), spinBoxDisplayStringLimit);
     m_group->insert(dc->action(MaximalStringLength), spinBoxMaximalStringLength);
     m_group->insert(dc->action(ShowStdNamespace), 0);
     m_group->insert(dc->action(ShowQtNamespace), 0);

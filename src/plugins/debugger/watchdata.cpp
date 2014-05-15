@@ -126,6 +126,7 @@ WatchData::WatchData() :
     size(0),
     bitpos(0),
     bitsize(0),
+    elided(0),
     hasChildren(false),
     valueEnabled(true),
     valueEditable(true),
@@ -142,12 +143,12 @@ bool WatchData::isEqual(const WatchData &other) const
       && name == other.name
       && value == other.value
       && editvalue == other.editvalue
-      && valuetooltip == other.valuetooltip
       && type == other.type
       && displayedType == other.displayedType
       && variable == other.variable
       && address == other.address
       && size == other.size
+      && elided == other.elided
       && hasChildren == other.hasChildren
       && valueEnabled == other.valueEnabled
       && valueEditable == other.valueEditable
@@ -312,6 +313,9 @@ QString WatchData::toString() const
     if (isValueKnown() && !value.isEmpty())
         str << "value=\"" << value << doubleQuoteComma;
 
+    if (elided)
+        str << "valueelided=\"" << elided << doubleQuoteComma;
+
     if (!editvalue.isEmpty())
         str << "editvalue=\"<...>\",";
     //    str << "editvalue=\"" << editvalue << doubleQuoteComma;
@@ -382,7 +386,7 @@ QString WatchData::toToolTip() const
     formatToolTipRow(str, tr("Internal Type"), QLatin1String(type));
     if (!displayedType.isEmpty())
         formatToolTipRow(str, tr("Displayed Type"), displayedType);
-    QString val = valuetooltip.isEmpty() ? value : valuetooltip;
+    QString val = value;
     // Automatically display hex value for unsigned integers.
     if (!val.isEmpty() && val.at(0).isDigit() && isIntType(type)) {
         bool ok;
@@ -456,13 +460,6 @@ void WatchData::updateValue(const GdbMi &item)
     } else {
         setValueNeeded();
     }
-}
-
-void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
-    int encoding)
-{
-    if (mi.isValid())
-        data.valuetooltip = decodeData(mi.data(), encoding);
 }
 
 void WatchData::updateChildCount(const GdbMi &mi)
@@ -628,6 +625,10 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
     mi = item["typeformats"];
     if (mi.isValid())
         data.typeFormats = QString::fromUtf8(mi.data());
+
+    mi = item["valueelided"];
+    if (mi.isValid())
+        data.elided = mi.toInt();
 
     mi = item["bitpos"];
     if (mi.isValid())

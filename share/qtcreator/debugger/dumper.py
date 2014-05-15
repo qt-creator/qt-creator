@@ -71,6 +71,19 @@ except:
         return "Normal"
 
 
+class ReportItem:
+    """
+    Helper structure to keep temporary "best" information about a value
+    or a type scheduled to be reported. This might get overridden be
+    subsequent better guesses during a putItem() run.
+    """
+    def __init__(self):
+        self.value = None
+        self.priority = -100
+        self.encoding = None
+        self.elided = 0
+
+
 class Blob(object):
     """
     Helper structure to keep a blob of bytes, possibly
@@ -310,6 +323,7 @@ class DumperBase:
         # Later set, or not set:
         # cachedQtVersion
         self.stringCutOff = 10000
+        self.displayStringLimit = 100
 
         # This is a cache mapping from 'type name' to 'display alternatives'.
         self.qqFormats = {}
@@ -375,12 +389,11 @@ class DumperBase:
         # assume no Qt 3 support by default
         return False
 
+    # Clamps size to limit.
     def computeLimit(self, size, limit):
-        if limit is None:
-            return size
-        if limit == 0:
-            return min(size, self.stringCutOff)
-        return min(size, limit)
+        if limit is None or size <= limit:
+            return 0, size
+        return size, limit
 
     def vectorDataHelper(self, addr):
         if self.qtVersion() >= 0x050000:
@@ -419,53 +432,50 @@ class DumperBase:
         return data, size, alloc
 
     # addr is the begin of a QByteArrayData structure
-    def encodeStringHelper(self, addr, limit = 0):
+    def encodeStringHelper(self, addr, limit):
         # Should not happen, but we get it with LLDB as result
         # of inferior calls
         if addr == 0:
-            return ""
+            return 0, ""
         data, size, alloc = self.byteArrayDataHelper(addr)
         if alloc != 0:
             self.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-        limit = self.computeLimit(size, limit)
-        s = self.readMemory(data, 2 * limit)
-        if limit < size:
-            s += "2e002e002e00"
-        return s
+        elided, shown = self.computeLimit(size, limit)
+        return elided, self.readMemory(data, 2 * shown)
 
-    def encodeByteArrayHelper(self, addr, limit = None):
+    def encodeByteArrayHelper(self, addr, limit):
         data, size, alloc = self.byteArrayDataHelper(addr)
         if alloc != 0:
             self.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-        limit = self.computeLimit(size, limit)
-        s = self.readMemory(data, limit)
-        if limit < size:
-            s += "2e2e2e"
-        return s
+        elided, shown = self.computeLimit(size, limit)
+        return elided, self.readMemory(data, shown)
 
     def readMemory(self, addr, size):
         data = self.extractBlob(addr, size).toBytes()
         return self.hexencode(data)
 
     def encodeByteArray(self, value, limit = 0):
-        return self.encodeByteArrayHelper(self.extractPointer(value), limit)
+        elided, data = self.encodeByteArrayHelper(self.extractPointer(value), limit)
+        return data
 
     def byteArrayData(self, value):
         return self.byteArrayDataHelper(self.extractPointer(value))
 
     def putByteArrayValue(self, value):
-        return self.putValue(self.encodeByteArray(value, self.stringCutOff), Hex2EncodedLatin1)
+        elided, data = self.encodeByteArrayHelper(self.extractPointer(value), self.displayStringLimit)
+        self.putValue(data, Hex2EncodedLatin1, elided=elided)
 
     def putByteArrayValueByAddress(self, addr):
-        self.putValue(self.encodeByteArrayHelper(self.extractPointer(addr)),
-            Hex2EncodedLatin1)
+        elided, data = self.encodeByteArrayHelper(addr, self.displayStringLimit)
+        self.putValue(data, Hex2EncodedLatin1, elided=elided)
 
     def putStringValueByAddress(self, addr):
-        self.putValue(self.encodeStringHelper(self.extractPointer(addr)),
-            Hex4EncodedLittleEndian)
+        elided, data = self.encodeStringHelper(self.extractPointer(addr), self.displayStringLimit)
+        self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
 
     def encodeString(self, value, limit = 0):
-        return self.encodeStringHelper(self.extractPointer(value), limit)
+        elided, data = self.encodeStringHelper(self.extractPointer(value), limit)
+        return data
 
     def stringData(self, value):
         return self.byteArrayDataHelper(self.extractPointer(value))
@@ -499,7 +509,8 @@ class DumperBase:
         return inner.strip()
 
     def putStringValue(self, value):
-        return self.putValue(self.encodeString(value, self.stringCutOff), Hex4EncodedLittleEndian)
+        elided, data = self.encodeStringHelper(self.extractPointer(value), self.displayStringLimit)
+        self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
 
     def putAddressItem(self, name, value, type = ""):
         with SubItem(self, name):
@@ -619,27 +630,16 @@ class DumperBase:
     def findFirstZero(self, p, maximum):
         for i in xrange(maximum):
             if int(p.dereference()) == 0:
-                return i
+                return 0, i
             p = p + 1
-        return maximum + 1
+        # Real end is unknown.
+        return -1, maximum
 
-    def encodeCArray(self, p, innerType, suffix):
+    def encodeCArray(self, p, innerType, limit):
         t = self.lookupType(innerType)
         p = p.cast(t.pointer())
-        limit = self.findFirstZero(p, self.stringCutOff)
-        s = self.readMemory(p, limit * t.sizeof)
-        if limit > self.stringCutOff:
-            s += suffix
-        return s
-
-    def encodeCharArray(self, p):
-        return self.encodeCArray(p, "unsigned char", "2e2e2e")
-
-    def encodeChar2Array(self, p):
-        return self.encodeCArray(p, "unsigned short", "2e002e002e00")
-
-    def encodeChar4Array(self, p):
-        return self.encodeCArray(p, "unsigned int", "2e0000002e0000002e000000")
+        elided, shown = self.findFirstZero(p, limit)
+        return elided, self.readMemory(p, shown * t.sizeof)
 
     def putItemCount(self, count, maximum = 1000000000):
         # This needs to override the default value, so don't use 'put' directly.
@@ -654,25 +654,33 @@ class DumperBase:
 
     def putType(self, type, priority = 0):
         # Higher priority values override lower ones.
-        if priority >= self.currentTypePriority:
-            self.currentType = str(type)
-            self.currentTypePriority = priority
+        if priority >= self.currentType.priority:
+            self.currentType.value = str(type)
+            self.currentType.priority = priority
 
-    def putValue(self, value, encoding = None, priority = 0):
+    def putValue(self, value, encoding = None, priority = 0, elided = None):
         # Higher priority values override lower ones.
-        if priority >= self.currentValuePriority:
-            self.currentValue = value
-            self.currentValuePriority = priority
-            self.currentValueEncoding = encoding
+        # elided = 0 indicates all data is available in value,
+        # otherwise it's the true length.
+        if priority >= self.currentValue.priority:
+            self.currentValue.value = value
+            self.currentValue.priority = priority
+            self.currentValue.encoding = encoding
+            self.currentValue.elided = elided
 
     def putEmptyValue(self, priority = -10):
-        if priority >= self.currentValuePriority:
-            self.currentValue = ""
-            self.currentValuePriority = priority
-            self.currentValueEncoding = None
+        if priority >= self.currentValue.priority:
+            self.currentValue.value = ""
+            self.currentValue.priority = priority
+            self.currentValue.encoding = None
+            self.currentValue.elided = None
 
     def putName(self, name):
         self.put('name="%s",' % name)
+
+    def putBetterType(self, type):
+        self.currentType.value = str(type)
+        self.currentType.priority += 1
 
     def putNoType(self):
         # FIXME: replace with something that does not need special handling
@@ -682,7 +690,7 @@ class DumperBase:
     def putInaccessible(self):
         #self.putBetterType(" ")
         self.putNumChild(0)
-        self.currentValue = None
+        self.currentValue.value = None
 
     def putNamedSubItem(self, component, value, name):
         with SubItem(self, component):
@@ -805,7 +813,8 @@ class DumperBase:
         if format == None and innerTypeName == "char":
             # Use Latin1 as default for char *.
             self.putType(typeName)
-            self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
+            (elided, data) = self.encodeCArray(value, "unsigned char", self.displayStringLimit)
+            self.putValue(data, Hex2EncodedLatin1, elided=elided)
             self.putNumChild(0)
             return
 
@@ -823,35 +832,40 @@ class DumperBase:
         if format == Latin1StringFormat:
             # Explicitly requested Latin1 formatting.
             self.putType(typeName)
-            self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
+            (elided, data) = self.encodeCArray(value, "unsigned char", self.displayStringLimit)
+            self.putValue(data, Hex2EncodedLatin1, elided=elided)
             self.putNumChild(0)
             return
 
         if format == Utf8StringFormat:
             # Explicitly requested UTF-8 formatting.
             self.putType(typeName)
-            self.putValue(self.encodeCharArray(value), Hex2EncodedUtf8)
+            (elided, data) = self.encodeCArray(value, "unsigned char", self.displayStringLimit)
+            self.putValue(data, Hex2EncodedUtf8, elided=elided)
             self.putNumChild(0)
             return
 
         if format == Local8BitStringFormat:
             # Explicitly requested local 8 bit formatting.
             self.putType(typeName)
-            self.putValue(self.encodeCharArray(value), Hex2EncodedLocal8Bit)
+            (elided, data) = self.encodeCArray(value, "unsigned char", self.displayStringLimit)
+            self.putValue(data, Hex2EncodedLocal8Bit, elided=elided)
             self.putNumChild(0)
             return
 
         if format == Utf16StringFormat:
             # Explicitly requested UTF-16 formatting.
             self.putType(typeName)
-            self.putValue(self.encodeChar2Array(value), Hex4EncodedLittleEndian)
+            (elided, data) = self.encodeCArray(value, "unsigned short", self.displayStringLimit)
+            self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
             self.putNumChild(0)
             return
 
         if format == Ucs4StringFormat:
             # Explicitly requested UCS-4 formatting.
             self.putType(typeName)
-            self.putValue(self.encodeChar4Array(value), Hex8EncodedLittleEndian)
+            (elided, data) = self.encodeCArray(value, "unsigned int", self.displayStringLimit)
+            self.putValue(data, Hex8EncodedLittleEndian, elided=elided)
             self.putNumChild(0)
             return
 
@@ -1226,7 +1240,7 @@ class DumperBase:
         format = self.formats.get(self.currentIName)
         if format is None:
             if type is None:
-                type = self.currentType
+                type = self.currentType.value
             needle = self.stripForFormat(str(type))
             format = self.typeformats.get(needle)
         return format
@@ -1256,8 +1270,8 @@ class DumperBase:
         if not hasPlot():
             return
         if not self.isSimpleType(typeobj):
-            #self.putValue(self.currentValue + " (not plottable)")
-            self.putValue(self.currentValue)
+            #self.putValue(self.currentValue.value + " (not plottable)")
+            self.putValue(self.currentValue.value)
             self.putField("plottable", "0")
             return
         global gnuplotPipe
@@ -1435,8 +1449,8 @@ class DumperBase:
                     value = self.parseAndEvaluate(exp)
                     self.putItem(value)
                 except RuntimeError:
-                    self.currentType = " "
-                    self.currentValue = "<no such value>"
+                    self.currentType.value = " "
+                    self.currentValue.value = "<no such value>"
                     self.currentChildNumChild = -1
                     self.currentNumChild = 0
                     self.putNumChild(0)

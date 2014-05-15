@@ -418,10 +418,8 @@ def qdump__std__stringHelper1__QNX(d, value, charSize):
     qdump_stringHelper(d, sizePtr, size * charSize, charSize)
 
 def qdump_stringHelper(d, data, size, charSize):
-    cutoff = min(size, d.stringCutOff)
-    mem = d.readMemory(data, cutoff)
-    if size > d.stringCutOff:
-        mem += "2e2e2e"
+    elided, shown = d.computeLimit(size, d.displayStringLimit)
+    mem = d.readMemory(data, shown)
     if charSize == 1:
         encodingType = Hex2EncodedLatin1
         displayType = DisplayLatin1String
@@ -433,7 +431,7 @@ def qdump_stringHelper(d, data, size, charSize):
         displayType = DisplayUtf16String
 
     d.putNumChild(0)
-    d.putValue(mem, encodingType)
+    d.putValue(mem, encodingType, elided=elided)
 
     format = d.currentItemFormat()
     if format == 1:

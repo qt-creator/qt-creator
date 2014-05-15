@@ -695,6 +695,14 @@ QString WatchModel::formattedValue(const WatchData &data) const
         }
     }
 
+    if (data.elided) {
+        QString v = value;
+        v.chop(1);
+        QString len = data.elided > 0 ? QString::number(data.elided)
+                                      : QLatin1String("unknown length");
+        return v + QLatin1String("\"... (") + len  + QLatin1Char(')');
+    }
+
     return translate(value);
 }
 

@@ -261,11 +261,8 @@ class Dumper(DumperBase):
         self.typeformats = {}
 
         self.currentIName = None
-        self.currentValuePriority = -100
-        self.currentValueEncoding = None
-        self.currentType = ""
-        self.currentTypePriority = -100
-        self.currentValue = None
+        self.currentValue = ReportItem()
+        self.currentType = ReportItem()
         self.currentNumChild = None
         self.currentMaxNumChild = None
         self.currentPrintsAddress = None
@@ -310,15 +307,10 @@ class Dumper(DumperBase):
             self.put('name="%s",' % item.name)
         item.savedIName = self.currentIName
         item.savedValue = self.currentValue
-        item.savedValuePriority = self.currentValuePriority
-        item.savedValueEncoding = self.currentValueEncoding
         item.savedType = self.currentType
-        item.savedTypePriority = self.currentTypePriority
         self.currentIName = item.iname
-        self.currentValuePriority = -100
-        self.currentValueEncoding = None
-        self.currentType = ""
-        self.currentTypePriority = -100
+        self.currentValue = ReportItem()
+        self.currentType = ReportItem()
 
     def exitSubItem(self, item, exType, exValue, exTraceBack):
         if not exType is None:
@@ -327,24 +319,23 @@ class Dumper(DumperBase):
             self.putNumChild(0)
             self.putValue("<not accessible>")
         try:
-            typeName = self.currentType
+            typeName = self.currentType.value
             if len(typeName) > 0 and typeName != self.currentChildType:
                 self.put('type="%s",' % typeName) # str(type.unqualified()) ?
-            if  self.currentValue is None:
+            if  self.currentValue.value is None:
                 self.put('value="<not accessible>",numchild="0",')
             else:
-                if not self.currentValueEncoding is None:
-                    self.put('valueencoded="%s",' % self.currentValueEncoding)
-                self.put('value="%s",' % self.currentValue)
+                if not self.currentValue.encoding is None:
+                    self.put('valueencoded="%s",' % self.currentValue.encoding)
+                if self.currentValue.elided:
+                    self.put('valueelided="%s",' % self.currentValue.elided)
+                self.put('value="%s",' % self.currentValue.value)
         except:
             pass
         self.put('},')
         self.currentIName = item.savedIName
         self.currentValue = item.savedValue
-        self.currentValuePriority = item.savedValuePriority
-        self.currentValueEncoding = item.savedValueEncoding
         self.currentType = item.savedType
-        self.currentTypePriority = item.savedTypePriority
         return True
 
     def isSimpleType(self, typeobj):
@@ -855,14 +846,6 @@ class Dumper(DumperBase):
 
     def reportStackTop(self):
         self.report('stack-top={}')
-
-    def putBetterType(self, type):
-        try:
-            self.currentType = type.GetName()
-        except:
-            self.currentType = str(type)
-        self.currentTypePriority = self.currentTypePriority + 1
-        #warn("BETTER TYPE: %s PRIORITY: %s" % (type, self.currentTypePriority))
 
     def extractBlob(self, base, size):
         if size == 0:

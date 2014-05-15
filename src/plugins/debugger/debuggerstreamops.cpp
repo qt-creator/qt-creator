@@ -219,7 +219,6 @@ QDataStream &operator<<(QDataStream &stream, const WatchData &wd)
     stream << wd.value;
     stream << wd.editvalue;
     stream << wd.editformat;
-    stream << wd.valuetooltip;
     stream << wd.typeFormats;
     stream << wd.type;
     stream << wd.displayedType;
@@ -243,7 +242,6 @@ QDataStream &operator>>(QDataStream &stream, WatchData &wd)
     stream >> wd.value;
     stream >> wd.editvalue;
     stream >> wd.editformat;
-    stream >> wd.valuetooltip;
     stream >> wd.typeFormats;
     stream >> wd.type;
     stream >> wd.displayedType;

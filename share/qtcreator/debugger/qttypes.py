@@ -274,7 +274,7 @@ def qdump__QDateTime(d, value):
                 tz = ""
             else:
                 idBase = tzp + 2 * d.ptrSize() # [QSharedData] + [vptr]
-                tz = d.encodeByteArrayHelper(d.extractPointer(idBase))
+                tz = d.encodeByteArrayHelper(d.extractPointer(idBase), limit=100)
             d.putValue("%s/%s/%s/%s/%s" % (msecs, spec, offset, tz, status),
                 DateTimeInternal)
     else:
@@ -705,7 +705,7 @@ def qdump__QHostAddress(d, value):
     ipStringAddress = privAddress + (0 if isQt5 else 24)
     isParsedAddress = privAddress + 24 + 2 * sizeofQString
     # value.d.d->ipString
-    ipString = d.encodeStringHelper(d.extractPointer(ipStringAddress))
+    ipString = d.encodeStringHelper(d.extractPointer(ipStringAddress), limit=100)
     if d.extractByte(isParsedAddress) and len(ipString) > 0:
         d.putValue(ipString, Hex4EncodedLittleEndian)
     else:
@@ -720,7 +720,7 @@ def qdump__QHostAddress(d, value):
             data = d.readMemory(privAddress + a6Offset, 16)
             address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
             scopeId = privAddress + sizeofQString + (0 if isQt5 else 24)
-            scopeId = d.encodeStringHelper(d.extractPointer(scopeId))
+            scopeId = d.encodeStringHelper(d.extractPointer(scopeId), limit=100)
             d.putValue("%s%%%s" % (address, scopeId), IPv6AddressAndHexScopeId)
         elif proto == 0:
             # value.d.d->a
@@ -1730,7 +1730,7 @@ def qdump__QString(d, value):
         d.putDisplay(StopDisplay)
     elif format == 2:
         d.putField("editformat", DisplayUtf16String)
-        d.putField("editvalue", d.encodeString(value))
+        d.putField("editvalue", d.encodeString(value, limit=None))
 
 
 def qdump__QStringRef(d, value):
@@ -1759,7 +1759,7 @@ def qdump__QTemporaryFile(d, value):
 
 def qdump__QTextCodec(d, value):
     name = d.call(value, "name")
-    d.putValue(d.encodeByteArray(d, name), 6)
+    d.putValue(d.encodeByteArray(name, limit=100), 6)
     d.putNumChild(2)
     if d.isExpanded():
         with Children(d):
@@ -1843,13 +1843,13 @@ def qdump__QUrl(d, value):
             d.putValue("<invalid>")
             return
         schemeAddr = privAddress + 2 * d.intSize()
-        scheme = d.encodeStringHelper(d.extractPointer(schemeAddr))
-        userName = d.encodeStringHelper(d.extractPointer(schemeAddr + 1 * d.ptrSize()))
-        password = d.encodeStringHelper(d.extractPointer(schemeAddr + 2 * d.ptrSize()))
-        host = d.encodeStringHelper(d.extractPointer(schemeAddr + 3 * d.ptrSize()))
-        path = d.encodeStringHelper(d.extractPointer(schemeAddr + 4 * d.ptrSize()))
-        query = d.encodeStringHelper(d.extractPointer(schemeAddr + 5 * d.ptrSize()))
-        fragment = d.encodeStringHelper(d.extractPointer(schemeAddr + 6 * d.ptrSize()))
+        scheme = d.encodeStringHelper(d.extractPointer(schemeAddr), limit=1000)
+        userName = d.encodeStringHelper(d.extractPointer(schemeAddr + 1 * d.ptrSize()), limit=100)
+        password = d.encodeStringHelper(d.extractPointer(schemeAddr + 2 * d.ptrSize()), limit=100)
+        host = d.encodeStringHelper(d.extractPointer(schemeAddr + 3 * d.ptrSize()), limit=100)
+        path = d.encodeStringHelper(d.extractPointer(schemeAddr + 4 * d.ptrSize()), limit=1000)
+        query = d.encodeStringHelper(d.extractPointer(schemeAddr + 5 * d.ptrSize()), limit=10000)
+        fragment = d.encodeStringHelper(d.extractPointer(schemeAddr + 6 * d.ptrSize()), limit=10000)
         port = d.extractInt(d.extractPointer(value) + d.intSize())
 
         url = scheme

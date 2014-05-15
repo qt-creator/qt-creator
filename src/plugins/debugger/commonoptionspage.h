@@ -77,9 +77,11 @@ private:
     QCheckBox *checkBoxWarnOnReleaseBuilds;
     QCheckBox *checkBoxKeepEditorStationaryWhileStepping;
     QLabel *labelMaximalStackDepth;
+    QLabel *labelDisplayStringLimit;
     QLabel *labelMaximalStringLength;
     QSpinBox *spinBoxMaximalStackDepth;
     QSpinBox *spinBoxMaximalStringLength;
+    QSpinBox *spinBoxDisplayStringLimit;
 
     DebuggerSourcePathMappingWidget *sourcesMappingWidget;
     const QSharedPointer<Utils::SavedActionSet> m_group;

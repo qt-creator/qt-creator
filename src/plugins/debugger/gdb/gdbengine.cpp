@@ -4841,7 +4841,10 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
     expanded += "formats:" + handler->individualFormatRequests();
 
     QByteArray cutOff = " stringcutoff:"
-        + debuggerCore()->action(MaximalStringLength)->value().toByteArray();
+        + debuggerCore()->action(MaximalStringLength)->value().toByteArray()
+        + " displaystringlimit:"
+        + debuggerCore()->action(DisplayStringLimit)->value().toByteArray();
+
 
     QByteArray watchers;
     const QString fileName = stackHandler()->currentFrame().file;
