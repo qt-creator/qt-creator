@@ -47,7 +47,7 @@ bool Matcher::match(const Type *type, const Type *otherType, Matcher *matcher)
 {
     if (type == otherType)
         return true;
-    if (!type)
+    if (!type || !otherType)
         return false;
 
     return type->match0(otherType, matcher);
