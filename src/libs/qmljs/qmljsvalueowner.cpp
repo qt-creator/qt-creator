@@ -478,7 +478,7 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
 
     // QML objects
     _qmlFontObject = newObject(/*prototype =*/ 0);
-    _qmlFontObject->setClassName(QLatin1String("Font"));
+    _qmlFontObject->setClassName(QLatin1String("font"));
     _qmlFontObject->setMember(QLatin1String("family"), stringValue());
     _qmlFontObject->setMember(QLatin1String("weight"), unknownValue()); // ### make me an object
     _qmlFontObject->setMember(QLatin1String("capitalization"), unknownValue()); // ### make me an object
