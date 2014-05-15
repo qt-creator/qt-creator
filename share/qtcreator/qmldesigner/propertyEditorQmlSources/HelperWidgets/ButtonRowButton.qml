@@ -99,5 +99,15 @@ Item {
     ToolTipArea {
         anchors.fill: parent
         id: toolTipArea
+        anchors.leftMargin: leftPadding
+        onClicked: {
+            if (buttonRowButton.checked) {
+                buttonRowButton.parent.__unCheckButton(index())
+            } else {
+                buttonRowButton.parent.__checkButton(index())
+            }
+            buttonRowButton.clicked()
+       }
+
     }
 }
