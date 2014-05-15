@@ -607,7 +607,6 @@ void WatchTreeView::fillFormatMenu(QMenu *formatMenu, const QModelIndex &mi)
     QAction *showUnprintableEscape = 0;
     QAction *showUnprintableOctal = 0;
     QAction *showUnprintableHexadecimal = 0;
-    formatMenu->setTitle(tr("Change Local Display Format..."));
     showUnprintableUnicode =
         formatMenu->addAction(tr("Treat All Characters as Printable"));
     showUnprintableUnicode->setCheckable(true);
@@ -836,7 +835,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         menu.addAction(actRemoveWatches);
     }
 
-    QMenu formatMenu;
+    QMenu formatMenu(tr("Change Local Display Format..."));
     if (mi0.isValid()) {
         fillFormatMenu(&formatMenu, mi0);
     } else {
