@@ -36,9 +36,10 @@ namespace QmlDesigner {
 ItemLibrarySectionModel::ItemLibrarySectionModel(int sectionLibId, const QString &sectionName, QObject *parent)
     : QObject(parent),
       m_name(sectionName),
-      m_sectionLibId(sectionLibId),
+      m_sectionLibraryId(sectionLibId),
       m_sectionExpanded(true),
-      m_sectionEntries(parent)
+      m_sectionEntries(parent),
+      m_isVisible(false)
 {
 //    if (collapsedStateHash.contains(sectionName))
 //        m_sectionExpanded=  collapsedStateHash.value(sectionName);
@@ -50,9 +51,9 @@ QString ItemLibrarySectionModel::sectionName() const
     return m_name;
 }
 
-int ItemLibrarySectionModel::sectionLibId() const
+int ItemLibrarySectionModel::sectionLibraryId() const
 {
-    return m_sectionLibId;
+    return m_sectionLibraryId;
 }
 
 bool ItemLibrarySectionModel::sectionExpanded() const
@@ -132,7 +133,22 @@ void ItemLibrarySectionModel::updateItemIconSize(const QSize &itemIconSize)
 {
 //    foreach (ItemLibraryItemModel* itemLibraryItemModel, m_sectionEntries.elementsByType<ItemLibraryItemModel*>()) {
 //        itemLibraryItemModel->setItemIconSize(itemIconSize);
-//    }
+    //    }
+}
+
+bool ItemLibrarySectionModel::setVisible(bool isVisible)
+{
+    if (isVisible != m_isVisible) {
+        m_isVisible = isVisible;
+        return true;
+    }
+
+    return false;
+}
+
+bool ItemLibrarySectionModel::isVisible() const
+{
+    return m_isVisible;
 }
 
 } // namespace QmlDesigner

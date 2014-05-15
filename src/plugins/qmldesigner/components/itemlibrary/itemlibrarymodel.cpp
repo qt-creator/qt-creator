@@ -257,17 +257,47 @@ void ItemLibraryModel::setExpanded(bool expanded, const QString &section)
 }
 
 ItemLibraryModel::ItemLibraryModel(QObject *parent)
-    : ItemLibrarySortedModel(parent),
-      m_searchText(""),
+    : QAbstractListModel(parent),
       m_itemIconSize(64, 64),
       m_nextLibId(0)
 {
+    addRoleNames();
 }
 
 ItemLibraryModel::~ItemLibraryModel()
 {
+    clearSections();
 }
 
+int ItemLibraryModel::rowCount(const QModelIndex & /*parent*/) const
+{
+    return visibleSectionCount();
+}
+
+QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || index.row() +1 > visibleSectionCount())
+        return QVariant();
+
+
+    if (m_roleNames.contains(role)) {
+        QVariant value = visibleSections().at(index.row())->property(m_roleNames.value(role));
+
+        ItemLibrarySortedModel* model = qobject_cast<ItemLibrarySortedModel *>(value.value<QObject*>());
+        if (model)
+            return QVariant::fromValue(model);
+
+        ItemLibraryModel* model2 = qobject_cast<ItemLibraryModel *>(value.value<QObject*>());
+        if (model2)
+            return QVariant::fromValue(model2);
+
+        return value;
+    }
+
+    qWarning() << Q_FUNC_INFO << "invalid role requested";
+
+    return QVariant();
+}
 
 QString ItemLibraryModel::searchText() const
 {
@@ -319,7 +349,7 @@ bool ItemLibraryModel::isItemVisible(int itemLibId)
         return false;
 
     int sectionLibId = m_sections.value(itemLibId);
-    if (!elementVisible(sectionLibId))
+    if (section(sectionLibId)->isVisible())
         return false;
 
     return section(sectionLibId)->isItemVisible(itemLibId);
@@ -342,7 +372,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
     QMap<QString, int> sections;
 
-    clearElements();
+    clearSections();
     m_itemInfos.clear();
     m_sections.clear();
     m_nextLibId = 0;
@@ -371,7 +401,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             } else {
                 sectionId = m_nextLibId++;
                 sectionModel = new ItemLibrarySectionModel(sectionId, itemSectionName, this);
-                addElement(sectionModel, sectionId);
+                addSection(sectionModel, sectionId);
                 sections.insert(itemSectionName, sectionId);
             }
 
@@ -429,14 +459,65 @@ QIcon ItemLibraryModel::getIcon(int libId)
     return m_itemInfos.value(libId).icon();
 }
 
-ItemLibrarySectionModel *ItemLibraryModel::section(int libId)
+ItemLibrarySectionModel *ItemLibraryModel::section(int libraryId)
 {
-    return elementByType<ItemLibrarySectionModel*>(libId);
+    return m_sectionModels.value(libraryId);
 }
 
 QList<ItemLibrarySectionModel *> ItemLibraryModel::sections() const
 {
-    return elementsByType<ItemLibrarySectionModel*>();
+    return m_sectionModels.values();
+}
+
+void ItemLibraryModel::addSection(ItemLibrarySectionModel *sectionModel, int sectionId)
+{
+    m_sectionModels.insert(sectionId, sectionModel);
+    sectionModel->setVisible(true);
+}
+
+void ItemLibraryModel::clearSections()
+{
+    beginResetModel();
+    qDeleteAll(m_sectionModels);
+    m_sectionModels.clear();
+    endResetModel();
+}
+
+void ItemLibraryModel::registerQmlTypes()
+{
+    qmlRegisterType<QmlDesigner::ItemLibrarySortedModel>();
+    qmlRegisterType<QmlDesigner::ItemLibraryModel>();
+}
+
+int ItemLibraryModel::visibleSectionCount() const
+{
+    int visibleCount = 0;
+
+    QMap<int, ItemLibrarySectionModel*>::const_iterator sectionIterator = m_sectionModels.constBegin();
+    while (sectionIterator != m_sectionModels.constEnd()) {
+        ItemLibrarySectionModel *sectionModel = sectionIterator.value();
+        if (sectionModel->isVisible())
+            ++visibleCount;
+        ++sectionIterator;
+        qDebug() << __FUNCTION__ << visibleCount;
+    }
+
+    return visibleCount;
+}
+
+QList<ItemLibrarySectionModel *> ItemLibraryModel::visibleSections() const
+{
+    QList<ItemLibrarySectionModel *> visibleSectionList;
+
+    QMap<int, ItemLibrarySectionModel*>::const_iterator sectionIterator = m_sectionModels.constBegin();
+    while (sectionIterator != m_sectionModels.constEnd()) {
+        ItemLibrarySectionModel *sectionModel = sectionIterator.value();
+        if (sectionModel->isVisible())
+            visibleSectionList.append(sectionModel);
+        ++sectionIterator;
+    }
+
+    return visibleSectionList;
 }
 
 void ItemLibraryModel::updateVisibility()
@@ -445,14 +526,14 @@ void ItemLibraryModel::updateVisibility()
     endResetModel();
     bool changed = false;
 
-    QMap<int, QObject *>::const_iterator sectionIt = elements().constBegin();
-    while (sectionIt != elements().constEnd()) {
-        ItemLibrarySectionModel *sectionModel = section(sectionIt.key());
+    QMap<int, ItemLibrarySectionModel*>::const_iterator sectionIterator = m_sectionModels.constBegin();
+    while (sectionIterator != m_sectionModels.constEnd()) {
+        ItemLibrarySectionModel *sectionModel = sectionIterator.value();
 
         QString sectionSearchText = m_searchText;
 
         if (sectionModel->sectionName().toLower().contains(m_searchText))
-            sectionSearchText = "";
+            sectionSearchText.clear();
 
         bool sectionChanged = false,
             sectionVisibility = sectionModel->updateSectionVisibility(sectionSearchText,
@@ -460,15 +541,27 @@ void ItemLibraryModel::updateVisibility()
         if (sectionChanged) {
             changed = true;
             if (sectionVisibility)
-                emit sectionVisibilityChanged(sectionIt.key());
+                emit sectionVisibilityChanged(sectionIterator.key());
         }
 
-        changed |= setElementVisible(sectionIt.key(), sectionVisibility);
-        ++sectionIt;
+        changed |= sectionModel->setVisible(sectionVisibility);
+        ++sectionIterator;
     }
 
     if (changed)
         emit visibilityChanged();
+}
+
+void ItemLibraryModel::addRoleNames()
+{
+    int role = 0;
+    for (int propertyIndex = 0; propertyIndex < ItemLibrarySectionModel::staticMetaObject.propertyCount(); ++propertyIndex) {
+        QMetaProperty property = ItemLibrarySectionModel::staticMetaObject.property(propertyIndex);
+        m_roleNames.insert(role, property.name());
+        ++role;
+    }
+
+    setRoleNames(m_roleNames);
 }
 
 int ItemLibraryModel::getWidth(const ItemLibraryEntry &itemLibraryEntry)
@@ -478,6 +571,7 @@ int ItemLibraryModel::getWidth(const ItemLibraryEntry &itemLibraryEntry)
         if (property.name() == "width")
             return property.value().toInt();
     }
+
     return 64;
 }
 
@@ -488,6 +582,7 @@ int ItemLibraryModel::getHeight(const ItemLibraryEntry &itemLibraryEntry)
         if (property.name() == "height")
             return property.value().toInt();
     }
+
     return 64;
 }
 

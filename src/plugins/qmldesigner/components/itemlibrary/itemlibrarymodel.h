@@ -44,8 +44,6 @@ class ItemLibraryEntry;
 class Model;
 class ItemLibrarySectionModel;
 
-void registerQmlTypes();
-
 class ItemLibrarySortedModel: public QAbstractListModel {
 
     Q_OBJECT
@@ -98,7 +96,7 @@ private:
     QHash<int, QByteArray> m_roleNames;
 };
 
-class ItemLibraryModel: public ItemLibrarySortedModel {
+class ItemLibraryModel: public QAbstractListModel {
 
     Q_OBJECT
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
@@ -106,6 +104,9 @@ class ItemLibraryModel: public ItemLibrarySortedModel {
 public:
     explicit ItemLibraryModel(QObject *parent = 0);
     ~ItemLibraryModel();
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
     QString searchText() const;
 
@@ -115,8 +116,16 @@ public:
     QMimeData *getMimeData(int libId);
     QIcon getIcon(int libId);
 
-    ItemLibrarySectionModel* section(int libId);
+    ItemLibrarySectionModel* section(int libraryId);
     QList<ItemLibrarySectionModel*> sections() const;
+    void addSection(ItemLibrarySectionModel *sectionModel, int sectionId);
+
+    void clearSections();
+
+    static void registerQmlTypes();
+
+    int visibleSectionCount() const;
+    QList<ItemLibrarySectionModel*> visibleSections() const;
 
 public slots:
     void setSearchText(const QString &searchText);
@@ -133,15 +142,19 @@ signals:
     void visibilityChanged();
     void sectionVisibilityChanged(int changedSectionLibId);
 
-private:
+private: // functions
     void updateVisibility();
+    void addRoleNames();
 
     int getWidth(const ItemLibraryEntry &entry);
     int getHeight(const ItemLibraryEntry &entry);
     QPixmap createDragPixmap(int width, int height);
 
+private: // variables
+    QMap<int, ItemLibrarySectionModel*> m_sectionModels;
     QMap<int, ItemLibraryEntry> m_itemInfos;
     QMap<int, int> m_sections;
+    QHash<int, QByteArray> m_roleNames;
 
     QString m_searchText;
     QSize m_itemIconSize;
@@ -151,6 +164,6 @@ private:
 } // namespace QmlDesigner
 
 QML_DECLARE_TYPE(QmlDesigner::ItemLibrarySortedModel)
-
+QML_DECLARE_TYPE(QmlDesigner::ItemLibraryModel)
 #endif // ITEMLIBRARYMODEL_H
 

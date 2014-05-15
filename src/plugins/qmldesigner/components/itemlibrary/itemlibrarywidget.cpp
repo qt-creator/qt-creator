@@ -67,7 +67,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     m_filterFlag(QtBasic),
     m_itemLibraryId(-1)
 {
-    registerQmlTypes();
+    ItemLibraryModel::registerQmlTypes();
 
     setWindowTitle(tr("Library", "Title of library view"));
 

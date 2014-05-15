@@ -43,16 +43,16 @@ class ItemLibrarySectionModel: public QObject {
     Q_OBJECT
 
     Q_PROPERTY(QObject* sectionEntries READ sectionEntries NOTIFY sectionEntriesChanged FINAL)
-    Q_PROPERTY(int sectionLibId READ sectionLibId FINAL)
+    Q_PROPERTY(int sectionLibraryId READ sectionLibraryId FINAL)
     Q_PROPERTY(QString sectionName READ sectionName FINAL)
     Q_PROPERTY(bool sectionExpanded READ sectionExpanded FINAL)
     Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
 
 public:
-    ItemLibrarySectionModel(int sectionLibId, const QString &sectionName, QObject *parent = 0);
+    ItemLibrarySectionModel(int sectionLibraryId, const QString &sectionName, QObject *parent = 0);
 
     QString sectionName() const;
-    int sectionLibId() const;
+    int sectionLibraryId() const;
     bool sectionExpanded() const;
     QVariant sortingRole() const;
 
@@ -66,14 +66,18 @@ public:
     bool updateSectionVisibility(const QString &searchText, bool *changed);
     void updateItemIconSize(const QSize &itemIconSize);
 
+    bool setVisible(bool isVisible);
+    bool isVisible() const;
+
 signals:
     void sectionEntriesChanged();
 
 private:
-    QString m_name;
-    int m_sectionLibId;
-    bool m_sectionExpanded;
     ItemLibrarySortedModel m_sectionEntries;
+    QString m_name;
+    int m_sectionLibraryId;
+    bool m_sectionExpanded;
+    bool m_isVisible;
 };
 
 } // namespace QmlDesigner
