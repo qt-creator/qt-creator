@@ -578,11 +578,21 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
 
     // global Qt object, in alphabetic order
     _qtObject = newObject(new QtObjectPrototypeReference(this));
+
+    ObjectValue *applicationObject = newObject();
+    applicationObject->setMember(QLatin1String("active"), booleanValue());
+    applicationObject->setMember(QLatin1String("layoutDirection"), intValue());
+    _qtObject->setMember(QLatin1String("application"), applicationObject);
+    // FIXME: add inputMethod
+
+    addFunction(_qtObject, QLatin1String("binding"), objectInstance, 1);
     addFunction(_qtObject, QLatin1String("atob"), &_stringValue, 1);
     addFunction(_qtObject, QLatin1String("btoa"), &_stringValue, 1);
+    addFunction(_qtObject, QLatin1String("colorEqual"), booleanValue(), 2);
     addFunction(_qtObject, QLatin1String("createComponent"), 1);
     addFunction(_qtObject, QLatin1String("createQmlObject"), 3);
     addFunction(_qtObject, QLatin1String("darker"), &_colorValue, 1);
+    addFunction(_qtObject, QLatin1String("font"), qmlFontObject(), 1);
     addFunction(_qtObject, QLatin1String("fontFamilies"), 0);
     addFunction(_qtObject, QLatin1String("formatDate"), &_stringValue, 2);
     addFunction(_qtObject, QLatin1String("formatDateTime"), &_stringValue, 2);
@@ -591,10 +601,24 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     addFunction(_qtObject, QLatin1String("include"), 2);
     addFunction(_qtObject, QLatin1String("isQtObject"), &_booleanValue, 1);
     addFunction(_qtObject, QLatin1String("lighter"), &_colorValue, 1);
+    // FIXME: add locale
+    addFunction(_qtObject, QLatin1String("matrix4x4"), _qmlMatrix4x4Object, 16);
     addFunction(_qtObject, QLatin1String("md5"), &_stringValue, 1);
     addFunction(_qtObject, QLatin1String("openUrlExternally"), &_booleanValue, 1);
+
+    ObjectValue *platformObject = newObject();
+    platformObject->setMember(QLatin1String("os"), stringValue());
+    _qtObject->setMember(QLatin1String("platform"), platformObject);
+
     addFunction(_qtObject, QLatin1String("point"), _qmlPointObject, 2);
+    addFunction(_qtObject, QLatin1String("qsTr"), stringValue(), 1, 2);
+    addFunction(_qtObject, QLatin1String("qsTrId"), stringValue(), 1, 2);
+    addFunction(_qtObject, QLatin1String("qsTrIdNoOp"), stringValue(), 1, 2);
+    addFunction(_qtObject, QLatin1String("qsTranslate"), stringValue(), 1, 2);
+    addFunction(_qtObject, QLatin1String("qsTranslateNoOp"), stringValue(), 1, 2);
+    addFunction(_qtObject, QLatin1String("quaternion"), _qmlQuaternionObject, 4);
     addFunction(_qtObject, QLatin1String("quit"), 0);
+
     addFunction(_qtObject, QLatin1String("rect"), _qmlRectObject, 4);
     addFunction(_qtObject, QLatin1String("resolvedUrl"), &_urlValue, 1);
     addFunction(_qtObject, QLatin1String("rgba"), &_colorValue, 4);
@@ -603,8 +627,6 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     addFunction(_qtObject, QLatin1String("vector2d"), _qmlVector2DObject, 2);
     addFunction(_qtObject, QLatin1String("vector3d"), _qmlVector3DObject, 3);
     addFunction(_qtObject, QLatin1String("vector4d"), _qmlVector4DObject, 4);
-    addFunction(_qtObject, QLatin1String("quaternion"), _qmlQuaternionObject, 4);
-    addFunction(_qtObject, QLatin1String("matrix4x4"), _qmlMatrix4x4Object, 16);
     _globalObject->setMember(QLatin1String("Qt"), _qtObject);
 
     // firebug/webkit compat
