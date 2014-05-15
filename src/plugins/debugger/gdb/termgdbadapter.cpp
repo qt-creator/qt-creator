@@ -123,11 +123,18 @@ void GdbTermEngine::setupInferior()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
     const qint64 attachedMainThreadID = m_stubProc.applicationMainThreadID();
-    const QString msg = (attachedMainThreadID != -1)
-            ? QString::fromLatin1("Attaching to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
-            : QString::fromLatin1("Attaching to %1").arg(attachedPID);
-    showMessage(msg, LogMisc);
     notifyInferiorPid(attachedPID);
+    const QString msg = (attachedMainThreadID != -1)
+            ? QString::fromLatin1("Going to attach to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
+            : QString::fromLatin1("Going to attach to %1").arg(attachedPID);
+    showMessage(msg, LogMisc);
+    handleInferiorPrepared();
+}
+
+void GdbTermEngine::runEngine()
+{
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
+    const qint64 attachedPID = m_stubProc.applicationPID();
     postCommand("attach " + QByteArray::number(attachedPID),
         CB(handleStubAttached));
 }
@@ -154,26 +161,23 @@ void GdbTermEngine::handleStubAttached(const GdbResponse &response)
                             LogWarning);
             }
         }
-        handleInferiorPrepared();
+        notifyEngineRunAndInferiorStopOk();
+        continueInferiorInternal();
         break;
     case GdbResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            notifyInferiorSetupFailed(msgPtraceError(startParameters().startMode));
+            showMessage(msgPtraceError(startParameters().startMode));
+            notifyEngineRunFailed();
             break;
         }
-        notifyInferiorSetupFailed(QString::fromLocal8Bit(response.data["msg"].data()));
+        showMessage(QString::fromLocal8Bit(response.data["msg"].data()));
+        notifyEngineRunFailed();
         break;
     default:
-        notifyInferiorSetupFailed(QString::fromLatin1("Invalid response %1").arg(response.resultClass));
+        showMessage(QString::fromLatin1("Invalid response %1").arg(response.resultClass));
+        notifyEngineRunFailed();
         break;
     }
-}
-
-void GdbTermEngine::runEngine()
-{
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    notifyEngineRunAndInferiorStopOk();
-    continueInferiorInternal();
 }
 
 void GdbTermEngine::interruptInferior2()

@@ -2841,14 +2841,14 @@ void GdbEngine::changeBreakpoint(BreakpointModelId id)
     QTC_ASSERT(state2 == BreakpointChangeProceeding, qDebug() << state2);
     QVariant vid = QVariant::fromValue(id);
 
-    if (data.threadSpec != response.threadSpec) {
+    if (!response.pending && data.threadSpec != response.threadSpec) {
         // The only way to change this seems to be to re-set the bp completely.
         postCommand("-break-delete " + bpnr,
             NeedsStop | RebuildBreakpointModel,
             CB(handleBreakThreadSpec), vid);
         return;
     }
-    if (data.lineNumber != response.lineNumber) {
+    if (!response.pending && data.lineNumber != response.lineNumber) {
         // The only way to change this seems to be to re-set the bp completely.
         postCommand("-break-delete " + bpnr,
             NeedsStop | RebuildBreakpointModel,
