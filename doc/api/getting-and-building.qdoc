@@ -22,7 +22,6 @@
 
     \code
     TODO: This should be extended.
-    * How to avoid building Qt
     * Windows specific hassle, see README in \QC sources
     \endcode
 
@@ -31,40 +30,17 @@
     \QC at one or the other place. It is also necessary if you want to
     create your own \QC plugin.
 
-    \section1 Getting and Building Qt
+    \section1 Getting Qt
 
-    \QC usually uses the latest stable release of Qt,
-    you can see the exact minimum requirement at the top of \QC's qtcreator.pro.
+    Prebuilt \QC packages usually use the latest stable release of Qt.
+    You can see the exact minimum requirement at the top of \QC's qtcreator.pro.
     (You can find the current version in our source repository here:
     \l{http://qt.gitorious.org/qt-creator/qt-creator/blobs/master/qtcreator.pro}.)
 
-    You find the sources for the different Qt versions for example on our gitorious repository
-    \l{http://qt.gitorious.org/qt}.
-
-    \QC requires private headers of Qt, which are unfortunately not installed
-    by the Qt binary packages, and also are not copied to the installation directory when
-    using \c{make install} on a self-compiled Qt. To solve this problem
-    configure Qt with the \c{-developer-build} option, which sets the install
-    directory to the build directory itself (you are not required to run
-    \c{make install} in that case).
-    In Linux and Mac terminals, enter the following commands:
-    \code
-    cd <QtSources>
-    ./configure -developer-build
-    make
-    \endcode
-    On Windows, open a command prompt where your developer tools are set up, and enter
-    the following commands for MSVC builds
-    \code
-    cd <QtSources>
-    configure -developer-build
-    nmake
-    \endcode
-
-    If you really need to use a Qt build that does not have private headers in its
-    installation directory, you can set the \c{QT_PRIVATE_HEADERS} qmake variable
-    to the include path which contains them, when running qmake on the \QC
-    sources (see below).
+    You can get prebuilt Qt packages from the
+    \l{https://download.qt-project.org/official_releases/qt/}{Qt Project download page}.
+    If you want to use Qt as provided by your Linux distribution, you need to make sure that all
+    Qt development packages and private header packages are also installed.
 
     \section1 Getting and Building \QC
 
@@ -86,12 +62,4 @@
     make
     \endcode
     or the corresponding commands on Windows systems.
-
-    If your Qt installation does not contain private headers (see above), you can point \QC
-    to the private headers by setting the \c{QT_PRIVATE_HEADERS} qmake variable
-    to the include directory that contains them. On Linux and Mac, enter the following command
-    instead of the qmake call above:
-    \code
-    <QtInstall>/bin/qmake -r QT_PRIVATE_HEADERS=<QtSources>/include <QtCreatorSources>
-    \endcode
 */
