@@ -35,6 +35,12 @@
 
 using namespace CPlusPlus;
 
+static Matcher *defaultMatcher()
+{
+    static Matcher matcher;
+    return &matcher;
+}
+
 Matcher::Matcher()
 {
 }
@@ -50,7 +56,7 @@ bool Matcher::match(const Type *type, const Type *otherType, Matcher *matcher)
     if (!type || !otherType)
         return false;
 
-    return type->match0(otherType, matcher);
+    return type->match0(otherType, matcher ? matcher : defaultMatcher());
 }
 
 bool Matcher::match(const Name *name, const Name *otherName, Matcher *matcher)
@@ -60,7 +66,7 @@ bool Matcher::match(const Name *name, const Name *otherName, Matcher *matcher)
     if (!name || !otherName)
         return false;
 
-    return name->match0(otherName, matcher);
+    return name->match0(otherName, matcher ? matcher : defaultMatcher());
 }
 
 bool Matcher::match(const UndefinedType *, const UndefinedType *)
@@ -161,7 +167,13 @@ bool Matcher::match(const NamedType *type, const NamedType *otherType)
 
 bool Matcher::match(const Function *type, const Function *otherType)
 {
-    if (type != otherType)
+    if (type == otherType)
+        return true;
+
+    else if (! type->isSignatureEqualTo(otherType, this))
+        return false;
+
+    else if (! type->returnType().match(otherType->returnType(), this))
         return false;
 
     return true;
@@ -169,7 +181,10 @@ bool Matcher::match(const Function *type, const Function *otherType)
 
 bool Matcher::match(const Enum *type, const Enum *otherType)
 {
-    if (type != otherType)
+    if (type == otherType)
+        return true;
+
+    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     return true;
@@ -177,7 +192,10 @@ bool Matcher::match(const Enum *type, const Enum *otherType)
 
 bool Matcher::match(const Namespace *type, const Namespace *otherType)
 {
-    if (type != otherType)
+    if (type == otherType)
+        return true;
+
+    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     return true;
@@ -193,7 +211,10 @@ bool Matcher::match(const Template *type, const Template *otherType)
 
 bool Matcher::match(const ForwardClassDeclaration *type, const ForwardClassDeclaration *otherType)
 {
-    if (type != otherType)
+    if (type == otherType)
+        return true;
+
+    else if (! Name::match(type->name(), otherType->name(), this))
         return false;
 
     return true;
@@ -201,7 +222,10 @@ bool Matcher::match(const ForwardClassDeclaration *type, const ForwardClassDecla
 
 bool Matcher::match(const Class *type, const Class *otherType)
 {
-    if (type != otherType)
+    if (type == otherType)
+        return true;
+
+    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     return true;
@@ -209,7 +233,10 @@ bool Matcher::match(const Class *type, const Class *otherType)
 
 bool Matcher::match(const ObjCClass *type, const ObjCClass *otherType)
 {
-    if (type != otherType)
+    if (type == otherType)
+        return true;
+
+    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     return true;
@@ -217,7 +244,10 @@ bool Matcher::match(const ObjCClass *type, const ObjCClass *otherType)
 
 bool Matcher::match(const ObjCProtocol *type, const ObjCProtocol *otherType)
 {
-    if (type != otherType)
+    if (type == otherType)
+        return true;
+
+    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     return true;
@@ -225,7 +255,10 @@ bool Matcher::match(const ObjCProtocol *type, const ObjCProtocol *otherType)
 
 bool Matcher::match(const ObjCForwardClassDeclaration *type, const ObjCForwardClassDeclaration *otherType)
 {
-    if (type != otherType)
+    if (type == otherType)
+        return true;
+
+    else if (! Name::match(type->name(), otherType->name(), this))
         return false;
 
     return true;
@@ -233,7 +266,10 @@ bool Matcher::match(const ObjCForwardClassDeclaration *type, const ObjCForwardCl
 
 bool Matcher::match(const ObjCForwardProtocolDeclaration *type, const ObjCForwardProtocolDeclaration *otherType)
 {
-    if (type != otherType)
+    if (type == otherType)
+        return true;
+
+    else if (! Name::match(type->name(), otherType->name(), this))
         return false;
 
     return true;
@@ -241,8 +277,24 @@ bool Matcher::match(const ObjCForwardProtocolDeclaration *type, const ObjCForwar
 
 bool Matcher::match(const ObjCMethod *type, const ObjCMethod *otherType)
 {
-    if (type != otherType)
+    if (type == otherType)
+        return true;
+
+    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
+
+    else if (type->argumentCount() != otherType->argumentCount())
+        return false;
+
+    else if (! type->returnType().match(otherType->returnType(), this))
+        return false;
+
+    for (unsigned i = 0; i < type->argumentCount(); ++i) {
+        Symbol *l = type->argumentAt(i);
+        Symbol *r = otherType->argumentAt(i);
+        if (! l->type().match(r->type(), this))
+            return false;
+    }
 
     return true;
 }
@@ -301,8 +353,7 @@ bool Matcher::match(const QualifiedNameId *name, const QualifiedNameId *otherNam
 bool Matcher::match(const SelectorNameId *name, const SelectorNameId *otherName)
 {
     const unsigned nc = name->nameCount();
-    if (name->hasArguments() != otherName->hasArguments() ||
-            nc != otherName->nameCount())
+    if (name->hasArguments() != otherName->hasArguments() || nc != otherName->nameCount())
         return false;
     for (unsigned i = 0; i < nc; ++i)
         if (!Name::match(name->nameAt(i), otherName->nameAt(i), this))

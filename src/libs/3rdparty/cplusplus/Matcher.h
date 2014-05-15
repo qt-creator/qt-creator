@@ -43,8 +43,8 @@ public:
     Matcher();
     virtual ~Matcher();
 
-    static bool match(const Type *type, const Type *otherType, Matcher *matcher);
-    static bool match(const Name *name, const Name *otherName, Matcher *matcher);
+    static bool match(const Type *type, const Type *otherType, Matcher *matcher = 0);
+    static bool match(const Name *name, const Name *otherName, Matcher *matcher = 0);
 
     virtual bool match(const UndefinedType *type, const UndefinedType *otherType);
     virtual bool match(const VoidType *type, const VoidType *otherType);

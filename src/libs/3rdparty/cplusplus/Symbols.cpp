@@ -222,7 +222,7 @@ int Function::methodKey() const
 void Function::setMethodKey(int key)
 { f._methodKey = key; }
 
-bool Function::isSignatureEqualTo(const Function *other) const
+bool Function::isSignatureEqualTo(const Function *other, Matcher *matcher) const
 {
     if (! other)
         return false;
@@ -230,22 +230,19 @@ bool Function::isSignatureEqualTo(const Function *other) const
         return false;
     else if (isVolatile() != other->isVolatile())
         return false;
+    else if (! Matcher::match(unqualifiedName(), other->unqualifiedName(), matcher))
+        return false;
 
-    const Name *l = unqualifiedName();
-    const Name *r = other->unqualifiedName();
-    if (l == r || (l && l->isEqualTo(r))) {
-        const unsigned argc = argumentCount();
-        if (argc != other->argumentCount())
+    const unsigned argc = argumentCount();
+    if (argc != other->argumentCount())
+        return false;
+    for (unsigned i = 0; i < argc; ++i) {
+        Symbol *l = argumentAt(i);
+        Symbol *r = other->argumentAt(i);
+        if (! l->type().match(r->type(), matcher))
             return false;
-        for (unsigned i = 0; i < argc; ++i) {
-            Symbol *l = argumentAt(i);
-            Symbol *r = other->argumentAt(i);
-            if (! l->type().isEqualTo(r->type()))
-                return false;
-        }
-        return true;
     }
-    return false;
+    return true;
 }
 
 bool Function::isEqualTo(const Type *other) const
