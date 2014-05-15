@@ -161,18 +161,18 @@ def iterateBuildConfigs(kitCount, filter = ""):
 # param targetCount specifies the number of targets currently defined (must be correct!)
 # param currentTarget specifies the target for which to switch into the specified settings (zero based index)
 # param configName is the name of the configuration that should be selected
+# param afterSwitchTo the ViewConstant of the mode to switch to after selecting or None
 # returns information about the selected kit, see getQtInformationForBuildSettings
-def selectBuildConfig(targetCount, currentTarget, configName):
+def selectBuildConfig(targetCount, currentTarget, configName, afterSwitchTo=ViewConstants.EDIT):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
     selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName)
     progressBarWait(30000)
-    return getQtInformationForBuildSettings(targetCount, True, ViewConstants.EDIT)
+    return getQtInformationForBuildSettings(targetCount, True, afterSwitchTo)
 
 # This will not trigger a rebuild. If needed, caller has to do this.
-def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
-    switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
+def verifyBuildConfig(targetCount, currentTarget, configName, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
+    qtInfo = selectBuildConfig(targetCount, currentTarget, configName, None)
     ensureChecked(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     ensureChecked("{name='shadowBuildCheckBox' type='QCheckBox' visible='1'}", enableShadowBuild)
     buildCfCombo = waitForObject("{type='QComboBox' name='buildConfigurationComboBox' visible='1' "
@@ -210,6 +210,7 @@ def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableSha
             clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
     clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)
+    return qtInfo
 
 # verify if building and running of project was successful
 def verifyBuildAndRun():

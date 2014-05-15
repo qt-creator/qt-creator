@@ -63,8 +63,7 @@ def main():
                 test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
             for kit, config in availableConfigs:
                 test.log("Selecting '%s' as build config" % config)
-                selectBuildConfig(len(checkedTargets), kit, config)
-                verifyBuildConfig(len(checkedTargets), kit, True, enableQmlDebug=True)
+                verifyBuildConfig(len(checkedTargets), kit, config, True, enableQmlDebug=True)
                 # explicitly build before start debugging for adding the executable as allowed program to WinFW
                 invokeMenuItem("Build", "Rebuild All")
                 waitForCompile(300000)
