@@ -283,7 +283,7 @@ bool FunctionDeclDefLink::isMarkerVisible() const
 
 static bool namesEqual(const Name *n1, const Name *n2)
 {
-    return n1 == n2 || (n1 && n2 && n1->isEqualTo(n2));
+    return n1 == n2 || (n1 && n2 && n1->match(n2));
 }
 
 void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
@@ -487,7 +487,7 @@ static int findUniqueTypeMatch(int sourceParamIndex, Function *sourceFunction, F
         int otherSourceParamIndex = sourceParams.at(i);
         if (sourceParamIndex == otherSourceParamIndex)
             continue;
-        if (sourceParam->type().isEqualTo(sourceFunction->argumentAt(otherSourceParamIndex)->type()))
+        if (sourceParam->type().match(sourceFunction->argumentAt(otherSourceParamIndex)->type()))
             return -1;
     }
 
@@ -496,7 +496,7 @@ static int findUniqueTypeMatch(int sourceParamIndex, Function *sourceFunction, F
     int newParamWithSameTypeIndex = -1;
     for (int i = 0; i < newParams.size(); ++i) {
         int newParamIndex = newParams.at(i);
-        if (sourceParam->type().isEqualTo(newFunction->argumentAt(newParamIndex)->type())) {
+        if (sourceParam->type().match(newFunction->argumentAt(newParamIndex)->type())) {
             if (newParamWithSameTypeIndex != -1)
                 return -1;
             newParamWithSameTypeIndex = newParamIndex;
@@ -635,8 +635,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
         else
             returnTypeStart = targetFile->startOf(declarator);
 
-        if (!newFunction->returnType().isEqualTo(sourceFunction->returnType())
-                && !newFunction->returnType().isEqualTo(targetFunction->returnType())) {
+        if (!newFunction->returnType().match(sourceFunction->returnType())
+                && !newFunction->returnType().match(targetFunction->returnType())) {
             FullySpecifiedType type = rewriteType(newFunction->returnType(), &env, control);
             const QString replacement = overview.prettyType(type, targetFunction->name());
             changes.replace(returnTypeStart,
@@ -811,8 +811,8 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
                     renamedTargetParameters[targetParam] = overview.prettyName(replacementName);
 
                 // need to change the type (and name)?
-                if (!newParam->type().isEqualTo(sourceParam->type())
-                        && !newParam->type().isEqualTo(targetParam->type())) {
+                if (!newParam->type().match(sourceParam->type())
+                        && !newParam->type().match(targetParam->type())) {
                     const int parameterTypeStart = targetFile->startOf(targetParamAst);
                     int parameterTypeEnd = 0;
                     if (targetParamAst->declarator)

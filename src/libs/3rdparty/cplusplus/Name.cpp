@@ -58,11 +58,6 @@ bool Name::isQualifiedNameId() const
 bool Name::isSelectorNameId() const
 { return asSelectorNameId() != 0; }
 
-bool Name::match(const Name *name, const Name *otherName, Matcher *matcher)
-{
-    return Matcher::match(name, otherName, matcher);
-}
-
 void Name::accept(NameVisitor *visitor) const
 {
     if (visitor->preVisit(this))
@@ -75,6 +70,11 @@ void Name::accept(const Name *name, NameVisitor *visitor)
     if (! name)
         return;
     name->accept(visitor);
+}
+
+bool Name::match(const Name *other, Matcher *matcher) const
+{
+    return Matcher::match(this, other, matcher);
 }
 
 bool Name::Compare::operator()(const Name *name, const Name *other) const

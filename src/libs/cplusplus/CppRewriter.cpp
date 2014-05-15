@@ -368,7 +368,7 @@ FullySpecifiedType SubstitutionMap::apply(const Name *name, Rewrite *) const
     for (int n = _map.size() - 1; n != -1; --n) {
         const QPair<const Name *, FullySpecifiedType> &p = _map.at(n);
 
-        if (name->isEqualTo(p.first))
+        if (name->match(p.first))
             return p.second;
     }
 

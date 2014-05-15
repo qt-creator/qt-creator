@@ -144,18 +144,18 @@ Symbol *SymbolTable::lookat(const Identifier *id) const
         if (! identity) {
             continue;
         } else if (const Identifier *nameId = identity->asNameId()) {
-            if (nameId->identifier()->isEqualTo(id))
+            if (nameId->identifier()->match(id))
                 break;
         } else if (const TemplateNameId *t = identity->asTemplateNameId()) {
-            if (t->identifier()->isEqualTo(id))
+            if (t->identifier()->match(id))
                 break;
         } else if (const DestructorNameId *d = identity->asDestructorNameId()) {
-            if (d->identifier()->isEqualTo(id))
+            if (d->identifier()->match(id))
                 break;
         } else if (identity->isQualifiedNameId()) {
             return 0;
         } else if (const SelectorNameId *selectorNameId = identity->asSelectorNameId()) {
-            if (selectorNameId->identifier()->isEqualTo(id))
+            if (selectorNameId->identifier()->match(id))
                 break;
         }
     }

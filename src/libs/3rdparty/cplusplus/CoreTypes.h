@@ -42,8 +42,6 @@ public:
     virtual UndefinedType *asUndefinedType()
     { return this; }
 
-    virtual bool isEqualTo(const Type *other) const;
-
 protected:
     virtual void accept0(TypeVisitor *visitor);
     virtual bool match0(const Type *otherType, Matcher *matcher) const;
@@ -52,8 +50,6 @@ protected:
 class CPLUSPLUS_EXPORT VoidType: public Type
 {
 public:
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const VoidType *asVoidType() const
     { return this; }
 
@@ -86,8 +82,6 @@ public:
 
     int kind() const;
 
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual IntegerType *asIntegerType()
     { return this; }
 
@@ -117,8 +111,6 @@ public:
 
     int kind() const;
 
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const FloatType *asFloatType() const
     { return this; }
 
@@ -140,8 +132,6 @@ public:
     virtual ~PointerType();
 
     FullySpecifiedType elementType() const;
-
-    virtual bool isEqualTo(const Type *other) const;
 
     virtual const PointerType *asPointerType() const
     { return this; }
@@ -165,8 +155,6 @@ public:
 
     const Name *memberName() const;
     FullySpecifiedType elementType() const;
-
-    virtual bool isEqualTo(const Type *other) const;
 
     virtual const PointerToMemberType *asPointerToMemberType() const
     { return this; }
@@ -192,8 +180,6 @@ public:
     FullySpecifiedType elementType() const;
     bool isRvalueReference() const;
 
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const ReferenceType *asReferenceType() const
     { return this; }
 
@@ -218,8 +204,6 @@ public:
     FullySpecifiedType elementType() const;
     unsigned size() const;
 
-    virtual bool isEqualTo(const Type *other) const;
-
     virtual const ArrayType *asArrayType() const
     { return this; }
 
@@ -242,8 +226,6 @@ public:
     virtual ~NamedType();
 
     const Name *name() const;
-
-    virtual bool isEqualTo(const Type *other) const;
 
     virtual const NamedType *asNamedType() const
     { return this; }

@@ -2294,7 +2294,7 @@ Enum *findEnum(const QList<LookupItem> &results, const LookupContext &ctxt)
                 const Name *referenceName = namedType->name();
                 foreach (Enum *e, enums) {
                     if (const Name *candidateName = e->name()) {
-                        if (candidateName->isEqualTo(referenceName))
+                        if (candidateName->match(referenceName))
                             return e;
                     }
                 }
@@ -2485,11 +2485,11 @@ void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOpe
         const QualifiedNameId *qName = fun->name()->asQualifiedNameId();
         for (Symbol *s = matchingClass->find(qName->identifier()); s; s = s->next()) {
             if (!s->name()
-                    || !qName->identifier()->isEqualTo(s->identifier())
+                    || !qName->identifier()->match(s->identifier())
                     || !s->type()->isFunctionType())
                 continue;
 
-            if (s->type().isEqualTo(fun->type())) {
+            if (s->type().match(fun->type())) {
                 // Declaration exists.
                 return;
             }
@@ -3671,9 +3671,9 @@ public:
             const QualifiedNameId *qName = func->name()->asQualifiedNameId();
             for (Symbol *s = matchingClass->find(qName->identifier()); s; s = s->next()) {
                 if (!s->name()
-                        || !qName->identifier()->isEqualTo(s->identifier())
+                        || !qName->identifier()->match(s->identifier())
                         || !s->type()->isFunctionType()
-                        || !s->type().isEqualTo(func->type())
+                        || !s->type().match(func->type())
                         || s->isFunction()) {
                     continue;
                 }
@@ -4391,9 +4391,9 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
         const QualifiedNameId *qName = func->name()->asQualifiedNameId();
         for (Symbol *s = matchingClass->find(qName->identifier()); s; s = s->next()) {
             if (!s->name()
-                    || !qName->identifier()->isEqualTo(s->identifier())
+                    || !qName->identifier()->match(s->identifier())
                     || !s->type()->isFunctionType()
-                    || !s->type().isEqualTo(func->type())
+                    || !s->type().match(func->type())
                     || s->isFunction()) {
                 continue;
             }

@@ -106,8 +106,6 @@ public:
 
     virtual const Identifier *identifier() const { return this; }
 
-    virtual bool isEqualTo(const Name *other) const;
-
     virtual const Identifier *asNameId() const
     { return this; }
 

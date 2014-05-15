@@ -2691,12 +2691,12 @@ bool Bind::visit(SimpleSpecifierAST *ast)
     switch (tokenKind(ast->specifier_token)) {
         case T_IDENTIFIER: {
                 const Identifier *id = tokenAt(ast->specifier_token).identifier;
-                if (id->isEqualTo(control()->cpp11Override())) {
+                if (id->match(control()->cpp11Override())) {
                     if (_type.isOverride())
                         translationUnit()->error(ast->specifier_token, "duplicate `override'");
                     _type.setOverride(true);
                 }
-                else if (id->isEqualTo(control()->cpp11Final())) {
+                else if (id->match(control()->cpp11Final())) {
                     if (_type.isFinal())
                         translationUnit()->error(ast->specifier_token, "duplicate `final'");
                     _type.setFinal(true);

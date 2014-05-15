@@ -545,10 +545,10 @@ public:
                     for (Symbol *symbol = m_classAST->symbol->find(funcName->identifier());
                          symbol; symbol = symbol->next()) {
                         if (!symbol->name()
-                                || !funcName->identifier()->isEqualTo(symbol->identifier())) {
+                                || !funcName->identifier()->match(symbol->identifier())) {
                             continue;
                         }
-                        if (symbol->type().isEqualTo(func->type())) {
+                        if (symbol->type().match(func->type())) {
                             funcExistsInClass = true;
                             break;
                         }

@@ -97,10 +97,7 @@ public:
     void accept(TypeVisitor *visitor);
     static void accept(Type *type, TypeVisitor *visitor);
 
-    static bool match(const Type *type, const Type *otherType, Matcher *matcher);
-
-
-    virtual bool isEqualTo(const Type *other) const = 0; // ### remove
+    bool match(const Type *other, Matcher *matcher = 0) const;
 
 protected:
     virtual void accept0(TypeVisitor *visitor) = 0;
@@ -111,6 +108,5 @@ protected: // for Matcher
 };
 
 } // namespace CPlusPlus
-
 
 #endif // CPLUSPLUS_TYPE_H

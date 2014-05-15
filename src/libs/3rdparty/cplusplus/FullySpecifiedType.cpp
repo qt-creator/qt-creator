@@ -172,18 +172,6 @@ bool FullySpecifiedType::isUnavailable() const
 void FullySpecifiedType::setUnavailable(bool isUnavailable)
 { f._isUnavailable = isUnavailable; }
 
-bool FullySpecifiedType::isEqualTo(const FullySpecifiedType &other) const
-{
-    if (_flags != other._flags)
-        return false;
-    if (_type == other._type)
-        return true;
-    else if (! _type)
-        return false;
-    else
-        return _type->isEqualTo(other._type);
-}
-
 Type &FullySpecifiedType::operator*()
 { return *_type; }
 
@@ -250,5 +238,5 @@ bool FullySpecifiedType::match(const FullySpecifiedType &otherTy, Matcher *match
     if (_flags != otherTy._flags)
         return false;
 
-    return Type::match(type(), otherTy.type(), matcher);
+    return type()->match(otherTy.type(), matcher);
 }

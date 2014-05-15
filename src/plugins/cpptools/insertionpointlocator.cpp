@@ -112,7 +112,7 @@ protected:
     {
         if (!ast->lbrace_token || !ast->rbrace_token)
             return true;
-        if (!ast->symbol || !ast->symbol->isEqualTo(_clazz))
+        if (!ast->symbol || !ast->symbol->match(_clazz))
             return true;
 
         QList<AccessRange> ranges = collectAccessRanges(

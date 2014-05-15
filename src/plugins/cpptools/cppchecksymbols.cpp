@@ -744,7 +744,7 @@ bool CheckSymbols::hasVirtualDestructor(Class *klass) const
             continue;
         if (s->name()->isDestructorNameId()) {
             if (Function *funTy = s->type()->asFunctionType()) {
-                if (funTy->isVirtual() && id->isEqualTo(s->identifier()))
+                if (funTy->isVirtual() && id->match(s->identifier()))
                     return true;
             }
         }
@@ -1419,7 +1419,7 @@ bool CheckSymbols::isConstructorDeclaration(Symbol *declaration)
 {
     Class *clazz = declaration->enclosingClass();
     if (clazz && clazz->name())
-        return declaration->name()->isEqualTo(clazz->name());
+        return declaration->name()->match(clazz->name());
 
     return false;
 }

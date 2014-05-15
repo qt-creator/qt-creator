@@ -94,8 +94,6 @@ public:
     bool isUnavailable() const;
     void setUnavailable(bool isUnavailable);
 
-    bool isEqualTo(const FullySpecifiedType &other) const;
-
     Type &operator*();
     const Type &operator*() const;
 
@@ -106,7 +104,7 @@ public:
     bool operator != (const FullySpecifiedType &other) const;
     bool operator < (const FullySpecifiedType &other) const;
 
-    bool match(const FullySpecifiedType &otherTy, Matcher *matcher) const;
+    bool match(const FullySpecifiedType &otherTy, Matcher *matcher = 0) const;
 
     FullySpecifiedType simplified() const;
 
@@ -153,6 +151,5 @@ private:
 };
 
 } // namespace CPlusPlus
-
 
 #endif // CPLUSPLUS_FULLYSPECIFIEDTYPE_H

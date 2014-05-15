@@ -106,7 +106,7 @@ bool Matcher::match(const PointerToMemberType *type, const PointerToMemberType *
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->memberName(), otherType->memberName(), this))
+    else if (! Matcher::match(type->memberName(), otherType->memberName(), this))
         return false;
 
     else if (! type->elementType().match(otherType->elementType(), this))
@@ -159,7 +159,7 @@ bool Matcher::match(const NamedType *type, const NamedType *otherType)
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->name(), otherType->name(), this))
+    else if (! Matcher::match(type->name(), otherType->name(), this))
         return false;
 
     return true;
@@ -184,7 +184,7 @@ bool Matcher::match(const Enum *type, const Enum *otherType)
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
+    else if (! Matcher::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     return true;
@@ -195,7 +195,7 @@ bool Matcher::match(const Namespace *type, const Namespace *otherType)
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
+    else if (! Matcher::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     return true;
@@ -214,7 +214,7 @@ bool Matcher::match(const ForwardClassDeclaration *type, const ForwardClassDecla
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->name(), otherType->name(), this))
+    else if (! Matcher::match(type->name(), otherType->name(), this))
         return false;
 
     return true;
@@ -225,7 +225,7 @@ bool Matcher::match(const Class *type, const Class *otherType)
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
+    else if (! Matcher::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     return true;
@@ -236,7 +236,7 @@ bool Matcher::match(const ObjCClass *type, const ObjCClass *otherType)
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
+    else if (! Matcher::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     return true;
@@ -247,7 +247,7 @@ bool Matcher::match(const ObjCProtocol *type, const ObjCProtocol *otherType)
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
+    else if (! Matcher::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     return true;
@@ -258,7 +258,7 @@ bool Matcher::match(const ObjCForwardClassDeclaration *type, const ObjCForwardCl
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->name(), otherType->name(), this))
+    else if (! Matcher::match(type->name(), otherType->name(), this))
         return false;
 
     return true;
@@ -269,7 +269,7 @@ bool Matcher::match(const ObjCForwardProtocolDeclaration *type, const ObjCForwar
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->name(), otherType->name(), this))
+    else if (! Matcher::match(type->name(), otherType->name(), this))
         return false;
 
     return true;
@@ -280,7 +280,7 @@ bool Matcher::match(const ObjCMethod *type, const ObjCMethod *otherType)
     if (type == otherType)
         return true;
 
-    else if (! Name::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
+    else if (! Matcher::match(type->unqualifiedName(), otherType->unqualifiedName(), this))
         return false;
 
     else if (type->argumentCount() != otherType->argumentCount())
@@ -330,7 +330,7 @@ bool Matcher::match(const TemplateNameId *name, const TemplateNameId *otherName)
 
 bool Matcher::match(const DestructorNameId *name, const DestructorNameId *otherName)
 {
-    return Name::match(name->name(), otherName->name(), this);
+    return Matcher::match(name->name(), otherName->name(), this);
 }
 
 bool Matcher::match(const OperatorNameId *name, const OperatorNameId *otherName)
@@ -345,8 +345,8 @@ bool Matcher::match(const ConversionNameId *name, const ConversionNameId *otherN
 
 bool Matcher::match(const QualifiedNameId *name, const QualifiedNameId *otherName)
 {
-    if (Name::match(name->base(), otherName->base(), this))
-        return Name::match(name->name(), otherName->name(), this);
+    if (Matcher::match(name->base(), otherName->base(), this))
+        return Matcher::match(name->name(), otherName->name(), this);
     return false;
 }
 
@@ -356,7 +356,7 @@ bool Matcher::match(const SelectorNameId *name, const SelectorNameId *otherName)
     if (name->hasArguments() != otherName->hasArguments() || nc != otherName->nameCount())
         return false;
     for (unsigned i = 0; i < nc; ++i)
-        if (!Name::match(name->nameAt(i), otherName->nameAt(i), this))
+        if (! Matcher::match(name->nameAt(i), otherName->nameAt(i), this))
             return false;
     return true;
 }

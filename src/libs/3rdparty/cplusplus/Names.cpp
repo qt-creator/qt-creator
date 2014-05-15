@@ -54,21 +54,6 @@ const Name *QualifiedNameId::base() const
 const Name *QualifiedNameId::name() const
 { return _name; }
 
-bool QualifiedNameId::isEqualTo(const Name *other) const
-{
-    if (other) {
-        if (const QualifiedNameId *q = other->asQualifiedNameId()) {
-            if (_base == q->_base || (_base && _base->isEqualTo(q->_base))) {
-                if (_name == q->_name || (_name && _name->isEqualTo(q->_name))) {
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
 DestructorNameId::DestructorNameId(const Name *name)
     : _name(name)
 { }
@@ -92,19 +77,6 @@ const Name *DestructorNameId::name() const
 const Identifier *DestructorNameId::identifier() const
 { return _name->identifier(); }
 
-bool DestructorNameId::isEqualTo(const Name *other) const
-{
-    if (other) {
-        const DestructorNameId *d = other->asDestructorNameId();
-        if (! d)
-            return false;
-        const Name *l = name();
-        const Name *r = d->name();
-        return l->isEqualTo(r);
-    }
-    return false;
-}
-
 TemplateNameId::~TemplateNameId()
 { }
 
@@ -126,28 +98,6 @@ unsigned TemplateNameId::templateArgumentCount() const
 
 const FullySpecifiedType &TemplateNameId::templateArgumentAt(unsigned index) const
 { return _templateArguments[index]; }
-
-bool TemplateNameId::isEqualTo(const Name *other) const
-{
-    if (other) {
-        const TemplateNameId *t = other->asTemplateNameId();
-        if (! t)
-            return false;
-        const Identifier *l = identifier();
-        const Identifier *r = t->identifier();
-        if (! l->isEqualTo(r))
-            return false;
-        if (templateArgumentCount() != t->templateArgumentCount())
-            return false;
-        for (unsigned i = 0, ei = templateArgumentCount(); i != ei; ++i) {
-            const FullySpecifiedType &l = _templateArguments[i];
-            const FullySpecifiedType &r = t->_templateArguments[i];
-            if (! l.isEqualTo(r))
-                return false;
-        }
-    }
-    return true;
-}
 
 bool TemplateNameId::Compare::operator()(const TemplateNameId *name,
                                          const TemplateNameId *other) const
@@ -206,17 +156,6 @@ OperatorNameId::Kind OperatorNameId::kind() const
 const Identifier *OperatorNameId::identifier() const
 { return 0; }
 
-bool OperatorNameId::isEqualTo(const Name *other) const
-{
-    if (other) {
-        const OperatorNameId *o = other->asOperatorNameId();
-        if (! o)
-            return false;
-        return _kind == o->kind();
-    }
-    return false;
-}
-
 ConversionNameId::ConversionNameId(const FullySpecifiedType &type)
     : _type(type)
 { }
@@ -239,17 +178,6 @@ FullySpecifiedType ConversionNameId::type() const
 
 const Identifier *ConversionNameId::identifier() const
 { return 0; }
-
-bool ConversionNameId::isEqualTo(const Name *other) const
-{
-    if (other) {
-        const ConversionNameId *c = other->asConversionNameId();
-        if (! c)
-            return false;
-        return _type.isEqualTo(c->type());
-    }
-    return false;
-}
 
 SelectorNameId::~SelectorNameId()
 { }
@@ -281,29 +209,6 @@ const Name *SelectorNameId::nameAt(unsigned index) const
 bool SelectorNameId::hasArguments() const
 { return _hasArguments; }
 
-bool SelectorNameId::isEqualTo(const Name *other) const
-{
-    if (other) {
-        const SelectorNameId *q = other->asSelectorNameId();
-        if (! q)
-            return false;
-        else if (hasArguments() != q->hasArguments())
-            return false;
-        else {
-            const unsigned count = nameCount();
-            if (count != q->nameCount())
-                return false;
-            for (unsigned i = 0; i < count; ++i) {
-                const Name *l = nameAt(i);
-                const Name *r = q->nameAt(i);
-                if (! l->isEqualTo(r))
-                    return false;
-            }
-        }
-    }
-    return true;
-}
-
 AnonymousNameId::AnonymousNameId(unsigned classTokenIndex)
     : _classTokenIndex(classTokenIndex)
 { }
@@ -328,12 +233,3 @@ bool AnonymousNameId::match0(const Name *otherName, Matcher *matcher) const
 
 const Identifier *AnonymousNameId::identifier() const
 { return 0; }
-
-bool AnonymousNameId::isEqualTo(const Name *other) const
-{
-    if (other) {
-        const AnonymousNameId *c = other->asAnonymousNameId();
-        return (c && this->_classTokenIndex == c->_classTokenIndex);
-    }
-    return false;
-}

@@ -643,9 +643,9 @@ bool ResolveExpression::maybeValidPrototype(Function *funTy, unsigned actualArgu
 
 bool ResolveExpression::implicitConversion(const FullySpecifiedType &sourceTy, const FullySpecifiedType &targetTy) const
 {
-    if (sourceTy.isEqualTo(targetTy))
+    if (sourceTy.match(targetTy))
         return true;
-    else if (sourceTy.simplified().isEqualTo(targetTy.simplified()))
+    else if (sourceTy.simplified().match(targetTy.simplified()))
         return true;
     return false;
 }
@@ -963,7 +963,7 @@ private:
     {
         if (declaration->isTypedef()) {
             const Identifier *identifier = declaration->name()->identifier();
-            if (name->identifier()->isEqualTo(identifier))
+            if (name->identifier()->match(identifier))
                 return true;
         }
         return false;

@@ -371,7 +371,7 @@ int ApplySubstitution::findSubstitution(const Identifier *id) const
     for (int index = 0; index < substitution.size(); ++index) {
         QPair<const Identifier *, FullySpecifiedType> s = substitution.at(index);
 
-        if (id->isEqualTo(s.first))
+        if (id->match(s.first))
             return index;
     }
 

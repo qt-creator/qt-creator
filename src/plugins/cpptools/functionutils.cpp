@@ -148,7 +148,7 @@ QList<Function *> FunctionUtils::overrides(Function *function, Class *functionsC
             Function *candidateFunc = candidate->type()->asFunctionType();
             if (!candidateName || !candidateFunc)
                 continue;
-            if (candidateName->isEqualTo(referenceName)
+            if (candidateName->match(referenceName)
                     && candidateFunc->isSignatureEqualTo(function)) {
                 result << candidateFunc;
             }

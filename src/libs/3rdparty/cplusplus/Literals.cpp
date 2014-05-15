@@ -207,15 +207,3 @@ bool Identifier::match0(const Name *otherName, Matcher *matcher) const
         return matcher->match(this, id);
     return false;
 }
-
-bool Identifier::isEqualTo(const Name *other) const
-{
-    if (this == other)
-        return true;
-
-    else if (other) {
-        if (const Identifier *nameId = other->asNameId())
-            return equalTo(nameId);
-    }
-    return false;
-}

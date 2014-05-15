@@ -593,7 +593,7 @@ bool isQPrivateSignal(const Symbol *symbol)
     if (FullySpecifiedType type = symbol->type()) {
         if (NamedType *namedType = type->asNamedType()) {
             if (const Name *name = namedType->name()) {
-                if (name->isEqualTo(&qPrivateSignalIdentifier))
+                if (name->match(&qPrivateSignalIdentifier))
                     return true;
             }
         }
@@ -1785,7 +1785,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                     continue; // skip
 
                 if (Function *funTy = member->type()->asFunctionType()) {
-                    if (memberName->isEqualTo(className)) {
+                    if (memberName->match(className)) {
                         // it's a ctor.
                         functions.append(funTy);
                     }
@@ -1813,7 +1813,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                 bool newOverload = true;
 
                 foreach (Function *f, functions) {
-                    if (fun->isEqualTo(f)) {
+                    if (fun->match(f)) {
                         newOverload = false;
                         break;
                     }

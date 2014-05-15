@@ -102,7 +102,7 @@ static inline bool compareName(const Name *name, const Name *other)
         const Identifier *id = name->identifier();
         const Identifier *otherId = other->identifier();
 
-        if (id == otherId || (id && id->isEqualTo(otherId)))
+        if (id == otherId || (id && id->match(otherId)))
             return true;
     }
 
@@ -255,7 +255,7 @@ QList<LookupItem> LookupContext::lookupByUsing(const Name *name, Scope *scope) c
                 if (const Name *usingDeclarationName = u->name()) {
                     if (const QualifiedNameId *q = usingDeclarationName->asQualifiedNameId()) {
                         if (q->name() && q->identifier() && name->identifier()
-                                && q->name()->identifier()->isEqualTo(name->identifier())) {
+                                && q->name()->identifier()->match(name->identifier())) {
                             candidates = bindings()->globalNamespace()->find(q);
 
                             // if it is not a global scope(scope of scope is not equal 0)
@@ -312,7 +312,7 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                         return r;
                 }
             } else if (Declaration *d = m->asDeclaration()) {
-                if (d->name() && d->name()->isEqualTo(name->asNameId())) {
+                if (d->name() && d->name()->match(name->asNameId())) {
                     if (d->isTypedef() && d->type()) {
 #ifdef DEBUG_LOOKUP
                         Overview oo;
@@ -332,7 +332,7 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                 if (name->isNameId()) {
                     if (const Name *usingDeclarationName = ud->name()) {
                         if (const QualifiedNameId *q = usingDeclarationName->asQualifiedNameId()) {
-                            if (q->name() && q->name()->isEqualTo(name))
+                            if (q->name() && q->name()->match(name))
                                 return bindings()->globalNamespace()->lookupType(q);
                         }
                     }
@@ -652,7 +652,7 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
             if (Scope *scope = s->asScope()) {
                 if (Class *klass = scope->asClass()) {
                     if (const Identifier *id = klass->identifier()) {
-                        if (nameId && nameId->isEqualTo(id)) {
+                        if (nameId && nameId->match(id)) {
                             LookupItem item;
                             item.setDeclaration(klass);
                             item.setBinding(binding);
@@ -695,7 +695,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                 continue;
             else if (s->isFriend())
                 continue;
-            else if (! s->name()->isEqualTo(op))
+            else if (! s->name()->match(op))
                 continue;
 
             LookupItem item;
@@ -710,7 +710,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                 continue; // skip friends
             else if (s->isUsingNamespaceDirective())
                 continue; // skip using namespace directives
-            else if (! id->isEqualTo(s->identifier()))
+            else if (! id->match(s->identifier()))
                 continue;
             else if (s->name()->isQualifiedNameId())
                 continue; // skip qualified ids.
@@ -857,12 +857,12 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
 
             foreach (Symbol *s, symbols()) {
                 if (Class *klass = s->asClass()) {
-                    if (klass->identifier() && klass->identifier()->isEqualTo(name->identifier()))
+                    if (klass->identifier() && klass->identifier()->match(name->identifier()))
                         return this;
                 }
             }
             foreach (Enum *e, unscopedEnums()) {
-                if (e->identifier() && e->identifier()->isEqualTo(name->identifier()))
+                if (e->identifier() && e->identifier()->match(name->identifier()))
                     return this;
             }
 

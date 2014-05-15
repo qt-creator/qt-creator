@@ -163,7 +163,7 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
         const QString &type = Overview().prettyType(lookupItem.type(), QString());
         //  special case for bug QTCREATORBUG-4780
         if (scope && scope->isFunction()
-                && lookupItem.type().isEqualTo(scope->asFunction()->returnType())) {
+                && lookupItem.type().match(scope->asFunction()->returnType())) {
             return;
         }
         m_element = QSharedPointer<CppElement>(new Unknown(type));

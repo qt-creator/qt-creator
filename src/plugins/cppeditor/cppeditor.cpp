@@ -151,7 +151,7 @@ protected:
         if (const QualifiedNameId *q = name->asQualifiedNameId())
             name = q->name();
 
-        if (_declarationName->isEqualTo(name))
+        if (_declarationName->match(name))
             _functions->append(function);
 
         return false;
@@ -242,7 +242,7 @@ struct CanonicalSymbol
                 const Identifier *declId = decl->identifier();
                 const Identifier *classId = classScope->identifier();
 
-                if (classId && classId->isEqualTo(declId))
+                if (classId && classId->match(declId))
                     continue; // skip it, it's a ctor or a dtor.
 
                 if (Function *funTy = r.declaration()->type()->asFunctionType()) {
@@ -1164,7 +1164,7 @@ void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
         foreach (const LookupItem &r, declarations) {
             if (Symbol *decl = r.declaration()) {
                 if (Function *funTy = decl->type()->asFunctionType()) {
-                    if (funTy->isEqualTo(functionDefinitionSymbol)) {
+                    if (funTy->match(functionDefinitionSymbol)) {
                         if (decl != functionDefinitionSymbol && binding == r.binding())
                             best.prepend(decl);
                         else

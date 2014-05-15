@@ -70,11 +70,11 @@ public:
     {
         if (_oper) {
             if (const Name *name = fun->unqualifiedName()) {
-                    if (_oper->isEqualTo(name))
+                    if (_oper->match(name))
                         _result.append(fun);
             }
         } else if (Function *decl = _declaration->type()->asFunctionType()) {
-            if (fun->isEqualTo(decl))
+            if (fun->match(decl))
                 _result.append(fun);
         }
 
@@ -175,7 +175,7 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
 
             foreach (Function *fun, viableFunctions) {
                 if (!(fun->unqualifiedName()
-                      && fun->unqualifiedName()->isEqualTo(declaration->unqualifiedName()))) {
+                      && fun->unqualifiedName()->match(declaration->unqualifiedName()))) {
                     continue;
                 }
                 if (fun->argumentCount() == declarationTy->argumentCount()) {
@@ -187,7 +187,7 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
                     for (; argIt < argc; ++argIt) {
                         Symbol *arg = fun->argumentAt(argIt);
                         Symbol *otherArg = declarationTy->argumentAt(argIt);
-                        if (!arg->type().isEqualTo(otherArg->type()))
+                        if (!arg->type().match(otherArg->type()))
                             break;
                     }
 
@@ -252,7 +252,7 @@ static void findDeclarationOfSymbol(Symbol *s,
 {
     if (Declaration *decl = s->asDeclaration()) {
         if (Function *declFunTy = decl->type()->asFunctionType()) {
-            if (functionType->isEqualTo(declFunTy))
+            if (functionType->match(declFunTy))
                 typeMatch->prepend(decl);
             else if (functionType->argumentCount() == declFunTy->argumentCount())
                 argumentCountMatch->prepend(decl);
@@ -316,7 +316,7 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
 
         if (funcId) {
             for (Symbol *s = scope->find(funcId); s; s = s->next()) {
-                if (!s->name() || !funcId->isEqualTo(s->identifier()) || !s->type()->isFunctionType())
+                if (!s->name() || !funcId->match(s->identifier()) || !s->type()->isFunctionType())
                     continue;
                 findDeclarationOfSymbol(s, functionType, typeMatch, argumentCountMatch, nameMatch);
             }

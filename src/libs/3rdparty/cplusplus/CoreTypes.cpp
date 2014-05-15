@@ -26,14 +26,6 @@
 
 using namespace CPlusPlus;
 
-bool UndefinedType::isEqualTo(const Type *other) const
-{
-    if (other->isUndefinedType())
-        return true;
-
-    return false;
-}
-
 void UndefinedType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
@@ -43,12 +35,6 @@ bool UndefinedType::match0(const Type *otherType, Matcher *matcher) const
         return matcher->match(this, otherUndefinedTy);
 
     return false;
-}
-
-bool VoidType::isEqualTo(const Type *other) const
-{
-    const VoidType *o = other->asVoidType();
-    return o != 0;
 }
 
 void VoidType::accept0(TypeVisitor *visitor)
@@ -76,16 +62,6 @@ const Name *PointerToMemberType::memberName() const
 FullySpecifiedType PointerToMemberType::elementType() const
 { return _elementType; }
 
-bool PointerToMemberType::isEqualTo(const Type *other) const
-{
-    const PointerToMemberType *o = other->asPointerToMemberType();
-    if (! o)
-        return false;
-    else if (! _memberName->isEqualTo(o->_memberName))
-        return false;
-    return _elementType.isEqualTo(o->_elementType);
-}
-
 void PointerToMemberType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
 
@@ -103,14 +79,6 @@ PointerType::PointerType(const FullySpecifiedType &elementType)
 
 PointerType::~PointerType()
 { }
-
-bool PointerType::isEqualTo(const Type *other) const
-{
-    const PointerType *o = other->asPointerType();
-    if (! o)
-        return false;
-    return _elementType.isEqualTo(o->_elementType);
-}
 
 void PointerType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -132,16 +100,6 @@ ReferenceType::ReferenceType(const FullySpecifiedType &elementType, bool rvalueR
 
 ReferenceType::~ReferenceType()
 { }
-
-bool ReferenceType::isEqualTo(const Type *other) const
-{
-    const ReferenceType *o = other->asReferenceType();
-    if (! o)
-        return false;
-    else if (isRvalueReference() != o->isRvalueReference())
-        return false;
-    return _elementType.isEqualTo(o->_elementType);
-}
 
 void ReferenceType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -166,14 +124,6 @@ IntegerType::IntegerType(int kind)
 
 IntegerType::~IntegerType()
 { }
-
-bool IntegerType::isEqualTo(const Type *other) const
-{
-    const IntegerType *o = other->asIntegerType();
-    if (! o)
-        return false;
-    return _kind == o->_kind;
-}
 
 void IntegerType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -210,30 +160,12 @@ bool FloatType::match0(const Type *otherType, Matcher *matcher) const
 int FloatType::kind() const
 { return _kind; }
 
-bool FloatType::isEqualTo(const Type *other) const
-{
-    const FloatType *o = other->asFloatType();
-    if (! o)
-        return false;
-    return _kind == o->_kind;
-}
-
 ArrayType::ArrayType(const FullySpecifiedType &elementType, unsigned size)
     : _elementType(elementType), _size(size)
 { }
 
 ArrayType::~ArrayType()
 { }
-
-bool ArrayType::isEqualTo(const Type *other) const
-{
-    const ArrayType *o = other->asArrayType();
-    if (! o)
-        return false;
-    else if (_size != o->_size)
-        return false;
-    return _elementType.isEqualTo(o->_elementType);
-}
 
 void ArrayType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -261,23 +193,6 @@ NamedType::~NamedType()
 
 const Name *NamedType::name() const
 { return _name; }
-
-bool NamedType::isEqualTo(const Type *other) const
-{
-    const NamedType *o = other->asNamedType();
-    if (! o)
-        return false;
-
-    const Name *name = _name;
-    if (const QualifiedNameId *q = name->asQualifiedNameId())
-        name = q->name();
-
-    const Name *otherName = o->name();
-    if (const QualifiedNameId *q = otherName->asQualifiedNameId())
-        otherName = q->name();
-
-    return name->isEqualTo(otherName);
-}
 
 void NamedType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }

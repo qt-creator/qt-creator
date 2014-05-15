@@ -41,8 +41,6 @@ public:
     const Name *base() const;
     const Name *name() const;
 
-    virtual bool isEqualTo(const Name *other) const;
-
     virtual const QualifiedNameId *asQualifiedNameId() const
     { return this; }
 
@@ -64,8 +62,6 @@ public:
     virtual const Name *name() const;
 
     virtual const Identifier *identifier() const;
-
-    virtual bool isEqualTo(const Name *other) const;
 
     virtual const DestructorNameId *asDestructorNameId() const
     { return this; }
@@ -95,8 +91,6 @@ public:
     // ### find a better name
     unsigned templateArgumentCount() const;
     const FullySpecifiedType &templateArgumentAt(unsigned index) const;
-
-    virtual bool isEqualTo(const Name *other) const;
 
     virtual const TemplateNameId *asTemplateNameId() const
     { return this; }
@@ -190,7 +184,6 @@ public:
     Kind kind() const;
 
     virtual const Identifier *identifier() const;
-    virtual bool isEqualTo(const Name *other) const;
 
     virtual const OperatorNameId *asOperatorNameId() const
     { return this; }
@@ -212,7 +205,6 @@ public:
     FullySpecifiedType type() const;
 
     virtual const Identifier *identifier() const;
-    virtual bool isEqualTo(const Name *other) const;
 
     virtual const ConversionNameId *asConversionNameId() const
     { return this; }
@@ -240,8 +232,6 @@ public:
     const Name *nameAt(unsigned index) const;
     bool hasArguments() const;
 
-    virtual bool isEqualTo(const Name *other) const;
-
     virtual const SelectorNameId *asSelectorNameId() const
     { return this; }
 
@@ -268,7 +258,6 @@ public:
     unsigned classTokenIndex() const;
 
     virtual const Identifier *identifier() const;
-    virtual bool isEqualTo(const Name *other) const;
 
     virtual const AnonymousNameId *asAnonymousNameId() const
     { return this; }
