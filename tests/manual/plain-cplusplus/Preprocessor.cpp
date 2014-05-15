@@ -279,7 +279,7 @@ void Preprocessor::skipPreprocesorDirective(Token *tk)
 }
 
 StringRef Preprocessor::asStringRef(const Token &tk) const
-{ return StringRef(_source.begin() + tk.bytesBegin(), tk.length()); }
+{ return StringRef(_source.begin() + tk.bytesBegin(), tk.bytes()); }
 
 Preprocessor::Preprocessor(std::ostream &out)
     : out(out), _lexer(0), inPreprocessorDirective(false)
