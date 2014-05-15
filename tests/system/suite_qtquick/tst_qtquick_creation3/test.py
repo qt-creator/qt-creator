@@ -33,7 +33,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    for quickVersion in ["1.1", "2.1", "2.2"]:
+    for quickVersion in ["1.1", "2.1", "2.2", "Controls 1.0", "Controls 1.1"]:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         projectName = createNewQtQuickUI(workingDir, quickVersion)

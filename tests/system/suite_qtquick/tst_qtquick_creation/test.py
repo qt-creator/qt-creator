@@ -34,7 +34,8 @@ def main():
     if not startedWithoutPluginError():
         return
     for targ, qVer in [[Targets.DESKTOP_480_GCC, "1.1"], [Targets.DESKTOP_521_DEFAULT, "2.1"],
-                       [Targets.DESKTOP_521_DEFAULT, "2.2"]]:
+                       [Targets.DESKTOP_521_DEFAULT, "2.2"], [Targets.DESKTOP_521_DEFAULT, "Controls 1.0"],
+                       [Targets.DESKTOP_521_DEFAULT, "Controls 1.1"]]:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targ,
@@ -53,8 +54,10 @@ def main():
                 result = addExecutableAsAttachableAUT(projectName, 11223)
                 allowAppThroughWinFW(workingDir, projectName)
                 if result:
-                    result = runAndCloseApp(True, projectName, 11223,
-                                            "subprocessFunctionQuick%s" % qVer[0],
+                    function = "subprocessFunctionQuick2"
+                    if qVer[0] == "1":
+                        function = "subprocessFunctionQuick1"
+                    result = runAndCloseApp(True, projectName, 11223, function,
                                             SubprocessType.QT_QUICK_APPLICATION, quickVersion=qVer)
                 else:
                     result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)
