@@ -144,7 +144,10 @@ class SubprocessType:
         if subprocessType == SubprocessType.QT_WIDGET:
             return "QMainWindow"
         if subprocessType == SubprocessType.QT_QUICK_APPLICATION:
-            return "QtQuick%sApplicationViewer" % qtQuickVersion[0]
+            qqv = "2"
+            if qtQuickVersion[0] == "1":
+                qqv = "1"
+            return "QtQuick%sApplicationViewer" % qqv
         if subprocessType == SubprocessType.QT_QUICK_UI:
             if qtQuickVersion == "1.1":
                 return "QDeclarativeViewer"
