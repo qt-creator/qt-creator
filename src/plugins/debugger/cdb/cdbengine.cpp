@@ -2332,9 +2332,9 @@ void CdbEngine::handleBreakInsert(const CdbBuiltinCommandPtr &cmd)
         return;
     const BreakpointModelId &originalId = cdbIdToBreakpointModelId(cdbBreakPointId);
     // add break point for every match
-    const QList<QByteArray>::const_iterator &end = reply.cend();
+    const QList<QByteArray>::const_iterator &end = reply.constEnd();
     int subBreakPointID = 0;
-    for (QList<QByteArray>::const_iterator line = reply.cbegin(); line != end; ++line) {
+    for (QList<QByteArray>::const_iterator line = reply.constBegin(); line != end; ++line) {
         if (!line->startsWith("Matched: "))
             continue;
         const int addressStartPos = line->lastIndexOf('(') + 1;
