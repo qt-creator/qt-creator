@@ -39,9 +39,14 @@
 using namespace ProjectExplorer;
 using namespace QtSupport;
 
+// "file" or "qrc", colon, optional '//', '/' and further characters
+#define QML_URL_REGEXP \
+    "(?:file|qrc):(?://)?/.+"
+
+
 QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     : OutputFormatter()
-    , m_qmlError(QLatin1String("^((?:file|qrc):///.+"    // url
+    , m_qmlError(QLatin1String("^(" QML_URL_REGEXP    // url
                                ":\\d+"           // colon, line
                                "(?::\\d+)?)"     // colon, column (optional)
                                "[: \t]"))        // colon, space or tab
@@ -187,9 +192,9 @@ void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr,
 void QtOutputFormatter::handleLink(const QString &href)
 {
     if (!href.isEmpty()) {
-        QRegExp qmlLineColumnLink(QLatin1String("^((?:file|qrc):///.+)" // url
-                                                ":(\\d+)"            // line
-                                                ":(\\d+)$"));        // column
+        QRegExp qmlLineColumnLink(QLatin1String("^(" QML_URL_REGEXP ")" // url
+                                                ":(\\d+)"               // line
+                                                ":(\\d+)$"));           // column
 
         if (qmlLineColumnLink.indexIn(href) != -1) {
             const QUrl fileUrl = QUrl(qmlLineColumnLink.cap(1));
@@ -201,7 +206,7 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
 
-        QRegExp qmlLineLink(QLatin1String("^((?:file|qrc):///.+)" // url
+        QRegExp qmlLineLink(QLatin1String("^(" QML_URL_REGEXP ")" // url
                                           ":(\\d+)$"));  // line
 
         if (qmlLineLink.indexIn(href) != -1) {
@@ -309,6 +314,11 @@ void QtSupportPlugin::testQtOutputFormatter_data()
             << QString::fromLatin1("Pass through plain text.")
             << -1 << -1 << QString()
             << QString() << -1 << -1;
+
+    QTest::newRow("qrc:/main.qml:20")
+            << QString::fromLatin1("qrc:/main.qml:20 Unexpected token `identifier'")
+            << 0 << 16 << QString::fromLatin1("qrc:/main.qml:20")
+            << QString::fromLatin1("/main.qml") << 20 << -1;
 
     QTest::newRow("qrc:///main.qml:20")
             << QString::fromLatin1("qrc:///main.qml:20 Unexpected token `identifier'")
