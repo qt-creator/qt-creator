@@ -928,7 +928,7 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
 }
 
 QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QDeclarativeContext *context)
-{    
+{
     QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(fixComponentPathForIncompatibleQt(componentPath)));
     QObject *object = component.beginCreate(context);
 

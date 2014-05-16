@@ -72,7 +72,7 @@ public:
 
     TranslationUnit *parseStatement(const QByteArray &source)
     { return parse(source, TranslationUnit::ParseStatement); }
-    
+
     class Diagnostic: public DiagnosticClient {
     public:
         int errorCount;
@@ -92,8 +92,8 @@ public:
         }
     };
 
-    Diagnostic diag;    
-    
+    Diagnostic diag;
+
 
 private slots:
     void initTestCase();

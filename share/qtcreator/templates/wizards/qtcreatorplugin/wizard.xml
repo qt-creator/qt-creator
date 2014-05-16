@@ -29,9 +29,9 @@
 **
 ****************************************************************************/
 
-Custom project wizard configuration example file. Note that by convention, 
+Custom project wizard configuration example file. Note that by convention,
 the project file goes last.
-The "class" and "firstpage" attributes specify that it is a Qt 4 wizard and 
+The "class" and "firstpage" attributes specify that it is a Qt 4 wizard and
 leave room for the Qt 4 target page.
 -->
 <wizard version="1" kind="project"

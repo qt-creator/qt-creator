@@ -606,7 +606,7 @@ void ServiceBrowser::autoRefresh()
 /*!
   \fn void errorMessage(ZeroConf::ErrorMessage::SeverityLevel severity, const QString &msg, ZeroConf::ServiceBrowser *browser)
 
-  This signal is called every time a warning or error is emitted (for example when a library 
+  This signal is called every time a warning or error is emitted (for example when a library
   cannot be used and another one has to be used). Zeroconf will still work if severity < FailureLevel.
 */
 /*!

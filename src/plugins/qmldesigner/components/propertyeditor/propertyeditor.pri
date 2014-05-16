@@ -23,7 +23,7 @@ HEADERS += propertyeditorview.h \
     propertyeditorwidget.h \
     fileresourcesmodel.h \
     components/propertyeditor/gradientmodel.h
-    
+
 QT += qml quick
 
 RESOURCES += propertyeditor.qrc

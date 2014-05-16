@@ -1,7 +1,7 @@
 QT *= network
 
 HEADERS += \
-    $$PWD/memcheckrunner.h 
+    $$PWD/memcheckrunner.h
 
 SOURCES += \
-    $$PWD/memcheckrunner.cpp 
+    $$PWD/memcheckrunner.cpp

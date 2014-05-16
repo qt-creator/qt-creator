@@ -83,7 +83,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::simpleBP(int inc, const QString &inx)
-{    
+{
     int array[2] = {1,2};
     m_w++;
     QString x = QLatin1String("h\344all\366");
@@ -295,7 +295,7 @@ void MainWindow::on_actionExtTypes_triggered()
     std::set<std::string> stdSet;
     stdSet.insert("s1");
     QWidget *ww = this;
-    QWidget &wwr = *ww;    
+    QWidget &wwr = *ww;
     QSharedPointer<QString> sps(new QString("hallo"));
     QList<QSharedPointer<QString> > spsl;
     spsl.push_back(sps);
@@ -317,7 +317,7 @@ void MainWindow::on_actionExtTypes_triggered()
 
     QList <QList<int> > nestedIntList;
     nestedIntList << QList<int>();
-    nestedIntList.front() << 1 << 2;    
+    nestedIntList.front() << 1 << 2;
 
     QVariantList vList;
     vList.push_back(QVariant(42));
@@ -360,7 +360,7 @@ void Foo::MainWindow::on_actionScopes_triggered()
         int x = 2;
         Q_UNUSED(x)
     }
-    qDebug() << x;    
+    qDebug() << x;
 }
 
 void Foo::MainWindow::on_actionLongString_triggered()

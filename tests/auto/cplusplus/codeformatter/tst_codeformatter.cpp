@@ -252,7 +252,7 @@ void tst_CodeFormatter::ifStatementWithoutBraces1()
          << Line("                while (e)")
          << Line("                    bar;")
          << Line("    else")
-         << Line("        foo;")         
+         << Line("        foo;")
          << Line("}")
          ;
     checkIndent(data);

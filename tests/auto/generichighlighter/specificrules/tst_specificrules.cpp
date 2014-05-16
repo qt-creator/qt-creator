@@ -145,7 +145,7 @@ void tst_SpecificRules::testMatch(Rule *rule)
 }
 
 void tst_SpecificRules::testMatch(Rule *rule, ProgressData *progress)
-{    
+{
     QFETCH(QString, s);
 
     QTEST(rule->matchSucceed(s, s.length(), progress), "match");

@@ -84,7 +84,7 @@ protected:
     QDeclarativeItem *qmlGraphicsItem() const;
     QDeclarativeAnchors *anchors() const;
     void resetHorizontal();
-    void resetVertical(); 
+    void resetVertical();
     void refresh();
     void recursiveDoComponentComplete(QDeclarativeItem *declarativeItem);
 

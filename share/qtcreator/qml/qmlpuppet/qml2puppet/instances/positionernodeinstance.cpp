@@ -53,7 +53,7 @@ bool PositionerNodeInstance::isResizable() const
 }
 
 PositionerNodeInstance::Pointer PositionerNodeInstance::create(QObject *object)
-{ 
+{
     QQuickBasePositioner *positioner = qobject_cast<QQuickBasePositioner*>(object);
 
     Q_ASSERT(positioner);
