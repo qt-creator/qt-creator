@@ -1437,8 +1437,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         break;
 
     case string_open:
-        *indentDepth = tokenPosition;
-        *paddingDepth = 0;
+        *paddingDepth = tokenPosition - *indentDepth;
         break;
     }
 
@@ -1467,16 +1466,25 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
 
     // adjusting the indentDepth here instead of in enter() gives 'else if' the correct indentation
     // ### could be moved?
-    if (topState.type == substatement)
+    switch (topState.type) {
+    case substatement:
         *indentDepth += m_tabSettings.m_indentSize;
-
+        break;
     // keep user-adjusted indent in multiline comments
-    if (topState.type == multiline_comment_start
-            || topState.type == multiline_comment_cont) {
+    case multiline_comment_start:
+    case multiline_comment_cont:
         if (!tokens.isEmpty()) {
             *indentDepth = column(tokens.at(0).bytesBegin());
             return;
         }
+        break;
+    case string_open:
+        if (!tokenAt(0).isStringLiteral()) {
+            *paddingDepth = topState.savedPaddingDepth;
+            topState = previousState;
+            previousState = state(2);
+        }
+        break;
     }
 
     const int kind = tokenAt(0).kind();
