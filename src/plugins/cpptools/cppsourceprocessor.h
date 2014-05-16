@@ -5,9 +5,12 @@
 
 #include <cplusplus/PreprocessorEnvironment.h>
 #include <cplusplus/pp-engine.h>
+#include <utils/qtcoverride.h>
 
 #include <QHash>
 #include <QPointer>
+#include <QSet>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QTextCodec;
@@ -29,7 +32,7 @@ public:
     CppSourceProcessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing = false);
     CppSourceProcessor(QPointer<CppModelManager> modelManager, const CPlusPlus::Snapshot &snapshot,
                        bool dumpFileNameWhileParsing = false);
-    virtual ~CppSourceProcessor();
+    ~CppSourceProcessor();
 
     void setRevision(unsigned revision);
     void setWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy);
@@ -41,19 +44,17 @@ public:
     void removeFromCache(const QString &fileName);
     void resetEnvironment();
 
-    CPlusPlus::Snapshot snapshot() const
-    { return m_snapshot; }
-
-    const QSet<QString> &todo() const
-    { return m_todo; }
-
-    CppModelManager *modelManager() const
-    { return m_modelManager.data(); }
+    CPlusPlus::Snapshot snapshot() const { return m_snapshot; }
+    const QSet<QString> &todo() const { return m_todo; }
+    CppModelManager *modelManager() const { return m_modelManager.data(); }
 
     void setGlobalSnapshot(const CPlusPlus::Snapshot &snapshot) { m_globalSnapshot = snapshot; }
 
-protected:
-    CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
+private:
+    CppSourceProcessor();
+    void addFrameworkPath(const QString &frameworkPath);
+
+    CPlusPlus::Document::Ptr switchCurrentDocument(CPlusPlus::Document::Ptr doc);
 
     bool getFileContents(const QString &absoluteFilePath, QByteArray *contents,
                          unsigned *revision) const;
@@ -63,28 +64,24 @@ protected:
 
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
-    virtual void macroAdded(const CPlusPlus::Macro &macro);
-    virtual void passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
-                                            unsigned line, const CPlusPlus::Macro &macro);
-    virtual void failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charOffset,
-                                            const CPlusPlus::ByteArrayRef &name);
-    virtual void notifyMacroReference(unsigned bytesOffset, unsigned utf16charOffset,
-                                      unsigned line, const CPlusPlus::Macro &macro);
-    virtual void startExpandingMacro(unsigned bytesOffset,
-                                     unsigned utf16charOffset,
-                                     unsigned line,
-                                     const CPlusPlus::Macro &macro,
-                                     const QVector<CPlusPlus::MacroArgumentReference> &actuals);
-    virtual void stopExpandingMacro(unsigned bytesOffset, const CPlusPlus::Macro &macro);
-    virtual void markAsIncludeGuard(const QByteArray &macroName);
-    virtual void startSkippingBlocks(unsigned utf16charsOffset);
-    virtual void stopSkippingBlocks(unsigned utf16charsOffset);
-    virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType type);
+    // Client interface
+    void macroAdded(const CPlusPlus::Macro &macro) QTC_OVERRIDE;
+    void passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
+                                    unsigned line, const CPlusPlus::Macro &macro) QTC_OVERRIDE;
+    void failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charOffset,
+                                    const CPlusPlus::ByteArrayRef &name) QTC_OVERRIDE;
+    void notifyMacroReference(unsigned bytesOffset, unsigned utf16charOffset,
+                              unsigned line, const CPlusPlus::Macro &macro) QTC_OVERRIDE;
+    void startExpandingMacro(unsigned bytesOffset, unsigned utf16charOffset,
+                             unsigned line, const CPlusPlus::Macro &macro,
+                             const QVector<CPlusPlus::MacroArgumentReference> &actuals) QTC_OVERRIDE;
+    void stopExpandingMacro(unsigned bytesOffset, const CPlusPlus::Macro &macro) QTC_OVERRIDE;
+    void markAsIncludeGuard(const QByteArray &macroName) QTC_OVERRIDE;
+    void startSkippingBlocks(unsigned utf16charsOffset) QTC_OVERRIDE;
+    void stopSkippingBlocks(unsigned utf16charsOffset) QTC_OVERRIDE;
+    void sourceNeeded(unsigned line, const QString &fileName, IncludeType type) QTC_OVERRIDE;
 
 private:
-    CppSourceProcessor();
-    void addFrameworkPath(const QString &frameworkPath);
-
     CPlusPlus::Snapshot m_snapshot;
     CPlusPlus::Snapshot m_globalSnapshot;
     QPointer<CppModelManager> m_modelManager;

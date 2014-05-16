@@ -10,6 +10,7 @@
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QDir>
 #include <QTextCodec>
 
 /*!
@@ -27,6 +28,56 @@
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
+
+typedef Document::DiagnosticMessage Message;
+
+namespace {
+
+inline QByteArray generateFingerPrint(const QList<Macro> &definedMacros, const QByteArray &code)
+{
+    QCryptographicHash hash(QCryptographicHash::Sha1);
+    hash.addData(code);
+    foreach (const Macro &macro, definedMacros) {
+        if (macro.isHidden()) {
+            static const QByteArray undef("#undef ");
+            hash.addData(undef);
+            hash.addData(macro.name());
+        } else {
+            static const QByteArray def("#define ");
+            hash.addData(macro.name());
+            hash.addData(" ", 1);
+            hash.addData(def);
+            hash.addData(macro.definitionText());
+        }
+        hash.addData("\n", 1);
+    }
+    return hash.result();
+}
+
+inline Message messageNoSuchFile(Document::Ptr &document, const QString &fileName, unsigned line)
+{
+    const QString text = QCoreApplication::translate(
+        "CppSourceProcessor", "%1: No such file or directory").arg(fileName);
+    return Message(Message::Warning, document->fileName(), line, /*column =*/ 0, text);
+}
+
+inline Message messageNoFileContents(Document::Ptr &document, const QString &fileName,
+                                     unsigned line)
+{
+    const QString text = QCoreApplication::translate(
+        "CppSourceProcessor", "%1: Could not get file contents").arg(fileName);
+    return Message(Message::Warning, document->fileName(), line, /*column =*/ 0, text);
+}
+
+inline const Macro revision(const CppModelManagerInterface::WorkingCopy &workingCopy,
+                            const Macro &macro)
+{
+    Macro newMacro(macro);
+    newMacro.setFileRevision(workingCopy.get(macro.fileName()).second);
+    return newMacro;
+}
+
+} // anonymous namespace
 
 CppSourceProcessor::CppSourceProcessor(QPointer<CppModelManager> modelManager,
                                        bool dumpFileNameWhileParsing)
@@ -124,37 +175,6 @@ void CppSourceProcessor::addFrameworkPath(const QString &frameworkPath)
 
 void CppSourceProcessor::setTodo(const QStringList &files)
 { m_todo = QSet<QString>::fromList(files); }
-
-namespace {
-class Process: public std::unary_function<Document::Ptr, void>
-{
-    QPointer<CppModelManager> _modelManager;
-    Document::Ptr _doc;
-    Document::CheckMode _mode;
-
-public:
-    Process(QPointer<CppModelManager> modelManager,
-            Document::Ptr doc,
-            const CppModelManager::WorkingCopy &workingCopy)
-        : _modelManager(modelManager),
-          _doc(doc),
-          _mode(Document::FastCheck)
-    {
-        if (workingCopy.contains(_doc->fileName()))
-            _mode = Document::FullCheck;
-    }
-
-    void operator()()
-    {
-        _doc->check(_mode);
-
-        if (_modelManager) {
-            _modelManager->emitDocumentUpdated(_doc);
-            _doc->releaseSourceAndAST();
-        }
-    }
-};
-} // end of anonymous namespace
 
 void CppSourceProcessor::run(const QString &fileName)
 {
@@ -284,14 +304,6 @@ void CppSourceProcessor::macroAdded(const Macro &macro)
     m_currentDoc->appendMacro(macro);
 }
 
-static inline const Macro revision(const CppModelManagerInterface::WorkingCopy &s,
-                                   const Macro &macro)
-{
-    Macro newMacro(macro);
-    newMacro.setFileRevision(s.get(macro.fileName()).second);
-    return newMacro;
-}
-
 void CppSourceProcessor::passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
                                                     unsigned line, const Macro &macro)
 {
@@ -391,7 +403,6 @@ void CppSourceProcessor::stopSkippingBlocks(unsigned utf16charsOffset)
 
 void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType type)
 {
-    typedef Document::DiagnosticMessage Message;
     if (fileName.isEmpty())
         return;
 
@@ -400,22 +411,18 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
     if (m_currentDoc) {
         m_currentDoc->addIncludeFile(Document::Include(fileName, absoluteFileName, line, type));
         if (absoluteFileName.isEmpty()) {
-            const QString text = QCoreApplication::translate(
-                "CppSourceProcessor", "%1: No such file or directory").arg(fileName);
-            Message message(Message::Warning, m_currentDoc->fileName(), line, /*column =*/ 0, text);
-            m_currentDoc->addDiagnosticMessage(message);
+            m_currentDoc->addDiagnosticMessage(messageNoSuchFile(m_currentDoc, fileName, line));
             return;
         }
     }
     if (m_included.contains(absoluteFileName))
-        return; // we've already seen this file.
+        return; // We've already seen this file.
     if (absoluteFileName != modelManager()->configurationFileName())
         m_included.insert(absoluteFileName);
 
     // Already in snapshot? Use it!
-    Document::Ptr doc = m_snapshot.document(absoluteFileName);
-    if (doc) {
-        mergeEnvironment(doc);
+    if (Document::Ptr document = m_snapshot.document(absoluteFileName)) {
+        mergeEnvironment(document);
         return;
     }
 
@@ -424,77 +431,56 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
     QByteArray contents;
     const bool gotFileContents = getFileContents(absoluteFileName, &contents, &editorRevision);
     if (m_currentDoc && !gotFileContents) {
-        const QString text = QCoreApplication::translate(
-            "CppSourceProcessor", "%1: Could not get file contents").arg(fileName);
-        Message message(Message::Warning, m_currentDoc->fileName(), line, /*column =*/ 0, text);
-        m_currentDoc->addDiagnosticMessage(message);
+        m_currentDoc->addDiagnosticMessage(messageNoFileContents(m_currentDoc, fileName, line));
         return;
     }
 
-    if (m_dumpFileNameWhileParsing) {
-        qDebug() << "Parsing file:" << absoluteFileName
-                 << "contents:" << contents.size() << "bytes";
-    }
+    if (m_dumpFileNameWhileParsing)
+        qDebug() << "Parsing:" << absoluteFileName << "contents:" << contents.size() << "bytes";
 
-    doc = Document::create(absoluteFileName);
-    doc->setRevision(m_revision);
-    doc->setEditorRevision(editorRevision);
-
+    Document::Ptr document = Document::create(absoluteFileName);
+    document->setRevision(m_revision);
+    document->setEditorRevision(editorRevision);
     const QFileInfo info(absoluteFileName);
     if (info.exists())
-        doc->setLastModified(info.lastModified());
+        document->setLastModified(info.lastModified());
 
-    const Document::Ptr previousDoc = switchDocument(doc);
-
+    const Document::Ptr previousDocument = switchCurrentDocument(document);
     const QByteArray preprocessedCode = m_preprocess.run(absoluteFileName, contents);
 //    {
-//        QByteArray b(preprocessedCode);
-//        b.replace("\n", "<<<\n");
-//        qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(),
-//               b.constData());
+//        QByteArray b(preprocessedCode); b.replace("\n", "<<<\n");
+//        qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(), b.constData());
 //    }
+    document->setFingerprint(generateFingerPrint(document->definedMacros(), preprocessedCode));
 
-    QCryptographicHash hash(QCryptographicHash::Sha1);
-    hash.addData(preprocessedCode);
-    foreach (const Macro &macro, doc->definedMacros()) {
-        if (macro.isHidden()) {
-            static const QByteArray undef("#undef ");
-            hash.addData(undef);
-            hash.addData(macro.name());
-        } else {
-            static const QByteArray def("#define ");
-            hash.addData(macro.name());
-            hash.addData(" ", 1);
-            hash.addData(def);
-            hash.addData(macro.definitionText());
-        }
-        hash.addData("\n", 1);
-    }
-    doc->setFingerprint(hash.result());
-
-    Document::Ptr anotherDoc = m_globalSnapshot.document(absoluteFileName);
-    if (anotherDoc && anotherDoc->fingerprint() == doc->fingerprint()) {
-        switchDocument(previousDoc);
-        mergeEnvironment(anotherDoc);
-        m_snapshot.insert(anotherDoc);
+    // Re-use document from global snapshot if possible
+    Document::Ptr globalDocument = m_globalSnapshot.document(absoluteFileName);
+    if (globalDocument && globalDocument->fingerprint() == document->fingerprint()) {
+        switchCurrentDocument(previousDocument);
+        mergeEnvironment(globalDocument);
+        m_snapshot.insert(globalDocument);
         m_todo.remove(absoluteFileName);
         return;
     }
 
-    doc->setUtf8Source(preprocessedCode);
-    doc->keepSourceAndAST();
-    doc->tokenize();
+    // Otherwise process the document
+    document->setUtf8Source(preprocessedCode);
+    document->keepSourceAndAST();
+    document->tokenize();
+    document->check(m_workingCopy.contains(document->fileName()) ? Document::FullCheck
+                                                                 : Document::FastCheck);
 
-    m_snapshot.insert(doc);
+    if (m_modelManager) {
+        m_modelManager->emitDocumentUpdated(document);
+        document->releaseSourceAndAST();
+    }
+
+    m_snapshot.insert(document);
     m_todo.remove(absoluteFileName);
-
-    Process process(m_modelManager, doc, m_workingCopy);
-    process();
-
-    (void) switchDocument(previousDoc);
+    switchCurrentDocument(previousDocument);
 }
 
-Document::Ptr CppSourceProcessor::switchDocument(Document::Ptr doc)
+Document::Ptr CppSourceProcessor::switchCurrentDocument(Document::Ptr doc)
 {
     const Document::Ptr previousDoc = m_currentDoc;
     m_currentDoc = doc;
