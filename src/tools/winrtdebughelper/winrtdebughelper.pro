@@ -13,5 +13,5 @@ build_all:!build_pass {
 }
 
 TARGET = winrtdebughelper
-target.path = $$IDE_LIBEXEC_PATH
+target.path = $$QTC_PREFIX/bin # FIXME: libexec, more or less
 INSTALLS += target
