@@ -4,7 +4,6 @@ SUBDIRS= \
 cplusplus-frontend \
 fakevim \
 debugger \
-preprocessor \
 subdir_proparser \
 utils
 
