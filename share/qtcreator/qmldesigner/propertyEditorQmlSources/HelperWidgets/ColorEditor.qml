@@ -91,7 +91,6 @@ Column {
         }
 
         onHasGradientChanged: {
-            print("hasGradient")
              if (!supportGradient)
                  return
 
