@@ -51,6 +51,10 @@ struct LinkResult
     QString href;
 };
 
+namespace Internal {
+    class QtSupportPlugin;
+}
+
 class QTSUPPORT_EXPORT QtOutputFormatter
     : public Utils::OutputFormatter
 {
@@ -64,6 +68,7 @@ public:
 
 protected:
     void clearLastLine();
+    virtual void openEditor(const QString &fileName, int line, int column = -1);
 
 private slots:
     void updateProjectFileList();
@@ -81,6 +86,9 @@ private:
     QPointer<ProjectExplorer::Project> m_project;
     QString m_lastLine;
     Utils::FileInProjectFinder m_projectFinder;
+
+    // for testing
+    friend class Internal::QtSupportPlugin;
 };
 
 

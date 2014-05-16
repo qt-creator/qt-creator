@@ -53,6 +53,8 @@ private slots:
 #ifdef WITH_TESTS
     void testQtOutputParser_data();
     void testQtOutputParser();
+    void testQtOutputFormatter_data();
+    void testQtOutputFormatter();
 #endif
 };
 

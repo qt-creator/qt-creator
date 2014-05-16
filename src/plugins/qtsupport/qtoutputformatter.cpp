@@ -196,7 +196,7 @@ void QtOutputFormatter::handleLink(const QString &href)
             const int line = qmlLineColumnLink.cap(2).toInt();
             const int column = qmlLineColumnLink.cap(3).toInt();
 
-            Core::EditorManager::openEditorAt(m_projectFinder.findFile(fileUrl), line, column - 1);
+            openEditor(m_projectFinder.findFile(fileUrl), line, column - 1);
 
             return;
         }
@@ -207,7 +207,7 @@ void QtOutputFormatter::handleLink(const QString &href)
         if (qmlLineLink.indexIn(href) != -1) {
             const QUrl fileUrl = QUrl(qmlLineLink.cap(1));
             const int line = qmlLineLink.cap(2).toInt();
-            Core::EditorManager::openEditorAt(m_projectFinder.findFile(fileUrl), line);
+            openEditor(m_projectFinder.findFile(m_projectFinder.findFile(fileUrl)), line);
             return;
         }
 
@@ -234,7 +234,7 @@ void QtOutputFormatter::handleLink(const QString &href)
 
         if (!fileName.isEmpty()) {
             fileName = m_projectFinder.findFile(QUrl::fromLocalFile(fileName));
-            Core::EditorManager::openEditorAt(fileName, line);
+            openEditor(fileName, line);
             return;
         }
     }
@@ -246,8 +246,105 @@ void QtOutputFormatter::clearLastLine()
     m_lastLine.clear();
 }
 
+void QtOutputFormatter::openEditor(const QString &fileName, int line, int column)
+{
+    Core::EditorManager::openEditorAt(fileName, line, column);
+}
+
 void QtOutputFormatter::updateProjectFileList()
 {
     if (m_project)
         m_projectFinder.setProjectFiles(m_project.data()->files(Project::ExcludeGeneratedFiles));
 }
+
+// Unit tests:
+
+#ifdef WITH_TESTS
+
+#   include <QTest>
+
+#   include "qtsupportplugin.h"
+
+using namespace QtSupport::Internal;
+
+class TestQtOutputFormatter : public QtOutputFormatter
+{
+public:
+    TestQtOutputFormatter() :
+        QtOutputFormatter(0),
+        line(-1),
+        column(-1)
+    {
+    }
+
+    void openEditor(const QString &fileName, int line, int column = -1)
+    {
+        this->fileName = fileName;
+        this->line = line;
+        this->column = column;
+    }
+
+public:
+    QString fileName;
+    int line;
+    int column;
+};
+
+
+void QtSupportPlugin::testQtOutputFormatter_data()
+{
+    QTest::addColumn<QString>("input");
+
+    // matchLine results
+    QTest::addColumn<int>("linkStart");
+    QTest::addColumn<int>("linkEnd");
+    QTest::addColumn<QString>("href");
+
+    // handleLink results
+    QTest::addColumn<QString>("file");
+    QTest::addColumn<int>("line");
+    QTest::addColumn<int>("column");
+
+    QTest::newRow("pass through")
+            << QString::fromLatin1("Pass through plain text.")
+            << -1 << -1 << QString()
+            << QString() << -1 << -1;
+
+    QTest::newRow("qrc:///main.qml:20")
+            << QString::fromLatin1("qrc:///main.qml:20 Unexpected token `identifier'")
+            << 0 << 18 << QString::fromLatin1("qrc:///main.qml:20")
+            << QString::fromLatin1("/main.qml") << 20 << -1;
+
+    QTest::newRow("file:///main.qml:20")
+            << QString::fromLatin1("file:///main.qml:20 Unexpected token `identifier'")
+            << 0 << 19 << QString::fromLatin1("file:///main.qml:20")
+            << QString::fromLatin1("/main.qml") << 20 << -1;
+}
+
+void QtSupportPlugin::testQtOutputFormatter()
+{
+    QFETCH(QString, input);
+
+    QFETCH(int, linkStart);
+    QFETCH(int, linkEnd);
+    QFETCH(QString, href);
+
+    QFETCH(QString, file);
+    QFETCH(int, line);
+    QFETCH(int, column);
+
+    TestQtOutputFormatter formatter;
+
+    LinkResult result = formatter.matchLine(input);
+    formatter.handleLink(result.href);
+
+    QCOMPARE(result.start, linkStart);
+    QCOMPARE(result.end, linkEnd);
+    QCOMPARE(result.href, href);
+
+    QCOMPARE(formatter.fileName, file);
+    QCOMPARE(formatter.line, line);
+    QCOMPARE(formatter.column, column);
+}
+
+#endif // WITH_TESTS
