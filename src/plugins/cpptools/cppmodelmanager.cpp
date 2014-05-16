@@ -63,46 +63,6 @@
 
 static const bool DumpProjectInfo = qgetenv("QTC_DUMP_PROJECT_INFO") == "1";
 
-namespace CppTools {
-
-uint qHash(const ProjectPart &p)
-{
-    uint h = qHash(p.toolchainDefines) ^ qHash(p.projectDefines) ^ p.cVersion ^ p.cxxVersion
-            ^ p.cxxExtensions ^ p.qtVersion ^ qHash(p.projectConfigFile);
-
-    foreach (const QString &i, p.includePaths)
-        h ^= qHash(i);
-
-    foreach (const QString &f, p.frameworkPaths)
-        h ^= qHash(f);
-
-    return h;
-}
-
-bool operator==(const ProjectPart &p1,
-                const ProjectPart &p2)
-{
-    if (p1.toolchainDefines != p2.toolchainDefines)
-        return false;
-    if (p1.projectDefines != p2.projectDefines)
-        return false;
-    if (p1.projectConfigFile != p2.projectConfigFile)
-        return false;
-    if (p1.cVersion != p2.cVersion)
-        return false;
-    if (p1.cxxVersion != p2.cxxVersion)
-        return false;
-    if (p1.cxxExtensions != p2.cxxExtensions)
-        return false;
-    if (p1.qtVersion!= p2.qtVersion)
-        return false;
-    if (p1.includePaths != p2.includePaths)
-        return false;
-    return p1.frameworkPaths == p2.frameworkPaths;
-}
-
-} // namespace CppTools
-
 using namespace CppTools;
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
