@@ -39,6 +39,8 @@ Item {
 
     property bool hasGradient: gradientModel.hasGradient
 
+    property alias gradientPropertyName: gradientModel.gradientPropertyName
+
     onCurrentColorChanged: {
         gradientModel.setColor(colorLine.selectedIndex, currentColor)
         colorLine.invalidate()

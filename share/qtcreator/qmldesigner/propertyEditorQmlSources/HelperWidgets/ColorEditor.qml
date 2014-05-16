@@ -47,6 +47,8 @@ Column {
 
     property variant value: backendendValue.value
 
+    property alias gradientPropertyName: gradientLine.gradientPropertyName
+
     onValueChanged: {
         color = value
     }
