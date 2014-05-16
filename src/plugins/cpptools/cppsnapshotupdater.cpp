@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "cpppreprocessor.h"
+#include "cppsourceprocessor.h"
 #include "cppsnapshotupdater.h"
 
 #include <utils/qtcassert.h>
@@ -159,25 +159,25 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
             workingCopy.insert(editorDefinesFileName, m_editorDefines);
         }
 
-        CppPreprocessor preproc(modelManager, m_snapshot);
+        CppSourceProcessor sourceProcessor(modelManager, m_snapshot);
         Snapshot globalSnapshot = modelManager->snapshot();
         globalSnapshot.remove(fileInEditor());
-        preproc.setGlobalSnapshot(globalSnapshot);
-        preproc.setWorkingCopy(workingCopy);
-        preproc.setIncludePaths(m_includePaths);
-        preproc.setFrameworkPaths(m_frameworkPaths);
-        preproc.run(configurationFileName);
+        sourceProcessor.setGlobalSnapshot(globalSnapshot);
+        sourceProcessor.setWorkingCopy(workingCopy);
+        sourceProcessor.setIncludePaths(m_includePaths);
+        sourceProcessor.setFrameworkPaths(m_frameworkPaths);
+        sourceProcessor.run(configurationFileName);
         if (!m_projectConfigFile.isEmpty())
-            preproc.run(m_projectConfigFile);
+            sourceProcessor.run(m_projectConfigFile);
         if (m_usePrecompiledHeaders) {
             foreach (const QString &precompiledHeader, m_precompiledHeaders)
-                preproc.run(precompiledHeader);
+                sourceProcessor.run(precompiledHeader);
         }
         if (!m_editorDefines.isEmpty())
-            preproc.run(editorDefinesFileName);
-        preproc.run(m_fileInEditor);
+            sourceProcessor.run(editorDefinesFileName);
+        sourceProcessor.run(m_fileInEditor);
 
-        m_snapshot = preproc.snapshot();
+        m_snapshot = sourceProcessor.snapshot();
         Snapshot newSnapshot = m_snapshot.simplified(document());
         for (Snapshot::const_iterator i = m_snapshot.begin(), ei = m_snapshot.end(); i != ei; ++i) {
             if (Client::isInjectedFile(i.key()))

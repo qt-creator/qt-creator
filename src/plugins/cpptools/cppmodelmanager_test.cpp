@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "cpppreprocessor.h"
+#include "cppsourceprocessor.h"
 #include "cpptoolseditorsupport.h"
 #include "cpptoolsplugin.h"
 #include "cpptoolstestcase.h"
@@ -345,7 +345,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
 
 /// QTCREATORBUG-9205
 /// Check: When reparsing the same files again, no errors occur
-///        (The CppPreprocessor's already seen files are properly cleared!).
+///        (The CppSourceProcessor's already seen files are properly cleared!).
 void CppToolsPlugin::test_modelmanager_refresh_several_times()
 {
     ModelManagerTestHelper helper;
@@ -646,7 +646,7 @@ void CppToolsPlugin::test_modelmanager_snapshot_after_two_projects()
 
 /// Check: (1) For a project with a *.ui file an AbstractEditorSupport object
 ///            is added for the ui_* file.
-/// Check: (2) The CppPreprocessor can successfully resolve the ui_* file
+/// Check: (2) The CppSourceProcessor can successfully resolve the ui_* file
 ///            though it might not be actually generated in the build dir.
 void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
 {
@@ -678,8 +678,8 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     QCOMPARE(fileNamesInWorkinCopy.at(0), mm->configurationFileName());
     QCOMPARE(fileNamesInWorkinCopy.at(1), expectedUiHeaderFileName);
 
-    // Check CppPreprocessor / includes.
-    // The CppPreprocessor is expected to find the ui_* file in the working copy.
+    // Check CppSourceProcessor / includes.
+    // The CppSourceProcessor is expected to find the ui_* file in the working copy.
     const QString fileIncludingTheUiFile = testDataDirectory.file(_("mainwindow.cpp"));
     while (!mm->snapshot().document(fileIncludingTheUiFile))
         QCoreApplication::processEvents();

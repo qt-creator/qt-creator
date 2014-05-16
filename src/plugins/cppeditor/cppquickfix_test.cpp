@@ -36,8 +36,8 @@
 
 #include <cpptools/cppcodestylepreferences.h>
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpppreprocessertesthelper.h>
-#include <cpptools/cpppreprocessor.h>
+#include <cpptools/cppsourceprocessertesthelper.h>
+#include <cpptools/cppsourceprocessor.h>
 #include <cpptools/cpptoolssettings.h>
 #include <cpptools/includeutils.h>
 
@@ -1859,9 +1859,9 @@ QList<Include> includesForSource(const QByteArray &source)
 
     CppModelManager *cmm = CppModelManager::instance();
     cmm->GC();
-    CppPreprocessor pp((QPointer<CppModelManager>(cmm)));
-    pp.setIncludePaths(QStringList(TestIncludePaths::globalIncludePath()));
-    pp.run(fileName);
+    CppSourceProcessor sourceProcessor((QPointer<CppModelManager>(cmm)));
+    sourceProcessor.setIncludePaths(QStringList(TestIncludePaths::globalIncludePath()));
+    sourceProcessor.run(fileName);
 
     Document::Ptr document = cmm->document(fileName);
     return document->resolvedIncludes();

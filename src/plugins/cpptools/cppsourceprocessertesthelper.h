@@ -28,38 +28,32 @@
 ****************************************************************************/
 
 
-#include "cpppreprocessertesthelper.h"
+#ifndef CPPPSOURCEPROCESSERTESTHELPER_H
+#define CPPPSOURCEPROCESSERTESTHELPER_H
 
-#include <QDir>
+#include "cpptools_global.h"
+
+#include <QtGlobal>
+#include <QString>
+
+QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace CppTools {
 namespace Tests {
 
-QString TestIncludePaths::includeBaseDirectory()
+class CPPTOOLS_EXPORT TestIncludePaths
 {
-    return QLatin1String(SRCDIR)
-            + QLatin1String("/../../../tests/auto/cplusplus/preprocessor/data/include-data");
-}
+    Q_DISABLE_COPY(TestIncludePaths)
 
-QString TestIncludePaths::globalQtCoreIncludePath()
-{
-    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/QtCore"));
-}
-
-QString TestIncludePaths::globalIncludePath()
-{
-    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/global"));
-}
-
-QString TestIncludePaths::directoryOfTestFile()
-{
-    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/local"));
-}
-
-QString TestIncludePaths::testFilePath(const QString &fileName)
-{
-    return Tests::TestIncludePaths::directoryOfTestFile() + QLatin1Char('/') + fileName;
-}
+public:
+    static QString includeBaseDirectory();
+    static QString globalQtCoreIncludePath();
+    static QString globalIncludePath();
+    static QString directoryOfTestFile();
+    static QString testFilePath(const QString &fileName = QLatin1String("file.cpp"));
+};
 
 } // namespace Tests
 } // namespace CppTools
+
+#endif // CPPPSOURCEPROCESSERTESTHELPER_H

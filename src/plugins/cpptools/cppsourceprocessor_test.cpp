@@ -30,8 +30,8 @@
 #include "cpptoolsplugin.h"
 
 #include "cppmodelmanager.h"
-#include "cpppreprocessertesthelper.h"
-#include "cpppreprocessor.h"
+#include "cppsourceprocessertesthelper.h"
+#include "cppsourceprocessor.h"
 #include "cppsnapshotupdater.h"
 #include "cpptoolseditorsupport.h"
 #include "cpptoolstestcase.h"
@@ -69,9 +69,9 @@ public:
 
         TestCase::writeFile(fileName, source);
 
-        CppPreprocessor pp((QPointer<CppModelManager>(m_cmm)));
-        pp.setIncludePaths(QStringList(TestIncludePaths::directoryOfTestFile()));
-        pp.run(fileName);
+        CppSourceProcessor sourceProcessor((QPointer<CppModelManager>(m_cmm)));
+        sourceProcessor.setIncludePaths(QStringList(TestIncludePaths::directoryOfTestFile()));
+        sourceProcessor.run(fileName);
 
         Document::Ptr document = m_cmm->document(fileName);
         QFile(fileName).remove();
@@ -95,7 +95,7 @@ private:
 };
 
 /// Check: Resolved and unresolved includes are properly tracked.
-void CppToolsPlugin::test_cpppreprocessor_includes_resolvedUnresolved()
+void CppToolsPlugin::test_cppsourceprocessor_includes_resolvedUnresolved()
 {
     QByteArray source =
         "#include \"header.h\"\n"
@@ -123,7 +123,7 @@ void CppToolsPlugin::test_cpppreprocessor_includes_resolvedUnresolved()
 }
 
 /// Check: Avoid self-include entries due to cyclic includes.
-void CppToolsPlugin::test_cpppreprocessor_includes_cyclic()
+void CppToolsPlugin::test_cppsourceprocessor_includes_cyclic()
 {
     const QString fileName1 = TestIncludePaths::testFilePath(QLatin1String("cyclic1.h"));
     const QString fileName2 = TestIncludePaths::testFilePath(QLatin1String("cyclic2.h"));
@@ -163,7 +163,7 @@ void CppToolsPlugin::test_cpppreprocessor_includes_cyclic()
 }
 
 /// Check: All include errors are reported as diagnostic messages.
-void CppToolsPlugin::test_cpppreprocessor_includes_allDiagnostics()
+void CppToolsPlugin::test_cppsourceprocessor_includes_allDiagnostics()
 {
     QByteArray source =
         "#include <NotResolvable1>\n"
@@ -181,7 +181,7 @@ void CppToolsPlugin::test_cpppreprocessor_includes_allDiagnostics()
     QCOMPARE(document->diagnosticMessages().size(), 3);
 }
 
-void CppToolsPlugin::test_cpppreprocessor_macroUses()
+void CppToolsPlugin::test_cppsourceprocessor_macroUses()
 {
     QByteArray source =
         "#define SOMEDEFINE 1\n"

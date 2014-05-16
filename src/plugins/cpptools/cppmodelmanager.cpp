@@ -37,7 +37,7 @@
 #include "cpphighlightingsupport.h"
 #include "cppindexingsupport.h"
 #include "cppmodelmanagersupportinternal.h"
-#include "cpppreprocessor.h"
+#include "cppsourceprocessor.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
 #include "cpptoolsplugin.h"
@@ -310,7 +310,7 @@ QStringList CppModelManager::internalIncludePaths() const
         const ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
             foreach (const QString &path, part->includePaths)
-                includePaths.append(CppPreprocessor::cleanPath(path));
+                includePaths.append(CppSourceProcessor::cleanPath(path));
     }
     includePaths.removeDuplicates();
     return includePaths;
@@ -325,7 +325,7 @@ QStringList CppModelManager::internalFrameworkPaths() const
         const ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts())
             foreach (const QString &path, part->frameworkPaths)
-                frameworkPaths.append(CppPreprocessor::cleanPath(path));
+                frameworkPaths.append(CppSourceProcessor::cleanPath(path));
     }
     frameworkPaths.removeDuplicates();
     return frameworkPaths;

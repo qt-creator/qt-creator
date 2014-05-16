@@ -1,7 +1,7 @@
 #include "builtinindexingsupport.h"
 
 #include "cppmodelmanager.h"
-#include "cpppreprocessor.h"
+#include "cppsourceprocessor.h"
 #include "searchsymbols.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
@@ -22,7 +22,7 @@ static const bool DumpFileNameWhileParsing = qgetenv("QTC_DUMP_FILENAME_WHILE_PA
 namespace {
 
 static void parse(QFutureInterface<void> &future,
-                  CppPreprocessor *preproc,
+                  CppSourceProcessor *sourceProcessor,
                   QStringList files)
 {
     if (files.isEmpty())
@@ -32,7 +32,7 @@ static void parse(QFutureInterface<void> &future,
     QStringList headers;
 
     foreach (const QString &file, files) {
-        preproc->removeFromCache(file);
+        sourceProcessor->removeFromCache(file);
         if (ProjectFile::isSource(ProjectFile::classify(file)))
             sources.append(file);
         else
@@ -43,7 +43,7 @@ static void parse(QFutureInterface<void> &future,
     files = sources;
     files += headers;
 
-    preproc->setTodo(files);
+    sourceProcessor->setTodo(files);
 
     future.setProgressRange(0, files.size());
 
@@ -63,9 +63,9 @@ static void parse(QFutureInterface<void> &future,
 
         const bool isSourceFile = i < sourceCount;
         if (isSourceFile) {
-            (void) preproc->run(conf);
+            (void) sourceProcessor->run(conf);
         } else if (!processingHeaders) {
-            (void) preproc->run(conf);
+            (void) sourceProcessor->run(conf);
 
             processingHeaders = true;
         }
@@ -74,19 +74,19 @@ static void parse(QFutureInterface<void> &future,
         QStringList includePaths = parts.isEmpty()
                 ? fallbackIncludePaths
                 : parts.first()->includePaths;
-        preproc->setIncludePaths(includePaths);
-        preproc->run(fileName);
+        sourceProcessor->setIncludePaths(includePaths);
+        sourceProcessor->run(fileName);
 
-        future.setProgressValue(files.size() - preproc->todo().size());
+        future.setProgressValue(files.size() - sourceProcessor->todo().size());
 
         if (isSourceFile)
-            preproc->resetEnvironment();
+            sourceProcessor->resetEnvironment();
     }
 
     future.setProgressValue(files.size());
-    preproc->modelManager()->finishedRefreshingSourceFiles(files);
+    sourceProcessor->modelManager()->finishedRefreshingSourceFiles(files);
 
-    delete preproc;
+    delete sourceProcessor;
 }
 
 class BuiltinSymbolSearcher: public SymbolSearcher
@@ -184,7 +184,7 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
     CppModelManager *mgr = CppModelManager::instance();
     const WorkingCopy workingCopy = mgr->workingCopy();
 
-    CppPreprocessor *preproc = new CppPreprocessor(mgr, m_dumpFileNameWhileParsing);
+    CppSourceProcessor *preproc = new CppSourceProcessor(mgr, m_dumpFileNameWhileParsing);
     preproc->setRevision(++m_revision);
     preproc->setIncludePaths(mgr->includePaths());
     preproc->setFrameworkPaths(mgr->frameworkPaths());

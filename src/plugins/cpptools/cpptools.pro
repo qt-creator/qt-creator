@@ -35,12 +35,12 @@ HEADERS += \
     cppmodelmanagersupport.h \
     cppmodelmanagersupportinternal.h \
     cpppointerdeclarationformatter.h \
-    cpppreprocessor.h \
     cppprojectfile.h \
     cppqtstyleindenter.h \
     cpprefactoringchanges.h \
     cppsemanticinfo.h \
     cppsnapshotupdater.h \
+    cppsourceprocessor.h \
     cpptools_global.h \
     cpptoolsconstants.h \
     cpptoolseditorsupport.h \
@@ -90,12 +90,12 @@ SOURCES += \
     cppmodelmanagersupport.cpp \
     cppmodelmanagersupportinternal.cpp \
     cpppointerdeclarationformatter.cpp \
-    cpppreprocessor.cpp \
     cppprojectfile.cpp \
     cppqtstyleindenter.cpp \
     cpprefactoringchanges.cpp \
     cppsemanticinfo.cpp \
     cppsnapshotupdater.cpp \
+    cppsourceprocessor.cpp \
     cpptoolseditorsupport.cpp \
     cpptoolsplugin.cpp \
     cpptoolsreuse.cpp \
@@ -118,7 +118,7 @@ FORMS += \
 
 equals(TEST, 1) {
     HEADERS += \
-        cpppreprocessertesthelper.h \
+        cppsourceprocessertesthelper.h \
         cpptoolstestcase.h \
         modelmanagertesthelper.h
 
@@ -129,8 +129,8 @@ equals(TEST, 1) {
         cpplocatorfilter_test.cpp \
         cppmodelmanager_test.cpp \
         cpppointerdeclarationformatter_test.cpp \
-        cpppreprocessertesthelper.cpp \
-        cpppreprocessor_test.cpp \
+        cppsourceprocessertesthelper.cpp \
+        cppsourceprocessor_test.cpp \
         cpptoolstestcase.cpp \
         modelmanagertesthelper.cpp \
         symbolsearcher_test.cpp \

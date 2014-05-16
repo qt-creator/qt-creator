@@ -1,5 +1,5 @@
-#ifndef CPPPREPROCESSOR_H
-#define CPPPREPROCESSOR_H
+#ifndef CPPSOURCEPROCESSOR_H
+#define CPPSOURCEPROCESSOR_H
 
 #include "cppmodelmanagerinterface.h"
 
@@ -19,17 +19,17 @@ namespace Internal {
 class CppModelManager;
 
 // Documentation inside.
-class CPPTOOLS_EXPORT CppPreprocessor: public CPlusPlus::Client
+class CPPTOOLS_EXPORT CppSourceProcessor: public CPlusPlus::Client
 {
-    Q_DISABLE_COPY(CppPreprocessor)
+    Q_DISABLE_COPY(CppSourceProcessor)
 
 public:
     static QString cleanPath(const QString &path);
 
-    CppPreprocessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing = false);
-    CppPreprocessor(QPointer<CppModelManager> modelManager, const CPlusPlus::Snapshot &snapshot,
-                    bool dumpFileNameWhileParsing = false);
-    virtual ~CppPreprocessor();
+    CppSourceProcessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing = false);
+    CppSourceProcessor(QPointer<CppModelManager> modelManager, const CPlusPlus::Snapshot &snapshot,
+                       bool dumpFileNameWhileParsing = false);
+    virtual ~CppSourceProcessor();
 
     void setRevision(unsigned revision);
     void setWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy);
@@ -82,7 +82,7 @@ protected:
     virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType type);
 
 private:
-    CppPreprocessor();
+    CppSourceProcessor();
     void addFrameworkPath(const QString &frameworkPath);
 
     CPlusPlus::Snapshot m_snapshot;
@@ -106,4 +106,4 @@ private:
 } // namespace Internal
 } // namespace CppTools
 
-#endif // CPPPREPROCESSOR_H
+#endif // CPPSOURCEPROCESSOR_H
