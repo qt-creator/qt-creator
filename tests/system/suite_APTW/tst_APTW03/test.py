@@ -98,9 +98,7 @@ def main():
         invokeMenuItem('Build', 'Build Project "%s"' % projectName)
         waitForCompile(10000)
         if not virtualFunctionsAdded:
-            global createTasksFileOnError
-            createTasksFileOnError = False
-            checkLastBuild(True)
+            checkLastBuild(True, False)
             if not openDocument("%s.Headers.%s\.h" % (projectName, className.lower())):
                 test.fail("Could not open %s.h - continuing." % className.lower())
                 continue

@@ -29,13 +29,11 @@
 
 import re;
 
-# flag to indicate whether a tasks file should be created when building ends with errors
-createTasksFileOnError = True
-
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
 # lines within the Issues output
-# optional parameter can be used to tell this function if the build was expected to fail or not
-def checkLastBuild(expectedToFail=False):
+# param expectedToFail can be used to tell this function if the build was expected to fail or not
+# param createTasksFileOnError whether a tasks file should be created when building ends with errors
+def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
     try:
         # can't use waitForObject() 'cause visible is always 0
         buildProg = findObject("{type='ProjectExplorer::Internal::BuildProgress' unnamed='1' }")
