@@ -108,9 +108,12 @@
 #include <utils/statuslabel.h>
 #include <utils/winutils.h>
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDockWidget>
 #include <QFileDialog>
+#include <QHBoxLayout>
+#include <QHeaderView>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QTextBlock>

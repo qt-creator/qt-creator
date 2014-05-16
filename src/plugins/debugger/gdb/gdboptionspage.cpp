@@ -35,9 +35,11 @@
 
 #include <coreplugin/icore.h>
 
+#include <QCheckBox>
+#include <QCoreApplication>
 #include <QDebug>
-
 #include <QFormLayout>
+#include <QLabel>
 #include <QSpinBox>
 #include <QTextEdit>
 

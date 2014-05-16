@@ -31,7 +31,6 @@
 #define DEBUGGER_COMMONOPTIONSPAGE_H
 
 #include "debuggersourcepathmappingwidget.h"
-#include "ui_localsandexpressionsoptionspage.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
@@ -47,45 +46,13 @@ namespace Debugger {
 namespace Internal {
 
 class GlobalDebuggerOptions;
+class CommonOptionsPageWidget;
 
 ///////////////////////////////////////////////////////////////////////
 //
 // CommonOptionsPage
 //
 ///////////////////////////////////////////////////////////////////////
-
-class CommonOptionsPageWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit CommonOptionsPageWidget(const QSharedPointer<Utils::SavedActionSet> &group, QWidget *parent = 0);
-
-    GlobalDebuggerOptions globalOptions() const;
-    void setGlobalOptions(const GlobalDebuggerOptions &go);
-
-private:
-    QCheckBox *checkBoxUseAlternatingRowColors;
-    QCheckBox *checkBoxFontSizeFollowsEditor;
-    QCheckBox *checkBoxUseToolTipsInMainEditor;
-    QCheckBox *checkBoxListSourceFiles;
-    QCheckBox *checkBoxCloseBuffersOnExit;
-    QCheckBox *checkBoxSwitchModeOnExit;
-    QCheckBox *checkBoxBringToForegroundOnInterrrupt;
-    QCheckBox *checkBoxShowQmlObjectTree;
-    QCheckBox *checkBoxBreakpointsFullPath;
-    QCheckBox *checkBoxRegisterForPostMortem;
-    QCheckBox *checkBoxWarnOnReleaseBuilds;
-    QCheckBox *checkBoxKeepEditorStationaryWhileStepping;
-    QLabel *labelMaximalStackDepth;
-    QLabel *labelDisplayStringLimit;
-    QLabel *labelMaximalStringLength;
-    QSpinBox *spinBoxMaximalStackDepth;
-    QSpinBox *spinBoxMaximalStringLength;
-    QSpinBox *spinBoxDisplayStringLimit;
-
-    DebuggerSourcePathMappingWidget *sourcesMappingWidget;
-    const QSharedPointer<Utils::SavedActionSet> m_group;
-};
 
 class CommonOptionsPage : public Core::IOptionsPage
 {
@@ -129,7 +96,6 @@ public:
 
 private:
     QPointer<QWidget> m_widget;
-    Ui::DebuggingHelperOptionPage m_ui;
     Utils::SavedActionSet m_group;
 };
 

@@ -35,8 +35,13 @@
 
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
+#include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 
+#include <QCheckBox>
+#include <QCoreApplication>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QSpinBox>
 #include <QTextStream>
 
@@ -47,9 +52,41 @@ using namespace ProjectExplorer;
 namespace Debugger {
 namespace Internal {
 
+class CommonOptionsPageWidget : public QWidget
+{
+public:
+    explicit CommonOptionsPageWidget(const QSharedPointer<Utils::SavedActionSet> &group);
+
+    GlobalDebuggerOptions globalOptions() const;
+    void setGlobalOptions(const GlobalDebuggerOptions &go);
+
+private:
+    QCheckBox *checkBoxUseAlternatingRowColors;
+    QCheckBox *checkBoxFontSizeFollowsEditor;
+    QCheckBox *checkBoxUseToolTipsInMainEditor;
+    QCheckBox *checkBoxListSourceFiles;
+    QCheckBox *checkBoxCloseBuffersOnExit;
+    QCheckBox *checkBoxSwitchModeOnExit;
+    QCheckBox *checkBoxBringToForegroundOnInterrrupt;
+    QCheckBox *checkBoxShowQmlObjectTree;
+    QCheckBox *checkBoxBreakpointsFullPath;
+    QCheckBox *checkBoxRegisterForPostMortem;
+    QCheckBox *checkBoxWarnOnReleaseBuilds;
+    QCheckBox *checkBoxKeepEditorStationaryWhileStepping;
+    QLabel *labelMaximalStackDepth;
+    QLabel *labelDisplayStringLimit;
+    QLabel *labelMaximalStringLength;
+    QSpinBox *spinBoxMaximalStackDepth;
+    QSpinBox *spinBoxMaximalStringLength;
+    QSpinBox *spinBoxDisplayStringLimit;
+
+    DebuggerSourcePathMappingWidget *sourcesMappingWidget;
+    const QSharedPointer<Utils::SavedActionSet> m_group;
+};
+
 CommonOptionsPageWidget::CommonOptionsPageWidget
-    (const QSharedPointer<Utils::SavedActionSet> &group, QWidget *parent)
-  : QWidget(parent), m_group(group)
+    (const QSharedPointer<Utils::SavedActionSet> &group)
+  : m_group(group)
 {
     QGroupBox *behaviorBox = new QGroupBox(this);
     behaviorBox->setTitle(tr("Behavior"));
@@ -309,6 +346,7 @@ QString CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(const char *functio
     return result;
 }
 
+
 ///////////////////////////////////////////////////////////////////////
 //
 // LocalsAndExpressionsOptionsPage
@@ -340,28 +378,62 @@ QWidget *LocalsAndExpressionsOptionsPage::widget()
 {
     if (!m_widget) {
         m_widget = new QWidget;
-        m_ui.setupUi(m_widget);
-
-        m_group.clear();
         DebuggerCore *dc = debuggerCore();
 
-        m_group.insert(dc->action(UseDebuggingHelpers),
-                       m_ui.debuggingHelperGroupBox);
+        QGroupBox *debuggingHelperGroupBox = new QGroupBox(m_widget);
+        debuggingHelperGroupBox->setTitle(tr("Use Debugging Helper"));
+        debuggingHelperGroupBox->setCheckable(true);
 
-        m_group.insert(dc->action(UseCodeModel),
-                       m_ui.checkBoxUseCodeModel);
-        m_ui.checkBoxUseCodeModel->setToolTip(dc->action(UseCodeModel)->toolTip());
+        QLabel *label = new QLabel(debuggingHelperGroupBox);
+        label->setTextFormat(Qt::AutoText);
+        label->setWordWrap(true);
+        label->setText(QLatin1String("<html><head/><body>\n<p>")
+           + tr("The debugging helper is only used to produce a nice "
+                "display of objects of certain types like QString or "
+                "std::map in the &quot;Locals and Expressions&quot; view. "
+                "It is not strictly necessary for debugging with Qt Creator.")
+            + QLatin1String("</p></body></html>"));
 
-        m_group.insert(dc->action(ShowThreadNames),
-                       m_ui.checkBoxShowThreadNames);
-        m_group.insert(dc->action(ShowStdNamespace), m_ui.checkBoxShowStdNamespace);
-        m_group.insert(dc->action(ShowQtNamespace), m_ui.checkBoxShowQtNamespace);
+        QCheckBox *checkBoxUseCodeModel = new QCheckBox(debuggingHelperGroupBox);
+        checkBoxUseCodeModel->setText(tr("Use code model"));
+        checkBoxUseCodeModel->setToolTip(dc->action(UseCodeModel)->toolTip());
+        checkBoxUseCodeModel->setToolTip(tr("Makes use of Qt Creator's code model "
+            "to find out if a variable has already been assigned a "
+            "value at the point the debugger interrupts."));
 
+        QCheckBox *checkBoxShowThreadNames = new QCheckBox(debuggingHelperGroupBox);
+        checkBoxShowThreadNames->setToolTip(tr("Displays names of QThread based threads."));
+        checkBoxShowThreadNames->setText(tr("Display thread names"));
+
+        QCheckBox *checkBoxShowStdNamespace  = new QCheckBox(m_widget);
+        checkBoxShowStdNamespace->setToolTip(tr("Shows 'std::' prefix for types from the standard library."));
+        checkBoxShowStdNamespace->setText(tr("Show \"std::\" namespace for types"));
+
+        QCheckBox *checkBoxShowQtNamespace = new QCheckBox(m_widget);
+        checkBoxShowQtNamespace->setToolTip(tr("Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with '-qtnamespace'."));
+        checkBoxShowQtNamespace->setText(tr("Qt's namespace for types"));
+
+        QVBoxLayout *verticalLayout = new QVBoxLayout(debuggingHelperGroupBox);
+        verticalLayout->addWidget(label);
+        verticalLayout->addWidget(checkBoxUseCodeModel);
+        verticalLayout->addWidget(checkBoxShowThreadNames);
+
+        QVBoxLayout *layout = new QVBoxLayout(m_widget);
+        layout->addWidget(debuggingHelperGroupBox);
+        layout->addWidget(checkBoxShowStdNamespace);
+        layout->addWidget(checkBoxShowQtNamespace);
+        layout->addStretch();
+
+        m_group.clear();
+        m_group.insert(dc->action(UseDebuggingHelpers), debuggingHelperGroupBox);
+        m_group.insert(dc->action(UseCodeModel), checkBoxUseCodeModel);
+        m_group.insert(dc->action(ShowThreadNames), checkBoxShowThreadNames);
+        m_group.insert(dc->action(ShowStdNamespace), checkBoxShowStdNamespace);
+        m_group.insert(dc->action(ShowQtNamespace), checkBoxShowQtNamespace);
 
 #ifndef QT_DEBUG
 #if 0
-        cmd = am->registerAction(m_dumpLogAction,
-                                 DUMP_LOG, globalcontext);
+        cmd = am->registerAction(m_dumpLogAction, DUMP_LOG, globalcontext);
         //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
         cmd->setDefaultKeySequence(QKeySequence(QCoreApplication::translate("Debugger", "Ctrl+Shift+F11")));
         mdebug->addAction(cmd);

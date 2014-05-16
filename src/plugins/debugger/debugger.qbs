@@ -63,7 +63,6 @@ QtcPlugin {
             "disassemblerlines.cpp", "disassemblerlines.h",
             "imageviewer.cpp", "imageviewer.h",
             "loadcoredialog.cpp", "loadcoredialog.h",
-            "localsandexpressionsoptionspage.ui",
             "localsandexpressionswindow.cpp", "localsandexpressionswindow.h",
             "logwindow.cpp", "logwindow.h",
             "memoryagent.cpp", "memoryagent.h",

@@ -133,9 +133,6 @@ SOURCES += \
     simplifytype.cpp \
     unstartedappwatcherdialog.cpp
 
-FORMS += \
-    localsandexpressionsoptionspage.ui
-
 RESOURCES += debugger.qrc
 
 false {
