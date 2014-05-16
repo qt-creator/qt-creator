@@ -37,7 +37,7 @@ Controls.Label {
 
     property alias toolTip: toolTipArea.toolTip
 
-    width:  parent.width < 300 ? 80 : Math.min(140, parent.width - 220)
+    width: Math.max(Math.min(240, parent.width - 220), 80)
     color: "#eee"
     elide: Text.ElideRight
 
