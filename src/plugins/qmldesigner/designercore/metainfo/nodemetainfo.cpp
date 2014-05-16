@@ -94,8 +94,12 @@ static TypeName resolveTypeName(const ASTPropertyReference *ref, const ContextPt
                 return type;
 
             if (const ASTObjectValue * astObjectValue = value->asAstObjectValue()) {
-                if (astObjectValue->typeName())
+                if (astObjectValue->typeName()) {
                     type = astObjectValue->typeName()->name.toUtf8();
+                    const ObjectValue *  objectValue =  context->lookupType(astObjectValue->document(), astObjectValue->typeName());;
+                    if (objectValue)
+                        dotProperties = getObjectTypes(objectValue, context);
+                }
             } else if (const ObjectValue * objectValue = value->asObjectValue()) {
                 type = objectValue->className().toUtf8();
                 dotProperties = getObjectTypes(objectValue, context);
