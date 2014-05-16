@@ -48,7 +48,7 @@ Row {
             if (openUrl)
                 gettingStarted.openUrl(openUrl);
             if (openHelpUrl)
-                gettingStarted.openHelp(openUrl);
+                gettingStarted.openHelp(openHelpUrl);
         }
     }
 }

@@ -47,6 +47,9 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <QDir>
+#include <QTemporaryFile>
+#include <QFile>
+#include <QSettings>
 
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
@@ -60,6 +63,7 @@ const Core::Id IosDeployStep::Id("Qt4ProjectManager.IosDeployStep");
 
 IosDeployStep::IosDeployStep(ProjectExplorer::BuildStepList *parent)
     : BuildStep(parent, Id)
+    , m_expectFail(false)
 {
     ctor();
 }
@@ -67,6 +71,7 @@ IosDeployStep::IosDeployStep(ProjectExplorer::BuildStepList *parent)
 IosDeployStep::IosDeployStep(ProjectExplorer::BuildStepList *parent,
     IosDeployStep *other)
     : BuildStep(parent, other)
+    , m_expectFail(false)
 {
     ctor();
 }
@@ -125,6 +130,7 @@ void IosDeployStep::run(QFutureInterface<bool> &fi)
             SLOT(handleFinished(Ios::IosToolHandler*)));
     connect(m_toolHandler, SIGNAL(errorMsg(Ios::IosToolHandler*,QString)),
             SLOT(handleErrorMsg(Ios::IosToolHandler*,QString)));
+    checkProvisioningProfile();
     m_toolHandler->requestTransferApp(appBundle(), deviceId());
 }
 
@@ -140,6 +146,7 @@ void IosDeployStep::cleanup()
     m_transferStatus = NoTransfer;
     m_device.clear();
     m_toolHandler = 0;
+    m_expectFail = false;
 }
 
 void IosDeployStep::handleIsTransferringApp(IosToolHandler *handler, const QString &bundlePath,
@@ -161,9 +168,10 @@ void IosDeployStep::handleDidTransferApp(IosToolHandler *handler, const QString 
         m_transferStatus = TransferOk;
     } else {
         m_transferStatus = TransferFailed;
-        TaskHub::addTask(Task::Error,
-                         tr("Deployment failed. The settings in the Organizer window of Xcode might be incorrect."),
-                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+        if (!m_expectFail)
+            TaskHub::addTask(Task::Error,
+                             tr("Deployment failed. The settings in the Organizer window of Xcode might be incorrect."),
+                             ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
     }
     m_futureInterface.reportResult(status == IosToolHandler::Success);
 }
@@ -235,6 +243,59 @@ void IosDeployStep::raiseError(const QString &errorString)
 void IosDeployStep::writeOutput(const QString &text, OutputFormat format)
 {
     emit addOutput(text, format);
+}
+
+void IosDeployStep::checkProvisioningProfile()
+{
+    IosDevice::ConstPtr device = iosdevice();
+    if (device.isNull())
+        return;
+
+    Utils::FileName provisioningFilePath = Utils::FileName::fromString(appBundle());
+    provisioningFilePath.appendPath(QLatin1String("embedded.mobileprovision"));
+
+    // the file is a signed plist stored in DER format
+    // we simply search for start and end of the plist instead of decoding the DER payload
+    if (!provisioningFilePath.toFileInfo().exists())
+        return;
+    QFile provisionFile(provisioningFilePath.toString());
+    if (!provisionFile.open(QIODevice::ReadOnly))
+        return;
+    QByteArray provisionData = provisionFile.readAll();
+    int start = provisionData.indexOf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    int end = provisionData.indexOf("</plist>");
+    if (start == -1 || end == -1)
+        return;
+    end += 8;
+
+    QTemporaryFile f;
+    if (!f.open())
+        return;
+    f.write(provisionData.mid(start, end - start));
+    f.flush();
+    QSettings provisionPlist(f.fileName(), QSettings::NativeFormat);
+
+    if (!provisionPlist.contains(QLatin1String("ProvisionedDevices")))
+        return;
+    QStringList deviceIds = provisionPlist.value(QLatin1String("ProvisionedDevices")).toStringList();
+    QString targetId = device->uniqueDeviceID();
+    foreach (const QString &deviceId, deviceIds) {
+        if (deviceId == targetId)
+            return;
+    }
+
+    m_expectFail = true;
+    QString provisioningProfile = provisionPlist.value(QLatin1String("Name")).toString();
+    QString provisioningUid = provisionPlist.value(QLatin1String("UUID")).toString();
+    Task task(Task::Warning,
+              tr("The provisioning profile \"%1\" (%2) used to sign the application "
+                 "does not cover the device %3 (%4). Deployment to it will fail.")
+              .arg(provisioningProfile, provisioningUid, device->displayName(),
+                   targetId),
+              Utils::FileName(), /* filename */
+              -1, /* line */
+              ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+    emit addTask(task);
 }
 
 IDevice::ConstPtr IosDeployStep::device() const

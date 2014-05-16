@@ -3,7 +3,7 @@ Prerequisites - general information
 Squish tests inside this folder have several prerequisites to get them running.
 
 First - and most important - you have to own a valid Squish license.
-Actually it's recommended to use Squish 4.2.3 - but 4.1.1 should be capable of running all tests.
+Currently it's recommended to use Squish 5.1.0 - but 4.2.3 should be capable of running all tests.
 For Squish on Mac it's necessary to change the used Python version to 2.6 inside the <SQUISHDIR>/etc/paths.ini
 
 Second - some of the test suites/test cases expect an installed QtSDK in its default location.
@@ -20,11 +20,10 @@ You can also just provide them inside a different folder and specify the folder 
 This folder must contain the following:
  * a QtCreator repository (or source copy) of tag v2.5.0 named 'creator'
  * a subfolder called 'creator-test-data'
- * a speedcrunch repository (or source copy) inside 'creator-test-data' named 'speedcrunch'
+ * a speedcrunch 0.11 repository (or source copy) inside 'creator-test-data' named 'speedcrunch'
  * additional Squish versions for hooking into subprocesses inside different folders inside 'creator-test-data' following the information below
 
 Fifth - you'll have to make sure that some needed tools are available (no matter on which OS you're on).
- * qmake
  * cmake
  * wget or curl, capable of HTTPS
 Normally it should be okay to just install them as usual and add their executables' path(s) to the PATH variable.

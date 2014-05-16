@@ -618,8 +618,23 @@ public:
     const Data &operator+(const EigenProfile &) const
     {
         profileExtra +=
-            "INCLUDEPATH += /usr/include/eigen2\n"
-            "INCLUDEPATH += /usr/include/eigen3\n";
+            "exists(/usr/include/eigen3/Eigen/Core) {\n"
+            "    DEFINES += HAS_EIGEN3\n"
+            "    INCLUDEPATH += /usr/include/eigen3\n"
+            "}\n"
+            "exists(/usr/local/include/eigen3/Eigen/Core) {\n"
+            "    DEFINES += HAS_EIGEN3\n"
+            "    INCLUDEPATH += /usr/local/include/eigen3\n"
+            "}\n"
+            "\n"
+            "exists(/usr/include/eigen2/Eigen/Core) {\n"
+            "    DEFINES += HAS_EIGEN2\n"
+            "    INCLUDEPATH += /usr/include/eigen2\n"
+            "}\n"
+            "exists(/usr/local/include/eigen2/Eigen/Core) {\n"
+            "    DEFINES += HAS_EIGEN2\n"
+            "    INCLUDEPATH += /usr/local/include/eigen2\n"
+            "}\n";
 
         return *this;
     }
@@ -4978,33 +4993,50 @@ GdbEngine
 //         + Check("ptr2.type KRBase::TYPE_B (1) KRBase::Type");
 
 
-#if 0
+#ifndef Q_OS_WIN
     QTest::newRow("Eigen")
          << Data("#include <Eigen/Core>",
                 "using namespace Eigen;\n"
-                "Vector3d test = Vector3d::Zero();\n"
-                "Matrix3d myMatrix = Matrix3d::Constant(5);\n"
-                "MatrixXd myDynamicMatrix(30, 10);\n"
+                "Vector3d zero = Vector3d::Zero();\n"
+                "Matrix3d constant = Matrix3d::Constant(5);\n"
 
-                "myDynamicMatrix(0, 0) = 0;\n"
-                "myDynamicMatrix(1, 0) = 1;\n"
-                "myDynamicMatrix(2, 0) = 2;\n"
+                "MatrixXd dynamicMatrix(5, 2);\n"
+                "dynamicMatrix << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10;\n"
 
-                "Matrix<double, 12, 15, ColMajor> colMajorMatrix;\n"
-                "Matrix<double, 12, 15, RowMajor> rowMajorMatrix;\n"
+                "Matrix<double, 2, 5, ColMajor> colMajorMatrix;\n"
+                "colMajorMatrix << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10;\n"
 
-                "int k = 0;\n"
-                "for (int i = 0; i != 12; ++i) {\n"
-                "    for (int j = 0; j != 15; ++j) {\n"
-                "        colMajorMatrix(i, j) = k;\n"
-                "        rowMajorMatrix(i, j) = k;\n"
-                "        ++k;\n"
-                "    }\n"
-                "}\n")
+                "Matrix<double, 2, 5, RowMajor> rowMajorMatrix;\n"
+                "rowMajorMatrix << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10;\n"
+
+                "VectorXd vector(3);\n"
+                "vector << 1, 2, 3;\n")
+
             + EigenProfile()
-            + CheckType("myMatrix", "Eigen::Matrix3d");
-#endif
 
+            + Check("colMajorMatrix", "(2 x 5), ColumnMajor",
+                    "Eigen::Matrix<double, 2, 5, 0, 2, 5>")
+            + Check("colMajorMatrix.[1,0]", "6", "double")
+            + Check("colMajorMatrix.[1,1]", "7", "double")
+
+            + Check("rowMajorMatrix", "(2 x 5), RowMajor",
+                    "Eigen::Matrix<double, 2, 5, 1, 2, 5>")
+            + Check("rowMajorMatrix.[1,0]", "6", "double")
+            + Check("rowMajorMatrix.[1,1]", "7", "double")
+
+            + Check("dynamicMatrix", "(5 x 2), ColumnMajor", "Eigen::MatrixXd")
+            + Check("dynamicMatrix.[2,0]", "5", "double")
+            + Check("dynamicMatrix.[2,1]", "6", "double")
+
+            + Check("constant", "(3 x 3), ColumnMajor", "Eigen::Matrix3d")
+            + Check("constant.[0,0]", "5", "double")
+
+            + Check("zero", "(3 x 1), ColumnMajor", "Eigen::Vector3d")
+            + Check("zero.1", "[1]", "0", "double")
+
+            + Check("vector", "(3 x 1), ColumnMajor", "Eigen::VectorXd")
+            + Check("vector.1", "[1]", "2", "double");
+#endif
 
     // https://bugreports.qt-project.org/browse/QTCREATORBUG-3611
     QTest::newRow("Bug3611")

@@ -144,7 +144,10 @@ class SubprocessType:
         if subprocessType == SubprocessType.QT_WIDGET:
             return "QMainWindow"
         if subprocessType == SubprocessType.QT_QUICK_APPLICATION:
-            return "QtQuick%sApplicationViewer" % qtQuickVersion[0]
+            qqv = "2"
+            if qtQuickVersion[0] == "1":
+                qqv = "1"
+            return "QtQuick%sApplicationViewer" % qqv
         if subprocessType == SubprocessType.QT_QUICK_UI:
             if qtQuickVersion == "1.1":
                 return "QDeclarativeViewer"
@@ -159,3 +162,18 @@ class QtInformation:
     QT_VERSION = 0
     QT_BINPATH = 1
     QT_LIBPATH = 2
+
+class LibType:
+    SHARED = 0
+    STATIC = 1
+    QT_PLUGIN = 2
+
+    @staticmethod
+    def getStringForLib(libType):
+        if libType == LibType.SHARED:
+            return "Shared Library"
+        if libType == LibType.STATIC:
+            return "Statically Linked Library"
+        if libType == LibType.QT_PLUGIN:
+            return "Qt Plugin"
+        return None

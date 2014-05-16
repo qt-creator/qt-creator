@@ -32791,7 +32791,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Get Started Now</source>
-        <translation>Начните прямо сейчас</translation>
+        <translation>Начать сейчас</translation>
     </message>
     <message>
         <source>Qt Account</source>
@@ -32811,7 +32811,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>User Guide</source>
-        <translation>Руководство пользователя</translation>
+        <translation>Справка</translation>
     </message>
 </context>
 <context>

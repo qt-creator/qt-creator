@@ -42,6 +42,7 @@
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/xcodebuildparser.h>
 #include <utils/qtcprocess.h>
 
 #include <QDir>
@@ -255,6 +256,8 @@ bool MakeStep::init()
     pp->resolveAll();
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
+    if (tc && tc->targetAbi().os() == Abi::MacOS)
+        appendOutputParser(new XcodebuildParser);
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)
         appendOutputParser(parser);

@@ -53,6 +53,7 @@ def main():
             continue
         for key in ["<Up>", "<Down>", "<Left>", "<Right>"]:
             test.log("Selecting everything")
+            type(editor, "<Home>")
             invokeMenuItem("Edit", "Select All")
             test.verify(waitFor("editor.textCursor().hasSelection()", 500),
                         "verify selecting")

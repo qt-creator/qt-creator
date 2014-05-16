@@ -73,9 +73,8 @@ def performTest(workingDir, projectName, targetCount, availableConfigs, disableO
         # switching from MSVC to MinGW build will fail on the clean step of 'Rebuild All' because
         # of differences between MSVC's and MinGW's Makefile (so clean before switching kits)
         invokeMenuItem('Build', 'Clean Project "%s"' % projectName)
-        qtVersion = selectBuildConfig(targetCount, kit, config)[0]
+        qtVersion = verifyBuildConfig(targetCount, kit, config, True, enableQmlDebug=True)[0]
         test.log("Selected kit using Qt %s" % qtVersion)
-        verifyBuildConfig(targetCount, kit, True, enableQmlDebug=True)
         if disableOptimizer:
             batchEditRunEnvironment(targetCount, kit, ["QML_DISABLE_OPTIMIZER=1"])
             switchViewTo(ViewConstants.EDIT)

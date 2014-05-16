@@ -149,7 +149,8 @@ QtcPlugin {
             "toolchainmanager.cpp", "toolchainmanager.h",
             "toolchainoptionspage.cpp", "toolchainoptionspage.h",
             "unconfiguredprojectpanel.cpp", "unconfiguredprojectpanel.h",
-            "vcsannotatetaskhandler.cpp", "vcsannotatetaskhandler.h"
+            "vcsannotatetaskhandler.cpp", "vcsannotatetaskhandler.h",
+            "xcodebuildparser.cpp", "xcodebuildparser.h"
         ]
     }
 

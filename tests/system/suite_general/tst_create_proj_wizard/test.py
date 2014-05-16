@@ -33,7 +33,7 @@ import re
 
 def main():
     global tmpSettingsDir
-    quickCombinations = [["1.1",None], ["2.1",None], ["2.2",None], ["2.1","1.0"], ["2.2","1.1"]]
+    quickCombinations = ["1.1", "2.1", "2.2", "Controls 1.0", "Controls 1.1"]
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
@@ -73,7 +73,7 @@ def main():
         displayedPlatforms = __createProject__(category, template)
         if template == "Qt Quick Application":
             for counter, qComb in enumerate(quickCombinations):
-                requiredQtVersion = __createProjectHandleQtQuickSelection__(qComb[0], qComb[1])
+                requiredQtVersion = __createProjectHandleQtQuickSelection__(qComb)
                 __modifyAvailableTargets__(displayedPlatforms, requiredQtVersion, True)
                 verifyKitCheckboxes(kits, displayedPlatforms)
                 # FIXME: if QTBUG-35203 is fixed replace by triggering the shortcut for Back

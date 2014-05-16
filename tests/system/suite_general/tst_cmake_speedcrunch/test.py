@@ -36,9 +36,6 @@ def main():
     if (which("cmake") == None):
         test.fatal("cmake not found in PATH - needed to run this test")
         return
-    if (which("qmake") == None):
-        test.fatal("qmake not found in PATH - needed to run this test")
-        return
     if not neededFilePresent(SpeedCrunchPath):
         return
 

@@ -196,6 +196,7 @@
 :Send to Codepaster.Description:_QLabel	{name='descriptionLabel' text='Description:' type='QLabel' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster.Paste_QPushButton	{text='Paste' type='QPushButton' unnamed='1' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
+:Send to Codepaster.qt_spinbox_lineedit_QLineEdit	{name='qt_spinbox_lineedit' type='QLineEdit' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster.stackedWidget_QStackedWidget	{name='stackedWidget' type='QStackedWidget' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster_CodePaster::PasteView	{name='CodePaster__Internal__ViewDialog' type='CodePaster::PasteView' visible='1' windowTitle='Send to Codepaster'}
 :Session Manager_ProjectExplorer::Internal::SessionDialog	{name='ProjectExplorer__Internal__SessionDialog' type='ProjectExplorer::Internal::SessionDialog' visible='1' windowTitle='Session Manager'}

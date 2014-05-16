@@ -132,7 +132,11 @@ Column {
 
             LineEdit {
                 id: textField
-                inputMask: "\\#HHHHHHhh"
+
+                validator: RegExpValidator {
+                    regExp: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g
+                }
+
                 showTranslateCheckBox: false
 
                 backendValue: colorEditor.backendendValue

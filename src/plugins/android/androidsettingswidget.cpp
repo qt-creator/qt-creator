@@ -144,8 +144,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_ui->AVDTableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     m_ui->AVDTableView->horizontalHeader()->setResizeMode(1, QHeaderView::ResizeToContents);
 
-    m_ui->downloadAntToolButton->setVisible(Utils::HostOsInfo::isWindowsHost());
-    m_ui->downloadOpenJDKToolButton->setVisible(Utils::HostOsInfo::isWindowsHost());
+    m_ui->downloadAntToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
+    m_ui->downloadOpenJDKToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
 
     m_ui->SDKLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
     m_ui->NDKLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
@@ -438,6 +438,10 @@ void AndroidSettingsWidget::browseAntLocation()
     if (Utils::HostOsInfo::isWindowsHost()) {
         dir = QDir::homePath() + QLatin1String("/ant.bat");
         filter = QLatin1String("ant (ant.bat)");
+    } else if (Utils::HostOsInfo::isMacHost()) {
+        // work around QTBUG-7739 that prohibits filters that don't start with *
+        dir = QLatin1String("/usr/bin/ant");
+        filter = QLatin1String("ant (*ant)");
     } else {
         dir = QLatin1String("/usr/bin/ant");
         filter = QLatin1String("ant (ant)");

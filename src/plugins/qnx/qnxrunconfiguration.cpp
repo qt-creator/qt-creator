@@ -66,8 +66,17 @@ Utils::Environment QnxRunConfiguration::environment() const
     Utils::Environment env = RemoteLinuxRunConfiguration::environment();
     if (!m_qtLibPath.isEmpty()) {
         env.appendOrSet(QLatin1String("LD_LIBRARY_PATH"),
-                        m_qtLibPath + QLatin1String(":$LD_LIBRARY_PATH"));
+                        m_qtLibPath + QLatin1String("/lib:$LD_LIBRARY_PATH"));
+        env.appendOrSet(QLatin1String("QML_IMPORT_PATH"),
+                        m_qtLibPath + QLatin1String("/imports:$QML_IMPORT_PATH"));
+        env.appendOrSet(QLatin1String("QML2_IMPORT_PATH"),
+                        m_qtLibPath + QLatin1String("/qml:$QML2_IMPORT_PATH"));
+        env.appendOrSet(QLatin1String("QT_PLUGIN_PATH"),
+                        m_qtLibPath + QLatin1String("/plugins:$QT_PLUGIN_PATH"));
+        env.appendOrSet(QLatin1String("QT_QPA_FONTDIR"),
+                        m_qtLibPath + QLatin1String("/lib/fonts:$QT_QPA_FONTDIR"));
     }
+
     return env;
 }
 

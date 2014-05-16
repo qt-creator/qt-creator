@@ -103,6 +103,7 @@ private:
     QString appBundle() const;
     void raiseError(const QString &error);
     void writeOutput(const QString &text, OutputFormat = MessageOutput);
+    void checkProvisioningProfile();
 private:
     TransferStatus m_transferStatus;
     IosToolHandler *m_toolHandler;
@@ -110,6 +111,7 @@ private:
     ProjectExplorer::IDevice::ConstPtr m_device;
     QString m_bundlePath;
     static const Core::Id Id;
+    bool m_expectFail;
 };
 
 } // namespace Internal

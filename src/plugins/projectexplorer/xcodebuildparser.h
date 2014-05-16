@@ -26,34 +26,62 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#ifndef IOSXCODEPARSER_H
+#define IOSXCODEPARSER_H
 
-#ifndef COMMUNITYWELCOMEPAGE_H
-#define COMMUNITYWELCOMEPAGE_H
+#include "projectexplorer_export.h"
+#include "ioutputparser.h"
+#include "devicesupport/idevice.h"
 
-#include <utils/iwelcomepage.h>
-#include <coreplugin/icore.h>
+#include <QRegExp>
+#include <QStringList>
 
-namespace Welcome {
-namespace Internal {
+namespace ProjectExplorer {
 
-class CommunityWelcomePageWidget;
-
-class CommunityWelcomePage : public Utils::IWelcomePage
+class PROJECTEXPLORER_EXPORT XcodebuildParser : public IOutputParser
 {
     Q_OBJECT
 public:
-    CommunityWelcomePage();
+    enum XcodebuildStatus {
+        InXcodebuild,
+        OutsideXcodebuild,
+        UnknownXcodebuildState
+    };
 
-    QString pageLocation() const { return Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/newssupport.qml"); }
-    QWidget *page();
-    QString title() const { return tr("News && Support"); }
-    int priority() const { return 30; }
+    XcodebuildParser();
 
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
+    bool hasFatalErrors() const;
 private:
-    CommunityWelcomePageWidget *m_page;
+    int m_fatalErrorCount;
+    QRegExp m_failureRe;
+    QRegExp m_successRe;
+    QRegExp m_buildRe;
+    XcodebuildStatus m_xcodeBuildParserState;
+    QString m_lastTarget;
+    QString m_lastProject;
+#if defined WITH_TESTS
+    friend class XcodebuildParserTester;
+    friend class ProjectExplorerPlugin;
+#endif
 };
 
-} // namespace Internal
-} // namespace Welcome
+#if defined WITH_TESTS
+class XcodebuildParserTester : public QObject
+{
+    Q_OBJECT
+public:
+    explicit XcodebuildParserTester(XcodebuildParser *parser, QObject *parent = 0);
 
-#endif // COMMUNITYWELCOMEPAGE_H
+    XcodebuildParser *parser;
+    XcodebuildParser::XcodebuildStatus expectedFinalState;
+
+public slots:
+    void onAboutToDeleteParser();
+};
+#endif
+
+} // namespace ProjectExplorer
+
+#endif // IOSXCODEPARSER_H

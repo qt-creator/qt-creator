@@ -63,18 +63,12 @@ def openCmakeProject(projectPath, buildDir):
 
 def __handleCmakeWizardPage__():
     generatorCombo = waitForObject(":Generator:_QComboBox")
-    mkspec = __getMkspecFromQmake__("qmake")
-    test.log("Using mkspec '%s'" % mkspec)
-
-    generatorText = "Unix Generator (Desktop 474 GCC)"
-    if "win32-" in mkspec:
-        generatorName = {"win32-g++" : "MinGW Generator (Desktop 474 GCC)",
-                         "win32-msvc2010" : "NMake Generator (Desktop 480 MSVC2010)"}
-        if mkspec in generatorName:
-            generatorText = generatorName[mkspec]
+    generatorText = "Unix Generator (Desktop 480 GCC)"
+    if platform.system() in ('Windows', 'Microsoft'):
+        generatorText = "MinGW Generator (Desktop 480 GCC)"
     index = generatorCombo.findText(generatorText)
     if index == -1:
-        test.warning("No matching CMake generator for mkspec '%s' found." % mkspec)
+        test.warning("No matching CMake generator for found.")
     else:
         generatorCombo.setCurrentIndex(index)
 
@@ -110,7 +104,7 @@ def __createProjectOrFileSelectType__(category, template, fromWelcome = False, i
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}"))
     return __getSupportedPlatforms__(str(text), template)[0]
 
-def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
+def __createProjectSetNameAndPath__(path, projectName = None, checks = True, libType = None):
     directoryEdit = waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
                                   "toolTip?='Full path: *'}")
     replaceEditorContent(directoryEdit, path)
@@ -126,28 +120,22 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
         test.verify(labelCheck, "Project name and base directory without warning or error")
     # make sure this is not set as default location
     ensureChecked("{type='QCheckBox' name='projectsDirectoryCheckBox' visible='1'}", False)
+    if libType != None:
+        selectFromCombo(waitForObject("{leftWidget={text='Type' type='QLabel' unnamed='1' "
+                                      "visible='1'} type='QComboBox' unnamed='1' visible='1'}"),
+                        LibType.getStringForLib(libType))
     clickButton(waitForObject(":Next_QPushButton"))
     return str(projectName)
 
-def __createProjectHandleQtQuickSelection__(qtQuickVersion, controlsVersion):
+def __createProjectHandleQtQuickSelection__(qtQuickOrControlsVersion):
     comboBox = waitForObject("{type='QComboBox' unnamed='1' visible='1' "
                              "leftWidget={text='Qt Quick component set:' type='QLabel' unnamed='1' "
                              "visible='1'}}")
-    if qtQuickVersion == "1.1":
-        selectFromCombo(comboBox, "Qt Quick 1.1")
-        if controlsVersion:
-            test.warning("Controls are not available for Quick 1.")
-    elif qtQuickVersion[:2] == "2.":
-        if controlsVersion:
-            if controlsVersion in ("1.0", "1.1"):
-                selectFromCombo(comboBox, "Qt Quick Controls %s" % controlsVersion)
-            else:
-                test.fatal("Got unknown Qt Quick Controls version: %s - trying to continue."
-                           % str(controlsVersion))
-        else:
-            selectFromCombo(comboBox, "Qt Quick %s" % qtQuickVersion)
-    else:
-        test.fatal("Got unknown Qt Quick version: %s - trying to continue." % str(qtQuickVersion))
+    try:
+        selectFromCombo(comboBox, "Qt Quick %s" % qtQuickOrControlsVersion)
+    except:
+        t,v = sys.exc_info()[:2]
+        test.fatal("Exception while trying to select Qt Quick version", "%s (%s)" % (str(t), str(v)))
     label = waitForObject("{type='QLabel' unnamed='1' visible='1' text?='Creates a *' }")
     requires = re.match(".*Requires Qt (\d\.\d).*", str(label.text))
     if requires:
@@ -281,10 +269,10 @@ def createProject_Qt_Console(path, projectName, checks = True):
 
 def createNewQtQuickApplication(workingDir, projectName = None,
                                 targets=Targets.desktopTargetClasses(), qtQuickVersion="1.1",
-                                fromWelcome=False, controlsVersion=None):
+                                fromWelcome=False):
     available = __createProjectOrFileSelectType__("  Applications", "Qt Quick Application", fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    requiredQt = __createProjectHandleQtQuickSelection__(qtQuickVersion, controlsVersion)
+    requiredQt = __createProjectHandleQtQuickSelection__(qtQuickVersion)
     __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
@@ -294,12 +282,12 @@ def createNewQtQuickApplication(workingDir, projectName = None,
     progressBarWait(10000)
     return checkedTargets, projectName
 
-def createNewQtQuickUI(workingDir, qtQuickVersion="1.1", controlsVersion=None):
+def createNewQtQuickUI(workingDir, qtQuickVersion="1.1"):
     __createProjectOrFileSelectType__("  Applications", "Qt Quick UI")
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
-    __createProjectHandleQtQuickSelection__(qtQuickVersion, controlsVersion)
+    __createProjectHandleQtQuickSelection__(qtQuickVersion)
     __createProjectHandleLastPage__()
     return projectName
 
@@ -356,6 +344,37 @@ def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESK
         __createProjectHandleLastPage__()
     return projectName
 
+def createNewCPPLib(projectDir = None, projectName = None, className = None, fromWelcome = False,
+                    target = Targets.DESKTOP_474_GCC, isStatic = False, modules = ["QtCore"]):
+    available = __createProjectOrFileSelectType__("  Libraries", "C++ Library", fromWelcome, True)
+    if isStatic:
+        libType = LibType.STATIC
+    else:
+        libType = LibType.SHARED
+    if projectDir == None:
+        projectDir = tempDir()
+    projectName = __createProjectSetNameAndPath__(projectDir, projectName, False, libType)
+    checkedTargets = __chooseTargets__(target, available)
+    snooze(1)
+    clickButton(waitForObject(":Next_QPushButton"))
+    __createProjectHandleModuleSelection__(modules)
+    className = __createProjectHandleClassInformation__(className)
+    __createProjectHandleLastPage__()
+    return checkedTargets, projectName, className
+
+def createNewQtPlugin(projectDir=None, projectName=None, className=None, fromWelcome=False,
+                      target=Targets.DESKTOP_474_GCC, baseClass="QGenericPlugin"):
+    available = __createProjectOrFileSelectType__("  Libraries", "C++ Library", fromWelcome, True)
+    if projectDir == None:
+        projectDir = tempDir()
+    projectName = __createProjectSetNameAndPath__(projectDir, projectName, False, LibType.QT_PLUGIN)
+    checkedTargets = __chooseTargets__(target, available)
+    snooze(1)
+    clickButton(waitForObject(":Next_QPushButton"))
+    className = __createProjectHandleClassInformation__(className, baseClass)
+    __createProjectHandleLastPage__()
+    return checkedTargets, projectName, className
+
 # parameter target can be an OR'd value of Targets
 # parameter availableTargets should be the result of __createProjectOrFileSelectType__()
 #           or use None as a fallback
@@ -389,6 +408,37 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
                 if current != Targets.SIMULATOR:
                     test.warning("Target '%s' is not set up correctly." % Targets.getStringForTarget(current))
     return checkedTargets
+
+def __createProjectHandleModuleSelection__(modules):
+    modulesPage = waitForObject("{type='QmakeProjectManager::Internal::ModulesPage' unnamed='1' "
+                                "visible='1'}")
+    chckBoxes = filter(lambda x: className(x) == 'QCheckBox', object.children(modulesPage))
+    chckBoxLabels = set([str(cb.text) for cb in chckBoxes])
+    if not set(modules).issubset(chckBoxLabels):
+        test.fatal("You want to check module(s) not available at 'Module Selection' page.",
+                   "Not available: %s" % str(set(modules).difference(chckBoxLabels)))
+    for checkBox in chckBoxes:
+        test.log("(Un)Checking module checkbox '%s'" % str(checkBox.text))
+        ensureChecked(checkBox, str(checkBox.text) in modules, 3000)
+    clickButton(waitForObject(":Next_QPushButton"))
+
+def __createProjectHandleClassInformation__(className, baseClass=None):
+    if baseClass:
+        selectFromCombo("{name='baseClassComboBox' type='QComboBox' visible='1'}", baseClass)
+    classLineEd = waitForObject("{name='classLineEdit' type='Utils::ClassNameValidatingLineEdit' "
+                                "visible='1'}")
+    result = str(classLineEd.text)
+    if className:
+        replaceEditorContent(classLineEd, className)
+    try:
+        waitForObject("{text='The class name contains invalid characters.' type='QLabel' "
+                     "unnamed='1' visible='1'}", 1000)
+        test.fatal("Class name contains invalid characters - using default.")
+        replaceEditorContent(classLineEd, result)
+    except:
+        result = className
+    clickButton(waitForObject(":Next_QPushButton"))
+    return result
 
 def waitForProcessRunning(running=True):
     outputButton = waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
@@ -598,6 +648,25 @@ def prepareTemplate(sourceExample):
         test.fatal("Error while copying '%s' to '%s'" % (sourceExample, templateDir))
         return None
     return templateDir
+
+# check and copy files of given dataset to an existing templateDir
+def checkAndCopyFiles(dataSet, fieldName, templateDir):
+    files = map(lambda record:
+                os.path.normpath(os.path.join(srcPath, testData.field(record, fieldName))),
+                dataSet)
+    for currentFile in files:
+        if not neededFilePresent(currentFile):
+            return []
+    return copyFilesToDir(files, templateDir)
+
+# copy a list of files to an existing targetDir
+def copyFilesToDir(files, targetDir):
+    result = []
+    for filepath in files:
+        dst = os.path.join(targetDir, os.path.basename(filepath))
+        shutil.copyfile(filepath, dst)
+        result.append(dst)
+    return result
 
 def __sortFilenamesOSDependent__(filenames):
     if platform.system() in ('Windows', 'Microsoft'):

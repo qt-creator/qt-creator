@@ -94,8 +94,7 @@ def __handleAppOutputWaitForDebuggerFinish__():
 def performDebugging(workingDir, projectName, checkedTargets):
     for kit, config in iterateBuildConfigs(len(checkedTargets), "Debug"):
         test.log("Selecting '%s' as build config" % config)
-        selectBuildConfig(len(checkedTargets), kit, config)
-        verifyBuildConfig(len(checkedTargets), kit, True)
+        verifyBuildConfig(len(checkedTargets), kit, config, True)
         progressBarWait(10000)
         invokeMenuItem("Build", "Rebuild All")
         waitForCompile()

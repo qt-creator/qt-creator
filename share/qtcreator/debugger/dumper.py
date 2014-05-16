@@ -447,14 +447,14 @@ class DumperBase:
         data = self.extractBlob(addr, size).toBytes()
         return self.hexencode(data)
 
-    def encodeByteArray(self, value):
-        return self.encodeByteArrayHelper(self.extractPointer(value))
+    def encodeByteArray(self, value, limit = 0):
+        return self.encodeByteArrayHelper(self.extractPointer(value), limit)
 
     def byteArrayData(self, value):
         return self.byteArrayDataHelper(self.extractPointer(value))
 
     def putByteArrayValue(self, value):
-        return self.putValue(self.encodeByteArray(value), Hex2EncodedLatin1)
+        return self.putValue(self.encodeByteArray(value, self.stringCutOff), Hex2EncodedLatin1)
 
     def putByteArrayValueByAddress(self, addr):
         self.putValue(self.encodeByteArrayHelper(self.extractPointer(addr)),
@@ -464,8 +464,8 @@ class DumperBase:
         self.putValue(self.encodeStringHelper(self.extractPointer(addr)),
             Hex4EncodedLittleEndian)
 
-    def encodeString(self, value):
-        return self.encodeStringHelper(self.extractPointer(value))
+    def encodeString(self, value, limit = 0):
+        return self.encodeStringHelper(self.extractPointer(value), limit)
 
     def stringData(self, value):
         return self.byteArrayDataHelper(self.extractPointer(value))
@@ -499,7 +499,7 @@ class DumperBase:
         return inner.strip()
 
     def putStringValue(self, value):
-        return self.putValue(self.encodeString(value), Hex4EncodedLittleEndian)
+        return self.putValue(self.encodeString(value, self.stringCutOff), Hex4EncodedLittleEndian)
 
     def putAddressItem(self, name, value, type = ""):
         with SubItem(self, name):

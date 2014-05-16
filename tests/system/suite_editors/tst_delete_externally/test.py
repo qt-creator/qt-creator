@@ -29,24 +29,10 @@
 
 source("../../shared/qtcreator.py")
 
-global templateDir
-
-def copyToTemplateDir(filepath):
-    global templateDir
-    dst = os.path.join(templateDir, os.path.basename(filepath))
-    shutil.copyfile(filepath, dst)
-    return dst
-
 def main():
-    global templateDir
-    files = map(lambda record: os.path.normpath(os.path.join(srcPath, testData.field(record, "filename"))),
-                testData.dataset("files.tsv"))
-    for currentFile in files:
-        if not neededFilePresent(currentFile):
-            return
-    templateDir = tempDir()
-    files = map(copyToTemplateDir, files)
-
+    files = checkAndCopyFiles(testData.dataset("files.tsv"), "filename", tempDir())
+    if not files:
+        return
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return

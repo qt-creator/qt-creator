@@ -302,7 +302,7 @@ void ClangCodeModelPlugin::test_ObjC_hints()
             QVERIFY2(hint == ccr.hint(), hintError.arg(ccr.hint()).toAscii());
         }
         const QString textError(QString::fromLatin1("Text \"%1\" not found in set %2")
-                                .arg(text).arg(texts.join(QLatin1Char(','))));
+                                .arg(text).arg(texts.join(QLatin1String(","))));
         QVERIFY2(hasText, textError.toAscii());
     }
 }

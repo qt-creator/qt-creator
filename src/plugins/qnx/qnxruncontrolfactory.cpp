@@ -157,15 +157,15 @@ bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mo
         return false;
     }
 
-
     const QnxRunConfiguration * const rc = qobject_cast<QnxRunConfiguration *>(runConfiguration);
-    if (mode == DebugRunMode || mode == QmlProfilerRunMode) {
-        const QnxDeviceConfiguration::ConstPtr dev = DeviceKitInformation::device(runConfiguration->target()->kit())
-                  .dynamicCast<const QnxDeviceConfiguration>();
-        if (dev.isNull())
-            return false;
+    const QnxDeviceConfiguration::ConstPtr dev = DeviceKitInformation::device(runConfiguration->target()->kit())
+            .dynamicCast<const QnxDeviceConfiguration>();
+    if (dev.isNull())
+        return false;
+
+    if (mode == DebugRunMode || mode == QmlProfilerRunMode)
         return rc->portsUsedByDebuggers() <= dev->freePorts().count();
-    }
+
     return true;
 }
 

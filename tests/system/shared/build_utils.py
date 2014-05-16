@@ -29,13 +29,11 @@
 
 import re;
 
-# flag to indicate whether a tasks file should be created when building ends with errors
-createTasksFileOnError = True
-
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
 # lines within the Issues output
-# optional parameter can be used to tell this function if the build was expected to fail or not
-def checkLastBuild(expectedToFail=False):
+# param expectedToFail can be used to tell this function if the build was expected to fail or not
+# param createTasksFileOnError whether a tasks file should be created when building ends with errors
+def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
     try:
         # can't use waitForObject() 'cause visible is always 0
         buildProg = findObject("{type='ProjectExplorer::Internal::BuildProgress' unnamed='1' }")
@@ -132,6 +130,8 @@ def createTasksFile(buildIssues):
             tData = "warning"
         else:
             tData = "unknown"
+        if str(fData).strip() == "" and lData == "-1" and str(dData).strip() == "":
+            test.fatal("Found empty task.")
         file.write("%s\t%s\t%s\t%s\n" % (fData, lData, tData, dData))
     file.close()
     test.log("Written tasks file %s" % outfile)
@@ -159,18 +159,18 @@ def iterateBuildConfigs(kitCount, filter = ""):
 # param targetCount specifies the number of targets currently defined (must be correct!)
 # param currentTarget specifies the target for which to switch into the specified settings (zero based index)
 # param configName is the name of the configuration that should be selected
+# param afterSwitchTo the ViewConstant of the mode to switch to after selecting or None
 # returns information about the selected kit, see getQtInformationForBuildSettings
-def selectBuildConfig(targetCount, currentTarget, configName):
+def selectBuildConfig(targetCount, currentTarget, configName, afterSwitchTo=ViewConstants.EDIT):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
     selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName)
     progressBarWait(30000)
-    return getQtInformationForBuildSettings(targetCount, True, ViewConstants.EDIT)
+    return getQtInformationForBuildSettings(targetCount, True, afterSwitchTo)
 
 # This will not trigger a rebuild. If needed, caller has to do this.
-def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
-    switchViewTo(ViewConstants.PROJECTS)
-    switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
+def verifyBuildConfig(targetCount, currentTarget, configName, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
+    qtInfo = selectBuildConfig(targetCount, currentTarget, configName, None)
     ensureChecked(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     ensureChecked("{name='shadowBuildCheckBox' type='QCheckBox' visible='1'}", enableShadowBuild)
     buildCfCombo = waitForObject("{type='QComboBox' name='buildConfigurationComboBox' visible='1' "
@@ -208,6 +208,7 @@ def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableSha
             clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
     clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)
+    return qtInfo
 
 # verify if building and running of project was successful
 def verifyBuildAndRun():

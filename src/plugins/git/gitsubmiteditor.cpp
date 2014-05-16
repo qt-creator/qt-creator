@@ -186,12 +186,16 @@ void GitSubmitEditor::updateFileModel()
     QString errorMessage, commitTemplate;
     CommitData data(m_commitType);
     if (client->getCommitData(m_workingDirectory, &commitTemplate, data, &errorMessage)) {
+        m_forceClose = false;
         setCommitData(data);
         submitEditorWidget()->refreshLog(m_workingDirectory);
+        widget()->setEnabled(true);
     } else {
+        // Nothing to commit left!
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
         m_forceClose = true;
-        Core::EditorManager::closeEditor(this);
+        m_model->clear();
+        widget()->setEnabled(false);
     }
 }
 

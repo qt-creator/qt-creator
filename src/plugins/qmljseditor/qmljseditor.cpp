@@ -139,6 +139,8 @@ void QmlJSTextEditorWidget::ctor()
     m_modelManager = QmlJS::ModelManagerInterface::instance();
     m_contextPane = ExtensionSystem::PluginManager::getObject<QmlJS::IContextPane>();
 
+    m_modelManager->activateScan();
+
     m_contextPaneTimer  = new QTimer(this);
     m_contextPaneTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
     m_contextPaneTimer->setSingleShot(true);
