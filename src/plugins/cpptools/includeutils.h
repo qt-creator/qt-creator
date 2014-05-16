@@ -55,16 +55,9 @@ public:
     static QList<IncludeGroup> detectIncludeGroupsByIncludeDir(const QList<Include> &includes);
     static QList<IncludeGroup> detectIncludeGroupsByIncludeType(const QList<Include> &includes);
 
-    static int lineForAppendedIncludeGroup(const QList<IncludeGroup> &groups,
-                                           unsigned *newLinesToPrepend);
-    static int lineForPrependedIncludeGroup(const QList<IncludeGroup> &groups,
-                                            unsigned *newLinesToAppend);
-
     static QList<IncludeGroup> filterMixedIncludeGroups(const QList<IncludeGroup> &groups);
     static QList<IncludeGroup> filterIncludeGroups(const QList<IncludeGroup> &groups,
                                                    CPlusPlus::Client::IncludeType includeType);
-
-    static QString includeDir(const QString &include);
 
 public:
     IncludeGroup(const QList<Include> &includes) : m_includes(includes) {}

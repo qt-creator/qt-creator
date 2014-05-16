@@ -49,11 +49,40 @@ using namespace CppTools;
 using namespace CppTools::IncludeUtils;
 using namespace Utils;
 
-static bool includeLineLessThan(const Include &left, const Include &right)
+namespace {
+
+bool includeLineLessThan(const Include &left, const Include &right)
 { return left.line() < right.line(); }
 
-static bool includeFileNamelessThen(const Include & left, const Include & right)
+bool includeFileNamelessThen(const Include & left, const Include & right)
 { return left.unresolvedFileName() < right.unresolvedFileName(); }
+
+int lineForAppendedIncludeGroup(const QList<IncludeGroup> &groups,
+                                unsigned *newLinesToPrepend)
+{
+    if (newLinesToPrepend)
+        *newLinesToPrepend += 1;
+    return groups.last().last().line() + 1;
+}
+
+int lineForPrependedIncludeGroup(const QList<IncludeGroup> &groups,
+                                 unsigned *newLinesToAppend)
+{
+    if (newLinesToAppend)
+        *newLinesToAppend += 1;
+    return groups.first().first().line();
+}
+
+QString includeDir(const QString &include)
+{
+    QString dirPrefix = QFileInfo(include).dir().path();
+    if (dirPrefix == QLatin1String("."))
+        return QString();
+    dirPrefix.append(QLatin1Char('/'));
+    return dirPrefix;
+}
+
+} // anonymous namespace
 
 LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *textDocument,
                                                        QList<Document::Include> includes,
@@ -178,8 +207,8 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
         // case: The new include goes into an own include group
         if (groupsMixedIncludeType.isEmpty()) {
             return includeAtTop
-                ? IncludeGroup::lineForPrependedIncludeGroup(groupsNewline, newLinesToAppend)
-                : IncludeGroup::lineForAppendedIncludeGroup(groupsNewline, newLinesToPrepend);
+                ? lineForPrependedIncludeGroup(groupsNewline, newLinesToAppend)
+                : lineForAppendedIncludeGroup(groupsNewline, newLinesToPrepend);
         // case: add to mixed group
         } else {
             const IncludeGroup bestMixedGroup = groupsMixedIncludeType.last(); // TODO: flaterize
@@ -203,7 +232,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
 
     IncludeGroups groupsMatchingIncludeDir;
     foreach (const IncludeGroup &group, groupsSameIncludeDir) {
-        if (group.commonIncludeDir() == IncludeGroup::includeDir(pureIncludeFileName))
+        if (group.commonIncludeDir() == includeDir(pureIncludeFileName))
             groupsMatchingIncludeDir << group;
     }
 
@@ -224,10 +253,10 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
         if (groupsMixedIncludeDirs.isEmpty()) {
             if (includeAtTop) {
                 return groupsSameIncludeDir.isEmpty()
-                    ? IncludeGroup::lineForPrependedIncludeGroup(groupsNewline, newLinesToAppend)
-                    : IncludeGroup::lineForAppendedIncludeGroup(groupsSameIncludeDir, newLinesToPrepend);
+                    ? lineForPrependedIncludeGroup(groupsNewline, newLinesToAppend)
+                    : lineForAppendedIncludeGroup(groupsSameIncludeDir, newLinesToPrepend);
             } else {
-                return IncludeGroup::lineForAppendedIncludeGroup(groupsNewline, newLinesToPrepend);
+                return lineForAppendedIncludeGroup(groupsNewline, newLinesToPrepend);
             }
         // case: The new include is inserted at the best position of the best
         //       group with mixed include dirs
@@ -239,7 +268,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
             }
             IncludeGroup localBestIncludeGroup = IncludeGroup(QList<Include>());
             foreach (const IncludeGroup &group, groupsIncludeDir) {
-                if (group.commonIncludeDir() == IncludeGroup::includeDir(pureIncludeFileName))
+                if (group.commonIncludeDir() == includeDir(pureIncludeFileName))
                     localBestIncludeGroup = group;
             }
             if (!localBestIncludeGroup.isEmpty())
@@ -361,15 +390,6 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByIncludeType(const QList<I
     return result;
 }
 
-QString IncludeGroup::includeDir(const QString &include)
-{
-    QString dirPrefix = QFileInfo(include).dir().path();
-    if (dirPrefix == QLatin1String("."))
-        return QString();
-    dirPrefix.append(QLatin1Char('/'));
-    return dirPrefix;
-}
-
 /// returns groups that solely contains includes of the given include type
 QList<IncludeGroup> IncludeGroup::filterIncludeGroups(const QList<IncludeGroup> &groups,
                                                       Client::IncludeType includeType)
@@ -471,20 +491,4 @@ bool IncludeGroup::hasCommonIncludeDir() const
             return false;
     }
     return true;
-}
-
-int IncludeGroup::lineForAppendedIncludeGroup(const QList<IncludeGroup> &groups,
-                                              unsigned *newLinesToPrepend)
-{
-    if (newLinesToPrepend)
-        *newLinesToPrepend += 1;
-    return groups.last().last().line() + 1;
-}
-
-int IncludeGroup::lineForPrependedIncludeGroup(const QList<IncludeGroup> &groups,
-                                               unsigned *newLinesToAppend)
-{
-    if (newLinesToAppend)
-        *newLinesToAppend += 1;
-    return groups.first().first().line();
 }
