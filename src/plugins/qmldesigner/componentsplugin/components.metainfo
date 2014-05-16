@@ -227,7 +227,7 @@ MetaInfo {
             Property { name: "width"; type: "int"; value: 360; }
             Property { name: "height"; type: "int"; value: 300; }
 
-            Property { name: "title"; type: "binding"; value: "qsTr(\"Check Box\")"; }
+            Property { name: "title"; type: "binding"; value: "qsTr(\"Group Box\")"; }
         }
     }
 
