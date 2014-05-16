@@ -51,7 +51,7 @@ public:
         { m_environment = env; m_haveEnv = true; }
     void setCommand(const QString &command, const QString &arguments)
         { m_command = command; m_arguments = arguments; }
-    void setUseCtrlCStub(bool enabled) { m_useCtrlCStub = enabled; }
+    void setUseCtrlCStub(bool enabled);
     void start();
     void terminate();
     void interrupt();
