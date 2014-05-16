@@ -62,6 +62,7 @@ private:
     QString m_lastTarget;
     QString m_lastProject;
 #if defined WITH_TESTS
+    friend class XcodebuildParserTester;
     friend class ProjectExplorerPlugin;
 #endif
 };
@@ -74,6 +75,10 @@ public:
     explicit XcodebuildParserTester(XcodebuildParser *parser, QObject *parent = 0);
 
     XcodebuildParser *parser;
+    XcodebuildParser::XcodebuildStatus expectedFinalState;
+
+public slots:
+    void onAboutToDeleteParser();
 };
 #endif
 

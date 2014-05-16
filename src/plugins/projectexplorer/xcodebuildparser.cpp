@@ -122,6 +122,11 @@ XcodebuildParserTester::XcodebuildParserTester(XcodebuildParser *p, QObject *par
     parser(p)
 { }
 
+void XcodebuildParserTester::onAboutToDeleteParser()
+{
+    QCOMPARE(parser->m_xcodeBuildParserState, expectedFinalState);
+}
+
 void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
 {
     QTest::addColumn<ProjectExplorer::XcodebuildParser::XcodebuildStatus>("initialStatus");
@@ -243,6 +248,8 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing()
     XcodebuildParser *childParser = new XcodebuildParser;
     XcodebuildParserTester *tester = new XcodebuildParserTester(childParser);
 
+    connect(&testbench, SIGNAL(aboutToDeleteParser()), tester, SLOT(onAboutToDeleteParser()));
+
     testbench.appendOutputParser(childParser);
     QFETCH(ProjectExplorer::XcodebuildParser::XcodebuildStatus, initialStatus);
     QFETCH(QString, input);
@@ -253,11 +260,11 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing()
     QFETCH(QString, outputLines);
     QFETCH(ProjectExplorer::XcodebuildParser::XcodebuildStatus, finalStatus);
 
+    tester->expectedFinalState = finalStatus;
     childParser->m_xcodeBuildParserState = initialStatus;
     testbench.testParsing(input, inputChannel,
                           tasks, childStdOutLines, childStdErrLines,
                           outputLines);
-    QCOMPARE(childParser->m_xcodeBuildParserState, finalStatus);
 
     delete tester;
 }
