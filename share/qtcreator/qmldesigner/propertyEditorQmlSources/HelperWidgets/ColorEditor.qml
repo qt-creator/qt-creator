@@ -86,7 +86,7 @@ Column {
         width: parent.width
 
         onCurrentColorChanged: {
-            if (supportGradient && gradientLine.visible)
+            if (supportGradient && gradientLine.hasGradient)
                 colorEditor.color = gradientLine.currentColor
         }
 
