@@ -508,7 +508,7 @@ SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QStri
     Core::IEditor *editor = Core::EditorManager::openEditor(fileName,
                                                             Constants::SUBVERSIONCOMMITEDITOR_ID);
     SubversionSubmitEditor *submitEditor = qobject_cast<SubversionSubmitEditor*>(editor);
-    QTC_CHECK(submitEditor);
+    QTC_ASSERT(submitEditor, return 0);
     setSubmitEditor(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_submitCurrentLogAction, m_submitDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCommitFiles(QStringList)));
@@ -694,6 +694,7 @@ void SubversionPlugin::startCommit(const QString &workingDir, const QStringList 
     m_commitMessageFileName = saver.fileName();
     // Create a submit editor and set file list
     SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_commitMessageFileName);
+    QTC_ASSERT(editor, return);
     editor->setStatusList(statusOutput);
 }
 
