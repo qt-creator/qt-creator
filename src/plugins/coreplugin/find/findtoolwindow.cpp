@@ -32,6 +32,7 @@
 #include "findplugin.h"
 
 #include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
 
 #include <QSettings>
 #include <QStringListModel>
@@ -225,17 +226,18 @@ void FindToolWindow::acceptAndGetParameters(QString *term, IFindFilter **filter)
 void FindToolWindow::search()
 {
     QString term;
-    IFindFilter *filter;
+    IFindFilter *filter = 0;
     acceptAndGetParameters(&term, &filter);
-    if (filter)
-        filter->findAll(term, m_plugin->findFlags());
+    QTC_ASSERT(filter, return);
+    filter->findAll(term, m_plugin->findFlags());
 }
 
 void FindToolWindow::replace()
 {
     QString term;
-    IFindFilter *filter;
+    IFindFilter *filter = 0;
     acceptAndGetParameters(&term, &filter);
+    QTC_ASSERT(filter, return);
     filter->replaceAll(term, m_plugin->findFlags());
 }
 
