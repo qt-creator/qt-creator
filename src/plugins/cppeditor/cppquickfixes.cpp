@@ -2835,7 +2835,7 @@ public:
             m_baseName.chop(1);
 
         m_getterName = m_baseName != m_variableString
-            ? QString::fromLatin1("%1").arg(m_baseName)
+            ? m_baseName
             : QString::fromLatin1("get%1%2")
                 .arg(m_baseName.left(1).toUpper()).arg(m_baseName.mid(1));
         m_setterName = QString::fromLatin1("set%1%2")
