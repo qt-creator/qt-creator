@@ -79,6 +79,9 @@ static QHash<QByteArray, int> theTypeFormats;
 static QHash<QByteArray, int> theIndividualFormats;
 static int theUnprintableBase = -1;
 
+const char INameProperty[] = "INameProperty";
+const char KeyProperty[] = "KeyProperty";
+
 static QByteArray stripForFormat(const QByteArray &ba)
 {
     QByteArray res;
@@ -139,25 +142,84 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-class SeparateViewWidget : public QTabWidget
+class SeparatedView : public QTabWidget
 {
     Q_OBJECT
 
 public:
-    SeparateViewWidget(QWidget *parent) : QTabWidget(parent)
+    SeparatedView() : QTabWidget(debuggerCore()->mainWindow())
     {
         setTabsClosable(true);
         connect(this, SIGNAL(tabCloseRequested(int)), SLOT(closeTab(int)));
         setWindowFlags(windowFlags() | Qt::Window);
         setWindowTitle(WatchHandler::tr("Debugger - Qt Creator"));
+
+        QVariant geometry = DebuggerCore::sessionValue("DebuggerSeparateWidgetGeometry");
+        if (geometry.isValid())
+            setGeometry(geometry.toRect());
     }
 
-public slots:
-    void closeTab(int index)
+    ~SeparatedView()
     {
+        DebuggerCore::setSessionValue("DebuggerSeparateWidgetGeometry", geometry());
+    }
+
+    void removeObject(const QByteArray &key)
+    {
+        if (QWidget *w = findWidget(key)) {
+            removeTab(indexOf(w));
+            sanitize();
+        }
+    }
+
+    Q_SLOT void closeTab(int index)
+    {
+        if (QObject *o = widget(index)) {
+            QByteArray iname = o->property(INameProperty).toByteArray();
+            theIndividualFormats.remove(iname);
+        }
         removeTab(index);
+        sanitize();
+    }
+
+    void sanitize()
+    {
+        if (count() == 0)
+            hide();
+    }
+
+    QWidget *findWidget(const QByteArray &needle)
+    {
+        for (int i = count(); --i >= 0; ) {
+            QWidget *w = widget(i);
+            QByteArray key = w->property(KeyProperty).toByteArray();
+            if (key == needle)
+                return w;
+        }
+        return 0;
+    }
+
+    template <class T> T *prepareObject(const QByteArray &key, const QString &title)
+    {
+        T *t = 0;
+        if (QWidget *w = findWidget(key)) {
+            t = qobject_cast<T *>(w);
+            if (!t)
+                removeTab(indexOf(w));
+        }
+        if (!t) {
+            t = new T;
+            t->setProperty(KeyProperty, key);
+            addTab(t, title);
+        }
+
+        setCurrentWidget(t);
+        show();
+        raise();
+        return t;
     }
 };
+
 
 class WatchModel : public QAbstractItemModel
 {
@@ -252,10 +314,6 @@ private:
     TypeFormatList builtinTypeFormatList(const WatchData &data) const;
     QStringList dumperTypeFormatList(const WatchData &data) const;
     DumperTypeFormats m_reportedTypeFormats;
-
-    // QWidgets and QProcesses taking care of special displays.
-    typedef QMap<QByteArray, QPointer<QObject> > EditHandlers;
-    EditHandlers m_editHandlers;
 
     WatchItem *createItem(const QByteArray &iname);
     WatchItem *createItem(const WatchData &data);
@@ -1537,23 +1595,19 @@ void WatchModel::setCurrentItem(const QByteArray &iname)
 
 WatchHandler::WatchHandler(DebuggerEngine *engine)
 {
-    m_separateWindow = 0;
     m_engine = engine;
     m_watcherCounter = DebuggerCore::sessionValue("Watchers").toStringList().count();
     m_model = new WatchModel(this);
     m_contentsValid = false;
     m_contentsValid = true; // FIXME
     m_resetLocationScheduled = false;
+    m_separatedView = new SeparatedView;
 }
 
 WatchHandler::~WatchHandler()
 {
-    if (m_separateWindow) {
-        DebuggerCore::setSessionValue("DebuggerSeparateWidgetGeometry",
-                m_separateWindow->geometry());
-        delete m_separateWindow;
-        m_separateWindow = 0;
-    }
+    delete m_separatedView;
+    m_separatedView = 0;
     // Do it manually to prevent calling back in model destructors
     // after m_cache is destroyed.
     delete m_model;
@@ -1566,14 +1620,7 @@ void WatchHandler::cleanup()
     theWatcherNames.remove(QByteArray());
     m_model->reinitialize();
     m_model->m_fetchTriggered.clear();
-#if 1
-    for (WatchModel::EditHandlers::ConstIterator it = m_model->m_editHandlers.begin();
-            it != m_model->m_editHandlers.end(); ++it) {
-        if (!it.value().isNull())
-            delete it.value();
-    }
-    m_model->m_editHandlers.clear();
-#endif
+    m_separatedView->hide();
 }
 
 void WatchHandler::insertIncompleteData(const WatchData &data)
@@ -1717,68 +1764,15 @@ static void swapEndian(char *d, int nchar)
     }
 }
 
-static int indexOf(const QTabWidget *tw, const QWidget *w)
-{
-    for (int i = 0; i < tw->count(); ++i)
-    if (tw->widget(i) == w)
-        return i;
-    return -1;
-}
-
-void WatchHandler::removeSeparateWidget(QObject *o)
-{
-    const int index = o && o->isWidgetType() && !m_separateWindow.isNull() ?
-              indexOf(m_separateWindow, static_cast<QWidget *>(o)) : -1;
-    if (index != -1) {
-        m_separateWindow->removeTab(index);
-        if (!m_separateWindow->count())
-            m_separateWindow->hide();
-    }
-}
-
-void WatchHandler::showSeparateWidget(QWidget *w)
-{
-    if (m_separateWindow.isNull()) {
-        m_separateWindow = new SeparateViewWidget(debuggerCore()->mainWindow());
-        QVariant geometry = DebuggerCore::sessionValue("DebuggerSeparateWidgetGeometry");
-        if (geometry.isValid())
-            m_separateWindow->setGeometry(geometry.toRect());
-    }
-
-    int index = indexOf(m_separateWindow, w);
-    if (index != -1)
-        m_separateWindow->setTabText(index, w->windowTitle());
-    else
-        index = m_separateWindow->addTab(w, w->windowTitle());
-    m_separateWindow->setCurrentIndex(index);
-    m_separateWindow->show();
-    m_separateWindow->raise();
-}
-
 void WatchHandler::showEditValue(const WatchData &data)
 {
     const QByteArray key  = data.address ? data.hexAddress() : data.iname;
-    QObject *w = m_model->m_editHandlers.value(key);
     switch (data.editformat) {
     case StopDisplay:
-        m_model->m_editHandlers.remove(data.iname);
-        delete w;
+        m_separatedView->removeObject(data.iname);
         break;
     case DisplayImageData:
     case DisplayImageFile: {  // QImage
-        ImageViewer *l = qobject_cast<ImageViewer *>(w);
-        if (!l) {
-            removeSeparateWidget(w);
-            delete w;
-            l = new  ImageViewer;
-            const QString title = data.address ?
-                tr("%1 Object at %2").arg(QLatin1String(data.type),
-                    QLatin1String(data.hexAddress())) :
-                tr("%1 Object at Unknown Address").arg(QLatin1String(data.type));
-            l->setWindowTitle(title);
-            showSeparateWidget(l);
-            m_model->m_editHandlers[key] = l;
-        }
         int width = 0, height = 0, nbytes = 0, format = 0;
         QByteArray ba;
         uchar *bits = 0;
@@ -1809,20 +1803,18 @@ void WatchHandler::showEditValue(const WatchData &data)
         QTC_ASSERT(0 < format && format < 32, return);
         QImage im(width, height, QImage::Format(format));
         qMemCopy(im.bits(), bits, nbytes);
-        l->setImage(im);
-        showSeparateWidget(l);
-    }
+        const QString title = data.address ?
+            tr("%1 Object at %2").arg(QLatin1String(data.type),
+                QLatin1String(data.hexAddress())) :
+            tr("%1 Object at Unknown Address").arg(QLatin1String(data.type));
+        ImageViewer *v = m_separatedView->prepareObject<ImageViewer>(key, title);
+        v->setProperty(INameProperty, data.iname);
+        v->setImage(im);
         break;
+    }
     case DisplayUtf16String:
     case DisplayLatin1String:
     case DisplayUtf8String: { // String data.
-        QTextEdit *t = qobject_cast<QTextEdit *>(w);
-        if (!t) {
-            removeSeparateWidget(w);
-            delete w;
-            t = new QTextEdit;
-            m_model->m_editHandlers[key] = t;
-        }
         QByteArray ba = QByteArray::fromHex(data.editvalue);
         QString str;
         if (data.editformat == DisplayUtf16String)
@@ -1831,26 +1823,11 @@ void WatchHandler::showEditValue(const WatchData &data)
             str = QString::fromLatin1(ba.constData(), ba.size());
         else if (data.editformat == DisplayUtf8String)
             str = QString::fromUtf8(ba.constData(), ba.size());
-        t->setWindowTitle(data.name);
+        QTextEdit *t = m_separatedView->prepareObject<QTextEdit>(key, data.name);
+        t->setProperty(INameProperty, data.iname);
         t->setText(str);
-        showSeparateWidget(t);
-    }
         break;
-    case DisplayProcess: {
-        // Generic Process.
-        int pos = data.editvalue.indexOf('|');
-        QByteArray cmd = data.editvalue.left(pos);
-        QByteArray input = data.editvalue.mid(pos + 1);
-        QProcess *p = qobject_cast<QProcess *>(w);
-        if (!p) {
-            p = new QProcess;
-            p->start(QLatin1String(cmd));
-            p->waitForStarted();
-            m_model->m_editHandlers[key] = p;
-        }
-        p->write(input + '\n');
     }
-        break;
     default:
         QTC_ASSERT(false, qDebug() << "Display format: " << data.editformat);
         break;

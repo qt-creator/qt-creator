@@ -1515,10 +1515,9 @@ StopDisplay, \
 DisplayImageData, \
 DisplayUtf16String, \
 DisplayImageFile, \
-DisplayProcess, \
 DisplayLatin1String, \
 DisplayUtf8String \
-    = range(7)
+    = range(6)
 
 
 def mapForms():

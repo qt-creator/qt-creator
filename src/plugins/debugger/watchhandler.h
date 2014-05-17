@@ -36,10 +36,10 @@
 #include <QPointer>
 #include <QVector>
 
-QT_FORWARD_DECLARE_CLASS(QTabWidget)
-
 namespace Debugger {
 namespace Internal {
+
+class SeparatedView;
 
 // Special formats. Keep in sync with dumper.py.
 enum DisplayFormat
@@ -190,9 +190,6 @@ public:
     void resetValueCache();
 
 private:
-    void removeSeparateWidget(QObject *o);
-    void showSeparateWidget(QWidget *w);
-
     friend class WatchModel;
 
     void saveWatchers();
@@ -203,7 +200,7 @@ private:
 
     WatchModel *m_model; // Owned.
     DebuggerEngine *m_engine; // Not owned.
-    QPointer<QTabWidget> m_separateWindow; // Owned.
+    SeparatedView *m_separatedView; // Owned.
 
     int m_watcherCounter;
 
