@@ -108,7 +108,7 @@ QWidget *QtKitConfigWidget::buttonWidget() const
 
 static QString itemNameFor(const BaseQtVersion *v)
 {
-    QTC_CHECK(v);
+    QTC_ASSERT(v, return QString());
     QString name = v->displayName();
     if (!v->isValid())
         name = QCoreApplication::translate("QtSupport::Internal::QtKitConfigWidget", "%1 (invalid)").arg(v->displayName());
