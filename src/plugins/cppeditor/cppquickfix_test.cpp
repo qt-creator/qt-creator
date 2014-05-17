@@ -725,6 +725,36 @@ void CppEditorPlugin::test_quickfix_data()
         "};\n"
         ) << _();
 
+    // Checks if "m_" is recognized as "m" with the postfix "_" and not simply as "m_" prefix.
+    QTest::newRow("GenerateGetterSetter_recognizeMasVariableName")
+        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int @m_;\n"
+        "};\n"
+        ) << _(
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int m_;\n"
+        "\n"
+        "public:\n"
+        "    int m() const;\n"
+        "    void setM(int m);\n"
+        "};\n"
+        "\n"
+        "int Something::m() const\n"
+        "{\n"
+        "    return m_;\n"
+        "}\n"
+        "\n"
+        "void Something::setM(int m)\n"
+        "{\n"
+        "    m_ = m;\n"
+        "}\n"
+    );
+
     QTest::newRow("MoveDeclarationOutOfIf_ifOnly")
         << CppQuickFixFactoryPtr(new MoveDeclarationOutOfIf) << _(
         "void f()\n"
