@@ -75,10 +75,12 @@ static bool addFilesToResource(const QString &resourceFile, const QStringList &f
     if (notAdded)
         notAdded->clear();
     foreach (const QString &path, filePaths) {
-        if (file.contains(index, path))
-            *notAdded << path;
-        else
+        if (file.contains(index, path)) {
+            if (notAdded)
+                *notAdded << path;
+        } else {
             file.addFile(index, path);
+        }
     }
 
     Core::DocumentManager::expectFileChange(resourceFile);
