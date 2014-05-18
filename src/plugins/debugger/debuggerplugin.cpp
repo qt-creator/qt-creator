@@ -108,6 +108,7 @@
 #include <utils/statuslabel.h>
 #include <utils/winutils.h>
 
+#include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDockWidget>
