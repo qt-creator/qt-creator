@@ -173,12 +173,6 @@ void TextEditorActionHandler::createActions()
     m_insertLineBelowAction = registerAction(INSERT_LINE_BELOW,
             SLOT(insertLineBelow()), true, tr("Insert Line Below Current Line"),
             QKeySequence(tr("Ctrl+Return")));
-    m_upperCaseSelectionAction = registerAction(UPPERCASE_SELECTION,
-            SLOT(uppercaseSelection()), true, tr("Uppercase Selection"),
-            QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+U") : tr("Alt+Shift+U")));
-    m_lowerCaseSelectionAction = registerAction(LOWERCASE_SELECTION,
-            SLOT(lowercaseSelection()), true, tr("Lowercase Selection"),
-            QKeySequence(Core::UseMacShortcuts ? tr("Meta+U") : tr("Alt+U")));
     m_switchUtf8bomAction = registerAction(SWITCH_UTF8BOM,
             SLOT(switchUtf8bomAction()), true);
     m_indentAction = registerAction(INDENT,
@@ -242,6 +236,14 @@ void TextEditorActionHandler::createActions()
     m_copyLineAction = registerAction(COPY_LINE,
             SLOT(copyLine()), false, tr("Copy &Line"),
             QKeySequence(tr("Ctrl+Ins")),
+            G_EDIT_TEXT, advancedEditMenu);
+    m_upperCaseSelectionAction = registerAction(UPPERCASE_SELECTION,
+            SLOT(uppercaseSelection()), true, tr("Uppercase Selection"),
+            QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+U") : tr("Alt+Shift+U")),
+            G_EDIT_TEXT, advancedEditMenu);
+    m_lowerCaseSelectionAction = registerAction(LOWERCASE_SELECTION,
+            SLOT(lowercaseSelection()), true, tr("Lowercase Selection"),
+            QKeySequence(Core::UseMacShortcuts ? tr("Meta+U") : tr("Alt+U")),
             G_EDIT_TEXT, advancedEditMenu);
     m_foldAction = registerAction(FOLD,
             SLOT(fold()), true, tr("Fold"),
