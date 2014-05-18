@@ -662,7 +662,6 @@ void FindToolBar::openFindToolBar(bool focus)
     // find shortcut
     if (!focus || !toolBarHasFocus()) {
         QString text = m_currentDocumentFind->currentFindString();
-        QWidget *w = qApp->focusWidget();
         if (!text.isEmpty())
             setFindText(text);
     }

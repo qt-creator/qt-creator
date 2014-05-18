@@ -938,7 +938,7 @@ void ImportDependencies::checkConsistency() const
             foreach (const Export &e, m_coreImports.value(s).possibleExports)
                 if (e.exportName == j.key())
                     found = true;
-            Q_ASSERT(found);
+            Q_ASSERT(found); Q_UNUSED(found);
         }
     }
     QMapIterator<QString,CoreImport> i(m_coreImports);
