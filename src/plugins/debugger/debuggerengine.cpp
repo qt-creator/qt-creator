@@ -648,7 +648,7 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
         return to == InferiorStopOk || to == InferiorStopFailed;
     case InferiorStopOk:
         return to == InferiorRunRequested || to == InferiorShutdownRequested
-            || to == InferiorStopOk || InferiorExitOk;
+            || to == InferiorStopOk || to == InferiorExitOk;
     case InferiorStopFailed:
         return to == EngineShutdownRequested;
 
