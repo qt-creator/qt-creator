@@ -56,8 +56,6 @@ public:
     StatesEditorWidget(StatesEditorView *m_statesEditorView, StatesEditorModel *statesEditorModel);
     virtual ~StatesEditorWidget();
 
-    QSize sizeHint() const;
-
     int currentStateInternalId() const;
     void setCurrentStateInternalId(int internalId);
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);

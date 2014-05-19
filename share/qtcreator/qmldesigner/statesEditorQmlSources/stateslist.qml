@@ -34,6 +34,7 @@ import QtQuick.Controls.Styles 1.1
 Rectangle {
     id: root
 
+    height: 136
     signal createNewState
     signal deleteState(int internalNodeId)
     signal duplicateCurrentState

@@ -95,13 +95,12 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     connect(m_qmlSourceUpdateShortcut, SIGNAL(activated()), this, SLOT(reloadQmlSource()));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
-    setMinimumHeight(160);
     layout->setMargin(0);
     layout->setSpacing(0);
     QWidget *container = createWindowContainer(m_quickView.data());
     layout->addWidget(container);
-
     m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
+    container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     m_quickView->rootContext()->setContextProperty(QStringLiteral("statesEditorModel"), statesEditorModel);
     QColor highlightColor = palette().highlight().color();
@@ -110,8 +109,6 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     m_quickView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), highlightColor);
 
     m_quickView->rootContext()->setContextProperty("canAddNewStates", true);
-
-    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
 
     setWindowTitle(tr("States", "Title of Editor widget"));
 
@@ -137,11 +134,7 @@ void StatesEditorWidget::reloadQmlSource()
     connect(m_quickView->rootObject(), SIGNAL(currentStateInternalIdChanged()), m_statesEditorView.data(), SLOT(synchonizeCurrentStateFromWidget()));
     connect(m_quickView->rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
     connect(m_quickView->rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
+    m_statesEditorView.data()->synchonizeCurrentStateFromWidget();
+    setMaximumHeight(m_quickView->initialSize().height());
 }
-
-QSize StatesEditorWidget::sizeHint() const
-{
-    return QSize(9999, 159);
-}
-
 }
