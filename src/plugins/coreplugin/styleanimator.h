@@ -58,7 +58,7 @@ public :
     virtual void paint(QPainter *painter, const QStyleOption *option);
 
 protected:
-    void drawBlendedImage(QPainter *painter, QRect rect, float value);
+    void drawBlendedImage(QPainter *painter, const QRect &rect, float value);
     QTime m_startTime;
     QPointer<QWidget> m_widget;
     QImage m_primaryImage;

@@ -48,7 +48,7 @@ void Animation::paint(QPainter *painter, const QStyleOption *option)
     Q_UNUSED(painter)
 }
 
-void Animation::drawBlendedImage(QPainter *painter, QRect rect, float alpha)
+void Animation::drawBlendedImage(QPainter *painter, const QRect &rect, float alpha)
 {
     if (m_secondaryImage.isNull() || m_primaryImage.isNull())
         return;

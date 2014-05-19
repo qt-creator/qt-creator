@@ -140,7 +140,7 @@ ReadOnlyFilesDialog::ReadOnlyFilesDialog(IDocument *document, QWidget *parent,
     initDialog(QStringList() << document->filePath());
 }
 
-ReadOnlyFilesDialog::ReadOnlyFilesDialog(const QList<IDocument *> documents, QWidget *parent)
+ReadOnlyFilesDialog::ReadOnlyFilesDialog(const QList<IDocument *> &documents, QWidget *parent)
     : QDialog(parent)
     , d(new ReadOnlyFilesDialogPrivate)
     , ui(new Ui::ReadOnlyFilesDialog)

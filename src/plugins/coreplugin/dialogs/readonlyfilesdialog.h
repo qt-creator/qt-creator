@@ -78,7 +78,7 @@ public:
     explicit ReadOnlyFilesDialog(IDocument *document,
                                  QWidget * parent = 0,
                                  bool displaySaveAs = false);
-    explicit ReadOnlyFilesDialog(const QList<IDocument *> documents,
+    explicit ReadOnlyFilesDialog(const QList<IDocument *> &documents,
                                  QWidget * parent = 0);
 
     ~ReadOnlyFilesDialog();

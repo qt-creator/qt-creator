@@ -341,7 +341,7 @@ void SearchResultWidget::notifyVisibilityChanged(bool visible)
     emit visibilityChanged(visible);
 }
 
-void SearchResultWidget::setTextEditorFont(const QFont &font, const SearchResultColor color)
+void SearchResultWidget::setTextEditorFont(const QFont &font, const SearchResultColor &color)
 {
     m_searchResultTreeView->setTextEditorFont(font, color);
 }

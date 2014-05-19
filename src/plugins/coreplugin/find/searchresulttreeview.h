@@ -48,7 +48,7 @@ public:
     explicit SearchResultTreeView(QWidget *parent = 0);
 
     void setAutoExpandResults(bool expand);
-    void setTextEditorFont(const QFont &font, const SearchResultColor color);
+    void setTextEditorFont(const QFont &font, const SearchResultColor &color);
 
     SearchResultTreeModel *model() const;
     void addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);

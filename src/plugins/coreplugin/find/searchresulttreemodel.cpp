@@ -59,7 +59,7 @@ void SearchResultTreeModel::setShowReplaceUI(bool show)
     m_showReplaceUI = show;
 }
 
-void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColor color)
+void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColor &color)
 {
     layoutAboutToBeChanged();
     m_textEditorFont = font;

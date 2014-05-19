@@ -79,7 +79,7 @@ public:
 
     void notifyVisibilityChanged(bool visible);
 
-    void setTextEditorFont(const QFont &font, const SearchResultColor color);
+    void setTextEditorFont(const QFont &font, const SearchResultColor &color);
 
     void setAutoExpandResults(bool expand);
     void expandAll();

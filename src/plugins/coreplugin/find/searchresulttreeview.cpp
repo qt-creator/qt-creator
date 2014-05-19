@@ -58,7 +58,7 @@ void SearchResultTreeView::setAutoExpandResults(bool expand)
     m_autoExpandResults = expand;
 }
 
-void SearchResultTreeView::setTextEditorFont(const QFont &font, const SearchResultColor color)
+void SearchResultTreeView::setTextEditorFont(const QFont &font, const SearchResultColor &color)
 {
     m_model->setTextEditorFont(font, color);
 

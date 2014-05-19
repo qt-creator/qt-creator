@@ -50,7 +50,7 @@ public:
     ~SearchResultTreeModel();
 
     void setShowReplaceUI(bool show);
-    void setTextEditorFont(const QFont &font, const SearchResultColor color);
+    void setTextEditorFont(const QFont &font, const SearchResultColor &color);
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
