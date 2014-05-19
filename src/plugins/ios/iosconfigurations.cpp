@@ -72,15 +72,8 @@ const QLatin1String ignoreAllDevicesKey("IgnoreAllDevices");
 void IosConfigurations::updateAutomaticKitList()
 {
     QMap<QString, Platform> platforms = IosProbe::detectPlatforms();
-    {
-        QMapIterator<QString, Platform> iter(platforms);
-        while (iter.hasNext()) {
-            iter.next();
-            const Platform &p = iter.value();
-            setDeveloperPath(p.developerPath);
-            break;
-        }
-    }
+    if (!platforms.isEmpty())
+        setDeveloperPath(platforms.first().developerPath);
     // filter out all non iphone, non base, non clang or cxx11 platforms, as we don't set up kits for those
     {
         QMap<QString, Platform>::iterator iter(platforms.begin());
