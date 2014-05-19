@@ -111,10 +111,8 @@ QuickToolBar::QuickToolBar(QObject *parent)
 
 QuickToolBar::~QuickToolBar()
 {
-    //if the pane was never activated the widget is not in a widget tree
-    if (!m_widget.isNull())
-        delete m_widget.data();
-        m_widget = 0;
+    delete m_widget.data();
+    m_widget = 0;
 }
 
 void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr document, const ScopeChain *scopeChain, AST::Node *node, bool update, bool force)
