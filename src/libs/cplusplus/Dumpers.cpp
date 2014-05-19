@@ -82,7 +82,7 @@ QString CPlusPlus::toString(const Symbol *s, QString id)
                 indent(toString(s->type())));
 }
 
-QString CPlusPlus::toString(LookupItem it, QString id)
+QString CPlusPlus::toString(const LookupItem &it, const QString &id)
 {
     QString result = QString::fromLatin1("%1:").arg(id);
     if (it.declaration())
@@ -114,7 +114,7 @@ void CPlusPlus::dump(const Name *name)
     qDebug() << qPrintable(toString(name));
 }
 
-void CPlusPlus::dump(FullySpecifiedType ty)
+void CPlusPlus::dump(const FullySpecifiedType &ty)
 {
     qDebug() << qPrintable(toString(ty));
 }
@@ -124,7 +124,7 @@ void CPlusPlus::dump(const Symbol *s)
     qDebug() << qPrintable(toString(s));
 }
 
-void CPlusPlus::dump(LookupItem it)
+void CPlusPlus::dump(const LookupItem &it)
 {
     qDebug() << qPrintable(toString(it));
 }
