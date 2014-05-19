@@ -55,9 +55,6 @@ Item {
         gradientModel.deleteGradient()
     }
 
-        }
-    }
-
     Item {
         id: colorLine
         height: 80
