@@ -50,7 +50,7 @@ public:
 
 protected:
     void collectItemChangesAndSendChangeCommands();
-    void sendChildrenChangedCommand(const QList<ServerNodeInstance> childList);
+    void sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList);
     void sendTokenBack();
 
 private:

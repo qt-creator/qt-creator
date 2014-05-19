@@ -234,7 +234,7 @@ void Qt4InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
 
 }
 
-void Qt4InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> childList)
+void Qt4InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)
 {
     QSet<ServerNodeInstance> parentSet;
     QList<ServerNodeInstance> noParentList;

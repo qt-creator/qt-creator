@@ -307,7 +307,7 @@ void QmlDesigner::Qt5TestNodeInstanceServer::collectItemChangesAndSendChangeComm
     }
 }
 
-void Qt5TestNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> childList)
+void Qt5TestNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)
 {
     QSet<ServerNodeInstance> parentSet;
     QList<ServerNodeInstance> noParentList;

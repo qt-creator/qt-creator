@@ -235,7 +235,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
 
 }
 
-void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> childList)
+void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)
 {
     QSet<ServerNodeInstance> parentSet;
     QList<ServerNodeInstance> noParentList;

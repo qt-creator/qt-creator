@@ -50,7 +50,7 @@ public:
 
 protected:
     void collectItemChangesAndSendChangeCommands() Q_DECL_OVERRIDE;
-    void sendChildrenChangedCommand(const QList<ServerNodeInstance> childList);
+    void sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList);
     void sendTokenBack();
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;
     bool isDirtyRecursiveForParentInstances(QQuickItem *item) const;
