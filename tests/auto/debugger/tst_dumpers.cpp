@@ -1062,7 +1062,7 @@ void tst_Dumpers::dumper()
     //qDebug() << "Starting qmake: " << cmd;
     QStringList options;
 #ifdef Q_OS_MAC
-    if (m_qtVersion < 0x050000)
+    if (m_qtVersion && m_qtVersion < 0x050000)
         options << QLatin1String("-spec") << QLatin1String("unsupported/macx-clang");
 #endif
     qmake.start(cmd, options);
@@ -1424,8 +1424,8 @@ void tst_Dumpers::dumper_data()
                + Check("ba1.13", "[13]", "2", "char")
 
                + CheckType("ba2", "@QByteArray")
-               + Check("s", '"' + QByteArray(10000, 'x') + '"', "@QString")
-               + Check("ss", '"' + QByteArray(10000, 'c') + '"', "std::string")
+               + Check("s", '"' + QByteArray(100, 'x') + '"', "@QString")
+               + Check("ss", '"' + QByteArray(100, 'c') + '"', "std::string")
 
                + Check("buf1", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")
                + Check("buf2", "\"" + QByteArray(1, (char)0xee) + "\"", "@QByteArray")

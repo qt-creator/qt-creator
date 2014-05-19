@@ -532,23 +532,18 @@ class Dumper(DumperBase):
         self.currentAddress = None
 
     def exitSubItem(self, item, exType, exValue, exTraceBack):
-        #warn("CURRENT VALUE: %s: %s %s %s %s" % (
-        #    self.currentIName,
-        #    self.currentValue.value,
-        #    self.currentValue.elided,
-        #    self.currentValue.encoding,
-        #    self.currentValue.priority))
+        #warn("CURRENT VALUE: %s: %s %s" % (self.currentIName, self.currentValue, self.currentType))
         if not exType is None:
             if self.passExceptions:
                 showException("SUBITEM", exType, exValue, exTraceBack)
             self.putNumChild(0)
             self.putValue("<not accessible>")
         try:
-            #warn("CURRENT TYPE: %s" % self.currentType.value)
-            typeName = stripClassTag(self.currentType.value)
+            if self.currentType.value:
+                typeName = stripClassTag(self.currentType.value)
+                if len(typeName) > 0 and typeName != self.currentChildType:
+                    self.put('type="%s",' % typeName) # str(type.unqualified()) ?
 
-            if len(typeName) > 0 and typeName != self.currentChildType:
-                self.put('type="%s",' % typeName) # str(type.unqualified()) ?
             if  self.currentValue.value is None:
                 self.put('value="<not accessible>",numchild="0",')
             else:
@@ -1045,7 +1040,7 @@ class Dumper(DumperBase):
                 # generic pointer." with MinGW's gcc 4.5 when it "identifies"
                 # a "QWidget &" as "void &" and with optimized out code.
                 self.putItem(value.cast(type.target().unqualified()))
-                self.putBetterType("%s &" % self.currentType)
+                self.putBetterType("%s &" % self.currentType.value)
                 return
             except RuntimeError:
                 self.putValue("<optimized out reference>")

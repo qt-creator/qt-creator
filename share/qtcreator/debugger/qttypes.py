@@ -239,7 +239,7 @@ def qdump__QTimeZone(d, value):
         d.putNumChild(0)
         return
     idAddr = base + 2 * d.ptrSize() # [QSharedData] + [vptr]
-    d.putByteArrayValueByAddress(idAddr)
+    d.putByteArrayValue(idAddr)
     d.putPlainChildren(value["d"])
 
 
@@ -392,7 +392,7 @@ def qdump__QDir(d, value):
         dirEntryOffset = fileInfosOffset + d.ptrSize()
         absoluteDirEntryOffset = dirEntryOffset + fileSystemEntrySize
 
-    d.putStringValueByAddress(privAddress + dirEntryOffset)
+    d.putStringValue(privAddress + dirEntryOffset)
     if d.isExpanded():
         with Children(d):
             ns = d.qtNamespace()
@@ -429,7 +429,7 @@ def qdump__QFile(d, value):
             offset = 140 if is32bit else 232
     privAddress = d.extractPointer(d.addressOf(value) + d.ptrSize())
     fileNameAddress = privAddress + offset
-    d.putStringValueByAddress(fileNameAddress)
+    d.putStringValue(fileNameAddress)
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
@@ -447,7 +447,7 @@ def qdump__QFileInfo(d, value):
     #    d.putPlainChildren(value)
     #    return
     filePathAddress = privAddress + d.ptrSize()
-    d.putStringValueByAddress(filePathAddress)
+    d.putStringValue(filePathAddress)
     d.putNumChild(1)
     if d.isExpanded():
         ns = d.qtNamespace()
@@ -705,7 +705,7 @@ def qdump__QHostAddress(d, value):
     ipStringAddress = privAddress + (0 if isQt5 else 24)
     isParsedAddress = privAddress + 24 + 2 * sizeofQString
     # value.d.d->ipString
-    ipString = d.encodeStringHelper(d.extractPointer(ipStringAddress), limit=100)
+    ipString = d.encodeString(ipStringAddress, limit=100)
     if d.extractByte(isParsedAddress) and len(ipString) > 0:
         d.putValue(ipString, Hex4EncodedLittleEndian)
     else:
@@ -720,7 +720,7 @@ def qdump__QHostAddress(d, value):
             data = d.readMemory(privAddress + a6Offset, 16)
             address = ':'.join("%x" % int(data[i:i+4], 16) for i in xrange(0, 32, 4))
             scopeId = privAddress + sizeofQString + (0 if isQt5 else 24)
-            scopeId = d.encodeStringHelper(d.extractPointer(scopeId), limit=100)
+            scopeId = d.encodeString(scopeId, limit=100)
             d.putValue("%s%%%s" % (address, scopeId), IPv6AddressAndHexScopeId)
         elif proto == 0:
             # value.d.d->a
@@ -1531,7 +1531,7 @@ def qdump__QRegExp(d, value):
     privAddress = d.extractPointer(value)
     engineKeyAddress = privAddress + d.ptrSize()
     patternAddress = engineKeyAddress
-    d.putStringValueByAddress(patternAddress)
+    d.putStringValue(patternAddress)
     d.putNumChild(1)
     if d.isExpanded():
         with Children(d):
@@ -1843,13 +1843,13 @@ def qdump__QUrl(d, value):
             d.putValue("<invalid>")
             return
         schemeAddr = privAddress + 2 * d.intSize()
-        scheme = d.encodeStringHelper(d.extractPointer(schemeAddr), limit=1000)
-        userName = d.encodeStringHelper(d.extractPointer(schemeAddr + 1 * d.ptrSize()), limit=100)
-        password = d.encodeStringHelper(d.extractPointer(schemeAddr + 2 * d.ptrSize()), limit=100)
-        host = d.encodeStringHelper(d.extractPointer(schemeAddr + 3 * d.ptrSize()), limit=100)
-        path = d.encodeStringHelper(d.extractPointer(schemeAddr + 4 * d.ptrSize()), limit=1000)
-        query = d.encodeStringHelper(d.extractPointer(schemeAddr + 5 * d.ptrSize()), limit=10000)
-        fragment = d.encodeStringHelper(d.extractPointer(schemeAddr + 6 * d.ptrSize()), limit=10000)
+        scheme = d.encodeString(schemeAddr, limit=1000)
+        userName = d.encodeString(schemeAddr + 1 * d.ptrSize(), limit=100)
+        password = d.encodeString(schemeAddr + 2 * d.ptrSize(), limit=100)
+        host = d.encodeString(schemeAddr + 3 * d.ptrSize(), limit=100)
+        path = d.encodeString(schemeAddr + 4 * d.ptrSize(), limit=1000)
+        query = d.encodeString(schemeAddr + 5 * d.ptrSize(), limit=10000)
+        fragment = d.encodeString(schemeAddr + 6 * d.ptrSize(), limit=10000)
         port = d.extractInt(d.extractPointer(value) + d.intSize())
 
         url = scheme

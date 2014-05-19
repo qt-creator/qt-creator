@@ -77,11 +77,15 @@ class ReportItem:
     or a type scheduled to be reported. This might get overridden be
     subsequent better guesses during a putItem() run.
     """
-    def __init__(self):
-        self.value = None
-        self.priority = -100
-        self.encoding = None
-        self.elided = 0
+    def __init__(self, value = None, encoding = None, priority = -100, elided = None):
+        self.value = value
+        self.priority = priority
+        self.encoding = encoding
+        self.elided = elided
+
+    def __str__(self):
+        return "Item(value: %s, encoding: %s, priority: %s, elided: %s)" \
+            % (self.value, self.encoding, self.priority, self.elided)
 
 
 class Blob(object):
@@ -391,6 +395,8 @@ class DumperBase:
 
     # Clamps size to limit.
     def computeLimit(self, size, limit):
+        if limit == 0:
+            limit = self.displayStringLimit
         if limit is None or size <= limit:
             return 0, size
         return size, limit
@@ -461,17 +467,13 @@ class DumperBase:
     def byteArrayData(self, value):
         return self.byteArrayDataHelper(self.extractPointer(value))
 
-    def putByteArrayValue(self, value):
-        elided, data = self.encodeByteArrayHelper(self.extractPointer(value), self.displayStringLimit)
-        self.putValue(data, Hex2EncodedLatin1, elided=elided)
-
     def putByteArrayValueByAddress(self, addr):
         elided, data = self.encodeByteArrayHelper(addr, self.displayStringLimit)
         self.putValue(data, Hex2EncodedLatin1, elided=elided)
 
-    def putStringValueByAddress(self, addr):
-        elided, data = self.encodeStringHelper(self.extractPointer(addr), self.displayStringLimit)
-        self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
+    def putByteArrayValue(self, value):
+        elided, data = self.encodeByteArrayHelper(self.extractPointer(value), self.displayStringLimit)
+        self.putValue(data, Hex2EncodedLatin1, elided=elided)
 
     def encodeString(self, value, limit = 0):
         elided, data = self.encodeStringHelper(self.extractPointer(value), limit)
@@ -507,6 +509,10 @@ class DumperBase:
                     inner += c
                     skipSpace = False
         return inner.strip()
+
+    def putStringValueByAddress(self, addr):
+        elided, data = self.encodeStringHelper(addr, self.displayStringLimit)
+        self.putValue(data, Hex4EncodedLittleEndian, elided=elided)
 
     def putStringValue(self, value):
         elided, data = self.encodeStringHelper(self.extractPointer(value), self.displayStringLimit)
@@ -663,23 +669,20 @@ class DumperBase:
         # elided = 0 indicates all data is available in value,
         # otherwise it's the true length.
         if priority >= self.currentValue.priority:
-            self.currentValue.value = value
-            self.currentValue.priority = priority
-            self.currentValue.encoding = encoding
-            self.currentValue.elided = elided
+            self.currentValue = ReportItem(value, encoding, priority, elided)
 
     def putEmptyValue(self, priority = -10):
         if priority >= self.currentValue.priority:
-            self.currentValue.value = ""
-            self.currentValue.priority = priority
-            self.currentValue.encoding = None
-            self.currentValue.elided = None
+            self.currentValue = ReportItem("", None, priority, None)
 
     def putName(self, name):
         self.put('name="%s",' % name)
 
     def putBetterType(self, type):
-        self.currentType.value = str(type)
+        if isinstance(type, ReportItem):
+            self.currentType.value = str(type.value)
+        else:
+            self.currentType.value = str(type)
         self.currentType.priority += 1
 
     def putNoType(self):
@@ -1158,7 +1161,7 @@ class DumperBase:
                                 self.putItem(v)
                                 propertyCount += 1
 
-            self.putValue('<%s items>' % propertyCount if propertyCount else '<>0 items>')
+            self.putValue(str('<%s items>' % propertyCount if propertyCount else '<>0 items>'))
             self.putNumChild(1)
 
         with SubItem(self, "[methods]"):

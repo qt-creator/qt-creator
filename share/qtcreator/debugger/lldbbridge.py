@@ -319,9 +319,10 @@ class Dumper(DumperBase):
             self.putNumChild(0)
             self.putValue("<not accessible>")
         try:
-            typeName = self.currentType.value
-            if len(typeName) > 0 and typeName != self.currentChildType:
-                self.put('type="%s",' % typeName) # str(type.unqualified()) ?
+            if self.currentType.value:
+                typeName = self.currentType.value
+                if len(typeName) > 0 and typeName != self.currentChildType:
+                    self.put('type="%s",' % typeName) # str(type.unqualified()) ?
             if  self.currentValue.value is None:
                 self.put('value="<not accessible>",numchild="0",')
             else:
