@@ -37,7 +37,7 @@ using namespace RemoteLinux;
 using namespace ProjectExplorer;
 
 RemoteLinuxSignalOperation::RemoteLinuxSignalOperation(
-        const QSsh::SshConnectionParameters sshParameters)
+        const QSsh::SshConnectionParameters &sshParameters)
     : DeviceProcessSignalOperation()
     , m_sshParameters(sshParameters)
     , m_runner(0)
@@ -56,7 +56,7 @@ static QString signalProcessByPidCommandLine(int pid, int signal)
     return QString::fromLatin1("kill -%1 %2").arg(signal).arg(pid);
 }
 
-void RemoteLinuxSignalOperation::run(const QString command)
+void RemoteLinuxSignalOperation::run(const QString &command)
 {
     QTC_ASSERT(!m_runner, return);
     m_runner = new QSsh::SshRemoteProcessRunner();

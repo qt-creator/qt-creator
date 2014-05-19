@@ -55,7 +55,7 @@ public:
     void interruptProcess(const QString &filePath);
 
 protected:
-    RemoteLinuxSignalOperation(const QSsh::SshConnectionParameters sshParameters);
+    RemoteLinuxSignalOperation(const QSsh::SshConnectionParameters &sshParameters);
 
 private slots:
     void runnerProcessFinished();
@@ -64,7 +64,7 @@ private slots:
 private:
     virtual QString killProcessByNameCommandLine(const QString &filePath) const;
     virtual QString interruptProcessByNameCommandLine(const QString &filePath) const;
-    void run(const QString command);
+    void run(const QString &command);
     void finish();
 
     const QSsh::SshConnectionParameters m_sshParameters;
