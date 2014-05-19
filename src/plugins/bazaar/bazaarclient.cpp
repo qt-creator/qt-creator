@@ -319,15 +319,16 @@ public:
                              const BazaarCommandParameters &p, QWidget *parent = 0) :
         VcsBase::VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
     {
+        BazaarSettings *settings = m_client->settings();
         mapSetting(addToggleButton(QLatin1String("--verbose"), tr("Verbose"),
                                    tr("Show files changed in each revision")),
-                   m_client->settings()->boolPointer(BazaarSettings::logVerboseKey));
+                   settings->boolPointer(BazaarSettings::logVerboseKey));
         mapSetting(addToggleButton(QLatin1String("--forward"), tr("Forward"),
                                    tr("Show from oldest to newest")),
-                   m_client->settings()->boolPointer(BazaarSettings::logForwardKey));
+                   settings->boolPointer(BazaarSettings::logForwardKey));
         mapSetting(addToggleButton(QLatin1String("--include-merges"), tr("Include merges"),
                                    tr("Show merged revisions")),
-                   m_client->settings()->boolPointer(BazaarSettings::logIncludeMergesKey));
+                   settings->boolPointer(BazaarSettings::logIncludeMergesKey));
 
         QList<ComboBoxItem> logChoices;
         logChoices << ComboBoxItem(tr("Detailed"), QLatin1String("long"))
@@ -335,7 +336,7 @@ public:
                    << ComboBoxItem(tr("One line"), QLatin1String("line"))
                    << ComboBoxItem(tr("GNU ChangeLog"), QLatin1String("gnu-changelog"));
         mapSetting(addComboBox(QStringList(QLatin1String("--log-format=%1")), logChoices),
-                   m_client->settings()->stringPointer(BazaarSettings::logFormatKey));
+                   settings->stringPointer(BazaarSettings::logFormatKey));
     }
 
     void executeCommand()
