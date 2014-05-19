@@ -95,10 +95,11 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
         connect(uiBorderImage->horizontalTileRadioButton,  SIGNAL(toggled(bool)), this, SLOT(onHorizontalStretchChanged()));
         connect(uiBorderImage->horizontalStretchRadioButton,  SIGNAL(toggled(bool)), this, SLOT(onHorizontalStretchChanged()));
         connect(uiBorderImage->horizontalTileRadioButtonNoCrop, SIGNAL(toggled(bool)), this, SLOT(onHorizontalStretchChanged()));
-        connect(previewDialog()->previewLabel(), SIGNAL(leftMarginChanged()), this, SLOT(onLeftMarginsChanged()));
-        connect(previewDialog()->previewLabel(), SIGNAL(rightMarginChanged()), this, SLOT(onRightMarginsChanged()));
-        connect(previewDialog()->previewLabel(), SIGNAL(topMarginChanged()), this, SLOT(onTopMarginsChanged()));
-        connect(previewDialog()->previewLabel(), SIGNAL(bottomMarginChanged()), this, SLOT(onBottomMarginsChanged()));
+        PreviewLabel *previewLabel = previewDialog()->previewLabel();
+        connect(previewLabel, SIGNAL(leftMarginChanged()), this, SLOT(onLeftMarginsChanged()));
+        connect(previewLabel, SIGNAL(rightMarginChanged()), this, SLOT(onRightMarginsChanged()));
+        connect(previewLabel, SIGNAL(topMarginChanged()), this, SLOT(onTopMarginsChanged()));
+        connect(previewLabel, SIGNAL(bottomMarginChanged()), this, SLOT(onBottomMarginsChanged()));
 
     } else {
         ui = new Ui::ContextPaneWidgetImage;
@@ -505,7 +506,8 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
             if (uiBorderImage->verticalTileRadioButtonNoCrop->isChecked())
                 verticalTileMode =Qt::RoundTile;
             QTileRules rules(horizontalTileMode, verticalTileMode);
-            QMargins margins(previewDialog()->previewLabel()->leftMarging() ,previewDialog()->previewLabel()->topMarging() ,previewDialog()->previewLabel()->rightMarging(), previewDialog()->previewLabel()->bottomMarging());
+            PreviewLabel *previewLabel = previewDialog()->previewLabel();
+            QMargins margins(previewLabel->leftMarging() ,previewLabel->topMarging() ,previewLabel->rightMarging(), previewLabel->bottomMarging());
             qDrawBorderPixmap(&p, QRect(0, 0, 76, 76), margins, source, source.rect(), margins, rules);
             //p.drawPixmap(0,0,76,76, source);
         } else {
