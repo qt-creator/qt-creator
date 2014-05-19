@@ -60,7 +60,6 @@ Controls.Button {
         background: Rectangle {
             implicitWidth: 100
             implicitHeight: 23
-            border.color: CreatorStyle.borderColor
             radius: 3
             gradient: control.pressed ? pressedGradient : gradient
             Gradient{
@@ -74,7 +73,6 @@ Controls.Button {
                 GradientStop {color: "#303030" ; position: 1}
             }
             Rectangle {
-                border.color: CreatorStyle.highlightColor
                 anchors.fill: parent
                 anchors.margins: -1
                 color: "transparent"
