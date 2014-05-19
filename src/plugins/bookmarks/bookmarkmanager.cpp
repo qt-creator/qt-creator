@@ -86,7 +86,7 @@ QSize BookmarkDelegate::sizeHint(const QStyleOptionViewItem &option, const QMode
     return s;
 }
 
-void BookmarkDelegate::generateGradientPixmap(int width, int height, QColor color, bool selected) const
+void BookmarkDelegate::generateGradientPixmap(int width, int height, const QColor &color, bool selected) const
 {
 
     QColor c = color;

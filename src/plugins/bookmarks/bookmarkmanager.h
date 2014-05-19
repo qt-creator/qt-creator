@@ -190,7 +190,7 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 private:
-    void generateGradientPixmap(int width, int height, QColor color, bool selected) const;
+    void generateGradientPixmap(int width, int height, const QColor &color, bool selected) const;
     mutable QPixmap *m_normalPixmap;
     mutable QPixmap *m_selectedPixmap;
 };
