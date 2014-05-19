@@ -75,8 +75,6 @@ bool AndroidDeployConfigurationFactory::canCreate(Target *parent, const Core::Id
 DeployConfiguration *AndroidDeployConfigurationFactory::create(Target *parent, const Core::Id id)
 {
     AndroidDeployConfiguration *dc = new AndroidDeployConfiguration(parent, id);
-    if (!dc)
-        return 0;
 
     if (id == ANDROID_DEPLOYCONFIGURATION_ID) {
         dc->stepList()->insertStep(0, new AndroidPackageInstallationStep(AndroidPackageInstallationStep::ProjectDirectory, dc->stepList()));
