@@ -171,8 +171,8 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
         bool creatorIs64Bit = Utils::is64BitWindowsBinary(qApp->applicationFilePath());
         if (!is64BitSystem
                 || si == NoSpecialInterrupt
-                || si == Win64Interrupt && creatorIs64Bit
-                || si == Win32Interrupt && !creatorIs64Bit) {
+                || (si == Win64Interrupt && creatorIs64Bit)
+                || (si == Win32Interrupt && !creatorIs64Bit)) {
             if (!DebugBreakProcess(inferior)) {
                 appendMsgCannotInterrupt(pid, tr("DebugBreakProcess failed:")
                                           + QLatin1Char(' ') + Utils::winErrorMessage(GetLastError()));
