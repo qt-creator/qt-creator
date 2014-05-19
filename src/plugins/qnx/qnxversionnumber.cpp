@@ -73,10 +73,12 @@ bool QnxVersionNumber::operator >(const QnxVersionNumber &b) const
                 int aInt = aParts[j].toInt(&aOk);
                 int bInt = bParts[j].toInt(&bOk);
 
-                if (aOk && bOk)
+                if (aOk && bOk && (aInt != bInt))
                     return aInt > bInt;
 
-                return aParts[j].compare(bParts[j]) > 0;
+                int compare = aParts[j].compare(bParts[j]);
+                if (compare != 0)
+                    return compare > 0;
             }
         }
     }
