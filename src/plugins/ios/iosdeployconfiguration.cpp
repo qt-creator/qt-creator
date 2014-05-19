@@ -71,8 +71,6 @@ bool IosDeployConfigurationFactory::canCreate(Target *parent, const Core::Id id)
 DeployConfiguration *IosDeployConfigurationFactory::create(Target *parent, const Core::Id id)
 {
     IosDeployConfiguration *dc = new IosDeployConfiguration(parent, id);
-    if (!dc)
-        return 0;
     dc->stepList()->insertStep(0, new IosDeployStep(dc->stepList()));
     return dc;
 }
