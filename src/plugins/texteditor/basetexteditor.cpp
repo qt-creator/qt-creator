@@ -1448,8 +1448,6 @@ bool BaseTextEditorWidget::cursorMoveKeyEvent(QKeyEvent *e)
             op = QTextCursor::Down;
     } else if (e == QKeySequence::MoveToPreviousLine) {
             op = QTextCursor::Up;
-    } else if (e == QKeySequence::MoveToPreviousLine) {
-            op = QTextCursor::Up;
     } else if (e == QKeySequence::MoveToStartOfLine) {
             op = QTextCursor::StartOfLine;
     } else if (e == QKeySequence::MoveToEndOfLine) {
