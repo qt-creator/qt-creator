@@ -7,6 +7,7 @@ HEADERS += \
     cppcodemodelinspectordialog.h \
     cppeditor.h \
     cppeditor_global.h \
+    cppeditordocument.h \
     cppeditorconstants.h \
     cppeditorenums.h \
     cppeditorplugin.h \
@@ -37,6 +38,7 @@ SOURCES += \
     cppclasswizard.cpp \
     cppcodemodelinspectordialog.cpp \
     cppeditor.cpp \
+    cppeditordocument.cpp \
     cppeditorplugin.cpp \
     cppelementevaluator.cpp \
     cppfilewizard.cpp \

@@ -26,6 +26,7 @@ QtcPlugin {
         "cppeditor.qrc",
         "cppeditor_global.h",
         "cppeditorconstants.h",
+        "cppeditordocument.cpp", "cppeditordocument.h",
         "cppeditorenums.h",
         "cppeditorplugin.cpp", "cppeditorplugin.h",
         "cppelementevaluator.cpp", "cppelementevaluator.h",

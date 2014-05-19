@@ -41,7 +41,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <cpptools/cpptoolseditorsupport.h>
 #include <cpptools/cpptoolsplugin.h>
-#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppcompletionassistprovider.h>
@@ -1838,49 +1837,6 @@ void CPPEditorWidget::showPreProcessorWidget()
         m_preprocessorButton->setProperty("highlightWidget", !additionals.trimmed().isEmpty());
         m_preprocessorButton->update();
     }
-}
-
-CPPEditorDocument::CPPEditorDocument()
-{
-    setId(CppEditor::Constants::CPPEDITOR_ID);
-    connect(this, SIGNAL(tabSettingsChanged()),
-            this, SLOT(invalidateFormatterCache()));
-    connect(this, SIGNAL(mimeTypeChanged()),
-            this, SLOT(onMimeTypeChanged()));
-    setSyntaxHighlighter(new CppHighlighter);
-    onMimeTypeChanged();
-}
-
-bool CPPEditorDocument::isObjCEnabled() const
-{
-    return m_isObjCEnabled;
-}
-
-void CPPEditorDocument::applyFontSettings()
-{
-    if (TextEditor::SyntaxHighlighter *highlighter = syntaxHighlighter()) {
-        // Clear all additional formats since they may have changed
-        QTextBlock b = document()->firstBlock();
-        while (b.isValid()) {
-            QList<QTextLayout::FormatRange> noFormats;
-            highlighter->setExtraAdditionalFormats(b, noFormats);
-            b = b.next();
-        }
-    }
-    BaseTextDocument::applyFontSettings(); // rehighlights and updates additional formats
-}
-
-void CPPEditorDocument::invalidateFormatterCache()
-{
-    CppTools::QtStyleCodeFormatter formatter;
-    formatter.invalidateCache(document());
-}
-
-void CPPEditorDocument::onMimeTypeChanged()
-{
-    const QString &mt = mimeType();
-    m_isObjCEnabled = (mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-                   || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
 
 #include <cppeditor.moc>

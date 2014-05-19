@@ -30,6 +30,7 @@
 #ifndef CPPEDITOR_H
 #define CPPEDITOR_H
 
+#include "cppeditordocument.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cppfunctiondecldeflink.h"
 
@@ -59,25 +60,6 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditorWidget;
-
-class CPPEditorDocument : public TextEditor::BaseTextDocument
-{
-    Q_OBJECT
-public:
-    CPPEditorDocument();
-
-    bool isObjCEnabled() const;
-
-protected:
-    void applyFontSettings();
-
-private slots:
-    void invalidateFormatterCache();
-    void onMimeTypeChanged();
-
-private:
-    bool m_isObjCEnabled;
-};
 
 class CPPEditor : public TextEditor::BaseTextEditor
 {
