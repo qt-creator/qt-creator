@@ -205,7 +205,7 @@ bool Semantic::visit(LiteralExpressionAST *ast)
             _expr.type = _engine->uintType();
         else if (ast->value->endsWith(QLatin1String("lf")) || ast->value->endsWith(QLatin1String("LF")))
             _expr.type = _engine->doubleType();
-        else if (ast->value->endsWith(QLatin1Char('f')) || ast->value->endsWith(QLatin1Char('f')) || ast->value->contains(QLatin1Char('.')))
+        else if (ast->value->endsWith(QLatin1Char('f')) || ast->value->endsWith(QLatin1Char('F')) || ast->value->contains(QLatin1Char('.')))
             _expr.type = _engine->floatType();
         else
             _expr.type = _engine->intType();
