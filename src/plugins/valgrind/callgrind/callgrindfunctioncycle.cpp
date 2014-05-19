@@ -67,7 +67,7 @@ FunctionCycle::~FunctionCycle()
     // d should be deleted by Function::~Function()
 }
 
-void FunctionCycle::setFunctions(const QVector<const Function *> functions)
+void FunctionCycle::setFunctions(const QVector<const Function *> &functions)
 {
     Private *d = CYCLE_D;
 
