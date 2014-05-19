@@ -403,7 +403,8 @@ FullySpecifiedType UseMinimalNames::apply(const Name *name, Rewrite *rewrite) co
     Control *control = rewrite->control;
 
     const QList<LookupItem> results = context.lookup(name, scope);
-    foreach (const LookupItem &r, results) {
+    if (!results.isEmpty()) {
+        const LookupItem &r = results.first();
         if (Symbol *d = r.declaration())
             return control->namedType(LookupContext::minimalName(d, _target, control));
 
