@@ -38,12 +38,63 @@ namespace QmlDesigner {
 
 class ItemLibraryItemModel;
 
+class ItemLibrarySortedModel: public QAbstractListModel {
+
+    Q_OBJECT
+
+public:
+    ItemLibrarySortedModel(QObject *parent = 0);
+    ~ItemLibrarySortedModel();
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+    void clearElements();
+
+    void addElement(QObject *element, int libId);
+    void removeElement(int libId);
+
+    bool elementVisible(int libId) const;
+    bool setElementVisible(int libId, bool visible);
+
+    void privateInsert(int pos, QObject *element);
+    void privateRemove(int pos);
+
+    const QMap<int, QObject *> &elements() const;
+
+    template<typename T>
+    const QList<T> elementsByType() const;
+
+    QObject *element(int libId);
+
+    template<typename T>
+    T elementByType(int libId);
+
+    int findElement(int libId) const;
+    int visibleElementPosition(int libId) const;
+
+    void resetModel();
+
+private:
+    void addRoleName(const QByteArray &roleName);
+
+    struct order_struct {
+        int libId;
+        bool visible;
+    };
+
+    QMap<int, QObject *> m_elementModels;
+    QList<struct order_struct> m_elementOrder;
+
+    QList<QObject *> m_privList;
+    QHash<int, QByteArray> m_roleNames;
+};
+
 class ItemLibrarySectionModel: public QObject {
 
     Q_OBJECT
 
     Q_PROPERTY(QObject* sectionEntries READ sectionEntries NOTIFY sectionEntriesChanged FINAL)
-    Q_PROPERTY(int sectionLibraryId READ sectionLibraryId FINAL)
     Q_PROPERTY(QString sectionName READ sectionName FINAL)
     Q_PROPERTY(bool sectionExpanded READ sectionExpanded FINAL)
     Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
@@ -81,5 +132,7 @@ private:
 };
 
 } // namespace QmlDesigner
+
+QML_DECLARE_TYPE(QmlDesigner::ItemLibrarySortedModel)
 
 #endif // QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H
