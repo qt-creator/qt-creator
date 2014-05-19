@@ -75,7 +75,7 @@ static inline void dump64bitPointerArray(std::ostream &os, const void *a, int co
 
 // Fix the inner type of containers (that is, make it work smoothly with AddSymbol)
 // by prefixing it with the module except for well-known types like STL/Qt types
-static inline std::string fixInnerType(std::string type,
+static inline std::string fixInnerType(const std::string &type,
                                        const SymbolGroupValue &container)
 {
     std::string stripped
