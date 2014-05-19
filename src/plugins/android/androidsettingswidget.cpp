@@ -603,7 +603,7 @@ void AndroidSettingsWidget::startAVD()
     m_androidConfig.startAVDAsync(m_AVDModel.avdName(m_ui->AVDTableView->currentIndex()));
 }
 
-void AndroidSettingsWidget::avdActivated(QModelIndex index)
+void AndroidSettingsWidget::avdActivated(const QModelIndex &index)
 {
     m_ui->AVDRemovePushButton->setEnabled(index.isValid());
     m_ui->AVDStartPushButton->setEnabled(index.isValid());

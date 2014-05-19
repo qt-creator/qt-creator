@@ -646,7 +646,8 @@ bool AndroidManifestEditorWidget::syncToWidgets()
     return false;
 }
 
-bool AndroidManifestEditorWidget::checkDocument(QDomDocument doc, QString *errorMessage, int *errorLine, int *errorColumn)
+bool AndroidManifestEditorWidget::checkDocument(const QDomDocument &doc, QString *errorMessage,
+                                                int *errorLine, int *errorColumn)
 {
     QDomElement manifest = doc.documentElement();
     if (manifest.tagName() != QLatin1String("manifest")) {
@@ -894,7 +895,7 @@ void AndroidManifestEditorWidget::syncToEditor()
 
 namespace {
 QXmlStreamAttributes modifyXmlStreamAttributes(const QXmlStreamAttributes &input, const QStringList &keys,
-                                               const QStringList values, const QStringList &remove = QStringList())
+                                               const QStringList &values, const QStringList &remove = QStringList())
 {
     Q_ASSERT(keys.size() == values.size());
     QXmlStreamAttributes result;
@@ -1158,7 +1159,9 @@ void AndroidManifestEditorWidget::parseUsesSdk(QXmlStreamReader &reader, QXmlStr
     }
 }
 
-QString AndroidManifestEditorWidget::parseUsesPermission(QXmlStreamReader &reader, QXmlStreamWriter &writer, const QSet<QString> permissions)
+QString AndroidManifestEditorWidget::parseUsesPermission(QXmlStreamReader &reader,
+                                                         QXmlStreamWriter &writer,
+                                                         const QSet<QString> &permissions)
 {
     Q_ASSERT(reader.isStartElement());
 
@@ -1374,7 +1377,7 @@ QModelIndex PermissionsModel::addPermission(const QString &permission)
     return index(idx);
 }
 
-bool PermissionsModel::updatePermission(QModelIndex index, const QString &permission)
+bool PermissionsModel::updatePermission(const QModelIndex &index, const QString &permission)
 {
     if (!index.isValid())
         return false;

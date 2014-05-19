@@ -88,7 +88,7 @@ private slots:
     void avdAdded();
     void removeAVD();
     void startAVD();
-    void avdActivated(QModelIndex);
+    void avdActivated(const QModelIndex &);
     void dataPartitionSizeEditingFinished();
     void manageAVD();
     void createKitToggled();

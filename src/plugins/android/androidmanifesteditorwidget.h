@@ -69,7 +69,7 @@ public:
     void setPermissions(const QStringList &permissions);
     const QStringList &permissions();
     QModelIndex addPermission(const QString &permission);
-    bool updatePermission(QModelIndex index, const QString &permission);
+    bool updatePermission(const QModelIndex &index, const QString &permission);
     void removePermission(int index);
     QVariant data(const QModelIndex &index, int role) const;
 
@@ -137,7 +137,8 @@ private:
     void syncToWidgets(const QDomDocument &doc);
     void syncToEditor();
 
-    bool checkDocument(QDomDocument doc, QString *errorMessage, int *errorLine, int *errorColumn);
+    bool checkDocument(const QDomDocument &doc, QString *errorMessage,
+                       int *errorLine, int *errorColumn);
     enum IconDPI { LowDPI, MediumDPI, HighDPI };
     QIcon icon(const QString &baseDir, IconDPI dpi);
     QString iconPath(const QString &baseDir, IconDPI dpi);
@@ -152,7 +153,9 @@ private:
     void parseActivity(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     bool parseMetaData(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseUsesSdk(QXmlStreamReader &reader, QXmlStreamWriter &writer);
-    QString parseUsesPermission(QXmlStreamReader &reader, QXmlStreamWriter &writer, const QSet<QString> permissions);
+    QString parseUsesPermission(QXmlStreamReader &reader,
+                                QXmlStreamWriter &writer,
+                                const QSet<QString> &permissions);
     QString parseComment(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer);
 
