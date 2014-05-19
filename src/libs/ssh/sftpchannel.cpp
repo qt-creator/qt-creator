@@ -487,28 +487,29 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
     const SftpStatusResponse &response)
 {
     SftpMakeDir::Ptr op = it.value().staticCast<SftpMakeDir>();
-    if (op->parentJob == SftpUploadDir::Ptr()) {
+    QSharedPointer<SftpUploadDir> parentJob = op->parentJob;
+    if (parentJob == SftpUploadDir::Ptr()) {
         handleStatusGeneric(it, response);
         return;
     }
-    if (op->parentJob->hasError) {
+    if (parentJob->hasError) {
         m_jobs.erase(it);
         return;
     }
 
     typedef QMap<SftpMakeDir::Ptr, SftpUploadDir::Dir>::Iterator DirIt;
-    DirIt dirIt = op->parentJob->mkdirsInProgress.find(op);
-    Q_ASSERT(dirIt != op->parentJob->mkdirsInProgress.end());
+    DirIt dirIt = parentJob->mkdirsInProgress.find(op);
+    Q_ASSERT(dirIt != parentJob->mkdirsInProgress.end());
     const QString &remoteDir = dirIt.value().remoteDir;
     if (response.status == SSH_FX_OK) {
-        emit dataAvailable(op->parentJob->jobId,
+        emit dataAvailable(parentJob->jobId,
             tr("Created remote directory \"%1\".").arg(remoteDir));
     } else if (response.status == SSH_FX_FAILURE) {
-        emit dataAvailable(op->parentJob->jobId,
+        emit dataAvailable(parentJob->jobId,
             tr("Remote directory \"%1\" already exists.").arg(remoteDir));
     } else {
-        op->parentJob->setError();
-        emit finished(op->parentJob->jobId,
+        parentJob->setError();
+        emit finished(parentJob->jobId,
             tr("Error creating directory \"%1\": %2")
             .arg(remoteDir, response.errorString));
         m_jobs.erase(it);
@@ -521,8 +522,8 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
     foreach (const QFileInfo &dirInfo, dirInfos) {
         const QString remoteSubDir = remoteDir + QLatin1Char('/') + dirInfo.fileName();
         const SftpMakeDir::Ptr mkdirOp(
-            new SftpMakeDir(++m_nextJobId, remoteSubDir, op->parentJob));
-        op->parentJob->mkdirsInProgress.insert(mkdirOp,
+            new SftpMakeDir(++m_nextJobId, remoteSubDir, parentJob));
+        parentJob->mkdirsInProgress.insert(mkdirOp,
             SftpUploadDir::Dir(dirInfo.absoluteFilePath(), remoteSubDir));
         createJob(mkdirOp);
     }
@@ -531,8 +532,8 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
     foreach (const QFileInfo &fileInfo, fileInfos) {
         QSharedPointer<QFile> localFile(new QFile(fileInfo.absoluteFilePath()));
         if (!localFile->open(QIODevice::ReadOnly)) {
-            op->parentJob->setError();
-            emit finished(op->parentJob->jobId,
+            parentJob->setError();
+            emit finished(parentJob->jobId,
                 tr("Could not open local file \"%1\": %2")
                 .arg(fileInfo.absoluteFilePath(), localFile->errorString()));
             m_jobs.erase(it);
@@ -541,15 +542,15 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
 
         const QString remoteFilePath = remoteDir + QLatin1Char('/') + fileInfo.fileName();
         SftpUploadFile::Ptr uploadFileOp(new SftpUploadFile(++m_nextJobId,
-            remoteFilePath, localFile, SftpOverwriteExisting, op->parentJob));
+            remoteFilePath, localFile, SftpOverwriteExisting, parentJob));
         createJob(uploadFileOp);
-        op->parentJob->uploadsInProgress.append(uploadFileOp);
+        parentJob->uploadsInProgress.append(uploadFileOp);
     }
 
-    op->parentJob->mkdirsInProgress.erase(dirIt);
-    if (op->parentJob->mkdirsInProgress.isEmpty()
-        && op->parentJob->uploadsInProgress.isEmpty())
-        emit finished(op->parentJob->jobId);
+    parentJob->mkdirsInProgress.erase(dirIt);
+    if (parentJob->mkdirsInProgress.isEmpty()
+        && parentJob->uploadsInProgress.isEmpty())
+        emit finished(parentJob->jobId);
     m_jobs.erase(it);
 }
 
