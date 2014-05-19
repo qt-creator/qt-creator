@@ -117,7 +117,7 @@ static unsigned firstTypeSpecifierWithoutFollowingAttribute(
 }
 
 PointerDeclarationFormatter::PointerDeclarationFormatter(
-        const CppRefactoringFilePtr refactoringFile,
+        const CppRefactoringFilePtr &refactoringFile,
         Overview &overview,
         CursorHandling cursorHandling)
     : ASTVisitor(refactoringFile->cppDocument()->translationUnit())

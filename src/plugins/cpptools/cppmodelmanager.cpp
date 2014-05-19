@@ -181,7 +181,7 @@ static const char pp_configuration[] =
     "#define __inline inline\n"
     "#define __forceinline inline\n";
 
-QStringList CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr> documentsToCheck)
+QStringList CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck)
 {
     QStringList sourceFiles;
 

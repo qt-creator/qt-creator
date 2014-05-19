@@ -142,7 +142,7 @@ public:
 
     SearchSymbols();
 
-    void setSymbolsToSearchFor(SymbolTypes types);
+    void setSymbolsToSearchFor(const SymbolTypes &types);
 
     QList<ModelItemInfo> operator()(CPlusPlus::Document::Ptr doc, int sizeHint = 500)
     { return operator()(doc, sizeHint, QString()); }

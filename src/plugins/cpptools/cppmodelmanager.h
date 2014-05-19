@@ -154,7 +154,7 @@ public:
 
     void enableGarbageCollector(bool enable);
 
-    static QStringList timeStampModifiedFiles(const QList<Document::Ptr> documentsToCheck);
+    static QStringList timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
 
 signals:
     void gcFinished(); // Needed for tests.

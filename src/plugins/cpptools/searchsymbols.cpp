@@ -47,7 +47,7 @@ SearchSymbols::SearchSymbols() :
 {
 }
 
-void SearchSymbols::setSymbolsToSearchFor(SymbolTypes types)
+void SearchSymbols::setSymbolsToSearchFor(const SymbolTypes &types)
 {
     symbolsToSearchFor = types;
 }

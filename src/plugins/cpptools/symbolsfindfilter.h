@@ -66,7 +66,7 @@ public:
     void writeSettings(QSettings *settings);
     void readSettings(QSettings *settings);
 
-    void setSymbolsToSearch(SearchSymbols::SymbolTypes types) { m_symbolsToSearch = types; }
+    void setSymbolsToSearch(const SearchSymbols::SymbolTypes &types) { m_symbolsToSearch = types; }
     SearchSymbols::SymbolTypes symbolsToSearch() const { return m_symbolsToSearch; }
 
     void setSearchScope(SearchScope scope) { m_scope = scope; }

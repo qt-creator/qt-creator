@@ -89,7 +89,7 @@ public:
     {}
 
     /// 'files' is expected to be a list of file names that reside in 'dir'.
-    void create(const QString &name, const QString &dir, const QStringList files)
+    void create(const QString &name, const QString &dir, const QStringList &files)
     {
         const MyTestDataDir projectDir(dir);
         foreach (const QString &file, files)

@@ -77,7 +77,7 @@ public:
      */
     enum CursorHandling { RespectCursor, IgnoreCursor };
 
-    explicit PointerDeclarationFormatter(const CppRefactoringFilePtr refactoringFile,
+    explicit PointerDeclarationFormatter(const CppRefactoringFilePtr &refactoringFile,
                                          Overview &overview,
                                          CursorHandling cursorHandling = IgnoreCursor);
 
