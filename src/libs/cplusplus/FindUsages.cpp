@@ -206,45 +206,47 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
                     return false;
             }
 
-            if (isLocalScope(_declSymbol->enclosingScope()) || isLocalScope(s->enclosingScope())) {
-                if (_declSymbol->isClass() && _declSymbol->enclosingScope()->isTemplate()
-                        && s->isClass() && s->enclosingScope()->isTemplate()) {
+            Scope *declEnclosingScope = _declSymbol->enclosingScope();
+            Scope *enclosingScope = s->enclosingScope();
+            if (isLocalScope(declEnclosingScope) || isLocalScope(enclosingScope)) {
+                if (_declSymbol->isClass() && declEnclosingScope->isTemplate()
+                        && s->isClass() && enclosingScope->isTemplate()) {
                     // for definition of functions of class defined outside the class definition
-                    Scope *templEnclosingDeclSymbol = _declSymbol->enclosingScope();
+                    Scope *templEnclosingDeclSymbol = declEnclosingScope;
                     Scope *scopeOfTemplEnclosingDeclSymbol
                             = templEnclosingDeclSymbol->enclosingScope();
-                    Scope *templEnclosingCandidateSymbol = s->enclosingScope();
+                    Scope *templEnclosingCandidateSymbol = enclosingScope;
                     Scope *scopeOfTemplEnclosingCandidateSymbol
                             = templEnclosingCandidateSymbol->enclosingScope();
 
                     if (scopeOfTemplEnclosingCandidateSymbol != scopeOfTemplEnclosingDeclSymbol)
                         return false;
-                } else if (_declSymbol->isClass() && _declSymbol->enclosingScope()->isTemplate()
-                        && s->enclosingScope()->isClass()
-                        && s->enclosingScope()->enclosingScope()->isTemplate()) {
+                } else if (_declSymbol->isClass() && declEnclosingScope->isTemplate()
+                        && enclosingScope->isClass()
+                        && enclosingScope->enclosingScope()->isTemplate()) {
                     // for declaration inside template class
-                    Scope *templEnclosingDeclSymbol = _declSymbol->enclosingScope();
+                    Scope *templEnclosingDeclSymbol = declEnclosingScope;
                     Scope *scopeOfTemplEnclosingDeclSymbol
                             = templEnclosingDeclSymbol->enclosingScope();
-                    Scope *templEnclosingCandidateSymbol = s->enclosingScope()->enclosingScope();
+                    Scope *templEnclosingCandidateSymbol = enclosingScope->enclosingScope();
                     Scope *scopeOfTemplEnclosingCandidateSymbol
                             = templEnclosingCandidateSymbol->enclosingScope();
 
                     if (scopeOfTemplEnclosingCandidateSymbol !=  scopeOfTemplEnclosingDeclSymbol)
                         return false;
-                } else if (s->enclosingScope()->isTemplate() && ! _declSymbol->isTypenameArgument()) {
-                    if (_declSymbol->enclosingScope()->isTemplate()) {
-                        if (s->enclosingScope()->enclosingScope() != _declSymbol->enclosingScope()->enclosingScope())
+                } else if (enclosingScope->isTemplate() && ! _declSymbol->isTypenameArgument()) {
+                    if (declEnclosingScope->isTemplate()) {
+                        if (enclosingScope->enclosingScope() != declEnclosingScope->enclosingScope())
                             return false;
                     } else {
-                        if (s->enclosingScope()->enclosingScope() != _declSymbol->enclosingScope())
+                        if (enclosingScope->enclosingScope() != declEnclosingScope)
                             return false;
                     }
-                } else if (_declSymbol->enclosingScope()->isTemplate() && s->isTemplate()) {
-                    if (_declSymbol->enclosingScope()->enclosingScope() != s->enclosingScope())
+                } else if (declEnclosingScope->isTemplate() && s->isTemplate()) {
+                    if (declEnclosingScope->enclosingScope() != enclosingScope)
                         return false;
                 } else if (! s->isUsingDeclaration()
-                           && s->enclosingScope() != _declSymbol->enclosingScope()) {
+                           && enclosingScope != declEnclosingScope) {
                     return false;
                 }
             }
