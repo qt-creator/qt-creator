@@ -94,7 +94,6 @@ QString PropertyEditorContextObject::convertColorToString(const QColor &color)
 
     if (color.alpha() != 255) {
         const QString hexAlpha = QString::number(color.alpha(), 16);
-        qDebug() << "alpha" << hexAlpha;
         colorString.remove(0,1);
         colorString.prepend(hexAlpha);
         colorString.prepend(QStringLiteral("#"));
