@@ -467,6 +467,8 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     features.qtEnabled = true;
     features.qtKeywordsEnabled = true;
     features.qtMocRunEnabled = true;
+    features.objCEnabled = true;
+    features.cxx11Enabled = true;
 
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);

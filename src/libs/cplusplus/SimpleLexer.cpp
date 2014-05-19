@@ -133,6 +133,8 @@ Token SimpleLexer::tokenAt(const QString &text,
     features.qtMocRunEnabled = qtMocRunEnabled;
     features.qtEnabled = qtMocRunEnabled;
     features.qtKeywordsEnabled = qtMocRunEnabled;
+    features.objCEnabled = qtMocRunEnabled;
+    features.cxx11Enabled = qtMocRunEnabled;
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);
     const QList<Token> tokens = tokenize(text, state);
