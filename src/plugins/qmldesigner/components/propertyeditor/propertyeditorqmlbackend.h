@@ -34,6 +34,7 @@
 #include "designerpropertymap.h"
 #include "propertyeditorvalue.h"
 #include "propertyeditorcontextobject.h"
+#include "qmlmodelnodeproxy.h"
 #include "quick2propertyeditorview.h"
 
 #include <nodemetainfo.h>
@@ -88,6 +89,7 @@ private:
 private:
     Quick2PropertyEditorView *m_view;
     Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
+    QmlModelNodeProxy m_backendModelNode;
     DesignerPropertyMap m_backendValuesPropertyMap;
     QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;
     QScopedPointer<PropertyEditorValue> m_dummyPropertyEditorValue;

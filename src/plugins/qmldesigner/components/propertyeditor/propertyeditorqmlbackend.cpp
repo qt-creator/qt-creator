@@ -240,12 +240,19 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         QObject::connect(valueObject, SIGNAL(valueChanged(QString,QVariant)), &m_backendValuesPropertyMap, SIGNAL(valueChanged(QString,QVariant)));
         m_backendValuesPropertyMap.insert("id", QVariant::fromValue(valueObject));
 
-        // anchors
-        m_backendAnchorBinding.setup(QmlItemNode(qmlObjectNode.modelNode()));
+        QmlItemNode itemNode(qmlObjectNode.modelNode());
 
+        // anchors
+        m_backendAnchorBinding.setup(qmlObjectNode.modelNode());
         context()->setContextProperty("anchorBackend", &m_backendAnchorBinding);
 
+
         context()->setContextProperty("transaction", m_propertyEditorTransaction.data());
+
+
+        // model node
+        m_backendModelNode.setup(qmlObjectNode.modelNode());
+        context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
 
         contextObject()->setSpecificsUrl(qmlSpecificsFile);
 
@@ -302,6 +309,7 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
     m_backendValuesPropertyMap.insert("id", QVariant::fromValue(valueObject));
 
     context()->setContextProperty("anchorBackend", &m_backendAnchorBinding);
+    context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
     context()->setContextProperty("transaction", m_propertyEditorTransaction.data());
 
     contextObject()->setSpecificsUrl(qmlSpecificsFile);
