@@ -208,7 +208,7 @@ void BranchDialog::checkout()
         !branchCheckoutDialog.hasStashForNextBranch()) {
         // No local changes and no Auto Stash - no need to open dialog
         m_model->checkoutBranch(idx);
-    } else if (branchCheckoutDialog.exec() == QDialog::Accepted && m_model) {
+    } else if (branchCheckoutDialog.exec() == QDialog::Accepted) {
 
         if (branchCheckoutDialog.makeStashOfCurrentBranch()) {
             if (gitClient->synchronousStash(m_repository,
@@ -292,7 +292,7 @@ void BranchDialog::rename()
 
     branchAddDialog.exec();
 
-    if (branchAddDialog.result() == QDialog::Accepted && m_model) {
+    if (branchAddDialog.result() == QDialog::Accepted) {
         if (branchAddDialog.branchName() == oldName)
             return;
         if (isTag)
