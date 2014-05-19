@@ -57,7 +57,7 @@ QString GenericProjectNode::projectFilePath() const
     return m_projectFile->filePath();
 }
 
-QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<QString> files)
+QHash<QString, QStringList> sortFilesIntoPaths(const QString &base, const QSet<QString> &files)
 {
     QHash<QString, QStringList> filesInPath;
     const QDir baseDir(base);
