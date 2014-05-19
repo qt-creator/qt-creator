@@ -529,7 +529,9 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
 // SelectableFilesDialogs
 //////////
 
-SelectableFilesDialogEditFiles::SelectableFilesDialogEditFiles(const QString &path, const QStringList files, QWidget *parent)
+SelectableFilesDialogEditFiles::SelectableFilesDialogEditFiles(const QString &path,
+                                                               const QStringList &files,
+                                                               QWidget *parent)
     : QDialog(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -683,7 +685,7 @@ void SelectableFilesDialogEditFiles::applyFilter()
 }
 
 SelectableFilesDialogAddDirectory::SelectableFilesDialogAddDirectory(const QString &path,
-                                                const QStringList files, QWidget *parent) :
+                                                const QStringList &files, QWidget *parent) :
     SelectableFilesDialogEditFiles(path, files, parent)
 {
     setWindowTitle(tr("Add Existing Directory"));

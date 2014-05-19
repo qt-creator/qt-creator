@@ -89,8 +89,8 @@ void OutputParserTester::testParsing(const QString &lines,
     }
 }
 
-void OutputParserTester::testTaskMangling(const Task input,
-                                          const Task output)
+void OutputParserTester::testTaskMangling(const Task &input,
+                                          const Task &output)
 {
     reset();
     childParser()->taskAdded(input);

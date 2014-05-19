@@ -62,7 +62,7 @@ DeviceManagerModel::~DeviceManagerModel()
     delete d;
 }
 
-void DeviceManagerModel::setFilter(const QList<Core::Id> filter)
+void DeviceManagerModel::setFilter(const QList<Core::Id> &filter)
 {
     d->filter = filter;
     handleDeviceListChanged();

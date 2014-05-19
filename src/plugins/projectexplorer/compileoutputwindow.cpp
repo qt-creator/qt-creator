@@ -176,7 +176,7 @@ QList<QWidget *> CompileOutputWindow::toolBarWidgets() const
      return QList<QWidget *>() << m_cancelBuildButton;
 }
 
-static QColor mix_colors(QColor a, QColor b)
+static QColor mix_colors(const QColor &a, const QColor &b)
 {
     return QColor((a.red() + 2 * b.red()) / 3, (a.green() + 2 * b.green()) / 3,
                   (a.blue() + 2* b.blue()) / 3, (a.alpha() + 2 * b.alpha()) / 3);

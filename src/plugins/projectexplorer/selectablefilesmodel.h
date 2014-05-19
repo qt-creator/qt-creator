@@ -150,7 +150,7 @@ class PROJECTEXPLORER_EXPORT SelectableFilesDialogEditFiles : public QDialog
     Q_OBJECT
 
 public:
-    SelectableFilesDialogEditFiles(const QString &path, const QStringList files, QWidget *parent);
+    SelectableFilesDialogEditFiles(const QString &path, const QStringList &files, QWidget *parent);
     ~SelectableFilesDialogEditFiles();
     QStringList selectedFiles() const;
 
@@ -185,7 +185,7 @@ class SelectableFilesDialogAddDirectory : public SelectableFilesDialogEditFiles
     Q_OBJECT
 
 public:
-    SelectableFilesDialogAddDirectory(const QString &path, const QStringList files, QWidget *parent);
+    SelectableFilesDialogAddDirectory(const QString &path, const QStringList &files, QWidget *parent);
 
 private slots:
     void validityOfDirectoryChanged(bool validState);

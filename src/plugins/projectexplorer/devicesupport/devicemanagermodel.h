@@ -46,7 +46,7 @@ public:
     explicit DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent = 0);
     ~DeviceManagerModel();
 
-    void setFilter(const QList<Core::Id> filter);
+    void setFilter(const QList<Core::Id> &filter);
     void setTypeFilter(const Core::Id &type);
 
     IDevice::ConstPtr device(int pos) const;

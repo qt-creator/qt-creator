@@ -60,8 +60,8 @@ public:
                      const QString &childStdOutLines,
                      const QString &childStdErrLines,
                      const QString &outputLines);
-    void testTaskMangling(const Task input,
-                          const Task output);
+    void testTaskMangling(const Task &input,
+                          const Task &output);
     void testOutputMangling(const QString &input,
                             const QString &output);
 
