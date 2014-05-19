@@ -111,7 +111,7 @@ def main():
             mouseClick(waitForObject(":Hits_QCLuceneResultWidget"), 1, 1, 0, Qt.LeftButton)
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Tab>")
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Return>")
-            waitFor("__getUrl__() != url or selText != __getSelectedText__()")
+            waitFor("__getUrl__() != url or selText != __getSelectedText__()", 20000)
             # verify if search keyword is found in results
             test.verify(searchKeyword.lower() in __getSelectedText__().lower(),
                         searchKeyword + " search result can be found")
