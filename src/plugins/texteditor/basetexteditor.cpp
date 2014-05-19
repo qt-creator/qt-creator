@@ -4782,7 +4782,7 @@ BaseTextEditorAnimator::BaseTextEditorAnimator(QObject *parent)
 }
 
 
-void BaseTextEditorAnimator::setData(QFont f, QPalette pal, const QString &text)
+void BaseTextEditorAnimator::setData(const QFont &f, const QPalette &pal, const QString &text)
 {
     m_font = f;
     m_palette = pal;

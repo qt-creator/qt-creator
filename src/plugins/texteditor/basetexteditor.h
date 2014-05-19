@@ -92,7 +92,7 @@ public:
     inline void setPosition(int position) { m_position = position; }
     inline int position() const { return m_position; }
 
-    void setData(QFont f, QPalette pal, const QString &text);
+    void setData(const QFont &f, const QPalette &pal, const QString &text);
 
     void draw(QPainter *p, const QPointF &pos);
     QRectF rect() const;
