@@ -41,31 +41,51 @@ Controls.ComboBox {
 
     property bool useInteger: false
 
+    property bool __isCompleted: false
+
     ColorLogic {
         id: colorLogic
         backendValue: comboBox.backendValue
         onValueFromBackendChanged: {
-            if (!comboBox.useInt) {
+            invalidate();
+        }
+
+        function invalidate() {
+            if (!comboBox.useInteger) {
                 var enumString = comboBox.backendValue.enumeration;
+
                 if (enumString === "")
                     enumString = comboBox.backendValue.value
-                comboBox.currentIndex = comboBox.find(enumString);
+
+                var index = comboBox.find(enumString)
+
+                if (index !== comboBox.currentIndex)
+                    comboBox.currentIndex = comboBox.find(enumString)
+
             } else {
-                comboBox.currentIndex = backendValue.value
+                if (comboBox.currentIndex !== backendValue.value)
+                    comboBox.currentIndex = backendValue.value
             }
         }
     }
 
     onCurrentTextChanged: {
+        if (!__isCompleted)
+            return;
+
         if (backendValue === undefined)
             return;
 
-        if (!comboBox.useInt) {
+        if (!comboBox.useInteger) {
             backendValue.setEnumeration(comboBox.scope, comboBox.currentText);
         } else {
-            print("useint" + comboBox.currentIndex)
             backendValue.value = comboBox.currentIndex;
         }
+    }
+
+    Component.onCompleted: {
+        colorLogic.invalidate()
+        __isCompleted = true;
     }
 
     style: CustomComboBoxStyle {
