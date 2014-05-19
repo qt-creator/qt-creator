@@ -135,7 +135,7 @@ void ParserTreeItem::copyTree(const ParserTreeItem::ConstPtr &target)
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator end =
             target->d->symbolInformations.constEnd();
 
-    for (; cur != end; cur++) {
+    for (; cur != end; ++cur) {
         ParserTreeItem::Ptr item(new ParserTreeItem());
         item->copyTree(cur.value());
         appendChild(item, cur.key());
