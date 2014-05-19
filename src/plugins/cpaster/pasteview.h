@@ -50,7 +50,7 @@ public:
         PlainTextMode
     };
 
-    explicit PasteView(const QList<Protocol *> protocols,
+    explicit PasteView(const QList<Protocol *> &protocols,
                        const QString &mimeType,
                        QWidget *parent);
     ~PasteView();

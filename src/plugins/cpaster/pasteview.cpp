@@ -41,7 +41,7 @@ static const char widthKeyC[] = "PasteViewWidth";
 
 namespace CodePaster {
 // -------------------------------------------------------------------------------------------------
-PasteView::PasteView(const QList<Protocol *> protocols,
+PasteView::PasteView(const QList<Protocol *> &protocols,
                      const QString &mt,
                      QWidget *parent) :
     QDialog(parent),
