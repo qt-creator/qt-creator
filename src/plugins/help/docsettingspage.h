@@ -55,7 +55,7 @@ private slots:
 
 private:
     bool eventFilter(QObject *object, QEvent *event);
-    void removeDocumentation(const QList<QListWidgetItem*> items);
+    void removeDocumentation(const QList<QListWidgetItem *> &items);
     void addItem(const QString &nameSpace, const QString &fileName);
 
 private:

@@ -177,7 +177,7 @@ bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)
     return IOptionsPage::eventFilter(object, event);
 }
 
-void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> items)
+void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> &items)
 {
     if (items.isEmpty())
         return;
