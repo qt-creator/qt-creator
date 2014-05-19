@@ -590,7 +590,7 @@ static QString encodeExpandedWhitespace(const QString &leftEquality,
  * The input argument contains version encoded with codeMap,
  * the returned value contains decoded diff list.
  */
-static QList<Diff> decodeExpandedWhitespace(const QList<Diff> input,
+static QList<Diff> decodeExpandedWhitespace(const QList<Diff> &input,
                                             const QMap<int, QPair<int, QString> > &codeMap,
                                             bool *ok)
 {
@@ -1125,7 +1125,7 @@ QList<Diff> Differ::diffMyersSplit(
     return diffList1 + diffList2;
 }
 
-QList<Diff> Differ::diffNonCharMode(const QString text1, const QString text2)
+QList<Diff> Differ::diffNonCharMode(const QString &text1, const QString &text2)
 {
     QString encodedText1;
     QString encodedText2;

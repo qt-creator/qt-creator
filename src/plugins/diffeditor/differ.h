@@ -99,7 +99,7 @@ private:
     QList<Diff> diffMyers(const QString &text1, const QString &text2);
     QList<Diff> diffMyersSplit(const QString &text1, int x,
                                const QString &text2, int y);
-    QList<Diff> diffNonCharMode(const QString text1, const QString text2);
+    QList<Diff> diffNonCharMode(const QString &text1, const QString &text2);
     QStringList encode(const QString &text1,
                        const QString &text2,
                        QString *encodedText1,
