@@ -173,7 +173,7 @@ void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat fo
     cursor.endEditBlock();
 }
 
-void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr,
+void QtOutputFormatter::appendLine(QTextCursor &cursor, const LinkResult &lr,
     const QString &line, Utils::OutputFormat format)
 {
     const QTextCharFormat normalFormat = charFormat(format);

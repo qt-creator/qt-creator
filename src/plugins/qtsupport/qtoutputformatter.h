@@ -75,7 +75,7 @@ private slots:
 
 private:
     LinkResult matchLine(const QString &line) const;
-    void appendLine(QTextCursor &cursor, LinkResult lr, const QString &line,
+    void appendLine(QTextCursor &cursor, const LinkResult &lr, const QString &line,
                     Utils::OutputFormat);
 
     mutable QRegExp m_qmlError;
