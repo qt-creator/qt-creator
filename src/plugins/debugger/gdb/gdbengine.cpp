@@ -1463,7 +1463,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         handleStop1(data);
 }
 
-static QByteArray stopSignal(Abi abi)
+static QByteArray stopSignal(const Abi &abi)
 {
     return (abi.os() == Abi::WindowsOS) ? QByteArray("SIGTRAP") : QByteArray("SIGINT");
 }
