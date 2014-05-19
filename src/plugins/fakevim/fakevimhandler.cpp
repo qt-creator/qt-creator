@@ -2398,7 +2398,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     const Qt::KeyboardModifiers mods = ev->modifiers();
 
     if (key == Key_Shift || key == Key_Alt || key == Key_Control
-            || key == Key_Alt || key == Key_AltGr || key == Key_Meta)
+            || key == Key_AltGr || key == Key_Meta)
     {
         KEY_DEBUG("PLAIN MODIFIER");
         return EventUnhandled;
@@ -3638,7 +3638,7 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
                                .arg(input.text()));
             }
         }
-    } else if (g.subsubmode == OpenSquareSubSubMode || CloseSquareSubSubMode) {
+    } else if (g.subsubmode == OpenSquareSubSubMode || g.subsubmode == CloseSquareSubSubMode) {
         int pos = position();
         if (input.is('{') && g.subsubmode == OpenSquareSubSubMode)
             searchBalanced(false, QLatin1Char('{'), QLatin1Char('}'));
