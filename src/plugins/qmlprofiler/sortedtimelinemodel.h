@@ -170,7 +170,7 @@ protected:
     }
 
     template<typename RangeDelimiter>
-    static inline int lowerBound(const QVector<RangeDelimiter> container, qint64 time)
+    static inline int lowerBound(const QVector<RangeDelimiter> &container, qint64 time)
     {
         int fromIndex = 0;
         int toIndex = container.count() - 1;
