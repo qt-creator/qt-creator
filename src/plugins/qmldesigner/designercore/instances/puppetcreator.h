@@ -69,10 +69,10 @@ public:
 protected:
     bool build(const QString &qmlPuppetProjectFilePath) const;
 
-    QString qmlpuppetDirectory(Puppetype puppetPathType) const;
+    QString qmlpuppetDirectory(PuppetType puppetPathType) const;
     QString qmlpuppetFallbackDirectory() const;
-    QString qml2puppetPath(Puppetype puppetType) const;
-    QString qmlpuppetPath(Puppetype puppetPathType) const;
+    QString qml2puppetPath(PuppetType puppetType) const;
+    QString qmlpuppetPath(PuppetType puppetPathType) const;
 
     bool startBuildProcess(const QString &buildDirectoryPath,
                            const QString &command,

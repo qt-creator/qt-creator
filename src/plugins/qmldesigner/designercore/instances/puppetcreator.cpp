@@ -211,7 +211,7 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
     return buildSucceeded;
 }
 
-QString PuppetCreator::qmlpuppetDirectory(Puppetype puppetType) const
+QString PuppetCreator::qmlpuppetDirectory(PuppetType puppetType) const
 {
 
     if (puppetType == UserSpacePuppet)
