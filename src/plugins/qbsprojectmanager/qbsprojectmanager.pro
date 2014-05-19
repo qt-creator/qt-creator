@@ -6,7 +6,7 @@ isEmpty(QBS_INSTALL_DIR) {
     QBS_SOURCE_DIR = $$PWD/../../shared/qbs
     include($$QBS_SOURCE_DIR/src/lib/corelib/use_corelib.pri)
     include($$QBS_SOURCE_DIR/src/lib/qtprofilesetup/use_qtprofilesetup.pri)
-    macx:QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../ # Mac: fix rpath for qbscore soname
+    macx:QMAKE_LFLAGS += -Wl,-rpath,@loader_path/ # Mac: fix rpath for qbscore soname
 } else {
     include($${QBS_INSTALL_DIR}/include/qbs/use_installed_corelib.pri)
     include($${QBS_INSTALL_DIR}/include/qbs/use_installed_qtprofilesetup.pri)

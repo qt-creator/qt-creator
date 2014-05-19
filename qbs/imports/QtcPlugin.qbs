@@ -25,8 +25,9 @@ QtcProduct {
 
     cpp.defines: base.concat([name.toUpperCase() + "_LIBRARY"])
     cpp.installNamePrefix: "@rpath/PlugIns/"
-    cpp.rpaths: qbs.targetOS.contains("osx") ? ["@loader_path/..", "@executable_path/.."]
-                                      : ["$ORIGIN", "$ORIGIN/.."]
+    cpp.rpaths: qbs.targetOS.contains("osx")
+        ? ["@loader_path/..", "@loader_path/", "@executable_path/.."]
+        : ["$ORIGIN", "$ORIGIN/.."]
     cpp.linkerFlags: {
         var flags = base;
         if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))
