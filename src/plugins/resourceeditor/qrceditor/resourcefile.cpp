@@ -341,7 +341,7 @@ void ResourceFile::replaceAlias(int prefix_idx, int file_idx, const QString &ali
     fileList[file_idx]->alias = alias;
 }
 
-bool ResourceFile::renameFile(const QString fileName, const QString &newFileName)
+bool ResourceFile::renameFile(const QString &fileName, const QString &newFileName)
 {
     bool success = true;
 

@@ -159,7 +159,7 @@ public:
     bool replacePrefixAndLang(int prefix_idx, const QString &prefix, const QString &lang);
     void replaceAlias(int prefix_idx, int file_idx, const QString &alias);
 
-    bool renameFile(const QString fileName, const QString &newFileName);
+    bool renameFile(const QString &fileName, const QString &newFileName);
 
     void replaceFile(int pref_idx, int file_idx, const QString &file);
     int indexOfPrefix(const QString &prefix, const QString &lang) const;
