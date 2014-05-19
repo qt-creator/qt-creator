@@ -492,3 +492,171 @@ bool IncludeGroup::hasCommonIncludeDir() const
     }
     return true;
 }
+
+#ifdef WITH_TESTS
+
+#include "cppmodelmanager.h"
+#include "cppsourceprocessertesthelper.h"
+#include "cppsourceprocessor.h"
+#include "cpptoolsplugin.h"
+#include "cpptoolstestcase.h"
+
+#include <QtTest>
+
+using namespace Tests;
+using CppTools::Internal::CppToolsPlugin;
+
+static QList<Include> includesForSource(const QByteArray &source)
+{
+    const QString fileName = TestIncludePaths::testFilePath();
+    CppTools::Tests::TestCase::writeFile(fileName, source);
+
+    using namespace CppTools::Internal;
+
+    CppModelManager *cmm = CppModelManager::instance();
+    cmm->GC();
+    CppSourceProcessor sourceProcessor((QPointer<CppModelManager>(cmm)));
+    sourceProcessor.setIncludePaths(QStringList(TestIncludePaths::globalIncludePath()));
+    sourceProcessor.run(fileName);
+
+    Document::Ptr document = cmm->document(fileName);
+    return document->resolvedIncludes();
+}
+
+void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByNewLines()
+{
+    // Source referencing those files
+    QByteArray source =
+        "#include \"header.h\"\n"
+        "\n"
+        "#include \"file.h\"\n"
+        "#include \"fileother.h\"\n"
+        "\n"
+        "#include <lib/fileother.h>\n"
+        "#include <lib/file.h>\n"
+        "\n"
+        "#include \"otherlib/file.h\"\n"
+        "#include \"otherlib/fileother.h\"\n"
+        "\n"
+        "#include \"utils/utils.h\"\n"
+        "\n"
+        "#include <QDebug>\n"
+        "#include <QDir>\n"
+        "#include <QString>\n"
+        "\n"
+        "#include <iostream>\n"
+        "#include <string>\n"
+        "#include <except>\n"
+        "\n"
+        "#include <iostream>\n"
+        "#include \"stuff\"\n"
+        "#include <except>\n"
+        "\n"
+        ;
+
+    QList<Include> includes = includesForSource(source);
+    QCOMPARE(includes.size(), 17);
+    QList<IncludeGroup> includeGroups
+        = IncludeGroup::detectIncludeGroupsByNewLines(includes);
+    QCOMPARE(includeGroups.size(), 8);
+
+    QCOMPARE(includeGroups.at(0).size(), 1);
+    QVERIFY(includeGroups.at(0).commonPrefix().isEmpty());
+    QVERIFY(includeGroups.at(0).hasOnlyIncludesOfType(Client::IncludeLocal));
+    QVERIFY(includeGroups.at(0).isSorted());
+
+    QCOMPARE(includeGroups.at(1).size(), 2);
+    QVERIFY(!includeGroups.at(1).commonPrefix().isEmpty());
+    QVERIFY(includeGroups.at(1).hasOnlyIncludesOfType(Client::IncludeLocal));
+    QVERIFY(includeGroups.at(1).isSorted());
+
+    QCOMPARE(includeGroups.at(2).size(), 2);
+    QVERIFY(!includeGroups.at(2).commonPrefix().isEmpty());
+    QVERIFY(includeGroups.at(2).hasOnlyIncludesOfType(Client::IncludeGlobal));
+    QVERIFY(!includeGroups.at(2).isSorted());
+
+    QCOMPARE(includeGroups.at(6).size(), 3);
+    QVERIFY(includeGroups.at(6).commonPrefix().isEmpty());
+    QVERIFY(includeGroups.at(6).hasOnlyIncludesOfType(Client::IncludeGlobal));
+    QVERIFY(!includeGroups.at(6).isSorted());
+
+    QCOMPARE(includeGroups.at(7).size(), 3);
+    QVERIFY(includeGroups.at(7).commonPrefix().isEmpty());
+    QVERIFY(!includeGroups.at(7).hasOnlyIncludesOfType(Client::IncludeLocal));
+    QVERIFY(!includeGroups.at(7).hasOnlyIncludesOfType(Client::IncludeGlobal));
+    QVERIFY(!includeGroups.at(7).isSorted());
+
+    QCOMPARE(IncludeGroup::filterIncludeGroups(includeGroups, Client::IncludeLocal).size(), 4);
+    QCOMPARE(IncludeGroup::filterIncludeGroups(includeGroups, Client::IncludeGlobal).size(), 3);
+    QCOMPARE(IncludeGroup::filterMixedIncludeGroups(includeGroups).size(), 1);
+}
+
+void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeDir()
+{
+    QByteArray source =
+        "#include \"file.h\"\n"
+        "#include \"fileother.h\"\n"
+        "#include <lib/file.h>\n"
+        "#include <lib/fileother.h>\n"
+        "#include \"otherlib/file.h\"\n"
+        "#include \"otherlib/fileother.h\"\n"
+        "#include <iostream>\n"
+        "#include <string>\n"
+        "#include <except>\n"
+        "\n"
+        ;
+
+    QList<Include> includes = includesForSource(source);
+    QCOMPARE(includes.size(), 9);
+    QList<IncludeGroup> includeGroups
+        = IncludeGroup::detectIncludeGroupsByIncludeDir(includes);
+    QCOMPARE(includeGroups.size(), 4);
+
+    QCOMPARE(includeGroups.at(0).size(), 2);
+    QVERIFY(includeGroups.at(0).commonIncludeDir().isEmpty());
+
+    QCOMPARE(includeGroups.at(1).size(), 2);
+    QCOMPARE(includeGroups.at(1).commonIncludeDir(), QLatin1String("lib/"));
+
+    QCOMPARE(includeGroups.at(2).size(), 2);
+    QCOMPARE(includeGroups.at(2).commonIncludeDir(), QLatin1String("otherlib/"));
+
+    QCOMPARE(includeGroups.at(3).size(), 3);
+    QCOMPARE(includeGroups.at(3).commonIncludeDir(), QLatin1String(""));
+}
+
+void CppToolsPlugin::test_includeGroups_detectIncludeGroupsByIncludeType()
+{
+    QByteArray source =
+        "#include \"file.h\"\n"
+        "#include \"fileother.h\"\n"
+        "#include <lib/file.h>\n"
+        "#include <lib/fileother.h>\n"
+        "#include \"otherlib/file.h\"\n"
+        "#include \"otherlib/fileother.h\"\n"
+        "#include <iostream>\n"
+        "#include <string>\n"
+        "#include <except>\n"
+        "\n"
+        ;
+
+    QList<Include> includes = includesForSource(source);
+    QCOMPARE(includes.size(), 9);
+    QList<IncludeGroup> includeGroups
+        = IncludeGroup::detectIncludeGroupsByIncludeDir(includes);
+    QCOMPARE(includeGroups.size(), 4);
+
+    QCOMPARE(includeGroups.at(0).size(), 2);
+    QVERIFY(includeGroups.at(0).hasOnlyIncludesOfType(Client::IncludeLocal));
+
+    QCOMPARE(includeGroups.at(1).size(), 2);
+    QVERIFY(includeGroups.at(1).hasOnlyIncludesOfType(Client::IncludeGlobal));
+
+    QCOMPARE(includeGroups.at(2).size(), 2);
+    QVERIFY(includeGroups.at(2).hasOnlyIncludesOfType(Client::IncludeLocal));
+
+    QCOMPARE(includeGroups.at(3).size(), 3);
+    QVERIFY(includeGroups.at(3).hasOnlyIncludesOfType(Client::IncludeGlobal));
+}
+
+#endif // WITH_TESTS

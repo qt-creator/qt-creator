@@ -147,9 +147,6 @@ private slots:
 
     void test_quickfix_InsertDeclFromDef();
 
-    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByNewLines();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByIncludeDir();
-    void test_quickfix_AddIncludeForUndefinedIdentifier_detectIncludeGroupsByIncludeType();
     void test_quickfix_AddIncludeForUndefinedIdentifier_normal();
     void test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc();
     void test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop();

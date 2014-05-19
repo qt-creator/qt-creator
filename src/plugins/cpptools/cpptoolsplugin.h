@@ -161,6 +161,10 @@ private slots:
 
     void test_typehierarchy_data();
     void test_typehierarchy();
+
+    void test_includeGroups_detectIncludeGroupsByNewLines();
+    void test_includeGroups_detectIncludeGroupsByIncludeDir();
+    void test_includeGroups_detectIncludeGroupsByIncludeType();
 #endif
 
 private:
