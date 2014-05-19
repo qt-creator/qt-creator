@@ -129,7 +129,7 @@ static inline int limit(int a, int min, int max)
 
 void DragWidget::mouseMoveEvent(QMouseEvent * event)
 {
-    if (event->buttons() &&  Qt::LeftButton) {
+    if (event->buttons() &  Qt::LeftButton) {
         if (m_startPos != QPoint(-1, -1)) {
             QPoint newPos = parentWidget()->mapFromGlobal(event->globalPos() - m_startPos);
 
