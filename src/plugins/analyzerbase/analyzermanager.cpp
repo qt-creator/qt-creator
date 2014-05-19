@@ -240,7 +240,7 @@ void AnalyzerManagerPrivate::setupActions()
 
     m_startAction = new QAction(tr("Start"), m_menu);
     m_startAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_START_ICON)));
-    command = Core::ActionManager::registerAction(m_startAction, "Analyzer.Start", globalcontext);
+    Core::ActionManager::registerAction(m_startAction, "Analyzer.Start", globalcontext);
     connect(m_startAction, SIGNAL(triggered()), this, SLOT(startTool()));
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
