@@ -65,11 +65,11 @@ bool ViewerContext::languageIsCompatible(Language::Enum l) const
         return language == l;
     case Language::Qml:
         return l == Language::Qml || l == Language::QmlQtQuick1 || l == Language::QmlQtQuick2
-                || Language::JavaScript;
+                || l == Language::JavaScript;
     case Language::QmlQtQuick1:
-        return l == Language::Qml || l == Language::QmlQtQuick1 || Language::JavaScript;
+        return l == Language::Qml || l == Language::QmlQtQuick1 || l == Language::JavaScript;
     case Language::QmlQtQuick2:
-        return l == Language::Qml || l == Language::QmlQtQuick2 || Language::JavaScript;
+        return l == Language::Qml || l == Language::QmlQtQuick2 || l == Language::JavaScript;
     case Language::Unknown: // ?
         break;
     }
