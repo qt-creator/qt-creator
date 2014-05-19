@@ -55,23 +55,7 @@ Item {
         gradientModel.deleteGradient()
     }
 
-    function dec2hex(integer) {
-        var string = Math.round(integer).toString(16)
-        if (integer < 16) {
-            string = "0" + string
         }
-        return string;
-    }
-
-    function colorToString(color) {
-        var string = "#"
-        if (color.a < 1)
-            string += dec2hex(color.a * 255)
-        string += dec2hex(color.r * 255)
-        string += dec2hex(color.g * 255)
-        string += dec2hex(color.b * 255)
-
-        return string;
     }
 
     Item {
