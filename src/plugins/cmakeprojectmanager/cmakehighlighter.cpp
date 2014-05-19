@@ -106,7 +106,6 @@ void CMakeHighlighter::highlightBlock(const QString &text)
                 buf += c;
                 i++;
                 if (i < text.length()) {
-                    text.at(i);
                     setFormat(i, 1, emptyFormat);
                     buf += c;
                 }
