@@ -721,7 +721,7 @@ void HelpPlugin::updateCloseButton()
     const bool closeOnReturn = HelpManager::customValue(QLatin1String("ReturnOnClose"),
         false).toBool();
     m_closeButton->setEnabled((OpenPagesManager::instance().pageCount() > 1)
-        | closeOnReturn);
+                              || closeOnReturn);
 }
 
 void HelpPlugin::fontChanged()
