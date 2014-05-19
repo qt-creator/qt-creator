@@ -72,7 +72,7 @@ public:
 class QuickFixTestCase : public TestCase
 {
 public:
-    QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> theTestFiles,
+    QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
                      CppQuickFixFactory *factory,
                      const QStringList &includePaths = QStringList(),
                      int resultIndex = 0);

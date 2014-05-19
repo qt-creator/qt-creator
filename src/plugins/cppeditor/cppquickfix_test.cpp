@@ -124,7 +124,7 @@ static QByteArray &removeTrailingWhitespace(QByteArray &input)
 
 /// The '@' in the originalSource is the position from where the quick-fix discovery is triggered.
 /// Exactly one TestFile must contain the cursor position marker '@' in the originalSource.
-QuickFixTestCase::QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> theTestFiles,
+QuickFixTestCase::QuickFixTestCase(const QList<QuickFixTestDocument::Ptr> &theTestFiles,
                                    CppQuickFixFactory *factory,
                                    const QStringList &includePaths,
                                    int resultIndex)

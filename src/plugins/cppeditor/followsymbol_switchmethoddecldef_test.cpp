@@ -225,7 +225,7 @@ public:
     };
 
     F2TestCase(CppEditorAction action,
-               const QList<TestDocumentPtr> testFiles,
+               const QList<TestDocumentPtr> &testFiles,
                const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
 
 private:
@@ -238,7 +238,7 @@ private:
 /// Exactly one test document must be provided that contains '$', the target position marker.
 /// It can be the same document.
 F2TestCase::F2TestCase(CppEditorAction action,
-                       const QList<TestDocumentPtr> testFiles,
+                       const QList<TestDocumentPtr> &testFiles,
                        const OverrideItemList &expectedVirtualFunctionProposal)
 {
     QVERIFY(succeededSoFar());

@@ -4163,7 +4163,7 @@ public:
     };
 
     MoveFuncDefOutsideOp(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
-                         MoveType type, FunctionDefinitionAST *funcDef, const QString cppFileName)
+                         MoveType type, FunctionDefinitionAST *funcDef, const QString &cppFileName)
         : CppQuickFixOperation(interface, 0)
         , m_funcDef(funcDef)
         , m_type(type)
@@ -4297,9 +4297,9 @@ class MoveFuncDefToDeclOp : public CppQuickFixOperation
 {
 public:
     MoveFuncDefToDeclOp(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
-                        const QString fromFileName, const QString toFileName,
-                        FunctionDefinitionAST *funcDef, const QString declText,
-                        const ChangeSet::Range toRange)
+                        const QString &fromFileName, const QString &toFileName,
+                        FunctionDefinitionAST *funcDef, const QString &declText,
+                        const ChangeSet::Range &toRange)
         : CppQuickFixOperation(interface, 0)
         , m_fromFileName(fromFileName)
         , m_toFileName(toFileName)
@@ -4680,7 +4680,7 @@ class OptimizeForLoopOperation: public CppQuickFixOperation
 public:
     OptimizeForLoopOperation(const CppQuickFixInterface &interface, const ForStatementAST *forAst,
                              const bool optimizePostcrement, const ExpressionAST *expression,
-                             const FullySpecifiedType type)
+                             const FullySpecifiedType &type)
         : CppQuickFixOperation(interface)
         , m_forAst(forAst)
         , m_optimizePostcrement(optimizePostcrement)

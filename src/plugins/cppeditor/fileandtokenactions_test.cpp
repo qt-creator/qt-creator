@@ -116,7 +116,7 @@ public:
 private:
     /// Move word camel case wise from current cursor position until given token (not included)
     /// and execute the tokenActions for each new position.
-    static void moveWordCamelCaseToToken(TranslationUnit *translationUnit, Token token,
+    static void moveWordCamelCaseToToken(TranslationUnit *translationUnit, const Token &token,
                                          CPPEditor *editor, const Actions &tokenActions);
 
     static void undoAllChangesAndCloseAllEditors();
@@ -282,8 +282,10 @@ void TestActionsTestCase::executeActionsOnEditorWidget(CPPEditorWidget *editorWi
     QApplication::processEvents();
 }
 
-void TestActionsTestCase::moveWordCamelCaseToToken(TranslationUnit *translationUnit, Token token,
-                                                    CPPEditor *editor, const Actions &tokenActions)
+void TestActionsTestCase::moveWordCamelCaseToToken(TranslationUnit *translationUnit,
+                                                   const Token &token,
+                                                   CPPEditor *editor,
+                                                   const Actions &tokenActions)
 {
     QVERIFY(translationUnit);
     QVERIFY(editor);
