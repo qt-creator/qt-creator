@@ -69,7 +69,7 @@ QDebug operator<<(QDebug d, const CvsLogEntry &);
 // running from the repository directory.
 QList<CvsLogEntry> parseLogEntries(const QString &output,
                                    const QString &directory = QString(),
-                                   const QString filterCommitId = QString());
+                                   const QString &filterCommitId = QString());
 
 // Tortoise CVS outputs unknown files with question marks in
 // the diff output on stdout ('? foo'); remove

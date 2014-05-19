@@ -73,7 +73,7 @@ revision 1.1
 
 QList<CvsLogEntry> parseLogEntries(const QString &o,
                                    const QString &directory,
-                                   const QString filterCommitId)
+                                   const QString &filterCommitId)
 {
     enum ParseState { FileState, RevisionState, StatusLineState };
 
