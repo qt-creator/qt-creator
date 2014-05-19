@@ -31,6 +31,47 @@
 
 #include <QQmlContext>
 
+static uchar fromHex(const uchar c, const uchar c2)
+{
+    uchar rv = 0;
+    if (c >= '0' && c <= '9')
+        rv += (c - '0') * 16;
+    else if (c >= 'A' && c <= 'F')
+        rv += (c - 'A' + 10) * 16;
+    else if (c >= 'a' && c <= 'f')
+        rv += (c - 'a' + 10) * 16;
+
+    if (c2 >= '0' && c2 <= '9')
+        rv += (c2 - '0');
+    else if (c2 >= 'A' && c2 <= 'F')
+        rv += (c2 - 'A' + 10);
+    else if (c2 >= 'a' && c2 <= 'f')
+        rv += (c2 - 'a' + 10);
+
+    return rv;
+}
+
+static uchar fromHex(const QString &s, int idx)
+{
+    uchar c = s.at(idx).toLatin1();
+    uchar c2 = s.at(idx + 1).toLatin1();
+    return fromHex(c, c2);
+}
+
+QColor convertColorFromString(const QString &s)
+{
+    if (s.length() == 9 && s.startsWith(QLatin1Char('#'))) {
+        uchar a = fromHex(s, 1);
+        uchar r = fromHex(s, 3);
+        uchar g = fromHex(s, 5);
+        uchar b = fromHex(s, 7);
+        return QColor(r, g, b, a);
+    } else {
+        QColor rv(s);
+        return rv;
+    }
+}
+
 namespace QmlDesigner {
 
 PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
@@ -45,6 +86,25 @@ PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
     m_qmlContext(0)
 {
 
+}
+
+QString PropertyEditorContextObject::convertColorToString(const QColor &color)
+{
+    QString colorString = color.name();
+
+    if (color.alpha() != 255) {
+        const QString hexAlpha = QString::number(color.alpha(), 16);
+        qDebug() << "alpha" << hexAlpha;
+        colorString.remove(0,1);
+        colorString.prepend(hexAlpha);
+        colorString.prepend(QStringLiteral("#"));
+    }
+    return colorString;
+}
+
+QColor PropertyEditorContextObject::colorFromString(const QString &colorString)
+{
+    return convertColorFromString(colorString);
 }
 
 int PropertyEditorContextObject::majorVersion() const
