@@ -105,7 +105,7 @@ void RemoteLinuxRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
 {
     QHBoxLayout * const hl = new QHBoxLayout;
     hl->addStretch();
-    d->disabledIcon.setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/compile_warning.png")));
+    d->disabledIcon.setPixmap(QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_WARNING)));
     hl->addWidget(&d->disabledIcon);
     d->disabledReason.setVisible(false);
     hl->addWidget(&d->disabledReason);

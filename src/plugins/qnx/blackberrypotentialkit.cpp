@@ -35,6 +35,7 @@
 #include "qnxconstants.h"
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QGridLayout>
 #include <QLabel>
@@ -86,7 +87,7 @@ BlackBerryPotentialKitWidget::BlackBerryPotentialKitWidget(QWidget *parent)
     : Utils::DetailsWidget(parent)
 {
     setSummaryText(tr("<b>BlackBerry has not been configured. Create BlackBerry kits.</b>"));
-    setIcon(QIcon(QLatin1String(":/projectexplorer/images/compile_warning.png")));
+    setIcon(QIcon(QLatin1String(ProjectExplorer::Constants::ICON_WARNING)));
     QWidget *mainWidget = new QWidget(this);
     setWidget(mainWidget);
 

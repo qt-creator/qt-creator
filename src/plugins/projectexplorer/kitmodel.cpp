@@ -32,6 +32,7 @@
 #include "kit.h"
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
+#include "projectexplorerconstants.h"
 
 #include <utils/qtcassert.h>
 
@@ -155,8 +156,8 @@ int KitModel::columnCount(const QModelIndex &parent) const
 
 QVariant KitModel::data(const QModelIndex &index, int role) const
 {
-    static QIcon warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"));
-    static QIcon errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png"));
+    static QIcon warningIcon(QString::fromLatin1(ProjectExplorer::Constants::ICON_WARNING));
+    static QIcon errorIcon(QString::fromLatin1(ProjectExplorer::Constants::ICON_ERROR));
 
     if (!index.isValid() || index.column() != 0)
         return QVariant();

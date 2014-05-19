@@ -34,6 +34,8 @@
 #include "constants.h"
 #include "lineparser.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <QColorDialog>
 
 namespace Todo {
@@ -91,13 +93,13 @@ void KeywordDialog::setupListWidget(const QString &selectedIcon)
     item->setData(Qt::UserRole, infoIconName);
     ui->listWidget->addItem(item);
 
-    const QString warningIconName = QLatin1String(Constants::ICON_WARNING);
+    const QString warningIconName = QLatin1String(ProjectExplorer::Constants::ICON_WARNING);
     item = new QListWidgetItem(QIcon(warningIconName),
                                QLatin1String("warning"));
     item->setData(Qt::UserRole, warningIconName);
     ui->listWidget->addItem(item);
 
-    const QString errorIconName = QLatin1String(Constants::ICON_ERROR);
+    const QString errorIconName = QLatin1String(ProjectExplorer::Constants::ICON_ERROR);
     item = new QListWidgetItem(QIcon(errorIconName),
                                QLatin1String("error"));
     item->setData(Qt::UserRole, errorIconName);

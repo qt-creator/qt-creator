@@ -29,6 +29,7 @@
 
 #include "task.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
 namespace ProjectExplorer
@@ -38,9 +39,9 @@ static QString taskTypeIcon(Task::TaskType t)
 {
     switch (t) {
     case Task::Warning:
-        return QLatin1String(":/projectexplorer/images/compile_warning.png");
+        return QLatin1String(ProjectExplorer::Constants::ICON_WARNING);
     case Task::Error:
-        return QLatin1String(":/projectexplorer/images/compile_error.png");
+        return QLatin1String(ProjectExplorer::Constants::ICON_ERROR);
     case Task::Unknown:
         break;
     }

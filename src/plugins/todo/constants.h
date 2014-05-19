@@ -52,10 +52,6 @@ const char ICON_INFO[] = ":/todoplugin/images/info.png";
 // Dummy, needs to be changed
 const char ICON_TODO[] = ":/todoplugin/images/todo.png";
 
-const char ICON_WARNING[] = ":/projectexplorer/images/compile_warning.png";
-const char ICON_ERROR[] = ":/projectexplorer/images/compile_error.png";
-
-
 // Settings entries
 const char SETTINGS_GROUP[] = "TodoPlugin";
 const char SCANNING_SCOPE[] = "ScanningScope";

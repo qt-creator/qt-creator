@@ -31,6 +31,8 @@
 #include "settings.h"
 #include "constants.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <QSettings>
 
 namespace Todo {
@@ -98,7 +100,7 @@ void Settings::setDefault()
     Keyword keyword;
 
     keyword.name = QLatin1String("TODO");
-    keyword.iconResource = QLatin1String(Constants::ICON_WARNING);
+    keyword.iconResource = QLatin1String(ProjectExplorer::Constants::ICON_WARNING);
     keyword.color = QColor(QLatin1String(Constants::COLOR_TODO_BG));
     keywords.append(keyword);
 
@@ -108,17 +110,17 @@ void Settings::setDefault()
     keywords.append(keyword);
 
     keyword.name = QLatin1String("FIXME");
-    keyword.iconResource = QLatin1String(Constants::ICON_ERROR);
+    keyword.iconResource = QLatin1String(ProjectExplorer::Constants::ICON_ERROR);
     keyword.color = QColor(QLatin1String(Constants::COLOR_FIXME_BG));
     keywords.append(keyword);
 
     keyword.name = QLatin1String("BUG");
-    keyword.iconResource = QLatin1String(Constants::ICON_ERROR);
+    keyword.iconResource = QLatin1String(ProjectExplorer::Constants::ICON_ERROR);
     keyword.color = QColor(QLatin1String(Constants::COLOR_BUG_BG));
     keywords.append(keyword);
 
     keyword.name = QLatin1String("WARNING");
-    keyword.iconResource = QLatin1String(Constants::ICON_WARNING);
+    keyword.iconResource = QLatin1String(ProjectExplorer::Constants::ICON_WARNING);
     keyword.color = QColor(QLatin1String(Constants::COLOR_WARNING_BG));
     keywords.append(keyword);
 }

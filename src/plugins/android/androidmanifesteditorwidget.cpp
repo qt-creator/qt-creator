@@ -165,7 +165,7 @@ void AndroidManifestEditorWidget::initializePage()
         m_packageNameWarning->setVisible(false);
 
         m_packageNameWarningIcon = new QLabel;
-        m_packageNameWarningIcon->setPixmap(QPixmap(QString::fromUtf8(":/projectexplorer/images/compile_warning.png")));
+        m_packageNameWarningIcon->setPixmap(QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_WARNING)));
         m_packageNameWarningIcon->setVisible(false);
         m_packageNameWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 

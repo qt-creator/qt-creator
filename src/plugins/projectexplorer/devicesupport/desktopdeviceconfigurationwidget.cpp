@@ -73,7 +73,7 @@ void DesktopDeviceConfigurationWidget::initGui()
     m_ui->freePortsLineEdit->setPlaceholderText(
                 QString::fromLatin1("eg: %1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END));
     m_ui->portsWarningLabel->setPixmap(
-                QPixmap(QLatin1String(":/projectexplorer/images/compile_warning.png")));
+                QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_WARNING)));
     m_ui->portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
                                         + tr("You will need at least one port for QML debugging.")
                                         + QLatin1String("</font>"));

@@ -41,6 +41,7 @@
 #include <utils/pathchooser.h>
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -51,7 +52,7 @@
 namespace Qnx {
 namespace Internal {
 
-static QIcon invalidConfigIcon(QLatin1String(":/projectexplorer/images/compile_error.png"));
+static QIcon invalidConfigIcon(QString::fromLatin1(ProjectExplorer::Constants::ICON_ERROR));
 
 BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     QWidget(parent),

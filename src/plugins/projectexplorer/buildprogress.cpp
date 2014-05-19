@@ -85,8 +85,8 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation
 
     m_errorIcon->setAlignment(Qt::AlignRight);
     m_warningIcon->setAlignment(Qt::AlignRight);
-    m_errorIcon->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/compile_error.png")));
-    m_warningIcon->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/compile_warning.png")));
+    m_errorIcon->setPixmap(QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_ERROR)));
+    m_warningIcon->setPixmap(QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_WARNING)));
 
     m_contentWidget->hide();
 
