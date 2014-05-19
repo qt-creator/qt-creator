@@ -1888,8 +1888,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
             if (doc->parse(Document::ParseDeclaration)) {
                 doc->check();
                 if (SimpleDeclarationAST *sd = doc->translationUnit()->ast()->asSimpleDeclaration()) {
-                    if (sd->declarator_list &&
-                        sd->declarator_list && sd->declarator_list->value->postfix_declarator_list
+                    if (sd->declarator_list && sd->declarator_list->value->postfix_declarator_list
                         && sd->declarator_list->value->postfix_declarator_list->value->asFunctionDeclarator()) {
 
                         autocompleteSignature = true;
