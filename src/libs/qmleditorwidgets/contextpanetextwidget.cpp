@@ -93,7 +93,7 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     connect(ui->styleComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onStyleComboBoxChanged(QString)));
 }
 
-static inline bool checkIfBoolean(QVariant v)
+static inline bool checkIfBoolean(const QVariant &v)
 {
     return (v.toString() == QLatin1String("true") || v.toString() == QLatin1String("false"));
 }
