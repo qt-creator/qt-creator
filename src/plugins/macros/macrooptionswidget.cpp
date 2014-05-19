@@ -102,16 +102,17 @@ void MacroOptionsWidget::createTable()
     QMapIterator<QString, Macro *> it(MacroManager::macros());
     while (it.hasNext()) {
         it.next();
-        QFileInfo fileInfo(it.value()->fileName());
+        Macro *macro = it.value();
+        QFileInfo fileInfo(macro->fileName());
         if (fileInfo.absoluteDir() == dir.absolutePath()) {
             QTreeWidgetItem *macroItem = new QTreeWidgetItem(m_ui->treeWidget);
-            macroItem->setText(0, it.value()->displayName());
-            macroItem->setText(1, it.value()->description());
-            macroItem->setData(0, NAME_ROLE, it.value()->displayName());
-            macroItem->setData(0, WRITE_ROLE, it.value()->isWritable());
+            macroItem->setText(0, macro->displayName());
+            macroItem->setText(1, macro->description());
+            macroItem->setData(0, NAME_ROLE, macro->displayName());
+            macroItem->setData(0, WRITE_ROLE, macro->isWritable());
 
             Core::Command *command =
-                    Core::ActionManager::command(base.withSuffix(it.value()->displayName()));
+                    Core::ActionManager::command(base.withSuffix(macro->displayName()));
             if (command && command->action())
                 macroItem->setText(2, command->action()->shortcut().toString());
         }
