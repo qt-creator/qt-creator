@@ -37,7 +37,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <cpptools/cpptoolsplugin.h>
+#include <cpptools/cpptoolsreuse.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -502,7 +502,7 @@ void SwitchHeaderSourceFileAction::run(CPPEditorWidget *)
 {
     // Switch Header/Source
     IEditor *editorBefore = EditorManager::currentEditor();
-    CppTools::Internal::CppToolsPlugin::instance()->switchHeaderSource();
+    CppTools::switchHeaderSource();
     QApplication::processEvents();
 
     // Go back

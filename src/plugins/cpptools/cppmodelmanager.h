@@ -30,8 +30,6 @@
 #ifndef CPPMODELMANAGER_H
 #define CPPMODELMANAGER_H
 
-#include "cpptools_global.h"
-
 #include "cppmodelmanagerinterface.h"
 
 #include <projectexplorer/project.h>
@@ -52,7 +50,7 @@ namespace Internal {
 
 class CppFindReferences;
 
-class CPPTOOLS_EXPORT CppModelManager : public CppTools::CppModelManagerInterface
+class CppModelManager : public CppTools::CppModelManagerInterface
 {
     Q_OBJECT
 

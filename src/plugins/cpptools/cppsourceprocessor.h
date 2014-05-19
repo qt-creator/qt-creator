@@ -22,7 +22,7 @@ namespace Internal {
 class CppModelManager;
 
 // Documentation inside.
-class CPPTOOLS_EXPORT CppSourceProcessor: public CPlusPlus::Client
+class CppSourceProcessor: public CPlusPlus::Client
 {
     Q_DISABLE_COPY(CppSourceProcessor)
 

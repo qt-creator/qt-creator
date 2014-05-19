@@ -57,6 +57,7 @@ bool CPPTOOLS_EXPORT isValidIdentifier(const QString &s);
 bool CPPTOOLS_EXPORT isQtKeyword(const QStringRef &text);
 
 QString CPPTOOLS_EXPORT correspondingHeaderOrSource(const QString &fileName, bool *wasHeader = 0);
+void CPPTOOLS_EXPORT switchHeaderSource();
 
 } // CppTools
 

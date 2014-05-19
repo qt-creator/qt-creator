@@ -29,13 +29,17 @@
 
 #include "cpptoolsreuse.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
+#include <utils/qtcassert.h>
 
 #include <QSet>
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QStringRef>
+
 
 using namespace CPlusPlus;
 
@@ -185,6 +189,15 @@ bool isQtKeyword(const QStringRef &text)
         break;
     }
     return false;
+}
+
+void switchHeaderSource()
+{
+    const Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
+    QTC_ASSERT(currentDocument, return);
+    const QString otherFile = correspondingHeaderOrSource(currentDocument->filePath());
+    if (!otherFile.isEmpty())
+        Core::EditorManager::openEditor(otherFile);
 }
 
 } // CppTools

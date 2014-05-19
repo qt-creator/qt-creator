@@ -197,10 +197,7 @@ StringTable &CppToolsPlugin::stringTable()
 
 void CppToolsPlugin::switchHeaderSource()
 {
-    QString otherFile = correspondingHeaderOrSource(
-                EditorManager::currentDocument()->filePath());
-    if (!otherFile.isEmpty())
-        EditorManager::openEditor(otherFile);
+    CppTools::switchHeaderSource();
 }
 
 void CppToolsPlugin::switchHeaderSourceInNextSplit()

@@ -239,8 +239,6 @@ public:
     virtual QList<ProjectPart::Ptr> projectPartFromDependencies(const QString &fileName) const = 0;
     virtual ProjectPart::Ptr fallbackProjectPart() const = 0;
 
-    virtual QStringList includePaths() = 0;
-
     virtual void addExtraEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
     virtual void removeExtraEditorSupport(CppTools::AbstractEditorSupport *editorSupport) = 0;
     virtual CppEditorSupport *cppEditorSupport(TextEditor::BaseTextEditor *textEditor) = 0;
@@ -269,6 +267,10 @@ public:
 
     virtual void setIncludePaths(const QStringList &includePaths) = 0;
     virtual void enableGarbageCollector(bool enable) = 0;
+
+    virtual QStringList includePaths() = 0;
+    virtual QStringList frameworkPaths() = 0;
+    virtual QByteArray definedMacros() = 0;
 
 signals:
     /// Project data might be locked while this is emitted.

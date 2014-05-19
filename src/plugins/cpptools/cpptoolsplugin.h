@@ -52,7 +52,7 @@ class CppModelManager;
 struct CppFileSettings;
 class CppCodeModelSettings;
 
-class CPPTOOLS_EXPORT CppToolsPlugin : public ExtensionSystem::IPlugin
+class CppToolsPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CppTools.json")
@@ -80,8 +80,8 @@ public slots:
     void switchHeaderSource();
     void switchHeaderSourceInNextSplit();
 
-private slots:
 #ifdef WITH_TESTS
+private slots:
     // Init/Cleanup methods implemented in cppheadersource_test.cpp
     void initTestCase();
     void cleanupTestCase();
