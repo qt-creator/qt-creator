@@ -91,14 +91,13 @@ namespace Internal {
 class BestNodeSelector
 {
 public:
-    BestNodeSelector(const QString &commonDirectory, const QStringList &files, Node *contextNode);
+    BestNodeSelector(const QString &commonDirectory, const QStringList &files);
     void inspect(AddNewTree *tree);
     AddNewTree *bestChoice() const;
     QString deployingProjects() const;
 private:
     QString m_commonDirectory;
     QStringList m_files;
-    Node *m_contextNode;
     bool m_deploys;
     QString m_deployText;
     AddNewTree *m_bestChoice;
@@ -106,10 +105,9 @@ private:
     int m_bestMatchPriority;
 };
 
-BestNodeSelector::BestNodeSelector(const QString &commonDirectory, const QStringList &files, Node *contextNode)
+BestNodeSelector::BestNodeSelector(const QString &commonDirectory, const QStringList &files)
     : m_commonDirectory(commonDirectory),
       m_files(files),
-      m_contextNode(contextNode),
       m_deploys(false),
       m_deployText(QCoreApplication::translate("ProjectWizard", "The files are implicitly added to the projects:") + QLatin1Char('\n')),
       m_bestChoice(0),
@@ -325,7 +323,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 
 
     Node *contextNode = extraValues.value(QLatin1String(Constants::PREFERRED_PROJECT_NODE)).value<Node *>();
-    BestNodeSelector selector(m_context->commonDirectory, filePaths, contextNode);
+    BestNodeSelector selector(m_context->commonDirectory, filePaths);
     AddNewTree *tree = getChoices(filePaths, m_context->wizard->kind(), contextNode, &selector);
 
     m_context->page->setAdditionalInfo(selector.deployingProjects());
