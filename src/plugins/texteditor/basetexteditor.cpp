@@ -1794,10 +1794,10 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         break;
     }
 
+    const QString eventText = e->text();
     if (!ro && d->m_inBlockSelectionMode) {
-        QString text = e->text();
-        if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
-            d->removeBlockSelection(text);
+        if (!eventText.isEmpty() && (eventText.at(0).isPrint() || eventText.at(0) == QLatin1Char('\t'))) {
+            d->removeBlockSelection(eventText);
             goto skip_event;
         }
     }
@@ -1809,7 +1809,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-    if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
+    if (ro || eventText.isEmpty() || !eventText.at(0).isPrint()) {
         if (!cursorMoveKeyEvent(e)) {
             QTextCursor cursor = textCursor();
             bool cursorWithinSnippet = false;
@@ -1829,12 +1829,11 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
     } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
         QTextCursor cursor = textCursor();
-        QString text = e->text();
-        const QString &autoText = d->m_autoCompleter->autoComplete(cursor, text);
+        const QString &autoText = d->m_autoCompleter->autoComplete(cursor, eventText);
 
         QChar electricChar;
         if (d->m_document->typingSettings().m_autoIndent) {
-            foreach (QChar c, text) {
+            foreach (QChar c, eventText) {
                 if (d->m_document->indenter()->isElectricCharacter(c)) {
                     electricChar = c;
                     break;
@@ -1855,13 +1854,13 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
                 cursor.beginEditBlock();
             QTextBlock block = cursor.block();
             int eolPos = block.position() + block.length() - 1;
-            int selEndPos = qMin(cursor.position() + text.length(), eolPos);
+            int selEndPos = qMin(cursor.position() + eventText.length(), eolPos);
             cursor.setPosition(selEndPos, QTextCursor::KeepAnchor);
-            cursor.insertText(text);
+            cursor.insertText(eventText);
             if (!doEditBlock)
                 cursor.endEditBlock();
         } else {
-            cursor.insertText(text);
+            cursor.insertText(eventText);
         }
 
         if (!autoText.isEmpty()) {
