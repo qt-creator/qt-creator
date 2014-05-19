@@ -1144,22 +1144,23 @@ void MainWindow::aboutToShowRecentFiles()
 {
     ActionContainer *aci =
         ActionManager::actionContainer(Constants::M_FILE_RECENTFILES);
-    aci->menu()->clear();
+    QMenu *menu = aci->menu();
+    menu->clear();
 
     bool hasRecentFiles = false;
     foreach (const DocumentManager::RecentFile &file, DocumentManager::recentFiles()) {
         hasRecentFiles = true;
-        QAction *action = aci->menu()->addAction(
+        QAction *action = menu->addAction(
                     QDir::toNativeSeparators(Utils::withTildeHomePath(file.first)));
         action->setData(qVariantFromValue(file));
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentFile()));
     }
-    aci->menu()->setEnabled(hasRecentFiles);
+    menu->setEnabled(hasRecentFiles);
 
     // add the Clear Menu item
     if (hasRecentFiles) {
-        aci->menu()->addSeparator();
-        QAction *action = aci->menu()->addAction(QCoreApplication::translate(
+        menu->addSeparator();
+        QAction *action = menu->addAction(QCoreApplication::translate(
                                                      "Core", Core::Constants::TR_CLEAR_MENU));
         connect(action, SIGNAL(triggered()), DocumentManager::instance(), SLOT(clearRecentFiles()));
     }
