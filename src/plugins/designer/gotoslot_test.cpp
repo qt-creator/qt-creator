@@ -95,7 +95,7 @@ private:
 class DocumentContainsDeclaration: protected SymbolVisitor
 {
 public:
-    bool operator()(Scope *scope, const QString function)
+    bool operator()(Scope *scope, const QString &function)
     {
         if (!scope)
             return false;
@@ -139,13 +139,13 @@ private:
     Overview m_overview;
 };
 
-bool documentContainsFunctionDefinition(const Document::Ptr &document, const QString function)
+bool documentContainsFunctionDefinition(const Document::Ptr &document, const QString &function)
 {
     return DocumentContainsFunctionDefinition()(document->globalNamespace(), function);
 }
 
 bool documentContainsMemberFunctionDeclaration(const Document::Ptr &document,
-                                               const QString declaration)
+                                               const QString &declaration)
 {
     return DocumentContainsDeclaration()(document->globalNamespace(), declaration);
 }
