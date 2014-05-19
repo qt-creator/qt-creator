@@ -102,6 +102,7 @@ private slots:
     void revertCurrentFile();
     void diffProject();
     void diffCurrentFile();
+    void cleanCommitMessageFile();
     void startCommitAll();
     void startCommitProject();
     void startCommitCurrentFile();
@@ -153,7 +154,6 @@ private:
     bool checkSVNSubDir(const QDir &directory, const QString &fileName = QString()) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
-    void cleanCommitMessageFile();
     inline SubversionControl *subVersionControl() const;
 
     const QStringList m_svnDirectories;

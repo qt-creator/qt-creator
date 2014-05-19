@@ -46,6 +46,16 @@ public:
     SubversionClient(SubversionSettings *settings);
 
     SubversionSettings *settings() const;
+
+    VcsBase::Command *createCommitCmd(const QString &repositoryRoot,
+                                      const QStringList &files,
+                                      const QString &commitMessageFile,
+                                      const QStringList &extraOptions = QStringList()) const;
+    void commit(const QString &repositoryRoot,
+                const QStringList &files,
+                const QString &commitMessageFile,
+                const QStringList &extraOptions = QStringList());
+
     void diff(const QString &workingDir, const QStringList &files,
               const QStringList &extraOptions = QStringList());
     QString findTopLevelForFile(const QFileInfo &file) const;
@@ -62,6 +72,7 @@ public:
     Version svnVersion();
 
     // Add authorization options to the command line arguments.
+    QStringList authenticationOptions(VcsCommand cmd) const;
     static QStringList addAuthenticationOptions(const QStringList &args,
                                                 const QString &userName = QString(),
                                                 const QString &password = QString());

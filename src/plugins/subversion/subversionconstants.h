@@ -41,6 +41,7 @@ const char SUBVERSIONCOMMITEDITOR_ID[]  = "Subversion Commit Editor";
 const char SUBVERSIONCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "Subversion Commit Editor");
 const char SUBMIT_CURRENT[] = "Subversion.SubmitCurrentLog";
 const char DIFF_SELECTED[] = "Subversion.DiffSelectedFilesInLog";
+const char NON_INTERACTIVE_OPTION[] = "--non-interactive";
 enum { debug = 0 };
 
 } // namespace Constants

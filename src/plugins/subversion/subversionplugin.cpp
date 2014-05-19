@@ -39,6 +39,7 @@
 #include "checkoutwizard.h"
 
 #include <vcsbase/basevcseditorfactory.h>
+#include <vcsbase/command.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
@@ -493,11 +494,15 @@ bool SubversionPlugin::submitEditorAboutToClose()
     if (!fileList.empty()) {
         // get message & commit
         closeEditor = DocumentManager::saveDocument(editorDocument);
-        if (closeEditor)
-            closeEditor = commit(m_commitMessageFileName, fileList);
+        if (closeEditor) {
+            VcsBase::Command *commitCmd = m_client->createCommitCmd(m_commitRepository,
+                                                                    fileList,
+                                                                    m_commitMessageFileName);
+            QObject::connect(commitCmd, SIGNAL(success(QVariant)),
+                             this, SLOT(cleanCommitMessageFile()));
+            commitCmd->execute();
+        }
     }
-    if (closeEditor)
-        cleanCommitMessageFile();
     return closeEditor;
 }
 

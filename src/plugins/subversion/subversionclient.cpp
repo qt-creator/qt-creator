@@ -29,7 +29,9 @@
 
 #include "subversionclient.h"
 #include "subversionsettings.h"
+#include "subversionconstants.h"
 
+#include <vcsbase/command.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
@@ -104,6 +106,35 @@ SubversionSettings *SubversionClient::settings() const
     return dynamic_cast<SubversionSettings *>(VcsBase::VcsBaseClient::settings());
 }
 
+VcsBase::Command *SubversionClient::createCommitCmd(const QString &repositoryRoot,
+                                                    const QStringList &files,
+                                                    const QString &commitMessageFile,
+                                                    const QStringList &extraOptions) const
+{
+    const QStringList svnExtraOptions =
+            QStringList(extraOptions)
+            << authenticationOptions(SubversionClient::CommitCommand)
+            << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
+            << QLatin1String("--file") << commitMessageFile;
+
+    VcsBase::Command *cmd = createCommand(repositoryRoot);
+    QStringList args(vcsCommandString(CommitCommand));
+    cmd->addJob(args << svnExtraOptions << files);
+    return cmd;
+}
+
+void SubversionClient::commit(const QString &repositoryRoot,
+                              const QStringList &files,
+                              const QString &commitMessageFile,
+                              const QStringList &extraOptions)
+{
+    if (Subversion::Constants::debug)
+        qDebug() << Q_FUNC_INFO << commitMessageFile << files;
+
+    VcsBase::Command *cmd = createCommitCmd(repositoryRoot, files, commitMessageFile, extraOptions);
+    cmd->execute();
+}
+
 Core::Id SubversionClient::vcsEditorKind(VcsCommand cmd) const
 {
     switch (cmd) {
@@ -139,6 +170,17 @@ SubversionClient::Version SubversionClient::svnVersion()
     }
 
     return v;
+}
+
+QStringList SubversionClient::authenticationOptions(VcsCommand cmd) const
+{
+    const bool hasAuth = settings()->hasAuthentication();
+    const QString userName = hasAuth ? settings()->stringValue(SubversionSettings::userKey) : QString();
+    const QString password = hasAuth ? settings()->stringValue(SubversionSettings::passwordKey) : QString();
+    QStringList args(vcsCommandString(cmd));
+    args = SubversionClient::addAuthenticationOptions(args, userName, password);
+    args.removeFirst();
+    return args;
 }
 
 // Add authorization options to the command line arguments.
