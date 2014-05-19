@@ -73,7 +73,7 @@ QModelIndex TreeViewComboBox::indexBelow(QModelIndex index)
     return index;
 }
 
-QModelIndex TreeViewComboBox::lastIndex(const QModelIndex index)
+QModelIndex TreeViewComboBox::lastIndex(const QModelIndex &index)
 {
     if (index.isValid() && !m_view->isExpanded(index))
         return index;

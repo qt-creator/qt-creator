@@ -455,7 +455,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
 }
 
 // Draws a CSS-like border image where the defined borders are not stretched
-void StyleHelper::drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
+void StyleHelper::drawCornerImage(const QImage &img, QPainter *painter, const QRect &rect,
                                   int left, int top, int right, int bottom)
 {
     QSize size = img.size();

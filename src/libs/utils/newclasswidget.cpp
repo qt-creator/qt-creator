@@ -572,7 +572,7 @@ static QString ensureSuffix(QString f, const QString &extension)
 }
 
 // If a non-empty name was passed, expand to directory and suffix
-static QString expandFileName(const QDir &dir, const QString name, const QString &extension)
+static QString expandFileName(const QDir &dir, const QString &name, const QString &extension)
 {
     if (name.isEmpty())
         return QString();
