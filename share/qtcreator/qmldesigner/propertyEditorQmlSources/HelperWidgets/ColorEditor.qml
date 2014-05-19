@@ -68,7 +68,6 @@ Column {
     onColorChanged: {
         if (!gradientLine.isCompleted)
             return;
-        textField.text = gradientLine.colorToString(color);
 
         if (supportGradient && gradientLine.visible)
             gradientLine.currentColor = color
@@ -132,6 +131,8 @@ Column {
             LineEdit {
                 id: textField
 
+                hasToConvertColor: true
+
                 validator: RegExpValidator {
                     regExp: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g
                 }
@@ -141,8 +142,9 @@ Column {
                 backendValue: colorEditor.backendendValue
 
                 onAccepted: {
-                    colorEditor.color = textField.text
+                    colorEditor.color = colorFromString(textField.text)
                 }
+
                 Layout.fillWidth: true
             }
             ColorCheckButton {
