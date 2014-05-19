@@ -150,8 +150,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.advancedButton->setDefaultAction(Core::ActionManager::command(Constants::ADVANCED_FIND)->action());
 
     m_goToCurrentFindAction = new QAction(tr("Go to Current Document Find"), this);
-    cmd = Core::ActionManager::registerAction(m_goToCurrentFindAction, Constants::S_RETURNTOEDITOR,
-                                              Context(Constants::C_FINDTOOLBAR));
+    Core::ActionManager::registerAction(m_goToCurrentFindAction, Constants::S_RETURNTOEDITOR,
+                                        Context(Constants::C_FINDTOOLBAR));
     connect(m_goToCurrentFindAction, SIGNAL(triggered()), this, SLOT(setFocusToCurrentFindSupport()));
 
     QIcon icon = QIcon::fromTheme(QLatin1String("edit-find-replace"));
