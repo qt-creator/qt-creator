@@ -109,12 +109,6 @@ QDebug operator <<(QDebug debug, const AddImportContainer &container)
     if (!container.alias().isEmpty())
         debug.nospace()  << "alias: " << container.alias() << ", ";
 
-    if (!container.alias().isEmpty())
-        debug.nospace()  << "alias: " << container.alias() << ", ";
-
-    if (!container.alias().isEmpty())
-        debug.nospace()  << "alias: " << container.alias() << ", ";
-
     debug.nospace() << "importPaths: " << container.importPaths();
 
     return debug.nospace() << ")";
