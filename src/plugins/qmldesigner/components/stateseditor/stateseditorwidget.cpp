@@ -91,8 +91,6 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     m_quickView->engine()->addImageProvider(QStringLiteral("qmldesigner_stateseditor"), m_imageProvider);
     m_quickView->engine()->addImportPath(statesEditorResourcesPath());
 
-    //m_quickView->setAcceptDrops(false);
-
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
     connect(m_qmlSourceUpdateShortcut, SIGNAL(activated()), this, SLOT(reloadQmlSource()));
 
