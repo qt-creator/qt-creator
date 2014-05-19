@@ -121,7 +121,7 @@ QProcess *PuppetCreator::qmlpuppetProcess(const QString &puppetMode,
                                           const char *outputSlot,
                                           const char *finishSlot) const
 {
-    Puppetype puppetType ;
+    PuppetType puppetType ;
 
     if (!m_useOnlyFallbackPuppet && m_kit) {
         if (checkQmlpuppetIsReady()) {
@@ -151,7 +151,7 @@ QProcess *PuppetCreator::qml2puppetProcess(const QString &puppetMode,
                                            const char *outputSlot,
                                            const char *finishSlot) const
 {
-    Puppetype puppetType ;
+    PuppetType puppetType ;
 
     if (!m_useOnlyFallbackPuppet && m_kit) {
         if (checkQml2puppetIsReady()) {
@@ -229,12 +229,12 @@ QString PuppetCreator::qmlpuppetFallbackDirectory() const
     return QCoreApplication::applicationDirPath();
 }
 
-QString PuppetCreator::qml2puppetPath(Puppetype puppetType) const
+QString PuppetCreator::qml2puppetPath(PuppetType puppetType) const
 {
     return qmlpuppetDirectory(puppetType) + QStringLiteral("/qml2puppet") + QStringLiteral(QTC_HOST_EXE_SUFFIX);
 }
 
-QString PuppetCreator::qmlpuppetPath(Puppetype puppetType) const
+QString PuppetCreator::qmlpuppetPath(PuppetType puppetType) const
 {
     return qmlpuppetDirectory(puppetType) + QStringLiteral("/qmlpuppet") + QStringLiteral(QTC_HOST_EXE_SUFFIX);
 }

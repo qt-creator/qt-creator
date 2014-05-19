@@ -43,7 +43,7 @@ class PuppetBuildProgressDialog;
 
 class PuppetCreator
 {
-    enum Puppetype {
+    enum PuppetType {
         FallbackPuppet,
         UserSpacePuppet
     };
