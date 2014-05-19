@@ -160,14 +160,15 @@ void CompletingTextEdit::keyPressEvent(QKeyEvent *e)
         QTextEdit::keyPressEvent(e);
 
     const bool ctrlOrShift = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
-    if (completer() == 0 || (ctrlOrShift && e->text().isEmpty()))
+    const QString text = e->text();
+    if (completer() == 0 || (ctrlOrShift && text.isEmpty()))
         return;
 
     const bool hasModifier = (e->modifiers() != Qt::NoModifier) && !ctrlOrShift;
     const QString newCompletionPrefix = d->textUnderCursor();
-    const QChar lastChar = e->text().isEmpty() ? QChar() : e->text().right(1).at(0);
+    const QChar lastChar = text.isEmpty() ? QChar() : text.right(1).at(0);
 
-    if (!isShortcut && (hasModifier || e->text().isEmpty() || isEndOfWordChar(lastChar)
+    if (!isShortcut && (hasModifier || text.isEmpty() || isEndOfWordChar(lastChar)
                         || !d->acceptsCompletionPrefix(newCompletionPrefix))) {
         completer()->popup()->hide();
         return;
