@@ -482,6 +482,7 @@ void QnxPlugin::testConfigurationManager_data()
 void QnxPlugin::testConfigurationManager()
 {
     BlackBerryConfigurationManager *manager = BlackBerryConfigurationManager::instance();
+    manager->initUnitTest();
 
     QCOMPARE(manager->apiLevels().count(), 0);
     QCOMPARE(manager->activeApiLevels().count(), 0);

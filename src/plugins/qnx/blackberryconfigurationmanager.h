@@ -82,6 +82,10 @@ public:
 
     void emitSettingsChanged();
 
+#ifdef WITH_TESTS
+    void initUnitTest();
+#endif
+
 public slots:
     void loadSettings();
     void saveSettings();

@@ -258,6 +258,19 @@ void BlackBerryConfigurationManager::emitSettingsChanged()
     emit settingsChanged();
 }
 
+#ifdef WITH_TESTS
+void BlackBerryConfigurationManager::initUnitTest()
+{
+    foreach (BlackBerryApiLevelConfiguration *apiLevel, m_apiLevels)
+        removeApiLevel(apiLevel);
+
+    foreach (BlackBerryRuntimeConfiguration *runtime, m_runtimes)
+        removeRuntime(runtime);
+
+    m_defaultConfiguration = 0;
+}
+#endif
+
 void BlackBerryConfigurationManager::setKitsAutoDetectionSource()
 {
     foreach (Kit *kit, KitManager::kits()) {
