@@ -472,7 +472,7 @@ SubDirFileIterator::SubDirFileIterator(const QStringList &directories, const QSt
     : m_filters(filters), m_progress(0)
 {
     m_encoding = (encoding == 0 ? QTextCodec::codecForLocale() : encoding);
-    qreal maxPer = MAX_PROGRESS/directories.count();
+    qreal maxPer = qreal(MAX_PROGRESS) / directories.count();
     foreach (const QString &directoryEntry, directories) {
         if (!directoryEntry.isEmpty()) {
             m_dirs.push(QDir(directoryEntry));
