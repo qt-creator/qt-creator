@@ -47,6 +47,8 @@ Controls.TextField {
 
     property bool showTranslateCheckBox: true
 
+    property bool hasToConvertColor: false
+
     ExtendedFunctionButton {
         x: 2
         y: 4
@@ -58,11 +60,19 @@ Controls.TextField {
         id: colorLogic
         backendValue: lineEdit.backendValue
         onValueFromBackendChanged: {
-            lineEdit.text = valueFromBackend;
+            if (hasToConvertColor) {
+                lineEdit.text = convertColorToString(valueFromBackend)
+            } else {
+                lineEdit.text = valueFromBackend
+            }
         }
     }
 
     onEditingFinished: {
+
+        if (hasToConvertColor)
+            return
+
         if (backendValue.isTranslated) {
             backendValue.expression = "qsTr(\"" + trCheckbox.escapeString(text) + "\")"
         } else {
