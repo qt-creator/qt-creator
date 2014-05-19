@@ -2316,7 +2316,6 @@ QVariantMap UserFileVersion12Upgrader::upgrade(const QVariantMap &map)
             result.insert(QLatin1String("PE.UserEnvironmentChanges"), it.value());
         else if (it.key() == QLatin1String("CMakeProjectManager.BaseEnvironmentBase")
                  || it.key() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase")
-                 || it.key() == QLatin1String("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase")
                  || it.key() == QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.BaseEnvironmentBase"))
             result.insert(QLatin1String("PE.BaseEnvironmentBase"), it.value());
         else
