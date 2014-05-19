@@ -316,7 +316,7 @@ Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(
         const QString &workingDirectory,
         const QStringList &args,
         unsigned flags,
-        QTextCodec *outputCodec)
+        QTextCodec *outputCodec) const
 {
     const QString binary = settings()->binaryPath();
     const int timeoutSec = settings()->intValue(VcsBaseClientSettings::timeoutKey);
@@ -603,7 +603,7 @@ QProcessEnvironment VcsBaseClient::processEnvironment() const
 
 Command *VcsBaseClient::createCommand(const QString &workingDirectory,
                                       VcsBase::VcsBaseEditorWidget *editor,
-                                      JobOutputBindMode mode)
+                                      JobOutputBindMode mode) const
 {
     Command *cmd = new Command(d->m_clientSettings->binaryPath(),
                                workingDirectory, processEnvironment());

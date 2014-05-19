@@ -172,7 +172,7 @@ protected:
     Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,
                                                          const QStringList &args,
                                                          unsigned flags = 0,
-                                                         QTextCodec *outputCodec = 0);
+                                                         QTextCodec *outputCodec = 0) const;
     VcsBase::VcsBaseEditorWidget *createVcsEditor(Core::Id kind, QString title,
                                                   const QString &source, bool setSourceCodec,
                                                   const char *registerDynamicProperty,
@@ -184,7 +184,7 @@ protected:
     };
     Command *createCommand(const QString &workingDirectory,
                            VcsBase::VcsBaseEditorWidget *editor = 0,
-                           JobOutputBindMode mode = NoOutputBind);
+                           JobOutputBindMode mode = NoOutputBind) const;
     void enqueueJob(Command *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter = 0);
 
     void resetCachedVcsInfo(const QString &workingDir);
