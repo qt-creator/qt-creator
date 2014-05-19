@@ -41,7 +41,7 @@ class QnxDeviceProcessSignalOperation : public RemoteLinux::RemoteLinuxSignalOpe
 {
     Q_OBJECT
 protected:
-    explicit QnxDeviceProcessSignalOperation(const QSsh::SshConnectionParameters sshParameters);
+    explicit QnxDeviceProcessSignalOperation(const QSsh::SshConnectionParameters &sshParameters);
 
 private:
     QString killProcessByNameCommandLine(const QString &filePath) const;
@@ -54,7 +54,7 @@ class BlackBerryDeviceProcessSignalOperation : public RemoteLinux::RemoteLinuxSi
 {
     Q_OBJECT
 protected:
-    explicit BlackBerryDeviceProcessSignalOperation(const QSsh::SshConnectionParameters sshParameters);
+    explicit BlackBerryDeviceProcessSignalOperation(const QSsh::SshConnectionParameters &sshParameters);
 
 private:
     QString killProcessByNameCommandLine(const QString &filePath) const;

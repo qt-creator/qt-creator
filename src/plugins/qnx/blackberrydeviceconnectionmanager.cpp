@@ -209,8 +209,8 @@ bool BlackBerryDeviceConnectionManager::hasValidSSHKeys() const
  * @param privateKeyContent the private key content
  * @param publicKeyContent the public key content
  */
-bool BlackBerryDeviceConnectionManager::setSSHKeys(const QByteArray privateKeyContent,
-        const QByteArray publicKeyContent, QString *error)
+bool BlackBerryDeviceConnectionManager::setSSHKeys(const QByteArray &privateKeyContent,
+        const QByteArray &publicKeyContent, QString *error)
 {
     const QString privateKey = privateKeyPath();
     const QString publicKey = privateKey + QLatin1String(".pub");

@@ -62,7 +62,7 @@ public:
 
     const QString privateKeyPath() const;
     bool hasValidSSHKeys() const;
-    bool setSSHKeys(const QByteArray privateKeyContent, const QByteArray publicKeyContent,
+    bool setSSHKeys(const QByteArray &privateKeyContent, const QByteArray &publicKeyContent,
             QString *error);
 
 signals:

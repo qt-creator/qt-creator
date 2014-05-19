@@ -35,7 +35,7 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 QnxDeviceProcessSignalOperation::QnxDeviceProcessSignalOperation(
-        const QSsh::SshConnectionParameters sshParameters)
+        const QSsh::SshConnectionParameters &sshParameters)
     : RemoteLinux::RemoteLinuxSignalOperation(sshParameters)
 {
 }
@@ -64,7 +64,7 @@ QString QnxDeviceProcessSignalOperation::interruptProcessByNameCommandLine(
 
 
 BlackBerryDeviceProcessSignalOperation::BlackBerryDeviceProcessSignalOperation(
-        const QSsh::SshConnectionParameters sshParameters)
+        const QSsh::SshConnectionParameters &sshParameters)
     : RemoteLinux::RemoteLinuxSignalOperation(sshParameters)
 {
 }
