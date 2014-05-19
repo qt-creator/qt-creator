@@ -72,12 +72,10 @@
 #include <cplusplus/OverviewModel.h>
 #include <cplusplus/BackwardsScanner.h>
 
-#include <QDebug>
 #include <QTimer>
 #include <QPointer>
 #include <QSignalMapper>
 #include <QAction>
-#include <QHeaderView>
 #include <QMenu>
 #include <QTextEdit>
 #include <QSortFilterProxyModel>
@@ -120,46 +118,9 @@ private:
     CPlusPlus::OverviewModel *m_sourceModel;
 };
 
-class FindFunctionDefinitions: protected SymbolVisitor
+class CanonicalSymbol
 {
-    const Name *_declarationName;
-    QList<Function *> *_functions;
-
 public:
-    FindFunctionDefinitions()
-        : _declarationName(0),
-          _functions(0)
-    { }
-
-    void operator()(const Name *declarationName, Scope *globals,
-                    QList<Function *> *functions)
-    {
-        _declarationName = declarationName;
-        _functions = functions;
-
-        for (unsigned i = 0; i < globals->memberCount(); ++i) {
-            accept(globals->memberAt(i));
-        }
-    }
-
-protected:
-    using SymbolVisitor::visit;
-
-    virtual bool visit(Function *function)
-    {
-        const Name *name = function->name();
-        if (const QualifiedNameId *q = name->asQualifiedNameId())
-            name = q->name();
-
-        if (_declarationName->match(name))
-            _functions->append(function);
-
-        return false;
-    }
-};
-
-struct CanonicalSymbol
-{
     CPPEditorWidget *editor;
     TypeOfExpression typeOfExpression;
     SemanticInfo info;

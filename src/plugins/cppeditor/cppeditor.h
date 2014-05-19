@@ -36,19 +36,14 @@
 #include <cpptools/commentssettings.h>
 #include <cpptools/cppsemanticinfo.h>
 #include <texteditor/basetexteditor.h>
-#include <texteditor/texteditorconstants.h>
 
+#include <utils/qtcoverride.h>
 #include <utils/uncommentselection.h>
 
 #include <QFutureWatcher>
 #include <QModelIndex>
-#include <QMutex>
-#include <QThread>
-#include <QVector>
-#include <QWaitCondition>
 
 QT_BEGIN_NAMESPACE
-class QComboBox;
 class QSortFilterProxyModel;
 class QToolButton;
 QT_END_NAMESPACE
@@ -58,13 +53,6 @@ class OverviewModel;
 class Symbol;
 }
 
-namespace CppTools {
-class CppCodeStyleSettings;
-class CppModelManagerInterface;
-class CppRefactoringFile;
-}
-
-namespace TextEditor { class FontSettings; }
 namespace Utils { class TreeViewComboBox; }
 
 namespace CppEditor {
@@ -97,12 +85,14 @@ class CPPEditor : public TextEditor::BaseTextEditor
 public:
     CPPEditor(CPPEditorWidget *);
 
-    Core::IEditor *duplicate();
+    Core::IEditor *duplicate() QTC_OVERRIDE;
 
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    bool open(QString *errorString,
+              const QString &fileName,
+              const QString &realFileName) QTC_OVERRIDE;
 
-    const Utils::CommentDefinition *commentDefinition() const;
-    TextEditor::CompletionAssistProvider *completionAssistProvider();
+    const Utils::CommentDefinition *commentDefinition() const QTC_OVERRIDE;
+    TextEditor::CompletionAssistProvider *completionAssistProvider() QTC_OVERRIDE;
 
 private:
     Utils::CommentDefinition m_commentDefinition;
@@ -113,37 +103,27 @@ class CPPEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    typedef TextEditor::TabSettings TabSettings;
+    static Link linkToSymbol(CPlusPlus::Symbol *symbol);
+    static QString identifierUnderCursor(QTextCursor *macroCursor);
 
+public:
     CPPEditorWidget(QWidget *parent = 0);
     CPPEditorWidget(CPPEditorWidget *other);
     ~CPPEditorWidget();
 
     CPPEditorDocument *cppEditorDocument() const;
 
-    void unCommentSelection();
-
-    unsigned editorRevision() const;
-    bool isOutdated() const;
     CppTools::SemanticInfo semanticInfo() const;
 
     CPlusPlus::OverviewModel *outlineModel() const;
     QModelIndex outlineModelIndex();
 
-    virtual void paste(); // reimplemented from BaseTextEditorWidget
-    virtual void cut(); // reimplemented from BaseTextEditorWidget
-    virtual void selectAll(); // reimplemented from BaseTextEditorWidget
-
-    bool openLink(const Link &link, bool inNextSplit) { return openCppEditorAt(link, inNextSplit); }
-
-    static Link linkToSymbol(CPlusPlus::Symbol *symbol);
-    static QString identifierUnderCursor(QTextCursor *macroCursor);
-
-    virtual TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind kind,
-                                                                TextEditor::AssistReason reason) const;
-
     QSharedPointer<FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
+
+    TextEditor::IAssistInterface *createAssistInterface(
+            TextEditor::AssistKind kind,
+            TextEditor::AssistReason reason) const QTC_OVERRIDE;
 
     FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
 
@@ -151,6 +131,11 @@ signals:
     void outlineModelIndexChanged(const QModelIndex &index);
 
 public slots:
+    void paste() QTC_OVERRIDE;
+    void cut() QTC_OVERRIDE;
+    void selectAll() QTC_OVERRIDE;
+
+    void unCommentSelection() QTC_OVERRIDE;
     void setSortedOutline(bool sort);
     void switchDeclarationDefinition(bool inNextSplit);
     void renameSymbolUnderCursor();
@@ -163,17 +148,20 @@ public slots:
                             unsigned revision);
 
 protected:
-    bool event(QEvent *e);
-    void contextMenuEvent(QContextMenuEvent *);
-    void keyPressEvent(QKeyEvent *e);
+    bool event(QEvent *e) QTC_OVERRIDE;
+    void contextMenuEvent(QContextMenuEvent *) QTC_OVERRIDE;
+    void keyPressEvent(QKeyEvent *e) QTC_OVERRIDE;
 
-    void applyFontSettings();
-    TextEditor::BaseTextEditor *createEditor();
+    void applyFontSettings() QTC_OVERRIDE;
+    TextEditor::BaseTextEditor *createEditor() QTC_OVERRIDE;
+
+    bool openLink(const Link &link, bool inNextSplit) QTC_OVERRIDE
+    { return openCppEditorAt(link, inNextSplit); }
 
     const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
                                                CPlusPlus::Document::Ptr doc) const;
 protected slots:
-    void slotCodeStyleSettingsChanged(const QVariant &);
+    void slotCodeStyleSettingsChanged(const QVariant &) QTC_OVERRIDE;
 
 private slots:
     void jumpToOutlineElement();
@@ -206,11 +194,12 @@ private slots:
 private:
     CPPEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
     void ctor();
+
+    unsigned editorRevision() const;
+    bool isOutdated() const;
+
     void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);
     bool sortedOutline() const;
-
-    TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
-                                             int column = 0);
 
     void highlightUses(const QList<TextEditor::HighlightingResult> &uses,
                        QList<QTextEdit::ExtraSelection> *selections);
@@ -223,7 +212,8 @@ private:
 
     Q_SLOT void abortDeclDefLink();
 
-    Link findLinkAt(const QTextCursor &, bool resolveTarget = true, bool inNextSplit = false);
+    Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
+                    bool inNextSplit = false) QTC_OVERRIDE;
     bool openCppEditorAt(const Link &, bool inNextSplit = false);
 
     QModelIndex indexForPosition(int line, int column,

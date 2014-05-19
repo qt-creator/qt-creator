@@ -37,6 +37,7 @@
 #include <cpptools/cpplocalsymbols.h>
 #include <cpptools/symbolfinder.h>
 #include <texteditor/refactoroverlay.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppRewriter.h>

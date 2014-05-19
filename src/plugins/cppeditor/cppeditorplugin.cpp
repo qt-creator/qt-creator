@@ -53,6 +53,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/hostosinfo.h>
