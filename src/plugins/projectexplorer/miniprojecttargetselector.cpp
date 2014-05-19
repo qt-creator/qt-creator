@@ -852,7 +852,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
 
     int oldSummaryLabelY = m_summaryLabel->y();
 
-    int kitAreaHeight = m_kitAreaWidget->isVisible() ? m_kitAreaWidget->sizeHint().height() : 0;
+    int kitAreaHeight = m_kitAreaWidget->isVisibleTo(this) ? m_kitAreaWidget->sizeHint().height() : 0;
 
     // 1. Calculate the summary label height
     int summaryLabelY = 1 + kitAreaHeight;
@@ -959,11 +959,9 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         setFixedSize(m_summaryLabel->width() + 1, heightWithoutKitArea + kitAreaHeight); //1 extra pixel for the border
     }
 
-    if (isVisibleTo(parentWidget())) {
-        QPoint moveTo = statusBar->mapToGlobal(QPoint(0,0));
-        moveTo -= QPoint(0, height());
-        move(moveTo);
-    }
+    QPoint moveTo = statusBar->mapToGlobal(QPoint(0,0));
+    moveTo -= QPoint(0, height());
+    move(moveTo);
 }
 
 void MiniProjectTargetSelector::setActiveTarget(ProjectExplorer::ProjectConfiguration *pc)
@@ -1403,10 +1401,10 @@ void MiniProjectTargetSelector::activeRunConfigurationChanged(ProjectExplorer::R
 
 void MiniProjectTargetSelector::setVisible(bool visible)
 {
+    doLayout(false);
     QWidget::setVisible(visible);
     m_projectAction->setChecked(visible);
     if (visible) {
-        doLayout(false);
         if (!focusWidget() || !focusWidget()->isVisibleTo(this)) { // Does the second part actually work?
             if (m_projectListWidget->isVisibleTo(this))
                 m_projectListWidget->setFocus();
