@@ -240,7 +240,8 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
     __createProjectHandleLastPage__(expectedFiles, addToVersionControl)
 
     progressBarWait(20000)
-    __verifyFileCreation__(path, expectedFiles)
+    if checks:
+        __verifyFileCreation__(path, expectedFiles)
     return checkedTargets
 
 # Creates a Qt Console project
@@ -264,7 +265,8 @@ def createProject_Qt_Console(path, projectName, checks = True):
     __createProjectHandleLastPage__(expectedFiles)
 
     progressBarWait(10000)
-    __verifyFileCreation__(path, expectedFiles)
+    if checks:
+        __verifyFileCreation__(path, expectedFiles)
     return checkedTargets
 
 def createNewQtQuickApplication(workingDir, projectName = None,
