@@ -469,11 +469,12 @@ void QV8ProfilerEventsMainView::QV8ProfilerEventsMainViewPrivate::buildV8ModelFr
                 item->setEditable(false);
 
             // metadata
-            newRow.at(0)->setData(QString::fromLatin1("%1:%2").arg(v8event->filename, QString::number(v8event->line)), EventHashStrRole);
-            newRow.at(0)->setData(QVariant(v8event->filename), FilenameRole);
-            newRow.at(0)->setData(QVariant(v8event->line), LineRole);
-            newRow.at(0)->setData(QVariant(-1),ColumnRole); // v8 events have no column info
-            newRow.at(0)->setData(QVariant(v8event->eventId), EventIdRole);
+            QStandardItem *firstItem = newRow.at(0);
+            firstItem->setData(QString::fromLatin1("%1:%2").arg(v8event->filename, QString::number(v8event->line)), EventHashStrRole);
+            firstItem->setData(QVariant(v8event->filename), FilenameRole);
+            firstItem->setData(QVariant(v8event->line), LineRole);
+            firstItem->setData(QVariant(-1),ColumnRole); // v8 events have no column info
+            firstItem->setData(QVariant(v8event->eventId), EventIdRole);
 
             // append
             m_model->invisibleRootItem()->appendRow(newRow);
