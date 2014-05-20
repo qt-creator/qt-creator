@@ -54,6 +54,7 @@ Item {
     function addGradient() {
         gradientModel.addGradient()
         colorLine.invalidate()
+        colorLine.select(0)
     }
 
     function deleteGradient() {
