@@ -63,7 +63,7 @@ def main():
     if not startedWithoutPluginError():
         return
     installLazySignalHandler(":QWebPage","loadFinished(bool)", "webPageContentLoaded")
-    installLazySignalHandler(":*Qt Creator_Help::Internal::HelpViewer", "loadFinished(bool)",
+    installLazySignalHandler(":Qt Creator_Help::Internal::HelpViewer", "loadFinished(bool)",
                              "webPageContentLoaded")
     setAlwaysStartFullHelp()
     addCurrentCreatorDocumentation()

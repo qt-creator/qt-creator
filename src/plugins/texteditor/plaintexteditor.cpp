@@ -132,6 +132,7 @@ void PlainTextEditorWidget::configure(const QString &mimeType)
 void PlainTextEditorWidget::configure(const MimeType &mimeType)
 {
     Highlighter *highlighter = new Highlighter();
+    highlighter->setTabSettings(baseTextDocument()->tabSettings());
     baseTextDocument()->setSyntaxHighlighter(highlighter);
 
     setCodeFoldingSupported(false);
