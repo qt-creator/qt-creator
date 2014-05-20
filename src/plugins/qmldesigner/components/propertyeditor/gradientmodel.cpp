@@ -167,6 +167,8 @@ void GradientModel::addGradient()
 
     }
     setupModel();
+
+    emit hasGradientChanged();
 }
 
 void GradientModel::setColor(int index, const QColor &color)
@@ -257,6 +259,8 @@ void GradientModel::deleteGradient()
                 QmlDesigner::QmlObjectNode(gradientNode).destroy();
         }
     }
+
+    emit hasGradientChanged();
 }
 
 void GradientModel::lock()

@@ -43,7 +43,7 @@ class GradientModel : public QAbstractListModel
     Q_PROPERTY(QVariant anchorBackendProperty READ anchorBackend WRITE setAnchorBackend NOTIFY anchorBackendChanged)
     Q_PROPERTY(QString gradientPropertyName READ gradientPropertyName WRITE setGradientPropertyName)
     Q_PROPERTY(int count READ rowCount)
-    Q_PROPERTY(bool hasGradient READ hasGradient NOTIFY anchorBackendChanged)
+    Q_PROPERTY(bool hasGradient READ hasGradient NOTIFY hasGradientChanged)
 
 public:
     explicit GradientModel(QObject *parent = 0);
@@ -72,6 +72,7 @@ public:
 
 signals:
     void anchorBackendChanged();
+    void hasGradientChanged();
 
 public slots:
 
