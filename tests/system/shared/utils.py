@@ -655,3 +655,17 @@ def getChildByClass(parent, classToSearchFor, occurrence=1):
         return None
     else:
         return children[occurrence - 1]
+
+def getHelpViewer():
+    try:
+        return waitForObject(":Qt Creator_Help::Internal::HelpViewer", 1000)
+    except:
+        return waitForObject("{type='Help::Internal::TextBrowserHelpWidget' unnamed='1' "
+                             "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 1000)
+
+def getHelpTitle():
+    hv = getHelpViewer()
+    try:
+        return str(hv.title)
+    except:
+        return str(hv.documentTitle)

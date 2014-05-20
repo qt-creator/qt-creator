@@ -103,14 +103,14 @@ def main():
     for i in range(6):
         type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Right>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Return>")
-    test.verify(textForQtVersion("Building and Running an Example") in str(waitForObject(":Qt Creator_Help::Internal::HelpViewer").title),
+    test.verify(textForQtVersion("Building and Running an Example") in getHelpTitle(),
                 "Verifying if first bookmark is opened")
     mouseClick(waitForObject(bldRunQModelIndex))
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Down>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Right>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Down>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Return>")
-    test.verify(textForQtVersion("Qt Creator Manual") in str(waitForObject(":Qt Creator_Help::Internal::HelpViewer").title),
+    test.verify(textForQtVersion("Qt Creator Manual") in getHelpTitle(),
                 "Verifying if second bookmark is opened")
     # delete previously created directory
     clickButton(waitForObject(":Qt Creator.Add Bookmark_QToolButton"))

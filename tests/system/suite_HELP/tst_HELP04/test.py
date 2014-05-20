@@ -35,7 +35,7 @@ searchKeywordDictionary={ "deployment":True, "deplmint":False, "build":True, "bl
 
 
 def __getSelectedText__():
-    hv = findObject(":Qt Creator_Help::Internal::HelpViewer")
+    hv = getHelpViewer()
     try:
         selText = hv.selectedText
         if className(selText) != 'instancemethod':
@@ -50,7 +50,7 @@ def __getSelectedText__():
     return str(selText)
 
 def __getUrl__():
-    helpViewer = findObject(":Qt Creator_Help::Internal::HelpViewer")
+    helpViewer = getHelpViewer()
     try:
         url = helpViewer.url
     except:

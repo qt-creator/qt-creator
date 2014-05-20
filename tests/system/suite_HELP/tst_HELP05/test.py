@@ -43,7 +43,7 @@ def verifyInteractiveQMLHelp(lineText, helpText):
         type(editorArea, homeKey)
     # call help
     type(editorArea, "<F1>")
-    test.verify(helpText in str(waitForObject(":Qt Creator_Help::Internal::HelpViewer").title),
+    test.verify(helpText in getHelpTitle(),
                 "Verifying if help is opened with documentation for '%s'." % helpText)
 
 def main():
