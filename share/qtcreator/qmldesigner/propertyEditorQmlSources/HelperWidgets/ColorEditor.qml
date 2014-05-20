@@ -69,8 +69,10 @@ Column {
         if (!gradientLine.isCompleted)
             return;
 
-        if (supportGradient && gradientLine.visible)
+        if (supportGradient && gradientLine.hasGradient) {
             gradientLine.currentColor = color
+            textField.text = convertColorToString(color)
+        }
 
         if (buttonRow.checkedIndex !== 1)
             //Delay setting the color to keep ui responsive
