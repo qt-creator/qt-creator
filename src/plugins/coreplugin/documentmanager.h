@@ -90,8 +90,8 @@ public:
     static bool saveDocument(IDocument *document, const QString &fileName = QString(), bool *isReadOnly = 0);
 
     static QStringList getOpenFileNames(const QString &filters,
-                                 const QString path = QString(),
-                                 QString *selectedFilter = 0);
+                                        const QString &path = QString(),
+                                        QString *selectedFilter = 0);
     static QString getSaveFileName(const QString &title, const QString &pathIn,
                             const QString &filter = QString(), QString *selectedFilter = 0);
     static QString getSaveFileNameWithExtension(const QString &title, const QString &pathIn,

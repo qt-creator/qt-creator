@@ -867,8 +867,8 @@ bool DocumentManager::saveModifiedDocument(IDocument *document, const QString &m
 */
 
 QStringList DocumentManager::getOpenFileNames(const QString &filters,
-                                          const QString pathIn,
-                                          QString *selectedFilter)
+                                              const QString &pathIn,
+                                              QString *selectedFilter)
 {
     QString path = pathIn;
     if (path.isEmpty()) {
