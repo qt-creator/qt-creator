@@ -30,8 +30,6 @@
 #include "addtabtotabviewdialog.h"
 #include "ui_addtabtotabviewdialog.h"
 
-#include <QtDebug>
-
 namespace QmlDesigner {
 
 AddTabToTabViewDialog::AddTabToTabViewDialog(QWidget *parent) :
@@ -57,8 +55,6 @@ QString AddTabToTabViewDialog::create(const QString &tabName, QWidget *parent)
     fileNameValidatingLineEdit->setText(tabName);
 
     int result = addTabToTabViewDialog.exec();
-
-    qDebug() << "validate: " << fileNameValidatingLineEdit->errorMessage();
 
     if (result == QDialog::Accepted && fileNameValidatingLineEdit->isValid())
         return fileNameValidatingLineEdit->text();

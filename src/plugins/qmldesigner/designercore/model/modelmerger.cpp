@@ -165,7 +165,6 @@ ModelNode ModelMerger::insertModel(const ModelNode &modelNode)
 
     QHash<QString, QString> idRenamingHash;
     setupIdRenamingHash(modelNode, idRenamingHash, view());
-    qDebug() << idRenamingHash;
     ModelNode newNode(createNodeFromNode(modelNode, idRenamingHash, view()));
 
     return newNode;
