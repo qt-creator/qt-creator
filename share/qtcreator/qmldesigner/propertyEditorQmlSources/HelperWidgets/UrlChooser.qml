@@ -100,7 +100,6 @@ RowLayout {
         Component.onCompleted: {
             //Hack to style the text input
             for (var i = 0; i < comboBox.children.length; i++) {
-                print(comboBox.children[i])
                 if (comboBox.children[i].text !== undefined) {
                     comboBox.children[i].color = urlChooser.textColor
                     comboBox.children[i].anchors.rightMargin = 34
