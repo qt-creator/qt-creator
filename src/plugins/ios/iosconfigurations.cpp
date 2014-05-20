@@ -73,7 +73,7 @@ void IosConfigurations::updateAutomaticKitList()
 {
     QMap<QString, Platform> platforms = IosProbe::detectPlatforms();
     if (!platforms.isEmpty())
-        setDeveloperPath(platforms.first().developerPath);
+        setDeveloperPath(platforms.begin().value().developerPath);
     // filter out all non iphone, non base, non clang or cxx11 platforms, as we don't set up kits for those
     {
         QMap<QString, Platform>::iterator iter(platforms.begin());
