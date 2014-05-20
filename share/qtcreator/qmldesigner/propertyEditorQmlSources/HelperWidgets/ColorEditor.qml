@@ -34,6 +34,7 @@ import QtQuick.Controls 1.0 as Controls
 
 
 Column {
+    id: colorEditor
 
     width: parent.width - 8
 
@@ -50,7 +51,11 @@ Column {
     property alias gradientPropertyName: gradientLine.gradientPropertyName
 
     onValueChanged: {
-        color = value
+        colorEditor.color = colorEditor.value
+    }
+
+    onBackendendValueChanged: {
+        colorEditor.color = colorEditor.value
     }
 
     Timer {
@@ -62,8 +67,6 @@ Column {
                 backendendValue.value = colorEditor.color
         }
     }
-
-    id: colorEditor
 
     onColorChanged: {
         if (!gradientLine.isCompleted)
@@ -164,7 +167,7 @@ Column {
             }
             ColorCheckButton {
                 id: checkButton
-                color: backendendValue.value
+                color: colorEditor.color
             }
 
             ButtonRow {
@@ -205,7 +208,13 @@ Column {
         }
 
         ColorButton {
-            color: colorEditor.color
+            property color bindedColor: colorEditor.color
+
+            //prevent the binding to be deleted by assignment
+            onBindedColorChanged: {
+                colorButton.color = colorButton.bindedColor
+            }
+
             enabled: buttonRow.checkedIndex !== 2
             opacity: checkButton.checked ? 1 : 0
             id: colorButton
