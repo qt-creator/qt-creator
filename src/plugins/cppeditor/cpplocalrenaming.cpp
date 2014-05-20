@@ -1,0 +1,335 @@
+/****************************************************************************
+**
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+#include "cpplocalrenaming.h"
+
+#include <texteditor/basetexteditor.h>
+#include <texteditor/fontsettings.h>
+
+#include <utils/qtcassert.h>
+
+/*!
+    \class CppEditor::Internal::CppLocalRenaming
+    \brief A helper class of CPPEditorWidget that implements renaming local usages.
+
+    \internal
+
+    Local use selections must be first set/updated with updateLocalUseSelections().
+    Afterwards the local renaming can be started with start(). The CPPEditorWidget
+    can then delegate work related to the local renaming mode to the handle*
+    functions.
+
+    \sa CppEditor::Internal::CPPEditorWidget
+ */
+
+namespace {
+
+void modifyCursorSelection(QTextCursor &cursor, int position, int anchor)
+{
+    cursor.setPosition(anchor);
+    cursor.setPosition(position, QTextCursor::KeepAnchor);
+}
+
+} // anonymous namespace
+
+namespace CppEditor {
+namespace Internal {
+
+CppLocalRenaming::CppLocalRenaming(TextEditor::BaseTextEditorWidget *editorWidget)
+    : m_editorWidget(editorWidget)
+    , m_modifyingSelections(false)
+    , m_renameSelectionChanged(false)
+    , m_firstRenameChangeExpected(false)
+{
+    forgetRenamingSelection();
+    connect(m_editorWidget->document(), SIGNAL(contentsChange(int,int,int)),
+            this, SLOT(onContentsChangeOfEditorWidgetDocument(int,int,int)));
+}
+
+void CppLocalRenaming::updateLocalUseSelections(const QList<QTextEdit::ExtraSelection> &selections)
+{
+    QTC_ASSERT(!isActive(), return);
+    m_selections = selections;
+}
+
+bool CppLocalRenaming::start()
+{
+    stop();
+
+    if (findRenameSelection(m_editorWidget->textCursor().position())) {
+        updateRenamingSelectionFormat(textCharFormat(TextEditor::C_OCCURRENCES_RENAME));
+        m_firstRenameChangeExpected = true;
+        updateEditorWidgetWithSelections();
+        return true;
+    }
+
+    return false;
+}
+
+bool CppLocalRenaming::handlePaste()
+{
+    if (!isActive())
+        return false;
+
+    startRenameChange();
+    m_editorWidget->BaseTextEditorWidget::paste();
+    finishRenameChange();
+    return true;
+}
+
+bool CppLocalRenaming::handleCut()
+{
+    if (!isActive())
+        return false;
+
+    startRenameChange();
+    m_editorWidget->BaseTextEditorWidget::paste();
+    finishRenameChange();
+    return true;
+}
+
+bool CppLocalRenaming::handleSelectAll()
+{
+    if (!isActive())
+        return false;
+
+    QTextCursor cursor = m_editorWidget->textCursor();
+    if (!isWithinRenameSelection(cursor.position()))
+        return false;
+
+    modifyCursorSelection(cursor, renameSelectionBegin(), renameSelectionEnd());
+    m_editorWidget->setTextCursor(cursor);
+    return true;
+}
+
+bool CppLocalRenaming::isActive() const
+{
+    return m_renameSelectionIndex != -1;
+}
+
+bool CppLocalRenaming::handleKeyPressEvent(QKeyEvent *e)
+{
+    if (!isActive())
+        return false;
+
+    QTextCursor cursor = m_editorWidget->textCursor();
+    const int cursorPosition = cursor.position();
+    const QTextCursor::MoveMode moveMode = (e->modifiers() & Qt::ShiftModifier)
+            ? QTextCursor::KeepAnchor
+            : QTextCursor::MoveAnchor;
+
+    switch (e->key()) {
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+    case Qt::Key_Escape:
+        stop();
+        e->accept();
+        return true;
+    case Qt::Key_Home: {
+        // Send home to start of name when within the name and not at the start
+        if (renameSelectionBegin() < cursorPosition  && cursorPosition <= renameSelectionEnd()) {
+            cursor.setPosition(renameSelectionBegin(), moveMode);
+            m_editorWidget->setTextCursor(cursor);
+            e->accept();
+            return true;
+        }
+        break;
+    }
+    case Qt::Key_End: {
+        // Send end to end of name when within the name and not at the end
+        if (renameSelectionBegin() <= cursorPosition && cursorPosition < renameSelectionEnd()) {
+            cursor.setPosition(renameSelectionEnd(), moveMode);
+            m_editorWidget->setTextCursor(cursor);
+            e->accept();
+            return true;
+        }
+        break;
+    }
+    case Qt::Key_Backspace: {
+        if (cursorPosition == renameSelectionBegin() && !cursor.hasSelection()) {
+            // Eat backspace at start of name when there is no selection
+            e->accept();
+            return true;
+        }
+        break;
+    }
+    case Qt::Key_Delete: {
+        if (cursorPosition == renameSelectionEnd() && !cursor.hasSelection()) {
+            // Eat delete at end of name when there is no selection
+            e->accept();
+            return true;
+        }
+        break;
+    }
+    default: {
+        break;
+    }
+    } // switch
+
+    startRenameChange();
+
+    const bool wantEditBlock = isWithinRenameSelection(cursorPosition);
+    if (wantEditBlock) {
+        if (m_firstRenameChangeExpected) // Change inside rename selection
+            cursor.beginEditBlock();
+        else
+            cursor.joinPreviousEditBlock();
+        m_firstRenameChangeExpected = false;
+    }
+    emit processKeyPressNormally(e);
+    if (wantEditBlock)
+        cursor.endEditBlock();
+    finishRenameChange();
+    return true;
+}
+
+QTextEdit::ExtraSelection &CppLocalRenaming::renameSelection()
+{
+    return m_selections[m_renameSelectionIndex];
+}
+
+void CppLocalRenaming::updateRenamingSelectionCursor(const QTextCursor &cursor)
+{
+    QTC_ASSERT(isActive(), return);
+    renameSelection().cursor = cursor;
+}
+
+void CppLocalRenaming::updateRenamingSelectionFormat(const QTextCharFormat &format)
+{
+    QTC_ASSERT(isActive(), return);
+    renameSelection().format = format;
+}
+
+void CppLocalRenaming::forgetRenamingSelection()
+{
+    m_renameSelectionIndex = -1;
+}
+
+bool CppLocalRenaming::isWithinRenameSelection(int position)
+{
+    return renameSelectionBegin() <= position && position <= renameSelectionEnd();
+}
+
+bool CppLocalRenaming::findRenameSelection(int cursorPosition)
+{
+    for (int i = 0, total = m_selections.size(); i < total; ++i) {
+        const QTextEdit::ExtraSelection &sel = m_selections.at(i);
+        if (sel.cursor.position() <= cursorPosition && cursorPosition <= sel.cursor.anchor()) {
+            m_renameSelectionIndex = i;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void CppLocalRenaming::changeOtherSelectionsText(const QString &text)
+{
+    for (int i = 0, total = m_selections.size(); i < total; ++i) {
+        if (i == m_renameSelectionIndex)
+            continue;
+
+        QTextEdit::ExtraSelection &selection = m_selections[i];
+        const int pos = selection.cursor.selectionStart();
+        selection.cursor.removeSelectedText();
+        selection.cursor.insertText(text);
+        selection.cursor.setPosition(pos, QTextCursor::KeepAnchor);
+    }
+}
+
+void CppLocalRenaming::onContentsChangeOfEditorWidgetDocument(int position,
+                                                              int charsRemoved,
+                                                              int charsAdded)
+{
+    Q_UNUSED(charsRemoved)
+
+    if (!isActive() || m_modifyingSelections)
+        return;
+
+    if (position + charsAdded == renameSelectionBegin()) // Insert at beginning, expand cursor
+        modifyCursorSelection(renameSelection().cursor, position, renameSelectionEnd());
+
+    // Keep in mind that cursor position and anchor move automatically
+    m_renameSelectionChanged = isWithinRenameSelection(position)
+            && isWithinRenameSelection(position + charsAdded);
+
+    if (!m_renameSelectionChanged)
+        stop();
+}
+
+void CppLocalRenaming::startRenameChange()
+{
+    m_renameSelectionChanged = false;
+}
+
+void CppLocalRenaming::updateEditorWidgetWithSelections()
+{
+    m_editorWidget->setExtraSelections(TextEditor::BaseTextEditorWidget::CodeSemanticsSelection,
+                                       m_selections);
+}
+
+QTextCharFormat CppLocalRenaming::textCharFormat(TextEditor::TextStyle category) const
+{
+    return m_editorWidget->baseTextDocument()->fontSettings().toTextCharFormat(category);
+}
+
+void CppLocalRenaming::finishRenameChange()
+{
+    if (!m_renameSelectionChanged)
+        return;
+
+    m_modifyingSelections = true;
+
+    QTextCursor cursor = m_editorWidget->textCursor();
+    cursor.joinPreviousEditBlock();
+
+    modifyCursorSelection(cursor, renameSelectionBegin(), renameSelectionEnd());
+    updateRenamingSelectionCursor(cursor);
+    changeOtherSelectionsText(cursor.selectedText());
+    updateEditorWidgetWithSelections();
+
+    cursor.endEditBlock();
+
+    m_modifyingSelections = false;
+}
+
+void CppLocalRenaming::stop()
+{
+    if (!isActive())
+        return;
+
+    updateRenamingSelectionFormat(textCharFormat(TextEditor::C_OCCURRENCES));
+    updateEditorWidgetWithSelections();
+    forgetRenamingSelection();
+
+    emit finished();
+}
+
+} // namespace Internal
+} // namespace CppEditor

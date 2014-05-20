@@ -36,6 +36,7 @@
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/semantichighlighter.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <utils/qtcoverride.h>
 #include <utils/uncommentselection.h>
@@ -171,6 +172,9 @@ private slots:
     void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
     void abortDeclDefLink();
 
+    void onLocalRenamingFinished();
+    void onLocalRenamingProcessKeyPressNormally(QKeyEvent *e);
+
 private:
     static bool openCppEditorAt(const Link &, bool inNextSplit = false);
 
@@ -185,15 +189,13 @@ private:
     const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
                                                CPlusPlus::Document::Ptr doc) const;
 
+    QTextCharFormat textCharFormat(TextEditor::TextStyle category);
+
     void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);
     bool sortedOutline() const;
 
-    void highlightUses(const QList<TextEditor::HighlightingResult> &uses,
-                       QList<QTextEdit::ExtraSelection> *selections);
-
-    void startRename();
-    void finishRename();
-    void abortRename();
+    QList<QTextEdit::ExtraSelection> createSelectionsFromUses(
+            const QList<TextEditor::HighlightingResult> &uses);
 
     QModelIndex indexForPosition(int line, int column,
                                  const QModelIndex &rootIndex = QModelIndex()) const;

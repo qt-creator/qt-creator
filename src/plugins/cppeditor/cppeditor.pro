@@ -23,6 +23,7 @@ HEADERS += \
     cppincludehierarchymodel.h \
     cppincludehierarchytreeview.h \
     cppinsertvirtualmethods.h \
+    cpplocalrenaming.h \
     cppoutline.h \
     cpppreprocessordialog.h \
     cppquickfix.h \
@@ -52,6 +53,7 @@ SOURCES += \
     cppincludehierarchymodel.cpp \
     cppincludehierarchytreeview.cpp \
     cppinsertvirtualmethods.cpp \
+    cpplocalrenaming.cpp \
     cppoutline.cpp \
     cpppreprocessordialog.cpp \
     cppquickfix.cpp \

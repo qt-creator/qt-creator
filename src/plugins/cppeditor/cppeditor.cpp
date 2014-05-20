@@ -34,6 +34,7 @@
 #include "cppeditorplugin.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cpphighlighter.h"
+#include "cpplocalrenaming.h"
 #include "cpppreprocessordialog.h"
 #include "cppquickfixassistant.h"
 
@@ -437,12 +438,7 @@ public:
     QTimer *m_updateFunctionDeclDefLinkTimer;
     QHash<int, QTextCharFormat> m_semanticHighlightFormatMap;
 
-    QList<QTextEdit::ExtraSelection> m_renameSelections;
-    int m_currentRenameSelection;
-    static const int NoCurrentRenameSelection = -1;
-    bool m_inRename, m_inRenameChanged, m_firstRenameChange;
-    QTextCursor m_currentRenameSelectionBegin;
-    QTextCursor m_currentRenameSelectionEnd;
+    CppLocalRenaming m_localRenaming;
 
     CppTools::SemanticInfo m_lastSemanticInfo;
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
@@ -467,10 +463,7 @@ CPPEditorWidgetPrivate::CPPEditorWidgetPrivate(CPPEditorWidget *q)
     : q(q)
     , m_modelManager(CppModelManagerInterface::instance())
     , m_cppEditorDocument(qobject_cast<CPPEditorDocument *>(q->baseTextDocument()))
-    , m_currentRenameSelection(NoCurrentRenameSelection)
-    , m_inRename(false)
-    , m_inRenameChanged(false)
-    , m_firstRenameChange(false)
+    , m_localRenaming(q)
     , m_highlightRevision(0)
     , m_referencesRevision(0)
     , m_referencesCursorPosition(0)
@@ -536,7 +529,11 @@ void CPPEditorWidget::ctor()
 
     connect(baseTextDocument(), SIGNAL(filePathChanged(QString,QString)),
             this, SLOT(onFilePathChanged()));
-    onFilePathChanged();
+
+    connect(&d->m_localRenaming, SIGNAL(finished()),
+            this, SLOT(onLocalRenamingFinished()));
+    connect(&d->m_localRenaming, SIGNAL(processKeyPressNormally(QKeyEvent*)),
+            this, SLOT(onLocalRenamingProcessKeyPressNormally(QKeyEvent*)));
 }
 
 CPPEditorWidget::~CPPEditorWidget()
@@ -627,97 +624,26 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
 
 void CPPEditorWidget::paste()
 {
-    if (d->m_currentRenameSelection == d->NoCurrentRenameSelection) {
-        BaseTextEditorWidget::paste();
+    if (d->m_localRenaming.handlePaste())
         return;
-    }
 
-    startRename();
     BaseTextEditorWidget::paste();
-    finishRename();
 }
 
 void CPPEditorWidget::cut()
 {
-    if (d->m_currentRenameSelection == d->NoCurrentRenameSelection) {
-        BaseTextEditorWidget::cut();
+    if (d->m_localRenaming.handlePaste())
         return;
-    }
 
-    startRename();
     BaseTextEditorWidget::cut();
-    finishRename();
 }
 
 void CPPEditorWidget::selectAll()
 {
-    // if we are currently renaming a symbol
-    // and the cursor is over that symbol, select just that symbol
-    if (d->m_currentRenameSelection != d->NoCurrentRenameSelection) {
-        QTextCursor cursor = textCursor();
-        int selectionBegin = d->m_currentRenameSelectionBegin.position();
-        int selectionEnd = d->m_currentRenameSelectionEnd.position();
-
-        if (cursor.position() >= selectionBegin
-                && cursor.position() <= selectionEnd) {
-            cursor.setPosition(selectionBegin);
-            cursor.setPosition(selectionEnd, QTextCursor::KeepAnchor);
-            setTextCursor(cursor);
-            return;
-        }
-    }
+    if (d->m_localRenaming.handleSelectAll())
+        return;
 
     BaseTextEditorWidget::selectAll();
-}
-
-void CPPEditorWidget::startRename()
-{
-    d->m_inRenameChanged = false;
-}
-
-void CPPEditorWidget::finishRename()
-{
-    if (!d->m_inRenameChanged)
-        return;
-
-    d->m_inRename = true;
-
-    QTextCursor cursor = textCursor();
-    cursor.joinPreviousEditBlock();
-
-    cursor.setPosition(d->m_currentRenameSelectionEnd.position());
-    cursor.setPosition(d->m_currentRenameSelectionBegin.position(), QTextCursor::KeepAnchor);
-    d->m_renameSelections[d->m_currentRenameSelection].cursor = cursor;
-    QString text = cursor.selectedText();
-
-    for (int i = 0; i < d->m_renameSelections.size(); ++i) {
-        if (i == d->m_currentRenameSelection)
-            continue;
-        QTextEdit::ExtraSelection &s = d->m_renameSelections[i];
-        int pos = s.cursor.selectionStart();
-        s.cursor.removeSelectedText();
-        s.cursor.insertText(text);
-        s.cursor.setPosition(pos, QTextCursor::KeepAnchor);
-    }
-
-    setExtraSelections(CodeSemanticsSelection, d->m_renameSelections);
-    cursor.endEditBlock();
-
-    d->m_inRename = false;
-}
-
-void CPPEditorWidget::abortRename()
-{
-    if (d->m_currentRenameSelection <= d->NoCurrentRenameSelection)
-        return;
-    d->m_renameSelections[d->m_currentRenameSelection].format
-            = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
-    d->m_currentRenameSelection = d->NoCurrentRenameSelection;
-    d->m_currentRenameSelectionBegin = QTextCursor();
-    d->m_currentRenameSelectionEnd = QTextCursor();
-    setExtraSelections(CodeSemanticsSelection, d->m_renameSelections);
-
-    semanticRehighlight(/* force = */ true);
 }
 
 /// \brief Called by \c CppEditorSupport when the document corresponding to the
@@ -811,8 +737,7 @@ void CPPEditorWidget::markSymbolsNow()
             cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
 
             QTextEdit::ExtraSelection sel;
-            sel.format = baseTextDocument()->fontSettings()
-                         .toTextCharFormat(TextEditor::C_OCCURRENCES);
+            sel.format = textCharFormat(TextEditor::C_OCCURRENCES);
             sel.cursor = cursor;
             selections.append(sel);
         }
@@ -838,12 +763,11 @@ static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr d
 
 void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &info)
 {
-    abortRename();
+    d->m_localRenaming.stop();
 
     if (!info.doc)
         return;
-    const QTextCharFormat &occurrencesFormat
-            = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
+    const QTextCharFormat &occurrencesFormat = textCharFormat(TextEditor::C_OCCURRENCES);
     if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
         QList<QTextEdit::ExtraSelection> selections;
 
@@ -907,52 +831,17 @@ void CPPEditorWidget::renameSymbolUnderCursor()
     if (!d->m_modelManager)
         return;
 
-    CppEditorSupport *edSup = d->m_modelManager->cppEditorSupport(editor());
-    updateSemanticInfo(edSup->recalculateSemanticInfo());
-    abortRename();
+    CppEditorSupport *ces = d->m_modelManager->cppEditorSupport(editor());
+    updateSemanticInfo(ces->recalculateSemanticInfo());
 
-    QTextCursor c = textCursor();
-
-    for (int i = 0; i < d->m_renameSelections.size(); ++i) {
-        QTextEdit::ExtraSelection s = d->m_renameSelections.at(i);
-        if (c.position() >= s.cursor.anchor()
-                && c.position() <= s.cursor.position()) {
-            d->m_currentRenameSelection = i;
-            d->m_firstRenameChange = true;
-            d->m_currentRenameSelectionBegin = QTextCursor(c.document()->docHandle(),
-                                                           d->m_renameSelections[i].cursor.selectionStart());
-            d->m_currentRenameSelectionEnd = QTextCursor(c.document()->docHandle(),
-                                                         d->m_renameSelections[i].cursor.selectionEnd());
-            d->m_renameSelections[i].format
-                    = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES_RENAME);;
-            setExtraSelections(CodeSemanticsSelection, d->m_renameSelections);
-            break;
-        }
-    }
-
-    if (d->m_renameSelections.isEmpty())
-        renameUsages();
+    if (!d->m_localRenaming.start()) // Rename local symbol
+        renameUsages(); // Rename non-local symbol or macro
 }
 
 void CPPEditorWidget::onContentsChanged(int position, int charsRemoved, int charsAdded)
 {
-    if (d->m_currentRenameSelection == d->NoCurrentRenameSelection || d->m_inRename)
-        return;
-
-    if (position + charsAdded == d->m_currentRenameSelectionBegin.position()) {
-        // we are inserting at the beginning of the rename selection => expand
-        d->m_currentRenameSelectionBegin.setPosition(position);
-        d->m_renameSelections[d->m_currentRenameSelection].cursor.setPosition(position,
-                                                                              QTextCursor::KeepAnchor);
-    }
-
-    // the condition looks odd, but keep in mind that the begin
-    // and end cursors do move automatically
-    d->m_inRenameChanged = (position >= d->m_currentRenameSelectionBegin.position()
-                            && position + charsAdded <= d->m_currentRenameSelectionEnd.position());
-
-    if (!d->m_inRenameChanged)
-        abortRename();
+    Q_UNUSED(position)
+    Q_UNUSED(charsAdded)
 
     if (charsRemoved > 0)
         updateUses();
@@ -1025,13 +914,11 @@ void CPPEditorWidget::updateOutlineIndex()
     d->m_updateOutlineIndexTimer->start();
 }
 
-void CPPEditorWidget::highlightUses(const QList<SemanticInfo::Use> &uses,
-                                    QList<QTextEdit::ExtraSelection> *selections)
+QList<QTextEdit::ExtraSelection> CPPEditorWidget::createSelectionsFromUses(
+        const QList<SemanticInfo::Use> &uses)
 {
-    bool isUnused = false;
-
-    if (uses.size() == 1)
-        isUnused = true;
+    QList<QTextEdit::ExtraSelection> result;
+    const bool isUnused = uses.size() == 1;
 
     foreach (const SemanticInfo::Use &use, uses) {
         if (use.isInvalid())
@@ -1039,19 +926,21 @@ void CPPEditorWidget::highlightUses(const QList<SemanticInfo::Use> &uses,
 
         QTextEdit::ExtraSelection sel;
         if (isUnused)
-            sel.format = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES_UNUSED);
+            sel.format = textCharFormat(TextEditor::C_OCCURRENCES_UNUSED);
         else
-            sel.format = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
+            sel.format = textCharFormat(TextEditor::C_OCCURRENCES);
 
-        const int anchor = document()->findBlockByNumber(use.line - 1).position() + use.column - 1;
-        const int position = anchor + use.length;
+        const int position = document()->findBlockByNumber(use.line - 1).position() + use.column - 1;
+        const int anchor = position + use.length;
 
         sel.cursor = QTextCursor(document());
         sel.cursor.setPosition(anchor);
         sel.cursor.setPosition(position, QTextCursor::KeepAnchor);
 
-        selections->append(sel);
+        result.append(sel);
     }
+
+    return result;
 }
 
 void CPPEditorWidget::updateOutlineIndexNow()
@@ -1094,7 +983,7 @@ void CPPEditorWidget::updateUses()
 
 void CPPEditorWidget::updateUsesNow()
 {
-    if (d->m_currentRenameSelection != d->NoCurrentRenameSelection)
+    if (d->m_localRenaming.isActive())
         return;
 
     semanticRehighlight();
@@ -1258,8 +1147,7 @@ bool CPPEditorWidget::event(QEvent *e)
     switch (e->type()) {
     case QEvent::ShortcutOverride:
         // handle escape manually if a rename is active
-        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape
-                && d->m_currentRenameSelection != d->NoCurrentRenameSelection) {
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && d->m_localRenaming.isActive()) {
             e->accept();
             return true;
         }
@@ -1335,88 +1223,11 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
 void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
 {
-    if (d->m_currentRenameSelection == d->NoCurrentRenameSelection) {
-        if (!handleDocumentationComment(e))
-            TextEditor::BaseTextEditorWidget::keyPressEvent(e);
+    if (d->m_localRenaming.handleKeyPressEvent(e))
         return;
-    }
 
-    // key handling for renames
-
-    QTextCursor cursor = textCursor();
-    const QTextCursor::MoveMode moveMode = (e->modifiers() & Qt::ShiftModifier)
-            ? QTextCursor::KeepAnchor
-            : QTextCursor::MoveAnchor;
-
-    switch (e->key()) {
-    case Qt::Key_Enter:
-    case Qt::Key_Return:
-    case Qt::Key_Escape:
-        abortRename();
-        e->accept();
-        return;
-    case Qt::Key_Home: {
-        // Send home to start of name when within the name and not at the start
-        if (cursor.position() > d->m_currentRenameSelectionBegin.position()
-               && cursor.position() <= d->m_currentRenameSelectionEnd.position()) {
-            cursor.setPosition(d->m_currentRenameSelectionBegin.position(), moveMode);
-            setTextCursor(cursor);
-            e->accept();
-            return;
-        }
-        break;
-    }
-    case Qt::Key_End: {
-        // Send end to end of name when within the name and not at the end
-        if (cursor.position() >= d->m_currentRenameSelectionBegin.position()
-               && cursor.position() < d->m_currentRenameSelectionEnd.position()) {
-            cursor.setPosition(d->m_currentRenameSelectionEnd.position(), moveMode);
-            setTextCursor(cursor);
-            e->accept();
-            return;
-        }
-        break;
-    }
-    case Qt::Key_Backspace: {
-        if (cursor.position() == d->m_currentRenameSelectionBegin.position()
-            && !cursor.hasSelection()) {
-            // Eat backspace at start of name when there is no selection
-            e->accept();
-            return;
-        }
-        break;
-    }
-    case Qt::Key_Delete: {
-        if (cursor.position() == d->m_currentRenameSelectionEnd.position()
-            && !cursor.hasSelection()) {
-            // Eat delete at end of name when there is no selection
-            e->accept();
-            return;
-        }
-        break;
-    }
-    default: {
-        break;
-    }
-    } // switch
-
-    startRename();
-
-    bool wantEditBlock = (cursor.position() >= d->m_currentRenameSelectionBegin.position()
-                          && cursor.position() <= d->m_currentRenameSelectionEnd.position());
-
-    if (wantEditBlock) {
-        // possible change inside rename selection
-        if (d->m_firstRenameChange)
-            cursor.beginEditBlock();
-        else
-            cursor.joinPreviousEditBlock();
-        d->m_firstRenameChange = false;
-    }
-    TextEditor::BaseTextEditorWidget::keyPressEvent(e);
-    if (wantEditBlock)
-        cursor.endEditBlock();
-    finishRename();
+    if (!handleDocumentationComment(e))
+        TextEditor::BaseTextEditorWidget::keyPressEvent(e);
 }
 
 Core::IEditor *CPPEditor::duplicate()
@@ -1559,9 +1370,7 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
     convertPosition(position(), &line, &column);
 
     QList<QTextEdit::ExtraSelection> unusedSelections;
-
-    d->m_renameSelections.clear();
-    d->m_currentRenameSelection = d->NoCurrentRenameSelection;
+    QList<QTextEdit::ExtraSelection> selections;
 
     // We can use the semanticInfo's snapshot (and avoid locking), but not its
     // document, since it doesn't contain expanded macros.
@@ -1584,21 +1393,21 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
         }
 
         if (uses.size() == 1) {
-            if (!CppTools::isOwnershipRAIIType(it.key(), context)) {
-                // it's an unused declaration
-                highlightUses(uses, &unusedSelections);
-            }
-        } else if (good && d->m_renameSelections.isEmpty()) {
-            highlightUses(uses, &d->m_renameSelections);
+            if (!CppTools::isOwnershipRAIIType(it.key(), context))
+                unusedSelections << createSelectionsFromUses(uses); // unused declaration
+        } else if (good && selections.isEmpty()) {
+            selections << createSelectionsFromUses(uses);
         }
     }
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
 
-    if (!d->m_renameSelections.isEmpty())
-        setExtraSelections(CodeSemanticsSelection, d->m_renameSelections); // ###
-    else
+    if (!selections.isEmpty()) {
+        setExtraSelections(CodeSemanticsSelection, selections);
+        d->m_localRenaming.updateLocalUseSelections(selections);
+    }  else {
         markSymbols(textCursor(), semanticInfo);
+    }
 
     d->m_lastSemanticInfo.forced = false; // clear the forced flag
 
@@ -1775,6 +1584,16 @@ void CPPEditorWidget::abortDeclDefLink()
     d->m_declDefLink.clear();
 }
 
+void CPPEditorWidget::onLocalRenamingFinished()
+{
+    semanticRehighlight(true);
+}
+
+void CPPEditorWidget::onLocalRenamingProcessKeyPressNormally(QKeyEvent *e)
+{
+    BaseTextEditorWidget::keyPressEvent(e);
+}
+
 bool CPPEditorWidget::handleDocumentationComment(QKeyEvent *e)
 {
     if (!d->m_commentsSettings.m_enableDoxygen
@@ -1864,6 +1683,11 @@ bool CPPEditorWidget::isStartOfDoxygenComment(const QTextCursor &cursor) const
         return true;
     }
     return false;
+}
+
+QTextCharFormat CPPEditorWidget::textCharFormat(TextEditor::TextStyle category)
+{
+    return baseTextDocument()->fontSettings().toTextCharFormat(category);
 }
 
 void CPPEditorWidget::onCommentsSettingsChanged(const CppTools::CommentsSettings &settings)

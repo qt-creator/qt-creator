@@ -42,6 +42,7 @@ QtcPlugin {
         "cppincludehierarchytreeview.cpp", "cppincludehierarchytreeview.h",
         "cppinsertvirtualmethods.cpp",
         "cppinsertvirtualmethods.h",
+        "cpplocalrenaming.cpp", "cpplocalrenaming.h",
         "cppoutline.cpp", "cppoutline.h",
         "cpppreprocessordialog.cpp", "cpppreprocessordialog.h", "cpppreprocessordialog.ui",
         "cppquickfix.cpp", "cppquickfix.h",
