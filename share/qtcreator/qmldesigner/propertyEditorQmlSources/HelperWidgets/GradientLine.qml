@@ -39,7 +39,12 @@ Item {
 
     property bool hasGradient: gradientModel.hasGradient
 
+
     property alias gradientPropertyName: gradientModel.gradientPropertyName
+
+    onHasGradientChanged: {
+        colorLine.invalidate()
+    }
 
     onCurrentColorChanged: {
         gradientModel.setColor(colorLine.selectedIndex, currentColor)
@@ -53,6 +58,14 @@ Item {
 
     function deleteGradient() {
         gradientModel.deleteGradient()
+    }
+
+    Connections {
+        target: modelNodeBackend
+        onSelectionChanged: {
+            colorLine.invalidate()
+            colorLine.select(0)
+        }
     }
 
     Item {
@@ -283,6 +296,7 @@ Item {
                         }
                         parent.y = 20
                         colorLine.invalidate()
+                        colorLine.select(colorLine.selectedIndex)
                     }
                 }
             }
