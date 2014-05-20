@@ -31,6 +31,7 @@
 #include "cppeditorplugin.h"
 #include "cppeditortestcase.h"
 #include "cppelementevaluator.h"
+#include "cppfollowsymbolundercursor.h"
 #include "cppvirtualfunctionassistprovider.h"
 #include "cppvirtualfunctionproposalitem.h"
 

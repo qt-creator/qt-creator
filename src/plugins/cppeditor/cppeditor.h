@@ -31,35 +31,33 @@
 #define CPPEDITOR_H
 
 #include "cppeditordocument.h"
-#include "cppfollowsymbolundercursor.h"
+
 #include "cppfunctiondecldeflink.h"
 
 #include <cpptools/commentssettings.h>
-#include <cpptools/cppsemanticinfo.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/semantichighlighter.h>
 
 #include <utils/qtcoverride.h>
 #include <utils/uncommentselection.h>
 
-#include <QFutureWatcher>
-#include <QModelIndex>
-
-QT_BEGIN_NAMESPACE
-class QSortFilterProxyModel;
-class QToolButton;
-QT_END_NAMESPACE
+#include <QScopedPointer>
 
 namespace CPlusPlus {
 class OverviewModel;
 class Symbol;
 }
 
-namespace Utils { class TreeViewComboBox; }
+namespace CppTools {
+class SemanticInfo;
+}
 
 namespace CppEditor {
 namespace Internal {
 
 class CPPEditorWidget;
+class CPPEditorWidgetPrivate;
+class FollowSymbolUnderCursor;
 
 class CPPEditor : public TextEditor::BaseTextEditor
 {
@@ -204,44 +202,8 @@ private:
     bool handleDocumentationComment(QKeyEvent *e);
     bool isStartOfDoxygenComment(const QTextCursor &cursor) const;
 
-    QPointer<CppTools::CppModelManagerInterface> m_modelManager;
-
-    CPPEditorDocument *m_cppEditorDocument;
-    Utils::TreeViewComboBox *m_outlineCombo;
-    CPlusPlus::OverviewModel *m_outlineModel;
-    QModelIndex m_outlineModelIndex;
-    QSortFilterProxyModel *m_proxyModel;
-    QAction *m_sortAction;
-    QTimer *m_updateOutlineTimer;
-    QTimer *m_updateOutlineIndexTimer;
-    QTimer *m_updateUsesTimer;
-    QTimer *m_updateFunctionDeclDefLinkTimer;
-    QHash<int, QTextCharFormat> m_semanticHighlightFormatMap;
-
-    QList<QTextEdit::ExtraSelection> m_renameSelections;
-    int m_currentRenameSelection;
-    static const int NoCurrentRenameSelection = -1;
-    bool m_inRename, m_inRenameChanged, m_firstRenameChange;
-    QTextCursor m_currentRenameSelectionBegin;
-    QTextCursor m_currentRenameSelectionEnd;
-
-    CppTools::SemanticInfo m_lastSemanticInfo;
-    QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
-
-    QScopedPointer<QFutureWatcher<TextEditor::HighlightingResult> > m_highlightWatcher;
-    unsigned m_highlightRevision; // the editor revision that requested the highlight
-
-    QScopedPointer<QFutureWatcher<QList<int> > > m_referencesWatcher;
-    unsigned m_referencesRevision;
-    int m_referencesCursorPosition;
-
-    FunctionDeclDefLinkFinder *m_declDefLinkFinder;
-    QSharedPointer<FunctionDeclDefLink> m_declDefLink;
-
-    CppTools::CommentsSettings m_commentsSettings;
-
-    QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
-    QToolButton *m_preprocessorButton;
+private:
+    QScopedPointer<CPPEditorWidgetPrivate> d;
 };
 
 } // namespace Internal

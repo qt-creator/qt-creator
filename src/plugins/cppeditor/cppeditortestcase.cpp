@@ -33,6 +33,7 @@
 #include "cppeditor.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <cpptools/cppsemanticinfo.h>
 #include <cplusplus/CppDocument.h>
 
 #include <QDir>
