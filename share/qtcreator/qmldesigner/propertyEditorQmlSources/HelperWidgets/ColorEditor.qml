@@ -95,12 +95,16 @@ Column {
              if (!supportGradient)
                  return
 
-            if (gradientLine.hasGradient)
+            if (gradientLine.hasGradient) {
                 buttonRow.initalChecked = 1
-            else
+                colorEditor.color = gradientLine.currentColor
+            } else {
                 buttonRow.initalChecked = 0
+                colorEditor.color = colorEditor.value
+            }
             buttonRow.checkedIndex = buttonRow.initalChecked
         }
+
 
         Component.onCompleted: {
             colorEditor.color = gradientLine.currentColor
