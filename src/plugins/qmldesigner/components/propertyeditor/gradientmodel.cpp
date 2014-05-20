@@ -302,6 +302,7 @@ void GradientModel::setAnchorBackend(const QVariant anchorBackend)
     m_lock = true;
 
     emit anchorBackendChanged();
+    emit hasGradientChanged();
 
     m_lock = false;
 }
