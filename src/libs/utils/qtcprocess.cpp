@@ -678,6 +678,8 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
     // See QTCREATORBUG-11995 for details.
 #ifndef QT_DEBUG
     m_useCtrlCStub = enabled;
+#else
+    Q_UNUSED(enabled)
 #endif
 }
 
