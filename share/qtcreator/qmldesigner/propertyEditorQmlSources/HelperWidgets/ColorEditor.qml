@@ -105,9 +105,18 @@ Column {
             buttonRow.checkedIndex = buttonRow.initalChecked
         }
 
+        Connections {
+            target: modelNodeBackend
+            onSelectionChanged: {
+                if (supportGradient && gradientLine.hasGradient) {
+                    colorEditor.color = gradientLine.currentColor
+                } else {
+                    colorEditor.color = colorEditor.value
+                }
+            }
+        }
 
         Component.onCompleted: {
-            colorEditor.color = gradientLine.currentColor
             isCompleted= true
         }
     }
