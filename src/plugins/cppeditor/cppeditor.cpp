@@ -40,12 +40,12 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
+#include <cpptools/commentssettings.h>
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cpphighlightingsupport.h>
-#include <cpptools/cpplocalsymbols.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cppqtstyleindenter.h>
 #include <cpptools/cppsemanticinfo.h>
 #include <cpptools/cpptoolseditorsupport.h>
@@ -55,8 +55,6 @@
 #include <cpptools/doxygengenerator.h>
 #include <cpptools/symbolfinder.h>
 
-#include <projectexplorer/nodesvisitor.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/session.h>
 
 #include <texteditor/basetextdocument.h>
@@ -420,6 +418,8 @@ class CPPEditorWidgetPrivate
 public:
     CPPEditorWidgetPrivate(CPPEditorWidget *q);
 
+    QTimer *newSingleShowTimer(int msecInterval);
+
 public:
     CPPEditorWidget *q;
 
@@ -479,6 +479,14 @@ CPPEditorWidgetPrivate::CPPEditorWidgetPrivate(CPPEditorWidget *q)
     , m_followSymbolUnderCursor(new FollowSymbolUnderCursor(q))
     , m_preprocessorButton(0)
 {
+}
+
+QTimer *CPPEditorWidgetPrivate::newSingleShowTimer(int msecInterval)
+{
+    QTimer *timer = new QTimer(q);
+    timer->setSingleShot(true);
+    timer->setInterval(msecInterval);
+    return timer;
 }
 
 CPPEditorWidget::CPPEditorWidget(QWidget *parent)
@@ -578,24 +586,16 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
             CppEditorPlugin::instance(), SLOT(setSortedOutline(bool)));
     d->m_outlineCombo->addAction(d->m_sortAction);
 
-    d->m_updateOutlineTimer = new QTimer(this);
-    d->m_updateOutlineTimer->setSingleShot(true);
-    d->m_updateOutlineTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    d->m_updateOutlineTimer = d->newSingleShowTimer(UPDATE_OUTLINE_INTERVAL);
     connect(d->m_updateOutlineTimer, SIGNAL(timeout()), this, SLOT(updateOutlineNow()));
 
-    d->m_updateOutlineIndexTimer = new QTimer(this);
-    d->m_updateOutlineIndexTimer->setSingleShot(true);
-    d->m_updateOutlineIndexTimer->setInterval(UPDATE_OUTLINE_INTERVAL);
+    d->m_updateOutlineIndexTimer = d->newSingleShowTimer(UPDATE_OUTLINE_INTERVAL);
     connect(d->m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
 
-    d->m_updateUsesTimer = new QTimer(this);
-    d->m_updateUsesTimer->setSingleShot(true);
-    d->m_updateUsesTimer->setInterval(UPDATE_USES_INTERVAL);
+    d->m_updateUsesTimer = d->newSingleShowTimer(UPDATE_USES_INTERVAL);
     connect(d->m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
 
-    d->m_updateFunctionDeclDefLinkTimer = new QTimer(this);
-    d->m_updateFunctionDeclDefLinkTimer->setSingleShot(true);
-    d->m_updateFunctionDeclDefLinkTimer->setInterval(UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
+    d->m_updateFunctionDeclDefLinkTimer = d->newSingleShowTimer(UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
     connect(d->m_updateFunctionDeclDefLinkTimer, SIGNAL(timeout()),
             this, SLOT(updateFunctionDeclDefLinkNow()));
 
@@ -766,8 +766,7 @@ void CPPEditorWidget::findUsages()
     }
 }
 
-
-void CPPEditorWidget::renameUsagesNow(const QString &replacement)
+void CPPEditorWidget::renameUsages(const QString &replacement)
 {
     if (!d->m_modelManager)
         return;
@@ -784,11 +783,6 @@ void CPPEditorWidget::renameUsagesNow(const QString &replacement)
             if (canonicalSymbol->identifier() != 0)
                 d->m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
     }
-}
-
-void CPPEditorWidget::renameUsages()
-{
-    renameUsagesNow();
 }
 
 void CPPEditorWidget::markSymbolsNow()

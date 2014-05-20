@@ -34,7 +34,6 @@
 
 #include "cppfunctiondecldeflink.h"
 
-#include <cpptools/commentssettings.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/semantichighlighter.h>
 
@@ -50,6 +49,7 @@ class Symbol;
 
 namespace CppTools {
 class SemanticInfo;
+class CommentsSettings;
 }
 
 namespace CppEditor {
@@ -118,11 +118,12 @@ public slots:
     void unCommentSelection() QTC_OVERRIDE;
     void setSortedOutline(bool sort);
     void switchDeclarationDefinition(bool inNextSplit);
-    void renameSymbolUnderCursor();
-    void renameUsages();
-    void findUsages();
     void showPreProcessorWidget();
-    void renameUsagesNow(const QString &replacement = QString());
+
+    void findUsages();
+    void renameSymbolUnderCursor();
+    void renameUsages(const QString &replacement = QString());
+
     void semanticRehighlight(bool force = false);
     void highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
                             unsigned revision);
@@ -138,8 +139,9 @@ protected:
     bool openLink(const Link &link, bool inNextSplit) QTC_OVERRIDE
     { return openCppEditorAt(link, inNextSplit); }
 
-    const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
-                                               CPlusPlus::Document::Ptr doc) const;
+    Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
+                    bool inNextSplit = false) QTC_OVERRIDE;
+
 protected slots:
     void slotCodeStyleSettingsChanged(const QVariant &) QTC_OVERRIDE;
 
@@ -164,19 +166,24 @@ private slots:
     void finishHighlightSymbolUsages();
 
     void markSymbolsNow();
-
     void performQuickFix(int index);
-
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
-
     void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
+    void abortDeclDefLink();
 
 private:
+    static bool openCppEditorAt(const Link &, bool inNextSplit = false);
+
     CPPEditorWidget(TextEditor::BaseTextEditorWidget *); // avoid stupidity
     void ctor();
 
+    void createToolBar(CPPEditor *editable);
+
     unsigned editorRevision() const;
     bool isOutdated() const;
+
+    const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
+                                               CPlusPlus::Document::Ptr doc) const;
 
     void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);
     bool sortedOutline() const;
@@ -184,17 +191,9 @@ private:
     void highlightUses(const QList<TextEditor::HighlightingResult> &uses,
                        QList<QTextEdit::ExtraSelection> *selections);
 
-    void createToolBar(CPPEditor *editable);
-
     void startRename();
     void finishRename();
     void abortRename();
-
-    Q_SLOT void abortDeclDefLink();
-
-    Link findLinkAt(const QTextCursor &, bool resolveTarget = true,
-                    bool inNextSplit = false) QTC_OVERRIDE;
-    bool openCppEditorAt(const Link &, bool inNextSplit = false);
 
     QModelIndex indexForPosition(int line, int column,
                                  const QModelIndex &rootIndex = QModelIndex()) const;
