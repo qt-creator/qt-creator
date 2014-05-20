@@ -32,6 +32,70 @@
 
     \section1 General Questions
 
+    \b {\QC only shows a blank window, or crashes on startup. What's going wrong?}
+
+    Some parts of \QC use Qt Quick 2, which relies on OpenGL API for
+    drawing. The most prominent use of Qt Quick 2 is in the Welcome mode, but it's
+    also used for the \QMLD, and the QML Profiler.
+
+    Unfortunately the use of OpenGL can cause problems, especially in remote setups
+    and with outdated drivers. You can quickly check whether this is your problem by:
+
+    \list
+
+      \li Launching \QC with Welcome mode disabled ( \c{-noload Welcome} on
+          command line).
+
+      \li Checking the console or the Windows debugger log for OpenGL-related error messages.
+
+    \endlist
+
+    The fixes and workarounds differ, depending on your setup. As a last resort you
+    can disable the affected plugins.
+
+    \e{Virtual Machines}
+
+    Try to enable \e{3D acceleration} in your virtual machine's settings.
+
+    \e{Windows}
+
+    Check whether \QC has been compiled with OpenGL/Desktop, or ANGLE as
+    a backend. The official binaries are always built with ANGLE (a library that
+    maps OpenGL ES API to DirectX).
+
+    \list
+
+      \li ANGLE backend: This requires a Windows version newer than Windows XP. If you
+          have problems, try updating your graphics drivers or update your
+          DirectX version.
+
+      \li OpenGL backend: Make sure your graphics driver supports OpenGL 2.1 or newer.
+          Try to update your graphics driver.
+
+    \endlist
+
+    \e{Unix}
+
+    Run \c glxgears for a quick check whether OpenGL works in general. Check output of
+    \c glxinfo to get more details like the OpenGL driver and renderer (search for 'OpenGL'
+    in the application's output).
+
+    If you are using the Mesa driver, you can force OpenGL to be rendered in software
+    by setting the \c LIBGL_ALWAYS_SOFTWARE environment variable.
+
+    \e{Disabling plugins}
+
+    You can disable the \QC plugins, at the expense of losing functionality:
+
+    \list
+
+      \li Launch \QC from command line, with
+          \c {-noload Welcome -noload QmlProfiler -noload QuickDesigner} arguments.
+
+      \li Disable the plugins permanently by selecting \gui Help > \gui{About Plugins}.
+
+    \endlist
+
     \b {How do I reset all \QC settings?}
 
     \QC creates the following files and directories:
