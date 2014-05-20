@@ -313,9 +313,9 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
     }
 }
 
-void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitStatus exitStatus)
+void NodeInstanceServerProxy::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
-    qDebug() << "Process finished:" << sender();
+    qWarning() << "Process finished:" << sender() << exitCode;
 
     if (m_captureFileForTest.isOpen()) {
         m_captureFileForTest.close();
