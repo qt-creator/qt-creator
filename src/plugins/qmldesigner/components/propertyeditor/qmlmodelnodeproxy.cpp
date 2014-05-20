@@ -40,7 +40,6 @@ QmlModelNodeProxy::QmlModelNodeProxy(QObject *parent) :
 
 void QmlModelNodeProxy::setup(const QmlItemNode &itemNode)
 {
-    qDebug() << "QmlModelNodeProxy::setup";
     m_qmlItemNode = itemNode;
 
     emit selectionChanged();
