@@ -29,6 +29,8 @@
 
 #include "itemlibrarymodel.h"
 #include "itemlibraryinfo.h"
+#include "itemlibrarysectionmodel.h"
+
 #include <model.h>
 #include <nodemetainfo.h>
 
@@ -293,107 +295,6 @@ void ItemLibraryItemModel::setItemIconSize(const QSize &itemIconSize)
     setItemIconPath(m_iconPath);
 }
 
-ItemLibrarySectionModel::ItemLibrarySectionModel(int sectionLibId, const QString &sectionName, QObject *parent)
-    : QObject(parent),
-      m_name(sectionName),
-      m_sectionLibId(sectionLibId),
-      m_sectionExpanded(true),
-      m_sectionEntries(parent)
-{
-    if (collapsedStateHash.contains(sectionName))
-        m_sectionExpanded=  collapsedStateHash.value(sectionName);
-}
-
-
-QString ItemLibrarySectionModel::sectionName() const
-{
-    return m_name;
-}
-
-int ItemLibrarySectionModel::sectionLibId() const
-{
-    return m_sectionLibId;
-}
-
-bool ItemLibrarySectionModel::sectionExpanded() const
-{
-    return m_sectionExpanded;
-}
-
-QVariant ItemLibrarySectionModel::sortingRole() const
-{
-
-    if (sectionName() == QStringLiteral("QML Components")) //Qml Components always come first
-        return QVariant(QStringLiteral("AA.this_comes_first"));
-
-    return sectionName();
-}
-
-void ItemLibrarySectionModel::addSectionEntry(ItemLibraryItemModel *sectionEntry)
-{
-    m_sectionEntries.addElement(sectionEntry, sectionEntry->itemLibId());
-}
-
-
-void ItemLibrarySectionModel::removeSectionEntry(int itemLibId)
-{
-    m_sectionEntries.removeElement(itemLibId);
-}
-
-QObject *ItemLibrarySectionModel::sectionEntries()
-{
-    return &m_sectionEntries;
-}
-
-int ItemLibrarySectionModel::visibleItemIndex(int itemLibId)
-{
-    return m_sectionEntries.visibleElementPosition(itemLibId);
-}
-
-
-bool ItemLibrarySectionModel::isItemVisible(int itemLibId)
-{
-    return m_sectionEntries.elementVisible(itemLibId);
-}
-
-
-bool ItemLibrarySectionModel::updateSectionVisibility(const QString &searchText, bool *changed)
-{
-    bool haveVisibleItems = false;
-
-    *changed = false;
-
-    QMap<int, QObject *>::const_iterator itemIt = m_sectionEntries.elements().constBegin();
-    while (itemIt != m_sectionEntries.elements().constEnd()) {
-
-        bool itemVisible = m_sectionEntries.elementByType<ItemLibraryItemModel*>(
-                    itemIt.key())->itemName().toLower().contains(searchText);
-
-        bool itemChanged = false;
-        itemChanged = m_sectionEntries.setElementVisible(itemIt.key(), itemVisible);
-
-        *changed |= itemChanged;
-
-        if (itemVisible)
-            haveVisibleItems = true;
-
-        ++itemIt;
-    }
-
-    m_sectionEntries.resetModel();
-
-    emit sectionEntriesChanged();
-
-    return haveVisibleItems;
-}
-
-
-void ItemLibrarySectionModel::updateItemIconSize(const QSize &itemIconSize)
-{
-    foreach (ItemLibraryItemModel* itemLibraryItemModel, m_sectionEntries.elementsByType<ItemLibraryItemModel*>()) {
-        itemLibraryItemModel->setItemIconSize(itemIconSize);
-    }
-}
 
 void ItemLibraryModel::setExpanded(bool expanded, const QString &section)
 {
@@ -411,7 +312,6 @@ ItemLibraryModel::ItemLibraryModel(QObject *parent)
       m_nextLibId(0)
 {
 }
-
 
 ItemLibraryModel::~ItemLibraryModel()
 {

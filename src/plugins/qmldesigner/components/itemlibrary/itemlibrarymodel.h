@@ -42,6 +42,7 @@ namespace QmlDesigner {
 class ItemLibraryInfo;
 class ItemLibraryEntry;
 class Model;
+class ItemLibrarySectionModel;
 
 void registerQmlTypes();
 
@@ -124,46 +125,6 @@ private:
     QString m_iconPath;
     QSize m_iconSize;
 };
-
-
-class ItemLibrarySectionModel: public QObject {
-
-    Q_OBJECT
-
-    Q_PROPERTY(QObject* sectionEntries READ sectionEntries NOTIFY sectionEntriesChanged FINAL)
-    Q_PROPERTY(int sectionLibId READ sectionLibId FINAL)
-    Q_PROPERTY(QString sectionName READ sectionName FINAL)
-    Q_PROPERTY(bool sectionExpanded READ sectionExpanded FINAL)
-    Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
-
-public:
-    ItemLibrarySectionModel(int sectionLibId, const QString &sectionName, QObject *parent = 0);
-
-    QString sectionName() const;
-    int sectionLibId() const;
-    bool sectionExpanded() const;
-    QVariant sortingRole() const;
-
-    void addSectionEntry(ItemLibraryItemModel *sectionEntry);
-    void removeSectionEntry(int itemLibId);
-    QObject *sectionEntries();
-
-    int visibleItemIndex(int itemLibId);
-    bool isItemVisible(int itemLibId);
-
-    bool updateSectionVisibility(const QString &searchText, bool *changed);
-    void updateItemIconSize(const QSize &itemIconSize);
-
-signals:
-    void sectionEntriesChanged();
-
-private:
-    QString m_name;
-    int m_sectionLibId;
-    bool m_sectionExpanded;
-    ItemLibrarySortedModel m_sectionEntries;
-};
-
 
 class ItemLibraryModel: public ItemLibrarySortedModel {
 
