@@ -27,7 +27,9 @@ function commonCxxFlags(qbs)
 {
     var flags = [];
     if (qbs.toolchain.contains("clang")) {
-        flags.push("-std=c++11", "-stdlib=libc++");
+        flags.push("-std=c++11");
+        if (qbs.targetOS.contains("darwin"))
+            flags.push("-stdlib=libc++");
     } else if (qbs.toolchain.contains("gcc")) {
         flags.push("-std=c++0x");
     }
@@ -37,7 +39,7 @@ function commonCxxFlags(qbs)
 function commonLinkerFlags(qbs)
 {
     var flags = [];
-    if (qbs.toolchain.contains("clang"))
+    if (qbs.toolchain.contains("clang") && qbs.targetOS.contains("darwin"))
         flags.push("-stdlib=libc++");
     return flags;
 }
