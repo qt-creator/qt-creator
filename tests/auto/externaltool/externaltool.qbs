@@ -56,6 +56,7 @@ QtcAutotest {
             "outputpane.h", "outputpane.cpp",
             "outputpanemanager.h", "outputpanemanager.cpp",
             "outputwindow.h", "outputwindow.cpp",
+            "patchtool.h", "patchtool.cpp",
             "plugindialog.h", "plugindialog.cpp",
             "rightpane.h", "rightpane.cpp",
             "settingsdatabase.h", "settingsdatabase.cpp",
