@@ -1861,19 +1861,6 @@ void Model::setTextModifier(TextModifier *textModifier)
     d->m_textModifier = textModifier;
 }
 
-#if 0
-/*!
- \brief Creates a new empty model
- \param uiFilePath path to the ui file
- \param[out] errorMessage returns a error message
- \return new created model
-*/
-Model *Model::create(const QString &rootType)
-{
-    return Internal::ModelPrivate::create(rootType);
-}
-#endif
-
 /*!
   \brief Returns the URL against which relative URLs within the model should be resolved.
   \return The base URL.
