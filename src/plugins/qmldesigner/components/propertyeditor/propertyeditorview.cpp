@@ -243,6 +243,11 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
         QmlObjectNode qmlObjectNode(m_selectedNode);
         PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(underscoreName);
 
+        if (!value) {
+            qWarning() << "PropertyEditor::changeExpression no value for " << underscoreName;
+            return;
+        }
+
         if (qmlObjectNode.modelNode().metaInfo().isValid() && qmlObjectNode.modelNode().metaInfo().hasProperty(name)) {
             if (qmlObjectNode.modelNode().metaInfo().propertyTypeName(name) == "QColor") {
                 if (QColor(value->expression().remove('"')).isValid()) {
@@ -276,11 +281,6 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
                     return;
                 }
             }
-        }
-
-        if (!value) {
-            qWarning() << "PropertyEditor::changeExpression no value for " << underscoreName;
-            return;
         }
 
         if (value->expression().isEmpty())
