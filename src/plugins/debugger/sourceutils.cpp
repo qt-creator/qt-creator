@@ -35,10 +35,11 @@
 #include <texteditor/basetexteditor.h>
 #include <cpptools/abstracteditorsupport.h>
 #include <cpptools/cppprojectfile.h>
-
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
+
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 
@@ -334,13 +335,14 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
     if (!plaintext)
         return QString();
 
-    QString expr = plaintext->textCursor().selectedText();
+    QTextCursor tc = plaintext->textCursor();
+    QString expr = tc.selectedText();
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
     if (expr.isEmpty() && modelManager) {
-        QTextCursor tc(plaintext->document());
+        QTextDocument *doc = plaintext->document();
+        QTC_ASSERT(doc, return QString());
         tc.setPosition(pos);
-
-        const QChar ch = editor->textDocument()->characterAt(pos);
+        const QChar ch = doc->characterAt(pos);
         if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
             tc.movePosition(QTextCursor::EndOfWord);
 
@@ -350,7 +352,6 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
         *column = tc.positionInBlock();
         *line = tc.blockNumber();
     } else {
-        const QTextCursor tc = plaintext->textCursor();
         *column = tc.positionInBlock();
         *line = tc.blockNumber();
     }
