@@ -61,13 +61,17 @@ RowLayout {
 
     Controls.ComboBox {
 
+        id: comboBox
+
+        property bool isComplete: false
+
         property string textValue: backendValue.value
         onTextValueChanged: {
             comboBox.editText = textValue
         }
 
         Layout.fillWidth: true
-        id: comboBox
+
         editable: true
         style: CustomComboBoxStyle {
             textColor: urlChooser.textColor
@@ -76,11 +80,17 @@ RowLayout {
         model: fileModel.fileModel
 
         onModelChanged: {
+            if (!comboBox.isComplete)
+                return;
+
             editText = backendValue.valueToString
         }
 
         onCurrentTextChanged: {
             if (backendValue === undefined)
+                return;
+
+            if (!comboBox.isComplete)
                 return;
 
             if (backendValue.value !== currentText)
@@ -96,6 +106,8 @@ RowLayout {
                     comboBox.children[i].anchors.rightMargin = 34
                 }
             }
+            comboBox.isComplete = true
+            editText = backendValue.valueToString
         }
 
     }
