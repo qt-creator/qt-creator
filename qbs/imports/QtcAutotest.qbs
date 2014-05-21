@@ -1,8 +1,8 @@
 import qbs
 import qbs.FileInfo
-import QtcFunctions
+import QtcProduct
 
-CppApplication {
+QtcProduct {
     type: "application"
     Depends { name: "Qt.test" }
     targetName: "tst_" + name.split(' ').join("")
@@ -11,8 +11,6 @@ CppApplication {
     destinationDirectory: buildDirectory + '/'
                           + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
 
-    cpp.cxxFlags: QtcFunctions.commonCxxFlags(qbs)
-    cpp.linkerFlags: QtcFunctions.commonLinkerFlags(qbs)
     cpp.rpaths: [
         buildDirectory + '/' + project.ide_library_path,
         buildDirectory + '/' + project.ide_library_path + "/..", // OSX
@@ -20,16 +18,16 @@ CppApplication {
     ]
     cpp.minimumOsxVersion: "10.7"
 
+    Group {
+        fileTagsFilter: product.type
+        qbs.install: false
+    }
+
     // The following would be conceptually right, but does not work currently as some autotests
     // (e.g. extensionsystem) do not work when installed, because they want hardcoded
     // absolute paths to resources in the build directory.
-//    cpp.rpaths: qbs.targetOS.contains("osx")
-//            ? ["@executable_path/.."]
-//            : ["$ORIGIN/../" + project.libDirName + "/qtcreator",
-//               "$ORIGIN/../" project.libDirName + "/qtcreator/plugins"]
-//    Group {
-//        fileTagsFilter: product.type
-//        qbs.install: true
-//        qbs.installDir: project.ide_bin_path
-//    }
+    //    cpp.rpaths: qbs.targetOS.contains("osx")
+    //            ? ["@executable_path/.."]
+    //            : ["$ORIGIN/../" + project.libDirName + "/qtcreator",
+    //               "$ORIGIN/../" project.libDirName + "/qtcreator/plugins"]
 }
