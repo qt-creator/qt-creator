@@ -86,7 +86,7 @@ ModelNode::ModelNode(const InternalNodePointer &internalNode, Model *model, cons
     Q_ASSERT(!m_model || m_view);
 }
 
-ModelNode::ModelNode(const ModelNode modelNode, AbstractView *view)
+ModelNode::ModelNode(const ModelNode &modelNode, AbstractView *view)
     : m_internalNode(modelNode.m_internalNode),
       m_model(modelNode.model()),
       m_view(view)

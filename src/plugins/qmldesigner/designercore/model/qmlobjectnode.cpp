@@ -523,7 +523,7 @@ PropertyName QmlObjectNode::defaultPropertyName() const
     return modelNode().metaInfo().defaultPropertyName();
 }
 
-void QmlObjectNode::setParent(QmlObjectNode newParent)
+void QmlObjectNode::setParent(const QmlObjectNode &newParent)
 {
     if (newParent.hasDefaultPropertyName())
         newParent.modelNode().defaultNodeAbstractProperty().reparentHere(modelNode());

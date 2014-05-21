@@ -279,7 +279,7 @@ bool MoveObjectVisitor::visit(UiObjectDefinition *ast)
     return !didRewriting();
 }
 
-void MoveObjectVisitor::doMove(TextModifier::MoveInfo moveInfo)
+void MoveObjectVisitor::doMove(const TextModifier::MoveInfo &moveInfo)
 {
     if (moveInfo.objectEnd > moveInfo.objectStart) {
         Inserter findTargetAndInsert(*textModifier(),

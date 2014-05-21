@@ -44,7 +44,7 @@ FileResourcesModel::FileResourcesModel(QObject *parent) :
 {
 }
 
-void FileResourcesModel::setAnchorBackend(const QVariant anchorBackend)
+void FileResourcesModel::setAnchorBackend(const QVariant &anchorBackend)
 {
 
     QObject* anchorBackendObject = anchorBackend.value<QObject*>();

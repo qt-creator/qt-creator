@@ -215,7 +215,7 @@ private:
 
     QRectF parentBoundingBox();
 
-    QRectF boundingBox(QmlItemNode node);
+    QRectF boundingBox(const QmlItemNode &node);
 
     QRectF transformedBoundingBox();
 

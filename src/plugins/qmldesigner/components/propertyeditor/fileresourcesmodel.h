@@ -50,7 +50,7 @@ class FileResourcesModel : public QObject
 public:
     explicit FileResourcesModel(QObject *parent = 0);
 
-    void setAnchorBackend(const QVariant anchorBackend);
+    void setAnchorBackend(const QVariant &anchorBackend);
     QString fileName() const;
     void setFileName(const QUrl &fileName);
     void setFileNameStr(const QString &fileName);

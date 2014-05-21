@@ -287,7 +287,7 @@ void GradientModel::setupModel()
     m_lock = false;
 }
 
-void GradientModel::setAnchorBackend(const QVariant anchorBackend)
+void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
 {
     QObject* anchorBackendObject = anchorBackend.value<QObject*>();
 

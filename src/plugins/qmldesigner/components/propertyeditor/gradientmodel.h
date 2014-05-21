@@ -78,7 +78,7 @@ public slots:
 
 private:
     void setupModel();
-    void setAnchorBackend(const QVariant anchorBackend);
+    void setAnchorBackend(const QVariant &anchorBackend);
     QVariant anchorBackend() const {return QVariant(); }
     QString gradientPropertyName() const;
     void setGradientPropertyName(const QString &name);

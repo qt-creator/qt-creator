@@ -43,7 +43,7 @@ static inline DesignDocument* currentDesignDocument()
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
-static inline void getProperties(const ModelNode node, QHash<PropertyName, QVariant> &propertyHash)
+static inline void getProperties(const ModelNode &node, QHash<PropertyName, QVariant> &propertyHash)
 {
     if (QmlObjectNode::isValidQmlObjectNode(node)) {
         foreach (const AbstractProperty &abstractProperty, node.properties()) {

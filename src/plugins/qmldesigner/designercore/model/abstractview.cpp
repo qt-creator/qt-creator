@@ -352,7 +352,7 @@ bool AbstractView::hasId(const QString &id) const
     return model()->d->hasId(id);
 }
 
-QString firstCharToLower(const QString string)
+QString firstCharToLower(const QString &string)
 {
     QString resultString = string;
 
@@ -362,7 +362,7 @@ QString firstCharToLower(const QString string)
     return resultString;
 }
 
-QString AbstractView::generateNewId(const QString prefixName) const
+QString AbstractView::generateNewId(const QString &prefixName) const
 {
     int counter = 1;
 

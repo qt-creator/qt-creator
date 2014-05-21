@@ -53,7 +53,7 @@ protected:
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
 
 private:
-    void doMove(QmlDesigner::TextModifier::MoveInfo moveInfo);
+    void doMove(const TextModifier::MoveInfo &moveInfo);
 
 private:
     QList<QmlJS::AST::Node *> parents;

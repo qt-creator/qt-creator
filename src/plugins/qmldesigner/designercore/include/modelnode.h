@@ -91,7 +91,7 @@ public:
 
     ModelNode();
     ModelNode(const Internal::InternalNodePointer &internalNode, Model *model, const AbstractView *view);
-    ModelNode(const ModelNode modelNode, AbstractView *view);
+    ModelNode(const ModelNode &modelNode, AbstractView *view);
     ModelNode(const ModelNode &other);
     ~ModelNode();
 

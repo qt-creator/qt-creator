@@ -95,7 +95,7 @@ public:
 
     void removeProperty(const PropertyName &name);
 
-    void setParent(QmlObjectNode newParent);
+    void setParent(const QmlObjectNode &newParent);
 
     QmlItemNode toQmlItemNode() const;
 

@@ -57,7 +57,7 @@ static inline void backupPropertyAndRemove(ModelNode node, const PropertyName &p
 }
 
 
-static inline void restoreProperty(ModelNode node, const PropertyName &propertyName)
+static inline void restoreProperty(const ModelNode &node, const PropertyName &propertyName)
 {
     if (node.hasAuxiliaryData(auxDataString + propertyName))
         node.variantProperty(propertyName).setValue(node.auxiliaryData(auxDataString + propertyName));
@@ -682,7 +682,7 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
     return QRect();
 }
 
-QRectF QmlAnchorBindingProxy::boundingBox(QmlItemNode node)
+QRectF QmlAnchorBindingProxy::boundingBox(const QmlItemNode &node)
 {
     if (node.isValid())
         return node.instanceTransformWithContentTransform().mapRect(node.instanceBoundingRect());

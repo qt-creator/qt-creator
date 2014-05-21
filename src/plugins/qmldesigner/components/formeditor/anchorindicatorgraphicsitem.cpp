@@ -209,7 +209,8 @@ static void updateAnchorLinePoints(QPointF *firstPoint, QPointF *secondPoint, co
     *secondPoint = anchorLine.qmlItemNode().instanceSceneTransform().map(*secondPoint);
 }
 
-void AnchorIndicatorGraphicsItem::updateAnchorIndicator(const AnchorLine &sourceAnchorLine, const AnchorLine targetAnchorLine)
+void AnchorIndicatorGraphicsItem::updateAnchorIndicator(const AnchorLine &sourceAnchorLine,
+                                                        const AnchorLine &targetAnchorLine)
 {
     if (sourceAnchorLine.qmlItemNode().isValid() && targetAnchorLine.qmlItemNode().isValid()) {
         m_sourceAnchorLineType = sourceAnchorLine.type();

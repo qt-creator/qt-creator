@@ -110,14 +110,14 @@ protected:
 
 private:
     void commitTransaction();
-    void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlItemNode parentNode, QPointF scenePos);
-    void createQmlItemNodeFromImage(const QString &imageName, QmlItemNode parentNode, QPointF scenePos);
+    void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QmlItemNode &parentNode, const QPointF &scenePos);
+    void createQmlItemNodeFromImage(const QString &imageName, const QmlItemNode &parentNode, const QPointF &scenePos);
     FormEditorItem* calculateContainer(const QPointF &point, FormEditorItem * currentItem = 0);
 
     void begin(QPointF scenePos);
     void end();
     void end(Snapper::Snapping useSnapping);
-    void move(QPointF scenePos);
+    void move(const QPointF &scenePos);
 
     MoveManipulator m_moveManipulator;
     SelectionIndicator m_selectionIndicator;

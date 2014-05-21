@@ -422,7 +422,7 @@ void DesignDocument::cutSelected()
     deleteSelected();
 }
 
-static void scatterItem(ModelNode pastedNode, const ModelNode targetNode, int offset = -2000)
+static void scatterItem(const ModelNode &pastedNode, const ModelNode &targetNode, int offset = -2000)
 {
 
     bool scatter = false;

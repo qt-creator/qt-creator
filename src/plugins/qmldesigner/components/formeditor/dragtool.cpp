@@ -145,7 +145,9 @@ void DragTool::beginWithPoint(const QPointF &beginPoint)
     m_moveManipulator.begin(beginPoint);
 }
 
-void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlItemNode parentNode, QPointF scenePos)
+void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
+                                 const QmlItemNode &parentNode,
+                                 const QPointF &scenePos)
 {
     MetaInfo metaInfo = MetaInfo::global();
 
@@ -161,7 +163,9 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlIt
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
 }
 
-void DragTool::createQmlItemNodeFromImage(const QString &imageName, QmlItemNode parentNode, QPointF scenePos)
+void DragTool::createQmlItemNodeFromImage(const QString &imageName,
+                                          const QmlItemNode &parentNode,
+                                          const QPointF &scenePos)
 {
     if (!parentNode.isValid())
         return;
@@ -392,7 +396,7 @@ void DragTool::end(Snapper::Snapping useSnapping)
     clear();
 }
 
-void  DragTool::move(QPointF scenePos)
+void  DragTool::move(const QPointF &scenePos)
 {
     if (!m_movingItem)
         return;

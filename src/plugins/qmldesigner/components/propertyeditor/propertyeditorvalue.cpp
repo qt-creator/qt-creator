@@ -57,7 +57,7 @@ QVariant PropertyEditorValue::value() const
     return returnValue;
 }
 
-static bool cleverDoubleCompare(QVariant value1, QVariant value2)
+static bool cleverDoubleCompare(const QVariant &value1, const QVariant &value2)
 { //we ignore slight changes on doubles
     if ((value1.type() == QVariant::Double) && (value2.type() == QVariant::Double)) {
         int a = value1.toDouble() * 100;
@@ -69,7 +69,7 @@ static bool cleverDoubleCompare(QVariant value1, QVariant value2)
     return false;
 }
 
-static bool cleverColorCompare(QVariant value1, QVariant value2)
+static bool cleverColorCompare(const QVariant &value1, const QVariant &value2)
 {
     if ((value1.type() == QVariant::Color) && (value2.type() == QVariant::Color)) {
         QColor c1 = value1.value<QColor>();

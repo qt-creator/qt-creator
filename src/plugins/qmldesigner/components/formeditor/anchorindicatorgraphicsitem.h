@@ -46,7 +46,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     QRectF boundingRect() const;
 
-    void updateAnchorIndicator(const AnchorLine &sourceAnchorLine, const AnchorLine targetAnchorLine);
+    void updateAnchorIndicator(const AnchorLine &sourceAnchorLine, const AnchorLine &targetAnchorLine);
 
     AnchorLineType sourceAnchorLineType() const;
     void setSourceAnchorLineType(const AnchorLineType &sourceAnchorLineType);
