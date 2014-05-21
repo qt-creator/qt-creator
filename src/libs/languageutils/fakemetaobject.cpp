@@ -81,6 +81,29 @@ void FakeMetaEnum::addToHash(QCryptographicHash &hash) const
         hash.addData(reinterpret_cast<const char *>(&value), sizeof(value));
 }
 
+QString FakeMetaEnum::describe(int baseIndent) const
+{
+    QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
+    QString res = QLatin1String("Enum ");
+    res += name();
+    res += QLatin1String(":{");
+    for (int i = 0; i < keyCount(); ++i) {
+        res += newLine;
+        res += QLatin1String("  ");
+        res += key(i);
+        res += QLatin1String(": ");
+        res += QString::number(m_values.value(i, -1));
+    }
+    res += newLine;
+    res += QLatin1String("}");
+    return res;
+}
+
+QString FakeMetaEnum::toString() const
+{
+    return describe();
+}
+
 FakeMetaMethod::FakeMetaMethod(const QString &name, const QString &returnType)
     : m_name(name)
     , m_returnType(returnType)
@@ -155,6 +178,42 @@ void FakeMetaMethod::addToHash(QCryptographicHash &hash) const
     hash.addData(reinterpret_cast<const char *>(m_returnType.constData()), len * sizeof(QChar));
 }
 
+QString FakeMetaMethod::describe(int baseIndent) const
+{
+    QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
+    QString res = QLatin1String("Method {");
+    res += newLine;
+    res += QLatin1String("  methodName:");
+    res += methodName();
+    res += newLine;
+    res += QLatin1String("  methodType:");
+    res += methodType();
+    res += newLine;
+    res += QLatin1String("  parameterNames:[");
+    foreach (const QString &pName, parameterNames()) {
+        res += newLine;
+        res += QLatin1String("    ");
+        res += pName;
+    }
+    res += QLatin1String("]");
+    res += newLine;
+    res += QLatin1String("  parameterTypes:[");
+    foreach (const QString &pType, parameterTypes()) {
+        res += newLine;
+        res += QLatin1String("    ");
+        res += pType;
+    }
+    res += QLatin1String("]");
+    res += newLine;
+    res += QLatin1String("}");
+    return res;
+}
+
+QString FakeMetaMethod::toString() const
+{
+    return describe();
+}
+
 
 FakeMetaProperty::FakeMetaProperty(const QString &name, const QString &type, bool isList,
                                    bool isWritable, bool isPointer, int revision)
@@ -197,6 +256,38 @@ void FakeMetaProperty::addToHash(QCryptographicHash &hash) const
     len = m_type.size();
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
     hash.addData(reinterpret_cast<const char *>(m_type.constData()), len * sizeof(QChar));
+}
+
+QString FakeMetaProperty::describe(int baseIndent) const
+{
+    QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
+    QString res = QLatin1String("Property  {");
+    res += newLine;
+    res += QLatin1String("  name:");
+    res += name();
+    res += newLine;
+    res += QLatin1String("  typeName:");
+    res += typeName();
+    res += newLine;
+    res += QLatin1String("  typeName:");
+    res += QString::number(revision());
+    res += newLine;
+    res += QLatin1String("  isList:");
+    res += isList();
+    res += newLine;
+    res += QLatin1String("  isPointer:");
+    res += isPointer();
+    res += newLine;
+    res += QLatin1String("  isWritable:");
+    res += isWritable();
+    res += newLine;
+    res += QLatin1String("}");
+    return res;
+}
+
+QString FakeMetaProperty::toString() const
+{
+    return describe();
 }
 
 
@@ -382,6 +473,85 @@ void FakeMetaObject::setIsComposite(bool value)
     m_isSingleton = value;
 }
 
+QString FakeMetaObject::toString() const
+{
+    return describe();
+}
+
+QString FakeMetaObject::describe(bool printDetails, int baseIndent) const
+{
+    QString res = QString::fromLatin1("FakeMetaObject@%1")
+         .arg((quintptr)(void *)this, 0, 16);
+    if (!printDetails)
+        return res;
+    QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
+    res += QLatin1String("{");
+    res += newLine;
+    res += QLatin1String("className:");
+    res += className();
+    res += newLine;
+    res += QLatin1String("superClassName:");
+    res += superclassName();
+    res += newLine;
+    res += QLatin1String("isSingleton:");
+    res += isSingleton();
+    res += newLine;
+    res += QLatin1String("isCreatable:");
+    res += isCreatable();
+    res += newLine;
+    res += QLatin1String("isComposite:");
+    res += isComposite();
+    res += newLine;
+    res += QLatin1String("defaultPropertyName:");
+    res += defaultPropertyName();
+    res += newLine;
+    res += QLatin1String("attachedTypeName:");
+    res += attachedTypeName();
+    res += newLine;
+    res += QLatin1String("fingerprint:");
+    res += QString::fromUtf8(fingerprint());
+
+    res += newLine;
+    res += QLatin1String("exports:[");
+    foreach (const Export &e, exports()) {
+        res += newLine;
+        res += QLatin1String("  ");
+        res += e.describe(baseIndent + 2);
+    }
+    res += QLatin1String("]");
+
+    res += newLine;
+    res += QLatin1String("enums:[");
+    for (int iEnum = 0; iEnum < enumeratorCount() ; ++ iEnum) {
+        FakeMetaEnum e = enumerator(enumeratorOffset() + iEnum);
+        res += newLine;
+        res += QLatin1String("  ");
+        res += e.describe(baseIndent + 2);
+    }
+    res += QLatin1String("]");
+
+    res += newLine;
+    res += QLatin1String("properties:[");
+    for (int iProp = 0; iProp < propertyCount() ; ++ iProp) {
+        FakeMetaProperty prop = property(propertyOffset() + iProp);
+        res += newLine;
+        res += QLatin1String("  ");
+        res += prop.describe(baseIndent + 2);
+    }
+    res += QLatin1String("]");
+    res += QLatin1String("methods:[");
+    for (int iMethod = 0; iMethod < methodOffset() ; ++ iMethod) {
+        FakeMetaMethod m = method(methodOffset() + iMethod);
+        res += newLine;
+        res += QLatin1String("  ");
+        m.describe(baseIndent + 2);
+    }
+    res += QLatin1String("]");
+    res += newLine;
+    res += QLatin1String("}");
+    return res;
+}
+
 FakeMetaObject::Export::Export()
     : metaObjectRevision(0)
 {}
@@ -398,4 +568,33 @@ void FakeMetaObject::Export::addToHash(QCryptographicHash &hash) const
     hash.addData(reinterpret_cast<const char *>(type.constData()), len * sizeof(QChar));
     version.addToHash(hash);
     hash.addData(reinterpret_cast<const char *>(&metaObjectRevision), sizeof(metaObjectRevision));
+}
+
+QString FakeMetaObject::Export::describe(int baseIndent) const
+{
+    QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
+    QString res = QLatin1String("Export {");
+    res += newLine;
+    res += QLatin1String("  package:");
+    res += package;
+    res += newLine;
+    res += QLatin1String("  type:");
+    res += type;
+    res += newLine;
+    res += QLatin1String("  version:");
+    res += version.toString();
+    res += newLine;
+    res += QLatin1String("  metaObjectRevision:");
+    res += QString::number(metaObjectRevision);
+    res += newLine;
+    res += QLatin1String("  isValid:");
+    res += QString::number(isValid());
+    res += newLine;
+    res += QLatin1String("}");
+    return res;
+}
+
+QString FakeMetaObject::Export::toString() const
+{
+    return describe();
 }

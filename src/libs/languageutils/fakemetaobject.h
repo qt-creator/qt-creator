@@ -65,6 +65,9 @@ public:
     QStringList keys() const;
     bool hasKey(const QString &key) const;
     void addToHash(QCryptographicHash &hash) const;
+
+    QString describe(int baseIndent = 0) const;
+    QString toString() const;
 };
 
 class LANGUAGEUTILS_EXPORT FakeMetaMethod {
@@ -103,6 +106,8 @@ public:
     void setRevision(int r);
     void addToHash(QCryptographicHash &hash) const;
 
+    QString describe(int baseIndent = 0) const;
+    QString toString() const;
 private:
     QString m_name;
     QString m_returnType;
@@ -132,6 +137,9 @@ public:
     bool isPointer() const;
     int revision() const;
     void addToHash(QCryptographicHash &hash) const;
+
+    QString describe(int baseIndent = 0) const;
+    QString toString() const;
 };
 
 class LANGUAGEUTILS_EXPORT FakeMetaObject {
@@ -152,6 +160,9 @@ public:
 
         bool isValid() const;
         void addToHash(QCryptographicHash &hash) const;
+
+        QString describe(int baseIndent = 0) const;
+        QString toString() const;
     };
 
 private:
@@ -217,6 +228,9 @@ public:
     void setIsSingleton(bool value);
     void setIsCreatable(bool value);
     void setIsComposite(bool value);
+
+    QString describe(bool printDetails = true, int baseIndent = 0) const;
+    QString toString() const;
 };
 
 } // namespace LanguageUtils
