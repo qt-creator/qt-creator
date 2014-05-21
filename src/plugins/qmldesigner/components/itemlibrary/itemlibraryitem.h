@@ -37,7 +37,7 @@
 
 namespace QmlDesigner {
 
-class ItemLibraryItemModel: public QObject {
+class ItemLibraryItem: public QObject {
 
     Q_OBJECT
 
@@ -47,8 +47,8 @@ class ItemLibraryItemModel: public QObject {
     Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
 
 public:
-    ItemLibraryItemModel(int itemLibId, const QString &itemName, QObject *parent);
-    ~ItemLibraryItemModel();
+    ItemLibraryItem(int itemLibId, const QString &itemName, QObject *parent);
+    ~ItemLibraryItem();
 
     int itemLibId() const;
     QString itemName() const;

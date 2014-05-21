@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
-#include "itemlibraryitemmodel.h"
+#include "itemlibraryitem.h"
 
 namespace QmlDesigner {
 
-ItemLibraryItemModel::ItemLibraryItemModel(int itemLibId, const QString &itemName, QObject *parent)
+ItemLibraryItem::ItemLibraryItem(int itemLibId, const QString &itemName, QObject *parent)
     : QObject(parent),
       m_libId(itemLibId),
       m_name(itemName),
@@ -39,38 +39,38 @@ ItemLibraryItemModel::ItemLibraryItemModel(int itemLibId, const QString &itemNam
 {
 }
 
-ItemLibraryItemModel::~ItemLibraryItemModel()
+ItemLibraryItem::~ItemLibraryItem()
 {
 }
 
-int ItemLibraryItemModel::itemLibId() const
+int ItemLibraryItem::itemLibId() const
 {
     return m_libId;
 }
 
 
-QString ItemLibraryItemModel::itemName() const
+QString ItemLibraryItem::itemName() const
 {
     return m_name;
 }
 
-QString ItemLibraryItemModel::itemLibraryIconPath() const
+QString ItemLibraryItem::itemLibraryIconPath() const
 {
     //Prepend image provider prefix
     return QStringLiteral("image://qmldesigner_itemlibrary/") + m_iconPath;
 }
 
-QVariant ItemLibraryItemModel::sortingRole() const
+QVariant ItemLibraryItem::sortingRole() const
 {
     return itemName();
 }
 
-void ItemLibraryItemModel::setItemIconPath(const QString &iconPath)
+void ItemLibraryItem::setItemIconPath(const QString &iconPath)
 {
     m_iconPath = iconPath;
 }
 
-void ItemLibraryItemModel::setItemIconSize(const QSize &itemIconSize)
+void ItemLibraryItem::setItemIconSize(const QSize &itemIconSize)
 {
     m_iconSize = itemIconSize;
     setItemIconPath(m_iconPath);

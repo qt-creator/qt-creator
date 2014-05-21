@@ -29,7 +29,7 @@
 
 #include "itemlibrarysectionmodel.h"
 
-#include "itemlibraryitemmodel.h"
+#include "itemlibraryitem.h"
 
 namespace QmlDesigner {
 
@@ -84,7 +84,7 @@ static bool compareFunction(QObject *first, QObject *second)
     return first->property(sortRoleName).toString() < second->property(sortRoleName).toString();
 }
 
-void ItemLibrarySortedModel::addItem(ItemLibraryItemModel *element, int libId)
+void ItemLibrarySortedModel::addItem(ItemLibraryItem *element, int libId)
 {
     struct order_struct orderEntry;
     orderEntry.libId = libId;
@@ -153,17 +153,17 @@ void ItemLibrarySortedModel::privateRemove(int pos)
     m_privList.removeAt(pos);
 }
 
-const QMap<int, ItemLibraryItemModel*> &ItemLibrarySortedModel::items() const
+const QMap<int, ItemLibraryItem*> &ItemLibrarySortedModel::items() const
 {
     return m_itemModels;
 }
 
-const QList<ItemLibraryItemModel *> &ItemLibrarySortedModel::itemList() const
+const QList<ItemLibraryItem *> &ItemLibrarySortedModel::itemList() const
 {
     return m_itemModels.values();
 }
 
-ItemLibraryItemModel *ItemLibrarySortedModel::item(int libId)
+ItemLibraryItem *ItemLibrarySortedModel::item(int libId)
 {
     return m_itemModels.value(libId);
 }
@@ -251,7 +251,7 @@ QVariant ItemLibrarySectionModel::sortingRole() const
     return sectionName();
 }
 
-void ItemLibrarySectionModel::addSectionEntry(ItemLibraryItemModel *sectionEntry)
+void ItemLibrarySectionModel::addSectionEntry(ItemLibraryItem *sectionEntry)
 {
     m_sectionEntries.addItem(sectionEntry, sectionEntry->itemLibId());
 }
@@ -285,7 +285,7 @@ bool ItemLibrarySectionModel::updateSectionVisibility(const QString &searchText,
 
     *changed = false;
 
-    QMap<int, ItemLibraryItemModel*>::const_iterator itemIterator = m_sectionEntries.items().constBegin();
+    QMap<int, ItemLibraryItem*>::const_iterator itemIterator = m_sectionEntries.items().constBegin();
     while (itemIterator != m_sectionEntries.items().constEnd()) {
 
         bool itemVisible = m_sectionEntries.item(itemIterator.key())->itemName().toLower().contains(searchText);
@@ -311,7 +311,7 @@ bool ItemLibrarySectionModel::updateSectionVisibility(const QString &searchText,
 
 void ItemLibrarySectionModel::updateItemIconSize(const QSize &itemIconSize)
 {
-    foreach (ItemLibraryItemModel* itemLibraryItemModel, m_sectionEntries.itemList()) {
+    foreach (ItemLibraryItem* itemLibraryItemModel, m_sectionEntries.itemList()) {
         itemLibraryItemModel->setItemIconSize(itemIconSize);
     }
 }

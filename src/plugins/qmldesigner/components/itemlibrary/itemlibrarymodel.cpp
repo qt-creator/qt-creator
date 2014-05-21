@@ -30,7 +30,7 @@
 #include "itemlibrarymodel.h"
 #include "itemlibraryinfo.h"
 #include "itemlibrarysectionmodel.h"
-#include "itemlibraryitemmodel.h"
+#include "itemlibraryitem.h"
 
 #include <model.h>
 #include <nodemetainfo.h>
@@ -197,7 +197,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                      || model->hasImport(entryToImport(entry), true, true))) {
             QString itemSectionName = entry.category();
             ItemLibrarySectionModel *sectionModel;
-            ItemLibraryItemModel *itemModel;
+            ItemLibraryItem *itemModel;
             int itemId = m_nextLibId++, sectionId;
 
             if (sections.contains(itemSectionName)) {
@@ -212,7 +212,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
             m_itemInfos.insert(itemId, entry);
 
-            itemModel = new ItemLibraryItemModel(itemId, entry.name(), sectionModel);
+            itemModel = new ItemLibraryItem(itemId, entry.name(), sectionModel);
 
             // delayed creation of (default) icons
             if (entry.iconPath().isEmpty())

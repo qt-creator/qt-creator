@@ -36,7 +36,7 @@
 
 namespace QmlDesigner {
 
-class ItemLibraryItemModel;
+class ItemLibraryItem;
 
 class ItemLibrarySortedModel: public QAbstractListModel {
 
@@ -51,7 +51,7 @@ public:
 
     void clearItems();
 
-    void addItem(ItemLibraryItemModel *item, int libId);
+    void addItem(ItemLibraryItem *item, int libId);
     void removeItem(int libId);
 
     bool itemVisible(int libId) const;
@@ -60,10 +60,10 @@ public:
     void privateInsert(int pos, QObject *item);
     void privateRemove(int pos);
 
-    const QMap<int, ItemLibraryItemModel*> &items() const;
-    const QList<ItemLibraryItemModel*> &itemList() const;
+    const QMap<int, ItemLibraryItem*> &items() const;
+    const QList<ItemLibraryItem*> &itemList() const;
 
-    ItemLibraryItemModel* item(int libId);
+    ItemLibraryItem* item(int libId);
 
     int findItem(int libId) const;
     int visibleItemPosition(int libId) const;
@@ -78,7 +78,7 @@ private:
         bool visible;
     };
 
-    QMap<int, ItemLibraryItemModel*> m_itemModels;
+    QMap<int, ItemLibraryItem*> m_itemModels;
     QList<struct order_struct> m_itemOrder;
 
     QList<QObject *> m_privList;
@@ -102,7 +102,7 @@ public:
     bool sectionExpanded() const;
     QVariant sortingRole() const;
 
-    void addSectionEntry(ItemLibraryItemModel *sectionEntry);
+    void addSectionEntry(ItemLibraryItem *sectionEntry);
     void removeSectionEntry(int itemLibId);
     QObject *sectionEntries();
 
