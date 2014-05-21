@@ -27,44 +27,32 @@
 **
 ****************************************************************************/
 
-#ifndef ITEMLIBRARYCOMPONENTS_H
-#define ITEMLIBRARYCOMPONENTS_H
+#ifndef QMLDESIGNER_RESOURCEITEMDELEGATE_H
+#define QMLDESIGNER_RESOURCEITEMDELEGATE_H
 
-#include <QTreeView>
 #include <QStyledItemDelegate>
-
-QT_BEGIN_NAMESPACE
-class QFileSystemModel;
-class QLabel;
-QT_END_NAMESPACE
+#include <QFileSystemModel>
 
 namespace QmlDesigner {
 
-class ResourceItemDelegate;
-
-// ItemLibraryTreeView with Drag implementation
-class ItemLibraryTreeView : public QTreeView {
-
-    Q_OBJECT
+class ResourceItemDelegate : public QStyledItemDelegate
+{
 public:
-    explicit ItemLibraryTreeView(QWidget *parent = 0);
+    explicit ResourceItemDelegate(QObject *parent=0);
 
-    virtual void startDrag(Qt::DropActions supportedActions);
-    virtual void setModel(QAbstractItemModel *model);
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
 
-    static void drawSelectionBackground(QPainter *painter, const QStyleOption &option);
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const;
 
-signals:
-    void itemActivated(const QString &itemName);
-
-private slots:
-    void activateItem( const QModelIndex &index);
+    void setModel(QFileSystemModel *model);
 
 private:
-    ResourceItemDelegate *m_delegate;
+    QFileSystemModel *m_model;
 };
 
 } // namespace QmlDesigner
 
-#endif // ITEMLIBRARYCOMPONENTS_H
-
+#endif // QMLDESIGNER_RESOURCEITEMDELEGATE_H
