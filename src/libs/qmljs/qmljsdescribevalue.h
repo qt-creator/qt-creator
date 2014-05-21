@@ -1,0 +1,78 @@
+/****************************************************************************
+**
+** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+#ifndef QMLJSDESCRIBEVALUE_H
+#define QMLJSDESCRIBEVALUE_H
+
+#include "qmljs_global.h"
+#include "qmljsinterpreter.h"
+
+#include <QString>
+#include <QSet>
+
+namespace QmlJS {
+
+class QMLJS_EXPORT DescribeValueVisitor : public ValueVisitor
+{
+public:
+    static QString describe(const Value *value, int depth = 1);
+
+    DescribeValueVisitor(int detailDepth = 1, int startIndent = 0, int indentIncrement = 2);
+    virtual ~DescribeValueVisitor();
+
+    QString operator()(const Value *value);
+    void visit(const NullValue *) QTC_OVERRIDE;
+    void visit(const UndefinedValue *) QTC_OVERRIDE;
+    void visit(const UnknownValue *) QTC_OVERRIDE;
+    void visit(const NumberValue *) QTC_OVERRIDE;
+    void visit(const BooleanValue *) QTC_OVERRIDE;
+    void visit(const StringValue *) QTC_OVERRIDE;
+    void visit(const ObjectValue *) QTC_OVERRIDE;
+    void visit(const FunctionValue *) QTC_OVERRIDE;
+    void visit(const Reference *) QTC_OVERRIDE;
+    void visit(const ColorValue *) QTC_OVERRIDE;
+    void visit(const AnchorLineValue *) QTC_OVERRIDE;
+    QString description() const;
+    void basicDump(const char *baseName, const Value *value, bool opensContext);
+    void dumpNewline();
+    void openContext(const char *openStr = "{");
+    void closeContext(const char *closeStr = "}");
+    void dump(const char *toAdd);
+    void dump(const QString &toAdd);
+private:
+    int m_depth;
+    int m_indent;
+    int m_indentIncrement;
+    bool m_emptyContext;
+    QSet<const Value *> m_visited;
+    QString m_description;
+};
+
+} // namespace QmlJS
+#endif // QMLJSDESCRIBEVALUE_H

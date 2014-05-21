@@ -43,7 +43,8 @@ HEADERS += \
     $$PWD/qmljsqrcparser.h \
     $$PWD/qmljsconstants.h \
     $$PWD/qmljsimportdependencies.h \
-    $$PWD/qmljsviewercontext.h
+    $$PWD/qmljsviewercontext.h \
+    $$PWD/qmljsdescribevalue.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -78,7 +79,8 @@ SOURCES += \
     $$PWD/persistenttrie.cpp \
     $$PWD/qmljsqrcparser.cpp \
     $$PWD/qmljsimportdependencies.cpp \
-    $$PWD/qmljsviewercontext.cpp
+    $$PWD/qmljsviewercontext.cpp \
+    $$PWD/qmljsdescribevalue.cpp
 
 
 RESOURCES += \
