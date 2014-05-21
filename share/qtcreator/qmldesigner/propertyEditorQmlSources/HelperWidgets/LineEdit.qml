@@ -74,6 +74,17 @@ Controls.TextField {
     onTextChanged: {
         __dirty = true
     }
+
+    Connections {
+        target: modelNodeBackend
+        onSelectionToBeChanged: {
+            if (__dirty) {
+                lineEdit.backendValue.value = text
+            }
+            __dirty = false
+        }
+    }
+
     onEditingFinished: {
 
         if (hasToConvertColor)
