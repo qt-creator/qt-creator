@@ -27,66 +27,54 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H
-#define QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H
+#ifndef QMLDESIGNER_ITEMLIBRARYSECTION_H
+#define QMLDESIGNER_ITEMLIBRARYSECTION_H
 
-#include "itemlibrarymodel.h"
-
-#include <QObject>
+#include "itemlibrarysectionmodel.h"
 
 namespace QmlDesigner {
 
-class ItemLibraryItem;
-
-class ItemLibrarySortedModel: public QAbstractListModel {
+class ItemLibrarySection: public QObject {
 
     Q_OBJECT
 
+    Q_PROPERTY(QObject* sectionEntries READ sectionEntries NOTIFY sectionEntriesChanged FINAL)
+    Q_PROPERTY(QString sectionName READ sectionName FINAL)
+    Q_PROPERTY(bool sectionExpanded READ sectionExpanded FINAL)
+    Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
+
 public:
-    ItemLibrarySortedModel(QObject *parent = 0);
-    ~ItemLibrarySortedModel();
+    ItemLibrarySection(int sectionLibraryId, const QString &sectionName, QObject *parent = 0);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QString sectionName() const;
+    int sectionLibraryId() const;
+    bool sectionExpanded() const;
+    QVariant sortingRole() const;
 
-    void clearItems();
+    void addSectionEntry(ItemLibraryItem *sectionEntry);
+    void removeSectionEntry(int itemLibId);
+    QObject *sectionEntries();
 
-    void addItem(ItemLibraryItem *item, int libId);
-    void removeItem(int libId);
+    int visibleItemIndex(int itemLibId);
+    bool isItemVisible(int itemLibId);
 
-    bool itemVisible(int libId) const;
-    bool setItemVisible(int libId, bool visible);
+    bool updateSectionVisibility(const QString &searchText, bool *changed);
+    void updateItemIconSize(const QSize &itemIconSize);
 
-    void privateInsert(int pos, QObject *item);
-    void privateRemove(int pos);
+    bool setVisible(bool isVisible);
+    bool isVisible() const;
 
-    const QMap<int, ItemLibraryItem*> &items() const;
-    const QList<ItemLibraryItem *> itemList() const;
-
-    ItemLibraryItem* item(int libId);
-
-    int findItem(int libId) const;
-    int visibleItemPosition(int libId) const;
-
-    void resetModel();
+signals:
+    void sectionEntriesChanged();
 
 private:
-    void addRoleName(const QByteArray &roleName);
-
-    struct order_struct {
-        int libId;
-        bool visible;
-    };
-
-    QMap<int, ItemLibraryItem*> m_itemModels;
-    QList<struct order_struct> m_itemOrder;
-
-    QList<QObject *> m_privList;
-    QHash<int, QByteArray> m_roleNames;
+    ItemLibrarySortedModel m_sectionEntries;
+    QString m_name;
+    int m_sectionLibraryId;
+    bool m_sectionExpanded;
+    bool m_isVisible;
 };
 
 } // namespace QmlDesigner
 
-QML_DECLARE_TYPE(QmlDesigner::ItemLibrarySortedModel)
-
-#endif // QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H
+#endif // QMLDESIGNER_ITEMLIBRARYSECTION_H

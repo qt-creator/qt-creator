@@ -8,7 +8,8 @@ HEADERS += itemlibraryview.h \
            itemlibraryimageprovider.h \
            itemlibrarysectionmodel.h \
            itemlibraryitem.h \
-           resourceitemdelegate.h
+           resourceitemdelegate.h \
+           itemlibrarysection.h
 
 SOURCES += itemlibraryview.cpp \
            itemlibrarywidget.cpp \
@@ -17,7 +18,8 @@ SOURCES += itemlibraryview.cpp \
            itemlibraryimageprovider.cpp \
            itemlibrarysectionmodel.cpp \
            itemlibraryitem.cpp \
-           resourceitemdelegate.cpp
+           resourceitemdelegate.cpp \
+           itemlibrarysection.cpp
 
 RESOURCES += itemlibrary.qrc
 

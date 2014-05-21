@@ -158,7 +158,7 @@ const QMap<int, ItemLibraryItem*> &ItemLibrarySortedModel::items() const
     return m_itemModels;
 }
 
-const QList<ItemLibraryItem *> &ItemLibrarySortedModel::itemList() const
+const QList<ItemLibraryItem *> ItemLibrarySortedModel::itemList() const
 {
     return m_itemModels.values();
 }
@@ -212,123 +212,6 @@ void ItemLibrarySortedModel::addRoleName(const QByteArray &roleName)
     int key = m_roleNames.count();
     m_roleNames.insert(key, roleName);
     setRoleNames(m_roleNames);
-}
-
-ItemLibrarySectionModel::ItemLibrarySectionModel(int sectionLibId, const QString &sectionName, QObject *parent)
-    : QObject(parent),
-      m_name(sectionName),
-      m_sectionLibraryId(sectionLibId),
-      m_sectionExpanded(true),
-      m_sectionEntries(parent),
-      m_isVisible(false)
-{
-//    if (collapsedStateHash.contains(sectionName))
-//        m_sectionExpanded=  collapsedStateHash.value(sectionName);
-}
-
-
-QString ItemLibrarySectionModel::sectionName() const
-{
-    return m_name;
-}
-
-int ItemLibrarySectionModel::sectionLibraryId() const
-{
-    return m_sectionLibraryId;
-}
-
-bool ItemLibrarySectionModel::sectionExpanded() const
-{
-    return m_sectionExpanded;
-}
-
-QVariant ItemLibrarySectionModel::sortingRole() const
-{
-
-    if (sectionName() == QStringLiteral("QML Components")) //Qml Components always come first
-        return QVariant(QStringLiteral("AA.this_comes_first"));
-
-    return sectionName();
-}
-
-void ItemLibrarySectionModel::addSectionEntry(ItemLibraryItem *sectionEntry)
-{
-    m_sectionEntries.addItem(sectionEntry, sectionEntry->itemLibId());
-}
-
-
-void ItemLibrarySectionModel::removeSectionEntry(int itemLibId)
-{
-    m_sectionEntries.removeItem(itemLibId);
-}
-
-QObject *ItemLibrarySectionModel::sectionEntries()
-{
-    return &m_sectionEntries;
-}
-
-int ItemLibrarySectionModel::visibleItemIndex(int itemLibId)
-{
-    return m_sectionEntries.visibleItemPosition(itemLibId);
-}
-
-
-bool ItemLibrarySectionModel::isItemVisible(int itemLibId)
-{
-    return m_sectionEntries.itemVisible(itemLibId);
-}
-
-
-bool ItemLibrarySectionModel::updateSectionVisibility(const QString &searchText, bool *changed)
-{
-    bool haveVisibleItems = false;
-
-    *changed = false;
-
-    QMap<int, ItemLibraryItem*>::const_iterator itemIterator = m_sectionEntries.items().constBegin();
-    while (itemIterator != m_sectionEntries.items().constEnd()) {
-
-        bool itemVisible = m_sectionEntries.item(itemIterator.key())->itemName().toLower().contains(searchText);
-
-        bool itemChanged = false;
-        itemChanged = m_sectionEntries.setItemVisible(itemIterator.key(), itemVisible);
-
-        *changed |= itemChanged;
-
-        if (itemVisible)
-            haveVisibleItems = true;
-
-        ++itemIterator;
-    }
-
-    m_sectionEntries.resetModel();
-
-    emit sectionEntriesChanged();
-
-    return haveVisibleItems;
-}
-
-
-void ItemLibrarySectionModel::updateItemIconSize(const QSize &itemIconSize)
-{
-    foreach (ItemLibraryItem* itemLibraryItemModel, m_sectionEntries.itemList()) {
-        itemLibraryItemModel->setItemIconSize(itemIconSize);
-    }
-}
-
-bool ItemLibrarySectionModel::setVisible(bool isVisible)
-{
-    if (isVisible != m_isVisible) {
-        m_isVisible = isVisible;
-        return true;
-    }
-
-    return false;
-}
-
-bool ItemLibrarySectionModel::isVisible() const
-{
-    return m_isVisible;
 }
 
 } // namespace QmlDesigner

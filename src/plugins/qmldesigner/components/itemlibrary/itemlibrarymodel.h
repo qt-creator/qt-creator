@@ -42,7 +42,7 @@ namespace QmlDesigner {
 class ItemLibraryInfo;
 class ItemLibraryEntry;
 class Model;
-class ItemLibrarySectionModel;
+class ItemLibrarySection;
 
 class ItemLibraryModel: public QAbstractListModel {
 
@@ -64,16 +64,16 @@ public:
     QMimeData *getMimeData(int libId);
     QIcon getIcon(int libId);
 
-    ItemLibrarySectionModel* section(int libraryId);
-    QList<ItemLibrarySectionModel*> sections() const;
-    void addSection(ItemLibrarySectionModel *sectionModel, int sectionId);
+    ItemLibrarySection* section(int libraryId);
+    QList<ItemLibrarySection*> sections() const;
+    void addSection(ItemLibrarySection *sectionModel, int sectionId);
 
     void clearSections();
 
     static void registerQmlTypes();
 
     int visibleSectionCount() const;
-    QList<ItemLibrarySectionModel*> visibleSections() const;
+    QList<ItemLibrarySection*> visibleSections() const;
 
 public slots:
     void setSearchText(const QString &searchText);
@@ -99,7 +99,7 @@ private: // functions
     QPixmap createDragPixmap(int width, int height);
 
 private: // variables
-    QMap<int, ItemLibrarySectionModel*> m_sectionModels;
+    QMap<int, ItemLibrarySection*> m_sectionModels;
     QMap<int, ItemLibraryEntry> m_itemInfos;
     QMap<int, int> m_sections;
     QHash<int, QByteArray> m_roleNames;

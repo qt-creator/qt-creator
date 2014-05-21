@@ -31,6 +31,7 @@
 #include "itemlibraryinfo.h"
 #include "itemlibrarysectionmodel.h"
 #include "itemlibraryitem.h"
+#include "itemlibrarysection.h"
 
 #include <model.h>
 #include <nodemetainfo.h>
@@ -127,7 +128,7 @@ void ItemLibraryModel::setItemIconSize(const QSize &itemIconSize)
 {
     m_itemIconSize = itemIconSize;
 
-    foreach (ItemLibrarySectionModel* itemLibrarySectionModel, sections()) {
+    foreach (ItemLibrarySection* itemLibrarySectionModel, sections()) {
         itemLibrarySectionModel->updateItemIconSize(itemIconSize);
     }
 }
@@ -196,7 +197,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                  && (entry.requiredImport().isEmpty()
                      || model->hasImport(entryToImport(entry), true, true))) {
             QString itemSectionName = entry.category();
-            ItemLibrarySectionModel *sectionModel;
+            ItemLibrarySection *sectionModel;
             ItemLibraryItem *itemModel;
             int itemId = m_nextLibId++, sectionId;
 
@@ -205,7 +206,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                 sectionModel = section(sectionId);
             } else {
                 sectionId = m_nextLibId++;
-                sectionModel = new ItemLibrarySectionModel(sectionId, itemSectionName, this);
+                sectionModel = new ItemLibrarySection(sectionId, itemSectionName, this);
                 addSection(sectionModel, sectionId);
                 sections.insert(itemSectionName, sectionId);
             }
@@ -264,17 +265,17 @@ QIcon ItemLibraryModel::getIcon(int libId)
     return m_itemInfos.value(libId).icon();
 }
 
-ItemLibrarySectionModel *ItemLibraryModel::section(int libraryId)
+ItemLibrarySection *ItemLibraryModel::section(int libraryId)
 {
     return m_sectionModels.value(libraryId);
 }
 
-QList<ItemLibrarySectionModel *> ItemLibraryModel::sections() const
+QList<ItemLibrarySection *> ItemLibraryModel::sections() const
 {
     return m_sectionModels.values();
 }
 
-void ItemLibraryModel::addSection(ItemLibrarySectionModel *sectionModel, int sectionId)
+void ItemLibraryModel::addSection(ItemLibrarySection *sectionModel, int sectionId)
 {
     m_sectionModels.insert(sectionId, sectionModel);
     sectionModel->setVisible(true);
@@ -298,9 +299,9 @@ int ItemLibraryModel::visibleSectionCount() const
 {
     int visibleCount = 0;
 
-    QMap<int, ItemLibrarySectionModel*>::const_iterator sectionIterator = m_sectionModels.constBegin();
+    QMap<int, ItemLibrarySection*>::const_iterator sectionIterator = m_sectionModels.constBegin();
     while (sectionIterator != m_sectionModels.constEnd()) {
-        ItemLibrarySectionModel *sectionModel = sectionIterator.value();
+        ItemLibrarySection *sectionModel = sectionIterator.value();
         if (sectionModel->isVisible())
             ++visibleCount;
         ++sectionIterator;
@@ -310,13 +311,13 @@ int ItemLibraryModel::visibleSectionCount() const
     return visibleCount;
 }
 
-QList<ItemLibrarySectionModel *> ItemLibraryModel::visibleSections() const
+QList<ItemLibrarySection *> ItemLibraryModel::visibleSections() const
 {
-    QList<ItemLibrarySectionModel *> visibleSectionList;
+    QList<ItemLibrarySection *> visibleSectionList;
 
-    QMap<int, ItemLibrarySectionModel*>::const_iterator sectionIterator = m_sectionModels.constBegin();
+    QMap<int, ItemLibrarySection*>::const_iterator sectionIterator = m_sectionModels.constBegin();
     while (sectionIterator != m_sectionModels.constEnd()) {
-        ItemLibrarySectionModel *sectionModel = sectionIterator.value();
+        ItemLibrarySection *sectionModel = sectionIterator.value();
         if (sectionModel->isVisible())
             visibleSectionList.append(sectionModel);
         ++sectionIterator;
@@ -331,9 +332,9 @@ void ItemLibraryModel::updateVisibility()
     endResetModel();
     bool changed = false;
 
-    QMap<int, ItemLibrarySectionModel*>::const_iterator sectionIterator = m_sectionModels.constBegin();
+    QMap<int, ItemLibrarySection*>::const_iterator sectionIterator = m_sectionModels.constBegin();
     while (sectionIterator != m_sectionModels.constEnd()) {
-        ItemLibrarySectionModel *sectionModel = sectionIterator.value();
+        ItemLibrarySection *sectionModel = sectionIterator.value();
 
         QString sectionSearchText = m_searchText;
 
@@ -360,8 +361,8 @@ void ItemLibraryModel::updateVisibility()
 void ItemLibraryModel::addRoleNames()
 {
     int role = 0;
-    for (int propertyIndex = 0; propertyIndex < ItemLibrarySectionModel::staticMetaObject.propertyCount(); ++propertyIndex) {
-        QMetaProperty property = ItemLibrarySectionModel::staticMetaObject.property(propertyIndex);
+    for (int propertyIndex = 0; propertyIndex < ItemLibrarySection::staticMetaObject.propertyCount(); ++propertyIndex) {
+        QMetaProperty property = ItemLibrarySection::staticMetaObject.property(propertyIndex);
         m_roleNames.insert(role, property.name());
         ++role;
     }
