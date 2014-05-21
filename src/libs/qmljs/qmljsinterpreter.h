@@ -30,59 +30,57 @@
 #ifndef QMLJS_INTERPRETER_H
 #define QMLJS_INTERPRETER_H
 
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljsconstants.h>
+#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsimportdependencies.h>
 #include <utils/qtcoverride.h>
 
 #include <QFileInfoList>
-#include <QList>
-#include <QString>
 #include <QHash>
-#include <QSet>
+#include <QList>
 #include <QMutex>
+#include <QSet>
 #include <QSharedPointer>
+#include <QString>
 
 namespace QmlJS {
-
-class NameId;
-class Document;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Forward declarations
 ////////////////////////////////////////////////////////////////////////////////
-class ValueOwner;
-class Value;
-class NullValue;
-class UndefinedValue;
-class UnknownValue;
-class NumberValue;
-class IntValue;
-class RealValue;
-class BooleanValue;
-class StringValue;
-class UrlValue;
-class ObjectValue;
-class FunctionValue;
-class Reference;
-class ColorValue;
-class AnchorLineValue;
-class Imports;
-class TypeScope;
-class JSImportScope;
-class Context;
-typedef QSharedPointer<const Context> ContextPtr;
-class ReferenceContext;
-class CppComponentValue;
+class ASTFunctionValue;
 class ASTObjectValue;
-class QmlEnumValue;
-class QmlPrototypeReference;
-class ASTVariableReference;
 class ASTPropertyReference;
 class ASTSignal;
-class ASTFunctionValue;
+class ASTVariableReference;
+class AnchorLineValue;
+class BooleanValue;
+class ColorValue;
+class Context;
+class CppComponentValue;
+class Document;
 class Function;
+class FunctionValue;
+class Imports;
+class IntValue;
+class JSImportScope;
+class NameId;
+class NullValue;
+class NumberValue;
+class ObjectValue;
+class QmlEnumValue;
+class QmlPrototypeReference;
+class RealValue;
+class Reference;
+class ReferenceContext;
+class StringValue;
+class TypeScope;
+class UndefinedValue;
+class UnknownValue;
+class UrlValue;
+class Value;
+class ValueOwner;
+typedef QSharedPointer<const Context> ContextPtr;
 
 namespace Internal {
 class MetaFunction;
@@ -422,7 +420,7 @@ public:
 private:
     virtual const Value *value(ReferenceContext *referenceContext) const;
 
-    ValueOwner *_valueOwner;
+    ValueOwner *m_valueOwner;
     friend class ReferenceContext;
 };
 
@@ -482,9 +480,9 @@ private:
     bool checkPrototype(const ObjectValue *prototype, QSet<const ObjectValue *> *processed) const;
 
 private:
-    ValueOwner *_valueOwner;
-    QHash<QString, const Value *> _members;
-    QString _className;
+    ValueOwner *m_valueOwner;
+    QHash<QString, const Value *> m_members;
+    QString m_className;
 
 protected:
     const Value *_prototype;
@@ -531,8 +529,8 @@ public:
     const CppComponentValue *owner() const;
 
 private:
-    const CppComponentValue *_owner;
-    int _enumIndex;
+    const CppComponentValue *m_owner;
+    int m_enumIndex;
 };
 
 
@@ -578,17 +576,17 @@ protected:
     bool isDerivedFrom(LanguageUtils::FakeMetaObject::ConstPtr base) const;
 
 private:
-    LanguageUtils::FakeMetaObject::ConstPtr _metaObject;
-    const QString _moduleName;
+    LanguageUtils::FakeMetaObject::ConstPtr m_metaObject;
+    const QString m_moduleName;
     // _componentVersion is the version of the export
     // _importVersion is the version it's imported as, used to find correct prototypes
     // needed in cases when B 1.0 has A 1.1 as prototype when imported as 1.1
-    const LanguageUtils::ComponentVersion _componentVersion;
-    const LanguageUtils::ComponentVersion _importVersion;
-    mutable QAtomicPointer< QList<const Value *> > _metaSignatures;
-    mutable QAtomicPointer< QHash<QString, const ObjectValue *> > _signalScopes;
-    QHash<QString, const QmlEnumValue * > _enums;
-    int _metaObjectRevision;
+    const LanguageUtils::ComponentVersion m_componentVersion;
+    const LanguageUtils::ComponentVersion m_importVersion;
+    mutable QAtomicPointer< QList<const Value *> > m_metaSignatures;
+    mutable QAtomicPointer< QHash<QString, const ObjectValue *> > m_signalScopes;
+    QHash<QString, const QmlEnumValue * > m_enums;
+    int m_metaObjectRevision;
 };
 
 class QMLJS_EXPORT FunctionValue: public ObjectValue
@@ -643,11 +641,11 @@ public:
     const Function *asFunction() const QTC_OVERRIDE;
 
 private:
-    ValueList _arguments;
-    QStringList _argumentNames;
-    const Value *_returnValue;
-    int _optionalNamedArgumentCount;
-    bool _isVariadic;
+    ValueList m_arguments;
+    QStringList m_argumentNames;
+    const Value *m_returnValue;
+    int m_optionalNamedArgumentCount;
+    bool m_isVariadic;
 };
 
 
@@ -704,10 +702,10 @@ public:
 
 private:
     // "Package.CppName ImportVersion" ->  CppComponentValue
-    QHash<QString, const CppComponentValue *> _objectsByQualifiedName;
-    QHash<QString, QSet<LanguageUtils::FakeMetaObject::ConstPtr> > _fakeMetaObjectsByPackage;
-    const ObjectValue *_cppContextProperties;
-    ValueOwner *_valueOwner;
+    QHash<QString, const CppComponentValue *> m_objectsByQualifiedName;
+    QHash<QString, QSet<LanguageUtils::FakeMetaObject::ConstPtr> > m_fakeMetaObjectsByPackage;
+    const ObjectValue *m_cppContextProperties;
+    ValueOwner *m_valueOwner;
 };
 
 class ConvertToNumber: protected ValueVisitor // ECMAScript ToInt()
@@ -729,8 +727,8 @@ protected:
     void visit(const FunctionValue *) QTC_OVERRIDE;
 
 private:
-    ValueOwner *_valueOwner;
-    const Value *_result;
+    ValueOwner *m_valueOwner;
+    const Value *m_result;
 };
 
 class ConvertToString: protected ValueVisitor // ECMAScript ToString
@@ -752,8 +750,8 @@ protected:
     void visit(const FunctionValue *) QTC_OVERRIDE;
 
 private:
-    ValueOwner *_valueOwner;
-    const Value *_result;
+    ValueOwner *m_valueOwner;
+    const Value *m_result;
 };
 
 class ConvertToObject: protected ValueVisitor // ECMAScript ToObject
@@ -775,8 +773,8 @@ protected:
     void visit(const FunctionValue *) QTC_OVERRIDE;
 
 private:
-    ValueOwner *_valueOwner;
-    const Value *_result;
+    ValueOwner *m_valueOwner;
+    const Value *m_result;
 };
 
 class QMLJS_EXPORT TypeId: protected ValueVisitor
@@ -812,14 +810,14 @@ public:
 private:
     const Value *value(ReferenceContext *referenceContext) const QTC_OVERRIDE;
 
-    AST::UiQualifiedId *_qmlTypeName;
-    const Document *_doc;
+    AST::UiQualifiedId *m_qmlTypeName;
+    const Document *m_doc;
 };
 
 class QMLJS_EXPORT ASTVariableReference: public Reference
 {
-    AST::VariableDeclaration *_ast;
-    const Document *_doc;
+    AST::VariableDeclaration *m_ast;
+    const Document *m_doc;
 
 public:
     ASTVariableReference(AST::VariableDeclaration *ast, const Document *doc, ValueOwner *valueOwner);
@@ -833,10 +831,10 @@ private:
 
 class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
 {
-    AST::FunctionExpression *_ast;
-    const Document *_doc;
-    QList<QString> _argumentNames;
-    bool _isVariadic;
+    AST::FunctionExpression *m_ast;
+    const Document *m_doc;
+    QList<QString> m_argumentNames;
+    bool m_isVariadic;
 
 public:
     ASTFunctionValue(AST::FunctionExpression *ast, const Document *doc, ValueOwner *valueOwner);
@@ -854,9 +852,9 @@ public:
 
 class QMLJS_EXPORT ASTPropertyReference: public Reference
 {
-    AST::UiPublicMember *_ast;
-    const Document *_doc;
-    QString _onChangedSlotName;
+    AST::UiPublicMember *m_ast;
+    const Document *m_doc;
+    QString m_onChangedSlotName;
 
 public:
     ASTPropertyReference(AST::UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner);
@@ -864,8 +862,8 @@ public:
 
     const ASTPropertyReference *asAstPropertyReference() const QTC_OVERRIDE;
 
-    AST::UiPublicMember *ast() const { return _ast; }
-    QString onChangedSlotName() const { return _onChangedSlotName; }
+    AST::UiPublicMember *ast() const { return m_ast; }
+    QString onChangedSlotName() const { return m_onChangedSlotName; }
 
     bool getSourceLocation(QString *fileName, int *line, int *column) const QTC_OVERRIDE;
 
@@ -875,10 +873,10 @@ private:
 
 class QMLJS_EXPORT ASTSignal: public FunctionValue
 {
-    AST::UiPublicMember *_ast;
-    const Document *_doc;
-    QString _slotName;
-    const ObjectValue *_bodyScope;
+    AST::UiPublicMember *m_ast;
+    const Document *m_doc;
+    QString m_slotName;
+    const ObjectValue *m_bodyScope;
 
 public:
     ASTSignal(AST::UiPublicMember *ast, const Document *doc, ValueOwner *valueOwner);
@@ -886,9 +884,9 @@ public:
 
     const ASTSignal *asAstSignal() const QTC_OVERRIDE;
 
-    AST::UiPublicMember *ast() const { return _ast; }
-    QString slotName() const { return _slotName; }
-    const ObjectValue *bodyScope() const { return _bodyScope; }
+    AST::UiPublicMember *ast() const { return m_ast; }
+    QString slotName() const { return m_slotName; }
+    const ObjectValue *bodyScope() const { return m_bodyScope; }
 
     // FunctionValue interface
     int namedArgumentCount() const QTC_OVERRIDE;
@@ -901,12 +899,12 @@ public:
 
 class QMLJS_EXPORT ASTObjectValue: public ObjectValue
 {
-    AST::UiQualifiedId *_typeName;
-    AST::UiObjectInitializer *_initializer;
-    const Document *_doc;
-    QList<ASTPropertyReference *> _properties;
-    QList<ASTSignal *> _signals;
-    ASTPropertyReference *_defaultPropertyRef;
+    AST::UiQualifiedId *m_typeName;
+    AST::UiObjectInitializer *m_initializer;
+    const Document *m_doc;
+    QList<ASTPropertyReference *> m_properties;
+    QList<ASTSignal *> m_signals;
+    ASTPropertyReference *m_defaultPropertyRef;
 
 public:
     ASTObjectValue(AST::UiQualifiedId *typeName,
@@ -958,12 +956,12 @@ public:
     AST::UiImport *ast() const;
 
 private:
-    ImportType::Enum _type;
-    LanguageUtils::ComponentVersion _version;
-    QString _name;
-    QString _path;
-    QString _as;
-    AST::UiImport *_ast;
+    ImportType::Enum m_type;
+    LanguageUtils::ComponentVersion m_version;
+    QString m_name;
+    QString m_path;
+    QString m_as;
+    AST::UiImport *m_ast;
 };
 
 class QMLJS_EXPORT Import {
@@ -995,7 +993,7 @@ public:
     void processMembers(MemberProcessor *processor) const QTC_OVERRIDE;
     const TypeScope *asTypeScope() const QTC_OVERRIDE;
 private:
-    const Imports *_imports;
+    const Imports *m_imports;
 };
 
 class QMLJS_EXPORT JSImportScope: public ObjectValue
@@ -1009,7 +1007,7 @@ public:
     void processMembers(MemberProcessor *processor) const QTC_OVERRIDE;
     const JSImportScope *asJSImportScope() const QTC_OVERRIDE;
 private:
-    const Imports *_imports;
+    const Imports *m_imports;
 };
 
 class QMLJS_EXPORT Imports
@@ -1036,10 +1034,10 @@ public:
 private:
     // holds imports in the order they appeared,
     // lookup order is back to front
-    QList<Import> _imports;
-    TypeScope *_typeScope;
-    JSImportScope *_jsImportScope;
-    bool _importFailed;
+    QList<Import> m_imports;
+    TypeScope *m_typeScope;
+    JSImportScope *m_jsImportScope;
+    bool m_importFailed;
 };
 
 } // namespace QmlJS
