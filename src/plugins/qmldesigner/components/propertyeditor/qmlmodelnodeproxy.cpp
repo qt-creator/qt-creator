@@ -50,4 +50,9 @@ void QmlModelNodeProxy::registerDeclarativeType()
     qmlRegisterType<QmlModelNodeProxy>("HelperWidgets",2,0,"ModelNodeProxy");
 }
 
+void QmlModelNodeProxy::emitSelectionToBeChanged()
+{
+    emit selectionToBeChanged();
+}
+
 }

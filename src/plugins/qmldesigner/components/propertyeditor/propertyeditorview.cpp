@@ -577,6 +577,9 @@ void PropertyEditorView::scriptFunctionsChanged(const ModelNode &/*node*/, const
 
 void PropertyEditorView::select(const ModelNode &node)
 {
+    if (m_qmlBackEndForCurrentType)
+        m_qmlBackEndForCurrentType->emitSelectionToBeChanged();
+
     if (QmlObjectNode(node).isValid())
         m_selectedNode = node;
     else

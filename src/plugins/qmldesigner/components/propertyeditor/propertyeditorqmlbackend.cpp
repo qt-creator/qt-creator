@@ -437,6 +437,11 @@ bool PropertyEditorQmlBackend::checkIfUrlExists(const QUrl &url)
     return (QFileInfo(fileFromUrl(url)).exists());
 }
 
+void PropertyEditorQmlBackend::emitSelectionToBeChanged()
+{
+    m_backendModelNode.emitSelectionToBeChanged();
+}
+
 QUrl PropertyEditorQmlBackend::getQmlUrlForModelNode(const ModelNode &modelNode, TypeName &className)
 {
     if (modelNode.isValid()) {

@@ -74,6 +74,8 @@ public:
 
     static bool checkIfUrlExists(const QUrl &url);
 
+    void emitSelectionToBeChanged();
+
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    const PropertyName &name, const QVariant &value,

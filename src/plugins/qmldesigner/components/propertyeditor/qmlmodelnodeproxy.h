@@ -47,8 +47,11 @@ public:
 
     static void registerDeclarativeType();
 
+    void emitSelectionToBeChanged();
+
 signals:
     void selectionChanged();
+    void selectionToBeChanged();
 
 public slots:
 
