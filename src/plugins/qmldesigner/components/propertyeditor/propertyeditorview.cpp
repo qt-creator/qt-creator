@@ -165,7 +165,6 @@ void PropertyEditorView::changeValue(const QString &name)
         return;
     }
 
-    //.replace(QLatin1Char('.'), QLatin1Char('_'))
     PropertyName underscoreName(propertyName);
     underscoreName.replace('.', '_');
     PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(underscoreName);
