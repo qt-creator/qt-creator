@@ -81,14 +81,6 @@ Controls.TextField {
         }
     }
 
-    //    onFocusChanged: {
-    //        if (focus) {
-    //            transaction.start();
-    //        } else {
-    //            transaction.end();
-    //        }
-    //    }
-
     style: TextFieldStyle {
         selectionColor: lineEdit.textColor
         selectedTextColor: "black"
