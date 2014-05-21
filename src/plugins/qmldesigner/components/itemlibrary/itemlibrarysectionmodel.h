@@ -49,29 +49,24 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    void clearElements();
+    void clearItems();
 
-    void addElement(QObject *element, int libId);
-    void removeElement(int libId);
+    void addItem(ItemLibraryItemModel *item, int libId);
+    void removeItem(int libId);
 
-    bool elementVisible(int libId) const;
-    bool setElementVisible(int libId, bool visible);
+    bool itemVisible(int libId) const;
+    bool setItemVisible(int libId, bool visible);
 
-    void privateInsert(int pos, QObject *element);
+    void privateInsert(int pos, QObject *item);
     void privateRemove(int pos);
 
-    const QMap<int, QObject *> &elements() const;
+    const QMap<int, ItemLibraryItemModel*> &items() const;
+    const QList<ItemLibraryItemModel*> &itemList() const;
 
-    template<typename T>
-    const QList<T> elementsByType() const;
+    ItemLibraryItemModel* item(int libId);
 
-    QObject *element(int libId);
-
-    template<typename T>
-    T elementByType(int libId);
-
-    int findElement(int libId) const;
-    int visibleElementPosition(int libId) const;
+    int findItem(int libId) const;
+    int visibleItemPosition(int libId) const;
 
     void resetModel();
 
@@ -83,8 +78,8 @@ private:
         bool visible;
     };
 
-    QMap<int, QObject *> m_elementModels;
-    QList<struct order_struct> m_elementOrder;
+    QMap<int, ItemLibraryItemModel*> m_itemModels;
+    QList<struct order_struct> m_itemOrder;
 
     QList<QObject *> m_privList;
     QHash<int, QByteArray> m_roleNames;
