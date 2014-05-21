@@ -1871,8 +1871,8 @@ void TextToModelMerger::delayedSetup()
 
     foreach (const ModelNode node, m_setupCustomParserList)
         setupCustomParserNode(node);
-        m_setupCustomParserList.clear();
-        m_setupComponentList.clear();
+    m_setupCustomParserList.clear();
+    m_setupComponentList.clear();
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
