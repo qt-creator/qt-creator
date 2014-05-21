@@ -20,6 +20,7 @@ QtcTool {
         "version.h",
         "dvtiphonesimulatorremoteclient/dvtiphonesimulatorremoteclient.h"
     ]
+    cpp.includePaths: ["."]
     cpp.linkerFlags: base.concat(["-sectcreate", "__TEXT", "__info_plist", path + "/Info.plist",
                                   "-fobjc-link-runtime"])
     cpp.frameworks: base.concat(["Foundation", "CoreServices", "ApplicationServices", "IOKit",
