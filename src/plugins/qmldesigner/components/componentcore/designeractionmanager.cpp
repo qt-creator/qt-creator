@@ -99,9 +99,10 @@ public:
             QmlItemNode itemNode = QmlItemNode(selectionContext().currentSingleSelectedNode());
             if (itemNode.isValid()) {
                 bool flag = false;
-            if (itemNode.modelNode().hasProperty(m_propertyName)
-                    || itemNode.propertyAffectedByCurrentState(m_propertyName))
-                flag = itemNode.modelValue(m_propertyName).toBool();
+                if (itemNode.modelNode().hasProperty(m_propertyName)
+                        || itemNode.propertyAffectedByCurrentState(m_propertyName)) {
+                    flag = itemNode.modelValue(m_propertyName).toBool();
+                }
                 defaultAction()->setChecked(flag);
             } else {
                 defaultAction()->setEnabled(false);
