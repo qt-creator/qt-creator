@@ -59,9 +59,9 @@ namespace QmlDesigner {
 
 ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QFrame(parent),
-    m_iconProvider(m_resIconSize),
     m_itemIconSize(24, 24),
     m_resIconSize(24, 24),
+    m_iconProvider(m_resIconSize),
     m_itemsView(new QQuickView()),
     m_resourcesView(new Internal::ItemLibraryTreeView(this)),
     m_filterFlag(QtBasic),

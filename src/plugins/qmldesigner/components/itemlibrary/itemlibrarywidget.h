@@ -121,9 +121,9 @@ private slots:
     void setCurrentIndexOfStackedWidget(int index);
 
 private:
-    ItemLibraryFileIconProvider m_iconProvider;
     QSize m_itemIconSize;
     QSize m_resIconSize;
+    ItemLibraryFileIconProvider m_iconProvider;
 
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
