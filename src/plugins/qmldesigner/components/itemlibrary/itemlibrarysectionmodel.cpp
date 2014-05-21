@@ -33,22 +33,22 @@
 
 namespace QmlDesigner {
 
-ItemLibrarySortedModel::ItemLibrarySortedModel(QObject *parent) :
+ItemLibrarySectionModel::ItemLibrarySectionModel(QObject *parent) :
     QAbstractListModel(parent)
 {
 }
 
-ItemLibrarySortedModel::~ItemLibrarySortedModel()
+ItemLibrarySectionModel::~ItemLibrarySectionModel()
 {
     clearItems();
 }
 
-int ItemLibrarySortedModel::rowCount(const QModelIndex &) const
+int ItemLibrarySectionModel::rowCount(const QModelIndex &) const
 {
     return m_privList.count();
 }
 
-QVariant ItemLibrarySortedModel::data(const QModelIndex &index, int role) const
+QVariant ItemLibrarySectionModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row()+1 > m_privList.count()) {
         qDebug() << Q_FUNC_INFO << "invalid index requested";
@@ -58,7 +58,7 @@ QVariant ItemLibrarySortedModel::data(const QModelIndex &index, int role) const
     if (m_roleNames.contains(role)) {
         QVariant value = m_privList.at(index.row())->property(m_roleNames.value(role));
 
-        if (ItemLibrarySortedModel* model = qobject_cast<ItemLibrarySortedModel *>(value.value<QObject*>()))
+        if (ItemLibrarySectionModel* model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>()))
             return QVariant::fromValue(model);
 
         return m_privList.at(index.row())->property(m_roleNames.value(role));
@@ -69,7 +69,7 @@ QVariant ItemLibrarySortedModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void ItemLibrarySortedModel::clearItems()
+void ItemLibrarySectionModel::clearItems()
 {
     beginResetModel();
     while (m_itemOrder.count() > 0)
@@ -84,7 +84,7 @@ static bool compareFunction(QObject *first, QObject *second)
     return first->property(sortRoleName).toString() < second->property(sortRoleName).toString();
 }
 
-void ItemLibrarySortedModel::addItem(ItemLibraryItem *element, int libId)
+void ItemLibrarySectionModel::addItem(ItemLibraryItem *element, int libId)
 {
     struct order_struct orderEntry;
     orderEntry.libId = libId;
@@ -101,7 +101,7 @@ void ItemLibrarySortedModel::addItem(ItemLibraryItem *element, int libId)
     setItemVisible(libId, true);
 }
 
-void ItemLibrarySortedModel::removeItem(int libId)
+void ItemLibrarySectionModel::removeItem(int libId)
 {
     QObject *element = m_itemModels.value(libId);
     int pos = findItem(libId);
@@ -114,13 +114,13 @@ void ItemLibrarySortedModel::removeItem(int libId)
     delete element;
 }
 
-bool ItemLibrarySortedModel::itemVisible(int libId) const
+bool ItemLibrarySectionModel::itemVisible(int libId) const
 {
     int pos = findItem(libId);
     return m_itemOrder.at(pos).visible;
 }
 
-bool ItemLibrarySortedModel::setItemVisible(int libId, bool visible)
+bool ItemLibrarySectionModel::setItemVisible(int libId, bool visible)
 {
     int pos = findItem(libId);
     if (m_itemOrder.at(pos).visible == visible)
@@ -136,7 +136,7 @@ bool ItemLibrarySortedModel::setItemVisible(int libId, bool visible)
     return true;
 }
 
-void ItemLibrarySortedModel::privateInsert(int pos, QObject *element)
+void ItemLibrarySectionModel::privateInsert(int pos, QObject *element)
 {
     QObject *object = element;
 
@@ -148,27 +148,27 @@ void ItemLibrarySortedModel::privateInsert(int pos, QObject *element)
     m_privList.insert(pos, element);
 }
 
-void ItemLibrarySortedModel::privateRemove(int pos)
+void ItemLibrarySectionModel::privateRemove(int pos)
 {
     m_privList.removeAt(pos);
 }
 
-const QMap<int, ItemLibraryItem*> &ItemLibrarySortedModel::items() const
+const QMap<int, ItemLibraryItem*> &ItemLibrarySectionModel::items() const
 {
     return m_itemModels;
 }
 
-const QList<ItemLibraryItem *> ItemLibrarySortedModel::itemList() const
+const QList<ItemLibraryItem *> ItemLibrarySectionModel::itemList() const
 {
     return m_itemModels.values();
 }
 
-ItemLibraryItem *ItemLibrarySortedModel::item(int libId)
+ItemLibraryItem *ItemLibrarySectionModel::item(int libId)
 {
     return m_itemModels.value(libId);
 }
 
-int ItemLibrarySortedModel::findItem(int libId) const
+int ItemLibrarySectionModel::findItem(int libId) const
 {
     int i = 0;
     QListIterator<struct order_struct> it(m_itemOrder);
@@ -182,7 +182,7 @@ int ItemLibrarySortedModel::findItem(int libId) const
     return -1;
 }
 
-int ItemLibrarySortedModel::visibleItemPosition(int libId) const
+int ItemLibrarySectionModel::visibleItemPosition(int libId) const
 {
     int i = 0;
     QListIterator<struct order_struct> it(m_itemOrder);
@@ -198,13 +198,13 @@ int ItemLibrarySortedModel::visibleItemPosition(int libId) const
     return -1;
 }
 
-void ItemLibrarySortedModel::resetModel()
+void ItemLibrarySectionModel::resetModel()
 {
     beginResetModel();
     endResetModel();
 }
 
-void ItemLibrarySortedModel::addRoleName(const QByteArray &roleName)
+void ItemLibrarySectionModel::addRoleName(const QByteArray &roleName)
 {
     if (m_roleNames.values().contains(roleName))
         return;

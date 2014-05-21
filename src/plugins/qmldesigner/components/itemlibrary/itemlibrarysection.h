@@ -68,7 +68,7 @@ signals:
     void sectionEntriesChanged();
 
 private:
-    ItemLibrarySortedModel m_sectionEntries;
+    ItemLibrarySectionModel m_sectionEntries;
     QString m_name;
     int m_sectionLibraryId;
     bool m_sectionExpanded;

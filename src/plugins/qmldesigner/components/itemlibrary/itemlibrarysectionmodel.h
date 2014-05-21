@@ -38,13 +38,13 @@ namespace QmlDesigner {
 
 class ItemLibraryItem;
 
-class ItemLibrarySortedModel: public QAbstractListModel {
+class ItemLibrarySectionModel: public QAbstractListModel {
 
     Q_OBJECT
 
 public:
-    ItemLibrarySortedModel(QObject *parent = 0);
-    ~ItemLibrarySortedModel();
+    ItemLibrarySectionModel(QObject *parent = 0);
+    ~ItemLibrarySectionModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -87,6 +87,6 @@ private:
 
 } // namespace QmlDesigner
 
-QML_DECLARE_TYPE(QmlDesigner::ItemLibrarySortedModel)
+QML_DECLARE_TYPE(QmlDesigner::ItemLibrarySectionModel)
 
 #endif // QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H

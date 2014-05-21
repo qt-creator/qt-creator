@@ -29,7 +29,7 @@
 
 #include "itemlibrarymodel.h"
 #include "itemlibraryinfo.h"
-#include "itemlibrarysectionmodel.h"
+#include "itemlibrarysection.h"
 #include "itemlibraryitem.h"
 #include "itemlibrarysection.h"
 
@@ -44,7 +44,7 @@
 #include <qdebug.h>
 
 static bool inline registerItemLibrarySortedModel() {
-    qmlRegisterType<QmlDesigner::ItemLibrarySortedModel>();
+    qmlRegisterType<QmlDesigner::ItemLibrarySectionModel>();
     return true;
 }
 
@@ -89,7 +89,7 @@ QVariant ItemLibraryModel::data(const QModelIndex &index, int role) const
     if (m_roleNames.contains(role)) {
         QVariant value = visibleSections().at(index.row())->property(m_roleNames.value(role));
 
-        ItemLibrarySortedModel* model = qobject_cast<ItemLibrarySortedModel *>(value.value<QObject*>());
+        ItemLibrarySectionModel* model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>());
         if (model)
             return QVariant::fromValue(model);
 
@@ -291,7 +291,7 @@ void ItemLibraryModel::clearSections()
 
 void ItemLibraryModel::registerQmlTypes()
 {
-    qmlRegisterType<QmlDesigner::ItemLibrarySortedModel>();
+    qmlRegisterType<QmlDesigner::ItemLibrarySectionModel>();
     qmlRegisterType<QmlDesigner::ItemLibraryModel>();
 }
 
