@@ -1220,7 +1220,7 @@ QVariant NodeMetaInfo::propertyCastedValue(const PropertyName &propertyName, con
         return variant;
     } else if (typeId == QVariant::UserType && typeName == QStringLiteral("var")) {
         return variant;
-    } else if (variant.type() == QVariant::List && variant.type() == QVariant::List) {
+    } else if (variant.type() == QVariant::List) {
         // TODO: check the contents of the list
         return variant;
     } else if (typeName == "var" || typeName == "variant") {
