@@ -18,6 +18,7 @@ CppApplication {
         buildDirectory + '/' + project.ide_library_path + "/..", // OSX
         buildDirectory + '/' + project.ide_plugin_path
     ]
+    cpp.minimumOsxVersion: "10.7"
 
     // The following would be conceptually right, but does not work currently as some autotests
     // (e.g. extensionsystem) do not work when installed, because they want hardcoded
