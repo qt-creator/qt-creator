@@ -50,6 +50,8 @@
 namespace QmlDesigner {
 
 bool PuppetCreator::m_useOnlyFallbackPuppet = !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty();
+QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml1PuppetForKitPuppetHash;
+QHash<Core::Id, PuppetCreator::PuppetType> PuppetCreator::m_qml2PuppetForKitPuppetHash;
 
 QByteArray PuppetCreator::qtHash() const
 {
@@ -75,21 +77,37 @@ QDateTime PuppetCreator::qtLastModified() const
 
 PuppetCreator::PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion)
     : m_qtCreatorVersion(qtCreatorVersion),
-      m_kit(kit)
+      m_kit(kit),
+      m_availablePuppetType(FallbackPuppet)
 {
 }
 
 PuppetCreator::~PuppetCreator()
 {
-    m_useOnlyFallbackPuppet = !qgetenv("USE_ONLY_FALLBACK_PUPPET").isEmpty();
+}
+
+void PuppetCreator::createPuppetExecutableIfMissing(PuppetCreator::QmlPuppetVersion puppetVersion)
+{
+    if (puppetVersion == Qml1Puppet)
+        createQml1PuppetExecutableIfMissing();
+    else
+        createQml2PuppetExecutableIfMissing();
 }
 
 QProcess *PuppetCreator::createPuppetProcess(PuppetCreator::QmlPuppetVersion puppetVersion, const QString &puppetMode, const QString &socketToken, QObject *handlerObject, const char *outputSlot, const char *finishSlot) const
 {
+    QString puppetPath;
     if (puppetVersion == Qml1Puppet)
-        return qmlpuppetProcess(puppetMode, socketToken, handlerObject, outputSlot, finishSlot);
-    else
-        return qml2puppetProcess(puppetMode, socketToken, handlerObject, outputSlot, finishSlot);
+        puppetPath = qmlpuppetPath(m_availablePuppetType);
+     else
+        puppetPath = qml2puppetPath(m_availablePuppetType);
+
+    return puppetProcess(puppetPath,
+                         puppetMode,
+                         socketToken,
+                         handlerObject,
+                         outputSlot,
+                         finishSlot);
 }
 
 
@@ -115,65 +133,6 @@ QProcess *PuppetCreator::puppetProcess(const QString &puppetPath,
     return puppetProcess;
 }
 
-QProcess *PuppetCreator::qmlpuppetProcess(const QString &puppetMode,
-                                          const QString &socketToken,
-                                          QObject *handlerObject,
-                                          const char *outputSlot,
-                                          const char *finishSlot) const
-{
-    PuppetType puppetType ;
-
-    if (!m_useOnlyFallbackPuppet && m_kit) {
-        if (checkQmlpuppetIsReady()) {
-            puppetType = UserSpacePuppet;
-        } else {
-            bool buildSucceeded = build(qmlpuppetProjectFile());
-            if (buildSucceeded)
-                puppetType = UserSpacePuppet;
-            else
-                puppetType = FallbackPuppet;
-        }
-    } else {
-        puppetType = FallbackPuppet;
-    }
-
-    return puppetProcess(qmlpuppetPath(puppetType),
-                         puppetMode,
-                         socketToken,
-                         handlerObject,
-                         outputSlot,
-                         finishSlot);
-}
-
-QProcess *PuppetCreator::qml2puppetProcess(const QString &puppetMode,
-                                           const QString &socketToken,
-                                           QObject *handlerObject,
-                                           const char *outputSlot,
-                                           const char *finishSlot) const
-{
-    PuppetType puppetType ;
-
-    if (!m_useOnlyFallbackPuppet && m_kit) {
-        if (checkQml2puppetIsReady()) {
-            puppetType = UserSpacePuppet;
-        } else {
-            bool buildSucceeded = build(qml2puppetProjectFile());
-            if (buildSucceeded)
-                puppetType = UserSpacePuppet;
-            else
-                puppetType = FallbackPuppet;
-        }
-    } else {
-        puppetType = FallbackPuppet;
-    }
-
-    return puppetProcess(qml2puppetPath(puppetType),
-                         puppetMode,
-                         socketToken,
-                         handlerObject,
-                         outputSlot,
-                         finishSlot);
-}
 
 bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
 {
@@ -206,9 +165,51 @@ bool PuppetCreator::build(const QString &qmlPuppetProjectFilePath) const
         }
     }
 
-    m_useOnlyFallbackPuppet = !buildSucceeded;  // fall back to creator puppet and don't compile again
-
     return buildSucceeded;
+}
+
+void PuppetCreator::createQml1PuppetExecutableIfMissing()
+{
+    if (!m_useOnlyFallbackPuppet && m_kit) {
+        if (m_qml1PuppetForKitPuppetHash.contains(m_kit->id())) {
+            m_availablePuppetType = m_qml1PuppetForKitPuppetHash.value(m_kit->id());
+        } else if (checkQmlpuppetIsReady()) {
+            m_availablePuppetType = UserSpacePuppet;
+        } else {
+            bool buildSucceeded = build(qmlpuppetProjectFile());
+            if (buildSucceeded)
+                m_availablePuppetType = UserSpacePuppet;
+            else
+                m_availablePuppetType = FallbackPuppet;
+        }
+
+        m_qml1PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
+
+    } else {
+        m_availablePuppetType = FallbackPuppet;
+    }
+}
+
+void PuppetCreator::createQml2PuppetExecutableIfMissing()
+{
+    if (!m_useOnlyFallbackPuppet && m_kit) {
+        if (m_qml2PuppetForKitPuppetHash.contains(m_kit->id())) {
+            m_availablePuppetType = m_qml2PuppetForKitPuppetHash.value(m_kit->id());
+        } else if (checkQml2puppetIsReady()) {
+            m_availablePuppetType = UserSpacePuppet;
+        } else {
+            bool buildSucceeded = build(qml2puppetProjectFile());
+            if (buildSucceeded)
+                m_availablePuppetType = UserSpacePuppet;
+            else
+                m_availablePuppetType = FallbackPuppet;
+        }
+
+        m_qml2PuppetForKitPuppetHash.insert(m_kit->id(), m_availablePuppetType);
+
+    } else {
+        m_availablePuppetType = FallbackPuppet;
+    }
 }
 
 QString PuppetCreator::qmlpuppetDirectory(PuppetType puppetType) const

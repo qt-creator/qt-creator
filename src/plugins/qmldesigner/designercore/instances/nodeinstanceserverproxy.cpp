@@ -119,6 +119,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
    PuppetCreator::QmlPuppetVersion puppetVersion = hasQtQuick1(nodeInstanceView) ? PuppetCreator::Qml1Puppet : PuppetCreator::Qml2Puppet;
 
+   puppetCreator.createPuppetExecutableIfMissing(puppetVersion);
+
    m_qmlPuppetEditorProcess = puppetCreator.createPuppetProcess(puppetVersion,
                                                                 "editormode",
                                                               socketToken,

@@ -32,6 +32,7 @@
 
 #include <QString>
 #include <QProcessEnvironment>
+#include <coreplugin/id.h>
 
 namespace ProjectExplorer {
 class Kit;
@@ -57,6 +58,8 @@ public:
     PuppetCreator(ProjectExplorer::Kit *kit, const QString &qtCreatorVersion);
     ~PuppetCreator();
 
+    void createPuppetExecutableIfMissing(QmlPuppetVersion puppetVersion);
+
     QProcess *createPuppetProcess(QmlPuppetVersion puppetVersion,
                                   const QString &puppetMode,
                                   const QString &socketToken,
@@ -68,6 +71,9 @@ public:
 
 protected:
     bool build(const QString &qmlPuppetProjectFilePath) const;
+
+    void createQml1PuppetExecutableIfMissing();
+    void createQml2PuppetExecutableIfMissing();
 
     QString qmlpuppetDirectory(PuppetType puppetPathType) const;
     QString qmlpuppetFallbackDirectory() const;
@@ -94,18 +100,6 @@ protected:
                             const char *outputSlot,
                             const char *finishSlot) const;
 
-    QProcess *qmlpuppetProcess(const QString &puppetMode,
-                               const QString &socketToken,
-                               QObject *handlerObject,
-                               const char *outputSlot,
-                               const char *finishSlot) const;
-
-    QProcess *qml2puppetProcess(const QString &puppetMode,
-                                const QString &socketToken,
-                                QObject *handlerObject,
-                                const char *outputSlot,
-                                const char *finishSlot) const;
-
     QProcessEnvironment processEnvironment() const;
 
     QString buildCommand() const;
@@ -118,8 +112,10 @@ private:
     QString m_qtCreatorVersion;
     mutable QString m_compileLog;
     ProjectExplorer::Kit *m_kit;
+    PuppetType m_availablePuppetType;
     static bool m_useOnlyFallbackPuppet;
-
+    static QHash<Core::Id, PuppetType> m_qml1PuppetForKitPuppetHash;
+    static QHash<Core::Id, PuppetType> m_qml2PuppetForKitPuppetHash;
 };
 
 } // namespace QmlDesigner
