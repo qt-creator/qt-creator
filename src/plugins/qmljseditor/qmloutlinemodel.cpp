@@ -92,7 +92,7 @@ void QmlOutlineItem::setItemData(const QMap<int, QVariant> &roles)
     QMap<int,QVariant>::const_iterator iter(roles.constBegin());
     while (iter != roles.constEnd()) {
         setData(iter.value(), iter.key());
-        iter++;
+        ++iter;
     }
 }
 
