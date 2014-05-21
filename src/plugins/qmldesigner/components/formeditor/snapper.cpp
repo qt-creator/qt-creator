@@ -678,9 +678,7 @@ void Snapper::adjustAnchoringOfItem(FormEditorItem *formEditorItem)
                          containerFormEditorItem()->bottomSnappingOffsets(),
                          AnchorLineTop,
                          AnchorLineBottom);
-    }
 
-    if (!qmlAnchors.instanceHasAnchor(AnchorLineVerticalCenter)) {
         adjustAnchorLine(qmlItemNode,
                          containerFormEditorItem()->qmlItemNode(),
                          containerFormEditorItem()->bottomSnappingLines(),
