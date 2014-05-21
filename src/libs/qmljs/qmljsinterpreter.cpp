@@ -133,6 +133,10 @@ public:
     }
 };
 
+} // end of anonymous namespace
+
+namespace QmlJS {
+namespace Internal {
 class MetaFunction: public FunctionValue
 {
     FakeMetaMethod _method;
@@ -160,9 +164,13 @@ public:
     {
         return false;
     }
+    const MetaFunction *asMetaFunction() const
+    {
+        return this;
+    }
 };
-
-} // end of anonymous namespace
+} // namespace Internal
+} // namespace QmlJS
 
 CppComponentValue::CppComponentValue(FakeMetaObject::ConstPtr metaObject, const QString &className,
                                const QString &packageName, const ComponentVersion &componentVersion,
@@ -238,7 +246,7 @@ void CppComponentValue::processMembers(MemberProcessor *processor) const
         signatures = new QList<const Value *>;
         signatures->reserve(_metaObject->methodCount());
         for (int index = 0; index < _metaObject->methodCount(); ++index)
-            signatures->append(new MetaFunction(_metaObject->method(index), valueOwner()));
+            signatures->append(new Internal::MetaFunction(_metaObject->method(index), valueOwner()));
         if (!_metaSignatures.testAndSetOrdered(0, signatures)) {
             delete signatures;
 #if QT_VERSION >= 0x050000
@@ -752,7 +760,42 @@ const ASTPropertyReference *Value::asAstPropertyReference() const
     return 0;
 }
 
+const ASTVariableReference *Value::asAstVariableReference() const
+{
+    return 0;
+}
+
+const Internal::QtObjectPrototypeReference *Value::asQtObjectPrototypeReference() const
+{
+    return 0;
+}
+
 const ASTSignal *Value::asAstSignal() const
+{
+    return 0;
+}
+
+const ASTFunctionValue *Value::asAstFunctionValue() const
+{
+    return 0;
+}
+
+const Function *Value::asFunction() const
+{
+    return 0;
+}
+
+const Internal::MetaFunction *Value::asMetaFunction() const
+{
+    return 0;
+}
+
+const JSImportScope *Value::asJSImportScope() const
+{
+    return 0;
+}
+
+const TypeScope *Value::asTypeScope() const
 {
     return 0;
 }
@@ -1244,6 +1287,11 @@ QString Function::argumentName(int index) const
 bool Function::isVariadic() const
 {
     return _isVariadic;
+}
+
+const Function *Function::asFunction() const
+{
+    return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1827,6 +1875,16 @@ ASTVariableReference::~ASTVariableReference()
 {
 }
 
+const ASTVariableReference *ASTVariableReference::asAstVariableReference() const
+{
+    return this;
+}
+
+const VariableDeclaration *ASTVariableReference::ast() const
+{
+    return _ast;
+}
+
 const Value *ASTVariableReference::value(ReferenceContext *referenceContext) const
 {
     // may be assigned to later
@@ -1921,6 +1979,11 @@ QString ASTFunctionValue::argumentName(int index) const
 bool ASTFunctionValue::isVariadic() const
 {
     return _isVariadic;
+}
+
+const ASTFunctionValue *ASTFunctionValue::asAstFunctionValue() const
+{
+    return this;
 }
 
 bool ASTFunctionValue::getSourceLocation(QString *fileName, int *line, int *column) const
@@ -2254,6 +2317,11 @@ void TypeScope::processMembers(MemberProcessor *processor) const
     }
 }
 
+const TypeScope *TypeScope::asTypeScope() const
+{
+    return this;
+}
+
 JSImportScope::JSImportScope(const Imports *imports, ValueOwner *valueOwner)
     : ObjectValue(valueOwner)
     , _imports(imports)
@@ -2298,6 +2366,11 @@ void JSImportScope::processMembers(MemberProcessor *processor) const
         if (info.type() == ImportType::File || info.type() == ImportType::QrcFile)
             processor->processProperty(info.as(), import);
     }
+}
+
+const JSImportScope *JSImportScope::asJSImportScope() const
+{
+    return this;
 }
 
 Imports::Imports(ValueOwner *valueOwner)

@@ -44,7 +44,8 @@ using namespace QmlJS;
     A ValueOwner also provides access to various default values.
 */
 
-namespace {
+namespace QmlJS {
+namespace Internal {
 
 class QtObjectPrototypeReference : public Reference
 {
@@ -52,7 +53,10 @@ public:
     QtObjectPrototypeReference(ValueOwner *owner)
         : Reference(owner)
     {}
-
+    const QtObjectPrototypeReference *asQtObjectPrototypeReference() const QTC_OVERRIDE
+    {
+        return this;
+    }
 private:
     virtual const Value *value(ReferenceContext *referenceContext) const
     {
@@ -60,7 +64,8 @@ private:
     }
 };
 
-} // end of anonymous namespace
+} // end of Internal namespace
+} // end of QmlJS namespace
 
 
 // globally shared data
@@ -577,7 +582,7 @@ SharedValueOwner::SharedValueOwner(SharedValueOwnerKind kind)
     addFunction(_qmlMatrix4x4Object, QLatin1String("fuzzyEquals"), booleanValue(), 1, 1);
 
     // global Qt object, in alphabetic order
-    _qtObject = newObject(new QtObjectPrototypeReference(this));
+    _qtObject = newObject(new Internal::QtObjectPrototypeReference(this));
 
     ObjectValue *applicationObject = newObject();
     applicationObject->setMember(QLatin1String("active"), booleanValue());

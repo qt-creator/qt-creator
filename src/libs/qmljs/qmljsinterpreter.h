@@ -78,8 +78,16 @@ class CppComponentValue;
 class ASTObjectValue;
 class QmlEnumValue;
 class QmlPrototypeReference;
+class ASTVariableReference;
 class ASTPropertyReference;
 class ASTSignal;
+class ASTFunctionValue;
+class Function;
+
+namespace Internal {
+class MetaFunction;
+class QtObjectPrototypeReference;
+} // namespace Internal
 
 typedef QList<const Value *> ValueList;
 
@@ -136,7 +144,14 @@ public:
     virtual const QmlEnumValue *asQmlEnumValue() const;
     virtual const QmlPrototypeReference *asQmlPrototypeReference() const;
     virtual const ASTPropertyReference *asAstPropertyReference() const;
+    virtual const ASTVariableReference *asAstVariableReference() const;
+    virtual const Internal::QtObjectPrototypeReference *asQtObjectPrototypeReference() const;
     virtual const ASTSignal *asAstSignal() const;
+    virtual const ASTFunctionValue *asAstFunctionValue() const;
+    virtual const Function *asFunction() const;
+    virtual const Internal::MetaFunction *asMetaFunction() const;
+    virtual const JSImportScope *asJSImportScope() const;
+    virtual const TypeScope *asTypeScope() const;
 
     virtual void accept(ValueVisitor *) const = 0;
 
@@ -210,6 +225,12 @@ template <> Q_INLINE_TEMPLATE const ObjectValue *value_cast(const Value *v)
     else   return 0;
 }
 
+template <> Q_INLINE_TEMPLATE const ASTFunctionValue *value_cast(const Value *v)
+{
+    if (v) return v->asAstFunctionValue();
+    else   return 0;
+}
+
 template <> Q_INLINE_TEMPLATE const FunctionValue *value_cast(const Value *v)
 {
     if (v) return v->asFunctionValue();
@@ -261,6 +282,42 @@ template <> Q_INLINE_TEMPLATE const QmlPrototypeReference *value_cast(const Valu
 template <> Q_INLINE_TEMPLATE const ASTPropertyReference *value_cast(const Value *v)
 {
     if (v) return v->asAstPropertyReference();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const Internal::QtObjectPrototypeReference *value_cast(const Value *v)
+{
+    if (v) return v->asQtObjectPrototypeReference();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const ASTVariableReference *value_cast(const Value *v)
+{
+    if (v) return v->asAstVariableReference();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const Function *value_cast(const Value *v)
+{
+    if (v) return v->asFunction();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const Internal::MetaFunction*value_cast(const Value *v)
+{
+    if (v) return v->asMetaFunction();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const JSImportScope *value_cast(const Value *v)
+{
+    if (v) return v->asJSImportScope();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const TypeScope *value_cast(const Value *v)
+{
+    if (v) return v->asTypeScope();
     else   return 0;
 }
 
@@ -583,6 +640,7 @@ public:
     const Value *argument(int index) const QTC_OVERRIDE;
     QString argumentName(int index) const QTC_OVERRIDE;
     bool isVariadic() const QTC_OVERRIDE;
+    const Function *asFunction() const QTC_OVERRIDE;
 
 private:
     ValueList _arguments;
@@ -766,7 +824,8 @@ class QMLJS_EXPORT ASTVariableReference: public Reference
 public:
     ASTVariableReference(AST::VariableDeclaration *ast, const Document *doc, ValueOwner *valueOwner);
     ~ASTVariableReference();
-
+    const ASTVariableReference *asAstVariableReference() const QTC_OVERRIDE;
+    const AST::VariableDeclaration *ast() const;
 private:
     const Value *value(ReferenceContext *referenceContext) const QTC_OVERRIDE;
     bool getSourceLocation(QString *fileName, int *line, int *column) const QTC_OVERRIDE;
@@ -788,6 +847,7 @@ public:
     int namedArgumentCount() const QTC_OVERRIDE;
     QString argumentName(int index) const QTC_OVERRIDE;
     bool isVariadic() const QTC_OVERRIDE;
+    const ASTFunctionValue *asAstFunctionValue() const QTC_OVERRIDE;
 
     bool getSourceLocation(QString *fileName, int *line, int *column) const QTC_OVERRIDE;
 };
@@ -933,7 +993,7 @@ public:
                                       const ObjectValue **foundInObject = 0,
                                       bool examinePrototypes = true) const;
     void processMembers(MemberProcessor *processor) const QTC_OVERRIDE;
-
+    const TypeScope *asTypeScope() const QTC_OVERRIDE;
 private:
     const Imports *_imports;
 };
@@ -947,7 +1007,7 @@ public:
                                       const ObjectValue **foundInObject = 0,
                                       bool examinePrototypes = true) const;
     void processMembers(MemberProcessor *processor) const QTC_OVERRIDE;
-
+    const JSImportScope *asJSImportScope() const QTC_OVERRIDE;
 private:
     const Imports *_imports;
 };
