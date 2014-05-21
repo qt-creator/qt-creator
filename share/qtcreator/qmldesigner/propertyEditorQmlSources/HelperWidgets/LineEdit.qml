@@ -49,6 +49,8 @@ Controls.TextField {
 
     property bool hasToConvertColor: false
 
+    property bool __dirty: false
+
     ExtendedFunctionButton {
         x: 2
         y: 4
@@ -65,12 +67,19 @@ Controls.TextField {
             } else {
                 lineEdit.text = valueFromBackend
             }
+            __dirty = false
         }
     }
 
+    onTextChanged: {
+        __dirty = true
+    }
     onEditingFinished: {
 
         if (hasToConvertColor)
+            return
+
+        if (!__dirty)
             return
 
         if (backendValue.isTranslated) {
@@ -79,6 +88,7 @@ Controls.TextField {
             if (lineEdit.backendValue.value !== text)
                 lineEdit.backendValue.value = text;
         }
+        __dirty = false
     }
 
     style: TextFieldStyle {
