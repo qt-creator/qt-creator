@@ -90,14 +90,15 @@ ResizeControllerData::ResizeControllerData(const ResizeControllerData &other)
 ResizeControllerData::~ResizeControllerData()
 {
     if (layerItem) {
-        layerItem->scene()->removeItem(topLeftItem.data());
-        layerItem->scene()->removeItem(topRightItem.data());
-        layerItem->scene()->removeItem(bottomLeftItem.data());
-        layerItem->scene()->removeItem(bottomRightItem.data());
-        layerItem->scene()->removeItem(topItem.data());
-        layerItem->scene()->removeItem(leftItem.data());
-        layerItem->scene()->removeItem(rightItem.data());
-        layerItem->scene()->removeItem(bottomItem.data());
+        QGraphicsScene *scene = layerItem->scene();
+        scene->removeItem(topLeftItem.data());
+        scene->removeItem(topRightItem.data());
+        scene->removeItem(bottomLeftItem.data());
+        scene->removeItem(bottomRightItem.data());
+        scene->removeItem(topItem.data());
+        scene->removeItem(leftItem.data());
+        scene->removeItem(rightItem.data());
+        scene->removeItem(bottomItem.data());
     }
 }
 
