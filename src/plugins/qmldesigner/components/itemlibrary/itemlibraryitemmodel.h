@@ -27,55 +27,44 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H
-#define QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H
-
-#include "itemlibrarymodel.h"
+#ifndef QMLDESIGNER_ITEMLIBRARYITEMMODEL_H
+#define QMLDESIGNER_ITEMLIBRARYITEMMODEL_H
 
 #include <QObject>
+#include <QString>
+#include <QSize>
+#include <QVariant>
 
 namespace QmlDesigner {
 
-class ItemLibraryItemModel;
-
-class ItemLibrarySectionModel: public QObject {
+class ItemLibraryItemModel: public QObject {
 
     Q_OBJECT
 
-    Q_PROPERTY(QObject* sectionEntries READ sectionEntries NOTIFY sectionEntriesChanged FINAL)
-    Q_PROPERTY(int sectionLibId READ sectionLibId FINAL)
-    Q_PROPERTY(QString sectionName READ sectionName FINAL)
-    Q_PROPERTY(bool sectionExpanded READ sectionExpanded FINAL)
+    Q_PROPERTY(int itemLibId READ itemLibId FINAL)
+    Q_PROPERTY(QString itemName READ itemName FINAL)
+    Q_PROPERTY(QString itemLibraryIconPath READ itemLibraryIconPath FINAL)
     Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
 
 public:
-    ItemLibrarySectionModel(int sectionLibId, const QString &sectionName, QObject *parent = 0);
+    ItemLibraryItemModel(int itemLibId, const QString &itemName, QObject *parent);
+    ~ItemLibraryItemModel();
 
-    QString sectionName() const;
-    int sectionLibId() const;
-    bool sectionExpanded() const;
+    int itemLibId() const;
+    QString itemName() const;
+    QString itemLibraryIconPath() const;
     QVariant sortingRole() const;
 
-    void addSectionEntry(ItemLibraryItemModel *sectionEntry);
-    void removeSectionEntry(int itemLibId);
-    QObject *sectionEntries();
-
-    int visibleItemIndex(int itemLibId);
-    bool isItemVisible(int itemLibId);
-
-    bool updateSectionVisibility(const QString &searchText, bool *changed);
-    void updateItemIconSize(const QSize &itemIconSize);
-
-signals:
-    void sectionEntriesChanged();
+    void setItemIconPath(const QString &iconPath);
+    void setItemIconSize(const QSize &itemIconSize);
 
 private:
+    int m_libId;
     QString m_name;
-    int m_sectionLibId;
-    bool m_sectionExpanded;
-    ItemLibrarySortedModel m_sectionEntries;
+    QString m_iconPath;
+    QSize m_iconSize;
 };
 
 } // namespace QmlDesigner
 
-#endif // QMLDESIGNER_ITEMLIBRARYSECTIONMODEL_H
+#endif // QMLDESIGNER_ITEMLIBRARYITEMMODEL_H

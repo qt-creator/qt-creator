@@ -30,6 +30,7 @@
 #include "itemlibrarymodel.h"
 #include "itemlibraryinfo.h"
 #include "itemlibrarysectionmodel.h"
+#include "itemlibraryitemmodel.h"
 
 #include <model.h>
 #include <nodemetainfo.h>
@@ -245,56 +246,6 @@ void ItemLibrarySortedModel::addRoleName(const QByteArray &roleName)
     m_roleNames.insert(key, roleName);
     setRoleNames(m_roleNames);
 }
-
-ItemLibraryItemModel::ItemLibraryItemModel(int itemLibId, const QString &itemName, QObject *parent)
-    : QObject(parent),
-      m_libId(itemLibId),
-      m_name(itemName),
-      m_iconSize(64, 64)
-{
-
-}
-
-
-ItemLibraryItemModel::~ItemLibraryItemModel()
-{
-
-}
-
-
-int ItemLibraryItemModel::itemLibId() const
-{
-    return m_libId;
-}
-
-
-QString ItemLibraryItemModel::itemName() const
-{
-    return m_name;
-}
-
-QString ItemLibraryItemModel::itemLibraryIconPath() const
-{
-    //Prepend image provider prefix
-    return QStringLiteral("image://qmldesigner_itemlibrary/")+ m_iconPath;
-}
-
-QVariant ItemLibraryItemModel::sortingRole() const
-{
-    return itemName();
-}
-
-void ItemLibraryItemModel::setItemIconPath(const QString &iconPath)
-{
-    m_iconPath = iconPath;
-}
-
-void ItemLibraryItemModel::setItemIconSize(const QSize &itemIconSize)
-{
-    m_iconSize = itemIconSize;
-    setItemIconPath(m_iconPath);
-}
-
 
 void ItemLibraryModel::setExpanded(bool expanded, const QString &section)
 {

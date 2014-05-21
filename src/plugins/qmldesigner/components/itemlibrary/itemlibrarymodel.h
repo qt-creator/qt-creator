@@ -98,34 +98,6 @@ private:
     QHash<int, QByteArray> m_roleNames;
 };
 
-class ItemLibraryItemModel: public QObject {
-
-    Q_OBJECT
-
-    Q_PROPERTY(int itemLibId READ itemLibId FINAL)
-    Q_PROPERTY(QString itemName READ itemName FINAL)
-    Q_PROPERTY(QString itemLibraryIconPath READ itemLibraryIconPath FINAL)
-    Q_PROPERTY(QVariant sortingRole READ sortingRole FINAL)
-
-public:
-    ItemLibraryItemModel(int itemLibId, const QString &itemName, QObject *parent);
-    ~ItemLibraryItemModel();
-
-    int itemLibId() const;
-    QString itemName() const;
-    QString itemLibraryIconPath() const;
-    QVariant sortingRole() const;
-
-    void setItemIconPath(const QString &iconPath);
-    void setItemIconSize(const QSize &itemIconSize);
-
-private:
-    int m_libId;
-    QString m_name;
-    QString m_iconPath;
-    QSize m_iconSize;
-};
-
 class ItemLibraryModel: public ItemLibrarySortedModel {
 
     Q_OBJECT

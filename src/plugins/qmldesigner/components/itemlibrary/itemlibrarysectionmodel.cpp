@@ -29,6 +29,8 @@
 
 #include "itemlibrarysectionmodel.h"
 
+#include "itemlibraryitemmodel.h"
+
 namespace QmlDesigner {
 
 ItemLibrarySectionModel::ItemLibrarySectionModel(int sectionLibId, const QString &sectionName, QObject *parent)

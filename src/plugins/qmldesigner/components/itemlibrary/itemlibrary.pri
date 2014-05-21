@@ -6,14 +6,16 @@ HEADERS += itemlibraryview.h \
            itemlibrarymodel.h \
            itemlibrarycomponents.h \
            itemlibraryimageprovider.h \
-           itemlibrarysectionmodel.h
+           itemlibrarysectionmodel.h \
+           itemlibraryitemmodel.h
 
 SOURCES += itemlibraryview.cpp \
            itemlibrarywidget.cpp \
            itemlibrarymodel.cpp \
            itemlibrarycomponents.cpp \
            itemlibraryimageprovider.cpp \
-           itemlibrarysectionmodel.cpp
+           itemlibrarysectionmodel.cpp \
+           itemlibraryitemmodel.cpp
 
 RESOURCES += itemlibrary.qrc
 
