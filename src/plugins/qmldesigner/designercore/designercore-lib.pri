@@ -25,7 +25,6 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/internalproperty.cpp \
     $$PWD/model/model.cpp \
     $$PWD/model/modelnode.cpp \
-    $$PWD/model/painteventfilter.cpp \
     $$PWD/model/internalnode.cpp \
     $$PWD/model/propertyparser.cpp \
     $$PWD/model/propertycontainer.cpp \
@@ -97,7 +96,6 @@ HEADERS += $$PWD/include/qmldesignercorelib_global.h \
     $$PWD/include/propertycontainer.h \
     $$PWD/model/internalnode_p.h \
     $$PWD/model/model_p.h \
-    $$PWD/model/painteventfilter_p.h \
     $$PWD/include/propertyparser.h \
     $$PWD/pluginmanager/widgetpluginmanager.h \
     $$PWD/pluginmanager/widgetpluginpath.h \
