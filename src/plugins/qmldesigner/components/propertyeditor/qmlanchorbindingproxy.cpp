@@ -315,9 +315,6 @@ void QmlAnchorBindingProxy::setBottomTarget(const QString &target)
     if (m_ignoreQml)
         return;
 
-    if (m_ignoreQml)
-        return;
-
     QmlItemNode newTarget(targetIdToNode(target));
 
     if (newTarget == m_bottomTarget)
