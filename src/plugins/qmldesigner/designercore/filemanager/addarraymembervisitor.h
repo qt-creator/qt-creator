@@ -54,7 +54,7 @@ protected:
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
 
 private:
-    void findArrayBindingAndInsert(const QString &m_propertyName, QmlJS::AST::UiObjectMemberList *ast);
+    void findArrayBindingAndInsert(const QString &propertyName, QmlJS::AST::UiObjectMemberList *ast);
 
     void insertInto(QmlJS::AST::UiArrayBinding *arrayBinding);
     void convertAndAdd(QmlJS::AST::UiObjectBinding *objectBinding);

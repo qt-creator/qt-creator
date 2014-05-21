@@ -48,14 +48,14 @@ AddArrayMemberVisitor::AddArrayMemberVisitor(QmlDesigner::TextModifier &modifier
 {
 }
 
-void AddArrayMemberVisitor::findArrayBindingAndInsert(const QString &m_propertyName, UiObjectMemberList *ast)
+void AddArrayMemberVisitor::findArrayBindingAndInsert(const QString &propertyName, UiObjectMemberList *ast)
 {
     for (UiObjectMemberList *iter = ast; iter; iter = iter->next) {
         if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(iter->member)) {
-            if (toString(arrayBinding->qualifiedId) == m_propertyName)
+            if (toString(arrayBinding->qualifiedId) == propertyName)
                 insertInto(arrayBinding);
         } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(iter->member)) {
-            if (toString(objectBinding->qualifiedId) == m_propertyName && willConvertObjectBindingIntoArrayBinding())
+            if (toString(objectBinding->qualifiedId) == propertyName && willConvertObjectBindingIntoArrayBinding())
                 convertAndAdd(objectBinding);
         }
     }
