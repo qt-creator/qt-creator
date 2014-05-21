@@ -293,7 +293,8 @@ void QbsBuildStep::handleProcessResultReport(const qbs::ProcessResult &result)
 
     m_parser->setWorkingDirectory(result.workingDirectory());
 
-    QString commandline = result.executableFilePath() + QLatin1Char(' ') + result.arguments().join(QLatin1String(" "));
+    QString commandline = result.executableFilePath() + QLatin1Char(' ')
+            + Utils::QtcProcess::joinArgs(result.arguments());
     addOutput(commandline, NormalOutput);
 
     foreach (const QString &line, result.stdErr()) {
