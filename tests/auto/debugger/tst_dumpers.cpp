@@ -406,13 +406,13 @@ struct Check : CheckBase
 
     Check(const QByteArray &iname, const Value &value, const Type &type)
         : iname(iname), expectedName(nameFromIName(iname)),
-          expectedValue(value), expectedType(type)
+          expectedValue(value), expectedType(type), qtVersionMajor(0)
     {}
 
     Check(const QByteArray &iname, const Name &name,
          const Value &value, const Type &type)
         : iname(iname), expectedName(name),
-          expectedValue(value), expectedType(type)
+          expectedValue(value), expectedType(type), qtVersionMajor(0)
     {}
 
     bool matchesEngine(DebuggerEngine engine) const
@@ -430,6 +430,7 @@ struct Check : CheckBase
     Name expectedName;
     Value expectedValue;
     Type expectedType;
+    int qtVersionMajor;
 };
 
 struct CheckType : public Check
@@ -442,6 +443,25 @@ struct CheckType : public Check
     CheckType(const QByteArray &iname, const Type &type)
         : Check(iname, noValue, type)
     {}
+};
+
+struct Check4 : Check
+{
+    Check4(const QByteArray &iname, const Value &value, const Type &type)
+        : Check(iname, value, type) { qtVersionMajor = 4; }
+
+    Check4(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
+        : Check(iname, name, value, type) { qtVersionMajor = 4; }
+};
+
+struct Check5 : Check
+{
+    Check5(const QByteArray &iname, const Value &value, const Type &type)
+        : Check(iname, value, type) { qtVersionMajor = 5; }
+
+    Check5(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
+        : Check(iname, name, value, type) { qtVersionMajor = 5; }
+
 };
 
 struct Profile
@@ -1272,6 +1292,12 @@ void tst_Dumpers::dumper()
             //qDebug() << "CHECKS" << i << check.iname;
             if ("local." + check.iname == item.iname) {
                 data.checks.removeAt(i);
+                if (context.qtVersion) {
+                    if (check.qtVersionMajor == 5 && context.qtVersion < 0x050000)
+                        continue;
+                    if (check.qtVersionMajor == 4 && context.qtVersion >= 0x050000)
+                        continue;
+                }
                 if (check.matchesEngine(m_debuggerEngine)) {
                     //qDebug() << "USING MATCHING TEST FOR " << item.iname;
                     if (!check.expectedName.matches(item.name.toLatin1(), context)) {
@@ -2796,17 +2822,29 @@ void tst_Dumpers::dumper_data()
 
                + CoreProfile()
 
+               // check Qt5 internal structure for QUrl
                + Check("url0", "<invalid>", "@QUrl")
-               + Check("url1", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QUrl")
-               + Check("url1.port", "10", "int")
-               + Check("url1.scheme", "\"http\"", "@QString")
-               + Check("url1.userName", "\"foo\"", "@QString")
-               + Check("url1.password", "\"\"", "@QString")
-               + Check("url1.host", "\"qt-project.org\"", "@QString")
-               + Check("url1.path", "\"/have_fun\"", "@QString")
-               + Check("url1.query", "\"\"", Type4("@QByteArray"))
-               + Check("url1.query", "\"\"", Type5("@QString"))
-               + Check("url1.fragment", "\"\"", "@QString");
+               + Check5("url1", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QUrl")
+               + Check5("url1.port", "10", "int")
+               + Check5("url1.scheme", "\"http\"", "@QString")
+               + Check5("url1.userName", "\"foo\"", "@QString")
+               + Check5("url1.password", "\"\"", "@QString")
+               + Check5("url1.host", "\"qt-project.org\"", "@QString")
+               + Check5("url1.path", "\"/have_fun\"", "@QString")
+               + Check5("url1.query", "\"\"", "@QString")
+               + Check5("url1.fragment", "\"\"", "@QString")
+
+               // check Qt4 internal structure for QUrl
+               + Check4("url1", "", "@QUrl")
+               + Check4("url1.d", "", "@QUrlPrivate")
+               + Check4("url1.d.port", "10", "int")
+               + Check4("url1.d.scheme", "\"http\"", "@QString")
+               + Check4("url1.d.userName", "\"foo\"", "@QString")
+               + Check4("url1.d.password", "\"\"", "@QString")
+               + Check4("url1.d.host", "\"qt-project.org\"", "@QString")
+               + Check4("url1.d.path", "\"/have_fun\"", "@QString")
+               + Check4("url1.query", "\"\"", "@QByteArray")
+               + Check4("url1.d.fragment", "\"\"", "@QString");
 
 
     QByteArray expected1 = "\"AAA";
