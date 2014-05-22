@@ -32,8 +32,7 @@
 #include "qnxconfiguration.h"
 #include "qnxconfigurationmanager.h"
 #include "qnxconstants.h"
-
-#include <qnxsettingswidget.h>
+#include "qnxsettingswidget.h"
 
 #include <coreplugin/icore.h>
 
