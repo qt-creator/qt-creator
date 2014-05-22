@@ -291,10 +291,10 @@ QString StatesEditorView::currentStateName() const
     return currentState().isValid() ? currentState().name() : QString();
 }
 
-void StatesEditorView::renameState(int nodeId, const QString &newName)
+void StatesEditorView::renameState(int internalNodeId, const QString &newName)
 {
-    if (hasModelNodeForInternalId(nodeId)) {
-        QmlModelState state(modelNodeForInternalId(nodeId));
+    if (hasModelNodeForInternalId(internalNodeId)) {
+        QmlModelState state(modelNodeForInternalId(internalNodeId));
         try {
             if (state.isValid() && state.name() != newName) {
                 // Jump to base state for the change

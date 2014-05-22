@@ -56,7 +56,7 @@ StatesEditorModel::StatesEditorModel(StatesEditorView *view)
     QHash<int, QByteArray> roleNames;
     roleNames.insert(StateNameRole, "stateName");
     roleNames.insert(StateImageSourceRole, "stateImageSource");
-    roleNames.insert(NodeId, "nodeId");
+    roleNames.insert(InternalNodeId, "internalNodeId");
     setRoleNames(roleNames);
 }
 
@@ -72,11 +72,11 @@ QModelIndex StatesEditorModel::index(int row, int column, const QModelIndex &par
         return QModelIndex();
 
 
-    int internalId = 0;
+    int internalNodeId = 0;
     if (row > 0)
-        internalId = m_statesEditorView->rootModelNode().nodeListProperty("states").at(row - 1).internalId();
+        internalNodeId = m_statesEditorView->rootModelNode().nodeListProperty("states").at(row - 1).internalId();
 
-    return hasIndex(row, column, parent) ? createIndex(row, column,  internalId) : QModelIndex();
+    return hasIndex(row, column, parent) ? createIndex(row, column,  internalNodeId) : QModelIndex();
 }
 
 int StatesEditorModel::rowCount(const QModelIndex &parent) const
@@ -126,7 +126,7 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
         else
             return QString("image://qmldesigner_stateseditor/%1-%2").arg(index.internalId()).arg(randomNumber);
     }
-    case NodeId : return index.internalId();
+    case InternalNodeId : return index.internalId();
     }
 
 
@@ -167,7 +167,7 @@ void StatesEditorModel::removeState(int stateIndex)
     }
 }
 
-void StatesEditorModel::renameState(int nodeId, const QString &newName)
+void StatesEditorModel::renameState(int internalNodeId, const QString &newName)
 {
     if (newName == m_statesEditorView->currentStateName())
         return;
@@ -178,7 +178,7 @@ void StatesEditorModel::renameState(int nodeId, const QString &newName)
                                  tr("The empty string as a name is reserved for the base state.") :
                                  tr("Name already used in another state"));
     } else {
-        m_statesEditorView->renameState(nodeId, newName);
+        m_statesEditorView->renameState(internalNodeId, newName);
     }
 
 }

@@ -35,7 +35,7 @@ Rectangle {
     id: root
 
     signal createNewState
-    signal deleteState(int nodeId)
+    signal deleteState(int internalNodeId)
     signal duplicateCurrentState
 
     property int stateImageSize: 100
@@ -92,6 +92,7 @@ Rectangle {
                 id: statesDelegate
                 width: delegateWidth
                 height: delegateHeight
+                isCurrentState: root.currentStateInternalId == internalNodeId
                 gradiantBaseColor: isCurrentState ? Qt.darker(highlightColor, 1.8) : root.color
                 delegateStateName: stateName
                 delegateStateImageSource: stateImageSource

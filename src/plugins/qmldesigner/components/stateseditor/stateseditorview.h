@@ -47,7 +47,7 @@ public:
     explicit StatesEditorView(QObject *parent = 0);
     ~StatesEditorView();
 
-    void renameState(int nodeId,const QString &newName);
+    void renameState(int internalNodeId,const QString &newName);
     bool validStateName(const QString &name) const;
     QString currentStateName() const;
     void setCurrentState(const QmlModelState &state);

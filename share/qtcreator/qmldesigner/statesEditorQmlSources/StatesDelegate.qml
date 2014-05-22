@@ -48,7 +48,7 @@ Rectangle {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: root.currentStateInternalId = nodeId
+        onClicked: root.currentStateInternalId = internalNodeId
     }
 
     ToolButton {
@@ -60,7 +60,7 @@ Rectangle {
         width: 16
         iconSource: "images/darkclose.png"
 
-        onClicked: root.deleteState(nodeId)
+        onClicked: root.deleteState(internalNodeId)
     }
 
     TextField {
@@ -75,7 +75,7 @@ Rectangle {
         Component.onCompleted: text = delegateStateName
         onEditingFinished: {
             if (text != delegateStateName)
-                statesEditorModel.renameState(nodeId, text)
+                statesEditorModel.renameState(internalNodeId, text)
         }
     }
 

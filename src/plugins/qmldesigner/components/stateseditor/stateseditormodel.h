@@ -47,7 +47,7 @@ class StatesEditorModel : public QAbstractListModel
     enum {
         StateNameRole = Qt::DisplayRole,
         StateImageSourceRole = Qt::UserRole,
-        NodeId
+        InternalNodeId
     };
 
 public:
@@ -61,7 +61,7 @@ public:
     void insertState(int stateIndex);
     void removeState(int stateIndex);
     void updateState(int beginIndex, int endIndex);
-    Q_INVOKABLE void renameState(int nodeId, const QString &newName);
+    Q_INVOKABLE void renameState(int internalNodeId, const QString &newName);
 
     void reset();
 
