@@ -30,6 +30,7 @@
 #include "basetexteditmodifier.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljstools/qmljsindenter.h>
 #include <qmljseditor/qmljseditordocument.h>
 #include <texteditor/tabsettings.h>
 #include <utils/changeset.h>
@@ -46,15 +47,35 @@ void BaseTextEditModifier::indent(int offset, int length)
     if (length == 0 || offset < 0 || offset + length >= text().length())
         return;
 
-    if (TextEditor::BaseTextEditorWidget *bte = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())) {
-        TextEditor::BaseTextDocument *btd = bte->baseTextDocument();
-        // find the applicable block:
-        QTextDocument *doc = btd->document();
+    if (TextEditor::BaseTextEditorWidget *baseTextEditorWidget = qobject_cast<TextEditor::BaseTextEditorWidget*>(plainTextEdit())) {
+
+        TextEditor::BaseTextDocument *baseTextEditorDocument = baseTextEditorWidget->baseTextDocument();
+        QTextDocument *textDocument = baseTextEditorWidget->document();
+        TextEditor::BaseTextEditor *baseTextEditor = baseTextEditorWidget->editor();
+
+        int startLine = -1;
+        int endLine = -1;
+        int column;
+
+        baseTextEditor->convertPosition(offset, &startLine, &column); //get line
+        baseTextEditor->convertPosition(offset + length, &endLine, &column); //get line
+
+        QTextDocument *doc = baseTextEditorDocument->document();
         QTextCursor tc(doc);
         tc.beginEditBlock();
-        tc.setPosition(offset);
-        tc.setPosition(offset + length, QTextCursor::KeepAnchor);
-        btd->autoIndent(tc);
+
+        if (startLine > 0) {
+            TextEditor::TabSettings tabSettings = baseTextEditorDocument->tabSettings();
+            for (int i = startLine; i <= endLine; i++) {
+                QTextBlock start = textDocument->findBlockByNumber(i);
+
+                if (start.isValid()) {
+                    QmlJSEditor::Internal::Indenter indenter;
+                    indenter.indentBlock(textDocument, start, QChar::Null, tabSettings);
+                }
+            }
+        }
+
         tc.endEditBlock();
     }
 }
