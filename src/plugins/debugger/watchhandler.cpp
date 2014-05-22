@@ -527,7 +527,7 @@ template <class IntType> QString reformatInteger(IntType value, int format)
 static QString reformatInteger(quint64 value, int format, int size, bool isSigned)
 {
     // Follow convention and don't show negative non-decimal numbers.
-    if (format != AutomaticFormat)
+    if (format != AutomaticFormat && format != DecimalIntegerFormat)
         isSigned = false;
 
     switch (size) {
