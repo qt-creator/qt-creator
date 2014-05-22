@@ -75,4 +75,19 @@ void ItemLibraryItem::setItemIconSize(const QSize &itemIconSize)
     m_iconSize = itemIconSize;
     setItemIconPath(m_iconPath);
 }
+
+bool ItemLibraryItem::setVisible(bool isVisible)
+{
+    if (isVisible != m_isVisible) {
+        m_isVisible = isVisible;
+        return true;
+    }
+
+    return false;
+}
+
+bool ItemLibraryItem::isVisible() const
+{
+    return m_isVisible;
+}
 } // namespace QmlDesigner

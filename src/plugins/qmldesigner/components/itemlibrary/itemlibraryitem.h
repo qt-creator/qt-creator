@@ -58,8 +58,12 @@ public:
     void setItemIconPath(const QString &iconPath);
     void setItemIconSize(const QSize &itemIconSize);
 
+    bool setVisible(bool isVisible);
+    bool isVisible() const;
+
 private:
     int m_libId;
+    bool m_isVisible;
     QString m_name;
     QString m_iconPath;
     QSize m_iconSize;
