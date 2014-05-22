@@ -81,6 +81,7 @@ void ModelNodePositionRecalculator::moved(const TextModifier::MoveInfo &moveInfo
         indentOffset = to - prefixLength;
     else
         indentOffset = to - length - prefixLength - moveInfo.leadingCharsToRemove - moveInfo.trailingCharsToRemove;
+
     m_dirtyAreas.insert(indentOffset, indentLength);
 }
 
@@ -106,4 +107,5 @@ void ModelNodePositionRecalculator::replaced(int offset, int oldLength, int newL
                 m_positionStore->setNodeOffset(node, newPosition);
         }
     }
+    m_dirtyAreas.insert(offset - newLength + oldLength, newLength);
 }
