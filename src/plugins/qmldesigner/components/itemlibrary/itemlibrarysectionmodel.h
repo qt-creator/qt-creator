@@ -65,21 +65,13 @@ public:
 
     ItemLibraryItem* item(int libId);
 
-    int findItem(int libId) const;
-    int visibleItemPosition(int libId) const;
-
     void resetModel();
 
-private:
-    void addRoleName(const QByteArray &roleName);
+private: // functions
+    void addRoleNames();
 
-    struct order_struct {
-        int libId;
-        bool visible;
-    };
-
+private: // variables
     QMap<int, ItemLibraryItem*> m_itemModels;
-    QList<struct order_struct> m_itemOrder;
 
     QList<QObject *> m_privList;
     QHash<int, QByteArray> m_roleNames;

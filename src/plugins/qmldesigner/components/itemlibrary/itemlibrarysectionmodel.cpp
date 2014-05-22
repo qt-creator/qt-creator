@@ -36,6 +36,7 @@ namespace QmlDesigner {
 ItemLibrarySectionModel::ItemLibrarySectionModel(QObject *parent) :
     QAbstractListModel(parent)
 {
+    addRoleNames();
 }
 
 ItemLibrarySectionModel::~ItemLibrarySectionModel()
@@ -72,8 +73,6 @@ QVariant ItemLibrarySectionModel::data(const QModelIndex &index, int role) const
 void ItemLibrarySectionModel::clearItems()
 {
     beginResetModel();
-    while (m_itemOrder.count() > 0)
-        removeItem(m_itemOrder.at(0).libId);
     endResetModel();
 }
 
@@ -86,65 +85,38 @@ static bool compareFunction(QObject *first, QObject *second)
 
 void ItemLibrarySectionModel::addItem(ItemLibraryItem *element, int libId)
 {
-    struct order_struct orderEntry;
-    orderEntry.libId = libId;
-    orderEntry.visible = false;
-
-    int pos = 0;
-    while ((pos < m_itemOrder.count()) &&
-           compareFunction(m_itemModels.value(m_itemOrder.at(pos).libId), element))
-        ++pos;
 
     m_itemModels.insert(libId, element);
-    m_itemOrder.insert(pos, orderEntry);
 
-    setItemVisible(libId, true);
+
+    element->setVisible(true);
 }
 
 void ItemLibrarySectionModel::removeItem(int libId)
 {
-    QObject *element = m_itemModels.value(libId);
-    int pos = findItem(libId);
+    ItemLibraryItem *itemLibraryItem = m_itemModels.value(libId);
 
-    setItemVisible(libId, false);
+    itemLibraryItem->setVisible(false);
 
     m_itemModels.remove(libId);
-    m_itemOrder.removeAt(pos);
 
-    delete element;
+    delete itemLibraryItem;
 }
 
 bool ItemLibrarySectionModel::itemVisible(int libId) const
 {
-    int pos = findItem(libId);
-    return m_itemOrder.at(pos).visible;
+    ItemLibraryItem *itemLibraryItem = m_itemModels.value(libId);
+    return itemLibraryItem->isVisible();
 }
 
 bool ItemLibrarySectionModel::setItemVisible(int libId, bool visible)
 {
-    int pos = findItem(libId);
-    if (m_itemOrder.at(pos).visible == visible)
-        return false;
-
-    int visiblePos = visibleItemPosition(libId);
-    if (visible)
-        privateInsert(visiblePos, (m_itemModels.value(libId)));
-    else
-        privateRemove(visiblePos);
-
-    m_itemOrder[pos].visible = visible;
-    return true;
+    ItemLibraryItem *itemLibraryItem = m_itemModels.value(libId);
+    return itemLibraryItem->setVisible(visible);
 }
 
 void ItemLibrarySectionModel::privateInsert(int pos, QObject *element)
 {
-    QObject *object = element;
-
-    for (int i = 0; i < object->metaObject()->propertyCount(); ++i) {
-        QMetaProperty property = object->metaObject()->property(i);
-        addRoleName(property.name());
-    }
-
     m_privList.insert(pos, element);
 }
 
@@ -168,49 +140,21 @@ ItemLibraryItem *ItemLibrarySectionModel::item(int libId)
     return m_itemModels.value(libId);
 }
 
-int ItemLibrarySectionModel::findItem(int libId) const
-{
-    int i = 0;
-    QListIterator<struct order_struct> it(m_itemOrder);
-
-    while (it.hasNext()) {
-        if (it.next().libId == libId)
-            return i;
-        ++i;
-    }
-
-    return -1;
-}
-
-int ItemLibrarySectionModel::visibleItemPosition(int libId) const
-{
-    int i = 0;
-    QListIterator<struct order_struct> it(m_itemOrder);
-
-    while (it.hasNext()) {
-        struct order_struct order = it.next();
-        if (order.libId == libId)
-            return i;
-        if (order.visible)
-            ++i;
-    }
-
-    return -1;
-}
-
 void ItemLibrarySectionModel::resetModel()
 {
     beginResetModel();
     endResetModel();
 }
 
-void ItemLibrarySectionModel::addRoleName(const QByteArray &roleName)
+void ItemLibrarySectionModel::addRoleNames()
 {
-    if (m_roleNames.values().contains(roleName))
-        return;
+    int role = 0;
+    for (int propertyIndex = 0; propertyIndex < ItemLibraryItem::staticMetaObject.propertyCount(); ++propertyIndex) {
+        QMetaProperty property = ItemLibraryItem::staticMetaObject.property(propertyIndex);
+        m_roleNames.insert(role, property.name());
+        ++role;
+    }
 
-    int key = m_roleNames.count();
-    m_roleNames.insert(key, roleName);
     setRoleNames(m_roleNames);
 }
 

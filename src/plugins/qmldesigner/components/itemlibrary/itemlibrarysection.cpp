@@ -88,9 +88,8 @@ QObject *ItemLibrarySection::sectionEntries()
 
 int ItemLibrarySection::visibleItemIndex(int itemLibId)
 {
-    return m_sectionEntries.visibleItemPosition(itemLibId);
+    return m_sectionEntries.item(itemLibId)->isVisible();
 }
-
 
 bool ItemLibrarySection::isItemVisible(int itemLibId)
 {
