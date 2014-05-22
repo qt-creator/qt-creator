@@ -1786,7 +1786,7 @@ public:
                 m_name[i] = m_name.at(i).toUpper();
             }
         }
-        static_cast<CPPEditorWidget*>(assistInterface()->editor())->renameUsages(m_name);
+        assistInterface()->editor()->renameUsages(m_name);
     }
 
     static bool isConvertibleUnderscore(const QString &name, int pos)

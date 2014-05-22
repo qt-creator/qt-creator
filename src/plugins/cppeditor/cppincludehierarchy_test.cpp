@@ -32,7 +32,6 @@
 #include "cppincludehierarchymodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cppeditor/cppeditor.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <utils/fileutils.h>
 

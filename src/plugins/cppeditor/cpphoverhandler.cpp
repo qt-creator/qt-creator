@@ -29,10 +29,13 @@
 
 #include "cpphoverhandler.h"
 
-#include "cppeditor.h"
+#include "cppeditorconstants.h"
 #include "cppelementevaluator.h"
 
 #include <coreplugin/helpmanager.h>
+#include <texteditor/basetexteditor.h>
+
+#include <utils/qtcassert.h>
 
 #include <QTextCursor>
 #include <QUrl>
@@ -48,25 +51,22 @@ CppHoverHandler::~CppHoverHandler()
 
 bool CppHoverHandler::acceptEditor(IEditor *editor)
 {
-    CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor);
-    if (cppEditor)
-        return true;
-    return false;
+    return editor->document()->id() == CppEditor::Constants::CPPEDITOR_ID;
 }
 
 void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
 {
-    CPPEditorWidget *cppEditor = qobject_cast<CPPEditorWidget *>(editor->widget());
-    if (!cppEditor)
-        return;
+    using namespace TextEditor;
+    BaseTextEditorWidget *textEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget());
+    QTC_ASSERT(textEditor, return);
 
-    if (!cppEditor->extraSelectionTooltip(pos).isEmpty()) {
-        setToolTip(cppEditor->extraSelectionTooltip(pos));
+    if (!textEditor->extraSelectionTooltip(pos).isEmpty()) {
+        setToolTip(textEditor->extraSelectionTooltip(pos));
     } else {
-        QTextCursor tc(cppEditor->document());
+        QTextCursor tc(textEditor->document());
         tc.setPosition(pos);
 
-        CppElementEvaluator evaluator(cppEditor);
+        CppElementEvaluator evaluator(textEditor);
         evaluator.setTextCursor(tc);
         evaluator.execute();
         if (evaluator.hasDiagnosis()) {

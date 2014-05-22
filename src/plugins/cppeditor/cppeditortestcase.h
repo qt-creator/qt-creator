@@ -31,6 +31,8 @@
 #ifndef CPPEDITORTESTCASE_H
 #define CPPEDITORTESTCASE_H
 
+#include "cppeditor.h"
+
 #include <cpptools/cpptoolstestcase.h>
 
 namespace CppEditor {

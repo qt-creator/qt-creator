@@ -30,9 +30,8 @@
 #ifndef CPPELEMENTEVALUATOR_H
 #define CPPELEMENTEVALUATOR_H
 
-#include "cppeditor.h"
-
 #include <cpptools/symbolfinder.h>
+#include <texteditor/basetexteditor.h>
 #include <texteditor/helpitem.h>
 
 #include <QString>
@@ -57,7 +56,7 @@ class CppElement;
 class CppElementEvaluator
 {
 public:
-    explicit CppElementEvaluator(CPPEditorWidget *editor);
+    explicit CppElementEvaluator(TextEditor::BaseTextEditorWidget *editor);
 
     void setTextCursor(const QTextCursor &tc);
     void setLookupBaseClasses(const bool lookup);
@@ -79,7 +78,7 @@ private:
                                const CPlusPlus::LookupContext &lookupContext,
                                const CPlusPlus::Scope *scope);
 
-    CPPEditorWidget *m_editor;
+    TextEditor::BaseTextEditorWidget *m_editor;
     CppTools::CppModelManagerInterface *m_modelManager;
     QTextCursor m_tc;
     bool m_lookupBaseClasses;
@@ -100,7 +99,7 @@ public:
     TextEditor::HelpItem::Category helpCategory;
     QStringList helpIdCandidates;
     QString helpMark;
-    CPPEditorWidget::Link link;
+    TextEditor::BaseTextEditorWidget::Link link;
     QString tooltip;
 };
 

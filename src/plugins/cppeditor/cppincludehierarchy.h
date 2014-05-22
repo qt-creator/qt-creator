@@ -44,6 +44,7 @@ class QLabel;
 QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
+namespace TextEditor { class BaseTextEditor; }
 
 namespace Utils {
 class AnnotatedItemDelegate;
@@ -84,7 +85,7 @@ private:
     Utils::AnnotatedItemDelegate *m_delegate;
     CppIncludeLabel *m_inspectedFile;
     QLabel *m_includeHierarchyInfoLabel;
-    CPPEditor *m_editor;
+    TextEditor::BaseTextEditor *m_editor;
 };
 
 // @todo: Pretty much the same design as the OutlineWidgetStack. Maybe we can generalize the

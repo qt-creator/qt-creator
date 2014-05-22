@@ -29,6 +29,8 @@
 
 #include "cppelementevaluator.h"
 
+#include "cppeditor.h"
+
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/typehierarchybuilder.h>
 
@@ -59,7 +61,7 @@ namespace {
     }
 }
 
-CppElementEvaluator::CppElementEvaluator(CPPEditorWidget *editor) :
+CppElementEvaluator::CppElementEvaluator(TextEditor::BaseTextEditorWidget *editor) :
     m_editor(editor),
     m_modelManager(CppTools::CppModelManagerInterface::instance()),
     m_tc(editor->textCursor()),
@@ -262,7 +264,7 @@ CppInclude::CppInclude(const Document::Include &includeFile) :
     helpCategory = TextEditor::HelpItem::Brief;
     helpIdCandidates = QStringList(fileName);
     helpMark = fileName;
-    link = CPPEditorWidget::Link(path);
+    link = TextEditor::BaseTextEditorWidget::Link(path);
     tooltip = path;
 }
 
@@ -273,7 +275,7 @@ CppMacro::CppMacro(const Macro &macro)
     const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
     helpIdCandidates = QStringList(macroName);
     helpMark = macroName;
-    link = CPPEditorWidget::Link(macro.fileName(), macro.line());
+    link = TextEditor::BaseTextEditorWidget::Link(macro.fileName(), macro.line());
     tooltip = macro.toStringWithLineBreaks();
 }
 

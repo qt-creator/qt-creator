@@ -32,10 +32,11 @@
 #include "cppincludehierarchyitem.h"
 
 #include <coreplugin/fileiconprovider.h>
-#include <cplusplus/CppDocument.h>
-#include <cppeditor/cppeditor.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolseditorsupport.h>
+#include <texteditor/basetexteditor.h>
+
+#include <cplusplus/CppDocument.h>
 
 #include <QSet>
 
@@ -138,7 +139,7 @@ QVariant CppIncludeHierarchyModel::data(const QModelIndex &index, int role) cons
         return Core::FileIconProvider::icon(QFileInfo(item->filePath()));
     case LinkRole: {
         QVariant itemLink;
-        CPPEditorWidget::Link link(item->filePath(), item->line());
+        TextEditor::BaseTextEditorWidget::Link link(item->filePath(), item->line());
         itemLink.setValue(link);
         return itemLink;
     }
@@ -202,7 +203,8 @@ void CppIncludeHierarchyModel::clear()
     endResetModel();
 }
 
-void CppIncludeHierarchyModel::buildHierarchy(CPPEditor *editor, const QString &filePath)
+void CppIncludeHierarchyModel::buildHierarchy(TextEditor::BaseTextEditor *editor,
+                                              const QString &filePath)
 {
     m_editor = editor;
     beginResetModel();
