@@ -144,10 +144,6 @@
            </spacer>
           </item>
          </layout>
-         <zorder>configName</zorder>
-         <zorder>verticalLayoutWidget</zorder>
-         <zorder>verticalLayoutWidget_2</zorder>
-         <zorder>horizontalSpacer</zorder>
         </widget>
        </item>
       </layout>
