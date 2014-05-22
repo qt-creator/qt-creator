@@ -30,10 +30,9 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_TOOLSECTIONSETTINGSWIDGET_H
 #define VCPROJECTMANAGER_INTERNAL_TOOLSECTIONSETTINGSWIDGET_H
 
-#include <QList>
-#include <QWidget>
-
 #include "../vcnodewidget.h"
+
+#include <QList>
 
 namespace VcProjectManager {
 namespace Internal {

@@ -27,27 +27,23 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "vcprojectbuildoptionspage.h"
-
-#include "widgets/schemaoptionswidget.h"
 #include "msbuildversionmanager.h"
+#include "vcprojectbuildoptionspage.h"
 #include "vcschemamanager.h"
+#include "widgets/schemaoptionswidget.h"
 #include "widgets/toolschemawidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QDialogButtonBox>
 #include <QCoreApplication>
+#include <QDialogButtonBox>
 #include <QFileDialog>
-#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
-#include <QSettings>
 #include <QTableWidget>
 #include <QVBoxLayout>
 

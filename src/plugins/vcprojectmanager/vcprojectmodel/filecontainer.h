@@ -30,13 +30,16 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_FILECONTAINER_H
 #define VCPROJECTMANAGER_INTERNAL_FILECONTAINER_H
 
-#include "../interfaces/ivcprojectnodemodel.h"
-#include "file.h"
-#include "filter.h"
 #include "../interfaces/ifilecontainer.h"
+
+#include <QList>
+#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {
+
+class IVisualStudioProject;
+class GeneralAttributeContainer;
 
 class FileContainer : public IFileContainer
 {

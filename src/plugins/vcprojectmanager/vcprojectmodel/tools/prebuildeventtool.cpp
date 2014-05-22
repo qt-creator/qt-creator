@@ -28,14 +28,13 @@
 **
 ****************************************************************************/
 #include "prebuildeventtool.h"
-
-#include <QComboBox>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QHBoxLayout>
-
 #include "../../widgets/basicconfigurationwidget.h"
 #include "../../widgets/lineedit.h"
+
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
 
 namespace VcProjectManager {
 namespace Internal {

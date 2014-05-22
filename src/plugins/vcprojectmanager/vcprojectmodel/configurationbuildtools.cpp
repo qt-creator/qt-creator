@@ -31,6 +31,8 @@
 #include "../interfaces/iconfigurationbuildtool.h"
 #include "../interfaces/itooldescription.h"
 
+#include <QDomElement>
+
 namespace VcProjectManager {
 namespace Internal {
 

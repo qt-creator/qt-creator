@@ -27,9 +27,9 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "toolsection.h"
 #include "toolsectiondescription.h"
 #include "../../interfaces/iattributedescriptiondataitem.h"
-#include "toolsection.h"
 
 namespace VcProjectManager {
 namespace Internal {

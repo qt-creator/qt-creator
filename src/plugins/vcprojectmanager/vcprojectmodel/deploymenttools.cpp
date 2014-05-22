@@ -32,6 +32,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QDomElement>
+
 namespace VcProjectManager {
 namespace Internal {
 

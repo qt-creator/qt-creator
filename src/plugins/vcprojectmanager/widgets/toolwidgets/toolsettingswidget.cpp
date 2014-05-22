@@ -27,13 +27,12 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "toolsectionsettingswidget.h"
 #include "toolsettingswidget.h"
-
+#include "../../interfaces/isectioncontainer.h"
+#include "../../interfaces/itoolsection.h"
 #include "../../vcprojectmodel/tools/configurationtool.h"
 #include "../../vcprojectmodel/tools/toolsectiondescription.h"
-#include "../../interfaces/itoolsection.h"
-#include "../../interfaces/isectioncontainer.h"
-#include "toolsectionsettingswidget.h"
 
 #include <QTableWidget>
 #include <QVBoxLayout>

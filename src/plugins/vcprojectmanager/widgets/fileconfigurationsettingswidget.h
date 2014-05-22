@@ -30,8 +30,9 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_FILECONFIGURATIONSETTINGSWIDGET_H
 #define VCPROJECTMANAGER_INTERNAL_FILECONFIGURATIONSETTINGSWIDGET_H
 
-#include <QWidget>
 #include "vcnodewidget.h"
+
+#include <QMap>
 
 namespace VcProjectManager {
 namespace Internal {
@@ -41,8 +42,8 @@ class FileConfigurationSettingsWidget;
 }
 
 class IConfiguration;
-class IConfigurationBuildTool;
 class IVisualStudioProject;
+class IConfigurationBuildTool;
 
 class FileConfigurationSettingsWidget : public VcNodeWidget
 {

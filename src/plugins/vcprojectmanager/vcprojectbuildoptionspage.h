@@ -30,18 +30,19 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_VCPROJECTBUILDOPTIONSPAGE_H
 #define VCPROJECTMANAGER_INTERNAL_VCPROJECTBUILDOPTIONSPAGE_H
 
+#include "vcprojectmanagerconstants.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QDialog>
 #include <QTableWidgetItem>
 
-#include "vcprojectmanagerconstants.h"
-
-class QLabel;
+QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QProcess;
 class QPushButton;
 class QTableWidget;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

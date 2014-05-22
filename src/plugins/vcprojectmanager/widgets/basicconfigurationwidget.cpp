@@ -28,12 +28,13 @@
 **
 ****************************************************************************/
 #include "basicconfigurationwidget.h"
-#include <QTableWidget>
-#include <QTableWidgetItem>
+
+#include <QHeaderView>
 #include <QLabel>
 #include <QSplitter>
+#include <QTableWidget>
+#include <QTableWidgetItem>
 #include <QVBoxLayout>
-#include <QHeaderView>
 
 namespace VcProjectManager {
 namespace Internal {

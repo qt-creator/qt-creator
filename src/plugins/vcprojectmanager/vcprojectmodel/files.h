@@ -30,14 +30,17 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_FILES_H
 #define VCPROJECTMANAGER_INTERNAL_FILES_H
 
-#include "../interfaces/ivcprojectnodemodel.h"
-#include "../interfaces/ifiles.h"
-
 #include "file.h"
 #include "filecontainer.h"
+#include "../interfaces/ifiles.h"
+#include "../interfaces/ivcprojectnodemodel.h"
+
+#include <QList>
 
 namespace VcProjectManager {
 namespace Internal {
+
+class IVisualStudioProject;
 
 class Files : public IFiles
 {

@@ -33,7 +33,6 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class IToolAttribute;
 class IToolSectionDescription;
 class VcNodeWidget;
 class IToolAttributeContainer;

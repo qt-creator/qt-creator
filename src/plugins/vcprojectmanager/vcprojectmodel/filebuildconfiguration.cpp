@@ -27,15 +27,32 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "configurationcontainer.h"
+#include "debuggertool.h"
+#include "deploymenttool.h"
 #include "filebuildconfiguration.h"
-#include "tools/toolattributes/tooldescriptiondatamanager.h"
+#include "generalattributecontainer.h"
+#include "tools.h"
+#include "../interfaces/iattributedescriptiondataitem.h"
+#include "../interfaces/iconfiguration.h"
 #include "../interfaces/iconfigurationbuildtool.h"
 #include "../interfaces/iconfigurationbuildtools.h"
+#include "../interfaces/iconfigurations.h"
 #include "../interfaces/idebuggertools.h"
 #include "../interfaces/ideploymenttools.h"
-#include "tools.h"
-#include "tools/toolattributes/tooldescription.h"
+#include "../interfaces/isectioncontainer.h"
+#include "../interfaces/itoolattribute.h"
+#include "../interfaces/itoolattributecontainer.h"
+#include "../interfaces/itoolsection.h"
+#include "../interfaces/itoolsectiondescription.h"
+#include "../interfaces/ivisualstudioproject.h"
 #include "../widgets/fileconfigurationsettingswidget.h"
+#include "tools/toolattributes/tooldescription.h"
+#include "tools/toolattributes/tooldescriptiondatamanager.h"
+
+#include <utils/qtcassert.h>
+
+#include <QDomElement>
 
 namespace VcProjectManager {
 namespace Internal {

@@ -31,7 +31,6 @@
 #define VCPROJECTMANAGER_INTERNAL_IGLOBAL_H
 
 #include "ivcprojectnodemodel.h"
-#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {

@@ -28,8 +28,11 @@
 **
 ****************************************************************************/
 #include "globals.h"
+#include "global.h"
 
 #include <utils/qtcassert.h>
+
+#include <QDomNode>
 
 namespace VcProjectManager {
 namespace Internal {

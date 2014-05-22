@@ -28,13 +28,12 @@
 **
 ****************************************************************************/
 #include "booltoolattributesettingsitem.h"
+#include "../../interfaces/iattributedescriptiondataitem.h"
+#include "../../vcprojectmodel/tools/toolattributes/booltoolattribute.h"
+#include "../../vcprojectmodel/tools/toolattributes/toolattributeoption.h"
 
 #include <QComboBox>
 #include <QVBoxLayout>
-
-#include "../../vcprojectmodel/tools/toolattributes/booltoolattribute.h"
-#include "../../vcprojectmodel/tools/toolattributes/toolattributeoption.h"
-#include "interfaces/iattributedescriptiondataitem.h"
 
 namespace VcProjectManager {
 namespace Internal {

@@ -27,10 +27,16 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "references.h"
+#include "activexreference.h"
+#include "assemblyreference.h"
 #include "generalattributecontainer.h"
+#include "generalattributecontainer.h"
+#include "projectreference.h"
+#include "references.h"
 
 #include <utils/qtcassert.h>
+
+#include <QDomNode>
 
 namespace VcProjectManager {
 namespace Internal {

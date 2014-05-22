@@ -28,11 +28,12 @@
 **
 ****************************************************************************/
 #include "integertoolattributesettingsitem.h"
+#include "../../interfaces/iattributedescriptiondataitem.h"
 #include "../../vcprojectmodel/tools/toolattributes/integertoolattribute.h"
 #include "../../vcprojectmodel/tools/toolattributes/toolattributeoption.h"
-#include "interfaces/iattributedescriptiondataitem.h"
 
 #include <QComboBox>
+#include <QSpinBox>
 #include <QVBoxLayout>
 
 namespace VcProjectManager {

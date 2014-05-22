@@ -30,9 +30,9 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_FILECONFIGURATIONSEDITWIDGET_H
 #define VCPROJECTMANAGER_INTERNAL_FILECONFIGURATIONSEDITWIDGET_H
 
-#include <QMap>
-
 #include "vcnodewidget.h"
+
+#include <QMap>
 
 namespace VcProjectManager {
 namespace Internal {

@@ -32,7 +32,9 @@
 
 #include "itoolattributesettingswidget.h"
 
+QT_BEGIN_NAMESPACE
 class QComboBox;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

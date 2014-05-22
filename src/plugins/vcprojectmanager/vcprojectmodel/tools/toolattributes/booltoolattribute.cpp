@@ -27,8 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "booltoolattribute.h"
 #include "attributedescriptiondataitem.h"
+#include "booltoolattribute.h"
 #include "../../../widgets/toolwidgets/booltoolattributesettingsitem.h"
 
 namespace VcProjectManager {

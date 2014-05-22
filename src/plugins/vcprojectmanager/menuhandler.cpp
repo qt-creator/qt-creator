@@ -28,22 +28,15 @@
 **
 ****************************************************************************/
 #include "menuhandler.h"
+#include "vcprojectmanagerconstants.h"
+#include "vcprojectmodel/vcdocprojectnodes.h"
+#include "widgets/vcenternamedialog.h"
 
-#include <QAction>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include "vcprojectmanagerconstants.h"
-#include "vcproject.h"
-#include "vcprojectmodel/vcdocprojectnodes.h"
-#include "vcprojectfile.h"
-#include "vcprojectmodel/vcprojectdocument.h"
-#include "vcprojectmodel/vcdocumentmodel.h"
-#include "widgets/vcenternamedialog.h"
+#include <QAction>
 
 namespace VcProjectManager {
 namespace Internal {

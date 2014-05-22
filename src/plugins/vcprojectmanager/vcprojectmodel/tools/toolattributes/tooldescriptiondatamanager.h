@@ -30,16 +30,18 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTIONDATAMANAGER_H
 #define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTIONDATAMANAGER_H
 
-#include <QString>
-#include <QHash>
-#include <QDomNode>
-#include <QDomDocument>
 #include <QList>
+#include <QObject>
+#include <QString>
+
+QT_BEGIN_NAMESPACE
+class QDomNode;
+class QDomDocument;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IAttributeDescriptionDataItem;
 class IToolDescription;
 class ToolSectionDescription;
 

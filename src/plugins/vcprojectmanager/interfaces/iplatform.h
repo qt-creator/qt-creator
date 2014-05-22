@@ -32,8 +32,6 @@
 
 #include "ivcprojectnodemodel.h"
 
-#include <QString>
-
 namespace VcProjectManager {
 namespace Internal {
 

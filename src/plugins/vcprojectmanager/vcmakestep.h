@@ -32,8 +32,9 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
-class QComboBox;
+QT_BEGIN_NAMESPACE
 class QLabel;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

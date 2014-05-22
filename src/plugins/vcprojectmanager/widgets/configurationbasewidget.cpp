@@ -28,17 +28,15 @@
 **
 ****************************************************************************/
 #include "configurationbasewidget.h"
-
-#include <QSplitter>
-#include <QListWidget>
-#include <QStackedWidget>
-#include <QHBoxLayout>
-
-#include "../vcprojectmodel/tools/tool_constants.h"
-#include "../vcprojectmodel/tools/configurationtool.h"
-#include "../vcprojectmodel/tools/toolattributes/tooldescription.h"
+#include "../interfaces/iconfigurationbuildtool.h"
 #include "../interfaces/iconfigurationbuildtools.h"
+#include "../interfaces/itooldescription.h"
 #include "../interfaces/itools.h"
+
+#include <QHBoxLayout>
+#include <QListWidget>
+#include <QSplitter>
+#include <QStackedWidget>
 
 namespace VcProjectManager {
 namespace Internal {

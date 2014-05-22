@@ -27,8 +27,10 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "publishingitem.h"
 #include "generalattributecontainer.h"
+#include "publishingitem.h"
+
+#include <QDomNode>
 
 namespace VcProjectManager {
 namespace Internal {

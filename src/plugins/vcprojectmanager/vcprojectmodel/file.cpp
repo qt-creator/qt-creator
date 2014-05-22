@@ -27,23 +27,30 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "file.h"
-
-#include "vcprojectdocument.h"
 #include "configurationcontainer.h"
-#include "generalattributecontainer.h"
-#include "../widgets/configurationseditwidget.h"
+#include "file.h"
 #include "filebuildconfiguration.h"
-#include "tools/toolattributes/tooldescriptiondatamanager.h"
-#include "tools/tool_constants.h"
-#include "../interfaces/itooldescription.h"
-#include "../interfaces/itools.h"
+#include "generalattributecontainer.h"
+#include "vcprojectdocument.h"
+#include "../interfaces/iattributedescriptiondataitem.h"
 #include "../interfaces/iconfigurationbuildtool.h"
 #include "../interfaces/iconfigurationbuildtools.h"
+#include "../interfaces/isectioncontainer.h"
+#include "../interfaces/itoolattribute.h"
+#include "../interfaces/itoolattributecontainer.h"
+#include "../interfaces/itooldescription.h"
+#include "../interfaces/itools.h"
+#include "../interfaces/itoolsection.h"
+#include "../interfaces/itoolsectiondescription.h"
+#include "../widgets/fileconfigurationseditwidget.h"
+#include "tools/tool_constants.h"
+#include "tools/toolattributes/tooldescriptiondatamanager.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
-#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
+#include <projectexplorer/projectexplorerconstants.h>
+
+#include <QDomNode>
 
 namespace VcProjectManager {
 namespace Internal {

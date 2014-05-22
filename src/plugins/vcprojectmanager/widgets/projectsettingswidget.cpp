@@ -30,11 +30,10 @@
 #include "projectsettingswidget.h"
 #include "ui_projectsettingswidget.h"
 
-#include <QSplitter>
 #include <QHBoxLayout>
 #include <QListWidget>
+#include <QSplitter>
 #include <QStackedWidget>
-#include <QPushButton>
 
 namespace VcProjectManager {
 namespace Internal {

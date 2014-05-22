@@ -31,6 +31,7 @@
 #define VCPROJECTMANAGER_INTERNAL_DEBUGGERTOOLS_H
 
 #include "../interfaces/idebuggertools.h"
+
 #include <QList>
 
 namespace VcProjectManager {

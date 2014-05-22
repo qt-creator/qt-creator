@@ -31,17 +31,18 @@
 #define VCPROJECTMANAGER_INTERNAL_CONFIGURATIONSEDITWIDGET_H
 
 #include "vcnodewidget.h"
+
 #include <QMap>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IVisualStudioProject;
+class ConfigurationContainer;
 class ConfigurationsWidget;
 class IConfiguration;
-class ConfigurationContainer;
 class IFile;
 class IFileContainer;
+class IVisualStudioProject;
 
 class ConfigurationsEditWidget : public VcNodeWidget
 {

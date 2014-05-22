@@ -32,8 +32,9 @@
 
 #include "../interfaces/ireference.h"
 
-#include "configuration.h"
-#include "vcprojectdocument_constants.h"
+QT_BEGIN_NAMESPACE
+class QDomElement;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

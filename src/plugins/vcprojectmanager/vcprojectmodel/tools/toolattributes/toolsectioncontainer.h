@@ -31,6 +31,7 @@
 #define VCPROJECTMANAGER_INTERNAL_TOOLSECTIONCONTAINER_H
 
 #include "../../../interfaces/isectioncontainer.h"
+
 #include <QList>
 
 namespace VcProjectManager {

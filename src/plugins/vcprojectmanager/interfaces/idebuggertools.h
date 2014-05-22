@@ -30,8 +30,12 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_IDEBUGGERTOOLS_H
 #define VCPROJECTMANAGER_INTERNAL_IDEBUGGERTOOLS_H
 
+#include <QtGlobal>
+
+QT_BEGIN_NAMESPACE
 class QDomElement;
 class QDomDocument;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

@@ -30,8 +30,9 @@
 #ifndef GENERALTOOLATTRIBUTECONTAINER_H
 #define GENERALTOOLATTRIBUTECONTAINER_H
 
-#include <QList>
 #include "../../interfaces/itoolattributecontainer.h"
+
+#include <QList>
 
 namespace VcProjectManager {
 namespace Internal {

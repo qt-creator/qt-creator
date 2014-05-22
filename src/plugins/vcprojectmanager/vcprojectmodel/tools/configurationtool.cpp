@@ -28,14 +28,16 @@
 **
 ****************************************************************************/
 #include "configurationtool.h"
-#include "../../interfaces/itoolattribute.h"
-#include "../../interfaces/iattributedescriptiondataitem.h"
-#include "../../interfaces/itoolattributecontainer.h"
-#include "toolattributes/tooldescriptiondatamanager.h"
-#include "toolattributes/tooldescription.h"
-#include "toolsectiondescription.h"
 #include "toolsection.h"
+#include "toolsectiondescription.h"
+#include "../../interfaces/iattributedescriptiondataitem.h"
+#include "../../interfaces/itoolattribute.h"
+#include "../../interfaces/itoolattributecontainer.h"
+#include "toolattributes/tooldescription.h"
+#include "toolattributes/tooldescriptiondatamanager.h"
 #include "toolattributes/toolsectioncontainer.h"
+
+#include <QDomNode>
 
 namespace VcProjectManager {
 namespace Internal {

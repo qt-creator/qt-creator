@@ -27,16 +27,15 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "vcprojectmanagerconstants.h"
 #include "vcschemamanager.h"
+#include "vcprojectmodel/tools/tool_constants.h"
+#include "vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h"
 
 #include <coreplugin/icore.h>
 
 #include <QSettings>
 #include <QStringList>
-
-#include "vcprojectmanagerconstants.h"
-#include "vcprojectmodel/tools/tool_constants.h"
-#include "vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h"
 
 namespace VcProjectManager {
 namespace Internal {

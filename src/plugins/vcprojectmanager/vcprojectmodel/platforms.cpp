@@ -27,9 +27,12 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "platform.h"
 #include "platforms.h"
 
 #include <utils/qtcassert.h>
+
+#include <QDomNode>
 
 namespace VcProjectManager {
 namespace Internal {

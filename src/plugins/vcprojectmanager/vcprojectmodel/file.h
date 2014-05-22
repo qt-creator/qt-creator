@@ -30,15 +30,18 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_FILE_H
 #define VCPROJECTMANAGER_INTERNAL_FILE_H
 
-#include "configuration.h"
 #include "../interfaces/ifile.h"
 
-#include <projectexplorer/projectnodes.h>
+QT_BEGIN_NAMESPACE
+class QDomElement;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {
 
 class IVisualStudioProject;
+class GeneralAttributeContainer;
+class IToolSection;
 
 class File : public IFile
 {

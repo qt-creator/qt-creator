@@ -34,12 +34,8 @@
 
 #include <QList>
 
-#include "platform.h"
-
 namespace VcProjectManager {
 namespace Internal {
-
-class Platform;
 
 class Platforms : public IPlatforms
 {

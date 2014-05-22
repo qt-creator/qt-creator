@@ -31,6 +31,7 @@
 #define VCPROJECTMANAGER_INTERNAL_DEPLOYMENTTOOLS_H
 
 #include "../interfaces/ideploymenttools.h"
+
 #include <QList>
 
 namespace VcProjectManager {

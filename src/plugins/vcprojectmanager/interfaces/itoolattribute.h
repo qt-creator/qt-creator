@@ -30,9 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ITOOLATTRIBUTE_H
 #define VCPROJECTMANAGER_INTERNAL_ITOOLATTRIBUTE_H
 
-#include <QStringList>
-
-class QWidget;
+#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {

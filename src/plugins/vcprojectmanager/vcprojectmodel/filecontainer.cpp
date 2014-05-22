@@ -1,11 +1,14 @@
+#include "file.h"
 #include "filecontainer.h"
+#include "generalattributecontainer.h"
+#include "vcprojectdocument.h"
+#include "../vcprojectmanagerconstants.h"
 
-#include <QFileInfo>
 #include <utils/qtcassert.h>
 
-#include "vcprojectdocument.h"
-#include "generalattributecontainer.h"
-#include "../vcprojectmanagerconstants.h"
+#include <QDomNode>
+#include <QFileInfo>
+#include <QStringList>
 
 namespace VcProjectManager {
 namespace Internal {

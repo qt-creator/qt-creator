@@ -28,19 +28,20 @@
 **
 ****************************************************************************/
 #include "configuration.h"
-
-#include "debuggertool.h"
-#include "deploymenttool.h"
-#include "tools/tool_constants.h"
-#include "../widgets/configurationbasewidget.h"
-#include "tools/toolattributes/tooldescriptiondatamanager.h"
-#include "tools/toolattributes/tooldescription.h"
-#include "tools/configurationtool.h"
-#include "generalattributecontainer.h"
 #include "configurationbuildtools.h"
-#include "tools.h"
-#include "deploymenttools.h"
+#include "debuggertool.h"
 #include "debuggertools.h"
+#include "deploymenttool.h"
+#include "deploymenttools.h"
+#include "generalattributecontainer.h"
+#include "tools.h"
+#include "../widgets/configurationbasewidget.h"
+#include "tools/configurationtool.h"
+#include "tools/tool_constants.h"
+#include "tools/toolattributes/tooldescription.h"
+#include "tools/toolattributes/tooldescriptiondatamanager.h"
+
+#include <QDomNode>
 
 namespace VcProjectManager {
 namespace Internal {

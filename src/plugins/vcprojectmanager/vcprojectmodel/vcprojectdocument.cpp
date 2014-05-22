@@ -27,28 +27,29 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "configuration.h"
+#include "configurationcontainer.h"
+#include "generalattributecontainer.h"
 #include "vcprojectdocument.h"
-
-#include <QDomElement>
-#include <QFile>
-#include <QStringList>
-#include <QTextStream>
-#include <QVBoxLayout>
-#include <QMessageBox>
+#include "../interfaces/iattributecontainer.h"
+#include "../interfaces/iconfigurationbuildtool.h"
+#include "../interfaces/iconfigurationbuildtools.h"
+#include "../interfaces/itooldescription.h"
+#include "../interfaces/itools.h"
+#include "../widgets/configurationseditwidget.h"
+#include "../widgets/projectsettingswidget.h"
+#include "tools/tool_constants.h"
+#include "tools/toolattributes/tooldescriptiondatamanager.h"
 
 #include <coreplugin/mainwindow.h>
 
-#include "../widgets/projectsettingswidget.h"
-#include "../widgets/configurationseditwidget.h"
-#include "configurationcontainer.h"
-#include "../interfaces/iattributecontainer.h"
-#include "generalattributecontainer.h"
-#include "tools/tool_constants.h"
-#include "tools/toolattributes/tooldescriptiondatamanager.h"
-#include "../interfaces/itooldescription.h"
-#include "../interfaces/iconfigurationbuildtool.h"
-#include "../interfaces/iconfigurationbuildtools.h"
-#include "../interfaces/itools.h"
+#include <QDomElement>
+#include <QFile>
+#include <QMessageBox>
+#include <QPair>
+#include <QStringList>
+#include <QTextStream>
+#include <QVBoxLayout>
 
 namespace VcProjectManager {
 namespace Internal {

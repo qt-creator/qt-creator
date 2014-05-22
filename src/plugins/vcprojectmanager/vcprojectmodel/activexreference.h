@@ -30,10 +30,11 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ACTIVEXREFERENCE_H
 #define VCPROJECTMANAGER_INTERNAL_ACTIVEXREFERENCE_H
 
-#include "../interfaces/ivcprojectnodemodel.h"
-#include "vcprojectdocument_constants.h"
-#include "configuration.h"
 #include "../interfaces/ireference.h"
+
+QT_BEGIN_NAMESPACE
+class QDomElement;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

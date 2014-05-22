@@ -27,23 +27,13 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "vcprojectmanager.h"
-
 #include "vcproject.h"
 #include "vcprojectbuildoptionspage.h"
+#include "vcprojectmanager.h"
 #include "vcprojectmanagerconstants.h"
-#include "vcprojectmodel/vcprojectdocument_constants.h"
 #include "vcschemamanager.h"
+#include "vcprojectmodel/vcprojectdocument_constants.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/idocument.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
-
-#include <QAction>
 #include <QtXmlPatterns/QXmlSchema>
 #include <QtXmlPatterns/QXmlSchemaValidator>
 

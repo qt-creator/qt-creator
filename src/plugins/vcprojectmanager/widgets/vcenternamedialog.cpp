@@ -27,11 +27,10 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "vcenternamedialog.h"
 #include "ui_vcenternamewidget.h"
+#include "vcenternamedialog.h"
 
 #include <QMessageBox>
-#include <QPushButton>
 
 namespace VcProjectManager {
 namespace Internal {

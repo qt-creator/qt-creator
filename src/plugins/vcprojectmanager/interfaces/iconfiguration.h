@@ -30,9 +30,9 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ICONFIGURATION_H
 #define VCPROJECTMANAGER_INTERNAL_ICONFIGURATION_H
 
-#include <QString>
-#include <QObject>
 #include "ivcprojectnodemodel.h"
+
+#include <QObject>
 
 namespace VcProjectManager {
 namespace Internal {

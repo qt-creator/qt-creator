@@ -30,6 +30,8 @@
 #include "configurationcontainer.h"
 #include "../interfaces/iconfiguration.h"
 
+#include <QDomNode>
+
 namespace VcProjectManager {
 namespace Internal {
 

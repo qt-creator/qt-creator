@@ -27,12 +27,14 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "configurations.h"
-
-#include "vcprojectdocument.h"
-#include "../widgets/configurationseditwidget.h"
-#include "../interfaces/iconfiguration.h"
+#include "configuration.h"
 #include "configurationcontainer.h"
+#include "configurations.h"
+#include "vcprojectdocument.h"
+#include "vcprojectdocument_constants.h"
+#include "../widgets/configurationseditwidget.h"
+
+#include <QDomNode>
 
 namespace VcProjectManager {
 namespace Internal {

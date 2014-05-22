@@ -32,8 +32,7 @@
 
 #include "../interfaces/itoolfiles.h"
 
-#include "defaulttoolfile.h"
-#include "toolfile.h"
+#include <QList>
 
 namespace VcProjectManager {
 namespace Internal {

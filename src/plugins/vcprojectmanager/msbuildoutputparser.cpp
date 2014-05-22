@@ -28,6 +28,7 @@
 **
 ****************************************************************************/
 #include "msbuildoutputparser.h"
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 namespace VcProjectManager {

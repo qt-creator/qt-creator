@@ -33,8 +33,6 @@
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
-class QAction;
-
 namespace VcProjectManager {
 namespace Internal {
 

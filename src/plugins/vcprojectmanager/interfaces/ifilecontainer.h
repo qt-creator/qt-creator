@@ -32,6 +32,8 @@
 
 #include "ivcprojectnodemodel.h"
 
+QT_FORWARD_DECLARE_CLASS(QStringList)
+
 namespace VcProjectManager {
 namespace Internal {
 

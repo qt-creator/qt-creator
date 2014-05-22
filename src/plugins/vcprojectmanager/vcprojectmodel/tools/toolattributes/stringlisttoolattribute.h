@@ -32,6 +32,8 @@
 
 #include "../../../interfaces/itoolattribute.h"
 
+#include <QStringList>
+
 namespace VcProjectManager {
 namespace Internal {
 

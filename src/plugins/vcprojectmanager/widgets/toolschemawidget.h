@@ -30,13 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_TOOLSCHEMAWIDGET_H
 #define VCPROJECTMANAGER_INTERNAL_TOOLSCHEMAWIDGET_H
 
-#include <QWidget>
 #include <QTableWidgetItem>
-
-class QLabel;
-class QLineEdit;
-class QPushButton;
-class QVBoxLayout;
 
 namespace VcProjectManager {
 namespace Internal {

@@ -28,9 +28,9 @@
 **
 ****************************************************************************/
 #include "attributedescriptiondataitem.h"
-#include "stringlisttoolattribute.h"
 #include "booltoolattribute.h"
 #include "integertoolattribute.h"
+#include "stringlisttoolattribute.h"
 #include "stringtoolattribute.h"
 #include "toolattributeoption.h"
 

@@ -27,30 +27,19 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "vcmakestep.h"
-
 #include "msbuildoutputparser.h"
+#include "vcmakestep.h"
 #include "vcprojectbuildconfiguration.h"
-#include "vcprojectbuildoptionspage.h"
 #include "vcprojectfile.h"
 #include "vcprojectkitinformation.h"
-#include "vcprojectmanager.h"
 #include "vcprojectmanagerconstants.h"
-#include "msbuildversionmanager.h"
 
-#include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/task.h>
 
-#include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
-#include <QSettings>
 
 namespace VcProjectManager {
 namespace Internal {

@@ -30,16 +30,16 @@
 #ifndef CONFIGURATIONWIDGETS_H
 #define CONFIGURATIONWIDGETS_H
 
-#include "../widgets/vcnodewidget.h"
 #include "../vcprojectmodel/configuration.h"
+#include "../widgets/vcnodewidget.h"
 
+QT_BEGIN_NAMESPACE
 class QListWidget;
 class QStackedWidget;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {
-
-class Configuration;
 
 class ConfigurationBaseWidget : public VcNodeWidget
 {

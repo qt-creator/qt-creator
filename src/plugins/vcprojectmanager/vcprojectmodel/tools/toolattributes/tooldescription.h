@@ -30,16 +30,15 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
 #define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
 
+#include "../../../interfaces/itooldescription.h"
+
 #include <QList>
 #include <QString>
-#include "../../../interfaces/itooldescription.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 class IAttributeDescriptionDataItem;
-class ConfigurationTool;
-class ToolSectionDescription;
 
 class ToolDescription : public IToolDescription
 {

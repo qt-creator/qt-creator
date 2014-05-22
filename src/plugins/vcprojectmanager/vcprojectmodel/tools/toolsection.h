@@ -30,17 +30,18 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_TOOLSECTION_H
 #define VCPROJECTMANAGER_INTERNAL_TOOLSECTION_H
 
-#include <QList>
 #include "../../interfaces/itoolsection.h"
 
+#include <QList>
+
+QT_BEGIN_NAMESPACE
 class QWidget;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {
 
 class ToolSectionDescription;
-class IToolAttribute;
-class ToolSectionSettingsWidget;
 class GeneralToolAttributeContainer;
 
 class ToolSection : public IToolSection

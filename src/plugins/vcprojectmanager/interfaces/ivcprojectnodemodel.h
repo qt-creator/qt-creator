@@ -30,7 +30,12 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_VCPROJECTNODE_H
 #define VCPROJECTMANAGER_INTERNAL_VCPROJECTNODE_H
 
-#include <QDomNode>
+#include <QtGlobal>
+
+QT_BEGIN_NAMESPACE
+class QDomNode;
+class QDomDocument;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

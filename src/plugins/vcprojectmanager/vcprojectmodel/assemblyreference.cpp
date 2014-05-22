@@ -28,11 +28,13 @@
 **
 ****************************************************************************/
 #include "assemblyreference.h"
-
-#include <QVariant>
-
+#include "configuration.h"
 #include "configurationcontainer.h"
 #include "generalattributecontainer.h"
+#include "vcprojectdocument_constants.h"
+
+#include <QDomNode>
+#include <QVariant>
 
 namespace VcProjectManager {
 namespace Internal {

@@ -31,7 +31,6 @@
 #define VCPROJECTMANAGER_INTERNAL_SCHEMAOPTIONSWIDGET_H
 
 #include <QWidget>
-#include "vcprojectmanagerconstants.h"
 
 namespace VcProjectManager {
 namespace Internal {

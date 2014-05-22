@@ -30,11 +30,11 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_MSBUILDVERSIONMANAGER_H
 #define VCPROJECTMANAGER_INTERNAL_MSBUILDVERSIONMANAGER_H
 
+#include <coreplugin/id.h>
+
+#include <QList>
 #include <QObject>
 #include <QString>
-#include <QList>
-
-#include <coreplugin/id.h>
 
 namespace VcProjectManager {
 namespace Internal {

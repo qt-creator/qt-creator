@@ -29,13 +29,16 @@
 ****************************************************************************/
 #include "fileconfigurationsettingswidget.h"
 #include "ui_fileconfigurationsettingswidget.h"
-#include "../vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h"
-#include "../interfaces/itooldescription.h"
+#include "../interfaces/iattributecontainer.h"
+#include "../interfaces/iconfiguration.h"
 #include "../interfaces/iconfigurationbuildtool.h"
 #include "../interfaces/iconfigurationbuildtools.h"
-#include "../interfaces/iconfiguration.h"
+#include "../interfaces/iconfigurations.h"
+#include "../interfaces/itooldescription.h"
 #include "../interfaces/itools.h"
-#include "../interfaces/iattributecontainer.h"
+#include "../interfaces/ivisualstudioproject.h"
+#include "../vcprojectmodel/configurationcontainer.h"
+#include "../vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h"
 #include "../vcprojectmodel/vcprojectdocument_constants.h"
 
 namespace VcProjectManager {

@@ -30,9 +30,13 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_CONFIGURATIONCONTAINER_H
 #define VCPROJECTMANAGER_INTERNAL_CONFIGURATIONCONTAINER_H
 
-#include <QObject>
 #include <QList>
-#include <QDomElement>
+#include <QObject>
+
+QT_BEGIN_NAMESPACE
+class QDomDocument;
+class QDomElement;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

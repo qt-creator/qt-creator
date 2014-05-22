@@ -28,10 +28,13 @@
 **
 ****************************************************************************/
 #include "activexreference.h"
-
-#include <QVariant>
-#include "generalattributecontainer.h"
+#include "configuration.h"
 #include "configurationcontainer.h"
+#include "generalattributecontainer.h"
+#include "vcprojectdocument_constants.h"
+
+#include <QDomNode>
+#include <QVariant>
 
 namespace VcProjectManager {
 namespace Internal {

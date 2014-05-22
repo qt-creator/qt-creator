@@ -30,8 +30,8 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_VCPROJECTKITCONFIGWIDGET_H
 #define VCPROJECTMANAGER_INTERNAL_VCPROJECTKITCONFIGWIDGET_H
 
-#include <projectexplorer/kitconfigwidget.h>
 #include <coreplugin/id.h>
+#include <projectexplorer/kitconfigwidget.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

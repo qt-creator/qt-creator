@@ -27,12 +27,12 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "toolsectionsettingswidget.h"
 #include "itoolattributesettingswidget.h"
-#include "../../vcprojectmodel/tools/toolsection.h"
-#include "../../interfaces/itoolattribute.h"
+#include "toolsectionsettingswidget.h"
 #include "../../interfaces/iattributedescriptiondataitem.h"
+#include "../../interfaces/itoolattribute.h"
 #include "../../interfaces/itoolattributecontainer.h"
+#include "../../vcprojectmodel/tools/toolsection.h"
 #include "../basicconfigurationwidget.h"
 
 #include <QVBoxLayout>

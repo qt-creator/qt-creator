@@ -30,12 +30,14 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_VCDOCUMENTMODEL_H
 #define VCPROJECTMANAGER_INTERNAL_VCDOCUMENTMODEL_H
 
-#include <QString>
-
 #include "vcprojectdocument_constants.h"
 
+#include <QString>
+
+QT_BEGIN_NAMESPACE
 class QFile;
 class QDomDocument;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

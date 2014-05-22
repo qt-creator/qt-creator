@@ -30,9 +30,9 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_VCPROJECTFILE_H
 #define VCPROJECTMANAGER_INTERNAL_VCPROJECTFILE_H
 
-#include <coreplugin/idocument.h>
-
 #include "vcprojectmodel/vcprojectdocument_constants.h"
+
+#include <coreplugin/idocument.h>
 
 namespace VcProjectManager {
 namespace Internal {

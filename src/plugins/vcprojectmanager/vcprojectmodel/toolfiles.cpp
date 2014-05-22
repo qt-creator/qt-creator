@@ -27,11 +27,15 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "defaulttoolfile.h"
+#include "toolfile.h"
 #include "toolfiles.h"
-#include "../interfaces/iattributecontainer.h"
 #include "vcprojectdocument_constants.h"
+#include "../interfaces/iattributecontainer.h"
 
 #include <utils/qtcassert.h>
+
+#include <QDomNode>
 
 namespace VcProjectManager {
 namespace Internal {

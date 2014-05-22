@@ -28,13 +28,10 @@
 **
 ****************************************************************************/
 #include "vcprojectkitconfigwidget.h"
-
-#include <QComboBox>
-#include <projectexplorer/kit.h>
-
 #include "../msbuildversionmanager.h"
 #include "../vcprojectkitinformation.h"
-#include "../vcprojectmanagerconstants.h"
+
+#include <QComboBox>
 
 namespace VcProjectManager {
 namespace Internal {

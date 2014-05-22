@@ -28,11 +28,13 @@
 **
 ****************************************************************************/
 #include "toolsectioncontainer.h"
+#include "../../../interfaces/iattributedescriptiondataitem.h"
+#include "../../../interfaces/itoolattribute.h"
+#include "../../../interfaces/itoolattributecontainer.h"
 #include "../../../interfaces/itoolsection.h"
 #include "../../../interfaces/itoolsectiondescription.h"
-#include "../../../interfaces/itoolattribute.h"
-#include "../../../interfaces/iattributedescriptiondataitem.h"
-#include "../../../interfaces/itoolattributecontainer.h"
+
+#include <QDomElement>
 
 namespace VcProjectManager {
 namespace Internal {

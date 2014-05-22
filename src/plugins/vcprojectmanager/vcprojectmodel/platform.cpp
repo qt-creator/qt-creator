@@ -29,6 +29,8 @@
 ****************************************************************************/
 #include "platform.h"
 
+#include <QDomNode>
+
 namespace VcProjectManager {
 namespace Internal {
 

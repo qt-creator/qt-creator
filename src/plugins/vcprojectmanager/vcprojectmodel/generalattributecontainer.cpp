@@ -29,6 +29,8 @@
 ****************************************************************************/
 #include "generalattributecontainer.h"
 
+#include <QDomElement>
+
 namespace VcProjectManager {
 namespace Internal {
 

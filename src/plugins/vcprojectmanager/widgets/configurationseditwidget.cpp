@@ -28,28 +28,27 @@
 **
 ****************************************************************************/
 #include "configurationseditwidget.h"
-
-#include <QVBoxLayout>
-
-#include "../vcprojectmodel/configurationcontainer.h"
-#include "../interfaces/iconfigurationbuildtools.h"
-#include "../interfaces/iconfigurationbuildtool.h"
-#include "../interfaces/itools.h"
-#include "../interfaces/iconfiguration.h"
-#include "../interfaces/iconfigurations.h"
+#include "configurationswidget.h"
 #include "../interfaces/iattributecontainer.h"
+#include "../interfaces/iconfiguration.h"
+#include "../interfaces/iconfigurationbuildtool.h"
+#include "../interfaces/iconfigurationbuildtools.h"
+#include "../interfaces/iconfigurations.h"
+#include "../interfaces/ifile.h"
+#include "../interfaces/ifilecontainer.h"
+#include "../interfaces/ifiles.h"
 #include "../interfaces/iplatform.h"
 #include "../interfaces/iplatforms.h"
-#include "../interfaces/ifile.h"
-#include "../interfaces/ifiles.h"
-#include "../interfaces/ifilecontainer.h"
-#include "../interfaces/ivisualstudioproject.h"
 #include "../interfaces/itooldescription.h"
-#include "../vcprojectmodel/configuration.h"
+#include "../interfaces/itools.h"
+#include "../interfaces/ivisualstudioproject.h"
+#include "../vcprojectmodel/configurationcontainer.h"
 #include "../vcprojectmodel/tools/tool_constants.h"
-
-#include "configurationswidget.h"
 #include "../vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h"
+
+#include <utils/qtcassert.h>
+
+#include <QVBoxLayout>
 
 namespace VcProjectManager {
 namespace Internal {

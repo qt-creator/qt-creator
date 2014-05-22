@@ -28,11 +28,10 @@
 **
 ****************************************************************************/
 #include "vcprojectfile.h"
-
 #include "vcprojectmanagerconstants.h"
+#include "vcprojectmodel/vcdocprojectnodes.h"
 #include "vcprojectmodel/vcdocumentmodel.h"
 #include "vcprojectmodel/vcprojectdocument.h"
-#include "vcprojectmodel/vcdocprojectnodes.h"
 
 namespace VcProjectManager {
 namespace Internal {

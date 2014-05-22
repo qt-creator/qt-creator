@@ -32,7 +32,11 @@
 
 #include "../interfaces/ipublishingdata.h"
 
-#include "publishingitem.h"
+#include <QList>
+
+QT_BEGIN_NAMESPACE
+class QDomElement;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

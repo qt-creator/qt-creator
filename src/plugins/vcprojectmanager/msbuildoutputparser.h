@@ -32,6 +32,7 @@
 
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
+
 #include <QRegExp>
 
 namespace VcProjectManager {

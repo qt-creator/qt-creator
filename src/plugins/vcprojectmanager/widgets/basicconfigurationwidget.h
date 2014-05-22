@@ -30,12 +30,14 @@
 #ifndef BASICCONFIGURATIONWIDGET_H
 #define BASICCONFIGURATIONWIDGET_H
 
-#include <QWidget>
 #include <QHash>
+#include <QWidget>
 
+QT_BEGIN_NAMESPACE
 class QTableWidget;
 class QLabel;
 class QTableWidgetItem;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

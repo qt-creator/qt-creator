@@ -27,11 +27,9 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "configurationbasewidget.h"
+#include "configurationswidget.h"
 #include "fileconfigurationseditwidget.h"
-
-#include <QVBoxLayout>
-#include <utils/qtcassert.h>
-
 #include "../interfaces/iattributecontainer.h"
 #include "../interfaces/iattributedescriptiondataitem.h"
 #include "../interfaces/iconfiguration.h"
@@ -39,24 +37,24 @@
 #include "../interfaces/iconfigurationbuildtools.h"
 #include "../interfaces/iconfigurations.h"
 #include "../interfaces/ifile.h"
-#include "../interfaces/ifiles.h"
 #include "../interfaces/ifilecontainer.h"
+#include "../interfaces/ifiles.h"
 #include "../interfaces/iplatform.h"
 #include "../interfaces/iplatforms.h"
+#include "../interfaces/isectioncontainer.h"
 #include "../interfaces/itoolattribute.h"
 #include "../interfaces/itoolattributecontainer.h"
 #include "../interfaces/itooldescription.h"
 #include "../interfaces/itools.h"
 #include "../interfaces/itoolsection.h"
 #include "../interfaces/itoolsectiondescription.h"
-#include "../interfaces/isectioncontainer.h"
 #include "../interfaces/ivisualstudioproject.h"
-
 #include "../vcprojectmodel/configurationcontainer.h"
 #include "../vcprojectmodel/tools/tool_constants.h"
 
-#include "configurationswidget.h"
-#include "configurationbasewidget.h"
+#include <utils/qtcassert.h>
+
+#include <QVBoxLayout>
 
 namespace VcProjectManager {
 namespace Internal {

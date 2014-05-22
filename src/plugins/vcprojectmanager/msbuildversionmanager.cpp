@@ -28,11 +28,9 @@
 **
 ****************************************************************************/
 #include "msbuildversionmanager.h"
-
 #include "vcprojectmanagerconstants.h"
 
 #include <coreplugin/icore.h>
-#include <QStringList>
 
 namespace VcProjectManager {
 namespace Internal {

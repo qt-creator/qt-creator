@@ -31,7 +31,6 @@
 #define VCPROJECTMANAGER_INTERNAL_STRINGLISTTOOLATTRIBUTEWIDGET_H
 
 #include "itoolattributesettingswidget.h"
-#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {

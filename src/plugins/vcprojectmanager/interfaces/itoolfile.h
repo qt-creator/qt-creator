@@ -30,7 +30,6 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ITOOLFILE_H
 #define VCPROJECTMANAGER_INTERNAL_ITOOLFILE_H
 
-#include <QString>
 #include "ivcprojectnodemodel.h"
 
 namespace VcProjectManager {

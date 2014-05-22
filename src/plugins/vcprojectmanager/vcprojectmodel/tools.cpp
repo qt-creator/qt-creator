@@ -27,10 +27,10 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "tools.h"
-#include "deploymenttools.h"
 #include "configurationbuildtools.h"
 #include "debuggertools.h"
+#include "deploymenttools.h"
+#include "tools.h"
 
 namespace VcProjectManager {
 namespace Internal {

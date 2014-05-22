@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 #include "tooldescription.h"
-#include "../../../interfaces/itoolattribute.h"
 #include "../../../interfaces/iattributedescriptiondataitem.h"
+#include "../../../interfaces/itoolattribute.h"
 #include "../configurationtool.h"
 #include "../toolsectiondescription.h"
 

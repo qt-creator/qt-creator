@@ -31,17 +31,22 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_VCPROJECTDOCUMENT_H
 #define VCPROJECTMANAGER_INTERNAL_VCPROJECTDOCUMENT_H
 
-#include "../interfaces/ivisualstudioproject.h"
-
 #include "configurations.h"
 #include "files.h"
 #include "globals.h"
-#include "../msbuildversionmanager.h"
 #include "platforms.h"
 #include "publishingdata.h"
 #include "references.h"
 #include "toolfiles.h"
+#include "../interfaces/ivisualstudioproject.h"
+#include "../msbuildversionmanager.h"
 #include "../widgets/vcnodewidget.h"
+
+#include <QtGlobal>
+
+QT_BEGIN_NAMESPACE
+class QDomProcessingInstruction;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

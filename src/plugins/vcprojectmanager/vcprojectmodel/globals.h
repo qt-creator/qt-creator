@@ -34,12 +34,8 @@
 
 #include <QList>
 
-#include "global.h"
-
 namespace VcProjectManager {
 namespace Internal {
-
-class Global;
 
 class Globals : public IGlobals
 {

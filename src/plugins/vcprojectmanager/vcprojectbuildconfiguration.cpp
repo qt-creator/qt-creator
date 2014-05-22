@@ -27,23 +27,25 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "vcmakestep.h"
 #include "vcprojectbuildconfiguration.h"
 #include "vcprojectmanagerconstants.h"
-#include "vcmakestep.h"
 
+#include <coreplugin/mimedatabase.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtkitinformation.h>
-#include <utils/qtcassert.h>
-#include <projectexplorer/target.h>
 
-#include <QFormLayout>
-#include <QLabel>
-#include <QInputDialog>
+#include <utils/fileutils.h>
+#include <utils/qtcassert.h>
+
+#include <QFileInfo>
 
 using namespace ProjectExplorer;
 using namespace VcProjectManager::Constants;

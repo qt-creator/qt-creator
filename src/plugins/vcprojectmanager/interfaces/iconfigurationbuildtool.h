@@ -30,7 +30,6 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONBUILDTOOL_H
 #define VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONBUILDTOOL_H
 
-#include <QString>
 #include "ivcprojectnodemodel.h"
 
 namespace VcProjectManager {

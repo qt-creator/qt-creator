@@ -29,17 +29,12 @@
 ****************************************************************************/
 #include "toolschemawidget.h"
 #include "ui_toolschemawidget.h"
-
-#include <QPushButton>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QFileDialog>
-#include <QStringList>
-#include <QMessageBox>
-
-#include "../vcschemamanager.h"
 #include "../vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h"
+#include "../vcschemamanager.h"
+
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QStringList>
 
 namespace VcProjectManager {
 namespace Internal {

@@ -32,9 +32,7 @@
 
 #include "../interfaces/ireferences.h"
 
-#include "activexreference.h"
-#include "assemblyreference.h"
-#include "projectreference.h"
+#include <QList>
 
 namespace VcProjectManager {
 namespace Internal {

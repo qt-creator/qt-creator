@@ -30,11 +30,13 @@
 #ifndef PROJECTSETTINGSWIDGET_H
 #define PROJECTSETTINGSWIDGET_H
 
-#include <QWidget>
 #include <QIcon>
+#include <QWidget>
 
+QT_BEGIN_NAMESPACE
 class QStackedWidget;
 class QListWidget;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

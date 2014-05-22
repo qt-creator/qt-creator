@@ -30,9 +30,10 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ATTRIBUTEDESCRIPTIONDATAITEM_H
 #define VCPROJECTMANAGER_INTERNAL_ATTRIBUTEDESCRIPTIONDATAITEM_H
 
-#include <QHash>
-
 #include "../../../interfaces/iattributedescriptiondataitem.h"
+
+#include <QHash>
+#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {

@@ -30,9 +30,10 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_IVISUALSTUDIOPROJECT_H
 #define VCPROJECTMANAGER_INTERNAL_IVISUALSTUDIOPROJECT_H
 
-#include <QString>
 #include "ivcprojectnodemodel.h"
 #include "../vcprojectmodel/vcprojectdocument_constants.h"
+
+#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {

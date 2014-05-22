@@ -30,8 +30,8 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ITOOLHANDLER_H
 #define VCPROJECTMANAGER_INTERNAL_ITOOLHANDLER_H
 
-#include <QString>
 #include <QDomElement>
+#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {

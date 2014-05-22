@@ -27,18 +27,18 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "tooldescriptiondatamanager.h"
-
 #include "attributedescriptiondataitem.h"
-#include "toolattributeoption.h"
-#include "tooldescription.h"
 #include "booltoolattribute.h"
 #include "integertoolattribute.h"
-#include "stringtoolattribute.h"
 #include "stringlisttoolattribute.h"
-#include "vcschemamanager.h"
+#include "stringtoolattribute.h"
+#include "toolattributeoption.h"
+#include "tooldescription.h"
+#include "tooldescriptiondatamanager.h"
+#include "../../../vcschemamanager.h"
 #include "../toolsectiondescription.h"
 
+#include <QDomNode>
 #include <QFile>
 #include <QMessageBox>
 

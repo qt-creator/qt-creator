@@ -28,8 +28,10 @@
 **
 ****************************************************************************/
 #include "defaulttoolfile.h"
-#include "vcprojectdocument_constants.h"
 #include "generalattributecontainer.h"
+#include "vcprojectdocument_constants.h"
+
+#include <QDomNode>
 
 namespace VcProjectManager {
 namespace Internal {

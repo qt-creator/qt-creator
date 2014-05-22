@@ -39,7 +39,7 @@ namespace Ui {
 class ConfigurationsWidget;
 }
 
-class ConfigurationBaseWidget;
+class VcNodeWidget;
 
 class ConfigurationsWidget : public QWidget
 {

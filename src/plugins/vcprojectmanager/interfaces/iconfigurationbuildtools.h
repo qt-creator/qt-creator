@@ -31,7 +31,11 @@
 #define VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONBUILDTOOLS_H
 
 #include <QString>
-#include <QDomElement>
+
+QT_BEGIN_NAMESPACE
+class QDomElement;
+class QDomDocument;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

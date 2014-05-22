@@ -28,47 +28,38 @@
 **
 ****************************************************************************/
 #include "vcproject.h"
-
-#include "vcprojectfile.h"
-#include "vcmakestep.h"
-#include "vcprojectmanager.h"
-#include "vcprojectkitinformation.h"
-#include "vcprojectmanagerconstants.h"
 #include "vcprojectbuildconfiguration.h"
-#include <vcprojectmodel/configurationcontainer.h>
-#include "vcprojectmodel/vcdocumentmodel.h"
-#include "vcprojectmodel/vcprojectdocument.h"
-#include "vcprojectmodel/configurations.h"
+#include "vcprojectfile.h"
+#include "vcprojectkitinformation.h"
+#include "vcprojectmanager.h"
+#include "vcprojectmanagerconstants.h"
+#include "interfaces/iattributedescriptiondataitem.h"
+#include "interfaces/iconfigurationbuildtool.h"
+#include "interfaces/iconfigurationbuildtools.h"
+#include "interfaces/iconfigurations.h"
+#include "interfaces/ifile.h"
+#include "interfaces/ifilecontainer.h"
+#include "interfaces/ifiles.h"
+#include "interfaces/isectioncontainer.h"
+#include "interfaces/itoolattribute.h"
+#include "interfaces/itoolattributecontainer.h"
+#include "interfaces/itools.h"
+#include "interfaces/itoolsection.h"
+#include "interfaces/ivisualstudioproject.h"
+#include "vcprojectmodel/configurationcontainer.h"
 #include "vcprojectmodel/tools/tool_constants.h"
 #include "vcprojectmodel/vcdocprojectnodes.h"
-#include "vcprojectmodel/tools/configurationtool.h"
-#include "vcprojectmodel/tools/toolsection.h"
-#include "vcprojectmodel/tools/toolattributes/stringlisttoolattribute.h"
-#include "interfaces/iattributedescriptiondataitem.h"
-#include "interfaces/isectioncontainer.h"
-#include "interfaces/itools.h"
-#include "interfaces/iconfigurationbuildtools.h"
-#include "interfaces/itoolattributecontainer.h"
+#include "vcprojectmodel/vcdocumentmodel.h"
 
 #include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <cpptools/cppprojectfile.h>
-#include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/abi.h>
-#include <projectexplorer/buildenvironmentwidget.h>
-#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <utils/filesystemwatcher.h>
+
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
-#include <QFileSystemWatcher>
 #include <QFormLayout>
 #include <QLabel>
 

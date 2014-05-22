@@ -27,12 +27,11 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "configurationswidget.h"
-#include "ui_configurationswidget.h"
-
-#include "newconfigitemdialog.h"
-#include "vcenternamedialog.h"
 #include "configurationbasewidget.h"
+#include "configurationswidget.h"
+#include "newconfigitemdialog.h"
+#include "ui_configurationswidget.h"
+#include "vcenternamedialog.h"
 
 namespace VcProjectManager {
 namespace Internal {

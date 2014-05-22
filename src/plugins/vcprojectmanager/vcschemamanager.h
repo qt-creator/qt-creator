@@ -31,8 +31,9 @@
 #define VCPROJECTMANAGER_INTERNAL_VCSCHEMAMANAGER_H
 
 #include "vcprojectmanagerconstants.h"
-#include <QMap>
+
 #include <QHash>
+#include <QMap>
 #include <QObject>
 
 namespace VcProjectManager {

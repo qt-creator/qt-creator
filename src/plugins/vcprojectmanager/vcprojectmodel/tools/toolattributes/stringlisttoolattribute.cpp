@@ -27,8 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "stringlisttoolattribute.h"
 #include "attributedescriptiondataitem.h"
+#include "stringlisttoolattribute.h"
 #include "../../../widgets/toolwidgets/stringlisttoolattributesettingsitem.h"
 
 namespace VcProjectManager {

@@ -30,19 +30,17 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_CONFIGURATION_H
 #define VCPROJECTMANAGER_INTERNAL_CONFIGURATION_H
 
-#include "../interfaces/ivcprojectnodemodel.h"
-
-#include "deploymenttool.h"
-#include "debuggertool.h"
 #include "../interfaces/iconfiguration.h"
+
+QT_BEGIN_NAMESPACE
+class QDomElement;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {
 
-class ConfigurationTool;
 class GeneralAttributeContainer;
 class Tools;
-class GeneralAttributeContainer;
 
 class Configuration : public IConfiguration
 {

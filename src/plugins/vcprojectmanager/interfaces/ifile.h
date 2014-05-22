@@ -30,10 +30,9 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_IFILE_H
 #define VCPROJECTMANAGER_INTERNAL_IFILE_H
 
-#include <QString>
-#include <projectexplorer/projectnodes.h>
-
 #include "ivcprojectnodemodel.h"
+
+#include <projectexplorer/projectnodes.h>
 
 namespace VcProjectManager {
 namespace Internal {

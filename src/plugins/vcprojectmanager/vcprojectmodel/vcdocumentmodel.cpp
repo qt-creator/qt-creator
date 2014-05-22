@@ -28,13 +28,12 @@
 **
 ****************************************************************************/
 #include "vcdocumentmodel.h"
+#include "vcprojectdocument.h"
 
 #include <QDomDocument>
 #include <QFile>
 #include <QtXmlPatterns/QXmlSchema>
 #include <QtXmlPatterns/QXmlSchemaValidator>
-
-#include "vcprojectdocument.h"
 
 namespace VcProjectManager {
 namespace Internal {

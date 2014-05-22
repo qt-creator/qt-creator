@@ -29,6 +29,8 @@
 ****************************************************************************/
 #include "global.h"
 
+#include <QDomNode>
+
 namespace VcProjectManager {
 namespace Internal {
 

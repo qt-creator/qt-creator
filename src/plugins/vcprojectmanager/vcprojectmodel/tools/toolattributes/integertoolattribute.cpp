@@ -27,8 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "integertoolattribute.h"
 #include "attributedescriptiondataitem.h"
+#include "integertoolattribute.h"
 #include "../../../widgets/toolwidgets/integertoolattributesettingsitem.h"
 
 namespace VcProjectManager {

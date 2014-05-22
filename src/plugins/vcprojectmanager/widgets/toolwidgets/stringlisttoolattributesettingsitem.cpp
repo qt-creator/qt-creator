@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 #include "stringlisttoolattributesettingsitem.h"
-#include "../lineedit.h"
 #include "../../vcprojectmodel/tools/toolattributes/stringlisttoolattribute.h"
+#include "../lineedit.h"
 
 #include <QVBoxLayout>
 

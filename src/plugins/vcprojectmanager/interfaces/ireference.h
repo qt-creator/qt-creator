@@ -30,8 +30,6 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_IREFERENCE_H
 #define VCPROJECTMANAGER_INTERNAL_IREFERENCE_H
 
-#include <QString>
-
 #include "ivcprojectnodemodel.h"
 
 namespace VcProjectManager {

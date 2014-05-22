@@ -35,6 +35,10 @@
 namespace VcProjectManager {
 namespace Internal {
 
+class IVisualStudioProject;
+class IConfigurationBuildTool;
+class IToolSection;
+
 class FileBuildConfiguration : public Configuration
 {
 public:

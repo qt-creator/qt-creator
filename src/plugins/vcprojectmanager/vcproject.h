@@ -30,15 +30,13 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_VCPROJECT_H
 #define VCPROJECTMANAGER_INTERNAL_VCPROJECT_H
 
-#include "vcprojectmodel/vcprojectdocument_constants.h"
 #include "msbuildversionmanager.h"
+#include "vcprojectmodel/vcprojectdocument_constants.h"
 
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/project.h>
 
 #include <QFuture>
-
-class QFileSystemWatcher;
 
 namespace ProjectExplorer {
 class FolderNode;
@@ -50,10 +48,7 @@ namespace Internal {
 class VcProjectFile;
 class VcDocProjectNode;
 class VcManager;
-class Configuration;
 class VcProjectBuildConfiguration;
-class IConfiguration;
-class IFile;
 
 class VcProject : public ProjectExplorer::Project
 {

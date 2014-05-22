@@ -30,6 +30,8 @@
 #include "deploymenttool.h"
 #include "generalattributecontainer.h"
 
+#include <QDomNode>
+
 namespace VcProjectManager {
 namespace Internal {
 

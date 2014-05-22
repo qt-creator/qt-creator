@@ -32,7 +32,9 @@
 
 #include <QObject>
 
+QT_BEGIN_NAMESPACE
 class QAction;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {

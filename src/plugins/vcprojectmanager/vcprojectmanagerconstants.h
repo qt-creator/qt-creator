@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGERCONSTANTS_H
 #define VCPROJECTMANAGERCONSTANTS_H
 
-#include <qglobal.h>
+#include <QtGlobal>
 
 namespace VcProjectManager {
 namespace Constants {

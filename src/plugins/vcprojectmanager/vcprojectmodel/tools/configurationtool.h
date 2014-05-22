@@ -30,19 +30,16 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONTOOL_H
 #define VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONTOOL_H
 
+#include "../../interfaces/iconfigurationbuildtool.h"
 #include "../../interfaces/ivcprojectnodemodel.h"
 #include "../../widgets/toolwidgets/toolsettingswidget.h"
-#include "../../interfaces/iconfigurationbuildtool.h"
 
-#include <QList>
-#include <QString>
+QT_BEGIN_NAMESPACE
+class QDomElement;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {
-
-class IToolAttribute;
-class ToolDescription;
-class ToolSection;
 
 class ConfigurationTool : public IConfigurationBuildTool
 {

@@ -30,14 +30,12 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_TOOLSETTINGSWIDGET_H
 #define VCPROJECTMANAGER_INTERNAL_TOOLSETTINGSWIDGET_H
 
-#include <QWidget>
 #include "../vcnodewidget.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 class ConfigurationTool;
-class ToolSectionSettingsWidget;
 
 class ToolSettingsWidget : public VcNodeWidget
 {

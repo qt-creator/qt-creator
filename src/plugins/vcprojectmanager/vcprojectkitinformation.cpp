@@ -27,13 +27,14 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "msbuildversionmanager.h"
 #include "vcprojectkitinformation.h"
 #include "vcprojectmanagerconstants.h"
-#include "msbuildversionmanager.h"
 #include "widgets/vcprojectkitconfigwidget.h"
 
-#include <utils/qtcassert.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/qtcassert.h>
 
 namespace VcProjectManager {
 namespace Internal {
