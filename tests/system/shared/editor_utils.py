@@ -406,7 +406,7 @@ def replaceLine(fileSpec, oldLine, newLine):
     if openDocumentPlaceCursor(fileSpec, oldLine) == None:
         return False
     editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-    for i in range(len(oldLine)):
+    for _ in oldLine:
         type(editor, "<Backspace>")
     type(editor, newLine)
     return True

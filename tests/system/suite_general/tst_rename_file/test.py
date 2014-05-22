@@ -53,23 +53,25 @@ def main():
         if isQt4Build and platform.system() == 'Darwin':
             # avoid QTCREATORBUG-9197
             filtered = [filenames[0]]
-            for i in range(1, len(filenames)):
-                if filenames[i].lower() != filtered[-1].lower():
-                    filtered.append(filenames[i])
+            for filename in filenames[1:]:
+                if filename.lower() != filtered[-1].lower():
+                    filtered.append(filename)
             filenames = filtered
-        for i in range(len(filenames)):
+        previous = filenames[-1]
+        for filename in filenames:
             tempFiletype = filetype
-            if filetype == "QML" and filenames[i - 1][-4:] != ".qml":
+            if filetype == "QML" and previous[-4:] != ".qml":
                 tempFiletype = "Other files"
             # following is necessary due to QTCREATORBUG-10179
             # will be fixed when Qt5's MIME type database can be used
-            if ((filenames[-1] in ("main.cpp", "utility.cpp") and filenames[i - 1][-4:] != ".cpp")
-                or (filenames[-1] == "utility.h" and filenames[i - 1][-2:].lower() != ".h")
-                or (filetype == "Resources" and filenames[i - 1][-4:] != ".qrc")):
+            if ((filenames[-1] in ("main.cpp", "utility.cpp") and previous[-4:] != ".cpp")
+                or (filenames[-1] == "utility.h" and previous[-2:].lower() != ".h")
+                or (filetype == "Resources" and previous[-4:] != ".qrc")):
                 tempFiletype = "Other files"
             # end of handling QTCREATORBUG-10179
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
-                       filenames[i - 1], filenames[i])
+                       previous, filename)
+            previous = filename
     invokeMenuItem("File", "Exit")
 
 def renameFile(projectDir, proFile, branch, oldname, newname):
