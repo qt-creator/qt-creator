@@ -49,6 +49,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
@@ -944,7 +945,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
     showStatusMessage(tr("Stopped."));
     setState(InferiorStopOk);
     if (debuggerCore()->boolSetting(RaiseOnInterrupt))
-        emit raiseWindow();
+        ICore::raiseWindow(debuggerCore()->mainWindow());
 }
 
 void DebuggerEngine::notifyInferiorStopFailed()

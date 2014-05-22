@@ -29,7 +29,6 @@
 
 #include "debuggermainwindow.h"
 #include "debuggercore.h"
-#include "debuggerengine.h"
 #include "debuggerrunconfigurationaspect.h"
 
 #include <utils/appmainwindow.h>
@@ -131,8 +130,6 @@ public:
     Project *m_previousProject;
     Target *m_previousTarget;
     RunConfiguration *m_previousRunConfiguration;
-
-    DebuggerEngine *m_engine;
 };
 
 DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
@@ -150,7 +147,6 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *mw)
     , m_previousProject(0)
     , m_previousTarget(0)
     , m_previousRunConfiguration(0)
-    , m_engine(0)
 {
     m_debugToolBarLayout->setMargin(0);
     m_debugToolBarLayout->setSpacing(0);
@@ -264,15 +260,6 @@ DebuggerMainWindow::DebuggerMainWindow()
 DebuggerMainWindow::~DebuggerMainWindow()
 {
     delete d;
-}
-
-void DebuggerMainWindow::setCurrentEngine(DebuggerEngine *engine)
-{
-    if (d->m_engine)
-        disconnect(d->m_engine, SIGNAL(raiseWindow()), ICore::mainWindow(), SLOT(raiseWindow()));
-    d->m_engine = engine;
-    if (d->m_engine)
-        connect(d->m_engine, SIGNAL(raiseWindow()), ICore::mainWindow(), SLOT(raiseWindow()));
 }
 
 DebuggerLanguages DebuggerMainWindow::activeDebugLanguages() const

@@ -69,8 +69,6 @@ public:
     DebuggerMainWindow();
     ~DebuggerMainWindow();
 
-    void setCurrentEngine(DebuggerEngine *engine);
-
     // Debugger toolbars are registered with this function.
     void setToolBar(DebuggerLanguage language, QWidget *widget);
 
