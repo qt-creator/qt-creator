@@ -61,12 +61,12 @@
     \c {~/Library/Application Support/QtProject/Qt Creator}.
 
     On Windows XP, the files are located in
-    \c {<drive>:\Documents and Settings\<username>\Application Data\QtProject} and
-    \c {<drive>:\Documents and Settings\<username>\Local Settings\Application Data\QtProject}.
+    \c {%SystemDrive%\Documents and Settings\%USERNAME%\Application Data\QtProject} and
+    \c {%SystemDrive%\Documents and Settings\%USERNAME%\Local Settings\Application Data\QtProject}.
 
     On Windows Vista and Windows 7, the files are located in
-    \c {<drive>:\Users\<username>\AppData\Roaming\QtProject} and
-    \c {<drive>:\Users\<username>\AppData\Local\QtProject}.
+    \c {%SystemDrive%\Users\%USERNAME%\AppData\Roaming\QtProject} and
+    \c {%SystemDrive%\Users\%USERNAME%\AppData\Local\QtProject}.
 
     \b {\QC comes with MinGW, should I use this version with Qt?}
 
