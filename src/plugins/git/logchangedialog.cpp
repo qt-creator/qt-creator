@@ -230,7 +230,7 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    connect(m_widget, SIGNAL(doubleClicked(QModelIndex)), okButton, SLOT(animateClick()));
+    connect(m_widget, SIGNAL(activated(QModelIndex)), okButton, SLOT(animateClick()));
 
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     resize(600, 400);
