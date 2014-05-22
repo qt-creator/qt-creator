@@ -33,6 +33,7 @@ import QtQuick.Controls.Styles 1.1
 
 Rectangle {
     border.width: 1
+    property bool isBaseState
     property bool isCurrentState
     property color gradiantBaseColor
     property string delegateStateName
@@ -48,7 +49,10 @@ Rectangle {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: root.currentStateInternalId = internalNodeId
+        onClicked: {
+            focus = true
+            root.currentStateInternalId = internalNodeId
+        }
     }
 
     ToolButton {
@@ -59,24 +63,45 @@ Rectangle {
         height: 16
         width: 16
         iconSource: "images/darkclose.png"
+        visible: !isBaseState
 
         onClicked: root.deleteState(internalNodeId)
     }
 
     TextField {
         id: stateNameField
-
         y: 2
+        font.pixelSize: 11
         anchors.left: parent.left
         // use the spacing which the image to the delegate rectangle has
         anchors.leftMargin: (delegateWidth - delegateStateImageSize) / 2
         anchors.right: removeStateButton.left
+        style: DesignerTextFieldStyle {}
+        readOnly: isBaseState
 
-        Component.onCompleted: text = delegateStateName
+        Component.onCompleted: {
+            text = delegateStateName
+            __panel.visible = false
+        }
         onEditingFinished: {
             if (text != delegateStateName)
                 statesEditorModel.renameState(internalNodeId, text)
         }
+
+        function shouldShowEditElement() {
+            return (hovered || focus) && !isBaseState
+        }
+
+        // only show the lineedit background if mouse is hovering
+        onHoveredChanged: {
+            __panel.visible = shouldShowEditElement()
+        }
+        onFocusChanged: {
+            __panel.visible = shouldShowEditElement()
+        }
+        // as we change the background we need to change the text
+        // color to see some text
+        textColor: shouldShowEditElement() ? "#FFFFFF" : "#000000"
     }
 
     Item {
@@ -91,7 +116,7 @@ Rectangle {
             anchors.margins: -1
             anchors.fill: stateImage
             border.width: 1
-            border.color: "black"
+            border.color: "#000000"
         }
         Image {
             id: stateImage

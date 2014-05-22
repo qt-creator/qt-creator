@@ -31,7 +31,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtQuick.Controls.Styles 1.1
 
-Rectangle {
+FocusScope {
     id: root
 
     height: 136
@@ -44,7 +44,6 @@ Rectangle {
     property int delegateHeight: root.height
     property int innerSpacing: 2
     property int currentStateInternalId : 0
-    color: "#4f4f4f"
 
     Connections {
         target: statesEditorModel
@@ -53,6 +52,17 @@ Rectangle {
 
     SystemPalette {
         id: palette
+    }
+
+    Rectangle {
+        id: background
+        anchors.fill: parent
+        color: "#4f4f4f"
+    }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: focus = true
+
     }
 
     Item {
@@ -83,6 +93,9 @@ Rectangle {
         anchors.right: addStateItem.left
         height: delegateHeight
 
+        style: DesignerScrollViewStyle {
+        }
+
         ListView {
             anchors.fill: parent
             model: statesEditorModel
@@ -93,8 +106,9 @@ Rectangle {
                 id: statesDelegate
                 width: delegateWidth
                 height: delegateHeight
+                isBaseState: 0 == internalNodeId
                 isCurrentState: root.currentStateInternalId == internalNodeId
-                gradiantBaseColor: isCurrentState ? Qt.darker(highlightColor, 1.8) : root.color
+                gradiantBaseColor: isCurrentState ? Qt.darker(highlightColor, 1.8) : background.color
                 delegateStateName: stateName
                 delegateStateImageSource: stateImageSource
                 delegateStateImageSize: stateImageSize
