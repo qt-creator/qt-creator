@@ -84,9 +84,12 @@ static bool isElectricInLine(const QChar ch, const QString &text)
         // lines that start with : might have a constructor initializer list
     case '<':
     case '>': {
-        // Electrical if at line beginning (after space indentation)
-        const QString trimmedtext = text.trimmed();
-        return !trimmedtext.isEmpty() && trimmedtext.at(0) == ch;
+        // Electric if at line beginning (after space indentation)
+        for (int i = 0, len = text.count(); i < len; ++i) {
+            if (!text.at(i).isSpace())
+                return text.at(i) == ch;
+        }
+        return false;
     }
     }
 
