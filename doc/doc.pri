@@ -1,10 +1,12 @@
 greaterThan(QT_MAJOR_VERSION, 4) {
     HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator) -platform minimal
     QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc)
+    QDOC_GLOBAL = QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS/src] QDOC_INDEX_DIR=$$[QT_INSTALL_DOCS]
     COMPAT =
 } else {
     HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator)
     QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc3)
+    QDOC_GLOBAL = QDOC_INDEX_DIR=dummy   # this will be ignored. we don't link qt4 docs any more.
     COMPAT = -qt4
 }
 
@@ -23,7 +25,7 @@ defineReplace(cmdEnv) {
 }
 
 defineReplace(qdoc) {
-    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG QTC_LICENSE_TYPE=$$LICENSE_TYPE QT_INSTALL_DOCS=$$[QT_INSTALL_DOCS]) $$QDOC_BIN")
+    return("$$cmdEnv(SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG QTC_LICENSE_TYPE=$$LICENSE_TYPE $$QDOC_GLOBAL) $$QDOC_BIN")
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
