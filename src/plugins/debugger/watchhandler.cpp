@@ -1319,11 +1319,14 @@ TypeFormatList WatchModel::typeFormatList(const WatchData &data) const
     }
 
     // Fixed artificial integral types.
-    data.value.toULongLong(&ok, 10);
+    QString v = data.value;
+    if (v.startsWith(QLatin1Char('-')))
+        v = v.mid(1);
+    v.toULongLong(&ok, 10);
     if (!ok)
-        data.value.toULongLong(&ok, 16);
+        v.toULongLong(&ok, 16);
     if (!ok)
-        data.value.toULongLong(&ok, 8);
+        v.toULongLong(&ok, 8);
     if (ok) {
         formats.append(DecimalIntegerFormat);
         formats.append(HexadecimalIntegerFormat);
