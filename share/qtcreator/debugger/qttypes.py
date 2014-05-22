@@ -1810,7 +1810,7 @@ def qdump__QUrl(d, value):
             d.putValue("<invalid>")
             return
         encodedOriginalAddress = privAddress + 8 * d.ptrSize()
-        d.putValue(d.encodeByteArrayHelper(d.extractPointer(encodedOriginalAddress)), Hex2EncodedLatin1)
+        d.putValue(d.encodeByteArrayHelper(d.extractPointer(encodedOriginalAddress), 100), Hex2EncodedLatin1)
         d.putNumChild(8)
         if d.isExpanded():
             stringType = d.lookupType(d.qtNamespace() + "QString")
