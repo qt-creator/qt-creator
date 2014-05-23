@@ -43,6 +43,10 @@ Controls.ComboBox {
 
     property bool __isCompleted: false
 
+    property bool manualMapping: false
+
+    signal valueFromBackendChanged
+
     ColorLogic {
         id: colorLogic
         backendValue: comboBox.backendValue
@@ -51,7 +55,10 @@ Controls.ComboBox {
         }
 
         function invalidate() {
-            if (!comboBox.useInteger) {
+
+            if (manualMapping) {
+                valueFromBackendChanged();
+            } else if (!comboBox.useInteger) {
                 var enumString = comboBox.backendValue.enumeration;
 
                 if (enumString === "")
@@ -74,6 +81,9 @@ Controls.ComboBox {
             return;
 
         if (backendValue === undefined)
+            return;
+
+        if (manualMapping)
             return;
 
         if (!comboBox.useInteger) {
