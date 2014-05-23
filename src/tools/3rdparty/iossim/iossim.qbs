@@ -1,7 +1,6 @@
 import qbs 1.0
 import QtcTool
 
-
 QtcTool {
     name: "iossim"
     condition: qbs.targetOS.contains("osx")
@@ -27,5 +26,5 @@ QtcTool {
                                  "AppKit"])
     cpp.frameworkPaths: base.concat("/System/Library/PrivateFrameworks")
 
-    toolInstallDir: project.ide_libexec_path + "/ios"
+    installDir: project.ide_libexec_path + "/ios"
 }

@@ -20,5 +20,5 @@ QtcTool {
                                  "SystemConfiguration"])
     cpp.dynamicLibraries: base.concat(["ssl", "bz2"])
 
-    toolInstallDir: project.ide_libexec_path + "/ios"
+    installDir: project.ide_libexec_path + "/ios"
 }
