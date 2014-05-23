@@ -3208,7 +3208,8 @@ void tst_Dumpers::dumper_data()
                + Check("var14", "(invalid)", "@QVariant (QDate)")
                + Check("var15", "(invalid)", "@QVariant (QTime)")
                + Check("var16", "(invalid)", "@QVariant (QDateTime)")
-               + Check("var17", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QVariant (QUrl)")
+               + Check4("var17.d", "", "@QUrlPrivate")
+               + Check5("var17", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QVariant (QUrl)")
                + Check("var17.port", "10", "int")
                + Check("var18", "\"en_US\"", "@QVariant (QLocale)")
                + Check("var19", "300x400+100+200", "@QVariant (QRect)")
@@ -5141,7 +5142,7 @@ GdbEngine
     QTest::newRow("Bug5184")
         << Data("#include <QUrl>\n"
                 "#include <QNetworkRequest>\n"
-                "void helper(const QUrl &url)\n"
+                "void helper(const QUrl &url, int qtversion)\n"
                 "{\n"
                 "    QNetworkRequest request(url);\n"
                 "    QList<QByteArray> raw = request.rawHeaderList();\n"
@@ -5149,11 +5150,14 @@ GdbEngine
                 "    unused(&url);\n"
                 "}\n",
                " QUrl url(QString(\"http://127.0.0.1/\"));\n"
-               " helper(url);\n")
+               " helper(url, qtversion);\n")
            + NetworkProfile()
            + Check("raw", "<0 items>", "@QList<@QByteArray>")
            + CheckType("request", "@QNetworkRequest")
-           + Check("url", "\"http://127.0.0.1/\"", "@QUrl &");
+           + Check4("url", "", "@QUrl &")
+           + Check4("url.d", "", "@QUrlPrivate")
+           + Check4("url.d.encodedOriginal", "\"http://127.0.0.1/\"", "@QByteArray")
+           + Check5("url", "\"http://127.0.0.1/\"", "@QUrl &");
 
 
     // https://bugreports.qt-project.org/browse/QTCREATORBUG-5799
