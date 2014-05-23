@@ -81,7 +81,10 @@
 :Form.Startup_QGroupBox	{container=':qt_tabwidget_stackedwidget.Form_QWidget' name='startupGroupBox' title='Startup' type='QGroupBox' visible='1'}
 :FormEditorStack.CheckBox_QCheckBox	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='checkBox' text='CheckBox' type='QCheckBox' visible='1'}
 :FormEditorStack.PushButton_QPushButton	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='pushButton' text='PushButton' type='QPushButton' visible='1'}
+:FormEditorStack.__qt__passive_editor_QLineEdit	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='__qt__passive_editor' type='QLineEdit' visible='1'}
 :FormEditorStack.centralWidget_QDesignerWidget	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='centralWidget' type='QDesignerWidget' visible='1'}
+:FormEditorStack.comboBox_QComboBox	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='comboBox' type='QComboBox' visible='1'}
+:FormEditorStack.menuBar_QDesignerMenuBar	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' name='menuBar' type='QDesignerMenuBar' visible='1'}
 :FormEditorStack_qdesigner_internal::FormWindow	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' type='qdesigner_internal::FormWindow' unnamed='1' visible='1'}
 :FormEditorStack_qdesigner_internal::PropertyLineEdit	{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack' type='qdesigner_internal::PropertyLineEdit' unnamed='1' visible='1'}
 :Generator:_QComboBox	{buddy=':CMake Wizard.Generator:_QLabel' type='QComboBox' unnamed='1' visible='1'}
