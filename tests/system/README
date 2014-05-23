@@ -18,7 +18,7 @@ Fourth - you'll have to provide some additional repositories (and for the hookin
 These additional repositories are located inside ~/QtSDK/src or C:\QtSDK\src (depending on the OS you're on).
 You can also just provide them inside a different folder and specify the folder with the environment variable SYSTEST_SRCPATH.
 This folder must contain the following:
- * a QtCreator repository (or source copy) of tag v2.5.0 named 'creator'
+ * a QtCreator repository (or source copy) of tag v3.1.0 named 'creator' including the submodule src/shared/qbs
  * a subfolder called 'creator-test-data'
  * a speedcrunch 0.11 repository (or source copy) inside 'creator-test-data' named 'speedcrunch'
  * additional Squish versions for hooking into subprocesses inside different folders inside 'creator-test-data' following the information below
