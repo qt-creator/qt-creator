@@ -30,19 +30,19 @@
 #include "cppeditorplugin.h"
 
 #include "cppclasswizard.h"
-#include "cppeditor.h"
+#include "cppcodemodelinspectordialog.h"
 #include "cppeditorconstants.h"
+#include "cppeditor.h"
+#include "cppeditoroutline.h"
 #include "cppfilewizard.h"
+#include "cpphighlighterfactory.h"
 #include "cpphoverhandler.h"
-#include "cppoutline.h"
-#include "cpptypehierarchy.h"
 #include "cppincludehierarchy.h"
-#include "cppsnippetprovider.h"
+#include "cppoutline.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
-#include "cpphighlighterfactory.h"
-
-#include "cppcodemodelinspectordialog.h"
+#include "cppsnippetprovider.h"
+#include "cpptypehierarchy.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -135,7 +135,7 @@ void CppEditorPlugin::initializeEditor(CPPEditorWidget *editor)
 
     // function combo box sorting
     connect(this, SIGNAL(outlineSortingChanged(bool)),
-            editor, SLOT(setSortedOutline(bool)));
+            editor->outline(), SLOT(setSorted(bool)));
 }
 
 void CppEditorPlugin::setSortedOutline(bool sorted)

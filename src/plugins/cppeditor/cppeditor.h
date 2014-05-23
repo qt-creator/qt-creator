@@ -43,10 +43,7 @@
 
 #include <QScopedPointer>
 
-namespace CPlusPlus {
-class OverviewModel;
-class Symbol;
-}
+namespace CPlusPlus { class Symbol; }
 
 namespace CppTools {
 class SemanticInfo;
@@ -56,6 +53,7 @@ class CommentsSettings;
 namespace CppEditor {
 namespace Internal {
 
+class CppEditorOutline;
 class CPPEditorWidget;
 class CPPEditorWidgetPrivate;
 class FollowSymbolUnderCursor;
@@ -93,11 +91,9 @@ public:
     ~CPPEditorWidget();
 
     CPPEditorDocument *cppEditorDocument() const;
+    CppEditorOutline *outline() const;
 
     CppTools::SemanticInfo semanticInfo() const;
-
-    CPlusPlus::OverviewModel *outlineModel() const;
-    QModelIndex outlineModelIndex();
 
     QSharedPointer<FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
@@ -108,16 +104,12 @@ public:
 
     FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
 
-signals:
-    void outlineModelIndexChanged(const QModelIndex &index);
-
 public slots:
     void paste() QTC_OVERRIDE;
     void cut() QTC_OVERRIDE;
     void selectAll() QTC_OVERRIDE;
 
     void unCommentSelection() QTC_OVERRIDE;
-    void setSortedOutline(bool sort);
     void switchDeclarationDefinition(bool inNextSplit);
     void showPreProcessorWidget();
 
@@ -147,11 +139,6 @@ protected slots:
     void slotCodeStyleSettingsChanged(const QVariant &) QTC_OVERRIDE;
 
 private slots:
-    void jumpToOutlineElement();
-    void updateOutlineNow();
-    void updateOutlineIndex();
-    void updateOutlineIndexNow();
-    void updateOutlineToolTip();
     void updateUses();
     void updateUsesNow();
     void updateFunctionDeclDefLink();
@@ -192,13 +179,9 @@ private:
     QTextCharFormat textCharFormat(TextEditor::TextStyle category);
 
     void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);
-    bool sortedOutline() const;
 
     QList<QTextEdit::ExtraSelection> createSelectionsFromUses(
             const QList<TextEditor::HighlightingResult> &uses);
-
-    QModelIndex indexForPosition(int line, int column,
-                                 const QModelIndex &rootIndex = QModelIndex()) const;
 
     bool handleDocumentationComment(QKeyEvent *e);
     bool isStartOfDoxygenComment(const QTextCursor &cursor) const;

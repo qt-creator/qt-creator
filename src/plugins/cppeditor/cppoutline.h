@@ -38,6 +38,8 @@
 
 #include <QSortFilterProxyModel>
 
+namespace CPlusPlus { class OverviewModel; }
+
 namespace CppEditor {
 namespace Internal {
 

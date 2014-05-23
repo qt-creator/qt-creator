@@ -31,6 +31,7 @@
 
 #include "cppautocompleter.h"
 #include "cppeditorconstants.h"
+#include "cppeditoroutline.h"
 #include "cppeditorplugin.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cpphighlighter.h"
@@ -67,7 +68,6 @@
 #include <texteditor/refactoroverlay.h>
 
 #include <utils/qtcassert.h>
-#include <utils/treeviewcombobox.h>
 
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/BackwardsScanner.h>
@@ -79,13 +79,11 @@
 #include <QMenu>
 #include <QPointer>
 #include <QSignalMapper>
-#include <QSortFilterProxyModel>
 #include <QTextEdit>
 #include <QTimer>
 #include <QToolButton>
 
 enum {
-    UPDATE_OUTLINE_INTERVAL = 500,
     UPDATE_USES_INTERVAL = 500,
     UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL = 200
 };
@@ -95,31 +93,6 @@ using namespace CppTools;
 using namespace CppEditor::Internal;
 
 namespace {
-
-class OverviewProxyModel : public QSortFilterProxyModel
-{
-    Q_OBJECT
-public:
-    OverviewProxyModel(CPlusPlus::OverviewModel *sourceModel, QObject *parent) :
-        QSortFilterProxyModel(parent),
-        m_sourceModel(sourceModel)
-    {
-        setSourceModel(m_sourceModel);
-    }
-
-    bool filterAcceptsRow(int sourceRow,const QModelIndex &sourceParent) const
-    {
-        // ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
-        const QModelIndex sourceIndex = m_sourceModel->index(sourceRow, 0, sourceParent);
-        CPlusPlus::Symbol *symbol = m_sourceModel->symbolFromIndex(sourceIndex);
-        if (symbol && symbol->isGenerated())
-            return false;
-
-        return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
-    }
-private:
-    CPlusPlus::OverviewModel *m_sourceModel;
-};
 
 class CanonicalSymbol
 {
@@ -398,6 +371,14 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
     return false;
 }
 
+QTimer *newSingleShotTimer(QObject *parent, int msecInterval)
+{
+    QTimer *timer = new QTimer(parent);
+    timer->setSingleShot(true);
+    timer->setInterval(msecInterval);
+    return timer;
+}
+
 } // end of anonymous namespace
 
 namespace CppEditor {
@@ -419,21 +400,14 @@ class CPPEditorWidgetPrivate
 public:
     CPPEditorWidgetPrivate(CPPEditorWidget *q);
 
-    QTimer *newSingleShowTimer(int msecInterval);
-
 public:
     CPPEditorWidget *q;
 
     QPointer<CppTools::CppModelManagerInterface> m_modelManager;
 
     CPPEditorDocument *m_cppEditorDocument;
-    Utils::TreeViewComboBox *m_outlineCombo;
-    CPlusPlus::OverviewModel *m_outlineModel;
-    QModelIndex m_outlineModelIndex;
-    QSortFilterProxyModel *m_proxyModel;
-    QAction *m_sortAction;
-    QTimer *m_updateOutlineTimer;
-    QTimer *m_updateOutlineIndexTimer;
+    CppEditorOutline *m_cppEditorOutline;
+
     QTimer *m_updateUsesTimer;
     QTimer *m_updateFunctionDeclDefLinkTimer;
     QHash<int, QTextCharFormat> m_semanticHighlightFormatMap;
@@ -463,6 +437,7 @@ CPPEditorWidgetPrivate::CPPEditorWidgetPrivate(CPPEditorWidget *q)
     : q(q)
     , m_modelManager(CppModelManagerInterface::instance())
     , m_cppEditorDocument(qobject_cast<CPPEditorDocument *>(q->baseTextDocument()))
+    , m_cppEditorOutline(new CppEditorOutline(q))
     , m_localRenaming(q)
     , m_highlightRevision(0)
     , m_referencesRevision(0)
@@ -472,14 +447,6 @@ CPPEditorWidgetPrivate::CPPEditorWidgetPrivate(CPPEditorWidget *q)
     , m_followSymbolUnderCursor(new FollowSymbolUnderCursor(q))
     , m_preprocessorButton(0)
 {
-}
-
-QTimer *CPPEditorWidgetPrivate::newSingleShowTimer(int msecInterval)
-{
-    QTimer *timer = new QTimer(q);
-    timer->setSingleShot(true);
-    timer->setInterval(msecInterval);
-    return timer;
 }
 
 CPPEditorWidget::CPPEditorWidget(QWidget *parent)
@@ -547,6 +514,11 @@ CPPEditorDocument *CPPEditorWidget::cppEditorDocument() const
     return d->m_cppEditorDocument;
 }
 
+CppEditorOutline *CPPEditorWidget::outline() const
+{
+    return d->m_cppEditorOutline;
+}
+
 TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
 {
     CPPEditor *editable = new CPPEditor(this);
@@ -556,49 +528,15 @@ TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
 
 void CPPEditorWidget::createToolBar(CPPEditor *editor)
 {
-    d->m_outlineCombo = new Utils::TreeViewComboBox;
-    d->m_outlineCombo->setMinimumContentsLength(22);
-
-    // Make the combo box prefer to expand
-    QSizePolicy policy = d->m_outlineCombo->sizePolicy();
-    policy.setHorizontalPolicy(QSizePolicy::Expanding);
-    d->m_outlineCombo->setSizePolicy(policy);
-    d->m_outlineCombo->setMaxVisibleItems(40);
-
-    d->m_outlineModel = new OverviewModel(this);
-    d->m_proxyModel = new OverviewProxyModel(d->m_outlineModel, this);
-    if (CppEditorPlugin::instance()->sortedOutline())
-        d->m_proxyModel->sort(0, Qt::AscendingOrder);
-    else
-        d->m_proxyModel->sort(-1, Qt::AscendingOrder); // don't sort yet, but set column for sortedOutline()
-    d->m_proxyModel->setDynamicSortFilter(true);
-    d->m_proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    d->m_outlineCombo->setModel(d->m_proxyModel);
-
-    d->m_outlineCombo->setContextMenuPolicy(Qt::ActionsContextMenu);
-    d->m_sortAction = new QAction(tr("Sort Alphabetically"), d->m_outlineCombo);
-    d->m_sortAction->setCheckable(true);
-    d->m_sortAction->setChecked(sortedOutline());
-    connect(d->m_sortAction, SIGNAL(toggled(bool)),
-            CppEditorPlugin::instance(), SLOT(setSortedOutline(bool)));
-    d->m_outlineCombo->addAction(d->m_sortAction);
-
-    d->m_updateOutlineTimer = d->newSingleShowTimer(UPDATE_OUTLINE_INTERVAL);
-    connect(d->m_updateOutlineTimer, SIGNAL(timeout()), this, SLOT(updateOutlineNow()));
-
-    d->m_updateOutlineIndexTimer = d->newSingleShowTimer(UPDATE_OUTLINE_INTERVAL);
-    connect(d->m_updateOutlineIndexTimer, SIGNAL(timeout()), this, SLOT(updateOutlineIndexNow()));
-
-    d->m_updateUsesTimer = d->newSingleShowTimer(UPDATE_USES_INTERVAL);
+    d->m_updateUsesTimer = newSingleShotTimer(this, UPDATE_USES_INTERVAL);
     connect(d->m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
 
-    d->m_updateFunctionDeclDefLinkTimer = d->newSingleShowTimer(UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
+    d->m_updateFunctionDeclDefLinkTimer = newSingleShotTimer(this, UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
     connect(d->m_updateFunctionDeclDefLinkTimer, SIGNAL(timeout()),
             this, SLOT(updateFunctionDeclDefLinkNow()));
 
-    connect(d->m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement()));
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateOutlineIndex()));
-    connect(d->m_outlineCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateOutlineToolTip()));
+    connect(this, SIGNAL(cursorPositionChanged()),
+            d->m_cppEditorOutline, SLOT(updateIndex()));
 
     // set up slots to document changes
     connect(document(), SIGNAL(contentsChange(int,int,int)),
@@ -619,7 +557,7 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     updatePreprocessorButtonTooltip();
     connect(d->m_preprocessorButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, d->m_preprocessorButton);
-    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, d->m_outlineCombo);
+    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, d->m_cppEditorOutline->widget());
 }
 
 void CPPEditorWidget::paste()
@@ -650,7 +588,7 @@ void CPPEditorWidget::selectAll()
 ///        file in this editor is updated.
 void CPPEditorWidget::onDocumentUpdated()
 {
-    d->m_updateOutlineTimer->start();
+    d->m_cppEditorOutline->update();
 }
 
 const Macro *CPPEditorWidget::findCanonicalMacro(const QTextCursor &cursor, Document::Ptr doc) const
@@ -855,65 +793,6 @@ void CPPEditorWidget::updatePreprocessorButtonTooltip()
     d->m_preprocessorButton->setToolTip(cmd->action()->toolTip());
 }
 
-void CPPEditorWidget::jumpToOutlineElement()
-{
-    QModelIndex modelIndex = d->m_outlineCombo->view()->currentIndex();
-    QModelIndex sourceIndex = d->m_proxyModel->mapToSource(modelIndex);
-    Symbol *symbol = d->m_outlineModel->symbolFromIndex(sourceIndex);
-    if (!symbol)
-        return;
-
-    const Link &link = linkToSymbol(symbol);
-    gotoLine(link.targetLine, link.targetColumn);
-    Core::EditorManager::activateEditor(editor());
-}
-
-void CPPEditorWidget::setSortedOutline(bool sort)
-{
-    if (sort != sortedOutline()) {
-        if (sort)
-            d->m_proxyModel->sort(0, Qt::AscendingOrder);
-        else
-            d->m_proxyModel->sort(-1, Qt::AscendingOrder);
-        bool block = d->m_sortAction->blockSignals(true);
-        d->m_sortAction->setChecked(d->m_proxyModel->sortColumn() == 0);
-        d->m_sortAction->blockSignals(block);
-        updateOutlineIndexNow();
-    }
-}
-
-bool CPPEditorWidget::sortedOutline() const
-{
-    return (d->m_proxyModel->sortColumn() == 0);
-}
-
-void CPPEditorWidget::updateOutlineNow()
-{
-    if (!d->m_modelManager)
-        return;
-
-    const Snapshot snapshot = d->m_modelManager->snapshot();
-    Document::Ptr document = snapshot.document(baseTextDocument()->filePath());
-
-    if (!document)
-        return;
-
-    if (document->editorRevision() != editorRevision()) {
-        d->m_updateOutlineTimer->start();
-        return;
-    }
-
-    d->m_outlineModel->rebuild(document);
-
-    d->m_outlineCombo->view()->expandAll();
-    updateOutlineIndexNow();
-}
-
-void CPPEditorWidget::updateOutlineIndex()
-{
-    d->m_updateOutlineIndexTimer->start();
-}
-
 QList<QTextEdit::ExtraSelection> CPPEditorWidget::createSelectionsFromUses(
         const QList<SemanticInfo::Use> &uses)
 {
@@ -941,37 +820,6 @@ QList<QTextEdit::ExtraSelection> CPPEditorWidget::createSelectionsFromUses(
     }
 
     return result;
-}
-
-void CPPEditorWidget::updateOutlineIndexNow()
-{
-    if (!d->m_outlineModel->document())
-        return;
-
-    if (d->m_outlineModel->document()->editorRevision() != editorRevision()) {
-        d->m_updateOutlineIndexTimer->start();
-        return;
-    }
-
-    d->m_updateOutlineIndexTimer->stop();
-
-    d->m_outlineModelIndex = QModelIndex(); //invalidate
-    QModelIndex comboIndex = outlineModelIndex();
-
-    if (comboIndex.isValid()) {
-        bool blocked = d->m_outlineCombo->blockSignals(true);
-
-        d->m_outlineCombo->setCurrentIndex(d->m_proxyModel->mapFromSource(comboIndex));
-
-        updateOutlineToolTip();
-
-        d->m_outlineCombo->blockSignals(blocked);
-    }
-}
-
-void CPPEditorWidget::updateOutlineToolTip()
-{
-    d->m_outlineCombo->setToolTip(d->m_outlineCombo->currentText());
 }
 
 void CPPEditorWidget::updateUses()
@@ -1123,23 +971,6 @@ bool CPPEditorWidget::isOutdated() const
 SemanticInfo CPPEditorWidget::semanticInfo() const
 {
     return d->m_lastSemanticInfo;
-}
-
-CPlusPlus::OverviewModel *CPPEditorWidget::outlineModel() const
-{
-    return d->m_outlineModel;
-}
-
-QModelIndex CPPEditorWidget::outlineModelIndex()
-{
-    if (!d->m_outlineModelIndex.isValid()) {
-        int line = 0, column = 0;
-        convertPosition(position(), &line, &column);
-        d->m_outlineModelIndex = indexForPosition(line, column);
-        emit outlineModelIndexChanged(d->m_outlineModelIndex);
-    }
-
-    return d->m_outlineModelIndex;
 }
 
 bool CPPEditorWidget::event(QEvent *e)
@@ -1413,28 +1244,6 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
     // schedule a check for a decl/def link
     updateFunctionDeclDefLink();
-}
-
-QModelIndex CPPEditorWidget::indexForPosition(int line, int column,
-                                              const QModelIndex &rootIndex) const
-{
-    QModelIndex lastIndex = rootIndex;
-
-    const int rowCount = d->m_outlineModel->rowCount(rootIndex);
-    for (int row = 0; row < rowCount; ++row) {
-        const QModelIndex index = d->m_outlineModel->index(row, 0, rootIndex);
-        Symbol *symbol = d->m_outlineModel->symbolFromIndex(index);
-        if (symbol && symbol->line() > unsigned(line))
-            break;
-        lastIndex = index;
-    }
-
-    if (lastIndex != rootIndex) {
-        // recurse
-        lastIndex = indexForPosition(line, column, lastIndex);
-    }
-
-    return lastIndex;
 }
 
 TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
@@ -1722,5 +1531,3 @@ void CPPEditorWidget::showPreProcessorWidget()
 
 } // namespace Internal
 } // namespace CppEditor
-
-#include <cppeditor.moc>

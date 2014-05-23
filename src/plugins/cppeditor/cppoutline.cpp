@@ -29,6 +29,8 @@
 
 #include "cppoutline.h"
 
+#include "cppeditoroutline.h"
+
 #include <cplusplus/OverviewModel.h>
 
 #include <coreplugin/find/treeviewfind.h>
@@ -92,7 +94,7 @@ CppOutlineWidget::CppOutlineWidget(CPPEditorWidget *editor) :
     TextEditor::IOutlineWidget(),
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
-    m_model(m_editor->outlineModel()),
+    m_model(m_editor->outline()->model()),
     m_proxyModel(new CppOutlineFilterModel(m_model, this)),
     m_enableCursorSync(true),
     m_blockCursorSync(false)
@@ -109,7 +111,7 @@ CppOutlineWidget::CppOutlineWidget(CPPEditorWidget *editor) :
     connect(m_model, SIGNAL(modelReset()), this, SLOT(modelUpdated()));
     modelUpdated();
 
-    connect(m_editor, SIGNAL(outlineModelIndexChanged(QModelIndex)),
+    connect(m_editor->outline(), SIGNAL(modelIndexChanged(QModelIndex)),
             this, SLOT(updateSelectionInTree(QModelIndex)));
     connect(m_treeView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateSelectionInText(QItemSelection)));
@@ -126,7 +128,7 @@ void CppOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_enableCursorSync = syncWithCursor;
     if (m_enableCursorSync)
-        updateSelectionInTree(m_editor->outlineModelIndex());
+        updateSelectionInTree(m_editor->outline()->modelIndex());
 }
 
 void CppOutlineWidget::modelUpdated()
