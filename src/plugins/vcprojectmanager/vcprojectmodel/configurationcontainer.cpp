@@ -39,6 +39,7 @@ ConfigurationContainer::ConfigurationContainer(QObject *parent)
 }
 
 ConfigurationContainer::ConfigurationContainer(const ConfigurationContainer &configCont)
+    : QObject(0)
 {
     foreach (const IConfiguration *config, configCont.m_configs)
         m_configs.append(config->clone());

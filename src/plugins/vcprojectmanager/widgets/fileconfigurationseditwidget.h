@@ -27,30 +27,33 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_CONFIGURATIONSEDITWIDGET_H
-#define VCPROJECTMANAGER_INTERNAL_CONFIGURATIONSEDITWIDGET_H
+#ifndef VCPROJECTMANAGER_INTERNAL_FILECONFIGURATIONSEDITWIDGET_H
+#define VCPROJECTMANAGER_INTERNAL_FILECONFIGURATIONSEDITWIDGET_H
+
+#include <QMap>
 
 #include "vcnodewidget.h"
-#include <QMap>
 
 namespace VcProjectManager {
 namespace Internal {
 
 class IVisualStudioProject;
 class ConfigurationsWidget;
-class IConfiguration;
-class ConfigurationContainer;
 class IFile;
+class ConfigurationContainer;
 class IFileContainer;
+class IConfiguration;
+class IConfigurationBuildTool;
+class IToolSection;
 
-class ConfigurationsEditWidget : public VcNodeWidget
+class FileConfigurationsEditWidget : public VcNodeWidget
 {
     Q_OBJECT
 
 public:
-    ConfigurationsEditWidget(IVisualStudioProject *vsProj, ConfigurationContainer *configContainer);
-    ~ConfigurationsEditWidget();
+    FileConfigurationsEditWidget(IFile *file, IVisualStudioProject *project);
 
+    // VcNodeWidget interface
     void saveData();
 
 private slots:
@@ -62,19 +65,27 @@ private slots:
     void addConfigWidget(IConfiguration *config);
 
 private:
+    void addConfigToProjectBuild(const QString &newConfigName, const QString &copyFrom);
+    void addConfigToFiles(const QString &newConfigName, const QString &copyFrom);
     void readFileBuildConfigurations();
     void readFileBuildConfigurations(IFileContainer *container);
     void readFileBuildConfigurations(IFile *file);
-    void addConfigToProjectBuild(const QString &newConfigName, const QString &copyFrom);
-    void addConfigToFiles(const QString &newConfigName, const QString &copyFrom);
+    ConfigurationContainer *cloneFileConfigContainer(IFile *file);
+    void leaveOnlyCppTool(IConfiguration *config);
+    void cleanUpConfig(IConfiguration *config);
+    void cleanUpConfigAttributes(IConfiguration *config, IConfiguration *projectConfig);
+    void cleanUpConfigTools(IConfiguration *config, IConfiguration *projectConfig);
+    void cleanUpConfigTool(IConfigurationBuildTool *tool, IConfigurationBuildTool *projTool);
+    void cleanUpConfigToolSection(IToolSection *tool, IToolSection *projTool);
 
+    IFile *m_file;
     IVisualStudioProject *m_vsProject;
     ConfigurationsWidget *m_configsWidget;
     QMap<IFile *, ConfigurationContainer *> m_fileConfigurations;
     ConfigurationContainer *m_buildConfigurations;
 };
 
-} // Internal
-} // VcProjectManager
+} // namespace Internal
+} // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_CONFIGURATIONSEDITWIDGET_H
+#endif // VCPROJECTMANAGER_INTERNAL_FILECONFIGURATIONSEDITWIDGET_H

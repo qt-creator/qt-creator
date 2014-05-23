@@ -71,7 +71,6 @@ void ConfigurationBuildTools::removeTool(IConfigurationBuildTool *tool)
     foreach (IConfigurationBuildTool *toolPtr, m_tools) {
         if (toolPtr->toolDescription()->toolKey() == tool->toolDescription()->toolKey()) {
             m_tools.removeOne(toolPtr);
-            delete toolPtr;
             return;
         }
     }

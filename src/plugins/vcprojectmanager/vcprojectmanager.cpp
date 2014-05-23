@@ -73,16 +73,6 @@ ProjectExplorer::Project *VcManager::openProject(const QString &fileName, QStrin
         return 0;
     }
 
-    // Check whether the project is already open or not.
-    ProjectExplorerPlugin *projectExplorer = ProjectExplorerPlugin::instance();
-    foreach (Project *pi, projectExplorer->session()->projects()) {
-        if (canonicalFilePath == pi->document()->fileName()) {
-            *errorString = tr("Failed opening project '%1': Project already open").
-                    arg(QDir::toNativeSeparators(canonicalFilePath));
-            return 0;
-        }
-    }
-
     // check if project is a valid vc project
     // versions supported are 2003, 2005 and 2008
     VcDocConstants::DocumentVersion docVersion = VcDocConstants::DV_UNRECOGNIZED;
@@ -123,12 +113,12 @@ bool VcManager::checkIfVersion2003(const QString &filePath) const
     schema.load(&schemaFile, QUrl::fromLocalFile(schemaFile.fileName()));
 
     if (schema.isValid()) {
-        QXmlSchemaValidator validator( schema );
-        if (validator.validate(QUrl(filePath)))
-            return true;
+        QFile file(filePath);
+        file.open(QIODevice::ReadOnly);
 
-        else
-            return false;
+        QXmlSchemaValidator validator(schema);
+        if (validator.validate(&file, QUrl::fromLocalFile(file.fileName())))
+            return true;
     }
 
     return false;
@@ -148,12 +138,12 @@ bool VcManager::checkIfVersion2005(const QString &filePath) const
     schema.load(&schemaFile, QUrl::fromLocalFile(schemaFile.fileName()));
 
     if (schema.isValid()) {
-        QXmlSchemaValidator validator( schema );
-        if (validator.validate(QUrl(filePath)))
-            return true;
+        QFile file(filePath);
+        file.open(QIODevice::ReadOnly);
 
-        else
-            return false;
+        QXmlSchemaValidator validator(schema);
+        if (validator.validate(&file, QUrl::fromLocalFile(file.fileName())))
+            return true;
     }
 
     return false;
@@ -173,12 +163,12 @@ bool VcManager::checkIfVersion2008(const QString &filePath) const
     schema.load(&schemaFile, QUrl::fromLocalFile(schemaFile.fileName()));
 
     if (schema.isValid()) {
-        QXmlSchemaValidator validator( schema );
-        if (validator.validate(QUrl(filePath)))
-            return true;
+        QFile file(filePath);
+        file.open(QIODevice::ReadOnly);
 
-        else
-            return false;
+        QXmlSchemaValidator validator(schema);
+        if (validator.validate(&file, QUrl::fromLocalFile(file.fileName())))
+            return true;
     }
 
     return false;

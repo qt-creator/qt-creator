@@ -32,7 +32,10 @@
 
 #include "itoolattributesettingswidget.h"
 
+QT_BEGIN_NAMESPACE
 class QComboBox;
+class QSpinBox;
+QT_END_NAMESPACE
 
 namespace VcProjectManager {
 namespace Internal {
@@ -51,6 +54,7 @@ public:
 
 private:
     QComboBox *m_comboBox;
+    QSpinBox *m_spinBox;
     IntegerToolAttribute *m_toolAttribute;
 };
 

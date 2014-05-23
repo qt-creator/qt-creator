@@ -38,14 +38,23 @@ namespace Internal {
 class FileBuildConfiguration : public Configuration
 {
 public:
-    FileBuildConfiguration();
+    FileBuildConfiguration(IVisualStudioProject *parentProject);
     FileBuildConfiguration(const FileBuildConfiguration &fileBuildConfig);
     FileBuildConfiguration &operator =(const FileBuildConfiguration &fileBuildConfig);
 
     VcNodeWidget *createSettingsWidget();
+    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
+    IConfiguration *clone() const;
 
 protected:
     void processToolNode(const QDomNode &toolNode);
+
+private:
+    void toXMLNode(IConfiguration *projectConfig, QDomElement &configurationNode, QDomDocument &domXMLDocument) const;
+    void toXMLNode(IConfigurationBuildTool *projectConfigTool, IConfigurationBuildTool *tool,
+                   QDomElement &configurationNode,  QDomDocument &domXMLDocument) const;
+
+    IVisualStudioProject *m_parentProjectDoc;
 };
 
 } // namespace Internal

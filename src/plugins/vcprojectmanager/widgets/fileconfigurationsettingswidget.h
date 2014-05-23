@@ -49,7 +49,7 @@ class FileConfigurationSettingsWidget : public VcNodeWidget
     Q_OBJECT
 
 public:
-    explicit FileConfigurationSettingsWidget(IConfiguration *fileBuildConfig, QWidget *parent = 0);
+    explicit FileConfigurationSettingsWidget(IConfiguration *fileBuildConfig, IVisualStudioProject *parentProjectDoc, QWidget *parent = 0);
     ~FileConfigurationSettingsWidget();
 
     void saveData();
@@ -59,10 +59,14 @@ private slots:
     int toolIndex(const QString &toolKey);
 
 private:
+    void readTools();
+
     Ui::FileConfigurationSettingsWidget *ui;
     IConfiguration *m_fileBuildConfig;
-    IConfigurationBuildTool *m_configBuildTool;
     VcNodeWidget *m_toolSettingsWidget;
+    IVisualStudioProject *m_parentProjectDoc;
+
+    QMap<QString, IConfigurationBuildTool *> m_toolMap; // <tool key, tool>
 };
 
 

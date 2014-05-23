@@ -139,7 +139,7 @@ IReference *ActiveXReference::clone() const
 
 void ActiveXReference::processReferenceConfig(const QDomNode &referenceConfig)
 {
-    IConfiguration *referenceConfiguration = createReferenceConfiguration();
+    IConfiguration *referenceConfiguration = new Configuration(QLatin1String("ReferenceConfiguration"));
     referenceConfiguration->processNode(referenceConfig);
     m_configurations->addConfiguration(referenceConfiguration);
 
@@ -147,11 +147,6 @@ void ActiveXReference::processReferenceConfig(const QDomNode &referenceConfig)
     QDomNode nextSibling = referenceConfig.nextSibling();
     if (!nextSibling.isNull())
         processReferenceConfig(nextSibling);
-}
-
-IConfiguration *ActiveXReference::createReferenceConfiguration() const
-{
-    return new Configuration(QLatin1String("ReferenceConfiguration"));
 }
 
 } // namespace Internal

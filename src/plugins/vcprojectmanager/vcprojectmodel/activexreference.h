@@ -61,7 +61,6 @@ public:
 private:
     void processNodeAttributes(const QDomElement &element);
     void processReferenceConfig(const QDomNode &referenceConfig);
-    IConfiguration *createReferenceConfiguration() const;
 
     GeneralAttributeContainer *m_attributeContainer;
     ConfigurationContainer *m_configurations;

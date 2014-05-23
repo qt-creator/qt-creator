@@ -147,7 +147,7 @@ public:
     VcProjectBuildOptionsPage();
     ~VcProjectBuildOptionsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
 

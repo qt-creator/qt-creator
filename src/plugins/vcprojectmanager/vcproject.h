@@ -64,12 +64,12 @@ public:
     ~VcProject();
 
     QString displayName() const;
-    Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
     QString defaultBuildDirectory() const;
+    static QString defaultBuildDirectory(const QString &fileName);
     bool needsConfiguration() const;
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
 
@@ -87,7 +87,6 @@ private:
     void addCxxModelFiles(const ProjectExplorer::FolderNode *node, QStringList &sourceFiles);
     void updateCodeModels();
     void importBuildConfigurations();
-    void addBuildConfiguration(ProjectExplorer::Target *target, IConfiguration *config);
     VcProjectBuildConfiguration *findBuildConfiguration(ProjectExplorer::Target *target, const QString &buildConfigurationName) const;
     void allProjectFile(QStringList &allFiles) const;
     VcManager *m_projectManager;

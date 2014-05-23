@@ -34,7 +34,7 @@ OTHER_FILES += \
 RESOURCES += \
     vcproject.qrc
 
+include(../../qtcreatorplugin.pri)
+include($$PWD/interfaces/interfaces.pri)
 include($$PWD/vcprojectmodel/vcprojectmodel.pri)
 include($$PWD/widgets/widgets.pri)
-include(../../qtcreatorplugin.pri)
-include(interfaces/interfaces.pri)

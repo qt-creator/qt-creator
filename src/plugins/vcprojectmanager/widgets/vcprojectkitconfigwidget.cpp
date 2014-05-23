@@ -39,8 +39,9 @@
 namespace VcProjectManager {
 namespace Internal {
 
-VcProjectKitConfigWidget::VcProjectKitConfigWidget(ProjectExplorer::Kit *k)
-    : ProjectExplorer::KitConfigWidget(k)
+VcProjectKitConfigWidget::VcProjectKitConfigWidget(ProjectExplorer::Kit *k,
+                                                   const ProjectExplorer::KitInformation *ki)
+    : ProjectExplorer::KitConfigWidget(k, ki)
 {
     m_comboBox = new QComboBox;
     MsBuildVersionManager *msBVM = MsBuildVersionManager::instance();

@@ -122,7 +122,7 @@ ProjectExplorer::KitInformation::ItemList VcProjectKitInformation::toUserOutput(
 
 ProjectExplorer::KitConfigWidget *VcProjectKitInformation::createConfigWidget(Kit *k) const
 {
-    return new VcProjectKitConfigWidget(k);
+    return new VcProjectKitConfigWidget(k, this);
 }
 
 MsBuildInformation *VcProjectKitInformation::msBuildInfo(const Kit *k)
@@ -142,7 +142,7 @@ void VcProjectKitInformation::setMsBuild(Kit *k, MsBuildInformation *msBuild)
 void VcProjectKitInformation::onMSBuildAdded(Core::Id msBuildId)
 {
     Q_UNUSED(msBuildId);
-    foreach (Kit *k, KitManager::instance()->kits()) {
+    foreach (Kit *k, KitManager::kits()) {
         fix(k);
         notifyAboutUpdate(k);
     }
@@ -151,14 +151,14 @@ void VcProjectKitInformation::onMSBuildAdded(Core::Id msBuildId)
 void VcProjectKitInformation::onMSBuildRemoved(Core::Id msBuildId)
 {
     Q_UNUSED(msBuildId);
-    foreach (Kit *k, KitManager::instance()->kits())
+    foreach (Kit *k, KitManager::kits())
         fix(k);
 }
 
 void VcProjectKitInformation::onMSBuildReplaced(Core::Id oldMsBuildId, Core::Id newMsBuildId)
 {
     Q_UNUSED(oldMsBuildId);
-    foreach (Kit *k, KitManager::instance()->kits()) {
+    foreach (Kit *k, KitManager::kits()) {
         fix(k);
         setMsBuild(k, MsBuildVersionManager::instance()->msBuildInformation(newMsBuildId));
         notifyAboutUpdate(k);

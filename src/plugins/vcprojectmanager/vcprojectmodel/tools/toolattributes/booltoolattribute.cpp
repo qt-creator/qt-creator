@@ -35,8 +35,8 @@ namespace VcProjectManager {
 namespace Internal {
 
 BoolToolAttribute::BoolToolAttribute(const AttributeDescriptionDataItem *descDataItem)
-    : m_isUsed(false),
-      m_descDataItem(descDataItem)
+    : m_descDataItem(descDataItem),
+      m_isUsed(false)
 {
 }
 

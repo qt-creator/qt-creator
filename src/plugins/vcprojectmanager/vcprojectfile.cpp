@@ -34,15 +34,12 @@
 #include "vcprojectmodel/vcprojectdocument.h"
 #include "vcprojectmodel/vcdocprojectnodes.h"
 
-#include <QFileInfo>
-
 namespace VcProjectManager {
 namespace Internal {
 
 VcProjectFile::VcProjectFile(const QString &filePath, VcDocConstants::DocumentVersion docVersion)
-    : m_filePath(filePath)
-    , m_path(QFileInfo(filePath).path())
 {
+    setFilePath(filePath);
     m_documentModel = new VcProjectManager::Internal::VcDocumentModel(filePath, docVersion);
 }
 
@@ -58,11 +55,6 @@ bool VcProjectFile::save(QString *errorString, const QString &fileName, bool aut
     Q_UNUSED(autoSave)
     // TODO: obvious
     return false;
-}
-
-QString VcProjectFile::fileName() const
-{
-    return m_filePath;
 }
 
 QString VcProjectFile::defaultPath() const
@@ -110,16 +102,6 @@ void VcProjectFile::rename(const QString &newName)
     // TODO: obvious
 }
 
-QString VcProjectFile::filePath()
-{
-    return m_filePath;
-}
-
-QString VcProjectFile::path()
-{
-    return m_path;
-}
-
 VcDocProjectNode *VcProjectFile::createVcDocNode() const
 {
     if (m_documentModel)
@@ -131,7 +113,7 @@ void VcProjectFile::reloadVcDoc()
 {
     VcDocConstants::DocumentVersion docVersion = m_documentModel->vcProjectDocument()->documentVersion();
     delete m_documentModel;
-    m_documentModel = new VcDocumentModel(m_filePath, docVersion);
+    m_documentModel = new VcDocumentModel(filePath(), docVersion);
 }
 
 VcDocumentModel *VcProjectFile::documentModel() const

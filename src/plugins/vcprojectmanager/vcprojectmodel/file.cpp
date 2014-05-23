@@ -65,8 +65,8 @@ File::File(const File &file)
     *m_configurationContainer = *(file.m_configurationContainer);
     *m_attributeContainer = *(file.m_attributeContainer);
 
-    foreach (const File::Ptr &f, file.m_files)
-        m_files.append(File::Ptr(new File(*f)));
+    foreach (const File *f, file.m_files)
+        m_files.append(new File(*f));
 }
 
 File &File::operator =(const File &file)
@@ -77,17 +77,17 @@ File &File::operator =(const File &file)
         *m_configurationContainer = *(file.m_configurationContainer);
         *m_attributeContainer = *(file.m_attributeContainer);
 
-        m_files.clear();
+        qDeleteAll(m_files);
 
-        foreach (const File::Ptr &f, file.m_files)
-            m_files.append(File::Ptr(new File(*f)));
+        foreach (const File *f, file.m_files)
+            m_files.append(new File(*f));
     }
     return *this;
 }
 
 File::~File()
 {
-    m_files.clear();
+    qDeleteAll(m_files);
     delete m_configurationContainer;
     delete m_attributeContainer;
 }
@@ -113,7 +113,7 @@ void File::processNode(const QDomNode &node)
 
 VcNodeWidget *File::createSettingsWidget()
 {
-    return new ConfigurationsEditWidget(m_parentProjectDoc, m_configurationContainer);
+    return new FileConfigurationsEditWidget(this, m_parentProjectDoc);
 }
 
 QDomNode File::toXMLDomNode(QDomDocument &domXMLDocument) const
@@ -122,7 +122,7 @@ QDomNode File::toXMLDomNode(QDomDocument &domXMLDocument) const
 
     fileNode.setAttribute(QLatin1String("RelativePath"), m_relativePath);
 
-    foreach (const File::Ptr &file, m_files)
+    foreach (const File *file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
     m_configurationContainer->appendToXMLNode(fileNode, domXMLDocument);
@@ -157,14 +157,13 @@ IFile *File::clone() const
 
 ProjectExplorer::FileType File::fileType() const
 {
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    QString mimeType = mdb->findByFile(canonicalPath()).type();
+    QString mimeType = Core::MimeDatabase::findByFile(canonicalPath()).type();
 
     if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE)
-        || mimeType == QLatin1String(ProjectExplorer::Constants::C_SOURCE_MIMETYPE))
+            || mimeType == QLatin1String(ProjectExplorer::Constants::C_SOURCE_MIMETYPE))
         return ProjectExplorer::SourceType;
     if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_HEADER_MIMETYPE)
-        || mimeType == QLatin1String(ProjectExplorer::Constants::C_HEADER_MIMETYPE))
+            || mimeType == QLatin1String(ProjectExplorer::Constants::C_HEADER_MIMETYPE))
         return ProjectExplorer::HeaderType;
     if (mimeType == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE))
         return ProjectExplorer::ResourceType;
@@ -187,26 +186,16 @@ QString File::canonicalPath() const
     return QString() + m_relativePath;
 }
 
-IConfiguration *File::createDefaultBuildConfiguration(const QString &fullConfigName) const
-{
-    IConfiguration *config = new FileBuildConfiguration;
-    config->setFullName(fullConfigName);
-
-    ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
-    IToolDescription *toolDesc = tDDM->toolDescription(QLatin1String(ToolConstants::strVCCLCompilerTool));
-
-    if (toolDesc) {
-        IConfigurationBuildTool *tool = toolDesc->createTool();
-        config->tools()->configurationBuildTools()->addTool(tool);
-    }
-
-    return config;
-}
-
 void File::processFileConfiguration(const QDomNode &fileConfigNode)
 {
-    IConfiguration *fileConfig = new FileBuildConfiguration();
+    IConfiguration *fileConfig = new FileBuildConfiguration(m_parentProjectDoc);
     fileConfig->processNode(fileConfigNode);
+
+    if (m_parentProjectDoc->configurations() && m_parentProjectDoc->configurations()->configurationContainer()) {
+        IConfiguration *projConf = m_parentProjectDoc->configurations()->configurationContainer()->configuration(fileConfig->fullName());
+        copyAllNonDefaultToolAtributes(fileConfig, projConf);
+    }
+
     m_configurationContainer->addConfiguration(fileConfig);
 
     // process next sibling
@@ -221,7 +210,7 @@ void File::processFileConfiguration(const QDomNode &fileConfigNode)
 
 void File::processFile(const QDomNode &fileNode)
 {
-    File::Ptr file(new File(m_parentProjectDoc));
+    File *file = new File(m_parentProjectDoc);
     file->processNode(fileNode);
     m_files.append(file);
 
@@ -250,6 +239,59 @@ void File::processNodeAttributes(const QDomElement &element)
 
             else
                 m_attributeContainer->setAttribute(domElement.name(), domElement.value());
+        }
+    }
+}
+
+void File::copyAllNonDefaultToolAtributes(IConfiguration *fileConfig, IConfiguration *projConfig)
+{
+    if (fileConfig && projConfig &&
+            fileConfig->tools() && fileConfig->tools()->configurationBuildTools() &&
+            projConfig->tools() && projConfig->tools()->configurationBuildTools()
+            ) {
+        IConfigurationBuildTool *tool = fileConfig->tools()->configurationBuildTools()->tool(0);
+
+        if (tool && tool->toolDescription()) {
+            IConfigurationBuildTool *projToolCopy = projConfig->tools()->configurationBuildTools()->
+                    tool(tool->toolDescription()->toolKey());
+
+            if (projToolCopy) {
+                ISectionContainer *secCont = tool->sectionContainer();
+                ISectionContainer *projSecCont = projToolCopy->sectionContainer();
+
+                if (secCont && projSecCont) {
+
+                    for (int i = 0; i < secCont->sectionCount(); ++i) {
+                        IToolSection *toolSec = secCont->section(i);
+
+                        if (toolSec && toolSec->sectionDescription()) {
+                            IToolSection *projSec = projSecCont->section(toolSec->sectionDescription()->displayName());
+                            copyAllNonDefaultToolAtributes(toolSec, projSec);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void File::copyAllNonDefaultToolAtributes(IToolSection *fileSec, IToolSection *projSec)
+{
+    if (fileSec && projSec &&
+            fileSec->sectionDescription() && projSec->sectionDescription()) {
+        IToolAttributeContainer *attrCont = fileSec->attributeContainer();
+        IToolAttributeContainer *projAttrCont = projSec->attributeContainer();
+
+        if (attrCont && projAttrCont) {
+            for (int i = 0; i < projAttrCont->toolAttributeCount(); ++i) {
+                IToolAttribute *projToolAttr = projAttrCont->toolAttribute(i);
+
+                if (projToolAttr && projToolAttr->descriptionDataItem()) {
+                    IToolAttribute *toolAttr = attrCont->toolAttribute(projToolAttr->descriptionDataItem()->key());
+                    if (toolAttr && !toolAttr->isUsed() && projToolAttr && projToolAttr->isUsed())
+                        toolAttr->setValue(projToolAttr->value());
+                }
+            }
         }
     }
 }

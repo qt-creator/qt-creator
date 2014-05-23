@@ -21,7 +21,6 @@ HEADERS += \
     vcprojectmodel/assemblyreference.h \
     vcprojectmodel/activexreference.h \
     vcprojectmodel/tools/tool_constants.h \
-    vcprojectmodel/tools/candcpptool_constants.h \
     vcprojectmodel/vcdocumentmodel.h \
     vcprojectmodel/vcdocprojectnodes.h \
     vcprojectmodel/tools/toolattributes/booltoolattribute.h \
@@ -31,7 +30,6 @@ HEADERS += \
     vcprojectmodel/tools/configurationtool.h \
     vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h \
     vcprojectmodel/tools/toolattributes/tooldescription.h \
-    vcprojectmodel/tools/toolattributes/iattributedescriptiondataitem.h \
     vcprojectmodel/tools/toolsectiondescription.h \
     vcprojectmodel/tools/toolsection.h \
     vcprojectmodel/tools/toolattributes/toolattributeoption.h \

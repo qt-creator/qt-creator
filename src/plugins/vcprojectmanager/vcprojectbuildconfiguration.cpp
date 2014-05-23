@@ -45,19 +45,26 @@
 #include <QLabel>
 #include <QInputDialog>
 
+using namespace ProjectExplorer;
+using namespace VcProjectManager::Constants;
+
 ////////////////////////////////////
 // VcProjectBuildConfiguration class
 ////////////////////////////////////
 namespace VcProjectManager {
 namespace Internal {
 
-VcProjectBuildConfiguration::VcProjectBuildConfiguration(ProjectExplorer::Target *parent) :
-    BuildConfiguration(parent, Core::Id(Constants::VC_PROJECT_BC_ID))
+VcProjectBuildConfiguration::VcProjectBuildConfiguration(Target *parent) :
+    BuildConfiguration(parent, Core::Id(VC_PROJECT_BC_ID))
 {
     m_buildDirectory = static_cast<VcProject *>(parent->project())->defaultBuildDirectory();
 }
 
-ProjectExplorer::NamedWidget *VcProjectBuildConfiguration::createConfigWidget()
+VcProjectBuildConfiguration::~VcProjectBuildConfiguration()
+{
+}
+
+NamedWidget *VcProjectBuildConfiguration::createConfigWidget()
 {
     return new VcProjectBuildSettingsWidget;
 }
@@ -67,17 +74,7 @@ QString VcProjectBuildConfiguration::buildDirectory() const
     return m_buildDirectory;
 }
 
-ProjectExplorer::IOutputParser *VcProjectBuildConfiguration::createOutputParser() const
-{
-    ProjectExplorer::IOutputParser *parserchain = new ProjectExplorer::GnuMakeParser;
-
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
-    if (tc)
-        parserchain->appendOutputParser(tc->outputParser());
-    return parserchain;
-}
-
-ProjectExplorer::BuildConfiguration::BuildType VcProjectBuildConfiguration::buildType() const
+BuildConfiguration::BuildType VcProjectBuildConfiguration::buildType() const
 {
     return Debug;
 }
@@ -88,29 +85,9 @@ void VcProjectBuildConfiguration::setConfiguration(IConfiguration *config)
     connect(m_configuration, SIGNAL(nameChanged()), this, SLOT(reloadConfigurationName()));
 }
 
-QString VcProjectBuildConfiguration::configurationNameOnly() const
-{
-    QStringList splits = m_configuration->fullName().split(QLatin1Char('|'));
-
-    if (splits.isEmpty())
-        return QString();
-
-    return splits[0];
-}
-
-QString VcProjectBuildConfiguration::platformNameOnly() const
-{
-    QStringList splits = m_configuration->fullName().split(QLatin1Char('|'));
-
-    if (splits.isEmpty() || splits.size() <= 1 || splits.size() > 2)
-        return QString();
-
-    return splits[1];
-}
-
 QVariantMap VcProjectBuildConfiguration::toMap() const
 {
-    return ProjectExplorer::BuildConfiguration::toMap();
+    return BuildConfiguration::toMap();
 }
 
 void VcProjectBuildConfiguration::reloadConfigurationName()
@@ -119,7 +96,7 @@ void VcProjectBuildConfiguration::reloadConfigurationName()
     setDefaultDisplayName(m_configuration->fullName());
 }
 
-VcProjectBuildConfiguration::VcProjectBuildConfiguration(ProjectExplorer::Target *parent, VcProjectBuildConfiguration *source)
+VcProjectBuildConfiguration::VcProjectBuildConfiguration(Target *parent, VcProjectBuildConfiguration *source)
     : BuildConfiguration(parent, source)
 {
     cloneSteps(source);
@@ -127,7 +104,7 @@ VcProjectBuildConfiguration::VcProjectBuildConfiguration(ProjectExplorer::Target
 
 bool VcProjectBuildConfiguration::fromMap(const QVariantMap &map)
 {
-    return ProjectExplorer::BuildConfiguration::fromMap(map);
+    return BuildConfiguration::fromMap(map);
 }
 
 ///////////////////////////////////////////
@@ -138,62 +115,72 @@ VcProjectBuildConfigurationFactory::VcProjectBuildConfigurationFactory(QObject *
 {
 }
 
-QList<Core::Id> VcProjectBuildConfigurationFactory::availableCreationIds(const ProjectExplorer::Target *parent) const
+int VcProjectBuildConfigurationFactory::priority(const Target *parent) const
 {
-    if (!canHandle(parent))
-        return QList<Core::Id>();
-
-    return QList<Core::Id>() << Core::Id(Constants::VC_PROJECT_BC_ID);
+    return canHandle(parent) ? 0 : -1;
 }
 
-QString VcProjectBuildConfigurationFactory::displayNameForId(const Core::Id id) const
+int VcProjectBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
-    if (id == Constants::VC_PROJECT_BC_ID)
-        return tr("Vc Project");
-
-    return QString();
+    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
+            .matchesType(QLatin1String(Constants::VCPROJ_MIMETYPE))) ? 0 : -1;
 }
 
-bool VcProjectBuildConfigurationFactory::canCreate(const ProjectExplorer::Target *parent, const Core::Id id) const
+QList<BuildInfo *> VcProjectBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
-    if (!canHandle(parent))
-        return false;
-    if (id == Constants::VC_PROJECT_BC_ID)
-        return true;
-    return false;
+    QList<BuildInfo *> result;
+    result << createBuildInfo(parent->kit(),
+                              parent->project()->projectDirectory());
+    return result;
 }
 
-VcProjectBuildConfiguration *VcProjectBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name)
+QList<BuildInfo *> VcProjectBuildConfigurationFactory::availableSetups(
+        const Kit *k, const QString &projectPath) const
 {
-    if (!canCreate(parent, id))
-        return 0;
-//    VcProject *project = static_cast<VcProject *>(parent->project());
+    QList<BuildInfo *> result;
+    // TODO: Populate from Configuration
+    BuildInfo *info = createBuildInfo(k,
+                                      Utils::FileName::fromString(VcProject::defaultBuildDirectory(projectPath)));
+    info->displayName = tr("Default");
+    result << info;
+    return result;
+}
 
-    bool ok = true;
-    QString buildConfigName = name;
-    if (buildConfigName.isEmpty())
-        buildConfigName = QInputDialog::getText(0,
-                                                tr("New Vc Project Configuration"),
-                                                tr("New Configuration name:"),
-                                                QLineEdit::Normal,
-                                                QString(), &ok);
-    buildConfigName = buildConfigName.trimmed();
-    if (!ok || buildConfigName.isEmpty())
-        return 0;
+VcProjectBuildConfiguration *VcProjectBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
+{
+    QTC_ASSERT(parent, return 0);
+    QTC_ASSERT(info->factory() == this, return 0);
+    QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
+    QTC_ASSERT(!info->displayName.isEmpty(), return 0);
 
     VcProjectBuildConfiguration *bc = new VcProjectBuildConfiguration(parent);
-    bc->setDisplayName(buildConfigName);
-    bc->setDefaultDisplayName(buildConfigName);
+    bc->setDisplayName(info->displayName);
+    bc->setDefaultDisplayName(info->displayName);
+    bc->setBuildDirectory(info->buildDirectory);
 
     return bc;
 }
 
-bool VcProjectBuildConfigurationFactory::canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const
+bool VcProjectBuildConfigurationFactory::canClone(const Target *parent, BuildConfiguration *source) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    return canHandle(parent) && source->id() == VC_PROJECT_BC_ID;
 }
 
-VcProjectBuildConfiguration *VcProjectBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+VcProjectBuildConfiguration *VcProjectBuildConfigurationFactory::clone(Target *parent, BuildConfiguration *source)
+{
+    if (!canClone(parent, source))
+        return 0;
+
+    VcProjectBuildConfiguration *old = static_cast<VcProjectBuildConfiguration *>(source);
+    return new VcProjectBuildConfiguration(parent, old);
+}
+
+bool VcProjectBuildConfigurationFactory::canRestore(const Target *parent, const QVariantMap &map) const
+{
+    return canHandle(parent) && idFromMap(map) == VC_PROJECT_BC_ID;
+}
+
+VcProjectBuildConfiguration *VcProjectBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -205,25 +192,24 @@ VcProjectBuildConfiguration *VcProjectBuildConfigurationFactory::restore(Project
     return 0;
 }
 
-bool VcProjectBuildConfigurationFactory::canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const
+bool VcProjectBuildConfigurationFactory::canHandle(const Target *t) const
 {
-    return canCreate(parent, source->id());
-}
-
-VcProjectBuildConfiguration *VcProjectBuildConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source)
-{
-    if (!canClone(parent, source))
-        return 0;
-
-    VcProjectBuildConfiguration *old = static_cast<VcProjectBuildConfiguration *>(source);
-    return new VcProjectBuildConfiguration(parent, old);
-}
-
-bool VcProjectBuildConfigurationFactory::canHandle(const ProjectExplorer::Target *t) const
-{
+    QTC_ASSERT(t, return false);
     if (!t->project()->supportsKit(t->kit()))
         return false;
     return qobject_cast<VcProject *>(t->project());
+}
+
+BuildInfo *VcProjectBuildConfigurationFactory::createBuildInfo(const ProjectExplorer::Kit *k,
+                                                               const Utils::FileName &buildDir) const
+{
+    BuildInfo *info = new BuildInfo(this);
+    info->typeName = tr("Build");
+    info->buildDirectory = buildDir;
+    info->kitId = k->id();
+    info->supportsShadowBuild = true;
+
+    return info;
 }
 
 } // namespace Internal

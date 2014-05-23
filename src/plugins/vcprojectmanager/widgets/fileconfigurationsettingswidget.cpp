@@ -41,25 +41,24 @@
 namespace VcProjectManager {
 namespace Internal {
 
-FileConfigurationSettingsWidget::FileConfigurationSettingsWidget(IConfiguration *fileBuildConfig, QWidget *parent) :
+FileConfigurationSettingsWidget::FileConfigurationSettingsWidget(IConfiguration *fileBuildConfig, IVisualStudioProject *parentProjectDoc, QWidget *parent) :
     VcNodeWidget(parent),
     ui(new Ui::FileConfigurationSettingsWidget),
     m_fileBuildConfig(fileBuildConfig),
-    m_configBuildTool(0)
+    m_toolSettingsWidget(0),
+    m_parentProjectDoc(parentProjectDoc)
 {
     ui->setupUi(this);
+
+    readTools();
 
     if (m_fileBuildConfig &&
             m_fileBuildConfig->tools() &&
             m_fileBuildConfig->tools()->configurationBuildTools()) {
-        IConfigurationBuildTool *configBuildTool = m_fileBuildConfig->tools()->configurationBuildTools()->tool(0);
 
-        if (configBuildTool)
-            m_configBuildTool = configBuildTool->clone();
-
-        if (m_configBuildTool) {
+        if (m_fileBuildConfig->tools()->configurationBuildTools()->tool(0)) {
             QVBoxLayout *layout = new QVBoxLayout;
-            m_toolSettingsWidget = m_configBuildTool->createSettingsWidget();
+            m_toolSettingsWidget = m_fileBuildConfig->tools()->configurationBuildTools()->tool(0)->createSettingsWidget();
             layout->addWidget(m_toolSettingsWidget);
             ui->m_toolWidget->setLayout(layout);
         }
@@ -73,38 +72,20 @@ FileConfigurationSettingsWidget::FileConfigurationSettingsWidget(IConfiguration 
         ui->m_excludedFromBuild->setCurrentIndex(1);
 
 
-    ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
-    IToolDescription *toolDesc = tDDM->toolDescription(QLatin1String(VcDocConstants::TOOL_CPP_C_COMPILER));
-    if (toolDesc)
-        ui->m_tool->addItem(toolDesc->toolDisplayName(), QLatin1String(VcDocConstants::TOOL_CPP_C_COMPILER));
+    QMapIterator<QString, IConfigurationBuildTool *> it(m_toolMap);
 
-    toolDesc = tDDM->toolDescription(QLatin1String(VcDocConstants::TOOL_CUSTOM));
-    if (toolDesc)
-        ui->m_tool->addItem(toolDesc->toolDisplayName(), QLatin1String(VcDocConstants::TOOL_CUSTOM));
+    while (it.hasNext()) {
+        it.next();
+        ui->m_tool->addItem(it.value()->toolDescription()->toolDisplayName(), it.key());
+    }
 
-    toolDesc = tDDM->toolDescription(QLatin1String(VcDocConstants::TOOL_MANAGED_RESOURCE_COMPILER));
-    if (toolDesc)
-        ui->m_tool->addItem(toolDesc->toolDisplayName(), QLatin1String(VcDocConstants::TOOL_MANAGED_RESOURCE_COMPILER));
-
-    toolDesc = tDDM->toolDescription(QLatin1String(VcDocConstants::TOOL_MIDL));
-    if (toolDesc)
-        ui->m_tool->addItem(toolDesc->toolDisplayName(), QLatin1String(VcDocConstants::TOOL_MIDL));
-
-    toolDesc = tDDM->toolDescription(QLatin1String(VcDocConstants::TOOL_RESOURCE_COMPILER));
-    if (toolDesc)
-        ui->m_tool->addItem(toolDesc->toolDisplayName(), QLatin1String(VcDocConstants::TOOL_RESOURCE_COMPILER));
-
-    toolDesc = tDDM->toolDescription(QLatin1String(VcDocConstants::TOOL_WEB_SERVICE_PROXY_GENERATOR));
-    if (toolDesc)
-        ui->m_tool->addItem(toolDesc->toolDisplayName(), QLatin1String(VcDocConstants::TOOL_WEB_SERVICE_PROXY_GENERATOR));
-
-    toolDesc = tDDM->toolDescription(QLatin1String(VcDocConstants::TOOL_XML_DATA_PROXY_GENERATOR));
-    if (toolDesc)
-        ui->m_tool->addItem(toolDesc->toolDisplayName(), QLatin1String(VcDocConstants::TOOL_XML_DATA_PROXY_GENERATOR));
-
-    int index = toolIndex(m_configBuildTool->toolDescription()->toolKey());
-    if (index != -1)
-        ui->m_tool->setCurrentIndex(index);
+    if (m_fileBuildConfig && m_fileBuildConfig->tools() && m_fileBuildConfig->tools()->configurationBuildTools() &&
+            m_fileBuildConfig->tools()->configurationBuildTools()->tool(0) &&
+            m_fileBuildConfig->tools()->configurationBuildTools()->tool(0)->toolDescription()) {
+        int index = toolIndex(m_fileBuildConfig->tools()->configurationBuildTools()->tool(0)->toolDescription()->toolKey());
+        if (index != -1)
+            ui->m_tool->setCurrentIndex(index);
+    }
 
     connect(ui->m_tool, SIGNAL(currentIndexChanged(int)), this, SLOT(changeTool(int)));
 }
@@ -116,43 +97,47 @@ FileConfigurationSettingsWidget::~FileConfigurationSettingsWidget()
 
 void FileConfigurationSettingsWidget::saveData()
 {
-    if (m_fileBuildConfig &&
-            m_fileBuildConfig->tools() &&
-            m_fileBuildConfig->tools()->configurationBuildTools() &&
-            m_configBuildTool &&
-            m_toolSettingsWidget) {
-        // remove old tool
-        IConfigurationBuildTool *confBuildTool = m_fileBuildConfig->tools()->configurationBuildTools()->tool(0);
-        m_fileBuildConfig->tools()->configurationBuildTools()->removeTool(confBuildTool);
-
-        // add new tool and save it's settings data
-        m_fileBuildConfig->tools()->configurationBuildTools()->addTool(m_configBuildTool);
+    if (m_toolSettingsWidget)
         m_toolSettingsWidget->saveData();
+
+    if (m_fileBuildConfig) {
+        if (ITools *tools = m_fileBuildConfig->tools()) {
+            if (IConfigurationBuildTools *buildTools = tools->configurationBuildTools()) {
+                IConfigurationBuildTool *tool = buildTools->tool(0);
+                if (const IToolDescription *toolDescription = tool->toolDescription()) {
+                    const QString currentTool = ui->m_tool->itemData(ui->m_tool->currentIndex()).toString();
+                    if (toolDescription->toolKey() != currentTool) {
+                        buildTools->removeTool(tool);
+                        delete tool;
+                        tool = m_toolMap[currentTool];
+                        if (tool)
+                            buildTools->addTool(tool);
+                    }
+                }
+            }
+        }
     }
 }
 
 void FileConfigurationSettingsWidget::changeTool(int index)
 {
-    QString toolKey = ui->m_tool->itemData(index).toString();
-    ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
-    IToolDescription *toolDesc = tDDM->toolDescription(toolKey);
-    ui->m_toolWidget->setLayout(0);
-    m_toolSettingsWidget = 0;
-    IConfigurationBuildTool *oldConfigBuildTool = m_configBuildTool;
-    m_configBuildTool = 0;
-
-    if (toolDesc) {
-        IConfigurationBuildTool *configBuildTool = toolDesc->createTool();
-
-        if (configBuildTool) {
-            QVBoxLayout *layout = new QVBoxLayout;
-            m_toolSettingsWidget = configBuildTool->createSettingsWidget();
-            layout->addWidget(m_toolSettingsWidget);
-            m_configBuildTool = configBuildTool;
-        }
+    // remove previous tool
+    if (m_toolSettingsWidget) {
+        ui->m_toolWidget->layout()->removeWidget(m_toolSettingsWidget);
+        // flush data in order to save them
+        m_toolSettingsWidget->saveData();
+        m_toolSettingsWidget->deleteLater();
+        m_toolSettingsWidget = 0;
     }
 
-    delete oldConfigBuildTool;
+    // add settings widget for the selected tool
+    QString toolKey = ui->m_tool->itemData(index).toString();
+    IConfigurationBuildTool *tool = m_toolMap[toolKey];
+
+    if (tool) {
+        m_toolSettingsWidget = tool->createSettingsWidget();
+        ui->m_toolWidget->layout()->addWidget(m_toolSettingsWidget);
+    }
 }
 
 int FileConfigurationSettingsWidget::toolIndex(const QString &toolKey)
@@ -163,6 +148,32 @@ int FileConfigurationSettingsWidget::toolIndex(const QString &toolKey)
     }
 
     return -1;
+}
+
+void FileConfigurationSettingsWidget::readTools()
+{
+    if (m_fileBuildConfig && m_fileBuildConfig->tools() &&
+            m_fileBuildConfig->tools()->configurationBuildTools() &&
+            m_fileBuildConfig->tools()->configurationBuildTools()->tool(0) &&
+            m_fileBuildConfig->tools()->configurationBuildTools()->tool(0)->toolDescription()) {
+        QString key = m_fileBuildConfig->tools()->configurationBuildTools()->tool(0)->toolDescription()->toolKey();
+        m_toolMap[key] = m_fileBuildConfig->tools()->configurationBuildTools()->tool(0);
+    }
+
+    if (m_parentProjectDoc && m_parentProjectDoc->configurations() &&
+            m_parentProjectDoc->configurations()->configurationContainer()) {
+        IConfiguration *parentConfig = m_parentProjectDoc->configurations()->configurationContainer()->configuration(m_fileBuildConfig->fullName());
+
+        if (parentConfig && parentConfig->tools() && parentConfig->tools()->configurationBuildTools()) {
+            for (int i = 0; i < parentConfig->tools()->configurationBuildTools()->toolCount(); ++i) {
+                IConfigurationBuildTool *tool = parentConfig->tools()->configurationBuildTools()->tool(i);
+
+                if (tool && tool->toolDescription() &&
+                        !m_toolMap.contains(tool->toolDescription()->toolKey()))
+                    m_toolMap[tool->toolDescription()->toolKey()] = tool->clone();
+            }
+        }
+    }
 }
 
 } // namespace Internal

@@ -19,7 +19,8 @@ HEADERS += \
     widgets/configurationbasewidget.h \
     widgets/fileconfigurationsettingswidget.h \
     widgets/configurationseditwidget.h \
-    widgets/filesettingswidget.h
+    widgets/filesettingswidget.h \
+    widgets/fileconfigurationseditwidget.h
 
 SOURCES += \
     widgets/vcnodewidget.cpp \
@@ -42,7 +43,8 @@ SOURCES += \
     widgets/configurationbasewidget.cpp \
     widgets/fileconfigurationsettingswidget.cpp \
     widgets/configurationseditwidget.cpp \
-    widgets/filesettingswidget.cpp
+    widgets/filesettingswidget.cpp \
+    widgets/fileconfigurationseditwidget.cpp
 
 FORMS += \
     widgets/projectsettingswidget.ui \

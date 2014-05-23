@@ -62,8 +62,8 @@ public:
 
 private:
     QString m_key;
-    QString m_descriptionText;
     QString m_displayText;
+    QString m_descriptionText;
     QString m_defaultValue;
     QString m_type;
     ToolAttributeOption *m_firstOption;

@@ -47,7 +47,7 @@ class VcProjectKitConfigWidget : public ProjectExplorer::KitConfigWidget
     Q_OBJECT
 
 public:
-    VcProjectKitConfigWidget(ProjectExplorer::Kit *k);
+    VcProjectKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
     ~VcProjectKitConfigWidget();
 
     QString displayName() const;

@@ -126,14 +126,14 @@ IGlobals* VcProjectDocument::globals() const
 
 VcProjectDocument::VcProjectDocument(const QString &filePath, VcDocConstants::DocumentVersion docVersion)
     : m_filePath(filePath),
+      m_documentVersion(docVersion),
       m_platforms(new Platforms),
-      m_globals(new Globals),
-      m_files(new Files(this)),
       m_configurations(new Configurations(this)),
+      m_files(new Files(this)),
       m_references(new References),
+      m_globals(new Globals),
       m_toolFiles(new ToolFiles),
       m_publishingData(new PublishingData),
-      m_documentVersion(docVersion),
       m_attributeContainer(new GeneralAttributeContainer)
 {
 }
@@ -141,7 +141,7 @@ VcProjectDocument::VcProjectDocument(const QString &filePath, VcDocConstants::Do
 VcProjectDocument::VcProjectDocument(const VcProjectDocument &vcDoc)
 {
     // <?xml part
-    m_processingInstructionData = vcDoc.m_processingInstructionData;
+    m_processingInstr = vcDoc.m_processingInstr;
     m_processingInstructionTarget = vcDoc.m_processingInstructionTarget;
 
     m_attributeContainer = new GeneralAttributeContainer(*vcDoc.m_attributeContainer);
@@ -161,7 +161,7 @@ VcProjectDocument &VcProjectDocument::operator =(const VcProjectDocument &vcDoc)
         *m_attributeContainer = *vcDoc.m_attributeContainer;
 
         // <?xml part
-        m_processingInstructionData = vcDoc.m_processingInstructionData;
+        m_processingInstr = vcDoc.m_processingInstr;
         m_processingInstructionTarget = vcDoc.m_processingInstructionTarget;
 
         *m_platforms = *vcDoc.m_platforms;
@@ -197,7 +197,7 @@ void VcProjectDocument::parseProcessingInstruction(const QDomProcessingInstructi
         if (sl.size() == 2) {
             QString value = sl[1];
             value = value.replace(QLatin1String("\'"), QString());
-            m_processingInstructionData.insert(sl[0].trimmed(), value.trimmed());
+            m_processingInstr.append(QPair<QString, QString>(sl[0].trimmed(), value.trimmed()));
         }
     }
 
@@ -237,13 +237,13 @@ void VcProjectDocument::processDocumentAttributes(const QDomElement &vsNode)
 QDomNode VcProjectDocument::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QString processingData;
-    QHashIterator<QString, QString> it(m_processingInstructionData);
 
-    while (it.hasNext()) {
-        it.next();
-        processingData.append(it.key());
+    QPair<QString, QString> pr;
+
+    foreach (pr, m_processingInstr) {
+        processingData.append(pr.first);
         processingData.append(QLatin1Char('='));
-        processingData.append(QLatin1String("\"") + it.value() + QLatin1String("\""));
+        processingData.append(QLatin1String("\"") + pr.second + QLatin1String("\""));
         processingData.append(QLatin1Char(' '));
     }
 

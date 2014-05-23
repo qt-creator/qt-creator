@@ -84,7 +84,7 @@ protected:
     QString m_filePath; // used to store path to a file
 
     // <?xml part
-    QHash<QString, QString> m_processingInstructionData;
+    QList<QPair <QString, QString> > m_processingInstr;
     QString m_processingInstructionTarget;
 
     VcDocConstants::DocumentVersion m_documentVersion;

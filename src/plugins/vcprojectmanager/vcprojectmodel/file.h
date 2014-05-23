@@ -45,8 +45,6 @@ class File : public IFile
     friend class FileFactory;
 
 public:
-    typedef QSharedPointer<File>  Ptr;
-
     explicit File(IVisualStudioProject *parentProjectDoc);
     File(const File &file);
     File &operator=(const File &file);
@@ -65,15 +63,15 @@ public:
     ProjectExplorer::FileType fileType() const;
     QString canonicalPath() const;
 
-    IConfiguration *createDefaultBuildConfiguration(const QString &fullConfigName) const;
-
 private:
     void processFileConfiguration(const QDomNode &fileConfigNode);
     void processFile(const QDomNode &fileNode);
     void processNodeAttributes(const QDomElement &element);
+    void copyAllNonDefaultToolAtributes(IConfiguration *fileConfig, IConfiguration *projConfig);
+    void copyAllNonDefaultToolAtributes(IToolSection *fileSec, IToolSection *projSec);
 
     QString m_relativePath; // required
-    QList<QSharedPointer<File> > m_files;
+    QList<File *> m_files;
     IVisualStudioProject *m_parentProjectDoc;
     ConfigurationContainer *m_configurationContainer;
     GeneralAttributeContainer *m_attributeContainer;

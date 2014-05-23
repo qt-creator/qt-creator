@@ -40,25 +40,57 @@
 namespace VcProjectManager {
 namespace Internal {
 
-FileBuildConfiguration::FileBuildConfiguration()
-    : Configuration(QLatin1String("FileConfiguration"))
+FileBuildConfiguration::FileBuildConfiguration(IVisualStudioProject *parentProject)
+    : Configuration(QLatin1String("FileConfiguration")),
+      m_parentProjectDoc(parentProject)
 {
 }
 
 FileBuildConfiguration::FileBuildConfiguration(const FileBuildConfiguration &fileBuildConfig)
     : Configuration(fileBuildConfig)
 {
+    m_parentProjectDoc = fileBuildConfig.m_parentProjectDoc;
 }
 
 FileBuildConfiguration &FileBuildConfiguration::operator =(const FileBuildConfiguration &fileBuildConfig)
 {
     Configuration::operator =(fileBuildConfig);
+
+    if (this != &fileBuildConfig)
+        m_parentProjectDoc = fileBuildConfig.m_parentProjectDoc;
+
     return *this;
 }
 
 VcNodeWidget *FileBuildConfiguration::createSettingsWidget()
 {
-    return new FileConfigurationSettingsWidget(this);
+    return new FileConfigurationSettingsWidget(this, m_parentProjectDoc);
+}
+
+QDomNode FileBuildConfiguration::toXMLDomNode(QDomDocument &domXMLDocument) const
+{
+    if (tools()->configurationBuildTools()->toolCount()) {
+        IConfigurations *configs = m_parentProjectDoc->configurations();
+
+        QDomElement configurationNode = domXMLDocument.createElement(m_nodeName);
+        m_attributeContainer->appendToXMLNode(configurationNode);
+
+        if (configs) {
+            ConfigurationContainer *configContainer = m_parentProjectDoc->configurations()->configurationContainer();
+
+            if (configContainer) {
+                IConfiguration *projectConfig  = configContainer->configuration(fullName());
+                toXMLNode(projectConfig, configurationNode, domXMLDocument);
+            }
+        }
+
+        if (configurationNode.childNodes().size() || configurationNode.attributes().size()) {
+            configurationNode.setAttribute(QLatin1String("Name"), m_fullName);
+            return configurationNode;
+        }
+    }
+
+    return QDomNode();
 }
 
 void FileBuildConfiguration::processToolNode(const QDomNode &toolNode)
@@ -67,18 +99,18 @@ void FileBuildConfiguration::processToolNode(const QDomNode &toolNode)
         IConfigurationBuildTool *toolConf = 0;
         QDomNamedNodeMap namedNodeMap = toolNode.toElement().attributes();
 
-        QDomNode domNode = namedNodeMap.item(0);
+        for (int i = 0; i < namedNodeMap.size(); ++i) {
+            QDomNode domNode = namedNodeMap.item(i);
 
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domAttribute = domNode.toAttr();
-            if (domAttribute.name() == QLatin1String("Name")) {
-                ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
-
-                if (tDDM) {
+            if (domNode.nodeType() == QDomNode::AttributeNode) {
+                QDomAttr domAttribute = domNode.toAttr();
+                if (domAttribute.name() == QLatin1String("Name")) {
+                    ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
                     IToolDescription *toolDesc = tDDM->toolDescription(domAttribute.value());
 
                     if (toolDesc)
                         toolConf = toolDesc->createTool();
+                    break;
                 }
             }
         }
@@ -105,6 +137,77 @@ void FileBuildConfiguration::processToolNode(const QDomNode &toolNode)
     QDomNode nextSibling = toolNode.nextSibling();
     if (!nextSibling.isNull())
         processToolNode(nextSibling);
+}
+
+void FileBuildConfiguration::toXMLNode(IConfiguration *projectConfig, QDomElement &configurationNode, QDomDocument &domXMLDocument) const
+{
+    QTC_ASSERT(projectConfig, return);
+
+    ITools *projectTools = projectConfig->tools();
+
+    if (projectTools && projectTools->configurationBuildTools()) {
+        IConfigurationBuildTool *tool = tools()->configurationBuildTools()->tool(0);
+
+        if (tool) {
+            IConfigurationBuildTool *projectTool = projectTools->configurationBuildTools()->tool(tool->toolDescription()->toolKey());
+
+            if (projectTool && projectTool->toolDescription()) {
+                toXMLNode(projectTool, tool, configurationNode, domXMLDocument);
+            }
+        }
+    }
+}
+
+void FileBuildConfiguration::toXMLNode(IConfigurationBuildTool *projectConfigTool, IConfigurationBuildTool *tool,
+                                       QDomElement &configurationNode, QDomDocument &domXMLDocument) const
+{
+    QTC_ASSERT(projectConfigTool && tool, return);
+
+    ISectionContainer *projSecContainer = projectConfigTool->sectionContainer();
+    ISectionContainer *toolSecContainer = tool->sectionContainer();
+
+    bool isNodeCreated = false;
+    QDomElement toolNode;
+
+    if (projSecContainer && toolSecContainer) {
+        for (int i = 0; i < projSecContainer->sectionCount(); ++i) {
+            IToolSection *projToolSec = projSecContainer->section(i);
+
+            if (projToolSec) {
+                IToolSection *toolSec = toolSecContainer->section(projToolSec->sectionDescription()->displayName());
+
+                if (toolSec) {
+                    IToolAttributeContainer *projToolAttrContainer = projToolSec->attributeContainer();
+                    IToolAttributeContainer *toolAttrContainer = toolSec->attributeContainer();
+
+                    for (int j = 0; j < projToolAttrContainer->toolAttributeCount(); ++j) {
+                        IToolAttribute *projToolAttr = projToolAttrContainer->toolAttribute(j);
+
+                        if (projToolAttr && projToolAttr->descriptionDataItem()) {
+                            IToolAttribute *toolAttr = toolAttrContainer->toolAttribute(projToolAttr->descriptionDataItem()->key());
+
+                            if (toolAttr && toolAttr->value() != projToolAttr->value()) {
+                                if (!isNodeCreated) {
+                                    toolNode = domXMLDocument.createElement(QLatin1String("Tool"));
+                                    toolNode.setAttribute(QLatin1String("Name"), projectConfigTool->toolDescription()->toolKey());
+                                    configurationNode.appendChild(toolNode);
+                                    isNodeCreated = true;
+                                }
+
+                                toolNode.setAttribute(toolAttr->descriptionDataItem()->key(),
+                                                      toolAttr->value());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+IConfiguration *FileBuildConfiguration::clone() const
+{
+    return new FileBuildConfiguration(*this);
 }
 
 } // namespace Internal

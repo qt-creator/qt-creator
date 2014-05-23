@@ -98,6 +98,11 @@ VcProject::VcProject(VcManager *projectManager, const QString &projectFilePath, 
         setProjectContext(Core::Context(Constants::VC_PROJECT_ID));
     m_rootNode = m_projectFile->createVcDocNode();
 
+    if (m_projectFile->documentModel()->vcProjectDocument()->documentVersion() != VcDocConstants::DV_MSVC_2005)
+        setId(Core::Id(Constants::VC_PROJECT_ID));
+    else
+        setId(Core::Id(Constants::VC_PROJECT_2005_ID));
+
     connect(m_rootNode, SIGNAL(settingsDialogAccepted()), this, SLOT(onSettingsDialogAccepted()));
 }
 
@@ -111,13 +116,6 @@ QString VcProject::displayName() const
     if (m_rootNode)
         return m_rootNode->displayName();
     return QString();
-}
-
-Core::Id VcProject::id() const
-{
-    if (m_projectFile->documentModel()->vcProjectDocument()->documentVersion() != VcDocConstants::DV_MSVC_2005)
-        return Core::Id(Constants::VC_PROJECT_ID);
-    return Core::Id(Constants::VC_PROJECT_2005_ID);
 }
 
 Core::IDocument *VcProject::document() const
@@ -149,7 +147,12 @@ QStringList VcProject::files(Project::FilesMode fileMode) const
 QString VcProject::defaultBuildDirectory() const
 {
     VcProjectFile* vcFile = static_cast<VcProjectFile *>(document());
-    return vcFile->path()/* + QLatin1String("-build")*/;
+    return defaultBuildDirectory(vcFile->filePath());
+}
+
+QString VcProject::defaultBuildDirectory(const QString &fileName)
+{
+    return QFileInfo(fileName).absolutePath() /* + QLatin1String("-build")*/;
 }
 
 bool VcProject::needsConfiguration() const
@@ -206,12 +209,8 @@ void VcProject::onSettingsDialogAccepted()
         // add all new build configurations
         foreach (ProjectExplorer::Target *target, targetList) {
             if (target) {
-
-                for (int i = 0; i < configs->configurationContainer()->configurationCount(); ++i) {
-                    IConfiguration *config = configs->configurationContainer()->configuration(i);
-                    if (config && !findBuildConfiguration(target, config->fullName()))
-                        addBuildConfiguration(target, config);
-                }
+                target->updateDefaultBuildConfigurations();
+                target->updateDefaultDeployConfigurations();
             }
         }
     }
@@ -233,11 +232,8 @@ bool VcProject::fromMap(const QVariantMap &map)
 
 bool VcProject::setupTarget(ProjectExplorer::Target *t)
 {
-    for (int i = 0; i < m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurationContainer()->configurationCount(); ++i){
-        IConfiguration *config = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurationContainer()->configuration(i);
-        if (config)
-            addBuildConfiguration(t, config);
-    }
+    t->updateDefaultBuildConfigurations();
+    t->updateDefaultDeployConfigurations();
 
     return true;
 }
@@ -267,7 +263,7 @@ void VcProject::addCxxModelFiles(const FolderNode *node, QStringList &projectFil
  */
 void VcProject::updateCodeModels()
 {
-    Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::instance()->defaultKit();
+    Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::defaultKit();
     QTC_ASSERT(k, return);
     ToolChain *tc = ToolChainKitInformation::toolChain(k);
     QTC_ASSERT(tc, return);
@@ -296,11 +292,10 @@ void VcProject::updateCodeModels()
                         IToolAttribute *toolAttr = toolSection->attributeContainer()->toolAttribute(QLatin1String("PreprocessorDefinitions"));
 
                         if (toolAttr) {
-                            StringListToolAttribute *stringToolAttr = static_cast<StringListToolAttribute *>(toolAttr);
-                            stringToolAttr->descriptionDataItem();
-                            QStringList preprocDefs = stringToolAttr->value().split(stringToolAttr->descriptionDataItem()->optionalValue(QLatin1String("separator")));
+                            toolAttr->descriptionDataItem();
+                            QStringList preprocDefs = toolAttr->value().split(toolAttr->descriptionDataItem()->optionalValue(QLatin1String("separator")));
 
-                            pPart->defines += preprocDefs.join(QLatin1String("\n")).toLatin1();
+                            pPart->projectDefines += preprocDefs.join(QLatin1String("\n")).toLatin1();
                         }
                     }
                 }
@@ -311,7 +306,7 @@ void VcProject::updateCodeModels()
     // VS 2005-2008 has poor c++11 support, see http://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
     pPart->cxxVersion = CppTools::ProjectPart::CXX98;
     pPart->qtVersion = CppTools::ProjectPart::NoQt;
-    pPart->defines += tc->predefinedMacros(QStringList());
+    pPart->projectDefines += tc->predefinedMacros(QStringList());
 
     QStringList cxxFlags;
     foreach (const HeaderPath &path, tc->systemHeaderPaths(cxxFlags, Utils::FileName())) {
@@ -335,43 +330,14 @@ void VcProject::updateCodeModels()
 void VcProject::importBuildConfigurations()
 {
     VCProjKitMatcher matcher;
-    Kit *kit = KitManager::instance()->find(&matcher);
+    Kit *kit = KitManager::find(matcher);
     if (!kit)
-        kit = KitManager::instance()->defaultKit();
+        kit = KitManager::defaultKit();
 
     removeTarget(target(kit));
     addTarget(createTarget(kit));
     if (!activeTarget() && kit)
         addTarget(createTarget(kit));
-}
-
-void VcProject::addBuildConfiguration(Target *target, IConfiguration *config)
-{
-    if (target && config) {
-        VcProjectBuildConfigurationFactory *factory
-                = ExtensionSystem::PluginManager::instance()->getObject<VcProjectBuildConfigurationFactory>();
-        VcProjectBuildConfiguration *bc = factory->create(target, Constants::VC_PROJECT_BC_ID, config->fullName());
-        if (!bc)
-            return;
-
-        bc->setConfiguration(config);
-        ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-        VcMakeStep *makeStep = new VcMakeStep(buildSteps);
-        QString argument(QLatin1String("/p:configuration=\"") + config->fullName() + QLatin1String("\""));
-        makeStep->addBuildArgument(m_projectFile->filePath());
-        makeStep->addBuildArgument(argument);
-        buildSteps->insertStep(0, makeStep);
-
-        //clean step
-        ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-        makeStep = new VcMakeStep(cleanSteps);
-        argument = QLatin1String("/p:configuration=\"") + config->fullName() + QLatin1String("\" /t:Clean");
-        makeStep->addBuildArgument(m_projectFile->filePath());
-        makeStep->addBuildArgument(argument);
-        cleanSteps->insertStep(0, makeStep);
-
-        target->addBuildConfiguration(bc);
-    }
 }
 
 VcProjectBuildConfiguration *VcProject::findBuildConfiguration(Target *target, const QString &buildConfigurationName) const

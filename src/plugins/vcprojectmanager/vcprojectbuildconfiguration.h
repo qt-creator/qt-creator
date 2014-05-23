@@ -45,15 +45,13 @@ class VcProjectBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
 public:
     explicit VcProjectBuildConfiguration(ProjectExplorer::Target *parent);
+    ~VcProjectBuildConfiguration();
 
     ProjectExplorer::NamedWidget *createConfigWidget();
     QString buildDirectory() const;
-    ProjectExplorer::IOutputParser *createOutputParser() const;
     BuildType buildType() const;
 
     void setConfiguration(IConfiguration *config);
-    QString configurationNameOnly() const;
-    QString platformNameOnly() const;
 
     QVariantMap toMap() const;
 
@@ -77,16 +75,21 @@ public:
     explicit VcProjectBuildConfigurationFactory(QObject *parent = 0);
 
     QList<Core::Id> availableCreationIds(const ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const Core::Id id) const;
-    bool canCreate(const ProjectExplorer::Target *parent, const Core::Id id) const;
-    VcProjectBuildConfiguration* create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name);
+    QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const;
+    QList<ProjectExplorer::BuildInfo *> availableSetups(const ProjectExplorer::Kit *k, const QString &projectPath) const;
     bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    VcProjectBuildConfiguration* restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     bool canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
+    int priority(const ProjectExplorer::Target *parent) const;
+    int priority(const ProjectExplorer::Kit *k, const QString &projectPath) const;
+    VcProjectBuildConfiguration* create(ProjectExplorer::Target *parent,
+                                        const ProjectExplorer::BuildInfo *info) const;
+    VcProjectBuildConfiguration* restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     VcProjectBuildConfiguration* clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
 
 private:
     bool canHandle(const ProjectExplorer::Target *t) const;
+    ProjectExplorer::BuildInfo *createBuildInfo(const ProjectExplorer::Kit *k,
+                                                const Utils::FileName &buildDir) const;
 };
 
 } // namespace Internal

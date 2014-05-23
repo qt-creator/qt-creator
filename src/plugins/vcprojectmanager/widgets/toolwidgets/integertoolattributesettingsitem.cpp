@@ -39,33 +39,49 @@ namespace VcProjectManager {
 namespace Internal {
 
 IntegerToolAttributeSettingsItem::IntegerToolAttributeSettingsItem(IntegerToolAttribute *toolAttribute)
-    : m_toolAttribute(toolAttribute)
+    : m_comboBox(0),
+      m_spinBox(0),
+      m_toolAttribute(toolAttribute)
 {
-    m_comboBox = new QComboBox;
 
     ToolAttributeOption *option = toolAttribute->descriptionDataItem()->firstOption();
 
-    while (option) {
-        m_comboBox->addItem(option->description(), option->value());
-        if (option->value() == toolAttribute->value())
-            m_comboBox->setCurrentIndex(m_comboBox->count() - 1);
-        option = option->nextOption();
-    }
-
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
-    layout->addWidget(m_comboBox);
+
+    if (option) {
+        m_comboBox = new QComboBox;
+        while (option) {
+            m_comboBox->addItem(option->description(), option->value());
+            if (option->value() == toolAttribute->value())
+                m_comboBox->setCurrentIndex(m_comboBox->count() - 1);
+            option = option->nextOption();
+        }
+        layout->addWidget(m_comboBox);
+    }
+    else {
+        m_spinBox = new QSpinBox;
+        m_spinBox->setValue(toolAttribute->value().toInt());
+        layout->addWidget(m_spinBox);
+    }
+
     setLayout(layout);
 }
 
 IntegerToolAttributeSettingsItem::~IntegerToolAttributeSettingsItem()
 {
-    m_comboBox->deleteLater();
+    if (m_comboBox)
+        m_comboBox->deleteLater();
+    else
+        m_spinBox->deleteLater();
 }
 
 void IntegerToolAttributeSettingsItem::saveData()
 {
-    m_toolAttribute->setValue(m_comboBox->itemData(m_comboBox->currentIndex()).toString().trimmed());
+    if (m_comboBox)
+        m_toolAttribute->setValue(m_comboBox->itemData(m_comboBox->currentIndex()).toString().trimmed());
+    else if (m_spinBox)
+        m_toolAttribute->setValue(QVariant(m_spinBox->value()).toString());
 }
 
 } // namespace Internal

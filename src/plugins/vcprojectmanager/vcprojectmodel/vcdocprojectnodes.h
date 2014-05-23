@@ -112,21 +112,14 @@ public:
     ~VcDocProjectNode();
 
     bool hasBuildTargets() const;
-    QList<ProjectAction> supportedActions(Node *node) const;
+    QList<ProjectExplorer::ProjectAction> supportedActions(Node *node) const;
     bool canAddSubProject(const QString &proFilePath) const;
     bool addSubProjects(const QStringList &proFilePaths);
     bool removeSubProjects(const QStringList &proFilePaths);
-    bool addFiles(const ProjectExplorer::FileType fileType,
-                  const QStringList &filePaths,
-                  QStringList *notAdded);
-    bool removeFiles(const ProjectExplorer::FileType fileType,
-                     const QStringList &filePaths,
-                     QStringList *notRemoved);
-    bool deleteFiles(const ProjectExplorer::FileType fileType,
-                     const QStringList &filePaths);
-    bool renameFile(const ProjectExplorer::FileType fileType,
-                     const QString &filePath,
-                     const QString &newFilePath);
+    bool addFiles(const QStringList &filePaths, QStringList *notAdded);
+    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved);
+    bool deleteFiles(const QStringList &filePaths);
+    bool renameFile(const QString &filePath, const QString &newFilePath);
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
     QString projectDirectory() const;

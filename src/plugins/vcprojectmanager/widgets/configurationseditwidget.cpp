@@ -70,7 +70,7 @@ ConfigurationsEditWidget::ConfigurationsEditWidget(VcProjectManager::Internal::I
         }
     }
 
-    readFileBuildConfigurations(configContainer);
+    readFileBuildConfigurations();
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
@@ -102,7 +102,7 @@ void ConfigurationsEditWidget::saveData()
         IFile *file = it.key();
         ConfigurationContainer *newConfigCont = it.value();
 
-        if (containsNonDefaultConfiguration(newConfigCont)) {
+        if (file && newConfigCont) {
             ConfigurationContainer *oldConfigContainer = file->configurationContainer();
             *oldConfigContainer = *newConfigCont;
         }
@@ -111,6 +111,8 @@ void ConfigurationsEditWidget::saveData()
 
 void ConfigurationsEditWidget::onAddNewConfig(QString newConfigName, QString copyFrom)
 {
+    QTC_ASSERT(m_vsProject->platforms(), return);
+
     IPlatforms *platforms = m_vsProject->platforms();
     QString copyFromConfigName = copyFrom.split(QLatin1Char('|')).at(0);
 
@@ -119,7 +121,11 @@ void ConfigurationsEditWidget::onAddNewConfig(QString newConfigName, QString cop
 
         if (platform) {
             QString newFullConfigName = newConfigName + QLatin1Char('|') + platform->displayName();
-            QString copyFromFullConfigName = copyFromConfigName + QLatin1Char('|') + platform->displayName();
+            QString copyFromFullConfigName;
+
+            if (!copyFromConfigName.isEmpty())
+                copyFromFullConfigName = copyFromConfigName + QLatin1Char('|') + platform->displayName();
+
             addConfigToProjectBuild(newFullConfigName, copyFromFullConfigName);
             addConfigToFiles(newFullConfigName, copyFromFullConfigName);
         }
@@ -128,12 +134,14 @@ void ConfigurationsEditWidget::onAddNewConfig(QString newConfigName, QString cop
 
 void ConfigurationsEditWidget::onNewConfigAdded(IConfiguration *config)
 {
-    if (config)
-        m_configsWidget->addConfiguration(config->fullName(), config->createSettingsWidget());
+    QTC_ASSERT(config, return);
+    m_configsWidget->addConfiguration(config->fullName(), config->createSettingsWidget());
 }
 
 void ConfigurationsEditWidget::onRenameConfig(QString newConfigName, QString oldConfigNameWithPlatform)
 {
+    QTC_ASSERT(m_vsProject->platforms(), return);
+
     IPlatforms *platforms = m_vsProject->platforms();
     QString copyFromConfigName = oldConfigNameWithPlatform.split(QLatin1Char('|')).at(0);
 
@@ -162,6 +170,8 @@ void ConfigurationsEditWidget::onRenameConfig(QString newConfigName, QString old
 
 void ConfigurationsEditWidget::onRemoveConfig(QString configNameWithPlatform)
 {
+    QTC_ASSERT(m_vsProject->platforms(), return);
+
     IPlatforms *platforms = m_vsProject->platforms();
     QString copyFromConfigName = configNameWithPlatform.split(QLatin1Char('|')).at(0);
 
@@ -184,57 +194,50 @@ void ConfigurationsEditWidget::onRemoveConfig(QString configNameWithPlatform)
 
 void ConfigurationsEditWidget::addConfigWidget(IConfiguration *config)
 {
-    if (config)
-        m_configsWidget->addConfiguration(config->fullName(), config->createSettingsWidget());
+    QTC_ASSERT(config, return);
+    m_configsWidget->addConfiguration(config->fullName(), config->createSettingsWidget());
 }
 
-void ConfigurationsEditWidget::readFileBuildConfigurations(ConfigurationContainer *configContainer)
+void ConfigurationsEditWidget::readFileBuildConfigurations()
 {
-    if (!configContainer)
-        return;
+    QTC_ASSERT(m_vsProject, return);
+    QTC_ASSERT(m_vsProject->files(), return);
 
     IFiles *files = m_vsProject->files();
 
     for (int i = 0; i < files->fileContainerCount(); ++i) {
         IFileContainer *fileContainer = files->fileContainer(i);
-        readFileBuildConfigurations(fileContainer, configContainer);
+        readFileBuildConfigurations(fileContainer);
     }
 
     for (int i = 0; i < files->fileCount(); ++i) {
         IFile *file = files->file(i);
-        readFileBuildConfigurations(file, configContainer);
+        readFileBuildConfigurations(file);
     }
 }
 
-void ConfigurationsEditWidget::readFileBuildConfigurations(IFileContainer *container, ConfigurationContainer *configContainer)
+void ConfigurationsEditWidget::readFileBuildConfigurations(IFileContainer *container)
 {
-    if (!container || !configContainer)
-        return;
+    QTC_ASSERT(container, return);
 
     for (int i = 0; i < container->childCount(); ++i) {
         IFileContainer *fileContainer = container->fileContainer(i);
-        readFileBuildConfigurations(fileContainer, configContainer);
+        readFileBuildConfigurations(fileContainer);
     }
 
     for (int i = 0; i < container->fileCount(); ++i) {
         IFile *file = container->file(i);
-        readFileBuildConfigurations(file, configContainer);
+        readFileBuildConfigurations(file);
     }
 }
 
-void ConfigurationsEditWidget::readFileBuildConfigurations(IFile *file, ConfigurationContainer *configContainer)
+void ConfigurationsEditWidget::readFileBuildConfigurations(IFile *file)
 {
-    if (!file)
-        return;
+    QTC_ASSERT(file, return);
+    QTC_ASSERT(file->configurationContainer(), return);
 
-    ConfigurationContainer *configCont = cloneFileConfigContainer(file);
-
-    if (configCont && file->configurationContainer() == configContainer) {
-        connect(configCont, SIGNAL(configurationAdded(IConfiguration*)), this, SLOT(addConfigWidget(IConfiguration*)));
-
-        for (int i = 0; i < configCont->configurationCount(); ++i)
-            addConfigWidget(configCont->configuration(i));
-    }
+    ConfigurationContainer *configCont = new ConfigurationContainer(*file->configurationContainer());
+    m_fileConfigurations[file] = configCont;
 }
 
 void ConfigurationsEditWidget::addConfigToProjectBuild(const QString &newConfigName, const QString &copyFrom)
@@ -262,11 +265,7 @@ void ConfigurationsEditWidget::addConfigToFiles(const QString &newConfigName, co
         it.next();
         ConfigurationContainer *container = it.value();
 
-        if (copyFrom.isEmpty()) {
-            IFile *file = it.key();
-            IConfiguration *newConfig = file->createDefaultBuildConfiguration(newConfigName);
-            container->addConfiguration(newConfig);
-        } else {
+        if (container) {
             IConfiguration *config = container->configuration(copyFrom);
 
             if (config) {
@@ -278,93 +277,6 @@ void ConfigurationsEditWidget::addConfigToFiles(const QString &newConfigName, co
             }
         }
     }
-}
-
-void ConfigurationsEditWidget::addConfigsAsInProjectBuildConfig(IFile *file, ConfigurationContainer *container)
-{
-    for (int i = 0; i < m_buildConfigurations->configurationCount(); ++i) {
-        IConfiguration *config = m_buildConfigurations->configuration(i);
-
-        if (config) {
-            IConfiguration *newConfig = file->createDefaultBuildConfiguration(config->fullName());
-            container->addConfiguration(newConfig);
-        }
-    }
-}
-
-void ConfigurationsEditWidget::addDefaultToolToConfig(IConfiguration *config, const QString &toolKey)
-{
-    if (!config)
-        return;
-
-    ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
-    IToolDescription *toolDesc = tDDM->toolDescription(toolKey);
-
-    if (toolDesc) {
-        IConfigurationBuildTool *tool = toolDesc->createTool();
-        if (tool)
-            config->tools()->configurationBuildTools()->addTool(tool);
-    }
-}
-
-bool ConfigurationsEditWidget::hasNonDefaultConfigurationTool(IConfiguration *config)
-{
-    if (!config)
-        return false;
-
-    if (config && config->tools() && config->tools()->configurationBuildTools()) {
-        for (int i = 0; i < config->tools()->configurationBuildTools()->toolCount(); ++i) {
-            IConfigurationBuildTool *tool = config->tools()->configurationBuildTools()->tool(i);
-            if (tool && !tool->allAttributesAreDefault())
-                return true;
-        }
-    }
-
-    return false;
-}
-
-bool ConfigurationsEditWidget::containsNonDefaultConfiguration(ConfigurationContainer *configCont)
-{
-    if (!configCont)
-        return false;
-
-    for (int i = 0; i < configCont->configurationCount(); ++i) {
-        IConfiguration *config = configCont->configuration(i);
-        if (hasNonDefaultConfigurationTool(config))
-            return true;
-    }
-
-    return false;
-}
-
-ConfigurationContainer *ConfigurationsEditWidget::cloneFileConfigContainer(IFile *file)
-{
-    ConfigurationContainer *configCont = new ConfigurationContainer(*(file->configurationContainer()));
-    m_fileConfigurations[file] = configCont;
-
-    if (configCont->configurationCount() > 0) {
-        for (int j = 0; j < configCont->configurationCount(); ++j) {
-            IConfiguration *config = configCont->configuration(j);
-
-            // add C/C++ compiler tool as a default tool to any configuration that doesn't contain any tool
-            if (config && config->tools() && config->tools()->configurationBuildTools() &&
-                    config->tools()->configurationBuildTools()->toolCount() == 0)
-                addDefaultToolToConfig(config, QLatin1String(ToolConstants::strVCCLCompilerTool));
-        }
-    } else {
-        // if file does not contain any build configurations,
-        // add build configurations that reflect those in the project build configurations
-        addConfigsAsInProjectBuildConfig(file, configCont);
-
-        // add C/C++ compiler tool as a default tool to all configurations
-        for (int j = 0; j < configCont->configurationCount(); ++j) {
-            IConfiguration *config = configCont->configuration(j);
-            if (config)
-                addDefaultToolToConfig(config, QLatin1String(ToolConstants::strVCCLCompilerTool));
-        }
-    }
-
-    return configCont;
 }
 
 

@@ -404,13 +404,15 @@ VcProjectBuildOptionsPage::~VcProjectBuildOptionsPage()
 {
 }
 
-QWidget *VcProjectBuildOptionsPage::createPage(QWidget *parent)
+QWidget *VcProjectBuildOptionsPage::widget()
 {
-    m_optionsWidget = new VcProjectBuildOptionsWidget(parent);
+    if (!m_optionsWidget) {
+        m_optionsWidget = new VcProjectBuildOptionsWidget;
 
-    connect(m_optionsWidget, SIGNAL(addNewButtonClicked()), this, SLOT(addNewMsBuild()));
-    connect(m_optionsWidget, SIGNAL(editButtonClicked()), this, SLOT(editMsBuild()));
-    connect(m_optionsWidget, SIGNAL(deleteButtonClicked()), this, SLOT(deleteMsBuild()));
+        connect(m_optionsWidget, SIGNAL(addNewButtonClicked()), this, SLOT(addNewMsBuild()));
+        connect(m_optionsWidget, SIGNAL(editButtonClicked()), this, SLOT(editMsBuild()));
+        connect(m_optionsWidget, SIGNAL(deleteButtonClicked()), this, SLOT(deleteMsBuild()));
+    }
     return m_optionsWidget;
 }
 
@@ -424,6 +426,8 @@ void VcProjectBuildOptionsPage::apply()
 
 void VcProjectBuildOptionsPage::finish()
 {
+    delete m_optionsWidget;
+    m_optionsWidget = 0;
 }
 
 void VcProjectBuildOptionsPage::saveSettings()

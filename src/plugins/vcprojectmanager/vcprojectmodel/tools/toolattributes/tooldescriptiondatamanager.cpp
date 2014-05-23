@@ -323,19 +323,19 @@ void ToolDescriptionDataManager::processToolAttributeDescriptions(ToolSectionDes
             QDomNode domNode = namedNodeMap.item(i);
 
             if (domNode.nodeType() == QDomNode::AttributeNode) {
-                QDomAttr domElement = domNode.toAttr();
+                QDomAttr domAttr = domNode.toAttr();
 
-                if (domElement.name() == QLatin1String("Name"))
-                    displayName = domElement.value();
+                if (domAttr.name() == QLatin1String("Name"))
+                    displayName = domAttr.value();
 
-                else if (domElement.name() == QLatin1String("Key"))
-                    key = domElement.value();
+                else if (domAttr.name() == QLatin1String("Key"))
+                    key = domAttr.value();
 
-                else if (domElement.name() == QLatin1String("DefaultValue"))
-                    defaultValue = domElement.value();
+                else if (domAttr.name() == QLatin1String("DefaultValue"))
+                    defaultValue = domAttr.value();
 
-                else if (domElement.name() == QLatin1String("Description"))
-                    description = domElement.value();
+                else if (domAttr.name() == QLatin1String("Description"))
+                    description = domAttr.value();
             }
         }
 

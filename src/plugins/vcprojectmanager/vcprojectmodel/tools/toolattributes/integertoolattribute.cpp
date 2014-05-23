@@ -35,8 +35,8 @@ namespace VcProjectManager {
 namespace Internal {
 
 IntegerToolAttribute::IntegerToolAttribute(const AttributeDescriptionDataItem *descDataItem)
-    : m_isUsed(false),
-      m_descDataItem(descDataItem)
+    : m_descDataItem(descDataItem),
+      m_isUsed(false)
 {
 }
 

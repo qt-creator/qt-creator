@@ -49,8 +49,8 @@ using namespace ToolConstants;
 
 Configuration::Configuration(const QString &nodeName)
     : m_nodeName(nodeName),
-      m_tools(new Tools),
-      m_attributeContainer(new GeneralAttributeContainer)
+      m_attributeContainer(new GeneralAttributeContainer),
+      m_tools(new Tools)
 {
 }
 

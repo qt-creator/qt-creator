@@ -54,8 +54,7 @@
 
 #include <QtPlugin>
 
-namespace VcProjectManager {
-namespace Internal {
+using namespace VcProjectManager::Internal;
 
 VcProjectManagerPlugin::VcProjectManagerPlugin()
 {
@@ -79,7 +78,8 @@ bool VcProjectManagerPlugin::initialize(const QStringList &arguments, QString *e
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":vcproject/VcProject.mimetypes.xml"), errorString))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":vcproject/VcProject.mimetypes.xml"),
+                                          errorString))
         return false;
 
     VcProjectBuildOptionsPage *confPage = new VcProjectBuildOptionsPage;
@@ -92,7 +92,7 @@ bool VcProjectManagerPlugin::initialize(const QStringList &arguments, QString *e
     addAutoReleasedObject(new MenuHandler);
     addAutoReleasedObject(new ToolDescriptionDataManager);
 
-    ProjectExplorer::KitManager::instance()->registerKitInformation(new VcProjectKitInformation);
+    ProjectExplorer::KitManager::registerKitInformation(new VcProjectKitInformation);
 
     return true;
 }
@@ -112,7 +112,4 @@ ExtensionSystem::IPlugin::ShutdownFlag VcProjectManagerPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-} // namespace Internal
-} // namespace VcProjectManager
-
-Q_EXPORT_PLUGIN(VcProjectManager)
+Q_EXPORT_PLUGIN(VcProjectManagerPlugin)
