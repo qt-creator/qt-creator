@@ -43,14 +43,14 @@ class FileResourcesModel : public QObject
 
     Q_PROPERTY(QString fileName READ fileName WRITE setFileNameStr NOTIFY fileNameChanged)
     Q_PROPERTY(QString filter READ filter WRITE setFilter)
-    Q_PROPERTY(QVariant anchorBackendProperty READ anchorBackend WRITE setAnchorBackend NOTIFY anchorBackendChanged)
+    Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
     Q_PROPERTY(QUrl path READ path WRITE setPath)
-    Q_PROPERTY(QStringList fileModel READ fileModel NOTIFY anchorBackendChanged)
+    Q_PROPERTY(QStringList fileModel READ fileModel NOTIFY modelNodeBackendChanged)
 
 public:
     explicit FileResourcesModel(QObject *parent = 0);
 
-    void setAnchorBackend(const QVariant &anchorBackend);
+    void setModelNodeBackend(const QVariant &modelNodeBackend);
     QString fileName() const;
     void setFileName(const QUrl &fileName);
     void setFileNameStr(const QString &fileName);
@@ -67,12 +67,12 @@ public:
 
 signals:
     void fileNameChanged(const QUrl &fileName);
-    void anchorBackendChanged();
+    void modelNodeBackendChanged();
 
 public slots:
 
 private:
-    QVariant anchorBackend() const {return QVariant(); }
+    QVariant modelNodeBackend() const;
 
 private:
     QUrl m_fileName;

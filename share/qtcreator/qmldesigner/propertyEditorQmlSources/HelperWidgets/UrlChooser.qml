@@ -54,7 +54,7 @@ RowLayout {
 
 
     FileResourcesModel {
-        anchorBackendProperty: anchorBackend
+        modelNodeBackendProperty: modelNodeBackend
         filter: urlChooser.filter
         id: fileModel
     }

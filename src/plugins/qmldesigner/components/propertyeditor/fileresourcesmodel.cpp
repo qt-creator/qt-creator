@@ -35,7 +35,7 @@
 
 #include <QFileDialog>
 #include <QDirIterator>
-#include <qmlanchorbindingproxy.h>
+#include <qmlmodelnodeproxy.h>
 
 static QString s_lastBrowserPath;
 
@@ -44,19 +44,19 @@ FileResourcesModel::FileResourcesModel(QObject *parent) :
 {
 }
 
-void FileResourcesModel::setAnchorBackend(const QVariant &anchorBackend)
+void FileResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 {
 
-    QObject* anchorBackendObject = anchorBackend.value<QObject*>();
+    QObject* modelNodeBackendObject = modelNodeBackend.value<QObject*>();
 
-    const QmlDesigner::Internal::QmlAnchorBindingProxy *backendCasted =
-            qobject_cast<const QmlDesigner::Internal::QmlAnchorBindingProxy *>(anchorBackendObject);
+    const QmlDesigner::QmlModelNodeProxy *backendObjectCasted =
+            qobject_cast<const QmlDesigner::QmlModelNodeProxy *>(modelNodeBackendObject);
 
-    if (backendCasted)
-        m_path = backendCasted->getItemNode().modelNode().model()->fileUrl();
+    if (backendObjectCasted)
+        m_path = backendObjectCasted->qmlItemNode().modelNode().model()->fileUrl();
 
     setupModel();
-    emit anchorBackendChanged();
+    emit modelNodeBackendChanged();
 }
 
 QString FileResourcesModel::fileName() const
@@ -148,6 +148,11 @@ void FileResourcesModel::openFileDialog()
 void FileResourcesModel::registerDeclarativeType()
 {
     qmlRegisterType<FileResourcesModel>("HelperWidgets",2,0,"FileResourcesModel");
+}
+
+QVariant FileResourcesModel::modelNodeBackend() const
+{
+    return QVariant();
 }
 
 void FileResourcesModel::setupModel()

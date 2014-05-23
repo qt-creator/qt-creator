@@ -49,6 +49,8 @@ public:
 
     void emitSelectionToBeChanged();
 
+    QmlItemNode qmlItemNode() const;
+
 signals:
     void selectionChanged();
     void selectionToBeChanged();
