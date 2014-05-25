@@ -34,11 +34,7 @@ isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=/Users/example/qtcreator-build
 # USE_USER_DESTDIR = yes
 #! [4]
 
-#![5]
-PROVIDER = MyCompany
-#![5]
-
-#! [6]
+#! [5]
 ###### If the plugin can be depended upon by other plugins, this code needs to be outsourced to
 ###### <dirname>_dependencies.pri, where <dirname> is the name of the directory containing the
 ###### plugin's sources.
@@ -54,10 +50,10 @@ QTC_PLUGIN_RECOMMENDS += \
     # optional plugin dependencies. nothing here at this time
 
 ###### End _dependencies.pri contents ######
-#! [6]
+#! [5]
 
-#![7]
+#![6]
 include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
 
-#![7]
+#![6]
 

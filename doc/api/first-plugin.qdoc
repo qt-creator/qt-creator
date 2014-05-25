@@ -204,12 +204,6 @@
 
     \snippet exampleplugin/example.pro 5
 
-    The \c{PROVIDER} variable is for example used to deploy your plugin to a provider specific
-    plugin subdirectory, and the value is taken from the information that
-    you gave in the plugin project wizard.
-
-    \snippet exampleplugin/example.pro 6
-
     This section defines the name and dependencies of your plugin.
     The \c{QTC_PLUGIN_NAME} variable defines the name of your plugin, and the name of the
     dynamic library that is created for it. The \c{QTC_LIB_DEPENDS} variable is a list of
@@ -220,7 +214,7 @@
     variable defines the \QC plugins that your plugin optionally depends on. For more information,
     see \l{Optional Dependencies}.
 
-    \snippet exampleplugin/example.pro 7
+    \snippet exampleplugin/example.pro 6
 
     The included file \c{qtcreatorplugin.pri} makes sure that you build a plugin that is suitable
     for use in \QC, by using the information you gave above.
