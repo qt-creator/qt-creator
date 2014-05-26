@@ -426,7 +426,7 @@ DumpParameters::checkRecode(const std::string &type,
     switch (type.at(type.size() - 1)) {
     case '*':
         reformatType = ReformatPointer;
-        if (value.compare(0, 2, L"0x"))
+        if (value.compare(0, 2, L"0x") != 0)
             return result;
         break;
     case ']':
