@@ -43,17 +43,18 @@
 
 using namespace Qnx;
 using namespace Qnx::Internal;
+using namespace ProjectExplorer;
 
-BlackBerryRunConfiguration::BlackBerryRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id, const QString &path)
-    : ProjectExplorer::RunConfiguration(parent, id)
+BlackBerryRunConfiguration::BlackBerryRunConfiguration(Target *parent, const Core::Id id, const QString &path)
+    : RunConfiguration(parent, id)
     , m_proFilePath(path)
 {
     init();
 }
 
-BlackBerryRunConfiguration::BlackBerryRunConfiguration(ProjectExplorer::Target *parent,
-                                         BlackBerryRunConfiguration *source)
-    : ProjectExplorer::RunConfiguration(parent, source)
+BlackBerryRunConfiguration::BlackBerryRunConfiguration(Target *parent,
+                                                       BlackBerryRunConfiguration *source)
+    : RunConfiguration(parent, source)
     , m_proFilePath(source->m_proFilePath)
 {
     init();
@@ -117,7 +118,7 @@ QString BlackBerryRunConfiguration::localExecutableFilePath() const
 
 bool BlackBerryRunConfiguration::fromMap(const QVariantMap &map)
 {
-    if (!ProjectExplorer::RunConfiguration::fromMap(map))
+    if (!RunConfiguration::fromMap(map))
         return false;
 
     m_proFilePath = map.value(QLatin1String(Constants::QNX_PROFILEPATH_KEY)).toString();
@@ -130,7 +131,7 @@ bool BlackBerryRunConfiguration::fromMap(const QVariantMap &map)
 
 QVariantMap BlackBerryRunConfiguration::toMap() const
 {
-    QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
+    QVariantMap map(RunConfiguration::toMap());
     map.insert(QLatin1String(Constants::QNX_PROFILEPATH_KEY), m_proFilePath);
     return map;
 }

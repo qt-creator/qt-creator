@@ -59,6 +59,8 @@
 #include <QComboBox>
 #include <QDir>
 
+using namespace ProjectExplorer;
+
 namespace {
 
 const char QBS_RC_PREFIX[] = "Qbs.RunConfiguration:";
@@ -89,19 +91,19 @@ namespace Internal {
 // QbsRunConfiguration:
 // --------------------------------------------------------------------
 
-QbsRunConfiguration::QbsRunConfiguration(ProjectExplorer::Target *parent, Core::Id id) :
+QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
     LocalApplicationRunConfiguration(parent, id),
     m_qbsProduct(productFromId(id)),
     m_runMode(Gui),
     m_currentInstallStep(0),
     m_currentBuildStepList(0)
 {
-    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
+    addExtraAspect(new LocalEnvironmentAspect(this));
 
     ctor();
 }
 
-QbsRunConfiguration::QbsRunConfiguration(ProjectExplorer::Target *parent, QbsRunConfiguration *source) :
+QbsRunConfiguration::QbsRunConfiguration(Target *parent, QbsRunConfiguration *source) :
     LocalApplicationRunConfiguration(parent, source),
     m_qbsProduct(source->m_qbsProduct),
     m_commandLineArguments(source->m_commandLineArguments),
@@ -207,7 +209,7 @@ QString QbsRunConfiguration::executable() const
     return pro->qbsProject().targetExecutable(product, installOptions());
 }
 
-ProjectExplorer::LocalApplicationRunConfiguration::RunMode QbsRunConfiguration::runMode() const
+LocalApplicationRunConfiguration::RunMode QbsRunConfiguration::runMode() const
 {
     return m_runMode;
 }
@@ -226,8 +228,7 @@ bool QbsRunConfiguration::isConsoleApplication() const
 
 QString QbsRunConfiguration::workingDirectory() const
 {
-    ProjectExplorer::EnvironmentAspect *aspect
-            = extraAspect<ProjectExplorer::EnvironmentAspect>();
+    EnvironmentAspect *aspect = extraAspect<EnvironmentAspect>();
     QTC_ASSERT(aspect, baseWorkingDirectory());
     return QDir::cleanPath(aspect->environment().expandVariables(
                 Utils::expandMacros(baseWorkingDirectory(), macroExpander())));
@@ -338,7 +339,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
     QHBoxLayout *hl = new QHBoxLayout();
     hl->addStretch();
     m_disabledIcon = new QLabel(this);
-    m_disabledIcon->setPixmap(QPixmap(QLatin1String(ProjectExplorer::Constants::ICON_WARNING)));
+    m_disabledIcon->setPixmap(QPixmap(QLatin1String(Constants::ICON_WARNING)));
     hl->addWidget(m_disabledIcon);
     m_disabledReason = new QLabel(this);
     m_disabledReason->setVisible(false);
@@ -368,8 +369,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
     m_workingDirectoryEdit = new Utils::PathChooser(this);
     m_workingDirectoryEdit->setHistoryCompleter(QLatin1String("Qbs.WorkingDir.History"));
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
-    ProjectExplorer::EnvironmentAspect *aspect
-            = m_rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    EnvironmentAspect *aspect = m_rc->extraAspect<EnvironmentAspect>();
     if (aspect) {
         connect(aspect, SIGNAL(environmentChanged()), this, SLOT(environmentWasChanged()));
         environmentWasChanged();
@@ -422,8 +422,7 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
 
 void QbsRunConfigurationWidget::environmentWasChanged()
 {
-    ProjectExplorer::EnvironmentAspect *aspect
-            = m_rc->extraAspect<ProjectExplorer::EnvironmentAspect>();
+    EnvironmentAspect *aspect = m_rc->extraAspect<EnvironmentAspect>();
     QTC_ASSERT(aspect, return);
     m_workingDirectoryEdit->setEnvironment(aspect->environment());
 }
@@ -435,7 +434,7 @@ void QbsRunConfigurationWidget::runConfigurationEnabledChange()
     m_disabledReason->setVisible(!enabled);
     m_disabledReason->setText(m_rc->disabledReason());
 
-    m_useTerminalCheck->setChecked(m_rc->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
+    m_useTerminalCheck->setChecked(m_rc->runMode() == LocalApplicationRunConfiguration::Console);
     targetInformationHasChanged();
 }
 
@@ -465,8 +464,8 @@ void QbsRunConfigurationWidget::argumentsEdited(const QString &args)
 void QbsRunConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
-    m_rc->setRunMode(on ? ProjectExplorer::LocalApplicationRunConfiguration::Console
-                        : ProjectExplorer::LocalApplicationRunConfiguration::Gui);
+    m_rc->setRunMode(on ? LocalApplicationRunConfiguration::Console
+                        : LocalApplicationRunConfiguration::Gui);
     m_ignoreChange = false;
 }
 
@@ -493,10 +492,10 @@ void QbsRunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
     m_argumentsLineEdit->setText(args);
 }
 
-void QbsRunConfigurationWidget::runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode)
+void QbsRunConfigurationWidget::runModeChanged(LocalApplicationRunConfiguration::RunMode runMode)
 {
     if (!m_ignoreChange)
-        m_useTerminalCheck->setChecked(runMode == ProjectExplorer::LocalApplicationRunConfiguration::Console);
+        m_useTerminalCheck->setChecked(runMode == LocalApplicationRunConfiguration::Console);
 }
 
 // --------------------------------------------------------------------
@@ -504,7 +503,7 @@ void QbsRunConfigurationWidget::runModeChanged(ProjectExplorer::LocalApplication
 // --------------------------------------------------------------------
 
 QbsRunConfigurationFactory::QbsRunConfigurationFactory(QObject *parent) :
-    ProjectExplorer::IRunConfigurationFactory(parent)
+    IRunConfigurationFactory(parent)
 {
     setObjectName(QLatin1String("QbsRunConfigurationFactory"));
 }
@@ -512,7 +511,7 @@ QbsRunConfigurationFactory::QbsRunConfigurationFactory(QObject *parent) :
 QbsRunConfigurationFactory::~QbsRunConfigurationFactory()
 { }
 
-bool QbsRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
+bool QbsRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -521,30 +520,29 @@ bool QbsRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, cons
     return findProduct(project->qbsProjectData(), productFromId(id)).isValid();
 }
 
-ProjectExplorer::RunConfiguration *QbsRunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id)
+RunConfiguration *QbsRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)
 {
     return new QbsRunConfiguration(parent, id);
 }
 
-bool QbsRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
+bool QbsRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     if (!canHandle(parent))
         return false;
-    return ProjectExplorer::idFromMap(map).toString().startsWith(QLatin1String(QBS_RC_PREFIX));
+    return idFromMap(map).toString().startsWith(QLatin1String(QBS_RC_PREFIX));
 }
 
-ProjectExplorer::RunConfiguration *QbsRunConfigurationFactory::doRestore(ProjectExplorer::Target *parent,
-                                                                         const QVariantMap &map)
+RunConfiguration *QbsRunConfigurationFactory::doRestore(Target *parent, const QVariantMap &map)
 {
-    return new QbsRunConfiguration(parent, ProjectExplorer::idFromMap(map));
+    return new QbsRunConfiguration(parent, idFromMap(map));
 }
 
-bool QbsRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const
+bool QbsRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
 }
 
-ProjectExplorer::RunConfiguration *QbsRunConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source)
+RunConfiguration *QbsRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
@@ -552,7 +550,7 @@ ProjectExplorer::RunConfiguration *QbsRunConfigurationFactory::clone(ProjectExpl
     return new QbsRunConfiguration(parent, old);
 }
 
-QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> result;
     if (!canHandle(parent))
@@ -575,14 +573,14 @@ QString QbsRunConfigurationFactory::displayNameForId(const Core::Id id) const
     return productFromId(id);
 }
 
-bool QbsRunConfigurationFactory::canHandle(ProjectExplorer::Target *t) const
+bool QbsRunConfigurationFactory::canHandle(Target *t) const
 {
     if (!t->project()->supportsKit(t->kit()))
         return false;
     if (!qobject_cast<QbsProject *>(t->project()))
         return false;
-    Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());
-    return devType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(t->kit());
+    return devType == Constants::DESKTOP_DEVICE_TYPE;
 }
 
 } // namespace Internal

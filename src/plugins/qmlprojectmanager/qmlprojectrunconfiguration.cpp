@@ -46,14 +46,15 @@
 #include <utils/winutils.h>
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace QmlProjectManager::Internal;
 
 namespace QmlProjectManager {
 
 const char M_CURRENT_FILE[] = "CurrentFile";
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Id id) :
-    ProjectExplorer::LocalApplicationRunConfiguration(parent, id),
+QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *parent, Id id) :
+    LocalApplicationRunConfiguration(parent, id),
     m_scriptFile(QLatin1String(M_CURRENT_FILE)),
     m_isEnabled(false)
 {
@@ -62,9 +63,9 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *
     ctor();
 }
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
+QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *parent,
                                                        QmlProjectRunConfiguration *source) :
-    ProjectExplorer::LocalApplicationRunConfiguration(parent, source),
+    LocalApplicationRunConfiguration(parent, source),
     m_currentFileFilename(source->m_currentFileFilename),
     m_mainScriptFilename(source->m_mainScriptFilename),
     m_scriptFile(source->m_scriptFile),
@@ -114,7 +115,7 @@ QString QmlProjectRunConfiguration::executable() const
     return version->qmlviewerCommand();
 }
 
-ProjectExplorer::LocalApplicationRunConfiguration::RunMode QmlProjectRunConfiguration::runMode() const
+LocalApplicationRunConfiguration::RunMode QmlProjectRunConfiguration::runMode() const
 {
     return Gui;
 }
@@ -218,16 +219,16 @@ void QmlProjectRunConfiguration::setScriptSource(MainScriptSource source,
     emit scriptSourceChanged();
 }
 
-ProjectExplorer::Abi QmlProjectRunConfiguration::abi() const
+Abi QmlProjectRunConfiguration::abi() const
 {
-    ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
-    return ProjectExplorer::Abi(hostAbi.architecture(), hostAbi.os(), hostAbi.osFlavor(),
-                                ProjectExplorer::Abi::RuntimeQmlFormat, hostAbi.wordWidth());
+    Abi hostAbi = Abi::hostAbi();
+    return Abi(hostAbi.architecture(), hostAbi.os(), hostAbi.osFlavor(),
+               Abi::RuntimeQmlFormat, hostAbi.wordWidth());
 }
 
 QVariantMap QmlProjectRunConfiguration::toMap() const
 {
-    QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
+    QVariantMap map(RunConfiguration::toMap());
 
     map.insert(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY), m_qmlViewerArgs);
     map.insert(QLatin1String(Constants::QML_MAINSCRIPT_KEY),  m_scriptFile);
@@ -273,7 +274,7 @@ void QmlProjectRunConfiguration::updateEnabled()
                 || MimeDatabase::findByFile(mainScript()).type() == QLatin1String("application/x-qmlproject")) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
-            foreach (const QString &filename, target()->project()->files(ProjectExplorer::Project::AllFiles)) {
+            foreach (const QString &filename, target()->project()->files(Project::AllFiles)) {
                 const QFileInfo fi(filename);
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()

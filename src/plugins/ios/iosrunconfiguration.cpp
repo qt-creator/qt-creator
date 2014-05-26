@@ -162,8 +162,7 @@ void IosRunConfiguration::updateDisplayNames()
         m_deviceType = IosDeviceType::IosDevice;
     else if (m_deviceType == IosDeviceType::IosDevice)
         m_deviceType = IosDeviceType::SimulatedIphoneRetina4Inch;
-    ProjectExplorer::IDevice::ConstPtr dev =
-            ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
     const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     setDefaultDisplayName(tr("Run on %1").arg(devName));
     setDisplayName(tr("Run %1 on %2").arg(applicationName()).arg(devName));
@@ -173,9 +172,9 @@ IosDeployStep *IosRunConfiguration::deployStep() const
 {
     IosDeployStep * step = 0;
     DeployConfiguration *config = target()->activeDeployConfiguration();
-    ProjectExplorer::BuildStepList *bsl = config->stepList();
+    BuildStepList *bsl = config->stepList();
     if (bsl) {
-        const QList<ProjectExplorer::BuildStep *> &buildSteps = bsl->steps();
+        const QList<BuildStep *> &buildSteps = bsl->steps();
         for (int i = buildSteps.count() - 1; i >= 0; --i) {
             step = qobject_cast<IosDeployStep *>(buildSteps.at(i));
             if (step)
@@ -210,7 +209,7 @@ QString IosRunConfiguration::applicationName() const
 Utils::FileName IosRunConfiguration::bundleDirectory() const
 {
     Utils::FileName res;
-    Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target()->kit());
     bool isDevice = (devType == Constants::IOS_DEVICE_TYPE);
     if (!isDevice && devType != Constants::IOS_SIMULATOR_TYPE) {
         qDebug() << "unexpected device type in bundleDirForTarget: " << devType.toString();
@@ -291,10 +290,10 @@ bool IosRunConfiguration::isEnabled() const
 {
     if (m_parseInProgress || !m_parseSuccess)
         return false;
-    Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target()->kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return false;
-    IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
     if (dev.isNull() || dev->deviceState() != IDevice::DeviceReadyToUse)
         return false;
     return RunConfiguration::isEnabled();
@@ -308,10 +307,10 @@ QString IosRunConfiguration::disabledReason() const
     if (!m_parseSuccess)
         return static_cast<QmakeProject *>(target()->project())
                 ->disabledReasonForRunConfiguration(m_profilePath);
-    Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
+    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(target()->kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return tr("Kit has incorrect device type for running on iOS devices.");
-    IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
     QString validDevName;
     bool hasConncetedDev = false;
     if (devType == Constants::IOS_DEVICE_TYPE) {
