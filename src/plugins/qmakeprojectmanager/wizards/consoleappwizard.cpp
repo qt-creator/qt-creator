@@ -84,12 +84,12 @@ Core::GeneratedFiles
 
     // Create files: Source
 
-    const QString sourceFileName = Core::BaseFileWizard::buildFileName(projectPath, QLatin1String(mainSourceFileC), sourceSuffix());
+    const QString sourceFileName = Core::BaseFileWizardFactory::buildFileName(projectPath, QLatin1String(mainSourceFileC), sourceSuffix());
     Core::GeneratedFile source(sourceFileName);
     source.setContents(CppTools::AbstractEditorSupport::licenseTemplate(sourceFileName) + QLatin1String(mainCppC));
     source.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     // Create files: Profile
-    const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.fileName, profileSuffix());
+    const QString profileName = Core::BaseFileWizardFactory::buildFileName(projectPath, params.fileName, profileSuffix());
 
     Core::GeneratedFile profile(profileName);
     profile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);

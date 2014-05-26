@@ -30,7 +30,7 @@
 #ifndef JAVAFILEWIZARD_H
 #define JAVAFILEWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace Android {
 namespace Internal {

@@ -32,7 +32,7 @@
 #include "formclasswizardparameters.h"
 #include <designer/formtemplatewizardpage.h>
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 #include <QDebug>
 
@@ -57,7 +57,7 @@ FormClassWizardDialog::FormClassWizardDialog(const WizardPageList &extensionPage
     wizardProgress()->item(ClassPageId)->setTitle(tr("Class Details"));
 
     foreach (QWizardPage *p, extensionPages)
-        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
+        Core::BaseFileWizardFactory::applyExtensionPageShortTitle(this, addPage(p));
 }
 
 QString FormClassWizardDialog::path() const

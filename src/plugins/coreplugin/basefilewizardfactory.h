@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef BASEFILEWIZARD_H
-#define BASEFILEWIZARD_H
+#ifndef BASEFILEWIZARDFACTORY_H
+#define BASEFILEWIZARDFACTORY_H
 
 #include "core_global.h"
 #include "generatedfile.h"
@@ -103,7 +103,7 @@ private:
     QVariantMap m_extraValues;
 };
 
-class CORE_EXPORT BaseFileWizard : public IWizardFactory
+class CORE_EXPORT BaseFileWizardFactory : public IWizardFactory
 {
     Q_OBJECT
 
@@ -138,7 +138,7 @@ protected:
     static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = 0);
 };
 
-class CORE_EXPORT StandardFileWizard : public BaseFileWizard
+class CORE_EXPORT StandardFileWizard : public BaseFileWizardFactory
 {
     Q_OBJECT
 
@@ -154,4 +154,4 @@ protected:
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::GeneratedFile::Attributes)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::WizardDialogParameters::DialogParameterFlags)
 
-#endif // BASEFILEWIZARD_H
+#endif // BASEFILEWIZARDFACTORY_H

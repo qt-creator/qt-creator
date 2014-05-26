@@ -43,7 +43,7 @@ Core::GeneratedFiles
                                           QString * /*errorMessage*/) const
 {
     const QString suffix = preferredSuffix(m_mimeType);
-    const QString fileName = Core::BaseFileWizard::buildFileName(path, name, suffix);
+    const QString fileName = Core::BaseFileWizardFactory::buildFileName(path, name, suffix);
     Core::GeneratedFile file(fileName);
     file.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     return Core::GeneratedFiles() << file;

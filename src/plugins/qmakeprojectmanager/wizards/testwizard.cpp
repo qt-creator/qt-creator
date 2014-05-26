@@ -159,7 +159,7 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
     const QString projectPath = projectParams.projectPath();
 
     // Create files: Source
-    const QString sourceFilePath = Core::BaseFileWizard::buildFileName(projectPath, testParams.fileName, sourceSuffix());
+    const QString sourceFilePath = Core::BaseFileWizardFactory::buildFileName(projectPath, testParams.fileName, sourceSuffix());
     const QFileInfo sourceFileInfo(sourceFilePath);
 
     Core::GeneratedFile source(sourceFilePath);
@@ -167,7 +167,7 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
     source.setContents(generateTestCode(testParams, sourceFileInfo.baseName()));
 
     // Create profile with define for base dir to find test data
-    const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, projectParams.fileName, profileSuffix());
+    const QString profileName = Core::BaseFileWizardFactory::buildFileName(projectPath, projectParams.fileName, profileSuffix());
     Core::GeneratedFile profile(profileName);
     profile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     QString contents;

@@ -158,7 +158,7 @@ QWizard *CppClassWizard::createWizardDialog(QWidget *parent,
 {
     CppClassWizardDialog *wizard = new CppClassWizardDialog(parent);
     foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
-        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
     wizard->setPath(wizardDialogParameters.defaultPath());
     return wizard;
 }
@@ -168,8 +168,8 @@ Core::GeneratedFiles CppClassWizard::generateFiles(const QWizard *w, QString *er
     const CppClassWizardDialog *wizard = qobject_cast<const CppClassWizardDialog *>(w);
     const CppClassWizardParameters params = wizard->parameters();
 
-    const QString sourceFileName = Core::BaseFileWizard::buildFileName(params.path, params.sourceFile, sourceSuffix());
-    const QString headerFileName = Core::BaseFileWizard::buildFileName(params.path, params.headerFile, headerSuffix());
+    const QString sourceFileName = Core::BaseFileWizardFactory::buildFileName(params.path, params.sourceFile, sourceSuffix());
+    const QString headerFileName = Core::BaseFileWizardFactory::buildFileName(params.path, params.headerFile, headerSuffix());
 
     Core::GeneratedFile sourceFile(sourceFileName);
     Core::GeneratedFile headerFile(headerFileName);

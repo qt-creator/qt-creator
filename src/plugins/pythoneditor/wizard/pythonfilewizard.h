@@ -30,11 +30,11 @@
 #ifndef PYTHONFILEWIZARD_H
 #define PYTHONFILEWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace PythonEditor {
 
-class FileWizard : public Core::BaseFileWizard
+class FileWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

@@ -56,7 +56,7 @@ Core::GeneratedFiles JavaFileWizard::generateFilesFromPath(const QString &path,
     QString capitalizedName = name;
     if (!capitalizedName.isEmpty())
         capitalizedName[0] = capitalizedName[0].toUpper();
-    const QString fileName = Core::BaseFileWizard::buildFileName(path, capitalizedName, preferredSuffix(mimeType));
+    const QString fileName = Core::BaseFileWizardFactory::buildFileName(path, capitalizedName, preferredSuffix(mimeType));
 
     Core::GeneratedFile file(fileName);
     file.setContents(fileContents(fileName));

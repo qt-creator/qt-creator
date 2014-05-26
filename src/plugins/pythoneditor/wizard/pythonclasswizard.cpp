@@ -61,7 +61,7 @@ QWizard *ClassWizard::createWizardDialog(
 {
     ClassWizardDialog *wizard = new ClassWizardDialog(parent);
     foreach (QWizardPage *p, params.extensionPages())
-        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
     wizard->setPath(params.defaultPath());
     wizard->setExtraValues(params.extraValues());
     return wizard;
@@ -75,7 +75,7 @@ Core::GeneratedFiles ClassWizard::generateFiles(const QWizard *w,
     const ClassWizardDialog *wizard = qobject_cast<const ClassWizardDialog *>(w);
     const ClassWizardParameters params = wizard->parameters();
 
-    const QString fileName = Core::BaseFileWizard::buildFileName(
+    const QString fileName = Core::BaseFileWizardFactory::buildFileName(
                 params.path, params.fileName, QLatin1String(Constants::C_PY_EXTENSION));
     Core::GeneratedFile sourceFile(fileName);
 

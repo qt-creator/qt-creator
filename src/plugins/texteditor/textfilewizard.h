@@ -32,7 +32,7 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace TextEditor {
 

@@ -32,12 +32,12 @@
 
 #include "formclasswizardparameters.h"
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace Designer {
 namespace Internal {
 
-class FormClassWizard : public Core::BaseFileWizard
+class FormClassWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

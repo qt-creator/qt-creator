@@ -31,7 +31,7 @@
 #include "basecheckoutwizardfactory.h"
 #include "checkoutprogresswizardpage.h"
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 #include <utils/qtcassert.h>
 

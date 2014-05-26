@@ -32,7 +32,7 @@
 
 #include "cppeditorenums.h"
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace CppEditor {
 namespace Internal {

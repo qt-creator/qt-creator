@@ -30,7 +30,7 @@
 #ifndef CUSTOMWIZARDPARAMETERS_H
 #define CUSTOMWIZARDPARAMETERS_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 #include <QStringList>
 #include <QMap>

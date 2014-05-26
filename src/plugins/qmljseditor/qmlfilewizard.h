@@ -30,7 +30,7 @@
 #ifndef QMLFILEWIZARD_H
 #define QMLFILEWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace QmlJSEditor {
 

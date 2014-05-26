@@ -84,7 +84,7 @@ Core::GeneratedFiles FileWizard::generateFiles(const QWizard *dialog,
     QString folder = pWizard->path();
     QString name = pWizard->fileName();
 
-    name = Core::BaseFileWizard::buildFileName(
+    name = Core::BaseFileWizardFactory::buildFileName(
                 folder, name, QLatin1String(Constants::C_PY_EXTENSION));
     Core::GeneratedFile file(name);
     file.setContents(QLatin1String(Constants::C_PY_SOURCE_CONTENT));

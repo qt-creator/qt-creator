@@ -30,7 +30,7 @@
 #include "qmlapp.h"
 
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -378,12 +378,12 @@ Core::GeneratedFiles QmlApp::generateFiles(QString *errorMessage)
 
         if (templateFile.fileName() == QLatin1String("main.pro")) {
             targetFileName = projectName() + QLatin1String(".pro");
-            m_creatorFileName = Core::BaseFileWizard::buildFileName(projectDirectory(),
+            m_creatorFileName = Core::BaseFileWizardFactory::buildFileName(projectDirectory(),
                                                                     projectName(),
                                                                     QLatin1String("pro"));
         } else  if (templateFile.fileName() == QLatin1String("main.qmlproject")) {
             targetFileName = projectName() + QLatin1String(".qmlproject");
-            m_creatorFileName = Core::BaseFileWizard::buildFileName(projectDirectory(),
+            m_creatorFileName = Core::BaseFileWizardFactory::buildFileName(projectDirectory(),
                                                                     projectName(),
                                                                     QLatin1String("qmlproject"));
         } else if (templateFile.fileName() == QLatin1String("main.qbp")) {

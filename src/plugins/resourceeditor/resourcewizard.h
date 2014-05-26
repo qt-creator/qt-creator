@@ -30,7 +30,7 @@
 #ifndef RESOURCEWIZARD_H
 #define RESOURCEWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace ResourceEditor {
 namespace Internal {

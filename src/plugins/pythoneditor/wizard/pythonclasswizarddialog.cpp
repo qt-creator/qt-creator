@@ -31,7 +31,7 @@
 #include "pythonclassnamepage.h"
 
 #include <utils/newclasswidget.h>
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace PythonEditor {
 namespace Internal {

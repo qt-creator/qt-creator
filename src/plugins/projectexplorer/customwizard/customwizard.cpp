@@ -147,7 +147,7 @@ void CustomWizard::initWizardDialog(Utils::Wizard *wizard, const QString &defaul
     if (!parameters()->fieldPageTitle.isEmpty())
         customPage->setTitle(parameters()->fieldPageTitle);
     foreach (QWizardPage *ep, extensionPages)
-        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(ep));
+        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(ep));
     if (CustomWizardPrivate::verbose)
         qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
 }
@@ -251,7 +251,7 @@ Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString 
 
 bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorMessage)
 {
-    if (!Core::BaseFileWizard::writeFiles(files, errorMessage))
+    if (!Core::BaseFileWizardFactory::writeFiles(files, errorMessage))
         return false;
     if (d->m_parameters->filesGeneratorScript.isEmpty())
         return true;
@@ -534,7 +534,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
             cp->setTitle(pa->fieldPageTitle);
     }
     foreach (QWizardPage *ep, extensionPages)
-        BaseFileWizard::applyExtensionPageShortTitle(w, w->addPage(ep));
+        BaseFileWizardFactory::applyExtensionPageShortTitle(w, w->addPage(ep));
     w->setPath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
 
@@ -575,7 +575,7 @@ bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QStrin
                 return false;
         }
     }
-    return BaseFileWizard::postGenerateOpenEditors(l, errorMessage);
+    return BaseFileWizardFactory::postGenerateOpenEditors(l, errorMessage);
 }
 
 bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage)

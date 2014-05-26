@@ -30,7 +30,7 @@
 #ifndef QMLAPPLICATIONWIZARD_H
 #define QMLAPPLICATIONWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
 namespace ExtensionSystem { class IPlugin; }
@@ -56,7 +56,7 @@ private:
 };
 
 
-class QmlApplicationWizard : public Core::BaseFileWizard
+class QmlApplicationWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

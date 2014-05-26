@@ -32,7 +32,7 @@
 
 #include "fileconverter.h"
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 #include <utils/wizard.h>
 
 namespace Utils { class ProjectIntroPage; }
@@ -59,7 +59,7 @@ private:
     Utils::ProjectIntroPage *m_destProjectPage;
 };
 
-class CascadesImportWizard : public Core::BaseFileWizard
+class CascadesImportWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 public:

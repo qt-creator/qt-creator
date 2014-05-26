@@ -30,7 +30,7 @@
 #include "plugingenerator.h"
 #include "pluginoptions.h"
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 #include <utils/fileutils.h>
 

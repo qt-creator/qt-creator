@@ -66,7 +66,7 @@ private:
 };
 
 /// \internal
-class QMAKEPROJECTMANAGER_EXPORT AbstractMobileAppWizard : public Core::BaseFileWizard
+class QMAKEPROJECTMANAGER_EXPORT AbstractMobileAppWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

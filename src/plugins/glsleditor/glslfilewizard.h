@@ -30,11 +30,11 @@
 #ifndef GLSLFILEWIZARD_H
 #define GLSLFILEWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace GLSLEditor {
 
-class GLSLFileWizard: public Core::BaseFileWizard
+class GLSLFileWizard: public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

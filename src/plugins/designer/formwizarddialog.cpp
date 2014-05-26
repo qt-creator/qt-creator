@@ -30,7 +30,7 @@
 #include "formwizarddialog.h"
 #include "formtemplatewizardpage.h"
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 #include <utils/filewizardpage.h>
 
@@ -62,7 +62,7 @@ void FormWizardDialog::init(const WizardPageList &extensionPages)
         int id = FirstExtensionPageId;
         foreach (QWizardPage *p, extensionPages) {
             setPage(id, p);
-            Core::BaseFileWizard::applyExtensionPageShortTitle(this, id);
+            Core::BaseFileWizardFactory::applyExtensionPageShortTitle(this, id);
             id++;
         }
     }

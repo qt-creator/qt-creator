@@ -53,7 +53,7 @@ Core::GeneratedFiles CppFileWizard::generateFilesFromPath(const QString &path,
                                                           QString * /*errorMessage*/) const
 {
     const QString mimeType = m_type == Source ? QLatin1String(Constants::CPP_SOURCE_MIMETYPE) : QLatin1String(Constants::CPP_HEADER_MIMETYPE);
-    const QString fileName = Core::BaseFileWizard::buildFileName(path, name, preferredSuffix(mimeType));
+    const QString fileName = Core::BaseFileWizardFactory::buildFileName(path, name, preferredSuffix(mimeType));
 
     Core::GeneratedFile file(fileName);
     file.setContents(fileContents(m_type, fileName));

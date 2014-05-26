@@ -55,7 +55,7 @@ Core::GeneratedFiles FormWizard::generateFiles(const QWizard *w,
                                                QString *errorMessage) const
 {
     const FormFileWizardDialog *wizard = qobject_cast<const FormFileWizardDialog *>(w);
-    const QString fileName = Core::BaseFileWizard::buildFileName(wizard->path(), wizard->fileName(),
+    const QString fileName = Core::BaseFileWizardFactory::buildFileName(wizard->path(), wizard->fileName(),
                                                                  preferredSuffix(QLatin1String(Constants::FORM_MIMETYPE)));
 
     const QString formTemplate = wizard->templateContents();

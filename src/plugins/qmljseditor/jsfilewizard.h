@@ -30,11 +30,11 @@
 #ifndef JSFILEWIZARD_H
 #define JSFILEWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace QmlJSEditor {
 
-class JsFileWizard: public Core::BaseFileWizard
+class JsFileWizard: public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

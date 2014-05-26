@@ -30,12 +30,12 @@
 #ifndef FORMWIZARD_H
 #define FORMWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 namespace Designer {
 namespace Internal {
 
-class FormWizard : public Core::BaseFileWizard
+class FormWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

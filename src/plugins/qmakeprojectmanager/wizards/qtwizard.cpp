@@ -306,7 +306,7 @@ QList<Core::Id> BaseQmakeProjectWizardDialog::selectedKits() const
 void BaseQmakeProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
 {
     foreach (QWizardPage *p,wizardPageList)
-        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
+        Core::BaseFileWizardFactory::applyExtensionPageShortTitle(this, addPage(p));
 }
 
 void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name, const QString &path)

@@ -185,7 +185,7 @@ QString BaseProjectWizardDialog::uniqueProjectName(const QString &path)
 void BaseProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
 {
     foreach (QWizardPage *p,wizardPageList)
-        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
+        Core::BaseFileWizardFactory::applyExtensionPageShortTitle(this, addPage(p));
 }
 
 QString BaseProjectWizardDialog::selectedPlatform() const

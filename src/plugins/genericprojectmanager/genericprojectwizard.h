@@ -30,7 +30,7 @@
 #ifndef GENERICPROJECTWIZARD_H
 #define GENERICPROJECTWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 #include <utils/wizard.h>
 
 namespace Utils { class FileWizardPage; }
@@ -58,7 +58,7 @@ public:
     FilesSelectionWizardPage *m_secondPage;
 };
 
-class GenericProjectWizard : public Core::BaseFileWizard
+class GenericProjectWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

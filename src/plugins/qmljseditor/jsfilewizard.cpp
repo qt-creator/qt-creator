@@ -100,7 +100,7 @@ Core::GeneratedFiles JsFileWizard::generateFiles(const QWizard *w,
     const QString name = wizardDialog->fileName();
 
     const QString mimeType = QLatin1String(QmlJSTools::Constants::JS_MIMETYPE);
-    const QString fileName = Core::BaseFileWizard::buildFileName(path, name, preferredSuffix(mimeType));
+    const QString fileName = Core::BaseFileWizardFactory::buildFileName(path, name, preferredSuffix(mimeType));
 
     Core::GeneratedFile file(fileName);
     file.setContents(fileContents(fileName, wizardDialog->m_optionsPage->statelessLibrary()));
@@ -129,7 +129,7 @@ QWizard *JsFileWizard::createWizardDialog(QWidget *parent,
     wizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
     wizardDialog->setPath(wizardDialogParameters.defaultPath());
     foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
-        BaseFileWizard::applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(p));
+        BaseFileWizardFactory::applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(p));
     return wizardDialog;
 }
 

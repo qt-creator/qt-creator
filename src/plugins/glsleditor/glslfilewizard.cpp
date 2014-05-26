@@ -65,7 +65,7 @@ Core::GeneratedFiles GLSLFileWizard::generateFiles(const QWizard *w,
     const QString path = wizardDialog->path();
     const QString name = wizardDialog->fileName();
 
-    const QString fileName = Core::BaseFileWizard::buildFileName(path, name, preferredSuffix(m_shaderType));
+    const QString fileName = Core::BaseFileWizardFactory::buildFileName(path, name, preferredSuffix(m_shaderType));
 
     Core::GeneratedFile file(fileName);
     file.setContents(fileContents(fileName, m_shaderType));
@@ -134,7 +134,7 @@ QWizard *GLSLFileWizard::createWizardDialog(QWidget *parent,
     wizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
     wizardDialog->setPath(wizardDialogParameters.defaultPath());
     foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
-        BaseFileWizard::applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(p));
+        BaseFileWizardFactory::applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(p));
     return wizardDialog;
 }
 

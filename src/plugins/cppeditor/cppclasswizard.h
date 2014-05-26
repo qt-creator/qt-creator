@@ -30,7 +30,7 @@
 #ifndef CPPCLASSWIZARD_H
 #define CPPCLASSWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 #include <utils/wizard.h>
 
@@ -87,7 +87,7 @@ private:
 };
 
 
-class CppClassWizard : public Core::BaseFileWizard
+class CppClassWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

@@ -55,7 +55,7 @@ class ModulesPage;
  * the finished project in postGenerateFiles().
  * The pro-file must be the last one of the generated files. */
 
-class QtWizard : public Core::BaseFileWizard
+class QtWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

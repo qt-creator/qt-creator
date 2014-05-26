@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "basefilewizard.h"
+#include "basefilewizardfactory.h"
 #include "icore.h"
 #include "ifilewizardextension.h"
 #include "mimedatabase.h"
@@ -175,12 +175,12 @@ void WizardEventLoop::rejected()
     \sa Core::Internal::WizardEventLoop
 */
 
-BaseFileWizard::ExtensionList BaseFileWizard::extensions() const
+BaseFileWizardFactory::ExtensionList BaseFileWizardFactory::extensions() const
 {
     return ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
 }
 
-void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues)
+void BaseFileWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues)
 {
     QTC_ASSERT(!path.isEmpty(), return);
 
@@ -322,7 +322,7 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
     Re-implement (calling the base implementation) to create files with CustomGeneratorAttribute set.
 */
 
-bool BaseFileWizard::writeFiles(const GeneratedFiles &files, QString *errorMessage)
+bool BaseFileWizardFactory::writeFiles(const GeneratedFiles &files, QString *errorMessage)
 {
     const GeneratedFile::Attributes noWriteAttributes
         = GeneratedFile::CustomGeneratorAttribute|GeneratedFile::KeepExistingFileAttribute;
@@ -338,7 +338,7 @@ bool BaseFileWizard::writeFiles(const GeneratedFiles &files, QString *errorMessa
     the title of corresponding progress item.
 */
 
-void BaseFileWizard::applyExtensionPageShortTitle(Utils::Wizard *wizard, int pageId)
+void BaseFileWizardFactory::applyExtensionPageShortTitle(Utils::Wizard *wizard, int pageId)
 {
     if (pageId < 0)
         return;
@@ -359,16 +359,16 @@ void BaseFileWizard::applyExtensionPageShortTitle(Utils::Wizard *wizard, int pag
     The default implementation opens editors with the newly generated files.
 */
 
-bool BaseFileWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l, QString *errorMessage)
+bool BaseFileWizardFactory::postGenerateFiles(const QWizard *, const GeneratedFiles &l, QString *errorMessage)
 {
-    return BaseFileWizard::postGenerateOpenEditors(l, errorMessage);
+    return BaseFileWizardFactory::postGenerateOpenEditors(l, errorMessage);
 }
 
 /*!
     Opens the editors for the files whose attribute is set accordingly.
 */
 
-bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage)
+bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage)
 {
     foreach (const GeneratedFile &file, l) {
         if (file.attributes() & GeneratedFile::OpenEditorAttribute) {
@@ -387,7 +387,7 @@ bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *e
     can be overwritten at all, and then prompts the user with a summary.
 */
 
-BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(GeneratedFiles *files,
+BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(GeneratedFiles *files,
                                                                 QString *errorMessage) const
 {
     if (debugWizard)
@@ -469,7 +469,7 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(GeneratedFiles *
     one.
 */
 
-QString BaseFileWizard::buildFileName(const QString &path,
+QString BaseFileWizardFactory::buildFileName(const QString &path,
                                       const QString &baseName,
                                       const QString &extension)
 {
@@ -493,7 +493,7 @@ QString BaseFileWizard::buildFileName(const QString &path,
     Returns the preferred suffix for \a mimeType.
 */
 
-QString BaseFileWizard::preferredSuffix(const QString &mimeType)
+QString BaseFileWizardFactory::preferredSuffix(const QString &mimeType)
 {
     const QString rc = MimeDatabase::preferredSuffixByType(mimeType);
     if (rc.isEmpty())
@@ -534,7 +534,7 @@ QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
     standardWizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
     standardWizardDialog->setPath(wizardDialogParameters.defaultPath());
     foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
-        BaseFileWizard::applyExtensionPageShortTitle(standardWizardDialog, standardWizardDialog->addPage(p));
+        BaseFileWizardFactory::applyExtensionPageShortTitle(standardWizardDialog, standardWizardDialog->addPage(p));
     return standardWizardDialog;
 }
 
@@ -553,4 +553,4 @@ GeneratedFiles StandardFileWizard::generateFiles(const QWizard *w,
 
 } // namespace Core
 
-#include "basefilewizard.moc"
+#include "basefilewizardfactory.moc"

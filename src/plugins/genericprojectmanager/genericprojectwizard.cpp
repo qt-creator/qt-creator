@@ -140,7 +140,7 @@ QWizard *GenericProjectWizard::createWizardDialog(QWidget *parent,
     wizard->setPath(wizardDialogParameters.defaultPath());
 
     foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
-        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
 
     return wizard;
 }

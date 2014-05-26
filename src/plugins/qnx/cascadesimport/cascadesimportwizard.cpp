@@ -130,7 +130,7 @@ QWizard *CascadesImportWizard::createWizardDialog(QWidget *parent,
     CascadesImportWizardDialog *wizard = new CascadesImportWizardDialog(parent);
 
     foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
-        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
 
     return wizard;
 }

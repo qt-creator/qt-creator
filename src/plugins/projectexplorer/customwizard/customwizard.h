@@ -32,7 +32,7 @@
 
 #include "../projectexplorer_export.h"
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 
 #include <QSharedPointer>
 #include <QList>
@@ -83,7 +83,7 @@ public:
 };
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT CustomWizard : public Core::BaseFileWizard
+class PROJECTEXPLORER_EXPORT CustomWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

@@ -31,7 +31,7 @@
 #define BASEPROJECTWIZARDDIALOG_H
 
 #include "projectexplorer_export.h"
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 #include <utils/wizard.h>
 
 namespace Utils { class ProjectIntroPage; }

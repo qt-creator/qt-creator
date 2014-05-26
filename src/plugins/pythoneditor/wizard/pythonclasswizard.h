@@ -30,7 +30,7 @@
 #ifndef PYTHONEDITOR_CLASSWIZARD_H
 #define PYTHONEDITOR_CLASSWIZARD_H
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 #include <utils/wizard.h>
 
 namespace Utils { class NewClassWidget; }
@@ -41,7 +41,7 @@ namespace Internal {
 
 class ClassWizardDialog;
 
-class ClassWizard : public Core::BaseFileWizard
+class ClassWizard : public Core::BaseFileWizardFactory
 {
     Q_OBJECT
 

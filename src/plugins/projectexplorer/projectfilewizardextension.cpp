@@ -38,7 +38,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <coreplugin/basefilewizard.h>
+#include <coreplugin/basefilewizardfactory.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
