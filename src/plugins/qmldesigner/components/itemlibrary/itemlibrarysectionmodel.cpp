@@ -83,7 +83,7 @@ static bool compareFunction(QObject *first, QObject *second)
     return first->property(sortRoleName).toString() < second->property(sortRoleName).toString();
 }
 
-void ItemLibrarySectionModel::addItem(ItemLibraryItem *element, int libId)
+void ItemLibrarySectionModel::addItem(ItemLibraryItem *element)
 {
     m_itemList.append(element);
 

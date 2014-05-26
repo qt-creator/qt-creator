@@ -72,7 +72,7 @@ QVariant ItemLibrarySection::sortingRole() const
 
 void ItemLibrarySection::addSectionEntry(ItemLibraryItem *sectionEntry)
 {
-    m_sectionEntries.addItem(sectionEntry, sectionEntry->itemLibId());
+    m_sectionEntries.addItem(sectionEntry);
 }
 
 QObject *ItemLibrarySection::sectionEntries()

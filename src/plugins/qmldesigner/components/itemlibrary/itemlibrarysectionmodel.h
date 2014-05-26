@@ -51,7 +51,7 @@ public:
 
     void clearItems();
 
-    void addItem(ItemLibraryItem *item, int libId);
+    void addItem(ItemLibraryItem *item);
 
     void privateInsert(int pos, QObject *item);
     void privateRemove(int pos);
