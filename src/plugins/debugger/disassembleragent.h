@@ -67,6 +67,9 @@ public:
     void cleanup();
     bool isMixed() const;
 
+    // Force reload, e.g. after changing the output flavour.
+    void reload();
+
 private:
     void setContentsToDocument(const DisassemblerLines &contents);
     int indexOf(const Location &loc) const;

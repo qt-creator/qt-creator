@@ -169,6 +169,8 @@ public:
         m_isStateDebugging(false)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
+        connect(debuggerCore()->action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
+                SLOT(reloadDisassembly()));
     }
 
 public slots:
@@ -179,6 +181,11 @@ public slots:
     void doShutdownInferior();
     void doInterruptInferior();
     void doFinishDebugger();
+
+    void reloadDisassembly()
+    {
+        m_disassemblerAgent.reload();
+    }
 
     void queueSetupEngine()
     {

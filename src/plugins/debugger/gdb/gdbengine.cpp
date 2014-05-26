@@ -236,8 +236,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
             SLOT(reloadLocals()));
     connect(debuggerCore()->action(UseDynamicType), SIGNAL(valueChanged(QVariant)),
             SLOT(reloadLocals()));
-    connect(debuggerCore()->action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
-            SLOT(reloadDisassembly()));
 }
 
 GdbEngine::~GdbEngine()
@@ -3968,9 +3966,11 @@ public:
 
 void GdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
-    // Doing that unconditionally seems to be the most robust
-    // solution given the richest output. Looks like GDB is
-    // a command line tool after all...
+    if (debuggerCore()->boolSetting(IntelFlavor))
+        postCommand("set disassembly-flavor intel");
+    else
+        postCommand("set disassembly-flavor att");
+
     fetchDisassemblerByCliPointMixed(agent);
 }
 
@@ -4076,12 +4076,6 @@ bool GdbEngine::handleCliDisassemblerResult(const QByteArray &output, Disassembl
     }
 
     return false;
-}
-
-void GdbEngine::reloadDisassembly()
-{
-    setTokenBarrier();
-    updateLocals();
 }
 
 void GdbEngine::handleFetchDisassemblerByCliPointMixed(const GdbResponse &response)
@@ -4475,11 +4469,7 @@ void GdbEngine::handleInferiorPrepared()
         }
     }
 
-    if (debuggerCore()->boolSetting(IntelFlavor)) {
-        //postCommand("set follow-exec-mode new");
-        postCommand("set disassembly-flavor intel");
-    }
-
+    //postCommand("set follow-exec-mode new");
     if (sp.breakOnMain) {
         QByteArray cmd = "tbreak ";
         cmd += sp.toolChainAbi.os() == Abi::WindowsOS ? "qMain" : "main";

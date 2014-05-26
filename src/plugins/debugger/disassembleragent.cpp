@@ -30,6 +30,7 @@
 #include "disassembleragent.h"
 
 #include "breakhandler.h"
+#include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
@@ -212,6 +213,12 @@ bool DisassemblerAgent::isMixed() const
         && d->location.lineNumber() > 0
         && !d->location.functionName().isEmpty()
         && d->location.functionName() != _("??");
+}
+
+void DisassemblerAgent::reload()
+{
+    d->cache.clear();
+    d->engine->fetchDisassembler(this);
 }
 
 void DisassemblerAgent::setLocation(const Location &loc)

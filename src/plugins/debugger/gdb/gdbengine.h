@@ -362,7 +362,6 @@ private: ////////// View & Data Stuff //////////
     void handleFetchDisassemblerByCliRangeMixed(const GdbResponse &response);
     void handleFetchDisassemblerByCliRangePlain(const GdbResponse &response);
     bool handleCliDisassemblerResult(const QByteArray &response, DisassemblerAgent *agent);
-    Q_SLOT void reloadDisassembly();
 
     void handleBreakOnQFatal(const GdbResponse &response);
 
