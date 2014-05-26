@@ -52,11 +52,7 @@ public:
     QVariant sortingRole() const;
 
     void addSectionEntry(ItemLibraryItem *sectionEntry);
-    void removeSectionEntry(int itemLibId);
     QObject *sectionEntries();
-
-    int visibleItemIndex(int itemLibId);
-    bool isItemVisible(int itemLibId);
 
     bool updateSectionVisibility(const QString &searchText, bool *changed);
     void updateItemIconSize(const QSize &itemIconSize);

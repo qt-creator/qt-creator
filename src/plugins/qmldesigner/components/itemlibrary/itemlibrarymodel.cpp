@@ -133,32 +133,9 @@ void ItemLibraryModel::setItemIconSize(const QSize &itemIconSize)
     }
 }
 
-
-int ItemLibraryModel::getItemSectionIndex(int itemLibId)
-{
-    if (m_sections.contains(itemLibId))
-        return section(m_sections.value(itemLibId))->visibleItemIndex(itemLibId);
-    else
-        return -1;
-}
-
-
 int ItemLibraryModel::getSectionLibId(int itemLibId)
 {
     return m_sections.value(itemLibId);
-}
-
-
-bool ItemLibraryModel::isItemVisible(int itemLibId)
-{
-    if (!m_sections.contains(itemLibId))
-        return false;
-
-    int sectionLibId = m_sections.value(itemLibId);
-    if (section(sectionLibId)->isVisible())
-        return false;
-
-    return section(sectionLibId)->isItemVisible(itemLibId);
 }
 
 Import entryToImport(const ItemLibraryEntry &entry)

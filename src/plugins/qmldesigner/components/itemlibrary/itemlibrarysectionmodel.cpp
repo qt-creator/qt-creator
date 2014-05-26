@@ -92,29 +92,6 @@ void ItemLibrarySectionModel::addItem(ItemLibraryItem *element, int libId)
     element->setVisible(true);
 }
 
-void ItemLibrarySectionModel::removeItem(int libId)
-{
-    ItemLibraryItem *itemLibraryItem = m_itemModels.value(libId);
-
-    itemLibraryItem->setVisible(false);
-
-    m_itemModels.remove(libId);
-
-    delete itemLibraryItem;
-}
-
-bool ItemLibrarySectionModel::itemVisible(int libId) const
-{
-    ItemLibraryItem *itemLibraryItem = m_itemModels.value(libId);
-    return itemLibraryItem->isVisible();
-}
-
-bool ItemLibrarySectionModel::setItemVisible(int libId, bool visible)
-{
-    ItemLibraryItem *itemLibraryItem = m_itemModels.value(libId);
-    return itemLibraryItem->setVisible(visible);
-}
-
 void ItemLibrarySectionModel::privateInsert(int pos, QObject *element)
 {
     m_privList.insert(pos, element);
@@ -133,11 +110,6 @@ const QMap<int, ItemLibraryItem*> &ItemLibrarySectionModel::items() const
 const QList<ItemLibraryItem *> ItemLibrarySectionModel::itemList() const
 {
     return m_itemModels.values();
-}
-
-ItemLibraryItem *ItemLibrarySectionModel::item(int libId)
-{
-    return m_itemModels.value(libId);
 }
 
 void ItemLibrarySectionModel::resetModel()

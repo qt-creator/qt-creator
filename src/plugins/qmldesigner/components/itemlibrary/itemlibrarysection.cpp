@@ -75,27 +75,10 @@ void ItemLibrarySection::addSectionEntry(ItemLibraryItem *sectionEntry)
     m_sectionEntries.addItem(sectionEntry, sectionEntry->itemLibId());
 }
 
-
-void ItemLibrarySection::removeSectionEntry(int itemLibId)
-{
-    m_sectionEntries.removeItem(itemLibId);
-}
-
 QObject *ItemLibrarySection::sectionEntries()
 {
     return &m_sectionEntries;
 }
-
-int ItemLibrarySection::visibleItemIndex(int itemLibId)
-{
-    return m_sectionEntries.item(itemLibId)->isVisible();
-}
-
-bool ItemLibrarySection::isItemVisible(int itemLibId)
-{
-    return m_sectionEntries.itemVisible(itemLibId);
-}
-
 
 bool ItemLibrarySection::updateSectionVisibility(const QString &searchText, bool *changed)
 {
@@ -105,11 +88,13 @@ bool ItemLibrarySection::updateSectionVisibility(const QString &searchText, bool
 
     QMap<int, ItemLibraryItem*>::const_iterator itemIterator = m_sectionEntries.items().constBegin();
     while (itemIterator != m_sectionEntries.items().constEnd()) {
+        ItemLibraryItem *itemLibraryItem = itemIterator.value();
 
-        bool itemVisible = m_sectionEntries.item(itemIterator.key())->itemName().toLower().contains(searchText);
+
+        bool itemVisible = itemLibraryItem->itemName().toLower().contains(searchText);
 
         bool itemChanged = false;
-        itemChanged = m_sectionEntries.setItemVisible(itemIterator.key(), itemVisible);
+        itemChanged = itemLibraryItem->setVisible(itemVisible);
 
         *changed |= itemChanged;
 

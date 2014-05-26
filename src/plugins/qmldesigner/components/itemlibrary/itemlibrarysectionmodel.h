@@ -52,18 +52,12 @@ public:
     void clearItems();
 
     void addItem(ItemLibraryItem *item, int libId);
-    void removeItem(int libId);
-
-    bool itemVisible(int libId) const;
-    bool setItemVisible(int libId, bool visible);
 
     void privateInsert(int pos, QObject *item);
     void privateRemove(int pos);
 
     const QMap<int, ItemLibraryItem*> &items() const;
     const QList<ItemLibraryItem *> itemList() const;
-
-    ItemLibraryItem* item(int libId);
 
     void resetModel();
 
