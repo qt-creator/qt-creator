@@ -123,7 +123,8 @@ QString BeautifierPlugin::format(const QString &text, QStringList command, const
 
     // Save text to temporary file
     QFileInfo fi(fileName);
-    Utils::TempFileSaver sourceFile(QLatin1String("qtc_beautifier_XXXXXXXX.") + fi.suffix());
+    Utils::TempFileSaver sourceFile(fi.absolutePath() + QLatin1String("/qtc_beautifier_XXXXXXXX.")
+                                    + fi.suffix());
     sourceFile.setAutoRemove(true);
     sourceFile.write(text.toUtf8());
     if (!sourceFile.finalize()) {
