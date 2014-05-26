@@ -138,7 +138,7 @@ protected:
     static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = 0);
 };
 
-class CORE_EXPORT StandardFileWizard : public BaseFileWizardFactory
+class CORE_EXPORT StandardFileWizardFactory : public BaseFileWizardFactory
 {
     Q_OBJECT
 

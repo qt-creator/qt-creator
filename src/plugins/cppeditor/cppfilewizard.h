@@ -37,7 +37,7 @@
 namespace CppEditor {
 namespace Internal {
 
-class CppFileWizard : public Core::StandardFileWizard
+class CppFileWizard : public Core::StandardFileWizardFactory
 {
     Q_OBJECT
 

@@ -36,7 +36,7 @@
 
 namespace TextEditor {
 
-class TEXTEDITOR_EXPORT TextFileWizard : public Core::StandardFileWizard
+class TEXTEDITOR_EXPORT TextFileWizard : public Core::StandardFileWizardFactory
 {
     Q_OBJECT
 

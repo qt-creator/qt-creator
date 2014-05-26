@@ -35,7 +35,7 @@
 namespace ResourceEditor {
 namespace Internal {
 
-class ResourceWizard : public Core::StandardFileWizard
+class ResourceWizard : public Core::StandardFileWizardFactory
 {
     Q_OBJECT
 

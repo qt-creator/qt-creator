@@ -35,7 +35,7 @@
 namespace Android {
 namespace Internal {
 
-class JavaFileWizard : public Core::StandardFileWizard
+class JavaFileWizard : public Core::StandardFileWizardFactory
 {
     Q_OBJECT
 

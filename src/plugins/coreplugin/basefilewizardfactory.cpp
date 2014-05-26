@@ -525,7 +525,7 @@ QString BaseFileWizardFactory::preferredSuffix(const QString &mimeType)
     Creates a Utils::FileWizardDialog.
 */
 
-QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
+QWizard *StandardFileWizardFactory::createWizardDialog(QWidget *parent,
                                                 const WizardDialogParameters &wizardDialogParameters) const
 {
     Utils::FileWizardDialog *standardWizardDialog = new Utils::FileWizardDialog(parent);
@@ -542,7 +542,7 @@ QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
     Retrieves \a path and \a fileName and calls \c generateFilesFromPath().
 */
 
-GeneratedFiles StandardFileWizard::generateFiles(const QWizard *w,
+GeneratedFiles StandardFileWizardFactory::generateFiles(const QWizard *w,
                                                  QString *errorMessage) const
 {
     const Utils::FileWizardDialog *standardWizardDialog = qobject_cast<const Utils::FileWizardDialog *>(w);

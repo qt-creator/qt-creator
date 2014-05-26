@@ -34,7 +34,7 @@
 
 namespace QmlJSEditor {
 
-class QmlFileWizard: public Core::StandardFileWizard
+class QmlFileWizard: public Core::StandardFileWizardFactory
 {
     Q_OBJECT
 
