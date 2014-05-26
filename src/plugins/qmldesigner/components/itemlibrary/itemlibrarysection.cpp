@@ -86,11 +86,7 @@ bool ItemLibrarySection::updateSectionVisibility(const QString &searchText, bool
 
     *changed = false;
 
-    QMap<int, ItemLibraryItem*>::const_iterator itemIterator = m_sectionEntries.items().constBegin();
-    while (itemIterator != m_sectionEntries.items().constEnd()) {
-        ItemLibraryItem *itemLibraryItem = itemIterator.value();
-
-
+    foreach(ItemLibraryItem *itemLibraryItem, m_sectionEntries.items()) {
         bool itemVisible = itemLibraryItem->itemName().toLower().contains(searchText);
 
         bool itemChanged = false;
@@ -100,8 +96,6 @@ bool ItemLibrarySection::updateSectionVisibility(const QString &searchText, bool
 
         if (itemVisible)
             haveVisibleItems = true;
-
-        ++itemIterator;
     }
 
     m_sectionEntries.resetModel();
@@ -114,9 +108,8 @@ bool ItemLibrarySection::updateSectionVisibility(const QString &searchText, bool
 
 void ItemLibrarySection::updateItemIconSize(const QSize &itemIconSize)
 {
-    foreach (ItemLibraryItem* itemLibraryItemModel, m_sectionEntries.itemList()) {
+    foreach (ItemLibraryItem* itemLibraryItemModel, m_sectionEntries.items())
         itemLibraryItemModel->setItemIconSize(itemIconSize);
-    }
 }
 
 bool ItemLibrarySection::setVisible(bool isVisible)

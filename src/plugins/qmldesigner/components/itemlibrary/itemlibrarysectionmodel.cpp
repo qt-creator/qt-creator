@@ -85,9 +85,7 @@ static bool compareFunction(QObject *first, QObject *second)
 
 void ItemLibrarySectionModel::addItem(ItemLibraryItem *element, int libId)
 {
-
-    m_itemModels.insert(libId, element);
-
+    m_itemList.append(element);
 
     element->setVisible(true);
 }
@@ -102,14 +100,9 @@ void ItemLibrarySectionModel::privateRemove(int pos)
     m_privList.removeAt(pos);
 }
 
-const QMap<int, ItemLibraryItem*> &ItemLibrarySectionModel::items() const
+const QList<ItemLibraryItem *> &ItemLibrarySectionModel::items() const
 {
-    return m_itemModels;
-}
-
-const QList<ItemLibraryItem *> ItemLibrarySectionModel::itemList() const
-{
-    return m_itemModels.values();
+    return m_itemList;
 }
 
 void ItemLibrarySectionModel::resetModel()
