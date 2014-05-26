@@ -22,6 +22,7 @@ QtcPlugin {
         "cppautocompleter.cpp", "cppautocompleter.h",
         "cppclasswizard.cpp", "cppclasswizard.h",
         "cppcodemodelinspectordialog.cpp", "cppcodemodelinspectordialog.h", "cppcodemodelinspectordialog.ui",
+        "cppdocumentationcommenthelper.cpp", "cppdocumentationcommenthelper.h",
         "cppeditor.cpp", "cppeditor.h",
         "cppeditor.qrc",
         "cppeditor_global.h",

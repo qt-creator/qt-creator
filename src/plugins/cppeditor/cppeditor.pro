@@ -5,6 +5,7 @@ HEADERS += \
     cppautocompleter.h \
     cppclasswizard.h \
     cppcodemodelinspectordialog.h \
+    cppdocumentationcommenthelper.h \
     cppeditor.h \
     cppeditor_global.h \
     cppeditordocument.h \
@@ -39,6 +40,7 @@ SOURCES += \
     cppautocompleter.cpp \
     cppclasswizard.cpp \
     cppcodemodelinspectordialog.cpp \
+    cppdocumentationcommenthelper.cpp \
     cppeditor.cpp \
     cppeditordocument.cpp \
     cppeditoroutline.cpp \

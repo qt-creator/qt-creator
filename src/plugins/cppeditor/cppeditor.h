@@ -44,11 +44,7 @@
 #include <QScopedPointer>
 
 namespace CPlusPlus { class Symbol; }
-
-namespace CppTools {
-class SemanticInfo;
-class CommentsSettings;
-}
+namespace CppTools { class SemanticInfo; }
 
 namespace CppEditor {
 namespace Internal {
@@ -156,7 +152,6 @@ private slots:
     void markSymbolsNow();
     void performQuickFix(int index);
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
-    void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
     void abortDeclDefLink();
 
     void onLocalRenamingFinished();
@@ -182,9 +177,6 @@ private:
 
     QList<QTextEdit::ExtraSelection> createSelectionsFromUses(
             const QList<TextEditor::HighlightingResult> &uses);
-
-    bool handleDocumentationComment(QKeyEvent *e);
-    bool isStartOfDoxygenComment(const QTextCursor &cursor) const;
 
 private:
     QScopedPointer<CPPEditorWidgetPrivate> d;
