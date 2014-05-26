@@ -225,11 +225,11 @@ ProjectExplorer::Kit *QnxConfiguration::createKit(QnxArchitecture arch,
                     kit, FileName::fromLatin1("qnx-armv7le-qcc"));
     }
 
-    DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
+    DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_QNX_OS_TYPE);
     // TODO: Add sysroot?
 
     kit->setDisplayName(displayName);
-    kit->setIconPath(FileName::fromString(QLatin1String(Constants::QNX_BB_CATEGORY_ICON)));
+    kit->setIconPath(FileName::fromString(QLatin1String(Constants::QNX_CATEGORY_ICON)));
 
     kit->setAutoDetected(true);
     kit->setAutoDetectionSource(envFile().toString());
