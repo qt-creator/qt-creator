@@ -36,6 +36,10 @@
 #include <QtTest>
 #include <QDebug>
 
+#ifdef Q_OS_WIN
+    #include <cctype>  // std:isspace
+#endif
+
 struct LineColumn
 {
     LineColumn(unsigned line = 0, unsigned column = 0) : line(line), column(column) {}
