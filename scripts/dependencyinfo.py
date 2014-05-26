@@ -231,12 +231,10 @@ class BinaryDirExaminer:
             self.libraries.append(Library(l))
 
     def _findPlugins(self, path):
-        vendordirs = glob.glob(os.path.join(path, "lib", "qtcreator", "plugins", "*"))
-        for dir in vendordirs:
-            pluginspecs = glob.glob(os.path.join(dir, "*.pluginspec"))
-            for spec in pluginspecs:
-                log.debug('   Looking at plugin "%s".', spec)
-                self.plugins.append(Plugin(spec))
+        pluginspecs = glob.glob(os.path.join(path, "lib", "qtcreator", "plugins", "*.pluginspec"))
+        for spec in pluginspecs:
+            log.debug('   Looking at plugin "%s".', spec)
+            self.plugins.append(Plugin(spec))
 
 
 
