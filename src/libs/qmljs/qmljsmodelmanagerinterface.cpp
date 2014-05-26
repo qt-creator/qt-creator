@@ -954,7 +954,7 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
     while (!pathsToScan.isEmpty() && !future.isCanceled()) {
         ScanItem toScan = pathsToScan.last();
         pathsToScan.pop_back();
-        int pathBudget = (maxScanDepth + 2 - toScan.depth);
+        int pathBudget = (1 << (maxScanDepth + 2 - toScan.depth));
         if (!scannedPaths.contains(toScan.path)) {
             QStringList importedFiles;
             if (!findNewQmlLibraryInPath(toScan.path, snapshot, modelManager, &importedFiles,
@@ -979,7 +979,7 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
         // always descend tree, as we might have just scanned with a smaller depth
         if (toScan.depth < maxScanDepth) {
             QDir dir(toScan.path);
-            QStringList subDirs(dir.entryList(QDir::Dirs));
+            QStringList subDirs(dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot));
             workDone += 1;
             totalWork += pathBudget / 2 * subDirs.size() - pathBudget * 3 / 4 + 1;
             foreach (const QString path, subDirs)
