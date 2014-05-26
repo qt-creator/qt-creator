@@ -557,7 +557,7 @@ std::ostream &operator<<(std::ostream &os, const DumpParameters &d)
     if (!d.individualFormats.empty()) {
         os << ", individual formats: ";
         DumpParameters::FormatMap::const_iterator cend = d.individualFormats.end();
-        for (DumpParameters::FormatMap::const_iterator it = d.typeFormats.begin(); it != cend; ++it)
+        for (DumpParameters::FormatMap::const_iterator it = d.individualFormats.begin(); it != cend; ++it)
             os << ' ' << it->first << ':' << it->second;
         os << '\n';
     }
