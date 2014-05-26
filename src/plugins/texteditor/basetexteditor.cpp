@@ -1502,6 +1502,11 @@ static inline bool isModifier(QKeyEvent *e)
     }
 }
 
+static inline bool isPrintableText(const QString &text)
+{
+    return !text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'));
+}
+
 void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     if (!isModifier(e) && mouseHidingEnabled())
@@ -1796,7 +1801,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
 
     const QString eventText = e->text();
     if (!ro && d->m_inBlockSelectionMode) {
-        if (!eventText.isEmpty() && (eventText.at(0).isPrint() || eventText.at(0) == QLatin1Char('\t'))) {
+        if (!isPrintableText(eventText)) {
             d->removeBlockSelection(eventText);
             goto skip_event;
         }
@@ -1809,7 +1814,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-    if (ro || eventText.isEmpty() || !eventText.at(0).isPrint()) {
+    if (ro || !isPrintableText(eventText)) {
         if (!cursorMoveKeyEvent(e)) {
             QTextCursor cursor = textCursor();
             bool cursorWithinSnippet = false;
@@ -1828,6 +1833,8 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
             }
         }
     } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
+        // only go here if control is not pressed, except if also alt is pressed
+        // because AltGr maps to Alt + Ctrl
         QTextCursor cursor = textCursor();
         const QString &autoText = d->m_autoCompleter->autoComplete(cursor, eventText);
 
@@ -1887,10 +1894,8 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
         d->m_parenthesesMatchingTimer.start(50);
 
-    if (!ro && d->m_contentsChanged && !e->text().isEmpty()
-            && e->text().at(0).isPrint() && !inOverwriteMode) {
+    if (!ro && d->m_contentsChanged && isPrintableText(eventText) && !inOverwriteMode)
         d->m_codeAssistant->process();
-    }
 }
 
 void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
