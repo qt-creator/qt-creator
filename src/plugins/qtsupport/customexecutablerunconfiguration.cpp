@@ -71,7 +71,7 @@ void CustomExecutableRunConfiguration::ctor()
 CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
     LocalApplicationRunConfiguration(parent, Core::Id(CUSTOM_EXECUTABLE_ID)),
     m_workingDirectory(QLatin1String(Constants::DEFAULT_WORKING_DIR)),
-    m_runMode(Gui)
+    m_runMode(ProjectExplorer::ApplicationLauncher::Gui)
 {
     addExtraAspect(new LocalEnvironmentAspect(this));
 
@@ -211,7 +211,7 @@ bool CustomExecutableRunConfiguration::isConfigured() const
     return !m_executable.isEmpty();
 }
 
-LocalApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runMode() const
+ApplicationLauncher::Mode CustomExecutableRunConfiguration::runMode() const
 {
     return m_runMode;
 }
@@ -254,7 +254,8 @@ QVariantMap CustomExecutableRunConfiguration::toMap() const
     map.insert(QLatin1String(EXECUTABLE_KEY), m_executable);
     map.insert(QLatin1String(ARGUMENTS_KEY), m_cmdArguments);
     map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
-    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
+    map.insert(QLatin1String(USE_TERMINAL_KEY),
+               m_runMode == ProjectExplorer::ApplicationLauncher::Console);
     return map;
 }
 
@@ -263,7 +264,9 @@ bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
     m_executable = map.value(QLatin1String(EXECUTABLE_KEY)).toString();
     m_cmdArguments = map.value(QLatin1String(ARGUMENTS_KEY)).toString();
     m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
-    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
+    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool()
+            ? ProjectExplorer::ApplicationLauncher::Console
+            : ProjectExplorer::ApplicationLauncher::Gui;
 
     setDefaultDisplayName(defaultDisplayName());
     return LocalApplicationRunConfiguration::fromMap(map);
@@ -290,7 +293,7 @@ void CustomExecutableRunConfiguration::setBaseWorkingDirectory(const QString &wo
     emit changed();
 }
 
-void CustomExecutableRunConfiguration::setRunMode(LocalApplicationRunConfiguration::RunMode runMode)
+void CustomExecutableRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
 {
     m_runMode = runMode;
     emit changed();

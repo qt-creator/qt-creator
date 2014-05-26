@@ -70,7 +70,7 @@ const char ARGUMENTS_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.Argument
 CMakeRunConfiguration::CMakeRunConfiguration(Target *parent, Core::Id id, const QString &target,
                                              const QString &workingDirectory, const QString &title) :
     LocalApplicationRunConfiguration(parent, id),
-    m_runMode(Gui),
+    m_runMode(ProjectExplorer::ApplicationLauncher::Gui),
     m_buildTarget(target),
     m_workingDirectory(workingDirectory),
     m_title(title),
@@ -107,12 +107,12 @@ QString CMakeRunConfiguration::executable() const
     return m_buildTarget;
 }
 
-LocalApplicationRunConfiguration::RunMode CMakeRunConfiguration::runMode() const
+ApplicationLauncher::Mode CMakeRunConfiguration::runMode() const
 {
     return m_runMode;
 }
 
-void CMakeRunConfiguration::setRunMode(RunMode runMode)
+void CMakeRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
 {
     m_runMode = runMode;
 }
@@ -174,7 +174,7 @@ QVariantMap CMakeRunConfiguration::toMap() const
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
 
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
-    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
+    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
     map.insert(QLatin1String(TITLE_KEY), m_title);
     map.insert(QLatin1String(ARGUMENTS_KEY), m_arguments);
 
@@ -184,7 +184,8 @@ QVariantMap CMakeRunConfiguration::toMap() const
 bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
-    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
+    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? ApplicationLauncher::Console
+                                                                    : ApplicationLauncher::Gui;
     m_title = map.value(QLatin1String(TITLE_KEY)).toString();
     m_arguments = map.value(QLatin1String(ARGUMENTS_KEY)).toString();
 
@@ -326,8 +327,8 @@ void CMakeRunConfigurationWidget::resetWorkingDirectory()
 
 void CMakeRunConfigurationWidget::runInTerminalToggled(bool toggled)
 {
-    m_cmakeRunConfiguration->setRunMode(toggled ? LocalApplicationRunConfiguration::Console
-                                                : LocalApplicationRunConfiguration::Gui);
+    m_cmakeRunConfiguration->setRunMode(toggled ? ApplicationLauncher::Console
+                                                : ApplicationLauncher::Gui);
 }
 
 void CMakeRunConfigurationWidget::environmentWasChanged()

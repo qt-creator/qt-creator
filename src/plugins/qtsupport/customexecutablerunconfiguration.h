@@ -64,7 +64,7 @@ public:
      */
     bool isConfigured() const;
 
-    RunMode runMode() const;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const;
     QString workingDirectory() const;
     QString commandLineArguments() const;
 
@@ -95,13 +95,13 @@ private:
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     void setUserName(const QString &name);
-    void setRunMode(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
+    void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
     bool validateExecutable(QString *executable = 0, QString *errorMessage = 0) const;
 
     QString m_executable;
     QString m_workingDirectory;
     QString m_cmdArguments;
-    RunMode m_runMode;
+    ProjectExplorer::ApplicationLauncher::Mode m_runMode;
 };
 
 class CustomExecutableRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

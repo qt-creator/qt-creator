@@ -333,7 +333,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         return sp;
 
     sp.processArgs = rc->commandLineArguments();
-    sp.useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
+    sp.useTerminal = rc->runMode() == ApplicationLauncher::Console;
 
     if (target) {
         if (const Project *project = target->project()) {

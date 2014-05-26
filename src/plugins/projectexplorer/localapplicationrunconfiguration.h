@@ -45,13 +45,9 @@ class PROJECTEXPLORER_EXPORT LocalApplicationRunConfiguration : public RunConfig
     Q_OBJECT
 public:
     ~LocalApplicationRunConfiguration();
-    enum RunMode {
-        Console = ApplicationLauncher::Console,
-        Gui
-    };
 
     virtual QString executable() const = 0;
-    virtual RunMode runMode() const = 0;
+    virtual ApplicationLauncher::Mode runMode() const = 0;
     virtual QString workingDirectory() const = 0;
     virtual QString commandLineArguments() const = 0;
 

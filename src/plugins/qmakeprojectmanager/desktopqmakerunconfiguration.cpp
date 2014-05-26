@@ -80,7 +80,7 @@ static QString pathFromId(Core::Id id)
 DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core::Id id) :
     LocalApplicationRunConfiguration(parent, id),
     m_proFilePath(pathFromId(id)),
-    m_runMode(Gui),
+    m_runMode(ApplicationLauncher::Gui),
     m_isUsingDyldImageSuffix(false)
 {
     addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
@@ -240,13 +240,13 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
 
     QHBoxLayout *innerBox = new QHBoxLayout();
     m_useTerminalCheck = new QCheckBox(tr("Run in terminal"), this);
-    m_useTerminalCheck->setChecked(m_qmakeRunConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
+    m_useTerminalCheck->setChecked(m_qmakeRunConfiguration->runMode() == ApplicationLauncher::Console);
     m_useTerminalCheck->setVisible(!m_qmakeRunConfiguration->forcedGuiMode());
     innerBox->addWidget(m_useTerminalCheck);
 
     m_useQvfbCheck = new QCheckBox(tr("Run on QVFb"), this);
     m_useQvfbCheck->setToolTip(tr("Check this option to run the application on a Qt Virtual Framebuffer."));
-    m_useQvfbCheck->setChecked(m_qmakeRunConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
+    m_useQvfbCheck->setChecked(m_qmakeRunConfiguration->runMode() == ApplicationLauncher::Console);
     m_useQvfbCheck->setVisible(false);
     innerBox->addWidget(m_useQvfbCheck);
     innerBox->addStretch();
@@ -280,8 +280,8 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
 
     connect(qmakeRunConfiguration, SIGNAL(commandLineArgumentsChanged(QString)),
             this, SLOT(commandLineArgumentsChanged(QString)));
-    connect(qmakeRunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)),
-            this, SLOT(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)));
+    connect(qmakeRunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)),
+            this, SLOT(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)));
     connect(qmakeRunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
             this, SLOT(usingDyldImageSuffixChanged(bool)));
     connect(qmakeRunConfiguration, SIGNAL(effectiveTargetInformationChanged()),
@@ -336,8 +336,8 @@ void DesktopQmakeRunConfigurationWidget::argumentsEdited(const QString &args)
 void DesktopQmakeRunConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
-    m_qmakeRunConfiguration->setRunMode(on ? LocalApplicationRunConfiguration::Console
-                                         : LocalApplicationRunConfiguration::Gui);
+    m_qmakeRunConfiguration->setRunMode(on ? ApplicationLauncher::Console
+                                           : ApplicationLauncher::Gui);
     m_ignoreChange = false;
 }
 
@@ -368,11 +368,11 @@ void DesktopQmakeRunConfigurationWidget::commandLineArgumentsChanged(const QStri
     m_argumentsLineEdit->setText(args);
 }
 
-void DesktopQmakeRunConfigurationWidget::runModeChanged(LocalApplicationRunConfiguration::RunMode runMode)
+void DesktopQmakeRunConfigurationWidget::runModeChanged(ApplicationLauncher::Mode runMode)
 {
     if (!m_ignoreChange) {
         m_useTerminalCheck->setVisible(!m_qmakeRunConfiguration->forcedGuiMode());
-        m_useTerminalCheck->setChecked(runMode == LocalApplicationRunConfiguration::Console);
+        m_useTerminalCheck->setChecked(runMode == ApplicationLauncher::Console);
     }
 }
 
@@ -416,7 +416,7 @@ QVariantMap DesktopQmakeRunConfiguration::toMap() const
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
     map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
-    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
+    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
     map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     return map;
@@ -427,7 +427,8 @@ bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
     const QDir projectDir = QDir(target()->project()->projectDirectory().toString());
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toString();
     m_proFilePath = QDir::cleanPath(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
-    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool() ? Console : Gui;
+    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool()
+            ? ApplicationLauncher::Console : ApplicationLauncher::Gui;
     m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
 
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
@@ -445,10 +446,10 @@ QString DesktopQmakeRunConfiguration::executable() const
     return extractWorkingDirAndExecutable(node).second;
 }
 
-LocalApplicationRunConfiguration::RunMode DesktopQmakeRunConfiguration::runMode() const
+ApplicationLauncher::Mode DesktopQmakeRunConfiguration::runMode() const
 {
     if (m_forcedGuiMode)
-        return LocalApplicationRunConfiguration::Gui;
+        return ProjectExplorer::ApplicationLauncher::Gui;
     return m_runMode;
 }
 
@@ -515,7 +516,7 @@ void DesktopQmakeRunConfiguration::setCommandLineArguments(const QString &argume
     emit commandLineArgumentsChanged(argumentsString);
 }
 
-void DesktopQmakeRunConfiguration::setRunMode(RunMode runMode)
+void DesktopQmakeRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
 {
     m_runMode = runMode;
     emit runModeChanged(runMode);
@@ -637,8 +638,7 @@ RunConfiguration *DesktopQmakeRunConfigurationFactory::doCreate(Target *parent, 
     if (node) // should always be found
         rc->setRunMode(node->variableValue(ConfigVar).contains(QLatin1String("console"))
                        && !node->variableValue(QtVar).contains(QLatin1String("testlib"))
-                       ? LocalApplicationRunConfiguration::Console
-                       : LocalApplicationRunConfiguration::Gui);
+                       ? ApplicationLauncher::Console : ApplicationLauncher::Gui);
     return rc;
 }
 

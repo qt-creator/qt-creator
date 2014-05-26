@@ -59,8 +59,8 @@ public:
     ~CMakeRunConfiguration();
 
     QString executable() const;
-    RunMode runMode() const;
-    void setRunMode(RunMode runMode);
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const;
+    void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
     QString workingDirectory() const;
     QString commandLineArguments() const;
     QWidget *createConfigurationWidget();
@@ -93,7 +93,7 @@ private:
     QString baseWorkingDirectory() const;
     void ctor();
 
-    RunMode m_runMode;
+    ProjectExplorer::ApplicationLauncher::Mode m_runMode;
     QString m_buildTarget;
     QString m_workingDirectory;
     QString m_userWorkingDirectory;

@@ -77,7 +77,7 @@ public:
     virtual QWidget *createConfigurationWidget();
 
     virtual QString executable() const;
-    virtual RunMode runMode() const;
+    virtual ProjectExplorer::ApplicationLauncher::Mode runMode() const;
     bool forcedGuiMode() const;
     virtual QString workingDirectory() const;
     virtual QString commandLineArguments() const;
@@ -91,14 +91,14 @@ public:
 
     Utils::OutputFormatter *createOutputFormatter() const;
 
-    void setRunMode(RunMode runMode);
+    void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
 signals:
     void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);
-    void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
+    void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
     void usingDyldImageSuffixChanged(bool);
 
     // Note: These signals might not get emitted for every change!
@@ -127,7 +127,7 @@ private:
     QString m_proFilePath; // Full path to the Application Pro File
 
     // Cached startup sub project information
-    ProjectExplorer::LocalApplicationRunConfiguration::RunMode m_runMode;
+    ProjectExplorer::ApplicationLauncher::Mode m_runMode;
     bool m_forcedGuiMode;
     bool m_isUsingDyldImageSuffix;
     QString m_userWorkingDirectory;
@@ -156,7 +156,7 @@ private slots:
 
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
-    void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
+    void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void effectiveTargetInformationChanged();
     void termToggled(bool);

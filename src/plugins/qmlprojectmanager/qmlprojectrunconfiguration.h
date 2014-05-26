@@ -61,7 +61,7 @@ public:
     QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     QString executable() const;
-    RunMode runMode() const;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const;
     QString commandLineArguments() const;
 
     QString workingDirectory() const;

@@ -135,8 +135,8 @@ void CustomExecutableConfigurationWidget::workingDirectoryEdited()
 void CustomExecutableConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
-    m_runConfiguration->setRunMode(on ? ProjectExplorer::LocalApplicationRunConfiguration::Console
-                                      : ProjectExplorer::LocalApplicationRunConfiguration::Gui);
+    m_runConfiguration->setRunMode(on ? ProjectExplorer::ApplicationLauncher::Console
+                                      : ProjectExplorer::ApplicationLauncher::Gui);
     m_ignoreChange = false;
 }
 
@@ -150,7 +150,7 @@ void CustomExecutableConfigurationWidget::changed()
     m_commandLineArgumentsLineEdit->setText(m_runConfiguration->rawCommandLineArguments());
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
     m_useTerminalCheck->setChecked(m_runConfiguration->runMode()
-                                   == ProjectExplorer::LocalApplicationRunConfiguration::Console);
+                                   == ProjectExplorer::ApplicationLauncher::Console);
 }
 
 } // namespace Internal

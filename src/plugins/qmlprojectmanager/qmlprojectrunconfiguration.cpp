@@ -115,9 +115,9 @@ QString QmlProjectRunConfiguration::executable() const
     return version->qmlviewerCommand();
 }
 
-LocalApplicationRunConfiguration::RunMode QmlProjectRunConfiguration::runMode() const
+ApplicationLauncher::Mode QmlProjectRunConfiguration::runMode() const
 {
-    return Gui;
+    return ApplicationLauncher::Gui;
 }
 
 QString QmlProjectRunConfiguration::commandLineArguments() const

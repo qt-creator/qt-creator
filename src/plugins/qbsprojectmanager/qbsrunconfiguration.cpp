@@ -94,7 +94,7 @@ namespace Internal {
 QbsRunConfiguration::QbsRunConfiguration(Target *parent, Core::Id id) :
     LocalApplicationRunConfiguration(parent, id),
     m_qbsProduct(productFromId(id)),
-    m_runMode(Gui),
+    m_runMode(ApplicationLauncher::Gui),
     m_currentInstallStep(0),
     m_currentBuildStepList(0)
 {
@@ -140,12 +140,12 @@ void QbsRunConfiguration::ctor()
     connect(project, SIGNAL(projectParsingStarted()), this, SIGNAL(enabledChanged()));
     connect(project, SIGNAL(projectParsingDone(bool)), this, SIGNAL(enabledChanged()));
 
-    connect(target(), SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
+    connect(target(), SIGNAL(activeDeployConfigurationChanged(DeployConfiguration*)),
             this, SLOT(installStepChanged()));
     installStepChanged();
 
     if (isConsoleApplication())
-        m_runMode = Console;
+        m_runMode = ApplicationLauncher::Console;
 }
 
 QWidget *QbsRunConfiguration::createConfigurationWidget()
@@ -157,7 +157,7 @@ QVariantMap QbsRunConfiguration::toMap() const
 {
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
     map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
-    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
+    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == ApplicationLauncher::Console);
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     return map;
 }
@@ -165,7 +165,8 @@ QVariantMap QbsRunConfiguration::toMap() const
 bool QbsRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toString();
-    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool() ? Console : Gui;
+    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool() ?
+                ApplicationLauncher::Console : ApplicationLauncher::Gui;
 
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
 
@@ -209,7 +210,7 @@ QString QbsRunConfiguration::executable() const
     return pro->qbsProject().targetExecutable(product, installOptions());
 }
 
-LocalApplicationRunConfiguration::RunMode QbsRunConfiguration::runMode() const
+ApplicationLauncher::Mode QbsRunConfiguration::runMode() const
 {
     return m_runMode;
 }
@@ -274,7 +275,7 @@ void QbsRunConfiguration::setCommandLineArguments(const QString &argumentsString
     emit commandLineArgumentsChanged(argumentsString);
 }
 
-void QbsRunConfiguration::setRunMode(RunMode runMode)
+void QbsRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
 {
     m_runMode = runMode;
     emit runModeChanged(runMode);
@@ -411,8 +412,8 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
 
     connect(m_rc, SIGNAL(commandLineArgumentsChanged(QString)),
             this, SLOT(commandLineArgumentsChanged(QString)));
-    connect(m_rc, SIGNAL(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)),
-            this, SLOT(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)));
+    connect(m_rc, SIGNAL(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)),
+            this, SLOT(runModeChanged(ProjectExplorer::ApplicationLauncher::Mode)));
     connect(m_rc, SIGNAL(targetInformationChanged()),
             this, SLOT(targetInformationHasChanged()), Qt::QueuedConnection);
 
@@ -434,7 +435,7 @@ void QbsRunConfigurationWidget::runConfigurationEnabledChange()
     m_disabledReason->setVisible(!enabled);
     m_disabledReason->setText(m_rc->disabledReason());
 
-    m_useTerminalCheck->setChecked(m_rc->runMode() == LocalApplicationRunConfiguration::Console);
+    m_useTerminalCheck->setChecked(m_rc->runMode() == ApplicationLauncher::Console);
     targetInformationHasChanged();
 }
 
@@ -464,8 +465,7 @@ void QbsRunConfigurationWidget::argumentsEdited(const QString &args)
 void QbsRunConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
-    m_rc->setRunMode(on ? LocalApplicationRunConfiguration::Console
-                        : LocalApplicationRunConfiguration::Gui);
+    m_rc->setRunMode(on ? ApplicationLauncher::Console : ApplicationLauncher::Gui);
     m_ignoreChange = false;
 }
 
@@ -492,10 +492,10 @@ void QbsRunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
     m_argumentsLineEdit->setText(args);
 }
 
-void QbsRunConfigurationWidget::runModeChanged(LocalApplicationRunConfiguration::RunMode runMode)
+void QbsRunConfigurationWidget::runModeChanged(ApplicationLauncher::Mode runMode)
 {
     if (!m_ignoreChange)
-        m_useTerminalCheck->setChecked(runMode == LocalApplicationRunConfiguration::Console);
+        m_useTerminalCheck->setChecked(runMode == ProjectExplorer::ApplicationLauncher::Console);
 }
 
 // --------------------------------------------------------------------

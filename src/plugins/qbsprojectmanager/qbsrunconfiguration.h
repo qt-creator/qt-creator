@@ -77,7 +77,7 @@ public:
     QWidget *createConfigurationWidget();
 
     QString executable() const;
-    RunMode runMode() const;
+    ProjectExplorer::ApplicationLauncher::Mode runMode() const;
     QString workingDirectory() const;
     QString commandLineArguments() const;
 
@@ -85,7 +85,7 @@ public:
 
     Utils::OutputFormatter *createOutputFormatter() const;
 
-    void setRunMode(RunMode runMode);
+    void setRunMode(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void addToBaseEnvironment(Utils::Environment &env) const;
 
@@ -95,7 +95,7 @@ public:
 signals:
     void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);
-    void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
+    void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
     void targetInformationChanged();
     void usingDyldImageSuffixChanged(bool);
 
@@ -123,7 +123,7 @@ private:
     QString m_commandLineArguments;
 
     // Cached startup sub project information
-    ProjectExplorer::LocalApplicationRunConfiguration::RunMode m_runMode;
+    ProjectExplorer::ApplicationLauncher::Mode m_runMode;
     QString m_userWorkingDirectory;
 
     QbsInstallStep *m_currentInstallStep; // We do not take ownership!
@@ -146,7 +146,7 @@ private slots:
 
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
-    void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
+    void runModeChanged(ProjectExplorer::ApplicationLauncher::Mode runMode);
 
     void termToggled(bool);
 
