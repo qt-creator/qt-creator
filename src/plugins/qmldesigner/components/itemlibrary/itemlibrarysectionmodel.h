@@ -53,20 +53,17 @@ public:
 
     void addItem(ItemLibraryItem *item);
 
-    void privateInsert(int pos, QObject *item);
-    void privateRemove(int pos);
-
     const QList<ItemLibraryItem *> &items() const;
 
     void resetModel();
 
 private: // functions
     void addRoleNames();
+    int visibleItemCount() const;
+    const QList<ItemLibraryItem *> visibleItems() const;
 
 private: // variables
     QList<ItemLibraryItem*> m_itemList;
-
-    QList<QObject *> m_privList;
     QHash<int, QByteArray> m_roleNames;
 };
 

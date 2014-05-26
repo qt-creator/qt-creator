@@ -46,23 +46,24 @@ ItemLibrarySectionModel::~ItemLibrarySectionModel()
 
 int ItemLibrarySectionModel::rowCount(const QModelIndex &) const
 {
-    return m_privList.count();
+    return visibleItemCount();
 }
 
 QVariant ItemLibrarySectionModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row()+1 > m_privList.count()) {
+    if (!index.isValid() || index.row() + 1 > visibleItemCount()) {
         qDebug() << Q_FUNC_INFO << "invalid index requested";
         return QVariant();
     }
 
     if (m_roleNames.contains(role)) {
-        QVariant value = m_privList.at(index.row())->property(m_roleNames.value(role));
+        QList<ItemLibraryItem *> visibleItemList = visibleItems();
+        QVariant value = visibleItemList.at(index.row())->property(m_roleNames.value(role));
 
         if (ItemLibrarySectionModel* model = qobject_cast<ItemLibrarySectionModel *>(value.value<QObject*>()))
             return QVariant::fromValue(model);
 
-        return m_privList.at(index.row())->property(m_roleNames.value(role));
+        return visibleItemList.at(index.row())->property(m_roleNames.value(role));
     }
 
     qWarning() << Q_FUNC_INFO << "invalid role requested";
@@ -90,16 +91,6 @@ void ItemLibrarySectionModel::addItem(ItemLibraryItem *element)
     element->setVisible(true);
 }
 
-void ItemLibrarySectionModel::privateInsert(int pos, QObject *element)
-{
-    m_privList.insert(pos, element);
-}
-
-void ItemLibrarySectionModel::privateRemove(int pos)
-{
-    m_privList.removeAt(pos);
-}
-
 const QList<ItemLibraryItem *> &ItemLibrarySectionModel::items() const
 {
     return m_itemList;
@@ -121,6 +112,30 @@ void ItemLibrarySectionModel::addRoleNames()
     }
 
     setRoleNames(m_roleNames);
+}
+
+int ItemLibrarySectionModel::visibleItemCount() const
+{
+    int visibleItemCount = 0;
+
+    foreach (ItemLibraryItem *itemLibraryItem, m_itemList) {
+        if (itemLibraryItem->isVisible())
+            visibleItemCount += 1;
+    }
+
+    return visibleItemCount;
+}
+
+const QList<ItemLibraryItem *> ItemLibrarySectionModel::visibleItems() const
+{
+    QList<ItemLibraryItem *> visibleItemList;
+
+    foreach (ItemLibraryItem *itemLibraryItem, m_itemList) {
+        if (itemLibraryItem->isVisible())
+            visibleItemList.append(itemLibraryItem);
+    }
+
+    return visibleItemList;
 }
 
 } // namespace QmlDesigner
