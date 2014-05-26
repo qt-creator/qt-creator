@@ -250,6 +250,11 @@ void CppEditorOutline::gotoSymbolInEditor()
         return;
 
     const TextEditor::BaseTextEditorWidget::Link &link = CPPEditorWidget::linkToSymbol(symbol);
+    if (!link.hasValidTarget())
+        return;
+
+    Core::EditorManager::cutForwardNavigationHistory();
+    Core::EditorManager::addCurrentPositionToNavigationHistory();
     m_editorWidget->gotoLine(link.targetLine, link.targetColumn);
     Core::EditorManager::activateEditor(m_editorWidget->editor());
 }
