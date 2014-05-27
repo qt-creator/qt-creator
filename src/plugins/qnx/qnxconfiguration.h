@@ -56,7 +56,6 @@ public:
 
 private:
     QString m_configName;
-    QnxQtVersion *m_qtVersion;
 
     ProjectExplorer::Kit *createKit(QnxArchitecture arch,
                                     QnxToolChain *toolChain,
