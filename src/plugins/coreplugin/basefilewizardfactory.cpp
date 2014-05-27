@@ -177,20 +177,15 @@ void WizardEventLoop::rejected()
     \sa Core::Internal::WizardEventLoop
 */
 
-BaseFileWizardFactory::ExtensionList BaseFileWizardFactory::extensions() const
-{
-    return ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
-}
-
 void BaseFileWizardFactory::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues)
 {
     QTC_ASSERT(!path.isEmpty(), return);
 
     QString errorMessage;
     // Compile extension pages, purge out unused ones
-    ExtensionList extensionList = extensions();
+    QList<IFileWizardExtension *> extensionList = ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
     WizardPageList  allExtensionPages;
-    for (ExtensionList::iterator it = extensionList.begin(); it !=  extensionList.end(); ) {
+    for (auto it = extensionList.begin(); it !=  extensionList.end(); ) {
         const WizardPageList extensionPages = (*it)->extensionPages(this);
         if (extensionPages.empty()) {
             it = extensionList.erase(it);
