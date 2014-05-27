@@ -63,7 +63,8 @@ static const char *MESSAGE_STRINGS[] = {
     "RangeEnd",
     "Complete",
     "PixmapCache",
-    "SceneGraph"
+    "SceneGraph",
+    "MemoryAllocation"
 };
 
 Q_STATIC_ASSERT(sizeof(MESSAGE_STRINGS) == QmlDebug::MaximumMessage * sizeof(const char *));

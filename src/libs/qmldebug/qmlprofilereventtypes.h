@@ -43,6 +43,7 @@ enum Message {
     Complete,
     PixmapCacheEvent,
     SceneGraphFrame,
+    MemoryAllocation,
 
     MaximumMessage
 };
@@ -102,6 +103,14 @@ enum SceneGraphFrameType {
     SceneGraphWindowsPolishFrame,
 
     MaximumSceneGraphFrameType
+};
+
+enum MemoryType {
+    HeapPage,
+    LargeItem,
+    SmallItem,
+
+    MaximumMemoryType
 };
 
 enum AnimationThread {

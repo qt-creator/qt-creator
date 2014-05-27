@@ -215,6 +215,13 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                          QStringList(), QmlDebug::QmlEventLocation(pixUrl,0,0), width, height,
                          refcount, 0, 0);
         d->maximumTime = qMax(time, d->maximumTime);
+    } else if (messageType == MemoryAllocation) {
+        int type;
+        qint64 delta;
+        stream >> type >> delta;
+        emit rangedEvent(QmlDebug::MemoryAllocation, QmlDebug::MaximumRangeType, type, time, 0,
+                         QStringList(), QmlDebug::QmlEventLocation(), delta, 0, 0, 0, 0);
+        d->maximumTime = qMax(time, d->maximumTime);
     } else {
         int range;
         stream >> range;
