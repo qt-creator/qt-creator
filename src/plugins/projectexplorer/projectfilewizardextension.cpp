@@ -249,8 +249,9 @@ static inline AddNewTree *getChoices(const QStringList &generatedFiles,
 }
 
 // --------- ProjectWizardContext
-struct ProjectWizardContext
+class ProjectWizardContext
 {
+public:
     ProjectWizardContext();
     void clear();
 

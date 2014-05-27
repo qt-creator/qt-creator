@@ -39,7 +39,7 @@ class FolderNode;
 
 namespace Internal {
 
-struct ProjectWizardContext;
+class ProjectWizardContext;
 
 class PROJECTEXPLORER_EXPORT ProjectFileWizardExtension : public Core::IFileWizardExtension
 {
