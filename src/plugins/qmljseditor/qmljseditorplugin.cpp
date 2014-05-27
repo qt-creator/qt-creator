@@ -68,7 +68,6 @@
 #include <utils/json.h>
 
 #include <QtPlugin>
-#include <QDebug>
 #include <QSettings>
 #include <QDir>
 #include <QCoreApplication>

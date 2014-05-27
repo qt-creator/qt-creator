@@ -31,7 +31,6 @@
 
 #include <QSet>
 #include <QtAlgorithms>
-#include <QDebug>
 
 #include <utils/qtcassert.h>
 

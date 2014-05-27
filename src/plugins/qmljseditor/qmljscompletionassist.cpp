@@ -59,7 +59,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <QDebug>
 #include <QtAlgorithms>
 #include <QDirIterator>
 #include <QStringList>
@@ -701,7 +700,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             ValueOwner *interp = context->valueOwner();
             const Value *value =
                     interp->convertToObject(scopeChain.evaluate(expression));
-            //qDebug() << "type:" << interp->typeId(value);
+            //qCDebug(qmljsLog) << "type:" << interp->typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 ProcessProperties processProperties(&scopeChain);

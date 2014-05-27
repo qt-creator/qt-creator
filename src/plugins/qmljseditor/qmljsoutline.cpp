@@ -36,7 +36,6 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QDebug>
 #include <QSettings>
 #include <QAction>
 #include <QVBoxLayout>

@@ -38,8 +38,6 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
 
-#include <QDebug>
-
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSTools;

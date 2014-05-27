@@ -39,8 +39,6 @@
 #include <QMessageBox>
 #include <QApplication>
 
-#include <QDebug>
-
 namespace QmlJSEditor {
 namespace Internal {
 
