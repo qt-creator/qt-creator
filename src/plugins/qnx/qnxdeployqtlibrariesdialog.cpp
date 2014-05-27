@@ -29,10 +29,11 @@
 **
 ****************************************************************************/
 
-#include "blackberrydeployqtlibrariesdialog.h"
-#include "ui_blackberrydeployqtlibrariesdialog.h"
+#include "qnxdeployqtlibrariesdialog.h"
+#include "ui_qnxdeployqtlibrariesdialog.h"
 
 #include "blackberryqtversion.h"
+#include "qnxqtversion.h"
 
 #include <projectexplorer/deployablefile.h>
 #include <qtsupport/qtversionmanager.h>
@@ -46,24 +47,36 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BlackBerryDeployQtLibrariesDialog::BlackBerryDeployQtLibrariesDialog(
-        const ProjectExplorer::IDevice::ConstPtr &device, QWidget *parent)
+QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(
+        const ProjectExplorer::IDevice::ConstPtr &device, Target target, QWidget *parent)
     : QDialog(parent)
-    , m_ui(new Ui::BlackBerryDeployQtLibrariesDialog)
+    , m_ui(new Ui::QnxDeployQtLibrariesDialog)
     , m_device(device)
     , m_progressCount(0)
     , m_state(Inactive)
+    , m_target(target)
 {
     m_ui->setupUi(this);
 
     QList<QtSupport::BaseQtVersion*> qtVersions = QtSupport::QtVersionManager::validVersions();
     foreach (QtSupport::BaseQtVersion *qtVersion, qtVersions) {
-        BlackBerryQtVersion *blackBerryQt = dynamic_cast<BlackBerryQtVersion *>(qtVersion);
-        if (!blackBerryQt)
+        QnxAbstractQtVersion *qnxQt;
+        if (m_target == BB10)
+            qnxQt = dynamic_cast<BlackBerryQtVersion *>(qtVersion);
+        else
+            qnxQt = dynamic_cast<QnxQtVersion *>(qtVersion);
+
+        if (!qnxQt)
             continue;
 
-        m_ui->qtLibraryCombo->addItem(blackBerryQt->displayName(), blackBerryQt->uniqueId());
+        m_ui->qtLibraryCombo->addItem(qnxQt->displayName(), qnxQt->uniqueId());
+
     }
+
+    m_ui->basePathLabel->setText(m_target == BB10 ?
+                                     QLatin1String(Constants::QNX_BLACKBERRY_DEFAULT_DEPLOY_QT_BASEPATH) :
+                                     QString());
+    m_ui->remoteDirectory->setText(m_target == BB10 ? QLatin1String("qt") : QLatin1String("/qt"));
 
     m_uploadService = new RemoteLinux::GenericDirectUploadService(this);
     m_uploadService->setDevice(m_device);
@@ -91,12 +104,12 @@ BlackBerryDeployQtLibrariesDialog::BlackBerryDeployQtLibrariesDialog(
     connect(m_ui->closeButton, SIGNAL(clicked()), this, SLOT(close()));
 }
 
-BlackBerryDeployQtLibrariesDialog::~BlackBerryDeployQtLibrariesDialog()
+QnxDeployQtLibrariesDialog::~QnxDeployQtLibrariesDialog()
 {
     delete m_ui;
 }
 
-int BlackBerryDeployQtLibrariesDialog::execAndDeploy(int qtVersionId, const QString &remoteDirectory)
+int QnxDeployQtLibrariesDialog::execAndDeploy(int qtVersionId, const QString &remoteDirectory)
 {
     m_ui->remoteDirectory->setText(remoteDirectory);
     m_ui->qtLibraryCombo->setCurrentIndex(m_ui->qtLibraryCombo->findData(qtVersionId));
@@ -105,7 +118,7 @@ int BlackBerryDeployQtLibrariesDialog::execAndDeploy(int qtVersionId, const QStr
     return exec();
 }
 
-void BlackBerryDeployQtLibrariesDialog::closeEvent(QCloseEvent *event)
+void QnxDeployQtLibrariesDialog::closeEvent(QCloseEvent *event)
 {
     // A disabled Deploy button indicates the upload is still running
     if (!m_ui->deployButton->isEnabled()) {
@@ -120,7 +133,7 @@ void BlackBerryDeployQtLibrariesDialog::closeEvent(QCloseEvent *event)
     }
 }
 
-void BlackBerryDeployQtLibrariesDialog::deployLibraries()
+void QnxDeployQtLibrariesDialog::deployLibraries()
 {
     QTC_ASSERT(m_state == Inactive, return);
 
@@ -142,7 +155,7 @@ void BlackBerryDeployQtLibrariesDialog::deployLibraries()
     checkRemoteDirectoryExistance();
 }
 
-void BlackBerryDeployQtLibrariesDialog::startUpload()
+void QnxDeployQtLibrariesDialog::startUpload()
 {
     QTC_CHECK(m_state == CheckingRemoteDirectory || m_state == RemovingRemoteDirectory);
 
@@ -156,7 +169,7 @@ void BlackBerryDeployQtLibrariesDialog::startUpload()
     m_uploadService->start();
 }
 
-void BlackBerryDeployQtLibrariesDialog::updateProgress(const QString &progressMessage)
+void QnxDeployQtLibrariesDialog::updateProgress(const QString &progressMessage)
 {
     QTC_CHECK(m_state == Uploading);
 
@@ -168,7 +181,7 @@ void BlackBerryDeployQtLibrariesDialog::updateProgress(const QString &progressMe
     m_ui->deployProgress->setValue(m_progressCount);
 }
 
-void BlackBerryDeployQtLibrariesDialog::handleUploadFinished()
+void QnxDeployQtLibrariesDialog::handleUploadFinished()
 {
     m_ui->remoteDirectory->setEnabled(true);
     m_ui->deployButton->setEnabled(true);
@@ -177,7 +190,7 @@ void BlackBerryDeployQtLibrariesDialog::handleUploadFinished()
     m_state = Inactive;
 }
 
-void BlackBerryDeployQtLibrariesDialog::handleRemoteProcessError()
+void QnxDeployQtLibrariesDialog::handleRemoteProcessError()
 {
     QTC_CHECK(m_state == CheckingRemoteDirectory || m_state == RemovingRemoteDirectory);
 
@@ -187,7 +200,7 @@ void BlackBerryDeployQtLibrariesDialog::handleRemoteProcessError()
     handleUploadFinished();
 }
 
-void BlackBerryDeployQtLibrariesDialog::handleRemoteProcessCompleted()
+void QnxDeployQtLibrariesDialog::handleRemoteProcessCompleted()
 {
     QTC_CHECK(m_state == CheckingRemoteDirectory || m_state == RemovingRemoteDirectory);
 
@@ -215,14 +228,19 @@ void BlackBerryDeployQtLibrariesDialog::handleRemoteProcessCompleted()
     }
 }
 
-QList<ProjectExplorer::DeployableFile> BlackBerryDeployQtLibrariesDialog::gatherFiles()
+QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
 {
     QList<ProjectExplorer::DeployableFile> result;
 
     const int qtVersionId =
             m_ui->qtLibraryCombo->itemData(m_ui->qtLibraryCombo->currentIndex()).toInt();
-    BlackBerryQtVersion *qtVersion =
-            dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtVersionManager::version(qtVersionId));
+
+
+    QnxAbstractQtVersion *qtVersion;
+    if (m_target == BB10)
+        qtVersion = dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtVersionManager::version(qtVersionId));
+    else
+        qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtVersionManager::version(qtVersionId));
 
     QTC_ASSERT(qtVersion, return result);
 
@@ -234,7 +252,7 @@ QList<ProjectExplorer::DeployableFile> BlackBerryDeployQtLibrariesDialog::gather
     return result;
 }
 
-QList<ProjectExplorer::DeployableFile> BlackBerryDeployQtLibrariesDialog::gatherFiles(
+QList<ProjectExplorer::DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
         const QString &dirPath, const QString &baseDirPath)
 {
     QList<ProjectExplorer::DeployableFile> result;
@@ -267,12 +285,16 @@ QList<ProjectExplorer::DeployableFile> BlackBerryDeployQtLibrariesDialog::gather
     return result;
 }
 
-QString BlackBerryDeployQtLibrariesDialog::fullRemoteDirectory() const
+QString QnxDeployQtLibrariesDialog::fullRemoteDirectory() const
 {
-    return QLatin1String(Constants::QNX_BLACKBERRY_DEFAULT_DEPLOY_QT_BASEPATH) + m_ui->remoteDirectory->text();
+    QString basePath;
+    if (m_target == BB10)
+        basePath = QLatin1String(Constants::QNX_BLACKBERRY_DEFAULT_DEPLOY_QT_BASEPATH);
+
+    return  basePath + m_ui->remoteDirectory->text();
 }
 
-void BlackBerryDeployQtLibrariesDialog::checkRemoteDirectoryExistance()
+void QnxDeployQtLibrariesDialog::checkRemoteDirectoryExistance()
 {
     QTC_CHECK(m_state == Inactive);
 
@@ -285,7 +307,7 @@ void BlackBerryDeployQtLibrariesDialog::checkRemoteDirectoryExistance()
     m_processRunner->run(cmd, m_device->sshParameters());
 }
 
-void BlackBerryDeployQtLibrariesDialog::removeRemoteDirectory()
+void QnxDeployQtLibrariesDialog::removeRemoteDirectory()
 {
     QTC_CHECK(m_state == CheckingRemoteDirectory);
 

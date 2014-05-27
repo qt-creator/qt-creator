@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Qnx::Internal::BlackBerryDeployQtLibrariesDialog</class>
- <widget class="QDialog" name="Qnx::Internal::BlackBerryDeployQtLibrariesDialog">
+ <class>Qnx::Internal::QnxDeployQtLibrariesDialog</class>
+ <widget class="QDialog" name="Qnx::Internal::QnxDeployQtLibrariesDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -56,16 +56,16 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_3">
+        <widget class="QLabel" name="basePathLabel">
          <property name="text">
-          <string>/accounts/devuser/</string>
+          <string/>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLineEdit" name="remoteDirectory">
          <property name="text">
-          <string>qt</string>
+          <string/>
          </property>
         </widget>
        </item>

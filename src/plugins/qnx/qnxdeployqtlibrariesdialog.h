@@ -29,8 +29,8 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYDEPLOYQTLIBRARIESDIALOG_H
-#define QNX_INTERNAL_BLACKBERRYDEPLOYQTLIBRARIESDIALOG_H
+#ifndef QNX_INTERNAL_QNXDEPLOYQTLIBRARIESDIALOG_H
+#define QNX_INTERNAL_QNXDEPLOYQTLIBRARIESDIALOG_H
 
 #include <QDialog>
 
@@ -49,10 +49,10 @@ namespace Qnx {
 namespace Internal {
 
 namespace Ui {
-class BlackBerryDeployQtLibrariesDialog;
+class QnxDeployQtLibrariesDialog;
 }
 
-class BlackBerryDeployQtLibrariesDialog : public QDialog
+class QnxDeployQtLibrariesDialog : public QDialog
 {
     Q_OBJECT
 
@@ -64,9 +64,15 @@ public:
         Uploading
     };
 
-    explicit BlackBerryDeployQtLibrariesDialog(const ProjectExplorer::IDevice::ConstPtr &device,
+    enum Target {
+        BB10,
+        QNX
+    };
+
+    explicit QnxDeployQtLibrariesDialog(const ProjectExplorer::IDevice::ConstPtr &device,
+                                               Target target = QNX,
                                                QWidget *parent = 0);
-    ~BlackBerryDeployQtLibrariesDialog();
+    ~QnxDeployQtLibrariesDialog();
 
     int execAndDeploy(int qtVersionId, const QString &remoteDirectory);
 
@@ -91,7 +97,7 @@ private:
     void removeRemoteDirectory();
     void startUpload();
 
-    Ui::BlackBerryDeployQtLibrariesDialog *m_ui;
+    Ui::QnxDeployQtLibrariesDialog *m_ui;
 
     QSsh::SshRemoteProcessRunner *m_processRunner;
     RemoteLinux::GenericDirectUploadService *m_uploadService;
@@ -101,9 +107,10 @@ private:
     int m_progressCount;
 
     State m_state;
+    Target m_target;
 };
 
 
 } // namespace Internal
 } // namespace Qnx
-#endif // QNX_INTERNAL_BLACKBERRYDEPLOYQTLIBRARIESDIALOG_H
+#endif // QNX_INTERNAL_QNXDEPLOYQTLIBRARIESDIALOG_H

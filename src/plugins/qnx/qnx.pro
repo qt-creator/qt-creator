@@ -97,7 +97,6 @@ SOURCES += qnxplugin.cpp \
     blackberrycheckdevicestatusstep.cpp \
     qnxattachdebugsupport.cpp \
     qnxattachdebugdialog.cpp \
-    blackberrydeployqtlibrariesdialog.cpp \
     blackberrysetuppage.cpp \
     blackberrysetupwidget.cpp \
     blackberryruntimeconfiguration.cpp \
@@ -110,7 +109,8 @@ SOURCES += qnxplugin.cpp \
     qnxsettingswidget.cpp \
     qnxconfigurationmanager.cpp \
     qnxsettingspage.cpp \
-    qnxversionnumber.cpp
+    qnxversionnumber.cpp \
+    qnxdeployqtlibrariesdialog.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -208,7 +208,6 @@ HEADERS += qnxplugin.h\
     blackberrycheckdevicestatusstepconfigwidget.h \
     qnxattachdebugsupport.h \
     qnxattachdebugdialog.h \
-    blackberrydeployqtlibrariesdialog.h \
     blackberrysetuppage.h \
     blackberrysetupwidget.h \
     blackberryruntimeconfiguration.h \
@@ -221,7 +220,8 @@ HEADERS += qnxplugin.h\
     qnxsettingswidget.h \
     qnxconfigurationmanager.h \
     qnxsettingspage.h \
-    qnxversionnumber.h
+    qnxversionnumber.h \
+    qnxdeployqtlibrariesdialog.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \
@@ -251,8 +251,8 @@ FORMS += \
     blackberryinstallwizardoptionpage.ui \
     blackberrydebugtokenpinsdialog.ui \
     blackberrycheckdevicestatusstepconfigwidget.ui \
-    blackberrydeployqtlibrariesdialog.ui \
-    qnxsettingswidget.ui
+    qnxsettingswidget.ui \
+    qnxdeployqtlibrariesdialog.ui
 
 include(../../private_headers.pri)
 include(./cascadesimport/cascadesimport.pri)

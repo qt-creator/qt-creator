@@ -33,7 +33,7 @@
 
 #include "qnxconstants.h"
 #include "qnxdeviceprocesssignaloperation.h"
-#include "blackberrydeployqtlibrariesdialog.h"
+#include "qnxdeployqtlibrariesdialog.h"
 #include "blackberrydeviceconfigurationwidget.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "qnxdeviceprocesslist.h"
@@ -160,7 +160,7 @@ void BlackBerryDeviceConfiguration::executeAction(Core::Id actionId, QWidget *pa
              && connectionManager->isConnected(id())) {
         connectionManager->disconnectDevice(device);
     } else if (actionId == Core::Id(DeployQtLibrariesActionId)) {
-        BlackBerryDeployQtLibrariesDialog dialog(device, parent);
+        QnxDeployQtLibrariesDialog dialog(device, QnxDeployQtLibrariesDialog::BB10, parent);
         dialog.exec();
     }
 }

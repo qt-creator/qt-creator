@@ -33,6 +33,7 @@
 #include "qnxdevicetester.h"
 #include "qnxdeviceprocesslist.h"
 #include "qnxdeviceprocesssignaloperation.h"
+#include "qnxdeployqtlibrariesdialog.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocess.h>
 #include <ssh/sshconnection.h>
@@ -48,6 +49,7 @@ using namespace Qnx::Internal;
 
 namespace {
 const char QnxVersionKey[] = "QnxVersion";
+const char DeployQtLibrariesActionId [] = "Qnx.Qnx.DeployQtLibrariesAction";
 }
 
 class QnxPortsGatheringMethod : public ProjectExplorer::PortsGatheringMethod
@@ -191,6 +193,33 @@ ProjectExplorer::DeviceProcessList *QnxDeviceConfiguration::createProcessListMod
 ProjectExplorer::DeviceTester *QnxDeviceConfiguration::createDeviceTester() const
 {
     return new QnxDeviceTester;
+}
+
+QList<Core::Id> QnxDeviceConfiguration::actionIds() const
+{
+    QList<Core::Id> actions = RemoteLinux::LinuxDevice::actionIds();
+    actions << Core::Id(DeployQtLibrariesActionId);
+    return actions;
+}
+
+QString QnxDeviceConfiguration::displayNameForActionId(Core::Id actionId) const
+{
+    if (actionId == Core::Id(DeployQtLibrariesActionId))
+        return tr("Deploy Qt libraries...");
+
+    return RemoteLinux::LinuxDevice::displayNameForActionId(actionId);
+}
+
+void QnxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
+{
+    const QnxDeviceConfiguration::ConstPtr device =
+            sharedFromThis().staticCast<const QnxDeviceConfiguration>();
+    if (actionId == Core::Id(DeployQtLibrariesActionId)) {
+        QnxDeployQtLibrariesDialog dialog(device, QnxDeployQtLibrariesDialog::QNX, parent);
+        dialog.exec();
+    } else {
+        RemoteLinux::LinuxDevice::executeAction(actionId, parent);
+    }
 }
 
 ProjectExplorer::DeviceProcessSignalOperation::Ptr QnxDeviceConfiguration::signalOperation() const

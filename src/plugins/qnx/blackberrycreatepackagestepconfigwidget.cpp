@@ -32,7 +32,7 @@
 #include "blackberrycreatepackagestepconfigwidget.h"
 #include "ui_blackberrycreatepackagestepconfigwidget.h"
 #include "blackberrycreatepackagestep.h"
-#include "blackberrydeployqtlibrariesdialog.h"
+#include "qnxdeployqtlibrariesdialog.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
@@ -165,7 +165,8 @@ void BlackBerryCreatePackageStepConfigWidget::updateDeployWidgetsState()
 void BlackBerryCreatePackageStepConfigWidget::deployLibraries()
 {
     ProjectExplorer::Kit *kit = m_step->target()->kit();
-    BlackBerryDeployQtLibrariesDialog dlg(ProjectExplorer::DeviceKitInformation::device(kit),
-                                          this);
+    QnxDeployQtLibrariesDialog dlg(ProjectExplorer::DeviceKitInformation::device(kit),
+                                   QnxDeployQtLibrariesDialog::BB10,
+                                   this);
     dlg.execAndDeploy(QtSupport::QtKitInformation::qtVersionId(kit), m_ui->qtLibraryPath->text());
 }
