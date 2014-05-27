@@ -3814,7 +3814,7 @@ void GdbEngine::watchPoint(const QPoint &pnt)
 {
     QByteArray x = QByteArray::number(pnt.x());
     QByteArray y = QByteArray::number(pnt.y());
-    postCommand("print '" + qtNamespace() + "QApplication::widgetAt'("
+    postCommand("print " + qtNamespace() + "QApplication::widgetAt("
             + x + ',' + y + ')',
         NeedsStop, CB(handleWatchPoint));
 }
@@ -3824,19 +3824,14 @@ void GdbEngine::handleWatchPoint(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // "$5 = (void *) 0xbfa7ebfc\n"
         const QByteArray ba = parsePlainConsoleStream(response);
-        //qDebug() << "BA: " << ba;
-        const int posWidget = ba.indexOf("QWidget");
-        const int pos0x = ba.indexOf("0x", posWidget + 7);
-        if (posWidget == -1 || pos0x == -1) {
+        const int pos0x = ba.indexOf("0x");
+        if (pos0x == -1) {
             showStatusMessage(tr("Cannot read widget data: %1").arg(_(ba)));
         } else {
             const QByteArray addr = ba.mid(pos0x);
             if (addr.toULongLong(0, 0)) { // Non-null pointer
-                const QByteArray ns = qtNamespace();
-                const QByteArray type = ns.isEmpty() ? "QWidget*"
-                    : QByteArray("'" + ns + "QWidget'*");
-                const QString exp = _("(*(struct %1)%2)").arg(_(type)).arg(_(addr));
-                // qDebug() << posNs << posWidget << pos0x << addr << ns << type;
+                const QByteArray type = "::" + qtNamespace() + "QWidget";
+                const QString exp = _("{%1}%2").arg(_(type)).arg(_(addr));
                 watchHandler()->watchExpression(exp);
             } else {
                 showStatusMessage(tr("Could not find a widget."));

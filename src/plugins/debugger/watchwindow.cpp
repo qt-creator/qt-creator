@@ -804,7 +804,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
     QAction *actSelectWidgetToWatch =
         menu.addAction(tr("Select Widget to Add into Expression Evaluator"));
-    actSelectWidgetToWatch->setEnabled(canHandleWatches && canInsertWatches
+    actSelectWidgetToWatch->setEnabled(canHandleWatches
            && engine->hasCapability(WatchWidgetsCapability));
 
     menu.addSeparator();
