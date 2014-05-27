@@ -57,15 +57,13 @@ LibraryWizard::LibraryWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT));
 }
 
-QWizard *LibraryWizard::createWizardDialog(QWidget *parent, const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *LibraryWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    LibraryWizardDialog *dialog = new LibraryWizardDialog(displayName(),
-                                                           icon(),
-                                                           showModulesPageForLibraries(),
-                                                           parent,
-                                                           wizardDialogParameters);
+    LibraryWizardDialog *dialog = new LibraryWizardDialog(displayName(), icon(),
+                                                          showModulesPageForLibraries(), parent,
+                                                          parameters);
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
-    dialog->setProjectName(LibraryWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
+    dialog->setProjectName(LibraryWizardDialog::uniqueProjectName(parameters.defaultPath()));
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());
     return dialog;
 }

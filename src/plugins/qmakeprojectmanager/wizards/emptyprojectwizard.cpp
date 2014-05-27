@@ -52,11 +52,10 @@ EmptyProjectWizard::EmptyProjectWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT));
 }
 
-QWizard *EmptyProjectWizard::createWizardDialog(QWidget *parent,
-                                                const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *EmptyProjectWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    EmptyProjectWizardDialog *dialog = new EmptyProjectWizardDialog(displayName(), icon(), parent, wizardDialogParameters);
-    dialog->setProjectName(EmptyProjectWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
+    EmptyProjectWizardDialog *dialog = new EmptyProjectWizardDialog(displayName(), icon(), parent, parameters);
+    dialog->setProjectName(EmptyProjectWizardDialog::uniqueProjectName(parameters.defaultPath()));
     return dialog;
 }
 

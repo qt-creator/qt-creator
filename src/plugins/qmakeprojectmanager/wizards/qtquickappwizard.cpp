@@ -125,8 +125,8 @@ QtQuickAppWizard::~QtQuickAppWizard()
     delete d;
 }
 
-AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWidget *parent,
-                                                                            const Core::WizardDialogParameters &parameters) const
+AbstractMobileAppWizardDialog *QtQuickAppWizard::createInternal(QWidget *parent,
+                                                                const Core::WizardDialogParameters &parameters) const
 {
     d->wizardDialog = new QtQuickAppWizardDialog(parent, parameters);
     return d->wizardDialog;

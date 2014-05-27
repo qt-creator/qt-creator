@@ -42,12 +42,11 @@ FormWizard::FormWizard()
     addRequiredFeature(Core::Id(QtSupport::Constants::FEATURE_QWIDGETS));
 }
 
-QWizard *FormWizard::createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *FormWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    FormFileWizardDialog *wizardDialog = new FormFileWizardDialog(wizardDialogParameters.extensionPages(),
+    FormFileWizardDialog *wizardDialog = new FormFileWizardDialog(parameters.extensionPages(),
                                                                   parent);
-    wizardDialog->setPath(wizardDialogParameters.defaultPath());
+    wizardDialog->setPath(parameters.defaultPath());
     return wizardDialog;
 }
 

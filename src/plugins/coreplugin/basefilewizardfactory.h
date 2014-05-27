@@ -120,8 +120,7 @@ protected:
 
     virtual ExtensionList extensions() const;
 
-    virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const WizardDialogParameters &wizardDialogParameters) const = 0;
+    virtual QWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const = 0;
 
     virtual GeneratedFiles generateFiles(const QWizard *w,
                                          QString *errorMessage) const = 0;
@@ -143,7 +142,7 @@ class CORE_EXPORT StandardFileWizardFactory : public BaseFileWizardFactory
     Q_OBJECT
 
 protected:
-    QWizard *createWizardDialog(QWidget *parent, const WizardDialogParameters &wizardDialogParameters) const;
+    QWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const;
     GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
     virtual GeneratedFiles generateFilesFromPath(const QString &path, const QString &name,
                                                  QString *errorMessage) const = 0;

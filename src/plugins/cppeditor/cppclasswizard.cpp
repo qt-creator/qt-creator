@@ -153,13 +153,12 @@ QString CppClassWizard::headerSuffix() const
     return preferredSuffix(QLatin1String(Constants::CPP_HEADER_MIMETYPE));
 }
 
-QWizard *CppClassWizard::createWizardDialog(QWidget *parent,
-                                            const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *CppClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     CppClassWizardDialog *wizard = new CppClassWizardDialog(parent);
-    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
+    foreach (QWizardPage *p, parameters.extensionPages())
         BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
-    wizard->setPath(wizardDialogParameters.defaultPath());
+    wizard->setPath(parameters.defaultPath());
     return wizard;
 }
 

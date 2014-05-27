@@ -92,8 +92,7 @@ public:
     CustomQmakeProjectWizard();
 
 private:
-    QWizard *createWizardDialog(QWidget *parent,
-                                const Core::WizardDialogParameters &wizardDialogParameters) const;
+    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
     bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage);
 
 private:

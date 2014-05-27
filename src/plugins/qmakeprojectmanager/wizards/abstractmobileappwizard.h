@@ -77,15 +77,14 @@ protected:
     virtual QString fileToOpenPostGeneration() const = 0;
 
 private:
-    QWizard *createWizardDialog(QWidget *parent,
-                                const Core::WizardDialogParameters &wizardDialogParameters) const;
+    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
     Core::GeneratedFiles generateFiles(const QWizard *wizard, QString *errorMessage) const;
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
     virtual AbstractMobileApp *app() const = 0;
     virtual AbstractMobileAppWizardDialog *wizardDialog() const = 0;
-    virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent,
-                                                                      const Core::WizardDialogParameters &wizardDialogParameters) const = 0;
+    virtual AbstractMobileAppWizardDialog *createInternal(QWidget *parent,
+                                                          const Core::WizardDialogParameters &parameters) const = 0;
     virtual void projectPathChanged(const QString &path) const = 0;
     virtual void prepareGenerateFiles(const QWizard *wizard, QString *errorMessage) const = 0;
 };

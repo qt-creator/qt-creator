@@ -86,13 +86,12 @@ GuiAppWizard::GuiAppWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS));
 }
 
-QWizard *GuiAppWizard::createWizardDialog(QWidget *parent,
-                                          const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *GuiAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     GuiAppWizardDialog *dialog = new GuiAppWizardDialog(displayName(), icon(),
                                                         showModulesPageForApplications(),
-                                                        parent, wizardDialogParameters);
-    dialog->setProjectName(GuiAppWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
+                                                        parent, parameters);
+    dialog->setProjectName(GuiAppWizardDialog::uniqueProjectName(parameters.defaultPath()));
     // Order! suffixes first to generate files correctly
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());

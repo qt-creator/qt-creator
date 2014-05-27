@@ -96,8 +96,7 @@ public:
 
     // Can be reimplemented to create custom wizards. initWizardDialog() needs to be
     // called.
-    QWizard *createWizardDialog(QWidget *parent,
-                                const Core::WizardDialogParameters &wizardDialogParameters) const;
+    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 
@@ -144,8 +143,7 @@ public:
     static bool postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage = 0);
 
 protected:
-    QWizard *createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
+    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 

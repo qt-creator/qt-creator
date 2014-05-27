@@ -43,8 +43,7 @@ public:
     EmptyProjectWizard();
 
 private:
-    QWizard *createWizardDialog(QWidget *parent,
-                                const Core::WizardDialogParameters &wizardDialogParameters) const;
+    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 };

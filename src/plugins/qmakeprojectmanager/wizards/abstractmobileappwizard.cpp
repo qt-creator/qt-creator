@@ -98,15 +98,14 @@ int AbstractMobileAppWizardDialog::addPageWithTitle(QWizardPage *page, const QSt
     return pageId;
 }
 
-QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,
-                                                     const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *AbstractMobileAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     AbstractMobileAppWizardDialog * const wdlg
-        = createWizardDialogInternal(parent, wizardDialogParameters);
-    wdlg->setProjectName(ProjectExplorer::BaseProjectWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
+        = createInternal(parent, parameters);
+    wdlg->setProjectName(ProjectExplorer::BaseProjectWizardDialog::uniqueProjectName(parameters.defaultPath()));
     connect(wdlg, SIGNAL(projectParametersChanged(QString,QString)),
         SLOT(useProjectPath(QString,QString)));
-    wdlg->addExtensionPages(wizardDialogParameters.extensionPages());
+    wdlg->addExtensionPages(parameters.extensionPages());
 
     return wdlg;
 }

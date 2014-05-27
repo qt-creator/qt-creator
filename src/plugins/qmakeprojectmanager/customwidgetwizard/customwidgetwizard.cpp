@@ -54,14 +54,13 @@ CustomWidgetWizard::CustomWidgetWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS));
 }
 
-QWizard *CustomWidgetWizard::createWizardDialog(QWidget *parent,
-                                                const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *CustomWidgetWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(displayName(),
                                                                 icon(),
                                                                 parent,
-                                                                wizardDialogParameters);
-    rc->setProjectName(CustomWidgetWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
+                                                                parameters);
+    rc->setProjectName(CustomWidgetWizardDialog::uniqueProjectName(parameters.defaultPath()));
     rc->setFileNamingParameters(FileNamingParameters(headerSuffix(), sourceSuffix(), QtWizard::lowerCaseFiles()));
     return rc;
 }

@@ -127,13 +127,12 @@ QString GLSLFileWizard::fileContents(const QString &, ShaderType shaderType) con
     return contents;
 }
 
-QWizard *GLSLFileWizard::createWizardDialog(QWidget *parent,
-                                            const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *GLSLFileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     GLSLFileWizardDialog *wizardDialog = new GLSLFileWizardDialog(parent);
     wizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    wizardDialog->setPath(wizardDialogParameters.defaultPath());
-    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
+    wizardDialog->setPath(parameters.defaultPath());
+    foreach (QWizardPage *p, parameters.extensionPages())
         BaseFileWizardFactory::applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(p));
     return wizardDialog;
 }

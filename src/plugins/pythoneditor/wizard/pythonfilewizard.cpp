@@ -61,13 +61,12 @@ FileWizard::FileWizard()
  * @param params
  * @return
  */
-QWizard *FileWizard::createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &params) const
+QWizard *FileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     Utils::FileWizardDialog *pDialog = new Utils::FileWizardDialog(parent);
     pDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    pDialog->setPath(params.defaultPath());
-    foreach (QWizardPage *p, params.extensionPages())
+    pDialog->setPath(parameters.defaultPath());
+    foreach (QWizardPage *p, parameters.extensionPages())
         applyExtensionPageShortTitle(pDialog, pDialog->addPage(p));
 
     return pDialog;

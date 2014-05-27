@@ -152,12 +152,11 @@ void CustomWizard::initWizardDialog(Utils::Wizard *wizard, const QString &defaul
         qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
 }
 
-QWizard *CustomWizard::createWizardDialog(QWidget *parent,
-                                          const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *CustomWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     QTC_ASSERT(!d->m_parameters.isNull(), return 0);
     Utils::Wizard *wizard = new Utils::Wizard(parent);
-    initWizardDialog(wizard, wizardDialogParameters.defaultPath(), wizardDialogParameters.extensionPages());
+    initWizardDialog(wizard, parameters.defaultPath(), parameters.extensionPages());
     return wizard;
 }
 
@@ -503,14 +502,13 @@ CustomProjectWizard::CustomProjectWizard()
     initProjectWizardDialog() needs to be called.
 */
 
-    QWizard *CustomProjectWizard::createWizardDialog(QWidget *parent,
-                                                     const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *CustomProjectWizard::create(QWidget *parent,
+                                     const Core::WizardDialogParameters &parameters) const
 {
-    QTC_ASSERT(!parameters().isNull(), return 0);
-    BaseProjectWizardDialog *projectDialog = new BaseProjectWizardDialog(parent, wizardDialogParameters);
+    BaseProjectWizardDialog *projectDialog = new BaseProjectWizardDialog(parent, parameters);
     initProjectWizardDialog(projectDialog,
-                            wizardDialogParameters.defaultPath(),
-                            wizardDialogParameters.extensionPages());
+                            parameters.defaultPath(),
+                            parameters.extensionPages());
     return projectDialog;
 }
 

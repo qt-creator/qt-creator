@@ -124,12 +124,12 @@ CascadesImportWizard::CascadesImportWizard()
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
 }
 
-QWizard *CascadesImportWizard::createWizardDialog(QWidget *parent,
-        const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *CascadesImportWizard::create(QWidget *parent,
+                                      const Core::WizardDialogParameters &parameters) const
 {
     CascadesImportWizardDialog *wizard = new CascadesImportWizardDialog(parent);
 
-    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
+    foreach (QWizardPage *p, parameters.extensionPages())
         BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
 
     return wizard;

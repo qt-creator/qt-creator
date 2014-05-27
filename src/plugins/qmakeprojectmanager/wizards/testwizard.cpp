@@ -58,11 +58,10 @@ TestWizard::TestWizard()
             Core::Feature(QtSupport::Constants::FEATURE_QT));
 }
 
-QWizard *TestWizard::createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *TestWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    TestWizardDialog *dialog = new TestWizardDialog(displayName(), icon(), parent, wizardDialogParameters);
-    dialog->setProjectName(TestWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
+    TestWizardDialog *dialog = new TestWizardDialog(displayName(), icon(), parent, parameters);
+    dialog->setProjectName(TestWizardDialog::uniqueProjectName(parameters.defaultPath()));
     return dialog;
 }
 

@@ -122,13 +122,12 @@ QString JsFileWizard::fileContents(const QString &, bool statelessLibrary) const
     return contents;
 }
 
-QWizard *JsFileWizard::createWizardDialog(QWidget *parent,
-                                          const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *JsFileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     JsFileWizardDialog *wizardDialog = new JsFileWizardDialog(parent);
     wizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    wizardDialog->setPath(wizardDialogParameters.defaultPath());
-    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
+    wizardDialog->setPath(parameters.defaultPath());
+    foreach (QWizardPage *p, parameters.extensionPages())
         BaseFileWizardFactory::applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(p));
     return wizardDialog;
 }

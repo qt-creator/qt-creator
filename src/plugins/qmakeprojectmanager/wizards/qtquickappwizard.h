@@ -49,8 +49,8 @@ protected:
 private:
     AbstractMobileApp *app() const;
     AbstractMobileAppWizardDialog *wizardDialog() const;
-    AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent,
-                                                              const Core::WizardDialogParameters &baseParameters) const;
+    AbstractMobileAppWizardDialog *createInternal(QWidget *parent,
+                                                  const Core::WizardDialogParameters &parameters) const;
     void projectPathChanged(const QString &path) const;
     void prepareGenerateFiles(const QWizard *wizard, QString *errorMessage) const;
 

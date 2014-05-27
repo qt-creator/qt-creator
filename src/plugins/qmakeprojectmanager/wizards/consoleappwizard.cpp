@@ -65,12 +65,11 @@ ConsoleAppWizard::ConsoleAppWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
 }
 
-QWizard *ConsoleAppWizard::createWizardDialog(QWidget *parent,
-                                              const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *ConsoleAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     ConsoleAppWizardDialog *dialog = new ConsoleAppWizardDialog(displayName(), icon(),
-                                                                showModulesPageForApplications(), parent, wizardDialogParameters);
-    dialog->setProjectName(ConsoleAppWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
+                                                                showModulesPageForApplications(), parent, parameters);
+    dialog->setProjectName(ConsoleAppWizardDialog::uniqueProjectName(parameters.defaultPath()));
     return dialog;
 }
 

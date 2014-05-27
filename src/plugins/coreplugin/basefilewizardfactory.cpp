@@ -164,7 +164,7 @@ void WizardEventLoop::rejected()
 
     The following abstract functions must be implemented:
     \list
-    \li createWizardDialog(): Called to create the QWizard dialog to be shown.
+    \li create(): Called to create the QWizard dialog to be shown.
     \li generateFiles(): Generates file content.
     \endlist
 
@@ -214,12 +214,12 @@ void BaseFileWizardFactory::runWizard(const QString &path, QWidget *parent, cons
     if (flags().testFlag(ForceCapitalLetterForFileName))
         dialogParameterFlags |= WizardDialogParameters::ForceCapitalLetterForFileName;
 
-    const QScopedPointer<QWizard> wizard(createWizardDialog(parent, WizardDialogParameters(path,
-                                                                                           allExtensionPages,
-                                                                                           platform,
-                                                                                           requiredFeatures(),
-                                                                                           dialogParameterFlags,
-                                                                                           extraValues)));
+    const QScopedPointer<QWizard> wizard(create(parent, WizardDialogParameters(path,
+                                                                               allExtensionPages,
+                                                                               platform,
+                                                                               requiredFeatures(),
+                                                                               dialogParameterFlags,
+                                                                               extraValues)));
     QTC_ASSERT(!wizard.isNull(), return);
 
     GeneratedFiles files;
@@ -300,11 +300,10 @@ void BaseFileWizardFactory::runWizard(const QString &path, QWidget *parent, cons
 }
 
 /*!
-    \fn virtual QWizard *Core::BaseFileWizard::createWizardDialog(QWidget *parent,
-                                                                  const WizardDialogParameters &wizardDialogParameters) const
+    \fn virtual QWizard *Core::BaseFileWizard::create(QWidget *parent,
+                                                      const WizardDialogParameters &parameters) const
 
-    Creates the wizard dialog on the \a parent with the
-    \a wizardDialogParameters.
+    Creates the wizard on the \a parent with the \a parameters.
 */
 
 /*!
@@ -525,15 +524,14 @@ QString BaseFileWizardFactory::preferredSuffix(const QString &mimeType)
     Creates a Utils::FileWizardDialog.
 */
 
-QWizard *StandardFileWizardFactory::createWizardDialog(QWidget *parent,
-                                                const WizardDialogParameters &wizardDialogParameters) const
+QWizard *StandardFileWizardFactory::create(QWidget *parent, const WizardDialogParameters &parameters) const
 {
     Utils::FileWizardDialog *standardWizardDialog = new Utils::FileWizardDialog(parent);
-    if (wizardDialogParameters.flags().testFlag(WizardDialogParameters::ForceCapitalLetterForFileName))
+    if (parameters.flags().testFlag(WizardDialogParameters::ForceCapitalLetterForFileName))
         standardWizardDialog->setForceFirstCapitalLetterForFileName(true);
     standardWizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    standardWizardDialog->setPath(wizardDialogParameters.defaultPath());
-    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
+    standardWizardDialog->setPath(parameters.defaultPath());
+    foreach (QWizardPage *p, parameters.extensionPages())
         BaseFileWizardFactory::applyExtensionPageShortTitle(standardWizardDialog, standardWizardDialog->addPage(p));
     return standardWizardDialog;
 }

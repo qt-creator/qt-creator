@@ -133,16 +133,15 @@ CustomQmakeProjectWizard::CustomQmakeProjectWizard()
 {
 }
 
-QWizard *CustomQmakeProjectWizard::createWizardDialog
-    (QWidget *parent, const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *CustomQmakeProjectWizard::create(QWidget *parent,
+                                          const Core::WizardDialogParameters &parameters) const
 {
-    BaseQmakeProjectWizardDialog *wizard = new BaseQmakeProjectWizardDialog(false, parent, wizardDialogParameters);
+    BaseQmakeProjectWizardDialog *wizard = new BaseQmakeProjectWizardDialog(false, parent, parameters);
 
-    if (!wizardDialogParameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
+    if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         wizard->addTargetSetupPage(targetPageId);
 
-    initProjectWizardDialog(wizard, wizardDialogParameters.defaultPath(),
-                            wizardDialogParameters.extensionPages());
+    initProjectWizardDialog(wizard, parameters.defaultPath(), parameters.extensionPages());
     return wizard;
 }
 

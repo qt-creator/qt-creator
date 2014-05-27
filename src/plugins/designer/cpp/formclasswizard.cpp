@@ -60,12 +60,11 @@ QString FormClassWizard::formSuffix() const
     return preferredSuffix(QLatin1String(Constants::FORM_MIMETYPE));
 }
 
-QWizard *FormClassWizard::createWizardDialog(QWidget *parent,
-                                             const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *FormClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    FormClassWizardDialog *wizardDialog = new FormClassWizardDialog(wizardDialogParameters.extensionPages(),
+    FormClassWizardDialog *wizardDialog = new FormClassWizardDialog(parameters.extensionPages(),
                                                                     parent);
-    wizardDialog->setPath(wizardDialogParameters.defaultPath());
+    wizardDialog->setPath(parameters.defaultPath());
     return wizardDialog;
 }
 

@@ -132,14 +132,13 @@ GenericProjectWizard::GenericProjectWizard()
     setFlags(Core::IWizardFactory::PlatformIndependent);
 }
 
-QWizard *GenericProjectWizard::createWizardDialog(QWidget *parent,
-                                                  const Core::WizardDialogParameters &wizardDialogParameters) const
+QWizard *GenericProjectWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     GenericProjectWizardDialog *wizard = new GenericProjectWizardDialog(parent);
 
-    wizard->setPath(wizardDialogParameters.defaultPath());
+    wizard->setPath(parameters.defaultPath());
 
-    foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
+    foreach (QWizardPage *p, parameters.extensionPages())
         BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
 
     return wizard;
