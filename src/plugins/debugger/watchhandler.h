@@ -62,6 +62,9 @@ enum DisplayFormat
     Array1000Format,
     Array10000Format,
 
+    SeparateLatin1StringFormat,
+    SeparateUtf8StringFormat,
+
 
     // Values above 200 refer to format solely handled in the WatchHandler code
     ArtificialFormatBase = 200,

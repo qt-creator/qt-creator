@@ -1551,6 +1551,17 @@ class Dumper(DumperBase):
             self.passExceptions = int(args['passexceptions'])
         if 'watchers' in args:
             self.currentWatchers = args['watchers']
+        if 'typeformats' in args:
+            for f in args['typeformats'].split(','):
+                pos = f.find("=")
+                if pos != -1:
+                    typeName = self.hexdecode(f[0:pos])
+                    self.typeformats[typeName] = int(f[pos+1:])
+        if 'formats' in args:
+            for f in args['formats'].split(','):
+                pos = f.find("=")
+                if pos != -1:
+                    self.formats[f[0:pos]] = int(f[pos+1:])
         self.reportVariables(args)
 
     def disassemble(self, args):

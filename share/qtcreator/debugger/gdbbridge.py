@@ -904,14 +904,6 @@ class Dumper(DumperBase):
             self.putValue("0x%x" % value.cast(
                 self.lookupType("unsigned long")), None, -1)
 
-    def putDisplay(self, format, value = None, cmd = None):
-        self.put('editformat="%s",' % format)
-        if cmd is None:
-            if not value is None:
-                self.put('editvalue="%s",' % value)
-        else:
-            self.put('editvalue="%s|%s",' % (cmd, value))
-
     def isExpandedSubItem(self, component):
         iname = "%s.%s" % (self.currentIName, component)
         #warn("IS EXPANDED: %s in %s" % (iname, self.expandedINames))

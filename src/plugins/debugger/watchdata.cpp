@@ -619,8 +619,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
         data.editvalue = mi.data();
 
     mi = item["editformat"];
-    if (mi.isValid())
-        data.editformat = mi.toInt();
+    data.editformat = mi.toInt();
 
     mi = item["typeformats"];
     if (mi.isValid())

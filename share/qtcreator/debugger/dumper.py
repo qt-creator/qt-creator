@@ -53,8 +53,10 @@ Ucs4StringFormat, \
 Array10Format, \
 Array100Format, \
 Array1000Format, \
-Array10000Format \
-    = range(100, 110)
+Array10000Format, \
+SeparateLatin1StringFormat, \
+SeparateUtf8StringFormat \
+    = range(100, 112)
 
 def hasPlot():
     fileName = "/usr/bin/gnuplot"
@@ -781,6 +783,14 @@ class DumperBase:
         self.put('",')
         return True
 
+    def putDisplay(self, format, value = None, cmd = None):
+        self.put('editformat="%s",' % format)
+        if cmd is None:
+            if not value is None:
+                self.put('editvalue="%s",' % value)
+        else:
+            self.put('editvalue="%s|%s",' % (cmd, value))
+
     def putFormattedPointer(self, value):
         #warn("POINTER: %s" % value)
         if self.isNull(value):
@@ -832,20 +842,24 @@ class DumperBase:
                         self.putItem(value.dereference())
             return
 
-        if format == Latin1StringFormat:
+        if format == Latin1StringFormat or format == SeparateLatin1StringFormat:
             # Explicitly requested Latin1 formatting.
+            limit = self.displayStringLimit if format == Latin1StringFormat else 1000000
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, "unsigned char", self.displayStringLimit)
+            (elided, data) = self.encodeCArray(value, "unsigned char", limit)
             self.putValue(data, Hex2EncodedLatin1, elided=elided)
             self.putNumChild(0)
+            self.putDisplay((StopDisplay if format == Latin1StringFormat else DisplayLatin1String), data)
             return
 
-        if format == Utf8StringFormat:
+        if format == Utf8StringFormat or format == SeparateUtf8StringFormat:
             # Explicitly requested UTF-8 formatting.
+            limit = self.displayStringLimit if format == Utf8StringFormat else 1000000
             self.putType(typeName)
-            (elided, data) = self.encodeCArray(value, "unsigned char", self.displayStringLimit)
+            (elided, data) = self.encodeCArray(value, "unsigned char", limit)
             self.putValue(data, Hex2EncodedUtf8, elided=elided)
             self.putNumChild(0)
+            self.putDisplay((StopDisplay if format == Utf8StringFormat else DisplayUtf8String), data)
             return
 
         if format == Local8BitStringFormat:

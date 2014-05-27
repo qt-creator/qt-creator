@@ -1262,6 +1262,8 @@ QString WatchModel::nameForFormat(int format)
         case Array100Format: return msgArrayFormat(100);
         case Array1000Format: return msgArrayFormat(1000);
         case Array10000Format: return msgArrayFormat(10000);
+        case SeparateLatin1StringFormat: return tr("Latin1 String in Separate Window");
+        case SeparateUtf8StringFormat: return tr("UTF-8 String in Separate Window");
         case DecimalIntegerFormat: return tr("Decimal Integer");
         case HexadecimalIntegerFormat: return tr("Hexadecimal Integer");
         case BinaryIntegerFormat: return tr("Binary Integer");
@@ -1296,7 +1298,9 @@ TypeFormatList WatchModel::typeFormatList(const WatchData &data) const
     if (data.origaddr || isPointerType(data.type)) {
         formats.append(RawFormat);
         formats.append(Latin1StringFormat);
+        formats.append(SeparateLatin1StringFormat);
         formats.append(Utf8StringFormat);
+        formats.append(SeparateUtf8StringFormat);
         formats.append(Local8BitStringFormat);
         formats.append(Utf16StringFormat);
         formats.append(Ucs4StringFormat);
