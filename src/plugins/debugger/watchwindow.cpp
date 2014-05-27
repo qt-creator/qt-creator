@@ -810,7 +810,8 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
 
     QAction *actWatchExpression = new QAction(addWatchActionText(exp), &menu);
-    actWatchExpression->setEnabled(canHandleWatches && !exp.isEmpty());
+    actWatchExpression->setEnabled(
+        canHandleWatches && !exp.isEmpty() && m_type == LocalsType);
 
     // Can remove watch if engine can handle it or session engine.
     QModelIndex p = mi0;
@@ -823,17 +824,10 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QString removeExp = p.data(LocalsExpressionRole).toString();
     QAction *actRemoveWatchExpression = new QAction(removeWatchActionText(removeExp), &menu);
     actRemoveWatchExpression->setEnabled(
-        (canHandleWatches || state == DebuggerNotReady) && !exp.isEmpty());
-    QAction *actRemoveWatches =
-        new QAction(tr("Remove All Expression Evaluators"), &menu);
-    actRemoveWatches->setEnabled(!WatchHandler::watcherNames().isEmpty());
-
-    if (m_type == LocalsType) {
-        menu.addAction(actWatchExpression);
-    } else if (m_type == WatchersType) {
-        menu.addAction(actRemoveWatchExpression);
-        menu.addAction(actRemoveWatches);
-    }
+        (canHandleWatches || state == DebuggerNotReady)
+                && !exp.isEmpty() && m_type == WatchersType);
+    menu.addAction(actWatchExpression);
+    menu.addAction(actRemoveWatchExpression);
 
     QMenu formatMenu(tr("Change Local Display Format..."));
     if (mi0.isValid()) {
@@ -972,8 +966,6 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
     } else if (act == actCopyValue) {
         copyToClipboard(mi1.data().toString());
-    } else if (act == actRemoveWatches) {
-        handler->clearWatches();
     } else if (act == actShowInEditor) {
         QString contents = handler->editorContents();
         debuggerCore()->openTextEditor(tr("Locals & Expressions"), contents);
