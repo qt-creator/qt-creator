@@ -3494,7 +3494,8 @@ void GdbEngine::createSnapshot()
     if (tf.open()) {
         fileName = tf.fileName();
         tf.close();
-        postCommand("gcore \"" + fileName.toLocal8Bit() + '"',
+        // This must not be quoted, it doesn't work otherwise.
+        postCommand("gcore " + fileName.toLocal8Bit(),
             NeedsStop|ConsoleCommand, CB(handleMakeSnapshot), fileName);
     } else {
         showMessageBox(QMessageBox::Critical, tr("Snapshot Creation Error"),
