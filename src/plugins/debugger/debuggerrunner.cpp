@@ -153,12 +153,6 @@ DebuggerRunControl::~DebuggerRunControl()
     delete d;
 }
 
-const DebuggerStartParameters &DebuggerRunControl::startParameters() const
-{
-    QTC_ASSERT(d->m_engine, return *(new DebuggerStartParameters()));
-    return d->m_engine->startParameters();
-}
-
 QString DebuggerRunControl::displayName() const
 {
     QTC_ASSERT(d->m_engine, return QString());
@@ -168,12 +162,6 @@ QString DebuggerRunControl::displayName() const
 QIcon DebuggerRunControl::icon() const
 {
     return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
-}
-
-void DebuggerRunControl::setCustomEnvironment(Environment env)
-{
-    QTC_ASSERT(d->m_engine, return);
-    d->m_engine->startParameters().environment = env;
 }
 
 void DebuggerRunControl::start()

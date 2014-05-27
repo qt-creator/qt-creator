@@ -66,7 +66,6 @@ public:
     QString displayName() const;
     QIcon icon() const;
 
-    void setCustomEnvironment(Utils::Environment env);
     void startFailed();
     void debuggingFinished();
     ProjectExplorer::RunConfiguration *runConfiguration() const;
@@ -79,9 +78,6 @@ signals:
 
 private slots:
     void handleFinished();
-
-protected:
-    const DebuggerStartParameters &startParameters() const;
 
 private:
     //friend class Internal::DebuggerRunControlFactory;
