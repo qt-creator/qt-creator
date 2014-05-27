@@ -58,7 +58,6 @@ public:
     void start();
     StopResult stop();
     bool isRunning() const;
-    QIcon icon() const;
 
 private slots:
     void onProcessStarted();

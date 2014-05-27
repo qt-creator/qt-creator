@@ -50,6 +50,8 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)
     : RunControl(runConfiguration, sp.runMode)
 {
+    setIcon(QLatin1String(":/images/analyzer_start_small.png"));
+
     m_runConfig = runConfiguration;
     m_sp = sp;
 
@@ -97,11 +99,6 @@ bool AnalyzerRunControl::isRunning() const
 QString AnalyzerRunControl::displayName() const
 {
     return m_runConfig ? m_runConfig->displayName() : m_sp.displayName;
-}
-
-QIcon AnalyzerRunControl::icon() const
-{
-    return QIcon(QLatin1String(":/images/analyzer_start_small.png"));
 }
 
 } // namespace Analyzer

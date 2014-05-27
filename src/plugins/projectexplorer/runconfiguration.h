@@ -40,8 +40,6 @@
 #include <QPointer>
 #include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QIcon)
-
 namespace Utils { class OutputFormatter; }
 
 namespace ProjectExplorer {
@@ -286,7 +284,9 @@ public:
     virtual StopResult stop() = 0;
     virtual bool isRunning() const = 0;
     virtual QString displayName() const;
-    virtual QIcon icon() const = 0;
+
+    void setIcon(const QString &icon) { m_icon = icon; }
+    QString icon() const { return m_icon; }
 
     ProcessHandle applicationProcessHandle() const;
     void setApplicationProcessHandle(const ProcessHandle &handle);
@@ -321,6 +321,7 @@ protected:
 private:
     QString m_displayName;
     RunMode m_runMode;
+    QString m_icon;
     const QPointer<RunConfiguration> m_runConfiguration;
     Utils::OutputFormatter *m_outputFormatter;
 

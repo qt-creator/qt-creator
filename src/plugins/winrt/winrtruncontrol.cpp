@@ -60,6 +60,7 @@ WinRtRunControl::WinRtRunControl(WinRtRunConfiguration *runConfiguration, RunMod
     , m_state(StoppedState)
     , m_runner(0)
 {
+    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void WinRtRunControl::start()
@@ -82,11 +83,6 @@ RunControl::StopResult WinRtRunControl::stop()
 bool WinRtRunControl::isRunning() const
 {
     return m_state == StartedState;
-}
-
-QIcon WinRtRunControl::icon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void WinRtRunControl::onProcessStarted()

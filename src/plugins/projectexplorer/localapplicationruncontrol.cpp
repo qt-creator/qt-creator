@@ -34,7 +34,6 @@
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 
-#include <QIcon>
 #include <QDir>
 
 namespace ProjectExplorer {
@@ -68,6 +67,7 @@ RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfi
 LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *rc, RunMode mode)
     : RunControl(rc, mode), m_running(false)
 {
+    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
     EnvironmentAspect *environment = rc->extraAspect<EnvironmentAspect>();
     Utils::Environment env;
     if (environment)
@@ -122,11 +122,6 @@ LocalApplicationRunControl::StopResult LocalApplicationRunControl::stop()
 bool LocalApplicationRunControl::isRunning() const
 {
     return m_running;
-}
-
-QIcon LocalApplicationRunControl::icon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void LocalApplicationRunControl::slotAppendMessage(const QString &err,

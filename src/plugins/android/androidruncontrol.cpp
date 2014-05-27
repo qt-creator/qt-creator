@@ -36,8 +36,6 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QIcon>
-
 using namespace ProjectExplorer;
 
 namespace Android {
@@ -48,6 +46,7 @@ AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
     , m_runner(new AndroidRunner(this, rc, NormalRunMode))
     , m_running(false)
 {
+    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 AndroidRunControl::~AndroidRunControl()
@@ -103,11 +102,6 @@ bool AndroidRunControl::isRunning() const
 QString AndroidRunControl::displayName() const
 {
     return m_runner->displayName();
-}
-
-QIcon AndroidRunControl::icon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 } // namespace Internal

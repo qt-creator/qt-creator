@@ -91,7 +91,6 @@ public:
     StopResult stop();
     bool isRunning() const;
     QString displayName() const;
-    QIcon icon() const;
 
 public slots:
     virtual void logApplicationMessage(const QString &, Utils::OutputFormat) {}

@@ -43,6 +43,8 @@ using namespace Qnx::Internal;
 BlackBerryRunControl::BlackBerryRunControl(BlackBerryRunConfiguration *runConfiguration)
     : ProjectExplorer::RunControl(runConfiguration, ProjectExplorer::NormalRunMode)
 {
+    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
+
     m_runner = new BlackBerryApplicationRunner(BlackBerryApplicationRunner::LaunchFlags(), runConfiguration, this);
 
     connect(m_runner, SIGNAL(started()), this, SIGNAL(started()));
@@ -65,11 +67,6 @@ ProjectExplorer::RunControl::StopResult BlackBerryRunControl::stop()
 bool BlackBerryRunControl::isRunning() const
 {
     return m_runner->isRunning();
-}
-
-QIcon BlackBerryRunControl::icon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void BlackBerryRunControl::handleStartFailed(const QString &message)

@@ -58,6 +58,8 @@ public:
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
         : RunControl(rc, ProjectExplorer::NormalRunMode), d(new RemoteLinuxRunControlPrivate)
 {
+    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
+
     d->running = false;
     d->device = DeviceKitInformation::device(rc->target()->kit());
     const AbstractRemoteLinuxRunConfiguration * const lrc = qobject_cast<AbstractRemoteLinuxRunConfiguration *>(rc);
@@ -122,11 +124,6 @@ void RemoteLinuxRunControl::handleProgressReport(const QString &progressString)
 bool RemoteLinuxRunControl::isRunning() const
 {
     return d->running;
-}
-
-QIcon RemoteLinuxRunControl::icon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void RemoteLinuxRunControl::setFinished()

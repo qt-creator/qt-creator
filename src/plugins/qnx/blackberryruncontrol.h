@@ -52,7 +52,6 @@ public:
     void start();
     ProjectExplorer::RunControl::StopResult stop();
     bool isRunning() const;
-    QIcon icon() const;
 
 private slots:
     void handleStartFailed(const QString &message);

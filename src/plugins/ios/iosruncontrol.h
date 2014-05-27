@@ -51,7 +51,6 @@ public:
     StopResult stop() QTC_OVERRIDE;
     bool isRunning() const QTC_OVERRIDE;
     QString displayName() const QTC_OVERRIDE;
-    QIcon icon() const QTC_OVERRIDE;
 
 private slots:
     void handleRemoteProcessFinished(bool cleanEnd);

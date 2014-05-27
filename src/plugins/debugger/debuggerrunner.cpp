@@ -128,6 +128,8 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
     : RunControl(runConfiguration, DebugRunMode),
       d(new DebuggerRunControlPrivate(runConfiguration))
 {
+    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
+
     connect(this, SIGNAL(finished()), SLOT(handleFinished()));
     // Create the engine. Could arguably be moved to the factory, but
     // we still have a derived S60DebugControl. Should rarely fail, though.
@@ -157,11 +159,6 @@ QString DebuggerRunControl::displayName() const
 {
     QTC_ASSERT(d->m_engine, return QString());
     return d->m_engine->startParameters().displayName;
-}
-
-QIcon DebuggerRunControl::icon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
 }
 
 void DebuggerRunControl::start()

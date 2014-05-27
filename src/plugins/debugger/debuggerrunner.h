@@ -64,7 +64,6 @@ public:
     StopResult stop(); // Called from SnapshotWindow.
     bool isRunning() const;
     QString displayName() const;
-    QIcon icon() const;
 
     void startFailed();
     void debuggingFinished();

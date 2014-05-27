@@ -33,7 +33,6 @@
 #include "iosrunner.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <QIcon>
 
 using namespace ProjectExplorer;
 
@@ -45,6 +44,7 @@ IosRunControl::IosRunControl(IosRunConfiguration *rc)
     , m_runner(new IosRunner(this, rc, false, false))
     , m_running(false)
 {
+    setIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
 }
 
 IosRunControl::~IosRunControl()
@@ -103,11 +103,6 @@ bool IosRunControl::isRunning() const
 QString IosRunControl::displayName() const
 {
     return m_runner->displayName();
-}
-
-QIcon IosRunControl::icon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
 }
 
 } // namespace Internal

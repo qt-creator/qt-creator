@@ -50,7 +50,6 @@ public:
     StopResult stop();
     bool isRunning() const;
     QString displayName() const;
-    QIcon icon() const;
 
 private slots:
     void handleRemoteProcessFinished(const QString &error);
