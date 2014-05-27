@@ -159,7 +159,15 @@ bool Matcher::match(const NamedType *type, const NamedType *otherType)
     if (type == otherType)
         return true;
 
-    else if (! Matcher::match(type->name(), otherType->name(), this))
+    const Name *name = type->name();
+    if (const QualifiedNameId *q = name->asQualifiedNameId())
+        name = q->name();
+
+    const Name *otherName = otherType->name();
+    if (const QualifiedNameId *q = otherName->asQualifiedNameId())
+        otherName = q->name();
+
+    if (! Matcher::match(name, otherName, this))
         return false;
 
     return true;

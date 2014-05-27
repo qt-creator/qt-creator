@@ -962,6 +962,16 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
                                 "void Foo::$foo(int) {}\n",
                                 "foo.cpp")
     );
+
+    QTest::newRow("matchFunctionSignature2") << (QList<TestDocumentPtr>()
+        << TestDocument::create("namespace N { class C; }\n"
+                                "bool *@fun(N::C *) const;\n",
+                                "foo.h")
+        << TestDocument::create("#include \"foo.h\"\n"
+                                "using namespace N;\n"
+                                "bool *$fun(C *) const {}\n",
+                                "foo.cpp")
+    );
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments()
