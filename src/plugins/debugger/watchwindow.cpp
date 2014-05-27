@@ -748,69 +748,52 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         || state == InferiorUnrunnable
         || (state == InferiorRunOk && engine->hasCapability(AddWatcherWhileRunningCapability));
 
-    QMenu breakpointMenu;
-    breakpointMenu.setTitle(tr("Add Data Breakpoint..."));
-    QAction *actSetWatchpointAtObjectAddress = 0;
-    QAction *actSetWatchpointAtPointerAddress = 0;
+    QAction actSetWatchpointAtObjectAddress(0);
+    QAction actSetWatchpointAtPointerAddress(0);
     const bool canSetWatchpoint = engine->hasCapability(WatchpointByAddressCapability);
     if (canSetWatchpoint && address) {
-        actSetWatchpointAtObjectAddress =
-            new QAction(tr("Add Data Breakpoint at Object's Address (0x%1)")
-                .arg(address, 0, 16), &breakpointMenu);
-        actSetWatchpointAtObjectAddress->
-            setChecked(mi0.data(LocalsIsWatchpointAtObjectAddressRole).toBool());
+        actSetWatchpointAtObjectAddress
+            .setText(tr("Add Data Breakpoint at Object's Address (0x%1)").arg(address, 0, 16));
+        actSetWatchpointAtObjectAddress
+            .setChecked(mi0.data(LocalsIsWatchpointAtObjectAddressRole).toBool());
         if (createPointerActions) {
-            actSetWatchpointAtPointerAddress =
-                new QAction(tr("Add Data Breakpoint at Pointer's Address (0x%1)")
-                    .arg(pointerAddress, 0, 16), &breakpointMenu);
-            actSetWatchpointAtPointerAddress->setCheckable(true);
-            actSetWatchpointAtPointerAddress->
-                setChecked(mi0.data(LocalsIsWatchpointAtPointerAddressRole).toBool());
+            actSetWatchpointAtPointerAddress
+                .setText(tr("Add Data Breakpoint at Pointer's Address (0x%1)")
+                    .arg(pointerAddress, 0, 16));
+            actSetWatchpointAtPointerAddress.setCheckable(true);
+            actSetWatchpointAtPointerAddress
+                .setChecked(mi0.data(LocalsIsWatchpointAtPointerAddressRole).toBool());
         }
     } else {
-        actSetWatchpointAtObjectAddress =
-            new QAction(tr("Add Data Breakpoint"), &breakpointMenu);
-        actSetWatchpointAtObjectAddress->setEnabled(false);
+        actSetWatchpointAtObjectAddress.setText(tr("Add Data Breakpoint"));
+        actSetWatchpointAtObjectAddress.setEnabled(false);
     }
-    actSetWatchpointAtObjectAddress->setToolTip(
+    actSetWatchpointAtObjectAddress.setToolTip(
         tr("Setting a data breakpoint on an address will cause the program "
            "to stop when the data at the address is modified."));
 
-    QAction *actSetWatchpointAtExpression = 0;
+    QAction actSetWatchpointAtExpression(0);
     const bool canSetWatchpointAtExpression = engine->hasCapability(WatchpointByExpressionCapability);
     if (name.isEmpty() || !canSetWatchpointAtExpression) {
-        actSetWatchpointAtExpression =
-            new QAction(tr("Add Data Breakpoint at Expression"),
-                &breakpointMenu);
-        actSetWatchpointAtExpression->setEnabled(false);
+        actSetWatchpointAtExpression.setText(tr("Add Data Breakpoint at Expression"));
+        actSetWatchpointAtExpression.setEnabled(false);
     } else {
-        actSetWatchpointAtExpression =
-            new QAction(tr("Add Data Breakpoint at Expression \"%1\"").arg(name),
-                &breakpointMenu);
+        actSetWatchpointAtExpression.setText(tr("Add Data Breakpoint at Expression \"%1\"").arg(name));
     }
-    actSetWatchpointAtExpression->setToolTip(
+    actSetWatchpointAtExpression.setToolTip(
         tr("Setting a data breakpoint on an expression will cause the program "
            "to stop when the data at the address given by the expression "
            "is modified."));
 
-    breakpointMenu.addAction(actSetWatchpointAtObjectAddress);
-    if (actSetWatchpointAtPointerAddress)
-        breakpointMenu.addAction(actSetWatchpointAtPointerAddress);
-    breakpointMenu.addAction(actSetWatchpointAtExpression);
+    QAction actInsertNewWatchItem(tr("Add New Expression Evaluator..."), 0);
+    actInsertNewWatchItem.setEnabled(canHandleWatches && canInsertWatches);
 
-    QMenu menu;
-    QAction *actInsertNewWatchItem =
-        menu.addAction(tr("Insert New Expression Evaluator"));
-    actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
-    QAction *actSelectWidgetToWatch =
-        menu.addAction(tr("Select Widget to Add into Expression Evaluator"));
-    actSelectWidgetToWatch->setEnabled(canHandleWatches
+    QAction actSelectWidgetToWatch(tr("Select Widget to Add into Expression Evaluator"), 0);
+    actSelectWidgetToWatch.setEnabled(canHandleWatches && canInsertWatches
            && engine->hasCapability(WatchWidgetsCapability));
 
-    menu.addSeparator();
-
-    QAction *actWatchExpression = new QAction(addWatchActionText(exp), &menu);
-    actWatchExpression->setEnabled(
+    QAction actWatchExpression(addWatchActionText(exp), 0);
+    actWatchExpression.setEnabled(
         canHandleWatches && !exp.isEmpty() && m_type == LocalsType);
 
     // Can remove watch if engine can handle it or session engine.
@@ -822,85 +805,99 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         p = pp;
     }
     QString removeExp = p.data(LocalsExpressionRole).toString();
-    QAction *actRemoveWatchExpression = new QAction(removeWatchActionText(removeExp), &menu);
-    actRemoveWatchExpression->setEnabled(
+    QAction actRemoveWatchExpression(removeWatchActionText(removeExp), 0);
+    actRemoveWatchExpression.setEnabled(
         (canHandleWatches || state == DebuggerNotReady)
                 && !exp.isEmpty() && m_type == WatchersType);
-    menu.addAction(actWatchExpression);
-    menu.addAction(actRemoveWatchExpression);
 
     QMenu formatMenu(tr("Change Local Display Format..."));
-    if (mi0.isValid()) {
+    if (mi0.isValid())
         fillFormatMenu(&formatMenu, mi0);
-    } else {
-        QAction *dummy = formatMenu.addAction(tr("Change Display for Type or Item..."));
-        dummy->setEnabled(false);
-    }
 
-    QMenu memoryMenu;
-    memoryMenu.setTitle(tr("Open Memory Editor..."));
-    QAction *actOpenMemoryEditAtObjectAddress = new QAction(&memoryMenu);
-    QAction *actOpenMemoryEditAtPointerAddress = new QAction(&memoryMenu);
-    QAction *actOpenMemoryEditor = new QAction(&memoryMenu);
-    QAction *actOpenMemoryEditorStackLayout = new QAction(&memoryMenu);
-    QAction *actOpenMemoryViewAtObjectAddress = new QAction(&memoryMenu);
-    QAction *actOpenMemoryViewAtPointerAddress = new QAction(&memoryMenu);
+    QMenu memoryMenu(tr("Open Memory Editor..."));
+    QAction actOpenMemoryEditAtObjectAddress(0);
+    QAction actOpenMemoryEditAtPointerAddress(0);
+    QAction actOpenMemoryEditor(0);
+    QAction actOpenMemoryEditorStackLayout(0);
+    QAction actOpenMemoryViewAtObjectAddress(0);
+    QAction actOpenMemoryViewAtPointerAddress(0);
     if (engine->hasCapability(ShowMemoryCapability)) {
-        actOpenMemoryEditor->setText(tr("Open Memory Editor..."));
+        actOpenMemoryEditor.setText(tr("Open Memory Editor..."));
         if (address) {
-            actOpenMemoryEditAtObjectAddress->setText(
+            actOpenMemoryEditAtObjectAddress.setText(
                 tr("Open Memory Editor at Object's Address (0x%1)")
                     .arg(address, 0, 16));
-            actOpenMemoryViewAtObjectAddress->setText(
+            actOpenMemoryViewAtObjectAddress.setText(
                     tr("Open Memory View at Object's Address (0x%1)")
                         .arg(address, 0, 16));
         } else {
-            actOpenMemoryEditAtObjectAddress->setText(
+            actOpenMemoryEditAtObjectAddress.setText(
                 tr("Open Memory Editor at Object's Address"));
-            actOpenMemoryEditAtObjectAddress->setEnabled(false);
-            actOpenMemoryViewAtObjectAddress->setText(
+            actOpenMemoryEditAtObjectAddress.setEnabled(false);
+            actOpenMemoryViewAtObjectAddress.setText(
                     tr("Open Memory View at Object's Address"));
-            actOpenMemoryViewAtObjectAddress->setEnabled(false);
+            actOpenMemoryViewAtObjectAddress.setEnabled(false);
         }
         if (createPointerActions) {
-            actOpenMemoryEditAtPointerAddress->setText(
+            actOpenMemoryEditAtPointerAddress.setText(
                 tr("Open Memory Editor at Pointer's Address (0x%1)")
                     .arg(pointerAddress, 0, 16));
-            actOpenMemoryViewAtPointerAddress->setText(
+            actOpenMemoryViewAtPointerAddress.setText(
                 tr("Open Memory View at Pointer's Address (0x%1)")
                     .arg(pointerAddress, 0, 16));
         } else {
-            actOpenMemoryEditAtPointerAddress->setText(
+            actOpenMemoryEditAtPointerAddress.setText(
                 tr("Open Memory Editor at Pointer's Address"));
-            actOpenMemoryEditAtPointerAddress->setEnabled(false);
-            actOpenMemoryViewAtPointerAddress->setText(
+            actOpenMemoryEditAtPointerAddress.setEnabled(false);
+            actOpenMemoryViewAtPointerAddress.setText(
                 tr("Open Memory View at Pointer's Address"));
-            actOpenMemoryViewAtPointerAddress->setEnabled(false);
+            actOpenMemoryViewAtPointerAddress.setEnabled(false);
         }
-        actOpenMemoryEditorStackLayout->setText(
+        actOpenMemoryEditorStackLayout.setText(
             tr("Open Memory Editor Showing Stack Layout"));
-        actOpenMemoryEditorStackLayout->setEnabled(m_type == LocalsType);
-        memoryMenu.addAction(actOpenMemoryViewAtObjectAddress);
-        memoryMenu.addAction(actOpenMemoryViewAtPointerAddress);
-        memoryMenu.addAction(actOpenMemoryEditAtObjectAddress);
-        memoryMenu.addAction(actOpenMemoryEditAtPointerAddress);
-        memoryMenu.addAction(actOpenMemoryEditorStackLayout);
-        memoryMenu.addAction(actOpenMemoryEditor);
+        actOpenMemoryEditorStackLayout.setEnabled(m_type == LocalsType);
+        memoryMenu.addAction(&actOpenMemoryViewAtObjectAddress);
+        memoryMenu.addAction(&actOpenMemoryViewAtPointerAddress);
+        memoryMenu.addAction(&actOpenMemoryEditAtObjectAddress);
+        memoryMenu.addAction(&actOpenMemoryEditAtPointerAddress);
+        memoryMenu.addAction(&actOpenMemoryEditorStackLayout);
+        memoryMenu.addAction(&actOpenMemoryEditor);
     } else {
         memoryMenu.setEnabled(false);
     }
 
-    QAction *actCopy = new QAction(tr("Copy Contents to Clipboard"), &menu);
-    QAction *actCopyValue = new QAction(tr("Copy Value to Clipboard"), &menu);
-    actCopyValue->setEnabled(idx.isValid());
+    QMenu breakpointMenu;
+    breakpointMenu.setTitle(tr("Add Data Breakpoint..."));
+    breakpointMenu.addAction(&actSetWatchpointAtObjectAddress);
+    if (canSetWatchpoint && address)
+        breakpointMenu.addAction(&actSetWatchpointAtPointerAddress);
+    breakpointMenu.addAction(&actSetWatchpointAtExpression);
 
-    menu.addAction(actInsertNewWatchItem);
-    menu.addAction(actSelectWidgetToWatch);
+    QAction actCopy(tr("Copy View Contents to Clipboard"), 0);
+    QAction actCopyValue(tr("Copy Value to Clipboard"), 0);
+    actCopyValue.setEnabled(idx.isValid());
+
+    QAction actShowInEditor(tr("Open View Contents in Editor"), 0);
+    actShowInEditor.setEnabled(actionsEnabled);
+    QAction actCloseEditorToolTips(tr("Close Editor Tooltips"), 0);
+    actCloseEditorToolTips.setEnabled(DebuggerToolTipManager::hasToolTips());
+
+    QMenu menu;
+    menu.addAction(&actInsertNewWatchItem);
+    menu.addAction(&actWatchExpression);
+    menu.addAction(&actRemoveWatchExpression);
+    menu.addAction(&actSelectWidgetToWatch);
+    menu.addSeparator();
+
     menu.addMenu(&formatMenu);
     menu.addMenu(&memoryMenu);
     menu.addMenu(&breakpointMenu);
-    menu.addAction(actCopy);
-    menu.addAction(actCopyValue);
+    menu.addSeparator();
+
+    menu.addAction(&actCloseEditorToolTips);
+    menu.addAction(&actCopy);
+    menu.addAction(&actCopyValue);
+    menu.addAction(&actShowInEditor);
     menu.addSeparator();
 
     menu.addAction(debuggerCore()->action(UseDebuggingHelpers));
@@ -908,17 +905,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(debuggerCore()->action(AutoDerefPointers));
     menu.addAction(debuggerCore()->action(SortStructMembers));
     menu.addAction(debuggerCore()->action(UseDynamicType));
-
-    QAction *actShowInEditor
-        = new QAction(tr("Show View Contents in Editor"), &menu);
-    actShowInEditor->setEnabled(actionsEnabled);
-    menu.addAction(actShowInEditor);
     menu.addAction(debuggerCore()->action(SettingsDialog));
-
-    QAction *actCloseEditorToolTips =
-        new QAction(tr("Close Editor Tooltips"), &menu);
-    actCloseEditorToolTips->setEnabled(DebuggerToolTipManager::hasToolTips());
-    menu.addAction(actCloseEditorToolTips);
 
     addBaseContextActions(&menu);
 
@@ -926,50 +913,50 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     if (!act) {
         ;
-    } else if (act == actInsertNewWatchItem) {
+    } else if (act == &actInsertNewWatchItem) {
         bool ok;
         QString newExp = QInputDialog::getText(this, tr("Enter Expression for Evaluator"),
                                    tr("Expression:"), QLineEdit::Normal,
                                    QString(), &ok);
         if (ok && !newExp.isEmpty())
             watchExpression(newExp);
-    } else if (act == actOpenMemoryEditAtObjectAddress) {
+    } else if (act == &actOpenMemoryEditAtObjectAddress) {
         addVariableMemoryView(currentEngine(), false, mi0, false, ev->globalPos(), this);
-    } else if (act == actOpenMemoryEditAtPointerAddress) {
+    } else if (act == &actOpenMemoryEditAtPointerAddress) {
         addVariableMemoryView(currentEngine(), false, mi0, true, ev->globalPos(), this);
-    } else if (act == actOpenMemoryEditor) {
+    } else if (act == &actOpenMemoryEditor) {
         AddressDialog dialog;
         if (address)
             dialog.setAddress(address);
         if (dialog.exec() == QDialog::Accepted)
             currentEngine()->openMemoryView(dialog.address(), false, MemoryMarkupList(), QPoint());
-    } else if (act == actOpenMemoryViewAtObjectAddress) {
+    } else if (act == &actOpenMemoryViewAtObjectAddress) {
         addVariableMemoryView(currentEngine(), true, mi0, false, ev->globalPos(), this);
-    } else if (act == actOpenMemoryViewAtPointerAddress) {
+    } else if (act == &actOpenMemoryViewAtPointerAddress) {
         addVariableMemoryView(currentEngine(), true, mi0, true, ev->globalPos(), this);
-    } else if (act == actOpenMemoryEditorStackLayout) {
+    } else if (act == &actOpenMemoryEditorStackLayout) {
         addStackLayoutMemoryView(currentEngine(), false, model(), ev->globalPos(), this);
-    } else if (act == actSetWatchpointAtObjectAddress) {
+    } else if (act == &actSetWatchpointAtObjectAddress) {
         breakHandler()->setWatchpointAtAddress(address, size);
-    } else if (act == actSetWatchpointAtPointerAddress) {
+    } else if (act == &actSetWatchpointAtPointerAddress) {
         breakHandler()->setWatchpointAtAddress(pointerAddress, sizeof(void *)); // FIXME: an approximation..
-    } else if (act == actSetWatchpointAtExpression) {
+    } else if (act == &actSetWatchpointAtExpression) {
         breakHandler()->setWatchpointAtExpression(name);
-    } else if (act == actSelectWidgetToWatch) {
+    } else if (act == &actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
-    } else if (act == actWatchExpression) {
+    } else if (act == &actWatchExpression) {
         watchExpression(exp, name);
-    } else if (act == actRemoveWatchExpression) {
+    } else if (act == &actRemoveWatchExpression) {
         handler->removeData(p.data(LocalsINameRole).toByteArray());
-    } else if (act == actCopy) {
+    } else if (act == &actCopy) {
         copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
-    } else if (act == actCopyValue) {
+    } else if (act == &actCopyValue) {
         copyToClipboard(mi1.data().toString());
-    } else if (act == actShowInEditor) {
+    } else if (act == &actShowInEditor) {
         QString contents = handler->editorContents();
         debuggerCore()->openTextEditor(tr("Locals & Expressions"), contents);
-    } else if (act == actCloseEditorToolTips) {
+    } else if (act == &actCloseEditorToolTips) {
         DebuggerToolTipManager::closeAllToolTips();
     }
 }
