@@ -426,7 +426,9 @@ void BlackBerryCreatePackageStep::updateAppDescriptorFile()
         doUpdateAppDescriptorFile(info.appDescriptorPath(), EditMode::QtEnvironment);
 }
 
-bool BlackBerryCreatePackageStep::doUpdateAppDescriptorFile(const QString &appDescriptorPath, QFlags<EditMode> types)
+bool BlackBerryCreatePackageStep::doUpdateAppDescriptorFile(const QString &appDescriptorPath,
+                                                            QFlags<EditMode> types,
+                                                            bool skipConfirmation)
 {
     Core::FileChangeBlocker fb(appDescriptorPath);
     BarDescriptorDocument doc;
@@ -502,25 +504,27 @@ bool BlackBerryCreatePackageStep::doUpdateAppDescriptorFile(const QString &appDe
         }
 
         if (environmentUpdated) {
-            QString confirmationText = tr("In order to link to the correct Qt library specified in the deployment settings "
-                                                "Qt Creator needs to update the Qt environment variables "
-                                                "in the BAR application file as follows:\n\n"
-                                                "<env var=\"LD_LIBRARY_PATH\" value=\"%1\"/>\n"
-                                                "<env var=\"QT_PLUGIN_PATH\" value=\"%2\"/>\n"
-                                                "<env var=\"QML_IMPORT_PATH\" value=\"%3\"/>\n")
-                                                .arg(env.value(QLatin1String("LD_LIBRARY_PATH")),
-                                                                                 env.value(QLatin1String("QT_PLUGIN_PATH")),
-                                                                                 env.value(QLatin1String("QML_IMPORT_PATH")));
+            QMessageBox::StandardButton answer = QMessageBox::Yes;
+            if (!skipConfirmation) {
+                QString confirmationText = tr("In order to link to the correct Qt library specified in the deployment settings "
+                                              "Qt Creator needs to update the Qt environment variables "
+                                              "in the BAR application file as follows:\n\n"
+                                              "<env var=\"LD_LIBRARY_PATH\" value=\"%1\"/>\n"
+                                              "<env var=\"QT_PLUGIN_PATH\" value=\"%2\"/>\n"
+                                              "<env var=\"QML_IMPORT_PATH\" value=\"%3\"/>\n")
+                        .arg(env.value(QLatin1String("LD_LIBRARY_PATH")),
+                             env.value(QLatin1String("QT_PLUGIN_PATH")),
+                             env.value(QLatin1String("QML_IMPORT_PATH")));
 
-            if (isQt5)
-                confirmationText.append(QString::fromLatin1("<env var=\"QML2_IMPORT_PATH\" value=\"%1\"/>\n")
-                        .arg(env.value(QLatin1String("QML2_IMPORT_PATH"))));
+                if (isQt5)
+                    confirmationText.append(QString::fromLatin1("<env var=\"QML2_IMPORT_PATH\" value=\"%1\"/>\n")
+                                            .arg(env.value(QLatin1String("QML2_IMPORT_PATH"))));
 
-            confirmationText.append(tr("\nDo you want to update it?"));
-            QMessageBox::StandardButton answer =
-                    QMessageBox::question(Core::ICore::mainWindow(), tr("Confirmation"),
-                                          confirmationText,
-                                          QMessageBox::Yes | QMessageBox::No);
+                confirmationText.append(tr("\nDo you want to update it?"));
+                answer = QMessageBox::question(Core::ICore::mainWindow(), tr("Confirmation"),
+                                               confirmationText,
+                                               QMessageBox::Yes | QMessageBox::No);
+            }
 
             if (answer == QMessageBox::Yes) {
                 QVariant envVar;

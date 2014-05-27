@@ -106,7 +106,8 @@ private:
     void ctor();
 
     bool doUpdateAppDescriptorFile(const QString &appDescriptorPath,
-                                   QFlags<EditMode> types);
+                                   QFlags<EditMode> types,
+                                   bool skipConfirmation = false);
 
     QString fullDeployedQtLibraryPath() const;
 

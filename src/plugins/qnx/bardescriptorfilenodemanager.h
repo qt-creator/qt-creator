@@ -65,7 +65,8 @@ private:
     void updateBarDescriptorNodes(ProjectExplorer::Project *project, bool attemptCreate);
     bool createBarDescriptor(ProjectExplorer::Project *project, const QString &barDescriptorPath,
                              ProjectExplorer::ProjectNode *projectNode);
-    void updateBarDescriptor(const QString &barDescriptorPath, ProjectExplorer::Target *target);
+    void updateBarDescriptor(const QString &barDescriptorPath, ProjectExplorer::Target *target,
+                             bool skipConfirmation = false);
 
     void removeBarDescriptorNodes(ProjectExplorer::Project *project);
     void removeBarDescriptorNodes(ProjectExplorer::ProjectNode *parent);

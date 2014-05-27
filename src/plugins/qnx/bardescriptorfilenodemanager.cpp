@@ -242,11 +242,15 @@ bool BarDescriptorFileNodeManager::createBarDescriptor(ProjectExplorer::Project 
         return false;
     }
 
+    // Check if the Qt environment matches the Qt bundle mode in the deployment step
+    updateBarDescriptor(barDescriptorPath, project->activeTarget(), true);
+
     return true;
 }
 
 void BarDescriptorFileNodeManager::updateBarDescriptor(const QString &barDescriptorPath,
-                                                       ProjectExplorer::Target *target)
+                                                       ProjectExplorer::Target *target,
+                                                       bool skipConfirmation)
 {
     BarDescriptorDocument doc;
     QString errorString;
@@ -258,7 +262,6 @@ void BarDescriptorFileNodeManager::updateBarDescriptor(const QString &barDescrip
 
     QList<Utils::EnvironmentItem> envItems =
             doc.value(BarDescriptorDocument::env).value<QList<Utils::EnvironmentItem> >();
-    Utils::Environment env(Utils::EnvironmentItem::toStringList(envItems), Utils::OsTypeOtherUnix);
 
     BlackBerryQtVersion *qtVersion =
             dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtKitInformation::qtVersion(target->kit()));
@@ -270,7 +273,8 @@ void BarDescriptorFileNodeManager::updateBarDescriptor(const QString &barDescrip
         BlackBerryCreatePackageStep *createPackageStep = dynamic_cast<BlackBerryCreatePackageStep *>(step);
         if (createPackageStep) {
             createPackageStep->doUpdateAppDescriptorFile(barDescriptorPath,
-                                                         BlackBerryCreatePackageStep::EditMode::QtEnvironment);
+                                                         BlackBerryCreatePackageStep::EditMode::QtEnvironment,
+                                                         skipConfirmation);
         }
     }
 }
