@@ -106,20 +106,16 @@ static const char *engineTypeName(DebuggerEngineType et)
 class DebuggerRunControlPrivate
 {
 public:
-    explicit DebuggerRunControlPrivate(DebuggerRunControl *parent,
-                                       RunConfiguration *runConfiguration);
+    explicit DebuggerRunControlPrivate(RunConfiguration *runConfiguration);
 
 public:
-    DebuggerRunControl *q;
     DebuggerEngine *m_engine;
     const QPointer<RunConfiguration> m_myRunConfiguration;
     bool m_running;
 };
 
-DebuggerRunControlPrivate::DebuggerRunControlPrivate(DebuggerRunControl *parent,
-                                                     RunConfiguration *runConfiguration)
-    : q(parent)
-    , m_engine(0)
+DebuggerRunControlPrivate::DebuggerRunControlPrivate(RunConfiguration *runConfiguration)
+    : m_engine(0)
     , m_myRunConfiguration(runConfiguration)
     , m_running(false)
 {
@@ -130,7 +126,7 @@ DebuggerRunControlPrivate::DebuggerRunControlPrivate(DebuggerRunControl *parent,
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
                                        const DebuggerStartParameters &sp)
     : RunControl(runConfiguration, DebugRunMode),
-      d(new DebuggerRunControlPrivate(this, runConfiguration))
+      d(new DebuggerRunControlPrivate(runConfiguration))
 {
     connect(this, SIGNAL(finished()), SLOT(handleFinished()));
     // Create the engine. Could arguably be moved to the factory, but
