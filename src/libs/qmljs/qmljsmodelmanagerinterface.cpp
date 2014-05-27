@@ -39,7 +39,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/runextensions.h>
 
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -54,6 +53,8 @@
 #include <stdio.h>
 
 namespace QmlJS {
+
+QMLJS_EXPORT Q_LOGGING_CATEGORY(qmljsLog, "qtc.qmljs.common")
 
 /*!
     \class QmlJS::ModelManagerInterface
@@ -184,7 +185,7 @@ void ModelManagerInterface::writeWarning(const QString &msg)
     if (ModelManagerInterface *i = instance())
         i->writeMessageInternal(msg);
     else
-        qDebug() << msg;
+        qCWarning(qmljsLog) << msg;
 }
 
 ModelManagerInterface::WorkingCopy ModelManagerInterface::workingCopy()
@@ -209,7 +210,7 @@ QHash<QString, Language::Enum> ModelManagerInterface::languageForSuffix() const
 
 void ModelManagerInterface::writeMessageInternal(const QString &msg) const
 {
-    qDebug() << msg;
+    qCWarning(qmljsLog) << msg;
 }
 
 ModelManagerInterface::WorkingCopy ModelManagerInterface::workingCopyInternal() const
@@ -222,7 +223,7 @@ void ModelManagerInterface::addTaskInternal(QFuture<void> result, const QString 
                                             const char *taskId) const
 {
     Q_UNUSED(result);
-    qDebug() << "started " << taskId << " " << msg;
+    qCDebug(qmljsLog) << "started " << taskId << " " << msg;
 }
 
 void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resourcePath)
@@ -630,7 +631,7 @@ void ModelManagerInterface::updateDocument(Document::Ptr doc)
 void ModelManagerInterface::updateLibraryInfo(const QString &path, const LibraryInfo &info)
 {
     if (!info.pluginTypeInfoError().isEmpty())
-        qDebug() << "Dumping errors for " << path << ":" << info.pluginTypeInfoError();
+        qCWarning(qmljsLog) << "Dumping errors for " << path << ":" << info.pluginTypeInfoError();
 
     {
         QMutexLocker locker(&m_mutex);

@@ -29,12 +29,15 @@
 
 #include "qmljscodeformatter.h"
 
-#include <QDebug>
+#include <utils/logging.h>
+
 #include <QMetaEnum>
 #include <QTextDocument>
 #include <QTextBlock>
 
-using namespace QmlJS;
+namespace QmlJS {
+
+Q_LOGGING_CATEGORY(formatterLog, "qtc.qmljs.formatter")
 
 CodeFormatter::BlockData::BlockData()
     : m_indentDepth(0)
@@ -65,13 +68,13 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
     m_tokenIndex = 0;
     m_newStates.clear();
 
-    //qDebug() << "Starting to look at " << block.text() << block.blockNumber() + 1;
+    //qCDebug(formatterLog) << "Starting to look at " << block.text() << block.blockNumber() + 1;
 
     for (; m_tokenIndex < m_tokens.size(); ) {
         m_currentToken = tokenAt(m_tokenIndex);
         const int kind = extendedTokenKind(m_currentToken);
 
-        //qDebug() << "Token" << m_currentLine.mid(m_currentToken.begin(), m_currentToken.length) << m_tokenIndex << "in line" << block.blockNumber() + 1;
+        //qCDebug(formatterLog) << "Token" << m_currentLine.mid(m_currentToken.begin(), m_currentToken.length) << m_tokenIndex << "in line" << block.blockNumber() + 1;
         //dump();
 
         if (kind == Comment
@@ -520,7 +523,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
 int CodeFormatter::indentFor(const QTextBlock &block)
 {
-//    qDebug() << "indenting for" << block.blockNumber() + 1;
+//    qCDebug(formatterLog) << "indenting for" << block.blockNumber() + 1;
 
     restoreCurrentState(block.previous());
     correctIndentation(block);
@@ -641,7 +644,7 @@ void CodeFormatter::enter(int newState)
     m_currentState.push(s);
     m_newStates.push(s);
 
-    //qDebug() << "enter state" << stateToString(newState);
+    //qCDebug(formatterLog) << "enter state" << stateToString(newState);
 
     if (newState == bracket_open)
         enter(bracket_element_start);
@@ -662,7 +665,7 @@ void CodeFormatter::leave(bool statementDone)
 
     int topState = m_currentState.top().type;
 
-    //qDebug() << "left state" << stateToString(poppedState.type) << ", now in state" << stateToString(topState);
+    //qCDebug(formatterLog) << "left state" << stateToString(poppedState.type) << ", now in state" << stateToString(topState);
 
     // if statement is done, may need to leave recursively
     if (statementDone) {
@@ -1003,12 +1006,12 @@ CodeFormatter::TokenKind CodeFormatter::extendedTokenKind(const QmlJS::Token &to
 
 void CodeFormatter::dump() const
 {
-    qDebug() << "Current token index" << m_tokenIndex;
-    qDebug() << "Current state:";
+    qCDebug(formatterLog) << "Current token index" << m_tokenIndex;
+    qCDebug(formatterLog) << "Current state:";
     foreach (const State &s, m_currentState) {
-        qDebug() << stateToString(s.type) << s.savedIndentDepth;
+        qCDebug(formatterLog) << stateToString(s.type) << s.savedIndentDepth;
     }
-    qDebug() << "Current indent depth:" << m_indentDepth;
+    qCDebug(formatterLog) << "Current indent depth:" << m_indentDepth;
 }
 
 QString CodeFormatter::stateToString(int type) const
@@ -1339,3 +1342,5 @@ void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int startLex
         break;
     }
 }
+
+} // namespace QmlJS

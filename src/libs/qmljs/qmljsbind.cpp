@@ -33,8 +33,6 @@
 #include "qmljsdocument.h"
 #include "qmljsmodelmanagerinterface.h"
 
-#include <QDebug>
-
 using namespace LanguageUtils;
 using namespace QmlJS;
 using namespace QmlJS::AST;

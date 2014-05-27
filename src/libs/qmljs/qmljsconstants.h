@@ -29,6 +29,9 @@
 
 #ifndef QMLJSCONSTANTS_H
 #define QMLJSCONSTANTS_H
+#include "qmljs_global.h"
+
+#include <utils/logging.h>
 
 namespace QmlJS {
 
@@ -87,5 +90,8 @@ const char TASK_INDEX[] = "QmlJSEditor.TaskIndex";
 const char TASK_IMPORT_SCAN[] = "QmlJSEditor.TaskImportScan";
 
 } // namespace Constants
+
+QMLJS_EXPORT Q_DECLARE_LOGGING_CATEGORY(qmljsLog)
+
 } // namespace QmlJS
 #endif // QMLJSCONSTANTS_H

@@ -35,7 +35,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDebug>
 #include <QDir>
 
 using namespace QmlJS;

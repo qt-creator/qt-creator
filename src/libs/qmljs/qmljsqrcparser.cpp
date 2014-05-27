@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmljsqrcparser.h"
+#include "qmljsconstants.h"
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
@@ -40,7 +41,6 @@
 #include <QMultiHash>
 #include <QCoreApplication>
 #include <utils/qtcassert.h>
-#include <QDebug>
 
 namespace QmlJS {
 
@@ -456,7 +456,7 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path)
     }
     QrcParser::Ptr newParser = QrcParser::parseQrcFile(path);
     if (!newParser->isValid())
-        qDebug() << "adding invalid qrc " << path << " to the cache:" << newParser->errorMessages();
+        qCWarning(qmljsLog) << "adding invalid qrc " << path << " to the cache:" << newParser->errorMessages();
     {
         QMutexLocker l(&m_mutex);
         QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, qMakePair(QrcParser::Ptr(0), 0));
