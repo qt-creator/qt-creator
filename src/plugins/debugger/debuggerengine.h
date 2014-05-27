@@ -253,7 +253,7 @@ public:
 
     virtual void resetLocation();
     virtual void gotoLocation(const Internal::Location &location);
-    virtual void quitDebugger(); // called by DebuggerRunControl
+    Q_SLOT virtual void quitDebugger(); // called by DebuggerRunControl
     virtual void abortDebugger(); // called by DebuggerPlugin
 
     virtual void updateViews();
