@@ -12,4 +12,4 @@ CONFIG += console
 CONFIG -= app_bundle
 @endif
 
-SOURCES += main.cpp
+SOURCES += main.%CppSourceSuffix%

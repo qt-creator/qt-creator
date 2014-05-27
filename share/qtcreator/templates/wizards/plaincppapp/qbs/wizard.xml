@@ -36,7 +36,7 @@
     <displayname>Plain C++ Project (Qbs Build)</displayname>;
     <displaycategory>Non-Qt Project</displaycategory>
     <files>
-        <file source="../common/main.cpp" target="main.cpp" openeditor="true"/>
+        <file source="../common/main.cpp" target="main.%CppSourceSuffix%" openeditor="true"/>
         <file source="project.qbs" target="%ProjectName%.qbs" openproject="true"/>
     </files>
 </wizard>

@@ -41,7 +41,7 @@ leave room for the Qt 4 target page.
     <displayname>Code Snippet</displayname>;
     <displaycategory>Other Projects</displaycategory>
     <files>
-        <file source="main.cpp" openeditor="true"/>
+        <file source="main.cpp" target="main.%CppSourceSuffix%" openeditor="true"/>
         <file source="project.pro" target="%ProjectName%.pro" openproject="true"/>
     </files>
     <fieldpagetitle>Snippet Parameters</fieldpagetitle>
