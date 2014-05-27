@@ -64,8 +64,6 @@
 #include <QLibraryInfo>
 #include <qglobal.h>
 
-#include <QDebug>
-
 using namespace Core;
 using namespace QmlJS;
 using namespace QmlJSTools;

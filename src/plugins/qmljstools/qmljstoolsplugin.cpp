@@ -45,7 +45,6 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <QtPlugin>
-#include <QDebug>
 #include <QMenu>
 
 using namespace Core;
