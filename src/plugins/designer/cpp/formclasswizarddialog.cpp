@@ -44,7 +44,7 @@ namespace Internal {
 // ----------------- FormClassWizardDialog
 FormClassWizardDialog::FormClassWizardDialog(const WizardPageList &extensionPages,
                                              QWidget *parent) :
-    Utils::Wizard(parent),
+    Core::BaseFileWizard(parent),
     m_formPage(new FormTemplateWizardPage),
     m_classPage(new FormClassWizardPage)
 {

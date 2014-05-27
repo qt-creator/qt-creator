@@ -49,7 +49,7 @@ public:
     ClassWizard();
 
 private:
-    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
 
     Core::GeneratedFiles generateFiles(const QWizard *w,
                                        QString *errorMessage) const;

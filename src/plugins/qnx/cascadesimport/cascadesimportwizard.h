@@ -32,6 +32,7 @@
 
 #include "fileconverter.h"
 
+#include <coreplugin/basefilewizard.h>
 #include <coreplugin/basefilewizardfactory.h>
 #include <utils/wizard.h>
 
@@ -42,7 +43,7 @@ namespace Internal {
 
 class SrcProjectWizardPage;
 
-class CascadesImportWizardDialog : public Utils::Wizard
+class CascadesImportWizardDialog : public Core::BaseFileWizard
 {
     Q_OBJECT
 public:
@@ -66,7 +67,7 @@ public:
     CascadesImportWizard();
 
 protected:
-    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 private:

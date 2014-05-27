@@ -55,6 +55,7 @@ SOURCES += mainwindow.cpp \
     coreplugin.cpp \
     variablemanager.cpp \
     modemanager.cpp \
+    basefilewizard.cpp \
     basefilewizardfactory.cpp \
     generatedfile.cpp \
     plugindialog.cpp \
@@ -158,6 +159,7 @@ HEADERS += mainwindow.h \
     coreplugin.h \
     variablemanager.h \
     modemanager.h \
+    basefilewizard.h \
     basefilewizardfactory.h \
     generatedfile.h \
     plugindialog.h \

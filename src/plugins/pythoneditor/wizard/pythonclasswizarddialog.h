@@ -30,7 +30,8 @@
 #ifndef PYTHONEDITOR_CLASSWIZARDDIALOG_H
 #define PYTHONEDITOR_CLASSWIZARDDIALOG_H
 
-#include <utils/wizard.h>
+#include <coreplugin/basefilewizard.h>
+
 #include <utils/newclasswidget.h>
 #include <QScopedPointer>
 #include <QVariantMap>
@@ -50,7 +51,7 @@ public:
     Utils::NewClassWidget::ClassType classType;
 };
 
-class ClassWizardDialog : public Utils::Wizard
+class ClassWizardDialog : public Core::BaseFileWizard
 {
     Q_OBJECT
 public:

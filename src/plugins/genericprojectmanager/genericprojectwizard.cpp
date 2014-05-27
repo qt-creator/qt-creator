@@ -59,8 +59,8 @@ static const char *const ConfigFileTemplate =
 //
 //////////////////////////////////////////////////////////////////////////////
 
-GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
-    : Utils::Wizard(parent)
+GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent) :
+    Core::BaseFileWizard(parent)
 {
     setWindowTitle(tr("Import Existing Project"));
 
@@ -132,7 +132,7 @@ GenericProjectWizard::GenericProjectWizard()
     setFlags(Core::IWizardFactory::PlatformIndependent);
 }
 
-QWizard *GenericProjectWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *GenericProjectWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     GenericProjectWizardDialog *wizard = new GenericProjectWizardDialog(parent);
 

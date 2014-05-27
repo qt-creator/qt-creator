@@ -65,7 +65,7 @@ ConsoleAppWizard::ConsoleAppWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
 }
 
-QWizard *ConsoleAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *ConsoleAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     ConsoleAppWizardDialog *dialog = new ConsoleAppWizardDialog(displayName(), icon(),
                                                                 showModulesPageForApplications(), parent, parameters);

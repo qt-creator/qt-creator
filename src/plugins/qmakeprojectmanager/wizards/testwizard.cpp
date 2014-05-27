@@ -58,7 +58,7 @@ TestWizard::TestWizard()
             Core::Feature(QtSupport::Constants::FEATURE_QT));
 }
 
-QWizard *TestWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *TestWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     TestWizardDialog *dialog = new TestWizardDialog(displayName(), icon(), parent, parameters);
     dialog->setProjectName(TestWizardDialog::uniqueProjectName(parameters.defaultPath()));

@@ -60,7 +60,7 @@ QString FormClassWizard::formSuffix() const
     return preferredSuffix(QLatin1String(Constants::FORM_MIMETYPE));
 }
 
-QWizard *FormClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *FormClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     FormClassWizardDialog *wizardDialog = new FormClassWizardDialog(parameters.extensionPages(),
                                                                     parent);

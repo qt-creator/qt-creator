@@ -30,6 +30,7 @@
 #ifndef CPPCLASSWIZARD_H
 #define CPPCLASSWIZARD_H
 
+#include <coreplugin/basefilewizard.h>
 #include <coreplugin/basefilewizardfactory.h>
 
 #include <utils/wizard.h>
@@ -72,7 +73,7 @@ struct CppClassWizardParameters
     int classType;
 };
 
-class CppClassWizardDialog : public Utils::Wizard
+class CppClassWizardDialog : public Core::BaseFileWizard
 {
     Q_OBJECT
 
@@ -95,7 +96,7 @@ public:
     CppClassWizard();
 
 private:
-    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
 
     Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;

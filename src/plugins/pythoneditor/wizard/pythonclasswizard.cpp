@@ -55,7 +55,7 @@ ClassWizard::ClassWizard()
     setDescription(ClassWizard::tr(Constants::EN_PY_CLASS_DESCRIPTION));
 }
 
-QWizard *ClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *ClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     ClassWizardDialog *wizard = new ClassWizardDialog(parent);
     foreach (QWizardPage *p, parameters.extensionPages())

@@ -62,8 +62,8 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-CascadesImportWizardDialog::CascadesImportWizardDialog(QWidget *parent)
-    : Utils::Wizard(parent)
+CascadesImportWizardDialog::CascadesImportWizardDialog(QWidget *parent) :
+    Core::BaseFileWizard(parent)
 {
     setWindowTitle(tr("Import Existing Momentics Cascades Project"));
 
@@ -124,7 +124,7 @@ CascadesImportWizard::CascadesImportWizard()
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
 }
 
-QWizard *CascadesImportWizard::create(QWidget *parent,
+Core::BaseFileWizard *CascadesImportWizard::create(QWidget *parent,
                                       const Core::WizardDialogParameters &parameters) const
 {
     CascadesImportWizardDialog *wizard = new CascadesImportWizardDialog(parent);

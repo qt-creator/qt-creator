@@ -42,7 +42,7 @@ FormWizard::FormWizard()
     addRequiredFeature(Core::Id(QtSupport::Constants::FEATURE_QWIDGETS));
 }
 
-QWizard *FormWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *FormWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     FormFileWizardDialog *wizardDialog = new FormFileWizardDialog(parameters.extensionPages(),
                                                                   parent);

@@ -36,9 +36,9 @@
 namespace PythonEditor {
 namespace Internal {
 
-ClassWizardDialog::ClassWizardDialog(QWidget *parent)
-    : Utils::Wizard(parent)
-    , m_classNamePage(new ClassNamePage(this))
+ClassWizardDialog::ClassWizardDialog(QWidget *parent) :
+    Core::BaseFileWizard(parent),
+    m_classNamePage(new ClassNamePage(this))
 {
     setWindowTitle(tr("Python Class Wizard"));
     const int classNameId = addPage(m_classNamePage.data());

@@ -28,6 +28,8 @@
 ****************************************************************************/
 
 #include "basefilewizardfactory.h"
+
+#include "basefilewizard.h"
 #include "icore.h"
 #include "ifilewizardextension.h"
 #include "mimedatabase.h"
@@ -524,16 +526,16 @@ QString BaseFileWizardFactory::preferredSuffix(const QString &mimeType)
     Creates a Utils::FileWizardDialog.
 */
 
-QWizard *StandardFileWizardFactory::create(QWidget *parent, const WizardDialogParameters &parameters) const
+BaseFileWizard *StandardFileWizardFactory::create(QWidget *parent, const WizardDialogParameters &parameters) const
 {
-    Utils::FileWizardDialog *standardWizardDialog = new Utils::FileWizardDialog(parent);
+    BaseFileWizard *wizard = new BaseFileWizard(parent);
     if (parameters.flags().testFlag(WizardDialogParameters::ForceCapitalLetterForFileName))
-        standardWizardDialog->setForceFirstCapitalLetterForFileName(true);
-    standardWizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    standardWizardDialog->setPath(parameters.defaultPath());
+        wizard->setForceFirstCapitalLetterForFileName(true);
+    wizard->setWindowTitle(tr("New %1").arg(displayName()));
+    wizard->setPath(parameters.defaultPath());
     foreach (QWizardPage *p, parameters.extensionPages())
-        BaseFileWizardFactory::applyExtensionPageShortTitle(standardWizardDialog, standardWizardDialog->addPage(p));
-    return standardWizardDialog;
+        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+    return wizard;
 }
 
 /*!

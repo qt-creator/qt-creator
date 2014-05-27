@@ -66,7 +66,7 @@ public:
     static void createInstances(ExtensionSystem::IPlugin *plugin);
 
 private:
-    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
     void writeUserFile(const QString &fileName) const;
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);

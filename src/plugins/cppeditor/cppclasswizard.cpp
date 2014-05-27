@@ -111,7 +111,7 @@ void ClassNamePage::slotValidChanged()
 }
 
 CppClassWizardDialog::CppClassWizardDialog(QWidget *parent) :
-    Utils::Wizard(parent),
+    Core::BaseFileWizard(parent),
     m_classNamePage(new ClassNamePage(this))
 {
     setWindowTitle(tr("C++ Class Wizard"));
@@ -153,7 +153,7 @@ QString CppClassWizard::headerSuffix() const
     return preferredSuffix(QLatin1String(Constants::CPP_HEADER_MIMETYPE));
 }
 
-QWizard *CppClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *CppClassWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     CppClassWizardDialog *wizard = new CppClassWizardDialog(parent);
     foreach (QWizardPage *p, parameters.extensionPages())

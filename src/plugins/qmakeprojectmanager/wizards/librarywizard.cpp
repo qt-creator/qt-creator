@@ -57,7 +57,7 @@ LibraryWizard::LibraryWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT));
 }
 
-QWizard *LibraryWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *LibraryWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     LibraryWizardDialog *dialog = new LibraryWizardDialog(displayName(), icon(),
                                                           showModulesPageForLibraries(), parent,

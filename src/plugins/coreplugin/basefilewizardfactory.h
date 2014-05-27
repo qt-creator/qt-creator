@@ -52,6 +52,7 @@ namespace Utils { class Wizard; }
 
 namespace Core {
 
+class BaseFileWizard;
 class IFileWizardExtension;
 
 class CORE_EXPORT WizardDialogParameters
@@ -120,7 +121,7 @@ protected:
 
     virtual ExtensionList extensions() const;
 
-    virtual QWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const = 0;
+    virtual BaseFileWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const = 0;
 
     virtual GeneratedFiles generateFiles(const QWizard *w,
                                          QString *errorMessage) const = 0;
@@ -142,7 +143,7 @@ class CORE_EXPORT StandardFileWizardFactory : public BaseFileWizardFactory
     Q_OBJECT
 
 protected:
-    QWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const;
+    BaseFileWizard *create(QWidget *parent, const WizardDialogParameters &parameters) const;
     GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
     virtual GeneratedFiles generateFilesFromPath(const QString &path, const QString &name,
                                                  QString *errorMessage) const = 0;

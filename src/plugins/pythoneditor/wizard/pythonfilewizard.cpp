@@ -34,7 +34,7 @@
 #include "pythonfilewizard.h"
 #include "../pythoneditorconstants.h"
 
-#include <utils/filewizarddialog.h>
+#include <coreplugin/basefilewizard.h>
 #include <texteditor/textfilewizard.h>
 
 #include <QWizard>
@@ -61,15 +61,15 @@ FileWizard::FileWizard()
  * @param params
  * @return
  */
-QWizard *FileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *FileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    Utils::FileWizardDialog *pDialog = new Utils::FileWizardDialog(parent);
-    pDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    pDialog->setPath(parameters.defaultPath());
+    Core::BaseFileWizard *wizard = new Core::BaseFileWizard(parent);
+    wizard->setWindowTitle(tr("New %1").arg(displayName()));
+    wizard->setPath(parameters.defaultPath());
     foreach (QWizardPage *p, parameters.extensionPages())
-        applyExtensionPageShortTitle(pDialog, pDialog->addPage(p));
+        applyExtensionPageShortTitle(wizard, wizard->addPage(p));
 
-    return pDialog;
+    return wizard;
 }
 
 Core::GeneratedFiles FileWizard::generateFiles(const QWizard *dialog,

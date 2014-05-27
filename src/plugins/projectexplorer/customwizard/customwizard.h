@@ -96,7 +96,7 @@ public:
 
     // Can be reimplemented to create custom wizards. initWizardDialog() needs to be
     // called.
-    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 
@@ -111,7 +111,7 @@ protected:
     typedef QSharedPointer<Internal::CustomWizardParameters> CustomWizardParametersPtr;
     typedef QSharedPointer<Internal::CustomWizardContext> CustomWizardContextPtr;
 
-    void initWizardDialog(Utils::Wizard *w, const QString &defaultPath,
+    void initWizardDialog(Core::BaseFileWizard *w, const QString &defaultPath,
                           const WizardPageList &extensionPages) const;
 
     // generate files in path
@@ -143,7 +143,7 @@ public:
     static bool postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage = 0);
 
 protected:
-    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 

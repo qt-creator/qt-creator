@@ -31,8 +31,9 @@
 #define BASEPROJECTWIZARDDIALOG_H
 
 #include "projectexplorer_export.h"
+
+#include <coreplugin/basefilewizard.h>
 #include <coreplugin/basefilewizardfactory.h>
-#include <utils/wizard.h>
 
 namespace Utils { class ProjectIntroPage; }
 
@@ -41,13 +42,12 @@ namespace ProjectExplorer {
 struct BaseProjectWizardDialogPrivate;
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT BaseProjectWizardDialog : public Utils::Wizard
+class PROJECTEXPLORER_EXPORT BaseProjectWizardDialog : public Core::BaseFileWizard
 {
     Q_OBJECT
 
 protected:
-    explicit BaseProjectWizardDialog(Utils::ProjectIntroPage *introPage,
-                                     int introId,
+    explicit BaseProjectWizardDialog(Utils::ProjectIntroPage *introPage, int introId,
                                      QWidget *parent, const Core::WizardDialogParameters &parameters);
 
 public:

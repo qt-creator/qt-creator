@@ -133,7 +133,7 @@ CustomQmakeProjectWizard::CustomQmakeProjectWizard()
 {
 }
 
-QWizard *CustomQmakeProjectWizard::create(QWidget *parent,
+Core::BaseFileWizard *CustomQmakeProjectWizard::create(QWidget *parent,
                                           const Core::WizardDialogParameters &parameters) const
 {
     BaseQmakeProjectWizardDialog *wizard = new BaseQmakeProjectWizardDialog(false, parent, parameters);

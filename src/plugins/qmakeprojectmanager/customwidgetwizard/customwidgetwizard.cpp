@@ -54,7 +54,7 @@ CustomWidgetWizard::CustomWidgetWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS));
 }
 
-QWizard *CustomWidgetWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *CustomWidgetWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     CustomWidgetWizardDialog *rc = new CustomWidgetWizardDialog(displayName(),
                                                                 icon(),

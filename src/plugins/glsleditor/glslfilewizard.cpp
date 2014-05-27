@@ -30,25 +30,14 @@
 #include "glslfilewizard.h"
 #include "glsleditorconstants.h"
 
-#include <utils/filewizarddialog.h>
+#include <coreplugin/basefilewizard.h>
+
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
 #include <QTextStream>
 #include <QWizard>
 #include <QPushButton>
-
-namespace {
-class GLSLFileWizardDialog : public Utils::FileWizardDialog
-{
-    Q_OBJECT
-public:
-    GLSLFileWizardDialog(QWidget *parent = 0)
-        : Utils::FileWizardDialog(parent)
-    {
-    }
-};
-} // anonymous namespace
 
 using namespace GLSLEditor;
 
@@ -61,9 +50,9 @@ GLSLFileWizard::GLSLFileWizard(ShaderType shaderType)
 Core::GeneratedFiles GLSLFileWizard::generateFiles(const QWizard *w,
                                                  QString * /*errorMessage*/) const
 {
-    const GLSLFileWizardDialog *wizardDialog = qobject_cast<const GLSLFileWizardDialog *>(w);
-    const QString path = wizardDialog->path();
-    const QString name = wizardDialog->fileName();
+    const Core::BaseFileWizard *wizard = qobject_cast<const Core::BaseFileWizard *>(w);
+    const QString path = wizard->path();
+    const QString name = wizard->fileName();
 
     const QString fileName = Core::BaseFileWizardFactory::buildFileName(path, name, preferredSuffix(m_shaderType));
 
@@ -127,14 +116,14 @@ QString GLSLFileWizard::fileContents(const QString &, ShaderType shaderType) con
     return contents;
 }
 
-QWizard *GLSLFileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *GLSLFileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    GLSLFileWizardDialog *wizardDialog = new GLSLFileWizardDialog(parent);
-    wizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    wizardDialog->setPath(parameters.defaultPath());
+    Core::BaseFileWizard *wizard = new Core::BaseFileWizard(parent);
+    wizard->setWindowTitle(tr("New %1").arg(displayName()));
+    wizard->setPath(parameters.defaultPath());
     foreach (QWizardPage *p, parameters.extensionPages())
-        BaseFileWizardFactory::applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(p));
-    return wizardDialog;
+        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+    return wizard;
 }
 
 QString GLSLFileWizard::preferredSuffix(ShaderType shaderType) const
@@ -152,5 +141,3 @@ QString GLSLFileWizard::preferredSuffix(ShaderType shaderType) const
         return QLatin1String("glsl");
     }
 }
-
-#include "glslfilewizard.moc"

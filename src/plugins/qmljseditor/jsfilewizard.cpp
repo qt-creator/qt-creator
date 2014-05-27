@@ -31,7 +31,8 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 
-#include <utils/filewizarddialog.h>
+#include <coreplugin/basefilewizard.h>
+
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -71,13 +72,13 @@ private:
     QCheckBox *m_statelessLibrary;
 };
 
-class JsFileWizardDialog : public Utils::FileWizardDialog
+class JsFileWizardDialog : public Core::BaseFileWizard
 {
     Q_OBJECT
 public:
-    JsFileWizardDialog(QWidget *parent = 0)
-        : Utils::FileWizardDialog(parent)
-        , m_optionsPage(new JsFileOptionsPage)
+    JsFileWizardDialog(QWidget *parent = 0) :
+        Core::BaseFileWizard(parent),
+        m_optionsPage(new JsFileOptionsPage)
     {
         addPage(m_optionsPage);
     }
@@ -122,7 +123,7 @@ QString JsFileWizard::fileContents(const QString &, bool statelessLibrary) const
     return contents;
 }
 
-QWizard *JsFileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *JsFileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     JsFileWizardDialog *wizardDialog = new JsFileWizardDialog(parent);
     wizardDialog->setWindowTitle(tr("New %1").arg(displayName()));

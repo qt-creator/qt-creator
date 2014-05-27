@@ -28,6 +28,7 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
+            "basefilewizard.cpp", "basefilewizard.h",
             "basefilewizardfactory.cpp", "basefilewizardfactory.h",
             "core.qrc",
             "core_global.h",

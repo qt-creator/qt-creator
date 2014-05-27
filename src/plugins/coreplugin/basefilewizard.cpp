@@ -27,34 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef FORMCLASSWIZARD_H
-#define FORMCLASSWIZARD_H
+#include "basefilewizard.h"
 
-#include "formclasswizardparameters.h"
-
-#include <coreplugin/basefilewizardfactory.h>
-
-namespace Designer {
-namespace Internal {
-
-class FormClassWizard : public Core::BaseFileWizardFactory
-{
-    Q_OBJECT
-
-public:
-    FormClassWizard();
-
-    QString headerSuffix() const;
-    QString sourceSuffix() const;
-    QString formSuffix() const;
-
-private:
-    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
-
-    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
-};
-
-} // namespace Internal
-} // namespace Designer
-
-#endif // FORMCLASSWIZARD_H
+Core::BaseFileWizard::BaseFileWizard(QWidget *parent) :
+    Utils::FileWizardDialog(parent)
+{ }

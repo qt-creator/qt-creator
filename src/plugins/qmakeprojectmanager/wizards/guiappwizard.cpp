@@ -86,7 +86,7 @@ GuiAppWizard::GuiAppWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS));
 }
 
-QWizard *GuiAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *GuiAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     GuiAppWizardDialog *dialog = new GuiAppWizardDialog(displayName(), icon(),
                                                         showModulesPageForApplications(),

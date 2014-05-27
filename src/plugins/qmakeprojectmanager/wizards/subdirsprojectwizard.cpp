@@ -53,7 +53,7 @@ SubdirsProjectWizard::SubdirsProjectWizard()
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT));
 }
 
-QWizard *SubdirsProjectWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *SubdirsProjectWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
     SubdirsProjectWizardDialog *dialog = new SubdirsProjectWizardDialog(displayName(), icon(), parent, parameters);
 

@@ -30,7 +30,7 @@
 #ifndef FORMCLASSWIZARDDIALOG_H
 #define FORMCLASSWIZARDDIALOG_H
 
-#include <utils/wizard.h>
+#include <coreplugin/basefilewizard.h>
 
 namespace Designer {
 
@@ -41,7 +41,7 @@ namespace Internal {
 class FormClassWizardPage;
 class FormTemplateWizardPage;
 
-class FormClassWizardDialog : public Utils::Wizard
+class FormClassWizardDialog : public Core::BaseFileWizard
 {
     Q_OBJECT
 

@@ -30,7 +30,7 @@
 #ifndef FORMWIZARDDIALOG_H
 #define FORMWIZARDDIALOG_H
 
-#include <utils/wizard.h>
+#include <coreplugin/basefilewizard.h>
 
 namespace Utils { class FileWizardPage; }
 
@@ -42,7 +42,7 @@ class FormTemplateWizardPage;
 // Single-Page Wizard for new forms offering all types known to Qt Designer.
 // To be used for Mode "CreateNewEditor" [not currently used]
 
-class FormWizardDialog : public Utils::Wizard
+class FormWizardDialog : public Core::BaseFileWizard
 {
     Q_OBJECT
 

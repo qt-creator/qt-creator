@@ -30,22 +30,21 @@
 #ifndef GENERICPROJECTWIZARD_H
 #define GENERICPROJECTWIZARD_H
 
+#include <coreplugin/basefilewizard.h>
 #include <coreplugin/basefilewizardfactory.h>
 #include <utils/wizard.h>
-
-namespace Utils { class FileWizardPage; }
 
 namespace GenericProjectManager {
 namespace Internal {
 
 class FilesSelectionWizardPage;
 
-class GenericProjectWizardDialog : public Utils::Wizard
+class GenericProjectWizardDialog : public Core::BaseFileWizard
 {
     Q_OBJECT
 
 public:
-    GenericProjectWizardDialog(QWidget *parent = 0);
+    explicit GenericProjectWizardDialog(QWidget *parent = 0);
 
     QString path() const;
     void setPath(const QString &path);
@@ -66,7 +65,7 @@ public:
     GenericProjectWizard();
 
 protected:
-    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 };

@@ -82,7 +82,7 @@ QmlApplicationWizard::QmlApplicationWizard()
     setDescription(tr("Creates a Qt Quick UI project."));
 }
 
-QWizard *QmlApplicationWizard::create(QWidget *parent, const WizardDialogParameters &parameters) const
+Core::BaseFileWizard *QmlApplicationWizard::create(QWidget *parent, const WizardDialogParameters &parameters) const
 {
     QmlApplicationWizardDialog *wizardDialog = new QmlApplicationWizardDialog(parent, parameters);
 

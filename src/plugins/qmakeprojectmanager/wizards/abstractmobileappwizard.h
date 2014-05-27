@@ -77,7 +77,7 @@ protected:
     virtual QString fileToOpenPostGeneration() const = 0;
 
 private:
-    QWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const;
     Core::GeneratedFiles generateFiles(const QWizard *wizard, QString *errorMessage) const;
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
