@@ -78,9 +78,11 @@ ResultData::ResultDataList ResultData::fromFilterEntryList(const QList<LocatorFi
     return result;
 }
 
-void ResultData::printFilterEntries(const ResultData::ResultDataList &entries)
+void ResultData::printFilterEntries(const ResultData::ResultDataList &entries, const QString &msg)
 {
     QTextStream out(stdout);
+    if (!msg.isEmpty())
+        out << msg << endl;
     foreach (const ResultData entry, entries) {
         out << "<< ResultData(_(\"" << entry.textColumn1 << "\"), _(\"" << entry.textColumn2
             <<  "\"))" << endl;

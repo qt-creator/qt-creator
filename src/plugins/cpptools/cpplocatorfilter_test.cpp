@@ -56,6 +56,8 @@ Q_DECLARE_METATYPE(ILocatorFilter *)
 
 namespace {
 
+enum { debug = 0 };
+
 QTC_DECLARE_MYTESTDATADIR("../../../tests/cpplocators/")
 
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
@@ -77,7 +79,10 @@ public:
         QVERIFY(garbageCollectGlobalSnapshot());
 
         ResultDataList results = ResultData::fromFilterEntryList(matchesFor(searchText));
-//        ResultData::printFilterEntries(results);
+        if (debug) {
+            ResultData::printFilterEntries(expectedResults, QLatin1String("Expected:"));
+            ResultData::printFilterEntries(results, QLatin1String("Results:"));
+        }
         QVERIFY(!results.isEmpty());
         QCOMPARE(results, expectedResults);
     }
@@ -105,7 +110,10 @@ public:
         QVERIFY(!m_fileName.isEmpty());
 
         ResultDataList results = ResultData::fromFilterEntryList(matchesFor());
-//        ResultData::printFilterEntries(results);
+        if (debug) {
+            ResultData::printFilterEntries(expectedResults, QLatin1String("Expected:"));
+            ResultData::printFilterEntries(results, QLatin1String("Results:"));
+        }
         QVERIFY(!results.isEmpty());
         QCOMPARE(results, expectedResults);
     }

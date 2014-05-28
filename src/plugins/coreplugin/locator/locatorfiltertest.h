@@ -66,7 +66,7 @@ public:
     static ResultDataList fromFilterEntryList(const QList<LocatorFilterEntry> &entries);
 
     /// For debugging and creating reference data
-    static void printFilterEntries(const ResultDataList &entries);
+    static void printFilterEntries(const ResultDataList &entries, const QString &msg = QString());
 
     QString textColumn1;
     QString textColumn2;
