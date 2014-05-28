@@ -1238,7 +1238,6 @@ public:
     QIcon m_locationMarkIcon;
 
     StatusLabel *m_statusLabel;
-    QMenu *m_viewMenu;
     QComboBox *m_threadBox;
 
     BaseWindow *m_breakWindow;
