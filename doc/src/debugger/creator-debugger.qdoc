@@ -644,7 +644,7 @@
     calls, use expression evaluators in the \gui{Expressions} pane.
     To insert a new expression evaluator, either double-click on an
     empty part of the \gui{Locals and Expressions} view, or select
-    \gui{Insert New Expression Evaluator} from the context menu, or
+    \gui{Add New Expression Evaluator} from the context menu, or
     drag and drop an expression from the code editor.
 
     \note Expression evaluators are powerful, but slow down debugger
