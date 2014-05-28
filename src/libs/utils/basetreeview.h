@@ -64,7 +64,7 @@ protected slots:
 private slots:
     void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
     void rowClickedHelper(const QModelIndex &index) { rowClicked(index); }
-    void headerSectionClicked(int logicalIndex);
+    void toggleColumnWidth(int logicalIndex);
 
 private:
     QAction *m_alwaysAdjustColumnsAction;

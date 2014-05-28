@@ -73,7 +73,7 @@ BaseTreeView::BaseTreeView(QWidget *parent)
     connect(this, SIGNAL(clicked(QModelIndex)),
         SLOT(rowClickedHelper(QModelIndex)));
     connect(header(), SIGNAL(sectionClicked(int)),
-        SLOT(headerSectionClicked(int)));
+        SLOT(toggleColumnWidth(int)));
 
     m_adjustColumnsAction = new QAction(tr("Adjust Column Widths to Contents"), this);
     m_alwaysAdjustColumnsAction = 0;
@@ -122,8 +122,9 @@ void BaseTreeView::setModel(QAbstractItemModel *model)
 void BaseTreeView::mousePressEvent(QMouseEvent *ev)
 {
     Utils::TreeView::mousePressEvent(ev);
-    if (!indexAt(ev->pos()).isValid())
-        resizeColumnsToContents();
+    const QModelIndex mi = indexAt(ev->pos());
+    if (!mi.isValid())
+        toggleColumnWidth(columnAt(ev->x()));
 }
 
 void BaseTreeView::resizeColumnsToContents()
@@ -140,9 +141,14 @@ void BaseTreeView::setAlwaysResizeColumnsToContents(bool on)
     header()->setResizeMode(0, mode);
 }
 
-void BaseTreeView::headerSectionClicked(int logicalIndex)
+void BaseTreeView::toggleColumnWidth(int logicalIndex)
 {
-    resizeColumnToContents(logicalIndex);
+    const int hint = sizeHintForColumn(logicalIndex);
+    const int size = 8 * QFontMetrics(font()).width(QLatin1Char('x'));
+    if (hint == header()->sectionSize(logicalIndex))
+        header()->resizeSection(logicalIndex, size);
+    else
+        resizeColumnToContents(logicalIndex);
 }
 
 void BaseTreeView::reset()
