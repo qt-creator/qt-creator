@@ -30,6 +30,7 @@
 #ifndef ACTIONCONTAINER_H
 #define ACTIONCONTAINER_H
 
+#include "coreplugin/core_global.h"
 #include "coreplugin/icontext.h"
 
 #include <QObject>
@@ -44,7 +45,7 @@ namespace Core {
 
 class Command;
 
-class ActionContainer : public QObject
+class CORE_EXPORT ActionContainer : public QObject
 {
     Q_OBJECT
 
