@@ -145,6 +145,8 @@ RightPaneWidget *RightPaneWidget::instance()
 
 void RightPaneWidget::setWidget(QWidget *widget)
 {
+    if (widget == m_widget)
+        return;
     clearWidget();
     m_widget = widget;
     if (m_widget) {
