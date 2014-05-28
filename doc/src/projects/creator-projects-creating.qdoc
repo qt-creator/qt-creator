@@ -113,11 +113,6 @@
 
                 Use a single main.cpp file
 
-            \li HTML5 Application
-
-                Use a QtWebKit view to design the user interface and HTML5 and
-                C++ code to implement the application logic
-
             \li Qt Quick UI
 
                 Use a single QML file that contains the main view. You can

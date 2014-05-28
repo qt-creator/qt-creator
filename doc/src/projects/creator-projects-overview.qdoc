@@ -42,7 +42,7 @@
 
             To set up a project, you first have to decide what kind of an
             application you want to develop: do you want a user interface based
-            on Qt Quick or HTML5 or Qt widgets. Second, you have to choose the
+            on Qt Quick or Qt widgets. Second, you have to choose the
             language to implement the application logic: C++ or JavaScript.
 
         \li \l{Using Version Control Systems}
