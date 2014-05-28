@@ -79,7 +79,7 @@ class Tree:
     def countChildOccurrences(self, name):
         if not self.__children__:
             return 0
-        return len(filter(lambda x: x.getName() == name, self.__children__))
+        return map(lambda x: x.getName(), self.__children__).count(name)
 
     # internal functions
     def __repr__(self):

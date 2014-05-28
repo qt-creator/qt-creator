@@ -7,23 +7,23 @@ imagedirs = $SRCDIR/images $SRCDIR/templates/images
 outputdir = $OUTDIR
 exampledirs = $SRCDIR/examples \
               $SRCDIR/snippets
-indexes +=    $QT_INSTALL_DOCS/qtwidgets/qtwidgets.index \
-              $QT_INSTALL_DOCS/qtcore/qtcore.index \
-              $QT_INSTALL_DOCS/qtqml/qtqml.index \
-              $QT_INSTALL_DOCS/qtquick/qtquick.index \
-              $QT_INSTALL_DOCS/qmake/qmake.index \
-              $QT_INSTALL_DOCS/qtdesigner/qtdesigner.index \
-              $QT_INSTALL_DOCS/qtdoc/qtdoc.index \
-              $QT_INSTALL_DOCS/qtgui/qtgui.index \
-              $QT_INSTALL_DOCS/qthelp/qthelp.index \
-              $QT_INSTALL_DOCS/qtquickcontrols/qtquickcontrols.index \
-              $QT_INSTALL_DOCS/qtquicklayouts/qtquicklayouts.index \
-              $QT_INSTALL_DOCS/qtlinguist/qtlinguist.index \
-              $QT_INSTALL_DOCS/qtscript/qtscript.index \
-              $QT_INSTALL_DOCS/qtsensors/qtsensors.index \
-              $QT_INSTALL_DOCS/qtuitools/qtuitools.index \
-              $QT_INSTALL_DOCS/qtwebkit/qtwebkit.index \
-              $QT_INSTALL_DOCS/qtxml/qtxml.index
+indexes +=    $QDOC_INDEX_DIR/qtwidgets/qtwidgets.index \
+              $QDOC_INDEX_DIR/qtcore/qtcore.index \
+              $QDOC_INDEX_DIR/qtqml/qtqml.index \
+              $QDOC_INDEX_DIR/qtquick/qtquick.index \
+              $QDOC_INDEX_DIR/qmake/qmake.index \
+              $QDOC_INDEX_DIR/qtdesigner/qtdesigner.index \
+              $QDOC_INDEX_DIR/qtdoc/qtdoc.index \
+              $QDOC_INDEX_DIR/qtgui/qtgui.index \
+              $QDOC_INDEX_DIR/qthelp/qthelp.index \
+              $QDOC_INDEX_DIR/qtquickcontrols/qtquickcontrols.index \
+              $QDOC_INDEX_DIR/qtquicklayouts/qtquicklayouts.index \
+              $QDOC_INDEX_DIR/qtlinguist/qtlinguist.index \
+              $QDOC_INDEX_DIR/qtscript/qtscript.index \
+              $QDOC_INDEX_DIR/qtsensors/qtsensors.index \
+              $QDOC_INDEX_DIR/qtuitools/qtuitools.index \
+              $QDOC_INDEX_DIR/qtwebkit/qtwebkit.index \
+              $QDOC_INDEX_DIR/qtxml/qtxml.index
 
 include(macros.qdocconf)
 include(qt-cpp-ignore.qdocconf)

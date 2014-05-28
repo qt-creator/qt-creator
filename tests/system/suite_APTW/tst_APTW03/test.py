@@ -105,6 +105,7 @@ def main():
             editor = getEditorForFileSuffix("%s.h" % className.lower())
             oldContent = str(editor.plainText)
             placeCursorToLine(editor, "class %s.*" % className, True)
+            snooze(1) # avoid timing issue with the parser
             invokeContextMenuItem(editor, "Refactor", "Insert Virtual Functions of Base Classes")
             handleInsertVirtualFunctions(["keys() const = 0 : QStringList",
                                           "create(const QString &, const QString &) = 0 : QObject *"])

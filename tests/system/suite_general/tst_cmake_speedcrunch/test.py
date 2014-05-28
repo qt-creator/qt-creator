@@ -48,6 +48,8 @@ def main():
         invokeMenuItem("File", "Exit")
         return
     progressBarWait(30000)
+    naviTreeView = "{column='0' container=':Qt Creator_Utils::NavigationTreeView' text~='%s' type='QModelIndex'}"
+    compareProjectTree(naviTreeView % "speedcrunch( \[\S+\])?", "projecttree_speedcrunch.tsv")
 
     # Invoke a rebuild of the application
     invokeMenuItem("Build", "Rebuild All")

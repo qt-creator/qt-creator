@@ -108,6 +108,7 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     "Determines the protocol used to form a URL in case\n"
     "\"canonicalWebUrl\" is not configured in the file\n"
     "\"gerrit.config\"."));
+    setTabOrder(m_sshChooser, m_portSpinBox);
 }
 
 GerritParameters GerritOptionsWidget::parameters() const

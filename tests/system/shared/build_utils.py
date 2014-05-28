@@ -43,8 +43,9 @@ def checkLastBuild(expectedToFail=False, createTasksFileOnError=True):
     ensureChecked(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton")
     model = waitForObject(":Qt Creator.Issues_QListView").model()
     buildIssues = dumpBuildIssues(model)
-    errors = len(filter(lambda i: i[5] == "1", buildIssues))
-    warnings = len(filter(lambda i: i[5] == "2", buildIssues))
+    types = map(lambda i: i[5], buildIssues)
+    errors = types.count("1")
+    warnings = types.count("2")
     gotErrors = errors != 0
     if not (gotErrors ^ expectedToFail):
         test.passes("Errors: %s | Warnings: %s" % (errors, warnings))
