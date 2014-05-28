@@ -32,16 +32,16 @@
 var qmlProfilerModelProxy = 0;
 
 //draw background of the graph
-function drawGraph(canvas, ctxt, region)
+function drawGraph(canvas, ctxt)
 {
     ctxt.fillStyle = "#eaeaea";
     ctxt.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 //draw the actual data to be graphed
-function drawData(canvas, ctxt, region)
+function drawData(canvas, ctxt)
 {
-    if ((!qmlProfilerModelProxy) || qmlProfilerModelProxy.count() == 0)
+    if ((!qmlProfilerModelProxy) || qmlProfilerModelProxy.count() === 0)
         return;
 
     var width = canvas.width;
@@ -54,17 +54,15 @@ function drawData(canvas, ctxt, region)
     var spacing = width / qmlProfilerModelProxy.traceDuration();
 
     var modelRowStart = 0;
-    for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); modelIndex++) {
-        for (var ii = 0; ii < qmlProfilerModelProxy.count(modelIndex); ++ii) {
+
+    for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
+        for (var ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
+             ii += canvas.increment) {
 
             var xx = (qmlProfilerModelProxy.getStartTime(modelIndex,ii) -
                       qmlProfilerModelProxy.traceStartTime()) * spacing;
-            if (xx > region.x + region.width)
-                continue;
 
             var eventWidth = qmlProfilerModelProxy.getDuration(modelIndex,ii) * spacing;
-            if (xx + eventWidth < region.x)
-                continue;
 
             if (eventWidth < 1)
                 eventWidth = 1;
@@ -88,8 +86,9 @@ function drawData(canvas, ctxt, region)
     ctxt.lineWidth = 2;
     var radius = 1;
     modelRowStart = 0;
-    for (modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); modelIndex++) {
-        for (ii = 0; ii < qmlProfilerModelProxy.count(modelIndex); ++ii) {
+    for (modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); modelIndex += 10) {
+        for (ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
+             ii += canvas.increment) {
             if (qmlProfilerModelProxy.getBindingLoopDest(modelIndex,ii) >= 0) {
                 var xcenter = Math.round(qmlProfilerModelProxy.getStartTime(modelIndex,ii) +
                                          qmlProfilerModelProxy.getDuration(modelIndex,ii) -
@@ -107,7 +106,7 @@ function drawData(canvas, ctxt, region)
 
 }
 
-function drawTimeBar(canvas, ctxt, region)
+function drawTimeBar(canvas, ctxt)
 {
     if (!qmlProfilerModelProxy)
         return;
@@ -171,12 +170,4 @@ function prettyPrintTime( t )
     var m = Math.floor(t/60);
     t = Math.floor(t - m*60);
     return m+"m"+t+"s";
-}
-
-function plot(canvas, ctxt, region)
-{
-    drawGraph(canvas, ctxt, region);
-    drawData(canvas, ctxt, region);
-    drawTimeBar(canvas, ctxt, region);
-
 }

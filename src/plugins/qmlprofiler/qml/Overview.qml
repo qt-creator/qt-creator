@@ -36,6 +36,10 @@ Canvas {
     objectName: "Overview"
     contextType: "2d"
 
+    property int eventsPerPass: 4096
+    property int increment: -1
+    property int offset: -1
+
     // ***** properties
     height: 50
     property bool dataReady: false
@@ -43,10 +47,14 @@ Canvas {
     property double endTime : 0
     property bool recursionGuard: false
 
+    onWidthChanged: offset = -1
+
     // ***** functions
     function clear()
     {
         dataReady = false;
+        increment = -1;
+        offset = -1;
         requestPaint();
     }
 
@@ -88,23 +96,40 @@ Canvas {
     Connections {
         target: qmlProfilerModelProxy
         onDataAvailable: {
-                dataReady = true;
-                requestPaint();
+            dataReady = true;
+            increment = Math.ceil(qmlProfilerModelProxy.count() / eventsPerPass);
+            offset = -1;
+            requestPaint();
         }
     }
 
+    Timer {
+        id: paintTimer
+        onTriggered: canvas.requestPaint();
+    }
 
     // ***** slots
     onPaint: {
         if (context === null)
             return; // canvas isn't ready
 
-        context.reset();
         Plotter.qmlProfilerModelProxy = qmlProfilerModelProxy;
-        if (dataReady) {
-            Plotter.plot(canvas, context, region);
-        } else {
-            Plotter.drawGraph(canvas, context, region)    //just draw the background
+
+        if (offset < 0) {
+            context.reset();
+            Plotter.drawGraph(canvas, context);
+            if (dataReady) {
+                Plotter.drawTimeBar(canvas, context);
+                offset = 0;
+                // Larger initial delay to avoid flickering on resize
+                paintTimer.interval = 1000;
+                paintTimer.start();
+            }
+        } else if (offset < increment) {
+            Plotter.drawData(canvas, context);
+            ++offset;
+            paintTimer.interval = 1;
+            paintTimer.start();
         }
     }
 
