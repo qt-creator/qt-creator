@@ -94,7 +94,7 @@ bool QnxConfiguration::activate()
 
     // Create and register toolchain
     QnxToolChain *armTc = createToolChain(ArmLeV7,
-                    tr("QCC for %1 (armlev7)").arg(displayName()),
+                    tr("QCC for %1 (armv7)").arg(displayName()),
                     sdpPath().toString());
     QnxToolChain *x86Tc = createToolChain(X86,
                     tr("QCC for %1 (x86)").arg(displayName()),
@@ -102,14 +102,14 @@ bool QnxConfiguration::activate()
 
     // Create and register debuggers
     QVariant armDebuggerId = createDebuggerItem(ArmLeV7,
-                       tr("Debugger for %1 (armlev7)").arg(displayName()));
+                       tr("Debugger for %1 (armv7)").arg(displayName()));
 
     QVariant x86DebuggerId = createDebuggerItem(X86,
                        tr("Debugger for %1 (x86)").arg(displayName()));
 
     // Create and register kits
-    createKit(ArmLeV7, armTc, armDebuggerId, tr("Kit for %1 (Device)").arg(displayName()));
-    createKit(X86, x86Tc, x86DebuggerId, tr("Kit for %1 (Simulator)").arg(displayName()));
+    createKit(ArmLeV7, armTc, armDebuggerId, tr("Kit for %1 (armv7)").arg(displayName()));
+    createKit(X86, x86Tc, x86DebuggerId, tr("Kit for %1 (x86)").arg(displayName()));
 
     return true;
 }
