@@ -55,7 +55,6 @@
 #include <QAction>
 #include <QDir>
 #include <QFileInfo>
-#include <QDir>
 #include <QPlainTextEdit>
 #include <QProcess>
 #include <QScrollBar>
