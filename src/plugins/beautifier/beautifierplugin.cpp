@@ -53,6 +53,7 @@
 #include <utils/fileutils.h>
 
 #include <QAction>
+#include <QDir>
 #include <QFileInfo>
 #include <QPlainTextEdit>
 #include <QProcess>
