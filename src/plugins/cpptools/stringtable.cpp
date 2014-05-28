@@ -63,7 +63,7 @@ QString StringTable::insert(const QString &string)
 
     QMutexLocker locker(&m_lock);
     QString result = *m_strings.insert(string);
-    m_stopGCRequested.storeRelease(false);
+    m_stopGCRequested.fetchAndStoreRelease(false);
     return result;
 }
 
@@ -83,15 +83,24 @@ enum {
     DebugStringTable = 0
 };
 
+static inline int qstringRefCount(const QString &string)
+{
+#if QT_VERSION >= 0x050000
+    return const_cast<QString&>(string).data_ptr()->ref.atomic.load();
+#else
+    return const_cast<QString&>(string).data_ptr()->ref;
+#endif
+}
+
 void StringTable::GC()
 {
     QMutexLocker locker(&m_lock);
 
     int initialSize = 0;
-    int startTime = 0;
+    QTime startTime;
     if (DebugStringTable) {
         initialSize = m_strings.size();
-        startTime = QTime::currentTime().msecsSinceStartOfDay();
+        startTime = QTime::currentTime();
     }
 
     // Collect all QStrings which have refcount 1. (One reference in m_strings and nowhere else.)
@@ -99,18 +108,16 @@ void StringTable::GC()
         if (m_stopGCRequested.testAndSetRelease(true, false))
             return;
 
-        const int refCount = const_cast<QString&>(*i).data_ptr()->ref.atomic.load();
-        if (refCount == 1)
+        if (qstringRefCount(*i) == 1)
             i = m_strings.erase(i);
         else
             ++i;
     }
 
     if (DebugStringTable) {
-        const int endTime = QTime::currentTime().msecsSinceStartOfDay();
         const int currentSize = m_strings.size();
         qDebug() << "StringTable::GC removed" << initialSize - currentSize
-                 << "strings in" << endTime - startTime
+                 << "strings in" << startTime.msecsTo(QTime::currentTime())
                  << "ms, size is now" << currentSize;
     }
 }
