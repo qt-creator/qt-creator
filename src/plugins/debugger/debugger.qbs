@@ -56,7 +56,6 @@ QtcPlugin {
             "debuggerrunner.cpp", "debuggerrunner.h",
             "debuggersourcepathmappingwidget.cpp", "debuggersourcepathmappingwidget.h",
             "debuggerstartparameters.h",
-            "debuggerstreamops.cpp", "debuggerstreamops.h",
             "debuggerstringutils.h",
             "debuggertooltipmanager.cpp", "debuggertooltipmanager.h",
             "disassembleragent.cpp", "disassembleragent.h",

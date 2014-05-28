@@ -36,7 +36,6 @@ HEADERS += \
     debuggerrunconfigurationaspect.h \
     debuggerrunner.h \
     debuggerstartparameters.h \
-    debuggerstreamops.h \
     debuggerstringutils.h \
     debuggerkitconfigwidget.h \
     debuggerkitinformation.h \
@@ -94,7 +93,6 @@ SOURCES += \
     debuggerprotocol.cpp \
     debuggerrunconfigurationaspect.cpp \
     debuggerrunner.cpp \
-    debuggerstreamops.cpp \
     debuggeroptionspage.cpp \
     debuggerkitconfigwidget.cpp \
     debuggerkitinformation.cpp \
