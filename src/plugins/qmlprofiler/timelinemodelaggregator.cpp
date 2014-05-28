@@ -277,17 +277,6 @@ QColor TimelineModelAggregator::getColor(int modelIndex, int index) const
     return d->modelList[modelIndex]->getColor(index);
 }
 
-QVariantList TimelineModelAggregator::getColorRGB(int modelIndex, int itemIndex) const
-{
-    // return color as RGB list, for use in Qml
-    QColor c = getColor(modelIndex, itemIndex);
-    QVariantList res;
-    res.append(QVariant(c.red()));
-    res.append(QVariant(c.green()));
-    res.append(QVariant(c.blue()));
-    return res;
-}
-
 float TimelineModelAggregator::getHeight(int modelIndex, int index) const
 {
     return d->modelList[modelIndex]->getHeight(index);

@@ -87,7 +87,6 @@ public:
     Q_INVOKABLE int getEventId(int modelIndex, int index) const;
     Q_INVOKABLE int getBindingLoopDest(int modelIndex, int index) const;
     Q_INVOKABLE QColor getColor(int modelIndex, int index) const;
-    Q_INVOKABLE QVariantList getColorRGB(int modelIndex, int itemIndex) const;
     Q_INVOKABLE float getHeight(int modelIndex, int index) const;
 
     Q_INVOKABLE const QVariantList getLabelsForCategory(int modelIndex, int category) const;

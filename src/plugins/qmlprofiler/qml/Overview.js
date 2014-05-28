@@ -74,8 +74,7 @@ function drawData(canvas, ctxt)
             var itemHeight = qmlProfilerModelProxy.getHeight(modelIndex,ii) * blockHeight;
             var yy = (rowNumber + 1) * blockHeight - itemHeight ;
 
-            var itemColor = qmlProfilerModelProxy.getColorRGB(modelIndex, ii);
-            ctxt.fillStyle = "rgb("+itemColor[0]+","+itemColor[1]+","+itemColor[2]+")";
+            ctxt.fillStyle = qmlProfilerModelProxy.getColor(modelIndex, ii);
             ctxt.fillRect(xx, bump + yy, eventWidth, itemHeight);
         }
         modelRowStart += qmlProfilerModelProxy.categoryCount(modelIndex);
