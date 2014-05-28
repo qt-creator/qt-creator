@@ -35,11 +35,12 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/QtConcurrentTools>
+
 #include <QDateTime>
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
-#include <QtConcurrent>
 #include <QTextDocument> // Qt::escape() in Qt 4
 #include <QXmlStreamWriter>
 
