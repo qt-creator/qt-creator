@@ -39,9 +39,6 @@ namespace CppTools {
 
 using namespace CPlusPlus;
 using namespace CppTools;
-using Utils::ChangeSet;
-
-typedef Utils::ChangeSet::Range Range;
 
 /*!
     \class CppTools::PointerDeclarationFormatter
@@ -85,7 +82,7 @@ public:
         Returns a ChangeSet for applying the formatting changes.
         The ChangeSet is empty if it was not possible to rewrite anything.
     */
-    ChangeSet format(AST *ast)
+    Utils::ChangeSet format(AST *ast)
     {
         if (ast)
             accept(ast);
@@ -119,7 +116,7 @@ private:
     Overview &m_overview;
     const CursorHandling m_cursorHandling;
 
-    ChangeSet m_changeSet;
+    Utils::ChangeSet m_changeSet;
 };
 
 } // namespace CppTools

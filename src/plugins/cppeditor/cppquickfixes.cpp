@@ -71,6 +71,7 @@ using namespace CppEditor;
 using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
+using Utils::ChangeSet;
 
 void CppEditor::Internal::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
 {
@@ -4216,7 +4217,7 @@ public:
         toFile->apply();
 
         // remove definition from fromFile
-        Utils::ChangeSet headerTarget;
+        ChangeSet headerTarget;
         if (m_type == MoveOutsideMemberToCppFile) {
             headerTarget.remove(fromFile->range(m_funcDef));
         } else {
@@ -4330,7 +4331,7 @@ public:
                                    fromFile->endOf(m_funcAST->function_body));
 
         // Replace declaration with function and delete old definition
-        Utils::ChangeSet toTarget;
+        ChangeSet toTarget;
         toTarget.replace(m_toRange, wholeFunctionText);
         if (m_toFileName == m_fromFileName)
             toTarget.remove(fromRange);
@@ -4339,7 +4340,7 @@ public:
         toFile->setOpenEditor(true, m_toRange.start);
         toFile->apply();
         if (m_toFileName != m_fromFileName) {
-            Utils::ChangeSet fromTarget;
+            ChangeSet fromTarget;
             fromTarget.remove(fromRange);
             fromFile->setChangeSet(fromTarget);
             fromFile->apply();

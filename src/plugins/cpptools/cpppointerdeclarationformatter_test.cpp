@@ -48,13 +48,9 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-using Utils::ChangeSet;
-
 Q_DECLARE_METATYPE(Overview)
 
 namespace {
-
-typedef Utils::ChangeSet::Range Range;
 
 QString stripCursor(const QString &source)
 {
@@ -127,7 +123,7 @@ public:
 
         // Run the formatter
         PointerDeclarationFormatter formatter(cppRefactoringFile, overview, cursorHandling);
-        ChangeSet change = formatter.format(ast); // ChangeSet may be empty.
+        Utils::ChangeSet change = formatter.format(ast); // ChangeSet may be empty.
 
         // Apply change
         QTextCursor changeCursor(textDocument);

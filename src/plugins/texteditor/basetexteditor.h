@@ -48,7 +48,6 @@ QT_END_NAMESPACE
 
 namespace Utils {
     class LineColumnLabel;
-    class ChangeSet;
 }
 
 namespace TextEditor {

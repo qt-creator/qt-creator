@@ -382,8 +382,8 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
     for (unsigned token = tokenRange.start; token <= tokenRange.end; ++token)
         CHECK_R(!tokenAt(token).expanded(), "Token is expanded");
 
-    Range range(m_cppRefactoringFile->startOf(tokenRange.start),
-                m_cppRefactoringFile->endOf(tokenRange.end));
+    Utils::ChangeSet::Range range(m_cppRefactoringFile->startOf(tokenRange.start),
+                                  m_cppRefactoringFile->endOf(tokenRange.end));
 
     CHECK_R(range.start >= 0 && range.end > 0, "ChangeRange invalid1");
     CHECK_R(range.start < range.end, "ChangeRange invalid2");
@@ -446,7 +446,7 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
     // original source. It tries to create an replacement operation
     // at this position and fails due to overlapping ranges (the
     // simple declaration range includes parameter declaration range).
-    ChangeSet change(m_changeSet);
+    Utils::ChangeSet change(m_changeSet);
     if (change.replace(range, rewrittenDeclaration))
         m_changeSet = change;
     else if (DEBUG_OUTPUT)

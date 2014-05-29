@@ -38,7 +38,6 @@
 
 using namespace CPlusPlus;
 using namespace CppTools;
-using namespace Utils;
 
 class CppTools::CppRefactoringChangesData : public TextEditor::RefactoringChangesData
 {
@@ -195,18 +194,18 @@ bool CppRefactoringFile::isCursorOn(const AST *ast) const
     return false;
 }
 
-ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
+Utils::ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
 {
     const Token &token = tokenAt(tokenIndex);
     unsigned line, column;
     cppDocument()->translationUnit()->getPosition(token.utf16charsBegin(), &line, &column);
     const int start = document()->findBlockByNumber(line - 1).position() + column - 1;
-    return ChangeSet::Range(start, start + token.utf16chars());
+    return Utils::ChangeSet::Range(start, start + token.utf16chars());
 }
 
-ChangeSet::Range CppRefactoringFile::range(AST *ast) const
+Utils::ChangeSet::Range CppRefactoringFile::range(AST *ast) const
 {
-    return ChangeSet::Range(startOf(ast), endOf(ast));
+    return Utils::ChangeSet::Range(startOf(ast), endOf(ast));
 }
 
 int CppRefactoringFile::startOf(unsigned index) const
