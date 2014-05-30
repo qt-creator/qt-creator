@@ -111,9 +111,6 @@ protected:
     typedef QSharedPointer<Internal::CustomWizardParameters> CustomWizardParametersPtr;
     typedef QSharedPointer<Internal::CustomWizardContext> CustomWizardContextPtr;
 
-    void initWizardDialog(Core::BaseFileWizard *w, const QString &defaultPath,
-                          const WizardPageList &extensionPages) const;
-
     // generate files in path
     Core::GeneratedFiles generateWizardFiles(QString *errorMessage) const;
     // Create replacement map as static base fields + QWizard fields

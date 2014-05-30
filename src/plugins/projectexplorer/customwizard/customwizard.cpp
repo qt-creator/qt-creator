@@ -134,29 +134,22 @@ static inline void addWizardPage(Utils::Wizard *w, QWizardPage *p, int id)
     w->wizardProgress()->item(addedPageId)->setTitle(QCoreApplication::translate("ProjectExplorer::CustomWizard", "Details", "Default short title for custom wizard page to be shown in the progress pane of the wizard."));
 }
 
-// Initialize a wizard with a custom file page.
-void CustomWizard::initWizardDialog(Core::BaseFileWizard *wizard, const QString &defaultPath,
-                                    const WizardPageList &extensionPages) const
-{
-    QTC_ASSERT(!parameters().isNull(), return);
-
-    d->m_context->reset();
-    Internal::CustomWizardPage *customPage = new Internal::CustomWizardPage(d->m_context, parameters());
-    customPage->setPath(defaultPath);
-    addWizardPage(wizard, customPage, parameters()->firstPageId);
-    if (!parameters()->fieldPageTitle.isEmpty())
-        customPage->setTitle(parameters()->fieldPageTitle);
-    foreach (QWizardPage *ep, extensionPages)
-        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(ep));
-    if (CustomWizardPrivate::verbose)
-        qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
-}
-
-Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
+Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDialogParameters &p) const
 {
     QTC_ASSERT(!d->m_parameters.isNull(), return 0);
     Core::BaseFileWizard *wizard = new Core::BaseFileWizard(parent);
-    initWizardDialog(wizard, parameters.defaultPath(), parameters.extensionPages());
+
+    d->m_context->reset();
+    Internal::CustomWizardPage *customPage = new Internal::CustomWizardPage(d->m_context, parameters());
+    customPage->setPath(p.defaultPath());
+    addWizardPage(wizard, customPage, parameters()->firstPageId);
+    if (!parameters()->fieldPageTitle.isEmpty())
+        customPage->setTitle(parameters()->fieldPageTitle);
+    foreach (QWizardPage *ep, p.extensionPages())
+        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(ep));
+    if (CustomWizardPrivate::verbose)
+        qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
+
     return wizard;
 }
 
