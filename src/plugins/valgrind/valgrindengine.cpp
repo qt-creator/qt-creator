@@ -57,7 +57,6 @@ ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration)
     : AnalyzerRunControl(sp, runConfiguration),
       m_settings(0),
-      m_progress(new QFutureInterface<void>()),
       m_isStopping(false)
 {
     if (runConfiguration)
@@ -71,7 +70,6 @@ ValgrindRunControl::ValgrindRunControl(const AnalyzerStartParameters &sp,
 
 ValgrindRunControl::~ValgrindRunControl()
 {
-    delete m_progress;
 }
 
 bool ValgrindRunControl::startEngine()
@@ -82,7 +80,7 @@ bool ValgrindRunControl::startEngine()
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     connect(fp, SIGNAL(canceled()), this, SLOT(handleProgressCanceled()));
     connect(fp, SIGNAL(finished()), this, SLOT(handleProgressFinished()));
-    m_progress->reportStarted();
+    m_progress.reportStarted();
 
     const AnalyzerStartParameters &sp = startParameters();
 #if VALGRIND_DEBUG_OUTPUT
@@ -112,7 +110,7 @@ bool ValgrindRunControl::startEngine()
     connect(run, SIGNAL(finished()), SLOT(runnerFinished()));
 
     if (!run->start()) {
-        m_progress->cancel();
+        m_progress.cancel();
         return false;
     }
     return true;
@@ -154,8 +152,8 @@ QStringList ValgrindRunControl::genericToolArguments() const
 void ValgrindRunControl::handleProgressCanceled()
 {
     AnalyzerManager::stopTool();
-    m_progress->reportCanceled();
-    m_progress->reportFinished();
+    m_progress.reportCanceled();
+    m_progress.reportFinished();
 }
 
 void ValgrindRunControl::handleProgressFinished()
@@ -168,7 +166,7 @@ void ValgrindRunControl::runnerFinished()
     appendMessage(tr("Analyzing finished.") + QLatin1Char('\n'), NormalMessageFormat);
     emit finished();
 
-    m_progress->reportFinished();
+    m_progress.reportFinished();
 
     disconnect(runner(), SIGNAL(processOutputReceived(QString,Utils::OutputFormat)),
                this, SLOT(receiveProcessOutput(QString,Utils::OutputFormat)));

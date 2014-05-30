@@ -132,13 +132,13 @@ class ProgressTimer : public QTimer
     Q_OBJECT
 
 public:
-    ProgressTimer(QObject *parent, QFutureInterface<void> *futureInterface, int expectedSeconds);
+    ProgressTimer(QObject *parent, const QFutureInterface<void> &futureInterface, int expectedSeconds);
 
 private slots:
     void handleTimeout();
 
 private:
-    QFutureInterface<void> *m_futureInterface;
+    QFutureInterface<void> m_futureInterface;
     QFutureWatcher<void> m_futureWatcher;
     int m_expectedTime;
     int m_currentTime;

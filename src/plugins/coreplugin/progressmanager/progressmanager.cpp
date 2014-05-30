@@ -749,10 +749,11 @@ FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QStr
     \sa addTask
 */
 
-FutureProgress *ProgressManager::addTimedTask(QFutureInterface<void> *futureInterface, const QString &title,
+FutureProgress *ProgressManager::addTimedTask(const QFutureInterface<void> &futureInterface, const QString &title,
                                               Id type, int expectedSeconds, ProgressFlags flags)
 {
-    FutureProgress *fp = m_instance->doAddTask(futureInterface->future(), title, type, flags);
+    QFutureInterface<void> dummy(futureInterface); // Need mutable to access .future()
+    FutureProgress *fp = m_instance->doAddTask(dummy.future(), title, type, flags);
     (void) new ProgressTimer(fp, futureInterface, expectedSeconds);
     return fp;
 }
@@ -770,17 +771,17 @@ void ProgressManager::cancelTasks(const Id type)
 
 
 ProgressTimer::ProgressTimer(QObject *parent,
-                             QFutureInterface<void> *futureInterface,
+                             const QFutureInterface<void> &futureInterface,
                              int expectedSeconds)
     : QTimer(parent),
       m_futureInterface(futureInterface),
       m_expectedTime(expectedSeconds),
       m_currentTime(0)
 {
-    m_futureWatcher.setFuture(futureInterface->future());
+    m_futureWatcher.setFuture(m_futureInterface.future());
 
-    m_futureInterface->setProgressRange(0, 100);
-    m_futureInterface->setProgressValue(0);
+    m_futureInterface.setProgressRange(0, 100);
+    m_futureInterface.setProgressValue(0);
 
     setInterval(1000); // 1 second
     connect(this, SIGNAL(timeout()), this, SLOT(handleTimeout()));
@@ -796,6 +797,6 @@ void ProgressTimer::handleTimeout()
     // future finishes. That's not bad for a random choice.
     const double mapped = atan2(double(m_currentTime), double(m_expectedTime));
     const double progress = 100 * 2 * mapped / 3.14;
-    m_futureInterface->setProgressValue(int(progress));
+    m_futureInterface.setProgressValue(int(progress));
 }
 

@@ -62,7 +62,7 @@ protected:
     virtual Valgrind::ValgrindRunner *runner() = 0;
 
     ValgrindBaseSettings *m_settings;
-    QFutureInterface<void> *m_progress;
+    QFutureInterface<void> m_progress;
 
 private slots:
     void handleProgressCanceled();
