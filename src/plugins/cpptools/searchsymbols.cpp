@@ -42,7 +42,7 @@ SearchSymbols::SymbolTypes SearchSymbols::AllTypes =
         | SymbolSearcher::Enums
         | SymbolSearcher::Declarations;
 
-SearchSymbols::SearchSymbols(Internal::StringTable &stringTable)
+SearchSymbols::SearchSymbols(CppTools::Internal::StringTable &stringTable)
     : strings(stringTable)
     , symbolsToSearchFor(SymbolSearcher::Classes | SymbolSearcher::Functions | SymbolSearcher::Enums)
 {
