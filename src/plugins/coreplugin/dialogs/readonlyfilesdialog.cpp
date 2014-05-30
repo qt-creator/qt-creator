@@ -236,7 +236,8 @@ void ReadOnlyFilesDialog::promptFailWarning(const QStringList &files, ReadOnlyRe
         message += tr("See details for a complete list of files.");
         details = files.join(QLatin1String("\n"));
     }
-    QMessageBox msgBox(QMessageBox::Warning, title, message);
+    QMessageBox msgBox(QMessageBox::Warning, title, message,
+                       QMessageBox::Ok, ICore::dialogParent());
     msgBox.setDetailedText(details);
     msgBox.exec();
 }

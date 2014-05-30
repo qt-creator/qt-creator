@@ -169,9 +169,9 @@ void MimeTypeSettingsModel::validatePatterns(QStringList *candidates,
     }
 
     if (!duplicates.isEmpty()) {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("Invalid MIME Type"));
-        msgBox.setText(tr("Conflicting pattern(s) will be discarded."));
+        QMessageBox msgBox(QMessageBox::NoIcon, tr("Invalid MIME Type"),
+                           tr("Conflicting pattern(s) will be discarded."),
+                           QMessageBox::Ok, ICore::dialogParent());
         msgBox.setInformativeText(tr("%n pattern(s) already in use.", 0, duplicates.size()));
         msgBox.setDetailedText(duplicates.join(QLatin1String("\n")));
         msgBox.exec();
