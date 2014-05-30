@@ -34,6 +34,7 @@
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QHelpEngine)
+QT_FORWARD_DECLARE_CLASS(QUrl)
 
 class BookmarkManager;
 
