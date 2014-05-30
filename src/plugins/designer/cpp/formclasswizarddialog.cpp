@@ -51,13 +51,10 @@ FormClassWizardDialog::FormClassWizardDialog(const WizardPageList &extensionPage
     setWindowTitle(tr("Qt Designer Form Class"));
 
     setPage(FormPageId, m_formPage);
-    wizardProgress()->item(FormPageId)->setTitle(tr("Form Template"));
-
     setPage(ClassPageId, m_classPage);
-    wizardProgress()->item(ClassPageId)->setTitle(tr("Class Details"));
 
     foreach (QWizardPage *p, extensionPages)
-        Core::BaseFileWizardFactory::applyExtensionPageShortTitle(this, addPage(p));
+        addPage(p);
 }
 
 QString FormClassWizardDialog::path() const

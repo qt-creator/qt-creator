@@ -31,6 +31,8 @@
 #include "customwidgetwidgetswizardpage.h"
 #include "ui_customwidgetpluginwizardpage.h"
 
+#include <utils/wizard.h>
+
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -43,6 +45,8 @@ CustomWidgetPluginWizardPage::CustomWidgetPluginWizardPage(QWidget *parent) :
     m_ui->setupUi(this);
     connect(m_ui->collectionClassEdit, SIGNAL(textEdited(QString)), this, SLOT(slotCheckCompleteness()));
     connect(m_ui->pluginNameEdit, SIGNAL(textEdited(QString)), this, SLOT(slotCheckCompleteness()));
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Plugin Details"));
 }
 
 CustomWidgetPluginWizardPage::~CustomWidgetPluginWizardPage()

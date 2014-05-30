@@ -30,6 +30,8 @@
 #include "srcprojectwizardpage.h"
 #include "ui_srcprojectwizardpage.h"
 
+#include <utils/wizard.h>
+
 #include <QDir>
 
 namespace Qnx {
@@ -44,6 +46,8 @@ SrcProjectWizardPage::SrcProjectWizardPage(QWidget *parent)
     connect(ui->pathChooser, SIGNAL(pathChanged(QString)), this, SLOT(onPathChooserPathChanged(QString)));
 
     setPath(QDir::homePath());
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Momentics"));
 }
 
 SrcProjectWizardPage::~SrcProjectWizardPage()

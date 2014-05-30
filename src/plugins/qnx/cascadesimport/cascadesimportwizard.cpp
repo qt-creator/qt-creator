@@ -69,16 +69,13 @@ CascadesImportWizardDialog::CascadesImportWizardDialog(QWidget *parent) :
 
     m_srcProjectPage = new SrcProjectWizardPage(this);
     m_srcProjectPage->setTitle(tr("Momentics Cascades Project Name and Location"));
+    addPage(m_srcProjectPage);
 
     m_destProjectPage = new Utils::ProjectIntroPage(this);
     m_destProjectPage->setTitle(tr("Project Name and Location"));
     m_destProjectPage->setPath(Core::DocumentManager::projectsDirectory());
-
-    const int srcProjectPageId = addPage(m_srcProjectPage);
-    wizardProgress()->item(srcProjectPageId)->setTitle(tr("Momentics"));
-
     const int destProjectPageId = addPage(m_destProjectPage);
-    wizardProgress()->item(destProjectPageId)->setTitle(tr("Qt Creator"));
+    wizardProgress()->item(destProjectPageId)->setTitle(tr("Qt Creator")); // Override default name
 
     connect(m_srcProjectPage, SIGNAL(validPathChanged(QString)), this, SLOT(onSrcProjectPathChanged(QString)));
 }
@@ -130,7 +127,7 @@ Core::BaseFileWizard *CascadesImportWizard::create(QWidget *parent,
     CascadesImportWizardDialog *wizard = new CascadesImportWizardDialog(parent);
 
     foreach (QWizardPage *p, parameters.extensionPages())
-        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+        wizard->addPage(p);
 
     return wizard;
 }

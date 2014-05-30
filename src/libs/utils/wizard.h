@@ -40,6 +40,8 @@ class Wizard;
 class WizardProgress;
 class WizardPrivate;
 
+const char SHORT_TITLE_PROPERTY[] = "shortTitle";
+
 class QTCREATOR_UTILS_EXPORT Wizard : public QWizard
 {
     Q_OBJECT

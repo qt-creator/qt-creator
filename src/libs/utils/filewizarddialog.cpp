@@ -47,8 +47,7 @@ FileWizardDialog::FileWizardDialog(QWidget *parent) :
     Wizard(parent),
     m_filePage(new FileWizardPage)
 {
-    const int filePageId = addPage(m_filePage);
-    wizardProgress()->item(filePageId)->setTitle(tr("Location"));
+    addPage(m_filePage);
     connect(m_filePage, SIGNAL(activated()), button(QWizard::FinishButton), SLOT(animateClick()));
 }
 

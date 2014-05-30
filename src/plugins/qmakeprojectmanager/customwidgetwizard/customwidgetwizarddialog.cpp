@@ -64,8 +64,7 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
                                                    const Core::WizardDialogParameters &parameters) :
     BaseQmakeProjectWizardDialog(false, parent, parameters),
     m_widgetsPage(new CustomWidgetWidgetsWizardPage),
-    m_pluginPage(new CustomWidgetPluginWizardPage),
-    m_widgetPageId(-1), m_pluginPageId(-1)
+    m_pluginPage(new CustomWidgetPluginWizardPage)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
@@ -75,10 +74,8 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         addTargetSetupPage();
-    m_widgetPageId = addPage(m_widgetsPage);
+    addPage(m_widgetsPage);
     m_pluginPageId = addPage(m_pluginPage);
-    wizardProgress()->item(m_widgetPageId)->setTitle(tr("Custom Widgets"));
-    wizardProgress()->item(m_pluginPageId)->setTitle(tr("Plugin Details"));
 
     addExtensionPages(parameters.extensionPages());
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));

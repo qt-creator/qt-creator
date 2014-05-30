@@ -43,6 +43,7 @@
 #include <projectexplorer/ipotentialkit.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/wizard.h>
 
 #include <QFileInfo>
 #include <QLabel>
@@ -179,6 +180,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
             this, SLOT(handleKitUpdate(ProjectExplorer::Kit*)));
     connect(m_importWidget, SIGNAL(importFrom(Utils::FileName)),
             this, SLOT(import(Utils::FileName)));
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Kits"));
 }
 
 void TargetSetupPage::initializePage()

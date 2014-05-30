@@ -56,15 +56,11 @@ void FormWizardDialog::init(const WizardPageList &extensionPages)
 {
     setWindowTitle(tr("Qt Designer Form"));
     setPage(FormPageId, m_formPage);
-    wizardProgress()->item(FormPageId)->setTitle(tr("Form Template"));
 
-    if (!extensionPages.empty()) {
-        int id = FirstExtensionPageId;
-        foreach (QWizardPage *p, extensionPages) {
-            setPage(id, p);
-            Core::BaseFileWizardFactory::applyExtensionPageShortTitle(this, id);
-            id++;
-        }
+    int id = FirstExtensionPageId;
+    foreach (QWizardPage *p, extensionPages) {
+       setPage(id, p);
+       ++id;
     }
 }
 
@@ -83,7 +79,6 @@ FormFileWizardDialog::FormFileWizardDialog(const WizardPageList &extensionPages,
     m_filePage(new Utils::FileWizardPage)
 {
     setPage(FilePageId, m_filePage);
-    wizardProgress()->item(FilePageId)->setTitle(tr("Location"));
     connect(m_filePage, SIGNAL(activated()),
             button(QWizard::FinishButton), SLOT(animateClick()));
 

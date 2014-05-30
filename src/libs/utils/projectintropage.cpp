@@ -30,6 +30,8 @@
 #include "projectintropage.h"
 #include "ui_projectintropage.h"
 
+#include "wizard.h"
+
 #include <QDir>
 
 /*!
@@ -96,6 +98,8 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     connect(d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
     connect(d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
     connect(d->m_ui.projectComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotChanged()));
+
+    setProperty(SHORT_TITLE_PROPERTY, tr("Location"));
 }
 
 void ProjectIntroPage::insertControl(int row, QWidget *label, QWidget *control)

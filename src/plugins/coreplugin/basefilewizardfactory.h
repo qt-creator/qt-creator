@@ -112,7 +112,6 @@ public:
     void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
 
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
-    static void applyExtensionPageShortTitle(Utils::Wizard *wizard, int pageId);
 
 protected:
     typedef QList<QWizardPage *> WizardPageList;

@@ -129,7 +129,7 @@ Core::BaseFileWizard *JsFileWizard::create(QWidget *parent, const Core::WizardDi
     wizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
     wizardDialog->setPath(parameters.defaultPath());
     foreach (QWizardPage *p, parameters.extensionPages())
-        BaseFileWizardFactory::applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(p));
+        wizardDialog->addPage(p);
     return wizardDialog;
 }
 

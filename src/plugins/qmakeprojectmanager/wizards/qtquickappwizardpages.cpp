@@ -28,6 +28,9 @@
 ****************************************************************************/
 
 #include "qtquickappwizardpages.h"
+
+#include <utils/wizard.h>
+
 #include <QComboBox>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -67,6 +70,8 @@ QtQuickComponentSetPage::QtQuickComponentSetPage(QWidget *parent)
 
     mainLayout->addLayout(l);
     mainLayout->addWidget(d->m_descriptionLabel);
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Component Set"));
 }
 
 QtQuickComponentSetPage::~QtQuickComponentSetPage()

@@ -63,7 +63,6 @@ private slots:
 private:
     CustomWidgetWidgetsWizardPage *m_widgetsPage;
     CustomWidgetPluginWizardPage *m_pluginPage;
-    int m_widgetPageId;
     int m_pluginPageId;
 };
 

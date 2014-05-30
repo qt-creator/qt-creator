@@ -29,6 +29,8 @@
 
 #include "modulespage.h"
 
+#include <utils/wizard.h>
+
 #include <qmakeprojectmanager/qtmodulesinfo.h>
 
 #include <QDebug>
@@ -73,6 +75,8 @@ ModulesPage::ModulesPage(QWidget *parent)
 
     vlayout->addLayout(layout);
     setLayout(vlayout);
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Modules"));
 }
 
 // Return the key that goes into the Qt config line for a module

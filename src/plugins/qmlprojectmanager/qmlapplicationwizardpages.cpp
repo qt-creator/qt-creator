@@ -29,6 +29,9 @@
 
 #include "qmlapplicationwizardpages.h"
 #include "qmlapp.h"
+
+#include <utils/wizard.h>
+
 #include <QComboBox>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -69,6 +72,8 @@ QmlComponentSetPage::QmlComponentSetPage(QWidget *parent)
 
     mainLayout->addLayout(l);
     mainLayout->addWidget(d->m_detailedDescriptionLabel);
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Component Set"));
 }
 
 QmlComponentSetPage::~QmlComponentSetPage()

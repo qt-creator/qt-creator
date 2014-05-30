@@ -41,8 +41,7 @@ ClassWizardDialog::ClassWizardDialog(QWidget *parent) :
     m_classNamePage(new ClassNamePage(this))
 {
     setWindowTitle(tr("Python Class Wizard"));
-    const int classNameId = addPage(m_classNamePage.data());
-    wizardProgress()->item(classNameId)->setTitle(tr("Details"));
+    addPage(m_classNamePage.data());
 }
 
 ClassWizardDialog::~ClassWizardDialog()

@@ -94,7 +94,6 @@ void BaseProjectWizardDialog::init()
         d->introPageId = d->desiredIntroPageId;
         setPage(d->desiredIntroPageId, d->introPage);
     }
-    wizardProgress()->item(d->introPageId)->setTitle(tr("Location"));
     connect(this, SIGNAL(accepted()), this, SLOT(slotAccepted()));
     connect(this, SIGNAL(nextClicked()), this, SLOT(nextClicked()));
 }
@@ -184,7 +183,7 @@ QString BaseProjectWizardDialog::uniqueProjectName(const QString &path)
 void BaseProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
 {
     foreach (QWizardPage *p,wizardPageList)
-        Core::BaseFileWizardFactory::applyExtensionPageShortTitle(this, addPage(p));
+        addPage(p);
 }
 
 QString BaseProjectWizardDialog::selectedPlatform() const

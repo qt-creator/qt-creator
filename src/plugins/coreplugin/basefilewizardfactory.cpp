@@ -330,26 +330,6 @@ bool BaseFileWizardFactory::writeFiles(const GeneratedFiles &files, QString *err
 }
 
 /*!
-    Reads the \c shortTitle dynamic property of \a pageId and applies it as
-    the title of corresponding progress item.
-*/
-
-void BaseFileWizardFactory::applyExtensionPageShortTitle(Utils::Wizard *wizard, int pageId)
-{
-    if (pageId < 0)
-        return;
-    QWizardPage *p = wizard->page(pageId);
-    if (!p)
-        return;
-    Utils::WizardProgressItem *item = wizard->wizardProgress()->item(pageId);
-    if (!item)
-        return;
-    const QString shortTitle = p->property("shortTitle").toString();
-    if (!shortTitle.isEmpty())
-      item->setTitle(shortTitle);
-}
-
-/*!
     Overwrite to perform steps to be done after files are actually created.
 
     The default implementation opens editors with the newly generated files.
@@ -529,7 +509,7 @@ BaseFileWizard *StandardFileWizardFactory::create(QWidget *parent, const WizardD
     wizard->setWindowTitle(tr("New %1").arg(displayName()));
     wizard->setPath(parameters.defaultPath());
     foreach (QWizardPage *p, parameters.extensionPages())
-        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+        wizard->addPage(p);
     return wizard;
 }
 

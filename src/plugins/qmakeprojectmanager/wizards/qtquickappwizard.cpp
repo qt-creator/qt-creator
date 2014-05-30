@@ -68,7 +68,7 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
     setIntroDescription(tr("This wizard generates a Qt Quick Application project."));
 
     m_componentSetPage = new Internal::QtQuickComponentSetPage;
-    addPageWithTitle(m_componentSetPage, tr("Component Set"));
+    addPage(m_componentSetPage);
 
     addKitsPage();
 }

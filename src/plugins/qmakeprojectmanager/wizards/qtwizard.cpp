@@ -197,11 +197,9 @@ int BaseQmakeProjectWizardDialog::addModulesPage(int id)
         return -1;
     if (id >= 0) {
         setPage(id, m_modulesPage);
-        wizardProgress()->item(id)->setTitle(tr("Modules"));
         return id;
     }
     const int newId = addPage(m_modulesPage);
-    wizardProgress()->item(newId)->setTitle(tr("Modules"));
     return newId;
 }
 
@@ -222,7 +220,6 @@ int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
         setPage(id, m_targetSetupPage);
     else
         id = addPage(m_targetSetupPage);
-    wizardProgress()->item(id)->setTitle(tr("Kits"));
 
     return id;
 }
@@ -305,7 +302,7 @@ QList<Core::Id> BaseQmakeProjectWizardDialog::selectedKits() const
 void BaseQmakeProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
 {
     foreach (QWizardPage *p,wizardPageList)
-        Core::BaseFileWizardFactory::applyExtensionPageShortTitle(this, addPage(p));
+        addPage(p);
 }
 
 void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name, const QString &path)

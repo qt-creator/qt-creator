@@ -122,7 +122,7 @@ Core::BaseFileWizard *GLSLFileWizard::create(QWidget *parent, const Core::Wizard
     wizard->setWindowTitle(tr("New %1").arg(displayName()));
     wizard->setPath(parameters.defaultPath());
     foreach (QWizardPage *p, parameters.extensionPages())
-        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+        wizard->addPage(p);
     return wizard;
 }
 

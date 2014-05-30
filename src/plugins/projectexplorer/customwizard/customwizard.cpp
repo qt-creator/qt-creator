@@ -146,7 +146,7 @@ Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDi
     if (!parameters()->fieldPageTitle.isEmpty())
         customPage->setTitle(parameters()->fieldPageTitle);
     foreach (QWizardPage *ep, p.extensionPages())
-        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(ep));
+        wizard->addPage(ep);
     if (CustomWizardPrivate::verbose)
         qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
 
@@ -525,7 +525,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
             cp->setTitle(pa->fieldPageTitle);
     }
     foreach (QWizardPage *ep, extensionPages)
-        BaseFileWizardFactory::applyExtensionPageShortTitle(w, w->addPage(ep));
+        w->addPage(ep);
     w->setPath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
 

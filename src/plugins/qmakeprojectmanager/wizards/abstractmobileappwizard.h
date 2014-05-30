@@ -55,7 +55,6 @@ public:
     ProjectExplorer::TargetSetupPage *kitsPage() const;
 
 protected:
-    int addPageWithTitle(QWizardPage *page, const QString &title);
     void addKitsPage();
     void updateKitsPage();
 

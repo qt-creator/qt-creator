@@ -90,17 +90,11 @@ AddLibraryWizard::AddLibraryWizard(const QString &fileName, QWidget *parent) :
 {
     setWindowTitle(tr("Add Library"));
     m_libraryTypePage = new LibraryTypePage(this);
+    addPage(m_libraryTypePage);
     m_detailsPage = new DetailsPage(this);
+    addPage(m_detailsPage);
     m_summaryPage = new SummaryPage(this);
-    const int libraryTypePageId = addPage(m_libraryTypePage);
-    const int detailsPageId = addPage(m_detailsPage);
-    const int summaryPageId = addPage(m_summaryPage);
-
-    Utils::WizardProgress *progress = wizardProgress();
-
-    progress->item(libraryTypePageId)->setTitle(tr("Type"));
-    progress->item(detailsPageId)->setTitle(tr("Details"));
-    progress->item(summaryPageId)->setTitle(tr("Summary"));
+    addPage(m_summaryPage);
 }
 
 AddLibraryWizard::~AddLibraryWizard()
@@ -184,6 +178,8 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
 
     // select the default
     m_internalRadio->setChecked(true);
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Type"));
 }
 
 AddLibraryWizard::LibraryKind LibraryTypePage::libraryKind() const
@@ -204,6 +200,8 @@ DetailsPage::DetailsPage(AddLibraryWizard *parent)
 {
     m_libraryDetailsWidget = new Ui::LibraryDetailsWidget();
     m_libraryDetailsWidget->setupUi(this);
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
 }
 
 bool DetailsPage::isComplete() const
@@ -281,6 +279,8 @@ SummaryPage::SummaryPage(AddLibraryWizard *parent)
     m_summaryLabel->setTextFormat(Qt::RichText);
     m_snippetLabel->setTextFormat(Qt::RichText);
     m_snippetLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Summary"));
 }
 
 void SummaryPage::initializePage()

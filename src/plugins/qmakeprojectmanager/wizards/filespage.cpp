@@ -30,9 +30,11 @@
 #include "filespage.h"
 
 #include <utils/newclasswidget.h>
+#include <utils/wizard.h>
 
 #include <QLabel>
 #include <QLayout>
+#include <QVariant>
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -61,6 +63,8 @@ FilesPage::FilesPage(QWidget *parent) :
     setLayout(vlayout);
 
     connect(m_newClassWidget, SIGNAL(validChanged()), this, SIGNAL(completeChanged()));
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
 }
 
 void FilesPage::setSuffixes(const QString &header, const QString &source,  const QString &form)

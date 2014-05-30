@@ -32,6 +32,8 @@
 #include "qtwizard.h"
 #include "ui_testwizardpage.h"
 
+#include <utils/wizard.h>
+
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -58,6 +60,8 @@ TestWizardPage::TestWizardPage(QWidget *parent) :
             this, SLOT(slotUpdateValid()));
     connect(ui->fileLineEdit, SIGNAL(validChanged()),
             this, SLOT(slotUpdateValid()));
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
 }
 
 TestWizardPage::~TestWizardPage()

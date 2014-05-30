@@ -31,6 +31,8 @@
 #include "ui_formclasswizardpage.h"
 #include "formclasswizardparameters.h"
 
+#include <utils/wizard.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <cpptools/cpptoolsconstants.h>
@@ -59,6 +61,8 @@ FormClassWizardPage::FormClassWizardPage(QWidget * parent) :
     connect(m_ui->newClassWidget, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
 
     initFileGenerationSettings();
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Class Details"));
 }
 
 FormClassWizardPage::~FormClassWizardPage()

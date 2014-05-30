@@ -32,6 +32,7 @@
 
 #include <QMap>
 #include <QHash>
+#include <QVariant>
 
 #include <QLabel>
 #include <QVBoxLayout>
@@ -389,7 +390,10 @@ void Wizard::_q_pageAdded(int pageId)
     if (!d->m_automaticProgressCreation)
         return;
 
-    WizardProgressItem *item = d->m_wizardProgress->addItem(page(pageId)->title());
+    QWizardPage *p = page(pageId);
+    QVariant property = p->property(SHORT_TITLE_PROPERTY);
+    const QString title = property.isNull() ? p->title() : property.toString();
+    WizardProgressItem *item = d->m_wizardProgress->addItem(title);
     item->addPage(pageId);
     d->m_wizardProgress->setStartPage(startId());
     if (!d->m_wizardProgress->startItem())

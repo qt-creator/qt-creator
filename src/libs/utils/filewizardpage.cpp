@@ -30,6 +30,8 @@
 #include "filewizardpage.h"
 #include "ui_filewizardpage.h"
 
+#include "wizard.h"
+
 /*!
   \class Utils::FileWizardPage
 
@@ -66,6 +68,8 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
 
     connect(d->m_ui.pathChooser, SIGNAL(returnPressed()), this, SLOT(slotActivated()));
     connect(d->m_ui.nameLineEdit, SIGNAL(validReturnPressed()), this, SLOT(slotActivated()));
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Location"));
 }
 
 FileWizardPage::~FileWizardPage()

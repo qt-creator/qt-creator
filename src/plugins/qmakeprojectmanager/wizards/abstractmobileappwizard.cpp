@@ -66,7 +66,7 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
 void AbstractMobileAppWizardDialog::addKitsPage()
 {
     if (m_kitsPage)
-        addPageWithTitle(m_kitsPage, tr("Kits"));
+        addPage(m_kitsPage);
 }
 
 void AbstractMobileAppWizardDialog::updateKitsPage()
@@ -89,13 +89,6 @@ void AbstractMobileAppWizardDialog::updateKitsPage()
 ProjectExplorer::TargetSetupPage *AbstractMobileAppWizardDialog::kitsPage() const
 {
     return m_kitsPage;
-}
-
-int AbstractMobileAppWizardDialog::addPageWithTitle(QWizardPage *page, const QString &title)
-{
-    const int pageId = addPage(page);
-    wizardProgress()->item(pageId)->setTitle(title);
-    return pageId;
 }
 
 Core::BaseFileWizard *AbstractMobileAppWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const

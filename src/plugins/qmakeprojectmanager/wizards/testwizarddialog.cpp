@@ -53,8 +53,7 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
                                    QWidget *parent,
                                    const Core::WizardDialogParameters &parameters)  :
     BaseQmakeProjectWizardDialog(true, parent, parameters),
-    m_testPage(new TestWizardPage),
-    m_testPageId(-1), m_modulesPageId(-1)
+    m_testPage(new TestWizardPage)
 {
     setIntroDescription(tr("This wizard generates a Qt Unit Test "
                            "consisting of a single source file with a test class."));
@@ -63,9 +62,8 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
     setSelectedModules(QLatin1String("core testlib"), true);
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         addTargetSetupPage();
-    m_modulesPageId = addModulesPage();
+    addModulesPage();
     m_testPageId = addPage(m_testPage);
-    wizardProgress()->item(m_testPageId)->setTitle(tr("Details"));
     addExtensionPages(parameters.extensionPages());
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 }

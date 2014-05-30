@@ -30,6 +30,8 @@
 #include "formtemplatewizardpage.h"
 #include "formeditorw.h"
 
+#include <utils/wizard.h>
+
 #if QT_VERSION >= 0x050000
 #    include <QDesignerNewFormWidgetInterface>
 #else
@@ -71,6 +73,7 @@ FormTemplateWizardPage::FormTemplateWizardPage(QWidget * parent) :
     layout->addWidget(m_newFormWidget);
 
     setLayout(layout);
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Form Template"));
 }
 
 bool FormTemplateWizardPage::isComplete() const

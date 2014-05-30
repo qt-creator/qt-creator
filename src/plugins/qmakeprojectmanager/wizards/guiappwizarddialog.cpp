@@ -66,8 +66,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
 
     m_filesPage->setFormInputCheckable(true);
     m_filesPage->setClassTypeComboVisible(false);
-    const int filesPageId = addPage(m_filesPage);
-    wizardProgress()->item(filesPageId)->setTitle(tr("Details"));
+    addPage(m_filesPage);
 
     addExtensionPages(parameters.extensionPages());
 }

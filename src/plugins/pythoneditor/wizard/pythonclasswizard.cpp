@@ -59,7 +59,7 @@ Core::BaseFileWizard *ClassWizard::create(QWidget *parent, const Core::WizardDia
 {
     ClassWizardDialog *wizard = new ClassWizardDialog(parent);
     foreach (QWizardPage *p, parameters.extensionPages())
-        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+        wizard->addPage(p);
     wizard->setPath(parameters.defaultPath());
     wizard->setExtraValues(parameters.extraValues());
     return wizard;

@@ -33,6 +33,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/fileutils.h>
+#include <utils/wizard.h>
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QDir>
@@ -61,7 +62,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     connect(m_ui->projectComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotProjectChanged(int)));
     connect(m_ui->vcsManageButton, SIGNAL(clicked()), this, SLOT(slotManageVcs()));
-    setProperty("shortTitle", tr("Summary"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Summary"));
 }
 
 ProjectWizardPage::~ProjectWizardPage()

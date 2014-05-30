@@ -59,8 +59,7 @@ QmlApplicationWizardDialog::QmlApplicationWizardDialog(QWidget *parent, const Wi
     setWindowTitle(tr("New Qt Quick UI Project"));
     setIntroDescription(tr("This wizard generates a Qt Quick UI project."));
     m_componentSetPage = new QmlComponentSetPage;
-    const int pageId = addPage(m_componentSetPage);
-    wizardProgress()->item(pageId)->setTitle(tr("Component Set"));
+    addPage(m_componentSetPage);
 }
 
 TemplateInfo QmlApplicationWizardDialog::templateInfo() const
@@ -94,7 +93,7 @@ Core::BaseFileWizard *QmlApplicationWizard::create(QWidget *parent, const Wizard
     wizardDialog->setProjectName(QmlApplicationWizardDialog::uniqueProjectName(parameters.defaultPath()));
 
     foreach (QWizardPage *page, parameters.extensionPages())
-        applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(page));
+        wizardDialog->addPage(page);
 
     return wizardDialog;
 }

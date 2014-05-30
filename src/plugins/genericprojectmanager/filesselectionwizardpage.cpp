@@ -36,6 +36,8 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/selectablefilesmodel.h>
 
+#include <utils/wizard.h>
+
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -61,6 +63,8 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
 
     layout->addWidget(m_view);
     layout->addWidget(m_label);
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Files"));
 }
 
 void FilesSelectionWizardPage::createHideFileFilterControls(QVBoxLayout *layout)

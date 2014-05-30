@@ -30,6 +30,8 @@
 #include "pythonclassnamepage.h"
 #include "../pythoneditorconstants.h"
 
+#include <utils/wizard.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <utils/newclasswidget.h>
@@ -72,6 +74,8 @@ ClassNamePage::ClassNamePage(QWidget *parent)
     pageLayout->addItem(vSpacer);
 
     initParameters();
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
 }
 
 ClassNamePage::~ClassNamePage()

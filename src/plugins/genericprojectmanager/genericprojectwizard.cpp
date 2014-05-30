@@ -69,16 +69,12 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent) :
     m_firstPage->setTitle(tr("Project Name and Location"));
     m_firstPage->setFileNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
+    addPage(m_firstPage);
 
     // second page
     m_secondPage = new FilesSelectionWizardPage(this);
     m_secondPage->setTitle(tr("File Selection"));
-
-    const int firstPageId = addPage(m_firstPage);
-    wizardProgress()->item(firstPageId)->setTitle(tr("Location"));
-
-    const int secondPageId = addPage(m_secondPage);
-    wizardProgress()->item(secondPageId)->setTitle(tr("Files"));
+    addPage(m_secondPage);
 }
 
 QString GenericProjectWizardDialog::path() const
@@ -139,7 +135,7 @@ Core::BaseFileWizard *GenericProjectWizard::create(QWidget *parent, const Core::
     wizard->setPath(parameters.defaultPath());
 
     foreach (QWizardPage *p, parameters.extensionPages())
-        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+        wizard->addPage(p);
 
     return wizard;
 }

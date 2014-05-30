@@ -33,6 +33,8 @@
 
 #include <coreplugin/coreconstants.h>
 
+#include <utils/wizard.h>
+
 #include <QTimer>
 
 #include <QStackedLayout>
@@ -63,6 +65,8 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
 
     connect(m_ui->classList, SIGNAL(currentRowChanged(int)),
             this, SLOT(slotCurrentRowChanged(int)));
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Custom Widgets"));
 }
 
 CustomWidgetWidgetsWizardPage::~CustomWidgetWidgetsWizardPage()

@@ -39,6 +39,7 @@
 #include <utils/codegeneration.h>
 #include <utils/newclasswidget.h>
 #include <utils/qtcassert.h>
+#include <utils/wizard.h>
 
 #include <QDebug>
 #include <QTextStream>
@@ -81,6 +82,8 @@ ClassNamePage::ClassNamePage(QWidget *parent) :
     pageLayout->addItem(vSpacer);
 
     initParameters();
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
 }
 
 // Retrieve settings of CppTools plugin.
@@ -115,8 +118,7 @@ CppClassWizardDialog::CppClassWizardDialog(QWidget *parent) :
     m_classNamePage(new ClassNamePage(this))
 {
     setWindowTitle(tr("C++ Class Wizard"));
-    const int classNameId = addPage(m_classNamePage);
-    wizardProgress()->item(classNameId)->setTitle(tr("Details"));
+    addPage(m_classNamePage);
 }
 
 void CppClassWizardDialog::setPath(const QString &path)
@@ -157,7 +159,7 @@ Core::BaseFileWizard *CppClassWizard::create(QWidget *parent, const Core::Wizard
 {
     CppClassWizardDialog *wizard = new CppClassWizardDialog(parent);
     foreach (QWizardPage *p, parameters.extensionPages())
-        BaseFileWizardFactory::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
+        wizard->addPage(p);
     wizard->setPath(parameters.defaultPath());
     return wizard;
 }
