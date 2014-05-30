@@ -113,7 +113,19 @@ int CustomWizard::verbose()
 
 void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
 {
+    QTC_ASSERT(p, return);
+
     d->m_parameters = p;
+
+    setId(p->id);
+    setWizardKind(p->kind);
+    setIcon(p->icon);
+    setDescription(p->description);
+    setDisplayName(p->displayName);
+    setCategory(p->category);
+    setDisplayCategory(p->displayCategory);
+    setRequiredFeatures(p->requiredFeatures);
+    setFlags(p->flags);
 }
 
 Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDialogParameters &p) const
@@ -307,13 +319,11 @@ CustomWizard::CustomWizardContextPtr CustomWizard::context() const
     return d->m_context;
 }
 
-CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p,
-                                         const Core::IWizardFactory::Data &b)
+CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p)
 {
-    ICustomWizardFactory * factory = ExtensionSystem::PluginManager::getObject<ICustomWizardFactory>(
-        [&p, &b](ICustomWizardFactory *factory) {
-            return ((p->klass.isEmpty() && b.kind == factory->kind())
-                    || (!p->klass.isEmpty() && p->klass == factory->klass()));
+    ICustomWizardFactory *factory = ExtensionSystem::PluginManager::getObject<ICustomWizardFactory>(
+        [&p](ICustomWizardFactory *factory) {
+            return p->klass.isEmpty() ? (p->kind == factory->kind()) : (p->klass == factory->klass());
         });
 
     CustomWizard *rc = 0;
@@ -325,7 +335,6 @@ CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizard
         return 0;
     }
 
-    rc->setData(b);
     rc->setParameters(p);
     return rc;
 }
@@ -413,20 +422,13 @@ QList<CustomWizard*> CustomWizard::createWizards()
             verboseLog += QString::fromLatin1("CustomWizard: Scanning %1\n").arg(dirFi.absoluteFilePath());
         if (dir.exists(configFile)) {
             CustomWizardParametersPtr parameters(new Internal::CustomWizardParameters);
-            IWizardFactory::Data data;
-            switch (parameters->parse(dir.absoluteFilePath(configFile), &data, &errorMessage)) {
+            switch (parameters->parse(dir.absoluteFilePath(configFile), &errorMessage)) {
             case Internal::CustomWizardParameters::ParseOk:
                 parameters->directory = dir.absolutePath();
-                if (CustomWizardPrivate::verbose)
-                    QTextStream(&verboseLog)
-                            << "\n### Adding: " << data.id << " / " << data.displayName << '\n'
-                            << data.category << " / " << data.displayCategory << '\n'
-                            << "  (" <<   data.description << ")\n"
-                            << parameters->toString();
-                if (CustomWizard *w = createWizard(parameters, data))
+                if (CustomWizard *w = createWizard(parameters))
                     rc.push_back(w);
                 else
-                    qWarning("Custom wizard factory function failed for %s", qPrintable(data.id));
+                    qWarning("Custom wizard factory function failed for %s", qPrintable(parameters->id));
                 break;
             case Internal::CustomWizardParameters::ParseDisabled:
                 if (CustomWizardPrivate::verbose)

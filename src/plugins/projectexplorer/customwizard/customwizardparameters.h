@@ -107,10 +107,8 @@ public:
     CustomWizardParameters();
     void clear();
     ParseResult parse(QIODevice &device, const QString &configFileFullPath,
-                      Core::IWizardFactory::Data *bp, QString *errorMessage);
-    ParseResult parse(const QString &configFileFullPath,
-                      Core::IWizardFactory::Data *bp, QString *errorMessage);
-    QString toString() const;
+                      QString *errorMessage);
+    ParseResult parse(const QString &configFileFullPath, QString *errorMessage);
 
     QString id;
     QString directory;
@@ -124,6 +122,16 @@ public:
     QList<CustomWizardField> fields;
     QList<CustomWizardValidationRule> rules;
     int firstPageId;
+
+    // Wizard Factory data:
+    Core::IWizardFactory::WizardKind kind;
+    QIcon icon;
+    QString description;
+    QString displayName;
+    QString category;
+    QString displayCategory;
+    Core::FeatureSet requiredFeatures;
+    Core::IWizardFactory::WizardFlags flags;
 };
 
 // Documentation inside.

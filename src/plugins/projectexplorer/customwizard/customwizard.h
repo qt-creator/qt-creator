@@ -120,12 +120,11 @@ protected:
     CustomWizardParametersPtr parameters() const;
     CustomWizardContextPtr context() const;
 
-    static CustomWizard *createWizard(const CustomWizardParametersPtr &p, const Core::IWizardFactory::Data &b);
+    static CustomWizard *createWizard(const CustomWizardParametersPtr &p);
 
 private:
     void setParameters(const CustomWizardParametersPtr &p);
 
-    static CustomWizard *createWizard(const CustomWizardParametersPtr &p);
     CustomWizardPrivate *d;
 };
 

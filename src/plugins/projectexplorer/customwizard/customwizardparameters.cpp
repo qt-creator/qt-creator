@@ -272,8 +272,7 @@ static inline bool assignLanguageElementText(QXmlStreamReader &reader,
 static bool parseCustomProjectElement(QXmlStreamReader &reader,
                                       const QString &configFileFullPath,
                                       const QString &language,
-                                      CustomWizardParameters *p,
-                                      IWizardFactory::Data *bp)
+                                      CustomWizardParameters *p)
 {
     const QStringRef elementName = reader.name();
     if (elementName == QLatin1String(iconElementC)) {
@@ -283,20 +282,20 @@ static bool parseCustomProjectElement(QXmlStreamReader &reader,
             qWarning("Invalid icon path '%s' encountered in custom project template %s.",
                      qPrintable(path), qPrintable(configFileFullPath));
         } else {
-                bp->icon = icon;
+                p->icon = icon;
         }
         return true;
     }
     if (elementName == QLatin1String(descriptionElementC)) {
-        assignLanguageElementText(reader, language, &bp->description);
+        assignLanguageElementText(reader, language, &p->description);
         return true;
     }
     if (elementName == QLatin1String(displayNameElementC)) {
-        assignLanguageElementText(reader, language, &bp->displayName);
+        assignLanguageElementText(reader, language, &p->displayName);
         return true;
     }
     if (elementName == QLatin1String(displayCategoryElementC)) {
-        assignLanguageElementText(reader, language, &bp->displayCategory);
+        assignLanguageElementText(reader, language, &p->displayCategory);
         return true;
     }
     if (elementName == QLatin1String(fieldPageTitleElementC)) {
@@ -460,7 +459,7 @@ static inline IWizardFactory::WizardKind kindAttribute(const QXmlStreamReader &r
     return IWizardFactory::ProjectWizard;
 }
 
-static inline FeatureSet requiredFeatures(const QXmlStreamReader &reader)
+static inline FeatureSet readRequiredFeatures(const QXmlStreamReader &reader)
 {
     QString value = reader.attributes().value(QLatin1String(featuresRequiredC)).toString();
     QStringList stringList = value.split(QLatin1Char(','), QString::SkipEmptyParts);
@@ -550,18 +549,15 @@ GeneratorScriptArgument::GeneratorScriptArgument(const QString &v) :
 
 // Main parsing routine
 CustomWizardParameters::ParseResult
-     CustomWizardParameters::parse(QIODevice &device,
-                                   const QString &configFileFullPath,
-                                   IWizardFactory::Data *bp,
-                                   QString *errorMessage)
+CustomWizardParameters::parse(QIODevice &device, const QString &configFileFullPath,
+                              QString *errorMessage)
 {
     int comboEntryCount = 0;
     QXmlStreamReader reader(&device);
     QXmlStreamReader::TokenType token = QXmlStreamReader::EndDocument;
     ParseState state = ParseBeginning;
     clear();
-    *bp = IWizardFactory::Data();
-    bp->kind = IWizardFactory::ProjectWizard;
+    kind = IWizardFactory::ProjectWizard;
     const QString language = languageSetting();
     CustomWizardField field;
     do {
@@ -573,7 +569,7 @@ CustomWizardParameters::ParseResult
         case QXmlStreamReader::StartElement:
             do {
                 // Read out subelements applicable to current state
-                if (state == ParseWithinWizard && parseCustomProjectElement(reader, configFileFullPath, language, this, bp))
+                if (state == ParseWithinWizard && parseCustomProjectElement(reader, configFileFullPath, language, this))
                     break;
                 // switch to next state
                 state = nextOpeningState(state, reader.name());
@@ -586,12 +582,11 @@ CustomWizardParameters::ParseResult
                 case ParseWithinWizard:
                     if (!booleanAttributeValue(reader, wizardEnabledAttributeC, true))
                         return ParseDisabled;
-                    bp->id = attributeValue(reader, idAttributeC);
-                    id = bp->id;
-                    bp->category = attributeValue(reader, categoryAttributeC);
-                    bp->kind = kindAttribute(reader);
-                    bp->requiredFeatures = requiredFeatures(reader);
-                    bp->flags = wizardFlags(reader);
+                    id = attributeValue(reader, idAttributeC);
+                    category = attributeValue(reader, categoryAttributeC);
+                    kind = kindAttribute(reader);
+                    requiredFeatures = readRequiredFeatures(reader);
+                    flags = wizardFlags(reader);
                     klass = attributeValue(reader, klassAttributeC);
                     firstPageId = integerAttributeValue(reader, firstPageAttributeC, -1);
                     break;
@@ -704,67 +699,14 @@ CustomWizardParameters::ParseResult
 }
 
 CustomWizardParameters::ParseResult
-     CustomWizardParameters::parse(const QString &configFileFullPath,
-                                   IWizardFactory::Data *bp,
-                                   QString *errorMessage)
+CustomWizardParameters::parse(const QString &configFileFullPath, QString *errorMessage)
 {
     QFile configFile(configFileFullPath);
     if (!configFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(configFileFullPath, configFile.errorString());
         return ParseFailed;
     }
-    return parse(configFile, configFileFullPath, bp, errorMessage);
-}
-
-QString CustomWizardParameters::toString() const
-{
-    QString rc;
-    QTextStream str(&rc);
-    str << "Directory: " << directory << " Klass: '" << klass << "'\n";
-    if (!filesGeneratorScriptArguments.isEmpty()) {
-        str << "Script:";
-        foreach (const QString &a, filesGeneratorScript)
-            str << " '" << a << '\'';
-        if (!filesGeneratorScriptWorkingDirectory.isEmpty())
-            str << "\nrun in '" <<  filesGeneratorScriptWorkingDirectory << '\'';
-        str << "\nArguments: ";
-        foreach (const GeneratorScriptArgument &a, filesGeneratorScriptArguments) {
-            str << " '" << a.value  << '\'';
-            if (a.flags & GeneratorScriptArgument::OmitEmpty)
-                str << " [omit empty]";
-            if (a.flags & GeneratorScriptArgument::WriteFile)
-                str << " [write file]";
-            str << ',';
-        }
-        str << '\n';
-    }
-    foreach (const CustomWizardFile &f, files) {
-        str << "  File source: " << f.source << " Target: " << f.target;
-        if (f.openEditor)
-            str << " [editor]";
-        if (f.openProject)
-            str << " [project]";
-        if (f.binary)
-            str << " [binary]";
-        str << '\n';
-    }
-    foreach (const CustomWizardField &f, fields) {
-        str << "  Field name: " << f.name;
-        if (f.mandatory)
-            str << '*';
-        str << " Description: '" << f.description << '\'';
-        if (!f.controlAttributes.isEmpty()) {
-            typedef CustomWizardField::ControlAttributeMap::const_iterator AttrMapConstIt;
-            str << " Control: ";
-            const AttrMapConstIt cend = f.controlAttributes.constEnd();
-            for (AttrMapConstIt it = f.controlAttributes.constBegin(); it != cend; ++it)
-                str << '\'' << it.key() << "' -> '" << it.value() << "' ";
-        }
-        str << '\n';
-    }
-    foreach (const CustomWizardValidationRule &r, rules)
-            str << "  Rule: '" << r.condition << "'->'" << r.message << '\n';
-    return rc;
+    return parse(configFile, configFileFullPath, errorMessage);
 }
 
 // ------------ CustomWizardContext
