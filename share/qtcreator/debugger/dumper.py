@@ -937,7 +937,9 @@ class DumperBase:
 
             data, size, alloc = self.byteArrayDataHelper(objectName)
 
-            if size == 0:
+            # Object names are short, and GDB can crash on to big chunks.
+            # Since this here is a convenience feature only, limit it.
+            if size <= 0 or size > 80:
                 return False
 
             raw = self.readMemory(data, 2 * size)
