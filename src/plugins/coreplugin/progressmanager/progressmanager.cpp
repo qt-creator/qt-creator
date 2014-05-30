@@ -264,6 +264,8 @@ using namespace Core::Internal;
     Sent when all tasks of a \a type have finished.
 */
 
+static ProgressManagerPrivate *m_instance = 0;
+
 ProgressManagerPrivate::ProgressManagerPrivate()
   : m_applicationTask(0),
     m_currentStatusDetailsWidget(0),
@@ -271,6 +273,7 @@ ProgressManagerPrivate::ProgressManagerPrivate()
     m_progressViewPinned(false),
     m_hovered(false)
 {
+    m_instance = this;
     m_progressView = new ProgressView;
     // withDelay, so the statusBarWidget has the chance to get the enter event
     connect(m_progressView, SIGNAL(hoveredChanged(bool)), this, SLOT(updateVisibilityWithDelay()));
@@ -284,6 +287,7 @@ ProgressManagerPrivate::~ProgressManagerPrivate()
     ExtensionSystem::PluginManager::removeObject(m_statusBarWidgetContainer);
     delete m_statusBarWidgetContainer;
     cleanup();
+    m_instance = 0;
 }
 
 void ProgressManagerPrivate::readSettings()
@@ -717,16 +721,12 @@ void ToggleButton::paintEvent(QPaintEvent *event)
 }
 
 
-static ProgressManager *m_instance = 0;
-
 ProgressManager::ProgressManager()
 {
-    m_instance = this;
 }
 
 ProgressManager::~ProgressManager()
 {
-    m_instance = 0;
 }
 
 QObject *ProgressManager::instance()

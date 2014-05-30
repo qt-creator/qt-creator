@@ -66,12 +66,6 @@ signals:
     void taskStarted(Core::Id type);
     void allTasksFinished(Core::Id type);
 
-protected:
-    virtual void doCancelTasks(Core::Id type) = 0;
-    virtual FutureProgress *doAddTask(const QFuture<void> &future, const QString &title,
-                                      Core::Id type, ProgressFlags flags = 0) = 0;
-    virtual void doSetApplicationLabel(const QString &text) = 0;
-
 private:
     ProgressManager();
     ~ProgressManager();
