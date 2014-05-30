@@ -63,7 +63,8 @@ public:
     bool mandatory;
 };
 
-struct CustomWizardFile {
+class CustomWizardFile {
+public:
     CustomWizardFile();
 
     QString source;
@@ -74,7 +75,8 @@ struct CustomWizardFile {
 };
 
 // Documentation inside.
-struct CustomWizardValidationRule {
+class CustomWizardValidationRule {
+public:
     // Validate a set of rules and return false + message on the first failing one.
     static bool validateRules(const QList<CustomWizardValidationRule> &rules,
                               const QMap<QString, QString> &replacementMap,
@@ -85,7 +87,8 @@ struct CustomWizardValidationRule {
 };
 
 // Documentation inside.
-struct GeneratorScriptArgument {
+class GeneratorScriptArgument {
+public:
     enum Flags {
         // Omit this arguments if all field placeholders expanded to empty strings.
         OmitEmpty = 0x1,

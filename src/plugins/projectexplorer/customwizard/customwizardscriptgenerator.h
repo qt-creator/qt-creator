@@ -38,7 +38,7 @@ namespace Core { class GeneratedFile; }
 namespace ProjectExplorer {
 namespace Internal {
 
-struct GeneratorScriptArgument;
+class GeneratorScriptArgument;
 
 // Parse the script arguments apart and expand the binary.
 QStringList fixGeneratorScript(const QString &configFile, QString attributeIn);
