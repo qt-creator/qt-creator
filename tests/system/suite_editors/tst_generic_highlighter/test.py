@@ -80,7 +80,8 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
                     mBox = waitForObject("{type='QMessageBox' unnamed='1' visible='1' "
                                          "text?='Conflicting pattern*'}", 2000)
                     conflictingSet = set(str(mBox.detailedText).replace("*", "").splitlines())
-                    sendEvent("QCloseEvent", mBox)
+                    clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' visible='1' "
+                                              "window={type='QMessageBox' unnamed='1' visible='1'}}"))
                     if toBeAddedSet.intersection(conflictingSet):
                         test.fatal("At least one of the patterns to be added is already in use "
                                    "for another MIME type.",
