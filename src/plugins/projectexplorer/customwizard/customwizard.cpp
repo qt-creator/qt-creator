@@ -116,24 +116,6 @@ void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
     d->m_parameters = p;
 }
 
-// Add a wizard page with an id, visibly warn if something goes wrong.
-static inline void addWizardPage(Utils::Wizard *w, QWizardPage *p, int id)
-{
-    int addedPageId = 0;
-    if (id == -1) {
-        addedPageId = w->addPage(p);
-    } else {
-        if (w->pageIds().contains(id)) {
-            qWarning("Page %d already present in custom wizard dialog, defaulting to add.", id);
-            addedPageId = w->addPage(p);
-        } else {
-            w->setPage(id, p);
-            addedPageId = id;
-        }
-    }
-    w->wizardProgress()->item(addedPageId)->setTitle(QCoreApplication::translate("ProjectExplorer::CustomWizard", "Details", "Default short title for custom wizard page to be shown in the progress pane of the wizard."));
-}
-
 Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDialogParameters &p) const
 {
     QTC_ASSERT(!d->m_parameters.isNull(), return 0);
@@ -142,7 +124,10 @@ Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDi
     d->m_context->reset();
     Internal::CustomWizardPage *customPage = new Internal::CustomWizardPage(d->m_context, parameters());
     customPage->setPath(p.defaultPath());
-    addWizardPage(wizard, customPage, parameters()->firstPageId);
+    if (parameters()->firstPageId >= 0)
+        wizard->setPage(parameters()->firstPageId, customPage);
+    else
+        wizard->addPage(customPage);
     foreach (QWizardPage *ep, p.extensionPages())
         wizard->addPage(ep);
     if (CustomWizardPrivate::verbose)
@@ -517,8 +502,10 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
         w->setWindowTitle(displayName());
 
     if (!pa->fields.isEmpty()) {
-        Internal::CustomWizardFieldPage *cp = new Internal::CustomWizardFieldPage(ctx, pa);
-        addWizardPage(w, cp, parameters()->firstPageId);
+        if (parameters()->firstPageId >= 0)
+            w->setPage(parameters()->firstPageId, new Internal::CustomWizardFieldPage(ctx, pa));
+        else
+            w->addPage(new Internal::CustomWizardFieldPage(ctx, pa));
     }
     foreach (QWizardPage *ep, extensionPages)
         w->addPage(ep);
