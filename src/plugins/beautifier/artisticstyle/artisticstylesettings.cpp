@@ -74,17 +74,18 @@ void ArtisticStyleSettings::updateVersion()
     if (m_versionFuture.isRunning())
         m_versionFuture.cancel();
 
-    m_versionFuture = QtConcurrent::run(this, &ArtisticStyleSettings::helperUpdateVersion);
+    m_versionFuture = QtConcurrent::run(&ArtisticStyleSettings::helperUpdateVersion, this);
     m_versionWatcher.setFuture(m_versionFuture);
 }
 
-int ArtisticStyleSettings::helperUpdateVersion() const
+void ArtisticStyleSettings::helperUpdateVersion(QFutureInterface<int> &future)
 {
     QProcess process;
     process.start(command(), QStringList() << QLatin1String("--version"));
     if (!process.waitForFinished()) {
         process.kill();
-        return 0;
+        future.reportResult(0);
+        return;
     }
 
     // The version in Artistic Style is printed like "Artistic Style Version 2.04"
@@ -93,9 +94,11 @@ int ArtisticStyleSettings::helperUpdateVersion() const
     if (rx.indexIn(version) != -1) {
         const int major = rx.cap(1).toInt() * 100;
         const int minor = rx.cap(2).toInt();
-        return major + minor;
+        future.reportResult(major + minor);
+        return;
     }
-    return 0;
+    future.reportResult(0);
+    return;
 }
 
 void ArtisticStyleSettings::helperSetVersion()
