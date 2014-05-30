@@ -31,6 +31,7 @@
 #include "customwizardparameters.h"
 #include "customwizardpage.h"
 #include "customwizardscriptgenerator.h"
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
@@ -54,6 +55,7 @@ static const char configFileC[] = "wizard.xml";
 
 namespace ProjectExplorer {
 
+namespace Internal {
 /*!
     \class ProjectExplorer::ICustomWizardFactory
     \brief The ICustomWizardFactory class implements a factory for creating
@@ -71,14 +73,18 @@ namespace ProjectExplorer {
 
 class CustomWizardPrivate {
 public:
-    CustomWizardPrivate() : m_context(new Internal::CustomWizardContext) {}
+    CustomWizardPrivate() : m_context(new CustomWizardContext) {}
 
-    QSharedPointer<Internal::CustomWizardParameters> m_parameters;
-    QSharedPointer<Internal::CustomWizardContext> m_context;
+    QSharedPointer<CustomWizardParameters> m_parameters;
+    QSharedPointer<CustomWizardContext> m_context;
     static int verbose;
 };
 
 int CustomWizardPrivate::verbose = 0;
+
+} // namespace Internal
+
+using namespace ProjectExplorer::Internal;
 
 /*!
     \class ProjectExplorer::CustomWizard
@@ -134,7 +140,7 @@ Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDi
     Core::BaseFileWizard *wizard = new Core::BaseFileWizard(parent);
 
     d->m_context->reset();
-    Internal::CustomWizardPage *customPage = new Internal::CustomWizardPage(d->m_context, parameters());
+    CustomWizardPage *customPage = new CustomWizardPage(d->m_context, parameters());
     customPage->setPath(p.defaultPath());
     if (parameters()->firstPageId >= 0)
         wizard->setPage(parameters()->firstPageId, customPage);
@@ -149,7 +155,7 @@ Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDi
 }
 
 // Read out files and store contents with field contents replaced.
-static inline bool createFile(Internal::CustomWizardFile cwFile,
+static inline bool createFile(CustomWizardFile cwFile,
                               const QString &sourceDirectory,
                               const QString &targetDirectory,
                               const CustomProjectWizard::FieldReplacementMap &fm,
@@ -159,7 +165,7 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
     const QChar slash =  QLatin1Char('/');
     const QString sourcePath = sourceDirectory + slash + cwFile.source;
     // Field replacement on target path
-    Internal::CustomWizardContext::replaceFields(fm, &cwFile.target);
+    CustomWizardContext::replaceFields(fm, &cwFile.target);
     const QString targetPath = targetDirectory + slash + cwFile.target;
     if (CustomWizardPrivate::verbose)
         qDebug() << "generating " << targetPath << sourcePath << fm;
@@ -180,7 +186,7 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
     } else {
         // Template file: Preprocess.
         const QString contentsIn = QString::fromLocal8Bit(reader.data());
-        generatedFile.setContents(Internal::CustomWizardContext::processFile(fm, contentsIn));
+        generatedFile.setContents(CustomWizardContext::processFile(fm, contentsIn));
     }
 
     Core::GeneratedFile::Attributes attributes = 0;
@@ -205,20 +211,20 @@ template <class WizardPage>
 
 // Determine where to run the generator script. The user may specify
 // an expression subject to field replacement, default is the target path.
-static inline QString scriptWorkingDirectory(const QSharedPointer<Internal::CustomWizardContext> &ctx,
-                                             const QSharedPointer<Internal::CustomWizardParameters> &p)
+static inline QString scriptWorkingDirectory(const QSharedPointer<CustomWizardContext> &ctx,
+                                             const QSharedPointer<CustomWizardParameters> &p)
 {
     if (p->filesGeneratorScriptWorkingDirectory.isEmpty())
         return ctx->targetPath;
     QString path = p->filesGeneratorScriptWorkingDirectory;
-    Internal::CustomWizardContext::replaceFields(ctx->replacements, &path);
+    CustomWizardContext::replaceFields(ctx->replacements, &path);
     return path;
 }
 
 Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *errorMessage) const
 {
     // Look for the Custom field page to find the path
-    const Internal::CustomWizardPage *cwp = findWizardPage<Internal::CustomWizardPage>(dialog);
+    const CustomWizardPage *cwp = findWizardPage<CustomWizardPage>(dialog);
     QTC_ASSERT(cwp, return Core::GeneratedFiles());
 
     CustomWizardContextPtr ctx = context();
@@ -259,7 +265,7 @@ bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorM
         }
     }
     // Run the custom script to actually generate the files.
-    if (!Internal::runCustomWizardGeneratorScript(scriptWorkingDir,
+    if (!runCustomWizardGeneratorScript(scriptWorkingDir,
                                                   d->m_parameters->filesGeneratorScript,
                                                   d->m_parameters->filesGeneratorScriptArguments,
                                                   ctx->replacements, errorMessage))
@@ -288,7 +294,7 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
 
     // If generator script is non-empty, do a dry run to get it's files.
     if (!d->m_parameters->filesGeneratorScript.isEmpty()) {
-        rc += Internal::dryRunCustomWizardGeneratorScript(scriptWorkingDirectory(ctx, d->m_parameters),
+        rc += dryRunCustomWizardGeneratorScript(scriptWorkingDirectory(ctx, d->m_parameters),
                                                           d->m_parameters->filesGeneratorScript,
                                                           d->m_parameters->filesGeneratorScriptArguments,
                                                           ctx->replacements,
@@ -297,7 +303,7 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
             return rc;
     }
     // Add the template files specified by the <file> elements.
-    foreach (const Internal::CustomWizardFile &file, d->m_parameters->files)
+    foreach (const CustomWizardFile &file, d->m_parameters->files)
         if (!createFile(file, d->m_parameters->directory, ctx->targetPath, context()->replacements, &rc, errorMessage))
             return Core::GeneratedFiles();
     return rc;
@@ -306,7 +312,7 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) co
 // Create a replacement map of static base fields + wizard dialog fields
 CustomWizard::FieldReplacementMap CustomWizard::replacementMap(const QWizard *w) const
 {
-    return Internal::CustomWizardFieldPage::replacementMap(w, context(), d->m_parameters->fields);
+    return CustomWizardFieldPage::replacementMap(w, context(), d->m_parameters->fields);
 }
 
 CustomWizard::CustomWizardParametersPtr CustomWizard::parameters() const
@@ -421,20 +427,20 @@ QList<CustomWizard*> CustomWizard::createWizards()
         if (CustomWizardPrivate::verbose)
             verboseLog += QString::fromLatin1("CustomWizard: Scanning %1\n").arg(dirFi.absoluteFilePath());
         if (dir.exists(configFile)) {
-            CustomWizardParametersPtr parameters(new Internal::CustomWizardParameters);
+            CustomWizardParametersPtr parameters(new CustomWizardParameters);
             switch (parameters->parse(dir.absoluteFilePath(configFile), &errorMessage)) {
-            case Internal::CustomWizardParameters::ParseOk:
+            case CustomWizardParameters::ParseOk:
                 parameters->directory = dir.absolutePath();
                 if (CustomWizard *w = createWizard(parameters))
                     rc.push_back(w);
                 else
                     qWarning("Custom wizard factory function failed for %s", qPrintable(parameters->id));
                 break;
-            case Internal::CustomWizardParameters::ParseDisabled:
+            case CustomWizardParameters::ParseDisabled:
                 if (CustomWizardPrivate::verbose)
                     qWarning("Ignoring disabled wizard %s...", qPrintable(dir.absolutePath()));
                 break;
-            case Internal::CustomWizardParameters::ParseFailed:
+            case CustomWizardParameters::ParseFailed:
                 qWarning("Failed to initialize custom project wizard in %s: %s",
                          qPrintable(dir.absolutePath()), qPrintable(errorMessage));
                 break;
@@ -505,9 +511,9 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
 
     if (!pa->fields.isEmpty()) {
         if (parameters()->firstPageId >= 0)
-            w->setPage(parameters()->firstPageId, new Internal::CustomWizardFieldPage(ctx, pa));
+            w->setPage(parameters()->firstPageId, new CustomWizardFieldPage(ctx, pa));
         else
-            w->addPage(new Internal::CustomWizardFieldPage(ctx, pa));
+            w->addPage(new CustomWizardFieldPage(ctx, pa));
     }
     foreach (QWizardPage *ep, extensionPages)
         w->addPage(ep);

@@ -46,12 +46,12 @@ namespace Utils { class Wizard; }
 
 namespace ProjectExplorer {
 class CustomWizard;
-class CustomWizardPrivate;
 class BaseProjectWizardDialog;
 
 namespace Internal {
-    class CustomWizardParameters;
-    class CustomWizardContext;
+class CustomWizardPrivate;
+class CustomWizardContext;
+class CustomWizardParameters;
 }
 
 // Documentation inside.
@@ -124,7 +124,7 @@ protected:
 private:
     void setParameters(const CustomWizardParametersPtr &p);
 
-    CustomWizardPrivate *d;
+    Internal::CustomWizardPrivate *d;
 };
 
 // Documentation inside.
