@@ -875,7 +875,8 @@ void HelpPlugin::activateContext()
     createRightPaneContextViewer();
 
     RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
-    if (placeHolder && m_helpViewerForSideBar->hasFocus()) {
+    if (placeHolder && qApp->focusWidget()
+            && qApp->focusWidget() == m_helpViewerForSideBar->focusWidget()) {
         switchToHelpMode();
         return;
     }
