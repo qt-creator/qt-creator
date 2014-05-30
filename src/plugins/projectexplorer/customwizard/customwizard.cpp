@@ -143,8 +143,6 @@ Core::BaseFileWizard *CustomWizard::create(QWidget *parent, const Core::WizardDi
     Internal::CustomWizardPage *customPage = new Internal::CustomWizardPage(d->m_context, parameters());
     customPage->setPath(p.defaultPath());
     addWizardPage(wizard, customPage, parameters()->firstPageId);
-    if (!parameters()->fieldPageTitle.isEmpty())
-        customPage->setTitle(parameters()->fieldPageTitle);
     foreach (QWizardPage *ep, p.extensionPages())
         wizard->addPage(ep);
     if (CustomWizardPrivate::verbose)
@@ -521,8 +519,6 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
     if (!pa->fields.isEmpty()) {
         Internal::CustomWizardFieldPage *cp = new Internal::CustomWizardFieldPage(ctx, pa);
         addWizardPage(w, cp, parameters()->firstPageId);
-        if (!pa->fieldPageTitle.isEmpty())
-            cp->setTitle(pa->fieldPageTitle);
     }
     foreach (QWizardPage *ep, extensionPages)
         w->addPage(ep);

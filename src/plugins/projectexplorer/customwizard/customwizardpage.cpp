@@ -193,6 +193,8 @@ CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardCo
     vLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     vLayout->addWidget(m_errorLabel);
     setLayout(vLayout);
+    if (!parameters->fieldPageTitle.isEmpty())
+        setTitle(parameters->fieldPageTitle);
 }
 
 CustomWizardFieldPage::~CustomWizardFieldPage()
