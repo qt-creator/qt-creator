@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+#include "../cplusplus_global.h"
+
 #include <QtTest>
 #include <QObject>
 #include <QList>
@@ -955,17 +957,9 @@ void tst_FindUsages::usingInDifferentNamespace_QTCREATORBUG7978()
 
 void tst_FindUsages::unicodeIdentifier()
 {
-    //
-    // The following "non-latin1" code points are used:
-    //
-    //   U+00FC  - 2 code units in UTF8, 1 in UTF16 - LATIN SMALL LETTER U WITH DIAERESIS
-    //   U+4E8C  - 3 code units in UTF8, 1 in UTF16 - CJK UNIFIED IDEOGRAPH-4E8C
-    //   U+10302 - 4 code units in UTF8, 2 in UTF16 - OLD ITALIC LETTER KE
-    //
-
     const QByteArray src = "\n"
-            "int var\u00FC\u4E8C\U00010302;\n"
-            "void f() { var\u00FC\u4E8C\U00010302 = 1; }\n";
+            "int var" TEST_UNICODE_IDENTIFIER ";\n"
+            "void f() { var" TEST_UNICODE_IDENTIFIER " = 1; }\n";
             ;
 
     Document::Ptr doc = Document::create("u");

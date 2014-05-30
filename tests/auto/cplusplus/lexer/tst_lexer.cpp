@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+#include "../cplusplus_global.h"
+
 #include <cplusplus/Token.h>
 #include <cplusplus/SimpleLexer.h>
 
@@ -68,14 +70,6 @@ private slots:
     void basic_data();
     void incremental();
     void incremental_data();
-
-    //
-    // The following "non-latin1" code points are used in the tests following this comment:
-    //
-    //   U+00FC  - 2 code units in UTF8, 1 in UTF16 - LATIN SMALL LETTER U WITH DIAERESIS
-    //   U+4E8C  - 3 code units in UTF8, 1 in UTF16 - CJK UNIFIED IDEOGRAPH-4E8C
-    //   U+10302 - 4 code units in UTF8, 2 in UTF16 - OLD ITALIC LETTER KE
-    //
 
     void bytes_and_utf16chars();
     void bytes_and_utf16chars_data();
@@ -291,43 +285,43 @@ void tst_SimpleLexer::bytes_and_utf16chars_data()
 
     // NON-LATIN1 identifier (code point with 2 UTF8 code units)
     QTest::newRow("non-latin1 identifier (2-byte code unit at start)")
-        << _("\u00FC_var") << createToken(T_IDENTIFIER, 6, 5);
+        << _(UC_U00FC "_var") << createToken(T_IDENTIFIER, 6, 5);
     QTest::newRow("non-latin1 identifier (2-byte code unit in center)")
-        << _("_v\u00FCr_") << createToken(T_IDENTIFIER, 6, 5);
+        << _("_v" UC_U00FC "r_") << createToken(T_IDENTIFIER, 6, 5);
     QTest::newRow("non-latin1 identifier (2-byte code unit at end)")
-        << _("var_\u00FC") << createToken(T_IDENTIFIER, 6, 5);
+        << _("var_" UC_U00FC) << createToken(T_IDENTIFIER, 6, 5);
     QTest::newRow("non-latin1 identifier (2-byte code unit only)")
-        << _("\u00FC") << createToken(T_IDENTIFIER, 2, 1);
+        << _(UC_U00FC) << createToken(T_IDENTIFIER, 2, 1);
 
     // NON-LATIN1 identifier (code point with 3 UTF8 code units)
     QTest::newRow("non-latin1 identifier (3-byte code unit at start)")
-        << _("\u4E8C_var") << createToken(T_IDENTIFIER, 7, 5);
+        << _(UC_U4E8C "_var") << createToken(T_IDENTIFIER, 7, 5);
     QTest::newRow("non-latin1 identifier (3-byte code unit in center)")
-        << _("_v\u4E8Cr_") << createToken(T_IDENTIFIER, 7, 5);
+        << _("_v" UC_U4E8C "r_") << createToken(T_IDENTIFIER, 7, 5);
     QTest::newRow("non-latin1 identifier (3-byte code unit at end)")
-        << _("var_\u4E8C") << createToken(T_IDENTIFIER, 7, 5);
+        << _("var_" UC_U4E8C) << createToken(T_IDENTIFIER, 7, 5);
     QTest::newRow("non-latin1 identifier (3-byte code unit only)")
-        << _("\u4E8C") << createToken(T_IDENTIFIER, 3, 1);
+        << _(UC_U4E8C) << createToken(T_IDENTIFIER, 3, 1);
 
     // NON-LATIN1 identifier (code point with 4 UTF8 code units)
     QTest::newRow("non-latin1 identifier (4-byte code unit at start)")
-        << _("\U00010302_var") << createToken(T_IDENTIFIER, 8, 6);
+        << _(UC_U10302 "_var") << createToken(T_IDENTIFIER, 8, 6);
     QTest::newRow("non-latin1 identifier (4-byte code unit in center)")
-        << _("_v\U00010302r_") << createToken(T_IDENTIFIER, 8, 6);
+        << _("_v" UC_U10302 "r_") << createToken(T_IDENTIFIER, 8, 6);
     QTest::newRow("non-latin1 identifier (4-byte code unit at end)")
-        << _("var_\U00010302") << createToken(T_IDENTIFIER, 8, 6);
+        << _("var_" UC_U10302) << createToken(T_IDENTIFIER, 8, 6);
     QTest::newRow("non-latin1 identifier (4-byte code unit only)")
-        << _("\U00010302") << createToken(T_IDENTIFIER, 4, 2);
+        << _(UC_U10302) << createToken(T_IDENTIFIER, 4, 2);
 
     // NON-LATIN1 identifier (code points with several multi-byte UTF8 code units)
     QTest::newRow("non-latin1 identifier (mixed multi-byte code units at start)")
-        << _("\u00FC\u4E8C\U00010302_var") << createToken(T_IDENTIFIER, 13, 8);
+        << _(UC_U00FC UC_U4E8C UC_U10302 "_var") << createToken(T_IDENTIFIER, 13, 8);
     QTest::newRow("non-latin1 identifier (mixed multi-byte code units in center)")
-        << _("_v\u00FC\u4E8C\U00010302r_") << createToken(T_IDENTIFIER, 13, 8);
+        << _("_v" UC_U00FC UC_U4E8C UC_U10302 "r_") << createToken(T_IDENTIFIER, 13, 8);
     QTest::newRow("non-latin1 identifier (mixed multi-byte code units at end)")
-        << _("var_\u00FC\u4E8C\U00010302") << createToken(T_IDENTIFIER, 13, 8);
+        << _("var_" UC_U00FC UC_U4E8C UC_U10302) << createToken(T_IDENTIFIER, 13, 8);
     QTest::newRow("non-latin1 identifier (mixed multi-byte code units only)")
-        << _("\u00FC\u4E8C\U00010302") << createToken(T_IDENTIFIER, 9, 4);
+        << _(UC_U00FC UC_U4E8C UC_U10302) << createToken(T_IDENTIFIER, 9, 4);
 
     // Comments
     QTest::newRow("ascii comment /* ... */")
@@ -335,19 +329,19 @@ void tst_SimpleLexer::bytes_and_utf16chars_data()
     QTest::newRow("latin1 comment //")
         << _("// hello world") << createToken(T_CPP_COMMENT, 14, 14);
     QTest::newRow("non-latin1 comment /* ... */ (1)")
-        << _("/* \u00FC\u4E8C\U00010302 */") << createToken(T_COMMENT, 15, 10);
+        << _("/* " UC_U00FC UC_U4E8C UC_U10302 " */") << createToken(T_COMMENT, 15, 10);
     QTest::newRow("non-latin1 comment /* ... */ (2)")
-        << _("/*\u00FC\u4E8C\U00010302*/") << createToken(T_COMMENT, 13, 8);
+        << _("/*" UC_U00FC UC_U4E8C UC_U10302 "*/") << createToken(T_COMMENT, 13, 8);
     QTest::newRow("non-latin1 comment // (1)")
-        << _("// \u00FC\u4E8C\U00010302") << createToken(T_CPP_COMMENT, 12, 7);
+        << _("// " UC_U00FC UC_U4E8C UC_U10302) << createToken(T_CPP_COMMENT, 12, 7);
     QTest::newRow("non-latin1 comment // (2)")
-        << _("//\u00FC\u4E8C\U00010302") << createToken(T_CPP_COMMENT, 11, 6);
+        << _("//" UC_U00FC UC_U4E8C UC_U10302) << createToken(T_CPP_COMMENT, 11, 6);
 
     // String Literals
     QTest::newRow("latin1 string literal")
         << _("\"hello\"") << createToken(T_STRING_LITERAL, 7, 7);
     QTest::newRow("non-latin1 string literal")
-        << _("\"\u00FC\u4E8C\U00010302\"") << createToken(T_STRING_LITERAL, 11, 6);
+        << _("\"" UC_U00FC UC_U4E8C UC_U10302 "\"") << createToken(T_STRING_LITERAL, 11, 6);
 }
 
 static Token createToken(unsigned kind, unsigned byteOffset, unsigned bytes,
@@ -392,21 +386,21 @@ void tst_SimpleLexer::offsets_data()
 
     // NON-LATIN1 identifier
     QTest::newRow("non-latin1 identifiers 1")
-        << _("var_\u00FC var_\u00FC") << (QList<Token>()
+        << _("var_" UC_U00FC " var_" UC_U00FC) << (QList<Token>()
             << createToken(T_IDENTIFIER, 0, 6, 0, 5)
             << createToken(T_IDENTIFIER, 7, 6, 6, 5)
         );
     QTest::newRow("non-latin1 identifiers 2")
-        << _("\u00FC\u4E8C\U00010302 \u00FC\u4E8C\U00010302") << (QList<Token>()
+        << _(UC_U00FC UC_U4E8C UC_U10302 " " UC_U00FC UC_U4E8C UC_U10302) << (QList<Token>()
             << createToken(T_IDENTIFIER, 0, 9, 0, 4)
             << createToken(T_IDENTIFIER, 10, 9, 5, 4)
         );
 
     QTest::newRow("non-latin1 identifiers 3")   // first code unit on line: <bytes> / <utf16char>
-        << _("class v\u00FC\u4E8C\U00010302\n"  //  0 / 0
+        << _("class v" UC_U00FC UC_U4E8C UC_U10302 "\n"  //  0 / 0
              "{\n"                              // 17 / 12
              "public:\n"                        // 19 / 14
-             "    v\u00FC\u4E8C\U00010302();\n" // 27 / 22
+             "    v" UC_U00FC UC_U4E8C UC_U10302 "();\n" // 27 / 22
              "};\n") << (QList<Token>()         // 45 / 35
             << createToken(T_CLASS, 0, 5, 0, 5)         // class
             << createToken(T_IDENTIFIER, 6, 10, 6, 5)   // non-latin1 id

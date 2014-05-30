@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+#include "../cplusplus_global.h"
+
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/pp.h>
 
@@ -1595,9 +1597,9 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(12, 23, 1, Highlighting::LocalUse));
 
     QTest::newRow("using_inside_different_namespace_QTCREATORBUG7978")
-        << _("class My\u00FC\u4E8C\U00010302Type { int \u00FC\u4E8C\U00010302Member; };\n"
-             "void f(My\u00FC\u4E8C\U00010302Type var\u00FC\u4E8C\U00010302)\n"
-             "{ var\u00FC\u4E8C\U00010302.\u00FC\u4E8C\U00010302Member = 0; }\n")
+        << _("class My" TEST_UNICODE_IDENTIFIER "Type { int " TEST_UNICODE_IDENTIFIER "Member; };\n"
+             "void f(My" TEST_UNICODE_IDENTIFIER "Type var" TEST_UNICODE_IDENTIFIER ")\n"
+             "{ var" TEST_UNICODE_IDENTIFIER "." TEST_UNICODE_IDENTIFIER "Member = 0; }\n")
         << (UseList()
             << Use(1, 7, 10, Highlighting::TypeUse)
             << Use(1, 24, 10, Highlighting::FieldUse)
@@ -1607,18 +1609,10 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(3, 3, 7, Highlighting::LocalUse)
             << Use(3, 11, 10, Highlighting::FieldUse));
 
-    //
-    // The following "non-latin1" code points are used in the next tests:
-    //
-    //   U+00FC  - 2 code units in UTF8, 1 in UTF16 - LATIN SMALL LETTER U WITH DIAERESIS
-    //   U+4E8C  - 3 code units in UTF8, 1 in UTF16 - CJK UNIFIED IDEOGRAPH-4E8C
-    //   U+10302 - 4 code units in UTF8, 2 in UTF16 - OLD ITALIC LETTER KE
-    //
-
     QTest::newRow("unicodeIdentifier1")
-        << _("class My\u00FC\u4E8C\U00010302Type { int \u00FC\u4E8C\U00010302Member; };\n"
-             "void f(My\u00FC\u4E8C\U00010302Type var\u00FC\u4E8C\U00010302)\n"
-             "{ var\u00FC\u4E8C\U00010302.\u00FC\u4E8C\U00010302Member = 0; }\n")
+        << _("class My" TEST_UNICODE_IDENTIFIER "Type { int " TEST_UNICODE_IDENTIFIER "Member; };\n"
+             "void f(My" TEST_UNICODE_IDENTIFIER "Type var" TEST_UNICODE_IDENTIFIER ")\n"
+             "{ var" TEST_UNICODE_IDENTIFIER "." TEST_UNICODE_IDENTIFIER "Member = 0; }\n")
         << (UseList()
             << Use(1, 7, 10, CppHighlightingSupport::TypeUse)
             << Use(1, 24, 10, CppHighlightingSupport::FieldUse)
@@ -1629,15 +1623,15 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(3, 11, 10, CppHighlightingSupport::FieldUse));
 
     QTest::newRow("unicodeIdentifier2")
-        << _("class v\u00FC\u4E8C\U00010302\n"
+        << _("class v" TEST_UNICODE_IDENTIFIER "\n"
              "{\n"
              "public:\n"
-             "    v\u00FC\u4E8C\U00010302();\n"
-             "    ~v\u00FC\u4E8C\U00010302();\n"
+             "    v" TEST_UNICODE_IDENTIFIER "();\n"
+             "    ~v" TEST_UNICODE_IDENTIFIER "();\n"
              "};\n"
              "\n"
-             "v\u00FC\u4E8C\U00010302::v\u00FC\u4E8C\U00010302() {}\n"
-             "v\u00FC\u4E8C\U00010302::~v\u00FC\u4E8C\U00010302() {}\n")
+             "v" TEST_UNICODE_IDENTIFIER "::v" TEST_UNICODE_IDENTIFIER "() {}\n"
+             "v" TEST_UNICODE_IDENTIFIER "::~v" TEST_UNICODE_IDENTIFIER "() {}\n")
         << (UseList()
             << Use(1, 7, 5, Highlighting::TypeUse)
             << Use(4, 5, 5, Highlighting::TypeUse)

@@ -44,6 +44,19 @@
 #include <QDir>
 #include <QtTest>
 
+//
+// The following "non-latin1" code points are used in the tests:
+//
+//   U+00FC  - 2 code units in UTF8, 1 in UTF16 - LATIN SMALL LETTER U WITH DIAERESIS
+//   U+4E8C  - 3 code units in UTF8, 1 in UTF16 - CJK UNIFIED IDEOGRAPH-4E8C
+//   U+10302 - 4 code units in UTF8, 2 in UTF16 - OLD ITALIC LETTER KE
+//
+
+#define UNICODE_U00FC "\xc3\xbc"
+#define UNICODE_U4E8C "\xe4\xba\x8c"
+#define UNICODE_U10302 "\xf0\x90\x8c\x82"
+#define TEST_UNICODE_IDENTIFIER UNICODE_U00FC UNICODE_U4E8C UNICODE_U10302
+
 /*!
     Tests for Follow Symbol Under Cursor and Switch Between Function Declaration/Definition
 
@@ -501,8 +514,8 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
     ) << _();
 
     QTest::newRow("unicodeIdentifier") << _(
-        "class Foo { void $\u00FC\u4E8C\U00010302(); };\n"
-        "void Foo::@\u00FC\u4E8C\U00010302() {}\n"
+        "class Foo { void $" TEST_UNICODE_IDENTIFIER "(); };\n"
+        "void Foo::@" TEST_UNICODE_IDENTIFIER "() {}\n"
     ) << _();
 }
 
@@ -921,8 +934,8 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
     );
 
     QTest::newRow("unicodeIdentifier") << _(
-        "class Foo { void $\u00FC\u4E8C\U00010302(); };\n"
-        "void Foo::@\u00FC\u4E8C\U00010302() {}\n"
+        "class Foo { void $" TEST_UNICODE_IDENTIFIER "(); };\n"
+        "void Foo::@" TEST_UNICODE_IDENTIFIER "() {}\n"
     );
 }
 

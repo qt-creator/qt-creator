@@ -27,6 +27,8 @@
 **
 ****************************************************************************/
 
+#include "../cplusplus_global.h"
+
 #include <cplusplus/PreprocessorClient.h>
 #include <cplusplus/PreprocessorEnvironment.h>
 #include <cplusplus/Token.h>
@@ -56,15 +58,6 @@ class tst_TranslationUnit: public QObject
 {
     Q_OBJECT
 private slots:
-
-    //
-    // The following "non-latin1" code points are used in the tests following this comment:
-    //
-    //   U+00FC  - 2 code units in UTF8, 1 in UTF16 - LATIN SMALL LETTER U WITH DIAERESIS
-    //   U+4E8C  - 3 code units in UTF8, 1 in UTF16 - CJK UNIFIED IDEOGRAPH-4E8C
-    //   U+10302 - 4 code units in UTF8, 2 in UTF16 - OLD ITALIC LETTER KE
-    //
-
     void unicodeIdentifier();
     void unicodeIdentifier_data();
 
@@ -211,37 +204,31 @@ void tst_TranslationUnit::unicodeIdentifier_data()
 
     QTest::newRow("latin1 identifier") << _("var");
 
-    QTest::newRow("non-latin1 identifier 1") << _("prefix\u00FC\u4E8C\U00010302");
-    QTest::newRow("non-latin1 identifier 2") << _("prefix\U00010302\u00FC\u4E8C");
-    QTest::newRow("non-latin1 identifier 3") << _("\U00010302\u00FC\u4E8C");
-    QTest::newRow("non-latin1 identifier 4") << _("\u4E8C\U00010302\u00FC");
-    QTest::newRow("non-latin1 identifier 5") << _("\u4E8C\U00010302\u00FCsuffix");
-    QTest::newRow("non-latin1 identifier 6") << _("\U00010302\u00FC\u4E8Csuffix");
+    QTest::newRow("non-latin1 identifier 1") << _("prefix" UC_U00FC UC_U4E8C UC_U10302);
+    QTest::newRow("non-latin1 identifier 2") << _("prefix" UC_U10302 UC_U00FC UC_U4E8C);
+    QTest::newRow("non-latin1 identifier 3") << _(UC_U10302 UC_U00FC UC_U4E8C);
+    QTest::newRow("non-latin1 identifier 4") << _(UC_U4E8C UC_U10302 UC_U00FC);
+    QTest::newRow("non-latin1 identifier 5") << _(UC_U4E8C UC_U10302 UC_U00FC "suffix");
+    QTest::newRow("non-latin1 identifier 6") << _(UC_U10302 UC_U00FC UC_U4E8C "suffix");
 
     // Some special cases (different code path inside lexer)
-    QTest::newRow("non-latin1 identifier 7") << _("LR\U00010302\u00FC\u4E8C");
-    QTest::newRow("non-latin1 identifier 8") << _("u8R\U00010302\u00FC\u4E8C");
-    QTest::newRow("non-latin1 identifier 9") << _("u8\U00010302\u00FC\u4E8C");
-    QTest::newRow("non-latin1 identifier 10") << _("u\U00010302\u00FC\u4E8C");
+    QTest::newRow("non-latin1 identifier 7") << _("LR" UC_U10302 UC_U00FC UC_U4E8C);
+    QTest::newRow("non-latin1 identifier 8") << _("u8R" UC_U10302 UC_U00FC UC_U4E8C);
+    QTest::newRow("non-latin1 identifier 9") << _("u8" UC_U10302 UC_U00FC UC_U4E8C);
+    QTest::newRow("non-latin1 identifier 10") << _("u" UC_U10302 UC_U00FC UC_U4E8C);
 }
 
-static QByteArray stripQuotesFromLiteral(const QByteArray literal)
+static QByteArray stripEncodingPrefixAndQuotationMarks(const QByteArray &literal)
 {
-    QByteArray result = literal;
+    const char quotationMark = '"';
+    const int firstQuotationMarkPosition = literal.indexOf(quotationMark);
+    const int lastQuotationMarkPosition = literal.lastIndexOf(quotationMark);
+    Q_ASSERT(firstQuotationMarkPosition != -1);
+    Q_ASSERT(lastQuotationMarkPosition == literal.size() - 1);
+    Q_ASSERT(firstQuotationMarkPosition < lastQuotationMarkPosition - 1);
 
-    // Strip front
-    while (!result.isEmpty() && result[0] != '"')
-        result = result.mid(1);
-    if (result.isEmpty())
-        return QByteArray();
-    result = result.mid(1);
-
-    // Strip end
-    while (result.size() >= 2
-           && (std::isspace(result[result.size() - 1]) || result[result.size()-1] == '"')) {
-        result.chop(1);
-    }
-
+    QByteArray result = literal.mid(firstQuotationMarkPosition + 1);
+    result.chop(1);
     return result;
 }
 
@@ -254,7 +241,7 @@ void tst_TranslationUnit::unicodeStringLiteral()
 
     const StringLiteral *actual = document->lastStringLiteral();
     QCOMPARE(QString::fromUtf8(actual->chars(), actual->size()),
-             QString::fromUtf8(stripQuotesFromLiteral(literalText)));
+             QString::fromUtf8(stripEncodingPrefixAndQuotationMarks(literalText)));
 }
 
 void tst_TranslationUnit::unicodeStringLiteral_data()
@@ -265,17 +252,17 @@ void tst_TranslationUnit::unicodeStringLiteral_data()
 
     QTest::newRow("latin1 literal") << _("\"var\"");
 
-    QTest::newRow("non-latin1 literal 1") << _("\"prefix\u00FC\u4E8C\U00010302\"");
-    QTest::newRow("non-latin1 literal 2") << _("\"prefix\U00010302\u00FC\u4E8C\"");
-    QTest::newRow("non-latin1 literal 3") << _("\"\U00010302\u00FC\u4E8C\"");
-    QTest::newRow("non-latin1 literal 4") << _("\"\u4E8C\U00010302\u00FC\"");
-    QTest::newRow("non-latin1 literal 5") << _("\"\u4E8C\U00010302\u00FCsuffix\"");
-    QTest::newRow("non-latin1 literal 6") << _("\"\U00010302\u00FC\u4E8Csuffix\"");
+    QTest::newRow("non-latin1 literal 1") << _("\"prefix" UC_U00FC UC_U4E8C UC_U10302 "\"");
+    QTest::newRow("non-latin1 literal 2") << _("\"prefix" UC_U10302 UC_U00FC UC_U4E8C"\"");
+    QTest::newRow("non-latin1 literal 3") << _("\"" UC_U10302 UC_U00FC UC_U4E8C "\"");
+    QTest::newRow("non-latin1 literal 4") << _("\"" UC_U4E8C UC_U10302 UC_U00FC "\"");
+    QTest::newRow("non-latin1 literal 5") << _("\"" UC_U4E8C UC_U10302 UC_U00FC "suffix\"");
+    QTest::newRow("non-latin1 literal 6") << _("\"" UC_U10302 UC_U00FC UC_U4E8C "suffix\"");
 
-    QTest::newRow("non-latin1 literal 7") << _("L\"\U00010302\u00FC\u4E8C\"");
-    QTest::newRow("non-latin1 literal 8") << _("u8\"\U00010302\u00FC\u4E8C\"");
-    QTest::newRow("non-latin1 literal 9") << _("u\"\U00010302\u00FC\u4E8C\"");
-    QTest::newRow("non-latin1 literal 10") << _("U\"\U00010302\u00FC\u4E8C\"");
+    QTest::newRow("non-latin1 literal 7") << _("L\"U10302U00FCU4E8C\"");
+    QTest::newRow("non-latin1 literal 8") << _("u8\"U10302U00FCU4E8C\"");
+    QTest::newRow("non-latin1 literal 9") << _("u\"U10302U00FCU4E8C\"");
+    QTest::newRow("non-latin1 literal 10") << _("U\"U10302U00FCU4E8C\"");
 }
 
 void tst_TranslationUnit::locationOfUtf16CharOffset()
@@ -340,7 +327,7 @@ void tst_TranslationUnit::locationOfUtf16CharOffset_data()
         << LineColumnList();
 
     QTest::newRow("non-latin1 identifier")
-        << _("int \u00FC;")
+        << _("int " UC_U00FC ";")
         << (LineColumnList()
             << LineColumn(0, 0)
             << LineColumn(1, 1) // int
@@ -351,8 +338,8 @@ void tst_TranslationUnit::locationOfUtf16CharOffset_data()
         << LineColumnList();
 
     QTest::newRow("non-latin1 identifiers 1")
-        << _("int \u00FC;\n"
-             "int \u00FC;")
+        << _("int " UC_U00FC ";\n"
+             "int " UC_U00FC ";")
         << (LineColumnList()
             << LineColumn(0, 0)
             << LineColumn(1, 1) // int 1
@@ -366,9 +353,9 @@ void tst_TranslationUnit::locationOfUtf16CharOffset_data()
         << LineColumnList();
 
     QTest::newRow("non-latin1 identifiers 2")
-        << _("int \u00FC\u4E8C\U00010302;\n"
+        << _("int " UC_U00FC UC_U4E8C UC_U10302 ";\n"
              "int v;\n"
-             "int \U00010302\u4E8C;")
+             "int " UC_U10302 UC_U4E8C ";")
         << (LineColumnList()
             << LineColumn(0, 0)
             << LineColumn(1, 1) // int 1
@@ -402,7 +389,7 @@ void tst_TranslationUnit::locationOfUtf16CharOffset_data()
         << LineColumnList();
 
     QTest::newRow("non-latin1 string literal")
-        << _("char t[] = \"i\u00FC\u4E8C\U00010302\";")
+        << _("char t[] = \"i" UC_U00FC UC_U4E8C UC_U10302 "\";")
         << (LineColumnList()
             << LineColumn(0, 0)
             << LineColumn(1, 1)  // char
@@ -417,7 +404,7 @@ void tst_TranslationUnit::locationOfUtf16CharOffset_data()
         << LineColumnList();
 
     QTest::newRow("non-latin1 string literal multiple lines")
-        << _("char t[] = \"i\u00FC\u4E8C\U00010302 \\\n"
+        << _("char t[] = \"i" UC_U00FC UC_U4E8C UC_U10302 " \\\n"
              "\";")
         << (LineColumnList()
             << LineColumn(0, 0)
@@ -476,7 +463,7 @@ void tst_TranslationUnit::locationOfUtf16CharOffset_data()
            );
 
     QTest::newRow("non-latin1 c++ comment line")
-        << _("// comment line \u00FC\u4E8C\U00010302\n"
+        << _("// comment line " UC_U00FC UC_U4E8C UC_U10302 "\n"
              "int i;")
         << (LineColumnList()
             << LineColumn(0, 0)
