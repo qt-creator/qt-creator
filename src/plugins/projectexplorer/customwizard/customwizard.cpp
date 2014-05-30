@@ -321,8 +321,8 @@ CustomWizard::CustomWizardContextPtr CustomWizard::context() const
 
 CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p)
 {
-    ICustomWizardFactory *factory = ExtensionSystem::PluginManager::getObject<ICustomWizardFactory>(
-        [&p](ICustomWizardFactory *factory) {
+    ICustomWizardMetaFactory *factory = ExtensionSystem::PluginManager::getObject<ICustomWizardMetaFactory>(
+        [&p](ICustomWizardMetaFactory *factory) {
             return p->klass.isEmpty() ? (p->kind == factory->kind()) : (p->klass == factory->klass());
         });
 

@@ -398,9 +398,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(sessionManager, SIGNAL(sessionLoaded(QString)),
             this, SLOT(updateWelcomePage()));
 
-    addAutoReleasedObject(new CustomWizardFactory<CustomProjectWizard>(Core::IWizardFactory::ProjectWizard));
-    addAutoReleasedObject(new CustomWizardFactory<CustomWizard>(Core::IWizardFactory::FileWizard));
-    addAutoReleasedObject(new CustomWizardFactory<CustomWizard>(Core::IWizardFactory::ClassWizard));
+    addAutoReleasedObject(new CustomWizardMetaFactory<CustomProjectWizard>(Core::IWizardFactory::ProjectWizard));
+    addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(Core::IWizardFactory::FileWizard));
+    addAutoReleasedObject(new CustomWizardMetaFactory<CustomWizard>(Core::IWizardFactory::ClassWizard));
 
     d->m_proWindow = new ProjectWindow;
     addAutoReleasedObject(d->m_proWindow);

@@ -55,12 +55,12 @@ namespace Internal {
 }
 
 // Documentation inside.
-class PROJECTEXPLORER_EXPORT ICustomWizardFactory : public QObject
+class PROJECTEXPLORER_EXPORT ICustomWizardMetaFactory : public QObject
 {
     Q_OBJECT
 
 public:
-    ICustomWizardFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) :
+    ICustomWizardMetaFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) :
         m_klass(klass), m_kind(kind)
     { }
 
@@ -74,11 +74,11 @@ private:
 };
 
 // Convenience template to create wizard factory classes.
-template <class Wizard> class CustomWizardFactory : public ICustomWizardFactory
+template <class Wizard> class CustomWizardMetaFactory : public ICustomWizardMetaFactory
 {
 public:
-    CustomWizardFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) : ICustomWizardFactory(klass, kind) { }
-    CustomWizardFactory(Core::IWizardFactory::WizardKind kind) : ICustomWizardFactory(QString(), kind) { }
+    CustomWizardMetaFactory(const QString &klass, Core::IWizardFactory::WizardKind kind) : ICustomWizardMetaFactory(klass, kind) { }
+    CustomWizardMetaFactory(Core::IWizardFactory::WizardKind kind) : ICustomWizardMetaFactory(QString(), kind) { }
     CustomWizard *create() const { return new Wizard; }
 };
 
@@ -89,7 +89,6 @@ class PROJECTEXPLORER_EXPORT CustomWizard : public Core::BaseFileWizardFactory
 
 public:
     typedef QMap<QString, QString> FieldReplacementMap;
-    typedef QSharedPointer<ICustomWizardFactory> ICustomWizardFactoryPtr;
 
     CustomWizard();
     ~CustomWizard();
