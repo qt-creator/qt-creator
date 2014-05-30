@@ -2517,8 +2517,17 @@ bool BaseTextEditorWidget::viewportEvent(QEvent *event)
             return true;
         }
 
-        processTooltipRequest(cursorForPosition(pos));
-        return true;
+        QTextCursor tc = cursorForPosition(pos);
+        QTextBlock block = tc.block();
+        QTextLine line = block.layout()->lineForTextPosition(tc.positionInBlock());
+        QTC_CHECK(line.isValid());
+        // Only handle tool tip for text cursor if mouse is within the block for the text cursor,
+        // and not if the mouse is e.g. in the empty space behind a short line.
+        if (line.isValid()
+                && pos.x() <= blockBoundingGeometry(block).left() + line.naturalTextRect().right()) {
+            processTooltipRequest(tc);
+            return true;
+        }
     }
     return QPlainTextEdit::viewportEvent(event);
 }
