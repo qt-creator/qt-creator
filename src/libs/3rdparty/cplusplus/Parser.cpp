@@ -1314,31 +1314,47 @@ bool Parser::parseTemplateArgument(ExpressionAST *&node)
     return parsed;
 }
 
+/** Parses a sequence of
+ *
+ * storage-class-specifier (unless noStorageSpecifier is true)
+ * trailing-type-specifier, which contains
+ *     cv-qualifier
+ *     simple-type-specifier
+ *     typename-specifier
+ *     elaborated-type-specifier
+ *
+ * If onlySimpleTypeSpecifiers is true, it only eats simple-type-specifiers
+ * and cv-qualifiers.
+ */
 bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
-                                   bool onlyTypeSpecifiers,
-                                   bool simplified)
+                                   bool noStorageSpecifiers,
+                                   bool onlySimpleTypeSpecifiers)
 {
     DEBUG_THIS_RULE();
     bool has_type_specifier = false;
     NameAST *named_type_specifier = 0;
     SpecifierListAST **decl_specifier_seq_ptr = &decl_specifier_seq;
     for (;;) {
-        if (lookAtCVQualifier()) {
+        if (! noStorageSpecifiers && ! onlySimpleTypeSpecifiers && lookAtStorageClassSpecifier()) {
+            // storage-class-specifier
             SimpleSpecifierAST *spec = new (_pool) SimpleSpecifierAST;
             spec->specifier_token = consumeToken();
             *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(spec);
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
-        } else if (! onlyTypeSpecifiers && lookAtStorageClassSpecifier()) {
+        } else if (lookAtCVQualifier()) {
+            // cv-qualifier
             SimpleSpecifierAST *spec = new (_pool) SimpleSpecifierAST;
             spec->specifier_token = consumeToken();
             *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(spec);
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
         } else if (! named_type_specifier && lookAtBuiltinTypeSpecifier()) {
+            // parts of simple-type-specifier
             parseBuiltinTypeSpecifier(*decl_specifier_seq_ptr);
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
             has_type_specifier = true;
         } else if (! has_type_specifier && (LA() == T_COLON_COLON ||
                                             LA() == T_IDENTIFIER)) {
+            // parts of simple-type-specifier
             if (! parseName(named_type_specifier))
                 return false;
             NamedTypeSpecifierAST *spec = new (_pool) NamedTypeSpecifierAST;
@@ -1346,9 +1362,9 @@ bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
             *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(spec);
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
             has_type_specifier = true;
-        } else if (! simplified && ! has_type_specifier && (LA() == T_TYPENAME ||
-                                                            LA() == T_ENUM     ||
-                                                            lookAtClassKey())) {
+        } else if (! onlySimpleTypeSpecifiers && ! has_type_specifier &&
+                   (LA() == T_TYPENAME || LA() == T_ENUM || lookAtClassKey())) {
+            // typename-specifier, elaborated-type-specifier
             unsigned startOfElaboratedTypeSpecifier = cursor();
             if (! parseElaboratedTypeSpecifier(*decl_specifier_seq_ptr)) {
                 error(startOfElaboratedTypeSpecifier,
@@ -6470,12 +6486,6 @@ bool Parser::parseTrailingReturnType(TrailingReturnTypeAST *&node)
     parseAbstractDeclarator(ast->declarator, ast->type_specifier_list);
     node = ast;
     return true;
-}
-
-bool Parser::parseTrailingTypeSpecifierSeq(SpecifierListAST *&node)
-{
-    DEBUG_THIS_RULE();
-    return parseSimpleTypeSpecifier(node);
 }
 
 void Parser::rewind(unsigned cursor)

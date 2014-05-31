@@ -167,15 +167,18 @@ public:
     bool parseAttributeSpecifier(SpecifierListAST *&node);
     bool parseAttributeList(AttributeListAST *&node);
 
+    bool parseDeclSpecifierSeq(SpecifierListAST *&node,
+                               bool noStorageSpecifiers = false,
+                               bool onlySimpleTypeSpecifiers = false);
+
+    bool parseTrailingTypeSpecifierSeq(SpecifierListAST *&node)
+    { return parseDeclSpecifierSeq(node, true); }
+    /// This actually parses a trailing-type-specifier sequence
+    bool parseTypeSpecifier(SpecifierListAST *&node)
+    { return parseTrailingTypeSpecifierSeq(node); }
     bool parseSimpleTypeSpecifier(SpecifierListAST *&node)
     { return parseDeclSpecifierSeq(node, true, true); }
 
-    bool parseTypeSpecifier(SpecifierListAST *&node)
-    { return parseDeclSpecifierSeq(node, true); }
-
-    bool parseDeclSpecifierSeq(SpecifierListAST *&node,
-                               bool onlyTypeSpecifiers = false,
-                               bool simplified = false);
     bool parseUnaryExpression(ExpressionAST *&node);
     bool parseUnqualifiedName(NameAST *&node, bool acceptTemplateId = true);
     bool parseUsing(DeclarationAST *&node);
@@ -202,7 +205,6 @@ public:
     bool parseCapture(CaptureAST *&node);
     bool parseCaptureList(CaptureListAST *&node);
     bool parseTrailingReturnType(TrailingReturnTypeAST *&node);
-    bool parseTrailingTypeSpecifierSeq(SpecifierListAST *&node);
 
     // ObjC++
     bool parseObjCExpression(ExpressionAST *&node);

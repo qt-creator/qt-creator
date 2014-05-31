@@ -152,6 +152,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("packExpansion.1") << "packExpansion.1.cpp" << "";
     QTest::newRow("declType.1") << "declType.1.cpp" << "";
     QTest::newRow("threadLocal.1") << "threadLocal.1.cpp" << "";
+    QTest::newRow("trailingtypespec.1") << "trailingtypespec.1.cpp" << "";
 }
 
 void tst_cxx11::parse()
