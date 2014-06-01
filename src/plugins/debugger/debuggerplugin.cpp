@@ -509,7 +509,7 @@ public:
         setObjectName(QLatin1String("DebugMode"));
         setContext(Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE));
         setDisplayName(DebuggerPlugin::tr("Debug"));
-        setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Debug.png")));
+        setIcon(QIcon(QLatin1String(":/debugger/images/mode_debug.png")));
         setPriority(85);
         setId(MODE_DEBUG);
     }

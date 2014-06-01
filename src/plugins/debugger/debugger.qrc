@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/debugger">
+        <file>images/category_debug.png</file>
         <file>images/debugger_breakpoints.png</file>
         <file>images/debugger_continue.png</file>
         <file>images/debugger_continue_small.png</file>
@@ -28,6 +29,8 @@
         <file>images/breakpoint_pending_24.png</file>
         <file>images/location_16.png</file>
         <file>images/location_24.png</file>
+        <file>images/mode_debug.png</file>
+        <file>images/mode_debug@2x.png</file>
         <file>images/pin.xpm</file>
         <file>images/qml/zoom.png</file>
         <file>images/qml/select.png</file>
