@@ -212,14 +212,16 @@ void DescribeValueVisitor::visit(const ObjectValue *value)
     m_visited.insert(value);
     if (const ASTObjectValue *v = value->asAstObjectValue()) {
         basicDump("ASTObjectValue", value, printDetail);
-        if (v->typeName()) {
+        if (printDetail) {
+            if (v->typeName()) {
+                dumpNewline();
+                dump("typeName:");
+                dump(v->typeName()->name.toString());
+            }
             dumpNewline();
-            dump("typeName:");
-            dump(v->typeName()->name.toString());
+            dump("defaultPropertyName:");
+            dump(v->defaultPropertyName());
         }
-        dumpNewline();
-        dump("defaultPropertyName:");
-        dump(v->defaultPropertyName());
     } else if (const FunctionValue *f = value->asFunctionValue()) {
         if (const ASTFunctionValue *v = f->asAstFunctionValue()) {
             basicDump("ASTFunctionValue", v, printDetail);
