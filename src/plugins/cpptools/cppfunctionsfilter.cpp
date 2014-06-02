@@ -29,6 +29,7 @@
 
 #include "cppfunctionsfilter.h"
 
+using namespace CppTools;
 using namespace CppTools::Internal;
 
 CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)

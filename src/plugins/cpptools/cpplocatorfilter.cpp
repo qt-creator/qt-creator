@@ -32,6 +32,7 @@
 
 #include <QStringMatcher>
 
+using namespace CppTools;
 using namespace CppTools::Internal;
 
 CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
