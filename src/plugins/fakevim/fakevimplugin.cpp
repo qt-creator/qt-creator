@@ -114,7 +114,7 @@ namespace Internal {
 
 const char INSTALL_HANDLER[]                = "TextEditor.FakeVimHandler";
 const char SETTINGS_CATEGORY[]              = "D.FakeVim";
-const char SETTINGS_CATEGORY_FAKEVIM_ICON[] = ":/core/images/category_fakevim.png";
+const char SETTINGS_CATEGORY_FAKEVIM_ICON[] = ":/fakevim/images/category_fakevim.png";
 const char SETTINGS_ID[]                    = "A.General";
 const char SETTINGS_EX_CMDS_ID[]            = "B.ExCommands";
 const char SETTINGS_USER_CMDS_ID[]          = "C.UserCommands";

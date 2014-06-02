@@ -13,6 +13,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     files: [
+        "fakevim.qrc",
         "fakevimactions.cpp",
         "fakevimactions.h",
         "fakevimhandler.cpp",
