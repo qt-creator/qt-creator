@@ -36,7 +36,7 @@
 
 namespace Utils {
 
-struct FileWizardPagePrivate;
+class FileWizardPagePrivate;
 
 class QTCREATOR_UTILS_EXPORT FileWizardPage : public QWizardPage
 {

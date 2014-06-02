@@ -45,12 +45,12 @@
 
 namespace Utils {
 
-struct FileWizardPagePrivate
+class FileWizardPagePrivate
 {
+public:
     FileWizardPagePrivate();
     Ui::WizardPage m_ui;
     bool m_complete;
-    bool m_forceFirstCapitalLetter;
 };
 
 FileWizardPagePrivate::FileWizardPagePrivate() :
