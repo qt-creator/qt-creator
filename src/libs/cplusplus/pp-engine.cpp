@@ -1788,6 +1788,7 @@ QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
 {
     unsigned line = tk->lineno;
     unsigned bytesBegin = tk->bytesBegin();
+    unsigned utf16charsBegin = tk->utf16charsBegin();
     PPToken lastTk;
     while (isContinuationToken(*tk)) {
         lastTk = *tk;
@@ -1801,7 +1802,7 @@ QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
     QByteArray result;
     result.reserve(256);
     preprocess(m_state.m_currentFileName, condition, &result, 0, true, false, true,
-               bytesBegin, tk->utf16charsBegin(), line);
+               bytesBegin, utf16charsBegin, line);
     result.squeeze();
 //    qDebug("*** Condition after: [%s]", result.constData());
 

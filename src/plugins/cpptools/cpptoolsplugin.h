@@ -128,6 +128,7 @@ private slots:
     void test_cpppreprocessor_includes_resolvedUnresolved();
     void test_cpppreprocessor_includes_cyclic();
     void test_cpppreprocessor_includes_allDiagnostics();
+    void test_cpppreprocessor_macroUses();
 
     void test_functionutils_virtualFunctions();
     void test_functionutils_virtualFunctions_data();

@@ -180,3 +180,25 @@ void CppToolsPlugin::test_cpppreprocessor_includes_allDiagnostics()
     QCOMPARE(document->unresolvedIncludes().size(), 3);
     QCOMPARE(document->diagnosticMessages().size(), 3);
 }
+
+void CppToolsPlugin::test_cpppreprocessor_macroUses()
+{
+    QByteArray source =
+        "#define SOMEDEFINE 1\n"
+        "#if SOMEDEFINE == 1\n"
+        "    int someNumber;\n"
+        "#endif\n"
+        ;
+
+    SourcePreprocessor processor;
+    Document::Ptr document = processor.run(source);
+    QVERIFY(document);
+    const QList<Document::MacroUse> macroUses = document->macroUses();
+    QCOMPARE(macroUses.size(), 1);
+    const Document::MacroUse macroUse = macroUses.at(0);
+    QCOMPARE(macroUse.bytesBegin(), 25U);
+    QCOMPARE(macroUse.bytesEnd(), 35U);
+    QCOMPARE(macroUse.utf16charsBegin(), 25U);
+    QCOMPARE(macroUse.utf16charsEnd(), 35U);
+    QCOMPARE(macroUse.beginLine(), 2U);
+}
