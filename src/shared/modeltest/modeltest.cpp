@@ -119,6 +119,9 @@ void ModelTest::nonDestructiveBasicTest()
     QVariant cache;
     model->match(QModelIndex(), -1, cache);
     model->mimeTypes();
+    QModelIndex m1 = model->parent(QModelIndex());
+    QModelIndex m2 = QModelIndex();
+    Q_ASSERT(m1 == m2);
     Q_ASSERT(model->parent(QModelIndex()) == QModelIndex());
     Q_ASSERT(model->rowCount() >= 0);
     QVariant variant;

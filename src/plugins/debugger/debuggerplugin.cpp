@@ -2758,13 +2758,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_sourceFilesWindow->setObjectName(QLatin1String(DOCKWIDGET_SOURCE_FILES));
     m_threadsWindow = new ThreadsWindow;
     m_threadsWindow->setObjectName(QLatin1String(DOCKWIDGET_THREADS));
-    m_returnWindow = new WatchWindow(WatchTreeView::ReturnType);
+    m_returnWindow = new WatchWindow(ReturnType);
     m_returnWindow->setObjectName(QLatin1String("CppDebugReturn"));
-    m_localsWindow = new WatchWindow(WatchTreeView::LocalsType);
+    m_localsWindow = new WatchWindow(LocalsType);
     m_localsWindow->setObjectName(QLatin1String("CppDebugLocals"));
-    m_watchersWindow = new WatchWindow(WatchTreeView::WatchersType);
+    m_watchersWindow = new WatchWindow(WatchersType);
     m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
-    m_inspectorWindow = new WatchWindow(WatchTreeView::InspectType);
+    m_inspectorWindow = new WatchWindow(InspectType);
     m_inspectorWindow->setObjectName(QLatin1String("Inspector"));
 
     // Snapshot

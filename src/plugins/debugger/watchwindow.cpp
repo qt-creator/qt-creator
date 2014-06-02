@@ -59,6 +59,12 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
+//#define USE_WATCH_MODEL_TEST 1
+
+#if USE_WATCH_MODEL_TEST
+#include <modeltest.h>
+#endif
+
 Q_DECLARE_METATYPE(QModelIndex)
 
 /////////////////////////////////////////////////////////////////////
@@ -464,7 +470,7 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
 //
 /////////////////////////////////////////////////////////////////////
 
-WatchTreeView::WatchTreeView(Type type, QWidget *parent)
+WatchTreeView::WatchTreeView(WatchType type, QWidget *parent)
   : BaseTreeView(parent),
     m_type(type)
 {
@@ -999,11 +1005,14 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
             SLOT(setCurrentIndex(QModelIndex)));
     connect(model, SIGNAL(itemIsExpanded(QModelIndex)),
             SLOT(handleItemIsExpanded(QModelIndex)));
+#if USE_WATCH_MODEL_TEST
+    (void) new ModelTest(&m_filter, this);
+#endif
 }
 
 void WatchTreeView::rowActivated(const QModelIndex &index)
 {
-    currentEngine()->watchDataSelected(currentEngine()->watchHandler()->watchData(index)->iname);
+    currentEngine()->watchDataSelected(index.data(LocalsINameRole).toByteArray());
 }
 
 void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)

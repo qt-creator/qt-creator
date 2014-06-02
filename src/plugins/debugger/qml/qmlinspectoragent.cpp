@@ -652,7 +652,7 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
         QByteArray parentIname = m_debugIdToIname.value(parentId);
         if (parentId != -1 && !handler->isExpandedIName(parentIname)) {
             m_objectStack.push(object);
-            handler->model()->fetchMore(handler->watchDataIndex(parentIname));
+            handler->fetchMore(parentIname);
             return; // recursive
         }
         insertObjectInTree(object);
@@ -669,7 +669,7 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
         if (object.children().contains(top)) {
             QByteArray objectIname = m_debugIdToIname.value(objectDebugId);
             if (!handler->isExpandedIName(objectIname)) {
-                handler->model()->fetchMore(handler->watchDataIndex(objectIname));
+                handler->fetchMore(objectIname);
             } else {
                 verifyAndInsertObjectInTree(m_objectStack.pop());
                 return; // recursive

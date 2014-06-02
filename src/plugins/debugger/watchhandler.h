@@ -143,7 +143,7 @@ public:
     void showEditValue(const WatchData &data);
 
     const WatchData *watchData(const QModelIndex &) const;
-    const QModelIndex watchDataIndex(const QByteArray &iname) const;
+    void fetchMore(const QByteArray &iname) const;
     const WatchData *findData(const QByteArray &iname) const;
     const WatchData *findCppLocalVariable(const QString &name) const;
     bool hasItem(const QByteArray &iname) const;

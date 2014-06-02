@@ -132,7 +132,7 @@ private:
     friend void itemDestructor(WatchModel *model, WatchItem *item);
 
     WatchItem() { parent = 0; }
-    ~WatchItem() {}
+    ~WatchItem() { parent = 0; }
     WatchItem(const WatchItem &); // Not implemented.
 };
 
@@ -331,6 +331,7 @@ private:
     void checkItem(const WatchItem *item) const;
     void checkTree(WatchItem *item, QSet<QByteArray> *inames);
     #endif
+    void checkIndex(const QModelIndex &index) const;
 };
 
 WatchModel::WatchModel(WatchHandler *handler)
@@ -454,6 +455,7 @@ void WatchModel::destroyItem(WatchItem *item)
     WatchItem *parent = item->parent;
     QTC_ASSERT(parent, return);
     QModelIndex parentIndex = watchIndex(parent);
+    checkIndex(parentIndex);
     const int i = parent->children.indexOf(item);
     //MODEL_DEBUG("NEED TO REMOVE: " << item->iname << "AT" << n);
     beginRemoveRows(parentIndex, i, i);
@@ -479,6 +481,7 @@ void WatchModel::destroyChildren(WatchItem *item)
     // Deregister from model and parent.
     // It's sufficient to do this non-recursively.
     QModelIndex idx = watchIndex(item);
+    checkIndex(idx);
     beginRemoveRows(idx, 0, items.size() - 1);
     item->children.clear();
     endRemoveRows();
@@ -491,6 +494,11 @@ void WatchModel::destroyChildren(WatchItem *item)
 WatchItem *WatchModel::findItem(const QByteArray &iname) const
 {
     return m_cache.value(iname, 0);
+}
+
+void WatchModel::checkIndex(const QModelIndex &index) const
+{
+    QTC_CHECK(index.isValid() ? index.model() == this : index.model() == 0);
 }
 
 WatchItem *WatchModel::createItem(const WatchData &data)
@@ -837,6 +845,7 @@ bool WatchModel::canFetchMore(const QModelIndex &idx) const
 
 void WatchModel::fetchMore(const QModelIndex &idx)
 {
+    checkIndex(idx);
     if (!idx.isValid())
         return; // Triggered by ModelTester.
     WatchItem *item = watchItem(idx);
@@ -855,6 +864,7 @@ void WatchModel::fetchMore(const QModelIndex &idx)
 
 QModelIndex WatchModel::index(int row, int column, const QModelIndex &parent) const
 {
+    checkIndex(parent);
     if (!hasIndex(row, column, parent))
         return QModelIndex();
 
@@ -867,6 +877,7 @@ QModelIndex WatchModel::index(int row, int column, const QModelIndex &parent) co
 
 QModelIndex WatchModel::parent(const QModelIndex &idx) const
 {
+    checkIndex(idx);
     if (!idx.isValid())
         return QModelIndex();
 
@@ -889,6 +900,7 @@ QModelIndex WatchModel::parent(const QModelIndex &idx) const
 
 int WatchModel::rowCount(const QModelIndex &idx) const
 {
+    checkIndex(idx);
     if (!idx.isValid())
         return m_root->children.size();
     if (idx.column() > 0)
@@ -898,18 +910,20 @@ int WatchModel::rowCount(const QModelIndex &idx) const
 
 int WatchModel::columnCount(const QModelIndex &idx) const
 {
-    Q_UNUSED(idx)
+    checkIndex(idx);
     return 3;
 }
 
 bool WatchModel::hasChildren(const QModelIndex &parent) const
 {
+    checkIndex(parent);
     WatchItem *item = watchItem(parent);
     return !item || item->hasChildren;
 }
 
 WatchItem *WatchModel::watchItem(const QModelIndex &idx) const
 {
+    checkIndex(idx);
     WatchItem *item = idx.isValid()
         ? static_cast<WatchItem*>(idx.internalPointer()) : m_root;
     CHECK(checkItem(item));
@@ -925,12 +939,14 @@ QModelIndex WatchModel::watchIndex(const WatchItem *item) const
 QModelIndex WatchModel::watchIndexHelper(const WatchItem *needle,
     const WatchItem *parentItem, const QModelIndex &parentIndex) const
 {
+    checkIndex(parentIndex);
     if (needle == parentItem)
         return parentIndex;
     for (int i = parentItem->children.size(); --i >= 0; ) {
         const WatchItem *childItem = parentItem->children.at(i);
         QModelIndex childIndex = index(i, 0, parentIndex);
         QModelIndex idx = watchIndexHelper(needle, childItem, childIndex);
+        checkIndex(idx);
         if (idx.isValid())
             return idx;
     }
@@ -939,20 +955,26 @@ QModelIndex WatchModel::watchIndexHelper(const WatchItem *needle,
 
 void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex)
 {
+    checkIndex(parentIndex);
     QModelIndex idx1 = index(0, column, parentIndex);
     QModelIndex idx2 = index(rowCount(parentIndex) - 1, column, parentIndex);
     if (idx1.isValid() && idx2.isValid())
         emit dataChanged(idx1, idx2);
     //qDebug() << "CHANGING:\n" << idx1 << "\n" << idx2 << "\n"
     //    << data(parentIndex, INameRole).toString();
+    checkIndex(idx1);
+    checkIndex(idx2);
     for (int i = rowCount(parentIndex); --i >= 0; )
         emitDataChanged(column, index(i, 0, parentIndex));
 }
 
 void WatchModel::invalidateAll(const QModelIndex &parentIndex)
 {
+    checkIndex(parentIndex);
     QModelIndex idx1 = index(0, 0, parentIndex);
     QModelIndex idx2 = index(rowCount(parentIndex) - 1, columnCount(parentIndex) - 1, parentIndex);
+    checkIndex(idx1);
+    checkIndex(idx2);
     if (idx1.isValid() && idx2.isValid())
         emit dataChanged(idx1, idx2);
 }
@@ -1074,6 +1096,7 @@ QString WatchModel::displayType(const WatchData &data) const
 
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
+    checkIndex(idx);
     if (!idx.isValid())
         return QVariant(); // Triggered by ModelTester.
 
@@ -1198,6 +1221,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
 bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role)
 {
+    checkIndex(idx);
+
     if (!idx.isValid())
         return false; // Triggered by ModelTester.
 
@@ -1247,10 +1272,13 @@ bool WatchModel::setData(const QModelIndex &idx, const QVariant &value, int role
 
 Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 {
+    checkIndex(idx);
     if (!idx.isValid())
         return Qt::ItemFlags();
 
-    const WatchData &data = *watchItem(idx);
+    WatchItem *item = watchItem(idx);
+    QTC_ASSERT(item, return Qt::ItemFlags());
+    const WatchData &data = *item;
     if (!contentIsValid() && !data.isInspect())
         return Qt::ItemFlags();
 
@@ -1476,6 +1504,7 @@ void WatchModel::insertDataItem(const WatchData &data, bool destructive)
         // Overwrite old entry.
         assignData(item, data);
         QModelIndex idx = watchIndex(item);
+        checkIndex(idx);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
     } else {
         // Add new entry.
@@ -1485,6 +1514,7 @@ void WatchModel::insertDataItem(const WatchData &data, bool destructive)
         newItem->parent = parent;
         const int row = findInsertPosition(parent->children, newItem);
         QModelIndex idx = watchIndex(parent);
+        checkIndex(idx);
         beginInsertRows(idx, row, row);
         parent->children.insert(row, newItem);
         endInsertRows();
@@ -1583,6 +1613,7 @@ void WatchModel::setCurrentItem(const QByteArray &iname)
 {
     if (WatchItem *item = findItem(iname)) {
         QModelIndex idx = watchIndex(item);
+        checkIndex(idx);
         emit currentIndexRequested(idx);
     }
 }
@@ -1951,9 +1982,11 @@ const WatchData *WatchHandler::watchData(const QModelIndex &idx) const
     return m_model->watchItem(idx);
 }
 
-const QModelIndex WatchHandler::watchDataIndex(const QByteArray &iname) const
+void WatchHandler::fetchMore(const QByteArray &iname) const
 {
-    return m_model->watchIndex(m_model->findItem(iname));
+    QModelIndex idx = m_model->watchIndex(m_model->findItem(iname));
+    m_model->checkIndex(idx);
+    model()->fetchMore(idx);
 }
 
 const WatchData *WatchHandler::findData(const QByteArray &iname) const

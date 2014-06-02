@@ -41,15 +41,16 @@ namespace Internal {
 //
 /////////////////////////////////////////////////////////////////////
 
+enum WatchType { LocalsType, InspectType, WatchersType, ReturnType, TooltipType };
+
 class WatchTreeView : public BaseTreeView
 {
     Q_OBJECT
 
 public:
-    enum Type { LocalsType, InspectType, WatchersType, ReturnType, TooltipType };
 
-    explicit WatchTreeView(Type type, QWidget *parent = 0);
-    Type type() const { return m_type; }
+    explicit WatchTreeView(WatchType type, QWidget *parent = 0);
+    WatchType type() const { return m_type; }
     void setModel(QAbstractItemModel *model);
     void rowActivated(const QModelIndex &index);
     void reset();
@@ -92,7 +93,7 @@ private:
     void setModelData(int role, const QVariant &value = QVariant(),
         const QModelIndex &index = QModelIndex());
 
-    Type m_type;
+    WatchType m_type;
     bool m_grabbing;
 };
 
@@ -101,7 +102,7 @@ class WatchWindow : public BaseWindow
     Q_OBJECT
 
 public:
-    explicit WatchWindow(WatchTreeView::Type type)
+    explicit WatchWindow(WatchType type)
         : BaseWindow(new WatchTreeView(type))
     {
         setWindowTitle(tr("Locals and Expressions"));
