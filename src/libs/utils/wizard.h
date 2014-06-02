@@ -59,6 +59,15 @@ public:
     WizardProgress *wizardProgress() const;
     virtual bool validateCurrentPage();
 
+    template<class T> T *find() const
+    {
+        foreach (int id, pageIds()) {
+            if (T *result = qobject_cast<T *>(page(id)))
+                return result;
+        }
+        return 0;
+    }
+
 signals:
     void nextClicked(); /* workaround for QWizard behavior where page->initialize is
                          * called before currentIdChanged */
