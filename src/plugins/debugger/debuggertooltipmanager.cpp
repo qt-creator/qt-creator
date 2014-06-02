@@ -573,13 +573,11 @@ static QString msgReleasedText() { return DebuggerToolTipWidget::tr("Previous");
 DebuggerToolTipWidget::DebuggerToolTipWidget(QWidget *parent) :
     QWidget(parent),
     m_isPinned(false),
-    m_mainVBoxLayout(new QVBoxLayout),
-    m_toolBar(new QToolBar),
     m_toolButton(new QToolButton),
     m_titleLabel(new DraggableLabel),
     m_engineAcquired(false),
     m_creationDate(QDate::currentDate()),
-    m_treeView(new DebuggerToolTipTreeView),
+    m_treeView(new DebuggerToolTipTreeView(this)),
     m_defaultModel(new QStandardItemModel(this))
 {
     const QIcon pinIcon(QLatin1String(":/debugger/images/pin.xpm"));
@@ -596,20 +594,21 @@ DebuggerToolTipWidget::DebuggerToolTipWidget(QWidget *parent) :
     m_titleLabel->setMinimumWidth(40); // Ensure a draggable area even if text is empty.
     connect(m_titleLabel, SIGNAL(dragged(QPoint)), this, SLOT(slotDragged(QPoint)));
 
-    m_toolBar->setProperty("_q_custom_style_disabled", QVariant(true));
+    QToolBar *toolBar = new QToolBar(this);
+    toolBar->setProperty("_q_custom_style_disabled", QVariant(true));
     if (!pinIconSizes.isEmpty())
-        m_toolBar->setIconSize(pinIconSizes.front());
-    m_toolBar->addWidget(m_toolButton);
-    m_toolBar->addWidget(m_titleLabel);
-    m_toolBar->addWidget(copyButton);
+        toolBar->setIconSize(pinIconSizes.front());
+    toolBar->addWidget(m_toolButton);
+    toolBar->addWidget(m_titleLabel);
+    toolBar->addWidget(copyButton);
 
     m_treeView->setFocusPolicy(Qt::NoFocus);
 
-    m_mainVBoxLayout->setSizeConstraint(QLayout::SetFixedSize);
-    m_mainVBoxLayout->setContentsMargins(0, 0, 0, 0);
-    m_mainVBoxLayout->addWidget(m_toolBar);
-    m_mainVBoxLayout->addWidget(m_treeView);
-    setLayout(m_mainVBoxLayout);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->setSizeConstraint(QLayout::SetFixedSize);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->addWidget(toolBar);
+    mainLayout->addWidget(m_treeView);
 }
 
 bool DebuggerToolTipWidget::matches(const QString &fileName,

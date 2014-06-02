@@ -132,8 +132,6 @@ private slots:
 
 private:
     bool m_isPinned;
-    QVBoxLayout *m_mainVBoxLayout;
-    QToolBar *m_toolBar;
     QToolButton *m_toolButton;
 
 private:
