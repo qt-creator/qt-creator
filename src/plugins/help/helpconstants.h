@@ -59,7 +59,7 @@ static const QLatin1String FontKey("font");
 const int  P_MODE_HELP    = 70;
 const char ID_MODE_HELP  [] = "Help";
 const char HELP_CATEGORY[] = "H.Help";
-const char HELP_CATEGORY_ICON[] = ":/core/images/category_help.png";
+const char HELP_CATEGORY_ICON[] = ":/help/images/category_help.png";
 const char HELP_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Help", "Help");
 
 const char C_MODE_HELP   [] = "Help Mode";

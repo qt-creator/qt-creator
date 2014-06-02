@@ -40,7 +40,7 @@ HelpMode::HelpMode(QObject *parent)
 {
     setObjectName(QLatin1String("HelpMode"));
     setContext(Core::Context(Constants::C_MODE_HELP));
-    setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Reference.png")));
+    setIcon(QIcon(QLatin1String(":/help/images/mode_help.png")));
     setDisplayName(QCoreApplication::translate("Help::Internal::HelpMode", "Help"));
     setPriority(Constants::P_MODE_HELP);
     setId(Constants::ID_MODE_HELP);

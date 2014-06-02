@@ -3,8 +3,6 @@
         <file>images/mode_Edit.png</file>
         <file>images/mode_Edit@2x.png</file>
         <file>images/mode_Output.png</file>
-        <file>images/mode_Reference.png</file>
-        <file>images/mode_Reference@2x.png</file>
         <file>images/mode_Design.png</file>
         <file>images/mode_Design@2x.png</file>
     </qresource>
