@@ -161,7 +161,10 @@ void ResourceTopLevelNode::update()
                     // Note: this is wrong, but the qrceditor doesn't allow it either
                     // only aliases need to be unique
                 } else {
-                    const QString qrcPath = QDir::cleanPath(prefix + QLatin1Char('/') + alias);
+                    QString prefixWithSlash = prefix;
+                    if (!prefixWithSlash.endsWith(QLatin1Char('/')))
+                        prefixWithSlash.append(QLatin1Char('/'));
+                    const QString qrcPath = QDir::cleanPath(prefixWithSlash + alias);
                     fileNames.insert(fileName);
                     filesToAdd[qMakePair(prefix, lang)]
                             << new ResourceFileNode(fileName, qrcPath, this);

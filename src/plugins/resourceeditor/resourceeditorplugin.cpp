@@ -65,7 +65,7 @@
 using namespace ResourceEditor::Internal;
 
 static const char resourcePrefix[] = ":";
-static const char urlPrefix[] = "qrc://";
+static const char urlPrefix[] = "qrc:";
 
 class PrefixLangDialog : public QDialog
 {
