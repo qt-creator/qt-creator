@@ -17,6 +17,7 @@ QtcPlugin {
         "columnindicatortextedit.cpp",
         "columnindicatortextedit.h",
         "cpasterconstants.h",
+        "cpaster.qrc",
         "cpasterplugin.cpp",
         "cpasterplugin.h",
         "fileshareprotocol.cpp",

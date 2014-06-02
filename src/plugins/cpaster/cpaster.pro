@@ -35,3 +35,6 @@ FORMS += settingspage.ui \
     pastebindotcomsettings.ui \
     fileshareprotocolsettingswidget.ui
 include(../../shared/cpaster/cpaster.pri)
+
+RESOURCES += \
+    cpaster.qrc
