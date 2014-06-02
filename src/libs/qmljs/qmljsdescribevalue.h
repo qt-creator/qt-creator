@@ -41,9 +41,10 @@ namespace QmlJS {
 class QMLJS_EXPORT DescribeValueVisitor : public ValueVisitor
 {
 public:
-    static QString describe(const Value *value, int depth = 1);
+    static QString describe(const Value *value, int depth = 1, ContextPtr context = ContextPtr());
 
-    DescribeValueVisitor(int detailDepth = 1, int startIndent = 0, int indentIncrement = 2);
+    DescribeValueVisitor(int detailDepth = 1, int startIndent = 0, int indentIncrement = 2,
+                         ContextPtr context = ContextPtr());
     virtual ~DescribeValueVisitor();
 
     QString operator()(const Value *value);
@@ -70,6 +71,7 @@ private:
     int m_indent;
     int m_indentIncrement;
     bool m_emptyContext;
+    ContextPtr m_context;
     QSet<const Value *> m_visited;
     QString m_description;
 };

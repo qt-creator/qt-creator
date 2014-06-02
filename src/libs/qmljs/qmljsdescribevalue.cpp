@@ -30,20 +30,23 @@
 #include "qmljsdescribevalue.h"
 
 #include "qmljsinterpreter.h"
+#include "qmljscontext.h"
 #include "parser/qmljsast_p.h"
 
 #include <QString>
 
 namespace QmlJS {
 
-QString DescribeValueVisitor::describe(const Value *value, int depth)
+QString DescribeValueVisitor::describe(const Value *value, int depth, ContextPtr context)
 {
-    DescribeValueVisitor describer(-depth);
+    DescribeValueVisitor describer(-depth, 0, 2, context);
     return describer(value);
 }
 
-DescribeValueVisitor::DescribeValueVisitor(int detailDepth, int startIndent, int indentIncrement)
-    : m_depth(-detailDepth), m_indent(startIndent), m_indentIncrement(indentIncrement)
+DescribeValueVisitor::DescribeValueVisitor(int startDepth, int startIndent, int indentIncrement,
+                                           ContextPtr context)
+    : m_depth(startDepth), m_indent(startIndent), m_indentIncrement(indentIncrement),
+      m_context(context)
 { }
 
 DescribeValueVisitor::~DescribeValueVisitor()
@@ -381,8 +384,16 @@ void DescribeValueVisitor::visit(const Reference *value)
     }
     if (printDetail) {
         ValueOwner *vOwner = value->valueOwner();
-        dump(QLatin1String("\n  valueOwner@"));
-        dump(QString::fromLatin1("@%1").arg((quintptr)(void *)vOwner, 0, 16));
+        dumpNewline();
+        dump(QString::fromLatin1("valueOwner@%1").arg((quintptr)(void *)vOwner, 0, 16));
+        if (!m_context.isNull()) {
+            dumpNewline();
+            dump("referencedObject:");
+            const Value *refObj = m_context->lookupReference(value);
+            openContext();
+            (*this)(refObj);
+            closeContext();
+        }
         closeContext();
     }
     --m_depth;
