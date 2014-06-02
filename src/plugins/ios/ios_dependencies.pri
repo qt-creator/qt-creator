@@ -1,6 +1,7 @@
 QTC_PLUGIN_NAME = Ios
 QTC_LIB_DEPENDS += \
-    utils
+    utils \
+    qmldebug
 QTC_PLUGIN_DEPENDS += \
     coreplugin \
     debugger \
