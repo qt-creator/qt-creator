@@ -37,6 +37,9 @@
 #include <coreplugin/basefilewizard.h>
 #include <texteditor/textfilewizard.h>
 
+#include <utils/filewizardpage.h>
+#include <utils/qtcassert.h>
+
 #include <QWizard>
 
 namespace PythonEditor {
@@ -65,7 +68,11 @@ Core::BaseFileWizard *FileWizard::create(QWidget *parent, const Core::WizardDial
 {
     Core::BaseFileWizard *wizard = new Core::BaseFileWizard(parent);
     wizard->setWindowTitle(tr("New %1").arg(displayName()));
-    wizard->setPath(parameters.defaultPath());
+
+    Utils::FileWizardPage *page = new Utils::FileWizardPage;
+    page->setPath(parameters.defaultPath());
+    wizard->addPage(page);
+
     foreach (QWizardPage *p, parameters.extensionPages())
         wizard->addPage(p);
 
@@ -77,11 +84,14 @@ Core::GeneratedFiles FileWizard::generateFiles(const QWizard *dialog,
 {
     Q_UNUSED(errorMessage)
 
-    const Utils::FileWizardDialog *pWizard =
-            qobject_cast<const Utils::FileWizardDialog *>(dialog);
+    const Core::BaseFileWizard *wizard =
+            qobject_cast<const Core::BaseFileWizard *>(dialog);
 
-    QString folder = pWizard->path();
-    QString name = pWizard->fileName();
+    Utils::FileWizardPage *page = wizard->find<Utils::FileWizardPage>();
+    QTC_ASSERT(page, return Core::GeneratedFiles());
+
+    QString folder = page->path();
+    QString name = page->fileName();
 
     name = Core::BaseFileWizardFactory::buildFileName(
                 folder, name, QLatin1String(Constants::C_PY_EXTENSION));

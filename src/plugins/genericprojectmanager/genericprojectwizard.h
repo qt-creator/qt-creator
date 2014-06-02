@@ -34,6 +34,8 @@
 #include <coreplugin/basefilewizardfactory.h>
 #include <utils/wizard.h>
 
+namespace Utils { class FileWizardPage; }
+
 namespace GenericProjectManager {
 namespace Internal {
 

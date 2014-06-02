@@ -30,5 +30,5 @@
 #include "basefilewizard.h"
 
 Core::BaseFileWizard::BaseFileWizard(QWidget *parent) :
-    Utils::FileWizardDialog(parent)
+    Utils::Wizard(parent)
 { }

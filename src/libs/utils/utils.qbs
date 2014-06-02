@@ -83,8 +83,6 @@ QtcLibrary {
         "filesystemwatcher.h",
         "fileutils.cpp",
         "fileutils.h",
-        "filewizarddialog.cpp",
-        "filewizarddialog.h",
         "filewizardpage.cpp",
         "filewizardpage.h",
         "filewizardpage.ui",

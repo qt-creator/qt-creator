@@ -33,6 +33,7 @@
 
 #include <coreplugin/basefilewizard.h>
 
+#include <utils/filewizardpage.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -77,13 +78,11 @@ class JsFileWizardDialog : public Core::BaseFileWizard
     Q_OBJECT
 public:
     JsFileWizardDialog(QWidget *parent = 0) :
-        Core::BaseFileWizard(parent),
-        m_optionsPage(new JsFileOptionsPage)
+        Core::BaseFileWizard(parent)
     {
-        addPage(m_optionsPage);
+        addPage(new Utils::FileWizardPage);
+        addPage(new JsFileOptionsPage);
     }
-
-    JsFileOptionsPage *m_optionsPage;
 };
 } // anonymous namespace
 
@@ -96,15 +95,21 @@ JsFileWizard::JsFileWizard()
 Core::GeneratedFiles JsFileWizard::generateFiles(const QWizard *w,
                                                  QString * /*errorMessage*/) const
 {
-    const JsFileWizardDialog *wizardDialog = qobject_cast<const JsFileWizardDialog *>(w);
-    const QString path = wizardDialog->path();
-    const QString name = wizardDialog->fileName();
+    const Core::BaseFileWizard *wizard = qobject_cast<const Core::BaseFileWizard *>(w);
+    Utils::FileWizardPage *filePage = wizard->find<Utils::FileWizardPage>();
+    QTC_ASSERT(filePage, Core::GeneratedFiles());
+    JsFileOptionsPage *optionPage = wizard->find<JsFileOptionsPage>();
+    QTC_ASSERT(optionPage, Core::GeneratedFiles());
+
+
+    const QString path = filePage->path();
+    const QString name = filePage->fileName();
 
     const QString mimeType = QLatin1String(QmlJSTools::Constants::JS_MIMETYPE);
     const QString fileName = Core::BaseFileWizardFactory::buildFileName(path, name, preferredSuffix(mimeType));
 
     Core::GeneratedFile file(fileName);
-    file.setContents(fileContents(fileName, wizardDialog->m_optionsPage->statelessLibrary()));
+    file.setContents(fileContents(fileName, optionPage->statelessLibrary()));
     file.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     return Core::GeneratedFiles() << file;
 }
@@ -125,12 +130,15 @@ QString JsFileWizard::fileContents(const QString &, bool statelessLibrary) const
 
 Core::BaseFileWizard *JsFileWizard::create(QWidget *parent, const Core::WizardDialogParameters &parameters) const
 {
-    JsFileWizardDialog *wizardDialog = new JsFileWizardDialog(parent);
-    wizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    wizardDialog->setPath(parameters.defaultPath());
+    JsFileWizardDialog *wizard = new JsFileWizardDialog(parent);
+    wizard->setWindowTitle(tr("New %1").arg(displayName()));
+
+    Utils::FileWizardPage *page = wizard->find<Utils::FileWizardPage>();
+    page->setPath(parameters.defaultPath());
+
     foreach (QWizardPage *p, parameters.extensionPages())
-        wizardDialog->addPage(p);
-    return wizardDialog;
+        wizard->addPage(p);
+    return wizard;
 }
 
 #include "jsfilewizard.moc"

@@ -32,6 +32,7 @@
 
 #include <coreplugin/basefilewizard.h>
 
+#include <utils/filewizardpage.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -51,8 +52,11 @@ Core::GeneratedFiles GLSLFileWizard::generateFiles(const QWizard *w,
                                                  QString * /*errorMessage*/) const
 {
     const Core::BaseFileWizard *wizard = qobject_cast<const Core::BaseFileWizard *>(w);
-    const QString path = wizard->path();
-    const QString name = wizard->fileName();
+    Utils::FileWizardPage *page = wizard->find<Utils::FileWizardPage>();
+    QTC_ASSERT(page, return Core::GeneratedFiles());
+
+    const QString path = page->path();
+    const QString name = page->fileName();
 
     const QString fileName = Core::BaseFileWizardFactory::buildFileName(path, name, preferredSuffix(m_shaderType));
 
@@ -120,7 +124,10 @@ Core::BaseFileWizard *GLSLFileWizard::create(QWidget *parent, const Core::Wizard
 {
     Core::BaseFileWizard *wizard = new Core::BaseFileWizard(parent);
     wizard->setWindowTitle(tr("New %1").arg(displayName()));
-    wizard->setPath(parameters.defaultPath());
+    Utils::FileWizardPage *page = new Utils::FileWizardPage;
+    page->setPath(parameters.defaultPath());
+    wizard->addPage(page);
+
     foreach (QWizardPage *p, parameters.extensionPages())
         wizard->addPage(p);
     return wizard;

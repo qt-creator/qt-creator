@@ -36,7 +36,8 @@
 #include "editormanager/editormanager.h"
 #include "dialogs/promptoverwritedialog.h"
 #include <extensionsystem/pluginmanager.h>
-#include <utils/filewizarddialog.h>
+#include <utils/filewizardpage.h>
+#include <utils/wizard.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -504,10 +505,14 @@ QString BaseFileWizardFactory::preferredSuffix(const QString &mimeType)
 BaseFileWizard *StandardFileWizardFactory::create(QWidget *parent, const WizardDialogParameters &parameters) const
 {
     BaseFileWizard *wizard = new BaseFileWizard(parent);
-    if (parameters.flags().testFlag(WizardDialogParameters::ForceCapitalLetterForFileName))
-        wizard->setForceFirstCapitalLetterForFileName(true);
     wizard->setWindowTitle(tr("New %1").arg(displayName()));
-    wizard->setPath(parameters.defaultPath());
+
+    Utils::FileWizardPage *page = new Utils::FileWizardPage;
+    if (parameters.flags().testFlag(WizardDialogParameters::ForceCapitalLetterForFileName))
+        page->setForceFirstCapitalLetterForFileName(true);
+    page->setPath(parameters.defaultPath());
+    wizard->addPage(page);
+
     foreach (QWizardPage *p, parameters.extensionPages())
         wizard->addPage(p);
     return wizard;
@@ -520,10 +525,11 @@ BaseFileWizard *StandardFileWizardFactory::create(QWidget *parent, const WizardD
 GeneratedFiles StandardFileWizardFactory::generateFiles(const QWizard *w,
                                                  QString *errorMessage) const
 {
-    const Utils::FileWizardDialog *standardWizardDialog = qobject_cast<const Utils::FileWizardDialog *>(w);
-    return generateFilesFromPath(standardWizardDialog->path(),
-                                 standardWizardDialog->fileName(),
-                                 errorMessage);
+    const Utils::Wizard *wizard = qobject_cast<const Utils::Wizard *>(w);
+    Utils::FileWizardPage *page = wizard->find<Utils::FileWizardPage>();
+    QTC_ASSERT(page, return GeneratedFiles());
+
+    return generateFilesFromPath(page->path(), page->fileName(), errorMessage);
 }
 
 } // namespace Core

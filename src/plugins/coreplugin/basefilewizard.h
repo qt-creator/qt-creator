@@ -32,11 +32,11 @@
 
 #include "core_global.h"
 
-#include <utils/filewizarddialog.h>
+#include <utils/wizard.h>
 
 namespace Core {
 
-class CORE_EXPORT BaseFileWizard : public Utils::FileWizardDialog
+class CORE_EXPORT BaseFileWizard : public Utils::Wizard
 {
     Q_OBJECT
 
