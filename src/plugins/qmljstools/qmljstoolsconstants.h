@@ -51,6 +51,8 @@ const char QML_JS_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QmlJSTools", "Qt Quick");
 const char M_TOOLS_QMLJS[] = "QmlJSTools.Tools.Menu";
 const char RESET_CODEMODEL[] = "QmlJSTools.ResetCodeModel";
 
+const char SETTINGS_CATEGORY_QML_ICON[] = ":/qmljstools/images/category_qml.png";
+
 } // namespace Constants
 } // namespace QmlJSTools
 

@@ -31,6 +31,7 @@
 #include "qmljseditorconstants.h"
 
 #include <qmldesigner/qmldesignerconstants.h>
+#include <qmljstools/qmljstoolsconstants.h>
 #include <coreplugin/icore.h>
 
 #include <QSettings>
@@ -116,7 +117,7 @@ QuickToolBarSettingsPage::QuickToolBarSettingsPage() :
     setCategory(Constants::SETTINGS_CATEGORY_QML);
     setDisplayCategory(QCoreApplication::translate("QmlJSEditor",
         QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
-    setCategoryIcon(QLatin1String(QmlDesigner::Constants::SETTINGS_CATEGORY_QML_ICON));
+    setCategoryIcon(QLatin1String(QmlJSTools::Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
 QWidget *QuickToolBarSettingsPage::widget()

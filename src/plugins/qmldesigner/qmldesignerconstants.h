@@ -65,8 +65,6 @@ const char QML_WARNIN_FOR_DESIGNER_FEATURES_IN_EDITOR_KEY[] = "WarnAboutQtQuickD
 const char QML_SHOW_DEBUGVIEW[] = "ShowQtQuickDesignerDebugView";
 const char QML_ENABLE_DEBUGVIEW[] = "EnableQtQuickDesignerDebugView";
 
-const char SETTINGS_CATEGORY_QML_ICON[] = ":/core/images/category_qml.png";
-
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 
 namespace Internal {

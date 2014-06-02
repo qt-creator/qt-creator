@@ -33,6 +33,7 @@
 #include "qmldesignerplugin.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
+#include <qmljstools/qmljstoolsconstants.h>
 
 #include <QTextStream>
 
@@ -87,7 +88,7 @@ SettingsPage::SettingsPage() :
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
     setDisplayCategory(QCoreApplication::translate("QmlJSEditor",
         QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
-    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_QML_ICON));
+    setCategoryIcon(QLatin1String(QmlJSTools::Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
 QWidget *SettingsPage::widget()
