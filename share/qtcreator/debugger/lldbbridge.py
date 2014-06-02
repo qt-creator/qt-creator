@@ -1195,6 +1195,9 @@ class Dumper(DumperBase):
         else:
             error = self.process.Continue()
             self.reportError(error)
+            # Happens when attaching to GDBserver.
+            if not error.Success():
+                self.reportState("inferiorill")
 
     def quitDebugger(self, _ = None):
         self.reportState("inferiorshutdownrequested")
@@ -1451,7 +1454,13 @@ class Dumper(DumperBase):
 
     def shutdownInferior(self, _ = None):
         self.isShuttingDown_ = True
-        self.process.Kill()
+        if self.process is None:
+            self.reportState("inferiorshutdownok")
+        else:
+            state = self.process.GetState()
+            if state == lldb.eStateStopped:
+                self.process.Kill()
+            self.reportState("inferiorshutdownok")
 
     def quit(self, _ = None):
         self.reportState("engineshutdownok")
