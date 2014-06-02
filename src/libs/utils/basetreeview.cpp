@@ -138,7 +138,8 @@ void BaseTreeView::setAlwaysResizeColumnsToContents(bool on)
 {
     QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
-    header()->setResizeMode(0, mode);
+    for (int i = 0, n = header()->count(); i != n; ++i)
+        header()->setResizeMode(i, mode);
 }
 
 void BaseTreeView::toggleColumnWidth(int logicalIndex)

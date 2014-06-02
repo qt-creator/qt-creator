@@ -108,28 +108,28 @@ DebuggerSettings::DebuggerSettings()
     item = new SavedAction(this);
     item->setText(tr("Always Adjust Column Widths to Contents"));
     item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
+    item->setValue(true);
+    item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustLocalsColumnWidths"));
+        QLatin1String("AlwaysAdjustLocalsColumnWidths2"));
     insertItem(AlwaysAdjustLocalsColumnWidths, item);
 
     item = new SavedAction(this);
     item->setText(tr("Always Adjust Column Widths to Contents"));
     item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
+    item->setValue(true);
+    item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustStackColumnWidths"));
+        QLatin1String("AlwaysAdjustStackColumnWidths2"));
     insertItem(AlwaysAdjustStackColumnWidths, item);
 
     item = new SavedAction(this);
     item->setText(tr("Always Adjust Column Widths to Contents"));
     item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
+    item->setValue(true);
+    item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustThreadsColumnWidths"));
+        QLatin1String("AlwaysAdjustThreadsColumnWidths2"));
     insertItem(AlwaysAdjustThreadsColumnWidths, item);
 
     item = new SavedAction(this);
