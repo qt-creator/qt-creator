@@ -111,6 +111,7 @@ enum DebuggerState
     DebuggerFinished
 };
 
+// Keep in sync with dumper.py
 enum DebuggerStartMode
 {
     NoStartMode,

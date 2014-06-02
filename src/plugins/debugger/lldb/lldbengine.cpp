@@ -284,6 +284,7 @@ void LldbEngine::setupInferior()
     cmd.arg("executable", executable);
     cmd.arg("breakOnMain", sp.breakOnMain);
     cmd.arg("useTerminal", sp.useTerminal);
+    cmd.arg("startMode", sp.startMode);
 
     cmd.beginList("processArgs");
     foreach (const QString &arg, args.toUnixArgs())
@@ -298,7 +299,6 @@ void LldbEngine::setupInferior()
                 ? QString::fromLatin1("Attaching to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
                 : QString::fromLatin1("Attaching to %1").arg(attachedPID);
         showMessage(msg, LogMisc);
-        cmd.arg("startMode", AttachExternal);
         cmd.arg("attachPid", attachedPID);
 
     } else {

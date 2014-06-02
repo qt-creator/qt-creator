@@ -682,12 +682,13 @@ class Dumper(DumperBase):
             # and later detects that it did stop after all, so it is be
             # better to mirror that and wait for the spontaneous stop.
             self.reportState("enginerunandinferiorrunok")
-        elif len(self.remoteChannel_) > 0:
+        elif self.startMode_ == AttachToRemoteServer:
             self.process = self.target.ConnectRemote(
-            self.debugger.GetListener(),
-            self.remoteChannel_, None, error)
+                self.debugger.GetListener(),
+                self.remoteChannel_, None, error)
             if not error.Success():
-                self.reportState("inferiorrunfailed")
+                self.reportError(error)
+                self.reportState("enginerunfailed")
                 return
             # Even if it stops it seems that LLDB assumes it is running
             # and later detects that it did stop after all, so it is be

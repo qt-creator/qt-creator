@@ -43,6 +43,22 @@ else:
 verbosity = 0
 verbosity = 1
 
+# Debugger start modes. Keep in sync with DebuggerStartMode in debuggerconstants.h
+NoStartMode, \
+StartInternal, \
+StartExternal,  \
+AttachExternal,  \
+AttachCrashedExternal,  \
+AttachCore, \
+AttachToRemoteServer, \
+AttachToRemoteProcess, \
+LoadRemoteCore, \
+StartRemoteProcess, \
+StartRemoteGdb,  \
+StartRemoteEngine \
+    = range(0, 12)
+
+
 # Known special formats. Keep in sync with DisplayFormat in watchhandler.h
 KnownDumperFormatBase, \
 Latin1StringFormat, \
