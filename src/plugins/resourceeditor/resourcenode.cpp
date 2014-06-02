@@ -256,7 +256,7 @@ ProjectExplorer::FolderNode::AddNewInformation ResourceTopLevelNode::addNewInfor
         // two nodes would be responsible for '/'
         // Thus also return a high priority for it
         if (ResourceFolderNode *rfn = qobject_cast<ResourceFolderNode *>(context))
-            if (rfn->prefix() == QLatin1String("/"))
+            if (rfn->prefix() == QLatin1String("/") && rfn->parentFolderNode() == this)
                 p = 150;
     }
 
