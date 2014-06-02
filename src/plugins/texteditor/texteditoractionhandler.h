@@ -124,6 +124,10 @@ private slots:
     void gotoBlockEndWithSelection();
     void selectBlockUp();
     void selectBlockDown();
+    void viewPageUp();
+    void viewPageDown();
+    void viewLineUp();
+    void viewLineDown();
     void moveLineUp();
     void moveLineDown();
     void copyLineUp();
@@ -198,6 +202,10 @@ private:
     QAction *m_gotoBlockEndWithSelectionAction;
     QAction *m_selectBlockUpAction;
     QAction *m_selectBlockDownAction;
+    QAction *m_viewPageUpAction;
+    QAction *m_viewPageDownAction;
+    QAction *m_viewLineUpAction;
+    QAction *m_viewLineDownAction;
     QAction *m_moveLineUpAction;
     QAction *m_moveLineDownAction;
     QAction *m_copyLineUpAction;

@@ -1487,6 +1487,26 @@ bool BaseTextEditorWidget::cursorMoveKeyEvent(QKeyEvent *e)
     return true;
 }
 
+void BaseTextEditorWidget::viewPageUp()
+{
+    verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepSub);
+}
+
+void BaseTextEditorWidget::viewPageDown()
+{
+    verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepAdd);
+}
+
+void BaseTextEditorWidget::viewLineUp()
+{
+    verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
+}
+
+void BaseTextEditorWidget::viewLineDown()
+{
+    verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+}
+
 static inline bool isModifier(QKeyEvent *e)
 {
     if (!e)
@@ -1729,14 +1749,6 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Up:
     case Qt::Key_Down:
-        if (e->modifiers() & Qt::ControlModifier) {
-            verticalScrollBar()->triggerAction(
-                    e->key() == Qt::Key_Up ? QAbstractSlider::SliderSingleStepSub :
-                                             QAbstractSlider::SliderSingleStepAdd);
-            e->accept();
-            return;
-        }
-        // fall through
     case Qt::Key_Right:
     case Qt::Key_Left:
         if (HostOsInfo::isMacHost())
@@ -1763,16 +1775,6 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
                 d->m_blockSelection.clear();
                 viewport()->update();
             }
-        }
-        break;
-    case Qt::Key_PageUp:
-    case Qt::Key_PageDown:
-        if (e->modifiers() == Qt::ControlModifier) {
-            verticalScrollBar()->triggerAction(
-                    e->key() == Qt::Key_PageUp ? QAbstractSlider::SliderPageStepSub :
-                                                 QAbstractSlider::SliderPageStepAdd);
-            e->accept();
-            return;
         }
         break;
     case Qt::Key_Insert:

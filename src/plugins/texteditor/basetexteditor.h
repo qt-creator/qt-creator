@@ -290,6 +290,11 @@ public slots:
     void moveLineUp();
     void moveLineDown();
 
+    void viewPageUp();
+    void viewPageDown();
+    void viewLineUp();
+    void viewLineDown();
+
     void copyLineUp();
     void copyLineDown();
 

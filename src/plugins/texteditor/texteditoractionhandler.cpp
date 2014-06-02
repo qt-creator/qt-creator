@@ -87,6 +87,10 @@ TextEditorActionHandler::TextEditorActionHandler(QObject *parent, Core::Id conte
     m_gotoBlockEndWithSelectionAction(0),
     m_selectBlockUpAction(0),
     m_selectBlockDownAction(0),
+    m_viewPageUpAction(0),
+    m_viewPageDownAction(0),
+    m_viewLineUpAction(0),
+    m_viewLineDownAction(0),
     m_moveLineUpAction(0),
     m_moveLineDownAction(0),
     m_copyLineUpAction(0),
@@ -191,6 +195,19 @@ void TextEditorActionHandler::createActions()
     m_jumpToFileInNextSplitAction = registerAction(JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT,
             SLOT(openLinkUnderCursorInNextSplit()), true,
             QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")));
+
+    m_viewPageUpAction = registerAction(VIEW_PAGE_UP,
+            SLOT(viewPageUp()), true, tr("Move the View a Page Up and Keep the Cursor Position"),
+            QKeySequence(tr("Ctrl+PgUp")));
+    m_viewPageDownAction = registerAction(VIEW_PAGE_DOWN,
+            SLOT(viewPageDown()), true, tr("Move the View a Page Down and Keep the Cursor Position"),
+            QKeySequence(tr("Ctrl+PgDown")));
+    m_viewLineUpAction = registerAction(VIEW_LINE_UP,
+            SLOT(viewLineUp()), true, tr("Move the View a Line Up and Keep the Cursor Position"),
+            QKeySequence(tr("Ctrl+Up")));
+    m_viewLineDownAction = registerAction(VIEW_LINE_DOWN,
+            SLOT(viewLineDown()), true, tr("Move the View a Line Down and Keep the Cursor Position"),
+            QKeySequence(tr("Ctrl+Down")));
 
     // register "Edit" Menu Actions
     Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(M_EDIT);
@@ -513,6 +530,10 @@ FUNCTION(indent)
 FUNCTION(unindent)
 FUNCTION(openLinkUnderCursor)
 FUNCTION(openLinkUnderCursorInNextSplit)
+FUNCTION(viewPageUp)
+FUNCTION(viewPageDown)
+FUNCTION(viewLineUp)
+FUNCTION(viewLineDown)
 
 FUNCTION(gotoLineStart)
 FUNCTION(gotoLineStartWithSelection)
