@@ -49,14 +49,14 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Core::Loca
     updateFiles();
     QList<LocatorFilterEntry> betterEntries;
     QList<LocatorFilterEntry> goodEntries;
-    QString needle = trimWildcards(origEntry);
+    QString needle = trimWildcards(QDir::fromNativeSeparators(origEntry));
     const QString lineNoSuffix = EditorManager::splitLineNumber(&needle);
     QStringMatcher matcher(needle, Qt::CaseInsensitive);
     const QChar asterisk = QLatin1Char('*');
     QRegExp regexp(asterisk + needle+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return betterEntries;
-    const QChar pathSeparator = QDir::separator();
+    const QChar pathSeparator(QLatin1Char('/'));
     const bool hasPathSeparator = needle.contains(pathSeparator);
     const bool hasWildcard = needle.contains(asterisk) || needle.contains(QLatin1Char('?'));
     QStringList searchListPaths;
