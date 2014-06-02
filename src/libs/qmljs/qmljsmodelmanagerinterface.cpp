@@ -985,7 +985,7 @@ void ModelManagerInterface::importScan(QFutureInterface<void> &future,
             foreach (const QString path, subDirs)
                 pathsToScan.append(ScanItem(dir.absoluteFilePath(path), toScan.depth + 1));
         } else {
-            workDone += pathBudget *3 / 4;
+            workDone += pathBudget * 3 / 4;
         }
         future.setProgressValue(progressRange * workDone / totalWork);
     }
