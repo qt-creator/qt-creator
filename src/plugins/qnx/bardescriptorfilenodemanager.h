@@ -55,7 +55,10 @@ public:
 private slots:
     void setCurrentProject(ProjectExplorer::Project *project);
     void updateBarDescriptorNodes(ProjectExplorer::Target *target);
-    void handleDeploymentInfoChanged();
+    void handleDeploymentInfoChanged(bool modelReset);
+
+    void handleDeploymentDataChanged();
+    void handleDeploymentModelReset();
 
 private:
     BarDescriptorFileNode *findBarDescriptorFileNode(ProjectExplorer::ProjectNode *parent) const;

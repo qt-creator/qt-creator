@@ -102,18 +102,28 @@ void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Tar
             continue;
 
         connect(bbdc->deploymentInfo(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                this, SLOT(handleDeploymentInfoChanged()), Qt::UniqueConnection);
+                this, SLOT(handleDeploymentDataChanged()), Qt::UniqueConnection);
         connect(bbdc->deploymentInfo(), SIGNAL(modelReset()),
-                this, SLOT(handleDeploymentInfoChanged()), Qt::UniqueConnection);
+                this, SLOT(handleDeploymentModelReset()), Qt::UniqueConnection);
     }
 }
 
-void BarDescriptorFileNodeManager::handleDeploymentInfoChanged()
+void BarDescriptorFileNodeManager::handleDeploymentDataChanged()
+{
+    handleDeploymentInfoChanged(false);
+}
+
+void BarDescriptorFileNodeManager::handleDeploymentModelReset()
+{
+    handleDeploymentInfoChanged(true);
+}
+
+void BarDescriptorFileNodeManager::handleDeploymentInfoChanged(bool modelReset)
 {
     BlackBerryDeployInformation *deployInfo = qobject_cast<BlackBerryDeployInformation*>(sender());
     QTC_ASSERT(deployInfo, return);
 
-    updateBarDescriptorNodes(deployInfo->target()->project(), false);
+    updateBarDescriptorNodes(deployInfo->target()->project(), modelReset);
 }
 
 void BarDescriptorFileNodeManager::updateBarDescriptorNodes(ProjectExplorer::Project *project, bool attemptCreate)
