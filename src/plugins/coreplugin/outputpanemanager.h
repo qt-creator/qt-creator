@@ -32,6 +32,7 @@
 
 #include <coreplugin/id.h>
 
+#include <QMap>
 #include <QToolButton>
 
 QT_BEGIN_NAMESPACE
@@ -126,6 +127,7 @@ private:
     QVector<OutputPaneToggleButton *> m_buttons;
     QVector<QAction *> m_actions;
     QVector<Id> m_ids;
+    QMap<Id, bool> m_buttonVisibility;
 
     QStackedWidget *m_outputWidgetPane;
     QStackedWidget *m_opToolBarWidgets;
