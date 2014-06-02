@@ -774,7 +774,7 @@ void ImportDependencies::addExport(const QString &importId, const ImportKey &imp
 {
     if (!m_coreImports.contains(importId)) {
         CoreImport newImport(importId);
-        newImport.language = Language::Unknown;
+        newImport.language = Language::AnyLanguage;
         newImport.possibleExports.append(Export(importKey, requiredPath, false));
         m_coreImports.insert(newImport.importId, newImport);
         m_importCache[importKey].append(importId);

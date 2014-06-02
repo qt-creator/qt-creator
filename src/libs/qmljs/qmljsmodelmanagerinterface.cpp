@@ -154,7 +154,7 @@ Language::Enum ModelManagerInterface::guessLanguageOfFile(const QString &fileNam
         lMapping = defaultLanguageMapping();
     const QFileInfo info(fileName);
     const QString fileSuffix = info.suffix();
-    return lMapping.value(fileSuffix, Language::Unknown);
+    return lMapping.value(fileSuffix, Language::NoLanguage);
 }
 
 QStringList ModelManagerInterface::globPatternsForLanguages(const QList<Language::Enum> languages)
@@ -333,7 +333,7 @@ void ModelManagerInterface::fileChangedOnDisk(const QString &path)
 {
     QtConcurrent::run(&ModelManagerInterface::parse,
                       workingCopyInternal(), QStringList() << path,
-                      this, Language::Unknown, true);
+                      this, Language::AnyLanguage, true);
 }
 
 void ModelManagerInterface::removeFiles(const QStringList &files)
@@ -756,7 +756,7 @@ static bool findNewQmlLibraryInPath(const QString &path,
             const QString path = QDir::cleanPath(componentFileInfo.absolutePath());
             if (! scannedPaths->contains(path)) {
                 *importedFiles += filesInDirectoryForLanguages(path,
-                                                      Document::companionLanguages(Language::Unknown));
+                                                      Document::companionLanguages(Language::AnyLanguage));
                 scannedPaths->insert(path);
             }
         }
@@ -839,7 +839,7 @@ void ModelManagerInterface::parseLoop(QSet<QString> &scannedPaths,
         const QString fileName = files.at(i);
 
         Language::Enum language = guessLanguageOfFile(fileName);
-        if (language == Language::Unknown) {
+        if (language == Language::NoLanguage) {
             if (fileName.endsWith(QLatin1String(".qrc")))
                 modelManager->updateQrcFile(fileName);
             continue;
@@ -1305,7 +1305,7 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
         foreach (const QString &path, defaultVCtx.paths)
             res.maybeAddPath(path);
         switch (res.language) {
-        case Language::Unknown:
+        case Language::AnyLanguage:
         case Language::Qml:
             res.maybeAddPath(info.qtQmlPath);
             // fallthrough
@@ -1328,6 +1328,7 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
             }
             break;
         }
+        case Language::NoLanguage:
         case Language::JavaScript:
         case Language::QmlTypeInfo:
         case Language::Json:
@@ -1343,10 +1344,10 @@ ViewerContext ModelManagerInterface::completeVContext(const ViewerContext &vCtx,
     case ViewerContext::AddDefaultPaths:
         foreach (const QString &path, defaultVCtx.paths)
             res.maybeAddPath(path);
-        if (res.language == Language::Unknown || res.language == Language::Qml
+        if (res.language == Language::AnyLanguage || res.language == Language::Qml
                 || res.language == Language::QmlQtQuick2)
             res.maybeAddPath(info.qtImportsPath);
-        if (res.language == Language::Unknown || res.language == Language::Qml
+        if (res.language == Language::AnyLanguage || res.language == Language::Qml
                 || res.language == Language::QmlQtQuick1)
             res.maybeAddPath(info.qtQmlPath);
         break;
@@ -1360,7 +1361,7 @@ ViewerContext ModelManagerInterface::defaultVContext(Language::Enum language,
                                                      bool autoComplete) const
 {
     if (!doc.isNull()) {
-        if (language == Language::Unknown)
+        if (language == Language::AnyLanguage)
             language = doc->language();
         else if (language == Language::Qml &&
                  (doc->language() == Language::QmlQtQuick1 || doc->language() == Language::QmlQtQuick2))

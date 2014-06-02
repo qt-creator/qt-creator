@@ -56,6 +56,8 @@ ViewerContext::ViewerContext(QStringList selectors, QStringList paths,
  */
 bool ViewerContext::languageIsCompatible(Language::Enum l) const
 {
+    if (l == Language::AnyLanguage && language != Language::NoLanguage)
+        return true;
     switch (language) {
     case Language::JavaScript:
     case Language::Json:
@@ -70,10 +72,12 @@ bool ViewerContext::languageIsCompatible(Language::Enum l) const
         return l == Language::Qml || l == Language::QmlQtQuick1 || l == Language::JavaScript;
     case Language::QmlQtQuick2:
         return l == Language::Qml || l == Language::QmlQtQuick2 || l == Language::JavaScript;
-    case Language::Unknown: // ?
+    case Language::AnyLanguage:
+        return true;
+    case Language::NoLanguage:
         break;
     }
-    return true;
+    return false;
 }
 
 void ViewerContext::maybeAddPath(const QString &path)

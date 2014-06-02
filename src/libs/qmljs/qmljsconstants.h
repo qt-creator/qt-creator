@@ -68,7 +68,7 @@ enum Enum
 namespace Language {
 enum Enum
 {
-    Unknown = 0,
+    NoLanguage = 0,
     JavaScript = 1,
     Json = 2,
     Qml = 3,
@@ -76,7 +76,8 @@ enum Enum
     QmlQtQuick2 = 5,
     QmlQbs = 6,
     QmlProject = 7,
-    QmlTypeInfo = 8
+    QmlTypeInfo = 8,
+    AnyLanguage = 9,
 };
 }
 
