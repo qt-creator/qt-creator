@@ -36,6 +36,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
+#include <utils/headerviewstretcher.h>
 
 #include <QAbstractTableModel>
 #include <QCoreApplication>
@@ -45,7 +46,6 @@
 #include <QScopedPointer>
 #include <QSet>
 #include <QStringList>
-#include <QTableWidgetItem>
 #include <QSortFilterProxyModel>
 #include <QtAlgorithms>
 
@@ -118,9 +118,6 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
             return type;
         else
             return m_handlersByMimeType.value(type);
-    } else if (role == Qt::TextAlignmentRole) {
-        if (column == 1)
-            return Qt::AlignCenter;
     }
     return QVariant();
 }
@@ -206,7 +203,6 @@ public:
     virtual ~MimeTypeSettingsPrivate();
 
     void configureUi(QWidget *w);
-    static void configureTable(QTableView *tableView);
 
     bool checkSelectedMimeType() const;
     bool checkSelectedMagicHeader() const;
@@ -277,12 +273,11 @@ void MimeTypeSettingsPrivate::configureUi(QWidget *w)
     m_model->load();
     connect(m_ui.filterLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(setFilterPattern(QString)));
-    m_ui.mimeTypesTableView->setModel(m_filterModel);
+    m_ui.mimeTypesTreeView->setModel(m_filterModel);
 
-    configureTable(m_ui.mimeTypesTableView);
-    configureTable(m_ui.magicHeadersTableWidget);
+    new Utils::HeaderViewStretcher(m_ui.mimeTypesTreeView->header(), 1);
 
-    connect(m_ui.mimeTypesTableView->selectionModel(),
+    connect(m_ui.mimeTypesTreeView->selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this,
             SLOT(syncData(QModelIndex,QModelIndex)));
@@ -292,29 +287,15 @@ void MimeTypeSettingsPrivate::configureUi(QWidget *w)
     connect(m_ui.removeMagicButton, SIGNAL(clicked()), this, SLOT(removeMagicHeader()));
     connect(m_ui.editMagicButton, SIGNAL(clicked()), this, SLOT(editMagicHeader()));
     connect(m_ui.resetButton, SIGNAL(clicked()), this, SLOT(resetMimeTypes()));
-    connect(m_ui.magicHeadersTableWidget->selectionModel(),
-            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this,
+    connect(m_ui.magicHeadersTreeWidget,
+            SIGNAL(itemSelectionChanged()),
             SLOT(updateMagicHeaderButtons()));
     updateMagicHeaderButtons();
 }
 
-void MimeTypeSettingsPrivate::configureTable(QTableView *tableView)
-{
-    tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    tableView->verticalHeader()->setVisible(false);
-    tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-    tableView->horizontalHeader()->setResizeMode(0, QHeaderView::Interactive);
-    tableView->horizontalHeader()->resizeSection(
-        0, 4 * tableView->horizontalHeader()->defaultSectionSize());
-    tableView->horizontalHeader()->setHighlightSections(false);
-    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-}
-
 bool MimeTypeSettingsPrivate::checkSelectedMimeType() const
 {
-    const QModelIndex &modelIndex = m_ui.mimeTypesTableView->selectionModel()->currentIndex();
+    const QModelIndex &modelIndex = m_ui.mimeTypesTreeView->currentIndex();
     if (!modelIndex.isValid()) {
         QMessageBox::critical(0, tr("Error"), tr("No MIME type selected."));
         return false;
@@ -324,7 +305,7 @@ bool MimeTypeSettingsPrivate::checkSelectedMimeType() const
 
 bool MimeTypeSettingsPrivate::checkSelectedMagicHeader() const
 {
-    const QModelIndex &modelIndex = m_ui.magicHeadersTableWidget->selectionModel()->currentIndex();
+    const QModelIndex &modelIndex = m_ui.magicHeadersTreeWidget->selectionModel()->currentIndex();
     if (!modelIndex.isValid()) {
         QMessageBox::critical(0, tr("Error"), tr("No magic header selected."));
         return false;
@@ -371,7 +352,7 @@ void MimeTypeSettingsPrivate::syncMimeMagic()
 
     // Gather the magic rules.
     QHash<int, MagicRuleList> rulesByPriority;
-    for (int row = 0; row < m_ui.magicHeadersTableWidget->rowCount(); ++row) {
+    for (int row = 0; row < m_ui.magicHeadersTreeWidget->topLevelItemCount(); ++row) {
         const MagicData &data = getMagicHeaderRowData(row);
         // @TODO: Validate magic rule?
         MagicRule *magicRule;
@@ -404,8 +385,7 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
         clearSyncData();
 
         m_ui.patternsLineEdit->clear();
-        m_ui.magicHeadersTableWidget->clearContents();
-        m_ui.magicHeadersTableWidget->setRowCount(0);
+        m_ui.magicHeadersTreeWidget->clear();
     }
 
     if (current.isValid()) {
@@ -436,7 +416,7 @@ void MimeTypeSettingsPrivate::syncData(const QModelIndex &current,
 void MimeTypeSettingsPrivate::handlePatternEdited()
 {
     if (m_mimeForPatternSync == -1) {
-        const QModelIndex &modelIndex = m_ui.mimeTypesTableView->selectionModel()->currentIndex();
+        const QModelIndex &modelIndex = m_ui.mimeTypesTreeView->currentIndex();
         if (modelIndex.isValid())
             markMimeForPatternSync(m_filterModel->mapToSource(modelIndex).row());
     }
@@ -444,42 +424,34 @@ void MimeTypeSettingsPrivate::handlePatternEdited()
 
 void MimeTypeSettingsPrivate::addMagicHeaderRow(const MagicData &data)
 {
-    const int row = m_ui.magicHeadersTableWidget->rowCount();
-    m_ui.magicHeadersTableWidget->insertRow(row);
+    const int row = m_ui.magicHeadersTreeWidget->topLevelItemCount();
     editMagicHeaderRowData(row, data);
 }
 
 MagicData MimeTypeSettingsPrivate::getMagicHeaderRowData(const int row) const
 {
     MagicData data;
-    data.m_value = m_ui.magicHeadersTableWidget->item(row, 0)->text();
-    data.m_type = m_ui.magicHeadersTableWidget->item(row, 1)->text();
+    data.m_value = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(0);
+    data.m_type = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(1);
     QPair<int, int> startEnd =
-        MagicRule::fromOffset(m_ui.magicHeadersTableWidget->item(row, 2)->text());
+        MagicRule::fromOffset(m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(2));
     data.m_start = startEnd.first;
     data.m_end = startEnd.second;
-    data.m_priority = m_ui.magicHeadersTableWidget->item(row, 3)->text().toInt();
+    data.m_priority = m_ui.magicHeadersTreeWidget->topLevelItem(row)->text(3).toInt();
 
     return data;
 }
 
 void MimeTypeSettingsPrivate::editMagicHeaderRowData(const int row, const MagicData &data)
 {
-    for (int col = 0; col < m_ui.magicHeadersTableWidget->columnCount(); ++col) {
-        QTableWidgetItem *item = new QTableWidgetItem;
-        if (col == 0) {
-            item->setText(data.m_value);
-        } else {
-            item->setTextAlignment(Qt::AlignCenter);
-            if (col == 1)
-                item->setText(data.m_type);
-            else if (col == 2)
-                item->setText(MagicRule::toOffset(qMakePair(data.m_start, data.m_end)));
-            else
-                item->setText(QString::number(data.m_priority));
-        }
-        m_ui.magicHeadersTableWidget->setItem(row, col, item);
-    }
+    QTreeWidgetItem *item = new QTreeWidgetItem;
+    item->setText(0, data.m_value);
+    item->setText(1, data.m_type);
+    item->setText(2, MagicRule::toOffset(qMakePair(data.m_start, data.m_end)));
+    item->setText(3, QString::number(data.m_priority));
+    m_ui.magicHeadersTreeWidget->takeTopLevelItem(row);
+    m_ui.magicHeadersTreeWidget->insertTopLevelItem(row, item);
+    m_ui.magicHeadersTreeWidget->setCurrentItem(item);
 }
 
 void MimeTypeSettingsPrivate::addMagicHeader()
@@ -491,7 +463,7 @@ void MimeTypeSettingsPrivate::addMagicHeader()
     if (dlg.exec()) {
         addMagicHeaderRow(dlg.magicData());
         markMimeForMagicSync(m_filterModel->mapToSource(
-            m_ui.mimeTypesTableView->selectionModel()->currentIndex()).row());
+            m_ui.mimeTypesTreeView->currentIndex()).row());
     }
 }
 
@@ -500,9 +472,9 @@ void MimeTypeSettingsPrivate::removeMagicHeader()
     if (!checkSelectedMagicHeader())
         return;
 
-    m_ui.magicHeadersTableWidget->removeRow(m_ui.magicHeadersTableWidget->currentRow());
+    m_ui.magicHeadersTreeWidget->takeTopLevelItem(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem()));
     markMimeForMagicSync(m_filterModel->mapToSource(
-        m_ui.mimeTypesTableView->selectionModel()->currentIndex()).row());
+        m_ui.mimeTypesTreeView->currentIndex()).row());
 }
 
 void MimeTypeSettingsPrivate::editMagicHeader()
@@ -511,11 +483,11 @@ void MimeTypeSettingsPrivate::editMagicHeader()
         return;
 
     MimeTypeMagicDialog dlg;
-    dlg.setMagicData(getMagicHeaderRowData(m_ui.magicHeadersTableWidget->currentRow()));
+    dlg.setMagicData(getMagicHeaderRowData(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem())));
     if (dlg.exec()) {
-        editMagicHeaderRowData(m_ui.magicHeadersTableWidget->currentRow(), dlg.magicData());
+        editMagicHeaderRowData(m_ui.magicHeadersTreeWidget->indexOfTopLevelItem(m_ui.magicHeadersTreeWidget->currentItem()), dlg.magicData());
         markMimeForMagicSync(m_filterModel->mapToSource(
-            m_ui.mimeTypesTableView->selectionModel()->currentIndex()).row());
+            m_ui.mimeTypesTreeView->currentIndex()).row());
     }
 }
 
@@ -558,7 +530,7 @@ void MimeTypeSettingsPrivate::resetMimeTypes()
 
 void MimeTypeSettingsPrivate::updateMagicHeaderButtons()
 {
-    const QModelIndex &modelIndex = m_ui.magicHeadersTableWidget->selectionModel()->currentIndex();
+    const QModelIndex &modelIndex = m_ui.magicHeadersTreeWidget->currentIndex();
     const bool enabled = modelIndex.isValid();
 
     m_ui.removeMagicButton->setEnabled(enabled);
@@ -602,7 +574,7 @@ void MimeTypeSettings::apply()
 {
     if (!d->m_modifiedMimeTypes.isEmpty()) {
         const QModelIndex &modelIndex =
-            d->m_ui.mimeTypesTableView->selectionModel()->currentIndex();
+            d->m_ui.mimeTypesTreeView->currentIndex();
         if (modelIndex.isValid()) {
             if (d->m_mimeForPatternSync == d->m_filterModel->mapToSource(modelIndex).row())
                 d->syncMimePattern();

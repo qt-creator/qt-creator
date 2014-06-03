@@ -30,6 +30,8 @@
 #include "mimetypemagicdialog.h"
 #include "mimedatabase.h"
 
+#include <utils/headerviewstretcher.h>
+
 #include <QMessageBox>
 
 using namespace Core;
