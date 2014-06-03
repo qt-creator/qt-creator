@@ -106,69 +106,15 @@ DebuggerSettings::DebuggerSettings()
     // View
     //
     item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
+    item->setText(tr("Always Adjust View Column Widths to Contents"));
     item->setCheckable(true);
     item->setValue(true);
     item->setDefaultValue(true);
     item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustLocalsColumnWidths2"));
-    insertItem(AlwaysAdjustLocalsColumnWidths, item);
+        QLatin1String("AlwaysAdjustColumnWidths"));
+    insertItem(AlwaysAdjustColumnWidths, item);
 
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(true);
-    item->setDefaultValue(true);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustStackColumnWidths2"));
-    insertItem(AlwaysAdjustStackColumnWidths, item);
-
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(true);
-    item->setDefaultValue(true);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustThreadsColumnWidths2"));
-    insertItem(AlwaysAdjustThreadsColumnWidths, item);
-
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustRegistersColumnWidths"));
-    insertItem(AlwaysAdjustRegistersColumnWidths, item);
-
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustSnapshotsColumnWidths"));
-    insertItem(AlwaysAdjustSnapshotsColumnWidths, item);
-
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustBreakpointsColumnWidths"));
-    insertItem(AlwaysAdjustBreakpointsColumnWidths, item);
-
-    item = new SavedAction(this);
-    item->setText(tr("Always Adjust Column Widths to Contents"));
-    item->setCheckable(true);
-    item->setValue(false);
-    item->setDefaultValue(false);
-    item->setSettingsKey(debugModeGroup,
-        QLatin1String("AlwaysAdjustModulesColumnWidths"));
-    insertItem(AlwaysAdjustModulesColumnWidths, item);
-
-    //Needed by QML Inspector
+    // Needed by QML Inspector
     item = new SavedAction(this);
     item->setText(tr("Use Alternating Row Colors"));
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAlternatingRowColours"));

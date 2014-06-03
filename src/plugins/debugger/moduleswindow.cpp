@@ -57,7 +57,6 @@ ModulesTreeView::ModulesTreeView(QWidget *parent)
   : BaseTreeView(parent)
 {
     setSortingEnabled(true);
-    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustModulesColumnWidths));
 
     connect(this, SIGNAL(activated(QModelIndex)),
         SLOT(moduleActivated(QModelIndex)));
@@ -173,8 +172,6 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
         engine->requestModuleSections(fileName);
     else if (actShowDependencies && act == actShowDependencies)
         QProcess::startDetached(QLatin1String("depends"), QStringList(fileName));
-    else
-        handleBaseContextAction(act);
 }
 
 ModulesWindow::ModulesWindow()

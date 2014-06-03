@@ -233,16 +233,11 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
         checkBoxFontSizeFollowsEditor);
     m_group->insert(dc->action(AutoDerefPointers), 0);
     m_group->insert(dc->action(UseToolTipsInLocalsView), 0);
-    m_group->insert(dc->action(AlwaysAdjustLocalsColumnWidths), 0);
-    m_group->insert(dc->action(AlwaysAdjustThreadsColumnWidths), 0);
-    m_group->insert(dc->action(AlwaysAdjustSnapshotsColumnWidths), 0);
-    m_group->insert(dc->action(AlwaysAdjustBreakpointsColumnWidths), 0);
-    m_group->insert(dc->action(AlwaysAdjustModulesColumnWidths), 0);
+    m_group->insert(dc->action(AlwaysAdjustColumnWidths), 0);
     m_group->insert(dc->action(UseToolTipsInBreakpointsView), 0);
     m_group->insert(dc->action(UseToolTipsInStackView), 0);
     m_group->insert(dc->action(UseAddressInBreakpointsView), 0);
     m_group->insert(dc->action(UseAddressInStackView), 0);
-    m_group->insert(dc->action(AlwaysAdjustStackColumnWidths), 0);
     m_group->insert(dc->action(MaximalStackDepth), spinBoxMaximalStackDepth);
     m_group->insert(dc->action(DisplayStringLimit), spinBoxDisplayStringLimit);
     m_group->insert(dc->action(MaximalStringLength), spinBoxMaximalStringLength);

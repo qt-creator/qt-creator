@@ -56,7 +56,6 @@ SnapshotTreeView::SnapshotTreeView(SnapshotHandler *handler)
 {
     m_snapshotHandler = handler;
     setWindowTitle(tr("Snapshots"));
-    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustSnapshotsColumnWidths));
 }
 
 void SnapshotTreeView::rowActivated(const QModelIndex &index)
@@ -101,8 +100,6 @@ void SnapshotTreeView::contextMenuEvent(QContextMenuEvent *ev)
         m_snapshotHandler->createSnapshot(idx.row());
     else if (act == actRemove)
         removeSnapshot(idx.row());
-    else
-        handleBaseContextAction(act);
 }
 
 void SnapshotTreeView::removeSnapshot(int i)

@@ -64,7 +64,6 @@ StackTreeView::StackTreeView(QWidget *parent)
     : BaseTreeView(parent)
 {
     setWindowTitle(tr("Stack"));
-    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustStackColumnWidths));
 
     connect(debuggerCore()->action(UseAddressInStackView), SIGNAL(toggled(bool)),
         SLOT(showAddressColumn(bool)));
@@ -248,8 +247,6 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
         saveTaskFile(this, handler);
     else if (act == additionalQmlStackAction)
         engine->loadAdditionalQmlStack();
-    else
-        handleBaseContextAction(act);
 }
 
 void StackTreeView::copyContentsToClipboard()

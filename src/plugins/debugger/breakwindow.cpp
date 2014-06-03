@@ -679,7 +679,6 @@ BreakTreeView::BreakTreeView(QWidget *parent)
 {
     setWindowIcon(QIcon(QLatin1String(":/debugger/images/debugger_breakpoints.png")));
     setSelectionMode(QAbstractItemView::ExtendedSelection);
-    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustBreakpointsColumnWidths));
     connect(debuggerCore()->action(UseAddressInBreakpointsView),
         SIGNAL(toggled(bool)), SLOT(showAddressColumn(bool)));
 }
@@ -844,7 +843,7 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == deleteByFileAction)
         deleteBreakpoints(breakpointsInFile);
     else if (act == adjustColumnAction)
-        resizeColumnsToContents();
+        resizeColumns();
     else if (act == editBreakpointAction)
         editBreakpoints(selectedIds);
     else if (act == associateBreakpointAction)
@@ -855,8 +854,6 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
         setBreakpointsEnabled(selectedIds, !enabled);
     else if (act == addBreakpointAction)
         addBreakpoint();
-    else
-        handleBaseContextAction(act);
 }
 
 void BreakTreeView::setBreakpointsEnabled(const BreakpointModelIds &ids, bool enabled)

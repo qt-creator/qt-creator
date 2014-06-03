@@ -257,8 +257,6 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
         handler->setNumberBase(8);
     else if (act == act2)
         handler->setNumberBase(2);
-    else
-        handleBaseContextAction(act);
 }
 
 void RegisterTreeView::reloadRegisters()

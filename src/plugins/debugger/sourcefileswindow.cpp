@@ -95,8 +95,6 @@ void SourceFilesTreeView::contextMenuEvent(QContextMenuEvent *ev)
         engine->reloadSourceFiles();
     else if (act == act2)
         engine->gotoLocation(name);
-    else
-        handleBaseContextAction(act);
 }
 
 SourceFilesWindow::SourceFilesWindow()

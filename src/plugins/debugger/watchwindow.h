@@ -48,9 +48,9 @@ class WatchTreeView : public BaseTreeView
     Q_OBJECT
 
 public:
-
     explicit WatchTreeView(WatchType type, QWidget *parent = 0);
     WatchType type() const { return m_type; }
+
     void setModel(QAbstractItemModel *model);
     void rowActivated(const QModelIndex &index);
     void reset();

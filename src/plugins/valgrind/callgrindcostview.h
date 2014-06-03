@@ -60,8 +60,6 @@ public:
     void setCostFormat(CostDelegate::CostFormat format);
     CostDelegate::CostFormat costFormat() const;
 
-    void contextMenuEvent(QContextMenuEvent *ev);
-
 private:
     CostDelegate *m_costDelegate;
     NameDelegate *m_nameDelegate;

@@ -34,6 +34,7 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QTimer>
 
 namespace Utils {
 
@@ -75,48 +76,38 @@ BaseTreeView::BaseTreeView(QWidget *parent)
     connect(header(), SIGNAL(sectionClicked(int)),
         SLOT(toggleColumnWidth(int)));
 
-    m_adjustColumnsAction = new QAction(tr("Adjust Column Widths to Contents"), this);
-    m_alwaysAdjustColumnsAction = 0;
-}
+    m_alwaysAdjustColumns = false;
 
-void BaseTreeView::setAlwaysAdjustColumnsAction(QAction *action)
-{
-    m_alwaysAdjustColumnsAction = action;
-    connect(action, SIGNAL(toggled(bool)),
-        SLOT(setAlwaysResizeColumnsToContents(bool)));
-}
-
-void BaseTreeView::addBaseContextActions(QMenu *menu)
-{
-    menu->addSeparator();
-    if (m_alwaysAdjustColumnsAction)
-        menu->addAction(m_alwaysAdjustColumnsAction);
-    menu->addAction(m_adjustColumnsAction);
-    menu->addSeparator();
-}
-
-bool BaseTreeView::handleBaseContextAction(QAction *act)
-{
-    if (act == 0)
-        return true;
-    if (act == m_adjustColumnsAction) {
-        resizeColumnsToContents();
-        return true;
-    }
-    if (act == m_alwaysAdjustColumnsAction) {
-        if (act->isChecked())
-            resizeColumnsToContents();
-        // Action triggered automatically.
-        return true;
-    }
-    return false;
+    m_layoutTimer.setSingleShot(true);
+    m_layoutTimer.setInterval(20);
+    connect(&m_layoutTimer, SIGNAL(timeout()), this, SLOT(resizeColumnsFinish()));
 }
 
 void BaseTreeView::setModel(QAbstractItemModel *model)
 {
+    disconnectColumnAdjustment();
     Utils::TreeView::setModel(model);
-    if (header() && m_alwaysAdjustColumnsAction)
-        setAlwaysResizeColumnsToContents(m_alwaysAdjustColumnsAction->isChecked());
+    connectColumnAdjustment();
+}
+
+void BaseTreeView::connectColumnAdjustment()
+{
+    if (m_alwaysAdjustColumns && model()) {
+        connect(model(), SIGNAL(layoutChanged()), this, SLOT(resizeColumns()));
+        connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(resizeColumns()));
+        connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeColumns()));
+        connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeColumns()));
+    }
+}
+
+void BaseTreeView::disconnectColumnAdjustment()
+{
+    if (m_alwaysAdjustColumns && model()) {
+        disconnect(model(), SIGNAL(layoutChanged()), this, SLOT(resizeColumns()));
+        disconnect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(resizeColumns()));
+        disconnect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeColumns()));
+        disconnect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeColumns()));
+    }
 }
 
 void BaseTreeView::mousePressEvent(QMouseEvent *ev)
@@ -127,39 +118,64 @@ void BaseTreeView::mousePressEvent(QMouseEvent *ev)
         toggleColumnWidth(columnAt(ev->x()));
 }
 
-void BaseTreeView::resizeColumnsToContents()
+void BaseTreeView::resizeColumns()
 {
-    const int columnCount = model()->columnCount();
-    for (int c = 0 ; c != columnCount; ++c)
-        resizeColumnToContents(c);
+    QHeaderView *h = header();
+    if (!h)
+        return;
+    const int n = h->count();
+    if (n) {
+        for (int i = 0; i != n; ++i)
+            h->setResizeMode(i, QHeaderView::ResizeToContents);
+        m_layoutTimer.start();
+    }
 }
 
-void BaseTreeView::setAlwaysResizeColumnsToContents(bool on)
+void BaseTreeView::resizeColumnsFinish()
 {
-    if (!header())
+    QHeaderView *h = header();
+    if (!h)
         return;
-    QHeaderView::ResizeMode mode = on
-        ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
-    for (int i = 0, n = header()->count(); i != n; ++i)
-        header()->setResizeMode(i, mode);
+
+    QFontMetrics fm(font());
+    for (int i = 0, n = h->count(); i != n; ++i) {
+        int headerSize = fm.width(model()->headerData(i, Qt::Horizontal).toString());
+        int targetSize = qMax(sizeHintForColumn(i), headerSize);
+        if (targetSize > 0) {
+            h->setResizeMode(i, QHeaderView::Interactive);
+            h->resizeSection(i, targetSize);
+        }
+    }
 }
 
 void BaseTreeView::toggleColumnWidth(int logicalIndex)
 {
-    const int hint = sizeHintForColumn(logicalIndex);
-    const int size = 8 * QFontMetrics(font()).width(QLatin1Char('x'));
-    if (hint == header()->sectionSize(logicalIndex))
-        header()->resizeSection(logicalIndex, size);
-    else
+    QHeaderView *h = header();
+    const int currentSize = h->sectionSize(logicalIndex);
+    if (currentSize == sizeHintForColumn(logicalIndex)) {
+        QFontMetrics fm(font());
+        int headerSize = fm.width(model()->headerData(logicalIndex, Qt::Horizontal).toString());
+        int minSize = 10 * fm.width(QLatin1Char('x'));
+        h->resizeSection(logicalIndex, qMax(minSize, headerSize));
+    } else {
         resizeColumnToContents(logicalIndex);
+    }
 }
 
 void BaseTreeView::reset()
 {
     Utils::TreeView::reset();
-    if (header() && m_alwaysAdjustColumnsAction
-            && m_alwaysAdjustColumnsAction->isChecked())
-        resizeColumnsToContents();
+    if (m_alwaysAdjustColumns)
+        resizeColumns();
+}
+
+void BaseTreeView::setAlwaysAdjustColumns(bool on)
+{
+    if (on == m_alwaysAdjustColumns)
+        return;
+    disconnectColumnAdjustment();
+    m_alwaysAdjustColumns = on;
+    connectColumnAdjustment();
 }
 
 QModelIndexList BaseTreeView::activeRows() const

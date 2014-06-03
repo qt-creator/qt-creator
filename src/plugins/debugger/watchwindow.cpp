@@ -483,7 +483,6 @@ WatchTreeView::WatchTreeView(WatchType type, QWidget *parent)
     setDragEnabled(true);
     setAcceptDrops(true);
     setDropIndicatorShown(true);
-    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustLocalsColumnWidths));
 
     connect(this, SIGNAL(expanded(QModelIndex)),
         SLOT(expandNode(QModelIndex)));

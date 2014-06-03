@@ -108,6 +108,8 @@ enum DebuggerActionCode
     UseAddressInStackView,
 
     RegisterForPostMortem,
+    AlwaysAdjustColumnWidths,
+
 
     // Cdb
     CdbAdditionalArguments,
@@ -139,14 +141,12 @@ enum DebuggerActionCode
     MaximalStackDepth,
     ExpandStack,
     CreateFullBacktrace,
-    AlwaysAdjustStackColumnWidths,
 
     // Watchers & Locals
     ShowStdNamespace,
     ShowQtNamespace,
     SortStructMembers,
     AutoDerefPointers,
-    AlwaysAdjustLocalsColumnWidths,
     MaximalStringLength,
     DisplayStringLimit,
 
@@ -162,7 +162,6 @@ enum DebuggerActionCode
     AllPluginBreakpoints,
     SelectedPluginBreakpoints,
     AdjustBreakpointLocations,
-    AlwaysAdjustBreakpointsColumnWidths,
     NoPluginBreakpoints,
     SelectedPluginBreakpointsPattern,
     BreakOnThrow,
@@ -170,18 +169,6 @@ enum DebuggerActionCode
     BreakOnWarning,
     BreakOnFatal,
     BreakOnAbort,
-
-    // Registers
-    AlwaysAdjustRegistersColumnWidths,
-
-    // Snapshots
-    AlwaysAdjustSnapshotsColumnWidths,
-
-    // Threads
-    AlwaysAdjustThreadsColumnWidths,
-
-    // Modules
-    AlwaysAdjustModulesColumnWidths,
 
     // QML Tools
     ShowQmlObjectTree,

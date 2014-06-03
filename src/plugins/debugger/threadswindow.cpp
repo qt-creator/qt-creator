@@ -45,7 +45,6 @@ namespace Internal {
 ThreadsTreeView::ThreadsTreeView()
 {
     setSortingEnabled(true);
-    setAlwaysAdjustColumnsAction(debuggerCore()->action(AlwaysAdjustThreadsColumnWidths));
 }
 
 void ThreadsTreeView::rowActivated(const QModelIndex &index)
@@ -57,20 +56,19 @@ void ThreadsTreeView::rowActivated(const QModelIndex &index)
 void ThreadsTreeView::setModel(QAbstractItemModel *model)
 {
     BaseTreeView::setModel(model);
-    resizeColumnToContents(ThreadData::IdColumn);
-    resizeColumnToContents(ThreadData::LineColumn);
-    resizeColumnToContents(ThreadData::NameColumn);
-    resizeColumnToContents(ThreadData::StateColumn);
-    resizeColumnToContents(ThreadData::TargetIdColumn);
-    resizeColumnToContents(ThreadData::DetailsColumn);
+//    resizeColumnToContents(ThreadData::IdColumn);
+//    resizeColumnToContents(ThreadData::LineColumn);
+//    resizeColumnToContents(ThreadData::NameColumn);
+//    resizeColumnToContents(ThreadData::StateColumn);
+//    resizeColumnToContents(ThreadData::TargetIdColumn);
+//    resizeColumnToContents(ThreadData::DetailsColumn);
 }
 
 void ThreadsTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
     addBaseContextActions(&menu);
-    QAction *act = menu.exec(ev->globalPos());
-    handleBaseContextAction(act);
+    menu.exec(ev->globalPos());
 }
 
 ThreadsWindow::ThreadsWindow()

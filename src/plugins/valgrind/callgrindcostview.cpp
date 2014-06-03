@@ -100,13 +100,5 @@ CostDelegate::CostFormat CostView::costFormat() const
     return m_costDelegate->format();
 }
 
-void CostView::contextMenuEvent(QContextMenuEvent *ev)
-{
-    QMenu menu;
-    addBaseContextActions(&menu);
-    QAction *act = menu.exec(ev->globalPos());
-    handleBaseContextAction(act);
-}
-
 } // namespace Internal
 } // namespace Valgrind

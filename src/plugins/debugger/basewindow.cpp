@@ -50,11 +50,16 @@ BaseTreeView::BaseTreeView(QWidget *parent)
     setAlternatingRowColors(act->isChecked());
     connect(act, SIGNAL(toggled(bool)),
             SLOT(setAlternatingRowColorsHelper(bool)));
+
+    act = debuggerCore()->action(AlwaysAdjustColumnWidths);
+    setAlwaysAdjustColumns(act->isChecked());
+    connect(act, SIGNAL(toggled(bool)),
+            SLOT(setAlwaysAdjustColumns(bool)));
 }
 
 void BaseTreeView::addBaseContextActions(QMenu *menu)
 {
-    Utils::BaseTreeView::addBaseContextActions(menu);
+    menu->addSeparator();
     menu->addAction(debuggerCore()->action(SettingsDialog));
 }
 

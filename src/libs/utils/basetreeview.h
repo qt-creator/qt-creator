@@ -34,6 +34,8 @@
 
 #include "itemviews.h"
 
+#include <QTimer>
+
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT BaseTreeView : public Utils::TreeView
@@ -43,9 +45,6 @@ class QTCREATOR_UTILS_EXPORT BaseTreeView : public Utils::TreeView
 public:
     BaseTreeView(QWidget *parent = 0);
 
-    void setAlwaysAdjustColumnsAction(QAction *action);
-    virtual void addBaseContextActions(QMenu *menu);
-    bool handleBaseContextAction(QAction *action);
     QModelIndexList activeRows() const;
 
     void setModel(QAbstractItemModel *model);
@@ -54,12 +53,13 @@ public:
     void mousePressEvent(QMouseEvent *ev);
 
 public slots:
-    void resizeColumnsToContents();
-    void setAlwaysResizeColumnsToContents(bool on);
+    void resizeColumns();
+    void resizeColumnsFinish();
     void reset();
 
 protected slots:
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
+    void setAlwaysAdjustColumns(bool on);
 
 private slots:
     void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
@@ -67,8 +67,11 @@ private slots:
     void toggleColumnWidth(int logicalIndex);
 
 private:
-    QAction *m_alwaysAdjustColumnsAction;
-    QAction *m_adjustColumnsAction;
+    void connectColumnAdjustment();
+    void disconnectColumnAdjustment();
+
+    bool m_alwaysAdjustColumns;
+    QTimer m_layoutTimer;
 };
 
 } // namespace Utils
