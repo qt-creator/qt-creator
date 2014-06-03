@@ -86,9 +86,9 @@ void QmlProfilerDataState::setState(QmlProfilerDataState::State state)
 
 
 /////////////////////////////////////////////////////////////////////
-QmlProfilerTraceTime::QmlProfilerTraceTime(QObject *parent) : QObject(parent)
+QmlProfilerTraceTime::QmlProfilerTraceTime(QObject *parent) :
+    QObject(parent), m_startTime(-1), m_endTime(-1)
 {
-    clear();
 }
 
 QmlProfilerTraceTime::~QmlProfilerTraceTime()
