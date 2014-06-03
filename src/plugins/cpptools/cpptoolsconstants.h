@@ -62,7 +62,7 @@ const char CPP_CODE_MODEL_SETTINGS_ID[] = "C.Code Model";
 const char CPP_CODE_MODEL_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Code Model");
 const char CPP_SETTINGS_CATEGORY[] = "I.C++";
 const char CPP_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("CppTools", "C++");
-const char SETTINGS_CATEGORY_CPP_ICON[] = ":/core/images/category_cpp.png";
+const char SETTINGS_CATEGORY_CPP_ICON[] = ":/cpptools/images/category_cpp.png";
 
 const char CPP_SETTINGS_ID[] = "Cpp";
 const char CPP_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "C++");

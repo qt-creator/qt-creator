@@ -61,6 +61,7 @@ QtcPlugin {
         "cpprefactoringchanges.cpp", "cpprefactoringchanges.h",
         "cppsemanticinfo.cpp", "cppsemanticinfo.h",
         "cppsnapshotupdater.cpp", "cppsnapshotupdater.h",
+        "cpptools.qrc",
         "cpptools_global.h",
         "cpptoolsconstants.h",
         "cpptoolseditorsupport.cpp", "cpptoolseditorsupport.h",

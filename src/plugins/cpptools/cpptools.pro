@@ -138,3 +138,6 @@ equals(TEST, 1) {
 
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }
+
+RESOURCES += \
+    cpptools.qrc

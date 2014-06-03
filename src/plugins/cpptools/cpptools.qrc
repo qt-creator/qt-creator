@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/cpptools">
+        <file>images/category_cpp.png</file>
+    </qresource>
+</RCC>
