@@ -79,10 +79,6 @@ private slots:
     void searchForAnt(const Utils::FileName &location);
     void antLocationEditingFinished();
     void openJDKLocationEditingFinished();
-    void browseSDKLocation();
-    void browseNDKLocation();
-    void browseAntLocation();
-    void browseOpenJDKLocation();
     void openSDKDownloadUrl();
     void openNDKDownloadUrl();
     void openAntDownloadUrl();

@@ -44,6 +44,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <utils/pathchooser.h>
+
 #include <QFile>
 #include <QTextStream>
 #include <QProcess>
@@ -132,11 +134,32 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
 {
     m_ui->setupUi(this);
 
-    m_ui->SDKLocationLineEdit->setText(m_androidConfig.sdkLocation().toUserOutput());
-    m_ui->NDKLocationLineEdit->setText(m_androidConfig.ndkLocation().toUserOutput());
+    m_ui->SDKLocationPathChooser->setFileName(m_androidConfig.sdkLocation());
+    m_ui->SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK folder"));
+    m_ui->NDKLocationPathChooser->setFileName(m_androidConfig.ndkLocation());
+    m_ui->NDKLocationPathChooser->setPromptDialogTitle(tr("Select Android NDK folder"));
 
-    m_ui->AntLocationLineEdit->setText(m_androidConfig.antLocation().toUserOutput());
-    m_ui->OpenJDKLocationLineEdit->setText(m_androidConfig.openJDKLocation().toUserOutput());
+    QString dir;
+    QString filter;
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        dir = QDir::homePath() + QLatin1String("/ant.bat");
+        filter = QLatin1String("ant (ant.bat)");
+    } else if (Utils::HostOsInfo::isMacHost()) {
+        // work around QTBUG-7739 that prohibits filters that don't start with *
+        dir = QLatin1String("/usr/bin/ant");
+        filter = QLatin1String("ant (*ant)");
+    } else {
+        dir = QLatin1String("/usr/bin/ant");
+        filter = QLatin1String("ant (ant)");
+    }
+    m_ui->AntLocationPathChooser->setFileName(m_androidConfig.antLocation());
+    m_ui->AntLocationPathChooser->setExpectedKind(Utils::PathChooser::Command);
+    m_ui->AntLocationPathChooser->setPromptDialogTitle(tr("Select ant Script"));
+    m_ui->AntLocationPathChooser->setInitialBrowsePathBackup(dir);
+    m_ui->AntLocationPathChooser->setPromptDialogFilter(filter);
+
+    m_ui->OpenJDKLocationPathChooser->setFileName(m_androidConfig.openJDKLocation());
+    m_ui->OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
     m_ui->DataPartitionSizeSpinBox->setValue(m_androidConfig.partitionSize());
     m_ui->CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
     m_ui->AVDTableView->setModel(&m_AVDModel);
@@ -146,11 +169,6 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
 
     m_ui->downloadAntToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
     m_ui->downloadOpenJDKToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
-
-    m_ui->SDKLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
-    m_ui->NDKLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
-    m_ui->AntLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
-    m_ui->OpenJDKLocationPushButton->setText(Utils::PathChooser::browseButtonLabel());
 
     check(All);
     applyToUi(All);
@@ -249,7 +267,7 @@ void AndroidSettingsWidget::applyToUi(AndroidSettingsWidget::Mode mode)
         if (m_sdkState == Error) {
             m_ui->sdkWarningIconLabel->setVisible(true);
             m_ui->sdkWarningLabel->setVisible(true);
-            Utils::FileName location = Utils::FileName::fromUserInput(m_ui->SDKLocationLineEdit->text());
+            Utils::FileName location = Utils::FileName::fromUserInput(m_ui->SDKLocationPathChooser->rawPath());
             if (sdkLocationIsValid())
                 m_ui->sdkWarningLabel->setText(tr("The Platform tools are missing. Please use the Android SDK Manager to install them."));
             else
@@ -351,7 +369,7 @@ int indexOf(const QList<AndroidToolChainFactory::AndroidToolChainInformation> &l
 
 void AndroidSettingsWidget::sdkLocationEditingFinished()
 {
-    m_androidConfig.setSdkLocation(Utils::FileName::fromUserInput(m_ui->SDKLocationLineEdit->text()));
+    m_androidConfig.setSdkLocation(Utils::FileName::fromUserInput(m_ui->SDKLocationPathChooser->rawPath()));
 
     check(Sdk);
 
@@ -363,7 +381,7 @@ void AndroidSettingsWidget::sdkLocationEditingFinished()
 
 void AndroidSettingsWidget::ndkLocationEditingFinished()
 {
-    m_androidConfig.setNdkLocation(Utils::FileName::fromUserInput(m_ui->NDKLocationLineEdit->text()));
+    m_androidConfig.setNdkLocation(Utils::FileName::fromUserInput(m_ui->NDKLocationPathChooser->rawPath()));
 
     check(Ndk);
 
@@ -390,7 +408,7 @@ void AndroidSettingsWidget::searchForAnt(const Utils::FileName &location)
                 ant.appendPath(QLatin1String("ant"));
             if (ant.toFileInfo().exists()) {
                 m_androidConfig.setAntLocation(ant);
-                m_ui->AntLocationLineEdit->setText(ant.toUserOutput());
+                m_ui->AntLocationPathChooser->setFileName(ant);
             }
         }
     }
@@ -398,70 +416,15 @@ void AndroidSettingsWidget::searchForAnt(const Utils::FileName &location)
 
 void AndroidSettingsWidget::antLocationEditingFinished()
 {
-    m_androidConfig.setAntLocation(Utils::FileName::fromUserInput(m_ui->AntLocationLineEdit->text()));
+    m_androidConfig.setAntLocation(Utils::FileName::fromUserInput(m_ui->AntLocationPathChooser->rawPath()));
 }
 
 void AndroidSettingsWidget::openJDKLocationEditingFinished()
 {
-    m_androidConfig.setOpenJDKLocation(Utils::FileName::fromUserInput(m_ui->OpenJDKLocationLineEdit->text()));
+    m_androidConfig.setOpenJDKLocation(Utils::FileName::fromUserInput(m_ui->OpenJDKLocationPathChooser->rawPath()));
 
     check(Java);
     applyToUi(Java);
-}
-
-void AndroidSettingsWidget::browseSDKLocation()
-{
-    Utils::FileName dir = Utils::FileName::fromString(
-                QFileDialog::getExistingDirectory(this, tr("Select Android SDK folder"),
-                                                  m_ui->SDKLocationLineEdit->text()));
-    if (dir.isEmpty())
-        return;
-    m_ui->SDKLocationLineEdit->setText(dir.toUserOutput());
-    sdkLocationEditingFinished();
-}
-
-void AndroidSettingsWidget::browseNDKLocation()
-{
-    Utils::FileName dir = Utils::FileName::fromString(
-                QFileDialog::getExistingDirectory(this, tr("Select Android NDK folder"),
-                                                  m_ui->NDKLocationLineEdit->text()));
-    if (dir.isEmpty())
-        return;
-    m_ui->NDKLocationLineEdit->setText(dir.toUserOutput());
-    ndkLocationEditingFinished();
-}
-
-void AndroidSettingsWidget::browseAntLocation()
-{
-    QString dir;
-    QString filter;
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        dir = QDir::homePath() + QLatin1String("/ant.bat");
-        filter = QLatin1String("ant (ant.bat)");
-    } else if (Utils::HostOsInfo::isMacHost()) {
-        // work around QTBUG-7739 that prohibits filters that don't start with *
-        dir = QLatin1String("/usr/bin/ant");
-        filter = QLatin1String("ant (*ant)");
-    } else {
-        dir = QLatin1String("/usr/bin/ant");
-        filter = QLatin1String("ant (ant)");
-    }
-    const QString file =
-        QFileDialog::getOpenFileName(this, tr("Select ant Script"), dir, filter);
-    if (!file.length())
-        return;
-    m_ui->AntLocationLineEdit->setText(QDir::toNativeSeparators(file));
-    antLocationEditingFinished();
-}
-
-void AndroidSettingsWidget::browseOpenJDKLocation()
-{
-    Utils::FileName openJDKPath = m_androidConfig.openJDKLocation();
-    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getExistingDirectory(this, tr("Select JDK Path"), openJDKPath.toString()));
-    if (file.isEmpty())
-        return;
-    m_ui->OpenJDKLocationLineEdit->setText(file.toUserOutput());
-    openJDKLocationEditingFinished();
 }
 
 void AndroidSettingsWidget::openSDKDownloadUrl()

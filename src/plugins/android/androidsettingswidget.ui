@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Android Configuration</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,0">
    <item row="0" column="0">
     <widget class="QLabel" name="OpenJDKLocationLabel">
      <property name="sizePolicy">
@@ -30,15 +30,8 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="OpenJDKLocationLineEdit"/>
-   </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="OpenJDKLocationPushButton">
-     <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
+   <item row="0" column="1" colspan="2">
+    <widget class="Utils::PathChooser" name="OpenJDKLocationPathChooser" native="true"/>
    </item>
    <item row="0" column="3">
     <widget class="QToolButton" name="downloadOpenJDKToolButton">
@@ -103,15 +96,8 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="SDKLocationLineEdit"/>
-   </item>
-   <item row="2" column="2">
-    <widget class="QPushButton" name="SDKLocationPushButton">
-     <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
+   <item row="2" column="1" colspan="2">
+    <widget class="Utils::PathChooser" name="SDKLocationPathChooser" native="true"/>
    </item>
    <item row="2" column="3">
     <widget class="QToolButton" name="downloadSDKToolButton">
@@ -176,15 +162,8 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="NDKLocationLineEdit"/>
-   </item>
-   <item row="4" column="2">
-    <widget class="QPushButton" name="NDKLocationPushButton">
-     <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
+   <item row="4" column="1" colspan="2">
+    <widget class="Utils::PathChooser" name="NDKLocationPathChooser" native="true"/>
    </item>
    <item row="4" column="3">
     <widget class="QToolButton" name="downloadNDKToolButton">
@@ -304,15 +283,8 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
-    <widget class="QLineEdit" name="AntLocationLineEdit"/>
-   </item>
-   <item row="8" column="2">
-    <widget class="QPushButton" name="AntLocationPushButton">
-     <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
+   <item row="8" column="1" colspan="2">
+    <widget class="Utils::PathChooser" name="AntLocationPathChooser" native="true"/>
    </item>
    <item row="8" column="3">
     <widget class="QToolButton" name="downloadAntToolButton">
@@ -446,13 +418,21 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="android.qrc"/>
  </resources>
  <connections>
   <connection>
-   <sender>NDKLocationLineEdit</sender>
-   <signal>editingFinished()</signal>
+   <sender>NDKLocationPathChooser</sender>
+   <signal>changed(QString)</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>ndkLocationEditingFinished()</slot>
    <hints>
@@ -467,24 +447,8 @@
    </hints>
   </connection>
   <connection>
-   <sender>NDKLocationPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>browseNDKLocation()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>657</x>
-     <y>49</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SDKLocationLineEdit</sender>
-   <signal>editingFinished()</signal>
+   <sender>SDKLocationPathChooser</sender>
+   <signal>changed(QString)</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>sdkLocationEditingFinished()</slot>
    <hints>
@@ -499,24 +463,8 @@
    </hints>
   </connection>
   <connection>
-   <sender>SDKLocationPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>browseSDKLocation()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>657</x>
-     <y>17</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>AntLocationLineEdit</sender>
-   <signal>editingFinished()</signal>
+   <sender>AntLocationPathChooser</sender>
+   <signal>changed(QString)</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>antLocationEditingFinished()</slot>
    <hints>
@@ -531,45 +479,13 @@
    </hints>
   </connection>
   <connection>
-   <sender>AntLocationPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>browseAntLocation()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>657</x>
-     <y>113</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>OpenJDKLocationLineEdit</sender>
-   <signal>editingFinished()</signal>
+   <sender>OpenJDKLocationPathChooser</sender>
+   <signal>changed(QString)</signal>
    <receiver>AndroidSettingsWidget</receiver>
    <slot>openJDKLocationEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>420</x>
-     <y>49</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>352</x>
-     <y>210</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>OpenJDKLocationPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>AndroidSettingsWidget</receiver>
-   <slot>browseOpenJDKLocation()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>657</x>
      <y>49</y>
     </hint>
     <hint type="destinationlabel">
@@ -734,17 +650,13 @@
  <slots>
   <slot>sdkLocationEditingFinished()</slot>
   <slot>ndkLocationEditingFinished()</slot>
-  <slot>browseSDKLocation()</slot>
-  <slot>browseNDKLocation()</slot>
   <slot>antLocationEditingFinished()</slot>
-  <slot>browseAntLocation()</slot>
   <slot>addAVD()</slot>
   <slot>removeAVD()</slot>
   <slot>startAVD()</slot>
   <slot>avdActivated(QModelIndex)</slot>
   <slot>dataPartitionSizeEditingFinished()</slot>
   <slot>openJDKLocationEditingFinished()</slot>
-  <slot>browseOpenJDKLocation()</slot>
   <slot>manageAVD()</slot>
   <slot>createKitToggled()</slot>
   <slot>openSDKDownloadUrl()</slot>
