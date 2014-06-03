@@ -294,10 +294,10 @@ bool PuppetCreator::startBuildProcess(const QString &buildDirectoryPath,
     while (true) {
         if (process.waitForReadyRead(100)) {
             QByteArray newOutput = process.readAllStandardOutput();
-            if (progressDialog)  {
+            if (progressDialog)
                 progressDialog->newBuildOutput(newOutput);
-                m_compileLog.append(newOutput);
-            }
+
+            m_compileLog.append(newOutput);
         }
 
         if (process.state() == QProcess::NotRunning)
