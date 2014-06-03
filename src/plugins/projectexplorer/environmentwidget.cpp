@@ -36,9 +36,8 @@
 #include <utils/headerviewstretcher.h>
 
 #include <QString>
-#include <QHeaderView>
 #include <QPushButton>
-#include <QTableView>
+#include <QTreeView>
 #include <QTextDocument> // for Qt::escape
 #include <QVBoxLayout>
 
@@ -55,7 +54,7 @@ public:
 
     QString m_baseEnvironmentText;
     Utils::DetailsWidget *m_detailsContainer;
-    QTableView *m_environmentView;
+    QTreeView *m_environmentView;
     QPushButton *m_editButton;
     QPushButton *m_addButton;
     QPushButton *m_resetButton;
@@ -92,15 +91,14 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     horizontalLayout->setMargin(0);
-    d->m_environmentView = new QTableView(this);
+    d->m_environmentView = new QTreeView(this);
     d->m_environmentView->setModel(d->m_model);
     d->m_environmentView->setMinimumHeight(400);
-    d->m_environmentView->setGridStyle(Qt::NoPen);
-    d->m_environmentView->horizontalHeader()->setStretchLastSection(true);
-    d->m_environmentView->horizontalHeader()->setHighlightSections(false);
-    new Utils::HeaderViewStretcher(d->m_environmentView->horizontalHeader(), 1);
-    d->m_environmentView->verticalHeader()->hide();
+    d->m_environmentView->setRootIsDecorated(false);
+    d->m_environmentView->setUniformRowHeights(true);
+    new Utils::HeaderViewStretcher(d->m_environmentView->header(), 1);
     d->m_environmentView->setSelectionMode(QAbstractItemView::SingleSelection);
+    d->m_environmentView->setSelectionBehavior(QAbstractItemView::SelectItems);
     horizontalLayout->addWidget(d->m_environmentView);
 
     QVBoxLayout *buttonLayout = new QVBoxLayout();
