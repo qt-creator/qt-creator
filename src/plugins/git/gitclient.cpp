@@ -3926,7 +3926,8 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
 {
     QMessageBox msgBox(QMessageBox::Question, tr("Uncommitted Changes Found"),
                        tr("What would you like to do with local changes in:")
-                       + QLatin1String("\n\n\"") + m_workingDir + QLatin1Char('\"'),
+                       + QLatin1String("\n\n\"")
+                       + QDir::toNativeSeparators(m_workingDir) + QLatin1Char('\"'),
                        QMessageBox::NoButton, Core::ICore::mainWindow());
 
     msgBox.setDetailedText(statusOutput);
