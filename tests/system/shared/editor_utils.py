@@ -263,6 +263,10 @@ def getEditorForFileSuffix(curFile):
     glslEditorSuffixes= ["frag", "vert", "fsh", "vsh", "glsl", "shader", "gsh"]
     pytEditorSuffixes = ["py", "pyw", "wsgi"]
     suffix = __getFileSuffix__(curFile)
+    mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
+    if not waitFor("os.path.basename(curFile) in str(mainWindow.windowTitle)", 5000):
+        test.fatal("Window title (%s) did not switch to expected file (%s)."
+                   % (str(mainWindow.windowTitle), os.path.basename(curFile)))
     try:
         if suffix in cppEditorSuffixes:
             editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")

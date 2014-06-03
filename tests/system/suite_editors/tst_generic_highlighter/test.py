@@ -168,12 +168,9 @@ def main():
     filesToTest = ["Main.lhs", "Main.hs"]
     code = ['module Main where', '', 'main :: IO ()', '', 'main = putStrLn "Hello World!"']
 
-    mainWindow = waitForObject(':Qt Creator_Core::Internal::MainWindow')
     for current in filesToTest:
         createFile(folder, current)
         editor = getEditorForFileSuffix(current)
-        test.verify(waitFor("current in str(mainWindow.windowTitle)", 5000),
-                    "Window title changed to current file.")
         expectHint = hasSuffix(current, patterns)
         mssg = "Verifying whether hint for missing highlight definition is present. (expected: %s)"
         try:
