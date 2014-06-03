@@ -164,8 +164,8 @@ def iterateBuildConfigs(kitCount, filter = ""):
 def selectBuildConfig(targetCount, currentTarget, configName, afterSwitchTo=ViewConstants.EDIT):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
-    selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName)
-    progressBarWait(30000)
+    if selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName) or targetCount > 1:
+        progressBarWait(30000)
     return getQtInformationForBuildSettings(targetCount, True, afterSwitchTo)
 
 # This will not trigger a rebuild. If needed, caller has to do this.
