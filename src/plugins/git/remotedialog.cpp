@@ -36,6 +36,7 @@
 #include "ui_remotedialog.h"
 #include "ui_remoteadditiondialog.h"
 
+#include <utils/headerviewstretcher.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QMessageBox>
@@ -94,8 +95,7 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
     m_ui->setupUi(this);
 
     m_ui->remoteView->setModel(m_remoteModel);
-    m_ui->remoteView->horizontalHeader()->setStretchLastSection(true);
-    m_ui->remoteView->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
+    new Utils::HeaderViewStretcher(m_ui->remoteView->header(), 1);
 
     connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(addRemote()));
     connect(m_ui->fetchButton, SIGNAL(clicked()), this, SLOT(fetchFromRemote()));
