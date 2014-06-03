@@ -1,9 +1,9 @@
 !isEmpty(QTCREATOR_PRI_INCLUDED):error("qtcreator.pri already included")
 QTCREATOR_PRI_INCLUDED = 1
 
-QTCREATOR_VERSION = 3.1.1
+QTCREATOR_VERSION = 3.1.2
 QTCREATOR_COMPAT_VERSION = 3.1.0
-BINARY_ARTIFACTS_BRANCH = 3.1
+BINARY_ARTIFACTS_BRANCH = 3.2
 
 # enable c++11 on everything but mac/release (breaks 10.6)
 !macx|CONFIG(debug, debug|release): CONFIG += c++11
