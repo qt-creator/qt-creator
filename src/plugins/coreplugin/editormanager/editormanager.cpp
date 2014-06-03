@@ -526,6 +526,8 @@ void EditorManager::handleContextChange(const QList<Core::IContext *> &context)
         d->m_scheduledCurrentEditor = editor;
         QTimer::singleShot(0, m_instance, SLOT(setCurrentEditorFromContextChange()));
     } else {
+        if (editor && !editor->document()->isTemporary())
+            DocumentManager::setCurrentFile(editor->document()->filePath());
         updateActions();
     }
 }
@@ -1027,6 +1029,9 @@ void EditorManager::setCurrentEditorFromContextChange()
     IEditor *newCurrent = d->m_scheduledCurrentEditor;
     d->m_scheduledCurrentEditor = 0;
     setCurrentEditor(newCurrent);
+    if (!newCurrent->document()->isTemporary())
+        DocumentManager::setCurrentFile(newCurrent->document()->filePath());
+
 }
 
 void EditorManager::closeEditor(Core::IEditor *editor, bool askAboutModifiedEditors)
