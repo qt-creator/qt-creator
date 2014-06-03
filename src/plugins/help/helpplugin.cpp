@@ -888,15 +888,9 @@ void HelpPlugin::activateContext()
     if (IContext *context = Core::ICore::currentContextObject()) {
         m_idFromContext = context->contextHelpId();
         links = HelpManager::linksForIdentifier(m_idFromContext);
-        if (links.isEmpty()) {
-            // Maybe this is already an URL...
-            // Require protocol specifier, otherwise most strings would be 'local file names'
-            if (m_idFromContext.contains(QLatin1Char(':'))) {
-                QUrl url(m_idFromContext);
-                if (url.isValid())
-                    links.insert(m_idFromContext, m_idFromContext);
-            }
-        }
+        // Maybe the id is already an URL
+        if (links.isEmpty() && LocalHelpManager::isValidUrl(m_idFromContext))
+            links.insert(m_idFromContext, m_idFromContext);
     }
 
     if (HelpViewer* viewer = viewerForContextMode()) {

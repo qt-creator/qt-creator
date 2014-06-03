@@ -58,6 +58,7 @@ public:
     static BookmarkManager& bookmarkManager();
 
     static QVariant engineFontSettings();
+    static bool isValidUrl(const QString &link);
 
     Q_INVOKABLE QByteArray helpData(const QUrl &url);
 

@@ -125,6 +125,24 @@ QVariant LocalHelpManager::engineFontSettings()
     return helpEngine().customValue(Constants::FontKey, QVariant());
 }
 
+/*!
+ * Checks if the string does contain a scheme, and if that scheme is a "sensible" scheme for
+ * opening in a internal or external browser (qthelp, about, file, http, https).
+ * This is necessary to avoid trying to open e.g. "Foo::bar" in a external browser.
+ */
+bool LocalHelpManager::isValidUrl(const QString &link)
+{
+    QUrl url(link);
+    if (!url.isValid())
+        return false;
+    const QString scheme = url.scheme();
+    return (scheme == QLatin1String("qthelp")
+            || scheme == QLatin1String("about")
+            || scheme == QLatin1String("file")
+            || scheme == QLatin1String("http")
+            || scheme == QLatin1String("https"));
+}
+
 QByteArray LocalHelpManager::helpData(const QUrl &url)
 {
     const QHelpEngineCore &engine = helpEngine();
