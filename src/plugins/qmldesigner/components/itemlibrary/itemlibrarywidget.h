@@ -31,7 +31,7 @@
 #define ITEMLIBRARYWIDGET_H
 
 #include "itemlibraryinfo.h"
-#include "itemlibrarycomponents.h"
+#include "itemlibrarytreeview.h"
 
 #include <utils/fancylineedit.h>
 

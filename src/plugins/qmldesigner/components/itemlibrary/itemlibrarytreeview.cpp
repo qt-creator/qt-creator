@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "itemlibrarycomponents.h"
+#include "itemlibrarytreeview.h"
 
 #include "resourceitemdelegate.h"
 

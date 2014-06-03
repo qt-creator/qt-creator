@@ -4,7 +4,7 @@ VPATH += $$PWD
 HEADERS += itemlibraryview.h \
            itemlibrarywidget.h \
            itemlibrarymodel.h \
-           itemlibrarycomponents.h \
+           itemlibrarytreeview.h \
            itemlibraryimageprovider.h \
            itemlibrarysectionmodel.h \
            itemlibraryitemmodel.h \
@@ -13,7 +13,7 @@ HEADERS += itemlibraryview.h \
 SOURCES += itemlibraryview.cpp \
            itemlibrarywidget.cpp \
            itemlibrarymodel.cpp \
-           itemlibrarycomponents.cpp \
+           itemlibrarytreeview.cpp \
            itemlibraryimageprovider.cpp \
            itemlibrarysectionmodel.cpp \
            itemlibraryitemmodel.cpp \

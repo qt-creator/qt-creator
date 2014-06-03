@@ -29,7 +29,7 @@
 
 #include "resourceitemdelegate.h"
 
-#include "itemlibrarycomponents.h"
+#include "itemlibrarytreeview.h"
 
 #include <QPainter>
 
