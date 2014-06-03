@@ -52,8 +52,9 @@ struct QmlEvent {
     QString displayName;
     QString filename;
     QString details;
-    QmlDebug::QmlEventType type;
-    int bindingType;
+    QmlDebug::Message message;
+    QmlDebug::RangeType rangeType;
+    int detailType;
     int line;
     int column;
 };
@@ -85,8 +86,9 @@ signals:
     void traceStartTime(qint64 traceStartTime);
     void traceEndTime(qint64 traceStartTime);
 
-    void rangedEvent(int type, int bindingType, qint64 startTime, qint64 length,
-                     const QStringList &data, const QmlDebug::QmlEventLocation &location,
+    void rangedEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType, int detailType,
+                     qint64 startTime, qint64 length, const QStringList &data,
+                     const QmlDebug::QmlEventLocation &location,
                      qint64 param1, qint64 param2, qint64 param3, qint64 param4, qint64 param5);
     void error(const QString &error);
 
@@ -124,7 +126,8 @@ private:
     QV8ProfilerDataModel *m_v8Model;
     QHash<QString,QmlEvent> m_qmlEvents;
     QVector<QPair<Range, QString> > m_ranges;
-    QVector <int> m_acceptedTypes;
+    QVector<QmlDebug::RangeType> m_acceptedRangeTypes;
+    QVector<QmlDebug::Message> m_acceptedMessages;
 };
 
 

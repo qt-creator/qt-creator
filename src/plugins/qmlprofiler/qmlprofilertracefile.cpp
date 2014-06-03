@@ -43,16 +43,32 @@ using namespace QmlDebug;
 
 const char PROFILER_FILE_VERSION[] = "1.02";
 
-const char TYPE_PAINTING_STR[] = "Painting";
-const char TYPE_COMPILING_STR[] = "Compiling";
-const char TYPE_CREATING_STR[] = "Creating";
-const char TYPE_BINDING_STR[] = "Binding";
-const char TYPE_HANDLINGSIGNAL_STR[] = "HandlingSignal";
-const char TYPE_PIXMAPCACHE_STR[] = "PixmapCache";
-const char TYPE_SCENEGRAPH_STR[] = "SceneGraph";
+static const char *RANGE_TYPE_STRINGS[] = {
+    "Painting",
+    "Compiling",
+    "Creating",
+    "Binding",
+    "HandlingSignal",
+    "Javascript"
+};
+
+Q_STATIC_ASSERT(sizeof(RANGE_TYPE_STRINGS) == QmlDebug::MaximumRangeType * sizeof(const char *));
+
+static const char *MESSAGE_STRINGS[] = {
+    // So far only pixmap and scenegraph are used. The others are padding.
+    "Event",
+    "RangeStart",
+    "RangeData",
+    "RangeLocation",
+    "RangeEnd",
+    "Complete",
+    "PixmapCache",
+    "SceneGraph"
+};
+
+Q_STATIC_ASSERT(sizeof(MESSAGE_STRINGS) == QmlDebug::MaximumMessage * sizeof(const char *));
 
 #define _(X) QLatin1String(X)
-
 
 //
 // "be strict in your output but tolerant in your inputs"
@@ -61,59 +77,44 @@ const char TYPE_SCENEGRAPH_STR[] = "SceneGraph";
 namespace QmlProfiler {
 namespace Internal {
 
-static QmlEventType qmlEventTypeAsEnum(const QString &typeString)
+static QPair<QmlDebug::Message, QmlDebug::RangeType> qmlTypeAsEnum(const QString &typeString)
 {
-    if (typeString == _(TYPE_PAINTING_STR)) {
-        return Painting;
-    } else if (typeString == _(TYPE_COMPILING_STR)) {
-        return Compiling;
-    } else if (typeString == _(TYPE_CREATING_STR)) {
-        return Creating;
-    } else if (typeString == _(TYPE_BINDING_STR)) {
-        return Binding;
-    } else if (typeString == _(TYPE_HANDLINGSIGNAL_STR)) {
-        return HandlingSignal;
-    } else if (typeString == _(TYPE_PIXMAPCACHE_STR)) {
-        return PixmapCacheEvent;
-    } else if (typeString == _(TYPE_SCENEGRAPH_STR)) {
-        return SceneGraphFrameEvent;
-    } else {
+    QPair<QmlDebug::Message, QmlDebug::RangeType> ret(QmlDebug::MaximumMessage,
+                                                      QmlDebug::MaximumRangeType);
+
+    for (int i = 0; i < QmlDebug::MaximumMessage; ++i) {
+        if (typeString == _(MESSAGE_STRINGS[i])) {
+            ret.first = static_cast<QmlDebug::Message>(i);
+            break;
+        }
+    }
+
+    for (int i = 0; i < QmlDebug::MaximumRangeType; ++i) {
+        if (typeString == _(RANGE_TYPE_STRINGS[i])) {
+            ret.second = static_cast<QmlDebug::RangeType>(i);
+            break;
+        }
+    }
+
+    if (ret.first == QmlDebug::MaximumMessage && ret.second == QmlDebug::MaximumRangeType) {
         bool isNumber = false;
         int type = typeString.toUInt(&isNumber);
-        if (isNumber)
-            return (QmlEventType)type;
-        else
-            return MaximumQmlEventType;
+        if (isNumber && type < QmlDebug::MaximumRangeType)
+            // Allow saving ranges as numbers, but not messages.
+            ret.second = static_cast<QmlDebug::RangeType>(type);
     }
+
+    return ret;
 }
 
-static QString qmlEventTypeAsString(QmlEventType typeEnum)
+static QString qmlTypeAsString(QmlDebug::Message message, QmlDebug::RangeType rangeType)
 {
-    switch (typeEnum) {
-    case Painting:
-        return _(TYPE_PAINTING_STR);
-        break;
-    case Compiling:
-        return _(TYPE_COMPILING_STR);
-        break;
-    case Creating:
-        return _(TYPE_CREATING_STR);
-        break;
-    case Binding:
-        return _(TYPE_BINDING_STR);
-        break;
-    case HandlingSignal:
-        return _(TYPE_HANDLINGSIGNAL_STR);
-        break;
-    case PixmapCacheEvent:
-        return _(TYPE_PIXMAPCACHE_STR);
-        break;
-    case SceneGraphFrameEvent:
-        return _(TYPE_SCENEGRAPH_STR);
-        break;
-    default:
-        return QString::number((int)typeEnum);
-    }
+    if (rangeType < QmlDebug::MaximumRangeType)
+        return _(RANGE_TYPE_STRINGS[rangeType]);
+    else if (message != QmlDebug::MaximumMessage)
+        return _(MESSAGE_STRINGS[message]);
+    else
+        return QString::number((int)rangeType);
 }
 
 
@@ -195,6 +196,7 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
             QString(), // displayname
             QString(), // filename
             QString(), // details
+            MaximumMessage,
             Painting, // type
             QmlBinding,  // bindingType, set for backwards compatibility
             0, // line
@@ -233,7 +235,9 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
             }
 
             if (elementName == _("type")) {
-                event.type = qmlEventTypeAsEnum(readData);
+                QPair<QmlDebug::Message, QmlDebug::RangeType> enums = qmlTypeAsEnum(readData);
+                event.message = enums.first;
+                event.rangeType = enums.second;
                 break;
             }
 
@@ -257,11 +261,23 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
                 break;
             }
 
+            if (elementName == _("animationFrame")) {
+                event.detailType = readData.toInt();
+                // new animation frames used to be saved as ranges of range type Painting with
+                // binding type 4 (which was called "AnimationFrame" to make everything even more
+                // confusing), even though they clearly aren't ranges. Convert that to something
+                // sane here.
+                if (event.detailType == 4) {
+                    event.message = Event;
+                    event.rangeType = MaximumRangeType;
+                    event.detailType = AnimationFrame;
+                }
+            }
+
             if (elementName == _("bindingType") ||
-                    elementName == _("animationFrame") ||
                     elementName == _("cacheEventType") ||
                     elementName == _("sgEventType")) {
-                event.bindingType = readData.toInt();
+                event.detailType = readData.toInt();
                 break;
             }
 
@@ -370,10 +386,11 @@ void QmlProfilerFileReader::processQmlEvents()
 
         QmlEvent &event = m_qmlEvents[eventIndex];
 
-        emit rangedEvent(event.type, event.bindingType, range.startTime, range.duration,
-                         QStringList(event.details),
+        emit rangedEvent(event.message, event.rangeType, event.detailType, range.startTime,
+                         range.duration, QStringList(event.details),
                          QmlEventLocation(event.filename, event.line, event.column),
-                         range.numericData1,range.numericData2, range.numericData3, range.numericData4, range.numericData5);
+                         range.numericData1,range.numericData2, range.numericData3,
+                         range.numericData4, range.numericData5);
 
     }
 }
@@ -385,7 +402,9 @@ QmlProfilerFileWriter::QmlProfilerFileWriter(QObject *parent) :
     m_measuredTime(0),
     m_v8Model(0)
 {
-    m_acceptedTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding << QmlDebug::HandlingSignal;
+    m_acceptedRangeTypes << QmlDebug::Compiling << QmlDebug::Creating << QmlDebug::Binding
+                         << QmlDebug::HandlingSignal << QmlDebug::Javascript;
+    m_acceptedMessages << QmlDebug::SceneGraphFrame << QmlDebug::PixmapCacheEvent;
 }
 
 void QmlProfilerFileWriter::setTraceTime(qint64 startTime, qint64 endTime, qint64 measuredTime)
@@ -405,14 +424,16 @@ void QmlProfilerFileWriter::setQmlEvents(const QVector<QmlProfilerDataModel::Qml
     foreach (const QmlProfilerDataModel::QmlEventData &event, events) {
         const QString hashStr = QmlProfilerDataModel::getHashString(event);
         if (!m_qmlEvents.contains(hashStr)) {
-            QmlEvent e = { event.displayName,
-                           event.location.filename,
-                           event.data.join(_("")),
-                           static_cast<QmlDebug::QmlEventType>(event.eventType),
-                           event.bindingType,
-                           event.location.line,
-                           event.location.column
-                         };
+            QmlEvent e = {
+                event.displayName,
+                event.location.filename,
+                event.data.join(_("")),
+                event.message,
+                event.rangeType,
+                event.detailType,
+                event.location.line,
+                event.location.column
+            };
             m_qmlEvents.insert(hashStr, e);
         }
 
@@ -451,21 +472,21 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         stream.writeStartElement(_("event"));
         stream.writeAttribute(_("index"), keys[eventIter.key()]);
         stream.writeTextElement(_("displayname"), event.displayName);
-        stream.writeTextElement(_("type"), qmlEventTypeAsString(event.type));
+        stream.writeTextElement(_("type"), qmlTypeAsString(event.message, event.rangeType));
         if (!event.filename.isEmpty()) {
             stream.writeTextElement(_("filename"), event.filename);
             stream.writeTextElement(_("line"), QString::number(event.line));
             stream.writeTextElement(_("column"), QString::number(event.column));
         }
         stream.writeTextElement(_("details"), event.details);
-        if (event.type == Binding)
-            stream.writeTextElement(_("bindingType"), QString::number(event.bindingType));
-        if (event.type == Painting && event.bindingType == AnimationFrame)
-            stream.writeTextElement(_("animationFrame"), QString::number(event.bindingType));
-        if (event.type == PixmapCacheEvent)
-            stream.writeTextElement(_("cacheEventType"), QString::number(event.bindingType));
-        if (event.type == SceneGraphFrameEvent)
-            stream.writeTextElement(_("sgEventType"), QString::number(event.bindingType));
+        if (event.rangeType == Binding)
+            stream.writeTextElement(_("bindingType"), QString::number(event.detailType));
+        if (event.message == Event && event.detailType == AnimationFrame)
+            stream.writeTextElement(_("animationFrame"), QString::number(event.detailType));
+        if (event.message == PixmapCacheEvent)
+            stream.writeTextElement(_("cacheEventType"), QString::number(event.detailType));
+        if (event.message == SceneGraphFrame)
+            stream.writeTextElement(_("sgEventType"), QString::number(event.detailType));
         stream.writeEndElement();
     }
     stream.writeEndElement(); // eventData
@@ -486,27 +507,25 @@ void QmlProfilerFileWriter::save(QIODevice *device)
         QmlEvent event = m_qmlEvents.value(eventHash);
 
         // special: animation event
-        if (event.type == QmlDebug::Painting && event.bindingType == QmlDebug::AnimationFrame) {
-
+        if (event.message == QmlDebug::Event && event.detailType == QmlDebug::AnimationFrame) {
             stream.writeAttribute(_("framerate"), QString::number(range.numericData1));
             stream.writeAttribute(_("animationcount"), QString::number(range.numericData2));
             stream.writeAttribute(_("thread"), QString::number(range.numericData3));
         }
 
         // special: pixmap cache event
-        if (event.type == QmlDebug::PixmapCacheEvent) {
-            // pixmap image size
-            if (event.bindingType == 0) {
+        if (event.message == QmlDebug::PixmapCacheEvent) {
+            if (event.detailType == PixmapSizeKnown) {
                 stream.writeAttribute(_("width"), QString::number(range.numericData1));
                 stream.writeAttribute(_("height"), QString::number(range.numericData2));
             }
 
-            // reference count (1) / cache size changed (2)
-            if (event.bindingType == 1 || event.bindingType == 2)
+            if (event.detailType == PixmapReferenceCountChanged ||
+                    event.detailType == PixmapCacheCountChanged)
                 stream.writeAttribute(_("refCount"), QString::number(range.numericData3));
         }
 
-        if (event.type == QmlDebug::SceneGraphFrameEvent) {
+        if (event.message == QmlDebug::SceneGraphFrame) {
             // special: scenegraph frame events
             if (range.numericData1 > 0)
                 stream.writeAttribute(_("timing1"), QString::number(range.numericData1));
@@ -542,7 +561,8 @@ void QmlProfilerFileWriter::calculateMeasuredTime(const QVector<QmlProfilerDataM
 
     foreach (const QmlProfilerDataModel::QmlEventData &event, events) {
         // whitelist
-        if (!m_acceptedTypes.contains(event.eventType))
+        if (!m_acceptedRangeTypes.contains(event.rangeType) &&
+                !m_acceptedMessages.contains(event.message))
             continue;
 
         // level computation

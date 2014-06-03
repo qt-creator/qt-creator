@@ -30,19 +30,43 @@
 #ifndef QMLPROFILEREVENTTYPES_H
 #define QMLPROFILEREVENTTYPES_H
 
+#include <QtGlobal>
+
 namespace QmlDebug {
 
-enum QmlEventType {
-    Painting,
+enum Message {
+    Event,
+    RangeStart,
+    RangeData,
+    RangeLocation,
+    RangeEnd,
+    Complete,
+    PixmapCacheEvent,
+    SceneGraphFrame,
+
+    MaximumMessage
+};
+
+enum EventType {
+    FramePaint, // unused
+    Mouse,
+    Key,
+    AnimationFrame, // new Qt5 paint events
+    EndTrace,
+    StartTrace,
+
+    MaximumEventType
+};
+
+enum RangeType {
+    Painting, // old Qt4 paint events
     Compiling,
     Creating,
     Binding,
     HandlingSignal,
     Javascript,
-    PixmapCacheEvent,
-    SceneGraphFrameEvent,
 
-    MaximumQmlEventType
+    MaximumRangeType
 };
 
 enum BindingType {
@@ -50,9 +74,34 @@ enum BindingType {
     V8Binding,
     OptimizedBinding,
     QPainterEvent,
-    AnimationFrame,
 
     MaximumBindingType
+};
+
+enum PixmapEventType {
+    PixmapSizeKnown,
+    PixmapReferenceCountChanged,
+    PixmapCacheCountChanged,
+    PixmapLoadingStarted,
+    PixmapLoadingFinished,
+    PixmapLoadingError,
+
+    MaximumPixmapEventType
+};
+
+enum SceneGraphFrameType {
+    SceneGraphRendererFrame,
+    SceneGraphAdaptationLayerFrame,
+    SceneGraphContextFrame,
+    SceneGraphRenderLoopFrame,
+    SceneGraphTexturePrepare,
+    SceneGraphTextureDeletion,
+    SceneGraphPolishAndSync,
+    SceneGraphWindowsRenderShow,
+    SceneGraphWindowsAnimations,
+    SceneGraphWindowsPolishFrame,
+
+    MaximumSceneGraphFrameType
 };
 
 enum AnimationThread {

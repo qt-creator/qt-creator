@@ -63,7 +63,7 @@ private:
 PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
     : SingleCategoryTimelineModel(new PaintEventsModelProxyPrivate,
                                   QLatin1String("PaintEventsModelProxy"), tr("Painting"),
-                                  QmlDebug::Painting, parent)
+                                  QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
 {
     Q_D(PaintEventsModelProxy);
     d->seenForeignPaintEvent = false;
@@ -84,7 +84,7 @@ void PaintEventsModelProxy::clear()
 bool PaintEventsModelProxy::eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const
 {
     return SingleCategoryTimelineModel::eventAccepted(event) &&
-            event.bindingType == QmlDebug::AnimationFrame;
+            event.detailType== QmlDebug::AnimationFrame;
 }
 
 void PaintEventsModelProxy::loadData()
@@ -103,7 +103,7 @@ void PaintEventsModelProxy::loadData()
 
     foreach (const QmlProfilerDataModel::QmlEventData &event, referenceList) {
         if (!eventAccepted(event)) {
-            if (event.eventType == QmlDebug::Painting)
+            if (event.rangeType == QmlDebug::Painting)
                 d->seenForeignPaintEvent = true;
             continue;
         }

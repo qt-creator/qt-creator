@@ -175,11 +175,13 @@ void QmlProfilerClientManager::connectClientSignals()
         connect(d->qmlclientplugin.data(), SIGNAL(complete(qint64)),
                 this, SLOT(qmlComplete(qint64)));
         connect(d->qmlclientplugin.data(),
-                SIGNAL(rangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
-                             qint64,qint64,qint64,qint64,qint64)),
+                SIGNAL(rangedEvent(QmlDebug::Message,QmlDebug::RangeType,int,qint64,qint64,
+                                   QStringList,QmlDebug::QmlEventLocation,qint64,qint64,qint64,
+                                   qint64,qint64)),
                 d->modelManager,
-                SLOT(addQmlEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
-                             qint64,qint64,qint64,qint64,qint64)));
+                SLOT(addQmlEvent(QmlDebug::Message,QmlDebug::RangeType,int,qint64,qint64,
+                                 QStringList,QmlDebug::QmlEventLocation,qint64,qint64,qint64,qint64,
+                                 qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(traceFinished(qint64)),
                 d->modelManager->traceTime(), SLOT(setEndTime(qint64)));
         connect(d->qmlclientplugin.data(), SIGNAL(traceStarted(qint64)),

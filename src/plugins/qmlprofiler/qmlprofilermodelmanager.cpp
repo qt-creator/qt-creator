@@ -249,8 +249,9 @@ void QmlProfilerModelManager::newTimeEstimation(qint64 estimation)
     d->estimatedTime = estimation;
 }
 
-void QmlProfilerModelManager::addQmlEvent(int type,
-                                          int bindingType,
+void QmlProfilerModelManager::addQmlEvent(QmlDebug::Message message,
+                                          QmlDebug::RangeType rangeType,
+                                          int detailType,
                                           qint64 startTime,
                                           qint64 length,
                                           const QStringList &data,
@@ -266,7 +267,8 @@ void QmlProfilerModelManager::addQmlEvent(int type,
         d->traceTime->setStartTime(startTime);
 
     QTC_ASSERT(state() == QmlProfilerDataState::AcquiringData, /**/);
-    d->model->addQmlEvent(type, bindingType, startTime, length, data, location, ndata1, ndata2, ndata3, ndata4, ndata5);
+    d->model->addQmlEvent(message, rangeType, detailType, startTime, length, data, location,
+                          ndata1, ndata2, ndata3, ndata4, ndata5);
 }
 
 void QmlProfilerModelManager::addV8Event(int depth, const QString &function, const QString &filename,
@@ -353,10 +355,12 @@ void QmlProfilerModelManager::load()
 
     QmlProfilerFileReader reader;
     connect(&reader, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
-    connect(&reader, SIGNAL(rangedEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
+    connect(&reader, SIGNAL(rangedEvent(QmlDebug::Message,QmlDebug::RangeType,int,qint64,qint64,
+                                        QStringList,QmlDebug::QmlEventLocation,
                                         qint64, qint64, qint64, qint64, qint64)),
-            this, SLOT(addQmlEvent(int,int,qint64,qint64,QStringList,QmlDebug::QmlEventLocation,
-                             qint64, qint64, qint64, qint64, qint64)));
+            this, SLOT(addQmlEvent(QmlDebug::Message,QmlDebug::RangeType,int,qint64,qint64,
+                                   QStringList,QmlDebug::QmlEventLocation,
+                                   qint64, qint64, qint64, qint64, qint64)));
     connect(&reader, SIGNAL(traceStartTime(qint64)), traceTime(), SLOT(setStartTime(qint64)));
     connect(&reader, SIGNAL(traceEndTime(qint64)), traceTime(), SLOT(setEndTime(qint64)));
     reader.setV8DataModel(d->v8Model);

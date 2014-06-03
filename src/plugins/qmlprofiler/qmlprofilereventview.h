@@ -119,7 +119,7 @@ public:
     void copyTableToClipboard() const;
     void copyRowToClipboard() const;
 
-    static QString nameForType(int typeNumber);
+    static QString nameForType(QmlDebug::RangeType typeNumber);
 
     void getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd);
     QString selectedEventHash() const;

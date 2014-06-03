@@ -53,7 +53,8 @@ public:
         QString eventHashStr;
         QString details;
         QmlDebug::QmlEventLocation location;
-        int eventType;
+        QmlDebug::Message message;
+        QmlDebug::RangeType rangeType;
         int bindingType;
 
         qint64 duration;
@@ -70,8 +71,8 @@ public:
     QmlProfilerEventsModelProxy(QmlProfilerModelManager *modelManager, QObject *parent = 0);
     ~QmlProfilerEventsModelProxy();
 
-    void setEventTypeAccepted(QmlDebug::QmlEventType type, bool accepted);
-    bool eventTypeAccepted(QmlDebug::QmlEventType) const;
+    void setEventTypeAccepted(QmlDebug::RangeType type, bool accepted);
+    bool eventTypeAccepted(QmlDebug::RangeType) const;
 
     const QList<QmlEventStats> getData() const;
     int count() const;
@@ -104,7 +105,7 @@ class QmlProfilerEventRelativesModelProxy : public QObject
 public:
     struct QmlEventRelativesData {
         QString displayName;
-        int eventType;
+        QmlDebug::RangeType rangeType;
         qint64 duration;
         qint64 calls;
         QString details;

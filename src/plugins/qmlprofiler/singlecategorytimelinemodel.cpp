@@ -33,14 +33,15 @@
 namespace QmlProfiler {
 
 SingleCategoryTimelineModel::SingleCategoryTimelineModel(SingleCategoryTimelineModelPrivate *dd,
-        const QString &name, const QString &label, QmlDebug::QmlEventType eventType,
-        QObject *parent) :
+        const QString &name, const QString &label, QmlDebug::Message message,
+        QmlDebug::RangeType rangeType, QObject *parent) :
     AbstractTimelineModel(dd, name, parent)
 {
     Q_D(SingleCategoryTimelineModel);
     d->expanded = false;
     d->label = label;
-    d->eventType = eventType;
+    d->message = message;
+    d->rangeType = rangeType;
 }
 
 /////////////////// QML interface
@@ -48,7 +49,7 @@ SingleCategoryTimelineModel::SingleCategoryTimelineModel(SingleCategoryTimelineM
 bool SingleCategoryTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const
 {
     Q_D(const SingleCategoryTimelineModel);
-    return (event.eventType == d->eventType);
+    return (event.rangeType == d->rangeType && event.message == d->message);
 }
 
 bool SingleCategoryTimelineModel::expanded(int categoryIndex) const
@@ -84,7 +85,7 @@ int SingleCategoryTimelineModel::getEventType(int index) const
 {
     Q_D(const SingleCategoryTimelineModel);
     Q_UNUSED(index);
-    return (int)d->eventType;
+    return (d->message << 8) + d->rangeType;
 }
 
 int SingleCategoryTimelineModel::getEventCategory(int index) const

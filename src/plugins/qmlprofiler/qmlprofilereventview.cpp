@@ -561,9 +561,9 @@ void QmlProfilerEventsMainView::parseModelProxy()
             newRow << new EventsViewItem(event.displayName);
 
         if (d->m_fieldShown[Type]) {
-            QString typeString = QmlProfilerEventsMainView::nameForType(event.eventType);
+            QString typeString = QmlProfilerEventsMainView::nameForType(event.rangeType);
             QString toolTipText;
-            if (event.eventType == Binding) {
+            if (event.rangeType == Binding) {
                 if (event.bindingType == (int)OptimizedBinding) {
                     typeString = typeString + QLatin1Char(' ') +  tr("(Opt)");
                     toolTipText = tr("Binding is evaluated by the optimized engine.");
@@ -645,17 +645,17 @@ void QmlProfilerEventsMainView::parseModelProxy()
     }
 }
 
-QString QmlProfilerEventsMainView::nameForType(int typeNumber)
+QString QmlProfilerEventsMainView::nameForType(QmlDebug::RangeType typeNumber)
 {
     switch (typeNumber) {
-    case 0: return QmlProfilerEventsMainView::tr("Paint");
-    case 1: return QmlProfilerEventsMainView::tr("Compile");
-    case 2: return QmlProfilerEventsMainView::tr("Create");
-    case 3: return QmlProfilerEventsMainView::tr("Binding");
-    case 4: return QmlProfilerEventsMainView::tr("Signal");
-    case 5: return QmlProfilerEventsMainView::tr("JavaScript");
+    case QmlDebug::Painting: return QmlProfilerEventsMainView::tr("Paint");
+    case QmlDebug::Compiling: return QmlProfilerEventsMainView::tr("Compile");
+    case QmlDebug::Creating: return QmlProfilerEventsMainView::tr("Create");
+    case QmlDebug::Binding: return QmlProfilerEventsMainView::tr("Binding");
+    case QmlDebug::HandlingSignal: return QmlProfilerEventsMainView::tr("Signal");
+    case QmlDebug::Javascript: return QmlProfilerEventsMainView::tr("JavaScript");
+    default: return QString();
     }
-    return QString();
 }
 
 void QmlProfilerEventsMainView::getStatisticsInRange(qint64 rangeStart, qint64 rangeEnd)
@@ -867,7 +867,7 @@ void QmlProfilerEventRelativesView::rebuildTree(QmlProfilerEventRelativesModelPr
         // maybe we should store the data in this proxy and get it here
         // no indirections at this level of abstraction!
         newRow << new EventsViewItem(event.displayName);
-        newRow << new EventsViewItem(QmlProfilerEventsMainView::nameForType(event.eventType));
+        newRow << new EventsViewItem(QmlProfilerEventsMainView::nameForType(event.rangeType));
         newRow << new EventsViewItem(QmlProfilerBaseModel::formatTime(event.duration));
         newRow << new EventsViewItem(QString::number(event.calls));
         newRow << new EventsViewItem(event.details);

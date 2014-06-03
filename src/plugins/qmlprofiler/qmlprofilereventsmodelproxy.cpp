@@ -58,7 +58,7 @@ public:
 
     int modelId;
 
-    QList<QmlDebug::QmlEventType> acceptedTypes;
+    QList<QmlDebug::RangeType> acceptedTypes;
     QSet<QString> eventsInBindingLoop;
 };
 
@@ -80,7 +80,7 @@ QmlProfilerEventsModelProxy::~QmlProfilerEventsModelProxy()
     delete d;
 }
 
-void QmlProfilerEventsModelProxy::setEventTypeAccepted(QmlDebug::QmlEventType type, bool accepted)
+void QmlProfilerEventsModelProxy::setEventTypeAccepted(QmlDebug::RangeType type, bool accepted)
 {
     if (accepted && !d->acceptedTypes.contains(type))
         d->acceptedTypes << type;
@@ -88,7 +88,7 @@ void QmlProfilerEventsModelProxy::setEventTypeAccepted(QmlDebug::QmlEventType ty
         d->acceptedTypes.removeOne(type);
 }
 
-bool QmlProfilerEventsModelProxy::eventTypeAccepted(QmlDebug::QmlEventType type) const
+bool QmlProfilerEventsModelProxy::eventTypeAccepted(QmlDebug::RangeType type) const
 {
     return d->acceptedTypes.contains(type);
 }
@@ -144,7 +144,7 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
     for (int i = 0; i < eventList.size(); ++i) {
         const QmlProfilerDataModel::QmlEventData *event = &eventList[i];
 
-        if (!d->acceptedTypes.contains((QmlDebug::QmlEventType)event->eventType))
+        if (!d->acceptedTypes.contains(event->rangeType))
             continue;
 
         if (checkRanges) {
@@ -161,8 +161,9 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
                 hash,
                 event->data.join(QLatin1String(" ")),
                 event->location,
-                event->eventType,
-                event->bindingType,
+                event->message,
+                event->rangeType,
+                event->detailType,
                 event->duration,
                 1, //calls
                 event->duration, //minTime
@@ -257,7 +258,8 @@ void QmlProfilerEventsModelProxy::loadData(qint64 rangeStart, qint64 rangeEnd)
         rootEventName, // hash
         tr("Main Program"), //event.details,
         rootEventLocation, // location
-        (int)QmlDebug::Binding, // event type
+        QmlDebug::MaximumMessage,
+        QmlDebug::Binding, // event type
         0, // binding type
         qmlTime + 1,
         1, //calls
@@ -347,6 +349,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
     QString rootEventName = tr("<program>");
     QmlProfilerDataModel::QmlEventData rootEvent = {
         rootEventName,
+        QmlDebug::MaximumMessage,
         QmlDebug::Binding,
         0,
         0,
@@ -370,7 +373,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
     const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
-        if (!m_eventsModel->eventTypeAccepted((QmlDebug::QmlEventType)event.eventType))
+        if (!m_eventsModel->eventTypeAccepted(event.rangeType))
             continue;
 
         // level computation
@@ -407,7 +410,7 @@ void QmlProfilerEventParentsModelProxy::loadData()
             m_data[eventHash].insert(parentHash, QmlEventRelativesData());
             QmlEventRelativesData *parent = &(m_data[eventHash][parentHash]);
             parent->displayName = parentEvent->displayName;
-            parent->eventType = parentEvent->eventType;
+            parent->rangeType = parentEvent->rangeType;
             parent->duration = event.duration;
             parent->calls = 1;
             parent->details = parentEvent->data.join(QLatin1String(""));
@@ -450,7 +453,7 @@ void QmlProfilerEventChildrenModelProxy::loadData()
     const QVector<QmlProfilerDataModel::QmlEventData> eventList = simpleModel->getEvents();
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         // whitelist
-        if (!m_eventsModel->eventTypeAccepted((QmlDebug::QmlEventType)event.eventType))
+        if (!m_eventsModel->eventTypeAccepted(event.rangeType))
             continue;
 
         // level computation
@@ -480,7 +483,7 @@ void QmlProfilerEventChildrenModelProxy::loadData()
             m_data[parentHash].insert(eventHash, QmlEventRelativesData());
             QmlEventRelativesData *child = &(m_data[parentHash][eventHash]);
             child->displayName = event.displayName;
-            child->eventType = event.eventType;
+            child->rangeType = event.rangeType;
             child->duration = event.duration;
             child->calls = 1;
             child->details = event.data.join(QLatin1String(""));

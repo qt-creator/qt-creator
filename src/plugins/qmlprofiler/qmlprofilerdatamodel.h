@@ -30,6 +30,7 @@
 #ifndef QMLPROFILERDATAMODEL_H
 #define QMLPROFILERDATAMODEL_H
 
+#include <qmldebug/qmlprofilereventtypes.h>
 #include "qmlprofilerbasemodel.h"
 
 namespace QmlProfiler {
@@ -40,8 +41,9 @@ class QMLPROFILER_EXPORT QmlProfilerDataModel : public QmlProfilerBaseModel
 public:
     struct QmlEventData {
         QString displayName;
-        int eventType;
-        int bindingType;
+        QmlDebug::Message message;
+        QmlDebug::RangeType rangeType;
+        int detailType; // can be EventType, BindingType, PixmapEventType or SceneGraphFrameType
         qint64 startTime;
         qint64 duration;
         QStringList data;
@@ -60,9 +62,10 @@ public:
     virtual void clear();
     virtual bool isEmpty() const;
     virtual void complete();
-    void addQmlEvent(int type, int bindingType, qint64 startTime, qint64 duration,
-                     const QStringList &data, const QmlDebug::QmlEventLocation &location,
-                     qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
+    void addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType, int bindingType,
+                     qint64 startTime, qint64 duration, const QStringList &data,
+                     const QmlDebug::QmlEventLocation &location, qint64 ndata1, qint64 ndata2,
+                     qint64 ndata3, qint64 ndata4, qint64 ndata5);
     static QString getHashString(const QmlProfilerDataModel::QmlEventData &event);
     qint64 lastTimeMark() const;
 

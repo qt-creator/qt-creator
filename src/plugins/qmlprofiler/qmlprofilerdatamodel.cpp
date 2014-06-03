@@ -55,7 +55,7 @@ QString getInitialDetails(const QmlProfilerDataModel::QmlEventData &event);
 QmlDebug::QmlEventLocation getLocation(const QmlProfilerDataModel::QmlEventData &event)
 {
     QmlDebug::QmlEventLocation eventLocation = event.location;
-    if ((event.eventType == QmlDebug::Creating || event.eventType == QmlDebug::Compiling)
+    if ((event.rangeType == QmlDebug::Creating || event.rangeType == QmlDebug::Compiling)
             && eventLocation.filename.isEmpty()) {
         eventLocation.filename = getInitialDetails(event);
         eventLocation.line = 1;
@@ -169,7 +169,7 @@ void QmlProfilerDataModel::complete()
         // request further details from files
         //
 
-        if (event->eventType != QmlDebug::Binding && event->eventType != QmlDebug::HandlingSignal)
+        if (event->rangeType != QmlDebug::Binding && event->rangeType != QmlDebug::HandlingSignal)
             continue;
 
         // This skips anonymous bindings in Qt4.8 (we don't have valid location data for them)
@@ -189,7 +189,8 @@ void QmlProfilerDataModel::complete()
     QmlProfilerBaseModel::complete();
 }
 
-void QmlProfilerDataModel::addQmlEvent(int type, int bindingType, qint64 startTime,
+void QmlProfilerDataModel::addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType,
+                                            int detailType, qint64 startTime,
                                             qint64 duration, const QStringList &data,
                                             const QmlDebug::QmlEventLocation &location,
                                             qint64 ndata1, qint64 ndata2, qint64 ndata3,
@@ -197,7 +198,7 @@ void QmlProfilerDataModel::addQmlEvent(int type, int bindingType, qint64 startTi
 {
     Q_D(QmlProfilerDataModel);
     QString displayName;
-    if (type == QmlDebug::Painting && bindingType == QmlDebug::AnimationFrame) {
+    if (message == QmlDebug::Event && detailType == QmlDebug::AnimationFrame) {
         displayName = tr("Animations");
     } else {
         displayName = QString::fromLatin1("%1:%2").arg(
@@ -205,8 +206,8 @@ void QmlProfilerDataModel::addQmlEvent(int type, int bindingType, qint64 startTi
                 QString::number(location.line));
     }
 
-    QmlEventData eventData = {displayName, type, bindingType, startTime, duration, data, location,
-                              ndata1, ndata2, ndata3, ndata4, ndata5};
+    QmlEventData eventData = {displayName, message, rangeType, detailType, startTime, duration,
+                              data, location, ndata1, ndata2, ndata3, ndata4, ndata5};
     d->eventList.append(eventData);
 
     d->modelManager->modelProxyCountUpdated(d->modelId, startTime,
@@ -219,8 +220,8 @@ QString QmlProfilerDataModel::getHashString(const QmlProfilerDataModel::QmlEvent
                 event.location.filename,
                 QString::number(event.location.line),
                 QString::number(event.location.column),
-                QString::number(event.eventType),
-                QString::number(event.bindingType));
+                QString::number((event.message << 8) | event.rangeType),
+                QString::number(event.detailType));
 }
 
 qint64 QmlProfilerDataModel::lastTimeMark() const

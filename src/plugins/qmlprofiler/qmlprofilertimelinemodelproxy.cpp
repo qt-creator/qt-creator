@@ -92,7 +92,7 @@ void BasicTimelineModel::clear()
 void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
 {
     categorySpan.clear();
-    for (int i = 0; i < QmlDebug::MaximumQmlEventType; i++) {
+    for (int i = 0; i < QmlDebug::MaximumRangeType; i++) {
         CategorySpan newCategory = {false, 1, 1, i};
         categorySpan << newCategory;
     }
@@ -100,11 +100,8 @@ void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
 
 bool BasicTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const
 {
-    // only accept Qt4.x Painting events
-    if (event.eventType == QmlDebug::Painting)
-        return (event.bindingType == QmlDebug::QPainterEvent);
-
-    return (event.eventType <= QmlDebug::Javascript);
+    // Accept all range types. Qt5 paint events aren't ranges
+    return (event.rangeType != QmlDebug::MaximumRangeType);
 }
 
 void BasicTimelineModel::loadData()
@@ -126,7 +123,7 @@ void BasicTimelineModel::loadData()
     foreach (const QmlProfilerDataModel::QmlEventData &event, eventList) {
         if (!eventAccepted(event))
             continue;
-        if (event.eventType == QmlDebug::Painting)
+        if (event.rangeType == QmlDebug::Painting)
             d->seenPaintEvent = true;
 
         QString eventHash = QmlProfilerDataModel::getHashString(event);
@@ -139,7 +136,7 @@ void BasicTimelineModel::loadData()
                 event.displayName,
                 event.data.join(QLatin1String(" ")),
                 event.location,
-                (QmlDebug::QmlEventType)event.eventType,
+                event.rangeType,
                 lastEventId++ // event id
             };
             d->eventDict << rangeEventData;
@@ -190,7 +187,7 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeNestingContracted()
     QList<int> nestingLevels;
     QList< QHash<int, qint64> > endtimesPerNestingLevel;
 
-    for (i = 0; i < QmlDebug::MaximumQmlEventType; i++) {
+    for (i = 0; i < QmlDebug::MaximumRangeType; i++) {
         nestingLevels << QmlDebug::Constants::QML_MIN_LEVEL;
         QHash<int, qint64> dummyHash;
         dummyHash[QmlDebug::Constants::QML_MIN_LEVEL] = 0;
@@ -247,8 +244,8 @@ void BasicTimelineModel::BasicTimelineModelPrivate::findBindingLoops()
 
         BasicTimelineModel::QmlRangeEventData data = eventDict.at(event->eventId);
 
-        static QVector<QmlDebug::QmlEventType> acceptedTypes =
-                QVector<QmlDebug::QmlEventType>() << QmlDebug::Binding << QmlDebug::HandlingSignal;
+        static QVector<QmlDebug::RangeType> acceptedTypes =
+                QVector<QmlDebug::RangeType>() << QmlDebug::Binding << QmlDebug::HandlingSignal;
 
         if (!acceptedTypes.contains(data.eventType))
             continue;

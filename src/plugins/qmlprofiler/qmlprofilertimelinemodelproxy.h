@@ -53,7 +53,7 @@ public:
         QString displayName;
         QString details;
         QmlDebug::QmlEventLocation location;
-        QmlDebug::QmlEventType eventType;
+        QmlDebug::RangeType eventType;
 
         int eventId;  // separate
     };

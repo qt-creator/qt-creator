@@ -33,6 +33,7 @@
 #include "qmlprofiler_global.h"
 
 #include <qmldebug/qmlprofilereventlocation.h>
+#include <qmldebug/qmlprofilereventtypes.h>
 #include <utils/fileinprojectfinder.h>
 
 #include <QObject>
@@ -138,8 +139,9 @@ public slots:
     void clear();
 
     void prepareForWriting();
-    void addQmlEvent(int type, int bindingType, qint64 startTime, qint64 length,
-                        const QStringList &data, const QmlDebug::QmlEventLocation &location,
+    void addQmlEvent(QmlDebug::Message message, QmlDebug::RangeType rangeType, int bindingType,
+                     qint64 startTime, qint64 length, const QStringList &data,
+                     const QmlDebug::QmlEventLocation &location,
                      qint64 ndata1, qint64 ndata2, qint64 ndata3, qint64 ndata4, qint64 ndata5);
     void addV8Event(int depth, const QString &function,const QString &filename, int lineNumber,
                     double totalTime, double selfTime);

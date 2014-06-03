@@ -52,8 +52,8 @@ public:
 protected:
     class SingleCategoryTimelineModelPrivate;
     SingleCategoryTimelineModel(SingleCategoryTimelineModelPrivate *dd, const QString &name,
-                                const QString &label, QmlDebug::QmlEventType eventType,
-                                QObject *parent);
+                                const QString &label, QmlDebug::Message message,
+                                QmlDebug::RangeType rangeType, QObject *parent);
     Q_DECLARE_PRIVATE(SingleCategoryTimelineModel)
 };
 

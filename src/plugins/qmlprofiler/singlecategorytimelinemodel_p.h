@@ -40,7 +40,8 @@ class SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate :
 public:
     bool expanded;
     QString label;
-    QmlDebug::QmlEventType eventType;
+    QmlDebug::Message message;
+    QmlDebug::RangeType rangeType;
 };
 }
 
