@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <texteditor/texteditorsettings.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/headerviewstretcher.h>
 
 #include <QAbstractTableModel>
 #include <QList>
@@ -341,12 +342,8 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
         connect(snippetEditor, SIGNAL(snippetContentChanged()), this, SLOT(setSnippetContent()));
     }
 
-    m_ui.snippetsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_ui.snippetsTable->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_ui.snippetsTable->horizontalHeader()->setStretchLastSection(true);
-    m_ui.snippetsTable->horizontalHeader()->setHighlightSections(false);
-    m_ui.snippetsTable->verticalHeader()->setVisible(false);
     m_ui.snippetsTable->setModel(m_model);
+    new Utils::HeaderViewStretcher(m_ui.snippetsTable->header(), 1);
 
     m_ui.revertButton->setEnabled(false);
 
