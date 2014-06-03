@@ -225,6 +225,7 @@ void MergeTool::chooseAction()
     ba.append(key.toChar().toLatin1());
     ba.append('\n');
     m_process->write(ba);
+    m_process->waitForBytesWritten();
 }
 
 void MergeTool::addButton(QMessageBox *msgBox, const QString &text, char key)
@@ -254,6 +255,7 @@ void MergeTool::readData()
             } else {
                 m_process->write("n\n");
             }
+            m_process->waitForBytesWritten();
         }
     }
 }
