@@ -96,10 +96,13 @@ def main():
     mouseClick(waitForObject("{column='0' container=':Qt Creator_QHelpContentWidget' "
                              "text='Qt Reference Documentation' type='QModelIndex'}"))
     # try to search keyword from list
+    searchLineEdit = getChildByClass(waitForObject("{type='QHelpSearchQueryWidget' unnamed='1' visible='1' "
+                                                   "window=':Qt Creator_Core::Internal::MainWindow'}"),
+                                     "QLineEdit")
     for searchKeyword,shouldFind in searchKeywordDictionary.items():
-        mouseClick(waitForObject(":Qt Creator.Help_Search for:_QLineEdit"))
-        replaceEditorContent(":Qt Creator.Help_Search for:_QLineEdit", searchKeyword)
-        type(waitForObject(":Qt Creator.Help_Search for:_QLineEdit"), "<Return>")
+        mouseClick(searchLineEdit)
+        replaceEditorContent(searchLineEdit, searchKeyword)
+        type(searchLineEdit, "<Return>")
         progressBarWait(warn=False)
         if shouldFind:
             test.verify(waitFor("re.match('[1-9]\d* - [1-9]\d* of [1-9]\d* Hits',"
@@ -153,7 +156,7 @@ def main():
     test.verify("sql" in str(__getSelectedText__()).lower(),
                 "sql advanced search result can be found")
     # verify if simple search is properly disabled
-    test.verify(findObject(":Qt Creator.Help_Search for:_QLineEdit").enabled == False,
+    test.verify(not searchLineEdit.enabled,
                 "Verifying if simple search is not active in advanced mode.")
     # exit
     invokeMenuItem("File", "Exit")
