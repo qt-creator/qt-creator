@@ -273,7 +273,7 @@ void BarDescriptorFileNodeManager::updateBarDescriptor(const QString &barDescrip
         BlackBerryCreatePackageStep *createPackageStep = dynamic_cast<BlackBerryCreatePackageStep *>(step);
         if (createPackageStep) {
             createPackageStep->doUpdateAppDescriptorFile(barDescriptorPath,
-                                                         BlackBerryCreatePackageStep::EditMode::QtEnvironment,
+                                                         BlackBerryCreatePackageStep::QtEnvironment,
                                                          skipConfirmation);
         }
     }

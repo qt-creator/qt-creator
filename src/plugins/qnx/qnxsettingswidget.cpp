@@ -99,7 +99,7 @@ void QnxSettingsWidget::addConfiguration()
         return;
     }
 
-    setConfigState(config, State::Added);
+    setConfigState(config, Added);
     m_ui->configsCombo->addItem(config->displayName(),
                                    QVariant::fromValue(static_cast<void*>(config)));
 }
@@ -120,7 +120,7 @@ void QnxSettingsWidget::removeConfiguration()
                                   QMessageBox::Yes | QMessageBox::No);
 
     if (button == QMessageBox::Yes) {
-        setConfigState(config, State::Removed);
+        setConfigState(config, Removed);
         m_ui->configsCombo->removeItem(currentIndex);
     }
 }
@@ -133,7 +133,7 @@ void QnxSettingsWidget::generateKits(bool checked)
     if (!config)
         return;
 
-    setConfigState(config, checked ? State::Activated : State::Deactivated);
+    setConfigState(config, checked ? Activated : Deactivated);
 }
 
 void QnxSettingsWidget::updateInformation()
@@ -198,16 +198,16 @@ void QnxSettingsWidget::applyChanges()
 {
     foreach (const ConfigState &configState, m_changedConfigs) {
         switch (configState.state) {
-        case State::Activated :
+        case Activated :
             configState.config->activate();
             break;
-        case State::Deactivated:
+        case Deactivated:
             configState.config->deactivate();
             break;
-        case State::Added:
+        case Added:
             m_qnxConfigManager->addConfiguration(configState.config);
             break;
-        case State::Removed:
+        case Removed:
             configState.config->deactivate();
             m_qnxConfigManager->removeConfiguration(configState.config);
             break;

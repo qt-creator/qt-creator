@@ -262,7 +262,7 @@ bool BlackBerryCreatePackageStep::init()
         }
 
         const QString appDescriptorPath =  info.appDescriptorPath();
-        if (!doUpdateAppDescriptorFile(appDescriptorPath, EditMode::PlaceHolders))
+        if (!doUpdateAppDescriptorFile(appDescriptorPath, PlaceHolders))
             // If there is an error, prepareAppDescriptorFile() will raise it
             return false;
 
@@ -423,7 +423,7 @@ void BlackBerryCreatePackageStep::updateAppDescriptorFile()
         return;
 
     foreach (const BarPackageDeployInformation &info, packagesToDeploy)
-        doUpdateAppDescriptorFile(info.appDescriptorPath(), EditMode::QtEnvironment);
+        doUpdateAppDescriptorFile(info.appDescriptorPath(), QtEnvironment);
 }
 
 bool BlackBerryCreatePackageStep::doUpdateAppDescriptorFile(const QString &appDescriptorPath,
@@ -443,7 +443,7 @@ bool BlackBerryCreatePackageStep::doUpdateAppDescriptorFile(const QString &appDe
     BarDescriptorAssetList assetList = doc.value(BarDescriptorDocument::asset)
             .value<BarDescriptorAssetList>();
     bool updated = false;
-    if (types.testFlag(EditMode::PlaceHolders)) {
+    if (types.testFlag(PlaceHolders)) {
 
         foreach (const BarDescriptorAsset &a, assetList) {
             if (a.source.contains(QLatin1String("%SRC_DIR%"))) {
@@ -469,7 +469,7 @@ bool BlackBerryCreatePackageStep::doUpdateAppDescriptorFile(const QString &appDe
         }
     }
 
-    if (types.testFlag(EditMode::QtEnvironment)) {
+    if (types.testFlag(QtEnvironment)) {
         bool environmentUpdated = false;
         bool assetsUpdated = false;
         // Set up correct environment depending on using bundled/pre-installed Qt

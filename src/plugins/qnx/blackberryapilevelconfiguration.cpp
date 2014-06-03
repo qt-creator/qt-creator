@@ -331,18 +331,18 @@ bool BlackBerryApiLevelConfiguration::activate()
     }
 
     // Create tool chains
-    QnxToolChain *armvle7ToolChain = createToolChain(QnxArchitecture::ArmLeV7,
+    QnxToolChain *armvle7ToolChain = createToolChain(ArmLeV7,
                                                      tr("QCC for %1").arg(armVersionName),
                                                      ndkPath());
-    QnxToolChain *x86ToolChain = createToolChain(QnxArchitecture::X86,
+    QnxToolChain *x86ToolChain = createToolChain(X86,
                                                  tr("QCC for %1").arg(x86VersionName),
                                                  ndkPath());
     // Create debuggers
-    QVariant armDebuggerId = createDebuggerItem(QnxArchitecture::ArmLeV7,
-                                                      tr("Debugger for %1").arg(armVersionName));
+    QVariant armDebuggerId = createDebuggerItem(ArmLeV7,
+                                                tr("Debugger for %1").arg(armVersionName));
 
-    QVariant x86DebuggerId = createDebuggerItem(QnxArchitecture::X86,
-                                                      tr("Debugger for %1").arg(x86VersionName));
+    QVariant x86DebuggerId = createDebuggerItem(X86,
+                                                tr("Debugger for %1").arg(x86VersionName));
 
     // create kits
     if (qt4ArmVersion)
