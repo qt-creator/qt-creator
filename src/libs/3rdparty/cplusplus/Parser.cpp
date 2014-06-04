@@ -4731,6 +4731,7 @@ bool Parser::parseNameId(NameAST *&name)
     case T_SEMICOLON:
     case T_LBRACKET:
     case T_LPAREN:
+    case T_LBRACE:
         return true;
 
     case T_THIS:
