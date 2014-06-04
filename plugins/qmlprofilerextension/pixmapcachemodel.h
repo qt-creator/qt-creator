@@ -35,12 +35,11 @@ class PixmapCacheModel : public QmlProfiler::SingleCategoryTimelineModel
 public:
 
     struct PixmapCacheEvent {
-        int eventId;
         int pixmapEventType;
         int urlIndex;
-        qint64 cacheSize;
-        int rowNumberExpanded;
+        int sizeIndex;
         int rowNumberCollapsed;
+        qint64 cacheSize;
     };
 
     enum PixmapEventType {
@@ -71,6 +70,8 @@ public:
     void clear();
 
 private:
+    static const int PixmapCacheCountHue = 240;
+
     class PixmapCacheModelPrivate;
     Q_DECLARE_PRIVATE(PixmapCacheModel)
 };

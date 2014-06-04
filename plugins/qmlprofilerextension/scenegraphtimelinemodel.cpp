@@ -103,14 +103,14 @@ QColor SceneGraphTimelineModel::getColor(int index) const
     double fpsFraction = 1 / (eventDuration * 60.0);
     if (fpsFraction > 1.0)
         fpsFraction = 1.0;
-    return QColor::fromHsl((fpsFraction*96)+10, 76, 166);
+    return getFractionColor(fpsFraction);
 }
 
 QString labelForSGType(int t)
 {
     switch ((SceneGraphCategoryType)t) {
     case SceneGraphRenderThread:
-        return QCoreApplication::translate("SceneGraphTimelineModel", "Renderer Thread");
+        return QCoreApplication::translate("SceneGraphTimelineModel", "Render Thread");
     case SceneGraphGUIThread:
         return QCoreApplication::translate("SceneGraphTimelineModel", "GUI Thread");
     default: return QString();
