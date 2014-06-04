@@ -35,10 +35,10 @@ namespace QmlDesigner {
 
 ItemLibrarySection::ItemLibrarySection(int sectionLibId, const QString &sectionName, QObject *parent)
     : QObject(parent),
+      m_sectionEntries(parent),
       m_name(sectionName),
       m_sectionLibraryId(sectionLibId),
       m_sectionExpanded(true),
-      m_sectionEntries(parent),
       m_isVisible(false)
 {
 //    if (collapsedStateHash.contains(sectionName))
