@@ -55,8 +55,9 @@ bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret)
         *ret = m_target->project()->projectDirectory().toUserOutput();
         return true;
     }
-    *ret = Core::VariableManager::value(name.toUtf8());
-    return !ret->isEmpty();
+    bool found;
+    *ret = Core::VariableManager::value(name.toUtf8(), &found);
+    return found;
 }
 } // namespace Internal
 
