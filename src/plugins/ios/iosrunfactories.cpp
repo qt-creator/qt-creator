@@ -98,11 +98,15 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent)
     if (!IosManager::supportsIos(parent))
         return ids;
     Core::Id baseId(IOS_RC_ID_PREFIX);
-    QList<QmakeProFileNode *> nodes = static_cast<QmakeProject *>(parent->project())->allProFiles();
+    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
+
+    QList<QmakeProFileNode *> nodes = project->allProFiles(QList<QmakeProjectType>()
+                                                           << ApplicationTemplate
+                                                           << LibraryTemplate
+                                                           << AuxTemplate);
+
     foreach (QmakeProFileNode *node, nodes)
-        if (node->projectType() == ApplicationTemplate || node->projectType() == LibraryTemplate
-                || node->projectType() == AuxTemplate)
-            ids << baseId.withSuffix(node->path());
+        ids << baseId.withSuffix(node->path());
     return ids;
 }
 

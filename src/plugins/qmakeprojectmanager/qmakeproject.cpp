@@ -67,6 +67,7 @@
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 enum { debug = 0 };
 
@@ -1058,46 +1059,30 @@ bool QmakeProject::parseInProgress(const QString &proFilePath) const
     return node && node->parseInProgress();
 }
 
-void QmakeProject::collectAllfProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse)
+void QmakeProject::collectAllProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse,
+                                      const QList<QmakeProjectType> &projectTypes)
 {
     if (parse == ExactAndCumulativeParse || node->includedInExactParse())
-        list.append(node);
-    foreach (ProjectNode *n, node->subProjectNodes()) {
-        QmakeProFileNode *qmakeProFileNode = qobject_cast<QmakeProFileNode *>(n);
-        if (qmakeProFileNode)
-            collectAllfProFiles(list, qmakeProFileNode, parse);
-    }
-}
-
-void QmakeProject::collectApplicationProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse)
-{
-    if (node->projectType() == ApplicationTemplate
-        || node->projectType() == ScriptTemplate) {
-        if (parse == ExactAndCumulativeParse || node->includedInExactParse())
+        if (projectTypes.isEmpty() || projectTypes.contains(node->projectType()))
             list.append(node);
-    }
     foreach (ProjectNode *n, node->subProjectNodes()) {
         QmakeProFileNode *qmakeProFileNode = qobject_cast<QmakeProFileNode *>(n);
         if (qmakeProFileNode)
-            collectApplicationProFiles(list, qmakeProFileNode, parse);
+            collectAllProFiles(list, qmakeProFileNode, parse, projectTypes);
     }
-}
-
-QList<QmakeProFileNode *> QmakeProject::allProFiles(Parsing parse) const
-{
-    QList<QmakeProFileNode *> list;
-    if (!rootProjectNode())
-        return list;
-    collectAllfProFiles(list, rootQmakeProjectNode(), parse);
-    return list;
 }
 
 QList<QmakeProFileNode *> QmakeProject::applicationProFiles(Parsing parse) const
 {
+    return allProFiles(QList<QmakeProjectType>() << ApplicationTemplate << ScriptTemplate, parse);
+}
+
+QList<QmakeProFileNode *> QmakeProject::allProFiles(const QList<QmakeProjectType> &projectTypes, Parsing parse) const
+{
     QList<QmakeProFileNode *> list;
     if (!rootProjectNode())
         return list;
-    collectApplicationProFiles(list, rootQmakeProjectNode(), parse);
+    collectAllProFiles(list, rootQmakeProjectNode(), parse, projectTypes);
     return list;
 }
 

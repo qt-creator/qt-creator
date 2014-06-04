@@ -90,11 +90,15 @@ QList<Core::Id> AndroidRunConfigurationFactory::availableCreationIds(Target *par
     QList<Core::Id> ids;
     if (!AndroidManager::supportsAndroid(parent))
         return ids;
-    QList<QmakeProFileNode *> nodes = static_cast<QmakeProject *>(parent->project())->allProFiles();
+
+    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
+
+    QList<QmakeProFileNode *> nodes = project->allProFiles(QList<QmakeProjectType>()
+                                                           << ApplicationTemplate
+                                                           << LibraryTemplate);
     const Core::Id base = Core::Id(ANDROID_RC_ID_PREFIX);
     foreach (QmakeProFileNode *node, nodes)
-        if (node->projectType() == ApplicationTemplate || node->projectType() == LibraryTemplate)
-            ids << base.withSuffix(node->path());
+        ids << base.withSuffix(node->path());
     return ids;
 }
 

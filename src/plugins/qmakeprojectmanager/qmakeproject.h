@@ -31,6 +31,7 @@
 #define QMAKEPROJECT_H
 
 #include "qmakeprojectmanager_global.h"
+#include "qmakenodes.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
@@ -86,7 +87,8 @@ public:
     virtual QString generatedUiHeader(const QString &formFile) const;
 
     enum Parsing {ExactParse, ExactAndCumulativeParse };
-    QList<QmakeProFileNode *> allProFiles(Parsing parse = ExactParse) const;
+    QList<QmakeProFileNode *> allProFiles(const QList<QmakeProjectType> &projectTypes = QList<QmakeProjectType>(),
+                                          Parsing parse = ExactParse) const;
     QList<QmakeProFileNode *> applicationProFiles(Parsing parse = ExactParse) const;
     bool hasApplicationProFile(const QString &path) const;
     QStringList applicationProFilePathes(const QString &prepend = QString(), Parsing parse = ExactParse) const;
@@ -162,8 +164,8 @@ private:
     void updateCppCodeModel();
     void updateQmlJSCodeModel();
 
-    static void collectAllfProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse);
-    static void collectApplicationProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse);
+    static void collectAllProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse,
+                                   const QList<QmakeProjectManager::QmakeProjectType> &projectTypes);
     static void findProFile(const QString& fileName, QmakeProFileNode *root, QList<QmakeProFileNode *> &list);
     static bool hasSubNode(QmakePriFileNode *root, const QString &path);
 
