@@ -880,7 +880,7 @@ static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
         highlightId->clear();
     if (links.isEmpty())
         return QUrl();
-    QUrl source = links.first();
+    QUrl source = links.constBegin().value();
     // workaround to show the latest Qt version
     int version = 0;
     QRegExp exp(QLatin1String("(\\d+)"));
