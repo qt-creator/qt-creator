@@ -58,6 +58,8 @@ public:
     Result findIncremental(const QString &txt, FindFlags findFlags);
     Result findStep(const QString &txt, FindFlags findFlags);
 
+    static QWidget *createSearchableWrapper(QTreeView *treeView);
+
 private:
     Result find(const QString &txt, FindFlags findFlags,
                 bool startFromCurrentIndex, bool *wrapped);

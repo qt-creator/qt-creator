@@ -29,9 +29,13 @@
 
 #include "treeviewfind.h"
 
-#include <QTreeView>
-#include <QTextCursor>
+#include <aggregation/aggregate.h>
+#include <coreplugin/findplaceholder.h>
+
 #include <QModelIndex>
+#include <QTextCursor>
+#include <QTreeView>
+#include <QVBoxLayout>
 
 namespace Core {
 
@@ -124,6 +128,22 @@ IFindSupport::Result TreeViewFind::findStep(const QString &txt, FindFlags findFl
         d->m_incrementalWrappedState = false;
     }
     return result;
+}
+
+QWidget *TreeViewFind::createSearchableWrapper(QTreeView *treeView)
+{
+    QWidget *widget = new QWidget;
+    QVBoxLayout *vbox = new QVBoxLayout(widget);
+    vbox->setMargin(0);
+    vbox->setSpacing(0);
+    vbox->addWidget(treeView);
+    vbox->addWidget(new Core::FindToolBarPlaceHolder(widget));
+
+    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    agg->add(treeView);
+    agg->add(new TreeViewFind(treeView));
+
+    return widget;
 }
 
 IFindSupport::Result TreeViewFind::find(const QString &searchTxt,

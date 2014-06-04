@@ -74,6 +74,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/find/treeviewfind.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -124,10 +125,6 @@
 #include <QtPlugin>
 #include <QTreeWidget>
 #include <QVBoxLayout>
-
-#include <aggregation/aggregate.h>
-#include <coreplugin/findplaceholder.h>
-#include <coreplugin/find/treeviewfind.h>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -535,8 +532,6 @@ public:
 
 static QWidget *addSearch(BaseTreeView *treeView, const QString &title, const char *objectName)
 {
-    QWidget *widget = new QWidget;
-
     QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     treeView->setAlternatingRowColors(act->isChecked());
     QObject::connect(act, SIGNAL(toggled(bool)),
@@ -547,19 +542,9 @@ static QWidget *addSearch(BaseTreeView *treeView, const QString &title, const ch
     QObject::connect(act, SIGNAL(toggled(bool)),
             treeView, SLOT(setAlwaysAdjustColumns(bool)));
 
-    QVBoxLayout *vbox = new QVBoxLayout(widget);
-    vbox->setMargin(0);
-    vbox->setSpacing(0);
-    vbox->addWidget(treeView);
-    vbox->addWidget(new Core::FindToolBarPlaceHolder(widget));
-
-    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
-    agg->add(treeView);
-    agg->add(new Core::TreeViewFind(treeView));
-
+    QWidget *widget = TreeViewFind::createSearchableWrapper(treeView);
     widget->setObjectName(QLatin1String(objectName));
     widget->setWindowTitle(title);
-
     return widget;
 }
 
