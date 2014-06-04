@@ -30,7 +30,6 @@
 #ifndef DEBUGGER_REGISTERWINDOW_H
 #define DEBUGGER_REGISTERWINDOW_H
 
-#include "basewindow.h"
 #include <utils/basetreeview.h>
 
 namespace Debugger {
@@ -41,21 +40,13 @@ class RegisterTreeView : public Utils::BaseTreeView
     Q_OBJECT
 
 public:
-    explicit RegisterTreeView(QWidget *parent = 0);
+    RegisterTreeView();
 
 public slots:
     void reloadRegisters();
 
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
-};
-
-class RegisterWindow : public BaseWindow
-{
-    Q_OBJECT
-
-public:
-    RegisterWindow();
 };
 
 } // namespace Internal

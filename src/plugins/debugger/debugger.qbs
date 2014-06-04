@@ -28,7 +28,6 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
-            "basewindow.cpp", "basewindow.h",
             "breakhandler.cpp", "breakhandler.h",
             "breakpoint.cpp", "breakpoint.h",
             "breakpointmarker.cpp", "breakpointmarker.h",

@@ -60,8 +60,7 @@ static DebuggerEngine *currentEngine()
     return debuggerCore()->currentEngine();
 }
 
-StackTreeView::StackTreeView(QWidget *parent)
-    : BaseTreeView(parent)
+StackTreeView::StackTreeView()
 {
     setWindowTitle(tr("Stack"));
 

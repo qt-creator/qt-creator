@@ -101,11 +101,13 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/basetreeview.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 #include <utils/proxyaction.h>
+#include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 #include <utils/statuslabel.h>
+#include <utils/styledbar.h>
 #include <utils/winutils.h>
 
 #include <QApplication>
@@ -121,6 +123,11 @@
 #include <QToolButton>
 #include <QtPlugin>
 #include <QTreeWidget>
+#include <QVBoxLayout>
+
+#include <aggregation/aggregate.h>
+#include <coreplugin/findplaceholder.h>
+#include <coreplugin/find/treeviewfind.h>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -526,6 +533,36 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
+static QWidget *addSearch(BaseTreeView *treeView, const QString &title, const char *objectName)
+{
+    QWidget *widget = new QWidget;
+
+    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
+    treeView->setAlternatingRowColors(act->isChecked());
+    QObject::connect(act, SIGNAL(toggled(bool)),
+            treeView, SLOT(setAlternatingRowColorsHelper(bool)));
+
+    act = debuggerCore()->action(AlwaysAdjustColumnWidths);
+    treeView->setAlwaysAdjustColumns(act->isChecked());
+    QObject::connect(act, SIGNAL(toggled(bool)),
+            treeView, SLOT(setAlwaysAdjustColumns(bool)));
+
+    QVBoxLayout *vbox = new QVBoxLayout(widget);
+    vbox->setMargin(0);
+    vbox->setSpacing(0);
+    vbox->addWidget(treeView);
+    vbox->addWidget(new Core::FindToolBarPlaceHolder(widget));
+
+    Aggregation::Aggregate *agg = new Aggregation::Aggregate;
+    agg->add(treeView);
+    agg->add(new Core::TreeViewFind(treeView));
+
+    widget->setObjectName(QLatin1String(objectName));
+    widget->setWindowTitle(title);
+
+    return widget;
+}
+
 static QString executableForPid(qint64 pid)
 {
     foreach (const DeviceProcessItem &p, DeviceProcessList::localProcesses())
@@ -817,8 +854,8 @@ public slots:
 
     void updateWatchersHeader(int section, int, int newSize)
     {
-        m_watchersWindow->header()->resizeSection(section, newSize);
-        m_returnWindow->header()->resizeSection(section, newSize);
+        m_watchersView->header()->resizeSection(section, newSize);
+        m_returnView->header()->resizeSection(section, newSize);
     }
 
 
@@ -1240,18 +1277,30 @@ public:
     StatusLabel *m_statusLabel;
     QComboBox *m_threadBox;
 
-    BaseWindow *m_breakWindow;
+    BaseTreeView *m_breakView;
+    BaseTreeView *m_returnView;
+    BaseTreeView *m_localsView;
+    BaseTreeView *m_watchersView;
+    BaseTreeView *m_inspectorView;
+    BaseTreeView *m_registerView;
+    BaseTreeView *m_modulesView;
+    BaseTreeView *m_snapshotView;
+    BaseTreeView *m_sourceFilesView;
+    BaseTreeView *m_stackView;
+    BaseTreeView *m_threadsView;
+
+    QWidget *m_breakWindow;
     BreakHandler *m_breakHandler;
-    WatchWindow *m_returnWindow;
-    WatchWindow *m_localsWindow;
-    WatchWindow *m_watchersWindow;
-    WatchWindow *m_inspectorWindow;
-    BaseWindow *m_registerWindow;
-    BaseWindow *m_modulesWindow;
-    BaseWindow *m_snapshotWindow;
-    BaseWindow *m_sourceFilesWindow;
-    BaseWindow *m_stackWindow;
-    BaseWindow *m_threadsWindow;
+    QWidget *m_returnWindow;
+    QWidget *m_localsWindow;
+    QWidget *m_watchersWindow;
+    QWidget *m_inspectorWindow;
+    QWidget *m_registerWindow;
+    QWidget *m_modulesWindow;
+    QWidget *m_snapshotWindow;
+    QWidget *m_sourceFilesWindow;
+    QWidget *m_stackWindow;
+    QWidget *m_threadsWindow;
     LogWindow *m_logWindow;
     LocalsAndExpressionsWindow *m_localsAndExpressionsWindow;
 
@@ -2097,15 +2146,15 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
         m_currentEngine->resetLocation();
     m_currentEngine = engine;
 
-    m_localsWindow->setModel(engine->watchModel());
-    m_modulesWindow->setModel(engine->modulesModel());
-    m_registerWindow->setModel(engine->registerModel());
-    m_returnWindow->setModel(engine->watchModel());
-    m_sourceFilesWindow->setModel(engine->sourceFilesModel());
-    m_stackWindow->setModel(engine->stackModel());
-    m_threadsWindow->setModel(engine->threadsModel());
-    m_watchersWindow->setModel(engine->watchModel());
-    m_inspectorWindow->setModel(engine->watchModel());
+    m_localsView->setModel(engine->watchModel());
+    m_modulesView->setModel(engine->modulesModel());
+    m_registerView->setModel(engine->registerModel());
+    m_returnView->setModel(engine->watchModel());
+    m_sourceFilesView->setModel(engine->sourceFilesModel());
+    m_stackView->setModel(engine->stackModel());
+    m_threadsView->setModel(engine->threadsModel());
+    m_watchersView->setModel(engine->watchModel());
+    m_inspectorView->setModel(engine->watchModel());
 
     mainWindow()->setEngineDebugLanguages(engine->startParameters().languages);
 }
@@ -2239,8 +2288,8 @@ void DebuggerPluginPrivate::updateWatchersWindow(bool showWatch, bool showReturn
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 {
     QTC_ASSERT(engine, return);
-    QTC_ASSERT(m_watchersWindow->model(), return);
-    QTC_ASSERT(m_returnWindow->model(), return);
+    QTC_ASSERT(m_watchersView->model(), return);
+    QTC_ASSERT(m_returnView->model(), return);
     QTC_ASSERT(!engine->isSlaveEngine(), return);
 
     m_threadBox->setCurrentIndex(engine->threadsHandler()->currentThreadIndex());
@@ -2539,6 +2588,11 @@ QVariant DebuggerCore::sessionValue(const QByteArray &key)
     return SessionManager::value(QString::fromUtf8(key));
 }
 
+QTreeView *DebuggerCore::inspectorView()
+{
+    return theDebuggerCore->m_inspectorView;
+}
+
 void DebuggerPluginPrivate::openTextEditor(const QString &titlePattern0,
     const QString &contents)
 {
@@ -2741,40 +2795,49 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_statusLabel = new StatusLabel;
 
-    m_breakHandler = new BreakHandler;
-    m_breakWindow = new BreakWindow;
-    m_breakWindow->setObjectName(QLatin1String(DOCKWIDGET_BREAK));
-    m_breakWindow->setModel(m_breakHandler->model());
-
-    m_modulesWindow = new ModulesWindow;
-    m_modulesWindow->setObjectName(QLatin1String(DOCKWIDGET_MODULES));
     m_logWindow = new LogWindow;
     m_logWindow->setObjectName(QLatin1String(DOCKWIDGET_OUTPUT));
-    m_registerWindow = new RegisterWindow;
-    m_registerWindow->setObjectName(QLatin1String(DOCKWIDGET_REGISTER));
-    m_stackWindow = new StackWindow;
-    m_stackWindow->setObjectName(QLatin1String(DOCKWIDGET_STACK));
-    m_sourceFilesWindow = new SourceFilesWindow;
-    m_sourceFilesWindow->setObjectName(QLatin1String(DOCKWIDGET_SOURCE_FILES));
-    m_threadsWindow = new ThreadsWindow;
-    m_threadsWindow->setObjectName(QLatin1String(DOCKWIDGET_THREADS));
-    m_returnWindow = new WatchWindow(ReturnType);
-    m_returnWindow->setObjectName(QLatin1String("CppDebugReturn"));
-    m_localsWindow = new WatchWindow(LocalsType);
-    m_localsWindow->setObjectName(QLatin1String("CppDebugLocals"));
-    m_watchersWindow = new WatchWindow(WatchersType);
-    m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
-    m_inspectorWindow = new WatchWindow(InspectType);
-    m_inspectorWindow->setObjectName(QLatin1String("Inspector"));
+
+    m_breakHandler = new BreakHandler;
+    m_breakView = new BreakTreeView;
+    m_breakView->setModel(m_breakHandler->model());
+    m_breakWindow = addSearch(m_breakView, tr("Breakpoints"), DOCKWIDGET_BREAK);
+
+    m_modulesView = new ModulesTreeView;
+    m_modulesWindow = addSearch(m_modulesView, tr("Modules"), DOCKWIDGET_MODULES);
+
+    m_registerView = new RegisterTreeView;
+    m_registerWindow = addSearch(m_registerView, tr("Registers"), DOCKWIDGET_REGISTER);
+
+    m_stackView = new StackTreeView;
+    m_stackWindow = addSearch(m_stackView, tr("Stack"), DOCKWIDGET_STACK);
+
+    m_sourceFilesView = new SourceFilesTreeView;
+    m_sourceFilesWindow = addSearch(m_sourceFilesView, tr("Source Files"), DOCKWIDGET_SOURCE_FILES);
+
+    m_threadsView = new ThreadsTreeView;
+    m_threadsWindow = addSearch(m_threadsView, tr("Threads"), DOCKWIDGET_THREADS);
+
+    m_returnView = new WatchTreeView(ReturnType);
+    m_returnWindow = addSearch(m_returnView, tr("Locals and Expressions"), "CppDebugReturn");
+
+    m_localsView = new WatchTreeView(LocalsType);
+    m_localsWindow = addSearch(m_localsView, tr("Locals and Expressions"), "CppDebugLocals");
+
+    m_watchersView = new WatchTreeView(WatchersType);
+    m_watchersWindow = addSearch(m_watchersView, tr("Locals and Expressions"), "CppDebugWatchers");
+
+    m_inspectorView = new WatchTreeView(InspectType);
+    m_inspectorWindow = addSearch(m_inspectorView, tr("Locals and Expressions"), "Inspector");
 
     // Snapshot
     m_snapshotHandler = new SnapshotHandler;
-    m_snapshotWindow = new SnapshotWindow(m_snapshotHandler);
-    m_snapshotWindow->setObjectName(QLatin1String(DOCKWIDGET_SNAPSHOTS));
-    m_snapshotWindow->setModel(m_snapshotHandler->model());
+    m_snapshotView = new SnapshotTreeView(m_snapshotHandler);
+    m_snapshotView->setModel(m_snapshotHandler->model());
+    m_snapshotWindow = addSearch(m_snapshotView, tr("Snapshots"), DOCKWIDGET_SNAPSHOTS);
 
     // Watchers
-    connect(m_localsWindow->header(), SIGNAL(sectionResized(int,int,int)),
+    connect(m_localsView->header(), SIGNAL(sectionResized(int,int,int)),
         SLOT(updateWatchersHeader(int,int,int)), Qt::QueuedConnection);
 
     QAction *act = 0;

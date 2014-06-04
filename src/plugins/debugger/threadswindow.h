@@ -30,7 +30,6 @@
 #ifndef THREADSWINDOW_H
 #define THREADSWINDOW_H
 
-#include "basewindow.h"
 #include <utils/basetreeview.h>
 
 namespace Debugger {
@@ -46,14 +45,6 @@ public:
 private:
     void rowActivated(const QModelIndex &index);
     void contextMenuEvent(QContextMenuEvent *ev);
-};
-
-class ThreadsWindow : public BaseWindow
-{
-    Q_OBJECT
-
-public:
-    ThreadsWindow();
 };
 
 } // namespace Internal

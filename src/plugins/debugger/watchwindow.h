@@ -30,7 +30,6 @@
 #ifndef DEBUGGER_WATCHWINDOW_H
 #define DEBUGGER_WATCHWINDOW_H
 
-#include "basewindow.h"
 #include <utils/basetreeview.h>
 
 namespace Debugger {
@@ -49,7 +48,7 @@ class WatchTreeView : public Utils::BaseTreeView
     Q_OBJECT
 
 public:
-    explicit WatchTreeView(WatchType type, QWidget *parent = 0);
+    explicit WatchTreeView(WatchType type);
     WatchType type() const { return m_type; }
 
     void setModel(QAbstractItemModel *model);
@@ -96,18 +95,6 @@ private:
 
     WatchType m_type;
     bool m_grabbing;
-};
-
-class WatchWindow : public BaseWindow
-{
-    Q_OBJECT
-
-public:
-    explicit WatchWindow(WatchType type)
-        : BaseWindow(new WatchTreeView(type))
-    {
-        setWindowTitle(tr("Locals and Expressions"));
-    }
 };
 
 } // namespace Internal

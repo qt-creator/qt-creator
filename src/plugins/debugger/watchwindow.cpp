@@ -470,9 +470,8 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
 //
 /////////////////////////////////////////////////////////////////////
 
-WatchTreeView::WatchTreeView(WatchType type, QWidget *parent)
-  : BaseTreeView(parent),
-    m_type(type)
+WatchTreeView::WatchTreeView(WatchType type)
+  : m_type(type)
 {
     setObjectName(QLatin1String("WatchWindow"));
     m_grabbing = false;

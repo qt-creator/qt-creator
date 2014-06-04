@@ -184,8 +184,6 @@ private:
     bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line,
                                        quint32 *column, bool *valid);
 
-    WatchTreeView *inspectorTreeView() const;
-
     QmlAdapter m_adapter;
     QmlInspectorAdapter m_inspectorAdapter;
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;

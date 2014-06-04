@@ -41,6 +41,7 @@ QT_BEGIN_NAMESPACE
 class QIcon;
 class QMessageBox;
 class QWidget;
+class QTreeView;
 QT_END_NAMESPACE
 
 namespace CPlusPlus { class Snapshot; }
@@ -121,6 +122,8 @@ public:
 
     virtual DebuggerToolTipManager *toolTipManager() const = 0;
     virtual QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const = 0;
+
+    static QTreeView *inspectorView();
 
 public slots:
     virtual void attachExternalApplication(ProjectExplorer::RunControl *rc) = 0;

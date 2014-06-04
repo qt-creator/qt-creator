@@ -80,6 +80,11 @@ using namespace AST;
 namespace Debugger {
 namespace Internal {
 
+static QTreeView *inspectorTreeView()
+{
+    return DebuggerCore::inspectorView();
+}
+
 class ASTWalker : public Visitor
 {
 public:
@@ -1357,15 +1362,6 @@ bool QmlEngine::adjustBreakpointLineAndColumn(
         }
     }
     return success;
-}
-
-WatchTreeView *QmlEngine::inspectorTreeView() const
-{
-    DebuggerMainWindow *dw = qobject_cast<DebuggerMainWindow *>(debuggerCore()->mainWindow());
-    LocalsAndExpressionsWindow *leW = qobject_cast<LocalsAndExpressionsWindow *>(
-                dw->dockWidget(_(DOCKWIDGET_WATCHERS))->widget());
-    WatchWindow *inspectorWindow = qobject_cast<WatchWindow *>(leW->inspectorWidget());
-    return qobject_cast<WatchTreeView *>(inspectorWindow->treeView());
 }
 
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)

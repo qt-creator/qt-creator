@@ -53,8 +53,7 @@
 namespace Debugger {
 namespace Internal {
 
-ModulesTreeView::ModulesTreeView(QWidget *parent)
-  : BaseTreeView(parent)
+ModulesTreeView::ModulesTreeView()
 {
     setSortingEnabled(true);
 
@@ -173,12 +172,6 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
         engine->requestModuleSections(fileName);
     else if (actShowDependencies && act == actShowDependencies)
         QProcess::startDetached(QLatin1String("depends"), QStringList(fileName));
-}
-
-ModulesWindow::ModulesWindow()
-    : BaseWindow(new ModulesTreeView)
-{
-    setWindowTitle(tr("Modules"));
 }
 
 } // namespace Internal

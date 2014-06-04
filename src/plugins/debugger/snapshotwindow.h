@@ -30,7 +30,6 @@
 #ifndef DEBUGGER_SNAPSHOTWINDOW_H
 #define DEBUGGER_SNAPSHOTWINDOW_H
 
-#include "basewindow.h"
 #include <utils/basetreeview.h>
 
 namespace Debugger {
@@ -52,17 +51,6 @@ private:
     void contextMenuEvent(QContextMenuEvent *ev);
 
     SnapshotHandler *m_snapshotHandler;
-};
-
-class SnapshotWindow : public BaseWindow
-{
-    Q_OBJECT
-public:
-    explicit SnapshotWindow(SnapshotHandler *handler)
-        : BaseWindow(new SnapshotTreeView(handler))
-    {
-        setWindowTitle(tr("Snapshots"));
-    }
 };
 
 } // namespace Internal

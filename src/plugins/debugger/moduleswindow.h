@@ -30,7 +30,6 @@
 #ifndef DEBUGGER_MODULESWINDOW_H
 #define DEBUGGER_MODULESWINDOW_H
 
-#include "basewindow.h"
 #include <utils/basetreeview.h>
 
 namespace Debugger {
@@ -41,21 +40,13 @@ class ModulesTreeView : public Utils::BaseTreeView
     Q_OBJECT
 
 public:
-    explicit ModulesTreeView(QWidget *parent = 0);
+    ModulesTreeView();
 
 private slots:
     void moduleActivated(const QModelIndex &index);
 
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
-};
-
-class ModulesWindow : public BaseWindow
-{
-    Q_OBJECT
-
-public:
-    ModulesWindow();
 };
 
 } // namespace Internal

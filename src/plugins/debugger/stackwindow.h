@@ -30,7 +30,6 @@
 #ifndef DEBUGGER_STACKWINDOW_H
 #define DEBUGGER_STACKWINDOW_H
 
-#include "basewindow.h"
 #include <utils/basetreeview.h>
 
 namespace Debugger {
@@ -41,7 +40,7 @@ class StackTreeView : public Utils::BaseTreeView
     Q_OBJECT
 
 public:
-    explicit StackTreeView(QWidget *parent = 0);
+    StackTreeView();
 
 private slots:
     void showAddressColumn(bool on);
@@ -52,17 +51,6 @@ private:
     void setModel(QAbstractItemModel *model);
     void contextMenuEvent(QContextMenuEvent *ev);
     void copyContentsToClipboard();
-};
-
-class StackWindow : public BaseWindow
-{
-    Q_OBJECT
-
-public:
-    StackWindow() : BaseWindow(new StackTreeView)
-    {
-        setWindowTitle(tr("Stack"));
-    }
 };
 
 } // namespace Internal

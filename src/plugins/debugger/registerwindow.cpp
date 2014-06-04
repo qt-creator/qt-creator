@@ -157,8 +157,7 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-RegisterTreeView::RegisterTreeView(QWidget *parent)
-    : BaseTreeView(parent)
+RegisterTreeView::RegisterTreeView()
 {
     setItemDelegate(new RegisterDelegate(this));
 }
@@ -265,12 +264,6 @@ void RegisterTreeView::reloadRegisters()
 {
     // FIXME: Only trigger when becoming visible?
     currentEngine()->reloadRegisters();
-}
-
-RegisterWindow::RegisterWindow()
-    : BaseWindow(new RegisterTreeView)
-{
-    setWindowTitle(tr("Registers"));
 }
 
 } // namespace Internal

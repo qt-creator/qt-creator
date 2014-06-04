@@ -674,8 +674,7 @@ MultiBreakPointsDialog::MultiBreakPointsDialog(QWidget *parent) :
 //
 ///////////////////////////////////////////////////////////////////////
 
-BreakTreeView::BreakTreeView(QWidget *parent)
-    : BaseTreeView(parent)
+BreakTreeView::BreakTreeView()
 {
     setWindowIcon(QIcon(QLatin1String(":/debugger/images/debugger_breakpoints.png")));
     setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -950,12 +949,6 @@ void BreakTreeView::associateBreakpoint(const BreakpointModelIds &ids, int threa
 void BreakTreeView::rowActivated(const QModelIndex &index)
 {
     breakHandler()->gotoLocation(breakHandler()->findBreakpointByIndex(index));
-}
-
-BreakWindow::BreakWindow()
-    : BaseWindow(new BreakTreeView)
-{
-    setWindowTitle(tr("Breakpoints"));
 }
 
 } // namespace Internal

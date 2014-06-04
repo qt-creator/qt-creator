@@ -30,7 +30,6 @@
 #ifndef SOURCEFILESWINDOW_H
 #define SOURCEFILESWINDOW_H
 
-#include "basewindow.h"
 #include <utils/basetreeview.h>
 
 namespace Debugger {
@@ -41,19 +40,11 @@ class SourceFilesTreeView : public Utils::BaseTreeView
     Q_OBJECT
 
 public:
-    SourceFilesTreeView(QWidget *parent = 0);
+    SourceFilesTreeView();
 
 private:
     void rowActivated(const QModelIndex &index);
     void contextMenuEvent(QContextMenuEvent *ev);
-};
-
-class SourceFilesWindow : public BaseWindow
-{
-    Q_OBJECT
-
-public:
-    SourceFilesWindow();
 };
 
 } // namespace Internal

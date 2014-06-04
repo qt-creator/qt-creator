@@ -60,12 +60,5 @@ void ThreadsTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.exec(ev->globalPos());
 }
 
-ThreadsWindow::ThreadsWindow()
-    : BaseWindow(new ThreadsTreeView)
-{
-    setWindowTitle(tr("Threads"));
-    setObjectName(QLatin1String("ThreadsWindow"));
-}
-
 } // namespace Internal
 } // namespace Debugger

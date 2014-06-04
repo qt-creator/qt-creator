@@ -13,7 +13,6 @@ QT += gui \
 CONFIG += exceptions
 
 HEADERS += \
-    basewindow.h \
     breakhandler.h \
     breakpoint.h \
     breakpointmarker.h \
@@ -76,7 +75,6 @@ HEADERS += \
     unstartedappwatcherdialog.h
 
 SOURCES += \
-    basewindow.cpp \
     breakhandler.cpp \
     breakpoint.cpp \
     breakpointmarker.cpp \

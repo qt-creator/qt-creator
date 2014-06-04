@@ -51,8 +51,7 @@
 namespace Debugger {
 namespace Internal {
 
-SourceFilesTreeView::SourceFilesTreeView(QWidget *parent)
-    : BaseTreeView(parent)
+SourceFilesTreeView::SourceFilesTreeView()
 {
     setSortingEnabled(true);
 }
@@ -98,12 +97,6 @@ void SourceFilesTreeView::contextMenuEvent(QContextMenuEvent *ev)
         engine->reloadSourceFiles();
     else if (act == act2)
         engine->gotoLocation(name);
-}
-
-SourceFilesWindow::SourceFilesWindow()
-    : BaseWindow(new SourceFilesTreeView)
-{
-    setWindowTitle(tr("Source Files"));
 }
 
 } // namespace Internal
