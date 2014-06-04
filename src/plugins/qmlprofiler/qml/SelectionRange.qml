@@ -60,7 +60,6 @@ RangeMover {
     onRangeDoubleClicked: {
         zoomControl.setRange(startTime, startTime + duration);
         root.selectionRangeMode = false;
-        root.updateRangeButton();
     }
 
     function reset() {

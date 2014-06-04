@@ -55,18 +55,17 @@ Canvas {
         context.fillStyle = "white";
         context.fillRect(0, 0, width, height);
 
-        var realWidth = width - 1; // account for left border
         var totalTime = Math.max(1, endTime - startTime);
-        var spacing = realWidth / totalTime;
+        var spacing = width / totalTime;
 
         var initialBlockLength = 120;
-        var timePerBlock = Math.pow(2, Math.floor( Math.log( totalTime / realWidth * initialBlockLength ) / Math.LN2 ) );
+        var timePerBlock = Math.pow(2, Math.floor( Math.log( totalTime / width * initialBlockLength ) / Math.LN2 ) );
         var pixelsPerBlock = timePerBlock * spacing;
         var pixelsPerSection = pixelsPerBlock / 5;
-        var blockCount = realWidth / pixelsPerBlock;
+        var blockCount = width / pixelsPerBlock;
 
         var realStartTime = Math.floor(startTime/timePerBlock) * timePerBlock;
-        var realStartPos = (startTime - realStartTime) * spacing - 1;
+        var startPos = (startTime - realStartTime) * spacing;
 
         var timePerPixel = timePerBlock/pixelsPerBlock;
 
@@ -75,7 +74,7 @@ Canvas {
         context.fillStyle = "#000000";
         context.font = "8px sans-serif";
         for (var ii = 0; ii < blockCount+1; ii++) {
-            var x = Math.floor(ii*pixelsPerBlock - realStartPos);
+            var x = Math.floor(ii*pixelsPerBlock - startPos);
 
             context.fillStyle = (ii+initialColor)%2 ? "#E6E6E6":"white";
             context.fillRect(x, 0, pixelsPerBlock, height);
@@ -95,10 +94,6 @@ Canvas {
         context.moveTo(0, height-1);
         context.lineTo(width, height-1);
         context.stroke();
-
-        // left border
-        context.fillStyle = "#858585";
-        context.fillRect(0, 0, 1, height);
     }
 
     function clear()

@@ -74,6 +74,7 @@ RESOURCES += \
     qml/qmlprofiler.qrc
 
 OTHER_FILES += \
+    qml/ButtonsBar.qml \
     qml/Detail.qml \
     qml/CategoryLabel.qml \
     qml/MainView.qml \

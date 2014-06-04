@@ -26,5 +26,6 @@
         <file>ico_next.png</file>
         <file>ico_rangeselection.png</file>
         <file>ico_rangeselected.png</file>
+        <file>ButtonsBar.qml</file>
     </qresource>
 </RCC>

@@ -151,8 +151,6 @@ public:
     ~QmlProfilerTraceViewPrivate()
     {
         delete m_mainView;
-        delete m_timebar;
-        delete m_overview;
     }
 
     QmlProfilerTraceView *q;
@@ -164,16 +162,11 @@ public:
     QSize m_sizeHint;
 
     QQuickView *m_mainView;
-    QQuickView *m_timebar;
-    QQuickView *m_overview;
     QmlProfilerModelManager *m_modelManager;
     TimelineModelAggregator *m_modelProxy;
 
 
     ZoomControl *m_zoomControl;
-
-    QToolButton *m_buttonRange;
-    QToolButton *m_buttonLock;
 };
 
 QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState)
@@ -193,28 +186,9 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     QWidget *mainViewContainer = QWidget::createWindowContainer(d->m_mainView);
     mainViewContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    QHBoxLayout *toolsLayout = new QHBoxLayout;
+    enableToolbar(false);
 
-    d->m_timebar = new QmlProfilerQuickView(this);
-    d->m_timebar->setResizeMode(QQuickView::SizeRootObjectToView);
-    QWidget *timeBarContainer = QWidget::createWindowContainer(d->m_timebar);
-    timeBarContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    timeBarContainer->setFixedHeight(24);
-
-    d->m_overview = new QmlProfilerQuickView(this);
-    d->m_overview->setResizeMode(QQuickView::SizeRootObjectToView);
-    QWidget *overviewContainer = QWidget::createWindowContainer(d->m_overview);
-    overviewContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    overviewContainer->setFixedHeight(50);
-
-    toolsLayout->addWidget(createToolbar());
-    toolsLayout->addWidget(timeBarContainer);
-    emit enableToolbar(false);
-
-    groupLayout->addLayout(toolsLayout);
     groupLayout->addWidget(mainViewContainer);
-    groupLayout->addWidget(overviewContainer);
-
     setLayout(groupLayout);
 
     d->m_profilerTool = profilerTool;
@@ -226,9 +200,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
             this, SLOT(profilerDataModelStateChanged()));
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("qmlProfilerModelProxy"),
                                                      d->m_modelProxy);
-    d->m_overview->rootContext()->setContextProperty(QLatin1String("qmlProfilerModelProxy"),
-                                                     d->m_modelProxy);
-
     d->m_profilerState = profilerState;
 
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
@@ -245,98 +216,11 @@ QmlProfilerTraceView::~QmlProfilerTraceView()
 void QmlProfilerTraceView::reset()
 {
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("zoomControl"), d->m_zoomControl);
-    d->m_timebar->rootContext()->setContextProperty(QLatin1String("zoomControl"), d->m_zoomControl);
-    d->m_overview->rootContext()->setContextProperty(QLatin1String("zoomControl"), d->m_zoomControl);
-
-    d->m_timebar->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/TimeDisplay.qml")));
-    d->m_overview->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/Overview.qml")));
-
     d->m_mainView->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/MainView.qml")));
 
     QQuickItem *rootObject = d->m_mainView->rootObject();
     connect(rootObject, SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
-    connect(rootObject, SIGNAL(updateRangeButton()), this, SLOT(updateRangeButton()));
-    connect(rootObject, SIGNAL(updateLockButton()), this, SLOT(updateLockButton()));
-    connect(this, SIGNAL(jumpToPrev()), rootObject, SLOT(prevEvent()));
-    connect(this, SIGNAL(jumpToNext()), rootObject, SLOT(nextEvent()));
     connect(rootObject, SIGNAL(changeToolTip(QString)), this, SLOT(updateToolTip(QString)));
-    connect(this, SIGNAL(enableToolbar(bool)), this, SLOT(setZoomSliderEnabled(bool)));
-    connect(this, SIGNAL(showZoomSlider(bool)), this, SLOT(setZoomSliderVisible(bool)));
-}
-
-void QmlProfilerTraceView::setZoomSliderEnabled(bool enabled)
-{
-    QQuickItem *zoomSlider = d->m_mainView->rootObject()->findChild<QQuickItem*>(QLatin1String("zoomSliderToolBar"));
-    if (zoomSlider->isEnabled() != enabled)
-        zoomSlider->setEnabled(enabled);
-}
-
-void QmlProfilerTraceView::setZoomSliderVisible(bool visible)
-{
-    QQuickItem *zoomSlider = d->m_mainView->rootObject()->findChild<QQuickItem*>(QLatin1String("zoomSliderToolBar"));
-    if (zoomSlider->isVisible() != visible)
-        zoomSlider->setVisible(visible);
-}
-
-QWidget *QmlProfilerTraceView::createToolbar()
-{
-    Utils::StyledBar *bar = new Utils::StyledBar(this);
-    bar->setStyleSheet(QLatin1String("background: #9B9B9B"));
-    bar->setSingleRow(true);
-    bar->setFixedWidth(150);
-    bar->setFixedHeight(24);
-
-    QHBoxLayout *toolBarLayout = new QHBoxLayout(bar);
-    toolBarLayout->setMargin(0);
-    toolBarLayout->setSpacing(0);
-
-    QToolButton *buttonPrev= new QToolButton;
-    buttonPrev->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_prev.png")));
-    buttonPrev->setToolTip(tr("Jump to previous event."));
-    connect(buttonPrev, SIGNAL(clicked()), this, SIGNAL(jumpToPrev()));
-    connect(this, SIGNAL(enableToolbar(bool)), buttonPrev, SLOT(setEnabled(bool)));
-
-    QToolButton *buttonNext= new QToolButton;
-    buttonNext->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_next.png")));
-    buttonNext->setToolTip(tr("Jump to next event."));
-    connect(buttonNext, SIGNAL(clicked()), this, SIGNAL(jumpToNext()));
-    connect(this, SIGNAL(enableToolbar(bool)), buttonNext, SLOT(setEnabled(bool)));
-
-    QToolButton *buttonZoomControls = new QToolButton;
-    buttonZoomControls->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_zoom.png")));
-    buttonZoomControls->setToolTip(tr("Show zoom slider."));
-    buttonZoomControls->setCheckable(true);
-    buttonZoomControls->setChecked(false);
-    connect(buttonZoomControls, SIGNAL(toggled(bool)), this, SIGNAL(showZoomSlider(bool)));
-    connect(this, SIGNAL(enableToolbar(bool)), buttonZoomControls, SLOT(setEnabled(bool)));
-
-    d->m_buttonRange = new QToolButton;
-    d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselection.png")));
-    d->m_buttonRange->setToolTip(tr("Select range."));
-    d->m_buttonRange->setCheckable(true);
-    d->m_buttonRange->setChecked(false);
-    connect(d->m_buttonRange, SIGNAL(clicked(bool)), this, SLOT(toggleRangeMode(bool)));
-    connect(this, SIGNAL(enableToolbar(bool)), d->m_buttonRange, SLOT(setEnabled(bool)));
-    connect(this, SIGNAL(rangeModeChanged(bool)), d->m_buttonRange, SLOT(setChecked(bool)));
-
-    d->m_buttonLock = new QToolButton;
-    d->m_buttonLock->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_selectionmode.png")));
-    d->m_buttonLock->setToolTip(tr("View event information on mouseover."));
-    d->m_buttonLock->setCheckable(true);
-    d->m_buttonLock->setChecked(false);
-    connect(d->m_buttonLock, SIGNAL(clicked(bool)), this, SLOT(toggleLockMode(bool)));
-    connect(this, SIGNAL(enableToolbar(bool)), d->m_buttonLock, SLOT(setEnabled(bool)));
-    connect(this, SIGNAL(lockModeChanged(bool)), d->m_buttonLock, SLOT(setChecked(bool)));
-
-    toolBarLayout->addWidget(buttonPrev);
-    toolBarLayout->addWidget(buttonNext);
-    toolBarLayout->addWidget(new Utils::StyledSeparator());
-    toolBarLayout->addWidget(buttonZoomControls);
-    toolBarLayout->addWidget(new Utils::StyledSeparator());
-    toolBarLayout->addWidget(d->m_buttonRange);
-    toolBarLayout->addWidget(d->m_buttonLock);
-
-    return bar;
 }
 
 /////////////////////////////////////////////////////////
@@ -346,6 +230,12 @@ bool QmlProfilerTraceView::hasValidSelection() const
     if (rootObject)
         return rootObject->property("selectionRangeReady").toBool();
     return false;
+}
+
+void QmlProfilerTraceView::enableToolbar(bool enable)
+{
+    QMetaObject::invokeMethod(d->m_mainView->rootObject(), "enableButtonsBar",
+                              Q_ARG(QVariant,QVariant(enable)));
 }
 
 qint64 QmlProfilerTraceView::selectionStart() const
@@ -367,8 +257,6 @@ qint64 QmlProfilerTraceView::selectionEnd() const
 void QmlProfilerTraceView::clear()
 {
     QMetaObject::invokeMethod(d->m_mainView->rootObject(), "clear");
-    QMetaObject::invokeMethod(d->m_overview->rootObject(), "clear");
-    QMetaObject::invokeMethod(d->m_timebar->rootObject(), "clear");
 }
 
 void QmlProfilerTraceView::selectByHash(const QString &hash)
@@ -399,47 +287,6 @@ void QmlProfilerTraceView::updateCursorPosition()
     emit gotoSourceLocation(rootObject->property("fileName").toString(),
                             rootObject->property("lineNumber").toInt(),
                             rootObject->property("columnNumber").toInt());
-}
-
-/////////////////////////////////////////////////////////
-// Toolbar buttons
-void QmlProfilerTraceView::toggleRangeMode(bool active)
-{
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    bool rangeMode = rootObject->property("selectionRangeMode").toBool();
-    if (active != rangeMode) {
-        if (active)
-            d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselected.png")));
-        else
-            d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselection.png")));
-        rootObject->setProperty("selectionRangeMode", QVariant(active));
-    }
-}
-
-void QmlProfilerTraceView::updateRangeButton()
-{
-    bool rangeMode = d->m_mainView->rootObject()->property("selectionRangeMode").toBool();
-    if (rangeMode)
-        d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselected.png")));
-    else
-        d->m_buttonRange->setIcon(QIcon(QLatin1String(":/qmlprofiler/ico_rangeselection.png")));
-    emit rangeModeChanged(rangeMode);
-}
-
-void QmlProfilerTraceView::toggleLockMode(bool active)
-{
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    bool lockMode = !rootObject->property("selectionLocked").toBool();
-    if (active != lockMode) {
-        rootObject->setProperty("selectionLocked", QVariant(!active));
-        rootObject->setProperty("selectedItem", QVariant(-1));
-    }
-}
-
-void QmlProfilerTraceView::updateLockButton()
-{
-    bool lockMode = !d->m_mainView->rootObject()->property("selectionLocked").toBool();
-    emit lockModeChanged(lockMode);
 }
 
 ////////////////////////////////////////////////////////
@@ -538,12 +385,12 @@ void QmlProfilerTraceView::profilerDataModelStateChanged()
         case QmlProfilerDataState::Empty: break;
         case QmlProfilerDataState::ClearingData:
             d->m_mainView->hide();
-            emit enableToolbar(false);
+            enableToolbar(false);
         break;
         case QmlProfilerDataState::AcquiringData: break;
         case QmlProfilerDataState::ProcessingData: break;
         case QmlProfilerDataState::Done:
-            emit enableToolbar(true);
+            enableToolbar(true);
             d->m_mainView->show();
         break;
     default:

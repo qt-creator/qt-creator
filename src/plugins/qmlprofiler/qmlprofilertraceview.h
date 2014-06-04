@@ -105,10 +105,6 @@ public slots:
 
 private slots:
     void updateCursorPosition();
-    void toggleRangeMode(bool);
-    void updateRangeButton();
-    void toggleLockMode(bool);
-    void updateLockButton();
 
     void updateRange();
 
@@ -121,24 +117,12 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
-private slots:
-    void setZoomSliderEnabled(bool enabled);
-    void setZoomSliderVisible(bool visible);
-
 signals:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columNumber);
-
-    void jumpToPrev();
-    void jumpToNext();
-    void rangeModeChanged(bool);
-    void lockModeChanged(bool);
-    void enableToolbar(bool);
-    void showZoomSlider(bool);
-
     void resized();
 
 private:
-    QWidget *createToolbar();
+    void enableToolbar(bool);
 
 private:
     class QmlProfilerTraceViewPrivate;

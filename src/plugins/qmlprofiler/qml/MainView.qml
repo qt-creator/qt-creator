@@ -39,7 +39,6 @@ Rectangle {
     property int singleRowHeight: 30
 
     property alias selectionLocked : view.selectionLocked
-    signal updateLockButton
     property bool lockItemSelection : false
 
     property real mainviewTimePerPixel : 0
@@ -49,7 +48,6 @@ Rectangle {
     property int lineNumber: -1
     property int columnNumber: 0
 
-    signal updateRangeButton
     property bool selectionRangeMode: false
 
     property bool selectionRangeReady: selectionRange.ready
@@ -115,18 +113,16 @@ Rectangle {
         view.startTime = view.endTime = 0;
         hideRangeDetails();
         selectionRangeMode = false;
-        updateRangeButton();
+        buttonsBar.updateRangeButton(selectionRangeMode);
         zoomControl.setRange(0,0);
         zoomSlider.externalUpdate = true;
         zoomSlider.value = zoomSlider.minimumValue;
+        overview.clear();
+        timeDisplay.clear();
     }
 
-    function nextEvent() {
-        view.selectNext();
-    }
-
-    function prevEvent() {
-        view.selectPrev();
+    function enableButtonsBar(enable) {
+        buttonsBar.enabled = enable;
     }
 
     function recenter( centerPoint ) {
@@ -186,18 +182,19 @@ Rectangle {
     onSelectionRangeModeChanged: {
         selectionRangeControl.enabled = selectionRangeMode;
         selectionRange.reset();
+        buttonsBar.updateRangeButton(selectionRangeMode);
     }
 
     onSelectionLockedChanged: {
-        updateLockButton();
+        buttonsBar.updateLockButton(selectionLocked);
     }
 
     Flickable {
         id: labelsflick
         flickableDirection: Flickable.VerticalFlick
         interactive: false
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
+        anchors.top: buttonsBar.bottom
+        anchors.bottom: overview.top
         anchors.left: parent.left
         width: labels.width
         contentY: flick.contentY
@@ -229,9 +226,31 @@ Rectangle {
         id: labelsborder
         anchors.left: labelsflick.right
         anchors.top: parent.top
-        anchors.bottom: parent.bottom
+        anchors.bottom: overview.top
         width: 1
         color: "#858585"
+    }
+
+    ButtonsBar {
+        id: buttonsBar
+        enabled: false
+        anchors.top: parent.top
+        anchors.left: parent.left
+        width: 150
+        height: 24
+        onZoomControlChanged: zoomSliderToolBar.visible = !zoomSliderToolBar.visible
+        onJumpToNext: view.selectNext();
+        onJumpToPrev: view.selectPrev();
+        onRangeSelectChanged: selectionRangeMode = rangeButtonChecked();
+        onLockChanged: selectionLocked = !lockButtonChecked();
+    }
+
+    TimeDisplay {
+        id: timeDisplay
+        anchors.top: parent.top
+        anchors.left: labelsborder.right
+        anchors.right: parent.right
+        height: 24
     }
 
     Flickable {
@@ -387,8 +406,8 @@ Rectangle {
         id: scroller
         contentItem: flick
         anchors.left: labelsborder.right
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
+        anchors.top: timeDisplay.bottom
+        anchors.bottom: overview.top
         anchors.right: parent.right
     }
 
@@ -406,14 +425,15 @@ Rectangle {
     }
 
     Rectangle {
+        id: zoomSliderToolBar
         objectName: "zoomSliderToolBar"
         color: "#9b9b9b"
-        enabled: false
+        enabled: buttonsBar.enabled
         visible: false
         width: labels.width
         height: 24
-        x: 0
-        y: 0
+        anchors.left: parent.left
+        anchors.top: buttonsBar.bottom
 
         function updateZoomLevel() {
             zoomSlider.externalUpdate = true;
@@ -459,5 +479,13 @@ Rectangle {
                 zoomControl.setRange(startTime, startTime + windowLength);
             }
         }
+    }
+
+    Overview {
+        id: overview
+        height: 50
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.left: parent.left
     }
 }

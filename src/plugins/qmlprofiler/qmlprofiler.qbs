@@ -62,6 +62,7 @@ QtcPlugin {
         name: "QML"
         prefix: "qml/"
         files: [
+            "ButtonsBar.qml",
             "Detail.qml",
             "CategoryLabel.qml",
             "MainView.qml",
