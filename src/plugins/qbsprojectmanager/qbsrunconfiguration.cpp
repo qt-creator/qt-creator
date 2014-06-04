@@ -50,6 +50,8 @@
 #include <qtsupport/qtkitinformation.h>
 #include <utils/hostosinfo.h>
 
+#include "api/runenvironment.h"
+
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QLabel>
@@ -283,7 +285,19 @@ void QbsRunConfiguration::setRunMode(ApplicationLauncher::Mode runMode)
 
 void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
 {
-    // TODO: Use environment from Qbs!
+    QbsProject *project = static_cast<QbsProject *>(target()->project());
+    if (project) {
+        const qbs::ProductData product = findProduct(project->qbsProjectData(), m_qbsProduct);
+        if (product.isValid()) {
+            qbs::RunEnvironment qbsRunEnv = project->qbsProject().getRunEnvironment(product, env.toProcessEnvironment(), QbsManager::settings());
+            QProcessEnvironment procEnv = qbsRunEnv.runEnvironment();
+            if (!procEnv.isEmpty()) {
+                env = Utils::Environment();
+                foreach (const QString &key, procEnv.keys())
+                    env.set(key, procEnv.value(key));
+            }
+        }
+    }
 
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (qtVersion)
