@@ -178,7 +178,7 @@ const char RESOURCE_MIMETYPE[]    = "application/vnd.qt.xml.resource";
 // Settings page
 const char PROJECTEXPLORER_SETTINGS_CATEGORY[]  = "K.ProjectExplorer";
 const char PROJECTEXPLORER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Build & Run");
-const char PROJECTEXPLORER_SETTINGS_CATEGORY_ICON[]  = ":/core/images/category_buildrun.png";
+const char PROJECTEXPLORER_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/category_buildrun.png";
 const char PROJECTEXPLORER_SETTINGS_ID[] = "A.ProjectExplorer.ProjectExplorer";
 const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "M.ProjectExplorer.ToolChainOptions";
 const char DEBUGGER_SETTINGS_PAGE_ID[] = "N.ProjectExplorer.DebuggerOptions";

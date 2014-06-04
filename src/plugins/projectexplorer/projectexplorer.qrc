@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/projectexplorer">
         <file>images/build_small.png</file>
+        <file>images/category_buildrun.png</file>
         <file>images/clean.png</file>
         <file>images/clean_small.png</file>
         <file>images/closetab.png</file>
