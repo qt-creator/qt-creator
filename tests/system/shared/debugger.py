@@ -81,7 +81,7 @@ def setBreakpointsForCurrentProject(filesAndLines):
         for curFile,curLine in current.iteritems():
             if not openDocument(curFile):
                 return False
-            editor = getEditorForFileSuffix(curFile)
+            editor = getEditorForFileSuffix(curFile, True)
             if not placeCursorToLine(editor, curLine, True):
                 return False
             invokeMenuItem("Debug", "Toggle Breakpoint")

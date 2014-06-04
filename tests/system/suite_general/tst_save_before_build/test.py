@@ -58,7 +58,7 @@ def main():
                 test.fatal("Could not open file '%s'" % simpleFileName(file))
                 continue
             test.log("Changing file '%s'" % simpleFileName(file))
-            typeLines(getEditorForFileSuffix(file), "")
+            typeLines(getEditorForFileSuffix(file, True), "")
             # try to compile
             clickButton(waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton"))
             try:
