@@ -32,11 +32,12 @@
 
 #include "breakpoint.h"
 #include "basewindow.h"
+#include <utils/basetreeview.h>
 
 namespace Debugger {
 namespace Internal {
 
-class BreakTreeView : public BaseTreeView
+class BreakTreeView : public Utils::BaseTreeView
 {
     Q_OBJECT
 

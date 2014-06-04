@@ -150,7 +150,8 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actEditFile);
     menu.addAction(actShowModuleSymbols);
     menu.addAction(actShowModuleSections);
-    addBaseContextActions(&menu);
+    menu.addSeparator();
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

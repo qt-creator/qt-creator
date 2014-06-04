@@ -31,11 +31,12 @@
 #define DEBUGGER_STACKWINDOW_H
 
 #include "basewindow.h"
+#include <utils/basetreeview.h>
 
 namespace Debugger {
 namespace Internal {
 
-class StackTreeView : public BaseTreeView
+class StackTreeView : public Utils::BaseTreeView
 {
     Q_OBJECT
 

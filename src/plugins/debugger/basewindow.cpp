@@ -36,36 +36,28 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/find/treeviewfind.h>
 #include <utils/savedaction.h>
+#include <utils/basetreeview.h>
 
-#include <QMenu>
 #include <QVBoxLayout>
 
 namespace Debugger {
 namespace Internal {
 
-BaseTreeView::BaseTreeView(QWidget *parent)
-    : Utils::BaseTreeView(parent)
-{
-    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
-    setAlternatingRowColors(act->isChecked());
-    connect(act, SIGNAL(toggled(bool)),
-            SLOT(setAlternatingRowColorsHelper(bool)));
-
-    act = debuggerCore()->action(AlwaysAdjustColumnWidths);
-    setAlwaysAdjustColumns(act->isChecked());
-    connect(act, SIGNAL(toggled(bool)),
-            SLOT(setAlwaysAdjustColumns(bool)));
-}
-
-void BaseTreeView::addBaseContextActions(QMenu *menu)
-{
-    menu->addSeparator();
-    menu->addAction(debuggerCore()->action(SettingsDialog));
-}
-
 BaseWindow::BaseWindow(QTreeView *treeView, QWidget *parent)
     : QWidget(parent), m_treeView(treeView)
 {
+    QAction *act = debuggerCore()->action(UseAlternatingRowColors);
+    m_treeView->setAlternatingRowColors(act->isChecked());
+    connect(act, SIGNAL(toggled(bool)),
+            SLOT(setAlternatingRowColorsHelper(bool)));
+
+    if (Utils::BaseTreeView *tv = qobject_cast<Utils::BaseTreeView *>(m_treeView)) {
+        act = debuggerCore()->action(AlwaysAdjustColumnWidths);
+        tv->setAlwaysAdjustColumns(act->isChecked());
+        connect(act, SIGNAL(toggled(bool)),
+                SLOT(setAlwaysAdjustColumns(bool)));
+    }
+
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
     vbox->setSpacing(0);

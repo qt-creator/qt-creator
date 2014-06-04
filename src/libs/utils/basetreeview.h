@@ -53,11 +53,10 @@ public:
     void mousePressEvent(QMouseEvent *ev);
 
 public slots:
-    void resizeColumns();
-    void resizeColumnsFinish();
     void reset();
 
-protected slots:
+    void resizeColumns();
+    void resizeColumnsFinish();
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
     void setAlwaysAdjustColumns(bool on);
 

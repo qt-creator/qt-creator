@@ -31,13 +31,14 @@
 #define DEBUGGER_SNAPSHOTWINDOW_H
 
 #include "basewindow.h"
+#include <utils/basetreeview.h>
 
 namespace Debugger {
 namespace Internal {
 
 class SnapshotHandler;
 
-class SnapshotTreeView : public BaseTreeView
+class SnapshotTreeView : public Utils::BaseTreeView
 {
     Q_OBJECT
 

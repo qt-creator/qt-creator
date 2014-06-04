@@ -29,6 +29,7 @@
 
 #include "registerwindow.h"
 #include "memoryview.h"
+#include "debuggeractions.h"
 #include "debuggerdialogs.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
@@ -36,6 +37,7 @@
 #include "watchdelegatewidgets.h"
 #include "memoryagent.h"
 
+#include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -43,7 +45,6 @@
 #include <QItemDelegate>
 #include <QMenu>
 #include <QPainter>
-#include <QResizeEvent>
 
 
 namespace Debugger {
@@ -225,7 +226,8 @@ void RegisterTreeView::contextMenuEvent(QContextMenuEvent *ev)
     act2->setCheckable(true);
     act2->setChecked(base == 2);
 
-    addBaseContextActions(&menu);
+    menu.addSeparator();
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     const QPoint position = ev->globalPos();
     QAction *act = menu.exec(position);

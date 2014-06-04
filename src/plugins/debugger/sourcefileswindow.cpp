@@ -29,10 +29,12 @@
 
 #include "sourcefileswindow.h"
 
+#include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QDebug>
 
@@ -87,7 +89,8 @@ void SourceFilesTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addAction(act1);
     menu.addAction(act2);
-    addBaseContextActions(&menu);
+    menu.addSeparator();
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

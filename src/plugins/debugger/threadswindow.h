@@ -31,11 +31,12 @@
 #define THREADSWINDOW_H
 
 #include "basewindow.h"
+#include <utils/basetreeview.h>
 
 namespace Debugger {
 namespace Internal {
 
-class ThreadsTreeView : public BaseTreeView
+class ThreadsTreeView : public Utils::BaseTreeView
 {
     Q_OBJECT
 
@@ -44,7 +45,6 @@ public:
 
 private:
     void rowActivated(const QModelIndex &index);
-    void setModel(QAbstractItemModel *model);
     void contextMenuEvent(QContextMenuEvent *ev);
 };
 

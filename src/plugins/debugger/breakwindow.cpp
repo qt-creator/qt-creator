@@ -832,7 +832,8 @@ void BreakTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(debuggerCore()->action(UseToolTipsInBreakpointsView));
     if (debuggerCore()->currentEngine()->hasCapability(MemoryAddressCapability))
         menu.addAction(debuggerCore()->action(UseAddressInBreakpointsView));
-    addBaseContextActions(&menu);
+    menu.addSeparator();
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

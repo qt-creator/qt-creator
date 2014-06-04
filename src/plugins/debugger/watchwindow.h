@@ -31,6 +31,7 @@
 #define DEBUGGER_WATCHWINDOW_H
 
 #include "basewindow.h"
+#include <utils/basetreeview.h>
 
 namespace Debugger {
 namespace Internal {
@@ -43,7 +44,7 @@ namespace Internal {
 
 enum WatchType { LocalsType, InspectType, WatchersType, ReturnType, TooltipType };
 
-class WatchTreeView : public BaseTreeView
+class WatchTreeView : public Utils::BaseTreeView
 {
     Q_OBJECT
 

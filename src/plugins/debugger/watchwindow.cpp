@@ -912,7 +912,8 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(debuggerCore()->action(UseDynamicType));
     menu.addAction(debuggerCore()->action(SettingsDialog));
 
-    addBaseContextActions(&menu);
+    menu.addSeparator();
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

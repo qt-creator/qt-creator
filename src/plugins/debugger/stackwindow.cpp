@@ -204,17 +204,13 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
     if (engine->hasCapability(ShowModuleSymbolsCapability))
         actLoadSymbols = menu.addAction(tr("Try to Load Unknown Symbols"));
 
-#if 0 // @TODO: not implemented
-    menu.addAction(debuggerCore()->action(UseToolTipsInStackView));
-#endif
     if (engine->hasCapability(MemoryAddressCapability))
         menu.addAction(debuggerCore()->action(UseAddressInStackView));
 
     menu.addSeparator();
     menu.addAction(debuggerCore()->action(UseToolTipsInStackView));
     menu.addSeparator();
-
-    addBaseContextActions(&menu);
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
     if (!act)

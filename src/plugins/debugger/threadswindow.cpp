@@ -53,21 +53,10 @@ void ThreadsTreeView::rowActivated(const QModelIndex &index)
     debuggerCore()->currentEngine()->selectThread(id);
 }
 
-void ThreadsTreeView::setModel(QAbstractItemModel *model)
-{
-    BaseTreeView::setModel(model);
-//    resizeColumnToContents(ThreadData::IdColumn);
-//    resizeColumnToContents(ThreadData::LineColumn);
-//    resizeColumnToContents(ThreadData::NameColumn);
-//    resizeColumnToContents(ThreadData::StateColumn);
-//    resizeColumnToContents(ThreadData::TargetIdColumn);
-//    resizeColumnToContents(ThreadData::DetailsColumn);
-}
-
 void ThreadsTreeView::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    addBaseContextActions(&menu);
+    menu.addAction(debuggerCore()->action(SettingsDialog));
     menu.exec(ev->globalPos());
 }
 

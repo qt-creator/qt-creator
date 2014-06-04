@@ -31,11 +31,12 @@
 #define DEBUGGER_REGISTERWINDOW_H
 
 #include "basewindow.h"
+#include <utils/basetreeview.h>
 
 namespace Debugger {
 namespace Internal {
 
-class RegisterTreeView : public BaseTreeView
+class RegisterTreeView : public Utils::BaseTreeView
 {
     Q_OBJECT
 

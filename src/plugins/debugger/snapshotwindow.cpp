@@ -92,7 +92,8 @@ void SnapshotTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actRemove = menu.addAction(tr("Remove Snapshot"));
     actRemove->setEnabled(idx.isValid());
 
-    addBaseContextActions(&menu);
+    menu.addSeparator();
+    menu.addAction(debuggerCore()->action(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
 

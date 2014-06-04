@@ -31,11 +31,12 @@
 #define DEBUGGER_MODULESWINDOW_H
 
 #include "basewindow.h"
+#include <utils/basetreeview.h>
 
 namespace Debugger {
 namespace Internal {
 
-class ModulesTreeView : public BaseTreeView
+class ModulesTreeView : public Utils::BaseTreeView
 {
     Q_OBJECT
 

@@ -30,19 +30,10 @@
 #ifndef DEBUGGER_BASEWINDOW_H
 #define DEBUGGER_BASEWINDOW_H
 
-#include <utils/basetreeview.h>
+#include <QTreeView>
 
 namespace Debugger {
 namespace Internal {
-
-class BaseTreeView : public Utils::BaseTreeView
-{
-    Q_OBJECT
-
-public:
-    explicit BaseTreeView(QWidget *parent = 0);
-    void addBaseContextActions(QMenu *menu);
-};
 
 class BaseWindow : public QWidget
 {

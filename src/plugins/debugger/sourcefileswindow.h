@@ -31,11 +31,12 @@
 #define SOURCEFILESWINDOW_H
 
 #include "basewindow.h"
+#include <utils/basetreeview.h>
 
 namespace Debugger {
 namespace Internal {
 
-class SourceFilesTreeView : public BaseTreeView
+class SourceFilesTreeView : public Utils::BaseTreeView
 {
     Q_OBJECT
 
