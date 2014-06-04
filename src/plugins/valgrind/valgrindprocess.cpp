@@ -308,7 +308,7 @@ QString ValgrindProcess::argumentString(Utils::OsType osType) const
 {
     QString arguments = Utils::QtcProcess::joinArgs(m_valgrindArguments, osType);
     Utils::QtcProcess::addArg(&arguments, m_debuggeeExecutable, osType);
-    Utils::QtcProcess::addArg(&arguments, m_debuggeeArguments, osType);
+    Utils::QtcProcess::addArgs(&arguments, m_debuggeeArguments);
     return arguments;
 }
 
