@@ -40,6 +40,7 @@
 #include "wizards/abstractmobileapp.h"
 #include "wizards/qtquickapp.h"
 
+#include <utils/algorithm.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -1102,12 +1103,11 @@ bool QmakeProject::hasApplicationProFile(const QString &path) const
     return false;
 }
 
-QStringList QmakeProject::applicationProFilePathes(const QString &prepend, Parsing parse) const
+QList<Core::Id> QmakeProject::idsForNodes(const Core::Id base, const QList<QmakeProFileNode *> &nodes)
 {
-    QStringList proFiles;
-    foreach (QmakeProFileNode *node, applicationProFiles(parse))
-        proFiles.append(prepend + node->path());
-    return proFiles;
+    return Utils::transform(nodes, [&base](QmakeProFileNode *node) {
+        return base.withSuffix(node->path());
+    });
 }
 
 void QmakeProject::activeTargetWasChanged()

@@ -61,11 +61,9 @@ QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer
     QmakeProjectManager::QmakeProject *qt4Project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
     if (!qt4Project)
         return ids;
-
-    QStringList proFiles = qt4Project->applicationProFilePathes(QLatin1String(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX));
-    foreach (const QString &pf, proFiles)
-        ids << Core::Id::fromString(pf);
-    return ids;
+    QList<QmakeProjectManager::QmakeProFileNode *> nodes = qt4Project->applicationProFiles();
+    return QmakeProjectManager::QmakeProject::idsForNodes(Core::Id(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX),
+                                                          nodes);
 }
 
 QString QnxRunConfigurationFactory::displayNameForId(const Core::Id id) const

@@ -61,11 +61,9 @@ QList<Core::Id> BlackBerryRunConfigurationFactory::availableCreationIds(ProjectE
     if (!qt4Project)
         return ids;
 
-    QStringList proFiles = qt4Project->applicationProFilePathes(QLatin1String(Constants::QNX_BB_RUNCONFIGURATION_PREFIX));
-    foreach (const QString &pf, proFiles)
-        ids << Core::Id::fromString(pf);
-
-    return ids;
+    QList<QmakeProjectManager::QmakeProFileNode *> nodes = qt4Project->applicationProFiles();
+    return QmakeProjectManager::QmakeProject::idsForNodes(Core::Id(Constants::QNX_BB_RUNCONFIGURATION_PREFIX),
+                                                          nodes);
 }
 
 QString BlackBerryRunConfigurationFactory::displayNameForId(const Core::Id id) const

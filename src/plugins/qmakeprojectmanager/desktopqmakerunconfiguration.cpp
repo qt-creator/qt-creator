@@ -674,10 +674,8 @@ QList<Core::Id> DesktopQmakeRunConfigurationFactory::availableCreationIds(Target
         return result;
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    QStringList proFiles = project->applicationProFilePathes(QLatin1String(QMAKE_RC_PREFIX));
-    foreach (const QString &pf, proFiles)
-        result << Core::Id::fromString(pf);
-    return result;
+    QList<QmakeProFileNode *> nodes = project->applicationProFiles();
+    return QmakeProject::idsForNodes(Core::Id(QMAKE_RC_PREFIX), nodes);
 }
 
 QString DesktopQmakeRunConfigurationFactory::displayNameForId(const Core::Id id) const

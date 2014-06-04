@@ -105,9 +105,7 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent)
                                                            << LibraryTemplate
                                                            << AuxTemplate);
 
-    foreach (QmakeProFileNode *node, nodes)
-        ids << baseId.withSuffix(node->path());
-    return ids;
+    return QmakeProject::idsForNodes(baseId, nodes);
 }
 
 QString IosRunConfigurationFactory::displayNameForId(const Core::Id id) const

@@ -97,9 +97,7 @@ QList<Core::Id> AndroidRunConfigurationFactory::availableCreationIds(Target *par
                                                            << ApplicationTemplate
                                                            << LibraryTemplate);
     const Core::Id base = Core::Id(ANDROID_RC_ID_PREFIX);
-    foreach (QmakeProFileNode *node, nodes)
-        ids << base.withSuffix(node->path());
-    return ids;
+    return QmakeProject::idsForNodes(base, nodes);
 }
 
 QString AndroidRunConfigurationFactory::displayNameForId(const Core::Id id) const

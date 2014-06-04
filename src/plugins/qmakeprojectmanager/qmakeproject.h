@@ -91,7 +91,8 @@ public:
                                           Parsing parse = ExactParse) const;
     QList<QmakeProFileNode *> applicationProFiles(Parsing parse = ExactParse) const;
     bool hasApplicationProFile(const QString &path) const;
-    QStringList applicationProFilePathes(const QString &prepend = QString(), Parsing parse = ExactParse) const;
+
+    static QList<Core::Id> idsForNodes(const Core::Id base, const QList<QmakeProFileNode *> &nodes);
 
     void notifyChanged(const QString &name);
 
