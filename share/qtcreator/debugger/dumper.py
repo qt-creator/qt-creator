@@ -123,9 +123,12 @@ class Blob(object):
     def toBytes(self):
         """Retrieves "lazy" contents from memoryviews."""
         data = self.data
-        if isinstance(data, memoryview):
-            data = data.tobytes()
-        if sys.version_info[0] == 2 and isinstance(data, buffer):
+
+        major = sys.version_info[0]
+        if major == 3 or (major == 2 and sys.version_info[1] >= 7):
+            if isinstance(data, memoryview):
+                data = data.tobytes()
+        if major == 2 and isinstance(data, buffer):
             data = ''.join([c for c in data])
         return data
 
