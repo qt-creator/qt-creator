@@ -75,6 +75,7 @@
 #include <coreplugin/find/findplugin.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 
 #include <QDir>
@@ -617,6 +618,9 @@ void HelpPlugin::createRightPaneContextViewer()
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
 
+    connect(m_helpViewerForSideBar, SIGNAL(loadFinished()),
+            this, SLOT(highlightSearchTermsInContextHelp()));
+
     // force setup, as we might have never switched to full help mode
     // thus the help engine might still run without collection file setup
     m_helpManager->setupGuiHelpEngine();
@@ -870,6 +874,34 @@ HelpViewer *HelpPlugin::viewerForContextMode()
     return viewer;
 }
 
+static QUrl findBestLink(const QMap<QString, QUrl> &links, QString *highlightId)
+{
+    if (highlightId)
+        highlightId->clear();
+    if (links.isEmpty())
+        return QUrl();
+    QUrl source = links.first();
+    // workaround to show the latest Qt version
+    int version = 0;
+    QRegExp exp(QLatin1String("(\\d+)"));
+    foreach (const QUrl &link, links) {
+        const QString &authority = link.authority();
+        if (authority.startsWith(QLatin1String("com.trolltech."))
+                || authority.startsWith(QLatin1String("org.qt-project."))) {
+            if (exp.indexIn(authority) >= 0) {
+                const int tmpVersion = exp.cap(1).toInt();
+                if (tmpVersion > version) {
+                    source = link;
+                    version = tmpVersion;
+                    if (highlightId)
+                        *highlightId = source.fragment();
+                }
+            }
+        }
+    }
+    return source;
+}
+
 void HelpPlugin::activateContext()
 {
     createRightPaneContextViewer();
@@ -885,64 +917,28 @@ void HelpPlugin::activateContext()
 
     // Find out what to show
     QMap<QString, QUrl> links;
+    QString idFromContext;
     if (IContext *context = Core::ICore::currentContextObject()) {
-        m_idFromContext = context->contextHelpId();
-        links = HelpManager::linksForIdentifier(m_idFromContext);
+        idFromContext = context->contextHelpId();
+        links = HelpManager::linksForIdentifier(idFromContext);
         // Maybe the id is already an URL
-        if (links.isEmpty() && LocalHelpManager::isValidUrl(m_idFromContext))
-            links.insert(m_idFromContext, m_idFromContext);
+        if (links.isEmpty() && LocalHelpManager::isValidUrl(idFromContext))
+            links.insert(idFromContext, idFromContext);
     }
 
     if (HelpViewer* viewer = viewerForContextMode()) {
-        if (links.isEmpty()) {
+        QUrl source = findBestLink(links, &m_contextHelpHighlightId);
+        if (!source.isValid()) {
             // No link found or no context object
             viewer->setSource(QUrl(Help::Constants::AboutBlank));
             viewer->setHtml(tr("<html><head><title>No Documentation</title>"
                 "</head><body><br/><center><b>%1</b><br/>No documentation "
-                "available.</center></body></html>").arg(m_idFromContext));
+                "available.</center></body></html>").arg(idFromContext));
         } else {
-            int version = 0;
-            QRegExp exp(QLatin1String("(\\d+)"));
-            QUrl source = *links.begin();
-            const QLatin1String qtRefDoc = QLatin1String("com.trolltech.qt");
-
-            // workaround to show the latest Qt version
-            foreach (const QUrl &tmp, links) {
-                const QString &authority = tmp.authority();
-                if (authority.startsWith(qtRefDoc)) {
-                    if (exp.indexIn(authority) >= 0) {
-                        const int tmpVersion = exp.cap(1).toInt();
-                        if (tmpVersion > version) {
-                            source = tmp;
-                            version = tmpVersion;
-                        }
-                    }
-                }
-            }
-
             const QUrl &oldSource = viewer->source();
             if (source != oldSource) {
                 viewer->stop();
-                const QString &fragment = source.fragment();
-                const bool isQtRefDoc = source.authority().startsWith(qtRefDoc);
-                if (isQtRefDoc) {
-                    // workaround for qt properties
-                    m_idFromContext = fragment;
-
-                    if (!m_idFromContext.isEmpty()) {
-                        connect(viewer, SIGNAL(loadFinished()), this,
-                            SLOT(highlightSearchTerms()));
-                    }
-                }
-
-                viewer->setSource(source);
-
-                if (isQtRefDoc && !m_idFromContext.isEmpty()) {
-                    if (source.toString().remove(fragment)
-                        == oldSource.toString().remove(oldSource.fragment())) {
-                        highlightSearchTerms();
-                    }
-                }
+                viewer->setSource(source); // triggers loadFinished which triggers id highlighting
             } else {
                 viewer->scrollToAnchor(source.fragment());
             }
@@ -1094,13 +1090,15 @@ void HelpPlugin::addBookmark()
     manager->showBookmarkDialog(m_centralWidget, viewer->title(), url);
 }
 
-void HelpPlugin::highlightSearchTerms()
+void HelpPlugin::highlightSearchTermsInContextHelp()
 {
-    if (HelpViewer* viewer = viewerForContextMode()) {
-        disconnect(viewer, SIGNAL(loadFinished()), this,
-            SLOT(highlightSearchTerms()));
-        viewer->highlightId(m_idFromContext);
-    }
+    qDebug() << "highlight" << m_contextHelpHighlightId;
+    if (m_contextHelpHighlightId.isEmpty())
+        return;
+    HelpViewer* viewer = viewerForContextMode();
+    QTC_ASSERT(viewer, return);
+    viewer->highlightId(m_contextHelpHighlightId);
+    m_contextHelpHighlightId.clear();
 }
 
 void HelpPlugin::handleHelpRequest(const QUrl &url)

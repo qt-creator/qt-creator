@@ -499,7 +499,20 @@ QUrl QtWebKitHelpViewer::source() const
 
 void QtWebKitHelpViewer::setSource(const QUrl &url)
 {
+    QUrl oldWithoutFragment = source();
+    oldWithoutFragment.setFragment(QString());
+
     m_webView->load(url);
+
+    // if the new url only changes the anchor,
+    // then webkit does not send loadStarted nor loadFinished,
+    // so we should do that manually in that case
+    QUrl newWithoutFragment = url;
+    newWithoutFragment.setFragment(QString());
+    if (oldWithoutFragment == newWithoutFragment) {
+        slotLoadStarted();
+        slotLoadFinished();
+    }
 }
 
 void QtWebKitHelpViewer::scrollToAnchor(const QString &anchor)
@@ -509,6 +522,8 @@ void QtWebKitHelpViewer::scrollToAnchor(const QString &anchor)
 
 void QtWebKitHelpViewer::highlightId(const QString &id)
 {
+    if (m_oldHighlightId == id)
+        return;
     const QWebElement &document = m_webView->page()->mainFrame()->documentElement();
     const QWebElementCollection &collection = document.findAll(QLatin1String("h3.fn a"));
 

@@ -111,7 +111,7 @@ private slots:
     void updateCloseButton();
     void setupHelpEngineIfNeeded();
 
-    void highlightSearchTerms();
+    void highlightSearchTermsInContextHelp();
     void handleHelpRequest(const QUrl &url);
 
     void slotAboutToShowBackMenu();
@@ -166,7 +166,7 @@ private:
 
     QToolButton *m_closeButton;
 
-    QString m_idFromContext;
+    QString m_contextHelpHighlightId;
 
     Core::IMode* m_oldMode;
     bool m_connectWindow;
