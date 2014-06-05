@@ -74,7 +74,7 @@ Rectangle {
         font.pixelSize: 11
         anchors.left: parent.left
         // use the spacing which the image to the delegate rectangle has
-        anchors.leftMargin: (delegateWidth - delegateStateImageSize) / 2
+        anchors.leftMargin: 4
         anchors.right: removeStateButton.left
         style: DesignerTextFieldStyle {}
         readOnly: isBaseState
