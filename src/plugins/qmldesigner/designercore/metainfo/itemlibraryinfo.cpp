@@ -151,6 +151,9 @@ QIcon ItemLibraryEntry::icon() const
 
 QString ItemLibraryEntry::iconPath() const
 {
+    if (m_data->iconPath.isEmpty())
+        return QStringLiteral(":/ItemLibrary/images/item-default-icon.png");
+
     return m_data->iconPath;
 }
 

@@ -192,10 +192,6 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
             itemModel = new ItemLibraryItem(itemId, entry.name(), sectionModel);
 
-            // delayed creation of (default) icons
-            if (entry.iconPath().isEmpty())
-                entry.setIconPath(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
-
             itemModel->setItemIconPath(entry.iconPath());
             itemModel->setItemIconSize(m_itemIconSize);
             sectionModel->addSectionEntry(itemModel);
