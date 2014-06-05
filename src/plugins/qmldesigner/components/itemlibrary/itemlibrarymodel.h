@@ -62,7 +62,7 @@ public:
 
     QString getTypeName(int libId);
     QMimeData *getMimeData(int libId);
-    QIcon getTypeIcon(int libId);
+    QPixmap getLibraryEntryIcon(int libId);
 
     ItemLibrarySection* section(int libraryId);
     QList<ItemLibrarySection*> sections() const;

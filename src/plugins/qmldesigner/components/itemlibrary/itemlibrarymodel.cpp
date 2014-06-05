@@ -224,9 +224,9 @@ QMimeData *ItemLibraryModel::getMimeData(int libId)
 }
 
 
-QIcon ItemLibraryModel::getTypeIcon(int libId)
+QPixmap ItemLibraryModel::getLibraryEntryIcon(int libId)
 {
-    return m_itemInfos.value(libId).typeIcon();
+    return QPixmap(m_itemInfos.value(libId).libraryEntryIconPath());
 }
 
 ItemLibrarySection *ItemLibraryModel::section(int libraryId)
