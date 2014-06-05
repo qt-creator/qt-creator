@@ -71,6 +71,7 @@ private slots:
     void updatePositionAndShow();
 
 private:
+    QWidget *currentWidget();
     void createIconButton();
 
     Internal::Ui::VariableChooser *ui;

@@ -173,6 +173,7 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
         return;
     widget->installEventFilter(this); // for intercepting escape key presses
     QLineEdit *previousLineEdit = m_lineEdit;
+    QWidget *previousWidget = currentWidget();
     m_lineEdit = 0;
     m_textEdit = 0;
     m_plainTextEdit = 0;
@@ -187,23 +188,27 @@ void VariableChooser::updateCurrentEditor(QWidget *old, QWidget *widget)
         m_plainTextEdit = (supportsVariables ? plainTextEdit : 0);
     if (!(m_lineEdit || m_textEdit || m_plainTextEdit))
         hide();
-    if (m_lineEdit != previousLineEdit) {
+
+    QWidget *current = currentWidget();
+    if (current != previousWidget) {
         if (previousLineEdit)
             previousLineEdit->setTextMargins(0, 0, 0, 0);
         if (m_iconButton) {
             m_iconButton->hide();
             m_iconButton->setParent(0);
         }
-        if (m_lineEdit) {
+        if (current) {
             if (!m_iconButton)
                 createIconButton();
             int margin = m_iconButton->pixmap().width() + 8;
             if (style()->inherits("OxygenStyle"))
                 margin = qMax(24, margin);
-            m_lineEdit->setTextMargins(0, 0, margin, 0);
-            m_iconButton->setParent(m_lineEdit);
-            m_iconButton->setGeometry(m_lineEdit->rect().adjusted(
-                                          m_lineEdit->width() - (margin + 4), 0, 0, 0));
+            if (m_lineEdit)
+                m_lineEdit->setTextMargins(0, 0, margin, 0);
+            m_iconButton->setParent(current);
+            m_iconButton->setGeometry(current->rect().adjusted(
+                                          current->width() - (margin + 4), 0,
+                                          0, -qMax(0, current->height() - (margin + 4))));
             m_iconButton->show();
         }
     }
@@ -233,6 +238,18 @@ void VariableChooser::updatePositionAndShow()
     show();
     raise();
     activateWindow();
+}
+
+/*!
+ * \internal
+ */
+QWidget *VariableChooser::currentWidget()
+{
+    if (m_lineEdit)
+        return m_lineEdit;
+    if (m_textEdit)
+        return m_textEdit;
+    return m_plainTextEdit;
 }
 
 /*!
