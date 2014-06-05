@@ -183,6 +183,8 @@ private slots:
     void q_enum_1();
 
     void incomplete_ast();
+    void unnamed_class();
+    void unnamed_class_data();
 };
 
 void tst_AST::gcc_attributes_1()
@@ -1741,6 +1743,42 @@ void tst_AST::incomplete_ast()
     QSharedPointer<TranslationUnit> unit(parseStatement("class A { virtual void a() =\n"));
     AST *ast = unit->ast();
     QVERIFY(ast);
+}
+
+static ClassSpecifierAST *classSpecifierInSimpleDeclaration(SimpleDeclarationAST *simpleDeclaration)
+{
+    Q_ASSERT(simpleDeclaration);
+    SpecifierListAST *specifier = simpleDeclaration->decl_specifier_list;
+    Q_ASSERT(specifier);
+    Q_ASSERT(specifier->value);
+    return specifier->value->asClassSpecifier();
+}
+
+void tst_AST::unnamed_class()
+{
+    QFETCH(QByteArray, source);
+    QVERIFY(!source.isEmpty());
+
+    QSharedPointer<TranslationUnit> unit(parseDeclaration(source));
+    QVERIFY(unit->ast());
+    SimpleDeclarationAST *simpleDeclaration = unit->ast()->asSimpleDeclaration();
+    QVERIFY(simpleDeclaration);
+    ClassSpecifierAST *clazz = classSpecifierInSimpleDeclaration(simpleDeclaration);
+
+    QVERIFY(clazz);
+    QVERIFY(clazz->name);
+    QVERIFY(clazz->name->asAnonymousName());
+
+    QCOMPARE(diag.errorCount, 0);
+}
+
+void tst_AST::unnamed_class_data()
+{
+    QTest::addColumn<QByteArray>("source");
+
+    typedef QByteArray _;
+    QTest::newRow("unnamed-only") << _("class {};");
+    QTest::newRow("unnamed-derived") << _("class : B {};");
 }
 
 void tst_AST::initTestCase()

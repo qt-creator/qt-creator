@@ -1856,6 +1856,20 @@ void CppToolsPlugin::test_completion_data()
             << QLatin1String("val2")
             << QLatin1String("val3"));
 
+    QTest::newRow("nested_anonymous_with___attribute__") << _(
+            "struct Enclosing\n"
+            "{\n"
+            "   struct __attribute__((aligned(8)))\n"
+            "   {\n"
+            "       int i;\n"
+            "   };\n"
+            "};\n"
+            "Enclosing e;\n"
+            "@\n"
+        ) << _("e.") << (QStringList()
+            << QLatin1String("Enclosing")
+            << QLatin1String("i"));
+
     QTest::newRow("enum_inside_namespace") << _(
             "namespace Ns\n"
             "{\n"
