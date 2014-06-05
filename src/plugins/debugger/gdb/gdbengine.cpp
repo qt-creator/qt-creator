@@ -4460,7 +4460,8 @@ void GdbEngine::handleInferiorPrepared()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     if (!sp.commandsAfterConnect.isEmpty()) {
-        foreach (QByteArray command, sp.commandsAfterConnect.split('\n')) {
+        QByteArray substitutedCommands = Core::VariableManager::expandedString(QString::fromLatin1(sp.commandsAfterConnect)).toLatin1();
+        foreach (QByteArray command, substitutedCommands.split('\n')) {
             postCommand(command);
         }
     }

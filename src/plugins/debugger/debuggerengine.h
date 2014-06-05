@@ -34,6 +34,7 @@
 #include "debuggerconstants.h"
 #include "breakpoint.h" // For BreakpointModelId.
 #include "threaddata.h" // For ThreadId.
+#include "coreplugin/variablemanager.h"
 
 #include <QObject>
 

@@ -71,8 +71,11 @@
    <item row="7" column="1">
     <widget class="QPlainTextEdit" name="gdbInitCommandsPlainTextEdit">
      <property name="plainText">
-      <string>load
-monitor reset</string>
+      <string>set remote hardware-breakpoint-limit 6
+set remote hardware-watchpoint-limit 4
+monitor reset halt
+load
+monitor reset halt</string>
      </property>
     </widget>
    </item>

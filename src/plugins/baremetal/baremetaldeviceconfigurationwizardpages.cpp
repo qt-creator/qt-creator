@@ -30,6 +30,7 @@
 #include "baremetaldeviceconfigurationwizardpages.h"
 #include "ui_baremetaldeviceconfigurationwizardsetuppage.h"
 
+#include <coreplugin/variablechooser.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
 namespace BareMetal {
@@ -43,10 +44,12 @@ BareMetalDeviceConfigurationWizardSetupPage::BareMetalDeviceConfigurationWizardS
     d->ui.setupUi(this);
     setTitle(tr("Set up GDB Server or Hardware Debugger"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-    connect(d->ui.hostNameLineEdit,SIGNAL(textChanged(QString)),SIGNAL(completeChanged()));
-    connect(d->ui.nameLineEdit,SIGNAL(textChanged(QString)),SIGNAL(completeChanged()));
-    connect(d->ui.portSpinBox,SIGNAL(valueChanged(int)),SIGNAL(completeChanged()));
-    connect(d->ui.gdbInitCommandsPlainTextEdit,SIGNAL(textChanged()),SIGNAL(completeChanged()));
+    connect(d->ui.hostNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
+    connect(d->ui.nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
+    connect(d->ui.portSpinBox, SIGNAL(valueChanged(int)), SIGNAL(completeChanged()));
+    connect(d->ui.gdbInitCommandsPlainTextEdit, SIGNAL(textChanged()), SIGNAL(completeChanged()));
+    Core::VariableChooser::addVariableSupport(d->ui.gdbInitCommandsPlainTextEdit);
+    new Core::VariableChooser(this);
 }
 
 BareMetalDeviceConfigurationWizardSetupPage::~BareMetalDeviceConfigurationWizardSetupPage()

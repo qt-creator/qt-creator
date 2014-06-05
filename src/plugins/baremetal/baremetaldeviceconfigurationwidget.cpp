@@ -32,6 +32,7 @@
 #include "ui_baremetaldeviceconfigurationwidget.h"
 #include "baremetaldevice.h"
 
+#include <coreplugin/variablechooser.h>
 #include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
 #include <QLabel>
@@ -49,6 +50,8 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
     connect(m_ui->gdbHostLineEdit, SIGNAL(editingFinished()), SLOT(hostnameChanged()));
     connect(m_ui->gdbPortSpinBox, SIGNAL(valueChanged(int)), SLOT(portChanged()));
     connect(m_ui->gdbCommandsTextEdit, SIGNAL(textChanged()), SLOT(gdbInitCommandsChanged()));
+    Core::VariableChooser::addVariableSupport(m_ui->gdbCommandsTextEdit);
+    new Core::VariableChooser(this);
     initGui();
 }
 
