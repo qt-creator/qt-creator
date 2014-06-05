@@ -60,6 +60,7 @@ public:
         : engine(engine),
           qmlDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useQmlDebugger()),
           cppDebugging(runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>()->useCppDebugger()),
+          target(DeviceKitInformation::device(runConfig->target()->kit())->sshParameters().host.toLatin1()),
           gdbServerPort(-1), qmlPort(-1)
     {
     }
@@ -68,6 +69,7 @@ public:
     bool qmlDebugging;
     bool cppDebugging;
     QByteArray gdbserverOutput;
+    QByteArray target;
     int gdbServerPort;
     int qmlPort;
 };
@@ -175,8 +177,9 @@ void LinuxDeviceDebugSupport::startExecution()
         command = device()->debugServerPath();
         if (command.isEmpty())
             command = QLatin1String("gdbserver");
-        args.prepend(remoteFilePath());
         args.prepend(QString::fromLatin1(":%1").arg(d->gdbServerPort));
+        args.prepend(QString::fromLatin1("--multi"));
+        args.prepend(QString::fromLatin1("--once"));
     }
 
     connect(runner, SIGNAL(finished(bool)), SLOT(handleAppRunnerFinished(bool)));
@@ -260,6 +263,8 @@ void LinuxDeviceDebugSupport::handleAdapterSetupFailed(const QString &error)
 void LinuxDeviceDebugSupport::handleAdapterSetupDone()
 {
     AbstractRemoteLinuxRunSupport::handleAdapterSetupDone();
+    QByteArray remote = d->target + ':' + QByteArray::number(d->gdbServerPort);
+    d->engine->notifyEngineRemoteServerRunning(remote, -1);
     d->engine->notifyEngineRemoteSetupDone(d->gdbServerPort, d->qmlPort);
 }
 

@@ -295,7 +295,6 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const GdbResponse &respon
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        // gdb server will stop the remote application itself.
         showMessage(_("ATTACHED TO GDB SERVER STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
         QString postAttachCommands = debuggerCore()->stringSetting(GdbPostAttachCommands);
@@ -303,7 +302,13 @@ void GdbRemoteServerEngine::handleTargetExtendedRemote(const GdbResponse &respon
             foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
                 postCommand(cmd.toLatin1());
         }
-        postCommand("attach " + QByteArray::number(m_targetPid), CB(handleTargetExtendedAttach));
+        if (m_targetPid > 0) { // attach to pid if valid
+            // gdb server will stop the remote application itself.
+            postCommand("attach " + QByteArray::number(m_targetPid), CB(handleTargetExtendedAttach));
+        } else {
+            postCommand("-gdb-set remote exec-file " + startParameters().remoteExecutable.toLatin1(),
+                        CB(handleTargetExtendedAttach));
+        }
     } else {
         QString msg = msgConnectRemoteServerFailed(
             QString::fromLocal8Bit(response.data["msg"].data()));
