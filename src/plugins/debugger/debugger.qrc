@@ -36,5 +36,7 @@
         <file>images/qml/select.png</file>
         <file>images/qml/app-on-top.png</file>
         <file>images/qml/apply-on-save.png</file>
+        <file>images/debugger_restart.png</file>
+        <file>images/debugger_restart_small.png</file>
     </qresource>
 </RCC>

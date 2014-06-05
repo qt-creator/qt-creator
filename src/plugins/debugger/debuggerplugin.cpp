@@ -1004,6 +1004,12 @@ public slots:
         currentEngine()->abortDebugger();
     }
 
+    void handleReset()
+    {
+        currentEngine()->resetLocation();
+        currentEngine()->resetInferior();
+    }
+
     void handleExecStep()
     {
         if (currentEngine()->state() == DebuggerNotReady) {
@@ -1250,6 +1256,7 @@ public:
     QAction *m_reverseDirectionAction;
     QAction *m_frameUpAction;
     QAction *m_frameDownAction;
+    QAction *m_resetAction;
 
     QToolButton *m_reverseToolButton;
 
@@ -1258,6 +1265,7 @@ public:
     QIcon m_continueIcon;
     QIcon m_interruptIcon;
     QIcon m_locationMarkIcon;
+    QIcon m_resetIcon;
 
     StatusLabel *m_statusLabel;
     QComboBox *m_threadBox;
@@ -2247,6 +2255,7 @@ void DebuggerPluginPrivate::setInitialState()
 
     m_exitAction->setEnabled(false);
     m_abortAction->setEnabled(false);
+    m_resetAction->setEnabled(false);
 
     m_interruptAction->setEnabled(false);
     m_continueAction->setEnabled(false);
@@ -2386,6 +2395,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     m_abortAction->setEnabled(state != DebuggerNotReady
                                       && state != DebuggerFinished);
+    m_resetAction->setEnabled((stopped || state == DebuggerNotReady)
+                              && engine->hasCapability(ResetInferiorCapability));
 
     m_stepAction->setEnabled(stopped || state == DebuggerNotReady);
     m_nextAction->setEnabled(stopped || state == DebuggerNotReady);
@@ -2775,6 +2786,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_interruptIcon = QIcon(_(Core::Constants::ICON_PAUSE));
     m_interruptIcon.addFile(QLatin1String(":/debugger/images/debugger_interrupt.png"));
     m_locationMarkIcon = QIcon(_(":/debugger/images/location_16.png"));
+    m_resetIcon = QIcon(_(":/debugger/images/debugger_restart_small.png:"));
+    m_resetIcon.addFile(QLatin1String(":/debugger/images/debugger_restart.png"));
 
     m_busy = false;
 
@@ -2848,6 +2861,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setToolTip(tr("Aborts debugging and "
         "resets the debugger to the initial state."));
     connect(act, SIGNAL(triggered()), SLOT(handleAbort()));
+
+    act = m_resetAction = new QAction(tr("Restart Debugging"),this);
+    act->setToolTip(tr("Restart the debugging session."));
+    act->setIcon(m_resetIcon);
+    connect(act,SIGNAL(triggered()),SLOT(handleReset()));
 
     act = m_nextAction = new QAction(tr("Step Over"), this);
     act->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepover_small.png")));
@@ -3098,6 +3116,12 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDescription(tr("Reset Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
+    cmd = ActionManager::registerAction(m_resetAction,
+         Constants::RESET, globalcontext);
+    cmd->setDescription(tr("Restart Debugging"));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Shift+Ctrl+R")));
+    debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
+
     debugMenu->addSeparator(globalcontext);
 
     cmd = ActionManager::registerAction(m_nextAction,
@@ -3310,6 +3334,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->addWidget(toolButton(Constants::NEXT));
     hbox->addWidget(toolButton(Constants::STEP));
     hbox->addWidget(toolButton(Constants::STEPOUT));
+    hbox->addWidget(toolButton(Constants::RESET));
     hbox->addWidget(toolButton(Constants::OPERATE_BY_INSTRUCTION));
 
     //hbox->addWidget(new StyledSeparator);

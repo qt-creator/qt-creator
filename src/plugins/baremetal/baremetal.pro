@@ -27,7 +27,3 @@ HEADERS += baremetalplugin.h \
     baremetaldeviceconfigurationwidget.h \
     baremetaldeviceconfigurationwizard.h \
     baremetaldeviceconfigurationwizardpages.h
-
-FORMS += \
-    baremetaldeviceconfigurationwizardsetuppage.ui \
-    baremetaldeviceconfigurationwidget.ui

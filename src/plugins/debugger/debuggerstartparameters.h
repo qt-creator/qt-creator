@@ -131,6 +131,7 @@ public:
     QMap<QString, QString> sourcePathMap;
 
     // Used by baremetal plugin
+    QByteArray commandsForReset; // commands used for resetting the inferior
     bool useContinueInsteadOfRun; // if connected to a hw debugger run is not possible but continue is used
     QByteArray commandsAfterConnect; // additional commands to post after connection to debug target
 

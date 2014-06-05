@@ -334,6 +334,7 @@ protected:
     virtual void runEngine() = 0;
     virtual void shutdownInferior() = 0;
     virtual void shutdownEngine() = 0;
+    virtual void resetInferior() {}
 
     virtual void detachDebugger();
     virtual void exitDebugger();

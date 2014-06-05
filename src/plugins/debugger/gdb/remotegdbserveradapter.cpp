@@ -406,7 +406,7 @@ void GdbRemoteServerEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    const QString remoteExecutable = startParameters().remoteExecutable; // This is only set for pure QNX
+    const QString remoteExecutable = startParameters().remoteExecutable;
     if (!remoteExecutable.isEmpty()) {
         postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
     } else {

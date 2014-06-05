@@ -58,6 +58,7 @@ const char STEP[]                   = "Debugger.StepLine";
 const char STEPOUT[]                = "Debugger.StepOut";
 const char NEXT[]                   = "Debugger.NextLine";
 const char REVERSE[]                = "Debugger.ReverseDirection";
+const char RESET[]                  = "Debugger.Reset";
 const char OPERATE_BY_INSTRUCTION[] = "Debugger.OperateByInstruction";
 const char QML_SHOW_APP_ON_TOP[]    = "Debugger.QmlShowAppOnTop";
 const char QML_UPDATE_ON_SAVE[]     = "Debugger.QmlUpdateOnSave";
@@ -162,7 +163,8 @@ enum DebuggerCapabilities
     MemoryAddressCapability = 0x1000000,
     ShowModuleSectionsCapability = 0x200000,
     WatchComplexExpressionsCapability = 0x400000, // Used to filter out challenges for cdb.
-    AdditionalQmlStackCapability = 0x800000 // C++ debugger engine is able to retrieve QML stack as well.
+    AdditionalQmlStackCapability = 0x800000, // C++ debugger engine is able to retrieve QML stack as well.
+    ResetInferiorCapability = 0x1000000  //!< restart program while debugging
 };
 
 enum LogChannel

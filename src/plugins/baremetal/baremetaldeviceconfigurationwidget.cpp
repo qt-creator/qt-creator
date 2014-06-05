@@ -29,74 +29,100 @@
 
 #include "baremetaldeviceconfigurationwidget.h"
 
-#include "ui_baremetaldeviceconfigurationwidget.h"
 #include "baremetaldevice.h"
 
 #include <coreplugin/variablechooser.h>
 #include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
 
+#include <QFormLayout>
 #include <QLabel>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QPlainTextEdit>
 
+using namespace Core;
 using namespace QSsh;
 
 namespace BareMetal {
-using namespace Internal;
+namespace Internal {
 
 BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
-        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent) :
-   IDeviceWidget(deviceConfig, parent),
-   m_ui(new Ui::BareMetalDeviceConfigurationWidget)
+        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent)
+    : IDeviceWidget(deviceConfig, parent)
 {
-    m_ui->setupUi(this);
-    connect(m_ui->gdbHostLineEdit, SIGNAL(editingFinished()), SLOT(hostnameChanged()));
-    connect(m_ui->gdbPortSpinBox, SIGNAL(valueChanged(int)), SLOT(portChanged()));
-    connect(m_ui->gdbCommandsTextEdit, SIGNAL(textChanged()), SLOT(gdbInitCommandsChanged()));
-    Core::VariableChooser::addVariableSupport(m_ui->gdbCommandsTextEdit);
-    new Core::VariableChooser(this);
-    initGui();
-}
+    SshConnectionParameters sshParams = device()->sshParameters();
+    QSharedPointer<BareMetalDevice> p = qSharedPointerCast<BareMetalDevice>(device());
+    QTC_ASSERT(!p.isNull(), return);
 
-BareMetalDeviceConfigurationWidget::~BareMetalDeviceConfigurationWidget()
-{
-    delete m_ui;
+    m_gdbHostLineEdit = new QLineEdit(this);
+    m_gdbHostLineEdit->setText(sshParams.host);
+    m_gdbHostLineEdit->setToolTip(BareMetalDevice::hostLineToolTip());
+
+    m_gdbPortSpinBox = new QSpinBox(this);
+    m_gdbPortSpinBox->setRange(1, 65535);
+    m_gdbPortSpinBox->setValue(sshParams.port);
+
+    m_gdbInitCommandsTextEdit = new QPlainTextEdit(this);
+    m_gdbInitCommandsTextEdit->setPlainText(p->gdbInitCommands());
+    m_gdbInitCommandsTextEdit->setToolTip(BareMetalDevice::initCommandToolTip());
+
+    m_gdbResetCommandsTextEdit = new QPlainTextEdit(this);
+    m_gdbResetCommandsTextEdit->setPlainText(p->gdbResetCommands());
+    m_gdbResetCommandsTextEdit->setToolTip(BareMetalDevice::resetCommandToolTip());
+
+    QFormLayout *formLayout = new QFormLayout(this);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    formLayout->addRow(tr("GDB host:"), m_gdbHostLineEdit);
+    formLayout->addRow(tr("GDB port:"), m_gdbPortSpinBox);
+    formLayout->addRow(tr("Init commands:"), m_gdbInitCommandsTextEdit);
+    formLayout->addRow(tr("Reset commands:"), m_gdbResetCommandsTextEdit);
+
+    VariableChooser::addVariableSupport(m_gdbResetCommandsTextEdit);
+    VariableChooser::addVariableSupport(m_gdbInitCommandsTextEdit);
+    (void)new VariableChooser(this);
+
+    connect(m_gdbHostLineEdit, SIGNAL(editingFinished()), SLOT(hostnameChanged()));
+    connect(m_gdbPortSpinBox, SIGNAL(valueChanged(int)), SLOT(portChanged()));
+    connect(m_gdbResetCommandsTextEdit, SIGNAL(textChanged()),SLOT(gdbResetCommandsChanged()));
+    connect(m_gdbInitCommandsTextEdit, SIGNAL(textChanged()), SLOT(gdbInitCommandsChanged()));
 }
 
 void BareMetalDeviceConfigurationWidget::hostnameChanged()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.host = m_ui->gdbHostLineEdit->text().trimmed();
+    sshParams.host = m_gdbHostLineEdit->text().trimmed();
     device()->setSshParameters(sshParams);
 }
 
 void BareMetalDeviceConfigurationWidget::portChanged()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.port = m_ui->gdbPortSpinBox->value();
+    sshParams.port = m_gdbPortSpinBox->value();
     device()->setSshParameters(sshParams);
+}
+
+void BareMetalDeviceConfigurationWidget::gdbResetCommandsChanged()
+{
+    QSharedPointer<BareMetalDevice> p = qSharedPointerCast<BareMetalDevice>(device());
+    QTC_ASSERT(!p.isNull(), return);
+    p->setGdbResetCommands(m_gdbResetCommandsTextEdit->toPlainText().trimmed());
 }
 
 void BareMetalDeviceConfigurationWidget::gdbInitCommandsChanged()
 {
     QSharedPointer<BareMetalDevice> p = qSharedPointerCast<BareMetalDevice>(device());
     QTC_ASSERT(!p.isNull(), return);
-    p->setGdbInitCommands(m_ui->gdbCommandsTextEdit->toPlainText());
+    p->setGdbInitCommands(m_gdbInitCommandsTextEdit->toPlainText());
 }
 
-void BareMetalDeviceConfigurationWidget::updateDeviceFromUi() {
+void BareMetalDeviceConfigurationWidget::updateDeviceFromUi()
+{
     hostnameChanged();
     portChanged();
+    gdbResetCommandsChanged();
     gdbInitCommandsChanged();
 }
 
-void BareMetalDeviceConfigurationWidget::initGui()
-{
-    SshConnectionParameters sshParams = device()->sshParameters();
-    m_ui->gdbHostLineEdit->setText(sshParams.host);
-    m_ui->gdbPortSpinBox->setValue(sshParams.port);
-    QSharedPointer<BareMetalDevice> p = qSharedPointerCast<BareMetalDevice>(device());
-    QTC_ASSERT(!p.isNull(), return);
-    m_ui->gdbCommandsTextEdit->setPlainText(p->gdbInitCommands());
-}
-
-} //namespace BareMetal
+} // namespace Internal
+} // namespace BareMetal

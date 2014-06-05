@@ -78,6 +78,7 @@ IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
                                                   Core::Id(Constants::BareMetalOsType),
                                                   IDevice::Hardware);
     device->setSshParameters(sshParams);
+    device->setGdbResetCommands(d->m_setupPage.gdbResetCommands());
     device->setGdbInitCommands(d->m_setupPage.gdbInitCommands());
     return device;
 }

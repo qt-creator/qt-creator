@@ -30,40 +30,41 @@
 #ifndef BAREMETALDEVICECONFIGURATIONWIZARDPAGES_H
 #define BAREMETALDEVICECONFIGURATIONWIZARDPAGES_H
 
-#include "ui_baremetaldeviceconfigurationwizardsetuppage.h"
 #include <QWizardPage>
 
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+class QSpinBox;
+class QPlainTextEdit;
+QT_END_NAMESPACE
+
 namespace BareMetal {
-
 namespace Internal {
-
-class BareMetalDeviceConfigurationWizardSetupPagePrivate
-{
-public:
-    Ui::BareMetalDeviceConfigurationWizardSetupPage ui;
-};
-
-} // namespace Internal
 
 class BareMetalDeviceConfigurationWizardSetupPage : public QWizardPage
 {
-    Q_OBJECT
 public:
     explicit BareMetalDeviceConfigurationWizardSetupPage(QWidget *parent = 0);
-    ~BareMetalDeviceConfigurationWizardSetupPage();
 
     void initializePage();
     bool isComplete() const;
     QString configurationName() const;
     QString gdbHostname() const;
     quint16 gdbPort() const;
+    QString gdbResetCommands() const;
     QString gdbInitCommands() const;
 
     virtual QString defaultConfigurationName() const;
+
 private:
-    Internal::BareMetalDeviceConfigurationWizardSetupPagePrivate * const d;
+    QLineEdit *m_nameLineEdit;
+    QLineEdit *m_hostNameLineEdit;
+    QSpinBox *m_portSpinBox;
+    QPlainTextEdit *m_gdbResetCommandsTextEdit;
+    QPlainTextEdit *m_gdbInitCommandsPlainTextEdit;
 };
 
+} // namespace Internal
 } // namespace BareMetal
 
 #endif // BAREMETALDEVICECONFIGURATIONWIZARDPAGES_H

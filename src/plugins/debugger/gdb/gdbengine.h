@@ -78,6 +78,7 @@ private: ////////// General Interface //////////
     virtual void shutdownInferior();
     virtual void shutdownEngine() = 0;
     virtual void abortDebugger();
+    virtual void resetInferior();
 
     virtual bool acceptsDebuggerCommands() const;
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);

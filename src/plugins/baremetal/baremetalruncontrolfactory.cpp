@@ -33,7 +33,6 @@
 #include "baremetaldevice.h"
 
 #include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerkitinformation.h>
 #include <projectexplorer/buildsteplist.h>
@@ -104,6 +103,7 @@ DebuggerStartParameters BareMetalRunControlFactory::startParameters(const BareMe
         params.remoteChannel = device->sshParameters().host + QLatin1String(":") + QString::number(device->sshParameters().port);
     params.remoteSetupNeeded = false; // qml stuff, not needed
     params.commandsAfterConnect = device->gdbInitCommands().toLatin1();
+    params.commandsForReset = device->gdbResetCommands().toLatin1();
     BuildConfiguration *bc = target->activeBuildConfiguration();
     BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId());
     if (bsl) {

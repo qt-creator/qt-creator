@@ -55,11 +55,19 @@ public:
 
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
 
+    QString gdbResetCommands() const { return m_gdbResetCommands; }
+    void setGdbResetCommands(const QString &gdbResetCommands) { m_gdbResetCommands = gdbResetCommands; }
+
     QString gdbInitCommands() const { return m_gdbInitCommands; }
     void setGdbInitCommands(const QString &gdbCommands) { m_gdbInitCommands=gdbCommands; }
 
     virtual void fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
+
+    static QString exampleString();
+    static QString hostLineToolTip();
+    static QString initCommandToolTip();
+    static QString resetCommandToolTip();
 
 protected:
     BareMetalDevice() {}
@@ -69,6 +77,7 @@ protected:
 
 private:
     BareMetalDevice &operator=(const BareMetalDevice &);
+    QString m_gdbResetCommands;
     QString m_gdbInitCommands;
 };
 

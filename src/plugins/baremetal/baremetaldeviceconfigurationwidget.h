@@ -32,9 +32,14 @@
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
-namespace BareMetal {
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+class QSpinBox;
+class QPlainTextEdit;
+QT_END_NAMESPACE
 
-namespace Ui { class BareMetalDeviceConfigurationWidget; }
+namespace BareMetal {
+namespace Internal {
 
 class BareMetalDeviceConfigurationWidget
       : public ProjectExplorer::IDeviceWidget
@@ -44,19 +49,24 @@ class BareMetalDeviceConfigurationWidget
 public:
     explicit BareMetalDeviceConfigurationWidget(
         const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = 0);
-    ~BareMetalDeviceConfigurationWidget();
 
 private slots:
     void hostnameChanged();
     void portChanged();
+    void gdbResetCommandsChanged();
     void gdbInitCommandsChanged();
 
 private:
     void updateDeviceFromUi();
     void initGui();
-    Ui::BareMetalDeviceConfigurationWidget *m_ui;
+
+    QLineEdit *m_gdbHostLineEdit;
+    QSpinBox *m_gdbPortSpinBox;
+    QPlainTextEdit *m_gdbResetCommandsTextEdit;
+    QPlainTextEdit *m_gdbInitCommandsTextEdit;
 };
 
-} //namespace BareMetal
+} // namespace Internal
+} // namespace BareMetal
 
 #endif // BAREMETALDEVICECONFIGURATIONWIDGET_H

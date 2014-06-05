@@ -28,39 +28,73 @@
 ****************************************************************************/
 
 #include "baremetaldeviceconfigurationwizardpages.h"
-#include "ui_baremetaldeviceconfigurationwizardsetuppage.h"
+#include "baremetaldevice.h"
 
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QSpinBox>
+
+using namespace Core;
+
 namespace BareMetal {
 namespace Internal {
-class BareMetalDeviceConfigurationWizardSetupPagePrivate;
-} // namespace Internal
 
-BareMetalDeviceConfigurationWizardSetupPage::BareMetalDeviceConfigurationWizardSetupPage(QWidget *parent) :
-    QWizardPage(parent), d(new Internal::BareMetalDeviceConfigurationWizardSetupPagePrivate)
+BareMetalDeviceConfigurationWizardSetupPage::BareMetalDeviceConfigurationWizardSetupPage(QWidget *parent)
+    : QWizardPage(parent)
 {
-    d->ui.setupUi(this);
     setTitle(tr("Set up GDB Server or Hardware Debugger"));
-    setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-    connect(d->ui.hostNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
-    connect(d->ui.nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
-    connect(d->ui.portSpinBox, SIGNAL(valueChanged(int)), SIGNAL(completeChanged()));
-    connect(d->ui.gdbInitCommandsPlainTextEdit, SIGNAL(textChanged()), SIGNAL(completeChanged()));
-    Core::VariableChooser::addVariableSupport(d->ui.gdbInitCommandsPlainTextEdit);
-    new Core::VariableChooser(this);
-}
 
-BareMetalDeviceConfigurationWizardSetupPage::~BareMetalDeviceConfigurationWizardSetupPage()
-{
-    delete d;
+    m_nameLineEdit = new QLineEdit(this);
+
+    m_hostNameLineEdit = new QLineEdit(this);
+    m_hostNameLineEdit->setToolTip(BareMetalDevice::hostLineToolTip());
+    m_hostNameLineEdit->setText(QLatin1String(
+        "|openocd -c \"gdb_port pipe\" -c \"log_output openocd.log;\" "
+        "-f board/stm3241g_eval_stlink.cfg"));
+
+    m_portSpinBox = new QSpinBox(this);
+    m_portSpinBox->setRange(1, 65535);
+    m_portSpinBox->setValue(3333);
+
+    m_gdbInitCommandsPlainTextEdit = new QPlainTextEdit(this);
+    m_gdbInitCommandsPlainTextEdit->setToolTip(BareMetalDevice::initCommandToolTip());
+    m_gdbInitCommandsPlainTextEdit->setPlainText(QLatin1String(
+        "set remote hardware-breakpoint-limit 6\n"
+        "set remote hardware-watchpoint-limit 4\n"
+        "monitor reset halt\n"
+        "load\n"
+        "monitor reset halt"));
+
+    m_gdbResetCommandsTextEdit = new QPlainTextEdit(this);
+    m_gdbResetCommandsTextEdit->setToolTip(BareMetalDevice::resetCommandToolTip());
+    m_gdbResetCommandsTextEdit->setPlainText(QLatin1String("monitor reset halt"));
+
+    QFormLayout *formLayout = new QFormLayout(this);
+    formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    formLayout->addRow(tr("Name:"), m_nameLineEdit);
+    formLayout->addRow(tr("GDB host:"), m_hostNameLineEdit);
+    formLayout->addRow(tr("GDB port:"), m_portSpinBox);
+    formLayout->addRow(tr("Init commands:"), m_gdbInitCommandsPlainTextEdit);
+    formLayout->addRow(tr("Reset commands:"), m_gdbResetCommandsTextEdit);
+
+    connect(m_nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
+    connect(m_hostNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
+    connect(m_portSpinBox, SIGNAL(valueChanged(int)), SIGNAL(completeChanged()));
+    connect(m_gdbResetCommandsTextEdit, SIGNAL(textChanged()), SIGNAL(completeChanged()));
+    connect(m_gdbInitCommandsPlainTextEdit, SIGNAL(textChanged()), SIGNAL(completeChanged()));
+
+    VariableChooser::addVariableSupport(m_gdbResetCommandsTextEdit);
+    VariableChooser::addVariableSupport(m_gdbInitCommandsPlainTextEdit);
+    (void)new VariableChooser(this);
 }
 
 void BareMetalDeviceConfigurationWizardSetupPage::initializePage()
 {
-    d->ui.nameLineEdit->setText(defaultConfigurationName());
-
+    m_nameLineEdit->setText(defaultConfigurationName());
 }
 
 bool BareMetalDeviceConfigurationWizardSetupPage::isComplete() const
@@ -70,22 +104,27 @@ bool BareMetalDeviceConfigurationWizardSetupPage::isComplete() const
 
 QString BareMetalDeviceConfigurationWizardSetupPage::configurationName() const
 {
-    return d->ui.nameLineEdit->text().trimmed();
+    return m_nameLineEdit->text().trimmed();
 }
 
 QString BareMetalDeviceConfigurationWizardSetupPage::gdbHostname() const
 {
-    return d->ui.hostNameLineEdit->text().trimmed();
+    return m_hostNameLineEdit->text().trimmed();
 }
 
 quint16 BareMetalDeviceConfigurationWizardSetupPage::gdbPort() const
 {
-    return quint16(d->ui.portSpinBox->value());
+    return quint16(m_portSpinBox->value());
+}
+
+QString BareMetalDeviceConfigurationWizardSetupPage::gdbResetCommands() const
+{
+    return m_gdbResetCommandsTextEdit->toPlainText().trimmed();
 }
 
 QString BareMetalDeviceConfigurationWizardSetupPage::gdbInitCommands() const
 {
-    return d->ui.gdbInitCommandsPlainTextEdit->toPlainText();
+    return m_gdbInitCommandsPlainTextEdit->toPlainText().trimmed();
 }
 
 QString BareMetalDeviceConfigurationWizardSetupPage::defaultConfigurationName() const
@@ -93,4 +132,5 @@ QString BareMetalDeviceConfigurationWizardSetupPage::defaultConfigurationName() 
     return tr("Bare Metal Device");
 }
 
+} // namespace Internal
 } // namespace BareMetal

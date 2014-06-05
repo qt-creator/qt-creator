@@ -38,6 +38,7 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
+const char GdbResetKey[] = "GdbResetCommand";
 const char GdbCommandsKey[] = "GdbCommands";
 
 BareMetalDevice::Ptr BareMetalDevice::create()
@@ -58,12 +59,14 @@ BareMetalDevice::Ptr BareMetalDevice::create(const BareMetalDevice &other)
 void BareMetalDevice::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);
+    setGdbResetCommands(map.value(QLatin1String(GdbResetKey)).toString());
     setGdbInitCommands(map.value(QLatin1String(GdbCommandsKey)).toString());
 }
 
 QVariantMap BareMetalDevice::toMap() const
 {
     QVariantMap map = IDevice::toMap();
+    map.insert(QLatin1String(GdbResetKey), gdbResetCommands());
     map.insert(QLatin1String(GdbCommandsKey), gdbInitCommands());
     return map;
 }
@@ -114,7 +117,50 @@ BareMetalDevice::BareMetalDevice(const QString &name, Core::Id type, MachineType
 BareMetalDevice::BareMetalDevice(const BareMetalDevice &other)
     : IDevice(other)
 {
+    setGdbResetCommands(other.gdbResetCommands());
     setGdbInitCommands(other.gdbInitCommands());
+}
+
+QString BareMetalDevice::exampleString()
+{
+    return QLatin1String("<p><i>")
+            + QCoreApplication::translate("BareMetal", "Example:")
+            + QLatin1String("</i><p>");
+}
+
+QString BareMetalDevice::hostLineToolTip()
+{
+    return QLatin1String("<html>")
+            + QCoreApplication::translate("BareMetal",
+              "Enter your hostname like \"localhost\" or \"192.0.2.1\" or "
+              "a command which must support GDB pipelining "
+              "starting with a pipe symbol.")
+            + exampleString() + QLatin1String(
+              "&nbsp;&nbsp;|openocd -c \"gdb_port pipe; "
+              "log_output openocd.log\" -f boards/myboard.cfg");
+}
+
+QString BareMetalDevice::resetCommandToolTip()
+{
+    return QLatin1String("<html>")
+            + QCoreApplication::translate("BareMetal",
+              "Enter the hardware reset command here.<br>"
+              "The CPU should be halted after this command.")
+            + exampleString() + QLatin1String(
+              "&nbsp;&nbsp;monitor reset halt");
+}
+
+QString BareMetalDevice::initCommandToolTip()
+{
+    return QLatin1String("<html>")
+            + QCoreApplication::translate("BareMetal",
+              "Enter commands to reset the board, and write the nonvolatile memory.")
+            + exampleString() + QLatin1String(
+              "&nbsp;&nbsp;set remote hardware-breakpoint-limit 6<br/>"
+              "&nbsp;&nbsp;set remote hardware-watchpoint-limit 4<br/>"
+              "&nbsp;&nbsp;monitor reset halt<br/>"
+              "&nbsp;&nbsp;load<br/>"
+              "&nbsp;&nbsp;monitor reset halt");
 }
 
 } //namespace Internal

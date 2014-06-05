@@ -104,6 +104,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const AbstractR
         params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
         params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
+        params.remoteExecutable = runConfig->remoteExecutableFilePath();
     } else {
         params.startMode = AttachToRemoteServer;
     }

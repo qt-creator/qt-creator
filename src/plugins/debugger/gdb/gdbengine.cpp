@@ -1213,7 +1213,8 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         showMessage(_("ALL COMMANDS DONE; INVOKING CALLBACK"));
         CommandsDoneCallback cont = m_commandsDoneCallback;
         m_commandsDoneCallback = 0;
-        (this->*cont)();
+        if (response->resultClass != GdbResultRunning) //only start if the thing is not already running
+            (this->*cont)();
     } else {
         PENDING_DEBUG("MISSING TOKENS: " << m_cookieForToken.keys());
     }
@@ -2028,7 +2029,8 @@ bool GdbEngine::hasCapability(unsigned cap) const
         | RunToLineCapability
         | WatchComplexExpressionsCapability
         | MemoryAddressCapability
-        | AdditionalQmlStackCapability))
+        | AdditionalQmlStackCapability
+        | ResetInferiorCapability))
         return true;
 
     if (startParameters().startMode == AttachCore)
@@ -4428,6 +4430,29 @@ void GdbEngine::abortDebugger()
         showMessage(_("ABORTING DEBUGGER. FIRST TIME."));
         quitDebugger();
     }
+}
+
+void GdbEngine::resetInferior()
+{
+    if (!startParameters().commandsForReset.isEmpty()) {
+        QByteArray substitutedCommands = VariableManager::expandedString(
+                    QString::fromLatin1(startParameters().commandsForReset)).toLatin1();
+        foreach (QByteArray command, substitutedCommands.split('\n')) {
+            command = command.trimmed();
+            if (!command.isEmpty()) {
+                if (state() == InferiorStopOk) {
+                    postCommand(command, ConsoleCommand|Immediate);
+                } else {
+                    GdbCommand gdbCmd;
+                    gdbCmd.command = command;
+                    gdbCmd.flags = ConsoleCommand;
+                    m_commandsToRunOnTemporaryBreak.append(gdbCmd);
+                }
+            }
+        }
+    }
+    requestInterruptInferior();
+    runEngine();
 }
 
 void GdbEngine::handleAdapterStartFailed(const QString &msg, Id settingsIdHint)
