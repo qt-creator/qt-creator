@@ -37,27 +37,27 @@
 
 #include <utils/checkablemessagebox.h>
 #include <utils/consoleprocess.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 #include <utils/unixutils.h>
-#include <utils/environment.h>
-
-#include <QMessageBox>
 
 #include <QCoreApplication>
-#include <QTextStream>
 #include <QDir>
 #include <QLibraryInfo>
+#include <QMessageBox>
 #include <QSettings>
+#include <QTextStream>
 
 #include "ui_generalsettings.h"
 
 using namespace Utils;
-using namespace Core::Internal;
 
+namespace Core {
+namespace Internal {
 
-GeneralSettings::GeneralSettings():
-    m_page(0), m_dialog(0)
+GeneralSettings::GeneralSettings()
+    : m_page(0), m_dialog(0)
 {
     setId(Core::Constants::SETTINGS_ID_ENVIRONMENT);
     setDisplayName(tr("General"));
@@ -84,12 +84,10 @@ void GeneralSettings::fillLanguageBox() const
     if (currentLocale == QLatin1String("C"))
         m_page->languageBox->setCurrentIndex(m_page->languageBox->count() - 1);
 
-    const QString creatorTrPath =
-            Core::ICore::resourcePath() + QLatin1String("/translations");
+    const QString creatorTrPath = ICore::resourcePath() + QLatin1String("/translations");
     const QStringList languageFiles = QDir(creatorTrPath).entryList(QStringList(QLatin1String("qtcreator*.qm")));
 
-    Q_FOREACH(const QString &languageFile, languageFiles)
-    {
+    foreach (const QString &languageFile, languageFiles) {
         int start = languageFile.indexOf(QLatin1Char('_'))+1;
         int end = languageFile.lastIndexOf(QLatin1Char('.'));
         const QString locale = languageFile.mid(start, end-start);
@@ -117,9 +115,8 @@ QWidget *GeneralSettings::widget()
         m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
         m_page->reloadBehavior->setCurrentIndex(EditorManager::reloadSetting());
         if (HostOsInfo::isAnyUnixHost()) {
-            QSettings *settings = Core::ICore::settings();
             const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
-            const QString currentTerminal = ConsoleProcess::terminalEmulator(settings, false);
+            const QString currentTerminal = ConsoleProcess::terminalEmulator(ICore::settings(), false);
             m_page->terminalComboBox->addItems(availableTerminals);
             m_page->terminalComboBox->lineEdit()->setText(currentTerminal);
             m_page->terminalComboBox->lineEdit()->setPlaceholderText(ConsoleProcess::defaultTerminalEmulator());
@@ -130,8 +127,7 @@ QWidget *GeneralSettings::widget()
         }
 
         if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
-            QSettings *settings = Core::ICore::settings();
-            m_page->externalFileBrowserEdit->setText(UnixUtils::fileBrowser(settings));
+            m_page->externalFileBrowserEdit->setText(UnixUtils::fileBrowser(ICore::settings()));
         } else {
             m_page->externalFileBrowserLabel->hide();
             m_page->externalFileBrowserEdit->hide();
@@ -142,13 +138,13 @@ QWidget *GeneralSettings::widget()
         const QString patchToolTip = tr("Command used for reverting diff chunks.");
         m_page->patchCommandLabel->setToolTip(patchToolTip);
         m_page->patchChooser->setToolTip(patchToolTip);
-        m_page->patchChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        m_page->patchChooser->setExpectedKind(PathChooser::ExistingCommand);
         m_page->patchChooser->setHistoryCompleter(QLatin1String("General.PatchCommand.History"));
-        m_page->patchChooser->setPath(Core::PatchTool::patchCommand());
+        m_page->patchChooser->setPath(PatchTool::patchCommand());
         m_page->autoSaveCheckBox->setChecked(EditorManager::autoSaveEnabled());
         m_page->autoSaveInterval->setValue(EditorManager::autoSaveInterval());
-        m_page->resetWarningsButton->setEnabled(Core::InfoBar::anyGloballySuppressed()
-                                                || Utils::CheckableMessageBox::hasSuppressedQuestions(ICore::settings()));
+        m_page->resetWarningsButton->setEnabled(InfoBar::anyGloballySuppressed()
+                                                || CheckableMessageBox::hasSuppressedQuestions(ICore::settings()));
 
         connect(m_page->resetColorButton, SIGNAL(clicked()),
                 this, SLOT(resetInterfaceColor()));
@@ -165,7 +161,7 @@ QWidget *GeneralSettings::widget()
 
         updatePath();
 
-        connect(Core::VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
+        connect(VcsManager::instance(), SIGNAL(configurationChanged(const IVersionControl*)),
                 this, SLOT(updatePath()));
     }
     return m_widget;
@@ -181,14 +177,14 @@ void GeneralSettings::apply()
     StyleHelper::setBaseColor(m_page->colorButton->color());
     EditorManager::setReloadSetting(IDocument::ReloadSetting(m_page->reloadBehavior->currentIndex()));
     if (HostOsInfo::isAnyUnixHost()) {
-        ConsoleProcess::setTerminalEmulator(Core::ICore::settings(),
+        ConsoleProcess::setTerminalEmulator(ICore::settings(),
                                             m_page->terminalComboBox->lineEdit()->text());
         if (!HostOsInfo::isMacHost()) {
-            Utils::UnixUtils::setFileBrowser(Core::ICore::settings(),
-                                             m_page->externalFileBrowserEdit->text());
+            UnixUtils::setFileBrowser(ICore::settings(),
+                                      m_page->externalFileBrowserEdit->text());
         }
     }
-    Core::PatchTool::setPatchCommand(m_page->patchChooser->path());
+    PatchTool::setPatchCommand(m_page->patchChooser->path());
     EditorManager::setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
     EditorManager::setAutoSaveInterval(m_page->autoSaveInterval->value());
 }
@@ -196,8 +192,6 @@ void GeneralSettings::apply()
 void GeneralSettings::finish()
 {
     delete m_widget;
-    if (!m_page) // page was never shown
-        return;
     delete m_page;
     m_page = 0;
 }
@@ -209,8 +203,8 @@ void GeneralSettings::resetInterfaceColor()
 
 void GeneralSettings::resetWarnings()
 {
-    Core::InfoBar::clearGloballySuppressed();
-    Utils::CheckableMessageBox::resetAllDoNotAskAgainQuestions(ICore::settings());
+    InfoBar::clearGloballySuppressed();
+    CheckableMessageBox::resetAllDoNotAskAgainQuestions(ICore::settings());
     m_page->resetWarningsButton->setEnabled(false);
 }
 
@@ -228,9 +222,9 @@ void GeneralSettings::resetFileBrowser()
 
 void GeneralSettings::updatePath()
 {
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    QStringList toAdd = Core::VcsManager::additionalToolsPath();
-    env.appendOrSetPath(toAdd.join(QString(Utils::HostOsInfo::pathListSeparator())));
+    Environment env = Environment::systemEnvironment();
+    QStringList toAdd = VcsManager::additionalToolsPath();
+    env.appendOrSetPath(toAdd.join(QString(HostOsInfo::pathListSeparator())));
     m_page->patchChooser->setEnvironment(env);
 }
 
@@ -269,20 +263,22 @@ void GeneralSettings::resetLanguage()
 
 QString GeneralSettings::language() const
 {
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     return settings->value(QLatin1String("General/OverrideLanguage")).toString();
 }
 
 void GeneralSettings::setLanguage(const QString &locale)
 {
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale)
-    {
-        QMessageBox::information(Core::ICore::mainWindow(), tr("Restart required"),
+        QMessageBox::information(ICore::mainWindow(), tr("Restart required"),
                                  tr("The language change will take effect after a restart of Qt Creator."));
-    }
+
     if (locale.isEmpty())
         settings->remove(QLatin1String("General/OverrideLanguage"));
     else
         settings->setValue(QLatin1String("General/OverrideLanguage"), locale);
 }
+
+} // namespace Internal
+} // namespace Core
