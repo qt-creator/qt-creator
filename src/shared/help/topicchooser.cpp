@@ -44,6 +44,7 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
     ui.setupUi(this);
 
     setFocusProxy(ui.lineEdit);
+    ui.lineEdit->setFiltering(true);
     ui.lineEdit->installEventFilter(this);
     ui.lineEdit->setPlaceholderText(tr("Filter"));
     ui.label->setText(tr("Choose a topic for <b>%1</b>:").arg(keyword));
