@@ -5,6 +5,7 @@
         <file>images/clear@2x.png</file>
         <file>images/closebutton.png</file>
         <file>images/compile_error_taskbar.png</file>
+        <file>images/compile_error_taskbar@2x.png</file>
         <file>images/dir.png</file>
         <file>images/editcopy.png</file>
         <file>images/editcut.png</file>
@@ -48,7 +49,9 @@
         <file>images/undo.png</file>
         <file>images/unknownfile.png</file>
         <file>images/unlocked.png</file>
+        <file>images/unlocked@2x.png</file>
         <file>images/extension.png</file>
+        <file>images/extension@2x.png</file>
         <file>images/darkclosebutton.png</file>
         <file>images/darkclosebutton@2x.png</file>
         <file>images/category_core.png</file>
@@ -84,6 +87,7 @@
         <file>images/splitbutton_closetop.png</file>
         <file>images/splitbutton_closetop@2x.png</file>
         <file>images/splitbutton_vertical.png</file>
+        <file>images/splitbutton_vertical@2x.png</file>
         <file>images/panel_manage_button.png</file>
         <file>images/sidebysidediff.png</file>
         <file>images/textdiff.png</file>

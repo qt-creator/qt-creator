@@ -44,6 +44,7 @@
         <file>images/window.png</file>
         <file>images/stop_small.png</file>
         <file>images/disabledbuildstep.png</file>
+        <file>images/disabledbuildstep@2x.png</file>
         <file>images/unconfigured.png</file>
         <file>images/targetleftbutton.png</file>
         <file>images/targetrightbutton.png</file>
