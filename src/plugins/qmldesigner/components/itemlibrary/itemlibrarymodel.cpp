@@ -195,8 +195,6 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
             // delayed creation of (default) icons
             if (entry.iconPath().isEmpty())
                 entry.setIconPath(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
-            if (entry.dragIcon().isNull())
-                entry.setDragIcon(createDragPixmap(getWidth(entry), getHeight(entry)));
 
             itemModel->setItemIconPath(entry.iconPath());
             itemModel->setItemIconSize(m_itemIconSize);
@@ -223,13 +221,6 @@ QMimeData *ItemLibraryModel::getMimeData(int libId)
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << m_itemInfos.value(libId);
     mimeData->setData(QStringLiteral("application/vnd.bauhaus.itemlibraryinfo"), data);
-
-    const QIcon icon = m_itemInfos.value(libId).dragIcon();
-    if (!icon.isNull()) {
-        const QList<QSize> sizes = icon.availableSizes();
-        if (!sizes.isEmpty())
-            mimeData->setImageData(icon.pixmap(sizes.front()).toImage());
-    }
 
     mimeData->removeFormat(QStringLiteral("text/plain"));
 

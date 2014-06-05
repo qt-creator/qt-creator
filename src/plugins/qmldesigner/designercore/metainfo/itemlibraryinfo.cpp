@@ -50,7 +50,6 @@ public:
     int minorVersion;
     QString iconPath;
     QIcon icon;
-    QIcon dragIcon;
     QList<PropertyContainer> properties;
     QString qml;
     QString qmlSource;
@@ -76,19 +75,9 @@ ItemLibraryEntry& ItemLibraryEntry::operator=(const ItemLibraryEntry &other)
     return *this;
 }
 
-void ItemLibraryEntry::setDragIcon(const QIcon &icon)
-{
-    m_data->dragIcon = icon;
-}
-
 void ItemLibraryEntry::setIcon(const QIcon &icon)
 {
     m_data->icon = icon;
-}
-
-QIcon ItemLibraryEntry::dragIcon() const
-{
-    return m_data->dragIcon;
 }
 
 void ItemLibraryEntry::addProperty(const Property &property)
@@ -220,7 +209,6 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.icon();
     stream << itemLibraryEntry.iconPath();
     stream << itemLibraryEntry.category();
-    stream << itemLibraryEntry.dragIcon();
     stream << itemLibraryEntry.requiredImport();
 
     stream << itemLibraryEntry.m_data->properties;
@@ -239,7 +227,6 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->icon;
     stream >> itemLibraryEntry.m_data->iconPath;
     stream >> itemLibraryEntry.m_data->category;
-    stream >> itemLibraryEntry.m_data->dragIcon;
     stream >> itemLibraryEntry.m_data->requiredImport;
 
     stream >> itemLibraryEntry.m_data->properties;
@@ -258,7 +245,6 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
     debug << itemLibraryEntry.m_data->icon;
     debug << itemLibraryEntry.m_data->iconPath;
     debug << itemLibraryEntry.m_data->category;
-    debug << itemLibraryEntry.m_data->dragIcon;
     debug << itemLibraryEntry.m_data->requiredImport;
 
     debug << itemLibraryEntry.m_data->properties;

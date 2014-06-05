@@ -86,7 +86,6 @@ public:
     void setIconPath(const QString &iconPath);
     void addProperty(const Property &p);
     void addProperty(PropertyName &name, QString &type, QVariant &value);
-    void setDragIcon(const QIcon &icon);
     void setIcon(const QIcon &icon);
     void setCategory(const QString &category);
     void setQmlPath(const QString &qml);
