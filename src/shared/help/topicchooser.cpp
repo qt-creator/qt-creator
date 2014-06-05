@@ -104,23 +104,32 @@ void TopicChooser::activated(const QModelIndex &index)
 bool TopicChooser::eventFilter(QObject *object, QEvent *event)
 {
     if (object == ui.lineEdit && event->type() == QEvent::KeyPress) {
-        QModelIndex idx = ui.listWidget->currentIndex();
-        switch ((static_cast<QKeyEvent*>(event)->key())) {
-            case Qt::Key_Up:
-                idx = m_filterModel->index(idx.row() - 1, idx.column(),
-                    idx.parent());
-                if (idx.isValid())
-                    ui.listWidget->setCurrentIndex(idx);
-                break;
-
-            case Qt::Key_Down:
-                idx = m_filterModel->index(idx.row() + 1, idx.column(),
-                    idx.parent());
-                if (idx.isValid())
-                    ui.listWidget->setCurrentIndex(idx);
-                break;
-
-            default: ;
+        QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+        int dIndex = 0;
+        switch (ke->key()) {
+        case Qt::Key_Up:
+            dIndex = -1;
+            break;
+        case Qt::Key_Down:
+            dIndex = +1;
+            break;
+        case Qt::Key_PageUp:
+            dIndex = -5;
+            break;
+        case Qt::Key_PageDown:
+            dIndex = +5;
+            break;
+        default:
+            break;
+        }
+        if (dIndex != 0) {
+            QModelIndex idx = ui.listWidget->currentIndex();
+            int newIndex = qMin(m_filterModel->rowCount(idx.parent()) - 1,
+                                qMax(0, idx.row() + dIndex));
+            idx = m_filterModel->index(newIndex, idx.column(), idx.parent());
+            if (idx.isValid())
+                ui.listWidget->setCurrentIndex(idx);
+            return true;
         }
     } else if (ui.lineEdit && event->type() == QEvent::FocusIn
         && static_cast<QFocusEvent *>(event)->reason() != Qt::MouseFocusReason) {
