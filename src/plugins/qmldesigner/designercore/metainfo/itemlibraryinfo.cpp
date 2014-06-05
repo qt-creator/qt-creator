@@ -48,8 +48,8 @@ public:
     QString category;
     int majorVersion;
     int minorVersion;
-    QString iconPath;
-    QIcon icon;
+    QString libraryEntryIconPath;
+    QIcon typeIcon;
     QList<PropertyContainer> properties;
     QString qml;
     QString qmlSource;
@@ -75,9 +75,9 @@ ItemLibraryEntry& ItemLibraryEntry::operator=(const ItemLibraryEntry &other)
     return *this;
 }
 
-void ItemLibraryEntry::setIcon(const QIcon &icon)
+void ItemLibraryEntry::setTypeIcon(const QIcon &icon)
 {
-    m_data->icon = icon;
+    m_data->typeIcon = icon;
 }
 
 void ItemLibraryEntry::addProperty(const Property &property)
@@ -144,17 +144,17 @@ void ItemLibraryEntry::setCategory(const QString &category)
     m_data->category = category;
 }
 
-QIcon ItemLibraryEntry::icon() const
+QIcon ItemLibraryEntry::typeIcon() const
 {
-    return m_data->icon;
+    return m_data->typeIcon;
 }
 
-QString ItemLibraryEntry::iconPath() const
+QString ItemLibraryEntry::libraryEntryIconPath() const
 {
-    if (m_data->iconPath.isEmpty())
+    if (m_data->libraryEntryIconPath.isEmpty())
         return QStringLiteral(":/ItemLibrary/images/item-default-icon.png");
 
-    return m_data->iconPath;
+    return m_data->libraryEntryIconPath;
 }
 
 void ItemLibraryEntry::setName(const QString &name)
@@ -169,9 +169,9 @@ void ItemLibraryEntry::setType(const TypeName &typeName, int majorVersion, int m
     m_data->minorVersion = minorVersion;
 }
 
-void ItemLibraryEntry::setIconPath(const QString &iconPath)
+void ItemLibraryEntry::setLibraryEntryIconPath(const QString &iconPath)
 {
-    m_data->iconPath = iconPath;
+    m_data->libraryEntryIconPath = iconPath;
 }
 
 static QString getSourceForUrl(const QString &fileURl)
@@ -209,8 +209,8 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.typeName();
     stream << itemLibraryEntry.majorVersion();
     stream << itemLibraryEntry.minorVersion();
-    stream << itemLibraryEntry.icon();
-    stream << itemLibraryEntry.iconPath();
+    stream << itemLibraryEntry.typeIcon();
+    stream << itemLibraryEntry.libraryEntryIconPath();
     stream << itemLibraryEntry.category();
     stream << itemLibraryEntry.requiredImport();
 
@@ -227,8 +227,8 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->typeName;
     stream >> itemLibraryEntry.m_data->majorVersion;
     stream >> itemLibraryEntry.m_data->minorVersion;
-    stream >> itemLibraryEntry.m_data->icon;
-    stream >> itemLibraryEntry.m_data->iconPath;
+    stream >> itemLibraryEntry.m_data->typeIcon;
+    stream >> itemLibraryEntry.m_data->libraryEntryIconPath;
     stream >> itemLibraryEntry.m_data->category;
     stream >> itemLibraryEntry.m_data->requiredImport;
 
@@ -245,8 +245,8 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
     debug << itemLibraryEntry.m_data->typeName;
     debug << itemLibraryEntry.m_data->majorVersion;
     debug << itemLibraryEntry.m_data->minorVersion;
-    debug << itemLibraryEntry.m_data->icon;
-    debug << itemLibraryEntry.m_data->iconPath;
+    debug << itemLibraryEntry.m_data->typeIcon;
+    debug << itemLibraryEntry.m_data->libraryEntryIconPath;
     debug << itemLibraryEntry.m_data->category;
     debug << itemLibraryEntry.m_data->requiredImport;
 

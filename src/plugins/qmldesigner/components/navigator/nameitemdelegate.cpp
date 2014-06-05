@@ -108,7 +108,7 @@ NameItemDelegate::NameItemDelegate(QObject *parent, NavigatorTreeModel *treeMode
 {
 }
 
-static QIcon getIcon(const ModelNode &modelNode)
+static QIcon getTypeIcon(const ModelNode &modelNode)
 {
     QIcon icon;
 
@@ -119,7 +119,7 @@ static QIcon getIcon(const ModelNode &modelNode)
                                                                         modelNode.majorVersion(),
                                                                         modelNode.minorVersion());
         if (!itemLibraryEntryList.isEmpty())
-            return  itemLibraryEntryList.first().icon();
+            return  itemLibraryEntryList.first().typeIcon();
         else if (modelNode.metaInfo().isValid())
             return QIcon(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
         else
@@ -129,7 +129,7 @@ static QIcon getIcon(const ModelNode &modelNode)
     return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
 }
 
-static int drawIcon(QPainter *painter,
+static int drawTypeIcon(QPainter *painter,
                     const QStyleOptionViewItem &styleOption,
                     const QModelIndex &modelIndex,
                     NavigatorTreeModel *navigatorTreeModel
@@ -141,7 +141,7 @@ static int drawIcon(QPainter *painter,
         ModelNode modelNode = navigatorTreeModel->nodeForIndex(modelIndex);
 
         // If no icon is present, leave an empty space of 24 pixels anyway
-        QPixmap pixmap = getIcon(modelNode).pixmap(pixmapSize, pixmapSize);
+        QPixmap pixmap = getTypeIcon(modelNode).pixmap(pixmapSize, pixmapSize);
         painter->drawPixmap(styleOption.rect.x() +1 , styleOption.rect.y() + 2, pixmap);
     }
 
@@ -226,7 +226,7 @@ void NameItemDelegate::paint(QPainter *painter,
     if (styleOption.state & QStyle::State_Selected)
         drawSelectionBackground(painter, styleOption);
 
-    int iconOffset = drawIcon(painter, styleOption, modelIndex, m_navigatorTreeModel);
+    int iconOffset = drawTypeIcon(painter, styleOption, modelIndex, m_navigatorTreeModel);
 
     QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset, m_navigatorTreeModel);
 

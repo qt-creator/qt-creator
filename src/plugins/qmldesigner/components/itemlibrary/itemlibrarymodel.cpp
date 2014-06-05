@@ -192,7 +192,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
             itemModel = new ItemLibraryItem(itemId, entry.name(), sectionModel);
 
-            itemModel->setItemIconPath(entry.iconPath());
+            itemModel->setItemIconPath(entry.libraryEntryIconPath());
             itemModel->setItemIconSize(m_itemIconSize);
             sectionModel->addSectionEntry(itemModel);
             m_sections.insert(itemId, sectionId);
@@ -224,9 +224,9 @@ QMimeData *ItemLibraryModel::getMimeData(int libId)
 }
 
 
-QIcon ItemLibraryModel::getIcon(int libId)
+QIcon ItemLibraryModel::getTypeIcon(int libId)
 {
-    return m_itemInfos.value(libId).icon();
+    return m_itemInfos.value(libId).typeIcon();
 }
 
 ItemLibrarySection *ItemLibraryModel::section(int libraryId)

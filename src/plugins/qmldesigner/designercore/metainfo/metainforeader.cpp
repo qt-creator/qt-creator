@@ -165,7 +165,7 @@ MetaInfoReader::ParserSate MetaInfoReader::readTypeElement(const QString &name)
     if (name == ItemLibraryEntryElementName) {
         m_currentEntry = ItemLibraryEntry();
         m_currentEntry.setType(m_currentClassName, -1, -1);
-        m_currentEntry.setIcon(QIcon(m_currentIcon));
+        m_currentEntry.setTypeIcon(QIcon(m_currentIcon));
         return ParsingItemLibrary;
     } else {
         addErrorInvalidType(name);
@@ -221,7 +221,7 @@ void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVa
     } else if (name == QStringLiteral("category")) {
         m_currentEntry.setCategory(value.toString());
     } else if (name == QStringLiteral("libraryIcon")) {
-        m_currentEntry.setIconPath(absoluteFilePathForDocument(value.toString()));
+        m_currentEntry.setLibraryEntryIconPath(absoluteFilePathForDocument(value.toString()));
     } else if (name == QStringLiteral("version")) {
         setVersion(value.toString());
     } else if (name == QStringLiteral("requiredImport")) {

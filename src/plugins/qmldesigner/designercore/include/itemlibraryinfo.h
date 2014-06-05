@@ -64,8 +64,8 @@ public:
 
     QString name() const;
     TypeName typeName() const;
-    QIcon icon() const;
-    QString iconPath() const;
+    QIcon typeIcon() const;
+    QString libraryEntryIconPath() const;
     int majorVersion() const;
     int minorVersion() const;
     QString category() const;
@@ -83,10 +83,10 @@ public:
 
     void setType(const TypeName &typeName, int majorVersion, int minorVersion);
     void setName(const QString &name);
-    void setIconPath(const QString &iconPath);
+    void setLibraryEntryIconPath(const QString &libraryEntryIconPath);
     void addProperty(const Property &p);
     void addProperty(PropertyName &name, QString &type, QVariant &value);
-    void setIcon(const QIcon &icon);
+    void setTypeIcon(const QIcon &typeIcon);
     void setCategory(const QString &category);
     void setQmlPath(const QString &qml);
     void setRequiredImport(const QString &requiredImport);
