@@ -35,7 +35,7 @@
 namespace Debugger {
 namespace Internal {
 
-class QmlCppEnginePrivate;
+class QmlEngine;
 
 class QmlCppEngine : public DebuggerEngine
 {
@@ -140,7 +140,9 @@ private:
     void setActiveEngine(DebuggerEngine *engine);
 
 private:
-    QmlCppEnginePrivate *d;
+    QmlEngine *m_qmlEngine;
+    DebuggerEngine *m_cppEngine;
+    DebuggerEngine *m_activeEngine;
 };
 
 } // namespace Internal
