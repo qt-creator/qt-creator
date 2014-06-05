@@ -98,7 +98,10 @@ DebuggerStartParameters BareMetalRunControlFactory::startParameters(const BareMe
             params.projectBuildDirectory = buildConfig->buildDirectory().toString();
         params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
     }
-    params.remoteChannel = device->sshParameters().host + QLatin1String(":") + QString::number(device->sshParameters().port);
+    if (device->sshParameters().host.startsWith(QLatin1Char('|'))) //gdb pipe mode enabled
+        params.remoteChannel = device->sshParameters().host;
+    else
+        params.remoteChannel = device->sshParameters().host + QLatin1String(":") + QString::number(device->sshParameters().port);
     params.remoteSetupNeeded = false; // qml stuff, not needed
     params.commandsAfterConnect = device->gdbInitCommands().toLatin1();
     BuildConfiguration *bc = target->activeBuildConfiguration();
@@ -109,7 +112,7 @@ DebuggerStartParameters BareMetalRunControlFactory::startParameters(const BareMe
             if (ds) {
                 if (!params.commandsAfterConnect.endsWith("\n"))
                     params.commandsAfterConnect.append("\n");
-                params.commandsAfterConnect.append(ds->gdbCommands().toLocal8Bit());
+                params.commandsAfterConnect.append(ds->gdbCommands().toLatin1());
             }
         }
     }

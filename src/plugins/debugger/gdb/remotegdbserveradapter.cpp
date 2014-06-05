@@ -251,7 +251,8 @@ void GdbRemoteServerEngine::callTargetRemote()
 
     // Don't touch channels with explicitly set protocols.
     if (!channel.startsWith("tcp:") && !channel.startsWith("udp:")
-            && !channel.startsWith("file:") && channel.contains(':'))
+            && !channel.startsWith("file:") && channel.contains(':')
+            && !channel.startsWith('|'))
     {
         // "Fix" the IPv6 case with host names without '['...']'
         if (!channel.startsWith('[') && channel.count(':') >= 2) {
