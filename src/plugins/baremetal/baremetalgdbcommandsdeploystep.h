@@ -36,13 +36,12 @@
 #include <QFormLayout>
 #include <QPlainTextEdit>
 
-
-using namespace ProjectExplorer;
 namespace BareMetal {
 
 class BareMetalGdbCommandsDeployStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
+
 public:
     BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
     BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl,
@@ -63,12 +62,14 @@ public:
 
     void updateGdbCommands(const QString &newCommands);
     QString gdbCommands() const;
+
 private:
     void ctor();
     QString m_gdbCommands;
 };
 
 namespace Internal {
+
 const char GdbCommandsKey[] = "BareMetal.GdbCommandsStep.Commands";
 
 class BareMetalGdbCommandsDeployStepWidget: public ProjectExplorer::BuildStepConfigWidget
@@ -85,7 +86,7 @@ private:
     QPlainTextEdit *m_commands;
 };
 
-} // Internal namespace
-
+} // namespace Internal
 } // namespace BareMetal
+
 #endif // BAREMETALGDBCOMMANDSDEPLOYSTEP_H

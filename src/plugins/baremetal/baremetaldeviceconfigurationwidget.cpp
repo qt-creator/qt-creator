@@ -35,9 +35,11 @@
 #include <coreplugin/variablechooser.h>
 #include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
+
 #include <QLabel>
 
 using namespace QSsh;
+
 namespace BareMetal {
 using namespace Internal;
 
@@ -94,7 +96,7 @@ void BareMetalDeviceConfigurationWidget::initGui()
     m_ui->gdbPortSpinBox->setValue(sshParams.port);
     QSharedPointer<BareMetalDevice> p = qSharedPointerCast<BareMetalDevice>(device());
     QTC_ASSERT(!p.isNull(), return);
-    m_ui->gdbCommandsTextEdit->setPlainText(p->getGdbInitCommands());
+    m_ui->gdbCommandsTextEdit->setPlainText(p->gdbInitCommands());
 }
 
 } //namespace BareMetal

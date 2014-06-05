@@ -100,11 +100,11 @@ DebuggerStartParameters BareMetalRunControlFactory::startParameters(const BareMe
     }
     params.remoteChannel = device->sshParameters().host + QLatin1String(":") + QString::number(device->sshParameters().port);
     params.remoteSetupNeeded = false; // qml stuff, not needed
-    params.commandsAfterConnect = device->getGdbInitCommands().toLatin1();
+    params.commandsAfterConnect = device->gdbInitCommands().toLatin1();
     BuildConfiguration *bc = target->activeBuildConfiguration();
     BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId());
     if (bsl) {
-        foreach (BuildStep *bs,bsl->steps()) {
+        foreach (BuildStep *bs, bsl->steps()) {
             BareMetalGdbCommandsDeployStep *ds = qobject_cast<BareMetalGdbCommandsDeployStep *>(bs);
             if (ds) {
                 if (!params.commandsAfterConnect.endsWith("\n"))

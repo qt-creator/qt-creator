@@ -31,7 +31,6 @@
 #define BAREMETALDEVICE_H
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <QCoreApplication>
 
 namespace BareMetal {
 namespace Internal {
@@ -46,6 +45,7 @@ public:
     static Ptr create(const QString &name, Core::Id type, MachineType machineType,
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
     static Ptr create(const BareMetalDevice &other);
+
     QString displayType() const;
     ProjectExplorer::IDeviceWidget *createWidget();
     QList<Core::Id> actionIds() const;
@@ -55,16 +55,18 @@ public:
 
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
 
-    QString getGdbInitCommands() const {return m_gdbInitCommands;}
+    QString gdbInitCommands() const { return m_gdbInitCommands; }
     void setGdbInitCommands(const QString &gdbCommands) { m_gdbInitCommands=gdbCommands; }
 
     virtual void fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
+
 protected:
     BareMetalDevice() {}
     BareMetalDevice(const QString &name, Core::Id type,
                     MachineType machineType, Origin origin, Core::Id id);
     BareMetalDevice(const BareMetalDevice &other);
+
 private:
     BareMetalDevice &operator=(const BareMetalDevice &);
     QString m_gdbInitCommands;
@@ -72,4 +74,5 @@ private:
 
 } //namespace Internal
 } //namespace BareMetal
+
 #endif // BAREMETALDEVICE_H

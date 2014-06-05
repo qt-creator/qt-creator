@@ -40,10 +40,12 @@ class BareMetalDeviceConfigurationWidget
       : public ProjectExplorer::IDeviceWidget
 {
     Q_OBJECT
+
 public:
     explicit BareMetalDeviceConfigurationWidget(
         const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = 0);
     ~BareMetalDeviceConfigurationWidget();
+
 private slots:
     void hostnameChanged();
     void portChanged();
@@ -56,4 +58,5 @@ private:
 };
 
 } //namespace BareMetal
+
 #endif // BAREMETALDEVICECONFIGURATIONWIDGET_H

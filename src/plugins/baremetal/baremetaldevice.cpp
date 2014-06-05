@@ -64,7 +64,7 @@ void BareMetalDevice::fromMap(const QVariantMap &map)
 QVariantMap BareMetalDevice::toMap() const
 {
     QVariantMap map = IDevice::toMap();
-    map.insert(QLatin1String(GdbCommandsKey), getGdbInitCommands());
+    map.insert(QLatin1String(GdbCommandsKey), gdbInitCommands());
     return map;
 }
 
@@ -114,7 +114,7 @@ BareMetalDevice::BareMetalDevice(const QString &name, Core::Id type, MachineType
 BareMetalDevice::BareMetalDevice(const BareMetalDevice &other)
     : IDevice(other)
 {
-    setGdbInitCommands(other.getGdbInitCommands());
+    setGdbInitCommands(other.gdbInitCommands());
 }
 
 } //namespace Internal

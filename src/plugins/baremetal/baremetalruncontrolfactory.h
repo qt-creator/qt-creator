@@ -29,7 +29,9 @@
 
 #ifndef BAREMETALRUNCONTROLFACTORY_H
 #define BAREMETALRUNCONTROLFACTORY_H
+
 #include "baremetalrunconfiguration.h"
+
 #include <projectexplorer/runconfiguration.h>
 #include <debugger/debuggerstartparameters.h>
 

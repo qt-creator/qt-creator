@@ -29,7 +29,7 @@
 
 #include "baremetalgdbcommandsdeploystep.h"
 
-using namespace BareMetal::Internal;
+using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
@@ -42,10 +42,9 @@ BareMetalGdbCommandsDeployStepWidget::BareMetalGdbCommandsDeployStepWidget(BareM
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
     m_commands = new QPlainTextEdit(this);
-    fl->addRow(tr("GDB commands:"),m_commands);
+    fl->addRow(tr("GDB commands:"), m_commands);
     m_commands->setPlainText(m_step.gdbCommands());
-    if (!connect(m_commands,SIGNAL(textChanged()),SLOT(update())))
-        qDebug()<<"BareMetalGdbCommandsDeployStepWidget connect failed.";
+    connect(m_commands, SIGNAL(textChanged()), SLOT(update()));
 }
 
 void BareMetalGdbCommandsDeployStepWidget::update()
@@ -94,7 +93,8 @@ void BareMetalGdbCommandsDeployStep::run(QFutureInterface<bool> &fi)
     emit finished();
 }
 
-bool BareMetalGdbCommandsDeployStep::fromMap(const QVariantMap &map) {
+bool BareMetalGdbCommandsDeployStep::fromMap(const QVariantMap &map)
+{
     if (!BuildStep::fromMap(map))
         return false;
     m_gdbCommands = map.value(QLatin1String(Internal::GdbCommandsKey)).toString();
