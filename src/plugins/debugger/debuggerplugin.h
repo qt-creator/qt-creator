@@ -56,10 +56,6 @@ public:
     DebuggerPlugin();
     ~DebuggerPlugin();
 
-    // Used by QmlJSInspector.
-    static DebuggerMainWindow *mainWindow();
-    static QAction *visibleDebugAction();
-
     static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
                                               ProjectExplorer::RunConfiguration *rc,
                                               QString *errorMessage);

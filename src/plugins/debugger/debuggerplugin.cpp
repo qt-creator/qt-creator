@@ -3530,17 +3530,6 @@ void DebuggerPlugin::extensionsInitialized()
     theDebuggerCore->extensionsInitialized();
 }
 
-DebuggerMainWindow *DebuggerPlugin::mainWindow()
-{
-    return theDebuggerCore->m_mainWindow;
-}
-
-QAction *DebuggerPlugin::visibleDebugAction()
-{
-    return theDebuggerCore->m_visibleStartAction;
-}
-
-
 #ifdef WITH_TESTS
 
 void DebuggerPluginPrivate::testLoadProject(const QString &proFile, const TestCallBack &cb)
