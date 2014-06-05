@@ -93,20 +93,18 @@ void BaseTreeView::setModel(QAbstractItemModel *model)
 void BaseTreeView::connectColumnAdjustment()
 {
     if (m_alwaysAdjustColumns && model()) {
-        connect(model(), SIGNAL(layoutChanged()), this, SLOT(resizeColumns()));
-        connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(resizeColumns()));
         connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeColumns()));
         connect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeColumns()));
+        connect(model(), SIGNAL(layoutChanged()), this, SLOT(resizeColumns()));
     }
 }
 
 void BaseTreeView::disconnectColumnAdjustment()
 {
     if (m_alwaysAdjustColumns && model()) {
-        disconnect(model(), SIGNAL(layoutChanged()), this, SLOT(resizeColumns()));
-        disconnect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(resizeColumns()));
         disconnect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(resizeColumns()));
         disconnect(this, SIGNAL(collapsed(QModelIndex)), this, SLOT(resizeColumns()));
+        disconnect(model(), SIGNAL(layoutChanged()), this, SLOT(resizeColumns()));
     }
 }
 

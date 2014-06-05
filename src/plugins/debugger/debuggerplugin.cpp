@@ -530,17 +530,20 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-static QWidget *addSearch(BaseTreeView *treeView, const QString &title, const char *objectName)
+static QWidget *addSearch(BaseTreeView *treeView, const QString &title,
+    const char *objectName, bool adjustColumns = false)
 {
     QAction *act = debuggerCore()->action(UseAlternatingRowColors);
     treeView->setAlternatingRowColors(act->isChecked());
     QObject::connect(act, SIGNAL(toggled(bool)),
             treeView, SLOT(setAlternatingRowColorsHelper(bool)));
 
-    act = debuggerCore()->action(AlwaysAdjustColumnWidths);
-    treeView->setAlwaysAdjustColumns(act->isChecked());
-    QObject::connect(act, SIGNAL(toggled(bool)),
+    if (adjustColumns) {
+        act = debuggerCore()->action(AlwaysAdjustColumnWidths);
+        treeView->setAlwaysAdjustColumns(act->isChecked());
+        QObject::connect(act, SIGNAL(toggled(bool)),
             treeView, SLOT(setAlwaysAdjustColumns(bool)));
+    }
 
     QWidget *widget = TreeViewFind::createSearchableWrapper(treeView);
     widget->setObjectName(QLatin1String(objectName));
@@ -2817,16 +2820,16 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_threadsWindow = addSearch(m_threadsView, tr("Threads"), DOCKWIDGET_THREADS);
 
     m_returnView = new WatchTreeView(ReturnType);
-    m_returnWindow = addSearch(m_returnView, tr("Locals and Expressions"), "CppDebugReturn");
+    m_returnWindow = addSearch(m_returnView, tr("Locals and Expressions"), "CppDebugReturn", true);
 
     m_localsView = new WatchTreeView(LocalsType);
-    m_localsWindow = addSearch(m_localsView, tr("Locals and Expressions"), "CppDebugLocals");
+    m_localsWindow = addSearch(m_localsView, tr("Locals and Expressions"), "CppDebugLocals", true);
 
     m_watchersView = new WatchTreeView(WatchersType);
-    m_watchersWindow = addSearch(m_watchersView, tr("Locals and Expressions"), "CppDebugWatchers");
+    m_watchersWindow = addSearch(m_watchersView, tr("Locals and Expressions"), "CppDebugWatchers", true);
 
     m_inspectorView = new WatchTreeView(InspectType);
-    m_inspectorWindow = addSearch(m_inspectorView, tr("Locals and Expressions"), "Inspector");
+    m_inspectorWindow = addSearch(m_inspectorView, tr("Locals and Expressions"), "Inspector", true);
 
     // Snapshot
     m_snapshotHandler = new SnapshotHandler;

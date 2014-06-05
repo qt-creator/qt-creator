@@ -56,11 +56,11 @@ public slots:
     void reset();
 
     void resizeColumns();
-    void resizeColumnsFinish();
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
     void setAlwaysAdjustColumns(bool on);
 
 private slots:
+    void resizeColumnsFinish();
     void rowActivatedHelper(const QModelIndex &index) { rowActivated(index); }
     void rowClickedHelper(const QModelIndex &index) { rowClicked(index); }
     void toggleColumnWidth(int logicalIndex);
