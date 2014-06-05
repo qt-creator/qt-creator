@@ -3376,7 +3376,8 @@ bool DebuggerPluginPrivate::boolSetting(int code) const
 
 QString DebuggerPluginPrivate::stringSetting(int code) const
 {
-    return m_debuggerSettings->item(code)->value().toString();
+    QString raw = m_debuggerSettings->item(code)->value().toString();
+    return VariableManager::expandedString(raw);
 }
 
 QStringList DebuggerPluginPrivate::stringListSetting(int code) const

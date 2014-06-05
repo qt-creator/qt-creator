@@ -34,6 +34,7 @@
 #include <debugger/debuggerinternalconstants.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/variablechooser.h>
 
 #include <QCheckBox>
 #include <QCoreApplication>
@@ -42,6 +43,9 @@
 #include <QLabel>
 #include <QSpinBox>
 #include <QTextEdit>
+
+
+using namespace Core;
 
 namespace Debugger {
 namespace Internal {
@@ -90,6 +94,8 @@ public:
 GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     : QWidget(parent)
 {
+    (void) new VariableChooser(this);
+
     groupBoxGeneral = new QGroupBox(this);
     groupBoxGeneral->setTitle(GdbOptionsPage::tr("General"));
 
@@ -240,6 +246,10 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     labelSelectedPluginBreakpoints->setText(GdbOptionsPage::tr(
         "Matching regular expression: "));
     */
+
+    VariableChooser::addVariableSupport(textEditCustomDumperCommands);
+    VariableChooser::addVariableSupport(textEditPostAttachCommands);
+    VariableChooser::addVariableSupport(textEditStartupCommands);
 
     QFormLayout *formLayout = new QFormLayout(groupBoxGeneral);
     formLayout->addRow(labelGdbWatchdogTimeout, spinBoxGdbWatchdogTimeout);
