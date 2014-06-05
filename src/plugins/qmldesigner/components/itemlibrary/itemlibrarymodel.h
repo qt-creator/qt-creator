@@ -94,7 +94,6 @@ private: // functions
 
     int getWidth(const ItemLibraryEntry &entry);
     int getHeight(const ItemLibraryEntry &entry);
-    QPixmap createDragPixmap(int width, int height);
 
 private: // variables
     QMap<int, ItemLibrarySection*> m_sectionModels;

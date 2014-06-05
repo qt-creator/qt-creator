@@ -356,18 +356,6 @@ int ItemLibraryModel::getHeight(const ItemLibraryEntry &itemLibraryEntry)
     return 64;
 }
 
-QPixmap ItemLibraryModel::createDragPixmap(int , int )
-{
-    QImage dragImage(10, 10, QImage::Format_ARGB32); // TODO: draw item drag icon
-    dragImage.fill(0x00ffffff); //### todo for now we disable the preview image
-    QPainter p(&dragImage);
-    QPen pen(Qt::gray);
-//    pen.setWidth(2);
-//    p.setPen(pen);
-//    p.drawRect(1, 1, dragImage.width() - 2, dragImage.height() - 2);
-    return QPixmap::fromImage(dragImage);
-}
-
 void registerQmlTypes()
 {
     registerItemLibrarySortedModel();
