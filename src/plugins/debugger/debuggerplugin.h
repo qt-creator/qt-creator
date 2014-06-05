@@ -56,9 +56,6 @@ public:
     DebuggerPlugin();
     ~DebuggerPlugin();
 
-    // Used by Maemo debugging support.
-    //static void startDebugger(ProjectExplorer::RunControl *runControl);
-
     // Used by QmlJSInspector.
     static DebuggerMainWindow *mainWindow();
     static QAction *visibleDebugAction();
