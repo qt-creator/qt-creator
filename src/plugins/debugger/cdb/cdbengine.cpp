@@ -1939,6 +1939,11 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
         if (debuggerCore()->boolSetting(VerboseLog))
             showMessage(QLatin1String("Locals: ") + QString::fromLatin1(reply->reply), LogDebug);
         QList<WatchData> watchData;
+        WatchHandler *handler = watchHandler();
+        if (flags & LocalsUpdateForNewFrame) {
+            watchData.append(*handler->findData("local"));
+            watchData.append(*handler->findData("watch"));
+        }
         GdbMi root;
         root.fromString(reply->reply);
         QTC_ASSERT(root.isList(), return);
@@ -1949,7 +1954,7 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
             WatchData dummy;
             dummy.iname = child["iname"].data();
             dummy.name = QLatin1String(child["name"].data());
-            parseWatchData(watchHandler()->expandedINames(), dummy, child, &watchData);
+            parseWatchData(handler->expandedINames(), dummy, child, &watchData);
         }
         // Fix the names of watch data.
         for (int i =0; i < watchData.size(); ++i) {
@@ -1960,7 +1965,7 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
                     watchData[i].name = it.value();
             }
         }
-        watchHandler()->insertData(watchData);
+        handler->insertData(watchData);
         if (debugLocals) {
             QDebug nsp = qDebug().nospace();
             nsp << "Obtained " << watchData.size() << " items:\n";
