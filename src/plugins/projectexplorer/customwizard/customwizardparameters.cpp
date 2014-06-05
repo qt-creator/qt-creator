@@ -222,7 +222,7 @@ static inline QIcon wizardIcon(const QString &configFileFullPath,
                                const QString &xmlIconFileName)
 {
     const QFileInfo fi(xmlIconFileName);
-    if (fi.isFile())
+    if (fi.isFile() && fi.isAbsolute())
         return QIcon(fi.absoluteFilePath());
     if (!fi.isRelative())
         return QIcon();
