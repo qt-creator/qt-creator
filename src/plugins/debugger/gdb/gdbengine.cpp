@@ -79,6 +79,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -160,7 +161,7 @@ public:
     QString command;
 };
 
-class DebugInfoTaskHandler : public  ProjectExplorer::ITaskHandler
+class DebugInfoTaskHandler : public ITaskHandler
 {
 public:
     explicit DebugInfoTaskHandler(GdbEngine *engine)
@@ -429,7 +430,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     // We get multiple *running after thread creation and in Windows terminals.
                     showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
                                 arg(QLatin1String(DebuggerEngine::stateName(state()))));
-                } else if (Utils::HostOsInfo::isWindowsHost() && (state() == InferiorStopRequested
+                } else if (HostOsInfo::isWindowsHost() && (state() == InferiorStopRequested
                                || state() == InferiorShutdownRequested)) {
                     // FIXME: Breakpoints on Windows are exceptions which are thrown in newly
                     // created threads so we have to filter out the running threads messages when
@@ -677,7 +678,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     Task task(Task::Warning,
                         tr("Missing debug information for %1\nTry: %2")
                             .arg(m_lastMissingDebugInfo).arg(cmd),
-                        FileName(), 0, Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO));
+                        FileName(), 0, Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
 
                     TaskHub::addTask(task);
 
@@ -803,7 +804,7 @@ void GdbEngine::interruptInferior()
     } else {
         showStatusMessage(tr("Stop requested..."), 5000);
         showMessage(_("TRYING TO INTERRUPT INFERIOR"));
-        if (Utils::HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
+        if (HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
             QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); notifyInferiorStopFailed());
             QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed());
             m_signalOperation = startParameters().device->signalOperation();
@@ -4319,7 +4320,7 @@ void GdbEngine::startGdb(const QStringList &args)
     // Make sure this stays the last command in startGdb().
     // Don't use ConsoleCommand, otherwise Mac won't markup the output.
     const QByteArray dumperSourcePath =
-        Core::ICore::resourcePath().toLocal8Bit() + "/debugger/";
+        ICore::resourcePath().toLocal8Bit() + "/debugger/";
 
     const QFileInfo gdbBinaryFile(m_gdb);
     const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()
@@ -4428,17 +4429,16 @@ void GdbEngine::abortDebugger()
     }
 }
 
-void GdbEngine::handleAdapterStartFailed(const QString &msg,
-    Core::Id settingsIdHint)
+void GdbEngine::handleAdapterStartFailed(const QString &msg, Id settingsIdHint)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("ADAPTER START FAILED"));
     if (!msg.isEmpty()) {
         const QString title = tr("Adapter start failed");
         if (!settingsIdHint.isValid()) {
-            Core::ICore::showWarningWithOptions(title, msg);
+            ICore::showWarningWithOptions(title, msg);
         } else {
-            Core::ICore::showWarningWithOptions(title, msg, QString(),
+            ICore::showWarningWithOptions(title, msg, QString(),
                 Constants::DEBUGGER_SETTINGS_CATEGORY, settingsIdHint);
         }
     }
@@ -4460,7 +4460,7 @@ void GdbEngine::handleInferiorPrepared()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
     if (!sp.commandsAfterConnect.isEmpty()) {
-        QByteArray substitutedCommands = Core::VariableManager::expandedString(QString::fromLatin1(sp.commandsAfterConnect)).toLatin1();
+        QByteArray substitutedCommands = VariableManager::expandedString(QString::fromLatin1(sp.commandsAfterConnect)).toLatin1();
         foreach (QByteArray command, substitutedCommands.split('\n')) {
             postCommand(command);
         }
@@ -4716,13 +4716,13 @@ bool GdbEngine::prepareCommand()
         DebuggerStartParameters &sp = startParameters();
         QtcProcess::SplitError perr;
         sp.processArgs = QtcProcess::prepareArgs(sp.processArgs, &perr,
-                                                 Utils::HostOsInfo::hostOs(),
+                                                 HostOsInfo::hostOs(),
                     &sp.environment, &sp.workingDirectory).toWindowsArgs();
-        if (perr != Utils::QtcProcess::SplitOk) {
+        if (perr != QtcProcess::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
             handleAdapterStartFailed(QCoreApplication::translate("DebuggerEngine", // Same message in CdbEngine
-                                                                 "Debugging complex command lines is currently not supported on Windows."), Core::Id());
+                                                                 "Debugging complex command lines is currently not supported on Windows."), Id());
             return false;
         }
     }
@@ -4809,7 +4809,7 @@ DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp)
     }
 }
 
-void addGdbOptionPages(QList<Core::IOptionsPage *> *opts)
+void addGdbOptionPages(QList<IOptionsPage *> *opts)
 {
     opts->push_back(new GdbOptionsPage());
     opts->push_back(new GdbOptionsPage2());
