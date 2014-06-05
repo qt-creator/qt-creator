@@ -49,7 +49,7 @@ class GeneralSettings : public IOptionsPage
 public:
     GeneralSettings();
 
-    QWidget* widget();
+    QWidget *widget();
     void apply();
     void finish();
 

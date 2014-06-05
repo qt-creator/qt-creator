@@ -269,13 +269,13 @@ void GeneralSettings::resetLanguage()
 
 QString GeneralSettings::language() const
 {
-    QSettings* settings = Core::ICore::settings();
+    QSettings *settings = Core::ICore::settings();
     return settings->value(QLatin1String("General/OverrideLanguage")).toString();
 }
 
 void GeneralSettings::setLanguage(const QString &locale)
 {
-    QSettings* settings = Core::ICore::settings();
+    QSettings *settings = Core::ICore::settings();
     if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale)
     {
         QMessageBox::information(Core::ICore::mainWindow(), tr("Restart required"),
