@@ -64,9 +64,6 @@ const char QML_UPDATE_ON_SAVE[]     = "Debugger.QmlUpdateOnSave";
 const char QML_SELECTTOOL[]         = "Debugger.QmlSelectTool";
 const char QML_ZOOMTOOL[]           = "Debugger.QmlZoomTool";
 
-// VariableManager Prefix
-const char PrefixDebugExecutable[]  = "DebuggedExecutable";
-
 const char TASK_CATEGORY_DEBUGGER_DEBUGINFO[] = "Debuginfo";
 const char TASK_CATEGORY_DEBUGGER_RUNTIME[]   = "DebugRuntime";
 

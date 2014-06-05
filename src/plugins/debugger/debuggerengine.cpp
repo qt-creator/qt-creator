@@ -92,6 +92,9 @@ enum { debug = 0 };
 //
 ///////////////////////////////////////////////////////////////////////
 
+// VariableManager Prefix
+const char PrefixDebugExecutable[]  = "DebuggedExecutable";
+
 namespace Debugger {
 
 Internal::Location::Location(const StackFrame &frame, bool marker)
@@ -172,7 +175,7 @@ public:
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
         connect(debuggerCore()->action(IntelFlavor), SIGNAL(valueChanged(QVariant)),
                 SLOT(reloadDisassembly()));
-        VariableManager::registerFileVariables(Constants::PrefixDebugExecutable,
+        VariableManager::registerFileVariables(PrefixDebugExecutable,
                                                tr("Debugged executable"));
         connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
                 SLOT(updateVariable(QByteArray)));
@@ -187,11 +190,11 @@ public slots:
     void doInterruptInferior();
     void doFinishDebugger();
 
-    void updateVariable(QByteArray variable)
+    void updateVariable(const QByteArray &variable)
     {
-        if (VariableManager::isFileVariable(variable, Constants::PrefixDebugExecutable))
-            VariableManager::insert(variable, VariableManager::fileVariableValue(variable,
-                     Constants::PrefixDebugExecutable, QFileInfo(m_startParameters.executable)));
+        if (VariableManager::isFileVariable(variable, PrefixDebugExecutable))
+            VariableManager::insert(variable,
+                VariableManager::fileVariableValue(variable, PrefixDebugExecutable, m_startParameters.executable));
     }
 
     void reloadDisassembly()
