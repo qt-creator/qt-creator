@@ -129,16 +129,16 @@ FocusScope {
                 delegateStateImageSource: stateImageSource
                 delegateStateImageSize: stateImageSize
             }
+            Rectangle {
+                /* Rectangle at the bottom using the highlight color */
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 1
+                anchors.rightMargin: 1
+                height: 4
+                color: Qt.darker(highlightColor, 1.2)
+            }
         }
-    }
-
-    Rectangle {
-        /* Rectangle at the bottom using the highlight color */
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.leftMargin: 3
-        height: 4
-        color: Qt.darker(highlightColor, 1.2)
     }
 }
