@@ -43,6 +43,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <limits>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 /*!
     \class ProjectExplorer::Project
@@ -226,20 +227,16 @@ void Project::setActiveTarget(Target *target)
 
 Target *Project::target(const Core::Id id) const
 {
-    foreach (Target *target, d->m_targets) {
-        if (target->id() == id)
-            return target;
-    }
-    return 0;
+    return Utils::findOr(d->m_targets, 0, [&id](Target *target) {
+        return target->id() == id;
+    });
 }
 
 Target *Project::target(Kit *k) const
 {
-    foreach (Target *target, d->m_targets) {
-        if (target->kit() == k)
-            return target;
-    }
-    return 0;
+    return Utils::findOr(d->m_targets, 0, [&k](Target *target) {
+        return target->kit() == k;
+    });
 }
 
 bool Project::supportsKit(Kit *k, QString *errorMessage) const
@@ -501,12 +498,9 @@ void Project::setup(QList<const BuildInfo *> infoList)
             continue;
         Target *t = target(k);
         if (!t) {
-            foreach (Target *i, toRegister) {
-                if (i->kit() == k) {
-                    t = i;
-                    break;
-                }
-            }
+            t = Utils::findOr(toRegister, 0, [&k](Target *i){
+                return i->kit() == k;
+            });
         }
         if (!t) {
             t = new Target(this, k);

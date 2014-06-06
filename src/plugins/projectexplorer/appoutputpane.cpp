@@ -43,6 +43,7 @@
 #include <extensionsystem/invoker.h>
 
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QAction>
 #include <QVBoxLayout>
@@ -231,10 +232,9 @@ void AppOutputPane::updateCloseActions()
 
 bool AppOutputPane::aboutToClose() const
 {
-    foreach (const RunControlTab &rt, m_runControlTabs)
-        if (rt.runControl->isRunning() && !rt.runControl->promptToStop())
-            return false;
-    return true;
+    return Utils::allOf(m_runControlTabs, [](const RunControlTab &rt) {
+        return !rt.runControl->isRunning() || rt.runControl->promptToStop();
+    });
 }
 
 void AppOutputPane::aboutToUnloadSession()
@@ -599,10 +599,9 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
 
 bool AppOutputPane::isRunning() const
 {
-    foreach (const RunControlTab &rt, m_runControlTabs)
-        if (rt.runControl->isRunning())
-            return true;
-    return false;
+    return Utils::anyOf(m_runControlTabs, [](const RunControlTab &rt) {
+        return rt.runControl->isRunning();
+    });
 }
 
 bool AppOutputPane::canNext() const

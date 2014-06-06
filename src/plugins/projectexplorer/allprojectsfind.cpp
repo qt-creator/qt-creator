@@ -36,6 +36,7 @@
 
 #include <texteditor/itexteditor.h>
 #include <utils/filesearch.h>
+#include <utils/algorithm.h>
 
 #include <QSettings>
 #include <QRegExp>
@@ -90,11 +91,11 @@ Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFi
         QStringList filteredFiles;
         if (!filterRegs.isEmpty()) {
             foreach (const QString &file, projectFiles) {
-                foreach (QRegExp reg, filterRegs) {
-                    if (reg.exactMatch(file) || reg.exactMatch(QFileInfo(file).fileName())) {
-                        filteredFiles.append(file);
-                        break;
-                    }
+                if (Utils::anyOf(filterRegs,
+                        [&file](QRegExp reg) {
+                            return (reg.exactMatch(file) || reg.exactMatch(QFileInfo(file).fileName()));
+                        })) {
+                    filteredFiles.append(file);
                 }
             }
         } else {

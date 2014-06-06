@@ -56,6 +56,40 @@ void erase(QList<T> &container, F predicate)
                     container.end());
 }
 
+template<typename T, typename F>
+bool contains(const T &container, F function)
+{
+    typename T::const_iterator end = container.end();
+    typename T::const_iterator begin = container.begin();
+
+    typename T::const_iterator it = std::find_if(begin, end, function);
+    return it != end;
+}
+
+template<typename T, typename F>
+typename T::value_type findOr(const T &container, typename T::value_type other, F function)
+{
+    typename T::const_iterator end = container.end();
+    typename T::const_iterator begin = container.begin();
+
+    typename T::const_iterator it = std::find_if(begin, end, function);
+    if (it == end)
+        return other;
+    return *it;
+}
+
+template<typename T, typename F>
+typename T::value_type maxElementOr(const T &container, typename T::value_type other, F function)
+{
+    typename T::const_iterator end = container.end();
+    typename T::const_iterator begin = container.begin();
+
+    typename T::const_iterator it = std::max_element(begin, end, function);
+    if (it == end)
+        return other;
+    return *it;
+}
+
 // Note: add overloads for other container types as needed
 template<typename T, typename F>
 Q_REQUIRED_RESULT

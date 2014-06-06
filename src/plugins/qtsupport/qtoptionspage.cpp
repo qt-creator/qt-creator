@@ -45,6 +45,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/algorithm.h>
 
 #include <QDir>
 #include <QMessageBox>
@@ -609,13 +610,11 @@ void QtOptionsPageWidget::addQtDir()
     if (BuildableHelperLibrary::isQtChooser(fi))
         qtVersion = FileName::fromString(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
 
-    BaseQtVersion *version = 0;
-    foreach (BaseQtVersion *v, m_versions) {
-        if (v->qmakeCommand() == qtVersion) {
-            version = v;
-            break;
-        }
-    }
+    BaseQtVersion *version = Utils::findOr(m_versions,
+                                           0,
+                                           [&qtVersion](BaseQtVersion *v) {
+                                                return v->qmakeCommand() == qtVersion;
+                                           });
     if (version) {
         // Already exist
         QMessageBox::warning(this, tr("Qt Version Already Known"),

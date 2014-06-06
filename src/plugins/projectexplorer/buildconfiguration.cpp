@@ -42,6 +42,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/algorithm.h>
 
 #include <QDebug>
 
@@ -154,10 +155,9 @@ Utils::AbstractMacroExpander *BuildConfiguration::macroExpander()
 
 QList<Core::Id> BuildConfiguration::knownStepLists() const
 {
-    QList<Core::Id> result;
-    foreach (BuildStepList *list, m_stepLists)
-        result.append(list->id());
-    return result;
+    return Utils::transform(m_stepLists, [](BuildStepList *list) {
+       return list->id();
+    });
 }
 
 BuildStepList *BuildConfiguration::stepList(Core::Id id) const
@@ -344,16 +344,11 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(Kit *k, const QStri
 {
     QList<IBuildConfigurationFactory *> factories
             = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
-    IBuildConfigurationFactory *factory = 0;
-    int priority = -1;
-    foreach (IBuildConfigurationFactory *i, factories) {
-        int iPriority = i->priority(k, projectPath);
-        if (iPriority > priority) {
-            factory = i;
-            priority = iPriority;
-        }
-    }
-    return factory;
+
+    return Utils::maxElementOr(factories, 0,
+        [&k, &projectPath](IBuildConfigurationFactory *a, IBuildConfigurationFactory *b) {
+            return a->priority(k, projectPath) > b->priority(k, projectPath);
+        });
 }
 
 // create
@@ -361,16 +356,11 @@ IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 {
     QList<IBuildConfigurationFactory *> factories
             = ExtensionSystem::PluginManager::getObjects<IBuildConfigurationFactory>();
-    IBuildConfigurationFactory *factory = 0;
-    int priority = -1;
-    foreach (IBuildConfigurationFactory *i, factories) {
-        int iPriority = i->priority(parent);
-        if (iPriority > priority) {
-            factory = i;
-            priority = iPriority;
-        }
-    }
-    return factory;
+
+    return Utils::maxElementOr(factories, 0,
+                               [&parent](IBuildConfigurationFactory *a, IBuildConfigurationFactory *b) {
+                                   return a->priority(parent) > b->priority(parent);
+                               });
 }
 
 // clone

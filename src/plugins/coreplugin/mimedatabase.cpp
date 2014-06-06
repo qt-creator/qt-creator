@@ -32,6 +32,7 @@
 #include "icore.h"
 
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QByteArray>
 #include <QCoreApplication>
@@ -50,7 +51,6 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include <algorithm>
 #include <functional>
 
 enum { debugMimeDB = 0 };
@@ -898,16 +898,14 @@ struct RemovePred : std::unary_function<MimeType::IMagicMatcherSharedPointer, bo
 MimeType::IMagicMatcherList MimeType::magicRuleMatchers() const
 {
     IMagicMatcherList ruleMatchers = m_d->magicMatchers;
-    ruleMatchers.erase(std::remove_if(ruleMatchers.begin(), ruleMatchers.end(), RemovePred(true)),
-                       ruleMatchers.end());
+    Utils::erase(ruleMatchers, RemovePred(true));
     return ruleMatchers;
 }
 
 void MimeType::setMagicRuleMatchers(const IMagicMatcherList &matchers)
 {
-    m_d->magicMatchers.erase(std::remove_if(m_d->magicMatchers.begin(), m_d->magicMatchers.end(),
-                                            RemovePred(false)),
-                             m_d->magicMatchers.end());
+    Utils::erase(m_d->magicMatchers, RemovePred(false));
+
     m_d->magicMatchers.append(matchers);
 }
 

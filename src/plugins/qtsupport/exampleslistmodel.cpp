@@ -41,6 +41,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <algorithm>
 
@@ -262,11 +263,9 @@ static QString fixStringForTags(const QString &string)
 
 static QStringList trimStringList(const QStringList &stringlist)
 {
-    QStringList returnList;
-    foreach (const QString &string, stringlist)
-        returnList << string.trimmed();
-
-    return returnList;
+    return Utils::transform(stringlist, [](const QString &string) {
+        return string.trimmed();
+    });
 }
 
 static QString relativeOrInstallPath(const QString &path, const QString &manifestPath,
@@ -540,13 +539,12 @@ void ExamplesListModel::updateQtVersions()
         // try to select the previously selected Qt version, or
         // select examples corresponding to 'highest' Qt version
         int currentQtId = m_exampleSetModel->getQtId(currentIndex);
-        BaseQtVersion *newQtVersion = 0;
-        foreach (BaseQtVersion *version, m_qtVersions) {
-            if (version->uniqueId() == currentQtId) {
-                newQtVersion = version;
-                break;
-            }
-        }
+        BaseQtVersion *newQtVersion = Utils::findOr(m_qtVersions,
+                                                    0,
+                                                    [&currentQtId](BaseQtVersion *version) {
+                                                        return version->uniqueId() == currentQtId;
+                                                    });
+
         if (!newQtVersion)
             newQtVersion = findHighestQtVersion();
         currentIndex = m_exampleSetModel->indexForQtVersion(newQtVersion);
@@ -753,11 +751,9 @@ void ExamplesListModelFilter::updateFilter()
 
 bool containsSubString(const QStringList &list, const QString &substr, Qt::CaseSensitivity cs)
 {
-    foreach (const QString &elem, list)
-        if (elem.contains(substr, cs))
-            return true;
-
-    return false;
+    return Utils::contains(list, [&substr, &cs](const QString &elem) {
+        return elem.contains(substr, cs);
+    });
 }
 
 bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

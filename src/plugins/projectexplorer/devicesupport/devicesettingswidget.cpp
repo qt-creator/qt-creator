@@ -42,6 +42,7 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/algorithm.h>
 
 #include <QPixmap>
 #include <QPushButton>
@@ -118,8 +119,9 @@ void DeviceSettingsWidget::initGui()
     const QList<IDeviceFactory *> &factories
         = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
 
-    bool hasDeviceFactories = std::any_of(factories.constBegin(), factories.constEnd(),
-                                          [](IDeviceFactory *factory) { return factory->canCreate(); });
+    bool hasDeviceFactories = Utils::anyOf(factories, [](IDeviceFactory *factory) {
+                                               return factory->canCreate();
+                                           });
 
     m_ui->addConfigButton->setEnabled(hasDeviceFactories);
 

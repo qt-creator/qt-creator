@@ -49,6 +49,7 @@
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 #include <utils/winutils.h>
+#include <utils/algorithm.h>
 
 #include <QDir>
 #include <QUrl>
@@ -479,16 +480,14 @@ QStringList BaseQtVersion::warningReason() const
 ToolChain *BaseQtVersion::preferredToolChain(const FileName &ms) const
 {
     const FileName spec = ms.isEmpty() ? mkspec() : ms;
-    ToolChain *possibleTc = 0;
-    foreach (ToolChain *tc, ToolChainManager::toolChains()) {
-        if (!qtAbis().contains(tc->targetAbi()))
-            continue;
-        if (tc->suggestedMkspecList().contains(spec))
-            return tc; // perfect match
-        if (!possibleTc)
-            possibleTc = tc; // first possible match
-    }
-    return possibleTc;
+
+    QList<ToolChain *> toolchains = ToolChainManager::toolChains();
+    return Utils::findOr(toolchains,
+                         toolchains.isEmpty() ? 0 : toolchains.first(),
+                         [&spec, this](ToolChain *tc) {
+                                return qtAbis().contains(tc->targetAbi())
+                                         && tc->suggestedMkspecList().contains(spec);
+                          });
 }
 
 FileName BaseQtVersion::qmakeCommand() const
