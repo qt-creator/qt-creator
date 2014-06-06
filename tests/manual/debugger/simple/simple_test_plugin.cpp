@@ -30,9 +30,19 @@
 #include <stdio.h>
 #include <qglobal.h>
 
+class Something {
+public:
+    Something() {
+        int i = 0;
+        ++i;
+        return;
+    }
+};
 
 extern "C" Q_DECL_EXPORT int pluginTest()
 {
+    static Something sst;
+    Something st;
     int s = 0;
     for (int i = 1; i != 2000; ++i)
         s += i;
