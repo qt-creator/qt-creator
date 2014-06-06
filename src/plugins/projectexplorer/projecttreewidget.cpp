@@ -40,6 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/find/treeviewfind.h>
 
 #include <utils/navigationtreeview.h>
 
@@ -131,7 +132,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     initView();
 
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(m_view);
+    layout->addWidget(Core::TreeViewFind::createSearchableWrapper(m_view));
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
