@@ -62,7 +62,7 @@ public:
 
     void showAddNewStatesButton(bool showAddNewStatesButton);
 
-    static QString statesEditorResourcesPath();
+    static QString qmlSourcesPath();
 
 private slots:
     void reloadQmlSource();

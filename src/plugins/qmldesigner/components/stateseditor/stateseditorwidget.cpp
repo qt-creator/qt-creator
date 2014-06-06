@@ -89,7 +89,7 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     m_imageProvider->setNodeInstanceView(statesEditorView->nodeInstanceView());
 
     m_quickView->engine()->addImageProvider(QStringLiteral("qmldesigner_stateseditor"), m_imageProvider);
-    m_quickView->engine()->addImportPath(statesEditorResourcesPath());
+    m_quickView->engine()->addImportPath(qmlSourcesPath());
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
     connect(m_qmlSourceUpdateShortcut, SIGNAL(activated()), this, SLOT(reloadQmlSource()));
@@ -120,12 +120,13 @@ StatesEditorWidget::~StatesEditorWidget()
 {
 }
 
-QString StatesEditorWidget::statesEditorResourcesPath() {
+QString StatesEditorWidget::qmlSourcesPath() {
     return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/statesEditorQmlSources");
 }
+
 void StatesEditorWidget::reloadQmlSource()
 {
-    QString statesListQmlFilePath = statesEditorResourcesPath() + QStringLiteral("/stateslist.qml");
+    QString statesListQmlFilePath = qmlSourcesPath() + QStringLiteral("/StatesList.qml");
     QTC_ASSERT(QFileInfo::exists(statesListQmlFilePath), return);
     m_quickView->engine()->clearComponentCache();
     m_quickView->setSource(QUrl::fromLocalFile(statesListQmlFilePath));
