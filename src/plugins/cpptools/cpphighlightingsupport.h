@@ -38,7 +38,7 @@
 
 #include <QFuture>
 
-namespace TextEditor { class ITextEditor; }
+namespace TextEditor { class BaseTextDocument; }
 
 namespace CppTools {
 
@@ -60,7 +60,7 @@ public:
     };
 
 public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
+    CppHighlightingSupport(TextEditor::BaseTextDocument *baseTextDocument);
     virtual ~CppHighlightingSupport() = 0;
 
     virtual bool requiresSemanticInfo() const = 0;
@@ -73,11 +73,11 @@ public:
             const CPlusPlus::Snapshot &snapshot) const = 0;
 
 protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    TextEditor::BaseTextDocument *baseTextDocument() const
+    { return m_baseTextDocument; }
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    TextEditor::BaseTextDocument *m_baseTextDocument;
 };
 
 } // namespace CppTools

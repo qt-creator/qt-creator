@@ -31,10 +31,10 @@
 
 using namespace CppTools;
 
-CppHighlightingSupport::CppHighlightingSupport(TextEditor::ITextEditor *editor)
-    : m_editor(editor)
+CppHighlightingSupport::CppHighlightingSupport(TextEditor::BaseTextDocument *baseTextDocument)
+    : m_baseTextDocument(baseTextDocument)
 {
-    Q_ASSERT(editor);
+    Q_ASSERT(baseTextDocument);
 }
 
 CppHighlightingSupport::~CppHighlightingSupport()

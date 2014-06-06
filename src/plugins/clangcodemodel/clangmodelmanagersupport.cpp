@@ -64,7 +64,7 @@ CppTools::CppCompletionAssistProvider *ModelManagerSupport::completionAssistProv
 }
 
 CppTools::CppHighlightingSupport *ModelManagerSupport::highlightingSupport(
-        TextEditor::ITextEditor *editor)
+        TextEditor::BaseTextDocument *baseTextDocument)
 {
-    return new ClangHighlightingSupport(editor, m_fastIndexer);
+    return new ClangHighlightingSupport(baseTextDocument, m_fastIndexer);
 }

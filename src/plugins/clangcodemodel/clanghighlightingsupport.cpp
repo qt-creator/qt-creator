@@ -29,21 +29,19 @@
 
 #include "clanghighlightingsupport.h"
 
-#include <coreplugin/idocument.h>
-#include <texteditor/basetexteditor.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetextdocument.h>
 
 #include <QTextBlock>
 #include <QTextEdit>
 #include "pchmanager.h"
 
-
 using namespace ClangCodeModel;
 using namespace ClangCodeModel::Internal;
 using namespace CppTools;
 
-ClangHighlightingSupport::ClangHighlightingSupport(TextEditor::ITextEditor *textEditor, FastIndexer *fastIndexer)
-    : CppHighlightingSupport(textEditor)
+ClangHighlightingSupport::ClangHighlightingSupport(TextEditor::BaseTextDocument *baseTextDocument,
+                                                   FastIndexer *fastIndexer)
+    : CppHighlightingSupport(baseTextDocument)
     , m_fastIndexer(fastIndexer)
     , m_semanticMarker(new ClangCodeModel::SemanticMarker)
 {
@@ -69,11 +67,10 @@ QFuture<TextEditor::HighlightingResult> ClangHighlightingSupport::highlightingFu
     Q_UNUSED(doc);
     Q_UNUSED(snapshot);
 
-    TextEditor::BaseTextEditorWidget *ed = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor()->widget());
     int firstLine = 1;
-    int lastLine = ed->document()->blockCount();
+    int lastLine = baseTextDocument()->document()->blockCount();
 
-    const QString fileName = editor()->document()->filePath();
+    const QString fileName = baseTextDocument()->filePath();
     CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
     QList<ProjectPart::Ptr> parts = modelManager->projectPart(fileName);
     if (parts.isEmpty())

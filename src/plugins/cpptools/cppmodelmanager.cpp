@@ -895,15 +895,13 @@ CppCompletionAssistProvider *CppModelManager::completionAssistProvider(const QSt
     return cms->completionAssistProvider();
 }
 
-CppHighlightingSupport *CppModelManager::highlightingSupport(Core::IEditor *editor) const
+CppHighlightingSupport *CppModelManager::highlightingSupport(
+        TextEditor::BaseTextDocument *baseTextDocument) const
 {
-    TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
-    if (!textEditor)
-        return 0;
-
-    ModelManagerSupport *cms = modelManagerSupportForMimeType(editor->document()->mimeType());
-
-    return cms->highlightingSupport(textEditor);
+    QTC_ASSERT(baseTextDocument, return 0);
+    ModelManagerSupport *cms = modelManagerSupportForMimeType(baseTextDocument->mimeType());
+    QTC_ASSERT(cms, return 0);
+    return cms->highlightingSupport(baseTextDocument);
 }
 
 void CppModelManager::setIndexingSupport(CppIndexingSupport *indexingSupport)

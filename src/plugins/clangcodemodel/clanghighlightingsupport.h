@@ -44,7 +44,7 @@ namespace ClangCodeModel {
 class ClangHighlightingSupport: public CppTools::CppHighlightingSupport
 {
 public:
-    ClangHighlightingSupport(TextEditor::ITextEditor *textEditor,
+    ClangHighlightingSupport(TextEditor::BaseTextDocument *baseTextDocument,
                              Internal::FastIndexer *fastIndexer);
     ~ClangHighlightingSupport();
 

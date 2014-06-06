@@ -40,7 +40,7 @@ namespace Internal {
 class CppHighlightingSupportInternal: public CppHighlightingSupport
 {
 public:
-    CppHighlightingSupportInternal(TextEditor::ITextEditor *editor);
+    CppHighlightingSupportInternal(TextEditor::BaseTextDocument *baseTextDocument);
     virtual ~CppHighlightingSupportInternal();
 
     virtual bool requiresSemanticInfo() const

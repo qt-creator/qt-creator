@@ -61,7 +61,8 @@ CppCompletionAssistProvider *ModelManagerSupportInternal::completionAssistProvid
     return m_completionAssistProvider.data();
 }
 
-CppHighlightingSupport *ModelManagerSupportInternal::highlightingSupport(TextEditor::ITextEditor *editor)
+CppHighlightingSupport *ModelManagerSupportInternal::highlightingSupport(
+        TextEditor::BaseTextDocument *baseTextDocument)
 {
-    return new CppHighlightingSupportInternal(editor);
+    return new CppHighlightingSupportInternal(baseTextDocument);
 }

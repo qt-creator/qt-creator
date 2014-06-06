@@ -51,7 +51,8 @@ public:
     virtual QString displayName() const;
 
     virtual CppTools::CppCompletionAssistProvider *completionAssistProvider();
-    virtual CppTools::CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor);
+    virtual CppTools::CppHighlightingSupport *highlightingSupport(
+            TextEditor::BaseTextDocument *baseTextDocument);
 
 private:
     QScopedPointer<CppTools::CppCompletionAssistProvider> m_completionAssistProvider;

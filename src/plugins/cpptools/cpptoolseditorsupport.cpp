@@ -121,7 +121,7 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     , m_initialized(false)
     , m_lastHighlightRevision(0)
     , m_lastHighlightOnCompleteSemanticInfo(true)
-    , m_highlightingSupport(modelManager->highlightingSupport(textEditor))
+    , m_highlightingSupport(modelManager->highlightingSupport(textEditor->baseTextDocument()))
     , m_completionAssistProvider(
         modelManager->completionAssistProvider(textEditor->document()->mimeType()))
 {
@@ -595,7 +595,8 @@ void CppEditorSupport::onMimeTypeChanged()
     m_highlighter.cancel();
     m_highlighter.waitForFinished();
 
-    m_highlightingSupport.reset(m_modelManager->highlightingSupport(m_textEditor));
+    m_highlightingSupport.reset(
+        m_modelManager->highlightingSupport(m_textEditor->baseTextDocument()));
 
     disconnect(this, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
                this, SLOT(startHighlighting()));

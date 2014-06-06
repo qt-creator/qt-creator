@@ -32,7 +32,8 @@
 #include "cppchecksymbols.h"
 #include "cpptoolsreuse.h"
 
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetextdocument.h>
+#include <texteditor/convenience.h>
 
 #include <cplusplus/SimpleLexer.h>
 
@@ -40,8 +41,9 @@ using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::Internal;
 
-CppHighlightingSupportInternal::CppHighlightingSupportInternal(TextEditor::ITextEditor *editor)
-    : CppHighlightingSupport(editor)
+CppHighlightingSupportInternal::CppHighlightingSupportInternal(
+        TextEditor::BaseTextDocument *baseTextDocument)
+    : CppHighlightingSupport(baseTextDocument)
 {
 }
 
@@ -56,10 +58,14 @@ QFuture<TextEditor::HighlightingResult> CppHighlightingSupportInternal::highligh
     typedef TextEditor::HighlightingResult Result;
     QList<Result> macroUses;
 
+    QTextDocument *textDocument = baseTextDocument()->document();
+    using TextEditor::Convenience::convertPosition;
+
     // Get macro definitions
     foreach (const CPlusPlus::Macro& macro, doc->definedMacros()) {
         int line, column;
-        editor()->convertPosition(macro.utf16CharOffset(), &line, &column);
+        convertPosition(textDocument, macro.utf16CharOffset(), &line, &column);
+
         ++column; //Highlighting starts at (column-1) --> compensate here
         Result use(line, column, macro.nameToQString().size(), MacroUse);
         macroUses.append(use);
@@ -86,7 +92,7 @@ QFuture<TextEditor::HighlightingResult> CppHighlightingSupportInternal::highligh
             continue;
 
         int line, column;
-        editor()->convertPosition(macro.utf16charsBegin(), &line, &column);
+        convertPosition(textDocument, macro.utf16charsBegin(), &line, &column);
         ++column; //Highlighting starts at (column-1) --> compensate here
         Result use(line, column, name.size(), MacroUse);
         macroUses.append(use);

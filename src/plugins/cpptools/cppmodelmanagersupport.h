@@ -34,7 +34,7 @@
 
 #include <QString>
 
-namespace TextEditor { class ITextEditor; }
+namespace TextEditor { class BaseTextDocument; }
 
 namespace CppTools {
 
@@ -50,7 +50,8 @@ public:
     virtual QString displayName() const = 0;
 
     virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
-    virtual CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor) = 0;
+    virtual CppHighlightingSupport *highlightingSupport(
+            TextEditor::BaseTextDocument *baseTextDocument) = 0;
 };
 
 } // CppTools namespace

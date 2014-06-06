@@ -47,7 +47,7 @@
 namespace Core { class IEditor; }
 namespace CPlusPlus { class LookupContext; }
 namespace ProjectExplorer { class Project; }
-namespace TextEditor { class BaseTextEditor; class BlockRange; }
+namespace TextEditor { class BaseTextEditor; class BaseTextDocument; class BlockRange; }
 namespace Utils { class FileName; }
 
 namespace CppTools {
@@ -260,7 +260,8 @@ public:
     virtual void addModelManagerSupport(ModelManagerSupport *modelManagerSupport) = 0;
     virtual ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const = 0;
     virtual CppCompletionAssistProvider *completionAssistProvider(const QString &mimeType) const = 0;
-    virtual CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const = 0;
+    virtual CppHighlightingSupport *highlightingSupport(
+            TextEditor::BaseTextDocument *baseTextDocument) const = 0;
 
     virtual void setIndexingSupport(CppTools::CppIndexingSupport *indexingSupport) = 0;
     virtual CppIndexingSupport *indexingSupport() = 0;
