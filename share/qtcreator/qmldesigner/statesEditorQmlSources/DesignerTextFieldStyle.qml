@@ -37,6 +37,9 @@ TextFieldStyle {
     textColor: "#FFFFFF"
     placeholderTextColor: "#A0A0A0"
 
+    padding.top: 4
+    padding.bottom: 4
+
     background: Rectangle {
         implicitWidth: 100
         implicitHeight: font.pixelSize + padding.top + padding.bottom

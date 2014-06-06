@@ -34,14 +34,15 @@ import QtQuick.Controls.Styles 1.1
 FocusScope {
     id: root
 
-    height: 136
+    height: 132
     signal createNewState
     signal deleteState(int internalNodeId)
     signal duplicateCurrentState
 
     property int stateImageSize: 100
     property int delegateWidth: stateImageSize + 10
-    property int delegateHeight: root.height
+    property int padding: 2
+    property int delegateHeight: root.height - padding * 2
     property int innerSpacing: 2
     property int currentStateInternalId : 0
 
@@ -62,7 +63,6 @@ FocusScope {
     MouseArea {
         anchors.fill: parent
         onClicked: focus = true
-
     }
 
     Item {
@@ -75,13 +75,24 @@ FocusScope {
         height: delegateHeight
 
         Button {
+            style: ButtonStyle {
+                background: Rectangle {
+                    implicitWidth: 100
+                    implicitHeight: 25
+                    color: control.hovered ? "#6f6f6f" : "#4f4f4f"
+
+                    border.color: "black"
+                }
+            }
+
             id: addStateButton
             visible: canAddNewStates
 
             anchors.right: parent.right
+            anchors.rightMargin: padding
             anchors.verticalCenter: parent.verticalCenter
-            width: parent.height / 2
-            height: parent.height / 2
+            width: Math.max(parent.height / 2, 24)
+            height: width
             iconSource: "images/plus.png"
 
             onClicked: root.createNewState()
@@ -92,6 +103,9 @@ FocusScope {
         anchors.left: parent.left
         anchors.right: addStateItem.left
         height: delegateHeight
+        y: padding
+        anchors.leftMargin: padding
+        anchors.rightMargin: padding
 
         style: DesignerScrollViewStyle {
         }
@@ -108,11 +122,21 @@ FocusScope {
                 height: delegateHeight
                 isBaseState: 0 == internalNodeId
                 isCurrentState: root.currentStateInternalId == internalNodeId
-                gradiantBaseColor: isCurrentState ? Qt.darker(highlightColor, 1.8) : background.color
+                gradiantBaseColor: isCurrentState ? Qt.darker(highlightColor, 1.2) : background.color
                 delegateStateName: stateName
                 delegateStateImageSource: stateImageSource
                 delegateStateImageSize: stateImageSize
             }
         }
+    }
+
+    Rectangle {
+        /* Rectangle at the bottom using the highlight color */
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: 3
+        height: 4
+        color: Qt.darker(highlightColor, 1.2)
     }
 }

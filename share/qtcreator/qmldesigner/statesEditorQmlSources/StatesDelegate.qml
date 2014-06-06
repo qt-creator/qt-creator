@@ -41,10 +41,10 @@ Rectangle {
     property int delegateStateImageSize
 
     gradient: Gradient {
-        GradientStop { position: 0.0; color: Qt.lighter(gradiantBaseColor, 6) }
-        GradientStop { position: 0.2; color: Qt.lighter(gradiantBaseColor, 2.5) }
-        GradientStop { position: 0.8; color: Qt.lighter(gradiantBaseColor, 1.5) }
-        GradientStop { position: 1.0; color: Qt.darker(gradiantBaseColor) }
+        GradientStop { position: 0.0; color: Qt.lighter(gradiantBaseColor, 1.1) }
+        GradientStop { position: 0.2; color: Qt.lighter(gradiantBaseColor, 1.2) }
+        GradientStop { position: 0.3; color: Qt.lighter(gradiantBaseColor, 1.1) }
+        GradientStop { position: 1.0; color: gradiantBaseColor }
     }
 
     MouseArea {
@@ -58,7 +58,16 @@ Rectangle {
     ToolButton {
         id: removeStateButton
 
+        style: ButtonStyle {
+            background: Rectangle {
+                color: control.hovered ? Qt.lighter(gradiantBaseColor, 1.4)  : "transparent"
+                radius: 2
+            }
+        }
+
+
         anchors.right: parent.right
+        anchors.rightMargin: 2
         anchors.verticalCenter: stateNameField.verticalCenter
         height: 16
         width: 16
@@ -70,38 +79,35 @@ Rectangle {
 
     TextField {
         id: stateNameField
-        y: 2
+        y: 4
         font.pixelSize: 11
         anchors.left: parent.left
         // use the spacing which the image to the delegate rectangle has
         anchors.leftMargin: 4
         anchors.right: removeStateButton.left
+        anchors.rightMargin: 4
         style: DesignerTextFieldStyle {}
         readOnly: isBaseState
 
+        onActiveFocusChanged: {
+            if (activeFocus)
+                 root.currentStateInternalId = internalNodeId
+        }
+
         Component.onCompleted: {
             text = delegateStateName
-            __panel.visible = false
+            if (isBaseState)
+                __panel.visible = false
         }
+
         onEditingFinished: {
             if (text != delegateStateName)
                 statesEditorModel.renameState(internalNodeId, text)
         }
 
-        function shouldShowEditElement() {
-            return (hovered || focus) && !isBaseState
-        }
-
-        // only show the lineedit background if mouse is hovering
-        onHoveredChanged: {
-            __panel.visible = shouldShowEditElement()
-        }
-        onFocusChanged: {
-            __panel.visible = shouldShowEditElement()
-        }
         // as we change the background we need to change the text
         // color to see some text
-        textColor: shouldShowEditElement() ? "#FFFFFF" : "#000000"
+        textColor: "#FFFFFF"
     }
 
     Item {
