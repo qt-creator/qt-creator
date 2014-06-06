@@ -1732,6 +1732,19 @@ def qdump__QString(d, value):
         d.putField("editformat", DisplayUtf16String)
         d.putField("editvalue", d.encodeString(value, limit=None))
 
+def qdump__QStringData(d, value):
+    d.putStringValueByAddress(toInteger(value))
+    d.putNumChild(0)
+
+def qdump__QHashedString(d, value):
+    stringType = d.directBaseClass(value.type)
+    qdump__QString(d, value.cast(stringType))
+    d.putBetterType(value.type)
+
+def qdump__QQmlRefCount(d, value):
+    d.putItem(value["refCount"])
+    d.putBetterType(value.type)
+
 
 def qdump__QStringRef(d, value):
     if d.isNull(value["m_string"]):
