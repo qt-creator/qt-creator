@@ -40,6 +40,8 @@ class QmlModelNodeProxy : public QObject
 {
     Q_OBJECT
 
+     Q_PROPERTY(QmlDesigner::ModelNode modelNode READ modelNode NOTIFY modelNodeChanged)
+
 public:
     explicit QmlModelNodeProxy(QObject *parent = 0);
 
@@ -51,8 +53,10 @@ public:
 
     QmlItemNode qmlItemNode() const;
 
+    ModelNode modelNode() const;
+
 signals:
-    void selectionChanged();
+    void modelNodeChanged();
     void selectionToBeChanged();
 
 public slots:

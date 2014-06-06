@@ -42,7 +42,7 @@ void QmlModelNodeProxy::setup(const QmlItemNode &itemNode)
 {
     m_qmlItemNode = itemNode;
 
-    emit selectionChanged();
+    emit modelNodeChanged();
 }
 
 void QmlModelNodeProxy::registerDeclarativeType()
@@ -58,6 +58,11 @@ void QmlModelNodeProxy::emitSelectionToBeChanged()
 QmlItemNode QmlModelNodeProxy::qmlItemNode() const
 {
     return m_qmlItemNode;
+}
+
+ModelNode QmlModelNodeProxy::modelNode() const
+{
+    return m_qmlItemNode.modelNode();
 }
 
 }
