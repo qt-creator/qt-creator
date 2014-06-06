@@ -78,8 +78,6 @@ private:
     void addHistoryItems(const QList<EditLocation> &history, EditorView *view, QSet<IDocument*> &documentsDone);
     void addRestoredItems();
     void ensureCurrentVisible();
-    bool isCentering();
-    void centerOnItem(int selectedIndex);
     void selectUpDown(bool up);
 
     bool isSameFile(IEditor *editorA, IEditor *editorB) const;

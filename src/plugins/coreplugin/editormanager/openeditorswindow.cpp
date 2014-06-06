@@ -92,19 +92,6 @@ void OpenEditorsWindow::setVisible(bool visible)
         setFocus();
 }
 
-bool OpenEditorsWindow::isCentering()
-{
-    int internalMargin = m_editorList->viewport()->mapTo(m_editorList, QPoint(0,0)).y();
-    QRect rect0 = m_editorList->visualItemRect(m_editorList->topLevelItem(0));
-    QRect rect1 = m_editorList->visualItemRect(m_editorList->topLevelItem(m_editorList->topLevelItemCount()-1));
-    int height = rect1.y() + rect1.height() - rect0.y();
-    height += 2 * internalMargin;
-    if (height > HEIGHT)
-        return true;
-    return false;
-}
-
-
 bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
 {
     if (obj == m_editorList) {
@@ -174,24 +161,6 @@ void OpenEditorsWindow::selectPreviousEditor()
 void OpenEditorsWindow::selectNextEditor()
 {
     selectUpDown(true);
-}
-
-void OpenEditorsWindow::centerOnItem(int selectedIndex)
-{
-    if (selectedIndex >= 0) {
-        QTreeWidgetItem *item;
-        int num = m_editorList->topLevelItemCount();
-        int rotate = selectedIndex-(num-1)/2;
-        for (int i = 0; i < rotate; ++i) {
-            item = m_editorList->takeTopLevelItem(0);
-            m_editorList->addTopLevelItem(item);
-        }
-        rotate = -rotate;
-        for (int i = 0; i < rotate; ++i) {
-            item = m_editorList->takeTopLevelItem(num-1);
-            m_editorList->insertTopLevelItem(0, item);
-        }
-    }
 }
 
 void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, EditorView *view)
