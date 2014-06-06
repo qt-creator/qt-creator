@@ -885,10 +885,13 @@ ModelManagerSupport *CppModelManager::modelManagerSupportForMimeType(const QStri
     return m_idTocodeModelSupporter.value(id, m_modelManagerSupportFallback.data());
 }
 
-CppCompletionAssistProvider *CppModelManager::completionAssistProvider(Core::IEditor *editor) const
+CppCompletionAssistProvider *CppModelManager::completionAssistProvider(const QString &mimeType) const
 {
-    ModelManagerSupport *cms = modelManagerSupportForMimeType(editor->document()->mimeType());
+    if (mimeType.isEmpty())
+        return 0;
 
+    ModelManagerSupport *cms = modelManagerSupportForMimeType(mimeType);
+    QTC_ASSERT(cms, return 0);
     return cms->completionAssistProvider();
 }
 

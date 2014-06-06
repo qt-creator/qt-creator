@@ -122,7 +122,8 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     , m_lastHighlightRevision(0)
     , m_lastHighlightOnCompleteSemanticInfo(true)
     , m_highlightingSupport(modelManager->highlightingSupport(textEditor))
-    , m_completionAssistProvider(m_modelManager->completionAssistProvider(textEditor))
+    , m_completionAssistProvider(
+        modelManager->completionAssistProvider(textEditor->document()->mimeType()))
 {
     connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
             this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
@@ -602,7 +603,8 @@ void CppEditorSupport::onMimeTypeChanged()
         connect(this, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
                 this, SLOT(startHighlighting()));
 
-    m_completionAssistProvider = m_modelManager->completionAssistProvider(m_textEditor);
+    m_completionAssistProvider
+        = m_modelManager->completionAssistProvider(m_textEditor->document()->mimeType());
 
     updateDocumentNow();
 }

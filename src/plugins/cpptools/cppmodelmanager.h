@@ -114,7 +114,7 @@ public:
 
     virtual void addModelManagerSupport(ModelManagerSupport *modelManagerSupport);
     virtual ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const;
-    virtual CppCompletionAssistProvider *completionAssistProvider(Core::IEditor *editor) const;
+    virtual CppCompletionAssistProvider *completionAssistProvider(const QString &mimeType) const;
     virtual CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const;
 
     virtual void setIndexingSupport(CppIndexingSupport *indexingSupport);
