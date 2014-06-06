@@ -125,6 +125,9 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     , m_completionAssistProvider(
         modelManager->completionAssistProvider(textEditor->document()->mimeType()))
 {
+    m_editorDocument = qobject_cast<BaseTextDocument*>(m_textEditor->document());
+    QTC_CHECK(m_editorDocument);
+
     connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
             this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
 
@@ -144,15 +147,15 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     connect(m_updateEditorTimer, SIGNAL(timeout()),
             this, SLOT(updateEditorNow()));
 
-    connect(m_textEditor->document(), SIGNAL(contentsChanged()), this, SLOT(updateDocument()));
+    connect(m_editorDocument, SIGNAL(contentsChanged()), this, SLOT(updateDocument()));
     connect(this, SIGNAL(diagnosticsChanged()), this, SLOT(onDiagnosticsChanged()));
 
-    connect(m_textEditor->document(), SIGNAL(mimeTypeChanged()),
+    connect(m_editorDocument, SIGNAL(mimeTypeChanged()),
             this, SLOT(onMimeTypeChanged()));
 
-    connect(m_textEditor->document(), SIGNAL(aboutToReload()),
+    connect(m_editorDocument, SIGNAL(aboutToReload()),
             this, SLOT(onAboutToReload()));
-    connect(m_textEditor->document(), SIGNAL(reloadFinished(bool)),
+    connect(m_editorDocument, SIGNAL(reloadFinished(bool)),
             this, SLOT(onReloadFinished()));
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
@@ -178,7 +181,7 @@ CppEditorSupport::~CppEditorSupport()
 
 QString CppEditorSupport::fileName() const
 {
-    return m_textEditor->document()->filePath();
+    return m_editorDocument->filePath();
 }
 
 QByteArray CppEditorSupport::contents() const
@@ -188,7 +191,7 @@ QByteArray CppEditorSupport::contents() const
     const int editorRev = editorRevision();
     if (m_cachedContentsEditorRevision != editorRev && !m_fileIsBeingReloaded) {
         m_cachedContentsEditorRevision = editorRev;
-        m_cachedContents = m_textEditor->textDocument()->plainText().toUtf8();
+        m_cachedContents = m_editorDocument->plainText().toUtf8();
     }
 
     return m_cachedContents;
@@ -196,7 +199,7 @@ QByteArray CppEditorSupport::contents() const
 
 unsigned CppEditorSupport::editorRevision() const
 {
-    return m_textEditor->editorWidget()->document()->revision();
+    return m_editorDocument->document()->revision();
 }
 
 void CppEditorSupport::setExtraDiagnostics(const QString &key,
@@ -411,7 +414,7 @@ void CppEditorSupport::onDiagnosticsChanged()
     warningFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
     warningFormat.setUnderlineColor(Qt::darkYellow);
 
-    QTextDocument *doc = m_textEditor->editorWidget()->document();
+    QTextDocument *doc = m_editorDocument->document();
 
     m_editorUpdates.selections.clear();
     foreach (const Document::DiagnosticMessage &m, allDiagnostics) {
@@ -452,13 +455,13 @@ void CppEditorSupport::updateEditor()
 
 void CppEditorSupport::updateEditorNow()
 {
-    if (!m_textEditor)
+    if (!m_textEditor || m_editorUpdates.revision == -1)
         return;
 
-    BaseTextEditorWidget *editorWidget = m_textEditor->editorWidget();
-    if (editorWidget->document()->revision() != m_editorUpdates.revision)
+    if (editorRevision() != (unsigned) m_editorUpdates.revision)
         return; // outdated
 
+    BaseTextEditorWidget *editorWidget = m_textEditor->editorWidget();
     editorWidget->setExtraSelections(BaseTextEditorWidget::CodeWarningsSelection,
                                      m_editorUpdates.selections);
     editorWidget->setIfdefedOutBlocks(m_editorUpdates.ifdefedOutBlocks);
@@ -595,8 +598,7 @@ void CppEditorSupport::onMimeTypeChanged()
     m_highlighter.cancel();
     m_highlighter.waitForFinished();
 
-    m_highlightingSupport.reset(
-        m_modelManager->highlightingSupport(m_textEditor->baseTextDocument()));
+    m_highlightingSupport.reset(m_modelManager->highlightingSupport(m_editorDocument));
 
     disconnect(this, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
                this, SLOT(startHighlighting()));
@@ -605,7 +607,7 @@ void CppEditorSupport::onMimeTypeChanged()
                 this, SLOT(startHighlighting()));
 
     m_completionAssistProvider
-        = m_modelManager->completionAssistProvider(m_textEditor->document()->mimeType());
+        = m_modelManager->completionAssistProvider(m_editorDocument->mimeType());
 
     updateDocumentNow();
 }

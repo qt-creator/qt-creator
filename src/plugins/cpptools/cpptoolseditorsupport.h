@@ -208,6 +208,7 @@ private:
 private:
     Internal::CppModelManager *m_modelManager;
     QPointer<TextEditor::BaseTextEditor> m_textEditor;
+    TextEditor::BaseTextDocument *m_editorDocument;
     QTimer *m_updateDocumentTimer;
     int m_updateDocumentInterval;
     unsigned m_revision;
