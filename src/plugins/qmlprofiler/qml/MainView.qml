@@ -208,7 +208,7 @@ Rectangle {
             color: root.color
             height: col.height
 
-            property int rowCount: qmlProfilerModelProxy.categoryCount();
+            property int rowCount: qmlProfilerModelProxy.modelCount();
 
             Column {
                 id: col

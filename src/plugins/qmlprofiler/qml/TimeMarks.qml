@@ -114,17 +114,15 @@ Canvas {
         // separators
         var cumulatedHeight = 0;
         for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount() && cumulatedHeight < y + height; modelIndex++) {
-            for (var i=0; i<qmlProfilerModelProxy.categoryCount(modelIndex); i++) {
-                cumulatedHeight += root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, i);
-                if (cumulatedHeight < y)
-                    continue;
+            cumulatedHeight += root.singleRowHeight * qmlProfilerModelProxy.rowCount(modelIndex);
+            if (cumulatedHeight < y)
+                continue;
 
-                context.strokeStyle = "#B0B0B0";
-                context.beginPath();
-                context.moveTo(0, cumulatedHeight - y);
-                context.lineTo(width, cumulatedHeight - y);
-                context.stroke();
-            }
+            context.strokeStyle = "#B0B0B0";
+            context.beginPath();
+            context.moveTo(0, cumulatedHeight - y);
+            context.lineTo(width, cumulatedHeight - y);
+            context.stroke();
         }
 
         // bottom

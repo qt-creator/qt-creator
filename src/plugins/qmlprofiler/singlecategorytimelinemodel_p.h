@@ -39,7 +39,7 @@ class SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate :
         public AbstractTimelineModel::AbstractTimelineModelPrivate {
 public:
     bool expanded;
-    QString label;
+    QString title;
     QmlDebug::Message message;
     QmlDebug::RangeType rangeType;
 };

@@ -57,14 +57,6 @@ void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManage
     d->modelId = d->modelManager->registerModelProxy();
 }
 
-QStringList AbstractTimelineModel::categoryTitles() const
-{
-    QStringList retString;
-    for (int i = 0; i < categoryCount(); i++)
-        retString << categoryLabel(i);
-    return retString;
-}
-
 QString AbstractTimelineModel::name() const
 {
     Q_D(const AbstractTimelineModel);
@@ -167,14 +159,6 @@ int AbstractTimelineModel::getEventIdForLocation(const QString &filename, int li
     Q_UNUSED(line);
     Q_UNUSED(column);
     return -1;
-}
-
-int AbstractTimelineModel::rowCount() const
-{
-    int count = 0;
-    for (int i=0; i<categoryCount(); i++)
-        count += categoryDepth(i);
-    return count;
 }
 
 int AbstractTimelineModel::getBindingLoopDest(int index) const

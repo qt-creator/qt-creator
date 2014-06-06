@@ -50,7 +50,6 @@ public:
 
     // Trivial methods implemented by the abstract model itself
     void setModelManager(QmlProfilerModelManager *modelManager);
-    QStringList categoryTitles() const;
     QString name() const;
     bool isEmpty() const;
 
@@ -60,7 +59,6 @@ public:
     Q_INVOKABLE qint64 traceEndTime() const;
     Q_INVOKABLE qint64 traceDuration() const;
     Q_INVOKABLE int getState() const;
-    Q_INVOKABLE int rowCount() const;
     Q_INVOKABLE qint64 getDuration(int index) const;
     Q_INVOKABLE qint64 getStartTime(int index) const;
     Q_INVOKABLE qint64 getEndTime(int index) const;
@@ -70,17 +68,15 @@ public:
     int count() const;
 
     // Methods that have to be implemented by child models
-    Q_INVOKABLE virtual bool expanded(int category) const = 0;
-    Q_INVOKABLE virtual void setExpanded(int category, bool expanded) = 0;
-    Q_INVOKABLE virtual int categoryDepth(int categoryIndex) const = 0;
-    Q_INVOKABLE virtual int categoryCount() const = 0;
-    Q_INVOKABLE virtual const QString categoryLabel(int categoryIndex) const = 0;
+    virtual bool expanded() const = 0;
+    virtual void setExpanded(bool expanded) = 0;
+    virtual int rowCount() const = 0;
+    virtual const QString title() const = 0;
     Q_INVOKABLE virtual int getEventId(int index) const = 0;
     Q_INVOKABLE virtual QColor getColor(int index) const = 0;
-    Q_INVOKABLE virtual const QVariantList getLabelsForCategory(int category) const = 0;
+    virtual const QVariantList getLabels() const = 0;
     Q_INVOKABLE virtual const QVariantList getEventDetails(int index) const = 0;
     virtual int getEventType(int index) const = 0;
-    virtual int getEventCategory(int index) const = 0;
     virtual int getEventRow(int index) const = 0;
     virtual void loadData() = 0;
     virtual void clear() = 0;

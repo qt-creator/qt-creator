@@ -149,9 +149,8 @@ void PaintEventsModelProxy::loadData()
 
 /////////////////// QML interface
 
-int PaintEventsModelProxy::categoryDepth(int categoryIndex) const
+int PaintEventsModelProxy::rowCount() const
 {
-    Q_UNUSED(categoryIndex);
     Q_D(const PaintEventsModelProxy);
     if (isEmpty())
         return d->seenForeignPaintEvent ? 0 : 1;
@@ -191,9 +190,8 @@ float PaintEventsModelProxy::getHeight(int index) const
             d->maxGuiThreadAnimations : d->maxRenderThreadAnimations) * 0.85f + 0.15f;
 }
 
-const QVariantList PaintEventsModelProxy::getLabelsForCategory(int category) const
+const QVariantList PaintEventsModelProxy::getLabels() const
 {
-    Q_UNUSED(category);
     Q_D(const PaintEventsModelProxy);
     QVariantList result;
 
@@ -224,7 +222,7 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
     static const char trContext[] = "RangeDetails";
     {
         QVariantMap valuePair;
-        valuePair.insert(QLatin1String("title"), QVariant(categoryLabel(0)));
+        valuePair.insert(QLatin1String("title"), QVariant(title()));
         result << valuePair;
     }
 

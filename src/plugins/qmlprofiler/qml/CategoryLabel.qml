@@ -31,16 +31,15 @@ import QtQuick 2.1
 
 Item {
     id: labelContainer
-    property string text: qmlProfilerModelProxy.categoryLabel(modelIndex, categoryIndex)
+    property string text: qmlProfilerModelProxy.title(modelIndex)
     property bool expanded: false
-    property int categoryIndex: qmlProfilerModelProxy.correctedCategoryIndexForModel(modelIndex, index)
-    property int modelIndex: qmlProfilerModelProxy.modelIndexForCategory(index);
+    property int modelIndex: index;
 
     property var descriptions: []
     property var extdescriptions: []
     property var eventIds: []
 
-    visible: qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex) > 0;
+    visible: qmlProfilerModelProxy.rowCount(modelIndex) > 0;
 
     height: root.singleRowHeight
     width: 150
@@ -50,18 +49,18 @@ Item {
     }
 
     function updateHeight() {
-        height = root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex);
+        height = root.singleRowHeight * qmlProfilerModelProxy.rowCount(modelIndex);
     }
 
     function getDescriptions() {
-        visible = qmlProfilerModelProxy.categoryDepth(modelIndex, categoryIndex) > 0;
+        visible = qmlProfilerModelProxy.rowCount(modelIndex) > 0;
         if (!visible)
             return;
 
         var desc=[];
         var ids=[];
         var extdesc=[];
-        var labelList = qmlProfilerModelProxy.getLabelsForCategory(modelIndex, categoryIndex);
+        var labelList = qmlProfilerModelProxy.getLabels(modelIndex);
         for (var i = 0; i < labelList.length; i++ ) {
             desc[i] = labelList[i].description;
             ids[i] = labelList[i].id;
@@ -76,7 +75,7 @@ Item {
     Connections {
         target: qmlProfilerModelProxy
         onExpandedChanged: {
-            expanded = qmlProfilerModelProxy.expanded(modelIndex, categoryIndex);
+            expanded = qmlProfilerModelProxy.expanded(modelIndex);
             backgroundMarks.requestPaint();
             getDescriptions();
         }
@@ -155,7 +154,7 @@ Item {
             onClicked: {
                 // Don't try to expand empty models.
                 if (expanded || qmlProfilerModelProxy.count(modelIndex) > 0)
-                    qmlProfilerModelProxy.setExpanded(modelIndex, categoryIndex, !expanded);
+                    qmlProfilerModelProxy.setExpanded(modelIndex, !expanded);
             }
         }
     }

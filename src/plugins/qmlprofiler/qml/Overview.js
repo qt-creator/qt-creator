@@ -48,12 +48,9 @@ function drawData(canvas, ctxt)
     var bump = 10;
     var height = canvas.height - bump;
 
-    var typeCount = qmlProfilerModelProxy.visibleCategories();
-    var blockHeight = height / typeCount;
+    var blockHeight = height / qmlProfilerModelProxy.modelCount();
 
     var spacing = width / qmlProfilerModelProxy.traceDuration();
-
-    var modelRowStart = 0;
 
     for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
         for (var ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
@@ -69,22 +66,18 @@ function drawData(canvas, ctxt)
 
             xx = Math.round(xx);
 
-            var rowNumber = modelRowStart + qmlProfilerModelProxy.getEventCategoryInModel(modelIndex, ii);
-
             var itemHeight = qmlProfilerModelProxy.getHeight(modelIndex,ii) * blockHeight;
-            var yy = (rowNumber + 1) * blockHeight - itemHeight ;
+            var yy = (modelIndex + 1) * blockHeight - itemHeight ;
 
             ctxt.fillStyle = qmlProfilerModelProxy.getColor(modelIndex, ii);
             ctxt.fillRect(xx, bump + yy, eventWidth, itemHeight);
         }
-        modelRowStart += qmlProfilerModelProxy.categoryCount(modelIndex);
     }
 
     // binding loops
     ctxt.strokeStyle = "orange";
     ctxt.lineWidth = 2;
     var radius = 1;
-    modelRowStart = 0;
     for (modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); ++modelIndex) {
         for (ii = canvas.offset; ii < qmlProfilerModelProxy.count(modelIndex);
              ii += canvas.increment) {
@@ -92,15 +85,12 @@ function drawData(canvas, ctxt)
                 var xcenter = Math.round(qmlProfilerModelProxy.getStartTime(modelIndex,ii) +
                                          qmlProfilerModelProxy.getDuration(modelIndex,ii) -
                                          qmlProfilerModelProxy.traceStartTime()) * spacing;
-                var ycenter = Math.round(bump + (modelRowStart +
-                                         qmlProfilerModelProxy.getEventCategoryInModel(modelIndex, ii)) *
-                                         blockHeight + blockHeight/2);
+                var ycenter = Math.round(bump + blockHeight * modelIndex + blockHeight / 2);
                 ctxt.beginPath();
                 ctxt.arc(xcenter, ycenter, radius, 0, 2*Math.PI, true);
                 ctxt.stroke();
             }
         }
-        modelRowStart += qmlProfilerModelProxy.categoryCount(modelIndex);
     }
 
 }

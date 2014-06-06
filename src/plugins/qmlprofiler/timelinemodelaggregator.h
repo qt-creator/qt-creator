@@ -46,9 +46,6 @@ public:
     void setModelManager(QmlProfilerModelManager *modelManager);
     void addModel(AbstractTimelineModel *m);
 
-
-    Q_INVOKABLE int categoryCount() const;
-    Q_INVOKABLE int visibleCategories() const;
     Q_INVOKABLE QStringList categoryTitles() const;
     Q_INVOKABLE int count(int modelIndex = -1) const;
     void clear();
@@ -65,19 +62,16 @@ public:
 
     Q_INVOKABLE qint64 lastTimeMark() const;
 
-    Q_INVOKABLE bool expanded(int modelIndex, int category) const;
-    Q_INVOKABLE void setExpanded(int modelIndex, int category, bool expanded);
-    Q_INVOKABLE int categoryDepth(int modelIndex, int categoryIndex) const;
-    Q_INVOKABLE int categoryCount(int modelIndex) const;
+    Q_INVOKABLE bool expanded(int modelIndex) const;
+    Q_INVOKABLE void setExpanded(int modelIndex, bool expanded);
     Q_INVOKABLE int rowCount(int modelIndex) const;
-    Q_INVOKABLE const QString categoryLabel(int modelIndex, int categoryIndex) const;
+    Q_INVOKABLE const QString title(int modelIndex) const;
 
     int findFirstIndex(int modelIndex, qint64 startTime) const;
     int findFirstIndexNoParents(int modelIndex, qint64 startTime) const;
     int findLastIndex(int modelIndex, qint64 endTime) const;
 
     int getEventType(int modelIndex, int index) const;
-    Q_INVOKABLE int getEventCategoryInModel(int modelIndex, int index) const;
     int getEventRow(int modelIndex, int index) const;
     Q_INVOKABLE qint64 getDuration(int modelIndex, int index) const;
     Q_INVOKABLE qint64 getStartTime(int modelIndex, int index) const;
@@ -87,7 +81,7 @@ public:
     Q_INVOKABLE QColor getColor(int modelIndex, int index) const;
     Q_INVOKABLE float getHeight(int modelIndex, int index) const;
 
-    Q_INVOKABLE const QVariantList getLabelsForCategory(int modelIndex, int category) const;
+    Q_INVOKABLE const QVariantList getLabels(int modelIndex) const;
 
     Q_INVOKABLE const QVariantList getEventDetails(int modelIndex, int index) const;
     Q_INVOKABLE const QVariantMap getEventLocation(int modelIndex, int index) const;
@@ -95,9 +89,6 @@ public:
     Q_INVOKABLE int getEventIdForHash(int modelIndex, const QString &hash) const;
     Q_INVOKABLE int getEventIdForLocation(int modelIndex, const QString &filename, int line,
                                           int column) const;
-
-    Q_INVOKABLE int modelIndexForCategory(int absoluteCategoryIndex) const;
-    Q_INVOKABLE int correctedCategoryIndexForModel(int modelIndex, int absoluteCategoryIndex) const;
 
 signals:
     void dataAvailable();

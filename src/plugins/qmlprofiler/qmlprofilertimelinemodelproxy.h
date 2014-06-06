@@ -31,8 +31,7 @@
 #ifndef QMLPROFILERTIMELINEMODELPROXY_H
 #define QMLPROFILERTIMELINEMODELPROXY_H
 
-#include <QObject>
-#include "abstracttimelinemodel.h"
+#include "singlecategorytimelinemodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <qmldebug/qmlprofilereventlocation.h>
 #include <QVariantList>
@@ -44,7 +43,7 @@ class QmlProfilerModelManager;
 
 namespace Internal {
 
-class BasicTimelineModel : public AbstractTimelineModel
+class RangeTimelineModel : public SingleCategoryTimelineModel
 {
     Q_OBJECT
 public:
@@ -53,8 +52,6 @@ public:
         QString displayName;
         QString details;
         QmlDebug::QmlEventLocation location;
-        QmlDebug::RangeType eventType;
-
         int eventId;  // separate
     };
 
@@ -73,7 +70,7 @@ public:
         int bindingLoopHead;
     };
 
-    BasicTimelineModel(QObject *parent = 0);
+    RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *parent = 0);
 
     void loadData();
     void clear();
@@ -81,32 +78,25 @@ public:
 
 // QML interface
 
-    Q_INVOKABLE bool expanded(int category) const;
-    Q_INVOKABLE void setExpanded(int category, bool expanded);
-    Q_INVOKABLE int categoryDepth(int categoryIndex) const;
-    Q_INVOKABLE int categoryCount() const;
-    Q_INVOKABLE const QString categoryLabel(int categoryIndex) const;
+    Q_INVOKABLE int rowCount() const;
+    static QString categoryLabel(int categoryIndex);
 
     int getEventType(int index) const;
-    int getEventCategory(int index) const;
     int getEventRow(int index) const;
     Q_INVOKABLE int getEventId(int index) const;
     int getBindingLoopDest(int index) const;
     Q_INVOKABLE QColor getColor(int index) const;
 
-    Q_INVOKABLE const QVariantList getLabelsForCategory(int category) const;
+    Q_INVOKABLE const QVariantList getLabels() const;
     Q_INVOKABLE const QVariantList getEventDetails(int index) const;
     Q_INVOKABLE const QVariantMap getEventLocation(int index) const;
 
     Q_INVOKABLE int getEventIdForHash(const QString &eventHash) const;
     Q_INVOKABLE int getEventIdForLocation(const QString &filename, int line, int column) const;
 
-private slots:
-    bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const;
-
 private:
-    class BasicTimelineModelPrivate;
-    Q_DECLARE_PRIVATE(BasicTimelineModel)
+    class RangeTimelineModelPrivate;
+    Q_DECLARE_PRIVATE(RangeTimelineModel)
 };
 
 }

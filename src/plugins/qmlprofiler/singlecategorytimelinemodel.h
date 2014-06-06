@@ -40,14 +40,11 @@ class QMLPROFILER_EXPORT SingleCategoryTimelineModel : public AbstractTimelineMo
     Q_OBJECT
 public:
     bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const;
-    Q_INVOKABLE bool expanded(int) const;
-    Q_INVOKABLE void setExpanded(int, bool expanded);
-
-    Q_INVOKABLE int categoryCount() const;
+    bool expanded() const;
+    void setExpanded(bool expanded);
 
     int getEventType(int index) const;
-    Q_INVOKABLE int getEventCategory(int index) const;
-    Q_INVOKABLE const QString categoryLabel(int categoryIndex) const;
+    const QString title() const;
 
 protected:
     class SingleCategoryTimelineModelPrivate;

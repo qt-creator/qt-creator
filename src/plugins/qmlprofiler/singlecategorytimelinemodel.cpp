@@ -39,7 +39,7 @@ SingleCategoryTimelineModel::SingleCategoryTimelineModel(SingleCategoryTimelineM
 {
     Q_D(SingleCategoryTimelineModel);
     d->expanded = false;
-    d->label = label;
+    d->title = label;
     d->message = message;
     d->rangeType = rangeType;
 }
@@ -52,33 +52,25 @@ bool SingleCategoryTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlE
     return (event.rangeType == d->rangeType && event.message == d->message);
 }
 
-bool SingleCategoryTimelineModel::expanded(int categoryIndex) const
+bool SingleCategoryTimelineModel::expanded() const
 {
     Q_D(const SingleCategoryTimelineModel);
-    Q_UNUSED(categoryIndex);
     return d->expanded;
 }
 
-void SingleCategoryTimelineModel::setExpanded(int categoryIndex, bool expanded)
+void SingleCategoryTimelineModel::setExpanded(bool expanded)
 {
     Q_D(SingleCategoryTimelineModel);
-    Q_UNUSED(categoryIndex);
     if (expanded != d->expanded) {
         d->expanded = expanded;
         emit expandedChanged();
     }
 }
 
-int SingleCategoryTimelineModel::categoryCount() const
-{
-    return 1;
-}
-
-const QString SingleCategoryTimelineModel::categoryLabel(int categoryIndex) const
+const QString SingleCategoryTimelineModel::title() const
 {
     Q_D(const SingleCategoryTimelineModel);
-    Q_UNUSED(categoryIndex);
-    return d->label;
+    return d->title;
 }
 
 int SingleCategoryTimelineModel::getEventType(int index) const
@@ -86,12 +78,6 @@ int SingleCategoryTimelineModel::getEventType(int index) const
     Q_D(const SingleCategoryTimelineModel);
     Q_UNUSED(index);
     return (d->message << 8) + d->rangeType;
-}
-
-int SingleCategoryTimelineModel::getEventCategory(int index) const
-{
-    Q_UNUSED(index);
-    return 0;
 }
 
 }
