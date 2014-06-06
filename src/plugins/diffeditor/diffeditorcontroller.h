@@ -55,11 +55,6 @@ public:
 
     QString makePatch(int diffFileIndex, int chunkIndex, bool revert) const;
 
-signals:
-    void chunkActionsRequested(QMenu *menu,
-                               int diffFileIndex,
-                               int chunkIndex);
-
 public slots:
     void clear();
     void clear(const QString &message);
@@ -70,6 +65,9 @@ public slots:
     void setContextLinesNumber(int lines);
     void setIgnoreWhitespace(bool ignore);
     void requestReload();
+    void requestChunkActions(QMenu *menu,
+                             int diffFileIndex,
+                             int chunkIndex);
 
 signals:
     void cleared(const QString &message);
@@ -80,6 +78,10 @@ signals:
     void contextLinesNumberChanged(int lines);
     void ignoreWhitespaceChanged(bool ignore);
     void reloadRequested();
+    void chunkActionsRequested(QMenu *menu,
+                               int diffFileIndex,
+                               int chunkIndex);
+
 
 private:
     QString m_clearMessage;

@@ -196,4 +196,11 @@ void DiffEditorController::requestReload()
     emit reloadRequested();
 }
 
+void DiffEditorController::requestChunkActions(QMenu *menu,
+                         int diffFileIndex,
+                         int chunkIndex)
+{
+    emit chunkActionsRequested(menu, diffFileIndex, chunkIndex);
+}
+
 } // namespace DiffEditor

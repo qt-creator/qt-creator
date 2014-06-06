@@ -1266,7 +1266,7 @@ void SideBySideDiffEditorWidget::slotLeftContextMenuRequested(QMenu *menu,
     if (m_contextMenuChunkIndex >= fileData.chunks.count())
         return;
 
-    emit m_controller->chunkActionsRequested(menu, diffFileIndex, chunkIndex);
+    m_controller->requestChunkActions(menu, diffFileIndex, chunkIndex);
 
     if (fileData.leftFileInfo.fileName == fileData.rightFileInfo.fileName)
         return;
@@ -1301,7 +1301,7 @@ void SideBySideDiffEditorWidget::slotRightContextMenuRequested(QMenu *menu,
     if (m_contextMenuChunkIndex >= fileData.chunks.count())
         return;
 
-    emit m_controller->chunkActionsRequested(menu, diffFileIndex, chunkIndex);
+    m_controller->requestChunkActions(menu, diffFileIndex, chunkIndex);
 
     revertAction->setEnabled(true);
 }

@@ -259,7 +259,7 @@ void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
     if (m_contextMenuChunkIndex >= fileData.chunks.count())
         return;
 
-    emit m_controller->chunkActionsRequested(menu, diffFileIndex, chunkIndex);
+    m_controller->requestChunkActions(menu, diffFileIndex, chunkIndex);
 
     revertAction->setEnabled(true);
 
