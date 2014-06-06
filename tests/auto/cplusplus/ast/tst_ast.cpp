@@ -1779,6 +1779,7 @@ void tst_AST::unnamed_class_data()
     typedef QByteArray _;
     QTest::newRow("unnamed-only") << _("class {};");
     QTest::newRow("unnamed-derived") << _("class : B {};");
+    QTest::newRow("unnamed-__attribute__") << _("class __attribute__((aligned(8))){};");
 }
 
 void tst_AST::initTestCase()
