@@ -31,6 +31,8 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include "itemlibrarymodel.h"
@@ -84,11 +86,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     rootContext->setContextProperty(QStringLiteral("itemLibraryIconWidth"), m_itemIconSize.width());
     rootContext->setContextProperty(QStringLiteral("itemLibraryIconHeight"), m_itemIconSize.height());
 
-    QColor highlightColor = palette().highlight().color();
-    if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
-        highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
-    m_itemsView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), highlightColor);
-
+    m_itemsView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
 
     /* create Resources view and its model */
     m_resourcesFileSystemModel = new QFileSystemModel(this);

@@ -36,6 +36,9 @@
 #include "qproxystyle.h"
 
 #include "metainfo.h"
+
+#include <utils/stylehelper.h>
+
 #include <QLineEdit>
 #include <QPen>
 #include <QPixmapCache>
@@ -47,13 +50,10 @@ namespace QmlDesigner {
 
 void drawSelectionBackground(QPainter *painter, const QStyleOption &option)
 {
-    QWidget colorReference;
-
     painter->save();
     QLinearGradient gradient;
-    QColor highlightColor = colorReference.palette().highlight().color();
-    if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
-        highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
+
+    QColor highlightColor = Utils::StyleHelper::notTooBrightHighlightColor();
     gradient.setColorAt(0, highlightColor.lighter(130));
     gradient.setColorAt(1, highlightColor.darker(130));
     gradient.setStart(option.rect.topLeft());

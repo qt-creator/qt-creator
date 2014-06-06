@@ -70,6 +70,15 @@ qreal StyleHelper::sidebarFontSize()
     return HostOsInfo::isMacHost() ? 10 : 7.5;
 }
 
+QColor StyleHelper::notTooBrightHighlightColor()
+{
+    QColor highlightColor = qApp->palette().highlight().color();
+    if (0.5 * highlightColor.saturationF() + 0.75 - highlightColor.valueF() < 0)
+        highlightColor.setHsvF(highlightColor.hsvHueF(), 0.1 + highlightColor.saturationF() * 2.0, highlightColor.valueF());
+    return highlightColor;
+}
+
+
 QPalette StyleHelper::sidebarFontPalette(const QPalette &original)
 {
     QPalette palette = original;

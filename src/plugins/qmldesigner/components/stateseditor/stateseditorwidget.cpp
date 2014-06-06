@@ -36,6 +36,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QApplication>
 
@@ -103,10 +104,8 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     m_quickView->rootContext()->setContextProperty(QStringLiteral("statesEditorModel"), statesEditorModel);
-    QColor highlightColor = palette().highlight().color();
-    if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
-        highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
-    m_quickView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), highlightColor);
+    m_quickView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), Utils::StyleHelper::notTooBrightHighlightColor());
+
 
     m_quickView->rootContext()->setContextProperty("canAddNewStates", true);
 
