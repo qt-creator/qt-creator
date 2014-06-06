@@ -877,13 +877,13 @@ void EditorManager::doEscapeKeyFocusMoveMagic()
     bool editorViewActive = (focus && focus == editorView->focusWidget());
     bool editorViewVisible = editorView->isVisible();
 
+    bool stuffHidden = false;
+    FindToolBarPlaceHolder *findPane = FindToolBarPlaceHolder::getCurrent();
+    if (findPane && findPane->isVisible() && findPane->isUsedByWidget(focus)) {
+        findPane->hide();
+        stuffHidden = true;
+    }
     if (!( editorViewVisible && !editorViewActive && editorView->window() == activeWindow )) {
-        bool stuffHidden = false;
-        QWidget *findPane = FindToolBarPlaceHolder::getCurrent();
-        if (findPane && findPane->isVisible() && findPane->window() == activeWindow) {
-            findPane->hide();
-            stuffHidden = true;
-        }
         QWidget *outputPane = OutputPanePlaceHolder::getCurrent();
         if (outputPane && outputPane->isVisible() && outputPane->window() == activeWindow) {
             OutputPaneManager::instance()->slotHide();
@@ -894,9 +894,9 @@ void EditorManager::doEscapeKeyFocusMoveMagic()
             RightPaneWidget::instance()->setShown(false);
             stuffHidden = true;
         }
-        if (stuffHidden)
-            return;
     }
+    if (stuffHidden)
+        return;
 
     if (!editorViewActive && editorViewVisible) {
         setFocusToEditorViewAndUnmaximizePanes(editorView);

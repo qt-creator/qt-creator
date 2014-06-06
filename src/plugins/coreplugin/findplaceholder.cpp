@@ -63,6 +63,20 @@ QWidget *FindToolBarPlaceHolder::owner() const
     return m_owner;
 }
 
+/*!
+ * Returns if \a widget is a subwidget of the place holder's owner
+ */
+bool FindToolBarPlaceHolder::isUsedByWidget(QWidget *widget)
+{
+    QWidget *current = widget;
+    while (current) {
+        if (current == m_owner)
+            return true;
+        current = current->parentWidget();
+    }
+    return false;
+}
+
 void FindToolBarPlaceHolder::setWidget(QWidget *widget)
 {
     if (m_subWidget) {

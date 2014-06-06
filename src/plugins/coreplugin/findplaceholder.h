@@ -44,6 +44,8 @@ public:
     explicit FindToolBarPlaceHolder(QWidget *owner, QWidget *parent = 0);
     ~FindToolBarPlaceHolder();
     QWidget *owner() const;
+    bool isUsedByWidget(QWidget *widget);
+
     void setWidget(QWidget *widget);
 
     static FindToolBarPlaceHolder *getCurrent();
