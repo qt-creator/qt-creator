@@ -65,7 +65,7 @@ private:
 SceneGraphTimelineModel::SceneGraphTimelineModel(QObject *parent)
     : SingleCategoryTimelineModel(new SceneGraphTimelineModelPrivate,
                                   QLatin1String("SceneGraphTimeLineModel"), tr("Scene Graph"),
-                                  QmlDebug::SceneGraphFrameEvent, parent)
+                                  QmlDebug::SceneGraphFrame, QmlDebug::MaximumRangeType, parent)
 {
 }
 
@@ -206,7 +206,7 @@ void SceneGraphTimelineModel::loadData()
         if (!eventAccepted(event))
             continue;
 
-        if (event.bindingType == SceneGraphRenderLoopFrame) {
+        if (event.detailType == SceneGraphRenderLoopFrame) {
             SceneGraphEvent newEvent;
             newEvent.sgEventType = SceneGraphRenderThread;
             qint64 duration = event.numericData1 + event.numericData2 + event.numericData3;
@@ -221,7 +221,7 @@ void SceneGraphTimelineModel::loadData()
 
         if (lastRenderEvent >= 0) {
             qint64 *timing = d->data(lastRenderEvent).timing;
-            switch ((SceneGraphEventType)event.bindingType) {
+            switch ((SceneGraphEventType)event.detailType) {
             case SceneGraphRendererFrame: {
                 timing[1] = event.numericData1;
                 timing[10] = event.numericData2;

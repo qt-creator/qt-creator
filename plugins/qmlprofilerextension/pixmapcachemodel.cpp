@@ -85,7 +85,8 @@ private:
 PixmapCacheModel::PixmapCacheModel(QObject *parent)
     : SingleCategoryTimelineModel(new PixmapCacheModelPrivate(),
                                   QLatin1String("PixmapCacheTimeLineModel"),
-                                  QLatin1String("Pixmap Cache"), QmlDebug::PixmapCacheEvent, parent)
+                                  QLatin1String("Pixmap Cache"), QmlDebug::PixmapCacheEvent,
+                                  QmlDebug::MaximumRangeType, parent)
 {
     Q_D(PixmapCacheModel);
     d->collapsedRowCount = 1;
@@ -278,7 +279,7 @@ void PixmapCacheModel::loadData()
             continue;
 
         PixmapCacheEvent newEvent;
-        newEvent.pixmapEventType = event.bindingType;
+        newEvent.pixmapEventType = event.detailType;
         qint64 startTime = event.startTime;
 
         newEvent.urlIndex = -1;
