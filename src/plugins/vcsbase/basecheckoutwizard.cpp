@@ -54,6 +54,7 @@ BaseCheckoutWizard::BaseCheckoutWizard(const Utils::FileName &path, QWidget *par
     Q_UNUSED(path);
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotPageChanged(int)));
     connect(m_progressPage, SIGNAL(terminated(bool)), this, SLOT(slotTerminated(bool)));
+    setOption(QWizard::NoBackButtonOnLastPage);
 }
 
 void BaseCheckoutWizard::setTitle(const QString &title)
