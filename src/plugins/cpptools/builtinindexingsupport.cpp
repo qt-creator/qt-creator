@@ -84,7 +84,7 @@ static void parse(QFutureInterface<void> &future,
     }
 
     future.setProgressValue(files.size());
-    sourceProcessor->modelManager()->finishedRefreshingSourceFiles(files);
+    cmm->finishedRefreshingSourceFiles(files);
 
     delete sourceProcessor;
 }
@@ -184,7 +184,8 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
     CppModelManager *mgr = CppModelManager::instance();
     const WorkingCopy workingCopy = mgr->workingCopy();
 
-    CppSourceProcessor *preproc = new CppSourceProcessor(mgr, m_dumpFileNameWhileParsing);
+    CppSourceProcessor *preproc = CppModelManager::createSourceProcessor();
+    preproc->setDumpFileNameWhileParsing(m_dumpFileNameWhileParsing);
     preproc->setRevision(++m_revision);
     preproc->setIncludePaths(mgr->includePaths());
     preproc->setFrameworkPaths(mgr->frameworkPaths());

@@ -159,7 +159,17 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
             workingCopy.insert(editorDefinesFileName, m_editorDefines);
         }
 
-        CppSourceProcessor sourceProcessor(modelManager, m_snapshot);
+        CppSourceProcessor sourceProcessor(m_snapshot, [&](const Document::Ptr &doc) {
+            const QString fileName = doc->fileName();
+            const bool isInEditor = fileName == fileInEditor();
+            Document::Ptr otherDoc = modelManager->document(fileName);
+            unsigned newRev = otherDoc.isNull() ? 1U : otherDoc->revision() + 1;
+            if (isInEditor)
+                newRev = qMax(rev + 1, newRev);
+            doc->setRevision(newRev);
+            modelManager->emitDocumentUpdated(doc);
+            doc->releaseSourceAndAST();
+        });
         Snapshot globalSnapshot = modelManager->snapshot();
         globalSnapshot.remove(fileInEditor());
         sourceProcessor.setGlobalSnapshot(globalSnapshot);
@@ -185,20 +195,6 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         }
         m_snapshot = newSnapshot;
         m_deps.build(m_snapshot);
-
-        foreach (Document::Ptr doc, m_snapshot) {
-            QString fileName = doc->fileName();
-            if (doc->revision() == 0) {
-                Document::Ptr otherDoc = globalSnapshot.document(fileName);
-                doc->setRevision(otherDoc.isNull() ? 0 : otherDoc->revision());
-            }
-            if (fileName != fileInEditor())
-                doc->releaseSourceAndAST();
-        }
-
-        QTC_CHECK(document());
-        if (Document::Ptr doc = document())
-            doc->setRevision(rev + 1);
     }
 }
 

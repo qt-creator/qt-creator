@@ -17,9 +17,8 @@
  * \class CppTools::Internal::CppSourceProcessor
  * \brief The CppSourceProcessor class updates set of indexed C++ files.
  *
- * Indexed file is truncated version of fully parsed document: copy of source
- * code and full AST will be dropped when indexing is done. Working copy ensures
- * that documents with most recent copy placed in memory will be parsed correctly.
+ * Working copy ensures that documents with most recent copy placed in memory will be parsed
+ * correctly.
  *
  * \sa CPlusPlus::Document
  * \sa CppTools::CppModelManagerInterface::WorkingCopy
@@ -79,24 +78,10 @@ inline const Macro revision(const CppModelManagerInterface::WorkingCopy &working
 
 } // anonymous namespace
 
-CppSourceProcessor::CppSourceProcessor(QPointer<CppModelManager> modelManager,
-                                       bool dumpFileNameWhileParsing)
-    : m_snapshot(modelManager->snapshot()),
-      m_modelManager(modelManager),
-      m_dumpFileNameWhileParsing(dumpFileNameWhileParsing),
-      m_preprocess(this, &m_env),
-      m_revision(0),
-      m_defaultCodec(Core::EditorManager::defaultTextCodec())
-{
-    m_preprocess.setKeepComments(true);
-}
-
-CppSourceProcessor::CppSourceProcessor(QPointer<CppModelManager> modelManager,
-                                       const Snapshot &snapshot,
-                                       bool dumpFileNameWhileParsing)
+CppSourceProcessor::CppSourceProcessor(const Snapshot &snapshot, DocumentCallback documentFinished)
     : m_snapshot(snapshot),
-      m_modelManager(modelManager),
-      m_dumpFileNameWhileParsing(dumpFileNameWhileParsing),
+      m_documentFinished(documentFinished),
+      m_dumpFileNameWhileParsing(false),
       m_preprocess(this, &m_env),
       m_revision(0),
       m_defaultCodec(Core::EditorManager::defaultTextCodec())
@@ -417,7 +402,7 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
     }
     if (m_included.contains(absoluteFileName))
         return; // We've already seen this file.
-    if (absoluteFileName != modelManager()->configurationFileName())
+    if (!isInjectedFile(absoluteFileName))
         m_included.insert(absoluteFileName);
 
     // Already in snapshot? Use it!
@@ -470,10 +455,7 @@ void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, In
     document->check(m_workingCopy.contains(document->fileName()) ? Document::FullCheck
                                                                  : Document::FastCheck);
 
-    if (m_modelManager) {
-        m_modelManager->emitDocumentUpdated(document);
-        document->releaseSourceAndAST();
-    }
+    m_documentFinished(document);
 
     m_snapshot.insert(document);
     m_todo.remove(absoluteFileName);

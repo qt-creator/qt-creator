@@ -160,6 +160,24 @@ QStringList CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr> &
     return sourceFiles;
 }
 
+/*!
+ * \brief createSourceProcessor Create a new source processor, which will signal the
+ * model manager when a document has been processed.
+ *
+ * Indexed file is truncated version of fully parsed document: copy of source
+ * code and full AST will be dropped when indexing is done.
+ *
+ * \return a new source processor object, which the caller needs to delete when finished.
+ */
+CppSourceProcessor *CppModelManager::createSourceProcessor()
+{
+    CppModelManager *that = instance();
+    return new CppSourceProcessor(that->snapshot(), [=](const Document::Ptr &doc) {
+        that->emitDocumentUpdated(doc);
+        doc->releaseSourceAndAST();
+    });
+}
+
 void CppModelManager::updateModifiedSourceFiles()
 {
     const Snapshot snapshot = this->snapshot();

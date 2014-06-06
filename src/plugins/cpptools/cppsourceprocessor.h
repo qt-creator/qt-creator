@@ -5,6 +5,7 @@
 
 #include <cplusplus/PreprocessorEnvironment.h>
 #include <cplusplus/pp-engine.h>
+#include <utils/function.h>
 #include <utils/qtcoverride.h>
 
 #include <QHash>
@@ -19,20 +20,22 @@ QT_END_NAMESPACE
 namespace CppTools {
 namespace Internal {
 
-class CppModelManager;
-
 // Documentation inside.
 class CppSourceProcessor: public CPlusPlus::Client
 {
     Q_DISABLE_COPY(CppSourceProcessor)
 
 public:
+    typedef std::function<void (const CPlusPlus::Document::Ptr &)> DocumentCallback;
+
+public:
     static QString cleanPath(const QString &path);
 
-    CppSourceProcessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing = false);
-    CppSourceProcessor(QPointer<CppModelManager> modelManager, const CPlusPlus::Snapshot &snapshot,
-                       bool dumpFileNameWhileParsing = false);
+    CppSourceProcessor(const CPlusPlus::Snapshot &snapshot, DocumentCallback documentFinished);
     ~CppSourceProcessor();
+
+    void setDumpFileNameWhileParsing(bool onoff)
+    { m_dumpFileNameWhileParsing = onoff; }
 
     void setRevision(unsigned revision);
     void setWorkingCopy(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy);
@@ -46,12 +49,10 @@ public:
 
     CPlusPlus::Snapshot snapshot() const { return m_snapshot; }
     const QSet<QString> &todo() const { return m_todo; }
-    CppModelManager *modelManager() const { return m_modelManager.data(); }
 
     void setGlobalSnapshot(const CPlusPlus::Snapshot &snapshot) { m_globalSnapshot = snapshot; }
 
 private:
-    CppSourceProcessor();
     void addFrameworkPath(const QString &frameworkPath);
 
     CPlusPlus::Document::Ptr switchCurrentDocument(CPlusPlus::Document::Ptr doc);
@@ -84,7 +85,7 @@ private:
 private:
     CPlusPlus::Snapshot m_snapshot;
     CPlusPlus::Snapshot m_globalSnapshot;
-    QPointer<CppModelManager> m_modelManager;
+    DocumentCallback m_documentFinished;
     bool m_dumpFileNameWhileParsing;
     CPlusPlus::Environment m_env;
     CPlusPlus::Preprocessor m_preprocess;

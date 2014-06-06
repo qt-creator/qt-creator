@@ -69,9 +69,10 @@ public:
         if (!scopedFile.writtenSuccessfully())
             return Document::Ptr();
 
-        CppSourceProcessor sourceProcessor((QPointer<CppModelManager>(m_cmm)));
-        sourceProcessor.setIncludePaths(QStringList(TestIncludePaths::directoryOfTestFile()));
-        sourceProcessor.run(fileName);
+        QScopedPointer<CppSourceProcessor> sourceProcessor(
+                    CppModelManager::createSourceProcessor());
+        sourceProcessor->setIncludePaths(QStringList(TestIncludePaths::directoryOfTestFile()));
+        sourceProcessor->run(fileName);
 
         Document::Ptr document = m_cmm->document(fileName);
         return document;

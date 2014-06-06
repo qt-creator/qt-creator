@@ -517,9 +517,9 @@ static QList<Include> includesForSource(const QByteArray &source)
     using namespace CppTools::Internal;
     CppModelManager *cmm = CppModelManager::instance();
     cmm->GC();
-    CppSourceProcessor sourceProcessor((QPointer<CppModelManager>(cmm)));
-    sourceProcessor.setIncludePaths(QStringList(TestIncludePaths::globalIncludePath()));
-    sourceProcessor.run(fileName);
+    QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
+    sourceProcessor->setIncludePaths(QStringList(TestIncludePaths::globalIncludePath()));
+    sourceProcessor->run(fileName);
 
     Document::Ptr document = cmm->document(fileName);
     return document->resolvedIncludes();

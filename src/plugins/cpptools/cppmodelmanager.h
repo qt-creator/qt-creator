@@ -49,6 +49,7 @@ class CppEditorSupport;
 namespace Internal {
 
 class CppFindReferences;
+class CppSourceProcessor;
 
 class CppModelManager : public CppTools::CppModelManagerInterface
 {
@@ -154,6 +155,8 @@ public:
     void enableGarbageCollector(bool enable);
 
     static QStringList timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
+
+    static CppSourceProcessor *createSourceProcessor();
 
 signals:
     void gcFinished(); // Needed for tests.
