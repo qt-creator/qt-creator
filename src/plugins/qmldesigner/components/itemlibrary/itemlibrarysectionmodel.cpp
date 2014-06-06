@@ -77,13 +77,6 @@ void ItemLibrarySectionModel::clearItems()
     endResetModel();
 }
 
-static bool compareFunction(QObject *first, QObject *second)
-{
-    static const char sortRoleName[] = "sortingRole";
-
-    return first->property(sortRoleName).toString() < second->property(sortRoleName).toString();
-}
-
 void ItemLibrarySectionModel::addItem(ItemLibraryItem *element)
 {
     m_itemList.append(element);
