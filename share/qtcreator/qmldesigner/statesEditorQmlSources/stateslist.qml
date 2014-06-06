@@ -34,7 +34,7 @@ import QtQuick.Controls.Styles 1.1
 FocusScope {
     id: root
 
-    height: 132
+    height: expanded ? 132 : 32
     signal createNewState
     signal deleteState(int internalNodeId)
     signal duplicateCurrentState
@@ -45,6 +45,8 @@ FocusScope {
     property int delegateHeight: root.height - padding * 2
     property int innerSpacing: 2
     property int currentStateInternalId : 0
+
+    property bool expanded: true
 
     Connections {
         target: statesEditorModel

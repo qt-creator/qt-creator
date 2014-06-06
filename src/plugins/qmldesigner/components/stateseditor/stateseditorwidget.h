@@ -66,6 +66,8 @@ public:
 
 private slots:
     void reloadQmlSource();
+    void changeHeight();
+
 private:
     QPointer<QQuickView> m_quickView;
     QPointer<StatesEditorView> m_statesEditorView;

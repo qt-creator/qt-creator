@@ -135,6 +135,13 @@ void StatesEditorWidget::reloadQmlSource()
     connect(m_quickView->rootObject(), SIGNAL(createNewState()), m_statesEditorView.data(), SLOT(createNewState()));
     connect(m_quickView->rootObject(), SIGNAL(deleteState(int)), m_statesEditorView.data(), SLOT(removeState(int)));
     m_statesEditorView.data()->synchonizeCurrentStateFromWidget();
-    setMaximumHeight(m_quickView->initialSize().height());
+    setFixedHeight(m_quickView->initialSize().height());
+
+    connect(m_quickView->rootObject(), SIGNAL(expandedChanged()), this, SLOT(changeHeight()));
+}
+
+void StatesEditorWidget::changeHeight()
+{
+    setFixedHeight(m_quickView->rootObject()->height());
 }
 }
