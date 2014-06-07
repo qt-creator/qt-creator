@@ -1596,6 +1596,51 @@ void tst_CheckSymbols::test_checksymbols_data()
             << Use(12, 20, 1, Highlighting::TypeUse)
             << Use(12, 23, 1, Highlighting::LocalUse));
 
+    QTest::newRow("using_inside_different_block_of_scope_unnamed_namespace_QTCREATORBUG12357")
+            << _("namespace \n"
+                 "{\n"
+                 "    namespace Ns { struct Foo {}; }\n"
+                 "    using Ns::Foo;\n"
+                 "}\n"
+                 "void fun()\n"
+                 "{\n"
+                 "    Foo foo;\n"
+                 "}\n")
+            << (QList<Use>()
+                << Use(3, 15, 2, CppHighlightingSupport::TypeUse)
+                << Use(3, 27, 3, CppHighlightingSupport::TypeUse)
+                << Use(4, 11, 2, CppHighlightingSupport::TypeUse)
+                << Use(4, 15, 3, CppHighlightingSupport::TypeUse)
+                << Use(6, 6, 3, CppHighlightingSupport::FunctionUse)
+                << Use(8, 5, 3, CppHighlightingSupport::TypeUse)
+                << Use(8, 9, 3, CppHighlightingSupport::LocalUse)
+                );
+
+    QTest::newRow("using_inside_different_block_of_scope_named_namespace_QTCREATORBUG12357")
+            << _("namespace NS1\n"
+                 "{\n"
+                 "    namespace Ns { struct Foo {}; }\n"
+                 "    using Ns::Foo;\n"
+                 "}\n"
+                 "namespace NS1\n"
+                 "{\n"
+                 "    void fun()\n"
+                 "    {\n"
+                 "        Foo foo;\n"
+                 "    }\n"
+                 "}\n"
+                 )
+            << (QList<Use>()
+                << Use(1, 11, 3, CppHighlightingSupport::TypeUse)
+                << Use(3, 15, 2, CppHighlightingSupport::TypeUse)
+                << Use(3, 27, 3, CppHighlightingSupport::TypeUse)
+                << Use(4, 11, 2, CppHighlightingSupport::TypeUse)
+                << Use(4, 15, 3, CppHighlightingSupport::TypeUse)
+                << Use(6, 11, 3, CppHighlightingSupport::TypeUse)
+                << Use(8, 10, 3, CppHighlightingSupport::FunctionUse)
+                << Use(10, 13, 3, CppHighlightingSupport::LocalUse)
+                );
+
     QTest::newRow("using_inside_different_namespace_QTCREATORBUG7978")
         << _("class My" TEST_UNICODE_IDENTIFIER "Type { int " TEST_UNICODE_IDENTIFIER "Member; };\n"
              "void f(My" TEST_UNICODE_IDENTIFIER "Type var" TEST_UNICODE_IDENTIFIER ")\n"

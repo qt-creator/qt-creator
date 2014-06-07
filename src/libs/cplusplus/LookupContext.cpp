@@ -242,26 +242,32 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
     return n;
 }
 
-QList<LookupItem> LookupContext::lookupByUsing(const Name *name, Scope *scope) const
+QList<LookupItem> LookupContext::lookupByUsing(const Name *name,
+                                               ClassOrNamespace *bindingScope) const
 {
     QList<LookupItem> candidates;
     // if it is a nameId there can be a using declaration for it
     if (name->isNameId() || name->isTemplateNameId()) {
-        for (unsigned i = 0, count = scope->memberCount(); i < count; ++i) {
-            if (UsingDeclaration *u = scope->memberAt(i)->asUsingDeclaration()) {
-                if (const Name *usingDeclarationName = u->name()) {
-                    if (const QualifiedNameId *q = usingDeclarationName->asQualifiedNameId()) {
-                        if (q->name() && q->identifier() && name->identifier()
-                                && q->name()->identifier()->match(name->identifier())) {
-                            candidates = bindings()->globalNamespace()->find(q);
+        foreach (Symbol *s, bindingScope->symbols()) {
+            if (Scope *scope = s->asScope()) {
+                for (unsigned i = 0, count = scope->memberCount(); i < count; ++i) {
+                    if (UsingDeclaration *u = scope->memberAt(i)->asUsingDeclaration()) {
+                        if (const Name *usingDeclarationName = u->name()) {
+                            if (const QualifiedNameId *q
+                                    = usingDeclarationName->asQualifiedNameId()) {
+                                if (q->name() && q->identifier() && name->identifier()
+                                        && q->name()->identifier()->match(name->identifier())) {
+                                    candidates = bindings()->globalNamespace()->find(q);
 
-                            // if it is not a global scope(scope of scope is not equal 0)
-                            // then add current using declaration as a candidate
-                            if (scope->enclosingScope()) {
-                                LookupItem item;
-                                item.setDeclaration(u);
-                                item.setScope(scope);
-                                candidates.append(item);
+                                    // if it is not a global scope(scope of scope is not equal 0)
+                                    // then add current using declaration as a candidate
+                                    if (scope->enclosingScope()) {
+                                        LookupItem item;
+                                        item.setDeclaration(u);
+                                        item.setScope(scope);
+                                        candidates.append(item);
+                                    }
+                                }
                             }
                         }
                     }
@@ -269,9 +275,15 @@ QList<LookupItem> LookupContext::lookupByUsing(const Name *name, Scope *scope) c
             }
         }
     } else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-        ClassOrNamespace *base = lookupType(q->base(), scope);
-        if (base && base->symbols().size() > 0 && base->symbols().first()->asScope())
-            return lookupByUsing(q->name(), base->symbols().first()->asScope());
+        foreach (Symbol *s, bindingScope->symbols()) {
+            if (Scope *scope = s->asScope()) {
+                ClassOrNamespace *base = lookupType(q->base(), scope);
+                if (base)
+                    candidates = lookupByUsing(q->name(), base);
+                if (!candidates.isEmpty())
+                    return candidates;
+            }
+        }
     }
     return candidates;
 }
@@ -400,13 +412,13 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                 }
             }
 
-            candidates = lookupByUsing(name, scope);
-            if (! candidates.isEmpty())
-                return candidates;
+            if (ClassOrNamespace *bindingScope = bindings()->lookupType(scope)) {
+                if (ClassOrNamespace *bindingBlock = bindingScope->findBlock(scope->asBlock())) {
+                    candidates = lookupByUsing(name, bindingBlock);
+                    if (! candidates.isEmpty())
+                        return candidates;
 
-            if (ClassOrNamespace *binding = bindings()->lookupType(scope)) {
-                if (ClassOrNamespace *block = binding->findBlock(scope->asBlock())) {
-                    candidates = block->find(name);
+                    candidates = bindingBlock->find(name);
 
                     if (! candidates.isEmpty())
                         return candidates;
@@ -461,15 +473,17 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
         } else if (scope->asNamespace()
                    || scope->asClass()
                    || (scope->asEnum() && scope->asEnum()->isScoped())) {
-            if (ClassOrNamespace *binding = bindings()->lookupType(scope))
-                candidates = binding->find(name);
 
-            if (! candidates.isEmpty())
-                return candidates;
+            if (ClassOrNamespace *bindingScope = bindings()->lookupType(scope)) {
+                candidates = bindingScope->find(name);
 
-            candidates = lookupByUsing(name, scope);
-            if (! candidates.isEmpty())
-                return candidates;
+                if (! candidates.isEmpty())
+                    return candidates;
+
+                candidates = lookupByUsing(name, bindingScope);
+                if (!candidates.isEmpty())
+                    return candidates;
+            }
 
             // the scope can be defined inside a block, try to find it
             if (Block *block = scope->enclosingBlock()) {
