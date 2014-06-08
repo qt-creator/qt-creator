@@ -369,7 +369,7 @@ void Parser::match(int kind, unsigned *token)
     else {
         *token = 0;
         error(_tokenIndex, "expected token `%s' got `%s'",
-                                Token::name(kind), tok().spell());
+              Token::name(kind), tok().spell());
     }
 }
 
@@ -1367,8 +1367,7 @@ bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
             // typename-specifier, elaborated-type-specifier
             unsigned startOfElaboratedTypeSpecifier = cursor();
             if (! parseElaboratedTypeSpecifier(*decl_specifier_seq_ptr)) {
-                error(startOfElaboratedTypeSpecifier,
-                                        "expected an elaborated type specifier");
+                error(startOfElaboratedTypeSpecifier, "expected an elaborated type specifier");
                 break;
             }
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
@@ -2154,9 +2153,7 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
             if (parsePostfixExpression(ast->expression)) {
                 match(T_COMMA, &ast->comma_token);
             } else {
-                error(cursor(),
-                      "expected expression before `%s'",
-                      tok().spell());
+                error(cursor(), "expected expression before `%s'", tok().spell());
                 return true;
             }
         }
@@ -2199,9 +2196,7 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
                         bItem->expression = expr;
                         item = bItem;
                     } else {
-                        error(cursor(),
-                                                "expected expression before `%s'",
-                                                tok().spell());
+                        error(cursor(), "expected expression before `%s'", tok().spell());
                     }
                     break;
                 }
@@ -3929,8 +3924,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
                     || (_languageFeatures.cxx11Enabled && LA() == T_COLON)) {
                 rewind(startOfTypeSpecifier);
                 if (! parseEnumSpecifier(*decl_specifier_seq_ptr)) {
-                    error(startOfTypeSpecifier,
-                                            "expected an enum specifier");
+                    error(startOfTypeSpecifier, "expected an enum specifier");
                     break;
                 }
                 has_complex_type_specifier = true;
@@ -3940,8 +3934,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
         } else if (! has_type_specifier && LA() == T_TYPENAME) {
             unsigned startOfElaboratedTypeSpecifier = cursor();
             if (! parseElaboratedTypeSpecifier(*decl_specifier_seq_ptr)) {
-                error(startOfElaboratedTypeSpecifier,
-                                        "expected an elaborated type specifier");
+                error(startOfElaboratedTypeSpecifier, "expected an elaborated type specifier");
                 break;
             }
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
@@ -3956,8 +3949,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
                      (LA(3) == T_COLON || LA(3) == T_LBRACE)))) {
                 rewind(startOfTypeSpecifier);
                 if (! parseClassSpecifier(*decl_specifier_seq_ptr)) {
-                    error(startOfTypeSpecifier,
-                                            "wrong type specifier");
+                    error(startOfTypeSpecifier, "wrong type specifier");
                     break;
                 }
                 has_complex_type_specifier = true;
@@ -4952,8 +4944,7 @@ bool Parser::parsePostfixExpression(ExpressionAST *&node)
                 if (LA() == T_TEMPLATE)
                     ast->template_token = consumeToken();
                 if (! parseNameId(ast->member_name))
-                    error(cursor(), "expected unqualified-id before token `%s'",
-                                            tok().spell());
+                    error(cursor(), "expected unqualified-id before token `%s'", tok().spell());
                 ast->base_expression = node;
                 node = ast;
             } else break;
@@ -4978,10 +4969,8 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
         unsigned op = cursor();
         UnaryExpressionAST *ast = new (_pool) UnaryExpressionAST;
         ast->unary_op_token = consumeToken();
-        if (! parseCastExpression(ast->expression)) {
-            error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-        }
+        if (! parseCastExpression(ast->expression))
+            error(op, "expected expression after token `%s'", _translationUnit->spell(op));
         node = ast;
         return true;
     }
@@ -5363,8 +5352,7 @@ bool Parser::parseQtMethod(ExpressionAST *&node)
         ast->method_token = consumeToken();
         match(T_LPAREN, &ast->lparen_token);
         if (! parseDeclarator(ast->declarator, /*decl_specifier_seq =*/ 0))
-            error(cursor(), "expected a function declarator before token `%s'",
-                                    tok().spell());
+            error(cursor(), "expected a function declarator before token `%s'", tok().spell());
         match(T_RPAREN, &ast->rparen_token);
         node = ast;
         return true;
@@ -5567,8 +5555,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         // a category interface
 
         if (attributes)
-            error(attributes->firstToken(),
-                                    "invalid attributes for category interface declaration");
+            error(attributes->firstToken(), "invalid attributes for category interface declaration");
 
         ObjCClassDeclarationAST *ast = new (_pool) ObjCClassDeclarationAST;
         ast->attribute_list = attributes;
@@ -5851,9 +5838,7 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
             } else {
                 if (! parseBlockDeclaration(declaration)) {
                     rewind(start);
-                    error(cursor(),
-                                            "skip token `%s'", tok().spell());
-
+                    error(cursor(), "skip token `%s'", tok().spell());
                     consumeToken();
                 }
             }
@@ -6065,7 +6050,7 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierListAS
                 last = last->next;
                 if (!parseObjCPropertyAttribute(last->value)) {
                     error(_tokenIndex, "expected token `%s' got `%s'",
-                                            Token::name(T_IDENTIFIER), tok().spell());
+                          Token::name(T_IDENTIFIER), tok().spell());
                     break;
                 }
             }
