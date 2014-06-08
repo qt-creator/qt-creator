@@ -2679,7 +2679,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     QString output;
     if (commitData.commitType == FixupCommit) {
         QStringList arguments;
-        arguments << QLatin1String("HEAD") << QLatin1String("--not")
+        arguments << QLatin1String(HEAD) << QLatin1String("--not")
                   << QLatin1String("--remotes") << QLatin1String("-n1");
         synchronousLog(repoDirectory, arguments, &output, errorMessage);
         if (output.isEmpty()) {
