@@ -440,9 +440,9 @@ static QList<RowData> readLines(const QString &patch,
                                 bool *lastChunkAtTheEndOfFile,
                                 bool *ok)
 {
-//    const QRegExp lineRegExp(QLatin1String("(?:\\n)"                                      // beginning of the line
-//                                           "([ \\-\\+\\\\])([^\\n]*)"                     // -, +, \\ or space, followed by any no-newline character
-//                                           "(?:\\n|$)"));                                 // end of line or file
+//    const QRegExp lineRegExp(QLatin1String("(?:\\n)"                // beginning of the line
+//                                           "([ -\\+\\\\])([^\\n]*)" // -, +, \\ or space, followed by any no-newline character
+//                                           "(?:\\n|$)"));           // end of line or file
     QList<Diff> diffList;
 
     const QChar newLine = QLatin1Char('\n');
@@ -610,10 +610,15 @@ static QList<ChunkData> readChunks(const QString &patch,
                                    bool *lastChunkAtTheEndOfFile,
                                    bool *ok)
 {
-    const QRegExp chunkRegExp(QLatin1String("((?:\\n|^)"                                      // beginning of the line
-                                            "@@ \\-([\\d]+)\\,[\\d]+ \\+([\\d]+)\\,[\\d]+ @@" // @@ -leftPos,leftCount +rightPos,rightCount @@
-                                            "(?:\\ +[^\\n]*)?"                                // optional hint (e.g. function name)
-                                            "(?:\\n))"));                                     // end of line (need to be followed by text line)
+    const QRegExp chunkRegExp(QLatin1String(
+                                  // beginning of the line
+                              "((?:\\n|^)"
+                                  // @@ -leftPos,leftCount +rightPos,rightCount @@
+                              "@@ -(\\d+),\\d+ \\+(\\d+),\\d+ @@"
+                                  // optional hint (e.g. function name)
+                              "(?:\\ +[^\\n]*)?"
+                                  // end of line (need to be followed by text line)
+                              "(?:\\n))"));
 
     bool readOk = false;
 
@@ -670,17 +675,15 @@ static FileData readDiffHeaderAndChunks(const QString &headerAndChunks,
     FileData fileData;
     bool readOk = false;
 
-    const QRegExp leftFileRegExp(QLatin1String("((?:\\n|^)\\-{3} ")        // "--- "
-                                 + QLatin1String("([^\\t\\n]+)")            // "fileName1"
-                                 + QLatin1String("(?:\\t[^\\n]*)*\\n)"));  // optionally followed by: \t anything \t anything ...)
-    const QRegExp rightFileRegExp(QLatin1String("(^\\+{3} ")               // "+++ "
-                                  + QLatin1String("([^\\t\\n]+)")           // "fileName2"
-                                  + QLatin1String("(?:\\t[^\\n]*)*\\n)")); // optionally followed by: \t anything \t anything ...)
-    const QRegExp binaryRegExp(QLatin1String("(^Binary files ")
-                               + QLatin1String("([^\\t\\n]+)")
-                               + QLatin1String(" and ")
-                               + QLatin1String("([^\\t\\n]+)")
-                               + QLatin1String(" differ$)"));
+    const QRegExp leftFileRegExp(QLatin1String(
+                                     "((?:\\n|^)-{3} "        // "--- "
+                                     "([^\\t\\n]+)"           // "fileName1"
+                                     "(?:\\t[^\\n]*)*\\n)")); // optionally followed by: \t anything \t anything ...)
+    const QRegExp rightFileRegExp(QLatin1String(
+                                      "(^\\+{3} "              // "+++ "
+                                      "([^\\t\\n]+)"           // "fileName2"
+                                      "(?:\\t[^\\n]*)*\\n)")); // optionally followed by: \t anything \t anything ...)
+    const QRegExp binaryRegExp(QLatin1String("(^Binary files ([^\\t\\n]+) and ([^\\t\\n]+) differ$)"));
 
     // followed either by leftFileRegExp or by binaryRegExp
     if (leftFileRegExp.indexIn(patch, 0) == 0) {
@@ -724,7 +727,7 @@ static QList<FileData> readDiffPatch(const QString &patch,
     const QRegExp diffRegExp(QLatin1String("("                  // capture all
                                            "(?:\\n|^)"          // new line of the beginning of a patch
                                            "("                  // either
-                                           "\\-{3} "            // ---
+                                           "-{3} "              // ---
                                            "[^\\t\\n]+"         // filename1
                                            "(?:\\t[^\\n]*)*\\n" // optionally followed by: \t anything \t anything ...
                                            "\\+{3} "            // +++
@@ -804,12 +807,12 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
     const QString devNull(QLatin1String("/dev/null"));
 
     // will be followed by: index 0000000..shasha, file "a" replaced by "/dev/null", @@ -0,0 +m,n @@
-    const QRegExp newFileMode(QLatin1String("(^new file mode [\\d]+\\n)")); // new file mode octal
+    const QRegExp newFileMode(QLatin1String("(^new file mode \\d+\\n)")); // new file mode octal
 
     // will be followed by: index shasha..0000000, file "b" replaced by "/dev/null", @@ -m,n +0,0 @@
-    const QRegExp deletedFileMode(QLatin1String("(^deleted file mode [\\d]+\\n)")); // deleted file mode octal
+    const QRegExp deletedFileMode(QLatin1String("(^deleted file mode \\d+\\n)")); // deleted file mode octal
 
-    const QRegExp indexRegExp(QLatin1String("(^index ([\\w]+)\\.{2}([\\w]+)(?: [\\d]+)?\\n)")); // index cap2..cap3(optionally: octal)
+    const QRegExp indexRegExp(QLatin1String("(^index (\\w+)\\.{2}(\\w+)(?: \\d+)?\\n)")); // index cap2..cap3(optionally: octal)
 
     QString leftFileName = QLatin1String("a/") + fileName;
     QString rightFileName = QLatin1String("b/") + fileName;
@@ -832,7 +835,7 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
 
         patch = patch.mid(captured.count());
 
-        const QRegExp leftFileRegExp(QLatin1String("(^\\-{3} ")               // "--- "
+        const QRegExp leftFileRegExp(QLatin1String("(^-{3} ")                 // "--- "
                                      + leftFileName                           // "a/fileName" or "/dev/null"
                                      + QLatin1String("(?:\\t[^\\n]*)*\\n)")); // optionally followed by: \t anything \t anything ...)
         const QRegExp rightFileRegExp(QLatin1String("(^\\+{3} ")               // "+++ "
