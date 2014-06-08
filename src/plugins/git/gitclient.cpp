@@ -82,6 +82,7 @@
 static const char GIT_DIRECTORY[] = ".git";
 static const char graphLogFormatC[] = "%h %d %an %s %ci";
 static const char HEAD[] = "HEAD";
+static const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
 static const char noColorOption[] = "--no-color";
 static const char decorateOption[] = "--decorate";
 
@@ -2653,6 +2654,32 @@ static QByteArray shiftLogLine(QByteArray &logText)
     return res;
 }
 
+bool GitClient::readDataFromCommit(const QString &repoDirectory, const QString &commit,
+                                   CommitData &commitData, QString *errorMessage,
+                                   QString *commitTemplate)
+{
+    // Get commit data as "SHA1<lf>author<lf>email<lf>message".
+    QStringList args(QLatin1String("log"));
+    args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h\n%an\n%ae\n%B");
+    args << commit;
+    QByteArray outputText;
+    if (!fullySynchronousGit(repoDirectory, args, &outputText, 0,
+                             VcsBasePlugin::SuppressCommandLogging)) {
+        if (errorMessage)
+            *errorMessage = tr("Cannot retrieve last commit data of repository \"%1\".").arg(repoDirectory);
+        return false;
+    }
+    QTextCodec *authorCodec = Utils::HostOsInfo::isWindowsHost()
+            ? QTextCodec::codecForName("UTF-8")
+            : commitData.commitEncoding;
+    commitData.amendSHA1 = QString::fromLatin1(shiftLogLine(outputText));
+    commitData.panelData.author = authorCodec->toUnicode(shiftLogLine(outputText));
+    commitData.panelData.email = authorCodec->toUnicode(shiftLogLine(outputText));
+    if (commitTemplate)
+        *commitTemplate = commitData.commitEncoding->toUnicode(outputText);
+    return true;
+}
+
 bool GitClient::getCommitData(const QString &workingDirectory,
                               QString *commitTemplate,
                               CommitData &commitData,
@@ -2737,29 +2764,27 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     // Get the commit template or the last commit message
     switch (commitData.commitType) {
     case AmendCommit: {
-        // Amend: get last commit data as "SHA1<tab>author<tab>email<tab>message".
-        QStringList args(QLatin1String("log"));
-        args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%h\n%an\n%ae\n%B");
-        QByteArray outputText;
-        if (!fullySynchronousGit(repoDirectory, args, &outputText, 0,
-                                 VcsBasePlugin::SuppressCommandLogging)) {
-            *errorMessage = tr("Cannot retrieve last commit data of repository \"%1\".").arg(repoDirectory);
+        if (!readDataFromCommit(repoDirectory, QLatin1String(HEAD), commitData,
+                                errorMessage, commitTemplate)) {
             return false;
         }
-        QTextCodec *authorCodec = Utils::HostOsInfo::isWindowsHost()
-                ? QTextCodec::codecForName("UTF-8")
-                : commitData.commitEncoding;
-        commitData.amendSHA1 = QString::fromLatin1(shiftLogLine(outputText));
-        commitData.panelData.author = authorCodec->toUnicode(shiftLogLine(outputText));
-        commitData.panelData.email = authorCodec->toUnicode(shiftLogLine(outputText));
-        *commitTemplate = commitData.commitEncoding->toUnicode(outputText);
         break;
     }
     case SimpleCommit: {
-        commitData.panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
-        commitData.panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
-        // Commit: Get the commit template
+        bool authorFromCherryPick = false;
         QDir gitDirectory(gitDir);
+        // For cherry-picked commit, read author data from the commit (but template from MERGE_MSG)
+        if (gitDirectory.exists(QLatin1String(CHERRY_PICK_HEAD))) {
+            authorFromCherryPick = readDataFromCommit(repoDirectory,
+                                                      QLatin1String(CHERRY_PICK_HEAD),
+                                                      commitData);
+            commitData.amendSHA1.clear();
+        }
+        if (!authorFromCherryPick) {
+            commitData.panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
+            commitData.panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
+        }
+        // Commit: Get the commit template
         QString templateFilename = gitDirectory.absoluteFilePath(QLatin1String("MERGE_MSG"));
         if (!QFile::exists(templateFilename))
             templateFilename = gitDirectory.absoluteFilePath(QLatin1String("SQUASH_MSG"));

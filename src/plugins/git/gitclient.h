@@ -287,6 +287,9 @@ public:
     QString readConfigValue(const QString &workingDirectory, const QString &configVar) const;
 
     QTextCodec *encoding(const QString &workingDirectory, const QByteArray &configVar) const;
+    bool readDataFromCommit(const QString &repoDirectory, const QString &commit,
+                            CommitData &commitData, QString *errorMessage = 0,
+                            QString *commitTemplate = 0);
     bool getCommitData(const QString &workingDirectory, QString *commitTemplate,
                        CommitData &commitData, QString *errorMessage);
 
