@@ -847,8 +847,10 @@ static FileData readGitHeaderAndChunks(const QString &headerAndChunks,
                                    + rightFileName
                                    + QLatin1String(" differ$)"));
 
-        // followed either by leftFileRegExp or by binaryRegExp
-        if (leftFileRegExp.indexIn(patch, 0) == 0) {
+        // empty or followed either by leftFileRegExp or by binaryRegExp
+        if (patch.isEmpty() && (fileData.leftFileInfo.devNull || fileData.rightFileInfo.devNull)) {
+            readOk = true;
+        } else if (leftFileRegExp.indexIn(patch, 0) == 0) {
             patch = patch.mid(leftFileRegExp.capturedTexts().at(1).count());
 
             // followed by rightFileRegExp

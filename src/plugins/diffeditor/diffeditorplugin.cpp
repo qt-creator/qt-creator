@@ -468,6 +468,12 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
                                 "+++ /dev/null\n"
                                 "@@ -1 +0,0 @@\n"
                                 "-foo\n"
+                                "diff --git a/empty b/empty\n"
+                                "new file mode 100644\n"
+                                "index 0000000..e69de29\n"
+                                "diff --git a/empty b/empty\n"
+                                "deleted file mode 100644\n"
+                                "index e69de29..0000000\n"
                                   );
 
     FileData fileData1;
@@ -551,8 +557,16 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     chunkData4.rows = rows4;
     fileData4.chunks.append(chunkData4);
 
+    FileData fileData5;
+    fileData5.leftFileInfo = DiffFileInfo(QLatin1String("empty"), QLatin1String("0000000"));
+    fileData5.rightFileInfo = DiffFileInfo(QLatin1String("empty"), QLatin1String("e69de29"));
+
+    FileData fileData6;
+    fileData6.leftFileInfo = DiffFileInfo(QLatin1String("empty"), QLatin1String("e69de29"));
+    fileData6.rightFileInfo = DiffFileInfo(QLatin1String("empty"), QLatin1String("0000000"));
+
     QList<FileData> fileDataList;
-    fileDataList << fileData1 << fileData2 << fileData3 << fileData4;
+    fileDataList << fileData1 << fileData2 << fileData3 << fileData4 << fileData5 << fileData6;
 
     QTest::newRow("Git patch") << patch
                                << fileDataList;
