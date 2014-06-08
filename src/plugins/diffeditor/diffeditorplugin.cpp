@@ -453,7 +453,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
                                 "+}\n"
                                 "+\n"
                                 " } // namespace Internal\n"
-                                " } // namespace DiffEditor");
+                                " } // namespace DiffEditor\n");
 
     FileData fileData1;
     fileData1.leftFileInfo = DiffFileInfo(QLatin1String("src/plugins/diffeditor/diffeditor.cpp"),
@@ -461,8 +461,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData1.rightFileInfo = DiffFileInfo(QLatin1String("src/plugins/diffeditor/diffeditor.cpp"),
                                            QLatin1String("082c135"));
     ChunkData chunkData1;
-    chunkData1.leftStartingLineNumber = 187;
-    chunkData1.rightStartingLineNumber = 187;
+    chunkData1.leftStartingLineNumber = 186;
+    chunkData1.rightStartingLineNumber = 186;
     QList<RowData> rows1;
     rows1.append(RowData(TextLineData(QLatin1String("    m_controller = m_document->controller();"))));
     rows1.append(RowData(TextLineData(QLatin1String("    m_guiController = new DiffEditorGuiController(m_controller, this);"))));
@@ -485,8 +485,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData2.rightFileInfo = DiffFileInfo(QLatin1String("src/plugins/diffeditor/diffutils.cpp"),
                                            QLatin1String("f8ff795"));
     ChunkData chunkData2;
-    chunkData2.leftStartingLineNumber = 464;
-    chunkData2.rightStartingLineNumber = 464;
+    chunkData2.leftStartingLineNumber = 463;
+    chunkData2.rightStartingLineNumber = 463;
     QList<RowData> rows2;
     rows2.append(RowData(TextLineData(QLatin1String("    return diffText;"))));
     rows2.append(RowData(TextLineData(QLatin1String("}"))));
@@ -531,40 +531,26 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
     for (int i = 0; i < fileDataList.count(); i++) {
         const FileData &origFileData = fileDataList.at(i);
         const FileData &resultFileData = result.at(i);
-        QCOMPARE(origFileData.leftFileInfo.fileName,
-                 resultFileData.leftFileInfo.fileName);
-        QCOMPARE(origFileData.leftFileInfo.typeInfo,
-                 resultFileData.leftFileInfo.typeInfo);
-        QCOMPARE(origFileData.rightFileInfo.fileName,
-                 resultFileData.rightFileInfo.fileName);
-        QCOMPARE(origFileData.rightFileInfo.typeInfo,
-                 resultFileData.rightFileInfo.typeInfo);
-        QCOMPARE(origFileData.chunks.count(),
-                 resultFileData.chunks.count());
+        QCOMPARE(resultFileData.leftFileInfo.fileName, origFileData.leftFileInfo.fileName);
+        QCOMPARE(resultFileData.leftFileInfo.typeInfo, origFileData.leftFileInfo.typeInfo);
+        QCOMPARE(resultFileData.rightFileInfo.fileName, origFileData.rightFileInfo.fileName);
+        QCOMPARE(resultFileData.rightFileInfo.typeInfo, origFileData.rightFileInfo.typeInfo);
+        QCOMPARE(resultFileData.chunks.count(), origFileData.chunks.count());
         for (int j = 0; j < origFileData.chunks.count(); j++) {
             const ChunkData &origChunkData = origFileData.chunks.at(j);
             const ChunkData &resultChunkData = resultFileData.chunks.at(j);
-            QCOMPARE(origChunkData.leftStartingLineNumber,
-                     resultChunkData.leftStartingLineNumber);
-            QCOMPARE(origChunkData.rightStartingLineNumber,
-                     resultChunkData.rightStartingLineNumber);
-            QCOMPARE(origChunkData.contextChunk,
-                     resultChunkData.contextChunk);
-            QCOMPARE(origChunkData.rows.count(),
-                     resultChunkData.rows.count());
+            QCOMPARE(resultChunkData.leftStartingLineNumber, origChunkData.leftStartingLineNumber);
+            QCOMPARE(resultChunkData.rightStartingLineNumber, origChunkData.rightStartingLineNumber);
+            QCOMPARE(resultChunkData.contextChunk, origChunkData.contextChunk);
+            QCOMPARE(resultChunkData.rows.count(), origChunkData.rows.count());
             for (int k = 0; k < origChunkData.rows.count(); k++) {
                 const RowData &origRowData = origChunkData.rows.at(k);
                 const RowData &resultRowData = resultChunkData.rows.at(k);
-                QCOMPARE(origRowData.equal,
-                         resultRowData.equal);
-                QCOMPARE(origRowData.leftLine.text,
-                         resultRowData.leftLine.text);
-                QCOMPARE(origRowData.leftLine.textLineType,
-                         resultRowData.leftLine.textLineType);
-                QCOMPARE(origRowData.rightLine.text,
-                         resultRowData.rightLine.text);
-                QCOMPARE(origRowData.rightLine.textLineType,
-                         resultRowData.rightLine.textLineType);
+                QCOMPARE(resultRowData.equal, origRowData.equal);
+                QCOMPARE(resultRowData.leftLine.text, origRowData.leftLine.text);
+                QCOMPARE(resultRowData.leftLine.textLineType, origRowData.leftLine.textLineType);
+                QCOMPARE(resultRowData.rightLine.text, origRowData.rightLine.text);
+                QCOMPARE(resultRowData.rightLine.textLineType, origRowData.rightLine.textLineType);
             }
         }
     }
