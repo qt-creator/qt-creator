@@ -453,7 +453,22 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
                                 "+}\n"
                                 "+\n"
                                 " } // namespace Internal\n"
-                                " } // namespace DiffEditor\n");
+                                " } // namespace DiffEditor\n"
+                                "diff --git a/new b/new\n"
+                                "new file mode 100644\n"
+                                "index 0000000..257cc56\n"
+                                "--- /dev/null\n"
+                                "+++ b/new\n"
+                                "@@ -0,0 +1 @@\n"
+                                "+foo\n"
+                                "diff --git a/deleted b/deleted\n"
+                                "deleted file mode 100644\n"
+                                "index 257cc56..0000000\n"
+                                "--- a/deleted\n"
+                                "+++ /dev/null\n"
+                                "@@ -1 +0,0 @@\n"
+                                "-foo\n"
+                                  );
 
     FileData fileData1;
     fileData1.leftFileInfo = DiffFileInfo(QLatin1String("src/plugins/diffeditor/diffeditor.cpp"),
@@ -510,9 +525,34 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     chunkData2.rows = rows2;
     fileData2.chunks.append(chunkData2);
 
+    FileData fileData3;
+    fileData3.leftFileInfo = DiffFileInfo(QLatin1String("new"), QLatin1String("0000000"));
+    fileData3.rightFileInfo = DiffFileInfo(QLatin1String("new"), QLatin1String("257cc56"));
+    ChunkData chunkData3;
+    chunkData3.leftStartingLineNumber = -1;
+    chunkData3.rightStartingLineNumber = 0;
+    QList<RowData> rows3;
+    rows3.append(RowData(TextLineData::Separator, TextLineData(QLatin1String("foo"))));
+    TextLineData textLineData3(TextLineData::TextLine);
+    rows3.append(RowData(TextLineData::Separator, textLineData3));
+    chunkData3.rows = rows3;
+    fileData3.chunks.append(chunkData3);
+
+    FileData fileData4;
+    fileData4.leftFileInfo = DiffFileInfo(QLatin1String("deleted"), QLatin1String("257cc56"));
+    fileData4.rightFileInfo = DiffFileInfo(QLatin1String("deleted"), QLatin1String("0000000"));
+    ChunkData chunkData4;
+    chunkData4.leftStartingLineNumber = 0;
+    chunkData4.rightStartingLineNumber = -1;
+    QList<RowData> rows4;
+    rows4.append(RowData(TextLineData(QLatin1String("foo")), TextLineData::Separator));
+    TextLineData textLineData4(TextLineData::TextLine);
+    rows4.append(RowData(textLineData4, TextLineData::Separator));
+    chunkData4.rows = rows4;
+    fileData4.chunks.append(chunkData4);
+
     QList<FileData> fileDataList;
-    fileDataList.append(fileData1);
-    fileDataList.append(fileData2);
+    fileDataList << fileData1 << fileData2 << fileData3 << fileData4;
 
     QTest::newRow("Git patch") << patch
                                << fileDataList;

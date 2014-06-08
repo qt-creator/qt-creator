@@ -613,8 +613,8 @@ static QList<ChunkData> readChunks(const QString &patch,
     const QRegExp chunkRegExp(QLatin1String(
                                   // beginning of the line
                               "((?:\\n|^)"
-                                  // @@ -leftPos,leftCount +rightPos,rightCount @@
-                              "@@ -(\\d+),\\d+ \\+(\\d+),\\d+ @@"
+                                  // @@ -leftPos[,leftCount] +rightPos[,rightCount] @@
+                              "@@ -(\\d+)(?:,\\d+)? \\+(\\d+)(?:,\\d+)? @@"
                                   // optional hint (e.g. function name)
                               "(?:\\ +[^\\n]*)?"
                                   // end of line (need to be followed by text line)
