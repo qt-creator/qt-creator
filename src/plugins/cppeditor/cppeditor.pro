@@ -84,6 +84,7 @@ equals(TEST, 1) {
         cppeditortestcase.cpp \
         cppincludehierarchy_test.cpp \
         cppquickfix_test.cpp \
+        cppuseselections_test.cpp \
         fileandtokenactions_test.cpp \
         followsymbol_switchmethoddecldef_test.cpp
     DEFINES += SRCDIR=\\\"$$PWD\\\"

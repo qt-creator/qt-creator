@@ -65,6 +65,7 @@ QtcPlugin {
             "cppincludehierarchy_test.cpp",
             "cppquickfix_test.cpp",
             "cppquickfix_test.h",
+            "cppuseselections_test.cpp",
             "fileandtokenactions_test.cpp",
             "followsymbol_switchmethoddecldef_test.cpp",
         ]
