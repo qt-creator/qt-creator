@@ -95,54 +95,45 @@ namespace {
 class CanonicalSymbol
 {
 public:
-    CPPEditorWidget *editor;
-    TypeOfExpression typeOfExpression;
-    SemanticInfo info;
-
-    CanonicalSymbol(CPPEditorWidget *editor, const SemanticInfo &info)
-        : editor(editor), info(info)
+    CanonicalSymbol(CPPEditorWidget *editor,
+                    const Document::Ptr &document,
+                    const Snapshot &snapshot)
+        : m_editor(editor),
+          m_document(document),
+          m_snapshot(snapshot)
     {
-        typeOfExpression.init(info.doc, info.snapshot);
-        typeOfExpression.setExpandTemplates(true);
+        m_typeOfExpression.init(document, snapshot);
+        m_typeOfExpression.setExpandTemplates(true);
     }
 
     const LookupContext &context() const
     {
-        return typeOfExpression.context();
+        return m_typeOfExpression.context();
     }
 
     Scope *getScopeAndExpression(const QTextCursor &cursor, QString *code)
     {
-        return getScopeAndExpression(editor, info, cursor, code);
-    }
-
-    static Scope *getScopeAndExpression(CPPEditorWidget *editor, const SemanticInfo &info,
-                                        const QTextCursor &cursor,
-                                        QString *code)
-    {
-        if (!info.doc)
+        if (!m_document)
             return 0;
 
         QTextCursor tc = cursor;
-        int line, col;
-        editor->convertPosition(tc.position(), &line, &col);
-        ++col; // 1-based line and 1-based column
-
-        QTextDocument *document = editor->document();
+        int line, column;
+        m_editor->convertPosition(tc.position(), &line, &column);
+        ++column; // 1-based line and 1-based column
 
         int pos = tc.position();
-
-        if (!isValidIdentifierChar(document->characterAt(pos)))
-            if (!(pos > 0 && isValidIdentifierChar(document->characterAt(pos - 1))))
+        QTextDocument *textDocument = m_editor->document();
+        if (!isValidIdentifierChar(textDocument->characterAt(pos)))
+            if (!(pos > 0 && isValidIdentifierChar(textDocument->characterAt(pos - 1))))
                 return 0;
 
-        while (isValidIdentifierChar(document->characterAt(pos)))
+        while (isValidIdentifierChar(textDocument->characterAt(pos)))
             ++pos;
         tc.setPosition(pos);
 
         ExpressionUnderCursor expressionUnderCursor;
         *code = expressionUnderCursor(tc);
-        return info.doc->scopeAt(line, col);
+        return m_document->scopeAt(line, column);
     }
 
     Symbol *operator()(const QTextCursor &cursor)
@@ -157,7 +148,7 @@ public:
 
     Symbol *operator()(Scope *scope, const QString &code)
     {
-        return canonicalSymbol(scope, code, typeOfExpression);
+        return canonicalSymbol(scope, code, m_typeOfExpression);
     }
 
     static Symbol *canonicalSymbol(Scope *scope, const QString &code,
@@ -197,6 +188,11 @@ public:
         return 0;
     }
 
+private:
+    CPPEditorWidget *m_editor;
+    TypeOfExpression m_typeOfExpression;
+    Document::Ptr m_document;
+    Snapshot m_snapshot;
 };
 
 QTimer *newSingleShotTimer(QObject *parent, int msecInterval)
@@ -446,7 +442,7 @@ void CPPEditorWidget::findUsages()
     if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
         d->m_modelManager->findMacroUsages(*macro);
     } else {
-        CanonicalSymbol cs(this, info);
+        CanonicalSymbol cs(this, info.doc, info.snapshot);
         Symbol *canonicalSymbol = cs(textCursor());
         if (canonicalSymbol)
             d->m_modelManager->findUsages(canonicalSymbol, cs.context());
@@ -465,7 +461,7 @@ void CPPEditorWidget::renameUsages(const QString &replacement)
     if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
         d->m_modelManager->renameMacroUsages(*macro, replacement);
     } else {
-        CanonicalSymbol cs(this, info);
+        CanonicalSymbol cs(this, info.doc, info.snapshot);
         if (Symbol *canonicalSymbol = cs(textCursor()))
             if (canonicalSymbol->identifier() != 0)
                 d->m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
@@ -566,9 +562,9 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
 
         setExtraSelections(CodeSemanticsSelection, selections);
     } else {
-        CanonicalSymbol cs(this, info);
+        CanonicalSymbol cs(this, info.doc, info.snapshot);
         QString expression;
-        if (Scope *scope = cs.getScopeAndExpression(this, info, tc, &expression)) {
+        if (Scope *scope = cs.getScopeAndExpression(tc, &expression)) {
             if (d->m_referencesWatcher)
                 d->m_referencesWatcher->cancel();
             d->m_referencesWatcher.reset(new QFutureWatcher<QList<int> >);
