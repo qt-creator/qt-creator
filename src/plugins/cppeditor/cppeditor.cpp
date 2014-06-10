@@ -30,10 +30,11 @@
 #include "cppeditor.h"
 
 #include "cppautocompleter.h"
+#include "cppcanonicalsymbol.h"
+#include "cppdocumentationcommenthelper.h"
 #include "cppeditorconstants.h"
 #include "cppeditoroutline.h"
 #include "cppeditorplugin.h"
-#include "cppdocumentationcommenthelper.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cpphighlighter.h"
 #include "cpplocalrenaming.h"
@@ -91,109 +92,6 @@ using namespace CppTools;
 using namespace CppEditor::Internal;
 
 namespace {
-
-class CanonicalSymbol
-{
-public:
-    CanonicalSymbol(CPPEditorWidget *editor,
-                    const Document::Ptr &document,
-                    const Snapshot &snapshot)
-        : m_editor(editor),
-          m_document(document),
-          m_snapshot(snapshot)
-    {
-        m_typeOfExpression.init(document, snapshot);
-        m_typeOfExpression.setExpandTemplates(true);
-    }
-
-    const LookupContext &context() const
-    {
-        return m_typeOfExpression.context();
-    }
-
-    Scope *getScopeAndExpression(const QTextCursor &cursor, QString *code)
-    {
-        if (!m_document)
-            return 0;
-
-        QTextCursor tc = cursor;
-        int line, column;
-        m_editor->convertPosition(tc.position(), &line, &column);
-        ++column; // 1-based line and 1-based column
-
-        int pos = tc.position();
-        QTextDocument *textDocument = m_editor->document();
-        if (!isValidIdentifierChar(textDocument->characterAt(pos)))
-            if (!(pos > 0 && isValidIdentifierChar(textDocument->characterAt(pos - 1))))
-                return 0;
-
-        while (isValidIdentifierChar(textDocument->characterAt(pos)))
-            ++pos;
-        tc.setPosition(pos);
-
-        ExpressionUnderCursor expressionUnderCursor;
-        *code = expressionUnderCursor(tc);
-        return m_document->scopeAt(line, column);
-    }
-
-    Symbol *operator()(const QTextCursor &cursor)
-    {
-        QString code;
-
-        if (Scope *scope = getScopeAndExpression(cursor, &code))
-            return operator()(scope, code);
-
-        return 0;
-    }
-
-    Symbol *operator()(Scope *scope, const QString &code)
-    {
-        return canonicalSymbol(scope, code, m_typeOfExpression);
-    }
-
-    static Symbol *canonicalSymbol(Scope *scope, const QString &code,
-                                   TypeOfExpression &typeOfExpression)
-    {
-        const QList<LookupItem> results =
-                typeOfExpression(code.toUtf8(), scope, TypeOfExpression::Preprocess);
-
-        for (int i = results.size() - 1; i != -1; --i) {
-            const LookupItem &r = results.at(i);
-            Symbol *decl = r.declaration();
-
-            if (!(decl && decl->enclosingScope()))
-                break;
-
-            if (Class *classScope = r.declaration()->enclosingScope()->asClass()) {
-                const Identifier *declId = decl->identifier();
-                const Identifier *classId = classScope->identifier();
-
-                if (classId && classId->match(declId))
-                    continue; // skip it, it's a ctor or a dtor.
-
-                if (Function *funTy = r.declaration()->type()->asFunctionType()) {
-                    if (funTy->isVirtual())
-                        return r.declaration();
-                }
-            }
-        }
-
-        for (int i = 0; i < results.size(); ++i) {
-            const LookupItem &r = results.at(i);
-
-            if (r.declaration())
-                return r.declaration();
-        }
-
-        return 0;
-    }
-
-private:
-    CPPEditorWidget *m_editor;
-    TypeOfExpression m_typeOfExpression;
-    Document::Ptr m_document;
-    Snapshot m_snapshot;
-};
 
 QTimer *newSingleShotTimer(QObject *parent, int msecInterval)
 {
