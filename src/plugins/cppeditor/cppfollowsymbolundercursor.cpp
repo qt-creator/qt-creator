@@ -592,7 +592,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     const Macro *macro = doc->findMacroDefinitionAt(line);
     if (macro) {
         QTextCursor macroCursor = cursor;
-        const QByteArray name = CppEditorWidget::identifierUnderCursor(&macroCursor).toUtf8();
+        const QByteArray name = CppTools::identifierUnderCursor(&macroCursor).toUtf8();
         if (macro->name() == name)
             return link;    //already on definition!
     } else if (const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1)) {
@@ -723,7 +723,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
 
     // Handle macro uses
     QTextCursor macroCursor = cursor;
-    const QByteArray name = CppEditorWidget::identifierUnderCursor(&macroCursor).toUtf8();
+    const QByteArray name = CppTools::identifierUnderCursor(&macroCursor).toUtf8();
     link = findMacroLink(name, documentFromSemanticInfo);
     if (link.hasValidTarget()) {
         link.linkTextStart = macroCursor.selectionStart();

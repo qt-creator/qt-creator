@@ -296,26 +296,6 @@ void CppEditorWidget::onDocumentUpdated()
     d->m_cppEditorOutline->update();
 }
 
-const Macro *CppEditorWidget::findCanonicalMacro(const QTextCursor &cursor, Document::Ptr doc) const
-{
-    if (!doc)
-        return 0;
-
-    int line, col;
-    convertPosition(cursor.position(), &line, &col);
-
-    if (const Macro *macro = doc->findMacroDefinitionAt(line)) {
-        QTextCursor macroCursor = cursor;
-        const QByteArray name = identifierUnderCursor(&macroCursor).toUtf8();
-        if (macro->name() == name)
-            return macro;
-    } else if (const Document::MacroUse *use = doc->findMacroUseAt(cursor.position())) {
-        return &use->macro();
-    }
-
-    return 0;
-}
-
 void CppEditorWidget::findUsages()
 {
     if (!d->m_modelManager)
@@ -325,7 +305,7 @@ void CppEditorWidget::findUsages()
     info.snapshot = CppModelManagerInterface::instance()->snapshot();
     info.snapshot.insert(info.doc);
 
-    if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
+    if (const Macro *macro = CppTools::findCanonicalMacro(textCursor(), info.doc)) {
         d->m_modelManager->findMacroUsages(*macro);
     } else {
         CanonicalSymbol cs(this, info.doc, info.snapshot);
@@ -344,7 +324,7 @@ void CppEditorWidget::renameUsages(const QString &replacement)
     info.snapshot = CppModelManagerInterface::instance()->snapshot();
     info.snapshot.insert(info.doc);
 
-    if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
+    if (const Macro *macro = CppTools::findCanonicalMacro(textCursor(), info.doc)) {
         d->m_modelManager->renameMacroUsages(*macro, replacement);
     } else {
         CanonicalSymbol cs(this, info.doc, info.snapshot);
@@ -411,7 +391,7 @@ void CppEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
     if (!info.doc)
         return;
     const QTextCharFormat &occurrencesFormat = textCharFormat(TextEditor::C_OCCURRENCES);
-    if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
+    if (const Macro *macro = CppTools::findCanonicalMacro(textCursor(), info.doc)) {
         QList<QTextEdit::ExtraSelection> selections;
 
         //Macro definition
@@ -638,13 +618,6 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     // Open Editor at link position
     if (symbolLink.hasValidTarget())
         openCppEditorAt(symbolLink, inNextSplit != alwaysOpenLinksInNextSplit());
-}
-
-QString CppEditorWidget::identifierUnderCursor(QTextCursor *macroCursor)
-{
-    macroCursor->movePosition(QTextCursor::StartOfWord);
-    macroCursor->movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    return macroCursor->selectedText();
 }
 
 CppEditorWidget::Link CppEditorWidget::findLinkAt(const QTextCursor &cursor, bool resolveTarget,

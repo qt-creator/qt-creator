@@ -30,16 +30,16 @@
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/convenience.h>
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
 #include <utils/qtcassert.h>
 
 #include <QSet>
-#include <QTextDocument>
-#include <QTextCursor>
 #include <QStringRef>
-
+#include <QTextCursor>
+#include <QTextDocument>
 
 using namespace CPlusPlus;
 
@@ -198,6 +198,32 @@ void switchHeaderSource()
     const QString otherFile = correspondingHeaderOrSource(currentDocument->filePath());
     if (!otherFile.isEmpty())
         Core::EditorManager::openEditor(otherFile);
+}
+
+QString identifierUnderCursor(QTextCursor *cursor)
+{
+    cursor->movePosition(QTextCursor::StartOfWord);
+    cursor->movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    return cursor->selectedText();
+}
+
+const Macro *findCanonicalMacro(const QTextCursor &cursor, Document::Ptr document)
+{
+    QTC_ASSERT(document, return 0);
+
+    int line, column;
+    TextEditor::Convenience::convertPosition(cursor.document(), cursor.position(), &line, &column);
+
+    if (const Macro *macro = document->findMacroDefinitionAt(line)) {
+        QTextCursor macroCursor = cursor;
+        const QByteArray name = CppTools::identifierUnderCursor(&macroCursor).toUtf8();
+        if (macro->name() == name)
+            return macro;
+    } else if (const Document::MacroUse *use = document->findMacroUseAt(cursor.position())) {
+        return &use->macro();
+    }
+
+    return 0;
 }
 
 } // CppTools

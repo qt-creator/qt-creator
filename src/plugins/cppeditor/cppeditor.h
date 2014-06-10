@@ -73,7 +73,6 @@ class CppEditorWidget : public TextEditor::BaseTextEditorWidget
 
 public:
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
-    static QString identifierUnderCursor(QTextCursor *macroCursor);
 
 public:
     CppEditorWidget(TextEditor::BaseTextDocumentPtr doc);
@@ -154,9 +153,6 @@ private:
 
     unsigned editorRevision() const;
     bool isOutdated() const;
-
-    const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
-                                               CPlusPlus::Document::Ptr doc) const;
 
     QTextCharFormat textCharFormat(TextEditor::TextStyle category);
 
