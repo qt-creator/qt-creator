@@ -755,6 +755,36 @@ void CppEditorPlugin::test_quickfix_data()
         "}\n"
     );
 
+    // Checks if "m" followed by an upper character is recognized as a prefix
+    QTest::newRow("GenerateGetterSetter_recognizeMFollowedByCapital")
+        << CppQuickFixFactoryPtr(new GenerateGetterSetter) << _(
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int @mFoo;\n"
+        "};\n"
+        ) << _(
+        "\n"
+        "class Something\n"
+        "{\n"
+        "    int mFoo;\n"
+        "\n"
+        "public:\n"
+        "    int foo() const;\n"
+        "    void setFoo(int foo);\n"
+        "};\n"
+        "\n"
+        "int Something::foo() const\n"
+        "{\n"
+        "    return mFoo;\n"
+        "}\n"
+        "\n"
+        "void Something::setFoo(int foo)\n"
+        "{\n"
+        "    mFoo = foo;\n"
+        "}\n"
+    );
+
     QTest::newRow("MoveDeclarationOutOfIf_ifOnly")
         << CppQuickFixFactoryPtr(new MoveDeclarationOutOfIf) << _(
         "void f()\n"

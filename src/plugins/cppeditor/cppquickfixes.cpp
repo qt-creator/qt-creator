@@ -2827,12 +2827,17 @@ public:
         m_variableString = QString::fromUtf8(variableId->chars(), variableId->size());
 
         m_baseName = m_variableString;
-        if (m_baseName.startsWith(QLatin1Char('_')))
+        if (m_baseName.startsWith(QLatin1Char('_'))) {
             m_baseName.remove(0, 1);
-        else if (m_baseName.endsWith(QLatin1Char('_')))
+        } else if (m_baseName.endsWith(QLatin1Char('_'))) {
             m_baseName.chop(1);
-        else if (m_baseName.startsWith(QLatin1String("m_")))
+        } else if (m_baseName.startsWith(QLatin1String("m_"))) {
             m_baseName.remove(0, 2);
+        } else if (m_baseName.startsWith(QLatin1Char('m')) && m_baseName.length() > 1
+                   && m_baseName.at(1).isUpper()) {
+            m_baseName.remove(0, 1);
+            m_baseName[0] = m_baseName.at(0).toLower();
+        }
 
         m_getterName = m_baseName != m_variableString
             ? m_baseName
