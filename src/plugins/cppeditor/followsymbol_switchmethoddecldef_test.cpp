@@ -1051,6 +1051,20 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect()
     QFETCH(char, target);
     QFETCH(bool, secondQObjectParam);
     QByteArray source =
+            "#define QT_STRINGIFY2(x) #x\n"
+            "#define QT_STRINGIFY(x) QT_STRINGIFY2(x)\n"
+            "#define QLOCATION \"\\0\" __FILE__ \":\" QT_STRINGIFY(__LINE__)\n"
+            "const char *qFlagLocation(const char *) { return 0; }\n"
+            "#define SLOT(a) qFlagLocation(\"1\"#a QLOCATION)\n"
+            "#define SIGNAL(a) qFlagLocation(\"2\"#a QLOCATION)\n"
+            "\n"
+            "#define slots\n"
+            "#define signals public\n"
+            "\n"
+            "class QObject {};\n"
+            "void connect(QObject *, const char *, QObject *, const char *) {}\n"
+            "\n"
+            "\n"
             "class Foo : public QObject\n"
             "{\n"
             "signals:\n"
