@@ -18,7 +18,7 @@ QtcPlugin {
         "classview.qrc",
         "classviewconstants.h",
         "classviewmanager.cpp", "classviewmanager.h",
-        "classviewnavigationwidget.cpp", "classviewnavigationwidget.h", "classviewnavigationwidget.ui",
+        "classviewnavigationwidget.cpp", "classviewnavigationwidget.h",
         "classviewnavigationwidgetfactory.cpp", "classviewnavigationwidgetfactory.h",
         "classviewparser.cpp", "classviewparser.h",
         "classviewparsertreeitem.cpp", "classviewparsertreeitem.h",

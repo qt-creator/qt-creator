@@ -25,8 +25,5 @@ SOURCES += \
     classviewtreeitemmodel.cpp \
     classviewutils.cpp
 
-FORMS += \
-    classviewnavigationwidget.ui
-
 RESOURCES += \
     classview.qrc

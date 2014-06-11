@@ -31,7 +31,8 @@
 #define CLASSVIEWNAVIGATIONWIDGET_H
 
 #include "classviewtreeitemmodel.h"
-#include "ui_classviewnavigationwidget.h"
+
+#include <utils/navigationtreeview.h>
 
 #include <QList>
 #include <QSharedPointer>
@@ -39,6 +40,7 @@
 #include <QPointer>
 #include <QStandardItem>
 #include <QToolButton>
+#include <QVBoxLayout>
 #include <QWidget>
 
 namespace ClassView {
@@ -86,7 +88,7 @@ protected:
     void showEvent(QShowEvent *event);
 
 private:
-    Ui::NavigationWidget *ui;
+    Utils::NavigationTreeView *treeView;
     TreeItemModel *treeModel;
     QPointer<QToolButton> fullProjectsModeButton;
 };

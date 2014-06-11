@@ -90,16 +90,20 @@ namespace Internal {
 NavigationWidget::NavigationWidget(QWidget *parent) :
     QWidget(parent)
 {
-    ui = new Ui::NavigationWidget;
-    ui->setupUi(this);
+    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    verticalLayout->setSpacing(0);
+    verticalLayout->setContentsMargins(0, 0, 0, 0);
+    treeView = new ::Utils::NavigationTreeView(this);
+    treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    verticalLayout->addWidget(treeView);
 
     // tree model
     treeModel = new TreeItemModel(this);
-    ui->treeView->setModel(treeModel);
+    treeView->setModel(treeModel);
 
     // connect signal/slots
     // selected item
-    connect(ui->treeView, SIGNAL(activated(QModelIndex)), SLOT(onItemActivated(QModelIndex)));
+    connect(treeView, SIGNAL(activated(QModelIndex)), SLOT(onItemActivated(QModelIndex)));
 
     // connections to the manager
     Manager *manager = Manager::instance();
@@ -122,7 +126,6 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
 
 NavigationWidget::~NavigationWidget()
 {
-    delete ui;
 }
 
 void NavigationWidget::hideEvent(QHideEvent *event)
@@ -249,7 +252,7 @@ void NavigationWidget::onDataUpdate(QSharedPointer<QStandardItem> result)
     QModelIndex sessionIndex;
 
     for (int i = 0; i < treeModel->rowCount(sessionIndex); ++i)
-        ui->treeView->expand(treeModel->index(i, 0, sessionIndex));
+        treeView->expand(treeModel->index(i, 0, sessionIndex));
 
     if (debug)
         qDebug() << "Class View:" << QDateTime::currentDateTime().toString()
@@ -267,7 +270,7 @@ void NavigationWidget::fetchExpandedItems(QStandardItem *item, const QStandardIt
         return;
 
     const QModelIndex &parent = treeModel->indexFromItem(target);
-    if (ui->treeView->isExpanded(parent) && Manager::instance()->canFetchMore(item, true))
+    if (treeView->isExpanded(parent) && Manager::instance()->canFetchMore(item, true))
         Manager::instance()->fetchMore(item, true);
 
     int itemIndex = 0;
