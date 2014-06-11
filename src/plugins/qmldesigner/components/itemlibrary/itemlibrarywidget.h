@@ -43,6 +43,7 @@
 QT_BEGIN_NAMESPACE
 class QFileSystemModel;
 class QStackedWidget;
+class QShortcut;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -87,6 +88,7 @@ public:
 
     void setImportsWidget(QWidget *importsWidget);
 
+    static QString qmlSourcesPath();
 public slots:
     void setSearchFilter(const QString &searchFilter);
     void updateModel();
@@ -119,6 +121,7 @@ signals:
 
 private slots:
     void setCurrentIndexOfStackedWidget(int index);
+    void reloadQmlSource();
 
 private:
     QSize m_itemIconSize;
@@ -135,6 +138,7 @@ private:
     QPointer<Utils::FancyLineEdit> m_filterLineEdit;
     QScopedPointer<QQuickView> m_itemsView;
     QScopedPointer<ItemLibraryTreeView> m_resourcesView;
+    QShortcut *m_qmlSourceUpdateShortcut;
 
     QPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;

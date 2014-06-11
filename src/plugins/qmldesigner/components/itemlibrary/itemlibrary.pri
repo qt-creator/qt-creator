@@ -22,11 +22,3 @@ SOURCES += itemlibraryview.cpp \
            itemlibrarysection.cpp
 
 RESOURCES += itemlibrary.qrc
-
-OTHER_FILES += \
-    qml/Selector.qml \
-    qml/SectionView.qml \
-    qml/Scrollbar.qml \
-    qml/ItemView.qml \
-    qml/ItemsViewStyle.qml \
-    qml/ItemsView.qml

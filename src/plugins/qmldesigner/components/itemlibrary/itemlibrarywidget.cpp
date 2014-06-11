@@ -30,7 +30,9 @@
 #include "itemlibrarywidget.h"
 
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 #include "itemlibrarymodel.h"
 #include "itemlibraryimageprovider.h"
 #include <model.h>
@@ -48,7 +50,7 @@
 #include <QMenu>
 #include <QApplication>
 #include <QTimer>
-
+#include <QShortcut>
 #include <QQuickItem>
 
 enum {
@@ -87,14 +89,6 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
         highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
     m_itemsView->rootContext()->setContextProperty(QStringLiteral("highlightColor"), highlightColor);
 
-    // loading the qml has to come after all needed context properties are set
-    m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
-
-    QQuickItem *rootItem = qobject_cast<QQuickItem*>(m_itemsView->rootObject());
-    connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
-    connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDropDelayed(int)));
-    connect(this, SIGNAL(scrollItemsView(QVariant)), rootItem, SLOT(scrollView(QVariant)));
-    connect(this, SIGNAL(resetItemsView()), rootItem, SLOT(resetView()));
 
     /* create Resources view and its model */
     m_resourcesFileSystemModel = new QFileSystemModel(this);
@@ -155,6 +149,12 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     /* style sheets */
     setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
     m_resourcesView->setStyleSheet(QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
+
+    m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5), this);
+    connect(m_qmlSourceUpdateShortcut, SIGNAL(activated()), this, SLOT(reloadQmlSource()));
+
+    // init the first load of the QML UI elements
+    reloadQmlSource();
 }
 
 void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
@@ -293,6 +293,26 @@ void ItemLibraryWidget::setCurrentIndexOfStackedWidget(int index)
         m_filterLineEdit->setVisible(true);
 
     m_stackedWidget->setCurrentIndex(index);
+}
+
+QString ItemLibraryWidget::qmlSourcesPath()
+{
+    return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/itemLibraryQmlSources");
+}
+
+void ItemLibraryWidget::reloadQmlSource()
+{
+    QString itemLibraryQmlFilePath = qmlSourcesPath() + QStringLiteral("/ItemsView.qml");
+    QTC_ASSERT(QFileInfo::exists(itemLibraryQmlFilePath), return);
+    m_itemsView->engine()->clearComponentCache();
+    m_itemsView->setSource(QUrl::fromLocalFile(itemLibraryQmlFilePath));
+
+    QQuickItem *rootItem = qobject_cast<QQuickItem*>(m_itemsView->rootObject());
+    connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
+    connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDropDelayed(int)));
+    connect(this, SIGNAL(scrollItemsView(QVariant)), rootItem, SLOT(scrollView(QVariant)));
+    connect(this, SIGNAL(resetItemsView()), rootItem, SLOT(resetView()));
+
 }
 
 void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
