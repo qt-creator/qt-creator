@@ -129,6 +129,7 @@ static const char pp_configuration[] =
     // ### add macros for win32
     "#define __cdecl\n"
     "#define __stdcall\n"
+    "#define __thiscall\n"
     "#define QT_WA(x) x\n"
     "#define CALLBACK\n"
     "#define STDMETHODCALLTYPE\n"
