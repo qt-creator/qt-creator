@@ -1078,6 +1078,9 @@ static bool isCrashingType(QQmlType *type)
     if (type) {
         if (type->qmlTypeName() == QStringLiteral("QtMultimedia/MediaPlayer"))
             return true;
+
+        if (type->qmlTypeName() == QStringLiteral("QtMultimedia/Audio"))
+            return true;
     }
 
     return false;
