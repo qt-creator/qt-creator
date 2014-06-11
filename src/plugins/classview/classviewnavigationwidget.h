@@ -30,9 +30,13 @@
 #ifndef CLASSVIEWNAVIGATIONWIDGET_H
 #define CLASSVIEWNAVIGATIONWIDGET_H
 
+#include "classviewtreeitemmodel.h"
+#include "ui_classviewnavigationwidget.h"
+
 #include <QList>
 #include <QSharedPointer>
 
+#include <QPointer>
 #include <QStandardItem>
 #include <QToolButton>
 #include <QWidget>
@@ -82,8 +86,9 @@ protected:
     void showEvent(QShowEvent *event);
 
 private:
-    //! Private class data pointer
-    NavigationWidgetPrivate *d;
+    Ui::NavigationWidget *ui;
+    TreeItemModel *treeModel;
+    QPointer<QToolButton> fullProjectsModeButton;
 };
 
 } // namespace Internal
