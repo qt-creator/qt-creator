@@ -41,7 +41,6 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/flowlayout.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -57,6 +56,9 @@
 
 Q_DECLARE_METATYPE(QStringList)
 Q_DECLARE_METATYPE(Core::IFindFilter*)
+
+static const int MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT = 150;
+static const int FINDBUTTON_SPACER_WIDTH = 20;
 
 using namespace Core;
 using namespace Core::Internal;
@@ -80,12 +82,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.setupUi(this);
     // compensate for a vertically expanding spacer below the label
     m_ui.replaceLabel->setMinimumHeight(m_ui.replaceEdit->sizeHint().height());
-    delete m_ui.replaceButtonsWidget->layout();
-    Utils::FlowLayout *flowlayout = new Utils::FlowLayout(m_ui.replaceButtonsWidget, 0, 3, 3);
-    flowlayout->addWidget(m_ui.replaceButton);
-    flowlayout->addWidget(m_ui.replaceNextButton);
-    flowlayout->addWidget(m_ui.replaceAllButton);
-    m_ui.replaceButtonsWidget->setLayout(flowlayout);
+    m_ui.mainLayout->setColumnStretch(1, 10);
+
     setFocusProxy(m_ui.findEdit);
     setProperty("topBorder", true);
     setSingleRow(false);
@@ -345,6 +343,7 @@ void FindToolBar::updateToolBar()
 {
     bool enabled = m_currentDocumentFind->isEnabled();
     bool replaceEnabled = enabled && m_currentDocumentFind->supportsReplace();
+    bool showAllControls = canShowAllControls(replaceEnabled);
 
     m_goToCurrentFindAction->setEnabled(enabled);
 
@@ -361,15 +360,25 @@ void FindToolBar::updateToolBar()
     m_regularExpressionAction->setEnabled(enabled);
     m_preserveCaseAction->setEnabled(replaceEnabled && !hasFindFlag(FindRegularExpression));
     bool replaceFocus = m_ui.replaceEdit->hasFocus();
-    m_ui.findEdit->setEnabled(enabled);
-    m_ui.findLabel->setEnabled(enabled);
 
-    m_ui.replaceEdit->setEnabled(replaceEnabled);
+    m_ui.findLabel->setEnabled(enabled);
+    m_ui.findLabel->setVisible(showAllControls);
+    m_ui.findEdit->setEnabled(enabled);
+    m_ui.findEdit->setPlaceholderText(showAllControls ? QString() : tr("Search for..."));
+    m_ui.findPreviousButton->setVisible(showAllControls);
+    m_ui.findNextButton->setVisible(showAllControls);
+    m_ui.horizontalSpacer->changeSize((showAllControls ? FINDBUTTON_SPACER_WIDTH : 0), 0,
+                                      QSizePolicy::Expanding, QSizePolicy::Ignored);
+    m_ui.findButtonLayout->invalidate(); // apply spacer change
+
     m_ui.replaceLabel->setEnabled(replaceEnabled);
+    m_ui.replaceLabel->setVisible(replaceEnabled && showAllControls);
+    m_ui.replaceEdit->setEnabled(replaceEnabled);
+    m_ui.replaceEdit->setPlaceholderText(showAllControls ? QString() : tr("Replace with..."));
     m_ui.replaceEdit->setVisible(replaceEnabled);
-    m_ui.replaceLabel->setVisible(replaceEnabled);
-    m_ui.replaceButtonsWidget->setVisible(replaceEnabled);
-    m_ui.advancedButton->setVisible(replaceEnabled);
+    m_ui.replaceButtonsWidget->setVisible(replaceEnabled && showAllControls);
+    m_ui.advancedButton->setVisible(replaceEnabled && showAllControls);
+
     layout()->invalidate();
 
     if (!replaceEnabled && enabled && replaceFocus)
@@ -636,6 +645,26 @@ bool FindToolBar::toolBarHasFocus() const
     return qApp->focusWidget() == focusWidget();
 }
 
+bool FindToolBar::canShowAllControls(bool replaceIsVisible) const
+{
+    int fullWidth = width();
+    int findFixedWidth = m_ui.findLabel->sizeHint().width()
+            + m_ui.findNextButton->sizeHint().width()
+            + m_ui.findPreviousButton->sizeHint().width()
+            + FINDBUTTON_SPACER_WIDTH
+            + m_ui.close->sizeHint().width();
+    if (fullWidth - findFixedWidth < MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT)
+        return false;
+    if (!replaceIsVisible)
+        return true;
+    int replaceFixedWidth = m_ui.replaceLabel->sizeHint().width()
+            + m_ui.replaceButton->sizeHint().width()
+            + m_ui.replaceNextButton->sizeHint().width()
+            + m_ui.replaceAllButton->sizeHint().width()
+            + m_ui.advancedButton->sizeHint().width();
+    return fullWidth - replaceFixedWidth >= MINIMUM_WIDTH_FOR_COMPLEX_LAYOUT;
+}
+
 void FindToolBar::openFind(bool focus)
 {
     setBackward(false);
@@ -700,6 +729,12 @@ bool FindToolBar::focusNextPrevChild(bool next)
     else
         return Utils::StyledBar::focusNextPrevChild(next);
     return true;
+}
+
+void FindToolBar::resizeEvent(QResizeEvent *event)
+{
+    Q_UNUSED(event)
+    QTimer::singleShot(0, this, SLOT(updateToolBar()));
 }
 
 void FindToolBar::writeSettings()

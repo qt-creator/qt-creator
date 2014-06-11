@@ -123,6 +123,7 @@ private slots:
 
 protected:
     bool focusNextPrevChild(bool next);
+    void resizeEvent(QResizeEvent *event);
 
 private:
     void installEventFilters();
@@ -132,6 +133,7 @@ private:
     FindFlags effectiveFindFlags();
     Core::FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
     bool toolBarHasFocus() const;
+    bool canShowAllControls(bool replaceIsVisible) const;
 
     bool eventFilter(QObject *obj, QEvent *event);
     void setFindText(const QString &text);
