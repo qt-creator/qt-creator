@@ -95,34 +95,38 @@ QString BindingProperty::expression() const
 
 static ModelNode resolveBinding(const QString &binding, ModelNode currentNode, AbstractView* view)
 {
-    int i = 0;
+    int index = 0;
     QString element = binding.split(QLatin1Char('.')).at(0);
     while (!element.isEmpty())
     {
-        if (element == "parent") {
-            if (currentNode.hasParentProperty())
-                currentNode = currentNode.parentProperty().toNodeAbstractProperty().parentModelNode();
-            else
-                return ModelNode(); //binding not valid
-        } else if (currentNode.hasProperty(element.toUtf8())) {
-            if (currentNode.property(element.toUtf8()).isNodeProperty())
-                currentNode = currentNode.nodeProperty(element.toUtf8()).modelNode();
-            else if (view->hasId(element))
+        if (currentNode.isValid()) {
+            if (element == "parent") {
+                if (currentNode.hasParentProperty())
+                    currentNode = currentNode.parentProperty().toNodeAbstractProperty().parentModelNode();
+                else
+                    return ModelNode(); //binding not valid
+            } else if (currentNode.hasProperty(element.toUtf8())) {
+                if (currentNode.property(element.toUtf8()).isNodeProperty())
+                    currentNode = currentNode.nodeProperty(element.toUtf8()).modelNode();
+                else if (view->hasId(element))
+                    currentNode = view->modelNodeForId(element); //id
+                else
+                    return ModelNode(); //binding not valid
+
+            } else {
                 currentNode = view->modelNodeForId(element); //id
+            }
+            index++;
+            if (index < binding.split(QLatin1Char('.')).count())
+                element = binding.split(QLatin1Char('.')).at(index);
             else
-                return ModelNode(); //binding not valid
+                element.clear();
 
         } else {
-            currentNode = view->modelNodeForId(element); //id
+            return ModelNode();
         }
-        i++;
-        if (i < binding.split(QLatin1Char('.')).count())
-            element = binding.split(QLatin1Char('.')).at(i);
-        else
-            element.clear();
     }
     return currentNode;
-
 }
 
 ModelNode BindingProperty::resolveToModelNode() const
