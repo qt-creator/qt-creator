@@ -50,6 +50,10 @@ public:
     QString name;
     QmlProfilerModelManager *modelManager;
     int modelId;
+    bool expanded;
+    QString title;
+    QmlDebug::Message message;
+    QmlDebug::RangeType rangeType;
 
 protected:
     AbstractTimelineModel *q_ptr;

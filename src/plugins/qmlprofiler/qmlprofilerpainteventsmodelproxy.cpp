@@ -31,7 +31,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
 #include "sortedtimelinemodel.h"
-#include "singlecategorytimelinemodel_p.h"
+#include "abstracttimelinemodel_p.h"
 #include <utils/qtcassert.h>
 #include <QCoreApplication>
 
@@ -48,7 +48,7 @@ namespace Internal {
 
 class PaintEventsModelProxy::PaintEventsModelProxyPrivate :
         public SortedTimelineModel<QmlPaintEventData,
-                                   SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
+                                   AbstractTimelineModel::AbstractTimelineModelPrivate>
 {
 public:
 
@@ -61,7 +61,7 @@ private:
 };
 
 PaintEventsModelProxy::PaintEventsModelProxy(QObject *parent)
-    : SingleCategoryTimelineModel(new PaintEventsModelProxyPrivate,
+    : AbstractTimelineModel(new PaintEventsModelProxyPrivate,
                                   QLatin1String("PaintEventsModelProxy"), tr("Painting"),
                                   QmlDebug::Event, QmlDebug::MaximumRangeType, parent)
 {
@@ -83,7 +83,7 @@ void PaintEventsModelProxy::clear()
 
 bool PaintEventsModelProxy::eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const
 {
-    return SingleCategoryTimelineModel::eventAccepted(event) &&
+    return AbstractTimelineModel::eventAccepted(event) &&
             event.detailType== QmlDebug::AnimationFrame;
 }
 

@@ -32,8 +32,10 @@
 
 namespace QmlProfiler {
 
-AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &name,
-                                             QObject *parent) :
+
+AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd,
+        const QString &name, const QString &label, QmlDebug::Message message,
+        QmlDebug::RangeType rangeType, QObject *parent) :
     QObject(parent), d_ptr(dd)
 {
     Q_D(AbstractTimelineModel);
@@ -41,6 +43,10 @@ AbstractTimelineModel::AbstractTimelineModel(AbstractTimelineModelPrivate *dd, c
     d->name = name;
     d->modelId = 0;
     d->modelManager = 0;
+    d->expanded = false;
+    d->title = label;
+    d->message = message;
+    d->rangeType = rangeType;
 }
 
 AbstractTimelineModel::~AbstractTimelineModel()
@@ -193,5 +199,31 @@ void AbstractTimelineModel::dataChanged()
     emit expandedChanged();
 }
 
+bool AbstractTimelineModel::eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const
+{
+    Q_D(const AbstractTimelineModel);
+    return (event.rangeType == d->rangeType && event.message == d->message);
+}
+
+bool AbstractTimelineModel::expanded() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->expanded;
+}
+
+void AbstractTimelineModel::setExpanded(bool expanded)
+{
+    Q_D(AbstractTimelineModel);
+    if (expanded != d->expanded) {
+        d->expanded = expanded;
+        emit expandedChanged();
+    }
+}
+
+const QString AbstractTimelineModel::title() const
+{
+    Q_D(const AbstractTimelineModel);
+    return d->title;
+}
 
 }

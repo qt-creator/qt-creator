@@ -32,7 +32,7 @@
 #define QMLPROFILERPAINTEVENTSMODELPROXY_H
 
 #include <QObject>
-#include "singlecategorytimelinemodel.h"
+#include "abstracttimelinemodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <qmldebug/qmlprofilereventlocation.h>
 //#include <QHash>
@@ -48,7 +48,7 @@ class QmlProfilerModelManager;
 
 namespace Internal {
 
-class PaintEventsModelProxy : public SingleCategoryTimelineModel
+class PaintEventsModelProxy : public AbstractTimelineModel
 {
     Q_OBJECT
 public:

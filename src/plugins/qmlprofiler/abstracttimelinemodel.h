@@ -66,12 +66,13 @@ public:
     int findFirstIndexNoParents(qint64 startTime) const;
     int findLastIndex(qint64 endTime) const;
     int count() const;
+    bool eventAccepted(const QmlProfilerDataModel::QmlEventData &event) const;
+    bool expanded() const;
+    void setExpanded(bool expanded);
+    const QString title() const;
 
     // Methods that have to be implemented by child models
-    virtual bool expanded() const = 0;
-    virtual void setExpanded(bool expanded) = 0;
     virtual int rowCount() const = 0;
-    virtual const QString title() const = 0;
     Q_INVOKABLE virtual int getEventId(int index) const = 0;
     Q_INVOKABLE virtual QColor getColor(int index) const = 0;
     virtual const QVariantList getLabels() const = 0;
@@ -119,7 +120,8 @@ protected:
     }
 
     explicit AbstractTimelineModel(AbstractTimelineModelPrivate *dd, const QString &name,
-                                   QObject *parent = 0);
+                                   const QString &label, QmlDebug::Message message,
+                                   QmlDebug::RangeType rangeType, QObject *parent);
     AbstractTimelineModelPrivate *d_ptr;
 
 protected slots:

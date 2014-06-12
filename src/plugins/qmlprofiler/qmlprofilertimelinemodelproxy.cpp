@@ -31,7 +31,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerdatamodel.h"
 #include "sortedtimelinemodel.h"
-#include "singlecategorytimelinemodel_p.h"
+#include "abstracttimelinemodel_p.h"
 
 #include <QCoreApplication>
 #include <QVector>
@@ -47,7 +47,7 @@ namespace Internal {
 
 class RangeTimelineModel::RangeTimelineModelPrivate :
         public SortedTimelineModel<RangeTimelineModel::QmlRangeEventStartInstance,
-                                   SingleCategoryTimelineModel::SingleCategoryTimelineModelPrivate>
+                                   AbstractTimelineModel::AbstractTimelineModelPrivate>
 {
 public:
     // convenience functions
@@ -65,7 +65,7 @@ private:
 };
 
 RangeTimelineModel::RangeTimelineModel(QmlDebug::RangeType rangeType, QObject *parent)
-    : SingleCategoryTimelineModel(new RangeTimelineModelPrivate,
+    : AbstractTimelineModel(new RangeTimelineModelPrivate,
                                   QLatin1String("RangeTimelineModel"), categoryLabel(rangeType),
                                   QmlDebug::MaximumMessage, rangeType, parent)
 {

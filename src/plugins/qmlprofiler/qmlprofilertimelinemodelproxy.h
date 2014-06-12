@@ -31,7 +31,7 @@
 #ifndef QMLPROFILERTIMELINEMODELPROXY_H
 #define QMLPROFILERTIMELINEMODELPROXY_H
 
-#include "singlecategorytimelinemodel.h"
+#include "abstracttimelinemodel.h"
 #include <qmldebug/qmlprofilereventtypes.h>
 #include <qmldebug/qmlprofilereventlocation.h>
 #include <QVariantList>
@@ -43,7 +43,7 @@ class QmlProfilerModelManager;
 
 namespace Internal {
 
-class RangeTimelineModel : public SingleCategoryTimelineModel
+class RangeTimelineModel : public AbstractTimelineModel
 {
     Q_OBJECT
 public:

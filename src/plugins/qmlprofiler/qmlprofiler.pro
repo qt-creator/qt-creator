@@ -31,7 +31,6 @@ SOURCES += \
     qmlprofilerpainteventsmodelproxy.cpp \
     sortedtimelinemodel.cpp \
     qmlprofilerbasemodel.cpp \
-    singlecategorytimelinemodel.cpp \
     qmlprofilerdatamodel.cpp
 
 HEADERS += \
@@ -65,8 +64,6 @@ HEADERS += \
     sortedtimelinemodel.h \
     qmlprofilerbasemodel.h \
     abstracttimelinemodel_p.h \
-    singlecategorytimelinemodel.h \
-    singlecategorytimelinemodel_p.h \
     qmlprofilerdatamodel.h \
     qmlprofilerbasemodel_p.h
 
