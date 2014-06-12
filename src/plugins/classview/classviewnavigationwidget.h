@@ -32,16 +32,14 @@
 
 #include "classviewtreeitemmodel.h"
 
-#include <utils/navigationtreeview.h>
-
 #include <QList>
-#include <QSharedPointer>
-
 #include <QPointer>
+#include <QSharedPointer>
 #include <QStandardItem>
 #include <QToolButton>
-#include <QVBoxLayout>
 #include <QWidget>
+
+namespace Utils { class NavigationTreeView; }
 
 namespace ClassView {
 namespace Internal {

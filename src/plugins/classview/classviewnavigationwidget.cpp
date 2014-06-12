@@ -34,9 +34,11 @@
 #include "classviewutils.h"
 #include "classviewconstants.h"
 
+#include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QVBoxLayout>
 
 enum { debug = false };
 
